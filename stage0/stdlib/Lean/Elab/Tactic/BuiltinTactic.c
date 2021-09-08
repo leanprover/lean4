@@ -15762,19 +15762,17 @@ x_15 = lean_nat_dec_eq(x_2, x_14);
 lean_dec(x_14);
 if (x_15 == 0)
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
+lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_16 = l_Lean_instInhabitedSyntax;
 x_17 = lean_array_get(x_16, x_1, x_2);
 x_18 = l_Lean_Syntax_getArg(x_17, x_13);
 lean_dec(x_17);
-x_19 = lean_nat_add(x_2, x_13);
-lean_dec(x_2);
-x_20 = l_Lean_Elab_Tactic_saveState___rarg(x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-x_21 = lean_ctor_get(x_20, 0);
+x_19 = l_Lean_Elab_Tactic_saveState___rarg(x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+x_20 = lean_ctor_get(x_19, 0);
+lean_inc(x_20);
+x_21 = lean_ctor_get(x_19, 1);
 lean_inc(x_21);
-x_22 = lean_ctor_get(x_20, 1);
-lean_inc(x_22);
-lean_dec(x_20);
+lean_dec(x_19);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -15783,11 +15781,10 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
-x_23 = l_Lean_Elab_Tactic_evalTacticAux(x_18, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_22);
-if (lean_obj_tag(x_23) == 0)
+x_22 = l_Lean_Elab_Tactic_evalTacticAux(x_18, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_21);
+if (lean_obj_tag(x_22) == 0)
 {
-lean_dec(x_21);
-lean_dec(x_19);
+lean_dec(x_20);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -15796,20 +15793,23 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-return x_23;
+lean_dec(x_2);
+return x_22;
 }
 else
 {
-lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_24 = lean_ctor_get(x_23, 1);
-lean_inc(x_24);
-lean_dec(x_23);
-x_25 = l_Lean_Elab_Tactic_SavedState_restore(x_21, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_24);
-x_26 = lean_ctor_get(x_25, 1);
-lean_inc(x_26);
-lean_dec(x_25);
-x_2 = x_19;
-x_11 = x_26;
+lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+x_23 = lean_ctor_get(x_22, 1);
+lean_inc(x_23);
+lean_dec(x_22);
+x_24 = l_Lean_Elab_Tactic_SavedState_restore(x_20, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_23);
+x_25 = lean_ctor_get(x_24, 1);
+lean_inc(x_25);
+lean_dec(x_24);
+x_26 = lean_nat_add(x_2, x_13);
+lean_dec(x_2);
+x_2 = x_26;
+x_11 = x_25;
 goto _start;
 }
 }

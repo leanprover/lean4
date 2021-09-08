@@ -1,4 +1,3 @@
-
 /-
 Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
@@ -24,28 +23,28 @@ instance (α : Type) : Inhabited (Parsec α) :=
   ⟨λ it => error it ""⟩
 
 @[inline]
-protected def pure (a : α) : Parsec α := λ it => 
- success it a 
- 
+protected def pure (a : α) : Parsec α := λ it =>
+ success it a
+
 @[inline]
 def bind {α β : Type} (f : Parsec α) (g : α → Parsec β) : Parsec β := λ it =>
   match f it with
   | success rem a => g a rem
   | error pos msg => error pos msg
-  
+
 instance : Monad Parsec :=
   { pure := Parsec.pure, bind }
-  
+
 @[inline]
 def fail (msg : String) : Parsec α := fun it =>
   error it msg
 
 @[inline]
-def orElse (p q : Parsec α) : Parsec α := fun it =>
+def orElse (p : Parsec α) (q : Unit → Parsec α) : Parsec α := fun it =>
   match p it with
   | success rem a => success rem a
-  | error rem err => 
-    if it = rem then q it else error rem err
+  | error rem err =>
+    if it = rem then q () it else error rem err
 
 @[inline]
 def attempt (p : Parsec α) : Parsec α := λ it =>
@@ -66,7 +65,7 @@ def eof : Parsec Unit := fun it =>
     success it ()
 
 @[inline]
-partial def manyCore (p : Parsec α) (acc : Array α) : Parsec $ Array α := 
+partial def manyCore (p : Parsec α) (acc : Array α) : Parsec $ Array α :=
   (do manyCore p (acc.push $ ←p))
   <|> pure acc
 
@@ -81,16 +80,16 @@ partial def manyCharsCore (p : Parsec Char) (acc : String) : Parsec String :=
   (do manyCharsCore p (acc.push $ ←p))
   <|> pure acc
 
-@[inline] 
-def manyChars (p : Parsec Char) : Parsec String := manyCharsCore p "" 
+@[inline]
+def manyChars (p : Parsec Char) : Parsec String := manyCharsCore p ""
 
-@[inline] 
-def many1Chars (p : Parsec Char) : Parsec String := do manyCharsCore p (←p).toString 
+@[inline]
+def many1Chars (p : Parsec Char) : Parsec String := do manyCharsCore p (←p).toString
 
-def pstring (s : String) : Parsec String := λ it => 
-  let substr := it.extract (it.forward s.length) 
+def pstring (s : String) : Parsec String := λ it =>
+  let substr := it.extract (it.forward s.length)
   if substr = s then
-    success (it.forward s.length) substr 
+    success (it.forward s.length) substr
   else
     error it s!"expected: {s}"
 
@@ -118,8 +117,8 @@ def digit : Parsec Char := attempt do
 @[inline]
 def hexDigit : Parsec Char := attempt do
   let c ← anyChar
-  if ('0' ≤ c ∧ c ≤ '9') 
-   ∨ ('a' ≤ c ∧ c ≤ 'a') 
+  if ('0' ≤ c ∧ c ≤ '9')
+   ∨ ('a' ≤ c ∧ c ≤ 'a')
    ∨ ('A' ≤ c ∧ c ≤ 'A') then c else fail s!"hex digit expected"
 
 @[inline]
@@ -131,9 +130,9 @@ def asciiLetter : Parsec Char := attempt do
 def satisfy (p : Char → Bool) : Parsec Char := attempt do
   let c ← anyChar
   if p c then c else fail "condition not satisfied"
-  
+
 @[inline]
-def notFollowedBy (p : Parsec α) : Parsec Unit := λ it => 
+def notFollowedBy (p : Parsec α) : Parsec Unit := λ it =>
   match p it with
   | success _ _ => error it ""
   | error _ _ => success it ()

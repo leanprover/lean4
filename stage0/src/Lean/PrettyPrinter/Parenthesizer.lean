@@ -103,13 +103,13 @@ end Parenthesizer
 abbrev ParenthesizerM := ReaderT Parenthesizer.Context $ StateRefT Parenthesizer.State CoreM
 abbrev Parenthesizer := ParenthesizerM Unit
 
-@[inline] def ParenthesizerM.orelse {α} (p₁ p₂ : ParenthesizerM α) : ParenthesizerM α := do
+@[inline] def ParenthesizerM.orElse (p₁ : ParenthesizerM α) (p₂ : Unit → ParenthesizerM α) : ParenthesizerM α := do
   let s ← get
   catchInternalId backtrackExceptionId
     p₁
-    (fun _ => do set s; p₂)
+    (fun _ => do set s; p₂ ())
 
-instance {α} : OrElse (ParenthesizerM α) := ⟨ParenthesizerM.orelse⟩
+instance : OrElse (ParenthesizerM α) := ⟨ParenthesizerM.orElse⟩
 
 unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
   KeyedDeclsAttribute.init {

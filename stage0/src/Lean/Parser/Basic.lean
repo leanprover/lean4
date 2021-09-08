@@ -535,7 +535,8 @@ def orelseFnCore (p q : ParserFn) (mergeErrors : Bool) : ParserFn := fun c s =>
   fn   := orelseFn p.fn q.fn
 }
 
-instance : OrElse Parser := ⟨orelse⟩
+instance : OrElse Parser where
+  orElse a b := orelse a (b ())
 
 @[noinline] def noFirstTokenInfo (info : ParserInfo) : ParserInfo := {
   collectTokens := info.collectTokens,

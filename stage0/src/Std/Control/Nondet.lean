@@ -48,19 +48,19 @@ unsafe def ofList [Monad m] : List α → m (Alts m α)
   | a::as => pure $ Alts.cons a (toAltsCore (ofList as))
 
 mutual
-unsafe def append' [Monad m] : Alts m α → m (Alts m α) → m (Alts m α)
-  | nil,          bs => bs
+unsafe def append' [Monad m] : Alts m α → (Unit → m (Alts m α)) → m (Alts m α)
+  | nil,          bs => bs ()
   | cons a as,    bs => pure $ delayed $ Thunk.mk fun _ => toAltsCore $ pure $ cons a $ toAltsCore $ append (ofAltsCore as) bs
   | delayed as,   bs => pure $ delayed $ Thunk.mk fun _ => toAltsCore $ append (ofAltsCore as.get) bs
 
-unsafe def append [Monad m] (xs ys : m (Alts m α)) : m (Alts m α) := do
+unsafe def append [Monad m] (xs : m (Alts m α)) (ys : Unit → m (Alts m α)) : m (Alts m α) := do
   append' (← xs) ys
 end
 
 mutual
 unsafe def join' [Monad m] : Alts m (m (Alts m α)) → m (Alts m α)
   | nil        => pure nil
-  | cons x xs  => pure $ delayed $ Thunk.mk fun _ => toAltsCore $ append x $ join $ ofAltsCore xs
+  | cons x xs  => pure $ delayed $ Thunk.mk fun _ => toAltsCore $ append x fun _ =>join $ ofAltsCore xs
   | delayed xs => pure $ delayed $ Thunk.mk fun _ => toAltsCore (α := α) $ join (ofAltsCore xs.get)
 
 unsafe def join [Monad m] (xs : m (Alts m (m (Alts m α)))) : m (Alts m α) := do
@@ -93,11 +93,11 @@ instance [Pure m] : Inhabited (NondetT m α) where
   default := (pure Alts.nil : m (Alts m α))
 
 @[inline]
-unsafe def appendUnsafe [Monad m] (x y : NondetT m α) : NondetT m α :=
+unsafe def appendUnsafe [Monad m] (x : NondetT m α) (y : Unit → NondetT m α) : NondetT m α :=
   Alts.append x y
 
 @[implementedBy appendUnsafe]
-protected constant append [Monad m] (x y : NondetT m α) : NondetT m α
+protected constant append [Monad m] (x : NondetT m α) (y : Unit → NondetT m α) : NondetT m α
 
 @[inline]
 unsafe def joinUnsafe [Monad m] (x : NondetT m (NondetT m α)) : NondetT m α :=

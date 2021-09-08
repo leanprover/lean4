@@ -27,6 +27,7 @@ lean_object* l_Std_NondetT_chooseImp___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__10___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_append_x27___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map___at_Std_NondetT_instMonadNondetT___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_run_x27(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_run_x27_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -39,6 +40,7 @@ lean_object* l_Std_NondetT_instChooseNondetT___rarg(lean_object*, lean_object*, 
 lean_object* l_Std_NondetT_Alts_ofList___rarg(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_runUnsafe(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_join_x27_match__1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_NondetT_Alts_append___at_Std_NondetT_Alts_join_x27___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map___at_Std_NondetT_instMonadNondetT___spec__5(lean_object*);
 lean_object* l_Std_NondetT_instAlternativeNondetT___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_instAlternativeNondetT(lean_object*);
@@ -47,13 +49,16 @@ lean_object* l_Std_NondetT_instMonadLiftNondetT___rarg(lean_object*, lean_object
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__8___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__4___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map___at_Std_NondetT_instMonadNondetT___spec__3(lean_object*);
+lean_object* l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__6___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map___at_Std_NondetT_instMonadNondetT___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_NondetT_Alts_append___at_Std_NondetT_Alts_join_x27___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_instMonadNondetT___rarg___lambda__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_join___rarg(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__8___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_chooseUnsafe___rarg___boxed(lean_object*, lean_object*);
+lean_object* l_Std_NondetT_Alts_append___at_Std_NondetT_Alts_join_x27___spec__1(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_lift___rarg(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_ofList_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_mapUnsafe___rarg(lean_object*, lean_object*, lean_object*);
@@ -72,13 +77,13 @@ lean_object* l_Std_NondetT_Alts_ofList___rarg___boxed(lean_object*, lean_object*
 lean_object* l_Std_NondetT_liftUnsafe___rarg(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_ofAltsCore(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_mapUnsafe(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_runUnsafe___rarg(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__4(lean_object*);
 lean_object* l_Std_NondetT_run_x27_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__10___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_append___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_pure(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_instChooseNondetT___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -116,16 +121,18 @@ lean_object* l_Std_NondetT_Alts_toAltsCore___rarg(lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__8(lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__4___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_ofAltsCore___rarg(lean_object*);
-lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_join___rarg(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__10___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_lift___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_instMonadNondetT___rarg___lambda__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_instAlternativeNondetT___rarg(lean_object*);
 lean_object* l_Std_NondetT_join(lean_object*, lean_object*);
+lean_object* l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_instMonadNondetT___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_append_x27___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_instChoose(lean_object*, lean_object*);
+lean_object* l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__2___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_append(lean_object*, lean_object*);
@@ -136,6 +143,7 @@ lean_object* l_Std_NondetT_appendUnsafe___rarg(lean_object*, lean_object*, lean_
 lean_object* l_Std_NondetT_chooseImp___rarg(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__2___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map___at_Std_NondetT_instMonadNondetT___spec__1(lean_object*);
+lean_object* l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_runUnsafe___rarg(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map___at_Std_NondetT_instMonadNondetT___spec__9(lean_object*);
 lean_object* l_Std_NondetT_Alts_join(lean_object*, lean_object*);
@@ -150,6 +158,7 @@ lean_object* l_Std_NondetT_appendUnsafe(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_map(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_failure(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__2___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_join_x27___rarg(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec__8___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -157,6 +166,7 @@ lean_object* l_Std_NondetT_Alts_map_x27___at_Std_NondetT_instMonadNondetT___spec
 lean_object* l_Std_NondetT_Alts_append___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_instMonadNondetT___rarg___lambda__4(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_instMonadNondetT___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_failure___rarg(lean_object*);
 lean_object* lean_thunk_get_own(lean_object*);
 lean_object* l_Std_NondetT_Alts_append_x27___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -167,6 +177,7 @@ lean_object* l_Std_NondetT_Alts_map_x27___rarg___lambda__2___boxed(lean_object*,
 lean_object* l_Std_NondetT_instChooseNondetT(lean_object*);
 lean_object* l_Std_NondetT_Alts_map___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map_x27___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_NondetT_lift(lean_object*, lean_object*);
 lean_object* l_Std_NondetT_Alts_map___at_Std_NondetT_instMonadNondetT___spec__7(lean_object*);
 lean_object* l_Std_NondetT_instInhabitedNondetT___rarg(lean_object*);
@@ -503,77 +514,80 @@ _start:
 switch (lean_obj_tag(x_2)) {
 case 0:
 {
+lean_object* x_4; lean_object* x_5; 
 lean_dec(x_1);
-return x_3;
+x_4 = lean_box(0);
+x_5 = lean_apply_1(x_3, x_4);
+return x_5;
 }
 case 1:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_4 = lean_ctor_get(x_2, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_2, 1);
-lean_inc(x_5);
-lean_dec(x_2);
-x_6 = lean_ctor_get(x_1, 0);
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
-x_7 = lean_ctor_get(x_6, 1);
+x_7 = lean_ctor_get(x_2, 1);
 lean_inc(x_7);
-lean_dec(x_6);
-lean_inc(x_7);
-x_8 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_append_x27___rarg___lambda__1___boxed), 6, 5);
-lean_closure_set(x_8, 0, x_5);
-lean_closure_set(x_8, 1, x_1);
-lean_closure_set(x_8, 2, x_3);
-lean_closure_set(x_8, 3, x_4);
-lean_closure_set(x_8, 4, x_7);
-x_9 = lean_mk_thunk(x_8);
-x_10 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_10, 0, x_9);
-x_11 = lean_apply_2(x_7, lean_box(0), x_10);
-return x_11;
+lean_dec(x_2);
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_8, 1);
+lean_inc(x_9);
+lean_dec(x_8);
+lean_inc(x_9);
+x_10 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_append_x27___rarg___lambda__1___boxed), 6, 5);
+lean_closure_set(x_10, 0, x_7);
+lean_closure_set(x_10, 1, x_1);
+lean_closure_set(x_10, 2, x_3);
+lean_closure_set(x_10, 3, x_6);
+lean_closure_set(x_10, 4, x_9);
+x_11 = lean_mk_thunk(x_10);
+x_12 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_12, 0, x_11);
+x_13 = lean_apply_2(x_9, lean_box(0), x_12);
+return x_13;
 }
 default: 
 {
-uint8_t x_12; 
-x_12 = !lean_is_exclusive(x_2);
-if (x_12 == 0)
+uint8_t x_14; 
+x_14 = !lean_is_exclusive(x_2);
+if (x_14 == 0)
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_13 = lean_ctor_get(x_2, 0);
-x_14 = lean_ctor_get(x_1, 0);
-lean_inc(x_14);
-x_15 = lean_ctor_get(x_14, 1);
-lean_inc(x_15);
-lean_dec(x_14);
-x_16 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_append_x27___rarg___lambda__2___boxed), 4, 3);
-lean_closure_set(x_16, 0, x_13);
-lean_closure_set(x_16, 1, x_1);
-lean_closure_set(x_16, 2, x_3);
-x_17 = lean_mk_thunk(x_16);
-lean_ctor_set(x_2, 0, x_17);
-x_18 = lean_apply_2(x_15, lean_box(0), x_2);
-return x_18;
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+x_15 = lean_ctor_get(x_2, 0);
+x_16 = lean_ctor_get(x_1, 0);
+lean_inc(x_16);
+x_17 = lean_ctor_get(x_16, 1);
+lean_inc(x_17);
+lean_dec(x_16);
+x_18 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_append_x27___rarg___lambda__2___boxed), 4, 3);
+lean_closure_set(x_18, 0, x_15);
+lean_closure_set(x_18, 1, x_1);
+lean_closure_set(x_18, 2, x_3);
+x_19 = lean_mk_thunk(x_18);
+lean_ctor_set(x_2, 0, x_19);
+x_20 = lean_apply_2(x_17, lean_box(0), x_2);
+return x_20;
 }
 else
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_19 = lean_ctor_get(x_2, 0);
-lean_inc(x_19);
-lean_dec(x_2);
-x_20 = lean_ctor_get(x_1, 0);
-lean_inc(x_20);
-x_21 = lean_ctor_get(x_20, 1);
+lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+x_21 = lean_ctor_get(x_2, 0);
 lean_inc(x_21);
-lean_dec(x_20);
-x_22 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_append_x27___rarg___lambda__2___boxed), 4, 3);
-lean_closure_set(x_22, 0, x_19);
-lean_closure_set(x_22, 1, x_1);
-lean_closure_set(x_22, 2, x_3);
-x_23 = lean_mk_thunk(x_22);
-x_24 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_24, 0, x_23);
-x_25 = lean_apply_2(x_21, lean_box(0), x_24);
-return x_25;
+lean_dec(x_2);
+x_22 = lean_ctor_get(x_1, 0);
+lean_inc(x_22);
+x_23 = lean_ctor_get(x_22, 1);
+lean_inc(x_23);
+lean_dec(x_22);
+x_24 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_append_x27___rarg___lambda__2___boxed), 4, 3);
+lean_closure_set(x_24, 0, x_21);
+lean_closure_set(x_24, 1, x_1);
+lean_closure_set(x_24, 2, x_3);
+x_25 = lean_mk_thunk(x_24);
+x_26 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_26, 0, x_25);
+x_27 = lean_apply_2(x_23, lean_box(0), x_26);
+return x_27;
 }
 }
 }
@@ -683,19 +697,177 @@ x_4 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_join_x27_match__1___rarg), 4
 return x_4;
 }
 }
-lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_7 = x_1;
+x_8 = l_Std_NondetT_Alts_append___at_Std_NondetT_Alts_join_x27___spec__1___rarg(x_2, x_7, x_3);
+x_9 = x_8;
+x_10 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_10, 0, x_4);
+lean_ctor_set(x_10, 1, x_9);
+x_11 = lean_apply_2(x_5, lean_box(0), x_10);
+x_12 = x_11;
+return x_12;
+}
+}
+lean_object* l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = x_1;
-lean_inc(x_2);
-x_6 = l_Std_NondetT_Alts_join___rarg(x_2, x_5);
-x_7 = l_Std_NondetT_Alts_append___rarg(x_2, x_3, x_6);
+x_5 = lean_thunk_get_own(x_1);
+x_6 = x_5;
+x_7 = l_Std_NondetT_Alts_append___at_Std_NondetT_Alts_join_x27___spec__1___rarg(x_2, x_6, x_3);
 x_8 = x_7;
 return x_8;
 }
 }
-lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+switch (lean_obj_tag(x_2)) {
+case 0:
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec(x_1);
+x_4 = lean_box(0);
+x_5 = lean_apply_1(x_3, x_4);
+return x_5;
+}
+case 1:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_6 = lean_ctor_get(x_2, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_2, 1);
+lean_inc(x_7);
+lean_dec(x_2);
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_8, 1);
+lean_inc(x_9);
+lean_dec(x_8);
+lean_inc(x_9);
+x_10 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2___rarg___lambda__1___boxed), 6, 5);
+lean_closure_set(x_10, 0, x_7);
+lean_closure_set(x_10, 1, x_1);
+lean_closure_set(x_10, 2, x_3);
+lean_closure_set(x_10, 3, x_6);
+lean_closure_set(x_10, 4, x_9);
+x_11 = lean_mk_thunk(x_10);
+x_12 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_12, 0, x_11);
+x_13 = lean_apply_2(x_9, lean_box(0), x_12);
+return x_13;
+}
+default: 
+{
+uint8_t x_14; 
+x_14 = !lean_is_exclusive(x_2);
+if (x_14 == 0)
+{
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+x_15 = lean_ctor_get(x_2, 0);
+x_16 = lean_ctor_get(x_1, 0);
+lean_inc(x_16);
+x_17 = lean_ctor_get(x_16, 1);
+lean_inc(x_17);
+lean_dec(x_16);
+x_18 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2___rarg___lambda__2___boxed), 4, 3);
+lean_closure_set(x_18, 0, x_15);
+lean_closure_set(x_18, 1, x_1);
+lean_closure_set(x_18, 2, x_3);
+x_19 = lean_mk_thunk(x_18);
+lean_ctor_set(x_2, 0, x_19);
+x_20 = lean_apply_2(x_17, lean_box(0), x_2);
+return x_20;
+}
+else
+{
+lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+x_21 = lean_ctor_get(x_2, 0);
+lean_inc(x_21);
+lean_dec(x_2);
+x_22 = lean_ctor_get(x_1, 0);
+lean_inc(x_22);
+x_23 = lean_ctor_get(x_22, 1);
+lean_inc(x_23);
+lean_dec(x_22);
+x_24 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2___rarg___lambda__2___boxed), 4, 3);
+lean_closure_set(x_24, 0, x_21);
+lean_closure_set(x_24, 1, x_1);
+lean_closure_set(x_24, 2, x_3);
+x_25 = lean_mk_thunk(x_24);
+x_26 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_26, 0, x_25);
+x_27 = lean_apply_2(x_23, lean_box(0), x_26);
+return x_27;
+}
+}
+}
+}
+}
+lean_object* l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2___rarg), 3, 0);
+return x_3;
+}
+}
+lean_object* l_Std_NondetT_Alts_append___at_Std_NondetT_Alts_join_x27___spec__1___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2___rarg(x_1, x_3, x_2);
+return x_4;
+}
+}
+lean_object* l_Std_NondetT_Alts_append___at_Std_NondetT_Alts_join_x27___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+x_5 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_append___at_Std_NondetT_Alts_join_x27___spec__1___rarg___lambda__1), 3, 2);
+lean_closure_set(x_5, 0, x_1);
+lean_closure_set(x_5, 1, x_3);
+x_6 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_2, x_5);
+return x_6;
+}
+}
+lean_object* l_Std_NondetT_Alts_append___at_Std_NondetT_Alts_join_x27___spec__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_append___at_Std_NondetT_Alts_join_x27___spec__1___rarg), 3, 0);
+return x_3;
+}
+}
+lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = x_1;
+x_5 = l_Std_NondetT_Alts_join___rarg(x_2, x_4);
+return x_5;
+}
+}
+lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_inc(x_2);
+x_5 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_join_x27___rarg___lambda__1___boxed), 3, 2);
+lean_closure_set(x_5, 0, x_1);
+lean_closure_set(x_5, 1, x_2);
+x_6 = l_Std_NondetT_Alts_append___at_Std_NondetT_Alts_join_x27___spec__1___rarg(x_2, x_3, x_5);
+x_7 = x_6;
+return x_7;
+}
+}
+lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -736,7 +908,7 @@ lean_inc(x_9);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
 lean_dec(x_9);
-x_11 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_join_x27___rarg___lambda__1___boxed), 4, 3);
+x_11 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_join_x27___rarg___lambda__2___boxed), 4, 3);
 lean_closure_set(x_11, 0, x_8);
 lean_closure_set(x_11, 1, x_1);
 lean_closure_set(x_11, 2, x_7);
@@ -759,7 +931,7 @@ lean_inc(x_17);
 x_18 = lean_ctor_get(x_17, 1);
 lean_inc(x_18);
 lean_dec(x_17);
-x_19 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_join_x27___rarg___lambda__2___boxed), 3, 2);
+x_19 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_join_x27___rarg___lambda__3___boxed), 3, 2);
 lean_closure_set(x_19, 0, x_16);
 lean_closure_set(x_19, 1, x_1);
 x_20 = lean_mk_thunk(x_19);
@@ -778,7 +950,7 @@ lean_inc(x_23);
 x_24 = lean_ctor_get(x_23, 1);
 lean_inc(x_24);
 lean_dec(x_23);
-x_25 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_join_x27___rarg___lambda__2___boxed), 3, 2);
+x_25 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_join_x27___rarg___lambda__3___boxed), 3, 2);
 lean_closure_set(x_25, 0, x_22);
 lean_closure_set(x_25, 1, x_1);
 x_26 = lean_mk_thunk(x_25);
@@ -819,20 +991,48 @@ x_3 = lean_alloc_closure((void*)(l_Std_NondetT_Alts_join___rarg), 2, 0);
 return x_3;
 }
 }
-lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+lean_object* l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_6);
+return x_7;
+}
+}
+lean_object* l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
-x_5 = l_Std_NondetT_Alts_join_x27___rarg___lambda__1(x_1, x_2, x_3, x_4);
+x_5 = l_Std_NondetT_Alts_append_x27___at_Std_NondetT_Alts_join_x27___spec__2___rarg___lambda__2(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_1);
+return x_5;
+}
+}
+lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_NondetT_Alts_join_x27___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_NondetT_Alts_join_x27___rarg___lambda__2(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 return x_5;
 }
 }
-lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+lean_object* l_Std_NondetT_Alts_join_x27___rarg___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_NondetT_Alts_join_x27___rarg___lambda__2(x_1, x_2, x_3);
+x_4 = l_Std_NondetT_Alts_join_x27___rarg___lambda__3(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_1);
 return x_4;

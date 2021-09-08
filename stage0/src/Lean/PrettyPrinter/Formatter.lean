@@ -39,13 +39,13 @@ end Formatter
 
 abbrev FormatterM := ReaderT Formatter.Context $ StateRefT Formatter.State CoreM
 
-@[inline] def FormatterM.orelse {α} (p₁ p₂ : FormatterM α) : FormatterM α := do
+@[inline] def FormatterM.orElse {α} (p₁ : FormatterM α) (p₂ : Unit → FormatterM α) : FormatterM α := do
   let s ← get
   catchInternalId backtrackExceptionId
     p₁
-    (fun _ => do set s; p₂)
+    (fun _ => do set s; p₂ ())
 
-instance {α} : OrElse (FormatterM α) := ⟨FormatterM.orelse⟩
+instance {α} : OrElse (FormatterM α) := ⟨FormatterM.orElse⟩
 
 abbrev Formatter := FormatterM Unit
 

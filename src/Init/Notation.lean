@@ -128,7 +128,7 @@ infixl:30 " || " => or
 notation:max "!" b:40 => not b
 
 infixr:67 " :: " => List.cons
-infixr:20 " <|> " => HOrElse.hOrElse
+syntax:20 term:21 " <|> " term:20 : term
 infixr:60  " >> "  => HAndThen.hAndThen
 infixl:55  " >>= " => Bind.bind
 infixl:60  " <*> " => Seq.seq

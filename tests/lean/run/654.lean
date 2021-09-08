@@ -278,8 +278,11 @@ inductive CXCursorKind where
   | CXCursor_FirstExtraDecl
   | CXCursor_LastExtraDecl
   | CXCursor_OverloadCandidate
+  deriving BEq
 
 open CXCursorKind
 
 example (h : CXCursor_CUDAGlobalAttr = CXCursor_CUDAHostAttr) : False := by
   contradiction
+
+#eval CXCursor_CUDAGlobalAttr == CXCursor_CUDAHostAttr

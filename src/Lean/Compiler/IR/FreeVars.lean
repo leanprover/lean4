@@ -23,7 +23,8 @@ abbrev Collector := Index → Index
 @[inline] private def collectVar (x : VarId) : Collector := collect x.idx
 @[inline] private def collectJP (j : JoinPointId) : Collector := collect j.idx
 @[inline] private def seq (k₁ k₂ : Collector) : Collector := k₂ ∘ k₁
-instance : AndThen Collector := ⟨seq⟩
+instance : AndThen Collector where
+  andThen a b := seq a (b ())
 
 private def collectArg : Arg → Collector
   | Arg.var x  => collectVar x
@@ -119,7 +120,8 @@ def insertParams (s : IndexSet) (ys : Array Param) : IndexSet :=
 @[inline] private def seq : Collector → Collector → Collector :=
   fun k₁ k₂ bv fv => k₂ bv (k₁ bv fv)
 
-instance : AndThen Collector := ⟨seq⟩
+instance : AndThen Collector where
+  andThen a b := seq a (b ())
 
 private def collectArg : Arg → Collector
   | Arg.var x  => collectVar x

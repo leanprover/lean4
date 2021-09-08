@@ -417,7 +417,7 @@ class HOrElse (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hOrElse : α → (Unit → β) → γ
 
 class HAndThen (α : Type u) (β : Type v) (γ : outParam (Type w)) where
-  hAndThen : α → β → γ
+  hAndThen : α → (Unit → β) → γ
 
 class HAnd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hAnd : α → β → γ
@@ -462,7 +462,7 @@ class OrElse (α : Type u) where
   orElse  : α → (Unit → α) → α
 
 class AndThen (α : Type u) where
-  andThen : α → α → α
+  andThen : α → (Unit → α) → α
 
 class AndOp (α : Type u) where
   and : α → α → α
@@ -1241,24 +1241,24 @@ class Functor (f : Type u → Type v) : Type (max (u+1) v) where
   mapConst : {α β : Type u} → α → f β → f α := Function.comp map (Function.const _)
 
 class Seq (f : Type u → Type v) : Type (max (u+1) v) where
-  seq  : {α β : Type u} → f (α → β) → f α → f β
+  seq  : {α β : Type u} → f (α → β) → (Unit → f α) → f β
 
 class SeqLeft (f : Type u → Type v) : Type (max (u+1) v) where
-  seqLeft : {α β : Type u} → f α → f β → f α
+  seqLeft : {α β : Type u} → f α → (Unit → f β) → f α
 
 class SeqRight (f : Type u → Type v) : Type (max (u+1) v) where
-  seqRight : {α β : Type u} → f α → f β → f β
+  seqRight : {α β : Type u} → f α → (Unit → f β) → f β
 
 class Applicative (f : Type u → Type v) extends Functor f, Pure f, Seq f, SeqLeft f, SeqRight f where
-  map      := fun x y => Seq.seq (pure x) y
+  map      := fun x y => Seq.seq (pure x) fun _ => y
   seqLeft  := fun a b => Seq.seq (Functor.map (Function.const _) a) b
   seqRight := fun a b => Seq.seq (Functor.map (Function.const _ id) a) b
 
 class Monad (m : Type u → Type v) extends Applicative m, Bind m : Type (max (u+1) v) where
   map      f x := bind x (Function.comp pure f)
-  seq      f x := bind f fun y => Functor.map y x
-  seqLeft  x y := bind x fun a => bind y (fun _ => pure a)
-  seqRight x y := bind x fun _ => y
+  seq      f x := bind f fun y => Functor.map y (x ())
+  seqLeft  x y := bind x fun a => bind (y ()) (fun _ => pure a)
+  seqRight x y := bind x fun _ => y ()
 
 instance {α : Type u} {m : Type u → Type v} [Monad m] : Inhabited (α → m α) where
   default := pure
@@ -1588,9 +1588,9 @@ class Backtrackable (δ : outParam (Type u)) (σ : Type u) where
   | Result.ok a s    => Result.ok (f a) s
   | Result.error e s => Result.error e s
 
-@[inline] protected def seqRight (x : EStateM ε σ α) (y : EStateM ε σ β) : EStateM ε σ β := fun s =>
+@[inline] protected def seqRight (x : EStateM ε σ α) (y : Unit → EStateM ε σ β) : EStateM ε σ β := fun s =>
   match x s with
-  | Result.ok _ s    => y s
+  | Result.ok _ s    => y () s
   | Result.error e s => Result.error e s
 
 instance : Monad (EStateM ε σ) where

@@ -408,6 +408,14 @@ syntax "trivial" : tactic
 
 syntax (name := split) "split " (colGt term)? (location)? : tactic
 
+/--
+The tactic `specialize h a₁ ... aₙ` works on local hypothesis `h`.
+The premises of this hypothesis, either universal quantifications or non-dependent implications,
+are instantiated by concrete terms coming either from arguments `a₁` ... `aₙ`.
+The tactic adds a new hypothesis with the same name `h := h a₁ ... aₙ` and tries to clear the previous one.
+-/
+syntax (name := specialize) "specialize " term : tactic
+
 macro_rules | `(tactic| trivial) => `(tactic| assumption)
 macro_rules | `(tactic| trivial) => `(tactic| rfl)
 macro_rules | `(tactic| trivial) => `(tactic| contradiction)

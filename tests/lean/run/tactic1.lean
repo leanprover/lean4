@@ -55,3 +55,15 @@ by apply Eq.trans h₁;
      apply Eq.symm;
      assumption;
    exact this
+
+example (x y z : Nat) (h₁ : x = y) (h₂ : z = y) : x = z := by
+  sorry
+
+example (x y z : Nat) (h₁ : x = y) (h₂ : z = y) : x = z := by
+  apply Eq.trans
+  . sorry
+  . sorry
+  . sorry
+
+example (x y z : Nat) (h₁ : x = y) (h₂ : z = y) : x = z := by
+  apply Eq.trans <;> sorry

@@ -25,6 +25,7 @@ syntax (name := congr) "congr" : conv
 syntax (name := arg) "arg " num : conv
 syntax (name := ext) "ext " (colGt ident)* : conv
 syntax (name := change) "change " term : conv
+syntax (name := delta) "delta " ident : conv
 syntax (name := pattern) "pattern " term : conv
 syntax (name := rewrite) "rewrite " rwRuleSeq : conv
 syntax (name := erewrite) "erewrite " rwRuleSeq : conv

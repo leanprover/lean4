@@ -1032,7 +1032,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
   | (elabFn::elabFns) =>
     try
       -- record elaborator in info tree, but only when not backtracking to other elaborators (outer `try`)
-      withInfoContext' (mkInfo := mkTermInfo elabFn.decl (expectedType? := expectedType?) stx)
+      withInfoContext' (mkInfo := mkTermInfo elabFn.declName (expectedType? := expectedType?) stx)
         (try
           elabFn.value stx expectedType?
         catch ex => match ex with

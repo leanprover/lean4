@@ -28,7 +28,7 @@ def replaceTargetEq (mvarId : MVarId) (targetNew : Expr) (eqProof : Expr) : Meta
     let newProof ← mkExpectedTypeHint eqProof eq
     let val  := mkAppN (Lean.mkConst `Eq.mpr [u]) #[target, targetNew, eqProof, mvarNew]
     assignExprMVar mvarId val
-    pure mvarNew.mvarId!
+    return mvarNew.mvarId!
 
 /--
   Convert the given goal `Ctx | target` into `Ctx |- targetNew`. It assumes the goals are definitionally equal.
@@ -41,13 +41,14 @@ def replaceTargetDefEq (mvarId : MVarId) (targetNew : Expr) : MetaM MVarId :=
   withMVarContext mvarId do
     checkNotAssigned mvarId `change
     let target  ← getMVarType mvarId
-    if target == targetNew then pure mvarId
+    if target == targetNew then
+      return mvarId
     else
       let tag     ← getMVarTag mvarId
       let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
       let newVal  ← mkExpectedTypeHint mvarNew target
       assignExprMVar mvarId mvarNew
-      pure mvarNew.mvarId!
+      return mvarNew.mvarId!
 
 /--
   Replace type of the local declaration with id `fvarId` with one with the same user-facing name, but with type `typeNew`.
@@ -76,6 +77,17 @@ where
         return false
       else
         return e.hasFVar
+
+def replaceLocalDeclDefEq (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) : MetaM MVarId := do
+  withMVarContext mvarId do
+    let mvarDecl ← getMVarDecl mvarId
+    if typeNew == mvarDecl.type then
+      return mvarId
+    else
+      let lctxNew := (← getLCtx).modifyLocalDecl fvarId (·.setType typeNew)
+      let mvarNew ← mkFreshExprMVarAt lctxNew (← getLocalInstances) mvarDecl.type mvarDecl.kind mvarDecl.userName
+      assignExprMVar mvarId mvarNew
+      return mvarNew.mvarId!
 
 def change (mvarId : MVarId) (targetNew : Expr) (checkDefEq := true) : MetaM MVarId := withMVarContext mvarId do
   let target ← getMVarType mvarId

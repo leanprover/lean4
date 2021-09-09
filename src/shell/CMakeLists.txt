@@ -22,8 +22,9 @@ if(LLVM)
 endif()
 
 add_custom_target(lean ALL
-  DEPENDS make_stdlib shell
-  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lean LEAN_SHELL='$<TARGET_OBJECTS:shell>'
+  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+  DEPENDS leanshared shell
+  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lean LEAN_SHELL=$<TARGET_OBJECTS:shell>
   VERBATIM)
 
 # use executable of current stage for tests

@@ -20,7 +20,7 @@ MSYS2 has a package management system, [pacman][pacman], which is used in Arch L
 Here are the commands to install all dependencies needed to compile Lean on your machine.
 
 ```bash
-pacman -S make mingw-w64-x86_64-cmake mingw-w64-x86_64-ccache mingw-w64-x86_64-gcc git
+pacman -S make mingw-w64-x86_64-cmake mingw-w64-x86_64-ccache mingw-w64-x86_64-gcc git unzip
 ```
 
 You should now be able to run these commands:
@@ -36,9 +36,13 @@ of `cmd.exe` for script tasks.
 
 ## Install lean
 
-You can use the `install` ninja/make target to install Lean into, by default,
-`./build/release/stage1/msys64/lean/`. To change this, add `-DCMAKE_INSTALL_PREFIX=path/you/want`
-to your initial cmake invocation.
+Follow the steps in [Dev setup using
+elan](index.md#dev-setup-using-elan) regarding installation of the
+bits you just built.  Note that in an msys2 environment `elan-init.sh` reports you need to add `%USERPROFILE%\.elan\bin` to your path, but
+of course in msys2 that needs to be a valid linux style path, like this:
+```bash
+export PATH="$PATH:/c/users/$USERNAME/.elan/bin"
+```
 
 ## Running
 
@@ -66,19 +70,3 @@ cp $(ldd lean.exe | cut -f3 -d' ' | grep mingw) .
 Make sure `/mingw64/bin` is in your PATH environment.  If it is not then
 check you launched the MSYS2 MinGW 64-bit shell from the start menu.
 (The one that runs `mingw64.exe`).
-
-**file INSTALL cannot make directory "C:/Program Files (x86)/LEAN/include/lean": No such file or directory**
-
-If you get this error from `make install` or `ninja install` then it
-may be a permissions issue since the default "C:/Program Files
-(x86)/LEAN" install target folder is not writable by non-admin users.
-If you really want lean installed there then try running `make
-install` from an admin command prompt.  
-
-If you want to change the default install location use this command line:
-```
-cmake ../.. -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=~/lean4
-```
-This will move the lean4 installation location to your home folder which is
-writable by default.  Note that you have to delete any previous `build/release` folder you created otherwise the new CMAKE_INSTALL_PREFIX will not
-be used.

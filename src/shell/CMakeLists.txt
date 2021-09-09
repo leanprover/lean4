@@ -22,7 +22,7 @@ if(LLVM)
 endif()
 
 add_custom_target(lean ALL
-  DEPENDS leancpp leanrt make_stdlib
+  DEPENDS make_stdlib shell
   COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lean LEAN_SHELL='$<TARGET_OBJECTS:shell>'
   VERBATIM)
 

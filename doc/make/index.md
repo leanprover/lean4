@@ -53,11 +53,8 @@ This will compile the Lean library and binary into the `stage1` subfolder; see
 below for details. Add `-jN` for an appropriate `N` to `make` for a parallel
 build.
 
-To install the build run the following:
-
-```bash
-make install
-```
+To install the build see [Dev setup using
+elan](index.md#dev-setup-using-elan) below.
 
 
 Useful CMake Configuration Settings

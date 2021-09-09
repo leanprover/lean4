@@ -364,6 +364,11 @@ syntax simpStar  := "*"
 syntax (name := simp) "simp " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 syntax (name := simpAll) "simp_all " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
 
+/--
+  Delta expand the given definition.
+  This is a low-level tactic, it will expose how recursive definitions have been compiled by Lean. -/
+syntax (name := delta) "delta " ident (location)? : tactic
+
 -- Auxiliary macro for lifting have/suffices/let/...
 -- It makes sure the "continuation" `?_` is the main goal after refining
 macro "refineLift " e:term : tactic => `(focus (refine noImplicitLambda% $e; rotateRight))

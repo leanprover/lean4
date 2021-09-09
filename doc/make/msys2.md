@@ -30,16 +30,18 @@ gcc --version
 cmake --version
 ```
 
-Then follow the [generic build instructions](index.md) in the MSYS2 MinGW shell, using
-`cmake ../.. -G "Unix Makefiles"` instead of `cmake ../..`. This ensures that cmake will call `sh` instead
-of `cmd.exe` for script tasks.
+Then follow the [generic build instructions](index.md) in the MSYS2
+MinGW shell, using `cmake ../.. -G "Unix Makefiles"` instead of `cmake
+../..`. This ensures that cmake will call `sh` instead of `cmd.exe`
+for script tasks.
 
 ## Install lean
 
 Follow the steps in [Dev setup using
 elan](index.md#dev-setup-using-elan) regarding installation of the
-bits you just built.  Note that in an msys2 environment `elan-init.sh` reports you need to add `%USERPROFILE%\.elan\bin` to your path, but
-of course in msys2 that needs to be a valid linux style path, like this:
+bits you just built.  Note that in an msys2 environment `elan-init.sh`
+reports you need to add `%USERPROFILE%\.elan\bin` to your path, but of
+course in msys2 that needs to be a valid linux style path, like this:
 ```bash
 export PATH="$PATH:/c/users/$USERNAME/.elan/bin"
 ```

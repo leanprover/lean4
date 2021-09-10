@@ -266,7 +266,7 @@ private def checkLetRecsToLiftTypes (funVars : Array Expr) (letRecsToLift : List
 namespace MutualClosure
 
 /- A mapping from FVarId to Set of FVarIds. -/
-abbrev UsedFVarsMap := NameMap NameSet
+abbrev UsedFVarsMap := FVarIdMap FVarIdSet
 
 /-
 Create the `UsedFVarsMap` mapping that takes the variable id for the mutually recursive functions being defined to the set of
@@ -369,7 +369,7 @@ private def getUsedFVarsMap : M UsedFVarsMap := do pure (← get).usedFVarsMap
 private def modifyUsedFVars (f : UsedFVarsMap → UsedFVarsMap) : M Unit := modify fun s => { s with usedFVarsMap := f s.usedFVarsMap }
 
 -- merge s₂ into s₁
-private def merge (s₁ s₂ : NameSet) : M NameSet :=
+private def merge (s₁ s₂ : FVarIdSet) : M FVarIdSet :=
   s₂.foldM (init := s₁) fun s₁ k => do
     if s₁.contains k then
       pure s₁
@@ -408,7 +408,7 @@ def run (letRecFVarIds : List FVarId) (usedFVarsMap : UsedFVarsMap) : UsedFVarsM
 
 end FixPoint
 
-abbrev FreeVarMap := NameMap (Array FVarId)
+abbrev FreeVarMap := FVarIdMap (Array FVarId)
 
 private def mkFreeVarMap
     (mctx : MetavarContext) (sectionVars : Array Expr) (mainFVarIds : Array FVarId)
@@ -524,7 +524,7 @@ private def mkLetRecClosures (letRecsToLift : List LetRecToLift) (freeVarMap : F
   letRecsToLift.mapM fun toLift => mkLetRecClosureFor toLift (freeVarMap.find? toLift.fvarId).get!
 
 /- Mapping from FVarId of mutually recursive functions being defined to "closure" expression. -/
-abbrev Replacement := NameMap Expr
+abbrev Replacement := FVarIdMap Expr
 
 def insertReplacementForMainFns (r : Replacement) (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainFVars : Array Expr) : Replacement :=
   mainFVars.size.fold (init := r) fun i r =>

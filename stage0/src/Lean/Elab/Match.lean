@@ -406,7 +406,7 @@ def finalizePatternDecls (patternVarDecls : Array PatternVarDecl) : TermElabM (A
       decls := decls.push decl
     | PatternVarDecl.anonymousVar mvarId fvarId =>
        let e ← instantiateMVars (mkMVar mvarId);
-       trace[Elab.match] "finalizePatternDecls: mvarId: {mvarId} := {e}, fvar: {mkFVar fvarId}"
+       trace[Elab.match] "finalizePatternDecls: mvarId: {mvarId.name} := {e}, fvar: {mkFVar fvarId}"
        match e with
        | Expr.mvar newMVarId _ =>
          /- Metavariable was not assigned, or assigned to another metavariable. So,
@@ -425,9 +425,9 @@ open Meta.Match (Pattern Pattern.var Pattern.inaccessible Pattern.ctor Pattern.a
 namespace ToDepElimPattern
 
 structure State where
-  found      : NameSet := {}
+  found      : FVarIdSet := {}
   localDecls : Array LocalDecl
-  newLocals  : NameSet := {}
+  newLocals  : FVarIdSet := {}
 
 abbrev M := StateRefT State TermElabM
 
@@ -448,7 +448,7 @@ private def mkLocalDeclFor (mvar : Expr) : M Pattern := do
   match (← getExprMVarAssignment? mvarId) with
   | some val => return Pattern.inaccessible val
   | none =>
-    let fvarId ← mkFreshId
+    let fvarId ← mkFreshFVarId
     let type   ← inferType mvar
     /- HACK: `fvarId` is not in the scope of `mvarId`
        If this generates problems in the future, we should update the metavariable declarations. -/
@@ -857,7 +857,7 @@ private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Synta
     else
       -- We use `foundFVars` to make sure the discriminants are distinct variables.
       -- See: code for computing "matchType" at `elabMatchTypeAndDiscrs`
-      let rec loop (discrs : List Syntax) (discrsNew : Array Syntax) (foundFVars : NameSet) := do
+      let rec loop (discrs : List Syntax) (discrsNew : Array Syntax) (foundFVars : FVarIdSet) := do
         match discrs with
         | [] =>
           let discrs := Syntax.mkSep discrsNew (mkAtomFrom matchStx ", ");

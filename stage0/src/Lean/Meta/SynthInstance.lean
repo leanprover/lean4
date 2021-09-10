@@ -131,7 +131,7 @@ partial def normExpr (e : Expr) : M Expr := do
         match s.emap.find? mvarId with
         | some e' => pure e'
         | none    => do
-          let e' := mkFVar $ Name.mkNum `_tc s.nextIdx
+          let e' := mkFVar { name := Name.mkNum `_tc s.nextIdx }
           modify fun s => { s with nextIdx := s.nextIdx + 1, emap := s.emap.insert mvarId e' }
           pure e'
     | _ => pure e

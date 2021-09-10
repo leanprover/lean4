@@ -211,7 +211,7 @@ private partial def isDefEqBindingAux (lctx : LocalContext) (fvars : Array Expr)
   let process (n : Name) (d₁ d₂ b₁ b₂ : Expr) : MetaM Bool := do
     let d₁     := d₁.instantiateRev fvars
     let d₂     := d₂.instantiateRev fvars
-    let fvarId ← mkFreshId
+    let fvarId ← mkFreshFVarId
     let lctx   := lctx.mkLocalDecl fvarId n d₁
     let fvars  := fvars.push (mkFVar fvarId)
     isDefEqBindingAux lctx fvars b₁ b₂ (ds₂.push d₂)
@@ -303,8 +303,8 @@ where
 
   /- Traverse `e` and stores in the state `NameHashSet` any let-declaration with index greater than `(← read)`.
      The context `Nat` is the position of `xs[0]` in the local context. -/
-  collectLetDeclsFrom (e : Expr) : ReaderT Nat (StateRefT NameHashSet MetaM) Unit := do
-    let rec visit (e : Expr) : MonadCacheT Expr Unit (ReaderT Nat (StateRefT NameHashSet MetaM)) Unit :=
+  collectLetDeclsFrom (e : Expr) : ReaderT Nat (StateRefT FVarIdHashSet MetaM) Unit := do
+    let rec visit (e : Expr) : MonadCacheT Expr Unit (ReaderT Nat (StateRefT FVarIdHashSet MetaM)) Unit :=
       checkCache e fun _ => do
         match e with
         | Expr.forallE _ d b _   => visit d; visit b
@@ -326,7 +326,7 @@ where
     or equal to the position of `xs.back` in the local context.
     The `Nat` context `(← read)` is the position of `xs[0]` in the local context.
   -/
-  collectLetDepsAux : Nat → ReaderT Nat (StateRefT NameHashSet MetaM) Unit
+  collectLetDepsAux : Nat → ReaderT Nat (StateRefT FVarIdHashSet MetaM) Unit
     | 0   => return ()
     | i+1 => do
       if i+1 == (← read) then
@@ -343,7 +343,7 @@ where
           collectLetDepsAux i
 
   /- Computes the set `ys`. It is a set of `FVarId`s, -/
-  collectLetDeps : MetaM NameHashSet := do
+  collectLetDeps : MetaM FVarIdHashSet := do
     let lctx ← getLCtx
     let start := lctx.getFVar! xs[0] |>.index
     let stop  := lctx.getFVar! xs.back |>.index

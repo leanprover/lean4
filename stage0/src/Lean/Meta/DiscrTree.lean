@@ -60,7 +60,7 @@ def Key.ctorIdx : Key → Nat
 
 def Key.lt : Key → Key → Bool
   | Key.lit v₁,      Key.lit v₂      => v₁ < v₂
-  | Key.fvar n₁ a₁,  Key.fvar n₂ a₂  => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
+  | Key.fvar n₁ a₁,  Key.fvar n₂ a₂  => Name.quickLt n₁.name n₂.name || (n₁ == n₂ && a₁ < a₂)
   | Key.const n₁ a₁, Key.const n₂ a₂ => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
   | Key.proj s₁ i₁,  Key.proj s₂ i₂  => Name.quickLt s₁ s₂ || (s₁ == s₂ && i₁ < i₂)
   | k₁,              k₂              => k₁.ctorIdx < k₂.ctorIdx
@@ -75,7 +75,7 @@ def Key.format : Key → Format
   | Key.lit (Literal.strVal v) => repr v
   | Key.const k _              => Std.format k
   | Key.proj s i               => Std.format s ++ "." ++ Std.format i
-  | Key.fvar k _               => Std.format k
+  | Key.fvar k _               => Std.format k.name
   | Key.arrow                  => "→"
 
 instance : ToFormat Key := ⟨Key.format⟩
@@ -109,7 +109,7 @@ instance [ToFormat α] : ToFormat (DiscrTree α) := ⟨format⟩
 
 /- The discrimination tree ignores implicit arguments and proofs.
    We use the following auxiliary id as a "mark". -/
-private def tmpMVarId : MVarId := `_discr_tree_tmp
+private def tmpMVarId : MVarId := { name := `_discr_tree_tmp }
 private def tmpStar := mkMVar tmpMVarId
 
 instance : Inhabited (DiscrTree α) where
@@ -424,17 +424,32 @@ private def getStarResult (d : DiscrTree α) : Array α :=
 private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
   cs.binSearch (k, arbitrary) (fun a b => a.1 < b.1)
 
-partial def getMatch (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
+/--
+  Find values that match `e` in `d`.
+  If `allowExtraArgs == true`, we also return solutions that match prefixes of `e`.
+-/
+partial def getMatch (d : DiscrTree α) (e : Expr) (allowExtraArgs := false) : MetaM (Array α) :=
   withReducible do
     let result := getStarResult d
     let (k, args) ← getMatchKeyArgs e (root := true)
     match k with
     | Key.star => return result
-    | _        =>
-      match d.root.find? k with
-      | none   => return result
-      | some c => process args c result
+    | _        => if allowExtraArgs then processRootWithExtra k args result else processRoot k args result
 where
+  processRoot (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) := do
+    match d.root.find? k with
+    | none   => return result
+    | some c => process args c result
+
+  processRootWithExtra (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) := do
+    let result ← processRoot k args result
+    match k with
+    | Key.const f 0     => return result
+    | Key.const f (n+1) => processRootWithExtra (Key.const f n) args.pop result
+    | Key.fvar f 0      => return result
+    | Key.fvar f (n+1)  => processRootWithExtra (Key.fvar f n) args.pop result
+    | _                 => return result
+
   process (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
     match c with
     | Trie.node vs cs =>

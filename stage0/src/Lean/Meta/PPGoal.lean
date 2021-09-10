@@ -29,8 +29,8 @@ def withPPInaccessibleNames [MonadControlT MetaM m] [Monad m] (x : m α) (flag :
 namespace ToHide
 
 structure State where
-  hiddenInaccessibleProp : NameSet := {} -- FVarIds of Propostions with inaccessible names but containing only visible names. We show only their types
-  hiddenInaccessible     : NameSet := {} -- FVarIds with inaccessible names, but not in hiddenInaccessibleProp
+  hiddenInaccessibleProp : FVarIdSet := {} -- FVarIds of Propostions with inaccessible names but containing only visible names. We show only their types
+  hiddenInaccessible     : FVarIdSet := {} -- FVarIds with inaccessible names, but not in hiddenInaccessibleProp
   modified               : Bool := false
 
 structure Context where
@@ -125,7 +125,7 @@ The `goalTarget` counts as a forward dependency.
 
 We say a name is visible if it is a free variable with FVarId not in `hiddenInaccessible` nor `hiddenInaccessibleProp`
 -/
-def collect (goalTarget : Expr) : MetaM (NameSet × NameSet) := do
+def collect (goalTarget : Expr) : MetaM (FVarIdSet × FVarIdSet) := do
   if pp.inaccessibleNames.get (← getOptions) then
     /- Don't hide inaccessible names when `pp.inaccessibleNames` is set to true. -/
     return ({}, {})

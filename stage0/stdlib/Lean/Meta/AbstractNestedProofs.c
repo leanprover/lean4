@@ -28,7 +28,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_AbstractNestedProofs_isNonTrivialProof___spec__1(lean_object*, size_t, size_t);
 static lean_object* l_Lean_Meta_abstractNestedProofs___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-extern lean_object* l_Lean_instHashableName;
 lean_object* lean_array_get_size(lean_object*);
 uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Lean_Meta_mkAuxDefinitionFor(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -71,6 +70,7 @@ lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
 static lean_object* l___private_Lean_Meta_AbstractNestedProofs_0__Lean_Meta_AbstractNestedProofs_mkAuxLemma___closed__1;
 lean_object* l_Lean_LocalDecl_type(lean_object*);
 lean_object* l_Lean_LocalDecl_value_x3f(lean_object*);
+extern lean_object* l_Lean_instBEqFVarId;
 lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_AbstractNestedProofs_visit___spec__2___boxed__const__1;
 lean_object* l_Lean_Meta_withLCtx___at_Lean_Meta_AbstractNestedProofs_visit___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_index(lean_object*);
@@ -91,6 +91,7 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_lambdaLetTelescope___at_Lean_Meta_AbstractNestedProofs_visit___spec__6(lean_object*);
 lean_object* l_Lean_mkAuxName___at___private_Lean_Meta_AbstractNestedProofs_0__Lean_Meta_AbstractNestedProofs_mkAuxLemma___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
+extern lean_object* l_Lean_instHashableFVarId;
 uint8_t l_Lean_Expr_isAtomic(lean_object*);
 lean_object* l_Lean_Meta_AbstractNestedProofs_visit___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_mkAuxNameAux(lean_object*, lean_object*, lean_object*);
@@ -110,7 +111,6 @@ lean_object* l_Lean_Meta_AbstractNestedProofs_State_nextIdx___default;
 lean_object* l_Lean_Meta_AbstractNestedProofs_visit___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_AbstractNestedProofs_visit___closed__2;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-extern lean_object* l_Lean_Name_instBEqName;
 static lean_object* l_Lean_Meta_AbstractNestedProofs_visit___closed__1;
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_AbstractNestedProofs_isNonTrivialProof___spec__1(lean_object* x_1, size_t x_2, size_t x_3) {
 _start:
@@ -974,8 +974,8 @@ lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean
 x_21 = lean_ctor_get(x_14, 0);
 lean_dec(x_21);
 x_22 = l_Lean_LocalDecl_fvarId(x_3);
-x_23 = l_Lean_Name_instBEqName;
-x_24 = l_Lean_instHashableName;
+x_23 = l_Lean_instBEqFVarId;
+x_24 = l_Lean_instHashableFVarId;
 lean_inc(x_3);
 x_25 = l_Std_PersistentHashMap_insert___rarg(x_23, x_24, x_12, x_22, x_3);
 x_26 = l_Lean_LocalDecl_index(x_3);
@@ -996,8 +996,8 @@ else
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
 lean_dec(x_14);
 x_30 = l_Lean_LocalDecl_fvarId(x_3);
-x_31 = l_Lean_Name_instBEqName;
-x_32 = l_Lean_instHashableName;
+x_31 = l_Lean_instBEqFVarId;
+x_32 = l_Lean_instHashableFVarId;
 lean_inc(x_3);
 x_33 = l_Std_PersistentHashMap_insert___rarg(x_31, x_32, x_12, x_30, x_3);
 x_34 = l_Lean_LocalDecl_index(x_3);
@@ -1027,8 +1027,8 @@ if (lean_is_exclusive(x_14)) {
  x_39 = lean_box(0);
 }
 x_40 = l_Lean_LocalDecl_fvarId(x_3);
-x_41 = l_Lean_Name_instBEqName;
-x_42 = l_Lean_instHashableName;
+x_41 = l_Lean_instBEqFVarId;
+x_42 = l_Lean_instHashableFVarId;
 lean_inc(x_3);
 x_43 = l_Std_PersistentHashMap_insert___rarg(x_41, x_42, x_12, x_40, x_3);
 x_44 = l_Lean_LocalDecl_index(x_3);

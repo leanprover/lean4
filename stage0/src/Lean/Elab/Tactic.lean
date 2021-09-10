@@ -16,3 +16,4 @@ import Lean.Elab.Tactic.Simp
 import Lean.Elab.Tactic.BuiltinTactic
 import Lean.Elab.Tactic.Split
 import Lean.Elab.Tactic.Conv
+import Lean.Elab.Tactic.Delta

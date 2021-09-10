@@ -152,6 +152,7 @@ static lean_object* l_Lean_externAttr___lambda__1___closed__1;
 lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_342____spec__1___lambda__2(lean_object*, lean_object*);
 lean_object* l_Lean_externAttr___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_342____spec__1___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_getExternConstArity___closed__21;
 lean_object* l_Lean_getExternConstArity___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_342____spec__1___lambda__3(lean_object*);
@@ -163,9 +164,9 @@ lean_object* l_Nat_repr(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Core_getMaxHeartbeats(lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
+lean_object* l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_675____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_instHashableExpr;
 static lean_object* l_Lean_getConstInfo___at_Lean_getExternConstArity___spec__1___closed__4;
-lean_object* l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_673____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* l_Lean_getExternConstArity_match__3(lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
@@ -198,7 +199,6 @@ static lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_L
 lean_object* l_Lean_externAttr___lambda__5(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_342____lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_NameSet_empty;
 lean_object* l_Lean_getConstInfo___at_Lean_getExternConstArity___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 static lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_342____spec__1___lambda__6___closed__2;
@@ -2329,7 +2329,7 @@ else
 lean_object* x_15; lean_object* x_16; 
 lean_free_object(x_6);
 x_15 = lean_add_extern(x_10, x_1);
-x_16 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_673____spec__1(x_15, x_3, x_4, x_9);
+x_16 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_675____spec__1(x_15, x_3, x_4, x_9);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 
@@ -2370,7 +2370,7 @@ else
 lean_object* x_24; lean_object* x_25; 
 lean_free_object(x_6);
 x_24 = lean_add_extern(x_10, x_1);
-x_25 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_673____spec__1(x_24, x_3, x_4, x_9);
+x_25 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_675____spec__1(x_24, x_3, x_4, x_9);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; 
@@ -2442,7 +2442,7 @@ else
 {
 lean_object* x_41; lean_object* x_42; 
 x_41 = lean_add_extern(x_35, x_1);
-x_42 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_673____spec__1(x_41, x_3, x_4, x_34);
+x_42 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_675____spec__1(x_41, x_3, x_4, x_34);
 if (lean_obj_tag(x_42) == 0)
 {
 lean_object* x_43; lean_object* x_44; lean_object* x_45; 
@@ -2484,7 +2484,7 @@ else
 {
 lean_object* x_50; lean_object* x_51; 
 x_50 = lean_add_extern(x_35, x_1);
-x_51 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_673____spec__1(x_50, x_3, x_4, x_34);
+x_51 = l_Lean_ofExcept___at_Lean_initFn____x40_Lean_Class___hyg_675____spec__1(x_50, x_3, x_4, x_34);
 if (lean_obj_tag(x_51) == 0)
 {
 lean_object* x_52; lean_object* x_53; lean_object* x_54; 
@@ -5275,8 +5275,20 @@ static lean_object* _init_l_Lean_getExternConstArity___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_getExternConstArity___closed__3;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_getExternConstArity___closed__11() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_getExternConstArity___closed__4;
+x_2 = l_Lean_getExternConstArity___closed__10;
 x_3 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_1);
@@ -5288,7 +5300,7 @@ lean_ctor_set(x_3, 6, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_getExternConstArity___closed__11() {
+static lean_object* _init_l_Lean_getExternConstArity___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5298,26 +5310,14 @@ x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
-}
-}
-static lean_object* _init_l_Lean_getExternConstArity___closed__12() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_InfoCacheKey_instHashableInfoCacheKey___boxed), 1, 0);
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_getExternConstArity___closed__13() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_getExternConstArity___closed__3;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Meta_InfoCacheKey_instHashableInfoCacheKey___boxed), 1, 0);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_getExternConstArity___closed__14() {
@@ -5335,6 +5335,18 @@ return x_3;
 static lean_object* _init_l_Lean_getExternConstArity___closed__15() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_getExternConstArity___closed__3;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_getExternConstArity___closed__16() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Expr_instBEqExpr;
 x_2 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
@@ -5343,7 +5355,7 @@ lean_closure_set(x_2, 1, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_getExternConstArity___closed__16() {
+static lean_object* _init_l_Lean_getExternConstArity___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -5354,7 +5366,7 @@ lean_closure_set(x_2, 1, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_getExternConstArity___closed__17() {
+static lean_object* _init_l_Lean_getExternConstArity___closed__18() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -5366,14 +5378,14 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_getExternConstArity___closed__18() {
+static lean_object* _init_l_Lean_getExternConstArity___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_getExternConstArity___closed__11;
-x_2 = l_Lean_getExternConstArity___closed__13;
-x_3 = l_Lean_getExternConstArity___closed__14;
-x_4 = l_Lean_getExternConstArity___closed__17;
+x_1 = l_Lean_getExternConstArity___closed__12;
+x_2 = l_Lean_getExternConstArity___closed__14;
+x_3 = l_Lean_getExternConstArity___closed__15;
+x_4 = l_Lean_getExternConstArity___closed__18;
 x_5 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -5385,23 +5397,23 @@ lean_ctor_set(x_5, 6, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_getExternConstArity___closed__19() {
+static lean_object* _init_l_Lean_getExternConstArity___closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_getExternConstArity___closed__10;
-x_2 = l_Lean_getExternConstArity___closed__18;
-x_3 = l_Lean_NameSet_empty;
+x_1 = lean_box(0);
+x_2 = l_Lean_getExternConstArity___closed__11;
+x_3 = l_Lean_getExternConstArity___closed__19;
 x_4 = l_Lean_getExternConstArity___closed__7;
 x_5 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_3);
+lean_ctor_set(x_5, 0, x_2);
+lean_ctor_set(x_5, 1, x_3);
+lean_ctor_set(x_5, 2, x_1);
 lean_ctor_set(x_5, 3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_getExternConstArity___closed__20() {
+static lean_object* _init_l_Lean_getExternConstArity___closed__21() {
 _start:
 {
 lean_object* x_1; 
@@ -5466,14 +5478,14 @@ x_20 = lean_st_ref_get(x_3, x_18);
 x_21 = lean_ctor_get(x_20, 1);
 lean_inc(x_21);
 lean_dec(x_20);
-x_22 = l_Lean_getExternConstArity___closed__19;
+x_22 = l_Lean_getExternConstArity___closed__20;
 x_23 = lean_st_mk_ref(x_22, x_21);
 x_24 = lean_ctor_get(x_23, 0);
 lean_inc(x_24);
 x_25 = lean_ctor_get(x_23, 1);
 lean_inc(x_25);
 lean_dec(x_23);
-x_26 = l_Lean_getExternConstArity___closed__20;
+x_26 = l_Lean_getExternConstArity___closed__21;
 x_27 = l_Lean_getExternConstArity___closed__9;
 lean_inc(x_3);
 lean_inc(x_24);
@@ -5622,14 +5634,14 @@ x_55 = lean_st_ref_get(x_3, x_53);
 x_56 = lean_ctor_get(x_55, 1);
 lean_inc(x_56);
 lean_dec(x_55);
-x_57 = l_Lean_getExternConstArity___closed__19;
+x_57 = l_Lean_getExternConstArity___closed__20;
 x_58 = lean_st_mk_ref(x_57, x_56);
 x_59 = lean_ctor_get(x_58, 0);
 lean_inc(x_59);
 x_60 = lean_ctor_get(x_58, 1);
 lean_inc(x_60);
 lean_dec(x_58);
-x_61 = l_Lean_getExternConstArity___closed__20;
+x_61 = l_Lean_getExternConstArity___closed__21;
 x_62 = l_Lean_getExternConstArity___closed__9;
 lean_inc(x_3);
 lean_inc(x_59);
@@ -5810,14 +5822,14 @@ x_98 = lean_st_ref_get(x_3, x_96);
 x_99 = lean_ctor_get(x_98, 1);
 lean_inc(x_99);
 lean_dec(x_98);
-x_100 = l_Lean_getExternConstArity___closed__19;
+x_100 = l_Lean_getExternConstArity___closed__20;
 x_101 = lean_st_mk_ref(x_100, x_99);
 x_102 = lean_ctor_get(x_101, 0);
 lean_inc(x_102);
 x_103 = lean_ctor_get(x_101, 1);
 lean_inc(x_103);
 lean_dec(x_101);
-x_104 = l_Lean_getExternConstArity___closed__20;
+x_104 = l_Lean_getExternConstArity___closed__21;
 x_105 = l_Lean_getExternConstArity___closed__9;
 lean_inc(x_3);
 lean_inc(x_102);
@@ -6490,6 +6502,8 @@ l_Lean_getExternConstArity___closed__19 = _init_l_Lean_getExternConstArity___clo
 lean_mark_persistent(l_Lean_getExternConstArity___closed__19);
 l_Lean_getExternConstArity___closed__20 = _init_l_Lean_getExternConstArity___closed__20();
 lean_mark_persistent(l_Lean_getExternConstArity___closed__20);
+l_Lean_getExternConstArity___closed__21 = _init_l_Lean_getExternConstArity___closed__21();
+lean_mark_persistent(l_Lean_getExternConstArity___closed__21);
 l_Lean_getExternConstArityExport___closed__1 = _init_l_Lean_getExternConstArityExport___closed__1();
 lean_mark_persistent(l_Lean_getExternConstArityExport___closed__1);
 l_Lean_getExternConstArityExport___closed__2 = _init_l_Lean_getExternConstArityExport___closed__2();

@@ -38,7 +38,7 @@ instance : MonadNameGenerator LevelElabM where
   setNGen ngen := modify fun s => { s with ngen := ngen }
 
 def mkFreshLevelMVar : LevelElabM Level := do
-  let mvarId ← mkFreshId
+  let mvarId ← mkFreshMVarId
   modify fun s => { s with mctx := s.mctx.addLevelMVarDecl mvarId }
   return mkLevelMVar mvarId
 

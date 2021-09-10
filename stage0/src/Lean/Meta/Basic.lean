@@ -157,7 +157,7 @@ structure State where
   mctx        : MetavarContext := {}
   cache       : Cache := {}
   /- When `trackZeta == true`, then any let-decl free variable that is zeta expansion performed by `MetaM` is stored in `zetaFVarIds`. -/
-  zetaFVarIds : NameSet := {}
+  zetaFVarIds : FVarIdSet := {}
   postponed   : PersistentArray PostponedEntry := {}
   deriving Inhabited
 
@@ -264,7 +264,7 @@ def setMCtx (mctx : MetavarContext) : MetaM Unit :=
 def resetZetaFVarIds : MetaM Unit :=
   modify fun s => { s with zetaFVarIds := {} }
 
-def getZetaFVarIds : MetaM NameSet :=
+def getZetaFVarIds : MetaM FVarIdSet :=
   return (← get).zetaFVarIds
 
 def getPostponed : MetaM (PersistentArray PostponedEntry) :=
@@ -302,10 +302,10 @@ def mkFreshExprMVarAt
     (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr)
     (kind : MetavarKind := MetavarKind.natural) (userName : Name := Name.anonymous) (numScopeArgs : Nat := 0)
     : MetaM Expr := do
-  mkFreshExprMVarAtCore (← mkFreshId) lctx localInsts type kind userName numScopeArgs
+  mkFreshExprMVarAtCore (← mkFreshMVarId) lctx localInsts type kind userName numScopeArgs
 
 def mkFreshLevelMVar : MetaM Level := do
-  let mvarId ← mkFreshId
+  let mvarId ← mkFreshMVarId
   modifyMCtx fun mctx => mctx.addLevelMVarDecl mvarId;
   return mkLevelMVar mvarId
 
@@ -365,7 +365,7 @@ def shouldReduceReducibleOnly : MetaM Bool :=
 def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
   match (← getMCtx).findDecl? mvarId with
   | some d => pure d
-  | none   => throwError "unknown metavariable '?{mvarId}'"
+  | none   => throwError "unknown metavariable '?{mvarId.name}'"
 
 def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarKind mvarId kind
@@ -387,7 +387,7 @@ def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : MetaM Bool := do
 def getLevelMVarDepth (mvarId : MVarId) : MetaM Nat := do
   match (← getMCtx).findLevelDepth? mvarId with
   | some depth => return depth
-  | _          => throwError "unknown universe metavariable '?{mvarId}'"
+  | _          => throwError "unknown universe metavariable '?{mvarId.name}'"
 
 def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
   if (← getConfig).ignoreLevelMVarDepth then
@@ -684,7 +684,7 @@ mutual
       | Expr.forallE n d b c =>
         if fvarsSizeLtMaxFVars fvars maxFVars? then
           let d     := d.instantiateRevRange j fvars.size fvars
-          let fvarId ← mkFreshId
+          let fvarId ← mkFreshFVarId
           let lctx  := lctx.mkLocalDecl fvarId n d c.binderInfo
           let fvar  := mkFVar fvarId
           let fvars := fvars.push fvar
@@ -785,14 +785,14 @@ where
     match consumeLet, e with
     | _, Expr.lam n d b c =>
       let d := d.instantiateRevRange j fvars.size fvars
-      let fvarId ← mkFreshId
+      let fvarId ← mkFreshFVarId
       let lctx := lctx.mkLocalDecl fvarId n d c.binderInfo
       let fvar := mkFVar fvarId
       process consumeLet lctx (fvars.push fvar) j b
     | true, Expr.letE n t v b _ => do
       let t := t.instantiateRevRange j fvars.size fvars
       let v := v.instantiateRevRange j fvars.size fvars
-      let fvarId ← mkFreshId
+      let fvarId ← mkFreshFVarId
       let lctx := lctx.mkLetDecl fvarId n t v
       let fvar := mkFVar fvarId
       process true lctx (fvars.push fvar) j b
@@ -884,7 +884,7 @@ private def withNewFVar (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM �
   | some c => withNewLocalInstance c fvar <| k fvar
 
 private def withLocalDeclImp (n : Name) (bi : BinderInfo) (type : Expr) (k : Expr → MetaM α) : MetaM α := do
-  let fvarId ← mkFreshId
+  let fvarId ← mkFreshFVarId
   let ctx ← read
   let lctx := ctx.lctx.mkLocalDecl fvarId n type bi
   let fvar := mkFVar fvarId
@@ -924,7 +924,7 @@ def withNewBinderInfos (bs : Array (FVarId × BinderInfo)) (k : n α) : n α :=
   mapMetaM (fun k => withNewBinderInfosImp bs k) k
 
 private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) : MetaM α := do
-  let fvarId ← mkFreshId
+  let fvarId ← mkFreshFVarId
   let ctx ← read
   let lctx := ctx.lctx.mkLetDecl fvarId n type val
   let fvar := mkFVar fvarId

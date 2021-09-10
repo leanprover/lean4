@@ -434,6 +434,7 @@ lean_object* l_Lean_Meta_assignExprMVar(lean_object*, lean_object*, lean_object*
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalRotateRight___closed__2;
 lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_evalSeq1___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalIntro___closed__24;
+extern lean_object* l_Lean_instInhabitedFVarId;
 lean_object* l___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___at_Lean_Elab_Tactic_evalOpen___spec__23(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_renameInaccessibles___closed__1;
 lean_object* l_Lean_Elab_Tactic_evalIntroMatch___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -523,7 +524,6 @@ static lean_object* l_Lean_resolveNamespace___at_Lean_Elab_Tactic_evalOpen___spe
 lean_object* l___regBuiltin_Lean_Elab_Tactic_evalRevert(lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenOnly___at_Lean_Elab_Tactic_evalOpen___spec__17___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_instInhabitedName;
 lean_object* l_Lean_Elab_Tactic_evalIntro_introStep(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalDone___closed__10;
@@ -11880,7 +11880,7 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_10 = l_Lean_instInhabitedName;
+x_10 = l_Lean_instInhabitedFVarId;
 x_11 = lean_array_get(x_10, x_4, x_6);
 lean_inc(x_1);
 lean_inc(x_3);
@@ -11996,7 +11996,7 @@ x_16 = lean_nat_add(x_3, x_4);
 x_17 = lean_unsigned_to_nat(2u);
 x_18 = lean_nat_div(x_16, x_17);
 lean_dec(x_16);
-x_87 = l_Lean_instInhabitedName;
+x_87 = l_Lean_instInhabitedFVarId;
 x_88 = lean_array_get(x_87, x_2, x_18);
 x_89 = lean_array_get(x_87, x_2, x_3);
 lean_inc(x_88);
@@ -12080,7 +12080,7 @@ goto block_86;
 block_86:
 {
 lean_object* x_20; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_71; lean_object* x_72; lean_object* x_73; 
-x_46 = l_Lean_instInhabitedName;
+x_46 = l_Lean_instInhabitedFVarId;
 x_47 = lean_array_get(x_46, x_19, x_4);
 x_71 = lean_array_get(x_46, x_19, x_3);
 lean_inc(x_47);
@@ -12172,7 +12172,7 @@ block_45:
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 lean_dec(x_20);
 x_21 = lean_array_swap(x_19, x_3, x_4);
-x_22 = l_Lean_instInhabitedName;
+x_22 = l_Lean_instInhabitedFVarId;
 x_23 = lean_array_get(x_22, x_21, x_18);
 x_24 = lean_array_get(x_22, x_21, x_4);
 lean_inc(x_23);

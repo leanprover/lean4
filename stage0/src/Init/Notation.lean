@@ -316,6 +316,8 @@ macro dot:("·" <|> ".") ts:tacticSeq : tactic => `(tactic| {%$dot ($ts:tacticSe
 macro "rfl" : tactic => `(exact rfl)
 /-- `admit` is a shorthand for `exact sorry`. -/
 macro "admit" : tactic => `(exact sorry)
+/-- The `sorry` tactic isnxo a shorthand for `exact sorry`. -/
+macro "sorry" : tactic => `(exact sorry)
 macro "inferInstance" : tactic => `(exact inferInstance)
 
 syntax locationWildcard := "*"
@@ -362,6 +364,11 @@ syntax simpStar  := "*"
 syntax (name := simp) "simp " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 syntax (name := simpAll) "simp_all " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
 
+/--
+  Delta expand the given definition.
+  This is a low-level tactic, it will expose how recursive definitions have been compiled by Lean. -/
+syntax (name := delta) "delta " ident (location)? : tactic
+
 -- Auxiliary macro for lifting have/suffices/let/...
 -- It makes sure the "continuation" `?_` is the main goal after refining
 macro "refineLift " e:term : tactic => `(focus (refine noImplicitLambda% $e; rotateRight))
@@ -407,6 +414,14 @@ macro_rules
 syntax "trivial" : tactic
 
 syntax (name := split) "split " (colGt term)? (location)? : tactic
+
+/--
+The tactic `specialize h a₁ ... aₙ` works on local hypothesis `h`.
+The premises of this hypothesis, either universal quantifications or non-dependent implications,
+are instantiated by concrete terms coming either from arguments `a₁` ... `aₙ`.
+The tactic adds a new hypothesis with the same name `h := h a₁ ... aₙ` and tries to clear the previous one.
+-/
+syntax (name := specialize) "specialize " term : tactic
 
 macro_rules | `(tactic| trivial) => `(tactic| assumption)
 macro_rules | `(tactic| trivial) => `(tactic| rfl)

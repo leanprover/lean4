@@ -382,7 +382,6 @@ lean_object* l_Lean_Elab_Term_logUnassignedUsingErrorInfos(lean_object*, lean_ob
 lean_object* l_Lean_Elab_Tactic_instInhabitedState;
 static lean_object* l_Lean_Elab_Tactic_instAlternativeTacticM___closed__3;
 static lean_object* l_Lean_Elab_Tactic_tacticElabAttribute___closed__3;
-lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_Tactic_Basic_0__Lean_Elab_Tactic_evalTacticUsing_loop_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___spec__1___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5675,7 +5674,7 @@ lean_inc(x_15);
 x_16 = lean_ctor_get(x_8, 5);
 lean_inc(x_16);
 lean_inc(x_14);
-x_17 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___spec__1___lambda__1___boxed), 4, 1);
+x_17 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___spec__1___lambda__1), 4, 1);
 lean_closure_set(x_17, 0, x_14);
 lean_inc(x_15);
 x_18 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Elab_liftMacroM___spec__1___rarg___boxed), 3, 1);
@@ -6292,7 +6291,6 @@ lean_inc(x_1);
 x_19 = l_Lean_Syntax_getKind(x_1);
 x_20 = l_Lean_Elab_Tactic_tacticElabAttribute;
 x_21 = l_Lean_KeyedDeclsAttribute_getEntries___rarg(x_20, x_18, x_19);
-lean_dec(x_18);
 if (lean_obj_tag(x_21) == 0)
 {
 lean_object* x_22; 
@@ -6874,7 +6872,6 @@ lean_inc(x_1);
 x_15 = l_Lean_Syntax_getKind(x_1);
 x_16 = l_Lean_Elab_macroAttribute;
 x_17 = l_Lean_KeyedDeclsAttribute_getEntries___rarg(x_16, x_14, x_15);
-lean_dec(x_14);
 x_18 = l_Lean_Elab_Tactic_expandTacticMacroFns_loop(x_1, x_17, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_13);
 return x_18;
 }
@@ -6965,15 +6962,6 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_9;
-}
-}
-lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___spec__1___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___spec__1___lambda__1(x_1, x_2, x_3, x_4);
-lean_dec(x_1);
-return x_5;
 }
 }
 lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___spec__1___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

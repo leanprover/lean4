@@ -50,6 +50,10 @@ private def mkImpCongr (r₁ r₂ : Result) : MetaM Result := do
   | none,     none   => return { expr := e, proof? := none }
   | _,        _      => return { expr := e, proof? := (← Meta.mkImpCongr (← r₁.getProof) (← r₂.getProof)) } -- TODO specialize if bootleneck
 
+/-- Return true if `e` is of the form `ofNat n` where `n` is a kernel Nat literal -/
+def isOfNatNatLit (e : Expr) : Bool :=
+  e.isAppOfArity ``OfNat.ofNat 3 && e.appFn!.appArg!.isNatLit
+
 private def reduceProj (e : Expr) : MetaM Expr := do
   match (← reduceProj? e) with
   | some e => return e
@@ -160,7 +164,7 @@ where
     | Expr.const ..    => simpConst e
     | Expr.bvar ..     => unreachable!
     | Expr.sort ..     => pure { expr := e }
-    | Expr.lit ..      => pure { expr := e }
+    | Expr.lit ..      => simpLit e
     | Expr.mvar ..     => pure { expr := (← instantiateMVars e) }
     | Expr.fvar ..     => pure { expr := (← reduceFVar (← getConfig) e) }
 
@@ -179,6 +183,11 @@ where
           r ← mkCongrFun r (← dsimp arg)
         i := i + 1
       return r
+
+  simpLit (e : Expr) : M Result :=
+    match e.natLit? with
+    | some n => return { expr := (← mkNumeral (mkConst ``Nat) n) }
+    | none   => return { expr := e }
 
   /- Return true iff processing the given congruence lemma hypothesis produced a non-refl proof. -/
   processCongrHypothesis (h : Expr) : M Bool := do
@@ -242,6 +251,9 @@ where
     let e ← reduce e
     if !e.isApp then
       simp e
+    else if isOfNatNatLit e then
+      -- Recall that we expand "orphan" kernel nat literals `n` into `ofNat n`
+      return { expr := e }
     else
       congr e
 
@@ -430,7 +442,7 @@ def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) (disc
       else
         return some (fvarId, mvarId)
 
-abbrev FVarIdToLemmaId := NameMap Name
+abbrev FVarIdToLemmaId := FVarIdMap Name
 
 def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[]) (fvarIdToLemmaId : FVarIdToLemmaId := {}) : MetaM (Option (Array FVarId × MVarId)) := do
   withMVarContext mvarId do

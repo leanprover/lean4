@@ -59,7 +59,7 @@ def headBetaMVarType (mvarId : MVarId) : MetaM Unit := do
 /-- Collect nondependent hypotheses that are propositions. -/
 def getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId) :=
   withMVarContext mvarId do
-    let mut candidates : NameHashSet := {}
+    let mut candidates : FVarIdHashSet := {}
     for localDecl in (← getLCtx) do
       unless localDecl.isAuxDecl do
         candidates ← removeDeps localDecl.type candidates
@@ -78,9 +78,9 @@ def getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId) :=
           result := result.push localDecl.fvarId
       return result
 where
-  removeDeps (e : Expr) (candidates : NameHashSet) : MetaM NameHashSet := do
+  removeDeps (e : Expr) (candidates : FVarIdHashSet) : MetaM FVarIdHashSet := do
     let e ← instantiateMVars e
-    let visit : StateRefT NameHashSet MetaM NameHashSet := do
+    let visit : StateRefT FVarIdHashSet MetaM FVarIdHashSet := do
       e.forEach fun
         | Expr.fvar fvarId _ => modify fun s => s.erase fvarId
         | _ => pure ()

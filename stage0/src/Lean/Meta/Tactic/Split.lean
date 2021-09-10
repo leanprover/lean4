@@ -21,26 +21,42 @@ private def getSimpMatchContext : MetaM Simp.Context :=
       config.decide := false
    }
 
-private def simpMatchPre (matchDeclName : Name) (matchEqDeclName : Name) (e : Expr) : SimpM Simp.Step := do
-  if e.isAppOf matchDeclName then
+def simpMatch (e : Expr) : MetaM Simp.Result := do
+  Simp.main e (← getSimpMatchContext) (methods := { pre })
+where
+  pre (e : Expr) : SimpM Simp.Step := do
+    let some app ← matchMatcherApp? e | return Simp.Step.visit { expr := e }
     -- First try to reduce matcher
     match (← reduceRecMatcher? e) with
     | some e' => return Simp.Step.done { expr := e' }
     | none    =>
-    -- Try lemma
-    match (← Simp.tryLemma? e { proof := mkConst matchEqDeclName, name? := matchEqDeclName } SplitIf.discharge?) with
-    | none => return Simp.Step.visit { expr := e }
-    | some r => return Simp.Step.done r
-  else
-    return Simp.Step.visit { expr := e }
+      for matchEq in (← Match.getEquationsFor app.matcherName).eqnNames do
+        -- Try lemma
+        match (← Simp.tryLemma? e { proof := mkConst matchEq, name? := some matchEq } SplitIf.discharge?) with
+        | none   => pure ()
+        | some r => return Simp.Step.done r
+      return Simp.Step.visit { expr := e }
 
-private def simpMatch (matchDeclName : Name) (matchEqDeclName : Name) (e : Expr) : MetaM Simp.Result := do
-  Simp.main e (← getSimpMatchContext) (methods := { pre := simpMatchPre matchDeclName matchEqDeclName })
+private def simpMatchCore (matchDeclName : Name) (matchEqDeclName : Name) (e : Expr) : MetaM Simp.Result := do
+  Simp.main e (← getSimpMatchContext) (methods := { pre })
+where
+  pre (e : Expr) : SimpM Simp.Step := do
+    if e.isAppOf matchDeclName then
+      -- First try to reduce matcher
+      match (← reduceRecMatcher? e) with
+      | some e' => return Simp.Step.done { expr := e' }
+      | none    =>
+      -- Try lemma
+      match (← Simp.tryLemma? e { proof := mkConst matchEqDeclName, name? := matchEqDeclName } SplitIf.discharge?) with
+      | none => return Simp.Step.visit { expr := e }
+      | some r => return Simp.Step.done r
+    else
+      return Simp.Step.visit { expr := e }
 
-private def simpMatchTarget (mvarId : MVarId) (matchDeclName : Name) (matchEqDeclName : Name) : MetaM MVarId := do
+private def simpMatchTargetCore (mvarId : MVarId) (matchDeclName : Name) (matchEqDeclName : Name) : MetaM MVarId := do
   withMVarContext mvarId do
     let target ← instantiateMVars (← getMVarType mvarId)
-    let r ← simpMatch matchDeclName matchEqDeclName target
+    let r ← simpMatchCore matchDeclName matchEqDeclName target
     match r.proof? with
     | some proof => replaceTargetEq mvarId r.expr proof
     | none => replaceTargetDefEq mvarId r.expr
@@ -78,7 +94,7 @@ def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do
       let (_, mvarId) ← introN mvarId numParams
       let (_, mvarId) ← introNP mvarId numExtra
       trace[Meta.debug] "before simpMatch:\n{MessageData.ofGoal mvarId}"
-      let mvarId ← simpMatchTarget mvarId app.matcherName matchEqns.eqnNames[i]
+      let mvarId ← simpMatchTargetCore mvarId app.matcherName matchEqns.eqnNames[i]
       return (i+1, mvarId::mvarIds)
     return mvarIds.reverse
 

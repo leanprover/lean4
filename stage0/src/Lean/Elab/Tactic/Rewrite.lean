@@ -18,29 +18,13 @@ def rewriteTarget (stx : Syntax) (symm : Bool) (mode : TransparencyMode) : Tacti
     let mvarId' ← replaceTargetEq (← getMainGoal) r.eNew r.eqProof
     replaceMainGoal (mvarId' :: r.mvarIds)
 
-def rewriteLocalDeclFVarId (stx : Syntax) (symm : Bool) (fvarId : FVarId) (mode : TransparencyMode) : TacticM Unit := do
+def rewriteLocalDecl (stx : Syntax) (symm : Bool) (fvarId : FVarId) (mode : TransparencyMode) : TacticM Unit := do
   Term.withSynthesize <| withMainContext do
     let e ← elabTerm stx none true
     let localDecl ← getLocalDecl fvarId
     let rwResult ← rewrite (← getMainGoal) localDecl.type e symm (mode := mode)
     let replaceResult ← replaceLocalDecl (← getMainGoal) fvarId rwResult.eNew rwResult.eqProof
     replaceMainGoal (replaceResult.mvarId :: rwResult.mvarIds)
-
-def rewriteLocalDecl (stx : Syntax) (symm : Bool) (userName : Name) (mode : TransparencyMode) : TacticM Unit :=
-  withMainContext do
-    let localDecl ← getLocalDeclFromUserName userName
-    rewriteLocalDeclFVarId stx symm localDecl.fvarId mode
-
-def rewriteAll (stx : Syntax) (symm : Bool) (mode : TransparencyMode) : TacticM Unit := do
-  let worked ← tryTactic <| rewriteTarget stx symm mode
-  withMainContext do
-    let mut worked := worked
-    -- We must traverse backwards because `replaceLocalDecl` uses the revert/intro idiom
-    for fvarId in (← getLCtx).getFVarIds.reverse do
-      worked := worked || (← tryTactic <| rewriteLocalDeclFVarId stx symm fvarId mode)
-    unless worked do
-      let mvarId ← getMainGoal
-      throwTacticEx `rewrite mvarId "did not find instance of the pattern in the current goal"
 
 def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) → (term : Syntax) → TacticM Unit) : TacticM Unit := do
   let lbrak := rwRulesSeqStx[0]
@@ -63,12 +47,10 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
 def evalRewriteCore (mode : TransparencyMode) : Tactic := fun stx => do
   let loc   := expandOptLocation stx[2]
   withRWRulesSeq stx[0] stx[1] fun symm term => do
-    match loc with
-    | Location.targets hyps type =>
-      hyps.forM (rewriteLocalDecl term symm · mode)
-      if type then
-        rewriteTarget term symm mode
-    | Location.wildcard => rewriteAll term symm mode
+    withLocation loc
+      (rewriteLocalDecl term symm · mode)
+      (rewriteTarget term symm mode)
+      (throwTacticEx `rewrite . "did not find instance of the pattern in the current goal")
 
 @[builtinTactic Lean.Parser.Tactic.rewriteSeq] def evalRewriteSeq : Tactic :=
   evalRewriteCore TransparencyMode.instances

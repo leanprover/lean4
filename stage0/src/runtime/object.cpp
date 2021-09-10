@@ -57,6 +57,12 @@ extern "C" object * lean_panic_fn(object * default_val, object * msg) {
     if (g_panic_messages) {
         std::cerr << lean_string_cstr(msg) << "\n";
     }
+#ifndef LEAN_EMSCRIPTEN
+    if (std::getenv("LEAN_ABORT_ON_PANIC")) {
+        int * v = nullptr;
+        *v = 0;
+    }
+#endif
     if (g_exit_on_panic) {
         std::exit(1);
     }

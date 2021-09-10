@@ -160,6 +160,7 @@ lean_object* l_Lean_MetavarContext_exprDependsOn(lean_object*, lean_object*, lea
 static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams___closed__5;
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assignExprMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedFVarId;
 lean_object* l_Lean_Meta_synthInstance(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_getTargetArity(lean_object*);
 static lean_object* l_List_forM___at_Lean_Meta_induction___spec__1___closed__2;
@@ -197,7 +198,6 @@ lean_object* l_Lean_Meta_induction_match__3___rarg(lean_object*, lean_object*);
 lean_object* l_List_forM___at_Lean_Meta_induction___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_throwUnexpectedMajorType___rarg___closed__3;
-extern lean_object* l_Lean_instInhabitedName;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_induction___spec__4___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1041,7 +1041,7 @@ lean_dec(x_14);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_16 = l_Lean_instInhabitedName;
+x_16 = l_Lean_instInhabitedFVarId;
 x_17 = lean_array_get(x_16, x_1, x_13);
 x_18 = lean_nat_sub(x_13, x_3);
 lean_dec(x_13);
@@ -4132,7 +4132,7 @@ lean_inc(x_9);
 lean_dec(x_5);
 x_10 = l_Lean_Expr_fvarId_x21(x_7);
 lean_dec(x_7);
-x_11 = l_Lean_instInhabitedName;
+x_11 = l_Lean_instInhabitedFVarId;
 x_12 = lean_array_get(x_11, x_1, x_9);
 x_13 = l_Lean_mkFVar(x_12);
 x_14 = l_Lean_Meta_FVarSubst_insert(x_8, x_10, x_13);

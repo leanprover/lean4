@@ -31,12 +31,12 @@ instance : AndThen Visitor where
 
 @[inline] def skip : Visitor := id
 
-@[inline] def visitFVar (x y : Name) : Visitor
+@[inline] def visitFVar (x y : FVarId) : Visitor
   | d@{result := false, ..} => d
   | {found := false, result := true} => {found := x == y, result := true}
   | {found := true,  result := true} => {found := true, result := x != y}
 
-def visit (x : Name) : Expr → Visitor
+def visit (x : FVarId) : Expr → Visitor
   | Expr.fvar y _        => visitFVar y x
   | Expr.app f a _       => visit x a >> visit x f
   | Expr.lam _ d b _     => visit x d >> visit x b
@@ -51,7 +51,7 @@ end atMostOnce
 open atMostOnce (visit) in
 /-- Return true iff the free variable with id `x` occurs at most once in `e` -/
 @[export lean_at_most_once]
-def atMostOnce (e : Expr) (x : Name) : Bool :=
+def atMostOnce (e : Expr) (x : FVarId) : Bool :=
   let {result := result, ..} := visit x e {found := false, result := true}
   result
 

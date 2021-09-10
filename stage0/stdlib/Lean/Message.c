@@ -404,6 +404,7 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_MessageLog_getInfoMessages___sp
 lean_object* l_Array_mapMUnsafe_map___at_Lean_MessageLog_errorsToWarnings___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 lean_object* l_Lean_Message_toString___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_addMessageContextPartial___rarg___lambda__1___closed__2;
 static lean_object* l_Lean_MessageData_formatAux___closed__2;
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_2331____closed__15;
@@ -6969,7 +6970,19 @@ static lean_object* _init_l_Lean_addMessageContextPartial___rarg___lambda__1___c
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_MessageData_instantiateMVars___closed__3;
+x_1 = l_Lean_MessageData_instantiateMVars___closed__2;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_addMessageContextPartial___rarg___lambda__1___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_addMessageContextPartial___rarg___lambda__1___closed__1;
 x_2 = l_Lean_MessageLog_msgs___default___closed__3;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -6988,7 +7001,7 @@ x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
 x_7 = l_Lean_MessageData_instantiateMVars___closed__4;
-x_8 = l_Lean_addMessageContextPartial___rarg___lambda__1___closed__1;
+x_8 = l_Lean_addMessageContextPartial___rarg___lambda__1___closed__2;
 x_9 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_9, 0, x_2);
 lean_ctor_set(x_9, 1, x_7);
@@ -8828,7 +8841,7 @@ x_8 = l_Lean_KernelException_toMessageData___closed__4;
 x_9 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_9, 0, x_7);
 lean_ctor_set(x_9, 1, x_8);
-x_10 = l_Lean_addMessageContextPartial___rarg___lambda__1___closed__1;
+x_10 = l_Lean_addMessageContextPartial___rarg___lambda__1___closed__2;
 x_11 = l___private_Lean_Message_0__Lean_KernelException_mkCtx(x_3, x_10, x_2, x_9);
 return x_11;
 }
@@ -8850,7 +8863,7 @@ x_17 = l_Lean_KernelException_toMessageData___closed__4;
 x_18 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Lean_addMessageContextPartial___rarg___lambda__1___closed__1;
+x_19 = l_Lean_addMessageContextPartial___rarg___lambda__1___closed__2;
 x_20 = l___private_Lean_Message_0__Lean_KernelException_mkCtx(x_12, x_19, x_2, x_18);
 return x_20;
 }
@@ -8979,7 +8992,7 @@ x_64 = l_Lean_KernelException_toMessageData___closed__4;
 x_65 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_65, 0, x_63);
 lean_ctor_set(x_65, 1, x_64);
-x_66 = l_Lean_addMessageContextPartial___rarg___lambda__1___closed__1;
+x_66 = l_Lean_addMessageContextPartial___rarg___lambda__1___closed__2;
 x_67 = l___private_Lean_Message_0__Lean_KernelException_mkCtx(x_59, x_66, x_2, x_65);
 return x_67;
 }
@@ -9001,7 +9014,7 @@ x_73 = l_Lean_KernelException_toMessageData___closed__4;
 x_74 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_74, 0, x_72);
 lean_ctor_set(x_74, 1, x_73);
-x_75 = l_Lean_addMessageContextPartial___rarg___lambda__1___closed__1;
+x_75 = l_Lean_addMessageContextPartial___rarg___lambda__1___closed__2;
 x_76 = l___private_Lean_Message_0__Lean_KernelException_mkCtx(x_68, x_75, x_2, x_74);
 return x_76;
 }
@@ -9370,6 +9383,8 @@ l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_L
 lean_mark_persistent(l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MessageLog_getInfoMessages___spec__2___closed__1);
 l_Lean_addMessageContextPartial___rarg___lambda__1___closed__1 = _init_l_Lean_addMessageContextPartial___rarg___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_addMessageContextPartial___rarg___lambda__1___closed__1);
+l_Lean_addMessageContextPartial___rarg___lambda__1___closed__2 = _init_l_Lean_addMessageContextPartial___rarg___lambda__1___closed__2();
+lean_mark_persistent(l_Lean_addMessageContextPartial___rarg___lambda__1___closed__2);
 l_Lean_instToMessageDataString___closed__1 = _init_l_Lean_instToMessageDataString___closed__1();
 lean_mark_persistent(l_Lean_instToMessageDataString___closed__1);
 l_Lean_instToMessageDataString = _init_l_Lean_instToMessageDataString();

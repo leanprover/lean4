@@ -35,8 +35,6 @@ option(SPLIT_STACK        "SPLIT_STACK"        OFF)
 # When OFF we disable LLVM support
 option(LLVM               "LLVM"               OFF)
 
-# Include MSYS2 required DLLs and binaries in the binary distribution package
-option(INCLUDE_MSYS2_DLLS "INCLUDE_MSYS2_DLLS" OFF)
 # When ON we include githash in the version string
 option(USE_GITHASH        "GIT_HASH"           ON)
 # When ON thread storage is automatically finalized, it assumes platform support pthreads.
@@ -59,13 +57,13 @@ option(FAKE_FREE           "Disable actually freeing runtime objects, useful for
 option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" ON)
 option(LAZY_RC             "LAZY_RC" OFF)
 option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
-option(BSYMBOLIC_FUNCTIONS "Link with -Bsymbolic-functions to reduce call overhead in shared libraries (Linux)" ON)
+option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared libraries (Linux)" ON)
 
 # development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
 
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
-set(MINGW_LOCAL_DIR       "C:/msys64/mingw64/bin"      CACHE STRING "where to find MSYS2 required DLLs and binaries")
+set(LEANC_CC              "cc"                         CACHE STRING "C compiler to use in `leanc`")
 
 if ("${FAKE_FREE}" MATCHES "ON")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_FAKE_FREE")
@@ -283,10 +281,23 @@ else()
   set(LEANC_STATIC_LINKER_FLAGS "-Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lStd -lleanrt -Wl,--end-group")
 endif()
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -lc++")
+  set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -lc++")
+  set(LEAN_EXE_LINKER_FLAGS "${LEAN_EXE_LINKER_FLAGS} -lc++")
+else()
+  set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -lstdc++")
+  set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -lstdc++")
+  set(LEAN_EXE_LINKER_FLAGS "${LEAN_EXE_LINKER_FLAGS} -lstdc++")
+endif()
+
+set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -lm")
+set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -lm")
+
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  if(BSYMBOLIC_FUNCTIONS)
-    set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,-Bsymbolic-functions")
-    set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,-Bsymbolic-functions")
+  if(BSYMBOLIC)
+    set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,-Bsymbolic")
+    set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,-Bsymbolic")
   endif()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -ftls-model=initial-exec")
   set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -fPIC")
@@ -437,37 +448,33 @@ else()
 endif()
 
 # Escape for `make`. Yes, twice.
-string(REPLACE "$" "$$$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
+string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
+string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE "${CMAKE_EXE_LINKER_FLAGS_MAKE}")
 configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
 add_custom_target(make_stdlib ALL
   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-  # needed for linking `leanpkg`
-  DEPENDS leancpp leanrt_initial-exec
   # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
   # for a parallelized nested build, but CMake doesn't let us do that.
   # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage
-  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanshared $<IF:$<EQUAL:${STAGE},0>,MORE_LEANMAKE_OPTS=C_ONLY=1\ C_OUT=../stdlib/,Leanpkg>
+  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Init Std Lean
   VERBATIM)
 
-add_library(Init STATIC IMPORTED)
-set_target_properties(Init PROPERTIES
-  IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libInit.a)
-add_dependencies(Init make_stdlib)
+# We declare these as separate custom targets so they use separate `make` invocations, which makes `make` recompute which dependencies
+# (e.g. `libLean.a`) are now newer than the target file
 
-add_library(Std STATIC IMPORTED)
-set_target_properties(Std PROPERTIES
-  IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libStd.a)
-add_dependencies(Std make_stdlib)
+add_custom_target(leanshared ALL
+  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+  DEPENDS make_stdlib leancpp leanrt_initial-exec
+  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanshared
+  VERBATIM)
 
-add_library(Lean STATIC IMPORTED)
-set_target_properties(Lean PROPERTIES
-  IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libLean.a)
-add_dependencies(Lean make_stdlib)
-
-add_library(leanshared SHARED IMPORTED)
-set_target_properties(leanshared PROPERTIES
-  IMPORTED_LOCATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX})
-add_dependencies(leanshared make_stdlib)
+if(${STAGE} GREATER 0)
+  add_custom_target(leanpkg ALL
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS leanshared
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Leanpkg
+    VERBATIM)
+endif()
 
 if(PREV_STAGE)
   add_custom_target(update-stage0

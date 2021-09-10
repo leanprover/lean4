@@ -325,10 +325,10 @@ pair_ref<environment, object_ref> run_new_frontend(std::string const & input, op
         lean_run_frontend(mk_string(input), opts.to_obj_arg(), mk_string(file_name), main_module_name.to_obj_arg(), io_mk_world()));
 }
 
-/* def workerMain : IO UInt32 */
-extern "C" object* lean_server_worker_main(object* w);
-uint32_t run_server_worker() {
-    return get_io_scalar_result<uint32_t>(lean_server_worker_main(io_mk_world()));
+/* def workerMain : Options → IO UInt32 */
+extern "C" object * lean_server_worker_main(object * opts, object * w);
+uint32_t run_server_worker(options const & opts) {
+    return get_io_scalar_result<uint32_t>(lean_server_worker_main(opts.to_obj_arg(), io_mk_world()));
 }
 
 /* def watchdogMain (args : List String) : IO Uint32 */
@@ -580,7 +580,7 @@ int main(int argc, char ** argv) {
         if (run_server == 1)
             return run_server_watchdog(forwarded_args);
         else if (run_server == 2)
-            return run_server_worker();
+            return run_server_worker(opts);
 
         if (use_stdin) {
             if (argc - optind != 0) {

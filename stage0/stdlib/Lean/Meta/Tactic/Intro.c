@@ -69,7 +69,6 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Intro___hyg_612__
 static lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg___lambda__1___closed__2;
 lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkFreshId___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxNameImp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
@@ -89,6 +88,7 @@ lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp___rarg___
 lean_object* l_Lean_Meta_intros(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_introNCore(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxNameImp(uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkFreshFVarId___rarg(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_instMonadMetaM;
 uint8_t l_Lean_Expr_isForall(lean_object*);
 lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -102,6 +102,7 @@ lean_object* l_Lean_Meta_withMVarContext___at___private_Lean_Meta_SynthInstance_
 lean_object* lean_local_ctx_mk_local_decl(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assignExprMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedFVarId;
 lean_object* l_Lean_Meta_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_BinderInfo_isExplicit(uint8_t);
 lean_object* l_Lean_Meta_intro_match__1(lean_object*);
@@ -110,7 +111,6 @@ lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_getIntrosSize_match
 lean_object* l_Lean_Meta_getHygienicIntro___boxed(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp___spec__1(size_t, size_t, lean_object*);
 lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_instInhabitedName;
 lean_object* l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_getIntrosSize___boxed(lean_object*);
 lean_object* l_Lean_Meta_getHygienicIntro(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_intro1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -594,7 +594,7 @@ lean_dec(x_19);
 x_24 = l_Lean_Expr_headBeta(x_23);
 x_25 = l_Lean_Meta_instMonadMetaM;
 x_26 = l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg___closed__5;
-x_27 = l_Lean_mkFreshId___rarg(x_25, x_26);
+x_27 = l_Lean_mkFreshFVarId___rarg(x_25, x_26);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -737,7 +737,7 @@ lean_dec(x_55);
 lean_dec(x_53);
 x_59 = l_Lean_Meta_instMonadMetaM;
 x_60 = l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp_loop___rarg___closed__5;
-x_61 = l_Lean_mkFreshId___rarg(x_59, x_60);
+x_61 = l_Lean_mkFreshFVarId___rarg(x_59, x_60);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
@@ -1825,7 +1825,7 @@ if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_16 = lean_ctor_get(x_14, 0);
-x_17 = l_Lean_instInhabitedName;
+x_17 = l_Lean_instInhabitedFVarId;
 x_18 = lean_unsigned_to_nat(0u);
 x_19 = lean_array_get(x_17, x_16, x_18);
 lean_dec(x_16);
@@ -1840,7 +1840,7 @@ x_21 = lean_ctor_get(x_14, 1);
 lean_inc(x_21);
 lean_inc(x_20);
 lean_dec(x_14);
-x_22 = l_Lean_instInhabitedName;
+x_22 = l_Lean_instInhabitedFVarId;
 x_23 = lean_unsigned_to_nat(0u);
 x_24 = lean_array_get(x_22, x_20, x_23);
 lean_dec(x_20);
@@ -1871,7 +1871,7 @@ if (lean_is_exclusive(x_26)) {
  lean_dec_ref(x_26);
  x_30 = lean_box(0);
 }
-x_31 = l_Lean_instInhabitedName;
+x_31 = l_Lean_instInhabitedFVarId;
 x_32 = lean_unsigned_to_nat(0u);
 x_33 = lean_array_get(x_31, x_28, x_32);
 lean_dec(x_28);
@@ -1933,7 +1933,7 @@ if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_15 = lean_ctor_get(x_13, 0);
-x_16 = l_Lean_instInhabitedName;
+x_16 = l_Lean_instInhabitedFVarId;
 x_17 = lean_unsigned_to_nat(0u);
 x_18 = lean_array_get(x_16, x_15, x_17);
 lean_dec(x_15);
@@ -1948,7 +1948,7 @@ x_20 = lean_ctor_get(x_13, 1);
 lean_inc(x_20);
 lean_inc(x_19);
 lean_dec(x_13);
-x_21 = l_Lean_instInhabitedName;
+x_21 = l_Lean_instInhabitedFVarId;
 x_22 = lean_unsigned_to_nat(0u);
 x_23 = lean_array_get(x_21, x_19, x_22);
 lean_dec(x_19);
@@ -1979,7 +1979,7 @@ if (lean_is_exclusive(x_25)) {
  lean_dec_ref(x_25);
  x_29 = lean_box(0);
 }
-x_30 = l_Lean_instInhabitedName;
+x_30 = l_Lean_instInhabitedFVarId;
 x_31 = lean_unsigned_to_nat(0u);
 x_32 = lean_array_get(x_30, x_27, x_31);
 lean_dec(x_27);

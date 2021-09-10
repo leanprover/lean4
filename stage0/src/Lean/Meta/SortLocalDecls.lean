@@ -28,12 +28,12 @@ mutual
     | Expr.app f a _       => visitExpr f; visitExpr a
     | Expr.mdata _ b _     => visitExpr b
     | Expr.mvar _ _        => let v ← instantiateMVars e; unless v.isMVar do visitExpr v
-    | Expr.fvar fvarId _   => if let some localDecl := (← read).localDecls.find? fvarId then visitLocalDecl localDecl
+    | Expr.fvar fvarId _   => if let some localDecl := (← read).localDecls.find? fvarId.name then visitLocalDecl localDecl
     | _                    => return ()
 
   partial def visitLocalDecl (localDecl : LocalDecl) : M Unit := do
-    unless (← get).visited.contains localDecl.fvarId do
-      modify fun s => { s with visited := s.visited.insert localDecl.fvarId }
+    unless (← get).visited.contains localDecl.fvarId.name do
+      modify fun s => { s with visited := s.visited.insert localDecl.fvarId.name }
       visitExpr localDecl.type
       if let some val := localDecl.value? then
         visitExpr val
@@ -45,6 +45,6 @@ end SortLocalDecls
 open SortLocalDecls in
 def sortLocalDecls (localDecls : Array LocalDecl) : MetaM (Array LocalDecl) :=
   let aux : M (Array LocalDecl) := do localDecls.forM visitLocalDecl; return (← get).result
-  aux.run { localDecls := localDecls.foldl (init := {}) fun s d => s.insert d.fvarId d } |>.run' {}
+  aux.run { localDecls := localDecls.foldl (init := {}) fun s d => s.insert d.fvarId.name d } |>.run' {}
 
 end Lean.Meta

@@ -9,7 +9,7 @@ namespace Lean.CollectFVars
 
 structure State where
   visitedExpr  : ExprSet  := {}
-  fvarSet      : NameSet  := {}
+  fvarSet      : FVarIdSet  := {}
   deriving Inhabited
 
 abbrev Visitor := State → State

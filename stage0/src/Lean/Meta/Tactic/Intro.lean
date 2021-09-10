@@ -28,7 +28,7 @@ namespace Lean.Meta
       let type   := type.instantiateRevRange j fvars.size fvars
       let type   := type.headBeta
       let val    := val.instantiateRevRange j fvars.size fvars
-      let fvarId ← mkFreshId
+      let fvarId ← mkFreshFVarId
       let (n, s) ← mkName lctx n true s
       let lctx   := lctx.mkLetDecl fvarId n type val
       let fvar   := mkFVar fvarId
@@ -37,7 +37,7 @@ namespace Lean.Meta
     | (i+1), lctx, fvars, j, s, Expr.forallE n type body c => do
       let type   := type.instantiateRevRange j fvars.size fvars
       let type   := type.headBeta
-      let fvarId ← mkFreshId
+      let fvarId ← mkFreshFVarId
       let (n, s) ← mkName lctx n c.binderInfo.isExplicit s
       let lctx   := lctx.mkLocalDecl fvarId n type c.binderInfo
       let fvar   := mkFVar fvarId

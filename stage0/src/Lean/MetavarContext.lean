@@ -906,7 +906,7 @@ mutual
           let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all fun x => inst.fvar != x
           -- Remark: we must reset the before processing `mkAuxMVarType` because `toRevert` may not be equal to `xs`
           let newMVarType ← withFreshCache do mkAuxMVarType mvarLCtx toRevert newMVarKind mvarDecl.type
-          let newMVarId    := (← get).ngen.curr
+          let newMVarId    := { name := (← get).ngen.curr }
           let newMVar      := mkMVar newMVarId
           let result       := mkMVarApp mvarLCtx newMVar toRevert newMVarKind
           let numScopeArgs := mvarDecl.numScopeArgs + result.getAppNumArgs

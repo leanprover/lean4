@@ -376,7 +376,7 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
       appendGoals result.others.toList
 where
   checkTargets (targets : Array Expr) : MetaM Unit := do
-    let mut foundFVars : NameSet := {}
+    let mut foundFVars : FVarIdSet := {}
     for target in targets do
       unless target.isFVar do
         throwError "index in target's type is not a variable (consider using the `cases` tactic instead){indentExpr target}"

@@ -91,7 +91,7 @@ static lean_object* l_Lean_Compiler_implementedByAttr___closed__1;
 lean_object* l_Lean_setImplementedBy_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_139_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_111_(uint8_t, uint8_t);
 static lean_object* l_Lean_registerParametricAttribute___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____spec__12___lambda__7___closed__1;
 lean_object* l_Lean_registerParametricAttribute___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____spec__12___lambda__2(lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_3____spec__12___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1978,7 +1978,7 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; 
 x_10 = 0;
-x_11 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_139_(x_6, x_10);
+x_11 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_111_(x_6, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 

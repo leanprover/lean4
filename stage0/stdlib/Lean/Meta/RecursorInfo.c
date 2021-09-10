@@ -161,7 +161,7 @@ lean_object* l_Lean_Meta_getMajorPos_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2211____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_toStringAux___at_Lean_Meta_RecursorInfo_instToStringRecursorInfo___spec__2___closed__3;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_139_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_111_(uint8_t, uint8_t);
 static lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_checkMotive___closed__3;
 static lean_object* l_Lean_Meta_RecursorInfo_instToStringRecursorInfo___closed__17;
 lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10615,7 +10615,7 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; 
 x_10 = 0;
-x_11 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_139_(x_6, x_10);
+x_11 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_111_(x_6, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 

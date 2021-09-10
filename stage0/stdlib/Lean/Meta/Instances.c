@@ -135,7 +135,7 @@ static lean_object* l_Lean_Meta_instanceExtension___closed__5;
 lean_object* l_Lean_Meta_getGlobalInstancesIndex___rarg___boxed(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_139_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_111_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_405____lambda__1___closed__7;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_951____closed__4;
 lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_951_(lean_object*);
@@ -7675,7 +7675,7 @@ x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
 x_12 = 0;
-x_13 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_139_(x_3, x_12);
+x_13 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_111_(x_3, x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; uint8_t x_16; 

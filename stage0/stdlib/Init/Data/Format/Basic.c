@@ -75,13 +75,11 @@ lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_State_out___defaul
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t l___private_Init_Data_Format_Basic_0__Std_Format_beqFlattenBehavior____x40_Init_Data_Format_Basic___hyg_15_(uint8_t, uint8_t);
 lean_object* l_Std_Format_instMonadPrettyFormatStateMState___lambda__3___boxed(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_beqFlattenBehavior____x40_Init_Data_Format_Basic___hyg_15__match__1(lean_object*);
 static lean_object* l_Std_Format_paren___closed__6;
 static lean_object* l_Std_Format_instMonadPrettyFormatStateMState___closed__1;
 static lean_object* l_Std_Format_instMonadPrettyFormatStateMState___closed__4;
 lean_object* l_Std_Format_instMonadPrettyFormatStateMState_match__1___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be_match__2___rarg(uint8_t, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_beqFlattenBehavior____x40_Init_Data_Format_Basic___hyg_15__match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be_match__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_instToFormatFormat___boxed(lean_object*);
@@ -94,7 +92,6 @@ static lean_object* l_Std_Format_instBEqFlattenBehavior___closed__1;
 lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___rarg___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Format_FlattenBehavior_noConfusion___rarg___lambda__1(lean_object*);
-lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_beqFlattenBehavior____x40_Init_Data_Format_Basic___hyg_15__match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Format_instMonadPrettyFormatStateMState___lambda__1(lean_object*, lean_object*);
 static lean_object* l_Std_Format_instMonadPrettyFormatStateMState___closed__2;
 lean_object* lean_format_pretty(lean_object*, lean_object*);
@@ -280,106 +277,16 @@ x_1 = 0;
 return x_1;
 }
 }
-lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_beqFlattenBehavior____x40_Init_Data_Format_Basic___hyg_15__match__1___rarg(uint8_t x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-if (x_1 == 0)
-{
-lean_dec(x_4);
-if (x_2 == 0)
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_5);
-x_6 = lean_box(0);
-x_7 = lean_apply_1(x_3, x_6);
-return x_7;
-}
-else
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec(x_3);
-x_8 = lean_box(x_1);
-x_9 = lean_box(x_2);
-x_10 = lean_apply_2(x_5, x_8, x_9);
-return x_10;
-}
-}
-else
-{
-lean_dec(x_3);
-if (x_2 == 0)
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-lean_dec(x_4);
-x_11 = lean_box(x_1);
-x_12 = lean_box(x_2);
-x_13 = lean_apply_2(x_5, x_11, x_12);
-return x_13;
-}
-else
-{
-lean_object* x_14; lean_object* x_15; 
-lean_dec(x_5);
-x_14 = lean_box(0);
-x_15 = lean_apply_1(x_4, x_14);
-return x_15;
-}
-}
-}
-}
-lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_beqFlattenBehavior____x40_Init_Data_Format_Basic___hyg_15__match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Basic_0__Std_Format_beqFlattenBehavior____x40_Init_Data_Format_Basic___hyg_15__match__1___rarg___boxed), 5, 0);
-return x_2;
-}
-}
-lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_beqFlattenBehavior____x40_Init_Data_Format_Basic___hyg_15__match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; uint8_t x_7; lean_object* x_8; 
-x_6 = lean_unbox(x_1);
-lean_dec(x_1);
-x_7 = lean_unbox(x_2);
-lean_dec(x_2);
-x_8 = l___private_Init_Data_Format_Basic_0__Std_Format_beqFlattenBehavior____x40_Init_Data_Format_Basic___hyg_15__match__1___rarg(x_6, x_7, x_3, x_4, x_5);
-return x_8;
-}
-}
 uint8_t l___private_Init_Data_Format_Basic_0__Std_Format_beqFlattenBehavior____x40_Init_Data_Format_Basic___hyg_15_(uint8_t x_1, uint8_t x_2) {
 _start:
 {
-if (x_1 == 0)
-{
-if (x_2 == 0)
-{
-uint8_t x_3; 
-x_3 = 1;
-return x_3;
-}
-else
-{
-uint8_t x_4; 
-x_4 = 0;
-return x_4;
-}
-}
-else
-{
-if (x_2 == 0)
-{
-uint8_t x_5; 
-x_5 = 0;
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = l_Std_Format_FlattenBehavior_toCtorIdx(x_1);
+x_4 = l_Std_Format_FlattenBehavior_toCtorIdx(x_2);
+x_5 = lean_nat_dec_eq(x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_3);
 return x_5;
-}
-else
-{
-uint8_t x_6; 
-x_6 = 1;
-return x_6;
-}
-}
 }
 }
 lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_beqFlattenBehavior____x40_Init_Data_Format_Basic___hyg_15____boxed(lean_object* x_1, lean_object* x_2) {

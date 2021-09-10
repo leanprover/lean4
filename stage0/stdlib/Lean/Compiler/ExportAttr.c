@@ -83,7 +83,7 @@ lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppName_match__
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_84____closed__6;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_139_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_111_(uint8_t, uint8_t);
 static lean_object* l_Lean_exportAttr___closed__3;
 static lean_object* l_Lean_exportAttr___lambda__3___closed__2;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -1396,7 +1396,7 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; 
 x_10 = 0;
-x_11 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_139_(x_6, x_10);
+x_11 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_111_(x_6, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 

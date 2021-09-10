@@ -17,7 +17,7 @@ lean_object* l_Lean_Expr_toHeadIndex___boxed(lean_object*);
 static lean_object* l_Lean_Expr_toHeadIndex___closed__1;
 static lean_object* l_Lean_Expr_toHeadIndex___closed__2;
 lean_object* l_Lean_Expr_head___boxed(lean_object*);
-uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1055_(lean_object*);
+uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1017_(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_toHeadIndex___closed__4;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -644,7 +644,7 @@ case 0:
 lean_object* x_2; uint64_t x_3; uint64_t x_4; uint64_t x_5; 
 x_2 = lean_ctor_get(x_1, 0);
 x_3 = 11;
-x_4 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1055_(x_2);
+x_4 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1017_(x_2);
 x_5 = lean_uint64_mix_hash(x_3, x_4);
 return x_5;
 }

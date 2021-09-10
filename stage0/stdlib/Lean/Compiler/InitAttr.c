@@ -104,7 +104,7 @@ lean_object* l_Lean_resolveGlobalConstCore___at_Lean_registerInitAttrUnsafe___sp
 lean_object* l_IO_ofExcept___at_Lean_registerInitAttrUnsafe___spec__12___boxed(lean_object*, lean_object*);
 lean_object* lean_get_init_fn_name_for(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_139_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_111_(uint8_t, uint8_t);
 lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_getInitFnNameForCore_x3f___spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_getInitFnNameForCore_x3f___spec__3___closed__1;
 lean_object* l_Lean_regularInitAttr___lambda__3(lean_object*, lean_object*, lean_object*);
@@ -2748,7 +2748,7 @@ _start:
 {
 uint8_t x_10; uint8_t x_11; 
 x_10 = 0;
-x_11 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_139_(x_6, x_10);
+x_11 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_111_(x_6, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 

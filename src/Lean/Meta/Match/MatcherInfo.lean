@@ -29,8 +29,12 @@ def MatcherInfo.numAlts (info : MatcherInfo) : Nat :=
 def MatcherInfo.arity (info : MatcherInfo) : Nat :=
   info.numParams + 1 + info.numDiscrs + info.numAlts
 
+def MatcherInfo.getFirstDiscrPos (info : MatcherInfo) : Nat :=
+  info.numParams + 1
+
 def MatcherInfo.getMotivePos (info : MatcherInfo) : Nat :=
   info.numParams
+
 namespace Extension
 
 structure Entry where
@@ -79,15 +83,18 @@ def isMatcherCore (env : Environment) (declName : Name) : Bool :=
 def isMatcher [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
   return isMatcherCore (← getEnv) declName
 
-def isMatcherAppCore (env : Environment) (e : Expr) : Bool :=
+def isMatcherAppCore? (env : Environment) (e : Expr) : Option MatcherInfo :=
   let fn := e.getAppFn
   if fn.isConst then
     if let some matcherInfo := getMatcherInfoCore? env fn.constName! then
-      e.getAppNumArgs ≥ matcherInfo.arity
+      if e.getAppNumArgs ≥ matcherInfo.arity then some matcherInfo else none
     else
-      false
+      none
   else
-    false
+    none
+
+def isMatcherAppCore (env : Environment) (e : Expr) : Bool :=
+  isMatcherAppCore? env e |>.isSome
 
 def isMatcherApp [Monad m] [MonadEnv m] (e : Expr) : m Bool :=
   return isMatcherAppCore (← getEnv) e

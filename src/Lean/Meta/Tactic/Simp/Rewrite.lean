@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Meta.AppBuilder
 import Lean.Meta.SynthInstance
 import Lean.Meta.Tactic.Simp.Types
 
@@ -48,34 +49,57 @@ def tryLemma? (e : Expr) (lemma : SimpLemma) (discharge? : Expr → SimpM (Optio
     let (xs, bis, type) ← forallMetaTelescopeReducing type
     let type ← whnf (← instantiateMVars type)
     let lhs := type.appFn!.appArg!
-    if (← isDefEq lhs e) then
-      unless (← synthesizeArgs lemma.getName xs bis discharge?) do
+    let rec go (e : Expr) : SimpM (Option Result) := do
+      if (← isDefEq lhs e) then
+        unless (← synthesizeArgs lemma.getName xs bis discharge?) do
+          return none
+        let proof ← instantiateMVars (mkAppN val xs)
+        if ← hasAssignableMVar proof then
+          trace[Meta.Tactic.simp.rewrite] "{lemma}, has unassigned metavariables after unification"
+          return none
+        let rhs   ← instantiateMVars type.appArg!
+        if e == rhs then
+          return none
+        if lemma.perm && !Expr.lt rhs e then
+          trace[Meta.Tactic.simp.rewrite] "{lemma}, perm rejected {e} ==> {rhs}"
+          return none
+        trace[Meta.Tactic.simp.rewrite] "{lemma}, {e} ==> {rhs}"
+        return some { expr := rhs, proof? := proof }
+      else
+        unless lhs.isMVar do
+          -- We do not report unification failures when `lhs` is a metavariable
+          -- Example: `x = ()`
+          -- TODO: reconsider if we want lemmas such as `(x : Unit) → x = ()`
+          trace[Meta.Tactic.simp.unify] "{lemma}, failed to unify {lhs} with {e}"
         return none
-      let proof ← instantiateMVars (mkAppN val xs)
-      if ← hasAssignableMVar proof then
-        trace[Meta.Tactic.simp.rewrite] "{lemma}, has unassigned metavariables after unification"
-        return none
-      let rhs   ← instantiateMVars type.appArg!
-      if e == rhs then
-        return none
-      if lemma.perm && !Expr.lt rhs e then
-        trace[Meta.Tactic.simp.rewrite] "{lemma}, perm rejected {e} ==> {rhs}"
-        return none
-      trace[Meta.Tactic.simp.rewrite] "{lemma}, {e} ==> {rhs}"
-      return some { expr := rhs, proof? := proof }
-    else
-      unless lhs.isMVar do
-        -- We do not report unification failures when `lhs` is a metavariable
-        -- Example: `x = ()`
-        -- TODO: reconsider if we want lemmas such as `(x : Unit) → x = ()`
-        trace[Meta.Tactic.simp.unify] "{lemma}, failed to unify {lhs} with {e}"
+    let lhsNumArgs := lhs.getAppNumArgs
+    let eNumArgs := e.getAppNumArgs
+    if eNumArgs == lhsNumArgs then
+      go e
+    else if eNumArgs < lhsNumArgs then
       return none
+    else
+      /- Check whether we need something more sophisticated here.
+         This simple approach was good enough for Mathlib 3 -/
+      let mut extraArgs := #[]
+      let mut e := e
+      for i in [:eNumArgs - lhsNumArgs] do
+        extraArgs := extraArgs.push e.appArg!
+        e := e.appFn!
+      match (← go e) with
+      | none => return none
+      | some { expr := eNew, proof? := none } => return some { expr := mkAppN eNew extraArgs }
+      | some { expr := eNew, proof? := some proof } =>
+        let mut proof := proof
+        for extraArg in extraArgs do
+          proof ← mkCongrFun proof extraArg
+        return some { expr := mkAppN eNew extraArgs, proof? := some proof }
 
 /-
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
 -/
 def rewrite (e : Expr) (s : DiscrTree SimpLemma) (erased : Std.PHashSet Name) (discharge? : Expr → SimpM (Option Expr)) (tag : String) : SimpM Result := do
-  let lemmas ← s.getMatch e
+  let lemmas ← s.getMatch e (allowExtraArgs := true)
   if lemmas.isEmpty then
     trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
     return { expr := e }

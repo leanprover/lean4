@@ -30,6 +30,8 @@ syntax (name := pattern) "pattern " term : conv
 syntax (name := rewrite) "rewrite " rwRuleSeq : conv
 syntax (name := erewrite) "erewrite " rwRuleSeq : conv
 syntax (name := simp) "simp " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? : conv
+syntax (name := simpMatch) "simpMatch " : conv
+
 /-- Execute the given tactic block without converting `conv` goal into a regular goal -/
 syntax (name := nestedTacticCore) "tactic'" " => " tacticSeq : conv
 /-- Focus, convert the `conv` goal `⊢ lhs` into a regular goal `⊢ lhs = rhs`, and then execute the given tactic block. -/

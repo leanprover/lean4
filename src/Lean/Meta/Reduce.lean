@@ -20,7 +20,7 @@ partial def reduce (e : Expr) (explicitOnly skipTypes skipProofs := true) : Meta
         let e ← whnf e
         match e with
         | Expr.app .. =>
-          let f     := e.getAppFn
+          let f     ← visit e.getAppFn
           let nargs := e.getAppNumArgs
           let finfo ← getFunInfoNArgs f nargs
           let mut args  := e.getAppArgs

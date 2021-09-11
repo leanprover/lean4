@@ -8,8 +8,12 @@ precissues.lean:15:10: error: expected command
 id : ?m → ?m
 precissues.lean:17:10: error: expected command
 1 : Nat
-id ((fun this => this) True.intro) : True
-0 = (fun this => this) 1 : Prop
+id
+  (let_fun this := True.intro;
+  this) : True
+0 =
+  let_fun this := 1;
+  this : Prop
 0 =
   let x := 0;
   x : Prop

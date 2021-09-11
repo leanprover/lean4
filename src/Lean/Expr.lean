@@ -1079,6 +1079,17 @@ def annotation? (kind : Name) (e : Expr) : Option Expr :=
   | Expr.mdata d b _ => if d.size == 1 && d.getBool kind false then some b else none
   | _                => none
 
+def mkLetFunAnnotation (e : Expr) : Expr :=
+  mkAnnotation `let_fun e
+
+def letFunAnnotation? (e : Expr) : Option Expr :=
+  annotation? `let_fun e
+
+def isLetFun (e : Expr) : Bool :=
+  match letFunAnnotation? e with
+  | none   => false
+  | some e => e.isApp && e.appFn!.isLambda
+
 /--
   Annotate `e` with the LHS annotation. The delaborator displays
   expressions of the form `lhs = rhs` as `lhs` when they have this annotation.

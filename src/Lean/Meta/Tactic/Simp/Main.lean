@@ -323,13 +323,39 @@ where
       return { expr := (← dsimp e) }
 
   simpLet (e : Expr) : M Result := do
-    if (← getConfig).zeta then
-      match e with
-      | Expr.letE _ _ v b _ => return { expr := b.instantiate1 v }
-      | _ => unreachable!
-    else
-      -- TODO: simplify nondependent let-decls
-      return { expr := (← dsimp e) }
+    match e with
+    | Expr.letE n t v b _ =>
+      if (← getConfig).zeta then
+        return { expr := b.instantiate1 v }
+      else
+        withLocalDeclD n t fun x => do
+          let bx := b.instantiate1 x
+          /- The following step is potentially very expensive when we have many nested let-decls.
+             TODO: handle a block of nested let decls in a single pass if this becomes a performance problem. -/
+          if (← isTypeCorrect bx) then
+            let bxType ← whnf (← inferType bx)
+            let rbx ← simp bx
+            let hb? ← match rbx.proof? with
+              | none => pure none
+              | some h => pure (some (← mkLambdaFVars #[x] h))
+            if (← dependsOn bxType x.fvarId!) then
+              /- The type of the body depends on `x`. So, we use `let_body_congr` -/
+              let v' ← dsimp v
+              let e' := mkLet n t v' (← abstract rbx.expr #[x])
+              match hb? with
+              | none => return { expr := e' }
+              | some h => return { expr := e', proof? := some (← mkLetBodyCongr v' h) }
+            else
+              /- The type of the body does not depend on `x`. So, we use `let_congr` -/
+              let rv ← simp v
+              let e' := mkLet n t rv.expr (← abstract rbx.expr #[x])
+              match rv.proof?, hb? with
+              | none,   none   => return { expr := e' }
+              | some h, none   => return { expr := e', proof? := some (← mkLetValCongr (← mkLambdaFVars #[x] rbx.expr) h) }
+              | _,      some h => return { expr := e', proof? := some (← mkLetCongr (← rv.getProof) h) }
+          else
+            return { expr := (← dsimp e) }
+    | _ => unreachable!
 
   cacheResult (cfg : Config) (r : Result) : M Result := do
     if cfg.memoize then

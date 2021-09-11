@@ -440,6 +440,18 @@ def mkFunExt (h : Expr) : MetaM Expr :=
 def mkPropExt (h : Expr) : MetaM Expr :=
   mkAppM ``propext #[h]
 
+/-- Return `let_congr h₁ h₂` -/
+def mkLetCongr (h₁ h₂ : Expr) : MetaM Expr :=
+  mkAppM ``let_congr #[h₁, h₂]
+
+/-- Return `let_val_congr b h` -/
+def mkLetValCongr (b h : Expr) : MetaM Expr :=
+  mkAppM ``let_val_congr #[b, h]
+
+/-- Return `let_body_congr a h` -/
+def mkLetBodyCongr (a h : Expr) : MetaM Expr :=
+  mkAppM ``let_body_congr #[a, h]
+
 /-- Return `of_eq_true h` -/
 def mkOfEqTrue (h : Expr) : MetaM Expr :=
   mkAppM ``of_eq_true #[h]

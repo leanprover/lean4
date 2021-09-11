@@ -725,11 +725,11 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
     trace[Meta.debug] "{name} : {result.type} := {result.value}"
     let addMatcher : MatcherInfo → MetaM Unit := fun mi => do
       addDecl decl
-      if compile then
-        compileDecl decl
       modifyEnv fun env => matcherExt.modifyState env fun s => s.insert (result.value, compile) name
       addMatcherInfo name mi
       setInlineAttribute name
+      if compile then
+        compileDecl decl
     (mkMatcherConst name, some addMatcher)
 
 

@@ -165,6 +165,16 @@ expr csimp_replace_constants(environment const & env, expr const & e) {
     return expr(lean_csimp_replace_constants(env.to_obj_arg(), e.to_obj_arg()));
 }
 
+extern "C" uint8 lean_is_matcher(object* env, object* n);
+
+bool is_matcher(environment const & env, name const & n) {
+    return lean_is_matcher(env.to_obj_arg(), n.to_obj_arg());
+}
+
+bool is_matcher(environment const & env, comp_decls const & ds) {
+    return length(ds) == 1 && is_matcher(env, head(ds).fst());
+}
+
 environment compile(environment const & env, options const & opts, names cs) {
     if (!is_codegen_enabled(opts))
         return env;
@@ -222,6 +232,15 @@ environment compile(environment const & env, options const & opts, names cs) {
     ds = apply(max_sharing, ds);
     trace_compiler(name({"compiler", "stage1"}), ds);
     new_env = cache_stage1(new_env, ds);
+    if (is_matcher(new_env, ds)) {
+        /* Auxiliary matcher applications are marked as inlined, and are always fully applied
+           (if users don't use them manually). So, we skip code generation for them.
+           By caching stage1, we make sure we have all information we need to inline them.
+
+           TODO: we should have a "[strong_inline]" annotation that will inline a definition even
+           when it is partially applied. Then, we can mark all `match` auxiliary functions as `[strong_inline]` */
+        return new_env;
+    }
     std::tie(new_env, ds) = specialize(new_env, ds, cfg);
     lean_assert(lcnf_check_let_decls(new_env, ds));
     trace_compiler(name({"compiler", "specialize"}), ds);

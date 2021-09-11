@@ -77,6 +77,7 @@ def getMatcherInfoCore? (env : Environment) (declName : Name) : Option MatcherIn
 def getMatcherInfo? [Monad m] [MonadEnv m] (declName : Name) : m (Option MatcherInfo) :=
   return getMatcherInfoCore? (← getEnv) declName
 
+@[export lean_is_matcher]
 def isMatcherCore (env : Environment) (declName : Name) : Bool :=
   getMatcherInfoCore? env declName |>.isSome
 

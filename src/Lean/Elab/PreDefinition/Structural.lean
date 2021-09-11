@@ -94,7 +94,7 @@ private def hasBadParamDep? (ys : Array Expr) (indParams : Array Expr) : MetaM (
         return some (p, y)
   return none
 
-private def throwStructuralFailed {α} : MetaM α :=
+private def throwStructuralFailed : MetaM α :=
   throwError "structural recursion cannot be used"
 
 structure State where
@@ -118,17 +118,17 @@ structure State where
 
 abbrev M := StateRefT State MetaM
 
-instance {α} : Inhabited (M α) where
+instance : Inhabited (M α) where
   default := throwError "failed"
 
-private def run {α} (x : M α) (s : State := {}) : MetaM (α × State) :=
+private def run (x : M α) (s : State := {}) : MetaM (α × State) :=
   StateRefT'.run x s
 
-private def orelse' {α} (x y : M α) : M α := do
+private def orelse' (x y : M α) : M α := do
   let saveState ← get
   orelseMergeErrors x (do set saveState; y)
 
-private partial def findRecArg {α} (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → M α) : M α :=
+private partial def findRecArg (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → M α) : M α :=
   let rec loop (i : Nat) : M α := do
     if h : i < xs.size then
       let x := xs.get ⟨i, h⟩
@@ -202,7 +202,7 @@ private def ensureNoRecFn (recFnName : Name) (e : Expr) : MetaM Expr := do
   else
     pure e
 
-private def throwToBelowFailed {α} : MetaM α :=
+private def throwToBelowFailed : MetaM α :=
   throwError "toBelow failed"
 
 /- See toBelow -/
@@ -233,7 +233,7 @@ private partial def toBelowAux (C : Expr) : Expr → Expr → Expr → MetaM Exp
       | _ => throwToBelowFailed
 
 /- See toBelow -/
-private def withBelowDict {α} (below : Expr) (numIndParams : Nat) (k : Expr → Expr → MetaM α) : MetaM α := do
+private def withBelowDict (below : Expr) (numIndParams : Nat) (k : Expr → Expr → MetaM α) : MetaM α := do
   let belowType ← inferType below
   trace[Elab.definition.structural] "belowType: {belowType}"
   belowType.withApp fun f args => do
@@ -364,7 +364,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
   loop below e
 
 private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecArgInfo) (motive : Expr) (e : Expr) : M Expr := do
-  let maxDepth := IndPredBelow.maxBackwardChainingDepth.get $ ←getOptions
+  let maxDepth := IndPredBelow.maxBackwardChainingDepth.get (← getOptions)
   let rec loop (e : Expr) : M Expr := do
     match e with
     | Expr.lam n d b c =>
@@ -383,7 +383,7 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
         e.withApp fun f args => do
           if f.isConstOf recFnName then
             let ty ← inferType e
-            let main ← mkFreshExprSyntheticOpaqueMVar ty 
+            let main ← mkFreshExprSyntheticOpaqueMVar ty
             if ←IndPredBelow.backwardsChaining main.mvarId! maxDepth then
               main
             else
@@ -403,11 +403,11 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
               let some newApp ← matchMatcherApp? newApp | throwError "not a matcherApp: {newApp}"
               addBelow newApp
             else matcherApp.toExpr
-            
+
           let newApp ← addBelow matcherApp
           if newApp == matcherApp.toExpr then
             throwError "could not add below discriminant"
-          else 
+          else
             trace[Elab.definition.structural] "modified matcher:\n{newApp}"
             processApp newApp
       | none => processApp e
@@ -451,8 +451,8 @@ private def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr)
       let valueNew     ← replaceRecApps recFnName recArgInfo below value
       let Farg         ← mkLambdaFVars (recArgInfo.indIndices ++ #[major, below] ++ otherArgs) valueNew
       let brecOn       := mkApp brecOn Farg
-      pure $ mkAppN brecOn otherArgs
-      
+      return mkAppN brecOn otherArgs
+
 private def mkIndPredBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
   let type  := (← inferType value).headBeta
   let major := recArgInfo.ys[recArgInfo.pos]
@@ -461,8 +461,7 @@ private def mkIndPredBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value 
   let motive ← mkForallFVars otherArgs type
   let motive ← mkLambdaFVars (recArgInfo.indIndices.push major) motive
   trace[Elab.definition.structural] "brecOn motive: {motive}"
-  let brecOn :=
-      Lean.mkConst (mkBRecOnName recArgInfo.indName) recArgInfo.indLevels
+  let brecOn := Lean.mkConst (mkBRecOnName recArgInfo.indName) recArgInfo.indLevels
   let brecOn := mkAppN brecOn recArgInfo.indParams
   let brecOn := mkApp brecOn motive
   let brecOn := mkAppN brecOn recArgInfo.indIndices
@@ -472,9 +471,9 @@ private def mkIndPredBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value 
   trace[Elab.definition.structural] "brecOn     {brecOn}"
   trace[Elab.definition.structural] "brecOnType {brecOnType}"
   -- we need to close the telescope here, because the local context is used:
-  -- The root cause was, that this copied code puts an ih : FType into the 
-  -- local context and later, when we use the local context to build the recursive 
-  -- call, it uses this ih. But that ih doesn't exist in the actual brecOn call. 
+  -- The root cause was, that this copied code puts an ih : FType into the
+  -- local context and later, when we use the local context to build the recursive
+  -- call, it uses this ih. But that ih doesn't exist in the actual brecOn call.
   -- That's why it must go.
   let FType ← forallBoundedTelescope brecOnType (some 1) fun F _ => do
     let F := F[0]
@@ -488,7 +487,7 @@ private def mkIndPredBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value 
     let valueNew     ← replaceIndPredRecApps recFnName recArgInfo motive value
     let Farg         ← mkLambdaFVars (recArgInfo.indIndices ++ #[major, below] ++ otherArgs) valueNew
     let brecOn       := mkApp brecOn Farg
-    pure $ mkAppN brecOn otherArgs
+    return mkAppN brecOn otherArgs
 
 private def shouldBetaReduce (e : Expr) (recFnName : Name) : Bool :=
   if e.isHeadBetaTarget then
@@ -523,7 +522,7 @@ private def elimRecursion (preDef : PreDefinition) : M PreDefinition :=
     trace[Elab.definition.structural] "numFixed: {numFixed}"
     findRecArg numFixed xs fun recArgInfo => do
       -- when (recArgInfo.indName == `Nat) throwStructuralFailed -- HACK to skip Nat argument
-      let valueNew ← 
+      let valueNew ←
         if recArgInfo.indPred then mkIndPredBRecOn preDef.declName recArgInfo value
         else mkBRecOn preDef.declName recArgInfo value
       let valueNew ← mkLambdaFVars xs valueNew
@@ -585,7 +584,7 @@ def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
   if preDefs.size != 1 then
     throwError "structural recursion does not handle mutually recursive functions"
   else do
-    let (preDefNonRec, state) ← run $ elimRecursion preDefs[0]
+    let (preDefNonRec, state) ← run <| elimRecursion preDefs[0]
     state.addMatchers.forM liftM
     mapError (addNonRec preDefNonRec) (fun msg => m!"structural recursion failed, produced type incorrect term{indentD msg}")
     addAndCompilePartialRec preDefs

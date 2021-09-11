@@ -40,7 +40,6 @@ lean_object* l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(lean_objec
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__1___closed__2;
 static lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___closed__4;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor_match__1(lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_registerInitAttrUnsafe___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___at_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -151,7 +150,6 @@ static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___clo
 lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___closed__6;
-lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__1(lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__4___lambda__4___boxed(lean_object*);
@@ -1611,36 +1609,6 @@ lean_ctor_set(x_6, 0, x_3);
 lean_ctor_set(x_6, 1, x_4);
 x_7 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_5, x_2, x_6);
 return x_7;
-}
-}
-lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; 
-lean_dec(x_2);
-x_4 = lean_apply_1(x_3, x_1);
-return x_4;
-}
-else
-{
-lean_object* x_5; lean_object* x_6; 
-lean_dec(x_3);
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_apply_1(x_2, x_5);
-return x_6;
-}
-}
-}
-lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor_match__1___rarg), 3, 0);
-return x_2;
 }
 }
 lean_object* l_Lean_throwError___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

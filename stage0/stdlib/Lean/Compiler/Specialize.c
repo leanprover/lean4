@@ -37,7 +37,6 @@ static lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_initFn____x
 static lean_object* l_Lean_Compiler_SpecState_cache___default___closed__3;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l_List_mapTRAux___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_27____spec__7___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Compiler_SpecState_switch_match__1(lean_object*);
 lean_object* l_List_mapTRAux___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_27____spec__7___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_27____spec__6(lean_object*, lean_object*, size_t, size_t);
 lean_object* l_List_forM___at_Lean_registerEnumAttributes___spec__10(lean_object*, lean_object*);
@@ -94,7 +93,6 @@ static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg
 lean_object* l___private_Lean_Compiler_Specialize_0__Lean_Compiler_beqSpecializeAttributeKind____x40_Lean_Compiler_Specialize___hyg_12____boxed(lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 size_t l_UInt64_toUSize(uint64_t);
-lean_object* l_Lean_Compiler_SpecState_switch_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Std_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_specExtension___closed__2;
 static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Compiler_getSpecializationInfo___spec__3___closed__1;
@@ -114,7 +112,6 @@ lean_object* l_Lean_Compiler_specExtension;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_111_(uint8_t, uint8_t);
 lean_object* l_Lean_Compiler_specializeAttrs___lambda__3___boxed(lean_object*);
-lean_object* l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_27____spec__5___lambda__2___closed__1;
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___at___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux___spec__5(lean_object*, lean_object*, lean_object*);
@@ -207,7 +204,6 @@ lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___lambda__1(lea
 uint8_t l_Lean_Compiler_instInhabitedSpecArgKind;
 lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_298____spec__4___lambda__3(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_SpecializeAttributeKind_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Compiler_SpecState_addEntry_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_specializeAttrs___lambda__2(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_find_x3f___at_Lean_Compiler_getSpecializationInfo___spec__6(lean_object*, lean_object*);
 static lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_27____spec__1___closed__5;
@@ -261,7 +257,6 @@ extern lean_object* l_Lean_Expr_instBEqExpr;
 lean_object* l_Lean_SMap_find_x3f___at_Lean_Compiler_getSpecializationInfo___spec__4(lean_object*, lean_object*);
 static lean_object* l_List_mapTRAux___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_27____spec__7___lambda__3___closed__2;
 static lean_object* l_Lean_Compiler_SpecState_specInfo___default___closed__2;
-lean_object* l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux_match__1(lean_object*);
 static lean_object* l_Lean_Compiler_SpecState_specInfo___default___closed__1;
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_mkStateFromImportedEntries___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_298____spec__1(lean_object*, lean_object*);
@@ -286,7 +281,6 @@ lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Compiler_getSpecializationInfo_
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_27____spec__5___lambda__1(lean_object*, lean_object*);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 uint32_t lean_uint32_of_nat(lean_object*);
-lean_object* l_Lean_Compiler_SpecState_addEntry_match__1(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___at___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux___spec__5___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_27____spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_specExtension___elambda__3(lean_object*, lean_object*);
@@ -2229,37 +2223,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-}
-}
-lean_object* l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux_match__1___rarg), 3, 0);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux___spec__3___closed__1() {
 _start:
 {
@@ -3030,43 +2993,6 @@ x_1 = l_Lean_Compiler_instInhabitedSpecEntry___closed__1;
 return x_1;
 }
 }
-lean_object* l_Lean_Compiler_SpecState_addEntry_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_apply_2(x_2, x_4, x_5);
-return x_6;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_2);
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_1, 1);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_apply_2(x_3, x_7, x_8);
-return x_9;
-}
-}
-}
-lean_object* l_Lean_Compiler_SpecState_addEntry_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Compiler_SpecState_addEntry_match__1___rarg), 3, 0);
-return x_2;
-}
-}
 lean_object* l_Lean_SMap_insert___at_Lean_Compiler_SpecState_addEntry___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -3288,27 +3214,6 @@ lean_ctor_set(x_20, 1, x_19);
 return x_20;
 }
 }
-}
-}
-lean_object* l_Lean_Compiler_SpecState_switch_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_2(x_2, x_3, x_4);
-return x_5;
-}
-}
-lean_object* l_Lean_Compiler_SpecState_switch_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Compiler_SpecState_switch_match__1___rarg), 2, 0);
-return x_2;
 }
 }
 lean_object* l_Lean_SMap_switch___at_Lean_Compiler_SpecState_switch___spec__1(lean_object* x_1) {

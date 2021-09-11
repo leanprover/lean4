@@ -26,15 +26,12 @@ lean_object* lean_dbg_trace(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_withPtrEqDecEq___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrEq___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_withPtrEqDecEq_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_withPtrEqDecEq_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrEqDecEq(lean_object*);
 static lean_object* l___private_Init_Util_0__mkPanicMessage___closed__3;
 lean_object* l_dbgTraceVal___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessage(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panicWithPos___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_withPtrEqDecEq_match__1___boxed(lean_object*, lean_object*);
 lean_object* lean_dbg_sleep(uint32_t, lean_object*);
 static lean_object* l___private_Init_Util_0__mkPanicMessage___closed__2;
 lean_object* l_dbgTraceVal___rarg___lambda__1(lean_object*, lean_object*);
@@ -42,7 +39,6 @@ lean_object* l_Nat_repr(lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessage___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrAddr___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Util_0__mkPanicMessage___closed__1;
-lean_object* l_withPtrEqDecEq_match__1(uint8_t, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrEq(lean_object*, lean_object*, lean_object*);
 lean_object* l_withPtrEqDecEq___rarg(lean_object*, lean_object*, lean_object*);
@@ -382,53 +378,6 @@ lean_object* x_4;
 x_4 = l_withPtrEq(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
-return x_4;
-}
-}
-lean_object* l_withPtrEqDecEq_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-if (x_1 == 0)
-{
-lean_object* x_5; 
-lean_dec(x_3);
-x_5 = lean_apply_1(x_4, lean_box(0));
-return x_5;
-}
-else
-{
-lean_object* x_6; 
-lean_dec(x_4);
-x_6 = lean_apply_1(x_3, lean_box(0));
-return x_6;
-}
-}
-}
-lean_object* l_withPtrEqDecEq_match__1(uint8_t x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_withPtrEqDecEq_match__1___rarg___boxed), 4, 0);
-return x_3;
-}
-}
-lean_object* l_withPtrEqDecEq_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; lean_object* x_6; 
-x_5 = lean_unbox(x_1);
-lean_dec(x_1);
-x_6 = l_withPtrEqDecEq_match__1___rarg(x_5, x_2, x_3, x_4);
-return x_6;
-}
-}
-lean_object* l_withPtrEqDecEq_match__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = lean_unbox(x_1);
-lean_dec(x_1);
-x_4 = l_withPtrEqDecEq_match__1(x_3, x_2);
 return x_4;
 }
 }

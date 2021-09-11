@@ -43,7 +43,6 @@ lean_object* l_Quotient_liftOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_recOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_term___x3c_x2d_x3e__;
 static lean_object* l_myMacro____x40_Init_Core___hyg_175____closed__15;
-lean_object* l_instDecidableEqProd_match__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_recOn___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___x21_x3d_____closed__6;
 lean_object* l_bne___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -64,19 +63,16 @@ static lean_object* l_term_x7b_x7d___closed__4;
 static lean_object* l_term___x21_x3d_____closed__2;
 static lean_object* l_term___u2260_____closed__1;
 lean_object* l_Quot_liftOn___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_instDecidableEqProd_match__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Eq_mpr___rarg___boxed(lean_object*);
 lean_object* l_Thunk_map___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instBEqProd(lean_object*, lean_object*);
 uint8_t l_instDecidableTrue;
 static lean_object* l_unexpand____x40_Init_Core___hyg_158____closed__1;
-lean_object* l_instDecidableEqQuotient_match__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_myMacro____x40_Init_Core___hyg_175____closed__16;
 static lean_object* l_term___x3c_x2d_x3e_____closed__10;
 static lean_object* l_term_x7b_x7d___closed__1;
 lean_object* l_Quotient_recOnSubsingleton___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedForInStep(lean_object*);
-lean_object* l_instDecidableEqQuotient_match__1___rarg(uint8_t, lean_object*, lean_object*);
 static lean_object* l_term_x7b_x7d___closed__2;
 static lean_object* l_term___x21_x3d_____closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -102,7 +98,6 @@ uint8_t l_toBoolUsing___rarg(uint8_t);
 lean_object* l_Eq_ndrecOn___rarg___boxed(lean_object*);
 lean_object* l_Quotient_mk(lean_object*, lean_object*);
 lean_object* l_Quotient_liftOn___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_instDecidableEqProd_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2194_____closed__1;
 lean_object* l_Quot_rec___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instHasEquiv(lean_object*, lean_object*);
@@ -137,7 +132,6 @@ lean_object* l_Sum_inhabitedLeft___rarg(lean_object*);
 static lean_object* l_myMacro____x40_Init_Core___hyg_1579____closed__3;
 lean_object* l_Quotient_lift_u2082___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_instDecidableIte___rarg(uint8_t, uint8_t, uint8_t);
-lean_object* l_instDecidableEqQuotient_match__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Quot_hrecOn(lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Core___hyg_1147_(lean_object*, lean_object*, lean_object*);
 lean_object* l_myMacro____x40_Init_Core___hyg_907_(lean_object*, lean_object*, lean_object*);
@@ -154,7 +148,6 @@ lean_object* l_Sum_inhabitedRight___rarg(lean_object*);
 lean_object* l_Quotient_lift___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_recOnSubsingleton_u2082___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedProd(lean_object*, lean_object*);
-lean_object* l_instDecidableEqProd_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_instInhabitedForInStep___rarg(lean_object*);
 lean_object* l_term_x7b_x7d;
 lean_object* l_instInhabitedPNonScalar;
@@ -162,7 +155,6 @@ static lean_object* l_term___x3c_x2d_x3e_____closed__11;
 lean_object* l_instDecidableEqQuotient(lean_object*, lean_object*);
 static lean_object* l_myMacro____x40_Init_Core___hyg_1147____closed__2;
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*);
-lean_object* l_instDecidableEqProd_match__2___rarg(lean_object*, lean_object*);
 lean_object* l_instInhabitedProp;
 lean_object* l_flip___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_hrecOn___boxed(lean_object*, lean_object*, lean_object*);
@@ -221,14 +213,12 @@ static lean_object* l_myMacro____x40_Init_Core___hyg_907____closed__2;
 lean_object* l_Eq_mp(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isNodeOf(lean_object*, lean_object*, lean_object*);
 lean_object* l_toBoolUsing(lean_object*);
-lean_object* l_Subtype_instDecidableEqSubtype_match__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___x3c_x2d_x3e_____closed__9;
 static lean_object* l_myMacro____x40_Init_Core___hyg_1994____closed__2;
 static lean_object* l_myMacro____x40_Init_Core___hyg_1994____closed__1;
 static lean_object* l_term_u2205___closed__3;
 static lean_object* l_myMacro____x40_Init_Core___hyg_907____closed__8;
 lean_object* l_Subtype_instInhabitedSubtype___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_Decidable_byCases_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_instInhabitedProd___rarg(lean_object*, lean_object*);
 static lean_object* l_term_u2205___closed__5;
 uint8_t l_instDecidableFalse;
@@ -267,11 +257,7 @@ static lean_object* l_myMacro____x40_Init_Core___hyg_175____closed__5;
 static lean_object* l_myMacro____x40_Init_Core___hyg_175____closed__14;
 lean_object* l_prodHasDecidableLt___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Quot_rec(lean_object*, lean_object*, lean_object*);
-lean_object* l_Decidable_byCases_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Subtype_instDecidableEqSubtype_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Task_Priority_max;
-lean_object* l_instDecidableEqSum_match__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Decidable_byCases_match__1(lean_object*, lean_object*);
 lean_object* l_Lean_reduceNat___boxed(lean_object*);
 lean_object* l_Thunk_bind___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_myMacro____x40_Init_Core___hyg_1994____closed__3;
@@ -281,11 +267,9 @@ uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 static lean_object* l_myMacro____x40_Init_Core___hyg_175____closed__13;
 static lean_object* l_term___x3c_x2d_x3e_____closed__1;
 lean_object* l_Task_pure___boxed(lean_object*, lean_object*);
-lean_object* l_instDecidableEqQuotient_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quotient_liftOn_u2082(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Prod_map(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___x21_x3d_____closed__4;
-lean_object* l_instDecidableEqProd_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Quot_indep___rarg(lean_object*, lean_object*);
 lean_object* l_Eq_mp___rarg___boxed(lean_object*);
 static lean_object* l_term___u2248_____closed__3;
@@ -303,7 +287,6 @@ lean_object* l_Decidable_byCases(lean_object*, lean_object*);
 static lean_object* l_myMacro____x40_Init_Core___hyg_1579____closed__1;
 lean_object* l_inline___rarg(lean_object*);
 static lean_object* l_myMacro____x40_Init_Core___hyg_175____closed__1;
-lean_object* l_instDecidableEqSum_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Core_0__funSetoid(lean_object*, lean_object*);
 lean_object* l_Sum_inhabitedRight(lean_object*, lean_object*);
 uint8_t l_strictAnd(uint8_t, uint8_t);
@@ -3208,43 +3191,6 @@ x_1 = 0;
 return x_1;
 }
 }
-lean_object* l_Decidable_byCases_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (x_1 == 0)
-{
-lean_object* x_4; 
-lean_dec(x_2);
-x_4 = lean_apply_1(x_3, lean_box(0));
-return x_4;
-}
-else
-{
-lean_object* x_5; 
-lean_dec(x_3);
-x_5 = lean_apply_1(x_2, lean_box(0));
-return x_5;
-}
-}
-}
-lean_object* l_Decidable_byCases_match__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Decidable_byCases_match__1___rarg___boxed), 3, 0);
-return x_3;
-}
-}
-lean_object* l_Decidable_byCases_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = lean_unbox(x_1);
-lean_dec(x_1);
-x_5 = l_Decidable_byCases_match__1___rarg(x_4, x_2, x_3);
-return x_5;
-}
-}
 lean_object* l_Decidable_byCases___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -3599,22 +3545,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_Subtype_instDecidableEqSubtype_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_apply_2(x_2, x_1, lean_box(0));
-return x_3;
-}
-}
-lean_object* l_Subtype_instDecidableEqSubtype_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Subtype_instDecidableEqSubtype_match__1___rarg), 2, 0);
-return x_4;
-}
-}
 lean_object* l_Subtype_instDecidableEqSubtype___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -3663,81 +3593,6 @@ _start:
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_Sum_inhabitedRight___rarg), 1, 0);
 return x_3;
-}
-}
-lean_object* l_instDecidableEqSum_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_dec(x_5);
-lean_dec(x_4);
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_6);
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-lean_dec(x_1);
-x_8 = lean_ctor_get(x_2, 0);
-lean_inc(x_8);
-lean_dec(x_2);
-x_9 = lean_apply_2(x_3, x_7, x_8);
-return x_9;
-}
-else
-{
-lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-lean_dec(x_3);
-x_10 = lean_ctor_get(x_1, 0);
-lean_inc(x_10);
-lean_dec(x_1);
-x_11 = lean_ctor_get(x_2, 0);
-lean_inc(x_11);
-lean_dec(x_2);
-x_12 = lean_apply_2(x_6, x_10, x_11);
-return x_12;
-}
-}
-else
-{
-lean_dec(x_6);
-lean_dec(x_3);
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec(x_4);
-x_13 = lean_ctor_get(x_1, 0);
-lean_inc(x_13);
-lean_dec(x_1);
-x_14 = lean_ctor_get(x_2, 0);
-lean_inc(x_14);
-lean_dec(x_2);
-x_15 = lean_apply_2(x_5, x_13, x_14);
-return x_15;
-}
-else
-{
-lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_dec(x_5);
-x_16 = lean_ctor_get(x_1, 0);
-lean_inc(x_16);
-lean_dec(x_1);
-x_17 = lean_ctor_get(x_2, 0);
-lean_inc(x_17);
-lean_dec(x_2);
-x_18 = lean_apply_2(x_4, x_16, x_17);
-return x_18;
-}
-}
-}
-}
-lean_object* l_instDecidableEqSum_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_instDecidableEqSum_match__1___rarg), 6, 0);
-return x_4;
 }
 }
 lean_object* l_instDecidableEqSum___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -3821,74 +3676,6 @@ _start:
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_instInhabitedProd___rarg), 2, 0);
 return x_3;
-}
-}
-lean_object* l_instDecidableEqProd_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (x_1 == 0)
-{
-lean_object* x_4; 
-lean_dec(x_2);
-x_4 = lean_apply_1(x_3, lean_box(0));
-return x_4;
-}
-else
-{
-lean_object* x_5; 
-lean_dec(x_3);
-x_5 = lean_apply_1(x_2, lean_box(0));
-return x_5;
-}
-}
-}
-lean_object* l_instDecidableEqProd_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_instDecidableEqProd_match__1___rarg___boxed), 3, 0);
-return x_5;
-}
-}
-lean_object* l_instDecidableEqProd_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = lean_unbox(x_1);
-lean_dec(x_1);
-x_5 = l_instDecidableEqProd_match__1___rarg(x_4, x_2, x_3);
-return x_5;
-}
-}
-lean_object* l_instDecidableEqProd_match__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_instDecidableEqProd_match__1(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_5;
-}
-}
-lean_object* l_instDecidableEqProd_match__2___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_2(x_2, x_3, x_4);
-return x_5;
-}
-}
-lean_object* l_instDecidableEqProd_match__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_instDecidableEqProd_match__2___rarg), 2, 0);
-return x_4;
 }
 }
 lean_object* l_instDecidableEqProd___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -4523,54 +4310,6 @@ x_7 = l_Quotient_recOnSubsingleton_u2082(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_4);
 lean_dec(x_3);
 return x_7;
-}
-}
-lean_object* l_instDecidableEqQuotient_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (x_1 == 0)
-{
-lean_object* x_4; 
-lean_dec(x_2);
-x_4 = lean_apply_1(x_3, lean_box(0));
-return x_4;
-}
-else
-{
-lean_object* x_5; 
-lean_dec(x_3);
-x_5 = lean_apply_1(x_2, lean_box(0));
-return x_5;
-}
-}
-}
-lean_object* l_instDecidableEqQuotient_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = lean_alloc_closure((void*)(l_instDecidableEqQuotient_match__1___rarg___boxed), 3, 0);
-return x_6;
-}
-}
-lean_object* l_instDecidableEqQuotient_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = lean_unbox(x_1);
-lean_dec(x_1);
-x_5 = l_instDecidableEqQuotient_match__1___rarg(x_4, x_2, x_3);
-return x_5;
-}
-}
-lean_object* l_instDecidableEqQuotient_match__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_instDecidableEqQuotient_match__1(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_6;
 }
 }
 lean_object* l_instDecidableEqQuotient___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

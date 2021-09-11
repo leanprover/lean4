@@ -17,11 +17,9 @@ static lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTran
 static lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27____closed__19;
 uint64_t l_Lean_Meta_TransparencyMode_hash(uint8_t);
 static lean_object* l_Lean_Meta_instReprTransparencyMode___closed__1;
-lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27__match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_beqTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_12_(uint8_t, uint8_t);
 static lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27____closed__8;
 static lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27____closed__17;
-lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27__match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27____closed__9;
 static lean_object* l_Lean_Meta_TransparencyMode_instHashableTransparencyMode___closed__1;
 lean_object* l_Lean_Meta_TransparencyMode_toCtorIdx(uint8_t);
@@ -56,21 +54,17 @@ static lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTran
 lean_object* l_Lean_Meta_TransparencyMode_noConfusion(lean_object*);
 static lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27____closed__24;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_TransparencyMode_lt_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t, uint8_t);
 static lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27____closed__10;
 static lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27____closed__20;
 lean_object* l_Lean_Meta_TransparencyMode_noConfusion___rarg___lambda__1(lean_object*);
 static lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27____closed__16;
-lean_object* l_Lean_Meta_TransparencyMode_lt_match__1(lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_hash___boxed(lean_object*);
 lean_object* l_Lean_Meta_instBEqTransparencyMode;
 static lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27____closed__26;
 static lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27____closed__12;
 lean_object* l_Lean_Meta_TransparencyMode_noConfusion___rarg___lambda__1___boxed(lean_object*);
-lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27__match__1(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
-lean_object* l_Lean_Meta_TransparencyMode_lt_match__1___rarg(uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_TransparencyMode_toCtorIdx(uint8_t x_1) {
 _start:
@@ -212,71 +206,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Meta_instBEqTransparencyMode___closed__1;
 return x_1;
-}
-}
-lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27__match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-switch (x_1) {
-case 0:
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-x_6 = lean_box(0);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-case 1:
-{
-lean_object* x_8; lean_object* x_9; 
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_2);
-x_8 = lean_box(0);
-x_9 = lean_apply_1(x_3, x_8);
-return x_9;
-}
-case 2:
-{
-lean_object* x_10; lean_object* x_11; 
-lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
-x_10 = lean_box(0);
-x_11 = lean_apply_1(x_4, x_10);
-return x_11;
-}
-default: 
-{
-lean_object* x_12; lean_object* x_13; 
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-x_12 = lean_box(0);
-x_13 = lean_apply_1(x_5, x_12);
-return x_13;
-}
-}
-}
-}
-lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27__match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27__match__1___rarg___boxed), 5, 0);
-return x_2;
-}
-}
-lean_object* l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27__match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; lean_object* x_7; 
-x_6 = lean_unbox(x_1);
-lean_dec(x_1);
-x_7 = l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27__match__1___rarg(x_6, x_2, x_3, x_4, x_5);
-return x_7;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_TransparencyMode_0__Lean_Meta_reprTransparencyMode____x40_Lean_Meta_TransparencyMode___hyg_27____closed__1() {
@@ -731,182 +660,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Meta_TransparencyMode_instHashableTransparencyMode___closed__1;
 return x_1;
-}
-}
-lean_object* l_Lean_Meta_TransparencyMode_lt_match__1___rarg(uint8_t x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-switch (x_1) {
-case 0:
-{
-lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-x_10 = lean_box(x_1);
-x_11 = lean_box(x_2);
-x_12 = lean_apply_2(x_9, x_10, x_11);
-return x_12;
-}
-case 1:
-{
-lean_object* x_13; 
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-x_13 = lean_box(x_2);
-switch (lean_obj_tag(x_13)) {
-case 0:
-{
-lean_object* x_14; lean_object* x_15; 
-lean_dec(x_9);
-x_14 = lean_box(0);
-x_15 = lean_apply_1(x_8, x_14);
-return x_15;
-}
-case 1:
-{
-lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_dec(x_8);
-x_16 = lean_box(x_2);
-x_17 = lean_box(x_2);
-x_18 = lean_apply_2(x_9, x_16, x_17);
-return x_18;
-}
-default: 
-{
-lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-lean_dec(x_13);
-lean_dec(x_8);
-x_19 = lean_box(x_1);
-x_20 = lean_box(x_2);
-x_21 = lean_apply_2(x_9, x_19, x_20);
-return x_21;
-}
-}
-}
-case 2:
-{
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-switch (x_2) {
-case 0:
-{
-lean_object* x_22; lean_object* x_23; 
-lean_dec(x_9);
-lean_dec(x_5);
-lean_dec(x_3);
-x_22 = lean_box(0);
-x_23 = lean_apply_1(x_4, x_22);
-return x_23;
-}
-case 1:
-{
-lean_object* x_24; lean_object* x_25; 
-lean_dec(x_9);
-lean_dec(x_5);
-lean_dec(x_4);
-x_24 = lean_box(0);
-x_25 = lean_apply_1(x_3, x_24);
-return x_25;
-}
-case 2:
-{
-lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-x_26 = lean_box(x_2);
-x_27 = lean_box(x_2);
-x_28 = lean_apply_2(x_9, x_26, x_27);
-return x_28;
-}
-default: 
-{
-lean_object* x_29; lean_object* x_30; 
-lean_dec(x_9);
-lean_dec(x_4);
-lean_dec(x_3);
-x_29 = lean_box(0);
-x_30 = lean_apply_1(x_5, x_29);
-return x_30;
-}
-}
-}
-default: 
-{
-lean_dec(x_8);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-switch (x_2) {
-case 0:
-{
-lean_object* x_31; lean_object* x_32; 
-lean_dec(x_9);
-lean_dec(x_6);
-x_31 = lean_box(0);
-x_32 = lean_apply_1(x_7, x_31);
-return x_32;
-}
-case 1:
-{
-lean_object* x_33; lean_object* x_34; 
-lean_dec(x_9);
-lean_dec(x_7);
-x_33 = lean_box(0);
-x_34 = lean_apply_1(x_6, x_33);
-return x_34;
-}
-case 2:
-{
-lean_object* x_35; lean_object* x_36; lean_object* x_37; 
-lean_dec(x_7);
-lean_dec(x_6);
-x_35 = lean_box(x_1);
-x_36 = lean_box(x_2);
-x_37 = lean_apply_2(x_9, x_35, x_36);
-return x_37;
-}
-default: 
-{
-lean_object* x_38; lean_object* x_39; lean_object* x_40; 
-lean_dec(x_7);
-lean_dec(x_6);
-x_38 = lean_box(x_2);
-x_39 = lean_box(x_2);
-x_40 = lean_apply_2(x_9, x_38, x_39);
-return x_40;
-}
-}
-}
-}
-}
-}
-lean_object* l_Lean_Meta_TransparencyMode_lt_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_TransparencyMode_lt_match__1___rarg___boxed), 9, 0);
-return x_2;
-}
-}
-lean_object* l_Lean_Meta_TransparencyMode_lt_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-uint8_t x_10; uint8_t x_11; lean_object* x_12; 
-x_10 = lean_unbox(x_1);
-lean_dec(x_1);
-x_11 = lean_unbox(x_2);
-lean_dec(x_2);
-x_12 = l_Lean_Meta_TransparencyMode_lt_match__1___rarg(x_10, x_11, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-return x_12;
 }
 }
 uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t x_1, uint8_t x_2) {

@@ -38,7 +38,6 @@ lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_68_(lean_object
 lean_object* l_Lean_Elab_throwPostpone(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_isAutoBoundImplicitLocalException_x3f___closed__1;
 static lean_object* l_Lean_Elab_throwAbortCommand___rarg___closed__1;
-lean_object* l_Lean_Elab_isAutoBoundImplicitLocalException_x3f_match__1(lean_object*);
 lean_object* l_Lean_Elab_throwAutoBoundImplicitLocal___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_mkMessageCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_throwAutoBoundImplicitLocal(lean_object*, lean_object*);
@@ -63,7 +62,6 @@ lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwIllFormedSyntax___rarg___closed__2;
 static lean_object* l_Lean_Elab_throwAutoBoundImplicitLocal___rarg___closed__1;
 lean_object* l_Lean_Elab_isAutoBoundImplicitLocalException_x3f(lean_object*);
-lean_object* l_Lean_Elab_isAutoBoundImplicitLocalException_x3f_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_postponeExceptionId;
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_16____closed__2;
 static lean_object* l_Lean_Elab_throwPostpone___rarg___closed__1;
@@ -392,38 +390,6 @@ _start:
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_Lean_Elab_throwAutoBoundImplicitLocal___rarg), 2, 0);
 return x_3;
-}
-}
-lean_object* l_Lean_Elab_isAutoBoundImplicitLocalException_x3f_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; 
-lean_dec(x_2);
-x_4 = lean_apply_1(x_3, x_1);
-return x_4;
-}
-else
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_2(x_2, x_5, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_Lean_Elab_isAutoBoundImplicitLocalException_x3f_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Elab_isAutoBoundImplicitLocalException_x3f_match__1___rarg), 3, 0);
-return x_2;
 }
 }
 static lean_object* _init_l_Lean_Elab_isAutoBoundImplicitLocalException_x3f___closed__1() {

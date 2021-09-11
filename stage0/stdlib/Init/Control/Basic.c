@@ -38,7 +38,6 @@ static lean_object* l_myMacro____x40_Init_Control_Basic___hyg_860____closed__6;
 lean_object* l_controlAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instOrElse(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* l_bool_match__1(lean_object*);
 static lean_object* l_myMacro____x40_Init_Control_Basic___hyg_51____closed__12;
 static lean_object* l_unexpand____x40_Init_Control_Basic___hyg_34____closed__3;
 lean_object* l_term___x3c_x26_x26_x3e__;
@@ -71,10 +70,8 @@ static lean_object* l_term___x3c_x26_x26_x3e_____closed__5;
 static lean_object* l_term___x3c_x7c_x7c_x3e_____closed__6;
 static lean_object* l_term___x3c_x26_x3e_____closed__8;
 static lean_object* l_myMacro____x40_Init_Control_Basic___hyg_860____closed__4;
-lean_object* l_bool_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instToBoolBool___boxed(lean_object*);
 static lean_object* l_myMacro____x40_Init_Control_Basic___hyg_51____closed__20;
-lean_object* l_bool_match__1___rarg(uint8_t, lean_object*, lean_object*);
 static lean_object* l_term___x3c_x26_x3e_____closed__4;
 static lean_object* l_term___x3c_x26_x3e_____closed__9;
 static lean_object* l_notM___rarg___closed__1;
@@ -889,45 +886,6 @@ lean_dec(x_1);
 x_3 = l_instToBoolBool(x_2);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-lean_object* l_bool_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (x_1 == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_box(0);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_bool_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_bool_match__1___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-lean_object* l_bool_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = lean_unbox(x_1);
-lean_dec(x_1);
-x_5 = l_bool_match__1___rarg(x_4, x_2, x_3);
-return x_5;
 }
 }
 lean_object* l_bool___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

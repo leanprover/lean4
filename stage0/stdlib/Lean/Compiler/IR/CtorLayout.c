@@ -15,7 +15,6 @@ extern "C" {
 #endif
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__7;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__10;
-lean_object* l_Lean_IR_CtorFieldInfo_format_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__6;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__5;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__14;
@@ -34,73 +33,7 @@ lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object*, lean_object*);
 lean_object* lean_ir_get_ctor_layout(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__11;
 lean_object* l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo;
-lean_object* l_Lean_IR_CtorFieldInfo_format_match__1(lean_object*);
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__12;
-lean_object* l_Lean_IR_CtorFieldInfo_format_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-switch (lean_obj_tag(x_1)) {
-case 0:
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-x_6 = lean_box(0);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-case 1:
-{
-lean_object* x_8; lean_object* x_9; 
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_2);
-x_8 = lean_ctor_get(x_1, 0);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_apply_1(x_3, x_8);
-return x_9;
-}
-case 2:
-{
-lean_object* x_10; lean_object* x_11; 
-lean_dec(x_5);
-lean_dec(x_3);
-lean_dec(x_2);
-x_10 = lean_ctor_get(x_1, 0);
-lean_inc(x_10);
-lean_dec(x_1);
-x_11 = lean_apply_1(x_4, x_10);
-return x_11;
-}
-default: 
-{
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-x_12 = lean_ctor_get(x_1, 0);
-lean_inc(x_12);
-x_13 = lean_ctor_get(x_1, 1);
-lean_inc(x_13);
-x_14 = lean_ctor_get(x_1, 2);
-lean_inc(x_14);
-lean_dec(x_1);
-x_15 = lean_apply_3(x_5, x_12, x_13, x_14);
-return x_15;
-}
-}
-}
-}
-lean_object* l_Lean_IR_CtorFieldInfo_format_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_IR_CtorFieldInfo_format_match__1___rarg), 5, 0);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__1() {
 _start:
 {

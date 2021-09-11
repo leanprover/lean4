@@ -17,7 +17,6 @@ lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_SCC_State_data___default___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_SCC_State_data___default___closed__1;
 lean_object* l_Lean_SCC_scc(lean_object*);
-lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf(lean_object*);
 lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_677____rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SCC_Data_index_x3f___default;
@@ -28,14 +27,10 @@ lean_object* l_Lean_SCC_State_data___default(lean_object*, lean_object*, lean_ob
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf(lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack(lean_object*);
-lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC_add_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg___closed__2;
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg___closed__1;
 lean_object* l_Std_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf_match__1(lean_object*);
-lean_object* l_Lean_SCC_scc_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_SCC_scc_match__1___rarg(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg___closed__3;
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC(lean_object*);
@@ -48,7 +43,6 @@ lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf___at___private_L
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_push(lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf_match__1(lean_object*);
 uint8_t l_Lean_SCC_Data_onStack___default;
 lean_object* l_Lean_SCC_State_stack___default(lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf___at___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -56,12 +50,8 @@ lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux(lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SCC_Data_lowlink_x3f___default;
-lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf_match__1___rarg(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Id_instMonadId;
-lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC_add_match__1(lean_object*, lean_object*);
-lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___rarg___lambda__1(lean_object*, lean_object*);
-lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf_match__1(lean_object*);
 lean_object* l_instBEq___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateT_instMonadStateT___rarg(lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -71,7 +61,6 @@ lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC_add___rarg(lean_object
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___rarg___closed__1;
 lean_object* l_Lean_SCC_State_sccs___default(lean_object*);
 lean_object* l_Lean_SCC_scc___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_SCC_scc_match__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf___at___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_decEq___boxed(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
@@ -148,37 +137,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_box(0);
-return x_2;
-}
-}
-lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-}
-}
-lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf_match__1___rarg), 3, 0);
 return x_2;
 }
 }
@@ -313,37 +271,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l___private_Lean_Util_SCC_0__Lean_SCC_push___rarg), 4, 0);
-return x_2;
-}
-}
-lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_3, x_6);
-return x_7;
-}
-}
-}
-lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Util_SCC_0__Lean_SCC_modifyDataOf_match__1___rarg), 3, 0);
 return x_2;
 }
 }
@@ -610,61 +537,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___rarg), 4, 0);
-return x_2;
-}
-}
-lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_dec(x_5);
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_6; 
-lean_dec(x_4);
-x_6 = lean_apply_1(x_3, x_2);
-return x_6;
-}
-else
-{
-lean_object* x_7; 
-lean_dec(x_3);
-x_7 = lean_apply_1(x_4, x_2);
-return x_7;
-}
-}
-else
-{
-lean_dec(x_4);
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_8; 
-lean_dec(x_5);
-x_8 = lean_apply_1(x_3, x_1);
-return x_8;
-}
-else
-{
-lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec(x_3);
-x_9 = lean_ctor_get(x_1, 0);
-lean_inc(x_9);
-lean_dec(x_1);
-x_10 = lean_ctor_get(x_2, 0);
-lean_inc(x_10);
-lean_dec(x_2);
-x_11 = lean_apply_2(x_5, x_9, x_10);
-return x_11;
-}
-}
-}
-}
-lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf_match__1___rarg), 5, 0);
 return x_2;
 }
 }
@@ -965,38 +837,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___rarg), 5, 0);
 return x_2;
-}
-}
-lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC_add_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_5; 
-lean_dec(x_4);
-x_5 = lean_apply_1(x_3, x_2);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
-lean_dec(x_1);
-x_8 = lean_apply_3(x_4, x_6, x_7, x_2);
-return x_8;
-}
-}
-}
-lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC_add_match__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l___private_Lean_Util_SCC_0__Lean_SCC_addSCC_add_match__1___rarg), 4, 0);
-return x_3;
 }
 }
 lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_addSCC_add___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -1547,37 +1387,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___rarg), 5, 0);
 return x_2;
-}
-}
-lean_object* l_Lean_SCC_scc_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_2(x_2, x_3, x_4);
-return x_5;
-}
-}
-lean_object* l_Lean_SCC_scc_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_Lean_SCC_scc_match__1___rarg), 2, 0);
-return x_5;
-}
-}
-lean_object* l_Lean_SCC_scc_match__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_SCC_scc_match__1(x_1, x_2, x_3, x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_5;
 }
 }
 lean_object* l_Lean_SCC_scc___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

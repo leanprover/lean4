@@ -155,18 +155,18 @@ where
 
   simpStep (e : Expr) : M Result := do
     match e with
-    | Expr.mdata _ e _ => simp e
-    | Expr.proj ..     => pure { expr := (← reduceProj e) }
+    | Expr.mdata m e _ => let r ← simp e; return { r with expr := mkMData m r.expr }
+    | Expr.proj ..     => return { expr := (← reduceProj e) }
     | Expr.app ..      => simpApp e
     | Expr.lam ..      => simpLambda e
     | Expr.forallE ..  => simpForall e
     | Expr.letE ..     => simpLet e
     | Expr.const ..    => simpConst e
     | Expr.bvar ..     => unreachable!
-    | Expr.sort ..     => pure { expr := e }
+    | Expr.sort ..     => return { expr := e }
     | Expr.lit ..      => simpLit e
-    | Expr.mvar ..     => pure { expr := (← instantiateMVars e) }
-    | Expr.fvar ..     => pure { expr := (← reduceFVar (← getConfig) e) }
+    | Expr.mvar ..     => return { expr := (← instantiateMVars e) }
+    | Expr.fvar ..     => return { expr := (← reduceFVar (← getConfig) e) }
 
   congrDefault (e : Expr) : M Result :=
     withParent e <| e.withApp fun f args => do

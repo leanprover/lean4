@@ -165,12 +165,6 @@ expr csimp_replace_constants(environment const & env, expr const & e) {
     return expr(lean_csimp_replace_constants(env.to_obj_arg(), e.to_obj_arg()));
 }
 
-extern "C" uint8 lean_is_matcher(object* env, object* n);
-
-bool is_matcher(environment const & env, name const & n) {
-    return lean_is_matcher(env.to_obj_arg(), n.to_obj_arg());
-}
-
 bool is_matcher(environment const & env, comp_decls const & ds) {
     return length(ds) == 1 && is_matcher(env, head(ds).fst());
 }

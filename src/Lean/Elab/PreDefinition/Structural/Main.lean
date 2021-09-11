@@ -8,6 +8,7 @@ import Lean.Elab.PreDefinition.Structural.FindRecArg
 import Lean.Elab.PreDefinition.Structural.Preprocess
 import Lean.Elab.PreDefinition.Structural.BRecOn
 import Lean.Elab.PreDefinition.Structural.IndPred
+import Lean.Elab.PreDefinition.Structural.Eqns
 import Lean.Elab.PreDefinition.Structural.SmartUnfolding
 
 namespace Lean.Elab
@@ -82,6 +83,7 @@ def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
     mapError (addNonRec preDefNonRec) (fun msg => m!"structural recursion failed, produced type incorrect term{indentD msg}")
     addAndCompilePartialRec preDefs
     addSmartUnfoldingDef preDefs[0] state
+    mkEqns preDefs[0]
 
 builtin_initialize
   registerTraceClass `Elab.definition.structural

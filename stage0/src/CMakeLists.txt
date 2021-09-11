@@ -305,6 +305,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftls-model=initial-exec")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
+  set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -install_name @rpath/libleanshared.dylib")
 endif()
 
 # export all symbols for the interpreter

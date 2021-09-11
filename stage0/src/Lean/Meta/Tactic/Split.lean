@@ -100,7 +100,7 @@ def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do
 
 /-- Return an `if-then-else` or `match-expr` to split. -/
 partial def findSplit? (env : Environment) (e : Expr) : Option Expr :=
-  if let some target := e.find? fun e => !e.hasLooseBVars && (e.isIte || e.isDIte || isMatcherAppCore env e) then
+  if let some target := e.find? isCandidate then
     if e.isIte || e.isDIte then
       let cond := target.getArg! 1 5
       -- Try to find a nested `if` in `cond`
@@ -109,6 +109,18 @@ partial def findSplit? (env : Environment) (e : Expr) : Option Expr :=
       some target
   else
     none
+where
+  isCandidate (e : Expr) : Bool := do
+    if e.isIte || e.isDIte then
+      !(e.getArg! 1 5).hasLooseBVars
+    else if let some info := isMatcherAppCore? env e then
+      let args := e.getAppArgs
+      for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
+        if args[i].hasLooseBVars then
+          return false
+      return true
+    else
+      false
 
 end Split
 
@@ -121,6 +133,7 @@ def splitTarget? (mvarId : MVarId) : MetaM (Option (List MVarId)) := commitWhenS
     else
       splitMatch mvarId e
   else
+    trace[Meta.Tactic.split] "did not find term to split\n{MessageData.ofGoal mvarId}"
     return none
 
 def splitLocalDecl? (mvarId : MVarId) (fvarId : FVarId) : MetaM (Option (List MVarId)) := commitWhenSome? do
@@ -136,5 +149,7 @@ def splitLocalDecl? (mvarId : MVarId) (fvarId : FVarId) : MetaM (Option (List MV
         return some mvarIds
     else
       return none
+
+builtin_initialize registerTraceClass `Meta.Tactic.split
 
 end Lean.Meta

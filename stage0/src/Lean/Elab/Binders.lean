@@ -565,7 +565,7 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
         let body ← elabTermEnsuringType body expectedType?
         let body ← instantiateMVars body
         mkLambdaFVars #[x] body (usedLetOnly := false)
-      pure <| mkApp f val
+      pure <| mkLetFunAnnotation (mkApp f val)
   if elabBodyFirst then
     forallBoundedTelescope type arity fun xs type => do
       let valResult ← elabTermEnsuringType valStx type

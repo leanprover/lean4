@@ -407,6 +407,21 @@ def delabAppMatch : Delab := whenPPOption getPPNotation <| whenPPOption getPPMat
         `(match $[$st.discrs:term],* with $[| $pats,* => $st.rhss]*)
     Syntax.mkApp stx st.moreArgs
 
+/--
+  Delaborate applications of the form `(fun x => b) v` as `let_fun x := v; b`
+-/
+def delabLetFun : Delab := do
+  let stxV ← withAppArg delab
+  withAppFn do
+    let Expr.lam n t b _ ← getExpr | unreachable!
+    let n ← getUnusedName n b
+    let stxB ← withBindingBody n delab
+    if ← getPPOption getPPLetVarTypes <||> getPPOption getPPAnalysisLetVarType then
+      let stxT ← withBindingDomain delab
+      `(let_fun $(mkIdent n) : $stxT := $stxV; $stxB)
+    else
+      `(let_fun $(mkIdent n) := $stxV; $stxB)
+
 @[builtinDelab mdata]
 def delabMData : Delab := do
   if let some _ := Lean.Meta.Match.inaccessible? (← getExpr) then
@@ -415,6 +430,8 @@ def delabMData : Delab := do
       `(.($s)) -- We only include the inaccessible annotation when we are delaborating patterns
     else
       return s
+  else if isLetFun (← getExpr) then
+    withMDataExpr <| delabLetFun
   else if let some _ := isLHSGoal? (← getExpr) then
     withMDataExpr <| withAppFn <| withAppArg <| delab
   else

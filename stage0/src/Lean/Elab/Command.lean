@@ -405,6 +405,16 @@ def modifyScope (f : Scope → Scope) : CommandElabM Unit :=
       | []   => unreachable!
   }
 
+def withScope (f : Scope → Scope) (x : CommandElabM α) : CommandElabM α := do
+  match (← get).scopes with
+  | [] => x
+  | h :: t =>
+    try
+      modify fun s => { s with scopes := f h :: t }
+      x
+    finally
+      modify fun s => { s with scopes := h :: t }
+
 def getLevelNames : CommandElabM (List Name) :=
   return (← getScope).levelNames
 

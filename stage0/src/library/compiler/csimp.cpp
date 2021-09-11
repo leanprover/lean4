@@ -1729,7 +1729,12 @@ class csimp_fn {
                 return none_expr();
             }
             if (!inline_if_reduce_attr && is_recursive(const_name(fn))) return none_expr();
-            if (uses_unsafe_inductive(c)) return none_expr();
+            if (!is_matcher(env(), const_name(fn))) {
+                // Hack for test `inliner_loop`. We don't generate code for auxiliary matcher applications.
+                // However, they are safe to be inline even when they use unsafe inductive types.
+                // REMARK: the to be implemented `[strong_inline]` attribute should not be used in unsafe code.
+                if (uses_unsafe_inductive(c)) return none_expr();
+            }
             lean_trace(name({"compiler", "inline"}), tout() << const_name(fn) << "\n";);
             expr new_fn = instantiate_value_lparams(*info, const_levels(fn));
             if (inline_if_reduce_attr && !inline_attr) {

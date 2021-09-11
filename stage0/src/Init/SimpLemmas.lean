@@ -47,6 +47,24 @@ theorem forall_congr {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a = q a)) 
   have : p = q := funext h
   this ▸ rfl
 
+theorem let_congr {α : Sort u} {β : Sort v} {a a' : α} {b b' : α → β} (h₁ : a = a') (h₂ : ∀ x, b x = b' x) :
+        (let x := a; b x) = (let x := a'; b' x) := by
+  subst h₁
+  have : b = b' := funext h₂
+  subst this
+  rfl
+
+theorem let_val_congr {α : Sort u} {β : Sort v} {a a' : α} (b : α → β) (h : a = a') :
+        (let x := a; b x) = (let x := a'; b x) := by
+  subst h
+  rfl
+
+theorem let_body_congr {α : Sort u} {β : α → Sort v} {b b' : (a : α) → β a} (a : α) (h : ∀ x, b x = b' x) :
+        (let x := a; b x) = (let x := a; b' x) := by
+  have : b = b' := funext h
+  subst this
+  rfl
+
 @[congr]
 theorem ite_congr {x y u v : α} {s : Decidable b} [Decidable c] (h₁ : b = c) (h₂ : c → x = u) (h₃ : ¬ c → y = v) : ite b x y = ite c u v := by
   cases Decidable.em c with

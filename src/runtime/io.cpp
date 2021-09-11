@@ -175,7 +175,7 @@ static FILE * io_get_handle(lean_object * hfile) {
     return static_cast<FILE *>(lean_get_external_data(hfile));
 }
 
-obj_res decode_io_error(int errnum, b_obj_arg fname) {
+extern "C" obj_res lean_decode_io_error(int errnum, b_obj_arg fname) {
     object * details = mk_string(strerror(errnum));
     switch (errnum) {
     case EINTR:

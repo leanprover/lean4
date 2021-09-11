@@ -26,6 +26,7 @@ class mpz {
     mpz(__mpz_struct const * v) { mpz_init_set(m_val, v); }
 public:
     mpz() { mpz_init(m_val); }
+    explicit mpz(mpz_t v) { mpz_init(m_val); mpz_set(m_val, v); }
     explicit mpz(char const * v) { mpz_init_set_str(m_val, const_cast<char*>(v), 10); }
     explicit mpz(unsigned int v) { mpz_init_set_ui(m_val, v); }
     explicit mpz(int v) { mpz_init_set_si(m_val, v); }
@@ -40,6 +41,8 @@ public:
     mpz(mpz const & s) { mpz_init_set(m_val, s.m_val); }
     mpz(mpz && s):mpz() { mpz_swap(m_val, s.m_val); }
     ~mpz() { mpz_clear(m_val); }
+
+    void set(mpz_t r) const { mpz_set(r, m_val); }
 
     friend void swap(mpz & a, mpz & b) { mpz_swap(a.m_val, b.m_val); }
 

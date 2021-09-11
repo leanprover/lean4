@@ -954,6 +954,8 @@ static inline lean_obj_res lean_alloc_string(size_t size, size_t capacity, size_
     o->m_length = len;
     return (lean_object*)o;
 }
+size_t lean_utf8_strlen(char const * str);
+size_t lean_utf8_n_strlen(char const * str, size_t n);
 static inline size_t lean_string_capacity(lean_object * o) { return lean_to_string(o)->m_capacity; }
 static inline size_t lean_string_byte_size(lean_object * o) { return sizeof(lean_string_object) + lean_string_capacity(o); }
 /* instance : inhabited char := ⟨'A'⟩ */
@@ -1655,6 +1657,8 @@ lean_object * lean_dbg_sleep(uint32_t ms, lean_obj_arg fn);
 lean_object * lean_dbg_trace_if_shared(lean_obj_arg s, lean_obj_arg a);
 
 /* IO Helper functions */
+
+lean_obj_res lean_decode_io_error(int errnum, b_lean_obj_arg fname);
 
 static inline lean_obj_res lean_io_mk_world() { return lean_box(0); }
 static inline bool lean_io_result_is_ok(b_lean_obj_arg r) { return lean_ptr_tag(r) == 0; }

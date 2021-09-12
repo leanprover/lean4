@@ -1680,6 +1680,33 @@ static inline lean_obj_res lean_io_result_mk_error(lean_obj_arg e) {
     return r;
 }
 
+lean_obj_res lean_mk_io_error_already_exists(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_already_exists_file(lean_obj_arg, uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_eof(lean_obj_arg);
+lean_obj_res lean_mk_io_error_hardware_fault(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_illegal_operation(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_inappropriate_type(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_inappropriate_type_file(lean_obj_arg, uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_interrupted(lean_obj_arg, uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_invalid_argument(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_invalid_argument_file(lean_obj_arg, uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_no_file_or_directory(lean_obj_arg, uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_no_such_thing(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_no_such_thing_file(lean_obj_arg, uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_other_error(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_permission_denied(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_permission_denied_file(lean_obj_arg, uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_protocol_error(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_resource_busy(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_resource_exhausted(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_resource_exhausted_file(lean_obj_arg, uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_resource_vanished(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_time_expired(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_unsatisfied_constraints(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_error_unsupported_operation(uint32_t, lean_obj_arg);
+lean_obj_res lean_mk_io_user_error(lean_obj_arg str);
+
+
 /* ST Ref primitives */
 lean_obj_res lean_st_mk_ref(lean_obj_arg, lean_obj_arg);
 lean_obj_res lean_st_ref_get(b_lean_obj_arg, lean_obj_arg);

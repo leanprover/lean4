@@ -13,7 +13,10 @@ extern "C" {
 #endif
 
 lean_object * lean_alloc_mpz(mpz_t);
-/* Pre: `lean_is_mpz(o)`, set `v` with the value stored in `o`. */
+/* Set `v` with the value stored in `o`.
+   - pre: `lean_is_mpz(o)`
+   - pre: `v` has already been initialized using `mpz_init` (or equivalent).
+*/
 void lean_extract_mpz_value(lean_object * o, mpz_t v);
 
 #ifdef __cplusplus

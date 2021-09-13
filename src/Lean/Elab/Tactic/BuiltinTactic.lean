@@ -220,15 +220,16 @@ def renameInaccessibles (mvarId : MVarId) (hs : Array Syntax) : TacticM MVarId :
     return mvarId
   else
     let mvarDecl ← getMVarDecl mvarId
-    let mut lctx := mvarDecl.lctx
-    let mut hs   := hs
+    let mut lctx  := mvarDecl.lctx
+    let mut hs    := hs
+    let mut found : NameSet := {}
     let n := lctx.numIndices
     for i in [:n] do
       let j := n - i - 1
       match lctx.getAt? j with
       | none => pure ()
       | some localDecl =>
-        if localDecl.userName.hasMacroScopes then
+        if localDecl.userName.hasMacroScopes || found.contains localDecl.userName then
           let h := hs.back
           if h.isIdent then
             let newName := h.getId
@@ -236,6 +237,7 @@ def renameInaccessibles (mvarId : MVarId) (hs : Array Syntax) : TacticM MVarId :
           hs := hs.pop
           if hs.isEmpty then
             break
+        found := found.insert localDecl.userName
     unless hs.isEmpty do
       logError m!"too many variable names provided"
     let mvarNew ← mkFreshExprMVarAt lctx mvarDecl.localInstances mvarDecl.type MetavarKind.syntheticOpaque mvarDecl.userName

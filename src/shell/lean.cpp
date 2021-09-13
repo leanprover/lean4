@@ -290,34 +290,6 @@ options set_config_option(options const & opts, char const * in) {
     }
 }
 
-void load_plugin(std::string path) {
-    void * init;
-    // we never want to look up plugins using the system library search
-    path = lrealpath(path);
-    std::string pkg = stem(path);
-    std::string sym = "initialize_" + pkg;
-#ifdef LEAN_WINDOWS
-    HMODULE h = LoadLibrary(path.c_str());
-    if (!h) {
-        throw exception(sstream() << "error loading plugin " << path);
-    }
-    init = reinterpret_cast<void *>(GetProcAddress(h, sym.c_str()));
-#else
-    void *handle = dlopen(path.c_str(), RTLD_LAZY);
-    if (!handle) {
-        throw exception(sstream() << "error loading plugin, " << dlerror());
-    }
-    init = dlsym(handle, sym.c_str());
-#endif
-    if (!init) {
-        throw exception(sstream() << "error, plugin " << path << " does not seem to contain a module '" << pkg << "'");
-    }
-    auto init_fn = reinterpret_cast<object *(*)(object *)>(init);
-    object *r = init_fn(io_mk_world());
-    consume_io_result(r);
-    // NOTE: we never unload plugins
-}
-
 namespace lean {
 extern "C" object * lean_run_frontend(object * input, object * opts, object * filename, object * main_module_name, object * w);
 pair_ref<environment, object_ref> run_new_frontend(std::string const & input, options const & opts, std::string const & file_name, name const & main_module_name) {
@@ -436,6 +408,7 @@ int main(int argc, char ** argv) {
     options opts = get_default_options();
     optional<std::string> server_in;
     std::string native_output;
+    const char* plugins;
     optional<std::string> c_output;
     optional<std::string> root_dir;
     buffer<string_ref> forwarded_args;
@@ -531,7 +504,8 @@ int main(int argc, char ** argv) {
 #endif
             case 'p':
                 check_optarg("p");
-                load_plugin(optarg);
+                plugins = opts.get_string({"interpreter", "plugins"}, "");
+                opts = opts.update({"interpreter", "plugins"}, (std::string(plugins) + std::string(optarg) + ";").c_str());
                 forwarded_args.push_back(string_ref("--plugin=" + std::string(optarg)));
                 break;
             default:

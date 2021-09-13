@@ -45,7 +45,9 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #include "library/trace.h"
 #include "library/compiler/ir.h"
 #include "library/compiler/init_attribute.h"
+#include "util/io.h"
 #include "util/nat.h"
+#include "util/path.h"
 #include "util/option_declarations.h"
 
 #ifndef LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE
@@ -82,6 +84,23 @@ nat const & ctor_info_ssize(ctor_info const & c) { return cnstr_get_ref_t<nat>(c
 /* Return the only Bool scalar field in an object that has `num_obj_fields` object/usize fields */
 static inline bool get_bool_field(object * o, unsigned num_obj_fields) {
     return cnstr_get_uint8(o, sizeof(void*)*num_obj_fields);
+}
+
+
+void* load_plugin(std::string path) {
+#ifdef LEAN_WINDOWS
+    HMODULE h = LoadLibrary(path.c_str());
+    if (!h) {
+        throw exception(sstream() << "error loading plugin " << path);
+    }
+    return reinterpret_cast<void *>(h);
+#else
+    void *handle = dlopen(path.c_str(), RTLD_LAZY);
+    if (!handle) {
+        throw exception(sstream() << "error loading plugin, " << dlerror());
+    }
+    return handle;
+#endif
 }
 
 enum class expr_kind { Ctor, Reset, Reuse, Proj, UProj, SProj, FAp, PAp, Ap, Box, Unbox, Lit, IsShared, IsTaggedPtr };
@@ -190,6 +209,7 @@ static string_ref * g_mangle_prefix = nullptr;
 static string_ref * g_boxed_suffix = nullptr;
 static string_ref * g_boxed_mangled_suffix = nullptr;
 static name * g_interpreter_prefer_native = nullptr;
+static name * g_interpreter_plugins = nullptr;
 
 // constants (lacking native declarations) initialized by `lean_run_init`
 static name_map<object *> * g_init_globals;
@@ -285,23 +305,6 @@ void print_value(std::ostream & ios, value const & v, type t) {
     }
 }
 
-void * lookup_symbol_in_cur_exe(char const * sym) {
-#ifdef LEAN_WINDOWS
-    HMODULE hmods[128];  // 128 modules should be enough for everyone
-    DWORD bytes_needed;
-    lean_always_assert(EnumProcessModules(GetCurrentProcess(), hmods, sizeof(hmods), &bytes_needed));
-    for (int i = 0; i < bytes_needed / sizeof(HMODULE); i++) {
-        void * addr = reinterpret_cast<void *>(GetProcAddress(hmods[i], sym));
-        if (addr) {
-            return addr;
-        }
-    }
-    return nullptr;
-#else
-    return dlsym(RTLD_DEFAULT, sym);
-#endif
-}
-
 class interpreter;
 LEAN_THREAD_PTR(interpreter, g_interpreter);
 
@@ -336,6 +339,8 @@ class interpreter {
         // true iff we chose the boxed version of a function where the IR uses the unboxed version
         bool m_boxed;
     };
+    // stores loaded plugin handles
+    std::vector<void *> m_plugin_handles;
     // caches symbol lookup successes _and_ failures
     name_map<symbol_cache_entry> m_symbol_cache;
 
@@ -726,6 +731,36 @@ private:
        });
     }
 
+    void * lookup_symbol_in_cur_exe(char const * sym) {
+#ifdef LEAN_WINDOWS
+        for (auto plugin_handle : m_plugin_handles) {
+            void * addr = reinterpret_cast<void *>(GetProcAddress(reinterpret_cast<HMODULE>(plugin_handle), sym));
+            if (addr) {
+                return addr;
+            }
+        }
+        // otherwise lookup in process environment
+        HMODULE hmods[128];  // 128 modules should be enough for everyone
+        DWORD bytes_needed;
+        lean_always_assert(EnumProcessModules(GetCurrentProcess(), hmods, sizeof(hmods), &bytes_needed));
+        for (int i = 0; i < bytes_needed / sizeof(HMODULE); i++) {
+            void * addr = reinterpret_cast<void *>(GetProcAddress(hmods[i], sym));
+            if (addr) {
+                return addr;
+            }
+        }
+        return nullptr;
+#else
+        for (auto plugin_handle : m_plugin_handles) {
+            void * addr = dlsym(plugin_handle, sym);
+            if (addr) {
+                return addr;
+            }
+        }
+        return dlsym(RTLD_DEFAULT, sym);
+#endif
+    }
+
     /** \brief Return cached lookup result for given unmangled function name in the current binary. */
     symbol_cache_entry lookup_symbol(name const & fn) {
         if (symbol_cache_entry const * e = m_symbol_cache.find(fn)) {
@@ -913,6 +948,32 @@ private:
 public:
     explicit interpreter(environment const & env, options const & opts) : m_env(env), m_opts(opts) {
         m_prefer_native = opts.get_bool(*g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE);
+        auto plugin_paths = opts.get_string(*g_interpreter_plugins, "");
+
+        std::string plugin_path;
+        std::stringstream ss(plugin_paths);
+
+        while(std::getline(ss, plugin_path, ';')) {
+            plugin_path = lrealpath(plugin_path);
+            auto plugin_handle = load_plugin(plugin_path);
+
+            std::string pkg = stem(plugin_path);
+            std::string sym = "initialize_" + pkg;
+            void * init;
+#ifdef LEAN_WINDOWS
+            init = reinterpret_cast<void *>(GetProcAddress(static_cast<HMODULE>(plugin_handle), sym.c_str()));
+#else
+            init = dlsym(plugin_handle, sym.c_str());
+#endif
+            if (!init) {
+                throw exception(sstream() << "error, plugin " << plugin_path << " does not seem to contain a module '" << pkg << "'");
+            }
+            auto init_fn = reinterpret_cast<object *(*)(object *)>(init);
+            object *r = init_fn(io_mk_world());
+            consume_io_result(r);
+
+            m_plugin_handles.push_back(plugin_handle);
+        }
     }
 
     ~interpreter() {
@@ -1057,8 +1118,10 @@ void initialize_ir_interpreter() {
     ir::g_boxed_mangled_suffix = new string_ref("___boxed");
     mark_persistent(ir::g_boxed_mangled_suffix->raw());
     ir::g_interpreter_prefer_native = new name({"interpreter", "prefer_native"});
+    ir::g_interpreter_plugins = new name({"interpreter", "plugins"});
     ir::g_init_globals = new name_map<object *>();
     register_bool_option(*ir::g_interpreter_prefer_native, LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE, "(interpreter) whether to use precompiled code where available");
+    register_string_option(*ir::g_interpreter_plugins, "", "(interpreter) which plugins to use (separated by semicolons)");
     DEBUG_CODE({
         register_trace_class({"interpreter"});
         register_trace_class({"interpreter", "call"});
@@ -1069,6 +1132,7 @@ void initialize_ir_interpreter() {
 void finalize_ir_interpreter() {
     delete ir::g_init_globals;
     delete ir::g_interpreter_prefer_native;
+    delete ir::g_interpreter_plugins;
     delete ir::g_boxed_mangled_suffix;
     delete ir::g_boxed_suffix;
     delete ir::g_mangle_prefix;

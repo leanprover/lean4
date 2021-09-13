@@ -172,8 +172,12 @@ def withMTime (mtime : MTime) (self : BuildTrace) : BuildTrace :=
 def fromHash (hash : Hash) : BuildTrace :=
   mk hash 0
 
+instance : Coe Hash BuildTrace := ⟨fromHash⟩
+
 def fromMTime (mtime : MTime) : BuildTrace :=
   mk Hash.nil mtime
+
+instance : Coe MTime BuildTrace := ⟨fromMTime⟩
 
 def nil : BuildTrace :=
   mk Hash.nil 0

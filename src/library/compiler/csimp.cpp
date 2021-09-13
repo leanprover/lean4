@@ -1149,7 +1149,8 @@ class csimp_fn {
         // Example: `fun {a} => ReaderT.pure`
         if (!is_join_point_def && !top) {
             expr new_e = eta_reduce(e);
-            if (is_app(new_e) && !is_constructor_app(env(), new_e) && !is_proj(new_e) && !is_cases_on_app(env(), new_e) && !is_lc_unreachable_app(new_e))
+           // Remark: we should not eta-reduce auxiliary match applications.
+            if (is_app(new_e) && !is_constructor_app(env(), new_e) && !is_proj(new_e) && !is_matcher_app(env(), new_e) && !is_cases_on_app(env(), new_e) && !is_lc_unreachable_app(new_e))
                 return visit(new_e, true);
         }
         buffer<expr> binding_fvars;

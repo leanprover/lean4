@@ -334,26 +334,21 @@ syntax (name := changeWith) "change " term " with " term (location)? : tactic
 syntax rwRule    := ("←" <|> "<-")? term
 syntax rwRuleSeq := "[" rwRule,+,? "]"
 
-syntax (name := rewriteSeq) "rewrite " rwRuleSeq (location)? : tactic
-syntax (name := erewriteSeq) "erewrite " rwRuleSeq (location)? : tactic
+syntax (name := rewriteSeq) "rewrite " (config)? rwRuleSeq (location)? : tactic
 
-syntax (name := rwSeq) "rw " rwRuleSeq (location)? : tactic
-syntax (name := erwSeq) "erw " rwRuleSeq (location)? : tactic
+syntax (name := rwSeq) "rw " (config)? rwRuleSeq (location)? : tactic
 
 def rwWithRfl (kind : SyntaxNodeKind) (atom : String) (stx : Syntax) : MacroM Syntax := do
   -- We show the `rfl` state on `]`
-  let seq   := stx[1]
+  let seq   := stx[2]
   let rbrak := seq[2]
   -- Replace `]` token with one without position information in the expanded tactic
   let seq   := seq.setArg 2 (mkAtom "]")
-  let tac   := stx.setKind kind |>.setArg 0 (mkAtomFrom stx atom) |>.setArg 1 seq
+  let tac   := stx.setKind kind |>.setArg 0 (mkAtomFrom stx atom) |>.setArg 2 seq
   `(tactic| $tac; try (withReducible rfl%$rbrak))
 
 @[macro rwSeq] def expandRwSeq : Macro :=
   rwWithRfl ``Lean.Parser.Tactic.rewriteSeq "rewrite"
-
-@[macro erwSeq] def expandERwSeq : Macro :=
-  rwWithRfl ``Lean.Parser.Tactic.erewriteSeq "erewrite"
 
 syntax (name := injection) "injection " term (" with " (colGt (ident <|> "_"))+)? : tactic
 

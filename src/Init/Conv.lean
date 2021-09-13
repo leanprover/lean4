@@ -29,7 +29,7 @@ syntax (name := ext) "ext " (colGt ident)* : conv
 syntax (name := change) "change " term : conv
 syntax (name := delta) "delta " ident : conv
 syntax (name := pattern) "pattern " term : conv
-syntax (name := rewrite) "rewrite " rwRuleSeq : conv
+syntax (name := rewrite) "rewrite " (config)? rwRuleSeq : conv
 syntax (name := erewrite) "erewrite " rwRuleSeq : conv
 syntax (name := simp) "simp " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? : conv
 syntax (name := simpMatch) "simpMatch " : conv

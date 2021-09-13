@@ -145,38 +145,41 @@ def isDefEqOffset (s t : Expr) : MetaM LBool := do
       return LBool.undef
   let isDefEq (s t) : MetaM LBool :=
     ifNatExpr <| toLBoolM <| Meta.isExprDefEqAux s t
-  match (← isOffset s) with
-  | some (s, k₁) =>
-    match (← isOffset t) with
-    | some (t, k₂) => -- s+k₁ =?= t+k₂
-      if k₁ == k₂ then
-        isDefEq s t
-      else if k₁ < k₂ then
-        isDefEq s (← mkOffset t (k₂ - k₁))
-      else
-        isDefEq (← mkOffset s (k₁ - k₂)) t
-    | none =>
-      match (← evalNat t) with
-      | some v₂ => -- s+k₁ =?= v₂
-        if v₂ ≥ k₁ then
-          isDefEq s (mkNatLit <| v₂ - k₁)
-        else
-          ifNatExpr <| return LBool.false
-      | none =>
-        return LBool.undef
-  | none =>
-    match (← evalNat s) with
-    | some v₁ =>
+  if !(← getConfig).offsetCnstrs then
+    return LBool.undef
+  else
+    match (← isOffset s) with
+    | some (s, k₁) =>
       match (← isOffset t) with
-      | some (t, k₂) => -- v₁ =?= t+k₂
-        if v₁ ≥ k₂ then
-          isDefEq (mkNatLit <| v₁ - k₂) t
+      | some (t, k₂) => -- s+k₁ =?= t+k₂
+        if k₁ == k₂ then
+          isDefEq s t
+        else if k₁ < k₂ then
+          isDefEq s (← mkOffset t (k₂ - k₁))
         else
-          ifNatExpr <| return LBool.false
+          isDefEq (← mkOffset s (k₁ - k₂)) t
       | none =>
         match (← evalNat t) with
-        | some v₂ => ifNatExpr <| return (v₁ == v₂).toLBool -- v₁ =?= v₂
-        | none    => return LBool.undef
-    | none => return LBool.undef
+        | some v₂ => -- s+k₁ =?= v₂
+          if v₂ ≥ k₁ then
+            isDefEq s (mkNatLit <| v₂ - k₁)
+          else
+            ifNatExpr <| return LBool.false
+        | none =>
+          return LBool.undef
+    | none =>
+      match (← evalNat s) with
+      | some v₁ =>
+        match (← isOffset t) with
+        | some (t, k₂) => -- v₁ =?= t+k₂
+          if v₁ ≥ k₂ then
+            isDefEq (mkNatLit <| v₁ - k₂) t
+          else
+            ifNatExpr <| return LBool.false
+        | none =>
+          match (← evalNat t) with
+          | some v₂ => ifNatExpr <| return (v₁ == v₂).toLBool -- v₁ =?= v₂
+          | none    => return LBool.undef
+      | none => return LBool.undef
 
 end Lean.Meta

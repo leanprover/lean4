@@ -8,12 +8,16 @@ import Lake.Package
 import Lake.LeanConfig
 
 namespace Lake
+open Git System
+
+def toolchainFileName : FilePath :=
+"lean-toolchain"
 
 def gitignoreContents :=
 s!"/{defaultBuildDir}\n/{defaultDepsDir}\n"
 
-def mainFileName (pkgName : String) : System.FilePath :=
-s!"{pkgName.capitalize}.lean"
+def mainFileName (pkgName : String) : FilePath :=
+  s!"{pkgName.capitalize}.lean"
 
 def mainFileContents :=
 "def main : IO Unit :=
@@ -26,15 +30,13 @@ s!"import Lake.Package
 def package : Lake.PackageConfig := \{
   name := \"{pkgName}\"
   version := \"0.1\"
-  leanVersion := \"{leanVersionString}\"
 }
 "
-
-open Git System
 
 def initPkg (dir : FilePath) (pkgName : String) : IO PUnit := do
   IO.FS.writeFile (dir / pkgFileName) (pkgFileContents pkgName)
   IO.FS.writeFile (dir / mainFileName pkgName) mainFileContents
+  IO.FS.writeFile (dir / toolchainFileName) <| leanVersionString ++ "\n"
   let h ← IO.FS.Handle.mk (dir / ".gitignore") IO.FS.Mode.append (bin := false)
   h.putStr gitignoreContents
   unless ← FilePath.isDir (dir /".git") do

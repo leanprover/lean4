@@ -46,9 +46,10 @@ import Lake.Package
 def package : Lake.PackageConfig := {
   name := "hello"
   version := "0.1"
-  leanVersion := "<current-lean-version-string>"
 }
 ```
+
+along with a `lean-toolchain` file that contains the version string of the currently active Lean, which tells [`elan`](https://github.com/leanprover/elan) to use that Lean toolchain for the package.
 
 The command `lake build-bin` can then be used to build the package (and its dependencies, if it has them) into a native executable. The result will be placed in `build/bin`.
 

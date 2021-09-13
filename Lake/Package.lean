@@ -36,7 +36,6 @@ structure PackageConfig where
   name : String
   version : String
   moduleRoot : Name := name.capitalize
-  leanVersion : String := leanVersionString
   leanArgs : Array String := #[]
   leancArgs : Array String := #[]
   linkArgs : Array String := #[]
@@ -71,9 +70,6 @@ def name (self : Package) : String :=
 
 def version (self : Package) : String :=
   self.config.version
-
-def leanVersion (self : Package) : String :=
-  self.config.leanVersion
 
 def scripts (self : Package) : HashMap String Script :=
   self.config.scripts

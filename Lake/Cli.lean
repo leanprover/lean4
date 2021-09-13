@@ -66,11 +66,7 @@ def setWantsHelp : CliM PUnit :=
   modifyThe CliOptions fun st => {st with wantsHelp := true}
 
 def getPkg (args : List String) : CliM Package := do
-  let pkg ← Package.fromDir (← getDir) args (← getFile)
-  if pkg.leanVersion ≠ leanVersionString then
-    IO.eprintln $ "\nWARNING: Lean version mismatch: installed version is " ++
-      leanVersionString ++ ", but package requires " ++ pkg.leanVersion ++ "\n"
-  return pkg
+  Package.fromDir (← getDir) args (← getFile)
 
 def takeArg : CliM String := do
   match (← takeArg?) with

@@ -39,4 +39,4 @@ test-bootstrapped: test-boostrapped-hello
 test-boostrapped-hello:
 	cd hello && ./bootstrapped-test.sh
 
-.PHONY: all verify-lake test time-bootstrap check-bootstrap test-bootstrapped
+.PHONY: all check-lake test time-bootstrap check-bootstrap test-bootstrapped

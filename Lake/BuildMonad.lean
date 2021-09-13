@@ -105,4 +105,4 @@ def failOnImportCycle : Except (List Lean.Name) α → BuildM α
 abbrev BuildTask := IOTask
 
 instance : HAndThen (BuildTask α) (BuildM β) (BuildM (BuildTask β)) :=
-  ⟨seqRightAsync⟩
+  ⟨fun x y => seqRightAsync x (y ())⟩

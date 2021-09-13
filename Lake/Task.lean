@@ -52,9 +52,13 @@ def seqRightAsync (self : IOTask α) (act : IO β) (prio := Task.Priority.dedica
   IO.mapTask (fun x => IO.ofExcept x *> act) self prio
 
 instance : SeqRightAsync IO IOTask := ⟨seqRightAsync⟩
-instance : HAndThen (IOTask α) (IO β) (IO (IOTask β)) := ⟨seqRightAsync⟩
+instance : HAndThen (IOTask α) (IO β) (IO (IOTask β)) :=
+  ⟨fun x y => seqRightAsync x (y ())⟩
 
 end IOTask
 
-instance : HAndThen (List (IOTask α)) (IO β) (IO (IOTask β)) := ⟨afterTaskList⟩
-instance : HAndThen (Array (IOTask α)) (IO β) (IO (IOTask β)) := ⟨afterTaskArray⟩
+instance : HAndThen (List (IOTask α)) (IO β) (IO (IOTask β)) :=
+  ⟨fun x y => afterTaskList x (y ())⟩
+
+instance : HAndThen (Array (IOTask α)) (IO β) (IO (IOTask β)) :=
+  ⟨fun x y => afterTaskArray x (y ())⟩

@@ -4,10 +4,10 @@ set -ex
 
 # Test `new`
 
-../../build/bin/Lake new helloNew
+../../build/bin/lake new helloNew
 
 cd helloNew
-../../../build/bin/Lake build-bin
+../../../build/bin/lake build-bin
 ./build/bin/helloNew
 cd ..
 
@@ -15,7 +15,7 @@ cd ..
 
 mkdir helloInit
 cd helloInit
-../../../build/bin/Lake init helloInit
+../../../build/bin/lake init helloInit
 
-../../../build/bin/Lake build-bin
+../../../build/bin/lake build-bin
 ./build/bin/helloInit

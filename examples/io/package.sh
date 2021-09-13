@@ -1,1 +1,1 @@
-../../build/bin/Lake build-bin -- --foo
+../../build/bin/lake build-bin -- --foo

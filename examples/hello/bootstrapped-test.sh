@@ -1,3 +1,3 @@
 ./clean.sh
-../bootstrap/build/bin/Lake build-bin
+../bootstrap/build/bin/lake build-bin
 ./build/bin/Hello

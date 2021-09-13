@@ -9,7 +9,8 @@ namespace Lake
 
 def version.major := 2
 def version.minor := 0
-def version.isPre := true
-def versionString := s!"{version.major}.{version.minor}-pre"
+def version.patch := 1
+def version.isPre := false
+def versionString := s!"{version.major}.{version.minor}.{version.patch}"
 def uiVersionString :=
   s!"Lake version {versionString} (Lean version {uiLeanVersionString})"

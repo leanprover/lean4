@@ -7,6 +7,7 @@ Author: Leonardo de Moura, Gabriel Ebner
 #include "util/path.h"
 #if defined(LEAN_WINDOWS)
 #include <windows.h>
+#include <codecvt>
 #endif
 #include <string>
 #include <cstring>
@@ -46,7 +47,8 @@ std::string get_exe_location() {
     WCHAR path[MAX_PATH];
     GetModuleFileNameW(hModule, path, MAX_PATH);
     std::wstring pathstr(path);
-    return std::string(pathstr.begin(), pathstr.end());
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+    return converter.to_bytes(pathstr);
 }
 bool is_path_sep(char c) { return c == g_path_sep; }
 #elif defined(__APPLE__)
@@ -92,22 +94,25 @@ std::string get_exe_location() {
 bool is_path_sep(char c) { return c == g_path_sep; }
 #endif
 
+
+std::string resolve(std::string const& rel_or_abs, std::string const& base) {
+    if (!rel_or_abs.empty()) {
+        if (rel_or_abs[0] == g_sep) {
+            // absolute
+            return rel_or_abs;
+        }
 #if defined(LEAN_WINDOWS)
-std::string resolve(std::string const & rel_or_abs, std::string const & base) {
-    // TODO(gabriel): detect absolute pathnames
+        if (rel_or_abs.size() > 2 && rel_or_abs[1] == ':' && rel_or_abs[2] == g_sep)
+        {
+            // absolute with drive letter
+            return rel_or_abs;
+        }
+#endif
+    }
+
+    // relative
     return base + g_sep + rel_or_abs;
 }
-#else
-std::string resolve(std::string const & rel_or_abs, std::string const & base) {
-    if (!rel_or_abs.empty() && rel_or_abs[0] == g_sep) {
-        // absolute
-        return rel_or_abs;
-    } else {
-        // relative
-        return base + g_sep + rel_or_abs;
-    }
-}
-#endif
 
 std::string normalize_path(std::string f) {
     for (auto & c : f) {
@@ -177,11 +182,24 @@ std::string stem(std::string const & fname) {
 }
 
 std::string read_file(std::string const & fname, std::ios_base::openmode mode) {
+#if defined(LEAN_WINDOWS)
+    // For some unknown reason windows std::ifstream cannot open files with
+    // utf-8 encoded names, have to switch to utf-16 for it to work.
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+    std::wstring wide = converter.from_bytes(fname);
+    std::wifstream in(wide);
+    if (!in.good()) throw file_not_found_exception(fname);
+    std::wstringstream buf;
+    buf << in.rdbuf();
+    std::string content = converter.to_bytes(buf.str());
+    return content;
+#else
     std::ifstream in(fname, mode);
     if (!in.good()) throw file_not_found_exception(fname);
     std::stringstream buf;
     buf << in.rdbuf();
     return buf.str();
+#endif
 }
 
 time_t get_mtime(std::string const &fname) {
@@ -210,12 +228,21 @@ std::vector<std::string> read_dir(std::string const &dirname) {
     std::vector<std::string> files;
 #ifdef _MSC_VER
     WIN32_FIND_DATA data;
-    std::string dir = dirname + "\\*";
-    HANDLE hFind = FindFirstFile(dir.c_str(), &data);
+    std::string dir = dirname;
+    if (dir.empty() || dir.back() != g_sep) {
+        dir.push_back(g_sep);
+    }
+    dir.push_back('*');
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+    std::wstring wide = converter.from_bytes(dir);
+    HANDLE hFind = FindFirstFile(wide.c_str(), &data);
     if (hFind != INVALID_HANDLE_VALUE) {
         do {
-            if (strcmp(data.cFileName, ".") != 0 && strcmp(data.cFileName, "..") != 0)
-                files.push_back(dirname + '\\' + data.cFileName);
+            std::wstring name = data.cFileName;
+            if (name != L"." && name != L"..") {
+                std::wstring combined = wide + L'\\' + name;
+                files.push_back(converter.to_bytes(combined));
+            }
         } while (FindNextFile(hFind, &data));
         FindClose(hFind);
     }
@@ -239,13 +266,26 @@ std::string lrealpath(std::string const & fname) {
 #if defined(LEAN_EMSCRIPTEN)
     return fname;
 #elif defined(LEAN_WINDOWS)
-    constexpr unsigned BufferSize = 8192;
-    char buffer[BufferSize];
-    DWORD retval = GetFullPathName(fname.c_str(), BufferSize, buffer, nullptr);
-    if (retval == 0 || retval > BufferSize) {
-        return fname;
-    } else {
-        return std::string(buffer);
+    // WIN32 unicode API requires we convert string to UTF-16.
+    constexpr unsigned BufferSize = 32767;
+    wchar_t* buffer = new wchar_t[BufferSize];
+    if (buffer == nullptr)
+    {
+        throw std::runtime_error("out of memory");
+    }
+
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+    std::wstring wide_path = converter.from_bytes(fname);
+    DWORD retval = GetFullPathName(wide_path.c_str(), BufferSize, buffer, nullptr);
+    if (retval == 0 || retval >= BufferSize) {
+        delete[] buffer;
+        throw file_not_found_exception(fname);
+    }
+    else {
+        // convert back to utf-8 for the rest of lean to play with.
+        std::string utf8 = converter.to_bytes(buffer);
+        delete[] buffer;
+        return utf8;
     }
 #else
     constexpr unsigned BufferSize = 8192;

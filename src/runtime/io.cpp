@@ -7,8 +7,10 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #if defined(LEAN_WINDOWS)
 #include <windows.h>
 #include <io.h>
-#include <ntdef.h>
 #include <bcrypt.h>
+#ifndef NT_SUCCESS
+#define NT_SUCCESS(Status) (((NTSTATUS)(Status)) >= 0)
+#endif
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
 #include <unistd.h>
@@ -16,15 +18,17 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #if defined(LEAN_EMSCRIPTEN)
 #include <emscripten.h>
 #endif
+#endif
+#ifndef LEAN_WINDOWS
 // Linux include files
 #include <unistd.h> // NOLINT
 #include <sys/mman.h>
 #include <sys/random.h>
-#endif
-#ifndef LEAN_WINDOWS
 #include <csignal>
-#endif
 #include <dirent.h>
+#else
+#include <codecvt>
+#endif
 #include <fcntl.h>
 #include <iostream>
 #include <chrono>
@@ -32,6 +36,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <fstream>
 #include <iomanip>
 #include <string>
+#include <algorithm>
 #include <cstdlib>
 #include <cctype>
 #include <sys/stat.h>
@@ -42,9 +47,11 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "runtime/object.h"
 #include "runtime/thread.h"
 #include "runtime/allocprof.h"
+#include "runtime/exception.h"
 
 #ifdef _MSC_VER
 #define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)
+#define S_ISREG(mode) ((mode & _S_IFREG) != 0)
 #else
 #include <dirent.h>
 #endif
@@ -174,6 +181,13 @@ extern "C" obj_res lean_get_set_stderr(obj_arg h, obj_arg /* w */) {
 static FILE * io_get_handle(lean_object * hfile) {
     return static_cast<FILE *>(lean_get_external_data(hfile));
 }
+
+#if defined(LEAN_WINDOWS)
+#include <system_error>
+std::string decode_win_error(int hr, const std::string& name) {
+    return std::system_category().message(hr) + ": " + name;
+}
+#endif
 
 obj_res decode_io_error(int errnum, b_obj_arg fname) {
     object * details = mk_string(strerror(errnum));
@@ -514,19 +528,28 @@ extern "C" obj_res lean_io_getenv(b_obj_arg env_var, obj_arg) {
 
 extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg) {
 #if defined(LEAN_WINDOWS)
-    constexpr unsigned BufferSize = 8192;
-    char buffer[BufferSize];
-    DWORD retval = GetFullPathName(string_cstr(fname), BufferSize, buffer, nullptr);
-    if (retval == 0 || retval > BufferSize) {
-        return io_result_mk_ok(fname);
+    // WIN32 unicode API requires we convert string to UTF-16.
+    constexpr unsigned BufferSize = 32767;
+    wchar_t buffer[BufferSize];
+    std::string path = string_cstr(fname); 
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+    std::wstring wide_path = converter.from_bytes(path);
+    DWORD retval = GetFullPathName(wide_path.c_str(), BufferSize, buffer, nullptr);
+    if (retval == 0 || retval >= BufferSize) {
+        int hr = GetLastError();
+        return io_result_mk_error(decode_win_error(hr, path));
     } else {
         dec_ref(fname);
         // Hack for making sure disk is lower case
         // TODO(Leo): more robust solution
-        if (strlen(buffer) >= 2 && buffer[1] == ':') {
+        // TODO(chris): why just the drive letter? All of window spath is case-insensitive...
+        if (retval >= 2 && buffer[1] == ':') {
             buffer[0] = tolower(buffer[0]);
         }
-        return io_result_mk_ok(mk_string(buffer));
+
+        // convert back to utf-8 for the rest of lean to play with.
+        std::string utf8 = converter.to_bytes(buffer);
+        return io_result_mk_ok(mk_string(utf8.c_str()));
     }
 #else
     char buffer[PATH_MAX];
@@ -552,6 +575,10 @@ constant readDir : @& FilePath → IO (Array DirEntry)
 */
 extern "C" obj_res lean_io_read_dir(b_obj_arg dirname, obj_arg) {
     object * arr = array_mk_empty();
+
+#if defined(LEAN_WINDOWS)
+    // TODO
+#else
     DIR * dp = opendir(string_cstr(dirname));
     if (!dp) {
         return io_result_mk_error(decode_io_error(errno, dirname));
@@ -567,6 +594,7 @@ extern "C" obj_res lean_io_read_dir(b_obj_arg dirname, obj_arg) {
         arr = lean_array_push(arr, lentry);
     }
     lean_always_assert(closedir(dp) == 0);
+#endif
     return io_result_mk_ok(arr);
 }
 
@@ -627,14 +655,29 @@ extern "C" obj_res lean_io_metadata(b_obj_arg fname, obj_arg) {
 
 extern "C" obj_res lean_io_create_dir(b_obj_arg p, obj_arg) {
 #ifdef LEAN_WINDOWS
-    if (mkdir(string_cstr(p)) == 0) {
+    // WIN32 unicode API requires we convert string to UTF-16 otherwise
+    // NOTE: windows CreateDirectory cannot create multiple directories at once
+    // hopefully the contract with lean_io_create_dir is only one at a time.
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+    std::string dirname = string_cstr(p);
+    std::wstring wide_path = converter.from_bytes(dirname);
+    if (!CreateDirectory(wide_path.c_str(), NULL)) {
+        int hr = GetLastError();
+        if (hr != ERROR_ALREADY_EXISTS) {
+            return io_result_mk_error(decode_win_error(hr, dirname));
+        }
+    }
+    else {
+        return io_result_mk_ok(box(0));
+    }
+
 #else
     if (mkdir(string_cstr(p), 0777) == 0) {
-#endif
         return io_result_mk_ok(box(0));
     } else {
         return io_result_mk_error(decode_io_error(errno, p));
     }
+#endif
 }
 
 extern "C" obj_res lean_io_remove_file(b_obj_arg fname, obj_arg) {
@@ -651,9 +694,11 @@ extern "C" obj_res lean_io_app_path(obj_arg) {
     WCHAR path[MAX_PATH];
     GetModuleFileNameW(hModule, path, MAX_PATH);
     std::wstring pathwstr(path);
-    std::string pathstr(pathwstr.begin(), pathwstr.end());
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+    std::string pathstr = converter.to_bytes(pathwstr);
     // Hack for making sure disk is lower case
     // TODO(Leo): more robust solution
+    // TODO(chris): why just the drive letter? All of window spath is case-insensitive...
     if (pathstr.size() >= 2 && pathstr[1] == ':') {
         pathstr[0] = tolower(pathstr[0]);
     }
@@ -702,13 +747,23 @@ extern "C" obj_res lean_io_app_path(obj_arg) {
 }
 
 extern "C" obj_res lean_io_current_dir(obj_arg) {
+#if defined(LEAN_WINDOWS)
+    // doing it this way ensures we work with windows "long paths".
+    wchar_t* cwd = _wgetcwd(nullptr, 0);
+    if (cwd) {
+        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        std::string utf8_path = converter.to_bytes(cwd);
+        io_result_mk_ok(mk_string(utf8_path.c_str()));
+        free(cwd);
+    }
+#else
     char buffer[PATH_MAX];
-    char * cwd = getcwd(buffer, sizeof(buffer));
+    char* cwd = getcwd(buffer, sizeof(buffer));
     if (cwd) {
         return io_result_mk_ok(mk_string(cwd));
-    } else {
-        return io_result_mk_error("failed to retrieve current working directory");
-    }
+    } 
+#endif
+    return io_result_mk_error("failed to retrieve current working directory");
 }
 
 // =======================================

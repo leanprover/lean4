@@ -50,6 +50,7 @@ Author: Leonardo de Moura
 
 #ifdef LEAN_WINDOWS
 #include <windows.h>
+#include <codecvt>
 #undef ERROR // thanks, wingdi.h
 #else
 #include <dlfcn.h>
@@ -64,7 +65,7 @@ Author: Leonardo de Moura
 enum arg_opt { no_argument, required_argument, optional_argument };
 
 struct option {
-    const char name[12];
+    const char name[13];
     arg_opt has_arg;
     int *flag;
     char val;
@@ -297,7 +298,9 @@ void load_plugin(std::string path) {
     std::string pkg = stem(path);
     std::string sym = "initialize_" + pkg;
 #ifdef LEAN_WINDOWS
-    HMODULE h = LoadLibrary(path.c_str());
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+    std::wstring wide_path = converter.from_bytes(path);
+    HMODULE h = LoadLibrary(wide_path.c_str());
     if (!h) {
         throw exception(sstream() << "error loading plugin " << path);
     }

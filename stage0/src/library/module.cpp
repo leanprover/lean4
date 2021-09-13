@@ -28,6 +28,7 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 
 #ifdef LEAN_WINDOWS
 #include <windows.h>
+#include <codecvt>
 #else
 #include <sys/mman.h>
 #include <unistd.h>
@@ -81,7 +82,9 @@ extern "C" object * lean_save_module_data(b_obj_arg fname, b_obj_arg mod, b_obj_
 #ifdef LEAN_WINDOWS
             if (errno == EEXIST) {
                 // Memory-mapped files can be deleted starting with Windows 10 using "POSIX semantics"
-                HANDLE h_olean_fn = CreateFile(olean_fn.c_str(), GENERIC_READ | DELETE, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+                std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+                auto wide_path = converter.from_bytes(olean_fn);
+                HANDLE h_olean_fn = CreateFile(wide_path.c_str(), GENERIC_READ | DELETE, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
                 if (h_olean_fn == INVALID_HANDLE_VALUE) {
                     return io_result_mk_error((sstream() << "failed to open '" << olean_fn << "': " << GetLastError()).str());
                 }
@@ -132,7 +135,9 @@ extern "C" object * lean_read_module_data(object * fname, object *) {
         std::function<void()> free_data;
 #ifdef LEAN_WINDOWS
         // `FILE_SHARE_DELETE` is necessary to allow the file to (be marked to) be deleted while in use
-        HANDLE h_olean_fn = CreateFile(olean_fn.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        auto wide_path = converter.from_bytes(olean_fn);
+        HANDLE h_olean_fn = CreateFile(wide_path.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (h_olean_fn == INVALID_HANDLE_VALUE) {
             return io_result_mk_error((sstream() << "failed to open '" << olean_fn << "': " << GetLastError()).str());
         }

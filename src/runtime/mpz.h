@@ -10,9 +10,17 @@ Author: Leonardo de Moura
 #include <string>
 #include <iostream>
 #include <limits>
-#include <lean/lean.h>
 #include "runtime/int64.h"
 #include "runtime/debug.h"
+#include <lean/lean.h>
+
+#ifdef max
+#undef max
+#endif
+
+#ifdef min
+#undef min
+#endif
 
 namespace lean {
 

@@ -19,22 +19,22 @@ bool is_reduce_arity_aux_fn(name const & n) {
     return n.is_string() && !n.is_atomic() && strcmp(n.get_string().data(), REDUCE_ARITY_SUFFIX) == 0;
 }
 
-bool arity_was_reduced(comp_decl const & cdecl) {
-    expr v = cdecl.snd();
+bool arity_was_reduced(comp_decl const & cdec) {
+    expr v = cdec.snd();
     while (is_lambda(v))
         v = binding_body(v);
     expr const & f = get_app_fn(v);
     if (!is_constant(f)) return false;
     name const & n = const_name(f);
-    return is_reduce_arity_aux_fn(n) && n.get_prefix() == cdecl.fst();
+    return is_reduce_arity_aux_fn(n) && n.get_prefix() == cdec.fst();
 }
 
-comp_decls reduce_arity(environment const & env, comp_decl const & cdecl) {
-    if (has_export_name(env, cdecl.fst()) || cdecl.fst() == "main") {
+comp_decls reduce_arity(environment const & env, comp_decl const & cdec) {
+    if (has_export_name(env, cdec.fst()) || cdec.fst() == "main") {
         /* We do not modify the arity of entry points (i.e., functions with attribute [export]) */
-        return comp_decls(cdecl);
+        return comp_decls(cdec);
     }
-    expr code    = cdecl.snd();
+    expr code    = cdec.snd();
     buffer<expr> fvars;
     name_generator ngen;
     local_ctx lctx;
@@ -79,16 +79,16 @@ comp_decls reduce_arity(environment const & env, comp_decl const & cdecl) {
               def false.elim {C : Sort u} (h : false) : C := ..
               ```
         */
-        return comp_decls(cdecl);
+        return comp_decls(cdec);
     }
-    name red_fn   = mk_reduce_arity_aux_fn(cdecl.fst());
+    name red_fn   = mk_reduce_arity_aux_fn(cdec.fst());
     expr red_code = lctx.mk_lambda(new_fvars, code);
     comp_decl red_decl(red_fn, red_code);
-    /* Replace `cdecl` code with a call to `red_fn`.
-       We rely on inlining to reduce calls to `cdecl` into calls to `red_decl`. */
+    /* Replace `cdec` code with a call to `red_fn`.
+       We rely on inlining to reduce calls to `cdec` into calls to `red_decl`. */
     expr new_code = mk_app(mk_constant(red_fn), new_fvars);
     new_code      = try_eta(lctx.mk_lambda(fvars, new_code));
-    comp_decl new_decl(cdecl.fst(), new_code);
+    comp_decl new_decl(cdec.fst(), new_code);
     return comp_decls(red_decl, comp_decls(new_decl));
 }
 

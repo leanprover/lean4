@@ -14,7 +14,7 @@ namespace lean {
 throwable::throwable(char const * msg):m_msg(msg) {}
 throwable::throwable(std::string const & msg):m_msg(msg) {}
 throwable::throwable(sstream const & strm):m_msg(strm.str()) {}
-throwable::~throwable() noexcept {}
+throwable::~throwable() {}
 char const * throwable::what() const noexcept { return m_msg.c_str(); }
 
 stack_space_exception::stack_space_exception(char const * component_name):

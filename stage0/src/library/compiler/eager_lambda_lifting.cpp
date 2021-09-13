@@ -400,11 +400,11 @@ public:
     eager_lambda_lifting_fn(environment const & env, csimp_cfg const & cfg):
         m_st(env), m_cfg(cfg) {}
 
-    pair<environment, comp_decls> operator()(comp_decl const & cdecl) {
-        m_base_name = cdecl.fst();
-        expr r = visit(cdecl.snd(), true);
-        comp_decl new_cdecl(cdecl.fst(), r);
-        m_new_decls.push_back(new_cdecl);
+    pair<environment, comp_decls> operator()(comp_decl const & cdec) {
+        m_base_name = cdec.fst();
+        expr r = visit(cdec.snd(), true);
+        comp_decl new_cdec(cdec.fst(), r);
+        m_new_decls.push_back(new_cdec);
         return mk_pair(env(), comp_decls(m_new_decls));
     }
 };

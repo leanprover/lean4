@@ -40,10 +40,12 @@ extern "C" {
 #define LEAN_UNLIKELY(x) (__builtin_expect((x), 0))
 #define LEAN_LIKELY(x) (__builtin_expect((x), 1))
 #define LEAN_ALWAYS_INLINE __attribute__((always_inline))
+#define LEAN_NO_RETURN __attribute__((noreturn))
 #else
 #define LEAN_UNLIKELY(x) (x)
 #define LEAN_LIKELY(x) (x)
 #define LEAN_ALWAYS_INLINE
+#define LEAN_NO_RETURN 
 #endif
 
 #ifdef LEAN_RUNTIME_STATS
@@ -278,10 +280,10 @@ void lean_set_panic_messages(bool flag);
 
 lean_object * lean_panic_fn(lean_object * default_val, lean_object * msg);
 
-__attribute__((noreturn)) void lean_internal_panic(char const * msg);
-__attribute__((noreturn)) void lean_internal_panic_out_of_memory();
-__attribute__((noreturn)) void lean_internal_panic_unreachable();
-__attribute__((noreturn)) void lean_internal_panic_rc_overflow();
+LEAN_NO_RETURN void lean_internal_panic(char const * msg);
+LEAN_NO_RETURN void lean_internal_panic_out_of_memory();
+LEAN_NO_RETURN void lean_internal_panic_unreachable();
+LEAN_NO_RETURN void lean_internal_panic_rc_overflow();
 
 static inline size_t lean_align(size_t v, size_t a) {
     return (v / a)*a + a * (v % a != 0);

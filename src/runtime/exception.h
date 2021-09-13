@@ -20,7 +20,7 @@ public:
     throwable(char const * msg);
     throwable(std::string const & msg);
     throwable(sstream const & strm);
-    virtual ~throwable() noexcept;
+    virtual ~throwable();
     virtual char const * what() const noexcept;
 };
 

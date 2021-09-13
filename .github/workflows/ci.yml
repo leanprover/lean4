@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: ${{ matrix.shell || 'sh' }}
+    strategy:
+      matrix:
+        include:
+        - name: Ubuntu
+          os: ubuntu-latest
+        - name: MacOS
+          os: macos-latest
+        - name: Windows
+          os: windows-latest
+          shell: msys2 {0}
+      # complete all jobs
+      fail-fast: false
+    steps:
+    - name: Install MSYS2 (Windows)
+      if: matrix.os == 'windows-latest'
+      uses: msys2/setup-msys2@v2
+      with:
+        path-type: inherit
+        install: curl unzip make mingw-w64-x86_64-gcc mingw-w64-x86_64-gmp
+    - name: Install Elan (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        curl -sSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh > elan-init.sh
+        ./elan-init.sh -y
+        cygpath -w "$USERPROFILE/.elan/bin" >> $GITHUB_PATH
+    - name: Install Elan (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        curl -sSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh > elan-init.sh
+        chmod +x elan-init.sh
+        ./elan-init.sh -y
+        echo "$HOME/.elan/bin" >> $GITHUB_PATH
+    - name: Install Elan (MacOS)
+      if: matrix.os == 'macOS-latest'
+      run: brew install elan
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Check Lean
+      run: lean --version
+    - name: Build & Time
+      run: ./time.sh -j4
+    - name: Upload Build
+      uses: actions/upload-artifact@v2
+      with:
+        name: Build
+        path: build
+    - name: Check Lake
+      run: make -C examples check-lake
+    - name: Test Examples
+      run: make -C examples test -j4
+    - name: Time Bootstrap
+      run: make -C examples time-bootstrap
+    - name: Check Bootstrap
+      run: make -C examples check-bootstrap
+    - name: Test Bootstrapped Examples
+      run: make -C examples test-bootstrapped -j4

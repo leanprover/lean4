@@ -14,7 +14,7 @@ def evalRewriteCore (mode : TransparencyMode) : Tactic := fun stx =>
   withRWRulesSeq stx[0] stx[1] fun symm term => do
     Term.withSynthesize <| withMainContext do
       let e ← elabTerm term none true
-      let r ← rewrite (← getMainGoal) (← getLhs) e symm (mode := mode)
+      let r ← rewrite (← getMainGoal) (← getLhs) e symm (config := { transparency := mode })
       updateLhs r.eNew r.eqProof
       replaceMainGoal ((← getMainGoal) :: r.mvarIds)
 

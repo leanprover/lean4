@@ -11,8 +11,7 @@ def HashSetBucket (α : Type u) :=
 
 def HashSetBucket.update {α : Type u} (data : HashSetBucket α) (i : USize) (d : List α) (h : i.toNat < data.val.size) : HashSetBucket α :=
   ⟨ data.val.uset i d h,
-    by conv => lhs; apply Array.size_set
-       apply data.property ⟩
+    by erw [Array.size_set]; apply data.property ⟩
 
 structure HashSetImp (α : Type u) where
   size       : Nat

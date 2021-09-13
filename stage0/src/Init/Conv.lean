@@ -42,9 +42,9 @@ syntax (name := paren) "(" convSeq ")" : conv
 
 /-- `· conv` focuses on the main conv goal and tries to solve it using `s` -/
 macro dot:("·" <|> ".") s:convSeq : conv => `({%$dot ($s:convSeq) })
-macro "rw " c:(config)? s:rwRuleSeq : conv =>
-  let c? := if c.isNone then none else some c[0]
-  `(conv| rewrite $[$c?:config]? $s:rwRuleSeq)
+macro "rw " c:(config)? s:rwRuleSeq : conv => `(rewrite $[$(c.getOptional?):config]? $s:rwRuleSeq)
+macro "erw " s:rwRuleSeq : conv => `(rw (config := { transparency := Meta.TransparencyMode.default }) $s:rwRuleSeq)
+
 macro "args" : conv => `(congr)
 macro "left" : conv => `(lhs)
 macro "right" : conv => `(rhs)

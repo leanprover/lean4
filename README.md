@@ -75,6 +75,6 @@ We can use the command `lake build-bin` to build the package (and its dependenci
 ```
 $ lake build-bin
 ...
-$ ./build/bin/Hello
+$ ./build/bin/hello
 Hello, world!
 ```

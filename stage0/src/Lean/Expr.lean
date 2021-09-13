@@ -157,8 +157,27 @@ def Expr.mkDataForLet (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8) 
 
 open Expr
 
-abbrev MVarId := Name
-abbrev FVarId := Name
+structure FVarId where
+  name : Name
+  deriving Inhabited, BEq, Hashable
+
+instance : Repr FVarId where
+  reprPrec n p := reprPrec n.name p
+
+def FVarIdSet := Std.RBTree FVarId (Name.quickCmp ·.name ·.name)
+  deriving Inhabited, EmptyCollection
+
+instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (Std.RBTree ..) ..)
+
+def FVarIdHashSet := Std.HashSet FVarId
+  deriving Inhabited, EmptyCollection
+
+def FVarIdMap (α : Type) := Std.RBMap FVarId α (Name.quickCmp ·.name ·.name)
+
+instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (Std.RBMap ..))
+
+instance : Inhabited (FVarIdMap α) where
+  default := {}
 
 /- We use the `E` suffix (short for `Expr`) to avoid collision with keywords.
    We considered using «...», but it is too inconvenient to use. -/
@@ -1060,6 +1079,17 @@ def annotation? (kind : Name) (e : Expr) : Option Expr :=
   | Expr.mdata d b _ => if d.size == 1 && d.getBool kind false then some b else none
   | _                => none
 
+def mkLetFunAnnotation (e : Expr) : Expr :=
+  mkAnnotation `let_fun e
+
+def letFunAnnotation? (e : Expr) : Option Expr :=
+  annotation? `let_fun e
+
+def isLetFun (e : Expr) : Bool :=
+  match letFunAnnotation? e with
+  | none   => false
+  | some e => e.isApp && e.appFn!.isLambda
+
 /--
   Annotate `e` with the LHS annotation. The delaborator displays
   expressions of the form `lhs = rhs` as `lhs` when they have this annotation.
@@ -1077,10 +1107,10 @@ def isLHSGoal? (e : Expr) : Option Expr :=
       none
 
 def mkFreshFVarId {m : Type → Type} [Monad m] [MonadNameGenerator m] : m FVarId :=
-  mkFreshId
+  return { name := (← mkFreshId) }
 
-def mkFreshMVarId {m : Type → Type} [Monad m] [MonadNameGenerator m] : m FVarId :=
-  mkFreshId
+def mkFreshMVarId {m : Type → Type} [Monad m] [MonadNameGenerator m] : m MVarId :=
+  return { name := (← mkFreshId) }
 
 def mkNot (p : Expr) : Expr := mkApp (mkConst ``Not) p
 def mkOr (p q : Expr) : Expr := mkApp2 (mkConst ``Or) p q

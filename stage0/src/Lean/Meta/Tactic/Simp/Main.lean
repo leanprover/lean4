@@ -50,6 +50,10 @@ private def mkImpCongr (r₁ r₂ : Result) : MetaM Result := do
   | none,     none   => return { expr := e, proof? := none }
   | _,        _      => return { expr := e, proof? := (← Meta.mkImpCongr (← r₁.getProof) (← r₂.getProof)) } -- TODO specialize if bootleneck
 
+/-- Return true if `e` is of the form `ofNat n` where `n` is a kernel Nat literal -/
+def isOfNatNatLit (e : Expr) : Bool :=
+  e.isAppOfArity ``OfNat.ofNat 3 && e.appFn!.appArg!.isNatLit
+
 private def reduceProj (e : Expr) : MetaM Expr := do
   match (← reduceProj? e) with
   | some e => return e
@@ -151,18 +155,18 @@ where
 
   simpStep (e : Expr) : M Result := do
     match e with
-    | Expr.mdata _ e _ => simp e
-    | Expr.proj ..     => pure { expr := (← reduceProj e) }
+    | Expr.mdata m e _ => let r ← simp e; return { r with expr := mkMData m r.expr }
+    | Expr.proj ..     => return { expr := (← reduceProj e) }
     | Expr.app ..      => simpApp e
     | Expr.lam ..      => simpLambda e
     | Expr.forallE ..  => simpForall e
     | Expr.letE ..     => simpLet e
     | Expr.const ..    => simpConst e
     | Expr.bvar ..     => unreachable!
-    | Expr.sort ..     => pure { expr := e }
-    | Expr.lit ..      => pure { expr := e }
-    | Expr.mvar ..     => pure { expr := (← instantiateMVars e) }
-    | Expr.fvar ..     => pure { expr := (← reduceFVar (← getConfig) e) }
+    | Expr.sort ..     => return { expr := e }
+    | Expr.lit ..      => simpLit e
+    | Expr.mvar ..     => return { expr := (← instantiateMVars e) }
+    | Expr.fvar ..     => return { expr := (← reduceFVar (← getConfig) e) }
 
   congrDefault (e : Expr) : M Result :=
     withParent e <| e.withApp fun f args => do
@@ -179,6 +183,11 @@ where
           r ← mkCongrFun r (← dsimp arg)
         i := i + 1
       return r
+
+  simpLit (e : Expr) : M Result :=
+    match e.natLit? with
+    | some n => return { expr := (← mkNumeral (mkConst ``Nat) n) }
+    | none   => return { expr := e }
 
   /- Return true iff processing the given congruence lemma hypothesis produced a non-refl proof. -/
   processCongrHypothesis (h : Expr) : M Bool := do
@@ -242,6 +251,9 @@ where
     let e ← reduce e
     if !e.isApp then
       simp e
+    else if isOfNatNatLit e then
+      -- Recall that we expand "orphan" kernel nat literals `n` into `ofNat n`
+      return { expr := e }
     else
       congr e
 
@@ -311,13 +323,39 @@ where
       return { expr := (← dsimp e) }
 
   simpLet (e : Expr) : M Result := do
-    if (← getConfig).zeta then
-      match e with
-      | Expr.letE _ _ v b _ => return { expr := b.instantiate1 v }
-      | _ => unreachable!
-    else
-      -- TODO: simplify nondependent let-decls
-      return { expr := (← dsimp e) }
+    match e with
+    | Expr.letE n t v b _ =>
+      if (← getConfig).zeta then
+        return { expr := b.instantiate1 v }
+      else
+        withLocalDeclD n t fun x => do
+          let bx := b.instantiate1 x
+          /- The following step is potentially very expensive when we have many nested let-decls.
+             TODO: handle a block of nested let decls in a single pass if this becomes a performance problem. -/
+          if (← isTypeCorrect bx) then
+            let bxType ← whnf (← inferType bx)
+            let rbx ← simp bx
+            let hb? ← match rbx.proof? with
+              | none => pure none
+              | some h => pure (some (← mkLambdaFVars #[x] h))
+            if (← dependsOn bxType x.fvarId!) then
+              /- The type of the body depends on `x`. So, we use `let_body_congr` -/
+              let v' ← dsimp v
+              let e' := mkLet n t v' (← abstract rbx.expr #[x])
+              match hb? with
+              | none => return { expr := e' }
+              | some h => return { expr := e', proof? := some (← mkLetBodyCongr v' h) }
+            else
+              /- The type of the body does not depend on `x`. So, we use `let_congr` -/
+              let rv ← simp v
+              let e' := mkLet n t rv.expr (← abstract rbx.expr #[x])
+              match rv.proof?, hb? with
+              | none,   none   => return { expr := e' }
+              | some h, none   => return { expr := e', proof? := some (← mkLetValCongr (← mkLambdaFVars #[x] rbx.expr) h) }
+              | _,      some h => return { expr := e', proof? := some (← mkLetCongr (← rv.getProof) h) }
+          else
+            return { expr := (← dsimp e) }
+    | _ => unreachable!
 
   cacheResult (cfg : Config) (r : Result) : M Result := do
     if cfg.memoize then
@@ -430,7 +468,7 @@ def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) (disc
       else
         return some (fvarId, mvarId)
 
-abbrev FVarIdToLemmaId := NameMap Name
+abbrev FVarIdToLemmaId := FVarIdMap Name
 
 def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[]) (fvarIdToLemmaId : FVarIdToLemmaId := {}) : MetaM (Option (Array FVarId × MVarId)) := do
   withMVarContext mvarId do

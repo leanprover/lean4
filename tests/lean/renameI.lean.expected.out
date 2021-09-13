@@ -1,0 +1,9 @@
+x y : Nat
+⊢ x = y
+renameI.lean:5:2-5:7: warning: declaration uses 'sorry'
+x a.b : Nat
+⊢ x = a.b
+renameI.lean:11:2-11:7: warning: declaration uses 'sorry'
+x o✝ y a.b : Nat
+⊢ x + y = a.b + o✝
+renameI.lean:17:2-17:7: warning: declaration uses 'sorry'

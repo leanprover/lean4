@@ -1,0 +1,3 @@
+m n : Nat
+⊢ Nat.ble (n + 1) n = false
+rwWithoutOffsetCnstrs.lean:8:2-8:7: warning: declaration uses 'sorry'

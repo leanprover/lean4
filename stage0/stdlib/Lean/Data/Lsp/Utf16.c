@@ -15,10 +15,8 @@ extern "C" {
 #endif
 lean_object* l_String_utf16PosToCodepointPos___boxed(lean_object*, lean_object*);
 lean_object* l_String_codepointPosToUtf16PosFrom___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux_match__1(lean_object*);
 static lean_object* l_String_utf16Length___closed__1;
 lean_object* l_String_utf16PosToCodepointPosFrom___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux_match__1(lean_object*);
 extern lean_object* l_instInhabitedNat;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
@@ -37,13 +35,10 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_String_utf16Length___lambda__1(uint32_t, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_csize16(uint32_t);
-lean_object* l_String_codepointPosToUtf8PosFrom_match__1(lean_object*);
 lean_object* l_String_codepointPosToUtf16Pos(lean_object*, lean_object*);
 lean_object* l_String_foldrAux_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_String_utf16PosToCodepointPosFrom(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_FileMap_leanPosToLspPos_match__1(lean_object*);
-lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint32_t l_Char_utf16Size(uint32_t);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
@@ -51,13 +46,9 @@ lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 lean_object* l_Lean_FileMap_utf8PosToLspPos___boxed(lean_object*, lean_object*);
 lean_object* l_String_utf16PosToCodepointPos(lean_object*, lean_object*);
-lean_object* l_String_codepointPosToUtf8PosFrom_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__2(lean_object*);
-lean_object* l_Lean_FileMap_leanPosToLspPos_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_String_codepointPosToUtf8PosFrom___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_leanPosToLspPos(lean_object*, lean_object*);
 uint8_t l_UInt32_decLe(uint32_t, uint32_t);
 lean_object* l_String_utf16Length___boxed(lean_object*);
@@ -67,7 +58,6 @@ lean_object* l_Char_utf16Size___boxed(lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_String_codepointPosToUtf16PosFrom(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_utf16Length(lean_object*);
-lean_object* l_String_codepointPosToUtf8PosFrom_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint32_t l_Char_utf16Size(uint32_t x_1) {
 _start:
@@ -169,47 +159,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_unsigned_to_nat(0u);
-x_7 = lean_nat_dec_eq(x_1, x_6);
-if (x_7 == 0)
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec(x_4);
-x_8 = lean_unsigned_to_nat(1u);
-x_9 = lean_nat_sub(x_1, x_8);
-x_10 = lean_apply_3(x_5, x_9, x_2, x_3);
-return x_10;
-}
-else
-{
-lean_object* x_11; 
-lean_dec(x_5);
-x_11 = lean_apply_2(x_4, x_2, x_3);
-return x_11;
-}
-}
-}
-lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux_match__1___rarg___boxed), 5, 0);
-return x_2;
-}
-}
-lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux_match__1___rarg(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_1);
-return x_6;
-}
-}
 lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -287,37 +236,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; uint8_t x_7; 
-x_6 = lean_unsigned_to_nat(0u);
-x_7 = lean_nat_dec_eq(x_1, x_6);
-if (x_7 == 0)
-{
-lean_object* x_8; 
-lean_dec(x_4);
-x_8 = lean_apply_3(x_5, x_1, x_2, x_3);
-return x_8;
-}
-else
-{
-lean_object* x_9; 
-lean_dec(x_5);
-lean_dec(x_1);
-x_9 = lean_apply_2(x_4, x_2, x_3);
-return x_9;
-}
-}
-}
-lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux_match__1___rarg), 5, 0);
-return x_2;
-}
-}
 lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -393,47 +311,6 @@ lean_object* x_3;
 x_3 = l_String_utf16PosToCodepointPos(x_1, x_2);
 lean_dec(x_1);
 return x_3;
-}
-}
-lean_object* l_String_codepointPosToUtf8PosFrom_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; uint8_t x_6; 
-x_5 = lean_unsigned_to_nat(0u);
-x_6 = lean_nat_dec_eq(x_2, x_5);
-if (x_6 == 0)
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_3);
-x_7 = lean_unsigned_to_nat(1u);
-x_8 = lean_nat_sub(x_2, x_7);
-x_9 = lean_apply_2(x_4, x_1, x_8);
-return x_9;
-}
-else
-{
-lean_object* x_10; 
-lean_dec(x_4);
-x_10 = lean_apply_1(x_3, x_1);
-return x_10;
-}
-}
-}
-lean_object* l_String_codepointPosToUtf8PosFrom_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_String_codepointPosToUtf8PosFrom_match__1___rarg___boxed), 4, 0);
-return x_2;
-}
-}
-lean_object* l_String_codepointPosToUtf8PosFrom_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_String_codepointPosToUtf8PosFrom_match__1___rarg(x_1, x_2, x_3, x_4);
-lean_dec(x_2);
-return x_5;
 }
 }
 lean_object* l_String_codepointPosToUtf8PosFrom(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -532,27 +409,6 @@ lean_object* x_3;
 x_3 = l_Lean_FileMap_lspPosToUtf8Pos(x_1, x_2);
 lean_dec(x_1);
 return x_3;
-}
-}
-lean_object* l_Lean_FileMap_leanPosToLspPos_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_2(x_2, x_3, x_4);
-return x_5;
-}
-}
-lean_object* l_Lean_FileMap_leanPosToLspPos_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_FileMap_leanPosToLspPos_match__1___rarg), 2, 0);
-return x_2;
 }
 }
 lean_object* l_Lean_FileMap_leanPosToLspPos(lean_object* x_1, lean_object* x_2) {

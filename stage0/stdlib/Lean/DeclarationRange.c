@@ -90,7 +90,6 @@ static lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRan
 lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRanges____x40_Lean_DeclarationRange___hyg_310_(lean_object*, lean_object*);
 static lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRange____x40_Lean_DeclarationRange___hyg_242____closed__15;
 lean_object* lean_array_swap(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_DeclarationRange_0__Lean_decEqDeclarationRange____x40_Lean_DeclarationRange___hyg_49__match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 lean_object* l_Array_qpartition_loop___at_Lean_initFn____x40_Lean_DeclarationRange___hyg_338____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -180,7 +179,6 @@ lean_object* l_Std_RBNode_find___at_Lean_findDeclarationRangesCore_x3f___spec__5
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRanges____x40_Lean_DeclarationRange___hyg_310____closed__5;
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___at_Lean_findDeclarationRangesCore_x3f___spec__6(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_DeclarationRange_0__Lean_decEqDeclarationRange____x40_Lean_DeclarationRange___hyg_49__match__1(lean_object*);
 static lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRange____x40_Lean_DeclarationRange___hyg_242____closed__9;
 lean_object* l_Lean_declRangeExt___elambda__2___boxed(lean_object*);
 static lean_object* l_Lean_mkMapDeclarationExtension___at_Lean_initFn____x40_Lean_DeclarationRange___hyg_338____spec__1___closed__3;
@@ -231,40 +229,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_instInhabitedDeclarationRange___closed__2;
 return x_1;
-}
-}
-lean_object* l___private_Lean_DeclarationRange_0__Lean_decEqDeclarationRange____x40_Lean_DeclarationRange___hyg_49__match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_1, 2);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 3);
-lean_inc(x_7);
-lean_dec(x_1);
-x_8 = lean_ctor_get(x_2, 0);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_2, 1);
-lean_inc(x_9);
-x_10 = lean_ctor_get(x_2, 2);
-lean_inc(x_10);
-x_11 = lean_ctor_get(x_2, 3);
-lean_inc(x_11);
-lean_dec(x_2);
-x_12 = lean_apply_8(x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-return x_12;
-}
-}
-lean_object* l___private_Lean_DeclarationRange_0__Lean_decEqDeclarationRange____x40_Lean_DeclarationRange___hyg_49__match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_DeclarationRange_0__Lean_decEqDeclarationRange____x40_Lean_DeclarationRange___hyg_49__match__1___rarg), 3, 0);
-return x_2;
 }
 }
 uint8_t l___private_Lean_DeclarationRange_0__Lean_decEqDeclarationRange____x40_Lean_DeclarationRange___hyg_49_(lean_object* x_1, lean_object* x_2) {

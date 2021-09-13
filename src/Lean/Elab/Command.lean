@@ -219,7 +219,7 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttrib
   | []                => throwError "unexpected syntax{indentD stx}"
   | (elabFn::elabFns) =>
     catchInternalId unsupportedSyntaxExceptionId
-      (withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.decl stx) <| elabFn.value stx)
+      (withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.declName stx) <| elabFn.value stx)
       (fun _ => do set s; elabCommandUsing s stx elabFns)
 
 /- Elaborate `x` with `stx` on the macro stack -/
@@ -404,6 +404,16 @@ def modifyScope (f : Scope → Scope) : CommandElabM Unit :=
       | h::t => f h :: t
       | []   => unreachable!
   }
+
+def withScope (f : Scope → Scope) (x : CommandElabM α) : CommandElabM α := do
+  match (← get).scopes with
+  | [] => x
+  | h :: t =>
+    try
+      modify fun s => { s with scopes := f h :: t }
+      x
+    finally
+      modify fun s => { s with scopes := h :: t }
 
 def getLevelNames : CommandElabM (List Name) :=
   return (← getScope).levelNames

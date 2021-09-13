@@ -11,7 +11,7 @@ namespace Lean.Meta
 /--
   Add to `forbidden` all a set of `FVarId`s containing `targets` and all variables they depend on.
 -/
-partial def mkGeneralizationForbiddenSet (targets : Array Expr) (forbidden : NameSet := {}) : MetaM NameSet := do
+partial def mkGeneralizationForbiddenSet (targets : Array Expr) (forbidden : FVarIdSet := {}) : MetaM FVarIdSet := do
   let mut s := { fvarSet := forbidden }
   let mut todo := #[]
   for target in targets do
@@ -21,7 +21,7 @@ partial def mkGeneralizationForbiddenSet (targets : Array Expr) (forbidden : Nam
       s := collectFVars s (← instantiateMVars (← inferType target))
   loop todo.toList s.fvarSet
 where
-  visit (fvarId : FVarId) (todo : List FVarId) (s : NameSet) : MetaM (List FVarId × NameSet) := do
+  visit (fvarId : FVarId) (todo : List FVarId) (s : FVarIdSet) : MetaM (List FVarId × FVarIdSet) := do
     let localDecl ← getLocalDecl fvarId
     let mut s' := collectFVars {} (← instantiateMVars localDecl.type)
     if let some val := localDecl.value? then
@@ -34,7 +34,7 @@ where
         s := s.insert fvarId
     return (todo, s)
 
-  loop (todo : List FVarId) (s : NameSet) : MetaM NameSet := do
+  loop (todo : List FVarId) (s : FVarIdSet) : MetaM FVarIdSet := do
     match todo with
     | [] => return s
     | fvarId::todo =>
@@ -54,9 +54,9 @@ where
   Remark: we *not* collect instance implicit arguments nor auxiliary declarations for compiling
   recursive declarations.
 -/
-def getFVarSetToGeneralize (targets : Array Expr) (forbidden : NameSet) : MetaM NameSet := do
-  let mut s : NameSet := targets.foldl (init := {}) fun s target => if target.isFVar then s.insert target.fvarId! else s
-  let mut r : NameSet := {}
+def getFVarSetToGeneralize (targets : Array Expr) (forbidden : FVarIdSet) : MetaM FVarIdSet := do
+  let mut s : FVarIdSet := targets.foldl (init := {}) fun s target => if target.isFVar then s.insert target.fvarId! else s
+  let mut r : FVarIdSet := {}
   for localDecl in (← getLCtx) do
     unless forbidden.contains localDecl.fvarId do
       unless localDecl.isAuxDecl || localDecl.binderInfo.isInstImplicit do
@@ -65,12 +65,12 @@ def getFVarSetToGeneralize (targets : Array Expr) (forbidden : NameSet) : MetaM 
         s := s.insert localDecl.fvarId
   return r
 
-def sortFVars (fvars : NameSet) : MetaM (Array FVarId) := do
+def sortFVars (fvars : FVarIdSet) : MetaM (Array FVarId) := do
   let fvarIds := fvars.fold (init := #[]) fun s fvarId => s.push fvarId
   let lctx ← getLCtx
   return fvarIds.qsort fun x y => (lctx.get! x).index < (lctx.get! y).index
 
-def getFVarsToGeneralize (targets : Array Expr) (forbidden : NameSet := {}) : MetaM (Array FVarId) := do
+def getFVarsToGeneralize (targets : Array Expr) (forbidden : FVarIdSet := {}) : MetaM (Array FVarId) := do
   let forbidden ← mkGeneralizationForbiddenSet targets forbidden
   let s ← getFVarSetToGeneralize targets forbidden
   sortFVars s

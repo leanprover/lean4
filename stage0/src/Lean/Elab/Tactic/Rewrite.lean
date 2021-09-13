@@ -8,39 +8,24 @@ import Lean.Meta.Tactic.Replace
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.ElabTerm
 import Lean.Elab.Tactic.Location
+import Lean.Elab.Tactic.Config
 namespace Lean.Elab.Tactic
 open Meta
 
-def rewriteTarget (stx : Syntax) (symm : Bool) (mode : TransparencyMode) : TacticM Unit := do
+def rewriteTarget (stx : Syntax) (symm : Bool) (config : Rewrite.Config) : TacticM Unit := do
   Term.withSynthesize <| withMainContext do
     let e ← elabTerm stx none true
-    let r ← rewrite (← getMainGoal) (← getMainTarget) e symm (mode := mode)
+    let r ← rewrite (← getMainGoal) (← getMainTarget) e symm (config := config)
     let mvarId' ← replaceTargetEq (← getMainGoal) r.eNew r.eqProof
     replaceMainGoal (mvarId' :: r.mvarIds)
 
-def rewriteLocalDeclFVarId (stx : Syntax) (symm : Bool) (fvarId : FVarId) (mode : TransparencyMode) : TacticM Unit := do
+def rewriteLocalDecl (stx : Syntax) (symm : Bool) (fvarId : FVarId) (config : Rewrite.Config) : TacticM Unit := do
   Term.withSynthesize <| withMainContext do
     let e ← elabTerm stx none true
     let localDecl ← getLocalDecl fvarId
-    let rwResult ← rewrite (← getMainGoal) localDecl.type e symm (mode := mode)
+    let rwResult ← rewrite (← getMainGoal) localDecl.type e symm (config := config)
     let replaceResult ← replaceLocalDecl (← getMainGoal) fvarId rwResult.eNew rwResult.eqProof
     replaceMainGoal (replaceResult.mvarId :: rwResult.mvarIds)
-
-def rewriteLocalDecl (stx : Syntax) (symm : Bool) (userName : Name) (mode : TransparencyMode) : TacticM Unit :=
-  withMainContext do
-    let localDecl ← getLocalDeclFromUserName userName
-    rewriteLocalDeclFVarId stx symm localDecl.fvarId mode
-
-def rewriteAll (stx : Syntax) (symm : Bool) (mode : TransparencyMode) : TacticM Unit := do
-  let worked ← tryTactic <| rewriteTarget stx symm mode
-  withMainContext do
-    let mut worked := worked
-    -- We must traverse backwards because `replaceLocalDecl` uses the revert/intro idiom
-    for fvarId in (← getLCtx).getFVarIds.reverse do
-      worked := worked || (← tryTactic <| rewriteLocalDeclFVarId stx symm fvarId mode)
-    unless worked do
-      let mvarId ← getMainGoal
-      throwTacticEx `rewrite mvarId "did not find instance of the pattern in the current goal"
 
 def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) → (term : Syntax) → TacticM Unit) : TacticM Unit := do
   let lbrak := rwRulesSeqStx[0]
@@ -60,20 +45,15 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
         let term := rule[1]
         x symm term
 
-def evalRewriteCore (mode : TransparencyMode) : Tactic := fun stx => do
-  let loc   := expandOptLocation stx[2]
-  withRWRulesSeq stx[0] stx[1] fun symm term => do
-    match loc with
-    | Location.targets hyps type =>
-      hyps.forM (rewriteLocalDecl term symm · mode)
-      if type then
-        rewriteTarget term symm mode
-    | Location.wildcard => rewriteAll term symm mode
+declare_config_elab elabRewriteConfig Rewrite.Config
 
-@[builtinTactic Lean.Parser.Tactic.rewriteSeq] def evalRewriteSeq : Tactic :=
-  evalRewriteCore TransparencyMode.instances
-
-@[builtinTactic Lean.Parser.Tactic.erewriteSeq] def evalERewriteSeq : Tactic :=
-  evalRewriteCore TransparencyMode.default
+@[builtinTactic Lean.Parser.Tactic.rewriteSeq] def evalRewriteSeq : Tactic := fun stx => do
+  let cfg ← elabRewriteConfig stx[1]
+  let loc   := expandOptLocation stx[3]
+  withRWRulesSeq stx[0] stx[2] fun symm term => do
+    withLocation loc
+      (rewriteLocalDecl term symm · cfg)
+      (rewriteTarget term symm cfg)
+      (throwTacticEx `rewrite . "did not find instance of the pattern in the current goal")
 
 end Lean.Elab.Tactic

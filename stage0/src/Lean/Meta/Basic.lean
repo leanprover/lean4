@@ -36,12 +36,12 @@ structure Config where
   foApprox           : Bool := false
   ctxApprox          : Bool := false
   quasiPatternApprox : Bool := false
-  /- When `constApprox` is set to true,
+  /-- When `constApprox` is set to true,
      we solve `?m t =?= c` using
      `?m := fun _ => c`
      when `?m t` is not a higher-order pattern and `c` is not an application as -/
   constApprox        : Bool := false
-  /-
+  /--
     When the following flag is set,
     `isDefEq` throws the exeption `Exeption.isDefEqStuck`
     whenever it encounters a constraint `?m ... =?= t` where
@@ -51,30 +51,32 @@ structure Config where
     later after it assigns `?m`. -/
   isDefEqStuckEx     : Bool := false
   transparency       : TransparencyMode := TransparencyMode.default
-  /- If zetaNonDep == false, then non dependent let-decls are not zeta expanded. -/
+  /-- If zetaNonDep == false, then non dependent let-decls are not zeta expanded. -/
   zetaNonDep         : Bool := true
-  /- When `trackZeta == true`, we store zetaFVarIds all free variables that have been zeta-expanded. -/
+  /-- When `trackZeta == true`, we store zetaFVarIds all free variables that have been zeta-expanded. -/
   trackZeta          : Bool := false
   unificationHints   : Bool := true
-  /- Enables proof irrelevance at `isDefEq` -/
+  /-- Enables proof irrelevance at `isDefEq` -/
   proofIrrelevance   : Bool := true
-  /- By default synthetic opaque metavariables are not assigned by `isDefEq`. Motivation: we want to make
-     sure typing constraints resolved during elaboration should not "fill" holes that are supposed to be filled using tactics.
-     However, this restriction is too restrictive for tactics such as `exact t`. When elaborating `t`, we dot not fill
-     named holes when solving typing constraints or TC resolution. But, we ignore the restriction when we try to unify
-     the type of `t` with the goal target type. We claim this is not a hack and is defensible behavior because
-     this last unification step is not really part of the term elaboration. -/
+  /-- By default synthetic opaque metavariables are not assigned by `isDefEq`. Motivation: we want to make
+      sure typing constraints resolved during elaboration should not "fill" holes that are supposed to be filled using tactics.
+      However, this restriction is too restrictive for tactics such as `exact t`. When elaborating `t`, we dot not fill
+      named holes when solving typing constraints or TC resolution. But, we ignore the restriction when we try to unify
+      the type of `t` with the goal target type. We claim this is not a hack and is defensible behavior because
+      this last unification step is not really part of the term elaboration. -/
   assignSyntheticOpaque : Bool := false
-  /- When `ignoreLevelDepth` is `false`, only universe level metavariables with depth == metavariable context depth
-     can be assigned.
-     We used to have `ignoreLevelDepth == false` always, but this setting produced counterintuitive behavior in a few
-     cases. Recall that universe levels are often ignored by users, they may not even be aware they exist.
-     We still use this restriction for regular metavariables. See discussion at the beginning of `MetavarContext.lean`.
-     We claim it is reasonable to ignore this restriction for universe metavariables because their values are often
-     contrained by the terms is instances and simp theorems.
-     TODO: we should delete this configuration option and the method `isReadOnlyLevelMVar` after we have more tests.
+  /-- When `ignoreLevelDepth` is `false`, only universe level metavariables with depth == metavariable context depth
+      can be assigned.
+      We used to have `ignoreLevelDepth == false` always, but this setting produced counterintuitive behavior in a few
+      cases. Recall that universe levels are often ignored by users, they may not even be aware they exist.
+      We still use this restriction for regular metavariables. See discussion at the beginning of `MetavarContext.lean`.
+      We claim it is reasonable to ignore this restriction for universe metavariables because their values are often
+      contrained by the terms is instances and simp theorems.
+      TODO: we should delete this configuration option and the method `isReadOnlyLevelMVar` after we have more tests.
   -/
   ignoreLevelMVarDepth  : Bool := true
+  /-- Enable/Disable support for offset constraints such as `?x + 1 =?= e` -/
+  offsetCnstrs          : Bool := true
 
 structure ParamInfo where
   binderInfo     : BinderInfo := BinderInfo.default
@@ -157,7 +159,7 @@ structure State where
   mctx        : MetavarContext := {}
   cache       : Cache := {}
   /- When `trackZeta == true`, then any let-decl free variable that is zeta expansion performed by `MetaM` is stored in `zetaFVarIds`. -/
-  zetaFVarIds : NameSet := {}
+  zetaFVarIds : FVarIdSet := {}
   postponed   : PersistentArray PostponedEntry := {}
   deriving Inhabited
 
@@ -264,7 +266,7 @@ def setMCtx (mctx : MetavarContext) : MetaM Unit :=
 def resetZetaFVarIds : MetaM Unit :=
   modify fun s => { s with zetaFVarIds := {} }
 
-def getZetaFVarIds : MetaM NameSet :=
+def getZetaFVarIds : MetaM FVarIdSet :=
   return (← get).zetaFVarIds
 
 def getPostponed : MetaM (PersistentArray PostponedEntry) :=
@@ -302,10 +304,10 @@ def mkFreshExprMVarAt
     (lctx : LocalContext) (localInsts : LocalInstances) (type : Expr)
     (kind : MetavarKind := MetavarKind.natural) (userName : Name := Name.anonymous) (numScopeArgs : Nat := 0)
     : MetaM Expr := do
-  mkFreshExprMVarAtCore (← mkFreshId) lctx localInsts type kind userName numScopeArgs
+  mkFreshExprMVarAtCore (← mkFreshMVarId) lctx localInsts type kind userName numScopeArgs
 
 def mkFreshLevelMVar : MetaM Level := do
-  let mvarId ← mkFreshId
+  let mvarId ← mkFreshMVarId
   modifyMCtx fun mctx => mctx.addLevelMVarDecl mvarId;
   return mkLevelMVar mvarId
 
@@ -365,7 +367,7 @@ def shouldReduceReducibleOnly : MetaM Bool :=
 def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
   match (← getMCtx).findDecl? mvarId with
   | some d => pure d
-  | none   => throwError "unknown metavariable '?{mvarId}'"
+  | none   => throwError "unknown metavariable '?{mvarId.name}'"
 
 def setMVarKind (mvarId : MVarId) (kind : MetavarKind) : MetaM Unit :=
   modifyMCtx fun mctx => mctx.setMVarKind mvarId kind
@@ -387,7 +389,7 @@ def isReadOnlyOrSyntheticOpaqueExprMVar (mvarId : MVarId) : MetaM Bool := do
 def getLevelMVarDepth (mvarId : MVarId) : MetaM Nat := do
   match (← getMCtx).findLevelDepth? mvarId with
   | some depth => return depth
-  | _          => throwError "unknown universe metavariable '?{mvarId}'"
+  | _          => throwError "unknown universe metavariable '?{mvarId.name}'"
 
 def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
   if (← getConfig).ignoreLevelMVarDepth then
@@ -684,7 +686,7 @@ mutual
       | Expr.forallE n d b c =>
         if fvarsSizeLtMaxFVars fvars maxFVars? then
           let d     := d.instantiateRevRange j fvars.size fvars
-          let fvarId ← mkFreshId
+          let fvarId ← mkFreshFVarId
           let lctx  := lctx.mkLocalDecl fvarId n d c.binderInfo
           let fvar  := mkFVar fvarId
           let fvars := fvars.push fvar
@@ -785,14 +787,14 @@ where
     match consumeLet, e with
     | _, Expr.lam n d b c =>
       let d := d.instantiateRevRange j fvars.size fvars
-      let fvarId ← mkFreshId
+      let fvarId ← mkFreshFVarId
       let lctx := lctx.mkLocalDecl fvarId n d c.binderInfo
       let fvar := mkFVar fvarId
       process consumeLet lctx (fvars.push fvar) j b
     | true, Expr.letE n t v b _ => do
       let t := t.instantiateRevRange j fvars.size fvars
       let v := v.instantiateRevRange j fvars.size fvars
-      let fvarId ← mkFreshId
+      let fvarId ← mkFreshFVarId
       let lctx := lctx.mkLetDecl fvarId n t v
       let fvar := mkFVar fvarId
       process true lctx (fvars.push fvar) j b
@@ -884,7 +886,7 @@ private def withNewFVar (fvar fvarType : Expr) (k : Expr → MetaM α) : MetaM �
   | some c => withNewLocalInstance c fvar <| k fvar
 
 private def withLocalDeclImp (n : Name) (bi : BinderInfo) (type : Expr) (k : Expr → MetaM α) : MetaM α := do
-  let fvarId ← mkFreshId
+  let fvarId ← mkFreshFVarId
   let ctx ← read
   let lctx := ctx.lctx.mkLocalDecl fvarId n type bi
   let fvar := mkFVar fvarId
@@ -924,7 +926,7 @@ def withNewBinderInfos (bs : Array (FVarId × BinderInfo)) (k : n α) : n α :=
   mapMetaM (fun k => withNewBinderInfosImp bs k) k
 
 private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) : MetaM α := do
-  let fvarId ← mkFreshId
+  let fvarId ← mkFreshFVarId
   let ctx ← read
   let lctx := ctx.lctx.mkLetDecl fvarId n type val
   let fvar := mkFVar fvarId

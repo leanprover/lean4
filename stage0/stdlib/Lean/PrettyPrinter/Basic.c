@@ -18,7 +18,6 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__11;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__5;
-lean_object* l_Lean_PrettyPrinter_runForNodeKind_match__1(lean_object*, lean_object*);
 lean_object* l_Lean_PrettyPrinter_runForNodeKind(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__8;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -46,7 +45,6 @@ static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Basic_
 static lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__10;
 static lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__7;
 lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2(lean_object*);
-lean_object* l_Lean_PrettyPrinter_runForNodeKind_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_evalConst___at_Lean_PrettyPrinter_runForNodeKind___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3(lean_object*);
 lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -79,38 +77,6 @@ _start:
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Basic___hyg_4____closed__2;
 x_3 = l_Lean_registerInternalExceptionId(x_2, x_1);
-return x_3;
-}
-}
-lean_object* l_Lean_PrettyPrinter_runForNodeKind_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; 
-lean_dec(x_2);
-x_4 = lean_apply_1(x_3, x_1);
-return x_4;
-}
-else
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_1, 1);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_2(x_2, x_5, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_Lean_PrettyPrinter_runForNodeKind_match__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_runForNodeKind_match__1___rarg), 3, 0);
 return x_3;
 }
 }

@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Command_expandMixfix_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMixfix___lambda__1___closed__11;
 extern lean_object* l_Lean_nullKind;
@@ -84,7 +83,6 @@ lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_expandMixfix___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMixfix___lambda__1___closed__3;
 lean_object* l_Lean_Elab_Command_expandMixfix_withAttrKindGlobal(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Command_expandMixfix_match__1(lean_object*);
 lean_object* l_Lean_Elab_Command_expandMixfix(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMixfix___lambda__1___closed__10;
 lean_object* l_Lean_evalPrec(lean_object*, lean_object*, lean_object*);
@@ -128,37 +126,6 @@ static lean_object* l_Lean_Elab_Command_expandMixfix___lambda__11___closed__14;
 static lean_object* l___regBuiltin_Lean_Elab_Command_expandMixfix___closed__4;
 lean_object* l_Lean_Elab_Command_expandMixfix___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_mkLit(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Command_expandMixfix_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_Lean_Elab_Command_expandMixfix_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Elab_Command_expandMixfix_match__1___rarg), 3, 0);
-return x_2;
-}
-}
 lean_object* l_Lean_Elab_Command_expandMixfix_withAttrKindGlobal(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {

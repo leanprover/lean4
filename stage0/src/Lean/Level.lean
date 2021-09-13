@@ -50,13 +50,32 @@ def Level.mkData (h : UInt64) (depth : Nat) (hasMVar hasParam : Bool) : Level.Da
 
 open Level
 
+structure MVarId where
+  name : Name
+  deriving Inhabited, BEq, Hashable
+
+instance : Repr MVarId where
+  reprPrec n p := reprPrec n.name p
+
+def MVarIdSet := Std.RBTree MVarId (Name.quickCmp ·.name ·.name)
+  deriving Inhabited, EmptyCollection
+
+instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (Std.RBTree ..) ..)
+
+def MVarIdMap (α : Type) := Std.RBMap MVarId α (Name.quickCmp ·.name ·.name)
+
+instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (Std.RBMap ..))
+
+instance : Inhabited (MVarIdMap α) where
+  default := {}
+
 inductive Level where
   | zero   : Data → Level
   | succ   : Level → Data → Level
   | max    : Level → Level → Data → Level
   | imax   : Level → Level → Data → Level
   | param  : Name → Data → Level
-  | mvar   : Name → Data → Level
+  | mvar   : MVarId → Data → Level
   deriving Inhabited
 
 namespace Level
@@ -93,7 +112,7 @@ end Level
 def levelZero :=
   Level.zero $ mkData 2221 0 false false
 
-def mkLevelMVar (mvarId : Name) :=
+def mkLevelMVar (mvarId : MVarId) :=
   Level.mvar mvarId $ mkData (mixHash 2237 $ hash mvarId) 0 true false
 
 def mkLevelParam (name : Name) :=
@@ -116,7 +135,7 @@ def levelOne := mkLevelSucc levelZero
 
 @[export lean_level_mk_zero] def mkLevelZeroEx : Unit → Level := fun _ => levelZero
 @[export lean_level_mk_succ] def mkLevelSuccEx : Level → Level := mkLevelSucc
-@[export lean_level_mk_mvar] def mkLevelMVarEx : Name → Level := mkLevelMVar
+@[export lean_level_mk_mvar] def mkLevelMVarEx : MVarId → Level := mkLevelMVar
 @[export lean_level_mk_param] def mkLevelParamEx : Name → Level := mkLevelParam
 @[export lean_level_mk_max] def mkLevelMaxEx : Level → Level → Level := mkLevelMax
 @[export lean_level_mk_imax] def mkLevelIMaxEx : Level → Level → Level := mkLevelIMax
@@ -152,7 +171,7 @@ def isMVar : Level → Bool
   | mvar .. => true
   | _       => false
 
-def mvarId! : Level → Name
+def mvarId! : Level → MVarId
   | mvar mvarId _ => mvarId
   | _             => panic! "metavariable expected"
 
@@ -231,7 +250,7 @@ partial def normLtAux : Level → Nat → Level → Nat → Bool
     else if l₁₁ != l₂₁ then normLtAux l₁₁ 0 l₂₁ 0
     else normLtAux l₁₂ 0 l₂₂ 0
   | param n₁ _, k₁, param n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.lt n₁ n₂     -- use Name.lt because it is lexicographical
-  | mvar n₁ _, k₁, mvar n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.quickLt n₁ n₂  -- metavariables are temporary, the actual order doesn't matter
+  | mvar n₁ _, k₁, mvar n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.quickLt n₁.name n₂.name  -- metavariables are temporary, the actual order doesn't matter
   | l₁, k₁, l₂, k₂ => if l₁ == l₂ then k₁ < k₂ else ctorToNat l₁ < ctorToNat l₂
 
 /--
@@ -386,7 +405,7 @@ def toResult : Level → Result
   | imax l₁ l₂ _ => Result.imax (toResult l₁) (toResult l₂)
   | param n _    => Result.leaf n
   | mvar n _     =>
-    let n := n.replacePrefix `_uniq (Name.mkSimple "?u");
+    let n := n.name.replacePrefix `_uniq (Name.mkSimple "?u");
     Result.leaf n
 
 private def parenIfFalse : Format → Bool → Format
@@ -531,7 +550,7 @@ abbrev LevelSet := HashSet Level
 abbrev PersistentLevelSet := PHashSet Level
 abbrev PLevelSet := PersistentLevelSet
 
-def Level.collectMVars (u : Level) (s : NameSet := {}) : NameSet :=
+def Level.collectMVars (u : Level) (s : MVarIdSet := {}) : MVarIdSet :=
   match u with
   | succ v _   => collectMVars v s
   | max u v _  => collectMVars u (collectMVars v s)

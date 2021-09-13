@@ -45,8 +45,6 @@ lean_object* l_Array_mapMUnsafe_map___at_Lean_LocalContext_getFVars___spec__1(si
 static lean_object* l_Lean_Meta_assertAfter___closed__2;
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_assertAfter___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_assertAfter___closed__1;
-lean_object* l_Lean_Meta_assertAfter_match__1___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_assertAfter_match__2___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_assertAfter___spec__6(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_Meta_mkEqRefl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -59,7 +57,6 @@ lean_object* l_Lean_Meta_getMVarType(lean_object*, lean_object*, lean_object*, l
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Nat_foldAux___at_Lean_Meta_assertAfter___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_assertAfter_match__2(lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 lean_object* l_Lean_Meta_assertHypotheses___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assert___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -72,7 +69,6 @@ lean_object* l_Lean_Meta_introNCore(lean_object*, lean_object*, lean_object*, ui
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_assertAfter___spec__5(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_mkFVar(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-lean_object* l_Lean_Meta_assertAfter_match__1(lean_object*);
 lean_object* l_Lean_Meta_assertHypotheses(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withMVarContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_assertAfter___spec__9(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -85,6 +81,7 @@ lean_object* l_Lean_Meta_mkFreshExprMVarAt(lean_object*, lean_object*, lean_obje
 lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Meta_assertHypotheses___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assignExprMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_assertExt___lambda__1___closed__1;
+extern lean_object* l_Lean_instInhabitedFVarId;
 lean_object* l_Lean_Meta_assertExt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_index(lean_object*);
 lean_object* l_Lean_Meta_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -100,7 +97,6 @@ lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean
 static lean_object* l_Lean_Meta_define___closed__2;
 lean_object* l_Lean_Meta_assertExt___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkForall(lean_object*, uint8_t, lean_object*, lean_object*);
-extern lean_object* l_Lean_instInhabitedName;
 static lean_object* l_Lean_Meta_define___closed__1;
 lean_object* l_Lean_mkLet(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_assertAfter___spec__8(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -850,48 +846,6 @@ x_13 = l_Lean_Meta_withMVarContext___at___private_Lean_Meta_SynthInstance_0__Lea
 return x_13;
 }
 }
-lean_object* l_Lean_Meta_assertAfter_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_2(x_2, x_3, x_4);
-return x_5;
-}
-}
-lean_object* l_Lean_Meta_assertAfter_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_assertAfter_match__1___rarg), 2, 0);
-return x_2;
-}
-}
-lean_object* l_Lean_Meta_assertAfter_match__2___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_2(x_2, x_3, x_4);
-return x_5;
-}
-}
-lean_object* l_Lean_Meta_assertAfter_match__2(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_assertAfter_match__2___rarg), 2, 0);
-return x_2;
-}
-}
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_assertAfter___spec__5(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4) {
 _start:
 {
@@ -1293,7 +1247,7 @@ lean_dec(x_4);
 x_10 = lean_nat_add(x_9, x_8);
 x_11 = lean_nat_sub(x_3, x_10);
 lean_dec(x_10);
-x_12 = l_Lean_instInhabitedName;
+x_12 = l_Lean_instInhabitedFVarId;
 x_13 = lean_array_get(x_12, x_1, x_11);
 x_14 = lean_array_get(x_12, x_2, x_11);
 lean_dec(x_11);

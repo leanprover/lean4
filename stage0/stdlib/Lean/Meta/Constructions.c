@@ -40,7 +40,6 @@ lean_object* l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spe
 uint8_t l_Lean_isCasesOnRecursor(lean_object*, lean_object*);
 lean_object* lean_mk_cases_on(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-lean_object* l___private_Lean_Meta_Constructions_0__Lean_adaptFn_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__1;
 static lean_object* l_List_foldlM___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__8___closed__1;
@@ -78,7 +77,6 @@ static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusion___lambda__1___closed_
 lean_object* l_Lean_isEnumType___at_Lean_mkNoConfusion___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkBInductionOnImp___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwKernelException___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Declaration_foldExprM___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkBRecOn(lean_object*);
@@ -90,7 +88,6 @@ lean_object* l_Lean_mkBRecOn___rarg___lambda__1___boxed(lean_object*, lean_objec
 static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__1;
 uint8_t l_Array_contains___at_Lean_registerInternalExceptionId___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusion___lambda__1___closed__6;
-lean_object* l___private_Lean_Meta_Constructions_0__Lean_adaptFn_match__1(lean_object*);
 lean_object* l_Lean_mkNoConfusionCore___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_checkUnsupported___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -153,7 +150,6 @@ static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusion___lambda__2___closed_
 lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusion___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_FindImpl_findM_x3f_visit(lean_object*, size_t, lean_object*, lean_object*);
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx_match__1(lean_object*);
 lean_object* l_Lean_addDecl___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusion___lambda__2___closed__1;
 static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__12;
@@ -253,39 +249,6 @@ lean_object* x_3;
 x_3 = lean_mk_binduction_on(x_1, x_2);
 lean_dec(x_2);
 return x_3;
-}
-}
-lean_object* l___private_Lean_Meta_Constructions_0__Lean_adaptFn_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-}
-}
-lean_object* l___private_Lean_Meta_Constructions_0__Lean_adaptFn_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Meta_Constructions_0__Lean_adaptFn_match__1___rarg), 3, 0);
-return x_2;
 }
 }
 lean_object* l___private_Lean_Meta_Constructions_0__Lean_adaptFn___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
@@ -847,36 +810,6 @@ lean_object* x_7;
 x_7 = l_Lean_mkBInductionOn___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_1);
 return x_7;
-}
-}
-lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 5)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; 
-lean_dec(x_2);
-x_6 = lean_apply_1(x_3, x_1);
-return x_6;
-}
-}
-}
-lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_mkNoConfusionEnum_mkToCtorIdx_match__1___rarg), 3, 0);
-return x_2;
 }
 }
 lean_object* l_Std_Range_forIn_loop___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {

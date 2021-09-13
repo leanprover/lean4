@@ -141,7 +141,7 @@ private def evalTacticUsing (s : SavedState) (stx : Syntax) (tactics : List (Key
     | []              => throwErrorAt stx "unexpected syntax {indentD stx}"
     | evalFn::evalFns => do
       try
-        withReader ({ · with elaborator := evalFn.decl }) <| withTacticInfoContext stx <| evalFn.value stx
+        withReader ({ · with elaborator := evalFn.declName }) <| withTacticInfoContext stx <| evalFn.value stx
       catch
       | ex@(Exception.error _ _) =>
         match evalFns with
@@ -162,7 +162,7 @@ mutual
       | m::ms => do
         let scp ← getCurrMacroScope
         try
-          withReader ({ · with elaborator := m.decl }) do
+          withReader ({ · with elaborator := m.declName }) do
             withTacticInfoContext stx do
               let stx' ← adaptMacro m.value stx
               evalTactic stx'

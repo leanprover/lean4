@@ -14,117 +14,18 @@
 extern "C" {
 #endif
 lean_object* lean_array_fswap(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_insertionSort_swapLoop_match__1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Array_insertionSort_traverse_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Array_insertionSort_traverse(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Array_insertionSort_swapLoop___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_insertionSort_swapLoop_match__1(lean_object*, lean_object*);
-lean_object* l_Array_insertionSort_traverse_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_insertionSort_swapLoop_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_insertionSort(lean_object*);
 lean_object* l_Array_insertionSort_swapLoop(lean_object*);
-lean_object* l_Array_insertionSort_traverse_match__1(lean_object*);
 lean_object* l_Array_insertionSort_traverse___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_insertionSort_swapLoop_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_insertionSort___rarg(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* l_Array_insertionSort_traverse_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_nat_dec_eq(x_1, x_4);
-if (x_5 == 0)
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_2);
-x_6 = lean_unsigned_to_nat(1u);
-x_7 = lean_nat_sub(x_1, x_6);
-x_8 = lean_apply_1(x_3, x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; lean_object* x_10; 
-lean_dec(x_3);
-x_9 = lean_box(0);
-x_10 = lean_apply_1(x_2, x_9);
-return x_10;
-}
-}
-}
-lean_object* l_Array_insertionSort_traverse_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Array_insertionSort_traverse_match__1___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-lean_object* l_Array_insertionSort_traverse_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Array_insertionSort_traverse_match__1___rarg(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
-}
-}
-lean_object* l_Array_insertionSort_swapLoop_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; uint8_t x_6; 
-x_5 = lean_unsigned_to_nat(0u);
-x_6 = lean_nat_dec_eq(x_1, x_5);
-if (x_6 == 0)
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_3);
-x_7 = lean_unsigned_to_nat(1u);
-x_8 = lean_nat_sub(x_1, x_7);
-x_9 = lean_apply_2(x_4, x_8, lean_box(0));
-return x_9;
-}
-else
-{
-lean_object* x_10; 
-lean_dec(x_4);
-x_10 = lean_apply_1(x_3, lean_box(0));
-return x_10;
-}
-}
-}
-lean_object* l_Array_insertionSort_swapLoop_match__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Array_insertionSort_swapLoop_match__1___rarg___boxed), 4, 0);
-return x_3;
-}
-}
-lean_object* l_Array_insertionSort_swapLoop_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Array_insertionSort_swapLoop_match__1___rarg(x_1, x_2, x_3, x_4);
-lean_dec(x_1);
-return x_5;
-}
-}
-lean_object* l_Array_insertionSort_swapLoop_match__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Array_insertionSort_swapLoop_match__1(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 lean_object* l_Array_insertionSort_swapLoop___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {

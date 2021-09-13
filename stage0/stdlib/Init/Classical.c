@@ -39,7 +39,6 @@ static lean_object* l_Classical_tacticByCases_____x3a_____closed__7;
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__8;
 static lean_object* l_Classical_tacticByCases_____x3a_____closed__16;
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__44;
-lean_object* l_Classical_typeDecidable_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__1;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__2;
@@ -58,7 +57,6 @@ static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____close
 static lean_object* l_Classical_tacticByCases_____x3a_____closed__12;
 lean_object* l_Classical_tacticByCases_____x3a__;
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__52;
-lean_object* l_Classical_typeDecidable_match__1(lean_object*, lean_object*);
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__40;
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__24;
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__7;
@@ -90,7 +88,6 @@ static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____close
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__34;
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__48;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-lean_object* l_Classical_typeDecidable_match__1___rarg(uint8_t, lean_object*, lean_object*);
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__50;
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__31;
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__11;
@@ -99,43 +96,6 @@ static lean_object* l_Classical_tacticByCases_____x3a_____closed__8;
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__19;
 static lean_object* l_Classical_tacticByCases_____x3a_____closed__17;
 static lean_object* l_Classical_tacticByCases_____x3a_____closed__6;
-lean_object* l_Classical_typeDecidable_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (x_1 == 0)
-{
-lean_object* x_4; 
-lean_dec(x_2);
-x_4 = lean_apply_1(x_3, lean_box(0));
-return x_4;
-}
-else
-{
-lean_object* x_5; 
-lean_dec(x_3);
-x_5 = lean_apply_1(x_2, lean_box(0));
-return x_5;
-}
-}
-}
-lean_object* l_Classical_typeDecidable_match__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Classical_typeDecidable_match__1___rarg___boxed), 3, 0);
-return x_3;
-}
-}
-lean_object* l_Classical_typeDecidable_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = lean_unbox(x_1);
-lean_dec(x_1);
-x_5 = l_Classical_typeDecidable_match__1___rarg(x_4, x_2, x_3);
-return x_5;
-}
-}
 static lean_object* _init_l_Classical_tacticByCases_____x3a_____closed__1() {
 _start:
 {

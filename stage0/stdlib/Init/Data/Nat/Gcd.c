@@ -13,59 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l___private_Init_Data_Nat_Gcd_0__Nat_gcdF_match__1(lean_object*);
 lean_object* lean_nat_gcd(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Nat_Gcd_0__Nat_gcdF_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Nat_Gcd_0__Nat_gcdF(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Nat_Gcd_0__Nat_gcdF_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Nat_Gcd_0__Nat_gcdF___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_gcd___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Nat_Gcd_0__Nat_gcdF_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_nat_dec_eq(x_1, x_4);
-if (x_5 == 0)
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_2);
-x_6 = lean_unsigned_to_nat(1u);
-x_7 = lean_nat_sub(x_1, x_6);
-x_8 = lean_apply_1(x_3, x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; lean_object* x_10; 
-lean_dec(x_3);
-x_9 = lean_box(0);
-x_10 = lean_apply_1(x_2, x_9);
-return x_10;
-}
-}
-}
-lean_object* l___private_Init_Data_Nat_Gcd_0__Nat_gcdF_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Nat_Gcd_0__Nat_gcdF_match__1___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-lean_object* l___private_Init_Data_Nat_Gcd_0__Nat_gcdF_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l___private_Init_Data_Nat_Gcd_0__Nat_gcdF_match__1___rarg(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
-}
-}
 lean_object* l___private_Init_Data_Nat_Gcd_0__Nat_gcdF(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

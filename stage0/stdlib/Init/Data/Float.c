@@ -24,7 +24,6 @@ lean_object* l_instPowFloatFloat;
 double asin(double);
 lean_object* l_instLTFloat;
 double tan(double);
-lean_object* l_Float_ofInt_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_floatSpec___elambda__1(lean_object*, lean_object*);
 double lean_float_of_scientific(lean_object*, uint8_t, lean_object*);
 double tanh(double);
@@ -33,7 +32,6 @@ double l_Nat_toFloat(lean_object*);
 static lean_object* l_instSubFloat___closed__1;
 lean_object* l_Float_cos___boxed(lean_object*);
 lean_object* l_instReprFloat(double, lean_object*);
-static lean_object* l_Float_ofInt_match__1___rarg___closed__1;
 extern uint8_t l_instDecidableTrue;
 lean_object* l_instReprFloat___boxed(lean_object*, lean_object*);
 double l_instOfNatFloat(lean_object*);
@@ -46,7 +44,6 @@ lean_object* l_Float_pow___boxed(lean_object*, lean_object*);
 lean_object* l_Float_toUInt64___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Float_cbrt___boxed(lean_object*);
-lean_object* l_Float_ofInt_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Float_atanh___boxed(lean_object*);
 lean_object* l_instReprAtomFloat;
 double atanh(double);
@@ -63,7 +60,6 @@ uint8_t l_Float_decLt(double, double);
 lean_object* l_Float_toUInt32___boxed(lean_object*);
 lean_object* l_Float_tan___boxed(lean_object*);
 lean_object* l_Float_sinh___boxed(lean_object*);
-lean_object* l_Float_ofInt_match__1(lean_object*);
 lean_object* l_instAddFloat;
 lean_object* l_Float_mul___boxed(lean_object*, lean_object*);
 lean_object* l_Float_sin___boxed(lean_object*);
@@ -83,6 +79,7 @@ double log(double);
 lean_object* l_Float_neg___boxed(lean_object*);
 lean_object* l_Float_log___boxed(lean_object*);
 lean_object* l_instDivFloat;
+static lean_object* l_Float_ofInt___closed__1;
 lean_object* l_instLEFloat;
 double log10(double);
 lean_object* l_Float_ofInt___boxed(lean_object*);
@@ -274,7 +271,7 @@ x_4 = lean_box_float(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Float_ofInt_match__1___rarg___closed__1() {
+static lean_object* _init_l_Float_ofInt___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -283,55 +280,11 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-lean_object* l_Float_ofInt_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; uint8_t x_5; 
-x_4 = l_Float_ofInt_match__1___rarg___closed__1;
-x_5 = lean_int_dec_lt(x_1, x_4);
-if (x_5 == 0)
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_nat_abs(x_1);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-else
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec(x_2);
-x_8 = lean_nat_abs(x_1);
-x_9 = lean_unsigned_to_nat(1u);
-x_10 = lean_nat_sub(x_8, x_9);
-lean_dec(x_8);
-x_11 = lean_apply_1(x_3, x_10);
-return x_11;
-}
-}
-}
-lean_object* l_Float_ofInt_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Float_ofInt_match__1___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-lean_object* l_Float_ofInt_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Float_ofInt_match__1___rarg(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
-}
-}
 double l_Float_ofInt(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l_Float_ofInt_match__1___rarg___closed__1;
+x_2 = l_Float_ofInt___closed__1;
 x_3 = lean_int_dec_lt(x_1, x_2);
 if (x_3 == 0)
 {
@@ -995,8 +948,8 @@ l_instInhabitedFloat___closed__1 = _init_l_instInhabitedFloat___closed__1();
 lean_mark_persistent(l_instInhabitedFloat___closed__1);
 l_instInhabitedFloat = _init_l_instInhabitedFloat();
 lean_mark_persistent(l_instInhabitedFloat);
-l_Float_ofInt_match__1___rarg___closed__1 = _init_l_Float_ofInt_match__1___rarg___closed__1();
-lean_mark_persistent(l_Float_ofInt_match__1___rarg___closed__1);
+l_Float_ofInt___closed__1 = _init_l_Float_ofInt___closed__1();
+lean_mark_persistent(l_Float_ofInt___closed__1);
 l_instAddFloat___closed__1 = _init_l_instAddFloat___closed__1();
 lean_mark_persistent(l_instAddFloat___closed__1);
 l_instAddFloat = _init_l_instAddFloat();

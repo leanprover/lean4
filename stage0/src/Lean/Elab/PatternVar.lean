@@ -18,7 +18,7 @@ inductive PatternVar where
 
 instance : ToString PatternVar := ⟨fun
   | PatternVar.localVar x          => toString x
-  | PatternVar.anonymousVar mvarId => s!"?m{mvarId}"⟩
+  | PatternVar.anonymousVar mvarId => s!"?m{mvarId.name}"⟩
 
 /--
   Create an auxiliary Syntax node wrapping a fresh metavariable id.
@@ -30,7 +30,7 @@ private def mkMVarSyntax : TermElabM Syntax := do
 
 /-- Given a syntax node constructed using `mkMVarSyntax`, return its MVarId -/
 def getMVarSyntaxMVarId (stx : Syntax) : MVarId :=
-  stx[0].getKind
+  { name := stx[0].getKind }
 
 /-
   Patterns define new local variables.

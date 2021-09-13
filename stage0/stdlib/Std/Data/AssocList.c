@@ -16,34 +16,23 @@ extern "C" {
 lean_object* l_Std_AssocList_erase(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_isEmpty___rarg___boxed(lean_object*);
 uint8_t l_Std_AssocList_all___rarg(lean_object*, lean_object*);
-lean_object* l_Std_AssocList_forM_match__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_AssocList_findEntry_x3f_match__1___rarg(uint8_t, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_all___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_isEmpty(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_forIn_loop(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_replace___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_AssocList_foldlM_match__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_insert(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_empty(lean_object*, lean_object*);
 lean_object* l_List_toAssocList___rarg(lean_object*);
 lean_object* l_Std_AssocList_contains(lean_object*, lean_object*);
-lean_object* l_List_toAssocList_match__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_AssocList_isEmpty_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toAssocList___rarg___boxed(lean_object*);
 lean_object* l_Std_AssocList_erase___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_any___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_Std_AssocList_forIn_loop_match__1(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_any(lean_object*, lean_object*);
-lean_object* l_List_toAssocList_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_AssocList_forM_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_mapVal(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_AssocList_isEmpty_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_mapKey___rarg(lean_object*, lean_object*);
 lean_object* l_List_toAssocList(lean_object*, lean_object*);
 lean_object* l_Std_AssocList_forIn___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_AssocList_findEntry_x3f_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_AssocList_forIn_loop_match__1___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_AssocList_isEmpty___rarg(lean_object*);
 lean_object* l_Std_AssocList_forM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -70,8 +59,6 @@ lean_object* l_Std_AssocList_forIn_loop___rarg___lambda__1(lean_object*, lean_ob
 lean_object* l_Std_AssocList_foldlM(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_foldlM___at_Std_AssocList_foldl___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_findEntry_x3f___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_AssocList_findEntry_x3f_match__1(lean_object*);
-lean_object* l_Std_AssocList_foldlM_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_forM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_contains___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_AssocList_instEmptyCollectionAssocList(lean_object*, lean_object*);
@@ -119,34 +106,6 @@ x_3 = lean_alloc_closure((void*)(l_Std_AssocList_insert___rarg), 3, 0);
 return x_3;
 }
 }
-lean_object* l_Std_AssocList_isEmpty_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; 
-lean_dec(x_2);
-x_6 = lean_apply_1(x_3, x_1);
-return x_6;
-}
-}
-}
-lean_object* l_Std_AssocList_isEmpty_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_AssocList_isEmpty_match__1___rarg), 3, 0);
-return x_4;
-}
-}
 uint8_t l_Std_AssocList_isEmpty___rarg(lean_object* x_1) {
 _start:
 {
@@ -180,40 +139,6 @@ x_2 = l_Std_AssocList_isEmpty___rarg(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
-}
-}
-lean_object* l_Std_AssocList_foldlM_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_5; 
-lean_dec(x_4);
-x_5 = lean_apply_1(x_3, x_1);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_2, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_2, 1);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_2, 2);
-lean_inc(x_8);
-lean_dec(x_2);
-x_9 = lean_apply_4(x_4, x_1, x_6, x_7, x_8);
-return x_9;
-}
-}
-}
-lean_object* l_Std_AssocList_foldlM_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_Std_AssocList_foldlM_match__1___rarg), 4, 0);
-return x_5;
 }
 }
 lean_object* l_Std_AssocList_foldlM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -318,41 +243,6 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_alloc_closure((void*)(l_Std_AssocList_foldl___rarg), 3, 0);
-return x_4;
-}
-}
-lean_object* l_Std_AssocList_forM_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_2);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_1, 2);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_apply_3(x_3, x_6, x_7, x_8);
-return x_9;
-}
-}
-}
-lean_object* l_Std_AssocList_forM_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_Std_AssocList_forM_match__1___rarg), 3, 0);
 return x_4;
 }
 }
@@ -531,45 +421,6 @@ _start:
 lean_object* x_4; 
 x_4 = lean_alloc_closure((void*)(l_Std_AssocList_mapVal___rarg), 2, 0);
 return x_4;
-}
-}
-lean_object* l_Std_AssocList_findEntry_x3f_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (x_1 == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_2);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_3, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_3);
-x_6 = lean_box(0);
-x_7 = lean_apply_1(x_2, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_Std_AssocList_findEntry_x3f_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_AssocList_findEntry_x3f_match__1___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-lean_object* l_Std_AssocList_findEntry_x3f_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = lean_unbox(x_1);
-lean_dec(x_1);
-x_5 = l_Std_AssocList_findEntry_x3f_match__1___rarg(x_4, x_2, x_3);
-return x_5;
 }
 }
 lean_object* l_Std_AssocList_findEntry_x3f___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1040,39 +891,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* l_Std_AssocList_forIn_loop_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_3, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_Std_AssocList_forIn_loop_match__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_AssocList_forIn_loop_match__1___rarg), 3, 0);
-return x_3;
-}
-}
 lean_object* l_Std_AssocList_forIn_loop___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -1184,44 +1002,6 @@ _start:
 lean_object* x_5; 
 x_5 = lean_alloc_closure((void*)(l_Std_AssocList_instForInAssocListProd___rarg), 4, 0);
 return x_5;
-}
-}
-lean_object* l_List_toAssocList_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_box(0);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec(x_2);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
-lean_dec(x_1);
-x_8 = lean_ctor_get(x_6, 0);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_6, 1);
-lean_inc(x_9);
-lean_dec(x_6);
-x_10 = lean_apply_3(x_3, x_8, x_9, x_7);
-return x_10;
-}
-}
-}
-lean_object* l_List_toAssocList_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_List_toAssocList_match__1___rarg), 3, 0);
-return x_4;
 }
 }
 lean_object* l_List_toAssocList___rarg(lean_object* x_1) {

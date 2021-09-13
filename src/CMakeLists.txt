@@ -305,6 +305,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftls-model=initial-exec")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
+  set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -install_name @rpath/libleanshared.dylib")
 endif()
 
 # export all symbols for the interpreter
@@ -453,33 +454,28 @@ string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE "${CMAKE_EXE_LINKER_FLA
 configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
 add_custom_target(make_stdlib ALL
   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-  # needed for linking `leanpkg`
-  DEPENDS leancpp leanrt_initial-exec
   # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
   # for a parallelized nested build, but CMake doesn't let us do that.
   # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage
-  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanshared $<IF:$<EQUAL:${STAGE},0>,MORE_LEANMAKE_OPTS=C_ONLY=1\ C_OUT=../stdlib/,Leanpkg>
+  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Init Std Lean
   VERBATIM)
 
-add_library(Init STATIC IMPORTED)
-set_target_properties(Init PROPERTIES
-  IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libInit.a)
-add_dependencies(Init make_stdlib)
+# We declare these as separate custom targets so they use separate `make` invocations, which makes `make` recompute which dependencies
+# (e.g. `libLean.a`) are now newer than the target file
 
-add_library(Std STATIC IMPORTED)
-set_target_properties(Std PROPERTIES
-  IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libStd.a)
-add_dependencies(Std make_stdlib)
+add_custom_target(leanshared ALL
+  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+  DEPENDS make_stdlib leancpp leanrt_initial-exec
+  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanshared
+  VERBATIM)
 
-add_library(Lean STATIC IMPORTED)
-set_target_properties(Lean PROPERTIES
-  IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/lib/lean/libLean.a)
-add_dependencies(Lean make_stdlib)
-
-add_library(leanshared SHARED IMPORTED)
-set_target_properties(leanshared PROPERTIES
-  IMPORTED_LOCATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX})
-add_dependencies(leanshared make_stdlib)
+if(${STAGE} GREATER 0)
+  add_custom_target(leanpkg ALL
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS leanshared
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Leanpkg
+    VERBATIM)
+endif()
 
 if(PREV_STAGE)
   add_custom_target(update-stage0

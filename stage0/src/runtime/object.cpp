@@ -57,6 +57,12 @@ extern "C" object * lean_panic_fn(object * default_val, object * msg) {
     if (g_panic_messages) {
         std::cerr << lean_string_cstr(msg) << "\n";
     }
+#ifndef LEAN_EMSCRIPTEN
+    if (std::getenv("LEAN_ABORT_ON_PANIC")) {
+        int * v = nullptr;
+        *v = 0;
+    }
+#endif
     if (g_exit_on_panic) {
         std::exit(1);
     }
@@ -1047,6 +1053,14 @@ object * alloc_mpz(mpz const & m) {
     mpz_object * o = new (mem) mpz_object(m);
     lean_set_st_header((lean_object*)o, LeanMPZ, 0);
     return (lean_object*)o;
+}
+
+extern "C" lean_object * lean_alloc_mpz(mpz_t v) {
+    return alloc_mpz(mpz(v));
+}
+
+extern "C" void lean_extract_mpz_value(lean_object * o, mpz_t v) {
+    return to_mpz(o)->m_value.set(v);
 }
 
 object * mpz_to_nat_core(mpz const & m) {

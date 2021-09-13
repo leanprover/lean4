@@ -9,7 +9,7 @@ namespace Lean.Meta
 
 /- A mapping from MVarId to MVarId -/
 structure MVarRenaming where
-  map : NameMap MVarId := {}
+  map : MVarIdMap MVarId := {}
 
 def MVarRenaming.isEmpty (s : MVarRenaming) : Bool :=
   s.map.isEmpty

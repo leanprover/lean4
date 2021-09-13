@@ -30,14 +30,12 @@ static lean_object* l_Lean_Syntax_formatStxAux___closed__7;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_List_mapTRAux___at_Lean_Syntax_formatStxAux___spec__4(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_formatStxAux___closed__17;
-lean_object* l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo_match__1(lean_object*);
 static lean_object* l_Lean_Syntax_formatStxAux___closed__8;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_formatStxAux___closed__24;
 lean_object* l_Std_Format_joinSep___at_instReprProd___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_formatStxAux___closed__2;
-lean_object* l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo_match__1___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapTRAux___at_Lean_Syntax_formatStxAux___spec__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_formatStxAux___closed__14;
@@ -52,7 +50,6 @@ lean_object* l_Lean_Syntax_formatStx___boxed(lean_object*, lean_object*, lean_ob
 lean_object* l_List_mapTRAux___at_Lean_Syntax_formatStxAux___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapTRAux___at_Lean_Syntax_formatStxAux___spec__5(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
-lean_object* l_Lean_Syntax_formatStxAux_match__1(lean_object*);
 static lean_object* l_Lean_Syntax_formatStxAux___closed__12;
 lean_object* lean_format_pretty(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStx(lean_object*, lean_object*, uint8_t);
@@ -64,8 +61,6 @@ static lean_object* l_Lean_Syntax_formatStxAux___closed__10;
 lean_object* l_List_mapTRAux___at_Lean_Syntax_formatStxAux___spec__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_instToStringSyntax___lambda__2(lean_object*);
 static lean_object* l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo___closed__4;
-lean_object* l_Lean_Syntax_formatStxAux_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapTRAux___at_Lean_Syntax_formatStxAux___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_instToStringSyntax;
 lean_object* l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo___boxed(lean_object*, lean_object*, lean_object*);
@@ -93,82 +88,6 @@ lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*)
 lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo_match__1___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-if (x_1 == 0)
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_6 = lean_box(x_1);
-x_7 = lean_apply_2(x_5, x_6, x_2);
-return x_7;
-}
-else
-{
-switch (lean_obj_tag(x_2)) {
-case 0:
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-lean_dec(x_5);
-lean_dec(x_4);
-x_8 = lean_ctor_get(x_2, 0);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_2, 1);
-lean_inc(x_9);
-x_10 = lean_ctor_get(x_2, 2);
-lean_inc(x_10);
-x_11 = lean_ctor_get(x_2, 3);
-lean_inc(x_11);
-lean_dec(x_2);
-x_12 = lean_apply_4(x_3, x_8, x_9, x_10, x_11);
-return x_12;
-}
-case 1:
-{
-lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec(x_5);
-lean_dec(x_3);
-x_13 = lean_ctor_get(x_2, 0);
-lean_inc(x_13);
-x_14 = lean_ctor_get(x_2, 1);
-lean_inc(x_14);
-lean_dec(x_2);
-x_15 = lean_apply_2(x_4, x_13, x_14);
-return x_15;
-}
-default: 
-{
-lean_object* x_16; lean_object* x_17; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_16 = lean_box(x_1);
-x_17 = lean_apply_2(x_5, x_16, x_2);
-return x_17;
-}
-}
-}
-}
-}
-lean_object* l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo_match__1___rarg___boxed), 5, 0);
-return x_2;
-}
-}
-lean_object* l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-uint8_t x_6; lean_object* x_7; 
-x_6 = lean_unbox(x_1);
-lean_dec(x_1);
-x_7 = l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo_match__1___rarg(x_6, x_2, x_3, x_4, x_5);
-return x_7;
-}
-}
 static lean_object* _init_l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo___closed__1() {
 _start:
 {
@@ -346,76 +265,6 @@ x_4 = lean_unbox(x_1);
 lean_dec(x_1);
 x_5 = l___private_Init_Data_Format_Syntax_0__Lean_Syntax_formatInfo(x_4, x_2, x_3);
 return x_5;
-}
-}
-lean_object* l_Lean_Syntax_formatStxAux_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-switch (lean_obj_tag(x_2)) {
-case 0:
-{
-lean_object* x_7; 
-lean_dec(x_6);
-lean_dec(x_4);
-lean_dec(x_3);
-x_7 = lean_apply_1(x_5, x_1);
-return x_7;
-}
-case 1:
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-x_8 = lean_ctor_get(x_2, 0);
-lean_inc(x_8);
-x_9 = lean_ctor_get(x_2, 1);
-lean_inc(x_9);
-lean_dec(x_2);
-x_10 = lean_apply_3(x_6, x_1, x_8, x_9);
-return x_10;
-}
-case 2:
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-x_11 = lean_ctor_get(x_2, 0);
-lean_inc(x_11);
-x_12 = lean_ctor_get(x_2, 1);
-lean_inc(x_12);
-lean_dec(x_2);
-x_13 = lean_apply_3(x_3, x_1, x_11, x_12);
-return x_13;
-}
-default: 
-{
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_3);
-x_14 = lean_ctor_get(x_2, 0);
-lean_inc(x_14);
-x_15 = lean_ctor_get(x_2, 1);
-lean_inc(x_15);
-x_16 = lean_ctor_get(x_2, 2);
-lean_inc(x_16);
-x_17 = lean_ctor_get(x_2, 3);
-lean_inc(x_17);
-lean_dec(x_2);
-x_18 = lean_apply_5(x_4, x_1, x_14, x_15, x_16, x_17);
-return x_18;
-}
-}
-}
-}
-lean_object* l_Lean_Syntax_formatStxAux_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Syntax_formatStxAux_match__1___rarg), 6, 0);
-return x_2;
 }
 }
 lean_object* l_List_mapTRAux___at_Lean_Syntax_formatStxAux___spec__1(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

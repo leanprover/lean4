@@ -26,15 +26,12 @@ lean_object* l_ByteArray_findIdx_x3f_loop(lean_object*, lean_object*, lean_objec
 static lean_object* l_ByteArray_toUInt64LE_x21___closed__3;
 lean_object* lean_byte_array_data(lean_object*);
 lean_object* l_ByteArray_toUInt64BE_x21___boxed(lean_object*);
-lean_object* l_ByteArray_set_x21_match__1(lean_object*);
-lean_object* l_ByteArray_push_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_ByteArray_toUInt64LE_x21___closed__5;
 lean_object* l_ByteArray_findIdx_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_ByteArray_data___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_List_toByteArray_loop(lean_object*, lean_object*);
-lean_object* l_List_toByteArray_loop_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_toString___at_instToStringByteArray___spec__1___closed__1;
 static lean_object* l_ByteArray_toUInt64LE_x21___closed__6;
 extern uint64_t l_instInhabitedUInt64;
@@ -42,8 +39,6 @@ static lean_object* l_List_toString___at_instToStringByteArray___spec__1___close
 lean_object* l_ByteArray_empty;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_ByteArray_get_x21_match__1(lean_object*);
-lean_object* l_ByteArray_get_x21_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ByteArray_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_ByteArray_empty___closed__1;
 lean_object* l_List_toString___at_instToStringByteArray___spec__1(lean_object*);
@@ -61,14 +56,11 @@ lean_object* l_ByteArray_get_x21___boxed(lean_object*, lean_object*);
 uint8_t l_ByteArray_isEmpty(lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_byte_array_mk(lean_object*);
-lean_object* l_ByteArray_size_match__1(lean_object*);
 lean_object* l_ByteArray_toUInt64LE_x21___boxed__const__1;
 lean_object* l_ByteArray_copySlice___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ByteArray_toUInt64LE_x21___boxed(lean_object*);
 lean_object* l_ByteArray_append___boxed(lean_object*, lean_object*);
 lean_object* l_ByteArray_instInhabitedByteArray;
-lean_object* l_ByteArray_size_match__1___rarg(lean_object*, lean_object*);
-lean_object* l_List_toByteArray_loop_match__1(lean_object*);
 uint64_t l_ByteArray_toUInt64BE_x21(lean_object*);
 static lean_object* l_ByteArray_toUInt64LE_x21___closed__2;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -80,16 +72,12 @@ lean_object* l_ByteArray_findIdx_x3f___boxed(lean_object*, lean_object*, lean_ob
 lean_object* l_ByteArray_extract___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ByteArray_append(lean_object*, lean_object*);
 static lean_object* l_ByteArray_toUInt64BE_x21___closed__2;
-lean_object* l_ByteArray_push_match__1___rarg(lean_object*, uint8_t, lean_object*);
 lean_object* l_List_toByteArray(lean_object*);
-lean_object* l_ByteArray_set_x21_match__1___rarg(lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* l_ByteArray_findIdx_x3f_loop___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_ByteArray_push_match__1(lean_object*);
 uint8_t lean_byte_array_get(lean_object*, lean_object*);
 lean_object* l_ByteArray_toList(lean_object*);
 static lean_object* l_ByteArray_toUInt64BE_x21___closed__1;
 static lean_object* l_ByteArray_toUInt64LE_x21___closed__4;
-lean_object* l_ByteArray_set_x21_match__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l_ByteArray_toUInt64LE_x21(lean_object*);
 lean_object* l_ByteArray_set_x21___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_byte_array(lean_object*);
@@ -149,36 +137,6 @@ x_1 = l_ByteArray_empty;
 return x_1;
 }
 }
-lean_object* l_ByteArray_push_match__1___rarg(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_box(x_2);
-x_6 = lean_apply_2(x_3, x_4, x_5);
-return x_6;
-}
-}
-lean_object* l_ByteArray_push_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_ByteArray_push_match__1___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-lean_object* l_ByteArray_push_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = lean_unbox(x_2);
-lean_dec(x_2);
-x_5 = l_ByteArray_push_match__1___rarg(x_1, x_4, x_3);
-return x_5;
-}
-}
 lean_object* l_ByteArray_push___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -189,50 +147,12 @@ x_4 = lean_byte_array_push(x_1, x_3);
 return x_4;
 }
 }
-lean_object* l_ByteArray_size_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-lean_dec(x_1);
-x_4 = lean_apply_1(x_2, x_3);
-return x_4;
-}
-}
-lean_object* l_ByteArray_size_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_ByteArray_size_match__1___rarg), 2, 0);
-return x_2;
-}
-}
 lean_object* l_ByteArray_size___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
 x_2 = lean_byte_array_size(x_1);
 lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l_ByteArray_get_x21_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_2(x_3, x_4, x_2);
-return x_5;
-}
-}
-lean_object* l_ByteArray_get_x21_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_ByteArray_get_x21_match__1___rarg), 3, 0);
 return x_2;
 }
 }
@@ -245,36 +165,6 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
-}
-}
-lean_object* l_ByteArray_set_x21_match__1___rarg(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_box(x_3);
-x_7 = lean_apply_3(x_4, x_5, x_2, x_6);
-return x_7;
-}
-}
-lean_object* l_ByteArray_set_x21_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_ByteArray_set_x21_match__1___rarg___boxed), 4, 0);
-return x_2;
-}
-}
-lean_object* l_ByteArray_set_x21_match__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-uint8_t x_5; lean_object* x_6; 
-x_5 = lean_unbox(x_3);
-lean_dec(x_3);
-x_6 = l_ByteArray_set_x21_match__1___rarg(x_1, x_2, x_5, x_4);
-return x_6;
 }
 }
 lean_object* l_ByteArray_set_x21___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -506,38 +396,6 @@ lean_object* x_4;
 x_4 = l_ByteArray_findIdx_x3f(x_1, x_2, x_3);
 lean_dec(x_1);
 return x_4;
-}
-}
-lean_object* l_List_toByteArray_loop_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_5; 
-lean_dec(x_4);
-x_5 = lean_apply_1(x_3, x_2);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_3);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-x_7 = lean_ctor_get(x_1, 1);
-lean_inc(x_7);
-lean_dec(x_1);
-x_8 = lean_apply_3(x_4, x_6, x_7, x_2);
-return x_8;
-}
-}
-}
-lean_object* l_List_toByteArray_loop_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_toByteArray_loop_match__1___rarg), 4, 0);
-return x_2;
 }
 }
 lean_object* l_List_toByteArray_loop(lean_object* x_1, lean_object* x_2) {

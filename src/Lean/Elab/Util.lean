@@ -119,7 +119,7 @@ def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Sy
   for e in macroAttribute.getEntries env stx.getKind do
     try
       let stx' ← e.value stx
-      return (e.decl, stx')
+      return (e.declName, stx')
     catch
       | Macro.Exception.unsupportedSyntax => pure ()
       | ex                                => throw ex

@@ -29,14 +29,11 @@ static lean_object* l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spe
 static lean_object* l_Lean_Xml_instToStringElement___closed__1;
 lean_object* l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString(lean_object*);
-lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString_match__1(lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__2;
 lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString(lean_object*);
 static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__1;
 size_t lean_usize_of_nat(lean_object*);
-lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_match__1___rarg(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Xml_instInhabitedContent;
 static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString___closed__1;
@@ -46,7 +43,6 @@ static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString___clos
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Xml_instToStringContent___closed__1;
-lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_match__1(lean_object*);
 lean_object* l_Lean_Xml_instToStringElement;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__2;
@@ -149,77 +145,6 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Xml_instInhabitedContent___closed__1;
 return x_1;
-}
-}
-lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 2);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_apply_3(x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
-lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString_match__1___rarg), 2, 0);
-return x_2;
-}
-}
-lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-switch (lean_obj_tag(x_1)) {
-case 0:
-{
-lean_object* x_5; lean_object* x_6; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_5 = lean_ctor_get(x_1, 0);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_apply_1(x_2, x_5);
-return x_6;
-}
-case 1:
-{
-lean_object* x_7; lean_object* x_8; 
-lean_dec(x_4);
-lean_dec(x_2);
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-lean_dec(x_1);
-x_8 = lean_apply_1(x_3, x_7);
-return x_8;
-}
-default: 
-{
-lean_object* x_9; lean_object* x_10; 
-lean_dec(x_3);
-lean_dec(x_2);
-x_9 = lean_ctor_get(x_1, 0);
-lean_inc(x_9);
-lean_dec(x_1);
-x_10 = lean_apply_1(x_4, x_9);
-return x_10;
-}
-}
-}
-}
-lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString_match__1___rarg), 4, 0);
-return x_2;
 }
 }
 lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___spec__1(size_t x_1, size_t x_2, lean_object* x_3) {

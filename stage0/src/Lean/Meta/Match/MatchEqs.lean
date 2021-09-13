@@ -197,13 +197,13 @@ private partial def mkSplitterProof (matchDeclName : Name) (template : Expr) (al
     proveSubgoal mvarId
   instantiateMVars proof
 where
-  mkMap : NameMap Expr := do
+  mkMap : FVarIdMap Expr := do
     let mut m := {}
     for alt in alts, altNew in altsNew do
       m := m.insert alt.fvarId! altNew
     return m
 
-  convertTemplate (m : NameMap Expr) : StateRefT (Array MVarId) MetaM Expr :=
+  convertTemplate (m : FVarIdMap Expr) : StateRefT (Array MVarId) MetaM Expr :=
     transform template fun e => do
       match e.getAppFn with
       | Expr.fvar fvarId .. =>

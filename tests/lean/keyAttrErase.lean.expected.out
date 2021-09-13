@@ -1,0 +1,2 @@
+theorem ex : ∀ {n : Nat} {i j : Fin n}, i = j → i.val = j.val :=
+fun {n} {i j} h => Eq.ndrec rfl h

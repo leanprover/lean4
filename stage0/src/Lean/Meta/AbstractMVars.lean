@@ -24,8 +24,8 @@ structure State where
   nextParamIdx : Nat := 0
   paramNames   : Array Name := #[]
   fvars        : Array Expr  := #[]
-  lmap         : HashMap Name Level := {}
-  emap         : HashMap Name Expr  := {}
+  lmap         : HashMap MVarId Level := {}
+  emap         : HashMap MVarId Expr  := {}
 
 abbrev M := StateM State
 
@@ -34,6 +34,9 @@ def mkFreshId : M Name := do
   let fresh := s.ngen.curr
   modify fun s => { s with ngen := s.ngen.next }
   pure fresh
+
+def mkFreshFVarId : M FVarId :=
+  return { name := (← mkFreshId) }
 
 private partial def abstractLevelMVars (u : Level) : M Level := do
   if !u.hasMVar then
@@ -91,7 +94,7 @@ partial def abstractExprMVars (e : Expr) : M Expr := do
             return e
           | none   =>
             let type   ← abstractExprMVars decl.type
-            let fvarId ← mkFreshId
+            let fvarId ← mkFreshFVarId
             let fvar := mkFVar fvarId;
             let userName := if decl.userName.isAnonymous then (`x).appendIndexAfter s.fvars.size else decl.userName
             modify fun s => {

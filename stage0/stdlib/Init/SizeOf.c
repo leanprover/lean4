@@ -16,11 +16,9 @@ extern "C" {
 lean_object* l_instSizeOf(lean_object*);
 lean_object* l_instSizeOfNat(lean_object*);
 static lean_object* l_instSizeOf___closed__1;
-lean_object* l_Lean_Name_sizeOf_match__1(lean_object*);
 lean_object* l_default_sizeOf___boxed(lean_object*, lean_object*);
 lean_object* l_instSizeOfNat___boxed(lean_object*);
 lean_object* l_default_sizeOf(lean_object*, lean_object*);
-lean_object* l_Lean_Name_sizeOf_match__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_default_sizeOf(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -68,60 +66,6 @@ _start:
 lean_object* x_2; 
 x_2 = l_instSizeOfNat(x_1);
 lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l_Lean_Name_sizeOf_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-switch (lean_obj_tag(x_1)) {
-case 0:
-{
-lean_object* x_5; lean_object* x_6; 
-lean_dec(x_4);
-lean_dec(x_3);
-x_5 = lean_box(0);
-x_6 = lean_apply_1(x_2, x_5);
-return x_6;
-}
-case 1:
-{
-lean_object* x_7; lean_object* x_8; uint64_t x_9; lean_object* x_10; lean_object* x_11; 
-lean_dec(x_4);
-lean_dec(x_2);
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_1, 1);
-lean_inc(x_8);
-x_9 = lean_ctor_get_uint64(x_1, sizeof(void*)*2);
-lean_dec(x_1);
-x_10 = lean_box_uint64(x_9);
-x_11 = lean_apply_3(x_3, x_7, x_8, x_10);
-return x_11;
-}
-default: 
-{
-lean_object* x_12; lean_object* x_13; uint64_t x_14; lean_object* x_15; lean_object* x_16; 
-lean_dec(x_3);
-lean_dec(x_2);
-x_12 = lean_ctor_get(x_1, 0);
-lean_inc(x_12);
-x_13 = lean_ctor_get(x_1, 1);
-lean_inc(x_13);
-x_14 = lean_ctor_get_uint64(x_1, sizeof(void*)*2);
-lean_dec(x_1);
-x_15 = lean_box_uint64(x_14);
-x_16 = lean_apply_3(x_4, x_12, x_13, x_15);
-return x_16;
-}
-}
-}
-}
-lean_object* l_Lean_Name_sizeOf_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Name_sizeOf_match__1___rarg), 4, 0);
 return x_2;
 }
 }

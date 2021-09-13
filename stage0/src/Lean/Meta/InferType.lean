@@ -152,12 +152,12 @@ private def inferLambdaType (e : Expr) : MetaM Expr :=
 
 @[inline] private def withLocalDecl' {α} (name : Name) (bi : BinderInfo) (type : Expr) (x : Expr → MetaM α) : MetaM α :=
   savingCache do
-    let fvarId ← mkFreshId
+    let fvarId ← mkFreshFVarId
     withReader (fun ctx => { ctx with lctx := ctx.lctx.mkLocalDecl fvarId name type bi }) do
       x (mkFVar fvarId)
 
 def throwUnknownMVar {α} (mvarId : MVarId) : MetaM α :=
-  throwError "unknown metavariable '?{mvarId}'"
+  throwError "unknown metavariable '?{mvarId.name}'"
 
 private def inferMVarType (mvarId : MVarId) : MetaM Expr := do
   match (← getMCtx).findDecl? mvarId with

@@ -17,10 +17,13 @@ LEANMAKE_OPTS=\
 	LEANC_OPTS+="${LEANC_OPTS}"\
 	LEAN_AR="${CMAKE_AR}"\
 	MORE_DEPS+="${PREV_STAGE}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"\
-	CMAKE_LIKE_OUTPUT=1\
-	$(MORE_LEANMAKE_OPTS)
+	CMAKE_LIKE_OUTPUT=1
 
-.PHONY: Init Std Lean leanshared Leanpkg
+ifeq "${STAGE}" "0"
+  LEANMAKE_OPTS+=C_ONLY=1 C_OUT=../stdlib/
+endif
+
+.PHONY: Init Std Lean leanshared Leanpkg lean
 
 # These can be phony since the inner Makefile will have the correct dependencies and avoid rebuilds
 Init:
@@ -33,17 +36,20 @@ Std: Init
 Lean: Init Std
 	+"${LEAN_BIN}/leanmake" lib PKG=Lean $(LEANMAKE_OPTS)
 
-# This target will always be remade, but then not trigger further builds downstream if the .a file did not change
-${LIB}/lean/libLean.a: Lean
+# the following targets are all invoked by separate `make` calls; see src/CMakeLists.txt
 
-${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${LIB}/lean/libLean.a ${LIB}/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a
+# we specify the precise file names here to avoid rebuilds
+${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${LIB}/lean/libInit.a ${LIB}/lean/libStd.a ${LIB}/lean/libLean.a ${LIB}/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a
 	@echo "[    ] Building $@"
 	"${LEAN_BIN}/leanc" -shared -o $@ ${LEANSHARED_LINKER_FLAGS} ${LEANC_OPTS}
 
 leanshared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
 
-Leanpkg: Init Std Lean leanshared
+Leanpkg:
 	+"${LEAN_BIN}/leanmake" bin PKG=Leanpkg BIN_NAME=leanpkg${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS='-lleanshared ${CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE}'
 
-lean:
-	${LEAN_BIN}/leanc $(LEAN_SHELL) -lleanshared ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} -o ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
+${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX} $(LEAN_SHELL)
+	@echo "[    ] Building $@"
+	${LEAN_BIN}/leanc $(LEAN_SHELL) -lleanshared ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} -o $@
+
+lean: ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}

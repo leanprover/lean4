@@ -1,5 +1,3 @@
 x : Int
 h : x = 2
 ⊢ Int.ofNat (2 / 1) = x
-n : Nat
-⊢ n * 0 = 0

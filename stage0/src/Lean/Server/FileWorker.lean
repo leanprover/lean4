@@ -154,8 +154,7 @@ section Initialization
     else
       throwServerError s!"`leanpkg print-paths` failed:\n{stdout}\nstderr:\n{stderr}"
 
-  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) : IO (Snapshot × SearchPath) := do
-    let opts := {}  -- TODO
+  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) : IO (Snapshot × SearchPath) := do
     let inputCtx := Parser.mkInputContext m.text.source "<input>"
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
     let leanpkgPath ← match (← IO.getEnv "LEAN_SYSROOT") with
@@ -186,9 +185,9 @@ section Initialization
     publishDiagnostics m headerSnap.diagnostics.toArray hOut
     return (headerSnap, srcSearchPath)
 
-  def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream)
+  def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream) (opts : Options)
       : IO (WorkerContext × WorkerState) := do
-    let (headerSnap, srcSearchPath) ← compileHeader meta o
+    let (headerSnap, srcSearchPath) ← compileHeader meta o opts
     let cancelTk ← CancelToken.new
     let ctx :=
       { hIn                := i
@@ -404,7 +403,7 @@ section MainLoop
     | _ => throwServerError "Got invalid JSON-RPC message"
 end MainLoop
 
-def initAndRunWorker (i o e : FS.Stream) : IO UInt32 := do
+def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let i ← maybeTee "fwIn.txt" false i
   let o ← maybeTee "fwOut.txt" true o
   let _ ← i.readLspRequestAs "initialize" InitializeParams
@@ -419,7 +418,7 @@ def initAndRunWorker (i o e : FS.Stream) : IO UInt32 := do
   let e ← e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   try
-    let (ctx, st) ← initializeWorker meta i o e
+    let (ctx, st) ← initializeWorker meta i o e opts
     let _ ← StateRefT'.run (s := st) <| ReaderT.run (r := ctx) mainLoop
     return (0 : UInt32)
   catch e =>
@@ -428,14 +427,14 @@ def initAndRunWorker (i o e : FS.Stream) : IO UInt32 := do
     return (1 : UInt32)
 
 @[export lean_server_worker_main]
-def workerMain : IO UInt32 := do
+def workerMain (opts : Options) : IO UInt32 := do
   let i ← IO.getStdin
   let o ← IO.getStdout
   let e ← IO.getStderr
   try
     let seed ← (UInt64.toNat ∘ ByteArray.toUInt64LE!) <$> IO.getRandomBytes 8
     IO.setRandSeed seed
-    let exitCode ← initAndRunWorker i o e
+    let exitCode ← initAndRunWorker i o e opts
     -- HACK: all `Task`s are currently "foreground", i.e. we join on them on main thread exit, but we definitely don't
     -- want to do that in the case of the worker processes, which can produce non-terminating tasks evaluating user code
     o.flush

@@ -198,6 +198,17 @@ optional<unsigned> is_enum_type(environment const & env, expr const & type);
 
 // =======================================
 
+extern "C" uint8 lean_is_matcher(object* env, object* n);
+
+inline bool is_matcher(environment const & env, name const & n) {
+    return lean_is_matcher(env.to_obj_arg(), n.to_obj_arg());
+}
+
+inline bool is_matcher_app(environment const & env, expr const & e) {
+  expr const & f = get_app_fn(e);
+  return is_constant(f) && is_matcher(env, const_name(f));
+}
+
 void initialize_compiler_util();
 void finalize_compiler_util();
 }

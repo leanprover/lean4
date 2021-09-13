@@ -60,7 +60,7 @@ def Key.ctorIdx : Key → Nat
 
 def Key.lt : Key → Key → Bool
   | Key.lit v₁,      Key.lit v₂      => v₁ < v₂
-  | Key.fvar n₁ a₁,  Key.fvar n₂ a₂  => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
+  | Key.fvar n₁ a₁,  Key.fvar n₂ a₂  => Name.quickLt n₁.name n₂.name || (n₁ == n₂ && a₁ < a₂)
   | Key.const n₁ a₁, Key.const n₂ a₂ => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
   | Key.proj s₁ i₁,  Key.proj s₂ i₂  => Name.quickLt s₁ s₂ || (s₁ == s₂ && i₁ < i₂)
   | k₁,              k₂              => k₁.ctorIdx < k₂.ctorIdx
@@ -75,7 +75,7 @@ def Key.format : Key → Format
   | Key.lit (Literal.strVal v) => repr v
   | Key.const k _              => Std.format k
   | Key.proj s i               => Std.format s ++ "." ++ Std.format i
-  | Key.fvar k _               => Std.format k
+  | Key.fvar k _               => Std.format k.name
   | Key.arrow                  => "→"
 
 instance : ToFormat Key := ⟨Key.format⟩
@@ -109,7 +109,7 @@ instance [ToFormat α] : ToFormat (DiscrTree α) := ⟨format⟩
 
 /- The discrimination tree ignores implicit arguments and proofs.
    We use the following auxiliary id as a "mark". -/
-private def tmpMVarId : MVarId := `_discr_tree_tmp
+private def tmpMVarId : MVarId := { name := `_discr_tree_tmp }
 private def tmpStar := mkMVar tmpMVarId
 
 instance : Inhabited (DiscrTree α) where
@@ -424,50 +424,75 @@ private def getStarResult (d : DiscrTree α) : Array α :=
 private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
   cs.binSearch (k, arbitrary) (fun a b => a.1 < b.1)
 
+private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
+  match c with
+  | Trie.node vs cs =>
+    if todo.isEmpty then
+      return result ++ vs
+    else if cs.isEmpty then
+      return result
+    else
+      let e     := todo.back
+      let todo  := todo.pop
+      let first := cs[0] /- Recall that `Key.star` is the minimal key -/
+      let (k, args) ← getMatchKeyArgs e (root := false)
+      /- We must always visit `Key.star` edges since they are wildcards.
+         Thus, `todo` is not used linearly when there is `Key.star` edge
+         and there is an edge for `k` and `k != Key.star`. -/
+      let visitStar (result : Array α) : MetaM (Array α) :=
+        if first.1 == Key.star then
+          getMatchLoop todo first.2 result
+        else
+          return result
+      let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+        match findKey cs k with
+        | none   => result
+        | some c => getMatchLoop (todo ++ args) c.2 result
+      let result ← visitStar result
+      match k with
+      | Key.star  => result
+      /-
+        Recall that dependent arrows are `(Key.other, #[])`, and non-dependent arrows are `(Key.arrow, #[a, b])`.
+        A non-dependent arrow may be an instance of a dependent arrow (stored at `DiscrTree`). Thus, we also visit the `Key.other` child.
+      -/
+      | Key.arrow => visitNonStar Key.other #[] (← visitNonStar k args result)
+      | _         => visitNonStar k args result
+
+private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+  match d.root.find? k with
+  | none   => return result
+  | some c => getMatchLoop args c result
+
+/--
+  Find values that match `e` in `d`.
+-/
 partial def getMatch (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   withReducible do
     let result := getStarResult d
     let (k, args) ← getMatchKeyArgs e (root := true)
     match k with
     | Key.star => return result
-    | _        =>
-      match d.root.find? k with
-      | none   => return result
-      | some c => process args c result
+    | _        => getMatchRoot d k args result
+
+/--
+  Similar to `getMatch`, but returns solutions that are prefixes of `e`.
+  We store the number of ignored arguments in the result.-/
+partial def getMatchWithExtra (d : DiscrTree α) (e : Expr) : MetaM (Array (α × Nat)) :=
+  withReducible do
+    let result := getStarResult d |>.map (., 0)
+    let (k, args) ← getMatchKeyArgs e (root := true)
+    match k with
+    | Key.star => return result
+    | _        => process k args 0 result
 where
-  process (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
-    match c with
-    | Trie.node vs cs =>
-      if todo.isEmpty then
-        return result ++ vs
-      else if cs.isEmpty then
-        return result
-      else
-        let e     := todo.back
-        let todo  := todo.pop
-        let first := cs[0] /- Recall that `Key.star` is the minimal key -/
-        let (k, args) ← getMatchKeyArgs e (root := false)
-        /- We must always visit `Key.star` edges since they are wildcards.
-           Thus, `todo` is not used linearly when there is `Key.star` edge
-           and there is an edge for `k` and `k != Key.star`. -/
-        let visitStar (result : Array α) : MetaM (Array α) :=
-          if first.1 == Key.star then
-            process todo first.2 result
-          else
-            return result
-        let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
-          match findKey cs k with
-          | none   => result
-          | some c => process (todo ++ args) c.2 result
-        let result ← visitStar result
-        match k with
-        | Key.star  => result
-        /-
-          Recall that dependent arrows are `(Key.other, #[])`, and non-dependent arrows are `(Key.arrow, #[a, b])`.
-          A non-dependent arrow may be an instance of a dependent arrow (stored at `DiscrTree`). Thus, we also visit the `Key.other` child.
-        -/
-        | Key.arrow => visitNonStar Key.other #[] (← visitNonStar k args result)
-        | _         => visitNonStar k args result
+  process (k : Key) (args : Array Expr) (numExtraArgs : Nat) (result : Array (α × Nat)) : MetaM (Array (α × Nat)) := do
+    let result := result ++ ((← getMatchRoot d k args #[]).map (., numExtraArgs))
+    match k with
+    | Key.const f 0     => return result
+    | Key.const f (n+1) => process (Key.const f n) args.pop (numExtraArgs + 1) result
+    | Key.fvar f 0      => return result
+    | Key.fvar f (n+1)  => process (Key.fvar f n) args.pop (numExtraArgs + 1) result
+    | _                 => return result
 
 partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   withReducible do

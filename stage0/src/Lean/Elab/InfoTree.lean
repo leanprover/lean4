@@ -243,7 +243,7 @@ def Info.updateContext? : Option ContextInfo → Info → Option ContextInfo
 partial def InfoTree.format (tree : InfoTree) (ctx? : Option ContextInfo := none) : IO Format := do
   match tree with
   | ofJson j    => return toString j
-  | hole id     => return toString id
+  | hole id     => return toString id.name
   | context i t => format t i
   | node i cs   => match ctx? with
     | none => return "<context-not-available>"

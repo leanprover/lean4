@@ -20,8 +20,6 @@ lean_object* l_ST_Prim_Ref_modify___rarg___boxed(lean_object*, lean_object*, lea
 lean_object* l_instSTWorldEST(lean_object*, lean_object*);
 lean_object* l_ST_Ref_get(lean_object*, lean_object*);
 lean_object* l_instMonadST(lean_object*);
-lean_object* l_runEST_match__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_runST_match__1(lean_object*, uint8_t);
 lean_object* l_ST_Prim_Ref_ptrEq___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_runEST___rarg(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -29,7 +27,6 @@ lean_object* l_instSTWorld___boxed(lean_object*, lean_object*, lean_object*, lea
 lean_object* l_ST_Prim_mkRef___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Ref_swap___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_runST(lean_object*);
-lean_object* l_instMonadLiftSTEST_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadEST(lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadLiftSTEST(lean_object*, lean_object*, lean_object*);
@@ -40,17 +37,14 @@ lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_ST_Ref_take(lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_take___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_runEST_match__1___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Ref_ptrEq(lean_object*, lean_object*);
 lean_object* l_ST_Ref_swap(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_instInhabitedEST(lean_object*, lean_object*, lean_object*);
-lean_object* l_ST_Prim_Ref_modifyGetUnsafe_match__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instMonadExceptOfEST___closed__2;
 static lean_object* l_instMonadExceptOfEST___closed__1;
 lean_object* l_ST_Prim_Ref_modifyUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_instMonadEST___closed__1;
-lean_object* l_runST_match__2(lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_swap___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedEST___rarg(lean_object*);
 lean_object* l_EStateM_instMonadEStateM(lean_object*, lean_object*);
@@ -59,14 +53,12 @@ lean_object* l_ST_Prim_Ref_modifyUnsafe___rarg(lean_object*, lean_object*, lean_
 lean_object* l_EStateM_nonBacktrackable(lean_object*);
 lean_object* l_ST_Prim_Ref_modify___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Ref_set(lean_object*, lean_object*);
-lean_object* l_runST_match__1___boxed(lean_object*, lean_object*);
 lean_object* l_ST_Ref_modifyGet(lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_modifyGetUnsafe___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Ref_modify___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_instMonadExceptOfEStateM___rarg(lean_object*);
 lean_object* l_runEST(lean_object*, lean_object*);
 lean_object* l_ST_Ref_ptrEq___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_instMonadLiftSTEST_match__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_mkRef(lean_object*, lean_object*);
 lean_object* l_ST_Prim_Ref_modifyGetUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -82,10 +74,8 @@ lean_object* l_ST_Prim_Ref_modifyGet___rarg___boxed(lean_object*, lean_object*, 
 lean_object* l_ST_instInhabitedRef___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_instSTWorld(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ST_Ref_modify(lean_object*, lean_object*);
-lean_object* l_ST_Prim_Ref_modifyGetUnsafe_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_instMonadExceptOfEST(lean_object*, lean_object*);
 lean_object* l_ST_Ref_take___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_runST_match__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_runST___rarg(lean_object*);
 static lean_object* _init_l_instMonadEST___closed__1() {
 _start:
@@ -179,43 +169,6 @@ x_3 = lean_box(0);
 return x_3;
 }
 }
-lean_object* l_runEST_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_apply_2(x_2, x_4, x_5);
-return x_6;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_2);
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_1, 1);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_apply_2(x_3, x_7, x_8);
-return x_9;
-}
-}
-}
-lean_object* l_runEST_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_runEST_match__1___rarg), 3, 0);
-return x_4;
-}
-}
 lean_object* l_runEST___rarg(lean_object* x_1) {
 _start:
 {
@@ -252,59 +205,6 @@ x_3 = lean_alloc_closure((void*)(l_runEST___rarg), 1, 0);
 return x_3;
 }
 }
-lean_object* l_runST_match__1(lean_object* x_1, uint8_t x_2) {
-_start:
-{
-lean_internal_panic_unreachable();
-}
-}
-lean_object* l_runST_match__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = lean_unbox(x_2);
-lean_dec(x_2);
-x_4 = l_runST_match__1(x_1, x_3);
-return x_4;
-}
-}
-lean_object* l_runST_match__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_apply_2(x_2, x_4, x_5);
-return x_6;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_2);
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_1, 1);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_apply_2(x_3, x_7, x_8);
-return x_9;
-}
-}
-}
-lean_object* l_runST_match__2(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_runST_match__2___rarg), 3, 0);
-return x_3;
-}
-}
 lean_object* l_runST___rarg(lean_object* x_1) {
 _start:
 {
@@ -323,43 +223,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_runST___rarg), 1, 0);
 return x_2;
-}
-}
-lean_object* l_instMonadLiftSTEST_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec(x_1);
-x_6 = lean_apply_2(x_2, x_4, x_5);
-return x_6;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-lean_dec(x_2);
-x_7 = lean_ctor_get(x_1, 0);
-lean_inc(x_7);
-x_8 = lean_ctor_get(x_1, 1);
-lean_inc(x_8);
-lean_dec(x_1);
-x_9 = lean_apply_2(x_3, x_7, x_8);
-return x_9;
-}
-}
-}
-lean_object* l_instMonadLiftSTEST_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_instMonadLiftSTEST_match__1___rarg), 3, 0);
-return x_4;
 }
 }
 lean_object* l_instMonadLiftSTEST___rarg(lean_object* x_1, lean_object* x_2) {
@@ -530,27 +393,6 @@ _start:
 lean_object* x_4; 
 x_4 = l_ST_Prim_Ref_modifyUnsafe___rarg(x_1, x_2, x_3);
 lean_dec(x_1);
-return x_4;
-}
-}
-lean_object* l_ST_Prim_Ref_modifyGetUnsafe_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_2(x_2, x_3, x_4);
-return x_5;
-}
-}
-lean_object* l_ST_Prim_Ref_modifyGetUnsafe_match__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_ST_Prim_Ref_modifyGetUnsafe_match__1___rarg), 2, 0);
 return x_4;
 }
 }

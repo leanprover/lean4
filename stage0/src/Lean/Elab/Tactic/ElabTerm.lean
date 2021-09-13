@@ -98,6 +98,21 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
   | `(tactic| refine' $e) => refineCore e `refine' (allowNaturalHoles := true)
   | _                     => throwUnsupportedSyntax
 
+@[builtinTactic «specialize»] def evalSpecialize : Tactic := fun stx => withMainContext do
+  match stx with
+  | `(tactic| specialize $e:term) =>
+    let (e, mvarIds') ← elabTermWithHoles e none `specialize (allowNaturalHoles := true)
+    let h := e.getAppFn
+    if h.isFVar then
+      let localDecl ← getLocalDecl h.fvarId!
+      let mvarId ← assert (← getMainGoal) localDecl.userName (← inferType e).headBeta e
+      let (_, mvarId) ← intro1P mvarId
+      let mvarId ← tryClear mvarId h.fvarId!
+      replaceMainGoal (mvarId :: mvarIds')
+    else
+      throwError "'specialize' requires a term of the form `h x_1 .. x_n` where `h` appears in the local context"
+  | _ => throwUnsupportedSyntax
+
 /--
    Given a tactic
    ```

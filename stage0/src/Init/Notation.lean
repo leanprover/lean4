@@ -316,7 +316,12 @@ macro dot:("·" <|> ".") ts:tacticSeq : tactic => `(tactic| {%$dot ($ts:tacticSe
 macro "rfl" : tactic => `(exact rfl)
 /-- `admit` is a shorthand for `exact sorry`. -/
 macro "admit" : tactic => `(exact sorry)
+/-- The `sorry` tactic isnxo a shorthand for `exact sorry`. -/
+macro "sorry" : tactic => `(exact sorry)
 macro "inferInstance" : tactic => `(exact inferInstance)
+
+/-- Optional configuration option for tactics -/
+syntax config := ("(" &"config" " := " term ")")
 
 syntax locationWildcard := "*"
 syntax locationHyp      := (colGt ident)+ ("⊢" <|> "|-")? -- TODO: delete
@@ -329,26 +334,21 @@ syntax (name := changeWith) "change " term " with " term (location)? : tactic
 syntax rwRule    := ("←" <|> "<-")? term
 syntax rwRuleSeq := "[" rwRule,+,? "]"
 
-syntax (name := rewriteSeq) "rewrite " rwRuleSeq (location)? : tactic
-syntax (name := erewriteSeq) "erewrite " rwRuleSeq (location)? : tactic
+syntax (name := rewriteSeq) "rewrite " (config)? rwRuleSeq (location)? : tactic
 
-syntax (name := rwSeq) "rw " rwRuleSeq (location)? : tactic
-syntax (name := erwSeq) "erw " rwRuleSeq (location)? : tactic
+syntax (name := rwSeq) "rw " (config)? rwRuleSeq (location)? : tactic
 
 def rwWithRfl (kind : SyntaxNodeKind) (atom : String) (stx : Syntax) : MacroM Syntax := do
   -- We show the `rfl` state on `]`
-  let seq   := stx[1]
+  let seq   := stx[2]
   let rbrak := seq[2]
   -- Replace `]` token with one without position information in the expanded tactic
   let seq   := seq.setArg 2 (mkAtom "]")
-  let tac   := stx.setKind kind |>.setArg 0 (mkAtomFrom stx atom) |>.setArg 1 seq
+  let tac   := stx.setKind kind |>.setArg 0 (mkAtomFrom stx atom) |>.setArg 2 seq
   `(tactic| $tac; try (withReducible rfl%$rbrak))
 
 @[macro rwSeq] def expandRwSeq : Macro :=
   rwWithRfl ``Lean.Parser.Tactic.rewriteSeq "rewrite"
-
-@[macro erwSeq] def expandERwSeq : Macro :=
-  rwWithRfl ``Lean.Parser.Tactic.erewriteSeq "erewrite"
 
 syntax (name := injection) "injection " term (" with " (colGt (ident <|> "_"))+)? : tactic
 
@@ -359,8 +359,13 @@ syntax simpPost  := "↑"
 syntax simpLemma := (simpPre <|> simpPost)? ("←" <|> "<-")? term
 syntax simpErase := "-" ident
 syntax simpStar  := "*"
-syntax (name := simp) "simp " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
-syntax (name := simpAll) "simp_all " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
+syntax (name := simp) "simp " (config)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
+syntax (name := simpAll) "simp_all " (config)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
+
+/--
+  Delta expand the given definition.
+  This is a low-level tactic, it will expose how recursive definitions have been compiled by Lean. -/
+syntax (name := delta) "delta " ident (location)? : tactic
 
 -- Auxiliary macro for lifting have/suffices/let/...
 -- It makes sure the "continuation" `?_` is the main goal after refining
@@ -407,6 +412,14 @@ macro_rules
 syntax "trivial" : tactic
 
 syntax (name := split) "split " (colGt term)? (location)? : tactic
+
+/--
+The tactic `specialize h a₁ ... aₙ` works on local hypothesis `h`.
+The premises of this hypothesis, either universal quantifications or non-dependent implications,
+are instantiated by concrete terms coming either from arguments `a₁` ... `aₙ`.
+The tactic adds a new hypothesis with the same name `h := h a₁ ... aₙ` and tries to clear the previous one.
+-/
+syntax (name := specialize) "specialize " term : tactic
 
 macro_rules | `(tactic| trivial) => `(tactic| assumption)
 macro_rules | `(tactic| trivial) => `(tactic| rfl)

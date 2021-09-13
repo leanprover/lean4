@@ -36,12 +36,12 @@ structure Config where
   foApprox           : Bool := false
   ctxApprox          : Bool := false
   quasiPatternApprox : Bool := false
-  /- When `constApprox` is set to true,
+  /-- When `constApprox` is set to true,
      we solve `?m t =?= c` using
      `?m := fun _ => c`
      when `?m t` is not a higher-order pattern and `c` is not an application as -/
   constApprox        : Bool := false
-  /-
+  /--
     When the following flag is set,
     `isDefEq` throws the exeption `Exeption.isDefEqStuck`
     whenever it encounters a constraint `?m ... =?= t` where
@@ -51,30 +51,32 @@ structure Config where
     later after it assigns `?m`. -/
   isDefEqStuckEx     : Bool := false
   transparency       : TransparencyMode := TransparencyMode.default
-  /- If zetaNonDep == false, then non dependent let-decls are not zeta expanded. -/
+  /-- If zetaNonDep == false, then non dependent let-decls are not zeta expanded. -/
   zetaNonDep         : Bool := true
-  /- When `trackZeta == true`, we store zetaFVarIds all free variables that have been zeta-expanded. -/
+  /-- When `trackZeta == true`, we store zetaFVarIds all free variables that have been zeta-expanded. -/
   trackZeta          : Bool := false
   unificationHints   : Bool := true
-  /- Enables proof irrelevance at `isDefEq` -/
+  /-- Enables proof irrelevance at `isDefEq` -/
   proofIrrelevance   : Bool := true
-  /- By default synthetic opaque metavariables are not assigned by `isDefEq`. Motivation: we want to make
-     sure typing constraints resolved during elaboration should not "fill" holes that are supposed to be filled using tactics.
-     However, this restriction is too restrictive for tactics such as `exact t`. When elaborating `t`, we dot not fill
-     named holes when solving typing constraints or TC resolution. But, we ignore the restriction when we try to unify
-     the type of `t` with the goal target type. We claim this is not a hack and is defensible behavior because
-     this last unification step is not really part of the term elaboration. -/
+  /-- By default synthetic opaque metavariables are not assigned by `isDefEq`. Motivation: we want to make
+      sure typing constraints resolved during elaboration should not "fill" holes that are supposed to be filled using tactics.
+      However, this restriction is too restrictive for tactics such as `exact t`. When elaborating `t`, we dot not fill
+      named holes when solving typing constraints or TC resolution. But, we ignore the restriction when we try to unify
+      the type of `t` with the goal target type. We claim this is not a hack and is defensible behavior because
+      this last unification step is not really part of the term elaboration. -/
   assignSyntheticOpaque : Bool := false
-  /- When `ignoreLevelDepth` is `false`, only universe level metavariables with depth == metavariable context depth
-     can be assigned.
-     We used to have `ignoreLevelDepth == false` always, but this setting produced counterintuitive behavior in a few
-     cases. Recall that universe levels are often ignored by users, they may not even be aware they exist.
-     We still use this restriction for regular metavariables. See discussion at the beginning of `MetavarContext.lean`.
-     We claim it is reasonable to ignore this restriction for universe metavariables because their values are often
-     contrained by the terms is instances and simp theorems.
-     TODO: we should delete this configuration option and the method `isReadOnlyLevelMVar` after we have more tests.
+  /-- When `ignoreLevelDepth` is `false`, only universe level metavariables with depth == metavariable context depth
+      can be assigned.
+      We used to have `ignoreLevelDepth == false` always, but this setting produced counterintuitive behavior in a few
+      cases. Recall that universe levels are often ignored by users, they may not even be aware they exist.
+      We still use this restriction for regular metavariables. See discussion at the beginning of `MetavarContext.lean`.
+      We claim it is reasonable to ignore this restriction for universe metavariables because their values are often
+      contrained by the terms is instances and simp theorems.
+      TODO: we should delete this configuration option and the method `isReadOnlyLevelMVar` after we have more tests.
   -/
   ignoreLevelMVarDepth  : Bool := true
+  /-- Enable/Disable support for offset constraints such as `?x + 1 =?= e` -/
+  offsetCnstrs          : Bool := true
 
 structure ParamInfo where
   binderInfo     : BinderInfo := BinderInfo.default

@@ -48,7 +48,6 @@ static lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_528____clos
 static lean_object* l_Std_Range_term_x5b___x3a___x5d___closed__2;
 static lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_353____closed__20;
 static lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_353____closed__19;
-lean_object* l_Std_Range_forIn_loop_match__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_term_x5b_x3a___x5d___closed__21;
 lean_object* l_Std_Range_forM_loop___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -62,7 +61,6 @@ static lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_762____clos
 static lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_353____closed__36;
 static lean_object* l_Std_Range_term_x5b_x3a___x5d___closed__17;
 static lean_object* l_Std_Range_term_x5b_x3a___x3a___x5d___closed__3;
-lean_object* l_Std_Range_forIn_loop_match__2___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_term_x5b_x3a___x5d___closed__1;
 static lean_object* l_Std_Range_term_x5b_x3a___x5d___closed__4;
 static lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_762____closed__6;
@@ -118,7 +116,6 @@ static lean_object* l_Std_Range_term_x5b___x3a___x3a___x5d___closed__1;
 static lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_353____closed__2;
 static lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_528____closed__8;
 lean_object* l_Std_Range_instForMRangeNat(lean_object*);
-lean_object* l_Std_Range_forIn_loop_match__2(lean_object*);
 static lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_353____closed__9;
 static lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_353____closed__27;
 lean_object* l_Std_Range_forM_loop___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -135,7 +132,6 @@ lean_object* l_Std_Range_instForInRangeNat(lean_object*, lean_object*);
 static lean_object* l_Std_Range_term_x5b_x3a___x3a___x5d___closed__6;
 lean_object* l_Std_Range_forIn(lean_object*, lean_object*);
 static lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_353____closed__18;
-lean_object* l_Std_Range_forIn_loop_match__1(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_353____closed__30;
 lean_object* l_Std_Range_forIn___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -154,7 +150,6 @@ static lean_object* l_Std_Range_myMacro____x40_Init_Data_Range___hyg_528____clos
 static lean_object* l_Std_Range_term_x5b___x3a___x5d___closed__3;
 static lean_object* l_Std_Range_term_x5b_x3a___x5d___closed__20;
 static lean_object* l_Std_Range_term_x5b_x3a___x5d___closed__10;
-lean_object* l_Std_Range_forIn_loop_match__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Std_Range_start___default() {
 _start:
 {
@@ -169,81 +164,6 @@ _start:
 lean_object* x_1; 
 x_1 = lean_unsigned_to_nat(1u);
 return x_1;
-}
-}
-lean_object* l_Std_Range_forIn_loop_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_4; lean_object* x_5; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_apply_1(x_2, x_4);
-return x_5;
-}
-else
-{
-lean_object* x_6; lean_object* x_7; 
-lean_dec(x_2);
-x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_6);
-lean_dec(x_1);
-x_7 = lean_apply_1(x_3, x_6);
-return x_7;
-}
-}
-}
-lean_object* l_Std_Range_forIn_loop_match__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_Range_forIn_loop_match__1___rarg), 3, 0);
-return x_3;
-}
-}
-lean_object* l_Std_Range_forIn_loop_match__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; uint8_t x_5; 
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_nat_dec_eq(x_1, x_4);
-if (x_5 == 0)
-{
-lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_2);
-x_6 = lean_unsigned_to_nat(1u);
-x_7 = lean_nat_sub(x_1, x_6);
-x_8 = lean_apply_1(x_3, x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; lean_object* x_10; 
-lean_dec(x_3);
-x_9 = lean_box(0);
-x_10 = lean_apply_1(x_2, x_9);
-return x_10;
-}
-}
-}
-lean_object* l_Std_Range_forIn_loop_match__2(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Range_forIn_loop_match__2___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-lean_object* l_Std_Range_forIn_loop_match__2___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Std_Range_forIn_loop_match__2___rarg(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
 }
 }
 lean_object* l_Std_Range_forIn_loop___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {

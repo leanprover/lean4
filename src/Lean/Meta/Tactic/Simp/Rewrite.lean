@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Meta.AppBuilder
 import Lean.Meta.SynthInstance
 import Lean.Meta.Tactic.Simp.Types
 
@@ -41,13 +42,8 @@ where
       trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to synthesize instance{indentExpr type}"
       return false
 
-def tryLemma? (e : Expr) (lemma : SimpLemma) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) :=
-  withNewMCtxDepth do
-    let val  ← lemma.getValue
-    let type ← inferType val
-    let (xs, bis, type) ← forallMetaTelescopeReducing type
-    let type ← whnf (← instantiateMVars type)
-    let lhs := type.appFn!.appArg!
+private def tryLemmaCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (lemma : SimpLemma) (numExtraArgs : Nat) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) := do
+  let rec go (e : Expr) : SimpM (Option Result) := do
     if (← isDefEq lhs e) then
       unless (← synthesizeArgs lemma.getName xs bis discharge?) do
         return none
@@ -70,20 +66,60 @@ def tryLemma? (e : Expr) (lemma : SimpLemma) (discharge? : Expr → SimpM (Optio
         -- TODO: reconsider if we want lemmas such as `(x : Unit) → x = ()`
         trace[Meta.Tactic.simp.unify] "{lemma}, failed to unify {lhs} with {e}"
       return none
+  /- Check whether we need something more sophisticated here.
+     This simple approach was good enough for Mathlib 3 -/
+  let mut extraArgs := #[]
+  let mut e := e
+  for i in [:numExtraArgs] do
+    extraArgs := extraArgs.push e.appArg!
+    e := e.appFn!
+  match (← go e) with
+  | none => return none
+  | some { expr := eNew, proof? := none } => return some { expr := mkAppN eNew extraArgs }
+  | some { expr := eNew, proof? := some proof } =>
+    let mut proof := proof
+    for extraArg in extraArgs do
+      proof ← mkCongrFun proof extraArg
+    return some { expr := mkAppN eNew extraArgs, proof? := some proof }
 
+def tryLemmaWithExtraArgs? (e : Expr) (lemma : SimpLemma) (numExtraArgs : Nat) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) :=
+  withNewMCtxDepth do
+    let val  ← lemma.getValue
+    let type ← inferType val
+    let (xs, bis, type) ← forallMetaTelescopeReducing type
+    let type ← whnf (← instantiateMVars type)
+    let lhs := type.appFn!.appArg!
+    tryLemmaCore lhs xs bis val type e lemma numExtraArgs discharge?
+
+def tryLemma? (e : Expr) (lemma : SimpLemma) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) := do
+  withNewMCtxDepth do
+    let val  ← lemma.getValue
+    let type ← inferType val
+    let (xs, bis, type) ← forallMetaTelescopeReducing type
+    let type ← whnf (← instantiateMVars type)
+    let lhs := type.appFn!.appArg!
+    match (← tryLemmaCore lhs xs bis val type e lemma 0 discharge?) with
+    | some result => return some result
+    | none =>
+      let lhsNumArgs := lhs.getAppNumArgs
+      let eNumArgs   := e.getAppNumArgs
+      if eNumArgs > lhsNumArgs then
+        tryLemmaCore lhs xs bis val type e lemma (eNumArgs - lhsNumArgs) discharge?
+      else
+        return none
 /-
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
 -/
 def rewrite (e : Expr) (s : DiscrTree SimpLemma) (erased : Std.PHashSet Name) (discharge? : Expr → SimpM (Option Expr)) (tag : String) : SimpM Result := do
-  let lemmas ← s.getMatch e
-  if lemmas.isEmpty then
+  let candidates ← s.getMatchWithExtra e
+  if candidates.isEmpty then
     trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
     return { expr := e }
   else
-    let lemmas := lemmas.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority
-    for lemma in lemmas do
+    let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority < e₂.1.priority
+    for (lemma, numExtraArgs) in candidates do
       unless inErasedSet lemma do
-        if let some result ← tryLemma? e lemma discharge? then
+        if let some result ← tryLemmaWithExtraArgs? e lemma numExtraArgs discharge? then
           return result
     return { expr := e }
 where

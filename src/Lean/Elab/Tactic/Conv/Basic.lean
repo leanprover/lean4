@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Meta.Reduce
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Replace
 import Lean.Elab.Tactic.Basic
@@ -72,8 +73,11 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
 
 @[builtinTactic Lean.Parser.Tactic.Conv.whnf] def evalWhnf : Tactic := fun stx =>
    withMainContext do
-     let lhs ← getLhs
-     changeLhs (← whnf lhs)
+     changeLhs (← whnf (← getLhs))
+
+@[builtinTactic Lean.Parser.Tactic.Conv.reduce] def evalReduce : Tactic := fun stx =>
+   withMainContext do
+     changeLhs (← reduce (← getLhs))
 
 @[builtinTactic Lean.Parser.Tactic.Conv.convSeq1Indented] def evalConvSeq1Indented : Tactic := fun stx => do
   evalTacticSeq1Indented stx

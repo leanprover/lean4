@@ -22,15 +22,12 @@ lean_object* lean_io_error_to_string(lean_object*);
 static lean_object* l_Lean_Elab_headerToImports___closed__2;
 lean_object* l_Lean_Elab_headerToImports(lean_object*);
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_parseImports_match__1(lean_object*);
 static lean_object* l_Lean_Elab_headerToImports___closed__1;
 lean_object* l_Lean_Elab_headerToImports___boxed(lean_object*);
 lean_object* l_Lean_findOLean(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_processHeader(lean_object*, lean_object*, lean_object*, lean_object*, uint32_t, lean_object*);
 static lean_object* l_Lean_Elab_parseImports___closed__1;
-lean_object* l_Lean_Elab_parseImports_match__1___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_headerToImports___closed__3;
-lean_object* l_Lean_Elab_printImports_match__1(lean_object*);
 lean_object* l_IO_print___at_IO_println___spec__1(lean_object*, lean_object*);
 lean_object* l_List_forIn_loop___at_Lean_Elab_printImports___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
@@ -49,7 +46,6 @@ uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l_List_mapTRAux___at_Lean_Elab_headerToImports___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_parseImports(lean_object*, lean_object*, lean_object*);
 lean_object* lean_print_imports(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_printImports_match__1___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_IO_println___at_Lean_Elab_printImports___spec__1(lean_object*, lean_object*);
 lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
@@ -476,32 +472,6 @@ lean_dec(x_1);
 return x_8;
 }
 }
-lean_object* l_Lean_Elab_parseImports_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_ctor_get(x_3, 0);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_3, 1);
-lean_inc(x_6);
-lean_dec(x_3);
-x_7 = lean_apply_3(x_2, x_4, x_5, x_6);
-return x_7;
-}
-}
-lean_object* l_Lean_Elab_parseImports_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Elab_parseImports_match__1___rarg), 2, 0);
-return x_2;
-}
-}
 static lean_object* _init_l_Lean_Elab_parseImports___closed__1() {
 _start:
 {
@@ -899,32 +869,6 @@ return x_103;
 }
 }
 }
-}
-}
-lean_object* l_Lean_Elab_printImports_match__1___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-lean_dec(x_1);
-x_5 = lean_ctor_get(x_3, 0);
-lean_inc(x_5);
-x_6 = lean_ctor_get(x_3, 1);
-lean_inc(x_6);
-lean_dec(x_3);
-x_7 = lean_apply_3(x_2, x_4, x_5, x_6);
-return x_7;
-}
-}
-lean_object* l_Lean_Elab_printImports_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Elab_printImports_match__1___rarg), 2, 0);
-return x_2;
 }
 }
 lean_object* l_IO_println___at_Lean_Elab_printImports___spec__1(lean_object* x_1, lean_object* x_2) {

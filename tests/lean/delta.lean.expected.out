@@ -1,0 +1,25 @@
+x y : Nat
+h : x + 1 = 0
+⊢ False
+delta.lean:9:2-9:9: error: tactic 'delta' failed, did not delta reduce 'f'
+x y : Nat
+h : f x = 0
+⊢ False
+delta.lean:12:2-12:15: error: tactic 'delta' failed, did not delta reduce 'f' at 'h2'
+x y : Nat
+h1 : f x = 0
+h2 : 0 = 0
+⊢ False
+delta.lean:15:2-15:18: error: tactic 'delta' failed, did not delta reduce 'f' at 'h2'
+x y : Nat
+h1 : x + 1 = 0
+h2 : 0 = 0
+⊢ False
+x y : Nat
+h1 : x + 1 = 0
+h2 : 0 = 0
+⊢ False
+delta.lean:23:2-23:14: error: tactic 'delta' failed, did not delta reduce 'f'
+x y : Nat
+h2 : 0 = 0
+⊢ False

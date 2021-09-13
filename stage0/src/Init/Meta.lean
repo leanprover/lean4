@@ -914,7 +914,13 @@ def getSepArgs (stx : Syntax) : Array Syntax :=
 
 end Syntax
 
-namespace Meta.Simp
+namespace Meta
+
+inductive TransparencyMode where
+  | all | default | reducible | instances
+  deriving Inhabited, BEq, Repr
+
+namespace Simp
 
 def defaultMaxSteps := 100000
 
@@ -936,6 +942,16 @@ structure Config where
 structure ConfigCtx extends Config where
   contextual := true
 
-end Meta.Simp
+end Simp
+
+namespace Rewrite
+
+structure Config where
+  transparency : TransparencyMode := TransparencyMode.reducible
+  offsetCnstrs : Bool := true
+
+end Rewrite
+
+end Meta
 
 end Lean

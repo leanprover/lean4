@@ -5,10 +5,6 @@ Authors: Leonardo de Moura
 -/
 namespace Lean.Meta
 
-inductive TransparencyMode where
-  | all | default | reducible | instances
-  deriving Inhabited, BEq, Repr
-
 namespace TransparencyMode
 
 def hash : TransparencyMode → UInt64

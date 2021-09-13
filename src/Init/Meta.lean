@@ -954,4 +954,11 @@ end Rewrite
 
 end Meta
 
+namespace Parser.Tactic
+
+macro "erw " s:rwRuleSeq loc:(location)? : tactic =>
+  `(rw (config := { transparency := Lean.Meta.TransparencyMode.default }) $s:rwRuleSeq $[$(loc.getOptional?):location]?)
+
+end Parser.Tactic
+
 end Lean

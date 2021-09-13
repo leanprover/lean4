@@ -9,6 +9,9 @@ Author: Leonardo de Moura
 #include "runtime/debug.h"
 #include "runtime/optional.h"
 #include "runtime/utf8.h"
+#if defined(LEAN_WINDOWS)
+#include <windows.h>
+#endif
 
 namespace lean {
 bool is_utf8_next(unsigned char c) { return (c & 0xC0) == 0x80; }
@@ -271,4 +274,49 @@ unsigned push_unicode_scalar(char * d, unsigned code) {
 void push_unicode_scalar(std::string & s, unsigned code) {
     push_unicode_scalar_core(s, code);
 }
+
+#if defined(LEAN_WINDOWS)
+
+std::wstring to_utf16(std::string const& utf8)
+{
+    constexpr unsigned int BufferSize = 32767; // windows long file names.
+    wchar_t* buffer = new wchar_t[BufferSize];
+    if (buffer == nullptr)
+    {
+        throw std::runtime_error("out of memory");
+    }
+    int len = MultiByteToWideChar(CP_UTF8, 0, utf8.c_str(), (int)utf8.size(), buffer, BufferSize);
+    if (len <= 0)
+    {
+        delete[] buffer;
+        throw std::runtime_error("cannot decode utf-8 string as utf-16: " + utf8);
+    }
+    buffer[len] = 0;
+    std::wstring result = buffer;
+    delete[] buffer;
+    return result;
+}
+
+std::string to_utf8(std::wstring const& utf16)
+{
+    constexpr unsigned int BufferSize = 32767; // windows long file names.
+    char* buffer = new char[BufferSize];
+    if (buffer == nullptr)
+    {
+        throw std::runtime_error("out of memory");
+    }
+    int len = WideCharToMultiByte(CP_UTF8, 0, utf16.c_str(), (int)utf16.size(), buffer, BufferSize, NULL, NULL);
+    if (len <= 0)
+    {
+        delete[] buffer;
+        throw std::runtime_error("cannot encode utf-16 string as utf-8");
+    }
+
+    buffer[len] = 0;
+    std::string result = buffer;
+    delete[] buffer;
+    return result;
+}
+
+#endif
 }

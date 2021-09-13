@@ -7,7 +7,7 @@ Author: Leonardo de Moura, Gabriel Ebner
 #include "util/path.h"
 #if defined(LEAN_WINDOWS)
 #include <windows.h>
-#include <codecvt>
+#include "runtime/utf8.h"
 #endif
 #include <string>
 #include <cstring>
@@ -47,8 +47,7 @@ std::string get_exe_location() {
     WCHAR path[MAX_PATH];
     GetModuleFileNameW(hModule, path, MAX_PATH);
     std::wstring pathstr(path);
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-    return converter.to_bytes(pathstr);
+    return to_utf8(pathstr);
 }
 bool is_path_sep(char c) { return c == g_path_sep; }
 #elif defined(__APPLE__)
@@ -185,13 +184,12 @@ std::string read_file(std::string const & fname, std::ios_base::openmode mode) {
 #if defined(LEAN_WINDOWS)
     // For some unknown reason windows std::ifstream cannot open files with
     // utf-8 encoded names, have to switch to utf-16 for it to work.
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-    std::wstring wide = converter.from_bytes(fname);
+    std::wstring wide = to_utf16(fname);
     std::wifstream in(wide);
     if (!in.good()) throw file_not_found_exception(fname);
     std::wstringstream buf;
     buf << in.rdbuf();
-    std::string content = converter.to_bytes(buf.str());
+    std::string content = to_utf8(buf.str());
     return content;
 #else
     std::ifstream in(fname, mode);
@@ -233,15 +231,14 @@ std::vector<std::string> read_dir(std::string const &dirname) {
         dir.push_back(g_sep);
     }
     dir.push_back('*');
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-    std::wstring wide = converter.from_bytes(dir);
+    std::wstring wide = to_utf16(dir);
     HANDLE hFind = FindFirstFile(wide.c_str(), &data);
     if (hFind != INVALID_HANDLE_VALUE) {
         do {
             std::wstring name = data.cFileName;
             if (name != L"." && name != L"..") {
                 std::wstring combined = wide + L'\\' + name;
-                files.push_back(converter.to_bytes(combined));
+                files.push_back(to_utf8(combined));
             }
         } while (FindNextFile(hFind, &data));
         FindClose(hFind);
@@ -274,8 +271,7 @@ std::string lrealpath(std::string const & fname) {
         throw std::runtime_error("out of memory");
     }
 
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-    std::wstring wide_path = converter.from_bytes(fname);
+    std::wstring wide_path = to_utf16(fname);
     DWORD retval = GetFullPathName(wide_path.c_str(), BufferSize, buffer, nullptr);
     if (retval == 0 || retval >= BufferSize) {
         delete[] buffer;
@@ -283,7 +279,7 @@ std::string lrealpath(std::string const & fname) {
     }
     else {
         // convert back to utf-8 for the rest of lean to play with.
-        std::string utf8 = converter.to_bytes(buffer);
+        std::string utf8 = to_utf8(buffer);
         delete[] buffer;
         return utf8;
     }
@@ -299,4 +295,5 @@ std::string lrealpath(std::string const & fname) {
     }
 #endif
 }
+
 }

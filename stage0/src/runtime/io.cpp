@@ -26,8 +26,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <sys/random.h>
 #include <csignal>
 #include <dirent.h>
-#else
-#include <codecvt>
 #endif
 #include <fcntl.h>
 #include <iostream>
@@ -503,9 +501,8 @@ extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg) {
     // WIN32 unicode API requires we convert string to UTF-16.
     constexpr unsigned BufferSize = 32767;
     wchar_t buffer[BufferSize];
-    std::string path = string_cstr(fname); 
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-    std::wstring wide_path = converter.from_bytes(path);
+    std::string path = string_cstr(fname);
+    std::wstring wide_path = to_utf16(path);
     DWORD retval = GetFullPathName(wide_path.c_str(), BufferSize, buffer, nullptr);
     if (retval == 0 || retval >= BufferSize) {
         int hr = GetLastError();
@@ -520,7 +517,7 @@ extern "C" obj_res lean_io_realpath(obj_arg fname, obj_arg) {
         }
 
         // convert back to utf-8 for the rest of lean to play with.
-        std::string utf8 = converter.to_bytes(buffer);
+        std::string utf8 = to_utf8(buffer);
         return io_result_mk_ok(mk_string(utf8.c_str()));
     }
 #else
@@ -630,9 +627,8 @@ extern "C" obj_res lean_io_create_dir(b_obj_arg p, obj_arg) {
     // WIN32 unicode API requires we convert string to UTF-16 otherwise
     // NOTE: windows CreateDirectory cannot create multiple directories at once
     // hopefully the contract with lean_io_create_dir is only one at a time.
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
     std::string dirname = string_cstr(p);
-    std::wstring wide_path = converter.from_bytes(dirname);
+    std::wstring wide_path = to_utf16(dirname);
     if (!CreateDirectory(wide_path.c_str(), NULL)) {
         int hr = GetLastError();
         if (hr != ERROR_ALREADY_EXISTS) {
@@ -666,8 +662,7 @@ extern "C" obj_res lean_io_app_path(obj_arg) {
     WCHAR path[MAX_PATH];
     GetModuleFileNameW(hModule, path, MAX_PATH);
     std::wstring pathwstr(path);
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-    std::string pathstr = converter.to_bytes(pathwstr);
+    std::string pathstr = to_utf8(pathwstr);
     // Hack for making sure disk is lower case
     // TODO(Leo): more robust solution
     // TODO(chris): why just the drive letter? All of window spath is case-insensitive...
@@ -723,8 +718,7 @@ extern "C" obj_res lean_io_current_dir(obj_arg) {
     // doing it this way ensures we work with windows "long paths".
     wchar_t* cwd = _wgetcwd(nullptr, 0);
     if (cwd) {
-        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-        std::string utf8_path = converter.to_bytes(cwd);
+        std::string utf8_path = to_utf8(cwd);
         io_result_mk_ok(mk_string(utf8_path.c_str()));
         free(cwd);
     }
@@ -733,7 +727,7 @@ extern "C" obj_res lean_io_current_dir(obj_arg) {
     char* cwd = getcwd(buffer, sizeof(buffer));
     if (cwd) {
         return io_result_mk_ok(mk_string(cwd));
-    } 
+    }
 #endif
     return io_result_mk_error("failed to retrieve current working directory");
 }

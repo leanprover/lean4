@@ -50,7 +50,7 @@ Author: Leonardo de Moura
 
 #ifdef LEAN_WINDOWS
 #include <windows.h>
-#include <codecvt>
+#include "runtime/utf8.h"
 #undef ERROR // thanks, wingdi.h
 #else
 #include <dlfcn.h>
@@ -298,8 +298,7 @@ void load_plugin(std::string path) {
     std::string pkg = stem(path);
     std::string sym = "initialize_" + pkg;
 #ifdef LEAN_WINDOWS
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-    std::wstring wide_path = converter.from_bytes(path);
+    std::wstring wide_path = to_utf16(path);
     HMODULE h = LoadLibrary(wide_path.c_str());
     if (!h) {
         throw exception(sstream() << "error loading plugin " << path);

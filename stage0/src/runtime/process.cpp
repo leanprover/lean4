@@ -19,7 +19,7 @@ Author: Jared Roesch
 #include <tchar.h>
 #include <stdio.h>
 #include <strsafe.h>
-#include <codecvt>
+#include "runtime/utf8.h"
 #else
 #include <unistd.h>
 #include <fcntl.h>
@@ -164,9 +164,8 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         throw std::runtime_error("out of memory");
     }
 
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
     std::wstring wide_cwd;
-    if (cwd) wide_cwd = converter.from_bytes(cwd.get()->data());
+    if (cwd) wide_cwd = to_utf16(cwd.get()->data());
 
     // TODO(gabriel): this is thread-unsafe
     // TODO(chris): one way to fix this would be to launch a "*.cmd" script where
@@ -174,7 +173,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     std::unordered_map<std::wstring, optional<std::wstring>> old_env_vars;
     for (auto & entry : env) {
         optional<std::wstring> old;
-        auto name = converter.from_bytes(entry.fst().data());
+        auto name = to_utf16(entry.fst().data());
         int hr = GetEnvironmentVariable(name.c_str(), buffer, BufferSize);
         if (hr > 0) {
             old = buffer;
@@ -182,14 +181,14 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         old_env_vars[name] = old;
 
         if (entry.snd()) {
-            auto value = converter.from_bytes(entry.snd().get()->data());
+            auto value = to_utf16(entry.snd().get()->data());
             SetEnvironmentVariable(name.c_str(), value.c_str());
         } else {
             SetEnvironmentVariable(name.c_str(), nullptr);
         }
     }
 
-    auto wide_command = converter.from_bytes(command.c_str());
+    auto wide_command = to_utf16(command.c_str());
     // Create the child process.
     bool bSuccess = CreateProcess(
         NULL,

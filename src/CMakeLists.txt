@@ -1,527 +1,91 @@
-cmake_minimum_required(VERSION 3.10)
-cmake_policy(SET CMP0054 NEW)
-if(NOT (${CMAKE_GENERATOR} MATCHES "Unix Makefiles"))
-  message(FATAL_ERROR "The only supported CMake generator at the moment is 'Unix Makefiles'")
-endif()
-if(NOT (DEFINED STAGE))
-  message(FATAL_ERROR "STAGE must be set; use the CMakeLists.txt in the root folder")
-endif()
+cmake_minimum_required(VERSION 3.11)
+# store all variables passed on the command line into CL_ARGS so we can pass them to the stage builds
+# https://stackoverflow.com/a/48555098/161659
+# MUST be done before call to 'project'
+get_cmake_property(vars CACHE_VARIABLES)
+foreach(var ${vars})
+  get_property(currentHelpString CACHE "${var}" PROPERTY HELPSTRING)
+  if("${currentHelpString}" MATCHES "No help, variable specified on the command line." OR "${currentHelpString}" STREQUAL "")
+    list(APPEND CL_ARGS "-D${var}=${${var}}")
+  endif()
+  if(("${var}" MATCHES "CMAKE_.*") AND NOT ("${var}" MATCHES "CMAKE_BUILD_TYPE") AND NOT ("${var}" MATCHES "CMAKE_HOME_DIRECTORY"))
+    list(APPEND PLATFORM_ARGS "-D${var}=${${var}}")
+  endif()
+endforeach()
+
 include(ExternalProject)
 project(LEAN CXX C)
-set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 0)
-set(LEAN_VERSION_PATCH 0)
-set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
-set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
-set(LEAN_VERSION_STRING "${LEAN_VERSION_MAJOR}.${LEAN_VERSION_MINOR}.${LEAN_VERSION_PATCH}")
-if (LEAN_SPECIAL_VERSION_DESC)
-  set(LEAN_VERSION_STRING "${LEAN_VERSION_STRING}-${LEAN_SPECIAL_VERSION_DESC}")
-endif()
-
-set(LEAN_EXTRA_LINKER_FLAGS "" CACHE STRING "Additional flags used by the linker")
-set(LEAN_EXTRA_CXX_FLAGS "" CACHE STRING "Additional flags used by the C++ compiler")
-
-if (NOT CMAKE_BUILD_TYPE)
-  message(STATUS "No build type selected, default to Release")
-  set(CMAKE_BUILD_TYPE "Release")
-endif()
-
-set(CMAKE_COLOR_MAKEFILE ON)
-enable_testing()
-
-option(MULTI_THREAD       "MULTI_THREAD"       ON)
-option(CCACHE             "use ccache"         ON)
-option(SPLIT_STACK        "SPLIT_STACK"        OFF)
-# When OFF we disable LLVM support
-option(LLVM               "LLVM"               OFF)
-
-# When ON we include githash in the version string
-option(USE_GITHASH        "GIT_HASH"           ON)
-# When ON thread storage is automatically finalized, it assumes platform support pthreads.
-# This option is important when using Lean as library that is invoked from a different programming language (e.g., Haskell).
-option(AUTO_THREAD_FINALIZATION "AUTO_THREAD_FINALIZATION" ON)
-
-# FLAGS for disabling optimizations and debugging
-option(FREE_VAR_RANGE_OPT  "FREE_VAR_RANGE_OPT"   ON)
-option(HAS_LOCAL_OPT       "HAS_LOCAL_OPT"        ON)
-option(ABSTRACTION_CACHE   "ABSTRACTION_CACHE"    ON)
-option(TYPE_CLASS_CACHE    "TYPE_CLASS_CACHE"     ON)
-option(TYPE_INFER_CACHE    "TYPE_INFER_CACHE"     ON)
-option(ALPHA               "ALPHA FEATURES"       OFF)
-option(TRACK_CUSTOM_ALLOCATORS "TRACK_CUSTOM_ALLOCATORS" OFF)
-option(TRACK_LIVE_EXPRS    "TRACK_LIVE_EXPRS" OFF)
-option(CUSTOM_ALLOCATORS   "CUSTOM_ALLOCATORS" ON)
-option(SAVE_SNAPSHOT       "SAVE_SNAPSHOT" ON)
-option(SAVE_INFO           "SAVE_INFO" ON)
-option(FAKE_FREE           "Disable actually freeing runtime objects, useful for debugging memory management issues" OFF)
-option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" ON)
-option(LAZY_RC             "LAZY_RC" OFF)
-option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
-option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared libraries (Linux)" ON)
-
-# development-specific options
-option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
-
-set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
-set(LEANC_CC              "cc"                         CACHE STRING "C compiler to use in `leanc`")
-
-if ("${FAKE_FREE}" MATCHES "ON")
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_FAKE_FREE")
-  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -D LEAN_FAKE_FREE")
-endif()
-
-if ("${LAZY_RC}" MATCHES "ON")
-  set(LEAN_LAZY_RC "#define LEAN_LAZY_RC")
-endif()
-
-if ("${SMALL_ALLOCATOR}" MATCHES "ON")
-  set(LEAN_SMALL_ALLOCATOR "#define LEAN_SMALL_ALLOCATOR")
-endif()
-
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-  message(STATUS "64-bit machine detected")
-  set(NumBits 64)
-else()
-  message(STATUS "32-bit machine detected")
-  set(NumBits 32)
-endif()
-
-if ("${RUNTIME_STATS}" MATCHES "ON")
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_RUNTIME_STATS")
-  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -D LEAN_RUNTIME_STATS")
-endif()
-
-if (NOT("${CHECK_OLEAN_VERSION}" MATCHES "ON"))
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_IGNORE_OLEAN_VERSION")
-  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -D LEAN_IGNORE_OLEAN_VERSION")
-endif()
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-    set(MULTI_THREAD OFF)
-    # TODO(WN): code size/performance tradeoffs
-    # - we're using -O3; it's /okay/
-    # - -flto crashes at runtime
-    # - -Oz produces quite slow code
-    # - system libraries such as OpenGL are included in the JS but shouldn't be
-    # - we need EMSCRIPTEN_KEEPALIVE annotations on exports to run meta-dce (-s MAIN_MODULE=2)
-    # - -fexceptions is a slow JS blob, remove when more runtimes support the WASM exceptions spec
-
-    # From https://emscripten.org/docs/compiling/WebAssembly.html#backends:
-    # > The simple and safe thing is to pass all -s flags at both compile and link time.
-    set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 -s MAIN_MODULE=1 -fexceptions")
-    set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_SETTINGS}")
-    set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_SETTINGS}")
-    set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} ${EMSCRIPTEN_SETTINGS}")
-endif()
-if (CMAKE_CROSSCOMPILING_EMULATOR)
-  # emscripten likes to quote "node"
-  string(REPLACE "\"" "" CMAKE_CROSSCOMPILING_EMULATOR ${CMAKE_CROSSCOMPILING_EMULATOR})
-  # HACK(WN): lazy compilation makes Node.js startup time a bad but tolerable ~4s
-  set(CMAKE_CROSSCOMPILING_EMULATOR "${CMAKE_CROSSCOMPILING_EMULATOR} --wasm-lazy-compilation")
-else()
-  set(CMAKE_CROSSCOMPILING_EMULATOR)
-endif()
-
-# Added for CTest
-include(CTest)
-
-# Windows does not support ulimit -s unlimited. So, we reserve a lot of stack space: 100Mb
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  message(STATUS "Windows detected")
-  set(LEAN_WIN_STACK_SIZE "104857600")
-  if (MSVC)
-    set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} /STACK:${LEAN_WIN_STACK_SIZE}")
-  else()
-    set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -Wl,--stack,${LEAN_WIN_STACK_SIZE}")
-    set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -Wl,--stack,${LEAN_WIN_STACK_SIZE}")
-    set(EXTRA_UTIL_LIBS ${EXTRA_UTIL_LIBS} -lpsapi)
-  endif()
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_WINDOWS -D LEAN_WIN_STACK_SIZE=${LEAN_WIN_STACK_SIZE}")
-  # DLLs must go next to executables on Windows
-  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-else()
-  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean")
-endif()
-
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean")
-
-# OSX default thread stack size is very small. Moreover, in Debug mode, each new stack frame consumes a lot of extra memory.
-if ((${MULTI_THREAD} MATCHES "ON") AND (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
-  set(LEAN_EXTRA_MAKE_OPTS -s40000 ${LEAN_EXTRA_MAKE_OPTS})
-endif ()
-
-if(NOT MULTI_THREAD)
-  message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
-  set(AUTO_THREAD_FINALIZATION OFF)
-else()
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_MULTI_THREAD")
-  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -D LEAN_MULTI_THREAD")
-endif()
-
-if(AUTO_THREAD_FINALIZATION AND NOT MSVC)
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_AUTO_THREAD_FINALIZATION")
-  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -D LEAN_AUTO_THREAD_FINALIZATION")
-endif()
-
-if(LLVM)
-  if(NOT (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_ID STREQUAL "Clang"))
-    message(FATAL_ERROR "LLVM=ON must be used with clang. Set `CMAKE_CXX_COMPILER` and `CMAKE_C_COMPILER` accordingly.")
-  endif()
-  message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-  message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
-
-  include_directories(${LLVM_INCLUDE_DIRS})
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_LLVM")
-  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -D LEAN_LLVM")
-else()
-  #message(WARNING "Disabling LLVM support.  JIT compilation will not be available")
-endif()
-
-# Set Module Path
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
-
-# Initialize CXXFLAGS.
-set(CMAKE_CXX_FLAGS                "${LEAN_EXTRA_CXX_FLAGS} -DLEAN_BUILD_TYPE=\"${CMAKE_BUILD_TYPE}\"")
-set(CMAKE_CXX_FLAGS_DEBUG          "-DLEAN_DEBUG -DLEAN_TRACE")
-set(CMAKE_CXX_FLAGS_MINSIZEREL     "-DNDEBUG")
-set(CMAKE_CXX_FLAGS_RELEASE        "-DNDEBUG")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-DNDEBUG")
-
-# SPLIT_STACK
-if (SPLIT_STACK)
-  if ((${CMAKE_SYSTEM_NAME} MATCHES "Linux") AND ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU"))
-     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsplit-stack -D LEAN_USE_SPLIT_STACK")
-     message(STATUS "Using split-stacks")
-  else()
-     message(FATAL_ERROR "Split-stacks are only supported on Linux with g++")
-  endif()
-endif()
-
-# Compiler-specific C++14 activation.
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
-    execute_process(
-        COMMAND "${CMAKE_CXX_COMPILER}" -dumpversion OUTPUT_VARIABLE GCC_VERSION)
-    if (NOT (GCC_VERSION VERSION_GREATER 4.9 OR GCC_VERSION VERSION_EQUAL 4.9))
-        message(FATAL_ERROR "${PROJECT_NAME} requires g++ 4.9 or greater.")
-    endif ()
-elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__CLANG__")
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    # In OSX, clang requires "-stdlib=libc++" to support C++14
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-    set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -stdlib=libc++")
-  endif ()
-elseif (MSVC)
-    # All good. Maybe enforce a recent version?
-    set(CMAKE_CXX_FLAGS                "/GL /EHsc /W2 /Zc:implicitNoexcept- -D_SCL_SECURE_NO_WARNINGS ${CMAKE_CXX_FLAGS}")
-    set(CMAKE_CXX_FLAGS_DEBUG          "/Od /Zi ${CMAKE_CXX_FLAGS_DEBUG}")
-    set(CMAKE_CXX_FLAGS_MINSIZEREL     "/Os /Zc:inline ${CMAKE_CXX_FLAGS_MINSIZEREL}")
-    set(CMAKE_CXX_FLAGS_RELEASE        "/O2 /Oi /Oy /Zc:inline ${CMAKE_CXX_FLAGS_RELEASE}")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/O2 /Oi /Zi ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-    set(LEAN_EXTRA_LINKER_FLAGS        "/LTCG:INCREMENTAL ${LEAN_EXTRA_LINKER_FLAGS}")
-    set(CMAKE_STATIC_LINKER_FLAGS      "${CMAKE_STATIC_LINKER_FLAGS} ${LEAN_EXTRA_LINKER_FLAGS}")
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-    message(STATUS "Emscripten is detected: Make sure the wrapped compiler supports C++14")
-else()
-    message(FATAL_ERROR "Unsupported compiler: ${CMAKE_CXX_COMPILER_ID}")
-endif ()
-
-if (NOT MSVC)
-    set(CMAKE_CXX_FLAGS                "-Wall -Wextra -std=c++14 ${CMAKE_CXX_FLAGS}")
-    set(CMAKE_CXX_FLAGS_DEBUG          "-g3 ${CMAKE_CXX_FLAGS_DEBUG}")
-    if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-      # smallest+slower | -Oz .. -Os .. -O3 | largest+faster
-      set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Oz ${CMAKE_CXX_FLAGS_MINSIZEREL}")
-    else ()
-      set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os ${CMAKE_CXX_FLAGS_MINSIZEREL}")
-    endif ()
-    set(CMAKE_CXX_FLAGS_RELEASE        "-O3 ${CMAKE_CXX_FLAGS_RELEASE}")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g3 -fno-omit-frame-pointer ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-elseif (MULTI_THREAD)
-    set(CMAKE_CXX_FLAGS_DEBUG          "/MTd ${CMAKE_CXX_FLAGS_DEBUG}")
-    set(CMAKE_CXX_FLAGS_MINSIZEREL     "/MT ${CMAKE_CXX_FLAGS_MINSIZEREL}")
-    set(CMAKE_CXX_FLAGS_RELEASE        "/MT ${CMAKE_CXX_FLAGS_RELEASE}")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MT ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-endif ()
 
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
-  include_directories(${GMP_INSTALL_PREFIX}/include)
-  set(GMP_LIBRARIES "${GMP_INSTALL_PREFIX}/lib/libgmp.a")
-else()
-  # GMP
-  find_package(GMP 5.0.5 REQUIRED)
-  include_directories(${GMP_INCLUDE_DIR})
-  # dlopen
-  set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
+  # For Emscripten, we build GMP before any of the stages and reuse it in all of them.
+  set(GMP_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/gmp-root)
+  set(EMSCRIPTEN_FLAGS "-s ALLOW_MEMORY_GROWTH=1 -s MAIN_MODULE=1 -O3")
+  ExternalProject_Add(
+    gmp
+    URL https://gmplib.org/download/gmp/gmp-6.2.1.tar.bz2
+    URL_HASH SHA256=eae9326beb4158c386e39a356818031bd28f3124cf915f8c5b1dc4c7a36b4d7c
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND emconfigure ./configure "CFLAGS=${EMSCRIPTEN_FLAGS}" --host=wasm32-unknown-emscripten --disable-assembly --prefix=${GMP_INSTALL_PREFIX}
+    BUILD_COMMAND emmake make -j4
+    INSTALL_COMMAND emmake make install
+  )
+  set(EXTRA_DEPENDS "gmp")
+  list(APPEND CL_ARGS "-DGMP_INSTALL_PREFIX=${GMP_INSTALL_PREFIX}")
+  list(APPEND PLATFORM_ARGS "-DGMP_INSTALL_PREFIX=${GMP_INSTALL_PREFIX}")
 endif()
+ExternalProject_add(stage0
+  SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"
+  SOURCE_SUBDIR src
+  BINARY_DIR stage0
+  # always use standard release build (discarding LEAN_CXX_EXTRA_FLAGS etc.) for stage0 since it is assumed to be "good", but still pass through CMake platform arguments (compiler, toolchain file, ..)
+  # do not rebuild stage0 when git hash changes; it's not from this commit anyway
+  CMAKE_ARGS -DSTAGE=0 -DCMAKE_BUILD_TYPE=Release -DUSE_GITHASH=OFF ${PLATFORM_ARGS}
+  BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
+  INSTALL_COMMAND ""  # skip install
+  DEPENDS ${EXTRA_DEPENDS}
+)
+ExternalProject_add(stage1
+  SOURCE_DIR "${LEAN_SOURCE_DIR}"
+  SOURCE_SUBDIR src
+  BINARY_DIR stage1
+  CMAKE_ARGS -DSTAGE=1 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage0 ${CL_ARGS}
+  BUILD_ALWAYS ON
+  INSTALL_COMMAND ""
+  DEPENDS stage0
+)
+ExternalProject_add(stage2
+  SOURCE_DIR "${LEAN_SOURCE_DIR}"
+  SOURCE_SUBDIR src
+  BINARY_DIR stage2
+  CMAKE_ARGS -DSTAGE=2 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage1 ${CL_ARGS}
+  BUILD_ALWAYS ON
+  INSTALL_COMMAND ""
+  DEPENDS stage1
+  EXCLUDE_FROM_ALL ON
+)
+ExternalProject_add(stage3
+  SOURCE_DIR "${LEAN_SOURCE_DIR}"
+  SOURCE_SUBDIR src
+  BINARY_DIR stage3
+  CMAKE_ARGS -DSTAGE=3 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage2 ${CL_ARGS}
+  BUILD_ALWAYS ON
+  INSTALL_COMMAND ""
+  DEPENDS stage2
+  EXCLUDE_FROM_ALL ON
+)
 
-# ccache
-if(CCACHE)
-  find_program(CCACHE_PATH ccache)
-  if(CCACHE_PATH)
-    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PATH}")
-    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PATH}")
-  else()
-    message(WARNING "Failed to find ccache, prepare for longer and redundant builds...")
-  endif()
-endif()
+# targets forwarded to appropriate stages
 
-# Python
-find_package(PythonInterp)
+add_custom_target(update-stage0
+  COMMAND $(MAKE) -C stage1 update-stage0
+  DEPENDS stage1)
 
-include_directories(${CMAKE_BINARY_DIR}/include)
+add_custom_target(test
+  COMMAND $(MAKE) -C stage1 test
+  DEPENDS stage1)
 
-# libleancpp/Lean as well as libleanrt/Init/Std are cyclically dependent. This works by default on macOS, which also doesn't like
-# the linker flags necessary on other platforms.
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean -lleanrt")
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean -lnodefs.js -lleanrt")
-else()
-  set(LEANC_STATIC_LINKER_FLAGS "-Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lStd -lleanrt -Wl,--end-group")
-endif()
+install(CODE "execute_process(COMMAND make -C stage1 install)")
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -lc++")
-  set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -lc++")
-  set(LEAN_EXE_LINKER_FLAGS "${LEAN_EXE_LINKER_FLAGS} -lc++")
-else()
-  set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -lstdc++")
-  set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -lstdc++")
-  set(LEAN_EXE_LINKER_FLAGS "${LEAN_EXE_LINKER_FLAGS} -lstdc++")
-endif()
-
-set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -lm")
-set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -lm")
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  if(BSYMBOLIC)
-    set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,-Bsymbolic")
-    set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,-Bsymbolic")
-  endif()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -ftls-model=initial-exec")
-  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -fPIC")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath=\\\$ORIGIN/../lib:\\\$ORIGIN/../lib/lean")
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftls-model=initial-exec")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
-  set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -install_name @rpath/libleanshared.dylib")
-endif()
-
-# export all symbols for the interpreter
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  # for libraries compiled with `leanc -shared`
-  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,--export-all")
-  # for `leanshared` itself
-  set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,--export-all")
-  # for executables containing code to be interpreted
-  set(LEAN_DYN_EXE_LINKER_FLAGS "${LEAN_DYN_EXE_LINKER_FLAGS} -Wl,--export-all")
-else()
-  set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_LINKER_FLAGS} -ldl")
-  set(LEAN_DYN_EXE_LINKER_FLAGS "${LEAN_DYN_EXE_LINKER_FLAGS} -rdynamic")
-endif()
-
-# On Windows, add bcrypt for random number generation
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -lbcrypt")
-  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -lbcrypt")
-  set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -lbcrypt")
-endif()
-
-# Allow `lean` symbols in plugins without linking directly against it. If we linked against the
-# executable or `leanshared`, plugins would try to look them up at load time (even though they
-# are already loaded) and probably fail unless we set up LD_LIBRARY_PATH.
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  # import library created by the `leanshared` target
-  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} $bindir/libleanshared.dll.a")
-elseif("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
-  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,-undefined,dynamic_lookup")
-endif()
-# Linux ignores undefined symbols in shared libraries by default
-
-if(MULTI_THREAD AND NOT MSVC AND (NOT ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")))
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
-    set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -pthread")
-endif()
-
-# Git HASH
-set(LEAN_PACKAGE_VERSION "NOT-FOUND")
-if(USE_GITHASH)
-  include(GetGitRevisionDescription)
-  get_git_head_revision(GIT_REFSPEC GIT_SHA1)
-  if(${GIT_SHA1} MATCHES "GITDIR-NOTFOUND")
-    message(STATUS "Failed to read git_sha1")
-    if(EXISTS "${LEAN_SOURCE_DIR}/bin/package_version")
-      file(STRINGS "${LEAN_SOURCE_DIR}/bin/package_version" LEAN_PACKAGE_VERSION)
-      message(STATUS "Package version detected: ${LEAN_PACKAGE_VERSION}")
-    endif()
-  else()
-    message(STATUS "git commit sha1: ${GIT_SHA1}")
-  endif()
-else()
-  set(GIT_SHA1 "GITDIR-NOTFOUND")
-  if(EXISTS "${LEAN_SOURCE_DIR}/bin/package_version")
-    file(STRINGS "${LEAN_SOURCE_DIR}/bin/package_version" LEAN_PACKAGE_VERSION)
-    message(STATUS "Package version detected: ${LEAN_PACKAGE_VERSION}")
-  endif()
-endif()
-configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
-
-# Windows uses ";" as a path separator. We use `LEAN_PATH_SEPARATOR` on scripts such as lean.mk.in
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  set(LEAN_PATH_SEPARATOR ";")
-else()
-  set(LEAN_PATH_SEPARATOR ":")
-endif()
-
-# Version
-configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/include/lean/version.h")
-if (${STAGE} EQUAL 0)
-  set(LEAN_IS_STAGE0 "#define LEAN_IS_STAGE0 1")
-else()
-  set(LEAN_IS_STAGE0 "#define LEAN_IS_STAGE0 0")
-endif()
-configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_BINARY_DIR}/include/lean/config.h")
-install(DIRECTORY ${LEAN_BINARY_DIR}/include/lean DESTINATION include)
-configure_file(${LEAN_SOURCE_DIR}/lean.mk.in ${LEAN_BINARY_DIR}/share/lean/lean.mk)
-install(DIRECTORY ${LEAN_BINARY_DIR}/share/lean DESTINATION share)
-
-include_directories(${LEAN_SOURCE_DIR})
-include_directories(${CMAKE_BINARY_DIR})  # version.h etc., "private" headers
-include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" headers
-
-if(${STAGE} GREATER 1)
-  # reuse C++ parts, which don't change
-  add_library(leanrt_initial-exec STATIC IMPORTED)
-  set_target_properties(leanrt_initial-exec PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a")
-  add_library(leanrt STATIC IMPORTED)
-  set_target_properties(leanrt PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a")
-  add_library(leancpp STATIC IMPORTED)
-  set_target_properties(leancpp PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
-  add_custom_target(copy-leancpp
-    COMMAND cmake -E copy_if_different "${PREV_STAGE}/runtime/libleanrt_initial-exec.a" "${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a"
-    COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleanrt.a" "${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a"
-    COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleancpp.a" "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
-  add_dependencies(leancpp copy-leancpp)
-else()
-  add_subdirectory(runtime)
-
-  add_subdirectory(util)
-  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:util>)
-  add_subdirectory(kernel)
-  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:kernel>)
-  add_subdirectory(library)
-  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:library>)
-  add_subdirectory(library/constructions)
-  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:constructions>)
-  add_subdirectory(library/compiler)
-  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:compiler>)
-  add_subdirectory(initialize)
-  set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:initialize>)
-
-  add_library(leancpp STATIC ${LEAN_OBJS})
-  set_target_properties(leancpp PROPERTIES
-    OUTPUT_NAME leancpp)
-endif()
-
-# MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
-string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
-
-# ...and Make doesn't like absolute Windows paths either
-# (also looks nicer in the build log)
-file(RELATIVE_PATH LIB ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
-
-string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
-# These are used in lean.mk and passed through by stdlib.make
-set(LEANC_OPTS "${LEANC_OPTS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(LEANSHARED_LINKER_FLAGS "-Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libInit.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libStd.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLean.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")
-else()
-  set(LEANSHARED_LINKER_FLAGS "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp -Wl,--no-whole-archive ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,--out-implib,${CMAKE_BINARY_DIR}/bin/libleanshared.dll.a")
-    set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -L$bindir")
-  endif()
-endif()
-
-# Escape for `make`. Yes, twice.
-string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
-string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE "${CMAKE_EXE_LINKER_FLAGS_MAKE}")
-configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make)
-add_custom_target(make_stdlib ALL
-  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-  # The actual rule is in a separate makefile because we want to prefix it with '+' to use the Make job server
-  # for a parallelized nested build, but CMake doesn't let us do that.
-  # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage
-  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Init Std Lean
-  VERBATIM)
-
-# We declare these as separate custom targets so they use separate `make` invocations, which makes `make` recompute which dependencies
-# (e.g. `libLean.a`) are now newer than the target file
-
-add_custom_target(leanshared ALL
-  WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-  DEPENDS make_stdlib leancpp leanrt_initial-exec
-  COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanshared
-  VERBATIM)
-
-if(${STAGE} GREATER 0)
-  add_custom_target(leanpkg ALL
-    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-    DEPENDS leanshared
-    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Leanpkg
-    VERBATIM)
-endif()
-
-if(PREV_STAGE)
-  add_custom_target(update-stage0
-    COMMAND cmake -E env CSRCS=${CMAKE_BINARY_DIR}/lib/temp bash script/update-stage0
-    DEPENDS make_stdlib
-    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/..")
-endif()
-
-configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc" @ONLY)
-file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)
-
-install(DIRECTORY "${CMAKE_BINARY_DIR}/bin/" USE_SOURCE_PERMISSIONS DESTINATION bin)
-
-add_subdirectory(shell)
-
-add_custom_target(clean-stdlib
-  COMMAND rm -rf "${CMAKE_BINARY_DIR}/lib" || true)
-
-add_custom_target(clean-olean
-  DEPENDS clean-stdlib)
-
-install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean" DESTINATION lib)
-
-install(CODE "execute_process(COMMAND sh -c \"cp ${CMAKE_BINARY_DIR}/lib/*.* \${CMAKE_INSTALL_PREFIX}/lib\")")
-
-install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION lib/lean
-        FILES_MATCHING
-        PATTERN "*.lean"
-        PATTERN "*.md")
-
-file(COPY ${CMAKE_SOURCE_DIR}/include/lean DESTINATION ${CMAKE_BINARY_DIR}/include
-  FILES_MATCHING PATTERN "*.h")
-
-# CPack
-set(CPACK_PACKAGE_NAME lean)
-set(CPACK_PACKAGE_CONTACT "Leonardo de Moura <leodemoura@microsoft.com>")
-string(TOLOWER ${CMAKE_SYSTEM_NAME} LOWER_SYSTEM_NAME)
-string(TIMESTAMP COMPILE_DATETIME "%Y%m%d%H%M%S")
-set(CPACK_PACKAGE_VERSION "${LEAN_VERSION_STRING}.${COMPILE_DATETIME}")
-if(NOT (${GIT_SHA1} MATCHES "GITDIR-NOTFOUND"))
-  set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION}.git${GIT_SHA1}")
-endif()
-set(CPACK_PACKAGE_FILE_NAME "lean-${LEAN_VERSION_STRING}-${LOWER_SYSTEM_NAME}")
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  SET(CPACK_GENERATOR TGZ)
-else()
-  SET(CPACK_GENERATOR ZIP)
-endif()
-include(CPack)
+add_custom_target(check-stage3
+  COMMAND diff "stage2/bin/lean" "stage3/bin/lean"
+  DEPENDS stage3)

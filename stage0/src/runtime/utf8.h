@@ -50,4 +50,9 @@ void push_unicode_scalar(std::string & s, unsigned code);
 /* Store unicode scalar value at `d`, `d` must point to memory with enough space to stroe `c`.
    Return the number of bytes consumed. */
 unsigned push_unicode_scalar(char * d, unsigned code);
+
+#if defined(LEAN_WINDOWS)
+std::wstring to_utf16(std::string const & utf8);
+std::string to_utf8(std::wstring const & utf16);
+#endif
 }

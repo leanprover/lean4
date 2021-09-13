@@ -5,39 +5,19 @@ With Lake, package configuration is written in Lean inside a dedicated `package.
 
 ## Building and Running Lake
 
-As Lake functions as an alternative to `leanpkg`, the most direct way of building Lake is through `leanmake`. However, you can also build it with `leanpkg`. Either way, you will need to provide some additional linker options to create an executable that can correctly interpret the Lake package configuration files.
+As Lake functions as an alternative to `leanpkg`, it is not built with it. Instead, there is a pre-packaged `build.sh` shell script which is used to build Lake. It passes it arguments down to a `make` command. So, if you have more than one core, you will probably want to use a `-jX` option to specify how many build tasks you want it to run in parallel. For example:
 
-On Unix:
-
-```
-$ leanmake PKG=Lake LEAN_PATH=./build bin LINK_OPTS=-rdynamic
+```shell
+$ ./build.sh -j4
 ```
 
-or
-
-```
-$ leanpkg build bin LINK_OPTS=-rdynamic
-```
-
-On Windows (MSYS2):
-
-```
-$ leanmake PKG=Lake LEAN_PATH=./build bin LINK_OPTS=-Wl,--export-all
-```
-
-or
-
-```
-$ leanpkg build bin LINK_OPTS=-Wl,--export-all
-```
-
-Alternatively, you can build Lake by running the the pre-packaged `build*.sh` shell scripts, which include the `leanmake` commands.
+After building, the `lake` binary will be located at `build/bin/lake` and the library's `.olean` files will be located directly in `build`.
 
 ### Augmenting Lake's Search Path
 
-The built executable also needs to know where to find the `.olean` files for the modules used in the package configuration file. Lake will intelligently setup an initial search path based on the location of its own executable and `lean`. It will assume that `lean` is located at `<lean-home>/bin/lean` with its `.olean` files (e.g., for `Init`) at `<lean-home>/lib/lean` and that `lake` is at `<lake-home>/bin/lake` with its `.olean` files at `<lake-home>`.
+The `lake` executable needs to know where to find the `.olean` files for the modules used in the package configuration file. Lake will intelligently setup an initial search path based on the location of its own executable and `lean`. It will assume that `lean` is located at `<lean-home>/bin/lean` with its `.olean` files (e.g., for `Init`) at `<lean-home>/lib/lean` and that `lake` is at `<lake-home>/bin/lake` with its `.olean` files at `<lake-home>`.
 
-You can augment this search path by including other directories of `.olean` files in the `LEAN_PATH` environment variable. Such directories will take precedence over the initial search path, so `LEAN_PATH` can also be used to correct Lake's search if the `.olean` files for Lean (or Lake itself) are in non-standard locations.
+This search path can be augmented by including other directories of `.olean` files in the `LEAN_PATH` environment variable. Such directories will take precedence over the initial search path, so `LEAN_PATH` can also be used to correct Lake's search if the `.olean` files for Lean (or Lake itself) are in non-standard locations.
 
 ## Creating and Building a Package
 
@@ -70,7 +50,7 @@ def package : Lake.PackageConfig := {
 }
 ```
 
-We can use the command `lake build-bin` to build the package (and its dependencies, if it has them) into a native executable. The result will be placed in to `build/bin`.
+The command `lake build-bin` can then be used to build the package (and its dependencies, if it has them) into a native executable. The result will be placed in `build/bin`.
 
 ```
 $ lake build-bin

@@ -1,4 +1,4 @@
 [package]
 name = "lake"
-version = "2.0.1"
+version = "2.1.0-pre"
 lean_version = "leanprover/lean4:nightly-2021-09-13"

@@ -59,7 +59,7 @@ partial def handleHover (p : HoverParams)
 
 inductive GoToKind
   | declaration | definition | type
-  deriving DecidableEq
+  deriving BEq
 
 open Elab GoToKind in
 partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
@@ -112,7 +112,7 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
         if let some (ci, i) := t.hoverableInfoAt? hoverPos then
           if let Info.ofTermInfo ti := i then
             let mut expr := ti.expr
-            if kind = type then
+            if kind == type then
               expr ← ci.runMetaM i.lctx do
                 Expr.getAppFn (← Meta.instantiateMVars (← Meta.inferType expr))
             match expr with
@@ -120,7 +120,7 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
             | Expr.fvar id .. => return ← ci.runMetaM i.lctx <| locationLinksFromBinder t i id
             | _ => pure ()
           if let Info.ofFieldInfo fi := i then
-            if kind = type then
+            if kind == type then
               let expr ← ci.runMetaM i.lctx do
                 Meta.instantiateMVars (← Meta.inferType fi.val)
               if let some n := expr.getAppFn.constName? then
@@ -129,9 +129,9 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
               return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
           -- If other go-tos fail, we try to show the elaborator or parser
           if let some ei := i.toElabInfo? then
-            if kind = declaration ∧ ci.env.contains ei.stx.getKind then
+            if kind == declaration && ci.env.contains ei.stx.getKind then
               return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.stx.getKind
-            if kind = definition ∧ ci.env.contains ei.elaborator then
+            if kind == definition && ci.env.contains ei.elaborator then
               return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
       return #[]
 

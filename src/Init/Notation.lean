@@ -320,7 +320,7 @@ macro "admit" : tactic => `(exact sorry)
 macro "sorry" : tactic => `(exact sorry)
 macro "inferInstance" : tactic => `(exact inferInstance)
 
-/- Optional configuration option for tactics -/
+/-- Optional configuration option for tactics -/
 syntax config := ("(" &"config" " := " term ")")
 
 syntax locationWildcard := "*"

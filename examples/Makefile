@@ -1,10 +1,10 @@
 LAKE := ../build/bin/lake
 
-test: verify-lake test-init test-hello test-io test-deps test-git test-ffi test-bootstrap test-boostrap-hello
+all: check-lake test time-bootstrap check-bootstrap test-bootstrapped
 
-.PHONY: test
+test: test-init test-hello test-io test-deps test-git test-ffi
 
-verify-lake:
+check-lake:
 	$(LAKE) self-check
 
 test-init:
@@ -25,11 +25,18 @@ test-git:
 test-ffi:
 	cd ffi && ./test.sh
 
-time-bootstrap:
-	cd bootstrap && ./time.sh
-
 test-bootstrap:
 	cd bootstrap && ./test.sh
 
-test-boostrap-hello:
-	cd hello && ./bootstrap-test.sh
+time-bootstrap:
+	cd bootstrap && ./time.sh
+
+check-bootstrap:
+	cd bootstrap && ./check.sh
+
+test-bootstrapped: test-boostrapped-hello
+
+test-boostrapped-hello:
+	cd hello && ./bootstrapped-test.sh
+
+.PHONY: all verify-lake test time-bootstrap check-bootstrap test-bootstrapped

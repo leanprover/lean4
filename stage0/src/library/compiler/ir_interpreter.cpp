@@ -290,7 +290,7 @@ void * lookup_symbol_in_cur_exe(char const * sym) {
     HMODULE hmods[128];  // 128 modules should be enough for everyone
     DWORD bytes_needed;
     lean_always_assert(EnumProcessModules(GetCurrentProcess(), hmods, sizeof(hmods), &bytes_needed));
-    for (int i = 0; i < bytes_needed / sizeof(HMODULE); i++) {
+    for (size_t i = 0; i < bytes_needed / sizeof(HMODULE); i++) {
         void * addr = reinterpret_cast<void *>(GetProcAddress(hmods[i], sym));
         if (addr) {
             return addr;

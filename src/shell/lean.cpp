@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/debug.h"
 #include "runtime/sstream.h"
+#include "runtime/utf8.h"
 #include "util/timer.h"
 #include "util/macros.h"
 #include "util/io.h"
@@ -382,8 +383,51 @@ void check_optarg(char const * option_name) {
 }
 
 extern "C" object * lean_enable_initializer_execution(object * w);
+// todo: this is what we need on windows to support unicode paths, but
+// apparently this can't be done using mingw64
+#if defined(LEAN_WINDOWS)
 
+void check_mem(void* ptr) {
+    if (ptr == nullptr) {
+        std::cerr << "error: out of memory" << std::endl;
+        std::exit(1);
+    }
+}
+
+class EncodedArgs {
+public:
+    int size;
+    char** argv;
+    EncodedArgs(int argc, wchar_t* wargv[]) {
+        size = argc;
+        argv = new char* [argc];
+        check_mem(argv);
+        for (int i = 0; i < argc; i++) {
+            auto utf8 = to_utf8(wargv[i]);
+            auto len = utf8.size();
+            auto copy = new char[len + 1];
+            check_mem(copy);
+            ::memcpy(copy, utf8.c_str(), len);
+            copy[len] = 0;
+            argv[i] = copy;
+        }
+    }
+    ~EncodedArgs() {
+        for (int i = 0; i < size; i++) {
+            delete[] argv[i];
+            argv[i] = nullptr;
+        }
+        delete argv;
+    }
+};
+
+extern "C"
+int wmain(int argc, wchar_t* wargv[]) {
+    EncodedArgs ca(argc, wargv);
+    char** argv = ca.argv;
+#else
 int main(int argc, char ** argv) {
+#endif
 #ifdef LEAN_EMSCRIPTEN
     // When running in command-line mode under Node.js, we make system directories available in the virtual filesystem.
     // This mode is used to compile 32-bit oleans.

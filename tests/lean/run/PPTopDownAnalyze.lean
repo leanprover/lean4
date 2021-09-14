@@ -320,9 +320,9 @@ def stackMkInjEqSnippet :=
 
 def typeAs (α : Type u) (a : α) := ()
 
-theorem myFunext : ∀ {α : Sort u} {β : α → Sort v} {f₁ f₂ : (x : α) → β x}, (∀ (x : α), f₁ x = f₂ _) → f₁ = f₂ := funext
-
-#testDelabN myFunext
+set_option pp.analyze.explicitHoles false in
+#testDelab ∀ {α : Sort u} {β : α → Sort v} {f₁ f₂ : (x : α) → β x}, (∀ (x : α), f₁ x = f₂ _) → f₁ = f₂
+  expecting ∀ {α : Sort u} {β : α → Sort v} {f₁ f₂ : (x : α) → β x}, (∀ (x : α), f₁ x = f₂ x) → f₁ = f₂
 
 set_option pp.analyze.trustSubtypeMk true in
 #testDelab fun (n : Nat) (val : List Nat) (property : List.length val = n) => List.length { val := val, property := property : { x : List Nat // List.length x = n } }.val = n

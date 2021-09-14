@@ -146,9 +146,10 @@ def emitMainFn : M Unit := do
     emitLn "
   #if defined(WIN32) || defined(_WIN32)
   #include <windows.h>
-  #endif
-
+  int main(int argc, wchar_t ** argv) {
+  #else
   int main(int argc, char ** argv) {
+  #endif
   #if defined(WIN32) || defined(_WIN32)
   SetErrorMode(SEM_FAILCRITICALERRORS);
   #endif
@@ -168,14 +169,7 @@ def emitMainFn : M Unit := do
              "lean_dec_ref(res);",
              "lean_init_task_manager();"];
     if xs.size == 2 then
-      emitLns ["in = lean_box(0);",
-               "int i = argc;",
-               "while (i > 1) {",
-               " lean_object* n;",
-               " i--;",
-               " n = lean_alloc_ctor(1,2,0); lean_ctor_set(n, 0, lean_mk_string(argv[i])); lean_ctor_set(n, 1, in);",
-               " in = n;",
-              "}"]
+      emitLn "in = lean_alloc_args(argc, argv);"
       emitLn ("res = " ++ leanMainFn ++ "(in, lean_io_mk_world());")
     else
       emitLn ("res = " ++ leanMainFn ++ "(lean_io_mk_world());")

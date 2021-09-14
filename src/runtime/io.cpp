@@ -976,4 +976,40 @@ void initialize_io() {
 
 void finalize_io() {
 }
+
+
+/* command line packing */
+#if defined(LEAN_WINDOWS)
+extern "C" lean_obj_res lean_alloc_args(int argc, wchar_t* argv[])
+{
+    lean_object* in = lean_box(0); // null.
+    int i = argc;
+    while (i > 1) {
+        lean_object* n;
+        i--;
+        n = lean_alloc_ctor(1,2,0);
+        lean_ctor_set(n, 0, lean_mk_string(to_utf8(argv[i]).c_str()));
+        lean_ctor_set(n, 1, in); // linked list
+        in = n;
+    }
+
+    return in;
+}
+#else
+extern "C" obj_res lean_alloc_args(int argc, char* argv[])
+{
+    lean_object* in = lean_box(0); // null.
+    int i = argc;
+    while (i > 1) {
+        lean_object* n;
+        i--;
+        n = lean_alloc_ctor(1,2,0);
+        lean_ctor_set(n, 0, lean_mk_string(argv[i]));
+        lean_ctor_set(n, 1, in); // linked list
+        in = n;
+    }
+
+    return in;
+}
+#endif
 }

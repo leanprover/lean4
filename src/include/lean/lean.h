@@ -45,7 +45,7 @@ extern "C" {
 #define LEAN_UNLIKELY(x) (x)
 #define LEAN_LIKELY(x) (x)
 #define LEAN_ALWAYS_INLINE
-#define LEAN_NO_RETURN 
+#define LEAN_NO_RETURN
 #endif
 
 #ifdef LEAN_RUNTIME_STATS
@@ -1733,6 +1733,13 @@ static inline uint64_t lean_name_hash(b_lean_obj_arg n) {
     else
         return lean_name_hash_ptr(n);
 }
+
+/* command line packing */
+#if defined(WIN32) || defined(_WIN32)
+lean_obj_res lean_alloc_args(int argc, wchar_t* argv[]);
+#else
+lean_obj_res lean_alloc_args(int argc, char* argv[]);
+#endif
 
 #ifdef __cplusplus
 }

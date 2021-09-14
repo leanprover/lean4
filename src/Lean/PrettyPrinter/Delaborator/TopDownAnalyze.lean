@@ -237,7 +237,7 @@ def mvarName (mvar : Expr) : MetaM Name := do
 def containsBadMax : Level → Bool
   | Level.succ u ..   => containsBadMax u
   | Level.max u v ..  => (u.hasParam && v.hasParam) || containsBadMax u || containsBadMax v
-  | Level.imax u v .. => containsBadMax u || containsBadMax v
+  | Level.imax u v .. => (u.hasParam && v.hasParam) || containsBadMax u || containsBadMax v
   | _                 => false
 
 open SubExpr

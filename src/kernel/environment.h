@@ -23,10 +23,6 @@ Author: Leonardo de Moura
 #define LEAN_BELIEVER_TRUST_LEVEL 1024
 #endif
 
-#ifdef cdecl
-#undef cdecl
-#endif 
-
 namespace lean {
 class environment_extension {
 public:

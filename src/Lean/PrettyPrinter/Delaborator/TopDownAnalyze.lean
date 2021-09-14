@@ -600,7 +600,7 @@ mutual
                 if ← checkpointDefEq inst arg then annotateBool `pp.analysis.skip; provided := false
                 else annotateNamedArg (← mvarName mvars[i])
               | _                 => annotateNamedArg (← mvarName mvars[i])
-            else provided := false
+            else annotateBool `pp.analysis.skip; provided := false
             modify fun s => { s with provideds := s.provideds.set! i provided }
           | BinderInfo.auxDecl => pure ()
           if (← get).provideds[i] then withKnowing (not (← typeUnknown mvars[i])) true analyze

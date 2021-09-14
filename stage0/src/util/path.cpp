@@ -7,7 +7,6 @@ Author: Leonardo de Moura, Gabriel Ebner
 #include "util/path.h"
 #if defined(LEAN_WINDOWS)
 #include <windows.h>
-#include "runtime/utf8.h"
 #endif
 #include <string>
 #include <cstring>
@@ -19,6 +18,7 @@ Author: Leonardo de Moura, Gabriel Ebner
 #include "runtime/exception.h"
 #include "runtime/sstream.h"
 #include "runtime/optional.h"
+#include "runtime/utf8.h"
 
 #ifdef _MSC_VER
 #define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)
@@ -30,6 +30,13 @@ namespace lean {
 file_not_found_exception::file_not_found_exception(std::string const & fname):
         exception(sstream() << "file '" << fname << "' not found"),
         m_fname(fname) {}
+
+// Call this on a function parameter to suppress the unused paramter warning
+template <class T>
+inline void unused(T const& result)
+{
+    static_cast<void>(result);
+}
 
 #if defined(LEAN_EMSCRIPTEN)
 // emscripten version
@@ -182,15 +189,42 @@ std::string stem(std::string const & fname) {
 
 std::string read_file(std::string const & fname, std::ios_base::openmode mode) {
 #if defined(LEAN_WINDOWS)
-    // For some unknown reason windows std::ifstream cannot open files with
-    // utf-8 encoded names, have to switch to utf-16 for it to work.
-    std::wstring wide = to_utf16(fname);
-    std::wifstream in(wide);
-    if (!in.good()) throw file_not_found_exception(fname);
-    std::wstringstream buf;
-    buf << in.rdbuf();
-    std::string content = to_utf8(buf.str());
-    return content;
+    unused(mode);
+	// For some unknown reason windows std::ifstream cannot open files with
+	// utf-8 encoded names, have to switch to utf-16 for it to work.
+	// and annoyance of annoyance, std::wifstream does work if we use VC toolset,
+	// but doesn't work in msys2... so have to drop to lowest common denominator...
+    std::wstring wide = to_utf16(fname.c_str());
+    HANDLE h = CreateFile(wide.c_str(),
+                          GENERIC_READ,
+                          FILE_SHARE_READ,
+                          NULL,
+                          OPEN_EXISTING,
+                          FILE_ATTRIBUTE_NORMAL,
+                          NULL);
+    if (h == INVALID_HANDLE_VALUE)
+    {
+        throw std::runtime_error(fname);
+    }
+
+    constexpr unsigned int BufferSize = 32767; // windows long file names.
+    char* buffer = new char[BufferSize];
+    if (buffer == nullptr) {
+        throw std::runtime_error("out of memory");
+    }
+
+    std::stringstream ss;
+    DWORD read = 0;
+    while (ReadFile(h, buffer, BufferSize - 1, &read, nullptr))
+    {
+        if (read == 0) break;
+        buffer[read] = 0;
+        ss << buffer;
+    }
+
+    CloseHandle(h);
+    delete[] buffer;
+    return ss.str();
 #else
     std::ifstream in(fname, mode);
     if (!in.good()) throw file_not_found_exception(fname);
@@ -226,20 +260,21 @@ std::vector<std::string> read_dir(std::string const &dirname) {
     std::vector<std::string> files;
 #ifdef _MSC_VER
     WIN32_FIND_DATA data;
-    std::string dir = dirname;
-    if (dir.empty() || dir.back() != g_sep) {
-        dir.push_back(g_sep);
+    std::wstring wide = to_utf16(dirname);
+    std::wstring pattern = wide;
+    if (pattern.empty() || pattern.back() != '\\') {
+        pattern.push_back('\\');
     }
-    dir.push_back('*');
-    std::wstring wide = to_utf16(dir);
-    HANDLE hFind = FindFirstFile(wide.c_str(), &data);
+    pattern.push_back('*');
+    HANDLE hFind = FindFirstFile(pattern.c_str(), &data);
     if (hFind != INVALID_HANDLE_VALUE) {
         do {
             std::wstring name = data.cFileName;
-            if (name != L"." && name != L"..") {
-                std::wstring combined = wide + L'\\' + name;
-                files.push_back(to_utf8(combined));
+            if (name == L"." || name != L"..") {
+                continue;
             }
+            std::wstring combined = wide + L'\\' + name;
+            files.push_back(to_utf8(combined));
         } while (FindNextFile(hFind, &data));
         FindClose(hFind);
     }
@@ -295,5 +330,4 @@ std::string lrealpath(std::string const & fname) {
     }
 #endif
 }
-
 }

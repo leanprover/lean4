@@ -80,12 +80,14 @@ extern "C" obj_res lean_io_initializing(obj_arg) {
     return io_result_mk_ok(box(g_initializing));
 }
 
+#if !defined(LEAN_WINDOWS)
 static obj_res mk_file_not_found_error(b_obj_arg fname) {
     inc(fname);
     int errnum = ENOENT;
     object * details = mk_string("");
     return io_result_mk_error(lean_mk_io_error_no_file_or_directory(fname, errnum, details));
 }
+#endif
 
 static lean_external_class * g_io_handle_external_class = nullptr;
 
@@ -159,7 +161,7 @@ std::string decode_win_error(int hr, const std::string& name) {
 }
 #endif
 
-extern "C" obj_res decode_io_error(int errnum, b_obj_arg fname) {
+extern "C" obj_res lean_decode_io_error(int errnum, b_obj_arg fname) {
     object * details = mk_string(strerror(errnum));
     switch (errnum) {
     case EINTR:
@@ -546,7 +548,29 @@ extern "C" obj_res lean_io_read_dir(b_obj_arg dirname, obj_arg) {
     object * arr = array_mk_empty();
 
 #if defined(LEAN_WINDOWS)
-    // TODO
+    WIN32_FIND_DATA data;
+    std::wstring wide = to_utf16(string_cstr(dirname));
+    std::wstring pattern = wide;
+    if (pattern.empty() || pattern.back() != '\\') {
+        pattern.push_back('\\');
+    }
+    pattern.push_back('*');
+    HANDLE hFind = FindFirstFile(pattern.c_str(), &data);
+    if (hFind != INVALID_HANDLE_VALUE) {
+        do {
+            std::wstring name = data.cFileName;
+            if (name == L"." || name == L"..") {
+                continue;
+            }
+            std::string utf8 = to_utf8(name);
+            object * lentry = alloc_cnstr(0, 2, 0);
+            lean_inc(dirname);
+            cnstr_set(lentry, 0, dirname);
+            cnstr_set(lentry, 1, lean_mk_string(utf8.c_str()));
+            arr = lean_array_push(arr, lentry);
+        } while (FindNextFile(hFind, &data));
+        FindClose(hFind);
+    }
 #else
     DIR * dp = opendir(string_cstr(dirname));
     if (!dp) {
@@ -635,9 +659,7 @@ extern "C" obj_res lean_io_create_dir(b_obj_arg p, obj_arg) {
             return io_result_mk_error(decode_win_error(hr, dirname));
         }
     }
-    else {
-        return io_result_mk_ok(box(0));
-    }
+    return io_result_mk_ok(box(0));
 
 #else
     if (mkdir(string_cstr(p), 0777) == 0) {

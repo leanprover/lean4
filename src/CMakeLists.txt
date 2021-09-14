@@ -442,14 +442,15 @@ set(LEANC_OPTS "${LEANC_OPTS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}} $
 
 if(ZIG_ROOT)
   # workaround for `--whole-archive` missing from `zig ld`
-  set(LEANSHARED_LINKER_FLAGS "@`find ${CMAKE_BINARY_DIR} -regextype posix-extended -regex '.*/(Leanpkg|runtmp|shell).*' -prune -o -name '*.o' -print > ${CMAKE_BINARY_DIR}/libleansharedinputs; echo ${CMAKE_BINARY_DIR}/libleansharedinputs` ${LEANSHARED_LINKER_FLAGS}")
+  set(LEANSHARED_LINKER_FLAGS "`find . -regextype posix-extended -regex '.*/(Leanpkg|runtmp|shell).*' -prune -o -regex '.*\.o(bj)?' -print` ${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LEANSHARED_LINKER_FLAGS "-Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libInit.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libStd.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLean.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")
 else()
   set(LEANSHARED_LINKER_FLAGS "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp -Wl,--no-whole-archive ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libleanshared.dll.a")
-  endif()
+endif()
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libleanshared.dll.a")
 endif()
 
 # Escape for `make`. Yes, twice.

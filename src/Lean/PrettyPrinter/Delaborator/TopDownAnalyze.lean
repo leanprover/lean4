@@ -72,6 +72,13 @@ register_builtin_option pp.analyze.trustCoe : Bool := {
   descr    := "(pretty printer analyzer) always assume a coercion can be correctly inserted"
 }
 
+-- TODO: this is an arbitrary special case of a more general principle.
+register_builtin_option pp.analyze.trustSubtypeMk : Bool := {
+  defValue := true
+  group    := "pp.analyze"
+  descr    := "(pretty printer analyzer) assume the implicit arguments of Subtype.mk can be inferred"
+}
+
 register_builtin_option pp.analyze.trustId : Bool := {
   defValue := true
   group    := "pp.analyze"
@@ -110,6 +117,7 @@ def getPPAnalyzeTrustOfNat                  (o : Options) : Bool := o.get pp.ana
 def getPPAnalyzeTrustOfScientific           (o : Options) : Bool := o.get pp.analyze.trustOfScientific.name pp.analyze.trustOfScientific.defValue
 def getPPAnalyzeTrustId                     (o : Options) : Bool := o.get pp.analyze.trustId.name pp.analyze.trustId.defValue
 def getPPAnalyzeTrustCoe                    (o : Options) : Bool := o.get pp.analyze.trustCoe.name pp.analyze.trustCoe.defValue
+def getPPAnalyzeTrustSubtypeMk              (o : Options) : Bool := o.get pp.analyze.trustSubtypeMk.name pp.analyze.trustSubtypeMk.defValue
 def getPPAnalyzeTrustKnownFOType2TypeHOFuns (o : Options) : Bool := o.get pp.analyze.trustKnownFOType2TypeHOFuns.name pp.analyze.trustKnownFOType2TypeHOFuns.defValue
 def getPPAnalyzeOmitMax                     (o : Options) : Bool := o.get pp.analyze.omitMax.name pp.analyze.omitMax.defValue
 def getPPAnalyzeKnowsType                   (o : Options) : Bool := o.get pp.analyze.knowsType.name pp.analyze.knowsType.defValue
@@ -408,6 +416,7 @@ mutual
       let forceRegularApp : Bool :=
         (getPPAnalyzeTrustSubst (← getOptions) && isSubstLike (← getExpr))
         || (getPPAnalyzeTrustCoe (← getOptions) && isCoe (← getExpr))
+        || (getPPAnalyzeTrustSubtypeMk (← getOptions) && (← getExpr).isAppOfArity `Subtype.mk 4)
 
       analyzeAppStagedCore { f, fType, args, mvars, bInfos, forceRegularApp } |>.run' {
         bottomUps    := mkArray args.size false,

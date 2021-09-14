@@ -741,8 +741,9 @@ extern "C" obj_res lean_io_current_dir(obj_arg) {
     wchar_t* cwd = _wgetcwd(nullptr, 0);
     if (cwd) {
         std::string utf8_path = to_utf8(cwd);
-        io_result_mk_ok(mk_string(utf8_path.c_str()));
+        auto result = io_result_mk_ok(mk_string(utf8_path.c_str()));
         free(cwd);
+        return result;
     }
 #else
     char buffer[PATH_MAX];

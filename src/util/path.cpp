@@ -215,10 +215,37 @@ std::string read_file(std::string const & fname, std::ios_base::openmode mode) {
 
     std::stringstream ss;
     DWORD read = 0;
+    bool foundReturn = false;
     while (ReadFile(h, buffer, BufferSize - 1, &read, nullptr))
     {
         if (read == 0) break;
-        buffer[read] = 0;
+        // normalize '\r\n' into '\n' newlines (as performed by std::ifstream)
+        int j = 0;
+        for (DWORD i = 0; i < read; i++) {
+            auto ch = buffer[i];
+            if (foundReturn) {
+                if (ch != '\n') {
+                    // was not a '\r\n' it was a single '\r' which is weird.
+                    // convert the '\r' to a '\n'
+                    buffer[j++] = '\n';
+                }
+                buffer[j++] = ch;
+                foundReturn = false;
+            }
+            else {
+                if (ch == '\r') {
+                    // delay writing this to the buffer.
+                    foundReturn = true;
+                }
+                else {
+                    if (j < i) {
+                        buffer[j] = ch;
+                    }
+                    j++;
+                }
+            }
+        }
+        buffer[j] = 0;
         ss << buffer;
     }
 

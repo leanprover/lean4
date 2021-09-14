@@ -10,12 +10,13 @@ open Lean Lean.Meta Lean.Elab Lean.Elab.Term Lean.Elab.Command
 open Lean.PrettyPrinter
 
 def checkDelab (e : Expr) (tgt? : Option Syntax) (name? : Option Name := none) : TermElabM Unit := do
-  if e.hasMVar then throwError "[checkDelab] original term has mvars, {e}"
+  let pfix := "[checkDelab" ++ (match name? with | some n => ("." ++ toString n) | none => "") ++ "]"
+  if e.hasMVar then throwError "{pfix} original term has mvars, {e}"
   let stx ← delab (← getCurrNamespace) (← getOpenDecls) e
   match tgt? with
   | some tgt =>
     if toString (← PrettyPrinter.ppTerm stx) != toString (← PrettyPrinter.ppTerm tgt?.get!) then
-      throwError "[checkDelab] missed target\n{← PrettyPrinter.ppTerm stx}\n!=\n{← PrettyPrinter.ppTerm tgt}\n\nExpr: {e}\nType: {← inferType e}"
+      throwError "{pfix} missed target\n{← PrettyPrinter.ppTerm stx}\n!=\n{← PrettyPrinter.ppTerm tgt}\n\nExpr: {e}\nType: {← inferType e}"
   | _ => pure ()
 
   let e' ←
@@ -26,15 +27,15 @@ def checkDelab (e : Expr) (tgt? : Option Syntax) (name? : Option Name := none) :
       -- let ⟨e', _⟩ ← levelMVarToParam e'
       throwErrorIfErrors
       e'
-    catch ex => throwError "[checkDelab] failed to re-elaborate,\n{stx}\n{← ex.toMessageData.toString}"
+    catch ex => throwError "{pfix} failed to re-elaborate,\n{stx}\n{← ex.toMessageData.toString}"
 
   withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `pp.all true }) do
     if not (← isDefEq e e') then
-      println! "[checkDelab] {← inferType e} {← inferType e'}"
-      throwError "[checkDelab] roundtrip not structurally equal\n\nOriginal: {e}\n\nSyntax: {stx}\n\nNew: {e'}"
+      println! "{pfix} {← inferType e} {← inferType e'}"
+      throwError "{pfix} roundtrip not structurally equal\n\nOriginal: {e}\n\nSyntax: {stx}\n\nNew: {e'}"
 
   let e' ← instantiateMVars e'
-  if e'.hasMVar then throwError "[checkDelab] elaborated term still has mvars\n\nSyntax: {stx}\n\nExpression: {e'}"
+  if e'.hasMVar then throwError "{pfix} elaborated term still has mvars\n\nSyntax: {stx}\n\nExpression: {e'}"
 
 
 syntax (name := testDelabTD) "#testDelab " term " expecting " term : command
@@ -57,7 +58,7 @@ syntax (name := testDelabTDN) "#testDelabN " ident : command
     let some value ← pure cInfo.value? | throwError "decl has no value"
     modify fun s => { s with levelNames := cInfo.levelParams }
     withTheReader Core.Context (fun ctx => { ctx with currNamespace := name.getPrefix, openDecls := [] }) do
-      checkDelab value none
+      checkDelab value none (some name)
   | _ => throwUnsupportedSyntax
 
 -------------------------------------------------
@@ -319,6 +320,9 @@ def stackMkInjEqSnippet :=
 
 def typeAs (α : Type u) (a : α) := ()
 
+theorem myFunext : ∀ {α : Sort u} {β : α → Sort v} {f₁ f₂ : (x : α) → β x}, (∀ (x : α), f₁ x = f₂ _) → f₁ = f₂ := funext
+
+#testDelabN myFunext
 #testDelabN Nat.brecOn
 #testDelabN Nat.below
 #testDelabN Nat.mod_lt

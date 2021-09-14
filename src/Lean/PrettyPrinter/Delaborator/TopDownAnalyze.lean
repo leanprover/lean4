@@ -96,6 +96,12 @@ register_builtin_option pp.analyze.knowsType : Bool := {
   descr    := "(pretty printer analyzer) assume the type of the original expression is known"
 }
 
+register_builtin_option pp.analyze.explicitHoles : Bool := {
+  defValue := false
+  group    := "pp.analyze"
+  descr    := "(pretty printer analyzer) use `_` for explicit arguments that can be inferred"
+}
+
 def getPPAnalyze                            (o : Options) : Bool := o.get pp.analyze.name pp.analyze.defValue
 def getPPAnalyzeCheckInstances              (o : Options) : Bool := o.get pp.analyze.checkInstances.name pp.analyze.checkInstances.defValue
 def getPPAnalyzeTypeAscriptions             (o : Options) : Bool := o.get pp.analyze.typeAscriptions.name pp.analyze.typeAscriptions.defValue
@@ -107,6 +113,7 @@ def getPPAnalyzeTrustCoe                    (o : Options) : Bool := o.get pp.ana
 def getPPAnalyzeTrustKnownFOType2TypeHOFuns (o : Options) : Bool := o.get pp.analyze.trustKnownFOType2TypeHOFuns.name pp.analyze.trustKnownFOType2TypeHOFuns.defValue
 def getPPAnalyzeOmitMax                     (o : Options) : Bool := o.get pp.analyze.omitMax.name pp.analyze.omitMax.defValue
 def getPPAnalyzeKnowsType                   (o : Options) : Bool := o.get pp.analyze.knowsType.name pp.analyze.knowsType.defValue
+def getPPAnalyzeExplicitHoles               (o : Options) : Bool := o.get pp.analyze.explicitHoles.name pp.analyze.explicitHoles.defValue
 
 def getPPAnalysisSkip            (o : Options) : Bool := o.get `pp.analysis.skip false
 def getPPAnalysisHole            (o : Options) : Bool := o.get `pp.analysis.hole false
@@ -562,7 +569,7 @@ mutual
 
           match bInfos[i] with
           | BinderInfo.default =>
-            if ← !(← valUnknown mvars[i]) <&&> !(← readThe Context).inBottomUp <&&> !(← isFunLike arg) <&&> !funBinders[i] <&&> checkpointDefEq mvars[i] arg then
+            if ← getPPAnalyzeExplicitHoles (← getOptions) <&&> !(← valUnknown mvars[i]) <&&> !(← readThe Context).inBottomUp <&&> !(← isFunLike arg) <&&> !funBinders[i] <&&> checkpointDefEq mvars[i] arg then
               annotateBool `pp.analysis.hole
             else
               modify fun s => { s with provideds := s.provideds.set! i true }

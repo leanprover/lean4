@@ -100,8 +100,6 @@ infix:50 " ≥ "  => GE.ge
 infix:50 " > "  => GT.gt
 infix:50 " = "  => Eq
 infix:50 " == " => BEq.beq
-infix:50 " ~= " => HEq
-infix:50 " ≅ "  => HEq
 /-
   Remark: the infix commands above ensure a delaborator is generated for each relations.
   We redefine the macros below to be able to use the auxiliary `binrel%` elaboration helper for binary relations.

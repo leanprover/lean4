@@ -9,7 +9,7 @@ match x with
 #eval f 30
 
 universe u
-
+infix:50 " ≅ " => HEq
 theorem ex1 {α : Sort u} {a b : α} (h : a ≅ b) : a = b :=
 match α, a, b, h with
 | _, _, _, HEq.refl _ => rfl

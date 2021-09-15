@@ -51,7 +51,7 @@
         [.] `Bool : some Sort.{?_uniq.441} @ ⟨17, 27⟩-⟨17, 31⟩
         Bool : Type @ ⟨17, 27⟩-⟨17, 31⟩
       b : Bool @ ⟨17, 23⟩-⟨17, 24⟩
-      x + 0 = x : Prop @ ⟨17, 35⟩-⟨17, 44⟩ @ myMacro._@.Init.Notation._hyg.9571
+      x + 0 = x : Prop @ ⟨17, 35⟩-⟨17, 44⟩ @ myMacro._@.Init.Notation._hyg.9093
         Macro expansion
         x + 0 = x
         ===>

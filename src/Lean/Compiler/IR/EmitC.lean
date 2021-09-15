@@ -90,12 +90,15 @@ def toCInitName (n : Name) : M String := do
 def emitCInitName (n : Name) : M Unit :=
   toCInitName n >>= emit
 
-def emitFnDeclAux (decl : Decl) (cppBaseName : String) (addExternForConsts : Bool) : M Unit := do
+def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M Unit := do
   let ps := decl.params
   let env ← getEnv
   if ps.isEmpty then
     if isClosedTermName env decl.name then emit "static "
-    else if addExternForConsts then emit "extern "
+    else if isExternal then emit "extern "
+    else emit "LEAN_EXPORT "
+  else
+    if !isExternal then emit "LEAN_EXPORT "
   emit (toCType decl.resultType ++ " " ++ cppBaseName)
   unless ps.isEmpty do
     emit "("
@@ -110,15 +113,15 @@ def emitFnDeclAux (decl : Decl) (cppBaseName : String) (addExternForConsts : Boo
     emit ")"
   emitLn ";"
 
-def emitFnDecl (decl : Decl) (addExternForConsts : Bool) : M Unit := do
+def emitFnDecl (decl : Decl) (isExternal : Bool) : M Unit := do
   let cppBaseName ← toCName decl.name
-  emitFnDeclAux decl cppBaseName addExternForConsts
+  emitFnDeclAux decl cppBaseName isExternal
 
 def emitExternDeclAux (decl : Decl) (cNameStr : String) : M Unit := do
   let cName := Name.mkSimple cNameStr
   let env ← getEnv
   let extC := isExternC env decl.name
-  emitFnDeclAux decl cNameStr (!extC)
+  emitFnDeclAux decl cNameStr extC
 
 def emitFnDecls : M Unit := do
   let env ← getEnv
@@ -643,6 +646,8 @@ def emitDeclAux (d : Decl) : M Unit := do
       let baseName ← toCName f;
       if xs.size == 0 then
         emit "static "
+      else
+        emit "LEAN_EXPORT "  -- make symbol visible to the interpreter
       emit (toCType t); emit " ";
       if xs.size > 0 then
         emit baseName;
@@ -709,7 +714,7 @@ def emitInitFn : M Unit := do
   env.imports.forM fun imp => emitLn ("lean_object* " ++ mkModuleInitializationFunctionName imp.module ++ "(lean_object*);")
   emitLns [
     "static bool _G_initialized = false;",
-    "lean_object* " ++ mkModuleInitializationFunctionName modName ++ "(lean_object* w) {",
+    "LEAN_EXPORT lean_object* " ++ mkModuleInitializationFunctionName modName ++ "(lean_object* w) {",
     "lean_object * res;",
     "if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));",
     "_G_initialized = true;"

@@ -21,7 +21,7 @@ if ("${CMAKE_SYSTEM_NAME}" MATCHES "Windows")
     # replace default-manifest.o with a new version that includes activeCodePage utf-8 so the windows apps
     # built here can handle unicode file paths.
     message("-- mingw64 install default-manifest.o into /mingw64/$ENV{MINGW_CHOST}/lib/default-manifest.o")
-    execute_process(COMMAND sh -c "cp  ${CMAKE_CURRENT_LIST_DIR}/src/bin/default-manifest.o  /mingw64/$ENV{MINGW_CHOST}/lib/default-manifest.o")
+    execute_process(COMMAND sh -c "windres ${CMAKE_CURRENT_LIST_DIR}/src/bin/manifest.rc  /mingw64/$ENV{MINGW_CHOST}/lib/default-manifest.o")
   else()
     message(FATAL_ERROR "Windows build requires MINGW64 setup.")
   endif()

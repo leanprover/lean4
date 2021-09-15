@@ -16,6 +16,17 @@ endforeach()
 include(ExternalProject)
 project(LEAN CXX C)
 
+if ("${CMAKE_SYSTEM_NAME}" MATCHES "Windows")
+  if ("$ENV{MSYSTEM}" MATCHES "MINGW64")
+    # replace default-manifest.o with a new version that includes activeCodePage utf-8 so the windows apps
+    # built here can handle unicode file paths.
+    message("-- mingw64 install default-manifest.o into /mingw64/$ENV{MINGW_CHOST}/lib/default-manifest.o")
+    execute_process(COMMAND sh -c "cp  ${CMAKE_CURRENT_LIST_DIR}/src/bin/default-manifest.o  /mingw64/$ENV{MINGW_CHOST}/lib/default-manifest.o")
+  else()
+    message(FATAL_ERROR "Windows build requires MINGW64 setup.")
+  endif()
+endif()
+
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
   # For Emscripten, we build GMP before any of the stages and reuse it in all of them.
   set(GMP_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/gmp-root)

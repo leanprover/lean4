@@ -20,7 +20,7 @@ MSYS2 has a package management system, [pacman][pacman], which is used in Arch L
 Here are the commands to install all dependencies needed to compile Lean on your machine.
 
 ```bash
-pacman -S make mingw-w64-x86_64-cmake mingw-w64-x86_64-ccache mingw-w64-x86_64-gcc git unzip
+pacman -S make mingw-w64-x86_64-cmake mingw-w64-x86_64-ccache mingw-w64-x86_64-gcc git unzip binutils
 ```
 
 You should now be able to run these commands:

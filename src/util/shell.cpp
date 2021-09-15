@@ -644,7 +644,7 @@ extern "C" int lean_main(int argc, char ** argv) {
         }
 
         if (c_output && ok) {
-            std::ofstream out(*c_output);
+            std::ofstream out(*c_output, std::ios_base::binary);
             if (out.fail()) {
                 std::cerr << "failed to create '" << *c_output << "'\n";
                 return 1;

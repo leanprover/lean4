@@ -67,6 +67,9 @@ set(LEANC_CC              "cc"                         CACHE STRING "C compiler 
 set(ZIG_ROOT              ""                           CACHE STRING "Zig compiler to use for compilation")
 
 if (ZIG_ROOT)
+  # fails with "undefined symbol: _create_local" (Windows, https://github.com/ziglang/zig/issues/8531?)
+  # and "unknown filetype for positional input file: '.../binarytrees.lean.o'" (macOS) otherwise
+  set(ZIG_ARGS "${ZIG_ARGS} -fno-lto")
   configure_file(zigcc.in zigcc)
   set(CMAKE_C_COMPILER ${CMAKE_BINARY_DIR}/zigcc)
   configure_file(zigc++.in zigc++)

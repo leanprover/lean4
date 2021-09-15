@@ -33,11 +33,11 @@ namespace Rat
 
 protected def lt (a b : Rat) : Bool :=
   if a.num < 0 && b.num >= 0 then
-    return true
+    true
   else if a.num == 0 then
-    return b.num > 0
+    b.num > 0
   else if a.num > 0 && b.num <= 0 then
-    return false
+    false
   else
     -- `a` and `b` must have the same sign
    a.num * b.den < b.num * a.den

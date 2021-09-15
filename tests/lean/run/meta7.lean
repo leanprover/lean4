@@ -203,3 +203,20 @@ def tst11 : MetaM Unit := do
     pure ()
 
 #eval tst11
+
+def tst12 : MetaM Unit := do
+  print "----- tst12 -----";
+  let nat := mkConst `Nat
+  withLocalDeclD `x nat fun x =>
+  withLocalDeclD `y nat fun y => do
+  let val ← mkAppM' (mkConst `Add.add [levelZero]) #[mkNatLit 10, y];
+  check val; print val
+  let val ← mkAppM' (mkApp (mkConst ``Add.add [levelZero]) (mkConst ``Int)) #[mkApp (mkConst ``Int.ofNat) (mkNatLit 10), mkApp (mkConst ``Int.ofNat) y];
+  check val; print val
+  let val ← mkAppOptM' (mkConst `Add.add [levelZero]) #[mkConst  ``Nat, none, mkNatLit 10, y];
+  check val; print val
+  pure ()
+
+#eval tst12
+
+#check @Add.add

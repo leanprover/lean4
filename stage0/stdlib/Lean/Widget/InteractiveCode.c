@@ -52,7 +52,6 @@ lean_object* l_Lean_Widget_traverse_go(lean_object*, lean_object*, lean_object*,
 lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_Lean_Widget_CodeToken_fromJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveCode___hyg_184_(lean_object*);
 lean_object* l_Std_RBNode_setBlack___rarg(lean_object*);
 lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_Lean_Widget_CodeToken_fromJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveCode___hyg_184____boxed(lean_object*);
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__11___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_Lean_Widget_CodeToken_fromJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveCode___hyg_184____closed__1;
 lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_Lean_Widget_InfoWithCtx_encode____x40_Lean_Widget_InteractiveCode___hyg_5____rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_formatExplicitInfos___closed__4;
@@ -129,6 +128,7 @@ lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_Lean_Widget_
 static lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_Lean_Widget_InfoWithCtx_decode____x40_Lean_Widget_InteractiveCode___hyg_5____rarg___closed__1;
 static lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_Lean_Widget_InfoWithCtx_encodeUnsafe____x40_Lean_Widget_InteractiveCode___hyg_5____rarg___closed__6;
 lean_object* l_Lean_Meta_instantiateMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_mkHCongrWithArity_withNewEqs_loop___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instInhabitedInfoWithCtx___closed__15;
 static lean_object* l_Lean_Widget_instInhabitedInfoWithCtx___closed__18;
 static lean_object* l_Lean_Widget_Lean_Widget_InfoWithCtx_instRpcEncodingWithRpcRefInfoWithCtxRpcRef___closed__1;
@@ -1226,7 +1226,7 @@ x_36 = (uint8_t)((x_35 << 24) >> 61);
 x_37 = lean_alloc_closure((void*)(l_Lean_Widget_traverse_go___lambda__1), 8, 2);
 lean_closure_set(x_37, 0, x_34);
 lean_closure_set(x_37, 1, x_12);
-x_38 = l_Lean_Meta_withLocalDecl___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__11___rarg(x_32, x_36, x_33, x_37, x_4, x_5, x_6, x_7, x_8);
+x_38 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_mkHCongrWithArity_withNewEqs_loop___spec__1___rarg(x_32, x_36, x_33, x_37, x_4, x_5, x_6, x_7, x_8);
 return x_38;
 }
 case 7:
@@ -1245,7 +1245,7 @@ x_43 = (uint8_t)((x_42 << 24) >> 61);
 x_44 = lean_alloc_closure((void*)(l_Lean_Widget_traverse_go___lambda__1), 8, 2);
 lean_closure_set(x_44, 0, x_41);
 lean_closure_set(x_44, 1, x_12);
-x_45 = l_Lean_Meta_withLocalDecl___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__11___rarg(x_39, x_43, x_40, x_44, x_4, x_5, x_6, x_7, x_8);
+x_45 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_mkHCongrWithArity_withNewEqs_loop___spec__1___rarg(x_39, x_43, x_40, x_44, x_4, x_5, x_6, x_7, x_8);
 return x_45;
 }
 case 8:

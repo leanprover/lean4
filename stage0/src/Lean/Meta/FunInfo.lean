@@ -75,4 +75,7 @@ def getFunInfo (fn : Expr) : MetaM FunInfo :=
 def getFunInfoNArgs (fn : Expr) (nargs : Nat) : MetaM FunInfo :=
   getFunInfoAux fn (some nargs)
 
+def FunInfo.getArity (info : FunInfo) : Nat :=
+  info.paramInfo.size
+
 end Lean.Meta

@@ -11,7 +11,7 @@ import Lean.Meta.Tactic.Subst
 
 namespace Lean.Meta
 
-private def throwInductiveTypeExpected {α} (type : Expr) : MetaM α := do
+private def throwInductiveTypeExpected (type : Expr) : MetaM α := do
   throwError "failed to compile pattern matching, inductive type expected{indentExpr type}"
 
 def getInductiveUniverseAndParams (type : Expr) : MetaM (List Level × Array Expr) := do
@@ -31,7 +31,7 @@ private def mkEqAndProof (lhs rhs : Expr) : MetaM (Expr × Expr) := do
   else
     pure (mkApp4 (mkConst `HEq [u]) lhsType lhs rhsType rhs, mkApp2 (mkConst `HEq.refl [u]) lhsType lhs)
 
-private partial def withNewEqs {α} (targets targetsNew : Array Expr) (k : Array Expr → Array Expr → MetaM α) : MetaM α :=
+private partial def withNewEqs (targets targetsNew : Array Expr) (k : Array Expr → Array Expr → MetaM α) : MetaM α :=
   let rec loop (i : Nat) (newEqs : Array Expr) (newRefls : Array Expr) := do
     if h : i < targets.size then
       let (newEqType, newRefl) ← mkEqAndProof targets[i] targetsNew[i]
@@ -145,7 +145,7 @@ private def mkCasesContext? (majorFVarId : FVarId) : MetaM (Option Context) := d
       if args.size != ival.numIndices + ival.numParams then pure none
       else match env.find? (Name.mkStr ival.name "casesOn") with
         | ConstantInfo.defnInfo cval =>
-          pure $ some {
+          return some {
             inductiveVal  := ival,
             casesOnVal    := cval,
             majorDecl     := majorDecl,
@@ -172,7 +172,7 @@ private def hasIndepIndices (ctx : Context) : MetaM Bool := do
   else
     let lctx ← getLCtx
     let mctx ← getMCtx
-    pure $ lctx.all fun decl =>
+    return lctx.all fun decl =>
       decl.fvarId == ctx.majorDecl.fvarId || -- decl is the major
       ctx.majorTypeIndices.any (fun index => decl.fvarId == index.fvarId!) || -- decl is one of the indices
       mctx.findLocalDeclDependsOn decl (fun fvarId => ctx.majorTypeIndices.all $ fun idx => idx.fvarId! != fvarId) -- or does not depend on any index
@@ -280,7 +280,7 @@ private def unifyCasesEqs (numEqs : Nat) (subgoals : Array CasesSubgoal) : MetaM
     match (← unifyEqs numEqs s.mvarId s.subst s.ctorName) with
     | none                 => pure subgoals
     | some (mvarId, subst) =>
-      pure $ subgoals.push { s with
+      return subgoals.push { s with
         mvarId := mvarId,
         subst  := subst,
         fields := s.fields.map (subst.apply ·)

@@ -436,7 +436,7 @@ file(RELATIVE_PATH LIB ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
 # These are used in lean.mk and passed through by stdlib.make
-set(LEANC_OPTS "${LEANC_OPTS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
+set(LEANC_OPTS "${LEANC_OPTS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}} ${CMAKE_CXX_SYSROOT_FLAG}${CMAKE_OSX_SYSROOT} ${CMAKE_CXX_OSX_DEPLOYMENT_TARGET_FLAG}${CMAKE_OSX_DEPLOYMENT_TARGET}")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LEANSHARED_LINKER_FLAGS "-Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libInit.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libStd.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLean.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")

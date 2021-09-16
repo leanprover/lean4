@@ -48,7 +48,7 @@ jobs:
             os: windows-latest
             release: true
             shell: msys2 {0}
-            CMAKE_OPTIONS: -G "Unix Makefiles"
+            CMAKE_OPTIONS: -G "Unix Makefiles" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}
@@ -70,7 +70,7 @@ jobs:
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
-          install: make python mingw-w64-x86_64-cmake mingw-w64-x86_64-gcc mingw-w64-x86_64-ccache git diffutils
+          install: make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache git diffutils
         if: matrix.os == 'windows-latest'
       - name: Install Brew Packages
         run: |

@@ -10,7 +10,7 @@ macro "urfl" : tactic => `(set_option smartUnfolding false in rfl)
 
 
 theorem f_main_eq : f x b = f.match_1 (fun _ _ => Nat) x b (fun _ => 1) (fun _ => 2) (fun _ => 3) (fun _ => 4) (fun x => f x true) (fun x b => f x (not b)) := by
-  split <;> (first | rfl | (conv => lhs; delta f; whnf; simpMatch); try urfl)
+  split <;> (first | rfl | (conv => lhs; delta f; whnf; simp_match); try urfl)
 
 #check @f_main_eq
 
@@ -22,7 +22,7 @@ def g : List Nat → List Nat → Nat
   | x::xs,      []    => g xs []
 
 theorem g_main_eq (xs ys : List Nat) : g xs ys = g.match_1 (fun _ _ => Nat) xs ys (fun y ys => y) (fun _ => 0) (fun _ _ xs ys => g xs ys) (fun _ xs y ys => g xs ys + y) (fun _ xs => g xs []) := by
-  split <;> (first | rfl | (conv => lhs; delta g; whnf; simpMatch); try urfl)
+  split <;> (first | rfl | (conv => lhs; delta g; whnf; simp_match); try urfl)
 
 #check @g_main_eq
 

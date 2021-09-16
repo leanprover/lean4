@@ -1,6 +1,6 @@
 example (x : Int) (h : x = 2) : Int.div 2 1 = x := by
   simp [Int.div]
-  traceState
+  trace_state
   simp [h]
 
 example (n : Nat) : Int.div (Int.ofNat n) (Int.ofNat 0) = Int.ofNat (n / 0) := by

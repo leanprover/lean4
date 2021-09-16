@@ -6,8 +6,8 @@ def g (xs ys : List Nat) : Nat :=
 
 example (a b : Bool) (x y z : Nat) (xs : List Nat) (h1 : (if a then x else y) = 0) (h2 : xs.head! = 0) : g [x] xs = 1 := by
   simp [g]
-  repeat anyGoals (split at *)
-  anyGoals (first | decide | contradiction | injections)
+  repeat any_goals (split at *)
+  any_goals (first | decide | contradiction | injections)
   next b c _ _ _ =>
     show Nat.succ b = 1
     subst xs; simp [List.head!] at h2; simp [h2]

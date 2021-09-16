@@ -28,8 +28,8 @@ by {
   intro h1; intro h2; intro h3;
   apply @Eq.trans;
   try exact h1; -- `exact h1` fails
-  traceState;
+  trace_state;
   try exact h3;
-  traceState;
+  trace_state;
   try exact h1;
 }

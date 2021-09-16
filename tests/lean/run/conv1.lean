@@ -8,7 +8,7 @@ example (x y : Nat) : p (x + y) (y + x + 0) := by
     congr
     . skip
     . whnf; skip
-  traceState
+  trace_state
   rw [Nat.add_comm]
   rfl
 
@@ -17,7 +17,7 @@ example (x y : Nat) : p (x + y) (y + x + 0) := by
     whnf
     rhs
     whnf
-  traceState
+  trace_state
   rw [Nat.add_comm]
   rfl
 
@@ -29,7 +29,7 @@ example (x y : Nat) : p (x + y) (y + x + 0) := by
   conv =>
     rhs
     whnf
-  traceState
+  trace_state
   apply Nat.add_comm x y
 
 example (x y : Nat) : p (x + y) (0 + y + x) := by
@@ -37,7 +37,7 @@ example (x y : Nat) : p (x + y) (0 + y + x) := by
     whnf
     rhs
     rw [Nat.zero_add, Nat.add_comm]
-    traceState
+    trace_state
     skip
     done
 
@@ -89,9 +89,9 @@ example (h₁ : f x = x + 1) (h₂ : x > 0) : f x = f x := by
 
 example (x y : Nat) (f : Nat → Nat → Nat) (g : Nat → Nat) (h₁ : ∀ z, f z z = z) (h₂ : ∀ x y, f (g x) (g y) = y) : f (g (0 + y)) (f (g x) (g (x + 0))) = x := by
   conv in _ + 0 => apply Nat.add_zero
-  traceState
+  trace_state
   conv in 0 + _ => apply Nat.zero_add
-  traceState
+  trace_state
   simp [h₁, h₂]
 
 example (x y : Nat) (f : Nat → Nat → Nat) (g : Nat → Nat)
@@ -99,7 +99,7 @@ example (x y : Nat) (f : Nat → Nat → Nat) (g : Nat → Nat)
         (h₃ : f (g (0 + x)) (g x) = 0)
  : g x = 0 := by
   conv at h₃ in 0 + x => apply Nat.zero_add
-  traceState
+  trace_state
   conv at h₃ => lhs; apply h₁
-  traceState
+  trace_state
   assumption

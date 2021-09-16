@@ -122,7 +122,7 @@ def Package.buildDeps (self : Package) : BuildM (List Package) := do
   return deps
 
 def configure (pkg : Package) : IO Unit :=
-  runBuild pkg.buildDeps
+  pkg.buildDeps.run
 
 def Package.build (self : Package) : BuildM PUnit := do
   let depTargets ← self.buildDepTargets
@@ -132,7 +132,7 @@ def Package.build (self : Package) : BuildM PUnit := do
   discard target.materialize
 
 def build (pkg : Package) : IO PUnit :=
-  runBuild pkg.build
+  pkg.build.run
 
 -- # Print Paths
 
@@ -152,6 +152,6 @@ def printPaths (pkg : Package) (imports : List String := []) : IO Unit := do
   unless imports.isEmpty do
     let imports := imports.map (·.toName)
     let localImports := imports.filter (·.getRoot == pkg.moduleRoot)
-    runBuild <| pkg.buildModuleOleansWithDeps deps localImports
+    pkg.buildModuleOleansWithDeps deps localImports |>.run
   IO.println <| SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
   IO.println <| SearchPath.toString <| pkg.srcDir :: deps.map (·.srcDir)

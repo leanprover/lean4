@@ -69,12 +69,6 @@ end BuildContext
 
 namespace BuildM
 
-def runIn (ctx : BuildContext) (self : BuildM α) : IO α :=
-  self ctx
-
-def runIO (self : BuildM α) : IO α :=
-  self BuildContext.io
-
 def getMethods : BuildM BuildMethods :=
   read >>= (·.methods)
 
@@ -84,12 +78,21 @@ def logInfo (msg : String) : BuildM PUnit := do
 def logError (msg : String) : BuildM PUnit := do
   (← getMethods).logError msg
 
-end BuildM
+def runIn (ctx : BuildContext) (self : BuildM α) : IO α :=
+  self ctx
 
-def runBuild (x : BuildM α) : IO PUnit :=
-  BuildM.runIO try discard x catch _ =>
-    -- actual error has already been logged earlier
-    BuildM.logError "Build failed."
+def run (self : BuildM α) : IO PUnit :=
+  runIn BuildContext.io do try discard self catch e =>
+    /-
+      Remark: Actual error should have already been logged earlier.
+      However, if the error was thrown by something that did not know it was
+      in `BuildM` (e.g., a general `Target`), it may have not been.
+
+      TODO: Use an `OptionT` in `BuildM` to properly record build failures.
+    -/
+    BuildM.logError s!"Build failed with errors, the last of which was:\n{toString e}"
+
+end BuildM
 
 def failOnImportCycle : Except (List Lean.Name) α → BuildM α
 | Except.ok a => a

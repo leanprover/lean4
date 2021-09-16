@@ -32,7 +32,7 @@ def Package.staticLibTarget (self : Package) : FileTarget :=
     (← self.buildTarget).staticLibTarget.materializeAsync
 
 def buildLib (pkg : Package) : IO PUnit :=
-  runBuild pkg.staticLibTarget.build
+  pkg.staticLibTarget.build.run
 
 -- # Build Package Bin
 
@@ -53,4 +53,4 @@ def Package.binTarget (self : Package) : FileTarget :=
     pkgTarget.binTarget depTargets >>= (·.materializeAsync)
 
 def buildBin (pkg : Package) : IO PUnit :=
-  runBuild pkg.binTarget.build
+  pkg.binTarget.build.run

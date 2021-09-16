@@ -84,6 +84,7 @@ def maybeTee (fName : String) (isOut : Bool) (h : FS.Stream) : IO FS.Stream := d
   match (← IO.getEnv "LEAN_SERVER_LOG_DIR") with
   | none => pure h
   | some logDir =>
+    IO.FS.createDirAll logDir
     let hTee ← FS.Handle.mk (System.mkFilePath [logDir, fName]) FS.Mode.write true
     let hTee := FS.Stream.ofHandle hTee
     pure $ if isOut then

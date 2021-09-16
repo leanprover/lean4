@@ -152,7 +152,7 @@ def checkIfNewer [GetMTime i] (info : i) (depMTime : MTime) : IO Bool := do
   try (← getMTime info) >= depMTime catch _ => false
 
 --------------------------------------------------------------------------------
--- # Lake Trace (Hash + MTIme)
+-- # Lake Build Trace (Hash + MTIme)
 --------------------------------------------------------------------------------
 
 /-- Trace used for common Lake targets. Combines `Hash` and `MTime`. -/

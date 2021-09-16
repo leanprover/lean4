@@ -30,7 +30,7 @@ syntax (name := change) "change " term : conv
 syntax (name := delta) "delta " ident : conv
 syntax (name := pattern) "pattern " term : conv
 syntax (name := rewrite) "rewrite " (config)? rwRuleSeq : conv
-syntax (name := simp) "simp " ("(" &"config" " := " term ")")? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? : conv
+syntax (name := simp) "simp " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? : conv
 syntax (name := simpMatch) "simpMatch " : conv
 
 /-- Execute the given tactic block without converting `conv` goal into a regular goal -/

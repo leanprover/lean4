@@ -319,7 +319,7 @@ macro "sorry" : tactic => `(exact sorry)
 macro "inferInstance" : tactic => `(exact inferInstance)
 
 /-- Optional configuration option for tactics -/
-syntax config := ("(" &"config" " := " term ")")
+syntax config := atomic("(" &"config") " := " term ")"
 
 syntax locationWildcard := "*"
 syntax locationHyp      := (colGt ident)+ ("⊢" <|> "|-")? -- TODO: delete
@@ -352,13 +352,15 @@ syntax (name := injection) "injection " term (" with " (colGt (ident <|> "_"))+)
 
 syntax (name := injections) "injections" : tactic
 
+syntax discharger := atomic("(" (&"discharger" <|> &"disch")) " := " tacticSeq ")"
+
 syntax simpPre   := "↓"
 syntax simpPost  := "↑"
 syntax simpLemma := (simpPre <|> simpPost)? ("←" <|> "<-")? term
 syntax simpErase := "-" ident
 syntax simpStar  := "*"
-syntax (name := simp) "simp " (config)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
-syntax (name := simpAll) "simp_all " (config)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
+syntax (name := simp) "simp " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
+syntax (name := simpAll) "simp_all " (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
 
 /--
   Delta expand the given definition.

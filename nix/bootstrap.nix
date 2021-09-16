@@ -1,5 +1,5 @@
 { debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir,
+  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl,
   ... } @ args:
 with builtins;
 rec {
@@ -122,6 +122,7 @@ rec {
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex ../. [ "src.*" "tests.*" ];
+        buildInputs = [ gmp perl ];
         preConfigure = ''
           cd src
         '';

@@ -609,6 +609,14 @@ extern "C" obj_res lean_io_create_dir(b_obj_arg p, obj_arg) {
     }
 }
 
+extern "C" obj_res lean_io_remove_dir(b_obj_arg p, obj_arg) {
+    if (rmdir(string_cstr(p)) == 0) {
+        return io_result_mk_ok(box(0));
+    } else {
+        return io_result_mk_error(decode_io_error(errno, p));
+    }
+}
+
 extern "C" obj_res lean_io_remove_file(b_obj_arg fname, obj_arg) {
     if (std::remove(string_cstr(fname)) == 0) {
         return io_result_mk_ok(box(0));

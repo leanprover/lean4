@@ -31,7 +31,7 @@ syntax (name := delta) "delta " ident : conv
 syntax (name := pattern) "pattern " term : conv
 syntax (name := rewrite) "rewrite " (config)? rwRuleSeq : conv
 syntax (name := simp) "simp " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? : conv
-syntax (name := simpMatch) "simpMatch " : conv
+syntax (name := simpMatch) "simp_match " : conv
 
 /-- Execute the given tactic block without converting `conv` goal into a regular goal -/
 syntax (name := nestedTacticCore) "tactic'" " => " tacticSeq : conv
@@ -59,7 +59,7 @@ macro_rules
 
 macro "skip" : conv => `(tactic => rfl)
 macro "done" : conv => `(tactic' => done)
-macro "traceState" : conv => `(tactic' => traceState)
+macro "trace_state" : conv => `(tactic' => trace_state)
 macro "apply " e:term : conv => `(tactic => apply $e)
 
 end Lean.Parser.Tactic.Conv

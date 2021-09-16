@@ -934,7 +934,7 @@ protected abbrev recOnSubsingleton₂
   intro a; apply s
   induction q₂ using Quot.recOnSubsingleton
   intro a; apply s
-  inferInstance
+  infer_instance
 
 end
 end Quotient

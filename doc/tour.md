@@ -196,5 +196,5 @@ theorem Weekday.nextOfPrevious (d : Weekday) : next (previous d) = d :=
 -- using metaprogramming (or "tactics").
 theorem Weekday.nextOfPrevious' (d : Weekday) : next (previous d) = d := by
   cases d       -- A proof by case distinction
-  allGoals rfl  -- Each case is solved using `rfl`
+  all_goals rfl  -- Each case is solved using `rfl`
 ```

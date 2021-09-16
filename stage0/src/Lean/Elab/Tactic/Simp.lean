@@ -126,14 +126,14 @@ structure MkSimpContextResult where
 
 --  If `ctx == false`, the argument is assumed to have type `Meta.Simp.Config`, and `Meta.Simp.ConfigCtx` otherwise. -/
 def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (ctx := false) (ignoreStarArg : Bool := false) : TacticM MkSimpContextResult := do
-  let simpOnly := !stx[2].isNone
+  let simpOnly := !stx[3].isNone
   let simpLemmas ←
     if simpOnly then
       ({} : SimpLemmas).addConst ``eq_self
     else
       getSimpLemmas
   let congrLemmas ← getCongrLemmas
-  let r ← elabSimpArgs stx[3] (eraseLocal := eraseLocal) {
+  let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) {
     config      := (← elabSimpConfig stx[1] (ctx := ctx))
     simpLemmas, congrLemmas
   }
@@ -157,12 +157,12 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (ctx := false) (ignoreStarA
     return { ctx, fvarIdToLemmaId }
 
 /-
-  "simp " ("(" "config" ":=" term ")")? ("only ")? ("[" simpLemma,* "]")? (location)?
+  "simp " (config)? (discharger)? ("only ")? ("[" simpLemma,* "]")? (location)?
 -/
 @[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
   let { ctx, fvarIdToLemmaId } ← withMainContext <| mkSimpContext stx (eraseLocal := false)
   -- trace[Meta.debug] "Lemmas {← toMessageData ctx.simpLemmas.post}"
-  let loc := expandOptLocation stx[4]
+  let loc := expandOptLocation stx[5]
   match loc with
   | Location.targets hUserNames simplifyTarget =>
     withMainContext do

@@ -9904,7 +9904,7 @@ lean_inc(x_21);
 x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
 lean_dec(x_20);
-x_23 = lean_unsigned_to_nat(3u);
+x_23 = lean_unsigned_to_nat(4u);
 x_24 = l_Lean_Syntax_getArg(x_1, x_23);
 x_25 = lean_box(0);
 x_26 = lean_unsigned_to_nat(0u);
@@ -10274,7 +10274,7 @@ lean_object* l_Lean_Elab_Tactic_mkSimpContext(lean_object* x_1, uint8_t x_2, uin
 _start:
 {
 lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_14 = lean_unsigned_to_nat(2u);
+x_14 = lean_unsigned_to_nat(3u);
 x_15 = l_Lean_Syntax_getArg(x_1, x_14);
 x_16 = l_Lean_Syntax_isNone(x_15);
 lean_dec(x_15);
@@ -10854,7 +10854,7 @@ lean_inc(x_19);
 x_20 = lean_ctor_get(x_17, 1);
 lean_inc(x_20);
 lean_dec(x_17);
-x_21 = lean_unsigned_to_nat(4u);
+x_21 = lean_unsigned_to_nat(5u);
 x_22 = l_Lean_Syntax_getArg(x_1, x_21);
 lean_dec(x_1);
 x_23 = l_Lean_Elab_Tactic_expandOptLocation(x_22);

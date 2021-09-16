@@ -236,47 +236,47 @@ end Ne
 section
 variable {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
 
-theorem HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} (m : motive a) {β : Sort u2} {b : β} (h : a ≅ b) : motive b :=
+theorem HEq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} (m : motive a) {β : Sort u2} {b : β} (h : HEq a b) : motive b :=
   @HEq.rec α a (fun b _ => motive b) m β b h
 
-theorem HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} {β : Sort u2} {b : β} (h : a ≅ b) (m : motive a) : motive b :=
+theorem HEq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : {β : Sort u2} → β → Sort u1} {β : Sort u2} {b : β} (h : HEq a b) (m : motive a) : motive b :=
   @HEq.rec α a (fun b _ => motive b) m β b h
 
-theorem HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a ≅ b) (h₂ : p a) : p b :=
+theorem HEq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : HEq a b) (h₂ : p a) : p b :=
   eq_of_heq h₁ ▸ h₂
 
-theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : a ≅ b) (h₂ : p α a) : p β b :=
+theorem HEq.subst {p : (T : Sort u) → T → Prop} (h₁ : HEq a b) (h₂ : p α a) : p β b :=
   HEq.ndrecOn h₁ h₂
 
-theorem HEq.symm (h : a ≅ b) : b ≅ a :=
-  HEq.ndrecOn (motive := fun x => x ≅ a) h (HEq.refl a)
+theorem HEq.symm (h : HEq a b) : HEq b a :=
+  HEq.ndrecOn (motive := fun x => HEq x a) h (HEq.refl a)
 
-theorem heq_of_eq (h : a = a') : a ≅ a' :=
+theorem heq_of_eq (h : a = a') : HEq a a' :=
   Eq.subst h (HEq.refl a)
 
-theorem HEq.trans (h₁ : a ≅ b) (h₂ : b ≅ c) : a ≅ c :=
+theorem HEq.trans (h₁ : HEq a b) (h₂ : HEq b c) : HEq a c :=
   HEq.subst h₂ h₁
 
-theorem heq_of_heq_of_eq (h₁ : a ≅ b) (h₂ : b = b') : a ≅ b' :=
+theorem heq_of_heq_of_eq (h₁ : HEq a b) (h₂ : b = b') : HEq a b' :=
   HEq.trans h₁ (heq_of_eq h₂)
 
-theorem heq_of_eq_of_heq (h₁ : a = a') (h₂ : a' ≅ b) : a ≅ b :=
+theorem heq_of_eq_of_heq (h₁ : a = a') (h₂ : HEq a' b) : HEq a b :=
   HEq.trans (heq_of_eq h₁) h₂
 
-def type_eq_of_heq (h : a ≅ b) : α = β :=
+def type_eq_of_heq (h : HEq a b) : α = β :=
   HEq.ndrecOn (motive := @fun (x : Sort u) _ => α = x) h (Eq.refl α)
 
 end
 
-theorem eqRec_heq {α : Sort u} {φ : α → Sort v} {a a' : α} : (h : a = a') → (p : φ a) → (Eq.recOn (motive := fun x _ => φ x) h p) ≅ p
+theorem eqRec_heq {α : Sort u} {φ : α → Sort v} {a a' : α} : (h : a = a') → (p : φ a) → HEq (Eq.recOn (motive := fun x _ => φ x) h p) p
   | rfl, p => HEq.refl p
 
-theorem heq_of_eqRec_eq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ : Eq.rec (motive := fun α _ => α) a h₁ = b) : a ≅ b := by
+theorem heq_of_eqRec_eq {α β : Sort u} {a : α} {b : β} (h₁ : α = β) (h₂ : Eq.rec (motive := fun α _ => α) a h₁ = b) : HEq a b := by
   subst h₁
   apply heq_of_eq
   exact h₂
 
-theorem cast_heq {α β : Sort u} : (h : α = β) → (a : α) → cast h a ≅ a
+theorem cast_heq {α β : Sort u} : (h : α = β) → (a : α) → HEq (cast h a) a
   | rfl, a => HEq.refl a
 
 variable {a b c d : Prop}
@@ -472,7 +472,7 @@ class Subsingleton (α : Sort u) : Prop where
 protected def Subsingleton.elim {α : Sort u} [h : Subsingleton α] : (a b : α) → a = b :=
   h.allEq
 
-protected def Subsingleton.helim {α β : Sort u} [h₁ : Subsingleton α] (h₂ : α = β) (a : α) (b : β) : a ≅ b := by
+protected def Subsingleton.helim {α β : Sort u} [h₁ : Subsingleton α] (h₂ : α = β) (a : α) (b : β) : HEq a b := by
   subst h₂
   apply heq_of_eq
   apply Subsingleton.elim
@@ -761,10 +761,10 @@ protected abbrev recOnSubsingleton
 protected abbrev hrecOn
     (q : Quot r)
     (f : (a : α) → motive (Quot.mk r a))
-    (c : (a b : α) → (p : r a b) → f a ≅ f b)
+    (c : (a b : α) → (p : r a b) → HEq (f a) (f b))
     : motive q :=
   Quot.recOn q f fun a b p => eq_of_heq <|
-    have p₁ : Eq.ndrec (f a) (sound p) ≅ f a := eqRec_heq (sound p) (f a)
+    have p₁ : HEq (Eq.ndrec (f a) (sound p)) (f a) := eqRec_heq (sound p) (f a)
     HEq.trans p₁ (c a b p)
 
 end
@@ -830,7 +830,7 @@ protected abbrev recOnSubsingleton
 protected abbrev hrecOn
     (q : Quotient s)
     (f : (a : α) → motive (Quotient.mk a))
-    (c : (a b : α) → (p : a ≈ b) → f a ≅ f b)
+    (c : (a b : α) → (p : a ≈ b) → HEq (f a) (f b))
     : motive q :=
   Quot.hrecOn q f c
 end

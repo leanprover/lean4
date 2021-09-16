@@ -484,6 +484,7 @@ def format (formatter : Formatter) (stx : Syntax) : CoreM Format := do
     (fun _ => throwError "format: uncaught backtrack exception")
 
 def formatTerm := format $ categoryParser.formatter `term
+def formatTactic := format $ categoryParser.formatter `tactic
 def formatCommand := format $ categoryParser.formatter `command
 
 builtin_initialize registerTraceClass `PrettyPrinter.format;

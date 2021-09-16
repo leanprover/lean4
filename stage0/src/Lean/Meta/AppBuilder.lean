@@ -249,6 +249,14 @@ def mkAppM (constName : Name) (xs : Array Expr) : MetaM Expr := do
     trace[Meta.appBuilder] "constName: {constName}, xs: {xs}, result: {r}"
     return r
 
+/-- Similar to `mkAppM`, but takes an `Expr` instead of a constant name. -/
+def mkAppM' (f : Expr) (xs : Array Expr) : MetaM Expr := do
+  let fType ← inferType f
+  traceCtx `Meta.appBuilder <| withNewMCtxDepth do
+    let r ← mkAppMArgs f fType xs
+    trace[Meta.appBuilder] "f: {f}, xs: {xs}, result: {r}"
+    return r
+
 private partial def mkAppOptMAux (f : Expr) (xs : Array (Option Expr)) : Nat → Array Expr → Nat → Array MVarId → Expr → MetaM Expr
   | i, args, j, instMVars, Expr.forallE n d b c => do
     let d  := d.instantiateRevRange j args.size args
@@ -298,6 +306,12 @@ private partial def mkAppOptMAux (f : Expr) (xs : Array (Option Expr)) : Nat →
 def mkAppOptM (constName : Name) (xs : Array (Option Expr)) : MetaM Expr := do
   traceCtx `Meta.appBuilder <| withNewMCtxDepth do
     let (f, fType) ← mkFun constName
+    mkAppOptMAux f xs 0 #[] 0 #[] fType
+
+/-- Similar to `mkAppOptM`, but takes an `Expr` instead of a constant name -/
+def mkAppOptM' (f : Expr) (xs : Array (Option Expr)) : MetaM Expr := do
+  let fType ← inferType f
+  traceCtx `Meta.appBuilder <| withNewMCtxDepth do
     mkAppOptMAux f xs 0 #[] 0 #[] fType
 
 def mkEqNDRec (motive h1 h2 : Expr) : MetaM Expr := do

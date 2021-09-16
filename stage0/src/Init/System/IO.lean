@@ -212,6 +212,8 @@ end Handle
 
 @[extern "lean_io_realpath"] constant realPath (fname : FilePath) : IO FilePath
 @[extern "lean_io_remove_file"] constant removeFile (fname : @& FilePath) : IO Unit
+/-- Remove given directory. Fails if not empty; see also `IO.FS.removeDirAll`. -/
+@[extern "lean_io_remove_dir"] constant removeDir : @& FilePath → IO Unit
 @[extern "lean_io_create_dir"] constant createDir : @& FilePath → IO Unit
 
 end FS
@@ -375,6 +377,7 @@ def appDir : IO FilePath := do
     | throw <| IO.userError s!"System.IO.appDir: unexpected filename '{p}'"
   FS.realPath p
 
+/-- Create given path and all missing parents as directories. -/
 partial def FS.createDirAll (p : FilePath) : IO Unit := do
   if ← p.isDir then
     return ()
@@ -388,6 +391,17 @@ partial def FS.createDirAll (p : FilePath) : IO Unit := do
         pure ()  -- I guess someone else was faster
       else
         throw e
+
+/--
+  Fully remove given directory by deleting all contained files and directories in an unspecified order.
+  Fails if any contained entry cannot be deleted or was newly created during execution. -/
+partial def FS.removeDirAll (p : FilePath) : IO Unit := do
+  for ent in (← p.readDir) do
+    if (← ent.path.isDir : Bool) then
+      removeDirAll ent.path
+    else
+      removeFile ent.path
+  removeDir p
 
 namespace Process
 inductive Stdio where

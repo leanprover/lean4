@@ -15,7 +15,9 @@ After building, the `lake` binary will be located at `build/bin/lake` and the li
 
 ### Augmenting Lake's Search Path
 
-The `lake` executable needs to know where to find the `.olean` files for the modules used in the package configuration file. Lake will intelligently setup an initial search path based on the location of its own executable and `lean`. It will assume that `lean` is located at `<lean-home>/bin/lean` with its `.olean` files (e.g., for `Init`) at `<lean-home>/lib/lean` and that `lake` is at `<lake-home>/bin/lake` with its `.olean` files at `<lake-home>`.
+The `lake` executable needs to know where to find the `.olean` files for the modules used in the package configuration file. Lake will intelligently setup an initial search path based on the location of its own executable and `lean`.
+
+Specifically, if Lake is co-located with `lean` (i.e., there is `lean` executable in the same directory as itself), it will assume it was installed with Lean and that both Lean and Lake are located in `<lean-home>/bin` with Lean's `.olean` files at `<lean-home/lib/lean` and Lake's at `.olean` files at `<lean-home/lib/lake`. Otherwise, it will run `lean --print-prefix` to find Lean's home and assume that its `.olean` files are at `<lean-home>/lib/lean` and that `lake` is at `<lake-home>/bin/lake` with its `.olean` files at `<lake-home>`.
 
 This search path can be augmented by including other directories of `.olean` files in the `LEAN_PATH` environment variable. Such directories will take precedence over the initial search path, so `LEAN_PATH` can also be used to correct Lake's search if the `.olean` files for Lean (or Lake itself) are in non-standard locations.
 

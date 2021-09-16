@@ -28,6 +28,9 @@ def withInfo (info : i') (self : ActiveTarget i n t) : ActiveTarget i' n t :=
 def withoutInfo (self : ActiveTarget i n t) : ActiveTarget PUnit n t :=
   self.withInfo ()
 
+def withTask (task : n' t') (self : ActiveTarget i n t) : ActiveTarget i n' t' :=
+  {self with task}
+
 def opaque (task : n t) : ActiveTarget PUnit n t :=
   ⟨(), task⟩
 
@@ -93,6 +96,15 @@ instance [Inhabited i] [Inhabited t] [Pure m] [Pure n] : Inhabited (Target i m n
   ⟨Inhabited.default, pure (pure Inhabited.default)⟩
 
 namespace Target
+
+def withInfo (info : i') (self : Target i m n t) : Target i' m n t :=
+  {self with info}
+
+def withoutInfo (self : Target i m n t) : Target PUnit m n t :=
+  self.withInfo ()
+
+def withTask (task : m' (n' t')) (self : Target i m n t) : Target i m' n' t' :=
+  {self with task}
 
 def opaque (task : m (n t)) : Target PUnit m n t :=
   mk () task

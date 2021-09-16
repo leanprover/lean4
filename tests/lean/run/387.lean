@@ -12,7 +12,7 @@ example : p 0 0 := by
   simp [foo 0]
 example : p 0 0 ∧ p 1 1 := by
   simp [foo 1]
-  traceState
+  trace_state
   simp [foo 0]
 
 namespace Foo

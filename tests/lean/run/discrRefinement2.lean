@@ -1,3 +1,4 @@
+infix:50 " ≅ "  => HEq
 theorem ex1 {α : Sort u} {a b : α} (h : a ≅ b) : a = b :=
   match h with
   | HEq.refl _ => rfl

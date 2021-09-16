@@ -1,0 +1,26 @@
+case simp.discharger
+x : Nat
+h : x ≠ 0
+⊢ x ≠ 0
+case simp.discharger
+x y : Nat
+h1 : x ≠ 0
+h2 : y ≠ 0
+h3 : x = y
+⊢ x ≠ 0
+case simp.discharger
+x y : Nat
+h1 : x ≠ 0
+h2 : y ≠ 0
+h3 : x = y
+⊢ y ≠ 0
+x y : Nat
+h1 : x ≠ 0
+h2 : y ≠ 0
+h3 : x = y
+⊢ x = f y + 0
+x y : Nat
+h1 : x ≠ 0
+h2 : y ≠ 0
+h3 : x = y
+⊢ x = y

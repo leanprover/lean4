@@ -25,7 +25,7 @@ theorem ex1 (xs ys : Vec α (n+1)) (h : xs = ys) : xs.head = ys.head := by
 theorem ex2 (xs ys : Vec α (n+1)) (h : xs = ys) : xs.head = ys.head := by
   cases xs with
   | cons x xs =>
-    traceState -- `h` has been refined
+    trace_state -- `h` has been refined
     repeat admit
 
 inductive ExprType where
@@ -64,5 +64,5 @@ def eval : Expr α → denoteType α
 theorem ex3 (a b : Expr α) (h : a = b) : eval (constProp a) = eval b := by
   set_option trace.Meta.debug true in
   induction a
-  traceState -- b's type must have been refined, `h` too
+  trace_state -- b's type must have been refined, `h` too
   repeat admit

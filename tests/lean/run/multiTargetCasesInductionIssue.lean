@@ -25,7 +25,7 @@ example (n : Nat) (a : α) (as : Vec α n) : Vec.cons a (Vec.cons a as) = Vec.co
   induction n+2, Vec.cons a (Vec.cons a as) using Vec.casesOn
   case nil => constructor
   case cons n a as ih =>
-    traceState
+    trace_state
     constructor
 
 #print "-----"
@@ -34,7 +34,7 @@ example (n : Nat) (a : α) (as : Vec α n) : Vec.cons a (Vec.cons a as) = Vec.co
   cases n+2, Vec.cons a (Vec.cons a as) using Vec.casesOn
   case nil => constructor
   case cons n a as ih =>
-    traceState
+    trace_state
     constructor
 
 #print "-----"
@@ -43,5 +43,5 @@ example (n : Nat) (a : α) (as : Vec α n) : Vec.cons a (Vec.cons a as) = Vec.co
   cases h₁ : n+2, h₂ : Vec.cons a (Vec.cons a as) using Vec.casesOn
   case nil => constructor
   case cons n' a' as' ih =>
-    traceState
+    trace_state
     constructor

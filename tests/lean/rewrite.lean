@@ -4,7 +4,7 @@ axiom reverseEq {α} (as : List α) : as.reverse.reverse = as
 
 theorem ex1 {α} (as bs : List α) : as.reverse.reverse ++ [] ++ [] ++ bs ++ bs = as ++ (bs ++ bs) := by
   rw [appendNil, appendNil, reverseEq];
-  traceState;
+  trace_state;
   rw [←appendAssoc];
 
 
@@ -16,7 +16,7 @@ axiom zeroAdd (x : Nat) : 0 + x = x
 
 theorem ex2 (x y z) (h₁ : 0 + x = y) (h₂ : 0 + y = z) : x = z := by
 rewrite [zeroAdd] at h₁ h₂;
-traceState;
+trace_state;
 subst x;
 subst y;
 exact rfl
@@ -33,7 +33,7 @@ done
 
 theorem ex5 (m n k : Nat) (h : 0 + n = m) (h : k = m) : k = n := by
 rw [zeroAdd] at *;
-traceState; -- `h` is still a name for `h : k = m`
+trace_state; -- `h` is still a name for `h : k = m`
 refine Eq.trans h ?hole;
 apply Eq.symm;
 assumption

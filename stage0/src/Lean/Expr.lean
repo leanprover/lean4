@@ -872,6 +872,12 @@ def isOptParam (e : Expr) : Bool :=
 def isAutoParam (e : Expr) : Bool :=
   e.isAppOfArity `autoParam 2
 
+partial def consumeAutoOptParam (e : Expr) : Expr :=
+  if e.isOptParam || e.isAutoParam then
+    consumeAutoOptParam e.appFn!.appArg!
+  else
+    e
+
 /-- Return true iff `e` contains a free variable which statisfies `p`. -/
 @[inline] def hasAnyFVar (e : Expr) (p : FVarId → Bool) : Bool :=
   let rec @[specialize] visit (e : Expr) := if !e.hasFVar then false else

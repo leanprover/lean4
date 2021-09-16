@@ -657,7 +657,7 @@ class to_lambda_pure_fn {
         cnstr_info k_info      = get_cnstr_info(const_name(k));
         unsigned nparams       = k_val.get_nparams();
         unsigned cidx          = k_info.m_cidx;
-        name const & I         = const_name(k).get_prefix();
+        name const & I         = k_val.get_induct();
         if (optional<unsigned> r = ::lean::is_enum_type(env(), I)) {
             /* We use a literal for enumeration types. */
             expr x = mk_let_decl(*to_uint_type(*r), mk_lit(literal(nat(cidx))));

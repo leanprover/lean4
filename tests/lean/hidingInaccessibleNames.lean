@@ -12,7 +12,7 @@ def f' : (xs : List Nat) → Nat → xs ≠ [] → Nat
 theorem ex1 : p ∨ q → q ∨ p := by
   intro h
   cases h
-  traceState
+  trace_state
   apply Or.inr
   assumption
   apply Or.inl

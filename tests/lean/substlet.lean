@@ -3,9 +3,9 @@ theorem ex1 (n : Nat) : 0 + n = n := by
   have h : ∃ k, id k = m := ⟨m, rfl⟩
   cases h with
   | intro a e =>
-    traceState
+    trace_state
     subst e
-    traceState
+    trace_state
     apply Nat.zero_add
 
 theorem ex2 (n : Nat) : 0 + n = n := by
@@ -13,9 +13,9 @@ theorem ex2 (n : Nat) : 0 + n = n := by
   have h : ∃ k, m = id k := ⟨m, rfl⟩
   cases h with
   | intro a e =>
-    traceState
+    trace_state
     subst e
-    traceState
+    trace_state
     apply Nat.zero_add
 
 theorem ex3 (n : Nat) (h : n = 0) : 0 + n = 0 := by

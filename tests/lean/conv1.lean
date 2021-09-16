@@ -8,7 +8,7 @@ example (x y : Nat) : p (x + y) (y + x + 0) := by
     congr
     . skip
     . whnf; skip
-  traceState
+  trace_state
   rw [Nat.add_comm]
   rfl
 
@@ -17,7 +17,7 @@ example (x y : Nat) : p (x + y) (y + x + 0) := by
     whnf
     rhs
     whnf
-  traceState
+  trace_state
   rw [Nat.add_comm]
   rfl
 
@@ -29,7 +29,7 @@ example (x y : Nat) : p (x + y) (y + x + 0) := by
   conv =>
     rhs
     whnf
-  traceState
+  trace_state
   apply Nat.add_comm x y
 
 def f (x y z : Nat) : Nat :=
@@ -40,7 +40,7 @@ example (x y : Nat) : f x (x + y + 0) y = y + x := by
     lhs
     arg 2
     whnf
-  traceState
+  trace_state
   simp [f]
   apply Nat.add_comm
 
@@ -49,7 +49,7 @@ example (x y : Nat) : f x (x + y + 0) y = y + x := by
     lhs
     arg 2
     change x + y
-    traceState
+    trace_state
     rw [Nat.add_comm]
 
 example : id (fun x y => 0 + x + y) = Nat.add := by
@@ -57,9 +57,9 @@ example : id (fun x y => 0 + x + y) = Nat.add := by
     lhs
     arg 1
     ext a b
-    traceState
+    trace_state
     rw [Nat.zero_add]
-    traceState
+    trace_state
 
 example : id (fun x y => 0 + x + y) = Nat.add := by
   conv =>
@@ -71,27 +71,27 @@ example : id (fun x y => 0 + x + y) = Nat.add := by
 example : id (fun x y => 0 + x + y) = Nat.add := by
   conv =>
     enter [1, 1, a, b]
-    traceState
+    trace_state
     rw [Nat.zero_add]
 
 example (p : Nat → Prop) (h : ∀ a, p a) : ∀ a, p (id (0 + a)) := by
   conv =>
     intro x
-    traceState
+    trace_state
     arg 1
-    traceState
+    trace_state
     simp only [id]
-    traceState
+    trace_state
     rw [Nat.zero_add]
   exact h
 
 example (p : Prop) (x : Nat) : (x = x → p) → p := by
   conv =>
     congr
-    . traceState
+    . trace_state
       congr
       . simp
-  traceState
+  trace_state
   conv =>
     lhs
     simp
@@ -102,7 +102,7 @@ example : (fun x => 0 + x) = id := by
   conv =>
     lhs
     tactic => funext x
-    traceState
+    trace_state
     rw [Nat.zero_add]
 
 example (p : Prop) (x : Nat) : (x = x → p) → p := by
@@ -110,7 +110,7 @@ example (p : Prop) (x : Nat) : (x = x → p) → p := by
     apply implies_congr
     . apply implies_congr
       simp
-  traceState
+  trace_state
   conv =>
     lhs
     simp
@@ -120,11 +120,11 @@ example (x y : Nat) (f : Nat → Nat → Nat) (g : Nat → Nat) (h₁ : ∀ z, f
   conv =>
     pattern _ + _
     apply Nat.zero_add
-  traceState
+  trace_state
   conv =>
     pattern 0 + _
     apply Nat.zero_add
-  traceState
+  trace_state
   simp [h₁, h₂]
 
 example (x y : Nat) (h : y = 0) : x + ((y + x) + x) = x + (x + x) := by
@@ -132,7 +132,7 @@ example (x y : Nat) (h : y = 0) : x + ((y + x) + x) = x + (x + x) := by
     lhs
     rhs
     lhs
-    traceState
+    trace_state
     rw [h, Nat.zero_add]
 
 example (p : Nat → Prop) (x y : Nat) (h : y = 0) : p (y + x) := by
@@ -147,7 +147,7 @@ example (p : Prop) : p := by
 example (p : Nat → Prop) (x y : Nat) (h1 : y = 0) (h2 : p x) : p (y + x) := by
   conv =>
     rhs
-    traceState
+    trace_state
     rw [h1]
     apply Nat.zero_add
   exact h2

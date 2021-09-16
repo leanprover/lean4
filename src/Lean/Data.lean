@@ -21,3 +21,4 @@ import Lean.Data.SMap
 import Lean.Data.Trie
 import Lean.Data.PrefixTree
 import Lean.Data.NameTrie
+import Lean.Data.Rat

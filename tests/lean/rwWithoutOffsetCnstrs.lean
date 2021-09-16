@@ -4,5 +4,5 @@ macro "rw0" s:rwRuleSeq : tactic =>
 
 example (m n : Nat) : Nat.ble (n+1) (n+0) = false := by
   rw0 [Nat.add_zero]
-  traceState
+  trace_state
   admit

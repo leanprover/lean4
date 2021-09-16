@@ -108,7 +108,7 @@ case pre => exact h3
 
 theorem simple9 (x y z : Nat) : y = z → x = x → x = y → x = z := by
 intros h1 _ h3
-traceState
+trace_state
 focus
   refine' Eq.trans ?pre ?post
   first
@@ -120,7 +120,7 @@ focus
 
 theorem simple9b (x y z : Nat) : y = z → x = x → x = y → x = z := by
 intros h1 _ h3
-traceState
+trace_state
 focus
   refine' Eq.trans ?pre ?post
   first
@@ -168,7 +168,7 @@ theorem simple11 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by {
   intro h1; intro h2; intro h3;
   apply @Eq.trans;
-  traceState;
+  trace_state;
   exact h3;
   assumption
 }
@@ -178,26 +178,26 @@ by {
   intro h1; intro h2; intro h3;
   apply @Eq.trans;
   try exact h1; -- `exact h1` fails
-  traceState;
+  trace_state;
   try exact h3;
-  traceState;
+  trace_state;
   try exact h1;
 }
 
 theorem simple13 (x y z : Nat) : y = z → x = x → x = y → x = z := by
 intros h1 h2 h3
-traceState
+trace_state
 apply @Eq.trans
 case b => exact y
-traceState
+trace_state
 repeat assumption
 
 theorem simple13b (x y z : Nat) : y = z → x = x → x = y → x = z := by {
 intros h1 h2 h3;
-traceState;
+trace_state;
 apply @Eq.trans;
 case b => exact y;
-traceState;
+trace_state;
 repeat assumption
 }
 
@@ -222,7 +222,7 @@ by {
   intros h1 h2 h3;
   try clear x; -- should fail
   clear h2;
-  traceState;
+  trace_state;
   apply Eq.trans;
   exact h3;
   exact h1
@@ -372,7 +372,7 @@ theorem simple20 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by intros h1 h2 h3;
    try clear x; -- should fail
    clear h2;
-   traceState;
+   trace_state;
    apply Eq.trans;
    exact h3;
    exact h1

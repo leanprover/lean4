@@ -18,7 +18,7 @@ theorem ex4 (p : Nat → Prop) (a b : Nat) (h₁ : p a) (h₂ : p b) : p c :=
 theorem ex5 (p : Nat → Nat → Prop) (a b : Nat) (h₁ : p a b) (h₂ : p b c) : p a c :=
   calc  p a b := h₁
         p _ c := h₂
-
+infix:50 " ≅ "  => HEq
 instance {α β γ} : Trans (. ≅ . : α → β → Prop) (. ≅ . : β → γ → Prop) (. ≅ . : α → γ → Prop) where
   trans h₁ h₂ := HEq.trans h₁ h₂
 

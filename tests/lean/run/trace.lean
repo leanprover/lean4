@@ -3,7 +3,7 @@ import Lean.CoreM
 open Lean
 
 structure MyState :=
-(traceState : TraceState := {})
+(trace_state : TraceState := {})
 (s          : Nat := 0)
 
 abbrev M := CoreM

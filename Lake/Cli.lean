@@ -109,7 +109,7 @@ def command : (cmd : String) → CliM PUnit
 
 def processArgs : CliM PUnit := do
   match (← getArgs) with
-  | [] => throw <| IO.userError "expected command"
+  | [] => IO.println usage
   | ["--version"] => IO.println uiVersionString
   | _ => -- normal CLI
     processOptions

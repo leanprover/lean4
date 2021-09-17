@@ -8,9 +8,10 @@ Requirements
 Platform-Specific Setup
 -----------------------
 
-- [Linux (Ubuntu)](ubuntu.md)
+- [Linux (Ubuntu)](ubuntu-16.04.md)
 - [Windows (msys2)](msys2.md)
 - [Windows (Visual Studio)](msvc.md)
+- [Windows (WSL)](wsl.md)
 - [macOS (homebrew)](osx-10.9.md)
 - Linux/macOS/WSL via [Nix](https://nixos.org/nix/): Call `nix-shell` in the project root. That's it.
 - There is also an [**experimental** setup based purely on Nix](nix.md) that works fundamentally differently from the

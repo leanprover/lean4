@@ -17,23 +17,25 @@ instance : Inhabited State := ⟨{}⟩
 
 abbrev Visitor := State → State
 
-@[inline] def visit (f : Expr → Visitor) (e : Expr) : Visitor := fun s =>
-  if !e.hasMVar || s.visitedExpr.contains e then s
-  else f e { s with visitedExpr := s.visitedExpr.insert e }
+mutual
+  partial def visit (e : Expr) : Visitor := fun s =>
+    if !e.hasMVar || s.visitedExpr.contains e then s
+    else main e { s with visitedExpr := s.visitedExpr.insert e }
 
-partial def main : Expr → Visitor
-  | Expr.proj _ _ e _    => visit main e
-  | Expr.forallE _ d b _ => visit main b ∘ visit main d
-  | Expr.lam _ d b _     => visit main b ∘ visit main d
-  | Expr.letE _ t v b _  => visit main b ∘ visit main v ∘ visit main t
-  | Expr.app f a _       => visit main a ∘ visit main f
-  | Expr.mdata _ b _     => visit main b
-  | Expr.mvar mvarId _   => fun s => { s with result := s.result.push mvarId }
-  | _                    => id
+  partial def main : Expr → Visitor
+    | Expr.proj _ _ e _    => visit e
+    | Expr.forallE _ d b _ => visit b ∘ visit d
+    | Expr.lam _ d b _     => visit b ∘ visit d
+    | Expr.letE _ t v b _  => visit b ∘ visit v ∘ visit t
+    | Expr.app f a _       => visit a ∘ visit f
+    | Expr.mdata _ b _     => visit b
+    | Expr.mvar mvarId _   => fun s => { s with result := s.result.push mvarId }
+    | _                    => id
+end
 
 end CollectMVars
 
 def Expr.collectMVars (s : CollectMVars.State) (e : Expr) : CollectMVars.State :=
-  CollectMVars.visit CollectMVars.main e s
+  CollectMVars.visit e s
 
 end Lean

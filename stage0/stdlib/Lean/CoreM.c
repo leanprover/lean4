@@ -61,6 +61,7 @@ lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Core_instMetaEvalCoreM___spec__
 lean_object* l_Lean_Core_instInhabitedCoreM___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Core_initFn____x40_Lean_CoreM___hyg_5____closed__5;
 lean_object* l_Lean_Core_instMonadRecDepthCoreM___lambda__3___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Core_instMonadWithOptionsCoreM(lean_object*);
 lean_object* l_Lean_Core_instMonadLiftIOCoreM(lean_object*);
 lean_object* l_Lean_catchInternalIds___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_maxHeartbeats;
@@ -218,6 +219,7 @@ static lean_object* l_Lean_Core_instInhabitedState___closed__2;
 static lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1___closed__1;
 static lean_object* l_Lean_Core_State_ngen___default___closed__1;
 lean_object* l_Lean_Core_instAddMessageContextCoreM;
+lean_object* l_Lean_Core_instMonadWithOptionsCoreM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Core_CoreM_run_x27(lean_object*);
 static lean_object* l_Lean_Core_instInhabitedCoreM___rarg___closed__2;
 lean_object* l_Lean_Core_mkFreshUserName(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1217,6 +1219,63 @@ x_4 = l_Lean_Core_instMonadOptionsCoreM(x_1, x_2, x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
+}
+}
+lean_object* l_Lean_Core_instMonadWithOptionsCoreM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_3);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = lean_ctor_get(x_3, 0);
+x_8 = lean_apply_1(x_1, x_7);
+lean_ctor_set(x_3, 0, x_8);
+x_9 = lean_apply_3(x_2, x_3, x_4, x_5);
+return x_9;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+x_10 = lean_ctor_get(x_3, 0);
+x_11 = lean_ctor_get(x_3, 1);
+x_12 = lean_ctor_get(x_3, 2);
+x_13 = lean_ctor_get(x_3, 3);
+x_14 = lean_ctor_get(x_3, 4);
+x_15 = lean_ctor_get(x_3, 5);
+x_16 = lean_ctor_get(x_3, 6);
+x_17 = lean_ctor_get(x_3, 7);
+lean_inc(x_17);
+lean_inc(x_16);
+lean_inc(x_15);
+lean_inc(x_14);
+lean_inc(x_13);
+lean_inc(x_12);
+lean_inc(x_11);
+lean_inc(x_10);
+lean_dec(x_3);
+x_18 = lean_apply_1(x_1, x_10);
+x_19 = lean_alloc_ctor(0, 8, 0);
+lean_ctor_set(x_19, 0, x_18);
+lean_ctor_set(x_19, 1, x_11);
+lean_ctor_set(x_19, 2, x_12);
+lean_ctor_set(x_19, 3, x_13);
+lean_ctor_set(x_19, 4, x_14);
+lean_ctor_set(x_19, 5, x_15);
+lean_ctor_set(x_19, 6, x_16);
+lean_ctor_set(x_19, 7, x_17);
+x_20 = lean_apply_3(x_2, x_19, x_4, x_5);
+return x_20;
+}
+}
+}
+lean_object* l_Lean_Core_instMonadWithOptionsCoreM(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Core_instMonadWithOptionsCoreM___rarg), 5, 0);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1___closed__1() {

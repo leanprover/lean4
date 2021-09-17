@@ -88,7 +88,7 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
     -- save state before/after entering focus on `{`
     withInfoContext (pure ()) initInfo
     evalManyTacticOptSemi stx[1]
-    evalTactic (← `(tactic| allGoals (try rfl)))
+    evalTactic (← `(tactic| all_goals (try rfl)))
 
 @[builtinTactic Lean.Parser.Tactic.Conv.nestedConv] def evalNestedConv : Tactic := fun stx => do
   evalConvSeqBracketed stx[0]

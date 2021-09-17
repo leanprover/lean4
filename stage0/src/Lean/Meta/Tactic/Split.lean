@@ -37,6 +37,11 @@ where
         | some r => return Simp.Step.done r
       return Simp.Step.visit { expr := e }
 
+def simpMatchTarget (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
+  let target ← instantiateMVars (← getMVarType mvarId)
+  let r ← simpMatch target
+  applySimpResultToTarget mvarId target r
+
 private def simpMatchCore (matchDeclName : Name) (matchEqDeclName : Name) (e : Expr) : MetaM Simp.Result := do
   Simp.main e (← getSimpMatchContext) (methods := { pre })
 where
@@ -127,7 +132,7 @@ end Split
 open Split
 
 def splitTarget? (mvarId : MVarId) : MetaM (Option (List MVarId)) := commitWhenSome? do
-  if let some e := findSplit? (← getEnv) (← getMVarType mvarId) then
+  if let some e := findSplit? (← getEnv) (← instantiateMVars (← getMVarType mvarId)) then
     if e.isIte || e.isDIte then
       return (← splitIfTarget? mvarId).map fun (s₁, s₂) => [s₁.mvarId, s₂.mvarId]
     else
@@ -138,7 +143,7 @@ def splitTarget? (mvarId : MVarId) : MetaM (Option (List MVarId)) := commitWhenS
 
 def splitLocalDecl? (mvarId : MVarId) (fvarId : FVarId) : MetaM (Option (List MVarId)) := commitWhenSome? do
   withMVarContext mvarId do
-    if let some e := findSplit? (← getEnv) (← inferType (mkFVar fvarId)) then
+    if let some e := findSplit? (← getEnv) (← instantiateMVars (← inferType (mkFVar fvarId))) then
       if e.isIte || e.isDIte then
         return (← splitIfLocalDecl? mvarId fvarId).map fun (mvarId₁, mvarId₂) => [mvarId₁, mvarId₂]
       else

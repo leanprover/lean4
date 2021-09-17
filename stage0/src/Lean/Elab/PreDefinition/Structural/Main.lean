@@ -56,7 +56,7 @@ private def getFixedPrefix (declName : Name) (xs : Array Expr) (value : Expr) : 
       return true
   numFixedRef.get
 
-private def elimRecursion (preDef : PreDefinition) : M PreDefinition :=
+private def elimRecursion (preDef : PreDefinition) : M (Nat × PreDefinition) :=
   withoutModifyingEnv do lambdaTelescope preDef.value fun xs value => do
     addAsAxiom preDef
     let value ← preprocess value preDef.declName
@@ -72,18 +72,19 @@ private def elimRecursion (preDef : PreDefinition) : M PreDefinition :=
       trace[Elab.definition.structural] "result: {valueNew}"
       -- Recursive applications may still occur in expressions that were not visited by replaceRecApps (e.g., in types)
       let valueNew ← ensureNoRecFn preDef.declName valueNew
-      pure { preDef with value := valueNew }
+      let recArgPos := recArgInfo.fixedParams.size + recArgInfo.pos
+      return (recArgPos, { preDef with value := valueNew })
 
 def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
   if preDefs.size != 1 then
     throwError "structural recursion does not handle mutually recursive functions"
   else do
-    let (preDefNonRec, state) ← run <| elimRecursion preDefs[0]
+    let ((recArgPos, preDefNonRec), state) ← run <| elimRecursion preDefs[0]
     state.addMatchers.forM liftM
     mapError (addNonRec preDefNonRec) (fun msg => m!"structural recursion failed, produced type incorrect term{indentD msg}")
     addAndCompilePartialRec preDefs
     addSmartUnfoldingDef preDefs[0] state
-    mkEqns preDefs[0]
+    registerEqnsInfo preDefs[0] recArgPos
 
 builtin_initialize
   registerTraceClass `Elab.definition.structural

@@ -282,9 +282,9 @@ syntax (name := case) "case " (ident <|> "_") (ident <|> "_")* " => " tacticSeq 
 macro "next " args:(ident <|> "_")* " => " tac:tacticSeq : tactic => `(tactic| case _ $(args.getArgs)* => $tac)
 
 /-- `allGoals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
-syntax (name := allGoals) "allGoals " tacticSeq : tactic
+syntax (name := allGoals) "all_goals " tacticSeq : tactic
 /-- `anyGoals tac` applies the tactic `tac` to every goal, and succeeds if at least one application succeeds.  -/
-syntax (name := anyGoals) "anyGoals " tacticSeq : tactic
+syntax (name := anyGoals) "any_goals " tacticSeq : tactic
 /--
 `focus tac` focuses on the main goal, suppressing all other goals, and runs `tac` on it.
 Usually `· tac`, which enforces that the goal is closed by `tac`, should be preferred. -/
@@ -293,19 +293,19 @@ syntax (name := focus) "focus " tacticSeq : tactic
 syntax (name := skip) "skip" : tactic
 /-- `done` succeeds iff there are no remaining goals. -/
 syntax (name := done) "done" : tactic
-syntax (name := traceState) "traceState" : tactic
-syntax (name := failIfSuccess) "failIfSuccess " tacticSeq : tactic
+syntax (name := traceState) "trace_state" : tactic
+syntax (name := failIfSuccess) "fail_if_success " tacticSeq : tactic
 syntax (name := paren) "(" tacticSeq ")" : tactic
-syntax (name := withReducible) "withReducible " tacticSeq : tactic
-syntax (name := withReducibleAndInstances) "withReducibleAndInstances " tacticSeq : tactic
+syntax (name := withReducible) "with_reducible " tacticSeq : tactic
+syntax (name := withReducibleAndInstances) "with_reducible_and_instances " tacticSeq : tactic
 /-- `first | tac | ...` runs each `tac` until one succeeds, or else fails. -/
 syntax (name := first) "first " withPosition((group(colGe "|" tacticSeq))+) : tactic
-syntax (name := rotateLeft) "rotateLeft" (num)? : tactic
-syntax (name := rotateRight) "rotateRight" (num)? : tactic
+syntax (name := rotateLeft) "rotate_left" (num)? : tactic
+syntax (name := rotateRight) "rotate_right" (num)? : tactic
 /-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
 macro "try " t:tacticSeq : tactic => `(first | $t | skip)
 /-- `tac <;> tac'` runs `tac` on the main goal and `tac'` on each produced goal, concatenating all goals produced by `tac'`. -/
-macro:1 x:tactic " <;> " y:tactic:0 : tactic => `(tactic| focus ($x:tactic; allGoals $y:tactic))
+macro:1 x:tactic " <;> " y:tactic:0 : tactic => `(tactic| focus ($x:tactic; all_goals $y:tactic))
 
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
 macro dot:("·" <|> ".") ts:tacticSeq : tactic => `(tactic| {%$dot ($ts:tacticSeq) })
@@ -316,15 +316,15 @@ macro "rfl" : tactic => `(exact rfl)
 macro "admit" : tactic => `(exact sorry)
 /-- The `sorry` tactic isnxo a shorthand for `exact sorry`. -/
 macro "sorry" : tactic => `(exact sorry)
-macro "inferInstance" : tactic => `(exact inferInstance)
+macro "infer_instance" : tactic => `(exact inferInstance)
 
 /-- Optional configuration option for tactics -/
-syntax config := ("(" &"config" " := " term ")")
+syntax config := atomic("(" &"config") " := " term ")"
 
 syntax locationWildcard := "*"
 syntax locationHyp      := (colGt ident)+ ("⊢" <|> "|-")? -- TODO: delete
 syntax locationTargets  := (colGt ident)+ ("⊢" <|> "|-")?
-syntax location         := withPosition(" at " locationWildcard <|> locationHyp)
+syntax location         := withPosition(" at " (locationWildcard <|> locationHyp))
 
 syntax (name := change) "change " term (location)? : tactic
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
@@ -343,7 +343,7 @@ def rwWithRfl (kind : SyntaxNodeKind) (atom : String) (stx : Syntax) : MacroM Sy
   -- Replace `]` token with one without position information in the expanded tactic
   let seq   := seq.setArg 2 (mkAtom "]")
   let tac   := stx.setKind kind |>.setArg 0 (mkAtomFrom stx atom) |>.setArg 2 seq
-  `(tactic| $tac; try (withReducible rfl%$rbrak))
+  `(tactic| $tac; try (with_reducible rfl%$rbrak))
 
 @[macro rwSeq] def expandRwSeq : Macro :=
   rwWithRfl ``Lean.Parser.Tactic.rewriteSeq "rewrite"
@@ -352,13 +352,15 @@ syntax (name := injection) "injection " term (" with " (colGt (ident <|> "_"))+)
 
 syntax (name := injections) "injections" : tactic
 
+syntax discharger := atomic("(" (&"discharger" <|> &"disch")) " := " tacticSeq ")"
+
 syntax simpPre   := "↓"
 syntax simpPost  := "↑"
 syntax simpLemma := (simpPre <|> simpPost)? ("←" <|> "<-")? term
 syntax simpErase := "-" ident
 syntax simpStar  := "*"
-syntax (name := simp) "simp " (config)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
-syntax (name := simpAll) "simp_all " (config)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
+syntax (name := simp) "simp " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
+syntax (name := simpAll) "simp_all " (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
 
 /--
   Delta expand the given definition.
@@ -367,23 +369,23 @@ syntax (name := delta) "delta " ident (location)? : tactic
 
 -- Auxiliary macro for lifting have/suffices/let/...
 -- It makes sure the "continuation" `?_` is the main goal after refining
-macro "refineLift " e:term : tactic => `(focus (refine noImplicitLambda% $e; rotateRight))
+macro "refine_lift " e:term : tactic => `(focus (refine noImplicitLambda% $e; rotate_right))
 
-macro "have " d:haveDecl : tactic => `(refineLift have $d:haveDecl; ?_)
+macro "have " d:haveDecl : tactic => `(refine_lift have $d:haveDecl; ?_)
 /- We use a priority > default, to avoid ambiguity with previous `have` notation -/
 macro (priority := high) "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
-macro "suffices " d:sufficesDecl : tactic => `(refineLift suffices $d:sufficesDecl; ?_)
-macro "let " d:letDecl : tactic => `(refineLift let $d:letDecl; ?_)
-macro "show " e:term : tactic => `(refineLift show $e:term from ?_)
+macro "suffices " d:sufficesDecl : tactic => `(refine_lift suffices $d:sufficesDecl; ?_)
+macro "let " d:letDecl : tactic => `(refine_lift let $d:letDecl; ?_)
+macro "show " e:term : tactic => `(refine_lift show $e:term from ?_)
 syntax (name := letrec) withPosition(atomic(group("let " &"rec ")) letRecDecls) : tactic
 macro_rules
-  | `(tactic| let rec $d:letRecDecls) => `(tactic| refineLift let rec $d:letRecDecls; ?_)
+  | `(tactic| let rec $d:letRecDecls) => `(tactic| refine_lift let rec $d:letRecDecls; ?_)
 
 -- Similar to `refineLift`, but using `refine'`
-macro "refineLift' " e:term : tactic => `(focus (refine' noImplicitLambda% $e; rotateRight))
-macro "have' " d:haveDecl : tactic => `(refineLift' have $d:haveDecl; ?_)
+macro "refine_lift' " e:term : tactic => `(focus (refine' noImplicitLambda% $e; rotate_right))
+macro "have' " d:haveDecl : tactic => `(refine_lift' have $d:haveDecl; ?_)
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x:ident : _ := $p)
-macro "let' " d:letDecl : tactic => `(refineLift' let $d:letDecl; ?_)
+macro "let' " d:letDecl : tactic => `(refine_lift' let $d:letDecl; ?_)
 
 syntax inductionAlt  := "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
@@ -400,8 +402,8 @@ syntax (name := cases) "cases " casesTarget,+ (" using " ident)? (inductionAlts)
 
 syntax (name := existsIntro) "exists " term : tactic
 
-/-- `renameI x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
-syntax (name := renameI) "renameI " (colGt (ident <|> "_"))+ : tactic
+/-- `rename_i x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
+syntax (name := renameI) "rename_i " (colGt (ident <|> "_"))+ : tactic
 
 syntax "repeat " tacticSeq : tactic
 macro_rules

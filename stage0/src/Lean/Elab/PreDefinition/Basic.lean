@@ -13,9 +13,9 @@ namespace Lean.Elab
 open Meta
 open Term
 
-/-
-A (potentially recursive) definition.
-The elaborator converts it into Kernel definitions using many different strategies.
+/--
+  A (potentially recursive) definition.
+  The elaborator converts it into Kernel definitions using many different strategies.
 -/
 structure PreDefinition where
   ref         : Syntax

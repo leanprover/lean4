@@ -308,6 +308,9 @@ endif()
 if(NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   # export symbols for the interpreter (done via `LEAN_EXPORT` for Windows)
   set(LEAN_DYN_EXE_LINKER_FLAGS "${LEAN_DYN_EXE_LINKER_FLAGS} -rdynamic")
+  # hide all other symbols
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
+  set(LEANC_EXTRA_FLAGS "${LEANC_EXTRA_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden")
 endif()
 
 # On Windows, add bcrypt for random number generation

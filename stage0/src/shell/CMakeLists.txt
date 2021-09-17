@@ -1,4 +1,4 @@
-add_library(shell OBJECT)
+add_library(shell OBJECT lean.cpp)
 
 if(LLVM)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

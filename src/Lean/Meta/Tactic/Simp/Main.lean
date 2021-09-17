@@ -404,6 +404,18 @@ def simp (e : Expr) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := 
   | none   => Simp.main e ctx (methods := Simp.DefaultMethods.methods)
   | some d => Simp.main e ctx (methods := { pre := (Simp.preDefault . d), post := (Simp.postDefault . d), discharge? := d })
 
+/--
+  Auxiliary method.
+  Given the current `target` of `mvarId`, apply `r` which is a new target and proof that it is equaal to the current one.
+-/
+def applySimpResultToTarget (mvarId : MVarId) (target : Expr) (r : Simp.Result) : MetaM MVarId := do
+  match r.proof? with
+  | some proof => replaceTargetEq mvarId r.expr proof
+  | none =>
+    if target != r.expr then
+      replaceTargetDefEq mvarId r.expr
+    else
+      return mvarId
 
 /-- See `simpTarget`. This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
 def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM (Option MVarId) := do
@@ -415,13 +427,7 @@ def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option S
     | none => assignExprMVar mvarId (mkConst ``True.intro)
     return none
   else
-    match r.proof? with
-    | some proof => replaceTargetEq mvarId r.expr proof
-    | none =>
-      if target != r.expr then
-        replaceTargetDefEq mvarId r.expr
-      else
-        return mvarId
+    applySimpResultToTarget mvarId target r
 
 /--
   Simplify the given goal target (aka type). Return `none` if the goal was closed. Return `some mvarId'` otherwise,

@@ -37,6 +37,11 @@ where
         | some r => return Simp.Step.done r
       return Simp.Step.visit { expr := e }
 
+def simpMatchTarget (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
+  let target ← instantiateMVars (← getMVarType mvarId)
+  let r ← simpMatch target
+  applySimpResultToTarget mvarId target r
+
 private def simpMatchCore (matchDeclName : Name) (matchEqDeclName : Name) (e : Expr) : MetaM Simp.Result := do
   Simp.main e (← getSimpMatchContext) (methods := { pre })
 where

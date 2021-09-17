@@ -28,18 +28,8 @@ private def registerMatchEqns (matchDeclName : Name) (matchEqns : MatchEqns) : C
   modifyEnv fun env => matchEqnsExt.modifyState env fun s => { s with map := s.map.insert matchDeclName matchEqns }
 
 /-- Create a "unique" base name for conditional equations and splitter -/
-private partial def mkBaseNameFor (env : Environment) (matchDeclName : Name) : Name :=
-  if !env.contains (matchDeclName ++ `splitter) then
-    matchDeclName
-  else
-   go 1
-where
-  go (idx : Nat) : Name :=
-    let baseName := matchDeclName ++ (`_matchEqns).appendIndexAfter idx
-    if !env.contains (baseName ++ `splitter) then
-      baseName
-    else
-      go (idx + 1)
+private def mkBaseNameFor (env : Environment) (matchDeclName : Name) : Name :=
+  Lean.mkBaseNameFor env matchDeclName `splitter `_matchEqns
 
 /--
   Helper method. Recall that alternatives that do not have variables have a `Unit` parameter to ensure

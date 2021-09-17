@@ -12,9 +12,8 @@ import Lean.Meta.PPGoal
 namespace Lean.Meta
 
 /-- Aka user name -/
-def getMVarTag (mvarId : MVarId) : MetaM Name := do
-  let mvarDecl ← getMVarDecl mvarId
-  pure mvarDecl.userName
+def getMVarTag (mvarId : MVarId) : MetaM Name :=
+  return (← getMVarDecl mvarId).userName
 
 def setMVarTag (mvarId : MVarId) (tag : Name) : MetaM Unit := do
   modify fun s => { s with mctx := s.mctx.setMVarUserName mvarId tag }
@@ -36,8 +35,8 @@ def checkNotAssigned (mvarId : MVarId) (tacticName : Name) : MetaM Unit := do
   if (← isExprMVarAssigned mvarId) then
     throwTacticEx tacticName mvarId "metavariable has already been assigned"
 
-def getMVarType (mvarId : MVarId) : MetaM Expr := do
-  pure (← getMVarDecl mvarId).type
+def getMVarType (mvarId : MVarId) : MetaM Expr :=
+  return (← getMVarDecl mvarId).type
 
 def getMVarType' (mvarId : MVarId) : MetaM Expr := do
   whnf (← instantiateMVars (← getMVarDecl mvarId).type)

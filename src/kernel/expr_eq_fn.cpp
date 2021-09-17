@@ -128,11 +128,11 @@ bool is_bi_equal(expr const & a, expr const & b) {
     return expr_eq_fn<true>()(a, b);
 }
 
-extern "C" uint8 lean_expr_eqv(b_obj_arg a, b_obj_arg b) {
+extern "C" LEAN_EXPORT uint8 lean_expr_eqv(b_obj_arg a, b_obj_arg b) {
     return expr_eq_fn<false>()(TO_REF(expr, a), TO_REF(expr, b));
 }
 
-extern "C" uint8 lean_expr_equal(b_obj_arg a, b_obj_arg b) {
+extern "C" LEAN_EXPORT uint8 lean_expr_equal(b_obj_arg a, b_obj_arg b) {
     return expr_eq_fn<true>()(TO_REF(expr, a), TO_REF(expr, b));
 }
 }

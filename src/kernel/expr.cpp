@@ -325,7 +325,7 @@ expr update_let(expr const & e, expr const & new_type, expr const & new_value, e
         return e;
 }
 
-extern "C" object * lean_expr_update_mdata(obj_arg e, obj_arg new_expr) {
+extern "C" LEAN_EXPORT object * lean_expr_update_mdata(obj_arg e, obj_arg new_expr) {
     if (mdata_expr(TO_REF(expr, e)).raw() != new_expr) {
         object * r = lean_expr_mk_mdata(mdata_data(TO_REF(expr, e)).to_obj_arg(), new_expr);
         lean_dec_ref(e);
@@ -336,7 +336,7 @@ extern "C" object * lean_expr_update_mdata(obj_arg e, obj_arg new_expr) {
     }
 }
 
-extern "C" object * lean_expr_update_const(obj_arg e, obj_arg new_levels) {
+extern "C" LEAN_EXPORT object * lean_expr_update_const(obj_arg e, obj_arg new_levels) {
     if (const_levels(TO_REF(expr, e)).raw() != new_levels) {
         object * r = lean_expr_mk_const(const_name(TO_REF(expr, e)).to_obj_arg(), new_levels);
         lean_dec_ref(e);
@@ -347,7 +347,7 @@ extern "C" object * lean_expr_update_const(obj_arg e, obj_arg new_levels) {
     }
 }
 
-extern "C" object * lean_expr_update_sort(obj_arg e, obj_arg new_level) {
+extern "C" LEAN_EXPORT object * lean_expr_update_sort(obj_arg e, obj_arg new_level) {
     if (sort_level(TO_REF(expr, e)).raw() != new_level) {
         object * r = lean_expr_mk_sort(new_level);
         lean_dec_ref(e);
@@ -358,7 +358,7 @@ extern "C" object * lean_expr_update_sort(obj_arg e, obj_arg new_level) {
     }
 }
 
-extern "C" object * lean_expr_update_proj(obj_arg e, obj_arg new_expr) {
+extern "C" LEAN_EXPORT object * lean_expr_update_proj(obj_arg e, obj_arg new_expr) {
     if (proj_expr(TO_REF(expr, e)).raw() != new_expr) {
         object * r = lean_expr_mk_proj(proj_sname(TO_REF(expr, e)).to_obj_arg(), proj_idx(TO_REF(expr, e)).to_obj_arg(), new_expr);
         lean_dec_ref(e);
@@ -369,7 +369,7 @@ extern "C" object * lean_expr_update_proj(obj_arg e, obj_arg new_expr) {
     }
 }
 
-extern "C" object * lean_expr_update_app(obj_arg e, obj_arg new_fn, obj_arg new_arg) {
+extern "C" LEAN_EXPORT object * lean_expr_update_app(obj_arg e, obj_arg new_fn, obj_arg new_arg) {
     if (app_fn(TO_REF(expr, e)).raw() != new_fn || app_arg(TO_REF(expr, e)).raw() != new_arg) {
         object * r = lean_expr_mk_app(new_fn, new_arg);
         lean_dec_ref(e);
@@ -380,7 +380,7 @@ extern "C" object * lean_expr_update_app(obj_arg e, obj_arg new_fn, obj_arg new_
     }
 }
 
-extern "C" object * lean_expr_update_forall(obj_arg e, uint8 new_binfo, obj_arg new_domain, obj_arg new_body) {
+extern "C" LEAN_EXPORT object * lean_expr_update_forall(obj_arg e, uint8 new_binfo, obj_arg new_domain, obj_arg new_body) {
     if (binding_domain(TO_REF(expr, e)).raw() != new_domain || binding_body(TO_REF(expr, e)).raw() != new_body ||
         binding_info(TO_REF(expr, e)) != static_cast<binder_info>(new_binfo)) {
         object * r = lean_expr_mk_forall(binding_name(TO_REF(expr, e)).to_obj_arg(), new_domain, new_body, new_binfo);
@@ -392,7 +392,7 @@ extern "C" object * lean_expr_update_forall(obj_arg e, uint8 new_binfo, obj_arg 
     }
 }
 
-extern "C" object * lean_expr_update_lambda(obj_arg e, uint8 new_binfo, obj_arg new_domain, obj_arg new_body) {
+extern "C" LEAN_EXPORT object * lean_expr_update_lambda(obj_arg e, uint8 new_binfo, obj_arg new_domain, obj_arg new_body) {
     if (binding_domain(TO_REF(expr, e)).raw() != new_domain || binding_body(TO_REF(expr, e)).raw() != new_body ||
         binding_info(TO_REF(expr, e)) != static_cast<binder_info>(new_binfo)) {
         object * r = lean_expr_mk_lambda(binding_name(TO_REF(expr, e)).to_obj_arg(), new_domain, new_body, new_binfo);
@@ -404,7 +404,7 @@ extern "C" object * lean_expr_update_lambda(obj_arg e, uint8 new_binfo, obj_arg 
     }
 }
 
-extern "C" object * lean_expr_update_let(obj_arg e, obj_arg new_type, obj_arg new_val, obj_arg new_body) {
+extern "C" LEAN_EXPORT object * lean_expr_update_let(obj_arg e, obj_arg new_type, obj_arg new_val, obj_arg new_body) {
     if (let_type(TO_REF(expr, e)).raw() != new_type || let_value(TO_REF(expr, e)).raw() != new_val ||
         let_body(TO_REF(expr, e)).raw() != new_body) {
         object * r = lean_expr_mk_let(let_name(TO_REF(expr, e)).to_obj_arg(), new_type, new_val, new_body);
@@ -460,7 +460,7 @@ bool has_loose_bvar(expr const & e, unsigned i) {
     return found;
 }
 
-extern "C" uint8 lean_expr_has_loose_bvar(b_obj_arg e, b_obj_arg i) {
+extern "C" LEAN_EXPORT uint8 lean_expr_has_loose_bvar(b_obj_arg e, b_obj_arg i) {
     if (!lean_is_scalar(i))
         return false;
     return has_loose_bvar(TO_REF(expr, e), lean_unbox(i));
@@ -489,7 +489,7 @@ expr lower_loose_bvars(expr const & e, unsigned d) {
     return lower_loose_bvars(e, d, d);
 }
 
-extern "C" object * lean_expr_lower_loose_bvars(b_obj_arg e, b_obj_arg s, b_obj_arg d) {
+extern "C" LEAN_EXPORT object * lean_expr_lower_loose_bvars(b_obj_arg e, b_obj_arg s, b_obj_arg d) {
     if (!lean_is_scalar(s) || !lean_is_scalar(d) || lean_unbox(s) < lean_unbox(d)) {
         lean_inc(e);
         return e;
@@ -518,7 +518,7 @@ expr lift_loose_bvars(expr const & e, unsigned d) {
     return lift_loose_bvars(e, 0, d);
 }
 
-extern "C" object * lean_expr_lift_loose_bvars(b_obj_arg e, b_obj_arg s, b_obj_arg d) {
+extern "C" LEAN_EXPORT object * lean_expr_lift_loose_bvars(b_obj_arg e, b_obj_arg s, b_obj_arg d) {
     if (!lean_is_scalar(s) || !lean_is_scalar(d)) {
         lean_inc(e);
         return e;

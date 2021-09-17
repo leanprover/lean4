@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "runtime/object.h"
 
 namespace lean {
-extern "C" obj_res lean_system_platform_nbits(obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_system_platform_nbits(obj_arg) {
     if (sizeof(void*) == 8) {
         return box(64);
     } else {
@@ -15,7 +15,7 @@ extern "C" obj_res lean_system_platform_nbits(obj_arg) {
     }
 }
 
-extern "C" uint8 lean_system_platform_windows(obj_arg) {
+extern "C" LEAN_EXPORT uint8 lean_system_platform_windows(obj_arg) {
 #if defined(LEAN_WINDOWS)
     return 1;
 #else
@@ -23,7 +23,7 @@ extern "C" uint8 lean_system_platform_windows(obj_arg) {
 #endif
 }
 
-extern "C" uint8 lean_system_platform_osx(obj_arg) {
+extern "C" LEAN_EXPORT uint8 lean_system_platform_osx(obj_arg) {
 #if defined(__APPLE__)
     return 1;
 #else
@@ -31,7 +31,7 @@ extern "C" uint8 lean_system_platform_osx(obj_arg) {
 #endif
 }
 
-extern "C" uint8 lean_system_platform_emscripten(obj_arg) {
+extern "C" LEAN_EXPORT uint8 lean_system_platform_emscripten(obj_arg) {
 #if defined(LEAN_EMSCRIPTEN)
     return 1;
 #else

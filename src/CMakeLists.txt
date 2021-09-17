@@ -473,6 +473,12 @@ if(${STAGE} GREATER 0)
     DEPENDS leanshared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Leanpkg
     VERBATIM)
+
+  add_custom_target(lake ALL
+    WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
+    DEPENDS leanshared
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Lake
+    VERBATIM)
 endif()
 
 if(PREV_STAGE)

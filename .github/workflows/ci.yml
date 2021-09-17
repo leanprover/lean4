@@ -66,6 +66,7 @@ jobs:
         with:
           # interferes with lean4-nightly authentication
           persist-credentials: false
+          submodules: true
       - name: Install Nix
         uses: cachix/install-nix-action@v12
         if: matrix.os == 'ubuntu-latest'

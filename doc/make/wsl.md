@@ -4,7 +4,7 @@ Lean for Windows WSL
 For the most part setup in WSL is the same as [Ubuntu](Ubuntu-16.04.md).
 
 This document provides additional information on how to setup Windows
-VSCode remote debugging into your WSL environment using the lean
+Visual Studio Code remote debugging into your WSL environment using the lean
 extension running in WSL.
 
 It is recommended that you setup Ubuntu in [WSL 2](https://docs.microsoft.com/en-us/windows/wsl/compare-versions).
@@ -21,25 +21,36 @@ elan default leanprover/lean4:nightly
 
 ## Visual Studio Code setup on Windows
 
-Install [Visual Studio Code](https://code.visualstudio.com/Download) on Windows.
-
-Install the VS Code `Remote Development` extension from Microsoft.  This
-extension includes the `Remote - WSL` extension.
-
-Install the lean4 extension but into the WSL  `Install in WSL: Ubuntu`
+Install [Visual Studio Code](https://code.visualstudio.com/Download)
+on Windows.  Install the VS Code `Remote Development` extension from
+Microsoft.  This extension includes the `Remote - WSL` extension.
+Install the lean4 extension but into the WSL using:
+`Install in WSL: Ubuntu`
 
 Type `Ctrl+Shift+P` and select `Remote-WSL: Open Folder in WSL...` to
 open a folder containing your hello world lean package.
 
+When everything is working you should see this:
+
+![screenshot](../images/code-wsl.png)
+
+with a functioning infoview, syntax coloring and tooltips.
+
 ## Troubleshooting
 
-**[Error - 1:23:55 PM] Connection to server is erroring. Shutting down server.**
+**Connection to server is erroring. Shutting down server.**
 
-If the error message contains a Windows file path like this:
-```
-Watchdog error: no such file or directory (error code: 2)
-  file: D:\Temp\lean_examples\logs/wdIn.txt
-[Info  - 1:34:32 PM] Connection to server got closed. Server will restart.
+Check that your `leanpkg` was created using the WSL linux version of
+`leanpkg` and not with the windows version of the tool.
+
+**Logs are showing up with a windows file path**
+
+Check that you have not set a windows path in your
+`lean4.serverLogging.path` Visual Studio Code setting. it is best if this setting
+is set as follows:
+
+```json
+  "lean4.serverLogging.path": "logs"
 ```
 
-Then something went wrong...
+This will result in a logs folder being created inside your lean package folder in the WSL file system.

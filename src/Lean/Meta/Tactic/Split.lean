@@ -127,7 +127,7 @@ end Split
 open Split
 
 def splitTarget? (mvarId : MVarId) : MetaM (Option (List MVarId)) := commitWhenSome? do
-  if let some e := findSplit? (← getEnv) (← getMVarType mvarId) then
+  if let some e := findSplit? (← getEnv) (← instantiateMVars (← getMVarType mvarId)) then
     if e.isIte || e.isDIte then
       return (← splitIfTarget? mvarId).map fun (s₁, s₂) => [s₁.mvarId, s₂.mvarId]
     else
@@ -138,7 +138,7 @@ def splitTarget? (mvarId : MVarId) : MetaM (Option (List MVarId)) := commitWhenS
 
 def splitLocalDecl? (mvarId : MVarId) (fvarId : FVarId) : MetaM (Option (List MVarId)) := commitWhenSome? do
   withMVarContext mvarId do
-    if let some e := findSplit? (← getEnv) (← inferType (mkFVar fvarId)) then
+    if let some e := findSplit? (← getEnv) (← instantiateMVars (← inferType (mkFVar fvarId))) then
       if e.isIte || e.isDIte then
         return (← splitIfLocalDecl? mvarId fvarId).map fun (mvarId₁, mvarId₂) => [mvarId₁, mvarId₂]
       else

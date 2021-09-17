@@ -1,4 +1,9 @@
-add_library(shell OBJECT lean.cpp)
+set(SRC lean.cpp)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+set(SRC ${SRC} manifest.rc)
+endif()
+
+add_library(shell OBJECT ${SRC})
 
 if(LLVM)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

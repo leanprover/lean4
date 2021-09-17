@@ -10,6 +10,7 @@ import Lake.LeanConfig
 namespace Lake
 open Git System
 
+/-- `elan` toolchain file name -/
 def toolchainFileName : FilePath :=
 "lean-toolchain"
 
@@ -33,13 +34,30 @@ def package : Lake.PackageConfig := \{
 }
 "
 
-def initPkg (dir : FilePath) (pkgName : String) : IO PUnit := do
-  IO.FS.writeFile (dir / pkgFileName) (pkgFileContents pkgName)
-  IO.FS.writeFile (dir / mainFileName pkgName) mainFileContents
+/-- Initialize a new Lake package in the given directory with the given name. -/
+def initPkg (dir : FilePath) (name : String) : IO PUnit := do
+
+  -- write default configuration file
+  let pkgFile := dir / pkgFileName
+  if (← pkgFile.pathExists) then
+    -- error if package already has a `package.lean`
+    throw <| IO.userError "package already initialized"
+  IO.FS.writeFile pkgFile (pkgFileContents name)
+
+  -- write example main module if none exists
+  let mainFile := dir / mainFileName name
+  unless (← mainFile.pathExists) do
+    IO.FS.writeFile mainFile mainFileContents
+
+  -- write current toolchain to file for `elan`
   IO.FS.writeFile (dir / toolchainFileName) <| leanVersionString ++ "\n"
+
+  -- update `.gitignore`
   let h ← IO.FS.Handle.mk (dir / ".gitignore") IO.FS.Mode.append (bin := false)
   h.putStr gitignoreContents
-  unless ← FilePath.isDir (dir /".git") do
+
+  -- initialize a `.git` repository if none already
+  unless (← FilePath.isDir <| dir / ".git") do
     try
       quietInit dir
       unless upstreamBranch = "master" do

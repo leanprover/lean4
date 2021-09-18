@@ -8,7 +8,36 @@ import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.SplitIf
 
-namespace Lean.Meta.Match
+namespace Lean.Meta
+
+/--
+  Helper method for `proveCondEqThm`. Given a goal of the form `C.rec ... xMajor = rhs`,
+  apply `cases xMajor`. -/
+def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
+  let target ← getMVarType mvarId
+  if let some (_, lhs, rhs) ← matchEq? target then
+    if let some fvarId ← findFVar? lhs then
+      return (← cases mvarId fvarId).map fun s => s.mvarId
+  throwError "'casesOnStuckLHS' failed"
+where
+  findFVar? (e : Expr) : MetaM (Option FVarId) :=
+    match e with
+    | Expr.proj _ _ e _ => findFVar? e
+    | _ =>
+      matchConstRec e.getAppFn (fun _ => return none) fun recVal _ => do
+      let args := e.getAppArgs
+      if recVal.getMajorIdx >= args.size then
+        return none
+      let major := args[recVal.getMajorIdx]
+      if major.isFVar then
+        return some major.fvarId!
+      else
+        return none
+
+def casesOnStuckLHS? (mvarId : MVarId) : MetaM (Option (Array MVarId)) := do
+  try casesOnStuckLHS mvarId catch _ => return none
+
+namespace Match
 
 structure MatchEqns where
   eqnNames             : Array Name
@@ -85,24 +114,6 @@ where
       match eq.eq? with
       | some (_, lhs, rhs) => simpEq lhs rhs
       | _ => throwError "failed to generate equality theorems for 'match', equality expected{indentExpr eq}"
-
-
-/--
-  Helper method for `proveCondEqThm`. Given a goal of the form `C.rec ... xMajor = rhs`,
-  apply `cases xMajor`. -/
-private def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
-  let target ← getMVarType mvarId
-  if let some (_, lhs, rhs) ← matchEq? target then
-    matchConstRec lhs.getAppFn (fun _ => failed) fun recVal _ => do
-      let args := lhs.getAppArgs
-      if recVal.getMajorIdx >= args.size then failed
-      let mut major := args[recVal.getMajorIdx]
-      unless major.isFVar do failed
-      return (← cases mvarId major.fvarId!).map fun s => s.mvarId
-  else
-    failed
-where
-  failed {α} : MetaM α := throwError "'casesOnStuckLHS' failed"
 
 /--
   Helper method for proving a conditional equational theorem associated with an alternative of

@@ -21,6 +21,9 @@ structure RecArgInfo where
   reflexive   : Bool        -- true if we are recursing over a reflexive inductive datatype
   indPred     : Bool        -- true if the type is an inductive predicate
 
+def RecArgInfo.recArgPos (info : RecArgInfo) : Nat :=
+  info.fixedParams.size + info.pos
+
 structure State where
   /- When compiling structural recursion we use the `brecOn` recursor automatically built by
      the `inductive` command. For an inductive datatype `C`, it has the form
@@ -57,8 +60,7 @@ def run (x : M α) (s : State := {}) : MetaM (α × State) :=
   If `e` does not contain an application of the form `recFnName .. t ..`, then we know
   the recursion doesn't depend on any pattern variable in this matcher.
 -/
-def recArgHasLooseBVarsAt (recFnName : Name) (recArgInfo : RecArgInfo) (e : Expr) : Bool :=
-  let recArgPos := recArgInfo.fixedParams.size + recArgInfo.pos
+def recArgHasLooseBVarsAt (recFnName : Name) (recArgPos : Nat) (e : Expr) : Bool :=
   let app?   := e.find? fun e =>
      e.isAppOf recFnName && e.getAppNumArgs > recArgPos && (e.getArg! recArgPos).hasLooseBVars
   app?.isSome

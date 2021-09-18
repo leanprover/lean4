@@ -72,34 +72,25 @@ private def simpMatch? (mvarId : MVarId) : MetaM (Option MVarId) := do
   if mvarId != mvarId' then return some mvarId' else return none
 
 /--
-  Return true if the right-hand-side is matching on one of the variables in
-  the recursion position at the left-hand-side.
-  Example: returns true for
-  ```
-  f ys (x :: xs) = match xs with ...
-  ```
-  if `recArgPos == 1`
+  Auxiliary method for `mkEqnTypes`. We should "keep going"/"processing" the goal
+   `... |- f ... = rhs` at `mkEqnTypes` IF `rhs` contains a match application `e` and
+   `e` contains a `f`-application where the recursive position contains loose bound variables.
+  This is the same heuristic used in the `BRecOn` module.
+  The idea is that we need to do case-analysis on the `match` application because the recursive
+  argument (may) depend on it.
+
+  Remark: we could also always return `true` here, and split **all** match expressions on the `rhs`
+  even if they are not relevant for the `brecOn` construction.
+  TODO: reconsider this design decision in the future.
+  Another possible design option is to "split" other control structures such as `if-then-else`.
 -/
-private def matchRecArg (mvarId : MVarId) (recArgPos : Nat) : MetaM Bool := do
+private def keepGoing (mvarId : MVarId) : ReaderT EqnInfo (StateRefT (Array Expr) MetaM) Bool := do
   let target ← getMVarType' mvarId
   let some (_, lhs, rhs) ← target.eq? | return false
-  let lhsArgs := lhs.getAppArgs
-  if h : recArgPos < lhsArgs.size then
-    let recArg := lhsArgs.get ⟨recArgPos, h⟩
-    let recFVarSet := collectFVars {} recArg |>.fvarSet
-    let env ← getEnv
-    return Option.isSome <| rhs.find? fun e => do
-      if let some info := isMatcherAppCore? env e then
-        let args := e.getAppArgs
-        for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
-          let discr := args[i]
-          if recFVarSet.any discr.containsFVar then
-            return true
-        return false
-      else
-        return false
-  else
-    return true -- conservative answer
+  let env ← getEnv
+  let ctx ← read
+  return Option.isSome <| rhs.find? fun e =>
+    isMatcherAppCore env e && recArgHasLooseBVarsAt ctx.declName ctx.recArgPos e
 
 private def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := withMVarContext mvarId do
   let target ← getMVarType' mvarId
@@ -109,7 +100,7 @@ private def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := wit
   modify (·.push type)
 
 private partial def mkEqnTypes (mvarId : MVarId) : ReaderT EqnInfo (StateRefT (Array Expr) MetaM) Unit := do
-  if !(← matchRecArg mvarId (← read).recArgPos) then
+  if !(← keepGoing mvarId) then
     saveEqn mvarId
   else if let some mvarId ← expandRHS? mvarId then
     mkEqnTypes mvarId

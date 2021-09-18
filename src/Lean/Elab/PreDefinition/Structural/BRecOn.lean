@@ -121,7 +121,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
       let matcherApp? ← matchMatcherApp? e
       match matcherApp? with
       | some matcherApp =>
-        if !recArgHasLooseBVarsAt recFnName recArgInfo e then
+        if !recArgHasLooseBVarsAt recFnName recArgInfo.recArgPos e then
           processApp e
         else
           /- Here is an example we currently not handle

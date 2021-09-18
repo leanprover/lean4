@@ -38,3 +38,16 @@ def g : List Nat → List Nat → Nat
 #check g.eq_3
 #check g.eq_4
 #check g.eq_5
+
+def h (xs : List Nat) (y : Nat) : Nat :=
+  match xs with
+  | [] => y
+  | x::xs =>
+    match y with
+    | 0 => h xs 10
+    | y+1 => h xs y
+
+#eval tst ``h
+#check h.eq_1
+#check h.eq_2
+#check h.eq_3

@@ -73,11 +73,14 @@ private def simpMatch? (mvarId : MVarId) : MetaM (Option MVarId) := do
 
 /--
   Auxiliary method for `mkEqnTypes`. We should "keep going"/"processing" the goal
-   `... |- f ... = rhs` at `mkEqnTypes` IF `rhs` contains a match application `e` and
-   `e` contains a `f`-application where the recursive position contains loose bound variables.
-  This is the same heuristic used in the `BRecOn` module.
-  The idea is that we need to do case-analysis on the `match` application because the recursive
-  argument (may) depend on it.
+   `... |- f ... = rhs` at `mkEqnTypes` IF `rhs` contains a `f` application containing loose bound
+  variables. We do that to make sure we can create an elimination principle for `f` based
+  on the generateg equations.
+
+  Remark: we have considered using the same heuristic used in the `BRecOn` module.
+  That is we would do case-analysis on the `match` application because the recursive
+  argument (may) depend on it. We abandoned this approach because it was incompatible
+  with the generation of induction principles.
 
   Remark: we could also always return `true` here, and split **all** match expressions on the `rhs`
   even if they are not relevant for the `brecOn` construction.
@@ -87,10 +90,8 @@ private def simpMatch? (mvarId : MVarId) : MetaM (Option MVarId) := do
 private def keepGoing (mvarId : MVarId) : ReaderT EqnInfo (StateRefT (Array Expr) MetaM) Bool := do
   let target ← getMVarType' mvarId
   let some (_, lhs, rhs) ← target.eq? | return false
-  let env ← getEnv
   let ctx ← read
-  return Option.isSome <| rhs.find? fun e =>
-    isMatcherAppCore env e && recArgHasLooseBVarsAt ctx.declName ctx.recArgPos e
+  return Option.isSome <| rhs.find? fun e => e.isAppOf ctx.declName && e.hasLooseBVars
 
 private def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := withMVarContext mvarId do
   let target ← getMVarType' mvarId

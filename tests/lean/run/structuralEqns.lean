@@ -1,7 +1,5 @@
 import Lean
 
-set_option trace.Elab.definition.structural.eqns true
-
 open Lean
 open Lean.Meta
 def tst (declName : Name) : MetaM Unit := do

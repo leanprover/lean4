@@ -112,8 +112,23 @@ where
 instance : ToString Name where
   toString n := n.toString
 
+private def hasNum : Name → Bool
+  | anonymous => false
+  | num ..    => true
+  | str p ..  => hasNum p
+
+protected def reprPrec (n : Name) (prec : Nat) : Std.Format :=
+  match n with
+  | anonymous => Std.Format.text "Lean.Name.anonymous"
+  | num p i _ => Repr.addAppParen ("Lean.Name.mkNum " ++ Name.reprPrec p max_prec ++ " " ++ repr i) prec
+  | str p s _ =>
+    if p.hasNum then
+      Repr.addAppParen ("Lean.Name.mkStr " ++ Name.reprPrec p max_prec ++ " " ++ repr s) prec
+    else
+      Std.Format.text "`" ++ n.toString
+
 instance : Repr Name where
-  reprPrec n _ := Std.Format.text "`" ++ n.toString
+  reprPrec := Name.reprPrec
 
 deriving instance Repr for Syntax
 

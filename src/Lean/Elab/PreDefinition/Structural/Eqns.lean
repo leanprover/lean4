@@ -24,11 +24,17 @@ def deltaLHS (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
   let some lhs ← delta? lhs | throwTacticEx `deltaLHS mvarId "failed to delta reduce lhs"
   replaceTargetDefEq mvarId (← mkEq lhs rhs)
 
+private partial def whnfAux (e : Expr) : MetaM Expr := do
+  let e ← whnfR e
+  match e with
+  | Expr.proj _ _ s _ => e.updateProj! (← whnfAux s)
+  | _ => e
+
 /-- Apply `whnfR` to lhs, return `none` if `lhs` was not modified -/
 def whnfReducibleLHS? (mvarId : MVarId) : MetaM (Option MVarId) := withMVarContext mvarId do
   let target ← getMVarType' mvarId
   let some (_, lhs, rhs) ← target.eq? | throwTacticEx `whnfReducibleLHS mvarId "equality expected"
-  let lhs' ← whnfR lhs
+  let lhs' ← whnfAux lhs
   if lhs' != lhs then
     return some (← replaceTargetDefEq mvarId (← mkEq lhs' rhs))
   else

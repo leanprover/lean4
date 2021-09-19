@@ -11,11 +11,13 @@ def casesOnSuffix       := "casesOn"
 def recOnSuffix         := "recOn"
 def brecOnSuffix        := "brecOn"
 def binductionOnSuffix  := "binductionOn"
+def belowSuffix         := "below"
 
 def mkCasesOnName (indDeclName : Name) : Name := Name.mkStr indDeclName casesOnSuffix
 def mkRecOnName (indDeclName : Name) : Name   := Name.mkStr indDeclName recOnSuffix
 def mkBRecOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName brecOnSuffix
 def mkBInductionOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName binductionOnSuffix
+def mkBelowName (indDeclName : Name) : Name := Name.mkStr indDeclName belowSuffix
 
 builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension `auxRec
 

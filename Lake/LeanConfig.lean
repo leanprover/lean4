@@ -22,17 +22,22 @@ unsafe def fromLeanFileUnsafe
   let input ← IO.FS.readFile path
   let (env, ok) ← Elab.runFrontend input Options.empty path.toString pkgModName
   if ok then
+    let ioPackagerE := Id.run <| ExceptT.run <|
+      env.evalConstCheck IOPackager Options.empty ``IOPackager pkgDefName
+    match ioPackagerE with
+    | Except.ok packager => Package.mk root (← packager root args)
+    | Except.error error =>
     let packagerE := Id.run <| ExceptT.run <|
-        env.evalConstCheck Packager Options.empty ``Packager pkgDefName
+      env.evalConstCheck Packager Options.empty ``Packager pkgDefName
     match packagerE with
     | Except.ok packager => Package.mk root (← packager root args)
     | Except.error error =>
-      let configE := Id.run <| ExceptT.run <|
-        env.evalConstCheck PackageConfig Options.empty ``PackageConfig pkgDefName
-      match configE with
-      | Except.ok config => Package.mk root config
-      | Except.error error => throw <| IO.userError <|
-        s!"unexpected type at 'package', `Lake.Packager` or `Lake.PackageConfig` expected"
+    let configE := Id.run <| ExceptT.run <|
+      env.evalConstCheck PackageConfig Options.empty ``PackageConfig pkgDefName
+    match configE with
+    | Except.ok config => Package.mk root config
+    | Except.error error => throw <| IO.userError <|
+      s!"unexpected type at 'package', `Lake.IOPackager`, `Lake.Packager`, or `Lake.PackageConfig` expected"
   else
     throw <| IO.userError <| s!"package configuration (at {path}) has errors"
 

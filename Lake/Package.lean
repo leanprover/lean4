@@ -14,6 +14,10 @@ open Lean (Name)
 
 namespace Lake
 
+--------------------------------------------------------------------------------
+-- # Defaults
+--------------------------------------------------------------------------------
+
 /-- The default setting for a `PackageConfig`'s `buildDir` option. -/
 def defaultBuildDir : FilePath := "build"
 
@@ -31,6 +35,10 @@ def defaultIrDir : FilePath := "ir"
 
 /-- The default setting for a `PackageConfig`'s `depsDir` option. -/
 def defaultDepsDir : FilePath := "lean_packages"
+
+--------------------------------------------------------------------------------
+-- # PackageConfig Helpers
+--------------------------------------------------------------------------------
 
 /--
   The `src` of a `Dependency`.
@@ -74,6 +82,10 @@ deriving Inhabited, Repr
   indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
 -/
 abbrev Script := (args : List String) → IO PUnit
+
+--------------------------------------------------------------------------------
+-- # PackageConfig
+--------------------------------------------------------------------------------
 
 /-- A package's declarative configuration. -/
 structure PackageConfig where
@@ -222,6 +234,10 @@ structure PackageConfig where
 
 deriving Inhabited
 
+--------------------------------------------------------------------------------
+-- # Package
+--------------------------------------------------------------------------------
+
 /-- A Lake package -- its location plus its configuration. -/
 structure Package where
   /-- The path to the package's directory. -/
@@ -232,9 +248,15 @@ structure Package where
 
 /--
   An alternate signature for package configurations
-  that permits more dynamic configurations.
+  that permits more dynamic configurations, but is still pure.
 -/
-def Packager := (pkgDir : FilePath) → (args : List String) → IO PackageConfig
+def Packager := (pkgDir : FilePath) → (args : List String) → PackageConfig
+
+/--
+  An alternate signature for package configurations
+  that permits more dynamic configurations, including performing `IO`.
+-/
+def IOPackager := (pkgDir : FilePath) → (args : List String) → IO PackageConfig
 
 namespace Package
 

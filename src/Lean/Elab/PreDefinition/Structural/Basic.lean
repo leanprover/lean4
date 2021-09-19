@@ -25,17 +25,6 @@ def RecArgInfo.recArgPos (info : RecArgInfo) : Nat :=
   info.fixedParams.size + info.pos
 
 structure State where
-  /- When compiling structural recursion we use the `brecOn` recursor automatically built by
-     the `inductive` command. For an inductive datatype `C`, it has the form
-     `C.brecOn As motive is c F`
-     where `As` are the inductive datatype parameters, `is` are the inductive datatype indices,
-     `c : C As is`, and `F : (js) → (d : C As js) → C.below d → motive d`
-     The `C.below d` is used to eliminate recursive applications. We refine its type when we process
-     a nested dependent pattern matcher using `MatcherApp.addArg`. See `replaceRecApps` for additional details.
-     We store the names of the matcher where we used `MatcherApp.addArg` at `matcherBelowDep`.
-     We use this information to generate the auxiliary `_sunfold` definition needed by the smart unfolding
-     technique used at WHNF. -/
-  matcherBelowDep : NameSet := {}
   /- As part of the inductive predicates case, we keep adding more and more discriminants from the
      local context and build up a bigger matcher application until we reach a fixed point.
      As a side-effect, this creates matchers. Here we capture all these side-effects, because

@@ -83,7 +83,7 @@ def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
     state.addMatchers.forM liftM
     mapError (addNonRec preDefNonRec) (fun msg => m!"structural recursion failed, produced type incorrect term{indentD msg}")
     addAndCompilePartialRec preDefs
-    addSmartUnfoldingDef preDefs[0] state
+    addSmartUnfoldingDef preDefs[0] recArgPos
     registerEqnsInfo preDefs[0] recArgPos
 
 builtin_initialize

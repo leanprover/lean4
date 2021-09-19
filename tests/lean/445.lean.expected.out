@@ -1,0 +1,16 @@
+def f._sunfold : Nat → Bool :=
+fun x =>
+  match x with 
+  | 0 => idRhs Bool true
+  | Nat.succ n =>
+    idRhs Bool
+      ((match n with 
+        | 0 => true
+        | Nat.succ x => true) &&
+        f n)
+def g._sunfold : Nat → Nat → Nat :=
+fun i j =>
+  if i < 5 then 0 else
+    match j with 
+    | Nat.zero => idRhs Nat 1
+    | Nat.succ j => idRhs Nat (g i j)

@@ -5,7 +5,7 @@ open Lake System
 def package : PackageConfig := {
   name := "lake"
   version := "bootstrap"
-  rootDir := FilePath.mk ".." / ".."
+  srcDir := FilePath.mk ".." / ".."
   oleanDir := "."
   leancArgs := #["-O3", "-DNDEBUG"]
   linkArgs :=

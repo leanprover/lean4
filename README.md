@@ -74,9 +74,8 @@ Lake provides a large assortment of configuration options for packages.
 * `dependencies`: A `List` of the package's dependencies.
 * `depsDir`: The directory to which Lake should download dependencies. Defaults to `lean_packages`.
 * `extraDepTarget`: An extra `OpaqueTarget` that should be built before the package.
-* `rootDir`: The root directory of the package. The package's Lean sources must be children of this directory (or its subdirectories).  Defaults to the package's directory. (This is the `-R` argument of `lean`.)
 * `leanArgs`: An `Array` of additional arguments to pass to `lean` while compiling Lean source files.
-* `srcDir`: The directory containing the package's Lean source files. Defaults to the value of `rootDir`.
+* `srcDir`: The directory containing the package's Lean source files. Defaults to the package's directory. (This will be passed to `lean` as the `-R` option.)
 * `buildDir`: The directory to which Lake should output the package's build results. Defaults to `build`.
 * `oleanDir`: The build subdirectory to which Lake should output the package's `.olean` files. Defaults to `lib`.
 * `scripts`: A `HashMap` of scripts for the package. A `Script` is an arbitrary `(args : List String) → IO PUnit` function that is indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.

@@ -129,25 +129,17 @@ structure PackageConfig where
   extraDepTarget : OpaqueTarget := Target.nil
 
   /--
-    The root directory of the package.
-    Defaults to the package's directory.
-
-    The package's Lean sources must be children of this directory
-      (or its subdirectories).
-    This is the `-R` argument of `lean`.
-  -/
-  rootDir : FilePath := "."
-
-  /--
     Additional arguments to pass to `lean` while compiling Lean source files.
   -/
   leanArgs : Array String := #[]
 
   /--
     The directory containing the package's Lean source files.
-    Defaults to the value of `rootDir`.
+    Defaults to the package's directory.
+
+    (This will be passed to `lean` as the `-R` option.)
   -/
-  srcDir : FilePath := rootDir
+  srcDir : FilePath := "."
 
   /--
     The directory to which Lake should output the package's build results.
@@ -304,13 +296,13 @@ def linkArgs (self : Package) : Array String :=
 def depsDir (self : Package) : FilePath :=
   self.dir / self.config.depsDir
 
-/-- The package's `dir` joined with its configuration's `rootDir`. -/
-def rootDir (self : Package) : FilePath :=
-  self.dir / self.config.rootDir
-
 /-- The package's `dir` joined with its configuration's `srcDir`. -/
 def srcDir (self : Package) : FilePath :=
   self.dir / self.config.srcDir
+
+/-- The package's root directory for Lean (i.e., `srcDir`). -/
+def rootDir (self : Package) : FilePath :=
+  self.srcDir
 
 /-- The path to a module's `.lean` source file within the package. -/
 def modToSrc (mod : Name) (self : Package) : FilePath :=

@@ -24,6 +24,12 @@ def deltaLHS (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
   let some lhs ← delta? lhs | throwTacticEx `deltaLHS mvarId "failed to delta reduce lhs"
   replaceTargetDefEq mvarId (← mkEq lhs rhs)
 
+def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := withMVarContext mvarId do
+  let target ← getMVarType' mvarId
+  let some (_, lhs, rhs) ← target.eq? | throwTacticEx `deltaRHS mvarId "equality expected"
+  let some rhs ← delta? rhs (. == declName) | return none
+  replaceTargetDefEq mvarId (← mkEq lhs rhs)
+
 private partial def whnfAux (e : Expr) : MetaM Expr := do
   let e ← whnfR e
   match e with
@@ -77,6 +83,10 @@ private def simpMatch? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let mvarId' ← Split.simpMatchTarget mvarId
   if mvarId != mvarId' then return some mvarId' else return none
 
+private def simpIf? (mvarId : MVarId) : MetaM (Option MVarId) := do
+  let mvarId' ← simpIfTarget mvarId (useDecide := true)
+  if mvarId != mvarId' then return some mvarId' else return none
+
 /--
   Auxiliary method for `mkEqnTypes`. We should "keep going"/"processing" the goal
    `... |- f ... = rhs` at `mkEqnTypes` IF `rhs` contains a `f` application containing loose bound
@@ -124,7 +134,8 @@ private partial def mkEqnTypes (mvarId : MVarId) : ReaderT EqnInfo (StateRefT (A
 private def mkBaseNameFor (env : Environment) (declName : Name) : Name :=
   Lean.mkBaseNameFor env declName `eq_1 `_eqns
 
-private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr :=
+private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
+  trace[Elab.definition.structural.eqns] "proving: {type}"
   withNewMCtxDepth do
     let main ← mkFreshExprSyntheticOpaqueMVar type
     let (_, mvarId) ← intros main.mvarId!
@@ -138,9 +149,13 @@ where
       return ()
     else if (← tryContradiction mvarId) then
       return ()
+    else if let some mvarId ← simpMatch? mvarId then
+      go mvarId
+    else if let some mvarId ← simpIf? mvarId then
+      go mvarId
     else if let some mvarId ← whnfReducibleLHS? mvarId then
       go mvarId
-    else if let some mvarId ← simpMatch? mvarId then
+    else if let some mvarId ← deltaRHS? mvarId declName then
       go mvarId
     else if let some mvarIds ← casesOnStuckLHS? mvarId then
       mvarIds.forM go

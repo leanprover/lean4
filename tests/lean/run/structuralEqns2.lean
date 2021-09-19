@@ -15,3 +15,14 @@ def g (i j : Nat) : Nat :=
 #check g.eq_1
 #check g.eq_2
 #check g.eq_3
+
+def h (i j : Nat) : Nat :=
+  let z :=
+    match j with
+    | Nat.zero => 1
+    | Nat.succ j => h i j
+  z + z
+
+#eval tst ``h
+#check h.eq_1
+#check h.eq_2

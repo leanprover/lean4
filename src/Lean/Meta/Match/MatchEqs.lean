@@ -13,26 +13,39 @@ namespace Lean.Meta
 /--
   Helper method for `proveCondEqThm`. Given a goal of the form `C.rec ... xMajor = rhs`,
   apply `cases xMajor`. -/
-def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
+partial def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
   let target ← getMVarType mvarId
   if let some (_, lhs, rhs) ← matchEq? target then
     if let some fvarId ← findFVar? lhs then
       return (← cases mvarId fvarId).map fun s => s.mvarId
   throwError "'casesOnStuckLHS' failed"
 where
-  findFVar? (e : Expr) : MetaM (Option FVarId) :=
+  findFVar? (e : Expr) : MetaM (Option FVarId) := do
     match e with
     | Expr.proj _ _ e _ => findFVar? e
-    | _ =>
-      matchConstRec e.getAppFn (fun _ => return none) fun recVal _ => do
-      let args := e.getAppArgs
-      if recVal.getMajorIdx >= args.size then
+    | Expr.app .. =>
+      let f := e.getAppFn
+      if !f.isConst then
         return none
-      let major := args[recVal.getMajorIdx]
-      if major.isFVar then
-        return some major.fvarId!
       else
-        return none
+        let declName := f.constName!
+        let args := e.getAppArgs
+        match (← getProjectionFnInfo? declName) with
+        | some projInfo =>
+          if projInfo.numParams < args.size then
+            findFVar? args[projInfo.numParams]
+          else
+            return none
+        | none =>
+          matchConstRec e.getAppFn (fun _ => return none) fun recVal _ => do
+            if recVal.getMajorIdx >= args.size then
+              return none
+            let major := args[recVal.getMajorIdx]
+            if major.isFVar then
+              return some major.fvarId!
+            else
+              return none
+    | _ => return none
 
 def casesOnStuckLHS? (mvarId : MVarId) : MetaM (Option (Array MVarId)) := do
   try casesOnStuckLHS mvarId catch _ => return none

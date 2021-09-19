@@ -62,12 +62,6 @@ open Meta
         | LOption.some val =>
           let ref ← getRef
           let forInFn ← mkConst ``forIn
-          let namedArgs : Array NamedArg := #[
-            { ref := ref, name := `m, val := Arg.expr m},
-            { ref := ref, name := `ρ, val := Arg.expr colType},
-            { ref := ref, name := `α, val := Arg.expr elemType},
-            { ref := ref, name := `self, val := Arg.expr forInInstance},
-            { ref := ref, name := `inst, val := Arg.expr val} ]
           elabAppArgs forInFn #[] #[Arg.stx col, Arg.stx init, Arg.stx body] expectedType? (explicit := false) (ellipsis := false)
         | LOption.undef    => tryPostpone; throwFailure forInInstance
         | LOption.none     => throwFailure forInInstance

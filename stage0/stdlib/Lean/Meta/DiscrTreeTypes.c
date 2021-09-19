@@ -22,6 +22,7 @@ uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1017_(l
 lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_DiscrTree_instInhabitedKey___closed__1;
 lean_object* l_Lean_Meta_DiscrTree_instHashableKey;
+lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__27;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__4;
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -36,7 +37,6 @@ uint8_t l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_beqKey____x4
 lean_object* l___private_Lean_Expr_0__Lean_reprLiteral____x40_Lean_Expr___hyg_98_(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_DiscrTree_root___default___closed__1;
-lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__12;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__26;
 uint64_t l_Lean_Name_hash(lean_object*);
@@ -71,10 +71,8 @@ static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_beqKey____x40_Lean_Meta_DiscrTreeTypes___hyg_88____boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_Key_hash___boxed(lean_object*);
-static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__34;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__25;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__6;
-static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__33;
 lean_object* lean_nat_to_int(lean_object*);
 uint64_t l_Lean_Meta_DiscrTree_Key_hash(lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__29;
@@ -319,31 +317,13 @@ return x_3;
 static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__4() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("`");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__4;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__6() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(2u);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__7() {
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -352,7 +332,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__8() {
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -360,21 +340,21 @@ x_1 = lean_mk_string("Lean.Meta.DiscrTree.Key.fvar");
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__9() {
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__8;
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__6;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__10() {
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__9;
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__7;
 x_2 = lean_box(1);
 x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -382,7 +362,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__11() {
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -390,21 +370,21 @@ x_1 = lean_mk_string("Lean.Meta.DiscrTree.Key.lit");
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__12() {
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__11;
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__9;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__13() {
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__12;
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__10;
 x_2 = lean_box(1);
 x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -412,7 +392,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__14() {
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__12() {
 _start:
 {
 lean_object* x_1; 
@@ -420,22 +400,46 @@ x_1 = lean_mk_string("Lean.Meta.DiscrTree.Key.star");
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__15() {
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__14;
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__12;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
+}
+}
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__14() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__4;
+x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__13;
+x_3 = lean_alloc_ctor(3, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__15() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__14;
+x_2 = 0;
+x_3 = lean_alloc_ctor(5, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__16() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__6;
-x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__15;
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__5;
+x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__13;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -457,20 +461,38 @@ return x_3;
 static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__18() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string("Lean.Meta.DiscrTree.Key.other");
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__19() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__18;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__20() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__7;
-x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__15;
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__4;
+x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__19;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__19() {
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__21() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__18;
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__20;
 x_2 = 0;
 x_3 = lean_alloc_ctor(5, 1, 1);
 lean_ctor_set(x_3, 0, x_1);
@@ -478,30 +500,12 @@ lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__20() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.DiscrTree.Key.other");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__21() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__20;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__22() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__6;
-x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__21;
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__5;
+x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__19;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -523,20 +527,38 @@ return x_3;
 static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__24() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string("Lean.Meta.DiscrTree.Key.arrow");
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__25() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__24;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__26() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__7;
-x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__21;
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__4;
+x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__25;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__25() {
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__27() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__24;
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__26;
 x_2 = 0;
 x_3 = lean_alloc_ctor(5, 1, 1);
 lean_ctor_set(x_3, 0, x_1);
@@ -544,30 +566,12 @@ lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__26() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.DiscrTree.Key.arrow");
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__27() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__26;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__28() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__6;
-x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__27;
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__5;
+x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__25;
 x_3 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -589,50 +593,26 @@ return x_3;
 static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__30() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__7;
-x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__27;
-x_3 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__31() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__30;
-x_2 = 0;
-x_3 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__32() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string("Lean.Meta.DiscrTree.Key.proj");
 return x_1;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__33() {
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__31() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__32;
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__30;
 x_2 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__34() {
+static lean_object* _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__32() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__33;
+x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__31;
 x_2 = lean_box(1);
 x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -646,7 +626,7 @@ _start:
 switch (lean_obj_tag(x_1)) {
 case 0:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 1);
@@ -654,279 +634,258 @@ lean_inc(x_4);
 lean_dec(x_1);
 x_5 = lean_unsigned_to_nat(1024u);
 x_6 = lean_nat_dec_le(x_5, x_2);
-x_7 = 1;
-x_8 = l_Lean_Name_toString(x_3, x_7);
-x_9 = lean_alloc_ctor(2, 1, 0);
+x_7 = l_Lean_Name_reprPrec(x_3, x_5);
+x_8 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__3;
+x_9 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_9, 0, x_8);
-x_10 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__5;
+lean_ctor_set(x_9, 1, x_7);
+x_10 = lean_box(1);
 x_11 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_11, 0, x_10);
-lean_ctor_set(x_11, 1, x_9);
-x_12 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__3;
-x_13 = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(x_11, 0, x_9);
+lean_ctor_set(x_11, 1, x_10);
+x_12 = l_Nat_repr(x_4);
+x_13 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_11);
-x_14 = lean_box(1);
-x_15 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_15, 0, x_13);
-lean_ctor_set(x_15, 1, x_14);
-x_16 = l_Nat_repr(x_4);
-x_17 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_17, 0, x_16);
-x_18 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_18, 0, x_15);
-lean_ctor_set(x_18, 1, x_17);
+x_14 = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(x_14, 0, x_11);
+lean_ctor_set(x_14, 1, x_13);
 if (x_6 == 0)
 {
-lean_object* x_19; lean_object* x_20; uint8_t x_21; lean_object* x_22; lean_object* x_23; 
-x_19 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__6;
-x_20 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_20, 0, x_19);
-lean_ctor_set(x_20, 1, x_18);
-x_21 = 0;
-x_22 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_22, 0, x_20);
-lean_ctor_set_uint8(x_22, sizeof(void*)*1, x_21);
-x_23 = l_Repr_addAppParen(x_22, x_2);
-return x_23;
+lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; 
+x_15 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__4;
+x_16 = lean_alloc_ctor(3, 2, 0);
+lean_ctor_set(x_16, 0, x_15);
+lean_ctor_set(x_16, 1, x_14);
+x_17 = 0;
+x_18 = lean_alloc_ctor(5, 1, 1);
+lean_ctor_set(x_18, 0, x_16);
+lean_ctor_set_uint8(x_18, sizeof(void*)*1, x_17);
+x_19 = l_Repr_addAppParen(x_18, x_2);
+return x_19;
 }
 else
 {
-lean_object* x_24; lean_object* x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; 
-x_24 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__7;
-x_25 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_25, 0, x_24);
-lean_ctor_set(x_25, 1, x_18);
-x_26 = 0;
-x_27 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_27, 0, x_25);
-lean_ctor_set_uint8(x_27, sizeof(void*)*1, x_26);
-x_28 = l_Repr_addAppParen(x_27, x_2);
-return x_28;
+lean_object* x_20; lean_object* x_21; uint8_t x_22; lean_object* x_23; lean_object* x_24; 
+x_20 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__5;
+x_21 = lean_alloc_ctor(3, 2, 0);
+lean_ctor_set(x_21, 0, x_20);
+lean_ctor_set(x_21, 1, x_14);
+x_22 = 0;
+x_23 = lean_alloc_ctor(5, 1, 1);
+lean_ctor_set(x_23, 0, x_21);
+lean_ctor_set_uint8(x_23, sizeof(void*)*1, x_22);
+x_24 = l_Repr_addAppParen(x_23, x_2);
+return x_24;
 }
 }
 case 1:
 {
-lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; uint8_t x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
-x_29 = lean_ctor_get(x_1, 0);
-lean_inc(x_29);
-x_30 = lean_ctor_get(x_1, 1);
-lean_inc(x_30);
+lean_object* x_25; lean_object* x_26; lean_object* x_27; uint8_t x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
+x_25 = lean_ctor_get(x_1, 0);
+lean_inc(x_25);
+x_26 = lean_ctor_get(x_1, 1);
+lean_inc(x_26);
 lean_dec(x_1);
-x_31 = lean_unsigned_to_nat(1024u);
-x_32 = lean_nat_dec_le(x_31, x_2);
-x_33 = 1;
-x_34 = l_Lean_Name_toString(x_29, x_33);
+x_27 = lean_unsigned_to_nat(1024u);
+x_28 = lean_nat_dec_le(x_27, x_2);
+x_29 = l_Lean_Name_reprPrec(x_25, x_27);
+x_30 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__8;
+x_31 = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(x_31, 0, x_30);
+lean_ctor_set(x_31, 1, x_29);
+x_32 = lean_box(1);
+x_33 = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(x_33, 0, x_31);
+lean_ctor_set(x_33, 1, x_32);
+x_34 = l_Nat_repr(x_26);
 x_35 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_35, 0, x_34);
-x_36 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__5;
-x_37 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_37, 0, x_36);
-lean_ctor_set(x_37, 1, x_35);
-x_38 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__10;
-x_39 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_39, 0, x_38);
-lean_ctor_set(x_39, 1, x_37);
-x_40 = lean_box(1);
-x_41 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_41, 0, x_39);
-lean_ctor_set(x_41, 1, x_40);
-x_42 = l_Nat_repr(x_30);
-x_43 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_43, 0, x_42);
-x_44 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_44, 0, x_41);
-lean_ctor_set(x_44, 1, x_43);
-if (x_32 == 0)
+x_36 = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(x_36, 0, x_33);
+lean_ctor_set(x_36, 1, x_35);
+if (x_28 == 0)
 {
-lean_object* x_45; lean_object* x_46; uint8_t x_47; lean_object* x_48; lean_object* x_49; 
-x_45 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__6;
-x_46 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_46, 0, x_45);
-lean_ctor_set(x_46, 1, x_44);
-x_47 = 0;
-x_48 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_48, 0, x_46);
-lean_ctor_set_uint8(x_48, sizeof(void*)*1, x_47);
-x_49 = l_Repr_addAppParen(x_48, x_2);
-return x_49;
+lean_object* x_37; lean_object* x_38; uint8_t x_39; lean_object* x_40; lean_object* x_41; 
+x_37 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__4;
+x_38 = lean_alloc_ctor(3, 2, 0);
+lean_ctor_set(x_38, 0, x_37);
+lean_ctor_set(x_38, 1, x_36);
+x_39 = 0;
+x_40 = lean_alloc_ctor(5, 1, 1);
+lean_ctor_set(x_40, 0, x_38);
+lean_ctor_set_uint8(x_40, sizeof(void*)*1, x_39);
+x_41 = l_Repr_addAppParen(x_40, x_2);
+return x_41;
 }
 else
 {
-lean_object* x_50; lean_object* x_51; uint8_t x_52; lean_object* x_53; lean_object* x_54; 
-x_50 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__7;
-x_51 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_51, 0, x_50);
-lean_ctor_set(x_51, 1, x_44);
-x_52 = 0;
-x_53 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_53, 0, x_51);
-lean_ctor_set_uint8(x_53, sizeof(void*)*1, x_52);
-x_54 = l_Repr_addAppParen(x_53, x_2);
-return x_54;
+lean_object* x_42; lean_object* x_43; uint8_t x_44; lean_object* x_45; lean_object* x_46; 
+x_42 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__5;
+x_43 = lean_alloc_ctor(3, 2, 0);
+lean_ctor_set(x_43, 0, x_42);
+lean_ctor_set(x_43, 1, x_36);
+x_44 = 0;
+x_45 = lean_alloc_ctor(5, 1, 1);
+lean_ctor_set(x_45, 0, x_43);
+lean_ctor_set_uint8(x_45, sizeof(void*)*1, x_44);
+x_46 = l_Repr_addAppParen(x_45, x_2);
+return x_46;
 }
 }
 case 2:
 {
-lean_object* x_55; lean_object* x_56; uint8_t x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; 
-x_55 = lean_ctor_get(x_1, 0);
-lean_inc(x_55);
+lean_object* x_47; lean_object* x_48; uint8_t x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; 
+x_47 = lean_ctor_get(x_1, 0);
+lean_inc(x_47);
 lean_dec(x_1);
-x_56 = lean_unsigned_to_nat(1024u);
-x_57 = lean_nat_dec_le(x_56, x_2);
-x_58 = l___private_Lean_Expr_0__Lean_reprLiteral____x40_Lean_Expr___hyg_98_(x_55, x_56);
-x_59 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__13;
-x_60 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_60, 0, x_59);
-lean_ctor_set(x_60, 1, x_58);
-if (x_57 == 0)
+x_48 = lean_unsigned_to_nat(1024u);
+x_49 = lean_nat_dec_le(x_48, x_2);
+x_50 = l___private_Lean_Expr_0__Lean_reprLiteral____x40_Lean_Expr___hyg_98_(x_47, x_48);
+x_51 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__11;
+x_52 = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(x_52, 0, x_51);
+lean_ctor_set(x_52, 1, x_50);
+if (x_49 == 0)
 {
-lean_object* x_61; lean_object* x_62; uint8_t x_63; lean_object* x_64; lean_object* x_65; 
-x_61 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__6;
-x_62 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_62, 0, x_61);
-lean_ctor_set(x_62, 1, x_60);
-x_63 = 0;
-x_64 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_64, 0, x_62);
-lean_ctor_set_uint8(x_64, sizeof(void*)*1, x_63);
-x_65 = l_Repr_addAppParen(x_64, x_2);
-return x_65;
+lean_object* x_53; lean_object* x_54; uint8_t x_55; lean_object* x_56; lean_object* x_57; 
+x_53 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__4;
+x_54 = lean_alloc_ctor(3, 2, 0);
+lean_ctor_set(x_54, 0, x_53);
+lean_ctor_set(x_54, 1, x_52);
+x_55 = 0;
+x_56 = lean_alloc_ctor(5, 1, 1);
+lean_ctor_set(x_56, 0, x_54);
+lean_ctor_set_uint8(x_56, sizeof(void*)*1, x_55);
+x_57 = l_Repr_addAppParen(x_56, x_2);
+return x_57;
 }
 else
 {
-lean_object* x_66; lean_object* x_67; uint8_t x_68; lean_object* x_69; lean_object* x_70; 
-x_66 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__7;
-x_67 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_67, 0, x_66);
-lean_ctor_set(x_67, 1, x_60);
-x_68 = 0;
-x_69 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_69, 0, x_67);
-lean_ctor_set_uint8(x_69, sizeof(void*)*1, x_68);
-x_70 = l_Repr_addAppParen(x_69, x_2);
-return x_70;
+lean_object* x_58; lean_object* x_59; uint8_t x_60; lean_object* x_61; lean_object* x_62; 
+x_58 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__5;
+x_59 = lean_alloc_ctor(3, 2, 0);
+lean_ctor_set(x_59, 0, x_58);
+lean_ctor_set(x_59, 1, x_52);
+x_60 = 0;
+x_61 = lean_alloc_ctor(5, 1, 1);
+lean_ctor_set(x_61, 0, x_59);
+lean_ctor_set_uint8(x_61, sizeof(void*)*1, x_60);
+x_62 = l_Repr_addAppParen(x_61, x_2);
+return x_62;
 }
 }
 case 3:
 {
-lean_object* x_71; uint8_t x_72; 
-x_71 = lean_unsigned_to_nat(1024u);
-x_72 = lean_nat_dec_le(x_71, x_2);
-if (x_72 == 0)
+lean_object* x_63; uint8_t x_64; 
+x_63 = lean_unsigned_to_nat(1024u);
+x_64 = lean_nat_dec_le(x_63, x_2);
+if (x_64 == 0)
 {
-lean_object* x_73; lean_object* x_74; 
-x_73 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__17;
-x_74 = l_Repr_addAppParen(x_73, x_2);
-return x_74;
+lean_object* x_65; lean_object* x_66; 
+x_65 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__15;
+x_66 = l_Repr_addAppParen(x_65, x_2);
+return x_66;
 }
 else
 {
-lean_object* x_75; lean_object* x_76; 
-x_75 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__19;
-x_76 = l_Repr_addAppParen(x_75, x_2);
-return x_76;
+lean_object* x_67; lean_object* x_68; 
+x_67 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__17;
+x_68 = l_Repr_addAppParen(x_67, x_2);
+return x_68;
 }
 }
 case 4:
 {
-lean_object* x_77; uint8_t x_78; 
-x_77 = lean_unsigned_to_nat(1024u);
-x_78 = lean_nat_dec_le(x_77, x_2);
-if (x_78 == 0)
+lean_object* x_69; uint8_t x_70; 
+x_69 = lean_unsigned_to_nat(1024u);
+x_70 = lean_nat_dec_le(x_69, x_2);
+if (x_70 == 0)
 {
-lean_object* x_79; lean_object* x_80; 
-x_79 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__23;
-x_80 = l_Repr_addAppParen(x_79, x_2);
-return x_80;
+lean_object* x_71; lean_object* x_72; 
+x_71 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__21;
+x_72 = l_Repr_addAppParen(x_71, x_2);
+return x_72;
 }
 else
 {
-lean_object* x_81; lean_object* x_82; 
-x_81 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__25;
-x_82 = l_Repr_addAppParen(x_81, x_2);
-return x_82;
+lean_object* x_73; lean_object* x_74; 
+x_73 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__23;
+x_74 = l_Repr_addAppParen(x_73, x_2);
+return x_74;
 }
 }
 case 5:
 {
-lean_object* x_83; uint8_t x_84; 
-x_83 = lean_unsigned_to_nat(1024u);
-x_84 = lean_nat_dec_le(x_83, x_2);
-if (x_84 == 0)
+lean_object* x_75; uint8_t x_76; 
+x_75 = lean_unsigned_to_nat(1024u);
+x_76 = lean_nat_dec_le(x_75, x_2);
+if (x_76 == 0)
 {
-lean_object* x_85; lean_object* x_86; 
-x_85 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__29;
-x_86 = l_Repr_addAppParen(x_85, x_2);
-return x_86;
+lean_object* x_77; lean_object* x_78; 
+x_77 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__27;
+x_78 = l_Repr_addAppParen(x_77, x_2);
+return x_78;
 }
 else
 {
-lean_object* x_87; lean_object* x_88; 
-x_87 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__31;
-x_88 = l_Repr_addAppParen(x_87, x_2);
-return x_88;
+lean_object* x_79; lean_object* x_80; 
+x_79 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__29;
+x_80 = l_Repr_addAppParen(x_79, x_2);
+return x_80;
 }
 }
 default: 
 {
-lean_object* x_89; lean_object* x_90; lean_object* x_91; uint8_t x_92; uint8_t x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; 
-x_89 = lean_ctor_get(x_1, 0);
-lean_inc(x_89);
-x_90 = lean_ctor_get(x_1, 1);
-lean_inc(x_90);
+lean_object* x_81; lean_object* x_82; lean_object* x_83; uint8_t x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; 
+x_81 = lean_ctor_get(x_1, 0);
+lean_inc(x_81);
+x_82 = lean_ctor_get(x_1, 1);
+lean_inc(x_82);
 lean_dec(x_1);
-x_91 = lean_unsigned_to_nat(1024u);
-x_92 = lean_nat_dec_le(x_91, x_2);
-x_93 = 1;
-x_94 = l_Lean_Name_toString(x_89, x_93);
-x_95 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_95, 0, x_94);
-x_96 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__5;
-x_97 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_97, 0, x_96);
-lean_ctor_set(x_97, 1, x_95);
-x_98 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__34;
-x_99 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_99, 0, x_98);
-lean_ctor_set(x_99, 1, x_97);
-x_100 = lean_box(1);
-x_101 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_101, 0, x_99);
-lean_ctor_set(x_101, 1, x_100);
-x_102 = l_Nat_repr(x_90);
-x_103 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_103, 0, x_102);
-x_104 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_104, 0, x_101);
-lean_ctor_set(x_104, 1, x_103);
-if (x_92 == 0)
+x_83 = lean_unsigned_to_nat(1024u);
+x_84 = lean_nat_dec_le(x_83, x_2);
+x_85 = l_Lean_Name_reprPrec(x_81, x_83);
+x_86 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__32;
+x_87 = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(x_87, 0, x_86);
+lean_ctor_set(x_87, 1, x_85);
+x_88 = lean_box(1);
+x_89 = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(x_89, 0, x_87);
+lean_ctor_set(x_89, 1, x_88);
+x_90 = l_Nat_repr(x_82);
+x_91 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_91, 0, x_90);
+x_92 = lean_alloc_ctor(4, 2, 0);
+lean_ctor_set(x_92, 0, x_89);
+lean_ctor_set(x_92, 1, x_91);
+if (x_84 == 0)
 {
-lean_object* x_105; lean_object* x_106; uint8_t x_107; lean_object* x_108; lean_object* x_109; 
-x_105 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__6;
-x_106 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_106, 0, x_105);
-lean_ctor_set(x_106, 1, x_104);
-x_107 = 0;
-x_108 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_108, 0, x_106);
-lean_ctor_set_uint8(x_108, sizeof(void*)*1, x_107);
-x_109 = l_Repr_addAppParen(x_108, x_2);
-return x_109;
+lean_object* x_93; lean_object* x_94; uint8_t x_95; lean_object* x_96; lean_object* x_97; 
+x_93 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__4;
+x_94 = lean_alloc_ctor(3, 2, 0);
+lean_ctor_set(x_94, 0, x_93);
+lean_ctor_set(x_94, 1, x_92);
+x_95 = 0;
+x_96 = lean_alloc_ctor(5, 1, 1);
+lean_ctor_set(x_96, 0, x_94);
+lean_ctor_set_uint8(x_96, sizeof(void*)*1, x_95);
+x_97 = l_Repr_addAppParen(x_96, x_2);
+return x_97;
 }
 else
 {
-lean_object* x_110; lean_object* x_111; uint8_t x_112; lean_object* x_113; lean_object* x_114; 
-x_110 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__7;
-x_111 = lean_alloc_ctor(3, 2, 0);
-lean_ctor_set(x_111, 0, x_110);
-lean_ctor_set(x_111, 1, x_104);
-x_112 = 0;
-x_113 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_113, 0, x_111);
-lean_ctor_set_uint8(x_113, sizeof(void*)*1, x_112);
-x_114 = l_Repr_addAppParen(x_113, x_2);
-return x_114;
+lean_object* x_98; lean_object* x_99; uint8_t x_100; lean_object* x_101; lean_object* x_102; 
+x_98 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__5;
+x_99 = lean_alloc_ctor(3, 2, 0);
+lean_ctor_set(x_99, 0, x_98);
+lean_ctor_set(x_99, 1, x_92);
+x_100 = 0;
+x_101 = lean_alloc_ctor(5, 1, 1);
+lean_ctor_set(x_101, 0, x_99);
+lean_ctor_set_uint8(x_101, sizeof(void*)*1, x_100);
+x_102 = l_Repr_addAppParen(x_101, x_2);
+return x_102;
 }
 }
 }
@@ -1176,10 +1135,6 @@ l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_
 lean_mark_persistent(l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__31);
 l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__32 = _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__32();
 lean_mark_persistent(l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__32);
-l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__33 = _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__33();
-lean_mark_persistent(l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__33);
-l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__34 = _init_l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__34();
-lean_mark_persistent(l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_291____closed__34);
 l_Lean_Meta_DiscrTree_instReprKey___closed__1 = _init_l_Lean_Meta_DiscrTree_instReprKey___closed__1();
 lean_mark_persistent(l_Lean_Meta_DiscrTree_instReprKey___closed__1);
 l_Lean_Meta_DiscrTree_instReprKey = _init_l_Lean_Meta_DiscrTree_instReprKey();

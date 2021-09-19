@@ -63,6 +63,7 @@ lean_object* lean_level_mk_succ(lean_object*);
 uint8_t l_Lean_Level_hasMVar(lean_object*);
 lean_object* l_Lean_Level_hasMVarEx___boxed(lean_object*);
 static lean_object* l_Lean_Level_mkData___closed__2;
+lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 uint8_t l_Lean_Level_isEquiv(lean_object*, lean_object*);
 lean_object* l_Lean_Level_instBEqLevel;
@@ -155,7 +156,6 @@ uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 lean_object* l_Lean_instInhabitedMVarIdMap(lean_object*);
 uint8_t l___private_Lean_Level_0__Lean_beqMVarId____x40_Lean_Level___hyg_158_(lean_object*, lean_object*);
 uint64_t l_Lean_Name_hash(lean_object*);
-static lean_object* l_Lean_instReprMVarId___closed__1;
 lean_object* l_Nat_repr(lean_object*);
 static lean_object* l_Lean_Level_updateSucc_x21___closed__3;
 static lean_object* l_Lean_Level_PP_Result_quote___lambda__4___closed__1;
@@ -241,7 +241,6 @@ lean_object* l_Lean_Level_mkNaryMax(lean_object*);
 lean_object* l_Lean_Level_Data_depth___boxed(lean_object*);
 static lean_object* l_Lean_Level_PP_Result_quote___lambda__3___closed__1;
 lean_object* l_Lean_Level_normalize(lean_object*);
-static lean_object* l_Lean_instReprMVarId___closed__2;
 uint64_t l_UInt64_shiftLeft(uint64_t, uint64_t);
 lean_object* l_Lean_instReprMVarId___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Level_PP_Result_quote___lambda__6___closed__1;
@@ -662,37 +661,12 @@ x_1 = l_Lean_instHashableMVarId___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_instReprMVarId___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("`");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_instReprMVarId___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_instReprMVarId___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
 lean_object* l_Lean_instReprMVarId(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-uint8_t x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = 1;
-x_4 = l_Lean_Name_toString(x_1, x_3);
-x_5 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_5, 0, x_4);
-x_6 = l_Lean_instReprMVarId___closed__2;
-x_7 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_7, 0, x_6);
-lean_ctor_set(x_7, 1, x_5);
-return x_7;
+lean_object* x_3; 
+x_3 = l_Lean_Name_reprPrec(x_1, x_2);
+return x_3;
 }
 }
 lean_object* l_Lean_instReprMVarId___boxed(lean_object* x_1, lean_object* x_2) {
@@ -8246,10 +8220,6 @@ l_Lean_instHashableMVarId___closed__1 = _init_l_Lean_instHashableMVarId___closed
 lean_mark_persistent(l_Lean_instHashableMVarId___closed__1);
 l_Lean_instHashableMVarId = _init_l_Lean_instHashableMVarId();
 lean_mark_persistent(l_Lean_instHashableMVarId);
-l_Lean_instReprMVarId___closed__1 = _init_l_Lean_instReprMVarId___closed__1();
-lean_mark_persistent(l_Lean_instReprMVarId___closed__1);
-l_Lean_instReprMVarId___closed__2 = _init_l_Lean_instReprMVarId___closed__2();
-lean_mark_persistent(l_Lean_instReprMVarId___closed__2);
 l_Lean_instMVarIdSetInhabited = _init_l_Lean_instMVarIdSetInhabited();
 lean_mark_persistent(l_Lean_instMVarIdSetInhabited);
 l_Lean_instMVarIdSetEmptyCollection = _init_l_Lean_instMVarIdSetEmptyCollection();

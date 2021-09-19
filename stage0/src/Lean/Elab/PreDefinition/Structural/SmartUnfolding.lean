@@ -9,53 +9,62 @@ import Lean.Elab.PreDefinition.Structural.Basic
 namespace Lean.Elab.Structural
 open Meta
 
-partial def addSmartUnfoldingDefAux (preDef : PreDefinition) (matcherBelowDep : NameSet) : MetaM PreDefinition := do
-  let recFnName := preDef.declName
-  let isMarkedMatcherName (n : Name) : Bool    := matcherBelowDep.contains n
-  let isMarkedMatcherConst (e : Expr) : Bool   := e.isConst && isMarkedMatcherName e.constName!
-  let isMarkedMatcherApp (e : Expr) : Bool     := isMarkedMatcherConst e.getAppFn
-  let containsMarkedMatcher (e : Expr) : Bool := e.find? isMarkedMatcherConst |>.isSome
-  let rec visit (e : Expr) : MetaM Expr := do
+partial def addSmartUnfoldingDefAux (preDef : PreDefinition) (recArgPos : Nat) : MetaM PreDefinition := do
+  return { preDef with
+    declName  := mkSmartUnfoldingNameFor preDef.declName
+    value     := (← visit preDef.value)
+    modifiers := {}
+  }
+where
+  /--
+     Auxiliary method for annotating `match`-alternatives with `idRhs`.
+
+     It uses the following approach:
+     - Whenever it finds a `match` application `e` s.t. `recArgHasLooseBVarsAt preDef.declName recArgPos e`,
+       it marks the alternatives with `idRhs` if they do not already contain `idRhs`.
+
+     Recall that the condition `recArgHasLooseBVarsAt preDef.declName recArgPos e` is the one used at `mkBRecOn`.
+  -/
+  visit (e : Expr) : MetaM Expr := do
     match e with
     | Expr.lam ..     => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← visit b)
     | Expr.forallE .. => forallTelescope e fun xs b => do mkForallFVars xs (← visit b)
     | Expr.letE n type val body _ =>
-      withLetDecl n type (← visit val) fun x => do
-        mkLetFVars #[x] (← visit (body.instantiate1 x))
+      withLetDecl n type (← visit val) fun x => do mkLetFVars #[x] (← visit (body.instantiate1 x))
     | Expr.mdata d b _   => return mkMData d (← visit b)
     | Expr.proj n i s _  => return mkProj n i (← visit s)
     | Expr.app .. =>
       let processApp (e : Expr) : MetaM Expr :=
-        e.withApp fun f args => do
+        e.withApp fun f args =>
           return mkAppN (← visit f) (← args.mapM visit)
-      match isMarkedMatcherApp e, (← matchMatcherApp? e) with
-      | true, some matcherApp =>
-        let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
-          lambdaTelescope alt fun xs altBody => do
-            unless xs.size >= numParams do
-              throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-            if containsMarkedMatcher altBody then
-              -- continue
-              mkLambdaFVars xs (← visit altBody)
-            else
-              -- add idRhs marker
-              let altBody ← mkLambdaFVars xs[numParams:xs.size] altBody
-              let altBody ← mkIdRhs altBody
-              mkLambdaFVars xs[0:numParams] altBody
-        pure { matcherApp with alts := altsNew }.toExpr
-      | _, _ => processApp e
-    | _ => pure e
-  return { preDef with
-    declName  := mkSmartUnfoldingNameFor preDef.declName,
-    value     := (← visit preDef.value),
-    modifiers := {}
-  }
+      match (← matchMatcherApp? e) with
+      | some matcherApp =>
+        if !recArgHasLooseBVarsAt preDef.declName recArgPos e then
+          processApp e
+        else
+          let mut altsNew := #[]
+          for alt in matcherApp.alts, numParams in matcherApp.altNumParams do
+            let altNew ← lambdaTelescope alt fun xs altBody => do
+              unless xs.size >= numParams do
+                throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
+              let altBody ← visit altBody
+              let containsSUnfoldMatch := Option.isSome <| altBody.find? fun e => smartUnfoldingMatch? e |>.isSome
+              if !containsSUnfoldMatch then
+                let altBody ← mkLambdaFVars xs[numParams:xs.size] altBody
+                let altBody ← markSmartUnfoldigMatchAlt altBody
+                mkLambdaFVars xs[0:numParams] altBody
+              else
+                mkLambdaFVars xs altBody
+            altsNew := altsNew.push altNew
+          return markSmartUnfoldingMatch { matcherApp with alts := altsNew }.toExpr
+      | _ => processApp e
+    | _ => return e
 
-partial def addSmartUnfoldingDef (preDef : PreDefinition) (state : State) : TermElabM Unit := do
+partial def addSmartUnfoldingDef (preDef : PreDefinition) (recArgPos : Nat) : TermElabM Unit := do
   if (← isProp preDef.type) then
     return ()
   else
-    let preDefSUnfold ← addSmartUnfoldingDefAux preDef state.matcherBelowDep
+    let preDefSUnfold ← addSmartUnfoldingDefAux preDef recArgPos
     addNonRec preDefSUnfold
 
 end Lean.Elab.Structural

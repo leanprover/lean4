@@ -17,11 +17,12 @@ partial def addSmartUnfoldingDefAux (preDef : PreDefinition) (recArgPos : Nat) :
   }
 where
   /--
-     Auxiliary method for annotating `match`-alternatives with `idRhs`.
+     Auxiliary method for annotating `match`-alternatives with `markSmartUnfoldingMatch` and `markSmartUnfoldigMatchAlt`.
 
      It uses the following approach:
      - Whenever it finds a `match` application `e` s.t. `recArgHasLooseBVarsAt preDef.declName recArgPos e`,
-       it marks the alternatives with `idRhs` if they do not already contain `idRhs`.
+       it marks the `match` with `markSmartUnfoldingMatch`, and each alternative that does not contain a nested marked `match`
+       is marked with `markSmartUnfoldigMatchAlt`.
 
      Recall that the condition `recArgHasLooseBVarsAt preDef.declName recArgPos e` is the one used at `mkBRecOn`.
   -/

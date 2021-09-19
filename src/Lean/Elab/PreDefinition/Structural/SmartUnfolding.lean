@@ -48,15 +48,15 @@ where
               unless xs.size >= numParams do
                 throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
               let altBody ← visit altBody
-              let containsIdRhs := Option.isSome <| altBody.find? fun e => e.isConstOf ``idRhs
-              if !containsIdRhs then
+              let containsSUnfoldMatch := Option.isSome <| altBody.find? fun e => smartUnfoldingMatch? e |>.isSome
+              if !containsSUnfoldMatch then
                 let altBody ← mkLambdaFVars xs[numParams:xs.size] altBody
-                let altBody ← mkIdRhs altBody
+                let altBody ← markSmartUnfoldigMatchAlt altBody
                 mkLambdaFVars xs[0:numParams] altBody
               else
                 mkLambdaFVars xs altBody
             altsNew := altsNew.push altNew
-          return { matcherApp with alts := altsNew }.toExpr
+          return markSmartUnfoldingMatch { matcherApp with alts := altsNew }.toExpr
       | _ => processApp e
     | _ => return e
 

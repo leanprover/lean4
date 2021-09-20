@@ -1605,15 +1605,23 @@ private def mkMonadAlias (m : Expr) : TermElabM Syntax := do
   assignExprMVar mvar.mvarId! m
   pure result
 
-private partial def ensureArrowNotUsed : Syntax → MacroM Unit
-  | stx@(Syntax.node k args) => do
-    if k == ``Parser.Term.liftMethod || k == ``Parser.Term.doLetArrow || k == ``Parser.Term.doReassignArrow || k == ``Parser.Term.doIfLetBind then
-      Macro.throwErrorAt stx "`←` and `<-` are not allowed in pure `do` blocks, i.e., blocks where Lean implicitly used the `Id` monad"
-    args.forM ensureArrowNotUsed
-  | _ => pure ()
+private partial def ensureArrowNotUsed (stx : Syntax) : MacroM Unit := do
+  /- We expand macros here because we stop the search at nested `do`s
+     So, we also want to stop the search at macros that expand `do ...`.
+     Hopefully this is not a performance bottleneck in practice. -/
+  let stx ← expandMacros stx
+  stx.getArgs.forM go
+where
+  go (stx : Syntax) : MacroM Unit :=
+    match stx with
+    | Syntax.node k args => do
+      if k == ``Parser.Term.liftMethod || k == ``Parser.Term.doLetArrow || k == ``Parser.Term.doReassignArrow || k == ``Parser.Term.doIfLetBind then
+        Macro.throwErrorAt stx "`←` and `<-` are not allowed in pure `do` blocks, i.e., blocks where Lean implicitly used the `Id` monad"
+      unless k == ``Parser.Term.do do
+        args.forM go
+    | _ => pure ()
 
-@[builtinTermElab «do»]
-def elabDo : TermElab := fun stx expectedType? => do
+@[builtinTermElab «do»] def elabDo : TermElab := fun stx expectedType? => do
   tryPostponeIfNoneOrMVar expectedType?
   let bindInfo ← extractBind expectedType?
   if bindInfo.isPure then

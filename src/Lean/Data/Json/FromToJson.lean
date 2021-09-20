@@ -69,9 +69,12 @@ instance [ToJson α] [ToJson β] : ToJson (α × β) where
 instance : FromJson Name where
   fromJson? j := do
     let s ← j.getStr?
-    let some n ← Syntax.decodeNameLit ("`" ++ s)
-      | throw s!"expected a `Name`, got '{j}'"
-    return n
+    if s == "[anonymous]" then
+      return Name.anonymous
+    else
+      let some n ← Syntax.decodeNameLit ("`" ++ s)
+        | throw s!"expected a `Name`, got '{j}'"
+      return n
 
 instance : ToJson Name where
   toJson n := toString n

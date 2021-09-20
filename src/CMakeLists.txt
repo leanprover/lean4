@@ -181,7 +181,7 @@ endif()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
 # Initialize CXXFLAGS.
-set(CMAKE_CXX_FLAGS                "${LEAN_EXTRA_CXX_FLAGS} -DLEAN_BUILD_TYPE=\"${CMAKE_BUILD_TYPE}\"")
+set(CMAKE_CXX_FLAGS                "${LEAN_EXTRA_CXX_FLAGS} -DLEAN_BUILD_TYPE=\"${CMAKE_BUILD_TYPE}\" -DLEAN_EXPORTING")
 set(CMAKE_CXX_FLAGS_DEBUG          "-DLEAN_DEBUG -DLEAN_TRACE")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-DNDEBUG")
@@ -206,11 +206,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
     endif ()
 elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__CLANG__")
-  if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    # In OSX, clang requires "-stdlib=libc++" to support C++14
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-    set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_EXTRA_LINKER_FLAGS} -stdlib=libc++")
-  endif ()
 elseif (MSVC)
     # All good. Maybe enforce a recent version?
     set(CMAKE_CXX_FLAGS                "/GL /EHsc /W2 /Zc:implicitNoexcept- -D_SCL_SECURE_NO_WARNINGS ${CMAKE_CXX_FLAGS}")
@@ -306,16 +301,12 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -install_name @rpath/libleanshared.dylib")
 endif()
 
-# export all symbols for the interpreter
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  # for libraries compiled with `leanc -shared`
-  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,--export-all")
-  # for `leanshared` itself
-  set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,--export-all")
-  # for executables containing code to be interpreted
-  set(LEAN_DYN_EXE_LINKER_FLAGS "${LEAN_DYN_EXE_LINKER_FLAGS} -Wl,--export-all")
-else()
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_LINKER_FLAGS} -ldl")
+endif()
+
+if(NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
+  # export symbols for the interpreter (done via `LEAN_EXPORT` for Windows)
   set(LEAN_DYN_EXE_LINKER_FLAGS "${LEAN_DYN_EXE_LINKER_FLAGS} -rdynamic")
 endif()
 
@@ -434,7 +425,7 @@ file(RELATIVE_PATH LIB ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
 # These are used in lean.mk and passed through by stdlib.make
-set(LEANC_OPTS "${LEANC_OPTS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
+set(LEANC_OPTS "${LEANC_OPTS} ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}} ${CMAKE_CXX_SYSROOT_FLAG}${CMAKE_OSX_SYSROOT} ${CMAKE_CXX_OSX_DEPLOYMENT_TARGET_FLAG}${CMAKE_OSX_DEPLOYMENT_TARGET}")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LEANSHARED_LINKER_FLAGS "-Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libInit.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libStd.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libLean.a -Wl,-force_load,${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a ${LEANSHARED_LINKER_FLAGS}")
@@ -477,7 +468,7 @@ endif()
 
 if(PREV_STAGE)
   add_custom_target(update-stage0
-    COMMAND cmake -E env CSRCS=${CMAKE_BINARY_DIR}/lib/temp bash script/update-stage0
+    COMMAND bash -c 'CSRCS=${CMAKE_BINARY_DIR}/lib/temp script/update-stage0'
     DEPENDS make_stdlib
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/..")
 endif()

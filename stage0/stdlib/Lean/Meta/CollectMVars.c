@@ -15,6 +15,7 @@ extern "C" {
 #endif
 size_t l_USize_add(size_t, size_t);
 lean_object* l_List_foldlM___at_Lean_Meta_collectMVarsAtDecl___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_CollectMVars_visit(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 uint8_t l_USize_decEq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -32,7 +33,6 @@ uint8_t l_USize_decLt(size_t, size_t);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_getMVarsNoDelayed___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVarsNoDelayed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Declaration_foldExprM___at_Lean_Meta_collectMVarsAtDecl___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_collectMVars(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getDelayedAssignment_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_getMVars___closed__2;
@@ -185,7 +185,7 @@ x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 x_17 = lean_array_get_size(x_16);
 lean_dec(x_16);
-x_18 = l_Lean_Expr_collectMVars(x_14, x_9);
+x_18 = l_Lean_CollectMVars_visit(x_9, x_14);
 x_19 = lean_st_ref_get(x_6, x_15);
 x_20 = lean_ctor_get(x_19, 1);
 lean_inc(x_20);

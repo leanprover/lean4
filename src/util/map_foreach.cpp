@@ -141,7 +141,7 @@ void smap_foreach(b_obj_arg m, std::function<void(b_obj_arg, b_obj_arg)> const &
     phashmap_foreach(cnstr_get(m, 1), fn);
 }
 
-extern "C" obj_res lean_smap_foreach_test(b_obj_arg m) {
+extern "C" LEAN_EXPORT obj_res lean_smap_foreach_test(b_obj_arg m) {
     smap_foreach(m, [](b_obj_arg k, b_obj_arg v) {
             std::cout << ">> " << unbox(k) << " |-> " << unbox(v) << "\n";
         });

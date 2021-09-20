@@ -52,6 +52,9 @@ instance : ForIn m (RBTree α cmp) α where
 @[specialize] def toList (t : RBTree α cmp) : List α :=
   t.revFold (fun as a => a::as) []
 
+@[specialize] def toArray (t : RBTree α cmp) : Array α :=
+  t.fold (fun as a => as.push a) #[]
+
 @[inline] protected def min (t : RBTree α cmp) : Option α :=
   match RBMap.min t with
   | some ⟨a, _⟩ => some a

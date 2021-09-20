@@ -27,6 +27,20 @@ register_builtin_option smartUnfolding : Bool := {
   descr := "when computing weak head normal form, use auxiliary definition created for functions defined by structural recursion"
 }
 
+/-- Add auxiliary annotation to indicate the `match`-expression `e` must be reduced when performing smart unfolding. -/
+def markSmartUnfoldingMatch (e : Expr) : Expr :=
+  mkAnnotation `sunfoldMatch e
+
+def smartUnfoldingMatch? (e : Expr) : Option Expr :=
+  annotation? `sunfoldMatch e
+
+/-- Add auxiliary annotation to indicate expression `e` (a `match` alternative rhs) was successfully reduced by smart unfolding. -/
+def markSmartUnfoldigMatchAlt (e : Expr) : Expr :=
+  mkAnnotation `sunfoldMatchAlt e
+
+def smartUnfoldingMatchAlt? (e : Expr) : Option Expr :=
+  annotation? `sunfoldMatchAlt e
+
 /- ===========================
    Helper methods
    =========================== -/
@@ -229,24 +243,12 @@ end
     | some v => whnfEasyCases v k
     | none   => return e
 
-/-- Return true iff term is of the form `idRhs ...` -/
-private def isIdRhsApp (e : Expr) : Bool :=
-  e.isAppOf `idRhs
-
-/-- (@idRhs T f a_1 ... a_n) ==> (f a_1 ... a_n) -/
-private def extractIdRhs (e : Expr) : Expr :=
-  if !isIdRhsApp e then e
-  else
-    let args := e.getAppArgs
-    if args.size < 2 then e
-    else mkAppRange args[1] 2 args.size args
-
 @[specialize] private def deltaDefinition (c : ConstantInfo) (lvls : List Level)
     (failK : Unit → α) (successK : Expr → α) : α :=
   if c.levelParams.length != lvls.length then failK ()
   else
     let val := c.instantiateValueLevelParams lvls
-    successK (extractIdRhs val)
+    successK val
 
 @[specialize] private def deltaBetaDefinition (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr)
     (failK : Unit → α) (successK : Expr → α) : α :=
@@ -255,7 +257,7 @@ private def extractIdRhs (e : Expr) : Expr :=
   else
     let val := c.instantiateValueLevelParams lvls
     let val := val.betaRev revArgs
-    successK (extractIdRhs val)
+    successK val
 
 inductive ReduceMatcherResult where
   | reduced (val : Expr)
@@ -382,25 +384,69 @@ partial def whnfCore (e : Expr) : MetaM Expr :=
       | none => return e
     | _ => unreachable!
 
-mutual
-  /-- Reduce `e` until `idRhs` application is exposed or it gets stuck.
-      This is a helper method for implementing smart unfolding. -/
-  private partial def whnfUntilIdRhs (e : Expr) : MetaM Expr := do
-    let e ← whnfCore e
-    match (← getStuckMVar? e) with
-    | some mvarId =>
+/--
+  Recall that `_sunfold` auxiliary definitions contains the markers: `markSmartUnfoldigMatch` (*) and `markSmartUnfoldigMatchAlt` (**).
+  For example, consider the following definition
+  ```
+  def r (i j : Nat) : Nat :=
+    i +
+      match j with
+      | Nat.zero => 1
+      | Nat.succ j =>
+        i + match j with
+            | Nat.zero => 2
+            | Nat.succ j => r i j
+  ```
+  produces the following `_sunfold` auxiliary definition with the markers
+  ```
+  def r._sunfold (i j : Nat) : Nat :=
+    i +
+      (*) match j with
+      | Nat.zero => (**) 1
+      | Nat.succ j =>
+        i + (*) match j with
+            | Nat.zero => (**) 2
+            | Nat.succ j => (**) r i j
+  ```
+
+  `match` expressions marked with `markSmartUnfoldigMatch` (*) must be reduced, otherwise the resulting term is not definitionally
+   equal to the given expression. The recursion may be interrupted as soon as the annotation `markSmartUnfoldingAlt` (**) is reached.
+
+  For example, the term `r i j.succ.succ` reduces to the definitionally equal term `i + i * r i j`
+-/
+partial def smartUnfoldingReduce? (e : Expr) : MetaM (Option Expr) :=
+  go e |>.run
+where
+  go (e : Expr) : OptionT MetaM Expr := do
+    match e with
+    | Expr.letE n t v b _ => withLetDecl n t (← go v) fun x => do mkLetFVars #[x] (← go b)
+    | Expr.lam .. => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← go b)
+    | Expr.app f a .. => mkApp (← go f) (← go a)
+    | Expr.proj _ _ s _ => e.updateProj! (← go s)
+    | Expr.mdata _ b _  =>
+      if let some m := smartUnfoldingMatch? e then
+        goMatch m
+      else
+        e.updateMData! (← go b)
+    | _ => return e
+
+  goMatch (e : Expr) : OptionT MetaM Expr := do
+    match (← reduceMatcher? e) with
+    | ReduceMatcherResult.reduced e =>
+      if let some alt := smartUnfoldingMatchAlt? e then
+        return alt
+      else
+        go e
+    | ReduceMatcherResult.stuck e' =>
+      let mvarId ← getStuckMVar? e'
       /- Try to "unstuck" by resolving pending TC problems -/
       if (← Meta.synthPending mvarId) then
-        whnfUntilIdRhs e
+        goMatch e
       else
-        return e -- failed because metavariable is blocking reduction
-    | _ =>
-      if isIdRhsApp e then
-        return e -- done
-      else
-        match (← unfoldDefinition? e) with
-        | some e => whnfUntilIdRhs e
-        | none   => pure e -- failed because of symbolic argument
+        failure
+    | _ => failure
+
+mutual
 
   /--
     Auxiliary method for unfolding a class projection when transparency is set to `TransparencyMode.instances`.
@@ -440,12 +486,8 @@ mutual
           if smartUnfolding.get (← getOptions) then
             match (← getConstNoEx? (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(ConstantInfo.defnInfo _) =>
-              deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (fun _ => pure none) fun e₁ => do
-                let e₂ ← whnfUntilIdRhs e₁
-                if isIdRhsApp e₂ then
-                  return some (extractIdRhs e₂)
-                else
-                  return none
+              deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (fun _ => pure none) fun e₁ =>
+                smartUnfoldingReduce? e₁
             | _ =>
               if (← getMatcherInfo? fInfo.name).isSome then
                 -- Recall that `whnfCore` tries to reduce "matcher" applications.

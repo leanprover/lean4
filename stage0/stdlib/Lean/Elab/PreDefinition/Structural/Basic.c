@@ -23,6 +23,7 @@ static lean_object* l_Lean_Elab_Structural_ensureNoRecFn___lambda__1___closed__4
 static lean_object* l_Lean_Elab_Structural_instInhabitedM___closed__3;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 uint8_t l_Lean_Elab_Structural_recArgHasLooseBVarsAt(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Structural_RecArgInfo_recArgPos___boxed(lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_Basic_0__Lean_Elab_Structural_containsRecFn___lambda__1___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -35,7 +36,6 @@ lean_object* l_Lean_Meta_forEachExpr(lean_object*, lean_object*, lean_object*, l
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_instInhabitedM___closed__2;
 static lean_object* l_Lean_Elab_Structural_instInhabitedM___closed__1;
-lean_object* l_Lean_Elab_Structural_State_matcherBelowDep___default;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Structural_ensureNoRecFn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_ensureNoRecFn___lambda__1___closed__3;
@@ -43,7 +43,6 @@ lean_object* l_Lean_Elab_Structural_recArgHasLooseBVarsAt___boxed(lean_object*, 
 lean_object* l_Lean_throwError___at_Lean_Elab_Structural_instInhabitedM___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Elab_PreDefinition_Structural_Basic_0__Lean_Elab_Structural_containsRecFn___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
-extern lean_object* l_Lean_NameSet_empty;
 extern lean_object* l_Lean_Expr_FindImpl_initCache;
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_ensureNoRecFn___lambda__1___closed__2;
@@ -56,16 +55,30 @@ lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMe
 uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 lean_object* l_Lean_Elab_Structural_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_FindImpl_findM_x3f_visit(lean_object*, size_t, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Structural_RecArgInfo_recArgPos(lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
 lean_object* l_Lean_Elab_Structural_instInhabitedM(lean_object*);
 static lean_object* l_Lean_Elab_Structural_State_addMatchers___default___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-static lean_object* _init_l_Lean_Elab_Structural_State_matcherBelowDep___default() {
+lean_object* l_Lean_Elab_Structural_RecArgInfo_recArgPos(lean_object* x_1) {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_NameSet_empty;
-return x_1;
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_2 = lean_ctor_get(x_1, 0);
+x_3 = lean_array_get_size(x_2);
+x_4 = lean_ctor_get(x_1, 2);
+x_5 = lean_nat_add(x_3, x_4);
+lean_dec(x_3);
+return x_5;
+}
+}
+lean_object* l_Lean_Elab_Structural_RecArgInfo_recArgPos___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_Structural_RecArgInfo_recArgPos(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Elab_Structural_State_addMatchers___default___closed__1() {
@@ -316,33 +329,28 @@ return x_14;
 uint8_t l_Lean_Elab_Structural_recArgHasLooseBVarsAt(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_4 = lean_ctor_get(x_2, 0);
-x_5 = lean_array_get_size(x_4);
-x_6 = lean_ctor_get(x_2, 2);
-x_7 = lean_nat_add(x_5, x_6);
-lean_dec(x_5);
-x_8 = lean_alloc_closure((void*)(l_Lean_Elab_Structural_recArgHasLooseBVarsAt___lambda__1___boxed), 3, 2);
-lean_closure_set(x_8, 0, x_1);
-lean_closure_set(x_8, 1, x_7);
-x_9 = 8192;
-x_10 = l_Lean_Expr_FindImpl_initCache;
-x_11 = l_Lean_Expr_FindImpl_findM_x3f_visit(x_8, x_9, x_3, x_10);
-x_12 = lean_ctor_get(x_11, 0);
-lean_inc(x_12);
-lean_dec(x_11);
-if (lean_obj_tag(x_12) == 0)
+lean_object* x_4; size_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_4 = lean_alloc_closure((void*)(l_Lean_Elab_Structural_recArgHasLooseBVarsAt___lambda__1___boxed), 3, 2);
+lean_closure_set(x_4, 0, x_1);
+lean_closure_set(x_4, 1, x_2);
+x_5 = 8192;
+x_6 = l_Lean_Expr_FindImpl_initCache;
+x_7 = l_Lean_Expr_FindImpl_findM_x3f_visit(x_4, x_5, x_3, x_6);
+x_8 = lean_ctor_get(x_7, 0);
+lean_inc(x_8);
+lean_dec(x_7);
+if (lean_obj_tag(x_8) == 0)
 {
-uint8_t x_13; 
-x_13 = 0;
-return x_13;
+uint8_t x_9; 
+x_9 = 0;
+return x_9;
 }
 else
 {
-uint8_t x_14; 
-lean_dec(x_12);
-x_14 = 1;
-return x_14;
+uint8_t x_10; 
+lean_dec(x_8);
+x_10 = 1;
+return x_10;
 }
 }
 }
@@ -363,7 +371,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_Lean_Elab_Structural_recArgHasLooseBVarsAt(x_1, x_2, x_3);
-lean_dec(x_2);
 x_5 = lean_box(x_4);
 return x_5;
 }
@@ -596,8 +603,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_ForEachExpr(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_Structural_State_matcherBelowDep___default = _init_l_Lean_Elab_Structural_State_matcherBelowDep___default();
-lean_mark_persistent(l_Lean_Elab_Structural_State_matcherBelowDep___default);
 l_Lean_Elab_Structural_State_addMatchers___default___closed__1 = _init_l_Lean_Elab_Structural_State_addMatchers___default___closed__1();
 lean_mark_persistent(l_Lean_Elab_Structural_State_addMatchers___default___closed__1);
 l_Lean_Elab_Structural_State_addMatchers___default = _init_l_Lean_Elab_Structural_State_addMatchers___default();

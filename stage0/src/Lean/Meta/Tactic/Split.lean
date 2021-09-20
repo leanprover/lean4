@@ -37,6 +37,11 @@ where
         | some r => return Simp.Step.done r
       return Simp.Step.visit { expr := e }
 
+def simpMatchTarget (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
+  let target ← instantiateMVars (← getMVarType mvarId)
+  let r ← simpMatch target
+  applySimpResultToTarget mvarId target r
+
 private def simpMatchCore (matchDeclName : Name) (matchEqDeclName : Name) (e : Expr) : MetaM Simp.Result := do
   Simp.main e (← getSimpMatchContext) (methods := { pre })
 where
@@ -69,23 +74,22 @@ private def generalizeMatchDiscrs (mvarId : MVarId) (discrs : Array Expr) : Meta
     let (fvarIds, mvarId) ← generalize mvarId args
     return (fvarIds[:discrs.size], mvarId)
 
-def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do
-  let some app ← matchMatcherApp? e | throwError "match application expected"
-  let (discrFVarIds, mvarId) ← generalizeMatchDiscrs mvarId app.discrs
-  trace[Meta.debug] "split [1]:\n{MessageData.ofGoal mvarId}"
+def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Level) (params : Array Expr) (discrs : Array Expr) : MetaM (List MVarId) := do
+  let (discrFVarIds, mvarId) ← generalizeMatchDiscrs mvarId discrs
   let (reverted, mvarId) ← revert mvarId discrFVarIds (preserveOrder := true)
   let (discrFVarIds, mvarId) ← introNP mvarId discrFVarIds.size
   let numExtra := reverted.size - discrFVarIds.size
   let discrs := discrFVarIds.map mkFVar
-  let matchEqns ← Match.getEquationsFor app.matcherName
+  let some info ← getMatcherInfo? matcherDeclName | throwError "'applyMatchSplitter' failed, '{matcherDeclName}' is not a 'match' auxiliary declaration."
+  let matchEqns ← Match.getEquationsFor matcherDeclName
   withMVarContext mvarId do
     let motive ← mkLambdaFVars discrs (← getMVarType mvarId)
     -- Fix universe
-    let mut us := app.matcherLevels
-    if let some uElimPos := app.uElimPos? then
+    let mut us := us
+    if let some uElimPos := info.uElimPos? then
       -- Set universe elimination level to zero (Prop).
       us := us.set! uElimPos levelZero
-    let splitter := mkAppN (mkConst matchEqns.splitterName us.toList) app.params
+    let splitter := mkAppN (mkConst matchEqns.splitterName us.toList) params
     let splitter := mkAppN (mkApp splitter motive) discrs
     check splitter -- TODO
     let mvarIds ← apply mvarId splitter
@@ -93,10 +97,17 @@ def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do
       let numParams := matchEqns.splitterAltNumParams[i]
       let (_, mvarId) ← introN mvarId numParams
       let (_, mvarId) ← introNP mvarId numExtra
-      trace[Meta.debug] "before simpMatch:\n{MessageData.ofGoal mvarId}"
-      let mvarId ← simpMatchTargetCore mvarId app.matcherName matchEqns.eqnNames[i]
       return (i+1, mvarId::mvarIds)
     return mvarIds.reverse
+
+def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do
+  let some app ← matchMatcherApp? e | throwError "match application expected"
+  let matchEqns ← Match.getEquationsFor app.matcherName
+  let mvarIds ← applyMatchSplitter mvarId app.matcherName app.matcherLevels app.params app.discrs
+  let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
+    let mvarId ← simpMatchTargetCore mvarId app.matcherName matchEqns.eqnNames[i]
+    return (i+1, mvarId::mvarIds)
+  return mvarIds.reverse
 
 /-- Return an `if-then-else` or `match-expr` to split. -/
 partial def findSplit? (env : Environment) (e : Expr) : Option Expr :=
@@ -127,7 +138,7 @@ end Split
 open Split
 
 def splitTarget? (mvarId : MVarId) : MetaM (Option (List MVarId)) := commitWhenSome? do
-  if let some e := findSplit? (← getEnv) (← getMVarType mvarId) then
+  if let some e := findSplit? (← getEnv) (← instantiateMVars (← getMVarType mvarId)) then
     if e.isIte || e.isDIte then
       return (← splitIfTarget? mvarId).map fun (s₁, s₂) => [s₁.mvarId, s₂.mvarId]
     else
@@ -138,7 +149,7 @@ def splitTarget? (mvarId : MVarId) : MetaM (Option (List MVarId)) := commitWhenS
 
 def splitLocalDecl? (mvarId : MVarId) (fvarId : FVarId) : MetaM (Option (List MVarId)) := commitWhenSome? do
   withMVarContext mvarId do
-    if let some e := findSplit? (← getEnv) (← inferType (mkFVar fvarId)) then
+    if let some e := findSplit? (← getEnv) (← instantiateMVars (← inferType (mkFVar fvarId))) then
       if e.isIte || e.isDIte then
         return (← splitIfLocalDecl? mvarId fvarId).map fun (mvarId₁, mvarId₂) => [mvarId₁, mvarId₂]
       else

@@ -1,0 +1,15 @@
+true
+(match Nat.add i 0 with 
+  | 0 => true
+  | Nat.succ x => true) &&
+  f (Nat.add i 0)
+if i < 5 then 0 else 1
+if i < 5 then 0 else g i (Nat.add j 0)
+i + 1
+i + h i (Nat.add j 0)
+i + 1
+i + i * 2
+i + i * r i (Nat.add j 0)
+i + i * r i j
+let z := s i (Nat.add j 0);
+z + z

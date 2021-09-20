@@ -16,12 +16,6 @@ def mkId (e : Expr) : MetaM Expr := do
   let u    ← getLevel type
   return mkApp2 (mkConst ``id [u]) type e
 
-/-- Return `idRhs e` -/
-def mkIdRhs (e : Expr) : MetaM Expr :=  do
-  let type ← inferType e
-  let u    ← getLevel type
-  return mkApp2 (mkConst ``idRhs [u]) type e
-
 /--
   Given `e` s.t. `inferType e` is definitionally equal to `expectedType`, return
   term `@id expectedType e`. -/

@@ -26,21 +26,21 @@ builtin_initialize
   register_parser_alias "str" strLit
   register_parser_alias "char" charLit
   register_parser_alias "name" nameLit
-  register_parser_alias "ident" ident
+  register_parser_alias ident
   register_parser_alias "colGt" checkColGt
   register_parser_alias "colGe" checkColGe
-  register_parser_alias "lookahead" lookahead
-  register_parser_alias "atomic" atomic
-  register_parser_alias "many" many
-  register_parser_alias "many1" many1
-  register_parser_alias "manyIndent" manyIndent
-  register_parser_alias "many1Indent" many1Indent
-  register_parser_alias "optional" optional
-  register_parser_alias "withPosition" withPosition
-  register_parser_alias "interpolatedStr" interpolatedStr
-  register_parser_alias "orelse" orelse
-  register_parser_alias "andthen" andthen
-  register_parser_alias "incQuotDepth" incQuotDepth
+  register_parser_alias lookahead
+  register_parser_alias atomic
+  register_parser_alias many
+  register_parser_alias many1
+  register_parser_alias manyIndent
+  register_parser_alias many1Indent
+  register_parser_alias optional
+  register_parser_alias withPosition
+  register_parser_alias interpolatedStr
+  register_parser_alias orelse
+  register_parser_alias andthen
+  register_parser_alias incQuotDepth
 
   registerAlias "notFollowedBy" (notFollowedBy · "element")
   Parenthesizer.registerAlias "notFollowedBy" notFollowedBy.parenthesizer

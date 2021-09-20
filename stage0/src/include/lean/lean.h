@@ -46,6 +46,19 @@ extern "C" {
 #define LEAN_ALWAYS_INLINE
 #endif
 
+#ifdef _WIN32
+#define LEAN_EXPORT __declspec(dllexport)
+#else
+#define LEAN_EXPORT
+#endif
+
+// We set `LEAN_EXPORTING` when compiling objects of libleanshared, but not when including this header in any other context.
+#if defined LEAN_EXPORTING
+#define LEAN_SHARED LEAN_EXPORT
+#else
+#define LEAN_SHARED
+#endif
+
 #ifdef LEAN_RUNTIME_STATS
 #define LEAN_RUNTIME_STAT_CODE(c) c
 #else

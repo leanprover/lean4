@@ -1,4 +1,5 @@
-if [[ "$OS" == "Windows_NT" ]]; then
+#!/usr/bin/env sh
+if [ "$OS" = "Windows_NT" ]; then
   LINK_OPTS=-Wl,--export-all
 else
   LINK_OPTS=-rdynamic

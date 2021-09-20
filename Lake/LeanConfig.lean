@@ -17,32 +17,28 @@ def pkgFileName : FilePath := "package.lean"
 namespace Package
 
 unsafe def fromLeanFileUnsafe
-(path : FilePath) (root : FilePath) (args : List String := [])
+(path : FilePath) (dir : FilePath) (args : List String := [])
 : IO Package := do
+  let opts := Options.empty
   let input ← IO.FS.readFile path
-  let (env, ok) ← Elab.runFrontend input Options.empty path.toString pkgModName
+  let (env, ok) ← Elab.runFrontend input opts path.toString pkgModName
   if ok then
-    let ioPackagerE := Id.run <| ExceptT.run <|
-      env.evalConstCheck IOPackager Options.empty ``IOPackager pkgDefName
-    match ioPackagerE with
-    | Except.ok packager => Package.mk root (← packager root args)
-    | Except.error error =>
-    let packagerE := Id.run <| ExceptT.run <|
-      env.evalConstCheck Packager Options.empty ``Packager pkgDefName
-    match packagerE with
-    | Except.ok packager => Package.mk root (← packager root args)
-    | Except.error error =>
-    let configE := Id.run <| ExceptT.run <|
-      env.evalConstCheck PackageConfig Options.empty ``PackageConfig pkgDefName
-    match configE with
-    | Except.ok config => Package.mk root config
-    | Except.error error => throw <| IO.userError <|
+    let m := env.evalConstCheck IOPackager opts ``IOPackager pkgDefName
+    if let Except.ok ioPackager := m.run.run then
+      return Package.mk dir (← ioPackager dir args)
+    let m := env.evalConstCheck Packager opts ``Packager pkgDefName
+    if let Except.ok packager := m.run.run then
+      return Package.mk dir (packager dir args)
+    let m := env.evalConstCheck PackageConfig opts ``PackageConfig pkgDefName
+    if let Except.ok config := m.run.run then
+      return Package.mk dir config
+    throw <| IO.userError
       s!"unexpected type at 'package', `Lake.IOPackager`, `Lake.Packager`, or `Lake.PackageConfig` expected"
   else
-    throw <| IO.userError <| s!"package configuration (at {path}) has errors"
+    throw <| IO.userError s!"package configuration (at {path}) has errors"
 
 @[implementedBy fromLeanFileUnsafe]
-constant fromLeanFile (path : FilePath) (root : FilePath) (args : List String := []) : IO Package
+constant fromLeanFile (path : FilePath) (dir : FilePath) (args : List String := []) : IO Package
 
 unsafe def fromDirUnsafe
 (dir : FilePath) (args : List String := []) (file := pkgFileName) : IO Package :=

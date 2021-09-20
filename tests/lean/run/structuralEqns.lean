@@ -51,3 +51,17 @@ def h (xs : List Nat) (y : Nat) : Nat :=
 #check h.eq_1
 #check h.eq_2
 #check h.eq_3
+
+def r (i j : Nat) : Nat :=
+  i +
+    match j with
+    | Nat.zero => 1
+    | Nat.succ j =>
+      i * match j with
+          | Nat.zero => 2
+          | Nat.succ j => r i j
+
+#eval tst ``r
+#check r.eq_1
+#check r.eq_2
+#check r.eq_3

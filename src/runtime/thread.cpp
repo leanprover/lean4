@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #ifdef LEAN_WINDOWS
 #include <windows.h>
+#include <process.h>
 #else
 #include <pthread.h>
 #endif
@@ -81,15 +82,14 @@ struct lthread::imp {
     std::function<void(void)> m_proc;
     HANDLE                    m_thread;
 
-    static DWORD WINAPI _main(void * p) {
+    static unsigned WINAPI _main(void * p) {
         thread_main(p);
         return 0;
     }
 
     imp(runnable const & p) {
         runnable * f = new std::function<void()>(mk_thread_proc(p, get_max_heartbeat()));
-        m_thread = CreateThread(nullptr, m_thread_stack_size,
-                                _main, f, 0, nullptr);
+        m_thread = (HANDLE)_beginthreadex(nullptr, m_thread_stack_size, &_main, f, 0, nullptr);
         if (m_thread == NULL) {
             throw exception("failed to create thread");
         }

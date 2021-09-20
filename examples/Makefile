@@ -2,7 +2,7 @@ LAKE := ../build/bin/lake
 
 all: check-lake test time-bootstrap check-bootstrap test-bootstrapped
 
-test: test-init test-hello test-io test-deps test-git test-ffi test-main
+test: test-init test-hello test-io test-deps test-git test-ffi test-ffi-dep test-main
 
 check-lake:
 	$(LAKE) self-check
@@ -24,6 +24,9 @@ test-git:
 
 test-ffi:
 	cd ffi && ./test.sh
+
+test-ffi-dep:
+	cd ffi-dep && ./test.sh
 
 test-main:
 	cd main && ./test.sh

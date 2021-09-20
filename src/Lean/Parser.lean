@@ -33,6 +33,8 @@ builtin_initialize
   register_parser_alias "atomic" atomic
   register_parser_alias "many" many
   register_parser_alias "many1" many1
+  register_parser_alias "manyIndent" manyIndent
+  register_parser_alias "many1Indent" many1Indent
   register_parser_alias "optional" optional
   register_parser_alias "withPosition" withPosition
   register_parser_alias "interpolatedStr" interpolatedStr

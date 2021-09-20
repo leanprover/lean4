@@ -1,13 +1,15 @@
-Coding Style
-============
+[google-style]: https://google.github.io/styleguide/cppguide.html
+[cpplint]: /src/cmake/Modules/cpplint.py
 
-[C++11](http://en.wikipedia.org/wiki/C%2B%2B11) features
---------------------------------------------------------
+# Coding Style
+
+We are using a modified version of [Google's C++ Style Guide][google-style].
+
+## [C++11](http://en.wikipedia.org/wiki/C%2B%2B11) features
 
 We make extensive use of new features in the C++ 11 standard.
 Developers must be familiar with the standard to be able to understand
-the code.
-Here are some of the features that are extensively used.
+the code. Here are some of the features that are extensively used.
 
 - Type inference (aka `auto` keyword).
 - Initializer lists.
@@ -19,16 +21,14 @@ Here are some of the features that are extensively used.
 - Threading facilities.
 - Tuple types.
 
-Comments
---------
+# Comments
 
 The comments in the Lean codebase contain
 [Doxygen](http://www.stack.nl/~dimitri/doxygen/) commands.
 Doxygen is the de facto standard tool for generating documentation from
 annotated C++ sources.
 
-Namespaces
-----------
+# Namespaces
 
 All code is in the `lean` namespace. Each frontend is stored in a
 separate nested namespace. For example, the SMT 2.0 frontend is stored
@@ -38,8 +38,7 @@ Exception: some debugging functions are stored outside of the `lean`
 namespace. These functions are called `print` and are meant to be used
 when debugging Lean using `gdb`.
 
-Smart pointers
---------------
+# Smart pointers
 
 We only use `std::shared_ptr` template for class `C` only if we expect
 to create only a few objects (< 1000) of class `C`. Otherwise, we
@@ -51,20 +50,18 @@ reference counter is stored in `expr_cell`.
 We use `std::unique_ptr` to make sure unique resources will be freed
 correctly.
 
-Template
---------
+# Template
+
 We organize template source code using the approach described at http://www.codeproject.com/Articles/3515/How-To-Organize-Template-Source-Code
 
-Idioms
-------
+# Idioms
 
 We use some popular C++ idioms:
 
 - [Pimpl](http://c2.com/cgi/wiki?PimplIdiom)
 - [RAII](http://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization) Resource Acquisition Is Initialization
 
-Formatting
-----------
+# Formatting
 
 * We use 4 spaces for indentation.
 
@@ -74,13 +71,14 @@ We use `_` for composite names. Example: `type_checker`.
 * Class/struct fields should start with the prefix `m_`.
 
 Example:
-
-     class point {
-         int m_x;
-         int m_y;
-     public:
-         ...
-     };
+```c++
+class point {
+    int m_x;
+    int m_y;
+public:
+    ...
+};
+```
 
 * We do **not** use the `#ifndef-#define-#endif` idiom for header files.
 Instead we use `#pragma once`.
@@ -93,63 +91,75 @@ Instead we use `#pragma once`.
 
 The following forms are acceptable:
 
-     if (cond) {
-         ...
-     } else {
-         ...
-     }
-
+```c++
+if (cond) {
+    ...
+} else {
+    ...
+}
+```
 and
 
-     if (cond)
-        statement1;
-     else
-        statement2;
+```c++
+if (cond)
+  statement1;
+else
+  statement2;
+```
 
 In *exceptional cases*, we also use
 
-     if (cond) statement;
+```c++
+if (cond) statement;
+```
 
 and
 
-     if (cond) statement1; else stament2;
-
+```c++
+if (cond) statement1; else stament2;
+```
 * `if-then-else-if-else`
 
 The following forms are acceptable:
 
-     if (cond) {
-         ...
-     } else if (cond) {
-         ...
-     } else {
-         ...
-     }
-
+```c++
+if (cond) {
+    ...
+} else if (cond) {
+    ...
+} else {
+    ...
+}
+```c++
 and
 
-     if (cond)
-         statement1;
-     else if (cond)
-         statement2;
-     else
-         statement3;
+```c++
+if (cond)
+    statement1;
+else if (cond)
+    statement2;
+else
+    statement3;
+```
 
 * We frequently format code using extra spaces
 
-For example, we write
+For example, we write:
 
-    environment const & m_env;
-    cache               m_cache;
-    normalizer          m_normalizer;
-    volatile bool       m_interrupted;
+```c++
+environment const & m_env;
+cache               m_cache;
+normalizer          m_normalizer;
+volatile bool       m_interrupted;
+```
+instead of:
 
-instead of
-
-    environment const & m_env;
-    cache m_cache;
-    normalizer m_normalizer;
-    volatile bool m_interrupted;
+```c++
+environment const & m_env;
+cache m_cache;
+normalizer m_normalizer;
+volatile bool m_interrupted;
+```
 
 * We use the macro `lean_assert` for assertions.
 The macro `lean_assert` is extensively used when writing unit tests.
@@ -158,18 +168,17 @@ The macro `lean_assert` is extensively used when writing unit tests.
 We write `a == b` instead of `a==b`.
 Similarly, we write `x < y + 1` instead of `x<y+1`.
 
-Google's C++ Style Guide
-------------------------
+# CheckingC++  Style
 
-We are using a modified version of [Google's C++ Style Guide][google-style].
 We also have our version of Google's style checker [cpplint.py][cpplint].
 You can run the checker over the codebase by typing:
-
-    make style
-
+```bash
+make style
+```
 If you use Ninja, you can check by ``ninja style``. It is also a part of testcases and can be run by
-
-    ctest -R style_check
+```bash
+ctest -R style_check
+```
 
 *Disabled* Features:
 
@@ -186,7 +195,7 @@ If you use Ninja, you can check by ``ninja style``. It is also a part of testcas
    a member-initializer list in a constructor or the base class list in
    a class definition, the colon should be on the following line.
  - You don't need a ``;`` after a ``}``
- - No ``#ifndef`` header guard found
+ - No ``#ifndef`` header guard found, use `#pragma once` instead.
  - Streams are highly discouraged.
  - Extra space before ``(`` in function call
  - Else clause should never be on same line as else
@@ -197,6 +206,7 @@ If you use Ninja, you can check by ``ninja style``. It is also a part of testcas
 
 Modified Features:
 
+  - Includes
   - Add ``#include <list>`` for ``list<>``
 
     => *Check* ``std::list`` instead of ``list`` because we do have our own ``lean::list`` type.
@@ -217,9 +227,6 @@ Modified Features:
   - Include the directory when naming .h files
 
     => *Allow* this if the included filename is "version.h" which is generated by cmake.
-
-[google-style]: http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml
-[cpplint]: /src/cmake/Modules/cpplint.py
 
 Git pre-push hook
 -----------------

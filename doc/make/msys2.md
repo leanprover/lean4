@@ -1,13 +1,13 @@
 [msys2]: http://msys2.github.io
 [pacman]: https://wiki.archlinux.org/index.php/pacman
 
-Lean for Windows
-----------------
+# Lean for Windows
 
 A native Lean binary for Windows can be generated using [MSYS2][msys2].
 It is easy to install all dependencies, it produces native
 64/32-binaries, and supports a C++14 compiler.
 
+An alternative to MSYS2 is to use [Lean in Windows WSL](wsl.md).
 
 ## Installing dependencies
 

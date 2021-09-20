@@ -1,18 +1,21 @@
-Lean for Windows WSL
---------------------
+[vscode]: https://code.visualstudio.com/Download
+[wsl]: https://docs.microsoft.com/en-us/windows/wsl/install-win10
 
-For the most part setup in WSL is the same as [Ubuntu](Ubuntu-16.04.md).
+# Lean in Windows WSL
 
-This document provides additional information on how to setup Windows
-Visual Studio Code remote debugging into your WSL environment using the lean
-extension running in WSL.
+As an alternative to the [MSYS2](msys2.md) setup you can also use the
+[Windows Subsystem for Linux][wsl] to build `Lean4` there, but edit
+and debug using [Visual Studio Code][vscode] in Windows.
 
-It is recommended that you setup Ubuntu in [WSL 2](https://docs.microsoft.com/en-us/windows/wsl/compare-versions).
+For the most part setup in WSL is the same as
+[Ubuntu](Ubuntu-16.04.md). This document provides additional
+information on how to setup Windows Visual Studio Code remote
+debugging into your WSL environment using the lean extension running
+in WSL.
 
-Then follow the [Basic lean4 Setup](../setup.md) in your WSL environment.
+It is recommended that you setup Ubuntu in [WSL 2](https://docs.microsoft.com/en-us/windows/wsl/compare-versions).  Then follow the [Basic lean4 Setup](../setup.md) in your WSL environment.  Specifically the following parts:
 
-Specifically the following parts:
-```shell
+```bash
 curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain none
 source ~/.profile
 elan toolchain install leanprover/lean4:nightly
@@ -21,7 +24,7 @@ elan default leanprover/lean4:nightly
 
 ## Visual Studio Code setup on Windows
 
-Install [Visual Studio Code](https://code.visualstudio.com/Download)
+Install [Visual Studio Code][vscode]
 on Windows.  Install the VS Code `Remote Development` extension from
 Microsoft.  This extension includes the `Remote - WSL` extension.
 Install the lean4 extension but into the WSL using:

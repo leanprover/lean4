@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* lean_string_data(lean_object*);
 lean_object* l_Array_getD(lean_object*);
-lean_object* l_idRhs(lean_object*);
 lean_object* l_instHShiftRight___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_run___rarg(lean_object*, lean_object*);
 lean_object* l_String_csize(uint32_t);
@@ -89,7 +88,6 @@ lean_object* l_Array_sequenceMap_loop___rarg___lambda__1(lean_object*, lean_obje
 lean_object* l_List_redLength___rarg___boxed(lean_object*);
 static lean_object* l_UInt64_size___closed__1;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*);
-lean_object* l_idRhs___rarg___boxed(lean_object*);
 lean_object* l_ReaderT_map___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Macro_trace___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instDecidableEqUInt8___boxed(lean_object*, lean_object*);
@@ -481,7 +479,6 @@ lean_object* l_instLEUInt32;
 lean_object* l_instDecidableEqChar___boxed(lean_object*, lean_object*);
 lean_object* l_UInt16_decEq___boxed(lean_object*, lean_object*);
 lean_object* l_typedExpr___rarg(lean_object*);
-lean_object* l_idRhs___rarg(lean_object*);
 static lean_object* l_Lean_nullKind___closed__2;
 lean_object* l_Lean_Syntax_matchesIdent___boxed(lean_object*, lean_object*);
 lean_object* l_MonadExcept_instOrElse(lean_object*, lean_object*);
@@ -853,30 +850,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_id___rarg(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l_idRhs___rarg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-lean_object* l_idRhs(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_idRhs___rarg___boxed), 1, 0);
-return x_2;
-}
-}
-lean_object* l_idRhs___rarg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_idRhs___rarg(x_1);
 lean_dec(x_1);
 return x_2;
 }

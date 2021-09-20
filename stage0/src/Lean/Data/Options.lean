@@ -85,19 +85,26 @@ class MonadOptions (m : Type → Type) where
 
 export MonadOptions (getOptions)
 
-instance (m n) [MonadLift m n] [MonadOptions m] : MonadOptions n where
+instance [MonadLift m n] [MonadOptions m] : MonadOptions n where
   getOptions := liftM (getOptions : m _)
 
-variable {m} [Monad m] [MonadOptions m]
+variable [Monad m] [MonadOptions m]
 
 def getBoolOption (k : Name) (defValue := false) : m Bool := do
   let opts ← getOptions
-  pure $ opts.getBool k defValue
+  return opts.getBool k defValue
 
 def getNatOption (k : Name) (defValue := 0) : m Nat := do
   let opts ← getOptions
-  pure $ opts.getNat k defValue
+  return opts.getNat k defValue
 
+class MonadWithOptions (m : Type → Type) where
+  withOptions (f : Options → Options) (x : m α) : m α
+
+export MonadWithOptions (withOptions)
+
+instance [MonadFunctor m n] [MonadWithOptions m] : MonadWithOptions n where
+  withOptions f x := monadMap (m := m) (withOptions f) x
 
 /-- A strongly-typed reference to an option. -/
 protected structure Option (α : Type) where

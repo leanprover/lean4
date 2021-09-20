@@ -56,7 +56,7 @@ lean_object * wrap_win_handle(HANDLE h) {
     return lean_alloc_external(g_win_handle_external_class, static_cast<void *>(h));
 }
 
-extern "C" obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
     HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
     DWORD exit_code;
     WaitForSingleObject(h, INFINITE);
@@ -203,7 +203,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     return lean_io_result_mk_ok(r.steal());
 }
 
-extern "C" obj_res lean_io_process_child_take_stdin(b_obj_arg, obj_arg lchild, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_take_stdin(b_obj_arg, obj_arg lchild, obj_arg) {
     object_ref child(lchild);
     object_ref child2 = mk_cnstr(0, object_ref(box(0)), cnstr_get_ref(child, 1), cnstr_get_ref(child, 2), cnstr_get_ref(child, 3));
     object_ref r = mk_cnstr(0, cnstr_get_ref(child, 0), child2);
@@ -217,7 +217,7 @@ void finalize_process() {}
 
 #else
 
-extern "C" obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
     pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
     int status;
@@ -340,7 +340,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     return lean_io_result_mk_ok(r.steal());
 }
 
-extern "C" obj_res lean_io_process_child_take_stdin(b_obj_arg, obj_arg lchild, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_take_stdin(b_obj_arg, obj_arg lchild, obj_arg) {
     object_ref child(lchild);
     object_ref child2 = mk_cnstr(0, object_ref(box(0)), cnstr_get_ref(child, 1), cnstr_get_ref(child, 2), sizeof(pid_t));
     cnstr_set_uint32(child2.raw(), 3 * sizeof(object *), cnstr_get_uint32(child.raw(), 3 * sizeof(object *)));
@@ -355,7 +355,7 @@ void finalize_process() {}
 
 extern "C" lean_object* lean_mk_io_error_other_error(uint32_t, lean_object*);
 
-extern "C" obj_res lean_io_process_spawn(obj_arg args_, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_spawn(obj_arg args_, obj_arg) {
     object_ref args(args_);
     object_ref stdio_cfg = cnstr_get_ref(args, 0);
     stdio stdin_mode  = static_cast<stdio>(cnstr_get_uint8(stdio_cfg.raw(), 0));

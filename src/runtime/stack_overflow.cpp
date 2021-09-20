@@ -17,6 +17,7 @@ Port of the corresponding Rust code (see links below).
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <lean/lean.h>
 #include "runtime/stack_overflow.h"
 
 namespace lean {
@@ -70,7 +71,7 @@ bool is_within_stack_guard(void * addr) {
     return stackaddr - guardsize <= addr && addr < stackaddr;
 }
 
-extern "C" void segv_handler(int signum, siginfo_t * info, void *) {
+extern "C" LEAN_EXPORT void segv_handler(int signum, siginfo_t * info, void *) {
     if (is_within_stack_guard(info->si_addr)) {
         fprintf(stderr, "\nStack overflow detected. Aborting.\n");
         abort();

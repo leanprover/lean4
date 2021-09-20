@@ -121,7 +121,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
       let matcherApp? ← matchMatcherApp? e
       match matcherApp? with
       | some matcherApp =>
-        if !recArgHasLooseBVarsAt recFnName recArgInfo e then
+        if !recArgHasLooseBVarsAt recFnName recArgInfo.recArgPos e then
           processApp e
         else
           /- Here is an example we currently not handle
@@ -142,7 +142,6 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
              this may generate weird error messages, when it doesn't work. -/
           trace[Elab.definition.structural] "below before matcherApp.addArg: {below} : {← inferType below}"
           let matcherApp ← mapError (matcherApp.addArg below) (fun msg => "failed to add `below` argument to 'matcher' application" ++ indentD msg)
-          modify fun s => { s with matcherBelowDep := s.matcherBelowDep.insert matcherApp.matcherName }
           let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
             lambdaTelescope alt fun xs altBody => do
               trace[Elab.definition.structural] "altNumParams: {numParams}, xs: {xs}"

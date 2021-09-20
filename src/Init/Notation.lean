@@ -324,7 +324,7 @@ syntax config := atomic("(" &"config") " := " term ")"
 syntax locationWildcard := "*"
 syntax locationHyp      := (colGt ident)+ ("⊢" <|> "|-")? -- TODO: delete
 syntax locationTargets  := (colGt ident)+ ("⊢" <|> "|-")?
-syntax location         := withPosition(" at " locationWildcard <|> locationHyp)
+syntax location         := withPosition(" at " (locationWildcard <|> locationHyp))
 
 syntax (name := change) "change " term (location)? : tactic
 syntax (name := changeWith) "change " term " with " term (location)? : tactic

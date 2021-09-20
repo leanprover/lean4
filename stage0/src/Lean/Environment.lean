@@ -780,4 +780,23 @@ instance (m n) [MonadLift m n] [MonadEnv m] : MonadEnv n where
   getEnv    := liftM (getEnv : m Environment)
   modifyEnv := fun f => liftM (modifyEnv f : m Unit)
 
+/--
+  If `env` does not contain a declaration with name `declName ++ elemSuffix`, then return `declName`.
+  Otherwise, find the smallest positive `Nat` `i` such that `declName ++ suffix.appendIndexAfter i ++ elemSuffix` is not
+  the name of a declaration in the given environment.
+-/
+partial def mkBaseNameFor (env : Environment) (declName : Name) (elemSuffix : Name) (suffix : Name) : Name :=
+  if !env.contains (declName ++ elemSuffix) then
+    declName
+  else
+    go 1
+where
+  go (idx : Nat) : Name :=
+    let baseName := declName ++ suffix.appendIndexAfter idx
+    if !env.contains (baseName ++ elemSuffix) then
+      baseName
+    else
+      go (idx + 1)
+
+
 end Lean

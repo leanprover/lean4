@@ -112,8 +112,23 @@ where
 instance : ToString Name where
   toString n := n.toString
 
+private def hasNum : Name → Bool
+  | anonymous => false
+  | num ..    => true
+  | str p ..  => hasNum p
+
+protected def reprPrec (n : Name) (prec : Nat) : Std.Format :=
+  match n with
+  | anonymous => Std.Format.text "Lean.Name.anonymous"
+  | num p i _ => Repr.addAppParen ("Lean.Name.mkNum " ++ Name.reprPrec p max_prec ++ " " ++ repr i) prec
+  | str p s _ =>
+    if p.hasNum then
+      Repr.addAppParen ("Lean.Name.mkStr " ++ Name.reprPrec p max_prec ++ " " ++ repr s) prec
+    else
+      Std.Format.text "`" ++ n.toString
+
 instance : Repr Name where
-  reprPrec n _ := Std.Format.text "`" ++ n.toString
+  reprPrec := Name.reprPrec
 
 deriving instance Repr for Syntax
 
@@ -636,6 +651,9 @@ private partial def splitNameLitAux (ss : Substring) (acc : List Substring) : Li
     else if isIdFirst curr then
       let idPart := ss.takeWhile isIdRest
       splitRest (ss.extract idPart.bsize ss.bsize) (idPart :: acc)
+    else if curr.isDigit then
+      let idPart := ss.takeWhile Char.isDigit
+      splitRest (ss.extract idPart.bsize ss.bsize) (idPart :: acc)
     else
       []
 
@@ -650,8 +668,16 @@ def decodeNameLit (s : String) : Option Name :=
     | [] => none
     | comps => some <| comps.foldr (init := Name.anonymous)
       fun comp n =>
-        let comp := if isIdBeginEscape comp.front then comp.drop 1 |>.dropRight 1 else comp
-        Name.mkStr n comp.toString
+        let comp := comp.toString
+        if isIdBeginEscape comp.front then
+          Name.mkStr n (comp.drop 1 |>.dropRight 1)
+        else if comp.front.isDigit then
+          if let some k := decodeNatLitVal? comp then
+            Name.mkNum n k
+          else
+            unreachable!
+        else
+          Name.mkStr n comp
   else
     none
 

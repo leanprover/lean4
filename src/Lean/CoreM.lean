@@ -61,6 +61,9 @@ instance : MonadEnv CoreM where
 instance : MonadOptions CoreM where
   getOptions := return (← read).options
 
+instance : MonadWithOptions CoreM where
+  withOptions f x := withReader (fun ctx => { ctx with options := f ctx.options }) x
+
 instance : AddMessageContext CoreM where
   addMessageContext := addMessageContextPartial
 

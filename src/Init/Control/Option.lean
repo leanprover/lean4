@@ -73,3 +73,8 @@ abbrev OptionM (α : Type u) := OptionT Id α
 
 abbrev OptionM.run (x : OptionM α) : Option α :=
   x
+
+instance [Monad m] : MonadControl m (OptionT m) where
+  stM        := Option
+  liftWith f := liftM <| f fun x => x.run
+  restoreM x := x

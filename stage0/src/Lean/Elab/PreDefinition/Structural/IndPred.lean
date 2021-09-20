@@ -39,7 +39,7 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
             return mkAppN (← loop f) (← args.mapM loop)
       match (←matchMatcherApp? e) with
       | some matcherApp =>
-        if !recArgHasLooseBVarsAt recFnName recArgInfo e then
+        if !recArgHasLooseBVarsAt recFnName recArgInfo.recArgPos e then
           processApp e
         else
           trace[Elab.definition.structural] "matcherApp before adding below transformation:\n{matcherApp.toExpr}"

@@ -186,11 +186,11 @@ int expr_cmp_no_level_params::operator()(expr const & e1, expr const & e2) const
         return 0;
 }
 
-extern "C" uint8 lean_expr_quick_lt(b_obj_arg a, b_obj_arg b) {
+extern "C" LEAN_EXPORT uint8 lean_expr_quick_lt(b_obj_arg a, b_obj_arg b) {
     return is_lt(expr(a, true), expr(b, true), true, nullptr);
 }
 
-extern "C" uint8 lean_expr_lt(b_obj_arg a, b_obj_arg b) {
+extern "C" LEAN_EXPORT uint8 lean_expr_lt(b_obj_arg a, b_obj_arg b) {
     return is_lt(expr(a, true), expr(b, true), false, nullptr);
 }
 }

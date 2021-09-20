@@ -141,11 +141,11 @@ bool operator==(level const & l1, level const & l2) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-extern "C" uint8 lean_level_eqv(object * l1, object * l2) {
+extern "C" LEAN_EXPORT uint8 lean_level_eqv(object * l1, object * l2) {
     return is_equivalent(TO_REF(level, l1), TO_REF(level, l2));
 }
 
-extern "C" uint8 lean_level_eq(object * l1, object * l2) {
+extern "C" LEAN_EXPORT uint8 lean_level_eq(object * l1, object * l2) {
     return TO_REF(level, l1) == TO_REF(level, l2);
 }
 
@@ -291,7 +291,7 @@ level update_max(level const & l, level const & new_lhs, level const & new_rhs) 
         return mk_imax(new_lhs, new_rhs);
 }
 
-extern "C" object * lean_level_update_succ(obj_arg l, obj_arg new_arg) {
+extern "C" LEAN_EXPORT object * lean_level_update_succ(obj_arg l, obj_arg new_arg) {
     if (succ_of(TO_REF(level, l)).raw() == new_arg) {
         lean_dec(new_arg);
         return l;
@@ -301,7 +301,7 @@ extern "C" object * lean_level_update_succ(obj_arg l, obj_arg new_arg) {
     }
 }
 
-extern "C" object * lean_level_update_max(obj_arg l, obj_arg new_lhs, obj_arg new_rhs) {
+extern "C" LEAN_EXPORT object * lean_level_update_max(obj_arg l, obj_arg new_lhs, obj_arg new_rhs) {
     if (max_lhs(TO_REF(level, l)).raw() == new_lhs && max_rhs(TO_REF(level, l)).raw() == new_rhs) {
         lean_dec(new_lhs); lean_dec(new_rhs);
         return l;
@@ -311,7 +311,7 @@ extern "C" object * lean_level_update_max(obj_arg l, obj_arg new_lhs, obj_arg ne
     }
 }
 
-extern "C" object * lean_level_update_imax(obj_arg l, obj_arg new_lhs, obj_arg new_rhs) {
+extern "C" LEAN_EXPORT object * lean_level_update_imax(obj_arg l, obj_arg new_lhs, obj_arg new_rhs) {
     if (imax_lhs(TO_REF(level, l)).raw() == new_lhs && imax_rhs(TO_REF(level, l)).raw() == new_rhs) {
         lean_dec(new_lhs); lean_dec(new_rhs);
         return l;

@@ -27,7 +27,7 @@ theorem monotone_const [Preorder α] [Preorder β] (b : β) : Monotone (fun a : 
 theorem monotone_comp [Preorder α] [Preorder β] [Preorder γ] {g : β → γ} {f : α → β} (m_g : Monotone g) (m_f : Monotone f) : Monotone (g ∘ f) :=
   fun h => m_g (m_f h)
 
-theorem monotone_fun [Preorder α] [Preorder γ] {f : α → β → γ} (m : (b : β) → Monotone (fun a => f a b)) : Monotone f :=
+theorem monotone_fun {α : Type u} {β : Type v} [Preorder α] [Preorder γ] {f : α → β → γ} (m : (b : β) → Monotone (fun a => f a b)) : Monotone f :=
   fun h b => m b h
 
 theorem ex [Preorder α] {f g h : α → α} (m_h : Monotone h) (m_g : Monotone g) (m_f : Monotone f) : Monotone (h ∘ g ∘ f) :=

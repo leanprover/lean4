@@ -9,9 +9,6 @@ universe u v w
 
 @[inline] def id {α : Sort u} (a : α) : α := a
 
-/- `idRhs` is an auxiliary declaration used to implement "smart unfolding". It is used as a marker. -/
-@[macroInline, reducible] def idRhs (α : Sort u) (a : α) : α := a
-
 abbrev Function.comp {α : Sort u} {β : Sort v} {δ : Sort w} (f : β → δ) (g : α → β) : α → δ :=
   fun x => f (g x)
 

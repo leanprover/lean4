@@ -10,7 +10,14 @@ import Lean.Meta.InferType
 
 namespace Lean.Meta
 
-private partial def decAux? : Level → MetaM (Option Level)
+structure DecLevelContext where
+  /--
+   If `true`, then `decAux? ?m` returns a fresh metavariable `?n` s.t.
+   `?m := ?n+1`.
+   -/
+  canAssignMVars : Bool := true
+
+private partial def decAux? : Level → ReaderT DecLevelContext MetaM (Option Level)
   | Level.zero _        => return none
   | Level.param _ _     => return none
   | Level.mvar mvarId _ => do
@@ -18,30 +25,37 @@ private partial def decAux? : Level → MetaM (Option Level)
     match mctx.getLevelAssignment? mvarId with
     | some u => decAux? u
     | none   =>
-      if (← isReadOnlyLevelMVar mvarId) then
+      if (← isReadOnlyLevelMVar mvarId) || !(← read).canAssignMVars then
         return none
       else
         let u ← mkFreshLevelMVar
+        trace[Meta.isLevelDefEq.step] "decAux?, {mkLevelMVar mvarId} := {mkLevelSucc u}"
         assignLevelMVar mvarId (mkLevelSucc u)
         return u
   | Level.succ u _  => return u
   | u =>
-    let process (u v : Level) : MetaM (Option Level) := do
-      match (← decAux? u) with
-      | none   => return none
-      | some u => do
-        match (← decAux? v) with
+    let processMax (u v : Level) : ReaderT DecLevelContext MetaM (Option Level) := do
+      /- Remark: this code uses the fact that `max (u+1) (v+1) = (max u v)+1`.
+         `decAux? (max (u+1) (v+1)) := max (decAux? (u+1)) (decAux? (v+1))`
+         However, we must *not* assign metavariables in the recursive calls since
+         `max ?u 1` is not equivalent to `max ?v 0` where `?v` is a fresh metavariable, and `?u := ?v+1`
+       -/
+      withReader (fun _ => { canAssignMVars := false }) do
+        match (← decAux? u) with
         | none   => return none
-        | some v => return mkLevelMax' u v
+        | some u => do
+          match (← decAux? v) with
+          | none   => return none
+          | some v => return mkLevelMax' u v
     match u with
-    | Level.max u v _  => process u v
+    | Level.max u v _  => processMax u v
     /- Remark: If `decAux? v` returns `some ...`, then `imax u v` is equivalent to `max u v`. -/
-    | Level.imax u v _ => process u v
+    | Level.imax u v _ => processMax u v
     | _                => unreachable!
 
 def decLevel? (u : Level) : MetaM (Option Level) := do
   let mctx ← getMCtx
-  match (← decAux? u) with
+  match (← decAux? u |>.run {}) with
   | some v => return some v
   | none   => do
     modify fun s => { s with mctx := mctx }

@@ -40,7 +40,7 @@ expr instantiate(expr const & e, std::initializer_list<expr> const & l) {  retur
 expr instantiate(expr const & e, unsigned i, expr const & s) { return instantiate(e, i, 1, &s); }
 expr instantiate(expr const & e, expr const & s) { return instantiate(e, 0, s); }
 
-extern "C" object * lean_expr_instantiate1(object * a0, object * e0) {
+extern "C" LEAN_EXPORT object * lean_expr_instantiate1(object * a0, object * e0) {
     expr const & a = reinterpret_cast<expr const &>(a0);
     if (!has_loose_bvars(a)) {
         lean_inc(a0);
@@ -77,11 +77,11 @@ static object * lean_expr_instantiate_core(b_obj_arg a0, size_t n, object** subs
     return r.steal();
 }
 
-extern "C" object * lean_expr_instantiate(b_obj_arg a, b_obj_arg subst) {
+extern "C" LEAN_EXPORT object * lean_expr_instantiate(b_obj_arg a, b_obj_arg subst) {
     return lean_expr_instantiate_core(a, lean_array_size(subst), lean_array_cptr(subst));
 }
 
-extern "C" object * lean_expr_instantiate_range(b_obj_arg a, b_obj_arg begin, b_obj_arg end, b_obj_arg subst) {
+extern "C" LEAN_EXPORT object * lean_expr_instantiate_range(b_obj_arg a, b_obj_arg begin, b_obj_arg end, b_obj_arg subst) {
     if (!lean_is_scalar(begin) || !lean_is_scalar(end)) {
         lean_internal_panic("invalid range for Expr.instantiateRange");
     } else {
@@ -142,11 +142,11 @@ static object * lean_expr_instantiate_rev_core(object * a0, size_t n, object ** 
     return r.steal();
 }
 
-extern "C" object * lean_expr_instantiate_rev(b_obj_arg a, b_obj_arg subst) {
+extern "C" LEAN_EXPORT object * lean_expr_instantiate_rev(b_obj_arg a, b_obj_arg subst) {
     return lean_expr_instantiate_rev_core(a, lean_array_size(subst), lean_array_cptr(subst));
 }
 
-extern "C" object * lean_expr_instantiate_rev_range(b_obj_arg a, b_obj_arg begin, b_obj_arg end, b_obj_arg subst) {
+extern "C" LEAN_EXPORT object * lean_expr_instantiate_rev_range(b_obj_arg a, b_obj_arg begin, b_obj_arg end, b_obj_arg subst) {
     if (!lean_is_scalar(begin) || !lean_is_scalar(end)) {
         lean_internal_panic("invalid range for Expr.instantiateRevRange");
     } else {
@@ -246,11 +246,11 @@ expr instantiate_value_lparams(constant_info const & info, levels const & ls) {
     return instantiate_lparams(info.get_value(), info.get_lparams(), ls);
 }
 
-extern "C" object * lean_instantiate_type_lparams(b_obj_arg info, b_obj_arg ls) {
+extern "C" LEAN_EXPORT object * lean_instantiate_type_lparams(b_obj_arg info, b_obj_arg ls) {
     return instantiate_type_lparams(TO_REF(constant_info, info), TO_REF(levels, ls)).steal();
 }
 
-extern "C" object * lean_instantiate_value_lparams(b_obj_arg info, b_obj_arg ls) {
+extern "C" LEAN_EXPORT object * lean_instantiate_value_lparams(b_obj_arg info, b_obj_arg ls) {
     return instantiate_value_lparams(TO_REF(constant_info, info), TO_REF(levels, ls)).steal();
 }
 }

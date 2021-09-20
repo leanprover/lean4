@@ -4,4 +4,4 @@
 370.lean:8:2-8:16: error: `←` and `<-` are not allowed in pure `do` blocks, i.e., blocks where Lean implicitly used the `Id` monad
 370.lean:12:16-12:24: error: `←` and `<-` are not allowed in pure `do` blocks, i.e., blocks where Lean implicitly used the `Id` monad
 370.lean:19:2-19:12: error: `←` and `<-` are not allowed in pure `do` blocks, i.e., blocks where Lean implicitly used the `Id` monad
-370.lean:23:2-23:26: error: `←` and `<-` are not allowed in pure `do` blocks, i.e., blocks where Lean implicitly used the `Id` monad
+370.lean:23:2-23:25: error: `←` and `<-` are not allowed in pure `do` blocks, i.e., blocks where Lean implicitly used the `Id` monad

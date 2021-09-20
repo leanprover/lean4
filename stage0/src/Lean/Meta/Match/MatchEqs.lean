@@ -8,7 +8,49 @@ import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.SplitIf
 
-namespace Lean.Meta.Match
+namespace Lean.Meta
+
+/--
+  Helper method for `proveCondEqThm`. Given a goal of the form `C.rec ... xMajor = rhs`,
+  apply `cases xMajor`. -/
+partial def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
+  let target ← getMVarType mvarId
+  if let some (_, lhs, rhs) ← matchEq? target then
+    if let some fvarId ← findFVar? lhs then
+      return (← cases mvarId fvarId).map fun s => s.mvarId
+  throwError "'casesOnStuckLHS' failed"
+where
+  findFVar? (e : Expr) : MetaM (Option FVarId) := do
+    match e with
+    | Expr.proj _ _ e _ => findFVar? e
+    | Expr.app .. =>
+      let f := e.getAppFn
+      if !f.isConst then
+        return none
+      else
+        let declName := f.constName!
+        let args := e.getAppArgs
+        match (← getProjectionFnInfo? declName) with
+        | some projInfo =>
+          if projInfo.numParams < args.size then
+            findFVar? args[projInfo.numParams]
+          else
+            return none
+        | none =>
+          matchConstRec e.getAppFn (fun _ => return none) fun recVal _ => do
+            if recVal.getMajorIdx >= args.size then
+              return none
+            let major := args[recVal.getMajorIdx]
+            if major.isFVar then
+              return some major.fvarId!
+            else
+              return none
+    | _ => return none
+
+def casesOnStuckLHS? (mvarId : MVarId) : MetaM (Option (Array MVarId)) := do
+  try casesOnStuckLHS mvarId catch _ => return none
+
+namespace Match
 
 structure MatchEqns where
   eqnNames             : Array Name
@@ -28,18 +70,8 @@ private def registerMatchEqns (matchDeclName : Name) (matchEqns : MatchEqns) : C
   modifyEnv fun env => matchEqnsExt.modifyState env fun s => { s with map := s.map.insert matchDeclName matchEqns }
 
 /-- Create a "unique" base name for conditional equations and splitter -/
-private partial def mkBaseNameFor (env : Environment) (matchDeclName : Name) : Name :=
-  if !env.contains (matchDeclName ++ `splitter) then
-    matchDeclName
-  else
-   go 1
-where
-  go (idx : Nat) : Name :=
-    let baseName := matchDeclName ++ (`_matchEqns).appendIndexAfter idx
-    if !env.contains (baseName ++ `splitter) then
-      baseName
-    else
-      go (idx + 1)
+private def mkBaseNameFor (env : Environment) (matchDeclName : Name) : Name :=
+  Lean.mkBaseNameFor env matchDeclName `splitter `_matchEqns
 
 /--
   Helper method. Recall that alternatives that do not have variables have a `Unit` parameter to ensure
@@ -95,24 +127,6 @@ where
       match eq.eq? with
       | some (_, lhs, rhs) => simpEq lhs rhs
       | _ => throwError "failed to generate equality theorems for 'match', equality expected{indentExpr eq}"
-
-
-/--
-  Helper method for `proveCondEqThm`. Given a goal of the form `C.rec ... xMajor = rhs`,
-  apply `cases xMajor`. -/
-private def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
-  let target ← getMVarType mvarId
-  if let some (_, lhs, rhs) ← matchEq? target then
-    matchConstRec lhs.getAppFn (fun _ => failed) fun recVal _ => do
-      let args := lhs.getAppArgs
-      if recVal.getMajorIdx >= args.size then failed
-      let mut major := args[recVal.getMajorIdx]
-      unless major.isFVar do failed
-      return (← cases mvarId major.fvarId!).map fun s => s.mvarId
-  else
-    failed
-where
-  failed {α} : MetaM α := throwError "'casesOnStuckLHS' failed"
 
 /--
   Helper method for proving a conditional equational theorem associated with an alternative of

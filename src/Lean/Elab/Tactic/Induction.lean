@@ -291,7 +291,7 @@ private def generalizeVars (mvarId : MVarId) (stx : Syntax) (targets : Array Exp
       if s.contains userFVarId then
         throwError "unnecessary 'generalizing' argument, variable '{mkFVar userFVarId}' is generalized automatically"
       s := s.insert userFVarId
-    let fvarIds ← sortFVars s
+    let fvarIds ← sortFVarIds s.toArray
     let (fvarIds, mvarId') ← Meta.revert mvarId fvarIds
     return (fvarIds.size, mvarId')
 

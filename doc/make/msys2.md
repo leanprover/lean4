@@ -20,25 +20,28 @@ MSYS2 has a package management system, [pacman][pacman], which is used in Arch L
 Here are the commands to install all dependencies needed to compile Lean on your machine.
 
 ```bash
-pacman -S make mingw-w64-x86_64-cmake mingw-w64-x86_64-ccache mingw-w64-x86_64-gcc git unzip
+pacman -S make mingw-w64-x86_64-cmake mingw-w64-x86_64-ccache mingw-w64-x86_64-clang git unzip
 ```
 
 You should now be able to run these commands:
 
 ```bash
-gcc --version
+clang --version
 cmake --version
 ```
 
 Then follow the [generic build instructions](index.md) in the MSYS2
-MinGW shell, using `cmake ../.. -G "Unix Makefiles"` instead of `cmake
-../..`. This ensures that cmake will call `sh` instead of `cmd.exe`
-for script tasks.
+MinGW shell, using:
+```
+cmake ../.. -G "Unix Makefiles"  -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+```
+instead of `cmake ../..`. This ensures that cmake will call `sh` instead of `cmd.exe`
+for script tasks and it will use the clang compiler instead of gcc, which is required.
 
 ## Install lean
 
 Follow the steps in [Dev setup using
-elan](index.md#dev-setup-using-elan) regarding installation of the
+elan](../dev/index.md#dev-setup-using-elan) regarding installation of the
 bits you just built.  Note that in an msys2 environment `elan-init.sh`
 reports you need to add `%USERPROFILE%\.elan\bin` to your path, but of
 course in msys2 that needs to be a valid linux style path, like this:

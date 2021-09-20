@@ -13,14 +13,9 @@ information on how to setup Windows Visual Studio Code remote
 debugging into your WSL environment using the lean extension running
 in WSL.
 
-It is recommended that you setup Ubuntu in [WSL 2](https://docs.microsoft.com/en-us/windows/wsl/compare-versions).  Then follow the [Basic lean4 Setup](../setup.md) in your WSL environment.  Specifically the following parts:
-
-```bash
-curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain none
-source ~/.profile
-elan toolchain install leanprover/lean4:nightly
-elan default leanprover/lean4:nightly
-```
+It is recommended that you setup Ubuntu in [WSL
+2](https://docs.microsoft.com/en-us/windows/wsl/compare-versions).
+Then follow the [Dev setup using elan](../dev/index.md#dev-setup-using-elan).
 
 ## Visual Studio Code setup on Windows
 

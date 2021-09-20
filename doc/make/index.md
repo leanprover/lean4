@@ -55,7 +55,7 @@ below for details. Add `-jN` for an appropriate `N` to `make` for a parallel
 build.
 
 To install the build see [Dev setup using
-elan](index.md#dev-setup-using-elan) below.
+elan](../dev/index.md#dev-setup-using-elan) below.
 
 
 Useful CMake Configuration Settings

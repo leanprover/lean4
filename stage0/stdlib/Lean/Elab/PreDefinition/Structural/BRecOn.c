@@ -6947,6 +6947,10 @@ x_21 = lean_level_eq(x_8, x_20);
 if (x_21 == 0)
 {
 lean_object* x_22; 
+lean_inc(x_14);
+lean_inc(x_13);
+lean_inc(x_12);
+lean_inc(x_11);
 x_22 = l_Lean_Meta_decLevel(x_8, x_11, x_12, x_13, x_14, x_15);
 if (lean_obj_tag(x_22) == 0)
 {

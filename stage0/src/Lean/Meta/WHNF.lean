@@ -243,24 +243,12 @@ end
     | some v => whnfEasyCases v k
     | none   => return e
 
-/-- Return true iff term is of the form `idRhs ...` -/
-private def isIdRhsApp (e : Expr) : Bool :=
-  e.isAppOf `idRhs
-
-/-- (@idRhs T f a_1 ... a_n) ==> (f a_1 ... a_n) -/
-private def extractIdRhs (e : Expr) : Expr :=
-  if !isIdRhsApp e then e
-  else
-    let args := e.getAppArgs
-    if args.size < 2 then e
-    else mkAppRange args[1] 2 args.size args
-
 @[specialize] private def deltaDefinition (c : ConstantInfo) (lvls : List Level)
     (failK : Unit → α) (successK : Expr → α) : α :=
   if c.levelParams.length != lvls.length then failK ()
   else
     let val := c.instantiateValueLevelParams lvls
-    successK (extractIdRhs val)
+    successK val
 
 @[specialize] private def deltaBetaDefinition (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr)
     (failK : Unit → α) (successK : Expr → α) : α :=
@@ -269,7 +257,7 @@ private def extractIdRhs (e : Expr) : Expr :=
   else
     let val := c.instantiateValueLevelParams lvls
     let val := val.betaRev revArgs
-    successK (extractIdRhs val)
+    successK val
 
 inductive ReduceMatcherResult where
   | reduced (val : Expr)

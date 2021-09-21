@@ -37,10 +37,6 @@ end Acc
 inductive WellFounded {α : Sort u} (r : α → α → Prop) : Prop where
   | intro (h : ∀ a, Acc r a) : WellFounded r
 
-class WellFoundedRelation (α : Sort u) : Type u where
-  r : α → α → Prop
-  wf : WellFounded r
-
 namespace WellFounded
 def apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
   WellFounded.recOn (motive := fun x => (y : α) → Acc r y)
@@ -172,10 +168,6 @@ def sizeofMeasure (α : Sort u) [SizeOf α] : α → α → Prop :=
 def sizeofMeasureWf (α : Sort u) [SizeOf α] : WellFounded (sizeofMeasure α) :=
   measureWf sizeOf
 
-instance hasWellFoundedOfSizeOf (α : Sort u) [SizeOf α] : WellFoundedRelation α where
-  r := sizeofMeasure α
-  wf := sizeofMeasureWf α
-
 namespace Prod
 open WellFounded
 
@@ -226,10 +218,6 @@ def rprodWf (ha : WellFounded ra) (hb : WellFounded rb) : WellFounded (Rprod ra 
   exact rprodSubLex a b h
 
 end
-
-instance {α : Type u} {β : Type v} [s₁ : WellFoundedRelation α] [s₂ : WellFoundedRelation β] : WellFoundedRelation (α × β) where
-  r  := Lex s₁.r s₂.r
-  wf := lexWf s₁.wf s₂.wf
 
 end Prod
 
@@ -315,9 +303,5 @@ def skipLeftWf (α : Type u) {β : Type v} {s : β → β → Prop} (hb : WellFo
 def mkSkipLeft {α : Type u} {β : Type v} {b₁ b₂ : β} {s : β → β → Prop} (a₁ a₂ : α) (h : s b₁ b₂) : skipLeft α s ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ :=
   RevLex.right _ _ h
 end
-
-instance WellFoundedRelation {α : Type u} {β : α → Type v} [s₁ : WellFoundedRelation α] [s₂ : ∀ a, WellFoundedRelation (β a)] : WellFoundedRelation (PSigma β) where
-  r  := Lex s₁.r (fun a => (s₂ a).r)
-  wf := lexWf s₁.wf (fun a => (s₂ a).wf)
 
 end PSigma

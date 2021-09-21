@@ -85,9 +85,8 @@ All these tests are included by [/src/shell/CMakeLists.txt](https://github.com/l
 
 - `tests/bench`: contains performance tests.
 
-- `tests/plugin`: tests that one compiled lean program can call
-  another compiled lean program via the `--plugin` command line
-  option.
+- `tests/plugin`: tests that compiled Lean code can be loaded into
+  `lean` via the `--plugin` command line option.
 
 - `tests/leanpkg`: tests the `leanpkg` program, where each sub-folder
   is a complete "lean package", including:

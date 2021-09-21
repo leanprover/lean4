@@ -1,4 +1,4 @@
 set -ex
 
-./build/bin/lake --version
-./build/bin/lake self-check
+${LAKE:-./build/bin/lake} --version
+${LAKE:-./build/bin/lake} self-check

@@ -1,4 +1,4 @@
-LAKE := ../build/bin/lake
+LAKE ?= ../build/bin/lake
 
 all: check-lake test time-bootstrap check-bootstrap test-bootstrapped
 

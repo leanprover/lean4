@@ -1,3 +1,3 @@
 cd foo
 echo "in directory 'foo'"
-../../../build/bin/lake build-bin
+${LAKE:-../../../build/bin/lake} build-bin

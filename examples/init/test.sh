@@ -4,11 +4,11 @@ set -ex
 
 # Test `new`
 
-../../build/bin/lake new helloNew
+${LAKE:-../../build/bin/lake} new helloNew
 
 cd helloNew
 test -f lean-toolchain
-../../../build/bin/lake build-bin
+${LAKE:-../../../build/bin/lake} build-bin
 ./build/bin/helloNew
 cd ..
 
@@ -17,10 +17,10 @@ cd ..
 mkdir helloInit
 
 cd helloInit
-../../../build/bin/lake init helloInit
-../../../build/bin/lake build-bin
+${LAKE:-../../../build/bin/lake} init helloInit
+${LAKE:-../../../build/bin/lake} build-bin
 ./build/bin/helloInit
 
 # Test `init` on existing package (should error)
 
-../../../build/bin/lake init helloInit && exit 1 || true
+${LAKE:-../../../build/bin/lake} init helloInit && exit 1 || true

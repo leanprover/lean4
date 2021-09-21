@@ -44,15 +44,15 @@ All these tests are included by [/src/shell/CMakeLists.txt](https://github.com/l
   codes and do not check the expected output even though output is
   produced, it is ignored.
 
-- `tests/lean/interactive`: are designed to test auto-completion
-  requests at a given position in the input file. Each .lean files
-  contain comments that indicate how to simulate a client request at
-  that position. using a `--^` point to the line position. Example:
+- `tests/lean/interactive`: are designed to test server requests at a
+  given position in the input file. Each .lean file contains comments
+  that indicate how to simulate a client request at that position.
+  using a `--^` point to the line position. Example:
     ```lean
     open Foo in
     theorem tst2 (h : a ≤ b) : a + 2 ≤ b + 2 :=
     Bla.
-        --^ textDocument/completion
+      --^ textDocument/completion
     ```
     In this example, the test driver `test_single.sh` will simulate an
     auto-completion request at `Bla.`. The expected output is stored in

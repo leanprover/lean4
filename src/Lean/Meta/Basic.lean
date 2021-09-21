@@ -1125,6 +1125,18 @@ def mapErrorImp (x : MetaM α) (f : MessageData → MessageData) : MetaM α := d
 @[inline] def mapError [MonadControlT MetaM m] [Monad m] (x : m α) (f : MessageData → MessageData) : m α :=
   controlAt MetaM fun runInBase => mapErrorImp (runInBase x) f
 
+/--
+  Sort free variables using an order `x < y` iff `x` was defined before `y`.
+  If a free variable is not in the local context, we use their id. -/
+def sortFVarIds (fvarIds : Array FVarId) : MetaM (Array FVarId) := do
+  let lctx ← getLCtx
+  return fvarIds.qsort fun fvarId₁ fvarId₂ =>
+    match lctx.find? fvarId₁, lctx.find? fvarId₂ with
+    | some d₁, some d₂ => d₁.index < d₂.index
+    | some _,  none    => false
+    | none,    some _  => true
+    | none,    none    => Name.quickLt fvarId₁.name fvarId₂.name
+
 end Methods
 end Meta
 

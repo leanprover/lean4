@@ -111,8 +111,9 @@ private def keepGoing (mvarId : MVarId) : ReaderT EqnInfo (StateRefT (Array Expr
 
 private def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := withMVarContext mvarId do
   let target ← getMVarType' mvarId
-  let fvarIds := collectFVars {} target |>.fvarSet.toArray
-  let (_, mvarId) ← revert mvarId fvarIds
+  let fvarIds ← sortFVarIds <| collectFVars {} target |>.fvarSet.toArray
+  -- We want to ensure the extra hypotheses occur after the main free variables
+  let (_, mvarId) ← revert mvarId fvarIds (preserveOrder := true)
   let type ← instantiateMVars (← getMVarType mvarId)
   modify (·.push type)
 

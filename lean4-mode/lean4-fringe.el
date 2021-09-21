@@ -11,11 +11,14 @@
 ;;
 ;;; Code:
 
+(require 'lean4-settings)
+(require 'lsp-mode)
 (require 'lsp-protocol)
 
-(lsp-interface
- (lean:LeanFileProgressProcessingInfo (:range) nil)
- (lean:LeanFileProgressParams (:textDocument :processing) nil))
+(eval-when-compile
+  (lsp-interface
+    (lean:LeanFileProgressProcessingInfo (:range) nil)
+    (lean:LeanFileProgressParams (:textDocument :processing) nil)))
 
 (defvar-local lean4-fringe-delay-timer nil)
 

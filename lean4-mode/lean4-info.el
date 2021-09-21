@@ -14,7 +14,10 @@
 ;; Released under Apache 2.0 license as described in the file LICENSE.
 ;;
 
+(require 'dash)
 (require 'lean4-syntax)
+(require 'lean4-settings)
+(require 'lsp-mode)
 (require 'lsp-protocol)
 (require 'magit-section)
 
@@ -61,10 +64,11 @@
    ;; current window of current buffer is selected (i.e., in focus)
    (eq (current-buffer) (window-buffer))))
 
-(lsp-interface
- (lean:PlainGoal (:goals) nil)
- (lean:PlainTermGoal (:goal) nil)
- (lean:Diagnostic (:range :fullRange :message) (:code :relatedInformation :severity :source :tags)))
+(eval-when-compile
+  (lsp-interface
+    (lean:PlainGoal (:goals) nil)
+    (lean:PlainTermGoal (:goal) nil)
+    (lean:Diagnostic (:range :fullRange :message) (:code :relatedInformation :severity :source :tags))))
 
 (defconst lean4-info-buffer-name "*Lean Goal*")
 

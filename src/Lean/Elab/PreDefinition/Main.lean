@@ -57,10 +57,11 @@ private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM
   else
     return preDef
 
-def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := do
+def addPreDefinitions (preDefs : Array PreDefinition) (terminationBy? : Option Syntax) : TermElabM Unit := do
   for preDef in preDefs do
     trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
   let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
+  let mut terminationByUsed := false
   for preDefs in partitionPreDefs preDefs do
     trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
     if preDefs.size == 1 && isNonRecursive preDefs[0] then
@@ -73,14 +74,18 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := do
       addAndCompileUnsafe preDefs
     else if preDefs.any (·.modifiers.isPartial) then
       addAndCompilePartial preDefs
-    else withRef (preDefs[0].ref) do
-      mapError
+    else
+      let used ← withRef (preDefs[0].ref) <| mapError
         (orelseMergeErrors
-          (structuralRecursion preDefs)
-          (WFRecursion preDefs))
+          (structuralRecursion preDefs *> pure false)
+          (wfRecursion preDefs terminationBy?))
         (fun msg =>
           let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
           m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
+      terminationByUsed := terminationByUsed || used
+  unless terminationByUsed do
+    if let some terminationBy := terminationBy? then
+      throwErrorAt terminationBy "unnecessary 'termination_by' modifier"
 
 builtin_initialize
   registerTraceClass `Elab.definition.body

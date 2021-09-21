@@ -1,0 +1,4 @@
+termination_by.lean:8:0-8:22: error: invalid 'termination_by' in mutually inductive datatype declaration
+termination_by.lean:13:1-13:23: error: invalid 'termination_by' in 'mutual' block, it must be used after the 'end' keyword
+termination_by.lean:22:0-22:22: error: unnecessary 'termination_by' modifier
+termination_by.lean:29:0-29:22: error: unnecessary 'termination_by' modifier

@@ -8,7 +8,7 @@ namespace Lean
 namespace Elab
 open Meta
 
-def WFRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
+def wfRecursion (preDefs : Array PreDefinition) (terminationBy? : Option Syntax) : TermElabM Bool :=
   throwError "well founded recursion has not been implemented yet"
 
 end Elab

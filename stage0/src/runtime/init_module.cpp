@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "runtime/process.h"
 
 namespace lean {
-extern "C" void lean_initialize_runtime_module() {
+extern "C" LEAN_EXPORT void lean_initialize_runtime_module() {
     initialize_alloc();
     initialize_debug();
     initialize_object();

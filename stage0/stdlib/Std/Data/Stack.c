@@ -14,34 +14,34 @@
 extern "C" {
 #endif
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* l_Std_Stack_vals___default(lean_object*);
-lean_object* l_Std_Stack_push(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stack_vals___default(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stack_push(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-lean_object* l_Std_Stack_peek_x21___rarg___boxed(lean_object*, lean_object*);
-lean_object* l_Std_Stack_peek_x3f(lean_object*);
-uint8_t l_Std_Stack_isEmpty___rarg(lean_object*);
-lean_object* l_Std_Stack_empty(lean_object*);
-lean_object* l_Std_Stack_push___rarg(lean_object*, lean_object*);
-lean_object* l_Std_Stack_isEmpty___rarg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stack_peek_x21___rarg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stack_peek_x3f(lean_object*);
+LEAN_EXPORT uint8_t l_Std_Stack_isEmpty___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stack_empty(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stack_push___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stack_isEmpty___rarg___boxed(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_Std_Stack_pop___rarg(lean_object*);
-lean_object* l_Std_Stack_modify(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stack_pop___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stack_modify(lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
-lean_object* l_Std_Stack_peek_x21(lean_object*);
-lean_object* l_Std_Stack_isEmpty(lean_object*);
-lean_object* l_Std_Stack_modify___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stack_peek_x21(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stack_isEmpty(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stack_modify___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Stack_vals___default___closed__1;
-lean_object* l_Std_Stack_peek_x3f___rarg(lean_object*);
-lean_object* l_Std_Stack_pop___boxed(lean_object*, lean_object*);
-lean_object* l_Std_Stack_peek_x3f___rarg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stack_peek_x3f___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stack_pop___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stack_peek_x3f___rarg___boxed(lean_object*);
 lean_object* l_Array_get_x3f___rarg(lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
-lean_object* l_Std_Stack_peek_x21___rarg(lean_object*, lean_object*);
-lean_object* l_Std_Stack_pop(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stack_peek_x21___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Stack_pop(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* _init_l_Std_Stack_vals___default___closed__1() {
 _start:
@@ -52,7 +52,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-lean_object* l_Std_Stack_vals___default(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Stack_vals___default(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -60,7 +60,7 @@ x_2 = l_Std_Stack_vals___default___closed__1;
 return x_2;
 }
 }
-lean_object* l_Std_Stack_empty(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Stack_empty(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -68,7 +68,7 @@ x_2 = l_Std_Stack_vals___default___closed__1;
 return x_2;
 }
 }
-uint8_t l_Std_Stack_isEmpty___rarg(lean_object* x_1) {
+LEAN_EXPORT uint8_t l_Std_Stack_isEmpty___rarg(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
@@ -76,7 +76,7 @@ x_2 = l_Array_isEmpty___rarg(x_1);
 return x_2;
 }
 }
-lean_object* l_Std_Stack_isEmpty(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Stack_isEmpty(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -84,7 +84,7 @@ x_2 = lean_alloc_closure((void*)(l_Std_Stack_isEmpty___rarg___boxed), 1, 0);
 return x_2;
 }
 }
-lean_object* l_Std_Stack_isEmpty___rarg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Stack_isEmpty___rarg___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
@@ -94,7 +94,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-lean_object* l_Std_Stack_push___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Stack_push___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -102,7 +102,7 @@ x_3 = lean_array_push(x_2, x_1);
 return x_3;
 }
 }
-lean_object* l_Std_Stack_push(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Stack_push(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -110,7 +110,7 @@ x_2 = lean_alloc_closure((void*)(l_Std_Stack_push___rarg), 2, 0);
 return x_2;
 }
 }
-lean_object* l_Std_Stack_peek_x3f___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Stack_peek_x3f___rarg(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; 
@@ -134,7 +134,7 @@ return x_7;
 }
 }
 }
-lean_object* l_Std_Stack_peek_x3f(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Stack_peek_x3f(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -142,7 +142,7 @@ x_2 = lean_alloc_closure((void*)(l_Std_Stack_peek_x3f___rarg___boxed), 1, 0);
 return x_2;
 }
 }
-lean_object* l_Std_Stack_peek_x3f___rarg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Stack_peek_x3f___rarg___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -151,7 +151,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* l_Std_Stack_peek_x21___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Stack_peek_x21___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -159,7 +159,7 @@ x_3 = l_Array_back___rarg(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l_Std_Stack_peek_x21(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Stack_peek_x21(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -167,7 +167,7 @@ x_2 = lean_alloc_closure((void*)(l_Std_Stack_peek_x21___rarg___boxed), 2, 0);
 return x_2;
 }
 }
-lean_object* l_Std_Stack_peek_x21___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Stack_peek_x21___rarg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -176,7 +176,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l_Std_Stack_pop___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Stack_pop___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -184,7 +184,7 @@ x_2 = lean_array_pop(x_1);
 return x_2;
 }
 }
-lean_object* l_Std_Stack_pop(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Stack_pop(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -192,7 +192,7 @@ x_3 = lean_alloc_closure((void*)(l_Std_Stack_pop___rarg), 1, 0);
 return x_3;
 }
 }
-lean_object* l_Std_Stack_pop___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Stack_pop___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -201,7 +201,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-lean_object* l_Std_Stack_modify___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Stack_modify___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
@@ -229,7 +229,7 @@ return x_11;
 }
 }
 }
-lean_object* l_Std_Stack_modify(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Stack_modify(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -239,7 +239,7 @@ return x_2;
 }
 lean_object* initialize_Init(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Std_Data_Stack(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Data_Stack(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;

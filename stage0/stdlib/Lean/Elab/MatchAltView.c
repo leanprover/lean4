@@ -16,7 +16,7 @@ extern "C" {
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView___closed__1;
 static lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView___closed__2;
-lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView;
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_instInhabitedMatchAltView;
 static lean_object* _init_l_Lean_Elab_Term_instInhabitedMatchAltView___closed__1() {
 _start:
 {
@@ -50,7 +50,7 @@ return x_1;
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Elab_Term(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Lean_Elab_MatchAltView(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Elab_MatchAltView(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;

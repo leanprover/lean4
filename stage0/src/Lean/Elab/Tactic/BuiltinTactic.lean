@@ -172,23 +172,12 @@ where
      replaceMainGoal [mvarId]
   | _                     => throwUnsupportedSyntax
 
-/- Sort free variables using an order `x < y` iff `x` was defined after `y` -/
-private def sortFVarIds (fvarIds : Array FVarId) : TacticM (Array FVarId) :=
-  withMainContext do
-    let lctx ← getLCtx
-    return fvarIds.qsort fun fvarId₁ fvarId₂ =>
-      match lctx.find? fvarId₁, lctx.find? fvarId₂ with
-      | some d₁, some d₂ => d₁.index > d₂.index
-      | some _,  none    => false
-      | none,    some _  => true
-      | none,    none    => Name.quickLt fvarId₁.name fvarId₂.name
-
 @[builtinTactic Lean.Parser.Tactic.clear] def evalClear : Tactic := fun stx =>
   match stx with
   | `(tactic| clear $hs*) => do
     let fvarIds ← getFVarIds hs
-    let fvarIds ← sortFVarIds fvarIds
-    for fvarId in fvarIds do
+    let fvarIds ← withMainContext <| sortFVarIds fvarIds
+    for fvarId in fvarIds.reverse do
       withMainContext do
         let mvarId ← clear (← getMainGoal) fvarId
         replaceMainGoal [mvarId]

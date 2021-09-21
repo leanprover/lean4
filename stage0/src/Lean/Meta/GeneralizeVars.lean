@@ -65,14 +65,9 @@ def getFVarSetToGeneralize (targets : Array Expr) (forbidden : FVarIdSet) : Meta
         s := s.insert localDecl.fvarId
   return r
 
-def sortFVars (fvars : FVarIdSet) : MetaM (Array FVarId) := do
-  let fvarIds := fvars.fold (init := #[]) fun s fvarId => s.push fvarId
-  let lctx ← getLCtx
-  return fvarIds.qsort fun x y => (lctx.get! x).index < (lctx.get! y).index
-
 def getFVarsToGeneralize (targets : Array Expr) (forbidden : FVarIdSet := {}) : MetaM (Array FVarId) := do
   let forbidden ← mkGeneralizationForbiddenSet targets forbidden
   let s ← getFVarSetToGeneralize targets forbidden
-  sortFVars s
+  sortFVarIds s.toArray
 
 end Lean.Meta

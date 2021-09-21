@@ -20,6 +20,8 @@ namespace Parser
 
 namespace Command
 
+def terminationBy := leading_parser "termination_by " >> sepBy1 termParser ", "
+
 @[builtinCommandParser]
 def moduleDoc := leading_parser ppDedent $ "/-!" >> commentBody >> ppLine
 
@@ -42,10 +44,10 @@ def declValEqns      := leading_parser Term.matchAltsWhereDecls
 def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls
 def «abbrev»         := leading_parser "abbrev " >> declId >> optDeclSig >> declVal
 def optDefDeriving   := optional (atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
-def «def»            := leading_parser "def " >> declId >> optDeclSig >> declVal >> optDefDeriving
-def «theorem»        := leading_parser "theorem " >> declId >> declSig >> declVal
+def «def»            := leading_parser "def " >> declId >> optDeclSig >> declVal >> optDefDeriving >> optional terminationBy
+def «theorem»        := leading_parser "theorem " >> declId >> declSig >> declVal >> optional terminationBy
 def «constant»       := leading_parser "constant " >> declId >> declSig >> optional declValSimple
-def «instance»       := leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal
+def «instance»       := leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal >> optional terminationBy
 def «axiom»          := leading_parser "axiom " >> declId >> declSig
 def «example»        := leading_parser "example " >> declSig >> declVal
 def inferMod         := leading_parser atomic (symbol "{" >> "}")
@@ -99,7 +101,7 @@ def openScoped       := leading_parser "scoped " >> many1 (checkColGt >> ident)
 def openDecl         := openHiding <|> openRenaming <|> openOnly <|> openSimple <|> openScoped
 @[builtinCommandParser] def «open»    := leading_parser withPosition ("open " >> openDecl)
 
-@[builtinCommandParser] def «mutual» := leading_parser "mutual " >> many1 (ppLine >> notSymbol "end" >> commandParser) >> ppDedent (ppLine >> "end")
+@[builtinCommandParser] def «mutual» := leading_parser "mutual " >> many1 (ppLine >> notSymbol "end" >> commandParser) >> ppDedent (ppLine >> "end") >> optional terminationBy
 @[builtinCommandParser] def «initialize» := leading_parser optional visibility >> "initialize " >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
 @[builtinCommandParser] def «builtin_initialize» := leading_parser optional visibility >> "builtin_initialize " >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
 

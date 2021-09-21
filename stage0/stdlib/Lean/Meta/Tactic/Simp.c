@@ -15,8 +15,8 @@ extern "C" {
 #endif
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_3_(lean_object*);
-lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_12_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_3_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_12_(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_3____closed__4;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_12____closed__5;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_12____closed__3;
@@ -82,7 +82,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_3_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_3_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -139,7 +139,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_12_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_12_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -156,7 +156,7 @@ lean_object* initialize_Lean_Meta_Tactic_Simp_Main(lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_Rewrite(lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_SimpAll(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Lean_Meta_Tactic_Simp(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Simp(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;

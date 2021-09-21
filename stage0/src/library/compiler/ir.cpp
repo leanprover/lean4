@@ -557,7 +557,7 @@ environment add_extern(environment const & env, name const & fn) {
     return add_boxed_version(new_env, d);
 }
 
-extern "C" object* lean_add_extern(object * env, object * fn) {
+extern "C" LEAN_EXPORT object* lean_add_extern(object * env, object * fn) {
     try {
         environment new_env = add_extern(environment(env), name(fn));
         return mk_except_ok(new_env);
@@ -616,7 +616,7 @@ object_ref to_object_ref(cnstr_info const & info) {
     return mk_cnstr(0, nat(info.m_cidx), list_ref<object_ref>(fields), nat(info.m_num_objs), nat(info.m_num_usizes), nat(info.m_scalar_sz));
 }
 
-extern "C" object * lean_ir_get_ctor_layout(object * env0, object * ctor_name0) {
+extern "C" LEAN_EXPORT object * lean_ir_get_ctor_layout(object * env0, object * ctor_name0) {
     environment const & env = TO_REF(environment, env0);
     name const & ctor_name  = TO_REF(name, ctor_name0);
     type_checker::state st(env);

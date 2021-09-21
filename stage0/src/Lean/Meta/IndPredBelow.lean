@@ -107,14 +107,14 @@ partial def mkCtorType
 where
   addHeaderVars (vars : Variables) := do
     let headersWithNames ← ctx.headers.mapIdxM fun idx header =>
-      (ctx.belowNames[idx], fun _ => pure header)
+      (ctx.belowNames[idx], fun _ : Array Expr => pure header)
 
     withLocalDeclsD headersWithNames fun xs =>
       addMotives { vars with indVal := xs }
 
   addMotives (vars : Variables) := do
     let motiveBuilders ← ctx.motives.mapM fun (motiveName, motiveType) =>
-      (motiveName, BinderInfo.implicit, fun _ =>
+      (motiveName, BinderInfo.implicit, fun _ : Array Expr =>
         instantiateForall motiveType vars.params)
     withLocalDecls motiveBuilders fun xs =>
       modifyBinders { vars with target := vars.target ++ xs, motives := xs } 0
@@ -341,7 +341,7 @@ where
       then mkFreshUserName s!"ih_{idx.val.succ}"
       else mkFreshUserName "ih"
     let ih ← instantiateForall motive.2 params
-    let mkDomain _ :=
+    let mkDomain (_ : Array Expr) : MetaM Expr :=
       forallTelescope ih fun ys t => do
         let levels := ctx.typeInfos[idx].levelParams.map mkLevelParam
         let args := params ++ motives ++ ys

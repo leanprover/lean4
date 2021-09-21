@@ -381,7 +381,7 @@ void check_optarg(char const * option_name) {
 
 extern "C" object * lean_enable_initializer_execution(object * w);
 
-extern "C" int lean_main(int argc, char ** argv) {
+extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 #ifdef LEAN_EMSCRIPTEN
     // When running in command-line mode under Node.js, we make system directories available in the virtual filesystem.
     // This mode is used to compile 32-bit oleans.
@@ -644,7 +644,7 @@ extern "C" int lean_main(int argc, char ** argv) {
         }
 
         if (c_output && ok) {
-            std::ofstream out(*c_output);
+            std::ofstream out(*c_output, std::ios_base::binary);
             if (out.fail()) {
                 std::cerr << "failed to create '" << *c_output << "'\n";
                 return 1;

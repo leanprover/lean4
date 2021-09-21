@@ -14,14 +14,14 @@
 extern "C" {
 #endif
 static lean_object* l_Option_get_x21___rarg___closed__3;
-lean_object* l_Option_get_x21___rarg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_get_x21___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_Option_get_x21___rarg___closed__2;
 static lean_object* l_Option_get_x21___rarg___closed__1;
-lean_object* l_Option_get_x21___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_get_x21___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Option_get_x21___rarg___closed__4;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
-lean_object* l_Option_get_x21(lean_object*);
+LEAN_EXPORT lean_object* l_Option_get_x21(lean_object*);
 static lean_object* _init_l_Option_get_x21___rarg___closed__1() {
 _start:
 {
@@ -59,7 +59,7 @@ x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-lean_object* l_Option_get_x21___rarg(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Option_get_x21___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_2) == 0)
@@ -79,7 +79,7 @@ return x_5;
 }
 }
 }
-lean_object* l_Option_get_x21(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Option_get_x21(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -87,7 +87,7 @@ x_2 = lean_alloc_closure((void*)(l_Option_get_x21___rarg___boxed), 2, 0);
 return x_2;
 }
 }
-lean_object* l_Option_get_x21___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Option_get_x21___rarg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -99,7 +99,7 @@ return x_3;
 lean_object* initialize_Init_Data_Option_Basic(lean_object*);
 lean_object* initialize_Init_Util(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Data_Option_BasicAux(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Option_BasicAux(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;

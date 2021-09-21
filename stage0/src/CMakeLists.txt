@@ -301,16 +301,12 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -install_name @rpath/libleanshared.dylib")
 endif()
 
-# export all symbols for the interpreter
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  # for libraries compiled with `leanc -shared`
-  set(LEANC_SHARED_LINKER_FLAGS "${LEANC_SHARED_LINKER_FLAGS} -Wl,--export-all")
-  # for `leanshared` itself
-  set(LEANSHARED_LINKER_FLAGS "${LEANSHARED_LINKER_FLAGS} -Wl,--export-all")
-  # for executables containing code to be interpreted
-  set(LEAN_DYN_EXE_LINKER_FLAGS "${LEAN_DYN_EXE_LINKER_FLAGS} -Wl,--export-all")
-else()
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(LEAN_EXTRA_LINKER_FLAGS "${LEAN_LINKER_FLAGS} -ldl")
+endif()
+
+if(NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
+  # export symbols for the interpreter (done via `LEAN_EXPORT` for Windows)
   set(LEAN_DYN_EXE_LINKER_FLAGS "${LEAN_DYN_EXE_LINKER_FLAGS} -rdynamic")
 endif()
 
@@ -472,7 +468,7 @@ endif()
 
 if(PREV_STAGE)
   add_custom_target(update-stage0
-    COMMAND cmake -E env CSRCS=${CMAKE_BINARY_DIR}/lib/temp bash script/update-stage0
+    COMMAND bash -c 'CSRCS=${CMAKE_BINARY_DIR}/lib/temp script/update-stage0'
     DEPENDS make_stdlib
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/..")
 endif()

@@ -26,11 +26,11 @@ static lean_object* l_Std_termF_x21_____closed__16;
 static lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__16;
 static lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__7;
 lean_object* lean_string_utf8_byte_size(lean_object*);
-lean_object* l_Std_termF_x21__;
+LEAN_EXPORT lean_object* l_Std_termF_x21__;
 static lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__13;
 lean_object* l_Lean_Syntax_expandInterpolatedStr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_termF_x21_____closed__10;
-lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19_(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19_(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__6;
 static lean_object* l_Std_termF_x21_____closed__14;
 static lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19____closed__11;
@@ -399,7 +399,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_myMacro____x40_Init_Data_Format_Macro___hyg_19_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -470,7 +470,7 @@ return x_28;
 lean_object* initialize_Init_Data_Format_Basic(lean_object*);
 lean_object* initialize_Init_Data_ToString_Macro(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Data_Format_Macro(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Format_Macro(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;

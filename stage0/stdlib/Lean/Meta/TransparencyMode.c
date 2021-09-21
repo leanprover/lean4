@@ -13,13 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint64_t l_Lean_Meta_TransparencyMode_hash(uint8_t);
+LEAN_EXPORT uint64_t l_Lean_Meta_TransparencyMode_hash(uint8_t);
 static lean_object* l_Lean_Meta_TransparencyMode_instHashableTransparencyMode___closed__1;
-lean_object* l_Lean_Meta_TransparencyMode_instHashableTransparencyMode;
-lean_object* l_Lean_Meta_TransparencyMode_lt___boxed(lean_object*, lean_object*);
-uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t, uint8_t);
-lean_object* l_Lean_Meta_TransparencyMode_hash___boxed(lean_object*);
-uint64_t l_Lean_Meta_TransparencyMode_hash(uint8_t x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_instHashableTransparencyMode;
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_lt___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_hash___boxed(lean_object*);
+LEAN_EXPORT uint64_t l_Lean_Meta_TransparencyMode_hash(uint8_t x_1) {
 _start:
 {
 switch (x_1) {
@@ -50,7 +50,7 @@ return x_5;
 }
 }
 }
-lean_object* l_Lean_Meta_TransparencyMode_hash___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_hash___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; uint64_t x_3; lean_object* x_4; 
@@ -77,7 +77,7 @@ x_1 = l_Lean_Meta_TransparencyMode_instHashableTransparencyMode___closed__1;
 return x_1;
 }
 }
-uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t x_1, uint8_t x_2) {
+LEAN_EXPORT uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 switch (x_1) {
@@ -152,7 +152,7 @@ return x_13;
 }
 }
 }
-lean_object* l_Lean_Meta_TransparencyMode_lt___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_lt___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
@@ -167,7 +167,7 @@ return x_6;
 }
 lean_object* initialize_Init(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Lean_Meta_TransparencyMode(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Meta_TransparencyMode(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;

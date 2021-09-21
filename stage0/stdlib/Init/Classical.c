@@ -30,7 +30,7 @@ static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____close
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__15;
 static lean_object* l_Classical_tacticByCases_____x3a_____closed__2;
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__47;
-lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970_(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970_(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__41;
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__38;
@@ -55,7 +55,7 @@ static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____close
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__18;
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__29;
 static lean_object* l_Classical_tacticByCases_____x3a_____closed__12;
-lean_object* l_Classical_tacticByCases_____x3a__;
+LEAN_EXPORT lean_object* l_Classical_tacticByCases_____x3a__;
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__52;
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__40;
 static lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970____closed__24;
@@ -809,7 +809,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Classical_myMacro____x40_Init_Classical___hyg_970_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -1184,7 +1184,7 @@ return x_193;
 lean_object* initialize_Init_Core(lean_object*);
 lean_object* initialize_Init_NotationExtra(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Init_Classical(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Classical(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;

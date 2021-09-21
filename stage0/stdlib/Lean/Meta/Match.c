@@ -19,7 +19,7 @@ static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_3____closed__3;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_3____closed__1;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_3____closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_3____closed__4;
-lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_3_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_3_(lean_object*);
 static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Match___hyg_3____closed__1() {
 _start:
 {
@@ -56,7 +56,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_3_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_3_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -72,7 +72,7 @@ lean_object* initialize_Lean_Meta_Match_CaseValues(lean_object*);
 lean_object* initialize_Lean_Meta_Match_CaseArraySizes(lean_object*);
 lean_object* initialize_Lean_Meta_Match_MatchEqs(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Lean_Meta_Match(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Meta_Match(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;

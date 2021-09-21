@@ -15,13 +15,13 @@ extern "C" {
 #endif
 lean_object* l_Lean_Json_compress(lean_object*);
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
-lean_object* l_IO_FS_Stream_readJson(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_readJson(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_parse(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(lean_object*, lean_object*);
-lean_object* l_IO_FS_Stream_writeJson(lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1___boxed(lean_object*, lean_object*);
-lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_writeJson(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -48,7 +48,7 @@ return x_7;
 }
 }
 }
-lean_object* l_IO_FS_Stream_readJson(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_IO_FS_Stream_readJson(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; size_t x_5; lean_object* x_6; lean_object* x_7; 
@@ -98,7 +98,7 @@ return x_16;
 }
 }
 }
-lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -107,7 +107,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_IO_FS_Stream_writeJson(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_IO_FS_Stream_writeJson(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
@@ -158,7 +158,7 @@ lean_object* initialize_Lean_Data_Json_Parser(lean_object*);
 lean_object* initialize_Lean_Data_Json_Printer(lean_object*);
 lean_object* initialize_Lean_Data_Json_FromToJson(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Lean_Data_Json_Stream(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Data_Json_Stream(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;

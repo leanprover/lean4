@@ -28,13 +28,13 @@ endif
 # These can be phony since the inner Makefile will have the correct dependencies and avoid rebuilds
 Init:
 # Use `+` to use the Make jobserver with `leanmake` for parallelized builds
-	+"${LEAN_BIN}/leanmake" lib PKG=Init $(LEANMAKE_OPTS)
+	+"${LEAN_BIN}/leanmake" lib PKG=Init $(LEANMAKE_OPTS) LEANC_OPTS+=-DLEAN_EXPORTING
 
 Std: Init
-	+"${LEAN_BIN}/leanmake" lib PKG=Std $(LEANMAKE_OPTS)
+	+"${LEAN_BIN}/leanmake" lib PKG=Std $(LEANMAKE_OPTS) LEANC_OPTS+=-DLEAN_EXPORTING
 
 Lean: Init Std
-	+"${LEAN_BIN}/leanmake" lib PKG=Lean $(LEANMAKE_OPTS)
+	+"${LEAN_BIN}/leanmake" lib PKG=Lean $(LEANMAKE_OPTS) LEANC_OPTS+=-DLEAN_EXPORTING
 
 # the following targets are all invoked by separate `make` calls; see src/CMakeLists.txt
 

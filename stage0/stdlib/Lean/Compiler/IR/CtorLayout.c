@@ -19,7 +19,7 @@ static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__6;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__5;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__14;
 lean_object* l_Nat_repr(lean_object*);
-lean_object* l_Lean_IR_CtorFieldInfo_format(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_format(lean_object*);
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__3;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__1;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__8;
@@ -29,10 +29,10 @@ static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__4;
 static lean_object* l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__13;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__2;
-lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object*, lean_object*);
 lean_object* lean_ir_get_ctor_layout(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__11;
-lean_object* l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo;
+LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo;
 static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__12;
 static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__1() {
 _start:
@@ -160,7 +160,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_IR_CtorFieldInfo_format(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_format(lean_object* x_1) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -268,7 +268,7 @@ x_1 = l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1;
 return x_1;
 }
 }
-lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -282,7 +282,7 @@ lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Environment(lean_object*);
 lean_object* initialize_Lean_Compiler_IR_Format(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Lean_Compiler_IR_CtorLayout(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_CtorLayout(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;

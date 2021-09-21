@@ -37,10 +37,6 @@ end Acc
 inductive WellFounded {α : Sort u} (r : α → α → Prop) : Prop where
   | intro (h : ∀ a, Acc r a) : WellFounded r
 
-class WellFoundedRelation (α : Sort u) : Type u where
-  r : α → α → Prop
-  wf : WellFounded r
-
 namespace WellFounded
 def apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
   WellFounded.recOn (motive := fun x => (y : α) → Acc r y)
@@ -126,6 +122,9 @@ def wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
   ⟨fun a => accessible f (apply h (f a))⟩
 end InvImage
 
+def invImage (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
+  InvImage.wf f h
+
 -- The transitive closure of a well-founded relation is well-founded
 namespace TC
 variable {α : Sort u} {r : α → α → Prop}
@@ -160,21 +159,17 @@ def Nat.lt_wf : WellFounded Nat.lt := by
     | Or.inl e => subst e; assumption
     | Or.inr e => exact Acc.inv ih e
 
-def measure {α : Sort u} : (α → Nat) → α → α → Prop :=
+def Measure {α : Sort u} : (α → Nat) → α → α → Prop :=
   InvImage (fun a b => a < b)
 
-def measureWf {α : Sort u} (f : α → Nat) : WellFounded (measure f) :=
-  InvImage.wf f Nat.lt_wf
+def measure {α : Sort u} (f : α → Nat) : WellFounded (Measure f) :=
+  invImage f Nat.lt_wf
 
-def sizeofMeasure (α : Sort u) [SizeOf α] : α → α → Prop :=
+def SizeofMeasure (α : Sort u) [SizeOf α] : α → α → Prop :=
+  Measure sizeOf
+
+def sizeofMeasure (α : Sort u) [SizeOf α] : WellFounded (SizeofMeasure α) :=
   measure sizeOf
-
-def sizeofMeasureWf (α : Sort u) [SizeOf α] : WellFounded (sizeofMeasure α) :=
-  measureWf sizeOf
-
-instance hasWellFoundedOfSizeOf (α : Sort u) [SizeOf α] : WellFoundedRelation α where
-  r := sizeofMeasure α
-  wf := sizeofMeasureWf α
 
 namespace Prod
 open WellFounded
@@ -190,8 +185,8 @@ inductive Lex : α × β → α × β → Prop where
   | right (a) {b₁ b₂} (h : rb b₁ b₂)         : Lex (a, b₁)  (a, b₂)
 
 -- relational product based on ra and rb
-inductive Rprod : α × β → α × β → Prop where
-  | intro {a₁ b₁ a₂ b₂} (h₁ : ra a₁ a₂) (h₂ : rb b₁ b₂) : Rprod (a₁, b₁) (a₂, b₂)
+inductive RProd : α × β → α × β → Prop where
+  | intro {a₁ b₁ a₂ b₂} (h₁ : ra a₁ a₂) (h₂ : rb b₁ b₂) : RProd (a₁, b₁) (a₂, b₂)
 end
 
 section
@@ -211,25 +206,21 @@ def lexAccessible (aca : (a : α) → Acc ra a) (acb : (b : β) → Acc rb b) (a
       | right _ h   => apply ihb _ h
 
 -- The lexicographical order of well founded relations is well-founded
-def lexWf (ha : WellFounded ra) (hb : WellFounded rb) : WellFounded (Lex ra rb) :=
+def lex (ha : WellFounded ra) (hb : WellFounded rb) : WellFounded (Lex ra rb) :=
   ⟨fun (a, b) => lexAccessible (WellFounded.apply ha) (WellFounded.apply hb) a b⟩
 
 -- relational product is a Subrelation of the Lex
-def rprodSubLex (a : α × β) (b : α × β) (h : Rprod ra rb a b) : Lex ra rb a b := by
+def RProdSubLex (a : α × β) (b : α × β) (h : RProd ra rb a b) : Lex ra rb a b := by
   cases h with
   | intro h₁ h₂ => exact Lex.left _ _ h₁
 
 -- The relational product of well founded relations is well-founded
-def rprodWf (ha : WellFounded ra) (hb : WellFounded rb) : WellFounded (Rprod ra rb) := by
-  apply Subrelation.wf (r := Lex ra rb) (h₂ := lexWf ha hb)
+def rprod (ha : WellFounded ra) (hb : WellFounded rb) : WellFounded (RProd ra rb) := by
+  apply Subrelation.wf (r := Lex ra rb) (h₂ := lex ha hb)
   intro a b h
-  exact rprodSubLex a b h
+  exact RProdSubLex a b h
 
 end
-
-instance {α : Type u} {β : Type v} [s₁ : WellFoundedRelation α] [s₂ : WellFoundedRelation β] : WellFoundedRelation (α × β) where
-  r  := Lex s₁.r s₂.r
-  wf := lexWf s₁.wf s₂.wf
 
 end Prod
 
@@ -261,7 +252,7 @@ def lexAccessible {a} (aca : Acc r a) (acb : (a : α) → WellFounded (s a)) (b 
       | right => apply ihb; assumption
 
 -- The lexicographical order of well founded relations is well-founded
-def lexWf (ha : WellFounded r) (hb : (x : α) → WellFounded (s x)) : WellFounded (Lex r s) :=
+def lex (ha : WellFounded r) (hb : (x : α) → WellFounded (s x)) : WellFounded (Lex r s) :=
   WellFounded.intro fun ⟨a, b⟩ => lexAccessible (WellFounded.apply ha a) hb b
 end
 
@@ -301,23 +292,19 @@ def revLexAccessible {b} (acb : Acc s b) (aca : (a : α) → Acc r a): (a : α) 
       | left  => apply iha; assumption
       | right => apply ihb; assumption
 
-def revLexWf (ha : WellFounded r) (hb : WellFounded s) : WellFounded (RevLex r s) :=
+def revLex (ha : WellFounded r) (hb : WellFounded s) : WellFounded (RevLex r s) :=
   WellFounded.intro fun ⟨a, b⟩ => revLexAccessible (apply hb b) (WellFounded.apply ha) a
 end
 
 section
-def skipLeft (α : Type u) {β : Type v} (s : β → β → Prop) : @PSigma α (fun a => β) → @PSigma α (fun a => β) → Prop :=
+def SkipLeft (α : Type u) {β : Type v} (s : β → β → Prop) : @PSigma α (fun a => β) → @PSigma α (fun a => β) → Prop :=
   RevLex emptyRelation s
 
-def skipLeftWf (α : Type u) {β : Type v} {s : β → β → Prop} (hb : WellFounded s) : WellFounded (skipLeft α s) :=
-  revLexWf emptyWf hb
+def skipLeft (α : Type u) {β : Type v} {s : β → β → Prop} (hb : WellFounded s) : WellFounded (SkipLeft α s) :=
+  revLex emptyWf hb
 
-def mkSkipLeft {α : Type u} {β : Type v} {b₁ b₂ : β} {s : β → β → Prop} (a₁ a₂ : α) (h : s b₁ b₂) : skipLeft α s ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ :=
+def mkSkipLeft {α : Type u} {β : Type v} {b₁ b₂ : β} {s : β → β → Prop} (a₁ a₂ : α) (h : s b₁ b₂) : SkipLeft α s ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ :=
   RevLex.right _ _ h
 end
-
-instance WellFoundedRelation {α : Type u} {β : α → Type v} [s₁ : WellFoundedRelation α] [s₂ : ∀ a, WellFoundedRelation (β a)] : WellFoundedRelation (PSigma β) where
-  r  := Lex s₁.r (fun a => (s₂ a).r)
-  wf := lexWf s₁.wf (fun a => (s₂ a).wf)
 
 end PSigma

@@ -20,7 +20,7 @@ pipeline](bootstrap.md) so you understand how this works.
 The dev team uses `elan` to manage which `lean` toolchain to use
 locally and `elan` can be used to setup the version of Lean you are
 manually building.  This means you generally do not use `make
-install`. You use `elan` instead.  See below.
+install`. You use `elan` instead.
 
 ## Development Setup
 

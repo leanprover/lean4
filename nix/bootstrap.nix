@@ -137,7 +137,7 @@ rec {
           ln -sf ${lean-all}/* .
         '';
         buildPhase = ''
-          ctest --output-on-failure -E 'leancomptest_(doc_example|foreign)' -j$NIX_BUILD_CORES
+          ctest --output-on-failure -E 'leancomptest_(doc_example|foreign)|laketest' -j$NIX_BUILD_CORES
         '';
         installPhase = ''
           touch $out

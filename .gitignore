@@ -21,3 +21,8 @@ settings.json
 CMakeSettings.json
 CppProperties.json
 result
+fwIn.txt
+fwOut.txt
+wdErr.txt
+wdIn.txt
+wdOut.txt

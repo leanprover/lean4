@@ -4,7 +4,7 @@
 # Lean in Windows WSL
 
 As an alternative to the [MSYS2](msys2.md) setup you can also use the
-[Windows Subsystem for Linux][wsl] to build `Lean4` there, but edit
+[Windows Subsystem for Linux][wsl] to build Lean there, but edit
 and debug using [Visual Studio Code][vscode] in Windows.
 
 For the most part setup in WSL is the same as

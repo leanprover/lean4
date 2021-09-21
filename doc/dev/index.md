@@ -1,16 +1,16 @@
 # Development Workflow
-
-- [Commit Convention](dev/commit_convention.md)
-- [Coding Style](dev/coding_style.md)
+- [Commit Convention](./commit_convention.md)
+- [Coding Style](./coding_style.md)
 - [Building Lean](../make/index.md)
   - [Ubuntu Setup](../make/ubuntu-16.04.md)
   - [macOS Setup](../make/osx-10.9.md)
   - [Windows MSYS2 Setup](../make/msys2.md)
   - [Windows with WSL](../make/wsl2.md)
   - [Nix Setup (*Experimental*)](../make/nix.md)
-- [Building This Manual](mdbook.md)
-- [Fixing Tests](fixing_tests.md)
-- [Debugging](debugging.md)
+- [Unit Testing](./testing.md)
+- [Building This Manual](./mdbook.md)
+- [Fixing Tests](./fixing_tests.md)
+- [Debugging](./debugging.md)
 
 You will notice there is a `stage0` folder. This is for bootstrapping
 the compiler development.  Generally you do not change any code in
@@ -21,11 +21,6 @@ The dev team uses `elan` to manage which `lean` toolchain to use
 locally and `elan` can be used to setup the version of lean you are
 manually building.  This means you generally do not use `make
 install`. You use `elan` instead.  See below.
-
-Generally we follow these [C++ Style
-Guide](https://google.github.io/styleguide/cppguide.html) with the
-following exceptions:
-- Use `#pragma once` to guard multiple inclusion.
 
 ## Development Setup
 
@@ -53,8 +48,7 @@ switch between stages and build configurations based on the current
 directory, both for the `lean/leanc/leanmake` binaries in your shell's
 PATH and inside your editor.
 
-If you haven't already installed elan, you can do so, without
-installing a default version of Lean, using
+To install elan, you can do so, without installing a default version of Lean, using
 ```bash
 curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain none
 ```

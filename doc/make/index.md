@@ -55,7 +55,7 @@ below for details. Add `-jN` for an appropriate `N` to `make` for a parallel
 build.
 
 To install the build see [Dev setup using
-elan](../dev/index.md#dev-setup-using-elan) below.
+elan](../dev/index.md#dev-setup-using-elan).
 
 
 Useful CMake Configuration Settings
@@ -73,7 +73,7 @@ Pass these along with the `cmake ../..` command.
   see also `.github/workflows/ci.yml` for the CI config.
 
 Lean will automatically use [CCache](https://ccache.dev/) if available to avoid
-redundant builds, especially after stage 0 has been updated (see below).
+redundant builds, especially after stage 0 has been updated.
 
 Troubleshooting
 ---------------

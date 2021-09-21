@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.11)
 # store all variables passed on the command line into CL_ARGS so we can pass them to the stage builds
 # https://stackoverflow.com/a/48555098/161659
 # MUST be done before call to 'project'

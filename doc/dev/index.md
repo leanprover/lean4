@@ -18,20 +18,11 @@ the compiler development.  Generally you do not change any code in
 pipeline](bootstrap.md) so you understand how this works.
 
 The dev team uses `elan` to manage which `lean` toolchain to use
-locally and `elan` can be used to setup the version of lean you are
+locally and `elan` can be used to setup the version of Lean you are
 manually building.  This means you generally do not use `make
 install`. You use `elan` instead.  See below.
 
 ## Development Setup
-
-After building a stage, you can invoke `make -C stageN test` (or, even
-better, `make -C stageN test ARGS=-jN` to make `ctest` parallel) to
-run the Lean test suite. `make test` without `-C` defaults to stage1.
-While the Lean tests will automatically use that stage's corresponding
-Lean executables, for running tests or compiling Lean programs
-manually, you need to put them into your `PATH` yourself. A simple
-option for doing that is to use
-[`elan`](https://github.com/leanprover/elan), see the next section.
 
 You can use any of the [supported editors](../setup.md) for editing
 the Lean source code. If you set up `elan` as below, opening `src/` as

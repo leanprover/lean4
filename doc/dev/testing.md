@@ -2,17 +2,37 @@
 
 You can run the unit tests after completing a build using the following:
 
+After [building lean](../make/index.md) you can run all the tests using
+```
+cd build/release
+make test ARGS=-j4
+```
+
+Change the 4 to the maximum number of parallel tests you want to
+allow. The best choice is the number of CPU cores on your machine as
+the tests are mostly CPU bound.  You can find the number of processors
+on linux using `cat /proc/cpuinfo | grep processor | wc -l` and on
+Windows it is the NUMBER_OF_PROCESSORS environment variable.
+
+You can run tests after [building a specific stage](bootstrap.md) by
+adding the `-C stageN` argument. Most of the tests are in stage1.  The
+Lean tests will automatically use that stage's corresponding Lean
+executables
+
+You can also use `ctest` directly if you are in the right folder.  So
+to run stage1 tests with a 300 second timeout run this:
+
 ```bash
-cd build/release/stage0
+cd build/release/stage1
 ctest -j 4 --output-on-failure --timeout 300
 ```
 
-You can increase the parallelism from 4 to as many cores you have
-available to decrease overall test time.  You can also increase the timeout
-from 300 seconds if you need to.
+To get verbose output from ctest pass the `-VV` command line option.
+Note that is two letter `V`'s and not a `W`.  I guess it means very
+verbose.
 
 Here is the summary of the test source code organization.
-All these tests are included by [~/src/shell/CMakeLists.txt](https://github.com/leanprover/lean4/blob/master/src/shell/CMakeLists.txt):
+All these tests are included by [/src/shell/CMakeLists.txt](https://github.com/leanprover/lean4/blob/master/src/shell/CMakeLists.txt):
 
 - `tests/lean`: contains tests that come equipped with a
   .lean.expected.out file. The driver script `test_single.sh` runs
@@ -40,11 +60,22 @@ All these tests are included by [~/src/shell/CMakeLists.txt](https://github.com/
     [Language Server
     Protocol](https://microsoft.github.io/language-server-protocol/).
 
-- `tests/lean/server`: Tests more of the lean `--server` protocol.
+    This can also be used to test the following additional requests:
+    ```
+    --^ textDocument/hover
+    --^ textDocument/typeDefinition
+    --^ textDocument/definition
+    --^ $/lean/plainGoal
+    --^ $/lean/plainTermGoal
+    --^ insert: ...
+    --^ collectDiagnostics
+    ```
+
+- `tests/lean/server`: Tests more of the Lean `--server` protocol.
   There are just a few of them, and it uses .log files containing
   JSON.
 
-- `tests/compiler`: contains tests that will run the lean compiler and
+- `tests/compiler`: contains tests that will run the Lean compiler and
   build an executable that is executed and the output is compared to
   the .lean.expected.out file. This test also contains a subfolder
   `foreign` which shows how to extend Lean using C++.

@@ -48,7 +48,7 @@ All these tests are included by [/src/shell/CMakeLists.txt](https://github.com/l
   given position in the input file. Each .lean file contains comments
   that indicate how to simulate a client request at that position.
   using a `--^` point to the line position. Example:
-    ```lean
+    ```lean,ignore
     open Foo in
     theorem tst2 (h : a ≤ b) : a + 2 ≤ b + 2 :=
     Bla.

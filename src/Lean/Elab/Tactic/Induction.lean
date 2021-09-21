@@ -334,6 +334,8 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
     unless targets.size == 1 do
       throwError "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>')"
     let indVal ← getInductiveValFromMajor targets[0]
+    if induction && indVal.all.length != 1 then
+      throwError "'induction' tactic does not support mutually inductive types, the eliminator '{mkRecName indVal.name}' has multiple motives"
     let elimName := if induction then mkRecName indVal.name else mkCasesOnName indVal.name
     pure (elimName, ← getElimInfo elimName)
   else

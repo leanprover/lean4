@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # used only for building Lean itself
-root=$(dirname $0)
+root="$(cd $(dirname $0); pwd)"  # ensure absolute path for Zig/Windows
 ldflags=("-L$root/lib" "-L$root/lib/lean" "${LEANC_GMP:--lgmp}" @LEAN_EXTRA_LINKER_FLAGS@)
 for arg in "$@"; do
     # ccache doesn't like linker flags being passed here

@@ -61,14 +61,14 @@ static object * lean_expr_abstract_core(object * e0, size_t n, object * subst) {
     return r.steal();
 }
 
-extern "C" object * lean_expr_abstract_range(object * e, object * n, object * subst) {
+extern "C" LEAN_EXPORT object * lean_expr_abstract_range(object * e, object * n, object * subst) {
     if (!lean_is_scalar(n))
         return lean_expr_abstract_core(e, lean_array_size(subst), subst);
     else
         return lean_expr_abstract_core(e, std::min(lean_unbox(n), lean_array_size(subst)), subst);
 }
 
-extern "C" object * lean_expr_abstract(object * e, object * subst) {
+extern "C" LEAN_EXPORT object * lean_expr_abstract(object * e, object * subst) {
     return lean_expr_abstract_core(e, lean_array_size(subst), subst);
 }
 }

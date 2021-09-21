@@ -17,7 +17,7 @@ lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Data_Xml_Basic(lean_object*);
 lean_object* initialize_Lean_Data_Xml_Parser(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Lean_Data_Xml(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Data_Xml(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;

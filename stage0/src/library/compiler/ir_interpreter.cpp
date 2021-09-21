@@ -1034,7 +1034,7 @@ uint32 run_main(environment const & env, options const & opts, int argv, char * 
     return interpreter::with_interpreter<uint32>(env, opts, [&](interpreter & interp) { return interp.run_main(argv, argc); });
 }
 
-extern "C" object * lean_eval_const(object * env, object * opts, object * c) {
+extern "C" LEAN_EXPORT object * lean_eval_const(object * env, object * opts, object * c) {
     try {
         return mk_cnstr(1, run_boxed(TO_REF(environment, env), TO_REF(options, opts), TO_REF(name, c), 0, 0)).steal();
     } catch (exception & ex) {
@@ -1042,7 +1042,7 @@ extern "C" object * lean_eval_const(object * env, object * opts, object * c) {
     }
 }
 
-extern "C" object * lean_run_init(object * env, object * opts, object * decl, object * init_decl, object *) {
+extern "C" LEAN_EXPORT object * lean_run_init(object * env, object * opts, object * decl, object * init_decl, object *) {
     return interpreter::with_interpreter<object *>(TO_REF(environment, env), TO_REF(options, opts), [&](interpreter & interp) {
         return interp.run_init(TO_REF(name, decl), TO_REF(name, init_decl));
     });

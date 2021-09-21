@@ -19,7 +19,7 @@ lean_object* initialize_Lean_Widget_InteractiveDiagnostic(lean_object*);
 lean_object* initialize_Lean_Widget_InteractiveGoal(lean_object*);
 lean_object* initialize_Lean_Widget_TaggedText(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Lean_Widget(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Widget(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;

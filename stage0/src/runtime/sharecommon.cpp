@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-extern "C" uint8 lean_sharecommon_eq(b_obj_arg o1, b_obj_arg o2) {
+extern "C" LEAN_EXPORT uint8 lean_sharecommon_eq(b_obj_arg o1, b_obj_arg o2) {
     lean_assert(!lean_is_scalar(o1));
     lean_assert(!lean_is_scalar(o2));
     size_t sz1 = lean_object_byte_size(o1);
@@ -25,7 +25,7 @@ extern "C" uint8 lean_sharecommon_eq(b_obj_arg o1, b_obj_arg o2) {
     return memcmp(reinterpret_cast<char*>(o1) + header_sz, reinterpret_cast<char*>(o2) + header_sz, sz1 - header_sz) == 0;
 }
 
-extern "C" uint64_t lean_sharecommon_hash(b_obj_arg o) {
+extern "C" LEAN_EXPORT uint64_t lean_sharecommon_hash(b_obj_arg o) {
     lean_assert(!lean_is_scalar(o));
     size_t sz = lean_object_byte_size(o);
     size_t header_sz = sizeof(lean_object);
@@ -71,11 +71,11 @@ static obj_res mk_pair(obj_arg a, obj_arg b) {
     return r;
 }
 
-extern "C" obj_res lean_sharecommon_mk_state(obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_sharecommon_mk_state(obj_arg) {
     return mk_pair(lean_mk_object_map(lean_box(0)), lean_mk_object_set(lean_box(0)));
 }
 
-extern "C" obj_res lean_sharecommon_mk_pstate(obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_sharecommon_mk_pstate(obj_arg) {
     return mk_pair(lean_mk_object_pmap(lean_box(0)), lean_mk_object_pset(lean_box(0)));
 }
 
@@ -320,12 +320,12 @@ public:
 };
 
 // def State.shareCommon {α} (s : State) (a : α) : α × State
-extern "C" obj_res lean_state_sharecommon(obj_arg s, obj_arg a) {
+extern "C" LEAN_EXPORT obj_res lean_state_sharecommon(obj_arg s, obj_arg a) {
     return sharecommon_fn<sharecommon_state>(s)(a);
 }
 
 // def PersistentState.shareCommon {α} (s : PersistentState) (a : α) : α × PersistentState
-extern "C" obj_res lean_persistent_state_sharecommon(obj_arg s, obj_arg a) {
+extern "C" LEAN_EXPORT obj_res lean_persistent_state_sharecommon(obj_arg s, obj_arg a) {
     return sharecommon_fn<sharecommon_pstate>(s)(a);
 }
 };

@@ -57,7 +57,7 @@ private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM
   else
     return preDef
 
-def addPreDefinitions (preDefs : Array PreDefinition) (terminationBy? : Option Syntax) : TermElabM Unit := do
+def addPreDefinitions (preDefs : Array PreDefinition) (terminationBy? : Option Syntax) : TermElabM Unit := withLCtx {} {} do
   for preDef in preDefs do
     trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
   let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef

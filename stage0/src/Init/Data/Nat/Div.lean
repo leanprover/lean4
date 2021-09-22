@@ -16,12 +16,12 @@ private def div.F (x : Nat) (f : ∀ x₁, x₁ < x → Nat → Nat) (y : Nat) :
 
 @[extern "lean_nat_div"]
 protected def div (a b : @& Nat) : Nat :=
-  WellFounded.fix lt_wf div.F a b
+  WellFounded.fix (measure id) div.F a b
 
 instance : Div Nat := ⟨Nat.div⟩
 
 private theorem div_eq_aux (x y : Nat) : x / y = if h : 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 :=
-  congrFun (WellFounded.fix_eq lt_wf div.F x) y
+  congrFun (WellFounded.fix_eq (measure id) div.F x) y
 
 theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 :=
   dif_eq_if (0 < y ∧ y ≤ x) ((x - y) / y + 1) 0 ▸ div_eq_aux x y
@@ -39,7 +39,7 @@ theorem div.inductionOn.{u}
       (ind  : ∀ x y, 0 < y ∧ y ≤ x → motive (x - y) y → motive x y)
       (base : ∀ x y, ¬(0 < y ∧ y ≤ x) → motive x y)
       : motive x y :=
-  WellFounded.fix Nat.lt_wf (div.induction.F motive ind base) x y
+  WellFounded.fix (measure id) (div.induction.F motive ind base) x y
 
 private def mod.F (x : Nat) (f : ∀ x₁, x₁ < x → Nat → Nat) (y : Nat) : Nat :=
   if h : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma h) y else x
@@ -51,7 +51,7 @@ protected def mod (a b : @& Nat) : Nat :=
 instance : Mod Nat := ⟨Nat.mod⟩
 
 private theorem mod_eq_aux (x y : Nat) : x % y = if h : 0 < y ∧ y ≤ x then (x - y) % y else x :=
-  congrFun (WellFounded.fix_eq lt_wf mod.F x) y
+  congrFun (WellFounded.fix_eq (measure id) mod.F x) y
 
 theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x :=
   dif_eq_if (0 < y ∧ y ≤ x) ((x - y) % y) x ▸ mod_eq_aux x y

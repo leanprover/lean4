@@ -137,6 +137,14 @@ def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Uni
   let v ← classInductiveSyntaxToView modifiers stx
   elabInductiveViews #[v]
 
+def getTerminationBy? (stx : Syntax) : Option Syntax :=
+  let decl := stx[1]
+  let k := decl.getKind
+  if k == ``Parser.Command.def || k == ``Parser.Command.theorem || k == ``Parser.Command.instance then
+    decl.getArgs.back.getOptional?
+  else
+    none
+
 @[builtinCommandElab declaration]
 def elabDeclaration : CommandElab := fun stx =>
   match expandDeclNamespace? stx with
@@ -157,7 +165,7 @@ def elabDeclaration : CommandElab := fun stx =>
     else if declKind == ``Lean.Parser.Command.«structure» then
       elabStructure modifiers decl
     else if isDefLike decl then
-      elabMutualDef #[stx]
+      elabMutualDef #[stx] (getTerminationBy? stx)
     else
       throwError "unexpected declaration"
 
@@ -247,10 +255,16 @@ def expandMutualPreamble : Macro := fun stx =>
 
 @[builtinCommandElab «mutual»]
 def elabMutual : CommandElab := fun stx => do
+  let terminationBy? := stx[3].getOptional?
   if isMutualInductive stx then
+    unless terminationBy?.isNone do
+      throwErrorAt stx[3] "invalid 'termination_by' in mutually inductive datatype declaration"
     elabMutualInductive stx[1].getArgs
   else if isMutualDef stx then
-    elabMutualDef stx[1].getArgs
+    for arg in stx[1].getArgs do
+      if let some bad := getTerminationBy? arg then
+        throwErrorAt bad "invalid 'termination_by' in 'mutual' block, it must be used after the 'end' keyword"
+    elabMutualDef stx[1].getArgs terminationBy?
   else
     throwError "invalid mutual block"
 

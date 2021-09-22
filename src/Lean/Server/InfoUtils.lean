@@ -134,13 +134,14 @@ def Info.type? (i : Info) : MetaM (Option Expr) :=
   | _ => return none
 
 def Info.docString? (i : Info) : MetaM (Option String) := do
+  let env ← getEnv
   if let Info.ofTermInfo ti := i then
     if let some n := ti.expr.constName? then
-      return ← findDocString? n
+      return ← findDocString? env n
   if let Info.ofFieldInfo fi := i then
-    return ← findDocString? fi.projName
+    return ← findDocString? env fi.projName
   if let some ei := i.toElabInfo? then
-    return ← findDocString? ei.elaborator <||> findDocString? ei.stx.getKind
+    return ← findDocString? env ei.elaborator <||> findDocString? env ei.stx.getKind
   return none
 
 /-- Construct a hover popup, if any, from an info node in a context.-/

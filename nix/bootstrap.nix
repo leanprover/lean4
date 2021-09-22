@@ -77,17 +77,19 @@ rec {
         # use same stage for retrieving dependencies
         lean-leanDeps = stage0;
         lean-final = self;
-      } (args // {
+      } ({
         src = ../src;
         fullSrc = ../.;
         inherit debug;
-      });
+      } // args);
     in (all: all // all.lean) rec {
       inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
       Init = build { name = "Init"; deps = []; };
       Std  = build { name = "Std";  deps = [ Init ]; };
       Lean = build { name = "Lean"; deps = [ Init Std ]; };
-      Leanpkg = build { name = "Leanpkg"; deps = [ Init Std Lean ]; linkFlags = ["-L${gmp}/lib -L${leanshared}"]; };
+      stdlib = [ Init Std Lean ];
+      Leanpkg = build { name = "Leanpkg"; deps = stdlib; linkFlags = ["-L${gmp}/lib -L${leanshared}"]; };
+      extlib = stdlib ++ [ Leanpkg ];
       stdlibLinkFlags = "-L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
       leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; } ''
         mkdir $out
@@ -110,7 +112,7 @@ rec {
         name = "lean-${desc}";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
-          ln -sf ${leancpp}/lib/lean/* ${Leanpkg.modRoot}/* ${Lean.staticLib}/* ${Lean.modRoot}/* ${Std.staticLib}/* ${Std.modRoot}/* ${Init.staticLib}/* ${Init.modRoot}/* $out/lib/lean/
+          ln -sf ${leancpp}/lib/lean/* ${lib.concatMapStringsSep " " (l: "${l.modRoot}/* ${l.staticLib}/*") (lib.reverseList extlib)} $out/lib/lean/
           # put everything in a single final derivation so `IO.appDir` references work
           cp ${lean}/bin/lean ${leanpkg}/bin/leanpkg $out/bin
           # NOTE: first `bin/leanc` wins in case of `lndir`
@@ -139,7 +141,7 @@ rec {
         '';
       };
       update-stage0 =
-        let cTree = symlinkJoin { name = "cs"; paths = [ Init.cTree Std.cTree Lean.cTree Leanpkg.cTree ]; }; in
+        let cTree = symlinkJoin { name = "cs"; paths = map (l: l.cTree) stdlib; }; in
         writeShellScriptBin "update-stage0" ''
           CSRCS=${cTree} CP_PARAMS="--dereference --no-preserve=all" ${../script/update-stage0}
         '';

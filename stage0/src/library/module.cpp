@@ -44,7 +44,7 @@ namespace lean {
 // manually padded to multiple of word size, see `initialize_module`
 static char const * g_olean_header   = "oleanfile!!!!!!!";
 
-extern "C" object * lean_save_module_data(b_obj_arg fname, b_obj_arg mod, b_obj_arg mdata, object *) {
+extern "C" LEAN_EXPORT object * lean_save_module_data(b_obj_arg fname, b_obj_arg mod, b_obj_arg mdata, object *) {
     std::string olean_fn(string_cstr(fname));
     // we first write to a temp file and then move it to the correct path (possibly deleting an older file)
     // so that we neither expose partially-written files nor modify possibly memory-mapped files
@@ -103,7 +103,7 @@ extern "C" object * lean_save_module_data(b_obj_arg fname, b_obj_arg mod, b_obj_
     }
 }
 
-extern "C" object * lean_read_module_data(object * fname, object *) {
+extern "C" LEAN_EXPORT object * lean_read_module_data(object * fname, object *) {
     std::string olean_fn(string_cstr(fname));
     try {
         std::ifstream in(olean_fn, std::ios_base::binary);

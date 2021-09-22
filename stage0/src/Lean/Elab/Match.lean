@@ -709,9 +709,7 @@ where
         for indexFVarId in indicesFVar do
           if mctx.localDeclDependsOn localDecl indexFVarId then
             toAdd := toAdd.push fvarId
-    let lctx ← getLCtx
-    let indicesFVar := (indicesFVar ++ toAdd).qsort fun fvarId₁ fvarId₂ =>
-      (lctx.get! fvarId₁).index < (lctx.get! fvarId₂).index
+    let indicesFVar ← sortFVarIds (indicesFVar ++ toAdd)
     return indicesFVar.map mkFVar ++ indicesNonFVar
 
   updateMatchType (indices : Array Expr) (matchType : Expr) : TermElabM Expr := do

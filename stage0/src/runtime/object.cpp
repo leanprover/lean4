@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <deque>
 #include <cmath>
+#include <lean/lean.h>
 #include "runtime/object.h"
 #include "runtime/mpq.h"
 #include "runtime/thread.h"

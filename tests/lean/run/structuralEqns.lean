@@ -65,3 +65,17 @@ def r (i j : Nat) : Nat :=
 #check r.eq_1
 #check r.eq_2
 #check r.eq_3
+
+def bla (f g : α → α → α) (a : α) (i : α) (j : Nat) : α :=
+  f i <|
+    match j with
+    | Nat.zero => i
+    | Nat.succ j =>
+      g i <| match j with
+          | Nat.zero => a
+          | Nat.succ j => bla f g a i j
+
+#eval tst ``bla
+#check @bla.eq_1
+#check @bla.eq_2
+#check @bla.eq_3

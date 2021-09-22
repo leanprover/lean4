@@ -22,10 +22,10 @@ static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__22
 static lean_object* l_Lean_termThrowError_______closed__6;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___closed__2;
-lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__2(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__2(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-lean_object* l_Lean_withIncRecDepth___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_withIncRecDepth___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_withIncRecDepth___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_withIncRecDepth___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_termThrowError_______closed__2;
 static lean_object* l_Lean_termThrowErrorAt_________closed__6;
 static lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___closed__1;
@@ -34,122 +34,122 @@ static lean_object* l_Lean_instInhabitedException___closed__2;
 extern lean_object* l_Lean_maxRecDepthErrorMessage;
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__25;
 static lean_object* l_Lean_termThrowError_______closed__13;
-lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__14;
-lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__3(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__3(lean_object*, lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__18;
 static lean_object* l_Lean_termThrowError_______closed__17;
 static lean_object* l_Lean_termThrowError_______closed__1;
-lean_object* l_Lean_throwUnknownConstant___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__5;
 static lean_object* l_Lean_termThrowErrorAt_________closed__8;
 static lean_object* l_Lean_termThrowErrorAt_________closed__2;
-lean_object* l_Lean_throwErrorAt___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_termThrowError____;
+LEAN_EXPORT lean_object* l_Lean_throwErrorAt___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_termThrowError____;
 lean_object* lean_array_push(lean_object*, lean_object*);
 extern lean_object* l_Lean_interpolatedStrKind;
 static lean_object* l_Lean_termThrowError_______closed__4;
-lean_object* l_Lean_throwKernelException(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwKernelException(lean_object*, lean_object*);
 static lean_object* l_Lean_termThrowErrorAt_________closed__1;
 static lean_object* l_Lean_termThrowError_______closed__9;
-lean_object* l_Lean_instMonadRecDepthStateRefT_x27(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthStateRefT_x27(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__3;
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__15;
-lean_object* l_Lean_instMonadRecDepthMonadCacheT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthMonadCacheT(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_termThrowError_______closed__8;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_throwUnknownConstant___rarg___closed__2;
 static lean_object* l_Lean_instInhabitedException___closed__1;
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__7;
-lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__2___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_throwErrorAt___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__2___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwErrorAt___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__24;
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__10;
-lean_object* l_Lean_instMonadRecDepthMonadCacheT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthMonadCacheT___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__20;
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_933____closed__6;
 static lean_object* l_Lean_termThrowError_______closed__15;
-lean_object* l_Lean_withIncRecDepth___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_withIncRecDepth___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_termThrowError_______closed__14;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_termThrowErrorAt_________closed__7;
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_933____closed__1;
 static lean_object* l_Lean_termThrowError_______closed__18;
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__16;
-lean_object* l_Lean_instMonadRecDepthReaderT___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_instMonadRecDepthMonadCacheT___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthMonadCacheT___rarg(lean_object*);
 static lean_object* l_Lean_termThrowError_______closed__3;
 static lean_object* l_Lean_termThrowError_______closed__5;
 static lean_object* l_Lean_throwUnknownConstant___rarg___closed__1;
-lean_object* l_Lean_throwKernelException___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwKernelException___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KernelException_toMessageData(lean_object*, lean_object*);
-lean_object* l_Lean_instAddErrorMessageContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instAddErrorMessageContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_933____closed__3;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
-lean_object* l_Lean_instAddErrorMessageContext(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instAddErrorMessageContext(lean_object*);
 static lean_object* l_Lean_termThrowErrorAt_________closed__5;
-lean_object* l_Lean_instAddErrorMessageContext___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_instMonadRecDepthReaderT___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instAddErrorMessageContext___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT___rarg(lean_object*);
 static lean_object* l_Lean_termThrowErrorAt_________closed__3;
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__12;
 static lean_object* l_Lean_throwUnknownConstant___rarg___closed__3;
-lean_object* l_Lean_throwErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_933____closed__7;
-lean_object* l_Lean_instMonadRecDepthReaderT(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Exception_getRef___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Exception_getRef___boxed(lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___rarg___lambda__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwError___rarg___lambda__1(lean_object*, lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__26;
-lean_object* l_Lean_throwError(lean_object*, lean_object*);
-lean_object* l_Lean_instInhabitedException;
+LEAN_EXPORT lean_object* l_Lean_throwError(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instInhabitedException;
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__11;
 static lean_object* l_Lean_termThrowError_______closed__10;
-lean_object* l_Lean_withIncRecDepth(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_withIncRecDepth(lean_object*, lean_object*);
 static lean_object* l_Lean_termThrowError_______closed__7;
 lean_object* l_Lean_Syntax_getKind(lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__1;
-lean_object* l_Lean_throwKernelException___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___rarg___lambda__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwKernelException___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwError___rarg___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_933____closed__2;
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__19;
 static lean_object* l_Lean_termThrowError_______closed__16;
-lean_object* l_Lean_Exception_getRef(lean_object*);
-lean_object* l_Lean_throwErrorAt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Exception_getRef(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwErrorAt(lean_object*, lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__9;
-lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__27;
 static lean_object* l_Lean_termThrowError_______closed__19;
-lean_object* l_Lean_withIncRecDepth___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_withIncRecDepth___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__2;
 static lean_object* l_Lean_termThrowError_______closed__11;
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
-lean_object* l_Lean_throwUnknownConstant(lean_object*, lean_object*);
-lean_object* l_Lean_termThrowErrorAt______;
-lean_object* l_Lean_throwError___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_instMonadRecDepthStateRefT_x27___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_termThrowErrorAt______;
+LEAN_EXPORT lean_object* l_Lean_throwError___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthStateRefT_x27___rarg(lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__17;
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__8;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__4;
 static lean_object* l_Lean_termThrowErrorAt_________closed__4;
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__21;
-lean_object* l_Lean_ofExcept(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__3___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_ofExcept(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__3___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_933____closed__5;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
-lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_933_(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766_(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_933_(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766_(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_termThrowError_______closed__12;
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__13;
-lean_object* l_Lean_instMonadRecDepthStateRefT_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Exception_toMessageData(lean_object*);
-lean_object* l_Lean_ofExcept___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_withIncRecDepth___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthStateRefT_x27___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Exception_toMessageData(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_ofExcept___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_withIncRecDepth___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766____closed__23;
-lean_object* l_Lean_Exception_toMessageData(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Exception_toMessageData(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -175,7 +175,7 @@ return x_6;
 }
 }
 }
-lean_object* l_Lean_Exception_getRef(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Exception_getRef(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -193,7 +193,7 @@ return x_3;
 }
 }
 }
-lean_object* l_Lean_Exception_getRef___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Exception_getRef___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -232,7 +232,7 @@ x_1 = l_Lean_instInhabitedException___closed__2;
 return x_1;
 }
 }
-lean_object* l_Lean_instAddErrorMessageContext___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_instAddErrorMessageContext___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -249,7 +249,7 @@ x_7 = lean_apply_2(x_5, lean_box(0), x_6);
 return x_7;
 }
 }
-lean_object* l_Lean_instAddErrorMessageContext___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_instAddErrorMessageContext___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
@@ -263,7 +263,7 @@ x_8 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_6, x_7);
 return x_8;
 }
 }
-lean_object* l_Lean_instAddErrorMessageContext(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_instAddErrorMessageContext(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -271,7 +271,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_instAddErrorMessageContext___rarg), 4, 0
 return x_2;
 }
 }
-lean_object* l_Lean_throwError___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_throwError___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
@@ -292,7 +292,7 @@ x_8 = lean_apply_2(x_7, lean_box(0), x_6);
 return x_8;
 }
 }
-lean_object* l_Lean_throwError___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_throwError___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
@@ -305,7 +305,7 @@ x_8 = lean_apply_4(x_3, lean_box(0), lean_box(0), x_6, x_7);
 return x_8;
 }
 }
-lean_object* l_Lean_throwError___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_throwError___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
@@ -326,7 +326,7 @@ x_8 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_6, x_7);
 return x_8;
 }
 }
-lean_object* l_Lean_throwError(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_throwError(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -334,7 +334,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_throwError___rarg), 3, 0);
 return x_3;
 }
 }
-lean_object* l_Lean_throwError___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_throwError___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -377,7 +377,7 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_throwUnknownConstant___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -397,7 +397,7 @@ x_11 = l_Lean_throwError___rarg(x_1, x_2, x_10);
 return x_11;
 }
 }
-lean_object* l_Lean_throwUnknownConstant(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -405,7 +405,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_throwUnknownConstant___rarg), 3, 0);
 return x_3;
 }
 }
-lean_object* l_Lean_throwErrorAt___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_throwErrorAt___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -417,7 +417,7 @@ x_7 = lean_apply_3(x_6, lean_box(0), x_5, x_3);
 return x_7;
 }
 }
-lean_object* l_Lean_throwErrorAt___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_throwErrorAt___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -438,7 +438,7 @@ x_10 = lean_apply_4(x_7, lean_box(0), lean_box(0), x_8, x_9);
 return x_10;
 }
 }
-lean_object* l_Lean_throwErrorAt(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_throwErrorAt(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -446,7 +446,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_throwErrorAt___rarg), 4, 0);
 return x_3;
 }
 }
-lean_object* l_Lean_throwErrorAt___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_throwErrorAt___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -456,7 +456,7 @@ lean_dec(x_1);
 return x_5;
 }
 }
-lean_object* l_Lean_ofExcept___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_ofExcept___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 if (lean_obj_tag(x_4) == 0)
@@ -492,7 +492,7 @@ return x_13;
 }
 }
 }
-lean_object* l_Lean_ofExcept(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_ofExcept(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -500,7 +500,7 @@ x_4 = lean_alloc_closure((void*)(l_Lean_ofExcept___rarg), 4, 0);
 return x_4;
 }
 }
-lean_object* l_Lean_throwKernelException___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_throwKernelException___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
@@ -509,7 +509,7 @@ x_6 = l_Lean_throwError___rarg(x_2, x_3, x_5);
 return x_6;
 }
 }
-lean_object* l_Lean_throwKernelException___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_throwKernelException___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -523,7 +523,7 @@ x_7 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_3, x_6);
 return x_7;
 }
 }
-lean_object* l_Lean_throwKernelException(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_throwKernelException(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -531,7 +531,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_throwKernelException___rarg), 4, 0);
 return x_3;
 }
 }
-lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
@@ -543,7 +543,7 @@ x_8 = lean_apply_3(x_6, lean_box(0), x_3, x_7);
 return x_8;
 }
 }
-lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__2(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -552,7 +552,7 @@ lean_inc(x_3);
 return x_3;
 }
 }
-lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__3(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__3(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -561,7 +561,7 @@ lean_inc(x_3);
 return x_3;
 }
 }
-lean_object* l_Lean_instMonadRecDepthReaderT___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
@@ -580,7 +580,7 @@ lean_ctor_set(x_5, 2, x_4);
 return x_5;
 }
 }
-lean_object* l_Lean_instMonadRecDepthReaderT(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -588,7 +588,7 @@ x_4 = lean_alloc_closure((void*)(l_Lean_instMonadRecDepthReaderT___rarg), 1, 0);
 return x_4;
 }
 }
-lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -598,7 +598,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__3___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT___rarg___lambda__3___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -608,7 +608,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_instMonadRecDepthReaderT___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthReaderT___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
@@ -617,7 +617,7 @@ lean_dec(x_3);
 return x_4;
 }
 }
-lean_object* l_Lean_instMonadRecDepthStateRefT_x27___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthStateRefT_x27___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -625,7 +625,7 @@ x_2 = l_Lean_instMonadRecDepthReaderT___rarg(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_instMonadRecDepthStateRefT_x27(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthStateRefT_x27(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -633,7 +633,7 @@ x_5 = lean_alloc_closure((void*)(l_Lean_instMonadRecDepthStateRefT_x27___rarg), 
 return x_5;
 }
 }
-lean_object* l_Lean_instMonadRecDepthStateRefT_x27___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthStateRefT_x27___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -642,7 +642,7 @@ lean_dec(x_4);
 return x_5;
 }
 }
-lean_object* l_Lean_instMonadRecDepthMonadCacheT___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthMonadCacheT___rarg(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -650,7 +650,7 @@ x_2 = l_Lean_instMonadRecDepthReaderT___rarg(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_instMonadRecDepthMonadCacheT(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthMonadCacheT(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
@@ -658,7 +658,7 @@ x_9 = lean_alloc_closure((void*)(l_Lean_instMonadRecDepthMonadCacheT___rarg), 1,
 return x_9;
 }
 }
-lean_object* l_Lean_instMonadRecDepthMonadCacheT___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
+LEAN_EXPORT lean_object* l_Lean_instMonadRecDepthMonadCacheT___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
 lean_object* x_9; 
@@ -670,7 +670,7 @@ lean_dec(x_5);
 return x_9;
 }
 }
-lean_object* l_Lean_withIncRecDepth___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_withIncRecDepth___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
@@ -703,7 +703,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_withIncRecDepth___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Lean_withIncRecDepth___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; uint8_t x_9; 
@@ -739,7 +739,7 @@ return x_17;
 }
 }
 }
-lean_object* l_Lean_withIncRecDepth___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_Lean_withIncRecDepth___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; 
@@ -757,7 +757,7 @@ x_9 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_7, x_8);
 return x_9;
 }
 }
-lean_object* l_Lean_withIncRecDepth___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_withIncRecDepth___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
@@ -776,7 +776,7 @@ x_8 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_6, x_7);
 return x_8;
 }
 }
-lean_object* l_Lean_withIncRecDepth(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_withIncRecDepth(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -784,7 +784,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_withIncRecDepth___rarg), 4, 0);
 return x_3;
 }
 }
-lean_object* l_Lean_withIncRecDepth___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_withIncRecDepth___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; 
@@ -794,7 +794,7 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+LEAN_EXPORT lean_object* l_Lean_withIncRecDepth___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
 lean_object* x_8; 
@@ -1354,7 +1354,7 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_766_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -1691,7 +1691,7 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_933_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_myMacro____x40_Lean_Exception___hyg_933_(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -1963,7 +1963,7 @@ lean_object* initialize_Lean_InternalExceptionId(lean_object*);
 lean_object* initialize_Lean_Data_Options(lean_object*);
 lean_object* initialize_Lean_Util_MonadCache(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Lean_Exception(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Exception(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;

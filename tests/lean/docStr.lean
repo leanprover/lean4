@@ -45,7 +45,7 @@ def g (x : Nat) : Nat :=
 open Lean
 
 def printDocString (declName : Name) : MetaM Unit := do
-  match (← findDocString? declName) with
+  match (← findDocString? (← getEnv) declName) with
   | some docStr => IO.println (repr docStr)
   | none => IO.println s!"doc string for '{declName}' is not available"
 

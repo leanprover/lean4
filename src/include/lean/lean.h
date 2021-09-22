@@ -49,7 +49,7 @@ extern "C" {
 #ifdef _WIN32
 #define LEAN_EXPORT __declspec(dllexport)
 #else
-#define LEAN_EXPORT
+#define LEAN_EXPORT __attribute__((visibility("default")))
 #endif
 
 // We set `LEAN_EXPORTING` when compiling objects of libleanshared, but not when including this header in any other context.

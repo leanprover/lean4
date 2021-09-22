@@ -13,15 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_closureMaxArgsFn___boxed(lean_object*);
-lean_object* l_Lean_closureMaxArgs;
+LEAN_EXPORT lean_object* l_Lean_closureMaxArgsFn___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_closureMaxArgs;
 static lean_object* l_Lean_maxSmallNat___closed__1;
-lean_object* l_Lean_maxSmallNatFn___boxed(lean_object*);
-lean_object* l_Lean_maxSmallNat;
+LEAN_EXPORT lean_object* l_Lean_maxSmallNatFn___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_maxSmallNat;
 lean_object* lean_max_small_nat(lean_object*);
 static lean_object* l_Lean_closureMaxArgs___closed__1;
 lean_object* lean_closure_max_args(lean_object*);
-lean_object* l_Lean_closureMaxArgsFn___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_closureMaxArgsFn___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -29,7 +29,7 @@ x_2 = lean_closure_max_args(x_1);
 return x_2;
 }
 }
-lean_object* l_Lean_maxSmallNatFn___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_maxSmallNatFn___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
@@ -73,7 +73,7 @@ return x_1;
 }
 lean_object* initialize_Init(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Lean_Runtime(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Runtime(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;

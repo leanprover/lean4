@@ -13,14 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t lean_is_marked_borrowed(lean_object*);
+LEAN_EXPORT uint8_t lean_is_marked_borrowed(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-lean_object* l_Lean_isMarkedBorrowed___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isMarkedBorrowed___boxed(lean_object*);
 static lean_object* l_Lean_markBorrowed___closed__1;
 lean_object* l_Lean_annotation_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_markBorrowed___closed__2;
 lean_object* l_Lean_mkAnnotation(lean_object*, lean_object*);
-lean_object* l_Lean_markBorrowed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_markBorrowed(lean_object*);
 static lean_object* _init_l_Lean_markBorrowed___closed__1() {
 _start:
 {
@@ -39,7 +39,7 @@ x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_markBorrowed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_markBorrowed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -48,7 +48,7 @@ x_3 = l_Lean_mkAnnotation(x_2, x_1);
 return x_3;
 }
 }
-uint8_t lean_is_marked_borrowed(lean_object* x_1) {
+LEAN_EXPORT uint8_t lean_is_marked_borrowed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -70,7 +70,7 @@ return x_5;
 }
 }
 }
-lean_object* l_Lean_isMarkedBorrowed___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_isMarkedBorrowed___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
@@ -82,7 +82,7 @@ return x_3;
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Expr(lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Lean_Compiler_BorrowedAnnotation(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Compiler_BorrowedAnnotation(lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;

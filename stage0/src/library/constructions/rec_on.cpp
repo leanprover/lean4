@@ -62,7 +62,7 @@ environment mk_rec_on(environment const & env, name const & n) {
     return add_protected(new_env, rec_on_name);
 }
 
-extern "C" object * lean_mk_rec_on(object * env, object * n) {
+extern "C" LEAN_EXPORT object * lean_mk_rec_on(object * env, object * n) {
     return catch_kernel_exceptions<environment>([&]() { return mk_rec_on(environment(env), name(n, true)); });
 }
 }

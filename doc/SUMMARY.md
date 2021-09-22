@@ -57,7 +57,6 @@
 
 - [Development Guide](./dev/index.md)
 - [Commit Convention](./dev/commit_convention.md)
-- [Coding Style](./dev/coding_style.md)
 - [Building Lean](./make/index.md)
   - [Ubuntu Setup](./make/ubuntu-16.04.md)
   - [macOS Setup](./make/osx-10.9.md)
@@ -68,3 +67,4 @@
 - [Building This Manual](./dev/mdbook.md)
 - [Fixing Tests](./dev/fixing_tests.md)
 - [Debugging](./dev/debugging.md)
+- [C++ Coding Style](./dev/cpp_coding_style.md)

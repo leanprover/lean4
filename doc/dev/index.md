@@ -1,6 +1,5 @@
 # Development Workflow
 - [Commit Convention](./commit_convention.md)
-- [Coding Style](./coding_style.md)
 - [Building Lean](../make/index.md)
   - [Ubuntu Setup](../make/ubuntu-16.04.md)
   - [macOS Setup](../make/osx-10.9.md)
@@ -11,6 +10,7 @@
 - [Building This Manual](./mdbook.md)
 - [Fixing Tests](./fixing_tests.md)
 - [Debugging](./debugging.md)
+- [C++ Coding Style](./dev/cpp_coding_style.md)
 
 You will notice there is a `stage0` folder. This is for bootstrapping
 the compiler development.  Generally you do not change any code in

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.WF.PackDomain
+import Lean.Elab.PreDefinition.WF.PackMutual
 
 namespace Lean.Elab
 open WF
@@ -18,6 +19,8 @@ def wfRecursion (preDefs : Array PreDefinition) (terminationBy? : Option Syntax)
     for preDef in unaryPreDefs do
       check preDef.value -- TODO: remove
       trace[Elab.definition.wf] "{preDef.declName}, {preDef.levelParams}, {preDef.value}"
+    let unaryPreDef ← packMutual unaryPreDefs
+    check unaryPreDef.value
   -- TODO
   throwError "well-founded recursion has not been implemented yet"
 

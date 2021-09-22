@@ -56,9 +56,10 @@ private def getFixedPrefix (declName : Name) (xs : Array Expr) (value : Expr) : 
       return true
   numFixedRef.get
 
-private def elimRecursion (preDef : PreDefinition) : M (Nat × PreDefinition) :=
+private def elimRecursion (preDef : PreDefinition) : M (Nat × PreDefinition) := do
+  addAsAxiom preDef
+  trace[Elab.definition.structural] "{preDef.declName} := {preDef.value}"
   withoutModifyingEnv do lambdaTelescope preDef.value fun xs value => do
-    addAsAxiom preDef
     let value ← preprocess value preDef.declName
     trace[Elab.definition.structural] "{preDef.declName} {xs} :=\n{value}"
     let numFixed ← getFixedPrefix preDef.declName xs value

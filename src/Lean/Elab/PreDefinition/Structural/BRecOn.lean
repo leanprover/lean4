@@ -50,8 +50,7 @@ private def withBelowDict (below : Expr) (numIndParams : Nat) (k : Expr → Expr
     let preType ← inferType pre
     forallBoundedTelescope preType (some 1) fun x _ => do
       let motiveType ← inferType x[0]
-      let C ← mkFreshUserName `C
-      withLocalDeclD C motiveType fun C =>
+      withLocalDeclD (← mkFreshUserName `C) motiveType fun C =>
         let belowDict := mkApp pre C
         let belowDict := mkAppN belowDict (args.extract (numIndParams + 1) args.size)
         k C belowDict
@@ -155,6 +154,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
   loop below e
 
 def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
+  trace[Elab.definition.structural] "mkBRecOn: {value}"
   let type  := (← inferType value).headBeta
   let major := recArgInfo.ys[recArgInfo.pos]
   let otherArgs := recArgInfo.ys.filter fun y => y != major && !recArgInfo.indIndices.contains y
@@ -187,6 +187,8 @@ def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : M Exp
     let FType ← instantiateForall FType recArgInfo.indIndices
     let FType ← instantiateForall FType #[major]
     forallBoundedTelescope FType (some 1) fun below _ => do
+      -- TODO: `below` user name is `f`, and it will make a global `f` to be pretty printed as `_root_.f` in error messages.
+      -- We should add an option to `forallBoundedTelescope` to ensure fresh names are used.
       let below := below[0]
       let valueNew     ← replaceRecApps recFnName recArgInfo below value
       let Farg         ← mkLambdaFVars (recArgInfo.indIndices ++ #[major, below] ++ otherArgs) valueNew

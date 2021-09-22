@@ -11,8 +11,8 @@ make test ARGS=-j4
 Change the 4 to the maximum number of parallel tests you want to
 allow. The best choice is the number of CPU cores on your machine as
 the tests are mostly CPU bound.  You can find the number of processors
-on linux using `cat /proc/cpuinfo | grep processor | wc -l` and on
-Windows it is the NUMBER_OF_PROCESSORS environment variable.
+on linux using `nproc` and on Windows it is the `NUMBER_OF_PROCESSORS`
+environment variable.
 
 You can run tests after [building a specific stage](bootstrap.md) by
 adding the `-C stageN` argument. Most of the tests are in stage1.  The

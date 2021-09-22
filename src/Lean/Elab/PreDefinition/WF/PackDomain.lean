@@ -71,12 +71,14 @@ def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) := 
     preDefsNew := preDefsNew.push preDefNew
   if !modified then
     return preDefs
-  /- Return `some i` if `e` is an `preDefs[i]` application with `arities[i]` arguments.  -/
-  let isTargetApp? (e : Expr) : OptionM Nat := do
-    guard e.isApp
+  /- Return `some i` if `e` is a `preDefs[i]` application -/
+  let isAppOfPreDef? (e : Expr) : OptionM Nat := do
     let f := e.getAppFn
     guard f.isConst
-    let i ← preDefs.findIdx? (·.declName == f.constName!)
+    preDefs.findIdx? (·.declName == f.constName!)
+  /- Return `some i` if `e` is a `preDefs[i]` application with `arities[i]` arguments.  -/
+  let isTargetApp? (e : Expr) : OptionM Nat := do
+    let i ← isAppOfPreDef? e
     guard (e.getAppNumArgs == arities[i])
     return i
   -- Update values
@@ -100,6 +102,9 @@ def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) := 
           mkLambdaFVars y (← transform newBody (post := visit))
       else
         preDef.value
+    if let some bad := valueNew.find? fun e => isAppOfPreDef? e |>.isSome then
+      if let some i := isAppOfPreDef? bad then
+        throwErrorAt preDef.ref "well-founded recursion cannot be used, function '{preDef.declName}' contains application of function '{preDefs[i].declName}' with #{bad.getAppNumArgs} argument(s), but function has arity {arities[i]}"
     preDefsNew := preDefsNew.set! i { preDefNew with value := valueNew }
   return preDefsNew
 

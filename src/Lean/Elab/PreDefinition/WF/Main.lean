@@ -19,7 +19,7 @@ def wfRecursion (preDefs : Array PreDefinition) (terminationBy? : Option Syntax)
       check preDef.value -- TODO: remove
       trace[Elab.definition.wf] "{preDef.declName}, {preDef.levelParams}, {preDef.value}"
   -- TODO
-  throwError "well founded recursion has not been implemented yet"
+  throwError "well-founded recursion has not been implemented yet"
 
 builtin_initialize registerTraceClass `Elab.definition.wf
 

@@ -1,0 +1,14 @@
+wf1.lean:1:4-1:5: error: fail to show termination for
+  g
+with errors
+argument #1 was not used for structural recursion
+  failed to eliminate recursive application
+    g (x - 1)
+
+argument #2 was not used for structural recursion
+  insufficient number of parameters at recursive application 
+    g (x - 1)
+
+structural recursion cannot be used
+
+well-founded recursion cannot be used, function 'g' contains application of function 'g' with #1 argument(s), but function has arity 2

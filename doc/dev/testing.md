@@ -27,9 +27,9 @@ cd build/release/stage1
 ctest -j 4 --output-on-failure --timeout 300
 ```
 
-To get verbose output from ctest pass the `-VV` command line option.
-Note that is two letter `V`'s and not a `W`.  I guess it means very
-verbose.
+To get verbose output from ctest pass the `--verbose` command line
+option. Test output is normally suppressed and only summary
+information is displayed. This option will show all test output
 
 Here is the summary of the test source code organization.
 All these tests are included by [/src/shell/CMakeLists.txt](https://github.com/leanprover/lean4/blob/master/src/shell/CMakeLists.txt):

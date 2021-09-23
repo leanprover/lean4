@@ -27,20 +27,18 @@ into the WSL using: `Install in WSL: Ubuntu`
 Type `Ctrl+Shift+P` and select `Remote-WSL: Open Folder in WSL...` to
 open a folder containing your hello world lean package.
 
-When everything is working you should see this:
+When everything is working you should see something like this with a
+functioning infoview, syntax coloring and tooltips:
 
 ![screenshot](../images/code-wsl.png)
 
-with a functioning infoview, syntax coloring and tooltips.
 
 ## Troubleshooting
 
-**Connection to server is erroring. Shutting down server.**
+**lean4: Could not find Lean version by running 'lean --version'.**
 
-If your `leanpkg` has a `build` folder try deleting it.  Lean .olean
-binaries are not cross platform so if the binaries were copied from a
-different platform they need to be deleted so that the new build is
-created for your platform.
+Check that the `lean` program is available in your PATH in your WSL
+environment.
 
 **Logs are showing up with a windows file path**
 

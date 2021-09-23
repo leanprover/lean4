@@ -61,7 +61,7 @@
   - [Ubuntu Setup](./make/ubuntu-16.04.md)
   - [macOS Setup](./make/osx-10.9.md)
   - [Windows MSYS2 Setup](./make/msys2.md)
-  - [Windows with WSL](./make/wsl2.md)
+  - [Windows with WSL](./make/wsl.md)
   - [Nix Setup (*Experimental*)](./make/nix.md)
 - [Unit Testing](./dev/testing.md)
 - [Building This Manual](./dev/mdbook.md)

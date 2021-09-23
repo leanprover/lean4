@@ -8,6 +8,7 @@ import Lean.Elab.Import
 import Std.Data.HashMap
 import Lake.LeanVersion
 import Lake.BuildTarget
+import Lake.Glob
 
 open Std System
 open Lean (Name)
@@ -179,6 +180,12 @@ structure PackageConfig where
     Defaults to the string representation of the package's `moduleRoot`.
   -/
   libName : String := moduleRoot.toString (escape := false)
+
+  /--
+    The list of modules or module globs to build for the library target.
+    Defaults to building the package's `moduleRoot` (and dependencies).
+  -/
+  libModules : List Glob := [moduleRoot]
 
   /--
     The build subdirectory to which Lake should output the package's static library.
@@ -378,6 +385,10 @@ def binFile (self : Package) : FilePath :=
 /-- The package's `buildDir` joined with its configuration's `libDir`. -/
 def libDir (self : Package) : FilePath :=
   self.buildDir / self.config.libDir
+
+/-- The package's `libModules` configuration. -/
+def libModules (self : Package) : List Glob :=
+  self.config.libModules
 
 /-- The package's `libName` configuration. -/
 def staticLibName (self : Package) : FilePath :=

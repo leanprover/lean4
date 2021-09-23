@@ -11,6 +11,7 @@ open Meta
 private def getDomains (preDefs : Array PreDefinition) : Array Expr :=
   preDefs.map fun preDef => preDef.type.bindingDomain!
 
+/-- Combine different function domains `ds` using `PSum`s -/
 private def mkNewDomain (ds : Array Expr) : MetaM Expr := do
   let mut r := ds.back
   for d in ds.pop.reverse do
@@ -20,6 +21,10 @@ private def mkNewDomain (ds : Array Expr) : MetaM Expr := do
 private def getCodomainLevel (preDef : PreDefinition) : MetaM Level :=
   forallBoundedTelescope preDef.type (some 1) fun _ body => getLevel body
 
+/--
+  Return the universe level for the codomain of the given definitions.
+  This method produces an error if the codomains are in different universe levels.
+-/
 private def getCodomainsLevel (preDefs : Array PreDefinition) : MetaM Level := do
   let r ← getCodomainLevel preDefs[0]
   for preDef in preDefs[1:] do
@@ -27,6 +32,10 @@ private def getCodomainsLevel (preDefs : Array PreDefinition) : MetaM Level := d
       throwError "invalid mutual definition, result types must be in the same universe level"
   return r
 
+/--
+  Create the codomain for the new function that "combines" different `preDefs`
+  See: `packMutual`
+-/
 private partial def mkNewCoDomain (x : Expr) (preDefs : Array PreDefinition) : MetaM Expr := do
   let u ← getCodomainsLevel preDefs
   let rec go (x : Expr) (i : Nat) : MetaM Expr := do
@@ -47,6 +56,13 @@ private partial def mkNewCoDomain (x : Expr) (preDefs : Array PreDefinition) : M
       return preDefs[i].type.bindingBody!.instantiate1 x
   go x 0
 
+/--
+  Combine/pack the values of the different definitions in a single value
+  `x` is `PSum`, and we use `PSum.casesOn` to select the appropriate `preDefs.value`.
+  See: `packMutual`.
+  Remark: this method does not replace the nested recursive `preDefs` applications.
+  This step is performed by `transform` with the following `post` method.
+ -/
 private partial def packValues (x : Expr) (codomain : Expr) (preDefs : Array PreDefinition) : MetaM Expr := do
   let mvar ← mkFreshExprSyntheticOpaqueMVar codomain
   let rec go (mvarId : MVarId) (x : FVarId) (i : Nat) : MetaM Unit := do
@@ -59,6 +75,10 @@ private partial def packValues (x : Expr) (codomain : Expr) (preDefs : Array Pre
   go mvar.mvarId! x.fvarId! 0
   instantiateMVars mvar
 
+/--
+  Auxiliary function for replacing nested `preDefs` recursive calls in `e` with the new function `newFn`.
+  See: `packMutual`
+-/
 private partial def post (preDefs : Array PreDefinition) (domain : Expr) (newFn : Name) (e : Expr) : MetaM TransformStep := do
   if let Expr.app (Expr.const declName us _) arg _ := e then
     if let some fidx := preDefs.findIdx? (·.declName == declName) then
@@ -76,6 +96,45 @@ private partial def post (preDefs : Array PreDefinition) (domain : Expr) (newFn 
       return TransformStep.done <| mkApp (mkConst newFn us) (← mkNewArg 0 domain)
   return TransformStep.done e
 
+/--
+  If `preDefs.size > 1`, combine different functions in a single one using `PSum`.
+  This method assumes all `preDefs` have arity 1, and have already been processed using `packDomain`.
+  Here is a small example. Suppose the input is
+  ```
+  f x :=
+    match x.2.1, x.2.2.1, x.2.2.2 with
+    | 0, a, b => a
+    | Nat.succ n, a, b => (g ⟨x.1, n, a, b⟩).fst
+  g x :=
+    match x.2.1, x.2.2.1, x.2.2.2 with
+    | 0, a, b => (a, b)
+    | Nat.succ n, a, b => (h ⟨x.1, n, a, b⟩, a)
+  h x =>
+    match x.2.1, x.2.2.1, x.2.2.2 with
+    | 0, a, b => b
+    | Nat.succ n, a, b => f ⟨x.1, n, a, b⟩
+  ```
+  this method produces the following pre definition
+  ```
+  f._mutual x :=
+    PSum.casesOn x
+      (fun val =>
+        match val.2.1, val.2.2.1, val.2.2.2 with
+        | 0, a, b => a
+        | Nat.succ n, a, b => (f._mutual (PSum.inr (PSum.inl ⟨val.1, n, a, b⟩))).fst
+      fun val =>
+        PSum.casesOn val
+          (fun val =>
+            match val.2.1, val.2.2.1, val.2.2.2 with
+            | 0, a, b => (a, b)
+            | Nat.succ n, a, b => (f._mutual (PSum.inr (PSum.inr ⟨val.1, n, a, b⟩)), a)
+          fun val =>
+            match val.2.1, val.2.2.1, val.2.2.2 with
+            | 0, a, b => b
+            | Nat.succ n, a, b =>
+              f._mutual (PSum.inl ⟨val.1, n, a, b⟩)
+  ```
+ -/
 def packMutual (preDefs : Array PreDefinition) : MetaM PreDefinition := do
   if preDefs.size == 1 then return preDefs[0]
   let domain ← mkNewDomain (getDomains preDefs)

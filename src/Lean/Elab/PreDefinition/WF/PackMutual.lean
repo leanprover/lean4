@@ -59,17 +59,37 @@ private partial def packValues (x : Expr) (codomain : Expr) (preDefs : Array Pre
   go mvar.mvarId! x.fvarId! 0
   instantiateMVars mvar
 
+private partial def post (preDefs : Array PreDefinition) (domain : Expr) (newFn : Name) (e : Expr) : MetaM TransformStep := do
+  if let Expr.app (Expr.const declName us _) arg _ := e then
+    if let some fidx := preDefs.findIdx? (·.declName == declName) then
+      let rec mkNewArg (i : Nat) (type : Expr) : MetaM Expr := do
+        if i == preDefs.size - 1 then
+          return arg
+        else
+          (← whnfD type).withApp fun f args => do
+            assert! args.size == 2
+            if i == fidx then
+              return mkApp3 (mkConst ``PSum.inl f.constLevels!) args[0] args[1] arg
+            else
+              let r ← mkNewArg (i+1) args[1]
+              return mkApp3 (mkConst ``PSum.inr f.constLevels!) args[0] args[1] r
+      return TransformStep.done <| mkApp (mkConst newFn us) (← mkNewArg 0 domain)
+  return TransformStep.done e
+
 def packMutual (preDefs : Array PreDefinition) : MetaM PreDefinition := do
   if preDefs.size == 1 then return preDefs[0]
-  withLocalDeclD (← mkFreshUserName `_x) (← mkNewDomain (getDomains preDefs)) fun x => do
+  let domain ← mkNewDomain (getDomains preDefs)
+  withLocalDeclD (← mkFreshUserName `_x) domain fun x => do
     let codomain ← mkNewCoDomain x preDefs
     let type ← mkForallFVars #[x] codomain
     trace[Elab.definition.wf] "packMutual type: {type}"
     let value ← packValues x codomain preDefs
     trace[Elab.definition.wf] "packMutual value: {value}"
-    let preDefNew := { preDefs[0] with declName := preDefs[0].declName ++ `_mutual, type, value }
+    let newFn := preDefs[0].declName ++ `_mutual
+    let preDefNew := { preDefs[0] with declName := newFn, type, value }
     addAsAxiom preDefNew
-    -- TODO: replace recursive applications
-    return preDefNew
+    let value ← transform value (post := post preDefs domain newFn)
+    let value ← mkLambdaFVars #[x] value
+    return { preDefNew with value }
 
 end Lean.Elab.WF

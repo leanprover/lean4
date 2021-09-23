@@ -20,6 +20,7 @@ def wfRecursion (preDefs : Array PreDefinition) (terminationBy? : Option Syntax)
       check preDef.value -- TODO: remove
       trace[Elab.definition.wf] "{preDef.declName}, {preDef.levelParams}, {preDef.value}"
     let unaryPreDef ← packMutual unaryPreDefs
+    trace[Elab.definition.wf] "{unaryPreDef.declName} := {unaryPreDef.value}"
     check unaryPreDef.value
   -- TODO
   throwError "well-founded recursion has not been implemented yet"

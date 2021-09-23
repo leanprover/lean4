@@ -16,13 +16,13 @@ open System
 def realPathNormalized (p : FilePath) : IO FilePath := do
   (← IO.FS.realPath p).normalize
 
-def modToFilePath (base : FilePath) (mod : Name) (ext : String) : FilePath :=
-  go mod |>.withExtension ext
-where
-  go : Name → FilePath
-  | Name.str p h _ => go p / h
+def modToDir (base : FilePath) : Name → FilePath
+  | Name.str p h _ => modToDir base p / h
   | Name.anonymous => base
   | Name.num p _ _ => panic! "ill-formed import"
+
+def modToFilePath (base : FilePath) (mod : Name) (ext : String) : FilePath :=
+  modToDir base mod |>.withExtension ext
 
 /-- A `.olean' search path. -/
 abbrev SearchPath := System.SearchPath

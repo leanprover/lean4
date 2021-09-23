@@ -61,8 +61,9 @@ def addPreDefinitions (preDefs : Array PreDefinition) (terminationBy? : Option S
   for preDef in preDefs do
     trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
   let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
-  let mut terminationByUsed := false
-  for preDefs in partitionPreDefs preDefs do
+  let cliques ← partitionPreDefs preDefs
+  let mut terminationBy ← liftMacroM <| WF.expandTerminationBy terminationBy? (cliques.map fun ds => ds.map (·.declName))
+  for preDefs in cliques do
     trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
     if preDefs.size == 1 && isNonRecursive preDefs[0] then
       let preDef := preDefs[0]
@@ -75,17 +76,14 @@ def addPreDefinitions (preDefs : Array PreDefinition) (terminationBy? : Option S
     else if preDefs.any (·.modifiers.isPartial) then
       addAndCompilePartial preDefs
     else
-      let used ← withRef (preDefs[0].ref) <| mapError
+      terminationBy ← withRef (preDefs[0].ref) <| mapError
         (orelseMergeErrors
-          (structuralRecursion preDefs *> pure false)
-          (wfRecursion preDefs terminationBy?))
+          (structuralRecursion preDefs *> pure terminationBy)
+          (wfRecursion preDefs terminationBy))
         (fun msg =>
           let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
           m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
-      terminationByUsed := terminationByUsed || used
-  unless terminationByUsed do
-    if let some terminationBy := terminationBy? then
-      throwErrorAt terminationBy "unnecessary 'termination_by' modifier"
+  liftMacroM <| terminationBy.ensureIsEmpty
 
 builtin_initialize
   registerTraceClass `Elab.definition.body

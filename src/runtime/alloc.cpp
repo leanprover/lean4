@@ -424,7 +424,7 @@ void * lean_alloc_small_cold(unsigned sz, unsigned slot_idx, page * p) {
     return r;
 }
 
-extern "C" void * lean_alloc_small(unsigned sz, unsigned slot_idx) {
+extern "C" LEAN_EXPORT void * lean_alloc_small(unsigned sz, unsigned slot_idx) {
     page * p = g_heap->m_curr_page[slot_idx];
     g_heap->m_heartbeat++;
     void * r = p->m_header.m_free_list;
@@ -438,7 +438,7 @@ extern "C" void * lean_alloc_small(unsigned sz, unsigned slot_idx) {
 }
 
 /* Helper function for increasing hearbeat even when LEAN_SMALL_ALLOCATOR is not defined */
-extern "C" void lean_inc_heartbeat() {
+extern "C" LEAN_EXPORT void lean_inc_heartbeat() {
     if (g_heap)
         g_heap->m_heartbeat++;
 }
@@ -498,11 +498,11 @@ void dealloc(void * o, size_t sz) {
     dealloc_small_core(o);
 }
 
-extern "C" void lean_free_small(void * o) {
+extern "C" LEAN_EXPORT void lean_free_small(void * o) {
     dealloc_small_core(o);
 }
 
-extern "C" unsigned lean_small_mem_size(void * o) {
+extern "C" LEAN_EXPORT unsigned lean_small_mem_size(void * o) {
     page * p = get_page_of(o);
     return p->m_header.m_obj_size;
 }

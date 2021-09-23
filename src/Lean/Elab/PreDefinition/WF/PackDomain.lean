@@ -94,7 +94,7 @@ def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) := 
           let visit (e : Expr) : MetaM TransformStep := do
             if let some idx := isTargetApp? e |>.run then
               let f := e.getAppFn
-              let fNew := mkConst preDefNew.declName f.constLevels!
+              let fNew := mkConst preDefsNew[idx].declName f.constLevels!
               let argNew ← mkUnaryApp fNew e.getAppArgs
               return TransformStep.done <| mkApp fNew argNew
             else

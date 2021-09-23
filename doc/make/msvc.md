@@ -1,10 +1,10 @@
-Compiling Lean with Visual Studio
----------------------------------
+# Compiling Lean with Visual Studio
 
 WARNING: Compiling Lean with Visual Studio doesn't currently work.
 There's an ongoing effort to port Lean to Visual Studio.
 The instructions below are for VS 2017.
 
+In the meantime you can use [MSYS2](msys2.md) or [WSL](wsl.md).
 
 ## Installing dependencies
 
@@ -20,14 +20,13 @@ In each of the targets, add the following snippet (i.e., after every
 `ctestCommandArgs`):
 
 ```json
-      "variables": [
-        {
-          "name": "CMAKE_TOOLCHAIN_FILE",
-          "value": "C:\\path\\to\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
-        }
-      ]
+    "variables": [
+      {
+        "name": "CMAKE_TOOLCHAIN_FILE",
+        "value": "C:\\path\\to\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
+      }
+    ]
 ```
-
 
 ## Enable Intellisense
 

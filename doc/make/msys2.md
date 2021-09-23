@@ -1,13 +1,13 @@
 [msys2]: http://msys2.github.io
 [pacman]: https://wiki.archlinux.org/index.php/pacman
 
-Lean for Windows
-----------------
+# Lean for Windows
 
 A native Lean binary for Windows can be generated using [MSYS2][msys2].
 It is easy to install all dependencies, it produces native
 64/32-binaries, and supports a C++14 compiler.
 
+An alternative to MSYS2 is to use [Lean in Windows WSL](wsl.md).
 
 ## Installing dependencies
 
@@ -26,19 +26,22 @@ pacman -S make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x8
 You should now be able to run these commands:
 
 ```bash
-gcc --version
+clang --version
 cmake --version
 ```
 
 Then follow the [generic build instructions](index.md) in the MSYS2
-MinGW shell, using `cmake ../.. -G "Unix Makefiles"` instead of `cmake
-../..`. This ensures that cmake will call `sh` instead of `cmd.exe`
-for script tasks.
+MinGW shell, using:
+```
+cmake ../.. -G "Unix Makefiles"  -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+```
+instead of `cmake ../..`. This ensures that cmake will call `sh` instead of `cmd.exe`
+for script tasks and it will use the clang compiler instead of gcc, which is required.
 
 ## Install lean
 
 Follow the steps in [Dev setup using
-elan](index.md#dev-setup-using-elan) regarding installation of the
+elan](../dev/index.md#dev-setup-using-elan) regarding installation of the
 bits you just built.  Note that in an msys2 environment `elan-init.sh`
 reports you need to add `%USERPROFILE%\.elan\bin` to your path, but of
 course in msys2 that needs to be a valid linux style path, like this:

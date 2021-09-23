@@ -55,12 +55,16 @@
 
 # Development
 
-- [Commit Convention](./commit_convention.md)
+- [Development Guide](./dev/index.md)
+- [Commit Convention](./dev/commit_convention.md)
 - [Building Lean](./make/index.md)
   - [Ubuntu Setup](./make/ubuntu-16.04.md)
   - [macOS Setup](./make/osx-10.9.md)
-  - [Windows Setup](./make/msys2.md)
+  - [Windows MSYS2 Setup](./make/msys2.md)
+  - [Windows with WSL](./make/wsl2.md)
   - [Nix Setup (*Experimental*)](./make/nix.md)
-- [Building This Manual](./mdbook.md)
-- [Fixing Tests](./fixing_tests.md)
-- [Debugging](./debugging.md)
+- [Unit Testing](./dev/testing.md)
+- [Building This Manual](./dev/mdbook.md)
+- [Fixing Tests](./dev/fixing_tests.md)
+- [Debugging](./dev/debugging.md)
+- [C++ Coding Style](./dev/cpp_coding_style.md)

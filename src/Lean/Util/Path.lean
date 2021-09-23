@@ -16,7 +16,7 @@ open System
 def realPathNormalized (p : FilePath) : IO FilePath := do
   (← IO.FS.realPath p).normalize
 
-def modToDir (base : FilePath) : Name → FilePath
+def modToDir (base : FilePath) : (mod : Name) → FilePath
   | Name.str p h _ => modToDir base p / h
   | Name.anonymous => base
   | Name.num p _ _ => panic! "ill-formed import"

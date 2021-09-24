@@ -8,7 +8,8 @@ export LEANC_GMP=${GMP_LIBRARIES}
 # LEAN_OPTS: don't use native code (except for primitives) since it is from the previous stage
 # MORE_DEPS: rebuild the stdlib whenever the compiler has changed
 LEANMAKE_OPTS=\
-  LEAN="${CMAKE_CROSSCOMPILING_EMULATOR} ${PREV_STAGE}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"\
+	LEAN="${CMAKE_CROSSCOMPILING_EMULATOR} ${PREV_STAGE}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"\
+	LEANC="${CMAKE_BINARY_DIR}/leanc.sh"\
 	OUT="${LIB}"\
 	LIB_OUT="${LIB}/lean"\
 	OLEAN_OUT="${LIB}/lean"\
@@ -41,7 +42,7 @@ Lean: Init Std
 # we specify the precise file names here to avoid rebuilds
 ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${LIB}/lean/libInit.a ${LIB}/lean/libStd.a ${LIB}/lean/libLean.a ${LIB}/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a
 	@echo "[    ] Building $@"
-	"${LEAN_BIN}/leanc" -shared -o $@ ${LEANSHARED_LINKER_FLAGS} ${LEANC_OPTS}
+	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o $@ ${LEANSHARED_LINKER_FLAGS} ${LEANC_OPTS}
 
 leanshared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
 
@@ -50,6 +51,9 @@ Leanpkg:
 
 ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX} $(LEAN_SHELL)
 	@echo "[    ] Building $@"
-	${LEAN_BIN}/leanc $(LEAN_SHELL) -lleanshared ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} -o $@
+	"${CMAKE_BINARY_DIR}/leanc.sh" $(LEAN_SHELL) -lleanshared ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} -o $@
 
 lean: ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
+
+Leanc:
+	+"${LEAN_BIN}/leanmake" bin PKG=Leanc BIN_NAME=leanc${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS='-lleanshared ${CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE}' OUT="${CMAKE_BINARY_DIR}" OLEAN_OUT="${CMAKE_BINARY_DIR}"

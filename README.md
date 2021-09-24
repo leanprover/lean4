@@ -70,7 +70,8 @@ Lake provides a large assortment of configuration options for packages.
 
 * `name` **(Required)**: The name of the package.
 * `version` **(Required)**: The version string of the package.
-* `moduleRoot`: The root module of the package. Imports relative to this root (e.g., `Pkg.Foo`) are considered part of the package. Defaults to the package's uppercase `name`.
+* `libRoots`: The root module of the package. Imports relative to this root (e.g., `Pkg.Foo`) are considered part of the package. Defaults to the package's uppercase `name`.
+* `libGlobs`: An `Array` of additional module `Glob`s to include in the package. Defaults to singular globs of the module's `libRoots`. Submodule globs build every source file within their directory. Local imports of said files (i.e., fellow modules of the package) are also recursively built.
 * `dependencies`: A `List` of the package's dependencies.
 * `depsDir`: The directory to which Lake should download dependencies. Defaults to `lean_packages`.
 * `extraDepTarget`: An extra `OpaqueTarget` that should be built before the package.
@@ -88,6 +89,6 @@ Lake provides a large assortment of configuration options for packages.
 * `libDir`: The build subdirectory to which Lake should output the package's static library. Defaults to `lib`.
 * `binName`: The name of the package's binary executable. Defaults to the package's `name`.
 * `binDir`: The build subdirectory to which Lake should output the package's binary executable. Defaults to `bin`.
-* `binRoot`: The root module of the package's binary executable. Defaults to the package's `moduleRoot`. This setting is most useful for packages that are distributing both a library and a binary (like Lake itself). In such cases, it is common for there to be code (e.g., `main`) that is needed for the binary but should not be included in the library proper.
+* `binRoot`: The root module of the package's binary executable. Defaults to the package's `moduleRoot`. The root is built by recursively building its local imports (i.e., fellow modules of the package). This setting is most useful for packages that are distributing both a library and a binary (like Lake itself). In such cases, it is common for there to be code (e.g., `main`) that is needed for the binary but should not be included in the library proper.
 * `moreLibTargets`: Additional library `FileTarget`s (beyond the package's and its dependencies' libraries) to build and link to the package's binary executable (and/or to dependent package's executables).
 * `linkArgs`: Additional arguments to pass to `leanc` while compiling the package's binary executable. These will come *after* the paths of libraries built with `moreLibTargets`.

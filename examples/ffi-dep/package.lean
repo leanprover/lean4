@@ -6,7 +6,7 @@ open Lake System
 def package : PackageConfig := {
   name := "ffi-dep"
   version := "0.1"
-  moduleRoot := `Main
+  binRoot := `Main
   binName := "add"
   dependencies := [{
     name := "ffi"

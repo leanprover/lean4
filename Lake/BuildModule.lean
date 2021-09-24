@@ -131,7 +131,7 @@ def recFetchModuleWithLocalImports (pkg : Package)
   let contents ← IO.FS.readFile leanFile
   -- parse direct local imports
   let (imports, _, _) ← Elab.parseImports contents leanFile.toString
-  let imports := imports.map (·.module) |>.filter (·.getRoot == pkg.moduleRoot)
+  let imports := imports.map (·.module) |>.filter pkg.isLocalModule
   -- we fetch the import targets even if a rebuild is not required
   -- because other build processes (ex. `.o`) rely on the map being complete
   let importTargets ← imports.mapM fetch

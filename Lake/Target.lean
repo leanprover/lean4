@@ -67,7 +67,15 @@ def mixOpaqueAsync
     pure <| pure <| mixTrace tr1 tr2
 
 section
-variable [NilTrace t] [MixTrace t] [Monad m] [BindAsync m n] [Pure n]
+variable [NilTrace t] [MixTrace t] [Monad m]
+
+def materializeList  [Await n m] (targets : List (ActiveTarget i n t)) : m t := do
+  targets.foldlM (fun tr t => return mixTrace tr <| ← await t.task) nilTrace
+
+def materializeArray [Await n m] (targets : Array (ActiveTarget i n t)) :  m t := do
+  targets.foldlM (fun tr t => return mixTrace tr <| ← await t.task) nilTrace
+
+variable [BindAsync m n] [Pure n]
 
 def collectList (targets : List (ActiveTarget i n t)) : m (ActiveTarget (List i) n t) := do
   mk (targets.map (·.info)) <| ← foldlListAsync mixTraceM nilTrace <| targets.map (·.task)
@@ -159,19 +167,23 @@ def mixOpaqueAsync
     pure <| pure <| mixTrace tr1 tr2
 
 section
-variable [NilTrace t] [MixTrace t] [Monad m] [Pure n] [BindAsync m n]
+variable [NilTrace t] [MixTrace t] [Monad m]
+
+def materializeList [Await n m] (targets : List (Target i m n t)) : m t := do
+  let tasks ← targets.mapM (·.materializeAsync)
+  tasks.foldlM (fun tr t => return mixTrace tr <| ← await t) nilTrace
+
+def materializeArray [Await n m] (targets : Array (Target i m n t)) :  m t := do
+  let tasks ← targets.mapM (·.materializeAsync)
+  tasks.foldlM (fun tr t => return mixTrace tr <| ← await t) nilTrace
+
+variable [Pure n]  [BindAsync m n]
 
 def materializeListAsync  (targets : List (Target i m n t)) : m (n t) := do
   foldlListAsync mixTraceM nilTrace (← targets.mapM (·.materializeAsync))
 
-def materializeList [Await n m] (targets : List (Target i m n t)) : m t := do
-  await <| ← materializeListAsync targets
-
 def materializeArrayAsync (targets : Array (Target i m n t)) :  m (n t) := do
   foldlArrayAsync mixTraceM nilTrace (← targets.mapM (·.materializeAsync))
-
-def materializeArray [Await n m] (targets : Array (Target i m n t)) :  m t := do
-  await <| ← materializeArrayAsync targets
 
 def collectList (targets : List (Target i m n t)) : Target (List i) m n t :=
   mk (targets.map (·.info)) <| materializeListAsync targets

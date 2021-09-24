@@ -102,12 +102,24 @@ structure PackageConfig where
   version : String
 
   /-
-    The root module of the package.
+    The root module(s) of the package's library.
 
-    Imports relative to this root (e.g., `Pkg.Foo`) are considered part of the package.
-    Defaults to the package's uppercase `name`.
+    Submodules of these roots (e.g., `Pkg.Foo` of `Pkg`) are considered
+    part of the package.
+
+    Defaults to a single root of the package's uppercase `name`.
   -/
-  moduleRoot : Name := name.capitalize
+  libRoots : Array Name := #[name.capitalize]
+
+  /--
+    An `Array` of additional module `Glob`s to include in the package.
+    Defaults to singular globs of the module's `libRoots`.
+
+    Submodule globs build every source file within their directory.
+    Local imports of said files (i.e., fellow modules of the package) are
+    also recursively built.
+  -/
+  libGlobs : Array Glob := libRoots.map Glob.one
 
   /-
     A `List` of the package's dependencies.
@@ -177,15 +189,9 @@ structure PackageConfig where
 
   /--
     The name of the package's static library.
-    Defaults to the string representation of the package's `moduleRoot`.
+    Defaults to the package's uppercase `name`.
   -/
-  libName : String := moduleRoot.toString (escape := false)
-
-  /--
-    The list of modules or module globs to build for the library target.
-    Defaults to building the package's `moduleRoot` (and dependencies).
-  -/
-  libModules : List Glob := [moduleRoot]
+  libName : String := name.capitalize
 
   /--
     The build subdirectory to which Lake should output the package's static library.
@@ -207,14 +213,17 @@ structure PackageConfig where
 
   /--
     The root module of the package's binary executable.
-    Defaults to the package's `moduleRoot`.
+    Defaults to the package's uppercase `name`.
+
+    The root is built by recursively building its
+    local imports (i.e., fellow modules of the package).
 
     This setting is most useful for packages that are distributing both a
     library and a binary (like Lake itself). In such cases, it is common for
     there to be code (e.g., `main`) that is needed for the binary but should
     not be included in the library proper.
   -/
-  binRoot : Name := moduleRoot
+  binRoot : Name := name.capitalize
 
   /--
     Additional library `FileTarget`s
@@ -271,13 +280,18 @@ def version (self : Package) : String :=
 def scripts (self : Package) : HashMap String Script :=
   self.config.scripts
 
-/-- The package's `moduleRoot` configuration. -/
-def moduleRoot (self : Package) : Name :=
-  self.config.moduleRoot
+/-- The package's `libRoots` configuration. -/
+def libRoots (self : Package) : Array Name :=
+  self.config.libRoots
 
-/-- The string representation of `moduleRoot`. -/
-def moduleRootName (self : Package) : String :=
-  self.config.moduleRoot.toString (escape := false)
+/-- The package's `libGlobs` configuration. -/
+def libGlobs (self : Package) : Array Glob :=
+  self.config.libGlobs
+
+/-- Whether the given module is local to the package. -/
+def isLocalModule (mod : Name) (self : Package) : Bool :=
+  self.libRoots.any (fun root => root.isPrefixOf mod) ||
+  self.libGlobs.any (fun glob => glob.matches mod)
 
 /-- The package's `dependencies` configuration. -/
 def dependencies (self : Package) : List Dependency :=
@@ -315,9 +329,12 @@ def rootDir (self : Package) : FilePath :=
 def modToSrc (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.srcDir mod "lean"
 
-/-- The path to `.lean` source file of the package's `moduleRoot`. -/
-def srcRoot (self : Package) : FilePath :=
-  self.modToSrc self.moduleRoot
+/-- Get an `Array` of the package's module. -/
+def getModuleArray (self : Package) : IO (Array Name) := do
+  let mut mods := #[]
+  for glob in self.libGlobs do
+    mods ← glob.pushModules self.srcDir mods
+  return mods
 
 /-- The package's `dir` joined with its configuration's `buildDir`. -/
 def buildDir (self : Package) : FilePath :=
@@ -330,10 +347,6 @@ def oleanDir (self : Package) : FilePath :=
 /-- The path to a module's `.olean` file within the package. -/
 def modToOlean (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.oleanDir mod "olean"
-
-/-- The path to `.olean` file of the package's `moduleRoot`. -/
-def oleanRoot (self : Package) : FilePath :=
-  self.modToOlean self.moduleRoot
 
 /-- The path to module's `.hash` file within the package. -/
 def modToHashFile (mod : Name) (self : Package) : FilePath :=
@@ -385,10 +398,6 @@ def binFile (self : Package) : FilePath :=
 /-- The package's `buildDir` joined with its configuration's `libDir`. -/
 def libDir (self : Package) : FilePath :=
   self.buildDir / self.config.libDir
-
-/-- The package's `libModules` configuration. -/
-def libModules (self : Package) : List Glob :=
-  self.config.libModules
 
 /-- The package's `libName` configuration. -/
 def staticLibName (self : Package) : FilePath :=

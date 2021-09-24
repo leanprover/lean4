@@ -21,7 +21,7 @@ def package : Packager := fun pkgDir args => {
   version := "0.1"
   -- customize layout
   srcDir := "lib"
-  moduleRoot := `Add
+  libRoots := #[`Add]
   binName := "add"
   binRoot := `Main
   -- specify the lib as an additional target

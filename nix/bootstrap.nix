@@ -20,15 +20,19 @@ rec {
   });
   lean-bin-tools-unwrapped = buildCMake {
     name = "lean-bin-tools";
-    realSrc = lib.sourceByRegex ../src [ "CMakeLists\.txt" "bin.*" "include.*" ".*\.in" ];
+    outputs = [ "out" "leanc_src" ];
+    realSrc = lib.sourceByRegex ../src [ "CMakeLists\.txt" "bin.*" "include.*" ".*\.in" "Leanc\.lean" ];
     preConfigure = ''
       touch empty.cpp
       sed -i 's/find_package.*//;s/add_subdirectory.*//;s/set(LEAN_OBJS.*/set(LEAN_OBJS empty.cpp)/' CMakeLists.txt
     '';
     dontBuild = true;
     installPhase = ''
-      mkdir $out
+      mkdir $out $leanc_src
       mv bin/ include/ share/ $out/
+      mv leanc.sh $out/bin/leanc
+      mv leanc/Leanc.lean $leanc_src/
+      substituteInPlace $out/bin/leanc --replace '$root' "$out"
       substituteInPlace $out/bin/leanmake --replace "make" "${gnumake}/bin/make"
       substituteInPlace $out/share/lean/lean.mk --replace "/usr/bin/env bash" "${bash}/bin/bash"
     '';
@@ -90,6 +94,7 @@ rec {
       stdlib = [ Init Std Lean ];
       Leanpkg = build { name = "Leanpkg"; deps = stdlib; linkFlags = ["-L${gmp}/lib -L${leanshared}"]; };
       extlib = stdlib ++ [ Leanpkg ];
+      Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; linkFlags = ["-L${gmp}/lib -L${leanshared}"]; };
       stdlibLinkFlags = "-L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
       leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; } ''
         mkdir $out
@@ -100,7 +105,7 @@ rec {
       '';
       mods = Init.mods // Std.mods // Lean.mods;
       leanc = writeShellScriptBin "leanc" ''
-        LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc ${stdlibLinkFlags} -L${leanshared} "$@"
+        LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable.withSharedStdlib}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${leanshared} "$@"
       '';
       lean = runCommand "lean" {} ''
         mkdir -p $out/bin
@@ -114,11 +119,9 @@ rec {
           mkdir -p $out/bin $out/lib/lean
           ln -sf ${leancpp}/lib/lean/* ${lib.concatMapStringsSep " " (l: "${l.modRoot}/* ${l.staticLib}/*") (lib.reverseList extlib)} $out/lib/lean/
           # put everything in a single final derivation so `IO.appDir` references work
-          cp ${lean}/bin/lean ${leanpkg}/bin/leanpkg $out/bin
-          # NOTE: first `bin/leanc` wins in case of `lndir`
-          for i in ${leanc} ${lean-bin-tools-unwrapped}; do
-            ${lndir}/bin/lndir -silent $i $out
-          done
+          cp ${lean}/bin/lean ${leanpkg}/bin/leanpkg ${leanc}/bin/leanc $out/bin
+          # NOTE: `lndir` will not override existing `bin/leanc`
+          ${lndir}/bin/lndir -silent ${lean-bin-tools-unwrapped} $out
         '';
       });
       test = buildCMake {

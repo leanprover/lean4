@@ -475,7 +475,17 @@ if(PREV_STAGE)
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/..")
 endif()
 
-configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/bin/leanc" @ONLY)
+# use Bash version for building, use Lean version in bin/ for tests & distribution
+configure_file("${LEAN_SOURCE_DIR}/bin/leanc.in" "${CMAKE_BINARY_DIR}/leanc.sh" @ONLY)
+if(${STAGE} GREATER 0 AND EXISTS ${LEAN_SOURCE_DIR}/Leanc.lean)
+  configure_file("${LEAN_SOURCE_DIR}/Leanc.lean" "${CMAKE_BINARY_DIR}/leanc/Leanc.lean" @ONLY)
+  add_custom_target(leanc ALL
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/leanc
+    DEPENDS leanshared
+    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Leanc
+    VERBATIM)
+endif()
+
 file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/bin/" USE_SOURCE_PERMISSIONS DESTINATION bin)

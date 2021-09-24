@@ -101,25 +101,13 @@ structure PackageConfig where
   -/
   version : String
 
-  /-
-    The root module(s) of the package's library.
-
-    Submodules of these roots (e.g., `Pkg.Foo` of `Pkg`) are considered
-    part of the package.
-
-    Defaults to a single root of the package's uppercase `name`.
-  -/
-  libRoots : Array Name := #[name.capitalize]
-
   /--
-    An `Array` of additional module `Glob`s to include in the package.
-    Defaults to singular globs of the module's `libRoots`.
+    A `HashMap` of scripts for the package.
 
-    Submodule globs build every source file within their directory.
-    Local imports of said files (i.e., fellow modules of the package) are
-    also recursively built.
+    A `Script` is an arbitrary `(args : List String) → IO PUnit` function that
+    is indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
   -/
-  libGlobs : Array Glob := libRoots.map Glob.one
+  scripts : HashMap String Script := HashMap.empty
 
   /-
     A `List` of the package's dependencies.
@@ -142,11 +130,6 @@ structure PackageConfig where
   extraDepTarget : OpaqueTarget := Target.nil
 
   /--
-    Additional arguments to pass to `lean` while compiling Lean source files.
-  -/
-  leanArgs : Array String := #[]
-
-  /--
     The directory containing the package's Lean source files.
     Defaults to the package's directory.
 
@@ -166,13 +149,30 @@ structure PackageConfig where
   -/
   oleanDir : FilePath := defaultOleanDir
 
-  /--
-    A `HashMap` of scripts for the package.
+  /-
+    The root module(s) of the package's library.
 
-    A `Script` is an arbitrary `(args : List String) → IO PUnit` function that
-    is indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
+    Submodules of these roots (e.g., `Pkg.Foo` of `Pkg`) are considered
+    part of the package.
+
+    Defaults to a single root of the package's uppercase `name`.
   -/
-  scripts : HashMap String Script := HashMap.empty
+  libRoots : Array Name := #[name.capitalize]
+
+  /--
+    An `Array` of additional module `Glob`s to include in the package.
+    Defaults to singular globs of the module's `libRoots`.
+
+    Submodule globs build every source file within their directory.
+    Local imports of said files (i.e., fellow modules of the package) are
+    also recursively built.
+  -/
+  libGlobs : Array Glob := libRoots.map Glob.one
+
+  /--
+    Additional arguments to pass to `lean` while compiling Lean source files.
+  -/
+  leanArgs : Array String := #[]
 
   /--
     Additional arguments to pass to `leanc`
@@ -280,6 +280,50 @@ def version (self : Package) : String :=
 def scripts (self : Package) : HashMap String Script :=
   self.config.scripts
 
+/-- The package's `dependencies` configuration. -/
+def dependencies (self : Package) : List Dependency :=
+  self.config.dependencies
+
+/-- The package's `extraDepTarget` configuration. -/
+def extraDepTarget (self : Package) : OpaqueTarget :=
+  self.config.extraDepTarget
+
+/-- The package's `dir` joined with its `depsDir` configuration. -/
+def depsDir (self : Package) : FilePath :=
+  self.dir / self.config.depsDir
+
+/-- The package's `dir` joined with its `srcDir` configuration. -/
+def srcDir (self : Package) : FilePath :=
+  self.dir / self.config.srcDir
+
+/-- The package's root directory for Lean (i.e., `srcDir`). -/
+def rootDir (self : Package) : FilePath :=
+  self.srcDir
+
+/-- The path to a module's `.lean` source file within the package. -/
+def modToSrc (mod : Name) (self : Package) : FilePath :=
+  Lean.modToFilePath self.srcDir mod "lean"
+
+/-- The package's `dir` joined with its `buildDir` configuration. -/
+def buildDir (self : Package) : FilePath :=
+  self.dir / self.config.buildDir
+
+/-- The package's `buildDir` joined with its `oleanDir` configuration. -/
+def oleanDir (self : Package) : FilePath :=
+  self.buildDir / self.config.oleanDir
+
+/-- The package's `leanArgs` configuration. -/
+def leanArgs (self : Package) : Array String :=
+  self.config.leanArgs
+
+/-- The path to a module's `.olean` file within the package. -/
+def modToOlean (mod : Name) (self : Package) : FilePath :=
+  Lean.modToFilePath self.oleanDir mod "olean"
+
+/-- The path to module's `.hash` file within the package. -/
+def modToHashFile (mod : Name) (self : Package) : FilePath :=
+  Lean.modToFilePath self.oleanDir mod "hash"
+
 /-- The package's `libRoots` configuration. -/
 def libRoots (self : Package) : Array Name :=
   self.config.libRoots
@@ -293,42 +337,6 @@ def isLocalModule (mod : Name) (self : Package) : Bool :=
   self.libRoots.any (fun root => root.isPrefixOf mod) ||
   self.libGlobs.any (fun glob => glob.matches mod)
 
-/-- The package's `dependencies` configuration. -/
-def dependencies (self : Package) : List Dependency :=
-  self.config.dependencies
-
-/-- The package's `extraDepTarget` configuration. -/
-def extraDepTarget (self : Package) : OpaqueTarget :=
-  self.config.extraDepTarget
-
-/-- The package's `leanArgs` configuration. -/
-def leanArgs (self : Package) : Array String :=
-  self.config.leanArgs
-
-/-- The package's `leancArgs` configuration. -/
-def leancArgs (self : Package) : Array String :=
-  self.config.leancArgs
-
-/-- The package's `linkArgs` configuration. -/
-def linkArgs (self : Package) : Array String :=
-  self.config.linkArgs
-
-/-- The package's `dir` joined with its configuration's `depsDir`. -/
-def depsDir (self : Package) : FilePath :=
-  self.dir / self.config.depsDir
-
-/-- The package's `dir` joined with its configuration's `srcDir`. -/
-def srcDir (self : Package) : FilePath :=
-  self.dir / self.config.srcDir
-
-/-- The package's root directory for Lean (i.e., `srcDir`). -/
-def rootDir (self : Package) : FilePath :=
-  self.srcDir
-
-/-- The path to a module's `.lean` source file within the package. -/
-def modToSrc (mod : Name) (self : Package) : FilePath :=
-  Lean.modToFilePath self.srcDir mod "lean"
-
 /-- Get an `Array` of the package's module. -/
 def getModuleArray (self : Package) : IO (Array Name) := do
   let mut mods := #[]
@@ -336,23 +344,11 @@ def getModuleArray (self : Package) : IO (Array Name) := do
     mods ← glob.pushModules self.srcDir mods
   return mods
 
-/-- The package's `dir` joined with its configuration's `buildDir`. -/
-def buildDir (self : Package) : FilePath :=
-  self.dir / self.config.buildDir
+/-- The package's `leancArgs` configuration. -/
+def leancArgs (self : Package) : Array String :=
+  self.config.leancArgs
 
-/-- The package's `buildDir` joined with its configuration's `oleanDir`. -/
-def oleanDir (self : Package) : FilePath :=
-  self.buildDir / self.config.oleanDir
-
-/-- The path to a module's `.olean` file within the package. -/
-def modToOlean (mod : Name) (self : Package) : FilePath :=
-  Lean.modToFilePath self.oleanDir mod "olean"
-
-/-- The path to module's `.hash` file within the package. -/
-def modToHashFile (mod : Name) (self : Package) : FilePath :=
-  Lean.modToFilePath self.oleanDir mod "hash"
-
-/-- The package's `buildDir` joined with its configuration's `irDir`. -/
+/-- The package's `buildDir` joined with its `irDir` configuration. -/
 def irDir (self : Package) : FilePath :=
   self.buildDir / self.config.irDir
 
@@ -372,11 +368,27 @@ def oDir (self : Package) : FilePath :=
 def modToO (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.oDir mod "o"
 
+/-- The package's `buildDir` joined with its `libDir` configuration. -/
+def libDir (self : Package) : FilePath :=
+  self.buildDir / self.config.libDir
+
+/-- The package's `libName` configuration. -/
+def staticLibName (self : Package) : FilePath :=
+  self.config.libName
+
+/-- The file name of package's static library (i.e., `lib{staticLibName}.a`) -/
+def staticLibFileName (self : Package) : FilePath :=
+  s!"lib{self.staticLibName}.a"
+
+/-- The path to the package's static library. -/
+def staticLibFile (self : Package) : FilePath :=
+  self.libDir / self.staticLibFileName
+
 /-- The package's `binRoot` configuration. -/
 def binRoot (self : Package) : Name :=
   self.config.binRoot
 
-/-- The package's `buildDir` joined with its configuration's `binDir`. -/
+/-- The package's `buildDir` joined with its `binDir` configuration. -/
 def binDir (self : Package) : FilePath :=
   self.buildDir / self.config.binDir
 
@@ -395,22 +407,10 @@ def binFileName (self : Package) : FilePath :=
 def binFile (self : Package) : FilePath :=
   self.binDir / self.binFileName
 
-/-- The package's `buildDir` joined with its configuration's `libDir`. -/
-def libDir (self : Package) : FilePath :=
-  self.buildDir / self.config.libDir
-
-/-- The package's `libName` configuration. -/
-def staticLibName (self : Package) : FilePath :=
-  self.config.libName
-
-/-- The file name of package's static library (i.e., `lib{staticLibName}.a`) -/
-def staticLibFileName (self : Package) : FilePath :=
-  s!"lib{self.staticLibName}.a"
-
-/-- The path to the package's static library. -/
-def staticLibFile (self : Package) : FilePath :=
-  self.libDir / self.staticLibFileName
-
 /-- The package's `moreLibTargets` configuration. -/
 def moreLibTargets (self : Package) : Array FileTarget :=
   self.config.moreLibTargets
+
+/-- The package's `linkArgs` configuration. -/
+def linkArgs (self : Package) : Array String :=
+  self.config.linkArgs

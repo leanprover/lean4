@@ -16,7 +16,7 @@ inductive Glob
   one : Name → Glob
 | /--
     Selects all submodules of the specified module,
-    without building the module itself.
+    but not the module itself.
   -/
   submodules : Name → Glob
 | /-- Selects the specified module and all submodules. -/

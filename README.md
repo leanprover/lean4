@@ -70,16 +70,16 @@ Lake provides a large assortment of configuration options for packages.
 
 * `name` **(Required)**: The name of the package.
 * `version` **(Required)**: The version string of the package.
-* `libRoots`: The root module of the package. Imports relative to this root (e.g., `Pkg.Foo`) are considered part of the package. Defaults to the package's uppercase `name`.
-* `libGlobs`: An `Array` of additional module `Glob`s to include in the package. Defaults to singular globs of the module's `libRoots`. Submodule globs build every source file within their directory. Local imports of said files (i.e., fellow modules of the package) are also recursively built.
+* `scripts`: A `HashMap` of scripts for the package. A `Script` is an arbitrary `(args : List String) → IO PUnit` function that is indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
 * `dependencies`: A `List` of the package's dependencies.
 * `depsDir`: The directory to which Lake should download dependencies. Defaults to `lean_packages`.
 * `extraDepTarget`: An extra `OpaqueTarget` that should be built before the package.
-* `leanArgs`: An `Array` of additional arguments to pass to `lean` while compiling Lean source files.
 * `srcDir`: The directory containing the package's Lean source files. Defaults to the package's directory. (This will be passed to `lean` as the `-R` option.)
 * `buildDir`: The directory to which Lake should output the package's build results. Defaults to `build`.
 * `oleanDir`: The build subdirectory to which Lake should output the package's `.olean` files. Defaults to `lib`.
-* `scripts`: A `HashMap` of scripts for the package. A `Script` is an arbitrary `(args : List String) → IO PUnit` function that is indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
+* `libRoots`: The root module(s) of the package. Imports relative to this root (e.g., `Pkg.Foo`) are considered part of the package. Defaults to a single root of the package's uppercase `name`.
+* `libGlobs`: An `Array` of additional module `Glob`s to include in the package. Defaults to singular globs of the module's `libRoots`. Submodule globs build every source file within their directory. Local imports of said files (i.e., fellow modules of the package) are also recursively built.
+* `leanArgs`: An `Array` of additional arguments to pass to `lean` while compiling Lean source files.
 
 ### Library / Binary Compilation
 

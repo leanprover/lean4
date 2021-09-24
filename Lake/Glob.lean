@@ -12,7 +12,7 @@ namespace Lake
 
 /-- A specification of a set of module names. -/
 inductive Glob
-| /-- Selects the specified module name. -/
+| /-- Selects just the specified module name. -/
   one : Name → Glob
 | /--
     Selects all submodules of the specified module,
@@ -26,8 +26,8 @@ instance : Coe Name Glob := ⟨Glob.one⟩
 
 def Glob.matches (m : Name) : (self : Glob) → Bool
 | one n => n == m
-| submodules n => n.isPrefixOf m
-| andSubmodules n => n == m || n.isPrefixOf m
+| submodules n => n.isPrefixOf m && n != m
+| andSubmodules n => n.isPrefixOf m
 
 -- TODO(Mario): Rename Lean.modToFilePath.go to modToDir
 def modToDir (base : FilePath) : Name → FilePath

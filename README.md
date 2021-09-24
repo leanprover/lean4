@@ -78,7 +78,7 @@ Lake provides a large assortment of configuration options for packages.
 * `buildDir`: The directory to which Lake should output the package's build results. Defaults to `build`.
 * `oleanDir`: The build subdirectory to which Lake should output the package's `.olean` files. Defaults to `lib`.
 * `libRoots`: The root module(s) of the package. Imports relative to this root (e.g., `Pkg.Foo`) are considered part of the package. Defaults to a single root of the package's uppercase `name`.
-* `libGlobs`: An `Array` of additional module `Glob`s to include in the package. Defaults to singular globs of the module's `libRoots`. Submodule globs build every source file within their directory. Local imports of said files (i.e., fellow modules of the package) are also recursively built.
+* `libGlobs`: An `Array` of module `Glob`s to build for the package's library. Defaults to a `Glob.one` of each of the module's `libRoots`. Submodule globs build every source file within their directory. Local imports of glob'ed files (i.e., fellow modules of the package) are also recursively built.
 * `leanArgs`: An `Array` of additional arguments to pass to `lean` while compiling Lean source files.
 
 ### Library / Binary Compilation

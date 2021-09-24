@@ -160,11 +160,11 @@ structure PackageConfig where
   libRoots : Array Name := #[name.capitalize]
 
   /--
-    An `Array` of additional module `Glob`s to include in the package.
-    Defaults to singular globs of the module's `libRoots`.
+    An `Array` of module `Glob`s to build for the package's library.
+    Defaults to a `Glob.one` of each of the module's `libRoots`.
 
     Submodule globs build every source file within their directory.
-    Local imports of said files (i.e., fellow modules of the package) are
+    Local imports of glob'ed files (i.e., fellow modules of the package) are
     also recursively built.
   -/
   libGlobs : Array Glob := libRoots.map Glob.one
@@ -334,8 +334,7 @@ def libGlobs (self : Package) : Array Glob :=
 
 /-- Whether the given module is local to the package. -/
 def isLocalModule (mod : Name) (self : Package) : Bool :=
-  self.libRoots.any (fun root => root.isPrefixOf mod) ||
-  self.libGlobs.any (fun glob => glob.matches mod)
+  self.libRoots.any fun root => root.isPrefixOf mod
 
 /-- Get an `Array` of the package's module. -/
 def getModuleArray (self : Package) : IO (Array Name) := do

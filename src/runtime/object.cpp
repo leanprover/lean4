@@ -635,6 +635,7 @@ struct scoped_current_task_object : flet<lean_task_object *> {
 class task_manager {
     mutex                                         m_mutex;
     unsigned                                      m_num_std_workers{0};
+    unsigned                                      m_idle_std_workers{0};
     unsigned                                      m_max_std_workers{0};
     unsigned                                      m_num_dedicated_workers{0};
     std::deque<lean_task_object *>                m_queues[LEAN_MAX_PRIO+1];
@@ -673,7 +674,7 @@ class task_manager {
             m_max_prio = prio;
         m_queues[prio].push_back(t);
         m_queues_size++;
-        if (m_num_std_workers < m_max_std_workers)
+        if (!m_idle_std_workers && m_num_std_workers < m_max_std_workers)
             spawn_worker();
         else
             m_queue_cv.notify_one();
@@ -699,6 +700,7 @@ class task_manager {
 
     void spawn_worker() {
         m_num_std_workers++;
+        m_idle_std_workers++;
         lthread([this]() {
             save_stack_info(false);
             unique_lock<mutex> lock(m_mutex);
@@ -712,9 +714,12 @@ class task_manager {
                 }
 
                 lean_task_object * t = dequeue();
+                m_idle_std_workers--;
                 run_task(lock, t);
+                m_idle_std_workers++;
                 reset_heartbeat();
             }
+            m_idle_std_workers--;
             m_num_std_workers--;
             m_worker_finished_cv.notify_all();
         });

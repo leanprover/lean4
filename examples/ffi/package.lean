@@ -1,6 +1,4 @@
-import Lake.Package
-import Lake.BuildTargets
-
+import Lake
 open Lake System
 
 def cDir : FilePath := "c"

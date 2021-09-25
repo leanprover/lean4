@@ -1,5 +1,4 @@
-import Lake.Package
-
+import Lake
 open Lake System
 
 def package : PackageConfig := {

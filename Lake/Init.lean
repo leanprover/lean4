@@ -26,7 +26,7 @@ def mainFileContents :=
 "
 
 def pkgFileContents (pkgName : String) :=
-s!"import Lake.Package
+s!"import Lake
 
 def package : Lake.PackageConfig := \{
   name := \"{pkgName}\"

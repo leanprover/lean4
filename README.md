@@ -43,7 +43,7 @@ def main : IO Unit :=
 Lake also creates a basic `package.lean` for the package:
 
 ```lean
-import Lake.Package
+import Lake
 
 def package : Lake.PackageConfig := {
   name := "hello"

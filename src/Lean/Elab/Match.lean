@@ -140,7 +140,12 @@ private partial def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptT
               let matchType ← mkForallFVars #[x, h] matchTypeBody
               return { result with
                 matchType := matchType
-                alts      := result.alts.map fun altView => { altView with patterns := altView.patterns.insertAt (i+1) identStx }
+                alts      := result.alts.map fun altView =>
+                  if i+1 > altView.patterns.size then
+                    -- Unexpected number of patterns. The input is invalid, but we want to process whatever to provide info to users.
+                    altView
+                  else
+                    { altView with patterns := altView.patterns.insertAt (i+1) identStx }
               }
       else
         return { discrs, alts := matchAltViews, isDep := false, matchType := expectedType }

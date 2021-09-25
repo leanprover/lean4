@@ -97,11 +97,6 @@ structure PackageConfig where
   name : String
 
   /--
-    The version string of the package.
-  -/
-  version : String
-
-  /--
     A `HashMap` of scripts for the package.
 
     A `Script` is an arbitrary `(args : List String) → IO PUnit` function that
@@ -271,10 +266,6 @@ namespace Package
 /-- The package's `name` configuration. -/
 def name (self : Package) : String :=
   self.config.name
-
-/-- The package's `version` configuration. -/
-def version (self : Package) : String :=
-  self.config.version
 
 /-- The package's `scripts` configuration. -/
 def scripts (self : Package) : HashMap String Script :=

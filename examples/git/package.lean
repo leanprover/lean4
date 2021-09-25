@@ -4,7 +4,6 @@ open Lake System
 
 def package : PackageConfig := {
   name := "gitHello"
-  version := "1.0"
   dependencies := [
     {
       name := "hello",

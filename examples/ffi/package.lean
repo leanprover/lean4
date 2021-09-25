@@ -18,7 +18,6 @@ def cLibTarget (pkgDir : FilePath) : FileTarget :=
 
 def package : Packager := fun pkgDir args => {
   name := "ffi"
-  version := "0.1"
   -- customize layout
   srcDir := "lib"
   libRoots := #[`Add]

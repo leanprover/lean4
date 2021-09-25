@@ -47,7 +47,6 @@ import Lake.Package
 
 def package : Lake.PackageConfig := {
   name := "hello"
-  version := "0.1"
 }
 ```
 
@@ -69,7 +68,6 @@ Lake provides a large assortment of configuration options for packages.
 ### General
 
 * `name` **(Required)**: The name of the package.
-* `version` **(Required)**: The version string of the package.
 * `scripts`: A `HashMap` of scripts for the package. A `Script` is an arbitrary `(args : List String) → IO PUnit` function that is indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
 * `dependencies`: A `List` of the package's dependencies.
 * `depsDir`: The directory to which Lake should download dependencies. Defaults to `lean_packages`.

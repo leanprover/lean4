@@ -30,7 +30,6 @@ s!"import Lake.Package
 
 def package : Lake.PackageConfig := \{
   name := \"{pkgName}\"
-  version := \"0.1\"
 }
 "
 

@@ -9,7 +9,7 @@ def package : PackageConfig := {
       name := "hello",
       src := Source.git
         "https://github.com/tydeu/lean4-lake.git"
-        "71defa066dd845a31d19547f1a3e01f79c5fc8d9"
+        "7a230da4073dd979ca521e81dcacdacd930c36d4"
         (branch := none)
       dir := FilePath.mk "examples" / "hello"
     }

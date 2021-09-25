@@ -7,12 +7,13 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.WF.TerminationBy
 import Lean.Elab.PreDefinition.WF.PackDomain
 import Lean.Elab.PreDefinition.WF.PackMutual
+import Lean.Elab.PreDefinition.WF.Rel
 
 namespace Lean.Elab
 open WF
 open Meta
 
-def wfRecursion (preDefs : Array PreDefinition) (terminationBy : TerminationBy) : TermElabM TerminationBy := do
+def wfRecursion (preDefs : Array PreDefinition) (wfStx? : Option Syntax) : TermElabM Unit := do
   withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef
@@ -22,7 +23,9 @@ def wfRecursion (preDefs : Array PreDefinition) (terminationBy : TerminationBy) 
       trace[Elab.definition.wf] "{preDef.declName}, {preDef.levelParams}, {preDef.value}"
     let unaryPreDef ← packMutual unaryPreDefs
     trace[Elab.definition.wf] "{unaryPreDef.declName} := {unaryPreDef.value}"
-    check unaryPreDef.value
+    check unaryPreDef.value -- TODO: remove
+    let (wf, r) ← elabWF unaryPreDef wfStx?
+    trace[Elab.definition.wf] "{wf}"
   -- TODO
   throwError "well-founded recursion has not been implemented yet"
 

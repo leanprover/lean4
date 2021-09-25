@@ -75,11 +75,14 @@ def addPreDefinitions (preDefs : Array PreDefinition) (terminationBy? : Option S
       addAndCompileUnsafe preDefs
     else if preDefs.any (·.modifiers.isPartial) then
       addAndCompilePartial preDefs
+    else if let some wfStx := terminationBy.find? (preDefs.map (·.declName)) then
+      terminationBy := terminationBy.erase (preDefs.map (·.declName))
+      wfRecursion preDefs wfStx
     else
-      terminationBy ← withRef (preDefs[0].ref) <| mapError
+      withRef (preDefs[0].ref) <| mapError
         (orelseMergeErrors
-          (structuralRecursion preDefs *> pure terminationBy)
-          (wfRecursion preDefs terminationBy))
+          (structuralRecursion preDefs)
+          (wfRecursion preDefs none))
         (fun msg =>
           let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
           m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")

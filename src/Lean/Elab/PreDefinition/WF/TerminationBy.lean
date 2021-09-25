@@ -37,7 +37,7 @@ def expandTerminationBy (terminationBy? : Option Syntax) (cliques : Array (Array
   else
     return TerminationBy.none
 
-def TerminatioBy.erase (t : TerminationBy) (clique : Array Name) : TerminationBy :=
+def TerminationBy.erase (t : TerminationBy) (clique : Array Name) : TerminationBy :=
   match t with
   | TerminationBy.none   => TerminationBy.none
   | TerminationBy.one .. => TerminationBy.none

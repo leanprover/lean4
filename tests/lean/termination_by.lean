@@ -13,21 +13,6 @@ mutual
  termination_by measure
 end
 
-mutual
-  def f (n : Nat) :=
-    match n with
-    | 0 => 1
-    | n+1 => f n * 2
-end
-termination_by measure
-
-
-def g (n : Nat) :=
-  match n with
-  | 0 => 1
-  | n+1 => g n * 3
-termination_by measure
-
 def g' (n : Nat) :=
   match n with
   | 0 => 1

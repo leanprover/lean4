@@ -1,16 +1,29 @@
 /-
-Copyright (c) 2017 Microsoft Corporation. All rights reserved.
+Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
+Authors: Mac Malone
 -/
+import Lake.Async
+import Lake.BuildBin
+import Lake.BuildModule
+import Lake.BuildMonad
+import Lake.BuildPackage
+import Lake.BuildTarget
+import Lake.BuildTargets
+import Lake.BuildTop
 import Lake.Cli
+import Lake.CliT
+import Lake.Compile
+import Lake.Git
+import Lake.Glob
+import Lake.Help
+import Lake.Init
+import Lake.LeanConfig
+import Lake.LeanVersion
+import Lake.Package
+import Lake.Resolve
 import Lake.SearchPath
-
-def main (args : List String) : IO UInt32 := do
-  try
-    Lake.setupLeanSearchPath
-    Lake.cli args
-    pure 0
-  catch e =>
-    IO.eprintln <| "error: " ++ toString e -- avoid "uncaught exception: ..."
-    pure 1
+import Lake.Target
+import Lake.Task
+import Lake.Trace
+import Lake.Version

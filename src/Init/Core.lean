@@ -49,9 +49,13 @@ inductive Sum (α : Type u) (β : Type v) where
   | inl (val : α) : Sum α β
   | inr (val : β) : Sum α β
 
+infixr:30 " ⊕ " => Sum
+
 inductive PSum (α : Sort u) (β : Sort v) where
   | inl (val : α) : PSum α β
   | inr (val : β) : PSum α β
+
+infixr:30 " ⊕' " => PSum
 
 structure Sigma {α : Type u} (β : α → Type v) where
   fst : α

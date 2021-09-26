@@ -90,7 +90,6 @@ def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) := 
       if arity > 1 then
         forallBoundedTelescope preDefNew.type (some 1) fun y _ => do
           let newBody := body.replaceFVars xs (mkTupleElems y[0] xs.size)
-          trace[Elab.definition.wf] "newBody: {newBody}"
           let visit (e : Expr) : MetaM TransformStep := do
             if let some idx := isTargetApp? e |>.run then
               let f := e.getAppFn

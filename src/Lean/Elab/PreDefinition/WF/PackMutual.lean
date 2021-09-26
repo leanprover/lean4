@@ -141,9 +141,7 @@ def packMutual (preDefs : Array PreDefinition) : MetaM PreDefinition := do
   withLocalDeclD (← mkFreshUserName `_x) domain fun x => do
     let codomain ← mkNewCoDomain x preDefs
     let type ← mkForallFVars #[x] codomain
-    trace[Elab.definition.wf] "packMutual type: {type}"
     let value ← packValues x codomain preDefs
-    trace[Elab.definition.wf] "packMutual value: {value}"
     let newFn := preDefs[0].declName ++ `_mutual
     let preDefNew := { preDefs[0] with declName := newFn, type, value }
     addAsAxiom preDefNew

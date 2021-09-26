@@ -19,14 +19,8 @@ def wfRecursion (preDefs : Array PreDefinition) (wfStx? : Option Syntax) : TermE
     for preDef in preDefs do
       addAsAxiom preDef
     let unaryPreDefs ← packDomain preDefs
-    for preDef in unaryPreDefs do
-      check preDef.value -- TODO: remove
-      trace[Elab.definition.wf] "{preDef.declName}, {preDef.levelParams}, {preDef.value}"
-    let unaryPreDef ← packMutual unaryPreDefs
-    trace[Elab.definition.wf] "{unaryPreDef.declName} := {unaryPreDef.value}"
-    return unaryPreDef
+    packMutual unaryPreDefs
   let wfRel ← elabWFRel unaryPreDef wfStx?
-  trace[Elab.definition.wf] "{wfRel}"
   let preDefNonRec ← withoutModifyingEnv do
     addAsAxiom unaryPreDef
     mkFix unaryPreDef wfRel

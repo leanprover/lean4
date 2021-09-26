@@ -4,18 +4,25 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Match.Match
+import Lean.Meta.Tactic.Simp.Main
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 
 namespace Lean.Elab.WF
 open Meta
 
+private def toUnfold : Std.PHashSet Name :=
+  [``measure, ``id, ``Prod.lex, ``invImage].foldl (init := {}) fun s a => s.insert a
+
 private def mkDecreasingProof (decreasingProp : Expr) : TermElabM Expr := do
   let mvar ← mkFreshExprSyntheticOpaqueMVar decreasingProp
   let mvarId := mvar.mvarId!
-  trace[Elab.definition.wf] "{MessageData.ofGoal mvarId}"
-  -- TODO: invoke tactic to close the goal
-  admit mvarId
+  let ctx ← Simp.Context.mkDefault
+  let ctx := { ctx with simpLemmas.toUnfold := toUnfold }
+  if let some mvarId ← simpTarget mvarId ctx then
+    -- TODO: invoke tactic to close the goal
+    trace[Elab.definition.wf] "{MessageData.ofGoal mvarId}"
+    admit mvarId
   instantiateMVars mvar
 
 private partial def replaceRecApps (recFnName : Name) (F : Expr) (e : Expr) : TermElabM Expr :=
@@ -47,7 +54,6 @@ private partial def replaceRecApps (recFnName : Name) (F : Expr) (e : Expr) : Te
         if !Structural.recArgHasLooseBVarsAt recFnName 0 e then
           processApp e
         else
-          trace[Elab.definition.structural] "below before matcherApp.addArg: {F} : {← inferType F}"
           let matcherApp ← mapError (matcherApp.addArg F) (fun msg => "failed to add functional argument to 'matcher' application" ++ indentD msg)
           let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
             lambdaTelescope alt fun xs altBody => do

@@ -1,7 +1,7 @@
 import Lake
-open Lake System
+open System Lake DSL
 
-def package : PackageConfig := {
+package where
   name := "gitHello"
   dependencies := [
     {
@@ -13,4 +13,3 @@ def package : PackageConfig := {
       dir := FilePath.mk "examples" / "hello"
     }
   ]
-}

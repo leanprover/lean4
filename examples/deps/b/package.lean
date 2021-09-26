@@ -1,5 +1,4 @@
 import Lake
+open Lake DSL
 
-def package : Lake.PackageConfig := {
-  name := "b"
-}
+package where name := "b"

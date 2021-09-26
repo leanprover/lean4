@@ -1,5 +1,6 @@
 import Lake
+open Lake DSL
 
-def package : Lake.PackageConfig := {
+package {
   name := "hello"
 }

@@ -1,10 +1,9 @@
 import Lake
-open Lake System
+open System Lake DSL
 
-def package : PackageConfig := {
+package where
   name := "foo"
   dependencies := [
     { name := "a", src := Source.path (FilePath.mk ".." / "a") },
     { name := "b", src := Source.path (FilePath.mk ".." / "b") }
   ]
-}

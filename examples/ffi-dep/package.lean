@@ -1,7 +1,7 @@
 import Lake
-open Lake System
+open System Lake DSL
 
-def package : PackageConfig := {
+package where
   name := "ffi-dep"
   binRoot := `Main
   binName := "add"
@@ -9,4 +9,3 @@ def package : PackageConfig := {
     name := "ffi"
     src := Source.path (FilePath.mk ".." / "ffi")
   }]
-}

@@ -1,7 +1,7 @@
 import Lake
-open Lake System
+open System Lake DSL
 
-def package : PackageConfig := {
+package where
   name := "lake"
   srcDir := FilePath.mk ".." / ".."
   oleanDir := "."
@@ -12,4 +12,3 @@ def package : PackageConfig := {
       #["-Wl,--export-all"]
     else
       #["-rdynamic"]
-}

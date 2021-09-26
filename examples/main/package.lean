@@ -1,7 +1,7 @@
 import Lake
+open Lake DSL
 
-def package : Lake.PackageConfig := {
+package where
   name := "foo"
   libRoots := #[`Lib]
   binRoot := `Main
-}

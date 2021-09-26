@@ -674,6 +674,26 @@ def delabNamedPattern : Delab := do
   guard x.isIdent
   `($x:ident@$p:term)
 
+-- Sigma and PSigma delaborators
+def delabSigmaCore (sigma : Bool) : Delab := whenPPOption getPPNotation do
+  guard $ (← getExpr).getAppNumArgs == 2
+  guard $ (← getExpr).appArg!.isLambda
+  withAppArg do
+    let α ← withBindingDomain delab
+    let bodyExpr := (← getExpr).bindingBody!
+    withBindingBodyUnusedName fun n => do
+      let b ← delab
+      if bodyExpr.hasLooseBVars then
+        if sigma then `(($n:ident : $α) × $b) else `(($n:ident : $α) ×' $b)
+      else
+        if sigma then `((_ : $α) × $b) else `((_ : $α) ×' $b)
+
+@[builtinDelab app.Sigma]
+def delabSigma : Delab := delabSigmaCore (sigma := true)
+
+@[builtinDelab app.PSigma]
+def delabPSigma : Delab := delabSigmaCore (sigma := false)
+
 partial def delabDoElems : DelabM (List Syntax) := do
   let e ← getExpr
   if e.isAppOfArity `Bind.bind 6 then

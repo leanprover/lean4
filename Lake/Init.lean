@@ -25,7 +25,7 @@ def mainFileContents :=
   IO.println \"Hello, world!\"
 "
 
-def pkgFileContents (pkgName : String) :=
+def pkgConfigFileContents (pkgName : String) :=
 s!"import Lake
 open Lake DSL
 
@@ -38,11 +38,11 @@ package \{
 def initPkg (dir : FilePath) (name : String) : IO PUnit := do
 
   -- write default configuration file
-  let pkgFile := dir / pkgFileName
-  if (← pkgFile.pathExists) then
-    -- error if package already has a `package.lean`
+  let configFile := dir / defaultConfigFile
+  if (← configFile.pathExists) then
+    -- error if package already has a `lakefile.lean`
     throw <| IO.userError "package already initialized"
-  IO.FS.writeFile pkgFile (pkgFileContents name)
+  IO.FS.writeFile configFile (pkgConfigFileContents name)
 
   -- write example main module if none exists
   let mainFile := dir / mainFileName name

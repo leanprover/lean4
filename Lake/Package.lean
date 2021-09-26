@@ -51,7 +51,7 @@ def defaultDepsDir : FilePath := "lean_packages"
 -/
 inductive Source where
 | path (dir : FilePath) : Source
-| git (url rev : String) (branch : Option String) : Source
+| git (url rev : String) (branch : Option String := none) : Source
 deriving Inhabited, Repr
 
 /-- A `Dependency` of a package. -/

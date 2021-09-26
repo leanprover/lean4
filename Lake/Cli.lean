@@ -28,7 +28,7 @@ def Package.clean (self : Package) : IO PUnit :=
 structure CliOptions where
   wantsHelp : Bool := false
   dir : FilePath := "."
-  file : FilePath := pkgFileName
+  file : FilePath := defaultConfigFile
   subArgs : List String := []
 
 abbrev CliM := CliT (StateT CliOptions IO)

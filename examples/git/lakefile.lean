@@ -7,9 +7,7 @@ package where
     {
       name := "hello",
       src := Source.git
-        "https://github.com/tydeu/lean4-lake.git"
-        "7a230da4073dd979ca521e81dcacdacd930c36d4"
-        (branch := none)
+        "https://github.com/tydeu/lean4-lake.git" "master"
       dir := FilePath.mk "examples" / "hello"
     }
   ]

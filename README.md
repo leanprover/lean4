@@ -1,7 +1,7 @@
 # Lake
 
 Lake (Lean Make) is a new build system and package manager for Lean 4.
-With Lake, package configuration is written in Lean inside a dedicated `package.lean` file stored in the root of the package directory. Each `package.lean` includes a `package` declaration (akin to `main`) which defines the package's configuration.
+With Lake, package configuration is written in Lean inside a dedicated `lakefile.lean` stored in the root of the package directory. Each `lakefile.lean` includes a `package` declaration (akin to `main`) which defines the package's configuration.
 
 ## Building and Running Lake
 
@@ -40,7 +40,7 @@ def main : IO Unit :=
   IO.println "Hello, world!"
 ```
 
-Lake also creates a basic `package.lean` for the package:
+Lake also creates a basic `lakefile.lean` for the package:
 
 ```lean
 import Lake

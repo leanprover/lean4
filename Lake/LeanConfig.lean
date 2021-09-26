@@ -12,7 +12,9 @@ namespace Lake
 
 def pkgModName : Name := `package
 def pkgDefName : Name := `package
-def pkgFileName : FilePath := "package.lean"
+
+/-- The default name of the Lake configuration file (i.e., `lakefile.lean`). -/
+def defaultConfigFile : FilePath := "lakefile.lean"
 
 namespace Package
 
@@ -41,8 +43,8 @@ unsafe def fromLeanFileUnsafe
 constant fromLeanFile (path : FilePath) (dir : FilePath) (args : List String := []) : IO Package
 
 unsafe def fromDirUnsafe
-(dir : FilePath) (args : List String := []) (file := pkgFileName) : IO Package :=
+(dir : FilePath) (args : List String := []) (file := defaultConfigFile) : IO Package :=
   fromLeanFileUnsafe (dir / file) dir args
 
 @[implementedBy fromDirUnsafe]
-constant fromDir (dir : FilePath) (args : List String := []) (file := pkgFileName) : IO Package
+constant fromDir (dir : FilePath) (args : List String := []) (file := defaultConfigFile) : IO Package

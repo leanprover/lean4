@@ -7,10 +7,10 @@ import Lake.LeanVersion
 
 namespace Lake
 
-def version.major := 2
-def version.minor := 1
+def version.major := 3
+def version.minor := 0
 def version.patch := 0
-def version.isPre := false
-def versionString := s!"{version.major}.{version.minor}.{version.patch}"
+def version.isPre := true
+def versionString := s!"{version.major}.{version.minor}.{version.patch}-pre"
 def uiVersionString :=
   s!"Lake version {versionString} (Lean version {uiLeanVersionString})"

@@ -37,6 +37,10 @@ end Acc
 inductive WellFounded {α : Sort u} (r : α → α → Prop) : Prop where
   | intro (h : ∀ a, Acc r a) : WellFounded r
 
+structure WellFoundedRelation (α : Sort u) where
+  rel : α → α → Prop
+  wf  : WellFounded rel
+
 namespace WellFounded
 def apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
   WellFounded.recOn (motive := fun x => (y : α) → Acc r y)
@@ -80,12 +84,14 @@ end WellFounded
 open WellFounded
 
 -- Empty relation is well-founded
-def emptyWf {α : Sort u} : WellFounded (@emptyRelation α) := by
-  apply WellFounded.intro
-  intro a
-  apply Acc.intro a
-  intro b h
-  cases h
+def emptyWf {α : Sort u} : WellFoundedRelation α where
+  rel := emptyRelation
+  wf  := by
+    apply WellFounded.intro
+    intro a
+    apply Acc.intro a
+    intro b h
+    cases h
 
 -- Subrelation of a well-founded relation is well-founded
 namespace Subrelation
@@ -122,8 +128,9 @@ def wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
   ⟨fun a => accessible f (apply h (f a))⟩
 end InvImage
 
-def invImage (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
-  InvImage.wf f h
+def invImage (f : α → β) (h : WellFoundedRelation β) : WellFoundedRelation α where
+  rel := InvImage h.rel f
+  wf  := InvImage.wf f h.wf
 
 -- The transitive closure of a well-founded relation is well-founded
 namespace TC
@@ -143,7 +150,9 @@ def wf (h : WellFounded r) : WellFounded (TC r) :=
 end TC
 
 -- less-than is well-founded
-def Nat.lt_wf : WellFounded Nat.lt := by
+def Nat.lt_wfRel : WellFoundedRelation Nat where
+  rel := Nat.lt
+  wf  := by
   apply WellFounded.intro
   intro n
   induction n with
@@ -162,13 +171,13 @@ def Nat.lt_wf : WellFounded Nat.lt := by
 def Measure {α : Sort u} : (α → Nat) → α → α → Prop :=
   InvImage (fun a b => a < b)
 
-def measure {α : Sort u} (f : α → Nat) : WellFounded (Measure f) :=
-  invImage f Nat.lt_wf
+def measure {α : Sort u} (f : α → Nat) : WellFoundedRelation α :=
+  invImage f Nat.lt_wfRel
 
 def SizeofMeasure (α : Sort u) [SizeOf α] : α → α → Prop :=
   Measure sizeOf
 
-def sizeofMeasure (α : Sort u) [SizeOf α] : WellFounded (SizeofMeasure α) :=
+def sizeofMeasure (α : Sort u) [SizeOf α] : WellFoundedRelation α :=
   measure sizeOf
 
 namespace Prod
@@ -206,8 +215,9 @@ def lexAccessible (aca : (a : α) → Acc ra a) (acb : (b : β) → Acc rb b) (a
       | right _ h   => apply ihb _ h
 
 -- The lexicographical order of well founded relations is well-founded
-def lex (ha : WellFounded ra) (hb : WellFounded rb) : WellFounded (Lex ra rb) :=
-  ⟨fun (a, b) => lexAccessible (WellFounded.apply ha) (WellFounded.apply hb) a b⟩
+def lex (ha : WellFoundedRelation α) (hb : WellFoundedRelation β) : WellFoundedRelation (α × β) where
+  rel := Lex ha.rel hb.rel
+  wf  := ⟨fun (a, b) => lexAccessible (WellFounded.apply ha.wf) (WellFounded.apply hb.wf) a b⟩
 
 -- relational product is a Subrelation of the Lex
 def RProdSubLex (a : α × β) (b : α × β) (h : RProd ra rb a b) : Lex ra rb a b := by
@@ -215,8 +225,10 @@ def RProdSubLex (a : α × β) (b : α × β) (h : RProd ra rb a b) : Lex ra rb 
   | intro h₁ h₂ => exact Lex.left _ _ h₁
 
 -- The relational product of well founded relations is well-founded
-def rprod (ha : WellFounded ra) (hb : WellFounded rb) : WellFounded (RProd ra rb) := by
-  apply Subrelation.wf (r := Lex ra rb) (h₂ := lex ha hb)
+def rprod (ha : WellFoundedRelation α) (hb : WellFoundedRelation β) : WellFoundedRelation (α × β) where
+  rel := RProd ha.rel hb.rel
+  wf  := by
+  apply Subrelation.wf (r := Lex ha.rel hb.rel) (h₂ := (lex ha hb).wf)
   intro a b h
   exact RProdSubLex a b h
 
@@ -300,8 +312,9 @@ section
 def SkipLeft (α : Type u) {β : Type v} (s : β → β → Prop) : @PSigma α (fun a => β) → @PSigma α (fun a => β) → Prop :=
   RevLex emptyRelation s
 
-def skipLeft (α : Type u) {β : Type v} {s : β → β → Prop} (hb : WellFounded s) : WellFounded (SkipLeft α s) :=
-  revLex emptyWf hb
+def skipLeft (α : Type u) {β : Type v} (hb : WellFoundedRelation β) : WellFoundedRelation (PSigma fun a : α => β) where
+  rel := SkipLeft α hb.rel
+  wf  := revLex emptyWf.wf hb.wf
 
 def mkSkipLeft {α : Type u} {β : Type v} {b₁ b₂ : β} {s : β → β → Prop} (a₁ a₂ : α) (h : s b₁ b₂) : SkipLeft α s ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ :=
   RevLex.right _ _ h

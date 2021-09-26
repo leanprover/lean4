@@ -10,18 +10,16 @@ namespace Lean.Elab.WF
 open Meta
 open Term
 
-def elabWF (unaryPreDef : PreDefinition) (wfStx? : Option Syntax) : TermElabM (Expr × Expr) := do
+def elabWFRel (unaryPreDef : PreDefinition) (wfStx? : Option Syntax) : TermElabM Expr := do
   if let some wfStx := wfStx? then
     withDeclName unaryPreDef.declName do
       let α := unaryPreDef.type.bindingDomain!
       let u ← getLevel α
-      let r ← mkFreshExprMVar (← mkArrow α (← mkArrow α (mkSort levelZero)))
-      let expectedType := mkApp2 (mkConst ``WellFounded [u]) α r
-      let w ← instantiateMVars (← withSynthesize <| elabTermEnsuringType wfStx expectedType)
-      let r ← instantiateMVars r
-      let pendingMVarIds ← getMVars w
+      let expectedType := mkApp (mkConst ``WellFoundedRelation [u]) α
+      let wfRel ← instantiateMVars (← withSynthesize <| elabTermEnsuringType wfStx expectedType)
+      let pendingMVarIds ← getMVars wfRel
       discard <| logUnassignedUsingErrorInfos pendingMVarIds
-      return (r, w)
+      return wfRel
   else
     -- TODO: try to synthesize some default relation
     throwError "'termination_by' modifier missing"

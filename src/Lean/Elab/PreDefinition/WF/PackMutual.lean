@@ -11,11 +11,11 @@ open Meta
 private def getDomains (preDefs : Array PreDefinition) : Array Expr :=
   preDefs.map fun preDef => preDef.type.bindingDomain!
 
-/-- Combine different function domains `ds` using `PSum`s -/
+/-- Combine different function domains `ds` using `Sum`s -/
 private def mkNewDomain (ds : Array Expr) : MetaM Expr := do
   let mut r := ds.back
   for d in ds.pop.reverse do
-    r ← mkAppM ``PSum #[d, r]
+    r ← mkAppM ``Sum #[d, r]
   return r
 
 private def getCodomainLevel (preDef : PreDefinition) : MetaM Level :=
@@ -41,9 +41,9 @@ private partial def mkNewCoDomain (x : Expr) (preDefs : Array PreDefinition) : M
   let rec go (x : Expr) (i : Nat) : MetaM Expr := do
     if i < preDefs.size - 1 then
       let xType ← whnfD (← inferType x)
-      assert! xType.isAppOfArity ``PSum 2
+      assert! xType.isAppOfArity ``Sum 2
       let xTypeArgs := xType.getAppArgs
-      let casesOn := mkConst (mkCasesOnName ``PSum) (mkLevelSucc u :: xType.getAppFn.constLevels!)
+      let casesOn := mkConst (mkCasesOnName ``Sum) (mkLevelSucc u :: xType.getAppFn.constLevels!)
       let casesOn := mkAppN casesOn xTypeArgs -- parameters
       let casesOn := mkApp casesOn (← mkLambdaFVars #[x] (mkSort u)) -- motive
       let casesOn := mkApp casesOn x -- major
@@ -58,7 +58,7 @@ private partial def mkNewCoDomain (x : Expr) (preDefs : Array PreDefinition) : M
 
 /--
   Combine/pack the values of the different definitions in a single value
-  `x` is `PSum`, and we use `PSum.casesOn` to select the appropriate `preDefs.value`.
+  `x` is `Sum`, and we use `Sum.casesOn` to select the appropriate `preDefs.value`.
   See: `packMutual`.
   Remark: this method does not replace the nested recursive `preDefs` applications.
   This step is performed by `transform` with the following `post` method.
@@ -89,15 +89,15 @@ private partial def post (preDefs : Array PreDefinition) (domain : Expr) (newFn 
           (← whnfD type).withApp fun f args => do
             assert! args.size == 2
             if i == fidx then
-              return mkApp3 (mkConst ``PSum.inl f.constLevels!) args[0] args[1] arg
+              return mkApp3 (mkConst ``Sum.inl f.constLevels!) args[0] args[1] arg
             else
               let r ← mkNewArg (i+1) args[1]
-              return mkApp3 (mkConst ``PSum.inr f.constLevels!) args[0] args[1] r
+              return mkApp3 (mkConst ``Sum.inr f.constLevels!) args[0] args[1] r
       return TransformStep.done <| mkApp (mkConst newFn us) (← mkNewArg 0 domain)
   return TransformStep.done e
 
 /--
-  If `preDefs.size > 1`, combine different functions in a single one using `PSum`.
+  If `preDefs.size > 1`, combine different functions in a single one using `Sum`.
   This method assumes all `preDefs` have arity 1, and have already been processed using `packDomain`.
   Here is a small example. Suppose the input is
   ```
@@ -117,22 +117,22 @@ private partial def post (preDefs : Array PreDefinition) (domain : Expr) (newFn 
   this method produces the following pre definition
   ```
   f._mutual x :=
-    PSum.casesOn x
+    Sum.casesOn x
       (fun val =>
         match val.2.1, val.2.2.1, val.2.2.2 with
         | 0, a, b => a
-        | Nat.succ n, a, b => (f._mutual (PSum.inr (PSum.inl ⟨val.1, n, a, b⟩))).fst
+        | Nat.succ n, a, b => (f._mutual (Sum.inr (Sum.inl ⟨val.1, n, a, b⟩))).fst
       fun val =>
-        PSum.casesOn val
+        Sum.casesOn val
           (fun val =>
             match val.2.1, val.2.2.1, val.2.2.2 with
             | 0, a, b => (a, b)
-            | Nat.succ n, a, b => (f._mutual (PSum.inr (PSum.inr ⟨val.1, n, a, b⟩)), a)
+            | Nat.succ n, a, b => (f._mutual (Sum.inr (Sum.inr ⟨val.1, n, a, b⟩)), a)
           fun val =>
             match val.2.1, val.2.2.1, val.2.2.2 with
             | 0, a, b => b
             | Nat.succ n, a, b =>
-              f._mutual (PSum.inl ⟨val.1, n, a, b⟩)
+              f._mutual (Sum.inl ⟨val.1, n, a, b⟩)
   ```
  -/
 def packMutual (preDefs : Array PreDefinition) : MetaM PreDefinition := do

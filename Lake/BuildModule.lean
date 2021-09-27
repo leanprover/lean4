@@ -116,39 +116,39 @@ protected def Package.moduleOleanTarget
   moduleOleanTarget leanFile oleanFile hashFile oleanDirs contents depTarget
     self.rootDir self.leanArgs
 
--- # Recursive Fetching
+-- # Recursive Building
 
 /-
-  Produces a recursive module target fetcher that
-  builds the target module after recursively fetching its local imports
+  Produces a recursive module target builder that
+  builds the target module after recursively building its local imports
   (relative to `pkg`).
 -/
-def recFetchModuleWithLocalImports (pkg : Package)
+def recBuildModuleWithLocalImports (pkg : Package)
 [Monad m] [MonadLiftT BuildM m] (build : Name → FilePath → String → List α → BuildM α)
-: RecFetch Name α m := fun mod fetch => do
+: RecBuild Name α m := fun mod buildImp => do
   have : MonadLift BuildM m := ⟨liftM⟩
   let leanFile := pkg.modToSrc mod
   let contents ← IO.FS.readFile leanFile
   -- parse direct local imports
   let (imports, _, _) ← Elab.parseImports contents leanFile.toString
   let imports := imports.map (·.module) |>.filter pkg.isLocalModule
-  -- we fetch the import targets even if a rebuild is not required
+  -- we construct the import targets even if a rebuild is not required
   -- because other build processes (ex. `.o`) rely on the map being complete
-  let importTargets ← imports.mapM fetch
+  let importTargets ← imports.mapM buildImp
   build mod leanFile contents importTargets
 
-def Package.recFetchModuleOleanAndCTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
+def Package.recBuildModuleOleanAndCTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
 (self : Package) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
-: RecFetch Name ActiveOleanAndCTarget m :=
-  recFetchModuleWithLocalImports self fun mod leanFile contents importTargets => do
+: RecBuild Name ActiveOleanAndCTarget m :=
+  recBuildModuleWithLocalImports self fun mod leanFile contents importTargets => do
     let allDepsTarget := Target.active <| ←
       depTarget.mixOpaqueAsync <| ← ActiveTarget.collectOpaqueList importTargets
     self.moduleOleanAndCTarget moreOleanDirs mod leanFile contents allDepsTarget |>.run
 
-def  Package.recFetchModuleOleanTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
+def  Package.recBuildModuleOleanTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
 (self : Package) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
-: RecFetch Name ActiveFileTarget m :=
-  recFetchModuleWithLocalImports self fun mod leanFile contents importTargets => do
+: RecBuild Name ActiveFileTarget m :=
+  recBuildModuleWithLocalImports self fun mod leanFile contents importTargets => do
     let allDepsTarget := Target.active <| ←
       depTarget.mixOpaqueAsync <| ← ActiveTarget.collectOpaqueList importTargets
     self.moduleOleanTarget moreOleanDirs mod leanFile contents allDepsTarget |>.run
@@ -160,11 +160,11 @@ abbrev ModuleBuildM (α) :=
   -- phrased this way to use `NameMap`
   EStateT (List Name) (NameMap α) BuildM
 
-abbrev ModuleFetch (α) :=
-  RecFetch Name α (ModuleBuildM α)
+abbrev ModuleBuild (α) :=
+  RecBuild Name α (ModuleBuildM α)
 
-abbrev OleanTargetFetch := ModuleFetch ActiveFileTarget
-abbrev OleanAndCTargetFetch := ModuleFetch ActiveOleanAndCTarget
+abbrev OleanTargetBuild := ModuleBuild ActiveFileTarget
+abbrev OleanAndCTargetBuild := ModuleBuild ActiveOleanAndCTarget
 
 abbrev OleanTargetMap := NameMap ActiveFileTarget
 abbrev OleanAndCTargetMap := NameMap ActiveOleanAndCTarget

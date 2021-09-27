@@ -14,8 +14,8 @@ namespace Lake
 
 -- ## Abstractions
 
-/-- A recursive object fetcher. -/
-def RecFetch.{u,v,w} (k : Type u) (o : Type v) (m : Type v → Type w) :=
+/-- A recursive object builder. -/
+def RecBuild.{u,v,w} (k : Type u) (o : Type v) (m : Type v → Type w) :=
   k → (k → m o) → m o
 
 /-- A monad equipped with a key-object store. -/
@@ -34,7 +34,7 @@ instance [Monad m] [MonadStore k o m] : MonadStore k o (ExceptT ε m) where
 /-- Auxiliary function for `buildTop`. -/
 partial def buildTopCore
 {k o} {m} [BEq k] [Inhabited o] [Monad m] [MonadStore k o m]
-(parents : List k) (build : RecFetch k o (ExceptT (List k) m)) (key : k) : ExceptT (List k) m o := do
+(parents : List k) (build : RecBuild k o (ExceptT (List k) m)) (key : k) : ExceptT (List k) m o := do
   -- detect cyclic builds
   if parents.contains key then
     throw <| key :: (parents.partition (· != key)).1 ++ [key]
@@ -54,7 +54,7 @@ partial def buildTopCore
 -/
 def buildTop
 {k o} {m} [BEq k] [Inhabited o] [Monad m] [MonadStore k o m]
-(build : RecFetch k o (ExceptT (List k) m)) (key : k) : ExceptT (List k) m o :=
+(build : RecBuild k o (ExceptT (List k) m)) (key : k) : ExceptT (List k) m o :=
   buildTopCore [] build key
 
 --------------------------------------------------------------------------------
@@ -88,5 +88,5 @@ abbrev RBTopT.{u,v} (k : Type u) (o : Type u) (cmp) (m : Type u → Type v) :=
 
 /-- The `RBMap` version of `buildTop`. -/
 def buildRBTop {k o} {cmp} {m} [BEq k] [Inhabited o] [Monad m]
-(build : RecFetch k o (RBTopT k o cmp m)) (key : k) : RBTopT k o cmp m o :=
+(build : RecBuild k o (RBTopT k o cmp m)) (key : k) : RBTopT k o cmp m o :=
   buildTop build key

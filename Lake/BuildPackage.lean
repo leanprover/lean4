@@ -37,17 +37,17 @@ end ActivePackageTarget
 def Package.buildModuleOleanAndCTargetDAG
 (mods : Array Name) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
 (self : Package) : BuildM (Array ActiveOleanAndCTarget × OleanAndCTargetMap) := do
-  let fetch : OleanAndCTargetFetch :=
-    self.recFetchModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
-  let (resE, map) ← mods.mapM (buildRBTop fetch) |>.run {}
+  let buildMod : OleanAndCTargetBuild :=
+    self.recBuildModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
+  let (resE, map) ← mods.mapM (buildRBTop buildMod) |>.run {}
   (← failOnImportCycle resE, map)
 
 def Package.buildModuleOleanTargetDAG
 (mods : Array Name) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
 (self : Package) : BuildM (Array ActiveFileTarget × OleanTargetMap) := do
-  let fetch : OleanTargetFetch :=
-    self.recFetchModuleOleanTargetWithLocalImports moreOleanDirs depTarget
-  let (resE, map) ← mods.mapM (buildRBTop fetch) |>.run {}
+  let buildMod : OleanTargetBuild :=
+    self.recBuildModuleOleanTargetWithLocalImports moreOleanDirs depTarget
+  let (resE, map) ← mods.mapM (buildRBTop buildMod) |>.run {}
   (← failOnImportCycle resE, map)
 
 def Package.buildOleanAndCTargetDAG
@@ -63,16 +63,16 @@ def Package.buildOleanTargetDAG
 def Package.buildModuleOleanAndCTargets
 (mods : Array Name) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
 (self : Package) : BuildM (Array ActiveOleanAndCTarget) := do
-  let fetch : OleanAndCTargetFetch :=
-    self.recFetchModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
-  failOnImportCycle <| ← mods.mapM (buildRBTop fetch) |>.run' {}
+  let buildMod : OleanAndCTargetBuild :=
+    self.recBuildModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
+  failOnImportCycle <| ← mods.mapM (buildRBTop buildMod) |>.run' {}
 
 def Package.buildModuleOleanTargets
 (mods : Array Name) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
 (self : Package) : BuildM (Array ActiveFileTarget) := do
-  let fetch : OleanTargetFetch :=
-    self.recFetchModuleOleanTargetWithLocalImports moreOleanDirs depTarget
-  failOnImportCycle <| ← mods.mapM (buildRBTop fetch) |>.run' {}
+  let buildMod : OleanTargetBuild :=
+    self.recBuildModuleOleanTargetWithLocalImports moreOleanDirs depTarget
+  failOnImportCycle <| ← mods.mapM (buildRBTop buildMod) |>.run' {}
 
 def Package.buildOleanAndCTargets
 (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)

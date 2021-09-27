@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
 # used only for building Lean itself
 root=$(dirname $0)
-${LEAN_CC:-@CMAKE_C_COMPILER@} "-I$root/include" @LEANC_EXTRA_FLAGS@ "$@" "-L$root/lib/lean" "${LEANC_GMP:--lgmp}" @LEAN_EXTRA_LINKER_FLAGS@ -Wno-unused-command-line-argument
+ldflags=("-L$root/lib/lean" "${LEANC_GMP:--lgmp}" @LEAN_EXTRA_LINKER_FLAGS@)
+for arg in "@$"; do
+    # ccache dosn't like linker flags being passed here
+    [[ "$arg" = "-c" ]] && ldflags=()
+done
+${LEAN_CC:-@CMAKE_C_COMPILER@} "-I$root/include" @LEANC_EXTRA_FLAGS@ "$@" "${ldflags[@]}" -Wno-unused-command-line-argument

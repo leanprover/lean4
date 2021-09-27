@@ -39,14 +39,16 @@ def Package.buildModuleOleanAndCTargetDAG
 (self : Package) : BuildM (Array ActiveOleanAndCTarget × OleanAndCTargetMap) := do
   let fetch : OleanAndCTargetFetch :=
     self.recFetchModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
-  failOnImportCycle <| ← mods.mapM (buildRBTop fetch) |>.run {}
+  let (resE, map) ← mods.mapM (buildRBTop fetch) |>.run {}
+  (← failOnImportCycle resE, map)
 
 def Package.buildModuleOleanTargetDAG
 (mods : Array Name) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
 (self : Package) : BuildM (Array ActiveFileTarget × OleanTargetMap) := do
   let fetch : OleanTargetFetch :=
     self.recFetchModuleOleanTargetWithLocalImports moreOleanDirs depTarget
-  failOnImportCycle <| ← mods.mapM (buildRBTop fetch) |>.run {}
+  let (resE, map) ← mods.mapM (buildRBTop fetch) |>.run {}
+  (← failOnImportCycle resE, map)
 
 def Package.buildOleanAndCTargetDAG
 (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)

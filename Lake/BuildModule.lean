@@ -155,13 +155,13 @@ def  Package.recFetchModuleOleanTargetWithLocalImports [Monad m] [MonadLiftT Bui
 
 -- ## Definitions
 
-abbrev ModuleFetchM (α) :=
+abbrev ModuleBuildM (α) :=
   -- equivalent to `RBTopT (cmp := Name.quickCmp) Name α BuildM`.
   -- phrased this way to use `NameMap`
   EStateT (List Name) (NameMap α) BuildM
 
 abbrev ModuleFetch (α) :=
-  RecFetch Name α (ModuleFetchM α)
+  RecFetch Name α (ModuleBuildM α)
 
 abbrev OleanTargetFetch := ModuleFetch ActiveFileTarget
 abbrev OleanAndCTargetFetch := ModuleFetch ActiveOleanAndCTarget

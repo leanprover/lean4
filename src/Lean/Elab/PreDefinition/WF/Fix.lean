@@ -12,7 +12,7 @@ namespace Lean.Elab.WF
 open Meta
 
 private def toUnfold : Std.PHashSet Name :=
-  [``measure, ``id, ``Prod.lex, ``invImage].foldl (init := {}) fun s a => s.insert a
+  [``measure, ``id, ``Prod.lex, ``invImage, ``InvImage, ``Nat.lt_wfRel].foldl (init := {}) fun s a => s.insert a
 
 private def mkDecreasingProof (decreasingProp : Expr) : TermElabM Expr := do
   let mvar ← mkFreshExprSyntheticOpaqueMVar decreasingProp
@@ -66,6 +66,30 @@ private partial def replaceRecApps (recFnName : Name) (F : Expr) (e : Expr) : Te
     | e => Structural.ensureNoRecFn recFnName e
   loop F e
 
+/-- Refine `F` over `Sum.casesOn` -/
+private partial def processSumCasesOn (x F val : Expr) (k : (F : Expr) → (val : Expr) → TermElabM Expr) : TermElabM Expr := do
+  if x.isFVar && val.isAppOfArity ``Sum.casesOn 6 && val.getArg! 3 == x && (val.getArg! 4).isLambda && (val.getArg! 5).isLambda then
+    let args := val.getAppArgs
+    let α := args[0]
+    let β := args[1]
+    let FDecl ← getLocalDecl F.fvarId!
+    let (motiveNew, u) ← lambdaTelescope args[2] fun xs type => do
+      let type ← mkArrow (FDecl.type.replaceFVar x xs[0]) type
+      return (← mkLambdaFVars xs type, ← getLevel type)
+    let mkMinorNew (ctorName : Name) (minor : Expr) : TermElabM Expr :=
+      lambdaTelescope minor fun xs body => do
+        let xNew ← xs[0]
+        let valNew ← mkLambdaFVars xs[1:] body
+        let FTypeNew := FDecl.type.replaceFVar x (← mkAppOptM ctorName #[α, β, xNew])
+        withLocalDeclD FDecl.userName FTypeNew fun FNew => do
+          mkLambdaFVars #[xNew, FNew] (← processSumCasesOn xNew FNew valNew k)
+    let minorLeft ← mkMinorNew ``Sum.inl args[4]
+    let minorRight ← mkMinorNew ``Sum.inr args[5]
+    let result := mkAppN (mkConst ``Sum.casesOn [u, (← getDecLevel α), (← getDecLevel β)]) #[α, β, motiveNew, x, minorLeft, minorRight, F]
+    return result
+  else
+    k F val
+
 def mkFix (preDef : PreDefinition) (wfRel : Expr) : TermElabM PreDefinition := do
   let wfFix ← forallBoundedTelescope preDef.type (some 1) fun x type => do
     let x := x[0]
@@ -79,8 +103,8 @@ def mkFix (preDef : PreDefinition) (wfRel : Expr) : TermElabM PreDefinition := d
   forallBoundedTelescope (← whnf (← inferType wfFix)).bindingDomain! (some 2) fun xs _ => do
     let x   := xs[0]
     let F   := xs[1]
-    let value ← replaceRecApps preDef.declName F (preDef.value.betaRev #[x])
-    let value := mkApp wfFix (← mkLambdaFVars #[x, F] value)
-    return { preDef with value }
+    let val := preDef.value.betaRev #[x]
+    let val ← processSumCasesOn x F val (replaceRecApps preDef.declName)
+    return { preDef with value := mkApp wfFix (← mkLambdaFVars #[x, F] val) }
 
 end Lean.Elab.WF

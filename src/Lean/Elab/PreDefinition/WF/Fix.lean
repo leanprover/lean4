@@ -67,7 +67,7 @@ private partial def replaceRecApps (recFnName : Name) (F : Expr) (e : Expr) : Te
   loop F e
 
 /-- Refine `F` over `Sum.casesOn` -/
-private partial def processSumCasesOn (x F val : Expr) (k : (F : Expr) → (val : Expr) → TermElabM Expr) : TermElabM Expr := do
+private partial def processSumCasesOn (x F val : Expr) (k : (x : Expr) → (F : Expr) → (val : Expr) → TermElabM Expr) : TermElabM Expr := do
   if x.isFVar && val.isAppOfArity ``Sum.casesOn 6 && val.getArg! 3 == x && (val.getArg! 4).isLambda && (val.getArg! 5).isLambda then
     let args := val.getAppArgs
     let α := args[0]
@@ -88,11 +88,32 @@ private partial def processSumCasesOn (x F val : Expr) (k : (F : Expr) → (val 
     let result := mkAppN (mkConst ``Sum.casesOn [u, (← getDecLevel α), (← getDecLevel β)]) #[α, β, motiveNew, x, minorLeft, minorRight, F]
     return result
   else
+    k x F val
+
+/-- Refine `F` over `PSigma.casesOn` -/
+private partial def processPSigmaCasesOn (x F val : Expr) (k : (F : Expr) → (val : Expr) → TermElabM Expr) : TermElabM Expr := do
+  if x.isFVar && val.isAppOfArity ``PSigma.casesOn 5 && val.getArg! 3 == x && (val.getArg! 4).isLambda && (val.getArg! 4).bindingBody!.isLambda then
+    let args := val.getAppArgs
+    let [_, u, v] ← val.getAppFn.constLevels! | unreachable!
+    let α := args[0]
+    let β := args[1]
+    let FDecl ← getLocalDecl F.fvarId!
+    let (motiveNew, w) ← lambdaTelescope args[2] fun xs type => do
+      let type ← mkArrow (FDecl.type.replaceFVar x xs[0]) type
+      return (← mkLambdaFVars xs type, ← getLevel type)
+    let minor ← lambdaTelescope args[4] fun xs body => do
+        let a ← xs[0]
+        let xNew ← xs[1]
+        let valNew ← mkLambdaFVars xs[2:] body
+        let FTypeNew := FDecl.type.replaceFVar x (← mkAppOptM `PSigma.mk #[α, β, a, xNew])
+        withLocalDeclD FDecl.userName FTypeNew fun FNew => do
+          mkLambdaFVars #[a, xNew, FNew] (← processPSigmaCasesOn xNew FNew valNew k)
+    let result := mkAppN (mkConst ``PSigma.casesOn [w, u, v]) #[α, β, motiveNew, x, minor, F]
+    return result
+  else
     k F val
 
 def mkFix (preDef : PreDefinition) (wfRel : Expr) : TermElabM PreDefinition := do
-  trace[Elab.definition.wf] ">> {preDef.value}"
-  check preDef.value -- TODO remove
   let wfFix ← forallBoundedTelescope preDef.type (some 1) fun x type => do
     let x := x[0]
     let α ← inferType x
@@ -106,7 +127,7 @@ def mkFix (preDef : PreDefinition) (wfRel : Expr) : TermElabM PreDefinition := d
     let x   := xs[0]
     let F   := xs[1]
     let val := preDef.value.betaRev #[x]
-    let val ← processSumCasesOn x F val (replaceRecApps preDef.declName)
+    let val ← processSumCasesOn x F val fun x F val => processPSigmaCasesOn x F val (replaceRecApps preDef.declName)
     return { preDef with value := mkApp wfFix (← mkLambdaFVars #[x, F] val) }
 
 end Lean.Elab.WF

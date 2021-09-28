@@ -419,7 +419,7 @@ partial def smartUnfoldingReduce? (e : Expr) : MetaM (Option Expr) :=
 where
   go (e : Expr) : OptionT MetaM Expr := do
     match e with
-    | Expr.letE n t v b _ => withLetDecl n t (← go v) fun x => do mkLetFVars #[x] (← go b)
+    | Expr.letE n t v b _ => withLetDecl n t (← go v) fun x => do mkLetFVars #[x] (← go (b.instantiate1 x))
     | Expr.lam .. => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← go b)
     | Expr.app f a .. => mkApp (← go f) (← go a)
     | Expr.proj _ _ s _ => e.updateProj! (← go s)

@@ -174,10 +174,10 @@ def Measure {α : Sort u} : (α → Nat) → α → α → Prop :=
 def measure {α : Sort u} (f : α → Nat) : WellFoundedRelation α :=
   invImage f Nat.lt_wfRel
 
-def SizeofMeasure (α : Sort u) [SizeOf α] : α → α → Prop :=
+def SizeOfRef (α : Sort u) [SizeOf α] : α → α → Prop :=
   Measure sizeOf
 
-def sizeofMeasure (α : Sort u) [SizeOf α] : WellFoundedRelation α :=
+def sizeOfWFRel {α : Sort u} [SizeOf α] : WellFoundedRelation α :=
   measure sizeOf
 
 namespace Prod

@@ -40,6 +40,18 @@ where
     else
       return args[i]
 
+private partial def mkPSigmaCasesOn (y : Expr) (codomain : Expr) (xs : Array Expr) (value : Expr) : MetaM Expr := do
+  let mvar ← mkFreshExprSyntheticOpaqueMVar codomain
+  let rec go (mvarId : MVarId) (y : FVarId) (ys : Array Expr) : MetaM Unit := do
+    if ys.size < xs.size - 1 then
+      let #[s] ← cases mvarId y | unreachable!
+      go s.mvarId s.fields[1].fvarId! (ys.push s.fields[0])
+    else
+      let ys := ys.push (mkFVar y)
+      assignExprMVar mvarId (value.replaceFVars xs ys)
+  go mvar.mvarId! y.fvarId! #[]
+  instantiateMVars mvar
+
 /--
   Convert the given pre-definitions into unary functions.
   We "pack" the arguments using `PSigma`.
@@ -88,8 +100,9 @@ def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) := 
     let arity := arities[i]
     let valueNew ← lambdaTelescope preDef.value fun xs body => do
       if arity > 1 then
-        forallBoundedTelescope preDefNew.type (some 1) fun y _ => do
-          let newBody := body.replaceFVars xs (mkTupleElems y[0] xs.size)
+        forallBoundedTelescope preDefNew.type (some 1) fun y codomain => do
+          let y := y[0]
+          let newBody ← mkPSigmaCasesOn y codomain xs body
           let visit (e : Expr) : MetaM TransformStep := do
             if let some idx := isTargetApp? e |>.run then
               let f := e.getAppFn
@@ -98,7 +111,7 @@ def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) := 
               return TransformStep.done <| mkApp fNew argNew
             else
               return TransformStep.done e
-          mkLambdaFVars y (← transform newBody (post := visit))
+          mkLambdaFVars #[y] (← transform newBody (post := visit))
       else
         preDef.value
     if let some bad := valueNew.find? fun e => isAppOfPreDef? e |>.isSome then

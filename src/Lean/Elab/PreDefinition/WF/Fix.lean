@@ -91,6 +91,8 @@ private partial def processSumCasesOn (x F val : Expr) (k : (F : Expr) → (val 
     k F val
 
 def mkFix (preDef : PreDefinition) (wfRel : Expr) : TermElabM PreDefinition := do
+  trace[Elab.definition.wf] ">> {preDef.value}"
+  check preDef.value -- TODO remove
   let wfFix ← forallBoundedTelescope preDef.type (some 1) fun x type => do
     let x := x[0]
     let α ← inferType x

@@ -399,7 +399,7 @@ mutual
       return none
     else
       withReader (fun ctx => { ctx with dischargeDepth := ctx.dischargeDepth + 1 }) do
-        let r ← simp e methods
+        let r ← simp e { pre := pre, post := post, discharge? := discharge? }
         if r.expr.isConstOf ``True then
           try
             return some (← mkOfEqTrue (← r.getProof))
@@ -413,10 +413,11 @@ mutual
 
   partial def post (e : Expr) : SimpM Step :=
     postDefault e discharge?
-
-  partial def methods : Methods :=
-    { pre := pre, post := post, discharge? := discharge? }
 end
+
+def methods : Methods :=
+  { pre := pre, post := post, discharge? := discharge? }
+
 end DefaultMethods
 
 end Simp

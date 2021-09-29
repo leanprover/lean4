@@ -74,6 +74,9 @@ def addPreDefinitions (preDefs : Array PreDefinition) (terminationBy? : Option S
     else if preDefs.any (·.modifiers.isUnsafe) then
       addAndCompileUnsafe preDefs
     else if preDefs.any (·.modifiers.isPartial) then
+      for preDef in preDefs do
+        if preDef.modifiers.isPartial && !(← whnfD preDef.type).isForall then
+          withRef preDef.ref <| throwError "invalid use of 'partial', '{preDef.declName}' is not a function{indentExpr preDef.type}"
       addAndCompilePartial preDefs
     else if let some wfStx := terminationBy.find? (preDefs.map (·.declName)) then
       terminationBy := terminationBy.erase (preDefs.map (·.declName))

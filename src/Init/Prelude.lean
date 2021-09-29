@@ -1141,7 +1141,19 @@ unsafe def unsafeCast {α : Type u} {β : Type v} (a : α) : β :=
   cast lcProof (PUnit.{v})
 
 @[neverExtract, extern "lean_panic_fn"]
-constant panic {α : Type u} [Inhabited α] (msg : String) : α
+constant panicCore {α : Type u} [Inhabited α] (msg : String) : α
+
+/--
+  This is workaround for `panic` occurring in monadic code. See issue #695.
+  The `panicCore` definition cannot be specialized since it is an extern.
+  When `panic` occurs in monadic code, the `Inhabited α` parameter depends on a `[inst : Monad m]` instance.
+  The `inst` parameter will not be eliminated during specialization if it occurs inside of a binder (to avoid work duplication), and
+  will prevent the the actual monad from being "copied" to the code being specialized. When we reimplement the specializer, we
+  may consider copying `inst` if it also occurs outside binders or if it is an instance.
+-/
+@[noinline, neverExtract]
+def panic {α : Type u} [Inhabited α] (msg : String) : α :=
+  panicCore msg
 
 /-
 The Compiler has special support for arrays.

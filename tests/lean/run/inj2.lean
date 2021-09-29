@@ -31,8 +31,8 @@ by cases v
 
 def test5 {α β} {n} (v : Vec2 α β (n+1)) : α := by
   cases v with
-  | cons h1 h2 n tail => exact h1
+  | cons h1 h2 tail => exact h1
 
 def test6 {α β} {n} (v : Vec2 α β (n+2)) : α := by
   cases v with
-  | cons h1 h2 n tail => exact h1
+  | cons h1 h2 tail => exact h1

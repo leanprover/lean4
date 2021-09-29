@@ -176,6 +176,16 @@ private def checkAltNames (alts : Array (Name × MVarId)) (altsSyntax : Array Sy
       unless alts.any fun (n, _) => n == altName do
         throwErrorAt altStx "invalid alternative name '{altName}'"
 
+/-- Given the goal `altMVarId` for a given alternative that introduces `numFields` new variables,
+    return the number of explicit variables. Recall that when the `@` is not used, only the explicit variables can
+    be named by the user. -/
+private def getNumExplicitFields (altMVarId : MVarId) (numFields : Nat) : MetaM Nat := withMVarContext altMVarId do
+  let target ← getMVarType altMVarId
+  withoutModifyingState do
+    let (_, bis, _) ← forallMetaBoundedTelescope target numFields
+    trace[Meta.debug] "bis: {repr bis}"
+    return bis.foldl (init := 0) fun r bi => if bi.isExplicit then r + 1 else r
+
 def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (optPreTac : Syntax) (altsSyntax : Array Syntax)
     (initialInfo : Info)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[]) : TacticM Unit := do
@@ -232,8 +242,10 @@ where
             else
               throwError "alternative '{altName}' is not needed"
           let altVarNames := getAltVarNames altStx
-          if altVarNames.size > numFields then
-            logError m!"too many variable names provided at alternative '{altName}', #{altVarNames.size} provided, but #{numFields} expected"
+          let numFieldsToName ← if altHasExplicitModifier altStx then numFields else getNumExplicitFields altMVarId numFields
+          trace[Meta.debug] "numFields: {numFields}, numFieldsToName: {numFieldsToName}, altNames: {altVarNames.size}"
+          if altVarNames.size > numFieldsToName then
+            logError m!"too many variable names provided at alternative '{altName}', #{altVarNames.size} provided, but #{numFieldsToName} expected"
           let mut (_, altMVarId) ← introN altMVarId numFields altVarNames.toList (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
           match (← Cases.unifyEqs numEqs altMVarId {}) with
           | none => unusedAlt

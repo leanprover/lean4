@@ -14,6 +14,30 @@ namespace Lean.Elab
 open WF
 open Meta
 
+private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonRec : PreDefinition) : TermElabM Unit := do
+  let Expr.forallE _ domain _ _ ← preDefNonRec.type | unreachable!
+  let us := preDefNonRec.levelParams.map mkLevelParam
+  for fidx in [:preDefs.size] do
+    let preDef := preDefs[fidx]
+    let value ← lambdaTelescope preDef.value fun xs _ => do
+      let mkProd (type : Expr) : MetaM Expr := do
+        mkUnaryArg type xs
+      let rec mkSum (i : Nat) (type : Expr) : MetaM Expr := do
+        if i == preDefs.size - 1 then
+          mkProd type
+        else
+          (← whnfD type).withApp fun f args => do
+            assert! args.size == 2
+            if i == fidx then
+              return mkApp3 (mkConst ``Sum.inl f.constLevels!) args[0] args[1] (← mkProd args[0])
+            else
+              let r ← mkSum (i+1) args[1]
+              return mkApp3 (mkConst ``Sum.inr f.constLevels!) args[0] args[1] r
+      let arg ← mkSum 0 domain
+      mkLambdaFVars xs (mkApp (mkConst preDefNonRec.declName us) arg)
+    trace[Elab.definition.wf] "{preDef.declName} := {value}"
+    addNonRec { preDef with value }
+
 def wfRecursion (preDefs : Array PreDefinition) (wfStx? : Option Syntax) : TermElabM Unit := do
   let unaryPreDef ← withoutModifyingEnv do
     for preDef in preDefs do
@@ -24,9 +48,10 @@ def wfRecursion (preDefs : Array PreDefinition) (wfStx? : Option Syntax) : TermE
   let preDefNonRec ← withoutModifyingEnv do
     addAsAxiom unaryPreDef
     mkFix unaryPreDef wfRel
+  trace[Elab.definition.wf] ">> {preDefNonRec.declName}"
   addNonRec preDefNonRec
-  -- TODO: define preDefs
-  -- addAndCompilePartialRec preDefs
+  addNonRecPreDefs preDefs preDefNonRec
+  addAndCompilePartialRec preDefs
 
 builtin_initialize registerTraceClass `Elab.definition.wf
 

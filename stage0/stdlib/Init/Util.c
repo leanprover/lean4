@@ -50,8 +50,8 @@ LEAN_EXPORT lean_object* l_withPtrEqUnsafe___rarg(lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l_dbgTraceVal___rarg___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panicWithPos(lean_object*);
 LEAN_EXPORT lean_object* l_panicWithPosWithDecl(lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panicWithPosWithDecl___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panic___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl___closed__1;
 LEAN_EXPORT lean_object* l_withPtrAddr___rarg___boxed__const__1;
 LEAN_EXPORT lean_object* l_withPtrAddr___rarg(lean_object*, lean_object*);
@@ -182,7 +182,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = l___private_Init_Util_0__mkPanicMessage(x_2, x_3, x_4, x_5);
-x_7 = lean_panic_fn(x_1, x_6);
+x_7 = l_panic___rarg(x_1, x_6);
 return x_7;
 }
 }
@@ -252,7 +252,7 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_2, x_3, x_4, x_5, x_6);
-x_8 = lean_panic_fn(x_1, x_7);
+x_8 = l_panic___rarg(x_1, x_7);
 return x_8;
 }
 }

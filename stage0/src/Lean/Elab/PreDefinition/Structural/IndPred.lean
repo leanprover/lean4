@@ -31,13 +31,13 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
           if f.isConstOf recFnName then
             let ty ← inferType e
             let main ← mkFreshExprSyntheticOpaqueMVar ty
-            if ←IndPredBelow.backwardsChaining main.mvarId! maxDepth then
+            if (← IndPredBelow.backwardsChaining main.mvarId! maxDepth) then
               main
             else
               throwError "could not solve using backwards chaining {MessageData.ofGoal main.mvarId!}"
           else
             return mkAppN (← loop f) (← args.mapM loop)
-      match (←matchMatcherApp? e) with
+      match (← matchMatcherApp? e) with
       | some matcherApp =>
         if !recArgHasLooseBVarsAt recFnName recArgInfo.recArgPos e then
           processApp e

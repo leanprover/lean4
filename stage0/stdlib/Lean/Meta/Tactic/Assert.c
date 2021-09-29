@@ -1314,7 +1314,6 @@ x_7 = lean_array_uget(x_2, x_3);
 x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
 x_9 = l_Lean_Expr_fvarId_x21(x_8);
-lean_dec(x_8);
 x_10 = l_Array_contains___at___private_Lean_Class_0__Lean_checkOutParam___spec__1(x_1, x_9);
 lean_dec(x_9);
 x_11 = 1;

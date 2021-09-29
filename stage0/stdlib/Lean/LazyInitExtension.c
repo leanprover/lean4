@@ -19,7 +19,6 @@ LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__1(lean_ob
 LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get(lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedLazyInitExtension___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_LazyInitExtension_get___spec__1(lean_object*);
 extern lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
@@ -37,7 +36,9 @@ LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__4(lean_ob
 static lean_object* l_Lean_instInhabitedLazyInitExtension___rarg___closed__1;
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___lambda__1(lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_setState___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_panic___at_Lean_LazyInitExtension_get___spec__2(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_panic___at_Lean_LazyInitExtension_get___spec__2___rarg(lean_object*);
 static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_LazyInitExtension_get___spec__1___rarg___closed__2;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_LazyInitExtension_get___spec__1___rarg___closed__3;
@@ -172,6 +173,23 @@ x_3 = lean_alloc_closure((void*)(l_Lean_registerLazyInitExtension___rarg), 2, 0)
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_panic___at_Lean_LazyInitExtension_get___spec__2___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_box(0);
+x_3 = lean_panic_fn(x_2, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_panic___at_Lean_LazyInitExtension_get___spec__2(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_panic___at_Lean_LazyInitExtension_get___spec__2___rarg), 1, 0);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_LazyInitExtension_get___spec__1___rarg___closed__1() {
 _start:
 {
@@ -204,26 +222,29 @@ return x_6;
 LEAN_EXPORT lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_LazyInitExtension_get___spec__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_3 = lean_box(0);
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_2, 2);
-x_6 = lean_array_get_size(x_5);
-x_7 = lean_nat_dec_lt(x_4, x_6);
-lean_dec(x_6);
-if (x_7 == 0)
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec(x_1);
+x_4 = lean_ctor_get(x_2, 2);
+x_5 = lean_array_get_size(x_4);
+x_6 = lean_nat_dec_lt(x_3, x_5);
+lean_dec(x_5);
+if (x_6 == 0)
 {
-lean_object* x_8; lean_object* x_9; 
-x_8 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_LazyInitExtension_get___spec__1___rarg___closed__3;
-x_9 = lean_panic_fn(x_3, x_8);
-return x_9;
+lean_object* x_7; lean_object* x_8; 
+lean_dec(x_3);
+x_7 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_LazyInitExtension_get___spec__1___rarg___closed__3;
+x_8 = l_panic___at_Lean_LazyInitExtension_get___spec__2___rarg(x_7);
+return x_8;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; 
-x_10 = lean_array_fget(x_5, x_4);
-x_11 = x_10;
-return x_11;
+lean_object* x_9; lean_object* x_10; 
+x_9 = lean_array_fget(x_4, x_3);
+lean_dec(x_3);
+x_10 = x_9;
+return x_10;
 }
 }
 }
@@ -267,7 +288,7 @@ x_6 = lean_ctor_get(x_1, 1);
 lean_inc(x_6);
 lean_dec(x_1);
 lean_inc(x_5);
-x_7 = lean_alloc_closure((void*)(l_Lean_LazyInitExtension_get___rarg___lambda__1___boxed), 3, 2);
+x_7 = lean_alloc_closure((void*)(l_Lean_LazyInitExtension_get___rarg___lambda__1), 3, 2);
 lean_closure_set(x_7, 0, x_5);
 lean_closure_set(x_7, 1, x_2);
 x_8 = lean_apply_1(x_6, x_7);
@@ -283,6 +304,7 @@ _start:
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
 lean_inc(x_6);
 x_7 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_LazyInitExtension_get___spec__1___rarg(x_6, x_5);
 if (lean_obj_tag(x_7) == 0)
@@ -353,17 +375,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_LazyInitExtension_get___spec__1___rarg(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_LazyInitExtension_get___rarg___lambda__1(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

@@ -1194,7 +1194,6 @@ if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; 
 x_30 = l_Lean_Expr_fvarId_x21(x_27);
-lean_dec(x_27);
 lean_inc(x_8);
 x_31 = l_Lean_Meta_getLocalDecl(x_30, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_31) == 0)

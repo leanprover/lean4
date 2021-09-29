@@ -12847,6 +12847,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_evalIndu
 _start:
 {
 lean_object* x_9; lean_object* x_10; 
+lean_inc(x_1);
 x_9 = l_Lean_Expr_fvarId_x21(x_1);
 x_10 = l_Std_RBNode_findCore___at_Lean_Meta_mkGeneralizationForbiddenSet_visit___spec__1(x_2, x_9);
 lean_dec(x_9);
@@ -13220,7 +13221,6 @@ x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = x_6;
 x_10 = l_Lean_Expr_fvarId_x21(x_9);
-lean_dec(x_9);
 x_11 = 1;
 x_12 = x_2 + x_11;
 x_13 = x_10;

@@ -7655,7 +7655,6 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_75 = l_Lean_Expr_fvarId_x21(x_1);
-lean_dec(x_1);
 x_76 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_76, 0, x_75);
 x_77 = lean_alloc_ctor(0, 2, 0);
@@ -7689,6 +7688,7 @@ x_83 = lean_nat_sub(x_81, x_82);
 x_84 = lean_unsigned_to_nat(1u);
 x_85 = lean_nat_sub(x_83, x_84);
 lean_dec(x_83);
+lean_inc(x_1);
 x_86 = l_Lean_Expr_getRevArg_x21(x_1, x_85);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -7709,7 +7709,6 @@ lean_dec(x_81);
 x_92 = lean_nat_sub(x_91, x_84);
 lean_dec(x_91);
 x_93 = l_Lean_Expr_getRevArg_x21(x_1, x_92);
-lean_dec(x_1);
 if (lean_obj_tag(x_93) == 1)
 {
 lean_object* x_94; lean_object* x_95; 
@@ -7754,7 +7753,6 @@ lean_dec(x_81);
 x_101 = lean_nat_sub(x_100, x_84);
 lean_dec(x_100);
 x_102 = l_Lean_Expr_getRevArg_x21(x_1, x_101);
-lean_dec(x_1);
 if (lean_obj_tag(x_102) == 1)
 {
 lean_object* x_103; lean_object* x_104; lean_object* x_105; 

@@ -5884,7 +5884,6 @@ if (x_18 == 0)
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; size_t x_23; size_t x_24; lean_object* x_25; 
 x_19 = lean_ctor_get(x_16, 0);
 x_20 = l_Lean_ScopedEnvExtension_pushScope___rarg(x_14, x_19);
-lean_dec(x_14);
 lean_ctor_set(x_16, 0, x_20);
 x_21 = lean_st_ref_set(x_10, x_16, x_17);
 x_22 = lean_ctor_get(x_21, 1);
@@ -5911,7 +5910,6 @@ lean_inc(x_28);
 lean_inc(x_27);
 lean_dec(x_16);
 x_31 = l_Lean_ScopedEnvExtension_pushScope___rarg(x_14, x_27);
-lean_dec(x_14);
 x_32 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_28);
@@ -6066,7 +6064,6 @@ lean_inc(x_1);
 x_27 = l_Lean_ResolveName_resolveNamespace_x3f(x_13, x_19, x_26, x_1);
 lean_dec(x_26);
 lean_dec(x_19);
-lean_dec(x_13);
 if (lean_obj_tag(x_27) == 0)
 {
 uint8_t x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
@@ -6111,7 +6108,6 @@ lean_inc(x_1);
 x_41 = l_Lean_ResolveName_resolveNamespace_x3f(x_13, x_19, x_40, x_1);
 lean_dec(x_40);
 lean_dec(x_19);
-lean_dec(x_13);
 if (lean_obj_tag(x_41) == 0)
 {
 uint8_t x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
@@ -8676,7 +8672,6 @@ if (x_18 == 0)
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; size_t x_23; size_t x_24; lean_object* x_25; 
 x_19 = lean_ctor_get(x_16, 0);
 x_20 = l_Lean_ScopedEnvExtension_popScope___rarg(x_14, x_19);
-lean_dec(x_14);
 lean_ctor_set(x_16, 0, x_20);
 x_21 = lean_st_ref_set(x_10, x_16, x_17);
 x_22 = lean_ctor_get(x_21, 1);
@@ -8703,7 +8698,6 @@ lean_inc(x_28);
 lean_inc(x_27);
 lean_dec(x_16);
 x_31 = l_Lean_ScopedEnvExtension_popScope___rarg(x_14, x_27);
-lean_dec(x_14);
 x_32 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_28);

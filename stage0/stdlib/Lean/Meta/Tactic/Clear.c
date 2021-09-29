@@ -802,6 +802,8 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = lean_ctor_get(x_2, 1);
+lean_inc(x_3);
+lean_dec(x_2);
 x_4 = l_Lean_Expr_fvarId_x21(x_3);
 x_5 = lean_name_eq(x_4, x_1);
 lean_dec(x_4);
@@ -1336,7 +1338,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Meta_clear___lambda__1(x_1, x_2);
-lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;

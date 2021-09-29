@@ -1245,7 +1245,6 @@ lean_object* x_10;
 lean_inc(x_3);
 x_10 = l_Lean_ResolveName_resolveNamespace_x3f(x_1, x_2, x_9, x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 if (lean_obj_tag(x_10) == 0)
 {
 uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
@@ -1897,7 +1896,6 @@ lean_object* x_10;
 lean_inc(x_3);
 x_10 = l_Lean_ResolveName_resolveNamespace_x3f(x_1, x_2, x_9, x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 if (lean_obj_tag(x_10) == 0)
 {
 uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
@@ -2438,7 +2436,6 @@ lean_object* x_10;
 lean_inc(x_3);
 x_10 = l_Lean_ResolveName_resolveNamespace_x3f(x_1, x_2, x_9, x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 if (lean_obj_tag(x_10) == 0)
 {
 uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
@@ -2857,7 +2854,6 @@ lean_object* x_10;
 lean_inc(x_3);
 x_10 = l_Lean_ResolveName_resolveNamespace_x3f(x_1, x_2, x_9, x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 if (lean_obj_tag(x_10) == 0)
 {
 uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
@@ -3316,7 +3312,6 @@ lean_object* x_10;
 lean_inc(x_3);
 x_10 = l_Lean_ResolveName_resolveNamespace_x3f(x_1, x_2, x_9, x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 if (lean_obj_tag(x_10) == 0)
 {
 uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 

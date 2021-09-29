@@ -17,6 +17,12 @@ structure Subarray (α : Type u)  where
 
 namespace Subarray
 
+def popFront (s : Subarray α) : Subarray α :=
+  if h : s.start < s.stop then
+    { s with start := s.start + 1, h₁ := Nat.le_of_lt_succ (Nat.add_lt_add_right h 1) }
+  else
+    s
+
 @[inline] unsafe def forInUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   let sz := USize.ofNat s.stop
   let rec @[specialize] loop (i : USize) (b : β) : m β := do

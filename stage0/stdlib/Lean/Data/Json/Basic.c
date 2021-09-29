@@ -68,6 +68,7 @@ LEAN_EXPORT lean_object* l_Lean_JsonNumber_shiftl___boxed(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_JsonNumber_normalize___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Json_mkObj___spec__3(lean_object*, lean_object*);
 static lean_object* l_Lean_JsonNumber_normalize___closed__3;
+LEAN_EXPORT lean_object* l_panic___at_Lean_Json_setObjVal_x21___spec__1(lean_object*);
 static lean_object* l_Lean_JsonNumber_instReprJsonNumber___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Json_instCoeBoolJson(uint8_t);
 static lean_object* l_Lean_JsonNumber_normalize___closed__5;
@@ -120,7 +121,6 @@ LEAN_EXPORT lean_object* l_Std_RBNode_fold___at___private_Lean_Data_Json_Basic_0
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_Std_RBNode_isRed___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at___private_Lean_Data_Json_Basic_0__Lean_Json_beq_x27___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_Lean_JsonNumber_instReprJsonNumber___closed__1;
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getBool_x3f___boxed(lean_object*);
@@ -137,6 +137,7 @@ static lean_object* l_Lean_Json_setObjVal_x21___closed__4;
 static lean_object* l_Lean_JsonNumber_toString___closed__2;
 static lean_object* l_Lean_JsonNumber_instCoeIntJsonNumber___closed__1;
 lean_object* l_Array_get_x3f___rarg(lean_object*, lean_object*);
+lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getArr_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonNumber_instReprJsonNumber___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Json_instBEqJson___closed__1;
@@ -6609,6 +6610,15 @@ lean_dec(x_1);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_panic___at_Lean_Json_setObjVal_x21___spec__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_instInhabitedJson;
+x_3 = lean_panic_fn(x_2, x_1);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Json_setObjVal_x21___closed__1() {
 _start:
 {
@@ -6675,14 +6685,13 @@ return x_9;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+lean_object* x_10; lean_object* x_11; 
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_10 = l_Lean_instInhabitedJson;
-x_11 = l_Lean_Json_setObjVal_x21___closed__4;
-x_12 = lean_panic_fn(x_10, x_11);
-return x_12;
+x_10 = l_Lean_Json_setObjVal_x21___closed__4;
+x_11 = l_panic___at_Lean_Json_setObjVal_x21___spec__1(x_10);
+return x_11;
 }
 }
 }

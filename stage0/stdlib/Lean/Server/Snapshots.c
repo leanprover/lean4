@@ -31,7 +31,6 @@ static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__3;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Server_Snapshots_compileNextCmd_withNewInteractiveDiags___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_parseAhead_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_instInhabitedNat;
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -91,7 +90,6 @@ static size_t l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__12;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_compileNextCmd___closed__5;
 LEAN_EXPORT lean_object* l_Std_PersistentArray_mapM___at_Lean_Server_Snapshots_Snapshot_diagnostics___spec__1(lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_compileNextCmd___closed__3;
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_compileNextCmd_withNewInteractiveDiags___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -121,6 +119,7 @@ static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_env(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_compileNextCmd(lean_object*, lean_object*, lean_object*);
+lean_object* l_panic___at_Lean_Elab_InfoTree_smallestInfo_x3f___spec__1(lean_object*);
 static lean_object* _init_l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__1() {
 _start:
 {
@@ -863,7 +862,6 @@ x_8 = lean_ctor_get(x_6, 2);
 lean_inc(x_8);
 lean_dec(x_6);
 x_9 = l_List_head_x21___at_Lean_Elab_Command_instMonadOptionsCommandElabM___spec__1(x_8);
-lean_dec(x_8);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 2);
@@ -971,7 +969,6 @@ x_8 = lean_ctor_get(x_6, 2);
 lean_inc(x_8);
 lean_dec(x_6);
 x_9 = l_List_head_x21___at_Lean_Elab_Command_instMonadOptionsCommandElabM___spec__1(x_8);
-lean_dec(x_8);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 2);
@@ -1391,6 +1388,7 @@ x_15 = lean_ctor_get(x_7, 7);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_7, 8);
 lean_inc(x_16);
+lean_inc(x_10);
 x_17 = l_List_head_x21___at_Lean_Elab_Command_instMonadOptionsCommandElabM___spec__1(x_10);
 x_18 = lean_ctor_get(x_17, 1);
 lean_inc(x_18);
@@ -1423,20 +1421,19 @@ lean_inc(x_25);
 x_30 = l_Lean_Parser_isEOI(x_25);
 if (lean_obj_tag(x_29) == 0)
 {
-lean_object* x_204; lean_object* x_205; lean_object* x_206; 
-x_204 = l_instInhabitedNat;
-x_205 = l_Lean_Server_Snapshots_compileNextCmd___closed__6;
-x_206 = lean_panic_fn(x_204, x_205);
-x_31 = x_206;
+lean_object* x_204; lean_object* x_205; 
+x_204 = l_Lean_Server_Snapshots_compileNextCmd___closed__6;
+x_205 = l_panic___at_Lean_Elab_InfoTree_smallestInfo_x3f___spec__1(x_204);
+x_31 = x_205;
 goto block_203;
 }
 else
 {
-lean_object* x_207; 
-x_207 = lean_ctor_get(x_29, 0);
-lean_inc(x_207);
+lean_object* x_206; 
+x_206 = lean_ctor_get(x_29, 0);
+lean_inc(x_206);
 lean_dec(x_29);
-x_31 = x_207;
+x_31 = x_206;
 goto block_203;
 }
 block_203:

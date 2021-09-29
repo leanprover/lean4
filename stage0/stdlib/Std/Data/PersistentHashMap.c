@@ -147,9 +147,9 @@ LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAux___rarg(lean_object*, 
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentHashMap_collectStats___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_PersistentHashMap_find_x21___rarg___closed__3;
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_root___default(lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_mul2Shift___boxed(lean_object*, lean_object*);
+lean_object* l_panic___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentHashMap_toList___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_findAtAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_erase___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1524,7 +1524,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = l_Std_PersistentHashMap_find_x21___rarg___closed__4;
-x_8 = lean_panic_fn(x_3, x_7);
+x_8 = l_panic___rarg(x_3, x_7);
 return x_8;
 }
 else

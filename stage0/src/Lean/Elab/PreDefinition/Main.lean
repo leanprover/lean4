@@ -57,11 +57,13 @@ private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM
   else
     return preDef
 
-def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := do
+def addPreDefinitions (preDefs : Array PreDefinition) (terminationBy? : Option Syntax) : TermElabM Unit := withLCtx {} {} do
   for preDef in preDefs do
     trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
   let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
-  for preDefs in partitionPreDefs preDefs do
+  let cliques ← partitionPreDefs preDefs
+  let mut terminationBy ← liftMacroM <| WF.expandTerminationBy terminationBy? (cliques.map fun ds => ds.map (·.declName))
+  for preDefs in cliques do
     trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
     if preDefs.size == 1 && isNonRecursive preDefs[0] then
       let preDef := preDefs[0]
@@ -73,14 +75,18 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := do
       addAndCompileUnsafe preDefs
     else if preDefs.any (·.modifiers.isPartial) then
       addAndCompilePartial preDefs
-    else withRef (preDefs[0].ref) do
-      mapError
+    else if let some wfStx := terminationBy.find? (preDefs.map (·.declName)) then
+      terminationBy := terminationBy.erase (preDefs.map (·.declName))
+      wfRecursion preDefs wfStx
+    else
+      withRef (preDefs[0].ref) <| mapError
         (orelseMergeErrors
           (structuralRecursion preDefs)
-          (WFRecursion preDefs))
+          (wfRecursion preDefs none))
         (fun msg =>
           let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
           m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
+  liftMacroM <| terminationBy.ensureIsEmpty
 
 builtin_initialize
   registerTraceClass `Elab.definition.body

@@ -57,7 +57,7 @@ partial def quoteAutoTactic : Syntax → TermElabM Syntax
           quotedArgs ← `(Array.push $quotedArgs $quotedArg)
       `(Syntax.node $(quote k) $quotedArgs)
   | Syntax.atom info val => `(mkAtom $(quote val))
-  | Syntax.missing       => unreachable!
+  | Syntax.missing       => throwError "invalid auto tactic, tactic is missing"
 
 def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=
   withFreshMacroScope do

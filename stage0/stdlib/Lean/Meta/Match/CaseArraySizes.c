@@ -1159,7 +1159,6 @@ x_9 = lean_array_uset(x_4, x_3, x_8);
 x_10 = x_7;
 x_11 = l_Lean_Meta_FVarSubst_get(x_1, x_10);
 x_12 = l_Lean_Expr_fvarId_x21(x_11);
-lean_dec(x_11);
 x_13 = 1;
 x_14 = x_3 + x_13;
 x_15 = x_12;
@@ -1498,7 +1497,6 @@ lean_inc(x_25);
 lean_inc(x_5);
 x_26 = l_Lean_Meta_FVarSubst_get(x_24, x_5);
 x_27 = l_Lean_Expr_fvarId_x21(x_26);
-lean_dec(x_26);
 x_28 = lean_nat_dec_lt(x_11, x_6);
 if (x_28 == 0)
 {
@@ -1611,7 +1609,6 @@ lean_dec(x_55);
 lean_inc(x_4);
 x_58 = l_Lean_Meta_FVarSubst_get(x_24, x_4);
 x_59 = l_Lean_Expr_fvarId_x21(x_58);
-lean_dec(x_58);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_inc(x_15);

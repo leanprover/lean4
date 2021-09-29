@@ -20,7 +20,12 @@ namespace Parser
 
 namespace Command
 
-def terminationBy := leading_parser "termination_by " >> sepBy1 termParser ", "
+-- A mutual block may be broken in different cliques, we identify them using an `ident` (an element of the clique)
+def terminationByMany   := leading_parser atomic (lookahead (ident >> " => ")) >> many1Indent (group (ppLine >> ident >> " => " >> termParser >> optional ";"))
+-- Simpler syntax for mutual blocks containing single clique that requires well-founded recursion.
+def terminationBy1 := leading_parser termParser
+
+def terminationBy := leading_parser "termination_by " >> (terminationByMany <|> terminationBy1)
 
 @[builtinCommandParser]
 def moduleDoc := leading_parser ppDedent $ "/-!" >> commentBody >> ppLine

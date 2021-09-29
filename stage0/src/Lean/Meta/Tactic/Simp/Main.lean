@@ -156,7 +156,7 @@ where
   simpStep (e : Expr) : M Result := do
     match e with
     | Expr.mdata m e _ => let r ← simp e; return { r with expr := mkMData m r.expr }
-    | Expr.proj ..     => return { expr := (← reduceProj e) }
+    | Expr.proj ..     => simpProj e
     | Expr.app ..      => simpApp e
     | Expr.lam ..      => simpLambda e
     | Expr.forallE ..  => simpForall e
@@ -167,6 +167,33 @@ where
     | Expr.lit ..      => simpLit e
     | Expr.mvar ..     => return { expr := (← instantiateMVars e) }
     | Expr.fvar ..     => return { expr := (← reduceFVar (← getConfig) e) }
+
+  simpLit (e : Expr) : M Result :=
+    match e.natLit? with
+    | some n => return { expr := (← mkNumeral (mkConst ``Nat) n) }
+    | none   => return { expr := e }
+
+  simpProj (e : Expr) : M Result := do
+    match (← reduceProj? e) with
+    | some e => return { expr := e }
+    | none =>
+      let s := e.projExpr!
+      let motive? ← withLocalDeclD `s (← inferType s) fun s => do
+        let p := e.updateProj! s
+        if (← dependsOn (← inferType p) s.fvarId!) then
+          return none
+        else
+          return some (← mkLambdaFVars #[s] (← mkEq e p))
+      if let some motive := motive? then
+        let r ← simp s
+        let eNew := e.updateProj! r.expr
+        match r.proof? with
+        | none => return { expr := eNew }
+        | some h =>
+          let hNew ← mkEqNDRec motive (← mkEqRefl s) h
+          return { expr := eNew, proof? := some hNew }
+      else
+        return { expr := (← dsimp e) }
 
   congrDefault (e : Expr) : M Result :=
     withParent e <| e.withApp fun f args => do
@@ -183,11 +210,6 @@ where
           r ← mkCongrFun r (← dsimp arg)
         i := i + 1
       return r
-
-  simpLit (e : Expr) : M Result :=
-    match e.natLit? with
-    | some n => return { expr := (← mkNumeral (mkConst ``Nat) n) }
-    | none   => return { expr := e }
 
   /- Return true iff processing the given congruence lemma hypothesis produced a non-refl proof. -/
   processCongrHypothesis (h : Expr) : M Bool := do

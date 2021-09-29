@@ -955,7 +955,6 @@ else
 {
 lean_object* x_35; lean_object* x_36; size_t x_37; size_t x_38; 
 x_35 = l_Lean_Expr_fvarId_x21(x_12);
-lean_dec(x_12);
 x_36 = lean_array_push(x_15, x_35);
 lean_ctor_set(x_4, 1, x_36);
 x_37 = 1;
@@ -1079,7 +1078,6 @@ else
 {
 lean_object* x_62; lean_object* x_63; lean_object* x_64; size_t x_65; size_t x_66; 
 x_62 = l_Lean_Expr_fvarId_x21(x_12);
-lean_dec(x_12);
 x_63 = lean_array_push(x_41, x_62);
 x_64 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_64, 0, x_40);
@@ -10629,7 +10627,6 @@ else
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = l_Lean_Expr_fvarId_x21(x_6);
-lean_dec(x_6);
 x_12 = lean_box(0);
 x_13 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_4, x_11, x_12);
 x_2 = x_9;

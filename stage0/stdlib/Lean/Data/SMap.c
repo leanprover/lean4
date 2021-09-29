@@ -158,9 +158,9 @@ LEAN_EXPORT lean_object* l_Lean_SMap_foldStage2___rarg(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SMap_toList___spec__9(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SMap_fold___spec__13(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_numBuckets___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_size___rarg___boxed(lean_object*);
+lean_object* l_panic___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_instReprSMap___rarg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_SMap_fold___at_Lean_SMap_toList___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_List_toSMap(lean_object*, lean_object*);
@@ -718,7 +718,7 @@ if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = l_Lean_SMap_find_x21___rarg___closed__4;
-x_8 = lean_panic_fn(x_3, x_7);
+x_8 = l_panic___rarg(x_3, x_7);
 return x_8;
 }
 else

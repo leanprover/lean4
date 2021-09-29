@@ -3556,7 +3556,6 @@ x_7 = l_Lean_Elab_liftMacroM___at___private_Lean_Elab_LetRec_0__Lean_Elab_Term_m
 lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_7;
 }
 }
@@ -4146,7 +4145,6 @@ lean_dec(x_15);
 x_22 = l_Lean_instInhabitedExpr;
 x_23 = lean_array_get(x_22, x_2, x_8);
 x_24 = l_Lean_Expr_fvarId_x21(x_23);
-lean_dec(x_23);
 x_25 = lean_array_get(x_22, x_3, x_8);
 x_26 = l_Lean_Expr_mvarId_x21(x_21);
 lean_dec(x_21);

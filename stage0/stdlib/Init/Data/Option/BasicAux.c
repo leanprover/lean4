@@ -20,7 +20,7 @@ static lean_object* l_Option_get_x21___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Option_get_x21___rarg(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Option_get_x21___rarg___closed__4;
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* l_panic___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_get_x21(lean_object*);
 static lean_object* _init_l_Option_get_x21___rarg___closed__1() {
 _start:
@@ -66,7 +66,7 @@ if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Option_get_x21___rarg___closed__4;
-x_4 = lean_panic_fn(x_1, x_3);
+x_4 = l_panic___rarg(x_1, x_3);
 return x_4;
 }
 else

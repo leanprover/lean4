@@ -98,7 +98,7 @@ default: return reinterpret_cast<fnn>(f)(as);
 }
 static obj* curry(obj* f, unsigned n, obj** as) { return curry(lean_closure_fun(f), n, as); }
 extern "C" obj* lean_apply_n(obj*, unsigned, obj**);
-extern "C" obj* lean_apply_1(obj* f, obj* a1) {
+extern "C" LEAN_EXPORT obj* lean_apply_1(obj* f, obj* a1) {
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 1) {
@@ -156,7 +156,7 @@ if (arity == fixed + 1) {
   return fix_args(f, {a1});
 }
 }
-extern "C" obj* lean_apply_2(obj* f, obj* a1, obj* a2) {
+extern "C" LEAN_EXPORT obj* lean_apply_2(obj* f, obj* a1, obj* a2) {
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 2) {
@@ -217,7 +217,7 @@ if (arity == fixed + 2) {
   return fix_args(f, {a1, a2});
 }
 }
-extern "C" obj* lean_apply_3(obj* f, obj* a1, obj* a2, obj* a3) {
+extern "C" LEAN_EXPORT obj* lean_apply_3(obj* f, obj* a1, obj* a2, obj* a3) {
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 3) {
@@ -276,7 +276,7 @@ if (arity == fixed + 3) {
   return fix_args(f, {a1, a2, a3});
 }
 }
-extern "C" obj* lean_apply_4(obj* f, obj* a1, obj* a2, obj* a3, obj* a4) {
+extern "C" LEAN_EXPORT obj* lean_apply_4(obj* f, obj* a1, obj* a2, obj* a3, obj* a4) {
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 4) {
@@ -333,7 +333,7 @@ if (arity == fixed + 4) {
   return fix_args(f, {a1, a2, a3, a4});
 }
 }
-extern "C" obj* lean_apply_5(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5) {
+extern "C" LEAN_EXPORT obj* lean_apply_5(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5) {
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 5) {
@@ -388,7 +388,7 @@ if (arity == fixed + 5) {
   return fix_args(f, {a1, a2, a3, a4, a5});
 }
 }
-extern "C" obj* lean_apply_6(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6) {
+extern "C" LEAN_EXPORT obj* lean_apply_6(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6) {
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 6) {
@@ -441,7 +441,7 @@ if (arity == fixed + 6) {
   return fix_args(f, {a1, a2, a3, a4, a5, a6});
 }
 }
-extern "C" obj* lean_apply_7(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7) {
+extern "C" LEAN_EXPORT obj* lean_apply_7(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7) {
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 7) {
@@ -492,7 +492,7 @@ if (arity == fixed + 7) {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7});
 }
 }
-extern "C" obj* lean_apply_8(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8) {
+extern "C" LEAN_EXPORT obj* lean_apply_8(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8) {
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 8) {
@@ -541,7 +541,7 @@ if (arity == fixed + 8) {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8});
 }
 }
-extern "C" obj* lean_apply_9(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8, obj* a9) {
+extern "C" LEAN_EXPORT obj* lean_apply_9(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8, obj* a9) {
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 9) {
@@ -588,7 +588,7 @@ if (arity == fixed + 9) {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9});
 }
 }
-extern "C" obj* lean_apply_10(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8, obj* a9, obj* a10) {
+extern "C" LEAN_EXPORT obj* lean_apply_10(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8, obj* a9, obj* a10) {
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 10) {
@@ -633,7 +633,7 @@ if (arity == fixed + 10) {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10});
 }
 }
-extern "C" obj* lean_apply_11(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8, obj* a9, obj* a10, obj* a11) {
+extern "C" LEAN_EXPORT obj* lean_apply_11(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8, obj* a9, obj* a10, obj* a11) {
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 11) {
@@ -676,7 +676,7 @@ if (arity == fixed + 11) {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11});
 }
 }
-extern "C" obj* lean_apply_12(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8, obj* a9, obj* a10, obj* a11, obj* a12) {
+extern "C" LEAN_EXPORT obj* lean_apply_12(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8, obj* a9, obj* a10, obj* a11, obj* a12) {
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 12) {
@@ -717,7 +717,7 @@ if (arity == fixed + 12) {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12});
 }
 }
-extern "C" obj* lean_apply_13(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8, obj* a9, obj* a10, obj* a11, obj* a12, obj* a13) {
+extern "C" LEAN_EXPORT obj* lean_apply_13(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8, obj* a9, obj* a10, obj* a11, obj* a12, obj* a13) {
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 13) {
@@ -756,7 +756,7 @@ if (arity == fixed + 13) {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13});
 }
 }
-extern "C" obj* lean_apply_14(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8, obj* a9, obj* a10, obj* a11, obj* a12, obj* a13, obj* a14) {
+extern "C" LEAN_EXPORT obj* lean_apply_14(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8, obj* a9, obj* a10, obj* a11, obj* a12, obj* a13, obj* a14) {
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 14) {
@@ -793,7 +793,7 @@ if (arity == fixed + 14) {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14});
 }
 }
-extern "C" obj* lean_apply_15(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8, obj* a9, obj* a10, obj* a11, obj* a12, obj* a13, obj* a14, obj* a15) {
+extern "C" LEAN_EXPORT obj* lean_apply_15(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8, obj* a9, obj* a10, obj* a11, obj* a12, obj* a13, obj* a14, obj* a15) {
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 15) {
@@ -828,7 +828,7 @@ if (arity == fixed + 15) {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15});
 }
 }
-extern "C" obj* lean_apply_16(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8, obj* a9, obj* a10, obj* a11, obj* a12, obj* a13, obj* a14, obj* a15, obj* a16) {
+extern "C" LEAN_EXPORT obj* lean_apply_16(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* a7, obj* a8, obj* a9, obj* a10, obj* a11, obj* a12, obj* a13, obj* a14, obj* a15, obj* a16) {
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 16) {
@@ -861,7 +861,7 @@ if (arity == fixed + 16) {
   return fix_args(f, {a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16});
 }
 }
-extern "C" obj* lean_apply_m(obj* f, unsigned n, obj** as) {
+extern "C" LEAN_EXPORT obj* lean_apply_m(obj* f, unsigned n, obj** as) {
 lean_assert(n > 16);
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
@@ -883,7 +883,7 @@ if (arity == fixed + n) {
   return fix_args(f, n, as);
 }
 }
-extern "C" obj* lean_apply_n(obj* f, unsigned n, obj** as) {
+extern "C" LEAN_EXPORT obj* lean_apply_n(obj* f, unsigned n, obj** as) {
 switch (n) {
 case 0: lean_unreachable();
 case 1: return lean_apply_1(f, as[0]);

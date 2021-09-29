@@ -6798,7 +6798,6 @@ x_7 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___s
 lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_7;
 }
 }
@@ -12641,7 +12640,6 @@ x_26 = lean_ctor_get(x_15, 0);
 lean_inc(x_26);
 lean_dec(x_15);
 x_27 = l_Lean_Expr_fvarId_x21(x_26);
-lean_dec(x_26);
 lean_ctor_set(x_14, 0, x_27);
 return x_14;
 }
@@ -12655,7 +12653,6 @@ x_29 = lean_ctor_get(x_15, 0);
 lean_inc(x_29);
 lean_dec(x_15);
 x_30 = l_Lean_Expr_fvarId_x21(x_29);
-lean_dec(x_29);
 x_31 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set(x_31, 1, x_28);
@@ -12742,7 +12739,6 @@ x_54 = lean_ctor_get(x_43, 0);
 lean_inc(x_54);
 lean_dec(x_43);
 x_55 = l_Lean_Expr_fvarId_x21(x_54);
-lean_dec(x_54);
 if (lean_is_scalar(x_53)) {
  x_56 = lean_alloc_ctor(0, 2, 0);
 } else {

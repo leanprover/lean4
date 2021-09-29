@@ -43,16 +43,15 @@ size_t l_USize_mod(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_Meta_MVarRenaming_find_x3f___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__3;
 size_t lean_ptr_addr(lean_object*);
-extern lean_object* l_Lean_instInhabitedMVarId;
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_find_x21(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 uint8_t l_Std_RBNode_isRed___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit___at_Lean_Meta_MVarRenaming_apply___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__4;
 lean_object* lean_expr_update_lambda(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_expr_update_app(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_Meta_MVarRenaming_find_x3f___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_panic___at_Lean_Level_mvarId_x21___spec__1(lean_object*);
 extern lean_object* l_Lean_Expr_ReplaceImpl_initCache;
 static lean_object* _init_l_Lean_Meta_MVarRenaming_map___default() {
 _start:
@@ -201,19 +200,18 @@ lean_object* x_3;
 x_3 = l_Std_RBNode_find___at_Lean_Meta_MVarRenaming_find_x3f___spec__1(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = l_Lean_instInhabitedMVarId;
-x_5 = l_Lean_Meta_MVarRenaming_find_x21___closed__4;
-x_6 = lean_panic_fn(x_4, x_5);
-return x_6;
+lean_object* x_4; lean_object* x_5; 
+x_4 = l_Lean_Meta_MVarRenaming_find_x21___closed__4;
+x_5 = l_panic___at_Lean_Level_mvarId_x21___spec__1(x_4);
+return x_5;
 }
 else
 {
-lean_object* x_7; 
-x_7 = lean_ctor_get(x_3, 0);
-lean_inc(x_7);
+lean_object* x_6; 
+x_6 = lean_ctor_get(x_3, 0);
+lean_inc(x_6);
 lean_dec(x_3);
-return x_7;
+return x_6;
 }
 }
 }

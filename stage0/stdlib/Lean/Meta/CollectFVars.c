@@ -357,6 +357,7 @@ x_23 = lean_ctor_get(x_15, 0);
 x_24 = lean_ctor_get(x_15, 1);
 x_25 = lean_ctor_get(x_24, 1);
 lean_inc(x_25);
+lean_inc(x_13);
 x_26 = l_Lean_Expr_fvarId_x21(x_13);
 x_27 = l_Std_RBNode_findCore___at_Lean_Meta_ToHide_isMarked___spec__1(x_25, x_26);
 lean_dec(x_25);
@@ -511,6 +512,7 @@ lean_inc(x_56);
 lean_dec(x_15);
 x_58 = lean_ctor_get(x_57, 1);
 lean_inc(x_58);
+lean_inc(x_13);
 x_59 = l_Lean_Expr_fvarId_x21(x_13);
 x_60 = l_Std_RBNode_findCore___at_Lean_Meta_ToHide_isMarked___spec__1(x_58, x_59);
 lean_dec(x_58);
@@ -684,6 +686,7 @@ if (lean_is_exclusive(x_15)) {
 }
 x_95 = lean_ctor_get(x_93, 1);
 lean_inc(x_95);
+lean_inc(x_13);
 x_96 = l_Lean_Expr_fvarId_x21(x_13);
 x_97 = l_Std_RBNode_findCore___at_Lean_Meta_ToHide_isMarked___spec__1(x_95, x_96);
 lean_dec(x_95);
@@ -880,6 +883,7 @@ if (lean_is_exclusive(x_15)) {
 }
 x_136 = lean_ctor_get(x_134, 1);
 lean_inc(x_136);
+lean_inc(x_13);
 x_137 = l_Lean_Expr_fvarId_x21(x_13);
 x_138 = l_Std_RBNode_findCore___at_Lean_Meta_ToHide_isMarked___spec__1(x_136, x_137);
 lean_dec(x_136);

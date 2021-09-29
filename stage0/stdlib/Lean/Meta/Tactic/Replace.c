@@ -958,6 +958,7 @@ goto block_90;
 else
 {
 lean_object* x_93; lean_object* x_94; 
+lean_inc(x_1);
 x_93 = l_Lean_Expr_fvarId_x21(x_1);
 lean_inc(x_4);
 x_94 = l_Lean_Meta_getLocalDecl(x_93, x_4, x_5, x_6, x_7, x_13);

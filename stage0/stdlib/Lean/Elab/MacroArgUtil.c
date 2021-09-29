@@ -18,7 +18,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandMacroArg_mkSplicePat___boxed(
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_72____spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMacroArg___lambda__4___closed__17;
 static lean_object* l_Lean_Elab_Command_expandMacroArg___lambda__4___closed__1;
-extern lean_object* l_String_instInhabitedString;
 static lean_object* l_Lean_Elab_Command_expandMacroArg___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandMacroArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -78,7 +77,6 @@ static lean_object* l_Lean_Elab_Command_expandMacroArg___lambda__4___closed__15;
 static lean_object* l_Lean_Elab_Command_expandMacroArg___lambda__4___closed__18;
 static lean_object* l_Lean_Elab_Command_expandMacroArg___lambda__4___closed__10;
 static lean_object* l_Lean_Elab_Command_expandMacroArg___lambda__4___closed__5;
-lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMacroArg___lambda__4___closed__30;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandMacroArg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMacroArg___lambda__2___closed__3;
@@ -94,6 +92,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandMacroArg_mkSplicePat(lean_obj
 static lean_object* l_Lean_Elab_Command_expandMacroArg___lambda__4___closed__12;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMacroArg___closed__6;
+lean_object* l_panic___at_Lean_Name_getString_x21___spec__1(lean_object*);
 static lean_object* l_Lean_Elab_Command_expandMacroArg___lambda__2___closed__4;
 static lean_object* l_Lean_Elab_Command_expandMacroArg___lambda__4___closed__11;
 uint8_t l_Lean_Syntax_matchesIdent(lean_object*, lean_object*);
@@ -221,29 +220,28 @@ lean_object* x_7;
 x_7 = l_Lean_Syntax_isStrLit_x3f(x_1);
 if (lean_obj_tag(x_7) == 0)
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_8 = l_String_instInhabitedString;
-x_9 = l_Lean_Elab_Command_expandMacroArg___lambda__2___closed__6;
-x_10 = lean_panic_fn(x_8, x_9);
-x_11 = l_Lean_Elab_Command_expandMacroArg___lambda__2___closed__7;
-x_12 = lean_string_append(x_10, x_11);
-x_13 = l_Lean_Elab_Command_expandMacroArg___lambda__2___closed__2;
-x_14 = l_Lean_Elab_Command_expandMacroArg_mkSplicePat(x_13, x_2, x_12);
-x_15 = lean_apply_3(x_3, x_14, x_5, x_6);
-return x_15;
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_8 = l_Lean_Elab_Command_expandMacroArg___lambda__2___closed__6;
+x_9 = l_panic___at_Lean_Name_getString_x21___spec__1(x_8);
+x_10 = l_Lean_Elab_Command_expandMacroArg___lambda__2___closed__7;
+x_11 = lean_string_append(x_9, x_10);
+x_12 = l_Lean_Elab_Command_expandMacroArg___lambda__2___closed__2;
+x_13 = l_Lean_Elab_Command_expandMacroArg_mkSplicePat(x_12, x_2, x_11);
+x_14 = lean_apply_3(x_3, x_13, x_5, x_6);
+return x_14;
 }
 else
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_16 = lean_ctor_get(x_7, 0);
-lean_inc(x_16);
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+x_15 = lean_ctor_get(x_7, 0);
+lean_inc(x_15);
 lean_dec(x_7);
-x_17 = l_Lean_Elab_Command_expandMacroArg___lambda__2___closed__7;
-x_18 = lean_string_append(x_16, x_17);
-x_19 = l_Lean_Elab_Command_expandMacroArg___lambda__2___closed__2;
-x_20 = l_Lean_Elab_Command_expandMacroArg_mkSplicePat(x_19, x_2, x_18);
-x_21 = lean_apply_3(x_3, x_20, x_5, x_6);
-return x_21;
+x_16 = l_Lean_Elab_Command_expandMacroArg___lambda__2___closed__7;
+x_17 = lean_string_append(x_15, x_16);
+x_18 = l_Lean_Elab_Command_expandMacroArg___lambda__2___closed__2;
+x_19 = l_Lean_Elab_Command_expandMacroArg_mkSplicePat(x_18, x_2, x_17);
+x_20 = lean_apply_3(x_3, x_19, x_5, x_6);
+return x_20;
 }
 }
 }

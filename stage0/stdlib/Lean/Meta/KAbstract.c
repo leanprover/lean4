@@ -51,6 +51,7 @@ x_290 = l_Lean_Expr_hasLooseBVars(x_5);
 if (x_290 == 0)
 {
 lean_object* x_291; uint8_t x_292; 
+lean_inc(x_5);
 x_291 = l_Lean_Expr_toHeadIndex(x_5);
 x_292 = l___private_Lean_HeadIndex_0__Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_65_(x_291, x_3);
 lean_dec(x_291);
@@ -6566,6 +6567,7 @@ if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 lean_free_object(x_9);
+lean_inc(x_2);
 x_14 = l_Lean_Expr_toHeadIndex(x_2);
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(x_2, x_15);
@@ -6654,6 +6656,7 @@ if (x_38 == 0)
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 lean_free_object(x_9);
+lean_inc(x_2);
 x_39 = l_Lean_Expr_toHeadIndex(x_2);
 x_40 = lean_unsigned_to_nat(0u);
 x_41 = l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(x_2, x_40);
@@ -6762,6 +6765,7 @@ x_67 = l_Lean_Expr_isFVar(x_2);
 if (x_67 == 0)
 {
 lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; 
+lean_inc(x_2);
 x_68 = l_Lean_Expr_toHeadIndex(x_2);
 x_69 = lean_unsigned_to_nat(0u);
 x_70 = l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(x_2, x_69);
@@ -6849,6 +6853,7 @@ x_91 = l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data
 if (x_91 == 0)
 {
 lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; 
+lean_inc(x_2);
 x_92 = l_Lean_Expr_toHeadIndex(x_2);
 x_93 = lean_unsigned_to_nat(0u);
 x_94 = l___private_Lean_HeadIndex_0__Lean_Expr_headNumArgsAux(x_2, x_93);

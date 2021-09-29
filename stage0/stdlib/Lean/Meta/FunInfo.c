@@ -1272,7 +1272,6 @@ x_17 = l_Lean_instInhabitedExpr;
 x_18 = lean_array_get(x_17, x_1, x_4);
 lean_inc(x_6);
 x_19 = l_Lean_Meta_getFVarLocalDecl(x_18, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_18);
 if (lean_obj_tag(x_19) == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 

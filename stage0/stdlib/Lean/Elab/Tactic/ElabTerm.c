@@ -3231,7 +3231,6 @@ else
 {
 lean_object* x_23; lean_object* x_24; 
 x_23 = l_Lean_Expr_fvarId_x21(x_19);
-lean_dec(x_19);
 lean_inc(x_8);
 lean_inc(x_23);
 x_24 = l_Lean_Meta_getLocalDecl(x_23, x_8, x_9, x_10, x_11, x_16);

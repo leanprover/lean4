@@ -17,6 +17,8 @@ unsafe def unsound2 : False := unsound  -- OK
 
 partial def unsound3 : False := unsound3  -- Error
 
+partial def unsound4 (x : Unit) : False := unsound4 ()  -- Error
+
 partial def badcast1 (x : Nat) : Bool :=
   unsafeCast x -- Error: partial cannot use unsafe constant
 

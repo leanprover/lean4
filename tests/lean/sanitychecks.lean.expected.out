@@ -8,6 +8,8 @@ sanitychecks.lean:4:8-5:9: error: 'partial' theorems are not allowed, 'partial' 
 sanitychecks.lean:7:7-8:9: error: 'unsafe' theorems are not allowed
 sanitychecks.lean:10:0-10:24: error: failed to synthesize instance
   Inhabited False
-sanitychecks.lean:18:0-18:40: error: failed to compile partial definition 'unsound3', failed to show that type is inhabited
-sanitychecks.lean:20:12-20:20: error: (kernel) invalid declaration, it uses unsafe declaration 'unsafeCast'
-sanitychecks.lean:23:12-23:20: error: (kernel) invalid declaration, it uses unsafe declaration 'unsafeCast'
+sanitychecks.lean:18:12-18:20: error: invalid use of 'partial', 'unsound3' is not a function
+  False
+sanitychecks.lean:20:0-20:54: error: failed to compile partial definition 'unsound4', failed to show that type is inhabited
+sanitychecks.lean:22:12-22:20: error: (kernel) invalid declaration, it uses unsafe declaration 'unsafeCast'
+sanitychecks.lean:25:12-25:20: error: (kernel) invalid declaration, it uses unsafe declaration 'unsafeCast'

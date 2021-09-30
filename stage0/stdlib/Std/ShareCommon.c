@@ -75,7 +75,6 @@ LEAN_EXPORT lean_object* l_Std_ShareCommon_StatePointed;
 LEAN_EXPORT lean_object* l_Std_PShareCommonM_run(lean_object*);
 LEAN_EXPORT lean_object* lean_object_pmap_insert(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_ShareCommon_mkObjectSet___closed__1;
 LEAN_EXPORT lean_object* l_Std_ShareCommonT_withShareCommon___at_Std_shareCommon___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Std_shareCommon___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_find_x3f___at_Std_ShareCommon_ObjectMap_find_x3f___spec__2(lean_object*, lean_object*);
@@ -112,7 +111,6 @@ LEAN_EXPORT lean_object* l_Std_HashSetImp_insert___at_Std_ShareCommon_ObjectSet_
 static lean_object* l_Std_PersistentHashMap_empty___at_Std_ShareCommon_mkObjectPersistentSet___spec__1___closed__1;
 static lean_object* l_Std_PersistentHashMap_empty___at_Std_ShareCommon_mkObjectPersistentMap___spec__1___closed__2;
 LEAN_EXPORT lean_object* l_Std_ShareCommonT_withShareCommon(lean_object*, lean_object*);
-static lean_object* l_Std_ShareCommon_mkObjectMap___closed__1;
 LEAN_EXPORT lean_object* l_List_replace___at_Std_ShareCommon_ObjectSet_insert___spec__6___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_shareCommonM(lean_object*, lean_object*);
@@ -196,22 +194,14 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_ShareCommon_mkObjectMap___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1024u);
-x_2 = l_Std_mkHashMapImp___rarg(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* lean_mk_object_map(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
+lean_object* x_2; lean_object* x_3; 
 lean_dec(x_1);
-x_2 = l_Std_ShareCommon_mkObjectMap___closed__1;
-return x_2;
+x_2 = lean_unsigned_to_nat(1024u);
+x_3 = l_Std_mkHashMapImp___rarg(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_mkHashMap___at_Std_ShareCommon_mkObjectMap___spec__1___boxed(lean_object* x_1) {
@@ -328,22 +318,14 @@ x_2 = l_Std_mkHashSetImp___rarg(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_ShareCommon_mkObjectSet___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(1024u);
-x_2 = l_Std_mkHashSetImp___rarg(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* lean_mk_object_set(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
+lean_object* x_2; lean_object* x_3; 
 lean_dec(x_1);
-x_2 = l_Std_ShareCommon_mkObjectSet___closed__1;
-return x_2;
+x_2 = lean_unsigned_to_nat(1024u);
+x_3 = l_Std_mkHashSetImp___rarg(x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_HashSetImp_find_x3f___at_Std_ShareCommon_ObjectSet_find_x3f___spec__1(lean_object* x_1, lean_object* x_2) {
@@ -1272,14 +1254,10 @@ lean_dec_ref(res);
 res = initialize_Std_Data_PersistentHashSet(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_ShareCommon_mkObjectMap___closed__1 = _init_l_Std_ShareCommon_mkObjectMap___closed__1();
-lean_mark_persistent(l_Std_ShareCommon_mkObjectMap___closed__1);
 l_Std_ShareCommon_ObjectMap_insert___closed__1 = _init_l_Std_ShareCommon_ObjectMap_insert___closed__1();
 lean_mark_persistent(l_Std_ShareCommon_ObjectMap_insert___closed__1);
 l_Std_ShareCommon_ObjectMap_insert___closed__2 = _init_l_Std_ShareCommon_ObjectMap_insert___closed__2();
 lean_mark_persistent(l_Std_ShareCommon_ObjectMap_insert___closed__2);
-l_Std_ShareCommon_mkObjectSet___closed__1 = _init_l_Std_ShareCommon_mkObjectSet___closed__1();
-lean_mark_persistent(l_Std_ShareCommon_mkObjectSet___closed__1);
 l_Std_PersistentHashMap_empty___at_Std_ShareCommon_mkObjectPersistentMap___spec__1___closed__1 = _init_l_Std_PersistentHashMap_empty___at_Std_ShareCommon_mkObjectPersistentMap___spec__1___closed__1();
 lean_mark_persistent(l_Std_PersistentHashMap_empty___at_Std_ShareCommon_mkObjectPersistentMap___spec__1___closed__1);
 l_Std_PersistentHashMap_empty___at_Std_ShareCommon_mkObjectPersistentMap___spec__1___closed__2 = _init_l_Std_PersistentHashMap_empty___at_Std_ShareCommon_mkObjectPersistentMap___spec__1___closed__2();

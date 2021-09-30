@@ -21,7 +21,6 @@ LEAN_EXPORT lean_object* l_Std_DList_singleton___rarg(lean_object*);
 static lean_object* l_Std_DList_instEmptyCollectionDList___closed__1;
 LEAN_EXPORT lean_object* l_Std_DList_append___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DList_instAppendDList(lean_object*);
-static lean_object* l_Std_DList_empty___closed__1;
 LEAN_EXPORT lean_object* l_Std_DList_singleton(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DList_cons___elambda__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DList_singleton___elambda__1___rarg(lean_object*, lean_object*);
@@ -93,19 +92,11 @@ x_2 = lean_alloc_closure((void*)(l_Std_DList_empty___elambda__1___rarg___boxed),
 return x_2;
 }
 }
-static lean_object* _init_l_Std_DList_empty___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_DList_empty___elambda__1___rarg___boxed), 1, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Std_DList_empty(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Std_DList_empty___closed__1;
+x_2 = lean_alloc_closure((void*)(l_Std_DList_empty___elambda__1___rarg___boxed), 1, 0);
 return x_2;
 }
 }
@@ -320,8 +311,6 @@ _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_DList_empty___closed__1 = _init_l_Std_DList_empty___closed__1();
-lean_mark_persistent(l_Std_DList_empty___closed__1);
 l_Std_DList_instEmptyCollectionDList___closed__1 = _init_l_Std_DList_instEmptyCollectionDList___closed__1();
 lean_mark_persistent(l_Std_DList_instEmptyCollectionDList___closed__1);
 l_Std_DList_instAppendDList___closed__1 = _init_l_Std_DList_instAppendDList___closed__1();

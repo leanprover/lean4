@@ -55,7 +55,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_mkHCongrWithArity_mkProof(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_Meta_mkHCongrWithArity_withNewEqs_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_mkHCongrWithArity_mkProof___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_mkHCongrWithArity___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkHCongrWithArity_withNewEqs___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_addPrimeToFVarUserNames(lean_object*, lean_object*);
@@ -1172,16 +1171,6 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_mkHCongrWithArity_mkProof___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_mkHCongrWithArity_mkProof___closed__5;
-x_2 = lean_alloc_closure((void*)(l_Lean_Meta_mkHCongrWithArity_mkProof___lambda__4___boxed), 8, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_mkHCongrWithArity_mkProof(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -1199,7 +1188,8 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_13 = l_Lean_Meta_mkHCongrWithArity_mkProof___closed__5;
-x_14 = l_Lean_Meta_mkHCongrWithArity_mkProof___closed__6;
+x_14 = lean_alloc_closure((void*)(l_Lean_Meta_mkHCongrWithArity_mkProof___lambda__4___boxed), 8, 1);
+lean_closure_set(x_14, 0, x_13);
 x_15 = l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__2___rarg(x_1, x_13, x_14, x_2, x_3, x_4, x_5, x_6);
 return x_15;
 }
@@ -2264,8 +2254,6 @@ l_Lean_Meta_mkHCongrWithArity_mkProof___closed__4 = _init_l_Lean_Meta_mkHCongrWi
 lean_mark_persistent(l_Lean_Meta_mkHCongrWithArity_mkProof___closed__4);
 l_Lean_Meta_mkHCongrWithArity_mkProof___closed__5 = _init_l_Lean_Meta_mkHCongrWithArity_mkProof___closed__5();
 lean_mark_persistent(l_Lean_Meta_mkHCongrWithArity_mkProof___closed__5);
-l_Lean_Meta_mkHCongrWithArity_mkProof___closed__6 = _init_l_Lean_Meta_mkHCongrWithArity_mkProof___closed__6();
-lean_mark_persistent(l_Lean_Meta_mkHCongrWithArity_mkProof___closed__6);
 l_Lean_Meta_mkHCongrWithArity___lambda__3___closed__1 = _init_l_Lean_Meta_mkHCongrWithArity___lambda__3___closed__1();
 lean_mark_persistent(l_Lean_Meta_mkHCongrWithArity___lambda__3___closed__1);
 l_Lean_Meta_mkHCongrWithArity___lambda__3___closed__2 = _init_l_Lean_Meta_mkHCongrWithArity___lambda__3___closed__2();

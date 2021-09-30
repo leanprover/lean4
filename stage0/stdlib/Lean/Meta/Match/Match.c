@@ -689,7 +689,6 @@ LEAN_EXPORT lean_object* l_List_mapTRAux___at___private_Lean_Meta_Match_Match_0_
 static lean_object* l_Lean_addTrace___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processLeaf___spec__1___closed__6;
 lean_object* l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentD(lean_object*);
-static lean_object* l_Lean_Meta_Match_State_used___default___closed__1;
 LEAN_EXPORT lean_object* l_List_filterMapM_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processConstructor___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTRAux___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_expandVarIntoCtor_x3f___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_initFn____x40_Lean_Meta_Match_Match___hyg_7282____lambda__1___boxed(lean_object*, lean_object*);
@@ -1756,21 +1755,13 @@ x_2 = l_Std_mkHashSetImp___rarg(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_Match_State_used___default___closed__1() {
+static lean_object* _init_l_Lean_Meta_Match_State_used___default() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(8u);
 x_2 = l_Std_mkHashSetImp___rarg(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_Match_State_used___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Match_State_used___default___closed__1;
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_Match_State_counterExamples___default() {
@@ -28169,8 +28160,6 @@ l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAlts_loop___rarg___clos
 lean_mark_persistent(l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAlts_loop___rarg___closed__14);
 l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAlts___rarg___closed__1 = _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAlts___rarg___closed__1();
 lean_mark_persistent(l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAlts___rarg___closed__1);
-l_Lean_Meta_Match_State_used___default___closed__1 = _init_l_Lean_Meta_Match_State_used___default___closed__1();
-lean_mark_persistent(l_Lean_Meta_Match_State_used___default___closed__1);
 l_Lean_Meta_Match_State_used___default = _init_l_Lean_Meta_Match_State_used___default();
 lean_mark_persistent(l_Lean_Meta_Match_State_used___default);
 l_Lean_Meta_Match_State_counterExamples___default = _init_l_Lean_Meta_Match_State_counterExamples___default();

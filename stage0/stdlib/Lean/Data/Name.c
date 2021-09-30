@@ -46,7 +46,6 @@ LEAN_EXPORT lean_object* l_Lean_Name_quickLt___boxed(lean_object*, lean_object*)
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_instDecidableRelLtNameHasLtQuick(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_updatePrefix(lean_object*, lean_object*);
-static lean_object* l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__5;
 LEAN_EXPORT lean_object* l_Std_HashSetImp_expand___at_Lean_NameHashSet_insert___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isAnonymous___boxed(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -57,7 +56,6 @@ LEAN_EXPORT lean_object* l_List_foldl___at_String_toName___spec__1(lean_object*,
 lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_lt___boxed(lean_object*, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
-static lean_object* l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__4;
 lean_object* l_String_splitOn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isStr___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_NameMap_contains___rarg(lean_object*, lean_object*);
@@ -115,7 +113,6 @@ lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_List_replace___at_Lean_NameHashSet_insert___spec__6___boxed(lean_object*, lean_object*, lean_object*);
 size_t l_USize_shiftLeft(size_t, size_t);
 LEAN_EXPORT uint8_t l_Lean_Name_isAtomic(lean_object*);
-static lean_object* l_Lean_NameHashSet_empty___closed__1;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_getNumParts(lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_NameMap_contains___spec__1(lean_object*);
@@ -8940,35 +8937,26 @@ return x_2;
 static lean_object* _init_l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Std_mkHashMapImp___rarg(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__2() {
-_start:
-{
 lean_object* x_1; 
 x_1 = l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__3() {
+static lean_object* _init_l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__2;
+x_1 = l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__1;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__4() {
+static lean_object* _init_l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__3;
+x_1 = l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__2;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -8976,26 +8964,19 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__5() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = 1;
-x_2 = l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__1;
-x_3 = l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__4;
-x_4 = lean_alloc_ctor(0, 2, 1);
-lean_ctor_set(x_4, 0, x_2);
-lean_ctor_set(x_4, 1, x_3);
-lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
-return x_4;
-}
-}
 static lean_object* _init_l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__5;
-return x_1;
+lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Std_mkHashMapImp___rarg(x_1);
+x_3 = 1;
+x_4 = l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__3;
+x_5 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_5, 0, x_2);
+lean_ctor_set(x_5, 1, x_4);
+lean_ctor_set_uint8(x_5, sizeof(void*)*2, x_3);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_NameSSet_empty() {
@@ -9431,21 +9412,13 @@ x_2 = l_Std_mkHashSetImp___rarg(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_NameHashSet_empty___closed__1() {
+static lean_object* _init_l_Lean_NameHashSet_empty() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(8u);
 x_2 = l_Std_mkHashSetImp___rarg(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lean_NameHashSet_empty() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_NameHashSet_empty___closed__1;
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_NameHashSet_instEmptyCollectionNameHashSet___closed__1() {
@@ -9957,10 +9930,6 @@ l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__2 = _init_l_Lean_
 lean_mark_persistent(l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__2);
 l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__3 = _init_l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__3();
 lean_mark_persistent(l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__3);
-l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__4 = _init_l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__4();
-lean_mark_persistent(l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__4);
-l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__5 = _init_l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__5();
-lean_mark_persistent(l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1___closed__5);
 l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1 = _init_l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1();
 lean_mark_persistent(l_Lean_SMap_empty___at_Lean_NameSSet_empty___spec__1);
 l_Lean_NameSSet_empty = _init_l_Lean_NameSSet_empty();
@@ -9971,8 +9940,6 @@ l_Lean_NameSSet_instInhabitedNameSSet = _init_l_Lean_NameSSet_instInhabitedNameS
 lean_mark_persistent(l_Lean_NameSSet_instInhabitedNameSSet);
 l_Std_PersistentHashMap_containsAux___at_Lean_NameSSet_contains___spec__5___closed__1 = _init_l_Std_PersistentHashMap_containsAux___at_Lean_NameSSet_contains___spec__5___closed__1();
 l_Std_PersistentHashMap_containsAux___at_Lean_NameSSet_contains___spec__5___closed__2 = _init_l_Std_PersistentHashMap_containsAux___at_Lean_NameSSet_contains___spec__5___closed__2();
-l_Lean_NameHashSet_empty___closed__1 = _init_l_Lean_NameHashSet_empty___closed__1();
-lean_mark_persistent(l_Lean_NameHashSet_empty___closed__1);
 l_Lean_NameHashSet_empty = _init_l_Lean_NameHashSet_empty();
 lean_mark_persistent(l_Lean_NameHashSet_empty);
 l_Lean_NameHashSet_instEmptyCollectionNameHashSet___closed__1 = _init_l_Lean_NameHashSet_instEmptyCollectionNameHashSet___closed__1();

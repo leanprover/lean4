@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_List_reverse___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_initFn____x40_Lean_ResolveName___hyg_56____spec__6___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstCore___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__4;
 LEAN_EXPORT lean_object* l_Std_mkHashMap___at_Lean_initFn____x40_Lean_ResolveName___hyg_56____spec__1___boxed(lean_object*);
 lean_object* l_Lean_extractMacroScopes(lean_object*);
 size_t l_USize_add(size_t, size_t);
@@ -140,7 +139,6 @@ lean_object* lean_format_pretty(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addAliasEntry(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_initFn____x40_Lean_ResolveName___hyg_56____spec__6___lambda__2(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__5;
 static lean_object* l_Lean_initFn____x40_Lean_ResolveName___hyg_56____closed__2;
 LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtension_getState___at_Lean_getAliasState___spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAtomic(lean_object*);
@@ -1163,35 +1161,26 @@ return x_15;
 static lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Std_mkHashMapImp___rarg(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__2() {
-_start:
-{
 lean_object* x_1; 
 x_1 = l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__3() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__2;
+x_1 = l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__1;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__4() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__3;
+x_1 = l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__2;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1199,28 +1188,21 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__5() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = 1;
-x_2 = l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__1;
-x_3 = l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__4;
-x_4 = lean_alloc_ctor(0, 2, 1);
-lean_ctor_set(x_4, 0, x_2);
-lean_ctor_set(x_4, 1, x_3);
-lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__5;
-x_3 = l_Lean_mkStateFromImportedEntries___at_Lean_initFn____x40_Lean_ResolveName___hyg_56____spec__2(x_2, x_1);
-x_4 = l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_ResolveName___hyg_56____spec__5(x_3);
-return x_4;
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = l_Std_mkHashMapImp___rarg(x_2);
+x_4 = 1;
+x_5 = l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__3;
+x_6 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_6, 0, x_3);
+lean_ctor_set(x_6, 1, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2, x_4);
+x_7 = l_Lean_mkStateFromImportedEntries___at_Lean_initFn____x40_Lean_ResolveName___hyg_56____spec__2(x_6, x_1);
+x_8 = l_Lean_SMap_switch___at_Lean_initFn____x40_Lean_ResolveName___hyg_56____spec__5(x_7);
+return x_8;
 }
 }
 static lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_56____closed__1() {
@@ -4835,10 +4817,6 @@ l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__2 = _init_
 lean_mark_persistent(l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__2);
 l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__3 = _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__3();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__3);
-l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__4 = _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__4();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__4);
-l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__5 = _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__5();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_ResolveName___hyg_56____lambda__1___closed__5);
 l_Lean_initFn____x40_Lean_ResolveName___hyg_56____closed__1 = _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_56____closed__1();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_ResolveName___hyg_56____closed__1);
 l_Lean_initFn____x40_Lean_ResolveName___hyg_56____closed__2 = _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_56____closed__2();

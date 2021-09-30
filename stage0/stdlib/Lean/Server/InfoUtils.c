@@ -177,7 +177,6 @@ LEAN_EXPORT uint8_t l_Std_PersistentArray_anyM___at_Lean_Elab_InfoTree_goalsAt_x
 size_t l_USize_shiftLeft(size_t, size_t);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Info_fmtHover_x3f___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_InfoTree_termGoalAt_x3f___closed__2;
 uint64_t lean_uint64_of_nat(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_Info_fmtHover_x3f_isAtomicFormat(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_goalsAt_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7369,15 +7368,6 @@ return x_21;
 static lean_object* _init_l_Lean_Elab_InfoTree_termGoalAt_x3f___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(8u);
-x_2 = l_Std_mkHashSetImp___rarg(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Elab_InfoTree_termGoalAt_x3f___closed__2() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_Elab_InfoTree_termGoalAt_x3f___lambda__1), 3, 0);
 return x_1;
@@ -7386,16 +7376,17 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_termGoalAt_x3f(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_3 = l_Lean_Elab_InfoTree_termGoalAt_x3f___closed__2;
-x_4 = l_Lean_Elab_InfoTree_termGoalAt_x3f___closed__1;
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_3 = lean_unsigned_to_nat(8u);
+x_4 = l_Std_mkHashSetImp___rarg(x_3);
+x_5 = l_Lean_Elab_InfoTree_termGoalAt_x3f___closed__1;
 lean_inc(x_1);
-x_5 = l_Lean_Elab_InfoTree_foldInfo___rarg(x_3, x_4, x_1);
-x_6 = lean_alloc_closure((void*)(l_Lean_Elab_InfoTree_termGoalAt_x3f___lambda__2___boxed), 3, 2);
-lean_closure_set(x_6, 0, x_2);
-lean_closure_set(x_6, 1, x_5);
-x_7 = l_Lean_Elab_InfoTree_smallestInfo_x3f(x_6, x_1);
-return x_7;
+x_6 = l_Lean_Elab_InfoTree_foldInfo___rarg(x_5, x_4, x_1);
+x_7 = lean_alloc_closure((void*)(l_Lean_Elab_InfoTree_termGoalAt_x3f___lambda__2___boxed), 3, 2);
+lean_closure_set(x_7, 0, x_2);
+lean_closure_set(x_7, 1, x_6);
+x_8 = l_Lean_Elab_InfoTree_smallestInfo_x3f(x_7, x_1);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_List_elem___at_Lean_Elab_InfoTree_termGoalAt_x3f___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
@@ -7575,8 +7566,6 @@ l_Lean_Elab_InfoTree_termGoalAt_x3f_getHeadFnPos_x3f___closed__4 = _init_l_Lean_
 lean_mark_persistent(l_Lean_Elab_InfoTree_termGoalAt_x3f_getHeadFnPos_x3f___closed__4);
 l_Lean_Elab_InfoTree_termGoalAt_x3f___closed__1 = _init_l_Lean_Elab_InfoTree_termGoalAt_x3f___closed__1();
 lean_mark_persistent(l_Lean_Elab_InfoTree_termGoalAt_x3f___closed__1);
-l_Lean_Elab_InfoTree_termGoalAt_x3f___closed__2 = _init_l_Lean_Elab_InfoTree_termGoalAt_x3f___closed__2();
-lean_mark_persistent(l_Lean_Elab_InfoTree_termGoalAt_x3f___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

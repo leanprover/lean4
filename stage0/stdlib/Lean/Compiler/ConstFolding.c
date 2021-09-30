@@ -32,7 +32,6 @@ static lean_object* l_Lean_Compiler_boolFoldFns___closed__3;
 static lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__13;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__25;
-static lean_object* l_Lean_Compiler_uintFoldToNatFns___closed__1;
 static lean_object* l_Lean_Compiler_foldUIntMod___closed__1;
 static lean_object* l_Lean_Compiler_natFoldFns___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldCharOfNat___boxed(lean_object*, lean_object*);
@@ -243,7 +242,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_foldUIntDiv(uint8_t, lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_Compiler_isToNat___boxed(lean_object*);
 lean_object* l_Nat_decLe___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldUIntAdd___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_uintBinFoldFns___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_findBinFoldFn(lean_object*);
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__13;
 static lean_object* l_Lean_Compiler_foldUIntAdd___closed__1;
@@ -1790,7 +1788,7 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Lean_Compiler_uintBinFoldFns___closed__1() {
+static lean_object* _init_l_Lean_Compiler_uintBinFoldFns() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1798,14 +1796,6 @@ x_1 = lean_box(0);
 x_2 = l_Lean_Compiler_numScalarTypes;
 x_3 = l_List_foldl___at_Lean_Compiler_uintBinFoldFns___spec__2(x_1, x_2);
 return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_uintBinFoldFns() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_uintBinFoldFns___closed__1;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Compiler_uintBinFoldFns___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -3969,7 +3959,7 @@ goto _start;
 }
 }
 }
-static lean_object* _init_l_Lean_Compiler_uintFoldToNatFns___closed__1() {
+static lean_object* _init_l_Lean_Compiler_uintFoldToNatFns() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -3977,14 +3967,6 @@ x_1 = lean_box(0);
 x_2 = l_Lean_Compiler_numScalarTypes;
 x_3 = l_List_foldl___at_Lean_Compiler_uintFoldToNatFns___spec__1(x_1, x_2);
 return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_uintFoldToNatFns() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Compiler_uintFoldToNatFns___closed__1;
-return x_1;
 }
 }
 static lean_object* _init_l_Lean_Compiler_unFoldFns___closed__1() {
@@ -4482,8 +4464,6 @@ l_Lean_Compiler_preUIntBinFoldFns___closed__25 = _init_l_Lean_Compiler_preUIntBi
 lean_mark_persistent(l_Lean_Compiler_preUIntBinFoldFns___closed__25);
 l_Lean_Compiler_preUIntBinFoldFns = _init_l_Lean_Compiler_preUIntBinFoldFns();
 lean_mark_persistent(l_Lean_Compiler_preUIntBinFoldFns);
-l_Lean_Compiler_uintBinFoldFns___closed__1 = _init_l_Lean_Compiler_uintBinFoldFns___closed__1();
-lean_mark_persistent(l_Lean_Compiler_uintBinFoldFns___closed__1);
 l_Lean_Compiler_uintBinFoldFns = _init_l_Lean_Compiler_uintBinFoldFns();
 lean_mark_persistent(l_Lean_Compiler_uintBinFoldFns);
 l_Lean_Compiler_foldNatAdd___rarg___closed__1 = _init_l_Lean_Compiler_foldNatAdd___rarg___closed__1();
@@ -4686,8 +4666,6 @@ l_Lean_Compiler_foldCharOfNat___closed__2 = _init_l_Lean_Compiler_foldCharOfNat_
 lean_mark_persistent(l_Lean_Compiler_foldCharOfNat___closed__2);
 l_List_foldl___at_Lean_Compiler_uintFoldToNatFns___spec__1___closed__1 = _init_l_List_foldl___at_Lean_Compiler_uintFoldToNatFns___spec__1___closed__1();
 lean_mark_persistent(l_List_foldl___at_Lean_Compiler_uintFoldToNatFns___spec__1___closed__1);
-l_Lean_Compiler_uintFoldToNatFns___closed__1 = _init_l_Lean_Compiler_uintFoldToNatFns___closed__1();
-lean_mark_persistent(l_Lean_Compiler_uintFoldToNatFns___closed__1);
 l_Lean_Compiler_uintFoldToNatFns = _init_l_Lean_Compiler_uintFoldToNatFns();
 lean_mark_persistent(l_Lean_Compiler_uintFoldToNatFns);
 l_Lean_Compiler_unFoldFns___closed__1 = _init_l_Lean_Compiler_unFoldFns___closed__1();

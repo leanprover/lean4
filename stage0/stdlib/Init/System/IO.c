@@ -568,7 +568,6 @@ LEAN_EXPORT lean_object* l_IO_Process_Child_wait___boxed(lean_object*, lean_obje
 lean_object* lean_get_set_stdin(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EIO_catchExceptions___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_ofExcept___at_IO_Process_output___spec__1(lean_object*, lean_object*);
-static lean_object* l_instOrElseEIO___closed__1;
 static lean_object* l_termPrintln_x21_______closed__1;
 LEAN_EXPORT lean_object* l___private_Init_System_IO_0__IO_FS_Handle_fopenFlags___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at_IO_FS_Stream_ofBuffer___elambda__2___spec__1(lean_object*, lean_object*);
@@ -722,19 +721,11 @@ x_3 = lean_alloc_closure((void*)(l_MonadExcept_orElse___at_instOrElseEIO___spec_
 return x_3;
 }
 }
-static lean_object* _init_l_instOrElseEIO___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_MonadExcept_orElse___at_instOrElseEIO___spec__1___rarg), 3, 0);
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_instOrElseEIO(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_instOrElseEIO___closed__1;
+x_3 = lean_alloc_closure((void*)(l_MonadExcept_orElse___at_instOrElseEIO___spec__1___rarg), 3, 0);
 return x_3;
 }
 }
@@ -9711,8 +9702,6 @@ l_instMonadExceptOfEIO___closed__1 = _init_l_instMonadExceptOfEIO___closed__1();
 lean_mark_persistent(l_instMonadExceptOfEIO___closed__1);
 l_instMonadExceptOfEIO___closed__2 = _init_l_instMonadExceptOfEIO___closed__2();
 lean_mark_persistent(l_instMonadExceptOfEIO___closed__2);
-l_instOrElseEIO___closed__1 = _init_l_instOrElseEIO___closed__1();
-lean_mark_persistent(l_instOrElseEIO___closed__1);
 l_IO_FS_Mode_noConfusion___rarg___closed__1 = _init_l_IO_FS_Mode_noConfusion___rarg___closed__1();
 lean_mark_persistent(l_IO_FS_Mode_noConfusion___rarg___closed__1);
 l___private_Init_System_IO_0__IO_FS_Handle_fopenFlags___closed__1 = _init_l___private_Init_System_IO_0__IO_FS_Handle_fopenFlags___closed__1();

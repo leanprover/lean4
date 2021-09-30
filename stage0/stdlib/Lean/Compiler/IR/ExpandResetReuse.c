@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1;
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_eraseProjIncForAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l_USize_add(size_t, size_t);
@@ -336,34 +335,27 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Std_mkHashMapImp___rarg(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_IR_ExpandResetReuse_mkProjMap(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_2 = lean_ctor_get(x_1, 3);
 lean_inc(x_2);
 lean_dec(x_1);
-x_3 = l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1;
-x_4 = l_Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody(x_2, x_3);
-return x_4;
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_Std_mkHashMapImp___rarg(x_3);
+x_5 = l_Lean_IR_ExpandResetReuse_CollectProjMap_collectFnBody(x_2, x_4);
+return x_5;
 }
 else
 {
-lean_object* x_5; 
+lean_object* x_6; lean_object* x_7; 
 lean_dec(x_1);
-x_5 = l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1;
-return x_5;
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = l_Std_mkHashMapImp___rarg(x_6);
+return x_7;
 }
 }
 }
@@ -3386,8 +3378,6 @@ l_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___closed__1 = _init_l_Lea
 lean_mark_persistent(l_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___closed__1);
 l_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___closed__2 = _init_l_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___closed__2();
 lean_mark_persistent(l_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___closed__2);
-l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1 = _init_l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1();
-lean_mark_persistent(l_Lean_IR_ExpandResetReuse_mkProjMap___closed__1);
 l_Lean_IR_ExpandResetReuse_eraseProjIncFor___closed__1 = _init_l_Lean_IR_ExpandResetReuse_eraseProjIncFor___closed__1();
 lean_mark_persistent(l_Lean_IR_ExpandResetReuse_eraseProjIncFor___closed__1);
 l_Lean_IR_ExpandResetReuse_searchAndExpand___closed__1 = _init_l_Lean_IR_ExpandResetReuse_searchAndExpand___closed__1();

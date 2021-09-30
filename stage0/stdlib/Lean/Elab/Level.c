@@ -80,7 +80,6 @@ LEAN_EXPORT lean_object* l_Lean_mkFreshId___at_Lean_Elab_Level_mkFreshLevelMVar_
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__2;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Level_elabLevel___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___lambda__1(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -232,7 +231,7 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Level_instMonadOptionsLevelElabM___
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Level_instMonadOptionsLevelElabM___closed__3() {
+static lean_object* _init_l_Lean_Elab_Level_instMonadOptionsLevelElabM() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -242,14 +241,6 @@ x_3 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Elab_Level_instMonadOp
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 return x_3;
-}
-}
-static lean_object* _init_l_Lean_Elab_Level_instMonadOptionsLevelElabM() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Elab_Level_instMonadOptionsLevelElabM___closed__3;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2987,8 +2978,6 @@ l_Lean_Elab_Level_instMonadOptionsLevelElabM___closed__1 = _init_l_Lean_Elab_Lev
 lean_mark_persistent(l_Lean_Elab_Level_instMonadOptionsLevelElabM___closed__1);
 l_Lean_Elab_Level_instMonadOptionsLevelElabM___closed__2 = _init_l_Lean_Elab_Level_instMonadOptionsLevelElabM___closed__2();
 lean_mark_persistent(l_Lean_Elab_Level_instMonadOptionsLevelElabM___closed__2);
-l_Lean_Elab_Level_instMonadOptionsLevelElabM___closed__3 = _init_l_Lean_Elab_Level_instMonadOptionsLevelElabM___closed__3();
-lean_mark_persistent(l_Lean_Elab_Level_instMonadOptionsLevelElabM___closed__3);
 l_Lean_Elab_Level_instMonadOptionsLevelElabM = _init_l_Lean_Elab_Level_instMonadOptionsLevelElabM();
 lean_mark_persistent(l_Lean_Elab_Level_instMonadOptionsLevelElabM);
 l_Lean_Elab_Level_instMonadRefLevelElabM___closed__1 = _init_l_Lean_Elab_Level_instMonadRefLevelElabM___closed__1();

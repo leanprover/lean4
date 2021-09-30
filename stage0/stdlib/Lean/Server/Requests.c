@@ -33,7 +33,6 @@ size_t l_USize_sub(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_asTask___rarg___lambda__1(lean_object*);
-static lean_object* l_Lean_Server_instInhabitedRequestM___closed__3;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 size_t l_USize_shiftRight(size_t, size_t);
@@ -365,22 +364,14 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Server_instInhabitedRequestM___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Server_instInhabitedRequestM___closed__2;
-x_2 = lean_alloc_closure((void*)(l_Lean_Server_instInhabitedRequestM___lambda__1___boxed), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedRequestM(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_Lean_Server_instInhabitedRequestM___closed__3;
-return x_2;
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_Server_instInhabitedRequestM___closed__2;
+x_3 = lean_alloc_closure((void*)(l_Lean_Server_instInhabitedRequestM___lambda__1___boxed), 3, 1);
+lean_closure_set(x_3, 0, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedRequestM___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2254,8 +2245,6 @@ l_Lean_Server_instInhabitedRequestM___closed__1 = _init_l_Lean_Server_instInhabi
 lean_mark_persistent(l_Lean_Server_instInhabitedRequestM___closed__1);
 l_Lean_Server_instInhabitedRequestM___closed__2 = _init_l_Lean_Server_instInhabitedRequestM___closed__2();
 lean_mark_persistent(l_Lean_Server_instInhabitedRequestM___closed__2);
-l_Lean_Server_instInhabitedRequestM___closed__3 = _init_l_Lean_Server_instInhabitedRequestM___closed__3();
-lean_mark_persistent(l_Lean_Server_instInhabitedRequestM___closed__3);
 l_Lean_Server_RequestM_asTask___rarg___closed__1 = _init_l_Lean_Server_RequestM_asTask___rarg___closed__1();
 lean_mark_persistent(l_Lean_Server_RequestM_asTask___rarg___closed__1);
 l_Lean_Server_RequestM_bindTask___rarg___lambda__2___closed__1 = _init_l_Lean_Server_RequestM_bindTask___rarg___lambda__2___closed__1();

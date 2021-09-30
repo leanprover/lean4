@@ -74,7 +74,6 @@ lean_object* l_String_revFind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_System_FilePath_0__System_FilePath_posOfLastSep___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_withFileName___boxed(lean_object*, lean_object*);
 static lean_object* l_System_FilePath_instDivFilePath___closed__1;
-static lean_object* l___private_Init_System_FilePath_0__System_FilePath_posOfLastSep___closed__1;
 LEAN_EXPORT uint32_t l_System_FilePath_extSeparator;
 LEAN_EXPORT lean_object* l_System_FilePath_exeExtension;
 LEAN_EXPORT lean_object* l_System_FilePath_parent___boxed(lean_object*);
@@ -733,23 +732,15 @@ x_3 = l_List_elem___at_System_FilePath_normalize___spec__1(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Init_System_FilePath_0__System_FilePath_posOfLastSep___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_System_FilePath_pathSeparators;
-x_2 = lean_alloc_closure((void*)(l_List_contains___at___private_Init_System_FilePath_0__System_FilePath_posOfLastSep___spec__1___boxed), 2, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l___private_Init_System_FilePath_0__System_FilePath_posOfLastSep(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
-x_2 = l___private_Init_System_FilePath_0__System_FilePath_posOfLastSep___closed__1;
-x_3 = l_String_revFind(x_1, x_2);
-return x_3;
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_System_FilePath_pathSeparators;
+x_3 = lean_alloc_closure((void*)(l_List_contains___at___private_Init_System_FilePath_0__System_FilePath_posOfLastSep___spec__1___boxed), 2, 1);
+lean_closure_set(x_3, 0, x_2);
+x_4 = l_String_revFind(x_1, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_List_contains___at___private_Init_System_FilePath_0__System_FilePath_posOfLastSep___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
@@ -1647,8 +1638,6 @@ l_System_FilePath_instDivFilePath___closed__1 = _init_l_System_FilePath_instDivF
 lean_mark_persistent(l_System_FilePath_instDivFilePath___closed__1);
 l_System_FilePath_instDivFilePath = _init_l_System_FilePath_instDivFilePath();
 lean_mark_persistent(l_System_FilePath_instDivFilePath);
-l___private_Init_System_FilePath_0__System_FilePath_posOfLastSep___closed__1 = _init_l___private_Init_System_FilePath_0__System_FilePath_posOfLastSep___closed__1();
-lean_mark_persistent(l___private_Init_System_FilePath_0__System_FilePath_posOfLastSep___closed__1);
 l_System_FilePath_fileName___closed__1 = _init_l_System_FilePath_fileName___closed__1();
 lean_mark_persistent(l_System_FilePath_fileName___closed__1);
 l_System_FilePath_fileName___closed__2 = _init_l_System_FilePath_fileName___closed__2();

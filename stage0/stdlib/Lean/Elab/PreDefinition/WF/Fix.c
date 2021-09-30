@@ -64,7 +64,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loop___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loop___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold___closed__23;
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loop___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_replaceRecApps_loop___spec__10(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -475,7 +474,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold___closed__23() {
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -483,14 +482,6 @@ x_1 = l_Std_PersistentHashMap_empty___at_Lean_KeyedDeclsAttribute_ExtensionState
 x_2 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold___closed__22;
 x_3 = l_List_foldl___at___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold___spec__1(x_1, x_2);
 return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold___closed__23;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_mkDecreasingProof___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
@@ -7272,8 +7263,6 @@ l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold___closed__21
 lean_mark_persistent(l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold___closed__21);
 l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold___closed__22 = _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold___closed__22();
 lean_mark_persistent(l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold___closed__22);
-l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold___closed__23 = _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold___closed__23();
-lean_mark_persistent(l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold___closed__23);
 l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold = _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold();
 lean_mark_persistent(l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_toUnfold);
 l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_mkDecreasingProof___closed__1 = _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Elab_WF_mkDecreasingProof___closed__1();

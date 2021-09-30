@@ -191,7 +191,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Closure_mkValueTypeClosureAux(lean_object*,
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_State_toProcess___default;
 lean_object* l_Lean_Meta_getLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_State_visitedExpr___default;
-static lean_object* l_Lean_Meta_Closure_State_visitedLevel___default___closed__1;
 lean_object* lean_expr_update_sort(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkAuxDefinition___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Closure_collectLevelAux(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -304,21 +303,13 @@ x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_Closure_State_visitedLevel___default___closed__1() {
+static lean_object* _init_l_Lean_Meta_Closure_State_visitedLevel___default() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Std_mkHashMapImp___rarg(x_1);
 return x_2;
-}
-}
-static lean_object* _init_l_Lean_Meta_Closure_State_visitedLevel___default() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Closure_State_visitedLevel___default___closed__1;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Std_mkHashMap___at_Lean_Meta_Closure_State_visitedLevel___default___spec__1___boxed(lean_object* x_1) {
@@ -13421,8 +13412,6 @@ l_Lean_Meta_Closure_instInhabitedToProcessElement___closed__1 = _init_l_Lean_Met
 lean_mark_persistent(l_Lean_Meta_Closure_instInhabitedToProcessElement___closed__1);
 l_Lean_Meta_Closure_instInhabitedToProcessElement = _init_l_Lean_Meta_Closure_instInhabitedToProcessElement();
 lean_mark_persistent(l_Lean_Meta_Closure_instInhabitedToProcessElement);
-l_Lean_Meta_Closure_State_visitedLevel___default___closed__1 = _init_l_Lean_Meta_Closure_State_visitedLevel___default___closed__1();
-lean_mark_persistent(l_Lean_Meta_Closure_State_visitedLevel___default___closed__1);
 l_Lean_Meta_Closure_State_visitedLevel___default = _init_l_Lean_Meta_Closure_State_visitedLevel___default();
 lean_mark_persistent(l_Lean_Meta_Closure_State_visitedLevel___default);
 l_Lean_Meta_Closure_State_visitedExpr___default___closed__1 = _init_l_Lean_Meta_Closure_State_visitedExpr___default___closed__1();

@@ -24,7 +24,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Std_RBNode_erase___at_Lean_Elab_WF_TerminationBy_erase___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTerminationBy___spec__2___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_Elab_WF_expandTerminationBy___spec__3(lean_object*, lean_object*);
-static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationBy___spec__6___closed__4;
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationBy___spec__6___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_expandTerminationBy___closed__11;
@@ -510,19 +509,11 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerm
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationBy___spec__6___closed__3() {
-_start:
-{
-lean_object* x_1; 
 x_1 = lean_mk_string("function '");
 return x_1;
 }
 }
-static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationBy___spec__6___closed__4() {
+static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationBy___spec__6___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -559,10 +550,10 @@ lean_dec(x_9);
 x_19 = l_Lean_Syntax_getId(x_18);
 x_20 = 1;
 x_21 = l_Lean_Name_toString(x_19, x_20);
-x_22 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationBy___spec__6___closed__3;
+x_22 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationBy___spec__6___closed__2;
 x_23 = lean_string_append(x_22, x_21);
 lean_dec(x_21);
-x_24 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationBy___spec__6___closed__4;
+x_24 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationBy___spec__6___closed__3;
 x_25 = lean_string_append(x_23, x_24);
 x_26 = l_Lean_Macro_throwErrorAt___rarg(x_18, x_25, x_6, x_7);
 lean_dec(x_18);
@@ -1940,8 +1931,6 @@ l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationBy___spec__6___clos
 lean_mark_persistent(l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationBy___spec__6___closed__2);
 l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationBy___spec__6___closed__3 = _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationBy___spec__6___closed__3();
 lean_mark_persistent(l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationBy___spec__6___closed__3);
-l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationBy___spec__6___closed__4 = _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationBy___spec__6___closed__4();
-lean_mark_persistent(l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerminationBy___spec__6___closed__4);
 l_Lean_Elab_WF_expandTerminationBy___closed__1 = _init_l_Lean_Elab_WF_expandTerminationBy___closed__1();
 lean_mark_persistent(l_Lean_Elab_WF_expandTerminationBy___closed__1);
 l_Lean_Elab_WF_expandTerminationBy___closed__2 = _init_l_Lean_Elab_WF_expandTerminationBy___closed__2();

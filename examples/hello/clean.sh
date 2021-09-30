@@ -1,1 +1,1 @@
-rm -rf build
+${LAKE:-../../build/bin/lake} clean

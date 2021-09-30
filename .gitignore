@@ -1,4 +1,4 @@
 /build
 result*
-# Do not lock flake to avoid having to maintain it
+# Do not commit the flake lockfile to avoid having to maintain it
 flake.lock

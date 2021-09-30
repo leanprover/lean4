@@ -1,1 +1,4 @@
 /build
+result*
+# Do not lock flake to avoid having to maintain it
+flake.lock

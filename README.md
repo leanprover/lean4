@@ -13,6 +13,15 @@ $ ./build.sh -j4
 
 After building, the `lake` binary will be located at `build/bin/lake` and the library's `.olean` files will be located directly in `build`.
 
+### Building with nix flakes
+
+It is also possible to build lake with the nix setup `buildLeanPackage` from lean4. To do this you need to have nix installed with flakes enabled. It is recommended to have set up the lean4 binary cache as described in the lean4 repo.
+It is then possible to build lake with `nix build .` or run it from anywhere with `nix run github:leanprover/lake`.
+
+A development environment with lean installed can be loaded automatically by running `nix develop` or automatically on `cd` with direnv by running `direnv allow`.
+
+The versions of nixpkgs and lean4 are fixed to specific hashes. They can be updated by running `nix flake update`.
+
 ### Augmenting Lake's Search Path
 
 The `lake` executable needs to know where to find the `.olean` files for the modules used in the package configuration file. Lake will intelligently setup an initial search path based on the location of its own executable and `lean`.

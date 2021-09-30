@@ -90,7 +90,8 @@ def run (self : BuildM α) : IO PUnit :=
 
       TODO: Use an `OptionT` in `BuildM` to properly record build failures.
     -/
-    BuildM.logError s!"Build failed with errors, the last of which was:\n{toString e}"
+    BuildM.logError s!"build error: {toString e}"
+    throw <| IO.userError "build failed"
 
 end BuildM
 

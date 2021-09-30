@@ -15,8 +15,12 @@ def printDecls (pre : Name) : MetaM Unit := do
   let cs := (← getEnv).constants
   cs.forM fun declName info => do
     if pre.isPrefixOf declName && !shouldIgnore declName then
-      IO.println s!"{declName} : {← ppExpr info.type}"
+      if let some docString := findDocString? (← getEnv) declName then
+        IO.println s!"/-- {docString} -/\n{declName} : {← ppExpr info.type}"
+      else
+        IO.println s!"{declName} : {← ppExpr info.type}"
 
 #eval printDecls `Array
 #eval printDecls `List
 #eval printDecls `Bool
+#eval printDecls `Lean.Elab

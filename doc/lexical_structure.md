@@ -107,26 +107,32 @@ Numeric literals can be specified in various bases.
 
 ```
    numeral    : numeral10 | numeral2 | numeral8 | numeral16
-   numeral10  : [0-9]+
+   numeral10  : [-] [0-9]+
    numeral2   : "0" [bB] [0-1]+
    numeral8   : "0" [oO] [0-7]+
    numeral16  : "0" [xX] hex_char+
 ```
 
-Decimal literals are also allowed with optional exponent:
+Decimal literals are also possible:
 
 ```
-   decimal    : [0-9]+ "." [0-9]+ [[eE[+-][0-9]+]
+   decimal    : [-] [0-9]+ "." [0-9]+
+```
+
+Floating point literals are also possible with optional exponent:
+
+```
+   float    : [-] [0-9]+ "." [0-9]+ [[eE[+-][0-9]+]
 ```
 
 For example:
 
 ```
+constant w : Int := -55
 constant x : Nat := 26085
 constant y : Nat := 0x65E5
 constant z : Float := 2.548123e-05
 ```
-
 
 Quoted Symbols
 ==============

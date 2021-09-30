@@ -1,35 +1,9 @@
 Expressions
 ===========
 
-
-Universes
-=========
-
-Every type in Lean is, by definition, an expression of type ``Sort u``
-for some universe level ``u``. A universe level is one of the
-following:
-
-* a natural number, ``n``
-* a universe variable, ``u`` (declared with the command ``universe`` or ``universes``)
-* an expression ``u + n``, where ``u`` is a universe level and ``n`` is a natural number
-* an expression ``max u v``, where ``u`` and ``v`` are universes
-* an expression ``imax u v``, where ``u`` and ``v`` are universe levels
-
-The last one denotes the universe level ``0`` if ``v`` is ``0``, and ``max u v`` otherwise.
-
-```lean
-universe u v
-
-#check Sort u
-#check Sort 5
-#check Sort (u + 1)
-#check Sort (u + 3)
-#check Sort (max u v)
-#check Sort (max (u + 3) v)
-#check Sort (imax (u + 3) v)
-#check Prop
-#check Type
-```
+Every expression in Lean has a [Type](types.md). Every type is also an
+expression of type `Sort u` for some universe level u. See [Type
+Universes](types.md#type_universes).
 
 Expression Syntax
 =================

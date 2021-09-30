@@ -22,9 +22,8 @@ private def mkTupleElems (t : Expr) (arity : Nat) : Array Expr := do
   result.push t
 
 /-- Create a unary application by packing the given arguments using `PSigma.mk` -/
-private partial def mkUnaryApp (unaryFn : Expr) (args : Array Expr) : MetaM Expr := do
-  let Expr.forallE _ d .. ← inferType unaryFn | unreachable!
-  go 0 d
+partial def mkUnaryArg (type : Expr) (args : Array Expr) : MetaM Expr := do
+  go 0 type
 where
   go (i : Nat) (type : Expr) : MetaM Expr := do
     if i < args.size - 1 then
@@ -107,7 +106,8 @@ def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) := 
             if let some idx := isTargetApp? e |>.run then
               let f := e.getAppFn
               let fNew := mkConst preDefsNew[idx].declName f.constLevels!
-              let argNew ← mkUnaryApp fNew e.getAppArgs
+              let Expr.forallE _ d .. ← inferType fNew | unreachable!
+              let argNew ← mkUnaryArg d e.getAppArgs
               return TransformStep.done <| mkApp fNew argNew
             else
               return TransformStep.done e

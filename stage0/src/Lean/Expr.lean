@@ -132,7 +132,7 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
     (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8)
     (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) (bi : BinderInfo)
     : Expr.Data :=
-  if looseBVarRange > Nat.pow 2 24 - 1 then panic! "bound variable index is too big"
+  if looseBVarRange > Nat.pow 2 16 - 1 then panic! "bound variable index is too big"
   else
     let r : UInt64 :=
       h.toUInt32.toUInt64 +

@@ -2275,7 +2275,7 @@ static lean_object* _init_l___private_Lean_Expr_0__Lean_Expr_mkDataCore___closed
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(16777216u);
+x_1 = lean_unsigned_to_nat(65536u);
 x_2 = lean_unsigned_to_nat(1u);
 x_3 = lean_nat_sub(x_1, x_2);
 return x_3;

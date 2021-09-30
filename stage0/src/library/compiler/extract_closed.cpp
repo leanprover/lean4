@@ -25,6 +25,7 @@ bool is_extract_closed_aux_fn(name const & n) {
 
 class extract_closed_fn {
     environment         m_env;
+    comp_decls          m_input_decls;
     name_generator      m_ngen;
     local_ctx           m_lctx;
     buffer<comp_decl>   m_new_decls;
@@ -54,6 +55,13 @@ class extract_closed_fn {
         return e;
     }
 
+    bool in_current_mutual_block(name const & decl_name) {
+        for (auto d : m_input_decls)
+            if (d.fst() == decl_name)
+                return true;
+        return false;
+    }
+
     bool is_closed(expr e) {
         switch (e.kind()) {
         case expr_kind::MVar:   lean_unreachable();
@@ -61,7 +69,7 @@ class extract_closed_fn {
         case expr_kind::Sort:   lean_unreachable();
         case expr_kind::Lit:    return true;
         case expr_kind::BVar:   return true;
-        case expr_kind::Const:  return true;
+        case expr_kind::Const:  return !in_current_mutual_block(const_name(e));
         case expr_kind::MData:  return is_closed(mdata_expr(e));
         case expr_kind::Proj:   return is_closed(proj_expr(e));
         default:
@@ -277,8 +285,8 @@ class extract_closed_fn {
     }
 
 public:
-    extract_closed_fn(environment const & env):
-        m_env(env) {
+    extract_closed_fn(environment const & env, comp_decls const & ds):
+        m_env(env), m_input_decls(ds) {
     }
 
     pair<environment, comp_decls> operator()(comp_decl const & d) {
@@ -299,15 +307,15 @@ public:
     }
 };
 
-pair<environment, comp_decls> extract_closed_core(environment const & env, comp_decl const & d) {
-    return extract_closed_fn(env)(d);
+pair<environment, comp_decls> extract_closed_core(environment const & env, comp_decls const & input_ds, comp_decl const & d) {
+    return extract_closed_fn(env, input_ds)(d);
 }
 
 pair<environment, comp_decls> extract_closed(environment env, comp_decls const & ds) {
     comp_decls r;
     for (comp_decl const & d : ds) {
         comp_decls new_ds;
-        std::tie(env, new_ds) = extract_closed_core(env, d);
+        std::tie(env, new_ds) = extract_closed_core(env, ds, d);
         r = append(r, new_ds);
     }
     return mk_pair(env, r);

@@ -20,8 +20,9 @@ def Package.run (script : String) (args : List String) (self : Package) : IO PUn
   else
     self.scripts.forM fun name _ => IO.println name
 
-def Package.clean (self : Package) : IO PUnit :=
-  IO.FS.removeDirAll self.buildDir
+def Package.clean (self : Package) : IO PUnit := do
+  if (← self.buildDir.pathExists) then
+    IO.FS.removeDirAll self.buildDir
 
 -- # CLI
 

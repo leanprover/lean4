@@ -12,7 +12,7 @@ rec {
     dontStrip = (args.debug or debug);
 
     postConfigure = ''
-      patchShebangs bin
+      patchShebangs .
     '';
   } // args // {
     src = args.realSrc or (lib.sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ]);

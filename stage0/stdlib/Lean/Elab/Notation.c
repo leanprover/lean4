@@ -129,6 +129,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_ant
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___closed__5;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_allDiffAuxAux___at_Lean_Elab_Command_mkSimpleDelab___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_antiquote___closed__2;
+lean_object* l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6617____spec__3(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___closed__14;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___closed__76;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___closed__18;
@@ -152,7 +153,6 @@ LEAN_EXPORT uint8_t l___private_Init_Data_Array_Basic_0__Array_allDiffAux___at_L
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___closed__12;
 static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__18;
 static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__15;
-lean_object* l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6613____spec__3(size_t, size_t, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_expandNotation___closed__2;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___closed__92;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___spec__3(size_t, size_t, lean_object*);
@@ -8371,7 +8371,7 @@ x_170 = lean_array_get_size(x_9);
 x_171 = lean_usize_of_nat(x_170);
 lean_dec(x_170);
 x_172 = x_9;
-x_173 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6613____spec__3(x_171, x_3, x_172);
+x_173 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6617____spec__3(x_171, x_3, x_172);
 x_174 = x_173;
 x_175 = l_Lean_Elab_Command_mkSimpleDelab___closed__11;
 x_176 = l_Array_append___rarg(x_175, x_174);

@@ -55,7 +55,7 @@ partial def elim (mvarId : MVarId) (fvarId : FVarId) : M Bool := do
               if (← elim subgoal.mvarId field.fvarId!) then
                 return true
         return false
-      unless found == true do -- TODO: check why we need true here
+      unless found do
         return false
     return true
 

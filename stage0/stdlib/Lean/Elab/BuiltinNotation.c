@@ -2448,7 +2448,7 @@ static lean_object* _init_l_Lean_Elab_Term_elabIf___closed__23() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("let");
+x_1 = lean_mk_string("let_tmp");
 return x_1;
 }
 }

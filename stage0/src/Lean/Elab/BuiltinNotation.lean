@@ -76,7 +76,7 @@ open Meta
     -- If condition is not a free variable, then add an auxiliary let-decl.
     let cNew ← `(_if_cond)
     let iteNew := stx.setArg 2 cNew
-    let stxNew ← `(let _if_cond := $c; $iteNew)
+    let stxNew ← `(let_tmp _if_cond := $c; $iteNew)
     withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
 
 @[builtinTermElab borrowed] def elabBorrowed : TermElab := fun stx expectedType? =>

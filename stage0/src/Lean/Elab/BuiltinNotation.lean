@@ -64,25 +64,6 @@ open Meta
       `(dite $c (fun $h:ident => $t) (fun $h:ident => $e))
   withMacroExpansion stx newStx <| elabTerm newStx expectedType?
 
--- TODO: delete
-@[builtinTermElab termDepIfThenElse] def elabIfOld1 : TermElab := fun stx expectedType? => do
-  /- "if " ident " : " term " then" term "else" term -/
-  let h := stx[1]
-  let c := stx[3]
-  let t := stx[5]
-  let e := stx[7]
-  let newStx ← `(dite $c (fun $h:ident => $t) (fun $h:ident => $e))
-  withMacroExpansion stx newStx <| elabTerm newStx expectedType?
-
--- TODO: delete
-@[builtinTermElab termIfThenElse] def elabIfOld2 : TermElab := fun stx expectedType? => do
-  /- "if " term " then" term "else" term -/
-  let c := stx[1]
-  let t := stx[3]
-  let e := stx[5]
-  let newStx ← `(ite $c $t $e)
-  withMacroExpansion stx newStx <| elabTerm newStx expectedType?
-
 @[builtinTermElab borrowed] def elabBorrowed : TermElab := fun stx expectedType? =>
   match stx with
   | `(@& $e) => return markBorrowed (← elabTerm e expectedType?)

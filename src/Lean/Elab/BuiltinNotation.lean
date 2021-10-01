@@ -50,6 +50,14 @@ open Meta
     | none => throwError "invalid constructor ⟨...⟩, expected type must be known"
   | _ => throwUnsupportedSyntax
 
+/-
+@[builtinMacro Lean.Parser.Term.if] def expandIf : Macro := fun stx =>
+  match_syntax stx with
+  | `(if $h : $cond then $t else $e) => `(dite $cond (fun $h:ident => $t) (fun $h:ident => $e))
+  | `(if $cond then $t else $e)      => `(ite $cond $t $e)
+  | _                                => Macro.throwUnsupported
+-/
+
 @[builtinTermElab borrowed] def elabBorrowed : TermElab := fun stx expectedType? =>
   match stx with
   | `(@& $e) => return markBorrowed (← elabTerm e expectedType?)

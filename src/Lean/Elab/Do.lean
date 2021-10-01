@@ -991,10 +991,10 @@ def reassignToTerm (reassign : Syntax) (k : Syntax) : MacroM Syntax := withRef r
 
 def mkIte (optIdent : Syntax) (cond : Syntax) (thenBranch : Syntax) (elseBranch : Syntax) : MacroM Syntax := do
   if optIdent.isNone then
-    ``(ite $cond $thenBranch $elseBranch)
+    ``(if $cond then $thenBranch else $elseBranch)
   else
     let h := optIdent[0]
-    ``(dite $cond (fun $h => $thenBranch) (fun $h => $elseBranch))
+    ``(if $h:ident : $cond then $thenBranch else $elseBranch)
 
 def mkJoinPoint (j : Name) (ps : Array (Name × Bool)) (body : Syntax) (k : Syntax) : M Syntax := withRef body <| withFreshMacroScope do
   let pTypes ← ps.mapM fun ⟨id, useTypeOf⟩ => do if useTypeOf then `(typeOf% $(← mkIdentFromRef id)) else `(_)

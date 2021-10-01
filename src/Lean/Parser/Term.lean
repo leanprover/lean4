@@ -262,7 +262,7 @@ def macroLastArg   := macroDollarArg <|> macroArg
 
 @[builtinTermParser] def dynamicQuot := leading_parser "`(" >> ident >> "|" >> incQuotDepth (parserOfStack 1) >> ")"
 
-@[builtinTermParser] def «if» := leading_parser:leadPrec "if " >> optIdent >> termParser >> " then " >> termParser >> " else " >> termParser
+@[builtinTermParser] def «if» := leading_parser:leadPrec ppGroup $ ppDedent $ "if " >> optIdent >> termParser >> " then" >> ppSpace >> termParser >> ppDedent (ppSpace >> "else") >> ppSpace >> termParser
 
 end Term
 

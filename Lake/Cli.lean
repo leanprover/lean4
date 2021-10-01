@@ -122,18 +122,23 @@ def script (pkg : Package) (name : String) (args : List String) :  CliM UInt32 :
     pkg.scripts.forM fun name _ => IO.println name
     error s!"unknown script '{name}'"
 
+def noArgsRem (act : CliM UInt32) : CliM UInt32 := do
+  let args ← takeArgs
+  if args.isEmpty then act else
+    error s!"unexpected arguments: {" ".intercalate args}"
+
 def command : (cmd : String) → CliM UInt32
-| "new"         => do execIO <| new (← takeArg)
-| "init"        => do execIO <| init (← takeArg)
-| "run"         => do script (← loadPkg []) (← takeArg) (← getSubArgs)
-| "configure"   => do execIO <| configure (← loadPkg (← getSubArgs))
-| "print-paths" => do execIO <| printPaths (← loadPkg (← getSubArgs)) (← takeArgs)
-| "build"       => do execIO <| build (← loadPkg (← getSubArgs))
-| "build-lib"   => do execIO <| buildLib (← loadPkg (← getSubArgs))
-| "build-bin"   => do execIO <| buildBin (← loadPkg (← getSubArgs))
-| "clean"       => do execIO <| (← loadPkg (← getSubArgs)).clean
+| "new"         => do noArgsRem <| execIO <| new (← takeArg)
+| "init"        => do noArgsRem <| execIO <| init (← takeArg)
+| "run"         => do noArgsRem <| script (← loadPkg []) (← takeArg) (← getSubArgs)
+| "configure"   => do noArgsRem <| execIO <| configure (← loadPkg (← getSubArgs))
+| "print-paths" => do noArgsRem <| execIO <| printPaths (← loadPkg (← getSubArgs)) (← takeArgs)
+| "build"       => do noArgsRem <| execIO <| build (← loadPkg (← getSubArgs))
+| "build-lib"   => do noArgsRem <| execIO <| buildLib (← loadPkg (← getSubArgs))
+| "build-bin"   => do noArgsRem <| execIO <| buildBin (← loadPkg (← getSubArgs))
+| "clean"       => do noArgsRem <| execIO <| (← loadPkg (← getSubArgs)).clean
 | "help"        => do output <| help (← takeArg?)
-| "self-check"  => execIO verifyLeanVersion
+| "self-check"  => noArgsRem <| execIO verifyLeanVersion
 | cmd           => error s!"unknown command '{cmd}'"
 
 def processArgs : CliM UInt32 := do

@@ -529,7 +529,7 @@ open Lean.Elab.Term.Quotation in
    The default elaboration order is `binders`, `typeStx`, `valStx`, and `body`.
    If `elabBodyFirst == true`, then we use the order `binders`, `typeStx`, `body`, and `valStx`. -/
 def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (valStx : Syntax) (body : Syntax)
-    (expectedType? : Option Expr) (useLetExpr : Bool) (elabBodyFirst : Bool) : TermElabM Expr := do
+    (expectedType? : Option Expr) (useLetExpr : Bool) (elabBodyFirst : Bool) (usedLetOnly : Bool) : TermElabM Expr := do
   let (type, val, arity) ← elabBinders binders fun xs => do
     let type ← elabType typeStx
     registerCustomErrorIfMVar type typeStx "failed to infer 'let' declaration type"
@@ -558,7 +558,7 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
         addLocalVarInfo id x
         let body ← elabTermEnsuringType body expectedType?
         let body ← instantiateMVars body
-        mkLetFVars #[x] body (usedLetOnly := false)
+        mkLetFVars #[x] body (usedLetOnly := usedLetOnly)
     else
       let f ← withLocalDecl id.getId BinderInfo.default type fun x => do
         addLocalVarInfo id x
@@ -595,13 +595,13 @@ def expandLetEqnsDecl (letDecl : Syntax) : MacroM Syntax := do
   let val ← expandMatchAltsIntoMatch ref matchAlts
   return Syntax.node `Lean.Parser.Term.letIdDecl #[letDecl[0], letDecl[1], letDecl[2], mkAtomFrom ref " := ", val]
 
-def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : Bool) (elabBodyFirst : Bool) : TermElabM Expr := do
+def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : Bool) (elabBodyFirst : Bool) (usedLetOnly : Bool) : TermElabM Expr := do
   let ref     := stx
   let letDecl := stx[1][0]
   let body    := stx[3]
   if letDecl.getKind == `Lean.Parser.Term.letIdDecl then
     let { id := id, binders := binders, type := type, value := val } := mkLetIdDeclView letDecl
-    elabLetDeclAux id binders type val body expectedType? useLetExpr elabBodyFirst
+    elabLetDeclAux id binders type val body expectedType? useLetExpr elabBodyFirst usedLetOnly
   else if letDecl.getKind == `Lean.Parser.Term.letPatDecl then
     -- node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushNone >> optType >> " := ") >> termParser
     let pat     := letDecl[0]
@@ -624,13 +624,16 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
     throwUnsupportedSyntax
 
 @[builtinTermElab «let»] def elabLetDecl : TermElab :=
-  fun stx expectedType? => elabLetDeclCore stx expectedType? true false
+  fun stx expectedType? => elabLetDeclCore stx expectedType? (useLetExpr := true) (elabBodyFirst := false) (usedLetOnly := false)
 
 @[builtinTermElab «let_fun»] def elabLetFunDecl : TermElab :=
-  fun stx expectedType? => elabLetDeclCore stx expectedType? false false
+  fun stx expectedType? => elabLetDeclCore stx expectedType? (useLetExpr := false) (elabBodyFirst := false) (usedLetOnly := false)
 
 @[builtinTermElab «let_delayed»] def elabLetDelayedDecl : TermElab :=
-  fun stx expectedType? => elabLetDeclCore stx expectedType? true true
+  fun stx expectedType? => elabLetDeclCore stx expectedType? (useLetExpr := true) (elabBodyFirst := true) (usedLetOnly := false)
+
+@[builtinTermElab «let_zeta»] def elabLetZetaDecl : TermElab :=
+  fun stx expectedType? => elabLetDeclCore stx expectedType? (useLetExpr := true) (elabBodyFirst := false) (usedLetOnly := true)
 
 builtin_initialize registerTraceClass `Elab.let
 

@@ -6,10 +6,5 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 import Lake
 
 def main (args : List String) : IO UInt32 := do
-  try
-    Lake.setupLeanSearchPath
-    Lake.cli args
-    pure 0
-  catch e =>
-    IO.eprintln <| "error: " ++ toString e -- avoid "uncaught exception: ..."
-    pure 1
+  Lake.setupLeanSearchPath
+  Lake.cli args -- should not throw errors (outside user code)

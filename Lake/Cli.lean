@@ -14,11 +14,11 @@ namespace Lake
 
 -- # Utilities
 
-def Package.run (script : String) (args : List String) (self : Package) : IO PUnit :=
+def Package.run (script : String) (args : List String) (self : Package) : IO UInt32 :=
   if let some script := self.scripts.find? script then
     script args
-  else
-    self.scripts.forM fun name _ => IO.println name
+  else do
+    throw <| IO.userError s!"unknown script {script}"
 
 def Package.clean (self : Package) : IO PUnit := do
   if (← self.buildDir.pathExists) then
@@ -32,11 +32,12 @@ structure CliOptions where
   file : FilePath := defaultConfigFile
   subArgs : List String := []
 
-abbrev CliM := CliT (StateT CliOptions IO)
--- abbrev LakeCliMethods := CliMethods (StateT CliState IO)
+abbrev CliM := CliT <| StateT CliOptions IO
 
 namespace CliM
 open CliT
+
+-- ## State Management
 
 def getDir : CliM FilePath :=
   getThe CliOptions >>= (·.dir)
@@ -62,7 +63,7 @@ def getWantsHelp : CliM Bool :=
 def setWantsHelp : CliM PUnit :=
   modifyThe CliOptions fun st => {st with wantsHelp := true}
 
-def getPkg (args : List String) : CliM Package := do
+def loadPkg (args : List String) : CliM Package := do
   Package.fromDir (← getDir) args (← getFile)
 
 def takeArg : CliM String := do
@@ -74,6 +75,8 @@ def takeFileArg : CliM FilePath := do
   match (← takeArg?) with
   | none => throw <| IO.userError "missing file argument"
   | some arg => arg
+
+-- ## Option Parsing
 
 def unknownShortOption (opt : Char) : CliM PUnit :=
   throw <| IO.userError s!"unknown short option '-{opt}'"
@@ -94,38 +97,63 @@ def longOption : (opt : String) → CliM PUnit
 | "--"      => do setSubArgs (← takeArgs)
 | opt       => unknownLongOption opt
 
-def command : (cmd : String) → CliM PUnit
-| "new"         => do new (← takeArg)
-| "init"        => do init (← takeArg)
-| "run"         => do (← getPkg []).run (← takeArg) (← getSubArgs)
-| "configure"   => do configure (← getPkg (← getSubArgs))
-| "print-paths" => do printPaths (← getPkg (← getSubArgs)) (← takeArgs)
-| "build"       => do build (← getPkg (← getSubArgs))
-| "build-lib"   => do buildLib (← getPkg (← getSubArgs))
-| "build-bin"   => do buildBin (← getPkg (← getSubArgs))
-| "clean"       => do (← getPkg (← getSubArgs)).clean
-| "help"        => do IO.println <| help (← takeArg?)
-| "self-check"  => verifyLeanVersion
-| cmd           => throw <| IO.userError s!"unknown command '{cmd}'"
+-- ## Actions
 
-def processArgs : CliM PUnit := do
+/-- Print out a line wih the given message and then return an error code. -/
+def error (msg : String) (rc : UInt32 := 1) : CliM UInt32 := do
+  IO.eprintln s!"error: {msg}"; rc
+
+/-- Print out a line wih the given message and then return code 0. -/
+def output (msg : String) : CliM UInt32 := do
+  IO.println msg; pure 0
+
+/--
+  Perform the given IO action and then return code 0.
+  If it throws an error, invoke `error` with the the error's message.
+-/
+def execIO (x : IO α) : CliM UInt32 := do
+  try Functor.mapConst 0 x catch e => error (toString e)
+
+/-- Run the given script from the given package with the given arguments. -/
+def script (pkg : Package) (name : String) (args : List String) :  CliM UInt32 := do
+  if let some script := pkg.scripts.find? name then
+    script args
+  else
+    pkg.scripts.forM fun name _ => IO.println name
+    error s!"unknown script '{name}'"
+
+def command : (cmd : String) → CliM UInt32
+| "new"         => do execIO <| new (← takeArg)
+| "init"        => do execIO <| init (← takeArg)
+| "run"         => do script (← loadPkg []) (← takeArg) (← getSubArgs)
+| "configure"   => do execIO <| configure (← loadPkg (← getSubArgs))
+| "print-paths" => do execIO <| printPaths (← loadPkg (← getSubArgs)) (← takeArgs)
+| "build"       => do execIO <| build (← loadPkg (← getSubArgs))
+| "build-lib"   => do execIO <| buildLib (← loadPkg (← getSubArgs))
+| "build-bin"   => do execIO <| buildBin (← loadPkg (← getSubArgs))
+| "clean"       => do execIO <| (← loadPkg (← getSubArgs)).clean
+| "help"        => do output <| help (← takeArg?)
+| "self-check"  => execIO verifyLeanVersion
+| cmd           => error s!"unknown command '{cmd}'"
+
+def processArgs : CliM UInt32 := do
   match (← getArgs) with
-  | [] => IO.println usage
-  | ["--version"] => IO.println uiVersionString
+  | [] => output usage
+  | ["--version"] => output uiVersionString
   | _ => -- normal CLI
     processOptions
-    match (← takeArg?) with
-    | none =>
-      if (← getWantsHelp) then IO.println usage else
-      throw <| IO.userError "expected command"
-    | some cmd =>
-      if (← getWantsHelp) then IO.println (help cmd) else
-      command cmd
+    if let some cmd ← takeArg? then
+      if (← getWantsHelp) then output (help cmd) else command cmd
+    else
+      if (← getWantsHelp) then output usage else error "expected command"
 
-def run (self : CliM PUnit) (args : List String) : IO PUnit :=
-  CliT.run self args {shortOption, longOption, longShortOption := unknownLongOption} |>.run' {}
+def run (self : CliM α) (args : List String) : IO α :=
+  CliT.run self args {
+    shortOption, longOption,
+    longShortOption := unknownLongOption
+  } |>.run' {}
 
 end CliM
 
-def cli (args : List String) : IO PUnit :=
+def cli (args : List String) : IO UInt32 :=
   CliM.processArgs.run args

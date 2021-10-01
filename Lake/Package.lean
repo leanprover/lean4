@@ -82,7 +82,7 @@ deriving Inhabited, Repr
   A package `Script` is an arbitrary function that is
   indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
 -/
-abbrev Script := (args : List String) → IO PUnit
+abbrev Script := (args : List String) → IO UInt32
 
 --------------------------------------------------------------------------------
 -- # PackageConfig
@@ -99,7 +99,7 @@ structure PackageConfig where
   /--
     A `HashMap` of scripts for the package.
 
-    A `Script` is an arbitrary `(args : List String) → IO PUnit` function that
+    A `Script` is an arbitrary `(args : List String) → IO UInt32` function that
     is indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
   -/
   scripts : HashMap String Script := HashMap.empty

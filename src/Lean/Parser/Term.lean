@@ -175,8 +175,8 @@ def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFoll
 @[builtinTermParser] def «let» := leading_parser:leadPrec  withPosition ("let " >> letDecl) >> optSemicolon termParser
 @[builtinTermParser] def «let_fun»     := leading_parser:leadPrec withPosition ((symbol "let_fun " <|> "let_λ") >> letDecl) >> optSemicolon termParser
 @[builtinTermParser] def «let_delayed» := leading_parser:leadPrec withPosition ("let_delayed " >> letDecl) >> optSemicolon termParser
--- `let`-declaration that is expanded after elaboration
-@[builtinTermParser] def «let_zeta» := leading_parser:leadPrec withPosition ("let_zeta " >> letDecl) >> optSemicolon termParser
+-- `let`-declaration that is only included in the elaborated term if variable is still there
+@[builtinTermParser] def «let_tmp» := leading_parser:leadPrec withPosition ("let_tmp " >> letDecl) >> optSemicolon termParser
 
 -- like `let_fun` but with optional name
 def haveIdLhs    := optional (ident >> many (ppSpace >> (simpleBinderWithoutType <|> bracketedBinder))) >> optType

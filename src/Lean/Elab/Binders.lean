@@ -632,7 +632,7 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
 @[builtinTermElab «let_delayed»] def elabLetDelayedDecl : TermElab :=
   fun stx expectedType? => elabLetDeclCore stx expectedType? (useLetExpr := true) (elabBodyFirst := true) (usedLetOnly := false)
 
-@[builtinTermElab «let_zeta»] def elabLetZetaDecl : TermElab :=
+@[builtinTermElab «let_tmp»] def elabLetTmpDecl : TermElab :=
   fun stx expectedType? => elabLetDeclCore stx expectedType? (useLetExpr := true) (elabBodyFirst := false) (usedLetOnly := true)
 
 builtin_initialize registerTraceClass `Elab.let

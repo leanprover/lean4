@@ -50,13 +50,38 @@ open Meta
     | none => throwError "invalid constructor ⟨...⟩, expected type must be known"
   | _ => throwUnsupportedSyntax
 
-/-
-@[builtinMacro Lean.Parser.Term.if] def expandIf : Macro := fun stx =>
-  match_syntax stx with
-  | `(if $h : $cond then $t else $e) => `(dite $cond (fun $h:ident => $t) (fun $h:ident => $e))
-  | `(if $cond then $t else $e)      => `(ite $cond $t $e)
-  | _                                => Macro.throwUnsupported
--/
+
+@[builtinTermElab Lean.Parser.Term.if] def elabIf : TermElab := fun stx expectedType? => do
+  /- "if " >> optIdent >> termParser >> " then " >> termParser >> " else " >> termParser -/
+  let c := stx[2]
+  let t := stx[4]
+  let e := stx[6]
+  let newStx ←
+    if stx[1].isNone then
+      `(ite $c $t $e)
+    else
+      let h := stx[1][0]
+      `(dite $c (fun $h:ident => $t) (fun $h:ident => $e))
+  withMacroExpansion stx newStx <| elabTerm newStx expectedType?
+
+-- TODO: delete
+@[builtinTermElab termDepIfThenElse] def elabIfOld1 : TermElab := fun stx expectedType? => do
+  /- "if " ident " : " term " then" term "else" term -/
+  let h := stx[1]
+  let c := stx[3]
+  let t := stx[5]
+  let e := stx[7]
+  let newStx ← `(dite $c (fun $h:ident => $t) (fun $h:ident => $e))
+  withMacroExpansion stx newStx <| elabTerm newStx expectedType?
+
+-- TODO: delete
+@[builtinTermElab termIfThenElse] def elabIfOld2 : TermElab := fun stx expectedType? => do
+  /- "if " term " then" term "else" term -/
+  let c := stx[1]
+  let t := stx[3]
+  let e := stx[5]
+  let newStx ← `(ite $c $t $e)
+  withMacroExpansion stx newStx <| elabTerm newStx expectedType?
 
 @[builtinTermElab borrowed] def elabBorrowed : TermElab := fun stx expectedType? =>
   match stx with

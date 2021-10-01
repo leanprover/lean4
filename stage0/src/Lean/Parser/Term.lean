@@ -175,6 +175,8 @@ def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFoll
 @[builtinTermParser] def «let» := leading_parser:leadPrec  withPosition ("let " >> letDecl) >> optSemicolon termParser
 @[builtinTermParser] def «let_fun»     := leading_parser:leadPrec withPosition ((symbol "let_fun " <|> "let_λ") >> letDecl) >> optSemicolon termParser
 @[builtinTermParser] def «let_delayed» := leading_parser:leadPrec withPosition ("let_delayed " >> letDecl) >> optSemicolon termParser
+-- `let`-declaration that is expanded after elaboration
+@[builtinTermParser] def «let_zeta» := leading_parser:leadPrec withPosition ("let_zeta " >> letDecl) >> optSemicolon termParser
 
 -- like `let_fun` but with optional name
 def haveIdLhs    := optional (ident >> many (ppSpace >> (simpleBinderWithoutType <|> bracketedBinder))) >> optType
@@ -262,7 +264,7 @@ def macroLastArg   := macroDollarArg <|> macroArg
 
 @[builtinTermParser] def dynamicQuot := leading_parser "`(" >> ident >> "|" >> incQuotDepth (parserOfStack 1) >> ")"
 
-@[builtinTermParser] def «if» := leading_parser:leadPrec "if " >> optIdent >> termParser >> " then " >> termParser >> " else " >> termParser
+@[builtinTermParser] def «if» := leading_parser:leadPrec ppGroup $ ppDedent $ "if " >> optIdent >> termParser >> " then" >> ppSpace >> termParser >> ppDedent (ppSpace >> "else") >> ppSpace >> termParser
 
 end Term
 

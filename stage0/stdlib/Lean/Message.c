@@ -259,6 +259,7 @@ static lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_2309____closed__14;
 static lean_object* l_Lean_MessageData_formatAux___closed__6;
 static lean_object* l_Lean_myMacro____x40_Lean_Message___hyg_2309____closed__3;
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+static lean_object* l_Lean_MessageData_instantiateMVars___closed__5;
 static lean_object* l_Lean_MessageData_formatAux___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Message_toString___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
@@ -973,24 +974,38 @@ static lean_object* _init_l_Lean_MessageData_instantiateMVars___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_MessageData_instantiateMVars___closed__2;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_MessageData_instantiateMVars___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_MessageData_instantiateMVars___closed__3;
-x_3 = lean_alloc_ctor(0, 7, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_1);
-lean_ctor_set(x_3, 2, x_2);
-lean_ctor_set(x_3, 3, x_2);
-lean_ctor_set(x_3, 4, x_2);
-lean_ctor_set(x_3, 5, x_2);
-lean_ctor_set(x_3, 6, x_2);
-return x_3;
+x_3 = l_Lean_MessageData_instantiateMVars___closed__4;
+x_4 = lean_alloc_ctor(0, 8, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_1);
+lean_ctor_set(x_4, 2, x_2);
+lean_ctor_set(x_4, 3, x_2);
+lean_ctor_set(x_4, 4, x_3);
+lean_ctor_set(x_4, 5, x_2);
+lean_ctor_set(x_4, 6, x_2);
+lean_ctor_set(x_4, 7, x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_MessageData_instantiateMVars(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_MessageData_instantiateMVars___closed__4;
+x_2 = l_Lean_MessageData_instantiateMVars___closed__5;
 x_3 = l_Lean_MessageData_instantiateMVars_visit(x_1, x_2);
 return x_3;
 }
@@ -5456,7 +5471,7 @@ lean_dec(x_1);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = l_Lean_MessageData_instantiateMVars___closed__4;
+x_7 = l_Lean_MessageData_instantiateMVars___closed__5;
 x_8 = l_Lean_addMessageContextPartial___rarg___lambda__1___closed__2;
 x_9 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_9, 0, x_2);
@@ -6528,7 +6543,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Message_0__Lean_KernelException_mkCtx(
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_5 = l_Lean_MessageData_instantiateMVars___closed__4;
+x_5 = l_Lean_MessageData_instantiateMVars___closed__5;
 x_6 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_5);
@@ -7300,6 +7315,8 @@ l_Lean_MessageData_instantiateMVars___closed__3 = _init_l_Lean_MessageData_insta
 lean_mark_persistent(l_Lean_MessageData_instantiateMVars___closed__3);
 l_Lean_MessageData_instantiateMVars___closed__4 = _init_l_Lean_MessageData_instantiateMVars___closed__4();
 lean_mark_persistent(l_Lean_MessageData_instantiateMVars___closed__4);
+l_Lean_MessageData_instantiateMVars___closed__5 = _init_l_Lean_MessageData_instantiateMVars___closed__5();
+lean_mark_persistent(l_Lean_MessageData_instantiateMVars___closed__5);
 l_Lean_MessageData_nil = _init_l_Lean_MessageData_nil();
 lean_mark_persistent(l_Lean_MessageData_nil);
 l_Lean_MessageData_formatAux___closed__1 = _init_l_Lean_MessageData_formatAux___closed__1();

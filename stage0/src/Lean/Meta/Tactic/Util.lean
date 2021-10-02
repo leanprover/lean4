@@ -16,7 +16,7 @@ def getMVarTag (mvarId : MVarId) : MetaM Name :=
   return (← getMVarDecl mvarId).userName
 
 def setMVarTag (mvarId : MVarId) (tag : Name) : MetaM Unit := do
-  modify fun s => { s with mctx := s.mctx.setMVarUserName mvarId tag }
+  modify fun s => { s with mctx := s.mctx.renameMVar mvarId tag }
 
 def appendTag (tag : Name) (suffix : Name) : Name :=
   tag.modifyBase (. ++ suffix.eraseMacroScopes)

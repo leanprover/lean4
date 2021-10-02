@@ -506,6 +506,7 @@ static lean_object* l_Lean_Meta_SynthInstance_resume___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_checkMaxHeartbeats___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_filterMapM___at_Lean_Meta_SynthInstance_getInstances___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SynthInstance_wakeUp___closed__3;
+static lean_object* l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 static lean_object* l_Lean_Meta_SynthInstance_inferTCGoalsRLAttr___closed__4;
 static lean_object* l_Lean_Meta_SynthInstance_checkMaxHeartbeats___closed__1;
 static lean_object* l_Lean_Meta_SynthInstance_synth___closed__3;
@@ -1112,25 +1113,39 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode__
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__5;
-x_3 = lean_alloc_ctor(0, 7, 0);
+x_1 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__4;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_1);
-lean_ctor_set(x_3, 2, x_2);
-lean_ctor_set(x_3, 3, x_2);
-lean_ctor_set(x_3, 4, x_2);
-lean_ctor_set(x_3, 5, x_2);
-lean_ctor_set(x_3, 6, x_2);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
 static lean_object* _init_l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__5;
+x_3 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__6;
+x_4 = lean_alloc_ctor(0, 8, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_1);
+lean_ctor_set(x_4, 2, x_2);
+lean_ctor_set(x_4, 3, x_2);
+lean_ctor_set(x_4, 4, x_3);
+lean_ctor_set(x_4, 5, x_2);
+lean_ctor_set(x_4, 6, x_2);
+lean_ctor_set(x_4, 7, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__2;
-x_2 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__6;
+x_2 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
 x_3 = l_Lean_Meta_SynthInstance_inferTCGoalsRLAttr___lambda__5___closed__1;
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_alloc_ctor(0, 5, 0);
@@ -1146,7 +1161,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode()
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_1 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 return x_1;
 }
 }
@@ -1156,7 +1171,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__2;
-x_3 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__6;
+x_3 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_5, 0, x_2);
@@ -10954,7 +10969,7 @@ else
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; uint8_t x_33; 
 x_27 = lean_array_fget(x_15, x_18);
-x_28 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_28 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 x_29 = lean_array_fset(x_15, x_18, x_28);
 x_30 = lean_apply_1(x_1, x_27);
 x_31 = lean_array_fset(x_29, x_18, x_30);
@@ -11037,7 +11052,7 @@ else
 {
 lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 x_53 = lean_array_fget(x_40, x_45);
-x_54 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_54 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 x_55 = lean_array_fset(x_40, x_45, x_54);
 x_56 = lean_apply_1(x_1, x_53);
 x_57 = lean_array_fset(x_55, x_45, x_56);
@@ -11125,7 +11140,7 @@ else
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; uint8_t x_51; 
 x_48 = lean_array_fget(x_41, x_44);
-x_49 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_49 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 x_50 = lean_array_fset(x_41, x_44, x_49);
 x_51 = !lean_is_exclusive(x_48);
 if (x_51 == 0)
@@ -11212,7 +11227,7 @@ else
 {
 lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; 
 x_75 = lean_array_fget(x_65, x_70);
-x_76 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7;
+x_76 = l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8;
 x_77 = lean_array_fset(x_65, x_70, x_76);
 x_78 = lean_ctor_get(x_75, 0);
 lean_inc(x_78);
@@ -20315,6 +20330,8 @@ l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__6 = _init_l_Lean_
 lean_mark_persistent(l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__6);
 l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7 = _init_l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7();
 lean_mark_persistent(l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__7);
+l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8 = _init_l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8();
+lean_mark_persistent(l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode___closed__8);
 l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode = _init_l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode();
 lean_mark_persistent(l_Lean_Meta_SynthInstance_instInhabitedGeneratorNode);
 l_Lean_Meta_SynthInstance_instInhabitedConsumerNode___closed__1 = _init_l_Lean_Meta_SynthInstance_instInhabitedConsumerNode___closed__1();

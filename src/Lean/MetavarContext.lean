@@ -278,6 +278,7 @@ structure MetavarContext where
   mvarCounter : Nat := 0 -- Counter for setting the field `index` at `MetavarDecl`
   lDepth      : PersistentHashMap MVarId Nat := {}
   decls       : PersistentHashMap MVarId MetavarDecl := {}
+  userNames   : PersistentHashMap Name MVarId := {}
   lAssignment : PersistentHashMap MVarId Level := {}
   eAssignment : PersistentHashMap MVarId Expr := {}
   dAssignment : PersistentHashMap MVarId DelayedMetavarAssignment := {}
@@ -320,7 +321,8 @@ def addExprMVarDecl (mctx : MetavarContext)
       localInstances
       type
       kind
-      numScopeArgs } }
+      numScopeArgs }
+    userNames := if userName.isAnonymous then mctx.userNames else mctx.userNames.insert userName mvarId }
 
 def addExprMVarDeclExp (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) (lctx : LocalContext) (localInstances : LocalInstances)
     (type : Expr) (kind : MetavarKind) : MetavarContext :=
@@ -341,19 +343,19 @@ def getDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarDecl :=
   | none      => panic! "unknown metavariable"
 
 def findUserName? (mctx : MetavarContext) (userName : Name) : Option MVarId :=
-  let search : Except MVarId Unit := mctx.decls.forM fun mvarId decl =>
-    if decl.userName == userName then throw mvarId else pure ()
-  match search with
-  | Except.ok _         => none
-  | Except.error mvarId => some mvarId
+  mctx.userNames.find? userName
 
 def setMVarKind (mctx : MetavarContext) (mvarId : MVarId) (kind : MetavarKind) : MetavarContext :=
   let decl := mctx.getDecl mvarId
   { mctx with decls := mctx.decls.insert mvarId { decl with kind := kind } }
 
-def setMVarUserName (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) : MetavarContext :=
+def renameMVar (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) : MetavarContext :=
   let decl := mctx.getDecl mvarId
-  { mctx with decls := mctx.decls.insert mvarId { decl with userName := userName } }
+  { mctx with
+    decls := mctx.decls.insert mvarId { decl with userName := userName }
+    userNames :=
+      let userNames := mctx.userNames.erase decl.userName
+      if userName.isAnonymous then userNames else userNames.insert userName mvarId }
 
 /- Update the type of the given metavariable. This function assumes the new type is
    definitionally equal to the current one -/
@@ -373,11 +375,6 @@ def isAnonymousMVar (mctx : MetavarContext) (mvarId : MVarId) : Bool :=
   match mctx.findDecl? mvarId with
   | none          => false
   | some mvarDecl => mvarDecl.userName.isAnonymous
-
-def renameMVar (mctx : MetavarContext) (mvarId : MVarId) (newUserName : Name) : MetavarContext :=
-  match mctx.findDecl? mvarId with
-  | none          => panic! "unknown metavariable"
-  | some mvarDecl => { mctx with decls := mctx.decls.insert mvarId { mvarDecl with userName := newUserName } }
 
 def assignLevel (m : MetavarContext) (mvarId : MVarId) (val : Level) : MetavarContext :=
   { m with lAssignment := m.lAssignment.insert mvarId val }

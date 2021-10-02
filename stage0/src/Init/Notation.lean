@@ -359,7 +359,7 @@ syntax (name := delta) "delta " ident (location)? : tactic
 
 -- Auxiliary macro for lifting have/suffices/let/...
 -- It makes sure the "continuation" `?_` is the main goal after refining
-macro "refine_lift " e:term : tactic => `(focus (refine noImplicitLambda% $e; rotate_right))
+macro "refine_lift " e:term : tactic => `(focus (refine no_implicit_lambda% $e; rotate_right))
 
 macro "have " d:haveDecl : tactic => `(refine_lift have $d:haveDecl; ?_)
 /- We use a priority > default, to avoid ambiguity with previous `have` notation -/
@@ -372,7 +372,7 @@ macro_rules
   | `(tactic| let rec $d:letRecDecls) => `(tactic| refine_lift let rec $d:letRecDecls; ?_)
 
 -- Similar to `refineLift`, but using `refine'`
-macro "refine_lift' " e:term : tactic => `(focus (refine' noImplicitLambda% $e; rotate_right))
+macro "refine_lift' " e:term : tactic => `(focus (refine' no_implicit_lambda% $e; rotate_right))
 macro "have' " d:haveDecl : tactic => `(refine_lift' have $d:haveDecl; ?_)
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x:ident : _ := $p)
 macro "let' " d:letDecl : tactic => `(refine_lift' let $d:letDecl; ?_)

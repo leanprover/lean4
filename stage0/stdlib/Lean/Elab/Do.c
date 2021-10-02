@@ -4651,7 +4651,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_mkAuxDeclFor___rarg___lambda__7___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ensureExpectedType%");
+x_1 = lean_mk_string("ensure_expected_type%");
 return x_1;
 }
 }
@@ -21862,7 +21862,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_ToTerm_reassignToTerm___closed__6(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ensureTypeOf%");
+x_1 = lean_mk_string("ensure_type_of%");
 return x_1;
 }
 }
@@ -22214,7 +22214,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Term_Do_ToTerm_m
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("typeOf%");
+x_1 = lean_mk_string("type_of%");
 return x_1;
 }
 }
@@ -35510,7 +35510,7 @@ static lean_object* _init_l_Lean_Elab_Term_Do_ToCodeBlock_doForToCode___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("forIn%");
+x_1 = lean_mk_string("for_in%");
 return x_1;
 }
 }

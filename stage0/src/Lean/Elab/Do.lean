@@ -275,7 +275,7 @@ def mkAuxDeclFor {m} [Monad m] [MonadQuotation m] (e : Syntax) (mkCont : Syntax 
   let yName := y.getId
   let doElem ← `(doElem| let y ← $e:term)
   -- Add elaboration hint for producing sane error message
-  let y ← `(ensureExpectedType% "type mismatch, result value" $y)
+  let y ← `(ensure_expected_type% "type mismatch, result value" $y)
   let k ← mkCont y
   pure $ Code.decl #[yName] doElem k
 
@@ -977,7 +977,7 @@ def reassignToTerm (reassign : Syntax) (k : Syntax) : MacroM Syntax := withRef r
       -- letIdDecl := leading_parser ident >> many (ppSpace >> bracketedBinder) >> optType >>  " := " >> termParser
       let x   := arg[0]
       let val := arg[4]
-      let newVal ← `(ensureTypeOf% $x $(quote "invalid reassignment, value") $val)
+      let newVal ← `(ensure_type_of% $x $(quote "invalid reassignment, value") $val)
       let arg := arg.setArg 4 newVal
       let letDecl := mkNode `Lean.Parser.Term.letDecl #[arg]
       `(let $letDecl:letDecl; $k)
@@ -997,7 +997,7 @@ def mkIte (optIdent : Syntax) (cond : Syntax) (thenBranch : Syntax) (elseBranch 
     ``(if $h:ident : $cond then $thenBranch else $elseBranch)
 
 def mkJoinPoint (j : Name) (ps : Array (Name × Bool)) (body : Syntax) (k : Syntax) : M Syntax := withRef body <| withFreshMacroScope do
-  let pTypes ← ps.mapM fun ⟨id, useTypeOf⟩ => do if useTypeOf then `(typeOf% $(← mkIdentFromRef id)) else `(_)
+  let pTypes ← ps.mapM fun ⟨id, useTypeOf⟩ => do if useTypeOf then `(type_of% $(← mkIdentFromRef id)) else `(_)
   let ps     ← ps.mapM fun ⟨id, useTypeOf⟩ => mkIdentFromRef id
   /-
   We use `let_delayed` instead of `let` for joinpoints to make sure `$k` is elaborated before `$body`.
@@ -1417,20 +1417,20 @@ mutual
       let uvarsTuple ← liftMacroM do mkTuple (← uvars.mapM mkIdentFromRef)
       if hasReturn forInBodyCodeBlock.code then
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
-        let forInTerm ← `(forIn% $(xs) (MProd.mk none $uvarsTuple) fun $x r => let r := r.2; $forInBody)
+        let forInTerm ← `(for_in% $(xs) (MProd.mk none $uvarsTuple) fun $x r => let r := r.2; $forInBody)
         let auxDo ← `(do let r ← $forInTerm:term;
                          $uvarsTuple:term := r.2;
                          match r.1 with
-                         | none => Pure.pure (ensureExpectedType% "type mismatch, 'for'" PUnit.unit)
-                         | some a => return ensureExpectedType% "type mismatch, 'for'" a)
+                         | none => Pure.pure (ensure_expected_type% "type mismatch, 'for'" PUnit.unit)
+                         | some a => return ensure_expected_type% "type mismatch, 'for'" a)
         doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
       else
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
-        let forInTerm ← `(forIn% $(xs) $uvarsTuple fun $x r => $forInBody)
+        let forInTerm ← `(for_in% $(xs) $uvarsTuple fun $x r => $forInBody)
         if doElems.isEmpty then
           let auxDo ← `(do let r ← $forInTerm:term;
                            $uvarsTuple:term := r;
-                           Pure.pure (ensureExpectedType% "type mismatch, 'for'" PUnit.unit))
+                           Pure.pure (ensure_expected_type% "type mismatch, 'for'" PUnit.unit))
           doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
         else
           let auxDo ← `(do let r ← $forInTerm:term; $uvarsTuple:term := r)

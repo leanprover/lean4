@@ -34071,7 +34071,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_myMacro____x40_Init_Notation___hy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("noImplicitLambda%");
+x_1 = lean_mk_string("no_implicit_lambda%");
 return x_1;
 }
 }

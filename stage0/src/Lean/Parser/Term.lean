@@ -207,12 +207,17 @@ def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 @[builtinTermParser] def binop  := leading_parser "binop% " >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec
 @[builtinTermParser] def binop_lazy  := leading_parser "binop_lazy% " >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec
 
-@[builtinTermParser] def forInMacro := leading_parser ("forIn% " <|> "for_in% ") >> termParser maxPrec >> termParser maxPrec >> termParser maxPrec
+@[builtinTermParser] def forInMacro := leading_parser "for_in% " >> termParser maxPrec >> termParser maxPrec >> termParser maxPrec
 
-@[builtinTermParser] def typeOf             := leading_parser ("typeOf% " <|> "type_of% ") >> termParser maxPrec
-@[builtinTermParser] def ensureTypeOf       := leading_parser ("ensureTypeOf% " <|> "ensure_type_of% ") >> termParser maxPrec >> strLit >> termParser
-@[builtinTermParser] def ensureExpectedType := leading_parser ("ensureExpectedType% " <|> "ensure_expected_type% ") >> strLit >> termParser maxPrec
-@[builtinTermParser] def noImplicitLambda   := leading_parser ("noImplicitLambda% " <|> "no_implicit_lambda% ") >> termParser maxPrec
+@[builtinTermParser] def typeOf             := leading_parser "type_of% " >> termParser maxPrec
+@[builtinTermParser] def ensureTypeOf       := leading_parser "ensure_type_of% " >> termParser maxPrec >> strLit >> termParser
+@[builtinTermParser] def ensureExpectedType := leading_parser "ensure_expected_type% " >> strLit >> termParser maxPrec
+@[builtinTermParser] def noImplicitLambda   := leading_parser "no_implicit_lambda% " >> termParser maxPrec
+
+@[builtinTermParser] def letMVar                := leading_parser "let_mvar% " >> "?" >> ident >> " := " >> termParser >> "; " >> termParser
+@[builtinTermParser] def waitIfTypeMVar         := leading_parser "wait_if_type_mvar% " >> "?" >> ident >> "; " >> termParser
+@[builtinTermParser] def waitIfTypeContainsMVar := leading_parser "wait_if_type_contains_mvar% " >> "?" >> ident >> "; " >> termParser
+@[builtinTermParser] def waitIfContainsMVar     := leading_parser "wait_if_contains_mvar% " >> "?" >> ident >> "; " >> termParser
 
 def namedArgument  := leading_parser atomic ("(" >> ident >> " := ") >> termParser >> ")"
 def ellipsis       := leading_parser ".."

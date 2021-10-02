@@ -2,14 +2,14 @@
 
 Macros are a language feature that allows writing code that writes other code (metaprogramming).
 
-In LEAN4, macros are used pervasively. So much so that core language features such as `do` notation
+In Lean 4, macros are used pervasively. So much so that core language features such as `do` notation
 is implemented via macros! As a language user, macros are useful to easily
 embed domain-specific languages and to generate code at compile-time, to name a few uses.
 
 
 #### Balanced Parentheses as an Embedded Domain Specific Language
 
-Let's look at how to use macros to extend the LEAN parser and embed a language for building _balanced parentheses_.
+Let's look at how to use macros to extend the Lean 4 parser and embed a language for building _balanced parentheses_.
 This language accepts strings given by the [BNF grammar](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form)
 
 ```
@@ -28,7 +28,7 @@ inductive Dyck: Type :=
    | End : Dyck
 ```
 
-We begin by declaring a _syntax category_ using the `declare_syntax_cat <category>` directive.
+We begin by declaring a _syntax category_ using the `declare_syntax_cat <category>` command.
 This names our grammar and allows us to specify parsing rules associated with our grammar.
 
 ```lean
@@ -50,8 +50,8 @@ syntax "(" brack ")" : brack
 syntax "{" brack "}" : brack
 ```
 
-Finally, we need a way to build _LEAN4 terms_ from this grammar -- that is, we must translate out of this
-grammar into a `Dyck` value, which is a LEAN4 term. For this, we create a piece of syntax,
+Finally, we need a way to build _Lean 4 terms_ from this grammar -- that is, we must translate out of this
+grammar into a `Dyck` value, which is a Lean 4 term. For this, we create a piece of syntax,
 called `fromBrack% brack : term`, which receives a `brack` and produces a `term`.
 
 ```lean
@@ -92,7 +92,7 @@ Dyck.Flower (Dyck.Round (Dyck.End))
 In summary, we've seen:
 - How to declare a syntax category for the Dyck grammar.
 - How to specify parse trees of this grammar using `syntax`
-- How to translate out of this grammar into LEAN4 terms using `macro_rules`.
+- How to translate out of this grammar into Lean 4 terms using `macro_rules`.
 
 The full program listing is given below:
 

@@ -640,6 +640,7 @@ static lean_object* l_Lean_Elab_Term_Do_pullExitPointsAux___lambda__1___closed__
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_Do_mkDoIfView(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_ToCodeBlock_doLetArrowToCode___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Macro_throwErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_toDoElem___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7014,7 +7015,7 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_7, 5);
 lean_inc(x_15);
 lean_inc(x_13);
-x_16 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1), 4, 1);
+x_16 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1___boxed), 4, 1);
 lean_closure_set(x_16, 0, x_13);
 lean_inc(x_14);
 x_17 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Elab_liftMacroM___spec__1___rarg___boxed), 3, 1);
@@ -7346,6 +7347,15 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -11029,7 +11039,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_6, 5);
 lean_inc(x_14);
 lean_inc(x_12);
-x_15 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1), 4, 1);
+x_15 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1___boxed), 4, 1);
 lean_closure_set(x_15, 0, x_12);
 lean_inc(x_13);
 x_16 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Elab_liftMacroM___spec__1___rarg___boxed), 3, 1);
@@ -27421,7 +27431,7 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_7, 5);
 lean_inc(x_15);
 lean_inc(x_13);
-x_16 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1), 4, 1);
+x_16 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1___boxed), 4, 1);
 lean_closure_set(x_16, 0, x_13);
 lean_inc(x_14);
 x_17 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Elab_liftMacroM___spec__1___rarg___boxed), 3, 1);
@@ -30340,7 +30350,7 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_7, 5);
 lean_inc(x_15);
 lean_inc(x_13);
-x_16 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1), 4, 1);
+x_16 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1___boxed), 4, 1);
 lean_closure_set(x_16, 0, x_13);
 lean_inc(x_14);
 x_17 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Elab_liftMacroM___spec__1___rarg___boxed), 3, 1);
@@ -30592,7 +30602,7 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_7, 5);
 lean_inc(x_15);
 lean_inc(x_13);
-x_16 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1), 4, 1);
+x_16 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1___boxed), 4, 1);
 lean_closure_set(x_16, 0, x_13);
 lean_inc(x_14);
 x_17 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Elab_liftMacroM___spec__1___rarg___boxed), 3, 1);
@@ -32794,7 +32804,7 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_7, 5);
 lean_inc(x_15);
 lean_inc(x_13);
-x_16 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1), 4, 1);
+x_16 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1___boxed), 4, 1);
 lean_closure_set(x_16, 0, x_13);
 lean_inc(x_14);
 x_17 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Elab_liftMacroM___spec__1___rarg___boxed), 3, 1);
@@ -37269,7 +37279,7 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_7, 5);
 lean_inc(x_15);
 lean_inc(x_13);
-x_16 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1), 4, 1);
+x_16 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1___boxed), 4, 1);
 lean_closure_set(x_16, 0, x_13);
 lean_inc(x_14);
 x_17 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Elab_liftMacroM___spec__1___rarg___boxed), 3, 1);
@@ -39849,7 +39859,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_6, 5);
 lean_inc(x_14);
 lean_inc(x_12);
-x_15 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1), 4, 1);
+x_15 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1___boxed), 4, 1);
 lean_closure_set(x_15, 0, x_12);
 lean_inc(x_13);
 x_16 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Elab_liftMacroM___spec__1___rarg___boxed), 3, 1);

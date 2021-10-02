@@ -365,6 +365,7 @@ lean_object* l_Lean_Elab_Term_logUnassignedUsingErrorInfos(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_instInhabitedState;
 static lean_object* l_Lean_Elab_Tactic_instAlternativeTacticM___closed__3;
 static lean_object* l_Lean_Elab_Tactic_tacticElabAttribute___closed__3;
+LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___spec__1___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalTacticAux___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5490,7 +5491,7 @@ lean_inc(x_15);
 x_16 = lean_ctor_get(x_8, 5);
 lean_inc(x_16);
 lean_inc(x_14);
-x_17 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___spec__1___lambda__1), 4, 1);
+x_17 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___spec__1___lambda__1___boxed), 4, 1);
 lean_closure_set(x_17, 0, x_14);
 lean_inc(x_15);
 x_18 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Elab_liftMacroM___spec__1___rarg___boxed), 3, 1);
@@ -6778,6 +6779,15 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___spec__1___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___spec__1___lambda__1(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_expandTacticMacroFns_loop___spec__1___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

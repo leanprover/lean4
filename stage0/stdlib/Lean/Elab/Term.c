@@ -302,6 +302,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_throwMVarError___rarg(lean_object*, le
 static lean_object* l_Lean_Elab_Term_instMonadTermElabM___closed__3;
 LEAN_EXPORT uint8_t l_List_foldr___at_Lean_Elab_Term_isLetRecAuxMVar___spec__1(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_throwMVarError___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_expandMacroImpl_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_synthesizeInst(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_isHole___closed__5;
 LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_Elab_Term_resolveName___spec__2___boxed(lean_object*, lean_object*);
@@ -1073,6 +1074,7 @@ static lean_object* l_Lean_Elab_Term_resolveName___closed__2;
 static lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___lambda__6___closed__2;
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Elab_Term_evalExpr___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_getLevelNames___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_setMessageLog___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentD(lean_object*);
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
@@ -32678,7 +32680,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_6, 5);
 lean_inc(x_14);
 lean_inc(x_12);
-x_15 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__2___lambda__1), 4, 1);
+x_15 = lean_alloc_closure((void*)(l_Lean_Elab_liftMacroM___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__2___lambda__1___boxed), 4, 1);
 lean_closure_set(x_15, 0, x_12);
 lean_inc(x_13);
 x_16 = lean_alloc_closure((void*)(l_ReaderT_pure___at_Lean_Elab_liftMacroM___spec__1___rarg___boxed), 3, 1);
@@ -33037,7 +33039,7 @@ x_52 = lean_ctor_get(x_50, 0);
 lean_inc(x_52);
 lean_dec(x_50);
 lean_inc(x_1);
-x_53 = lean_alloc_closure((void*)(l_Lean_Elab_expandMacroImpl_x3f), 4, 2);
+x_53 = lean_alloc_closure((void*)(l_Lean_Elab_expandMacroImpl_x3f___boxed), 4, 2);
 lean_closure_set(x_53, 0, x_52);
 lean_closure_set(x_53, 1, x_1);
 lean_inc(x_11);
@@ -33375,7 +33377,7 @@ x_121 = lean_ctor_get(x_119, 0);
 lean_inc(x_121);
 lean_dec(x_119);
 lean_inc(x_1);
-x_122 = lean_alloc_closure((void*)(l_Lean_Elab_expandMacroImpl_x3f), 4, 2);
+x_122 = lean_alloc_closure((void*)(l_Lean_Elab_expandMacroImpl_x3f___boxed), 4, 2);
 lean_closure_set(x_122, 0, x_121);
 lean_closure_set(x_122, 1, x_1);
 lean_inc(x_11);
@@ -33731,7 +33733,7 @@ x_195 = lean_ctor_get(x_193, 0);
 lean_inc(x_195);
 lean_dec(x_193);
 lean_inc(x_1);
-x_196 = lean_alloc_closure((void*)(l_Lean_Elab_expandMacroImpl_x3f), 4, 2);
+x_196 = lean_alloc_closure((void*)(l_Lean_Elab_expandMacroImpl_x3f___boxed), 4, 2);
 lean_closure_set(x_196, 0, x_195);
 lean_closure_set(x_196, 1, x_1);
 lean_inc(x_11);
@@ -34563,6 +34565,15 @@ lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__2___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Elab_liftMacroM___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__2___lambda__1(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__2___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

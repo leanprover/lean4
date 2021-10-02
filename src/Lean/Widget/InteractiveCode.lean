@@ -79,7 +79,7 @@ private def formatWithOpts (e : Expr) (optsPerPos : Delaborator.OptionsPerPos)
     let currNamespace ← getCurrNamespace
     let openDecls ← getOpenDecls
     let opts ← getOptions
-    let (stx, infos) ← PrettyPrinter.delabCore currNamespace openDecls e
+    let (stx, infos) ← PrettyPrinter.delabCore currNamespace openDecls e optsPerPos
     let stx := sanitizeSyntax stx |>.run' { options := opts }
     let stx ← PrettyPrinter.parenthesizeTerm stx
     let fmt ← PrettyPrinter.formatTerm stx

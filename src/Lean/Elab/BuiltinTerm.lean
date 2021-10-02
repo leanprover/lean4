@@ -95,6 +95,18 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
         else
           throwError "synthetic hole has already been defined with an incompatible local context"
 
+@[builtinTermElab «letMVar»] def elabLetMVar : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(let_mvar% ? $n := $e; $b) =>
+     match (← getMCtx).findUserName? n.getId with
+     | some _ => throwError "invalid 'let_mvar%', metavariable '?{n.getId}' has already been used"
+     | none =>
+       let e ← elabTerm e none
+       let mvar ← mkFreshExprMVar (← inferType e) MetavarKind.syntheticOpaque n.getId
+       assignExprMVar mvar.mvarId! e
+       elabTerm b expectedType?
+  | _ => throwUnsupportedSyntax
+
 private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr := do
   let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
   let mvarId := mvar.mvarId!

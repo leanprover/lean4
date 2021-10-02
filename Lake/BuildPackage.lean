@@ -39,7 +39,7 @@ def Package.buildModuleOleanAndCTargetDAG
 (self : Package) : BuildM (Array ActiveOleanAndCTarget × OleanAndCTargetMap) := do
   let buildMod : OleanAndCTargetBuild :=
     self.recBuildModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
-  let (resE, map) ← mods.mapM (buildRBTop buildMod id) |>.run {}
+  let (resE, map) ← mods.mapM (buildRBTop buildMod id) |>.run
   (← failOnBuildCycle resE, map)
 
 def Package.buildModuleOleanTargetDAG
@@ -47,7 +47,7 @@ def Package.buildModuleOleanTargetDAG
 (self : Package) : BuildM (Array ActiveFileTarget × OleanTargetMap) := do
   let buildMod : OleanTargetBuild :=
     self.recBuildModuleOleanTargetWithLocalImports moreOleanDirs depTarget
-  let (resE, map) ← mods.mapM (buildRBTop buildMod id) |>.run {}
+  let (resE, map) ← RBTopT.run <| mods.mapM (buildRBTop buildMod id)
   (← failOnBuildCycle resE, map)
 
 def Package.buildOleanAndCTargetDAG
@@ -65,14 +65,14 @@ def Package.buildModuleOleanAndCTargets
 (self : Package) : BuildM (Array ActiveOleanAndCTarget) := do
   let buildMod : OleanAndCTargetBuild :=
     self.recBuildModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
-  failOnBuildCycle <| ← mods.mapM (buildRBTop buildMod id) |>.run' {}
+  failOnBuildCycle <| ← RBTopT.run' <| mods.mapM <| buildRBTop buildMod id
 
 def Package.buildModuleOleanTargets
 (mods : Array Name) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
 (self : Package) : BuildM (Array ActiveFileTarget) := do
   let buildMod : OleanTargetBuild :=
     self.recBuildModuleOleanTargetWithLocalImports moreOleanDirs depTarget
-  failOnBuildCycle <| ← mods.mapM (buildRBTop buildMod id) |>.run' {}
+  failOnBuildCycle <| ← RBTopT.run' <| mods.mapM <| buildRBTop buildMod id
 
 def Package.buildOleanAndCTargets
 (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
@@ -111,20 +111,26 @@ def Package.buildOleanAndCTargetsWithDepTargets
   It resolves the package's dependencies and recursively builds them.
   For each package, it compiles its modules into `.olean` and `.c` files.
 -/
-partial def Package.buildTarget (self : Package) : BuildM ActivePackageTarget := do
-  let deps ← solveDeps self
-  -- build dependencies recursively
-  -- TODO: share build of common dependencies
-  let depTargets ← deps.mapM (·.buildTarget)
-  self.buildOleanAndCTargetsWithDepTargets depTargets
+def recBuildPkgWithDeps [Monad m] [MonadLiftT BuildM m]
+: RecBuild Package ActivePackageTarget m := fun pkg buildPkg => do
+  -- TODO: merge dependency resolution into build
+  let deps ← liftM (m := BuildM) <| solveDeps pkg
+  pkg.buildOleanAndCTargetsWithDepTargets (← deps.mapM buildPkg)
+
+def buildPackageTargetList (pkgs : List Package) : BuildM (List ActivePackageTarget) := do
+  failOnBuildCycle <| ← RBTopT.run' <| pkgs.mapM fun pkg =>
+    buildRBTop (cmp := Name.quickCmp) recBuildPkgWithDeps (·.name.toName) pkg
+
+def Package.buildTarget (self : Package) : BuildM ActivePackageTarget := do
+  failOnBuildCycle <| ← RBTopT.run' <|
+    buildRBTop (cmp := Name.quickCmp) recBuildPkgWithDeps (·.name.toName) self
 
 def Package.buildDepTargets (self : Package) : BuildM (List ActivePackageTarget) := do
-  let deps ← solveDeps self
-  deps.mapM (·.buildTarget)
+  buildPackageTargetList (← solveDeps self)
 
 def Package.buildDeps (self : Package) : BuildM (List Package) := do
   let deps ← solveDeps self
-  let targets ← deps.mapM (·.buildTarget)
+  let targets ← buildPackageTargetList deps
   targets.forM (discard ·.materialize)
   return deps
 
@@ -147,7 +153,7 @@ def Package.buildModuleOleanTargetsWithDeps
 (deps : List Package) (mods : Array Name) (self : Package)
 : BuildM (Array ActiveFileTarget) := do
   let moreOleanDirs := deps.map (·.oleanDir)
-  let depTarget ← self.buildDepTargetWith <| ← deps.mapM (·.buildTarget)
+  let depTarget ← self.buildDepTargetWith <| ← buildPackageTargetList deps
   self.buildModuleOleanTargets mods moreOleanDirs depTarget
 
 def Package.buildModuleOleansWithDeps

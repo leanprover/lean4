@@ -107,6 +107,35 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
        elabTerm b expectedType?
   | _ => throwUnsupportedSyntax
 
+private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
+  match (← getMCtx).findUserName? ident.getId with
+  | none => throwError "unknown metavariable '?{ident.getId}'"
+  | some mvarId => instantiateMVars (mkMVar mvarId)
+
+
+@[builtinTermElab «waitIfTypeMVar»] def elabWaitIfTypeMVar : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(wait_if_type_mvar% ? $n; $b) =>
+    tryPostponeIfMVar (← inferType (← getMVarFromUserName n))
+    elabTerm b expectedType?
+  | _ => throwUnsupportedSyntax
+
+@[builtinTermElab «waitIfTypeContainsMVar»] def elabWaitIfTypeContainsMVar : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(wait_if_type_contains_mvar% ? $n; $b) =>
+    if (← instantiateMVars (← inferType (← getMVarFromUserName n))).hasExprMVar then
+      tryPostpone
+    elabTerm b expectedType?
+  | _ => throwUnsupportedSyntax
+
+@[builtinTermElab «waitIfContainsMVar»] def elabWaitIfContainsMVar : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(wait_if_contains_mvar% ? $n; $b) =>
+    if (← getMVarFromUserName n).hasExprMVar then
+      tryPostpone
+    elabTerm b expectedType?
+  | _ => throwUnsupportedSyntax
+
 private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr := do
   let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
   let mvarId := mvar.mvarId!

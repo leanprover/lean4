@@ -207,12 +207,12 @@ def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 @[builtinTermParser] def binop  := leading_parser "binop% " >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec
 @[builtinTermParser] def binop_lazy  := leading_parser "binop_lazy% " >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec
 
-@[builtinTermParser] def forInMacro := leading_parser "forIn% " >> termParser maxPrec >> termParser maxPrec >> termParser maxPrec
+@[builtinTermParser] def forInMacro := leading_parser ("forIn% " <|> "for_in% ") >> termParser maxPrec >> termParser maxPrec >> termParser maxPrec
 
-@[builtinTermParser] def typeOf             := leading_parser "typeOf% " >> termParser maxPrec
-@[builtinTermParser] def ensureTypeOf       := leading_parser "ensureTypeOf% " >> termParser maxPrec >> strLit >> termParser
-@[builtinTermParser] def ensureExpectedType := leading_parser "ensureExpectedType% " >> strLit >> termParser maxPrec
-@[builtinTermParser] def noImplicitLambda   := leading_parser "noImplicitLambda% " >> termParser maxPrec
+@[builtinTermParser] def typeOf             := leading_parser ("typeOf% " <|> "type_of% ") >> termParser maxPrec
+@[builtinTermParser] def ensureTypeOf       := leading_parser ("ensureTypeOf% " <|> "ensure_type_of% ") >> termParser maxPrec >> strLit >> termParser
+@[builtinTermParser] def ensureExpectedType := leading_parser ("ensureExpectedType% " <|> "ensure_expected_type% ") >> strLit >> termParser maxPrec
+@[builtinTermParser] def noImplicitLambda   := leading_parser ("noImplicitLambda% " <|> "no_implicit_lambda% ") >> termParser maxPrec
 
 def namedArgument  := leading_parser atomic ("(" >> ident >> " := ") >> termParser >> ")"
 def ellipsis       := leading_parser ".."

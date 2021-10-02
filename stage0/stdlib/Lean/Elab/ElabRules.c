@@ -148,8 +148,8 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabElabRules___lambda__2___boxed(l
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__15;
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__119;
 static lean_object* l_Lean_Elab_Command_elabElabRulesAux___lambda__1___closed__29;
+lean_object* l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6627____spec__3(size_t, size_t, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabElabRules___closed__1;
-lean_object* l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6623____spec__3(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabElabRulesAux___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabElabRulesAux___spec__3___closed__6;
@@ -6278,7 +6278,7 @@ x_69 = lean_array_get_size(x_4);
 x_70 = lean_usize_of_nat(x_69);
 lean_dec(x_69);
 x_71 = x_4;
-x_72 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6623____spec__3(x_70, x_5, x_71);
+x_72 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_6627____spec__3(x_70, x_5, x_71);
 x_73 = x_72;
 x_74 = l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabElabRulesAux___spec__3___lambda__2___closed__4;
 x_75 = l_Array_append___rarg(x_74, x_73);

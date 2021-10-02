@@ -35,7 +35,7 @@ This names our grammar and allows us to specify parsing rules associated with ou
 declare_syntax_cat brack
 ```
 
-Next, we specify the grammar using the `syntax <parse rule>` directive:
+Next, we specify the grammar using the `syntax <parse rule>` command:
 
 ```lean
 syntax "End" : brack

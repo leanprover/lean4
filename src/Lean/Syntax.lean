@@ -228,7 +228,7 @@ def topDown (stx : Syntax) (firstChoiceOnly := false) : TopDown := ⟨firstChoic
 
 partial instance : ForIn m TopDown Syntax where
   forIn := fun ⟨firstChoiceOnly, stx⟩ init f => do
-    let rec @[specialize] loop stx b [Inhabited (typeOf% b)] := do
+    let rec @[specialize] loop stx b [Inhabited (type_of% b)] := do
       match (← f stx b) with
       | ForInStep.yield b' =>
         let mut b := b'

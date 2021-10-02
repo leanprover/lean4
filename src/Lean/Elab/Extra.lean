@@ -45,9 +45,9 @@ open Meta
 
 @[builtinTermElab forInMacro] def elabForIn : TermElab :=  fun stx expectedType? => do
   match stx with
-  | `(forIn% $col $init $body) =>
+  | `(for_in% $col $init $body) =>
       match (← isLocalIdent? col) with
-      | none   => elabTerm (← `(let col := $col; forIn% col $init $body)) expectedType?
+      | none   => elabTerm (← `(let col := $col; for_in% col $init $body)) expectedType?
       | some colFVar =>
         tryPostponeIfNoneOrMVar expectedType?
         let m ← getMonad expectedType?
@@ -69,13 +69,13 @@ open Meta
 where
   getMonad (expectedType? : Option Expr) : TermElabM Expr := do
     match expectedType? with
-    | none => throwError "invalid 'forIn%' notation, expected type is not available"
+    | none => throwError "invalid 'for_in%' notation, expected type is not available"
     | some expectedType =>
       match (← isTypeApp? expectedType) with
       | some (m, _) => return m
-      | none => throwError "invalid 'forIn%' notation, expected type is not of of the form `M α`{indentExpr expectedType}"
+      | none => throwError "invalid 'for_in%' notation, expected type is not of of the form `M α`{indentExpr expectedType}"
   throwFailure (forInInstance : Expr) : TermElabM Expr :=
-    throwError "failed to synthesize instance for 'forIn%' notation{indentExpr forInInstance}"
+    throwError "failed to synthesize instance for 'for_in%' notation{indentExpr forInInstance}"
 
 namespace BinOp
 /-

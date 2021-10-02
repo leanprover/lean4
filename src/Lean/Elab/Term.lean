@@ -1121,7 +1121,7 @@ private def isTacticBlock (stx : Syntax) : Bool :=
 
 private def isNoImplicitLambda (stx : Syntax) : Bool :=
   match stx with
-  | `(noImplicitLambda% $x:term) => true
+  | `(no_implicit_lambda% $x:term) => true
   | _ => false
 
 private def isTypeAscription (stx : Syntax) : Bool :=

@@ -95,11 +95,11 @@ def run (self : BuildM α) : IO PUnit :=
 
 end BuildM
 
-def failOnImportCycle : Except (List Lean.Name) α → BuildM α
+def failOnBuildCycle [ToString k] : Except (List k) α → BuildM α
 | Except.ok a => a
 | Except.error cycle => do
   let cycle := cycle.map (s!"  {·}")
-  let msg := s!"import cycle detected:\n{"\n".intercalate cycle}"
+  let msg := s!"build cycle detected:\n{"\n".intercalate cycle}"
   BuildM.logError msg
   throw <| IO.userError msg
 

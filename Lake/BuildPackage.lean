@@ -39,16 +39,16 @@ def Package.buildModuleOleanAndCTargetDAG
 (self : Package) : BuildM (Array ActiveOleanAndCTarget × OleanAndCTargetMap) := do
   let buildMod : OleanAndCTargetBuild :=
     self.recBuildModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
-  let (resE, map) ← mods.mapM (buildRBTop buildMod) |>.run {}
-  (← failOnImportCycle resE, map)
+  let (resE, map) ← mods.mapM (buildRBTop buildMod id) |>.run {}
+  (← failOnBuildCycle resE, map)
 
 def Package.buildModuleOleanTargetDAG
 (mods : Array Name) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
 (self : Package) : BuildM (Array ActiveFileTarget × OleanTargetMap) := do
   let buildMod : OleanTargetBuild :=
     self.recBuildModuleOleanTargetWithLocalImports moreOleanDirs depTarget
-  let (resE, map) ← mods.mapM (buildRBTop buildMod) |>.run {}
-  (← failOnImportCycle resE, map)
+  let (resE, map) ← mods.mapM (buildRBTop buildMod id) |>.run {}
+  (← failOnBuildCycle resE, map)
 
 def Package.buildOleanAndCTargetDAG
 (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
@@ -65,14 +65,14 @@ def Package.buildModuleOleanAndCTargets
 (self : Package) : BuildM (Array ActiveOleanAndCTarget) := do
   let buildMod : OleanAndCTargetBuild :=
     self.recBuildModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
-  failOnImportCycle <| ← mods.mapM (buildRBTop buildMod) |>.run' {}
+  failOnBuildCycle <| ← mods.mapM (buildRBTop buildMod id) |>.run' {}
 
 def Package.buildModuleOleanTargets
 (mods : Array Name) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
 (self : Package) : BuildM (Array ActiveFileTarget) := do
   let buildMod : OleanTargetBuild :=
     self.recBuildModuleOleanTargetWithLocalImports moreOleanDirs depTarget
-  failOnImportCycle <| ← mods.mapM (buildRBTop buildMod) |>.run' {}
+  failOnBuildCycle <| ← mods.mapM (buildRBTop buildMod id) |>.run' {}
 
 def Package.buildOleanAndCTargets
 (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)

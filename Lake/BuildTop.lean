@@ -15,8 +15,8 @@ namespace Lake
 -- ## Abstractions
 
 /-- A recursive object builder. -/
-def RecBuild.{u,v,w} (k : Type u) (o : Type v) (m : Type v → Type w) :=
-  k → (k → m o) → m o
+def RecBuild.{u,v,w} (i : Type u) (o : Type v) (m : Type v → Type w) :=
+  i → (i → m o) → m o
 
 /-- A monad equipped with a key-object store. -/
 class MonadStore (k : Type u) (o : Type v) (m : Type v → Type w) where
@@ -32,9 +32,9 @@ instance [Monad m] [MonadStore k o m] : MonadStore k o (ExceptT ε m) where
 -- ## Algorithm
 
 /-- Auxiliary function for `buildTop`. -/
-partial def buildTopCore
-{k o} {m} [BEq k] [Inhabited o] [Monad m] [MonadStore k o m]
-(parents : List k) (build : RecBuild k o (ExceptT (List k) m)) (key : k) : ExceptT (List k) m o := do
+partial def buildTopCore [BEq k] [Inhabited o] [Monad m] [MonadStore k o m]
+(parents : List k) (build : RecBuild i o (ExceptT (List k) m)) (keyOf : i → k) (info : i) : ExceptT (List k) m o := do
+  let key := keyOf info
   -- detect cyclic builds
   if parents.contains key then
     throw <| key :: (parents.partition (· != key)).1 ++ [key]
@@ -42,20 +42,19 @@ partial def buildTopCore
   if let some output ← fetch? key then
     return output
   -- build the key recursively
-  let output ← build key (buildTopCore (key :: parents) build)
+  let output ← build info <| buildTopCore (key :: parents) build keyOf
   -- save the output (to prevent repeated builds of the same key)
   store key output
   return output
 
 /--
   Recursively fills a `MonadStore` of key-object pairs by
-  fetching objects topologically (i.e., via a depth-first search with memoization).
+  building objects topologically (i.e., via a depth-first search with memoization).
   Called a suspending scheduler in "Build systems à la carte".
 -/
-def buildTop
-{k o} {m} [BEq k] [Inhabited o] [Monad m] [MonadStore k o m]
-(build : RecBuild k o (ExceptT (List k) m)) (key : k) : ExceptT (List k) m o :=
-  buildTopCore [] build key
+def buildTop [BEq k] [Inhabited o] [Monad m] [MonadStore k o m]
+(build : RecBuild i o (ExceptT (List k) m)) (keyOf : i → k) (info : i) : ExceptT (List k) m o :=
+  buildTopCore [] build keyOf info
 
 --------------------------------------------------------------------------------
 -- # RBMap Version
@@ -88,5 +87,5 @@ abbrev RBTopT.{u,v} (k : Type u) (o : Type u) (cmp) (m : Type u → Type v) :=
 
 /-- The `RBMap` version of `buildTop`. -/
 def buildRBTop {k o} {cmp} {m} [BEq k] [Inhabited o] [Monad m]
-(build : RecBuild k o (RBTopT k o cmp m)) (key : k) : RBTopT k o cmp m o :=
-  buildTop build key
+(build : RecBuild i o (RBTopT k o cmp m)) (keyOf : i → k) (info : i) : RBTopT k o cmp m o :=
+  buildTop build keyOf info

@@ -1,7 +1,7 @@
 [Elab.definition.body] «term_+++_» : Lean.TrailingParserDescr :=
 Lean.ParserDescr.trailingNode `«term_+++_» 45 46
   (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol "+++") (Lean.ParserDescr.cat `term 46))
-[Elab.definition.body] myMacro._@.ppNotationCode._hyg.21 : Lean.Macro :=
+[Elab.definition.body] myMacro._@.ppNotationCode._hyg.23 : Lean.Macro :=
 fun x =>
   let discr := x;
   if Lean.Syntax.isOfKind discr `«term_+++_» = true then
@@ -22,7 +22,7 @@ fun x =>
   else
     let discr := x;
     throw Lean.Macro.Exception.unsupportedSyntax
-[Elab.definition.body] unexpand._@.ppNotationCode._hyg.4 : Lean.PrettyPrinter.Unexpander :=
+[Elab.definition.body] unexpand._@.ppNotationCode._hyg.6 : Lean.PrettyPrinter.Unexpander :=
 fun x =>
   let discr := x;
   if Lean.Syntax.isOfKind discr `Lean.Parser.Term.app = true then

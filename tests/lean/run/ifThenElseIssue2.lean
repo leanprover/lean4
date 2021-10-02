@@ -14,3 +14,15 @@ def rowStr9  (as : Array Bool) : String := as.foldr (fun b s => s ++ (if' b then
 def rowStr10 (as : List Bool) : String := as.foldr (fun b s => s ++ (if' b = true then "#" else " ")) ""
 def rowStr11 : Array Bool → String := fun as => Array.foldr (fun b s => s ++ (if' b then "#" else " ")) "" as
 def rowStr12 : List Bool → String := fun as => List.foldr (fun b s => s ++ (if' b then "#" else " ")) "" as
+
+def quoteString (s : String) : String :=
+  let q := "\"";
+  let q := s.foldl
+    (fun q c => q ++
+      if' c == '\n' then "\\n"
+      else if' c == '\n' then "\\t"
+      else if' c == '\\' then "\\\\"
+      else if' c == '\"' then "\\\""
+      else String.singleton c)
+    q;
+  q ++ "\""

@@ -118,7 +118,7 @@ Return none if all macros threw `Macro.Exception.unsupportedSyntax`.
 def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Syntax)) := fun stx => do
   for e in macroAttribute.getEntries env stx.getKind do
     try
-      let stx' ← e.value stx
+      let stx' ← withFreshMacroScope (e.value stx)
       return (e.declName, stx')
     catch
       | Macro.Exception.unsupportedSyntax => pure ()

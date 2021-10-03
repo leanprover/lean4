@@ -61,5 +61,5 @@ def resolveDep (pkg : Package) (dep : Dependency) : IO Package := do
   Resolves the package's direct dependencies,
   downloading and/or updating them as necessary.
 -/
-def Package.resolveDirectDeps (self : Package) : IO (List Package) :=
+def Package.resolveDirectDeps (self : Package) : IO (Array Package) :=
   self.dependencies.mapM (resolveDep self ·)

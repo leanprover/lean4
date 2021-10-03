@@ -82,7 +82,7 @@ Lake provides a large assortment of configuration options for packages.
 
 * `name` **(Required)**: The name of the package.
 * `scripts`: A `HashMap` of scripts for the package. A `Script` is an arbitrary `(args : List String) → IO UInt32` function that is indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
-* `dependencies`: A `List` of the package's dependencies.
+* `dependencies`: An `Array` of the package's dependencies.
 * `depsDir`: The directory to which Lake should download dependencies. Defaults to `lean_packages`.
 * `extraDepTarget`: An extra `OpaqueTarget` that should be built before the package.
 * `srcDir`: The directory containing the package's Lean source files. Defaults to the package's directory. (This will be passed to `lean` as the `-R` option.)

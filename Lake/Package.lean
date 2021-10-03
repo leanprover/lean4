@@ -105,10 +105,10 @@ structure PackageConfig where
   scripts : HashMap String Script := HashMap.empty
 
   /-
-    A `List` of the package's dependencies.
+    An `Array` of the package's dependencies.
     See the documentation of `Dependency` for more information.
   -/
-  dependencies : List Dependency := []
+  dependencies : Array Dependency := #[]
 
   /--
     The directory to which Lake should download dependencies.
@@ -273,7 +273,7 @@ def scripts (self : Package) : HashMap String Script :=
   self.config.scripts
 
 /-- The package's `dependencies` configuration. -/
-def dependencies (self : Package) : List Dependency :=
+def dependencies (self : Package) : Array Dependency :=
   self.config.dependencies
 
 /-- The package's `extraDepTarget` configuration. -/

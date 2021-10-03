@@ -3,7 +3,7 @@ open System Lake DSL
 
 package where
   name := "gitHello"
-  dependencies := [
+  dependencies := #[
     {
       name := "hello",
       src := Source.git

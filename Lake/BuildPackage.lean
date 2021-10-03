@@ -139,7 +139,7 @@ def Package.buildTarget (self : Package) : BuildM ActivePackageTarget := do
   (← buildPackageTargetsWithDeps #[self]).back
 
 def Package.buildDepTargets (self : Package) : BuildM (Array ActivePackageTarget) := do
-  buildPackageTargetsWithDeps (← self.resolveDirectDeps).toArray
+  buildPackageTargetsWithDeps (← self.resolveDirectDeps)
 
 def Package.buildDeps (self : Package) : BuildM (Array Package) := do
   let targets ← self.buildDepTargets

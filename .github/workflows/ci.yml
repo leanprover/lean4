@@ -49,6 +49,8 @@ jobs:
             release: true
             shell: msys2 {0}
             CMAKE_OPTIONS: -G "Unix Makefiles" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+            # for reasons unknown, interactivetests are flaky on Windows
+            CTEST_OPTIONS: --repeat until-pass:2
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}
@@ -161,7 +163,7 @@ jobs:
       - name: Test
         run: |
           cd build/stage1
-          ctest -j4 --output-on-failure --timeout 300 < /dev/null
+          ctest -j4 --output-on-failure --timeout 300 ${{ matrix.CTEST_OPTIONS }} < /dev/null
       - name: Build Stage 2
         run: |
           cd build

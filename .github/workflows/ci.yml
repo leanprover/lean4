@@ -46,7 +46,8 @@ jobs:
             shell: bash -euxo pipefail {0}
             # Mojave, oldest maintained version as of 2021
             CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14
-            zig-url: https://ziglang.org/download/0.8.1/zig-macos-x86_64-0.8.1.tar.xz
+            # seems to need much more work :(
+            #zig-url: https://ziglang.org/download/0.8.1/zig-macos-x86_64-0.8.1.tar.xz
           - name: Windows
             os: windows-2022
             release: true
@@ -160,7 +161,7 @@ jobs:
       - name: Take Off Every Zig
         run: |
           cp -r build/zig/ build/stage1/bin
-        if: matrix.release
+        if: matrix.zig-url
       - name: Test Binary without Nix Shell
         if: matrix.name != 'Windows'
         shell: bash {0}

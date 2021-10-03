@@ -2,4 +2,4 @@ set -e
 
 ./clean.sh
 ./package.sh
-./build/bin/gitHello
+./build/bin/git_hello

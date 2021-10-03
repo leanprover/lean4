@@ -64,8 +64,8 @@ Lake also creates a basic `lakefile.lean` for the package:
 import Lake
 open Lake DSL
 
-package {
-  name := `hello
+package hello {
+  -- add configuration options here
 }
 ```
 

@@ -1,11 +1,10 @@
 import Lake
 open System Lake DSL
 
-package where
-  name := "gitHello"
+package git_hello where
   dependencies := #[
     {
-      name := "hello"
+      name := `hello
       src := Source.git "https://github.com/leanprover/lake.git" "master"
       dir := FilePath.mk "examples" / "hello"
     }

@@ -18,8 +18,11 @@ syntax packageDeclWithBinders :=
 syntax packageDeclTyped :=
   Term.typeSpec Command.declValSimple
 
-scoped syntax (name := packageDecl) declModifiers
-"package" (Term.whereDecls <|> packageDeclTyped <|> packageDeclWithBinders) : command
+syntax packageDeclSpec :=
+  ident (Term.whereDecls <|> packageDeclTyped <|> packageDeclWithBinders)?
+
+scoped syntax (name := packageDecl)
+declModifiers "package "  packageDeclSpec : command
 
 def expandPackageBinders
 : (dir? : Option Syntax) → (args? : Option Syntax) → MacroM (Bool × Syntax × Syntax)
@@ -39,15 +42,18 @@ def mkPackageDef (defn : Syntax) (mods : Syntax)
 
 @[macro packageDecl]
 def expandPackageDecl : Macro
-| `($mods:declModifiers package where $[$ds]*) =>
-  `($mods:declModifiers def $(mkIdent `package) : PackageConfig where $[$ds]*)
-| `($mods:declModifiers package : $ty := $defn $[$wds?]?) =>
+| `($mods:declModifiers package $id:ident) =>
+  `($mods:declModifiers def $(mkIdent `package) : PackageConfig := {name := $(quote id.getId)})
+| `($mods:declModifiers package $id:ident where $[$ds]*) =>
+  `($mods:declModifiers def $(mkIdent `package) : PackageConfig where
+      name := $(quote id.getId) $[$ds]*)
+| `($mods:declModifiers package $id:ident : $ty := $defn $[$wds?]?) =>
   `($mods:declModifiers def $(mkIdent `package) : $ty := $defn $[$wds?]?)
-| `($mods:declModifiers package $[($dir?)]? $[($args?)]? := $defn $[$wds?]?) =>
+| `($mods:declModifiers package $id:ident $[($dir?)]? $[($args?)]? := $defn $[$wds?]?) =>
   mkPackageDef defn mods dir? args? wds?
-| `($mods:declModifiers package $[($dir?)]? $[($args?)]? { $[$fs $[,]?]* } $[$wds?]?) => do
-  mkPackageDef (← `({ $[$fs]* })) mods dir? args? wds?
-| `($mods:declModifiers package $[($dir?)]? $[($args?)]? do $seq $[$wds?]?) => do
+| `($mods:declModifiers package $id:ident $[($dir?)]? $[($args?)]? { $[$fs $[,]?]* } $[$wds?]?) => do
+  mkPackageDef (← `({ name := $(quote id.getId), $[$fs]* })) mods dir? args? wds?
+| `($mods:declModifiers package $id:ident $[($dir?)]? $[($args?)]? do $seq $[$wds?]?) => do
   let (_, dir, args) ← expandPackageBinders dir? args?
   `($mods:declModifiers def $(mkIdent `package) : IOPackager :=
       (fun $dir $args => do $seq) $[$wds?]?)

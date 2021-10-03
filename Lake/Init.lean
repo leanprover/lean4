@@ -35,8 +35,8 @@ def pkgConfigFileContents (pkgName : String) :=
 s!"import Lake
 open Lake DSL
 
-package \{
-  name := `{pkgName.toName}
+package {pkgName.toName} \{
+  -- add configuration options here
 }
 "
 

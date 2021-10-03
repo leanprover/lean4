@@ -1,8 +1,7 @@
 import Lake
 open System Lake DSL
 
-package where
-  name := "bar"
+package bar where
   dependencies := #[
-    { name := "foo", src := Source.path (FilePath.mk ".." /  "foo") }
+    { name := `foo, src := Source.path (FilePath.mk ".." /  "foo") }
   ]

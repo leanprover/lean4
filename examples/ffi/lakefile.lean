@@ -14,8 +14,7 @@ def addOTarget (pkgDir : FilePath) : FileTarget :=
 def cLibTarget (pkgDir : FilePath) : FileTarget :=
   staticLibTarget (pkgDir / cLib) #[addOTarget pkgDir]
 
-package (pkgDir) (args) {
-  name := "ffi"
+package ffi (pkgDir) (args) {
   -- customize layout
   srcDir := "lib"
   libRoots := #[`Add]

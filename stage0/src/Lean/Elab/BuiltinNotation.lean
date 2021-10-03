@@ -50,35 +50,6 @@ open Meta
     | none => throwError "invalid constructor ⟨...⟩, expected type must be known"
   | _ => throwUnsupportedSyntax
 
-@[builtinTermElab Lean.Parser.Term.if] def elabIf : TermElab := fun stx expectedType? => do
-  /- "if " >> optIdent >> termParser >> " then " >> termParser >> " else " >> termParser -/
-  let c := stx[2]
-  let t := stx[4]
-  let e := stx[6]
-  if !stx[1].isNone then
-    -- TODO: add special support for dependent ite
-    let h := stx[1][0]
-    let stxNew ← `(dite $c (fun $h:ident => $t) (fun $h:ident => $e))
-    withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
-  else if let some c ← isLocalIdent? c then
-    let cType ← inferType c
-    -- Postpone if the type of the condition is not available
-    tryPostponeIfMVar cType
-    let localDecl ← getLocalDecl c.fvarId!
-    -- If `c` is auxiliary let-decl created by this elaborator, then expand it (see "else" branch of this method)
-    let c ←
-      if localDecl.userName.eraseMacroScopes ==  `_if_cond then
-        instantiateMVars localDecl.value
-      else
-        pure c
-    elabAppArgs (← mkConst `ite) #[] #[Arg.expr c, Arg.stx t, Arg.stx e] expectedType? (explicit := false) (ellipsis := false)
-  else
-    -- If condition is not a free variable, then add an auxiliary let-decl.
-    let cNew ← `(_if_cond)
-    let iteNew := stx.setArg 2 cNew
-    let stxNew ← `(let_tmp _if_cond := $c; $iteNew)
-    withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
-
 @[builtinTermElab borrowed] def elabBorrowed : TermElab := fun stx expectedType? =>
   match stx with
   | `(@& $e) => return markBorrowed (← elabTerm e expectedType?)

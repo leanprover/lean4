@@ -20,7 +20,7 @@ LEAN_EXPORT lean_object* l_System_instReprFilePath(lean_object*, lean_object*);
 extern uint8_t l_System_Platform_isWindows;
 LEAN_EXPORT uint8_t l_System_FilePath_isRelative(lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_join(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Init_System_FilePath_0__System_decEqFilePath____x40_Init_System_FilePath___hyg_23_(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l___private_Init_System_FilePath_0__System_decEqFilePath____x40_Init_System_FilePath___hyg_25_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_isRelative___boxed(lean_object*);
 extern uint8_t l_System_Platform_isOSX;
 static uint32_t l_System_SearchPath_separator___closed__1;
@@ -81,7 +81,7 @@ LEAN_EXPORT lean_object* l_System_instCoeStringFilePath(lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_join___boxed(lean_object*, lean_object*);
 static lean_object* l_System_FilePath_exeExtension___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_System_FilePath_0__System_FilePath_posOfLastSep(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_System_FilePath_0__System_decEqFilePath____x40_Init_System_FilePath___hyg_23____boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_System_FilePath_0__System_decEqFilePath____x40_Init_System_FilePath___hyg_25____boxed(lean_object*, lean_object*);
 uint8_t l_UInt32_decEq(uint32_t, uint32_t);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 uint8_t l_String_isEmpty(lean_object*);
@@ -130,7 +130,7 @@ x_1 = l_System_instInhabitedFilePath___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l___private_Init_System_FilePath_0__System_decEqFilePath____x40_Init_System_FilePath___hyg_23_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Init_System_FilePath_0__System_decEqFilePath____x40_Init_System_FilePath___hyg_25_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; 
@@ -138,11 +138,11 @@ x_3 = lean_string_dec_eq(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_System_FilePath_0__System_decEqFilePath____x40_Init_System_FilePath___hyg_23____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_System_FilePath_0__System_decEqFilePath____x40_Init_System_FilePath___hyg_25____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Init_System_FilePath_0__System_decEqFilePath____x40_Init_System_FilePath___hyg_23_(x_1, x_2);
+x_3 = l___private_Init_System_FilePath_0__System_decEqFilePath____x40_Init_System_FilePath___hyg_25_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);

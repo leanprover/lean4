@@ -38,7 +38,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_logDbgTrace___rarg___lambda__1(lean_object*
 LEAN_EXPORT lean_object* l_Lean_Elab_logInfoAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_logAt___rarg___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_logUnknownDecl___rarg___closed__4;
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_80_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_100_(uint8_t, uint8_t);
 static lean_object* l_Lean_Elab_logException___rarg___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_logException(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instMonadLog___rarg(lean_object*, lean_object*);
@@ -624,7 +624,7 @@ _start:
 {
 lean_object* x_7; uint8_t x_14; uint8_t x_15; 
 x_14 = 2;
-x_15 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_80_(x_6, x_14);
+x_15 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_100_(x_6, x_14);
 if (x_15 == 0)
 {
 lean_object* x_16; 

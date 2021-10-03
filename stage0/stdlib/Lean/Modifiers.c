@@ -21,17 +21,17 @@ static lean_object* l_Lean_protectedExt___closed__3;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l_Lean_protectedExt___closed__5;
 LEAN_EXPORT lean_object* l_Lean_privateHeader;
+static lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__1;
 LEAN_EXPORT lean_object* lean_private_to_user_name(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_protectedExt___elambda__1___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isPrivateNameFromImportedModule(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Modifiers_0__Lean_privateToUserNameAux(lean_object*);
 LEAN_EXPORT uint8_t lean_is_private_name(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isPrivateName___boxed(lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__2;
 LEAN_EXPORT uint8_t l_Lean_isPrivateName(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_3_(lean_object*);
+static lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed__2;
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_4_(lean_object*);
 static lean_object* l_Lean_protectedExt___closed__6;
 LEAN_EXPORT lean_object* l_Lean_protectedExt___elambda__3___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_add_protected(lean_object*, lean_object*);
@@ -66,7 +66,7 @@ static lean_object* l_Lean_privateHeader___closed__1;
 static uint32_t l_Lean_protectedExt___elambda__4___rarg___closed__1;
 static lean_object* l_Lean_protectedExt___closed__2;
 static lean_object* l_Lean_protectedExt___elambda__4___rarg___closed__2;
-static lean_object* _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__1() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -74,21 +74,21 @@ x_1 = lean_mk_string("protected");
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__2() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__1;
+x_2 = l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_3_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Modifiers___hyg_4_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__2;
+x_2 = l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed__2;
 x_3 = l_Lean_mkTagDeclarationExtension(x_2, x_1);
 return x_3;
 }
@@ -574,10 +574,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Environment(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__1 = _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__1();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__1);
-l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__2 = _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__2();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_Modifiers___hyg_3____closed__2);
+l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed__1 = _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed__1();
+lean_mark_persistent(l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed__1);
+l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed__2 = _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed__2();
+lean_mark_persistent(l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed__2);
 l_Lean_protectedExt___elambda__2___closed__1 = _init_l_Lean_protectedExt___elambda__2___closed__1();
 lean_mark_persistent(l_Lean_protectedExt___elambda__2___closed__1);
 l_Lean_protectedExt___elambda__4___rarg___closed__1 = _init_l_Lean_protectedExt___elambda__4___rarg___closed__1();
@@ -599,7 +599,7 @@ l_Lean_protectedExt___closed__6 = _init_l_Lean_protectedExt___closed__6();
 lean_mark_persistent(l_Lean_protectedExt___closed__6);
 l_Lean_protectedExt___closed__7 = _init_l_Lean_protectedExt___closed__7();
 lean_mark_persistent(l_Lean_protectedExt___closed__7);
-res = l_Lean_initFn____x40_Lean_Modifiers___hyg_3_(lean_io_mk_world());
+res = l_Lean_initFn____x40_Lean_Modifiers___hyg_4_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_protectedExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_protectedExt);

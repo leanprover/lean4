@@ -5,9 +5,8 @@ package where
   name := "gitHello"
   dependencies := #[
     {
-      name := "hello",
-      src := Source.git
-        "https://github.com/tydeu/lean4-lake.git" "master"
+      name := "hello"
+      src := Source.git "https://github.com/leanprover/lake.git" "master"
       dir := FilePath.mk "examples" / "hello"
     }
   ]

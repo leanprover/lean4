@@ -21,7 +21,7 @@ Dyck :=
 
 We begin by defining an inductive data type of the grammar we wish to parse:
 
-```lean
+```lean,ignore
 inductive Dyck: Type :=
    | Round : Dyck -> Dyck -- ( <inner> )
    | Flower : Dyck -> Dyck -- { <inner> }
@@ -31,13 +31,13 @@ inductive Dyck: Type :=
 We begin by declaring a _syntax category_ using the `declare_syntax_cat <category>` command.
 This names our grammar and allows us to specify parsing rules associated with our grammar.
 
-```lean
+```lean,ignore
 declare_syntax_cat brack
 ```
 
 Next, we specify the grammar using the `syntax <parse rule>` command:
 
-```lean
+```lean,ignore
 syntax "End" : brack
 ```
 
@@ -45,7 +45,7 @@ The above means that the string "End" lives in syntax category `brack`.
 
 Similarly, we declare the rules `"(" Dyck ")"` and `"{" Dyck "}"` using the rules:
 
-```lean
+```lean,ignore
 syntax "(" brack ")" : brack
 syntax "{" brack "}" : brack
 ```
@@ -54,7 +54,7 @@ Finally, we need a way to build _Lean 4 terms_ from this grammar -- that is, we 
 grammar into a `Dyck` value, which is a Lean 4 term. For this, we create a piece of syntax,
 called `fromBrack% brack : term`, which receives a `brack` and produces a `term`.
 
-```lean
+```lean,ignore
 -- auxiliary notation for translating `brack` into `term`
 syntax "fromBrack% " brack : term
 ```
@@ -65,7 +65,7 @@ declares the pattern to be matched, and the right-hand side declares the product
 are introduced via the `$<var-name>` syntax. The right-hand side is
 an arbitrary Lean term that we are producing.
 
-```lean
+```lean,ignore
 macro_rules
   | `(fromBrack% End) => `(Dyck.End)
   | `(fromBrack% ( $b )) => `(Dyck.Round (fromBrack% $b)) -- recurse
@@ -73,7 +73,7 @@ macro_rules
 ```
 
 
-```lean
+```lean,ignore
 def bar : Dyck := fromBrack% End
 #print bar
 /-

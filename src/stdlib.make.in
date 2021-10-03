@@ -42,7 +42,8 @@ Lean: Init Std
 # we specify the precise file names here to avoid rebuilds
 ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${LIB}/lean/libInit.a ${LIB}/lean/libStd.a ${LIB}/lean/libLean.a ${LIB}/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a
 	@echo "[    ] Building $@"
-	cd ${CMAKE_BINARY_DIR}; ./leanc.sh -shared -o $@ ${LEANSHARED_LINKER_FLAGS} ${LEANC_OPTS} -v
+	# cd into directory to make cmdline fit on Windows, do not use ccache because it is confused here on Windows (and irrelevant anyway)
+	cd ${CMAKE_BINARY_DIR}; LEAN_CC=${CMAKE_C_COMPILER} ./leanc.sh -shared -o $@ ${LEANSHARED_LINKER_FLAGS} ${LEANC_OPTS}
 
 leanshared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
 

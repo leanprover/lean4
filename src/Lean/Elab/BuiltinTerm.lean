@@ -38,7 +38,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
 @[builtinTermElab «completion»] def elabCompletion : TermElab := fun stx expectedType? => do
   /- `ident.` is ambiguous in Lean, we may try to be completing a declaration name or access a "field". -/
   if stx[0].isIdent then
-    /- If we can elaborate the identifier successfully, we assume it a dot-completion. Otherwise, we treat it as
+    /- If we can elaborate the identifier successfully, we assume it is a dot-completion. Otherwise, we treat it as
        identifier completion with a dangling `.`.
        Recall that the server falls back to identifier completion when dot-completion fails. -/
     let s ← saveState

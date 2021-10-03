@@ -17,12 +17,20 @@ def toolchainFileName : FilePath :=
 def gitignoreContents :=
 s!"/{defaultBuildDir}\n/{defaultDepsDir}\n"
 
-def mainFileName (pkgName : String) : FilePath :=
-  s!"{pkgName.capitalize}.lean"
+def libFileName (libName : String) : FilePath :=
+  s!"{libName}.lean"
 
-def mainFileContents :=
-"def main : IO Unit :=
-  IO.println \"Hello, world!\"
+def libFileContents :=
+  s!"def hello := \"world\""
+
+def mainFileName : FilePath :=
+  s!"{defaultBinRoot}.lean"
+
+def mainFileContents (libName : String) :=
+s!"import {libName.toName.toString}
+
+def main : IO Unit :=
+  IO.println s!\"Hello, \{hello}!\"
 "
 
 def pkgConfigFileContents (pkgName : String) :=
@@ -44,10 +52,14 @@ def initPkg (dir : FilePath) (name : String) : IO PUnit := do
     throw <| IO.userError "package already initialized"
   IO.FS.writeFile configFile (pkgConfigFileContents name)
 
-  -- write example main module if none exists
-  let mainFile := dir / mainFileName name
+  -- write example code if the files do not already exist
+  let libName := name.capitalize
+  let libFile := dir / libFileName libName
+  unless (← libFile.pathExists) do
+    IO.FS.writeFile libFile libFileContents
+  let mainFile := dir / mainFileName
   unless (← mainFile.pathExists) do
-    IO.FS.writeFile mainFile mainFileContents
+    IO.FS.writeFile mainFile <| mainFileContents libName
 
   -- write current toolchain to file for `elan`
   IO.FS.writeFile (dir / toolchainFileName) <| leanVersionString ++ "\n"

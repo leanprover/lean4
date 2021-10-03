@@ -6,4 +6,3 @@ package where
   dependencies := #[
     { name := "foo", src := Source.path (FilePath.mk ".." /  "foo") }
   ]
-  binRoot := `Main

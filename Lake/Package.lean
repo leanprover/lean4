@@ -37,6 +37,9 @@ def defaultIrDir : FilePath := "ir"
 /-- The default setting for a `PackageConfig`'s `depsDir` option. -/
 def defaultDepsDir : FilePath := "lean_packages"
 
+/-- The default setting for a `PackageConfig`'s `binRoot` option. -/
+def defaultBinRoot : Name := `Main
+
 --------------------------------------------------------------------------------
 -- # PackageConfig Helpers
 --------------------------------------------------------------------------------
@@ -209,7 +212,7 @@ structure PackageConfig where
 
   /--
     The root module of the package's binary executable.
-    Defaults to the package's uppercase `name`.
+    Defaults to `Main`.
 
     The root is built by recursively building its
     local imports (i.e., fellow modules of the package).
@@ -219,7 +222,7 @@ structure PackageConfig where
     there to be code (e.g., `main`) that is needed for the binary but should
     not be included in the library proper.
   -/
-  binRoot : Name := name.capitalize
+  binRoot : Name := defaultBinRoot
 
   /--
     Additional library `FileTarget`s

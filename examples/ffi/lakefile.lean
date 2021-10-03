@@ -20,7 +20,6 @@ package (pkgDir) (args) {
   srcDir := "lib"
   libRoots := #[`Add]
   binName := "add"
-  binRoot := `Main
   -- specify the lib as an additional target
   moreLibTargets := #[cLibTarget pkgDir]
 }

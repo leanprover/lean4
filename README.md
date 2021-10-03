@@ -45,11 +45,17 @@ $ lake init hello
 
 This will initialize a git repository in the directory with a basic `.gitignore` that ignores the build directory (i.e., `build`) where Lake outputs build files.
 
-It will also create the root Lean file for the package, which uses the capitalized version of the package's name (e.g., `Hello.lean` in this example). It contains the following dummy "Hello World" program:
+It will also create the root Lean file for the package's library, which uses the capitalized version of the package's name (e.g., `Hello.lean` in this example), and the root file for the package's binary `Main.lean`. They contain the following dummy "Hello World" program split across the two files:
 
+**Hello.lean**
+```lean
+def hello := "world"
+```
+
+**Main.lean**
 ```lean
 def main : IO Unit :=
-  IO.println "Hello, world!"
+  IO.println s!"Hello, {hello}!"
 ```
 
 Lake also creates a basic `lakefile.lean` for the package:
@@ -100,6 +106,6 @@ Lake provides a large assortment of configuration options for packages.
 * `libDir`: The build subdirectory to which Lake should output the package's static library. Defaults to `lib`.
 * `binName`: The name of the package's binary executable. Defaults to the package's `name`.
 * `binDir`: The build subdirectory to which Lake should output the package's binary executable. Defaults to `bin`.
-* `binRoot`: The root module of the package's binary executable. Defaults to the package's `moduleRoot`. The root is built by recursively building its local imports (i.e., fellow modules of the package). This setting is most useful for packages that are distributing both a library and a binary (like Lake itself). In such cases, it is common for there to be code (e.g., `main`) that is needed for the binary but should not be included in the library proper.
+* `binRoot`: The root module of the package's binary executable. Defaults to `Main`. The root is built by recursively building its local imports (i.e., fellow modules of the package). This setting is most useful for packages that are distributing both a library and a binary (like Lake itself). In such cases, it is common for there to be code (e.g., `main`) that is needed for the binary but should not be included in the library proper.
 * `moreLibTargets`: Additional library `FileTarget`s (beyond the package's and its dependencies' libraries) to build and link to the package's binary executable (and/or to dependent package's executables).
 * `linkArgs`: Additional arguments to pass to `leanc` while compiling the package's binary executable. These will come *after* the paths of libraries built with `moreLibTargets`.

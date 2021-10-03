@@ -37,12 +37,11 @@ def buildLib (pkg : Package) : IO PUnit :=
 -- # Build Package Bin
 
 def ActivePackageTarget.linkTargets
-(depTargets : List ActivePackageTarget) (self : ActivePackageTarget) : Array FileTarget :=
-  depTargets.foldl (fun ts dep => ts ++ dep.staticLibTargets) <|
-    self.oFileTargets ++ self.package.moreLibTargets
+(depTargets : Array ActivePackageTarget) (self : ActivePackageTarget) : Array FileTarget :=
+  self.oFileTargets ++ self.package.moreLibTargets ++ depTargets.concatMap (·.staticLibTargets)
 
 protected def ActivePackageTarget.binTarget
-(depTargets : List ActivePackageTarget) (self : ActivePackageTarget) : FileTarget :=
+(depTargets : Array ActivePackageTarget) (self : ActivePackageTarget) : FileTarget :=
   let linkTargets := self.linkTargets depTargets
   binTarget self.package.binFile linkTargets self.package.linkArgs "leanc"
 

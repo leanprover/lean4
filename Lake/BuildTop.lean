@@ -19,7 +19,7 @@ def RecBuild.{u,v,w} (i : Type u) (o : Type v) (m : Type v → Type w) :=
   i → (i → m o) → m o
 
 /-- A monad equipped with a key-object store. -/
-class MonadStore (k : Type u) (o : Type v) (m : Type v → Type w) where
+class MonadStore (k : Type u) (o : outParam $ Type v) (m : Type v → Type w) where
   fetch? : k → m (Option o)
   store : k → o → m PUnit
 

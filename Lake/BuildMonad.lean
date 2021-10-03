@@ -81,8 +81,8 @@ def logError (msg : String) : BuildM PUnit := do
 def runIn (ctx : BuildContext) (self : BuildM α) : IO α :=
   self ctx
 
-def run (self : BuildM α) : IO PUnit :=
-  runIn BuildContext.io do try discard self catch e =>
+def run' (self : BuildM α) : IO α :=
+  runIn BuildContext.io do try self catch e =>
     /-
       Remark: Actual error should have already been logged earlier.
       However, if the error was thrown by something that did not know it was
@@ -92,6 +92,9 @@ def run (self : BuildM α) : IO PUnit :=
     -/
     BuildM.logError s!"build error: {toString e}"
     throw <| IO.userError "build failed"
+
+def run (self : BuildM α) : IO PUnit :=
+  discard self.run'
 
 end BuildM
 

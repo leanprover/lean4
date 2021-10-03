@@ -32,6 +32,10 @@ def moduleTargets (self : ActivePackageTarget) : Array (Name × ActiveOleanAndCT
 
 end ActivePackageTarget
 
+/-- Returns the `oleanDir`s of the given package targets in reverse order. -/
+def packageTargetsToOleanDirs (targets : Array ActivePackageTarget) : List FilePath :=
+  targets.map (·.package.oleanDir) |>.foldl (flip List.cons) []
+
 -- # Build Modules
 
 def Package.buildModuleOleanAndCTargetDAG
@@ -87,22 +91,22 @@ def Package.buildOleanTargets
 -- # Configure/Build Packages
 
 def Package.buildDepTargetWith
-(depTargets : List ActivePackageTarget) (self : Package) : BuildM ActiveOpaqueTarget := do
+(depTargets : Array ActivePackageTarget) (self : Package) : BuildM ActiveOpaqueTarget := do
   let extraDepTarget ← self.extraDepTarget.run
-  let depTarget ← ActiveTarget.collectOpaqueList depTargets
+  let depTarget ← ActiveTarget.collectOpaqueArray depTargets
   extraDepTarget.mixOpaqueAsync depTarget
 
 def Package.buildModuleOleanAndCTargetsWithDepTargets
-(mods : Array Name) (depTargets : List ActivePackageTarget) (self : Package)
+(mods : Array Name) (depTargets : Array ActivePackageTarget) (self : Package)
 : BuildM ActivePackageTarget := do
   let depTarget ← self.buildDepTargetWith depTargets
-  let moreOleanDirs := depTargets.map (·.package.oleanDir)
+  let moreOleanDirs := packageTargetsToOleanDirs depTargets
   let (targets, targetMap) ← self.buildModuleOleanAndCTargetDAG mods moreOleanDirs depTarget
   let target ← ActiveTarget.collectOpaqueArray targets
   return target.withInfo ⟨self, targetMap⟩
 
 def Package.buildOleanAndCTargetsWithDepTargets
-(depTargets : List ActivePackageTarget) (self : Package) : BuildM ActivePackageTarget := do
+(depTargets : Array ActivePackageTarget) (self : Package) : BuildM ActivePackageTarget := do
   self.buildModuleOleanAndCTargetsWithDepTargets (← self.getModuleArray) depTargets
 
 /--
@@ -111,28 +115,35 @@ def Package.buildOleanAndCTargetsWithDepTargets
   It resolves the package's dependencies and recursively builds them.
   For each package, it compiles its modules into `.olean` and `.c` files.
 -/
-def recBuildPkgWithDeps [Monad m] [MonadLiftT BuildM m]
-: RecBuild Package ActivePackageTarget m := fun pkg buildPkg => do
-  -- TODO: merge dependency resolution into build
-  let deps ← liftM (m := BuildM) <| solveDeps pkg
-  pkg.buildOleanAndCTargetsWithDepTargets (← deps.mapM buildPkg)
+def recBuildPackageWithDeps
+[Monad m] [MonadLiftT BuildM m] [MonadStore Name (Array ActivePackageTarget) m]
+: RecBuild Package (Array ActivePackageTarget) m := fun pkg buildPkg => do
+  let mut depTargets := #[]
+  for dep in pkg.dependencies do
+    let targets? ← fetch? dep.name.toName
+    let targets ← do
+      if let some targets := targets? then
+        pure targets
+      else
+        let depPkg ← liftM (m := BuildM) <| resolveDep pkg dep
+        buildPkg depPkg
+    depTargets := depTargets ++ targets
+  let pkgTarget ← pkg.buildOleanAndCTargetsWithDepTargets depTargets
+  depTargets.push pkgTarget
 
-def buildPackageTargetList (pkgs : List Package) : BuildM (List ActivePackageTarget) := do
-  failOnBuildCycle <| ← RBTopT.run' <| pkgs.mapM fun pkg =>
-    buildRBTop (cmp := Name.quickCmp) recBuildPkgWithDeps (·.name.toName) pkg
+def buildPackageTargetsWithDeps (pkgs : Array Package) : BuildM (Array ActivePackageTarget) := do
+  failOnBuildCycle <| ← RBTopT.run' <| pkgs.concatMapM fun pkg =>
+    buildRBTop (cmp := Name.quickCmp) recBuildPackageWithDeps (·.name.toName) pkg
 
 def Package.buildTarget (self : Package) : BuildM ActivePackageTarget := do
-  failOnBuildCycle <| ← RBTopT.run' <|
-    buildRBTop (cmp := Name.quickCmp) recBuildPkgWithDeps (·.name.toName) self
+  (← buildPackageTargetsWithDeps #[self]).back
 
-def Package.buildDepTargets (self : Package) : BuildM (List ActivePackageTarget) := do
-  buildPackageTargetList (← solveDeps self)
+def Package.buildDepTargets (self : Package) : BuildM (Array ActivePackageTarget) := do
+  buildPackageTargetsWithDeps (← self.resolveDirectDeps).toArray
 
-def Package.buildDeps (self : Package) : BuildM (List Package) := do
-  let deps ← solveDeps self
-  let targets ← buildPackageTargetList deps
-  targets.forM (discard ·.materialize)
-  return deps
+def Package.buildDeps (self : Package) : BuildM (Array Package) := do
+  let targets ← self.buildDepTargets
+  targets.mapM fun target => Functor.mapConst target.info.1 target.materialize
 
 def configure (pkg : Package) : IO Unit :=
   pkg.buildDeps.run
@@ -140,7 +151,7 @@ def configure (pkg : Package) : IO Unit :=
 def Package.build (self : Package) : BuildM PUnit := do
   let depTargets ← self.buildDepTargets
   let depTarget ← self.buildDepTargetWith depTargets
-  let moreOleanDirs := depTargets.map (·.package.oleanDir)
+  let moreOleanDirs := packageTargetsToOleanDirs depTargets
   let targets ← self.buildOleanTargets moreOleanDirs depTarget
   discard <| ActiveTarget.materializeArray targets
 
@@ -149,22 +160,27 @@ def build (pkg : Package) : IO PUnit :=
 
 -- # Print Paths
 
-def Package.buildModuleOleanTargetsWithDeps
-(deps : List Package) (mods : Array Name) (self : Package)
-: BuildM (Array ActiveFileTarget) := do
-  let moreOleanDirs := deps.map (·.oleanDir)
-  let depTarget ← self.buildDepTargetWith <| ← buildPackageTargetList deps
-  self.buildModuleOleanTargets mods moreOleanDirs depTarget
-
-def Package.buildModuleOleansWithDeps
-(deps : List Package) (mods : Array Name) (self : Package) :=
-  self.buildModuleOleanTargetsWithDeps deps mods >>= (·.forM (discard ·.materialize))
+/-- Pick the local imports of the package from a list of import strings. -/
+def Package.filterLocalImports (imports : List String) (self : Package) : Array Name := do
+  let mut localImports := #[]
+  for imp in imports do
+    let impName := imp.toName
+    if self.isLocalModule impName then
+      localImports := localImports.push impName
+  return localImports
 
 def printPaths (pkg : Package) (imports : List String := []) : IO Unit := do
-  let deps ← solveDeps pkg
-  unless imports.isEmpty do
-    let imports := imports.map (·.toName)
-    let localImports := imports.filter pkg.isLocalModule |>.toArray
-    pkg.buildModuleOleansWithDeps deps localImports |>.run
+  let deps ← BuildM.run' do
+    -- resolve and build deps
+    let depTargets ← pkg.buildDepTargets
+    let depPkgs := depTargets.map (·.package) |>.foldl (flip List.cons) []
+    -- build any additional imports
+    unless imports.isEmpty do
+      let moreOleanDirs := depPkgs.map (·.oleanDir)
+      let depTarget ← pkg.buildDepTargetWith depTargets
+      let localImports := pkg.filterLocalImports imports
+      let oleanTargets ← pkg.buildModuleOleanTargets localImports moreOleanDirs depTarget
+      oleanTargets.forM (discard ·.materialize)
+    pure depPkgs
   IO.println <| SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
   IO.println <| SearchPath.toString <| pkg.srcDir :: deps.map (·.srcDir)

@@ -9,6 +9,7 @@ import Lake.LeanConfig
 
 namespace Lake
 open Git System
+open Lean (Name)
 
 /-- `elan` toolchain file name -/
 def toolchainFileName : FilePath :=
@@ -17,17 +18,14 @@ def toolchainFileName : FilePath :=
 def gitignoreContents :=
 s!"/{defaultBuildDir}\n/{defaultDepsDir}\n"
 
-def libFileName (libName : String) : FilePath :=
-  s!"{libName}.lean"
-
 def libFileContents :=
   s!"def hello := \"world\""
 
 def mainFileName : FilePath :=
   s!"{defaultBinRoot}.lean"
 
-def mainFileContents (libName : String) :=
-s!"import {libName.toName.toString}
+def mainFileContents (libRoot : Name) :=
+s!"import {libRoot}
 
 def main : IO Unit :=
   IO.println s!\"Hello, \{hello}!\"
@@ -38,7 +36,7 @@ s!"import Lake
 open Lake DSL
 
 package \{
-  name := \"{pkgName}\"
+  name := `{pkgName.toName}
 }
 "
 
@@ -53,13 +51,14 @@ def initPkg (dir : FilePath) (name : String) : IO PUnit := do
   IO.FS.writeFile configFile (pkgConfigFileContents name)
 
   -- write example code if the files do not already exist
-  let libName := name.capitalize
-  let libFile := dir / libFileName libName
+  let libRoot := toUpperCamelCase name.toName
+  let libFile := Lean.modToFilePath dir libRoot "lean"
   unless (← libFile.pathExists) do
+    IO.FS.createDirAll libFile.parent.get!
     IO.FS.writeFile libFile libFileContents
   let mainFile := dir / mainFileName
   unless (← mainFile.pathExists) do
-    IO.FS.writeFile mainFile <| mainFileContents libName
+    IO.FS.writeFile mainFile <| mainFileContents libRoot
 
   -- write current toolchain to file for `elan`
   IO.FS.writeFile (dir / toolchainFileName) <| leanVersionString ++ "\n"
@@ -81,5 +80,6 @@ def init (pkgName : String) : IO PUnit :=
   initPkg "." pkgName
 
 def new (pkgName : String) : IO PUnit := do
-  IO.FS.createDir pkgName
-  initPkg pkgName pkgName
+  let dirName := pkgName.map fun chr => if chr == '.' then '-' else chr
+  IO.FS.createDir dirName
+  initPkg dirName pkgName

@@ -60,10 +60,10 @@ deriving Inhabited, Repr
 /-- A `Dependency` of a package. -/
 structure Dependency where
   /--
-    A name for the dependency.
+    A `Name` for the dependency.
     The names of a package's dependencies cannot clash.
   -/
-  name : String
+  name : Name
   /--
     The source of a dependency.
     See the documentation of `Source` for more information.
@@ -87,6 +87,18 @@ deriving Inhabited, Repr
 -/
 abbrev Script := (args : List String) → IO UInt32
 
+/-- Converts a snake case, kebab case, or lower camel case `String` to upper camel case. -/
+def toUpperCamelCaseString (str : String) : String :=
+  let parts := str.split fun chr => chr == '_' || chr == '-'
+  String.join <| parts.map (·.capitalize)
+
+/-- Converts a snake case, kebab case, or lower camel case `Name` to upper camel case. -/
+def toUpperCamelCase (name : Name) : Name :=
+  if let Name.str p s _ := name then
+    Name.mkStr (toUpperCamelCase p) <| toUpperCamelCaseString s
+  else
+    name
+
 --------------------------------------------------------------------------------
 -- # PackageConfig
 --------------------------------------------------------------------------------
@@ -95,9 +107,9 @@ abbrev Script := (args : List String) → IO UInt32
 structure PackageConfig where
 
   /--
-    The name of the package.
+    The `Name` of the package.
   -/
-  name : String
+  name : Name
 
   /--
     A `HashMap` of scripts for the package.
@@ -153,9 +165,9 @@ structure PackageConfig where
     Submodules of these roots (e.g., `Pkg.Foo` of `Pkg`) are considered
     part of the package.
 
-    Defaults to a single root of the package's uppercase `name`.
+    Defaults to a single root of the package's upper camel case `name`.
   -/
-  libRoots : Array Name := #[name.capitalize]
+  libRoots : Array Name := #[toUpperCamelCase name]
 
   /--
     An `Array` of module `Glob`s to build for the package's library.
@@ -188,9 +200,9 @@ structure PackageConfig where
 
   /--
     The name of the package's static library.
-    Defaults to the package's uppercase `name`.
+    Defaults to the package's upper camel case `name`.
   -/
-  libName : String := name.capitalize
+  libName : String := toUpperCamelCase name |>.toString (escape := false)
 
   /--
     The build subdirectory to which Lake should output the package's static library.
@@ -200,13 +212,13 @@ structure PackageConfig where
 
   /--
     The name of the package's binary executable.
-    Defaults to the package's `name`.
+    Defaults to the package's `name` with any `.` replaced with a `-`.
   -/
-  binName : String := name
+  binName : String := name.toStringWithSep "-" (escape := false)
 
   /--
-    The name of the package's binary executable.
-    Defaults to the package's `name`.
+    The build subdirectory to which Lake should output the package's binary executable.
+    Defaults to `defaultBinDir` (i.e., `bin`).
   -/
   binDir : FilePath := defaultBinDir
 
@@ -268,7 +280,7 @@ def IOPackager := (pkgDir : FilePath) → (args : List String) → IO PackageCon
 namespace Package
 
 /-- The package's `name` configuration. -/
-def name (self : Package) : String :=
+def name (self : Package) : Name :=
   self.config.name
 
 /-- The package's `scripts` configuration. -/

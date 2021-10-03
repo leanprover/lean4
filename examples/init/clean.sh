@@ -1,2 +1,2 @@
-rm -rf helloNew
-rm -rf helloInit
+rm -rf hello-world
+rm -rf hello_world

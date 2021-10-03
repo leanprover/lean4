@@ -65,7 +65,7 @@ import Lake
 open Lake DSL
 
 package {
-  name := "hello"
+  name := `hello
 }
 ```
 
@@ -86,7 +86,7 @@ Lake provides a large assortment of configuration options for packages.
 
 ### General
 
-* `name` **(Required)**: The name of the package.
+* `name` **(Required)**: The `Name` of the package.
 * `scripts`: A `HashMap` of scripts for the package. A `Script` is an arbitrary `(args : List String) → IO UInt32` function that is indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
 * `dependencies`: An `Array` of the package's dependencies.
 * `depsDir`: The directory to which Lake should download dependencies. Defaults to `lean_packages`.
@@ -104,7 +104,7 @@ Lake provides a large assortment of configuration options for packages.
 * `irDir`: The build subdirectory to which Lake should output the package's intermediary results (e.g., `.c` and `.o` files). Defaults to `ir`.
 * `libName`: The name of the package's static library. Defaults to the string representation of the package's `moduleRoot`.
 * `libDir`: The build subdirectory to which Lake should output the package's static library. Defaults to `lib`.
-* `binName`: The name of the package's binary executable. Defaults to the package's `name`.
+* `binName`: The name of the package's binary executable. Defaults to the package's `name` with any `.` replaced with a `-`.
 * `binDir`: The build subdirectory to which Lake should output the package's binary executable. Defaults to `bin`.
 * `binRoot`: The root module of the package's binary executable. Defaults to `Main`. The root is built by recursively building its local imports (i.e., fellow modules of the package). This setting is most useful for packages that are distributing both a library and a binary (like Lake itself). In such cases, it is common for there to be code (e.g., `main`) that is needed for the binary but should not be included in the library proper.
 * `moreLibTargets`: Additional library `FileTarget`s (beyond the package's and its dependencies' libraries) to build and link to the package's binary executable (and/or to dependent package's executables).

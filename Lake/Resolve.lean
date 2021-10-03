@@ -40,8 +40,9 @@ def materializeDep (pkg : Package) (dep : Dependency) : IO FilePath :=
     let depDir := pkg.dir / dir
     depDir
   | Source.git url rev branch => do
-    let depDir := pkg.depsDir / dep.name
-    materializeGitDep dep.name depDir url rev branch
+    let name := dep.name.toString (escape := false)
+    let depDir := pkg.depsDir / name
+    materializeGitDep name depDir url rev branch
     depDir
 
 /--
@@ -51,7 +52,7 @@ def materializeDep (pkg : Package) (dep : Dependency) : IO FilePath :=
 def resolveDep (pkg : Package) (dep : Dependency) : IO Package := do
   let dir ← materializeDep pkg dep
   let depPkg ← Package.fromDir (dir / dep.dir) dep.args
-  unless depPkg.name = dep.name do
+  unless depPkg.name == dep.name do
     throw <| IO.userError <|
       s!"{pkg.name} (in {pkg.dir}) depends on {dep.name}, " ++
       s!"but resolved dependency has name {depPkg.name} (in {depPkg.dir})"

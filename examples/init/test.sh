@@ -4,23 +4,23 @@ set -ex
 
 # Test `new`
 
-${LAKE:-../../build/bin/lake} new helloNew
+${LAKE:-../../build/bin/lake} new hello.world
 
-cd helloNew
+cd hello-world
 test -f lean-toolchain
 ${LAKE:-../../../build/bin/lake} build-bin
-./build/bin/helloNew
+./build/bin/hello-world
 cd ..
 
 # Test `init`
 
-mkdir helloInit
+mkdir hello_world
 
-cd helloInit
-${LAKE:-../../../build/bin/lake} init helloInit
+cd hello_world
+${LAKE:-../../../build/bin/lake} init hello_world
 ${LAKE:-../../../build/bin/lake} build-bin
-./build/bin/helloInit
+./build/bin/hello_world
 
 # Test `init` on existing package (should error)
 
-${LAKE:-../../../build/bin/lake} init helloInit && exit 1 || true
+${LAKE:-../../../build/bin/lake} init hello_world && exit 1 || true

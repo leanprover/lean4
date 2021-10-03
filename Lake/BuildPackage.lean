@@ -120,7 +120,7 @@ def recBuildPackageWithDeps
 : RecBuild Package (Array ActivePackageTarget) m := fun pkg buildPkg => do
   let mut depTargets := #[]
   for dep in pkg.dependencies do
-    let targets? ← fetch? dep.name.toName
+    let targets? ← fetch? dep.name
     let targets ← do
       if let some targets := targets? then
         pure targets
@@ -133,7 +133,7 @@ def recBuildPackageWithDeps
 
 def buildPackageTargetsWithDeps (pkgs : Array Package) : BuildM (Array ActivePackageTarget) := do
   failOnBuildCycle <| ← RBTopT.run' <| pkgs.concatMapM fun pkg =>
-    buildRBTop (cmp := Name.quickCmp) recBuildPackageWithDeps (·.name.toName) pkg
+    buildRBTop (cmp := Name.quickCmp) recBuildPackageWithDeps Package.name pkg
 
 def Package.buildTarget (self : Package) : BuildM ActivePackageTarget := do
   (← buildPackageTargetsWithDeps #[self]).back

@@ -1007,6 +1007,37 @@ private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : Term
 def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDecl) :=
   return (← get).syntheticMVars.find? fun d => d.mvarId == mvarId
 
+/--
+  Create an auxiliary annotation to make sure we create a `Info` even if `e` is a metavariable.
+  See `mkTermInfo`.
+
+  We use this functions because some elaboration functions elaborate subterms that may not be immediately
+  part of the resulting term. Example:
+  ```
+  let_mvar% ?m := b; wait_if_type_mvar% ?m; body
+  ```
+  If the type of `b` is not known, then `wait_if_type_mvar% ?m; body` is postponed and just return a fresh
+  metavariable `?n`. The elaborator for
+  ```
+  let_mvar% ?m := b; wait_if_type_mvar% ?m; body
+  ```
+  returns `mkSaveInfoAnnotation ?n` to make sure the info nodes created when elaborating `b` are "saved".
+  This is a bit hackish, but elaborators like `let_mvar%` are rare.
+-/
+def mkSaveInfoAnnotation (e : Expr) : Expr :=
+  if e.isMVar then
+    mkAnnotation `save_info e
+  else
+    e
+
+def isSaveInfoAnnotation? (e : Expr) : Option Expr :=
+  annotation? `save_info e
+
+partial def removeSaveInfoAnnotation (e : Expr) : Expr :=
+  match isSaveInfoAnnotation? e with
+  | some e => removeSaveInfoAnnotation e
+  | _ => e
+
 def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (isBinder := false) : TermElabM (Sum Info MVarId) := do
   let isHole? : TermElabM (Option MVarId) := do
     match e with
@@ -1017,8 +1048,10 @@ def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Op
       | _                                                   => return none
     | _ => pure none
   match (← isHole?) with
-  | none        => return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder }
   | some mvarId => return Sum.inr mvarId
+  | none =>
+    let e := removeSaveInfoAnnotation e
+    return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder }
 
 def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (elaborator := Name.anonymous) (isBinder := false) : TermElabM Unit := do
   withInfoContext' (pure ()) (fun _ => mkTermInfo elaborator stx e expectedType? lctx? isBinder) |> discard

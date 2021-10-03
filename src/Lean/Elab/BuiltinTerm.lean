@@ -104,7 +104,8 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
        let e ← elabTerm e none
        let mvar ← mkFreshExprMVar (← inferType e) MetavarKind.syntheticOpaque n.getId
        assignExprMVar mvar.mvarId! e
-       elabTerm b expectedType?
+       -- We use `mkSaveInfoAnnotation` to make sure the info trees for `e` are saved even if `b` is a metavariable.
+       return mkSaveInfoAnnotation (← elabTerm b expectedType?)
   | _ => throwUnsupportedSyntax
 
 private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do

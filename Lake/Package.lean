@@ -224,7 +224,7 @@ structure PackageConfig where
 
   /--
     The root module of the package's binary executable.
-    Defaults to `Main`.
+    Defaults to `defaultBinRoot` (i.e., `Main`).
 
     The root is built by recursively building its
     local imports (i.e., fellow modules of the package).

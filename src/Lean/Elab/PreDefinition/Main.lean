@@ -10,6 +10,11 @@ namespace Lean.Elab
 open Meta
 open Term
 
+structure TerminationHints where
+  terminationBy? : Option Syntax := none
+  decreasingTactic? : Option Syntax := none
+  deriving Inhabited
+
 private def addAndCompilePartial (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do
     trace[Elab.definition] "processing {preDef.declName}"
@@ -57,12 +62,13 @@ private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM
   else
     return preDef
 
-def addPreDefinitions (preDefs : Array PreDefinition) (terminationBy? : Option Syntax) : TermElabM Unit := withLCtx {} {} do
+def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints) : TermElabM Unit := withLCtx {} {} do
   for preDef in preDefs do
     trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
   let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
   let cliques ← partitionPreDefs preDefs
-  let mut terminationBy ← liftMacroM <| WF.expandTerminationBy terminationBy? (cliques.map fun ds => ds.map (·.declName))
+  let mut terminationBy ← liftMacroM <| WF.expandTerminationHint hints.terminationBy? (cliques.map fun ds => ds.map (·.declName))
+  let mut decreasingTactic ← liftMacroM <| WF.expandTerminationHint hints.decreasingTactic? (cliques.map fun ds => ds.map (·.declName))
   for preDefs in cliques do
     trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
     if preDefs.size == 1 && isNonRecursive preDefs[0] then
@@ -78,18 +84,27 @@ def addPreDefinitions (preDefs : Array PreDefinition) (terminationBy? : Option S
         if preDef.modifiers.isPartial && !(← whnfD preDef.type).isForall then
           withRef preDef.ref <| throwError "invalid use of 'partial', '{preDef.declName}' is not a function{indentExpr preDef.type}"
       addAndCompilePartial preDefs
-    else if let some wfStx := terminationBy.find? (preDefs.map (·.declName)) then
-      terminationBy := terminationBy.erase (preDefs.map (·.declName))
-      wfRecursion preDefs wfStx
     else
-      withRef (preDefs[0].ref) <| mapError
-        (orelseMergeErrors
-          (structuralRecursion preDefs)
-          (wfRecursion preDefs none))
-        (fun msg =>
-          let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
-          m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
+      let mut wfStx? := none
+      let mut decrTactic? := none
+      if let some wfStx := terminationBy.find? (preDefs.map (·.declName)) then
+        wfStx? := some wfStx
+        terminationBy := terminationBy.erase (preDefs.map (·.declName))
+      if let some decrTactic := decreasingTactic.find? (preDefs.map (·.declName)) then
+        decrTactic? := some decrTactic
+        decreasingTactic := decreasingTactic.erase (preDefs.map (·.declName))
+      if wfStx?.isSome || decrTactic?.isSome then
+        wfRecursion preDefs wfStx? decrTactic?
+      else
+        withRef (preDefs[0].ref) <| mapError
+          (orelseMergeErrors
+            (structuralRecursion preDefs)
+            (wfRecursion preDefs none none))
+          (fun msg =>
+            let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
+            m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
   liftMacroM <| terminationBy.ensureIsEmpty
+  liftMacroM <| decreasingTactic.ensureIsEmpty
 
 builtin_initialize
   registerTraceClass `Elab.definition.body

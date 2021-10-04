@@ -25,7 +25,7 @@ private def mkDecreasingProof (decreasingProp : Expr) : TermElabM Expr := do
     admit mvarId
   instantiateMVars mvar
 
-private partial def replaceRecApps (recFnName : Name) (F : Expr) (e : Expr) : TermElabM Expr :=
+private partial def replaceRecApps (recFnName : Name) (decrTactic? : Option Syntax) (F : Expr) (e : Expr) : TermElabM Expr :=
   let rec loop (F : Expr) (e : Expr) : TermElabM Expr := do
     match e with
     | Expr.lam n d b c =>
@@ -113,7 +113,7 @@ private partial def processPSigmaCasesOn (x F val : Expr) (k : (F : Expr) → (v
   else
     k F val
 
-def mkFix (preDef : PreDefinition) (wfRel : Expr) : TermElabM PreDefinition := do
+def mkFix (preDef : PreDefinition) (wfRel : Expr) (decrTactic? : Option Syntax) : TermElabM PreDefinition := do
   let wfFix ← forallBoundedTelescope preDef.type (some 1) fun x type => do
     let x := x[0]
     let α ← inferType x
@@ -127,7 +127,7 @@ def mkFix (preDef : PreDefinition) (wfRel : Expr) : TermElabM PreDefinition := d
     let x   := xs[0]
     let F   := xs[1]
     let val := preDef.value.betaRev #[x]
-    let val ← processSumCasesOn x F val fun x F val => processPSigmaCasesOn x F val (replaceRecApps preDef.declName)
+    let val ← processSumCasesOn x F val fun x F val => processPSigmaCasesOn x F val (replaceRecApps preDef.declName decrTactic?)
     return { preDef with value := mkApp wfFix (← mkLambdaFVars #[x, F] val) }
 
 end Lean.Elab.WF

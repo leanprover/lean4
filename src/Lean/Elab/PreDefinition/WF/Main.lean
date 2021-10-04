@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.PreDefinition.Basic
-import Lean.Elab.PreDefinition.WF.TerminationBy
+import Lean.Elab.PreDefinition.WF.TerminationHint
 import Lean.Elab.PreDefinition.WF.PackDomain
 import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Elab.PreDefinition.WF.Rel
@@ -38,7 +38,7 @@ private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonR
     trace[Elab.definition.wf] "{preDef.declName} := {value}"
     addNonRec { preDef with value }
 
-def wfRecursion (preDefs : Array PreDefinition) (wfStx? : Option Syntax) : TermElabM Unit := do
+def wfRecursion (preDefs : Array PreDefinition) (wfStx? : Option Syntax) (decrTactic? : Option Syntax) : TermElabM Unit := do
   let unaryPreDef ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef
@@ -47,7 +47,7 @@ def wfRecursion (preDefs : Array PreDefinition) (wfStx? : Option Syntax) : TermE
   let wfRel ← elabWFRel unaryPreDef wfStx?
   let preDefNonRec ← withoutModifyingEnv do
     addAsAxiom unaryPreDef
-    mkFix unaryPreDef wfRel
+    mkFix unaryPreDef wfRel decrTactic?
   trace[Elab.definition.wf] ">> {preDefNonRec.declName}"
   addNonRec preDefNonRec
   addNonRecPreDefs preDefs preDefNonRec

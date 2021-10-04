@@ -17,10 +17,10 @@ Here's the AST that we will be parsing:
 ```lean,ignore
 -- example on parsing arith language via macros
 inductive Arith : Type where
-  | add : Arith -> Arith -> Arith -- e + f
- | mul : Arith -> Arith -> Arith -- e * f
- | int : Int -> Arith -- constant
- | symbol : String -> Arith -- variable
+  | add : Arith → Arith → Arith -- e + f
+  | mul : Arith → Arith → Arith -- e * f
+  | int : Int → Arith -- constant
+  | symbol : String → Arith -- variable
 ```
 
 We declare a syntax category to describe the grammar that we will be parsing.
@@ -80,71 +80,64 @@ translate the syntax category `arith` into an `Arith` inductive value that
 lives in `term`:
 
 
-```
+```lean,ignore
 -- auxiliary notation for translating `arith` into `term`
-syntax "Arith| " arith : term
+syntax "[Arith| " arith "]" : term
 ```
 
 Our macro rules perform the "obvious" translation:
 
 ```lean,ignore
 macro_rules
-  | `(Arith| $s:strLit) => `(Arith.Symbol $s)
-  | `(Arith| $num:term) => `(Arith.Symbol $num)
-  | `(Arith| $x:arith :+ $y:arith ) => `(Arith.add (Arith| $x) (Arith| $y))
-  | `(Arith| $x:arith :* $y:arith ) => `(Arith.mul (Arith| $x) (Arith| $y))
-  | `(Arith| ($x:arith)) => `(Arith| $x)
+  | `([Arith| $s:strLit ]) => `(Arith.symbol $s)
+  | `([Arith| $num:numLit ]) => `(Arith.int $num)
+  | `([Arith| $x:arith + $y:arith ]) => `(Arith.add [Arith| $x] [Arith| $y])
+  | `([Arith| $x:arith * $y:arith ]) => `(Arith.mul [Arith| $x] [Arith| $y])
+  | `([Arith| ($x:arith) ]) => `([Arith| $x ])
 ```
 And some examples:
 
 ```lean,ignore
-def foo := (Arith| "x" * "y") -- mul
+def foo := [Arith| "x" * "y" ] -- mul
 #print foo
 /-
 def foo : Arith :=
 Arith.mul (Arith.symbol "x") (Arith.symbol "y")
 -/
 
-def bar := (Arith| "x" + "y") -- add
+def bar := [Arith| "x" + "y"] -- add
 #print bar
 /-
 def bar : Arith :=
 Arith.add (Arith.symbol "x") (Arith.symbol "y")
 -/
 
-def baz := (Arith| "x" + 20) -- symbol + int
+def baz := [Arith| "x" + 20] -- symbol + int
 #print baz
 /-
 def baz : Arith :=
 Arith.add (Arith.symbol "x") (Arith.int 20)
 -/
-```
-
-All the basic examples work. Let's check that we get precedence right as well:
 
 
-```
-def quux_left := (Arith| "x" + "y" * "z") -- precedence
+def quux_left := [Arith| "x" + "y" * "z" ] -- precedence
 #print quux_left
 /-
 def quux_left : Arith :=
 Arith.add (Arith.symbol "x") (Arith.mul (Arith.symbol "y") (Arith.symbol "z"))
 -/
 
-def quux_right := (Arith| "x" * "y" + "z") -- precedence
+def quux_right := [Arith| "x" * "y" + "z"] -- precedence
 #print quux_right
-/-
-Arith.add (Arith.mul (Arith.symbol "x") (Arith.symbol "y")) (Arith.symbol "z")
--/
+-- Arith.add (Arith.mul (Arith.symbol "x") (Arith.symbol "y")) (Arith.symbol "z")
 
 
-def quuz := (Arith| ("x" + "y") * "z") -- brackets
+def quuz := [Arith| ("x" + "y") * "z"] -- brackets
 #print quuz
 /-
 def quuz : Arith :=
 Arith.mul (Arith.add (Arith.symbol "x") (Arith.symbol "y")) (Arith.symbol "z")
 -/
-
 ```
 
 
@@ -159,21 +152,21 @@ a string, using `$(Lean.quote (toString x.getId))`.  (TODO: explain what
 syntax ident : arith
 
 macro_rules
-  | `(Arith| $x:ident) => `(Arith.Symbol $(Lean.quote (toString x.getId)))
+  | `([Arith| $x:ident]) => `(Arith.symbol $(Lean.quote (toString x.getId)))
 ```
 
 
 Let's test and see that we can now write expressions such as `x :* y` directly instead of having to write `"x" :* "y"`:
 
 ```lean,ignore
-def x_ident := Arith| x 
+def x_ident := [Arith| x ]
 #print x_ident
 /-
 def x_ident : Arith :=
 Arith.symbol "x"
 -/
 
-def x_plus_y : Arith := (Arith| x + y)
+def x_plus_y : Arith := [Arith| x + y]
 #print x_plus_y
 /-
 def x_plus_y : Arith :=
@@ -185,7 +178,7 @@ We now show an unfortunate consequence of the above definitions. Suppose we want
 Since we already have defined `x_plus_y` as `x := y`, perhaps we should reuse it! Let's try:
 
 ```lean,ignore
-def x_plus_y_plus_z := (Arith| x_plus_y + z)
+def x_plus_y_plus_z := [Arith| x_plus_y + z]
 #print x_plus_y_plus_z
 /-
 def x_plus_y_plus_z : Arith :=
@@ -200,14 +193,14 @@ not an identifier. The macro looks like follows:
 ```lean,ignore
 syntax "<[" term "]>" : arith -- escape for embedding terms into `Arith`
 macro_rules
-  | `(Arith| <[ $e:term ]>) => e
+  | `([Arith| <[ $e:term ]> ]) => e
 
 ```
 
 Let's try our previous example:
 
 ```lean,ignore
-def x_plus_y_plus_z2 := Arith| <[ x_plus_y ]>
+def x_plus_y_plus_z2 := [Arith| <[ x_plus_y ]>]
 #print x_plus_y_plus_z2
 /-
 def x_plus_y_plus_z2 : Arith :=
@@ -225,45 +218,45 @@ within a macro, and how to provide an escape from within the macro context.
 
 ```lean
 -- example on parsing arith language via macros
-inductive Arith: Type where
-  | add : Arith -> Arith -> Arith -- e + f
-  | mul : Arith -> Arith -> Arith -- e * f
-  | int : Int -> Arith -- constant
-  | symbol : String -> Arith -- variable
+inductive Arith: Type
+  | add : Arith → Arith → Arith -- e + f
+  | mul : Arith → Arith → Arith -- e * f
+  | int : Int → Arith -- constant
+  | symbol : String → Arith -- variable
 
 declare_syntax_cat arith
 
 syntax num : arith -- int for Arith.int
 syntax str : arith -- strings for Arith.symbol
-syntax:60  arith "+" arith : arith -- Arith.add
-syntax:70 arith "*" arith : arith -- Arith.mul
+syntax:60  arith:60 "+" arith:61 : arith -- Arith.add
+syntax:70 arith:70 "*" arith:71 : arith -- Arith.mul
 syntax "(" arith ")" : arith -- bracketed expressions
 
 -- auxiliary notation for translating `arith` into `term`
-syntax "Arith| " arith : term
+syntax "[Arith| " arith "]" : term
 
 macro_rules
-  | `(Arith| $s:strLit) => `(Arith.symbol $s)
-  | `(Arith| $num:numLit) => `(Arith.int $num)
-  | `(Arith| $x:arith + $y:arith) => `(Arith.add (Arith| $x) (Arith| $y))
-  | `(Arith| $x:arith * $y:arith) => `(Arith.mul (Arith| $x) (Arith| $y))
-  | `(Arith| ($x:arith)) => `(Arith| $x)
+  | `([Arith| $s:strLit ]) => `(Arith.symbol $s )
+  | `([Arith| $num:numLit ]) => `(Arith.int $num )
+  | `([Arith| $x:arith + $y:arith ]) => `(Arith.add [Arith| $x] [Arith| $y] )
+  | `([Arith| $x:arith * $y:arith ]) => `(Arith.mul [Arith| $x] [Arith| $y] )
+  | `([Arith| ($x:arith) ]) => `([Arith| $x ])
 
-def foo := (Arith| "x" * "y") -- mul
+def foo := [Arith| "x" * "y" ] -- mul
 #print foo
 /-
 def foo : Arith :=
 Arith.mul (Arith.symbol "x") (Arith.symbol "y")
 -/
 
-def bar := (Arith| "x" + "y") -- add
+def bar := [Arith| "x" + "y"] -- add
 #print bar
 /-
 def bar : Arith :=
 Arith.add (Arith.symbol "x") (Arith.symbol "y")
 -/
 
-def baz := (Arith| "x" + 20) -- symbol + int
+def baz := [Arith| "x" + 20] -- symbol + int
 #print baz
 /-
 def baz : Arith :=
@@ -271,20 +264,19 @@ Arith.add (Arith.symbol "x") (Arith.int 20)
 -/
 
 
-def quux_left := (Arith| "x" + "y" * "z") -- precedence
+def quux_left := [Arith| "x" + "y" * "z" ] -- precedence
 #print quux_left
 /-
 def quux_left : Arith :=
 Arith.add (Arith.symbol "x") (Arith.mul (Arith.symbol "y") (Arith.symbol "z"))
 -/
 
-def quux_right := (Arith| "x" * "y" + "z") -- precedence
+def quux_right := [Arith| "x" * "y" + "z"] -- precedence
 #print quux_right
-/-
-Arith.add (Arith.mul (Arith.symbol "x") (Arith.symbol "y")) (Arith.symbol "z")
--/
+-- Arith.add (Arith.mul (Arith.symbol "x") (Arith.symbol "y")) (Arith.symbol "z")
 
-def quuz := (Arith| ("x" + "y") * "z") -- brackets
+
+def quuz := [Arith| ("x" + "y") * "z"] -- brackets
 #print quuz
 /-
 def quuz : Arith :=
@@ -294,23 +286,23 @@ Arith.mul (Arith.add (Arith.symbol "x") (Arith.symbol "y")) (Arith.symbol "z")
 syntax ident : arith
 
 macro_rules
-  | `(Arith| $x:ident) => `(Arith.symbol $(Lean.quote (toString x.getId)))
+  | `([Arith| $x:ident]) => `(Arith.symbol $(Lean.quote (toString x.getId)))
 
-def x_ident := Arith| x 
+def x_ident := [Arith| x ]
 #print x_ident
 /-
 def x_ident : Arith :=
 Arith.symbol "x"
 -/
 
-def x_plus_y : Arith := (Arith| x + y)
+def x_plus_y : Arith := [Arith| x + y]
 #print x_plus_y
 /-
 def x_plus_y : Arith :=
 Arith.add (Arith.symbol "x") (Arith.symbol "y")
 -/
 
-def x_plus_y_plus_z := (Arith| x_plus_y + z)
+def x_plus_y_plus_z := [Arith| x_plus_y + z]
 #print x_plus_y_plus_z
 /-
 def x_plus_y_plus_z : Arith :=
@@ -320,10 +312,11 @@ Arith.add (Arith.symbol "x_plus_y") (Arith.symbol "z")
 syntax "<[" term "]>" : arith -- escape for embedding terms into `Arith`
  
 macro_rules
-  | `(Arith| <[ $e:term ]>) => e
+  | `([Arith| <[ $e:term ]> ]) => e
   
 
-def x_plus_y_plus_z2 := (Arith| <[ x_plus_y ]>)
+
+def x_plus_y_plus_z2 := [Arith| <[ x_plus_y ]>]
 #print x_plus_y_plus_z2
 /-
 def x_plus_y_plus_z2 : Arith :=

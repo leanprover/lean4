@@ -51,7 +51,7 @@ def materializeDep (pkg : Package) (dep : Dependency) : IO FilePath :=
 -/
 def resolveDep (pkg : Package) (dep : Dependency) : IO Package := do
   let dir ← materializeDep pkg dep
-  let depPkg ← Package.fromDir (dir / dep.dir) dep.args
+  let depPkg ← Package.load (dir / dep.dir) dep.args
   unless depPkg.name == dep.name do
     throw <| IO.userError <|
       s!"{pkg.name} (in {pkg.dir}) depends on {dep.name}, " ++

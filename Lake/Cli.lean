@@ -64,7 +64,7 @@ def setWantsHelp : CliM PUnit :=
   modifyThe CliOptions fun st => {st with wantsHelp := true}
 
 def loadPkg (args : List String) : CliM Package := do
-  Package.fromDir (← getDir) args (← getFile)
+  let dir ← getDir; let file ← getFile; Package.load dir args (dir / file)
 
 def takeArg : CliM String := do
   match (← takeArg?) with

@@ -66,7 +66,7 @@ a * (b:60 + c:61):60
 (a:70 * b:71):70 + c
 ```
 
-While parsing `a * (b + c)`, `(b + c)` is assigned a precedence `60` by the addition rule. However, multiplcation expects
+While parsing `a * (b + c)`, `(b + c)` is assigned a precedence `60` by the addition rule. However, multiplication expects
 the right argument to have precedence **at least** 71. Thus, this parse is invalid. In contrast, `(a * b) + c` assigns
 a precedence of `70` to `(a * b)`. This is compatible with addition which expects the left argument to have precedence
 **at least `60` ** (`70` is greater than `60`). Thus, the string `a * b + c` is parsed as `(a * b) + c`.

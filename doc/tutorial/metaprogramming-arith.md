@@ -124,12 +124,19 @@ All the basic examples work. Let's check that we get precedence right as well:
 
 
 ```
-def quux := (Arith| "x" + "y" * "z") -- precedence
-#print quux
+def quux_left := (Arith| "x" + "y" * "z") -- precedence
+#print quux_left
 /-
-def quux : Arith :=
+def quux_left : Arith :=
 Arith.add (Arith.symbol "x") (Arith.mul (Arith.symbol "y") (Arith.symbol "z"))
 -/
+
+def quux_right := (Arith| "x" * "y" + "z") -- precedence
+#print quux_right
+/-
+Arith.add (Arith.mul (Arith.symbol "x") (Arith.symbol "y")) (Arith.symbol "z")
+-/
+
 
 def quuz := (Arith| ("x" + "y") * "z") -- brackets
 #print quuz
@@ -137,6 +144,7 @@ def quuz := (Arith| ("x" + "y") * "z") -- brackets
 def quuz : Arith :=
 Arith.mul (Arith.add (Arith.symbol "x") (Arith.symbol "y")) (Arith.symbol "z")
 -/
+
 ```
 
 
@@ -263,11 +271,17 @@ Arith.add (Arith.symbol "x") (Arith.int 20)
 -/
 
 
-def quux := (Arith| "x" + "y" * "z") -- precedence
-#print quux
+def quux_left := (Arith| "x" + "y" * "z") -- precedence
+#print quux_left
 /-
-def quux : Arith :=
+def quux_left : Arith :=
 Arith.add (Arith.symbol "x") (Arith.mul (Arith.symbol "y") (Arith.symbol "z"))
+-/
+
+def quux_right := (Arith| "x" * "y" + "z") -- precedence
+#print quux_right
+/-
+Arith.add (Arith.mul (Arith.symbol "x") (Arith.symbol "y")) (Arith.symbol "z")
 -/
 
 def quuz := (Arith| ("x" + "y") * "z") -- brackets

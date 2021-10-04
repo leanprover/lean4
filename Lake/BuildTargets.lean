@@ -13,26 +13,35 @@ def oFileTarget
 (oFile : FilePath) (srcTarget : FileTarget)
 (args : Array String := #[]) (cmd := "c++") : FileTarget :=
   Target.mk oFile do
+    let traceFile := FilePath.mk <| oFile.toString ++ ".trace"
     srcTarget.mapAsync fun file trace => do
-      unless (← checkIfNewer oFile trace.mtime) do
+      let (upToDate, trace) ← trace.check oFile traceFile
+      unless upToDate do
         compileO oFile file args cmd
-      trace
+      IO.FS.writeFile traceFile trace.hash.toString
+      liftM <| computeTrace oFile
 
 def staticLibTarget
 (libFile : FilePath) (oFileTargets : Array FileTarget) (cmd := "ar") : FileTarget :=
   Target.mk libFile do
+    let traceFile := FilePath.mk <| libFile.toString ++ ".trace"
     let depTarget ← Target.collectArray oFileTargets
     depTarget.mapAsync fun oFiles trace => do
-      unless (← checkIfNewer libFile trace.mtime) do
+      let (upToDate, trace) ← trace.check libFile traceFile
+      unless upToDate do
         compileStaticLib libFile oFiles cmd
-      trace
+      IO.FS.writeFile traceFile trace.hash.toString
+      liftM <| computeTrace libFile
 
 def binTarget
 (binFile : FilePath) (linkTargets : Array FileTarget)
 (linkArgs : Array String := #[]) (cmd := "cc") : FileTarget :=
   Target.mk binFile do
+    let traceFile := FilePath.mk <| binFile.toString ++ ".trace"
     let depTarget ← Target.collectArray linkTargets
     depTarget.mapAsync fun links trace => do
-      unless (← checkIfNewer binFile trace.mtime) do
+      let (upToDate, trace) ← trace.check binFile traceFile
+      unless upToDate do
         compileBin binFile links linkArgs cmd
-      trace
+      IO.FS.writeFile traceFile trace.hash.toString
+      liftM <| computeTrace binFile

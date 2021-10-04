@@ -322,9 +322,9 @@ def leanArgs (self : Package) : Array String :=
 def modToOlean (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.oleanDir mod "olean"
 
-/-- The path to module's `.hash` file within the package. -/
-def modToHashFile (mod : Name) (self : Package) : FilePath :=
-  Lean.modToFilePath self.oleanDir mod "hash"
+/-- The path to module's `.trace` file within the package. -/
+def modToTraceFile (mod : Name) (self : Package) : FilePath :=
+  Lean.modToFilePath self.oleanDir mod "trace"
 
 /-- The package's `libRoots` configuration. -/
 def libRoots (self : Package) : Array Name :=

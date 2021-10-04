@@ -218,11 +218,11 @@ instance : MixTrace BuildTrace := ⟨mix⟩
   to see if the target is up-to-date.
 -/
 def check [CheckExists i]
-(info : i) (hashFile : FilePath) (self : BuildTrace)
+(info : i) (traceFile : FilePath) (self : BuildTrace)
 : IO (Bool × BuildTrace) := do
   try
     if (← checkExists info) then
-      if let some h ← Hash.loadFromFile hashFile then
+      if let some h ← Hash.loadFromFile traceFile then
         if h == self.hash then
           return (true, self.withoutMTime)
   catch _ =>

@@ -59,6 +59,9 @@ test-scripts:
 test-bootstrap:
 	cd bootstrap && ./test.sh
 
+package-bootstrap:
+	cd bootstrap && ./package.sh
+
 clean-bootstrap:
 	cd bootstrap && ./clean.sh
 

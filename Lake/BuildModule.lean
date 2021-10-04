@@ -59,26 +59,26 @@ end ActiveOleanAndCTarget
 -- # Trace Checking
 
 def checkModuleTrace [CheckExists i] (info : i)
-(leanFile hashFile : FilePath) (contents : String) (depTrace : BuildTrace)
+(leanFile traceFile : FilePath) (contents : String) (depTrace : BuildTrace)
 : IO (Bool × BuildTrace) := do
   let leanMTime ← getMTime leanFile
   let leanHash := Hash.compute contents
   let maxMTime := max leanMTime depTrace.mtime
   let fullHash := Hash.mix leanHash depTrace.hash
-  BuildTrace.mk fullHash maxMTime |>.check info hashFile
+  BuildTrace.mk fullHash maxMTime |>.check info traceFile
 
 -- # Module Builders
 
 def moduleTarget [CheckExists i] [GetMTime i] [ComputeHash i] (info : i)
-(leanFile hashFile : FilePath) (contents : String) (depTarget : BuildTarget x)
+(leanFile traceFile : FilePath) (contents : String) (depTarget : BuildTarget x)
 (build : BuildM PUnit) : BuildTarget i :=
   Target.mk info <| depTarget.mapOpaqueAsync fun depTrace => do
-    let (upToDate, trace) ← checkModuleTrace info leanFile hashFile contents depTrace
+    let (upToDate, trace) ← checkModuleTrace info leanFile traceFile contents depTrace
     if upToDate then
       BuildTrace.fromHash <| (← computeHash info).mix depTrace.hash
     else
       build
-      IO.FS.writeFile hashFile trace.hash.toString
+      IO.FS.writeFile traceFile trace.hash.toString
       let newTrace : BuildTrace ← liftM <| computeTrace info
       newTrace.mix depTrace
 
@@ -101,18 +101,18 @@ protected def Package.moduleOleanAndCTarget
 (leanFile : FilePath) (contents : String) (depTarget : BuildTarget x) :=
   let cFile := self.modToC mod
   let oleanFile := self.modToOlean mod
-  let hashFile := self.modToHashFile mod
+  let traceFile := self.modToTraceFile mod
   let oleanDirs :=  self.oleanDir :: moreOleanDirs
-  moduleOleanAndCTarget leanFile cFile oleanFile hashFile oleanDirs contents
+  moduleOleanAndCTarget leanFile cFile oleanFile traceFile oleanDirs contents
     depTarget self.rootDir self.leanArgs
 
 protected def Package.moduleOleanTarget
 (self : Package) (moreOleanDirs : List FilePath) (mod : Name)
 (leanFile : FilePath) (contents : String) (depTarget : BuildTarget x) :=
   let oleanFile := self.modToOlean mod
-  let hashFile := self.modToHashFile mod
+  let traceFile := self.modToTraceFile mod
   let oleanDirs := self.oleanDir :: moreOleanDirs
-  moduleOleanTarget leanFile oleanFile hashFile oleanDirs contents depTarget
+  moduleOleanTarget leanFile oleanFile traceFile oleanDirs contents depTarget
     self.rootDir self.leanArgs
 
 -- # Recursive Building

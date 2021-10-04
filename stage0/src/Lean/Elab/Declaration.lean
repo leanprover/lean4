@@ -141,7 +141,8 @@ def getTerminationBy? (stx : Syntax) : Option Syntax :=
   let decl := stx[1]
   let k := decl.getKind
   if k == ``Parser.Command.def || k == ``Parser.Command.theorem || k == ``Parser.Command.instance then
-    decl.getArgs.back.getOptional?
+    let args := decl.getArgs
+    args[args.size - 2].getOptional?
   else
     none
 

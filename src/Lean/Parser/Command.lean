@@ -31,9 +31,9 @@ def terminationHint1 (p : Parser) := leading_parser p
 def terminationHint (p : Parser) := terminationHintMany p <|> terminationHint1 p
 
 def terminationBy := leading_parser "termination_by " >> terminationHint termParser
-def decreasingTactic := leading_parser "decreasing_tactic " >> terminationHint Tactic.tacticSeq
+def decreasingBy := leading_parser "decreasing_by " >> terminationHint Tactic.tacticSeq
 
-def terminationSuffix := optional terminationBy >> optional decreasingTactic
+def terminationSuffix := optional terminationBy >> optional decreasingBy
 
 @[builtinCommandParser]
 def moduleDoc := leading_parser ppDedent $ "/-!" >> commentBody >> ppLine

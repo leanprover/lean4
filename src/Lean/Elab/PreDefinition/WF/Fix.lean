@@ -14,15 +14,20 @@ open Meta
 private def toUnfold : Std.PHashSet Name :=
   [``measure, ``id, ``Prod.lex, ``invImage, ``InvImage, ``Nat.lt_wfRel].foldl (init := {}) fun s a => s.insert a
 
-private def mkDecreasingProof (decreasingProp : Expr) : TermElabM Expr := do
-  let mvar ← mkFreshExprSyntheticOpaqueMVar decreasingProp
-  let mvarId := mvar.mvarId!
+private def applyDefaultDecrTactic (mvarId : MVarId) : TermElabM Unit := do
   let ctx ← Simp.Context.mkDefault
   let ctx := { ctx with simpLemmas.toUnfold := toUnfold }
   if let some mvarId ← simpTarget mvarId ctx then
     -- TODO: invoke tactic to close the goal
     trace[Elab.definition.wf] "{MessageData.ofGoal mvarId}"
     admit mvarId
+
+private def mkDecreasingProof (decreasingProp : Expr) (decrTactic? : Option Syntax) : TermElabM Expr := do
+  let mvar ← mkFreshExprSyntheticOpaqueMVar decreasingProp
+  let mvarId := mvar.mvarId!
+  match decrTactic? with
+  | none => applyDefaultDecrTactic mvarId
+  | some decrTactic => Term.runTactic mvarId decrTactic
   instantiateMVars mvar
 
 private partial def replaceRecApps (recFnName : Name) (decrTactic? : Option Syntax) (F : Expr) (e : Expr) : TermElabM Expr :=
@@ -45,7 +50,7 @@ private partial def replaceRecApps (recFnName : Name) (decrTactic? : Option Synt
           if f.isConstOf recFnName && args.size == 1 then
             let r := mkApp F args[0]
             let decreasingProp := (← whnf (← inferType r)).bindingDomain!
-            return mkApp r (← mkDecreasingProof decreasingProp)
+            return mkApp r (← mkDecreasingProof decreasingProp decrTactic?)
           else
             return mkAppN (← loop F f) (← args.mapM (loop F))
       let matcherApp? ← matchMatcherApp? e

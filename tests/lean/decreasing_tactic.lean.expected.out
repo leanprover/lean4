@@ -1,4 +1,0 @@
-decreasing_tactic.lean:8:0-8:28: error: invalid 'decreasing_tactic' in mutually inductive datatype declaration
-decreasing_tactic.lean:13:1-13:29: error: invalid 'decreasing_tactic' in 'mutual' block, it must be used after the 'end' keyword
-decreasing_tactic.lean:21:2-21:3: error: function 'h' not found in current declaration
-decreasing_tactic.lean:39:7-39:17: error: invalid termination hint element, 'Test.g' and 'Test.f' are in the same clique

@@ -12,7 +12,7 @@ open Term
 
 structure TerminationHints where
   terminationBy? : Option Syntax := none
-  decreasingTactic? : Option Syntax := none
+  decreasingBy? : Option Syntax := none
   deriving Inhabited
 
 private def addAndCompilePartial (preDefs : Array PreDefinition) : TermElabM Unit := do
@@ -68,7 +68,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
   let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
   let cliques ← partitionPreDefs preDefs
   let mut terminationBy ← liftMacroM <| WF.expandTerminationHint hints.terminationBy? (cliques.map fun ds => ds.map (·.declName))
-  let mut decreasingTactic ← liftMacroM <| WF.expandTerminationHint hints.decreasingTactic? (cliques.map fun ds => ds.map (·.declName))
+  let mut decreasingBy ← liftMacroM <| WF.expandTerminationHint hints.decreasingBy? (cliques.map fun ds => ds.map (·.declName))
   for preDefs in cliques do
     trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
     if preDefs.size == 1 && isNonRecursive preDefs[0] then
@@ -87,12 +87,12 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
     else
       let mut wfStx? := none
       let mut decrTactic? := none
-      if let some wfStx := terminationBy.find? (preDefs.map (·.declName)) then
+      if let some { value := wfStx, .. } := terminationBy.find? (preDefs.map (·.declName)) then
         wfStx? := some wfStx
         terminationBy := terminationBy.erase (preDefs.map (·.declName))
-      if let some decrTactic := decreasingTactic.find? (preDefs.map (·.declName)) then
-        decrTactic? := some decrTactic
-        decreasingTactic := decreasingTactic.erase (preDefs.map (·.declName))
+      if let some { ref, value := decrTactic } := decreasingBy.find? (preDefs.map (·.declName)) then
+        decrTactic? := some (← withRef ref `(by $decrTactic))
+        decreasingBy := decreasingBy.erase (preDefs.map (·.declName))
       if wfStx?.isSome || decrTactic?.isSome then
         wfRecursion preDefs wfStx? decrTactic?
       else
@@ -104,7 +104,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
             let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
             m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
   liftMacroM <| terminationBy.ensureIsEmpty
-  liftMacroM <| decreasingTactic.ensureIsEmpty
+  liftMacroM <| decreasingBy.ensureIsEmpty
 
 builtin_initialize
   registerTraceClass `Elab.definition.body

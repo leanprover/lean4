@@ -5,19 +5,19 @@ mutual
   inductive Odd : Nat → Prop
     | step : Even n → Odd (n+1)
 end
-decreasing_tactic assumption
+decreasing_by assumption
 
 mutual
  def f (n : Nat) :=
    if n == 0 then 0 else f (n / 2) + 1
- decreasing_tactic assumption
+ decreasing_by assumption
 end
 
 def g' (n : Nat) :=
   match n with
   | 0 => 1
   | n+1 => g' n * 3
-decreasing_tactic
+decreasing_by
   h => assumption
 
 namespace Test
@@ -34,7 +34,7 @@ mutual
     | 0, a, b => b
     | n+1, a, b => f n a b
 end
-decreasing_tactic
+decreasing_by
   f => assumption
   g => assumption
 

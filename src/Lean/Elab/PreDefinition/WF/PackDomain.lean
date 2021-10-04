@@ -61,6 +61,8 @@ def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) := 
   let mut modified := false
   for preDef in preDefs do
     let (preDefNew, arity, modifiedCurr) ← lambdaTelescope preDef.value fun xs body => do
+      if xs.size == 0 then
+        throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any arguments"
       if xs.size > 1 then
         let bodyType ← instantiateForall preDef.type xs
         let mut d ← inferType xs.back

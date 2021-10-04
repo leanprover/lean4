@@ -16,11 +16,11 @@ Here's the AST that we will be parsing:
 
 ```lean,ignore
 -- example on parsing arith language via macros
-inductive Arith: Type
-   | add : Arith -> Arith -> Arith -- e + f
-   | mul : Arith -> Arith -> Arith -- e * f
-   | int : Int -> Arith -- constant
-   | symbol : String -> Arith -- variable
+inductive Arith: Type where
+ | add : Arith -> Arith -> Arith -- e + f
+ | mul : Arith -> Arith -> Arith -- e * f
+ | int : Int -> Arith -- constant
+ | symbol : String -> Arith -- variable
 ```
 
 We declare a syntax category to describe the grammar that we will be parsing.
@@ -177,11 +177,11 @@ within a macro, and how to provide an escape from within the macro context.
 
 ```lean
 -- example on parsing arith language via macros
-inductive Arith: Type
-| add : Arith -> Arith -> Arith -- e :+ f
-| mul : Arith -> Arith -> Arith -- e :* f
-| int : Int -> Arith -- constant
-| symbol : String -> Arith -- variable
+inductive Arith: Type where
+  | add : Arith -> Arith -> Arith -- e + f
+  | mul : Arith -> Arith -> Arith -- e * f
+  | int : Int -> Arith -- constant
+  | symbol : String -> Arith -- variable
 
 declare_syntax_cat arith
 
@@ -268,7 +268,6 @@ syntax "<[" term "]>" : arith -- escape for embedding terms into `Arith`
 macro_rules
   | `(Arith| <[ $e:term ]>) => e
   
-
 
 def x_plus_y_plus_z2 := (Arith| <[ x_plus_y ]>)
 #print x_plus_y_plus_z2

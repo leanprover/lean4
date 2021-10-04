@@ -90,7 +90,7 @@ private def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPCo
 
 private inductive EmbedFmt
   /- Tags denote `Info` objects. -/
-  | expr (ctx : Elab.ContextInfo) (lctx : LocalContext) (infos : Std.RBMap Nat Elab.Info compare)
+  | expr (ctx : Elab.ContextInfo) (infos : Std.RBMap Nat Elab.Info compare)
   | goal (ctx : Elab.ContextInfo) (lctx : LocalContext) (g : MVarId)
   /- Some messages (in particular, traces) are too costly to print eagerly. Instead, we allow
   the user to expand sub-traces interactively. -/
@@ -132,7 +132,7 @@ where
       openDecls := nCtx.openDecls
     }
     let (fmt, infos) ← ci.runMetaM ctx.lctx (formatInfos e)
-    let t ← pushEmbed <| EmbedFmt.expr ci ctx.lctx infos
+    let t ← pushEmbed <| EmbedFmt.expr ci infos
     return Format.tag t fmt
   | _,    none,      ofGoal mvarId            => pure $ "goal " ++ format (mkMVar mvarId)
   | nCtx, some ctx,  ofGoal mvarId            => withIgnoreTags <| ppGoal (mkPPContext nCtx ctx) mvarId
@@ -159,8 +159,8 @@ partial def msgToInteractive (msgData : MessageData) (indent : Nat := 0) : IO (T
   and store the pretty-printed embed (which can itself be a `TaggedText`) in the tag. -/
   tt.rewriteM fun (n, col) subTt =>
     match embeds.get! n with
-    | EmbedFmt.expr ctx lctx infos =>
-      let subTt' := tagExprInfos ctx lctx infos subTt
+    | EmbedFmt.expr ctx infos =>
+      let subTt' := tagExprInfos ctx infos subTt
       TaggedText.tag (MsgEmbed.expr subTt') (TaggedText.text subTt.stripTags)
     | EmbedFmt.goal ctx lctx g =>
       -- TODO(WN): use InteractiveGoal types here

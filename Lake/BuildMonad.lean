@@ -62,6 +62,12 @@ def io : BuildContext where
     logError := fun msg => IO.eprintln msg
   }
 
+def ioErr : BuildContext where
+  methodsRef := BuildMethodsRef.mk {
+    logInfo  := fun msg => IO.eprintln msg
+    logError := fun msg => IO.eprintln msg
+  }
+
 def methods (self : BuildContext) : BuildMethods :=
   self.methodsRef.get
 
@@ -78,11 +84,8 @@ def logInfo (msg : String) : BuildM PUnit := do
 def logError (msg : String) : BuildM PUnit := do
   (← getMethods).logError msg
 
-def runIn (ctx : BuildContext) (self : BuildM α) : IO α :=
-  self ctx
-
-def run' (self : BuildM α) : IO α :=
-  runIn BuildContext.io do try self catch e =>
+def convErrors (self : BuildM α) : BuildM α := do
+  try self catch e =>
     /-
       Remark: Actual error should have already been logged earlier.
       However, if the error was thrown by something that did not know it was
@@ -93,8 +96,17 @@ def run' (self : BuildM α) : IO α :=
     BuildM.logError s!"build error: {toString e}"
     throw <| IO.userError "build failed"
 
-def run (self : BuildM α) : IO PUnit :=
-  discard self.run'
+def runIn (ctx : BuildContext) (self : BuildM α) : IO α :=
+  self ctx
+
+def run (self : BuildM α) : IO α :=
+  (convErrors self).runIn BuildContext.io
+
+def runErr (self : BuildM α) : IO α :=
+  (convErrors self).runIn BuildContext.ioErr
+
+def run' (self : BuildM α) : IO PUnit :=
+  discard self.run
 
 end BuildM
 

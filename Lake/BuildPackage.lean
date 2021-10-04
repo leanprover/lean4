@@ -146,7 +146,7 @@ def Package.buildDeps (self : Package) : BuildM (Array Package) := do
   targets.mapM fun target => Functor.mapConst target.info.1 target.materialize
 
 def configure (pkg : Package) : IO Unit :=
-  pkg.buildDeps.run
+  pkg.buildDeps.run'
 
 def Package.build (self : Package) : BuildM PUnit := do
   let depTargets ← self.buildDepTargets
@@ -170,7 +170,7 @@ def Package.filterLocalImports (imports : List String) (self : Package) : Array 
   return localImports
 
 def printPaths (pkg : Package) (imports : List String := []) : IO Unit := do
-  let deps ← BuildM.run' do
+  let deps ← BuildM.runErr do
     -- resolve and build deps
     let depTargets ← pkg.buildDepTargets
     let depPkgs := depTargets.map (·.package) |>.foldl (flip List.cons) []

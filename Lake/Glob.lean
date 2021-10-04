@@ -21,6 +21,7 @@ inductive Glob
   submodules : Name → Glob
 | /-- Selects the specified module and all submodules. -/
   andSubmodules : Name → Glob
+deriving Inhabited, Repr
 
 instance : Coe Name Glob := ⟨Glob.one⟩
 

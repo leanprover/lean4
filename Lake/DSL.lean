@@ -11,7 +11,7 @@ open Lean Parser Command
 namespace Lake.DSL
 
 syntax structVal :=
-  "{" manyIndent(group(Term.structInstField optional(", "))) "}"
+  "{" manyIndent(group(Term.structInstField ", "?)) "}"
 
 syntax declValDo :=
   ppSpace Term.do (Term.whereDecls)?

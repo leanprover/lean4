@@ -35,6 +35,11 @@ protected def computeHash (self : OleanAndC) : IO Hash := do
 
 instance : ComputeHash OleanAndC := ⟨OleanAndC.computeHash⟩
 
+protected def checkExists (self : OleanAndC) : IO Bool := do
+  return (← checkExists self.oleanFile) && (← checkExists self.cFile)
+
+instance : CheckExists OleanAndC := ⟨OleanAndC.checkExists⟩
+
 end OleanAndC
 
 abbrev ActiveOleanAndCTarget := ActiveBuildTarget OleanAndC
@@ -53,24 +58,18 @@ end ActiveOleanAndCTarget
 
 -- # Trace Checking
 
-def checkModuleTrace [GetMTime i] (info : i)
+def checkModuleTrace [CheckExists i] (info : i)
 (leanFile hashFile : FilePath) (contents : String) (depTrace : BuildTrace)
 : IO (Bool × BuildTrace) := do
   let leanMTime ← getMTime leanFile
   let leanHash := Hash.compute contents
   let maxMTime := max leanMTime depTrace.mtime
   let fullHash := Hash.mix leanHash depTrace.hash
-  try
-    discard <| getMTime info -- check that both output files exist
-    if let some h ← Hash.fromFile hashFile then
-      if h == fullHash then return (true, BuildTrace.fromHash fullHash)
-  catch _ =>
-    pure ()
-  return (false, BuildTrace.mk fullHash maxMTime)
+  BuildTrace.mk fullHash maxMTime |>.check info hashFile
 
 -- # Module Builders
 
-def moduleTarget [GetMTime i] [ComputeHash i] (info : i)
+def moduleTarget [CheckExists i] [GetMTime i] [ComputeHash i] (info : i)
 (leanFile hashFile : FilePath) (contents : String) (depTarget : BuildTarget x)
 (build : BuildM PUnit) : BuildTarget i :=
   Target.mk info <| depTarget.mapOpaqueAsync fun depTrace => do

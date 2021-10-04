@@ -8,11 +8,24 @@ open System
 namespace Lake
 
 --------------------------------------------------------------------------------
+-- # Utilities
+--------------------------------------------------------------------------------
+
+/-- Check whether there already exists an artifact for the given target info. -/
+class CheckExists.{u} (i : Type u) where
+  checkExists : i → IO Bool
+
+export CheckExists (checkExists)
+
+instance : CheckExists FilePath where
+  checkExists := FilePath.pathExists
+
+--------------------------------------------------------------------------------
 -- # Trace Abstraction
 --------------------------------------------------------------------------------
 
 class ComputeTrace.{u,v,w} (i : Type u) (m : outParam $ Type v → Type w) (t : Type v) where
-  /-- Compute the trace of some info using information from the monadic context. -/
+  /--  Compute the trace of some target info using information from the monadic context. -/
   computeTrace : i → m t
 
 export ComputeTrace (computeTrace)
@@ -76,7 +89,7 @@ namespace Hash
 def ofNat (n : Nat) :=
   mk n.toUInt64
 
-def fromFile (hashFile : FilePath) : IO (Option Hash) := do
+def loadFromFile (hashFile : FilePath) : IO (Option Hash) := do
   (← IO.FS.readFile hashFile).toNat?.map Hash.ofNat
 
 def nil : Hash :=
@@ -166,8 +179,14 @@ namespace BuildTrace
 def withHash (hash : Hash) (self : BuildTrace) : BuildTrace :=
   {self with hash}
 
+def withouthHash (self : BuildTrace) : BuildTrace :=
+  {self with hash := Hash.nil}
+
 def withMTime (mtime : MTime) (self : BuildTrace) : BuildTrace :=
   {self with mtime}
+
+def withoutMTime (self : BuildTrace) : BuildTrace :=
+  {self with mtime := 0}
 
 def fromHash (hash : Hash) : BuildTrace :=
   mk hash 0
@@ -193,5 +212,21 @@ def mix (t1 t2 : BuildTrace) : BuildTrace :=
   mk (Hash.mix t1.hash t2.hash) (max t1.mtime t2.mtime)
 
 instance : MixTrace BuildTrace := ⟨mix⟩
+
+/--
+  Check the build trace against the given target info and hash
+  to see if the target is up-to-date.
+-/
+def check [CheckExists i]
+(info : i) (hashFile : FilePath) (self : BuildTrace)
+: IO (Bool × BuildTrace) := do
+  try
+    if (← checkExists info) then
+      if let some h ← Hash.loadFromFile hashFile then
+        if h == self.hash then
+          return (true, self.withoutMTime)
+  catch _ =>
+    pure ()
+  return (false, self)
 
 end BuildTrace

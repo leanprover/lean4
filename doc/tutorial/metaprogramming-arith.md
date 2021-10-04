@@ -16,8 +16,8 @@ Here's the AST that we will be parsing:
 
 ```lean,ignore
 -- example on parsing arith language via macros
-inductive Arith: Type where
- | add : Arith -> Arith -> Arith -- e + f
+inductive Arith : Type where
+  | add : Arith -> Arith -> Arith -- e + f
  | mul : Arith -> Arith -> Arith -- e * f
  | int : Int -> Arith -- constant
  | symbol : String -> Arith -- variable

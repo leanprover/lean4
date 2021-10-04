@@ -19,12 +19,12 @@ def oFileTarget
       trace
 
 def staticLibTarget
-(libFile : FilePath) (oFileTargets : Array FileTarget) : FileTarget :=
+(libFile : FilePath) (oFileTargets : Array FileTarget) (cmd := "ar") : FileTarget :=
   Target.mk libFile do
     let depTarget ← Target.collectArray oFileTargets
     depTarget.mapAsync fun oFiles trace => do
       unless (← checkIfNewer libFile trace.mtime) do
-        compileStaticLib libFile oFiles
+        compileStaticLib libFile oFiles cmd
       trace
 
 def binTarget

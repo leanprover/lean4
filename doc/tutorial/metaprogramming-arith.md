@@ -24,7 +24,7 @@ inductive Arith : Type where
 ```
 
 We declare a syntax category to describe the grammar that we will be parsing.
-See that we control the precedence of `:+` and `:*` by writing `syntax:50` for addition and `syntax:60` for multiplication,
+See that we control the precedence of `+` and `*` by writing `syntax:50` for addition and `syntax:60` for multiplication,
 indicating that multiplication binds tighter than addition (higher the number, tighter the binding).
 This allows us to declare _precedence_ when defining new syntax.
 

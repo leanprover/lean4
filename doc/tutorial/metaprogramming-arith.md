@@ -30,14 +30,54 @@ This allows us to declare _precedence_ when defining new syntax.
 
 ```lean,ignore
 declare_syntax_cat arith
-syntax term : arith -- int for Arith.int
-syntax str : arith -- strings for Arith.Symbol
-syntax:50  arith "+" arith : arith -- Arith.add
-syntax:60 arith "*" arith : arith -- Arith.mul
+syntax num : arith -- int for Arith.int
+syntax str : arith -- strings for Arith.symbol
+syntax:60  arith:60 "+" arith:61 : arith -- Arith.add
+syntax:70 arith:70 "*" arith:71 : arith -- Arith.mul
 syntax "(" arith ")" : arith -- bracketed expressions
 ```
 
-We define the macro `Arith|` to translate the syntax category `arith` into an `Arith` inductive value that lives in `term`:
+Further, if we look at `syntax:60  arith:60 "+" arith:61 : arith`, the
+precedence declarations at `arith:60 "+" arith:61` conveys that the left
+argument must have precedence at least `60` or greater, and the right argument
+must have precedence at least`61` or greater.  Note that this forces left
+associativity. To understand this, let's compare two hypothetical parses:
+
+```
+-- syntax:60  arith:60 "+" arith:61 : arith -- Arith.add
+-- a + b + c
+(a:60 + b:61):60 + c
+a + (b:60 + c:61):60
+```
+
+In the parse tree of `a + (b:60 + c:61):60`, we see that the right argument `(b + c)` is given the precedence `60`. However,
+the rule for addition expects the right argument to have a precedence of **at least** 61, as witnessed by the `arith:61` at
+the right-hand-side of `syntax:60 arith:60 "+" arith:61 : arith`. Thus, the rule `syntax:60  arith:60 "+" arith:61 : arith`
+ensures that addition is left associative.
+
+Since addition is declared arguments of precedence `60/61` and multiplication with `70/71`, this causes multiplication to bind
+tighter than addition. Once again, let's compare two hypothetical parses:
+
+```
+-- syntax:60  arith:60 "+" arith:61 : arith -- Arith.add
+-- syntax:70 arith:70 "*" arith:71 : arith -- Arith.mul
+-- a * b + c
+a * (b:60 + c:61):60
+(a:70 * b:71):70 + c
+```
+
+While parsing `a * (b + c)`, `(b + c)` is assigned a precedence `60` by the addition rule. However, multiplcation expects
+the right argument to have precedence **at least** 71. Thus, this parse is invalid. In contrast, `(a * b) + c` assigns
+a precedence of `70` to `(a * b)`. This is compatible with addition which expects the left argument to have precedence
+**at least `60` ** (`70` is greater than `60`). Thus, the string `a * b + c` is parsed as `(a * b) + c`.
+For more details, please look at the [Lean manual on syntax extensions](https://leanprover.github.io/lean4/doc/syntax.html#notations-and-precedence).
+
+
+
+
+To go from strings into `Arith`, We define the macro `Arith|` to
+translate the syntax category `arith` into an `Arith` inductive value that
+lives in `term`:
 
 
 ```

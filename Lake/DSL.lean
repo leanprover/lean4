@@ -10,16 +10,21 @@ import Lake.Attributes
 open Lean Parser Command
 namespace Lake.DSL
 
-syntax packageStruct :=
+syntax structVal :=
   "{" manyIndent(group(Term.structInstField optional(", "))) "}"
 
-syntax packageDeclValSpecial :=
-  (packageStruct <|> (ppSpace Term.do)) (Term.whereDecls)?
+syntax declValDo :=
+  ppSpace Term.do (Term.whereDecls)?
+
+syntax declValStruct :=
+  ppSpace structVal (Term.whereDecls)?
+
+-- # Packages
 
 syntax packageDeclWithBinders :=
   (ppSpace "(" Term.simpleBinder ")")? -- dir
   (ppSpace "(" Term.simpleBinder ")")? -- args
-  ppSpace (declValSimple <|> packageDeclValSpecial)
+  (declValSimple <|> declValStruct <|> declValDo)
 
 syntax packageDeclTyped :=
   Term.typeSpec declValSimple
@@ -28,7 +33,7 @@ syntax packageDeclSpec :=
   ident (Term.whereDecls <|> packageDeclTyped <|> packageDeclWithBinders)?
 
 scoped syntax (name := packageDecl)
-(docComment)? "package "  packageDeclSpec : command
+(docComment)? "package " packageDeclSpec : command
 
 def expandPackageBinders
 : (dir? : Option Syntax) → (args? : Option Syntax) → MacroM (Bool × Syntax × Syntax)
@@ -64,3 +69,21 @@ def expandPackageDecl : Macro
   `($[$doc?:docComment]? @[«package»] def $id : IOPackager :=
       (fun $dir $args => do $seq) $[$wds?]?)
 | stx => Macro.throwErrorAt stx "ill-formed package declaration"
+
+-- # Scripts
+
+syntax scriptDeclSpec :=
+  ident (ppSpace "(" Term.simpleBinder ")")? (declValSimple <|> declValDo)
+
+scoped syntax (name := scriptDecl)
+(docComment)? "script " scriptDeclSpec : command
+
+@[macro scriptDecl]
+def expandScriptDecl : Macro
+| `($[$doc?:docComment]? script $id:ident $[($args?)]? do $seq $[$wds?]?) => do
+  let args := args?.getD (← `(_))
+  `($[$doc?:docComment]? @[«script»] def $id : Script := fun $args => do $seq $[$wds?]?)
+| `($[$doc?:docComment]? script $id:ident $[($args?)]? := $defn $[$wds?]?) => do
+  let args := args?.getD (← `(_))
+  `($[$doc?:docComment]? @[«script»] def $id : Script := fun $args => $defn $[$wds?]?)
+| stx => Macro.throwErrorAt stx "ill-formed script declaration"

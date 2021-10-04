@@ -4,7 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lean
+
 open Lean
+namespace Lake
 
 initialize packageAttr : TagAttribute ←
   registerTagAttribute `package "Lake package attribute"
+
+initialize scriptAttr : TagAttribute ←
+  registerTagAttribute `script "Lake script attribute"

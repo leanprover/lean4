@@ -33,6 +33,12 @@ unsafe def evalPackageDecl (env : Environment) (declName : Name)
     s!"unexpected type at `{declName}`, " ++
       "`Lake.IOPackager`, `Lake.Packager`, or `Lake.PackageConfig` expected"
 
+/-- Evaluate a `script` declaration to its respective `Script`. -/
+unsafe def evalScriptDecl
+(env : Environment) (declName : Name) (leanOpts := Options.empty) : IO Script :=
+  IO.ofExcept <| Id.run <| ExceptT.run <|
+    env.evalConstCheck Script leanOpts ``Script declName
+
 namespace Package
 
 /-- Unsafe implementation of `load`. -/
@@ -48,7 +54,9 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
         s!"configuration file is missing a `package` declaration"
     | [pkgDeclName] =>
       let config ← evalPackageDecl env pkgDeclName dir args leanOpts
-      return Package.mk dir config
+      let scripts ← scriptAttr.ext.getState env |>.foldM (init := {})
+        fun m d => do m.insert d <| ← evalScriptDecl env d
+      return Package.mk dir config scripts
     | _ =>
       throw <| IO.userError
         s!"configuration file has multiple `package` declarations"

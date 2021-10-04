@@ -87,7 +87,6 @@ Lake provides a large assortment of configuration options for packages.
 ### General
 
 * `name` **(Required)**: The `Name` of the package.
-* `scripts`: A `HashMap` of scripts for the package. A `Script` is an arbitrary `(args : List String) → IO UInt32` function that is indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
 * `dependencies`: An `Array` of the package's dependencies.
 * `depsDir`: The directory to which Lake should download dependencies. Defaults to `lean_packages`.
 * `extraDepTarget`: An extra `OpaqueTarget` that should be built before the package.
@@ -109,3 +108,29 @@ Lake provides a large assortment of configuration options for packages.
 * `binRoot`: The root module of the package's binary executable. Defaults to `Main`. The root is built by recursively building its local imports (i.e., fellow modules of the package). This setting is most useful for packages that are distributing both a library and a binary (like Lake itself). In such cases, it is common for there to be code (e.g., `main`) that is needed for the binary but should not be included in the library proper.
 * `moreLibTargets`: Additional library `FileTarget`s (beyond the package's and its dependencies' libraries) to build and link to the package's binary executable (and/or to dependent package's executables).
 * `linkArgs`: Additional arguments to pass to `leanc` while compiling the package's binary executable. These will come *after* the paths of libraries built with `moreLibTargets`.
+
+## Scripts
+
+A configuration file can also contain a number of `scripts` declaration. A script is an arbitrary `(args : List String) → IO UInt32` definition that can be run by `lake run <script> [-- <args>]`. For example, given the following `lakefile.lean`:
+
+```lean
+import Lake
+open Lake DSL
+
+package scripts
+
+script greet (args) do
+  if h : 0 < args.length then
+    IO.println s!"Hello, {args.get 0 h}!"
+  else
+    IO.println "Hello, world!"
+  pure 0
+```
+
+The script `greet` can be run like so:
+```
+$ lake run greet
+Hello, world!
+$ lake run greet -- me
+Hello, me!
+```

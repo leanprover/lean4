@@ -3,7 +3,7 @@ LAKE ?= ../build/bin/lake
 all: check-lake test time-bootstrap check-bootstrap test-bootstrapped
 
 test: test-init test-hello test-io test-deps\
-	test-git test-ffi test-ffi-dep
+	test-git test-ffi test-ffi-dep test-scripts
 
 clean: clean-init clean-hello clean-io clean-deps\
 	clean-git clean-ffi clean-ffi-dep clean-bootstrap
@@ -52,6 +52,9 @@ test-ffi-dep:
 
 clean-ffi-dep:
 	cd ffi-dep && ./clean.sh
+
+test-scripts:
+	cd scripts && ./test.sh
 
 test-bootstrap:
 	cd bootstrap && ./test.sh

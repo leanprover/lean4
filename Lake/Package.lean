@@ -11,7 +11,7 @@ import Lake.BuildTarget
 import Lake.Glob
 
 open Std System
-open Lean (Name)
+open Lean (Name NameMap)
 
 namespace Lake
 
@@ -110,14 +110,6 @@ structure PackageConfig where
     The `Name` of the package.
   -/
   name : Name
-
-  /--
-    A `HashMap` of scripts for the package.
-
-    A `Script` is an arbitrary `(args : List String) → IO UInt32` function that
-    is indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
-  -/
-  scripts : HashMap String Script := HashMap.empty
 
   /-
     An `Array` of the package's dependencies.
@@ -263,6 +255,13 @@ structure Package where
   dir : FilePath
   /-- The package's configuration. -/
   config : PackageConfig
+  /--
+    A `NameMap` of scripts for the package.
+
+    A `Script` is a `(args : List String) → IO UInt32` definition with
+    a `@[script]` tag that can be run by `lake run <script> [-- <args>]`.
+  -/
+  scripts : NameMap Script := {}
   deriving Inhabited
 
 /--
@@ -282,10 +281,6 @@ namespace Package
 /-- The package's `name` configuration. -/
 def name (self : Package) : Name :=
   self.config.name
-
-/-- The package's `scripts` configuration. -/
-def scripts (self : Package) : HashMap String Script :=
-  self.config.scripts
 
 /-- The package's `dependencies` configuration. -/
 def dependencies (self : Package) : Array Dependency :=

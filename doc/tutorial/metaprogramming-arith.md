@@ -70,7 +70,7 @@ While parsing `a * (b + c)`, `(b + c)` is assigned a precedence `60` by the addi
 the right argument to have precedence **at least** 71. Thus, this parse is invalid. In contrast, `(a * b) + c` assigns
 a precedence of `70` to `(a * b)`. This is compatible with addition which expects the left argument to have precedence
 **at least `60` ** (`70` is greater than `60`). Thus, the string `a * b + c` is parsed as `(a * b) + c`.
-For more details, please look at the [Lean manual on syntax extensions](https://leanprover.github.io/lean4/doc/syntax.html#notations-and-precedence).
+For more details, please look at the [Lean manual on syntax extensions](../syntax.md#notations-and-precedence).
 
 
 

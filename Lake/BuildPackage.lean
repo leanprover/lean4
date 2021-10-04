@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lean.Data.Name
+import Lean.Data.Json
 import Lean.Elab.Import
 import Lake.Target
 import Lake.BuildModule
@@ -182,5 +183,7 @@ def printPaths (pkg : Package) (imports : List String := []) : IO Unit := do
       let oleanTargets ← pkg.buildModuleOleanTargets localImports moreOleanDirs depTarget
       oleanTargets.forM (discard ·.materialize)
     pure depPkgs
-  IO.println <| SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)
-  IO.println <| SearchPath.toString <| pkg.srcDir :: deps.map (·.srcDir)
+  IO.println <| Json.compress <| Json.mkObj [
+    ("LEAN_PATH", SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)),
+    ("LEAN_SRC_PATH", SearchPath.toString <| pkg.srcDir :: deps.map (·.srcDir))
+  ]

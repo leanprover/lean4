@@ -87,7 +87,6 @@ private partial def hasLiftMethod : Syntax → Bool
 structure ExtractMonadResult where
   m            : Expr
   α            : Expr
-  hasBindInst  : Expr
   expectedType : Expr
   isPure       : Bool -- `true` when it is a pure `do` block. That is, Lean implicitly inserted the `Id` Monad.
 
@@ -95,11 +94,18 @@ private def mkIdBindFor (type : Expr) : TermElabM ExtractMonadResult := do
   let u ← getDecLevel type
   let id        := Lean.mkConst ``Id [u]
   let idBindVal := Lean.mkConst ``Id.hasBind [u]
-  pure { m := id, hasBindInst := idBindVal, α := type, expectedType := mkApp id type, isPure := true }
+  pure { m := id,  α := type, expectedType := mkApp id type, isPure := true }
+
+def mkUnknownExtractMonadResult : MetaM ExtractMonadResult := do
+   let m_unknown ← mkFreshExprMVar Option.none
+   let α_unknown ← mkFreshExprMVar Option.none
+   let ty_unk ← mkFreshExprMVar Option.none
+   return { m := m_unknown, α := α_unknown, expectedType := ty_unk, isPure := true }
+
 
 private partial def extractBind (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do
   match expectedType? with
-  | none => throwError "invalid 'do' notation, expected type is not available"
+  | none => mkUnknownExtractMonadResult 
   | some expectedType =>
     let extractStep? (type : Expr) : MetaM (Option ExtractMonadResult) := do
       match type with
@@ -107,7 +113,7 @@ private partial def extractBind (expectedType? : Option Expr) : TermElabM Extrac
         try
           let bindInstType ← mkAppM ``Bind #[m]
           let bindInstVal  ← Meta.synthInstance bindInstType
-          return some { m := m, hasBindInst := bindInstVal, α := α, expectedType := expectedType, isPure := false }
+          return some { m := m, α := α, expectedType := expectedType, isPure := false }
         catch _ =>
           return none
       | _ =>
@@ -120,7 +126,9 @@ private partial def extractBind (expectedType? : Option Expr) : TermElabM Extrac
         if typeNew != type then
           extract? typeNew
         else
-          if typeNew.getAppFn.isMVar then throwError "invalid 'do' notation, expected type is not available"
+          if typeNew.getAppFn.isMVar then do 
+             let unk ← mkUnknownExtractMonadResult 
+             return (Option.some unk)
           match (← unfoldDefinition? typeNew) with
           | some typeNew => extract? typeNew
           | none => return none

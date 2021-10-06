@@ -175,7 +175,7 @@ Arith.add (Arith.symbol "x") (Arith.symbol "y")
 ```
 
 We now show an unfortunate consequence of the above definitions. Suppose we want to build `(x + y) + z)`.
-Since we already have defined `x_plus_y` as `x := y`, perhaps we should reuse it! Let's try:
+Since we already have defined `x_plus_y` as `x + y`, perhaps we should reuse it! Let's try:
 
 ```lean,ignore
 def x_plus_y_plus_z := [Arith| x_plus_y + z]

@@ -130,16 +130,36 @@ def execIO (x : IO α) : CliM UInt32 := do
   try Functor.mapConst 0 x catch e => error (toString e)
 
 /--
+  Get the install configuration of Lean and Lake.
+  Error if either could not be detected.
+-/
+def getInstall : CliM (LeanInstall × LakeInstall) := do
+  if let some leanInstall ← getLeanInstall? then
+    if let some lakeInstall ← getLakeInstall? then
+      return (leanInstall, lakeInstall)
+    else
+      throw <| IO.userError <|
+        "could not detect the configuration of the Lake installation"
+  else
+    throw <| IO.userError <| "could not detect a Lean installation"
+
+/--
   Perform the given build action and then return code 0.
   If it throws an error, invoke `error` with the the error's message.
 -/
 def execBuild (x : BuildM α) : CliM UInt32 := do
-  execIO <| x.runIn {
-    methodsRef := BuildMethodsRef.mk {
-      logInfo  := fun msg => IO.println msg
-      logError := fun msg => IO.eprintln msg
-    }
-  }
+  try
+    let (leanInstall, lakeInstall) ← getInstall
+    execIO do
+      x.runIn {
+        leanInstall, lakeInstall
+        methodsRef := BuildMethodsRef.mk {
+          logInfo  := fun msg => IO.println msg
+          logError := fun msg => IO.eprintln msg
+        }
+      }
+  catch e =>
+    error (toString e)
 
 /-- Run the given script from the given package with the given arguments. -/
 def script (pkg : Package) (name : String) (args : List String) :  CliM UInt32 := do
@@ -176,17 +196,22 @@ def verifyInstall : CliM UInt32 := do
   verifyLeanVersion
 
 def printPaths (pkg : Package) (imports : List String := []) : CliM UInt32 :=
-  execIO do
-    let deps ← pkg.buildImportsAndDeps imports |>.runIn {
-      methodsRef := BuildMethodsRef.mk {
-        logInfo  := fun msg => IO.eprintln msg
-        logError := fun msg => IO.eprintln msg
+   try
+    let (leanInstall, lakeInstall) ← getInstall
+    execIO do
+      let deps ← pkg.buildImportsAndDeps imports |>.runIn {
+        leanInstall, lakeInstall
+        methodsRef := BuildMethodsRef.mk {
+          logInfo  := fun msg => IO.eprintln msg
+          logError := fun msg => IO.eprintln msg
+        }
       }
-    }
-    IO.println <| Json.compress <| Json.mkObj [
-      ("LEAN_PATH", SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)),
-      ("LEAN_SRC_PATH", SearchPath.toString <| pkg.srcDir :: deps.map (·.srcDir))
-    ]
+      IO.println <| Json.compress <| Json.mkObj [
+        ("LEAN_PATH", SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)),
+        ("LEAN_SRC_PATH", SearchPath.toString <| pkg.srcDir :: deps.map (·.srcDir))
+      ]
+  catch e =>
+    error (toString e)
 
 def command : (cmd : String) → CliM UInt32
 | "new"         => do noArgsRem <| execIO <| new (← takeArg)

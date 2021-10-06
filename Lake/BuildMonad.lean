@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Task
+import Lake.InstallPath
 
 open System
 namespace Lake
@@ -19,6 +20,8 @@ constant BuildMethodsRefPointed : PointedType.{0}
 def BuildMethodsRef : Type := BuildMethodsRefPointed.type
 
 structure BuildContext where
+  leanInstall : LeanInstall
+  lakeInstall : LakeInstall
   methodsRef : BuildMethodsRef
 
 abbrev BuildM := ReaderT BuildContext IO
@@ -64,13 +67,28 @@ end BuildContext
 namespace BuildM
 
 def getMethods : BuildM BuildMethods :=
-  read >>= (·.methods)
+  BuildContext.methods <$> read
 
 def logInfo (msg : String) : BuildM PUnit := do
   (← getMethods).logInfo msg
 
 def logError (msg : String) : BuildM PUnit := do
   (← getMethods).logError msg
+
+def getLeanInstall : BuildM LeanInstall :=
+  BuildContext.leanInstall <$> read
+
+def getLeanIncludeDir : BuildM FilePath :=
+  LeanInstall.includeDir <$> getLeanInstall
+
+def getLeanc : BuildM FilePath :=
+  LeanInstall.leanc  <$> getLeanInstall
+
+def getLean : BuildM FilePath :=
+  LeanInstall.lean  <$> getLeanInstall
+
+def getLakeInstall : BuildM LakeInstall :=
+  BuildContext.lakeInstall <$> read
 
 def convErrors (self : BuildM α) : BuildM α := do
   try self catch e =>
@@ -88,6 +106,8 @@ def runIn (ctx : BuildContext) (self : BuildM α) : IO α :=
   (convErrors self) ctx
 
 end BuildM
+
+export BuildM (getLeanInstall getLeanIncludeDir getLean getLeanc getLakeInstall)
 
 def failOnBuildCycle [ToString k] : Except (List k) α → BuildM α
 | Except.ok a => a

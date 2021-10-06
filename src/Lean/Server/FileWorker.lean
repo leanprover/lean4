@@ -117,31 +117,31 @@ abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
 /- Worker initialization sequence. -/
 section Initialization
-  /-- Use `leanpkg print-paths` to compile dependencies on the fly and add them to `LEAN_PATH`.
+  /-- Use `lake print-paths` to compile dependencies on the fly and add them to `LEAN_PATH`.
   Compilation progress is reported to `hOut` via LSP notifications. Return the search path for
   source files. -/
-  partial def leanpkgSetupSearchPath (leanpkgPath : System.FilePath) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO SearchPath := do
-    let leanpkgProc ← Process.spawn {
+  partial def lakeSetupSearchPath (lakePath : System.FilePath) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO SearchPath := do
+    let lakeProc ← Process.spawn {
       stdin  := Process.Stdio.null
       stdout := Process.Stdio.piped
       stderr := Process.Stdio.piped
-      cmd    := leanpkgPath.toString
+      cmd    := lakePath.toString
       args   := #["print-paths"] ++ imports.map (toString ·.module)
     }
     -- progress notification: report latest stderr line
     let rec processStderr (acc : String) : IO String := do
-      let line ← leanpkgProc.stderr.getLine
+      let line ← lakeProc.stderr.getLine
       if line == "" then
         return acc
       else
         publishDiagnostics m #[{ range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩, severity? := DiagnosticSeverity.information, message := line }] hOut
         processStderr (acc ++ line)
     let stderr ← IO.asTask (processStderr "") Task.Priority.dedicated
-    let stdout := String.trim (← leanpkgProc.stdout.readToEnd)
+    let stdout := String.trim (← lakeProc.stdout.readToEnd)
     let stderr ← IO.ofExcept stderr.get
-    if (← leanpkgProc.wait) == 0 then
+    if (← lakeProc.wait) == 0 then
       if stdout.isEmpty then
-        pure []  -- e.g. no leanpkg.toml
+        pure []  -- e.g. no lakefile.lean
       else
         -- ignore any output up to the last line
         -- TODO: leanpkg should instead redirect nested stdout output to stderr
@@ -155,25 +155,29 @@ section Initialization
         searchPathRef.set sp
         paths.srcPath.mapM realPathNormalized
     else
-      throwServerError s!"`leanpkg print-paths` failed:\n{stdout}\nstderr:\n{stderr}"
+      throwServerError s!"`{lakePath} print-paths` failed:\n{stdout}\nstderr:\n{stderr}"
 
   def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) : IO (Snapshot × SearchPath) := do
     let inputCtx := Parser.mkInputContext m.text.source "<input>"
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
-    let leanpkgPath ← match (← IO.getEnv "LEAN_SYSROOT") with
-      | some path => pure <| System.FilePath.mk path / "bin" / "leanpkg"
-      | _         => pure <| (← appDir) / "leanpkg"
-    let leanpkgPath := leanpkgPath.withExtension System.FilePath.exeExtension
+    let lakePath :=
+      -- backward compatibility, kill when `leanpkg` is removed
+      if (← System.FilePath.pathExists "leanpkg.toml") && !(← System.FilePath.pathExists "lakefile.lean") then "leanpkg"
+      else "lake"
+    let lakePath ← match (← IO.getEnv "LEAN_SYSROOT") with
+      | some path => pure <| System.FilePath.mk path / "bin" / lakePath
+      | _         => pure <| (← appDir) / lakePath
+    let lakePath := lakePath.withExtension System.FilePath.exeExtension
     let mut srcSearchPath := [(← appDir) / ".." / "lib" / "lean" / "src"]
     if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
       srcSearchPath := srcSearchPath ++ System.SearchPath.parse p
     let (headerEnv, msgLog) ← try
-      -- NOTE: leanpkg does not exist in stage 0 (yet?)
-      if (← System.FilePath.pathExists leanpkgPath) then
-        let pkgSearchPath ← leanpkgSetupSearchPath leanpkgPath m (Lean.Elab.headerToImports headerStx).toArray hOut
+      -- NOTE: lake does not exist in stage 0 (yet?)
+      if (← System.FilePath.pathExists lakePath) then
+        let pkgSearchPath ← lakeSetupSearchPath lakePath m (Lean.Elab.headerToImports headerStx).toArray hOut
         srcSearchPath := srcSearchPath ++ pkgSearchPath
       Elab.processHeader headerStx opts msgLog inputCtx
-    catch e =>  -- should be from `leanpkg print-paths`
+    catch e =>  -- should be from `lake print-paths`
       let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
       pure (← mkEmptyEnvironment, msgs)
     let cmdState := Elab.Command.mkState headerEnv msgLog opts

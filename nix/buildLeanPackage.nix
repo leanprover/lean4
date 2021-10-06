@@ -185,15 +185,15 @@ in rec {
     srcRoot = fullSrc;  # use root flake.nix in case of Lean repo
     inherit bash nix srcTarget srcArgs;
   };
-  leanpkg-dev = substituteAll {
-    name = "leanpkg";
+  lake-dev = substituteAll {
+    name = "lake";
     dir = "bin";
-    src = ./leanpkg-dev.in;
+    src = ./lake-dev.in;
     isExecutable = true;
     srcRoot = fullSrc;  # use root flake.nix in case of Lean repo
     inherit bash nix srcTarget srcArgs;
   };
-  lean-dev = symlinkJoin { name = "lean-dev"; paths = [ lean-bin-dev leanpkg-dev ]; };
+  lean-dev = symlinkJoin { name = "lean-dev"; paths = [ lean-bin-dev lake-dev ]; };
   emacs-dev = makeEmacsWrapper "emacs-dev" lean-dev;
   vscode-dev = makeVSCodeWrapper "vscode-dev" lean-dev;
 })

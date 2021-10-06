@@ -98,12 +98,7 @@ macro_rules
 And some examples:
 
 ```lean,ignore
-def foo := [Arith| "x" * "y" ] -- mul
-#print foo
-/-
-def foo : Arith :=
-Arith.mul (Arith.symbol "x") (Arith.symbol "y")
--/
+#check [Arith| "x" * "y"] -- Arith.mul (Arith.symbol "x") (Arith.symbol "y") : Arith
 
 def bar := [Arith| "x" + "y"] -- add
 #print bar

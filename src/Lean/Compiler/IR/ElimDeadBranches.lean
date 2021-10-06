@@ -15,7 +15,24 @@ inductive Value where
   | top -- any value
   | ctor (i : CtorInfo) (vs : Array Value)
   | choice (vs : List Value)
-  deriving Inhabited
+  deriving Inhabited, Repr
+
+protected partial def Value.toFormat : Value → Format
+  | Value.bot => "⊥"
+  | Value.top => "⊤"
+  | Value.ctor info vs =>
+    if vs.isEmpty then
+      format info.name
+    else
+      Format.paren <| format info.name ++ Std.Format.join (vs.toList.map fun v => " " ++ Value.toFormat v)
+  | Value.choice vs =>
+    Format.paren <| Std.Format.joinSep (vs.map Value.toFormat) " | "
+
+instance : ToFormat Value where
+  format := Value.toFormat
+
+instance : ToString Value where
+  toString v := toString (format v)
 
 namespace Value
 
@@ -38,7 +55,8 @@ partial def addChoice (merge : Value → Value → Value) : List Value → Value
     else v₁ :: addChoice merge cs v₂
   | _, _ => panic! "invalid addChoice"
 
-partial def merge : Value → Value → Value
+partial def merge (v₁ v₂ : Value) : Value :=
+  match v₁, v₂ with
   | bot, v => v
   | v, bot => v
   | top, _ => top
@@ -59,29 +77,46 @@ protected partial def format : Value → Format
 instance : ToFormat Value := ⟨Value.format⟩
 instance : ToString Value := ⟨Format.pretty ∘ Value.format⟩
 
-/- Make sure constructors of recursive inductive datatypes can only occur once in each path.
-   We use this function this function to implement a simple widening operation for our abstract
-   interpreter. -/
-partial def truncate (env : Environment) : Value → NameSet → Value
-  | ctor i vs, found =>
-    let I := i.name.getPrefix
-    if found.contains I then
-      top
-    else
-      let cont (found' : NameSet) : Value :=
-        ctor i (vs.map fun v => truncate env v found')
-      match env.find? I with
-      | some (ConstantInfo.inductInfo d) =>
-        if d.isRec then cont (found.insert I)
-        else cont found
-      | _ => cont found
-  | choice vs, found =>
-    let newVs := vs.map fun v => truncate env v found
-    if newVs.elem top then top
-    else choice newVs
-  | v, _ => v
+/--
+  In `truncate`, we approximate a value as `top` if depth > `truncateMaxDepth`.
+  TODO: add option to control this parameter.
+-/
+def truncateMaxDepth := 8
 
-/- Widening operator that guarantees termination in our abstract interpreter. -/
+/--
+  Make sure constructors of recursive inductive datatypes can only occur once in each path.
+  Values at depth > truncateMaxDepth are also approximated at `top`.
+  We use this function this function to implement a simple widening operation for our abstract
+  interpreter.
+  Recall the widening functions is used to ensure termination in abstract interpreters.
+-/
+partial def truncate (env : Environment) (v : Value) (s : NameSet) : Value :=
+  go v s truncateMaxDepth
+where
+  go (v : Value) (s : NameSet) (depth : Nat) : Value :=
+    match depth with
+    | 0 => top
+    | depth+1 =>
+      match v, s with
+      | ctor i vs, found =>
+        let I := i.name.getPrefix
+        if found.contains I then
+          top
+        else
+          let cont (found' : NameSet) : Value :=
+            ctor i (vs.map fun v => go v found' depth)
+          match env.find? I with
+          | some (ConstantInfo.inductInfo d) =>
+            if d.isRec then cont (found.insert I)
+            else cont found
+          | _ => cont found
+      | choice vs, found =>
+        let newVs := vs.map fun v => go v found depth
+        if newVs.elem top then top
+        else choice newVs
+      | v, _ => v
+
+/-- Widening operator that guarantees termination in our abstract interpreter. -/
 def widening (env : Environment) (v₁ v₂ : Value) : Value :=
   truncate env (merge v₁ v₂) {}
 

@@ -176,6 +176,7 @@ structure CtorInfo where
   size : Nat
   usize : Nat
   ssize : Nat
+  deriving Repr
 
 def CtorInfo.beq : CtorInfo → CtorInfo → Bool
   | ⟨n₁, cidx₁, size₁, usize₁, ssize₁⟩, ⟨n₂, cidx₂, size₂, usize₂, ssize₂⟩ =>

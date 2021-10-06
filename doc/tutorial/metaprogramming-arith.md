@@ -174,7 +174,7 @@ Arith.add (Arith.symbol "x") (Arith.symbol "y")
 -/
 ```
 
-We now show an unfortunate consequence of the above definitions. Suppose we want to build `(x :+ y) :+ z)`.
+We now show an unfortunate consequence of the above definitions. Suppose we want to build `(x + y) + z)`.
 Since we already have defined `x_plus_y` as `x := y`, perhaps we should reuse it! Let's try:
 
 ```lean,ignore

@@ -122,7 +122,7 @@ jobs:
               echo "LEAN_VERSION_STRING=$LEAN_VERSION_STRING" >> $GITHUB_ENV
             fi
           fi
-          cmake .. ${{ matrix.CMAKE_OPTIONS }} "${OPTIONS[@]}"
+          cmake .. ${{ matrix.CMAKE_OPTIONS }} "${OPTIONS[@]-}"
           make -j4
       # de-Nix-ify binaries
       - name: Patch

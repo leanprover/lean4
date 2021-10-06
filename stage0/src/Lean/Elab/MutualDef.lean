@@ -28,7 +28,6 @@ structure DefViewElabHeader where
   deriving Inhabited
 
 namespace Term
-
 open Meta
 
 private def checkModifiers (m₁ m₂ : Modifiers) : TermElabM Unit := do
@@ -685,7 +684,7 @@ def processDefDeriving (className : Name) (declName : Name) : TermElabM Bool := 
   catch ex =>
     return false
 
-def elabMutualDef (vars : Array Expr) (views : Array DefView) (terminationBy? : Option Syntax) : TermElabM Unit :=
+def elabMutualDef (vars : Array Expr) (views : Array DefView) (hints : TerminationHints) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv go
   else
@@ -709,7 +708,7 @@ where
         let preDefs ← levelMVarToParamPreDecls preDefs
         let preDefs ← instantiateMVarsAtPreDecls preDefs
         let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
-        addPreDefinitions preDefs terminationBy?
+        addPreDefinitions preDefs hints
         processDeriving headers
 
   processDeriving (headers : Array DefViewElabHeader) := do
@@ -724,13 +723,13 @@ where
 end Term
 namespace Command
 
-def elabMutualDef (ds : Array Syntax) (terminationBy? : Option Syntax) : CommandElabM Unit := do
+def elabMutualDef (ds : Array Syntax) (hints : TerminationHints) : CommandElabM Unit := do
   let views ← ds.mapM fun d => do
     let modifiers ← elabModifiers d[0]
     if ds.size > 1 && modifiers.isNonrec then
       throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
     mkDefView modifiers d[1]
-  runTermElabM none fun vars => Term.elabMutualDef vars views terminationBy?
+  runTermElabM none fun vars => Term.elabMutualDef vars views hints
 
 end Command
 end Lean.Elab

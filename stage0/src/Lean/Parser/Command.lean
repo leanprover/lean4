@@ -20,16 +20,20 @@ namespace Parser
 
 namespace Command
 
--- A mutual block may be broken in different cliques, we identify them using an `ident` (an element of the clique)
-def terminationByMany   := leading_parser atomic (lookahead (ident >> " => ")) >> many1Indent (group (ppLine >> ident >> " => " >> termParser >> optional ";"))
--- Simpler syntax for mutual blocks containing single clique that requires well-founded recursion.
-def terminationBy1 := leading_parser termParser
+/--
+  A mutual block may be broken in different cliques, we identify them using an `ident` (an element of the clique)
+  We provide two kinds of hints to the termination checker:
+  1- A wellfounded relation (`p` is `termParser`)
+  2- A tactic for proving the recursive applications are "decreasing" (`p` is `tacticSeq`)
+-/
+def terminationHintMany (p : Parser) := leading_parser atomic (lookahead (ident >> " => ")) >> many1Indent (group (ppLine >> ident >> " => " >> p >> optional ";"))
+def terminationHint1 (p : Parser) := leading_parser p
+def terminationHint (p : Parser) := terminationHintMany p <|> terminationHint1 p
 
-def terminationBy := leading_parser "termination_by " >> (terminationByMany <|> terminationBy1)
+def terminationBy := leading_parser "termination_by " >> terminationHint termParser
+def decreasingBy := leading_parser "decreasing_by " >> terminationHint Tactic.tacticSeq
 
-def decreasingTactic := leading_parser "decreasing_tactic " >> Tactic.tacticSeq
-
-def terminationSuffix := optional terminationBy >> optional decreasingTactic
+def terminationSuffix := optional terminationBy >> optional decreasingBy
 
 @[builtinCommandParser]
 def moduleDoc := leading_parser ppDedent $ "/-!" >> commentBody >> ppLine

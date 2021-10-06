@@ -18,7 +18,6 @@ open Server
 -- They will be gone eventually.
 structure InfoWithCtx where
   ctx : Elab.ContextInfo
-  lctx : LocalContext
   info : Elab.Info
   deriving Inhabited, RpcEncoding with { withRef := true }
 
@@ -95,7 +94,7 @@ def formatExplicitInfos (e : Expr) : MetaM (Format × Std.RBMap Nat Elab.Info co
   formatWithOpts e optsPerPos
 
 /-- Tags a pretty-printed `Expr` with infos from the delaborator. -/
-partial def tagExprInfos (ctx : Elab.ContextInfo) (lctx : LocalContext) (infos : Std.RBMap Nat Elab.Info compare) (tt : TaggedText (Nat × Nat))
+partial def tagExprInfos (ctx : Elab.ContextInfo) (infos : Std.RBMap Nat Elab.Info compare) (tt : TaggedText (Nat × Nat))
     : CodeWithInfos :=
   go tt
 where
@@ -103,7 +102,7 @@ where
     tt.rewrite fun (n, _) subTt =>
       match infos.find? n with
       | none   => go subTt
-      | some i => TaggedText.tag ⟨WithRpcRef.mk { ctx, lctx, info := i }⟩ (go subTt)
+      | some i => TaggedText.tag ⟨WithRpcRef.mk { ctx, info := i }⟩ (go subTt)
 
 def exprToInteractive (e : Expr) : MetaM CodeWithInfos := do
   let (fmt, infos) ← formatInfos e
@@ -116,7 +115,7 @@ def exprToInteractive (e : Expr) : MetaM CodeWithInfos := do
     openDecls := ← getOpenDecls
     fileMap := arbitrary
   }
-  tagExprInfos ctx (← getLCtx) infos tt
+  tagExprInfos ctx infos tt
 
 def exprToInteractiveExplicit (e : Expr) : MetaM CodeWithInfos := do
   let (fmt, infos) ← formatExplicitInfos e
@@ -129,6 +128,6 @@ def exprToInteractiveExplicit (e : Expr) : MetaM CodeWithInfos := do
     openDecls := ← getOpenDecls
     fileMap := arbitrary
   }
-  tagExprInfos ctx (← getLCtx) infos tt
+  tagExprInfos ctx infos tt
 
 end Lean.Widget

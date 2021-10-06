@@ -40,7 +40,7 @@ builtin_initialize
     (WithRpcRef InfoWithCtx)
     InfoPopup
     fun ⟨i⟩ => RequestM.asTask do
-      i.ctx.runMetaM i.lctx do
+      i.ctx.runMetaM i.info.lctx do
         let type? ← match (← i.info.type?) with
           | some type => some <$> exprToInteractive type
           | none => none

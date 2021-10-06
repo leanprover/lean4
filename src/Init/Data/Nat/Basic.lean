@@ -47,6 +47,9 @@ namespace Nat
 @[simp] theorem add_eq : Nat.add x y = x + y :=
   rfl
 
+@[simp] theorem lt_eq : Nat.lt x y = (x < y) :=
+  rfl
+
 @[simp] protected theorem zero_add : ∀ (n : Nat), 0 + n = n
   | 0   => rfl
   | n+1 => congrArg succ (Nat.zero_add n)

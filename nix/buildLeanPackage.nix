@@ -133,8 +133,7 @@ with builtins; let
     PATH=${lean}/bin:$PATH ${lean-vscode}/bin/code "$@"
   '';
   printPaths = deps: writeShellScriptBin "print-paths" ''
-    echo "${depRoot "print-paths" deps}"
-    echo ".:${lib.concatStringsSep ":" (map (dep: dep.src) (attrValues allExternalDeps))}"
+    echo '${toJSON { oleanPath = [(depRoot "print-paths" deps)]; srcPath = ["."] ++ map (dep: dep.src) (attrValues allExternalDeps); }}'
   '';
   makePrintPathsFor = deps: mods: printPaths deps // mapAttrs (_: mod: makePrintPathsFor (deps ++ [mod]) mods) mods;
   mods      = buildModAndDeps name {};

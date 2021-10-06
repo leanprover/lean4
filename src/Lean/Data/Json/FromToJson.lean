@@ -37,6 +37,9 @@ instance : ToJson Int := ⟨fun n => Json.num n⟩
 instance : FromJson String := ⟨Json.getStr?⟩
 instance : ToJson String := ⟨fun s => s⟩
 
+instance : FromJson System.FilePath := ⟨fun j => System.FilePath.mk <$> Json.getStr? j⟩
+instance : ToJson System.FilePath := ⟨fun p => p.toString⟩
+
 instance [FromJson α] : FromJson (Array α) where
   fromJson?
     | Json.arr a => a.mapM fromJson?
@@ -44,6 +47,12 @@ instance [FromJson α] : FromJson (Array α) where
 
 instance [ToJson α] : ToJson (Array α) :=
   ⟨fun a => Json.arr (a.map toJson)⟩
+
+instance [FromJson α] : FromJson (List α) where
+  fromJson? j := (fromJson? j (α := Array α)).map Array.toList
+
+instance [ToJson α] : ToJson (List α) where
+  toJson xs := toJson xs.toArray
 
 instance [FromJson α] : FromJson (Option α) where
   fromJson?

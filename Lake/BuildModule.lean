@@ -86,15 +86,15 @@ def moduleOleanAndCTarget
 (leanFile cFile oleanFile hashFile : FilePath)
 (oleanDirs : List FilePath) (contents : String)  (depTarget : BuildTarget x)
 (rootDir : FilePath := ".") (leanArgs : Array String := #[]) :=
-  moduleTarget (OleanAndC.mk oleanFile cFile) leanFile hashFile contents depTarget <|
-    compileOleanAndC leanFile oleanFile cFile oleanDirs rootDir leanArgs
+  moduleTarget (OleanAndC.mk oleanFile cFile) leanFile hashFile contents depTarget do
+    compileOleanAndC leanFile oleanFile cFile oleanDirs rootDir leanArgs (← getLean)
 
 def moduleOleanTarget
 (leanFile oleanFile hashFile : FilePath)
 (oleanDirs : List FilePath) (contents : String) (depTarget : BuildTarget x)
 (rootDir : FilePath := ".") (leanArgs : Array String := #[]) :=
-  moduleTarget oleanFile leanFile hashFile contents depTarget <|
-    compileOlean leanFile oleanFile oleanDirs rootDir leanArgs
+  moduleTarget oleanFile leanFile hashFile contents depTarget do
+    compileOlean leanFile oleanFile oleanDirs rootDir leanArgs (← getLean)
 
 protected def Package.moduleOleanAndCTarget
 (self : Package) (moreOleanDirs : List FilePath) (mod : Name)

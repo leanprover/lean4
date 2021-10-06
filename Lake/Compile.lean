@@ -28,11 +28,11 @@ def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
 
 def compileOlean (leanFile oleanFile : FilePath)
 (oleanDirs : List FilePath := [])  (rootDir : FilePath := ".")
-(leanArgs : Array String := #[]) (lean := "lean")
+(leanArgs : Array String := #[]) (lean : FilePath := "lean")
 : BuildM PUnit := do
   createParentDirs oleanFile
   proc {
-    cmd := lean
+    cmd := lean.toString
     args := leanArgs ++ #[
       "-R", rootDir.toString, "-o", oleanFile.toString, leanFile.toString
     ]
@@ -41,12 +41,12 @@ def compileOlean (leanFile oleanFile : FilePath)
 
 def compileOleanAndC (leanFile oleanFile cFile : FilePath)
 (oleanDirs : List FilePath := []) (rootDir : FilePath := ".")
-(leanArgs : Array String := #[]) (lean := "lean")
+(leanArgs : Array String := #[]) (lean : FilePath := "lean")
 : BuildM PUnit := do
   createParentDirs cFile
   createParentDirs oleanFile
   proc {
-    cmd := lean
+    cmd := lean.toString
     args := leanArgs ++ #[
       "-R", rootDir.toString, "-o", oleanFile.toString, "-c",
       cFile.toString, leanFile.toString
@@ -55,25 +55,25 @@ def compileOleanAndC (leanFile oleanFile cFile : FilePath)
   }
 
 def compileO (oFile srcFile : FilePath)
-(moreArgs : Array String := #[]) (cmd := "cc") : BuildM PUnit := do
+(moreArgs : Array String := #[]) (compiler : FilePath := "cc") : BuildM PUnit := do
   createParentDirs oFile
   proc {
-    cmd
+    cmd := compiler.toString
     args := #["-c", "-o", oFile.toString, srcFile.toString] ++ moreArgs
   }
 
-def compileStaticLib
-(libFile : FilePath) (oFiles : Array FilePath) (cmd := "ar") : BuildM PUnit := do
+def compileStaticLib (libFile : FilePath)
+(oFiles : Array FilePath) (ar : FilePath := "ar") : BuildM PUnit := do
   createParentDirs libFile
   proc {
-    cmd
+    cmd := ar.toString
     args := #["rcs", libFile.toString] ++ oFiles.map toString
   }
 
-def compileBin (binFile : FilePath)
-(linkFiles : Array FilePath) (linkArgs : Array String := #[]) (cc := "cc") : BuildM PUnit := do
+def compileBin (binFile : FilePath) (linkFiles : Array FilePath)
+(linkArgs : Array String := #[]) (linker : FilePath := "cc") : BuildM PUnit := do
   createParentDirs binFile
   proc {
-    cmd := cc
+    cmd := linker.toString
     args := #["-o", binFile.toString] ++ linkFiles.map toString ++ linkArgs
   }

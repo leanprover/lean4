@@ -9,39 +9,46 @@ import Lake.BuildTarget
 open System
 namespace Lake
 
-def oFileTarget
-(oFile : FilePath) (srcTarget : FileTarget)
-(args : Array String := #[]) (cmd := "c++") : FileTarget :=
+def buildFileUnlessUpToDate (file : FilePath)
+(trace : BuildTrace) (build : BuildM PUnit) : BuildM BuildTrace := do
+  let traceFile := FilePath.mk <| file.toString ++ ".trace"
+  let (upToDate, trace) ← trace.check file traceFile
+  unless upToDate do
+    build
+  IO.FS.writeFile traceFile trace.hash.toString
+  liftM <| computeTrace file
+
+def oFileTarget (oFile : FilePath) (srcTarget : FileTarget)
+(args : Array String := #[]) (compiler : FilePath := "c++") : FileTarget :=
   Target.mk oFile do
-    let traceFile := FilePath.mk <| oFile.toString ++ ".trace"
     srcTarget.mapAsync fun file trace => do
-      let (upToDate, trace) ← trace.check oFile traceFile
-      unless upToDate do
-        compileO oFile file args cmd
-      IO.FS.writeFile traceFile trace.hash.toString
-      liftM <| computeTrace oFile
+      buildFileUnlessUpToDate oFile trace do
+        compileO oFile file args compiler
 
-def staticLibTarget
-(libFile : FilePath) (oFileTargets : Array FileTarget) (cmd := "ar") : FileTarget :=
+def leanOFileTarget (oFile : FilePath)
+(srcTarget : FileTarget) (args : Array String := #[]) : FileTarget :=
+  Target.mk oFile do
+    srcTarget.mapAsync fun file trace => do
+      buildFileUnlessUpToDate oFile trace do
+        compileO oFile file args (← getLeanc)
+
+def staticLibTarget (libFile : FilePath)
+(oFileTargets : Array FileTarget) (ar : FilePath := "ar") : FileTarget :=
   Target.mk libFile do
-    let traceFile := FilePath.mk <| libFile.toString ++ ".trace"
-    let depTarget ← Target.collectArray oFileTargets
-    depTarget.mapAsync fun oFiles trace => do
-      let (upToDate, trace) ← trace.check libFile traceFile
-      unless upToDate do
-        compileStaticLib libFile oFiles cmd
-      IO.FS.writeFile traceFile trace.hash.toString
-      liftM <| computeTrace libFile
+    Target.collectArray oFileTargets |>.mapAsync fun oFiles trace => do
+      buildFileUnlessUpToDate libFile trace do
+        compileStaticLib libFile oFiles ar
 
-def binTarget
-(binFile : FilePath) (linkTargets : Array FileTarget)
-(linkArgs : Array String := #[]) (cmd := "cc") : FileTarget :=
+def binTarget (binFile : FilePath) (linkTargets : Array FileTarget)
+(linkArgs : Array String := #[]) (linker : FilePath := "cc") : FileTarget :=
   Target.mk binFile do
-    let traceFile := FilePath.mk <| binFile.toString ++ ".trace"
-    let depTarget ← Target.collectArray linkTargets
-    depTarget.mapAsync fun links trace => do
-      let (upToDate, trace) ← trace.check binFile traceFile
-      unless upToDate do
-        compileBin binFile links linkArgs cmd
-      IO.FS.writeFile traceFile trace.hash.toString
-      liftM <| computeTrace binFile
+    Target.collectArray linkTargets |>.mapAsync fun links trace => do
+      buildFileUnlessUpToDate binFile trace do
+        compileBin binFile links linkArgs linker
+
+def leanBinTarget (binFile : FilePath) (linkTargets : Array FileTarget)
+(linkArgs : Array String := #[]) (linker : FilePath := "cc") : FileTarget :=
+  Target.mk binFile do
+    Target.collectArray linkTargets |>.mapAsync fun links trace => do
+      buildFileUnlessUpToDate binFile trace do
+        compileBin binFile links linkArgs (← getLeanc)

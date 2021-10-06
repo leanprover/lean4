@@ -17,7 +17,7 @@ def ActivePackageTarget.oFileTargets
   self.moduleTargets.map fun (mod, target) =>
     let oFile := self.package.modToO mod
     let cTarget := Target.active target.cTarget
-    oFileTarget oFile cTarget leancArgs "leanc"
+    leanOFileTarget oFile cTarget leancArgs
 
 -- # Build Package Lib
 
@@ -43,7 +43,7 @@ def ActivePackageTarget.linkTargets
 protected def ActivePackageTarget.binTarget
 (depTargets : Array ActivePackageTarget) (self : ActivePackageTarget) : FileTarget :=
   let linkTargets := self.linkTargets depTargets
-  binTarget self.package.binFile linkTargets self.package.linkArgs "leanc"
+  leanBinTarget self.package.binFile linkTargets self.package.linkArgs
 
 def Package.binTarget (self : Package) : FileTarget :=
   Target.mk self.binFile do

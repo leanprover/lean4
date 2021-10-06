@@ -164,7 +164,7 @@ def Package.filterLocalImports
       localImports := localImports.push impName
   return localImports
 
-/-- Build the packages dependencies and a list of imports, returning the list of packages built. -/
+/-- Build the package's dependencies and a list of imports, returning the list of packages built. -/
 def Package.buildImportsAndDeps
 (imports : List String := []) (self : Package) : BuildM (List Package) := do
   -- resolve and build deps
@@ -177,4 +177,4 @@ def Package.buildImportsAndDeps
     let localImports := self.filterLocalImports imports
     let oleanTargets ← self.buildModuleOleanTargets localImports moreOleanDirs depTarget
     oleanTargets.forM (discard ·.materialize)
-  pure depPkgs
+  return self :: depPkgs

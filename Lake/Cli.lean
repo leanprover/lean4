@@ -13,7 +13,7 @@ import Lake.InstallPath
 import Lake.CliT
 
 open System
-open Lean (Json)
+open Lean (Json toJson)
 
 namespace Lake
 
@@ -199,7 +199,7 @@ def printPaths (pkg : Package) (imports : List String := []) : CliM UInt32 :=
    try
     let (leanInstall, lakeInstall) ← getInstall
     execIO do
-      let deps ← pkg.buildImportsAndDeps imports |>.runIn {
+      let pkgs ← pkg.buildImportsAndDeps imports |>.runIn {
         leanInstall, lakeInstall
         methodsRef := BuildMethodsRef.mk {
           logInfo  := fun msg => IO.eprintln msg
@@ -207,8 +207,8 @@ def printPaths (pkg : Package) (imports : List String := []) : CliM UInt32 :=
         }
       }
       IO.println <| Json.compress <| Json.mkObj [
-        ("LEAN_PATH", SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)),
-        ("LEAN_SRC_PATH", SearchPath.toString <| pkg.srcDir :: deps.map (·.srcDir))
+        ("oleanPath", toJson <| List.toArray <| pkgs.map (·.oleanDir.toString)),
+        ("srcPath", toJson <| List.toArray <| pkgs.map (·.srcDir.toString))
       ]
   catch e =>
     error (toString e)

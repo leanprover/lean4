@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/debug.h"
 #include "runtime/alloc.h"
+#include <unistd.h>
 
 #if defined(__GNUC__) || defined(__clang__)
 #define LEAN_NOINLINE __attribute__((noinline))
@@ -19,7 +20,7 @@ Author: Leonardo de Moura
 #define LEAN_PAGE_SIZE             8192        // 8 Kb
 #define LEAN_SEGMENT_SIZE          8*1024*1024 // 8 Mb
 #define LEAN_NUM_SLOTS             (LEAN_MAX_SMALL_OBJECT_SIZE / LEAN_OBJECT_SIZE_DELTA)
-#define LEAN_MAX_TO_EXPORT_OBJS    1024
+#define LEAN_MAX_TO_EXPORT_OBJS    0
 
 LEAN_CASSERT(LEAN_PAGE_SIZE > LEAN_MAX_SMALL_OBJECT_SIZE);
 LEAN_CASSERT(LEAN_SEGMENT_SIZE > LEAN_PAGE_SIZE);
@@ -247,13 +248,16 @@ void heap::export_objs() {
         }
         if (!found) {
             set_next_obj(o, nullptr);
+            std::cerr << "heap::export_objs(): recording (" << o << ", " << (void*)g_heap << " -> " << (void*)h << ")\n";
             to_export.push_back(export_entry{h, o, o});
         }
         o = n;
     }
+    sleep(1);
     m_to_export_list      = nullptr;
     m_to_export_list_size = 0;
     for (export_entry const & e : to_export) {
+        std::cerr << "heap::export_objs(): exporting (" << e.m_head << ", " << (void*)g_heap << " -> " << (void*)e.m_heap << ")\n";
         unique_lock<mutex> lock(e.m_heap->m_mutex);
         set_next_obj(e.m_tail, e.m_heap->m_to_import_list);
         e.m_heap->m_to_import_list = e.m_head;
@@ -317,6 +321,7 @@ static void finalize_heap(void * _h) {
     h->export_objs();
     h->import_objs();
     g_heap_manager->push_orphan(h);
+    std::cerr << "finalized heap " << (void*)h << "\n";
 }
 
 LEAN_NOINLINE
@@ -343,6 +348,7 @@ static void init_heap(bool main) {
     }
     if (!main)
         register_thread_finalizer(finalize_heap, g_heap);
+    std::cerr << "init'd heap " << (void*)g_heap << "\n";
 }
 }
 using namespace allocator; // NOLINT

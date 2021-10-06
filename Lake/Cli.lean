@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lean.Data.Json
 import Lake.Init
 import Lake.Help
 import Lake.BuildBin
@@ -12,6 +13,8 @@ import Lake.InstallPath
 import Lake.CliT
 
 open System
+open Lean (Json)
+
 namespace Lake
 
 -- # Utilities
@@ -126,6 +129,18 @@ def output (msg : String) : CliM UInt32 := do
 def execIO (x : IO α) : CliM UInt32 := do
   try Functor.mapConst 0 x catch e => error (toString e)
 
+/--
+  Perform the given build action and then return code 0.
+  If it throws an error, invoke `error` with the the error's message.
+-/
+def execBuild (x : BuildM α) : CliM UInt32 := do
+  execIO <| x.runIn {
+    methodsRef := BuildMethodsRef.mk {
+      logInfo  := fun msg => IO.println msg
+      logError := fun msg => IO.eprintln msg
+    }
+  }
+
 /-- Run the given script from the given package with the given arguments. -/
 def script (pkg : Package) (name : String) (args : List String) :  CliM UInt32 := do
   if let some script := pkg.scripts.find? name then
@@ -160,15 +175,28 @@ def verifyInstall : CliM UInt32 := do
   IO.println s!"Lake:\n{repr <| ← getLakeInstall?}"
   verifyLeanVersion
 
+def printPaths (pkg : Package) (imports : List String := []) : CliM UInt32 :=
+  execIO do
+    let deps ← pkg.buildImportsAndDeps imports |>.runIn {
+      methodsRef := BuildMethodsRef.mk {
+        logInfo  := fun msg => IO.eprintln msg
+        logError := fun msg => IO.eprintln msg
+      }
+    }
+    IO.println <| Json.compress <| Json.mkObj [
+      ("LEAN_PATH", SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)),
+      ("LEAN_SRC_PATH", SearchPath.toString <| pkg.srcDir :: deps.map (·.srcDir))
+    ]
+
 def command : (cmd : String) → CliM UInt32
 | "new"         => do noArgsRem <| execIO <| new (← takeArg)
 | "init"        => do noArgsRem <| execIO <| init (← takeArg)
 | "run"         => do noArgsRem <| script (← loadPkg []) (← takeArg) (← getSubArgs)
-| "configure"   => do noArgsRem <| execIO <| configure (← loadPkg (← getSubArgs))
-| "print-paths" => do noArgsRem <| execIO <| printPaths (← loadPkg (← getSubArgs)) (← takeArgs)
-| "build"       => do noArgsRem <| execIO <| build (← loadPkg (← getSubArgs))
-| "build-lib"   => do noArgsRem <| execIO <| buildLib (← loadPkg (← getSubArgs))
-| "build-bin"   => do noArgsRem <| execIO <| buildBin (← loadPkg (← getSubArgs))
+| "configure"   => do noArgsRem <| execBuild (← loadPkg (← getSubArgs)).buildDeps
+| "print-paths" => do noArgsRem <| printPaths (← loadPkg (← getSubArgs)) (← takeArgs)
+| "build"       => do noArgsRem <| execBuild (← loadPkg (← getSubArgs)).build
+| "build-lib"   => do noArgsRem <| execBuild (← loadPkg (← getSubArgs)).buildLib
+| "build-bin"   => do noArgsRem <| execBuild (← loadPkg (← getSubArgs)).buildBin
 | "clean"       => do noArgsRem <| execIO <| (← loadPkg (← getSubArgs)).clean
 | "help"        => do output <| help (← takeArg?)
 | "self-check"  => noArgsRem <| verifyInstall

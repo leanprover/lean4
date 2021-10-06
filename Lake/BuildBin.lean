@@ -31,8 +31,8 @@ def Package.staticLibTarget (self : Package) : FileTarget :=
  Target.mk self.staticLibFile do
     (← self.buildTarget).staticLibTarget.materializeAsync
 
-def buildLib (pkg : Package) : IO PUnit :=
-  pkg.staticLibTarget.build.run'
+def Package.buildLib (pkg : Package) : BuildM FilePath :=
+  pkg.staticLibTarget.build
 
 -- # Build Package Bin
 
@@ -51,5 +51,5 @@ def Package.binTarget (self : Package) : FileTarget :=
     let pkgTarget ← self.buildModuleOleanAndCTargetsWithDepTargets #[self.binRoot] depTargets
     pkgTarget.binTarget depTargets >>= (·.materializeAsync)
 
-def buildBin (pkg : Package) : IO PUnit :=
-  pkg.binTarget.build.run'
+def Package.buildBin (pkg : Package) : BuildM FilePath :=
+  pkg.binTarget.build

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lean.Data.Name
-import Lean.Data.Json
 import Lean.Elab.Import
 import Lake.Target
 import Lake.BuildModule
@@ -146,9 +145,6 @@ def Package.buildDeps (self : Package) : BuildM (Array Package) := do
   let targets ← self.buildDepTargets
   targets.mapM fun target => Functor.mapConst target.info.1 target.materialize
 
-def configure (pkg : Package) : IO Unit :=
-  pkg.buildDeps.run'
-
 def Package.build (self : Package) : BuildM PUnit := do
   let depTargets ← self.buildDepTargets
   let depTarget ← self.buildDepTargetWith depTargets
@@ -156,13 +152,11 @@ def Package.build (self : Package) : BuildM PUnit := do
   let targets ← self.buildOleanTargets moreOleanDirs depTarget
   discard <| ActiveTarget.materializeArray targets
 
-def build (pkg : Package) : IO PUnit :=
-  pkg.build.run
-
--- # Print Paths
+-- # Build Imports
 
 /-- Pick the local imports of the package from a list of import strings. -/
-def Package.filterLocalImports (imports : List String) (self : Package) : Array Name := do
+def Package.filterLocalImports
+(imports : List String) (self : Package) : Array Name := do
   let mut localImports := #[]
   for imp in imports do
     let impName := imp.toName
@@ -170,20 +164,17 @@ def Package.filterLocalImports (imports : List String) (self : Package) : Array 
       localImports := localImports.push impName
   return localImports
 
-def printPaths (pkg : Package) (imports : List String := []) : IO Unit := do
-  let deps ← BuildM.runErr do
-    -- resolve and build deps
-    let depTargets ← pkg.buildDepTargets
-    let depPkgs := depTargets.map (·.package) |>.foldl (flip List.cons) []
-    -- build any additional imports
-    unless imports.isEmpty do
-      let moreOleanDirs := depPkgs.map (·.oleanDir)
-      let depTarget ← pkg.buildDepTargetWith depTargets
-      let localImports := pkg.filterLocalImports imports
-      let oleanTargets ← pkg.buildModuleOleanTargets localImports moreOleanDirs depTarget
-      oleanTargets.forM (discard ·.materialize)
-    pure depPkgs
-  IO.println <| Json.compress <| Json.mkObj [
-    ("LEAN_PATH", SearchPath.toString <| pkg.oleanDir :: deps.map (·.oleanDir)),
-    ("LEAN_SRC_PATH", SearchPath.toString <| pkg.srcDir :: deps.map (·.srcDir))
-  ]
+/-- Build the packages dependencies and a list of imports, returning the list of packages built. -/
+def Package.buildImportsAndDeps
+(imports : List String := []) (self : Package) : BuildM (List Package) := do
+  -- resolve and build deps
+  let depTargets ← self.buildDepTargets
+  let depPkgs := depTargets.map (·.package) |>.foldl (flip List.cons) []
+  -- build any additional imports
+  unless imports.isEmpty do
+    let moreOleanDirs := depPkgs.map (·.oleanDir)
+    let depTarget ← self.buildDepTargetWith depTargets
+    let localImports := self.filterLocalImports imports
+    let oleanTargets ← self.buildModuleOleanTargets localImports moreOleanDirs depTarget
+    oleanTargets.forM (discard ·.materialize)
+  pure depPkgs

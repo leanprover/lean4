@@ -56,18 +56,6 @@ namespace BuildContext
 
 deriving instance Inhabited for BuildContext
 
-def io : BuildContext where
-  methodsRef := BuildMethodsRef.mk {
-    logInfo  := fun msg => IO.println msg
-    logError := fun msg => IO.eprintln msg
-  }
-
-def ioErr : BuildContext where
-  methodsRef := BuildMethodsRef.mk {
-    logInfo  := fun msg => IO.eprintln msg
-    logError := fun msg => IO.eprintln msg
-  }
-
 def methods (self : BuildContext) : BuildMethods :=
   self.methodsRef.get
 
@@ -97,16 +85,7 @@ def convErrors (self : BuildM α) : BuildM α := do
     throw <| IO.userError "build failed"
 
 def runIn (ctx : BuildContext) (self : BuildM α) : IO α :=
-  self ctx
-
-def run (self : BuildM α) : IO α :=
-  (convErrors self).runIn BuildContext.io
-
-def runErr (self : BuildM α) : IO α :=
-  (convErrors self).runIn BuildContext.ioErr
-
-def run' (self : BuildM α) : IO PUnit :=
-  discard self.run
+  (convErrors self) ctx
 
 end BuildM
 

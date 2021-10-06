@@ -42,9 +42,10 @@ Beware of the licensing consequences since GMP is LGPL."
   let mut cc := (← IO.getEnv "LEAN_CC").getD "@LEANC_CC@"
   if cc.startsWith "." then
     cc := (binDir / cc).toString
-
-  let args := cflags ++ args ++ ldflagsExt ++ ldflags ++ ["-Wno-unused-command-line-argument"]
+  -- support `LEANC_CC='ccache cc'`
+  let cc' :: ccArgs ← cc.trim.splitOn | throw <| IO.userError "LEAN_CC is empty"
+  let args := ccArgs ++ cflags ++ args ++ ldflagsExt ++ ldflags ++ ["-Wno-unused-command-line-argument"]
   if args.contains "-v" then
-    IO.eprintln s!"{cc} {" ".intercalate args}"
-  let child ← IO.Process.spawn { cmd := cc, args := args.toArray }
+    IO.eprintln s!"{cc'} {" ".intercalate args}"
+  let child ← IO.Process.spawn { cmd := cc', args := args.toArray }
   child.wait

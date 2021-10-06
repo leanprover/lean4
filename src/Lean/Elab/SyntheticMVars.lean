@@ -296,8 +296,8 @@ mutual
     loop ()
 end
 
-def synthesizeSyntheticMVarsNoPostponing : TermElabM Unit :=
-  synthesizeSyntheticMVars (mayPostpone := false)
+def synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := false) : TermElabM Unit :=
+  synthesizeSyntheticMVars (mayPostpone := false) (ignoreStuckTC := ignoreStuckTC)
 
 /- Keep invoking `synthesizeUsingDefault` until it returns false. -/
 private partial def synthesizeUsingDefaultLoop : TermElabM Unit := do

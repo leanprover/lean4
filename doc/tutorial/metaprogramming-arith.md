@@ -156,7 +156,7 @@ macro_rules
 ```
 
 
-Let's test and see that we can now write expressions such as `x :* y` directly instead of having to write `"x" :* "y"`:
+Let's test and see that we can now write expressions such as `x * y` directly instead of having to write `"x" * "y"`:
 
 ```lean,ignore
 def x_ident := [Arith| x ]

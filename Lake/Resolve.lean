@@ -12,10 +12,10 @@ namespace Lake
 
 open Git in
 /--
-  Materializes a Git dependency in the given `dir`,
+  Materializes a Git package in the given `dir`,
   cloning and/or updating it as necessary.
 -/
-def materializeGitDep
+def materializeGit
 (name : String) (dir : FilePath) (url rev : String) (branch : Option String)
 : IO Unit := do
   if ← dir.isDir then
@@ -36,13 +36,11 @@ def materializeGitDep
 -/
 def materializeDep (pkg : Package) (dep : Dependency) : IO FilePath :=
   match dep.src with
-  | Source.path dir => do
-    let depDir := pkg.dir / dir
-    depDir
+  | Source.path dir => pkg.dir / dir
   | Source.git url rev branch => do
     let name := dep.name.toString (escape := false)
     let depDir := pkg.depsDir / name
-    materializeGitDep name depDir url rev branch
+    materializeGit name depDir url rev branch
     depDir
 
 /--

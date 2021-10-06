@@ -6,5 +6,4 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 import Lake
 
 def main (args : List String) : IO UInt32 := do
-  Lake.setupLeanSearchPath
   Lake.cli args -- should not throw errors (outside user code)

@@ -25,15 +25,3 @@ else if Lean.version.specialDesc ≠ "" then
   s!"{leanVersionStringCore}-{Lean.version.specialDesc}"
 else
   s!"master ({leanVersionStringCore})"
-
-def verifyLeanVersion : IO PUnit := do
-  let out ← IO.Process.output {
-    cmd := "lean",
-    args := #["--version"]
-  }
-  if out.exitCode == 0 then
-    unless out.stdout.drop 14 |>.startsWith uiLeanVersionString do
-      throw <| IO.userError <|
-        s!"expected {uiLeanVersionString}, but got {out.stdout.trim}"
-  else
-    throw <| IO.userError <| "missing lean!"

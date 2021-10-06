@@ -7,6 +7,8 @@ import Lake.Init
 import Lake.Help
 import Lake.BuildBin
 import Lake.LeanConfig
+import Lake.SearchPath
+import Lake.InstallPath
 import Lake.CliT
 
 open System
@@ -29,8 +31,10 @@ def Package.clean (self : Package) : IO PUnit := do
 structure CliOptions where
   wantsHelp : Bool := false
   dir : FilePath := "."
-  file : FilePath := defaultConfigFile
+  configFile : FilePath := defaultConfigFile
   subArgs : List String := []
+  leanInstall? : Option LeanInstall := none
+  lakeInstall? : Option LakeInstall := none
 
 abbrev CliM := CliT <| StateT CliOptions IO
 
@@ -40,31 +44,39 @@ open CliT
 -- ## State Management
 
 def getDir : CliM FilePath :=
-  getThe CliOptions >>= (·.dir)
+  CliOptions.dir <$> getThe CliOptions
 
 def setDir (dir : FilePath) : CliM PUnit :=
   modifyThe CliOptions fun st => {st with dir := dir}
 
-def getFile : CliM FilePath :=
-  getThe CliOptions >>= (·.file)
+def getConfigFile : CliM FilePath :=
+  CliOptions.configFile <$> getThe CliOptions
 
-def setFile (file : FilePath) : CliM PUnit :=
-  modifyThe CliOptions fun st => {st with file := file}
+def setConfigFile (file : FilePath) : CliM PUnit :=
+  modifyThe CliOptions fun st => {st with configFile := file}
 
 def getSubArgs : CliM (List String) :=
-  getThe CliOptions >>= (·.subArgs)
+  CliOptions.subArgs <$> getThe CliOptions
 
 def setSubArgs (args : List String) : CliM PUnit :=
   modifyThe CliOptions fun st => {st with subArgs := args}
 
 def getWantsHelp : CliM Bool :=
-  getThe CliOptions >>= (·.wantsHelp)
+  CliOptions.wantsHelp <$> getThe CliOptions
 
 def setWantsHelp : CliM PUnit :=
   modifyThe CliOptions fun st => {st with wantsHelp := true}
 
+def getLeanInstall? : CliM (Option LeanInstall) :=
+  CliOptions.leanInstall? <$> getThe CliOptions
+
+def getLakeInstall? : CliM (Option LakeInstall) :=
+  CliOptions.lakeInstall? <$> getThe CliOptions
+
 def loadPkg (args : List String) : CliM Package := do
-  let dir ← getDir; let file ← getFile; Package.load dir args (dir / file)
+  let dir ← getDir; let file ← getConfigFile
+  setupLeanSearchPath (← getLeanInstall?) (← getLakeInstall?)
+  Package.load dir args (dir / file)
 
 def takeArg : CliM String := do
   match (← takeArg?) with
@@ -84,7 +96,7 @@ def unknownShortOption (opt : Char) : CliM PUnit :=
 def shortOption : (opt : Char) → CliM PUnit
 | 'h' => setWantsHelp
 | 'd' => do setDir (← takeFileArg)
-| 'f' => do setFile (← takeFileArg)
+| 'f' => do setConfigFile (← takeFileArg)
 | opt => unknownShortOption opt
 
 def unknownLongOption (opt : String) : CliM PUnit :=
@@ -93,7 +105,7 @@ def unknownLongOption (opt : String) : CliM PUnit :=
 def longOption : (opt : String) → CliM PUnit
 | "--help"  => setWantsHelp
 | "--dir"   => do setDir (← takeFileArg)
-| "--file"  => do setFile (← takeFileArg)
+| "--file"  => do setConfigFile (← takeFileArg)
 | "--"      => do setSubArgs (← takeArgs)
 | opt       => unknownLongOption opt
 
@@ -127,6 +139,27 @@ def noArgsRem (act : CliM UInt32) : CliM UInt32 := do
   if args.isEmpty then act else
     error s!"unexpected arguments: {" ".intercalate args}"
 
+def verifyLeanVersion : CliM UInt32 := do
+  if let some leanInstall ← getLeanInstall? then
+    let out ← IO.Process.output {
+      cmd := leanInstall.lean.toString,
+      args := #["--version"]
+    }
+    if out.exitCode == 0 then
+      if out.stdout.drop 14 |>.startsWith uiLeanVersionString then
+        pure 0
+      else
+        error s!"expected {uiLeanVersionString}, but got {out.stdout.trim}"
+    else
+      error s!"running `lean --version` exited with code {out.exitCode}"
+  else
+    error "no lean installation detected"
+
+def verifyInstall : CliM UInt32 := do
+  IO.println s!"Lean:\n{repr <| ← getLeanInstall?}"
+  IO.println s!"Lake:\n{repr <| ← getLakeInstall?}"
+  verifyLeanVersion
+
 def command : (cmd : String) → CliM UInt32
 | "new"         => do noArgsRem <| execIO <| new (← takeArg)
 | "init"        => do noArgsRem <| execIO <| init (← takeArg)
@@ -138,7 +171,7 @@ def command : (cmd : String) → CliM UInt32
 | "build-bin"   => do noArgsRem <| execIO <| buildBin (← loadPkg (← getSubArgs))
 | "clean"       => do noArgsRem <| execIO <| (← loadPkg (← getSubArgs)).clean
 | "help"        => do output <| help (← takeArg?)
-| "self-check"  => noArgsRem <| execIO verifyLeanVersion
+| "self-check"  => noArgsRem <| verifyInstall
 | cmd           => error s!"unknown command '{cmd}'"
 
 def processArgs : CliM UInt32 := do
@@ -148,15 +181,17 @@ def processArgs : CliM UInt32 := do
   | _ => -- normal CLI
     processOptions
     if let some cmd ← takeArg? then
-      if (← getWantsHelp) then output (help cmd) else command cmd
+      if (← getWantsHelp) then output (help cmd) else
+        command cmd
     else
       if (← getWantsHelp) then output usage else error "expected command"
 
-def run (self : CliM α) (args : List String) : IO α :=
+def run (self : CliM α) (args : List String) : IO α := do
+  let (leanInstall?, lakeInstall?) ← findInstall?
   CliT.run self args {
     shortOption, longOption,
-    longShortOption := unknownLongOption
-  } |>.run' {}
+    longShortOption := unknownLongOption,
+  } |>.run' {leanInstall?, lakeInstall?}
 
 end CliM
 

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Async
+import Lake.Attributes
 import Lake.BuildBin
 import Lake.BuildModule
 import Lake.BuildMonad
@@ -19,6 +20,7 @@ import Lake.Git
 import Lake.Glob
 import Lake.Help
 import Lake.Init
+import Lake.InstallPath
 import Lake.LeanConfig
 import Lake.LeanVersion
 import Lake.Package

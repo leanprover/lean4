@@ -1,0 +1,5 @@
+mutwf1.lean:27:2-27:6: error: unsolved goals
+case h.a
+n : Nat
+h : n ≠ 0
+⊢ Nat.sub n 0 ≠ 0

@@ -68,7 +68,7 @@ class erase_irrelevant_fn {
     }
 
     expr visit_constant(expr const & e) {
-        lean_assert(!is_enf_neutral(e));
+        lean_always_assert(!is_enf_neutral(e));
         name const & c = const_name(e);
         if (c == get_lc_unreachable_name()) {
             return mk_enf_unreachable();
@@ -111,7 +111,7 @@ class erase_irrelevant_fn {
             e = binding_body(e);
         }
         unsigned saved_let_fvars_size = m_let_fvars.size();
-        lean_assert(m_let_entries.size() == m_let_fvars.size());
+        lean_always_assert(m_let_entries.size() == m_let_fvars.size());
         e = instantiate_rev(e, bfvars.size(), bfvars.data());
         if (is_irrelevant(e))
             return mk_enf_neutral();
@@ -151,7 +151,7 @@ class erase_irrelevant_fn {
     }
 
     expr elim_string_cases(buffer<expr> & args) {
-        lean_assert(args.size() == 3);
+        lean_always_assert(args.size() == 3);
         expr major     = visit(args[1]);
         expr x         = mk_simple_decl(mk_app(mk_constant(get_string_data_name()), major), mk_list_char());
         expr minor     = args[2];
@@ -160,7 +160,7 @@ class erase_irrelevant_fn {
     }
 
     expr elim_nat_cases(buffer<expr> & args) {
-        lean_assert(args.size() == 4);
+        lean_always_assert(args.size() == 4);
         expr major       = visit(args[1]);
         expr zero        = mk_lit(literal(nat(0)));
         expr one         = mk_lit(literal(nat(1)));
@@ -178,7 +178,7 @@ class erase_irrelevant_fn {
     }
 
     expr elim_int_cases(buffer<expr> & args) {
-        lean_assert(args.size() == 4);
+        lean_always_assert(args.size() == 4);
         expr major       = visit(args[1]);
         expr zero        = mk_lit(literal(nat(0)));
         expr int_type    = mk_constant(get_int_name());
@@ -201,34 +201,34 @@ class erase_irrelevant_fn {
     }
 
     expr elim_array_cases(buffer<expr> & args) {
-        lean_assert(args.size() == 4);
+        lean_always_assert(args.size() == 4);
         expr major       = visit(args[2]);
         expr minor       = visit_minor(args[3]);
-        lean_assert(is_lambda(minor));
+        lean_always_assert(is_lambda(minor));
         return
             ::lean::mk_let(next_name(), mk_enf_object_type(), mk_app(mk_constant(get_array_data_name()), mk_enf_neutral(), major),
                            binding_body(minor));
     }
 
     expr elim_uint_cases(name const & uint_name, buffer<expr> & args) {
-        lean_assert(args.size() == 3);
+        lean_always_assert(args.size() == 3);
         expr major = visit(args[1]);
         expr minor = visit_minor(args[2]);
-        lean_assert(is_lambda(minor));
+        lean_always_assert(is_lambda(minor));
         return
           ::lean::mk_let(next_name(), mk_enf_object_type(), mk_app(mk_const(name(uint_name, "toNat")), major),
                          binding_body(minor));
     }
 
     expr decidable_to_bool_cases(buffer<expr> const & args) {
-        lean_assert(args.size() == 5);
+        lean_always_assert(args.size() == 5);
         expr const & major  = args[2];
         expr minor1 = args[3];
         expr minor2 = args[4];
         minor1 = visit_minor(minor1);
         minor2 = visit_minor(minor2);
-        lean_assert(is_lambda(minor1));
-        lean_assert(is_lambda(minor2));
+        lean_always_assert(is_lambda(minor1));
+        lean_always_assert(is_lambda(minor2));
         minor1 = instantiate(binding_body(minor1), mk_enf_neutral());
         minor2 = instantiate(binding_body(minor2), mk_enf_neutral());
         return mk_app(mk_constant(get_bool_cases_on_name()), major, minor1, minor2);
@@ -254,9 +254,9 @@ class erase_irrelevant_fn {
             std::tie(minors_begin, minors_end) = get_cases_on_minors_range(env(), const_name(c));
             if (optional<unsigned> fidx = has_trivial_structure(const_name(c).get_prefix())) {
                 /* Eliminate `cases_on` of trivial structure */
-                lean_assert(minors_end == minors_begin + 1);
+                lean_always_assert(minors_end == minors_begin + 1);
                 expr major = args[minors_begin - 1];
-                lean_assert(is_atom(major));
+                lean_always_assert(is_atom(major));
                 expr minor = args[minors_begin];
                 unsigned i = 0;
                 buffer<expr> fields;
@@ -307,7 +307,7 @@ class erase_irrelevant_fn {
     }
 
     expr visit_quot_lift(buffer<expr> & args) {
-        lean_assert(args.size() >= 6);
+        lean_always_assert(args.size() >= 6);
         expr f = args[3];
         buffer<expr> new_args;
         for (unsigned i = 5; i < args.size(); i++)
@@ -316,7 +316,7 @@ class erase_irrelevant_fn {
     }
 
     expr visit_quot_mk(buffer<expr> const & args) {
-        lean_assert(args.size() == 3);
+        lean_always_assert(args.size() == 3);
         return visit(args[2]);
     }
 
@@ -325,7 +325,7 @@ class erase_irrelevant_fn {
         name const & I_name     = c_val.get_induct();
         if (optional<unsigned> fidx = has_trivial_structure(I_name)) {
             unsigned nparams      = c_val.get_nparams();
-            lean_assert(nparams + *fidx < args.size());
+            lean_always_assert(nparams + *fidx < args.size());
             return visit(args[nparams + *fidx]);
         } else {
             return visit_app_default(fn, args);
@@ -374,8 +374,8 @@ class erase_irrelevant_fn {
     }
 
     expr mk_let(unsigned saved_fvars_size, expr r) {
-        lean_assert(saved_fvars_size <= m_let_fvars.size());
-        lean_assert(m_let_fvars.size() == m_let_entries.size());
+        lean_always_assert(saved_fvars_size <= m_let_fvars.size());
+        lean_always_assert(m_let_fvars.size() == m_let_entries.size());
         if (saved_fvars_size == m_let_fvars.size())
             return r;
         r      = abstract(r, m_let_fvars.size() - saved_fvars_size, m_let_fvars.data() + saved_fvars_size);
@@ -391,7 +391,7 @@ class erase_irrelevant_fn {
     }
 
     expr visit_let(expr e) {
-        lean_assert(m_let_entries.size() == m_let_fvars.size());
+        lean_always_assert(m_let_entries.size() == m_let_fvars.size());
         buffer<expr> curr_fvars;
         while (is_let(e)) {
             expr t     = instantiate_rev(let_type(e), curr_fvars.size(), curr_fvars.data());
@@ -409,7 +409,7 @@ class erase_irrelevant_fn {
             m_let_entries.emplace_back(n, new_t, new_v);
             e = let_body(e);
         }
-        lean_assert(m_let_entries.size() == m_let_fvars.size());
+        lean_always_assert(m_let_entries.size() == m_let_fvars.size());
         return visit(instantiate_rev(e, curr_fvars.size(), curr_fvars.data()));
     }
 
@@ -418,7 +418,7 @@ class erase_irrelevant_fn {
     }
 
     expr visit(expr const & e) {
-        lean_assert(m_let_entries.size() == m_let_fvars.size());
+        lean_always_assert(m_let_entries.size() == m_let_fvars.size());
         switch (e.kind()) {
         case expr_kind::BVar:  case expr_kind::MVar:
             lean_unreachable();

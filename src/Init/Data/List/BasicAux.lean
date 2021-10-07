@@ -38,6 +38,9 @@ def headD : List α → α → α
   | [],   a₀ => a₀
   | a::_, _  => a
 
+def head : (as : List α) → as ≠ [] → α
+  | a::_, _ => a
+
 def tail! : List α → List α
   | []    => panic! "empty list"
   | a::as => as

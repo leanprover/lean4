@@ -169,11 +169,14 @@ def Package.buildImportsAndDeps
 (imports : List String := []) (self : Package) : BuildM (List Package) := do
   -- resolve and build deps
   let depTargets ← self.buildDepTargets
+  let depTarget ← self.buildDepTargetWith depTargets
   let depPkgs := depTargets.map (·.package) |>.foldl (flip List.cons) []
-  -- build any additional imports
-  unless imports.isEmpty do
+  if imports.isEmpty then
+    -- wait for deps to finish building
+    discard depTarget.materialize
+  else
+     -- build additional imports
     let moreOleanDirs := depPkgs.map (·.oleanDir)
-    let depTarget ← self.buildDepTargetWith depTargets
     let localImports := self.filterLocalImports imports
     let oleanTargets ← self.buildModuleOleanTargets localImports moreOleanDirs depTarget
     oleanTargets.forM (discard ·.materialize)

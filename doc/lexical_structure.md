@@ -9,8 +9,7 @@ is one of the following:
 
 ```
    token: symbol | command | ident | string | char | numeral |
-        : decimal | quoted_symbol | doc_comment | mod_doc_comment |
-        : field_notation
+        : decimal | doc_comment | mod_doc_comment | field_notation
 ```
 
 Tokens can be separated by the whitespace characters space, tab, line
@@ -111,12 +110,6 @@ Numeric literals can be specified in various bases.
    numeral2   : "0" [bB] [0-1]+
    numeral8   : "0" [oO] [0-7]+
    numeral16  : "0" [xX] hex_char+
-```
-
-Decimal literals are also possible:
-
-```
-   decimal    : [0-9]+ "." [0-9]+
 ```
 
 Floating point literals are also possible with optional exponent:

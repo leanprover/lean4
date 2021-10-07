@@ -1,15 +1,11 @@
 # Types
 
-Every programming language needs a foundation in sound type theory.
-Lean has a rich provable type theory that is built on type universes.
-
-TODO: add a profound insight into why type universes are useful -
-for example, is this needed so Lean can prove things about types
-and how they are related?
+Every programming language needs a type system and
+Lean has a rich extensible inductive type system.
 
 ## Basic Types
 
-Lean has built in support for the following types:
+Lean has built in support for the following basic types:
 
 - [Boolean](bool.md) : a `true` or `false` value.
 - [Integer](integers.md) : arbitrary-precision integers (with no overflows!).

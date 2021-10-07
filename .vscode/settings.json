@@ -1,4 +1,5 @@
 {
     "files.insertFinalNewline": true,
-    "files.trimTrailingWhitespace": true
+    "files.trimTrailingWhitespace": true,
+    "rewrap.wrappingColumn": 70,
 }

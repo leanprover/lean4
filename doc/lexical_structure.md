@@ -107,7 +107,7 @@ Numeric literals can be specified in various bases.
 
 ```
    numeral    : numeral10 | numeral2 | numeral8 | numeral16
-   numeral10  : [-] [0-9]+
+   numeral10  : [0-9]+
    numeral2   : "0" [bB] [0-1]+
    numeral8   : "0" [oO] [0-7]+
    numeral16  : "0" [xX] hex_char+
@@ -116,46 +116,29 @@ Numeric literals can be specified in various bases.
 Decimal literals are also possible:
 
 ```
-   decimal    : [-] [0-9]+ "." [0-9]+
+   decimal    : [0-9]+ "." [0-9]+
 ```
 
 Floating point literals are also possible with optional exponent:
 
 ```
-   float    : [-] [0-9]+ "." [0-9]+ [[eE[+-][0-9]+]
+   float    : [0-9]+ "." [0-9]+ [[eE[+-][0-9]+]
 ```
 
 For example:
 
 ```
-constant w : Int := -55
+constant w : Int := 55
 constant x : Nat := 26085
 constant y : Nat := 0x65E5
 constant z : Float := 2.548123e-05
 ```
 
-Quoted Symbols
-==============
-
-In a fixed set of commands (`notation <notation_declarations>`,
-`local notation <notation_declarations>`, and
-`reserve <notation_declarations>`), symbols (known or unknown) can be quoted by
-enclosing them in backticks (`````). Quoted symbols are used by these
-commands for registering new notations and symbols.
+Note: that negative numbers are created by applying the "-" negation prefix operator to the number, for example:
 
 ```
-   quoted_symbol      : "`" " "* quoted_symbol_start quoted_symbol_rest* " "* "`"
-   quoted_symbol_start: [^0-9"\n\t `]
-   quoted_symbol_rest : [^"\n\t `]
+constant w : Int := -55
 ```
-
-A quoted symbol may contain surrounding whitespace, which is
-customarily used for pretty printing the symbol and ignored while
-scanning.
-
-While backticks are not allowed in a user-defined symbol, they are
-used in some built-in symbols (see [Quotations](TODO: missing), which are
-accessible outside of the set of commands noted above.
 
 Doc Comments
 ============

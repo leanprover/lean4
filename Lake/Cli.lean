@@ -31,203 +31,222 @@ def Package.clean (self : Package) : IO PUnit := do
 
 -- # CLI
 
-structure CliOptions where
-  wantsHelp : Bool := false
-  dir : FilePath := "."
+structure CliState where
+  rootDir : FilePath := "."
   configFile : FilePath := defaultConfigFile
-  subArgs : List String := []
   leanInstall? : Option LeanInstall := none
   lakeInstall? : Option LakeInstall := none
+  subArgs : List String := []
+  wantsHelp : Bool := false
 
-abbrev CliM := CliT <| StateT CliOptions IO
+abbrev CliM := CliT <| StateT CliState <| EIO UInt32
 
 namespace CliM
 open CliT
 
+-- ## Basic Actions
+
+/-- Perform an IO action and silently exit with code 1 if it errors. -/
+def runIO' (x : IO α) : CliM α :=
+  x.toEIO fun e => (1 : UInt32)
+
+/-- Exit the CLI with given return code (i.e., throw it). -/
+def exit (rc : UInt32) : CliM α := do
+  throw rc
+
+/-- Print out a line wih the given message and then exit with an error code. -/
+def error (msg : String) (rc : UInt32 := 1) : CliM α := do
+  runIO' <| IO.eprintln s!"error: {msg}"
+  exit rc
+
+/-- Print out a line wih the given message. -/
+def output (msg : String) : CliM PUnit :=
+  runIO' <| IO.println msg
+
+/--
+  Perform an IO action.
+  If it throws an error, invoke `error` with the its message.
+-/
+def runIO (x : IO α) : CliM α := do
+  match (← runIO' x.toIO') with
+  | Except.ok a => pure a
+  | Except.error e => error (toString e)
+
 -- ## State Management
 
-def getDir : CliM FilePath :=
-  CliOptions.dir <$> getThe CliOptions
+def getRootDir : CliM FilePath :=
+  (·.rootDir) <$> getThe CliState
 
-def setDir (dir : FilePath) : CliM PUnit :=
-  modifyThe CliOptions fun st => {st with dir := dir}
+def setRootDir (dir : FilePath) : CliM PUnit :=
+  modifyThe CliState fun st => {st with rootDir := dir}
 
 def getConfigFile : CliM FilePath :=
-  CliOptions.configFile <$> getThe CliOptions
+  (·.configFile) <$> getThe CliState
 
 def setConfigFile (file : FilePath) : CliM PUnit :=
-  modifyThe CliOptions fun st => {st with configFile := file}
+  modifyThe CliState fun st => {st with configFile := file}
 
 def getSubArgs : CliM (List String) :=
-  CliOptions.subArgs <$> getThe CliOptions
+  (·.subArgs) <$> getThe CliState
 
 def setSubArgs (args : List String) : CliM PUnit :=
-  modifyThe CliOptions fun st => {st with subArgs := args}
+  modifyThe CliState fun st => {st with subArgs := args}
 
 def getWantsHelp : CliM Bool :=
-  CliOptions.wantsHelp <$> getThe CliOptions
+  (·.wantsHelp) <$> getThe CliState
 
 def setWantsHelp : CliM PUnit :=
-  modifyThe CliOptions fun st => {st with wantsHelp := true}
+  modifyThe CliState fun st => {st with wantsHelp := true}
 
 def getLeanInstall? : CliM (Option LeanInstall) :=
-  CliOptions.leanInstall? <$> getThe CliOptions
+  (·.leanInstall?) <$> getThe CliState
 
 def getLakeInstall? : CliM (Option LakeInstall) :=
-  CliOptions.lakeInstall? <$> getThe CliOptions
+  (·.lakeInstall?) <$> getThe CliState
+
+-- ## Complex Actions
 
 def loadPkg (args : List String) : CliM Package := do
-  let dir ← getDir; let file ← getConfigFile
-  setupLeanSearchPath (← getLeanInstall?) (← getLakeInstall?)
-  Package.load dir args (dir / file)
+  let dir ← getRootDir; let file ← getConfigFile
+  runIO <| setupLeanSearchPath (← getLeanInstall?) (← getLakeInstall?)
+  runIO <| Package.load dir args (dir / file)
 
-def takeArg : CliM String := do
-  match (← takeArg?) with
-  | none => throw <| IO.userError "missing argument"
-  | some arg => arg
-
-def takeFileArg : CliM FilePath := do
-  match (← takeArg?) with
-  | none => throw <| IO.userError "missing file argument"
-  | some arg => arg
-
--- ## Option Parsing
-
-def unknownShortOption (opt : Char) : CliM PUnit :=
-  throw <| IO.userError s!"unknown short option '-{opt}'"
-
-def shortOption : (opt : Char) → CliM PUnit
-| 'h' => setWantsHelp
-| 'd' => do setDir (← takeFileArg)
-| 'f' => do setConfigFile (← takeFileArg)
-| opt => unknownShortOption opt
-
-def unknownLongOption (opt : String) : CliM PUnit :=
-  throw <| IO.userError s!"unknown long option '{opt}'"
-
-def longOption : (opt : String) → CliM PUnit
-| "--help"  => setWantsHelp
-| "--dir"   => do setDir (← takeFileArg)
-| "--file"  => do setConfigFile (← takeFileArg)
-| "--"      => do setSubArgs (← takeArgs)
-| opt       => unknownLongOption opt
-
--- ## Actions
-
-/-- Print out a line wih the given message and then return an error code. -/
-def error (msg : String) (rc : UInt32 := 1) : CliM UInt32 := do
-  IO.eprintln s!"error: {msg}"; rc
-
-/-- Print out a line wih the given message and then return code 0. -/
-def output (msg : String) : CliM UInt32 := do
-  IO.println msg; pure 0
-
-/--
-  Perform the given IO action and then return code 0.
-  If it throws an error, invoke `error` with the the error's message.
--/
-def execIO (x : IO α) : CliM UInt32 := do
-  try Functor.mapConst 0 x catch e => error (toString e)
-
-/--
-  Get the install configuration of Lean and Lake.
-  Error if either could not be detected.
--/
+/-- Get the Lean and Lake installation. Error if either is missing. -/
 def getInstall : CliM (LeanInstall × LakeInstall) := do
   if let some leanInstall ← getLeanInstall? then
     if let some lakeInstall ← getLakeInstall? then
       return (leanInstall, lakeInstall)
     else
-      throw <| IO.userError <|
-        "could not detect the configuration of the Lake installation"
+      error "could not detect the configuration of the Lake installation"
   else
-    throw <| IO.userError <| "could not detect a Lean installation"
+    error "could not detect a Lean installation"
+
+/-- Perform the given build action using information from CLI. -/
+def runBuildM (x : BuildM α) : CliM α := do
+  let (leanInstall, lakeInstall) ← getInstall
+  runIO <| x.runIn {
+    leanInstall, lakeInstall
+    methodsRef := BuildMethodsRef.mk {
+      logInfo  := fun msg => IO.println msg
+      logError := fun msg => IO.eprintln msg
+    }
+  }
+
+/-- Variant of `runBuildM` that discards the build monad's output. -/
+def runBuildM_ (x : BuildM α) : CliM PUnit :=
+  discard <| runBuildM x
+
+-- ## Argument Parsing
+
+def takeArg : CliM String := do
+  let arg? ← takeArg?
+  match arg? with
+  | none => error "missing argument"
+  | some arg => arg
+
+def takeFileArg : CliM FilePath := do
+  match (← takeArg?) with
+  | none => error "missing file argument"
+  | some arg => arg
 
 /--
-  Perform the given build action and then return code 0.
-  If it throws an error, invoke `error` with the the error's message.
+  Verify that there are no CLI arguments remaining
+  before running the given action.
 -/
-def execBuild (x : BuildM α) : CliM UInt32 := do
-  try
-    let (leanInstall, lakeInstall) ← getInstall
-    execIO do
-      x.runIn {
-        leanInstall, lakeInstall
-        methodsRef := BuildMethodsRef.mk {
-          logInfo  := fun msg => IO.println msg
-          logError := fun msg => IO.eprintln msg
-        }
-      }
-  catch e =>
-    error (toString e)
-
-/-- Run the given script from the given package with the given arguments. -/
-def script (pkg : Package) (name : String) (args : List String) :  CliM UInt32 := do
-  if let some script := pkg.scripts.find? name then
-    script args
-  else
-    pkg.scripts.forM fun name _ => IO.println name
-    error s!"unknown script '{name}'"
-
-def noArgsRem (act : CliM UInt32) : CliM UInt32 := do
+def noArgsRem (act : CliM α) : CliM α := do
   let args ← takeArgs
   if args.isEmpty then act else
     error s!"unexpected arguments: {" ".intercalate args}"
 
-def verifyLeanVersion : CliM UInt32 := do
+-- ## Option Parsing
+
+def unknownShortOption (opt : Char) : CliM PUnit :=
+  error s!"unknown short option '-{opt}'"
+
+def shortOption : (opt : Char) → CliM PUnit
+| 'h' => setWantsHelp
+| 'd' => do setRootDir (← takeFileArg)
+| 'f' => do setConfigFile (← takeFileArg)
+| opt => unknownShortOption opt
+
+def unknownLongOption (opt : String) : CliM PUnit :=
+  error s!"unknown long option '{opt}'"
+
+def longOption : (opt : String) → CliM PUnit
+| "--help"  => setWantsHelp
+| "--dir"   => do setRootDir (← takeFileArg)
+| "--file"  => do setConfigFile (← takeFileArg)
+| "--"      => do setSubArgs (← takeArgs)
+| opt       => unknownLongOption opt
+
+-- ## Commands
+
+/-- Run the given script from the given package with the given arguments. -/
+def script (pkg : Package) (name : String) (args : List String) :  CliM UInt32 := do
+  if let some script := pkg.scripts.find? name then
+    runIO (script args)
+  else
+    pkg.scripts.forM (m := CliM) fun name _ => do
+      output <| name.toString (escape := false)
+    error s!"unknown script '{name}'"
+
+/-- Verify the Lean version Lake was built with matches that of the Lean installation. -/
+def verifyLeanVersion : CliM PUnit := do
   if let some leanInstall ← getLeanInstall? then
-    let out ← IO.Process.output {
+    let out ← runIO <| IO.Process.output {
       cmd := leanInstall.lean.toString,
       args := #["--version"]
     }
     if out.exitCode == 0 then
-      if out.stdout.drop 14 |>.startsWith uiLeanVersionString then
-        pure 0
-      else
+      unless out.stdout.drop 14 |>.startsWith uiLeanVersionString do
         error s!"expected {uiLeanVersionString}, but got {out.stdout.trim}"
     else
       error s!"running `lean --version` exited with code {out.exitCode}"
   else
     error "no lean installation detected"
 
-def verifyInstall : CliM UInt32 := do
-  IO.println s!"Lean:\n{repr <| ← getLeanInstall?}"
-  IO.println s!"Lake:\n{repr <| ← getLakeInstall?}"
+/-- Output the detected installs and verify the Lean version. -/
+def verifyInstall : CliM PUnit := do
+  output s!"Lean:\n{repr <| ← getLeanInstall?}"
+  output s!"Lake:\n{repr <| ← getLakeInstall?}"
   verifyLeanVersion
 
-def printPaths (pkg : Package) (imports : List String := []) : CliM UInt32 :=
-   try
-    let (leanInstall, lakeInstall) ← getInstall
-    execIO do
-      let pkgs ← pkg.buildImportsAndDeps imports |>.runIn {
-        leanInstall, lakeInstall
-        methodsRef := BuildMethodsRef.mk {
-          logInfo  := fun msg => IO.eprintln msg
-          logError := fun msg => IO.eprintln msg
-        }
-      }
-      IO.println <| Json.compress <| Json.mkObj [
-        ("oleanPath", toJson <| List.toArray <| pkgs.map (·.oleanDir.toString)),
-        ("srcPath", toJson <| List.toArray <| pkgs.map (·.srcDir.toString))
-      ]
-  catch e =>
-    error (toString e)
+/--
+  Build a list of imports of the package
+  and print the `.olean` and source directories of every used package.
 
-def command : (cmd : String) → CliM UInt32
-| "new"         => do noArgsRem <| execIO <| new (← takeArg)
-| "init"        => do noArgsRem <| execIO <| init (← takeArg)
-| "run"         => do noArgsRem <| script (← loadPkg []) (← takeArg) (← getSubArgs)
-| "configure"   => do noArgsRem <| execBuild (← loadPkg (← getSubArgs)).buildDeps
+  The `print-paths` command is used internally by Lean 4 server.
+-/
+def printPaths (pkg : Package) (imports : List String := []) : CliM PUnit := do
+  let (leanInstall, lakeInstall) ← getInstall
+  runIO do
+    let pkgs ← pkg.buildImportsAndDeps imports |>.runIn {
+      leanInstall, lakeInstall
+      methodsRef := BuildMethodsRef.mk {
+        logInfo  := fun msg => IO.eprintln msg
+        logError := fun msg => IO.eprintln msg
+      }
+    }
+    IO.println <| Json.compress <| Json.mkObj [
+      ("oleanPath", toJson <| List.toArray <| pkgs.map (·.oleanDir.toString)),
+      ("srcPath", toJson <| List.toArray <| pkgs.map (·.srcDir.toString))
+    ]
+
+def command : (cmd : String) → CliM PUnit
+| "new"         => do noArgsRem <| runIO <| new (← takeArg)
+| "init"        => do noArgsRem <| runIO <| init (← takeArg)
+| "run"         => do exit <| ← noArgsRem <| script (← loadPkg []) (← takeArg) (← getSubArgs)
+| "configure"   => do noArgsRem <| runBuildM_ (← loadPkg (← getSubArgs)).buildDeps
 | "print-paths" => do noArgsRem <| printPaths (← loadPkg (← getSubArgs)) (← takeArgs)
-| "build"       => do noArgsRem <| execBuild (← loadPkg (← getSubArgs)).build
-| "build-lib"   => do noArgsRem <| execBuild (← loadPkg (← getSubArgs)).buildLib
-| "build-bin"   => do noArgsRem <| execBuild (← loadPkg (← getSubArgs)).buildBin
-| "clean"       => do noArgsRem <| execIO <| (← loadPkg (← getSubArgs)).clean
+| "build"       => do noArgsRem <| runBuildM_ (← loadPkg (← getSubArgs)).build
+| "build-lib"   => do noArgsRem <| runBuildM_ (← loadPkg (← getSubArgs)).buildLib
+| "build-bin"   => do noArgsRem <| runBuildM_ (← loadPkg (← getSubArgs)).buildBin
+| "clean"       => do noArgsRem <| runIO <| (← loadPkg (← getSubArgs)).clean
 | "help"        => do output <| help (← takeArg?)
 | "self-check"  => noArgsRem <| verifyInstall
 | cmd           => error s!"unknown command '{cmd}'"
 
-def processArgs : CliM UInt32 := do
+def processArgs : CliM PUnit := do
   match (← getArgs) with
   | [] => output usage
   | ["--version"] => output uiVersionString
@@ -239,12 +258,16 @@ def processArgs : CliM UInt32 := do
     else
       if (← getWantsHelp) then output usage else error "expected command"
 
-def run (self : CliM α) (args : List String) : IO α := do
+def run (self : CliM α) (args : List String) : IO UInt32 := do
   let (leanInstall?, lakeInstall?) ← findInstall?
-  CliT.run self args {
+  let initSt := {leanInstall?, lakeInstall?}
+  let methods := {
     shortOption, longOption,
     longShortOption := unknownLongOption,
-  } |>.run' {leanInstall?, lakeInstall?}
+  }
+  match (← CliT.run self args methods |>.run' initSt |>.toIO') with
+  | Except.ok _ => pure 0
+  | Except.error rc => pure rc
 
 end CliM
 

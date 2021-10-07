@@ -118,7 +118,7 @@ jobs:
         if: matrix.name == 'Linux release'
         run: |
           cd build/stage1
-          for f in lib/lean/libleanshared.so bin/lean bin/leanpkg bin/leanc; do
+          for f in lib/lean/libleanshared.so bin/lean bin/leanpkg bin/leanc bin/lake; do
             cp -n $(ldd "$f" | cut -f3 -d' ' | grep -Ev 'libc|lean') lib/ || true
             if [[ "$f" == bin/* ]]; then
               patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --set-rpath '$ORIGIN/../lib:$ORIGIN/../lib/lean' $f
@@ -133,7 +133,7 @@ jobs:
         if: matrix.name == 'macOS'
         run: |
           cd build/stage1
-          for f in lib/lean/libleanshared.dylib bin/lean bin/leanpkg bin/leanc; do
+          for f in lib/lean/libleanshared.dylib bin/lean bin/leanpkg bin/leanc bin/lake; do
             for lib in $(otool -L $f | tail -n +2 | cut -d' ' -f1); do
               [[ "$lib" == /usr/lib/* ]] || install_name_tool -change "$lib" "@rpath/$(basename $lib)" $f
             done

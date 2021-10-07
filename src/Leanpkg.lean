@@ -93,9 +93,9 @@ def execMake (makeArgs : List String) (cfg : Build.Config) : IO Unit := withLock
   }
   execCmd spawnArgs
 
-def buildImports (imports : List String) (leanArgs : List String) : IO Unit := do
+def buildImports (imports : List String) (leanArgs : List String) : IO UInt32 := do
   unless ← leanpkgTomlFn.pathExists do
-    return
+    return 2
   let manifest ← readManifest
   let cfg ← configure
   let imports := imports.map (·.toName)
@@ -109,6 +109,7 @@ def buildImports (imports : List String) (leanArgs : List String) : IO Unit := d
     else
       Build.buildModules buildCfg localImports
   IO.println <| Lean.Json.compress <| Lean.toJson cfg.toLeanPaths
+  return 0
 
 def build (makeArgs leanArgs : List String) : IO Unit := do
   let cfg ← configure
@@ -154,11 +155,11 @@ build [<args>]   configure and build *.olean files
 
 See `leanpkg help <command>` for more information on a specific command."
 
-def main : (cmd : String) → (leanpkgArgs leanArgs : List String) → IO Unit
-  | "init",      [Name], []        => init Name
-  | "configure", [],     []        => discard <| configure
+def main : (cmd : String) → (leanpkgArgs leanArgs : List String) → IO UInt32
+  | "init",      [Name], []        => init Name *> pure 0
+  | "configure", [],     []        => configure *> pure 0
   | "print-paths", leanpkgArgs, leanArgs => buildImports leanpkgArgs leanArgs
-  | "build",     makeArgs, leanArgs  => build makeArgs leanArgs
+  | "build",     makeArgs, leanArgs  => build makeArgs leanArgs *> pure 0
   | "help",      ["configure"], [] => IO.println "Download dependencies
 
 Usage:
@@ -169,7 +170,7 @@ This command sets up the `build/deps` directory.
 For each (transitive) git dependency, the specified commit is checked out
 into a sub-directory of `build/deps`. If there are dependencies on multiple
 versions of the same package, the version materialized is undefined. No copy
-is made of local dependencies."
+is made of local dependencies." *> pure 0
   | "help",       ["build"], []    => IO.println "download dependencies and build *.olean files
 
 Usage:
@@ -187,15 +188,15 @@ NOTE: building and linking dependent libraries currently has to be done manually
 ```
 $ (cd a; leanpkg build lib)
 $ (cd b; leanpkg build bin LINK_OPTS=../a/build/lib/libA.a)
-```"
+```" *> pure 0
   | "help",       ["init"], []     => IO.println "Create a new Lean package in the current directory
 
 Usage:
   leanpkg init <name>
 
 This command creates a new Lean package with the given name in the current
-directory."
-  | "help",       _,     []        => IO.println usage
+directory." *> pure 0
+  | "help",       _,     []        => IO.println usage *> pure 0
   | _,            _,     _         => throw <| IO.userError usage
 
 private def splitCmdlineArgsCore : List String → List String × List String
@@ -221,7 +222,6 @@ def main (args : List String) : IO UInt32 := do
     Lean.initSearchPath none  -- HACK
     let (cmd, outerArgs, innerArgs) ← Leanpkg.splitCmdlineArgs args
     Leanpkg.main cmd outerArgs innerArgs
-    pure 0
   catch e =>
     IO.eprintln e  -- avoid "uncaught exception: ..."
     pure 1

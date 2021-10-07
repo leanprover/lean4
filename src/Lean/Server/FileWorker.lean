@@ -160,14 +160,17 @@ section Initialization
   def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) : IO (Snapshot × SearchPath) := do
     let inputCtx := Parser.mkInputContext m.text.source "<input>"
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
-    let lakePath :=
-      -- backward compatibility, kill when `leanpkg` is removed
-      if (← System.FilePath.pathExists "leanpkg.toml") && !(← System.FilePath.pathExists "lakefile.lean") then "leanpkg"
-      else "lake"
-    let lakePath ← match (← IO.getEnv "LEAN_SYSROOT") with
-      | some path => pure <| System.FilePath.mk path / "bin" / lakePath
-      | _         => pure <| (← appDir) / lakePath
-    let lakePath := lakePath.withExtension System.FilePath.exeExtension
+    let lakePath ← match (← IO.getEnv "LAKE") with
+      | some path => System.FilePath.mk path
+      | none =>
+        let lakePath :=
+          -- backward compatibility, kill when `leanpkg` is removed
+          if (← System.FilePath.pathExists "leanpkg.toml") && !(← System.FilePath.pathExists "lakefile.lean") then "leanpkg"
+          else "lake"
+        let lakePath ← match (← IO.getEnv "LEAN_SYSROOT") with
+          | some path => pure <| System.FilePath.mk path / "bin" / lakePath
+          | _         => pure <| (← appDir) / lakePath
+        lakePath.withExtension System.FilePath.exeExtension
     let mut srcSearchPath := [(← appDir) / ".." / "lib" / "lean" / "src"]
     if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
       srcSearchPath := srcSearchPath ++ System.SearchPath.parse p

@@ -47,8 +47,8 @@ open CliT
 -- ## Basic Actions
 
 /-- Perform an IO action and silently exit with code 1 if it errors. -/
-def runIO' (x : IO α) : CliM α :=
-  x.toEIO fun e => (1 : UInt32)
+def runIO' (x : IO α) (rc : UInt32 := 1): CliM α :=
+  x.toEIO fun e => rc
 
 /-- Exit the CLI with given return code (i.e., throw it). -/
 def exit (rc : UInt32) : CliM α := do
@@ -214,30 +214,37 @@ def verifyInstall : CliM PUnit := do
 /--
   Build a list of imports of the package
   and print the `.olean` and source directories of every used package.
+  If no configuration file exists, exit silently with code 2.
 
   The `print-paths` command is used internally by Lean 4 server.
 -/
-def printPaths (pkg : Package) (imports : List String := []) : CliM PUnit := do
+def printPaths (imports : List String := []) : CliM PUnit := do
+  let erc := 2
   let (leanInstall, lakeInstall) ← getInstall
-  runIO do
-    let pkgs ← pkg.buildImportsAndDeps imports |>.runIn {
-      leanInstall, lakeInstall
-      methodsRef := BuildMethodsRef.mk {
-        logInfo  := fun msg => IO.eprintln msg
-        logError := fun msg => IO.eprintln msg
+  let configFile := (← getRootDir) / (← getConfigFile)
+  if (← runIO' configFile.pathExists erc) then
+    let pkg ← loadPkg (← getSubArgs)
+    runIO do
+      let pkgs ← pkg.buildImportsAndDeps imports |>.runIn {
+        leanInstall, lakeInstall
+        methodsRef := BuildMethodsRef.mk {
+          logInfo  := fun msg => IO.eprintln msg
+          logError := fun msg => IO.eprintln msg
+        }
       }
-    }
-    IO.println <| Json.compress <| Json.mkObj [
-      ("oleanPath", toJson <| List.toArray <| pkgs.map (·.oleanDir.toString)),
-      ("srcPath", toJson <| List.toArray <| pkgs.map (·.srcDir.toString))
-    ]
+      IO.println <| Json.compress <| Json.mkObj [
+        ("oleanPath", toJson <| List.toArray <| pkgs.map (·.oleanDir.toString)),
+        ("srcPath", toJson <| List.toArray <| pkgs.map (·.srcDir.toString))
+      ]
+  else
+    exit erc
 
 def command : (cmd : String) → CliM PUnit
 | "new"         => do noArgsRem <| runIO <| new (← takeArg)
 | "init"        => do noArgsRem <| runIO <| init (← takeArg)
 | "run"         => do exit <| ← noArgsRem <| script (← loadPkg []) (← takeArg) (← getSubArgs)
 | "configure"   => do noArgsRem <| runBuildM_ (← loadPkg (← getSubArgs)).buildDeps
-| "print-paths" => do noArgsRem <| printPaths (← loadPkg (← getSubArgs)) (← takeArgs)
+| "print-paths" => do noArgsRem <| printPaths (← takeArgs)
 | "build"       => do noArgsRem <| runBuildM_ (← loadPkg (← getSubArgs)).build
 | "build-lib"   => do noArgsRem <| runBuildM_ (← loadPkg (← getSubArgs)).buildLib
 | "build-bin"   => do noArgsRem <| runBuildM_ (← loadPkg (← getSubArgs)).buildBin

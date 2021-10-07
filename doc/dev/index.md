@@ -42,7 +42,7 @@ PATH and inside your editor.
 To install elan, you can do so, without installing a default version of Lean, using
 
 ```bash
-[Linux]
+[Unix]
 curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain none
 
 [Windows]

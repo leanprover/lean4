@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 import Lean.Util.CollectFVars
 import Lean.Elab.Term
 
-namespace Lean.Elab.Term
+namespace Lean.Meta
 open Meta
 
 def collectUsedFVars (e : Expr) : StateRefT CollectFVars.State MetaM Unit := do
@@ -22,8 +22,7 @@ def removeUnused (vars : Array Expr) (used : CollectFVars.State) : MetaM (LocalC
   let localInsts ← getLocalInstances
   let lctx ← getLCtx
   let (lctx, localInsts, newVars, _) ← vars.foldrM
-    (fun var (result : LocalContext × LocalInstances × Array Expr × CollectFVars.State) => do
-      let (lctx, localInsts, newVars, used) := result
+    (fun var (lctx, localInsts, newVars, used) => do
       if used.fvarSet.contains var.fvarId! then
         let varType ← inferType var
         let (_, used) ← (collectUsedFVars varType).run used
@@ -33,4 +32,4 @@ def removeUnused (vars : Array Expr) (used : CollectFVars.State) : MetaM (LocalC
     (lctx, localInsts, #[], used)
   pure (lctx, localInsts, newVars.reverse)
 
-end Lean.Elab.Term
+end Lean.Meta

@@ -588,18 +588,18 @@ private def getResultUniverse (type : Expr) : TermElabM Level := do
 private def collectUsed (params : Array Expr) (fieldInfos : Array StructFieldInfo) : StateRefT CollectFVars.State MetaM Unit := do
   params.forM fun p => do
     let type ← inferType p
-    Term.collectUsedFVars type
+    Meta.collectUsedFVars type
   fieldInfos.forM fun info => do
     let fvarType ← inferType info.fvar
-    Term.collectUsedFVars fvarType
+    Meta.collectUsedFVars fvarType
     match info.value? with
     | none       => pure ()
-    | some value => Term.collectUsedFVars value
+    | some value => Meta.collectUsedFVars value
 
 private def removeUnused (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo)
     : TermElabM (LocalContext × LocalInstances × Array Expr) := do
   let (_, used) ← (collectUsed params fieldInfos).run {}
-  Term.removeUnused scopeVars used
+  Meta.removeUnused scopeVars used
 
 private def withUsed {α} (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) (k : Array Expr → TermElabM α)
     : TermElabM α := do

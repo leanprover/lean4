@@ -1072,6 +1072,14 @@ def instantiateLambda (e : Expr) (ps : Array Expr) : MetaM Expr :=
 def dependsOn (e : Expr) (fvarId : FVarId) : MetaM Bool :=
   return (← getMCtx).exprDependsOn e fvarId
 
+/-- Return true iff `e` depends on a free variable `x` s.t. `p x` -/
+def dependsOnPred (e : Expr) (p : FVarId → Bool) : MetaM Bool :=
+  return (← getMCtx).findExprDependsOn e p
+
+/-- Return true iff the local declaration for `fvarId` depends on a free variable `x` s.t. `p x` -/
+def localDeclDependsOnPred (fvarId : FVarId) (p : FVarId → Bool) : MetaM Bool := do
+  return (← getMCtx).findLocalDeclDependsOn (← getLocalDecl fvarId) p
+
 def ppExpr (e : Expr) : MetaM Format := do
   let ctxCore  ← readThe Core.Context
   Lean.ppExpr { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions), currNamespace := ctxCore.currNamespace, openDecls := ctxCore.openDecls  } e

@@ -5,7 +5,7 @@ package lake where
   srcDir := FilePath.mk ".." / ".."
   oleanDir := "."
   binRoot := `Lake.Main
-  linkArgs :=
+  moreLinkArgs :=
     if Platform.isWindows then
       #["-Wl,--export-all"]
     else

@@ -104,7 +104,7 @@ protected def Package.moduleOleanAndCTarget
   let traceFile := self.modToTraceFile mod
   let oleanDirs :=  self.oleanDir :: moreOleanDirs
   moduleOleanAndCTarget leanFile cFile oleanFile traceFile oleanDirs contents
-    depTarget self.rootDir self.leanArgs
+    depTarget self.rootDir self.moreLeanArgs
 
 protected def Package.moduleOleanTarget
 (self : Package) (moreOleanDirs : List FilePath) (mod : Name)
@@ -113,7 +113,7 @@ protected def Package.moduleOleanTarget
   let traceFile := self.modToTraceFile mod
   let oleanDirs := self.oleanDir :: moreOleanDirs
   moduleOleanTarget leanFile oleanFile traceFile oleanDirs contents depTarget
-    self.rootDir self.leanArgs
+    self.rootDir self.moreLeanArgs
 
 -- # Recursive Building
 

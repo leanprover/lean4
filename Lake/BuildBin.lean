@@ -13,11 +13,10 @@ namespace Lake
 
 def ActivePackageTarget.oFileTargets
 (self : ActivePackageTarget) : Array FileTarget :=
-  let leancArgs := self.package.leancArgs
   self.moduleTargets.map fun (mod, target) =>
     let oFile := self.package.modToO mod
     let cTarget := Target.active target.cTarget
-    leanOFileTarget oFile cTarget leancArgs
+    leanOFileTarget oFile cTarget self.package.moreLeancArgs
 
 -- # Build Package Lib
 
@@ -43,7 +42,7 @@ def ActivePackageTarget.linkTargets
 protected def ActivePackageTarget.binTarget
 (depTargets : Array ActivePackageTarget) (self : ActivePackageTarget) : FileTarget :=
   let linkTargets := self.linkTargets depTargets
-  leanBinTarget self.package.binFile linkTargets self.package.linkArgs
+  leanBinTarget self.package.binFile linkTargets self.package.moreLinkArgs
 
 def Package.binTarget (self : Package) : FileTarget :=
   Target.mk self.binFile do

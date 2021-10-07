@@ -7,7 +7,7 @@ Lean has a rich extensible inductive type system.
 
 Lean has built in support for the following basic types:
 
-- [Boolean](bool.md) : a `true` or `false` value.
+- [Bool](bool.md) : a `true` or `false` value.
 - [Integer](integers.md) : arbitrary-precision integers (with no overflows!).
 - [Nat](integers.md) : natural numbers, or non-negative integers (also with no overflows!).
 - [Float](float.md): floating point numbers.

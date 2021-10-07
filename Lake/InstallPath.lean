@@ -61,7 +61,7 @@ def findLakeLeanJointHome? : IO (Option FilePath) := do
 
 /--
   Try to find Lean's installation path by
-  first checking the `LEAN_HOME` environment variable
+  first checking the `LEAN_SYSROOT` environment variable
   and then by trying `findLeanPathHome?`.
 
   It assumes that the Lean installation is setup the normal way.
@@ -69,7 +69,7 @@ def findLakeLeanJointHome? : IO (Option FilePath) := do
   libraries and `.olean` files located in `<lean-home>/lib/lean`.
 -/
 def findLeanInstall? : IO (Option LeanInstall) := do
-  if let some home ← IO.getEnv "LEAN_HOME" then
+  if let some home ← IO.getEnv "LEAN_SYSROOT" then
     return some {home}
   if let some home ← findLeanPathHome? then
     return some {home}

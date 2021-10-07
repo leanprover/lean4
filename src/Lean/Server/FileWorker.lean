@@ -121,12 +121,14 @@ section Initialization
   Compilation progress is reported to `hOut` via LSP notifications. Return the search path for
   source files. -/
   partial def lakeSetupSearchPath (lakePath : System.FilePath) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO SearchPath := do
+    let args := #["print-paths"] ++ imports.map (toString ·.module)
+    let cmdStr := " ".intercalate (toString lakePath :: args.toList)
     let lakeProc ← Process.spawn {
       stdin  := Process.Stdio.null
       stdout := Process.Stdio.piped
       stderr := Process.Stdio.piped
       cmd    := lakePath.toString
-      args   := #["print-paths"] ++ imports.map (toString ·.module)
+      args
     }
     -- progress notification: report latest stderr line
     let rec processStderr (acc : String) : IO String := do
@@ -139,23 +141,21 @@ section Initialization
     let stderr ← IO.asTask (processStderr "") Task.Priority.dedicated
     let stdout := String.trim (← lakeProc.stdout.readToEnd)
     let stderr ← IO.ofExcept stderr.get
-    if (← lakeProc.wait) == 0 then
-      if stdout.isEmpty then
-        pure []  -- e.g. no lakefile.lean
-      else
-        -- ignore any output up to the last line
-        -- TODO: leanpkg should instead redirect nested stdout output to stderr
-        let stdout := stdout.split (· == '\n') |>.getLast!
-        let Except.ok paths ← pure (Json.parse stdout >>= fromJson?)
-          | throwServerError s!"invalid output from `leanpkg print-paths`:\n{stdout}\nstderr:\n{stderr}"
-        let paths : LeanPaths ← IO.ofExcept <| fromJson? paths
-        let sp ← getBuiltinSearchPath
-        let sp ← addSearchPathFromEnv sp
-        let sp := paths.oleanPath ++ sp
-        searchPathRef.set sp
-        paths.srcPath.mapM realPathNormalized
-    else
-      throwServerError s!"`{lakePath} print-paths` failed:\n{stdout}\nstderr:\n{stderr}"
+    match (← lakeProc.wait) with
+    | 0 =>
+      -- ignore any output up to the last line
+      -- TODO: leanpkg should instead redirect nested stdout output to stderr
+      let stdout := stdout.split (· == '\n') |>.getLast!
+      let Except.ok paths ← pure (Json.parse stdout >>= fromJson?)
+        | throwServerError s!"invalid output from `{cmdStr}`:\n{stdout}\nstderr:\n{stderr}"
+      let paths : LeanPaths ← IO.ofExcept <| fromJson? paths
+      let sp ← getBuiltinSearchPath
+      let sp ← addSearchPathFromEnv sp
+      let sp := paths.oleanPath ++ sp
+      searchPathRef.set sp
+      paths.srcPath.mapM realPathNormalized
+    | 2 => pure []  -- no lakefile.lean
+    | _ => throwServerError s!"`{cmdStr}` failed:\n{stdout}\nstderr:\n{stderr}"
 
   def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) : IO (Snapshot × SearchPath) := do
     let inputCtx := Parser.mkInputContext m.text.source "<input>"

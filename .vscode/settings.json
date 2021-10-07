@@ -1,5 +1,7 @@
 {
     "files.insertFinalNewline": true,
     "files.trimTrailingWhitespace": true,
-    "rewrap.wrappingColumn": 70,
+    "[markdown]": {
+        "rewrap.wrappingColumn": 70
+    }
 }

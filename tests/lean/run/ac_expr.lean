@@ -11,18 +11,18 @@ def List.getIdx : List α → Nat → α → α
   | a::as, i+1, u => getIdx as i u
 
 structure Context (α : Type u) where
-  op    : α → α → α
-  assoc : (a b c : α) → op (op a b) c = op a (op b c)
-  comm  : (a b : α) → op a b = op b a
-  vars  : List α
-  varsNotEmpty : vars ≠ []
+  op      : α → α → α
+  assoc   : (a b c : α) → op (op a b) c = op a (op b c)
+  comm    : (a b : α) → op a b = op b a
+  vars    : List α
+  someVal : α
 
 theorem Context.left_comm (ctx : Context α) (a b c : α) : ctx.op a (ctx.op b c) = ctx.op b (ctx.op a c) := by
   rw [← ctx.assoc, ctx.comm a b, ctx.assoc]
 
 def Expr.denote (ctx : Context α) : Expr → α
   | Expr.op a b => ctx.op (denote ctx a) (denote ctx b)
-  | Expr.var i  => ctx.vars.getIdx i (ctx.vars.head ctx.varsNotEmpty)
+  | Expr.var i  => ctx.vars.getIdx i ctx.someVal
 
 theorem Expr.denote_op (ctx : Context α) (a b : Expr) : denote ctx (Expr.op a b) = ctx.op (denote ctx a) (denote ctx b) :=
   rfl
@@ -135,22 +135,22 @@ theorem Expr.eq_of_sort_flat (ctx : Context α) (a b : Expr) (h : sort (flat a) 
 
 theorem ex₁ (x₁ x₂ x₃ x₄ : Nat) : (x₁ + x₂) + (x₃ + x₄) = x₁ + x₂ + x₃ + x₄ :=
   Expr.eq_of_flat
-    { op    := Nat.add
-      assoc := Nat.add_assoc
-      comm  := Nat.add_comm
-      vars  := [x₁, x₂, x₃, x₄],
-      varsNotEmpty := by intro _; contradiction }
+    { op      := Nat.add
+      assoc   := Nat.add_assoc
+      comm    := Nat.add_comm
+      vars    := [x₁, x₂, x₃, x₄],
+      someVal := x₁ }
     (Expr.op (Expr.op (Expr.var 0) (Expr.var 1)) (Expr.op (Expr.var 2) (Expr.var 3)))
     (Expr.op (Expr.op (Expr.op (Expr.var 0) (Expr.var 1)) (Expr.var 2)) (Expr.var 3))
     rfl
 
 theorem ex₂ (x₁ x₂ x₃ x₄ : Nat) : (x₁ + x₂) + (x₃ + x₄) = x₃ + x₁ + x₂ + x₄ :=
   Expr.eq_of_sort_flat
-    { op    := Nat.add
-      assoc := Nat.add_assoc
-      comm  := Nat.add_comm
-      vars  := [x₁, x₂, x₃, x₄],
-      varsNotEmpty := by intro _; contradiction }
+    { op      := Nat.add
+      assoc   := Nat.add_assoc
+      comm    := Nat.add_comm
+      vars    := [x₁, x₂, x₃, x₄],
+      someVal := x₁ }
     (Expr.op (Expr.op (Expr.var 0) (Expr.var 1)) (Expr.op (Expr.var 2) (Expr.var 3)))
     (Expr.op (Expr.op (Expr.op (Expr.var 2) (Expr.var 0)) (Expr.var 1)) (Expr.var 3))
     rfl

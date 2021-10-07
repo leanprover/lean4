@@ -1076,9 +1076,9 @@ def dependsOn (e : Expr) (fvarId : FVarId) : MetaM Bool :=
 def dependsOnPred (e : Expr) (p : FVarId → Bool) : MetaM Bool :=
   return (← getMCtx).findExprDependsOn e p
 
-/-- Return true iff the local declaration for `fvarId` depends on a free variable `x` s.t. `p x` -/
-def localDeclDependsOnPred (fvarId : FVarId) (p : FVarId → Bool) : MetaM Bool := do
-  return (← getMCtx).findLocalDeclDependsOn (← getLocalDecl fvarId) p
+/-- Return true iff the local declaration `localDecl` depends on a free variable `x` s.t. `p x` -/
+def localDeclDependsOnPred (localDecl : LocalDecl) (p : FVarId → Bool) : MetaM Bool := do
+  return (← getMCtx).findLocalDeclDependsOn localDecl p
 
 def ppExpr (e : Expr) : MetaM Format := do
   let ctxCore  ← readThe Core.Context

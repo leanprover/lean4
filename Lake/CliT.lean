@@ -83,11 +83,11 @@ def consArg (arg : String) : CliT m PUnit :=
 
 /-- Get the methods of this CLI. -/
 def getMethods : CliT m (CliMethods m) :=
-  read >>= (·.get)
+  (·.get) <$> read
 
 /-- Change the methods of this CLI. -/
-def adaptMethods (f : CliMethods m → CliMethods m) (x : CliT m α) : CliT m α :=
-   ReaderT.adapt (fun ref => CliMethodsRef.mk <| f ref.get) x
+def adaptMethods (f : CliMethods m → CliMethods m') (self : CliT m α) : CliT m α :=
+   ReaderT.adapt (fun ref => CliMethodsRef.mk <| f ref.get) self
 
 /-- Process a short option (ex. `-x` or `--`). -/
 def shortOption (opt : Char) : CliT m PUnit :=

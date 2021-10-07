@@ -41,13 +41,13 @@ structure CliState where
 
 abbrev CliM := CliT <| StateT CliState <| EIO UInt32
 
-namespace CliM
+namespace Cli
 open CliT
 
 -- ## Basic Actions
 
-/-- Perform an IO action and silently exit with code 1 if it errors. -/
-def runIO' (x : IO α) (rc : UInt32 := 1): CliM α :=
+/-- Perform an IO action and silently exit with the given code (default: 1) if it errors. -/
+def runIO' (x : IO α) (rc : UInt32 := 1) : CliM α :=
   x.toEIO fun e => rc
 
 /-- Exit the CLI with given return code (i.e., throw it). -/
@@ -211,10 +211,13 @@ def verifyInstall : CliM PUnit := do
   output s!"Lake:\n{repr <| ← getLakeInstall?}"
   verifyLeanVersion
 
+/-- Exit code to return if `print-paths` cannot find the config file. -/
+def noConfigFileCode : UInt32 := 2
+
 /--
   Build a list of imports of the package
   and print the `.olean` and source directories of every used package.
-  If no configuration file exists, exit silently with code 2.
+  If no configuration file exists, exit silently with `noConfigFileCode` (i.e, 2).
 
   The `print-paths` command is used internally by Lean 4 server.
 -/
@@ -222,7 +225,7 @@ def printPaths (imports : List String := []) : CliM PUnit := do
   let erc := 2
   let (leanInstall, lakeInstall) ← getInstall
   let configFile := (← getRootDir) / (← getConfigFile)
-  if (← runIO' configFile.pathExists erc) then
+  if (← runIO' configFile.pathExists noConfigFileCode) then
     let pkg ← loadPkg (← getSubArgs)
     runIO do
       let pkgs ← pkg.buildImportsAndDeps imports |>.runIn {
@@ -237,7 +240,7 @@ def printPaths (imports : List String := []) : CliM PUnit := do
         ("srcPath", toJson <| List.toArray <| pkgs.map (·.srcDir.toString))
       ]
   else
-    exit erc
+    exit noConfigFileCode
 
 def command : (cmd : String) → CliM PUnit
 | "new"         => do noArgsRem <| runIO <| new (← takeArg)
@@ -265,7 +268,10 @@ def processArgs : CliM PUnit := do
     else
       if (← getWantsHelp) then output usage else error "expected command"
 
-def run (self : CliM α) (args : List String) : IO UInt32 := do
+end Cli
+
+open Cli in
+def CliM.run (self : CliM α) (args : List String) : IO UInt32 := do
   let (leanInstall?, lakeInstall?) ← findInstall?
   let initSt := {leanInstall?, lakeInstall?}
   let methods := {
@@ -276,7 +282,5 @@ def run (self : CliM α) (args : List String) : IO UInt32 := do
   | Except.ok _ => pure 0
   | Except.error rc => pure rc
 
-end CliM
-
 def cli (args : List String) : IO UInt32 :=
-  CliM.processArgs.run args
+  Cli.processArgs.run args

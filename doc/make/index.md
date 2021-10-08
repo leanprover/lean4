@@ -31,30 +31,15 @@ cmake ../..
 make
 ```
 
-Note: that if you have a CPU with lots of cores you will get a faster
-build if you specify the number of parallel jobs using the `-j n`
-option on make.
+The above commands will compile the Lean library and binaries into the
+`stage1` subfolder; see below for details. Add `-j N` for an
+appropriate `N` to `make` for a parallel build.
 
 For example, on an AMD Ryzen 9 `make` takes 00:04:55, whereas `make -j 10`
 takes 00:01:38.  Your results may vary depending on the speed of your hard
 drive.
 
-Setting up a basic debug build:
-
-```bash
-git clone https://github.com/leanprover/lean4
-cd lean4
-mkdir -p build/debug
-cd build/debug
-cmake -D CMAKE_BUILD_TYPE=DEBUG ../..
-make
-```
-
-This will compile the Lean library and binary into the `stage1` subfolder; see
-below for details. Add `-jN` for an appropriate `N` to `make` for a parallel
-build.
-
-To install the build see [Dev setup using
+To install the build, see [Dev setup using
 elan](../dev/index.md#dev-setup-using-elan).
 
 

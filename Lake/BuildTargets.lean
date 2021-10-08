@@ -9,6 +9,8 @@ import Lake.BuildTarget
 open System
 namespace Lake
 
+-- # General Utilities
+
 def buildFileUnlessUpToDate (file : FilePath)
 (trace : BuildTrace) (build : BuildM PUnit) : BuildM BuildTrace := do
   let traceFile := FilePath.mk <| file.toString ++ ".trace"
@@ -18,37 +20,47 @@ def buildFileUnlessUpToDate (file : FilePath)
   IO.FS.writeFile traceFile trace.hash.toString
   liftM <| computeTrace file
 
+def fileTargetWithDep (file : FilePath)
+(depTarget : BuildTarget i) (build : i → BuildM PUnit) : FileTarget :=
+  Target.mk file do
+    depTarget.mapAsync fun depInfo depTrace => do
+      buildFileUnlessUpToDate file depTrace <| build depInfo
+
+def fileTargetWithDepList (file : FilePath)
+(depTargets : List (BuildTarget i)) (build : List i → BuildM PUnit) : FileTarget :=
+  Target.mk file do
+    Target.collectList depTargets |>.mapAsync fun depInfos depTrace => do
+      buildFileUnlessUpToDate file depTrace <| build depInfos
+
+def fileTargetWithDepArray (file : FilePath)
+(depTargets : Array (BuildTarget i)) (build : Array i → BuildM PUnit) : FileTarget :=
+  Target.mk file do
+    Target.collectArray depTargets |>.mapAsync fun depInfos depTrace => do
+      buildFileUnlessUpToDate file depTrace <| build depInfos
+
+-- # Specific Targets
+
 def oFileTarget (oFile : FilePath) (srcTarget : FileTarget)
 (args : Array String := #[]) (compiler : FilePath := "c++") : FileTarget :=
-  Target.mk oFile do
-    srcTarget.mapAsync fun file trace => do
-      buildFileUnlessUpToDate oFile trace do
-        compileO oFile file args compiler
+  fileTargetWithDep oFile srcTarget fun srcFile => do
+    compileO oFile srcFile args compiler
 
 def leanOFileTarget (oFile : FilePath)
 (srcTarget : FileTarget) (args : Array String := #[]) : FileTarget :=
-  Target.mk oFile do
-    srcTarget.mapAsync fun file trace => do
-      buildFileUnlessUpToDate oFile trace do
-        compileO oFile file args (← getLeanc)
+  fileTargetWithDep oFile srcTarget fun srcFile => do
+    compileO oFile srcFile args (← getLeanc)
 
 def staticLibTarget (libFile : FilePath)
 (oFileTargets : Array FileTarget) (ar : FilePath := "ar") : FileTarget :=
-  Target.mk libFile do
-    Target.collectArray oFileTargets |>.mapAsync fun oFiles trace => do
-      buildFileUnlessUpToDate libFile trace do
-        compileStaticLib libFile oFiles ar
+  fileTargetWithDepArray libFile oFileTargets fun oFiles => do
+    compileStaticLib libFile oFiles ar
 
 def binTarget (binFile : FilePath) (linkTargets : Array FileTarget)
 (linkArgs : Array String := #[]) (linker : FilePath := "cc") : FileTarget :=
-  Target.mk binFile do
-    Target.collectArray linkTargets |>.mapAsync fun links trace => do
-      buildFileUnlessUpToDate binFile trace do
-        compileBin binFile links linkArgs linker
+   fileTargetWithDepArray binFile linkTargets fun links => do
+    compileBin binFile links linkArgs linker
 
 def leanBinTarget (binFile : FilePath) (linkTargets : Array FileTarget)
 (linkArgs : Array String := #[]) (linker : FilePath := "cc") : FileTarget :=
-  Target.mk binFile do
-    Target.collectArray linkTargets |>.mapAsync fun links trace => do
-      buildFileUnlessUpToDate binFile trace do
-        compileBin binFile links linkArgs (← getLeanc)
+  fileTargetWithDepArray binFile linkTargets fun links => do
+    compileBin binFile links linkArgs (← getLeanc)

@@ -3,9 +3,11 @@
 The `Option` type allows the representation of an optional value. For any type `α`, elements of `Option α` are either `none` or `some a` where `a` is of type `α`.
 `Option` is an inductive type and defined as:
 ```lean
+# namespace Hidden
 inductive Option (α : Type u) where
   | none : Option α
   | some (val : α) : Option α
+# end Hidden
 ```
 Examples of use are:
 ```lean

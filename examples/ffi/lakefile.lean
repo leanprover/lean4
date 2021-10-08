@@ -2,23 +2,23 @@ import Lake
 open System Lake DSL
 
 def cDir : FilePath := "c"
-def addSrc := cDir / "add.cpp"
-
+def ffiSrc := cDir / "ffi.cpp"
 def buildDir := defaultBuildDir
-def addO := buildDir / cDir / "add.o"
-def cLib := buildDir / cDir / "libadd.a"
 
-def addOTarget (pkgDir : FilePath) : FileTarget :=
-  oFileTarget (pkgDir / addO) (pkgDir / addSrc : FilePath)
+def ffiOTarget (pkgDir : FilePath) : FileTarget :=
+  let oFile := pkgDir / buildDir / cDir / "ffi.o"
+  let srcTarget : FileTarget := coe <| pkgDir / ffiSrc
+  fileTargetWithDep oFile srcTarget fun srcFile => do
+    compileO oFile srcFile #["-I", (← getLeanIncludeDir).toString]
 
 def cLibTarget (pkgDir : FilePath) : FileTarget :=
-  staticLibTarget (pkgDir / cLib) #[addOTarget pkgDir]
+  let libFile := pkgDir / buildDir / cDir / "libffi.a"
+  staticLibTarget libFile #[ffiOTarget pkgDir]
 
 package ffi (pkgDir) (args) {
   -- customize layout
   srcDir := "lib"
-  libRoots := #[`Add]
-  binName := "add"
+  libRoots := #[`Ffi]
   -- specify the lib as an additional target
   moreLibTargets := #[cLibTarget pkgDir]
 }

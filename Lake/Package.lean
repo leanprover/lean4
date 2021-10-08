@@ -41,7 +41,7 @@ def defaultDepsDir : FilePath := "lean_packages"
 def defaultBinRoot : Name := `Main
 
 --------------------------------------------------------------------------------
--- # PackageConfig Helpers
+-- # Auxiliary Definitions and Helpers
 --------------------------------------------------------------------------------
 
 /--
@@ -100,11 +100,44 @@ def toUpperCamelCase (name : Name) : Name :=
     name
 
 --------------------------------------------------------------------------------
+-- # WorkspaceConfig
+--------------------------------------------------------------------------------
+
+/-- A workspace's declarative configuration. -/
+structure WorkspaceConfig where
+  /--
+    The directory to which Lake should download dependencies.
+    Defaults to `defaultDepsDir` (i.e., `lean_packages`).
+  -/
+  depsDir : FilePath := defaultDepsDir
+  deriving Inhabited, Repr
+
+
+--------------------------------------------------------------------------------
+-- # Workspace
+--------------------------------------------------------------------------------
+
+structure Workspace where
+  /-- The path to the workspace's directory. -/
+  dir : FilePath
+  /-- The workspace's configuration. -/
+  config : WorkspaceConfig
+  deriving Inhabited, Repr
+
+namespace Workspace
+
+/-- The workspace's `dir` joined with its `depsDir` configuration. -/
+def depsDir (self : Workspace) : FilePath :=
+  self.dir / self.config.depsDir
+
+end Workspace
+
+--------------------------------------------------------------------------------
 -- # PackageConfig
 --------------------------------------------------------------------------------
 
 /-- A package's declarative configuration. -/
-structure PackageConfig where
+structure PackageConfig extends WorkspaceConfig where
 
   /--
     The `Name` of the package.
@@ -116,12 +149,6 @@ structure PackageConfig where
     See the documentation of `Dependency` for more information.
   -/
   dependencies : Array Dependency := #[]
-
-  /--
-    The directory to which Lake should download dependencies.
-    Defaults to `defaultDepsDir` (i.e., `lean_packages`).
-  -/
-  depsDir : FilePath := defaultDepsDir
 
   /--
     An extra `OpaqueTarget` that should be built before the package.
@@ -257,6 +284,8 @@ structure Package where
   dir : FilePath
   /-- The package's configuration. -/
   config : PackageConfig
+  /-- The workspace the package is contained in. -/
+  workspace : Workspace := {dir, config := config.toWorkspaceConfig}
   /--
     A `NameMap` of scripts for the package.
 
@@ -280,6 +309,14 @@ def IOPackager := (pkgDir : FilePath) → (args : List String) → IO PackageCon
 
 namespace Package
 
+/-- Replace the package's workspace. -/
+def withWorkspace (ws : Workspace) (self : Package) : Package :=
+  {self with workspace := ws}
+
+/-- The workspace's `depsDir`. -/
+def depsDir (self : Package) : FilePath :=
+  self.workspace.depsDir
+
 /-- The package's `name` configuration. -/
 def name (self : Package) : Name :=
   self.config.name
@@ -291,10 +328,6 @@ def dependencies (self : Package) : Array Dependency :=
 /-- The package's `extraDepTarget` configuration. -/
 def extraDepTarget (self : Package) : OpaqueTarget :=
   self.config.extraDepTarget
-
-/-- The package's `dir` joined with its `depsDir` configuration. -/
-def depsDir (self : Package) : FilePath :=
-  self.dir / self.config.depsDir
 
 /-- The package's `dir` joined with its `srcDir` configuration. -/
 def srcDir (self : Package) : FilePath :=

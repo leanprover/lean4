@@ -31,7 +31,7 @@ def materializeGit
     checkoutDetach hash dir
 
 /--
-  Materializes a dependency relative to the given package,
+  Materializes a `Dependency` relative to the given `Package`,
   downloading and/or updating it as necessary.
 -/
 def materializeDep (pkg : Package) (dep : Dependency) : IO FilePath :=
@@ -44,8 +44,8 @@ def materializeDep (pkg : Package) (dep : Dependency) : IO FilePath :=
     depDir
 
 /--
-  Resolves a dependency relative to the given package,
-  downloading and/or updating it as necessary.
+  Resolves a `Dependency` relative to the given `Package`
+  in the same `Workspace`, downloading and/or updating it as necessary.
 -/
 def resolveDep (pkg : Package) (dep : Dependency) : IO Package := do
   let dir ← materializeDep pkg dep
@@ -54,7 +54,7 @@ def resolveDep (pkg : Package) (dep : Dependency) : IO Package := do
     throw <| IO.userError <|
       s!"{pkg.name} (in {pkg.dir}) depends on {dep.name}, " ++
       s!"but resolved dependency has name {depPkg.name} (in {depPkg.dir})"
-  return depPkg
+  return depPkg.withWorkspace pkg.workspace
 
 /--
   Resolves the package's direct dependencies,

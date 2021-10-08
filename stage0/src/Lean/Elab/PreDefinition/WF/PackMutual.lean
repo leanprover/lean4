@@ -64,10 +64,21 @@ private partial def mkNewCoDomain (x : Expr) (preDefs : Array PreDefinition) : M
   This step is performed by `transform` with the following `post` method.
  -/
 private partial def packValues (x : Expr) (codomain : Expr) (preDefs : Array PreDefinition) : MetaM Expr := do
+  let varNames := preDefs.map fun preDef =>
+    assert! preDef.value.isLambda
+    preDef.value.bindingName!
   let mvar ← mkFreshExprSyntheticOpaqueMVar codomain
   let rec go (mvarId : MVarId) (x : FVarId) (i : Nat) : MetaM Unit := do
     if i < preDefs.size - 1 then
-      let #[s₁, s₂] ← cases mvarId x | unreachable!
+      /-
+        Names for the `cases` tactics. The names are important to preserve the user provided names (unary functions).
+      -/
+      let givenNames : Array AltVarNames :=
+         if i == preDefs.size - 2 then
+           #[{ varNames := [varNames[i]] }, { varNames := [varNames[i+1]] }]
+         else
+           #[{ varNames := [varNames[i]] }]
+       let #[s₁, s₂] ← cases mvarId x (givenNames := givenNames) | unreachable!
       assignExprMVar s₁.mvarId (mkApp preDefs[i].value s₁.fields[0]).headBeta
       go s₂.mvarId s₂.fields[0].fvarId! (i+1)
     else

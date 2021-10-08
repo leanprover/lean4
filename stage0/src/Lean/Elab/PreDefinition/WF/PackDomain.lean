@@ -100,23 +100,20 @@ def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) := 
     let preDefNew := preDefsNew[i]
     let arity := arities[i]
     let valueNew ← lambdaTelescope preDef.value fun xs body => do
-      if arity > 1 then
-        forallBoundedTelescope preDefNew.type (some 1) fun y codomain => do
-          let y := y[0]
-          let newBody ← mkPSigmaCasesOn y codomain xs body
-          let visit (e : Expr) : MetaM TransformStep := do
-            if let some idx := isTargetApp? e |>.run then
-              let f := e.getAppFn
-              let fNew := mkConst preDefsNew[idx].declName f.constLevels!
-              let Expr.forallE _ d .. ← inferType fNew | unreachable!
-              let argNew ← mkUnaryArg d e.getAppArgs
-              return TransformStep.done <| mkApp fNew argNew
-            else
-              return TransformStep.done e
-          mkLambdaFVars #[y] (← transform newBody (post := visit))
-      else
-        preDef.value
-    if let some bad := valueNew.find? fun e => isAppOfPreDef? e |>.isSome then
+      forallBoundedTelescope preDefNew.type (some 1) fun y codomain => do
+        let y := y[0]
+        let newBody ← mkPSigmaCasesOn y codomain xs body
+        let visit (e : Expr) : MetaM TransformStep := do
+          if let some idx := isTargetApp? e |>.run then
+            let f := e.getAppFn
+            let fNew := mkConst preDefsNew[idx].declName f.constLevels!
+            let Expr.forallE _ d .. ← inferType fNew | unreachable!
+            let argNew ← mkUnaryArg d e.getAppArgs
+            return TransformStep.done <| mkApp fNew argNew
+          else
+            return TransformStep.done e
+        mkLambdaFVars #[y] (← transform newBody (post := visit))
+    if let some bad := valueNew.find? fun e => (isAppOfPreDef? e).isSome && e.getAppNumArgs > 1 then
       if let some i := isAppOfPreDef? bad then
         throwErrorAt preDef.ref "well-founded recursion cannot be used, function '{preDef.declName}' contains application of function '{preDefs[i].declName}' with #{bad.getAppNumArgs} argument(s), but function has arity {arities[i]}"
     preDefsNew := preDefsNew.set! i { preDefNew with value := valueNew }

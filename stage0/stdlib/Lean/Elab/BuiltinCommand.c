@@ -10180,7 +10180,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-x_17 = l_Lean_Elab_Term_synthesizeSyntheticMVars_loop(x_15, x_15, x_16, x_4, x_5, x_6, x_7, x_8, x_9, x_14);
+x_17 = l_Lean_Elab_Term_synthesizeSyntheticMVars_loop(x_15, x_11, x_16, x_4, x_5, x_6, x_7, x_8, x_9, x_14);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; 

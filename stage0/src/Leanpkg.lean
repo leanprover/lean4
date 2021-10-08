@@ -6,6 +6,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich
 import Leanpkg.Resolve
 import Leanpkg.Git
 import Leanpkg.Build
+import Lean.Util.Paths
 
 open System
 
@@ -57,9 +58,7 @@ def getRootPart (pkg : FilePath := ".") : IO Lean.Name := do
   | #[]         => throw <| IO.userError s!"no '.lean' file found in {← IO.FS.realPath "."}"
   | _           => throw <| IO.userError s!"{← IO.FS.realPath "."} must contain a unique '.lean' file as the package root"
 
-structure Configuration :=
-  leanPath    : String
-  leanSrcPath : String
+structure Configuration extends Lean.LeanPaths :=
   moreDeps    : List FilePath
 
 def configure : IO Configuration := do
@@ -79,8 +78,8 @@ def configure : IO Configuration := do
       }
       moreDeps := (path / Build.buildPath / (← getRootPart path).toString |>.withExtension "olean") :: moreDeps
   return {
-    leanPath    := SearchPath.toString <| paths.map (· / Build.buildPath)
-    leanSrcPath := SearchPath.toString paths
+    oleanPath := paths.map (· / Build.buildPath)
+    srcPath   := paths
     moreDeps
   }
 
@@ -103,19 +102,18 @@ def buildImports (imports : List String) (leanArgs : List String) : IO Unit := d
   let root ← getRootPart
   let localImports := imports.filter (·.getRoot == root)
   if localImports != [] then
-    let buildCfg : Build.Config := { pkg := root, leanArgs, leanPath := cfg.leanPath, moreDeps := cfg.moreDeps }
+    let buildCfg : Build.Config := { pkg := root, leanArgs, leanPath := cfg.oleanPath.toString, moreDeps := cfg.moreDeps }
     if ← FilePath.pathExists "Makefile" then
       let oleans := localImports.map fun i => Lean.modToFilePath "build" i "olean" |>.toString
       execMake oleans buildCfg
     else
       Build.buildModules buildCfg localImports
-  IO.println cfg.leanPath
-  IO.println cfg.leanSrcPath
+  IO.println <| Lean.toJson cfg.toLeanPaths
 
 def build (makeArgs leanArgs : List String) : IO Unit := do
   let cfg ← configure
   let root ← getRootPart
-  let buildCfg : Build.Config := { pkg := root, leanArgs, leanPath := cfg.leanPath, moreDeps := cfg.moreDeps }
+  let buildCfg : Build.Config := { pkg := root, leanArgs, leanPath := cfg.oleanPath.toString, moreDeps := cfg.moreDeps }
   if makeArgs != [] || (← FilePath.pathExists "Makefile") then
     execMake makeArgs buildCfg
   else

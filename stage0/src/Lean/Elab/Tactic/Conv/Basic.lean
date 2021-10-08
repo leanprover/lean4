@@ -147,4 +147,7 @@ private def convLocalDecl (conv : Syntax) (hUserName : Name) : TacticM Unit := w
       convTarget code
   | _ => throwUnsupportedSyntax
 
+@[builtinTactic Lean.Parser.Tactic.Conv.first] partial def evalFirst : Tactic :=
+  Tactic.evalFirst
+
 end Lean.Elab.Tactic.Conv

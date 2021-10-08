@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Match.Match
 import Lean.Meta.Tactic.Simp.Main
+import Lean.Meta.Tactic.Cleanup
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 
@@ -25,6 +26,7 @@ private def applyDefaultDecrTactic (mvarId : MVarId) : TermElabM Unit := do
 private def mkDecreasingProof (decreasingProp : Expr) (decrTactic? : Option Syntax) : TermElabM Expr := do
   let mvar ← mkFreshExprSyntheticOpaqueMVar decreasingProp
   let mvarId := mvar.mvarId!
+  let mvarId ← cleanup mvarId
   match decrTactic? with
   | none => applyDefaultDecrTactic mvarId
   | some decrTactic => Term.runTactic mvarId decrTactic

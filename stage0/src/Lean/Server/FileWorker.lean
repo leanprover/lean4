@@ -12,6 +12,8 @@ import Lean.Environment
 import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
 
+import Lean.Util.Paths
+
 import Lean.Server.Utils
 import Lean.Server.Snapshots
 import Lean.Server.AsyncList
@@ -138,19 +140,20 @@ section Initialization
     let stdout := String.trim (← leanpkgProc.stdout.readToEnd)
     let stderr ← IO.ofExcept stderr.get
     if (← leanpkgProc.wait) == 0 then
-      let leanpkgLines := stdout.split (· == '\n')
-      -- ignore any output up to the last two lines
-      -- TODO: leanpkg should instead redirect nested stdout output to stderr
-      let leanpkgLines := leanpkgLines.drop (leanpkgLines.length - 2)
-      match leanpkgLines with
-      | [""]                    => pure []  -- e.g. no leanpkg.toml
-      | [leanPath, leanSrcPath] => let sp ← getBuiltinSearchPath
-                                   let sp ← addSearchPathFromEnv sp
-                                   let sp := System.SearchPath.parse leanPath ++ sp
-                                   searchPathRef.set sp
-                                   let srcPath := System.SearchPath.parse leanSrcPath
-                                   srcPath.mapM realPathNormalized
-      | _                       => throwServerError s!"unexpected output from `leanpkg print-paths`:\n{stdout}\nstderr:\n{stderr}"
+      if stdout.isEmpty then
+        pure []  -- e.g. no leanpkg.toml
+      else
+        -- ignore any output up to the last line
+        -- TODO: leanpkg should instead redirect nested stdout output to stderr
+        let stdout := stdout.split (· == '\n') |>.getLast!
+        let Except.ok paths ← pure (Json.parse stdout >>= fromJson?)
+          | throwServerError s!"invalid output from `leanpkg print-paths`:\n{stdout}\nstderr:\n{stderr}"
+        let paths : LeanPaths ← IO.ofExcept <| fromJson? paths
+        let sp ← getBuiltinSearchPath
+        let sp ← addSearchPathFromEnv sp
+        let sp := paths.oleanPath ++ sp
+        searchPathRef.set sp
+        paths.srcPath.mapM realPathNormalized
     else
       throwServerError s!"`leanpkg print-paths` failed:\n{stdout}\nstderr:\n{stderr}"
 

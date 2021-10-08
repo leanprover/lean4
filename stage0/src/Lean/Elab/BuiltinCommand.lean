@@ -212,7 +212,7 @@ open Meta
 @[builtinCommandElab Lean.Parser.Command.check] def elabCheck : CommandElab
   | `(#check%$tk $term) => withoutModifyingEnv $ runTermElabM (some `_check) fun _ => do
     let e ← Term.elabTerm term none
-    Term.synthesizeSyntheticMVarsNoPostponing
+    Term.synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := true)
     let (e, _) ← Term.levelMVarToParam (← instantiateMVars e)
     let type ← inferType e
     unless e.isSyntheticSorry do

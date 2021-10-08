@@ -62,4 +62,11 @@ macro "done" : conv => `(tactic' => done)
 macro "trace_state" : conv => `(tactic' => trace_state)
 macro "apply " e:term : conv => `(tactic => apply $e)
 
+/-- `first | conv | ...` runs each `conv` until one succeeds, or else fails. -/
+syntax (name := first) "first " withPosition((group(colGe "|" convSeq))+) : conv
+
+syntax "repeat " convSeq : conv
+macro_rules
+  | `(conv| repeat $seq) => `(conv| first | ($seq); repeat $seq | skip)
+
 end Lean.Parser.Tactic.Conv

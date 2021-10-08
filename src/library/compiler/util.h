@@ -209,6 +209,12 @@ inline bool is_matcher_app(environment const & env, expr const & e) {
   return is_constant(f) && is_matcher(env, const_name(f));
 }
 
+/*
+  Return true if the given expression must be in eta-expanded form during compilation.
+  Example: constructors, `casesOn` applications must always be in eta-expanded form.
+*/
+bool must_be_eta_expanded(environment const & env, expr const & e);
+
 void initialize_compiler_util();
 void finalize_compiler_util();
 }

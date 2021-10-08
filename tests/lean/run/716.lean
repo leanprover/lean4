@@ -23,7 +23,6 @@ namespace UProd
 
 @[noinline] def myId := @id
 
-set_option trace.compiler true
 def mk' {α : Type} : α × α → UProd α :=
   let f := @Quot.mk _ _
   myId f

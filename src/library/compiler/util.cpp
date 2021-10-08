@@ -749,6 +749,21 @@ expr lcnf_eta_expand(type_checker::state & st, local_ctx lctx, expr e) {
     }
 }
 
+bool is_quot_primitive_app(environment const & env, expr const & e) {
+  expr const & f = get_app_fn(e);
+  return is_constant(f) && is_quot_primitive(env, const_name(f));
+}
+
+bool must_be_eta_expanded(environment const & env, expr const & e) {
+  return
+    is_constructor_app(env, e) ||
+    is_proj(e) ||
+    is_matcher_app(env, e) ||
+    is_cases_on_app(env, e) ||
+    is_lc_unreachable_app(e) ||
+    is_quot_primitive_app(env, e);
+}
+
 void initialize_compiler_util() {
     g_neutral_expr        = new expr(mk_constant("_neutral"));
     mark_persistent(g_neutral_expr->raw());

@@ -23,13 +23,20 @@ Generic Build Instructions
 Setting up a basic release build:
 
 ```bash
-git clone https://github.com/leanprover/lean4
+git clone https://github.com/leanprover/lean4 --recurse-submodules
 cd lean4
 mkdir -p build/release
 cd build/release
 cmake ../..
 make
 ```
+
+For regular development, we recommend running
+```bash
+git config submodule.recurse true
+```
+in the checkout so that `--recurse-submodules` doesn't have to be
+specified with `git pull/checkout/...`.
 
 The above commands will compile the Lean library and binaries into the
 `stage1` subfolder; see below for details. Add `-j N` for an

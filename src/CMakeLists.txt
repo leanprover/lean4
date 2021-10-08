@@ -474,6 +474,10 @@ if(${STAGE} GREATER 0)
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Leanpkg
     VERBATIM)
 
+  if(NOT EXISTS ${LEAN_SOURCE_DIR}/lake/Lake.lean)
+    message(FATAL_ERROR "src/lake does not exist. Please check out the Lake submodule using `git submodule update --init src/lake`.")
+  endif()
+
   add_custom_target(lake ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS leanshared

@@ -7,7 +7,7 @@ def buildDir := defaultBuildDir
 
 def ffiOTarget (pkgDir : FilePath) : FileTarget :=
   let oFile := pkgDir / buildDir / cDir / "ffi.o"
-  let srcTarget : FileTarget := coe <| pkgDir / ffiSrc
+  let srcTarget := inputFileTarget <| pkgDir / ffiSrc
   fileTargetWithDep oFile srcTarget fun srcFile => do
     compileO oFile srcFile #["-I", (← getLeanIncludeDir).toString]
 

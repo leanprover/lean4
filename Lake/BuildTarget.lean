@@ -40,8 +40,6 @@ def computeAsync (path : FilePath) : FileTarget :=
   Target.mk path do async <| try liftM <| computeTrace path catch e =>
     BuildM.logError (toString e); throw e
 
-instance : Coe FilePath FileTarget := ⟨computeAsync⟩
-
 end FileTarget
 
 -- ## Active

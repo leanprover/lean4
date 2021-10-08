@@ -11,6 +11,9 @@ namespace Lake
 
 -- # General Utilities
 
+def inputFileTarget := FileTarget.computeAsync
+instance : Coe FilePath FileTarget := ⟨inputFileTarget⟩
+
 def buildFileUnlessUpToDate (file : FilePath)
 (trace : BuildTrace) (build : BuildM PUnit) : BuildM BuildTrace := do
   let traceFile := FilePath.mk <| file.toString ++ ".trace"

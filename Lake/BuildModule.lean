@@ -42,6 +42,20 @@ instance : CheckExists OleanAndC := ⟨OleanAndC.checkExists⟩
 
 end OleanAndC
 
+abbrev OleanAndCTarget := BuildTarget OleanAndC
+
+namespace OleanAndCTarget
+
+def oleanFile (self : OleanAndCTarget) := self.info.oleanFile
+def oleanTarget (self : OleanAndCTarget) : FileTarget :=
+  self.withInfo self.oleanFile
+
+def cFile (self : OleanAndCTarget) := self.info.cFile
+def cTarget (self : OleanAndCTarget) : FileTarget :=
+  self.withInfo self.cFile
+
+end OleanAndCTarget
+
 abbrev ActiveOleanAndCTarget := ActiveBuildTarget OleanAndC
 
 namespace ActiveOleanAndCTarget
@@ -96,7 +110,7 @@ def moduleOleanTarget
   moduleTarget oleanFile leanFile hashFile contents depTarget do
     compileOlean leanFile oleanFile oleanDirs rootDir leanArgs (← getLean)
 
-protected def Package.moduleOleanAndCTarget
+protected def Package.moduleOleanAndCTargetOnly
 (self : Package) (moreOleanDirs : List FilePath) (mod : Name)
 (leanFile : FilePath) (contents : String) (depTarget : BuildTarget x) :=
   let cFile := self.modToC mod
@@ -106,7 +120,7 @@ protected def Package.moduleOleanAndCTarget
   moduleOleanAndCTarget leanFile cFile oleanFile traceFile oleanDirs contents
     depTarget self.rootDir self.moreLeanArgs
 
-protected def Package.moduleOleanTarget
+protected def Package.moduleOleanTargetOnly
 (self : Package) (moreOleanDirs : List FilePath) (mod : Name)
 (leanFile : FilePath) (contents : String) (depTarget : BuildTarget x) :=
   let oleanFile := self.modToOlean mod
@@ -142,15 +156,15 @@ def Package.recBuildModuleOleanAndCTargetWithLocalImports [Monad m] [MonadLiftT 
   recBuildModuleWithLocalImports self fun mod leanFile contents importTargets => do
     let allDepsTarget := Target.active <| ←
       depTarget.mixOpaqueAsync <| ← ActiveTarget.collectOpaqueList importTargets
-    self.moduleOleanAndCTarget moreOleanDirs mod leanFile contents allDepsTarget |>.run
+    self.moduleOleanAndCTargetOnly moreOleanDirs mod leanFile contents allDepsTarget |>.run
 
-def  Package.recBuildModuleOleanTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
+def Package.recBuildModuleOleanTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
 (self : Package) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
 : RecBuild Name ActiveFileTarget m :=
   recBuildModuleWithLocalImports self fun mod leanFile contents importTargets => do
     let allDepsTarget := Target.active <| ←
       depTarget.mixOpaqueAsync <| ← ActiveTarget.collectOpaqueList importTargets
-    self.moduleOleanTarget moreOleanDirs mod leanFile contents allDepsTarget |>.run
+    self.moduleOleanTargetOnly moreOleanDirs mod leanFile contents allDepsTarget |>.run
 
 -- ## Definitions
 
@@ -159,11 +173,16 @@ abbrev ModuleBuildM (α) :=
   -- phrased this way to use `NameMap`
   EStateT (List Name) (NameMap α) BuildM
 
-abbrev ModuleBuild (α) :=
-  RecBuild Name α (ModuleBuildM α)
+abbrev RecModuleBuild (i) :=
+  RecBuild Name (ActiveBuildTarget i) (ModuleBuildM (ActiveBuildTarget i))
 
-abbrev OleanTargetBuild := ModuleBuild ActiveFileTarget
-abbrev OleanAndCTargetBuild := ModuleBuild ActiveOleanAndCTarget
+-- ## Builders
 
-abbrev OleanTargetMap := NameMap ActiveFileTarget
-abbrev OleanAndCTargetMap := NameMap ActiveOleanAndCTarget
+def buildModuleTarget (mod : Name) [Inhabited i]
+(build : RecModuleBuild i) : BuildM (ActiveBuildTarget i) := do
+  failOnBuildCycle <| ← RBTopT.run' <| buildRBTop (cmp := Name.quickCmp) build id mod
+
+def buildModuleTargets (mods : Array Name) [Inhabited i]
+(build : RecModuleBuild i) : BuildM (Array (ActiveBuildTarget i)) := do
+  failOnBuildCycle <| ← RBTopT.run' <| mods.mapM <|
+    buildRBTop (cmp := Name.quickCmp) build id

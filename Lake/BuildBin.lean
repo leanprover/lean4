@@ -7,48 +7,53 @@ import Lake.BuildPackage
 import Lake.BuildTargets
 
 open System
+open Lean (Name)
+
 namespace Lake
 
 -- # Build Package .o Files
 
 def ActivePackageTarget.oFileTargets
-(self : ActivePackageTarget) : Array FileTarget :=
+(self : ActivePackageTarget OleanAndC) : Array FileTarget :=
   self.moduleTargets.map fun (mod, target) =>
     let oFile := self.package.modToO mod
-    let cTarget := Target.active target.cTarget
+    let cTarget := Target.active <| ActiveOleanAndCTarget.cTarget target
     leanOFileTarget oFile cTarget self.package.moreLeancArgs
+
+def Package.moduleOTarget (mod : Name) (self : Package) : FileTarget :=
+  let oFile := self.modToO mod
+  let cTarget := self.moduleOleanAndCTarget mod |>.cTarget
+  leanOFileTarget oFile cTarget self.moreLeancArgs
 
 -- # Build Package Lib
 
-protected def ActivePackageTarget.staticLibTarget (self : ActivePackageTarget) : FileTarget :=
+protected def ActivePackageTarget.staticLibTarget (self : ActivePackageTarget OleanAndC) : FileTarget :=
   staticLibTarget self.package.staticLibFile self.oFileTargets
 
-def ActivePackageTarget.staticLibTargets (self : ActivePackageTarget) : Array FileTarget :=
+def ActivePackageTarget.staticLibTargets (self : ActivePackageTarget OleanAndC) : Array FileTarget :=
   #[self.staticLibTarget] ++ self.package.moreLibTargets
 
 def Package.staticLibTarget (self : Package) : FileTarget :=
  Target.mk self.staticLibFile do
-    (← self.buildTarget).staticLibTarget.materializeAsync
+    (← self.buildOleanAndCTarget).staticLibTarget.materializeAsync
 
-def Package.buildLib (pkg : Package) : BuildM FilePath :=
-  pkg.staticLibTarget.build
+def Package.buildLib (self : Package) : BuildM FilePath :=
+  self.staticLibTarget.build
 
 -- # Build Package Bin
 
-def ActivePackageTarget.linkTargets
-(depTargets : Array ActivePackageTarget) (self : ActivePackageTarget) : Array FileTarget :=
-  self.oFileTargets ++ self.package.moreLibTargets ++ depTargets.concatMap (·.staticLibTargets)
-
-protected def ActivePackageTarget.binTarget
-(depTargets : Array ActivePackageTarget) (self : ActivePackageTarget) : FileTarget :=
-  let linkTargets := self.linkTargets depTargets
-  leanBinTarget self.package.binFile linkTargets self.package.moreLinkArgs
-
 def Package.binTarget (self : Package) : FileTarget :=
   Target.mk self.binFile do
-    let depTargets ← self.buildDepTargets
-    let pkgTarget ← self.buildModuleOleanAndCTargetsWithDepTargets #[self.binRoot] depTargets
-    pkgTarget.binTarget depTargets >>= (·.materializeAsync)
+    let depTargets ← self.buildDepTargets buildOleanAndCTargetWithDepTargets
+    let depTarget ← self.buildDepTargetWith depTargets
+    let moreOleanDirs := packageTargetsToOleanDirs depTargets
+    let build := self.recBuildModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
+    let pkgTarget ← self.buildModuleDAGTarget self.binRoot build
+    let linkTargets :=
+      pkgTarget.oFileTargets ++ self.moreLibTargets ++
+      depTargets.concatMap (·.staticLibTargets)
+    let target := leanBinTarget self.binFile linkTargets self.moreLinkArgs
+    target.materializeAsync
 
-def Package.buildBin (pkg : Package) : BuildM FilePath :=
-  pkg.binTarget.build
+def Package.buildBin (self : Package) : BuildM FilePath :=
+  self.binTarget.build

@@ -25,9 +25,7 @@ COMMANDS:
   init <name>           create a Lean package in the current directory
   run <script>          run arbitrary package scripts
   configure             download and build dependencies
-  build                 configure and build *.olean files
-  build-lib             configure and build a static library
-  build-bin             configure and build a native binary executable
+  build [<targets>...]  configure and build targets
   clean                 remove build outputs
 
 See `lake help <command>` for more information on a specific command."
@@ -58,7 +56,7 @@ USAGE:
 
 This command runs the given script from the package configuration's
 `scripts` field, passing `args` to it. If the given script does not exist,
-it will list the available scripts."
+errors and prints the list of available scripts."
 
 def helpConfigure :=
 "Download and build dependencies
@@ -76,48 +74,34 @@ versions of the same package, the version materialized is undefined.
 No copy is made of local dependencies."
 
 def helpBuild :=
-"Configure this package and build *.olean files
+"Build targets
 
 USAGE:
-  lake build [-- <args>...]
+  lake build [<targets>...] [-- <args>...]
 
-This command configures the package's dependencies and then builds the package
-with `lean`. Additional arguments can be passed to `lean` by setting the
-`leanArgs` field in the package's configuration. Arguments to the `Packager`
-itself can be specified with `args`."
+A target is specified with a string of the form '<package>/<module>:<facet>'.
+The package must be the root package or one of its direct dependencies
+(i.e., those listed in the root configuration file).
 
-def helpBuildLib :=
-"Configure this package and build a static library
+PACKAGE FACETS:
+  bin                   build the package's binary
+  staticLib             build the package's static library
+  oleans                build the package's *.olean files
 
-USAGE:
-  lake build-lib [-- <args>...]
+MODULE FACETS:
+  olean                 build the module's *.olean file
+  c                     build the module's *.c file
+  o                     build the module's *.o file
 
-This command configures this package's dependencies, builds the package,
-compiles the extracted C code with `leanc`, and uses `ar` to produce a static
-library.
+TARGET EXAMPLES:
+  a                     build the default facet of package `a`
+  a/A                   build the .olean file of module `A` of package `a`
+  a/A:c                 build the .c file of module `A` of package `a`
+  a:oleans              build the olean files of package `a`
+  :bin                  build the root package's binary
 
-Additional arguments can be passed to `lean` or `leanc` by setting the
-`leanArgs` or `leancArgs` fields in the package's configuration. Arguments
-to the `Packager` itself can be specified with `args`."
-
-def helpBuildBin :=
-"Configure the package and build a native binary executable
-
-USAGE:
-  lake build-bin [-- <args>...]
-
-This command configures this package's dependencies, builds the package,
-compiles the extracted C code `leanc`, and then links the results together
-with `leanc` to produce a native binary executable.
-
-This requires a declaration of name `main` in the root namespace, which must
-return `IO Unit` or `IO UInt32` (the exit code) and may accept the program's
-command line arguments as a `List String` parameter.
-
-Additional  arguments can be passed to `lean`, the  `leanc` compiler, or the
-`leanc` linker by setting the `leanArgs`, `leancArgs`, or `linkArgs` fields in
-the package's configuration. Arguments to the  `Packager` itself can be
-specified with `args`."
+A bare `build` command will build the default facet of the root package.
+Arguments to the `Packager` itself can be specified with `args`."
 
 def helpClean :=
 "Remove build outputs
@@ -134,8 +118,6 @@ def helpCmd : (cmd : String) → String
 | "run"       => helpRun
 | "configure" => helpConfigure
 | "build"     => helpBuild
-| "build-lib" => helpBuildLib
-| "build-bin" => helpBuildBin
 | "clean"     => helpClean
 | _           => usage
 

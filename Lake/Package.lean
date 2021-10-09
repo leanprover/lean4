@@ -81,6 +81,14 @@ structure Dependency where
 
 deriving Inhabited, Repr
 
+/- A buildable component of a `Package`. -/
+inductive PackageFacet
+| /-- The package's binary. -/ bin
+| /-- The package's static library. -/ staticLib
+| /-- The package's `.olean` files. -/ oleans
+deriving BEq, DecidableEq, Repr
+instance : Inhabited PackageFacet := ⟨PackageFacet.bin⟩
+
 /--
   A package `Script` is an arbitrary function that is
   indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
@@ -157,6 +165,13 @@ structure PackageConfig extends WorkspaceConfig where
     extra targets into a single `extraDepTarget`.
   -/
   extraDepTarget : OpaqueTarget := Target.nil
+
+  /--
+    The `PackageFacet` to build on a bare `lake build` of the package.
+    Can be one of `bin`, `staticLib`, or `oleans`. Defaults to `bin`.
+    See `lake help build` for more info on build facets.
+  -/
+  defaultFacet : PackageFacet := PackageFacet.bin
 
   /--
     The directory containing the package's Lean source files.
@@ -329,6 +344,10 @@ def dependencies (self : Package) : Array Dependency :=
 def extraDepTarget (self : Package) : OpaqueTarget :=
   self.config.extraDepTarget
 
+/-- The package's `defaultFacet` configuration. -/
+def defaultFacet (self : Package) : PackageFacet :=
+   self.config.defaultFacet
+
 /-- The package's `dir` joined with its `srcDir` configuration. -/
 def srcDir (self : Package) : FilePath :=
   self.dir / self.config.srcDir
@@ -369,7 +388,7 @@ def libRoots (self : Package) : Array Name :=
 def libGlobs (self : Package) : Array Glob :=
   self.config.libGlobs
 
-/-- Whether the given module is local to the package. -/
+/-- Whether the given module is considered local to the package. -/
 def isLocalModule (mod : Name) (self : Package) : Bool :=
   self.libRoots.any fun root => root.isPrefixOf mod
 
@@ -450,3 +469,7 @@ def moreLibTargets (self : Package) : Array FileTarget :=
 /-- The package's `moreLinkArgs` configuration. -/
 def moreLinkArgs (self : Package) : Array String :=
   self.config.moreLinkArgs
+
+/-- Whether the given module is in the package. -/
+def hasModule (mod : Name) (self : Package) : Bool :=
+  self.binRoot == mod || self.libGlobs.any fun glob => glob.matches mod

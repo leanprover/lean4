@@ -71,10 +71,10 @@ package hello {
 
 along with a `lean-toolchain` file that contains the version string of the currently active Lean, which tells [`elan`](https://github.com/leanprover/elan) to use that Lean toolchain for the package.
 
-The command `lake build-bin` can then be used to build the package (and its dependencies, if it has them) into a native executable. The result will be placed in `build/bin`.
+The command `lake build` can then be used to build the package (and its dependencies, if it has them) into a native executable. The result will be placed in `build/bin`.
 
 ```
-$ lake build-bin
+$ lake build
 ...
 $ ./build/bin/hello
 Hello, world!
@@ -95,6 +95,7 @@ Workspace options are shared across a package and its dependencies.
 * `name` **(Required)**: The `Name` of the package.
 * `dependencies`: An `Array` of the package's dependencies.
 * `extraDepTarget`: An extra `OpaqueTarget` that should be built before the package. `OpaqueTarget.collectList/collectArray` can be used combine multiple extra targets into a single `extraDepTarget`.
+* `defaultFacet`: The `PackageFacet` to build on a bare `lake build` of the package. Can be one of `bin`, `staticLib`, or `oleans`. Defaults to `bin`. See `lake help build` for more info on build facets.
 * `srcDir`: The directory containing the package's Lean source files. Defaults to the package's directory. (This will be passed to `lean` as the `-R` option.)
 * `buildDir`: The directory to which Lake should output the package's build results. Defaults to `build`.
 * `oleanDir`: The build subdirectory to which Lake should output the package's `.olean` files. Defaults to `lib`.

@@ -13,7 +13,7 @@ import Lake.InstallPath
 import Lake.CliT
 
 open System
-open Lean (LeanPaths Json toJson)
+open Lean (Name LeanPaths Json toJson)
 
 namespace Lake
 
@@ -28,6 +28,13 @@ def Package.run (script : String) (args : List String) (self : Package) : IO UIn
 def Package.clean (self : Package) : IO PUnit := do
   if (← self.buildDir.pathExists) then
     IO.FS.removeDirAll self.buildDir
+
+open PackageFacet in
+def Package.defaultTarget (self : Package) : OpaqueTarget :=
+  match self.defaultFacet with
+  | bin => self.binTarget.withoutInfo
+  | staticLib => self.staticLibTarget.withoutInfo
+  | oleans =>  self.oleanTarget.withoutInfo
 
 -- # CLI
 
@@ -242,15 +249,76 @@ def printPaths (imports : List String := []) : CliM PUnit := do
   else
     exit noConfigFileCode
 
+def resolvePkgSpec (rootPkg : Package) (spec : String) : CliM Package := do
+  if spec.isEmpty then
+    return rootPkg
+  let pkgName := spec.toName
+  if pkgName == rootPkg.name then
+    return rootPkg
+  if let some dep := rootPkg.dependencies.find? (·.name == pkgName) then
+    runIO <| resolveDep rootPkg dep
+  else
+    error s!"unknown package `{spec}`"
+
+def parseTargetBaseSpec (rootPkg : Package) (spec : String) : CliM (Package × Option Name) := do
+  match spec.splitOn "/" with
+  | [pkgStr] =>
+    return (← resolvePkgSpec rootPkg pkgStr, none)
+  | [pkgStr, modStr] =>
+    let mod := modStr.toName
+    let pkg ← resolvePkgSpec rootPkg pkgStr
+    if pkg.hasModule mod then
+      return (pkg, mod)
+    else
+      error s!"'{modStr}' is not a local module of package '{pkgStr}'"
+  | _ =>
+    error s!"invalid target spec '{spec}' (too many '/')"
+
+partial def parseTargetSpec (rootPkg : Package) (spec : String) : CliM OpaqueTarget := do
+  match spec.splitOn ":" with
+  | [rootSpec] =>
+    let (pkg, mod?) ← parseTargetBaseSpec rootPkg rootSpec
+    if let some mod := mod? then
+      return pkg.moduleOleanTarget mod |>.withoutInfo
+    else
+      return pkg.defaultTarget
+  | [rootSpec, facet] =>
+    let (pkg, mod?) ← parseTargetBaseSpec rootPkg rootSpec
+    if let some mod := mod? then
+      if facet == "olean" then
+        return pkg.moduleOleanTarget mod |>.withoutInfo
+      else if facet == "c" then
+        return pkg.moduleOleanAndCTarget mod |>.withoutInfo
+      else if facet == "o" then
+        return pkg.moduleOTarget mod |>.withoutInfo
+      else
+        error s!"unknown module facet '{facet}'"
+    else
+      if facet == "bin" then
+        return pkg.binTarget.withoutInfo
+      else if facet == "staticLib" then
+        return pkg.staticLibTarget.withoutInfo
+      else if facet == "oleans" then
+        return pkg.oleanTarget.withoutInfo
+      else
+        error s!"unknown package facet '{facet}'"
+  | _ =>
+    error s!"invalid target spec '{spec}' (too many ':')"
+
+def build (rootPkg : Package) (targetSpecs : List String) : CliM PUnit := do
+  let targets ← targetSpecs.mapM (parseTargetSpec rootPkg)
+  if targets.isEmpty then
+    runBuildM rootPkg.defaultTarget.build
+  else
+    runBuildM <| targets.forM (·.build)
+
 def command : (cmd : String) → CliM PUnit
 | "new"         => do noArgsRem <| runIO <| new (← takeArg)
 | "init"        => do noArgsRem <| runIO <| init (← takeArg)
 | "run"         => do exit <| ← noArgsRem <| script (← loadPkg []) (← takeArg) (← getSubArgs)
-| "configure"   => do noArgsRem <| runBuildM_ (← loadPkg (← getSubArgs)).buildDeps
-| "print-paths" => do noArgsRem <| printPaths (← takeArgs)
-| "build"       => do noArgsRem <| runBuildM_ (← loadPkg (← getSubArgs)).build
-| "build-lib"   => do noArgsRem <| runBuildM_ (← loadPkg (← getSubArgs)).buildLib
-| "build-bin"   => do noArgsRem <| runBuildM_ (← loadPkg (← getSubArgs)).buildBin
+| "configure"   => do noArgsRem <| runBuildM (← loadPkg (← getSubArgs)).buildDepOleans
+| "print-paths" => do printPaths (← takeArgs)
+| "build"       => do build (← loadPkg (← getSubArgs)) (← takeArgs)
 | "clean"       => do noArgsRem <| runIO <| (← loadPkg (← getSubArgs)).clean
 | "help"        => do output <| help (← takeArg?)
 | "self-check"  => noArgsRem <| verifyInstall

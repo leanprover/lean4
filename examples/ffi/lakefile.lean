@@ -9,7 +9,7 @@ def ffiOTarget (pkgDir : FilePath) : FileTarget :=
   let oFile := pkgDir / buildDir / cDir / "ffi.o"
   let srcTarget := inputFileTarget <| pkgDir / ffiSrc
   fileTargetWithDep oFile srcTarget fun srcFile => do
-    compileO oFile srcFile #["-I", (← getLeanIncludeDir).toString]
+    compileO oFile srcFile #["-I", (← getLeanIncludeDir).toString] "c++"
 
 def cLibTarget (pkgDir : FilePath) : FileTarget :=
   let libFile := pkgDir / buildDir / cDir / "libffi.a"

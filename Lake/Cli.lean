@@ -3,7 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lean.Data.Json
+import Lean.Util.Paths
 import Lake.Init
 import Lake.Help
 import Lake.BuildBin
@@ -13,7 +13,7 @@ import Lake.InstallPath
 import Lake.CliT
 
 open System
-open Lean (Json toJson)
+open Lean (LeanPaths toJson)
 
 namespace Lake
 
@@ -235,10 +235,10 @@ def printPaths (imports : List String := []) : CliM PUnit := do
           logError := fun msg => IO.eprintln msg
         }
       }
-      IO.println <| Json.compress <| Json.mkObj [
-        ("oleanPath", toJson <| List.toArray <| pkgs.map (·.oleanDir.toString)),
-        ("srcPath", toJson <| List.toArray <| pkgs.map (·.srcDir.toString))
-      ]
+      IO.println <| toJson {
+        oleanPath := pkgs.map (·.oleanDir),
+        srcPath := pkgs.map (·.srcDir) : LeanPaths
+      }
   else
     exit noConfigFileCode
 

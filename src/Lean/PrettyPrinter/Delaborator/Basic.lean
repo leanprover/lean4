@@ -250,13 +250,15 @@ partial def delab : Delab := do
 
 unsafe def mkAppUnexpanderAttribute : IO (KeyedDeclsAttribute Unexpander) :=
   KeyedDeclsAttribute.init {
-    name := `appUnexpander,
+    name  := `appUnexpander,
     descr := "Register an unexpander for applications of a given constant.
 
 [appUnexpander c] registers a `Lean.PrettyPrinter.Unexpander` for applications of the constant `c`. The unexpander is
 passed the result of pre-pretty printing the application *without* implicitly passed arguments. If `pp.explicit` is set
 to true or `pp.notation` is set to false, it will not be called at all.",
     valueTypeName := `Lean.PrettyPrinter.Unexpander
+    evalKey := fun _ stx => do
+      resolveGlobalConstNoOverloadCore (← Attribute.Builtin.getId stx)
   } `Lean.PrettyPrinter.Delaborator.appUnexpanderAttribute
 @[builtinInit mkAppUnexpanderAttribute] constant appUnexpanderAttribute : KeyedDeclsAttribute Unexpander
 

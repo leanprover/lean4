@@ -13,7 +13,7 @@ import Lake.InstallPath
 import Lake.CliT
 
 open System
-open Lean (LeanPaths toJson)
+open Lean (LeanPaths Json toJson)
 
 namespace Lake
 
@@ -235,7 +235,7 @@ def printPaths (imports : List String := []) : CliM PUnit := do
           logError := fun msg => IO.eprintln msg
         }
       }
-      IO.println <| toJson {
+      IO.println <| Json.compress <| toJson {
         oleanPath := pkgs.map (·.oleanDir),
         srcPath := pkgs.map (·.srcDir) : LeanPaths
       }

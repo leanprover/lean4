@@ -146,9 +146,8 @@ section Initialization
       -- ignore any output up to the last line
       -- TODO: leanpkg should instead redirect nested stdout output to stderr
       let stdout := stdout.split (· == '\n') |>.getLast!
-      let Except.ok paths ← pure (Json.parse stdout >>= fromJson?)
+      let Except.ok (paths : LeanPaths) ← pure (Json.parse stdout >>= fromJson?)
         | throwServerError s!"invalid output from `{cmdStr}`:\n{stdout}\nstderr:\n{stderr}"
-      let paths : LeanPaths ← IO.ofExcept <| fromJson? paths
       let sp ← getBuiltinSearchPath
       let sp ← addSearchPathFromEnv sp
       let sp := paths.oleanPath ++ sp

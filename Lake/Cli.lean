@@ -105,6 +105,10 @@ def getWantsHelp : CliM Bool :=
 def setWantsHelp : CliM PUnit :=
   modifyThe CliState fun st => {st with wantsHelp := true}
 
+def setLean (lean : String) : CliM PUnit := do
+  let leanInstall? ← runIO <| findLeanCmdInstall? lean
+  modifyThe CliState fun st => {st with leanInstall?}
+
 def getLeanInstall? : CliM (Option LeanInstall) :=
   (·.leanInstall?) <$> getThe CliState
 
@@ -183,8 +187,20 @@ def longOption : (opt : String) → CliM PUnit
 | "--help"  => setWantsHelp
 | "--dir"   => do setRootDir (← takeFileArg)
 | "--file"  => do setConfigFile (← takeFileArg)
+| "--lean"  => do setLean (← takeArg)
 | "--"      => do setSubArgs (← takeArgs)
 | opt       => unknownLongOption opt
+
+/-- Splits a long option of the form `--long=arg` into `--long arg`. -/
+def longOptionOrEq (optStr : String) : CliM PUnit :=
+  let eqPos := optStr.posOf '='
+  let arg := optStr.drop eqPos.succ
+  let opt := optStr.take eqPos
+  if arg.isEmpty then
+    longOption opt
+  else do
+    consArg arg
+    longOption opt
 
 -- ## Commands
 
@@ -343,7 +359,8 @@ def CliM.run (self : CliM α) (args : List String) : IO UInt32 := do
   let (leanInstall?, lakeInstall?) ← findInstall?
   let initSt := {leanInstall?, lakeInstall?}
   let methods := {
-    shortOption, longOption,
+    shortOption,
+    longOption := longOptionOrEq,
     longShortOption := unknownLongOption,
   }
   match (← CliT.run self args methods |>.run' initSt |>.toIO') with

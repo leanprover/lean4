@@ -19,6 +19,7 @@ OPTIONS:
   --help, -h            print help of the program or a command and exit
   --dir, -d=file        use the package configuration in a specific directory
   --file, -f=file       use a specific file for the package configuration
+  --lean=cmd            specify the `lean` command used by Lake
 
 COMMANDS:
   new <name>            create a Lean package in a new directory

@@ -27,18 +27,30 @@ structure LakeInstall where
   deriving Inhabited, Repr
 
 /--
-  Try to find the home of the `Lean` in `PATH` (if one exists)
+  Try to find the home of the given `lean` command (if it exists)
   by calling `lean --print-prefix` and returning the path it prints.
+  Defaults to trying the `lean` in `PATH`.
 -/
-def findLeanPathHome? : IO (Option FilePath) := do
+def findLeanCmdHome? (lean := "lean") : IO (Option FilePath) := do
   let out ← IO.Process.output {
-    cmd := "lean",
+    cmd := lean,
     args := #["--print-prefix"]
   }
   if out.exitCode == 0 then
     some <| FilePath.mk <| out.stdout.trim
   else
     none
+
+/--
+  Try to find the installation of the given `lean` command
+  by calling `findLeanCmdHome?`.
+
+  It assumes that the Lean installation is setup the normal way.
+  That is, with its binaries located in `<lean-home>/bin` and its
+  libraries and `.olean` files located in `<lean-home>/lib/lean`.
+-/
+def findLeanCmdInstall? (lean := "lean"): IO (Option LeanInstall) := do
+  (← findLeanCmdHome? lean).map fun home => {home}
 
 /--
   Try to get Lake's home by assuming
@@ -49,7 +61,7 @@ def findLakeBuildHome? : IO (Option FilePath) := do
 
 /--
   Check if Lake's executable is co-located with Lean, and, if so,
-  try to return their joint home by assuming they are located at `<home>/bin`.
+  try to return their joint home by assuming they are both located at `<home>/bin`.
 -/
 def findLakeLeanJointHome? : IO (Option FilePath) := do
   let appPath ← IO.appPath
@@ -60,28 +72,28 @@ def findLakeLeanJointHome? : IO (Option FilePath) := do
   return none
 
 /--
-  Try to find Lean's installation path by
+  Try to find Lean's installation by
   first checking the `LEAN_SYSROOT` environment variable
-  and then by trying `findLeanPathHome?`.
+  and then by trying `findLeanCmdHome?`.
 
   It assumes that the Lean installation is setup the normal way.
-  That is, with its binaries located in `<lean-home>/bin/lake` and its
+  That is, with its binaries located in `<lean-home>/bin` and its
   libraries and `.olean` files located in `<lean-home>/lib/lean`.
 -/
 def findLeanInstall? : IO (Option LeanInstall) := do
   if let some home ← IO.getEnv "LEAN_SYSROOT" then
     return some {home}
-  if let some home ← findLeanPathHome? then
+  if let some home ← findLeanCmdHome? then
     return some {home}
   return none
 
 /--
-  Try to find Lake's installation path by
+  Try to find Lake's installation by
   first checking the `LAKE_HOME` environment variable
   and then by trying `findLakeBuildHome?`.
 
   It assumes that the Lake installation is setup the same way it is built.
-  That is, with its binary located in `<lake-home>/bin/lake`, its static library
+  That is, with its binary located at `<lake-home>/bin/lake`, its static library
   in `<lake-home>/lib` and its `.olean` files directly in `<lake-home>`.
 -/
 def findLakeInstall? : IO (Option LakeInstall) := do

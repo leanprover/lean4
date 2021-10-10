@@ -108,7 +108,7 @@ def buildImports (imports : List String) (leanArgs : List String) : IO Unit := d
       execMake oleans buildCfg
     else
       Build.buildModules buildCfg localImports
-  IO.println <| Lean.toJson cfg.toLeanPaths
+  IO.println <| Lean.Json.compress <| Lean.toJson cfg.toLeanPaths
 
 def build (makeArgs leanArgs : List String) : IO Unit := do
   let cfg ← configure

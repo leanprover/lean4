@@ -21,7 +21,10 @@ private def getContext : MetaM Simp.Context := do
     config.decide := false
   }
 
-private def pre (pattern : Expr) (found? : IO.Ref (Option Expr)) (e : Expr) : SimpM Simp.Step := do
+private def pre (pattern : AbstractMVarsResult) (found? : IO.Ref (Option Expr)) (e : Expr) : SimpM Simp.Step := do
+  /- TODO: check whether the following is a performance bottleneck. If it is, recall that we used `AbstractMVarsResult` to make
+     sure we can match the pattern inside of binders. So, it is not needed in most cases. -/
+  let (_, _, pattern) ← openAbstractMVarsResult pattern
   if (← withReducible <| isDefEqGuarded pattern e) then
     let (rhs, newGoal) ← mkConvGoalFor e
     found?.set newGoal
@@ -29,7 +32,7 @@ private def pre (pattern : Expr) (found? : IO.Ref (Option Expr)) (e : Expr) : Si
   else
     return Simp.Step.visit { expr := e }
 
-private def findPattern? (pattern : Expr) (e : Expr) : MetaM (Option (MVarId × Simp.Result)) := do
+private def findPattern? (pattern : AbstractMVarsResult) (e : Expr) : MetaM (Option (MVarId × Simp.Result)) := do
   let found? ← IO.mkRef none
   let result ← Simp.main e (← getContext) (methods := { pre := pre pattern found? })
   if let some newGoal ← found?.get then
@@ -41,8 +44,9 @@ private def findPattern? (pattern : Expr) (e : Expr) : MetaM (Option (MVarId × 
   match stx with
   | `(conv| pattern $p) =>
     let pattern ← Term.withoutPending <| Term.elabTerm p none
+    let patternA ← abstractMVars pattern
     let lhs ← getLhs
-    match (← findPattern? pattern lhs) with
+    match (← findPattern? patternA lhs) with
     | none => throwError "'pattern' conv tactic failed, pattern was not found{indentExpr pattern}"
     | some (mvarId', result) =>
       updateLhs result.expr (← result.getProof)

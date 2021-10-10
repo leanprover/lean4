@@ -21,11 +21,17 @@ private def getContext : MetaM Simp.Context := do
     config.decide := false
   }
 
+def matchPattern (pattern : AbstractMVarsResult) (e : Expr) : MetaM Bool :=
+  withNewMCtxDepth do
+    /- TODO: check whether the following is a performance bottleneck. If it is, recall that we used `AbstractMVarsResult` to make
+       sure we can match the pattern inside of binders. So, it is not needed in most cases. -/
+    let (_, _, pattern) ← openAbstractMVarsResult pattern
+    withReducible <| isDefEqGuarded pattern e
+
 private def pre (pattern : AbstractMVarsResult) (found? : IO.Ref (Option Expr)) (e : Expr) : SimpM Simp.Step := do
-  /- TODO: check whether the following is a performance bottleneck. If it is, recall that we used `AbstractMVarsResult` to make
-     sure we can match the pattern inside of binders. So, it is not needed in most cases. -/
-  let (_, _, pattern) ← openAbstractMVarsResult pattern
-  if (← withReducible <| isDefEqGuarded pattern e) then
+  if (← found?.get).isSome then
+    return Simp.Step.visit { expr := e }
+  else if (← matchPattern pattern e) then
     let (rhs, newGoal) ← mkConvGoalFor e
     found?.set newGoal
     return Simp.Step.done { expr := rhs, proof? := newGoal }

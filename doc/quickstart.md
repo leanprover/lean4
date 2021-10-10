@@ -9,7 +9,7 @@ See [Setup](./setup.md) for other ways and more details on setting up Lean.
     ```
     Alternatively, on Windows, download [the latest release](https://github.com/leanprover/elan/releases/latest/download/elan-x86_64-pc-windows-msvc.zip) and run the contained `elan-init.exe`.
     See the [elan repo](https://github.com/leanprover/elan) for other installation options and details.
-
+    
 1. Install [VS Code](https://code.visualstudio.com/).
 
 1. Open VS Code and install the `lean4` extension.

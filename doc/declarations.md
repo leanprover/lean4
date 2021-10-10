@@ -5,7 +5,7 @@
 Declaration Names
 =================
 
-A declaration name is a :ref:`hierarchical identifier <identifiers>` that is interpreted relative to the current namespace as well as (during lookup) to the set of open namespaces.
+A declaration name is a hierarchical [identifier](lexical_structure.md#identifiers) that is interpreted relative to the current namespace as well as (during lookup) to the set of open namespaces.
 
 .. code-block:: lean
 
@@ -34,15 +34,15 @@ Contexts and Telescopes
 
 When processing user input, Lean first parses text to a raw expression format. It then uses background information and type constants to disambiguate overloaded symbols and infer implicit arguments, resulting in a fully-formed expression. This process is known as *elaboration*.
 
-As hinted in :numref:`expression_syntax`, expressions are parsed and
-elaborated with respect to an *environment* and a *local
-context*. Roughly speaking, an environment represents the state of
-Lean at the point where an expression is parsed, including previously
-declared axioms, constants, definitions, and theorems. In a given
-environment, a *local context* consists of a sequence ``(a₁ : α₁)
-(a₂ : α₂) ... (aₙ : αₙ)`` where each ``aᵢ`` is a name denoting a local
-constant and each ``αᵢ`` is an expression of type ``Sort u`` for some
-``u`` which can involve elements of the environment and the local
+As hinted in [Expression Syntax](expressions.md#expression_syntax),
+expressions are parsed and elaborated with respect to an *environment*
+and a *local context*. Roughly speaking, an environment represents the
+state of Lean at the point where an expression is parsed, including
+previously declared axioms, constants, definitions, and theorems. In a
+given environment, a *local context* consists of a sequence ``(a₁ :
+α₁) (a₂ : α₂) ... (aₙ : αₙ)`` where each ``aᵢ`` is a name denoting a
+local constant and each ``αᵢ`` is an expression of type ``Sort u`` for
+some ``u`` which can involve elements of the environment and the local
 constants ``aⱼ`` for ``j < i``.
 
 Intuitively, a local context is a list of variables that are held constant while an expression is being elaborated. Consider the following
@@ -62,7 +62,7 @@ Here ``a b c : Nat`` indicates the local context, and the second ``Nat`` indicat
 
 A *context* is sometimes called a *telescope*, but the latter is used more generally to include a sequence of declarations occuring relative to a given context. For example, relative to the context ``(a₁ : α₁) (a₂ : α₂) ... (aₙ : αₙ)``, the types ``βᵢ`` in a telescope ``(b₁ : β₁) (b₂ : β₂) ... (bₙ : βₙ)`` can refer to ``a₁, ..., aₙ``. Thus a context can be viewed as a telescope relative to the empty context.
 
-Telescopes are often used to describe a list of arguments, or parameters, to a declaration. In such cases, it is often notationally convenient to let ``(a : α)`` stand for a telescope rather than just a single argument. In general, the annotations described in :ref:`implicit_arguments` can be used to mark arguments as implicit.
+Telescopes are often used to describe a list of arguments, or parameters, to a declaration. In such cases, it is often notationally convenient to let ``(a : α)`` stand for a telescope rather than just a single argument. In general, the annotations described in [Implicit Arguments](expressions.md#implicit_arguments) can be used to mark arguments as implicit.
 
 .. _basic_declarations:
 
@@ -228,7 +228,7 @@ Below are some common examples of inductive types, many of which are defined in 
 
 Note that in the syntax of the inductive definition ``foo``, the context ``(a : α)`` is left implicit. In other words, constructors and recursive arguments are written as though they have return type ``foo`` rather than ``foo a``.
 
-Elements of the context ``(a : α)`` can be marked implicit as described in :numref:`implicit_arguments`. These annotations bear only on the type former, ``foo``. Lean uses a heuristic to determine which arguments to the constructors should be marked implicit, namely, an argument is marked implicit if it can be inferred from the type of a subsequent argument. If the annotation ``{}`` appears after the constructor, a argument is marked implicit if it can be inferred from the type of a subsequent argument *or the return type*. For example, it is useful to let ``nil`` denote the empty list of any type, since the type can usually be inferred in the context in which it appears. These heuristics are imperfect, and you may sometimes wish to define your own constructors in terms of the default ones. In that case, use the ``[pattern]`` :ref:`attribute <attributes>` to ensure that these will be used appropriately by the :ref:`equation compiler <the_equation_compiler>`.
+Elements of the context ``(a : α)`` can be marked implicit as described in [Implicit Arguments](#implicit.md#implicit_arguments). These annotations bear only on the type former, ``foo``. Lean uses a heuristic to determine which arguments to the constructors should be marked implicit, namely, an argument is marked implicit if it can be inferred from the type of a subsequent argument. If the annotation ``{}`` appears after the constructor, a argument is marked implicit if it can be inferred from the type of a subsequent argument *or the return type*. For example, it is useful to let ``nil`` denote the empty list of any type, since the type can usually be inferred in the context in which it appears. These heuristics are imperfect, and you may sometimes wish to define your own constructors in terms of the default ones. In that case, use the ``[pattern]`` [attribute](TODO: missing link) to ensure that these will be used appropriately by the [Equation Compiler](#the-equation-compiler).
 
 There are restrictions on the universe ``u`` in the return type ``Sort u`` of the type former. There are also restrictions on the universe ``u`` in the return type ``Sort u`` of the motive of the eliminator. These will be discussed in the next section in the more general setting of inductive families.
 
@@ -270,7 +270,7 @@ The type former, constructors, and eliminator are all part of Lean's axiomatic f
 - ``foo.below``, ``foo.ibelow`` : functions used by the equation compiler to implement structural recursion
 - ``foo.sizeof`` : a measure which can be used for well-founded recursion
 
-Note that it is common to put definitions and theorems related to a datatype ``foo`` in a namespace of the same name. This makes it possible to use projection notation described in :numref:`structures_and_records` and :numref:`namespaces`.
+Note that it is common to put definitions and theorems related to a datatype ``foo`` in a namespace of the same name. This makes it possible to use projection notation described in [Structures](struct.md#structures) and [Namespaces](namespaces.md#namespaces).
 
 .. code-block:: lean
 
@@ -450,7 +450,7 @@ Each ``patternsᵢ`` is a sequence of patterns of the same length as ``(b : β)`
 
 In the last case, the pattern must be enclosed in parentheses.
 
-Each term ``tᵢ`` is an expression in the context ``(a : α)`` together with the variables introduced on the left-hand side of the token ``:=``. The term ``tᵢ`` can also include recursive calls to ``foo``, as described below. The equation compiler does case splitting on the variables ``(b : β)`` as necessary to match the patterns, and defines ``foo`` so that it has the value ``tᵢ`` in each of the cases. In ideal circumstances (see below), the equations hold definitionally. Whether they hold definitionally or only propositionally, the equation compiler proves the relevant equations and assigns them internal names. They are accessible by the ``rewrite`` and ``simp`` tactics under the name ``foo`` (see :numref:`the_rewriter` and :numref:`the_simplifier`). If some of the patterns overlap, the equation compiler interprets the definition so that the first matching pattern applies in each case. Thus, if the last pattern is a variable, it covers all the remaining cases. If the patterns that are presented do not cover all possible cases, the equation compiler raises an error.
+Each term ``tᵢ`` is an expression in the context ``(a : α)`` together with the variables introduced on the left-hand side of the token ``:=``. The term ``tᵢ`` can also include recursive calls to ``foo``, as described below. The equation compiler does case splitting on the variables ``(b : β)`` as necessary to match the patterns, and defines ``foo`` so that it has the value ``tᵢ`` in each of the cases. In ideal circumstances (see below), the equations hold definitionally. Whether they hold definitionally or only propositionally, the equation compiler proves the relevant equations and assigns them internal names. They are accessible by the ``rewrite`` and ``simp`` tactics under the name ``foo`` (see [Rewrite](tactics.md#rewrite) and _[TODO: where is simplifier tactic documented?]_. If some of the patterns overlap, the equation compiler interprets the definition so that the first matching pattern applies in each case. Thus, if the last pattern is a variable, it covers all the remaining cases. If the patterns that are presented do not cover all possible cases, the equation compiler raises an error.
 
 When identifiers are marked with the ``[pattern]`` attribute, the equation compiler unfolds them in the hopes of exposing a constructor. For example, this makes it possible to write ``n+1`` and ``0`` instead of ``nat.succ n`` and ``nat.zero`` in patterns.
 
@@ -525,7 +525,7 @@ If structural recursion fails, the equation compiler falls back on well-founded 
 
 Note that recursive definitions can in general require nested recursions, that is, recursion on different arguments of ``foo`` in the template above. The equation compiler handles this by abstracting later arguments, and recursively defining higher-order functions to meet the specification.
 
-The equation compiler also allows mutual recursive definitions, with a syntax similar to that of :ref:`mutual inductive definitions <mutual_and_nested_inductive_definitions>`. They are compiled using well-founded recursion, and so once again the defining equations hold only propositionally.
+The equation compiler also allows mutual recursive definitions, with a syntax similar to that of [Mutual and Nested Inductive Definitions](#mutual-and-nested-inductive-definitions). They are compiled using well-founded recursion, and so once again the defining equations hold only propositionally.
 
 .. code-block:: lean
 
@@ -543,7 +543,7 @@ The equation compiler also allows mutual recursive definitions, with a syntax si
     example (a : Nat) : odd (a + 1) = even a :=
     by simp [odd]
 
-Well-founded recursion is especially useful with :ref:`mutual and nested inductive definitions <mutual_and_nested_inductive_definitions>`, since it provides the canonical way of defining functions on these types.
+Well-founded recursion is especially useful with [Mutual and Nested Inductive Definitions](#mutual-and-nested-inductive-definitions), since it provides the canonical way of defining functions on these types.
 
 .. code-block:: lean
 
@@ -647,7 +647,7 @@ Lean supports a ``match ... with ...`` construct similar to ones found in most f
 
 Here ``t₁, ..., tₙ`` are any terms in the context in which the expression appears, the expressions ``pᵢⱼ`` are patterns, and the terms ``sᵢ`` are expressions in the local context together with variables introduced by the patterns on the left-hand side. Each ``sᵢ`` should have the expected type of the entire ``match`` expression.
 
-Any ``match`` expression is interpreted using the equation compiler, which generalizes ``t₁, ..., tₙ``, defines an internal function meeting the specification, and then applies it to ``t₁, ..., tₙ``. In contrast to the definitions in :numref:`the_equation_compiler`, the terms ``tᵢ`` are arbitrary terms rather than just variables, and the expression can occur anywhere within a Lean expression, not just at the top level of a definition. Note that the syntax here is somewhat different: both the terms ``tᵢ`` and the patterns ``pᵢⱼ`` are separated by commas.
+Any ``match`` expression is interpreted using the equation compiler, which generalizes ``t₁, ..., tₙ``, defines an internal function meeting the specification, and then applies it to ``t₁, ..., tₙ``. In contrast to the definitions in [The Equation Compiler](declarations.md#the-equation-compiler), the terms ``tᵢ`` are arbitrary terms rather than just variables, and the expression can occur anywhere within a Lean expression, not just at the top level of a definition. Note that the syntax here is somewhat different: both the terms ``tᵢ`` and the patterns ``pᵢⱼ`` are separated by commas.
 
 .. code-block:: lean
 
@@ -712,7 +712,7 @@ Given ``c : foo``, Lean offers the following convenient syntax for the projectio
 - *anonymous projections* : ``c.fieldᵢ``
 - *numbered projections* : ``c.i``
 
-These can be used in any situation where Lean can infer that the type of ``c`` is of the form ``foo a``. The convention for anonymous projections is extended to any function ``f`` defined in the namespace ``foo``, as described in :numref:`namespaces`.
+These can be used in any situation where Lean can infer that the type of ``c`` is of the form ``foo a``. The convention for anonymous projections is extended to any function ``f`` defined in the namespace ``foo``, as described in [Namespaces](namespaces.md).
 
 Similarly, Lean offers the following convenient syntax for constructing elements of ``foo``. They are equivalent to ``foo.constructor b₁ b₂ f₁ f₁ ... fₙ``, where ``b₁ : foo``, ``b₂ : bar``, and each ``fᵢ : βᵢ`` :
 

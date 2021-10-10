@@ -21,20 +21,30 @@ private def getContext : MetaM Simp.Context := do
     config.decide := false
   }
 
-def matchPattern (pattern : AbstractMVarsResult) (e : Expr) : MetaM Bool :=
+partial def matchPattern? (pattern : AbstractMVarsResult) (e : Expr) : MetaM (Option (Expr × Array Expr)) :=
   withNewMCtxDepth do
     /- TODO: check whether the following is a performance bottleneck. If it is, recall that we used `AbstractMVarsResult` to make
        sure we can match the pattern inside of binders. So, it is not needed in most cases. -/
     let (_, _, pattern) ← openAbstractMVarsResult pattern
-    withReducible <| isDefEqGuarded pattern e
+    let rec go? (e : Expr) : MetaM (Option (Expr × Array Expr)) := do
+      if (← isDefEqGuarded pattern e) then
+        return some (e, #[])
+      else if e.isApp then
+        (← go? e.appFn!).map fun (f, extra) => (f, extra.push e.appArg!)
+      else
+        return none
+    withReducible <| go? e
 
 private def pre (pattern : AbstractMVarsResult) (found? : IO.Ref (Option Expr)) (e : Expr) : SimpM Simp.Step := do
   if (← found?.get).isSome then
     return Simp.Step.visit { expr := e }
-  else if (← matchPattern pattern e) then
+  else if let some (e, extraArgs) ← matchPattern? pattern e then
     let (rhs, newGoal) ← mkConvGoalFor e
     found?.set newGoal
-    return Simp.Step.done { expr := rhs, proof? := newGoal }
+    let mut proof := newGoal
+    for extraArg in extraArgs do
+      proof ← mkCongrFun proof extraArg
+    return Simp.Step.done { expr := mkAppN rhs extraArgs, proof? := proof }
   else
     return Simp.Step.visit { expr := e }
 

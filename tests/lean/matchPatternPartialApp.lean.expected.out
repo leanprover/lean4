@@ -1,0 +1,2 @@
+⊢ Function.comp id
+⊢ fun g x => g x

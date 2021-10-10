@@ -286,7 +286,7 @@ def parseTargetBaseSpec (rootPkg : Package) (spec : String) : CliM (Package × O
     if pkg.hasModule mod then
       return (pkg, mod)
     else
-      error s!"'{modStr}' is not a local module of package '{pkgStr}'"
+      error s!"package '{pkgStr}' has no module '{modStr}'"
   | _ =>
     error s!"invalid target spec '{spec}' (too many '/')"
 

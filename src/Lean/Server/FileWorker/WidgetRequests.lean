@@ -7,6 +7,7 @@ Authors: Wojciech Nawrocki
 import Lean.Widget.InteractiveCode
 import Lean.Widget.InteractiveGoal
 import Lean.Widget.InteractiveDiagnostic
+import Lean.Widget.ToHtmlFormat
 
 import Lean.Server.Rpc.RequestHandling
 import Lean.Server.FileWorker.RequestHandling
@@ -29,10 +30,57 @@ builtin_initialize
     fun ⟨⟨m⟩, i⟩ => RequestM.asTask do msgToInteractive m i
 
 structure InfoPopup where
-  type : Option CodeWithInfos
-  exprExplicit : Option CodeWithInfos
-  doc : Option String
+  type? : Option CodeWithInfos
+  exprExplicit? : Option CodeWithInfos
+  doc? : Option String
+  html? : Option Html
   deriving Inhabited, RpcEncoding
+
+open Meta in
+/-- Return an expression for `ToHtmlFormat tp` if there is one, otherwise `none`. -/
+private def hasToHtmlFormat? (tp : Expr) : MetaM (Option Expr) := do
+  let clTp ←
+    try
+      mkAppM ``ToHtmlFormat #[tp]
+    catch ex =>
+      throwError "failed to construct 'ToHtmlFormat {tp}':\n{ex.toMessageData}"
+  match (← trySynthInstance clTp) with
+  | LOption.some r => some r
+  | _ => none
+
+instance : ToHtmlFormat Nat where
+  formatHtml n := Html.text (toString n)
+
+/-- Try to find an instance of `ToHtmlFormat` for the type of `val` and use it
+to produce HTML for the value. Return the HTML on success, `none` on failure. -/
+private unsafe def evalToHtmlFormatUnsafe? (val : Expr) : MetaM (Option Html) := do
+  let tp ← Meta.inferType val
+  if (← hasToHtmlFormat? tp).isNone then
+    return none
+  let n ← mkFreshUserName `_htmlOut
+  let htmlOut ←
+    try Meta.mkAppM ``ToHtmlFormat.formatHtml #[val]
+    -- Return `none` if the expression is meaningless because, for example,
+    -- `ToHtmlFormat` isn't imported.
+    catch ex => return none
+
+  let decl := Declaration.defnDecl {
+    name        := n
+    levelParams := []
+    type        := mkConst ``Html
+    value       := htmlOut
+    hints       := ReducibilityHints.opaque
+    safety      := DefinitionSafety.safe }
+  let env ← getEnv
+  try
+    addAndCompile decl
+    evalConstCheck Html ``Html n
+  finally
+    -- Reset the environment to one without the auxiliary config constant
+    setEnv env
+
+@[implementedBy evalToHtmlFormatUnsafe?]
+private constant evalToHtmlFormat? (tp : Expr) : MetaM (Option Html)
 
 builtin_initialize
   registerRpcCallHandler
@@ -48,11 +96,15 @@ builtin_initialize
           | Elab.Info.ofTermInfo ti => some <$> exprToInteractiveExplicit ti.expr
           | Elab.Info.ofFieldInfo fi => some (TaggedText.text fi.fieldName.toString)
           | _ => none
+        -- TODO(WN): maybe use separate RPC handler?
+        let html? ← match i.info with
+          | Elab.Info.ofTermInfo ti => evalToHtmlFormat? ti.expr
+          | _ => none
         return {
-          type := type?
-          exprExplicit := exprExplicit?
-          doc := ← i.info.docString? : InfoPopup
-        }
+          type?
+          exprExplicit?
+          doc? := ← i.info.docString?
+          html? : InfoPopup }
 
 builtin_initialize
   registerRpcCallHandler

@@ -1649,6 +1649,10 @@ extern "C" LEAN_EXPORT object * lean_string_append(object * s1, object * s2) {
     return r;
 }
 
+extern "C" bool lean_string_eq_cold(b_lean_obj_arg s1, b_lean_obj_arg s2) {
+    return std::memcmp(lean_string_cstr(s1), lean_string_cstr(s2), lean_string_size(s1)) == 0;
+}
+
 bool string_eq(object * s1, char const * s2) {
     if (lean_string_size(s1) != strlen(s2) + 1)
         return false;

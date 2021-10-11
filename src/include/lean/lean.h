@@ -5,18 +5,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include <stdlib.h>
+#include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <assert.h>
-#include <string.h>
 #include <limits.h>
-#if !defined(__APPLE__)
-#include <malloc.h>
-#endif
 
 #ifdef __cplusplus
 #include <atomic>
+#include <stdlib.h>
 #define _Atomic(t) std::atomic<t>
 #define LEAN_USING_STD using namespace std; /* NOLINT */
 extern "C" {
@@ -24,6 +20,13 @@ extern "C" {
 #define  LEAN_USING_STD
 #endif
 #include <lean/config.h>
+
+#ifdef NDEBUG
+#define assert(expr)
+#else
+// TODO
+#define assert(expr)
+#endif
 
 #define LEAN_CLOSURE_MAX_ARGS      16
 #define LEAN_OBJECT_SIZE_DELTA     8
@@ -310,6 +313,10 @@ LEAN_SHARED void lean_free_small(void * p);
 LEAN_SHARED unsigned lean_small_mem_size(void * p);
 LEAN_SHARED void lean_inc_heartbeat();
 
+#ifndef __cplusplus
+void * malloc(size_t);  // avoid including big `stdlib.h`
+#endif
+
 static inline lean_object * lean_alloc_small_object(unsigned sz) {
 #ifdef LEAN_SMALL_ALLOCATOR
     sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
@@ -357,6 +364,10 @@ static inline unsigned lean_small_object_size(lean_object * o) {
     return *((size_t*)o - 1);
 #endif
 }
+
+#ifndef __cplusplus
+void free(void *);  // avoid including big `stdlib.h`
+#endif
 
 static inline void lean_free_small_object(lean_object * o) {
 #ifdef LEAN_SMALL_ALLOCATOR
@@ -1008,9 +1019,9 @@ static inline uint8_t lean_string_utf8_at_end(b_lean_obj_arg s, b_lean_obj_arg i
 }
 LEAN_SHARED lean_obj_res lean_string_utf8_extract(b_lean_obj_arg s, b_lean_obj_arg b, b_lean_obj_arg e);
 static inline lean_obj_res lean_string_utf8_byte_size(b_lean_obj_arg s) { return lean_box(lean_string_size(s) - 1); }
+LEAN_SHARED bool lean_string_eq_cold(b_lean_obj_arg s1, b_lean_obj_arg s2);
 static inline bool lean_string_eq(b_lean_obj_arg s1, b_lean_obj_arg s2) {
-    return s1 == s2 ||
-        (lean_string_size(s1) == lean_string_size(s2) && memcmp(lean_string_cstr(s1), lean_string_cstr(s2), lean_string_size(s1)) == 0);
+    return s1 == s2 || (lean_string_size(s1) == lean_string_size(s2) && lean_string_eq_cold(s1, s2));
 }
 static inline bool lean_string_ne(b_lean_obj_arg s1, b_lean_obj_arg s2) { return !lean_string_eq(s1, s2); }
 LEAN_SHARED bool lean_string_lt(b_lean_obj_arg s1, b_lean_obj_arg s2);

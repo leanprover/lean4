@@ -91,7 +91,7 @@ private unsafe def evalToHtmlFormatUnsafe? (val : Expr) : MetaM (Option Html) :=
     addAndCompile decl
     evalConstCheck Html ``Html n
   finally
-    -- Reset the environment to one without the auxiliary config constant
+    -- Reset the environment to one without the auxiliary constant
     setEnv env
 
 @[implementedBy evalToHtmlFormatUnsafe?]

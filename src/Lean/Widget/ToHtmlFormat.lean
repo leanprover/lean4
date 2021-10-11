@@ -24,6 +24,7 @@ inductive Html where
 instance : Coe String Html :=
   ⟨Html.text⟩
 
+namespace Jsx
 open Parser PrettyPrinter
 
 declare_syntax_cat jsxElement
@@ -33,9 +34,6 @@ declare_syntax_cat jsxChild
 def jsxAttrVal : Parser := strLit <|> group (symbol "{" >> termParser >> "}")
 def jsxAttr : Parser := ident >> symbol "=" >> jsxAttrVal
 
-syntax "<" ident jsxAttr* "/>" : jsxElement
-syntax "<" ident jsxAttr* ">" jsxChild* "</" ident ">" : jsxElement
-
 -- JSXTextCharacter : SourceCharacter but not one of {, <, > or }
 def jsxText : Parser :=
   withAntiquot (mkAntiquot "jsxText" `jsxText) {
@@ -44,14 +42,17 @@ def jsxText : Parser :=
       let s := takeWhile1Fn (not ∘ "{<>}$".contains) "expected JSX text" c s
       mkNodeToken `jsxText startPos c s }
 
-@[combinatorFormatter Lean.Widget.jsxText] def jsxText.formatter : Formatter := pure ()
-@[combinatorParenthesizer Lean.Widget.jsxText] def jsxText.parenthesizer : Parenthesizer := pure ()
+@[combinatorFormatter Lean.Widget.Jsx.jsxText] def jsxText.formatter : Formatter := pure ()
+@[combinatorParenthesizer Lean.Widget.Jsx.jsxText] def jsxText.parenthesizer : Parenthesizer := pure ()
 
-syntax jsxText      : jsxChild
-syntax "{" term "}" : jsxChild
-syntax jsxElement   : jsxChild
+scoped syntax "<" ident jsxAttr* "/>" : jsxElement
+scoped syntax "<" ident jsxAttr* ">" jsxChild* "</" ident ">" : jsxElement
 
-syntax:max jsxElement : term
+scoped syntax jsxText      : jsxChild
+scoped syntax "{" term "}" : jsxChild
+scoped syntax jsxElement   : jsxChild
+
+scoped syntax:max jsxElement : term
 
 macro_rules
   | `(<$n $[$ns = $vs]* />) =>
@@ -70,13 +71,15 @@ macro_rules
         | _ => unreachable!
       let cs ← cs.mapM fun
         | `(jsxChild|$t:jsxText)    => `(Html.text $(quote t[0].getAtomVal!))
-        -- TODO(WN): elab as list of children if tyipe is `t Html` where `Foldable t`
+        -- TODO(WN): elab as list of children if type is `t Html` where `Foldable t`
         | `(jsxChild|{$t})          => t
         | `(jsxChild|$e:jsxElement) => `($e:jsxElement)
         | _                         => unreachable!
       let tag := toString n.getId
       `(Html.element $(quote tag) #[ $[($ns, $vs)],* ] #[ $[$cs],* ])
     else Macro.throwError ("expected </" ++ toString n.getId ++ ">")
+
+end Jsx
 
 /-- A type which implements `ToHtmlFormat` will be visualized
 as the resulting HTML in editors which support it. -/

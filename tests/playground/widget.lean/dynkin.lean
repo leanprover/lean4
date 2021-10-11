@@ -4,6 +4,7 @@
 import Lean.Widget.ToHtmlFormat
 
 open Lean.Widget (ToHtmlFormat Html)
+open scoped Lean.Widget.Jsx
 
 def List.product : List α → List β → List (α × β)
   | [], _     => []

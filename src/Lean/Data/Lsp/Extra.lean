@@ -137,4 +137,12 @@ structure RpcKeepAliveParams where
   sessionId : UInt64
   deriving FromJson, ToJson
 
+/--
+Range of lines in a document, including `start` but excluding `end`.
+-/
+structure LineRange where
+  start : Nat
+  «end» : Nat
+  deriving Inhabited, Repr, FromJson, ToJson
+
 end Lean.Lsp

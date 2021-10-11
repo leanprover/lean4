@@ -33,8 +33,26 @@ structure InfoPopup where
   type? : Option CodeWithInfos
   exprExplicit? : Option CodeWithInfos
   doc? : Option String
-  html? : Option Html
   deriving Inhabited, RpcEncoding
+
+builtin_initialize
+  registerRpcCallHandler
+    `Lean.Widget.InteractiveDiagnostics.infoToInteractive
+    (WithRpcRef InfoWithCtx)
+    InfoPopup
+    fun ⟨i⟩ => RequestM.asTask do
+      i.ctx.runMetaM i.info.lctx do
+        let type? ← match (← i.info.type?) with
+          | some type => some <$> exprToInteractive type
+          | none => none
+        let exprExplicit? ← match i.info with
+          | Elab.Info.ofTermInfo ti => some <$> exprToInteractiveExplicit ti.expr
+          | Elab.Info.ofFieldInfo fi => some (TaggedText.text fi.fieldName.toString)
+          | _ => none
+        return {
+          type?
+          exprExplicit?
+          doc? := ← i.info.docString? : InfoPopup }
 
 open Meta in
 /-- Return an expression for `ToHtmlFormat tp` if there is one, otherwise `none`. -/
@@ -47,9 +65,6 @@ private def hasToHtmlFormat? (tp : Expr) : MetaM (Option Expr) := do
   match (← trySynthInstance clTp) with
   | LOption.some r => some r
   | _ => none
-
-instance : ToHtmlFormat Nat where
-  formatHtml n := Html.text (toString n)
 
 /-- Try to find an instance of `ToHtmlFormat` for the type of `val` and use it
 to produce HTML for the value. Return the HTML on success, `none` on failure. -/
@@ -84,27 +99,14 @@ private constant evalToHtmlFormat? (tp : Expr) : MetaM (Option Html)
 
 builtin_initialize
   registerRpcCallHandler
-    `Lean.Widget.InteractiveDiagnostics.infoToInteractive
+    `Lean.Widget.infoToUserHtml
     (WithRpcRef InfoWithCtx)
-    InfoPopup
+    (Option Html)
     fun ⟨i⟩ => RequestM.asTask do
       i.ctx.runMetaM i.info.lctx do
-        let type? ← match (← i.info.type?) with
-          | some type => some <$> exprToInteractive type
-          | none => none
-        let exprExplicit? ← match i.info with
-          | Elab.Info.ofTermInfo ti => some <$> exprToInteractiveExplicit ti.expr
-          | Elab.Info.ofFieldInfo fi => some (TaggedText.text fi.fieldName.toString)
-          | _ => none
-        -- TODO(WN): maybe use separate RPC handler?
-        let html? ← match i.info with
-          | Elab.Info.ofTermInfo ti => evalToHtmlFormat? ti.expr
-          | _ => none
-        return {
-          type?
-          exprExplicit?
-          doc? := ← i.info.docString?
-          html? : InfoPopup }
+        match i.info with
+        | Elab.Info.ofTermInfo ti => evalToHtmlFormat? ti.expr
+        | _ => return none
 
 builtin_initialize
   registerRpcCallHandler

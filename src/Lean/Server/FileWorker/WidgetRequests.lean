@@ -55,7 +55,7 @@ builtin_initialize
           doc? := ← i.info.docString? : InfoPopup }
 
 open Meta in
-/-- Return an expression for `ToHtmlFormat tp` if there is one, otherwise `none`. -/
+/-- Return an instance of `ToHtmlFormat tp` if there is one, otherwise `none`. -/
 private def hasToHtmlFormat? (tp : Expr) : MetaM (Option Expr) := do
   let clTp ←
     try

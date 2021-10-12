@@ -100,39 +100,22 @@ And some examples:
 ```lean,ignore
 #check [Arith| "x" * "y"] -- Arith.mul (Arith.symbol "x") (Arith.symbol "y") : Arith
 
-def bar := [Arith| "x" + "y"] -- add
-#print bar
-/-
-def bar : Arith :=
-Arith.add (Arith.symbol "x") (Arith.symbol "y")
--/
+#check [Arith| "x" + "y"] -- add
+-- Arith.add (Arith.symbol "x") (Arith.symbol "y") 
 
-def baz := [Arith| "x" + 20] -- symbol + int
-#print baz
-/-
-def baz : Arith :=
-Arith.add (Arith.symbol "x") (Arith.int 20)
--/
+#check  [Arith| "x" + 20] -- symbol + int
+-- Arith.add (Arith.symbol "x") (Arith.int 20)
 
 
-def quux_left := [Arith| "x" + "y" * "z" ] -- precedence
-#print quux_left
-/-
-def quux_left : Arith :=
+#check [Arith| "x" + "y" * "z" ] -- precedence
 Arith.add (Arith.symbol "x") (Arith.mul (Arith.symbol "y") (Arith.symbol "z"))
--/
-
-def quux_right := [Arith| "x" * "y" + "z"] -- precedence
-#print quux_right
+-- 
+#check [Arith| "x" * "y" + "z"] -- precedence
 -- Arith.add (Arith.mul (Arith.symbol "x") (Arith.symbol "y")) (Arith.symbol "z")
 
 
-def quuz := [Arith| ("x" + "y") * "z"] -- brackets
-#print quuz
-/-
-def quuz : Arith :=
-Arith.mul (Arith.add (Arith.symbol "x") (Arith.symbol "y")) (Arith.symbol "z")
--/
+#check [Arith| ("x" + "y") * "z"] -- brackets
+-- Arith.mul (Arith.add (Arith.symbol "x") (Arith.symbol "y")) (Arith.symbol "z")
 ```
 
 
@@ -154,31 +137,16 @@ macro_rules
 Let's test and see that we can now write expressions such as `x * y` directly instead of having to write `"x" * "y"`:
 
 ```lean,ignore
-def x_ident := [Arith| x ]
-#print x_ident
-/-
-def x_ident : Arith :=
-Arith.symbol "x"
--/
+#check [Arith| x ] -- Arith.symbol "x"
 
-def x_plus_y : Arith := [Arith| x + y]
-#print x_plus_y
-/-
-def x_plus_y : Arith :=
-Arith.add (Arith.symbol "x") (Arith.symbol "y")
--/
+#check [Arith| x + y] -- Arith.add (Arith.symbol "x") (Arith.symbol "y")
 ```
 
 We now show an unfortunate consequence of the above definitions. Suppose we want to build `(x + y) + z)`.
 Since we already have defined `x_plus_y` as `x + y`, perhaps we should reuse it! Let's try:
 
 ```lean,ignore
-def x_plus_y_plus_z := [Arith| x_plus_y + z]
-#print x_plus_y_plus_z
-/-
-def x_plus_y_plus_z : Arith :=
-Arith.add (Arith.symbol "x_plus_y") (Arith.symbol "z")
--/
+#check [Arith| x_plus_y + z] --Arith.add (Arith.symbol "x_plus_y") (Arith.symbol "z")
 ```
 
 Whoops, that didn't work! What happened? Lean treats `x_plus_y` _itself_ as an identifier! So we need to add some syntax
@@ -195,12 +163,7 @@ macro_rules
 Let's try our previous example:
 
 ```lean,ignore
-def x_plus_y_plus_z2 := [Arith| <[ x_plus_y ]>]
-#print x_plus_y_plus_z2
-/-
-def x_plus_y_plus_z2 : Arith :=
-x_plus_y
--/
+#check [Arith| <[ x_plus_y ]>] -- x_plus_y
 ```
 
 Perfect!
@@ -237,72 +200,39 @@ macro_rules
   | `([Arith| $x:arith * $y:arith ]) => `(Arith.mul [Arith| $x] [Arith| $y] )
   | `([Arith| ($x:arith) ]) => `([Arith| $x ])
 
-def foo := [Arith| "x" * "y" ] -- mul
-#print foo
-/-
-def foo : Arith :=
-Arith.mul (Arith.symbol "x") (Arith.symbol "y")
--/
+def foo := 
+#check [Arith| "x" * "y" ] -- mul
+-- Arith.mul (Arith.symbol "x") (Arith.symbol "y")
 
-def bar := [Arith| "x" + "y"] -- add
-#print bar
-/-
-def bar : Arith :=
-Arith.add (Arith.symbol "x") (Arith.symbol "y")
--/
+def bar := 
+#check [Arith| "x" + "y"] -- add
+-- Arith.add (Arith.symbol "x") (Arith.symbol "y")
 
-def baz := [Arith| "x" + 20] -- symbol + int
-#print baz
-/-
-def baz : Arith :=
-Arith.add (Arith.symbol "x") (Arith.int 20)
--/
+def baz := 
+#check [Arith| "x" + 20] -- symbol + int
+-- Arith.add (Arith.symbol "x") (Arith.int 20)
 
+def quux_left := 
+#check [Arith| "x" + "y" * "z" ] -- precedence
+-- Arith.add (Arith.symbol "x") (Arith.mul (Arith.symbol "y") (Arith.symbol "z"))
 
-def quux_left := [Arith| "x" + "y" * "z" ] -- precedence
-#print quux_left
-/-
-def quux_left : Arith :=
-Arith.add (Arith.symbol "x") (Arith.mul (Arith.symbol "y") (Arith.symbol "z"))
--/
-
-def quux_right := [Arith| "x" * "y" + "z"] -- precedence
-#print quux_right
+def quux_right := 
+#check [Arith| "x" * "y" + "z"] -- precedence
 -- Arith.add (Arith.mul (Arith.symbol "x") (Arith.symbol "y")) (Arith.symbol "z")
 
 
-def quuz := [Arith| ("x" + "y") * "z"] -- brackets
-#print quuz
-/-
-def quuz : Arith :=
-Arith.mul (Arith.add (Arith.symbol "x") (Arith.symbol "y")) (Arith.symbol "z")
--/
+def quuz := 
+#check [Arith| ("x" + "y") * "z"] -- brackets
+-- Arith.mul (Arith.add (Arith.symbol "x") (Arith.symbol "y")) (Arith.symbol "z")
 
 syntax ident : arith
 
 macro_rules
   | `([Arith| $x:ident]) => `(Arith.symbol $(Lean.quote (toString x.getId)))
 
-def x_ident := [Arith| x ]
-#print x_ident
-/-
-def x_ident : Arith :=
-Arith.symbol "x"
--/
-
-def x_plus_y : Arith := [Arith| x + y]
-#print x_plus_y
-/-
-def x_plus_y : Arith :=
-Arith.add (Arith.symbol "x") (Arith.symbol "y")
--/
-
-def x_plus_y_plus_z := [Arith| x_plus_y + z]
-#print x_plus_y_plus_z
-/-
-def x_plus_y_plus_z : Arith :=
-Arith.add (Arith.symbol "x_plus_y") (Arith.symbol "z")
--/
+#check [Arith| x ] -- Arith.symbol "x"
+#check [Arith| x + y] -- Arith.add (Arith.symbol "x") (Arith.symbol "y")
+#check [Arith| x_plus_y + z] -- Arith.add (Arith.symbol "x_plus_y") (Arith.symbol "z")
 
 syntax "<[" term "]>" : arith -- escape for embedding terms into `Arith`
  
@@ -310,12 +240,6 @@ macro_rules
   | `([Arith| <[ $e:term ]> ]) => e
   
 
-
-def x_plus_y_plus_z2 := [Arith| <[ x_plus_y ]>]
-#print x_plus_y_plus_z2
-/-
-def x_plus_y_plus_z2 : Arith :=
-x_plus_y
--/
+#check [Arith| <[ x_plus_y ]>] -- x_plus_y
 ```
 

@@ -130,7 +130,7 @@ script greet (args) do
     IO.println s!"Hello, {args.get 0 h}!"
   else
     IO.println "Hello, world!"
-  pure 0
+  return 0
 ```
 
 The script `greet` can be run like so:

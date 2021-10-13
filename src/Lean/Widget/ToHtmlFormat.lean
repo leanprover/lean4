@@ -30,9 +30,8 @@ open Parser PrettyPrinter
 declare_syntax_cat jsxElement
 declare_syntax_cat jsxChild
 
--- TODO(WN): where `group`? where `symbol`? why?
-def jsxAttrVal : Parser := strLit <|> group (symbol "{" >> termParser >> "}")
-def jsxAttr : Parser := ident >> symbol "=" >> jsxAttrVal
+def jsxAttrVal : Parser := strLit <|> group ("{" >> termParser >> "}")
+def jsxAttr : Parser := ident >> "=" >> jsxAttrVal
 
 -- JSXTextCharacter : SourceCharacter but not one of {, <, > or }
 def jsxText : Parser :=

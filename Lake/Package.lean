@@ -174,6 +174,12 @@ structure PackageConfig extends WorkspaceConfig where
   defaultFacet : PackageFacet := PackageFacet.bin
 
   /--
+    Additional arguments to pass to the Lean language server
+    (i.e., `lean --server`) launched by `lake server`.
+  -/
+  moreServerArgs : Array String := #[]
+
+  /--
     The directory containing the package's Lean source files.
     Defaults to the package's directory.
 
@@ -347,6 +353,10 @@ def extraDepTarget (self : Package) : OpaqueTarget :=
 /-- The package's `defaultFacet` configuration. -/
 def defaultFacet (self : Package) : PackageFacet :=
    self.config.defaultFacet
+
+/-- The package's `moreServerArgs` configuration. -/
+def moreServerArgs (self : Package) : Array String :=
+   self.config.moreServerArgs
 
 /-- The package's `dir` joined with its `srcDir` configuration. -/
 def srcDir (self : Package) : FilePath :=

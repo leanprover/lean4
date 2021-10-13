@@ -122,15 +122,23 @@ def loadPkg (args : List String) : CliM Package := do
   runIO <| setupLeanSearchPath (← getLeanInstall?) (← getLakeInstall?)
   runIO <| Package.load dir args (dir / file)
 
-/-- Get the Lean and Lake installation. Error if either is missing. -/
-def getInstall : CliM (LeanInstall × LakeInstall) := do
+/-- Get the Lean installation. Error if missing. -/
+def getLeanInstall : CliM LeanInstall := do
   if let some leanInstall ← getLeanInstall? then
-    if let some lakeInstall ← getLakeInstall? then
-      return (leanInstall, lakeInstall)
-    else
-      error "could not detect the configuration of the Lake installation"
+    return leanInstall
   else
     error "could not detect a Lean installation"
+
+/-- Get the Lake installation. Error if missing. -/
+def getLakeInstall : CliM LakeInstall := do
+  if let some lakeInstall ← getLakeInstall? then
+    return lakeInstall
+  else
+    error "could not detect the configuration of the Lake installation"
+
+/-- Get the Lean and Lake installation. Error if either is missing. -/
+def getInstall : CliM (LeanInstall × LakeInstall) := do
+  return (← getLeanInstall, ← getLakeInstall)
 
 /-- Perform the given build action using information from CLI. -/
 def runBuildM (x : BuildM α) : CliM α := do
@@ -215,18 +223,16 @@ def script (pkg : Package) (name : String) (args : List String) :  CliM UInt32 :
 
 /-- Verify the Lean version Lake was built with matches that of the Lean installation. -/
 def verifyLeanVersion : CliM PUnit := do
-  if let some leanInstall ← getLeanInstall? then
-    let out ← runIO <| IO.Process.output {
-      cmd := leanInstall.lean.toString,
-      args := #["--version"]
-    }
-    if out.exitCode == 0 then
-      unless out.stdout.drop 14 |>.startsWith uiLeanVersionString do
-        error s!"expected {uiLeanVersionString}, but got {out.stdout.trim}"
-    else
-      error s!"running `lean --version` exited with code {out.exitCode}"
+  let leanInstall ← getLeanInstall
+  let out ← runIO <| IO.Process.output {
+    cmd := leanInstall.lean.toString,
+    args := #["--version"]
+  }
+  if out.exitCode == 0 then
+    unless out.stdout.drop 14 |>.startsWith uiLeanVersionString do
+      error s!"expected {uiLeanVersionString}, but got {out.stdout.trim}"
   else
-    error "no lean installation detected"
+    error s!"running `lean --version` exited with code {out.exitCode}"
 
 /-- Output the detected installs and verify the Lean version. -/
 def verifyInstall : CliM PUnit := do
@@ -328,10 +334,20 @@ def build (rootPkg : Package) (targetSpecs : List String) : CliM PUnit := do
   else
     runBuildM <| targets.forM (·.build)
 
+def server (leanInstall : LeanInstall) (pkg : Package) (args : List String) : CliM PUnit := do
+  let rc ← runIO do
+    let child ← IO.Process.spawn {
+      cmd := leanInstall.lean.toString,
+      args := #["--server"] ++ pkg.moreServerArgs ++ args
+    }
+    child.wait
+  exit rc
+
 def command : (cmd : String) → CliM PUnit
 | "new"         => do noArgsRem <| runIO <| new (← takeArg)
 | "init"        => do noArgsRem <| runIO <| init (← takeArg)
 | "run"         => do exit <| ← noArgsRem <| script (← loadPkg []) (← takeArg) (← getSubArgs)
+| "server"      => do noArgsRem <| server (← getLeanInstall) (← loadPkg []) (← getSubArgs)
 | "configure"   => do noArgsRem <| runBuildM (← loadPkg (← getSubArgs)).buildDepOleans
 | "print-paths" => do printPaths (← takeArgs)
 | "build"       => do build (← loadPkg (← getSubArgs)) (← takeArgs)

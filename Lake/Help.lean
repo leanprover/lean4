@@ -24,6 +24,7 @@ OPTIONS:
 COMMANDS:
   new <name>            create a Lean package in a new directory
   init <name>           create a Lean package in the current directory
+  server                start the Lean language server
   run <script>          run arbitrary package scripts
   configure             download and build dependencies
   build [<targets>...]  configure and build targets
@@ -58,6 +59,16 @@ USAGE:
 This command runs the given script from the package configuration's
 `scripts` field, passing `args` to it. If the given script does not exist,
 errors and prints the list of available scripts."
+
+def helpServer :=
+"Start the Lean language server
+
+USAGE:
+  lake server [-- <args>...]
+
+Run the language server of the Lean installation (i.e., via `lean --server`)
+with the package configuration's `moreServerArgs` field and `args`.
+"
 
 def helpConfigure :=
 "Download and build dependencies
@@ -117,6 +128,7 @@ def helpCmd : (cmd : String) → String
 | "new"       => helpNew
 | "init"      => helpInit
 | "run"       => helpRun
+| "server"    => helpServer
 | "configure" => helpConfigure
 | "build"     => helpBuild
 | "clean"     => helpClean

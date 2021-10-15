@@ -35,7 +35,7 @@ private def maxOccs (alts : Array Alt) : Alt × Nat := do
   return (maxAlt, max)
 
 private def addDefault (alts : Array Alt) : Array Alt :=
-  if alts.size <= 1 || alts.any Alt.isDefault then alts
+  if alts.size <= 1 then alts
   else
     let (max, noccs) := maxOccs alts;
     if noccs == 1 then alts

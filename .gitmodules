@@ -1,0 +1,3 @@
+[submodule "lake"]
+	path = src/lake
+	url = https://github.com/leanprover/lake.git

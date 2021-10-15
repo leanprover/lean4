@@ -342,8 +342,7 @@ def checkRuleKind (given expected : SyntaxNodeKind) : Bool :=
   given == expected || given == expected ++ `antiquot
 
 def inferMacroRulesAltKind : Syntax → CommandElabM SyntaxNodeKind
-  | `(matchAltExpr| | $pats,* => $rhs) => do
-    let pat := pats.elemsAndSeps[0]
+  | `(matchAltExpr| | $pat:term => $rhs) => do
     if !pat.isQuot then
       throwUnsupportedSyntax
     let quoted := getQuotContent pat

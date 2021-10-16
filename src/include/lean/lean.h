@@ -1496,8 +1496,8 @@ static inline uint8_t lean_uint8_mod(uint8_t a1, uint8_t a2) { return a2 == 0 ? 
 static inline uint8_t lean_uint8_land(uint8_t a, uint8_t b) { return a & b; }
 static inline uint8_t lean_uint8_lor(uint8_t a, uint8_t b) { return a | b; }
 static inline uint8_t lean_uint8_xor(uint8_t a, uint8_t b) { return a ^ b; }
-static inline uint8_t lean_uint8_shiftLeft(uint8_t a, uint8_t b) { return a << (b % 8); }
-static inline uint8_t lean_uint8_shiftRight(uint8_t a, uint8_t b) { return a >> (b % 8); }
+static inline uint8_t lean_uint8_shift_left(uint8_t a, uint8_t b) { return a << (b % 8); }
+static inline uint8_t lean_uint8_shift_right(uint8_t a, uint8_t b) { return a >> (b % 8); }
 static inline uint8_t lean_uint8_complement(uint8_t a) { return ~a; }
 static inline uint8_t lean_uint8_modn(uint8_t a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a2))) {
@@ -1532,8 +1532,8 @@ static inline uint16_t lean_uint16_mod(uint16_t a1, uint16_t a2) { return a2 == 
 static inline uint16_t lean_uint16_land(uint16_t a, uint16_t b) { return a & b; }
 static inline uint16_t lean_uint16_lor(uint16_t a, uint16_t b) { return a | b; }
 static inline uint16_t lean_uint16_xor(uint16_t a, uint16_t b) { return a ^ b; }
-static inline uint16_t lean_uint16_shiftLeft(uint16_t a, uint16_t b) { return a << (b % 16); }
-static inline uint16_t lean_uint16_shiftRight(uint16_t a, uint16_t b) { return a >> (b % 16); }
+static inline uint16_t lean_uint16_shift_left(uint16_t a, uint16_t b) { return a << (b % 16); }
+static inline uint16_t lean_uint16_shift_right(uint16_t a, uint16_t b) { return a >> (b % 16); }
 static inline uint16_t lean_uint16_complement(uint16_t a) { return ~a; }
 static inline uint16_t lean_uint16_modn(uint16_t a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a2))) {
@@ -1547,7 +1547,7 @@ static inline uint8_t lean_uint16_dec_eq(uint16_t a1, uint16_t a2) { return a1 =
 static inline uint8_t lean_uint16_dec_lt(uint16_t a1, uint16_t a2) { return a1 < a2; }
 static inline uint8_t lean_uint16_dec_le(uint16_t a1, uint16_t a2) { return a1 <= a2; }
 
-/*uint16 -> OTHER */
+/*uint16 -> other */
 static inline uint8_t lean_uint16_to_uint8(uint16_t a) { return ((uint8_t)a); }
 static inline uint32_t lean_uint16_to_uint32(uint16_t a) { return ((uint32_t)a); }
 static inline uint64_t lean_uint16_to_uint64(uint16_t a) { return ((uint64_t)a); }
@@ -1567,8 +1567,8 @@ static inline uint32_t lean_uint32_mod(uint32_t a1, uint32_t a2) { return a2 == 
 static inline uint32_t lean_uint32_land(uint32_t a, uint32_t b) { return a & b; }
 static inline uint32_t lean_uint32_lor(uint32_t a, uint32_t b) { return a | b; }
 static inline uint32_t lean_uint32_xor(uint32_t a, uint32_t b) { return a ^ b; }
-static inline uint32_t lean_uint32_shiftLeft(uint32_t a, uint32_t b) { return a << (b % 32); }
-static inline uint32_t lean_uint32_shiftRight(uint32_t a, uint32_t b) { return a >> (b % 32); }
+static inline uint32_t lean_uint32_shift_left(uint32_t a, uint32_t b) { return a << (b % 32); }
+static inline uint32_t lean_uint32_shift_right(uint32_t a, uint32_t b) { return a >> (b % 32); }
 static inline uint32_t lean_uint32_complement(uint32_t a) { return ~a; }
 LEAN_SHARED uint32_t lean_uint32_big_modn(uint32_t a1, b_lean_obj_arg a2);
 static inline uint32_t lean_uint32_modn(uint32_t a1, b_lean_obj_arg a2) {
@@ -1608,8 +1608,8 @@ static inline uint64_t lean_uint64_mod(uint64_t a1, uint64_t a2) { return a2 == 
 static inline uint64_t lean_uint64_land(uint64_t a, uint64_t b) { return a & b; }
 static inline uint64_t lean_uint64_lor(uint64_t a, uint64_t b) { return a | b; }
 static inline uint64_t lean_uint64_xor(uint64_t a, uint64_t b) { return a ^ b; }
-static inline uint64_t lean_uint64_shiftLeft(uint64_t a, uint64_t b) { return a << (b % 64); }
-static inline uint64_t lean_uint64_shiftRight(uint64_t a, uint64_t b) { return a >> (b % 64); }
+static inline uint64_t lean_uint64_shift_left(uint64_t a, uint64_t b) { return a << (b % 64); }
+static inline uint64_t lean_uint64_shift_right(uint64_t a, uint64_t b) { return a >> (b % 64); }
 static inline uint64_t lean_uint64_complement(uint64_t a) { return ~a; }
 LEAN_SHARED uint64_t lean_uint64_big_modn(uint64_t a1, b_lean_obj_arg a2);
 static inline uint64_t lean_uint64_modn(uint64_t a1, b_lean_obj_arg a2) {
@@ -1646,8 +1646,8 @@ static inline size_t lean_usize_mod(size_t a1, size_t a2) { return a2 == 0 ? a1 
 static inline size_t lean_usize_land(size_t a, size_t b) { return a & b; }
 static inline size_t lean_usize_lor(size_t a, size_t b) { return a | b; }
 static inline size_t lean_usize_xor(size_t a, size_t b) { return a ^ b; }
-static inline size_t lean_usize_shiftLeft(size_t a, size_t b) { return a << (b %  (sizeof(size_t) * 8)); }
-static inline size_t lean_usize_shiftRight(size_t a, size_t b) { return a >> (b % (sizeof(size_t) * 8)); }
+static inline size_t lean_usize_shift_left(size_t a, size_t b) { return a << (b %  (sizeof(size_t) * 8)); }
+static inline size_t lean_usize_shift_right(size_t a, size_t b) { return a >> (b % (sizeof(size_t) * 8)); }
 static inline size_t lean_usize_complement(size_t a) { return ~a; }
 LEAN_SHARED size_t lean_usize_big_modn(size_t a1, b_lean_obj_arg a2);
 static inline size_t lean_usize_modn(size_t a1, b_lean_obj_arg a2) {
@@ -1821,7 +1821,6 @@ static inline uint64_t lean_name_hash(b_lean_obj_arg n) {
  static inline double lean_float_mul(double a, double b) { return a * b; }
  static inline double lean_float_div(double a, double b) { return a / b; }
  static inline double lean_float_negate(double a) { return -a; }
- // TODO: shouldn't these be `bool`? Having `bool` leads to type mismatch between backend and codegen.
  static inline uint8_t lean_float_beq(double a, double b) { return a == b; }
  static inline uint8_t lean_float_decLe(double a, double b) { return a <= b; }
  static inline uint8_t lean_float_decLt(double a, double b) { return a < b; }

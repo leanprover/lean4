@@ -32,9 +32,9 @@ def UInt8.land (a b : UInt8) : UInt8 := ⟨Fin.land a.val b.val⟩
 def UInt8.lor (a b : UInt8) : UInt8 := ⟨Fin.lor a.val b.val⟩
 @[extern "lean_uint8_xor"]
 def UInt8.xor (a b : UInt8) : UInt8 := ⟨Fin.xor a.val b.val⟩
-@[extern "lean_uint8_shiftLeft"]
+@[extern "lean_uint8_shift_left"]
 def UInt8.shiftLeft (a b : UInt8) : UInt8 := ⟨a.val <<< (modn b 8).val⟩
-@[extern "lean_uint8_shiftRight"]
+@[extern "lean_uint8_shift_right"]
 def UInt8.shiftRight (a b : UInt8) : UInt8 := ⟨a.val >>> (modn b 8).val⟩
 def UInt8.lt (a b : UInt8) : Prop := a.val < b.val
 def UInt8.le (a b : UInt8) : Prop := a.val ≤ b.val
@@ -97,13 +97,13 @@ def UInt16.land (a b : UInt16) : UInt16 := ⟨Fin.land a.val b.val⟩
 def UInt16.lor (a b : UInt16) : UInt16 := ⟨Fin.lor a.val b.val⟩
 @[extern "lean_uint16_xor"]
 def UInt16.xor (a b : UInt16) : UInt16 := ⟨Fin.xor a.val b.val⟩
-@[extern "lean_uint16_shiftLeft"]
+@[extern "lean_uint16_shift_left"]
 def UInt16.shiftLeft (a b : UInt16) : UInt16 := ⟨a.val <<< (modn b 16).val⟩
 @[extern "lean_uint16_to_uint8"]
 def UInt16.toUInt8 (a : UInt16) : UInt8 := a.toNat.toUInt8
 @[extern "lean_uint8_to_uint16"]
 def UInt8.toUInt16 (a : UInt8) : UInt16 := a.toNat.toUInt16
-@[extern "lean_uint16_shiftRight"]
+@[extern "lean_uint16_shift_right"]
 def UInt16.shiftRight (a b : UInt16) : UInt16 := ⟨a.val >>> (modn b 16).val⟩
 def UInt16.lt (a b : UInt16) : Prop := a.val < b.val
 def UInt16.le (a b : UInt16) : Prop := a.val ≤ b.val
@@ -167,9 +167,9 @@ def UInt32.land (a b : UInt32) : UInt32 := ⟨Fin.land a.val b.val⟩
 def UInt32.lor (a b : UInt32) : UInt32 := ⟨Fin.lor a.val b.val⟩
 @[extern "lean_uint32_xor"]
 def UInt32.xor (a b : UInt32) : UInt32 := ⟨Fin.xor a.val b.val⟩
-@[extern "lean_uint32_shiftLeft"]
+@[extern "lean_uint32_shift_left"]
 def UInt32.shiftLeft (a b : UInt32) : UInt32 := ⟨a.val <<< (modn b 32).val⟩
-@[extern "lean_uint32_shiftRight"]
+@[extern "lean_uint32_shift_right"]
 def UInt32.shiftRight (a b : UInt32) : UInt32 := ⟨a.val >>> (modn b 32).val⟩
 @[extern "lean_uint32_to_uint8"]
 def UInt32.toUInt8 (a : UInt32) : UInt8 := a.toNat.toUInt8
@@ -221,9 +221,9 @@ def UInt64.land (a b : UInt64) : UInt64 := ⟨Fin.land a.val b.val⟩
 def UInt64.lor (a b : UInt64) : UInt64 := ⟨Fin.lor a.val b.val⟩
 @[extern "lean_uint64_xor"]
 def UInt64.xor (a b : UInt64) : UInt64 := ⟨Fin.xor a.val b.val⟩
-@[extern "lean_uint64_shiftLeft"]
+@[extern "lean_uint64_shift_left"]
 def UInt64.shiftLeft (a b : UInt64) : UInt64 := ⟨a.val <<< (modn b 64).val⟩
-@[extern "lean_uint64_shiftRight"]
+@[extern "lean_uint64_shift_right"]
 def UInt64.shiftRight (a b : UInt64) : UInt64 := ⟨a.val >>> (modn b 64).val⟩
 def UInt64.lt (a b : UInt64) : Prop := a.val < b.val
 def UInt64.le (a b : UInt64) : Prop := a.val ≤ b.val
@@ -304,9 +304,9 @@ def USize.land (a b : USize) : USize := ⟨Fin.land a.val b.val⟩
 def USize.lor (a b : USize) : USize := ⟨Fin.lor a.val b.val⟩
 @[extern "lean_usize_xor"]
 def USize.xor (a b : USize) : USize := ⟨Fin.xor a.val b.val⟩
-@[extern "lean_usize_shiftLeft"]
+@[extern "lean_usize_shift_left"]
 def USize.shiftLeft (a b : USize) : USize := ⟨a.val <<< (modn b System.Platform.numBits).val⟩
-@[extern "lean_usize_shiftRight"]
+@[extern "lean_usize_shift_right"]
 def USize.shiftRight (a b : USize) : USize := ⟨a.val >>> (modn b System.Platform.numBits).val⟩
 @[extern "lean_uint32_to_usize"]
 def UInt32.toUSize (a : UInt32) : USize := a.toNat.toUSize

@@ -54,31 +54,17 @@ builtin_initialize
           exprExplicit?
           doc? := ← i.info.docString? : InfoPopup }
 
-open Meta in
-/-- Return an instance of `ToHtmlFormat tp` if there is one, otherwise `none`. -/
-private def hasToHtmlFormat? (tp : Expr) : MetaM (Option Expr) := do
-  let clTp ←
-    try
-      mkAppM ``ToHtmlFormat #[tp]
-    catch ex =>
-      throwError "failed to construct 'ToHtmlFormat {tp}':\n{ex.toMessageData}"
-  match (← trySynthInstance clTp) with
-  | LOption.some r => some r
-  | _ => none
-
 /-- Try to find an instance of `ToHtmlFormat` for the type of `val` and use it
 to produce HTML for the value. Return the HTML on success, `none` on failure. -/
 private unsafe def evalToHtmlFormatUnsafe? (val : Expr) : MetaM (Option Html) := do
-  let tp ← Meta.inferType val
-  if (← hasToHtmlFormat? tp).isNone then
-    return none
-  let n ← mkFreshUserName `_htmlOut
   let htmlOut ←
     try Meta.mkAppM ``ToHtmlFormat.formatHtml #[val]
     -- Return `none` if the expression is meaningless because, for example,
-    -- `ToHtmlFormat` isn't imported.
+    -- `ToHtmlFormat` isn't imported, or there is no instance for the type
+    -- of `val`.
     catch ex => return none
 
+  let n ← mkFreshUserName `_htmlOut
   let decl := Declaration.defnDecl {
     name        := n
     levelParams := []

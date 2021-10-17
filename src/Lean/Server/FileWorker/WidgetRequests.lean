@@ -68,6 +68,8 @@ builtin_initialize
     FileWorker.getInteractiveTermGoal
 
 structure GetInteractiveDiagnosticsParams where
+  /-- Return diagnostics for these lines only if present,
+  otherwise return all diagnostics. -/
   lineRange? : Option Lsp.LineRange
   deriving Inhabited, FromJson, ToJson
 
@@ -76,12 +78,15 @@ def getInteractiveDiagnostics (params : GetInteractiveDiagnosticsParams) : Reque
   let doc ← readDoc
   let rangeEnd ← params.lineRange?.map fun range =>
     doc.meta.text.lspPosToUtf8Pos ⟨range.«end», 0⟩
-  withWaitFindSnap doc (fun snap => rangeEnd.all (· ≤ snap.endPos)) #[]
-    fun snap => snap.interactiveDiags.toArray.filter fun diag =>
-      params.lineRange?.all fun ⟨s, e⟩ =>
-        -- does [s,e) intersect [diag.fullRange.start.line,diag.fullRange.end.line)?
-        s ≤ diag.fullRange.start.line ∧ diag.fullRange.start.line < e ∨
-        diag.fullRange.start.line ≤ s ∧ s < diag.fullRange.end.line
+  let t ← doc.cmdSnaps.waitAll fun snap => rangeEnd.all (snap.beginPos < ·)
+  t.map fun (snaps, _) =>
+    let diags? := snaps.getLast?.map fun snap =>
+      snap.interactiveDiags.toArray.filter fun diag =>
+        params.lineRange?.all fun ⟨s, e⟩ =>
+          -- does [s,e) intersect [diag.fullRange.start.line,diag.fullRange.end.line)?
+          s ≤ diag.fullRange.start.line ∧ diag.fullRange.start.line < e ∨
+          diag.fullRange.start.line ≤ s ∧ s < diag.fullRange.end.line
+    diags?.getD #[]
 
 builtin_initialize
   registerRpcCallHandler

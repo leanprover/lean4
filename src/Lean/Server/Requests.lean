@@ -95,9 +95,9 @@ def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (Re
     | Except.error e => throwThe RequestError e
     | Except.ok v    => v
 
-/-- Create a task which waits for a snapshot matching `p`, handles various errors,
-and if a matching snapshot was found executes `x` with it. If not found, the task
-executes `notFoundX`. -/
+/-- Create a task which waits for the first snapshot matching `p`, handles various errors,
+and if a matching snapshot was found executes `x` with it. If not found, the task executes
+`notFoundX`. -/
 def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
   (notFoundX : RequestM β)
   (x : Snapshot → RequestM β)

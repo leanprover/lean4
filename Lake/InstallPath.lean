@@ -22,7 +22,7 @@ structure LakeInstall where
   home : FilePath
   binDir := home / "bin"
   libDir := home / "lib"
-  oleanDir := home
+  oleanDir := libDir
   lake := binDir / "lake"
   deriving Inhabited, Repr
 
@@ -93,14 +93,14 @@ def findLeanInstall? : IO (Option LeanInstall) := do
   and then by trying `findLakeBuildHome?`.
 
   It assumes that the Lake installation is setup the same way it is built.
-  That is, with its binary located at `<lake-home>/bin/lake`, its static library
-  in `<lake-home>/lib` and its `.olean` files directly in `<lake-home>`.
+  That is, with its binary located at `<lake-home>/bin/lake` and its static
+  library and `.olean` files in `<lake-home>/lib`.
 -/
 def findLakeInstall? : IO (Option LakeInstall) := do
   if let some home ← IO.getEnv "LAKE_HOME" then
-    return some {home, oleanDir  := home}
+    return some {home}
   if let some home ← findLakeBuildHome? then
-    return some  {home, oleanDir  := home}
+    return some {home}
   return none
 
 /--
@@ -115,7 +115,6 @@ def findLakeInstall? : IO (Option LakeInstall) := do
 -/
 def findInstall? : IO (Option LeanInstall × Option LakeInstall) := do
   if let some home ← findLakeLeanJointHome? then
-    let libDir := home / "lib" / "lake"
-    return (some {home}, some {home, libDir, oleanDir := libDir})
+    return (some {home}, some {home, libDir := home / "lib" / "lake"})
   else
     return (← findLeanInstall?, ← findLakeInstall?)

@@ -5,13 +5,15 @@ With Lake, package configuration is written in Lean inside a dedicated `lakefile
 
 ## Building and Running Lake
 
-As Lake functions as an alternative to `leanpkg`, it is not built with it. Instead, there is a pre-packaged `build.sh` shell script which is used to build Lake. It passes it arguments down to a `make` command. So, if you have more than one core, you will probably want to use a `-jX` option to specify how many build tasks you want it to run in parallel. For example:
+If you already have a Lean installation with `lake` packaged with it, you can build a new `lake` by just running `lake build`.
+
+Otherwise, there is a pre-packaged `build.sh` shell script that can be used to build Lake. It passes it arguments down to a `make` command. So, if you have more than one core, you will probably want to use a `-jX` option to specify how many build tasks you want it to run in parallel. For example:
 
 ```shell
 $ ./build.sh -j4
 ```
 
-After building, the `lake` binary will be located at `build/bin/lake` and the library's `.olean` files will be located directly in `build`.
+After building, the `lake` binary will be located at `build/bin/lake` and the library's `.olean` files will be located in `build/lib`.
 
 ### Building with Nix Flakes
 

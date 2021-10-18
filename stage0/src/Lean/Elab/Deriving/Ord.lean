@@ -51,8 +51,8 @@ where
                     | Ordering.lt => Ordering.lt
                     | Ordering.gt => Ordering.gt
                     | Ordering.eq => $rhs)
-        let lPat ← `(@$(mkIdent ctorName):ident $ctorArgs1.reverse:term*)
-        let rPat ← `(@$(mkIdent ctorName):ident $ctorArgs2.reverse:term*)
+        let lPat ← `(@$(mkIdent ctorName):ident $ctorArgs1:term*)
+        let rPat ← `(@$(mkIdent ctorName):ident $ctorArgs2:term*)
         let patterns := indPatterns ++ #[lPat, rPat]
         let ltPatterns := indPatterns ++ #[lPat, ←`(_)]
         let gtPatterns := indPatterns ++ #[←`(_), rPat]

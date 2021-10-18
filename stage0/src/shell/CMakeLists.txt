@@ -202,3 +202,10 @@ add_test(NAME leanpkgtest_user_attr_app
            export PATH=${LEAN_BIN}:$PATH
            find . -name '*.olean' -delete
            leanmake bin LINK_OPTS='${LEAN_DYN_EXE_LINKER_FLAGS}' && build/bin/UserAttr")
+
+add_test(NAME laketest
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/lake/examples"
+         COMMAND bash -c "
+           set -eu
+           export PATH=${LEAN_BIN}:$PATH
+           make LAKE=lake test")

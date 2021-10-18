@@ -475,7 +475,8 @@ def quoteString (s : String) : String :=
   let q := s.foldl
     (fun q c => q ++
       if c == '\n' then "\\n"
-      else if c == '\n' then "\\t"
+      else if c == '\r' then "\\r"
+      else if c == '\t' then "\\t"
       else if c == '\\' then "\\\\"
       else if c == '\"' then "\\\""
       else if c.toNat <= 31 then

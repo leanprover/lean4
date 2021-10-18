@@ -210,6 +210,7 @@ static lean_object* l_Lean_Elab_Term_elabLetDeclCore___closed__16;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_quoteAutoTactic___spec__3___closed__5;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_elabLetDeclAux___closed__2;
+lean_object* l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_7135____spec__1(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabFun___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabLetDeclAux___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandMatchAltsIntoMatchTactic___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -234,7 +235,6 @@ static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Binders_0__L
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandMatchAltsWhereDecls_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandBinderIdent___closed__5;
 static lean_object* l_Lean_Elab_Term_elabLetDeclAux___closed__1;
-lean_object* l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_7126____spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandOptIdent___closed__3;
 lean_object* l_Lean_Elab_Term_withMacroExpansion___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLCtx___at___private_Lean_Elab_Binders_0__Lean_Elab_Term_FunBinders_elabFunBinderViews___spec__3(lean_object*);
@@ -16917,7 +16917,7 @@ lean_dec(x_10);
 x_12 = l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandBinderIdent___closed__6;
 x_13 = lean_alloc_closure((void*)(l_Lean_Elab_Term_expandWhereDecls___lambda__2), 2, 1);
 lean_closure_set(x_13, 0, x_12);
-x_14 = l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_7126____spec__1(x_11, x_13);
+x_14 = l_Array_sequenceMap___at_myMacro____x40_Init_NotationExtra___hyg_7135____spec__1(x_11, x_13);
 lean_dec(x_11);
 if (lean_obj_tag(x_14) == 0)
 {

@@ -83,9 +83,9 @@ ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Linking $@"
 endif
 ifdef PROFILE
-	\time -f "%U %S" $(LEANC) -o "$@" $^ $(LINK_OPTS) 2>&1 > /dev/null | awk '{ printf "C linking %fs\n", $$1 + $$2 }' > /dev/stderr
+	\time -f "%U %S" $(LEANC) -o "$@" $^ $(LEANC_OPTS) $(LINK_OPTS) 2>&1 > /dev/null | awk '{ printf "C linking %fs\n", $$1 + $$2 }' > /dev/stderr
 else
-	$(LEANC) -o "$@" $^ $(LINK_OPTS)
+	$(LEANC) -o "$@" $^ $(LEANC_OPTS) $(LINK_OPTS)
 endif
 
 $(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.o)) | $(LIB_OUT)

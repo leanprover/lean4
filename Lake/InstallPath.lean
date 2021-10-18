@@ -111,10 +111,10 @@ def findLakeInstall? : IO (Option LakeInstall) := do
   in the same directory as itself), it will assume it was installed with
   Lean and their binaries are located in `<lean-home>/bin` with
   Lean's libraries and `.olean` files at `<lean-home>/lib/lean` and
-  Lake's static library and `.olean` files at `<lean-home>/lib/lake`.
+  Lake's static library and `.olean` files at `<lean-home>/lib/lean`.
 -/
 def findInstall? : IO (Option LeanInstall × Option LakeInstall) := do
   if let some home ← findLakeLeanJointHome? then
-    return (some {home}, some {home, libDir := home / "lib" / "lake"})
+    return (some {home}, some {home, libDir := home / "lib" / "lean"})
   else
     return (← findLeanInstall?, ← findLakeInstall?)

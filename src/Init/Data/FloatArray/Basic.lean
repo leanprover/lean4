@@ -23,7 +23,11 @@ def mkEmpty (c : @& Nat) : FloatArray :=
 def empty : FloatArray :=
   mkEmpty 0
 
-instance : Inhabited FloatArray := ⟨empty⟩
+instance : Inhabited FloatArray where
+  default := empty
+
+instance : EmptyCollection FloatArray where
+  emptyCollection := FloatArray.empty
 
 @[extern "lean_float_array_push"]
 def push : FloatArray → Float → FloatArray
@@ -50,6 +54,9 @@ def get? (ds : FloatArray) (i : Nat) : Option Float :=
     ds.get ⟨i, h⟩
   else
     none
+
+@[inline] def getOp (self : FloatArray) (idx : Nat) : Float :=
+  self.get! idx
 
 @[extern "lean_float_array_uset"]
 def uset : (a : FloatArray) → (i : USize) → Float → i.toNat < a.size → FloatArray

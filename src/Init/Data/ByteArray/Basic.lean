@@ -23,7 +23,11 @@ def mkEmpty (c : @& Nat) : ByteArray :=
 
 def empty : ByteArray := mkEmpty 0
 
-instance : Inhabited ByteArray := ⟨empty⟩
+instance : Inhabited ByteArray where
+  default := empty
+
+instance : EmptyCollection ByteArray where
+  emptyCollection := ByteArray.empty
 
 @[extern "lean_byte_array_push"]
 def push : ByteArray → UInt8 → ByteArray
@@ -44,6 +48,9 @@ def get! : (@& ByteArray) → (@& Nat) → UInt8
 @[extern "lean_byte_array_fget"]
 def get : (a : @& ByteArray) → (@& Fin a.size) → UInt8
   | ⟨bs⟩, i => bs.get i
+
+@[inline] def getOp (self : ByteArray) (idx : Nat) : UInt8 :=
+  self.get! idx
 
 @[extern "lean_byte_array_set"]
 def set! : ByteArray → (@& Nat) → UInt8 → ByteArray

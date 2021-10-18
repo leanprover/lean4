@@ -811,7 +811,7 @@ def UInt8.ofNatCore (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 := {
 }
 
 set_option bootstrap.genMatcherCode false in
-@[extern c inline "#1 == #2"]
+@[extern "lean_uint8_dec_eq"]
 def UInt8.decEq (a b : UInt8) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
@@ -835,7 +835,7 @@ def UInt16.ofNatCore (n : @& Nat) (h : LT.lt n UInt16.size) : UInt16 := {
 }
 
 set_option bootstrap.genMatcherCode false in
-@[extern c inline "#1 == #2"]
+@[extern "lean_uint16_dec_eq"]
 def UInt16.decEq (a b : UInt16) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
@@ -862,7 +862,7 @@ def UInt32.ofNatCore (n : @& Nat) (h : LT.lt n UInt32.size) : UInt32 := {
 def UInt32.toNat (n : UInt32) : Nat := n.val.val
 
 set_option bootstrap.genMatcherCode false in
-@[extern c inline "#1 == #2"]
+@[extern "lean_uint32_dec_eq"]
 def UInt32.decEq (a b : UInt32) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
@@ -880,13 +880,13 @@ instance : LE UInt32 where
   le a b := LE.le a.val b.val
 
 set_option bootstrap.genMatcherCode false in
-@[extern c inline "#1 < #2"]
+@[extern "lean_uint32_dec_lt"]
 def UInt32.decLt (a b : UInt32) : Decidable (LT.lt a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (LT.lt n m))
 
 set_option bootstrap.genMatcherCode false in
-@[extern c inline "#1 <= #2"]
+@[extern "lean_uint32_dec_le"]
 def UInt32.decLe (a b : UInt32) : Decidable (LE.le a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ => inferInstanceAs (Decidable (LE.le n m))
@@ -907,7 +907,7 @@ def UInt64.ofNatCore (n : @& Nat) (h : LT.lt n UInt64.size) : UInt64 := {
 }
 
 set_option bootstrap.genMatcherCode false in
-@[extern c inline "#1 == #2"]
+@[extern c "lean_uint64_dec_eq"]
 def UInt64.decEq (a b : UInt64) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
@@ -938,7 +938,7 @@ def USize.ofNatCore (n : @& Nat) (h : LT.lt n USize.size) : USize := {
 }
 
 set_option bootstrap.genMatcherCode false in
-@[extern c inline "#1 == #2"]
+@[extern c "lean_usize_dec_eq"]
 def USize.decEq (a b : USize) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
@@ -1644,10 +1644,10 @@ class Hashable (α : Sort u) where
 
 export Hashable (hash)
 
-@[extern c inline "(size_t)#1"]
+@[extern c "lean_uint64_to_usize"]
 constant UInt64.toUSize (u : UInt64) : USize
 
-@[extern c inline "(uint64_t)#1"]
+@[extern c "lean_usize_to_uint64"]
 constant USize.toUInt64 (u : USize) : UInt64
 
 @[extern "lean_uint64_mix_hash"]

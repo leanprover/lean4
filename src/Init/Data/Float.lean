@@ -32,11 +32,11 @@ structure Float where
 instance : Inhabited Float := ⟨{ val := floatSpec.val }⟩
 
 @[extern "lean_float_of_nat"] constant Float.ofNat : (@& Nat) → Float
-@[extern c inline "#1 + #2"]  constant Float.add : Float → Float → Float
-@[extern c inline "#1 - #2"]  constant Float.sub : Float → Float → Float
-@[extern c inline "#1 * #2"]  constant Float.mul : Float → Float → Float
-@[extern c inline "#1 / #2"]  constant Float.div : Float → Float → Float
-@[extern c inline "(- #1)"]   constant Float.neg : Float → Float
+@[extern "lean_float_add"]  constant Float.add : Float → Float → Float
+@[extern "lean_float_sub"]  constant Float.sub : Float → Float → Float
+@[extern "lean_float_mul"]  constant Float.mul : Float → Float → Float
+@[extern "lean_float_div"]  constant Float.div : Float → Float → Float
+@[extern "lean_float_negate"]   constant Float.neg : Float → Float
 
 def Float.ofInt : Int → Float
   | Int.ofNat n => Float.ofNat n
@@ -59,15 +59,15 @@ instance : Neg Float       := ⟨Float.neg⟩
 instance : LT Float        := ⟨Float.lt⟩
 instance : LE Float        := ⟨Float.le⟩
 
-@[extern c inline "#1 == #2"] constant Float.beq (a b : Float) : Bool
+@[extern "lean_float_beq"] constant Float.beq (a b : Float) : Bool
 
 instance : BEq Float := ⟨Float.beq⟩
 
-@[extern c inline "#1 < #2"]   constant Float.decLt (a b : Float) : Decidable (a < b) :=
+@[extern "lean_float_decLt"]   constant Float.decLt (a b : Float) : Decidable (a < b) :=
   match a, b with
   | ⟨a⟩, ⟨b⟩ => floatSpec.decLt a b
 
-@[extern c inline "#1 <= #2"] constant Float.decLe (a b : Float) : Decidable (a ≤ b) :=
+@[extern "lean_float_decLe"] constant Float.decLe (a b : Float) : Decidable (a ≤ b) :=
   match a, b with
   | ⟨a⟩, ⟨b⟩ => floatSpec.decLe a b
 
@@ -76,11 +76,11 @@ instance floatDecLe (a b : Float) : Decidable (a ≤ b) := Float.decLe a b
 
 @[extern "lean_float_to_string"] constant Float.toString : Float → String
 
-@[extern c inline "(uint8_t)#1"] constant Float.toUInt8 : Float → UInt8
-@[extern c inline "(uint16_t)#1"] constant Float.toUInt16 : Float → UInt16
-@[extern c inline "(uint32_t)#1"] constant Float.toUInt32 : Float → UInt32
-@[extern c inline "(uint64_t)#1"] constant Float.toUInt64 : Float → UInt64
-@[extern c inline "(size_t)#1"] constant Float.toUSize : Float → USize
+@[extern "lean_float_to_uint8"] constant Float.toUInt8 : Float → UInt8
+@[extern "lean_float_to_uint16"] constant Float.toUInt16 : Float → UInt16
+@[extern "lean_float_to_uint32"] constant Float.toUInt32 : Float → UInt32
+@[extern "lean_float_to_uint64"] constant Float.toUInt64 : Float → UInt64
+@[extern "lean_float_to_usize"] constant Float.toUSize : Float → USize
 
 instance : ToString Float where
   toString := Float.toString

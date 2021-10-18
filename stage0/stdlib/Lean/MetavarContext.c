@@ -85,7 +85,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_MetavarContext_instant
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_MetavarContext_instantiateExprMVars___spec__11___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MetavarContext_instantiateLevelMVars___rarg___lambda__1___closed__1;
 lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_MetavarContext_instantiateExprMVars___spec__31___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedMetavarDecl___closed__3;
@@ -315,7 +315,7 @@ uint8_t lean_expr_has_loose_bvar(lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_MetavarContext_instantiateExprMVars___spec__17___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldRevM_loop___at___private_Lean_MetavarContext_0__Lean_MetavarContext_MkBinding_mkAuxMVarType___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT uint8_t l_Std_PersistentArray_anyMAux___at_Lean_MetavarContext_exprDependsOn___spec__4(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_MetavarContext_localDeclDependsOn___spec__7(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_MetavarContext_LevelMVarToParam_main_visitApp___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*);

@@ -26,7 +26,7 @@ lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Elab_Structural_mkIndPredBRecOn___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_Elab_Structural_mkIndPredBRecOn___closed__5;
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);

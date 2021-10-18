@@ -55,7 +55,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalSkip___boxed(lean_object*, lean_
 lean_object* l_Lean_Elab_Tactic_SavedState_restore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_findM_x3f___at___private_Lean_Elab_Tactic_BuiltinTactic_0__Lean_Elab_Tactic_findTag_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalTacticSeq___closed__3;
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_io_error_to_string(lean_object*);

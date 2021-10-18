@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 extern lean_object* l_instHashableString;
-LEAN_EXPORT uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
+uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
 static lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_146____spec__1___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_146____spec__1___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_146_(lean_object*);
@@ -43,7 +43,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerRpcCallHandler___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_rpcProcedures;
 static lean_object* l_Lean_Server_parseRequestParams___at_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_146____spec__2___closed__2;
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_containsAux___at_Lean_Server_registerRpcCallHandler___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 static size_t l_Std_PersistentHashMap_containsAux___at_Lean_Server_registerRpcCallHandler___spec__4___closed__1;
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_23____closed__1;

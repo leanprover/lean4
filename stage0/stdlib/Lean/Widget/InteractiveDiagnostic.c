@@ -49,7 +49,7 @@ LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_Widget_InteractiveDiagnost
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__41___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__30___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__10___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_Lean_Widget_InfoWithCtx_decodeUnsafe____x40_Lean_Widget_InteractiveCode___hyg_5____rarg(lean_object*, lean_object*, size_t);

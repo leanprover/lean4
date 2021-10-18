@@ -54,7 +54,7 @@ LEAN_EXPORT lean_object* l_Lean_registerParametricAttribute___rarg___lambda__4(l
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_getAttrParamOptPrio___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_registerParametricAttribute___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_Attribute_Builtin_getIdent_x3f___closed__2;
 lean_object* lean_io_error_to_string(lean_object*);
@@ -174,7 +174,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_Parame
 static size_t l_Std_PersistentHashMap_containsAux___at_Lean_registerBuiltinAttribute___spec__2___closed__1;
 extern lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 static lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_3209____closed__1;
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 static lean_object* l_Lean_instInhabitedAttributeExtensionState___closed__1;
 static lean_object* l_Lean_mkAttributeImplOfConstant___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Attribute_Builtin_getIdent_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

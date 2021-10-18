@@ -117,7 +117,7 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Do_ToTerm_returnToTerm___closed__43;
 static lean_object* l___private_Lean_Elab_Do_0__Lean_Elab_Term_liftMethodForbiddenBinder___closed__3;
 lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_mkAuxDeclFor___rarg___lambda__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Do_mkSeq___boxed(lean_object*, lean_object*);

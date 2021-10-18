@@ -76,7 +76,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Environment_0__Lean_setImportedEntries
 static lean_object* l_Lean_Environment_displayStats___closed__1;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedPersistentEnvExtension___lambda__4___boxed(lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_mkMapDeclarationExtension___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedEnvExtensionInterface___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -219,7 +219,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterf
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlMAux_traverse___at_Lean_mkModuleData___spec__8___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_EnvExtensionInterfaceImp___closed__4;
 LEAN_EXPORT lean_object* l_Lean_PersistentEnvExtension_setState(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_EnvExtensionInterfaceImp;
 LEAN_EXPORT lean_object* l_Lean_mkEmptyEnvironment___lambda__1(uint32_t, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Environment_hasUnsafe(lean_object*, lean_object*);

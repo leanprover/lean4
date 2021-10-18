@@ -24,7 +24,7 @@ LEAN_EXPORT lean_object* l_Std_AssocList_find_x3f___at_Lean_IR_findEnvDecl___spe
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logMessageIfAux(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_getEnv___boxed(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* lean_ir_add_decl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_findEnvDecl_x27___lambda__1(lean_object*, lean_object*);
@@ -87,7 +87,7 @@ extern lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUn
 LEAN_EXPORT lean_object* l_Lean_IR_declMapExt___elambda__1(lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_427____spec__8(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_427____spec__7(lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 lean_object* l_Std_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_tracePrefixOptionName___closed__5;
 LEAN_EXPORT lean_object* l_Lean_IR_log(lean_object*, lean_object*, lean_object*);

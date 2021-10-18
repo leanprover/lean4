@@ -36,7 +36,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_Scoped
 static lean_object* l_Lean_instInhabitedScopedEnvExtension___rarg___closed__6;
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_addImportedFn___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_ScopedEnvExtension_popScope___spec__3___rarg(lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_activateScoped(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_instInhabitedDescr___rarg___lambda__3___boxed(lean_object*, lean_object*);
@@ -118,7 +118,7 @@ LEAN_EXPORT lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_S
 LEAN_EXPORT lean_object* l_Std_PersistentArray_forInAux___at_Lean_ScopedEnvExtension_activateScoped___spec__12___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 LEAN_EXPORT lean_object* l_Lean_pushScope(lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_popScope___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_find_x3f___at_Lean_ScopedEnvExtension_ScopedEntries_insert___spec__7(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_ScopedEnvExtension_addLocalEntry___spec__2(lean_object*, lean_object*, lean_object*);

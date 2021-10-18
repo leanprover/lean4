@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 size_t lean_usize_add(size_t, size_t);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Xml_instToStringAttributes(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);

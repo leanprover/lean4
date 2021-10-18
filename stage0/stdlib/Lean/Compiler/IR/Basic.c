@@ -32,7 +32,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_instInhabitedVarIdSet;
 LEAN_EXPORT lean_object* lean_ir_mk_uproj_expr(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lean_IR_IRType_beq___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_instBEqFnBody;
 static lean_object* l_Lean_IR_instToStringJoinPointId___closed__1;

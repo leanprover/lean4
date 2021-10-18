@@ -37,7 +37,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_readLspRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_compileHeader___lambda__4___closed__2;
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__39;
-LEAN_EXPORT uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
+uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
 static lean_object* l_Lean_Server_FileWorker_lakeSetupSearchPath_processStderr___closed__3;
 lean_object* l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJsonDidOpenTextDocumentParams____x40_Lean_Data_Lsp_TextSync___hyg_114_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleRpcRelease___boxed(lean_object*, lean_object*, lean_object*, lean_object*);

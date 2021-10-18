@@ -27,7 +27,7 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4____spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_setEnv___rarg(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4____lambda__5(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_ImplementedByAttr___hyg_4____lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

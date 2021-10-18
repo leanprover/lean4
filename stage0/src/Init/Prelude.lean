@@ -907,7 +907,7 @@ def UInt64.ofNatCore (n : @& Nat) (h : LT.lt n UInt64.size) : UInt64 := {
 }
 
 set_option bootstrap.genMatcherCode false in
-@[extern c "lean_uint64_dec_eq"]
+@[extern "lean_uint64_dec_eq"]
 def UInt64.decEq (a b : UInt64) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
@@ -938,7 +938,7 @@ def USize.ofNatCore (n : @& Nat) (h : LT.lt n USize.size) : USize := {
 }
 
 set_option bootstrap.genMatcherCode false in
-@[extern c "lean_usize_dec_eq"]
+@[extern "lean_usize_dec_eq"]
 def USize.decEq (a b : USize) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
@@ -1644,10 +1644,10 @@ class Hashable (α : Sort u) where
 
 export Hashable (hash)
 
-@[extern c "lean_uint64_to_usize"]
+@[extern "lean_uint64_to_usize"]
 constant UInt64.toUSize (u : UInt64) : USize
 
-@[extern c "lean_usize_to_uint64"]
+@[extern "lean_usize_to_uint64"]
 constant USize.toUInt64 (u : USize) : UInt64
 
 @[extern "lean_uint64_mix_hash"]

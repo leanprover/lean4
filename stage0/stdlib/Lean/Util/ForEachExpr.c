@@ -32,7 +32,7 @@ LEAN_EXPORT lean_object* l_Lean_ForEachExpr_visit___at_Lean_Expr_forEach___spec_
 LEAN_EXPORT lean_object* l_Lean_Expr_forEach___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_forEach_x27___rarg___lambda__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_forEach_x27___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 lean_object* l_Std_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_forEach___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMapImp_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);

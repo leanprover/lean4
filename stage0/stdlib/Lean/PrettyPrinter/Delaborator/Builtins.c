@@ -110,7 +110,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabAppExplicit___lam
 lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_inaccessible_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delabLam___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_PrettyPrinter_Delaborator_withMDatasOptions___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_PrettyPrinter_Delaborator_withBindingBodyUnusedName___spec__3___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);

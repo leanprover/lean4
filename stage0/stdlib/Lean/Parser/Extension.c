@@ -44,7 +44,7 @@ LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_Parser_getSynt
 static lean_object* l_Lean_Parser_ParserExtension_instInhabitedOLeanEntry___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_instCoeParserParserAliasValue(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Parser_addToken___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_add___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -168,7 +168,7 @@ LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_Parser_getSynt
 static lean_object* l_Lean_Parser_ParserExtension_addEntryImpl___closed__1;
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_Parser_isParserCategory___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_Parser_isParserCategory___spec__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 static lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_Parser_isParserCategory___spec__1___closed__1;
 static size_t l_Std_PersistentHashMap_containsAux___at___private_Lean_Parser_Extension_0__Lean_Parser_addParserCategoryCore___spec__2___closed__2;
 lean_object* l_List_eraseDups___at_Lean_ResolveName_resolveGlobalName_loop___spec__1(lean_object*);

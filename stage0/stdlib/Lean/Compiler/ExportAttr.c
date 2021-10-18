@@ -26,7 +26,7 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_getExportNameFor___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l_Lean_exportAttr___closed__1;
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____spec__5___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___lambda__1___boxed(lean_object*);

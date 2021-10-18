@@ -23,7 +23,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_inferBorrow___boxed(lean_object*, lean_object
 static lean_object* l_Lean_IR_Borrow_ParamMap_fmt___closed__5;
 LEAN_EXPORT lean_object* l_ReaderT_pure___at_Lean_IR_Borrow_collectDecls___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_BorrowInfCtx_paramSet___default;
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_isOwned(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_mkInitParamMap(lean_object*, lean_object*);
@@ -67,7 +67,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_Borrow_BorrowInfState_owned___default;
 LEAN_EXPORT lean_object* l_panic___at_Lean_IR_Borrow_getParamInfo___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Borrow_instToFormatParamMap___closed__1;
 LEAN_EXPORT lean_object* l_Std_AssocList_find_x3f___at_Lean_IR_Borrow_ApplyParamMap_visitFnBody___spec__2(lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 static lean_object* l_Std_AssocList_foldlM___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__1;
 lean_object* l_Std_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___at_Lean_IR_Decl_updateBody_x21___spec__1(lean_object*);

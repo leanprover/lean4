@@ -27,7 +27,7 @@ LEAN_EXPORT lean_object* l_Std_HashMapImp_fold(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_HashMap_empty___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMapImp_foldBucketsM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMapImp_find_x3f(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Std_HashMapImp_reinsertAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_find_x21(lean_object*, lean_object*);
@@ -72,7 +72,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_erase___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_foldlM___at_Std_HashMap_toArray___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_toArray___spec__2___rarg(lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Std_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_mkHashMapImp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_numBuckets___rarg(lean_object*);

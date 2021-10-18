@@ -39,7 +39,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_mkSizeOfFns___spec__2_
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_isRecField_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_setInlineAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg___closed__2;
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);

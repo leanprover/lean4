@@ -38,7 +38,7 @@ extern lean_object* l_Lean_nullKind;
 static lean_object* l_Lean_addTrace___at_Lean_Elab_Term_Quotation_precheck___spec__3___closed__3;
 static lean_object* l_Lean_Elab_Term_Quotation_mkPrecheckAttribute___closed__8;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quotation_Precheck___hyg_85_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quotation_Precheck___hyg_108_(lean_object*);

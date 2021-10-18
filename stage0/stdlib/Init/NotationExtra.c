@@ -63,7 +63,7 @@ static lean_object* l_myMacro____x40_Init_NotationExtra___hyg_8177____lambda__1_
 static lean_object* l_Lean_binderIdent___closed__6;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_expandExplicitBinders___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_explicitBinders___closed__3;
 static lean_object* l_termExists___x2c_____closed__1;

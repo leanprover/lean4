@@ -32,7 +32,7 @@ LEAN_EXPORT lean_object* l_Lean_resolveNamespace___rarg(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_List_toStringAux___at_Lean_resolveGlobalConstNoOverloadCore___spec__3___boxed(lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_getRevAliases___spec__5___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_initFn____x40_Lean_ResolveName___hyg_66____lambda__1___closed__3;
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConst___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -83,7 +83,7 @@ LEAN_EXPORT lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_i
 static lean_object* l_Lean_initFn____x40_Lean_ResolveName___hyg_66____closed__1;
 extern lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 LEAN_EXPORT lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_initFn____x40_Lean_ResolveName___hyg_66____spec__6___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_getRevAliases___spec__11___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_resolveGlobalConstNoOverload___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_eraseDups___at_Lean_ResolveName_resolveGlobalName_loop___spec__1(lean_object*);

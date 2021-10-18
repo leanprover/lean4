@@ -77,7 +77,7 @@ uint32_t lean_uint32_add(uint32_t, uint32_t);
 uint8_t lean_expr_has_loose_bvar(lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Closure_mkNewLevelParam___closed__1;
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 uint8_t l_Lean_Environment_hasUnsafe(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Closure_collectExprAux___closed__2;
 static lean_object* l_Lean_Meta_Closure_collectLevelAux___closed__8;

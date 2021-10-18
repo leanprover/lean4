@@ -32,7 +32,7 @@ LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Elab_Deriving_mkD
 static lean_object* l_Lean_Elab_Deriving_mkContext___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Elab_Deriving_mkInstImplicitBinders___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_mkLocalInstanceLetDecls___spec__1___closed__6;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Deriving_mkLet___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

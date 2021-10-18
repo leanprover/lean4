@@ -57,7 +57,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_withOpenDecl_formatter(l
 static lean_object* l_Lean_PrettyPrinter_Formatter_pushToken___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_sepByNoAntiquot_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_pushLine___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_formatterForKind___rarg(lean_object*);

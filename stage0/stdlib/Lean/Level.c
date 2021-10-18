@@ -25,7 +25,7 @@ static lean_object* l_Lean_Level_mvarId_x21___closed__2;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Level_PP_Result_format___closed__4;
 lean_object* lean_nat_div(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
+uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Level_data___boxed(lean_object*);
 static lean_object* l_Lean_Level_mvarId_x21___closed__1;
 static lean_object* l_Lean_Level_PP_Result_quote___lambda__3___closed__8;

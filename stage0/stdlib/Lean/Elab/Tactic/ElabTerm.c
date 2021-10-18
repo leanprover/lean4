@@ -36,7 +36,7 @@ lean_object* l_Lean_LocalDecl_userName(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalDecide___closed__2;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_elabTermWithHoles___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalExact(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalNativeDecide(lean_object*);

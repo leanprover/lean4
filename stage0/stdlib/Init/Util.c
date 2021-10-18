@@ -18,7 +18,7 @@ LEAN_EXPORT lean_object* l_panicWithPos___rarg(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_dbgTrace___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrEqUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_dbgTraceIfShared___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_withPtrAddr(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrEq___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrEqUnsafe(lean_object*);

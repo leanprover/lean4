@@ -43,7 +43,7 @@ lean_object* l_Lean_Elab_Command_liftTermElabM___rarg(lean_object*, lean_object*
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__10(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHandler___lambda__1___closed__13;
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandler___lambda__4___closed__6;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHandler_mkAlts___spec__6___lambda__2___closed__15;

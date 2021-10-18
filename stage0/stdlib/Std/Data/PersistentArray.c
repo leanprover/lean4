@@ -55,7 +55,7 @@ LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Std_PersistentArray_
 LEAN_EXPORT lean_object* l_Std_PersistentArray_mkEmptyArray(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_forIn___rarg___lambda__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_anyMAux(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_PersistentArray_filter___spec__8___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

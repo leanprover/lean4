@@ -28,7 +28,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_a
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitRC_getJPLiveVars(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_IR_ExplicitRC_getJPParams___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_getNumConsumptions___at___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_addIncBefore___spec__2(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_RC_0__Lean_IR_ExplicitRC_isBorrowParam___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitRC_getJPParams___boxed(lean_object*, lean_object*);

@@ -18,7 +18,7 @@ LEAN_EXPORT lean_object* l_Lean_InternalExceptionId_toString(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_registerInternalExceptionId___closed__1;
 static lean_object* l_Lean_InternalExceptionId_toString___closed__2;
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_InternalExceptionId_toString___closed__1;
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_registerInternalExceptionId___closed__2;

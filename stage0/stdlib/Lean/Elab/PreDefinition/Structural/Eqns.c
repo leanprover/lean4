@@ -46,7 +46,7 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_saveEqn___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Std_RBNode_fold___at___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_saveEqn___spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Elab_Structural_getEqnsFor_x3f___spec__1___closed__1;
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Elab_Structural_getEqnsFor_x3f___spec__1___closed__3;
 uint64_t lean_uint64_of_nat(lean_object*);

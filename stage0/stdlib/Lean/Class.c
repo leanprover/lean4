@@ -26,7 +26,7 @@ LEAN_EXPORT lean_object* l_Lean_ClassState_switch(lean_object*);
 static lean_object* l_Lean_classExtension___closed__3;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_initFn____x40_Lean_Class___hyg_75____spec__4___lambda__4(lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_classExtension___elambda__4___rarg___closed__3;
 static lean_object* l_Lean_classExtension___closed__7;
@@ -78,7 +78,7 @@ LEAN_EXPORT lean_object* l_Std_PersistentHashMap_containsAux___at_Lean_isClass__
 LEAN_EXPORT lean_object* l_Std_mkHashMap___at_Lean_ClassState_hasOutParam___default___spec__2(lean_object*);
 extern lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 LEAN_EXPORT uint8_t l_Std_AssocList_contains___at_Lean_isClass___spec__7(lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 lean_object* l_Std_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_classExtension___closed__6;
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_759____closed__7;

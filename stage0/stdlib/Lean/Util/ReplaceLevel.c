@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 uint64_t lean_uint64_of_nat(lean_object*);
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);

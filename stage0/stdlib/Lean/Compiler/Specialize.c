@@ -35,7 +35,7 @@ static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at___private_L
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_333____spec__3(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_31____closed__12;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_31____spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_31____closed__11;
@@ -84,7 +84,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_Specialize_0__Lean_Compiler_b
 LEAN_EXPORT lean_object* l_Lean_Compiler_specExtension___elambda__2___boxed(lean_object*);
 extern lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 LEAN_EXPORT lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___at___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux___spec__6___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_31____spec__7(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_333____spec__4___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_31____spec__1___lambda__4(lean_object*);

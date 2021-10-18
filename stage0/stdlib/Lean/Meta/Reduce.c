@@ -38,7 +38,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reduce_visit___lambda__4___closed__1;
 static lean_object* l_Lean_Core_withIncRecDepth___at_Lean_Meta_reduce_visit___spec__8___closed__1;
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Meta_reduce_visit___spec__4(lean_object*, lean_object*);
 lean_object* l_Std_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);

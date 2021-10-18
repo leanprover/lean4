@@ -79,7 +79,7 @@ lean_object* l_Lean_throwError___at_Lean_Meta_setInlineAttribute___spec__1(lean_
 static lean_object* l_List_mapTRAux___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processSkipInaccessible___spec__3___closed__1;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_updateAlts___lambda__3___closed__2;
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_mkMatcher___lambda__4___boxed(lean_object**);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_List_foldr___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_isArrayLitTransition___spec__1___boxed(lean_object*, lean_object*);
@@ -253,7 +253,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_pr
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 static lean_object* l_List_filterMapM_loop___at___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_processNonVariable___spec__1___closed__2;
 static lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_withAlts_loop___rarg___closed__3;
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Match_Match___hyg_11699_(lean_object*);
 uint8_t l_Lean_Environment_hasUnsafe(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_checkNextPatternTypes(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

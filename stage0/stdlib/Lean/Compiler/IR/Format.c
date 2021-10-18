@@ -32,7 +32,7 @@ static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatParam___closed__7;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__17;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__3;
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__33;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__15;

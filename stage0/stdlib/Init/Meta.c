@@ -64,7 +64,7 @@ static lean_object* l_Lean_Name_escapePart___closed__1;
 static lean_object* l_repr___at___private_Init_Meta_0__Lean_Name_reprSyntax____x40_Init_Meta___hyg_924____spec__3___closed__6;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_myMacro____x40_Init_Meta___hyg_6362____closed__1;
 static lean_object* l_Lean_termEval__prio_____closed__9;

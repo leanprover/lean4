@@ -38,7 +38,7 @@ LEAN_EXPORT lean_object* l_instHashableFin___rarg___boxed(lean_object*);
 LEAN_EXPORT uint64_t l_instHashableList___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_instHashableFin___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instHashableOption___rarg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint64_t lean_usize_to_uint64(size_t);
+uint64_t lean_usize_to_uint64(size_t);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);

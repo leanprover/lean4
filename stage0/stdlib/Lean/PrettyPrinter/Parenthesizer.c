@@ -53,7 +53,7 @@ static lean_object* l_Lean_PrettyPrinter_Parenthesizer_term_parenthesizer___clos
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Parenthesizer_nonReservedSymbolNoAntiquot_parenthesizer(lean_object*, uint8_t, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___lambda__10___closed__19;
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_goUp___at_Lean_PrettyPrinter_Parenthesizer_visitArgs___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_parenthesizerAttribute___closed__11;

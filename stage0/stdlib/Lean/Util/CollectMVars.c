@@ -23,7 +23,7 @@ lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_CollectMVars_instInhabitedState___closed__2;
 lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSetImp_insert___at_Lean_CollectMVars_visit___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_mkHashSet___at_Lean_CollectMVars_State_visitedExpr___default___spec__1(lean_object*);

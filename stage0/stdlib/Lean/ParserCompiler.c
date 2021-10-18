@@ -46,7 +46,7 @@ static lean_object* l_Lean_ParserCompiler_compileCategoryParser___rarg___closed_
 static lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_compileParserExpr___spec__1___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_compileParserExpr___spec__8___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_io_error_to_string(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_compileParserExpr___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

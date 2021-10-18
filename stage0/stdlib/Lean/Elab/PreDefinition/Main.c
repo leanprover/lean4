@@ -35,7 +35,7 @@ uint8_t l_Lean_Elab_Modifiers_isPartial(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_addPreDefinitions___spec__8___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwAbortCommand___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_ensureNoUnassignedMVarsAtPreDef___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__1___closed__6;
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_addAndCompilePartial___spec__1___closed__3;
@@ -91,7 +91,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___at___pri
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__13___lambda__4___closed__8;
 lean_object* l_Lean_Elab_addAndCompileUnsafe(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__21(lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__17___closed__1;
 static lean_object* l_Lean_Elab_addPreDefinitions___closed__7;
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_addPreDefinitions___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

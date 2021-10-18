@@ -48,7 +48,7 @@ static lean_object* l_Lean_Elab_Term_elabCDotFunctionAlias_x3f___closed__2;
 static lean_object* l_Lean_Elab_Term_expandDbgTrace___closed__17;
 static lean_object* l_Lean_Elab_Term_elabAnonymousCtor___closed__2;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_Elab_Term_expandHave___closed__1;
 static lean_object* l_Lean_Elab_Term_elabAnonymousCtor___lambda__3___closed__1;

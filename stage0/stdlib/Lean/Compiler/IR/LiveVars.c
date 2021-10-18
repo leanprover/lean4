@@ -19,7 +19,7 @@ size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_RBNode_erase___at___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindVar___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_collectArray___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_accumulate___closed__1;
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_IsLive_visitArg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_IsLive_visitFnBody___boxed(lean_object*, lean_object*, lean_object*);

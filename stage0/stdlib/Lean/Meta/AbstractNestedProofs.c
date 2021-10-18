@@ -20,7 +20,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLCtx___at_Lean_Meta_AbstractNestedProof
 lean_object* l_Lean_mkSort(lean_object*);
 lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 extern lean_object* l_Lean_ExprStructEq_instHashableExprStructEq;

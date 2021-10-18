@@ -37,7 +37,7 @@ LEAN_EXPORT lean_object* l_Array_getIdx_x3f___at___private_Lean_Meta_RecursorInf
 lean_object* l_Lean_throwError___at_Lean_Meta_setInlineAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerParametricAttribute___at_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2705____spec__1___closed__5;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getUnivLevelPos___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoAux___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

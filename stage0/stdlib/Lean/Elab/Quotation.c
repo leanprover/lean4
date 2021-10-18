@@ -86,7 +86,7 @@ static lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__26;
 static lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___closed__17;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__23___closed__4;

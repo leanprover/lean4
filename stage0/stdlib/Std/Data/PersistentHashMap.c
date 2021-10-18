@@ -23,7 +23,7 @@ lean_object* l_Array_indexOfAux___rarg(lean_object*, lean_object*, lean_object*,
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_findEntryAux(lean_object*, lean_object*);
 static lean_object* l_Std_PersistentHashMap_root___default___closed__1;
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAux_traverse___rarg(lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_instToStringStats;
@@ -70,7 +70,7 @@ LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlM___at_Std_PersistentHashM
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlMAux_traverse___at_Std_PersistentHashMap_toList___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT size_t l_Std_PersistentHashMap_maxDepth;
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_containsAux___rarg(lean_object*, lean_object*, size_t, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_empty___rarg(lean_object*, lean_object*);
 static lean_object* l_Std_PersistentHashMap_find_x21___rarg___closed__4;
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlMAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

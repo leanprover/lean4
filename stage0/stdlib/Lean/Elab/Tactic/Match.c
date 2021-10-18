@@ -32,7 +32,7 @@ lean_object* l_Lean_LocalDecl_userName(lean_object*);
 extern lean_object* l_Lean_nullKind;
 static lean_object* l_Lean_Elab_Tactic_AuxMatchTermState_cases___default___closed__1;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__2___closed__13;
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);

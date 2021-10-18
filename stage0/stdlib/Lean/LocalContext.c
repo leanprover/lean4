@@ -47,7 +47,7 @@ LEAN_EXPORT lean_object* l_Std_PersistentArray_findSomeRevM_x3f___at_Lean_LocalC
 LEAN_EXPORT lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_LocalContext_foldl___spec__4(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldRev_loop___at_Lean_LocalContext_mkLambda___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_any___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -137,7 +137,7 @@ uint8_t lean_expr_has_loose_bvar(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_LocalContext_findDeclRev_x3f___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_empty;
 LEAN_EXPORT lean_object* lean_local_ctx_last_decl(lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_setBinderInfo(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_getFVars(lean_object*);
 lean_object* lean_expr_lower_loose_bvars(lean_object*, lean_object*, lean_object*);

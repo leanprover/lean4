@@ -22,7 +22,7 @@ static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed_
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda__2___closed__9;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);

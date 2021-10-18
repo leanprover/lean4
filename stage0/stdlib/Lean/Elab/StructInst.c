@@ -68,7 +68,7 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_StructInst_expandStructInstExpectedType___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Term_StructInst_expandStructInstFieldAbbrev___closed__2;
 LEAN_EXPORT uint8_t l_Lean_Elab_Term_StructInst_Struct_allDefault(lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwAbortTerm___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_expandNonAtomicExplicitSources___spec__2___rarg(lean_object*);
 static lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabModifyOp___lambda__2___closed__2;
@@ -227,7 +227,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Stru
 LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_expandNonAtomicExplicitSources___lambda__2(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_mkStructView(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 static lean_object* l_Lean_Elab_Term_StructInst_expandStructInstExpectedType___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_StructInst_Source_isNone___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_StructInst_Struct_structName(lean_object*);

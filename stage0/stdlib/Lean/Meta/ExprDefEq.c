@@ -67,7 +67,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_CheckAssignment_initFn____x40_Lean_Meta_Exp
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckAssignment_initFn____x40_Lean_Meta_ExprDefEq___hyg_3341_(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_CheckAssignment_checkApp___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_isDefEqStringLit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckAssignment_instMonadCacheExprExprCheckAssignmentM;
@@ -229,7 +229,7 @@ lean_object* l_Lean_Meta_isLevelDefEqAux(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypesAndAssign___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_checkTypesAndAssign___closed__18;
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_CheckAssignment_checkAssignmentExceptionId;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitMain___at_Lean_Meta_CheckAssignment_checkMVar___spec__17(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonadLiftReaderT(lean_object*, lean_object*, lean_object*);

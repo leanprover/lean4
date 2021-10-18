@@ -108,7 +108,7 @@ static lean_object* l_List_forIn_loop___at_Lean_Elab_Term_logUnassignedUsingErro
 uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Term_0__Lean_Elab_Term_throwStuckAtUniverseCnstr___spec__14___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_Term_addDotCompletionInfo___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_instMonadQuotationTermElabM___closed__8;
@@ -377,7 +377,7 @@ static lean_object* l_Lean_Elab_Term_isLetRecAuxMVar___closed__4;
 extern lean_object* l_Lean_maxRecDepth;
 static lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___lambda__5___closed__2;
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_elabImplicitLambda_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_instToStringMVarErrorKind___boxed(lean_object*);
 static lean_object* l___private_Lean_Elab_Term_0__Lean_Elab_Term_decorateErrorMessageWithLambdaImplicitVars___closed__4;

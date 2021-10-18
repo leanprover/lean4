@@ -26,7 +26,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SMap_toList___spec_
 LEAN_EXPORT lean_object* l_Lean_SMap_forM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_SMap_toList___spec__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_SMap_fold___spec__12___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlMAux_traverse___at_Lean_SMap_toList___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_SMap_toList___spec__14___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

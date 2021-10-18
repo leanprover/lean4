@@ -31,7 +31,7 @@ static lean_object* l_Lean_getStructureCtor___closed__4;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkDefaultFnOfProjFn___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__1(lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____closed__14;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedStructureState;

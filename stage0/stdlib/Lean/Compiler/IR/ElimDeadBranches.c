@@ -38,7 +38,7 @@ LEAN_EXPORT uint8_t l_List_foldr___at_Lean_IR_UnreachableBranches_Value_beq___sp
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_interpExpr___boxed__const__1;
 static lean_object* l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_reprValue____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_41____closed__20;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_updateJPParamsAssignment___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_instToStringValue(lean_object*);
@@ -137,7 +137,7 @@ static lean_object* l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_Unr
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_interpExpr___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_modify___at_Lean_IR_UnreachableBranches_updateCurrFnSummary___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 static lean_object* l_Lean_IR_UnreachableBranches_Value_instToStringValue___closed__2;
 LEAN_EXPORT lean_object* l_Lean_IR_UnreachableBranches_Value_instToStringValue;
 static lean_object* l_Lean_IR_UnreachableBranches_Value_addChoice___closed__2;

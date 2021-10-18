@@ -75,7 +75,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_canBott
 static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_177____closed__2;
 static uint8_t l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBinOp___lambda__1___closed__67;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___closed__3;
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBinOp___lambda__1___closed__9;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBinOp___lambda__1___closed__40;
@@ -229,7 +229,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_isStructureInstance___
 static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_317____closed__4;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBinOp___lambda__1___closed__59;
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHigherOrder___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withNaryArg___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_maybeSetExplicit___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

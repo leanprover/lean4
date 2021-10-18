@@ -48,7 +48,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_KeyedDeclsAttribute
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_KeyedDeclsAttribute_mkStateOfTable___spec__13___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_KeyedDeclsAttribute_declareBuiltin___rarg___closed__9;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_io_error_to_string(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedKeyedDeclsAttribute___lambda__4(lean_object*, lean_object*);
@@ -125,7 +125,7 @@ static lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_KeyedDeclsAttri
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_KeyedDeclsAttribute_mkStateOfTable___spec__10___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_KeyedDeclsAttribute_mkStateOfTable___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_KeyedDeclsAttribute_mkStateOfTable___spec__7(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SMap_insert___at___private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_Table_insert___spec__8___rarg(lean_object*, lean_object*, lean_object*);

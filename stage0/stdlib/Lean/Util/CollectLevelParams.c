@@ -32,7 +32,7 @@ lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_CollectLevelParams_instInhabitedState___closed__2;
 LEAN_EXPORT lean_object* l_List_replace___at_Lean_CollectLevelParams_visitLevel___spec__7___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_CollectLevelParams_main___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSetImp_insert___at_Lean_CollectLevelParams_visitLevel___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_State_getUnusedLevelParam(lean_object*, lean_object*);

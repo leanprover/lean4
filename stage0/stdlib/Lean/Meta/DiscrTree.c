@@ -34,7 +34,7 @@ static lean_object* l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__6;
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlM___at_Lean_Meta_DiscrTree_format___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_DiscrTree_Key_format___closed__4;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_Meta_DiscrTree_Key_format___closed__8;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_shouldAddAsStar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

@@ -70,7 +70,7 @@ lean_object* l_panic___at___private_Lean_Meta_WHNF_0__Lean_Meta_cache___spec__1(
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandFields___closed__1;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandFields___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_withUsed___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

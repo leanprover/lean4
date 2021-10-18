@@ -23,7 +23,7 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_ProjFns___hyg_75____spec__5___lambda__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_ProjFns___hyg_75____spec__5___closed__2;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_mkMapDeclarationExtension___at_Lean_initFn____x40_Lean_ProjFns___hyg_75____spec__1___closed__1;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);

@@ -23,7 +23,7 @@ LEAN_EXPORT lean_object* l_Std_RBNode_ins___at_Lean_CollectFVars_main___spec__2(
 lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_CollectFVars_visit___spec__6(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Std_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_setBlack___rarg(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);

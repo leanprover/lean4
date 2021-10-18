@@ -69,7 +69,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_appendTag(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_elem___at_Lean_Meta_getNondepPropHyps_removeDeps___spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_exactlyOne___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_forIn___at_Lean_Meta_getNondepPropHyps___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSetImp_erase___at_Lean_Meta_getNondepPropHyps_removeDeps___spec__1___boxed(lean_object*, lean_object*);

@@ -47,7 +47,7 @@ static lean_object* l_Lean_Elab_Command_elabCheck___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabReduce___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_elabOpen___spec__9(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);

@@ -42,7 +42,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_withWaitFindSnap___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_lookupLspRequestHandler(lean_object*, lean_object*);
 lean_object* lean_io_bind_task(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 lean_object* lean_io_as_task(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_623_(lean_object*);
 lean_object* l_Except_map___rarg(lean_object*, lean_object*);

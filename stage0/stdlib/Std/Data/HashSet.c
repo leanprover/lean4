@@ -21,7 +21,7 @@ LEAN_EXPORT lean_object* l_Std_HashSet_empty___boxed(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_Std_HashSetImp_moveEntries(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_foldM___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Std_HashSet_empty___closed__1;
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSet_foldM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -55,7 +55,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSetImp_foldBucke
 LEAN_EXPORT lean_object* l_Std_HashSet_toList(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSetImp_foldM(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_empty(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSetImp_foldBuckets___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashSetImp_foldM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSetBucket_update___rarg(lean_object*, size_t, lean_object*, lean_object*);

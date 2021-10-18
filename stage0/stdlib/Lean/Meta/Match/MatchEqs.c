@@ -51,7 +51,7 @@ lean_object* l_Lean_throwError___at_Lean_Meta_setInlineAttribute___spec__1(lean_
 static lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkEquationsFor___lambda__3___closed__3;
 lean_object* l_panic___at___private_Lean_Meta_WHNF_0__Lean_Meta_cache___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_simpHs_simpEqs___spec__2___closed__3;
 static lean_object* l_Lean_Meta_casesOnStuckLHS___lambda__1___closed__2;

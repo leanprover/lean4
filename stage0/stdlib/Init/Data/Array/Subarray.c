@@ -29,7 +29,7 @@ static lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_896___
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at_Array_ofSubarray___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Subarray_any___spec__1___rarg(lean_object*, lean_object*, size_t, size_t);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Array_term_____x5b___x3a___x5d___closed__8;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_forRevM___spec__2___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);

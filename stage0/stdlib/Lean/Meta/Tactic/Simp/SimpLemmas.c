@@ -44,7 +44,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_SimpLemmas_add___boxed(lean_object*, lean_o
 lean_object* l_Lean_throwError___at_Lean_Meta_setInlineAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_preprocess___lambda__2___closed__2;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_mkSimpLemmasFromConst___closed__1;
 static lean_object* l_Lean_Meta_mkSimpAttr___lambda__1___closed__13;

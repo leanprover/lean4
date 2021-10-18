@@ -50,7 +50,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_sectionLi
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_8477____spec__5___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleDocumentHighlight___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_8477____spec__21___lambda__1(lean_object*);

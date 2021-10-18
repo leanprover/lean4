@@ -31,7 +31,7 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 static lean_object* l_List_mapTRAux___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_31____spec__8___lambda__4___closed__1;
 static lean_object* l_List_mapTRAux___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_31____spec__8___lambda__3___closed__2;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_31____spec__2___closed__2;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_31____closed__9;

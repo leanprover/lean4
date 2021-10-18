@@ -34,7 +34,7 @@ extern lean_object* l_Lean_nullKind;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___spec__5(lean_object*, lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlMAux___at_Lean_Elab_InfoTree_foldInfo_go___spec__16___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__19___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 uint8_t l_Lean_Expr_isSyntheticSorry(lean_object*);
@@ -108,7 +108,7 @@ static lean_object* l___private_Lean_Server_InfoUtils_0__String_reprRange____x40
 static lean_object* l_Lean_Elab_Info_fmtHover_x3f___lambda__2___closed__1;
 LEAN_EXPORT uint8_t l_List_elem___at_Lean_Elab_InfoTree_termGoalAt_x3f___spec__2(lean_object*, lean_object*);
 extern lean_object* l_Lean_LocalContext_empty;
-LEAN_EXPORT size_t lean_uint64_to_usize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__5___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Info_docString_x3f___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_anyM___at_Lean_Elab_InfoTree_goalsAt_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*);

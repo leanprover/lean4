@@ -31,7 +31,7 @@ LEAN_EXPORT lean_object* l_Lean_addDocString_x27___rarg(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtension_getState___at_Lean_getMainModuleDoc___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_registerSimplePersistentEnvExtension___at_Lean_initFn____x40_Lean_DocString___hyg_4____spec__4___lambda__2(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_DocString___hyg_84____spec__2(lean_object*, lean_object*);
 static lean_object* l___private_Lean_DocString_0__Lean_docStringExt___closed__7;

@@ -28,7 +28,8 @@ class ComputeTrace.{u,v,w} (i : Type u) (m : outParam $ Type v → Type w) (t : 
   /--  Compute the trace of some target info using information from the monadic context. -/
   computeTrace : i → m t
 
-export ComputeTrace (computeTrace)
+def computeTrace [ComputeTrace i m t] [MonadLiftT m n] (info : i) : n t :=
+  liftM <| ComputeTrace.computeTrace info
 
 class NilTrace.{u} (t : Type u) where
   /-- The nil trace. Should not unduly clash with a proper trace. -/
@@ -59,17 +60,17 @@ def mixTraceList (traces : List t) : t :=
 def mixTraceArray (traces : Array t) : t :=
   traces.foldl mixTrace nilTrace
 
-variable [ComputeTrace i m t] [Monad m]
+variable [ComputeTrace i m t]
 
-def computeListTrace  (artifacts : List i) : m t :=
+def computeListTrace [MonadLiftT m n] [Monad n] (artifacts : List i) : n t :=
   mixTraceList <$> artifacts.mapM computeTrace
 
-instance : ComputeTrace (List i) m t := ⟨computeListTrace⟩
+instance [Monad m] : ComputeTrace (List i) m t := ⟨computeListTrace⟩
 
-def computeArrayTrace (artifacts : Array i) : m t :=
+def computeArrayTrace [MonadLiftT m n] [Monad n] (artifacts : Array i) : n t :=
   mixTraceArray <$> artifacts.mapM computeTrace
 
-instance : ComputeTrace (Array i) m t := ⟨computeArrayTrace⟩
+instance [Monad m] : ComputeTrace (Array i) m t := ⟨computeArrayTrace⟩
 end
 
 --------------------------------------------------------------------------------
@@ -182,7 +183,7 @@ namespace BuildTrace
 def withHash (hash : Hash) (self : BuildTrace) : BuildTrace :=
   {self with hash}
 
-def withouthHash (self : BuildTrace) : BuildTrace :=
+def withoutHash (self : BuildTrace) : BuildTrace :=
   {self with hash := Hash.nil}
 
 def withMTime (mtime : MTime) (self : BuildTrace) : BuildTrace :=
@@ -220,7 +221,7 @@ instance : MixTrace BuildTrace := ⟨mix⟩
   Check the build trace against the given target info and hash
   to see if the target is up-to-date.
 -/
-def check [CheckExists i]
+def check [CheckExists i] [GetMTime i]
 (info : i) (traceFile : FilePath) (self : BuildTrace)
 : IO (Bool × BuildTrace) := do
   try
@@ -228,6 +229,8 @@ def check [CheckExists i]
       if let some h ← Hash.loadFromFile traceFile then
         if h == self.hash then
           return (true, self.withoutMTime)
+      else if self.mtime < (← getMTime info) then
+        return (true, self)
   catch _ =>
     pure ()
   return (false, self)

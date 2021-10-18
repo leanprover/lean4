@@ -127,10 +127,10 @@ def nil [NilTrace t] [Pure m] [Pure n] : Target PUnit m n t :=
   mk () <| pure <| pure nilTrace
 
 def computeSync [ComputeTrace i m' t] [MonadLiftT m' m] [Async m n] [Functor m] [Pure n] (info : i) : Target i m n t :=
-  mk info <| pure <$> liftM (computeTrace info)
+  mk info <| pure <$> computeTrace info
 
 def computeAsync [ComputeTrace i m' t] [MonadLiftT m' m]  [Async m n] (info : i) : Target i m n t :=
-  mk info <| async <| liftM <| computeTrace info
+  mk info <| async <| computeTrace info
 
 def run [Monad m] (self : Target i m n t ) : m (ActiveTarget i n t) :=
   Functor.map (fun t => ActiveTarget.mk self.info t) self.task

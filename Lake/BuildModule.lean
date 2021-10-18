@@ -80,13 +80,10 @@ def moduleTarget [CheckExists i] [GetMTime i] [ComputeHash i] (info : i)
     let srcTrace : BuildTrace := ⟨Hash.ofString contents, ← getMTime leanFile⟩
     let fullTrace := leanTrace.mix <| srcTrace.mix depTrace
     let (upToDate, trace) ← fullTrace.check info traceFile
-    if upToDate then
-      BuildTrace.fromHash <| (← computeHash info).mix depTrace.hash
-    else
+    unless upToDate do
       build
-      IO.FS.writeFile traceFile trace.hash.toString
-      let newTrace : BuildTrace ← liftM <| computeTrace info
-      newTrace.mix depTrace
+    IO.FS.writeFile traceFile trace.hash.toString
+    pure <| mixTrace (← computeTrace info) depTrace
 
 def moduleOleanAndCTarget
 (leanFile cFile oleanFile traceFile : FilePath)

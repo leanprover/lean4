@@ -21,7 +21,7 @@ def buildFileUnlessUpToDate (file : FilePath)
   unless upToDate do
     build
   IO.FS.writeFile traceFile trace.hash.toString
-  liftM <| computeTrace file
+  computeTrace file
 
 def fileTargetWithDep (file : FilePath)
 (depTarget : BuildTarget i) (build : i → BuildM PUnit) : FileTarget :=

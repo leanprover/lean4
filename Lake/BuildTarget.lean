@@ -33,11 +33,11 @@ namespace FileTarget
 variable [ComputeTrace FilePath m BuildTrace] [MonadLiftT m BuildM]
 
 def computeSync (path : FilePath) : FileTarget :=
-  Target.mk path do pure <$> try liftM <| computeTrace path catch e =>
+  Target.mk path do pure <$> try computeTrace path catch e =>
     BuildM.logError (toString e); throw e
 
 def computeAsync (path : FilePath) : FileTarget :=
-  Target.mk path do async <| try liftM <| computeTrace path catch e =>
+  Target.mk path do async <| try computeTrace path catch e =>
     BuildM.logError (toString e); throw e
 
 end FileTarget

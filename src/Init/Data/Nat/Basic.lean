@@ -261,6 +261,12 @@ theorem lt_of_succ_le {n m : Nat} (h : succ n ≤ m) : n < m :=
 theorem succ_le_of_lt {n m : Nat} (h : n < m) : succ n ≤ m :=
   h
 
+theorem zero_lt_of_lt : {a b : Nat} → a < b → 0 < b
+  | 0,   _, h => h
+  | a+1, b, h =>
+    have : a < b := Nat.lt_trans (Nat.lt_succ_self _) h
+    zero_lt_of_lt this
+
 theorem lt_or_eq_or_le_succ {m n : Nat} (h : m ≤ succ n) : m ≤ n ∨ m = succ n :=
   Decidable.byCases
     (fun (h' : m = succ n) => Or.inr h')

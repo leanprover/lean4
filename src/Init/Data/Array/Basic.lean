@@ -139,13 +139,6 @@ def modifyOp [Inhabited α] (self : Array α) (idx : Nat) (f : α → α) : Arra
       pure b
   loop 0 b
 
--- Move?
-private theorem zero_lt_of_lt : {a b : Nat} → a < b → 0 < b
-  | 0,   _, h => h
-  | a+1, b, h =>
-    have : a < b := Nat.lt_trans (Nat.lt_succ_self _) h
-    zero_lt_of_lt this
-
 /- Reference implementation for `forIn` -/
 @[implementedBy Array.forInUnsafe]
 protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
@@ -154,7 +147,7 @@ protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m
     | 0,   _ => pure b
     | i+1, h =>
       have h' : i < as.size            := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
-      have : as.size - 1 < as.size     := Nat.sub_lt (zero_lt_of_lt h') (by decide)
+      have : as.size - 1 < as.size     := Nat.sub_lt (Nat.zero_lt_of_lt h') (by decide)
       have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
       match (← f (as.get ⟨as.size - 1 - i, this⟩) b) with
       | ForInStep.done b  => pure b

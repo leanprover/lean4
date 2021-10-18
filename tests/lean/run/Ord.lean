@@ -30,3 +30,11 @@ structure Company :=
   CEO : Person
   NumberOfEmployees : Nat
 deriving Ord
+
+structure Fixed (α : Type u) where
+  (val : Int)
+deriving Ord
+
+inductive Fixed' : Type → Type 1 where
+  | mk : Int → Fixed' α
+deriving Ord

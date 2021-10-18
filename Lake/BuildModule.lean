@@ -70,24 +70,16 @@ def cTarget (self : ActiveOleanAndCTarget) : ActiveFileTarget :=
 
 end ActiveOleanAndCTarget
 
--- # Trace Checking
-
-def checkModuleTrace [CheckExists i] (info : i)
-(leanFile traceFile : FilePath) (contents : String) (depTrace : BuildTrace)
-: IO (Bool × BuildTrace) := do
-  let leanMTime ← getMTime leanFile
-  let leanHash := Hash.compute contents
-  let maxMTime := max leanMTime depTrace.mtime
-  let fullHash := Hash.mix leanHash depTrace.hash
-  BuildTrace.mk fullHash maxMTime |>.check info traceFile
-
 -- # Module Builders
 
 def moduleTarget [CheckExists i] [GetMTime i] [ComputeHash i] (info : i)
 (leanFile traceFile : FilePath) (contents : String) (depTarget : BuildTarget x)
 (build : BuildM PUnit) : BuildTarget i :=
   Target.mk info <| depTarget.mapOpaqueAsync fun depTrace => do
-    let (upToDate, trace) ← checkModuleTrace info leanFile traceFile contents depTrace
+    let leanTrace ← BuildTrace.compute (← getLean)
+    let srcTrace : BuildTrace := ⟨Hash.ofString contents, ← getMTime leanFile⟩
+    let fullTrace := leanTrace.mix <| srcTrace.mix depTrace
+    let (upToDate, trace) ← fullTrace.check info traceFile
     if upToDate then
       BuildTrace.fromHash <| (← computeHash info).mix depTrace.hash
     else
@@ -97,17 +89,17 @@ def moduleTarget [CheckExists i] [GetMTime i] [ComputeHash i] (info : i)
       newTrace.mix depTrace
 
 def moduleOleanAndCTarget
-(leanFile cFile oleanFile hashFile : FilePath)
+(leanFile cFile oleanFile traceFile : FilePath)
 (oleanDirs : List FilePath) (contents : String)  (depTarget : BuildTarget x)
 (rootDir : FilePath := ".") (leanArgs : Array String := #[]) :=
-  moduleTarget (OleanAndC.mk oleanFile cFile) leanFile hashFile contents depTarget do
+  moduleTarget (OleanAndC.mk oleanFile cFile) leanFile traceFile contents depTarget do
     compileOleanAndC leanFile oleanFile cFile oleanDirs rootDir leanArgs (← getLean)
 
 def moduleOleanTarget
-(leanFile oleanFile hashFile : FilePath)
+(leanFile oleanFile traceFile : FilePath)
 (oleanDirs : List FilePath) (contents : String) (depTarget : BuildTarget x)
 (rootDir : FilePath := ".") (leanArgs : Array String := #[]) :=
-  moduleTarget oleanFile leanFile hashFile contents depTarget do
+  moduleTarget oleanFile leanFile traceFile contents depTarget do
     compileOlean leanFile oleanFile oleanDirs rootDir leanArgs (← getLean)
 
 protected def Package.moduleOleanAndCTargetOnly

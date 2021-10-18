@@ -97,8 +97,11 @@ def nil : Hash :=
 
 instance : NilTrace Hash := ⟨nil⟩
 
-def compute (str : String) :=
-  mk <| mixHash 1723 (hash str) -- same as Name.mkSimple
+def ofString (str : String) :=
+  mk <| mixHash 1723 <| hash str -- same as Name.mkSimple
+
+def ofByteArray (bytes : ByteArray) :=
+  mk <| bytes.toList.foldl (init := 1723) fun h b => mixHash h (hash b.toNat)
 
 def mix (h1 h2 : Hash) : Hash :=
   mk <| mixHash h1.val h2.val
@@ -119,10 +122,10 @@ export ComputeHash (computeHash)
 instance [ComputeHash α] : ComputeTrace α IO Hash := ⟨computeHash⟩
 
 def getFileHash (file : FilePath) : IO Hash :=
-  Hash.compute <$> IO.FS.readFile file
+  Hash.ofByteArray <$> IO.FS.readBinFile file
 
 instance : ComputeHash FilePath := ⟨getFileHash⟩
-instance : ComputeHash String := ⟨pure ∘ Hash.compute⟩
+instance : ComputeHash String := ⟨pure ∘ Hash.ofString⟩
 
 --------------------------------------------------------------------------------
 -- # Modification Time (MTime) Trace

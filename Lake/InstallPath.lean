@@ -13,8 +13,8 @@ structure LeanInstall where
   libDir := home / "lib" / "lean"
   oleanDir := libDir
   includeDir := home / "include"
-  lean := binDir / "lean"
-  leanc := binDir / "leanc"
+  lean := binDir / "lean" |>.withExtension FilePath.exeExtension
+  leanc := binDir / "leanc" |>.withExtension FilePath.exeExtension
   deriving Inhabited, Repr
 
 /-- Path information about the local Lake installation. -/
@@ -23,7 +23,7 @@ structure LakeInstall where
   binDir := home / "bin"
   libDir := home / "lib"
   oleanDir := libDir
-  lake := binDir / "lake"
+  lake := binDir / "lake" |>.withExtension FilePath.exeExtension
   deriving Inhabited, Repr
 
 /--

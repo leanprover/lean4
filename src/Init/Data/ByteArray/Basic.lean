@@ -33,13 +33,29 @@ def push : ByteArray → UInt8 → ByteArray
 def size : (@& ByteArray) → Nat
   | ⟨bs⟩ => bs.size
 
+@[extern "lean_byte_array_uget"]
+def uget : (a : @& ByteArray) → (i : USize) → i.toNat < a.size → UInt8
+  | ⟨bs⟩, i, h => bs.uget i h
+
 @[extern "lean_byte_array_get"]
 def get! : (@& ByteArray) → (@& Nat) → UInt8
   | ⟨bs⟩, i => bs.get! i
 
+@[extern "lean_byte_array_fget"]
+def get : (a : @& ByteArray) → (@& Fin a.size) → UInt8
+  | ⟨bs⟩, i => bs.get i
+
 @[extern "lean_byte_array_set"]
 def set! : ByteArray → (@& Nat) → UInt8 → ByteArray
   | ⟨bs⟩, i, b => ⟨bs.set! i b⟩
+
+@[extern "lean_byte_array_fset"]
+def set : (a : ByteArray) → (@& Fin a.size) → UInt8 → ByteArray
+  | ⟨bs⟩, i, b => ⟨bs.set i b⟩
+
+@[extern "lean_byte_array_uset"]
+def uset : (a : ByteArray) → (i : USize) → UInt8 → i.toNat < a.size → ByteArray
+  | ⟨bs⟩, i, v, h => ⟨bs.uset i v h⟩
 
 def isEmpty (s : ByteArray) : Bool :=
   s.size == 0

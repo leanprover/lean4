@@ -33,9 +33,12 @@ def push : FloatArray → Float → FloatArray
 def size : (@& FloatArray) → Nat
   | ⟨ds⟩ => ds.size
 
+@[extern "lean_float_array_uget"]
+def uget : (a : @& FloatArray) → (i : USize) → i.toNat < a.size → Float
+  | ⟨ds⟩, i, h => ds.uget i h
+
 @[extern "lean_float_array_fget"]
-def get (ds : @& FloatArray) (i : @& Fin ds.size) : Float :=
-  match ds, i with
+def get : (ds : @& FloatArray) → (@& Fin ds.size) → Float
   | ⟨ds⟩, i => ds.get i
 
 @[extern "lean_float_array_get"]
@@ -48,10 +51,13 @@ def get? (ds : FloatArray) (i : Nat) : Option Float :=
   else
     none
 
+@[extern "lean_float_array_uset"]
+def uset : (a : FloatArray) → (i : USize) → Float → i.toNat < a.size → FloatArray
+  | ⟨ds⟩, i, v, h => ⟨ds.uset i v h⟩
+
 @[extern "lean_float_array_fset"]
-def set (ds : FloatArray) (i : @& Fin ds.size) (d : Float) : FloatArray :=
-  match ds, i with
-  | ⟨ds⟩, i=> ⟨ds.set i d⟩
+def set : (ds : FloatArray) → (@& Fin ds.size) → Float → FloatArray
+  | ⟨ds⟩, i, d => ⟨ds.set i d⟩
 
 @[extern "lean_float_array_set"]
 def set! : FloatArray → (@& Nat) → Float → FloatArray

@@ -50,7 +50,7 @@ lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_String_codepointPosToUtf8PosFrom___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_leanPosToLspPos(lean_object*, lean_object*);
-uint8_t l_UInt32_decLe(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_String_utf16Length___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_utf16Length___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -64,7 +64,7 @@ _start:
 {
 uint32_t x_2; uint8_t x_3; 
 x_2 = 65535;
-x_3 = x_1 <= x_2;
+x_3 = lean_uint32_dec_le(x_1, x_2);
 if (x_3 == 0)
 {
 uint32_t x_4; 

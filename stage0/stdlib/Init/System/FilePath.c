@@ -82,7 +82,7 @@ LEAN_EXPORT lean_object* l_System_FilePath_join___boxed(lean_object*, lean_objec
 static lean_object* l_System_FilePath_exeExtension___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_System_FilePath_0__System_FilePath_posOfLastSep(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_System_FilePath_0__System_decEqFilePath____x40_Init_System_FilePath___hyg_25____boxed(lean_object*, lean_object*);
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 uint8_t l_String_isEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_String_mapAux___at_System_FilePath_normalize___spec__2(uint8_t, lean_object*, lean_object*);
@@ -412,7 +412,7 @@ lean_inc(x_5);
 lean_dec(x_2);
 x_6 = lean_unbox_uint32(x_4);
 lean_dec(x_4);
-x_7 = x_1 == x_6;
+x_7 = lean_uint32_dec_eq(x_1, x_6);
 if (x_7 == 0)
 {
 x_2 = x_5;
@@ -599,7 +599,7 @@ else
 uint32_t x_12; uint32_t x_13; uint8_t x_14; 
 x_12 = lean_string_utf8_get(x_1, x_9);
 x_13 = 58;
-x_14 = x_12 == x_13;
+x_14 = lean_uint32_dec_eq(x_12, x_13);
 return x_14;
 }
 }
@@ -1386,7 +1386,7 @@ if (x_5 == 0)
 uint32_t x_6; uint32_t x_7; uint8_t x_8; 
 x_6 = lean_string_utf8_get(x_1, x_3);
 x_7 = l_System_SearchPath_separator;
-x_8 = x_7 == x_6;
+x_8 = lean_uint32_dec_eq(x_7, x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; 

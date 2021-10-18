@@ -153,7 +153,7 @@ static lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__4;
 static lean_object* l_Lean_Compiler_unFoldFns___closed__9;
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__18;
 static lean_object* l_Lean_Compiler_mkNatEq___closed__6;
-uint8_t l_UInt32_decLt(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_lt(uint32_t, uint32_t);
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__15;
 LEAN_EXPORT lean_object* l_List_lookup___at_Lean_Compiler_findUnFoldFn___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__14;
@@ -3721,12 +3721,12 @@ lean_object* x_6; uint32_t x_7; uint32_t x_8; uint8_t x_9;
 x_6 = lean_ctor_get(x_3, 0);
 x_7 = lean_uint32_of_nat(x_6);
 x_8 = 55296;
-x_9 = x_7 < x_8;
+x_9 = lean_uint32_dec_lt(x_7, x_8);
 if (x_9 == 0)
 {
 uint32_t x_10; uint8_t x_11; 
 x_10 = 57343;
-x_11 = x_10 < x_7;
+x_11 = lean_uint32_dec_lt(x_10, x_7);
 if (x_11 == 0)
 {
 lean_object* x_12; 
@@ -3739,7 +3739,7 @@ else
 {
 uint32_t x_13; uint8_t x_14; 
 x_13 = 1114112;
-x_14 = x_7 < x_13;
+x_14 = lean_uint32_dec_lt(x_7, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; 
@@ -3775,12 +3775,12 @@ lean_inc(x_18);
 lean_dec(x_3);
 x_19 = lean_uint32_of_nat(x_18);
 x_20 = 55296;
-x_21 = x_19 < x_20;
+x_21 = lean_uint32_dec_lt(x_19, x_20);
 if (x_21 == 0)
 {
 uint32_t x_22; uint8_t x_23; 
 x_22 = 57343;
-x_23 = x_22 < x_19;
+x_23 = lean_uint32_dec_lt(x_22, x_19);
 if (x_23 == 0)
 {
 lean_object* x_24; 
@@ -3792,7 +3792,7 @@ else
 {
 uint32_t x_25; uint8_t x_26; 
 x_25 = 1114112;
-x_26 = x_19 < x_25;
+x_26 = lean_uint32_dec_lt(x_19, x_25);
 if (x_26 == 0)
 {
 lean_object* x_27; 

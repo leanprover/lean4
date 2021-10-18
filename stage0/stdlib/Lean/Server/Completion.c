@@ -20,7 +20,7 @@ uint8_t l_Lean_isRecCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_completionBlackListExt___elambda__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_completionBlackListExt___elambda__4___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_forM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_consumeImplicitPrefix(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingState___at___private_Lean_Server_Completion_0__Lean_Server_Completion_isTypeApplicable___spec__1___at___private_Lean_Server_Completion_0__Lean_Server_Completion_isTypeApplicable___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_forInAux___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__36(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -37,7 +37,7 @@ static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion
 LEAN_EXPORT lean_object* l_List_forM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__7(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Std_AssocList_forM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___closed__1;
@@ -102,7 +102,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Compl
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__38___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_normPrivateName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Server_Completion_completionBlackListExt___elambda__2___closed__1;
 uint8_t l_Lean_isPrivateName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Completion_completionBlackListExt___elambda__2___boxed(lean_object*);
@@ -3739,7 +3739,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Co
 _start:
 {
 uint8_t x_12; 
-x_12 = x_3 == x_4;
+x_12 = lean_usize_dec_eq(x_3, x_4);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -3808,7 +3808,7 @@ x_25 = lean_ctor_get(x_17, 0);
 lean_inc(x_25);
 lean_dec(x_17);
 x_26 = 1;
-x_27 = x_3 + x_26;
+x_27 = lean_usize_add(x_3, x_26);
 x_3 = x_27;
 x_5 = x_25;
 x_11 = x_24;
@@ -3904,7 +3904,7 @@ x_43 = lean_ctor_get(x_35, 0);
 lean_inc(x_43);
 lean_dec(x_35);
 x_44 = 1;
-x_45 = x_3 + x_44;
+x_45 = lean_usize_add(x_3, x_44);
 x_3 = x_45;
 x_5 = x_43;
 x_11 = x_42;
@@ -3944,7 +3944,7 @@ default:
 {
 size_t x_51; size_t x_52; 
 x_51 = 1;
-x_52 = x_3 + x_51;
+x_52 = lean_usize_add(x_3, x_51);
 x_3 = x_52;
 goto _start;
 }
@@ -4217,7 +4217,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Co
 _start:
 {
 uint8_t x_12; 
-x_12 = x_3 == x_4;
+x_12 = lean_usize_dec_eq(x_3, x_4);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -4286,7 +4286,7 @@ x_25 = lean_ctor_get(x_17, 0);
 lean_inc(x_25);
 lean_dec(x_17);
 x_26 = 1;
-x_27 = x_3 + x_26;
+x_27 = lean_usize_add(x_3, x_26);
 x_3 = x_27;
 x_5 = x_25;
 x_11 = x_24;
@@ -4382,7 +4382,7 @@ x_43 = lean_ctor_get(x_35, 0);
 lean_inc(x_43);
 lean_dec(x_35);
 x_44 = 1;
-x_45 = x_3 + x_44;
+x_45 = lean_usize_add(x_3, x_44);
 x_3 = x_45;
 x_5 = x_43;
 x_11 = x_42;
@@ -4422,7 +4422,7 @@ default:
 {
 size_t x_51; size_t x_52; 
 x_51 = 1;
-x_52 = x_3 + x_51;
+x_52 = lean_usize_add(x_3, x_51);
 x_3 = x_52;
 goto _start;
 }
@@ -4554,7 +4554,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Co
 _start:
 {
 uint8_t x_12; 
-x_12 = x_3 == x_4;
+x_12 = lean_usize_dec_eq(x_3, x_4);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -4614,7 +4614,7 @@ x_23 = lean_ctor_get(x_15, 0);
 lean_inc(x_23);
 lean_dec(x_15);
 x_24 = 1;
-x_25 = x_3 + x_24;
+x_25 = lean_usize_add(x_3, x_24);
 x_3 = x_25;
 x_5 = x_23;
 x_11 = x_22;
@@ -4672,7 +4672,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Co
 _start:
 {
 uint8_t x_12; 
-x_12 = x_3 == x_4;
+x_12 = lean_usize_dec_eq(x_3, x_4);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -4741,7 +4741,7 @@ x_25 = lean_ctor_get(x_17, 0);
 lean_inc(x_25);
 lean_dec(x_17);
 x_26 = 1;
-x_27 = x_3 + x_26;
+x_27 = lean_usize_add(x_3, x_26);
 x_3 = x_27;
 x_5 = x_25;
 x_11 = x_24;
@@ -4837,7 +4837,7 @@ x_43 = lean_ctor_get(x_35, 0);
 lean_inc(x_43);
 lean_dec(x_35);
 x_44 = 1;
-x_45 = x_3 + x_44;
+x_45 = lean_usize_add(x_3, x_44);
 x_3 = x_45;
 x_5 = x_43;
 x_11 = x_42;
@@ -4877,7 +4877,7 @@ default:
 {
 size_t x_51; size_t x_52; 
 x_51 = 1;
-x_52 = x_3 + x_51;
+x_52 = lean_usize_add(x_3, x_51);
 x_3 = x_52;
 goto _start;
 }
@@ -5615,7 +5615,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Co
 _start:
 {
 uint8_t x_12; 
-x_12 = x_3 == x_4;
+x_12 = lean_usize_dec_eq(x_3, x_4);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -5684,7 +5684,7 @@ x_25 = lean_ctor_get(x_17, 0);
 lean_inc(x_25);
 lean_dec(x_17);
 x_26 = 1;
-x_27 = x_3 + x_26;
+x_27 = lean_usize_add(x_3, x_26);
 x_3 = x_27;
 x_5 = x_25;
 x_11 = x_24;
@@ -5780,7 +5780,7 @@ x_43 = lean_ctor_get(x_35, 0);
 lean_inc(x_43);
 lean_dec(x_35);
 x_44 = 1;
-x_45 = x_3 + x_44;
+x_45 = lean_usize_add(x_3, x_44);
 x_3 = x_45;
 x_5 = x_43;
 x_11 = x_42;
@@ -5820,7 +5820,7 @@ default:
 {
 size_t x_51; size_t x_52; 
 x_51 = 1;
-x_52 = x_3 + x_51;
+x_52 = lean_usize_add(x_3, x_51);
 x_3 = x_52;
 goto _start;
 }
@@ -5952,7 +5952,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Co
 _start:
 {
 uint8_t x_12; 
-x_12 = x_3 == x_4;
+x_12 = lean_usize_dec_eq(x_3, x_4);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -6021,7 +6021,7 @@ x_25 = lean_ctor_get(x_17, 0);
 lean_inc(x_25);
 lean_dec(x_17);
 x_26 = 1;
-x_27 = x_3 + x_26;
+x_27 = lean_usize_add(x_3, x_26);
 x_3 = x_27;
 x_5 = x_25;
 x_11 = x_24;
@@ -6117,7 +6117,7 @@ x_43 = lean_ctor_get(x_35, 0);
 lean_inc(x_43);
 lean_dec(x_35);
 x_44 = 1;
-x_45 = x_3 + x_44;
+x_45 = lean_usize_add(x_3, x_44);
 x_3 = x_45;
 x_5 = x_43;
 x_11 = x_42;
@@ -6157,7 +6157,7 @@ default:
 {
 size_t x_51; size_t x_52; 
 x_51 = 1;
-x_52 = x_3 + x_51;
+x_52 = lean_usize_add(x_3, x_51);
 x_3 = x_52;
 goto _start;
 }
@@ -6289,7 +6289,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Co
 _start:
 {
 uint8_t x_12; 
-x_12 = x_3 == x_4;
+x_12 = lean_usize_dec_eq(x_3, x_4);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -6349,7 +6349,7 @@ x_23 = lean_ctor_get(x_15, 0);
 lean_inc(x_23);
 lean_dec(x_15);
 x_24 = 1;
-x_25 = x_3 + x_24;
+x_25 = lean_usize_add(x_3, x_24);
 x_3 = x_25;
 x_5 = x_23;
 x_11 = x_22;
@@ -6407,7 +6407,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Co
 _start:
 {
 uint8_t x_12; 
-x_12 = x_3 == x_4;
+x_12 = lean_usize_dec_eq(x_3, x_4);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -6476,7 +6476,7 @@ x_25 = lean_ctor_get(x_17, 0);
 lean_inc(x_25);
 lean_dec(x_17);
 x_26 = 1;
-x_27 = x_3 + x_26;
+x_27 = lean_usize_add(x_3, x_26);
 x_3 = x_27;
 x_5 = x_25;
 x_11 = x_24;
@@ -6572,7 +6572,7 @@ x_43 = lean_ctor_get(x_35, 0);
 lean_inc(x_43);
 lean_dec(x_35);
 x_44 = 1;
-x_45 = x_3 + x_44;
+x_45 = lean_usize_add(x_3, x_44);
 x_3 = x_45;
 x_5 = x_43;
 x_11 = x_42;
@@ -6612,7 +6612,7 @@ default:
 {
 size_t x_51; size_t x_52; 
 x_51 = 1;
-x_52 = x_3 + x_51;
+x_52 = lean_usize_add(x_3, x_51);
 x_3 = x_52;
 goto _start;
 }
@@ -6890,7 +6890,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Server_Com
 _start:
 {
 uint8_t x_15; 
-x_15 = x_7 < x_6;
+x_15 = lean_usize_dec_lt(x_7, x_6);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; 
@@ -7299,7 +7299,7 @@ x_27 = lean_ctor_get(x_24, 0);
 lean_inc(x_27);
 lean_dec(x_24);
 x_28 = 1;
-x_29 = x_7 + x_28;
+x_29 = lean_usize_add(x_7, x_28);
 x_7 = x_29;
 x_8 = x_27;
 x_14 = x_20;
@@ -7341,7 +7341,7 @@ x_35 = lean_ctor_get(x_31, 0);
 lean_inc(x_35);
 lean_dec(x_31);
 x_36 = 1;
-x_37 = x_7 + x_36;
+x_37 = lean_usize_add(x_7, x_36);
 x_7 = x_37;
 x_8 = x_35;
 x_14 = x_20;
@@ -7357,7 +7357,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Server_Com
 _start:
 {
 uint8_t x_14; 
-x_14 = x_6 < x_5;
+x_14 = lean_usize_dec_lt(x_6, x_5);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
@@ -7541,7 +7541,7 @@ x_26 = lean_ctor_get(x_23, 0);
 lean_inc(x_26);
 lean_dec(x_23);
 x_27 = 1;
-x_28 = x_6 + x_27;
+x_28 = lean_usize_add(x_6, x_27);
 x_6 = x_28;
 x_7 = x_26;
 x_13 = x_19;
@@ -7580,7 +7580,7 @@ x_34 = lean_ctor_get(x_30, 0);
 lean_inc(x_34);
 lean_dec(x_30);
 x_35 = 1;
-x_36 = x_6 + x_35;
+x_36 = lean_usize_add(x_6, x_35);
 x_6 = x_36;
 x_7 = x_34;
 x_13 = x_19;
@@ -8103,7 +8103,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Server_Com
 _start:
 {
 uint8_t x_14; 
-x_14 = x_6 < x_5;
+x_14 = lean_usize_dec_lt(x_6, x_5);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
@@ -8262,7 +8262,7 @@ x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
 lean_dec(x_22);
 x_24 = 1;
-x_25 = x_6 + x_24;
+x_25 = lean_usize_add(x_6, x_24);
 x_6 = x_25;
 x_7 = x_23;
 x_13 = x_19;
@@ -10270,7 +10270,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Server_Com
 _start:
 {
 uint8_t x_12; 
-x_12 = x_5 < x_4;
+x_12 = lean_usize_dec_lt(x_5, x_4);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -10311,7 +10311,7 @@ if (x_23 == 0)
 size_t x_24; size_t x_25; 
 lean_free_object(x_16);
 x_24 = 1;
-x_25 = x_5 + x_24;
+x_25 = lean_usize_add(x_5, x_24);
 lean_inc(x_2);
 {
 size_t _tmp_4 = x_25;
@@ -10353,7 +10353,7 @@ if (x_33 == 0)
 {
 size_t x_34; size_t x_35; 
 x_34 = 1;
-x_35 = x_5 + x_34;
+x_35 = lean_usize_add(x_5, x_34);
 lean_inc(x_2);
 {
 size_t _tmp_4 = x_35;
@@ -10583,7 +10583,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Server_Com
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 < x_2;
+x_11 = lean_usize_dec_lt(x_3, x_2);
 if (x_11 == 0)
 {
 lean_object* x_12; 
@@ -10614,7 +10614,7 @@ x_22 = lean_ctor_get(x_21, 1);
 lean_inc(x_22);
 lean_dec(x_21);
 x_23 = 1;
-x_24 = x_3 + x_23;
+x_24 = lean_usize_add(x_3, x_23);
 x_3 = x_24;
 x_4 = x_19;
 x_10 = x_22;

@@ -22,7 +22,7 @@ LEAN_EXPORT lean_object* l_Lean_Xml_Parser_AttValue___boxed__const__1;
 static lean_object* l_Lean_Xml_Parser_Char___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_NameChar___boxed__const__1;
 static lean_object* l_Lean_Xml_Parser_NameChar___closed__8;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_PI___lambda__1(lean_object*);
 static lean_object* l_Lean_Xml_Parser_doctypedecl___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_elementDecl(lean_object*);
@@ -37,7 +37,7 @@ static lean_object* l_Lean_Xml_Parser_PubidLiteral___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Xml_Parser_digitsToNat___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Xml_Parser_VersionNum___closed__1;
 static lean_object* l_Lean_Xml_Parser_DefaultDecl___closed__3;
-uint8_t l_USize_decEq(size_t, size_t);
+LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_Xml_Parser_VersionInfo___closed__1;
 static lean_object* l_Lean_Xml_parse___closed__1;
@@ -118,7 +118,7 @@ LEAN_EXPORT lean_object* l_Lean_Xml_Parser_DeclSep(lean_object*);
 lean_object* l_Lean_Parsec_many(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_AttDef(lean_object*);
 static lean_object* l_Lean_Xml_Parser_cp___closed__1;
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Xml_Parser_elementDecl___closed__4;
 static lean_object* l_Lean_Xml_Parser_NameChar___closed__4;
 static lean_object* l_Lean_Xml_Parser_doctypedecl___closed__5;
@@ -291,7 +291,7 @@ static lean_object* l___private_Lean_Data_Xml_Parser_0__Lean_Xml_Parser_nameStar
 static lean_object* l_Lean_Xml_Parser_CharRef___lambda__2___closed__1;
 static lean_object* l_Lean_Xml_Parser_quote___rarg___closed__3;
 static lean_object* l_Lean_Xml_Parser_seq___lambda__1___closed__2;
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_EntityValue___boxed__const__1;
 static lean_object* l_Lean_Xml_Parser_cp___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_elementPrefix(lean_object*);
@@ -403,7 +403,7 @@ static lean_object* l_Lean_Xml_Parser_content___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Xml_Parser_SystemLiteral___lambda__1(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_PI(lean_object*);
 static lean_object* l_Lean_Xml_Parser_endl___closed__1;
-uint8_t l_UInt32_decLe(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 static lean_object* l_Lean_Xml_Parser_NameStartChar___closed__1;
 static lean_object* l_Lean_Xml_Parser_endl___closed__2;
 static lean_object* l___private_Lean_Data_Xml_Parser_0__Lean_Xml_Parser_nameStartCharRanges___closed__21;
@@ -482,7 +482,7 @@ static lean_object* _init_l_Lean_Xml_Parser_endl___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\x0d\n");
+x_1 = lean_mk_string("\r\n");
 return x_1;
 }
 }
@@ -597,7 +597,7 @@ lean_object* x_33; uint32_t x_34; uint8_t x_35;
 lean_inc(x_1);
 x_33 = l_String_Iterator_next(x_1);
 x_34 = l_String_Iterator_curr(x_1);
-x_35 = x_34 == x_30;
+x_35 = lean_uint32_dec_eq(x_34, x_30);
 if (x_35 == 0)
 {
 lean_object* x_36; 
@@ -662,7 +662,7 @@ lean_object* x_45; uint32_t x_46; uint8_t x_47;
 lean_inc(x_1);
 x_45 = l_String_Iterator_next(x_1);
 x_46 = l_String_Iterator_curr(x_1);
-x_47 = x_46 == x_42;
+x_47 = lean_uint32_dec_eq(x_46, x_42);
 if (x_47 == 0)
 {
 lean_object* x_48; 
@@ -722,7 +722,7 @@ lean_object* x_10; uint32_t x_11; uint8_t x_12;
 lean_inc(x_1);
 x_10 = l_String_Iterator_next(x_1);
 x_11 = l_String_Iterator_curr(x_1);
-x_12 = x_11 == x_6;
+x_12 = lean_uint32_dec_eq(x_11, x_6);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -829,7 +829,7 @@ lean_object* x_45; uint32_t x_46; uint8_t x_47;
 lean_inc(x_2);
 x_45 = l_String_Iterator_next(x_2);
 x_46 = l_String_Iterator_curr(x_2);
-x_47 = x_46 == x_3;
+x_47 = lean_uint32_dec_eq(x_46, x_3);
 if (x_47 == 0)
 {
 lean_object* x_48; 
@@ -871,7 +871,7 @@ lean_object* x_55; uint32_t x_56; uint8_t x_57;
 lean_inc(x_51);
 x_55 = l_String_Iterator_next(x_51);
 x_56 = l_String_Iterator_curr(x_51);
-x_57 = x_56 == x_3;
+x_57 = lean_uint32_dec_eq(x_56, x_3);
 if (x_57 == 0)
 {
 lean_object* x_58; 
@@ -917,7 +917,7 @@ lean_object* x_63; uint32_t x_64; uint8_t x_65;
 lean_inc(x_59);
 x_63 = l_String_Iterator_next(x_59);
 x_64 = l_String_Iterator_curr(x_59);
-x_65 = x_64 == x_3;
+x_65 = lean_uint32_dec_eq(x_64, x_3);
 if (x_65 == 0)
 {
 lean_object* x_66; 
@@ -993,7 +993,7 @@ lean_object* x_12; uint32_t x_13; uint8_t x_14;
 lean_inc(x_2);
 x_12 = l_String_Iterator_next(x_2);
 x_13 = l_String_Iterator_curr(x_2);
-x_14 = x_13 == x_8;
+x_14 = lean_uint32_dec_eq(x_13, x_8);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
@@ -1035,7 +1035,7 @@ lean_object* x_23; uint32_t x_24; uint8_t x_25;
 lean_inc(x_19);
 x_23 = l_String_Iterator_next(x_19);
 x_24 = l_String_Iterator_curr(x_19);
-x_25 = x_24 == x_8;
+x_25 = lean_uint32_dec_eq(x_24, x_8);
 if (x_25 == 0)
 {
 lean_object* x_26; 
@@ -1079,7 +1079,7 @@ lean_object* x_32; uint32_t x_33; uint8_t x_34;
 lean_inc(x_27);
 x_32 = l_String_Iterator_next(x_27);
 x_33 = l_String_Iterator_curr(x_27);
-x_34 = x_33 == x_8;
+x_34 = lean_uint32_dec_eq(x_33, x_8);
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; 
@@ -1399,7 +1399,7 @@ lean_object* x_12; uint32_t x_13; uint8_t x_14;
 lean_inc(x_1);
 x_12 = l_String_Iterator_next(x_1);
 x_13 = l_String_Iterator_curr(x_1);
-x_14 = x_13 == x_6;
+x_14 = lean_uint32_dec_eq(x_13, x_6);
 if (x_14 == 0)
 {
 uint8_t x_15; 
@@ -1465,7 +1465,7 @@ lean_object* x_42; uint32_t x_43; uint8_t x_44;
 lean_inc(x_2);
 x_42 = l_String_Iterator_next(x_2);
 x_43 = l_String_Iterator_curr(x_2);
-x_44 = x_43 == x_1;
+x_44 = lean_uint32_dec_eq(x_43, x_1);
 if (x_44 == 0)
 {
 lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
@@ -1572,7 +1572,7 @@ lean_object* x_19; uint32_t x_20; uint8_t x_21;
 lean_inc(x_2);
 x_19 = l_String_Iterator_next(x_2);
 x_20 = l_String_Iterator_curr(x_2);
-x_21 = x_20 == x_16;
+x_21 = lean_uint32_dec_eq(x_20, x_16);
 if (x_21 == 0)
 {
 lean_object* x_22; 
@@ -1635,7 +1635,7 @@ lean_object* x_32; uint32_t x_33; uint8_t x_34;
 lean_inc(x_2);
 x_32 = l_String_Iterator_next(x_2);
 x_33 = l_String_Iterator_curr(x_2);
-x_34 = x_33 == x_28;
+x_34 = lean_uint32_dec_eq(x_33, x_28);
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; 
@@ -1811,7 +1811,7 @@ lean_object* x_7; uint32_t x_8; uint8_t x_9;
 lean_inc(x_2);
 x_7 = l_String_Iterator_next(x_2);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = x_8 == x_3;
+x_9 = lean_uint32_dec_eq(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -2203,7 +2203,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Xml_Parser_NameStartChar___
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 == x_4;
+x_5 = lean_usize_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
@@ -2220,7 +2220,7 @@ if (x_9 == 0)
 size_t x_10; size_t x_11; 
 lean_dec(x_8);
 x_10 = 1;
-x_11 = x_3 + x_10;
+x_11 = lean_usize_add(x_3, x_10);
 x_3 = x_11;
 goto _start;
 }
@@ -2233,7 +2233,7 @@ if (x_13 == 0)
 {
 size_t x_14; size_t x_15; 
 x_14 = 1;
-x_15 = x_3 + x_14;
+x_15 = lean_usize_add(x_3, x_14);
 x_3 = x_15;
 goto _start;
 }
@@ -2319,12 +2319,12 @@ lean_inc(x_1);
 x_5 = l_String_Iterator_next(x_1);
 x_6 = l_String_Iterator_curr(x_1);
 x_32 = 65;
-x_33 = x_32 <= x_6;
+x_33 = lean_uint32_dec_le(x_32, x_6);
 if (x_33 == 0)
 {
 uint32_t x_34; uint8_t x_35; 
 x_34 = 97;
-x_35 = x_34 <= x_6;
+x_35 = lean_uint32_dec_le(x_34, x_6);
 if (x_35 == 0)
 {
 lean_object* x_36; 
@@ -2336,7 +2336,7 @@ else
 {
 uint32_t x_37; uint8_t x_38; 
 x_37 = 122;
-x_38 = x_6 <= x_37;
+x_38 = lean_uint32_dec_le(x_6, x_37);
 if (x_38 == 0)
 {
 lean_object* x_39; 
@@ -2360,12 +2360,12 @@ else
 {
 uint32_t x_42; uint8_t x_43; 
 x_42 = 90;
-x_43 = x_6 <= x_42;
+x_43 = lean_uint32_dec_le(x_6, x_42);
 if (x_43 == 0)
 {
 uint32_t x_44; uint8_t x_45; 
 x_44 = 97;
-x_45 = x_44 <= x_6;
+x_45 = lean_uint32_dec_le(x_44, x_6);
 if (x_45 == 0)
 {
 lean_object* x_46; 
@@ -2377,7 +2377,7 @@ else
 {
 uint32_t x_47; uint8_t x_48; 
 x_47 = 122;
-x_48 = x_6 <= x_47;
+x_48 = lean_uint32_dec_le(x_6, x_47);
 if (x_48 == 0)
 {
 lean_object* x_49; 
@@ -2413,12 +2413,12 @@ block_31:
 uint32_t x_8; uint8_t x_9; 
 lean_dec(x_7);
 x_8 = 58;
-x_9 = x_6 == x_8;
+x_9 = lean_uint32_dec_eq(x_6, x_8);
 if (x_9 == 0)
 {
 uint32_t x_10; uint8_t x_11; 
 x_10 = 95;
-x_11 = x_6 == x_10;
+x_11 = lean_uint32_dec_eq(x_6, x_10);
 if (x_11 == 0)
 {
 uint8_t x_12; 
@@ -2732,7 +2732,7 @@ lean_inc(x_1);
 x_92 = l_String_Iterator_next(x_1);
 x_93 = l_String_Iterator_curr(x_1);
 x_94 = 48;
-x_95 = x_94 <= x_93;
+x_95 = lean_uint32_dec_le(x_94, x_93);
 if (x_95 == 0)
 {
 lean_object* x_96; 
@@ -2747,7 +2747,7 @@ else
 {
 uint32_t x_97; uint8_t x_98; 
 x_97 = 57;
-x_98 = x_93 <= x_97;
+x_98 = lean_uint32_dec_le(x_93, x_97);
 if (x_98 == 0)
 {
 lean_object* x_99; 
@@ -2810,7 +2810,7 @@ lean_object* x_83; uint32_t x_84; uint8_t x_85;
 lean_inc(x_1);
 x_83 = l_String_Iterator_next(x_1);
 x_84 = l_String_Iterator_curr(x_1);
-x_85 = x_84 == x_16;
+x_85 = lean_uint32_dec_eq(x_84, x_16);
 if (x_85 == 0)
 {
 lean_object* x_86; 
@@ -2872,7 +2872,7 @@ lean_object* x_74; uint32_t x_75; uint8_t x_76;
 lean_inc(x_1);
 x_74 = l_String_Iterator_next(x_1);
 x_75 = l_String_Iterator_curr(x_1);
-x_76 = x_75 == x_21;
+x_76 = lean_uint32_dec_eq(x_75, x_21);
 if (x_76 == 0)
 {
 lean_object* x_77; 
@@ -2934,7 +2934,7 @@ lean_object* x_65; uint32_t x_66; uint8_t x_67;
 lean_inc(x_1);
 x_65 = l_String_Iterator_next(x_1);
 x_66 = l_String_Iterator_curr(x_1);
-x_67 = x_66 == x_26;
+x_67 = lean_uint32_dec_eq(x_66, x_26);
 if (x_67 == 0)
 {
 lean_object* x_68; 
@@ -3000,12 +3000,12 @@ lean_inc(x_1);
 x_34 = l_String_Iterator_next(x_1);
 x_35 = l_String_Iterator_curr(x_1);
 x_36 = 768;
-x_37 = x_36 <= x_35;
+x_37 = lean_uint32_dec_le(x_36, x_35);
 if (x_37 == 0)
 {
 uint32_t x_38; uint8_t x_39; 
 x_38 = 8255;
-x_39 = x_38 <= x_35;
+x_39 = lean_uint32_dec_le(x_38, x_35);
 if (x_39 == 0)
 {
 lean_object* x_40; lean_object* x_41; 
@@ -3024,7 +3024,7 @@ else
 {
 uint32_t x_42; uint8_t x_43; 
 x_42 = 8256;
-x_43 = x_35 <= x_42;
+x_43 = lean_uint32_dec_le(x_35, x_42);
 if (x_43 == 0)
 {
 lean_object* x_44; lean_object* x_45; 
@@ -3060,12 +3060,12 @@ else
 {
 uint32_t x_48; uint8_t x_49; 
 x_48 = 879;
-x_49 = x_35 <= x_48;
+x_49 = lean_uint32_dec_le(x_35, x_48);
 if (x_49 == 0)
 {
 uint32_t x_50; uint8_t x_51; 
 x_50 = 8255;
-x_51 = x_50 <= x_35;
+x_51 = lean_uint32_dec_le(x_50, x_35);
 if (x_51 == 0)
 {
 lean_object* x_52; lean_object* x_53; 
@@ -3084,7 +3084,7 @@ else
 {
 uint32_t x_54; uint8_t x_55; 
 x_54 = 8256;
-x_55 = x_35 <= x_54;
+x_55 = lean_uint32_dec_le(x_35, x_54);
 if (x_55 == 0)
 {
 lean_object* x_56; lean_object* x_57; 
@@ -3504,12 +3504,12 @@ lean_inc(x_1);
 x_65 = l_String_Iterator_next(x_1);
 x_66 = l_String_Iterator_curr(x_1);
 x_67 = 65;
-x_68 = x_67 <= x_66;
+x_68 = lean_uint32_dec_le(x_67, x_66);
 if (x_68 == 0)
 {
 uint32_t x_69; uint8_t x_70; 
 x_69 = 97;
-x_70 = x_69 <= x_66;
+x_70 = lean_uint32_dec_le(x_69, x_66);
 if (x_70 == 0)
 {
 lean_object* x_71; 
@@ -3524,7 +3524,7 @@ else
 {
 uint32_t x_72; uint8_t x_73; 
 x_72 = 122;
-x_73 = x_66 <= x_72;
+x_73 = lean_uint32_dec_le(x_66, x_72);
 if (x_73 == 0)
 {
 lean_object* x_74; 
@@ -3551,12 +3551,12 @@ else
 {
 uint32_t x_77; uint8_t x_78; 
 x_77 = 90;
-x_78 = x_66 <= x_77;
+x_78 = lean_uint32_dec_le(x_66, x_77);
 if (x_78 == 0)
 {
 uint32_t x_79; uint8_t x_80; 
 x_79 = 97;
-x_80 = x_79 <= x_66;
+x_80 = lean_uint32_dec_le(x_79, x_66);
 if (x_80 == 0)
 {
 lean_object* x_81; 
@@ -3571,7 +3571,7 @@ else
 {
 uint32_t x_82; uint8_t x_83; 
 x_82 = 122;
-x_83 = x_66 <= x_82;
+x_83 = lean_uint32_dec_le(x_66, x_82);
 if (x_83 == 0)
 {
 lean_object* x_84; 
@@ -3641,7 +3641,7 @@ lean_inc(x_1);
 x_52 = l_String_Iterator_next(x_1);
 x_53 = l_String_Iterator_curr(x_1);
 x_54 = 48;
-x_55 = x_54 <= x_53;
+x_55 = lean_uint32_dec_le(x_54, x_53);
 if (x_55 == 0)
 {
 lean_object* x_56; 
@@ -3656,7 +3656,7 @@ else
 {
 uint32_t x_57; uint8_t x_58; 
 x_57 = 57;
-x_58 = x_53 <= x_57;
+x_58 = lean_uint32_dec_le(x_53, x_57);
 if (x_58 == 0)
 {
 lean_object* x_59; 
@@ -3714,7 +3714,7 @@ lean_object* x_43; uint32_t x_44; uint8_t x_45;
 lean_inc(x_1);
 x_43 = l_String_Iterator_next(x_1);
 x_44 = l_String_Iterator_curr(x_1);
-x_45 = x_44 == x_10;
+x_45 = lean_uint32_dec_eq(x_44, x_10);
 if (x_45 == 0)
 {
 lean_object* x_46; 
@@ -3771,7 +3771,7 @@ lean_object* x_34; uint32_t x_35; uint8_t x_36;
 lean_inc(x_1);
 x_34 = l_String_Iterator_next(x_1);
 x_35 = l_String_Iterator_curr(x_1);
-x_36 = x_35 == x_15;
+x_36 = lean_uint32_dec_eq(x_35, x_15);
 if (x_36 == 0)
 {
 lean_object* x_37; 
@@ -3828,7 +3828,7 @@ lean_object* x_24; uint32_t x_25; uint8_t x_26;
 lean_inc(x_1);
 x_24 = l_String_Iterator_next(x_1);
 x_25 = l_String_Iterator_curr(x_1);
-x_26 = x_25 == x_20;
+x_26 = lean_uint32_dec_eq(x_25, x_20);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; 
@@ -3889,12 +3889,12 @@ lean_inc(x_1);
 x_5 = l_String_Iterator_next(x_1);
 x_6 = l_String_Iterator_curr(x_1);
 x_7 = 65;
-x_8 = x_7 <= x_6;
+x_8 = lean_uint32_dec_le(x_7, x_6);
 if (x_8 == 0)
 {
 uint32_t x_9; uint8_t x_10; 
 x_9 = 97;
-x_10 = x_9 <= x_6;
+x_10 = lean_uint32_dec_le(x_9, x_6);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -3909,7 +3909,7 @@ else
 {
 uint32_t x_13; uint8_t x_14; 
 x_13 = 122;
-x_14 = x_6 <= x_13;
+x_14 = lean_uint32_dec_le(x_6, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
@@ -3936,12 +3936,12 @@ else
 {
 uint32_t x_21; uint8_t x_22; 
 x_21 = 90;
-x_22 = x_6 <= x_21;
+x_22 = lean_uint32_dec_le(x_6, x_21);
 if (x_22 == 0)
 {
 uint32_t x_23; uint8_t x_24; 
 x_23 = 97;
-x_24 = x_23 <= x_6;
+x_24 = lean_uint32_dec_le(x_23, x_6);
 if (x_24 == 0)
 {
 lean_object* x_25; lean_object* x_26; 
@@ -3956,7 +3956,7 @@ else
 {
 uint32_t x_27; uint8_t x_28; 
 x_27 = 122;
-x_28 = x_6 <= x_27;
+x_28 = lean_uint32_dec_le(x_6, x_27);
 if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; 
@@ -4862,7 +4862,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Xml_Parser_Comment_
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
@@ -4870,7 +4870,7 @@ x_6 = lean_array_uget(x_1, x_2);
 x_7 = lean_string_append(x_4, x_6);
 lean_dec(x_6);
 x_8 = 1;
-x_9 = x_2 + x_8;
+x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
 x_4 = x_7;
 goto _start;
@@ -4902,7 +4902,7 @@ lean_inc(x_1);
 x_32 = l_String_Iterator_next(x_1);
 x_33 = l_String_Iterator_curr(x_1);
 x_34 = 45;
-x_35 = x_33 == x_34;
+x_35 = lean_uint32_dec_eq(x_33, x_34);
 x_36 = l_instDecidableNot___rarg(x_35);
 if (x_36 == 0)
 {
@@ -4961,7 +4961,7 @@ lean_object* x_10; uint32_t x_11; uint8_t x_12;
 lean_inc(x_1);
 x_10 = l_String_Iterator_next(x_1);
 x_11 = l_String_Iterator_curr(x_1);
-x_12 = x_11 == x_6;
+x_12 = lean_uint32_dec_eq(x_11, x_6);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -4992,7 +4992,7 @@ lean_object* x_18; uint32_t x_19; uint8_t x_20; uint8_t x_21;
 lean_inc(x_10);
 x_18 = l_String_Iterator_next(x_10);
 x_19 = l_String_Iterator_curr(x_10);
-x_20 = x_19 == x_6;
+x_20 = lean_uint32_dec_eq(x_19, x_6);
 x_21 = l_instDecidableNot___rarg(x_20);
 if (x_21 == 0)
 {
@@ -5529,7 +5529,7 @@ lean_object* x_73; uint32_t x_74; uint8_t x_75;
 lean_inc(x_53);
 x_73 = l_String_Iterator_next(x_53);
 x_74 = l_String_Iterator_curr(x_53);
-x_75 = x_74 == x_70;
+x_75 = lean_uint32_dec_eq(x_74, x_70);
 if (x_75 == 0)
 {
 lean_object* x_76; 
@@ -5596,7 +5596,7 @@ lean_object* x_64; uint32_t x_65; uint8_t x_66;
 lean_inc(x_53);
 x_64 = l_String_Iterator_next(x_53);
 x_65 = l_String_Iterator_curr(x_53);
-x_66 = x_65 == x_60;
+x_66 = lean_uint32_dec_eq(x_65, x_60);
 if (x_66 == 0)
 {
 lean_object* x_67; lean_object* x_68; 
@@ -5667,7 +5667,7 @@ lean_object* x_22; uint32_t x_23; uint8_t x_24;
 lean_inc(x_2);
 x_22 = l_String_Iterator_next(x_2);
 x_23 = l_String_Iterator_curr(x_2);
-x_24 = x_23 == x_19;
+x_24 = lean_uint32_dec_eq(x_23, x_19);
 if (x_24 == 0)
 {
 lean_object* x_25; 
@@ -5725,7 +5725,7 @@ lean_object* x_12; uint32_t x_13; uint8_t x_14;
 lean_inc(x_2);
 x_12 = l_String_Iterator_next(x_2);
 x_13 = l_String_Iterator_curr(x_2);
-x_14 = x_13 == x_8;
+x_14 = lean_uint32_dec_eq(x_13, x_8);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
@@ -5770,7 +5770,7 @@ lean_object* x_47; uint32_t x_48; uint8_t x_49;
 lean_inc(x_28);
 x_47 = l_String_Iterator_next(x_28);
 x_48 = l_String_Iterator_curr(x_28);
-x_49 = x_48 == x_44;
+x_49 = lean_uint32_dec_eq(x_48, x_44);
 if (x_49 == 0)
 {
 lean_object* x_50; 
@@ -5826,7 +5826,7 @@ lean_object* x_38; uint32_t x_39; uint8_t x_40;
 lean_inc(x_28);
 x_38 = l_String_Iterator_next(x_28);
 x_39 = l_String_Iterator_curr(x_28);
-x_40 = x_39 == x_34;
+x_40 = lean_uint32_dec_eq(x_39, x_34);
 if (x_40 == 0)
 {
 lean_object* x_41; lean_object* x_42; 
@@ -6714,7 +6714,7 @@ LEAN_EXPORT uint8_t l_Lean_Xml_Parser_SystemLiteral___lambda__1(uint32_t x_1, ui
 _start:
 {
 uint8_t x_3; uint8_t x_4; 
-x_3 = x_2 == x_1;
+x_3 = lean_uint32_dec_eq(x_2, x_1);
 x_4 = l_instDecidableNot___rarg(x_3);
 return x_4;
 }
@@ -6758,7 +6758,7 @@ lean_object* x_31; uint32_t x_32; uint8_t x_33;
 lean_inc(x_1);
 x_31 = l_String_Iterator_next(x_1);
 x_32 = l_String_Iterator_curr(x_1);
-x_33 = x_32 == x_2;
+x_33 = lean_uint32_dec_eq(x_32, x_2);
 if (x_33 == 0)
 {
 lean_object* x_34; 
@@ -6804,7 +6804,7 @@ lean_object* x_44; uint32_t x_45; uint8_t x_46;
 lean_inc(x_40);
 x_44 = l_String_Iterator_next(x_40);
 x_45 = l_String_Iterator_curr(x_40);
-x_46 = x_45 == x_2;
+x_46 = lean_uint32_dec_eq(x_45, x_2);
 if (x_46 == 0)
 {
 lean_object* x_47; 
@@ -6849,7 +6849,7 @@ lean_object* x_52; uint32_t x_53; uint8_t x_54;
 lean_inc(x_48);
 x_52 = l_String_Iterator_next(x_48);
 x_53 = l_String_Iterator_curr(x_48);
-x_54 = x_53 == x_2;
+x_54 = lean_uint32_dec_eq(x_53, x_2);
 if (x_54 == 0)
 {
 lean_object* x_55; 
@@ -6922,7 +6922,7 @@ lean_object* x_11; uint32_t x_12; uint8_t x_13;
 lean_inc(x_1);
 x_11 = l_String_Iterator_next(x_1);
 x_12 = l_String_Iterator_curr(x_1);
-x_13 = x_12 == x_7;
+x_13 = lean_uint32_dec_eq(x_12, x_7);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -7043,12 +7043,12 @@ lean_inc(x_1);
 x_58 = l_String_Iterator_next(x_1);
 x_59 = l_String_Iterator_curr(x_1);
 x_60 = 65;
-x_61 = x_60 <= x_59;
+x_61 = lean_uint32_dec_le(x_60, x_59);
 if (x_61 == 0)
 {
 uint32_t x_62; uint8_t x_63; 
 x_62 = 97;
-x_63 = x_62 <= x_59;
+x_63 = lean_uint32_dec_le(x_62, x_59);
 if (x_63 == 0)
 {
 lean_object* x_64; 
@@ -7063,7 +7063,7 @@ else
 {
 uint32_t x_65; uint8_t x_66; 
 x_65 = 122;
-x_66 = x_59 <= x_65;
+x_66 = lean_uint32_dec_le(x_59, x_65);
 if (x_66 == 0)
 {
 lean_object* x_67; 
@@ -7090,12 +7090,12 @@ else
 {
 uint32_t x_70; uint8_t x_71; 
 x_70 = 90;
-x_71 = x_59 <= x_70;
+x_71 = lean_uint32_dec_le(x_59, x_70);
 if (x_71 == 0)
 {
 uint32_t x_72; uint8_t x_73; 
 x_72 = 97;
-x_73 = x_72 <= x_59;
+x_73 = lean_uint32_dec_le(x_72, x_59);
 if (x_73 == 0)
 {
 lean_object* x_74; 
@@ -7110,7 +7110,7 @@ else
 {
 uint32_t x_75; uint8_t x_76; 
 x_75 = 122;
-x_76 = x_59 <= x_75;
+x_76 = lean_uint32_dec_le(x_59, x_75);
 if (x_76 == 0)
 {
 lean_object* x_77; 
@@ -7180,7 +7180,7 @@ lean_inc(x_1);
 x_45 = l_String_Iterator_next(x_1);
 x_46 = l_String_Iterator_curr(x_1);
 x_47 = 48;
-x_48 = x_47 <= x_46;
+x_48 = lean_uint32_dec_le(x_47, x_46);
 if (x_48 == 0)
 {
 lean_object* x_49; 
@@ -7195,7 +7195,7 @@ else
 {
 uint32_t x_50; uint8_t x_51; 
 x_50 = 57;
-x_51 = x_46 <= x_50;
+x_51 = lean_uint32_dec_le(x_46, x_50);
 if (x_51 == 0)
 {
 lean_object* x_52; 
@@ -7413,7 +7413,7 @@ if (x_4 == 0)
 lean_object* x_5; uint32_t x_6; uint8_t x_7; 
 x_5 = lean_ctor_get(x_3, 1);
 x_6 = lean_unbox_uint32(x_5);
-x_7 = x_6 == x_1;
+x_7 = lean_uint32_dec_eq(x_6, x_1);
 if (x_7 == 0)
 {
 return x_3;
@@ -7437,7 +7437,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_dec(x_3);
 x_11 = lean_unbox_uint32(x_10);
-x_12 = x_11 == x_1;
+x_12 = lean_uint32_dec_eq(x_11, x_1);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -7520,7 +7520,7 @@ lean_object* x_47; uint32_t x_48; uint8_t x_49;
 lean_inc(x_1);
 x_47 = l_String_Iterator_next(x_1);
 x_48 = l_String_Iterator_curr(x_1);
-x_49 = x_48 == x_2;
+x_49 = lean_uint32_dec_eq(x_48, x_2);
 if (x_49 == 0)
 {
 lean_object* x_50; 
@@ -7562,7 +7562,7 @@ lean_object* x_58; uint32_t x_59; uint8_t x_60;
 lean_inc(x_54);
 x_58 = l_String_Iterator_next(x_54);
 x_59 = l_String_Iterator_curr(x_54);
-x_60 = x_59 == x_2;
+x_60 = lean_uint32_dec_eq(x_59, x_2);
 if (x_60 == 0)
 {
 lean_object* x_61; 
@@ -7607,7 +7607,7 @@ lean_object* x_66; uint32_t x_67; uint8_t x_68;
 lean_inc(x_62);
 x_66 = l_String_Iterator_next(x_62);
 x_67 = l_String_Iterator_curr(x_62);
-x_68 = x_67 == x_2;
+x_68 = lean_uint32_dec_eq(x_67, x_2);
 if (x_68 == 0)
 {
 lean_object* x_69; 
@@ -7680,7 +7680,7 @@ lean_object* x_11; uint32_t x_12; uint8_t x_13;
 lean_inc(x_1);
 x_11 = l_String_Iterator_next(x_1);
 x_12 = l_String_Iterator_curr(x_1);
-x_13 = x_12 == x_7;
+x_13 = lean_uint32_dec_eq(x_12, x_7);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -7726,7 +7726,7 @@ lean_object* x_25; uint32_t x_26; uint8_t x_27;
 lean_inc(x_21);
 x_25 = l_String_Iterator_next(x_21);
 x_26 = l_String_Iterator_curr(x_21);
-x_27 = x_26 == x_7;
+x_27 = lean_uint32_dec_eq(x_26, x_7);
 if (x_27 == 0)
 {
 lean_object* x_28; 
@@ -7770,7 +7770,7 @@ lean_object* x_34; uint32_t x_35; uint8_t x_36;
 lean_inc(x_29);
 x_34 = l_String_Iterator_next(x_29);
 x_35 = l_String_Iterator_curr(x_29);
-x_36 = x_35 == x_7;
+x_36 = lean_uint32_dec_eq(x_35, x_7);
 if (x_36 == 0)
 {
 lean_object* x_37; lean_object* x_38; 
@@ -9205,7 +9205,7 @@ lean_object* x_7; uint32_t x_8; uint8_t x_9;
 lean_inc(x_2);
 x_7 = l_String_Iterator_next(x_2);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = x_8 == x_3;
+x_9 = lean_uint32_dec_eq(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -9395,7 +9395,7 @@ lean_object* x_96; uint32_t x_97; uint8_t x_98;
 lean_inc(x_1);
 x_96 = l_String_Iterator_next(x_1);
 x_97 = l_String_Iterator_curr(x_1);
-x_98 = x_97 == x_37;
+x_98 = lean_uint32_dec_eq(x_97, x_37);
 if (x_98 == 0)
 {
 lean_object* x_99; 
@@ -9511,7 +9511,7 @@ lean_object* x_8; uint32_t x_9; uint8_t x_10;
 lean_inc(x_2);
 x_8 = l_String_Iterator_next(x_2);
 x_9 = l_String_Iterator_curr(x_2);
-x_10 = x_9 == x_4;
+x_10 = lean_uint32_dec_eq(x_9, x_4);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -9674,7 +9674,7 @@ lean_object* x_45; uint32_t x_46; uint8_t x_47;
 lean_inc(x_1);
 x_45 = l_String_Iterator_next(x_1);
 x_46 = l_String_Iterator_curr(x_1);
-x_47 = x_46 == x_37;
+x_47 = lean_uint32_dec_eq(x_46, x_37);
 if (x_47 == 0)
 {
 lean_object* x_48; lean_object* x_49; 
@@ -10301,7 +10301,7 @@ lean_object* x_39; uint32_t x_40; uint8_t x_41;
 lean_inc(x_2);
 x_39 = l_String_Iterator_next(x_2);
 x_40 = l_String_Iterator_curr(x_2);
-x_41 = x_40 == x_36;
+x_41 = lean_uint32_dec_eq(x_40, x_36);
 if (x_41 == 0)
 {
 lean_object* x_42; 
@@ -10372,7 +10372,7 @@ lean_object* x_14; uint32_t x_15; uint8_t x_16;
 lean_inc(x_2);
 x_14 = l_String_Iterator_next(x_2);
 x_15 = l_String_Iterator_curr(x_2);
-x_16 = x_15 == x_8;
+x_16 = lean_uint32_dec_eq(x_15, x_8);
 if (x_16 == 0)
 {
 uint8_t x_17; 
@@ -10445,7 +10445,7 @@ lean_object* x_30; uint32_t x_31; uint8_t x_32;
 lean_inc(x_2);
 x_30 = l_String_Iterator_next(x_2);
 x_31 = l_String_Iterator_curr(x_2);
-x_32 = x_31 == x_27;
+x_32 = lean_uint32_dec_eq(x_31, x_27);
 if (x_32 == 0)
 {
 lean_object* x_33; 
@@ -10588,7 +10588,7 @@ lean_object* x_7; uint32_t x_8; uint8_t x_9;
 lean_inc(x_2);
 x_7 = l_String_Iterator_next(x_2);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = x_8 == x_3;
+x_9 = lean_uint32_dec_eq(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -10702,7 +10702,7 @@ lean_object* x_45; uint32_t x_46; uint8_t x_47;
 lean_inc(x_1);
 x_45 = l_String_Iterator_next(x_1);
 x_46 = l_String_Iterator_curr(x_1);
-x_47 = x_46 == x_41;
+x_47 = lean_uint32_dec_eq(x_46, x_41);
 if (x_47 == 0)
 {
 lean_object* x_48; lean_object* x_49; 
@@ -10802,7 +10802,7 @@ lean_object* x_7; uint32_t x_8; uint8_t x_9;
 lean_inc(x_2);
 x_7 = l_String_Iterator_next(x_2);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = x_8 == x_3;
+x_9 = lean_uint32_dec_eq(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -11043,7 +11043,7 @@ lean_object* x_7; uint32_t x_8; uint8_t x_9;
 lean_inc(x_2);
 x_7 = l_String_Iterator_next(x_2);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = x_8 == x_3;
+x_9 = lean_uint32_dec_eq(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -11157,7 +11157,7 @@ lean_object* x_45; uint32_t x_46; uint8_t x_47;
 lean_inc(x_1);
 x_45 = l_String_Iterator_next(x_1);
 x_46 = l_String_Iterator_curr(x_1);
-x_47 = x_46 == x_41;
+x_47 = lean_uint32_dec_eq(x_46, x_41);
 if (x_47 == 0)
 {
 lean_object* x_48; lean_object* x_49; 
@@ -11257,7 +11257,7 @@ lean_object* x_7; uint32_t x_8; uint8_t x_9;
 lean_inc(x_2);
 x_7 = l_String_Iterator_next(x_2);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = x_8 == x_3;
+x_9 = lean_uint32_dec_eq(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -11571,7 +11571,7 @@ lean_object* x_39; uint32_t x_40; uint8_t x_41;
 lean_inc(x_2);
 x_39 = l_String_Iterator_next(x_2);
 x_40 = l_String_Iterator_curr(x_2);
-x_41 = x_40 == x_36;
+x_41 = lean_uint32_dec_eq(x_40, x_36);
 if (x_41 == 0)
 {
 lean_object* x_42; 
@@ -11642,7 +11642,7 @@ lean_object* x_14; uint32_t x_15; uint8_t x_16;
 lean_inc(x_2);
 x_14 = l_String_Iterator_next(x_2);
 x_15 = l_String_Iterator_curr(x_2);
-x_16 = x_15 == x_8;
+x_16 = lean_uint32_dec_eq(x_15, x_8);
 if (x_16 == 0)
 {
 uint8_t x_17; 
@@ -11715,7 +11715,7 @@ lean_object* x_30; uint32_t x_31; uint8_t x_32;
 lean_inc(x_2);
 x_30 = l_String_Iterator_next(x_2);
 x_31 = l_String_Iterator_curr(x_2);
-x_32 = x_31 == x_27;
+x_32 = lean_uint32_dec_eq(x_31, x_27);
 if (x_32 == 0)
 {
 lean_object* x_33; 
@@ -12441,7 +12441,7 @@ lean_object* x_7; uint32_t x_8; uint8_t x_9;
 lean_inc(x_2);
 x_7 = l_String_Iterator_next(x_2);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = x_8 == x_3;
+x_9 = lean_uint32_dec_eq(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -14417,7 +14417,7 @@ lean_object* x_51; uint32_t x_52; uint8_t x_53;
 lean_inc(x_46);
 x_51 = l_String_Iterator_next(x_46);
 x_52 = l_String_Iterator_curr(x_46);
-x_53 = x_52 == x_48;
+x_53 = lean_uint32_dec_eq(x_52, x_48);
 if (x_53 == 0)
 {
 lean_object* x_54; 
@@ -14521,7 +14521,7 @@ lean_object* x_70; uint32_t x_71; uint8_t x_72;
 lean_inc(x_65);
 x_70 = l_String_Iterator_next(x_65);
 x_71 = l_String_Iterator_curr(x_65);
-x_72 = x_71 == x_66;
+x_72 = lean_uint32_dec_eq(x_71, x_66);
 if (x_72 == 0)
 {
 lean_object* x_73; lean_object* x_74; 
@@ -14655,7 +14655,7 @@ lean_object* x_7; uint32_t x_8; uint8_t x_9;
 lean_inc(x_2);
 x_7 = l_String_Iterator_next(x_2);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = x_8 == x_3;
+x_9 = lean_uint32_dec_eq(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -14905,7 +14905,7 @@ lean_object* x_7; uint32_t x_8; uint8_t x_9;
 lean_inc(x_2);
 x_7 = l_String_Iterator_next(x_2);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = x_8 == x_3;
+x_9 = lean_uint32_dec_eq(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -15019,7 +15019,7 @@ lean_object* x_45; uint32_t x_46; uint8_t x_47;
 lean_inc(x_1);
 x_45 = l_String_Iterator_next(x_1);
 x_46 = l_String_Iterator_curr(x_1);
-x_47 = x_46 == x_41;
+x_47 = lean_uint32_dec_eq(x_46, x_41);
 if (x_47 == 0)
 {
 lean_object* x_48; lean_object* x_49; 
@@ -15119,7 +15119,7 @@ lean_object* x_7; uint32_t x_8; uint8_t x_9;
 lean_inc(x_2);
 x_7 = l_String_Iterator_next(x_2);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = x_8 == x_3;
+x_9 = lean_uint32_dec_eq(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -15874,7 +15874,7 @@ lean_object* x_6; uint32_t x_7; uint8_t x_8;
 lean_inc(x_1);
 x_6 = l_String_Iterator_next(x_1);
 x_7 = l_String_Iterator_curr(x_1);
-x_8 = x_7 == x_2;
+x_8 = lean_uint32_dec_eq(x_7, x_2);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
@@ -15920,7 +15920,7 @@ lean_inc(x_13);
 x_19 = l_String_Iterator_next(x_13);
 x_20 = l_String_Iterator_curr(x_13);
 lean_dec(x_13);
-x_21 = x_20 == x_16;
+x_21 = lean_uint32_dec_eq(x_20, x_16);
 if (x_21 == 0)
 {
 lean_object* x_22; 
@@ -15971,7 +15971,7 @@ lean_inc(x_23);
 x_30 = l_String_Iterator_next(x_23);
 x_31 = l_String_Iterator_curr(x_23);
 lean_dec(x_23);
-x_32 = x_31 == x_26;
+x_32 = lean_uint32_dec_eq(x_31, x_26);
 if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; 
@@ -16028,7 +16028,7 @@ _start:
 {
 lean_object* x_2; uint32_t x_23; uint8_t x_24; 
 x_23 = 48;
-x_24 = x_23 <= x_1;
+x_24 = lean_uint32_dec_le(x_23, x_1);
 if (x_24 == 0)
 {
 lean_object* x_25; 
@@ -16040,7 +16040,7 @@ else
 {
 uint32_t x_26; uint8_t x_27; 
 x_26 = 57;
-x_27 = x_1 <= x_26;
+x_27 = lean_uint32_dec_le(x_1, x_26);
 if (x_27 == 0)
 {
 lean_object* x_28; 
@@ -16063,7 +16063,7 @@ block_22:
 uint32_t x_3; uint8_t x_4; 
 lean_dec(x_2);
 x_3 = 97;
-x_4 = x_3 <= x_1;
+x_4 = lean_uint32_dec_le(x_3, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
@@ -16080,7 +16080,7 @@ else
 {
 uint32_t x_10; uint8_t x_11; 
 x_10 = 102;
-x_11 = x_1 <= x_10;
+x_11 = lean_uint32_dec_le(x_1, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
@@ -16123,7 +16123,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Xml_Parser_digitsTo
 _start:
 {
 uint8_t x_6; 
-x_6 = x_3 == x_4;
+x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; 
@@ -16134,7 +16134,7 @@ x_9 = lean_nat_add(x_8, x_7);
 lean_dec(x_7);
 lean_dec(x_8);
 x_10 = 1;
-x_11 = x_3 + x_10;
+x_11 = lean_usize_add(x_3, x_10);
 x_3 = x_11;
 x_5 = x_9;
 goto _start;
@@ -16227,7 +16227,7 @@ lean_inc(x_1);
 x_5 = l_String_Iterator_next(x_1);
 x_6 = l_String_Iterator_curr(x_1);
 x_7 = 48;
-x_8 = x_7 <= x_6;
+x_8 = lean_uint32_dec_le(x_7, x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
@@ -16242,7 +16242,7 @@ else
 {
 uint32_t x_11; uint8_t x_12; 
 x_11 = 57;
-x_12 = x_6 <= x_11;
+x_12 = lean_uint32_dec_le(x_6, x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -16299,7 +16299,7 @@ lean_inc(x_1);
 x_42 = l_String_Iterator_next(x_1);
 x_43 = l_String_Iterator_curr(x_1);
 x_63 = 48;
-x_64 = x_63 <= x_43;
+x_64 = lean_uint32_dec_le(x_63, x_43);
 if (x_64 == 0)
 {
 lean_object* x_65; 
@@ -16311,7 +16311,7 @@ else
 {
 uint32_t x_66; uint8_t x_67; 
 x_66 = 57;
-x_67 = x_43 <= x_66;
+x_67 = lean_uint32_dec_le(x_43, x_66);
 if (x_67 == 0)
 {
 lean_object* x_68; 
@@ -16332,12 +16332,12 @@ block_62:
 uint32_t x_45; uint8_t x_46; 
 lean_dec(x_44);
 x_45 = 97;
-x_46 = x_45 <= x_43;
+x_46 = lean_uint32_dec_le(x_45, x_43);
 if (x_46 == 0)
 {
 uint32_t x_47; uint8_t x_48; 
 x_47 = 65;
-x_48 = x_47 <= x_43;
+x_48 = lean_uint32_dec_le(x_47, x_43);
 if (x_48 == 0)
 {
 lean_object* x_49; lean_object* x_50; 
@@ -16351,7 +16351,7 @@ return x_50;
 else
 {
 uint8_t x_51; 
-x_51 = x_43 <= x_47;
+x_51 = lean_uint32_dec_le(x_43, x_47);
 if (x_51 == 0)
 {
 lean_object* x_52; lean_object* x_53; 
@@ -16374,12 +16374,12 @@ goto block_38;
 else
 {
 uint8_t x_54; 
-x_54 = x_43 <= x_45;
+x_54 = lean_uint32_dec_le(x_43, x_45);
 if (x_54 == 0)
 {
 uint32_t x_55; uint8_t x_56; 
 x_55 = 65;
-x_56 = x_55 <= x_43;
+x_56 = lean_uint32_dec_le(x_55, x_43);
 if (x_56 == 0)
 {
 lean_object* x_57; lean_object* x_58; 
@@ -16393,7 +16393,7 @@ return x_58;
 else
 {
 uint8_t x_59; 
-x_59 = x_43 <= x_55;
+x_59 = lean_uint32_dec_le(x_43, x_55);
 if (x_59 == 0)
 {
 lean_object* x_60; lean_object* x_61; 
@@ -16427,7 +16427,7 @@ block_38:
 {
 lean_object* x_4; uint32_t x_28; uint8_t x_29; 
 x_28 = 48;
-x_29 = x_28 <= x_3;
+x_29 = lean_uint32_dec_le(x_28, x_3);
 if (x_29 == 0)
 {
 lean_object* x_30; 
@@ -16439,7 +16439,7 @@ else
 {
 uint32_t x_31; uint8_t x_32; 
 x_31 = 57;
-x_32 = x_3 <= x_31;
+x_32 = lean_uint32_dec_le(x_3, x_31);
 if (x_32 == 0)
 {
 lean_object* x_33; 
@@ -16465,7 +16465,7 @@ block_27:
 uint32_t x_5; uint8_t x_6; 
 lean_dec(x_4);
 x_5 = 97;
-x_6 = x_5 <= x_3;
+x_6 = lean_uint32_dec_le(x_5, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
@@ -16485,7 +16485,7 @@ else
 {
 uint32_t x_13; uint8_t x_14; 
 x_13 = 102;
-x_14 = x_3 <= x_13;
+x_14 = lean_uint32_dec_le(x_3, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
@@ -16613,7 +16613,7 @@ lean_object* x_35; uint32_t x_36; uint8_t x_37;
 lean_inc(x_20);
 x_35 = l_String_Iterator_next(x_20);
 x_36 = l_String_Iterator_curr(x_20);
-x_37 = x_36 == x_32;
+x_37 = lean_uint32_dec_eq(x_36, x_32);
 if (x_37 == 0)
 {
 lean_object* x_38; 
@@ -16712,7 +16712,7 @@ lean_object* x_58; uint32_t x_59; uint8_t x_60;
 lean_inc(x_20);
 x_58 = l_String_Iterator_next(x_20);
 x_59 = l_String_Iterator_curr(x_20);
-x_60 = x_59 == x_54;
+x_60 = lean_uint32_dec_eq(x_59, x_54);
 if (x_60 == 0)
 {
 lean_object* x_61; lean_object* x_62; 
@@ -16818,7 +16818,7 @@ lean_object* x_8; uint32_t x_9; uint8_t x_10;
 lean_inc(x_2);
 x_8 = l_String_Iterator_next(x_2);
 x_9 = l_String_Iterator_curr(x_2);
-x_10 = x_9 == x_4;
+x_10 = lean_uint32_dec_eq(x_9, x_4);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -17035,13 +17035,13 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Xml_Parser_AttValue
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; size_t x_7; size_t x_8; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = 1;
-x_8 = x_2 + x_7;
+x_8 = lean_usize_add(x_2, x_7);
 if (lean_obj_tag(x_6) == 0)
 {
 x_2 = x_8;
@@ -17099,7 +17099,7 @@ lean_inc(x_2);
 x_8 = l_String_Iterator_next(x_2);
 x_9 = l_String_Iterator_curr(x_2);
 x_10 = 60;
-x_11 = x_9 == x_10;
+x_11 = lean_uint32_dec_eq(x_9, x_10);
 x_12 = l_instDecidableNot___rarg(x_11);
 if (x_12 == 0)
 {
@@ -17126,7 +17126,7 @@ else
 {
 uint32_t x_17; uint8_t x_18; uint8_t x_19; 
 x_17 = 38;
-x_18 = x_9 == x_17;
+x_18 = lean_uint32_dec_eq(x_9, x_17);
 x_19 = l_instDecidableNot___rarg(x_18);
 if (x_19 == 0)
 {
@@ -17152,7 +17152,7 @@ return x_23;
 else
 {
 uint8_t x_24; uint8_t x_25; 
-x_24 = x_9 == x_1;
+x_24 = lean_uint32_dec_eq(x_9, x_1);
 x_25 = l_instDecidableNot___rarg(x_24);
 if (x_25 == 0)
 {
@@ -17231,7 +17231,7 @@ lean_object* x_62; uint32_t x_63; uint8_t x_64;
 lean_inc(x_1);
 x_62 = l_String_Iterator_next(x_1);
 x_63 = l_String_Iterator_curr(x_1);
-x_64 = x_63 == x_59;
+x_64 = lean_uint32_dec_eq(x_63, x_59);
 if (x_64 == 0)
 {
 lean_object* x_65; 
@@ -17274,7 +17274,7 @@ lean_object* x_74; uint32_t x_75; uint8_t x_76;
 lean_inc(x_70);
 x_74 = l_String_Iterator_next(x_70);
 x_75 = l_String_Iterator_curr(x_70);
-x_76 = x_75 == x_59;
+x_76 = lean_uint32_dec_eq(x_75, x_59);
 if (x_76 == 0)
 {
 lean_object* x_77; 
@@ -17392,7 +17392,7 @@ lean_object* x_26; uint32_t x_27; uint8_t x_28;
 lean_inc(x_1);
 x_26 = l_String_Iterator_next(x_1);
 x_27 = l_String_Iterator_curr(x_1);
-x_28 = x_27 == x_22;
+x_28 = lean_uint32_dec_eq(x_27, x_22);
 if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; 
@@ -17437,7 +17437,7 @@ lean_object* x_40; uint32_t x_41; uint8_t x_42;
 lean_inc(x_36);
 x_40 = l_String_Iterator_next(x_36);
 x_41 = l_String_Iterator_curr(x_36);
-x_42 = x_41 == x_22;
+x_42 = lean_uint32_dec_eq(x_41, x_22);
 if (x_42 == 0)
 {
 lean_object* x_43; 
@@ -17483,7 +17483,7 @@ lean_object* x_49; uint32_t x_50; uint8_t x_51;
 lean_inc(x_44);
 x_49 = l_String_Iterator_next(x_44);
 x_50 = l_String_Iterator_curr(x_44);
-x_51 = x_50 == x_22;
+x_51 = lean_uint32_dec_eq(x_50, x_22);
 if (x_51 == 0)
 {
 lean_object* x_52; lean_object* x_53; 
@@ -19026,7 +19026,7 @@ lean_object* x_7; uint32_t x_8; uint8_t x_9;
 lean_inc(x_2);
 x_7 = l_String_Iterator_next(x_2);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = x_8 == x_3;
+x_9 = lean_uint32_dec_eq(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -19102,7 +19102,7 @@ lean_object* x_6; uint32_t x_7; uint8_t x_8;
 lean_inc(x_1);
 x_6 = l_String_Iterator_next(x_1);
 x_7 = l_String_Iterator_curr(x_1);
-x_8 = x_7 == x_2;
+x_8 = lean_uint32_dec_eq(x_7, x_2);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
@@ -19144,7 +19144,7 @@ lean_object* x_18; uint32_t x_19; uint8_t x_20;
 lean_inc(x_13);
 x_18 = l_String_Iterator_next(x_13);
 x_19 = l_String_Iterator_curr(x_13);
-x_20 = x_19 == x_15;
+x_20 = lean_uint32_dec_eq(x_19, x_15);
 if (x_20 == 0)
 {
 lean_object* x_21; 
@@ -19188,7 +19188,7 @@ lean_object* x_28; uint32_t x_29; uint8_t x_30;
 lean_inc(x_23);
 x_28 = l_String_Iterator_next(x_23);
 x_29 = l_String_Iterator_curr(x_23);
-x_30 = x_29 == x_24;
+x_30 = lean_uint32_dec_eq(x_29, x_24);
 if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; 
@@ -19259,7 +19259,7 @@ lean_inc(x_2);
 x_27 = l_String_Iterator_next(x_2);
 x_28 = l_String_Iterator_curr(x_2);
 x_29 = 37;
-x_30 = x_28 == x_29;
+x_30 = lean_uint32_dec_eq(x_28, x_29);
 x_31 = l_instDecidableNot___rarg(x_30);
 if (x_31 == 0)
 {
@@ -19275,7 +19275,7 @@ else
 {
 uint32_t x_33; uint8_t x_34; uint8_t x_35; 
 x_33 = 38;
-x_34 = x_28 == x_33;
+x_34 = lean_uint32_dec_eq(x_28, x_33);
 x_35 = l_instDecidableNot___rarg(x_34);
 if (x_35 == 0)
 {
@@ -19290,7 +19290,7 @@ goto block_24;
 else
 {
 uint8_t x_37; uint8_t x_38; 
-x_37 = x_28 == x_1;
+x_37 = lean_uint32_dec_eq(x_28, x_1);
 x_38 = l_instDecidableNot___rarg(x_37);
 if (x_38 == 0)
 {
@@ -19460,7 +19460,7 @@ lean_object* x_62; uint32_t x_63; uint8_t x_64;
 lean_inc(x_1);
 x_62 = l_String_Iterator_next(x_1);
 x_63 = l_String_Iterator_curr(x_1);
-x_64 = x_63 == x_59;
+x_64 = lean_uint32_dec_eq(x_63, x_59);
 if (x_64 == 0)
 {
 lean_object* x_65; 
@@ -19503,7 +19503,7 @@ lean_object* x_74; uint32_t x_75; uint8_t x_76;
 lean_inc(x_70);
 x_74 = l_String_Iterator_next(x_70);
 x_75 = l_String_Iterator_curr(x_70);
-x_76 = x_75 == x_59;
+x_76 = lean_uint32_dec_eq(x_75, x_59);
 if (x_76 == 0)
 {
 lean_object* x_77; 
@@ -19621,7 +19621,7 @@ lean_object* x_26; uint32_t x_27; uint8_t x_28;
 lean_inc(x_1);
 x_26 = l_String_Iterator_next(x_1);
 x_27 = l_String_Iterator_curr(x_1);
-x_28 = x_27 == x_22;
+x_28 = lean_uint32_dec_eq(x_27, x_22);
 if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; 
@@ -19666,7 +19666,7 @@ lean_object* x_40; uint32_t x_41; uint8_t x_42;
 lean_inc(x_36);
 x_40 = l_String_Iterator_next(x_36);
 x_41 = l_String_Iterator_curr(x_36);
-x_42 = x_41 == x_22;
+x_42 = lean_uint32_dec_eq(x_41, x_22);
 if (x_42 == 0)
 {
 lean_object* x_43; 
@@ -19712,7 +19712,7 @@ lean_object* x_49; uint32_t x_50; uint8_t x_51;
 lean_inc(x_44);
 x_49 = l_String_Iterator_next(x_44);
 x_50 = l_String_Iterator_curr(x_44);
-x_51 = x_50 == x_22;
+x_51 = lean_uint32_dec_eq(x_50, x_22);
 if (x_51 == 0)
 {
 lean_object* x_52; lean_object* x_53; 
@@ -20477,7 +20477,7 @@ lean_object* x_7; uint32_t x_8; uint8_t x_9;
 lean_inc(x_2);
 x_7 = l_String_Iterator_next(x_2);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = x_8 == x_3;
+x_9 = lean_uint32_dec_eq(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -20629,7 +20629,7 @@ lean_object* x_25; uint32_t x_26; uint8_t x_27;
 lean_inc(x_20);
 x_25 = l_String_Iterator_next(x_20);
 x_26 = l_String_Iterator_curr(x_20);
-x_27 = x_26 == x_22;
+x_27 = lean_uint32_dec_eq(x_26, x_22);
 if (x_27 == 0)
 {
 lean_object* x_28; 
@@ -20823,7 +20823,7 @@ lean_object* x_62; uint32_t x_63; uint8_t x_64;
 lean_inc(x_57);
 x_62 = l_String_Iterator_next(x_57);
 x_63 = l_String_Iterator_curr(x_57);
-x_64 = x_63 == x_58;
+x_64 = lean_uint32_dec_eq(x_63, x_58);
 if (x_64 == 0)
 {
 lean_object* x_65; lean_object* x_66; 
@@ -21053,7 +21053,7 @@ lean_object* x_7; uint32_t x_8; uint8_t x_9;
 lean_inc(x_2);
 x_7 = l_String_Iterator_next(x_2);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = x_8 == x_3;
+x_9 = lean_uint32_dec_eq(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -21528,7 +21528,7 @@ lean_object* x_7; uint32_t x_8; uint8_t x_9;
 lean_inc(x_2);
 x_7 = l_String_Iterator_next(x_2);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = x_8 == x_3;
+x_9 = lean_uint32_dec_eq(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -23556,7 +23556,7 @@ lean_object* x_7; uint32_t x_8; uint8_t x_9;
 lean_inc(x_2);
 x_7 = l_String_Iterator_next(x_2);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = x_8 == x_3;
+x_9 = lean_uint32_dec_eq(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -23609,7 +23609,7 @@ lean_object* x_21; uint32_t x_22; uint8_t x_23;
 lean_inc(x_15);
 x_21 = l_String_Iterator_next(x_15);
 x_22 = l_String_Iterator_curr(x_15);
-x_23 = x_22 == x_16;
+x_23 = lean_uint32_dec_eq(x_22, x_16);
 if (x_23 == 0)
 {
 uint8_t x_24; 
@@ -23673,7 +23673,7 @@ lean_object* x_35; uint32_t x_36; uint8_t x_37;
 lean_inc(x_29);
 x_35 = l_String_Iterator_next(x_29);
 x_36 = l_String_Iterator_curr(x_29);
-x_37 = x_36 == x_31;
+x_37 = lean_uint32_dec_eq(x_36, x_31);
 if (x_37 == 0)
 {
 uint8_t x_38; 
@@ -23832,7 +23832,7 @@ lean_object* x_58; uint32_t x_59; uint8_t x_60;
 lean_inc(x_52);
 x_58 = l_String_Iterator_next(x_52);
 x_59 = l_String_Iterator_curr(x_52);
-x_60 = x_59 == x_53;
+x_60 = lean_uint32_dec_eq(x_59, x_53);
 if (x_60 == 0)
 {
 uint8_t x_61; 
@@ -27090,7 +27090,7 @@ lean_object* x_6; uint32_t x_7; uint8_t x_8;
 lean_inc(x_1);
 x_6 = l_String_Iterator_next(x_1);
 x_7 = l_String_Iterator_curr(x_1);
-x_8 = x_7 == x_2;
+x_8 = lean_uint32_dec_eq(x_7, x_2);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
@@ -27382,7 +27382,7 @@ lean_object* x_7; uint32_t x_8; uint8_t x_9;
 lean_inc(x_2);
 x_7 = l_String_Iterator_next(x_2);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = x_8 == x_3;
+x_9 = lean_uint32_dec_eq(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -27562,7 +27562,7 @@ lean_object* x_7; uint32_t x_8; uint8_t x_9;
 lean_inc(x_2);
 x_7 = l_String_Iterator_next(x_2);
 x_8 = l_String_Iterator_curr(x_2);
-x_9 = x_8 == x_3;
+x_9 = lean_uint32_dec_eq(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -27953,7 +27953,7 @@ _start:
 {
 uint32_t x_2; uint8_t x_3; uint8_t x_4; 
 x_2 = 60;
-x_3 = x_1 == x_2;
+x_3 = lean_uint32_dec_eq(x_1, x_2);
 x_4 = l_instDecidableNot___rarg(x_3);
 if (x_4 == 0)
 {
@@ -27965,7 +27965,7 @@ else
 {
 uint32_t x_6; uint8_t x_7; uint8_t x_8; 
 x_6 = 38;
-x_7 = x_1 == x_6;
+x_7 = lean_uint32_dec_eq(x_1, x_6);
 x_8 = l_instDecidableNot___rarg(x_7);
 return x_8;
 }
@@ -28063,13 +28063,13 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Xml_Parser_content_
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; size_t x_7; size_t x_8; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = 1;
-x_8 = x_2 + x_7;
+x_8 = lean_usize_add(x_2, x_7);
 if (lean_obj_tag(x_6) == 0)
 {
 x_2 = x_8;
@@ -28138,7 +28138,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Xml_Parser_content__
 _start:
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_13; 
-x_13 = x_3 < x_2;
+x_13 = lean_usize_dec_lt(x_3, x_2);
 if (x_13 == 0)
 {
 lean_object* x_14; 
@@ -28252,7 +28252,7 @@ x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 lean_dec(x_7);
 x_9 = 1;
-x_10 = x_3 + x_9;
+x_10 = lean_usize_add(x_3, x_9);
 x_3 = x_10;
 x_4 = x_8;
 x_5 = x_6;
@@ -28264,14 +28264,14 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Xml_Parser_content_
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Array_append___rarg(x_4, x_6);
 x_8 = 1;
-x_9 = x_2 + x_8;
+x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
 x_4 = x_7;
 goto _start;

@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 static lean_object* l_Lean_Meta_revert___lambda__2___closed__1;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_Meta_revert___lambda__2___closed__2;
@@ -32,7 +32,7 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_MessageData_ofList(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_revert___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_LocalContext_getFVars___spec__1(size_t, size_t, lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__1___closed__3;
 lean_object* l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(lean_object*, lean_object*);
@@ -118,7 +118,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__
 _start:
 {
 uint8_t x_10; 
-x_10 = x_3 < x_2;
+x_10 = lean_usize_dec_lt(x_3, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -151,7 +151,7 @@ if (x_16 == 0)
 size_t x_17; size_t x_18; lean_object* x_19; 
 lean_dec(x_12);
 x_17 = 1;
-x_18 = x_3 + x_17;
+x_18 = lean_usize_add(x_3, x_17);
 x_19 = lean_box(0);
 x_3 = x_18;
 x_4 = x_19;
@@ -263,7 +263,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec__
 _start:
 {
 uint8_t x_10; 
-x_10 = x_3 < x_2;
+x_10 = lean_usize_dec_lt(x_3, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -308,7 +308,7 @@ lean_dec(x_16);
 x_21 = lean_array_push(x_14, x_12);
 lean_ctor_set(x_4, 0, x_21);
 x_22 = 1;
-x_23 = x_3 + x_22;
+x_23 = lean_usize_add(x_3, x_22);
 x_3 = x_23;
 x_9 = x_19;
 goto _start;
@@ -332,7 +332,7 @@ lean_inc(x_27);
 lean_dec(x_25);
 lean_ctor_set(x_4, 1, x_26);
 x_28 = 1;
-x_29 = x_3 + x_28;
+x_29 = lean_usize_add(x_3, x_28);
 x_3 = x_29;
 x_9 = x_27;
 goto _start;
@@ -431,7 +431,7 @@ x_47 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_47, 0, x_46);
 lean_ctor_set(x_47, 1, x_40);
 x_48 = 1;
-x_49 = x_3 + x_48;
+x_49 = lean_usize_add(x_3, x_48);
 x_3 = x_49;
 x_4 = x_47;
 x_9 = x_44;
@@ -458,7 +458,7 @@ x_54 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_54, 0, x_39);
 lean_ctor_set(x_54, 1, x_52);
 x_55 = 1;
-x_56 = x_3 + x_55;
+x_56 = lean_usize_add(x_3, x_55);
 x_3 = x_56;
 x_4 = x_54;
 x_9 = x_53;
@@ -535,7 +535,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_revert___spec__4(
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -551,7 +551,7 @@ x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = x_6;
 x_10 = l_Lean_Expr_fvarId_x21(x_9);
 x_11 = 1;
-x_12 = x_2 + x_11;
+x_12 = lean_usize_add(x_2, x_11);
 x_13 = x_10;
 x_14 = lean_array_uset(x_8, x_2, x_13);
 x_2 = x_12;

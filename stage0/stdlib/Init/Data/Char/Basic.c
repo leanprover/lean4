@@ -25,7 +25,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Char_toNat(uint32_t);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Char_toLower___boxed(lean_object*);
-uint8_t l_UInt32_decLt(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_lt(uint32_t, uint32_t);
 LEAN_EXPORT uint8_t l_Char_isLower(uint32_t);
 LEAN_EXPORT lean_object* l_Char_isAlphanum___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Char_instDecidableLe(uint32_t, uint32_t);
@@ -33,7 +33,7 @@ LEAN_EXPORT lean_object* l_Char_isWhitespace___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Char_isAlpha(uint32_t);
 LEAN_EXPORT lean_object* l_Char_instLEChar;
 LEAN_EXPORT uint32_t l_Char_instInhabitedChar;
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Char_instLTChar;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Char_isAlphanum(uint32_t);
@@ -41,7 +41,7 @@ LEAN_EXPORT lean_object* l_Char_toLower(uint32_t);
 LEAN_EXPORT lean_object* l_Char_isLower___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Char_toUpper___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Char_isUpper___boxed(lean_object*);
-uint8_t l_UInt32_decLe(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Char_instDecidableLe___boxed(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 lean_object* l_Char_ofNat(lean_object*);
@@ -66,7 +66,7 @@ LEAN_EXPORT uint8_t l_Char_instDecidableLt(uint32_t x_1, uint32_t x_2) {
 _start:
 {
 uint8_t x_3; 
-x_3 = x_1 < x_2;
+x_3 = lean_uint32_dec_lt(x_1, x_2);
 return x_3;
 }
 }
@@ -87,7 +87,7 @@ LEAN_EXPORT uint8_t l_Char_instDecidableLe(uint32_t x_1, uint32_t x_2) {
 _start:
 {
 uint8_t x_3; 
-x_3 = x_1 <= x_2;
+x_3 = lean_uint32_dec_le(x_1, x_2);
 return x_3;
 }
 }
@@ -135,22 +135,22 @@ _start:
 {
 uint32_t x_2; uint8_t x_3; 
 x_2 = 32;
-x_3 = x_1 == x_2;
+x_3 = lean_uint32_dec_eq(x_1, x_2);
 if (x_3 == 0)
 {
 uint32_t x_4; uint8_t x_5; 
 x_4 = 9;
-x_5 = x_1 == x_4;
+x_5 = lean_uint32_dec_eq(x_1, x_4);
 if (x_5 == 0)
 {
 uint32_t x_6; uint8_t x_7; 
 x_6 = 13;
-x_7 = x_1 == x_6;
+x_7 = lean_uint32_dec_eq(x_1, x_6);
 if (x_7 == 0)
 {
 uint32_t x_8; uint8_t x_9; 
 x_8 = 10;
-x_9 = x_1 == x_8;
+x_9 = lean_uint32_dec_eq(x_1, x_8);
 return x_9;
 }
 else
@@ -191,7 +191,7 @@ _start:
 {
 uint32_t x_2; uint8_t x_3; 
 x_2 = 65;
-x_3 = x_2 <= x_1;
+x_3 = lean_uint32_dec_le(x_2, x_1);
 if (x_3 == 0)
 {
 uint8_t x_4; 
@@ -202,7 +202,7 @@ else
 {
 uint32_t x_5; uint8_t x_6; 
 x_5 = 90;
-x_6 = x_1 <= x_5;
+x_6 = lean_uint32_dec_le(x_1, x_5);
 return x_6;
 }
 }
@@ -223,7 +223,7 @@ _start:
 {
 uint32_t x_2; uint8_t x_3; 
 x_2 = 97;
-x_3 = x_2 <= x_1;
+x_3 = lean_uint32_dec_le(x_2, x_1);
 if (x_3 == 0)
 {
 uint8_t x_4; 
@@ -234,7 +234,7 @@ else
 {
 uint32_t x_5; uint8_t x_6; 
 x_5 = 122;
-x_6 = x_1 <= x_5;
+x_6 = lean_uint32_dec_le(x_1, x_5);
 return x_6;
 }
 }
@@ -285,7 +285,7 @@ _start:
 {
 uint32_t x_2; uint8_t x_3; 
 x_2 = 48;
-x_3 = x_2 <= x_1;
+x_3 = lean_uint32_dec_le(x_2, x_1);
 if (x_3 == 0)
 {
 uint8_t x_4; 
@@ -296,7 +296,7 @@ else
 {
 uint32_t x_5; uint8_t x_6; 
 x_5 = 57;
-x_6 = x_1 <= x_5;
+x_6 = lean_uint32_dec_le(x_1, x_5);
 return x_6;
 }
 }

@@ -159,7 +159,7 @@ static lean_object* l_instReprSum___rarg___closed__3;
 LEAN_EXPORT lean_object* l_instReprSubstring(lean_object*, lean_object*);
 static lean_object* l_Char_quoteCore___closed__3;
 LEAN_EXPORT lean_object* l_instReprULift___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 static lean_object* l_Repr_addAppParen___closed__6;
 LEAN_EXPORT lean_object* l_instReprString___boxed(lean_object*, lean_object*);
 uint8_t l_String_isEmpty(lean_object*);
@@ -1877,22 +1877,22 @@ _start:
 {
 uint32_t x_2; uint8_t x_3; 
 x_2 = 10;
-x_3 = x_1 == x_2;
+x_3 = lean_uint32_dec_eq(x_1, x_2);
 if (x_3 == 0)
 {
 uint32_t x_4; uint8_t x_5; 
 x_4 = 9;
-x_5 = x_1 == x_4;
+x_5 = lean_uint32_dec_eq(x_1, x_4);
 if (x_5 == 0)
 {
 uint32_t x_6; uint8_t x_7; 
 x_6 = 92;
-x_7 = x_1 == x_6;
+x_7 = lean_uint32_dec_eq(x_1, x_6);
 if (x_7 == 0)
 {
 uint32_t x_8; uint8_t x_9; 
 x_8 = 34;
-x_9 = x_1 == x_8;
+x_9 = lean_uint32_dec_eq(x_1, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
@@ -1904,7 +1904,7 @@ if (x_12 == 0)
 {
 uint32_t x_13; uint8_t x_14; 
 x_13 = 127;
-x_14 = x_1 == x_13;
+x_14 = lean_uint32_dec_eq(x_1, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 

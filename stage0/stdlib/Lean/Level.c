@@ -16,7 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Level_dec(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux(lean_object*, lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Level_PP_Result_quote___lambda__3___closed__9;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT uint8_t l_Lean_Level_isNeverZero(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_isMax___boxed(lean_object*);
 static lean_object* l_Lean_Level_PP_Result_quote___lambda__3___closed__4;
@@ -25,7 +25,7 @@ static lean_object* l_Lean_Level_mvarId_x21___closed__2;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Level_PP_Result_format___closed__4;
 lean_object* lean_nat_div(lean_object*, lean_object*);
-uint8_t l_UInt64_decEq(uint64_t, uint64_t);
+LEAN_EXPORT uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Level_data___boxed(lean_object*);
 static lean_object* l_Lean_Level_mvarId_x21___closed__1;
 static lean_object* l_Lean_Level_PP_Result_quote___lambda__3___closed__8;
@@ -41,9 +41,9 @@ LEAN_EXPORT lean_object* l_Lean_Level_updateIMax___boxed(lean_object*, lean_obje
 static lean_object* l_Lean_Level_mkData___closed__3;
 extern lean_object* l_Std_Format_defWidth;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
-uint64_t l_UInt64_add(uint64_t, uint64_t);
+uint64_t lean_uint64_add(uint64_t, uint64_t);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*);
-uint64_t l_Bool_toUInt64(uint8_t);
+uint64_t lean_bool_to_uint64(uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_mkIMaxAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Level_mkData___spec__1(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -88,7 +88,7 @@ static lean_object* l_Lean_Level_updateIMax_x21___closed__1;
 LEAN_EXPORT uint8_t l___private_Lean_Level_0__Lean_Level_isAlreadyNormalizedCheap(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_mvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux___at_Lean_Level_normalize___spec__2___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_qpartition_loop___at_Lean_Level_normalize___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_instToFormatLevel(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_levelZero;
@@ -141,7 +141,7 @@ LEAN_EXPORT lean_object* lean_level_mk_max_simp(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 static lean_object* l_Lean_Level_normalize___closed__1;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-uint32_t l_UInt64_toUInt32(uint64_t);
+uint32_t lean_uint64_to_uint32(uint64_t);
 static lean_object* l_Lean_instHashableMVarId___closed__1;
 lean_object* l_Lean_Unhygienic_run___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkLevelMax(lean_object*, lean_object*);
@@ -191,7 +191,7 @@ lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_
 static lean_object* l_Array_qsort_sort___at_Lean_Level_normalize___spec__3___closed__1;
 LEAN_EXPORT lean_object* l_panic___at_Lean_Level_mkData___spec__1___boxed__const__1;
 LEAN_EXPORT uint8_t l_Lean_Level_Data_hasParam(uint64_t);
-uint64_t l_UInt64_land(uint64_t, uint64_t);
+uint64_t lean_uint64_land(uint64_t, uint64_t);
 static lean_object* l_Lean_Level_normalize___closed__4;
 LEAN_EXPORT lean_object* l_Lean_instHashableMVarId;
 LEAN_EXPORT uint8_t l___private_Lean_Level_0__Lean_Level_isExplicitSubsumedAux(lean_object*, lean_object*, lean_object*);
@@ -242,7 +242,7 @@ LEAN_EXPORT lean_object* l_Lean_Level_mkNaryMax(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_Data_depth___boxed(lean_object*);
 static lean_object* l_Lean_Level_PP_Result_quote___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Level_normalize(lean_object*);
-uint64_t l_UInt64_shiftLeft(uint64_t, uint64_t);
+uint64_t lean_uint64_shift_left(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_instReprMVarId___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Level_PP_Result_quote___lambda__6___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Level_PP_Result_quote(lean_object*, lean_object*);
@@ -250,7 +250,7 @@ LEAN_EXPORT lean_object* l_Lean_Level_PP_Result_quote___lambda__6___boxed(lean_o
 static lean_object* l_Lean_Level_updateSucc_x21___closed__2;
 static lean_object* l_Lean_Level_PP_Result_quote___lambda__3___closed__2;
 LEAN_EXPORT uint8_t l_Lean_Level_isMVar(lean_object*);
-uint64_t l_UInt32_toUInt64(uint32_t);
+uint64_t lean_uint32_to_uint64(uint32_t);
 LEAN_EXPORT lean_object* l_Lean_Level_PP_Result_format(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* lean_level_mk_imax(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_imax(lean_object*, lean_object*);
@@ -296,7 +296,7 @@ static lean_object* l_Lean_Level_PP_Result_quote___lambda__5___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Level_isExplicit(lean_object*);
 static lean_object* l_Lean_Level_updateSucc_x21___closed__1;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
-uint64_t l_UInt64_shiftRight(uint64_t, uint64_t);
+uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 static lean_object* l_Lean_Level_instBEqLevel___closed__1;
 LEAN_EXPORT lean_object* l_Lean_mkLevelParam(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_levelOne;
@@ -370,8 +370,8 @@ LEAN_EXPORT uint64_t l_Lean_Level_Data_hash(uint64_t x_1) {
 _start:
 {
 uint32_t x_2; uint64_t x_3; 
-x_2 = ((uint32_t)x_1);
-x_3 = ((uint64_t)x_2);
+x_2 = lean_uint64_to_uint32(x_1);
+x_3 = lean_uint32_to_uint64(x_2);
 return x_3;
 }
 }
@@ -390,7 +390,7 @@ LEAN_EXPORT uint8_t l_Lean_instBEqData(uint64_t x_1, uint64_t x_2) {
 _start:
 {
 uint8_t x_3; 
-x_3 = x_1 == x_2;
+x_3 = lean_uint64_dec_eq(x_1, x_2);
 return x_3;
 }
 }
@@ -412,8 +412,8 @@ _start:
 {
 uint64_t x_2; uint64_t x_3; uint32_t x_4; 
 x_2 = 40;
-x_3 = x_1 >> x_2 % 64;
-x_4 = ((uint32_t)x_3);
+x_3 = lean_uint64_shift_right(x_1, x_2);
+x_4 = lean_uint64_to_uint32(x_3);
 return x_4;
 }
 }
@@ -433,10 +433,10 @@ _start:
 {
 uint64_t x_2; uint64_t x_3; uint64_t x_4; uint64_t x_5; uint8_t x_6; 
 x_2 = 32;
-x_3 = x_1 >> x_2 % 64;
+x_3 = lean_uint64_shift_right(x_1, x_2);
 x_4 = 1;
-x_5 = x_3 & x_4;
-x_6 = x_5 == x_4;
+x_5 = lean_uint64_land(x_3, x_4);
+x_6 = lean_uint64_dec_eq(x_5, x_4);
 return x_6;
 }
 }
@@ -456,10 +456,10 @@ _start:
 {
 uint64_t x_2; uint64_t x_3; uint64_t x_4; uint64_t x_5; uint8_t x_6; 
 x_2 = 33;
-x_3 = x_1 >> x_2 % 64;
+x_3 = lean_uint64_shift_right(x_1, x_2);
 x_4 = 1;
-x_5 = x_3 & x_4;
-x_6 = x_5 == x_4;
+x_5 = lean_uint64_land(x_3, x_4);
+x_6 = lean_uint64_dec_eq(x_5, x_4);
 return x_6;
 }
 }
@@ -548,20 +548,20 @@ x_6 = lean_nat_dec_lt(x_5, x_2);
 if (x_6 == 0)
 {
 uint32_t x_7; uint64_t x_8; uint64_t x_9; uint64_t x_10; uint64_t x_11; uint64_t x_12; uint64_t x_13; uint64_t x_14; uint64_t x_15; uint64_t x_16; uint64_t x_17; uint64_t x_18; uint64_t x_19; uint64_t x_20; lean_object* x_21; 
-x_7 = ((uint32_t)x_1);
-x_8 = ((uint64_t)x_7);
-x_9 = (uint64_t)x_3;
+x_7 = lean_uint64_to_uint32(x_1);
+x_8 = lean_uint32_to_uint64(x_7);
+x_9 = lean_bool_to_uint64(x_3);
 x_10 = 32;
-x_11 = x_9 << x_10 % 64;
-x_12 = x_8 + x_11;
-x_13 = (uint64_t)x_4;
+x_11 = lean_uint64_shift_left(x_9, x_10);
+x_12 = lean_uint64_add(x_8, x_11);
+x_13 = lean_bool_to_uint64(x_4);
 x_14 = 33;
-x_15 = x_13 << x_14 % 64;
-x_16 = x_12 + x_15;
+x_15 = lean_uint64_shift_left(x_13, x_14);
+x_16 = lean_uint64_add(x_12, x_15);
 x_17 = lean_uint64_of_nat(x_2);
 x_18 = 40;
-x_19 = x_17 << x_18 % 64;
-x_20 = x_16 + x_19;
+x_19 = lean_uint64_shift_left(x_17, x_18);
+x_20 = lean_uint64_add(x_16, x_19);
 x_21 = lean_box_uint64(x_20);
 return x_21;
 }
@@ -1018,7 +1018,7 @@ _start:
 uint64_t x_2; uint32_t x_3; 
 x_2 = l_Lean_Level_hash(x_1);
 lean_dec(x_1);
-x_3 = ((uint32_t)x_2);
+x_3 = lean_uint64_to_uint32(x_2);
 return x_3;
 }
 }
@@ -4088,7 +4088,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Level_PP_Result_quote_
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -4105,7 +4105,7 @@ x_9 = x_6;
 x_10 = lean_unsigned_to_nat(1024u);
 x_11 = l_Lean_Level_PP_Result_quote(x_9, x_10);
 x_12 = 1;
-x_13 = x_2 + x_12;
+x_13 = lean_usize_add(x_2, x_12);
 x_14 = x_11;
 x_15 = lean_array_uset(x_8, x_2, x_14);
 x_2 = x_13;

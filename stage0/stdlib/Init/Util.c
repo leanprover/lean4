@@ -18,7 +18,7 @@ LEAN_EXPORT lean_object* l_panicWithPos___rarg(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_dbgTrace___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrEqUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_dbgTraceIfShared___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_withPtrAddr(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrEq___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withPtrEqUnsafe(lean_object*);
@@ -318,7 +318,7 @@ _start:
 size_t x_5; size_t x_6; uint8_t x_7; 
 x_5 = lean_ptr_addr(x_1);
 x_6 = lean_ptr_addr(x_2);
-x_7 = x_5 == x_6;
+x_7 = lean_usize_dec_eq(x_5, x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
@@ -387,7 +387,7 @@ _start:
 size_t x_4; size_t x_5; uint8_t x_6; 
 x_4 = lean_ptr_addr(x_1);
 x_5 = lean_ptr_addr(x_2);
-x_6 = x_4 == x_5;
+x_6 = lean_usize_dec_eq(x_4, x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 

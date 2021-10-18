@@ -14,13 +14,13 @@
 extern "C" {
 #endif
 uint8_t l_Lean_Syntax_isQuot(lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 uint8_t l_Lean_Syntax_isTokenAntiquot(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation_getPatternVars___closed__13;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation_getPatternVars___closed__3;
@@ -36,7 +36,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Quotation
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quotation_Util___hyg_7_(lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation_getPatternVars___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_getPatternsVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Elab_Term_Quotation_getPatternVars___closed__6;
 lean_object* l_Lean_throwError___at___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_getPatternVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -219,7 +219,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Quotation_
 _start:
 {
 uint8_t x_14; 
-x_14 = x_5 < x_4;
+x_14 = lean_usize_dec_lt(x_5, x_4);
 if (x_14 == 0)
 {
 lean_object* x_15; 
@@ -344,7 +344,7 @@ lean_inc(x_2);
 lean_ctor_set(x_6, 1, x_36);
 lean_ctor_set(x_6, 0, x_2);
 x_37 = 1;
-x_38 = x_5 + x_37;
+x_38 = lean_usize_add(x_5, x_37);
 x_5 = x_38;
 x_13 = x_35;
 goto _start;
@@ -465,7 +465,7 @@ x_57 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_57, 0, x_2);
 lean_ctor_set(x_57, 1, x_56);
 x_58 = 1;
-x_59 = x_5 + x_58;
+x_59 = lean_usize_add(x_5, x_58);
 x_5 = x_59;
 x_6 = x_57;
 x_13 = x_55;
@@ -1428,7 +1428,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Quotation
 _start:
 {
 uint8_t x_12; 
-x_12 = x_2 == x_3;
+x_12 = lean_usize_dec_eq(x_2, x_3);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -1450,7 +1450,7 @@ lean_inc(x_16);
 lean_dec(x_14);
 x_17 = l_Array_append___rarg(x_4, x_15);
 x_18 = 1;
-x_19 = x_2 + x_18;
+x_19 = lean_usize_add(x_2, x_18);
 x_2 = x_19;
 x_4 = x_17;
 x_11 = x_16;

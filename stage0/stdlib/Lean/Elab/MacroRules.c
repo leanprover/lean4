@@ -18,7 +18,7 @@ static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__34;
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabMacroRules___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__48;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__50;
@@ -66,7 +66,7 @@ static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__25;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__36;
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabMacroRules___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabMacroRulesAux___closed__29;
 uint8_t l_Lean_Elab_Command_checkRuleKind(lean_object*, lean_object*);
@@ -230,7 +230,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_elabMac
 _start:
 {
 uint8_t x_7; 
-x_7 = x_5 < x_4;
+x_7 = lean_usize_dec_lt(x_5, x_4);
 if (x_7 == 0)
 {
 lean_inc(x_6);
@@ -249,7 +249,7 @@ if (x_10 == 0)
 size_t x_11; size_t x_12; 
 lean_dec(x_8);
 x_11 = 1;
-x_12 = x_5 + x_11;
+x_12 = lean_usize_add(x_5, x_11);
 {
 size_t _tmp_4 = x_12;
 lean_object* _tmp_5 = x_2;
@@ -669,7 +669,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacro
 _start:
 {
 uint8_t x_8; 
-x_8 = x_3 < x_2;
+x_8 = lean_usize_dec_lt(x_3, x_2);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
@@ -780,7 +780,7 @@ x_38 = lean_ctor_get(x_36, 1);
 lean_inc(x_38);
 lean_dec(x_36);
 x_39 = 1;
-x_40 = x_3 + x_39;
+x_40 = lean_usize_add(x_3, x_39);
 x_41 = x_37;
 x_42 = lean_array_uset(x_13, x_3, x_41);
 x_3 = x_40;

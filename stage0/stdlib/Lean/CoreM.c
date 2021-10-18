@@ -21,7 +21,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Core_checkMaxHeartbeatsCore
 LEAN_EXPORT lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadLiftIOCoreM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_Context_maxHeartbeats___default___boxed(lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Core_instMonadEnvCoreM___closed__2;
 lean_object* lean_io_get_num_heartbeats(lean_object*);
 static lean_object* l_Lean_Core_instMonadNameGeneratorCoreM___closed__3;
@@ -33,7 +33,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadTraceCoreM___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_io_error_to_string(lean_object*);
 lean_object* l_Lean_MessageData_format(lean_object*, lean_object*);
@@ -2941,7 +2941,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Core_instMetaEvalCo
 _start:
 {
 uint8_t x_8; 
-x_8 = x_2 == x_3;
+x_8 = lean_usize_dec_eq(x_2, x_3);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
@@ -2959,7 +2959,7 @@ x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec(x_10);
 x_13 = 1;
-x_14 = x_2 + x_13;
+x_14 = lean_usize_add(x_2, x_13);
 x_2 = x_14;
 x_4 = x_11;
 x_7 = x_12;
@@ -3006,7 +3006,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Core_instMetaEvalCo
 _start:
 {
 uint8_t x_8; 
-x_8 = x_2 == x_3;
+x_8 = lean_usize_dec_eq(x_2, x_3);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
@@ -3035,7 +3035,7 @@ x_17 = lean_ctor_get(x_15, 1);
 lean_inc(x_17);
 lean_dec(x_15);
 x_18 = 1;
-x_19 = x_2 + x_18;
+x_19 = lean_usize_add(x_2, x_18);
 x_2 = x_19;
 x_4 = x_16;
 x_7 = x_17;

@@ -64,7 +64,7 @@ LEAN_EXPORT lean_object* l_Lean_FileMap_toPosition_toColumn___boxed(lean_object*
 LEAN_EXPORT uint8_t l_Lean_instDecidableEqPosition(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Position_instToStringPosition(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_toPosition_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Position_0__Lean_decEqPosition____x40_Lean_Data_Position___hyg_33____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Position_instToFormatPosition___closed__3;
 static lean_object* l_Lean_instInhabitedFileMap___closed__3;
@@ -608,7 +608,7 @@ x_7 = lean_string_utf8_get(x_1, x_2);
 x_8 = lean_string_utf8_next(x_1, x_2);
 lean_dec(x_2);
 x_9 = 10;
-x_10 = x_7 == x_9;
+x_10 = lean_uint32_dec_eq(x_7, x_9);
 if (x_10 == 0)
 {
 x_2 = x_8;

@@ -22,7 +22,7 @@ static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hy
 LEAN_EXPORT uint8_t l_Lean_Compiler_instInhabitedInlineAttributeKind;
 LEAN_EXPORT lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_31____spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_qsort_sort___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_31____spec__4___closed__1;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_toCtorIdx___boxed(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -31,7 +31,7 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 static lean_object* l_List_mapTRAux___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_31____spec__8___lambda__4___closed__1;
 static lean_object* l_List_mapTRAux___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_31____spec__8___lambda__3___closed__2;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_registerEnumAttributes___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_31____spec__2___closed__2;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_31____closed__9;
@@ -661,7 +661,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Compiler_initFn____x40_Lean
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 == x_4;
+x_5 = lean_usize_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
@@ -676,7 +676,7 @@ if (x_9 == 0)
 {
 size_t x_10; size_t x_11; 
 x_10 = 1;
-x_11 = x_3 + x_10;
+x_11 = lean_usize_add(x_3, x_10);
 x_3 = x_11;
 goto _start;
 }

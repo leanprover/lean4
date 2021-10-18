@@ -19,7 +19,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withIncRecDepth___at_Lean_Meta_expandCoe___
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_expandCoe___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_isCoeDecl___closed__45;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Meta_isCoeDecl___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit___at_Lean_Meta_expandCoe___spec__2___lambda__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_isCoeDecl___closed__17;
@@ -54,7 +54,7 @@ static lean_object* l_Lean_Meta_isCoeDecl___closed__42;
 static lean_object* l_Lean_Meta_isCoeDecl___closed__29;
 lean_object* l_Lean_Meta_unfoldDefinition_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_isCoeDecl___closed__3;
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Meta_transform_visit___at_Lean_Meta_expandCoe___spec__2___lambda__1___closed__1;
 static lean_object* l_Lean_Meta_transform___at_Lean_Meta_expandCoe___spec__1___closed__2;
 extern lean_object* l_Lean_levelZero;
@@ -1894,7 +1894,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_expandCoe___spec_
 _start:
 {
 uint8_t x_14; 
-x_14 = x_6 < x_5;
+x_14 = lean_usize_dec_lt(x_6, x_5);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
@@ -1939,7 +1939,7 @@ x_23 = lean_ctor_get(x_21, 1);
 lean_inc(x_23);
 lean_dec(x_21);
 x_24 = 1;
-x_25 = x_6 + x_24;
+x_25 = lean_usize_add(x_6, x_24);
 x_26 = x_22;
 x_27 = lean_array_uset(x_19, x_6, x_26);
 x_6 = x_25;

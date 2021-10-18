@@ -38,11 +38,11 @@ LEAN_EXPORT lean_object* l_instHashableFin___rarg___boxed(lean_object*);
 LEAN_EXPORT uint64_t l_instHashableList___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_instHashableFin___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instHashableOption___rarg___boxed(lean_object*, lean_object*);
-uint64_t l_USize_toUInt64(size_t);
+LEAN_EXPORT uint64_t lean_usize_to_uint64(size_t);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
-uint64_t l_UInt32_toUInt64(uint32_t);
+uint64_t lean_uint32_to_uint64(uint32_t);
 LEAN_EXPORT lean_object* l_instHashableProd___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableNat___boxed(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
@@ -254,7 +254,7 @@ LEAN_EXPORT uint64_t l_instHashableUInt32(uint32_t x_1) {
 _start:
 {
 uint64_t x_2; 
-x_2 = ((uint64_t)x_1);
+x_2 = lean_uint32_to_uint64(x_1);
 return x_2;
 }
 }
@@ -290,7 +290,7 @@ LEAN_EXPORT uint64_t l_instHashableUSize(size_t x_1) {
 _start:
 {
 uint64_t x_2; 
-x_2 = (uint64_t)x_1;
+x_2 = lean_usize_to_uint64(x_1);
 return x_2;
 }
 }

@@ -22,7 +22,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_parseParams___at_Lean_Server_Wat
 static lean_object* l_IO_FS_Stream_readNotificationAs___at_Lean_Server_Watchdog_initAndRunWatchdogAux___spec__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_forwardNotification___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_startFileWorker(lean_object*, lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 lean_object* lean_get_stdout(lean_object*);
 static lean_object* l_Lean_Server_Watchdog_tryWriteMessage___closed__52;
 static lean_object* l_Lean_Server_Watchdog_tryWriteMessage___closed__29;
@@ -110,7 +110,7 @@ LEAN_EXPORT lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Server_Watchdog_
 static lean_object* l_Lean_Server_Watchdog_startFileWorker___closed__4;
 extern lean_object* l_Lean_Lsp_SemanticTokenType_names;
 uint32_t lean_uint32_of_nat(lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Server_Watchdog_tryWriteMessage___closed__48;
 LEAN_EXPORT lean_object* l_Std_RBNode_del___at_Lean_Server_Watchdog_FileWorker_erasePendingRequest___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_Watchdog_handleEdits___spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
@@ -280,7 +280,7 @@ static lean_object* l_Lean_Server_Watchdog_tryWriteMessage___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_shutdown(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Watchdog_tryWriteMessage___closed__4;
 static lean_object* l_Lean_Server_Watchdog_mkLeanServerCapabilities___closed__10;
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Server_Watchdog_handleCancelRequest___spec__2___boxed(lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_Watchdog_initAndRunWatchdog___spec__2___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_mkLeanServerCapabilities;
@@ -4585,7 +4585,7 @@ lean_inc(x_17);
 lean_dec(x_15);
 x_18 = 0;
 x_19 = lean_unbox_uint32(x_16);
-x_20 = x_19 == x_18;
+x_20 = lean_uint32_dec_eq(x_19, x_18);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; uint32_t x_28; uint32_t x_29; uint8_t x_30; 
@@ -4605,7 +4605,7 @@ x_27 = lean_string_append(x_25, x_26);
 x_28 = 1;
 x_29 = lean_unbox_uint32(x_16);
 lean_dec(x_16);
-x_30 = x_29 == x_28;
+x_30 = lean_uint32_dec_eq(x_29, x_28);
 if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; lean_object* x_36; 
@@ -5586,7 +5586,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_Watchdog_tryW
 _start:
 {
 uint8_t x_8; 
-x_8 = x_4 < x_3;
+x_8 = lean_usize_dec_lt(x_4, x_3);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -5611,7 +5611,7 @@ x_13 = lean_ctor_get(x_12, 1);
 lean_inc(x_13);
 lean_dec(x_12);
 x_14 = 1;
-x_15 = x_4 + x_14;
+x_15 = lean_usize_add(x_4, x_14);
 x_4 = x_15;
 x_7 = x_13;
 goto _start;
@@ -5624,7 +5624,7 @@ lean_inc(x_17);
 lean_dec(x_12);
 x_18 = lean_array_push(x_5, x_10);
 x_19 = 1;
-x_20 = x_4 + x_19;
+x_20 = lean_usize_add(x_4, x_19);
 x_4 = x_20;
 x_5 = x_18;
 x_7 = x_17;
@@ -7226,7 +7226,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_Watchdog_hand
 _start:
 {
 uint8_t x_8; 
-x_8 = x_4 < x_3;
+x_8 = lean_usize_dec_lt(x_4, x_3);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -7254,7 +7254,7 @@ x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
 lean_dec(x_13);
 x_15 = 1;
-x_16 = x_4 + x_15;
+x_16 = lean_usize_add(x_4, x_15);
 x_17 = lean_box(0);
 x_4 = x_16;
 x_5 = x_17;
@@ -7292,7 +7292,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_Watchdog_hand
 _start:
 {
 uint8_t x_8; 
-x_8 = x_4 < x_3;
+x_8 = lean_usize_dec_lt(x_4, x_3);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -7320,7 +7320,7 @@ x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
 lean_dec(x_13);
 x_15 = 1;
-x_16 = x_4 + x_15;
+x_16 = lean_usize_add(x_4, x_15);
 x_17 = lean_box(0);
 x_4 = x_16;
 x_5 = x_17;
@@ -12875,7 +12875,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_Watchdog_main
 _start:
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_15; 
-x_15 = x_4 < x_3;
+x_15 = lean_usize_dec_lt(x_4, x_3);
 if (x_15 == 0)
 {
 lean_object* x_16; 
@@ -12965,7 +12965,7 @@ x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
 lean_dec(x_8);
 x_11 = 1;
-x_12 = x_4 + x_11;
+x_12 = lean_usize_add(x_4, x_11);
 x_4 = x_12;
 x_5 = x_10;
 x_7 = x_9;
@@ -12977,7 +12977,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_Watchdog_main
 _start:
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_15; 
-x_15 = x_4 < x_3;
+x_15 = lean_usize_dec_lt(x_4, x_3);
 if (x_15 == 0)
 {
 lean_object* x_16; 
@@ -13067,7 +13067,7 @@ x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
 lean_dec(x_8);
 x_11 = 1;
-x_12 = x_4 + x_11;
+x_12 = lean_usize_add(x_4, x_11);
 x_4 = x_12;
 x_5 = x_10;
 x_7 = x_9;

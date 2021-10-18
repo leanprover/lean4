@@ -22,7 +22,7 @@ static lean_object* l_Lean_Parser_Module_header_parenthesizer___closed__10;
 static lean_object* l_Lean_Parser_Module_module_parenthesizer___closed__6;
 static lean_object* l_Lean_Parser_Module_module_formatter___closed__2;
 static lean_object* l_Lean_Parser_Module_module___closed__5;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Parser_isExitCommand___closed__4;
 lean_object* l_Lean_Parser_Trie_instInhabitedTrie(lean_object*);
 static lean_object* l_Lean_Parser_Module_module_formatter___closed__1;
@@ -42,7 +42,7 @@ extern lean_object* l_Lean_nullKind;
 lean_object* l_Lean_Parser_many(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Module_0__Lean_Parser_mkEOI(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_Parser_Module_module___closed__7;
@@ -4339,7 +4339,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Parser_testParseMod
 _start:
 {
 uint8_t x_7; 
-x_7 = x_3 == x_4;
+x_7 = lean_usize_dec_eq(x_3, x_4);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
@@ -4356,7 +4356,7 @@ x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
 x_12 = 1;
-x_13 = x_3 + x_12;
+x_13 = lean_usize_add(x_3, x_12);
 x_3 = x_13;
 x_5 = x_10;
 x_6 = x_11;
@@ -4401,7 +4401,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Parser_testParseMod
 _start:
 {
 uint8_t x_7; 
-x_7 = x_3 == x_4;
+x_7 = lean_usize_dec_eq(x_3, x_4);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
@@ -4418,7 +4418,7 @@ x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
 x_12 = 1;
-x_13 = x_3 + x_12;
+x_13 = lean_usize_add(x_3, x_12);
 x_3 = x_13;
 x_5 = x_10;
 x_6 = x_11;
@@ -4568,7 +4568,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Parser_testParseMod
 _start:
 {
 uint8_t x_7; 
-x_7 = x_3 == x_4;
+x_7 = lean_usize_dec_eq(x_3, x_4);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; 
@@ -4585,7 +4585,7 @@ x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
 x_12 = 1;
-x_13 = x_3 + x_12;
+x_13 = lean_usize_add(x_3, x_12);
 x_3 = x_13;
 x_5 = x_10;
 x_6 = x_11;

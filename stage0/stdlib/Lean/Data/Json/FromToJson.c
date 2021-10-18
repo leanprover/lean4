@@ -20,7 +20,7 @@ static lean_object* l_Lean_instFromJsonOption___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_instFromJsonFilePath(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToJsonBool___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonProd(lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_instToJsonOption___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonNat;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -48,7 +48,7 @@ static lean_object* l_Lean_instFromJsonBool___closed__1;
 static lean_object* l_Lean_instToJsonJson___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Json_opt(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_instToJsonArray___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Json_parseTagged___closed__6;
 LEAN_EXPORT lean_object* l_Lean_instToJsonNat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonFilePath___boxed(lean_object*);
@@ -383,7 +383,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_instFromJsonArray___sp
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
@@ -430,7 +430,7 @@ x_16 = lean_ctor_get(x_12, 0);
 lean_inc(x_16);
 lean_dec(x_12);
 x_17 = 1;
-x_18 = x_3 + x_17;
+x_18 = lean_usize_add(x_3, x_17);
 x_19 = x_16;
 x_20 = lean_array_uset(x_10, x_3, x_19);
 x_3 = x_18;
@@ -523,7 +523,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_instToJsonArray___spec
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; 
@@ -541,7 +541,7 @@ x_10 = x_7;
 lean_inc(x_1);
 x_11 = lean_apply_1(x_1, x_10);
 x_12 = 1;
-x_13 = x_3 + x_12;
+x_13 = lean_usize_add(x_3, x_12);
 x_14 = x_11;
 x_15 = lean_array_uset(x_9, x_3, x_14);
 x_3 = x_13;
@@ -598,7 +598,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_instFromJsonList___spe
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
@@ -645,7 +645,7 @@ x_16 = lean_ctor_get(x_12, 0);
 lean_inc(x_16);
 lean_dec(x_12);
 x_17 = 1;
-x_18 = x_3 + x_17;
+x_18 = lean_usize_add(x_3, x_17);
 x_19 = x_16;
 x_20 = lean_array_uset(x_10, x_3, x_19);
 x_3 = x_18;
@@ -764,7 +764,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_instToJsonList___spec_
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; 
@@ -782,7 +782,7 @@ x_10 = x_7;
 lean_inc(x_1);
 x_11 = lean_apply_1(x_1, x_10);
 x_12 = 1;
-x_13 = x_3 + x_12;
+x_13 = lean_usize_add(x_3, x_12);
 x_14 = x_11;
 x_15 = lean_array_uset(x_9, x_3, x_14);
 x_3 = x_13;
@@ -1842,7 +1842,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Json_parseTagged___s
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; 
@@ -1885,7 +1885,7 @@ lean_inc(x_14);
 lean_dec(x_10);
 x_15 = lean_array_push(x_5, x_14);
 x_16 = 1;
-x_17 = x_4 + x_16;
+x_17 = lean_usize_add(x_4, x_16);
 x_4 = x_17;
 x_5 = x_15;
 goto _start;

@@ -16,12 +16,12 @@ extern "C" {
 lean_object* l_List_reverse___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_BinomialHeapImp_merge___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_BinomialHeapImp_hRank___rarg(lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_BinomialHeap_ofArray___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Std_BinomialHeap_ofList___spec__1___at_Std_BinomialHeap_ofList___spec__2(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Std_BinomialHeapImp_toArray_go(lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Std_BinomialHeap_ofArray___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_BinomialHeap_singleton___boxed(lean_object*, lean_object*);
@@ -1696,7 +1696,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_BinomialHeap_ofArray
 _start:
 {
 uint8_t x_7; 
-x_7 = x_4 == x_5;
+x_7 = lean_usize_dec_eq(x_4, x_5);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; 
@@ -1704,7 +1704,7 @@ x_8 = lean_array_uget(x_3, x_4);
 lean_inc(x_2);
 x_9 = lean_apply_2(x_2, x_8, x_6);
 x_10 = 1;
-x_11 = x_4 + x_10;
+x_11 = lean_usize_add(x_4, x_10);
 x_4 = x_11;
 x_6 = x_9;
 goto _start;
@@ -1728,14 +1728,14 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_BinomialHeap_ofArray
 _start:
 {
 uint8_t x_6; 
-x_6 = x_3 == x_4;
+x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; 
 x_7 = lean_array_uget(x_2, x_3);
 x_8 = l_Std_BinomialHeapImp_singleton___rarg(x_7);
 x_9 = 1;
-x_10 = x_3 + x_9;
+x_10 = lean_usize_add(x_3, x_9);
 lean_inc(x_1);
 x_11 = l_Std_BinomialHeapImp_mergeNodes___rarg(x_1, x_8, x_5);
 x_3 = x_10;

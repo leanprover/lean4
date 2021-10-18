@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+LEAN_EXPORT uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -39,7 +39,7 @@ uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* lean_expr_update_proj(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_isEmpty___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_MVarRenaming_apply___boxed(lean_object*, lean_object*);
-size_t l_USize_mod(size_t, size_t);
+size_t lean_usize_mod(size_t, size_t);
 LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_Meta_MVarRenaming_find_x3f___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_MVarRenaming_find_x21___closed__3;
 size_t lean_ptr_addr(lean_object*);
@@ -2708,14 +2708,14 @@ _start:
 {
 size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_214; lean_object* x_228; lean_object* x_229; size_t x_230; uint8_t x_231; 
 x_5 = lean_ptr_addr(x_3);
-x_6 = x_2 == 0 ? x_5 : x_5 % x_2;
+x_6 = lean_usize_mod(x_5, x_2);
 x_228 = lean_ctor_get(x_4, 0);
 lean_inc(x_228);
 x_229 = lean_array_uget(x_228, x_6);
 lean_dec(x_228);
 x_230 = lean_ptr_addr(x_229);
 lean_dec(x_229);
-x_231 = x_230 == x_5;
+x_231 = lean_usize_dec_eq(x_230, x_5);
 if (x_231 == 0)
 {
 if (lean_obj_tag(x_3) == 2)

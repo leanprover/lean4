@@ -26,6 +26,9 @@ namespace ActivePackageTarget
 def package (self : ActivePackageTarget i) :=
   self.info.1
 
+def withOnlyPackageInfo (self : ActivePackageTarget i) : ActiveBuildTarget Package :=
+  self.withInfo self.package
+
 def moduleTargetMap (self : ActivePackageTarget i) : NameMap (ActiveBuildTarget i) :=
   self.info.2
 
@@ -45,7 +48,7 @@ def packageTargetsToOleanDirs (targets : Array (ActivePackageTarget i)) : List F
   the given package targets to create a single active opaque target.
 -/
 def Package.buildDepTargetWith
-(depTargets : Array (ActivePackageTarget i)) (self : Package) : BuildM ActiveOpaqueTarget := do
+(depTargets : Array (ActiveBuildTarget i)) (self : Package) : BuildM ActiveOpaqueTarget := do
   let extraDepTarget ← self.extraDepTarget.run
   let depTarget ← ActiveTarget.collectOpaqueArray depTargets
   extraDepTarget.mixOpaqueAsync depTarget
@@ -199,13 +202,25 @@ def Package.filterLocalImports
       localImports := localImports.push impName
   return localImports
 
-/-- Build the package's dependencies and a list of imports, returning the list of packages built. -/
+/--
+  Build the package's dependencies and a list of imports,
+  returning the list of packages built.
+
+  Builds only module `.olean` files if the default package facet is
+  just `oleans`. Otherwise, builds both `.olean` and `.c` files.
+-/
 def Package.buildImportsAndDeps
 (imports : List String := []) (self : Package) : BuildM (List Package) := do
   -- resolve and build deps
-  let depTargets ← self.buildDepTargets buildOleanTargetWithDepTargets
+  let depTargets ←
+    if self.defaultFacet == PackageFacet.oleans then
+      let depTargets ← self.buildDepTargets buildOleanTargetWithDepTargets
+      depTargets.map (·.withOnlyPackageInfo)
+    else
+      let depTargets ← self.buildDepTargets buildOleanAndCTargetWithDepTargets
+      depTargets.map (·.withOnlyPackageInfo)
   let depTarget ← self.buildDepTargetWith depTargets
-  let depPkgs := depTargets.map (·.package) |>.foldl (flip List.cons) []
+  let depPkgs := depTargets.map (·.info) |>.foldl (flip List.cons) []
   if imports.isEmpty then
     -- wait for deps to finish building
     discard depTarget.materialize
@@ -213,7 +228,12 @@ def Package.buildImportsAndDeps
      -- build local imports from list
     let moreOleanDirs := depPkgs.map (·.oleanDir)
     let localImports := self.filterLocalImports imports
-    let build := self.recBuildModuleOleanTargetWithLocalImports moreOleanDirs depTarget
-    let targets ← buildModuleTargets localImports build
-    targets.forM (discard ·.materialize)
+    if self.defaultFacet == PackageFacet.oleans then
+      let build := self.recBuildModuleOleanTargetWithLocalImports moreOleanDirs depTarget
+      let targets ← buildModuleTargets localImports build
+      targets.forM (discard ·.materialize)
+    else
+      let build := self.recBuildModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
+      let targets ← buildModuleTargets localImports build
+      targets.forM (discard ·.materialize)
   return self :: depPkgs

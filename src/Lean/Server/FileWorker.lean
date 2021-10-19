@@ -170,7 +170,8 @@ section Initialization
           | some path => pure <| System.FilePath.mk path / "bin" / lakePath
           | _         => pure <| (← appDir) / lakePath
         lakePath.withExtension System.FilePath.exeExtension
-    let mut srcSearchPath := [(← appDir) / ".." / "lib" / "lean" / "src"]
+    let srcPath := (← appDir) / ".." / "lib" / "lean" / "src"
+    let mut srcSearchPath := [srcPath, srcPath / "lake"]
     if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
       srcSearchPath := System.SearchPath.parse p ++ srcSearchPath
     let (headerEnv, msgLog) ← try

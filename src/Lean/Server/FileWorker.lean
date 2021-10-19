@@ -172,7 +172,7 @@ section Initialization
         lakePath.withExtension System.FilePath.exeExtension
     let mut srcSearchPath := [(← appDir) / ".." / "lib" / "lean" / "src"]
     if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
-      srcSearchPath := srcSearchPath ++ System.SearchPath.parse p
+      srcSearchPath := System.SearchPath.parse p ++ srcSearchPath
     let (headerEnv, msgLog) ← try
       -- NOTE: lake does not exist in stage 0 (yet?)
       if (← System.FilePath.pathExists lakePath) then

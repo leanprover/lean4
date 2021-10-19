@@ -183,9 +183,10 @@ where
     `(ParserDescr.sepBy1 $p $sep $psep $(quote allowTrailingSep))
 
   isValidAtom (s : String) : Bool :=
+    !s.isEmpty &&
     s[0] != '\'' &&
     s[0] != '\"' &&
-    s[0] != '`'  &&
+    !(s[0] == '`' && (s.bsize == 1 || isIdFirst s[1] || isIdBeginEscape s[1])) &&
     !s[0].isDigit
 
   processAtom (stx : Syntax) := do

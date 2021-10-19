@@ -39,16 +39,15 @@ namespace Nat
     | succ n, a => loop n (f a)
   loop n a
 
+/- Helper "packing" theorems -/
+
+@[simp] theorem zero_eq : Nat.zero = 0 := rfl
+@[simp] theorem add_eq : Nat.add x y = x + y := rfl
+@[simp] theorem mul_eq : Nat.mul x y = x * y := rfl
+@[simp] theorem lt_eq : Nat.lt x y = (x < y) := rfl
+@[simp] theorem le_eq : Nat.le x y = (x ≤ y) := rfl
+
 /- Nat.add theorems -/
-
-@[simp] theorem zero_eq : Nat.zero = 0 :=
-  rfl
-
-@[simp] theorem add_eq : Nat.add x y = x + y :=
-  rfl
-
-@[simp] theorem lt_eq : Nat.lt x y = (x < y) :=
-  rfl
 
 @[simp] protected theorem zero_add : ∀ (n : Nat), 0 + n = n
   | 0   => rfl

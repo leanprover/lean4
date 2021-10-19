@@ -38,18 +38,16 @@ jobs:
         curl -sSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh > elan-init.sh
         ./elan-init.sh -y
         cygpath -w "$USERPROFILE/.elan/bin" >> $GITHUB_PATH
-    - name: Install Elan (Unix)
-      if: matrix.os != 'windows-latest'
-    # - name: Install Elan (Ubuntu)
-    #   if: matrix.os == 'ubuntu-latest'
+    - name: Install Elan (Ubuntu)
+      if: matrix.os == 'ubuntu-latest'
       run: |
         curl -sSL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh > elan-init.sh
         chmod +x elan-init.sh
         ./elan-init.sh -y
         echo "$HOME/.elan/bin" >> $GITHUB_PATH
-    # - name: Install Elan (MacOS)
-    #   if: matrix.os == 'macOS-latest'
-    #   run: brew install elan
+    - name: Install Elan (MacOS)
+      if: matrix.os == 'macOS-latest'
+      run: brew install elan
     - name: Checkout
       uses: actions/checkout@v2
     - name: Check Lean

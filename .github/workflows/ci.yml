@@ -55,7 +55,7 @@ jobs:
     - name: Check Lean
       run: lean --version
     - name: Build & Time
-      run: time lake build
+      run: ./time.sh -j4
     - name: Upload Build
       continue-on-error: true
       uses: actions/upload-artifact@v2

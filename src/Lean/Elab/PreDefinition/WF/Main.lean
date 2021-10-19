@@ -18,7 +18,7 @@ private def isOnlyOneUnaryDef (preDefs : Array PreDefinition) : MetaM Bool := do
   if preDefs.size == 1 then
     lambdaTelescope preDefs[0].value fun xs _ => return xs.size == 1
   else
-    return true
+    return false
 
 private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonRec : PreDefinition) : TermElabM Unit := do
   if (← isOnlyOneUnaryDef preDefs) then

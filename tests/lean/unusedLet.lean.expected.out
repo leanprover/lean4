@@ -1,0 +1,14 @@
+def pro : Bool :=
+let x := 42;
+false
+def f : Nat → Nat :=
+fun x =>
+  Nat.brecOn x
+    fun x f =>
+      (match x : (x : Nat) → Nat.below x → Nat with 
+        | 0 => fun x => 1
+        | Nat.succ n =>
+          fun x =>
+            let y := 42;
+            2 * x.fst.fst)
+        f

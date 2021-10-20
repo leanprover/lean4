@@ -34,7 +34,7 @@ struct max_sharing_hash {
     object_compactor * m;
     max_sharing_hash(object_compactor * manager):m(manager) {}
     unsigned operator()(max_sharing_key const & k) const {
-        return hash_str(k.m_size, reinterpret_cast<char const *>(m->m_begin) + k.m_offset, 17);
+        return hash_str(k.m_size, reinterpret_cast<unsigned char const *>(m->m_begin) + k.m_offset, 17);
     }
 };
 

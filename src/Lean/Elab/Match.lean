@@ -174,8 +174,6 @@ private def getMatchAlts : Syntax → Array MatchAltView
 
 builtin_initialize Parser.registerBuiltinNodeKind `MVarWithIdKind
 
-open Meta.Match (mkInaccessible inaccessible?)
-
 /--
   The elaboration function for `Syntax` created using `mkMVarSyntax`.
   It just converts the metavariable id wrapped by the Syntax into an `Expr`. -/

@@ -9,15 +9,6 @@ import Lean.Meta.Match.CaseArraySizes
 
 namespace Lean.Meta.Match
 
-/--
-  Auxiliary annotation used to mark terms marked with the "inaccessible" annotation `.(t)` and
-  `_` in patterns. -/
-def mkInaccessible (e : Expr) : Expr :=
-  mkAnnotation `_inaccessible e
-
-def inaccessible? (e : Expr) : Option Expr :=
-  annotation? `_inaccessible e
-
 inductive Pattern : Type where
   | inaccessible (e : Expr) : Pattern
   | var          (fvarId : FVarId) : Pattern

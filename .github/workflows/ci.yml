@@ -58,7 +58,7 @@ jobs:
       continue-on-error: true
       uses: actions/upload-artifact@v2
       with:
-        name: {{ matrix.os }}
+        name: ${{ matrix.os }}
         path: build
     - name: Check Lake
       run: make -C examples check-lake

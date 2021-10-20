@@ -203,6 +203,14 @@ add_test(NAME leanpkgtest_user_attr_app
            find . -name '*.olean' -delete
            leanmake bin LINK_OPTS='${LEAN_DYN_EXE_LINKER_FLAGS}' && build/bin/UserAttr")
 
+add_test(NAME leanpkgtest_builtin_attr
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/builtin_attr"
+         COMMAND bash -c "
+           set -eu
+           export PATH=${LEAN_BIN}:$PATH
+           find . -name '*.olean' -delete
+           leanmake")
+
 add_test(NAME laketest
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/lake/examples"
          COMMAND bash -c "

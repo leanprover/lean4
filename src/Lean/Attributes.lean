@@ -414,16 +414,20 @@ def Attribute.erase (declName : Name) (attrName : Name) : AttrM Unit := do
   let attr ← ofExcept <| getAttributeImpl (← getEnv) attrName
   attr.erase declName
 
-builtin_initialize
-  -- See comment at `updateEnvAttributesRef`
-  updateEnvAttributesRef.set fun env => do
-    let map ← attributeMapRef.get
-    let s ← attributeExtension.getState env
-    let s := map.foldl (init := s) fun s attrName attrImpl =>
-      if s.map.contains attrName then
-        s
-      else
-        { s with map := s.map.insert attrName attrImpl }
-    return attributeExtension.setState env s
+/-- `updateEnvAttributes` implementation -/
+@[export lean_update_env_attributes]
+def updateEnvAttributesImpl (env : Environment) : IO Environment := do
+  let map ← attributeMapRef.get
+  let s ← attributeExtension.getState env
+  let s := map.foldl (init := s) fun s attrName attrImpl =>
+    if s.map.contains attrName then
+      s
+    else
+      { s with map := s.map.insert attrName attrImpl }
+  return attributeExtension.setState env s
+
+/-- `getNumBuiltinAttributes` implementation -/
+@[export lean_get_num_attributes] def getNumBuiltiAttributesImpl : IO Nat :=
+  return (← attributeMapRef.get).size
 
 end Lean

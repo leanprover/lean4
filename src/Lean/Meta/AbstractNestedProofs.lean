@@ -54,8 +54,8 @@ partial def visit (e : Expr) : M Expr := do
       if (← isNonTrivialProof e) then
         mkAuxLemma e
       else match e with
-        | Expr.lam _ _ _ _     => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b)
-        | Expr.letE _ _ _ _ _  => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b)
+        | Expr.lam _ _ _ _     => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
+        | Expr.letE _ _ _ _ _  => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
         | Expr.forallE _ _ _ _ => forallTelescope e fun xs b => visitBinders xs do mkForallFVars xs (← visit b)
         | Expr.mdata _ b _     => return e.updateMData! (← visit b)
         | Expr.proj _ _ b _    => return e.updateProj! (← visit b)

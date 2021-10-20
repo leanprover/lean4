@@ -16,7 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Meta_withNewBinderInfos___at___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f_mkArgs2___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Subarray_forInUnsafe_loop___at___private_Lean_Meta_Injective_0__Lean_Meta_mkAnd_x3f___spec__1___closed__3;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f_mkArgs2___closed__4;
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__1___closed__4;
@@ -60,7 +60,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_elimOptParam___lambda__1___boxed(lean_objec
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_elimOptParam___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_withNewBinderInfos___at___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f___spec__3(lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_throwInjectiveTheoremFailure___rarg___closed__2;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1681____closed__1;
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__1___closed__1;
@@ -221,7 +221,7 @@ LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at___private_Lean_Meta_In
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 return x_4;
@@ -234,7 +234,7 @@ x_7 = lean_array_uget(x_6, x_3);
 x_8 = l_Subarray_forInUnsafe_loop___at___private_Lean_Meta_Injective_0__Lean_Meta_mkAnd_x3f___spec__1___closed__3;
 x_9 = l_Lean_mkAppB(x_8, x_7, x_4);
 x_10 = 1;
-x_11 = x_3 + x_10;
+x_11 = lean_usize_add(x_3, x_10);
 x_3 = x_11;
 x_4 = x_9;
 goto _start;
@@ -696,7 +696,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_Injec
 _start:
 {
 uint8_t x_10; 
-x_10 = x_3 < x_2;
+x_10 = lean_usize_dec_lt(x_3, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -1894,7 +1894,7 @@ x_17 = lean_ctor_get(x_13, 0);
 lean_inc(x_17);
 lean_dec(x_13);
 x_18 = 1;
-x_19 = x_3 + x_18;
+x_19 = lean_usize_add(x_3, x_18);
 x_3 = x_19;
 x_4 = x_17;
 x_9 = x_14;
@@ -1908,7 +1908,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Meta_Injecti
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -1929,7 +1929,7 @@ x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_10);
 lean_ctor_set(x_13, 1, x_12);
 x_14 = 1;
-x_15 = x_2 + x_14;
+x_15 = lean_usize_add(x_2, x_14);
 x_16 = x_13;
 x_17 = lean_array_uset(x_8, x_2, x_16);
 x_2 = x_15;

@@ -15,7 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Meta_mkHCongrWithArity_withNewEqs_loop___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CongrArgKind_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -38,7 +38,7 @@ lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Meta_getFunInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkHCongrWithArity_withNewEqs_loop___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_setBinderInfosD(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_CongrArgKind_toCtorIdx___boxed(lean_object*);
@@ -230,7 +230,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_Congr
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 return x_4;
@@ -248,7 +248,7 @@ x_10 = l_Array_forInUnsafe_loop___at___private_Lean_Meta_CongrTheorems_0__Lean_M
 x_11 = lean_name_append_after(x_9, x_10);
 x_12 = l_Lean_LocalContext_setUserName(x_4, x_8, x_11);
 x_13 = 1;
-x_14 = x_3 + x_13;
+x_14 = lean_usize_add(x_3, x_13);
 x_3 = x_14;
 x_4 = x_12;
 goto _start;
@@ -293,7 +293,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_Congr
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 return x_4;
@@ -309,7 +309,7 @@ lean_dec(x_7);
 x_9 = 0;
 x_10 = l_Lean_LocalContext_setBinderInfo(x_4, x_8, x_9);
 x_11 = 1;
-x_12 = x_3 + x_11;
+x_12 = lean_usize_add(x_3, x_11);
 x_3 = x_12;
 x_4 = x_10;
 goto _start;
@@ -1288,7 +1288,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_mkHCongrWithAri
 _start:
 {
 uint8_t x_10; 
-x_10 = x_3 < x_2;
+x_10 = lean_usize_dec_lt(x_3, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -1398,7 +1398,7 @@ x_45 = lean_array_push(x_44, x_42);
 x_46 = lean_array_push(x_45, x_30);
 lean_ctor_set(x_13, 1, x_46);
 x_47 = 1;
-x_48 = x_3 + x_47;
+x_48 = lean_usize_add(x_3, x_47);
 x_3 = x_48;
 goto _start;
 }
@@ -1419,7 +1419,7 @@ x_55 = lean_array_push(x_54, x_30);
 lean_ctor_set(x_13, 1, x_55);
 lean_ctor_set(x_4, 0, x_52);
 x_56 = 1;
-x_57 = x_3 + x_56;
+x_57 = lean_usize_add(x_3, x_56);
 x_3 = x_57;
 goto _start;
 }
@@ -1488,7 +1488,7 @@ lean_ctor_set(x_13, 1, x_74);
 lean_ctor_set(x_13, 0, x_62);
 lean_ctor_set(x_4, 0, x_71);
 x_75 = 1;
-x_76 = x_3 + x_75;
+x_76 = lean_usize_add(x_3, x_75);
 x_3 = x_76;
 goto _start;
 }
@@ -1604,7 +1604,7 @@ lean_ctor_set(x_103, 1, x_102);
 lean_ctor_set(x_4, 1, x_103);
 lean_ctor_set(x_4, 0, x_99);
 x_104 = 1;
-x_105 = x_3 + x_104;
+x_105 = lean_usize_add(x_3, x_104);
 x_3 = x_105;
 goto _start;
 }
@@ -1747,7 +1747,7 @@ x_137 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_137, 0, x_132);
 lean_ctor_set(x_137, 1, x_136);
 x_138 = 1;
-x_139 = x_3 + x_138;
+x_139 = lean_usize_add(x_3, x_138);
 x_3 = x_139;
 x_4 = x_137;
 goto _start;

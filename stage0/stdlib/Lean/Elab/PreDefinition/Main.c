@@ -18,7 +18,7 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__13___closed__1;
 lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Elab_Term_0__Lean_Elab_Term_tryPureCoe_x3f___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 lean_object* l_List_forM___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__21___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_getMVarsAtPreDef___closed__1;
@@ -35,7 +35,7 @@ uint8_t l_Lean_Elab_Modifiers_isPartial(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_addPreDefinitions___spec__8___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwAbortCommand___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_ensureNoUnassignedMVarsAtPreDef___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__1___closed__6;
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_addAndCompilePartial___spec__1___closed__3;
@@ -79,7 +79,7 @@ lean_object* l_Lean_MessageData_joinSep(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__13___lambda__4___closed__11;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__11(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_getMainModule___rarg(lean_object*, lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_ensureNoUnassignedMVarsAtPreDef(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_getDataOf___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__7___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_updateLowLinkOf___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__12(lean_object*, lean_object*, lean_object*);
@@ -91,7 +91,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_sccAux___at___pri
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__13___lambda__4___closed__8;
 lean_object* l_Lean_Elab_addAndCompileUnsafe(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__21(lean_object*, size_t, size_t, lean_object*);
-size_t l_UInt64_toUSize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 static lean_object* l___private_Lean_Util_SCC_0__Lean_SCC_resetOnStack___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__17___closed__1;
 static lean_object* l_Lean_Elab_addPreDefinitions___closed__7;
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_addPreDefinitions___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -647,7 +647,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDe
 _start:
 {
 uint8_t x_12; 
-x_12 = x_3 < x_2;
+x_12 = lean_usize_dec_lt(x_3, x_2);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -769,7 +769,7 @@ x_28 = lean_ctor_get(x_20, 0);
 lean_inc(x_28);
 lean_dec(x_20);
 x_29 = 1;
-x_30 = x_3 + x_29;
+x_30 = lean_usize_add(x_3, x_29);
 x_3 = x_30;
 x_4 = x_28;
 x_11 = x_27;
@@ -885,7 +885,7 @@ x_54 = lean_ctor_get(x_46, 0);
 lean_inc(x_54);
 lean_dec(x_46);
 x_55 = 1;
-x_56 = x_3 + x_55;
+x_56 = lean_usize_add(x_3, x_55);
 x_3 = x_56;
 x_4 = x_54;
 x_11 = x_53;
@@ -1087,7 +1087,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDe
 _start:
 {
 uint8_t x_7; 
-x_7 = x_5 < x_4;
+x_7 = lean_usize_dec_lt(x_5, x_4);
 if (x_7 == 0)
 {
 lean_inc(x_6);
@@ -1106,7 +1106,7 @@ if (x_10 == 0)
 size_t x_11; size_t x_12; 
 lean_dec(x_8);
 x_11 = 1;
-x_12 = x_5 + x_11;
+x_12 = lean_usize_add(x_5, x_11);
 {
 size_t _tmp_4 = x_12;
 lean_object* _tmp_5 = x_2;
@@ -1194,7 +1194,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDe
 _start:
 {
 uint8_t x_7; 
-x_7 = x_5 < x_4;
+x_7 = lean_usize_dec_lt(x_5, x_4);
 if (x_7 == 0)
 {
 lean_inc(x_6);
@@ -1213,7 +1213,7 @@ if (x_10 == 0)
 size_t x_11; size_t x_12; 
 lean_dec(x_8);
 x_11 = 1;
-x_12 = x_5 + x_11;
+x_12 = lean_usize_add(x_5, x_11);
 {
 size_t _tmp_4 = x_12;
 lean_object* _tmp_5 = x_2;
@@ -1240,7 +1240,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Elab_PreDefinitio
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 == x_4;
+x_5 = lean_usize_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
@@ -1254,7 +1254,7 @@ if (x_8 == 0)
 {
 size_t x_9; size_t x_10; 
 x_9 = 1;
-x_10 = x_3 + x_9;
+x_10 = lean_usize_add(x_3, x_9);
 x_3 = x_10;
 goto _start;
 }
@@ -1314,7 +1314,7 @@ lean_inc(x_3);
 lean_dec(x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = l_Lean_Name_hash(x_2);
-x_6 = (size_t)x_5;
+x_6 = lean_uint64_to_usize(x_5);
 x_7 = lean_usize_modn(x_6, x_4);
 lean_dec(x_4);
 x_8 = lean_array_uget(x_3, x_7);
@@ -2492,7 +2492,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefi
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; 
@@ -2517,7 +2517,7 @@ x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 lean_dec(x_15);
 x_17 = 1;
-x_18 = x_3 + x_17;
+x_18 = lean_usize_add(x_3, x_17);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
@@ -2548,7 +2548,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefi
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; 
@@ -2574,7 +2574,7 @@ x_17 = x_13;
 x_18 = l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__20(x_1, x_15, x_16, x_17);
 x_19 = x_18;
 x_20 = 1;
-x_21 = x_3 + x_20;
+x_21 = lean_usize_add(x_3, x_20);
 x_22 = x_19;
 x_23 = lean_array_uset(x_9, x_3, x_22);
 x_3 = x_21;
@@ -3420,7 +3420,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitio
 _start:
 {
 uint8_t x_12; 
-x_12 = x_3 < x_2;
+x_12 = lean_usize_dec_lt(x_3, x_2);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -3479,7 +3479,7 @@ if (x_16 == 0)
 size_t x_18; size_t x_19; lean_object* x_20; 
 lean_dec(x_14);
 x_18 = 1;
-x_19 = x_3 + x_18;
+x_19 = lean_usize_add(x_3, x_18);
 x_20 = lean_box(0);
 x_3 = x_19;
 x_4 = x_20;
@@ -3528,7 +3528,7 @@ x_38 = lean_ctor_get(x_37, 1);
 lean_inc(x_38);
 lean_dec(x_37);
 x_39 = 1;
-x_40 = x_3 + x_39;
+x_40 = lean_usize_add(x_3, x_39);
 x_41 = lean_box(0);
 x_3 = x_40;
 x_4 = x_41;
@@ -3543,7 +3543,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_addPreDefinitions
 _start:
 {
 uint8_t x_11; 
-x_11 = x_2 < x_1;
+x_11 = lean_usize_dec_lt(x_2, x_1);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -3582,7 +3582,7 @@ x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
 lean_dec(x_18);
 x_21 = 1;
-x_22 = x_2 + x_21;
+x_22 = lean_usize_add(x_2, x_21);
 x_23 = x_19;
 x_24 = lean_array_uset(x_16, x_2, x_23);
 x_2 = x_22;
@@ -3626,7 +3626,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_addPreDefinitions
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -3644,7 +3644,7 @@ x_10 = lean_ctor_get(x_9, 3);
 lean_inc(x_10);
 lean_dec(x_9);
 x_11 = 1;
-x_12 = x_2 + x_11;
+x_12 = lean_usize_add(x_2, x_11);
 x_13 = x_10;
 x_14 = lean_array_uset(x_8, x_2, x_13);
 x_2 = x_12;
@@ -3657,7 +3657,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_addPreDefinitions
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; 
@@ -3678,7 +3678,7 @@ x_13 = x_10;
 x_14 = l_Array_mapMUnsafe_map___at_Lean_Elab_addPreDefinitions___spec__3(x_12, x_1, x_13);
 x_15 = x_14;
 x_16 = 1;
-x_17 = x_3 + x_16;
+x_17 = lean_usize_add(x_3, x_16);
 x_18 = x_15;
 x_19 = lean_array_uset(x_9, x_3, x_18);
 x_3 = x_17;
@@ -4280,7 +4280,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_addPreDefinitions___sp
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 == x_3;
+x_4 = lean_usize_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
@@ -4294,7 +4294,7 @@ if (x_7 == 0)
 {
 size_t x_8; size_t x_9; 
 x_8 = 1;
-x_9 = x_2 + x_8;
+x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
 goto _start;
 }
@@ -4351,7 +4351,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitio
 _start:
 {
 uint8_t x_12; 
-x_12 = x_3 < x_2;
+x_12 = lean_usize_dec_lt(x_3, x_2);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -4397,7 +4397,7 @@ lean_dec(x_17);
 lean_dec(x_15);
 lean_dec(x_14);
 x_21 = 1;
-x_22 = x_3 + x_21;
+x_22 = lean_usize_add(x_3, x_21);
 x_23 = lean_box(0);
 x_3 = x_22;
 x_4 = x_23;
@@ -4533,7 +4533,7 @@ size_t x_60; size_t x_61; lean_object* x_62;
 lean_dec(x_15);
 lean_dec(x_14);
 x_60 = 1;
-x_61 = x_3 + x_60;
+x_61 = lean_usize_add(x_3, x_60);
 x_62 = lean_box(0);
 x_3 = x_61;
 x_4 = x_62;
@@ -4578,7 +4578,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_addPreDefinitions___sp
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 == x_3;
+x_4 = lean_usize_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
@@ -4592,7 +4592,7 @@ if (x_7 == 0)
 {
 size_t x_8; size_t x_9; 
 x_8 = 1;
-x_9 = x_2 + x_8;
+x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
 goto _start;
 }
@@ -6188,7 +6188,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitio
 _start:
 {
 uint8_t x_16; 
-x_16 = x_7 < x_6;
+x_16 = lean_usize_dec_lt(x_7, x_6);
 if (x_16 == 0)
 {
 lean_object* x_17; 
@@ -6314,7 +6314,7 @@ x_34 = lean_ctor_get(x_26, 0);
 lean_inc(x_34);
 lean_dec(x_26);
 x_35 = 1;
-x_36 = x_7 + x_35;
+x_36 = lean_usize_add(x_7, x_35);
 x_7 = x_36;
 x_8 = x_34;
 x_15 = x_33;
@@ -6436,7 +6436,7 @@ x_66 = lean_ctor_get(x_58, 0);
 lean_inc(x_66);
 lean_dec(x_58);
 x_67 = 1;
-x_68 = x_7 + x_67;
+x_68 = lean_usize_add(x_7, x_67);
 x_7 = x_68;
 x_8 = x_66;
 x_15 = x_65;

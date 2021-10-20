@@ -17,7 +17,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedWithRpcRef___rarg___boxed(le
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodingOptionOption___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedWithRpcRef(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodingOptionOption___rarg(lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_WithRpcRef_encodeUnsafe(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodingProdProd___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodingArrayArray___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -39,7 +39,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_instMonadRpcSession___rarg___lambda__3___
 static lean_object* l_Lean_Server_instRpcEncoding___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Server_instMonadRpcSession___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedWithRpcRef___rarg(lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodingArrayArray___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodingProdProd___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_instRpcEncodingArrayArray___spec__1___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -558,7 +558,7 @@ _start:
 {
 size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_8 = 1;
-x_9 = x_1 + x_8;
+x_9 = lean_usize_add(x_1, x_8);
 x_10 = x_7;
 x_11 = lean_array_uset(x_2, x_1, x_10);
 x_12 = l_Array_mapMUnsafe_map___at_Lean_Server_instRpcEncodingArrayArray___spec__1___rarg(x_3, x_4, x_5, x_6, x_9, x_11);
@@ -569,7 +569,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_instRpcEncoding
 _start:
 {
 uint8_t x_7; 
-x_7 = x_5 < x_4;
+x_7 = lean_usize_dec_lt(x_5, x_4);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 

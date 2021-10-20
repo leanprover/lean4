@@ -24,14 +24,14 @@ static lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___closed_
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__7;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Lean_MetavarContext_addLevelMVarDecl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Elab_Level_instMonadOptionsLevelElabM___spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__16;
 lean_object* l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___closed__4;
-size_t l_USize_sub(size_t, size_t);
+size_t lean_usize_sub(size_t, size_t);
 lean_object* l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkFreshMVarId___at_Lean_Elab_Level_mkFreshLevelMVar___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1055,12 +1055,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Level_elabLeve
 _start:
 {
 uint8_t x_7; 
-x_7 = x_2 == x_3;
+x_7 = lean_usize_dec_eq(x_2, x_3);
 if (x_7 == 0)
 {
 size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = 1;
-x_9 = x_2 - x_8;
+x_9 = lean_usize_sub(x_2, x_8);
 x_10 = lean_array_uget(x_1, x_9);
 lean_inc(x_5);
 x_11 = l_Lean_Elab_Level_elabLevel(x_10, x_5, x_6);
@@ -1118,12 +1118,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Level_elabLeve
 _start:
 {
 uint8_t x_7; 
-x_7 = x_2 == x_3;
+x_7 = lean_usize_dec_eq(x_2, x_3);
 if (x_7 == 0)
 {
 size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11; 
 x_8 = 1;
-x_9 = x_2 - x_8;
+x_9 = lean_usize_sub(x_2, x_8);
 x_10 = lean_array_uget(x_1, x_9);
 lean_inc(x_5);
 x_11 = l_Lean_Elab_Level_elabLevel(x_10, x_5, x_6);

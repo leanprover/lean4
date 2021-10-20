@@ -152,7 +152,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Strea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\x0d\n");
+x_1 = lean_mk_string("\r\n");
 return x_1;
 }
 }
@@ -1430,7 +1430,7 @@ static lean_object* _init_l_IO_FS_Stream_writeLspMessage___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\x0d\n\x0d\n");
+x_1 = lean_mk_string("\r\n\r\n");
 return x_1;
 }
 }

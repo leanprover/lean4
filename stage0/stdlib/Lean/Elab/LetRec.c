@@ -19,7 +19,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_elabLetRec__
 static lean_object* l_Lean_Elab_checkNotAlreadyDeclared___at___private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView___spec__4___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapIdxM_map___at___private_Lean_Elab_LetRec_0__Lean_Elab_Term_registerLetRecsToLift___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabLetRec(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 lean_object* l_List_forM___at___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
@@ -71,7 +71,7 @@ static lean_object* l_Lean_Elab_elabAttr___at___private_Lean_Elab_LetRec_0__Lean
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_elabLetRec___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at___private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView___spec__19___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_expandOptDocComment_x3f___at___private_Lean_Elab_LetRec_0__Lean_Elab_Term_mkLetRecDeclView___spec__1___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_LetRec_0__Lean_Elab_Term_withAuxLocalDecls(lean_object*);
@@ -2258,7 +2258,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_LetRe
 _start:
 {
 uint8_t x_12; 
-x_12 = x_3 < x_2;
+x_12 = lean_usize_dec_lt(x_3, x_2);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -2294,7 +2294,7 @@ lean_inc(x_17);
 lean_dec(x_15);
 x_18 = lean_array_push(x_4, x_16);
 x_19 = 1;
-x_20 = x_3 + x_19;
+x_20 = lean_usize_add(x_3, x_19);
 x_3 = x_20;
 x_4 = x_18;
 x_11 = x_17;
@@ -3058,7 +3058,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_LetRec_
 _start:
 {
 uint8_t x_11; 
-x_11 = x_2 < x_1;
+x_11 = lean_usize_dec_lt(x_2, x_1);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -3136,7 +3136,7 @@ x_31 = lean_ctor_get(x_29, 1);
 lean_inc(x_31);
 lean_dec(x_29);
 x_32 = 1;
-x_33 = x_2 + x_32;
+x_33 = lean_usize_add(x_2, x_32);
 x_34 = x_30;
 x_35 = lean_array_uset(x_16, x_2, x_34);
 x_2 = x_33;
@@ -3227,7 +3227,7 @@ x_48 = lean_ctor_get(x_46, 1);
 lean_inc(x_48);
 lean_dec(x_46);
 x_49 = 1;
-x_50 = x_2 + x_49;
+x_50 = lean_usize_add(x_2, x_49);
 x_51 = x_47;
 x_52 = lean_array_uset(x_16, x_2, x_51);
 x_2 = x_50;
@@ -3827,7 +3827,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_LetRec_
 _start:
 {
 uint8_t x_11; 
-x_11 = x_2 < x_1;
+x_11 = lean_usize_dec_lt(x_2, x_1);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -3874,7 +3874,7 @@ x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec(x_22);
 x_25 = 1;
-x_26 = x_2 + x_25;
+x_26 = lean_usize_add(x_2, x_25);
 x_27 = x_23;
 x_28 = lean_array_uset(x_16, x_2, x_27);
 x_2 = x_26;
@@ -3990,7 +3990,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_LetRe
 _start:
 {
 uint8_t x_13; 
-x_13 = x_4 < x_3;
+x_13 = lean_usize_dec_lt(x_4, x_3);
 if (x_13 == 0)
 {
 lean_object* x_14; 
@@ -4013,7 +4013,7 @@ if (x_17 == 0)
 size_t x_18; size_t x_19; lean_object* x_20; 
 lean_dec(x_15);
 x_18 = 1;
-x_19 = x_4 + x_18;
+x_19 = lean_usize_add(x_4, x_18);
 x_20 = lean_box(0);
 x_4 = x_19;
 x_5 = x_20;
@@ -4407,7 +4407,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_elabLetRec
 _start:
 {
 uint8_t x_12; 
-x_12 = x_3 < x_2;
+x_12 = lean_usize_dec_lt(x_3, x_2);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -4492,7 +4492,7 @@ x_34 = lean_ctor_get(x_33, 1);
 lean_inc(x_34);
 lean_dec(x_33);
 x_35 = 1;
-x_36 = x_3 + x_35;
+x_36 = lean_usize_add(x_3, x_35);
 x_3 = x_36;
 x_11 = x_34;
 goto _start;
@@ -4562,7 +4562,7 @@ x_53 = lean_ctor_get(x_52, 1);
 lean_inc(x_53);
 lean_dec(x_52);
 x_54 = 1;
-x_55 = x_3 + x_54;
+x_55 = lean_usize_add(x_3, x_54);
 x_3 = x_55;
 x_4 = x_45;
 x_11 = x_53;
@@ -4608,7 +4608,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_elabLetRec__
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -4626,7 +4626,7 @@ x_10 = lean_ctor_get(x_9, 6);
 lean_inc(x_10);
 lean_dec(x_9);
 x_11 = 1;
-x_12 = x_2 + x_11;
+x_12 = lean_usize_add(x_2, x_11);
 x_13 = x_10;
 x_14 = lean_array_uset(x_8, x_2, x_13);
 x_2 = x_12;

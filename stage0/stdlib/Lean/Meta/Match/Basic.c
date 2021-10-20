@@ -21,7 +21,7 @@ LEAN_EXPORT lean_object* l_List_mapM___at_Lean_Meta_Match_instantiatePatternMVar
 LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Meta_Match_Pattern_applyFVarSubst___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_Pattern_toExpr_visit___closed__2;
 LEAN_EXPORT lean_object* l_List_mapM___at_Lean_Meta_Match_instantiatePatternMVars___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_Meta_addPPExplicitToExposeDiff(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_Pattern_toMessageData___closed__7;
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_Meta_Match_Pattern_toMessageData___spec__1(lean_object*, lean_object*);
@@ -72,7 +72,7 @@ LEAN_EXPORT lean_object* l_List_mapM___at_Lean_Meta_Match_Pattern_toExpr_visit__
 lean_object* l_Lean_MessageData_joinSep(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Meta_Match_Example_replaceFVarId___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Meta_Match_instInhabitedAlt___closed__1;
 static lean_object* l_Lean_Meta_Match_Pattern_toExpr_visit___closed__1;
 LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Meta_Match_Example_applyFVarSubst___spec__1(lean_object*, lean_object*, lean_object*);
@@ -6948,7 +6948,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_Match_toPattern__
 _start:
 {
 uint8_t x_9; 
-x_9 = x_2 < x_1;
+x_9 = lean_usize_dec_lt(x_2, x_1);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -6983,7 +6983,7 @@ x_18 = lean_ctor_get(x_16, 1);
 lean_inc(x_18);
 lean_dec(x_16);
 x_19 = 1;
-x_20 = x_2 + x_19;
+x_20 = lean_usize_add(x_2, x_19);
 x_21 = x_17;
 x_22 = lean_array_uset(x_14, x_2, x_21);
 x_2 = x_20;

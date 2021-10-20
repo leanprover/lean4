@@ -17,7 +17,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Comma
 static lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printDefLike___closed__4;
 static lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printAxiomsOf___closed__2;
 static lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_levelParamsToMessageData___closed__7;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printInduct___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_printDefLike___closed__2;
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -30,7 +30,7 @@ lean_object* l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*
 static lean_object* l_Lean_Elab_Command_elabPrint___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Elab_resolveGlobalConstWithInfos___at___private_Lean_Elab_Print_0__Lean_Elab_Command_printId___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstCore___at___private_Lean_Elab_Print_0__Lean_Elab_Command_printId___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHeader___closed__12;
@@ -3375,7 +3375,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_Collec
 _start:
 {
 uint8_t x_7; 
-x_7 = x_2 == x_3;
+x_7 = lean_usize_dec_eq(x_2, x_3);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; 
@@ -3389,7 +3389,7 @@ x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
 x_12 = 1;
-x_13 = x_2 + x_12;
+x_13 = lean_usize_add(x_2, x_12);
 x_2 = x_13;
 x_4 = x_10;
 x_6 = x_11;

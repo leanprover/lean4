@@ -30,7 +30,7 @@ uint32_t l_Nat_digitChar(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Compiler_NameMangling_0__String_mangleAux___spec__2(lean_object*, lean_object*);
 lean_object* l_String_Iterator_next(lean_object*);
 uint8_t l_Char_isAlpha(uint32_t);
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* lean_mk_module_initialization_function_name(lean_object*);
 uint32_t l_String_Iterator_curr(lean_object*);
 lean_object* l_Nat_toDigits(lean_object*, lean_object*);
@@ -148,7 +148,7 @@ if (x_10 == 0)
 {
 uint32_t x_11; uint8_t x_12; 
 x_11 = 95;
-x_12 = x_8 == x_11;
+x_12 = lean_uint32_dec_eq(x_8, x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; uint8_t x_15; 

@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_packDomain___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_WF_packDomain___spec__6___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -51,7 +51,7 @@ lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_WF_packDomain___spec__6___closed__7;
 lean_object* l_Lean_Expr_replaceFVars(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at_Lean_Elab_WF_packDomain___spec__2(lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* l_Lean_Meta_mkAppOptM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_levelZero;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -810,7 +810,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_packDomain__
 _start:
 {
 uint8_t x_10; 
-x_10 = x_3 < x_2;
+x_10 = lean_usize_dec_lt(x_3, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -877,7 +877,7 @@ x_31 = lean_ctor_get(x_29, 1);
 lean_inc(x_31);
 lean_dec(x_29);
 x_32 = 1;
-x_33 = x_3 + x_32;
+x_33 = lean_usize_add(x_3, x_32);
 x_3 = x_33;
 x_4 = x_30;
 x_9 = x_31;
@@ -1503,7 +1503,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_packDomain__
 _start:
 {
 uint8_t x_10; 
-x_10 = x_3 < x_2;
+x_10 = lean_usize_dec_lt(x_3, x_2);
 if (x_10 == 0)
 {
 lean_object* x_11; 
@@ -1573,7 +1573,7 @@ x_30 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_30, 0, x_26);
 lean_ctor_set(x_30, 1, x_29);
 x_31 = 1;
-x_32 = x_3 + x_31;
+x_32 = lean_usize_add(x_3, x_31);
 x_3 = x_32;
 x_4 = x_30;
 x_9 = x_22;
@@ -1592,7 +1592,7 @@ x_37 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_37, 0, x_26);
 lean_ctor_set(x_37, 1, x_36);
 x_38 = 1;
-x_39 = x_3 + x_38;
+x_39 = lean_usize_add(x_3, x_38);
 x_3 = x_39;
 x_4 = x_37;
 x_9 = x_22;

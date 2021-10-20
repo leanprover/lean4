@@ -25,7 +25,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_combinatorFormatterAttribute___lam
 uint8_t l_Lean_Syntax_isAntiquotSuffixSplice(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_categoryParser_formatter___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_visitArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 extern lean_object* l_Lean_fieldIdxKind;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_3795_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_checkTailWs_formatter___rarg(lean_object*);
@@ -57,7 +57,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_withOpenDecl_formatter(l
 static lean_object* l_Lean_PrettyPrinter_Formatter_pushToken___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_sepByNoAntiquot_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_pushLine___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_formatterForKind___rarg(lean_object*);
@@ -362,7 +362,7 @@ extern lean_object* l_Lean_identKind;
 static lean_object* l_Lean_PrettyPrinter_Formatter_parseToken___closed__1;
 static lean_object* l_Lean_PrettyPrinter_mkFormatterAttribute___closed__11;
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 static lean_object* l_Lean_PrettyPrinter_formatterAttribute___closed__3;
 static lean_object* l_Lean_PrettyPrinter_formatterAttribute___lambda__4___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_parserOfStack_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3171,14 +3171,14 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_PrettyPrinter_Forma
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; size_t x_8; size_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Std_Format_isNil(x_4);
 x_8 = 1;
-x_9 = x_2 + x_8;
+x_9 = lean_usize_add(x_2, x_8);
 if (x_7 == 0)
 {
 lean_object* x_10; 
@@ -5948,7 +5948,7 @@ lean_object* x_5; uint32_t x_6; uint32_t x_7; uint8_t x_8;
 x_5 = lean_string_utf8_prev(x_1, x_3);
 x_6 = lean_string_utf8_get(x_1, x_5);
 x_7 = 32;
-x_8 = x_6 == x_7;
+x_8 = lean_uint32_dec_eq(x_6, x_7);
 if (x_8 == 0)
 {
 lean_dec(x_5);
@@ -9465,7 +9465,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_PrettyPrinter_Forma
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -9492,7 +9492,7 @@ x_17 = lean_ctor_get(x_15, 1);
 lean_inc(x_17);
 lean_dec(x_15);
 x_18 = 1;
-x_19 = x_3 + x_18;
+x_19 = lean_usize_add(x_3, x_18);
 x_3 = x_19;
 x_5 = x_16;
 x_10 = x_17;
@@ -9545,7 +9545,7 @@ x_31 = lean_ctor_get(x_29, 1);
 lean_inc(x_31);
 lean_dec(x_29);
 x_32 = 1;
-x_33 = x_3 + x_32;
+x_33 = lean_usize_add(x_3, x_32);
 x_3 = x_33;
 x_5 = x_30;
 x_10 = x_31;

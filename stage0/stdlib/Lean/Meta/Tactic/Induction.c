@@ -19,7 +19,7 @@ lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__8___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_induction___closed__1;
 static lean_object* l_Nat_forM_loop___at_Lean_Meta_induction___spec__3___lambda__1___closed__2;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -28,7 +28,7 @@ lean_object* l_Lean_mkSort(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_throwUnexpectedMajorType___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_whnfForall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Nat_foldAux___at___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Nat_forM_loop___at_Lean_Meta_induction___spec__3___lambda__2___closed__2;
@@ -62,7 +62,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecPa
 lean_object* l_Array_mapMUnsafe_map___at_Lean_LocalContext_getFVars___spec__1(size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_3195_(lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop___lambda__3___closed__3;
 extern lean_object* l_Lean_levelZero;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -852,7 +852,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Tact
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 lean_object* x_12; uint8_t x_13; 
@@ -883,7 +883,7 @@ lean_dec(x_17);
 lean_ctor_set(x_5, 1, x_18);
 lean_ctor_set(x_5, 0, x_16);
 x_20 = 1;
-x_21 = x_3 + x_20;
+x_21 = lean_usize_add(x_3, x_20);
 x_3 = x_21;
 x_10 = x_19;
 goto _start;
@@ -947,7 +947,7 @@ x_33 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_33, 0, x_29);
 lean_ctor_set(x_33, 1, x_31);
 x_34 = 1;
-x_35 = x_3 + x_34;
+x_35 = lean_usize_add(x_3, x_34);
 x_3 = x_35;
 x_5 = x_33;
 x_10 = x_32;
@@ -3560,7 +3560,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_induction___spec_
 _start:
 {
 uint8_t x_15; 
-x_15 = x_8 < x_7;
+x_15 = lean_usize_dec_lt(x_8, x_7);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; 
@@ -3612,7 +3612,7 @@ x_27 = lean_ctor_get(x_25, 1);
 lean_inc(x_27);
 lean_dec(x_25);
 x_28 = 1;
-x_29 = x_8 + x_28;
+x_29 = lean_usize_add(x_8, x_28);
 x_30 = x_26;
 x_31 = lean_array_uset(x_20, x_8, x_30);
 x_8 = x_29;
@@ -3700,7 +3700,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_induction___spe
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 return x_5;
@@ -3726,7 +3726,7 @@ x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_14);
 lean_ctor_set(x_17, 1, x_16);
 x_18 = 1;
-x_19 = x_4 + x_18;
+x_19 = lean_usize_add(x_4, x_18);
 x_4 = x_19;
 x_5 = x_17;
 goto _start;

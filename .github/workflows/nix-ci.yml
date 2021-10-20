@@ -23,9 +23,9 @@ jobs:
             os: ubuntu-latest
             # latest builds on https://hydra.nixos.org/jobset/nix/master/all at the time
             nix_url: https://hydra.nixos.org/build/135773533/download/1/nix-2.4pre20210125_36c4d6f-x86_64-linux.tar.xz
-          - name: macOS
-            os: macos-latest
-            nix_url: https://hydra.nixos.org/build/135773542/download/1/nix-2.4pre20210125_36c4d6f-x86_64-darwin.tar.xz
+          #- name: macOS
+          #  os: macos-latest
+          #  nix_url: https://hydra.nixos.org/build/135773542/download/1/nix-2.4pre20210125_36c4d6f-x86_64-darwin.tar.xz
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}

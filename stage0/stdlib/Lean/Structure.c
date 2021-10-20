@@ -18,7 +18,7 @@ static lean_object* l_Lean_initFn____x40_Lean_Structure___hyg_244____closed__6;
 static lean_object* l_Lean_getStructureCtor___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_getParentStructures___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_getStructureCtor___closed__2;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____closed__24;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedStructureDescr;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -31,7 +31,7 @@ static lean_object* l_Lean_getStructureCtor___closed__4;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkDefaultFnOfProjFn___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__1(lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____closed__14;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedStructureState;
@@ -78,7 +78,7 @@ static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo___
 LEAN_EXPORT lean_object* l_Lean_getProjFnForField_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__4___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_244____spec__1___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_244____spec__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1086,7 +1086,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_initFn____x40_Lean_Structur
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 == x_4;
+x_5 = lean_usize_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
@@ -1101,7 +1101,7 @@ if (x_9 == 0)
 {
 size_t x_10; size_t x_11; 
 x_10 = 1;
-x_11 = x_3 + x_10;
+x_11 = lean_usize_add(x_3, x_10);
 x_3 = x_11;
 goto _start;
 }
@@ -1941,7 +1941,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_registerStructure___sp
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -1959,7 +1959,7 @@ x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec(x_9);
 x_11 = 1;
-x_12 = x_2 + x_11;
+x_12 = lean_usize_add(x_2, x_11);
 x_13 = x_10;
 x_14 = lean_array_uset(x_8, x_2, x_13);
 x_2 = x_12;
@@ -2952,7 +2952,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_getParentStructures
 _start:
 {
 uint8_t x_7; 
-x_7 = x_4 == x_5;
+x_7 = lean_usize_dec_eq(x_4, x_5);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; 
@@ -2961,7 +2961,7 @@ lean_inc(x_2);
 lean_inc(x_1);
 x_9 = l_Lean_isSubobjectField_x3f(x_1, x_2, x_8);
 x_10 = 1;
-x_11 = x_4 + x_10;
+x_11 = lean_usize_add(x_4, x_10);
 if (lean_obj_tag(x_9) == 0)
 {
 x_4 = x_11;
@@ -3052,7 +3052,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_getAllParentStructur
 _start:
 {
 uint8_t x_7; 
-x_7 = x_4 < x_3;
+x_7 = lean_usize_dec_lt(x_4, x_3);
 if (x_7 == 0)
 {
 lean_object* x_8; 
@@ -3075,7 +3075,7 @@ x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
 lean_dec(x_11);
 x_13 = 1;
-x_14 = x_4 + x_13;
+x_14 = lean_usize_add(x_4, x_13);
 x_15 = lean_box(0);
 x_4 = x_14;
 x_5 = x_15;
@@ -3148,7 +3148,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_findField_x3f___spec__2(lea
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 == x_4;
+x_5 = lean_usize_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 
@@ -3159,7 +3159,7 @@ if (x_7 == 0)
 {
 size_t x_8; size_t x_9; 
 x_8 = 1;
-x_9 = x_3 + x_8;
+x_9 = lean_usize_add(x_3, x_8);
 x_3 = x_9;
 goto _start;
 }
@@ -3219,7 +3219,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_findField_x3f___spec
 _start:
 {
 uint8_t x_8; 
-x_8 = x_6 < x_5;
+x_8 = lean_usize_dec_lt(x_6, x_5);
 if (x_8 == 0)
 {
 lean_dec(x_1);
@@ -3236,7 +3236,7 @@ if (lean_obj_tag(x_10) == 0)
 {
 size_t x_11; size_t x_12; 
 x_11 = 1;
-x_12 = x_6 + x_11;
+x_12 = lean_usize_add(x_6, x_11);
 {
 size_t _tmp_5 = x_12;
 lean_object* _tmp_6 = x_3;
@@ -3420,7 +3420,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Structure
 _start:
 {
 uint8_t x_8; 
-x_8 = x_5 == x_6;
+x_8 = lean_usize_dec_eq(x_5, x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; 
@@ -3430,7 +3430,7 @@ lean_inc(x_2);
 lean_inc(x_1);
 x_10 = l_Lean_isSubobjectField_x3f(x_1, x_2, x_9);
 x_11 = 1;
-x_12 = x_5 + x_11;
+x_12 = lean_usize_add(x_5, x_11);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_13; 
@@ -3762,7 +3762,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_getPathToBaseStructu
 _start:
 {
 uint8_t x_10; 
-x_10 = x_8 < x_7;
+x_10 = lean_usize_dec_lt(x_8, x_7);
 if (x_10 == 0)
 {
 lean_dec(x_4);
@@ -3784,7 +3784,7 @@ if (lean_obj_tag(x_12) == 0)
 size_t x_13; size_t x_14; 
 lean_dec(x_11);
 x_13 = 1;
-x_14 = x_8 + x_13;
+x_14 = lean_usize_add(x_8, x_13);
 {
 size_t _tmp_7 = x_14;
 lean_object* _tmp_8 = x_5;
@@ -3807,7 +3807,7 @@ if (lean_obj_tag(x_17) == 0)
 size_t x_18; size_t x_19; 
 lean_dec(x_16);
 x_18 = 1;
-x_19 = x_8 + x_18;
+x_19 = lean_usize_add(x_8, x_18);
 {
 size_t _tmp_7 = x_19;
 lean_object* _tmp_8 = x_5;
@@ -3832,7 +3832,7 @@ if (lean_obj_tag(x_23) == 0)
 {
 size_t x_24; size_t x_25; 
 x_24 = 1;
-x_25 = x_8 + x_24;
+x_25 = lean_usize_add(x_8, x_24);
 {
 size_t _tmp_7 = x_25;
 lean_object* _tmp_8 = x_5;

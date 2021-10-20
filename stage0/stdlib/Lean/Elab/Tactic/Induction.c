@@ -25,7 +25,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_elabCasesTargets(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_ElimApp_evalAlts_go___spec__5___lambda__1___closed__4;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_ElimApp_evalAlts_go___spec__5___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getElimNameInfo___spec__12___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_ElimApp_getNumExplicitFields(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
@@ -58,7 +58,7 @@ static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tactic_Ind
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getOptPreTacOfOptInductionAlts___boxed(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getOptPreTacOfOptInductionAlts___closed__1;
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_ElimApp_evalAlts_go___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -138,7 +138,7 @@ static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tactic_Ind
 LEAN_EXPORT lean_object* l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getElimNameInfo___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_elabCasesTargets___lambda__2(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT uint8_t l_Lean_Elab_Tactic_isHoleRHS(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstCore___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getElimNameInfo___spec__6___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_addImplicitTargets(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -630,7 +630,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -647,7 +647,7 @@ x_9 = x_6;
 x_10 = l_Lean_Elab_Tactic_getNameOfIdent_x27(x_9);
 lean_dec(x_9);
 x_11 = 1;
-x_12 = x_2 + x_11;
+x_12 = lean_usize_add(x_2, x_11);
 x_13 = x_10;
 x_14 = lean_array_uset(x_8, x_2, x_13);
 x_2 = x_12;
@@ -2749,7 +2749,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_ElimApp_
 _start:
 {
 uint8_t x_12; 
-x_12 = x_3 < x_2;
+x_12 = lean_usize_dec_lt(x_3, x_2);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -2843,7 +2843,7 @@ x_17 = lean_ctor_get(x_15, 0);
 lean_inc(x_17);
 lean_dec(x_15);
 x_18 = 1;
-x_19 = x_3 + x_18;
+x_19 = lean_usize_add(x_3, x_18);
 x_3 = x_19;
 x_4 = x_17;
 x_11 = x_16;
@@ -3471,7 +3471,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tacti
 _start:
 {
 uint8_t x_14; 
-x_14 = x_5 < x_4;
+x_14 = lean_usize_dec_lt(x_5, x_4);
 if (x_14 == 0)
 {
 lean_object* x_15; 
@@ -3495,7 +3495,7 @@ if (x_18 == 0)
 size_t x_19; size_t x_20; 
 lean_dec(x_16);
 x_19 = 1;
-x_20 = x_5 + x_19;
+x_20 = lean_usize_add(x_5, x_19);
 lean_inc(x_2);
 {
 size_t _tmp_4 = x_20;
@@ -3785,7 +3785,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Elab_Tactic_Induc
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 == x_4;
+x_5 = lean_usize_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
@@ -3799,7 +3799,7 @@ if (x_8 == 0)
 {
 size_t x_9; size_t x_10; 
 x_9 = 1;
-x_10 = x_3 + x_9;
+x_10 = lean_usize_add(x_3, x_9);
 x_3 = x_10;
 goto _start;
 }
@@ -3839,7 +3839,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tacti
 _start:
 {
 uint8_t x_15; 
-x_15 = x_4 < x_3;
+x_15 = lean_usize_dec_lt(x_4, x_3);
 if (x_15 == 0)
 {
 lean_object* x_16; 
@@ -3903,7 +3903,7 @@ size_t x_43; size_t x_44; lean_object* x_45;
 lean_dec(x_18);
 lean_dec(x_17);
 x_43 = 1;
-x_44 = x_4 + x_43;
+x_44 = lean_usize_add(x_4, x_43);
 x_45 = lean_box(0);
 x_4 = x_44;
 x_5 = x_45;
@@ -3918,7 +3918,7 @@ size_t x_47; size_t x_48; lean_object* x_49;
 lean_dec(x_18);
 lean_dec(x_17);
 x_47 = 1;
-x_48 = x_4 + x_47;
+x_48 = lean_usize_add(x_4, x_47);
 x_49 = lean_box(0);
 x_4 = x_48;
 x_5 = x_49;
@@ -4093,7 +4093,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Tact
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; uint8_t x_8; size_t x_9; size_t x_10; 
@@ -4102,7 +4102,7 @@ x_7 = lean_unbox(x_6);
 lean_dec(x_6);
 x_8 = l_Lean_BinderInfo_isExplicit(x_7);
 x_9 = 1;
-x_10 = x_2 + x_9;
+x_10 = lean_usize_add(x_2, x_9);
 if (x_8 == 0)
 {
 x_2 = x_10;
@@ -4884,7 +4884,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_ElimApp_
 _start:
 {
 uint8_t x_14; 
-x_14 = x_3 < x_2;
+x_14 = lean_usize_dec_lt(x_3, x_2);
 if (x_14 == 0)
 {
 lean_object* x_15; 
@@ -4915,7 +4915,7 @@ x_19 = lean_ctor_get(x_17, 1);
 lean_inc(x_19);
 lean_dec(x_17);
 x_20 = 1;
-x_21 = x_3 + x_20;
+x_21 = lean_usize_add(x_3, x_20);
 x_3 = x_21;
 x_4 = x_18;
 x_13 = x_19;
@@ -8134,7 +8134,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_ElimApp_
 _start:
 {
 uint8_t x_21; 
-x_21 = x_10 < x_9;
+x_21 = lean_usize_dec_lt(x_10, x_9);
 if (x_21 == 0)
 {
 lean_object* x_22; 
@@ -8282,7 +8282,7 @@ x_51 = lean_ctor_get(x_43, 0);
 lean_inc(x_51);
 lean_dec(x_43);
 x_52 = 1;
-x_53 = x_10 + x_52;
+x_53 = lean_usize_add(x_10, x_52);
 x_10 = x_53;
 x_11 = x_51;
 x_20 = x_50;
@@ -8411,7 +8411,7 @@ x_74 = lean_ctor_get(x_66, 0);
 lean_inc(x_74);
 lean_dec(x_66);
 x_75 = 1;
-x_76 = x_10 + x_75;
+x_76 = lean_usize_add(x_10, x_75);
 x_10 = x_76;
 x_11 = x_74;
 x_20 = x_73;
@@ -8534,7 +8534,7 @@ x_95 = lean_ctor_get(x_89, 0);
 lean_inc(x_95);
 lean_dec(x_89);
 x_96 = 1;
-x_97 = x_10 + x_96;
+x_97 = lean_usize_add(x_10, x_96);
 x_10 = x_97;
 x_11 = x_95;
 x_20 = x_94;
@@ -8669,7 +8669,7 @@ x_119 = lean_ctor_get(x_111, 0);
 lean_inc(x_119);
 lean_dec(x_111);
 x_120 = 1;
-x_121 = x_10 + x_120;
+x_121 = lean_usize_add(x_10, x_120);
 x_10 = x_121;
 x_11 = x_119;
 x_20 = x_118;
@@ -8793,7 +8793,7 @@ x_141 = lean_ctor_get(x_135, 0);
 lean_inc(x_141);
 lean_dec(x_135);
 x_142 = 1;
-x_143 = x_10 + x_142;
+x_143 = lean_usize_add(x_10, x_142);
 x_10 = x_143;
 x_11 = x_141;
 x_20 = x_140;
@@ -8887,7 +8887,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_ElimApp
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; size_t x_10; size_t x_11; 
@@ -8897,7 +8897,7 @@ x_8 = l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getAltName___cl
 x_9 = lean_name_eq(x_7, x_8);
 lean_dec(x_7);
 x_10 = 1;
-x_11 = x_2 + x_10;
+x_11 = lean_usize_add(x_2, x_10);
 if (x_9 == 0)
 {
 lean_object* x_12; 
@@ -9985,7 +9985,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tacti
 _start:
 {
 uint8_t x_16; 
-x_16 = x_5 < x_4;
+x_16 = lean_usize_dec_lt(x_5, x_4);
 if (x_16 == 0)
 {
 lean_object* x_17; 
@@ -10016,7 +10016,7 @@ x_24 = lean_ctor_get(x_22, 0);
 lean_inc(x_24);
 lean_dec(x_22);
 x_25 = 1;
-x_26 = x_5 + x_25;
+x_26 = lean_usize_add(x_5, x_25);
 x_5 = x_26;
 x_6 = x_24;
 x_15 = x_23;
@@ -10087,7 +10087,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tacti
 _start:
 {
 uint8_t x_15; 
-x_15 = x_4 < x_3;
+x_15 = lean_usize_dec_lt(x_4, x_3);
 if (x_15 == 0)
 {
 lean_object* x_16; 
@@ -10118,7 +10118,7 @@ x_23 = lean_ctor_get(x_21, 0);
 lean_inc(x_23);
 lean_dec(x_21);
 x_24 = 1;
-x_25 = x_4 + x_24;
+x_25 = lean_usize_add(x_4, x_24);
 x_4 = x_25;
 x_5 = x_23;
 x_14 = x_22;
@@ -10754,7 +10754,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tacti
 _start:
 {
 uint8_t x_14; 
-x_14 = x_3 < x_2;
+x_14 = lean_usize_dec_lt(x_3, x_2);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
@@ -10785,7 +10785,7 @@ if (x_20 == 0)
 size_t x_21; size_t x_22; 
 lean_dec(x_17);
 x_21 = 1;
-x_22 = x_3 + x_21;
+x_22 = lean_usize_add(x_3, x_21);
 x_3 = x_22;
 goto _start;
 }
@@ -10894,7 +10894,7 @@ x_42 = lean_ctor_get(x_34, 0);
 lean_inc(x_42);
 lean_dec(x_34);
 x_43 = 1;
-x_44 = x_3 + x_43;
+x_44 = lean_usize_add(x_3, x_43);
 x_45 = lean_unbox(x_42);
 lean_dec(x_42);
 x_3 = x_44;
@@ -13650,7 +13650,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -13670,7 +13670,7 @@ lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
 lean_ctor_set(x_11, 2, x_10);
 x_12 = 1;
-x_13 = x_2 + x_12;
+x_13 = lean_usize_add(x_2, x_12);
 x_14 = x_11;
 x_15 = lean_array_uset(x_8, x_2, x_14);
 x_2 = x_13;
@@ -14062,7 +14062,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_evalIndu
 _start:
 {
 uint8_t x_11; 
-x_11 = x_4 < x_3;
+x_11 = lean_usize_dec_lt(x_4, x_3);
 if (x_11 == 0)
 {
 lean_object* x_12; 
@@ -14126,7 +14126,7 @@ x_29 = lean_ctor_get(x_27, 0);
 lean_inc(x_29);
 lean_dec(x_27);
 x_30 = 1;
-x_31 = x_4 + x_30;
+x_31 = lean_usize_add(x_4, x_30);
 x_4 = x_31;
 x_5 = x_29;
 x_10 = x_28;
@@ -14266,7 +14266,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_evalInduct
 _start:
 {
 uint8_t x_13; 
-x_13 = x_2 < x_1;
+x_13 = lean_usize_dec_lt(x_2, x_1);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -14307,7 +14307,7 @@ x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec(x_22);
 x_25 = 1;
-x_26 = x_2 + x_25;
+x_26 = lean_usize_add(x_2, x_25);
 x_27 = x_23;
 x_28 = lean_array_uset(x_18, x_2, x_27);
 x_2 = x_26;
@@ -14351,7 +14351,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_evalInduct
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -14367,7 +14367,7 @@ x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = x_6;
 x_10 = l_Lean_Expr_fvarId_x21(x_9);
 x_11 = 1;
-x_12 = x_2 + x_11;
+x_12 = lean_usize_add(x_2, x_11);
 x_13 = x_10;
 x_14 = lean_array_uset(x_8, x_2, x_13);
 x_2 = x_12;
@@ -15379,7 +15379,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_elabCasesT
 _start:
 {
 uint8_t x_13; 
-x_13 = x_2 < x_1;
+x_13 = lean_usize_dec_lt(x_2, x_1);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -15437,7 +15437,7 @@ lean_ctor_set(x_32, 0, x_27);
 lean_ctor_set(x_32, 1, x_24);
 lean_ctor_set(x_32, 2, x_31);
 x_33 = 1;
-x_34 = x_2 + x_33;
+x_34 = lean_usize_add(x_2, x_33);
 x_35 = x_32;
 x_36 = lean_array_uset(x_18, x_2, x_35);
 x_2 = x_34;
@@ -15492,7 +15492,7 @@ lean_ctor_set(x_44, 0, x_42);
 lean_ctor_set(x_44, 1, x_24);
 lean_ctor_set(x_44, 2, x_24);
 x_45 = 1;
-x_46 = x_2 + x_45;
+x_46 = lean_usize_add(x_2, x_45);
 x_47 = x_44;
 x_48 = lean_array_uset(x_18, x_2, x_47);
 x_2 = x_46;
@@ -15537,7 +15537,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Tactic_elabCasesTarget
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 == x_3;
+x_4 = lean_usize_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
@@ -15563,7 +15563,7 @@ if (lean_obj_tag(x_9) == 0)
 {
 size_t x_10; size_t x_11; 
 x_10 = 1;
-x_11 = x_2 + x_10;
+x_11 = lean_usize_add(x_2, x_10);
 x_2 = x_11;
 goto _start;
 }
@@ -16020,7 +16020,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_evalCases_
 _start:
 {
 uint8_t x_14; 
-x_14 = x_3 < x_2;
+x_14 = lean_usize_dec_lt(x_3, x_2);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
@@ -16058,7 +16058,7 @@ x_25 = lean_ctor_get(x_23, 1);
 lean_inc(x_25);
 lean_dec(x_23);
 x_26 = 1;
-x_27 = x_3 + x_26;
+x_27 = lean_usize_add(x_3, x_26);
 x_28 = x_24;
 x_29 = lean_array_uset(x_19, x_3, x_28);
 x_3 = x_27;

@@ -19,7 +19,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_from
 static lean_object* l_Lean_Lsp_instFromJsonTrace___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Json_opt___at___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_326____spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instToJsonInitializeResult___closed__1;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonTrace___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonClientInfo;
 static lean_object* l_Lean_Lsp_instFromJsonTrace___closed__2;
@@ -55,7 +55,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_Trace_hasToJson(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Lsp_Trace_noConfusion___rarg___lambda__1___boxed(lean_object*);
 lean_object* l_List_join___rarg(lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Lsp_instFromJsonTrace___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonInitializedParams(lean_object*);
 static lean_object* l___private_Lean_Data_Lsp_InitShutdown_0__Lean_Lsp_toJsonInitializeParams____x40_Lean_Data_Lsp_InitShutdown___hyg_326____closed__12;
@@ -901,7 +901,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_Ini
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -918,7 +918,7 @@ x_9 = x_6;
 x_10 = l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJsonWorkspaceFolder____x40_Lean_Data_Lsp_Workspace___hyg_24_(x_9);
 lean_dec(x_9);
 x_11 = 1;
-x_12 = x_2 + x_11;
+x_12 = lean_usize_add(x_2, x_11);
 x_13 = x_10;
 x_14 = lean_array_uset(x_8, x_2, x_13);
 x_2 = x_12;
@@ -1404,7 +1404,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Lsp_instFromJsonInitia
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; 
@@ -1449,7 +1449,7 @@ x_15 = lean_ctor_get(x_11, 0);
 lean_inc(x_15);
 lean_dec(x_11);
 x_16 = 1;
-x_17 = x_2 + x_16;
+x_17 = lean_usize_add(x_2, x_16);
 x_18 = x_15;
 x_19 = lean_array_uset(x_9, x_2, x_18);
 x_2 = x_17;

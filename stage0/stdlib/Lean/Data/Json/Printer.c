@@ -59,7 +59,7 @@ static lean_object* l_Lean_Json_render___closed__18;
 lean_object* l_Array_mapMUnsafe_map___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Json_render___closed__5;
 static lean_object* l_Lean_Json_render___closed__3;
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 static lean_object* l_Lean_Json_render___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Std_RBNode_fold___at_Lean_Json_compress_go___spec__2___boxed(lean_object*, lean_object*);
 extern lean_object* l_Id_instMonadId;
@@ -83,7 +83,7 @@ lean_object* l_Std_RBNode_fold___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Json_render___closed__23;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
-uint8_t l_UInt32_decLe(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__3;
 lean_object* lean_uint32_to_nat(uint32_t);
 static lean_object* l_Lean_Json_render___closed__7;
@@ -145,27 +145,27 @@ _start:
 {
 lean_object* x_3; uint32_t x_32; uint8_t x_33; 
 x_32 = 34;
-x_33 = x_2 == x_32;
+x_33 = lean_uint32_dec_eq(x_2, x_32);
 if (x_33 == 0)
 {
 uint32_t x_34; uint8_t x_35; 
 x_34 = 92;
-x_35 = x_2 == x_34;
+x_35 = lean_uint32_dec_eq(x_2, x_34);
 if (x_35 == 0)
 {
 uint32_t x_36; uint8_t x_37; 
 x_36 = 10;
-x_37 = x_2 == x_36;
+x_37 = lean_uint32_dec_eq(x_2, x_36);
 if (x_37 == 0)
 {
 uint32_t x_38; uint8_t x_39; 
 x_38 = 13;
-x_39 = x_2 == x_38;
+x_39 = lean_uint32_dec_eq(x_2, x_38);
 if (x_39 == 0)
 {
 uint32_t x_40; uint8_t x_41; 
 x_40 = 32;
-x_41 = x_40 <= x_2;
+x_41 = lean_uint32_dec_le(x_40, x_2);
 if (x_41 == 0)
 {
 lean_object* x_42; 
@@ -177,7 +177,7 @@ else
 {
 uint32_t x_43; uint8_t x_44; 
 x_43 = 1114111;
-x_44 = x_2 <= x_43;
+x_44 = lean_uint32_dec_le(x_2, x_43);
 if (x_44 == 0)
 {
 lean_object* x_45; 

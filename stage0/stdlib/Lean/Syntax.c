@@ -22,7 +22,7 @@ LEAN_EXPORT uint8_t l_Lean_Syntax_isAnyAntiquot(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Syntax_isAntiquotSuffixSplice(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_replaceM___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getTailWithPos(lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Syntax_hasMissing___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -103,7 +103,7 @@ static lean_object* l_Lean_Syntax_MonadTraverser_getCur___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Syntax_getAntiquotTerm___boxed(lean_object*);
 static lean_object* l_Lean_Syntax_mkAntiquotSpliceNode___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___rarg___lambda__6(lean_object*, lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_goDown(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_reprint_reprintLeaf___boxed(lean_object*, lean_object*);
 lean_object* l_Array_back_x3f___rarg(lean_object*);
@@ -1173,7 +1173,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Syntax_rewriteBottomUp
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; 
@@ -1191,7 +1191,7 @@ x_10 = x_7;
 lean_inc(x_1);
 x_11 = l_Lean_Syntax_rewriteBottomUpM___at_Lean_Syntax_rewriteBottomUp___spec__1(x_1, x_10);
 x_12 = 1;
-x_13 = x_3 + x_12;
+x_13 = lean_usize_add(x_3, x_12);
 x_14 = x_11;
 x_15 = lean_array_uset(x_9, x_3, x_14);
 x_3 = x_13;
@@ -1603,7 +1603,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Syntax_updateLeading__
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 < x_1;
+x_5 = lean_usize_dec_lt(x_2, x_1);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
@@ -1627,7 +1627,7 @@ x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
 x_15 = 1;
-x_16 = x_2 + x_15;
+x_16 = lean_usize_add(x_2, x_15);
 x_17 = x_13;
 x_18 = lean_array_uset(x_10, x_2, x_17);
 x_2 = x_16;
@@ -3530,7 +3530,7 @@ x_15 = lean_ctor_get(x_10, 0);
 lean_inc(x_15);
 lean_dec(x_10);
 x_16 = 1;
-x_17 = x_2 + x_16;
+x_17 = lean_usize_add(x_2, x_16);
 x_18 = l_Array_forInUnsafe_loop___at_Lean_Syntax_instForInTopDownSyntax___spec__2___rarg(x_1, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_17, x_15);
 return x_18;
 }
@@ -3540,7 +3540,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Syntax_instForInTopD
 _start:
 {
 uint8_t x_11; 
-x_11 = x_9 < x_8;
+x_11 = lean_usize_dec_lt(x_9, x_8);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -3932,7 +3932,7 @@ LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Syntax_reprint___
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; 
@@ -3971,7 +3971,7 @@ else
 {
 size_t x_15; size_t x_16; lean_object* x_17; 
 x_15 = 1;
-x_16 = x_4 + x_15;
+x_16 = lean_usize_add(x_4, x_15);
 x_17 = lean_box(0);
 x_4 = x_16;
 x_5 = x_17;
@@ -3985,7 +3985,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Syntax_reprint___spe
 _start:
 {
 uint8_t x_7; 
-x_7 = x_5 < x_4;
+x_7 = lean_usize_dec_lt(x_5, x_4);
 if (x_7 == 0)
 {
 lean_object* x_8; 
@@ -4064,7 +4064,7 @@ lean_inc(x_2);
 lean_ctor_set(x_6, 1, x_22);
 lean_ctor_set(x_6, 0, x_2);
 x_23 = 1;
-x_24 = x_5 + x_23;
+x_24 = lean_usize_add(x_5, x_23);
 x_5 = x_24;
 goto _start;
 }
@@ -4112,7 +4112,7 @@ lean_inc(x_2);
 lean_ctor_set(x_6, 1, x_32);
 lean_ctor_set(x_6, 0, x_2);
 x_33 = 1;
-x_34 = x_5 + x_33;
+x_34 = lean_usize_add(x_5, x_33);
 x_5 = x_34;
 goto _start;
 }
@@ -4192,7 +4192,7 @@ x_48 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_48, 0, x_2);
 lean_ctor_set(x_48, 1, x_47);
 x_49 = 1;
-x_50 = x_5 + x_49;
+x_50 = lean_usize_add(x_5, x_49);
 x_5 = x_50;
 x_6 = x_48;
 goto _start;
@@ -4594,7 +4594,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Syntax_hasMissing___
 _start:
 {
 uint8_t x_8; 
-x_8 = x_6 < x_5;
+x_8 = lean_usize_dec_lt(x_6, x_5);
 if (x_8 == 0)
 {
 lean_dec(x_3);
@@ -4654,7 +4654,7 @@ lean_inc(x_3);
 lean_ctor_set(x_7, 1, x_19);
 lean_ctor_set(x_7, 0, x_3);
 x_20 = 1;
-x_21 = x_6 + x_20;
+x_21 = lean_usize_add(x_6, x_20);
 x_6 = x_21;
 goto _start;
 }
@@ -4707,7 +4707,7 @@ x_31 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_31, 0, x_3);
 lean_ctor_set(x_31, 1, x_30);
 x_32 = 1;
-x_33 = x_6 + x_32;
+x_33 = lean_usize_add(x_6, x_32);
 x_6 = x_33;
 x_7 = x_31;
 goto _start;

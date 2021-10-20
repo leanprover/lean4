@@ -19,7 +19,7 @@ LEAN_EXPORT lean_object* l_Std_Format_joinSep___at___private_Lean_Compiler_IR_Fo
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCtorInfo___closed__1;
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__3;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__18;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__30;
 static lean_object* l_Lean_IR_instToFormatIRType___closed__1;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__24;
@@ -32,7 +32,7 @@ static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatParam___closed__7;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__17;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__3;
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__33;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__15;
@@ -321,7 +321,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_formatArray___sp
 _start:
 {
 uint8_t x_6; 
-x_6 = x_3 == x_4;
+x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; 
@@ -336,7 +336,7 @@ x_11 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
 x_12 = 1;
-x_13 = x_3 + x_12;
+x_13 = lean_usize_add(x_3, x_12);
 x_3 = x_13;
 x_5 = x_11;
 goto _start;
@@ -763,7 +763,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; 
@@ -777,7 +777,7 @@ x_10 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_10, 0, x_8);
 lean_ctor_set(x_10, 1, x_9);
 x_11 = 1;
-x_12 = x_2 + x_11;
+x_12 = lean_usize_add(x_2, x_11);
 x_2 = x_12;
 x_4 = x_10;
 goto _start;
@@ -2255,7 +2255,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_formatParams___s
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; 
@@ -2269,7 +2269,7 @@ x_10 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_10, 0, x_8);
 lean_ctor_set(x_10, 1, x_9);
 x_11 = 1;
-x_12 = x_2 + x_11;
+x_12 = lean_usize_add(x_2, x_11);
 x_2 = x_12;
 x_4 = x_10;
 goto _start;
@@ -3230,7 +3230,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_formatFnBody_loo
 _start:
 {
 uint8_t x_6; 
-x_6 = x_3 == x_4;
+x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; 
@@ -3248,7 +3248,7 @@ x_12 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_12, 0, x_9);
 lean_ctor_set(x_12, 1, x_11);
 x_13 = 1;
-x_14 = x_3 + x_13;
+x_14 = lean_usize_add(x_3, x_13);
 x_3 = x_14;
 x_5 = x_12;
 goto _start;

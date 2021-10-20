@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_addPPExplicitToExposeDiff(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__6;
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
@@ -23,7 +23,7 @@ static lean_object* l_Lean_Meta_check___closed__1;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_mkSort(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2820,7 +2820,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Chec
 _start:
 {
 uint8_t x_10; 
-x_10 = x_2 == x_3;
+x_10 = lean_usize_dec_eq(x_2, x_3);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_18; 
@@ -3282,7 +3282,7 @@ block_17:
 {
 size_t x_14; size_t x_15; 
 x_14 = 1;
-x_15 = x_2 + x_14;
+x_15 = lean_usize_add(x_2, x_14);
 x_2 = x_15;
 x_4 = x_12;
 x_9 = x_13;
@@ -3568,7 +3568,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Chec
 _start:
 {
 uint8_t x_10; 
-x_10 = x_2 == x_3;
+x_10 = lean_usize_dec_eq(x_2, x_3);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -3612,7 +3612,7 @@ x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
 lean_dec(x_18);
 x_21 = 1;
-x_22 = x_2 + x_21;
+x_22 = lean_usize_add(x_2, x_21);
 x_2 = x_22;
 x_4 = x_19;
 x_9 = x_20;

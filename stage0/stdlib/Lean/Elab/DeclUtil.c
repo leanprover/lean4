@@ -15,7 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__23___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__4___closed__4;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__23___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_expandOptDeclSig(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -27,7 +27,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompati
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_forallTelescopeCompatibleAux___rarg___closed__1;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__19___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_forallTelescopeCompatibleAux___spec__17___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2924,14 +2924,14 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_sortDeclLevelP
 _start:
 {
 uint8_t x_6; 
-x_6 = x_3 == x_4;
+x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; uint8_t x_8; size_t x_9; size_t x_10; 
 x_7 = lean_array_uget(x_2, x_3);
 x_8 = l_List_elem___at_Lean_NameHashSet_insert___spec__2(x_7, x_1);
 x_9 = 1;
-x_10 = x_3 + x_9;
+x_10 = lean_usize_add(x_3, x_9);
 if (x_8 == 0)
 {
 lean_object* x_11; 

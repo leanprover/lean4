@@ -17,7 +17,7 @@ static lean_object* l_Array_term_____x5b___x3a___x5d___closed__4;
 lean_object* l_Array_foldrMUnsafe_fold___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_myMacro____x40_Init_Notation___hyg_73____spec__1(lean_object*, lean_object*);
 static lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_764____closed__10;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Array_term_____x5b___x3a___x5d___closed__2;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Subarray_forM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_1025____closed__16;
@@ -29,7 +29,7 @@ static lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_896___
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at_Array_ofSubarray___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Subarray_any___spec__1___rarg(lean_object*, lean_object*, size_t, size_t);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Array_term_____x5b___x3a___x5d___closed__8;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_forRevM___spec__2___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -50,7 +50,7 @@ LEAN_EXPORT lean_object* l_Array_extract___rarg(lean_object*, lean_object*, lean
 static lean_object* l_Array_term_____x5b___x3a___x5d___closed__1;
 static lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_1025____closed__10;
 static lean_object* l_instReprSubarray___rarg___closed__12;
-size_t l_USize_sub(size_t, size_t);
+size_t lean_usize_sub(size_t, size_t);
 LEAN_EXPORT lean_object* l_Subarray_anyM___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_foldr___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_term_____x5b___x3a___x5d___closed__21;
@@ -76,7 +76,7 @@ LEAN_EXPORT lean_object* l_Subarray_foldlM___rarg(lean_object*, lean_object*, le
 static lean_object* l_Array_term_____x5b___x3a_x5d___closed__1;
 static lean_object* l_Array_myMacro____x40_Init_Data_Array_Subarray___hyg_764____closed__7;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Subarray_any___spec__1(lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_instCoeSubarrayArray(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Subarray_allM___spec__1(lean_object*, lean_object*);
@@ -321,7 +321,7 @@ x_11 = lean_ctor_get(x_6, 0);
 lean_inc(x_11);
 lean_dec(x_6);
 x_12 = 1;
-x_13 = x_2 + x_12;
+x_13 = lean_usize_add(x_2, x_12);
 x_14 = l_Subarray_forInUnsafe_loop___rarg(x_1, x_3, x_4, x_5, x_13, x_11);
 return x_14;
 }
@@ -331,7 +331,7 @@ LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___rarg(lean_object* x_1, le
 _start:
 {
 uint8_t x_7; 
-x_7 = x_5 < x_4;
+x_7 = lean_usize_dec_lt(x_5, x_4);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -755,7 +755,7 @@ if (x_7 == 0)
 {
 size_t x_8; size_t x_9; lean_object* x_10; 
 x_8 = 1;
-x_9 = x_1 + x_8;
+x_9 = lean_usize_add(x_1, x_8);
 x_10 = l_Array_anyMUnsafe_any___at_Subarray_allM___spec__1___rarg(x_2, x_3, x_4, x_5, x_9, x_6);
 return x_10;
 }
@@ -782,7 +782,7 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Subarray_allM___spec__1___r
 _start:
 {
 uint8_t x_7; 
-x_7 = x_5 == x_6;
+x_7 = lean_usize_dec_eq(x_5, x_6);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
@@ -953,7 +953,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = l_Array_foldlMUnsafe_fold___at_Subarray_forM___spec__1___rarg(x_2, x_3, x_4, x_8, x_5, x_6);
 return x_9;
 }
@@ -962,7 +962,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Subarray_forM___spec__1_
 _start:
 {
 uint8_t x_7; 
-x_7 = x_4 == x_5;
+x_7 = lean_usize_dec_eq(x_4, x_5);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -1109,7 +1109,7 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_forRevM___spec_
 _start:
 {
 uint8_t x_7; 
-x_7 = x_4 == x_5;
+x_7 = lean_usize_dec_eq(x_4, x_5);
 if (x_7 == 0)
 {
 lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
@@ -1117,7 +1117,7 @@ lean_dec(x_6);
 x_8 = lean_ctor_get(x_1, 1);
 lean_inc(x_8);
 x_9 = 1;
-x_10 = x_4 - x_9;
+x_10 = lean_usize_sub(x_4, x_9);
 x_11 = lean_array_uget(x_3, x_10);
 lean_inc(x_2);
 x_12 = lean_apply_1(x_2, x_11);
@@ -1160,7 +1160,7 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_forRevM___spec_
 _start:
 {
 uint8_t x_7; 
-x_7 = x_4 == x_5;
+x_7 = lean_usize_dec_eq(x_4, x_5);
 if (x_7 == 0)
 {
 lean_object* x_8; size_t x_9; size_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
@@ -1168,7 +1168,7 @@ lean_dec(x_6);
 x_8 = lean_ctor_get(x_1, 1);
 lean_inc(x_8);
 x_9 = 1;
-x_10 = x_4 - x_9;
+x_10 = lean_usize_sub(x_4, x_9);
 x_11 = lean_array_uget(x_3, x_10);
 lean_inc(x_2);
 x_12 = lean_apply_1(x_2, x_11);
@@ -1326,7 +1326,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Subarray_foldl___spec__1
 _start:
 {
 uint8_t x_6; 
-x_6 = x_3 == x_4;
+x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
@@ -1334,7 +1334,7 @@ x_7 = lean_array_uget(x_2, x_3);
 lean_inc(x_1);
 x_8 = lean_apply_2(x_1, x_5, x_7);
 x_9 = 1;
-x_10 = x_3 + x_9;
+x_10 = lean_usize_add(x_3, x_9);
 x_3 = x_10;
 x_5 = x_8;
 goto _start;
@@ -1427,12 +1427,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_foldr___spec__1
 _start:
 {
 uint8_t x_6; 
-x_6 = x_3 == x_4;
+x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; 
 x_7 = 1;
-x_8 = x_3 - x_7;
+x_8 = lean_usize_sub(x_3, x_7);
 x_9 = lean_array_uget(x_2, x_8);
 lean_inc(x_1);
 x_10 = lean_apply_2(x_1, x_9, x_5);
@@ -1459,12 +1459,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_foldr___spec__2
 _start:
 {
 uint8_t x_6; 
-x_6 = x_3 == x_4;
+x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; 
 x_7 = 1;
-x_8 = x_3 - x_7;
+x_8 = lean_usize_sub(x_3, x_7);
 x_9 = lean_array_uget(x_2, x_8);
 lean_inc(x_1);
 x_10 = lean_apply_2(x_1, x_9, x_5);
@@ -1590,7 +1590,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Subarray_any___spec__1___rarg(le
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 == x_4;
+x_5 = lean_usize_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
@@ -1603,7 +1603,7 @@ if (x_8 == 0)
 {
 size_t x_9; size_t x_10; 
 x_9 = 1;
-x_10 = x_3 + x_9;
+x_10 = lean_usize_add(x_3, x_9);
 x_3 = x_10;
 goto _start;
 }
@@ -1719,7 +1719,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Subarray_all___spec__1___rarg(le
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 == x_4;
+x_5 = lean_usize_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
@@ -1739,7 +1739,7 @@ else
 {
 size_t x_10; size_t x_11; 
 x_10 = 1;
-x_11 = x_3 + x_10;
+x_11 = lean_usize_add(x_3, x_10);
 x_3 = x_11;
 goto _start;
 }
@@ -1916,7 +1916,7 @@ LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at_Array_ofSubarray___spe
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 return x_4;
@@ -1928,7 +1928,7 @@ x_6 = lean_ctor_get(x_1, 0);
 x_7 = lean_array_uget(x_6, x_3);
 x_8 = lean_array_push(x_4, x_7);
 x_9 = 1;
-x_10 = x_3 + x_9;
+x_10 = lean_usize_add(x_3, x_9);
 x_3 = x_10;
 x_4 = x_8;
 goto _start;

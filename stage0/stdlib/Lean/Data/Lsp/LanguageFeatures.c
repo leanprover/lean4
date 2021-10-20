@@ -16,7 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonSemanticTokens;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonSemanticTokensParams;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonCompletionOptions;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Lsp_instToJsonSemanticTokens___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Json_opt___at___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_toJsonDocumentSymbolAux____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1444____spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_fromJsonCompletionList____x40_Lean_Data_Lsp_LanguageFeatures___hyg_316____spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -96,7 +96,7 @@ static lean_object* l_Lean_Lsp_instToJsonTypeDefinitionParams___closed__1;
 static lean_object* l_Lean_Lsp_instToJsonSymbolKind___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Lsp_SemanticTokenType_names;
 lean_object* l_List_join___rarg(lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Lsp_instToJsonHover___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonCompletionItem;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_toJsonTypeDefinitionParams____x40_Lean_Data_Lsp_LanguageFeatures___hyg_989_(lean_object*);
@@ -383,7 +383,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_Lan
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; 
@@ -428,7 +428,7 @@ x_15 = lean_ctor_get(x_11, 0);
 lean_inc(x_15);
 lean_dec(x_11);
 x_16 = 1;
-x_17 = x_2 + x_16;
+x_17 = lean_usize_add(x_2, x_16);
 x_18 = x_15;
 x_19 = lean_array_uset(x_9, x_2, x_18);
 x_2 = x_17;
@@ -767,7 +767,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_Lan
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -784,7 +784,7 @@ x_9 = x_6;
 x_10 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_10, 0, x_9);
 x_11 = 1;
-x_12 = x_2 + x_11;
+x_12 = lean_usize_add(x_2, x_11);
 x_13 = x_10;
 x_14 = lean_array_uset(x_8, x_2, x_13);
 x_2 = x_12;
@@ -1263,7 +1263,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_Lan
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; 
@@ -1308,7 +1308,7 @@ x_15 = lean_ctor_get(x_11, 0);
 lean_inc(x_15);
 lean_dec(x_11);
 x_16 = 1;
-x_17 = x_2 + x_16;
+x_17 = lean_usize_add(x_2, x_16);
 x_18 = x_15;
 x_19 = lean_array_uset(x_9, x_2, x_18);
 x_2 = x_17;
@@ -1509,7 +1509,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_Lan
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -1526,7 +1526,7 @@ x_9 = x_6;
 x_10 = l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_toJsonCompletionItem____x40_Lean_Data_Lsp_LanguageFeatures___hyg_247_(x_9);
 lean_dec(x_9);
 x_11 = 1;
-x_12 = x_2 + x_11;
+x_12 = lean_usize_add(x_2, x_11);
 x_13 = x_10;
 x_14 = lean_array_uset(x_8, x_2, x_13);
 x_2 = x_12;
@@ -4357,7 +4357,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_Lan
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; 
@@ -4375,7 +4375,7 @@ x_10 = x_7;
 lean_inc(x_1);
 x_11 = lean_apply_1(x_1, x_10);
 x_12 = 1;
-x_13 = x_3 + x_12;
+x_13 = lean_usize_add(x_3, x_12);
 x_14 = x_11;
 x_15 = lean_array_uset(x_9, x_3, x_14);
 x_3 = x_13;
@@ -4767,7 +4767,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Lsp_instToJsonDocument
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -4783,7 +4783,7 @@ x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = x_6;
 x_10 = l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp_toJsonDocumentSymbolAux____x40_Lean_Data_Lsp_LanguageFeatures___hyg_1444____at_Lean_Lsp_instToJsonDocumentSymbol_go___spec__1(x_9);
 x_11 = 1;
-x_12 = x_2 + x_11;
+x_12 = lean_usize_add(x_2, x_11);
 x_13 = x_10;
 x_14 = lean_array_uset(x_8, x_2, x_13);
 x_2 = x_12;
@@ -6078,7 +6078,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_Lan
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; 
@@ -6123,7 +6123,7 @@ x_15 = lean_ctor_get(x_11, 0);
 lean_inc(x_15);
 lean_dec(x_11);
 x_16 = 1;
-x_17 = x_2 + x_16;
+x_17 = lean_usize_add(x_2, x_16);
 x_18 = x_15;
 x_19 = lean_array_uset(x_9, x_2, x_18);
 x_2 = x_17;
@@ -6274,7 +6274,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_Lan
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -6292,7 +6292,7 @@ x_10 = l_Lean_JsonNumber_fromNat(x_9);
 x_11 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
 x_12 = 1;
-x_13 = x_2 + x_12;
+x_13 = lean_usize_add(x_2, x_12);
 x_14 = x_11;
 x_15 = lean_array_uset(x_8, x_2, x_14);
 x_2 = x_13;

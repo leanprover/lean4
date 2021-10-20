@@ -16,7 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_addTrace___at_Lean_Meta_ElimEmptyInductive_elim___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_contradiction___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_ElimEmptyInductive_elim___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -58,7 +58,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_contradictionCo
 static lean_object* l_Lean_Meta_contradictionCore___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_ElimEmptyInductive_elim___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_commitWhen___at_Lean_Meta_ElimEmptyInductive_elim___spec__7___at_Lean_Meta_ElimEmptyInductive_elim___spec__8___lambda__1___closed__1;
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_ElimEmptyInductive_elim___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_Contradiction_0__Lean_Meta_isGenDiseq(lean_object*);
 extern lean_object* l_Lean_levelZero;
@@ -753,7 +753,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_ElimEmptyInduct
 _start:
 {
 uint8_t x_14; 
-x_14 = x_6 < x_5;
+x_14 = lean_usize_dec_lt(x_6, x_5);
 if (x_14 == 0)
 {
 lean_object* x_15; 
@@ -953,7 +953,7 @@ x_21 = lean_ctor_get(x_17, 0);
 lean_inc(x_21);
 lean_dec(x_17);
 x_22 = 1;
-x_23 = x_6 + x_22;
+x_23 = lean_usize_add(x_6, x_22);
 x_6 = x_23;
 x_7 = x_21;
 x_13 = x_18;
@@ -1176,7 +1176,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_ElimEmptyInduct
 _start:
 {
 uint8_t x_12; 
-x_12 = x_4 < x_3;
+x_12 = lean_usize_dec_lt(x_4, x_3);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -1274,7 +1274,7 @@ x_34 = lean_ctor_get(x_25, 1);
 lean_inc(x_34);
 lean_dec(x_25);
 x_35 = 1;
-x_36 = x_4 + x_35;
+x_36 = lean_usize_add(x_4, x_35);
 lean_inc(x_1);
 {
 size_t _tmp_3 = x_36;
@@ -3360,7 +3360,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_Tacti
 _start:
 {
 uint8_t x_11; 
-x_11 = x_4 < x_3;
+x_11 = lean_usize_dec_lt(x_4, x_3);
 if (x_11 == 0)
 {
 lean_object* x_12; 
@@ -3627,7 +3627,7 @@ x_18 = lean_ctor_get(x_14, 0);
 lean_inc(x_18);
 lean_dec(x_14);
 x_19 = 1;
-x_20 = x_4 + x_19;
+x_20 = lean_usize_add(x_4, x_19);
 x_4 = x_20;
 x_5 = x_18;
 x_10 = x_15;
@@ -4206,7 +4206,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_contradictionCo
 _start:
 {
 uint8_t x_16; 
-x_16 = x_9 < x_8;
+x_16 = lean_usize_dec_lt(x_9, x_8);
 if (x_16 == 0)
 {
 lean_object* x_17; 
@@ -4306,7 +4306,7 @@ lean_inc(x_6);
 lean_ctor_set(x_10, 1, x_31);
 lean_ctor_set(x_10, 0, x_6);
 x_32 = 1;
-x_33 = x_9 + x_32;
+x_33 = lean_usize_add(x_9, x_32);
 x_9 = x_33;
 x_15 = x_30;
 goto _start;
@@ -4421,7 +4421,7 @@ x_49 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_49, 0, x_6);
 lean_ctor_set(x_49, 1, x_48);
 x_50 = 1;
-x_51 = x_9 + x_50;
+x_51 = lean_usize_add(x_9, x_50);
 x_9 = x_51;
 x_10 = x_49;
 x_15 = x_47;
@@ -5929,7 +5929,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_contradictionCo
 _start:
 {
 uint8_t x_15; 
-x_15 = x_8 < x_7;
+x_15 = lean_usize_dec_lt(x_8, x_7);
 if (x_15 == 0)
 {
 lean_object* x_16; 
@@ -6357,7 +6357,7 @@ x_22 = lean_ctor_get(x_18, 0);
 lean_inc(x_22);
 lean_dec(x_18);
 x_23 = 1;
-x_24 = x_8 + x_23;
+x_24 = lean_usize_add(x_8, x_23);
 x_8 = x_24;
 x_9 = x_22;
 x_14 = x_19;
@@ -6668,7 +6668,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_contradictionCo
 _start:
 {
 uint8_t x_15; 
-x_15 = x_8 < x_7;
+x_15 = lean_usize_dec_lt(x_8, x_7);
 if (x_15 == 0)
 {
 lean_object* x_16; 
@@ -7096,7 +7096,7 @@ x_22 = lean_ctor_get(x_18, 0);
 lean_inc(x_22);
 lean_dec(x_18);
 x_23 = 1;
-x_24 = x_8 + x_23;
+x_24 = lean_usize_add(x_8, x_23);
 x_8 = x_24;
 x_9 = x_22;
 x_14 = x_19;

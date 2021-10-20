@@ -18,7 +18,7 @@ static lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_L
 LEAN_EXPORT lean_object* l_panic___at_Lean_getExternAttrData___spec__4(lean_object*);
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkSimpleFnCall___closed__2;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_398____spec__1___closed__3;
 lean_object* lean_io_get_num_heartbeats(lean_object*);
 static lean_object* l_Lean_getExternConstArity___closed__12;
@@ -33,7 +33,7 @@ LEAN_EXPORT uint8_t l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Compiler_Ext
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_398____lambda__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_get_extern_const_arity(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_398____spec__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_getExternNameFor___boxed(lean_object*, lean_object*, lean_object*);
@@ -80,7 +80,7 @@ static lean_object* l_Lean_externAttr___closed__4;
 static lean_object* l_Lean_externAttr___closed__10;
 static lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_398____spec__5___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_externAttr___lambda__4(lean_object*, lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_398____spec__3___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getExternConstArity___closed__8;
 LEAN_EXPORT lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_398____spec__1___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -209,7 +209,7 @@ LEAN_EXPORT lean_object* l_Lean_externAttr___lambda__2(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_398____spec__1___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getExternConstArity___closed__3;
 LEAN_EXPORT lean_object* lean_get_extern_attr_data(lean_object*, lean_object*);
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_398_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at_Lean_getExternAttrData___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_398____spec__1___lambda__6___closed__3;
@@ -282,7 +282,7 @@ lean_object* l_String_Iterator_remainingBytes(lean_object*);
 static lean_object* l_Lean_mkSimpleFnCall___closed__1;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_getExternAttrData___spec__2___boxed(lean_object*, lean_object*);
-uint8_t l_UInt32_decLe(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 uint32_t lean_uint32_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkSimpleFnCall(lean_object*, lean_object*);
@@ -507,7 +507,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Compiler_E
 _start:
 {
 uint8_t x_8; 
-x_8 = x_3 < x_2;
+x_8 = lean_usize_dec_lt(x_3, x_2);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -593,7 +593,7 @@ x_28 = lean_ctor_get(x_26, 0);
 lean_inc(x_28);
 lean_dec(x_26);
 x_29 = 1;
-x_30 = x_3 + x_29;
+x_30 = lean_usize_add(x_3, x_29);
 x_3 = x_30;
 x_4 = x_28;
 x_7 = x_27;
@@ -1151,7 +1151,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_initFn____x40_Lean_Compiler
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 == x_4;
+x_5 = lean_usize_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
@@ -1166,7 +1166,7 @@ if (x_9 == 0)
 {
 size_t x_10; size_t x_11; 
 x_10 = 1;
-x_11 = x_3 + x_10;
+x_11 = lean_usize_add(x_3, x_10);
 x_3 = x_11;
 goto _start;
 }
@@ -3407,7 +3407,7 @@ else
 uint32_t x_10; uint32_t x_11; uint8_t x_12; 
 x_10 = l_String_Iterator_curr(x_2);
 x_11 = 48;
-x_12 = x_11 <= x_10;
+x_12 = lean_uint32_dec_le(x_11, x_10);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -3421,7 +3421,7 @@ else
 {
 uint32_t x_14; uint8_t x_15; 
 x_14 = 57;
-x_15 = x_10 <= x_14;
+x_15 = lean_uint32_dec_le(x_10, x_14);
 if (x_15 == 0)
 {
 lean_object* x_16; 
@@ -3504,7 +3504,7 @@ if (x_10 == 0)
 uint32_t x_11; uint32_t x_12; uint8_t x_13; uint8_t x_14; 
 x_11 = l_String_Iterator_curr(x_3);
 x_12 = 35;
-x_13 = x_11 == x_12;
+x_13 = lean_uint32_dec_eq(x_11, x_12);
 x_14 = l_instDecidableNot___rarg(x_13);
 if (x_14 == 0)
 {
@@ -3555,7 +3555,7 @@ if (x_28 == 0)
 uint32_t x_29; uint32_t x_30; uint8_t x_31; uint8_t x_32; 
 x_29 = l_String_Iterator_curr(x_3);
 x_30 = 35;
-x_31 = x_29 == x_30;
+x_31 = lean_uint32_dec_eq(x_29, x_30);
 x_32 = l_instDecidableNot___rarg(x_31);
 if (x_32 == 0)
 {

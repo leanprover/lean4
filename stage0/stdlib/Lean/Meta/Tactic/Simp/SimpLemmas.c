@@ -19,7 +19,7 @@ LEAN_EXPORT uint8_t l_Array_contains___at_Lean_Meta_addSimpLemmaEntry___spec__4(
 static lean_object* l_Lean_Meta_mkSimpAttr___lambda__1___closed__21;
 lean_object* l_Lean_Meta_mkPropExt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_SimpLemmas___hyg_3230____closed__2;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_SimpLemma_levelParams___default;
 static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_SimpExtension_getLemmas___spec__3___closed__2;
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -44,7 +44,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_SimpLemmas_add___boxed(lean_object*, lean_o
 lean_object* l_Lean_throwError___at_Lean_Meta_setInlineAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_preprocess___lambda__2___closed__2;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_mkSimpLemmasFromConst___closed__1;
 static lean_object* l_Lean_Meta_mkSimpAttr___lambda__1___closed__13;
@@ -119,7 +119,7 @@ static uint64_t l_Lean_Meta_instInhabitedSimpLemma___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_mkSimpLemmaCore___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_mkSimpLemmaCore___lambda__2___closed__2;
 static lean_object* l_Lean_Meta_mkSimpAttr___lambda__1___closed__23;
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Meta_simpExtension___closed__11;
 static lean_object* l_Lean_Meta_SimpLemmas_erase___rarg___closed__2;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_preprocess___closed__10;
@@ -867,7 +867,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_addSimpLemmaEntry___sp
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 == x_4;
+x_5 = lean_usize_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
@@ -882,7 +882,7 @@ if (x_9 == 0)
 {
 size_t x_10; size_t x_11; 
 x_10 = 1;
-x_11 = x_3 + x_10;
+x_11 = lean_usize_add(x_3, x_10);
 x_3 = x_11;
 goto _start;
 }
@@ -8532,7 +8532,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_addSimpLemma___
 _start:
 {
 uint8_t x_12; 
-x_12 = x_5 < x_4;
+x_12 = lean_usize_dec_lt(x_5, x_4);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -8557,7 +8557,7 @@ x_17 = lean_ctor_get(x_16, 1);
 lean_inc(x_17);
 lean_dec(x_16);
 x_18 = 1;
-x_19 = x_5 + x_18;
+x_19 = lean_usize_add(x_5, x_18);
 x_20 = lean_box(0);
 x_5 = x_19;
 x_6 = x_20;
@@ -10246,14 +10246,14 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_SimpLemmas_add
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Lean_Meta_addSimpLemmaEntry(x_4, x_6);
 x_8 = 1;
-x_9 = x_2 + x_8;
+x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
 x_4 = x_7;
 goto _start;
@@ -10899,7 +10899,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Meta_Tactic_
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -10914,7 +10914,7 @@ x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = x_6;
 x_10 = 1;
-x_11 = x_2 + x_10;
+x_11 = lean_usize_add(x_2, x_10);
 x_12 = lean_ctor_get(x_9, 0);
 lean_inc(x_12);
 lean_dec(x_9);
@@ -11111,7 +11111,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_mkSimpLemmas___sp
 _start:
 {
 uint8_t x_13; 
-x_13 = x_6 < x_5;
+x_13 = lean_usize_dec_lt(x_6, x_5);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -11153,7 +11153,7 @@ x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
 lean_dec(x_20);
 x_23 = 1;
-x_24 = x_6 + x_23;
+x_24 = lean_usize_add(x_6, x_23);
 x_25 = x_21;
 x_26 = lean_array_uset(x_18, x_6, x_25);
 x_6 = x_24;

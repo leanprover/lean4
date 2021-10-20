@@ -39,16 +39,15 @@ namespace Nat
     | succ n, a => loop n (f a)
   loop n a
 
+/- Helper "packing" theorems -/
+
+@[simp] theorem zero_eq : Nat.zero = 0 := rfl
+@[simp] theorem add_eq : Nat.add x y = x + y := rfl
+@[simp] theorem mul_eq : Nat.mul x y = x * y := rfl
+@[simp] theorem lt_eq : Nat.lt x y = (x < y) := rfl
+@[simp] theorem le_eq : Nat.le x y = (x ≤ y) := rfl
+
 /- Nat.add theorems -/
-
-@[simp] theorem zero_eq : Nat.zero = 0 :=
-  rfl
-
-@[simp] theorem add_eq : Nat.add x y = x + y :=
-  rfl
-
-@[simp] theorem lt_eq : Nat.lt x y = (x < y) :=
-  rfl
 
 @[simp] protected theorem zero_add : ∀ (n : Nat), 0 + n = n
   | 0   => rfl
@@ -260,6 +259,12 @@ theorem lt_of_succ_le {n m : Nat} (h : succ n ≤ m) : n < m :=
 
 theorem succ_le_of_lt {n m : Nat} (h : n < m) : succ n ≤ m :=
   h
+
+theorem zero_lt_of_lt : {a b : Nat} → a < b → 0 < b
+  | 0,   _, h => h
+  | a+1, b, h =>
+    have : a < b := Nat.lt_trans (Nat.lt_succ_self _) h
+    zero_lt_of_lt this
 
 theorem lt_or_eq_or_le_succ {m n : Nat} (h : m ≤ succ n) : m ≤ n ∨ m = succ n :=
   Decidable.byCases

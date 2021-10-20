@@ -16,7 +16,7 @@ extern "C" {
 LEAN_EXPORT uint8_t l_Lean_Meta_Simp_rewrite_inErasedSet(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_rewriteCtorEq_x3f___lambda__1___closed__2;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesizeArgs___spec__1___lambda__1___closed__1;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewMCtxDepthImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_tryLemmaWithExtraArgs_x3f___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_Rewrite_0__Lean_Meta_Simp_tryLemmaCore_go___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -65,7 +65,7 @@ uint8_t lean_expr_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_postDefault(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesizeArgs___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_Rewrite_0__Lean_Meta_Simp_tryLemmaCore_go___lambda__4___closed__1;
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Meta_Simp_rewrite___closed__9;
 static lean_object* l_Lean_Meta_Simp_synthesizeArgs_synthesizeInstance___closed__1;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -1175,7 +1175,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesize
 _start:
 {
 uint8_t x_15; 
-x_15 = x_6 < x_5;
+x_15 = lean_usize_dec_lt(x_6, x_5);
 if (x_15 == 0)
 {
 lean_object* x_16; 
@@ -3620,7 +3620,7 @@ x_22 = lean_ctor_get(x_18, 0);
 lean_inc(x_22);
 lean_dec(x_18);
 x_23 = 1;
-x_24 = x_6 + x_23;
+x_24 = lean_usize_add(x_6, x_23);
 x_6 = x_24;
 x_7 = x_22;
 x_14 = x_19;
@@ -5149,7 +5149,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_Tacti
 _start:
 {
 uint8_t x_12; 
-x_12 = x_3 < x_2;
+x_12 = lean_usize_dec_lt(x_3, x_2);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -5180,7 +5180,7 @@ x_17 = lean_ctor_get(x_15, 1);
 lean_inc(x_17);
 lean_dec(x_15);
 x_18 = 1;
-x_19 = x_3 + x_18;
+x_19 = lean_usize_add(x_3, x_18);
 x_3 = x_19;
 x_4 = x_16;
 x_11 = x_17;
@@ -6797,7 +6797,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_rewrite___
 _start:
 {
 uint8_t x_16; 
-x_16 = x_7 < x_6;
+x_16 = lean_usize_dec_lt(x_7, x_6);
 if (x_16 == 0)
 {
 lean_object* x_17; 
@@ -6853,7 +6853,7 @@ x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec(x_22);
 x_25 = 1;
-x_26 = x_7 + x_25;
+x_26 = lean_usize_add(x_7, x_25);
 lean_inc(x_4);
 {
 size_t _tmp_6 = x_26;
@@ -6982,7 +6982,7 @@ size_t x_48; size_t x_49;
 lean_dec(x_20);
 lean_dec(x_19);
 x_48 = 1;
-x_49 = x_7 + x_48;
+x_49 = lean_usize_add(x_7, x_48);
 lean_inc(x_4);
 {
 size_t _tmp_6 = x_49;

@@ -46,7 +46,7 @@ static lean_object* l_Lean_ParserCompiler_compileCategoryParser___rarg___closed_
 static lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_compileParserExpr___spec__1___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_compileParserExpr___spec__8___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_io_error_to_string(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_compileParserExpr___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -76,7 +76,7 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 static lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___closed__9;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_compileParserExpr___spec__13___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit___at_Lean_ParserCompiler_replaceParserTy___spec__1___rarg___closed__2;
-size_t l_USize_sub(size_t, size_t);
+size_t lean_usize_sub(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_replaceParserTy(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -277,7 +277,7 @@ lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Meta_InferType_0__L
 static lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___closed__7;
 static lean_object* l_Lean_ParserCompiler_compileCategoryParser___rarg___closed__5;
 lean_object* l_Lean_Attribute_add(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-size_t l_USize_mod(size_t, size_t);
+size_t lean_usize_mod(size_t, size_t);
 static lean_object* l_Lean_ParserCompiler_compileCategoryParser___rarg___closed__30;
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__10(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_compileCategoryParser___rarg___closed__3;
@@ -515,14 +515,14 @@ _start:
 {
 size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_214; lean_object* x_215; size_t x_216; uint8_t x_217; 
 x_5 = lean_ptr_addr(x_3);
-x_6 = x_2 == 0 ? x_5 : x_5 % x_2;
+x_6 = lean_usize_mod(x_5, x_2);
 x_214 = lean_ctor_get(x_4, 0);
 lean_inc(x_214);
 x_215 = lean_array_uget(x_214, x_6);
 lean_dec(x_214);
 x_216 = lean_ptr_addr(x_215);
 lean_dec(x_215);
-x_217 = x_216 == x_5;
+x_217 = lean_usize_dec_eq(x_216, x_5);
 if (x_217 == 0)
 {
 uint8_t x_218; 
@@ -1371,12 +1371,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -1454,12 +1454,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -2826,12 +2826,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -2909,12 +2909,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -4204,12 +4204,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -4287,12 +4287,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -5582,12 +5582,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -5665,12 +5665,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -6960,12 +6960,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -7043,12 +7043,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -8338,12 +8338,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -8421,12 +8421,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -9716,12 +9716,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -9799,12 +9799,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -11094,12 +11094,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -11177,12 +11177,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -12472,12 +12472,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -12555,12 +12555,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -13850,12 +13850,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);
@@ -13933,12 +13933,12 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_comp
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; 
 x_12 = 1;
-x_13 = x_3 - x_12;
+x_13 = lean_usize_sub(x_3, x_12);
 x_14 = lean_array_uget(x_2, x_13);
 lean_inc(x_9);
 lean_inc(x_8);

@@ -13,10 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_SortLocalDecls_visitExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SortLocalDecls_visitLocalDecl___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1195,7 +1195,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_sortLocalDecls
 _start:
 {
 uint8_t x_12; 
-x_12 = x_2 == x_3;
+x_12 = lean_usize_dec_eq(x_2, x_3);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -1217,7 +1217,7 @@ x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec(x_14);
 x_17 = 1;
-x_18 = x_2 + x_17;
+x_18 = lean_usize_add(x_2, x_17);
 x_2 = x_18;
 x_4 = x_15;
 x_11 = x_16;
@@ -1272,7 +1272,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_sortLocalDecls
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
@@ -1280,7 +1280,7 @@ x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Lean_LocalDecl_fvarId(x_6);
 x_8 = l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(x_4, x_7, x_6);
 x_9 = 1;
-x_10 = x_2 + x_9;
+x_10 = lean_usize_add(x_2, x_9);
 x_2 = x_10;
 x_4 = x_8;
 goto _start;

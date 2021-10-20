@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandArgs___spec__3___closed__4;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandArgs___spec__3___closed__1;
 lean_object* lean_erase_macro_scopes(lean_object*);
 static lean_object* l_Lean_Elab_Term_instInhabitedNamedArg___closed__1;
@@ -22,7 +22,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandArg
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandArgs___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_NamedArg_ref___default;
@@ -128,7 +128,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_Term_addNamedArg___spe
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 == x_4;
+x_5 = lean_usize_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
@@ -143,7 +143,7 @@ if (x_9 == 0)
 {
 size_t x_10; size_t x_11; 
 x_10 = 1;
-x_11 = x_3 + x_10;
+x_11 = lean_usize_add(x_3, x_10);
 x_3 = x_11;
 goto _start;
 }
@@ -564,7 +564,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandArg
 _start:
 {
 uint8_t x_12; 
-x_12 = x_2 == x_3;
+x_12 = lean_usize_dec_eq(x_2, x_3);
 if (x_12 == 0)
 {
 lean_object* x_13; uint8_t x_14; 
@@ -593,7 +593,7 @@ lean_ctor_set(x_22, 0, x_13);
 x_23 = lean_array_push(x_16, x_22);
 lean_ctor_set(x_4, 1, x_23);
 x_24 = 1;
-x_25 = x_2 + x_24;
+x_25 = lean_usize_add(x_2, x_24);
 x_2 = x_25;
 goto _start;
 }
@@ -659,7 +659,7 @@ lean_inc(x_43);
 lean_dec(x_41);
 lean_ctor_set(x_4, 0, x_42);
 x_44 = 1;
-x_45 = x_2 + x_44;
+x_45 = lean_usize_add(x_2, x_44);
 x_2 = x_45;
 x_11 = x_43;
 goto _start;
@@ -724,7 +724,7 @@ x_60 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_60, 0, x_51);
 lean_ctor_set(x_60, 1, x_59);
 x_61 = 1;
-x_62 = x_2 + x_61;
+x_62 = lean_usize_add(x_2, x_61);
 x_2 = x_62;
 x_4 = x_60;
 goto _start;
@@ -794,7 +794,7 @@ x_81 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_81, 0, x_79);
 lean_ctor_set(x_81, 1, x_52);
 x_82 = 1;
-x_83 = x_2 + x_82;
+x_83 = lean_usize_add(x_2, x_82);
 x_2 = x_83;
 x_4 = x_81;
 x_11 = x_80;

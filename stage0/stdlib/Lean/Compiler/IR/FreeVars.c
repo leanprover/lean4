@@ -14,14 +14,14 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_FreeIndices_insertParams___spec__1(lean_object*, size_t, size_t, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT uint8_t l_Lean_IR_HasIndex_visitJP(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_MaxIndex_collectJP___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Expr_hasFreeVar___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_skip___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_HasIndex_visitFnBody___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_MaxIndex_collectArray___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_MaxIndex_collectArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_withParams(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -346,7 +346,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
@@ -355,7 +355,7 @@ x_7 = l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_MaxIndex_collectArg(x_6, 
 lean_dec(x_4);
 lean_dec(x_6);
 x_8 = 1;
-x_9 = x_2 + x_8;
+x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
 x_4 = x_7;
 goto _start;
@@ -470,7 +470,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
@@ -479,7 +479,7 @@ x_7 = l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_MaxIndex_collectParam(x_6
 lean_dec(x_4);
 lean_dec(x_6);
 x_8 = 1;
-x_9 = x_2 + x_8;
+x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
 x_4 = x_7;
 goto _start;
@@ -750,7 +750,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_
 _start:
 {
 uint8_t x_6; 
-x_6 = x_3 == x_4;
+x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; 
@@ -760,7 +760,7 @@ lean_dec(x_7);
 lean_inc(x_1);
 x_9 = lean_apply_2(x_1, x_8, x_5);
 x_10 = 1;
-x_11 = x_3 + x_10;
+x_11 = lean_usize_add(x_3, x_10);
 x_3 = x_11;
 x_5 = x_9;
 goto _start;
@@ -1444,7 +1444,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_FreeIndices_inse
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11; 
@@ -1453,7 +1453,7 @@ x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 lean_dec(x_6);
 x_8 = 1;
-x_9 = x_2 + x_8;
+x_9 = lean_usize_add(x_2, x_8);
 x_10 = lean_box(0);
 x_11 = l_Std_RBNode_insert___at_Lean_IR_mkIndexSet___spec__1(x_4, x_7, x_10);
 x_2 = x_9;
@@ -1645,14 +1645,14 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_
 _start:
 {
 uint8_t x_6; 
-x_6 = x_3 == x_4;
+x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
 x_7 = lean_array_uget(x_2, x_3);
 x_8 = l___private_Lean_Compiler_IR_FreeVars_0__Lean_IR_FreeIndices_collectArg(x_7, x_1, x_5);
 x_9 = 1;
-x_10 = x_3 + x_9;
+x_10 = lean_usize_add(x_3, x_9);
 x_3 = x_10;
 x_5 = x_8;
 goto _start;
@@ -1954,7 +1954,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_
 _start:
 {
 uint8_t x_7; 
-x_7 = x_4 == x_5;
+x_7 = lean_usize_dec_eq(x_4, x_5);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; 
@@ -1965,7 +1965,7 @@ lean_inc(x_1);
 lean_inc(x_2);
 x_10 = lean_apply_3(x_1, x_9, x_2, x_6);
 x_11 = 1;
-x_12 = x_4 + x_11;
+x_12 = lean_usize_add(x_4, x_11);
 x_4 = x_12;
 x_6 = x_10;
 goto _start;
@@ -2465,7 +2465,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_IR_HasIndex_visitArgs___spe
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 == x_4;
+x_5 = lean_usize_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 
@@ -2476,7 +2476,7 @@ if (x_7 == 0)
 {
 size_t x_8; size_t x_9; 
 x_8 = 1;
-x_9 = x_3 + x_8;
+x_9 = lean_usize_add(x_3, x_8);
 x_3 = x_9;
 goto _start;
 }
@@ -2562,7 +2562,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_IR_HasIndex_visitParams___s
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 == x_4;
+x_5 = lean_usize_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
@@ -2576,7 +2576,7 @@ if (x_8 == 0)
 {
 size_t x_9; size_t x_10; 
 x_9 = 1;
-x_10 = x_3 + x_9;
+x_10 = lean_usize_add(x_3, x_9);
 x_3 = x_10;
 goto _start;
 }
@@ -2780,7 +2780,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_IR_HasIndex_visitFnBody___s
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 == x_4;
+x_5 = lean_usize_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
@@ -2792,7 +2792,7 @@ if (x_8 == 0)
 {
 size_t x_9; size_t x_10; 
 x_9 = 1;
-x_10 = x_3 + x_9;
+x_10 = lean_usize_add(x_3, x_9);
 x_3 = x_10;
 goto _start;
 }

@@ -13,19 +13,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_mkSimpCase___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault___boxed(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault___closed__1;
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_getOccsOf___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_addDefault___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_mkSimpCase___spec__1(lean_object*, size_t, size_t, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Compiler_IR_SimpCase_0__Lean_IR_maxOccs___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -83,7 +83,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_IR_ensureHasDefault___spec_
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 == x_3;
+x_4 = lean_usize_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; uint8_t x_6; 
@@ -94,7 +94,7 @@ if (x_6 == 0)
 {
 size_t x_7; size_t x_8; 
 x_7 = 1;
-x_8 = x_2 + x_7;
+x_8 = lean_usize_add(x_2, x_7);
 x_2 = x_8;
 goto _start;
 }
@@ -506,7 +506,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_
 _start:
 {
 uint8_t x_6; 
-x_6 = x_3 == x_4;
+x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; size_t x_11; size_t x_12; 
@@ -515,7 +515,7 @@ x_8 = l_Lean_IR_AltCore_body(x_7);
 x_9 = l_Lean_IR_AltCore_body(x_1);
 x_10 = l_Lean_IR_FnBody_beq(x_8, x_9);
 x_11 = 1;
-x_12 = x_3 + x_11;
+x_12 = lean_usize_add(x_3, x_11);
 if (x_10 == 0)
 {
 lean_object* x_13; 
@@ -698,7 +698,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; size_t x_10; size_t x_11; 
@@ -707,7 +707,7 @@ x_7 = l_Lean_IR_AltCore_body(x_6);
 x_8 = lean_box(13);
 x_9 = l_Lean_IR_FnBody_beq(x_7, x_8);
 x_10 = 1;
-x_11 = x_2 + x_10;
+x_11 = lean_usize_add(x_2, x_10);
 if (x_9 == 0)
 {
 lean_object* x_12; 
@@ -846,7 +846,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_simpCase___s
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -861,7 +861,7 @@ x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = x_6;
 x_10 = 1;
-x_11 = x_2 + x_10;
+x_11 = lean_usize_add(x_2, x_10);
 if (lean_obj_tag(x_9) == 1)
 {
 uint8_t x_17; 
@@ -918,7 +918,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_simpCase___s
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -933,7 +933,7 @@ x_7 = lean_unsigned_to_nat(0u);
 x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = x_6;
 x_10 = 1;
-x_11 = x_2 + x_10;
+x_11 = lean_usize_add(x_2, x_10);
 if (lean_obj_tag(x_9) == 0)
 {
 uint8_t x_12; 

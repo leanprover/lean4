@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Meta_ApplyNewGoals_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 static lean_object* l_Lean_Meta_applyRefl___lambda__1___closed__3;
 lean_object* l_Lean_Meta_mkFreshLevelMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -23,7 +23,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FindMVar_main___at___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_dependsOnOthers___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_exfalso___lambda__1___closed__3;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_observing_x3f___at_Lean_Meta_splitAnd___spec__1___at_Lean_Meta_splitAnd___spec__2___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_getExpectedNumArgs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1410,7 +1410,7 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_Tactic_
 _start:
 {
 uint8_t x_10; 
-x_10 = x_3 == x_4;
+x_10 = lean_usize_dec_eq(x_3, x_4);
 if (x_10 == 0)
 {
 lean_object* x_11; uint8_t x_12; 
@@ -1441,7 +1441,7 @@ if (lean_obj_tag(x_18) == 0)
 size_t x_19; size_t x_20; 
 lean_free_object(x_13);
 x_19 = 1;
-x_20 = x_3 + x_19;
+x_20 = lean_usize_add(x_3, x_19);
 x_3 = x_20;
 x_9 = x_16;
 goto _start;
@@ -1476,7 +1476,7 @@ if (lean_obj_tag(x_27) == 0)
 {
 size_t x_28; size_t x_29; 
 x_28 = 1;
-x_29 = x_3 + x_28;
+x_29 = lean_usize_add(x_3, x_28);
 x_3 = x_29;
 x_9 = x_25;
 goto _start;
@@ -1532,7 +1532,7 @@ else
 size_t x_38; size_t x_39; 
 lean_dec(x_11);
 x_38 = 1;
-x_39 = x_3 + x_38;
+x_39 = lean_usize_add(x_3, x_38);
 x_3 = x_39;
 goto _start;
 }
@@ -1646,7 +1646,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Tact
 _start:
 {
 uint8_t x_11; 
-x_11 = x_3 == x_4;
+x_11 = lean_usize_dec_eq(x_3, x_4);
 if (x_11 == 0)
 {
 lean_object* x_12; uint8_t x_13; 
@@ -1679,7 +1679,7 @@ lean_dec(x_17);
 x_21 = lean_array_push(x_14, x_16);
 lean_ctor_set(x_5, 0, x_21);
 x_22 = 1;
-x_23 = x_3 + x_22;
+x_23 = lean_usize_add(x_3, x_22);
 x_3 = x_23;
 x_10 = x_20;
 goto _start;
@@ -1693,7 +1693,7 @@ lean_dec(x_17);
 x_26 = lean_array_push(x_15, x_16);
 lean_ctor_set(x_5, 1, x_26);
 x_27 = 1;
-x_28 = x_3 + x_27;
+x_28 = lean_usize_add(x_3, x_27);
 x_3 = x_28;
 x_10 = x_25;
 goto _start;
@@ -1762,7 +1762,7 @@ x_42 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_42, 0, x_41);
 lean_ctor_set(x_42, 1, x_35);
 x_43 = 1;
-x_44 = x_3 + x_43;
+x_44 = lean_usize_add(x_3, x_43);
 x_3 = x_44;
 x_5 = x_42;
 x_10 = x_40;
@@ -1779,7 +1779,7 @@ x_48 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_48, 0, x_34);
 lean_ctor_set(x_48, 1, x_47);
 x_49 = 1;
-x_50 = x_3 + x_49;
+x_50 = lean_usize_add(x_3, x_49);
 x_3 = x_50;
 x_5 = x_48;
 x_10 = x_46;
@@ -2185,14 +2185,14 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_apply___spec__
 _start:
 {
 uint8_t x_6; 
-x_6 = x_3 == x_4;
+x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; uint8_t x_8; size_t x_9; size_t x_10; 
 x_7 = lean_array_uget(x_2, x_3);
 x_8 = l_List_elem___at_Lean_Meta_apply___spec__1(x_7, x_1);
 x_9 = 1;
-x_10 = x_3 + x_9;
+x_10 = lean_usize_add(x_3, x_9);
 if (x_8 == 0)
 {
 lean_object* x_11; 
@@ -2218,7 +2218,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_apply___spec__
 _start:
 {
 uint8_t x_10; 
-x_10 = x_2 == x_3;
+x_10 = lean_usize_dec_eq(x_2, x_3);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; 
@@ -2237,7 +2237,7 @@ lean_inc(x_16);
 lean_dec(x_13);
 x_17 = lean_array_push(x_4, x_11);
 x_18 = 1;
-x_19 = x_2 + x_18;
+x_19 = lean_usize_add(x_2, x_18);
 x_2 = x_19;
 x_4 = x_17;
 x_9 = x_16;
@@ -2251,7 +2251,7 @@ x_21 = lean_ctor_get(x_13, 1);
 lean_inc(x_21);
 lean_dec(x_13);
 x_22 = 1;
-x_23 = x_2 + x_22;
+x_23 = lean_usize_add(x_2, x_22);
 x_2 = x_23;
 x_9 = x_21;
 goto _start;

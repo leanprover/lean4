@@ -101,7 +101,7 @@ LEAN_EXPORT lean_object* l_instToStringExcept(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprExcept___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringList___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringSigma___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_instToStringId(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringString___boxed(lean_object*);
 static lean_object* l_instReprExcept___rarg___closed__1;
@@ -1188,7 +1188,7 @@ lean_object* x_2; uint32_t x_3; uint32_t x_4; uint8_t x_5;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_string_utf8_get(x_1, x_2);
 x_4 = 45;
-x_5 = x_3 == x_4;
+x_5 = lean_uint32_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
@@ -1230,7 +1230,7 @@ lean_object* x_2; uint32_t x_3; uint32_t x_4; uint8_t x_5;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_string_utf8_get(x_1, x_2);
 x_4 = 45;
-x_5 = x_3 == x_4;
+x_5 = lean_uint32_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 

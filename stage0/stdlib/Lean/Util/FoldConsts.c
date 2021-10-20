@@ -15,7 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Expr_getUsedConstants___lambda__1(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 uint8_t l_Std_HashSetImp_contains___at_Lean_NameHashSet_contains___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -32,7 +32,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_FoldConstsImpl_fold_visit___rarg(lean_objec
 LEAN_EXPORT lean_object* l_Lean_getMaxHeight___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_FoldConstsImpl_fold___rarg(lean_object*, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint32_t l_Lean_getMaxHeight___lambda__1(lean_object*, lean_object*, uint32_t);
-uint8_t l_UInt32_decLt(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_lt(uint32_t, uint32_t);
 static lean_object* l_Lean_Expr_FoldConstsImpl_initCache___closed__1;
 static lean_object* l_Lean_Expr_getUsedConstants___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Expr_FoldConstsImpl_fold_visit___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -41,7 +41,7 @@ LEAN_EXPORT lean_object* l_Lean_getMaxHeight(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_FoldConstsImpl_initCache___closed__2;
 lean_object* l_Std_HashSetImp_insert___at_Lean_NameHashSet_insert___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_foldConsts___boxed(lean_object*, lean_object*);
-size_t l_USize_mod(size_t, size_t);
+size_t lean_usize_mod(size_t, size_t);
 size_t lean_ptr_addr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FoldConstsImpl_fold(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -66,7 +66,7 @@ _start:
 {
 size_t x_4; size_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; size_t x_9; uint8_t x_10; 
 x_4 = lean_ptr_addr(x_1);
-x_5 = x_2 == 0 ? x_4 : x_4 % x_2;
+x_5 = lean_usize_mod(x_4, x_2);
 x_6 = lean_ctor_get(x_3, 0);
 lean_inc(x_6);
 x_7 = lean_ctor_get(x_3, 1);
@@ -74,7 +74,7 @@ lean_inc(x_7);
 x_8 = lean_array_uget(x_6, x_5);
 x_9 = lean_ptr_addr(x_8);
 lean_dec(x_8);
-x_10 = x_9 == x_4;
+x_10 = lean_usize_dec_eq(x_9, x_4);
 if (x_10 == 0)
 {
 uint8_t x_11; 
@@ -141,7 +141,7 @@ _start:
 {
 lean_object* x_6; size_t x_82; size_t x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; size_t x_87; uint8_t x_88; 
 x_82 = lean_ptr_addr(x_3);
-x_83 = x_2 == 0 ? x_82 : x_82 % x_2;
+x_83 = lean_usize_mod(x_82, x_2);
 x_84 = lean_ctor_get(x_5, 0);
 lean_inc(x_84);
 x_85 = lean_ctor_get(x_5, 1);
@@ -149,7 +149,7 @@ lean_inc(x_85);
 x_86 = lean_array_uget(x_84, x_83);
 x_87 = lean_ptr_addr(x_86);
 lean_dec(x_86);
-x_88 = x_87 == x_82;
+x_88 = lean_usize_dec_eq(x_87, x_82);
 if (x_88 == 0)
 {
 uint8_t x_89; 
@@ -719,7 +719,7 @@ if (lean_obj_tag(x_7) == 2)
 uint32_t x_8; uint8_t x_9; 
 x_8 = lean_ctor_get_uint32(x_7, 0);
 lean_dec(x_7);
-x_9 = x_3 < x_8;
+x_9 = lean_uint32_dec_lt(x_3, x_8);
 if (x_9 == 0)
 {
 return x_3;

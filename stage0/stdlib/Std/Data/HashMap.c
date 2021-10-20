@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Std_AssocList_foldlM___at_Std_HashMap_toList___spec__1___rarg___boxed(lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT uint8_t l_Std_HashMap_isEmpty___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMapImp_moveEntries___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_fold___spec__2___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -27,7 +27,7 @@ LEAN_EXPORT lean_object* l_Std_HashMapImp_fold(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_HashMap_empty___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMapImp_foldBucketsM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMapImp_find_x3f(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Std_HashMapImp_reinsertAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_find_x21(lean_object*, lean_object*);
@@ -72,7 +72,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_erase___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_foldlM___at_Std_HashMap_toArray___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_toArray___spec__2___rarg(lean_object*, size_t, size_t, lean_object*);
-size_t l_UInt64_toUSize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Std_HashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_mkHashMapImp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_numBuckets___rarg(lean_object*);
@@ -352,7 +352,7 @@ lean_inc(x_3);
 x_6 = lean_apply_1(x_1, x_3);
 x_7 = lean_unbox_uint64(x_6);
 lean_dec(x_6);
-x_8 = (size_t)x_7;
+x_8 = lean_uint64_to_usize(x_7);
 x_9 = lean_usize_modn(x_8, x_5);
 lean_dec(x_5);
 x_10 = lean_array_uget(x_2, x_9);
@@ -377,7 +377,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_foldBucketsM___spec__1___rarg(x_2, x_3, x_4, x_8, x_5, x_6);
 return x_9;
 }
@@ -386,7 +386,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_foldBucke
 _start:
 {
 uint8_t x_7; 
-x_7 = x_4 == x_5;
+x_7 = lean_usize_dec_eq(x_4, x_5);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -554,7 +554,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_foldBucke
 _start:
 {
 uint8_t x_6; 
-x_6 = x_3 == x_4;
+x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
@@ -562,7 +562,7 @@ x_7 = lean_array_uget(x_2, x_3);
 lean_inc(x_1);
 x_8 = l_Std_AssocList_foldlM___at_Std_HashMapImp_foldBuckets___spec__1___rarg(x_1, x_5, x_7);
 x_9 = 1;
-x_10 = x_3 + x_9;
+x_10 = lean_usize_add(x_3, x_9);
 x_3 = x_10;
 x_5 = x_8;
 goto _start;
@@ -646,7 +646,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_foldM___spec__1___rarg(x_2, x_3, x_4, x_8, x_5, x_6);
 return x_9;
 }
@@ -655,7 +655,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_foldM___s
 _start:
 {
 uint8_t x_7; 
-x_7 = x_4 == x_5;
+x_7 = lean_usize_dec_eq(x_4, x_5);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -826,7 +826,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_fold___sp
 _start:
 {
 uint8_t x_6; 
-x_6 = x_3 == x_4;
+x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
@@ -834,7 +834,7 @@ x_7 = lean_array_uget(x_2, x_3);
 lean_inc(x_1);
 x_8 = l_Std_AssocList_foldlM___at_Std_HashMapImp_fold___spec__1___rarg(x_1, x_5, x_7);
 x_9 = 1;
-x_10 = x_3 + x_9;
+x_10 = lean_usize_add(x_3, x_9);
 x_3 = x_10;
 x_5 = x_8;
 goto _start;
@@ -921,7 +921,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucketsM___spec__1___rarg(x_2, x_3, x_4, x_8, x_5, x_6);
 return x_9;
 }
@@ -930,7 +930,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forBucket
 _start:
 {
 uint8_t x_7; 
-x_7 = x_4 == x_5;
+x_7 = lean_usize_dec_eq(x_4, x_5);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -1069,7 +1069,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___spec__1___rarg(x_2, x_3, x_4, x_8, x_5, x_6);
 return x_9;
 }
@@ -1078,7 +1078,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMapImp_forM___sp
 _start:
 {
 uint8_t x_7; 
-x_7 = x_4 == x_5;
+x_7 = lean_usize_dec_eq(x_4, x_5);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -1225,7 +1225,7 @@ lean_inc(x_4);
 x_7 = lean_apply_1(x_2, x_4);
 x_8 = lean_unbox_uint64(x_7);
 lean_dec(x_7);
-x_9 = (size_t)x_8;
+x_9 = lean_uint64_to_usize(x_8);
 x_10 = lean_usize_modn(x_9, x_6);
 lean_dec(x_6);
 x_11 = lean_array_uget(x_5, x_10);
@@ -1260,7 +1260,7 @@ lean_inc(x_4);
 x_7 = lean_apply_1(x_2, x_4);
 x_8 = lean_unbox_uint64(x_7);
 lean_dec(x_7);
-x_9 = (size_t)x_8;
+x_9 = lean_uint64_to_usize(x_8);
 x_10 = lean_usize_modn(x_9, x_6);
 lean_dec(x_6);
 x_11 = lean_array_uget(x_5, x_10);
@@ -1295,7 +1295,7 @@ lean_inc(x_4);
 x_7 = lean_apply_1(x_2, x_4);
 x_8 = lean_unbox_uint64(x_7);
 lean_dec(x_7);
-x_9 = (size_t)x_8;
+x_9 = lean_uint64_to_usize(x_8);
 x_10 = lean_usize_modn(x_9, x_6);
 lean_dec(x_6);
 x_11 = lean_array_uget(x_5, x_10);
@@ -1344,7 +1344,7 @@ lean_inc(x_5);
 x_8 = lean_apply_1(x_1, x_5);
 x_9 = lean_unbox_uint64(x_8);
 lean_dec(x_8);
-x_10 = (size_t)x_9;
+x_10 = lean_uint64_to_usize(x_9);
 x_11 = lean_usize_modn(x_10, x_7);
 lean_dec(x_7);
 x_12 = lean_array_uget(x_2, x_11);
@@ -1370,7 +1370,7 @@ lean_inc(x_15);
 x_19 = lean_apply_1(x_1, x_15);
 x_20 = lean_unbox_uint64(x_19);
 lean_dec(x_19);
-x_21 = (size_t)x_20;
+x_21 = lean_uint64_to_usize(x_20);
 x_22 = lean_usize_modn(x_21, x_18);
 lean_dec(x_18);
 x_23 = lean_array_uget(x_2, x_22);
@@ -1476,7 +1476,7 @@ lean_inc(x_4);
 x_10 = lean_apply_1(x_2, x_4);
 x_11 = lean_unbox_uint64(x_10);
 lean_dec(x_10);
-x_12 = (size_t)x_11;
+x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_modn(x_12, x_9);
 x_14 = lean_array_uget(x_8, x_13);
 lean_inc(x_14);
@@ -1555,7 +1555,7 @@ lean_inc(x_4);
 x_37 = lean_apply_1(x_2, x_4);
 x_38 = lean_unbox_uint64(x_37);
 lean_dec(x_37);
-x_39 = (size_t)x_38;
+x_39 = lean_uint64_to_usize(x_38);
 x_40 = lean_usize_modn(x_39, x_36);
 x_41 = lean_array_uget(x_35, x_40);
 lean_inc(x_41);
@@ -1645,7 +1645,7 @@ lean_inc(x_4);
 x_8 = lean_apply_1(x_2, x_4);
 x_9 = lean_unbox_uint64(x_8);
 lean_dec(x_8);
-x_10 = (size_t)x_9;
+x_10 = lean_uint64_to_usize(x_9);
 x_11 = lean_usize_modn(x_10, x_7);
 lean_dec(x_7);
 x_12 = lean_array_uget(x_6, x_11);
@@ -1821,7 +1821,7 @@ lean_inc(x_4);
 x_10 = lean_apply_1(x_2, x_4);
 x_11 = lean_unbox_uint64(x_10);
 lean_dec(x_10);
-x_12 = (size_t)x_11;
+x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_modn(x_12, x_9);
 x_14 = lean_array_uget(x_8, x_13);
 lean_inc(x_14);
@@ -1884,7 +1884,7 @@ lean_inc(x_4);
 x_28 = lean_apply_1(x_2, x_4);
 x_29 = lean_unbox_uint64(x_28);
 lean_dec(x_28);
-x_30 = (size_t)x_29;
+x_30 = lean_uint64_to_usize(x_29);
 x_31 = lean_usize_modn(x_30, x_27);
 x_32 = lean_array_uget(x_26, x_31);
 lean_inc(x_32);
@@ -1962,7 +1962,7 @@ lean_inc(x_4);
 x_10 = lean_apply_1(x_2, x_4);
 x_11 = lean_unbox_uint64(x_10);
 lean_dec(x_10);
-x_12 = (size_t)x_11;
+x_12 = lean_uint64_to_usize(x_11);
 x_13 = lean_usize_modn(x_12, x_9);
 x_14 = lean_array_uget(x_8, x_13);
 lean_inc(x_14);
@@ -2041,7 +2041,7 @@ lean_inc(x_4);
 x_37 = lean_apply_1(x_2, x_4);
 x_38 = lean_unbox_uint64(x_37);
 lean_dec(x_37);
-x_39 = (size_t)x_38;
+x_39 = lean_uint64_to_usize(x_38);
 x_40 = lean_usize_modn(x_39, x_36);
 x_41 = lean_array_uget(x_35, x_40);
 lean_inc(x_41);
@@ -2355,7 +2355,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = l_Array_foldlMUnsafe_fold___at_Std_HashMap_foldM___spec__1___rarg(x_2, x_3, x_4, x_8, x_5, x_6);
 return x_9;
 }
@@ -2364,7 +2364,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_foldM___spec
 _start:
 {
 uint8_t x_7; 
-x_7 = x_4 == x_5;
+x_7 = lean_usize_dec_eq(x_4, x_5);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -2545,7 +2545,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_fold___spec_
 _start:
 {
 uint8_t x_6; 
-x_6 = x_3 == x_4;
+x_6 = lean_usize_dec_eq(x_3, x_4);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; size_t x_9; size_t x_10; 
@@ -2553,7 +2553,7 @@ x_7 = lean_array_uget(x_2, x_3);
 lean_inc(x_1);
 x_8 = l_Std_AssocList_foldlM___at_Std_HashMap_fold___spec__1___rarg(x_1, x_5, x_7);
 x_9 = 1;
-x_10 = x_3 + x_9;
+x_10 = lean_usize_add(x_3, x_9);
 x_3 = x_10;
 x_5 = x_8;
 goto _start;
@@ -2650,7 +2650,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec__1___rarg(x_2, x_3, x_4, x_8, x_5, x_6);
 return x_9;
 }
@@ -2659,7 +2659,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_forM___spec_
 _start:
 {
 uint8_t x_7; 
-x_7 = x_4 == x_5;
+x_7 = lean_usize_dec_eq(x_4, x_5);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -2919,7 +2919,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_toList___spe
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
@@ -2927,7 +2927,7 @@ x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Std_AssocList_foldlM___at_Std_HashMap_toList___spec__1___rarg(x_4, x_6);
 lean_dec(x_6);
 x_8 = 1;
-x_9 = x_2 + x_8;
+x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
 x_4 = x_7;
 goto _start;
@@ -3063,7 +3063,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_HashMap_toArray___sp
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
@@ -3071,7 +3071,7 @@ x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Std_AssocList_foldlM___at_Std_HashMap_toArray___spec__1___rarg(x_4, x_6);
 lean_dec(x_6);
 x_8 = 1;
-x_9 = x_2 + x_8;
+x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
 x_4 = x_7;
 goto _start;

@@ -87,15 +87,13 @@ private partial def hasLiftMethod : Syntax → Bool
 structure ExtractMonadResult where
   m            : Expr
   α            : Expr
-  hasBindInst  : Expr
   expectedType : Expr
   isPure       : Bool -- `true` when it is a pure `do` block. That is, Lean implicitly inserted the `Id` Monad.
 
 private def mkIdBindFor (type : Expr) : TermElabM ExtractMonadResult := do
   let u ← getDecLevel type
   let id        := Lean.mkConst ``Id [u]
-  let idBindVal := Lean.mkConst ``Id.hasBind [u]
-  pure { m := id, hasBindInst := idBindVal, α := type, expectedType := mkApp id type, isPure := true }
+  pure { m := id, α := type, expectedType := mkApp id type, isPure := true }
 
 private partial def extractBind (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do
   match expectedType? with
@@ -106,8 +104,8 @@ private partial def extractBind (expectedType? : Option Expr) : TermElabM Extrac
       | Expr.app m α _ =>
         try
           let bindInstType ← mkAppM ``Bind #[m]
-          let bindInstVal  ← Meta.synthInstance bindInstType
-          return some { m := m, hasBindInst := bindInstVal, α := α, expectedType := expectedType, isPure := false }
+          let _  ← Meta.synthInstance bindInstType
+          return some { m := m, α := α, expectedType := expectedType, isPure := false }
         catch _ =>
           return none
       | _ =>

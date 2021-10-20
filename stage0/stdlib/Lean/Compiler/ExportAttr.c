@@ -17,7 +17,7 @@ LEAN_EXPORT lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_g
 LEAN_EXPORT lean_object* l_Lean_exportAttr___lambda__5___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_exportAttr___lambda__4___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_exportAttr___closed__9;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_isExport___closed__1;
 LEAN_EXPORT lean_object* l_Lean_isExport___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -26,7 +26,7 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParametricAttribute_getParam___at_Lean_getExportNameFor___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 static lean_object* l_Lean_exportAttr___closed__1;
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____spec__5___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExportAttr_0__Lean_isValidCppId___lambda__1___boxed(lean_object*);
@@ -147,7 +147,7 @@ LEAN_EXPORT lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_g
 LEAN_EXPORT lean_object* l_Lean_exportAttr___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____spec__1___lambda__7___closed__1;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____lambda__4(lean_object*, lean_object*, lean_object*);
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 static lean_object* l_Lean_exportAttr___closed__12;
 LEAN_EXPORT lean_object* l_Lean_registerParametricAttribute___at_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____spec__1___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_94____lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -209,7 +209,7 @@ if (x_3 == 0)
 {
 uint32_t x_4; uint8_t x_5; 
 x_4 = 95;
-x_5 = x_1 == x_4;
+x_5 = lean_uint32_dec_eq(x_1, x_4);
 if (x_5 == 0)
 {
 uint8_t x_6; 
@@ -642,7 +642,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_initFn____x40_Lean_Compiler
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 == x_4;
+x_5 = lean_usize_dec_eq(x_3, x_4);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
@@ -657,7 +657,7 @@ if (x_9 == 0)
 {
 size_t x_10; size_t x_11; 
 x_10 = 1;
-x_11 = x_3 + x_10;
+x_11 = lean_usize_add(x_3, x_10);
 x_3 = x_11;
 goto _start;
 }

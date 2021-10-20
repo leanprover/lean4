@@ -11,11 +11,8 @@ import Init.Data.Array.Subarray
 import Init.Data.ToString
 namespace Lean
 
-syntax "Macro.trace[" ident "]" interpolatedStr(term) : term
-
-macro_rules
-  | `(Macro.trace[$id] $s) => `(Macro.trace $(quote id.getId) (s! $s))
-
+macro "Macro.trace[" id:ident "]" s:interpolatedStr(term) : term =>
+  `(Macro.trace $(quote id.getId.eraseMacroScopes) (s! $s))
 
 -- Auxiliary parsers and functions for declaring notation with binders
 

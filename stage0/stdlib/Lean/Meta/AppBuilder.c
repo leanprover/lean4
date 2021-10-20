@@ -23,7 +23,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_mkPropExt(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_Meta_mkSub(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkAdd___closed__2;
 static lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppMArgs_loop___closed__9;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Meta_mkLt___closed__4;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 static lean_object* l___private_Lean_Meta_AppBuilder_0__Lean_Meta_mkAppMArgs_loop___closed__8;
@@ -45,7 +45,7 @@ static lean_object* l_Lean_Meta_mkHEqSymm___closed__1;
 static lean_object* l_Lean_Meta_mkEqSymm___closed__1;
 static lean_object* l_Lean_Meta_mkLe___closed__4;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_Meta_mkDecideProof___closed__1;
 static lean_object* l_Lean_Meta_mkAbsurd___closed__2;
@@ -111,7 +111,7 @@ static lean_object* l_Lean_Meta_mkLetBodyCongr___closed__2;
 static lean_object* l_Lean_Meta_mkDecide___closed__1;
 static lean_object* l_Lean_Meta_mkProjection___closed__4;
 static lean_object* l_Lean_Meta_mkSorry___closed__9;
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Meta_mkLetBodyCongr___closed__1;
 static lean_object* l_Lean_Meta_mkCongrArg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_mkAppOptM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4295,7 +4295,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_AppB
 _start:
 {
 uint8_t x_10; 
-x_10 = x_2 == x_3;
+x_10 = lean_usize_dec_eq(x_2, x_3);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -4335,7 +4335,7 @@ x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
 lean_dec(x_20);
 x_23 = 1;
-x_24 = x_2 + x_23;
+x_24 = lean_usize_add(x_2, x_23);
 x_2 = x_24;
 x_4 = x_21;
 x_9 = x_22;
@@ -7580,13 +7580,13 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_AppB
 _start:
 {
 uint8_t x_5; 
-x_5 = x_2 == x_3;
+x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 lean_object* x_6; size_t x_7; size_t x_8; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = 1;
-x_8 = x_2 + x_7;
+x_8 = lean_usize_add(x_2, x_7);
 if (lean_obj_tag(x_6) == 0)
 {
 x_2 = x_8;
@@ -11220,7 +11220,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_mkProjection___
 _start:
 {
 uint8_t x_16; 
-x_16 = x_9 < x_8;
+x_16 = lean_usize_dec_lt(x_9, x_8);
 if (x_16 == 0)
 {
 lean_object* x_17; 
@@ -11461,7 +11461,7 @@ if (lean_obj_tag(x_19) == 0)
 {
 size_t x_21; size_t x_22; 
 x_21 = 1;
-x_22 = x_9 + x_21;
+x_22 = lean_usize_add(x_9, x_21);
 lean_inc(x_6);
 {
 size_t _tmp_8 = x_22;

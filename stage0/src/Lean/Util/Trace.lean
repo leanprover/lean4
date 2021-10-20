@@ -143,7 +143,7 @@ def registerTraceClass (traceClassName : Name) : IO Unit :=
 macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
   let msg ← if s.getKind == interpolatedStrKind then `(m! $s) else `(($s : MessageData))
   `(doElem| do
-    let cls := $(quote id.getId)
+    let cls := $(quote id.getId.eraseMacroScopes)
     if (← Lean.isTracingEnabledFor cls) then
       Lean.addTrace cls $msg)
 

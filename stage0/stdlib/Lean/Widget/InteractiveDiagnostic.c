@@ -23,7 +23,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRp
 LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__59(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__12(lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__30___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_mapM___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__24(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__5___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___lambda__10(lean_object*, lean_object*, lean_object*);
@@ -49,7 +49,7 @@ LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_Widget_InteractiveDiagnost
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__41___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__30___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__10___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_Lean_Widget_InfoWithCtx_decodeUnsafe____x40_Lean_Widget_InteractiveCode___hyg_5____rarg(lean_object*, lean_object*, size_t);
@@ -162,7 +162,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Widget_In
 LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__16___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_msgToInteractiveAux_go___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__12___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_MsgEmbed_fromJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_265____lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Widget_Lean_MessageData_instRpcEncodingWithRpcRefMessageDataRpcRef___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__19___rarg___lambda__1(size_t, lean_object*, lean_object*, size_t, lean_object*);
@@ -923,7 +923,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Widget_Inter
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; 
@@ -967,7 +967,7 @@ x_15 = lean_ctor_get(x_11, 0);
 lean_inc(x_15);
 lean_dec(x_11);
 x_16 = 1;
-x_17 = x_2 + x_16;
+x_17 = lean_usize_add(x_2, x_16);
 x_18 = x_15;
 x_19 = lean_array_uset(x_9, x_2, x_18);
 x_2 = x_17;
@@ -2268,7 +2268,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Widget_Inter
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -2284,7 +2284,7 @@ x_8 = lean_array_uset(x_3, x_2, x_7);
 x_9 = x_6;
 x_10 = l___private_Lean_Widget_TaggedText_0__Lean_Widget_toJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_578____at___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_MsgEmbed_toJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_439____spec__1(x_9);
 x_11 = 1;
-x_12 = x_2 + x_11;
+x_12 = lean_usize_add(x_2, x_11);
 x_13 = x_10;
 x_14 = lean_array_uset(x_8, x_2, x_13);
 x_2 = x_12;
@@ -2504,7 +2504,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__2___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -2515,7 +2515,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRp
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -2708,7 +2708,7 @@ _start:
 {
 size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_6 = 1;
-x_7 = x_1 + x_6;
+x_7 = lean_usize_add(x_1, x_6);
 x_8 = x_5;
 x_9 = lean_array_uset(x_2, x_1, x_8);
 x_10 = l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__3___rarg(x_3, x_4, x_7, x_9);
@@ -2719,7 +2719,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRp
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
@@ -2773,7 +2773,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__5___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -2784,7 +2784,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRp
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -2943,7 +2943,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__7___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -2954,7 +2954,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRp
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -3278,7 +3278,7 @@ _start:
 {
 size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_8 = 1;
-x_9 = x_1 + x_8;
+x_9 = lean_usize_add(x_1, x_8);
 x_10 = x_7;
 x_11 = lean_array_uset(x_2, x_1, x_10);
 x_12 = l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__8___rarg(x_3, x_4, x_5, x_6, x_9, x_11);
@@ -3289,7 +3289,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRp
 _start:
 {
 uint8_t x_7; 
-x_7 = x_5 < x_4;
+x_7 = lean_usize_dec_lt(x_5, x_4);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -3361,7 +3361,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__10___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -3372,7 +3372,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRp
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -3647,7 +3647,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__13___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -3658,7 +3658,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRp
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -4173,7 +4173,7 @@ _start:
 {
 size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_6 = 1;
-x_7 = x_1 + x_6;
+x_7 = lean_usize_add(x_1, x_6);
 x_8 = x_5;
 x_9 = lean_array_uset(x_2, x_1, x_8);
 x_10 = l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__19___rarg(x_3, x_4, x_7, x_9);
@@ -4184,7 +4184,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRp
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -4364,7 +4364,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__23___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -4375,7 +4375,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRp
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -4853,7 +4853,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__30___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -4864,7 +4864,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRp
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -5627,7 +5627,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__37___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -5638,7 +5638,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRp
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -5836,7 +5836,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRpcEncodingMsgEmbedRpcEncodingPacket___spec__41___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -5847,7 +5847,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_MsgEmbed_instRp
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -7536,7 +7536,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__2___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -7547,7 +7547,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiag
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -7706,7 +7706,7 @@ _start:
 {
 size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_6 = 1;
-x_7 = x_1 + x_6;
+x_7 = lean_usize_add(x_1, x_6);
 x_8 = x_5;
 x_9 = lean_array_uset(x_2, x_1, x_8);
 x_10 = l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__3___rarg(x_3, x_4, x_7, x_9);
@@ -7717,7 +7717,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiag
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
@@ -7771,7 +7771,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__5___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -7782,7 +7782,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiag
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -7941,7 +7941,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__7___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -7952,7 +7952,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiag
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -8192,7 +8192,7 @@ _start:
 {
 size_t x_8; size_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_8 = 1;
-x_9 = x_1 + x_8;
+x_9 = lean_usize_add(x_1, x_8);
 x_10 = x_7;
 x_11 = lean_array_uset(x_2, x_1, x_10);
 x_12 = l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__8___rarg(x_3, x_4, x_5, x_6, x_9, x_11);
@@ -8203,7 +8203,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiag
 _start:
 {
 uint8_t x_7; 
-x_7 = x_5 < x_4;
+x_7 = lean_usize_dec_lt(x_5, x_4);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -8275,7 +8275,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__10___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -8286,7 +8286,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiag
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -8445,7 +8445,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__12___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -8456,7 +8456,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiag
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -8747,7 +8747,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__15___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -8758,7 +8758,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiag
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -9236,7 +9236,7 @@ _start:
 {
 size_t x_6; size_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_6 = 1;
-x_7 = x_1 + x_6;
+x_7 = lean_usize_add(x_1, x_6);
 x_8 = x_5;
 x_9 = lean_array_uset(x_2, x_1, x_8);
 x_10 = l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__21___rarg(x_3, x_4, x_7, x_9);
@@ -9247,7 +9247,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiag
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
@@ -9427,7 +9427,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__25___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -9438,7 +9438,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiag
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -9916,7 +9916,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__32___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -9927,7 +9927,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiag
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -10565,7 +10565,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__39___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -10576,7 +10576,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiag
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -10774,7 +10774,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__43___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -10785,7 +10785,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiag
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -11495,7 +11495,7 @@ _start:
 {
 size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_7 = 1;
-x_8 = x_1 + x_7;
+x_8 = lean_usize_add(x_1, x_7);
 x_9 = x_6;
 x_10 = lean_array_uset(x_2, x_1, x_9);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiagnostic_instRpcEncodingInteractiveDiagnosticRpcEncodingPacket___spec__54___rarg(x_3, x_4, x_5, x_8, x_10);
@@ -11506,7 +11506,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_InteractiveDiag
 _start:
 {
 uint8_t x_6; 
-x_6 = x_4 < x_3;
+x_6 = lean_usize_dec_lt(x_4, x_3);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
@@ -13395,7 +13395,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Widget_In
 _start:
 {
 uint8_t x_9; 
-x_9 = x_4 == x_5;
+x_9 = lean_usize_dec_eq(x_4, x_5);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -13424,7 +13424,7 @@ x_18 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_14);
 x_19 = 1;
-x_20 = x_4 + x_19;
+x_20 = lean_usize_add(x_4, x_19);
 x_4 = x_20;
 x_6 = x_18;
 x_7 = x_15;
@@ -13545,7 +13545,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Widget_In
 _start:
 {
 uint8_t x_9; 
-x_9 = x_4 == x_5;
+x_9 = lean_usize_dec_eq(x_4, x_5);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -13574,7 +13574,7 @@ x_18 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_14);
 x_19 = 1;
-x_20 = x_4 + x_19;
+x_20 = lean_usize_add(x_4, x_19);
 x_4 = x_20;
 x_6 = x_18;
 x_7 = x_15;
@@ -15509,7 +15509,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_msgToInteractiv
 _start:
 {
 uint8_t x_6; 
-x_6 = x_3 < x_2;
+x_6 = lean_usize_dec_lt(x_3, x_2);
 if (x_6 == 0)
 {
 lean_object* x_7; lean_object* x_8; 
@@ -15538,7 +15538,7 @@ x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec(x_13);
 x_16 = 1;
-x_17 = x_3 + x_16;
+x_17 = lean_usize_add(x_3, x_16);
 x_18 = x_14;
 x_19 = lean_array_uset(x_11, x_3, x_18);
 x_3 = x_17;

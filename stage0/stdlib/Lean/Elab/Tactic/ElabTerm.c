@@ -20,7 +20,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalApplyLikeTactic(lean_object*, le
 lean_object* l_Lean_compileDecl___at_Lean_Elab_Term_evalExpr___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalRename___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalApplyLikeTactic___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalWithReducibleAndInstances(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewMCtxDepthImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalConstructor(lean_object*);
@@ -36,7 +36,7 @@ lean_object* l_Lean_LocalDecl_userName(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalDecide___closed__2;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_elabTermWithHoles___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalExact(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalNativeDecide(lean_object*);
@@ -1272,7 +1272,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_filterO
 _start:
 {
 uint8_t x_7; 
-x_7 = x_4 == x_5;
+x_7 = lean_usize_dec_eq(x_4, x_5);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; size_t x_12; size_t x_13; 
@@ -1286,7 +1286,7 @@ lean_dec(x_9);
 x_11 = lean_nat_dec_le(x_1, x_10);
 lean_dec(x_10);
 x_12 = 1;
-x_13 = x_4 + x_12;
+x_13 = lean_usize_add(x_4, x_12);
 if (x_11 == 0)
 {
 lean_dec(x_8);
@@ -1864,7 +1864,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_elabTer
 _start:
 {
 uint8_t x_14; 
-x_14 = x_2 == x_3;
+x_14 = lean_usize_dec_eq(x_2, x_3);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
@@ -1887,7 +1887,7 @@ if (x_20 == 0)
 lean_object* x_21; size_t x_22; size_t x_23; 
 x_21 = lean_array_push(x_4, x_15);
 x_22 = 1;
-x_23 = x_2 + x_22;
+x_23 = lean_usize_add(x_2, x_22);
 x_2 = x_23;
 x_4 = x_21;
 x_13 = x_18;
@@ -1898,7 +1898,7 @@ else
 size_t x_25; size_t x_26; 
 lean_dec(x_15);
 x_25 = 1;
-x_26 = x_2 + x_25;
+x_26 = lean_usize_add(x_2, x_25);
 x_2 = x_26;
 x_13 = x_18;
 goto _start;
@@ -1943,7 +1943,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_elabTer
 _start:
 {
 uint8_t x_14; 
-x_14 = x_2 == x_3;
+x_14 = lean_usize_dec_eq(x_2, x_3);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
@@ -1966,7 +1966,7 @@ if (x_20 == 0)
 size_t x_21; size_t x_22; 
 lean_dec(x_15);
 x_21 = 1;
-x_22 = x_2 + x_21;
+x_22 = lean_usize_add(x_2, x_21);
 x_2 = x_22;
 x_13 = x_18;
 goto _start;
@@ -1976,7 +1976,7 @@ else
 lean_object* x_24; size_t x_25; size_t x_26; 
 x_24 = lean_array_push(x_4, x_15);
 x_25 = 1;
-x_26 = x_2 + x_25;
+x_26 = lean_usize_add(x_2, x_25);
 x_2 = x_26;
 x_4 = x_24;
 x_13 = x_18;
@@ -2022,7 +2022,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_elabTer
 _start:
 {
 uint8_t x_14; 
-x_14 = x_2 == x_3;
+x_14 = lean_usize_dec_eq(x_2, x_3);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
@@ -2047,7 +2047,7 @@ lean_inc(x_19);
 lean_dec(x_16);
 x_20 = lean_array_push(x_4, x_15);
 x_21 = 1;
-x_22 = x_2 + x_21;
+x_22 = lean_usize_add(x_2, x_21);
 x_2 = x_22;
 x_4 = x_20;
 x_13 = x_19;
@@ -2061,7 +2061,7 @@ x_24 = lean_ctor_get(x_16, 1);
 lean_inc(x_24);
 lean_dec(x_16);
 x_25 = 1;
-x_26 = x_2 + x_25;
+x_26 = lean_usize_add(x_2, x_25);
 x_2 = x_26;
 x_13 = x_24;
 goto _start;

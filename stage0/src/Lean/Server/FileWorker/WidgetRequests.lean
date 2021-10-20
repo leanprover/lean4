@@ -67,16 +67,31 @@ builtin_initialize
     (Option InteractiveTermGoal)
     FileWorker.getInteractiveTermGoal
 
+structure GetInteractiveDiagnosticsParams where
+  /-- Return diagnostics for these lines only if present,
+  otherwise return all diagnostics. -/
+  lineRange? : Option Lsp.LineRange
+  deriving Inhabited, FromJson, ToJson
+
 open RequestM in
-def getInteractiveDiagnostics (_ : Json) : RequestM (RequestTask (Array InteractiveDiagnostic)) := do
+def getInteractiveDiagnostics (params : GetInteractiveDiagnosticsParams) : RequestM (RequestTask (Array InteractiveDiagnostic)) := do
   let doc ← readDoc
-  let t₁ ← doc.cmdSnaps.waitAll
-  t₁.map fun (snaps, _) => snaps.getLast!.interactiveDiags.toArray
+  let rangeEnd ← params.lineRange?.map fun range =>
+    doc.meta.text.lspPosToUtf8Pos ⟨range.«end», 0⟩
+  let t ← doc.cmdSnaps.waitAll fun snap => rangeEnd.all (snap.beginPos < ·)
+  t.map fun (snaps, _) =>
+    let diags? := snaps.getLast?.map fun snap =>
+      snap.interactiveDiags.toArray.filter fun diag =>
+        params.lineRange?.all fun ⟨s, e⟩ =>
+          -- does [s,e) intersect [diag.fullRange.start.line,diag.fullRange.end.line)?
+          s ≤ diag.fullRange.start.line ∧ diag.fullRange.start.line < e ∨
+          diag.fullRange.start.line ≤ s ∧ s < diag.fullRange.end.line
+    diags?.getD #[]
 
 builtin_initialize
   registerRpcCallHandler
     `Lean.Widget.getInteractiveDiagnostics
-    Json
+    GetInteractiveDiagnosticsParams
     (Array InteractiveDiagnostic)
     getInteractiveDiagnostics
 

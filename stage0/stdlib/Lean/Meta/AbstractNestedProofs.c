@@ -14,13 +14,13 @@
 extern "C" {
 #endif
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAuxAux___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLCtx___at_Lean_Meta_AbstractNestedProofs_visit___spec__5(lean_object*);
 lean_object* l_Lean_mkSort(lean_object*);
 lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 extern lean_object* l_Lean_ExprStructEq_instHashableExprStructEq;
@@ -29,7 +29,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_AbstractNestedProofs_i
 static lean_object* l_Lean_Meta_abstractNestedProofs___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* l_Lean_Meta_mkAuxDefinitionFor(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_levelZero;
 extern lean_object* l_Lean_ExprStructEq_instBEqExprStructEq;
@@ -112,7 +112,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_AbstractNestedProofs_i
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 == x_3;
+x_4 = lean_usize_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; uint8_t x_6; 
@@ -129,7 +129,7 @@ else
 {
 size_t x_8; size_t x_9; 
 x_8 = 1;
-x_9 = x_2 + x_8;
+x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
 goto _start;
 }
@@ -504,7 +504,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_AbstractNestedPro
 _start:
 {
 uint8_t x_12; 
-x_12 = x_2 < x_1;
+x_12 = lean_usize_dec_lt(x_2, x_1);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -545,7 +545,7 @@ x_21 = lean_ctor_get(x_19, 1);
 lean_inc(x_21);
 lean_dec(x_19);
 x_22 = 1;
-x_23 = x_2 + x_22;
+x_23 = lean_usize_add(x_2, x_22);
 x_24 = x_20;
 x_25 = lean_array_uset(x_17, x_2, x_24);
 x_2 = x_23;
@@ -871,7 +871,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_AbstractNestedP
 _start:
 {
 uint8_t x_13; 
-x_13 = x_3 < x_2;
+x_13 = lean_usize_dec_lt(x_3, x_2);
 if (x_13 == 0)
 {
 lean_object* x_14; 
@@ -935,7 +935,7 @@ x_29 = lean_ctor_get(x_27, 0);
 lean_inc(x_29);
 lean_dec(x_27);
 x_30 = 1;
-x_31 = x_3 + x_30;
+x_31 = lean_usize_add(x_3, x_30);
 x_3 = x_31;
 x_4 = x_29;
 x_12 = x_28;
@@ -974,7 +974,7 @@ x_41 = lean_ctor_get(x_39, 0);
 lean_inc(x_41);
 lean_dec(x_39);
 x_42 = 1;
-x_43 = x_3 + x_42;
+x_43 = lean_usize_add(x_3, x_42);
 x_3 = x_43;
 x_4 = x_41;
 x_12 = x_40;

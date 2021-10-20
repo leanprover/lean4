@@ -109,7 +109,7 @@ LEAN_EXPORT lean_object* l_Lean_Json_instCoeNatJson(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Json_Basic_0__Lean_Json_beq_x27___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Json_getBool_x3f___closed__2;
 static lean_object* l_Lean_JsonNumber_instReprJsonNumber___closed__6;
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 static lean_object* l_Lean_Json_getBool_x3f___closed__1;
 LEAN_EXPORT uint8_t l_Lean_JsonNumber_instDecidableLt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonNumber_fromNat(lean_object*);
@@ -2617,7 +2617,7 @@ lean_object* x_5; uint32_t x_6; uint32_t x_7; uint8_t x_8;
 x_5 = lean_string_utf8_prev(x_1, x_3);
 x_6 = lean_string_utf8_get(x_1, x_5);
 x_7 = 48;
-x_8 = x_6 == x_7;
+x_8 = lean_uint32_dec_eq(x_6, x_7);
 if (x_8 == 0)
 {
 lean_dec(x_5);

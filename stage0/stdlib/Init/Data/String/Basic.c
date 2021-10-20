@@ -201,7 +201,7 @@ LEAN_EXPORT lean_object* l_Substring_posOf___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_nextWhile(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Iterator_hasNext___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_revPosOf___boxed(lean_object*, lean_object*);
-uint8_t l_UInt32_decEq(uint32_t, uint32_t);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_String_intercalate(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__Substring_takeRightWhileAux___at_Substring_trimRight___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_posOfAux(lean_object*, uint32_t, lean_object*, lean_object*);
@@ -704,7 +704,7 @@ if (x_5 == 0)
 {
 uint32_t x_6; uint8_t x_7; 
 x_6 = lean_string_utf8_get(x_1, x_4);
-x_7 = x_6 == x_2;
+x_7 = lean_uint32_dec_eq(x_6, x_2);
 if (x_7 == 0)
 {
 lean_object* x_8; 
@@ -763,7 +763,7 @@ _start:
 {
 uint32_t x_4; uint8_t x_5; 
 x_4 = lean_string_utf8_get(x_1, x_3);
-x_5 = x_4 == x_2;
+x_5 = lean_uint32_dec_eq(x_4, x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 
@@ -1244,7 +1244,7 @@ if (x_7 == 0)
 uint32_t x_8; uint32_t x_9; uint8_t x_10; 
 x_8 = lean_string_utf8_get(x_1, x_4);
 x_9 = lean_string_utf8_get(x_2, x_5);
-x_10 = x_8 == x_9;
+x_10 = lean_uint32_dec_eq(x_8, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -2522,7 +2522,7 @@ LEAN_EXPORT uint8_t l_String_contains___lambda__1(uint32_t x_1, uint32_t x_2) {
 _start:
 {
 uint8_t x_3; 
-x_3 = x_2 == x_1;
+x_3 = lean_uint32_dec_eq(x_2, x_1);
 return x_3;
 }
 }
@@ -2753,7 +2753,7 @@ if (x_4 == 0)
 uint32_t x_5; uint32_t x_6; uint8_t x_7; 
 x_5 = lean_string_utf8_get(x_1, x_3);
 x_6 = lean_string_utf8_get(x_2, x_3);
-x_7 = x_5 == x_6;
+x_7 = lean_uint32_dec_eq(x_5, x_6);
 if (x_7 == 0)
 {
 uint8_t x_8; 
@@ -3475,7 +3475,7 @@ uint32_t x_12; lean_object* x_13; uint32_t x_14; uint8_t x_15;
 x_12 = lean_string_utf8_get(x_2, x_5);
 x_13 = lean_nat_add(x_8, x_4);
 x_14 = lean_string_utf8_get(x_7, x_13);
-x_15 = x_14 == x_12;
+x_15 = lean_uint32_dec_eq(x_14, x_12);
 if (x_15 == 0)
 {
 uint8_t x_16; 

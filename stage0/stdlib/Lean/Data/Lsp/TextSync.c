@@ -16,7 +16,7 @@ extern "C" {
 lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonTextDocumentRegistrationOptions____x40_Lean_Data_Lsp_Basic___hyg_2045____spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Lsp_instToJsonTextDocumentSyncKind___closed__2;
 static lean_object* l_Lean_Lsp_instToJsonDidOpenTextDocumentParams___closed__1;
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent___closed__2;
 static lean_object* l_Lean_Lsp_instToJsonTextDocumentSyncKind___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJsonTextDocumentChangeRegistrationOptions____x40_Lean_Data_Lsp_TextSync___hyg_170____spec__1(lean_object*, lean_object*);
@@ -49,7 +49,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJson
 static lean_object* l_Lean_Lsp_instToJsonTextDocumentSyncKind___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instToJsonTextDocumentSyncKind___boxed(lean_object*);
 lean_object* l_List_join___rarg(lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncKind(lean_object*);
 static lean_object* l_Lean_Lsp_instToJsonSaveOptions___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFromJsonTextDocumentSyncOptions;
@@ -1029,7 +1029,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_Tex
 _start:
 {
 uint8_t x_5; 
-x_5 = x_3 < x_2;
+x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
 lean_object* x_6; 
@@ -1045,7 +1045,7 @@ x_8 = lean_unsigned_to_nat(0u);
 x_9 = lean_array_uset(x_4, x_3, x_8);
 x_10 = x_7;
 x_11 = 1;
-x_12 = x_3 + x_11;
+x_12 = lean_usize_add(x_3, x_11);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -1190,7 +1190,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_Tex
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; 
@@ -1244,7 +1244,7 @@ lean_dec(x_14);
 x_19 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
 x_20 = 1;
-x_21 = x_2 + x_20;
+x_21 = lean_usize_add(x_2, x_20);
 x_22 = x_19;
 x_23 = lean_array_uset(x_9, x_2, x_22);
 x_2 = x_21;
@@ -1292,7 +1292,7 @@ x_32 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_32, 0, x_25);
 lean_ctor_set(x_32, 1, x_31);
 x_33 = 1;
-x_34 = x_2 + x_33;
+x_34 = lean_usize_add(x_2, x_33);
 x_35 = x_32;
 x_36 = lean_array_uset(x_9, x_2, x_35);
 x_2 = x_34;

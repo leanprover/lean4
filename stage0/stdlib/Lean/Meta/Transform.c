@@ -18,7 +18,7 @@ lean_object* l_Lean_Meta_mkLetFVars___boxed(lean_object*, lean_object*, lean_obj
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_transform___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Core_transform_visit___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Core_transform_visit___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_transform(lean_object*);
@@ -67,7 +67,7 @@ LEAN_EXPORT lean_object* l_Lean_Core_transform_visit___rarg___lambda__15(lean_ob
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_transform_visit___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_transform_visit___rarg___lambda__13___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Core_transform_visit___rarg___lambda__6___closed__1;
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Core_transform_visit___spec__2___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_transform_visit___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit_visitLambda___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -242,7 +242,7 @@ _start:
 {
 size_t x_12; size_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_12 = 1;
-x_13 = x_1 + x_12;
+x_13 = lean_usize_add(x_1, x_12);
 x_14 = x_11;
 x_15 = lean_array_uset(x_2, x_1, x_14);
 x_16 = l_Array_mapMUnsafe_map___at_Lean_Core_transform_visit___spec__1___rarg(x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_13, x_15, x_10);
@@ -253,7 +253,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Core_transform_visit__
 _start:
 {
 uint8_t x_11; 
-x_11 = x_8 < x_7;
+x_11 = lean_usize_dec_lt(x_8, x_7);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
@@ -1970,7 +1970,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Core_betaReduce___spec
 _start:
 {
 uint8_t x_12; 
-x_12 = x_6 < x_5;
+x_12 = lean_usize_dec_lt(x_6, x_5);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; 
@@ -2011,7 +2011,7 @@ x_21 = lean_ctor_get(x_19, 1);
 lean_inc(x_21);
 lean_dec(x_19);
 x_22 = 1;
-x_23 = x_6 + x_22;
+x_23 = lean_usize_add(x_6, x_22);
 x_24 = x_20;
 x_25 = lean_array_uset(x_17, x_6, x_24);
 x_6 = x_23;
@@ -4147,7 +4147,7 @@ _start:
 {
 size_t x_13; size_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_13 = 1;
-x_14 = x_1 + x_13;
+x_14 = lean_usize_add(x_1, x_13);
 x_15 = x_12;
 x_16 = lean_array_uset(x_2, x_1, x_15);
 x_17 = l_Array_mapMUnsafe_map___at_Lean_Meta_transform_visit___spec__1___rarg(x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_14, x_16, x_11);
@@ -4158,7 +4158,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_transform_visit__
 _start:
 {
 uint8_t x_12; 
-x_12 = x_9 < x_8;
+x_12 = lean_usize_dec_lt(x_9, x_8);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 

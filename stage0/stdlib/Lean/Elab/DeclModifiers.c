@@ -21,7 +21,7 @@ static lean_object* l_Lean_Elab_instToStringVisibility___closed__3;
 static lean_object* l_Lean_Elab_Visibility_noConfusion___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_expandDeclId___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_extractMacroScopes(lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Lean_Elab_instToFormatModifiers___closed__2;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -42,7 +42,7 @@ static lean_object* l_Lean_Elab_instToFormatModifiers___closed__3;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getOptional_x3f(lean_object*);
 static lean_object* l_Lean_Elab_instToFormatModifiers___closed__5;
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT uint8_t l_Lean_Elab_Modifiers_isProtected(lean_object*);
 static lean_object* l_List_mapTRAux___at_Lean_Elab_instToFormatModifiers___spec__1___closed__9;
@@ -78,7 +78,7 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Modifiers_docString_x3f___default;
 static lean_object* l_Lean_Elab_instToFormatModifiers___closed__25;
 LEAN_EXPORT lean_object* l_Lean_Elab_instToStringVisibility(uint8_t);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_checkIfShadowingStructureField___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_elabModifiers___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instToFormatModifiers___closed__8;
@@ -2888,7 +2888,7 @@ x_14 = lean_ctor_get(x_9, 0);
 lean_inc(x_14);
 lean_dec(x_9);
 x_15 = 1;
-x_16 = x_2 + x_15;
+x_16 = lean_usize_add(x_2, x_15);
 x_17 = l_Array_forInUnsafe_loop___at_Lean_Elab_checkIfShadowingStructureField___spec__1___rarg(x_1, x_3, x_4, x_5, x_6, x_7, x_8, x_16, x_14);
 return x_17;
 }
@@ -2983,7 +2983,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_checkIfShadowin
 _start:
 {
 uint8_t x_10; 
-x_10 = x_8 < x_7;
+x_10 = lean_usize_dec_lt(x_8, x_7);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
@@ -3596,7 +3596,7 @@ _start:
 {
 size_t x_8; size_t x_9; lean_object* x_10; 
 x_8 = 1;
-x_9 = x_1 + x_8;
+x_9 = lean_usize_add(x_1, x_8);
 x_10 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_expandDeclId___spec__1___rarg(x_2, x_3, x_4, x_5, x_9, x_6, x_7);
 return x_10;
 }
@@ -3617,7 +3617,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_expandDeclId__
 _start:
 {
 uint8_t x_8; 
-x_8 = x_5 == x_6;
+x_8 = lean_usize_dec_eq(x_5, x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 

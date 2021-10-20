@@ -183,9 +183,10 @@ where
     `(ParserDescr.sepBy1 $p $sep $psep $(quote allowTrailingSep))
 
   isValidAtom (s : String) : Bool :=
+    !s.isEmpty &&
     s[0] != '\'' &&
     s[0] != '\"' &&
-    s[0] != '`'  &&
+    !(s[0] == '`' && (s.bsize == 1 || isIdFirst s[1] || isIdBeginEscape s[1])) &&
     !s[0].isDigit
 
   processAtom (stx : Syntax) := do
@@ -342,8 +343,7 @@ def checkRuleKind (given expected : SyntaxNodeKind) : Bool :=
   given == expected || given == expected ++ `antiquot
 
 def inferMacroRulesAltKind : Syntax → CommandElabM SyntaxNodeKind
-  | `(matchAltExpr| | $pats,* => $rhs) => do
-    let pat := pats.elemsAndSeps[0]
+  | `(matchAltExpr| | $pat:term => $rhs) => do
     if !pat.isQuot then
       throwUnsupportedSyntax
     let quoted := getQuotContent pat

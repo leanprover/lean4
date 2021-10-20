@@ -862,18 +862,33 @@ static inline lean_obj_res lean_mk_empty_byte_array(b_lean_obj_arg capacity) {
 static inline lean_obj_res lean_byte_array_size(b_lean_obj_arg a) {
     return lean_box(lean_sarray_size(a));
 }
-
+static inline uint8_t lean_byte_array_uget(b_lean_obj_arg a, size_t i) {
+    assert(i < lean_sarray_size(a));
+    return lean_sarray_cptr(a)[i];
+}
 static inline uint8_t lean_byte_array_get(b_lean_obj_arg a, b_lean_obj_arg i) {
     if (lean_is_scalar(i)) {
         size_t idx = lean_unbox(i);
-        return idx < lean_sarray_size(a) ? lean_sarray_cptr(a)[idx] : 0;
+        return idx < lean_sarray_size(a) ? lean_byte_array_uget(a, idx) : 0;
     } else {
         /* The index must be out of bounds. Otherwise we would be out of memory. */
         return 0;
     }
 }
+static inline uint8_t lean_byte_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
+    return lean_byte_array_uget(a, lean_unbox(i));
+}
 
 LEAN_SHARED lean_obj_res lean_byte_array_push(lean_obj_arg a, uint8_t b);
+
+static inline lean_object * lean_byte_array_uset(lean_obj_arg a, size_t i, uint8_t v) {
+    lean_obj_res r;
+    if (lean_is_exclusive(a)) r = a;
+    else r = lean_copy_byte_array(a);
+    uint8_t * it = lean_sarray_cptr(r) + i;
+    *it = v;
+    return r;
+}
 
 static inline lean_obj_res lean_byte_array_set(lean_obj_arg a, b_lean_obj_arg i, uint8_t b) {
     if (!lean_is_scalar(i)) {
@@ -883,14 +898,13 @@ static inline lean_obj_res lean_byte_array_set(lean_obj_arg a, b_lean_obj_arg i,
         if (idx >= lean_sarray_size(a)) {
             return a;
         } else {
-            lean_obj_res r;
-            if (lean_is_exclusive(a)) r = a;
-            else r = lean_copy_byte_array(a);
-            uint8_t * it = lean_sarray_cptr(r) + idx;
-            *it = b;
-            return r;
+            return lean_byte_array_uset(a, idx, b);
         }
     }
+}
+
+static inline lean_obj_res lean_byte_array_fset(lean_obj_arg a, b_lean_obj_arg i, uint8_t b) {
+    return lean_byte_array_uset(a, lean_unbox(i), b);
 }
 
 /* FloatArray (special case of Array of Scalars) */
@@ -912,10 +926,18 @@ static inline double * lean_float_array_cptr(b_lean_obj_arg a) {
     return (double*)(lean_sarray_cptr(a)); // NOLINT
 }
 
+static inline double lean_float_array_uget(b_lean_obj_arg a, size_t i) {
+    return lean_float_array_cptr(a)[i];
+}
+
+static inline double lean_float_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
+    return lean_float_array_uget(a, lean_unbox(i));
+}
+
 static inline double lean_float_array_get(b_lean_obj_arg a, b_lean_obj_arg i) {
     if (lean_is_scalar(i)) {
         size_t idx = lean_unbox(i);
-        return idx < lean_sarray_size(a) ? lean_float_array_cptr(a)[idx] : 0.0;
+        return idx < lean_sarray_size(a) ? lean_float_array_uget(a, idx) : 0.0;
     } else {
         /* The index must be out of bounds. Otherwise we would be out of memory. */
         return 0.0;
@@ -923,6 +945,19 @@ static inline double lean_float_array_get(b_lean_obj_arg a, b_lean_obj_arg i) {
 }
 
 LEAN_SHARED lean_obj_res lean_float_array_push(lean_obj_arg a, double d);
+
+static inline lean_obj_res lean_float_array_uset(lean_obj_arg a, size_t i, double d) {
+    lean_obj_res r;
+    if (lean_is_exclusive(a)) r = a;
+    else r = lean_copy_float_array(a);
+    double * it = lean_float_array_cptr(r) + i;
+    *it = d;
+    return r;
+}
+
+static inline lean_obj_res lean_float_array_fset(lean_obj_arg a, b_lean_obj_arg i, double d) {
+    return lean_float_array_uset(a, lean_unbox(i), d);
+}
 
 static inline lean_obj_res lean_float_array_set(lean_obj_arg a, b_lean_obj_arg i, double d) {
     if (!lean_is_scalar(i)) {
@@ -932,29 +967,9 @@ static inline lean_obj_res lean_float_array_set(lean_obj_arg a, b_lean_obj_arg i
         if (idx >= lean_sarray_size(a)) {
             return a;
         } else {
-            lean_obj_res r;
-            if (lean_is_exclusive(a)) r = a;
-            else r = lean_copy_float_array(a);
-            double * it = lean_float_array_cptr(r) + idx;
-            *it = d;
-            return r;
+            return lean_float_array_uset(a, idx, d);
         }
     }
-}
-
-static inline double lean_float_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
-    size_t idx = lean_unbox(i);
-    return lean_float_array_cptr(a)[idx];
-}
-
-static inline lean_obj_res lean_float_array_fset(lean_obj_arg a, b_lean_obj_arg i, double d) {
-    size_t idx = lean_unbox(i);
-    lean_obj_res r;
-    if (lean_is_exclusive(a)) r = a;
-    else r = lean_copy_float_array(a);
-    double * it = lean_float_array_cptr(r) + idx;
-    *it = d;
-    return r;
 }
 
 /* Strings */
@@ -1476,6 +1491,10 @@ static inline uint8_t lean_int_dec_nonneg(b_lean_obj_arg a) {
         return lean_int_big_nonneg(a);
 }
 
+/* Bool */
+
+static inline uint64_t lean_bool_to_uint64(uint8_t a) { return ((uint64_t)a); }
+
 
 /* UInt8 */
 
@@ -1489,6 +1508,12 @@ static inline uint8_t lean_uint8_sub(uint8_t a1, uint8_t a2) { return a1-a2; }
 static inline uint8_t lean_uint8_mul(uint8_t a1, uint8_t a2) { return a1*a2; }
 static inline uint8_t lean_uint8_div(uint8_t a1, uint8_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint8_t lean_uint8_mod(uint8_t a1, uint8_t a2) { return a2 == 0 ? a1 : a1%a2; }
+static inline uint8_t lean_uint8_land(uint8_t a, uint8_t b) { return a & b; }
+static inline uint8_t lean_uint8_lor(uint8_t a, uint8_t b) { return a | b; }
+static inline uint8_t lean_uint8_xor(uint8_t a, uint8_t b) { return a ^ b; }
+static inline uint8_t lean_uint8_shift_left(uint8_t a, uint8_t b) { return a << (b % 8); }
+static inline uint8_t lean_uint8_shift_right(uint8_t a, uint8_t b) { return a >> (b % 8); }
+static inline uint8_t lean_uint8_complement(uint8_t a) { return ~a; }
 static inline uint8_t lean_uint8_modn(uint8_t a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a2))) {
         unsigned n2 = lean_unbox(a2);
@@ -1500,6 +1525,12 @@ static inline uint8_t lean_uint8_modn(uint8_t a1, b_lean_obj_arg a2) {
 static inline uint8_t lean_uint8_dec_eq(uint8_t a1, uint8_t a2) { return a1 == a2; }
 static inline uint8_t lean_uint8_dec_lt(uint8_t a1, uint8_t a2) { return a1 < a2; }
 static inline uint8_t lean_uint8_dec_le(uint8_t a1, uint8_t a2) { return a1 <= a2; }
+
+
+/* Unit8 -> other */
+static inline uint16_t lean_uint8_to_uint16(uint8_t a) { return ((uint16_t)a); }
+static inline uint32_t lean_uint8_to_uint32(uint8_t a) { return ((uint32_t)a); }
+static inline uint64_t lean_uint8_to_uint64(uint8_t a) { return ((uint64_t)a); }
 
 /* UInt16 */
 
@@ -1513,6 +1544,12 @@ static inline uint16_t lean_uint16_sub(uint16_t a1, uint16_t a2) { return a1-a2;
 static inline uint16_t lean_uint16_mul(uint16_t a1, uint16_t a2) { return a1*a2; }
 static inline uint16_t lean_uint16_div(uint16_t a1, uint16_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint16_t lean_uint16_mod(uint16_t a1, uint16_t a2) { return a2 == 0 ? a1 : a1%a2; }
+static inline uint16_t lean_uint16_land(uint16_t a, uint16_t b) { return a & b; }
+static inline uint16_t lean_uint16_lor(uint16_t a, uint16_t b) { return a | b; }
+static inline uint16_t lean_uint16_xor(uint16_t a, uint16_t b) { return a ^ b; }
+static inline uint16_t lean_uint16_shift_left(uint16_t a, uint16_t b) { return a << (b % 16); }
+static inline uint16_t lean_uint16_shift_right(uint16_t a, uint16_t b) { return a >> (b % 16); }
+static inline uint16_t lean_uint16_complement(uint16_t a) { return ~a; }
 static inline uint16_t lean_uint16_modn(uint16_t a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a2))) {
         unsigned n2 = lean_unbox(a2);
@@ -1524,6 +1561,11 @@ static inline uint16_t lean_uint16_modn(uint16_t a1, b_lean_obj_arg a2) {
 static inline uint8_t lean_uint16_dec_eq(uint16_t a1, uint16_t a2) { return a1 == a2; }
 static inline uint8_t lean_uint16_dec_lt(uint16_t a1, uint16_t a2) { return a1 < a2; }
 static inline uint8_t lean_uint16_dec_le(uint16_t a1, uint16_t a2) { return a1 <= a2; }
+
+/*uint16 -> other */
+static inline uint8_t lean_uint16_to_uint8(uint16_t a) { return ((uint8_t)a); }
+static inline uint32_t lean_uint16_to_uint32(uint16_t a) { return ((uint32_t)a); }
+static inline uint64_t lean_uint16_to_uint64(uint16_t a) { return ((uint64_t)a); }
 
 /* UInt32 */
 
@@ -1537,6 +1579,12 @@ static inline uint32_t lean_uint32_sub(uint32_t a1, uint32_t a2) { return a1-a2;
 static inline uint32_t lean_uint32_mul(uint32_t a1, uint32_t a2) { return a1*a2; }
 static inline uint32_t lean_uint32_div(uint32_t a1, uint32_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint32_t lean_uint32_mod(uint32_t a1, uint32_t a2) { return a2 == 0 ? a1 : a1%a2; }
+static inline uint32_t lean_uint32_land(uint32_t a, uint32_t b) { return a & b; }
+static inline uint32_t lean_uint32_lor(uint32_t a, uint32_t b) { return a | b; }
+static inline uint32_t lean_uint32_xor(uint32_t a, uint32_t b) { return a ^ b; }
+static inline uint32_t lean_uint32_shift_left(uint32_t a, uint32_t b) { return a << (b % 32); }
+static inline uint32_t lean_uint32_shift_right(uint32_t a, uint32_t b) { return a >> (b % 32); }
+static inline uint32_t lean_uint32_complement(uint32_t a) { return ~a; }
 LEAN_SHARED uint32_t lean_uint32_big_modn(uint32_t a1, b_lean_obj_arg a2);
 static inline uint32_t lean_uint32_modn(uint32_t a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a2))) {
@@ -1554,6 +1602,13 @@ static inline uint8_t lean_uint32_dec_eq(uint32_t a1, uint32_t a2) { return a1 =
 static inline uint8_t lean_uint32_dec_lt(uint32_t a1, uint32_t a2) { return a1 < a2; }
 static inline uint8_t lean_uint32_dec_le(uint32_t a1, uint32_t a2) { return a1 <= a2; }
 
+/* uint32 -> other */
+static inline uint8_t lean_uint32_to_uint8(uint32_t a) { return ((uint8_t)a); }
+static inline uint16_t lean_uint32_to_uint16(uint32_t a) { return ((uint16_t)a); }
+static inline uint64_t lean_uint32_to_uint64(uint32_t a) { return ((uint64_t)a); }
+static inline size_t lean_uint32_to_usize(uint32_t a) { return a; }
+
+
 /* UInt64 */
 
 LEAN_SHARED uint64_t lean_uint64_of_big_nat(b_lean_obj_arg a);
@@ -1565,6 +1620,12 @@ static inline uint64_t lean_uint64_sub(uint64_t a1, uint64_t a2) { return a1-a2;
 static inline uint64_t lean_uint64_mul(uint64_t a1, uint64_t a2) { return a1*a2; }
 static inline uint64_t lean_uint64_div(uint64_t a1, uint64_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline uint64_t lean_uint64_mod(uint64_t a1, uint64_t a2) { return a2 == 0 ? a1 : a1%a2; }
+static inline uint64_t lean_uint64_land(uint64_t a, uint64_t b) { return a & b; }
+static inline uint64_t lean_uint64_lor(uint64_t a, uint64_t b) { return a | b; }
+static inline uint64_t lean_uint64_xor(uint64_t a, uint64_t b) { return a ^ b; }
+static inline uint64_t lean_uint64_shift_left(uint64_t a, uint64_t b) { return a << (b % 64); }
+static inline uint64_t lean_uint64_shift_right(uint64_t a, uint64_t b) { return a >> (b % 64); }
+static inline uint64_t lean_uint64_complement(uint64_t a) { return ~a; }
 LEAN_SHARED uint64_t lean_uint64_big_modn(uint64_t a1, b_lean_obj_arg a2);
 static inline uint64_t lean_uint64_modn(uint64_t a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a2))) {
@@ -1579,6 +1640,13 @@ static inline uint8_t lean_uint64_dec_lt(uint64_t a1, uint64_t a2) { return a1 <
 static inline uint8_t lean_uint64_dec_le(uint64_t a1, uint64_t a2) { return a1 <= a2; }
 LEAN_SHARED uint64_t lean_uint64_mix_hash(uint64_t a1, uint64_t a2);
 
+
+/* uint64 -> other */
+static inline uint8_t lean_uint64_to_uint8(uint64_t a) { return ((uint8_t)a); }
+static inline uint16_t lean_uint64_to_uint16(uint64_t a) { return ((uint16_t)a); }
+static inline uint32_t lean_uint64_to_uint32(uint64_t a) { return ((uint32_t)a); }
+static inline size_t lean_uint64_to_usize(uint64_t a) { return ((size_t)a); }
+
 /* USize */
 
 LEAN_SHARED size_t lean_usize_of_big_nat(b_lean_obj_arg a);
@@ -1590,6 +1658,12 @@ static inline size_t lean_usize_sub(size_t a1, size_t a2) { return a1-a2; }
 static inline size_t lean_usize_mul(size_t a1, size_t a2) { return a1*a2; }
 static inline size_t lean_usize_div(size_t a1, size_t a2) { return a2 == 0 ? 0  : a1/a2; }
 static inline size_t lean_usize_mod(size_t a1, size_t a2) { return a2 == 0 ? a1 : a1%a2; }
+static inline size_t lean_usize_land(size_t a, size_t b) { return a & b; }
+static inline size_t lean_usize_lor(size_t a, size_t b) { return a | b; }
+static inline size_t lean_usize_xor(size_t a, size_t b) { return a ^ b; }
+static inline size_t lean_usize_shift_left(size_t a, size_t b) { return a << (b %  (sizeof(size_t) * 8)); }
+static inline size_t lean_usize_shift_right(size_t a, size_t b) { return a >> (b % (sizeof(size_t) * 8)); }
+static inline size_t lean_usize_complement(size_t a) { return ~a; }
 LEAN_SHARED size_t lean_usize_big_modn(size_t a1, b_lean_obj_arg a2);
 static inline size_t lean_usize_modn(size_t a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a2))) {
@@ -1603,6 +1677,12 @@ static inline uint8_t lean_usize_dec_eq(size_t a1, size_t a2) { return a1 == a2;
 static inline uint8_t lean_usize_dec_lt(size_t a1, size_t a2) { return a1 < a2; }
 static inline uint8_t lean_usize_dec_le(size_t a1, size_t a2) { return a1 <= a2; }
 LEAN_SHARED size_t lean_usize_mix_hash(size_t a1, size_t a2);
+
+
+
+/* usize -> other */
+static inline uint32_t lean_usize_to_uint32(size_t a) { return ((uint32_t)a); }
+static inline uint64_t lean_usize_to_uint64(size_t a) { return ((uint64_t)a); }
 
 /* Float */
 
@@ -1744,6 +1824,21 @@ static inline uint64_t lean_name_hash(b_lean_obj_arg n) {
     else
         return lean_name_hash_ptr(n);
 }
+
+/* float primitives */
+ static inline uint8_t lean_float_to_uint8(double a) { return (uint8_t)a; }
+ static inline uint16_t lean_float_to_uint16(double a) { return (uint16_t)a; }
+ static inline uint32_t lean_float_to_uint32(double a) { return (uint32_t)a; }
+ static inline uint64_t lean_float_to_uint64(double a) { return (uint64_t)a; }
+ static inline size_t lean_float_to_usize(double a) { return (size_t)a; }
+ static inline double lean_float_add(double a, double b) { return a + b; }
+ static inline double lean_float_sub(double a, double b) { return a - b; }
+ static inline double lean_float_mul(double a, double b) { return a * b; }
+ static inline double lean_float_div(double a, double b) { return a / b; }
+ static inline double lean_float_negate(double a) { return -a; }
+ static inline uint8_t lean_float_beq(double a, double b) { return a == b; }
+ static inline uint8_t lean_float_decLe(double a, double b) { return a <= b; }
+ static inline uint8_t lean_float_decLt(double a, double b) { return a < b; }
 
 #ifdef __cplusplus
 }

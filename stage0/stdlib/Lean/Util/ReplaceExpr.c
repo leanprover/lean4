@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* lean_expr_update_forall(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_ReplaceImpl_initCache___closed__1;
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 uint64_t lean_uint64_of_nat(lean_object*);
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
@@ -30,7 +30,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM(lean_object*, si
 uint8_t l_Lean_Expr_Data_binderInfo(uint64_t);
 lean_object* lean_expr_update_proj(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceImpl_cache(size_t, lean_object*, lean_object*, lean_object*);
-size_t l_USize_mod(size_t, size_t);
+size_t lean_usize_mod(size_t, size_t);
 size_t lean_ptr_addr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -106,14 +106,14 @@ _start:
 {
 size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; size_t x_9; uint8_t x_10; 
 x_5 = lean_ptr_addr(x_3);
-x_6 = x_2 == 0 ? x_5 : x_5 % x_2;
+x_6 = lean_usize_mod(x_5, x_2);
 x_7 = lean_ctor_get(x_4, 0);
 lean_inc(x_7);
 x_8 = lean_array_uget(x_7, x_6);
 lean_dec(x_7);
 x_9 = lean_ptr_addr(x_8);
 lean_dec(x_8);
-x_10 = x_9 == x_5;
+x_10 = lean_usize_dec_eq(x_9, x_5);
 if (x_10 == 0)
 {
 lean_object* x_11; 

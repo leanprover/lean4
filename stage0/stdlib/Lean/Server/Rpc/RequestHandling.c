@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 extern lean_object* l_instHashableString;
-uint8_t l_UInt64_decEq(uint64_t, uint64_t);
+uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
 static lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_146____spec__1___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_146____spec__1___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_146_(lean_object*);
@@ -23,7 +23,7 @@ LEAN_EXPORT uint8_t l_Std_PersistentHashMap_containsAux___at_Lean_Server_registe
 lean_object* l_Lean_Server_FileWorker_instMonadRpcSession___rarg(lean_object*, lean_object*);
 uint8_t l_Std_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_handleRpcCall___closed__2;
-size_t l_USize_sub(size_t, size_t);
+size_t lean_usize_sub(size_t, size_t);
 static lean_object* l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_handleRpcCall___closed__1;
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Server_registerRpcCallHandler___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_146____spec__1___lambda__1(lean_object*);
@@ -37,13 +37,13 @@ static lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling_
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_Server_registerRpcCallHandler___spec__1(lean_object*, uint64_t);
-size_t l_USize_shiftRight(size_t, size_t);
+size_t lean_usize_shift_right(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_146____spec__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerRpcCallHandler___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_rpcProcedures;
 static lean_object* l_Lean_Server_parseRequestParams___at_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_146____spec__2___closed__2;
-size_t l_UInt64_toUSize(uint64_t);
+size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_containsAux___at_Lean_Server_registerRpcCallHandler___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 static size_t l_Std_PersistentHashMap_containsAux___at_Lean_Server_registerRpcCallHandler___spec__4___closed__1;
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_23____closed__1;
@@ -63,12 +63,12 @@ static lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_ini
 uint64_t l_Lean_Name_hash(lean_object*);
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*);
 static size_t l_Std_PersistentHashMap_containsAux___at_Lean_Server_registerRpcCallHandler___spec__4___closed__2;
-uint8_t l_UInt64_decLt(uint64_t, uint64_t);
+uint8_t lean_uint64_dec_lt(uint64_t, uint64_t);
 extern lean_object* l_Lean_Server_requestHandlers;
 lean_object* l_Lean_Server_RequestM_bindTask___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_146____spec__1___lambda__2___closed__2;
 lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
-size_t l_USize_shiftLeft(size_t, size_t);
+size_t lean_usize_shift_left(size_t, size_t);
 lean_object* l_Lean_Server_RequestM_mapTask___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_146____spec__1___lambda__3___closed__2;
 static lean_object* l_Lean_Server_parseRequestParams___at_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_146____spec__2___closed__3;
@@ -77,7 +77,7 @@ lean_object* l_Std_PersistentHashMap_insert___rarg(lean_object*, lean_object*, l
 static lean_object* l_Lean_Server_registerRpcCallHandler___lambda__5___closed__3;
 extern lean_object* l_Task_Priority_default;
 lean_object* l_String_decEq___boxed(lean_object*, lean_object*);
-size_t l_USize_land(size_t, size_t);
+size_t lean_usize_land(size_t, size_t);
 static lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_146____spec__1___lambda__3___closed__1;
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_23____closed__3;
 static lean_object* l_Lean_Server_registerRpcCallHandler___lambda__2___closed__3;
@@ -970,14 +970,14 @@ x_7 = lean_ctor_get(x_1, 3);
 lean_inc(x_7);
 lean_dec(x_1);
 x_8 = lean_unbox_uint64(x_5);
-x_9 = x_2 < x_8;
+x_9 = lean_uint64_dec_lt(x_2, x_8);
 if (x_9 == 0)
 {
 uint64_t x_10; uint8_t x_11; 
 lean_dec(x_4);
 x_10 = lean_unbox_uint64(x_5);
 lean_dec(x_5);
-x_11 = x_2 == x_10;
+x_11 = lean_uint64_dec_eq(x_2, x_10);
 if (x_11 == 0)
 {
 lean_dec(x_6);
@@ -1163,7 +1163,7 @@ _start:
 size_t x_1; size_t x_2; size_t x_3; 
 x_1 = 1;
 x_2 = 5;
-x_3 = x_1 << x_2 % (sizeof(size_t) * 8);
+x_3 = lean_usize_shift_left(x_1, x_2);
 return x_3;
 }
 }
@@ -1173,7 +1173,7 @@ _start:
 size_t x_1; size_t x_2; size_t x_3; 
 x_1 = 1;
 x_2 = l_Std_PersistentHashMap_containsAux___at_Lean_Server_registerRpcCallHandler___spec__4___closed__1;
-x_3 = x_2 - x_1;
+x_3 = lean_usize_sub(x_2, x_1);
 return x_3;
 }
 }
@@ -1188,7 +1188,7 @@ lean_inc(x_4);
 lean_dec(x_1);
 x_5 = 5;
 x_6 = l_Std_PersistentHashMap_containsAux___at_Lean_Server_registerRpcCallHandler___spec__4___closed__2;
-x_7 = x_2 & x_6;
+x_7 = lean_usize_land(x_2, x_6);
 x_8 = lean_usize_to_nat(x_7);
 x_9 = lean_box(2);
 x_10 = lean_array_get(x_9, x_4, x_8);
@@ -1211,7 +1211,7 @@ lean_object* x_13; size_t x_14;
 x_13 = lean_ctor_get(x_10, 0);
 lean_inc(x_13);
 lean_dec(x_10);
-x_14 = x_2 >> x_5 % (sizeof(size_t) * 8);
+x_14 = lean_usize_shift_right(x_2, x_5);
 x_1 = x_13;
 x_2 = x_14;
 goto _start;
@@ -1248,7 +1248,7 @@ x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 lean_dec(x_1);
 x_4 = l_Lean_Name_hash(x_2);
-x_5 = (size_t)x_4;
+x_5 = lean_uint64_to_usize(x_4);
 x_6 = l_Std_PersistentHashMap_containsAux___at_Lean_Server_registerRpcCallHandler___spec__4(x_3, x_5, x_2);
 lean_dec(x_2);
 return x_6;

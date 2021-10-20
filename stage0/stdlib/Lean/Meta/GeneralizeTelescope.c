@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
@@ -30,7 +30,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_MessageData_ofList(lean_object*);
 lean_object* l_Lean_Meta_isTypeCorrect(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___rarg___closed__4;
 lean_object* l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(lean_object*, lean_object*);
@@ -339,7 +339,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_GeneralizeTelesco
 _start:
 {
 uint8_t x_4; 
-x_4 = x_2 < x_1;
+x_4 = lean_usize_dec_lt(x_2, x_1);
 if (x_4 == 0)
 {
 lean_object* x_5; 
@@ -357,7 +357,7 @@ x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec(x_9);
 x_11 = 1;
-x_12 = x_2 + x_11;
+x_12 = lean_usize_add(x_2, x_11);
 x_13 = x_10;
 x_14 = lean_array_uset(x_8, x_2, x_13);
 x_2 = x_12;
@@ -832,7 +832,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_generalizeTelesco
 _start:
 {
 uint8_t x_9; 
-x_9 = x_2 < x_1;
+x_9 = lean_usize_dec_lt(x_2, x_1);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -886,7 +886,7 @@ lean_ctor_set(x_23, 0, x_15);
 lean_ctor_set(x_23, 1, x_20);
 lean_ctor_set_uint8(x_23, sizeof(void*)*2, x_22);
 x_24 = 1;
-x_25 = x_2 + x_24;
+x_25 = lean_usize_add(x_2, x_24);
 x_26 = x_23;
 x_27 = lean_array_uset(x_14, x_2, x_26);
 x_2 = x_25;

@@ -16,7 +16,7 @@ extern "C" {
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_Meta_replaceTargetDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_CheckAssignment_checkApp___spec__2(lean_object*, size_t, size_t);
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -64,7 +64,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_getSim
 lean_object* l_Array_mapMUnsafe_map___at_Lean_LocalContext_getFVars___spec__1(size_t, size_t, lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_matchMatcherApp_x3f___at_Lean_Meta_Match_withMkMatcherInput___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 extern lean_object* l_Lean_levelZero;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_apply(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -726,7 +726,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Split_simpMatch
 _start:
 {
 uint8_t x_14; 
-x_14 = x_5 < x_4;
+x_14 = lean_usize_dec_lt(x_5, x_4);
 if (x_14 == 0)
 {
 lean_object* x_15; 
@@ -807,7 +807,7 @@ x_36 = lean_ctor_get(x_34, 1);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = 1;
-x_38 = x_5 + x_37;
+x_38 = lean_usize_add(x_5, x_37);
 lean_inc(x_2);
 {
 size_t _tmp_4 = x_38;
@@ -991,7 +991,7 @@ x_82 = lean_ctor_get(x_80, 1);
 lean_inc(x_82);
 lean_dec(x_80);
 x_83 = 1;
-x_84 = x_5 + x_83;
+x_84 = lean_usize_add(x_5, x_83);
 lean_inc(x_2);
 {
 size_t _tmp_4 = x_84;
@@ -2499,7 +2499,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Meta_Tactic_
 _start:
 {
 uint8_t x_9; 
-x_9 = x_2 < x_1;
+x_9 = lean_usize_dec_lt(x_2, x_1);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -2531,7 +2531,7 @@ lean_ctor_set(x_22, 0, x_15);
 lean_ctor_set(x_22, 1, x_20);
 lean_ctor_set(x_22, 2, x_21);
 x_23 = 1;
-x_24 = x_2 + x_23;
+x_24 = lean_usize_add(x_2, x_23);
 x_25 = x_22;
 x_26 = lean_array_uset(x_14, x_2, x_25);
 x_2 = x_24;

@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___closed__7;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -22,7 +22,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___closed__14;
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Elab_Tactic_withMainContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_USize_decLt(size_t, size_t);
+uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_evalGeneralize___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalGeneralize___closed__10;
 lean_object* l_Lean_Syntax_getId(lean_object*);
@@ -58,7 +58,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_evalGenera
 _start:
 {
 uint8_t x_13; 
-x_13 = x_2 < x_1;
+x_13 = lean_usize_dec_lt(x_2, x_1);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -122,7 +122,7 @@ lean_ctor_set(x_36, 0, x_27);
 lean_ctor_set(x_36, 1, x_35);
 lean_ctor_set(x_36, 2, x_31);
 x_37 = 1;
-x_38 = x_2 + x_37;
+x_38 = lean_usize_add(x_2, x_37);
 x_39 = x_36;
 x_40 = lean_array_uset(x_18, x_2, x_39);
 x_2 = x_38;
@@ -185,7 +185,7 @@ lean_ctor_set(x_52, 0, x_46);
 lean_ctor_set(x_52, 1, x_51);
 lean_ctor_set(x_52, 2, x_24);
 x_53 = 1;
-x_54 = x_2 + x_53;
+x_54 = lean_usize_add(x_2, x_53);
 x_55 = x_52;
 x_56 = lean_array_uset(x_18, x_2, x_55);
 x_2 = x_54;

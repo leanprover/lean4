@@ -18,7 +18,7 @@ lean_object* l_Lean_getConstInfo___at_Lean_Elab_Term_mkConst___spec__1(lean_obje
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_Repr_0__Lean_Elab_Deriving_Repr_mkReprInstanceCmds___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Deriving_Repr_0__Lean_Elab_Deriving_Repr_mkReprInstanceCmds___closed__1;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Repr_mkBodyForInduct_mkAlts___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-size_t l_USize_add(size_t, size_t);
+size_t lean_usize_add(size_t, size_t);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Repr_mkBodyForInduct_mkAlts___spec__1___closed__1;
 lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_Repr_mkReprInstanceHandler(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -30,7 +30,7 @@ static lean_object* l_Lean_Elab_Deriving_Repr_mkBodyForStruct___rarg___lambda__2
 lean_object* l_Lean_Elab_Command_liftTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__10(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
-uint8_t l_USize_decEq(size_t, size_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_Repr_mkBodyForInduct_mkAlts(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_Repr_mkReprHeader___rarg___closed__14;
@@ -218,6 +218,7 @@ LEAN_EXPORT lean_object* l_List_mapTRAux___at___private_Lean_Elab_Deriving_Repr_
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_Repr_mkBodyForStruct___rarg___lambda__2___closed__11;
 static lean_object* l_Lean_Elab_Deriving_Repr_mkAuxFunction___lambda__1___closed__25;
+lean_object* l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_7135____spec__3(size_t, size_t, lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_Repr_mkBodyForInduct_mkAlts___spec__3___lambda__1___closed__35;
 static lean_object* l_Lean_Elab_Deriving_Repr_mkReprHeader___rarg___closed__29;
 LEAN_EXPORT lean_object* l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_Repr_mkBodyForStruct___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -287,7 +288,6 @@ static lean_object* l_Lean_Elab_Deriving_Repr_mkReprHeader___rarg___closed__1;
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Repr_mkBodyForStruct___spec__4___lambda__1___closed__4;
 static lean_object* l_List_head_x21___at_Lean_Elab_Deriving_Repr_mkBodyForStruct___spec__1___closed__4;
 static lean_object* l___private_Lean_Elab_Deriving_Repr_0__Lean_Elab_Deriving_Repr_mkReprInstanceCmds___closed__3;
-lean_object* l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_7126____spec__3(size_t, size_t, lean_object*);
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_Repr_mkAuxFunction___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Repr_mkBodyForStruct___spec__4___lambda__1___closed__9;
@@ -4258,7 +4258,7 @@ x_99 = lean_usize_of_nat(x_98);
 lean_dec(x_98);
 x_100 = 0;
 x_101 = x_86;
-x_102 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_7126____spec__3(x_99, x_100, x_101);
+x_102 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_7135____spec__3(x_99, x_100, x_101);
 x_103 = x_102;
 x_104 = l_List_forIn_loop___at_Lean_Elab_Deriving_Repr_mkBodyForInduct_mkAlts___spec__3___lambda__1___closed__16;
 x_105 = l_Lean_mkSepArray(x_103, x_104);
@@ -4509,7 +4509,7 @@ x_226 = lean_usize_of_nat(x_225);
 lean_dec(x_225);
 x_227 = 0;
 x_228 = x_86;
-x_229 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_7126____spec__3(x_226, x_227, x_228);
+x_229 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_7135____spec__3(x_226, x_227, x_228);
 x_230 = x_229;
 x_231 = l_List_forIn_loop___at_Lean_Elab_Deriving_Repr_mkBodyForInduct_mkAlts___spec__3___lambda__1___closed__16;
 x_232 = l_Lean_mkSepArray(x_230, x_231);
@@ -5151,7 +5151,7 @@ x_28 = lean_usize_of_nat(x_27);
 lean_dec(x_27);
 x_29 = 0;
 x_30 = x_12;
-x_31 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_7126____spec__3(x_28, x_29, x_30);
+x_31 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_7135____spec__3(x_28, x_29, x_30);
 x_32 = x_31;
 x_33 = l_List_forIn_loop___at_Lean_Elab_Deriving_Repr_mkBodyForInduct_mkAlts___spec__3___lambda__1___closed__16;
 x_34 = l_Lean_mkSepArray(x_32, x_33);
@@ -5207,7 +5207,7 @@ x_61 = lean_usize_of_nat(x_60);
 lean_dec(x_60);
 x_62 = 0;
 x_63 = x_12;
-x_64 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_7126____spec__3(x_61, x_62, x_63);
+x_64 = l_Array_mapMUnsafe_map___at_myMacro____x40_Init_NotationExtra___hyg_7135____spec__3(x_61, x_62, x_63);
 x_65 = x_64;
 x_66 = l_List_forIn_loop___at_Lean_Elab_Deriving_Repr_mkBodyForInduct_mkAlts___spec__3___lambda__1___closed__16;
 x_67 = l_Lean_mkSepArray(x_65, x_66);
@@ -7256,7 +7256,7 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_Deriving_Repr_mkR
 _start:
 {
 uint8_t x_7; 
-x_7 = x_2 == x_3;
+x_7 = lean_usize_dec_eq(x_2, x_3);
 if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
@@ -7301,7 +7301,7 @@ x_20 = lean_ctor_get(x_9, 1);
 lean_inc(x_20);
 lean_dec(x_9);
 x_21 = 1;
-x_22 = x_2 + x_21;
+x_22 = lean_usize_add(x_2, x_21);
 x_2 = x_22;
 x_6 = x_20;
 goto _start;

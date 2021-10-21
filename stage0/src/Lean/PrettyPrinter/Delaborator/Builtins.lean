@@ -424,7 +424,7 @@ def delabLetFun : Delab := do
 
 @[builtinDelab mdata]
 def delabMData : Delab := do
-  if let some _ := Lean.Meta.Match.inaccessible? (← getExpr) then
+  if let some _ := inaccessible? (← getExpr) then
     let s ← withMDataExpr delab
     if (← read).inPattern then
       `(.($s)) -- We only include the inaccessible annotation when we are delaborating patterns

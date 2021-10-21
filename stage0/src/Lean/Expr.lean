@@ -1101,6 +1101,15 @@ def isLetFun (e : Expr) : Bool :=
   | some e => e.isApp && e.appFn!.isLambda
 
 /--
+  Auxiliary annotation used to mark terms marked with the "inaccessible" annotation `.(t)` and
+  `_` in patterns. -/
+def mkInaccessible (e : Expr) : Expr :=
+  mkAnnotation `_inaccessible e
+
+def inaccessible? (e : Expr) : Option Expr :=
+  annotation? `_inaccessible e
+
+/--
   Annotate `e` with the LHS annotation. The delaborator displays
   expressions of the form `lhs = rhs` as `lhs` when they have this annotation.
 -/

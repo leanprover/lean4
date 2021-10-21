@@ -24,7 +24,7 @@ partial def cleanup (mvarId : MVarId) : MetaM MVarId := do
       unless used.contains localDecl.fvarId do
         lctx := lctx.erase localDecl.fvarId
     let localInsts := (← getLocalInstances).filter fun inst => used.contains inst.fvar.fvarId!
-    let mvarNew ← mkFreshExprMVarAt lctx localInsts (← getMVarType' mvarId) MetavarKind.syntheticOpaque (← getMVarTag mvarId)
+    let mvarNew ← mkFreshExprMVarAt lctx localInsts (← instantiateMVars (← getMVarType mvarId)) MetavarKind.syntheticOpaque (← getMVarTag mvarId)
     assignExprMVar mvarId mvarNew
     return mvarNew.mvarId!
 where

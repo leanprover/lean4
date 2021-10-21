@@ -862,18 +862,33 @@ static inline lean_obj_res lean_mk_empty_byte_array(b_lean_obj_arg capacity) {
 static inline lean_obj_res lean_byte_array_size(b_lean_obj_arg a) {
     return lean_box(lean_sarray_size(a));
 }
-
+static inline uint8_t lean_byte_array_uget(b_lean_obj_arg a, size_t i) {
+    assert(i < lean_sarray_size(a));
+    return lean_sarray_cptr(a)[i];
+}
 static inline uint8_t lean_byte_array_get(b_lean_obj_arg a, b_lean_obj_arg i) {
     if (lean_is_scalar(i)) {
         size_t idx = lean_unbox(i);
-        return idx < lean_sarray_size(a) ? lean_sarray_cptr(a)[idx] : 0;
+        return idx < lean_sarray_size(a) ? lean_byte_array_uget(a, idx) : 0;
     } else {
         /* The index must be out of bounds. Otherwise we would be out of memory. */
         return 0;
     }
 }
+static inline uint8_t lean_byte_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
+    return lean_byte_array_uget(a, lean_unbox(i));
+}
 
 LEAN_SHARED lean_obj_res lean_byte_array_push(lean_obj_arg a, uint8_t b);
+
+static inline lean_object * lean_byte_array_uset(lean_obj_arg a, size_t i, uint8_t v) {
+    lean_obj_res r;
+    if (lean_is_exclusive(a)) r = a;
+    else r = lean_copy_byte_array(a);
+    uint8_t * it = lean_sarray_cptr(r) + i;
+    *it = v;
+    return r;
+}
 
 static inline lean_obj_res lean_byte_array_set(lean_obj_arg a, b_lean_obj_arg i, uint8_t b) {
     if (!lean_is_scalar(i)) {
@@ -883,14 +898,13 @@ static inline lean_obj_res lean_byte_array_set(lean_obj_arg a, b_lean_obj_arg i,
         if (idx >= lean_sarray_size(a)) {
             return a;
         } else {
-            lean_obj_res r;
-            if (lean_is_exclusive(a)) r = a;
-            else r = lean_copy_byte_array(a);
-            uint8_t * it = lean_sarray_cptr(r) + idx;
-            *it = b;
-            return r;
+            return lean_byte_array_uset(a, idx, b);
         }
     }
+}
+
+static inline lean_obj_res lean_byte_array_fset(lean_obj_arg a, b_lean_obj_arg i, uint8_t b) {
+    return lean_byte_array_uset(a, lean_unbox(i), b);
 }
 
 /* FloatArray (special case of Array of Scalars) */
@@ -912,10 +926,18 @@ static inline double * lean_float_array_cptr(b_lean_obj_arg a) {
     return (double*)(lean_sarray_cptr(a)); // NOLINT
 }
 
+static inline double lean_float_array_uget(b_lean_obj_arg a, size_t i) {
+    return lean_float_array_cptr(a)[i];
+}
+
+static inline double lean_float_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
+    return lean_float_array_uget(a, lean_unbox(i));
+}
+
 static inline double lean_float_array_get(b_lean_obj_arg a, b_lean_obj_arg i) {
     if (lean_is_scalar(i)) {
         size_t idx = lean_unbox(i);
-        return idx < lean_sarray_size(a) ? lean_float_array_cptr(a)[idx] : 0.0;
+        return idx < lean_sarray_size(a) ? lean_float_array_uget(a, idx) : 0.0;
     } else {
         /* The index must be out of bounds. Otherwise we would be out of memory. */
         return 0.0;
@@ -923,6 +945,19 @@ static inline double lean_float_array_get(b_lean_obj_arg a, b_lean_obj_arg i) {
 }
 
 LEAN_SHARED lean_obj_res lean_float_array_push(lean_obj_arg a, double d);
+
+static inline lean_obj_res lean_float_array_uset(lean_obj_arg a, size_t i, double d) {
+    lean_obj_res r;
+    if (lean_is_exclusive(a)) r = a;
+    else r = lean_copy_float_array(a);
+    double * it = lean_float_array_cptr(r) + i;
+    *it = d;
+    return r;
+}
+
+static inline lean_obj_res lean_float_array_fset(lean_obj_arg a, b_lean_obj_arg i, double d) {
+    return lean_float_array_uset(a, lean_unbox(i), d);
+}
 
 static inline lean_obj_res lean_float_array_set(lean_obj_arg a, b_lean_obj_arg i, double d) {
     if (!lean_is_scalar(i)) {
@@ -932,29 +967,9 @@ static inline lean_obj_res lean_float_array_set(lean_obj_arg a, b_lean_obj_arg i
         if (idx >= lean_sarray_size(a)) {
             return a;
         } else {
-            lean_obj_res r;
-            if (lean_is_exclusive(a)) r = a;
-            else r = lean_copy_float_array(a);
-            double * it = lean_float_array_cptr(r) + idx;
-            *it = d;
-            return r;
+            return lean_float_array_uset(a, idx, d);
         }
     }
-}
-
-static inline double lean_float_array_fget(b_lean_obj_arg a, b_lean_obj_arg i) {
-    size_t idx = lean_unbox(i);
-    return lean_float_array_cptr(a)[idx];
-}
-
-static inline lean_obj_res lean_float_array_fset(lean_obj_arg a, b_lean_obj_arg i, double d) {
-    size_t idx = lean_unbox(i);
-    lean_obj_res r;
-    if (lean_is_exclusive(a)) r = a;
-    else r = lean_copy_float_array(a);
-    double * it = lean_float_array_cptr(r) + idx;
-    *it = d;
-    return r;
 }
 
 /* Strings */

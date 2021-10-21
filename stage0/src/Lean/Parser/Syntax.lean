@@ -76,7 +76,7 @@ def catBehaviorSymbol := leading_parser nonReservedSymbol "symbol"
 def catBehavior := optional ("(" >> nonReservedSymbol "behavior" >> " := " >> (catBehaviorBoth <|> catBehaviorSymbol) >> ")")
 @[builtinCommandParser] def syntaxCat := leading_parser "declare_syntax_cat " >> ident >> catBehavior
 def macroArg  := leading_parser optional (atomic (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> syntaxParser argPrec
-def macroRhs (quotP : Parser) : Parser := leading_parser "`(" >> incQuotDepth quotP >> ")" <|> termParser
+def macroRhs (quotP : Parser) : Parser := leading_parser "`(" >> incQuotDepth quotP >> ")" <|> withPosition termParser
 def macroTailTactic   : Parser := atomic (" : " >> identEq "tactic") >> darrow >> macroRhs Tactic.seq1
 def macroTailCommand  : Parser := atomic (" : " >> identEq "command") >> darrow >> macroRhs (many1Unbox commandParser)
 def macroTailDefault  : Parser := atomic (" : " >> ident) >> darrow >> macroRhs (categoryParserOfStack 2)
@@ -85,7 +85,7 @@ def macroTail := leading_parser macroTailTactic <|> macroTailCommand <|> macroTa
 
 @[builtinCommandParser] def «elab_rules» := leading_parser suppressInsideQuot (optional docComment >> Term.attrKind >> "elab_rules" >> optKind >> optional (" : " >> ident)  >> optional (" <= " >> ident) >> Term.matchAlts)
 def elabArg  := macroArg
-def elabTail := leading_parser atomic (" : " >> ident >> optional (" <= " >> ident)) >> darrow >> termParser
+def elabTail := leading_parser atomic (" : " >> ident >> optional (" <= " >> ident)) >> darrow >> withPosition termParser
 @[builtinCommandParser] def «elab»       := leading_parser suppressInsideQuot (optional docComment >> Term.attrKind >> "elab " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 elabArg >> elabTail)
 
 end Command

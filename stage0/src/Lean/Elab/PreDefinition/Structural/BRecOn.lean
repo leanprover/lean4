@@ -90,7 +90,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
         mkForallFVars #[x] (← loop below (b.instantiate1 x))
     | Expr.letE n type val body _ =>
       withLetDecl n (← loop below type) (← loop below val) fun x => do
-        mkLetFVars #[x] (← loop below (body.instantiate1 x))
+        mkLetFVars #[x] (← loop below (body.instantiate1 x)) (usedLetOnly := false)
     | Expr.mdata d e _   => return mkMData d (← loop below e)
     | Expr.proj n i e _  => return mkProj n i (← loop below e)
     | Expr.app _ _ _ =>

@@ -65,6 +65,7 @@ static lean_object* l_Lean_mkDecIsFalse___closed__1;
 static lean_object* l_Lean_mkAnd___closed__2;
 uint64_t lean_uint8_to_uint64(uint8_t);
 static lean_object* l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_376____closed__11;
+LEAN_EXPORT lean_object* l_Lean_inaccessible_x3f___boxed(lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_mkEM___closed__1;
@@ -74,6 +75,7 @@ static lean_object* l_Lean_mkSimpleThunkType___closed__3;
 LEAN_EXPORT uint8_t l_Lean_Expr_isProp(lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
 static lean_object* l_Lean_Expr_instHashableExpr___closed__1;
+static lean_object* l_Lean_mkInaccessible___closed__1;
 LEAN_EXPORT uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1198_(lean_object*);
 lean_object* lean_expr_update_mdata(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_bindingDomain_x21(lean_object*);
@@ -323,6 +325,7 @@ LEAN_EXPORT uint64_t l_Lean_Expr_data(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_Expr_withAppRevAux(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Expr_0__Lean_Expr_getParamSubstArray___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_inaccessible_x3f(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Expr_isHeadBetaTarget(lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_376____closed__4;
 LEAN_EXPORT uint8_t l_Lean_Expr_isBinding(lean_object*);
@@ -363,6 +366,7 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_Expr_constLevels_x21___spec__1(lean_o
 LEAN_EXPORT lean_object* l_Lean_Expr_getArg_x21___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_bindingDomain_x21___closed__1;
 lean_object* l_panic___at_String_toNat_x21___spec__1(lean_object*);
+static lean_object* l_Lean_mkInaccessible___closed__2;
 LEAN_EXPORT lean_object* l_Lean_isLHSGoal_x3f___boxed(lean_object*);
 static lean_object* l_Lean_Expr_getRevArg_x21___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Expr_instantiateLevelParamsCore_visit___at_Lean_Expr_instantiateLevelParams___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -745,6 +749,7 @@ lean_object* l_panic___at_Lean_Level_mvarId_x21___spec__1(lean_object*);
 static lean_object* l_Lean_Expr_updateSort_x21___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_isConst___boxed(lean_object*);
 static lean_object* l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_376____closed__16;
+LEAN_EXPORT lean_object* l_Lean_mkInaccessible(lean_object*);
 static lean_object* l_Lean_Expr_mdataExpr_x21___closed__1;
 uint64_t lean_string_hash(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_isNatLit___boxed(lean_object*);
@@ -14011,6 +14016,51 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_mkInaccessible___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("_inaccessible");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_mkInaccessible___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_mkInaccessible___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_mkInaccessible(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_mkInaccessible___closed__2;
+x_3 = l_Lean_mkAnnotation(x_2, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_inaccessible_x3f(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_mkInaccessible___closed__2;
+x_3 = l_Lean_annotation_x3f(x_2, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_inaccessible_x3f___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_inaccessible_x3f(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 static lean_object* _init_l_Lean_mkLHSGoal___closed__1() {
 _start:
 {
@@ -14806,6 +14856,10 @@ l_Lean_mkLetFunAnnotation___closed__1 = _init_l_Lean_mkLetFunAnnotation___closed
 lean_mark_persistent(l_Lean_mkLetFunAnnotation___closed__1);
 l_Lean_mkLetFunAnnotation___closed__2 = _init_l_Lean_mkLetFunAnnotation___closed__2();
 lean_mark_persistent(l_Lean_mkLetFunAnnotation___closed__2);
+l_Lean_mkInaccessible___closed__1 = _init_l_Lean_mkInaccessible___closed__1();
+lean_mark_persistent(l_Lean_mkInaccessible___closed__1);
+l_Lean_mkInaccessible___closed__2 = _init_l_Lean_mkInaccessible___closed__2();
+lean_mark_persistent(l_Lean_mkInaccessible___closed__2);
 l_Lean_mkLHSGoal___closed__1 = _init_l_Lean_mkLHSGoal___closed__1();
 lean_mark_persistent(l_Lean_mkLHSGoal___closed__1);
 l_Lean_mkLHSGoal___closed__2 = _init_l_Lean_mkLHSGoal___closed__2();

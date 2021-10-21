@@ -32,7 +32,7 @@ extern "C" LEAN_EXPORT uint64_t lean_sharecommon_hash(b_obj_arg o) {
     // hash relevant parts of the header
     unsigned init = hash(lean_ptr_tag(o), lean_ptr_other(o));
     // hash body
-    return hash_str(sz - header_sz, reinterpret_cast<char const *>(o) + header_sz, init);
+    return hash_str(sz - header_sz, reinterpret_cast<unsigned char const *>(o) + header_sz, init);
 }
 
 // unsafe def mkObjectMap : Unit → ObjectMap

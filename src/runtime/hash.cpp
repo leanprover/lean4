@@ -22,7 +22,7 @@ void mix(unsigned & a, unsigned & b, unsigned & c) {
 
 // Bob Jenkin's hash function.
 // http://burtleburtle.net/bob/hash/doobs.html
-unsigned hash_str(size_t length, char const * str, unsigned init_value) {
+unsigned hash_str(size_t length, unsigned char const * str, unsigned init_value) {
     unsigned a, b, c;
     size_t len;
 

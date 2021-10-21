@@ -14,7 +14,15 @@ namespace Lean.Elab
 open WF
 open Meta
 
+private def isOnlyOneUnaryDef (preDefs : Array PreDefinition) : MetaM Bool := do
+  if preDefs.size == 1 then
+    lambdaTelescope preDefs[0].value fun xs _ => return xs.size == 1
+  else
+    return false
+
 private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonRec : PreDefinition) : TermElabM Unit := do
+  if (← isOnlyOneUnaryDef preDefs) then
+    return ()
   let Expr.forallE _ domain _ _ ← preDefNonRec.type | unreachable!
   let us := preDefNonRec.levelParams.map mkLevelParam
   for fidx in [:preDefs.size] do

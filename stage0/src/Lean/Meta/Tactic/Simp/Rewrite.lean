@@ -73,6 +73,7 @@ private def tryLemmaCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo)
   for i in [:numExtraArgs] do
     extraArgs := extraArgs.push e.appArg!
     e := e.appFn!
+  extraArgs := extraArgs.reverse
   match (← go e) with
   | none => return none
   | some { expr := eNew, proof? := none } => return some { expr := mkAppN eNew extraArgs }

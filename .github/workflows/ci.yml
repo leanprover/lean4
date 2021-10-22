@@ -46,6 +46,8 @@ jobs:
             shell: bash -euxo pipefail {0}
             # Mojave, oldest maintained version as of 2021
             CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-apple-darwin.tar.zst
+            prepare-llvm: script/prepare-llvm-macos.sh lean-llvm*
           - name: Windows
             os: windows-2022
             release: true
@@ -82,7 +84,7 @@ jobs:
         if: matrix.os == 'windows-2022'
       - name: Install Brew Packages
         run: |
-          brew install ccache tree zstd
+          brew install ccache tree zstd coreutils
         if: matrix.os == 'macos-latest'
       - name: Cache
         uses: actions/cache@v2
@@ -126,20 +128,10 @@ jobs:
         if: matrix.os != 'macos-latest'
         run: |
           ldd -v lean-*/bin/* || true
-      - name: Patch
+      - name: Check Binaries
         if: matrix.name == 'macOS'
         run: |
-          cd build/stage1
-          cp /usr/local/opt/gmp/lib/libgmp.* lib/
-          for f in lib/lean/libleanshared.dylib bin/lean bin/leanpkg bin/leanc bin/lake; do
-            for lib in $(otool -L $f | tail -n +2 | cut -d' ' -f1); do
-              # copy Homebrew dependencies
-              if [[ "$lib" == /usr/local/opt/* ]]; then cp -n "$lib" lib/ || true; fi
-              [[ "$lib" == /usr/lib/* ]] || install_name_tool -change "$lib" "@rpath/$(basename $lib)" $f
-            done
-            otool -L $f
-          done
-          ls -l lib/
+          otool -L lean-*/bin/* || true
       - name: List Install Tree
         run: |
           # omit contents of src/, Init/, ...

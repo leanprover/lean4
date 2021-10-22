@@ -377,9 +377,9 @@ else()
   set(LEAN_IS_STAGE0 "#define LEAN_IS_STAGE0 0")
 endif()
 configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_BINARY_DIR}/include/lean/config.h")
-install(DIRECTORY ${LEAN_BINARY_DIR}/include/lean DESTINATION include)
+install(DIRECTORY ${LEAN_BINARY_DIR}/include/ DESTINATION include)
 configure_file(${LEAN_SOURCE_DIR}/lean.mk.in ${LEAN_BINARY_DIR}/share/lean/lean.mk)
-install(DIRECTORY ${LEAN_BINARY_DIR}/share/lean DESTINATION share)
+install(DIRECTORY ${LEAN_BINARY_DIR}/share/ DESTINATION share)
 
 include_directories(${LEAN_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})  # version.h etc., "private" headers
@@ -518,7 +518,7 @@ add_custom_target(clean-stdlib
 add_custom_target(clean-olean
   DEPENDS clean-stdlib)
 
-install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean" DESTINATION lib)
+install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/" DESTINATION lib PATTERN temp EXCLUDE)
 
 install(CODE "execute_process(COMMAND sh -c \"cp ${CMAKE_BINARY_DIR}/lib/*.* \${CMAKE_INSTALL_PREFIX}/lib\")")
 

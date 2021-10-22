@@ -223,7 +223,7 @@ where
 partial def delabFor : Name → Delab
   | Name.anonymous => failure
   | k              =>
-    (do let stx ← (delabAttribute.getValues (← getEnv) k).firstM id
+    (do let stx ← (delabAttribute.getValues (← getEnv) k).firstM (try . catch _ => failure)
         let stx ← annotateCurPos stx
         addTermInfo (← getPos) stx (← getExpr)
         stx)

@@ -171,7 +171,8 @@ section Initialization
           | _         => pure <| (← appDir) / lakePath
         lakePath.withExtension System.FilePath.exeExtension
     let srcPath := (← appDir) / ".." / "lib" / "lean" / "src"
-    let mut srcSearchPath := [srcPath, srcPath / "lake"]
+    -- `lake/` should come first since on case-insensitive file systems, Lean thinks that `src/` also contains `Lake/`
+    let mut srcSearchPath := [srcPath / "lake", srcPath]
     if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
       srcSearchPath := System.SearchPath.parse p ++ srcSearchPath
     let (headerEnv, msgLog) ← try

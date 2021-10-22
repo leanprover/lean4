@@ -270,11 +270,11 @@ include_directories(${CMAKE_BINARY_DIR}/include)
 # libleancpp/Lean as well as libleanrt/Init/Std are cyclically dependent. This works by default on macOS, which also doesn't like
 # the linker flags necessary on other platforms.
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean -lleanrt")
+  set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -lleancpp -lInit -lStd -lLean -lleanrt")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  set(LEANC_STATIC_LINKER_FLAGS "-lleancpp -lInit -lStd -lLean -lnodefs.js -lleanrt")
+  set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -lleancpp -lInit -lStd -lLean -lnodefs.js -lleanrt")
 else()
-  set(LEANC_STATIC_LINKER_FLAGS "-Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lStd -lleanrt -Wl,--end-group")
+  set(LEANC_STATIC_LINKER_FLAGS "${LEANC_STATIC_LINKER_FLAGS} -Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lStd -lleanrt -Wl,--end-group")
 endif()
 
 set(LEAN_CXX_STDLIB "-lstdc++" CACHE STRING "C++ stdlib linker flags")

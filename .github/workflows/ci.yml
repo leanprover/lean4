@@ -28,6 +28,7 @@ jobs:
             release: true
             shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{}}" --run "bash -euxo pipefail {0}"
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-linux-gnu.tar.zst
+            prepare-llvm: script/prepare-llvm-linux.sh lean-llvm*
           - name: Linux
             os: ubuntu-latest
             check-stage3: true
@@ -49,9 +50,11 @@ jobs:
             os: windows-2022
             release: true
             shell: msys2 {0}
-            CMAKE_OPTIONS: -G "Unix Makefiles" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+            CMAKE_OPTIONS: -G "Unix Makefiles"
             # for reasons unknown, interactivetests are flaky on Windows
             CTEST_OPTIONS: --repeat until-pass:2
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-w64-windows-gnu.tar.zst
+            prepare-llvm: script/prepare-llvm-mingw.sh lean-llvm*
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}
@@ -74,7 +77,8 @@ jobs:
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
-          install: make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache git zip unzip diffutils binutils tree mingw-w64-x86_64-zstd
+          msystem: clang64
+          install: make python mingw-w64-clang-x86_64-cmake mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-ccache git zip unzip diffutils binutils tree mingw-w64-clang-x86_64-zstd tar
         if: matrix.os == 'windows-2022'
       - name: Install Brew Packages
         run: |
@@ -102,10 +106,8 @@ jobs:
           mkdir build
           cd build
           OPTIONS=()
-          if [[ '${{ matrix.llvm-url }}' && "${{ matrix.name }}" == "Linux release" ]]; then
-            wget -q ${{ matrix.llvm-url }}
-            eval "OPTIONS+=($(../script/prepare-llvm-linux.sh lean-llvm*))"
-          fi
+          [[ -z '${{ matrix.llvm-url }}' ]] || wget -q ${{ matrix.llvm-url }}
+          [[ -z '${{ matrix.prepare-llvm }}' ]] || eval "OPTIONS+=($(../${{ matrix.prepare-llvm }}))"
           if [[ $GITHUB_EVENT_NAME == 'schedule' && -n '${{ matrix.release }}' && -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
             git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
             git fetch nightly --tags
@@ -121,7 +123,7 @@ jobs:
           make -j4
           make install
       - name: Check binaries
-        if: matrix.name == 'Linux release'
+        if: matrix.os != 'macos-latest'
         run: |
           ldd -v lean-*/bin/* || true
       - name: Patch
@@ -138,13 +140,6 @@ jobs:
             otool -L $f
           done
           ls -l lib/
-      - name: Patch
-        if: matrix.name == 'Windows'
-        run: |
-          cd build/stage1
-          cp $(ldd bin/lean.exe | cut -f3 -d' ' | grep mingw) bin/
-          ldd bin/lean.exe
-          ls -l bin/
       - name: List Install Tree
         run: |
           # omit contents of src/, Init/, ...

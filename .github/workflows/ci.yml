@@ -74,11 +74,11 @@ jobs:
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
-          install: make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache git unzip diffutils binutils
+          install: make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache git unzip diffutils binutils tree
         if: matrix.os == 'windows-2022'
       - name: Install Brew Packages
         run: |
-          brew install ccache
+          brew install ccache tree
         if: matrix.os == 'macos-latest'
       - name: Cache
         uses: actions/cache@v2
@@ -151,7 +151,12 @@ jobs:
         run: |
           build/stage1/bin/lean -h
       - name: Pack
-        run: cd build/stage1; cpack
+        run: |
+          cd build/stage1
+          cpack
+          mkdir unpack
+          tar xf lean-* -C unpack || unzip lean-4 -d unpack
+          tree --du -h unpack
       - uses: actions/upload-artifact@v2
         with:
           name: build-${{ matrix.name }}

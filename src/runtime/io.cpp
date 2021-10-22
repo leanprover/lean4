@@ -7,6 +7,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #if defined(LEAN_WINDOWS)
 #include <windows.h>
 #include <io.h>
+#define NOMINMAX // prevent ntdef.h from defining min/max macros
 #include <ntdef.h>
 #include <bcrypt.h>
 #elif defined(__APPLE__)

@@ -119,22 +119,11 @@ jobs:
           # contortion to support empty OPTIONS with old macOS bash
           cmake .. ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"}
           make -j4
-      # de-Nix-ify binaries
-      - name: Patch
+      - name: Check binaries
         if: matrix.name == 'Linux release'
         run: |
-          cd build/stage1
-          for f in lib/lean/libleanshared.so bin/lean bin/leanpkg bin/leanc bin/lake; do
-            cp -n $(ldd "$f" | cut -f3 -d' ' | grep -Ev 'libc|lean') lib/ || true
-            if [[ "$f" == bin/* ]]; then
-              patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --set-rpath '$ORIGIN/../lib:$ORIGIN/../lib/lean' $f
-            else
-              # library: use executable RPATH
-              patchelf --remove-rpath $f
-            fi
-            ldd $f
-          done
-          ls -l lib/
+          ldd -v build/stage1/bin/* || true
+          ls -l build/stage1/lib/
       - name: Patch
         if: matrix.name == 'macOS'
         run: |

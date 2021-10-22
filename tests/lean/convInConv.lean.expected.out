@@ -1,0 +1,19 @@
+x : Nat
+⊢ id (twice (id x))
+x : Nat
+⊢ id x
+x : Nat
+⊢ x
+x : Nat
+⊢ id (twice x)
+y : Nat
+⊢ (fun x => x + y = 0) = fun x => False
+y : Nat
+⊢ fun x => x + y = 0
+y x : Nat
+⊢ y + x = 0
+y : Nat
+⊢ (fun x => y + x = 0) = fun x => False
+y : Nat
+⊢ (fun x => y + x = 0) = fun x => False
+convInConv.lean:25:2-25:7: warning: declaration uses 'sorry'

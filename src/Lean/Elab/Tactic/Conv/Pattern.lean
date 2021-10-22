@@ -13,7 +13,10 @@ private def getContext : MetaM Simp.Context := do
   return {
     simpLemmas    := {}
     congrLemmas   := (← getCongrLemmas)
-    config.zeta   := false
+    /-
+     The `pattern` conv tactic is based on `conv`, and rewriting `let` terms may produce type incorrect results.
+    -/
+    config.zeta   := true
     config.beta   := false
     config.eta    := false
     config.iota   := false

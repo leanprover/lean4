@@ -51,7 +51,15 @@ private def headNumArgsAux : Expr → Nat → Nat
 def headNumArgs (e : Expr) : Nat :=
   headNumArgsAux e 0
 
-def toHeadIndex : Expr → HeadIndex
+/-
+  Quick version that may fail if it "hits" a loose bound variable.
+  This can happen, for example, if the input expression is of the form.
+  ```
+  let f := fun x => x + 1;
+  f 0
+  ```
+-/
+private def toHeadIndexQuick? : Expr → Option HeadIndex
   | mvar mvarId _           => HeadIndex.mvar mvarId
   | fvar fvarId _           => HeadIndex.fvar fvarId
   | const constName _ _     => HeadIndex.const constName
@@ -60,10 +68,35 @@ def toHeadIndex : Expr → HeadIndex
   | lam _ _ _ _             => HeadIndex.lam
   | forallE _ _ _ _         => HeadIndex.forallE
   | lit v _                 => HeadIndex.lit v
-  | app f _ _               => toHeadIndex f
-  | letE _ _ _ b _          => toHeadIndex b
-  | mdata _ e _             => toHeadIndex e
+  | app f _ _               => toHeadIndexQuick? f
+  | letE _ _ _ b _          => toHeadIndexQuick? b
+  | mdata _ e _             => toHeadIndexQuick? e
+  | _                       => none
+
+/-
+  Slower version of `toHeadIndexQuick?` that "expands" let-declarations to make
+  sure we never hit a loose bound variable.
+  The performance of the `letE` alternative can be improved, but this function should not be in the hotpath
+  since `toHeadIndexQuick?` succeeds most of the time.
+-/
+private partial def toHeadIndexSlow : Expr → HeadIndex
+  | mvar mvarId _           => HeadIndex.mvar mvarId
+  | fvar fvarId _           => HeadIndex.fvar fvarId
+  | const constName _ _     => HeadIndex.const constName
+  | proj structName idx _ _ => HeadIndex.proj structName idx
+  | sort _ _                => HeadIndex.sort
+  | lam _ _ _ _             => HeadIndex.lam
+  | forallE _ _ _ _         => HeadIndex.forallE
+  | lit v _                 => HeadIndex.lit v
+  | app f _ _               => toHeadIndexSlow f
+  | letE _ _ v b _          => toHeadIndexSlow (b.instantiate1 v)
+  | mdata _ e _             => toHeadIndexSlow e
   | _                       => panic! "unexpected expression kind"
+
+def toHeadIndex (e : Expr) : HeadIndex :=
+  match toHeadIndexQuick? e with
+  | some i => i
+  | none => toHeadIndexSlow e
 
 end Expr
 end Lean

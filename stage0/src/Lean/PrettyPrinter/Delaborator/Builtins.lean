@@ -430,7 +430,7 @@ def delabMData : Delab := do
       `(.($s)) -- We only include the inaccessible annotation when we are delaborating patterns
     else
       return s
-  else if isLetFun (← getExpr) then
+  else if isLetFun (← getExpr) && getPPNotation (← getOptions) then
     withMDataExpr <| delabLetFun
   else if let some _ := isLHSGoal? (← getExpr) then
     withMDataExpr <| withAppFn <| withAppArg <| delab

@@ -39,6 +39,7 @@ syntax (name := nestedTacticCore) "tactic'" " => " tacticSeq : conv
 syntax (name := nestedTactic) "tactic" " => " tacticSeq : conv
 syntax (name := nestedConv) convSeqBracketed : conv
 syntax (name := paren) "(" convSeq ")" : conv
+syntax (name := convConvSeq) "conv " " => " convSeq : conv
 
 /-- `· conv` focuses on the main conv goal and tries to solve it using `s` -/
 macro dot:("·" <|> ".") s:convSeq : conv => `({%$dot ($s:convSeq) })

@@ -96,6 +96,11 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
 @[builtinTactic Lean.Parser.Tactic.Conv.convSeq] def evalConvSeq : Tactic := fun stx => do
   evalTactic stx[0]
 
+@[builtinTactic Lean.Parser.Tactic.Conv.convConvSeq] def evalConvConvSeq : Tactic := fun stx =>
+  withMainContext do
+    let (lhsNew, proof) ← convert (← getLhs) (evalTactic stx[2][0])
+    updateLhs lhsNew proof
+
 @[builtinTactic Lean.Parser.Tactic.Conv.paren] def evalParen : Tactic := fun stx =>
   evalTactic stx[1]
 

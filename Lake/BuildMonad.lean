@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Task
+import Lake.Trace
 import Lake.InstallPath
 
 open System
@@ -20,6 +21,7 @@ constant BuildMethodsRefPointed : PointedType.{0}
 def BuildMethodsRef : Type := BuildMethodsRefPointed.type
 
 structure BuildContext where
+  leanTrace : BuildTrace
   leanInstall : LeanInstall
   lakeInstall : LakeInstall
   methodsRef : BuildMethodsRef
@@ -82,10 +84,13 @@ def getLeanIncludeDir : BuildM FilePath :=
   LeanInstall.includeDir <$> getLeanInstall
 
 def getLeanc : BuildM FilePath :=
-  LeanInstall.leanc  <$> getLeanInstall
+  LeanInstall.leanc <$> getLeanInstall
 
 def getLean : BuildM FilePath :=
-  LeanInstall.lean  <$> getLeanInstall
+  LeanInstall.lean <$> getLeanInstall
+
+def getLeanTrace : BuildM BuildTrace := do
+  BuildContext.leanTrace <$> read
 
 def getLakeInstall : BuildM LakeInstall :=
   BuildContext.lakeInstall <$> read
@@ -107,7 +112,7 @@ def runIn (ctx : BuildContext) (self : BuildM α) : IO α :=
 
 end BuildM
 
-export BuildM (getLeanInstall getLeanIncludeDir getLean getLeanc getLakeInstall)
+export BuildM (getLeanInstall getLeanIncludeDir getLean getLeanTrace getLeanc getLakeInstall)
 
 def failOnBuildCycle [ToString k] : Except (List k) α → BuildM α
 | Except.ok a => a

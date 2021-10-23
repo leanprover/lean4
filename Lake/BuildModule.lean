@@ -87,8 +87,7 @@ def OleanAndCTarget.run' (self : OleanAndCTarget) : BuildM ActiveOleanAndCTarget
   let oleanTask ← t.mapAsync fun info depTrace => do
     return mixTrace (← computeTrace info.oleanFile) depTrace
   let cTask ← t.mapAsync fun info _ => do
-    let leanTrace ← BuildTrace.compute (← getLean)
-    return mixTrace (← computeTrace info.cFile) leanTrace
+    return mixTrace (← computeTrace info.cFile) (← getLeanTrace)
   return t.withInfo {
     oleanTarget := ActiveTarget.mk self.oleanFile oleanTask
     cTarget := ActiveTarget.mk self.cFile cTask
@@ -100,9 +99,8 @@ def moduleTarget [CheckExists i] [GetMTime i] [ComputeHash i] (info : i)
 (leanFile traceFile : FilePath) (contents : String) (depTarget : BuildTarget x)
 (build : BuildM PUnit) : BuildTarget i :=
   Target.mk info <| depTarget.mapOpaqueAsync fun depTrace => do
-    let leanTrace ← BuildTrace.compute (← getLean)
     let srcTrace : BuildTrace := ⟨Hash.ofString contents, ← getMTime leanFile⟩
-    let fullTrace := leanTrace.mix <| srcTrace.mix depTrace
+    let fullTrace := (← getLeanTrace).mix <| srcTrace.mix depTrace
     let (upToDate, trace) ← fullTrace.check info traceFile
     unless upToDate do
       build

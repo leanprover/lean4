@@ -143,8 +143,9 @@ def getInstall : CliM (LeanInstall × LakeInstall) := do
 /-- Perform the given build action using information from CLI. -/
 def runBuildM (x : BuildM α) : CliM α := do
   let (leanInstall, lakeInstall) ← getInstall
+  let leanTrace ← runIO <| computeTrace leanInstall.lean
   runIO <| x.runIn {
-    leanInstall, lakeInstall
+    leanTrace, leanInstall, lakeInstall,
     methodsRef := BuildMethodsRef.mk {
       logInfo  := fun msg => IO.println msg
       logError := fun msg => IO.eprintln msg
@@ -257,8 +258,9 @@ def printPaths (imports : List String := []) : CliM PUnit := do
   if (← runIO' configFile.pathExists noConfigFileCode) then
     let pkg ← loadPkg (← getSubArgs)
     runIO do
+      let leanTrace ← computeTrace leanInstall.lean
       let pkgs ← pkg.buildImportsAndDeps imports |>.runIn {
-        leanInstall, lakeInstall
+        leanTrace, leanInstall, lakeInstall
         methodsRef := BuildMethodsRef.mk {
           logInfo  := fun msg => IO.eprintln msg
           logError := fun msg => IO.eprintln msg

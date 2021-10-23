@@ -102,7 +102,7 @@ def ofString (str : String) :=
   mk <| mixHash 1723 <| hash str -- same as Name.mkSimple
 
 def ofByteArray (bytes : ByteArray) :=
-  mk <| bytes.toList.foldl (init := 1723) fun h b => mixHash h (hash b.toNat)
+  mk <| bytes.foldl (init := 1723) fun h b => mixHash h (hash b)
 
 def mix (h1 h2 : Hash) : Hash :=
   mk <| mixHash h1.val h2.val
@@ -122,10 +122,10 @@ class ComputeHash (α) where
 export ComputeHash (computeHash)
 instance [ComputeHash α] : ComputeTrace α IO Hash := ⟨computeHash⟩
 
-def getFileHash (file : FilePath) : IO Hash :=
+def computeFileHash (file : FilePath) : IO Hash :=
   Hash.ofByteArray <$> IO.FS.readBinFile file
 
-instance : ComputeHash FilePath := ⟨getFileHash⟩
+instance : ComputeHash FilePath := ⟨computeFileHash⟩
 instance : ComputeHash String := ⟨pure ∘ Hash.ofString⟩
 
 --------------------------------------------------------------------------------

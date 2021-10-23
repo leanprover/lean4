@@ -287,6 +287,18 @@ structure PackageConfig extends WorkspaceConfig where
   moreLibTargets : Array FileTarget := #[]
 
   /--
+    Whether to expose symbols within the executable to the Lean interpreter.
+    This allows the executable to interpret Lean files (e.g.,  via
+    `Lean.Elab.runFrontend`).
+
+    Implementation-wise, this passes `-rdynamic` to the linker when building
+    on non-Windows systems.
+
+    Defaults to `false`.
+  -/
+  supportInterpreter : Bool := false
+
+  /--
     Additional arguments to pass to `leanc`
       while compiling the package's binary executable.
     These will come *after* the paths of libraries built with `moreLibTargets`.
@@ -476,9 +488,16 @@ def binFile (self : Package) : FilePath :=
 def moreLibTargets (self : Package) : Array FileTarget :=
   self.config.moreLibTargets
 
-/-- The package's `moreLinkArgs` configuration. -/
+/-- The package's `supportInterpreter` configuration. -/
+def supportInterpreter (self : Package) : Bool :=
+  self.config.supportInterpreter
+
+/-- `-rdynamic` (if non-Windows and `supportInterpreter`) plus `moreLinkArgs` -/
 def moreLinkArgs (self : Package) : Array String :=
-  self.config.moreLinkArgs
+  if self.supportInterpreter && !Platform.isWindows then
+    #["-rdynamic"] ++ self.config.moreLinkArgs
+  else
+    self.config.moreLinkArgs
 
 /-- Whether the given module is in the package. -/
 def hasModule (mod : Name) (self : Package) : Bool :=

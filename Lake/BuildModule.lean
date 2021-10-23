@@ -21,7 +21,7 @@ namespace Lake
 structure OleanAndC where
   oleanFile : FilePath
   cFile : FilePath
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 namespace OleanAndC
 
@@ -46,29 +46,53 @@ abbrev OleanAndCTarget := BuildTarget OleanAndC
 
 namespace OleanAndCTarget
 
-def oleanFile (self : OleanAndCTarget) := self.info.oleanFile
+abbrev oleanFile (self : OleanAndCTarget) := self.info.oleanFile
 def oleanTarget (self : OleanAndCTarget) : FileTarget :=
-  self.withInfo self.oleanFile
+  Target.mk self.oleanFile do self.mapAsync fun i _ => computeTrace i.oleanFile
 
-def cFile (self : OleanAndCTarget) := self.info.cFile
+abbrev cFile (self : OleanAndCTarget) := self.info.cFile
 def cTarget (self : OleanAndCTarget) : FileTarget :=
-  self.withInfo self.cFile
+  Target.mk self.cFile do self.mapAsync fun i _ => computeTrace i.cFile
 
 end OleanAndCTarget
 
-abbrev ActiveOleanAndCTarget := ActiveBuildTarget OleanAndC
+structure ActiveOleanAndCTargets where
+  oleanTarget : ActiveFileTarget
+  cTarget : ActiveFileTarget
+  deriving Inhabited
+
+namespace ActiveOleanAndCTargets
+abbrev oleanFile (self : ActiveOleanAndCTargets) := self.oleanTarget.info
+abbrev cFile (self : ActiveOleanAndCTargets) := self.cTarget.info
+end ActiveOleanAndCTargets
+
+/--
+  An active module `.olean` and `.c` target consists of a single task that
+  builds both with two dependent targets that compute their individual traces.
+-/
+abbrev ActiveOleanAndCTarget := ActiveBuildTarget ActiveOleanAndCTargets
 
 namespace ActiveOleanAndCTarget
 
-def oleanFile (self : ActiveOleanAndCTarget) := self.info.oleanFile
-def oleanTarget (self : ActiveOleanAndCTarget) : ActiveFileTarget :=
-  self.withInfo self.oleanFile
+abbrev oleanFile (self : ActiveOleanAndCTarget) := self.info.oleanFile
+abbrev oleanTarget (self : ActiveOleanAndCTarget) := self.info.oleanTarget
 
-def cFile (self : ActiveOleanAndCTarget) := self.info.cFile
-def cTarget (self : ActiveOleanAndCTarget) : ActiveFileTarget :=
-  self.withInfo self.cFile
+abbrev cFile (self : ActiveOleanAndCTarget) := self.info.cFile
+abbrev cTarget (self : ActiveOleanAndCTarget) := self.info.cTarget
 
 end ActiveOleanAndCTarget
+
+def OleanAndCTarget.run' (self : OleanAndCTarget) : BuildM ActiveOleanAndCTarget := do
+  let t ← self.run
+  let oleanTask ← t.mapAsync fun info depTrace => do
+    return mixTrace (← computeTrace info.oleanFile) depTrace
+  let cTask ← t.mapAsync fun info _ => do
+    let leanTrace ← BuildTrace.compute (← getLean)
+    return mixTrace (← computeTrace info.cFile) leanTrace
+  return t.withInfo {
+    oleanTarget := ActiveTarget.mk self.oleanFile oleanTask
+    cTarget := ActiveTarget.mk self.cFile cTask
+  }
 
 -- # Module Builders
 
@@ -83,21 +107,23 @@ def moduleTarget [CheckExists i] [GetMTime i] [ComputeHash i] (info : i)
     unless upToDate do
       build
     IO.FS.writeFile traceFile trace.hash.toString
-    pure <| mixTrace (← computeTrace info) depTrace
+    depTrace
 
 def moduleOleanAndCTarget
 (leanFile cFile oleanFile traceFile : FilePath)
 (oleanDirs : List FilePath) (contents : String)  (depTarget : BuildTarget x)
-(rootDir : FilePath := ".") (leanArgs : Array String := #[]) :=
+(rootDir : FilePath := ".") (leanArgs : Array String := #[]) : OleanAndCTarget :=
   moduleTarget (OleanAndC.mk oleanFile cFile) leanFile traceFile contents depTarget do
     compileOleanAndC leanFile oleanFile cFile oleanDirs rootDir leanArgs (← getLean)
 
 def moduleOleanTarget
 (leanFile oleanFile traceFile : FilePath)
 (oleanDirs : List FilePath) (contents : String) (depTarget : BuildTarget x)
-(rootDir : FilePath := ".") (leanArgs : Array String := #[]) :=
-  moduleTarget oleanFile leanFile traceFile contents depTarget do
+(rootDir : FilePath := ".") (leanArgs : Array String := #[]) : FileTarget :=
+  let target := moduleTarget oleanFile leanFile traceFile contents depTarget do
     compileOlean leanFile oleanFile oleanDirs rootDir leanArgs (← getLean)
+  target.withTask do target.mapAsync fun oleanFile depTrace => do
+    return mixTrace (← computeTrace oleanFile) depTrace
 
 protected def Package.moduleOleanAndCTargetOnly
 (self : Package) (moreOleanDirs : List FilePath) (mod : Name)
@@ -143,16 +169,16 @@ def Package.recBuildModuleOleanAndCTargetWithLocalImports [Monad m] [MonadLiftT 
 (self : Package) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
 : RecBuild Name ActiveOleanAndCTarget m :=
   recBuildModuleWithLocalImports self fun mod leanFile contents importTargets => do
-    let allDepsTarget := Target.active <| ←
-      depTarget.mixOpaqueAsync <| ← ActiveTarget.collectOpaqueList importTargets
-    self.moduleOleanAndCTargetOnly moreOleanDirs mod leanFile contents allDepsTarget |>.run
+    let importTarget ← ActiveTarget.collectOpaqueList <| importTargets.map (·.oleanTarget)
+    let allDepsTarget := Target.active <| ← depTarget.mixOpaqueAsync importTarget
+    self.moduleOleanAndCTargetOnly moreOleanDirs mod leanFile contents allDepsTarget |>.run'
 
 def Package.recBuildModuleOleanTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
 (self : Package) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
 : RecBuild Name ActiveFileTarget m :=
   recBuildModuleWithLocalImports self fun mod leanFile contents importTargets => do
-    let allDepsTarget := Target.active <| ←
-      depTarget.mixOpaqueAsync <| ← ActiveTarget.collectOpaqueList importTargets
+    let importTarget ← ActiveTarget.collectOpaqueList importTargets
+    let allDepsTarget := Target.active <| ← depTarget.mixOpaqueAsync importTarget
     self.moduleOleanTargetOnly moreOleanDirs mod leanFile contents allDepsTarget |>.run
 
 -- ## Definitions
@@ -162,16 +188,20 @@ abbrev ModuleBuildM (α) :=
   -- phrased this way to use `NameMap`
   EStateT (List Name) (NameMap α) BuildM
 
-abbrev RecModuleBuild (i) :=
-  RecBuild Name (ActiveBuildTarget i) (ModuleBuildM (ActiveBuildTarget i))
+abbrev RecModuleBuild (o) :=
+  RecBuild Name o (ModuleBuildM o)
+
+abbrev RecModuleTargetBuild (i) :=
+  RecModuleBuild (ActiveBuildTarget i)
 
 -- ## Builders
 
-def buildModuleTarget (mod : Name) [Inhabited i]
-(build : RecModuleBuild i) : BuildM (ActiveBuildTarget i) := do
-  failOnBuildCycle <| ← RBTopT.run' <| buildRBTop (cmp := Name.quickCmp) build id mod
+def buildModule (mod : Name)
+[Inhabited o] (build : RecModuleBuild o) : BuildM o := do
+  failOnBuildCycle <| ← RBTopT.run' do
+    buildRBTop (cmp := Name.quickCmp) build id mod
 
-def buildModuleTargets (mods : Array Name) [Inhabited i]
-(build : RecModuleBuild i) : BuildM (Array (ActiveBuildTarget i)) := do
-  failOnBuildCycle <| ← RBTopT.run' <| mods.mapM <|
+def buildModules (mods : Array Name)
+[Inhabited o] (build : RecModuleBuild o) : BuildM (Array o) := do
+  failOnBuildCycle <| ← RBTopT.run' <| mods.mapM do
     buildRBTop (cmp := Name.quickCmp) build id

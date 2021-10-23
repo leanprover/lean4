@@ -105,13 +105,12 @@ def Package.buildDepTargets [Inhabited i]
 : BuildM (Array (ActivePackageTarget i)) := do
   buildPackageArrayWithDeps (← self.resolveDirectDeps) build
 
-
 /--
-   Build an active target for the package by
-  running the given `RecModuleBuild` on the given root module.
+  Build an active target for the package by
+  running the given `RecModuleTargetBuild` on the given root module.
 -/
 def Package.buildModuleDAGTarget [Inhabited i] (mod : Name)
-(buildMod : RecModuleBuild i) (self : Package) : BuildM (ActivePackageTarget i) := do
+(buildMod : RecModuleTargetBuild i) (self : Package) : BuildM (ActivePackageTarget i) := do
   let (targetE, targetMap) ← RBTopT.run do
     buildRBTop buildMod id mod
   let target ← failOnBuildCycle targetE
@@ -119,10 +118,10 @@ def Package.buildModuleDAGTarget [Inhabited i] (mod : Name)
 
 /--
   Build an active target for the package by
-  running the given `RecModuleBuild` on the given root modules.
+  running the given `RecModuleTargetBuild` on the given root modules.
 -/
 def Package.buildModulesDAGTarget [Inhabited i] (mods : Array Name)
-(buildMod : RecModuleBuild i) (self : Package) : BuildM (ActivePackageTarget i) := do
+(buildMod : RecModuleTargetBuild i) (self : Package) : BuildM (ActivePackageTarget i) := do
   let (targetsE, targetMap) ← RBTopT.run do
     mods.mapM fun mod => buildRBTop buildMod id mod
   let targets ← failOnBuildCycle targetsE
@@ -131,17 +130,17 @@ def Package.buildModulesDAGTarget [Inhabited i] (mods : Array Name)
 
 /--
   Build an active target for the package by
-  running the given `RecModuleBuild` on each of its top-level modules
+  running the given `RecModuleTargetBuild` on each of its top-level modules
   (i.e., those specified in its `libGlobs` configuration).
 -/
 def Package.buildTarget [Inhabited i]
-(buildMod : RecModuleBuild i) (self : Package) : BuildM (ActivePackageTarget i) := do
+(buildMod : RecModuleTargetBuild i) (self : Package) : BuildM (ActivePackageTarget i) := do
   self.buildModulesDAGTarget (← self.getModuleArray) buildMod
 
 -- # Build Package Modules
 
 def Package.buildOleanTargetWithDepTargets
-(depTargets : Array (ActivePackageTarget FilePath)) (self : Package)
+(depTargets : Array (ActivePackageTarget x)) (self : Package)
 : BuildM (ActivePackageTarget FilePath) := do
   let depTarget ← self.buildDepTargetWith depTargets
   let moreOleanDirs := packageTargetsToOleanDirs depTargets
@@ -152,14 +151,14 @@ def Package.buildOleanTarget (self : Package) : BuildM (ActivePackageTarget File
   self.buildRec buildOleanTargetWithDepTargets
 
 def Package.buildOleanAndCTargetWithDepTargets
-(depTargets : Array (ActivePackageTarget OleanAndC)) (self : Package)
-: BuildM (ActivePackageTarget OleanAndC) := do
+(depTargets : Array (ActivePackageTarget x)) (self : Package)
+: BuildM (ActivePackageTarget ActiveOleanAndCTargets) := do
   let depTarget ← self.buildDepTargetWith depTargets
   let moreOleanDirs := packageTargetsToOleanDirs depTargets
   self.buildTarget <| self.recBuildModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
 
 /-- Build the `.olean` and `.c` files of package and its dependencies' modules. -/
-def Package.buildOleanAndCTarget (self : Package) : BuildM (ActivePackageTarget OleanAndC) := do
+def Package.buildOleanAndCTarget (self : Package) : BuildM (ActivePackageTarget ActiveOleanAndCTargets) := do
   self.buildRec buildOleanAndCTargetWithDepTargets
 
 def Package.buildDepOleans (self : Package) : BuildM PUnit := do
@@ -180,7 +179,7 @@ def Package.moduleOleanTarget (mod : Name) (self : Package) : FileTarget :=
     let depTarget ← self.buildDepTargetWith depTargets
     let moreOleanDirs := packageTargetsToOleanDirs depTargets
     let build := self.recBuildModuleOleanTargetWithLocalImports moreOleanDirs depTarget
-    pure (← buildModuleTarget mod build).task
+    return (← buildModule mod build).task
 
 def Package.moduleOleanAndCTarget (mod : Name) (self : Package) : OleanAndCTarget :=
   Target.mk ⟨self.modToOlean mod, self.modToC mod⟩ do
@@ -188,7 +187,7 @@ def Package.moduleOleanAndCTarget (mod : Name) (self : Package) : OleanAndCTarge
     let depTarget ← self.buildDepTargetWith depTargets
     let moreOleanDirs := packageTargetsToOleanDirs depTargets
     let build := self.recBuildModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
-    pure (← buildModuleTarget mod build).task
+    return (← buildModule mod build).task
 
 -- # Build Imports
 
@@ -230,10 +229,10 @@ def Package.buildImportsAndDeps
     let localImports := self.filterLocalImports imports
     if self.defaultFacet == PackageFacet.oleans then
       let build := self.recBuildModuleOleanTargetWithLocalImports moreOleanDirs depTarget
-      let targets ← buildModuleTargets localImports build
+      let targets ← buildModules localImports build
       targets.forM (discard ·.materialize)
     else
       let build := self.recBuildModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
-      let targets ← buildModuleTargets localImports build
+      let targets ← buildModules localImports build
       targets.forM (discard ·.materialize)
   return self :: depPkgs

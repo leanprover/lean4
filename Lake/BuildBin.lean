@@ -14,7 +14,7 @@ namespace Lake
 -- # Build Package .o Files
 
 def ActivePackageTarget.oFileTargets
-(self : ActivePackageTarget OleanAndC) : Array FileTarget :=
+(self : ActivePackageTarget ActiveOleanAndCTargets) : Array FileTarget :=
   self.moduleTargets.map fun (mod, target) =>
     let oFile := self.package.modToO mod
     let cTarget := Target.active <| ActiveOleanAndCTarget.cTarget target
@@ -27,13 +27,13 @@ def Package.moduleOTarget (mod : Name) (self : Package) : FileTarget :=
 
 -- # Build Package Lib
 
-protected def ActivePackageTarget.staticLibTarget (self : ActivePackageTarget OleanAndC) : FileTarget :=
+protected def ActivePackageTarget.staticLibTarget (self : ActivePackageTarget ActiveOleanAndCTargets) : FileTarget :=
   staticLibTarget self.package.staticLibFile self.oFileTargets
 
-def ActivePackageTarget.staticLibTargets (self : ActivePackageTarget OleanAndC) : Array FileTarget :=
+def ActivePackageTarget.staticLibTargets (self : ActivePackageTarget ActiveOleanAndCTargets) : Array FileTarget :=
   #[self.staticLibTarget] ++ self.package.moreLibTargets
 
-def Package.staticLibTarget (self : Package) : FileTarget :=
+protected def Package.staticLibTarget (self : Package) : FileTarget :=
  Target.mk self.staticLibFile do
     (← self.buildOleanAndCTarget).staticLibTarget.materializeAsync
 
@@ -42,7 +42,7 @@ def Package.buildLib (self : Package) : BuildM FilePath :=
 
 -- # Build Package Bin
 
-def Package.binTarget (self : Package) : FileTarget :=
+protected def Package.binTarget (self : Package) : FileTarget :=
   Target.mk self.binFile do
     let depTargets ← self.buildDepTargets buildOleanAndCTargetWithDepTargets
     let depTarget ← self.buildDepTargetWith depTargets

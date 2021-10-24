@@ -11,10 +11,10 @@ namespace Lake
 --------------------------------------------------------------------------------
 
 -- Involves trickery patterned after `MacroM`
--- to allow `BuildMethods` to refer to `BuildM`
+-- to allow `CliMethods` to refer to `CliT`
 
-constant CliMethodsRefPointed : PointedType.{0}
-def CliMethodsRef (m : Type → Type v) : Type := CliMethodsRefPointed.type
+constant CliMethodsRefPointed (m : Type → Type v) : PointedType.{0}
+def CliMethodsRef (m : Type → Type v) : Type := (CliMethodsRefPointed m).type
 
 abbrev CliT (m : Type → Type v) :=
   ReaderT (CliMethodsRef m) <| StateT (List String) m
@@ -37,7 +37,7 @@ unsafe def mkImp (methods : CliMethods m) : CliMethodsRef m :=
 
 @[implementedBy mkImp]
 constant mk (methods : CliMethods m) : CliMethodsRef m :=
-  CliMethodsRefPointed.val
+  (CliMethodsRefPointed m).val
 
 instance : Coe (CliMethods m) (CliMethodsRef m) := ⟨mk⟩
 instance [Pure m] : Inhabited (CliMethodsRef m) := ⟨mk Inhabited.default⟩
@@ -58,7 +58,7 @@ namespace CliT
 variable [Monad m]
 
 /-- Run the CLI on the given argument list using the given methods. -/
-def run (self : CliT m α) (args : List String) (methods : CliMethods m)  : m α :=
+def run (self : CliT m α) (args : List String) (methods : CliMethods m) : m α :=
   ReaderT.run self methods |>.run' args
 
 /-- Get the remaining argument list. -/
@@ -86,8 +86,8 @@ def getMethods : CliT m (CliMethods m) :=
   (·.get) <$> read
 
 /-- Change the methods of this CLI. -/
-def adaptMethods (f : CliMethods m → CliMethods m') (self : CliT m α) : CliT m α :=
-   ReaderT.adapt (fun ref => CliMethodsRef.mk <| f ref.get) self
+def adaptMethods (f : CliMethods m → CliMethods m) (self : CliT m α) : CliT m α :=
+  self.adapt fun ref => CliMethodsRef.mk <| f ref.get
 
 /-- Process a short option (ex. `-x` or `--`). -/
 def shortOption (opt : Char) : CliT m PUnit :=

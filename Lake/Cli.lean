@@ -144,13 +144,7 @@ def getInstall : CliM (LeanInstall × LakeInstall) := do
 def runBuildM (x : BuildM α) : CliM α := do
   let (leanInstall, lakeInstall) ← getInstall
   let leanTrace ← runIO <| computeTrace leanInstall.lean
-  runIO <| x.runIn {
-    leanTrace, leanInstall, lakeInstall,
-    methodsRef := BuildMethodsRef.mk {
-      logInfo  := fun msg => IO.println msg
-      logError := fun msg => IO.eprintln msg
-    }
-  }
+  runIO <| x.run LogMethods.io {leanTrace, leanInstall, lakeInstall}
 
 /-- Variant of `runBuildM` that discards the build monad's output. -/
 def runBuildM_ (x : BuildM α) : CliM PUnit :=
@@ -259,12 +253,8 @@ def printPaths (imports : List String := []) : CliM PUnit := do
     let pkg ← loadPkg (← getSubArgs)
     runIO do
       let leanTrace ← computeTrace leanInstall.lean
-      let pkgs ← pkg.buildImportsAndDeps imports |>.runIn {
+      let pkgs ← pkg.buildImportsAndDeps imports |>.run LogMethods.eio {
         leanTrace, leanInstall, lakeInstall
-        methodsRef := BuildMethodsRef.mk {
-          logInfo  := fun msg => IO.eprintln msg
-          logError := fun msg => IO.eprintln msg
-        }
       }
       IO.println <| Json.compress <| toJson {
         oleanPath := pkgs.map (·.oleanDir),

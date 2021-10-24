@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lake.Task
 import Lake.Trace
+import Lake.LogMonad
 import Lake.InstallPath
 
 open System
@@ -14,86 +15,37 @@ namespace Lake
 -- # Build Monad Definition
 --------------------------------------------------------------------------------
 
--- Involves trickery patterned after `MacroM`
--- to allow `BuildMethods` to refer to `BuildM`
-
-constant BuildMethodsRefPointed : PointedType.{0}
-def BuildMethodsRef : Type := BuildMethodsRefPointed.type
-
 structure BuildContext where
   leanTrace : BuildTrace
   leanInstall : LeanInstall
   lakeInstall : LakeInstall
-  methodsRef : BuildMethodsRef
-
-abbrev BuildM := ReaderT BuildContext IO
-
-structure BuildMethods where
-  logInfo : String → BuildM PUnit
-  logError : String → BuildM PUnit
   deriving Inhabited
 
-namespace BuildMethodsRef
-
-unsafe def mkImp (methods : BuildMethods) : BuildMethodsRef :=
-  unsafeCast methods
-
-@[implementedBy mkImp]
-constant mk (methods : BuildMethods) : BuildMethodsRef :=
-  BuildMethodsRefPointed.val
-
-instance : Coe BuildMethods BuildMethodsRef := ⟨mk⟩
-instance : Inhabited BuildMethodsRef := ⟨mk arbitrary⟩
-
-unsafe def getImp (self : BuildMethodsRef) : BuildMethods :=
-  unsafeCast self
-
-@[implementedBy getImp]
-constant get (self : BuildMethodsRef) : BuildMethods
-
-end BuildMethodsRef
+abbrev BuildM := ReaderT BuildContext <| LogT <| IO
 
 --------------------------------------------------------------------------------
 -- # Build Monad Utilities
 --------------------------------------------------------------------------------
 
-namespace BuildContext
-
-deriving instance Inhabited for BuildContext
-
-def methods (self : BuildContext) : BuildMethods :=
-  self.methodsRef.get
-
-end BuildContext
-
-namespace BuildM
-
-def getMethods : BuildM BuildMethods :=
-  BuildContext.methods <$> read
-
-def logInfo (msg : String) : BuildM PUnit := do
-  (← getMethods).logInfo msg
-
-def logError (msg : String) : BuildM PUnit := do
-  (← getMethods).logError msg
-
 def getLeanInstall : BuildM LeanInstall :=
-  BuildContext.leanInstall <$> read
+  (·.leanInstall) <$> read
 
 def getLeanIncludeDir : BuildM FilePath :=
-  LeanInstall.includeDir <$> getLeanInstall
-
-def getLeanc : BuildM FilePath :=
-  LeanInstall.leanc <$> getLeanInstall
+  (·.includeDir) <$> getLeanInstall
 
 def getLean : BuildM FilePath :=
-  LeanInstall.lean <$> getLeanInstall
+  (·.lean) <$> getLeanInstall
 
 def getLeanTrace : BuildM BuildTrace := do
-  BuildContext.leanTrace <$> read
+  (·.leanTrace) <$> read
+
+def getLeanc : BuildM FilePath :=
+  (·.leanc) <$> getLeanInstall
 
 def getLakeInstall : BuildM LakeInstall :=
-  BuildContext.lakeInstall <$> read
+  (·.lakeInstall) <$> read
+
+namespace BuildM
 
 def convErrors (self : BuildM α) : BuildM α := do
   try self catch e =>
@@ -104,22 +56,20 @@ def convErrors (self : BuildM α) : BuildM α := do
 
       TODO: Use an `OptionT` in `BuildM` to properly record build failures.
     -/
-    BuildM.logError s!"build error: {toString e}"
+    logError s!"build error: {toString e}"
     throw <| IO.userError "build failed"
 
-def runIn (ctx : BuildContext) (self : BuildM α) : IO α :=
-  (convErrors self) ctx
+def run (logMethods : LogMethods IO) (ctx : BuildContext) (self : BuildM α) : IO α :=
+  (convErrors self) ctx logMethods
 
 end BuildM
-
-export BuildM (getLeanInstall getLeanIncludeDir getLean getLeanTrace getLeanc getLakeInstall)
 
 def failOnBuildCycle [ToString k] : Except (List k) α → BuildM α
 | Except.ok a => a
 | Except.error cycle => do
   let cycle := cycle.map (s!"  {·}")
   let msg := s!"build cycle detected:\n{"\n".intercalate cycle}"
-  BuildM.logError msg
+  logError msg
   throw <| IO.userError msg
 
 abbrev BuildTask := IOTask

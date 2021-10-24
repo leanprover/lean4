@@ -10,12 +10,12 @@ open System
 
 def createParentDirs (path : FilePath) : BuildM PUnit := do
   if let some dir := path.parent then
-    try IO.FS.createDirAll dir catch e => BuildM.logError (toString e)
+    try IO.FS.createDirAll dir catch e => logError (toString e)
 
 def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
   let envStr := String.join <| args.env.toList.map fun (k, v) => s!"{k}={v.getD ""} "
   let cmdStr := " ".intercalate (args.cmd :: args.args.toList)
-  BuildM.logInfo <| "> " ++ envStr ++
+  logInfo <| "> " ++ envStr ++
     match args.cwd with
     | some cwd => s!"{cmdStr}    # in directory {cwd}"
     | none     => cmdStr
@@ -23,7 +23,7 @@ def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
   let exitCode ← child.wait
   if exitCode != 0 then
     let msg := s!"external command {args.cmd} exited with status {exitCode}"
-    BuildM.logError msg -- log errors early
+    logError msg -- log errors early
     throw <| IO.userError msg
 
 def compileOlean (leanFile oleanFile : FilePath)

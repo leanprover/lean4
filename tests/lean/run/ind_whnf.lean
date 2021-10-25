@@ -19,3 +19,17 @@ protected def Lst.append : Lst α → Lst α → Lst α
   | cons a as, bs => cons a (Lst.append as bs)
 
 #print Lst
+
+def Set (α : Type u) : Type u := α → Prop
+
+mutual
+  inductive Even : Set Nat
+  | zero : Even 0
+  | succ : Odd n → Even n
+
+  inductive Odd : Set Nat
+  | succ : Even n → Odd n
+end
+
+#print Even
+#print Odd

@@ -55,7 +55,7 @@ partial def quoteAutoTactic : Syntax → TermElabM Syntax
         else
           let quotedArg ← quoteAutoTactic arg
           quotedArgs ← `(Array.push $quotedArgs $quotedArg)
-      `(Syntax.node $(quote k) $quotedArgs)
+      `(Syntax.node SourceInfo.none $(quote k) $quotedArgs)
   | Syntax.atom info val => `(mkAtom $(quote val))
   | Syntax.missing       => throwError "invalid auto tactic, tactic is missing"
 

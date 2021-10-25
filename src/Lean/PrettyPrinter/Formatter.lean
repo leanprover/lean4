@@ -165,6 +165,16 @@ constant mkAntiquot.formatter' (name : String) (kind : Option SyntaxNodeKind) (a
 @[extern "lean_pretty_printer_formatter_interpret_parser_descr"]
 constant interpretParserDescr' : ParserDescr → CoreM Formatter
 
+private def SourceInfo.getExprPos? : SourceInfo → Option Nat
+  | SourceInfo.synthetic pos _ => pos
+  | _ => none
+
+private def getExprPos? : Syntax → Option Nat
+  | Syntax.node info _ _ => SourceInfo.getExprPos? info
+  | Syntax.atom info _ => SourceInfo.getExprPos? info
+  | Syntax.ident info _ _ _ => SourceInfo.getExprPos? info
+  | Syntax.missing => none
+
 unsafe def formatterForKindUnsafe (k : SyntaxNodeKind) : Formatter := do
   if k == `missing then
     push "<missing>"
@@ -172,7 +182,7 @@ unsafe def formatterForKindUnsafe (k : SyntaxNodeKind) : Formatter := do
   else
     let stx ← getCur
     let f ← runForNodeKind formatterAttribute k interpretParserDescr'
-    withMaybeTag stx.getPos? f
+    withMaybeTag (getExprPos? stx) f
 
 @[implementedBy formatterForKindUnsafe]
 constant formatterForKind (k : SyntaxNodeKind) : Formatter

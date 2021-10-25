@@ -73,6 +73,3 @@ def failOnBuildCycle [ToString k] : Except (List k) α → BuildM α
   throw <| IO.userError msg
 
 abbrev BuildTask := IOTask
-
-instance : HAndThen (BuildTask α) (BuildM β) (BuildM (BuildTask β)) :=
-  ⟨fun x y => seqRightAsync x (y ())⟩

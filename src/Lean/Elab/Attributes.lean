@@ -41,7 +41,7 @@ def toAttributeKind (attrKindStx : Syntax) : MacroM AttributeKind := do
     return AttributeKind.local
 
 def mkAttrKindGlobal : Syntax :=
-  Syntax.node ``Lean.Parser.Term.attrKind #[mkNullNode]
+  mkNode ``Lean.Parser.Term.attrKind #[mkNullNode]
 
 def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (attrInstance : Syntax) : m Attribute := do
   /- attrInstance     := ppGroup $ leading_parser attrKind >> attrParser -/

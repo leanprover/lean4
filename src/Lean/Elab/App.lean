@@ -335,7 +335,7 @@ private def hasArgsToProcess : M Bool := do
 /- Return true if the next argument at `args` is of the form `_` -/
 private def isNextArgHole : M Bool := do
   match (← get).args with
-  | Arg.stx (Syntax.node ``Lean.Parser.Term.hole _) :: _ => pure true
+  | Arg.stx (Syntax.node _ ``Lean.Parser.Term.hole _) :: _ => pure true
   | _ => pure false
 
 

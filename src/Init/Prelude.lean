@@ -1744,9 +1744,31 @@ abbrev SyntaxNodeKind := Name
 
 /- Syntax AST -/
 
+/--
+Syntax objects used by the parser, macro expander, delaborator, etc.
+-/
 inductive Syntax where
   | missing : Syntax
-  | node   (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
+  | /--
+  Node in the syntax tree.
+
+  The `info` field is used by the delaborator
+  to store the position of the subexpression
+  corresponding to this node.
+  The parser sets the `info` field to `none`.
+
+  (Remark: the `node` constructor
+  did not have an `info` field in previous versions.
+  This caused a bug in the interactive widgets,
+  where the popup for `a + b` was the same as for `a`.
+  The delaborator used to associate subexpressions
+  with pretty-printed syntax by setting
+  the (string) position of the first atom/identifier
+  to the (expression) position of the subexpression.
+  For example, both `a` and `a + b`
+  have the same first identifier,
+  and so their infos got mixed up.)
+  -/ node   (info : SourceInfo) (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax
   | atom   (info : SourceInfo) (val : String) : Syntax
   | ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Prod Name (List String))) : Syntax
 
@@ -1771,7 +1793,7 @@ namespace Syntax
 
 def getKind (stx : Syntax) : SyntaxNodeKind :=
   match stx with
-  | Syntax.node k args => k
+  | Syntax.node _ k args => k
   -- We use these "pseudo kinds" for antiquotation kinds.
   -- For example, an antiquotation `$id:ident` (using Lean.Parser.Term.ident)
   -- is compiled to ``if stx.isOfKind `ident ...``
@@ -1781,16 +1803,16 @@ def getKind (stx : Syntax) : SyntaxNodeKind :=
 
 def setKind (stx : Syntax) (k : SyntaxNodeKind) : Syntax :=
   match stx with
-  | Syntax.node _ args => Syntax.node k args
-  | _                  => stx
+  | Syntax.node info _ args => Syntax.node info k args
+  | _                       => stx
 
 def isOfKind (stx : Syntax) (k : SyntaxNodeKind) : Bool :=
   beq stx.getKind k
 
 def getArg (stx : Syntax) (i : Nat) : Syntax :=
   match stx with
-  | Syntax.node _ args => args.getD i Syntax.missing
-  | _                  => Syntax.missing
+  | Syntax.node _ _ args => args.getD i Syntax.missing
+  | _                    => Syntax.missing
 
 -- Add `stx[i]` as sugar for `stx.getArg i`
 @[inline] def getOp (self : Syntax) (idx : Nat) : Syntax :=
@@ -1798,13 +1820,13 @@ def getArg (stx : Syntax) (i : Nat) : Syntax :=
 
 def getArgs (stx : Syntax) : Array Syntax :=
   match stx with
-  | Syntax.node _ args => args
-  | _                  => Array.empty
+  | Syntax.node _ _ args => args
+  | _                    => Array.empty
 
 def getNumArgs (stx : Syntax) : Nat :=
   match stx with
-  | Syntax.node _ args => args.size
-  | _                  => 0
+  | Syntax.node _ _ args => args.size
+  | _                    => 0
 
 def isMissing : Syntax → Bool
   | Syntax.missing => true
@@ -1829,19 +1851,19 @@ def matchesIdent (stx : Syntax) (id : Name) : Bool :=
 
 def setArgs (stx : Syntax) (args : Array Syntax) : Syntax :=
   match stx with
-  | node k _ => node k args
-  | stx      => stx
+  | node info k _ => node info k args
+  | stx           => stx
 
 def setArg (stx : Syntax) (i : Nat) (arg : Syntax) : Syntax :=
   match stx with
-  | node k args => node k (args.setD i arg)
-  | stx         => stx
+  | node info k args => node info k (args.setD i arg)
+  | stx              => stx
 
-/-- Retrieve the left-most leaf's info in the Syntax tree. -/
+/-- Retrieve the left-most node or leaf's info in the Syntax tree. -/
 partial def getHeadInfo? : Syntax → Option SourceInfo
   | atom info _   => some info
   | ident info .. => some info
-  | node _ args   =>
+  | node SourceInfo.none _ args   =>
     let rec loop (i : Nat) : Option SourceInfo :=
       match decide (LT.lt i args.size) with
       | true => match getHeadInfo? (args.get! i) with
@@ -1849,6 +1871,7 @@ partial def getHeadInfo? : Syntax → Option SourceInfo
          | none      => loop (hAdd i 1)
       | false => none
     loop 0
+  | node info _ _ => some info
   | _             => none
 
 /-- Retrieve the left-most leaf's info in the Syntax tree, or `none` if there is no token. -/
@@ -1866,7 +1889,9 @@ partial def getTailPos? (stx : Syntax) (originalOnly := false) : Option String.P
   | atom (SourceInfo.synthetic (endPos := pos) ..) _,  false  => some pos
   | ident (SourceInfo.original (endPos := pos) ..) .., _      => some pos
   | ident (SourceInfo.synthetic (endPos := pos) ..) .., false => some pos
-  | node _ args,                                        _     =>
+  | node (SourceInfo.original (endPos := pos) ..) ..,    _    => some pos
+  | node (SourceInfo.synthetic (endPos := pos) ..) .., false  => some pos
+  | node _ _ args,                                        _     =>
     let rec loop (i : Nat) : Option String.Pos :=
       match decide (LT.lt i args.size) with
       | true => match getTailPos? (args.get! ((args.size.sub i).sub 1)) originalOnly with

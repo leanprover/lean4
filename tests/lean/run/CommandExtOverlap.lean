@@ -4,7 +4,7 @@ open Lean
 
 macro_rules (kind := mycheck)
 | `(#check $es,*) =>
-  let cmds := es.getElems.map $ fun e => Syntax.node `Lean.Parser.Command.check #[mkAtom "#check", e]
+  let cmds := es.getElems.map $ fun e => mkNode `Lean.Parser.Command.check #[mkAtom "#check", e]
   pure $ mkNullNode cmds
 
 #check true

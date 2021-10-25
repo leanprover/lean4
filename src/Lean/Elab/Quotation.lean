@@ -20,7 +20,7 @@ open Meta
 
 /-- `C[$(e)]` ~> `let a := e; C[$a]`. Used in the implementation of antiquot splices. -/
 private partial def floatOutAntiquotTerms : Syntax → StateT (Syntax → TermElabM Syntax) TermElabM Syntax
-  | stx@(Syntax.node k args) => do
+  | stx@(Syntax.node i k args) => do
     if isAntiquot stx && !isEscapedAntiquot stx then
       let e := getAntiquotTerm stx
       if !e.isIdent || !e.getId.isAtomic then
@@ -28,7 +28,7 @@ private partial def floatOutAntiquotTerms : Syntax → StateT (Syntax → TermEl
           let a ← `(a)
           modify (fun cont stx => (`(let $a:ident := $e; $stx) : TermElabM _))
           stx.setArg 2 a
-    Syntax.node k (← args.mapM floatOutAntiquotTerms)
+    Syntax.node i k (← args.mapM floatOutAntiquotTerms)
   | stx => pure stx
 
 private def getSepFromSplice (splice : Syntax) : Syntax := do
@@ -94,7 +94,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
     -- `scp` is bound in stxQuot.expand
     `(Syntax.ident info $(quote rawVal) (addMacroScope mainModule $val scp) $(quote preresolved))
   -- if antiquotation, insert contents as-is, else recurse
-  | stx@(Syntax.node k _) => do
+  | stx@(Syntax.node _ k _) => do
     if isAntiquot stx && !isEscapedAntiquot stx then
       getAntiquotTerm stx
     else if isTokenAntiquot stx && !isEscapedAntiquot stx then

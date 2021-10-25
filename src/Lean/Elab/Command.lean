@@ -258,7 +258,7 @@ builtin_initialize registerTraceClass `Elab.command
 partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
   withLogging <| withRef stx <| withIncRecDepth <| withFreshMacroScope do
     match stx with
-    | Syntax.node k args =>
+    | Syntax.node _ k args =>
       if k == nullKind then
         -- list of commands => elaborate in order
         -- The parser will only ever return a single command at a time, but syntax quotations can return multiple ones

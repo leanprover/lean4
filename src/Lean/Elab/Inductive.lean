@@ -257,9 +257,10 @@ private def levelMVarToParam (indTypes : List InductiveType) : TermElabM (List I
 private def getResultingUniverse : List InductiveType → TermElabM Level
   | []           => throwError "unexpected empty inductive declaration"
   | indType :: _ => forallTelescopeReducing indType.type fun _ r => do
+    let r ← whnfD r
     match r with
     | Expr.sort u _ => pure u
-    | _             => throwError "unexpected inductive type resulting type"
+    | _             => throwError "unexpected inductive type resulting type{indentExpr r}"
 
 def tmpIndParam := mkLevelParam `_tmp_ind_univ_param
 
@@ -492,6 +493,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         | Except.ok levelParams => do
           let indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numVars numParams indTypes
           let indTypes := applyInferMod views numParams indTypes
+          trace[Meta.debug] "levelParams: {levelParams}"
           let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe
           Term.ensureNoUnassignedMVars decl
           addDecl decl

@@ -91,7 +91,7 @@ def append (str : String) : M Unit :=
 
 partial def collect (stx : Syntax) : M Unit := do
   match stx with
-  | Syntax.node k args =>
+  | Syntax.node _ k args =>
     unless (← isFirst) do
       match kindReplacements.find? k with
       | some r => append r
@@ -133,7 +133,7 @@ def mkDefViewOfConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
     | some val => pure val
     | none     =>
       let val ← `(arbitrary)
-      pure $ Syntax.node ``Parser.Command.declValSimple #[ mkAtomFrom stx ":=", val ]
+      pure $ mkNode ``Parser.Command.declValSimple #[ mkAtomFrom stx ":=", val ]
   return {
     ref := stx, kind := DefKind.opaque, modifiers := modifiers,
     declId := stx[1], binders := binders, type? := some type, value := val
@@ -150,7 +150,7 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
     | some declId => pure declId
     | none        =>
       let id ← MkInstanceName.main type
-      pure <| Syntax.node ``Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]
+      pure <| mkNode ``Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]
   return {
     ref := stx, kind := DefKind.def, modifiers := modifiers,
     declId := declId, binders := binders, type? := type, value := stx[5]
@@ -160,7 +160,7 @@ def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : DefView :=
   -- leading_parser "example " >> declSig >> declVal
   let (binders, type) := expandDeclSig stx[1]
   let id              := mkIdentFrom stx `_example
-  let declId          := Syntax.node ``Parser.Command.declId #[id, mkNullNode]
+  let declId          := mkNode ``Parser.Command.declId #[id, mkNullNode]
   { ref := stx, kind := DefKind.example, modifiers := modifiers,
     declId := declId, binders := binders, type? := some type, value := stx[2] }
 

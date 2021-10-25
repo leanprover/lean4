@@ -155,7 +155,7 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
   fieldBinders.foldlM (init := #[]) fun (views : Array StructFieldView) fieldBinder => withRef fieldBinder do
     let mut fieldBinder := fieldBinder
     if fieldBinder.getKind == ``Parser.Command.structSimpleBinder then
-      fieldBinder := Syntax.node ``Parser.Command.structExplicitBinder
+      fieldBinder := mkNode ``Parser.Command.structExplicitBinder
         #[ fieldBinder[0], mkAtomFrom fieldBinder "(", mkNullNode #[ fieldBinder[1] ], fieldBinder[2], fieldBinder[3], fieldBinder[4], mkAtomFrom fieldBinder ")" ]
     let k := fieldBinder.getKind
     let binfo ←

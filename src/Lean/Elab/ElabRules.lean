@@ -88,7 +88,7 @@ def expandElab : Macro
     let name ← match name? with
       | some name => pure name.getId
       | none => mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
-    let pat := Syntax.node ((← Macro.getCurrNamespace) ++ name) patArgs
+    let pat := mkNode ((← Macro.getCurrNamespace) ++ name) patArgs
     `($[$doc?:docComment]? $attrKind:attrKind syntax$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio)) $[$stxParts]* : $cat
       $[$doc?:docComment]? elab_rules : $cat $[<= $expectedType?]? | `($pat) => $rhs)
   | _ => Macro.throwUnsupported

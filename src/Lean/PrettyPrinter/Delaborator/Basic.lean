@@ -155,14 +155,8 @@ def whenNotPPOption (opt : Options → Bool) (d : Delab) : Delab := do
   let b ← getPPOption opt
   if b then failure else d
 
-partial def annotatePos (pos : Nat) : Syntax → Syntax
-  | stx@(Syntax.ident _ _ _ _)                   => stx.setInfo (SourceInfo.synthetic pos pos)
-  -- app => annotate function
-  | stx@(Syntax.node _ `Lean.Parser.Term.app args) => stx.modifyArg 0 (annotatePos pos)
-  -- otherwise, annotate first direct child token if any
-  | stx => match stx.getArgs.findIdx? Syntax.isAtom with
-    | some idx => stx.modifyArg idx (Syntax.setInfo (SourceInfo.synthetic pos pos))
-    | none     => stx
+def annotatePos (pos : Nat) (stx : Syntax) : Syntax :=
+  stx.setInfo (SourceInfo.synthetic pos pos)
 
 def annotateCurPos (stx : Syntax) : Delab := do
   annotatePos (← getPos) stx

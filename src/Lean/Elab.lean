@@ -24,6 +24,7 @@ import Lean.Elab.Inductive
 import Lean.Elab.Structure
 import Lean.Elab.Print
 import Lean.Elab.MutualDef
+import Lean.Elab.AuxDef
 import Lean.Elab.PreDefinition
 import Lean.Elab.Deriving
 import Lean.Elab.DeclarationRange

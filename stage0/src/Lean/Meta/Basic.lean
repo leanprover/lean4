@@ -1146,6 +1146,16 @@ def sortFVarIds (fvarIds : Array FVarId) : MetaM (Array FVarId) := do
     | none,    none    => Name.quickLt fvarId₁.name fvarId₂.name
 
 end Methods
+
+def isInductivePredicate (declName : Name) : MetaM Bool := do
+  match (← getEnv).find? declName with
+  | some (ConstantInfo.inductInfo { type := type, ..}) =>
+    forallTelescopeReducing type fun _ type => do
+      match (← whnfD type) with
+      | Expr.sort u .. => return u == levelZero
+      | _ => return false
+  | _ => return false
+
 end Meta
 
 export Meta (MetaM)

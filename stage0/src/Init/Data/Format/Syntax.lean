@@ -23,7 +23,7 @@ partial def formatStxAux (maxDepth : Option Nat) (showInfo : Bool) : Nat → Syn
   | _,     atom info val     => formatInfo showInfo info $ format (repr val)
   | _,     ident info _ val pre => formatInfo showInfo info $ format "`" ++ format val
   | _,     missing           => "<missing>"
-  | depth, node kind args    =>
+  | depth, node _ kind args  =>
     let depth := depth + 1;
     if kind == nullKind then
       sbracket $

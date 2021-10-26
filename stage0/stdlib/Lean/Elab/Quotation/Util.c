@@ -617,9 +617,9 @@ x_14 = l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Elab_Term_Quotation_g
 if (lean_obj_tag(x_2) == 1)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = lean_ctor_get(x_2, 0);
+x_15 = lean_ctor_get(x_2, 1);
 lean_inc(x_15);
-x_16 = lean_ctor_get(x_2, 1);
+x_16 = lean_ctor_get(x_2, 2);
 lean_inc(x_16);
 lean_dec(x_2);
 if (x_1 == 0)

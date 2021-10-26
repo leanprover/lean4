@@ -182,7 +182,7 @@ private def elabModifyOp (stx modifyOp : Syntax) (sources : Array ExplicitSource
     let valFirst  := if valFirst.getKind == ``Lean.Parser.Term.structInstArrayRef then valFirst else valFirst[1]
     let restArgs  := rest.getArgs
     let valRest   := mkNullNode restArgs[1:restArgs.size]
-    let valField  := modifyOp.setArg 0 <| Syntax.node ``Parser.Term.structInstLVal #[valFirst, valRest]
+    let valField  := modifyOp.setArg 0 <| mkNode ``Parser.Term.structInstLVal #[valFirst, valRest]
     let valSource := mkSourcesWithSyntax #[s]
     let val       := stx.setArg 1 valSource
     let val       := val.setArg 2 <| mkNullNode #[mkNullNode #[valField, mkNullNode]]
@@ -452,7 +452,7 @@ private def getFieldIdx (structName : Name) (fieldNames : Array Name) (fieldName
 def mkProjStx? (s : Syntax) (structName : Name) (fieldName : Name) : TermElabM (Option Syntax) := do
   if (← findField? (← getEnv) structName fieldName).isNone then
     return none
-  return some $ Syntax.node ``Lean.Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
+  return some $ mkNode ``Lean.Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
 
 def findField? (fields : Fields) (fieldName : Name) : Option (Field Struct) :=
   fields.find? fun field =>

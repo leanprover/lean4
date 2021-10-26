@@ -26,7 +26,7 @@ instance : ToString PatternVar := ⟨fun
   The metavariables are created before we elaborate the patterns into `Expr`s. -/
 private def mkMVarSyntax : TermElabM Syntax := do
   let mvarId ← mkFreshId
-  return Syntax.node `MVarWithIdKind #[Syntax.node mvarId #[]]
+  return mkNode `MVarWithIdKind #[mkNode mvarId #[]]
 
 /-- Given a syntax node constructed using `mkMVarSyntax`, return its MVarId -/
 def getMVarSyntaxMVarId (stx : Syntax) : MVarId :=

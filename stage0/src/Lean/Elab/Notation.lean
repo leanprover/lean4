@@ -20,16 +20,16 @@ private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
     else
       stx
   | _ => match stx with
-    | Syntax.node k args => Syntax.node k (args.map (antiquote vars))
+    | Syntax.node i k args => Syntax.node i k (args.map (antiquote vars))
     | stx => stx
 
 /- Convert `notation` command lhs item into a `syntax` command item -/
 def expandNotationItemIntoSyntaxItem (stx : Syntax) : MacroM Syntax :=
   let k := stx.getKind
   if k == `Lean.Parser.Command.identPrec then
-    pure $ Syntax.node `Lean.Parser.Syntax.cat #[mkIdentFrom stx `term,  stx[1]]
+    pure $ mkNode `Lean.Parser.Syntax.cat #[mkIdentFrom stx `term,  stx[1]]
   else if k == strLitKind then
-    pure $ Syntax.node `Lean.Parser.Syntax.atom #[stx]
+    pure $ mkNode `Lean.Parser.Syntax.atom #[stx]
   else
     Macro.throwUnsupported
 
@@ -88,7 +88,7 @@ private def expandNotationAux (ref : Syntax)
   /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
      So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
   let fullName := currNamespace ++ name
-  let pat := Syntax.node fullName patArgs
+  let pat := mkNode fullName patArgs
   let stxDecl ← `($attrKind:attrKind syntax $[: $prec?]? (name := $(mkIdent name)) (priority := $(quote prio):numLit) $[$syntaxParts]* : $cat)
   let mut macroDecl ← `(macro_rules | `($pat) => ``($qrhs))
   if isLocalAttrKind attrKind then

@@ -231,7 +231,7 @@ def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserSta
       let stack   := stack.push Syntax.missing
       ⟨stack, lhsPrec, pos, cache, err⟩
     else
-      let newNode := Syntax.node k (stack.extract iniStackSz stack.size)
+      let newNode := Syntax.node SourceInfo.none k (stack.extract iniStackSz stack.size)
       let stack   := stack.shrink iniStackSz
       let stack   := stack.push newNode
       ⟨stack, lhsPrec, pos, cache, err⟩
@@ -239,7 +239,7 @@ def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserSta
 def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
   match s with
   | ⟨stack, lhsPrec, pos, cache, err⟩ =>
-    let newNode := Syntax.node k (stack.extract (iniStackSz - 1) stack.size)
+    let newNode := Syntax.node SourceInfo.none k (stack.extract (iniStackSz - 1) stack.size)
     let stack   := stack.shrink (iniStackSz - 1)
     let stack   := stack.push newNode
     ⟨stack, lhsPrec, pos, cache, err⟩
@@ -1638,7 +1638,7 @@ def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState
         | some as' => (s, as ++ as')
         | _        => (s, as)
       | none    => find identKind
-  | Except.ok (Syntax.node k _)        => find k
+  | Except.ok (Syntax.node _ k _)      => find k
   | Except.ok _                        => (s, [])
   | Except.error s'                    => (s', [])
 

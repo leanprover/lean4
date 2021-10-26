@@ -158,7 +158,7 @@ def whenNotPPOption (opt : Options → Bool) (d : Delab) : Delab := do
 partial def annotatePos (pos : Nat) : Syntax → Syntax
   | stx@(Syntax.ident _ _ _ _)                   => stx.setInfo (SourceInfo.synthetic pos pos)
   -- app => annotate function
-  | stx@(Syntax.node `Lean.Parser.Term.app args) => stx.modifyArg 0 (annotatePos pos)
+  | stx@(Syntax.node _ `Lean.Parser.Term.app args) => stx.modifyArg 0 (annotatePos pos)
   -- otherwise, annotate first direct child token if any
   | stx => match stx.getArgs.findIdx? Syntax.isAtom with
     | some idx => stx.modifyArg idx (Syntax.setInfo (SourceInfo.synthetic pos pos))

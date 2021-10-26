@@ -153,7 +153,7 @@ partial def mkPairs (elems : Array Syntax) : MacroM Syntax :=
   loop (elems.size - 1) elems.back
 
 private partial def hasCDot : Syntax → Bool
-  | Syntax.node k args =>
+  | Syntax.node _ k args =>
     if k == ``Lean.Parser.Term.paren then false
     else if k == ``Lean.Parser.Term.cdot then true
     else args.any hasCDot
@@ -178,7 +178,7 @@ where
     If `stx` is a `·`, we create a fresh identifier, store in the
     extra state, and return it. Otherwise, we just return `stx`. -/
   go : Syntax → StateT (Array Syntax) MacroM Syntax
-    | stx@(Syntax.node k args) =>
+    | stx@(Syntax.node i k args) =>
       if k == ``Lean.Parser.Term.paren then pure stx
       else if k == ``Lean.Parser.Term.cdot then withFreshMacroScope do
         let id ← `(a)
@@ -186,7 +186,7 @@ where
         pure id
       else do
         let args ← args.mapM go
-        pure $ Syntax.node k args
+        pure $ Syntax.node i k args
     | stx => pure stx
 
 /--

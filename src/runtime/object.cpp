@@ -1307,6 +1307,20 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_a
     }
 }
 
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a) {
+    if (lean_is_scalar(a)) {
+      unsigned res = 0;
+      size_t n = lean_unbox(a);
+      while (n >= 2) {
+        res++;
+        n /= 2;
+      }
+      return lean_box(res);
+    } else {
+      return lean_box(mpz_value(a).log2());
+    }
+}
+
 // =======================================
 // Integers
 
@@ -1548,6 +1562,16 @@ extern "C" LEAN_EXPORT double lean_float_of_scientific(b_lean_obj_arg m, uint8 e
     } else {
         return of_scientific(mpz_value(m), esign, lean_unbox(e));
     }
+}
+
+extern "C" LEAN_EXPORT double lean_float_scaleb(double a, b_lean_obj_arg b) {
+   if (lean_is_scalar(b)) {
+     return scalbn(a, lean_scalar_to_int(b));
+   } else if (a == 0 || mpz_value(b).is_neg()) {
+     return 0;
+   } else {
+     return a * (1.0 / 0.0);
+   }
 }
 
 // =======================================

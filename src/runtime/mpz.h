@@ -60,9 +60,6 @@ public:
     void abs() { mpz_abs(m_val, m_val); }
     friend mpz abs(mpz a) { a.abs(); return a; }
 
-    bool even() const { return mpz_even_p(m_val) != 0; }
-    bool odd() const { return !even(); }
-
     bool is_int() const { return mpz_fits_sint_p(m_val) != 0; }
     bool is_unsigned_int() const { return mpz_fits_uint_p(m_val) != 0; }
     bool is_long_int() const { return mpz_fits_slong_p(m_val) != 0; }

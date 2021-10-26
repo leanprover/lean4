@@ -191,10 +191,16 @@ bool is_recursive_datatype(environment const & env, name const & n) {
     return info.is_inductive() && info.to_inductive_val().is_rec();
 }
 
-level get_datatype_level(expr const & ind_type) {
-    expr it = ind_type;
-    while (is_pi(it))
-        it = binding_body(it);
+static name * g_util_fresh = nullptr;
+
+level get_datatype_level(environment const & env, expr const & ind_type) {
+    local_ctx lctx;
+    name_generator ngen(*g_util_fresh);
+    expr it = type_checker(env, lctx).whnf(ind_type);
+    while (is_pi(it)) {
+        expr local = lctx.mk_local_decl(ngen, binding_name(it), binding_domain(it), binding_info(it));
+        it = type_checker(env, lctx).whnf(instantiate(binding_body(it), local));
+    }
     if (is_sort(it)) {
         return sort_level(it);
     } else {
@@ -216,7 +222,7 @@ bool is_inductive_predicate(environment const & env, name const & n) {
     constant_info info = env.get(n);
     if (!info.is_inductive())
         return false;
-    return is_zero(get_datatype_level(env.get(n).get_type()));
+    return is_zero(get_datatype_level(env, env.get(n).get_type()));
 }
 
 bool can_elim_to_type(environment const & env, name const & n) {
@@ -256,8 +262,6 @@ optional<name> is_constructor_app_ext(environment const & env, expr const & e) {
         it = &binding_body(*it);
     return is_constructor_app_ext(env, *it);
 }
-
-static name * g_util_fresh = nullptr;
 
 void get_constructor_relevant_fields(environment const & env, name const & n, buffer<bool> & result) {
     constant_info info  = env.get(n);

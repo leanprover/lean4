@@ -93,6 +93,10 @@ instance : ReprAtom Float  := ⟨⟩
 abbrev Nat.toFloat (n : Nat) : Float :=
   Float.ofNat n
 
+@[extern "lean_uint64_to_float"]
+def UInt64.toFloat (n : UInt64) : Float :=
+  n.toNat.toFloat
+
 @[extern "sin"] constant Float.sin : Float → Float
 @[extern "cos"] constant Float.cos : Float → Float
 @[extern "tan"] constant Float.tan : Float → Float
@@ -117,4 +121,8 @@ abbrev Nat.toFloat (n : Nat) : Float :=
 
 instance : Pow Float Float := ⟨Float.pow⟩
 
-@[extern "lean_float_of_scientific"] constant Float.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float
+/--
+Efficiently computes `x * 2^i`.
+-/
+@[extern "lean_float_scaleb"]
+constant Float.scaleB (x : Float) (i : @& Int) : Float

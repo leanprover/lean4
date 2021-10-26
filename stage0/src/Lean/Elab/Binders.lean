@@ -44,7 +44,7 @@ structure BinderView where
 
 partial def quoteAutoTactic : Syntax → TermElabM Syntax
   | stx@(Syntax.ident _ _ _ _) => throwErrorAt stx "invalid auto tactic, identifier is not allowed"
-  | stx@(Syntax.node k args)   => do
+  | stx@(Syntax.node _ k args)   => do
     if stx.isAntiquot then
       throwErrorAt stx "invalid auto tactic, antiquotation is not allowed"
     else
@@ -260,16 +260,16 @@ partial def expandFunBinders (binders : Array Syntax) (body : Syntax) : MacroM (
         let newBody ← `(match $major:ident with | $pattern => $newBody)
         pure (binders, newBody, true)
       match binder with
-      | Syntax.node ``Lean.Parser.Term.implicitBinder _       => loop body (i+1) (newBinders.push binder)
-      | Syntax.node ``Lean.Parser.Term.strictImplicitBinder _ => loop body (i+1) (newBinders.push binder)
-      | Syntax.node ``Lean.Parser.Term.instBinder _           => loop body (i+1) (newBinders.push binder)
-      | Syntax.node ``Lean.Parser.Term.explicitBinder _       => loop body (i+1) (newBinders.push binder)
-      | Syntax.node ``Lean.Parser.Term.simpleBinder _         => loop body (i+1) (newBinders.push binder)
-      | Syntax.node ``Lean.Parser.Term.hole _ =>
+      | Syntax.node _ ``Lean.Parser.Term.implicitBinder _       => loop body (i+1) (newBinders.push binder)
+      | Syntax.node _ ``Lean.Parser.Term.strictImplicitBinder _ => loop body (i+1) (newBinders.push binder)
+      | Syntax.node _ ``Lean.Parser.Term.instBinder _           => loop body (i+1) (newBinders.push binder)
+      | Syntax.node _ ``Lean.Parser.Term.explicitBinder _       => loop body (i+1) (newBinders.push binder)
+      | Syntax.node _ ``Lean.Parser.Term.simpleBinder _         => loop body (i+1) (newBinders.push binder)
+      | Syntax.node _ ``Lean.Parser.Term.hole _ =>
         let ident ← mkFreshIdent binder
         let type := binder
         loop body (i+1) (newBinders.push <| mkExplicitBinder ident type)
-      | Syntax.node ``Lean.Parser.Term.paren args =>
+      | Syntax.node _ ``Lean.Parser.Term.paren args =>
         -- `(` (termParser >> parenSpecial)? `)`
         -- parenSpecial := (tupleTail <|> typeAscription)?
         let binderBody := binder[1]
@@ -593,7 +593,7 @@ def expandLetEqnsDecl (letDecl : Syntax) : MacroM Syntax := do
   let ref       := letDecl
   let matchAlts := letDecl[3]
   let val ← expandMatchAltsIntoMatch ref matchAlts
-  return Syntax.node `Lean.Parser.Term.letIdDecl #[letDecl[0], letDecl[1], letDecl[2], mkAtomFrom ref " := ", val]
+  return mkNode `Lean.Parser.Term.letIdDecl #[letDecl[0], letDecl[1], letDecl[2], mkAtomFrom ref " := ", val]
 
 def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : Bool) (elabBodyFirst : Bool) (usedLetOnly : Bool) : TermElabM Expr := do
   let ref     := stx

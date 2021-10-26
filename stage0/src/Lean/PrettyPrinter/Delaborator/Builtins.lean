@@ -444,7 +444,7 @@ but in the delaborator we assume that bindings are never shadowed.
 -/
 partial def hasIdent (id : Name) : Syntax → Bool
   | Syntax.ident _ _ id' _ => id == id'
-  | Syntax.node _ args     => args.any (hasIdent id)
+  | Syntax.node _ _ args   => args.any (hasIdent id)
   | _                      => false
 
 /--

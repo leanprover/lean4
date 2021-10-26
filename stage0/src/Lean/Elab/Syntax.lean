@@ -263,7 +263,7 @@ where
     | some val => acc ++ (val.trim.map fun c => if c.isWhitespace then '_' else c).capitalize
     | none =>
       match stx with
-      | Syntax.node k args =>
+      | Syntax.node _ k args =>
         if k == ``Lean.Parser.Syntax.cat then
           acc ++ "_"
         else

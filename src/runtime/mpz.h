@@ -16,10 +16,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-class mpq;
 /** \brief Wrapper for GMP integers */
 class mpz {
-    friend class mpq;
     friend class object_compactor;
     friend class compacted_region;
     mpz_t m_val;

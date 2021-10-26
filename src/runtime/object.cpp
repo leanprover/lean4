@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include <cmath>
 #include <lean/lean.h>
 #include "runtime/object.h"
-#include "runtime/mpq.h"
 #include "runtime/thread.h"
 #include "runtime/utf8.h"
 #include "runtime/alloc.h"
@@ -1540,28 +1539,6 @@ extern "C" LEAN_EXPORT double lean_float_of_nat(b_lean_obj_arg a) {
 
 extern "C" LEAN_EXPORT lean_obj_res lean_float_to_string(double a) {
     return mk_string(std::to_string(a));
-}
-
-static double of_scientific(mpz const & m, bool sign, size_t e) {
-    if (sign)
-        return (mpq(m)/mpz(10).pow(e)).get_double();
-    else
-        return (mpq(m)*mpz(10).pow(e)).get_double();
-}
-
-extern "C" LEAN_EXPORT double lean_float_of_scientific(b_lean_obj_arg m, uint8 esign, b_lean_obj_arg e) {
-    if (!lean_is_scalar(e)) {
-        if (esign) {
-            return 0.0;
-        } else {
-            return std::numeric_limits<double>::infinity();
-        }
-    }
-    if (lean_is_scalar(m)) {
-        return of_scientific(mpz::of_size_t(lean_unbox(m)), esign, lean_unbox(e));
-    } else {
-        return of_scientific(mpz_value(m), esign, lean_unbox(e));
-    }
 }
 
 extern "C" LEAN_EXPORT double lean_float_scaleb(double a, b_lean_obj_arg b) {

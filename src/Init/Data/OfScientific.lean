@@ -39,3 +39,16 @@ instance : OfScientific Float where
       Float.ofBinaryScientific m (-4 * e - s)
     else
       Float.ofBinaryScientific (m * 5^e) e
+
+@[export lean_float_of_nat]
+def Float.ofNat (n : Nat) : Float :=
+  OfScientific.ofScientific n false 0
+
+def Float.ofInt : Int → Float
+  | Int.ofNat n => Float.ofNat n
+  | Int.negSucc n => Float.neg (Float.ofNat (Nat.succ n))
+
+instance : OfNat Float n   := ⟨Float.ofNat n⟩
+
+abbrev Nat.toFloat (n : Nat) : Float :=
+  Float.ofNat n

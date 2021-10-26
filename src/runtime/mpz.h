@@ -76,7 +76,6 @@ public:
     unsigned long int get_unsigned_long_int() const { lean_assert(is_unsigned_long_int()); return mpz_get_ui(m_val); }
     unsigned int get_unsigned_int() const { lean_assert(is_unsigned_int()); return static_cast<unsigned>(get_unsigned_long_int()); }
     size_t get_size_t() const;
-    double get_double() const { return mpz_get_d(m_val); }
 
     mpz & operator=(mpz const & v) { mpz_set(m_val, v.m_val); return *this; }
     mpz & operator=(mpz && v) { swap(*this, v); return *this; }

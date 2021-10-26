@@ -1687,7 +1687,6 @@ static inline uint64_t lean_usize_to_uint64(size_t a) { return ((uint64_t)a); }
 
 /* Float */
 
-LEAN_SHARED double lean_float_of_nat(b_lean_obj_arg a);
 LEAN_SHARED lean_obj_res lean_float_to_string(double a);
 LEAN_SHARED double lean_float_scaleb(double a, b_lean_obj_arg b);
 

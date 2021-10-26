@@ -1529,14 +1529,6 @@ extern "C" LEAN_EXPORT usize lean_usize_mix_hash(usize a1, usize a2) {
 // =======================================
 // Float
 
-extern "C" LEAN_EXPORT double lean_float_of_nat(b_lean_obj_arg a) {
-    if (lean_is_scalar(a)) {
-        return static_cast<double>(lean_unbox(a));
-    } else {
-        return mpz_value(a).get_double();
-    }
-}
-
 extern "C" LEAN_EXPORT lean_obj_res lean_float_to_string(double a) {
     return mk_string(std::to_string(a));
 }

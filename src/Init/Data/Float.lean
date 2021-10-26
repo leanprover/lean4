@@ -31,16 +31,11 @@ structure Float where
 
 instance : Inhabited Float := ⟨{ val := floatSpec.val }⟩
 
-@[extern "lean_float_of_nat"] constant Float.ofNat : (@& Nat) → Float
 @[extern "lean_float_add"]  constant Float.add : Float → Float → Float
 @[extern "lean_float_sub"]  constant Float.sub : Float → Float → Float
 @[extern "lean_float_mul"]  constant Float.mul : Float → Float → Float
 @[extern "lean_float_div"]  constant Float.div : Float → Float → Float
 @[extern "lean_float_negate"]   constant Float.neg : Float → Float
-
-def Float.ofInt : Int → Float
-  | Int.ofNat n => Float.ofNat n
-  | Int.negSucc n => Float.neg (Float.ofNat (Nat.succ n))
 
 set_option bootstrap.genMatcherCode false
 def Float.lt  : Float → Float → Prop := fun a b =>
@@ -50,7 +45,6 @@ def Float.lt  : Float → Float → Prop := fun a b =>
 def Float.le  : Float → Float → Prop := fun a b =>
   floatSpec.le a.val b.val
 
-instance : OfNat Float n   := ⟨Float.ofNat n⟩
 instance : Add Float       := ⟨Float.add⟩
 instance : Sub Float       := ⟨Float.sub⟩
 instance : Mul Float       := ⟨Float.mul⟩
@@ -90,12 +84,7 @@ instance : Repr Float where
 
 instance : ReprAtom Float  := ⟨⟩
 
-abbrev Nat.toFloat (n : Nat) : Float :=
-  Float.ofNat n
-
-@[extern "lean_uint64_to_float"]
-def UInt64.toFloat (n : UInt64) : Float :=
-  n.toNat.toFloat
+@[extern "lean_uint64_to_float"] constant UInt64.toFloat (n : UInt64) : Float
 
 @[extern "sin"] constant Float.sin : Float → Float
 @[extern "cos"] constant Float.cos : Float → Float

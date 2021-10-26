@@ -16,10 +16,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 
-class mpq;
 /** \brief Wrapper for GMP integers */
 class mpz {
-    friend class mpq;
     friend class object_compactor;
     friend class compacted_region;
     mpz_t m_val;
@@ -62,9 +60,6 @@ public:
     void abs() { mpz_abs(m_val, m_val); }
     friend mpz abs(mpz a) { a.abs(); return a; }
 
-    bool even() const { return mpz_even_p(m_val) != 0; }
-    bool odd() const { return !even(); }
-
     bool is_int() const { return mpz_fits_sint_p(m_val) != 0; }
     bool is_unsigned_int() const { return mpz_fits_uint_p(m_val) != 0; }
     bool is_long_int() const { return mpz_fits_slong_p(m_val) != 0; }
@@ -81,7 +76,6 @@ public:
     unsigned long int get_unsigned_long_int() const { lean_assert(is_unsigned_long_int()); return mpz_get_ui(m_val); }
     unsigned int get_unsigned_int() const { lean_assert(is_unsigned_int()); return static_cast<unsigned>(get_unsigned_long_int()); }
     size_t get_size_t() const;
-    double get_double() const { return mpz_get_d(m_val); }
 
     mpz & operator=(mpz const & v) { mpz_set(m_val, v.m_val); return *this; }
     mpz & operator=(mpz && v) { swap(*this, v); return *this; }
@@ -194,28 +188,13 @@ public:
 
     friend mpz operator%(mpz const & a, mpz const & b);
 
-    mpz & operator++() { return operator+=(1); }
-    mpz operator++(int) { mpz r(*this); ++(*this); return r; }
-
-    mpz & operator--() { return operator-=(1); }
-    mpz operator--(int) { mpz r(*this); --(*this); return r; }
-
     mpz & operator&=(mpz const & o) { mpz_and(m_val, m_val, o.m_val); return *this; }
     mpz & operator|=(mpz const & o) { mpz_ior(m_val, m_val, o.m_val); return *this; }
     mpz & operator^=(mpz const & o) { mpz_xor(m_val, m_val, o.m_val); return *this; }
-    void comp() { mpz_com(m_val, m_val); }
 
     friend mpz operator&(mpz a, mpz const & b) { return a &= b; }
     friend mpz operator|(mpz a, mpz const & b) { return a |= b; }
     friend mpz operator^(mpz a, mpz const & b) { return a ^= b; }
-    friend mpz operator~(mpz a) { a.comp(); return a; }
-
-    bool test_bit(size_t bit) const { return mpz_tstbit(m_val, bit) != 0; }
-
-    // this <- this + a*b
-    void addmul(mpz const & a, mpz const & b) { mpz_addmul(m_val, a.m_val, b.m_val); }
-    // this <- this - a*b
-    void submul(mpz const & a, mpz const & b) { mpz_submul(m_val, a.m_val, b.m_val); }
 
     // a <- b * 2^k
     friend void mul2k(mpz & a, mpz const & b, unsigned k) { mpz_mul_2exp(a.m_val, b.m_val, k); }
@@ -230,35 +209,12 @@ public:
     */
     size_t log2() const;
 
-    /**
-       \brief log2(-n)
-       Return 0 if the number is nonegative
-    */
-    size_t mlog2() const;
-
-    bool perfect_square() const { return mpz_perfect_square_p(m_val); }
-
-    bool is_power_of_two() const { return is_pos() && mpz_popcount(m_val) == 1; }
-    bool is_power_of_two(size_t& shift) const;
-    /**
-       \brief Return largest k s.t. n is a multiple of 2^k
-    */
-    unsigned power_of_two_multiple() const { return mpz_scan1(m_val, 0); }
-
     friend void power(mpz & a, mpz const & b, unsigned k) { mpz_pow_ui(a.m_val, b.m_val, k); }
     friend void _power(mpz & a, mpz const & b, unsigned k) { power(a, b, k); }
     friend mpz pow(mpz a, unsigned k) { power(a, a, k); return a; }
 
-    friend void rootrem(mpz & root, mpz & rem, mpz const & a, unsigned k) { mpz_rootrem(root.m_val, rem.m_val, a.m_val, k); }
-    // root <- a^{1/k}, return true iff the result is an integer
-    friend bool root(mpz & root, mpz const & a, unsigned k);
-    friend mpz root(mpz const & a, unsigned k) { mpz r; root(r, a, k); return r; }
-
     friend void gcd(mpz & g, mpz const & a, mpz const & b) { mpz_gcd(g.m_val, a.m_val, b.m_val); }
     friend mpz gcd(mpz const & a, mpz const & b) { mpz r; gcd(r, a, b); return r; }
-    friend void gcdext(mpz & g, mpz & s, mpz & t, mpz const & a, mpz const & b) { mpz_gcdext(g.m_val, s.m_val, t.m_val, a.m_val, b.m_val); }
-    friend void lcm(mpz & l, mpz const & a, mpz const & b) { mpz_lcm(l.m_val, a.m_val, b.m_val); }
-    friend mpz lcm(mpz const & a, mpz const & b) { mpz l; lcm(l, a, b); return l; }
 
     friend std::ostream & operator<<(std::ostream & out, mpz const & v);
 

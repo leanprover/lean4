@@ -1279,6 +1279,7 @@ LEAN_SHARED lean_obj_res lean_nat_shiftl(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_SHARED lean_obj_res lean_nat_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_SHARED lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_SHARED lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);
+LEAN_SHARED lean_obj_res lean_nat_log2(b_lean_obj_arg a);
 
 /* Integers */
 
@@ -1686,8 +1687,8 @@ static inline uint64_t lean_usize_to_uint64(size_t a) { return ((uint64_t)a); }
 
 /* Float */
 
-LEAN_SHARED double lean_float_of_nat(b_lean_obj_arg a);
 LEAN_SHARED lean_obj_res lean_float_to_string(double a);
+LEAN_SHARED double lean_float_scaleb(double a, b_lean_obj_arg b);
 
 /* Boxing primitives */
 
@@ -1839,6 +1840,7 @@ static inline uint64_t lean_name_hash(b_lean_obj_arg n) {
  static inline uint8_t lean_float_beq(double a, double b) { return a == b; }
  static inline uint8_t lean_float_decLe(double a, double b) { return a <= b; }
  static inline uint8_t lean_float_decLt(double a, double b) { return a < b; }
+ static inline double lean_uint64_to_float(uint64_t a) { return (double) a; }
 
 #ifdef __cplusplus
 }

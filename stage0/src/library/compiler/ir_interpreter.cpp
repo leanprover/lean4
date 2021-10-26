@@ -186,6 +186,8 @@ option_ref<decl> find_ir_decl(environment const & env, name const & n) {
     return option_ref<decl>(lean_ir_find_env_decl(env.to_obj_arg(), n.to_obj_arg()));
 }
 
+extern "C" double lean_float_of_nat(lean_obj_arg a);
+
 static string_ref * g_mangle_prefix = nullptr;
 static string_ref * g_boxed_suffix = nullptr;
 static string_ref * g_boxed_mangled_suffix = nullptr;
@@ -505,6 +507,7 @@ private:
                         nat const & n = lit_val_num(expr_lit_val(e));
                         switch (t) {
                             case type::Float:
+                                lean_inc(n.raw());
                                 return value::from_float(lean_float_of_nat(n.raw()));
                             case type::UInt8:
                             case type::UInt16:

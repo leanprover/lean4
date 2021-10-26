@@ -150,6 +150,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_nat_land(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -158,6 +160,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_nat_lor(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -166,6 +170,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_nat_lxor(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -174,6 +180,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_nat_shiftl(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -182,6 +190,8 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_nat_shiftr(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Nat
-// Imports: Init.Data.Nat.Basic Init.Data.Nat.Div Init.Data.Nat.Gcd Init.Data.Nat.Bitwise Init.Data.Nat.Control
+// Imports: Init.Data.Nat.Basic Init.Data.Nat.Div Init.Data.Nat.Gcd Init.Data.Nat.Bitwise Init.Data.Nat.Control Init.Data.Nat.Log2
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ lean_object* initialize_Init_Data_Nat_Div(lean_object*);
 lean_object* initialize_Init_Data_Nat_Gcd(lean_object*);
 lean_object* initialize_Init_Data_Nat_Bitwise(lean_object*);
 lean_object* initialize_Init_Data_Nat_Control(lean_object*);
+lean_object* initialize_Init_Data_Nat_Log2(lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Nat(lean_object* w) {
 lean_object * res;
@@ -36,6 +37,9 @@ res = initialize_Init_Data_Nat_Bitwise(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Control(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Log2(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

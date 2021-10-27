@@ -885,38 +885,9 @@ private def processConstApprox (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM 
   else
     pure false
 
-/--
-  Helper function for `processAssignment`. We used to eagerly consume
-  all metadata, but it was unnecessarily removing helpful annotations
-  for the pretty-printer. For example, consider the following example.
-  ```
-  constant p : Nat → Prop
-  constant q : Nat → Prop
-
-  theorem p_of_q : q x → p x := sorry
-
-  theorem pletfun : p (let_fun x := 0; x + 1) := by
-    -- ⊢ p (let_fun x := 0; x + 1)
-    apply p_of_q -- If we eagerly consume all metadata, the let_fun annotation is lost during `isDefEq`
-    -- ⊢ q ((fun x => x + 1) 0)
-    sorry
-  ```
-  However, the inaccessible pattern annotation must be consumed.
-  The frontend relies on the fact that is must be not propagated by `isDefEq`.
-  Thus, we consume it here. This is a bit hackish since it is very adhoc.
-  We might other annotations in the future that we should not preserve.
-  Perhaps, we should mark the annotation we do want to preserve ones
-  (e.g., hints for the pretty printer), and consume all other
--/
-partial def consumeInaccessibleAnnotations (e : Expr) : Expr :=
-  match inaccessible? e with
-  | some e => consumeInaccessibleAnnotations e
-  | none   => e
-
 /-- Tries to solve `?m a₁ ... aₙ =?= v` by assigning `?m`.
     It assumes `?m` is unassigned. -/
 private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :=
-  let v := consumeInaccessibleAnnotations v
   traceCtx `Meta.isDefEq.assign do
     trace[Meta.isDefEq.assign] "{mvarApp} := {v}"
     let mvar := mvarApp.getAppFn
@@ -1300,30 +1271,43 @@ private partial def isDefEqQuick (t s : Expr) : MetaM LBool :=
   | t, s =>
     isDefEqQuickOther t s
 
-/--
-  We used to eagerly remove metadata at `isDefEqQuick`. See commented lines above.
-  This eager removal was unnecessarily removing hints to the pretty printer when solving
-  `?m =?= hint ...`
-  See comment at `consumeInaccessibleAnnotations`
--/
-private partial def isDefEqMData (t s : Expr) : MetaM LBool := do
-  if t.isMData then
-    isDefEqQuick t.mdataExpr! s
-  else if s.isMData then
-    isDefEqQuick t s.mdataExpr!
-  else
-    return LBool.undef
-
 private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
-  if t == s then
-    pure LBool.true
+  /-
+    We used to eagerly consume all metadata (see commented lines at `isDefEqQuick`),
+    but it was unnecessarily removing helpful annotations
+    for the pretty-printer. For example, consider the following example.
+    ```
+    constant p : Nat → Prop
+    constant q : Nat → Prop
+
+    theorem p_of_q : q x → p x := sorry
+
+    theorem pletfun : p (let_fun x := 0; x + 1) := by
+      -- ⊢ p (let_fun x := 0; x + 1)
+      apply p_of_q -- If we eagerly consume all metadata, the let_fun annotation is lost during `isDefEq`
+      -- ⊢ q ((fun x => x + 1) 0)
+      sorry
+    ```
+    However, the inaccessible pattern annotation must be consumed.
+    The frontend relies on the fact that is must not be propagated by `isDefEq`.
+    Thus, we consume it here. This is a bit hackish since it is very adhoc.
+    We might other annotations in the future that we should not preserve.
+    Perhaps, we should mark the annotation we do want to preserve ones
+    (e.g., hints for the pretty printer), and consume all other
+  -/
+  if let some t := inaccessible? t then
+    isDefEqQuick t s
+  else if let some s := inaccessible? s then
+    isDefEqQuick t s
+  else if t == s then
+    return LBool.true
   else if etaEq t s || etaEq s t then
-    pure LBool.true  -- t =?= (fun xs => t xs)
+    return LBool.true  -- t =?= (fun xs => t xs)
   else
     let tFn := t.getAppFn
     let sFn := s.getAppFn
     if !tFn.isMVar && !sFn.isMVar then
-      isDefEqMData t s
+      return LBool.undef
     else if (← isAssigned tFn) then
       let t ← instantiateMVars t
       isDefEqQuick t s
@@ -1363,9 +1347,9 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
             trace[Meta.isDefEq.stuck] "{t} =?= {s}"
             Meta.throwIsDefEqStuck
           else
-            pure LBool.false
+            return LBool.false
         else
-          isDefEqMData t s
+          return LBool.undef
       else
         isDefEqQuickMVarMVar t s
 
@@ -1379,12 +1363,12 @@ private partial def isDefEqQuickMVarMVar (t s : Expr) : MetaM LBool := do
      /- Solve `?m t =?= ?n` by trying first `?n := ?m t`.
         Reason: this assignment is precise. -/
      if (← checkpointDefEq (processAssignment s t)) then
-       pure LBool.true
+       return LBool.true
      else
        toLBoolM <| processAssignment t s
   else
      if (← checkpointDefEq (processAssignment t s)) then
-       pure LBool.true
+       return LBool.true
      else
        toLBoolM <| processAssignment s t
 

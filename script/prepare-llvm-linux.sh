@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-# run from root build directory (from inside nix-shell or otherwise defining GLIBC/GCC_DEV/GCC_LIBS/GMP) as in
+# run from root build directory (from inside nix-shell or otherwise defining GLIBC/GMP) as in
 # ```
 # eval cmake ../.. $(../../script/prepare-llvm-linux.sh ~/Downloads/clang+llvm-13.0.0-x86_64-linux-gnu-ubuntu-16.04.tar.xz)
 # ```
@@ -15,14 +15,20 @@ CP="cp -d"  # preserve symlinks
 $CP $(realpath llvm/bin/clang) stage1/bin/clang
 # a linker!
 $CP llvm/bin/{lld,ld.lld} stage1/bin/
+# dependencies of the above
+$CP llvm/lib/lib{clang-cpp,LLVM}*.so* stage1/lib/
+# clang can't even find its own deps in a standard build? ¯\_(ツ)_/¯
+ln llvm/lib/x86*/* llvm/lib
+# ...nor are the rpaths sensible
+patchelf --set-rpath '$ORIGIN' llvm/lib/libc++.so.*
 # lean.h dependencies
 $CP llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
 # ELF dependencies, must be put there for `--sysroot`
 $CP $GLIBC/lib/crt* llvm/lib/
 $CP $GLIBC/lib/crt* stage1/lib/
-# further dependencies
-# note that official LLVM releases are not built against compiler-rt, thus the GCC deps
-$CP $GCC_ROOT/lib/gcc/*/*/libgcc.a $GCC_ROOT/lib/gcc/*/*/crt{begin,end}{,S}.o $GCC_LIBS/lib/libatomic.so* llvm/lib/libc++* $GMP/lib/libgmp.* stage1/lib/
+# runtime
+(cd llvm; $CP --parents lib/clang/*/lib/*/{*crt{begin,end}.o,libclang_rt.builtins*} ../stage1)
+$CP llvm/lib/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.* stage1/lib/
 # glibc: use for linking (so Lean programs don't embed newer symbol versions), but not for running (because libc.so, librt.so, and ld.so must be compatible)!
 $CP $GLIBC/lib/lib{c_nonshared,gcc_s}* stage1/lib/glibc
 for f in $GLIBC/lib/lib{c,dl,m,rt,pthread}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done

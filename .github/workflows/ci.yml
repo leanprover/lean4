@@ -27,7 +27,7 @@ jobs:
             os: ubuntu-latest
             release: true
             shell: nix-shell --arg pkgs "import (fetchTarball \"channel:nixos-19.03\") {{}}" --argstr llvmPackages latest --run "bash -euxo pipefail {0}"
-            llvm-url: https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.0/clang+llvm-13.0.0-x86_64-linux-gnu-ubuntu-16.04.tar.xz
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm.tar.zst
           - name: Linux
             os: ubuntu-latest
             check-stage3: true
@@ -104,7 +104,7 @@ jobs:
           OPTIONS=()
           if [[ '${{ matrix.llvm-url }}' && "${{ matrix.name }}" == "Linux release" ]]; then
             wget -q ${{ matrix.llvm-url }}
-            eval "OPTIONS+=($(../script/prepare-llvm-linux.sh clang*.tar.*))"
+            eval "OPTIONS+=($(../script/prepare-llvm-linux.sh *llvm*))"
           fi
           if [[ $GITHUB_EVENT_NAME == 'schedule' && -n '${{ matrix.release }}' && -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
             git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git

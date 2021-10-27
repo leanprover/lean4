@@ -16,7 +16,7 @@ class Async (m : Type u → Type v) (n : outParam $ Type u → Type u) where
 
 export Async (async)
 
-class Await (n : Type u → Type u) (m : Type u → Type v)  where
+class Await (n : Type u → Type v) (m : Type u → Type w)  where
   /- Wait for an asynchronous task to finish. -/
   await : n α → m α
 

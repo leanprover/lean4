@@ -105,15 +105,15 @@ def sleep (ms : UInt32) : IO Unit :=
   to the task is dropped. `act` should manually check for cancellation via `IO.checkCanceled` if it wants to react
   to that. -/
 @[extern "lean_io_as_task"]
-constant asTask (act : IO α) (prio := Task.Priority.default) : IO (Task (Except IO.Error α))
+constant asTask (act : EIO ε α) (prio := Task.Priority.default) : IO (Task (Except ε α))
 
 /-- See `IO.asTask`. -/
 @[extern "lean_io_map_task"]
-constant mapTask (f : α → IO β) (t : Task α) (prio := Task.Priority.default) : IO (Task (Except IO.Error β))
+constant mapTask (f : α → EIO ε β) (t : Task α) (prio := Task.Priority.default) : IO (Task (Except ε β))
 
 /-- See `IO.asTask`. -/
 @[extern "lean_io_bind_task"]
-constant bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β))) (prio := Task.Priority.default) : IO (Task (Except IO.Error β))
+constant bindTask (t : Task α) (f : α → EIO ε (Task (Except ε β))) (prio := Task.Priority.default) : IO (Task (Except ε β))
 
 def mapTasks (f : List α → IO β) (tasks : List (Task α)) (prio := Task.Priority.default) : IO (Task (Except IO.Error β)) :=
   go tasks []

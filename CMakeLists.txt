@@ -2,13 +2,16 @@ cmake_minimum_required(VERSION 3.11)
 # store all variables passed on the command line into CL_ARGS so we can pass them to the stage builds
 # https://stackoverflow.com/a/48555098/161659
 # MUST be done before call to 'project'
+# Use standard release build (discarding LEAN_CXX_EXTRA_FLAGS etc.) for stage0 by default since it is assumed to be "good", but still pass through CMake platform arguments (compiler, toolchain file, ..).
+# Use `STAGE0_` prefix to pass variables to stage0 explicitly.
 get_cmake_property(vars CACHE_VARIABLES)
 foreach(var ${vars})
   get_property(currentHelpString CACHE "${var}" PROPERTY HELPSTRING)
-  if("${currentHelpString}" MATCHES "No help, variable specified on the command line." OR "${currentHelpString}" STREQUAL "")
+  if("${var}" MATCHES "STAGE0_(.*)")
+    list(APPEND STAGE0_ARGS "-D${CMAKE_MATCH_1}=${${var}}")
+  elseif("${currentHelpString}" MATCHES "No help, variable specified on the command line." OR "${currentHelpString}" STREQUAL "")
     list(APPEND CL_ARGS "-D${var}=${${var}}")
-  endif()
-  if(("${var}" MATCHES "CMAKE_.*") AND NOT ("${var}" MATCHES "CMAKE_BUILD_TYPE") AND NOT ("${var}" MATCHES "CMAKE_HOME_DIRECTORY"))
+  elseif(("${var}" MATCHES "CMAKE_.*") AND NOT ("${var}" MATCHES "CMAKE_BUILD_TYPE") AND NOT ("${var}" MATCHES "CMAKE_HOME_DIRECTORY"))
     list(APPEND PLATFORM_ARGS "-D${var}=${${var}}")
   endif()
 endforeach()
@@ -37,9 +40,8 @@ ExternalProject_add(stage0
   SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"
   SOURCE_SUBDIR src
   BINARY_DIR stage0
-  # always use standard release build (discarding LEAN_CXX_EXTRA_FLAGS etc.) for stage0 since it is assumed to be "good", but still pass through CMake platform arguments (compiler, toolchain file, ..)
   # do not rebuild stage0 when git hash changes; it's not from this commit anyway
-  CMAKE_ARGS -DSTAGE=0 -DCMAKE_BUILD_TYPE=Release -DUSE_GITHASH=OFF ${PLATFORM_ARGS}
+  CMAKE_ARGS -DSTAGE=0 -DUSE_GITHASH=OFF ${PLATFORM_ARGS} ${STAGE0_ARGS}
   BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
   INSTALL_COMMAND ""  # skip install
   DEPENDS ${EXTRA_DEPENDS}

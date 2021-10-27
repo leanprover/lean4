@@ -110,7 +110,7 @@ static lean_object* l_Lean_Meta_reduceNative_x3f___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Meta_smartUnfoldingMatch_x3f(lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_reduceNatNative___rarg(lean_object*);
-uint8_t l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8076_(uint8_t, uint8_t);
+uint8_t l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8201_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_toCtorIfLit___closed__16;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_deltaDefinition___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5132,7 +5132,7 @@ lean_inc(x_18);
 lean_dec(x_16);
 x_19 = 2;
 x_20 = lean_unbox(x_17);
-x_21 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8076_(x_20, x_19);
+x_21 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8201_(x_20, x_19);
 if (x_21 == 0)
 {
 lean_object* x_22; uint8_t x_23; lean_object* x_24; 
@@ -12586,7 +12586,7 @@ x_10 = lean_ctor_get(x_7, 1);
 x_11 = 3;
 x_12 = lean_unbox(x_9);
 lean_dec(x_9);
-x_13 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8076_(x_12, x_11);
+x_13 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8201_(x_12, x_11);
 if (x_13 == 0)
 {
 lean_object* x_14; 
@@ -13182,7 +13182,7 @@ lean_dec(x_7);
 x_163 = 3;
 x_164 = lean_unbox(x_161);
 lean_dec(x_161);
-x_165 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8076_(x_164, x_163);
+x_165 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8201_(x_164, x_163);
 if (x_165 == 0)
 {
 lean_object* x_166; lean_object* x_167; 

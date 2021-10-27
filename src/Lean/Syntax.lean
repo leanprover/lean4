@@ -15,7 +15,7 @@ def SourceInfo.updateTrailing (trailing : Substring) : SourceInfo → SourceInfo
 /- Syntax AST -/
 
 inductive IsNode : Syntax → Prop where
-  | mk (kind : SyntaxNodeKind) (args : Array Syntax) : IsNode (Syntax.node kind args)
+  | mk (info : SourceInfo) (kind : SyntaxNodeKind) (args : Array Syntax) : IsNode (Syntax.node info kind args)
 
 def SyntaxNode : Type := {s : Syntax // IsNode s }
 
@@ -27,14 +27,14 @@ namespace SyntaxNode
 
 @[inline] def getKind (n : SyntaxNode) : SyntaxNodeKind :=
   match n with
-  | ⟨Syntax.node k args, _⟩ => k
+  | ⟨Syntax.node _ k _, _⟩  => k
   | ⟨Syntax.missing, h⟩     => unreachIsNodeMissing h
   | ⟨Syntax.atom .., h⟩     => unreachIsNodeAtom h
   | ⟨Syntax.ident .., h⟩    => unreachIsNodeIdent h
 
 @[inline] def withArgs {β} (n : SyntaxNode) (fn : Array Syntax → β) : β :=
   match n with
-  | ⟨Syntax.node _ args, _⟩   => fn args
+  | ⟨Syntax.node _ _ args, _⟩   => fn args
   | ⟨Syntax.missing, h⟩       => unreachIsNodeMissing h
   | ⟨Syntax.atom _ _, h⟩      => unreachIsNodeAtom h
   | ⟨Syntax.ident _ _ _ _, h⟩ => unreachIsNodeIdent h
@@ -50,7 +50,7 @@ namespace SyntaxNode
 
 @[inline] def modifyArgs (n : SyntaxNode) (fn : Array Syntax → Array Syntax) : Syntax :=
   match n with
-  | ⟨Syntax.node kind args, _⟩ => Syntax.node kind (fn args)
+  | ⟨Syntax.node i k args, _⟩  => Syntax.node i k (fn args)
   | ⟨Syntax.missing, h⟩        => unreachIsNodeMissing h
   | ⟨Syntax.atom _ _, h⟩       => unreachIsNodeAtom h
   | ⟨Syntax.ident _ _ _ _,  h⟩ => unreachIsNodeIdent h
@@ -69,44 +69,44 @@ def setAtomVal : Syntax → String → Syntax
 
 @[inline] def ifNode {β} (stx : Syntax) (hyes : SyntaxNode → β) (hno : Unit → β) : β :=
   match stx with
-  | Syntax.node k args => hyes ⟨Syntax.node k args, IsNode.mk k args⟩
-  | _                  => hno ()
+  | Syntax.node i k args => hyes ⟨Syntax.node i k args, IsNode.mk i k args⟩
+  | _                    => hno ()
 
 @[inline] def ifNodeKind {β} (stx : Syntax) (kind : SyntaxNodeKind) (hyes : SyntaxNode → β) (hno : Unit → β) : β :=
   match stx with
-  | Syntax.node k args => if k == kind then hyes ⟨Syntax.node k args, IsNode.mk k args⟩ else hno ()
-  | _                  => hno ()
+  | Syntax.node i k args => if k == kind then hyes ⟨Syntax.node i k args, IsNode.mk i k args⟩ else hno ()
+  | _                    => hno ()
 
 def asNode : Syntax → SyntaxNode
-  | Syntax.node kind args => ⟨Syntax.node kind args, IsNode.mk kind args⟩
-  | _                     => ⟨Syntax.node nullKind #[], IsNode.mk nullKind #[]⟩
+  | Syntax.node info kind args => ⟨Syntax.node info kind args, IsNode.mk info kind args⟩
+  | _                          => ⟨mkNullNode, IsNode.mk _ _ _⟩
 
 def getIdAt (stx : Syntax) (i : Nat) : Name :=
   (stx.getArg i).getId
 
 @[inline] def modifyArgs (stx : Syntax) (fn : Array Syntax → Array Syntax) : Syntax :=
   match stx with
-  | node k args => node k (fn args)
-  | stx         => stx
+  | node i k args => node i k (fn args)
+  | stx           => stx
 
 @[inline] def modifyArg (stx : Syntax) (i : Nat) (fn : Syntax → Syntax) : Syntax :=
   match stx with
-  | node k args => node k (args.modify i fn)
-  | stx         => stx
+  | node info k args => node info k (args.modify i fn)
+  | stx              => stx
 
 @[specialize] partial def replaceM {m : Type → Type} [Monad m] (fn : Syntax → m (Option Syntax)) : Syntax → m (Syntax)
-  | stx@(node kind args) => do
+  | stx@(node info kind args) => do
     match (← fn stx) with
     | some stx => return stx
-    | none     => return node kind (← args.mapM (replaceM fn))
+    | none     => return node info kind (← args.mapM (replaceM fn))
   | stx => do
     let o ← fn stx
     return o.getD stx
 
 @[specialize] partial def rewriteBottomUpM {m : Type → Type} [Monad m] (fn : Syntax → m (Syntax)) : Syntax → m (Syntax)
-  | node kind args   => do
+  | node info kind args   => do
     let args ← args.mapM (rewriteBottomUpM fn)
-    fn (node kind args)
+    fn (node info kind args)
   | stx => fn stx
 
 @[inline] def rewriteBottomUp (fn : Syntax → Syntax) (stx : Syntax) : Syntax :=
@@ -157,19 +157,20 @@ def updateLeading : Syntax → Syntax :=
 partial def updateTrailing (trailing : Substring) : Syntax → Syntax
   | Syntax.atom info val               => Syntax.atom (info.updateTrailing trailing) val
   | Syntax.ident info rawVal val pre   => Syntax.ident (info.updateTrailing trailing) rawVal val pre
-  | n@(Syntax.node k args)             =>
+  | n@(Syntax.node info k args)        =>
     if args.size == 0 then n
     else
      let i    := args.size - 1
      let last := updateTrailing trailing args[i]
      let args := args.set! i last;
-     Syntax.node k args
+     Syntax.node info k args
   | s => s
 
 partial def getTailWithPos : Syntax → Option Syntax
   | stx@(atom info _)   => info.getPos?.map fun _ => stx
   | stx@(ident info ..) => info.getPos?.map fun _ => stx
-  | node _ args         => args.findSomeRev? getTailWithPos
+  | node SourceInfo.none _ args => args.findSomeRev? getTailWithPos
+  | stx@(node info _ _) => stx
   | _                   => none
 
 open SourceInfo in
@@ -232,7 +233,7 @@ partial instance : ForIn m TopDown Syntax where
       match (← f stx b) with
       | ForInStep.yield b' =>
         let mut b := b'
-        if let Syntax.node k args := stx then
+        if let Syntax.node i k args := stx then
           if firstChoiceOnly && k == choiceKind then
             return ← loop args[0] b
           else
@@ -253,7 +254,7 @@ partial def reprint (stx : Syntax) : Option String :=
       match stx with
       | atom info val           => s := s ++ reprintLeaf info val
       | ident info rawVal _ _   => s := s ++ reprintLeaf info rawVal.toString
-      | node kind args          =>
+      | node info kind args     =>
         if kind == choiceKind then
           -- this visit the first arg twice, but that should hardly be a problem
           -- given that choice nodes are quite rare and small
@@ -358,15 +359,15 @@ namespace SyntaxNode
 end SyntaxNode
 
 def mkListNode (args : Array Syntax) : Syntax :=
-  Syntax.node nullKind args
+  mkNullNode args
 
 namespace Syntax
 
 -- quotation node kinds are formed from a unique quotation name plus "quot"
 def isQuot : Syntax → Bool
-  | Syntax.node (Name.str _ "quot" _)         _  => true
-  | Syntax.node `Lean.Parser.Term.dynamicQuot _ => true
-  | _                                            => false
+  | Syntax.node _ (Name.str _ "quot" _)         _ => true
+  | Syntax.node _ `Lean.Parser.Term.dynamicQuot _ => true
+  | _                                             => false
 
 def getQuotContent (stx : Syntax) : Syntax :=
   if stx.isOfKind `Lean.Parser.Term.dynamicQuot then
@@ -376,8 +377,8 @@ def getQuotContent (stx : Syntax) : Syntax :=
 
 -- antiquotation node kinds are formed from the original node kind (if any) plus "antiquot"
 def isAntiquot : Syntax → Bool
-  | Syntax.node (Name.str _ "antiquot" _) _ => true
-  | _                                       => false
+  | Syntax.node _ (Name.str _ "antiquot" _) _ => true
+  | _                                         => false
 
 def mkAntiquotNode (term : Syntax) (nesting := 0) (name : Option String := none) (kind := Name.anonymous) : Syntax :=
   let nesting := mkNullNode (mkArray nesting (mkAtom "$"))
@@ -409,7 +410,7 @@ def getAntiquotTerm (stx : Syntax) : Syntax :=
     e[1]
 
 def antiquotKind? : Syntax → Option SyntaxNodeKind
-  | Syntax.node (Name.str k "antiquot" _) args =>
+  | Syntax.node _ (Name.str k "antiquot" _) args =>
     if args[3].isOfKind `antiquotName then some k
     else
       -- we treat all antiquotations where the kind was left implicit (`$e`) the same (see `elimAntiquotChoices`)
@@ -418,8 +419,8 @@ def antiquotKind? : Syntax → Option SyntaxNodeKind
 
 -- An "antiquotation splice" is something like `$[...]?` or `$[...]*`.
 def antiquotSpliceKind? : Syntax → Option SyntaxNodeKind
-  | Syntax.node (Name.str k "antiquot_scope" _) args => some k
-  | _                                                => none
+  | Syntax.node _ (Name.str k "antiquot_scope" _) args => some k
+  | _                                                  => none
 
 def isAntiquotSplice (stx : Syntax) : Bool :=
   antiquotSpliceKind? stx |>.isSome
@@ -440,8 +441,8 @@ def mkAntiquotSpliceNode (kind : SyntaxNodeKind) (contents : Array Syntax) (suff
 
 -- `$x,*` etc.
 def antiquotSuffixSplice? : Syntax → Option SyntaxNodeKind
-  | Syntax.node (Name.str k "antiquot_suffix_splice" _) args => some k
-  | _                                                        => none
+  | Syntax.node _ (Name.str k "antiquot_suffix_splice" _) args => some k
+  | _                                                          => none
 
 def isAntiquotSuffixSplice (stx : Syntax) : Bool :=
   antiquotSuffixSplice? stx |>.isSome

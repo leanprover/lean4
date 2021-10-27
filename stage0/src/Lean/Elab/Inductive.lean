@@ -127,12 +127,13 @@ private partial def checkParamsAndResultType (type firstType : Expr) (numParams 
     forallTelescopeCompatible type firstType numParams fun _ type firstType =>
     forallTelescopeReducing type fun _ type =>
     forallTelescopeReducing firstType fun _ firstType => do
-    match type with
-    | Expr.sort .. =>
-      unless (← isDefEq firstType type) do
-        throwError "resulting universe mismatch, given{indentExpr type}\nexpected type{indentExpr firstType}"
-    | _ =>
-      throwError "unexpected inductive resulting type"
+      let type ← whnfD type
+      match type with
+      | Expr.sort .. =>
+        unless (← isDefEq firstType type) do
+          throwError "resulting universe mismatch, given{indentExpr type}\nexpected type{indentExpr firstType}"
+      | _ =>
+        throwError "unexpected inductive resulting type"
   catch
     | Exception.error ref msg => throw (Exception.error ref m!"invalid mutually inductive types, {msg}")
     | ex => throw ex
@@ -257,9 +258,10 @@ private def levelMVarToParam (indTypes : List InductiveType) : TermElabM (List I
 private def getResultingUniverse : List InductiveType → TermElabM Level
   | []           => throwError "unexpected empty inductive declaration"
   | indType :: _ => forallTelescopeReducing indType.type fun _ r => do
+    let r ← whnfD r
     match r with
     | Expr.sort u _ => pure u
-    | _             => throwError "unexpected inductive type resulting type"
+    | _             => throwError "unexpected inductive type resulting type{indentExpr r}"
 
 def tmpIndParam := mkLevelParam `_tmp_ind_univ_param
 
@@ -492,6 +494,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         | Except.ok levelParams => do
           let indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numVars numParams indTypes
           let indTypes := applyInferMod views numParams indTypes
+          trace[Meta.debug] "levelParams: {levelParams}"
           let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe
           Term.ensureNoUnassignedMVars decl
           addDecl decl

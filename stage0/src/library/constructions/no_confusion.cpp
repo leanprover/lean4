@@ -40,6 +40,7 @@ static optional<environment> mk_no_confusion_type(environment const & env, name 
     /* All inductive datatype parameters and indices are arguments */
     buffer<expr> args;
     ind_type = to_telescope(lctx, ngen, ind_type, args, some(mk_implicit_binder_info()));
+    ind_type = type_checker(env, lctx).whnf(ind_type);
     if (!is_sort(ind_type) || args.size() < nparams)
         throw_corrupted(n);
     level ind_lvl            = sort_level(ind_type);
@@ -142,7 +143,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     names lps                            = no_confusion_type_info.get_lparams();
     levels ls                            = lparams_to_levels(lps);
     expr ind_type                        = instantiate_type_lparams(ind_info, tail(ls));
-    level ind_lvl                        = get_datatype_level(ind_type);
+    level ind_lvl                        = get_datatype_level(env, ind_type);
     expr no_confusion_type_type          = instantiate_type_lparams(no_confusion_type_info, ls);
     buffer<expr> args;
     expr type = no_confusion_type_type;

@@ -211,7 +211,7 @@ namespace Syntax
 
 partial def structEq : Syntax → Syntax → Bool
   | Syntax.missing, Syntax.missing => true
-  | Syntax.node k args, Syntax.node k' args' => k == k' && args.isEqv args' structEq
+  | Syntax.node _ k args, Syntax.node _ k' args' => k == k' && args.isEqv args' structEq
   | Syntax.atom _ val, Syntax.atom _ val' => val == val'
   | Syntax.ident _ rawVal val preresolved, Syntax.ident _ rawVal' val' preresolved' => rawVal == rawVal' && val == val' && preresolved == preresolved'
   | _, _ => false
@@ -221,7 +221,9 @@ instance : BEq Lean.Syntax := ⟨structEq⟩
 partial def getTailInfo? : Syntax → Option SourceInfo
   | atom info _   => info
   | ident info .. => info
-  | node _ args   => args.findSomeRev? getTailInfo?
+  | node SourceInfo.none _ args =>
+      args.findSomeRev? getTailInfo?
+  | node info _ args => info
   | _             => none
 
 def getTailInfo (stx : Syntax) : SourceInfo :=
@@ -245,9 +247,9 @@ def getTrailingSize (stx : Syntax) : Nat :=
 partial def setTailInfoAux (info : SourceInfo) : Syntax → Option Syntax
   | atom _ val             => some <| atom info val
   | ident _ rawVal val pre => some <| ident info rawVal val pre
-  | node k args            =>
+  | node info k args       =>
     match updateLast args (setTailInfoAux info) args.size with
-    | some args => some <| node k args
+    | some args => some <| node info k args
     | none      => none
   | stx                    => none
 
@@ -273,9 +275,9 @@ def unsetTrailing (stx : Syntax) : Syntax :=
 partial def setHeadInfoAux (info : SourceInfo) : Syntax → Option Syntax
   | atom _ val             => some <| atom info val
   | ident _ rawVal val pre => some <| ident info rawVal val pre
-  | node k args            =>
+  | node i k args          =>
     match updateFirst args (setHeadInfoAux info) 0 with
-    | some args => some <| node k args
+    | some args => some <| node i k args
     | noxne     => none
   | stx                    => none
 
@@ -287,13 +289,15 @@ def setHeadInfo (stx : Syntax) (info : SourceInfo) : Syntax :=
 def setInfo (info : SourceInfo) : Syntax → Syntax
   | atom _ val             => atom info val
   | ident _ rawVal val pre => ident info rawVal val pre
-  | stx                    => stx
+  | node _ kind args       => node info kind args
+  | missing                => missing
 
 /-- Return the first atom/identifier that has position information -/
 partial def getHead? : Syntax → Option Syntax
   | stx@(atom info ..)  => info.getPos?.map fun _ => stx
   | stx@(ident info ..) => info.getPos?.map fun _ => stx
-  | node _ args      => args.findSome? getHead?
+  | node SourceInfo.none _ args => args.findSome? getHead?
+  | stx@(node info _ _) => stx
   | _                => none
 
 def copyHeadTailInfoFrom (target source : Syntax) : Syntax :=
@@ -308,7 +312,7 @@ end Syntax
   | some ref => withRef ref x
 
 @[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : Syntax :=
-  Syntax.node k args
+  Syntax.node SourceInfo.none k args
 
 /- Syntax objects for a Lean module. -/
 structure Module where
@@ -317,12 +321,12 @@ structure Module where
 
 /-- Expand all macros in the given syntax -/
 partial def expandMacros : Syntax → MacroM Syntax
-  | stx@(Syntax.node k args) => do
+  | stx@(Syntax.node info k args) => do
     match (← expandMacro? stx) with
     | some stxNew => expandMacros stxNew
     | none        => do
       let args ← Macro.withIncRecDepth stx <| args.mapM expandMacros
-      pure <| Syntax.node k args
+      pure <| Syntax.node info k args
   | stx => pure stx
 
 /- Helper functions for processing Syntax programmatically -/
@@ -356,10 +360,10 @@ def mkIdent (val : Name) : Syntax :=
   Syntax.ident SourceInfo.none (toString val).toSubstring val []
 
 @[inline] def mkNullNode (args : Array Syntax := #[]) : Syntax :=
-  Syntax.node nullKind args
+  mkNode nullKind args
 
 @[inline] def mkGroupNode (args : Array Syntax := #[]) : Syntax :=
-  Syntax.node groupKind args
+  mkNode groupKind args
 
 def mkSepArray (as : Array Syntax) (sep : Syntax) : Array Syntax := do
   let mut i := 0
@@ -374,11 +378,11 @@ def mkSepArray (as : Array Syntax) (sep : Syntax) : Array Syntax := do
 
 def mkOptionalNode (arg : Option Syntax) : Syntax :=
   match arg with
-  | some arg => Syntax.node nullKind #[arg]
-  | none     => Syntax.node nullKind #[]
+  | some arg => mkNullNode #[arg]
+  | none     => mkNullNode #[]
 
 def mkHole (ref : Syntax) : Syntax :=
-  Syntax.node `Lean.Parser.Term.hole #[mkAtomFrom ref "_"]
+  mkNode `Lean.Parser.Term.hole #[mkAtomFrom ref "_"]
 
 namespace Syntax
 
@@ -398,14 +402,14 @@ instance (sep) : Coe (Array Syntax) (SepArray sep) where
 /-- Create syntax representing a Lean term application, but avoid degenerate empty applications. -/
 def mkApp (fn : Syntax) : (args : Array Syntax) → Syntax
   | #[]  => fn
-  | args => Syntax.node `Lean.Parser.Term.app #[fn, mkNullNode args]
+  | args => mkNode `Lean.Parser.Term.app #[fn, mkNullNode args]
 
 def mkCApp (fn : Name) (args : Array Syntax) : Syntax :=
   mkApp (mkCIdent fn) args
 
 def mkLit (kind : SyntaxNodeKind) (val : String) (info := SourceInfo.none) : Syntax :=
   let atom : Syntax := Syntax.atom info val
-  Syntax.node kind #[atom]
+  mkNode kind #[atom]
 
 def mkStrLit (val : String) (info := SourceInfo.none) : Syntax :=
   mkLit strLitKind (String.quote val) info
@@ -481,7 +485,7 @@ def decodeNatLitVal? (s : String) : Option Nat :=
 
 def isLit? (litKind : SyntaxNodeKind) (stx : Syntax) : Option String :=
   match stx with
-  | Syntax.node k args =>
+  | Syntax.node _ k args =>
     if k == litKind && args.size == 1 then
       match args.get! 0 with
       | (Syntax.atom _ val) => some val
@@ -687,8 +691,8 @@ def isNameLit? (stx : Syntax) : Option Name :=
   | _        => none
 
 def hasArgs : Syntax → Bool
-  | Syntax.node _ args => args.size > 0
-  | _                  => false
+  | Syntax.node _ _ args => args.size > 0
+  | _                    => false
 
 def isAtom : Syntax → Bool
   | atom _ _ => true
@@ -700,15 +704,15 @@ def isToken (token : String) : Syntax → Bool
 
 def isNone (stx : Syntax) : Bool :=
   match stx with
-  | Syntax.node k args => k == nullKind && args.size == 0
+  | Syntax.node _ k args => k == nullKind && args.size == 0
   -- when elaborating partial syntax trees, it's reasonable to interpret missing parts as `none`
   | Syntax.missing     => true
   | _                  => false
 
 def getOptional? (stx : Syntax) : Option Syntax :=
   match stx with
-  | Syntax.node k args => if k == nullKind && args.size == 1 then some (args.get! 0) else none
-  | _                  => none
+  | Syntax.node _ k args => if k == nullKind && args.size == 1 then some (args.get! 0) else none
+  | _                    => none
 
 def getOptionalIdent? (stx : Syntax) : Option Name :=
   match stx.getOptional? with
@@ -716,8 +720,8 @@ def getOptionalIdent? (stx : Syntax) : Option Name :=
   | none     => none
 
 partial def findAux (p : Syntax → Bool) : Syntax → Option Syntax
-  | stx@(Syntax.node _ args) => if p stx then some stx else args.findSome? (findAux p)
-  | stx                      => if p stx then some stx else none
+  | stx@(Syntax.node _ _ args) => if p stx then some stx else args.findSome? (findAux p)
+  | stx                        => if p stx then some stx else none
 
 def find? (stx : Syntax) (p : Syntax → Bool) : Option Syntax :=
   findAux p stx

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.MacroArgUtil
+import Lean.Elab.AuxDef
 
 namespace Lean.Elab.Command
 open Lean.Syntax
@@ -42,20 +43,24 @@ def elabElabRulesAux (doc? : Option Syntax) (attrKind : Syntax) (k : SyntaxNodeK
     | _, _        => throwError "invalid elab_rules command, specify category using `elab_rules : <cat> ...`"
   if let some expId := expty? then
     if catName == `term then
-      `($[$doc?:docComment]? @[termElab $(← mkIdentFromRef k):ident] def elabFn : Lean.Elab.Term.TermElab :=
+      `($[$doc?:docComment]? @[termElab $(← mkIdentFromRef k):ident]
+        aux_def elabRules $(mkIdent k) : Lean.Elab.Term.TermElab :=
         fun stx expectedType? => Lean.Elab.Command.withExpectedType expectedType? fun $expId => match stx with
           $alts:matchAlt* | _ => throwUnsupportedSyntax)
     else
       throwErrorAt expId "syntax category '{catName}' does not support expected type specification"
   else if catName == `term then
-    `($[$doc?:docComment]? @[termElab $(← mkIdentFromRef k):ident] def elabFn : Lean.Elab.Term.TermElab :=
+    `($[$doc?:docComment]? @[termElab $(← mkIdentFromRef k):ident]
+      aux_def elabRules $(mkIdent k) : Lean.Elab.Term.TermElab :=
       fun stx _ => match stx with
         $alts:matchAlt* | _ => throwUnsupportedSyntax)
   else if catName == `command then
-    `($[$doc?:docComment]? @[commandElab $(← mkIdentFromRef k):ident] def elabFn : Lean.Elab.Command.CommandElab :=
+    `($[$doc?:docComment]? @[commandElab $(← mkIdentFromRef k):ident]
+      aux_def elabRules $(mkIdent k) : Lean.Elab.Command.CommandElab :=
       fun $alts:matchAlt* | _ => throwUnsupportedSyntax)
   else if catName == `tactic then
-    `($[$doc?:docComment]? @[tactic $(← mkIdentFromRef k):ident] def elabFn : Lean.Elab.Tactic.Tactic :=
+    `($[$doc?:docComment]? @[tactic $(← mkIdentFromRef k):ident]
+      aux_def elabRules $(mkIdent k) : Lean.Elab.Tactic.Tactic :=
       fun $alts:matchAlt* | _ => throwUnsupportedSyntax)
   else
     -- We considered making the command extensible and support new user-defined categories. We think it is unnecessary.
@@ -83,7 +88,7 @@ def expandElab : Macro
     let name ← match name? with
       | some name => pure name.getId
       | none => mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
-    let pat := Syntax.node ((← Macro.getCurrNamespace) ++ name) patArgs
+    let pat := mkNode ((← Macro.getCurrNamespace) ++ name) patArgs
     `($[$doc?:docComment]? $attrKind:attrKind syntax$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio)) $[$stxParts]* : $cat
       $[$doc?:docComment]? elab_rules : $cat $[<= $expectedType?]? | `($pat) => $rhs)
   | _ => Macro.throwUnsupported

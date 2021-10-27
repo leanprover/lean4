@@ -168,6 +168,7 @@ public:
             tc().check(type, m_lparams);
             m_nindices.push_back(0);
             unsigned i = 0;
+            type = whnf(type);
             while (is_pi(type)) {
                 if (i < m_nparams) {
                     if (first) {
@@ -181,9 +182,11 @@ public:
                     }
                     i++;
                 } else {
-                    type = binding_body(type);
+                    expr local = mk_local_decl_for(type);
+                    type = instantiate(binding_body(type), local);
                     m_nindices.back()++;
                 }
+                type = whnf(type);
             }
             if (i != m_nparams)
                 throw kernel_exception(m_env, "number of parameters mismatch in inductive datatype declaration");
@@ -527,6 +530,7 @@ public:
             rec_info info;
             expr t      = ind_type.get_type();
             unsigned i  = 0;
+            t = whnf(t);
             while (is_pi(t)) {
                 if (i < m_nparams) {
                     t = instantiate(binding_body(t), m_params[i]);
@@ -536,6 +540,7 @@ public:
                     t = instantiate(binding_body(t), idx);
                 }
                 i++;
+                t = whnf(t);
             }
             info.m_major = mk_local_decl("t", mk_app(mk_app(m_ind_cnsts[d_idx], m_params), info.m_indices));
             expr C_ty = mk_sort(m_elim_level);

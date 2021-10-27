@@ -21,20 +21,20 @@ def unbox(o):
 def to_cnstr(o):
     return o.cast(gdb.lookup_type('lean_ctor_object').pointer())
 
-def get_tag(header):
-    return header >> (32 + 8 + 8 + 8)
+def get_tag(o):
+    return o['m_tag']
 
 def get_cnstr_tag(o):
-    return get_tag(int(o.cast(gdb.lookup_type('lean_ctor_object').pointer()).dereference()['m_header']['m_header']))
+    return get_tag(o.cast(gdb.lookup_type('lean_object').pointer()))
 
-def get_num_objs(header):
-    return (header >> (32 + 8 + 8)) & 0xFF
+def get_num_objs(o):
+    return o['m_other']
 
-def get_mem_kind(header):
-    return (header >> (32 + 8)) & 0xFF
+def get_mem_kind(o):
+    return 0 if o['m_rc'] > 0 else 1 if o['m_rc'] < 0 else 2
 
-def get_rc(header):
-    return header & 0xFFFFFFFF
+def get_rc(o):
+    return o['m_rc']
 
 char_p = gdb.lookup_type('char').pointer()
 
@@ -45,7 +45,8 @@ def get_closure_arg(o, i):
     return o.cast(gdb.lookup_type('lean_closure_object').pointer()).dereference()['m_objs'][i]
 
 def get_c_str(o):
-    return o.cast(gdb.lookup_type('lean_string_object').pointer()).dereference()['m_data'].reference_value().cast(char_p)
+    return o.cast(gdb.lookup_type('lean_string_object').pointer()).dereference()['m_data'] \
+            .cast(gdb.lookup_type('char').pointer()).string()
 
 class LeanObjectPrinter:
     """Print a lean_object object."""
@@ -69,17 +70,16 @@ class LeanObjectPrinter:
     def __init__(self, val):
         self.val = val.address
         if not is_scalar(self.val):
-            self.header = int(self.val.dereference()['m_header'])
-            self.kind = max(0, get_tag(self.header) - LeanObjectPrinter.lean_max_ctor_tag)
+            self.kind = max(0, get_tag(self.val) - LeanObjectPrinter.lean_max_ctor_tag)
 
     def to_string(self):
         if is_scalar(self.val):
             return unbox(self.val)
         else:
-            k = get_mem_kind(self.header)
+            k = get_mem_kind(self.val)
             return "{} ({})".format(LeanObjectPrinter.kinds[self.kind][0],
-                                    get_rc(self.header) if k == 0 else
-                                    get_rc(self.header) + "/MT" if k == 1 else
+                                    get_rc(self.val) if k == 0 else
+                                    get_rc(self.val) + "/MT" if k == 1 else
                                     "PERSIST")
 
     def children(self):
@@ -92,7 +92,7 @@ class LeanObjectPrinter:
         for f in fields:
             yield (f, val[f])
         if typ == 'ctor':
-            for i in range(get_num_objs(self.header)):
+            for i in range(get_num_objs(self.val)):
                 yield ('', val['m_objs'][i].cast(gdb.lookup_type('lean_object').pointer()))
         elif typ == 'array':
             for i in range(val['m_size']):
@@ -101,7 +101,7 @@ class LeanObjectPrinter:
             for i in range(val['m_num_fixed']):
                 yield ('', val['m_objs'][i].cast(gdb.lookup_type('lean_object').pointer()))
         elif typ == 'string':
-            yield ('', val['m_data'].reference_value().cast(char_p))
+            yield ('', val['m_data'])
 
 
 class LeanOptionalPrinter:
@@ -135,7 +135,7 @@ class LeanNamePrinter:
         def rec(o):
             prefix = get_cnstr_obj_arg(o, 0)
             part = get_cnstr_obj_arg(o, 1)
-            s = ("'%s'" % get_c_str(part).string()) if get_cnstr_tag(o) == 1 else str(unbox(part))
+            s = ("'%s'" % get_c_str(part)) if get_cnstr_tag(o) == 1 else str(unbox(part))
             if not is_scalar(prefix):
                 return "%s.%s" % (rec(prefix), s)
             else:

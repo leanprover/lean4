@@ -76,7 +76,7 @@ private def liftMethodForbiddenBinder (stx : Syntax) : Bool :=
     false
 
 private partial def hasLiftMethod : Syntax → Bool
-  | Syntax.node k args =>
+  | Syntax.node _ k args =>
     if liftMethodDelimiter k then false
     -- NOTE: We don't check for lifts in quotations here, which doesn't break anything but merely makes this rare case a
     -- bit slower
@@ -1183,7 +1183,7 @@ def ensureEOS (doElems : List Syntax) : M Unit :=
     throwError "must be last element in a 'do' sequence"
 
 private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Syntax → StateT (List Syntax) M Syntax
-  | stx@(Syntax.node k args) =>
+  | stx@(Syntax.node i k args) =>
     if liftMethodDelimiter k then
       return stx
     else if k == ``Lean.Parser.Term.liftMethod && !inQuot then withFreshMacroScope do
@@ -1198,7 +1198,7 @@ private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Synt
       let inAntiquot := stx.isAntiquot && !stx.isEscapedAntiquot
       let inBinder   := inBinder || (!inQuot && liftMethodForbiddenBinder stx)
       let args ← args.mapM (expandLiftMethodAux (inQuot && !inAntiquot || stx.isQuot) inBinder)
-      return Syntax.node k args
+      return Syntax.node i k args
   | stx => pure stx
 
 def expandLiftMethod (doElem : Syntax) : M (List Syntax × Syntax) := do
@@ -1612,7 +1612,7 @@ private partial def ensureArrowNotUsed (stx : Syntax) : MacroM Unit := do
 where
   go (stx : Syntax) : MacroM Unit :=
     match stx with
-    | Syntax.node k args => do
+    | Syntax.node i k args => do
       if k == ``Parser.Term.liftMethod || k == ``Parser.Term.doLetArrow || k == ``Parser.Term.doReassignArrow || k == ``Parser.Term.doIfLetBind then
         Macro.throwErrorAt stx "`←` and `<-` are not allowed in pure `do` blocks, i.e., blocks where Lean implicitly used the `Id` monad"
       unless k == ``Parser.Term.do do

@@ -1,7 +1,7 @@
 [Elab.definition.body] «term_+++_» : Lean.TrailingParserDescr :=
 Lean.ParserDescr.trailingNode `«term_+++_» 45 46
   (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol "+++") (Lean.ParserDescr.cat `term 46))
-[Elab.definition.body] myMacro._@.ppNotationCode._hyg.23 : Lean.Macro :=
+[Elab.definition.body] _aux_ppNotationCode___macroRules_«term_+++_»_1 : Lean.Macro :=
 fun x =>
   let discr := x;
   if Lean.Syntax.isOfKind discr `«term_+++_» = true then
@@ -15,14 +15,14 @@ fun x =>
       let scp ← Lean.getCurrMacroScope 
       let mainModule ← Lean.getMainModule 
       pure
-          (Lean.Syntax.node `Lean.Parser.Term.app
+          (Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Term.app
             #[Lean.Syntax.ident info (String.toSubstring "Nat.add") (Lean.addMacroScope mainModule `Nat.add scp)
                 [(`Nat.add, [])],
-              Lean.Syntax.node `null #[lhs, rhs]])
+              Lean.Syntax.node Lean.SourceInfo.none `null #[lhs, rhs]])
   else
     let discr := x;
     throw Lean.Macro.Exception.unsupportedSyntax
-[Elab.definition.body] unexpand._@.ppNotationCode._hyg.6 : Lean.PrettyPrinter.Unexpander :=
+[Elab.definition.body] _aux_ppNotationCode___unexpand_Nat_add_1 : Lean.PrettyPrinter.Unexpander :=
 fun x =>
   let discr := x;
   if Lean.Syntax.isOfKind discr `Lean.Parser.Term.app = true then
@@ -38,7 +38,7 @@ fun x =>
           let info ← Lean.MonadRef.mkInfoFromRefPos 
           let _ ← Lean.getCurrMacroScope 
           let _ ← Lean.getMainModule 
-          pure (Lean.Syntax.node `«term_+++_» #[lhs, Lean.Syntax.atom info "+++", rhs])
+          pure (Lean.Syntax.node Lean.SourceInfo.none `«term_+++_» #[lhs, Lean.Syntax.atom info "+++", rhs])
       else
         let discr := Lean.Syntax.getArg discr 1;
         throw ())

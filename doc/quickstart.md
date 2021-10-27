@@ -5,9 +5,14 @@ See [Setup](./setup.md) for other ways and more details on setting up Lean.
 
 1. Install the latest Lean 4 nightly through [`elan`](https://github.com/leanprover/elan): in any bash-compatible shell, run
     ```sh
-    $ curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain leanprover/lean4:nightly
+    curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain leanprover/lean4:nightly
     ```
-    Alternatively, on Windows, download [the latest release](https://github.com/leanprover/elan/releases/latest/download/elan-x86_64-pc-windows-msvc.zip) and run the contained `elan-init.exe`.
+    On Windows, instead run in `cmd`
+    ```sh
+    curl -O --location https://raw.githubusercontent.com/leanprover/elan/master/elan-init.ps1
+    powershell -f elan-init.ps1 --default-toolchain leanprover/lean4:nightly
+    del elan-init.ps1
+    ```
     See the [elan repo](https://github.com/leanprover/elan) for other installation options and details.
     
 1. Install [VS Code](https://code.visualstudio.com/).

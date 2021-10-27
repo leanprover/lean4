@@ -54,7 +54,7 @@ def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × M
 
 private def mkEOI (pos : String.Pos) : Syntax :=
   let atom := mkAtom (SourceInfo.original "".toSubstring pos "".toSubstring pos) ""
-  Syntax.node `Lean.Parser.Module.eoi #[atom]
+  mkNode `Lean.Parser.Module.eoi #[atom]
 
 def isEOI (s : Syntax) : Bool :=
   s.isOfKind `Lean.Parser.Module.eoi
@@ -119,7 +119,7 @@ def testParseModule (env : Environment) (fname contents : String) : IO Syntax :=
   let inputCtx := mkInputContext contents fname
   let (header, state, messages) ← parseHeader inputCtx
   let cmds ← testParseModuleAux env inputCtx state messages #[]
-  let stx := Syntax.node `Lean.Parser.Module.module #[header, mkListNode cmds]
+  let stx := mkNode `Lean.Parser.Module.module #[header, mkListNode cmds]
   pure stx.updateLeading
 
 def testParseFile (env : Environment) (fname : System.FilePath) : IO Syntax := do

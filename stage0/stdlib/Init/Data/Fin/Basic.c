@@ -300,6 +300,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Fin_land(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -319,6 +321,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Fin_lor(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -338,6 +342,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Fin_xor(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -357,6 +363,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Fin_shiftLeft(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -376,6 +384,8 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Fin_shiftRight(x_1, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
 }

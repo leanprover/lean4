@@ -19,16 +19,6 @@ def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
   | some (ConstantInfo.inductInfo ..) => return true
   | _ => return false
 
-def isInductivePredicate [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
-  match (← getEnv).find? declName with
-  | some (ConstantInfo.inductInfo { type := type, ..}) => return visit type
-  | _ => return false
-where
-  visit : Expr → Bool
-    | Expr.sort u ..       => u == levelZero
-    | Expr.forallE _ _ b _ => visit b
-    | _                    => false
-
 def isRecCore (env : Environment) (declName : Name) : Bool :=
   match env.find? declName with
   | some (ConstantInfo.recInfo ..) => return true

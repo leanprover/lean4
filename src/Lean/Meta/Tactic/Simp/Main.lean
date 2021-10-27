@@ -122,6 +122,25 @@ private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
 private partial def dsimp (e : Expr) : M Expr := do
   transform e (post := fun e => return TransformStep.done (← reduce e))
 
+inductive SimpLetCase where
+  | dep -- `let x := v; b` is not equivalent to `(fun x => b) v`
+  | nondepDepVar -- `let x := v; b` is equivalent to `(fun x => b) v`, but result type depends on `x`
+  | nondep -- `let x := v; b` is equivalent to `(fun x => b) v`, and result type does not depend on `x`
+
+def getSimpLetCase (n : Name) (t : Expr) (v : Expr) (b : Expr) : MetaM SimpLetCase := do
+  withLocalDeclD n t fun x => do
+    let bx := b.instantiate1 x
+    /- The following step is potentially very expensive when we have many nested let-decls.
+       TODO: handle a block of nested let decls in a single pass if this becomes a performance problem. -/
+    if (← isTypeCorrect bx) then
+      let bxType ← whnf (← inferType bx)
+      if (← dependsOn bxType x.fvarId!) then
+        return SimpLetCase.nondepDepVar
+      else
+        return SimpLetCase.nondep
+    else
+      return SimpLetCase.dep
+
 partial def simp (e : Expr) : M Result := withIncRecDepth do
   let cfg ← getConfig
   if (← isProof e) then
@@ -345,39 +364,36 @@ where
       return { expr := (← dsimp e) }
 
   simpLet (e : Expr) : M Result := do
-    match e with
-    | Expr.letE n t v b _ =>
-      if (← getConfig).zeta then
-        return { expr := b.instantiate1 v }
-      else
+    let Expr.letE n t v b _ ← e | unreachable!
+    if (← getConfig).zeta then
+      return { expr := b.instantiate1 v }
+    else
+      match (← getSimpLetCase n t v b) with
+      | SimpLetCase.dep => return { expr := (← dsimp e) }
+      | SimpLetCase.nondep =>
+        let rv ← simp v
         withLocalDeclD n t fun x => do
           let bx := b.instantiate1 x
-          /- The following step is potentially very expensive when we have many nested let-decls.
-             TODO: handle a block of nested let decls in a single pass if this becomes a performance problem. -/
-          if (← isTypeCorrect bx) then
-            let bxType ← whnf (← inferType bx)
-            let rbx ← simp bx
-            let hb? ← match rbx.proof? with
-              | none => pure none
-              | some h => pure (some (← mkLambdaFVars #[x] h))
-            if (← dependsOn bxType x.fvarId!) then
-              /- The type of the body depends on `x`. So, we use `let_body_congr` -/
-              let v' ← dsimp v
-              let e' := mkLet n t v' (← abstract rbx.expr #[x])
-              match hb? with
-              | none => return { expr := e' }
-              | some h => return { expr := e', proof? := some (← mkLetBodyCongr v' h) }
-            else
-              /- The type of the body does not depend on `x`. So, we use `let_congr` -/
-              let rv ← simp v
-              let e' := mkLet n t rv.expr (← abstract rbx.expr #[x])
-              match rv.proof?, hb? with
-              | none,   none   => return { expr := e' }
-              | some h, none   => return { expr := e', proof? := some (← mkLetValCongr (← mkLambdaFVars #[x] rbx.expr) h) }
-              | _,      some h => return { expr := e', proof? := some (← mkLetCongr (← rv.getProof) h) }
-          else
-            return { expr := (← dsimp e) }
-    | _ => unreachable!
+          let rbx ← simp bx
+          let hb? ← match rbx.proof? with
+            | none => pure none
+            | some h => pure (some (← mkLambdaFVars #[x] h))
+          let e' := mkLet n t rv.expr (← abstract rbx.expr #[x])
+          match rv.proof?, hb? with
+          | none,   none   => return { expr := e' }
+          | some h, none   => return { expr := e', proof? := some (← mkLetValCongr (← mkLambdaFVars #[x] rbx.expr) h) }
+          | _,      some h => return { expr := e', proof? := some (← mkLetCongr (← rv.getProof) h) }
+      | SimpLetCase.nondepDepVar =>
+        let v' ← dsimp v
+        withLocalDeclD n t fun x => do
+          let bx := b.instantiate1 x
+          let rbx ← simp bx
+          let e' := mkLet n t v' (← abstract rbx.expr #[x])
+          match rbx.proof? with
+          | none => return { expr := e' }
+          | some h =>
+            let h ← mkLambdaFVars #[x] h
+            return { expr := e', proof? := some (← mkLetBodyCongr v' h) }
 
   cacheResult (cfg : Config) (r : Result) : M Result := do
     if cfg.memoize then

@@ -22,7 +22,7 @@ open Lean.Parser.Command
       | none => mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
     /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
       So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
-    let pat := Syntax.node ((← Macro.getCurrNamespace) ++ name) patArgs
+    let pat := mkNode ((← Macro.getCurrNamespace) ++ name) patArgs
     let stxCmd ← `($[$doc?:docComment]? $attrKind:attrKind
       syntax$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio)) $[$stxParts]* : $cat)
     let macroRulesCmd ←

@@ -9,8 +9,7 @@ namespace Lake
 open System
 
 def createParentDirs (path : FilePath) : BuildM PUnit := do
-  if let some dir := path.parent then
-    try IO.FS.createDirAll dir catch e => logError (toString e)
+  if let some dir := path.parent then IO.FS.createDirAll dir
 
 def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
   let envStr := String.join <| args.env.toList.map fun (k, v) => s!"{k}={v.getD ""} "
@@ -21,10 +20,9 @@ def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
     | none     => cmdStr
   let child ← IO.Process.spawn args
   let exitCode ← child.wait
-  if exitCode != 0 then
-    let msg := s!"external command {args.cmd} exited with status {exitCode}"
-    logError msg -- log errors early
-    throw <| IO.userError msg
+  if exitCode != 0 then -- log errors early
+    logError s!"external command {args.cmd} exited with status {exitCode}"
+    failure
 
 def compileOlean (leanFile oleanFile : FilePath)
 (oleanDirs : List FilePath := [])  (rootDir : FilePath := ".")

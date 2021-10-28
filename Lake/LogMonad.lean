@@ -3,6 +3,8 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.RealM
+
 namespace Lake
 
 -- # Typeclass
@@ -33,15 +35,15 @@ def nop [Pure m] : LogMethods m :=
 
 instance [Pure m] : Inhabited (LogMethods m) := ⟨LogMethods.nop⟩
 
-def io : LogMethods IO where
-  logInfo msg := IO.println msg
-  logWarning msg := IO.eprintln s!"warning: {msg}"
-  logError msg := IO.eprintln s!"error: {msg}"
+def io [MonadLiftT RealM m] : LogMethods m where
+  logInfo msg := RealM.runIO_ <| IO.println msg
+  logWarning msg := RealM.runIO_ <| IO.eprintln s!"warning: {msg}"
+  logError msg := RealM.runIO_ <| IO.eprintln s!"error: {msg}"
 
-def eio : LogMethods IO where
-  logInfo msg := IO.eprintln s!"info: {msg}"
-  logWarning msg := IO.eprintln s!"warning: {msg}"
-  logError msg := IO.eprintln s!"error: {msg}"
+def eio [MonadLiftT RealM m] : LogMethods m where
+  logInfo msg := RealM.runIO_ <| IO.eprintln s!"info: {msg}"
+  logWarning msg := RealM.runIO_ <| IO.eprintln s!"warning: {msg}"
+  logError msg := RealM.runIO_ <| IO.eprintln s!"error: {msg}"
 
 end LogMethods
 
@@ -58,5 +60,15 @@ instance [Monad m] : MonadLog (LogT m) where
   logWarning msg := do (← read).logWarning msg
   logError msg := do (← read).logError msg
 
-def LogT.adaptMethods [Monad m] (f : LogMethods m → LogMethods m) (self : LogT m α) : LogT m α :=
+namespace LogT
+
+abbrev run (methods :  LogMethods m) (self : LogT m α) : m α :=
+  ReaderT.run self methods
+
+abbrev runWith (methods :  LogMethods m) (self : LogT m α) : m α :=
+  ReaderT.run self methods
+
+abbrev adaptMethods [Monad m] (f : LogMethods m → LogMethods m) (self : LogT m α) : LogT m α :=
   ReaderT.adapt f self
+
+end LogT

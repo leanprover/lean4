@@ -11,7 +11,9 @@ namespace Lake
 
 -- # General Utilities
 
-def inputFileTarget := FileTarget.computeAsync
+def inputFileTarget (path : FilePath) : FileTarget :=
+  Target.computeAsync path
+
 instance : Coe FilePath FileTarget := ⟨inputFileTarget⟩
 
 def buildFileUnlessUpToDate (file : FilePath)

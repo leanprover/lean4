@@ -28,20 +28,6 @@ abbrev ActiveBuildTarget i := ActiveTarget i BuildTask BuildTrace
 /-- A `BuildTarget` that produces a file. -/
 abbrev FileTarget := BuildTarget FilePath
 
-namespace FileTarget
-
-variable [ComputeTrace FilePath m BuildTrace] [MonadLiftT m BuildM]
-
-def computeSync (path : FilePath) : FileTarget :=
-  Target.mk path do pure <$> try computeTrace path catch e =>
-    logError (toString e); throw e
-
-def computeAsync (path : FilePath) : FileTarget :=
-  Target.mk path do async <| try computeTrace path catch e =>
-    logError (toString e); throw e
-
-end FileTarget
-
 -- ## Active
 
 /-- An `ActiveBuildTarget` that produces a file. -/

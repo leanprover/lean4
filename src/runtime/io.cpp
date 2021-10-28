@@ -817,7 +817,7 @@ static obj_res lean_io_as_task_fn(obj_arg act, obj_arg) {
     }
 }
 
-/* asTask {ε α : Type} (act : EIO ε α) (prio : Nat) : IO (Task (Except ε α)) */
+/* asTask {ε α : Type} (act : EIO ε α) (prio : Nat) : EIO Empty (Task (Except ε α)) */
 extern "C" LEAN_EXPORT obj_res lean_io_as_task(obj_arg act, obj_arg prio, obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_as_task_fn, 2, 1);
     lean_closure_set(c, 0, act);
@@ -834,7 +834,7 @@ static obj_res lean_io_map_task_fn(obj_arg f, obj_arg a) {
     }
 }
 
-/*  mapTask {α : Type u} {ε β : Type} (f : α → EIO ε β) (t : Task α) (prio : Nat) : IO (Task (Except ε β)) */
+/*  mapTask {α : Type u} {ε β : Type} (f : α → EIO ε β) (t : Task α) (prio : Nat) : EIO Empty (Task (Except ε β)) */
 extern "C" LEAN_EXPORT obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg prio, obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_map_task_fn, 2, 1);
     lean_closure_set(c, 0, f);
@@ -851,7 +851,7 @@ static obj_res lean_io_bind_task_fn(obj_arg f, obj_arg a) {
     }
 }
 
-/*  bindTask {α : Type u} {ε β : Type} (t : Task α) (f : α → EIO ε (Task (Except ε β))) (prio : Nat) : IO (Task (Except ε β)) */
+/*  bindTask {α : Type u} {ε β : Type} (t : Task α) (f : α → EIO ε (Task (Except ε β))) (prio : Nat) : EIO Empty (Task (Except ε β)) */
 extern "C" LEAN_EXPORT obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg prio, obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);

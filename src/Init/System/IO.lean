@@ -31,6 +31,12 @@ def IO.RealWorld : Type := Unit
 -/
 def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
 
+@[inline] def EIO.liftEmpty (x : EIO Empty α) : EIO ε α :=
+  fun s => match x s with
+  | EStateM.Result.ok a s => EStateM.Result.ok a s
+
+instance : MonadLift (EIO Empty) (EIO ε) := ⟨EIO.liftEmpty⟩
+
 @[inline] def EIO.catchExceptions (x : EIO ε α) (h : ε → EIO Empty α) : EIO Empty α :=
   fun s => match x s with
   | EStateM.Result.ok a s     => EStateM.Result.ok a s
@@ -101,21 +107,24 @@ def sleep (ms : UInt32) : IO Unit :=
   Run `act` in a separate `Task`. This is similar to Haskell's [`unsafeInterleaveIO`](http://hackage.haskell.org/package/base-4.14.0.0/docs/System-IO-Unsafe.html#v:unsafeInterleaveIO),
   except that the `Task` is started eagerly as usual. Thus pure accesses to the `Task` do not influence the impure `act`
   computation.
-  Unlike with pure tasks created by `Task.mk`, tasks created by this function will be run even if the last reference
+  Unlike with pure tasks created by `Task.pure`, tasks created by this function will be run even if the last reference
   to the task is dropped. `act` should manually check for cancellation via `IO.checkCanceled` if it wants to react
   to that. -/
 @[extern "lean_io_as_task"]
-constant asTask (act : EIO ε α) (prio := Task.Priority.default) : IO (Task (Except ε α))
+constant asTask (act : EIO ε α) (prio := Task.Priority.default) : EIO Empty (Task (Except ε α)) :=
+  Task.pure <$> Except.ok <$> act |>.catchExceptions fun e => Task.pure <| Except.error e
 
 /-- See `IO.asTask`. -/
 @[extern "lean_io_map_task"]
-constant mapTask (f : α → EIO ε β) (t : Task α) (prio := Task.Priority.default) : IO (Task (Except ε β))
+constant mapTask (f : α → EIO ε β) (t : Task α) (prio := Task.Priority.default) : EIO Empty (Task (Except ε β)) :=
+  Task.pure <$> Except.ok <$> f t.get |>.catchExceptions fun e => Task.pure <| Except.error e
 
 /-- See `IO.asTask`. -/
 @[extern "lean_io_bind_task"]
-constant bindTask (t : Task α) (f : α → EIO ε (Task (Except ε β))) (prio := Task.Priority.default) : IO (Task (Except ε β))
+constant bindTask (t : Task α) (f : α → EIO ε (Task (Except ε β))) (prio := Task.Priority.default) : EIO Empty (Task (Except ε β)) :=
+  f t.get |>.catchExceptions fun e => Task.pure <| Except.error e
 
-def mapTasks (f : List α → IO β) (tasks : List (Task α)) (prio := Task.Priority.default) : IO (Task (Except IO.Error β)) :=
+def mapTasks (f : List α → EIO ε β) (tasks : List (Task α)) (prio := Task.Priority.default) : EIO Empty (Task (Except ε β)) :=
   go tasks []
 where
   go
@@ -124,16 +133,16 @@ where
     | [], as => IO.asTask (f as.reverse) prio
 
 /-- Check if the task's cancellation flag has been set by calling `IO.cancel` or dropping the last reference to the task. -/
-@[extern "lean_io_check_canceled"] constant checkCanceled : IO Bool
+@[extern "lean_io_check_canceled"] constant checkCanceled : EIO Empty Bool
 
 /-- Request cooperative cancellation of the task. The task must explicitly call `IO.checkCanceled` to react to the cancellation. -/
-@[extern "lean_io_cancel"] constant cancel : @& Task α → IO Unit
+@[extern "lean_io_cancel"] constant cancel : @& Task α → EIO Empty Unit
 
 /-- Check if the task has finished execution, at which point calling `Task.get` will return immediately. -/
-@[extern "lean_io_has_finished"] constant hasFinished : @& Task α → IO Bool
+@[extern "lean_io_has_finished"] constant hasFinished : @& Task α → EIO Empty Bool
 
 /-- Wait for the task to finish, then return its result. -/
-@[extern "lean_io_wait"] constant wait : Task α → IO α
+@[extern "lean_io_wait"] constant wait : Task α → EIO Empty α := fun x => pure x.get
 
 /-- Wait until any of the tasks in the given list has finished, then return its result. -/
 @[extern "lean_io_wait_any"] constant waitAny : @& List (Task α) → IO α

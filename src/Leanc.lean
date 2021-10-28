@@ -22,7 +22,7 @@ Beware of the licensing consequences since GMP is LGPL."
   -- We assume that the CMake variables do not contain escaped spaces
   let cflags := ["-I", (root / "include").toString] ++ "@LEANC_EXTRA_FLAGS@".trim.splitOn
   let mut cflagsInternal := "@LEANC_INTERNAL_FLAGS@".trim.splitOn
-  let mut ldflags := ["-L", (root / "lib").toString, "-L", (root / "lib" / "lean").toString, (← IO.getEnv "LEANC_GMP").getD "-lgmp"] ++ "@LEAN_EXTRA_LINKER_FLAGS@".trim.splitOn
+  let mut ldflags := ["-L", (root / "lib" / "lean").toString, "-lgmp"] ++ "@LEAN_EXTRA_LINKER_FLAGS@".trim.splitOn
   let mut ldflagsExt := "@LEANC_STATIC_LINKER_FLAGS@".trim.splitOn
   let mut ldflagsInternal := "@LEANC_INTERNAL_LINKER_FLAGS@".trim.splitOn
 

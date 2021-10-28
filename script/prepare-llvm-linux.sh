@@ -28,14 +28,15 @@ $CP $GLIBC/lib/crt* llvm/lib/
 $CP $GLIBC/lib/crt* stage1/lib/
 # runtime
 (cd llvm; $CP --parents lib/clang/*/lib/*/{*crt{begin,end}.o,libclang_rt.builtins*} ../stage1)
-$CP llvm/lib/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.* stage1/lib/
+$CP llvm/lib/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a stage1/lib/
 # glibc: use for linking (so Lean programs don't embed newer symbol versions), but not for running (because libc.so, librt.so, and ld.so must be compatible)!
-$CP $GLIBC/lib/lib{c_nonshared,gcc_s}* stage1/lib/glibc
+$CP $GLIBC/lib/libc_nonshared.a stage1/lib/glibc
 for f in $GLIBC/lib/lib{c,dl,m,rt,pthread}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done
 OPTIONS=()
-echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang -DCMAKE_CXX_COMPILER=$PWD/llvm/bin/clang++ -DLEAN_USE_LIBCXX=ON"
+echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang -DCMAKE_CXX_COMPILER=$PWD/llvm/bin/clang++ -DLEAN_CXX_STDLIB='-Wl,-Bstatic -lc++ -lc++abi -Wl,-Bdynamic'"
 # allow C++ code to include /usr since it needs quite a few more headers
 echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm --stdlib=libc++ -I/usr/include -I/usr/include/x86_64-linux-gnu'"
 echo -n " -DLEANC_INTERNAL_FLAGS='--sysroot ROOT -I ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang"
-echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/glibc ROOT/lib/glibc/libc_nonshared.a -fuse-ld=ROOT/bin/ld.lld'"
-echo -n " -DLEAN_TEST_VARS='LD_LIBRARY_PATH=$PWD/stage1/lib:\${LD_LIBRARY_PATH:-}'"
+echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/glibc ROOT/lib/glibc/libc_nonshared.a --rtlib=compiler-rt -static-libgcc -Wl,-Bstatic -lgmp -lunwind -Wl,-Bdynamic -fuse-ld=lld'"
+# do not set `LEAN_CC` for tests
+echo -n " -DLEAN_TEST_VARS=''"

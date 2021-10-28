@@ -107,7 +107,7 @@ def sleep (ms : UInt32) : IO Unit :=
   Run `act` in a separate `Task`. This is similar to Haskell's [`unsafeInterleaveIO`](http://hackage.haskell.org/package/base-4.14.0.0/docs/System-IO-Unsafe.html#v:unsafeInterleaveIO),
   except that the `Task` is started eagerly as usual. Thus pure accesses to the `Task` do not influence the impure `act`
   computation.
-  Unlike with pure tasks created by `Task.pure`, tasks created by this function will be run even if the last reference
+  Unlike with pure tasks created by `Task.spawn`, tasks created by this function will be run even if the last reference
   to the task is dropped. `act` should manually check for cancellation via `IO.checkCanceled` if it wants to react
   to that. -/
 @[extern "lean_io_as_task"]

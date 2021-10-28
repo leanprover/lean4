@@ -31,16 +31,16 @@ private def isBlackListed (declName : Name) : MetaM Bool := do
   <||> completionBlackListExt.isTagged env declName
   <||> isMatcher declName
 
-private partial def consumeImplicitPrefix (e : Expr) : MetaM Expr := do
+private partial def consumeImplicitPrefix (e : Expr) (k : Expr → MetaM α) : MetaM α := do
   match e with
   | Expr.forallE n d b c =>
     -- We do not consume instance implicit arguments because the user probably wants be aware of this dependency
     if c.binderInfo == BinderInfo.implicit then
-      let arg ← mkFreshExprMVar (userName := n) d
-      consumeImplicitPrefix (b.instantiate1 arg)
+      withLocalDecl n c.binderInfo d fun arg =>
+        consumeImplicitPrefix (b.instantiate1 arg) k
     else
-      return e
-  | _ => return e
+      k e
+  | _ => k e
 
 private def isTypeApplicable (type : Expr) (expectedType? : Option Expr) : MetaM Bool :=
   try
@@ -64,8 +64,8 @@ private def sortCompletionItems (items : Array CompletionItem) : Array Completio
 
 private def mkCompletionItem (label : Name) (type : Expr) (docString? : Option String) : MetaM CompletionItem := do
   let doc? := docString?.map fun docString => { value := docString, kind := MarkupKind.markdown : MarkupContent }
-  let detail ← Meta.ppExpr (← consumeImplicitPrefix type)
-  return { label := label.getString!, detail? := some (toString detail), documentation? := doc? }
+  let detail ← consumeImplicitPrefix type fun type => return toString (← Meta.ppExpr type)
+  return { label := label.getString!, detail? := detail, documentation? := doc? }
 
 structure State where
   itemsMain  : Array CompletionItem := #[]

@@ -13,7 +13,7 @@ in { pkgs ? flakePkgs.nixpkgs, llvmPackages ? null }:
     hardeningDisable = [ "all" ];
     # more convenient `ctest` output
     CTEST_OUTPUT_ON_FAILURE = 1;
-    GMP = pkgs.gmp;
+    GMP = pkgs.gmp.override { withStatic = true; };
     GLIBC = pkgs.glibc;
     shellHook = ''
       export LEAN_SRC_PATH="$PWD/src"

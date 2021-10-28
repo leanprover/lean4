@@ -993,7 +993,7 @@ builtin_initialize
     match (← isLocalIdent? discrExpr) with
     | some _ =>
       let expectedType ← waitExpectedType expectedType?
-      let discr := Syntax.node ``Lean.Parser.Term.matchDiscr #[mkNullNode, discrExpr]
+      let discr := mkNode ``Lean.Parser.Term.matchDiscr #[mkNullNode, discrExpr]
       elabMatchAux none #[discr] #[] mkNullNode expectedType
     | _ =>
       let stxNew ← `(let _discr := $discrExpr; nomatch _discr)

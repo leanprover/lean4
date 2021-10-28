@@ -55,15 +55,16 @@ def mkContext (declName : Name) : MetaM Context := do
   let indVal ← getConstInfoInduct declName
   let typeInfos ← indVal.all.toArray.mapM getConstInfoInduct
   let motiveTypes ← typeInfos.mapM motiveType
-  let motives ←motiveTypes.mapIdxM fun j motive => do
-    (←motiveName motiveTypes j.val, motive)
-  let headers := typeInfos.mapM $ mkHeader motives indVal.numParams
+  let motives ← motiveTypes.mapIdxM fun j motive => do
+    (← motiveName motiveTypes j.val, motive)
+  let headers ← typeInfos.mapM $ mkHeader motives indVal.numParams
   return {
     motives := motives
     typeInfos := typeInfos
     numParams := indVal.numParams
-    headers := ←headers
-    belowNames := ←indVal.all.toArray.map (· ++ `below) }
+    headers := headers
+    belowNames := (← indVal.all.toArray.map (· ++ `below))
+  }
 where
   motiveName (motiveTypes : Array Expr) (i : Nat) : MetaM Name :=
     if motiveTypes.size > 1
@@ -74,21 +75,21 @@ where
       (motives : Array (Name × Expr))
       (numParams : Nat)
       (indVal : InductiveVal) : MetaM Expr := do
-    let header ← forallTelescope indVal.type fun xs t => do
+    let header ← forallTelescopeReducing indVal.type fun xs t => do
       withNewBinderInfos (xs.map fun x => (x.fvarId!, BinderInfo.implicit)) $
-      mkForallFVars xs $ ←mkArrow (mkAppN (mkIndValConst indVal) xs) t
+      mkForallFVars xs (← mkArrow (mkAppN (mkIndValConst indVal) xs) t)
     addMotives motives numParams header
 
   addMotives (motives : Array (Name × Expr)) (numParams : Nat) : Expr → MetaM Expr :=
     motives.foldrM (fun (motiveName, motive) t =>
-      forallTelescope t fun xs s => do
+      forallTelescopeReducing t fun xs s => do
         let motiveType ← instantiateForall motive xs[:numParams]
         withLocalDecl motiveName BinderInfo.implicit motiveType fun motive => do
           mkForallFVars (xs.insertAt numParams motive) s)
 
   motiveType (indVal : InductiveVal) : MetaM Expr :=
-    forallTelescope indVal.type fun xs t => do
-      mkForallFVars xs $ ←mkArrow (mkAppN (mkIndValConst indVal) xs) (mkSort levelZero)
+    forallTelescopeReducing indVal.type fun xs t => do
+      mkForallFVars xs (← mkArrow (mkAppN (mkIndValConst indVal) xs) (mkSort levelZero))
 
   mkIndValConst (indVal : InductiveVal) : Expr :=
     mkConst indVal.name $ indVal.levelParams.map mkLevelParam
@@ -97,7 +98,7 @@ partial def mkCtorType
     (ctx : Context)
     (belowIdx : Nat)
     (originalCtor : ConstructorVal) : MetaM Expr :=
-  forallTelescope originalCtor.type fun xs t => addHeaderVars
+  forallTelescopeReducing originalCtor.type fun xs t => addHeaderVars
     { innerType := t
       indVal := #[]
       motives := #[]
@@ -122,8 +123,8 @@ where
   modifyBinders (vars : Variables) (i : Nat) := do
     if i < vars.args.size then
       let binder := vars.args[i]
-      let binderType ←inferType binder
-      if ←checkCount binderType then
+      let binderType ← inferType binder
+      if (← checkCount binderType) then
         mkBelowBinder vars binder binderType fun indValIdx x =>
           mkMotiveBinder vars indValIdx binder binderType fun y =>
             withNewBinderInfos #[(binder.fvarId!, BinderInfo.implicit)] do
@@ -151,11 +152,10 @@ where
 
   checkCount (domain : Expr) : MetaM Bool := do
     let run (x : StateRefT Nat MetaM Expr) : MetaM (Expr × Nat) := StateRefT'.run x 0
-    let (_, cnt) ←run $ transform domain fun e => do
+    let (_, cnt) ← run $ transform domain fun e => do
       if let some name := e.constName? then
         if let some idx := ctx.typeInfos.findIdx? fun indVal => indVal.name == name then
-          let cnt ←get
-          set $ cnt + 1
+          modify (. + 1)
       TransformStep.visit e
 
     if cnt > 1 then
@@ -168,7 +168,7 @@ where
       (binder : Expr)
       (domain : Expr)
       {α : Type} (k : Nat → Expr → MetaM α) : MetaM α := do
-    forallTelescope domain fun xs t => do
+    forallTelescopeReducing domain fun xs t => do
       let fail _ := do
         throwError "only trivial inductive applications supported in premises:{indentExpr t}"
 
@@ -193,7 +193,7 @@ where
       (binder : Expr)
       (domain : Expr)
       {α : Type} (k : Expr → MetaM α) : MetaM α := do
-    forallTelescope domain fun xs t => do
+    forallTelescopeReducing domain fun xs t => do
       t.withApp fun f args => do
         let hApp := mkAppN binder xs
         let t := mkAppN vars.motives[indValIdx] $ args[ctx.numParams:] ++ #[hApp]
@@ -220,7 +220,8 @@ def mkInductiveType
   return {
     name := ctx.belowNames[i]
     type := ctx.headers[i]
-    ctors := ←indVal.ctors.mapM (mkConstructor ctx i) }
+    ctors := (← indVal.ctors.mapM (mkConstructor ctx i))
+  }
 
 def mkBelowDecl (ctx : Context) : MetaM Declaration := do
   let lparams := ctx.typeInfos[0].levelParams
@@ -268,8 +269,8 @@ where
     return (m, ⟨params, motives, indices, witness, indHyps⟩)
 
   applyIH (m : MVarId) (vars : BrecOnVariables) : MetaM (List MVarId) := do
-    match ←vars.indHyps.findSomeM?
-      (fun ih => do try some $ (←apply m $ mkFVar ih) catch ex => none) with
+    match (← vars.indHyps.findSomeM?
+      fun ih => do try some $ (←apply m $ mkFVar ih) catch ex => none) with
     | some goals => goals
     | none => throwError "cannot apply induction hypothesis: {MessageData.ofGoal m}"
 
@@ -279,7 +280,7 @@ where
     let levelParams := indVal.levelParams.map mkLevelParam
     let motives ← ctx.motives.mapIdxM fun idx (_, motive) => do
       let motive ← instantiateForall motive params
-      forallTelescope motive fun xs _ => do
+      forallTelescopeReducing motive fun xs _ => do
       mkLambdaFVars xs $ mkAppN (mkConst ctx.belowNames[idx] levelParams) $ (params ++ motives ++ xs)
     let recursorInfo ← getConstInfo $ mkRecName indVal.name
     let recLevels :=
@@ -292,24 +293,24 @@ where
   applyCtors (ms : List MVarId) : MetaM $ List MVarId := do
     let mss ← ms.toArray.mapIdxM fun idx m => do
       let m ← introNPRec m
-      (←getMVarType m).withApp fun below args =>
+      (← getMVarType m).withApp fun below args =>
       withMVarContext m do
-      args.back.withApp fun ctor ctorArgs => do
-      let ctorName := ctor.constName!.updatePrefix below.constName!
-      let ctor := mkConst ctorName below.constLevels!
-      let ctorInfo ← getConstInfoCtor ctorName
-      let (mvars, _, t) ← forallMetaTelescope ctorInfo.type
-      let ctor := mkAppN ctor mvars
-      apply m ctor
+        args.back.withApp fun ctor ctorArgs => do
+        let ctorName := ctor.constName!.updatePrefix below.constName!
+        let ctor := mkConst ctorName below.constLevels!
+        let ctorInfo ← getConstInfoCtor ctorName
+        let (mvars, _, t) ← forallMetaTelescope ctorInfo.type
+        let ctor := mkAppN ctor mvars
+        apply m ctor
     return mss.foldr List.append []
 
   introNPRec (m : MVarId) : MetaM MVarId := do
-    if (←getMVarType m).isForall then introNPRec (←intro1P m).2 else m
+    if (← getMVarType m).isForall then introNPRec (←intro1P m).2 else m
 
   closeGoal (vars : BrecOnVariables) (maxDepth : Nat) (m : MVarId) : MetaM Unit := do
-    unless ←isExprMVarAssigned m do
+    unless (← isExprMVarAssigned m) do
       let m ← introNPRec m
-      unless ←backwardsChaining m maxDepth do
+      unless (← backwardsChaining m maxDepth) do
         withMVarContext m do
         throwError "couldn't solve by backwards chaining ({``maxBackwardChainingDepth} = {maxDepth}): {MessageData.ofGoal m}"
 
@@ -324,7 +325,7 @@ def mkBrecOnDecl (ctx : Context) (idx : Nat) : MetaM Declaration := do
     value := ←proveBrecOn ctx indVal type }
 where
   mkType : MetaM Expr :=
-    forallTelescope ctx.headers[idx] fun xs t => do
+    forallTelescopeReducing ctx.headers[idx] fun xs t => do
     let params := xs[:ctx.numParams]
     let motives := xs[ctx.numParams:ctx.numParams + ctx.motives.size].toArray
     let indices := xs[ctx.numParams + ctx.motives.size:]
@@ -342,7 +343,7 @@ where
       else mkFreshUserName "ih"
     let ih ← instantiateForall motive.2 params
     let mkDomain (_ : Array Expr) : MetaM Expr :=
-      forallTelescope ih fun ys t => do
+      forallTelescopeReducing ih fun ys t => do
         let levels := ctx.typeInfos[idx].levelParams.map mkLevelParam
         let args := params ++ motives ++ ys
         let premise :=
@@ -358,7 +359,7 @@ partial def getBelowIndices (ctorName : Name) : MetaM $ Array Nat := do
   let ctorInfo ← getConstInfoCtor ctorName
   let belowCtorInfo ← getConstInfoCtor (ctorName.updatePrefix $ ctorInfo.induct ++ `below)
   let belowInductInfo ← getConstInfoInduct belowCtorInfo.induct
-  forallTelescope ctorInfo.type fun xs t => do
+  forallTelescopeReducing ctorInfo.type fun xs t => do
   loop xs belowCtorInfo.type #[] 0 0
 
 where
@@ -371,7 +372,7 @@ where
     let x := xs[xIdx]
     let xTy ← inferType x
     let yTy := rest.bindingDomain!
-    if ←isDefEq xTy yTy then
+    if (← isDefEq xTy yTy) then
       let rest ← instantiateForall rest #[x]
       loop xs rest (belowIndices.push yIdx) (xIdx + 1) (yIdx + 1)
     else
@@ -379,12 +380,12 @@ where
       loop xs rest belowIndices xIdx (yIdx + 1)
 
 private def belowType (motive : Expr) (xs : Array Expr) (idx : Nat) : MetaM $ Name × Expr := do
-  (←inferType xs[idx]).withApp fun type args => do
-  let indName := type.constName!
-  let indInfo ← getConstInfoInduct indName
-  let belowArgs := args[:indInfo.numParams] ++ #[motive] ++ args[indInfo.numParams:] ++ #[xs[idx]]
-  let belowType := mkAppN (mkConst (indName ++ `below) type.constLevels!) belowArgs
-  (indName, belowType)
+  (← inferType xs[idx]).withApp fun type args => do
+    let indName := type.constName!
+    let indInfo ← getConstInfoInduct indName
+    let belowArgs := args[:indInfo.numParams] ++ #[motive] ++ args[indInfo.numParams:] ++ #[xs[idx]]
+    let belowType := mkAppN (mkConst (indName ++ `below) type.constLevels!) belowArgs
+    (indName, belowType)
 
 /-- This function adds an additional `below` discriminant to a matcher application.
     It is used for modifying the patterns, such that the structural recursion can use the new
@@ -562,14 +563,14 @@ def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat
   xTy.withApp fun f args =>
   match f.constName?, xs.indexOf? x with
   | some name, some idx => do
-    if ←isInductivePredicate name then
+    if (← isInductivePredicate name) then
       let (_, belowTy) ← belowType motive xs idx
       let below ← mkFreshExprSyntheticOpaqueMVar belowTy
       try
         trace[Meta.IndPredBelow.match] "{←Meta.ppGoal below.mvarId!}"
-        if ←backwardsChaining below.mvarId! 10 then
+        if (← backwardsChaining below.mvarId! 10) then
           trace[Meta.IndPredBelow.match] "Found below term in the local context: {below}"
-          if ←xs.anyM (isDefEq below) then none else (below, idx.val)
+          if (← xs.anyM (isDefEq below)) then none else (below, idx.val)
         else
           trace[Meta.IndPredBelow.match] "could not find below term in the local context"
           none
@@ -578,7 +579,7 @@ def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat
   | _, _ => none
 
 def mkBelow (declName : Name) : MetaM Unit := do
-  if (←isInductivePredicate declName) then
+  if (← isInductivePredicate declName) then
     let x ← getConstInfoInduct declName
     if x.isRec then
       let ctx ← IndPredBelow.mkContext declName

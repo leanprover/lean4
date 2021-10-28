@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.Tactic.Simp
 import Lean.Elab.Tactic.Conv.Basic
+import Lean.HeadIndex
 
 namespace Lean.Elab.Tactic.Conv
 open Meta
@@ -27,7 +28,9 @@ partial def matchPattern? (pattern : AbstractMVarsResult) (e : Expr) : MetaM (Op
        sure we can match the pattern inside of binders. So, it is not needed in most cases. -/
     let (_, _, pattern) ← openAbstractMVarsResult pattern
     let rec go? (e : Expr) : MetaM (Option (Expr × Array Expr)) := do
-      if (← isDefEqGuarded pattern e) then
+      if e.toHeadIndex != pattern.toHeadIndex then
+        return none
+      else if (← isDefEqGuarded pattern e) then
         return some (e, #[])
       else if e.isApp then
         (← go? e.appFn!).map fun (f, extra) => (f, extra.push e.appArg!)

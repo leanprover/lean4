@@ -27,17 +27,17 @@ partial def bitwise (f : Bool → Bool → Bool) (n m : Nat) : Nat :=
       r+r
 
 @[extern "lean_nat_land"]
-def land : Nat → Nat → Nat := bitwise and
+def land : @& Nat → @& Nat → Nat := bitwise and
 @[extern "lean_nat_lor"]
-def lor  : Nat → Nat → Nat := bitwise or
+def lor  : @& Nat → @& Nat → Nat := bitwise or
 @[extern "lean_nat_lxor"]
-def xor  : Nat → Nat → Nat := bitwise bne
+def xor  : @& Nat → @& Nat → Nat := bitwise bne
 @[extern "lean_nat_shiftl"]
-def shiftLeft : Nat → Nat → Nat
+def shiftLeft : @& Nat → @& Nat → Nat
   | n, 0 => n
   | n, succ m => shiftLeft (2*n) m
 @[extern "lean_nat_shiftr"]
-def shiftRight : Nat → Nat → Nat
+def shiftRight : @& Nat → @& Nat → Nat
   | n, 0 => n
   | n, succ m => shiftRight n m / 2
 

@@ -46,37 +46,8 @@ size_t mpz::log2() const {
     return r - 1;
 }
 
-size_t mpz::mlog2() const {
-    if (is_nonneg())
-        return 0;
-    mpz * _this = const_cast<mpz*>(this);
-    _this->neg();
-    lean_assert(is_pos());
-    size_t r = mpz_sizeinbase(m_val, 2);
-    _this->neg();
-    lean_assert(is_neg());
-    return r - 1;
-}
-
-bool mpz::is_power_of_two(size_t& shift) const {
-    if (is_nonpos())
-        return false;
-    if (mpz_popcount(m_val) == 1) {
-        shift = log2();
-        return true;
-    } else {
-        return false;
-    }
-}
-
 mpz operator%(mpz const & a, mpz const & b) {
     return rem(a, b);
-}
-
-bool root(mpz & root, mpz const & a, unsigned k) {
-    mpz rem;
-    mpz_rootrem(root.m_val, rem.m_val, a.m_val, k);
-    return rem.is_zero();
 }
 
 void display(std::ostream & out, __mpz_struct const * v) {

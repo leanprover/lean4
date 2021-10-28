@@ -176,7 +176,7 @@ mutual
 
   partial def evalTacticAux (stx : Syntax) : TacticM Unit :=
     withRef stx $ withIncRecDepth $ withFreshMacroScope $ match stx with
-      | Syntax.node k args =>
+      | Syntax.node _ k args =>
         if k == nullKind then
           -- Macro writers create a sequence of tactics `t₁ ... tₙ` using `mkNullNode #[t₁, ..., tₙ]`
           stx.getArgs.forM evalTactic

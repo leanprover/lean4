@@ -135,6 +135,8 @@ jobs:
           cd build/stage1
           for f in lib/lean/libleanshared.dylib bin/lean bin/leanpkg bin/leanc bin/lake; do
             for lib in $(otool -L $f | tail -n +2 | cut -d' ' -f1); do
+              # copy Homebrew dependencies
+              if [[ "$lib" == /usr/local/opt/* ]]; then cp -n "$lib" lib/ || true; fi
               [[ "$lib" == /usr/lib/* ]] || install_name_tool -change "$lib" "@rpath/$(basename $lib)" $f
             done
             otool -L $f

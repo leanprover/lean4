@@ -1,0 +1,4 @@
+x y : Nat
+⊢ id (id y)
+x y : Nat
+⊢ y

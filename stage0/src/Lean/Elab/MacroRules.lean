@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.Syntax
+import Lean.Elab.AuxDef
 
 namespace Lean.Elab.Command
 open Lean.Syntax
@@ -34,7 +35,8 @@ def elabMacroRulesAux (doc? : Option Syntax) (attrKind : Syntax) (k : SyntaxNode
       else
         throwErrorAt alt "invalid macro_rules alternative, unexpected syntax node kind '{k'}'"
     | _ => throwUnsupportedSyntax
-  `($[$doc?:docComment]? @[$attrKind:attrKind macro $(Lean.mkIdent k)] def myMacro : Macro :=
+  `($[$doc?:docComment]? @[$attrKind:attrKind macro $(Lean.mkIdent k)]
+    aux_def macroRules $(mkIdent k) : Macro :=
      fun $alts:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
 
 @[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
@@ -43,7 +45,8 @@ def elabMacroRulesAux (doc? : Option Syntax) (attrKind : Syntax) (k : SyntaxNode
     expandNoKindMacroRulesAux alts "macro_rules" fun kind? alts =>
       `($[$doc?:docComment]? $attrKind:attrKind macro_rules $[(kind := $(mkIdent <$> kind?))]? $alts:matchAlt*)
   | `($[$doc?:docComment]? $attrKind:attrKind macro_rules (kind := $kind) | $x:ident => $rhs) =>
-    `($[$doc?:docComment]? @[$attrKind:attrKind macro $kind] def myMacro : Macro := fun $x:ident => $rhs)
+    `($[$doc?:docComment]? @[$attrKind:attrKind macro $kind]
+      aux_def macroRules $kind : Macro := fun $x:ident => $rhs)
   | `($[$doc?:docComment]? $attrKind:attrKind macro_rules (kind := $kind) $alts:matchAlt*) =>
     do elabMacroRulesAux doc? attrKind (← resolveSyntaxKind kind.getId) alts
   | _  => throwUnsupportedSyntax

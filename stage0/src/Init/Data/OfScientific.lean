@@ -14,7 +14,14 @@ import Init.Data.Nat
    - `OfScientific.ofScientific 121 false 100` represents `121e100`
 -/
 class OfScientific (α : Type u) where
-  ofScientific : Nat → Bool → Nat → α
+  ofScientific (mantissa : Nat) (exponentSign : Bool) (decimalExponent : Nat) : α
+
+/-- Computes `m * 2^e`. -/
+def Float.ofBinaryScientific (m : Nat) (e : Int) : Float :=
+  let s := m.log2 - 63
+  let m := (m >>> s).toUInt64
+  let e := e + s
+  m.toFloat.scaleB e
 
 /-
   The `OfScientifi Float` must have priority higher than `mid` since
@@ -25,4 +32,23 @@ class OfScientific (α : Type u) where
 -/
 @[defaultInstance mid+1]
 instance : OfScientific Float where
-  ofScientific m s e := Float.ofScientific m s e
+  ofScientific m s e :=
+    if s then
+      let s := 64 - m.log2 -- ensure we have 64 bits of mantissa left after division
+      let m := (m <<< (3 * e + s)) / 5^e
+      Float.ofBinaryScientific m (-4 * e - s)
+    else
+      Float.ofBinaryScientific (m * 5^e) e
+
+@[export lean_float_of_nat]
+def Float.ofNat (n : Nat) : Float :=
+  OfScientific.ofScientific n false 0
+
+def Float.ofInt : Int → Float
+  | Int.ofNat n => Float.ofNat n
+  | Int.negSucc n => Float.neg (Float.ofNat (Nat.succ n))
+
+instance : OfNat Float n   := ⟨Float.ofNat n⟩
+
+abbrev Nat.toFloat (n : Nat) : Float :=
+  Float.ofNat n

@@ -522,7 +522,8 @@ install(CODE "execute_process(COMMAND sh -c \"cp ${CMAKE_BINARY_DIR}/lib/*.* \${
 install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION lib/lean
         FILES_MATCHING
         PATTERN "*.lean"
-        PATTERN "*.md")
+        PATTERN "*.md"
+        PATTERN examples EXCLUDE)
 
 file(COPY ${CMAKE_SOURCE_DIR}/include/lean DESTINATION ${CMAKE_BINARY_DIR}/include
   FILES_MATCHING PATTERN "*.h")

@@ -175,7 +175,7 @@ structure PackageConfig extends WorkspaceConfig where
 
   /--
     The `PackageFacet` to build on a bare `lake build` of the package.
-    Can be one of `bin`, `staticLib`, or `oleans`. Defaults to `bin`.
+    Can be one of `bin`, `staticLib`, `sharedLib`, or `oleans`. Defaults to `bin`.
     See `lake help build` for more info on build facets.
   -/
   defaultFacet : PackageFacet := PackageFacet.bin

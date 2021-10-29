@@ -95,3 +95,15 @@ if (lean_io_result_is_ok(res)) {
 //lean_init_task_manager(); // necessary if you (indirectly) use `Task`
 lean_io_mark_end_initialization();
 ```
+
+## `@[extern]` in the Interpreter
+
+The interpreter can run Lean declarations for which symbols are available in loaded shared libraries, which includes `@[extern]` declarations.
+Thus to e.g. run `#eval` on such a declaration, you need to
+1. compile (at least) the module containing the declaration and its dependencies into a shared library, and then
+1. pass this library to `lean --load-dynlib=` to run code `import`ing this module.
+
+Note that it is not sufficient to load the foreign library containing the external symbol because the interpreter depends on code that is emitted for each `@[extern]` declaration.
+Thus it is not possible to interpret an `@[extern]` declaration in the same file.
+
+See `tests/compiler/foreign` for an example.

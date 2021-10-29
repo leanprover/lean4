@@ -25,7 +25,7 @@ def Package.moduleOTarget (mod : Name) (self : Package) : FileTarget :=
   let cTarget := self.moduleOleanAndCTarget mod |>.cTarget
   leanOFileTarget oFile cTarget self.moreLeancArgs
 
--- # Build Package Lib
+-- # Build Package Static Lib
 
 protected def ActivePackageTarget.staticLibTarget (self : ActivePackageTarget ActiveOleanAndCTargets) : FileTarget :=
   staticLibTarget self.package.staticLibFile self.oFileTargets
@@ -37,8 +37,26 @@ protected def Package.staticLibTarget (self : Package) : FileTarget :=
  Target.mk self.staticLibFile do
     (← self.buildOleanAndCTarget).staticLibTarget.materializeAsync
 
-def Package.buildLib (self : Package) : BuildM FilePath :=
+def Package.buildStaticLib (self : Package) : BuildM FilePath :=
   self.staticLibTarget.build
+
+-- # Build Package Shared Lib
+
+protected def Package.sharedLibTarget (self : Package) : FileTarget :=
+  Target.mk self.sharedLibFile do
+    let depTargets ← self.buildDepTargets buildOleanAndCTargetWithDepTargets
+    let depTarget ← self.buildDepTargetWith depTargets
+    let moreOleanDirs := packageTargetsToOleanDirs depTargets
+    let build := self.recBuildModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
+    let pkgTarget ← self.buildTarget build
+    let linkTargets :=
+      pkgTarget.oFileTargets ++ self.moreLibTargets ++
+      depTargets.concatMap (·.staticLibTargets)
+    let target := leanSharedLibTarget self.sharedLibFile linkTargets
+    target.materializeAsync
+
+def Package.buildSharedLib (self : Package) : BuildM FilePath :=
+  self.sharedLibTarget.build
 
 -- # Build Package Bin
 

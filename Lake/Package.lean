@@ -44,6 +44,12 @@ def defaultBinRoot : Name := `Main
 -- # Auxiliary Definitions and Helpers
 --------------------------------------------------------------------------------
 
+/-- The shared library file extension for the `Platform`. -/
+def sharedLibExt : String :=
+  if Platform.isWindows then "dll"
+  else if Platform.isOSX  then "dynlib"
+  else "so"
+
 /--
   The `src` of a `Dependency`.
 
@@ -85,6 +91,7 @@ deriving Inhabited, Repr
 inductive PackageFacet
 | /-- The package's binary. -/ bin
 | /-- The package's static library. -/ staticLib
+| /-- The package's shared library. -/ sharedLib
 | /-- The package's `.olean` files. -/ oleans
 deriving BEq, DecidableEq, Repr
 instance : Inhabited PackageFacet := ⟨PackageFacet.bin⟩
@@ -450,16 +457,28 @@ def libDir (self : Package) : FilePath :=
   self.buildDir / self.config.libDir
 
 /-- The package's `libName` configuration. -/
-def staticLibName (self : Package) : FilePath :=
+def libName (self : Package) : FilePath :=
   self.config.libName
 
-/-- The file name of package's static library (i.e., `lib{staticLibName}.a`) -/
+/-- The file name of package's static library (i.e., `lib{libName}.a`) -/
 def staticLibFileName (self : Package) : FilePath :=
-  s!"lib{self.staticLibName}.a"
+  s!"lib{self.libName}.a"
 
 /-- The path to the package's static library. -/
 def staticLibFile (self : Package) : FilePath :=
   self.libDir / self.staticLibFileName
+
+/-- The package's `libName` configuration. -/
+def self.sharedLibName (self : Package) : FilePath :=
+  self.config.libName
+
+/-- The file name of package's shared library. -/
+def sharedLibFileName (self : Package) : FilePath :=
+  s!"{self.libName}.{sharedLibExt}"
+
+/-- The path to the package's shared library. -/
+def sharedLibFile (self : Package) : FilePath :=
+  self.libDir / self.sharedLibFileName
 
 /-- The package's `binRoot` configuration. -/
 def binRoot (self : Package) : Name :=

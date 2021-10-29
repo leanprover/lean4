@@ -60,12 +60,17 @@ def staticLibTarget (libFile : FilePath)
   fileTargetWithDepArray libFile oFileTargets fun oFiles => do
     compileStaticLib libFile oFiles ar
 
+def leanSharedLibTarget (binFile : FilePath)
+(linkTargets : Array FileTarget) (linkArgs : Array String := #[]) : FileTarget :=
+  fileTargetWithDepArray binFile linkTargets fun links => do
+    compileSharedLib binFile links linkArgs (← getLeanc)
+
 def binTarget (binFile : FilePath) (linkTargets : Array FileTarget)
 (linkArgs : Array String := #[]) (linker : FilePath := "cc") : FileTarget :=
    fileTargetWithDepArray binFile linkTargets fun links => do
     compileBin binFile links linkArgs linker
 
-def leanBinTarget (binFile : FilePath) (linkTargets : Array FileTarget)
-(linkArgs : Array String := #[]) (linker : FilePath := "cc") : FileTarget :=
+def leanBinTarget (binFile : FilePath)
+(linkTargets : Array FileTarget) (linkArgs : Array String := #[]) : FileTarget :=
   fileTargetWithDepArray binFile linkTargets fun links => do
     compileBin binFile links linkArgs (← getLeanc)

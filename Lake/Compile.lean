@@ -68,6 +68,14 @@ def compileStaticLib (libFile : FilePath)
     args := #["rcs", libFile.toString] ++ oFiles.map toString
   }
 
+def compileSharedLib (libFile : FilePath) (linkFiles : Array FilePath)
+(linkArgs : Array String := #[]) (linker : FilePath := "cc") : BuildM PUnit := do
+  createParentDirs libFile
+  proc {
+    cmd := linker.toString
+    args := #["-shared", "-o", libFile.toString] ++ linkFiles.map toString ++ linkArgs
+  }
+
 def compileBin (binFile : FilePath) (linkFiles : Array FilePath)
 (linkArgs : Array String := #[]) (linker : FilePath := "cc") : BuildM PUnit := do
   createParentDirs binFile

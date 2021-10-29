@@ -98,6 +98,7 @@ The package must be the root package or one of its direct dependencies
 PACKAGE FACETS:
   bin                   build the package's binary
   staticLib             build the package's static library
+  sharedLib             build the package's shared library
   oleans                build the package's *.olean files
 
 MODULE FACETS:

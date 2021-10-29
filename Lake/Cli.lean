@@ -34,6 +34,7 @@ def Package.defaultTarget (self : Package) : OpaqueTarget :=
   match self.defaultFacet with
   | bin => self.binTarget.withoutInfo
   | staticLib => self.staticLibTarget.withoutInfo
+  | sharedLib => self.sharedLibTarget.withoutInfo
   | oleans =>  self.oleanTarget.withoutInfo
 
 -- # CLI
@@ -312,6 +313,8 @@ partial def parseTargetSpec (rootPkg : Package) (spec : String) : CliM OpaqueTar
         return pkg.binTarget.withoutInfo
       else if facet == "staticLib" then
         return pkg.staticLibTarget.withoutInfo
+      else if facet == "sharedLib" then
+        return pkg.sharedLibTarget.withoutInfo
       else if facet == "oleans" then
         return pkg.oleanTarget.withoutInfo
       else

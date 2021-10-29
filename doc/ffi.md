@@ -1,5 +1,8 @@
 # Foreign Function Interface
 
+NOTE: The current interface was designed for internal use in Lean and should be considered **unstable**.
+It will be refined and extended in the future.
+
 As Lean is written partially in Lean itself and partially in C++, it offers efficient interoperability between the two languages (or rather, between Lean and any language supporting C interfaces).
 This support is however currently limited to transferring Lean data types; in particular, it is not possible yet to pass or return compound data structures such as C `struct`s by value from or to Lean.
 
@@ -24,7 +27,8 @@ If `n` is greater than 0, the corresponding C declaration is
 ```c
 s sym(t₁, ..., tₘ);
 ```
-where the parameter types `tᵢ` are the C translation of the `αᵢ` with all *irrelevant* types removed; see next section.
+where the parameter types `tᵢ` are the C translation of the `αᵢ` as in the next section.
+In the case of `@[extern]` all *irrelevant* types are removed first; see next section.
 
 ### Translating Types from Lean to C
 
@@ -42,11 +46,13 @@ where the parameter types `tᵢ` are the C translation of the `αᵢ` with all *
   is represented by the representation of that parameter's type.
   
   For example, `{ x : α // p }`, the `Subtype` structure of a value of type `α` and an irrelevant proof, is represented by the representation of `α`.
-* A universe `Sort u`, type constructor `... → Sort u`, or proposition `p : Prop` is *irrelevant* and is usually erased (see above)
 * `Nat` is represented by `lean_object *`.
   Its runtime value is either a pointer to an opaque bignum object or, if the lowest bit of the "pointer" is 1 (`lean_is_scalar`), an encoded unboxed natural number (`lean_box`/`lean_unbox`).
+* A universe `Sort u`, type constructor `... → Sort u`, or proposition `p : Prop` is *irrelevant* and is either statically erased (see above) or represented as a `lean_object *` with the runtime value `lean_box(0)`
 * Any other type is represented by `lean_object *`.
-  Its runtime value is a pointer to an object of a subtype of `lean_object` (see respective declarations in `lean.h`).
+  Its runtime value is a pointer to an object of a subtype of `lean_object` (see respective declarations in `lean.h`) or the unboxed value `lean_box(cidx)` for the `cidx`th constructor of an inductive type if this constructor does not have any relevant parameters.
+
+  Example: the runtime value of `u : Unit` is always `lean_box(0)`.
 
 ### Borrowing
 

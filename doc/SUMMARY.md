@@ -46,6 +46,7 @@
   - [Task and Thread](./task.md)
 - [Functions](./functions.md)
 - [Tactics](./tactics.md)
+- [Foreign Function Interface](./ffi.md)
 
 # Other
 

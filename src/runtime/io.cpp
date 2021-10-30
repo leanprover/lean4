@@ -445,7 +445,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_allocprof(b_obj_arg msg, obj_arg fn, obj_
     return apply_1(fn, w);
 }
 
-/* getNumHeartbeats : IO Nat */
+/* getNumHeartbeats : EIO ε Nat */
 extern "C" LEAN_EXPORT obj_res lean_io_get_num_heartbeats(obj_arg /* w */) {
     return io_result_mk_ok(lean_uint64_to_nat(get_num_heartbeats()));
 }
@@ -808,16 +808,13 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2
     return io_result_mk_ok(box(r));
 }
 
+/* {α : Type} (act : RealM α) (_ : IO.RealWorld) : α */
 static obj_res lean_io_as_task_fn(obj_arg act, obj_arg) {
     object_ref r(apply_1(act, io_mk_world()));
-    if (io_result_is_ok(r.raw())) {
-        return mk_except_ok(object_ref(io_result_get_value(r.raw()), true));
-    } else {
-        return mk_except_error(object_ref(io_result_get_error(r.raw()), true));
-    }
+    return object_ref(io_result_get_value(r.raw()), true).steal();
 }
 
-/* asTask {ε α : Type} (act : EIO ε α) (prio : Nat) : EIO Empty (Task (Except ε α)) */
+/* asTask {α : Type} (act : RealM α) (prio : Nat) : RealM (Task α) */
 extern "C" LEAN_EXPORT obj_res lean_io_as_task(obj_arg act, obj_arg prio, obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_as_task_fn, 2, 1);
     lean_closure_set(c, 0, act);
@@ -825,33 +822,21 @@ extern "C" LEAN_EXPORT obj_res lean_io_as_task(obj_arg act, obj_arg prio, obj_ar
     return io_result_mk_ok(t);
 }
 
-static obj_res lean_io_map_task_fn(obj_arg f, obj_arg a) {
+/* {α : Type u} {β : Type} (f : α → RealM β) (a : RealM α) : β */
+static obj_res lean_io_bind_task_fn(obj_arg f, obj_arg a) {
     object_ref r(apply_2(f, a, io_mk_world()));
-    if (io_result_is_ok(r.raw())) {
-        return mk_except_ok(object_ref(io_result_get_value(r.raw()), true));
-    } else {
-        return mk_except_error(object_ref(io_result_get_error(r.raw()), true));
-    }
+    return object_ref(io_result_get_value(r.raw()), true).steal();
 }
 
-/*  mapTask {α : Type u} {ε β : Type} (f : α → EIO ε β) (t : Task α) (prio : Nat) : EIO Empty (Task (Except ε β)) */
+/*  mapTask {α : Type u} {β : Type} (f : α → RealM β) (t : Task α) (prio : Nat) : RealM (Task β) */
 extern "C" LEAN_EXPORT obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg prio, obj_arg) {
-    object * c = lean_alloc_closure((void*)lean_io_map_task_fn, 2, 1);
+    object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);
     object * t2 = lean_task_map_core(c, t, lean_unbox(prio), /* keep_alive */ true);
     return io_result_mk_ok(t2);
 }
 
-static obj_res lean_io_bind_task_fn(obj_arg f, obj_arg a) {
-    object_ref r(apply_2(f, a, io_mk_world()));
-    if (io_result_is_ok(r.raw())) {
-        return object_ref(io_result_get_value(r.raw()), true).steal();
-    } else {
-        return task_pure(mk_except_error(object_ref(io_result_get_error(r.raw()), true)));
-    }
-}
-
-/*  bindTask {α : Type u} {ε β : Type} (t : Task α) (f : α → EIO ε (Task (Except ε β))) (prio : Nat) : EIO Empty (Task (Except ε β)) */
+/*  bindTask {α : Type u} {β : Type} (t : Task α) (f : α → RealM (Task β)) (prio : Nat) : RealM (Task β) */
 extern "C" LEAN_EXPORT obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg prio, obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);

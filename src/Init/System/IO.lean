@@ -51,6 +51,11 @@ instance : MonadLift RealM (EIO ε) := ⟨RealM.toEIO⟩
   | EStateM.Result.ok a s     => EStateM.Result.ok (Except.ok a) s
   | EStateM.Result.error ex s => EStateM.Result.ok (Except.error ex) s
 
+@[inline] def EIO.toRealM_ (self : EIO ε α) : RealM Unit :=
+  fun s => match self s with
+  | EStateM.Result.ok a s     => EStateM.Result.ok () s
+  | EStateM.Result.error ex s => EStateM.Result.ok () s
+
 @[inline] def EIO.catchExceptions (self : EIO ε α) (h : ε → RealM α) : RealM α :=
   fun s => match self s with
   | EStateM.Result.ok a s     => EStateM.Result.ok a s
@@ -98,15 +103,16 @@ set_option compiler.extract_closed false in
 namespace RealM
 
 /--
-  Run `act` in a separate `Task`. This is similar to Haskell's [`unsafeInterleaveIO`](http://hackage.haskell.org/package/base-4.14.0.0/docs/System-IO-Unsafe.html#v:unsafeInterleaveIO),
+  Run the action in a separate `Task`.
+  This is similar to Haskell's [`unsafeInterleaveIO`](http://hackage.haskell.org/package/base-4.14.0.0/docs/System-IO-Unsafe.html#v:unsafeInterleaveIO),
   except that the `Task` is started eagerly as usual. Thus pure accesses to the `Task` do not influence the impure `act`
   computation.
   Unlike with pure tasks created by `Task.spawn`, tasks created by this function will be run even if the last reference
-  to the task is dropped. `act` should manually check for cancellation via `IO.checkCanceled` if it wants to react
+  to the task is dropped. The action should manually check for cancellation via `IO.checkCanceled` if it wants to react
   to that. -/
 @[extern "lean_io_as_task"]
-constant asTask (act : RealM α) (prio := Task.Priority.default) : RealM (Task α) :=
-  Task.pure <$> act
+constant asTask (self : RealM α) (prio := Task.Priority.default) : RealM (Task α) :=
+  Task.pure <$> self
 
 /-- See `RealM.asTask`. -/
 @[extern "lean_io_map_task"]
@@ -131,8 +137,8 @@ end RealM
 namespace EIO
 
 /-- `EIO` specialization of `RealM.asTask`. -/
-@[inline] def asTask (act : EIO ε α) (prio := Task.Priority.default) : RealM (Task (Except ε α)) :=
-  act.toRealM.asTask prio
+@[inline] def asTask (self : EIO ε α) (prio := Task.Priority.default) : RealM (Task (Except ε α)) :=
+  self.toRealM.asTask prio
 
 /-- `EIO` specialization of `RealM.mapTask`. -/
 @[inline] def mapTask (f : α → EIO ε β) (t : Task α) (prio := Task.Priority.default) : RealM (Task (Except ε β)) :=
@@ -170,8 +176,8 @@ def sleep (ms : UInt32) : IO Unit :=
   fun s => dbgSleep ms fun _ => EStateM.Result.ok () s
 
 /-- `IO` specialization of `EIO.asTask`. -/
-@[inline] def asTask (act : IO α) (prio := Task.Priority.default) : RealM (Task (Except IO.Error α)) :=
-  EIO.asTask act prio
+@[inline] def asTask (self : IO α) (prio := Task.Priority.default) : RealM (Task (Except IO.Error α)) :=
+  EIO.asTask self prio
 
 /-- `IO` specialization of `EIO.mapTask`. -/
 @[inline] def mapTask (f : α → IO β) (t : Task α) (prio := Task.Priority.default) : RealM (Task (Except IO.Error β)) :=

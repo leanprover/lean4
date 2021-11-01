@@ -288,11 +288,9 @@ section NotificationHandling
 
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
   let st ← get
-  match st.rpcSessions.find? p.sessionId with
-  | none =>
-    -- TODO(WN): should only print on log-level debug, if we had log-levels
-    IO.eprintln s!"Trying to release refs '{p.refs}' from outdated RPC session '{p.sessionId}'."
-  | some seshRef =>
+  -- NOTE(WN): when the worker restarts e.g. due to changed imports, we may receive `rpc/release`
+  -- for the previous RPC session. This is fine, just ignore.
+  if let some seshRef := st.rpcSessions.find? p.sessionId then
     let mut sesh ← seshRef.get
     for ref in p.refs do
       sesh := sesh.release ref |>.snd

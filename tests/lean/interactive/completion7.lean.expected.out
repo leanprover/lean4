@@ -8,7 +8,7 @@
 {"textDocument": {"uri": "file://completion7.lean"},
  "position": {"line": 2, "character": 11}}
 {"items":
- [{"label": "intro", "detail": "?a → ?b → ?a ∧ ?b"},
-  {"label": "left", "detail": "?a ∧ ?b → ?a"},
-  {"label": "right", "detail": "?a ∧ ?b → ?b"}],
+ [{"label": "intro", "detail": "a → b → a ∧ b"},
+  {"label": "left", "detail": "a ∧ b → a"},
+  {"label": "right", "detail": "a ∧ b → b"}],
  "isIncomplete": true}

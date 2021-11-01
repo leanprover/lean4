@@ -563,11 +563,15 @@ def initAndRunWatchdogAux : ServerM Unit := do
     discard $ st.hIn.readLspNotificationAs "initialized" InitializedParams
     let clientTask ← runClientTask
     mainLoop clientTask
-    let Message.notification "exit" none ← st.hIn.readLspMessage
-      | throwServerError "Expected an exit notification"
   catch err =>
     shutdown
     throw err
+  /- NOTE(WN): It looks like instead of sending the `exit` notification,
+  VSCode just closes the stream. In that case, pretend we got an `exit`. -/
+  let Message.notification "exit" none ←
+    try st.hIn.readLspMessage
+    catch _ => pure (Message.notification "exit" none)
+    | throwServerError "Got `shutdown` request, expected an `exit` notification"
 
 def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
   let mut workerPath ← IO.appPath

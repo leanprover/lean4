@@ -63,6 +63,7 @@
   - [Windows MSYS2 Setup](./make/msys2.md)
   - [Windows with WSL](./make/wsl.md)
   - [Nix Setup (*Experimental*)](./make/nix.md)
+- [Foreign Function Interface](./dev/ffi.md)
 - [Unit Testing](./dev/testing.md)
 - [Building This Manual](./dev/mdbook.md)
 - [Fixing Tests](./dev/fixing_tests.md)

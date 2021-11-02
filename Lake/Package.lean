@@ -8,6 +8,7 @@ import Lean.Elab.Import
 import Std.Data.HashMap
 import Lake.LeanVersion
 import Lake.BuildTarget
+import Lake.MainM
 import Lake.Glob
 
 open Std System
@@ -96,11 +97,20 @@ inductive PackageFacet
 deriving BEq, DecidableEq, Repr
 instance : Inhabited PackageFacet := ⟨PackageFacet.bin⟩
 
+/-- The type of a `Script`'s function. Same as that of a `main` function. -/
+abbrev ScriptFn := (args : List String) → IO UInt32
+
 /--
-  A package `Script` is an arbitrary function that is
+  A package `Script` is a `ScriptFn` definition that is
   indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
 -/
-abbrev Script := (args : List String) → IO UInt32
+structure Script where
+  fn : ScriptFn
+  doc? : Option String
+  deriving Inhabited
+
+def Script.run (args : List String) (self : Script) : IO UInt32 :=
+  self.fn args
 
 /-- Converts a snake case, kebab case, or lower camel case `String` to upper camel case. -/
 def toUpperCamelCaseString (str : String) : String :=

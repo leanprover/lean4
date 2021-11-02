@@ -35,9 +35,10 @@ unsafe def evalPackageDecl (env : Environment) (declName : Name)
 
 /-- Evaluate a `script` declaration to its respective `Script`. -/
 unsafe def evalScriptDecl
-(env : Environment) (declName : Name) (leanOpts := Options.empty) : IO Script :=
-  IO.ofExcept <| Id.run <| ExceptT.run <|
-    env.evalConstCheck Script leanOpts ``Script declName
+(env : Environment) (declName : Name) (leanOpts := Options.empty) : IO Script := do
+  let fn ← IO.ofExcept <| Id.run <| ExceptT.run <|
+    env.evalConstCheck ScriptFn leanOpts ``ScriptFn declName
+  return {fn, doc? := findDocString? env declName}
 
 namespace Package
 

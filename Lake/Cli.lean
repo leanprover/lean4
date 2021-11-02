@@ -22,7 +22,7 @@ namespace Lake
 
 def Package.run (script : String) (args : List String) (self : Package) : IO UInt32 :=
   if let some script := self.scripts.find? script then
-    script args
+    script.run args
   else do
     throw <| IO.userError s!"unknown script {script}"
 
@@ -200,9 +200,15 @@ def longOptionOrEq (optStr : String) : CliM PUnit :=
 -- ## Commands
 
 /-- Run the given script from the given package with the given arguments. -/
-def script (pkg : Package) (name : String) (args : List String) :  CliM UInt32 := do
+def script (pkg : Package) (name : String) (args : List String) :  CliM PUnit := do
   if let some script := pkg.scripts.find? name then
-    script args
+    if (← getWantsHelp) then
+      if let some doc := script.doc? then
+        IO.print doc
+      else
+        IO.println s!"no documentation provided for `{name}`"
+    else
+      exit (← script.run args)
   else
     pkg.scripts.forM (m := CliM) fun name _ => do
       IO.println <| name.toString (escape := false)
@@ -319,23 +325,21 @@ def build (rootPkg : Package) (targetSpecs : List String) : CliM PUnit := do
     runBuildM <| targets.forM (·.build)
 
 def server (leanInstall : LeanInstall) (pkg : Package) (args : List String) : CliM PUnit := do
-  let rc ← runIO do
-    let child ← IO.Process.spawn {
-      cmd := leanInstall.lean.toString,
-      args := #["--server"] ++ pkg.moreServerArgs ++ args
-    }
-    child.wait
-  exit rc
+  let child ← IO.Process.spawn {
+    cmd := leanInstall.lean.toString,
+    args := #["--server"] ++ pkg.moreServerArgs ++ args
+  }
+  exit (← child.wait)
 
 def command : (cmd : String) → CliM PUnit
-| "new"         => do noArgsRem <| runIO <| new (← takeArg)
-| "init"        => do noArgsRem <| runIO <| init (← takeArg)
-| "run"         => do exit <| ← noArgsRem <| script (← loadPkg []) (← takeArg) (← getSubArgs)
+| "new"         => do noArgsRem <| new (← takeArg)
+| "init"        => do noArgsRem <| init (← takeArg)
+| "run"         => do noArgsRem <| script (← loadPkg []) (← takeArg) (← getSubArgs)
 | "server"      => do noArgsRem <| server (← getLeanInstall) (← loadPkg []) (← getSubArgs)
 | "configure"   => do noArgsRem <| runBuildM (← loadPkg (← getSubArgs)).buildDepOleans
 | "print-paths" => do printPaths (← takeArgs)
 | "build"       => do build (← loadPkg (← getSubArgs)) (← takeArgs)
-| "clean"       => do noArgsRem <| runIO <| (← loadPkg (← getSubArgs)).clean
+| "clean"       => do noArgsRem <| (← loadPkg (← getSubArgs)).clean
 | "help"        => do IO.println <| help (← takeArg?)
 | "self-check"  => noArgsRem <| verifyInstall
 | cmd           => error s!"unknown command '{cmd}'"
@@ -345,9 +349,13 @@ def processArgs : CliM PUnit := do
   | [] => IO.println usage
   | ["--version"] => IO.println uiVersionString
   | _ => -- normal CLI
-    processOptions
+    processLeadingOptions
     if let some cmd ← takeArg? then
-      if (← getWantsHelp) then IO.println <| help cmd else command cmd
+      if (← getWantsHelp) then
+        IO.println <| help cmd
+      else
+        processOptions
+        command cmd
     else
       if (← getWantsHelp) then IO.println usage else error "expected command"
 

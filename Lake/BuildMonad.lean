@@ -22,7 +22,7 @@ structure BuildContext where
   lakeInstall : LakeInstall
   deriving Inhabited
 
-abbrev BuildCoreM := LogT <| EIO PUnit
+abbrev BuildCoreM := LogMethodsT RealM <| EIO PUnit
 abbrev BuildM := ReaderT BuildContext BuildCoreM
 
 --------------------------------------------------------------------------------
@@ -49,10 +49,10 @@ def getLakeInstall : BuildM LakeInstall :=
 
 namespace BuildCoreM
 
-def run (logMethods : LogMethods (EIO PUnit)) (self : BuildCoreM α) : IO α :=
+def run (logMethods : LogMethods RealM) (self : BuildCoreM α) : IO α :=
   ReaderT.run self logMethods |>.toIO fun _ => IO.userError "build failed"
 
-def runWith (logMethods : LogMethods (EIO PUnit)) (self : BuildCoreM α) : EIO PUnit α :=
+def runWith (logMethods : LogMethods RealM) (self : BuildCoreM α) : EIO PUnit α :=
   ReaderT.run self logMethods
 
 protected def failure : BuildCoreM α :=
@@ -74,9 +74,12 @@ def runIO (x : IO α) : BuildCoreM α := do
 
 instance : MonadLift IO BuildCoreM := ⟨runIO⟩
 
+instance : MonadLift (LogT IO) BuildCoreM where
+  monadLift x := fun meths => runIO (x.run meths.lift) meths
+
 end BuildCoreM
 
-def BuildM.run (logMethods : LogMethods (EIO PUnit)) (ctx : BuildContext) (self : BuildM α) : IO α :=
+def BuildM.run (logMethods : LogMethods RealM) (ctx : BuildContext) (self : BuildM α) : IO α :=
   self ctx |>.run logMethods
 
 def failOnBuildCycle [ToString k] : Except (List k) α → BuildM α

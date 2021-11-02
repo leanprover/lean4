@@ -23,7 +23,7 @@ instance [MonadLift m n] [MonadLog m] : MonadLog n where
 
 -- # Context
 
-structure LogMethods (m : Type → Type) : Type where
+structure LogMethods (m : Type u → Type v) where
   logInfo : String → m PUnit
   logWarning : String → m PUnit
   logError : String → m PUnit
@@ -45,30 +45,49 @@ def eio [MonadLiftT RealM m] : LogMethods m where
   logWarning msg := RealM.runIO_ <| IO.eprintln s!"warning: {msg}"
   logError msg := RealM.runIO_ <| IO.eprintln s!"error: {msg}"
 
+def lift [MonadLiftT m n] (self : LogMethods m) : LogMethods n where
+  logInfo msg := liftM <| self.logInfo msg
+  logWarning msg := liftM <| self.logWarning msg
+  logError msg := liftM <| self.logError msg
+
 end LogMethods
 
--- # Transformer
+-- # Transformers
 
-abbrev LogT (m : Type → Type) :=
-  ReaderT (LogMethods m) m
+abbrev LogMethodsT (m : Type u → Type v) (n : Type v → Type w) :=
+   ReaderT (LogMethods m) n
 
-instance [Pure m] [Inhabited α] : Inhabited (LogT m α) :=
+instance [Pure n] [Inhabited α] : Inhabited (LogMethodsT m n α) :=
   ⟨fun _ => pure Inhabited.default⟩
 
-instance [Monad m] : MonadLog (LogT m) where
+instance [Monad n] [MonadLiftT m n] : MonadLog (LogMethodsT m n) where
   logInfo msg := do (← read).logInfo msg
   logWarning msg := do (← read).logWarning msg
   logError msg := do (← read).logError msg
 
+namespace LogMethodsT
+
+abbrev run (methods : LogMethods m) (self : LogMethodsT m n α) : n α :=
+  ReaderT.run self methods
+
+abbrev runWith (methods : LogMethods m) (self : LogMethodsT m n α) : n α :=
+  ReaderT.run self methods
+
+abbrev adaptMethods [Monad n]
+(f : LogMethods m → LogMethods m') (self : LogMethodsT m' n α) : LogMethodsT m n α :=
+  ReaderT.adapt f self
+
+end LogMethodsT
+
+abbrev LogT (m : Type → Type) :=
+  LogMethodsT m m
+
 namespace LogT
 
-abbrev run (methods :  LogMethods m) (self : LogT m α) : m α :=
+def run (methods : LogMethods m) (self : LogT m α) : m α :=
   ReaderT.run self methods
 
-abbrev runWith (methods :  LogMethods m) (self : LogT m α) : m α :=
+def runWith (methods : LogMethods m) (self : LogT m α) : m α :=
   ReaderT.run self methods
-
-abbrev adaptMethods [Monad m] (f : LogMethods m → LogMethods m) (self : LogT m α) : LogT m α :=
-  ReaderT.adapt f self
 
 end LogT

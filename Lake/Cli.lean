@@ -271,7 +271,7 @@ def resolvePkgSpec (rootPkg : Package) (spec : String) : CliM Package := do
   if pkgName == rootPkg.name then
     return rootPkg
   if let some dep := rootPkg.dependencies.find? (·.name == pkgName) then
-    runIO <| resolveDep rootPkg dep
+    runIO <| LogMethodsT.run LogMethods.io <| resolveDep rootPkg dep
   else
     error s!"unknown package `{spec}`"
 

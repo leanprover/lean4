@@ -5,6 +5,6 @@
    "documentation":
    {"value": "Insert element `a` at position `i`.\n  Pre: `i < as.size` ",
     "kind": "markdown"},
-   "detail": "Array ?α → Nat → ?α → Array ?α"},
-  {"label": "insertAtAux", "detail": "Nat → Array ?α → Nat → Array ?α"}],
+   "detail": "Array α → Nat → α → Array α"},
+  {"label": "insertAtAux", "detail": "Nat → Array α → Nat → Array α"}],
  "isIncomplete": true}

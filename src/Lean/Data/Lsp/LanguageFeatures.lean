@@ -77,9 +77,9 @@ inductive DocumentHighlightKind where
 
 instance : ToJson DocumentHighlightKind where
  toJson
-   | DocumentHighlightKind.text => 1
-   | DocumentHighlightKind.read => 2
-   | DocumentHighlightKind.write => 3
+   | DocumentHighlightKind.text => 0
+   | DocumentHighlightKind.read => 1
+   | DocumentHighlightKind.write => 2
 
 structure DocumentHighlight where
   range : Range

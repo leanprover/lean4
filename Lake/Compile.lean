@@ -8,7 +8,7 @@ import Lake.BuildMonad
 namespace Lake
 open System
 
-def createParentDirs (path : FilePath) : BuildM PUnit := do
+def createParentDirs (path : FilePath) : IO PUnit := do
   if let some dir := path.parent then IO.FS.createDirAll dir
 
 def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
@@ -18,10 +18,13 @@ def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
     match args.cwd with
     | some cwd => s!"{cmdStr}    # in directory {cwd}"
     | none     => cmdStr
-  let child ← IO.Process.spawn args
-  let exitCode ← child.wait
-  if exitCode != 0 then -- log errors early
-    logError s!"external command {args.cmd} exited with status {exitCode}"
+  let out ← IO.Process.output args
+  unless out.stdout.isEmpty do
+    logInfo out.stdout
+  unless out.stderr.isEmpty do
+    logError out.stderr
+  if out.exitCode != 0 then
+    logError s!"external command {args.cmd} exited with status {out.exitCode}"
     failure
 
 def compileOlean (leanFile oleanFile : FilePath)

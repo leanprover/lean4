@@ -882,7 +882,7 @@ void initialize_library_util() {
     if (std::strlen(LEAN_SPECIAL_VERSION_DESC) > 0) {
         out << "-" << LEAN_SPECIAL_VERSION_DESC;
     }
-    if (std::strcmp(LEAN_GITHASH, "GITDIR-NOTFOUND") == 0) {
+    if (std::strlen(LEAN_GITHASH) == 0) {
         if (std::strcmp(LEAN_PACKAGE_VERSION, "NOT-FOUND") != 0) {
             out << ", package " << LEAN_PACKAGE_VERSION;
         }

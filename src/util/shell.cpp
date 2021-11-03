@@ -301,7 +301,7 @@ void load_plugin(std::string path) {
 #ifdef LEAN_WINDOWS
     HMODULE h = LoadLibrary(path.c_str());
     if (!h) {
-        throw exception(sstream() << "error loading plugin " << path);
+        throw exception(sstream() << "error loading plugin " << path << ": " << GetLastError());
     }
     init = reinterpret_cast<void *>(GetProcAddress(h, sym.c_str()));
 #else
@@ -324,7 +324,7 @@ void load_library(std::string path) {
 #ifdef LEAN_WINDOWS
     HMODULE h = LoadLibrary(path.c_str());
     if (!h) {
-        throw exception(sstream() << "error loading library " << path);
+        throw exception(sstream() << "error loading library " << path << ": " << GetLastError());
     }
 #else
     void *handle = dlopen(path.c_str(), RTLD_LAZY | RTLD_GLOBAL);

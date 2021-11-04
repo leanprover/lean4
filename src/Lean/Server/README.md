@@ -49,11 +49,12 @@ The worker implements this same processing order, but saves a `Snapshot` of the 
 Thanks to these snapshots, we can restart processing the file at the point of a change by discarding and rebuilding all snapshots after it.
 Snapshots are computed asynchronously and stored in an `AsyncList`, which is a list whose tail is potentially still being processed.
 Request handlers usually locate and access a single snapshot in the list based on the cursor position using `withWaitFindSnap`, which will wait for elaboration if it is not sufficiently progressed yet.
-After the snapshot is available, they can access its data, in particular the commands `Syntax` tree and elaboration `InfoTree`, in order to respond to the request.
+After the snapshot is available, they can access its data, in particular the command's `Syntax` tree and elaboration `InfoTree`, in order to respond to the request.
 
 The `InfoTree` is the second central server data structure.
 It is filled during elaboration with various metadata that cannot (easily) be recovered from the kernel declarations in the environment: goal & subterm infos including the precise local & metavariable contexts used during elaboration, macro expansion steps, ...
 Once a relevant `Snapshot` `snap` has been located, `snap.infoTree.smallestInfo?` and other functions from `Lean.Server.InfoUtils` can be used to further locate information about a document position.
+The test `tests/lean/infoTree.lean` shows how to inspect the info tree of a command right in the editor.
 
 ## Code style
 

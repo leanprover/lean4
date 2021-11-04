@@ -38,25 +38,27 @@ instance : OrElse (EIO ε α) := ⟨MonadExcept.orElse⟩
 instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
 
 /-- An `EIO` monad that cannot throw exceptions. -/
-abbrev RealM := EIO Empty
+def BaseIO := EIO Empty
 
-@[inline] def RealM.toEIO (self : RealM α) : EIO ε α :=
+instance : Monad BaseIO := inferInstanceAs (Monad (EIO Empty))
+
+@[inline] def BaseIO.toEIO (self : BaseIO α) : EIO ε α :=
   fun s => match self s with
   | EStateM.Result.ok a s => EStateM.Result.ok a s
 
-instance : MonadLift RealM (EIO ε) := ⟨RealM.toEIO⟩
+instance : MonadLift BaseIO (EIO ε) := ⟨BaseIO.toEIO⟩
 
-@[inline] def EIO.toRealM (self : EIO ε α) : RealM (Except ε α) :=
+@[inline] def EIO.toBaseIO (self : EIO ε α) : BaseIO (Except ε α) :=
   fun s => match self s with
   | EStateM.Result.ok a s     => EStateM.Result.ok (Except.ok a) s
   | EStateM.Result.error ex s => EStateM.Result.ok (Except.error ex) s
 
-@[inline] def EIO.toRealM_ (self : EIO ε α) : RealM Unit :=
+@[inline] def EIO.toBaseIO_ (self : EIO ε α) : BaseIO Unit :=
   fun s => match self s with
   | EStateM.Result.ok a s     => EStateM.Result.ok () s
   | EStateM.Result.error ex s => EStateM.Result.ok () s
 
-@[inline] def EIO.catchExceptions (self : EIO ε α) (h : ε → RealM α) : RealM α :=
+@[inline] def EIO.catchExceptions (self : EIO ε α) (h : ε → BaseIO α) : BaseIO α :=
   fun s => match self s with
   | EStateM.Result.ok a s     => EStateM.Result.ok a s
   | EStateM.Result.error ex s => h ex s
@@ -64,14 +66,14 @@ instance : MonadLift RealM (EIO ε) := ⟨RealM.toEIO⟩
 open IO (Error) in
 abbrev IO : Type → Type := EIO Error
 
-@[inline] def RealM.toIO (self : RealM α) : IO α :=
+@[inline] def BaseIO.toIO (self : BaseIO α) : IO α :=
   self
 
 @[inline] def EIO.toIO (f : ε → IO.Error) (self : EIO ε α) : IO α :=
   self.adaptExcept f
 
 @[inline] def EIO.toIO' (self : EIO ε α) : IO (Except ε α) :=
-  self.toRealM
+  self.toBaseIO
 
 @[inline] def IO.toEIO (f : IO.Error → ε) (self : IO α) : EIO ε α :=
   self.adaptExcept f
@@ -80,12 +82,12 @@ abbrev IO : Type → Type := EIO Error
    represents the "initial world". We don't want to cache this closed term. So, we disable
    the "extract closed terms" optimization. -/
 set_option compiler.extract_closed false in
-@[inline] unsafe def unsafeRealM (fn : RealM α) : α :=
+@[inline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
   match fn.run () with
   | EStateM.Result.ok a _ => a
 
 @[inline] unsafe def unsafeEIO (fn : EIO ε α) : Except ε α :=
-  unsafeRealM fn.toRealM
+  unsafeBaseIO fn.toBaseIO
 
 @[inline] unsafe def unsafeIO (fn : IO α) : Except IO.Error α :=
   unsafeEIO fn
@@ -100,7 +102,7 @@ set_option compiler.extract_closed false in
    The action `initializing` returns `true` iff it is invoked during initialization. -/
 @[extern "lean_io_initializing"] constant IO.initializing : IO Bool
 
-namespace RealM
+namespace BaseIO
 
 /--
   Run the action in a separate `Task`.
@@ -111,46 +113,46 @@ namespace RealM
   to the task is dropped. The action should manually check for cancellation via `IO.checkCanceled` if it wants to react
   to that. -/
 @[extern "lean_io_as_task"]
-constant asTask (self : RealM α) (prio := Task.Priority.default) : RealM (Task α) :=
+constant asTask (self : BaseIO α) (prio := Task.Priority.default) : BaseIO (Task α) :=
   Task.pure <$> self
 
-/-- See `RealM.asTask`. -/
+/-- See `BaseIO.asTask`. -/
 @[extern "lean_io_map_task"]
-constant mapTask (f : α → RealM β) (t : Task α) (prio := Task.Priority.default) : RealM (Task β) :=
+constant mapTask (f : α → BaseIO β) (t : Task α) (prio := Task.Priority.default) : BaseIO (Task β) :=
   Task.pure <$> f t.get
 
-/-- See `RealM.asTask`. -/
+/-- See `BaseIO.asTask`. -/
 @[extern "lean_io_bind_task"]
-constant bindTask (t : Task α) (f : α → RealM (Task β)) (prio := Task.Priority.default) : RealM (Task β) :=
+constant bindTask (t : Task α) (f : α → BaseIO (Task β)) (prio := Task.Priority.default) : BaseIO (Task β) :=
   f t.get
 
-def mapTasks (f : List α → RealM β) (tasks : List (Task α)) (prio := Task.Priority.default) : RealM (Task β) :=
+def mapTasks (f : List α → BaseIO β) (tasks : List (Task α)) (prio := Task.Priority.default) : BaseIO (Task β) :=
   go tasks []
 where
   go
     | t::ts, as =>
-      RealM.bindTask t (fun a => go ts (a :: as)) prio
+      BaseIO.bindTask t (fun a => go ts (a :: as)) prio
     | [], as => f as.reverse |>.asTask prio
 
-end RealM
+end BaseIO
 
 namespace EIO
 
-/-- `EIO` specialization of `RealM.asTask`. -/
-@[inline] def asTask (self : EIO ε α) (prio := Task.Priority.default) : RealM (Task (Except ε α)) :=
-  self.toRealM.asTask prio
+/-- `EIO` specialization of `BaseIO.asTask`. -/
+@[inline] def asTask (self : EIO ε α) (prio := Task.Priority.default) : BaseIO (Task (Except ε α)) :=
+  self.toBaseIO.asTask prio
 
-/-- `EIO` specialization of `RealM.mapTask`. -/
-@[inline] def mapTask (f : α → EIO ε β) (t : Task α) (prio := Task.Priority.default) : RealM (Task (Except ε β)) :=
-  RealM.mapTask (fun a => f a |>.toRealM) t prio
+/-- `EIO` specialization of `BaseIO.mapTask`. -/
+@[inline] def mapTask (f : α → EIO ε β) (t : Task α) (prio := Task.Priority.default) : BaseIO (Task (Except ε β)) :=
+  BaseIO.mapTask (fun a => f a |>.toBaseIO) t prio
 
-/-- `EIO` specialization of `RealM.bindTask`. -/
-@[inline] def bindTask (t : Task α) (f : α → EIO ε (Task (Except ε β))) (prio := Task.Priority.default) : RealM (Task (Except ε β)) :=
-  RealM.bindTask t (fun a => f a |>.catchExceptions fun e => Task.pure <| Except.error e) prio
+/-- `EIO` specialization of `BaseIO.bindTask`. -/
+@[inline] def bindTask (t : Task α) (f : α → EIO ε (Task (Except ε β))) (prio := Task.Priority.default) : BaseIO (Task (Except ε β)) :=
+  BaseIO.bindTask t (fun a => f a |>.catchExceptions fun e => Task.pure <| Except.error e) prio
 
-/-- `EIO` specialization of `RealM.mapTasks`. -/
-@[inline] def mapTasks (f : List α → EIO ε β) (tasks : List (Task α)) (prio := Task.Priority.default) : RealM (Task (Except ε β)) :=
-  RealM.mapTasks (fun as => f as |>.toRealM) tasks prio
+/-- `EIO` specialization of `BaseIO.mapTasks`. -/
+@[inline] def mapTasks (f : List α → EIO ε β) (tasks : List (Task α)) (prio := Task.Priority.default) : BaseIO (Task (Except ε β)) :=
+  BaseIO.mapTasks (fun as => f as |>.toBaseIO) tasks prio
 
 end EIO
 
@@ -176,32 +178,32 @@ def sleep (ms : UInt32) : IO Unit :=
   fun s => dbgSleep ms fun _ => EStateM.Result.ok () s
 
 /-- `IO` specialization of `EIO.asTask`. -/
-@[inline] def asTask (self : IO α) (prio := Task.Priority.default) : RealM (Task (Except IO.Error α)) :=
+@[inline] def asTask (self : IO α) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error α)) :=
   EIO.asTask self prio
 
 /-- `IO` specialization of `EIO.mapTask`. -/
-@[inline] def mapTask (f : α → IO β) (t : Task α) (prio := Task.Priority.default) : RealM (Task (Except IO.Error β)) :=
+@[inline] def mapTask (f : α → IO β) (t : Task α) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error β)) :=
   EIO.mapTask f t prio
 
 /-- `IO` specialization of `EIO.bindTask`. -/
-@[inline] def bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β))) (prio := Task.Priority.default) : RealM (Task (Except IO.Error β)) :=
+@[inline] def bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β))) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error β)) :=
   EIO.bindTask t f prio
 
 /-- `IO` specialization of `EIO.mapTasks`. -/
-@[inline] def mapTasks (f : List α → IO β) (tasks : List (Task α)) (prio := Task.Priority.default) : RealM (Task (Except IO.Error β)) :=
+@[inline] def mapTasks (f : List α → IO β) (tasks : List (Task α)) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error β)) :=
   EIO.mapTasks f tasks prio
 
 /-- Check if the task's cancellation flag has been set by calling `IO.cancel` or dropping the last reference to the task. -/
 @[extern "lean_io_check_canceled"] constant checkCanceled : EIO ε Bool
 
 /-- Request cooperative cancellation of the task. The task must explicitly call `IO.checkCanceled` to react to the cancellation. -/
-@[extern "lean_io_cancel"] constant cancel : @& Task α → RealM Unit
+@[extern "lean_io_cancel"] constant cancel : @& Task α → BaseIO Unit
 
 /-- Check if the task has finished execution, at which point calling `Task.get` will return immediately. -/
-@[extern "lean_io_has_finished"] constant hasFinished : @& Task α → RealM Bool
+@[extern "lean_io_has_finished"] constant hasFinished : @& Task α → BaseIO Bool
 
 /-- Wait for the task to finish, then return its result. -/
-@[extern "lean_io_wait"] constant wait (t : Task α) : RealM α :=
+@[extern "lean_io_wait"] constant wait (t : Task α) : BaseIO α :=
   t.get
 
 /-- Wait until any of the tasks in the given list has finished, then return its result. -/

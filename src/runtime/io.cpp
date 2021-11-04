@@ -808,13 +808,13 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_ptr_eq(b_obj_arg ref1, b_obj_arg ref2
     return io_result_mk_ok(box(r));
 }
 
-/* {α : Type} (act : RealM α) (_ : IO.RealWorld) : α */
+/* {α : Type} (act : BaseIO α) (_ : IO.RealWorld) : α */
 static obj_res lean_io_as_task_fn(obj_arg act, obj_arg) {
     object_ref r(apply_1(act, io_mk_world()));
     return object_ref(io_result_get_value(r.raw()), true).steal();
 }
 
-/* asTask {α : Type} (act : RealM α) (prio : Nat) : RealM (Task α) */
+/* asTask {α : Type} (act : BaseIO α) (prio : Nat) : BaseIO (Task α) */
 extern "C" LEAN_EXPORT obj_res lean_io_as_task(obj_arg act, obj_arg prio, obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_as_task_fn, 2, 1);
     lean_closure_set(c, 0, act);
@@ -822,13 +822,13 @@ extern "C" LEAN_EXPORT obj_res lean_io_as_task(obj_arg act, obj_arg prio, obj_ar
     return io_result_mk_ok(t);
 }
 
-/* {α : Type u} {β : Type} (f : α → RealM β) (a : RealM α) : β */
+/* {α β : Type} (f : α → BaseIO β) (a : BaseIO α) : β */
 static obj_res lean_io_bind_task_fn(obj_arg f, obj_arg a) {
     object_ref r(apply_2(f, a, io_mk_world()));
     return object_ref(io_result_get_value(r.raw()), true).steal();
 }
 
-/*  mapTask {α : Type u} {β : Type} (f : α → RealM β) (t : Task α) (prio : Nat) : RealM (Task β) */
+/*  mapTask {α : Type u} {β : Type} (f : α → BaseIO β) (t : Task α) (prio : Nat) : BaseIO (Task β) */
 extern "C" LEAN_EXPORT obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg prio, obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);
@@ -836,7 +836,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg pr
     return io_result_mk_ok(t2);
 }
 
-/*  bindTask {α : Type u} {β : Type} (t : Task α) (f : α → RealM (Task β)) (prio : Nat) : RealM (Task β) */
+/*  bindTask {α : Type u} {β : Type} (t : Task α) (f : α → BaseIO (Task β)) (prio : Nat) : BaseIO (Task β) */
 extern "C" LEAN_EXPORT obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg prio, obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);

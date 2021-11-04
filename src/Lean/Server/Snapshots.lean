@@ -124,7 +124,7 @@ def compileNextCmd (text : FileMap) (snap : Snapshot) : IO Snapshot := do
     let (output, _) ← IO.FS.withIsolatedStreams do
       EIO.toIO ioErrorFromEmpty do
         Elab.Command.catchExceptions
-          (Elab.Command.elabCommandTopLevel cmdStx)
+          (getResetInfoTrees *> Elab.Command.elabCommandTopLevel cmdStx)
           cmdCtx cmdStateRef
     let mut postCmdState ← cmdStateRef.get
     if !output.isEmpty then

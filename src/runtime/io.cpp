@@ -445,7 +445,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_allocprof(b_obj_arg msg, obj_arg fn, obj_
     return apply_1(fn, w);
 }
 
-/* getNumHeartbeats : EIO ε Nat */
+/* getNumHeartbeats : BaseIO Nat */
 extern "C" LEAN_EXPORT obj_res lean_io_get_num_heartbeats(obj_arg /* w */) {
     return io_result_mk_ok(lean_uint64_to_nat(get_num_heartbeats()));
 }

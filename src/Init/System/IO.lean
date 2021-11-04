@@ -189,7 +189,7 @@ def sleep (ms : UInt32) : IO Unit :=
   EIO.mapTasks f tasks prio
 
 /-- Check if the task's cancellation flag has been set by calling `IO.cancel` or dropping the last reference to the task. -/
-@[extern "lean_io_check_canceled"] constant checkCanceled : EIO ε Bool
+@[extern "lean_io_check_canceled"] constant checkCanceled : BaseIO Bool
 
 /-- Request cooperative cancellation of the task. The task must explicitly call `IO.checkCanceled` to react to the cancellation. -/
 @[extern "lean_io_cancel"] constant cancel : @& Task α → BaseIO Unit
@@ -205,7 +205,7 @@ def sleep (ms : UInt32) : IO Unit :=
 @[extern "lean_io_wait_any"] constant waitAny : @& List (Task α) → IO α
 
 /-- Helper method for implementing "deterministic" timeouts. It is the number of "small" memory allocations performed by the current execution thread. -/
-@[extern "lean_io_get_num_heartbeats"] constant getNumHeartbeats : EIO ε Nat
+@[extern "lean_io_get_num_heartbeats"] constant getNumHeartbeats : BaseIO Nat
 
 inductive FS.Mode where
   | read | write | readWrite | append

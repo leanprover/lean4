@@ -122,7 +122,7 @@ private def mkCoreContext (ctx : Context) (s : State) (heartbeats : Nat) : Core.
 def liftCoreM {α} (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
-  let heartbeats ← IO.getNumHeartbeats (ε := Exception)
+  let heartbeats ← IO.getNumHeartbeats
   let Eα := Except Exception α
   let x : CoreM Eα := try let a ← x; pure <| Except.ok a catch ex => pure <| Except.error ex
   let x : EIO Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s heartbeats)).run { env := s.env, ngen := s.ngen, traceState := s.traceState }
@@ -350,7 +350,7 @@ private def mkTermState (scope : Scope) (s : State) : Term.State := {
 def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandElabM α := do
   let ctx ← read
   let s   ← get
-  let heartbeats ← IO.getNumHeartbeats (ε := Exception)
+  let heartbeats ← IO.getNumHeartbeats
   -- dbg_trace "heartbeats: {heartbeats}"
   let scope := s.scopes.head!
   -- We execute `x` with an empty message log. Thus, `x` cannot modify/view messages produced by previous commands.

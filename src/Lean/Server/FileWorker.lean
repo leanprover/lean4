@@ -185,7 +185,12 @@ section Initialization
       let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
       pure (← mkEmptyEnvironment, msgs)
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
-    let cmdState := { cmdState with infoState.enabled := true, scopes := [{ header := "", opts := opts }] }
+    let cmdState := { cmdState with infoState := {
+      enabled := true
+      -- add dummy tree for invariant in `Snapshot.infoTree`
+      -- TODO: maybe even fill with useful stuff
+      trees := #[Elab.InfoTree.node (Elab.Info.ofCommandInfo { elaborator := `import, stx := headerStx }) #[].toPersistentArray].toPersistentArray
+    }}
     let headerSnap := {
       beginPos := 0
       stx := headerStx

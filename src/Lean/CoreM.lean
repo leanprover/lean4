@@ -126,7 +126,7 @@ protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m �
 
 def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat) : CoreM Unit := do
   unless max == 0 do
-    let numHeartbeats ← IO.getNumHeartbeats (ε := Exception)
+    let numHeartbeats ← IO.getNumHeartbeats
     if numHeartbeats - (← read).initHeartbeats > max then
       throwError "(deterministic) timeout at '{moduleName}', maximum number of heartbeats ({max/1000}) has been reached (use 'set_option {optionName} <num>' to set the limit)"
 
@@ -134,7 +134,7 @@ def checkMaxHeartbeats (moduleName : String) : CoreM Unit := do
   checkMaxHeartbeatsCore moduleName `maxHeartbeats (← read).maxHeartbeats
 
 private def withCurrHeartbeatsImp (x : CoreM α) : CoreM α := do
-  let heartbeats ← IO.getNumHeartbeats (ε := Exception)
+  let heartbeats ← IO.getNumHeartbeats
   withReader (fun ctx => { ctx with initHeartbeats := heartbeats }) x
 
 def withCurrHeartbeats [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=

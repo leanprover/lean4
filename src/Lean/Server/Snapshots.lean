@@ -50,6 +50,11 @@ def msgLog (s : Snapshot) : MessageLog :=
 def diagnostics (s : Snapshot) : Std.PersistentArray Lsp.Diagnostic :=
   s.interactiveDiags.map fun d => d.toDiagnostic
 
+def infoTree (s : Snapshot) : InfoTree :=
+  -- the parser returns exactly one command per snapshot, and the elaborator creates exactly one node per command
+  assert! s.cmdState.infoState.trees.size == 1
+  s.cmdState.infoState.trees[0]
+
 def isAtEnd (s : Snapshot) : Bool :=
   Parser.isEOI s.stx || Parser.isExitCommand s.stx
 
@@ -124,7 +129,7 @@ def compileNextCmd (text : FileMap) (snap : Snapshot) : IO Snapshot := do
     let (output, _) ← IO.FS.withIsolatedStreams do
       EIO.toIO ioErrorFromEmpty do
         Elab.Command.catchExceptions
-          (Elab.Command.elabCommandTopLevel cmdStx)
+          (getResetInfoTrees *> Elab.Command.elabCommandTopLevel cmdStx)
           cmdCtx cmdStateRef
     let mut postCmdState ← cmdStateRef.get
     if !output.isEmpty then

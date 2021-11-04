@@ -29,11 +29,8 @@ partial def handleCompletion (p : CompletionParams)
   -- NOTE: use `>=` since the cursor can be *after* the input
   withWaitFindSnap doc (fun s => s.endPos >= pos)
     (notFoundX := pure { items := #[], isIncomplete := true }) fun snap => do
-      for infoTree in snap.cmdState.infoState.trees do
-        -- for (ctx, info) in infoTree.getCompletionInfos do
-        --   dbg_trace "{← info.format ctx}"
-        if let some r ← Completion.find? doc.meta.text pos infoTree then
-          return r
+      if let some r ← Completion.find? doc.meta.text pos snap.infoTree then
+        return r
       return { items := #[ ], isIncomplete := true }
 
 open Elab in
@@ -50,10 +47,9 @@ partial def handleHover (p : HoverParams)
   let hoverPos := text.lspPosToUtf8Pos p.position
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure none) fun snap => do
-      for t in snap.cmdState.infoState.trees do
-        if let some (ci, i) := t.hoverableInfoAt? hoverPos then
-          if let some hoverFmt ← i.fmtHover? ci then
-            return some <| mkHover (toString hoverFmt) i.pos?.get! i.tailPos?.get!
+      if let some (ci, i) := snap.infoTree.hoverableInfoAt? hoverPos then
+        if let some hoverFmt ← i.fmtHover? ci then
+          return some <| mkHover (toString hoverFmt) i.pos?.get! i.tailPos?.get!
 
       return none
 
@@ -108,31 +104,30 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
 
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure #[]) fun snap => do
-      for t in snap.cmdState.infoState.trees do
-        if let some (ci, i) := t.hoverableInfoAt? hoverPos then
-          if let Info.ofTermInfo ti := i then
-            let mut expr := ti.expr
-            if kind == type then
-              expr ← ci.runMetaM i.lctx do
-                Expr.getAppFn (← Meta.instantiateMVars (← Meta.inferType expr))
-            match expr with
-            | Expr.const n .. => return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
-            | Expr.fvar id .. => return ← ci.runMetaM i.lctx <| locationLinksFromBinder t i id
-            | _ => pure ()
-          if let Info.ofFieldInfo fi := i then
-            if kind == type then
-              let expr ← ci.runMetaM i.lctx do
-                Meta.instantiateMVars (← Meta.inferType fi.val)
-              if let some n := expr.getAppFn.constName? then
-                return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
-            else
-              return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
-          -- If other go-tos fail, we try to show the elaborator or parser
-          if let some ei := i.toElabInfo? then
-            if kind == declaration && ci.env.contains ei.stx.getKind then
-              return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.stx.getKind
-            if kind == definition && ci.env.contains ei.elaborator then
-              return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
+      if let some (ci, i) := snap.infoTree.hoverableInfoAt? hoverPos then
+        if let Info.ofTermInfo ti := i then
+          let mut expr := ti.expr
+          if kind == type then
+            expr ← ci.runMetaM i.lctx do
+              Expr.getAppFn (← Meta.instantiateMVars (← Meta.inferType expr))
+          match expr with
+          | Expr.const n .. => return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
+          | Expr.fvar id .. => return ← ci.runMetaM i.lctx <| locationLinksFromBinder snap.infoTree i id
+          | _ => pure ()
+        if let Info.ofFieldInfo fi := i then
+          if kind == type then
+            let expr ← ci.runMetaM i.lctx do
+              Meta.instantiateMVars (← Meta.inferType fi.val)
+            if let some n := expr.getAppFn.constName? then
+              return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
+          else
+            return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
+        -- If other go-tos fail, we try to show the elaborator or parser
+        if let some ei := i.toElabInfo? then
+          if kind == declaration && ci.env.contains ei.stx.getKind then
+            return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.stx.getKind
+          if kind == definition && ci.env.contains ei.elaborator then
+            return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
       return #[]
 
 open RequestM in
@@ -143,15 +138,14 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
   -- NOTE: use `>=` since the cursor can be *after* the input
   withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
     (notFoundX := return none) fun snap => do
-      for t in snap.cmdState.infoState.trees do
-        if let rs@(_ :: _) := t.goalsAt? doc.meta.text hoverPos then
-          let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter } =>
-            let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
-            let goals := if useAfter then ti.goalsAfter else ti.goalsBefore
-            ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPInaccessibleNames (Widget.goalToInteractive g))
-          return some { goals := goals.toArray }
-
-      return none
+      if let rs@(_ :: _) := snap.infoTree.goalsAt? doc.meta.text hoverPos then
+        let goals ← List.join <$> rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter } =>
+          let ci := if useAfter then { ci with mctx := ti.mctxAfter } else { ci with mctx := ti.mctxBefore }
+          let goals := if useAfter then ti.goalsAfter else ti.goalsBefore
+          ci.runMetaM {} <| goals.mapM (fun g => Meta.withPPInaccessibleNames (Widget.goalToInteractive g))
+        return some { goals := goals.toArray }
+      else
+        return none
 
 open Elab in
 partial def handlePlainGoal (p : PlainGoalParams)
@@ -175,17 +169,17 @@ partial def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
   let hoverPos := text.lspPosToUtf8Pos p.position
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure none) fun snap => do
-      for t in snap.cmdState.infoState.trees do
-        if let some (ci, i@(Elab.Info.ofTermInfo ti)) := t.termGoalAt? hoverPos then
-         let ty ← ci.runMetaM i.lctx do
-           Meta.instantiateMVars <| ti.expectedType?.getD (← Meta.inferType ti.expr)
-         -- for binders, hide the last hypothesis (the binder itself)
-         let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
-         let goal ← ci.runMetaM lctx' do
-           Meta.withPPInaccessibleNames <| Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
-         let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
-         return some { goal with range }
-      return none
+      if let some (ci, i@(Elab.Info.ofTermInfo ti)) := snap.infoTree.termGoalAt? hoverPos then
+        let ty ← ci.runMetaM i.lctx do
+          Meta.instantiateMVars <| ti.expectedType?.getD (← Meta.inferType ti.expr)
+        -- for binders, hide the last hypothesis (the binder itself)
+        let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
+        let goal ← ci.runMetaM lctx' do
+          Meta.withPPInaccessibleNames <| Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
+        let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
+        return some { goal with range }
+      else
+        return none
 
 def handlePlainTermGoal (p : PlainTermGoalParams)
     : RequestM (RequestTask (Option PlainTermGoal)) := do
@@ -291,7 +285,7 @@ structure SemanticTokensContext where
   beginPos  : String.Pos
   endPos    : String.Pos
   text      : FileMap
-  infoState : Elab.InfoState
+  snap      : Snapshot
 
 structure SemanticTokensState where
   data       : Array Nat
@@ -307,7 +301,7 @@ partial def handleSemanticTokens (beginPos endPos : String.Pos)
       for s in snaps do
         if s.endPos <= beginPos then
           continue
-        ReaderT.run (r := SemanticTokensContext.mk beginPos endPos text s.cmdState.infoState) <|
+        ReaderT.run (r := SemanticTokensContext.mk beginPos endPos text s) <|
           go s.stx
       return { data := (← get).data }
 where
@@ -326,15 +320,14 @@ where
           stx.getArgs.forM go
   highlightId (stx : Syntax) : ReaderT SemanticTokensContext (StateT SemanticTokensState RequestM) _ := do
     if let some range := stx.getRange? then
-      for t in (← read).infoState.trees do
-        for ti in t.deepestNodes (fun
-          | _, i@(Elab.Info.ofTermInfo ti), _ => match i.pos? with
-            | some ipos => if range.contains ipos then some ti else none
-            | _         => none
-          | _, _, _ => none) do
-          match ti.expr with
-          | Expr.fvar .. => addToken ti.stx SemanticTokenType.variable
-          | _            => if ti.stx.getPos?.get! > range.start then addToken ti.stx SemanticTokenType.property
+      for ti in (← read).snap.infoTree.deepestNodes (fun
+        | _, i@(Elab.Info.ofTermInfo ti), _ => match i.pos? with
+          | some ipos => if range.contains ipos then some ti else none
+          | _         => none
+        | _, _, _ => none) do
+        match ti.expr with
+        | Expr.fvar .. => addToken ti.stx SemanticTokenType.variable
+        | _            => if ti.stx.getPos?.get! > range.start then addToken ti.stx SemanticTokenType.property
   highlightKeyword stx := do
     if let Syntax.atom info val := stx then
       if val.bsize > 0 && val[0].isAlpha then

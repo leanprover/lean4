@@ -822,7 +822,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_as_task(obj_arg act, obj_arg prio, obj_ar
     return io_result_mk_ok(t);
 }
 
-/* {α β : Type} (f : α → BaseIO β) (a : BaseIO α) : β */
+/* {α β : Type} (f : α → BaseIO β) (a : α) : β */
 static obj_res lean_io_bind_task_fn(obj_arg f, obj_arg a) {
     object_ref r(apply_2(f, a, io_mk_world()));
     return object_ref(io_result_get_value(r.raw()), true).steal();

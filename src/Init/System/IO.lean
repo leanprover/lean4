@@ -42,41 +42,36 @@ def BaseIO := EIO Empty
 
 instance : Monad BaseIO := inferInstanceAs (Monad (EIO Empty))
 
-@[inline] def BaseIO.toEIO (self : BaseIO α) : EIO ε α :=
-  fun s => match self s with
+@[inline] def BaseIO.toEIO (act : BaseIO α) : EIO ε α :=
+  fun s => match act s with
   | EStateM.Result.ok a s => EStateM.Result.ok a s
 
 instance : MonadLift BaseIO (EIO ε) := ⟨BaseIO.toEIO⟩
 
-@[inline] def EIO.toBaseIO (self : EIO ε α) : BaseIO (Except ε α) :=
-  fun s => match self s with
+@[inline] def EIO.toBaseIO (act : EIO ε α) : BaseIO (Except ε α) :=
+  fun s => match act s with
   | EStateM.Result.ok a s     => EStateM.Result.ok (Except.ok a) s
   | EStateM.Result.error ex s => EStateM.Result.ok (Except.error ex) s
 
-@[inline] def EIO.toBaseIO_ (self : EIO ε α) : BaseIO Unit :=
-  fun s => match self s with
-  | EStateM.Result.ok a s     => EStateM.Result.ok () s
-  | EStateM.Result.error ex s => EStateM.Result.ok () s
-
-@[inline] def EIO.catchExceptions (self : EIO ε α) (h : ε → BaseIO α) : BaseIO α :=
-  fun s => match self s with
+@[inline] def EIO.catchExceptions (act : EIO ε α) (h : ε → BaseIO α) : BaseIO α :=
+  fun s => match act s with
   | EStateM.Result.ok a s     => EStateM.Result.ok a s
   | EStateM.Result.error ex s => h ex s
 
 open IO (Error) in
 abbrev IO : Type → Type := EIO Error
 
-@[inline] def BaseIO.toIO (self : BaseIO α) : IO α :=
-  self
+@[inline] def BaseIO.toIO (act : BaseIO α) : IO α :=
+  act
 
-@[inline] def EIO.toIO (f : ε → IO.Error) (self : EIO ε α) : IO α :=
-  self.adaptExcept f
+@[inline] def EIO.toIO (f : ε → IO.Error) (act : EIO ε α) : IO α :=
+  act.adaptExcept f
 
-@[inline] def EIO.toIO' (self : EIO ε α) : IO (Except ε α) :=
-  self.toBaseIO
+@[inline] def EIO.toIO' (act : EIO ε α) : IO (Except ε α) :=
+  act.toBaseIO
 
-@[inline] def IO.toEIO (f : IO.Error → ε) (self : IO α) : EIO ε α :=
-  self.adaptExcept f
+@[inline] def IO.toEIO (f : IO.Error → ε) (act : IO α) : EIO ε α :=
+  act.adaptExcept f
 
 /- After we inline `EState.run'`, the closed term `((), ())` is generated, where the second `()`
    represents the "initial world". We don't want to cache this closed term. So, we disable
@@ -105,16 +100,16 @@ set_option compiler.extract_closed false in
 namespace BaseIO
 
 /--
-  Run the action in a separate `Task`.
+  Run `act` in a separate `Task`.
   This is similar to Haskell's [`unsafeInterleaveIO`](http://hackage.haskell.org/package/base-4.14.0.0/docs/System-IO-Unsafe.html#v:unsafeInterleaveIO),
   except that the `Task` is started eagerly as usual. Thus pure accesses to the `Task` do not influence the impure `act`
   computation.
   Unlike with pure tasks created by `Task.spawn`, tasks created by this function will be run even if the last reference
-  to the task is dropped. The action should manually check for cancellation via `IO.checkCanceled` if it wants to react
+  to the task is dropped. The `act` should manually check for cancellation via `IO.checkCanceled` if it wants to react
   to that. -/
 @[extern "lean_io_as_task"]
-constant asTask (self : BaseIO α) (prio := Task.Priority.default) : BaseIO (Task α) :=
-  Task.pure <$> self
+constant asTask (act : BaseIO α) (prio := Task.Priority.default) : BaseIO (Task α) :=
+  Task.pure <$> act
 
 /-- See `BaseIO.asTask`. -/
 @[extern "lean_io_map_task"]
@@ -139,8 +134,8 @@ end BaseIO
 namespace EIO
 
 /-- `EIO` specialization of `BaseIO.asTask`. -/
-@[inline] def asTask (self : EIO ε α) (prio := Task.Priority.default) : BaseIO (Task (Except ε α)) :=
-  self.toBaseIO.asTask prio
+@[inline] def asTask (act : EIO ε α) (prio := Task.Priority.default) : BaseIO (Task (Except ε α)) :=
+  act.toBaseIO.asTask prio
 
 /-- `EIO` specialization of `BaseIO.mapTask`. -/
 @[inline] def mapTask (f : α → EIO ε β) (t : Task α) (prio := Task.Priority.default) : BaseIO (Task (Except ε β)) :=
@@ -178,8 +173,8 @@ def sleep (ms : UInt32) : IO Unit :=
   fun s => dbgSleep ms fun _ => EStateM.Result.ok () s
 
 /-- `IO` specialization of `EIO.asTask`. -/
-@[inline] def asTask (self : IO α) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error α)) :=
-  EIO.asTask self prio
+@[inline] def asTask (act : IO α) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error α)) :=
+  EIO.asTask act prio
 
 /-- `IO` specialization of `EIO.mapTask`. -/
 @[inline] def mapTask (f : α → IO β) (t : Task α) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error β)) :=

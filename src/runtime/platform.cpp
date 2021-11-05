@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "runtime/object.h"
+#include "githash.h"
 
 namespace lean {
 extern "C" LEAN_EXPORT obj_res lean_system_platform_nbits(obj_arg) {
@@ -38,4 +39,6 @@ extern "C" LEAN_EXPORT uint8 lean_system_platform_emscripten(obj_arg) {
     return 0;
 #endif
 }
+
+extern "C" object * lean_get_githash() { return lean_mk_string(LEAN_GITHASH); }
 }

@@ -667,6 +667,12 @@ axiom propext {a b : Prop} : (a ↔ b) → a = b
 theorem Eq.propIntro {a b : Prop} (h₁ : a → b) (h₂ : b → a) : a = b :=
   propext <| Iff.intro h₁ h₂
 
+-- Eq for Prop is now decidable if the equivalent Iff is decidable
+instance {p q : Prop} [d : Decidable (p ↔ q)] : Decidable (p = q) :=
+  match d with
+  | isTrue h => isTrue (propext h)
+  | isFalse h => isFalse fun heq => h (heq ▸ Iff.rfl)
+
 gen_injective_theorems% Prod
 gen_injective_theorems% PProd
 gen_injective_theorems% MProd

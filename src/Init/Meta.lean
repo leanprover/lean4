@@ -22,9 +22,9 @@ def version.minor : Nat := version.getMinor ()
 private constant version.getPatch (u : Unit) : Nat
 def version.patch : Nat := version.getPatch ()
 
--- @[extern c inline "lean_mk_string(LEAN_GITHASH)"]
--- constant getGithash (u : Unit) : String
--- def githash : String := getGithash ()
+@[extern "lean_get_githash"]
+constant getGithash (u : Unit) : String
+def githash : String := getGithash ()
 
 @[extern c inline "LEAN_VERSION_IS_RELEASE"]
 constant version.getIsRelease (u : Unit) : Bool

@@ -14,10 +14,9 @@ Interesting options:
 Beware of the licensing consequences since GMP is LGPL."
     return 1
 
-  let binDir ← IO.appDir
-  -- Zig gets confused by relative include paths on Windows
-  let binDir ← IO.FS.realPath binDir
-  let root := binDir.parent.get!
+  let root ← match (← IO.getEnv "LEAN_SYSROOT") with
+    | some root => System.FilePath.mk root
+    | none      => (← IO.appDir).parent.get!
   -- We assume that the CMake variables do not contain escaped spaces
   let cflags := ["-I", (root / "include").toString] ++ "@LEANC_EXTRA_FLAGS@".trim.splitOn
   let mut ldflags := ["-L", (root / "lib").toString, "-L", (root / "lib" / "lean").toString, (← IO.getEnv "LEANC_GMP").getD "-lgmp"] ++ "@LEAN_EXTRA_LINKER_FLAGS@".trim.splitOn
@@ -41,7 +40,7 @@ Beware of the licensing consequences since GMP is LGPL."
 
   let mut cc := (← IO.getEnv "LEAN_CC").getD "@LEANC_CC@"
   if cc.startsWith "." then
-    cc := (binDir / cc).toString
+    cc := (root / "bin" / cc).toString
 
   let args := cflags ++ args ++ ldflagsExt ++ ldflags ++ ["-Wno-unused-command-line-argument"]
   if args.contains "-v" then

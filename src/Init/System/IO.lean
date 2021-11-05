@@ -31,37 +31,58 @@ def IO.RealWorld : Type := Unit
 -/
 def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
 
-@[inline] def EIO.catchExceptions (x : EIO ε α) (h : ε → EIO Empty α) : EIO Empty α :=
-  fun s => match x s with
-  | EStateM.Result.ok a s     => EStateM.Result.ok a s
-  | EStateM.Result.error ex s => h ex s
-
 instance : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
 instance : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EStateM ε IO.RealWorld))
 instance : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExceptOf ε (EStateM ε IO.RealWorld))
 instance : OrElse (EIO ε α) := ⟨MonadExcept.orElse⟩
 instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
 
+/-- An `EIO` monad that cannot throw exceptions. -/
+def BaseIO := EIO Empty
+
+instance : Monad BaseIO := inferInstanceAs (Monad (EIO Empty))
+
+@[inline] def BaseIO.toEIO (act : BaseIO α) : EIO ε α :=
+  fun s => match act s with
+  | EStateM.Result.ok a s => EStateM.Result.ok a s
+
+instance : MonadLift BaseIO (EIO ε) := ⟨BaseIO.toEIO⟩
+
+@[inline] def EIO.toBaseIO (act : EIO ε α) : BaseIO (Except ε α) :=
+  fun s => match act s with
+  | EStateM.Result.ok a s     => EStateM.Result.ok (Except.ok a) s
+  | EStateM.Result.error ex s => EStateM.Result.ok (Except.error ex) s
+
+@[inline] def EIO.catchExceptions (act : EIO ε α) (h : ε → BaseIO α) : BaseIO α :=
+  fun s => match act s with
+  | EStateM.Result.ok a s     => EStateM.Result.ok a s
+  | EStateM.Result.error ex s => h ex s
+
 open IO (Error) in
 abbrev IO : Type → Type := EIO Error
 
-@[inline] def EIO.toIO (f : ε → IO.Error) (x : EIO ε α) : IO α :=
-  x.adaptExcept f
+@[inline] def BaseIO.toIO (act : BaseIO α) : IO α :=
+  act
 
-@[inline] def EIO.toIO' (x : EIO ε α) : IO (Except ε α) :=
-  EIO.toIO (fun _ => unreachable!) (observing x)
+@[inline] def EIO.toIO (f : ε → IO.Error) (act : EIO ε α) : IO α :=
+  act.adaptExcept f
 
-@[inline] def IO.toEIO (f : IO.Error → ε) (x : IO α) : EIO ε α :=
-  x.adaptExcept f
+@[inline] def EIO.toIO' (act : EIO ε α) : IO (Except ε α) :=
+  act.toBaseIO
+
+@[inline] def IO.toEIO (f : IO.Error → ε) (act : IO α) : EIO ε α :=
+  act.adaptExcept f
 
 /- After we inline `EState.run'`, the closed term `((), ())` is generated, where the second `()`
    represents the "initial world". We don't want to cache this closed term. So, we disable
    the "extract closed terms" optimization. -/
 set_option compiler.extract_closed false in
-@[inline] unsafe def unsafeEIO (fn : EIO ε α) : Except ε α :=
+@[inline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
   match fn.run () with
-  | EStateM.Result.ok a _    => Except.ok a
-  | EStateM.Result.error e _ => Except.error e
+  | EStateM.Result.ok a _ => a
+
+@[inline] unsafe def unsafeEIO (fn : EIO ε α) : Except ε α :=
+  unsafeBaseIO fn.toBaseIO
 
 @[inline] unsafe def unsafeIO (fn : IO α) : Except IO.Error α :=
   unsafeEIO fn
@@ -75,6 +96,60 @@ set_option compiler.extract_closed false in
 
    The action `initializing` returns `true` iff it is invoked during initialization. -/
 @[extern "lean_io_initializing"] constant IO.initializing : IO Bool
+
+namespace BaseIO
+
+/--
+  Run `act` in a separate `Task`.
+  This is similar to Haskell's [`unsafeInterleaveIO`](http://hackage.haskell.org/package/base-4.14.0.0/docs/System-IO-Unsafe.html#v:unsafeInterleaveIO),
+  except that the `Task` is started eagerly as usual. Thus pure accesses to the `Task` do not influence the impure `act`
+  computation.
+  Unlike with pure tasks created by `Task.spawn`, tasks created by this function will be run even if the last reference
+  to the task is dropped. The `act` should manually check for cancellation via `IO.checkCanceled` if it wants to react
+  to that. -/
+@[extern "lean_io_as_task"]
+constant asTask (act : BaseIO α) (prio := Task.Priority.default) : BaseIO (Task α) :=
+  Task.pure <$> act
+
+/-- See `BaseIO.asTask`. -/
+@[extern "lean_io_map_task"]
+constant mapTask (f : α → BaseIO β) (t : Task α) (prio := Task.Priority.default) : BaseIO (Task β) :=
+  Task.pure <$> f t.get
+
+/-- See `BaseIO.asTask`. -/
+@[extern "lean_io_bind_task"]
+constant bindTask (t : Task α) (f : α → BaseIO (Task β)) (prio := Task.Priority.default) : BaseIO (Task β) :=
+  f t.get
+
+def mapTasks (f : List α → BaseIO β) (tasks : List (Task α)) (prio := Task.Priority.default) : BaseIO (Task β) :=
+  go tasks []
+where
+  go
+    | t::ts, as =>
+      BaseIO.bindTask t (fun a => go ts (a :: as)) prio
+    | [], as => f as.reverse |>.asTask prio
+
+end BaseIO
+
+namespace EIO
+
+/-- `EIO` specialization of `BaseIO.asTask`. -/
+@[inline] def asTask (act : EIO ε α) (prio := Task.Priority.default) : BaseIO (Task (Except ε α)) :=
+  act.toBaseIO.asTask prio
+
+/-- `EIO` specialization of `BaseIO.mapTask`. -/
+@[inline] def mapTask (f : α → EIO ε β) (t : Task α) (prio := Task.Priority.default) : BaseIO (Task (Except ε β)) :=
+  BaseIO.mapTask (fun a => f a |>.toBaseIO) t prio
+
+/-- `EIO` specialization of `BaseIO.bindTask`. -/
+@[inline] def bindTask (t : Task α) (f : α → EIO ε (Task (Except ε β))) (prio := Task.Priority.default) : BaseIO (Task (Except ε β)) :=
+  BaseIO.bindTask t (fun a => f a |>.catchExceptions fun e => Task.pure <| Except.error e) prio
+
+/-- `EIO` specialization of `BaseIO.mapTasks`. -/
+@[inline] def mapTasks (f : List α → EIO ε β) (tasks : List (Task α)) (prio := Task.Priority.default) : BaseIO (Task (Except ε β)) :=
+  BaseIO.mapTasks (fun as => f as |>.toBaseIO) tasks prio
+
+end EIO
 
 namespace IO
 
@@ -97,49 +172,40 @@ def sleep (ms : UInt32) : IO Unit :=
   -- TODO: add a proper primitive for IO.sleep
   fun s => dbgSleep ms fun _ => EStateM.Result.ok () s
 
-/--
-  Run `act` in a separate `Task`. This is similar to Haskell's [`unsafeInterleaveIO`](http://hackage.haskell.org/package/base-4.14.0.0/docs/System-IO-Unsafe.html#v:unsafeInterleaveIO),
-  except that the `Task` is started eagerly as usual. Thus pure accesses to the `Task` do not influence the impure `act`
-  computation.
-  Unlike with pure tasks created by `Task.mk`, tasks created by this function will be run even if the last reference
-  to the task is dropped. `act` should manually check for cancellation via `IO.checkCanceled` if it wants to react
-  to that. -/
-@[extern "lean_io_as_task"]
-constant asTask (act : IO α) (prio := Task.Priority.default) : IO (Task (Except IO.Error α))
+/-- `IO` specialization of `EIO.asTask`. -/
+@[inline] def asTask (act : IO α) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error α)) :=
+  EIO.asTask act prio
 
-/-- See `IO.asTask`. -/
-@[extern "lean_io_map_task"]
-constant mapTask (f : α → IO β) (t : Task α) (prio := Task.Priority.default) : IO (Task (Except IO.Error β))
+/-- `IO` specialization of `EIO.mapTask`. -/
+@[inline] def mapTask (f : α → IO β) (t : Task α) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error β)) :=
+  EIO.mapTask f t prio
 
-/-- See `IO.asTask`. -/
-@[extern "lean_io_bind_task"]
-constant bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β))) (prio := Task.Priority.default) : IO (Task (Except IO.Error β))
+/-- `IO` specialization of `EIO.bindTask`. -/
+@[inline] def bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β))) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error β)) :=
+  EIO.bindTask t f prio
 
-def mapTasks (f : List α → IO β) (tasks : List (Task α)) (prio := Task.Priority.default) : IO (Task (Except IO.Error β)) :=
-  go tasks []
-where
-  go
-    | t::ts, as =>
-      IO.bindTask t (fun a => go ts (a :: as)) prio
-    | [], as => IO.asTask (f as.reverse) prio
+/-- `IO` specialization of `EIO.mapTasks`. -/
+@[inline] def mapTasks (f : List α → IO β) (tasks : List (Task α)) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error β)) :=
+  EIO.mapTasks f tasks prio
 
 /-- Check if the task's cancellation flag has been set by calling `IO.cancel` or dropping the last reference to the task. -/
-@[extern "lean_io_check_canceled"] constant checkCanceled : IO Bool
+@[extern "lean_io_check_canceled"] constant checkCanceled : BaseIO Bool
 
 /-- Request cooperative cancellation of the task. The task must explicitly call `IO.checkCanceled` to react to the cancellation. -/
-@[extern "lean_io_cancel"] constant cancel : @& Task α → IO Unit
+@[extern "lean_io_cancel"] constant cancel : @& Task α → BaseIO Unit
 
 /-- Check if the task has finished execution, at which point calling `Task.get` will return immediately. -/
-@[extern "lean_io_has_finished"] constant hasFinished : @& Task α → IO Bool
+@[extern "lean_io_has_finished"] constant hasFinished : @& Task α → BaseIO Bool
 
 /-- Wait for the task to finish, then return its result. -/
-@[extern "lean_io_wait"] constant wait : Task α → IO α
+@[extern "lean_io_wait"] constant wait (t : Task α) : BaseIO α :=
+  t.get
 
 /-- Wait until any of the tasks in the given list has finished, then return its result. -/
 @[extern "lean_io_wait_any"] constant waitAny : @& List (Task α) → IO α
 
-/-- Helper method for implementing "deterministic" timeouts. It is the numbe of "small" memory allocations performed by the current execution thread. -/
-@[extern "lean_io_get_num_heartbeats"] constant getNumHeartbeats : EIO ε Nat
+/-- Helper method for implementing "deterministic" timeouts. It is the number of "small" memory allocations performed by the current execution thread. -/
+@[extern "lean_io_get_num_heartbeats"] constant getNumHeartbeats : BaseIO Nat
 
 inductive FS.Mode where
   | read | write | readWrite | append

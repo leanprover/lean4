@@ -87,7 +87,8 @@ def Package.buildRec (self : Package) [Inhabited i]
   let recBuild := recBuildPackageWithDeps build
   let targets ← failOnBuildCycle <| ← RBTopT.run' <|
     buildRBTop (cmp := Name.quickCmp) recBuild Package.name self
-  targets.back
+  let target ← ActiveTarget.collectOpaqueArray targets
+  target.withInfo targets.back.info
 
 /--
   Build an `Array` of `Package`s along with their dependencies

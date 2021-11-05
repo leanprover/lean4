@@ -1,12 +1,11 @@
 import Lean
 
 open Lean
-open Lean Parser Term
 
 declare_syntax_cat json
-syntax strLit : json
-syntax numLit : json
-syntax "{" (Lean.Parser.ident ": " json),* "}" : json
+syntax str : json
+syntax num : json
+syntax "{" (ident ": " json),* "}" : json
 syntax "[" json,* "]" : json
 
 syntax "json " json : term

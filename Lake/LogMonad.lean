@@ -3,8 +3,6 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.RealM
-
 namespace Lake
 
 -- # Typeclass
@@ -35,15 +33,15 @@ def nop [Pure m] : LogMethods m :=
 
 instance [Pure m] : Inhabited (LogMethods m) := ⟨LogMethods.nop⟩
 
-def io [MonadLiftT RealM m] : LogMethods m where
-  logInfo msg := RealM.runIO_ <| IO.println msg
-  logWarning msg := RealM.runIO_ <| IO.eprintln s!"warning: {msg}"
-  logError msg := RealM.runIO_ <| IO.eprintln s!"error: {msg}"
+def io [MonadLiftT BaseIO m] : LogMethods m where
+  logInfo msg := IO.println msg |>.catchExceptions fun _ => ()
+  logWarning msg := IO.eprintln s!"warning: {msg}" |>.catchExceptions fun _ => ()
+  logError msg := IO.eprintln s!"error: {msg}" |>.catchExceptions fun _ => ()
 
-def eio [MonadLiftT RealM m] : LogMethods m where
-  logInfo msg := RealM.runIO_ <| IO.eprintln s!"info: {msg}"
-  logWarning msg := RealM.runIO_ <| IO.eprintln s!"warning: {msg}"
-  logError msg := RealM.runIO_ <| IO.eprintln s!"error: {msg}"
+def eio [MonadLiftT BaseIO m] : LogMethods m where
+  logInfo msg := IO.eprintln s!"info: {msg}" |>.catchExceptions fun _ => ()
+  logWarning msg := IO.eprintln s!"warning: {msg}" |>.catchExceptions fun _ => ()
+  logError msg := IO.eprintln s!"error: {msg}" |>.catchExceptions fun _ => ()
 
 def lift [MonadLiftT m n] (self : LogMethods m) : LogMethods n where
   logInfo msg := liftM <| self.logInfo msg

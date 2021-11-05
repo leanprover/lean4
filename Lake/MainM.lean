@@ -3,8 +3,6 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.RealM
-
 namespace Lake
 
 /-- A process exit / return code. -/
@@ -28,11 +26,11 @@ namespace MainM
 @[inline] protected def toEIO (self : MainM α) : EIO ExitCode α :=
   self
 
-@[inline] protected def toRealM (self : MainM α) : RealM (Except ExitCode α) :=
-  RealM.runEIO' self.toEIO
+@[inline] protected def toBaseIO (self : MainM α) : BaseIO (Except ExitCode α) :=
+  self.toEIO.toBaseIO
 
-protected def run (self : MainM PUnit) : RealM ExitCode :=
-  self.toRealM.map fun | Except.ok _ => 0 | Except.error rc => rc
+protected def run (self : MainM PUnit) : BaseIO ExitCode :=
+  self.toBaseIO.map fun | Except.ok _ => 0 | Except.error rc => rc
 
 /-- Exit with given return code. -/
 protected def exit (rc : ExitCode) : MainM α :=

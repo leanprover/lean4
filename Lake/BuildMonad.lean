@@ -5,7 +5,6 @@ Authors: Mac Malone
 -/
 import Lake.Task
 import Lake.Trace
-import Lake.RealM
 import Lake.LogMonad
 import Lake.InstallPath
 
@@ -22,7 +21,7 @@ structure BuildContext where
   lakeInstall : LakeInstall
   deriving Inhabited
 
-abbrev BuildCoreM := LogMethodsT RealM <| EIO PUnit
+abbrev BuildCoreM := LogMethodsT BaseIO <| EIO PUnit
 abbrev BuildM := ReaderT BuildContext BuildCoreM
 
 --------------------------------------------------------------------------------
@@ -49,10 +48,10 @@ def getLakeInstall : BuildM LakeInstall :=
 
 namespace BuildCoreM
 
-def run (logMethods : LogMethods RealM) (self : BuildCoreM α) : IO α :=
+def run (logMethods : LogMethods BaseIO) (self : BuildCoreM α) : IO α :=
   ReaderT.run self logMethods |>.toIO fun _ => IO.userError "build failed"
 
-def runWith (logMethods : LogMethods RealM) (self : BuildCoreM α) : EIO PUnit α :=
+def runWith (logMethods : LogMethods BaseIO) (self : BuildCoreM α) : EIO PUnit α :=
   ReaderT.run self logMethods
 
 protected def failure : BuildCoreM α :=
@@ -66,7 +65,7 @@ instance : Alternative BuildCoreM where
   orElse := BuildCoreM.orElse
 
 def runIO (x : IO α) : BuildCoreM α := do
-  match (← RealM.runIO' x) with
+  match (← x.toBaseIO) with
   | Except.ok a => pure a
   | Except.error e => do
     logError (toString e)
@@ -79,7 +78,7 @@ instance : MonadLift (LogT IO) BuildCoreM where
 
 end BuildCoreM
 
-def BuildM.run (logMethods : LogMethods RealM) (ctx : BuildContext) (self : BuildM α) : IO α :=
+def BuildM.run (logMethods : LogMethods BaseIO) (ctx : BuildContext) (self : BuildM α) : IO α :=
   self ctx |>.run logMethods
 
 def failOnBuildCycle [ToString k] : Except (List k) α → BuildM α

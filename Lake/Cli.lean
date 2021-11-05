@@ -57,7 +57,7 @@ open CliT
 
 /-- Print out a line wih the given message and then exit with an error code. -/
 def error (msg : String) (rc : UInt32 := 1) : CliM α := do
-  RealM.runIO_ <| IO.eprintln s!"error: {msg}"
+  IO.eprintln s!"error: {msg}" |>.catchExceptions fun _ => ()
   exit rc
 
 /--
@@ -65,7 +65,7 @@ def error (msg : String) (rc : UInt32 := 1) : CliM α := do
   If it throws an error, invoke `error` with the its message.
 -/
 def runIO (x : IO α) : CliM α := do
-  match (← RealM.runIO' x) with
+  match (← x.toBaseIO) with
   | Except.ok a => pure a
   | Except.error e => error (toString e)
 

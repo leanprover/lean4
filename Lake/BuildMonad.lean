@@ -88,41 +88,5 @@ def failOnBuildCycle [ToString k] : Except (List k) α → BuildM α
   logError s!"build cycle detected:\n{"\n".intercalate cycle}"
   failure
 
-/-- TODO: Replace with an `EIOTask PUnit` once Lean supports such a thing. -/
-abbrev BuildTask := IOTask
-
-namespace BuildTask
-
-def spawn (act : BuildCoreM α) (prio := Task.Priority.dedicated) : BuildCoreM (BuildTask α) :=
-  fun meths => BuildCoreM.runWith meths do IO.asTask (act.run meths) prio
-
-instance : Async BuildCoreM BuildTask := ⟨spawn⟩
-
-protected def await (self : BuildTask α) : BuildCoreM α := do
-  match (← IO.wait self) with
-  | Except.ok a    => pure a
-  | Except.error e => logError (toString e); failure
-
-instance : Await BuildTask BuildCoreM := ⟨BuildTask.await⟩
-
-protected def mapAsync (f : α → BuildCoreM β) (self : BuildTask α) (prio := Task.Priority.dedicated) : BuildCoreM (BuildTask β) :=
-  fun meths => BuildCoreM.runWith meths do self.mapAsync (fun a => f a |>.run meths) prio
-
-instance : MapAsync BuildCoreM BuildTask := ⟨BuildTask.mapAsync⟩
-
-protected def bindAsync (self : BuildTask α) (f : α → BuildCoreM (BuildTask β)) (prio := Task.Priority.dedicated) : BuildCoreM (BuildTask β) :=
-  fun meths => BuildCoreM.runWith meths do self.bindAsync (fun a => f a |>.run meths) prio
-
-instance : BindAsync BuildCoreM BuildTask := ⟨BuildTask.bindAsync⟩
-
-protected def seqLeftAsync (self : BuildTask α) (act : BuildCoreM β) (prio := Task.Priority.dedicated) : BuildCoreM (BuildTask α) :=
-  fun meths => BuildCoreM.runWith meths do self.seqLeftAsync (act.run meths) prio
-
-instance : SeqLeftAsync BuildCoreM BuildTask := ⟨BuildTask.seqLeftAsync⟩
-
-protected def seqRightAsync (self : BuildTask α) (act : BuildCoreM β) (prio := Task.Priority.dedicated) : BuildCoreM (BuildTask β) :=
-  fun meths => BuildCoreM.runWith meths do self.seqRightAsync (act.run meths) prio
-
-instance : SeqRightAsync BuildCoreM BuildTask := ⟨BuildTask.seqRightAsync⟩
-
-end BuildTask
+/-- `Task` type for `BuildM`/`BuildCoreM`. -/
+abbrev BuildTask := EIOTask PUnit

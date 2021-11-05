@@ -14,45 +14,45 @@ instance : Monad Task where
   pure := Task.pure
   bind := Task.bind
 
-abbrev ETask ε α := ExceptT ε Task α
+abbrev ETask ε := ExceptT ε Task
 
--- # IO Tasks
+-- # EIO Tasks
 
-def IOTask := ETask IO.Error
-instance : Monad IOTask := inferInstanceAs <| Monad (ETask IO.Error)
+def EIOTask ε := ETask ε
+instance : Monad (EIOTask ε) := inferInstanceAs <| Monad (ETask ε)
 
-namespace IOTask
+namespace EIOTask
 
-def spawn (act : IO α) (prio := Task.Priority.dedicated) : IO (IOTask α) :=
-  IO.asTask act prio
+def spawn (act : EIO ε α) (prio := Task.Priority.dedicated) : EIO ε (EIOTask ε α) :=
+  EIO.asTask act prio
 
-instance : Async IO IOTask := ⟨spawn⟩
+instance : Async (EIO ε) (EIOTask ε) := ⟨spawn⟩
 
-def await (self : IOTask α) : IO α := do
+def await (self : EIOTask ε α) : EIO ε α := do
   match (← IO.wait self) with
   | Except.ok a    => pure a
   | Except.error e => throw e
 
-instance : Await IOTask IO := ⟨await⟩
+instance : Await (EIOTask ε) (EIO ε) := ⟨await⟩
 
-def mapAsync (f : α → IO β) (self : IOTask α) (prio := Task.Priority.dedicated) : IO (IOTask β) :=
-  IO.mapTask (fun | Except.ok a => f a | Except.error e => throw e) self prio
+def mapAsync (f : α → EIO ε β) (self : EIOTask ε α) (prio := Task.Priority.dedicated) : EIO ε (EIOTask ε β) :=
+  EIO.mapTask (fun | Except.ok a => f a | Except.error e => throw e) self prio
 
-instance : MapAsync IO IOTask := ⟨mapAsync⟩
+instance : MapAsync (EIO ε) (EIOTask ε) := ⟨mapAsync⟩
 
-def bindAsync (self : IOTask α) (f : α → IO (IOTask β)) (prio := Task.Priority.dedicated) : IO (IOTask β) :=
-  IO.bindTask self (fun | Except.ok a => f a | Except.error e => throw e) prio
+def bindAsync (self : EIOTask ε α) (f : α → EIO ε (EIOTask ε β)) (prio := Task.Priority.dedicated) : EIO ε (EIOTask ε β) :=
+  EIO.bindTask self (fun | Except.ok a => f a | Except.error e => throw e) prio
 
-instance : BindAsync IO IOTask := ⟨bindAsync⟩
+instance : BindAsync (EIO ε) (EIOTask ε) := ⟨bindAsync⟩
 
-def seqLeftAsync (self : IOTask α) (act : IO β) (prio := Task.Priority.dedicated) : IO (IOTask α) :=
-  IO.mapTask (fun | Except.ok a => pure a <* act | Except.error e => throw e) self prio
+def seqLeftAsync (self : EIOTask ε α) (act : EIO ε β) (prio := Task.Priority.dedicated) : EIO ε (EIOTask ε α) :=
+  EIO.mapTask (fun | Except.ok a => pure a <* act | Except.error e => throw e) self prio
 
-instance : SeqLeftAsync IO IOTask := ⟨seqLeftAsync⟩
+instance : SeqLeftAsync (EIO ε) (EIOTask ε) := ⟨seqLeftAsync⟩
 
-def seqRightAsync (self : IOTask α) (act : IO β) (prio := Task.Priority.dedicated) : IO (IOTask β) :=
-  IO.mapTask (fun | Except.ok a => pure a *> act | Except.error e => throw e) self prio
+def seqRightAsync (self : EIOTask ε α) (act : EIO ε β) (prio := Task.Priority.dedicated) : EIO ε (EIOTask ε β) :=
+  EIO.mapTask (fun | Except.ok a => pure a *> act | Except.error e => throw e) self prio
 
-instance : SeqRightAsync IO IOTask := ⟨seqRightAsync⟩
+instance : SeqRightAsync (EIO ε) (EIOTask ε) := ⟨seqRightAsync⟩
 
-end IOTask
+end EIOTask

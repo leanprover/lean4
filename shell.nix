@@ -1,6 +1,6 @@
 let
   flakePkgs = (import ./default.nix).packages.${builtins.currentSystem};
-in { pkgs ? flakePkgs.nixpkgs, llvmPackages ? null }:
+in { pkgs ? flakePkgs.nixpkgs, llvmPackages ? null, glibc ? pkgs.glibc }:
 # use `shell` as default
 (attribs: attribs.shell // attribs) rec {
   shell = pkgs.mkShell.override {
@@ -14,7 +14,7 @@ in { pkgs ? flakePkgs.nixpkgs, llvmPackages ? null }:
     # more convenient `ctest` output
     CTEST_OUTPUT_ON_FAILURE = 1;
     GMP = pkgs.gmp.override { withStatic = true; };
-    GLIBC = pkgs.glibc;
+    GLIBC = glibc;
     shellHook = ''
       export LEAN_SRC_PATH="$PWD/src"
     '';

@@ -219,13 +219,14 @@ def verifyLeanVersion : CliM PUnit := do
   let leanInstall ← getLeanInstall
   let out ← IO.Process.output {
     cmd := leanInstall.lean.toString,
-    args := #["--version"]
+    args := #["--githash"]
   }
   if out.exitCode == 0 then
-    unless out.stdout.drop 14 |>.startsWith uiLeanVersionString do
-      error s!"expected {uiLeanVersionString}, but got {out.stdout.trim}"
+    let githash := out.stdout.trim
+    unless githash == Lean.githash do
+      error s!"expected Lean commit {Lean.githash}, but got {githash}"
   else
-    error s!"running `lean --version` exited with code {out.exitCode}"
+    error s!"running `lean --githash` exited with code {out.exitCode}"
 
 /-- Output the detected installs and verify the Lean version. -/
 def verifyInstall : CliM PUnit := do

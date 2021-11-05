@@ -349,12 +349,13 @@ def processArgs : CliM PUnit := do
   | [] => IO.println usage
   | ["--version"] => IO.println uiVersionString
   | _ => -- normal CLI
-    processLeadingOptions
+    processLeadingOptions -- between `lake` and command
     if let some cmd ← takeArg? then
+      processLeadingOptions -- between command and args
       if (← getWantsHelp) then
         IO.println <| help cmd
       else
-        processOptions
+        processOptions -- after/intermixed with args
         command cmd
     else
       if (← getWantsHelp) then IO.println usage else error "expected command"

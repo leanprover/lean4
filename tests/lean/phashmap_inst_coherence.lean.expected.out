@@ -6,5 +6,3 @@ has type
   @PersistentHashMap Nat Nat instBEq instHashableNat : Type
 but is expected to have type
   @PersistentHashMap Nat Nat instBEq natDiffHash : Type
-phashmap_inst_coherence.lean:12:0-12:56: error: failed to synthesize
-  Lean.Eval ?m

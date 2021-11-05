@@ -8,6 +8,4 @@ protected.lean:28:14-28:15: error: unknown identifier 'f'
 8
 protected.lean:38:14-38:15: error: unknown identifier 'g'
 protected.lean:47:6-47:7: error: unknown identifier 'g'
-protected.lean:47:0-47:9: error: failed to synthesize
-  Lean.Eval ?m
 8

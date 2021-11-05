@@ -17,9 +17,7 @@ $CP $(realpath llvm/bin/clang) stage1/bin/clang
 $CP llvm/bin/{lld,ld.lld} stage1/bin/
 # dependencies of the above
 $CP llvm/lib/lib{clang-cpp,LLVM}*.so* stage1/lib/
-# clang can't even find its own deps in a standard build? ¯\_(ツ)_/¯
-ln llvm/lib/x86*/* llvm/lib
-# ...nor are the rpaths sensible
+# fix up some rpaths(...?)
 patchelf --set-rpath '$ORIGIN' llvm/lib/libc++.so.*
 # lean.h dependencies
 $CP llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
@@ -27,7 +25,7 @@ $CP llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
 $CP $GLIBC/lib/crt* llvm/lib/
 $CP $GLIBC/lib/crt* stage1/lib/
 # runtime
-(cd llvm; $CP --parents lib/clang/*/lib/*/{*crt{begin,end}.o,libclang_rt.builtins*} ../stage1)
+(cd llvm; $CP --parents lib/clang/*/lib/*/{clang_rt.*.o,libclang_rt.builtins*} ../stage1)
 $CP llvm/lib/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a stage1/lib/
 # glibc: use for linking (so Lean programs don't embed newer symbol versions), but not for running (because libc.so, librt.so, and ld.so must be compatible)!
 $CP $GLIBC/lib/libc_nonshared.a stage1/lib/glibc

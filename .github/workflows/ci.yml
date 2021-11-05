@@ -27,7 +27,7 @@ jobs:
             os: ubuntu-latest
             release: true
             shell: nix-shell --arg pkgs "import (fetchTarball \"channel:nixos-19.03\") {{}}" --argstr llvmPackages latest --run "bash -euxo pipefail {0}"
-            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm.tar.zst
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-linux-gnu.tar.zst
           - name: Linux
             os: ubuntu-latest
             check-stage3: true

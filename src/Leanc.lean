@@ -50,7 +50,7 @@ Beware of the licensing consequences since GMP is LGPL."
     ldflagsInternal := []
   cc := rootify cc
   let args := cflags ++ cflagsInternal ++ args ++ ldflagsExt ++ ldflags ++ ldflagsInternal ++ ["-Wno-unused-command-line-argument"]
-  let args := args.map rootify
+  let args := args.filter (!·.isEmpty) |>.map rootify
   if args.contains "-v" then
     IO.eprintln s!"{cc} {" ".intercalate args}"
   let child ← IO.Process.spawn { cmd := cc, args := args.toArray }

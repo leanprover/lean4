@@ -7,7 +7,7 @@ package scripts
 Display a greeting
 
 USAGE:
-  lake run greet -- [name]
+  lake run greet [-h] [-- name]
 
 Greet the entity with the given name. Otherwise, greet the whole world.
 -/

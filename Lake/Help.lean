@@ -54,11 +54,13 @@ def helpRun :=
 "Run arbitrary package scripts
 
 USAGE:
-  lake run <script> [-- <args>...]
+  lake run <script> [-h] [-- <args>...]
 
 This command runs the given script from the package configuration's
 `scripts` field, passing `args` to it. If the given script does not exist,
-errors and prints the list of available scripts."
+errors and prints the list of available scripts.
+
+You can pass -h/--help after the script name to print its docstring."
 
 def helpServer :=
 "Start the Lean language server

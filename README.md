@@ -129,6 +129,14 @@ open Lake DSL
 
 package scripts
 
+/--
+Display a greeting
+
+USAGE:
+  lake run greet [-h] [-- [name]]
+
+Greet the entity with the given name. Otherwise, greet the whole world.
+-/
 script greet (args) do
   if h : 0 < args.length then
     IO.println s!"Hello, {args.get 0 h}!"
@@ -138,9 +146,22 @@ script greet (args) do
 ```
 
 The script `greet` can be run like so:
+
 ```
 $ lake run greet
 Hello, world!
 $ lake run greet -- me
 Hello, me!
+```
+
+You can print the docstring of a script by passing `-h`/`--help` after its name:
+
+```
+$ lake run greet --help
+Display a greeting
+
+USAGE:
+  lake run greet [-h] [-- name]
+
+Greet the entity with the given name. Otherwise, greet the whole world.
 ```

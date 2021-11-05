@@ -206,7 +206,7 @@ def script (pkg : Package) (name : String) (args : List String) :  CliM PUnit :=
       if let some doc := script.doc? then
         IO.print doc
       else
-        IO.println s!"no documentation provided for `{name}`"
+        error s!"no documentation provided for `{name}`"
     else
       exit (← script.run args)
   else

@@ -18,7 +18,7 @@ ifeq ($(OS),Windows_NT)
   export PATH := $(BIN_OUT):$(PATH)
 else
 # find libleanshared.so
-  TEST_SHARED_LINK_FLAGS := -rpath `lean --print-prefix`/lib/lean
+  TEST_SHARED_LINK_FLAGS := -Wl,-rpath,`lean --print-prefix`/lib/lean
 endif
 
 $(BIN_OUT)/testcpp.so: $(CPP_OBJS) | $(BIN_OUT)

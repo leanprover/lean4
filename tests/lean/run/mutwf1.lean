@@ -19,12 +19,10 @@ termination_by
       | Sum.inr <| Sum.inl ⟨_, _, n, _⟩ => (n, 1)
       | Sum.inr <| Sum.inr ⟨_, _, _, n⟩ => (n, 0))
     (Prod.lex sizeOfWFRel sizeOfWFRel)
+decreasing_by admit  -- TODO
 
 #print f
 #print g
 #print h
 
 #eval f 5 'a' 'b'
-
--- TODO: decreasing proofs are still using `sorry`
-#print axioms f

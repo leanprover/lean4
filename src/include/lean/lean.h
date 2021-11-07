@@ -21,13 +21,6 @@ extern "C" {
 #endif
 #include <lean/config.h>
 
-#ifdef NDEBUG
-#define assert(expr)
-#else
-// TODO
-#define assert(expr)
-#endif
-
 #define LEAN_CLOSURE_MAX_ARGS      16
 #define LEAN_OBJECT_SIZE_DELTA     8
 #define LEAN_MAX_SMALL_OBJECT_SIZE 4096
@@ -46,6 +39,13 @@ extern "C" {
 #define LEAN_UNLIKELY(x) (x)
 #define LEAN_LIKELY(x) (x)
 #define LEAN_ALWAYS_INLINE
+#endif
+
+#ifdef NDEBUG
+#define assert(expr)
+#else
+void lean_notify_assert(const char * fileName, int line, const char * condition);
+#define assert(expr) { if (LEAN_UNLIKELY(!(expr))) lean_notify_assert(__FILE__, __LINE__, #expr); }
 #endif
 
 #ifdef _WIN32

@@ -17,8 +17,6 @@ $CP $(realpath llvm/bin/clang) stage1/bin/clang
 $CP llvm/bin/{lld,ld.lld} stage1/bin/
 # dependencies of the above
 $CP llvm/lib/lib{clang-cpp,LLVM}*.so* stage1/lib/
-# fix up some rpaths(...?)
-patchelf --set-rpath '$ORIGIN' llvm/lib/libc++.so.*
 # lean.h dependencies
 $CP llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
 # ELF dependencies, must be put there for `--sysroot`

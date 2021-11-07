@@ -536,6 +536,10 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION lib/lean
         PATTERN "*.md"
         PATTERN examples EXCLUDE)
 
+if(${STAGE} GREATER 0)
+  install(FILES "${CMAKE_SOURCE_DIR}/../LICENSE" DESTINATION ".")
+endif()
+
 file(COPY ${CMAKE_SOURCE_DIR}/include/lean DESTINATION ${CMAKE_BINARY_DIR}/include
   FILES_MATCHING PATTERN "*.h")
 

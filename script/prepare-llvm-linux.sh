@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-# run from root build directory (from inside nix-shell or otherwise defining GLIBC/GMP) as in
+# run from root build directory (from inside nix-shell or otherwise defining GLIBC/ZLIB/GMP) as in
 # ```
 # eval cmake ../.. $(../../script/prepare-llvm-linux.sh ~/Downloads/clang+llvm-13.0.0-x86_64-linux-gnu-ubuntu-16.04.tar.xz)
 # ```
@@ -14,9 +14,10 @@ CP="cp -d"  # preserve symlinks
 # a C compiler!
 $CP $(realpath llvm/bin/clang) stage1/bin/clang
 # a linker!
-$CP llvm/bin/{lld,ld.lld} stage1/bin/
+$CP llvm/bin/{ld.lld,lld} stage1/bin/
 # dependencies of the above
 $CP llvm/lib/lib{clang-cpp,LLVM}*.so* stage1/lib/
+$CP $ZLIB/lib/libz.so* stage1/lib/
 # lean.h dependencies
 $CP llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
 # ELF dependencies, must be put there for `--sysroot`

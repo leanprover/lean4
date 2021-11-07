@@ -26,7 +26,7 @@ jobs:
           - name: Linux release
             os: ubuntu-latest
             release: true
-            shell: nix-shell --arg glibc "(import (fetchTarball \"channel:nixos-19.03\") {{}}).glibc" --run "bash -euxo pipefail {0}"
+            shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{}}" --run "bash -euxo pipefail {0}"
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-linux-gnu.tar.zst
           - name: Linux
             os: ubuntu-latest

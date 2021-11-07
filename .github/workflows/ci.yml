@@ -74,11 +74,11 @@ jobs:
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
-          install: make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache git unzip diffutils binutils tree
+          install: make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache git zip unzip diffutils binutils tree mingw-w64-x86_64-zstd
         if: matrix.os == 'windows-2022'
       - name: Install Brew Packages
         run: |
-          brew install ccache tree
+          brew install ccache tree zstd
         if: matrix.os == 'macos-latest'
       - name: Cache
         uses: actions/cache@v2
@@ -104,7 +104,7 @@ jobs:
           OPTIONS=()
           if [[ '${{ matrix.llvm-url }}' && "${{ matrix.name }}" == "Linux release" ]]; then
             wget -q ${{ matrix.llvm-url }}
-            eval "OPTIONS+=($(../script/prepare-llvm-linux.sh *llvm*))"
+            eval "OPTIONS+=($(../script/prepare-llvm-linux.sh lean-llvm*))"
           fi
           if [[ $GITHUB_EVENT_NAME == 'schedule' && -n '${{ matrix.release }}' && -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
             git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
@@ -117,13 +117,13 @@ jobs:
             fi
           fi
           # contortion to support empty OPTIONS with old macOS bash
-          cmake .. ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"}
+          cmake .. ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
           make -j4
+          make install
       - name: Check binaries
         if: matrix.name == 'Linux release'
         run: |
-          ldd -v build/stage1/bin/* || true
-          ls -l build/stage1/lib/
+          ldd -v lean-*/bin/* || true
       - name: Patch
         if: matrix.name == 'macOS'
         run: |
@@ -145,22 +145,22 @@ jobs:
           cp $(ldd bin/lean.exe | cut -f3 -d' ' | grep mingw) bin/
           ldd bin/lean.exe
           ls -l bin/
-      - name: Test Binary without Nix Shell
-        if: matrix.name != 'Windows'
-        shell: bash {0}
+      - name: List Install Tree
         run: |
-          build/stage1/bin/lean -h
+          # omit contents of src/, Init/, ...
+          tree --du -h lean-* | grep -Ev '(│.*){3}'
       - name: Pack
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && matrix.release }}
         run: |
-          cd build/stage1
-          cpack
-          mkdir unpack
-          tar xf lean-* -C unpack || unzip lean-4 -d unpack
-          tree --du -h unpack
+          dir=$(echo lean-*)
+          mkdir pack
+          which zstd
+          tar cf - $dir | zstd -T0 --no-progress -19 -o pack/$dir.tar.zst
+          zip -r pack/$dir.zip $dir
       - uses: actions/upload-artifact@v2
         with:
           name: build-${{ matrix.name }}
-          path: build/stage1/lean-*
+          path: lean-*
       - name: Lean stats
         run: |
           build/stage1/bin/lean --stats src/Lean.lean
@@ -195,7 +195,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: ${{ startsWith(github.ref, 'refs/tags/v') && matrix.release }}
         with:
-          files: build/stage1/lean-*
+          files: pack/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Prepare Nightly Release
@@ -223,7 +223,7 @@ jobs:
         with:
           body_path: diff.md
           prerelease: true
-          files: build/stage1/lean-*
+          files: pack/*
           tag_name: ${{ env.LEAN_VERSION_STRING }}
           repository: ${{ github.repository_owner }}/lean4-nightly
         env:

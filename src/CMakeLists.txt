@@ -558,4 +558,11 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 else()
   SET(CPACK_GENERATOR ZIP)
 endif()
+
+set(LEAN_INSTALL_PREFIX "" CACHE STRING "If set, set CMAKE_INSTALL_PREFIX to this value + version name")
+if(LEAN_INSTALL_PREFIX)
+  set(CMAKE_INSTALL_PREFIX "${LEAN_INSTALL_PREFIX}/${CPACK_PACKAGE_FILE_NAME}")
+endif()
+
+# NOTE: modifies `CPACK_PACKAGE_FILE_NAME`(??)
 include(CPack)

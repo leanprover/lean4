@@ -22,9 +22,9 @@ Beware of the licensing consequences since GMP is LGPL."
   -- We assume that the CMake variables do not contain escaped spaces
   let cflags := ["-I", (root / "include").toString] ++ "@LEANC_EXTRA_FLAGS@".trim.splitOn
   let mut cflagsInternal := "@LEANC_INTERNAL_FLAGS@".trim.splitOn
+  let mut ldflagsInternal := "@LEANC_INTERNAL_LINKER_FLAGS@".trim.splitOn
   let mut ldflags := ["-L", (root / "lib" / "lean").toString, "-lgmp"] ++ "@LEAN_EXTRA_LINKER_FLAGS@".trim.splitOn
   let mut ldflagsExt := "@LEANC_STATIC_LINKER_FLAGS@".trim.splitOn
-  let mut ldflagsInternal := "@LEANC_INTERNAL_LINKER_FLAGS@".trim.splitOn
 
   for arg in args do
     match arg with
@@ -49,7 +49,7 @@ Beware of the licensing consequences since GMP is LGPL."
     cflagsInternal := []
     ldflagsInternal := []
   cc := rootify cc
-  let args := cflags ++ cflagsInternal ++ args ++ ldflagsExt ++ ldflags ++ ldflagsInternal ++ ["-Wno-unused-command-line-argument"]
+  let args := cflags ++ cflagsInternal ++ args ++ ldflagsInternal ++ ldflagsExt ++ ldflags ++ ["-Wno-unused-command-line-argument"]
   let args := args.filter (!·.isEmpty) |>.map rootify
   if args.contains "-v" then
     IO.eprintln s!"{cc} {" ".intercalate args}"

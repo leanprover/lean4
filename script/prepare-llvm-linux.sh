@@ -18,6 +18,7 @@ $CP llvm/bin/{ld.lld,lld} stage1/bin/
 # dependencies of the above
 $CP llvm/lib/lib{clang-cpp,LLVM}*.so* stage1/lib/
 $CP $ZLIB/lib/libz.so* stage1/lib/
+find stage1 -type f -exec strip --strip-unneeded '{}' \; 2> /dev/null
 # lean.h dependencies
 $CP llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
 # ELF dependencies, must be put there for `--sysroot`

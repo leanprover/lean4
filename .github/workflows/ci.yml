@@ -133,6 +133,7 @@ jobs:
         if: matrix.name == 'macOS'
         run: |
           cd build/stage1
+          cp /usr/local/opt/gmp/lib/libgmp.* lib/
           for f in lib/lean/libleanshared.dylib bin/lean bin/leanpkg bin/leanc bin/lake; do
             for lib in $(otool -L $f | tail -n +2 | cut -d' ' -f1); do
               # copy Homebrew dependencies

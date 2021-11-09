@@ -318,3 +318,5 @@ bitwise bne
   command @ ⟨38, 0⟩-⟨38, 10⟩ @ Lean.Elab.Command.elabPrint
     xor : Nat → Nat → Nat @ ⟨38, 7⟩-⟨38, 10⟩
   command @ ⟨37, 0⟩†-⟨38, 10⟩† @ Lean.Elab.Command.elabEnd
+infoTree.lean:40:0: error: unexpected end of input; expected identifier
+[Elab.info] command @ ⟨39, 0⟩-⟨39, 30⟩ @ no_elab

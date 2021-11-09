@@ -46,12 +46,12 @@ def bindAsync (self : EIOTask ε α) (f : α → EIO ε (EIOTask ε β)) (prio :
 instance : BindAsync (EIO ε) (EIOTask ε) := ⟨bindAsync⟩
 
 def seqLeftAsync (self : EIOTask ε α) (act : EIO ε β) (prio := Task.Priority.dedicated) : EIO ε (EIOTask ε α) :=
-  EIO.mapTask (fun | Except.ok a => pure a <* act | Except.error e => throw e) self prio
+  self.mapAsync (fun a => do discard act; pure a) prio
 
 instance : SeqLeftAsync (EIO ε) (EIOTask ε) := ⟨seqLeftAsync⟩
 
 def seqRightAsync (self : EIOTask ε α) (act : EIO ε β) (prio := Task.Priority.dedicated) : EIO ε (EIOTask ε β) :=
-  EIO.mapTask (fun | Except.ok a => pure a *> act | Except.error e => throw e) self prio
+  self.mapAsync (fun _ => act) prio
 
 instance : SeqRightAsync (EIO ε) (EIOTask ε) := ⟨seqRightAsync⟩
 

@@ -221,7 +221,7 @@ partial def handleDocumentSymbol (p : DocumentSymbolParams)
     | some ElabTaskError.aborted =>
       throw RequestError.fileChanged
     | some (ElabTaskError.ioError e) =>
-      throwThe IO.Error e
+      throw (e : RequestError)
     | _ => ()
 
     let lastSnap := cmdSnaps.finishedPrefix.getLastD doc.headerSnap
@@ -371,7 +371,7 @@ partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
       waitLoop
   let t ← RequestM.asTask waitLoop
   RequestM.bindTask t fun doc? => do
-    let doc ← doc?
+    let doc ← liftExcept doc?
     let t₁ ← doc.cmdSnaps.waitAll
     return t₁.map fun _ => pure WaitForDiagnostics.mk
 

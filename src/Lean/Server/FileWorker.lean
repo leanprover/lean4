@@ -366,7 +366,7 @@ section MessageHandling
         srcSearchPath := ctx.srcSearchPath
         doc := st.doc
         hLog := ctx.hLog }
-    let t? ← (ExceptT.run <| handleLspRequest method params rc : IO _)
+    let t? ← EIO.toIO' <| handleLspRequest method params rc
     let t₁ ← match t? with
       | Except.error e =>
         IO.asTask do

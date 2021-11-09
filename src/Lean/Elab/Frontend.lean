@@ -94,10 +94,10 @@ def getPrintMessageEndPos (opts : Options) : Bool :=
   opts.getBool `printMessageEndPos false
 
 @[export lean_run_frontend]
-def runFrontend (input : String) (opts : Options) (fileName : String) (mainModuleName : Name) : IO (Environment × Bool) := do
+def runFrontend (input : String) (opts : Options) (fileName : String) (mainModuleName : Name) (trustLevel : UInt32 := 0) : IO (Environment × Bool) := do
   let inputCtx := Parser.mkInputContext input fileName
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
-  let (env, messages) ← processHeader header opts messages inputCtx
+  let (env, messages) ← processHeader header opts messages inputCtx trustLevel
   let env := env.setMainModule mainModuleName
   let s ← IO.processCommands inputCtx parserState (Command.mkState env messages opts)
   for msg in s.commandState.messages.toList do

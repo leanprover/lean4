@@ -572,10 +572,7 @@ def setAccessRights (filename : FilePath) (mode : FileRight) : IO Unit :=
 /- References -/
 abbrev Ref (α : Type) := ST.Ref IO.RealWorld α
 
-instance : MonadLift (ST IO.RealWorld) (EIO ε) := ⟨fun x s =>
-  match x s with
-  | EStateM.Result.ok a s     => EStateM.Result.ok a s
-  | EStateM.Result.error ex _ => nomatch ex⟩
+instance : MonadLift (ST IO.RealWorld) BaseIO := ⟨id⟩
 
 def mkRef (a : α) : IO (IO.Ref α) :=
   ST.mkRef a

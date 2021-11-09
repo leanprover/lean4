@@ -12,7 +12,7 @@ Auxiliary elaboration functions: AKA custom elaborators
 namespace Lean.Elab.Term
 open Meta
 
-@[builtinTermElab binrel] def elabBinRel : TermElab :=  fun stx expectedType? => do
+def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=  do
   match (← resolveId? stx[1]) with
   | some f =>
     let s ← saveState
@@ -24,8 +24,11 @@ open Meta
       else if rhs.isAppOfArity ``OfNat.ofNat 3 then
         rhs ← ensureHasType (← inferType lhs) rhs
       return (lhs, rhs)
+    let lhs ← toBoolIfNecessary lhs
+    let rhs ← toBoolIfNecessary rhs
     let lhsType ← inferType lhs
     let rhsType ← inferType rhs
+
     let (lhs, rhs) ←
       try
         pure (lhs, ← withRef stx[3] do ensureHasType lhsType rhs)
@@ -42,6 +45,18 @@ open Meta
           pure (lhs, ← withRef stx[3] do ensureHasType lhsType rhs)
     elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType? (explicit := false) (ellipsis := false)
   | none   => throwUnknownConstant stx[1].getId
+where
+  /-- If `noProp == true` and `e` has type `Prop`, then coerce it to `Bool`. -/
+  toBoolIfNecessary (e : Expr) : TermElabM Expr := do
+    if noProp then
+      -- We use `withNewMCtxDepth` to make sure metavariables are not assigned
+      if (← withNewMCtxDepth <| isDefEq (← inferType e) (mkSort levelZero)) then
+        return (← ensureHasType (Lean.mkConst ``Bool) e)
+    return e
+
+@[builtinTermElab binrel] def elabBinRel : TermElab := elabBinRelCore false
+
+@[builtinTermElab binrel_no_prop] def elabBinRelNoProp : TermElab := elabBinRelCore true
 
 @[builtinTermElab forInMacro] def elabForIn : TermElab :=  fun stx expectedType? => do
   match stx with

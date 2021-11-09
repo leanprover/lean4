@@ -148,7 +148,7 @@ jobs:
       - name: List Install Tree
         run: |
           # omit contents of src/, Init/, ...
-          tree --du -h lean-* | grep -Ev '(│.*){3}'
+          tree --du -h lean-* | grep -Ev '\.o?lean'
       - name: Pack
         if: ${{ startsWith(github.ref, 'refs/tags/v') && matrix.release }}
         run: |

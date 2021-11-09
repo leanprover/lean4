@@ -50,8 +50,8 @@ We don't want to waste your time by you implementing a feature and then us not b
 
 ## How to Contribute
 
-* Always follow the [commit convention](https://leanprover.github.io/lean4/doc/commit_convention.html).
+* Always follow the [commit convention](https://leanprover.github.io/lean4/doc/dev/commit_convention.html).
 * Follow the style of the surrounding code. When in doubt, look at other files using the particular syntax as well.
 * Make sure your code is documented.
 * New features or bug fixes should come with appropriate tests.
-* Ensure all tests work before submitting a PR; see [Development Setup](https://leanprover.github.io/lean4/doc/make/index.html#development-setup) and [Fixing Tests](https://leanprover.github.io/lean4/doc/fixing_tests.html).
+* Ensure all tests work before submitting a PR; see [Development Setup](https://leanprover.github.io/lean4/doc/make/index.html#development-setup) and [Fixing Tests](https://leanprover.github.io/lean4/doc/dev/fixing_tests.html).

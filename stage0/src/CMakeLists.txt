@@ -343,6 +343,7 @@ if(USE_GITHASH)
   get_git_head_revision(GIT_REFSPEC GIT_SHA1)
   if(${GIT_SHA1} MATCHES "GITDIR-NOTFOUND")
     message(STATUS "Failed to read git_sha1")
+    set(GIT_SHA1 "")
     if(EXISTS "${LEAN_SOURCE_DIR}/bin/package_version")
       file(STRINGS "${LEAN_SOURCE_DIR}/bin/package_version" LEAN_PACKAGE_VERSION)
       message(STATUS "Package version detected: ${LEAN_PACKAGE_VERSION}")
@@ -351,7 +352,7 @@ if(USE_GITHASH)
     message(STATUS "git commit sha1: ${GIT_SHA1}")
   endif()
 else()
-  set(GIT_SHA1 "GITDIR-NOTFOUND")
+  set(GIT_SHA1 "")
   if(EXISTS "${LEAN_SOURCE_DIR}/bin/package_version")
     file(STRINGS "${LEAN_SOURCE_DIR}/bin/package_version" LEAN_PACKAGE_VERSION)
     message(STATUS "Package version detected: ${LEAN_PACKAGE_VERSION}")
@@ -522,7 +523,8 @@ install(CODE "execute_process(COMMAND sh -c \"cp ${CMAKE_BINARY_DIR}/lib/*.* \${
 install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION lib/lean
         FILES_MATCHING
         PATTERN "*.lean"
-        PATTERN "*.md")
+        PATTERN "*.md"
+        PATTERN examples EXCLUDE)
 
 file(COPY ${CMAKE_SOURCE_DIR}/include/lean DESTINATION ${CMAKE_BINARY_DIR}/include
   FILES_MATCHING PATTERN "*.h")
@@ -533,7 +535,7 @@ set(CPACK_PACKAGE_CONTACT "Leonardo de Moura <leodemoura@microsoft.com>")
 string(TOLOWER ${CMAKE_SYSTEM_NAME} LOWER_SYSTEM_NAME)
 string(TIMESTAMP COMPILE_DATETIME "%Y%m%d%H%M%S")
 set(CPACK_PACKAGE_VERSION "${LEAN_VERSION_STRING}.${COMPILE_DATETIME}")
-if(NOT (${GIT_SHA1} MATCHES "GITDIR-NOTFOUND"))
+if(NOT (${GIT_SHA1} MATCHES ""))
   set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION}.git${GIT_SHA1}")
 endif()
 set(CPACK_PACKAGE_FILE_NAME "lean-${LEAN_VERSION_STRING}-${LOWER_SYSTEM_NAME}")

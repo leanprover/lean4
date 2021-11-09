@@ -201,7 +201,8 @@ static void display_help(std::ostream & out) {
     std::cout << "  --server           start lean in server mode\n";
     std::cout << "  --worker           start lean in server-worker mode\n";
 #endif
-    std::cout << "  --plugin=file      load and initialize shared library for registering linters etc.\n";
+    std::cout << "  --plugin=file      load and initialize Lean shared library for registering linters etc.\n";
+    std::cout << "  --load-dynlib=file load shared library to make its symbols available to the interpreter\n";
     std::cout << "  --deps             just print dependencies of a Lean input\n";
     std::cout << "  --print-prefix     print the installation prefix for Lean and exit\n";
     std::cout << "  --print-libdir     print the installation directory for Lean's built-in libraries and exit\n";
@@ -240,6 +241,7 @@ static struct option g_long_options[] = {
     {"worker",       no_argument,       0, 'W'},
 #endif
     {"plugin",       required_argument, 0, 'p'},
+    {"load-dynlib",  required_argument, 0, 'l'},
     {"print-prefix", no_argument,       &print_prefix, 1},
     {"print-libdir", no_argument,       &print_libdir, 1},
 #ifdef LEAN_DEBUG
@@ -299,7 +301,7 @@ void load_plugin(std::string path) {
 #ifdef LEAN_WINDOWS
     HMODULE h = LoadLibrary(path.c_str());
     if (!h) {
-        throw exception(sstream() << "error loading plugin " << path);
+        throw exception(sstream() << "error loading plugin " << path << ": " << GetLastError());
     }
     init = reinterpret_cast<void *>(GetProcAddress(h, sym.c_str()));
 #else
@@ -316,6 +318,21 @@ void load_plugin(std::string path) {
     object *r = init_fn(io_mk_world());
     consume_io_result(r);
     // NOTE: we never unload plugins
+}
+
+void load_library(std::string path) {
+#ifdef LEAN_WINDOWS
+    HMODULE h = LoadLibrary(path.c_str());
+    if (!h) {
+        throw exception(sstream() << "error loading library " << path << ": " << GetLastError());
+    }
+#else
+    void *handle = dlopen(path.c_str(), RTLD_LAZY | RTLD_GLOBAL);
+    if (!handle) {
+        throw exception(sstream() << "error loading library, " << dlerror());
+    }
+#endif
+    // NOTE: we never unload libraries
 }
 
 namespace lean {
@@ -533,6 +550,11 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
                 check_optarg("p");
                 load_plugin(optarg);
                 forwarded_args.push_back(string_ref("--plugin=" + std::string(optarg)));
+                break;
+            case 'l':
+                check_optarg("l");
+                load_library(optarg);
+                forwarded_args.push_back(string_ref("--load-dynlib=" + std::string(optarg)));
                 break;
             default:
                 std::cerr << "Unknown command line option\n";

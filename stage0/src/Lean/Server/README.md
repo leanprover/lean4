@@ -16,25 +16,11 @@ See the `lsp-log-io` variable.
 
 ### In VSCode
 
-Set `$extension.trace.server` to `verbose` as described in the *Usage* section of [LSP Inspector](https://microsoft.github.io/language-server-protocol/inspector/**.
+Set `$extension.trace.server` to `verbose` as described in the [Language Server Extension Guide](https://code.visualstudio.com/api/language-extensions/language-server-extension-guide#logging-support-for-language-server).
 
 ## Server design
 
-### (Very incomplete) notes on Lean 3
-
-How the Lean 3 server provides info for mouse hovers, tactic states, widgets states and autocompletion:
-- When compiling a file, the module manager stores *snapshots* of the environment and options
-  after each command.
-- The elaborator and certain tactics also register bits of information such as the elaborated types
-  of expressions in an `info_manager`.
-- When info is requested by the client, `server::info` at `src/shell/server.cpp:613` is called.
-  It finds the closest snapshot to the position at which info is requested and passes
-  that to `report_info` at `src/frontends/lean/interactive.cpp:141`. `report_info` queries
-  the `info_manager` as well as the environment at that point for relevant information.
-
-### Architecture
-
-#### Process separation
+### Process separation
 
 The server consists of a single *watchdog* process coordinating per-file *worker* processes.
 
@@ -49,13 +35,28 @@ Why would we settle on such an architecture? The crucial point is that corruptio
 
 Another important consideration is the *compacted region* memory used by imported modules. For efficiency, these regions are not subject to the reference-counting GC and as such need to be freed manually when the imports change. But doing this safely is pretty much impossible, as safe freeing is the very problem GCs are supposed to solve. It is far easier to simply nuke and restart the worker process whenever this needs to be done, as it only happens in cases in which all of the worker's state would have to be recomputed anyway.
 
-#### Recompilation of opened files
+### Recompilation of opened files
 
 When the user has two or more files in a single dependency chain open, it is desirable for changes in imports to propagate to modules importing them. That is, when `B.lean` depends on `A.lean` and both are open, changes to `A` should eventually be observable in `B`. But a major problem with Lean 3 is how it does this much too eagerly. Often `B` will be recompiled needlessly as soon as `A` is opened, even if no changes have been made to `A`. For heavyweight modules which take up to several minutes to compile, this causes frustration when `A` is opened merely for inspection e.g. via go-to-definition.
 
-In Lean 4, the situation is different as `.olean` artifacts are required to exist for all imported modules -- one cannot import a `.lean` file without compiling it first. In the running example, when a user opens and edits `A`, nothing is going to happen to `B`. They can continue to interact with it as if `A` kept its previous contents. But when `A` is saved with changes, `.olean` compilation will be triggered (user-configurable, can be disabled) and correspondingly `B` will be recompiled. This being a conscious action, users will be aware of having to then wait for reverse dependencies to recompile.
+In Lean 4, the situation is different as `.olean` artifacts are required to exist for all imported modules -- one cannot import a `.lean` file without compiling it first. In the running example, when a user opens and edits `A`, nothing is going to happen to `B`. They can continue to interact with it as if `A` kept its previous contents. But when `A` is saved with changes, users can then issue the "refresh file dependencies" command in their editor, which will restart the respective worker and use `lake print-paths` to rebuild and locate its dependencies. This being a conscious action, users will be aware of having to then wait for compilation.
 
-### Code style
+### Worker architecture
+
+A central concept in the worker is the *snapshot*.
+Lean files are processed (elaborated) strictly from top to bottom, with each command being fully processed before processing of subsequent commands is started.
+The worker implements this same processing order, but saves a `Snapshot` of the entire elaboration state after the imports and each command, which is cheap and easy to do because the state is all functional data structures.
+Thanks to these snapshots, we can restart processing the file at the point of a change by discarding and rebuilding all snapshots after it.
+Snapshots are computed asynchronously and stored in an `AsyncList`, which is a list whose tail is potentially still being processed.
+Request handlers usually locate and access a single snapshot in the list based on the cursor position using `withWaitFindSnap`, which will wait for elaboration if it is not sufficiently progressed yet.
+After the snapshot is available, they can access its data, in particular the command's `Syntax` tree and elaboration `InfoTree`, in order to respond to the request.
+
+The `InfoTree` is the second central server data structure.
+It is filled during elaboration with various metadata that cannot (easily) be recovered from the kernel declarations in the environment: goal & subterm infos including the precise local & metavariable contexts used during elaboration, macro expansion steps, ...
+Once a relevant `Snapshot` `snap` has been located, `snap.infoTree.smallestInfo?` and other functions from `Lean.Server.InfoUtils` can be used to further locate information about a document position.
+The test `tests/lean/infoTree.lean` shows how to inspect the info tree of a command right in the editor.
+
+## Code style
 
 Comments should exist to denote specifics of our implementation but, for
 the most part, we shouldn't copy comments over from the LSP specification

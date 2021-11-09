@@ -1106,7 +1106,7 @@ lean_inc(x_1);
 x_33 = l_Lean_Meta_mkAppM(x_1, x_32, x_11, x_12, x_13, x_14, x_15);
 if (lean_obj_tag(x_33) == 0)
 {
-lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; uint8_t x_38; 
+lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 x_34 = lean_ctor_get(x_33, 0);
 lean_inc(x_34);
 x_35 = lean_ctor_get(x_33, 1);
@@ -1117,6 +1117,9 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
 x_36 = l_Lean_Meta_isTypeCorrect(x_34, x_11, x_12, x_13, x_14, x_35);
+if (lean_obj_tag(x_36) == 0)
+{
+lean_object* x_37; uint8_t x_38; 
 x_37 = lean_ctor_get(x_36, 0);
 lean_inc(x_37);
 x_38 = lean_unbox(x_37);
@@ -1209,13 +1212,26 @@ goto block_28;
 else
 {
 lean_object* x_76; lean_object* x_77; 
-x_76 = lean_ctor_get(x_33, 1);
+x_76 = lean_ctor_get(x_36, 1);
 lean_inc(x_76);
-lean_dec(x_33);
+lean_dec(x_36);
 x_77 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_77, 0, x_8);
 x_22 = x_77;
 x_23 = x_76;
+goto block_28;
+}
+}
+else
+{
+lean_object* x_78; lean_object* x_79; 
+x_78 = lean_ctor_get(x_33, 1);
+lean_inc(x_78);
+lean_dec(x_33);
+x_79 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_79, 0, x_8);
+x_22 = x_79;
+x_23 = x_78;
 goto block_28;
 }
 block_28:
@@ -1236,7 +1252,7 @@ goto _start;
 }
 else
 {
-lean_object* x_78; 
+lean_object* x_80; 
 lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
@@ -1245,15 +1261,15 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_1);
-x_78 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_78, 0, x_8);
-lean_ctor_set(x_78, 1, x_15);
-return x_78;
+x_80 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_80, 0, x_8);
+lean_ctor_set(x_80, 1, x_15);
+return x_80;
 }
 }
 else
 {
-lean_object* x_79; 
+lean_object* x_81; 
 lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
@@ -1262,10 +1278,10 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_4);
 lean_dec(x_1);
-x_79 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_79, 0, x_8);
-lean_ctor_set(x_79, 1, x_15);
-return x_79;
+x_81 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_81, 0, x_8);
+lean_ctor_set(x_81, 1, x_15);
+return x_81;
 }
 }
 }

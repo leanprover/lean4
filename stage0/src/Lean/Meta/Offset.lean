@@ -27,6 +27,11 @@ partial def evalNat : Expr → OptionT MetaM Nat
   | e@(Expr.mvar ..)              => visit e
   | _                             => failure
 where
+  isNatProjInst (c : Name) (nargs : Nat) : Bool :=
+      (nargs == 4 && (c == ``Add.add || c == ``Sub.sub || c == ``Mul.mul))
+   || (nargs == 6 && (c == ``HAdd.hAdd || c == ``HSub.hSub || c == ``HMul.hMul))
+   || (nargs == 3 && c == ``OfNat.ofNat)
+
   visit e := do
     let f := e.getAppFn
     match f with
@@ -48,32 +53,8 @@ where
         let v₁ ← evalNat (e.getArg! 0)
         let v₂ ← evalNat (e.getArg! 1)
         return v₁ * v₂
-      else if c == ``Add.add && nargs == 4 then
-        let v₁ ← evalNat (e.getArg! 2)
-        let v₂ ← evalNat (e.getArg! 3)
-        return v₁ + v₂
-      else if c == ``Sub.sub && nargs == 4 then
-        let v₁ ← evalNat (e.getArg! 2)
-        let v₂ ← evalNat (e.getArg! 3)
-        return v₁ - v₂
-      else if c == ``Mul.mul && nargs == 4 then
-        let v₁ ← evalNat (e.getArg! 2)
-        let v₂ ← evalNat (e.getArg! 3)
-        return v₁ * v₂
-      else if c == ``HAdd.hAdd && nargs == 6 then
-        let v₁ ← evalNat (e.getArg! 3)
-        let v₂ ← evalNat (e.getArg! 5)
-        return v₁ + v₂
-      else if c == ``HSub.hSub && nargs == 6 then
-        let v₁ ← evalNat (e.getArg! 4)
-        let v₂ ← evalNat (e.getArg! 5)
-        return v₁ - v₂
-      else if c == ``HMul.hMul && nargs == 6 then
-        let v₁ ← evalNat (e.getArg! 4)
-        let v₂ ← evalNat (e.getArg! 5)
-        return v₁ * v₂
-      else if c == ``OfNat.ofNat && nargs == 3 then
-        evalNat (e.getArg! 1)
+      else if isNatProjInst c nargs then
+        evalNat (← unfoldProjInst? e)
       else
         failure
     | _ => failure
@@ -86,21 +67,15 @@ private partial def getOffsetAux : Expr → Bool → OptionT MetaM (Expr × Nat)
     | Expr.mvar .. => withInstantiatedMVars e (getOffsetAux · top)
     | Expr.const c _ _ =>
       let nargs := e.getAppNumArgs
-      if c == ``Nat.succ && nargs == 1 then do
+      if c == ``Nat.succ && nargs == 1 then
         let (s, k) ← getOffsetAux a false
         pure (s, k+1)
-      else if c == ``Nat.add && nargs == 2 then do
+      else if c == ``Nat.add && nargs == 2 then
         let v      ← evalNat (e.getArg! 1)
         let (s, k) ← getOffsetAux (e.getArg! 0) false
         pure (s, k+v)
-      else if c == ``Add.add && nargs == 4 then do
-        let v      ← evalNat (e.getArg! 3)
-        let (s, k) ← getOffsetAux (e.getArg! 2) false
-        pure (s, k+v)
-      else if c == ``HAdd.hAdd && nargs == 6 then do
-        let v      ← evalNat (e.getArg! 5)
-        let (s, k) ← getOffsetAux (e.getArg! 4) false
-        pure (s, k+v)
+      else if (c == ``Add.add && nargs == 4) || (c == ``HAdd.hAdd && nargs == 6) then
+        getOffsetAux (← unfoldProjInst? e) false
       else if top then failure else pure (e, 0)
     | _ => if top then failure else pure (e, 0)
   | e, top => if top then failure else pure (e, 0)

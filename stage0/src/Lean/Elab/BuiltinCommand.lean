@@ -259,6 +259,30 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
     failIfSucceeds <| elabCheck (← `(#check $term))
   | _ => throwUnsupportedSyntax
 
+private def mkEvalInstCore (evalClassName : Name) (e : Expr) : MetaM Expr := do
+  let α    ← inferType e
+  let u    ← getDecLevel α
+  let inst := mkApp (Lean.mkConst evalClassName [u]) α
+  try
+    synthInstance inst
+  catch _ =>
+    throwError "expression{indentExpr e}\nhas type{indentExpr α}\nbut instance{indentExpr inst}\nfailed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `{evalClassName}` class"
+
+private def mkRunMetaEval (e : Expr) : MetaM Expr :=
+  withLocalDeclD `env (mkConst ``Lean.Environment) fun env =>
+  withLocalDeclD `opts (mkConst ``Lean.Options) fun opts => do
+    let α ← inferType e
+    let u ← getDecLevel α
+    let instVal ← mkEvalInstCore ``Lean.MetaEval e
+    let e ← mkAppN (mkConst ``Lean.runMetaEval [u]) #[α, instVal, env, opts, e]
+    instantiateMVars (← mkLambdaFVars #[env, opts] e)
+
+private def mkRunEval (e : Expr) : MetaM Expr := do
+  let α ← inferType e
+  let u ← getDecLevel α
+  let instVal ← mkEvalInstCore ``Lean.Eval e
+  instantiateMVars (mkAppN (mkConst ``Lean.runEval [u]) #[α, instVal, mkSimpleThunk e])
+
 unsafe def elabEvalUnsafe : CommandElab
   | `(#eval%$tk $term) => do
     let n := `_eval
@@ -283,11 +307,7 @@ unsafe def elabEvalUnsafe : CommandElab
       else
         return e
     let elabMetaEval : CommandElabM Unit := runTermElabM (some n) fun _ => do
-      let e ← elabEvalTerm
-      let e ← withLocalDeclD `env (mkConst ``Lean.Environment) fun env =>
-          withLocalDeclD `opts (mkConst ``Lean.Options) fun opts => do
-            let e ← mkAppM ``Lean.runMetaEval #[env, opts, e];
-            mkLambdaFVars #[env, opts] e
+      let e ← mkRunMetaEval (← elabEvalTerm)
       let env ← getEnv
       let opts ← getOptions
       let act ← try addAndCompile e; evalConst (Environment → Options → IO (String × Except IO.Error Environment)) n finally setEnv env
@@ -299,9 +319,7 @@ unsafe def elabEvalUnsafe : CommandElab
     let elabEval : CommandElabM Unit := runTermElabM (some n) fun _ => do
       -- fall back to non-meta eval if MetaEval hasn't been defined yet
       -- modify e to `runEval e`
-      let e ← elabEvalTerm
-      let e := mkSimpleThunk e
-      let e ← mkAppM ``Lean.runEval #[e]
+      let e ← mkRunEval (← elabEvalTerm)
       let env ← getEnv
       let act ← try addAndCompile e; evalConst (IO (String × Except IO.Error Unit)) n finally setEnv env
       let (out, res) ← liftM (m := IO) act

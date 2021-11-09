@@ -20,8 +20,8 @@ private def applyDefaultDecrTactic (mvarId : MVarId) : TermElabM Unit := do
   let ctx := { ctx with simpLemmas.toUnfold := toUnfold }
   if let some mvarId ← simpTarget mvarId ctx then
     -- TODO: invoke tactic to close the goal
-    trace[Elab.definition.wf] "{MessageData.ofGoal mvarId}"
-    admit mvarId
+    Term.reportUnsolvedGoals [mvarId]
+    throwAbortTactic
 
 private def mkDecreasingProof (decreasingProp : Expr) (decrTactic? : Option Syntax) : TermElabM Expr := do
   let mvar ← mkFreshExprSyntheticOpaqueMVar decreasingProp

@@ -31,16 +31,16 @@ private def isBlackListed (declName : Name) : MetaM Bool := do
   <||> completionBlackListExt.isTagged env declName
   <||> isMatcher declName
 
-private partial def consumeImplicitPrefix (e : Expr) : MetaM Expr := do
+private partial def consumeImplicitPrefix (e : Expr) (k : Expr → MetaM α) : MetaM α := do
   match e with
   | Expr.forallE n d b c =>
     -- We do not consume instance implicit arguments because the user probably wants be aware of this dependency
     if c.binderInfo == BinderInfo.implicit then
-      let arg ← mkFreshExprMVar (userName := n) d
-      consumeImplicitPrefix (b.instantiate1 arg)
+      withLocalDecl n c.binderInfo d fun arg =>
+        consumeImplicitPrefix (b.instantiate1 arg) k
     else
-      return e
-  | _ => return e
+      k e
+  | _ => k e
 
 private def isTypeApplicable (type : Expr) (expectedType? : Option Expr) : MetaM Bool :=
   try
@@ -62,9 +62,10 @@ private def isTypeApplicable (type : Expr) (expectedType? : Option Expr) : MetaM
 private def sortCompletionItems (items : Array CompletionItem) : Array CompletionItem :=
   items.qsort fun i1 i2 => i1.label < i2.label
 
-private def mkCompletionItem (label : Name) (type : Expr) : MetaM CompletionItem := do
-  let detail ← Meta.ppExpr (← consumeImplicitPrefix type)
-  return { label := label.getString!, detail? := some (toString detail), documentation? := none }
+private def mkCompletionItem (label : Name) (type : Expr) (docString? : Option String) : MetaM CompletionItem := do
+  let doc? := docString?.map fun docString => { value := docString, kind := MarkupKind.markdown : MarkupContent }
+  let detail ← consumeImplicitPrefix type fun type => return toString (← Meta.ppExpr type)
+  return { label := label.getString!, detail? := detail, documentation? := doc? }
 
 structure State where
   itemsMain  : Array CompletionItem := #[]
@@ -72,8 +73,9 @@ structure State where
 
 abbrev M := OptionT $ StateRefT State MetaM
 
-private def addCompletionItem (label : Name) (type : Expr) (expectedType? : Option Expr) : M Unit := do
-  let item ← mkCompletionItem label type
+private def addCompletionItem (label : Name) (type : Expr) (expectedType? : Option Expr) (declName? : Option Name) : M Unit := do
+  let docString? := if let some declName := declName? then findDocString? (← getEnv) declName else none
+  let item ← mkCompletionItem label type docString?
   if (← isTypeApplicable  type expectedType?) then
     modify fun s => { s with itemsMain := s.itemsMain.push item }
   else
@@ -81,7 +83,7 @@ private def addCompletionItem (label : Name) (type : Expr) (expectedType? : Opti
 
 private def addCompletionItemForDecl (label : Name) (declName : Name) (expectedType? : Option Expr) : M Unit := do
   if let some c ← (← getEnv).find? declName then
-    addCompletionItem label c.type expectedType?
+    addCompletionItem label c.type expectedType? (some declName)
 
 private def runM (ctx : ContextInfo) (lctx : LocalContext) (x : M Unit) : IO (Option CompletionList) :=
   ctx.runMetaM lctx do
@@ -141,7 +143,7 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (danglingDot : Bool
     -- search for matches in the local context
     for localDecl in (← getLCtx) do
       if matchAtomic id localDecl.userName then
-        addCompletionItem localDecl.userName localDecl.type expectedType?
+        addCompletionItem localDecl.userName localDecl.type expectedType? none
   -- search for matches in the environment
   let env ← getEnv
   env.constants.forM fun declName c => do
@@ -149,7 +151,7 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (danglingDot : Bool
       let matchUsingNamespace (ns : Name): M Bool := do
         if let some label ← matchDecl? ns id danglingDot declName then
           -- dbg_trace "matched with {id}, {declName}, {label}"
-          addCompletionItem label c.type expectedType?
+          addCompletionItem label c.type expectedType? declName
           return true
         else
           return false
@@ -240,7 +242,7 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? :
         if nameSet.contains typeName then
           unless (← isBlackListed c.name) do
             if (← isDotCompletionMethod typeName c) then
-              addCompletionItem c.name.getString! c.type expectedType?
+              addCompletionItem c.name.getString! c.type expectedType? c.name
 
 private def optionCompletion (ctx : ContextInfo) (stx : Syntax) : IO (Option CompletionList) :=
   ctx.runMetaM {} do

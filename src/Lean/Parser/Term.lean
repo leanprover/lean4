@@ -204,6 +204,8 @@ def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 @[builtinTermParser] def noindex := leading_parser "no_index " >> termParser maxPrec
 
 @[builtinTermParser] def binrel := leading_parser "binrel% " >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec
+/-- Similar to `binrel`, but coerse `Prop` arguments into `Bool`. -/
+@[builtinTermParser] def binrel_no_prop := leading_parser "binrel_no_prop% " >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec
 @[builtinTermParser] def binop  := leading_parser "binop% " >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec
 @[builtinTermParser] def binop_lazy  := leading_parser "binop_lazy% " >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec
 

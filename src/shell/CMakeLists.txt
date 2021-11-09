@@ -81,7 +81,8 @@ ENDFOREACH(T)
 
 add_test(NAME leancomptest_foreign
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler/foreign"
-         COMMAND bash -c "${LEAN_BIN}/leanmake --always-make CXX='${CMAKE_CXX_COMPILER} ${LEANC_OPTS}'")
+         # LEANC_OPTS is necessary for macOS c++ to find its headers, GMP will be removed soon
+         COMMAND bash -c "LEANC_GMP=${GMP_LIBRARIES} ${LEAN_BIN}/leanmake --always-make CXX='${CMAKE_CXX_COMPILER} ${LEANC_OPTS}'")
 add_test(NAME leancomptest_doc_example
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/examples/compiler"
          COMMAND bash -c "export ${TEST_VARS}; leanmake --always-make bin && ./build/bin/test hello world")

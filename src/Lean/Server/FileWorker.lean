@@ -173,8 +173,6 @@ section Initialization
     let srcPath := (← appDir) / ".." / "lib" / "lean" / "src"
     -- `lake/` should come first since on case-insensitive file systems, Lean thinks that `src/` also contains `Lake/`
     let mut srcSearchPath := [srcPath / "lake", srcPath]
-    if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
-      srcSearchPath := System.SearchPath.parse p ++ srcSearchPath
     let (headerEnv, msgLog) ← try
       -- NOTE: lake does not exist in stage 0 (yet?)
       if (← System.FilePath.pathExists lakePath) then
@@ -184,6 +182,8 @@ section Initialization
     catch e =>  -- should be from `lake print-paths`
       let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
       pure (← mkEmptyEnvironment, msgs)
+    if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
+      srcSearchPath := System.SearchPath.parse p ++ srcSearchPath
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let cmdState := { cmdState with infoState := {
       enabled := true

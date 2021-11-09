@@ -36,3 +36,4 @@ def f5 (x : Nat) : B := {
 
 open Nat in
 #print xor
+instance : Inhabited Nat where

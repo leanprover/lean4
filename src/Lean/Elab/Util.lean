@@ -115,14 +115,14 @@ builtin_initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribu
 Try to expand macro at syntax tree root and return macro declaration name and new syntax if successful.
 Return none if all macros threw `Macro.Exception.unsupportedSyntax`.
 -/
-def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Syntax)) := fun stx => do
+def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Except Macro.Exception Syntax)) := fun stx => do
   for e in macroAttribute.getEntries env stx.getKind do
     try
       let stx' ← withFreshMacroScope (e.value stx)
-      return (e.declName, stx')
+      return (e.declName, Except.ok stx')
     catch
       | Macro.Exception.unsupportedSyntax => pure ()
-      | ex                                => throw ex
+      | ex                                => return (e.declName, Except.error ex)
   return none
 
 class MonadMacroAdapter (m : Type → Type) where
@@ -144,8 +144,8 @@ def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEn
     -- TODO: record recursive expansions in info tree?
     expandMacro?     := fun stx => do
       match (← expandMacroImpl? env stx) with
-      | some (_, stx) => some stx
-      | none          => none
+      | some (_, Except.ok stx) => some stx
+      | _                       => none
     hasDecl          := fun declName => return env.contains declName
     getCurrNamespace := return currNamespace
     resolveNamespace? := fun n => return ResolveName.resolveNamespace? env currNamespace openDecls n

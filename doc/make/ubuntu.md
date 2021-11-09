@@ -1,4 +1,4 @@
-# Installing Lean on Ubuntu 16.04
+# Installing Lean on Ubuntu
 
 ## Build Dependencies
 
@@ -8,5 +8,5 @@ follow the [generic build instructions](index.md).
 ## Basic packages
 
 ```bash
-sudo apt-get install git libgmp-dev cmake ccache gcc-10 g++-10
+sudo apt-get install git libgmp-dev cmake ccache clang
 ```

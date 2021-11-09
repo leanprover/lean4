@@ -1,7 +1,7 @@
 # Development Workflow
 - [Commit Convention](./commit_convention.md)
 - [Building Lean](../make/index.md)
-  - [Ubuntu Setup](../make/ubuntu-16.04.md)
+  - [Ubuntu Setup](../make/ubuntu.md)
   - [macOS Setup](../make/osx-10.9.md)
   - [Windows MSYS2 Setup](../make/msys2.md)
   - [Windows with WSL](../make/wsl.md)

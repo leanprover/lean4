@@ -8,7 +8,7 @@ As an alternative to the [MSYS2](msys2.md) setup you can also use the
 debug using [Visual Studio Code][vscode] in Windows.
 
 For the most part setup in WSL is the same as
-[Ubuntu](Ubuntu-16.04.md). This document provides additional
+[Ubuntu](ubuntu.md). This document provides additional
 information on how to setup Windows Visual Studio Code remote
 debugging into your WSL environment using the lean extension running
 in WSL.

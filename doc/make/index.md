@@ -8,7 +8,7 @@ Requirements
 Platform-Specific Setup
 -----------------------
 
-- [Linux (Ubuntu)](ubuntu-16.04.md)
+- [Linux (Ubuntu)](ubuntu.md)
 - [Windows (msys2)](msys2.md)
 - [Windows (Visual Studio)](msvc.md)
 - [Windows (WSL)](wsl.md)

@@ -5,6 +5,8 @@ Authors: Mac Malone
 -/
 import Lake.Config.Glob
 import Lake.Config.InstallPath
+import Lake.Config.Workspace
+import Lake.Config.Script
 import Lake.Config.Package
 import Lake.Config.SearchPath
 import Lake.Config.Resolve

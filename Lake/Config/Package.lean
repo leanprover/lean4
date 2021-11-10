@@ -9,6 +9,8 @@ import Std.Data.HashMap
 import Lake.LeanVersion
 import Lake.Build.TargetTypes
 import Lake.Config.Glob
+import Lake.Config.Workspace
+import Lake.Config.Script
 
 open Std System
 open Lean (Name NameMap)
@@ -33,9 +35,6 @@ def defaultOleanDir : FilePath := "lib"
 
 /-- The default setting for a `PackageConfig`'s `irDir` option. -/
 def defaultIrDir : FilePath := "ir"
-
-/-- The default setting for a `PackageConfig`'s `depsDir` option. -/
-def defaultDepsDir : FilePath := "lean_packages"
 
 /-- The default setting for a `PackageConfig`'s `binRoot` option. -/
 def defaultBinRoot : Name := `Main
@@ -96,21 +95,6 @@ inductive PackageFacet
 deriving BEq, DecidableEq, Repr
 instance : Inhabited PackageFacet := ⟨PackageFacet.bin⟩
 
-/-- The type of a `Script`'s function. Same as that of a `main` function. -/
-abbrev ScriptFn := (args : List String) → IO UInt32
-
-/--
-  A package `Script` is a `ScriptFn` definition that is
-  indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
--/
-structure Script where
-  fn : ScriptFn
-  doc? : Option String
-  deriving Inhabited
-
-def Script.run (args : List String) (self : Script) : IO UInt32 :=
-  self.fn args
-
 /-- Converts a snake case, kebab case, or lower camel case `String` to upper camel case. -/
 def toUpperCamelCaseString (str : String) : String :=
   let parts := str.split fun chr => chr == '_' || chr == '-'
@@ -124,43 +108,10 @@ def toUpperCamelCase (name : Name) : Name :=
     name
 
 --------------------------------------------------------------------------------
--- # WorkspaceConfig
---------------------------------------------------------------------------------
-
-/-- A workspace's declarative configuration. -/
-structure WorkspaceConfig where
-  /--
-    The directory to which Lake should download dependencies.
-    Defaults to `defaultDepsDir` (i.e., `lean_packages`).
-  -/
-  depsDir : FilePath := defaultDepsDir
-  deriving Inhabited, Repr
-
-
---------------------------------------------------------------------------------
--- # Workspace
---------------------------------------------------------------------------------
-
-structure Workspace where
-  /-- The path to the workspace's directory. -/
-  dir : FilePath
-  /-- The workspace's configuration. -/
-  config : WorkspaceConfig
-  deriving Inhabited, Repr
-
-namespace Workspace
-
-/-- The workspace's `dir` joined with its `depsDir` configuration. -/
-def depsDir (self : Workspace) : FilePath :=
-  self.dir / self.config.depsDir
-
-end Workspace
-
---------------------------------------------------------------------------------
 -- # PackageConfig
 --------------------------------------------------------------------------------
 
-/-- A package's declarative configuration. -/
+/-- A `Package`'s declarative configuration. -/
 structure PackageConfig extends WorkspaceConfig where
 
   /--

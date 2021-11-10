@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lean.Elab.Frontend
-import Lake.Package
-import Lake.Attributes
+import Lake.DSL.Attributes
+import Lake.Config.Package
 
 namespace Lake
 open Lean System

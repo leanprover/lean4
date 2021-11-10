@@ -1,15 +1,15 @@
 /-
-Copyright (c) 2017 Microsoft Corporation. All rights reserved.
+Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
+Authors: Sebastian Ullrich, Mac Malone
 -/
 import Lean.Data.Name
 import Lean.Elab.Import
-import Lake.Target
-import Lake.BuildTarget
-import Lake.BuildTop
-import Lake.Compile
-import Lake.Package
+import Lake.Build.Target
+import Lake.Build.Actions
+import Lake.Build.Recursive
+import Lake.Build.TargetTypes
+import Lake.Config.Package
 
 open System
 open Lean hiding SearchPath

@@ -7,9 +7,8 @@ import Lean.Data.Name
 import Lean.Elab.Import
 import Std.Data.HashMap
 import Lake.LeanVersion
-import Lake.BuildTarget
-import Lake.MainM
-import Lake.Glob
+import Lake.Build.TargetTypes
+import Lake.Config.Glob
 
 open Std System
 open Lean (Name NameMap)

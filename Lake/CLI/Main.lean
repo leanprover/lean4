@@ -4,14 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lean.Util.Paths
-import Lake.Init
-import Lake.Help
-import Lake.BuildBin
-import Lake.LeanConfig
-import Lake.SearchPath
-import Lake.InstallPath
-import Lake.MainM
-import Lake.CliT
+import Lake.Config.Load
+import Lake.Config.SearchPath
+import Lake.Config.InstallPath
+import Lake.Util.MainM
+import Lake.Util.CliT
+import Lake.CLI.Init
+import Lake.CLI.Help
+import Lake.Build
 
 open System
 open Lean (Name LeanPaths Json toJson)

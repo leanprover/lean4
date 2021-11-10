@@ -8,15 +8,15 @@ namespace Lake
 def leanVersionStringCore :=
   s!"{Lean.version.major}.{Lean.version.minor}.{Lean.version.patch}"
 
-def origin := "leanprover/lean4"
+def leanOrigin := "leanprover/lean4"
 
 def leanVersionString :=
   if Lean.version.isRelease then
-    s!"{origin}:{leanVersionStringCore}"
+    s!"{leanOrigin}:{leanVersionStringCore}"
   else if Lean.version.specialDesc ≠ "" then
-    s!"{origin}:{Lean.version.specialDesc}"
+    s!"{leanOrigin}:{Lean.version.specialDesc}"
   else
-    s!"{origin}:master"
+    s!"{leanOrigin}:master"
 
 def uiLeanVersionString :=
 if Lean.version.isRelease then

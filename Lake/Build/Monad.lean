@@ -3,10 +3,10 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Task
-import Lake.Trace
-import Lake.LogMonad
-import Lake.InstallPath
+import Lake.Util.Task
+import Lake.Build.Trace
+import Lake.Util.LogT
+import Lake.Config.InstallPath
 
 open System
 namespace Lake

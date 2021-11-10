@@ -5,10 +5,9 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lean.Data.Name
 import Lean.Elab.Import
-import Lake.Target
-import Lake.BuildModule
-import Lake.Resolve
-import Lake.Package
+import Lake.Config.Package
+import Lake.Config.Resolve
+import Lake.Build.Module
 
 open System
 open Lean hiding SearchPath

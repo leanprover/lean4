@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lean.Util.Path
-import Lake.InstallPath
+import Lake.Config.InstallPath
 
 open System
 namespace Lake

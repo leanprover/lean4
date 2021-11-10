@@ -3,9 +3,9 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
-import Lake.Git
-import Lake.Package
-import Lake.LeanConfig
+import Lake.Util.Git
+import Lake.Config.Package
+import Lake.Config.Load
 
 namespace Lake
 open Git System

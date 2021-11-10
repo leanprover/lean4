@@ -29,19 +29,17 @@ def spawn (act : EIO ε α) (prio := Task.Priority.dedicated) : EIO ε (EIOTask 
 instance : Async (EIO ε) (EIOTask ε) := ⟨spawn⟩
 
 def await (self : EIOTask ε α) : EIO ε α := do
-  match (← IO.wait self) with
-  | Except.ok a    => pure a
-  | Except.error e => throw e
+  liftExcept (← IO.wait self)
 
 instance : Await (EIOTask ε) (EIO ε) := ⟨await⟩
 
 def mapAsync (f : α → EIO ε β) (self : EIOTask ε α) (prio := Task.Priority.dedicated) : EIO ε (EIOTask ε β) :=
-  EIO.mapTask (fun | Except.ok a => f a | Except.error e => throw e) self prio
+  EIO.mapTask (fun x => liftExcept x >>= f) self prio
 
 instance : MapAsync (EIO ε) (EIOTask ε) := ⟨mapAsync⟩
 
 def bindAsync (self : EIOTask ε α) (f : α → EIO ε (EIOTask ε β)) (prio := Task.Priority.dedicated) : EIO ε (EIOTask ε β) :=
-  EIO.bindTask self (fun | Except.ok a => f a | Except.error e => throw e) prio
+  EIO.bindTask self (fun x => liftExcept x >>= f) prio
 
 instance : BindAsync (EIO ε) (EIOTask ε) := ⟨bindAsync⟩
 

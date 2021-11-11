@@ -135,8 +135,8 @@ def getInstall : CliM (LeanInstall × LakeInstall) := do
 /-- Perform the given build action using information from CLI. -/
 def runBuildM (pkg : Package) (x : BuildM α) : CliM α := do
   let (leanInstall, lakeInstall) ← getInstall
-  let leanTrace ← computeTrace leanInstall.lean
-  x.run LogMethods.io {leanTrace, leanInstall, lakeInstall, package := pkg}
+  let ctx ← mkBuildContext pkg leanInstall lakeInstall
+  x.run LogMethods.io ctx
 
 /-- Variant of `runBuildM` that discards the build monad's output. -/
 def runBuildM_  (pkg : Package) (x : BuildM α) : CliM PUnit :=
@@ -249,10 +249,8 @@ def printPaths (imports : List String := []) : CliM PUnit := do
   let configFile := (← getRootDir) / (← getConfigFile)
   if (← configFile.pathExists) then
     let pkg ← loadPkg (← getSubArgs)
-    let leanTrace ← computeTrace leanInstall.lean
-    let pkgs ← pkg.buildImportsAndDeps imports |>.run LogMethods.eio {
-      leanTrace, leanInstall, lakeInstall, package := pkg
-    }
+    let ctx ← mkBuildContext pkg leanInstall lakeInstall
+    let pkgs ← pkg.buildImportsAndDeps imports |>.run LogMethods.eio ctx
     IO.println <| Json.compress <| toJson {
       oleanPath := pkgs.map (·.oleanDir),
       srcPath := pkgs.map (·.srcDir) : LeanPaths

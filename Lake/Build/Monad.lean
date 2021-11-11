@@ -9,6 +9,10 @@ import Lake.Build.MonadBasic
 open System
 namespace Lake
 
+def mkBuildContext (pkg : Package) (leanInstall : LeanInstall) (lakeInstall : LakeInstall) : IO BuildContext := do
+  let leanTrace := mixTrace (← computeTrace leanInstall.lean) (← computeTrace leanInstall.sharedLib)
+  return {package := pkg, leanInstall, lakeInstall, leanTrace}
+
 deriving instance Inhabited for BuildContext
 
 def BuildM.adaptPackage (pkg : Package) (self : BuildM α) : BuildM α :=

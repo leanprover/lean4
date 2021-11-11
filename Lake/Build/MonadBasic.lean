@@ -13,10 +13,10 @@ open System
 namespace Lake
 
 structure BuildContext where
-  leanTrace : BuildTrace
+  package : OpaquePackage
   leanInstall : LeanInstall
   lakeInstall : LakeInstall
-  package : OpaquePackage
+  leanTrace : BuildTrace
 
 abbrev BuildM :=
   ReaderT BuildContext BuildCoreM

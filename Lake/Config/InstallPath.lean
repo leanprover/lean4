@@ -6,6 +6,12 @@ Authors: Mac Malone
 open System
 namespace Lake
 
+/-- The shared library file extension for the `Platform`. -/
+def sharedLibExt : String :=
+  if Platform.isWindows then "dll"
+  else if Platform.isOSX  then "dylib"
+  else "so"
+
 /-- Path information about the local Lean installation. -/
 structure LeanInstall where
   home : FilePath
@@ -15,6 +21,7 @@ structure LeanInstall where
   includeDir := home / "include"
   lean := binDir / "lean" |>.withExtension FilePath.exeExtension
   leanc := binDir / "leanc" |>.withExtension FilePath.exeExtension
+  sharedLib := (if Platform.isWindows then binDir else libDir) / "libleanshared" |>.withExtension sharedLibExt
   deriving Inhabited, Repr
 
 /-- Path information about the local Lake installation. -/

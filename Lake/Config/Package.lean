@@ -44,12 +44,6 @@ def defaultBinRoot : Name := `Main
 -- # Auxiliary Definitions and Helpers
 --------------------------------------------------------------------------------
 
-/-- The shared library file extension for the `Platform`. -/
-def sharedLibExt : String :=
-  if Platform.isWindows then "dll"
-  else if Platform.isOSX  then "dynlib"
-  else "so"
-
 /--
   The `src` of a `Dependency`.
 

@@ -8,6 +8,7 @@ import Lean.ScopedEnvExtension
 import Lean.Parser.Basic
 import Lean.Parser.StrInterpolation
 import Lean.KeyedDeclsAttribute
+import Lean.DocString
 
 /-! Extensible parsing via attributes -/
 
@@ -449,6 +450,8 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
   | Expr.const `Lean.Parser.Parser _ _ =>
     declareLeadingBuiltinParser catName declName prio
   | _ => throwError "unexpected parser type at '{declName}' (`Parser` or `TrailingParser` expected)"
+  if let some doc ← findDocString? (← getEnv) declName then
+    declareBuiltin declName (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
   runParserAttributeHooks catName declName (builtin := true)
 
 /-

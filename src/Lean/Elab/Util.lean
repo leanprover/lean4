@@ -8,6 +8,8 @@ import Lean.Parser.Syntax
 import Lean.Parser.Extension
 import Lean.KeyedDeclsAttribute
 import Lean.Elab.Exception
+import Lean.DocString
+import Lean.Compiler.InitAttr
 
 namespace Lean
 
@@ -101,6 +103,10 @@ unsafe def mkElabAttribute (γ) (attrDeclName attrBuiltinName attrName : Name) (
     descr         := kind ++ " elaborator"
     valueTypeName := typeName
     evalKey       := fun _ stx => syntaxNodeKindOfAttrParam parserNamespace stx
+    onAdded       := fun builtin declName => do
+      if builtin then
+        if let some doc ← findDocString? (← getEnv) declName then
+          declareBuiltin declName (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
   } attrDeclName
 
 unsafe def mkMacroAttributeUnsafe : IO (KeyedDeclsAttribute Macro) :=

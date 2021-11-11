@@ -9,6 +9,7 @@ import Lean.Parser.Basic
 import Lean.Parser.StrInterpolation
 import Lean.KeyedDeclsAttribute
 import Lean.DocString
+import Lean.DeclarationRange
 
 /-! Extensible parsing via attributes -/
 
@@ -451,7 +452,9 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
     declareLeadingBuiltinParser catName declName prio
   | _ => throwError "unexpected parser type at '{declName}' (`Parser` or `TrailingParser` expected)"
   if let some doc ← findDocString? (← getEnv) declName then
-    declareBuiltin declName (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
+    declareBuiltin (declName ++ `docString) (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
+  if let some declRanges ← findDeclarationRanges? declName then
+    declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])
   runParserAttributeHooks catName declName (builtin := true)
 
 /-

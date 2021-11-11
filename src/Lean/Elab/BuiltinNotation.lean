@@ -13,6 +13,12 @@ import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Term
 open Meta
 
+/--
+The *anonymous constructor* `⟨e, ...⟩` is equivalent to `c e ...` if the
+expected type is an inductive type with a single constructor `c`.
+If more terms are given than `c` has parameters, the remaining arguments
+are turned into a new anonymous constructor application. For example,
+`⟨a, b, c⟩ : α × (β × γ)` is equivalent to `⟨a, ⟨b, c⟩⟩`. -/
 @[builtinTermElab anonymousCtor] def elabAnonymousCtor : TermElab := fun stx expectedType? =>
   match stx with
   | `(⟨$args,*⟩) => do
@@ -107,6 +113,13 @@ private def elabTParserMacroAux (prec lhsPrec : Syntax) (e : Syntax) : TermElabM
     elabTParserMacroAux (prec?.getD <| quote Parser.maxPrec) (lhsPrec?.getD <| quote 0) e
   | _ => throwUnsupportedSyntax
 
+/--
+`panic! msg` formally evaluates to `@Inhabited.default α` if the expected type
+`α` implements `Inhabited`.
+At runtime, `msg` and the file position are printed to stderr unless the C
+function `lean_set_panic_messages(false)` has been executed before. If the C
+function `lean_set_exit_on_panic(true)` has been executed before, the process is
+then aborted. -/
 @[builtinTermElab panic] def elabPanic : TermElab := fun stx expectedType? => do
   let arg := stx[1]
   let pos ← getRefPosition
@@ -116,9 +129,11 @@ private def elabTParserMacroAux (prec lhsPrec : Syntax) (e : Syntax) : TermElabM
   | none => `(panicWithPos $(quote (toString env.mainModule)) $(quote pos.line) $(quote pos.column) $arg)
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 
+/-- A shorthand for `panic! "unreachable code has been reached"`. -/
 @[builtinMacro Lean.Parser.Term.unreachable]  def expandUnreachable : Macro := fun stx =>
   `(panic! "unreachable code has been reached")
 
+/-- `assert! cond` panics if `cond` evaluates to `false`. -/
 @[builtinMacro Lean.Parser.Term.assert]  def expandAssert : Macro := fun stx =>
   -- TODO: support for disabling runtime assertions
   let cond := stx[1]
@@ -127,6 +142,9 @@ private def elabTParserMacroAux (prec lhsPrec : Syntax) (e : Syntax) : TermElabM
   | some code => `(if $cond then $body else panic! ("assertion violation: " ++ $(quote code)))
   | none => `(if $cond then $body else panic! ("assertion violation"))
 
+/--
+`dbg_trace e; body` evaluates to `body` and prints `e` (which can be an
+interpolated string litera) to stderr. It should only be used for debugging. -/
 @[builtinMacro Lean.Parser.Term.dbgTrace]  def expandDbgTrace : Macro := fun stx =>
   let arg  := stx[1]
   let body := stx[3]
@@ -135,6 +153,7 @@ private def elabTParserMacroAux (prec lhsPrec : Syntax) (e : Syntax) : TermElabM
   else
     `(dbgTrace (toString $arg) fun _ => $body)
 
+/-- A temporary placeholder for a missing proof or value. -/
 @[builtinTermElab «sorry»] def elabSorry : TermElab := fun stx expectedType? => do
   logWarning "declaration uses 'sorry'"
   let stxNew ← `(sorryAx _ false)
@@ -215,7 +234,7 @@ where
     | _ => Term.expandCDot? stx
 
 
-/--
+/-
   Try to expand `·` notation.
   Recall that in Lean the `·` notation must be surrounded by parentheses.
   We may change this is the future, but right now, here are valid examples

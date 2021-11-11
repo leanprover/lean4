@@ -95,23 +95,6 @@ def ExtensionState.erase (s : ExtensionState γ) (attrName : Name) (declName : N
     throwError "'{declName}' does not have [{attrName}] attribute"
   return { s with erased := s.erased.insert declName, declNames := s.declNames.erase declName }
 
-/--
-def _regBuiltin$(declName) : IO Unit :=
-@addBuiltin $(mkConst valueTypeName) $(mkConst attrDeclName) $(key) $(declName) $(mkConst declName)
--/
-def declareBuiltin {γ} (df : Def γ) (attrDeclName : Name) (env : Environment) (key : Key) (declName : Name) : IO Environment :=
-  let name := `_regBuiltin ++ declName
-  let type := mkApp (mkConst `IO) (mkConst `Unit)
-  let val  := mkAppN (mkConst `Lean.KeyedDeclsAttribute.addBuiltin) #[mkConst df.valueTypeName, mkConst attrDeclName, toExpr key, toExpr declName, mkConst declName]
-  let decl := Declaration.defnDecl { name := name, levelParams := [], type := type, value := val, hints := ReducibilityHints.opaque,
-                                     safety := DefinitionSafety.safe }
-  match env.addAndCompile {} decl with
-  -- TODO: pretty print error
-  | Except.error e => do
-    let msg ← (e.toMessageData {}).toString
-    throw (IO.userError s!"failed to emit registration code for builtin '{declName}': {msg}")
-  | Except.ok env  => IO.ofExcept (setBuiltinInitAttr env name)
-
 protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDeclsAttribute γ) := do
   let tableRef ← IO.mkRef ({} : Table γ)
   let ext : Extension γ ← registerScopedEnvExtension {
@@ -138,9 +121,10 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
           if c != df.valueTypeName then throwError "unexpected type at '{declName}', '{df.valueTypeName}' expected"
           else
             let env ← getEnv
-            let env ← declareBuiltin df attrDeclName env key declName
-            setEnv env
-        | _ => throwError "unexpected type at '{declName}', '{df.valueTypeName}' expected",
+            /- builtin_initialize @addBuiltin $(mkConst valueTypeName) $(mkConst attrDeclName) $(key) $(declName) $(mkConst declName) -/
+            let val := mkAppN (mkConst `Lean.KeyedDeclsAttribute.addBuiltin) #[mkConst df.valueTypeName, mkConst attrDeclName, toExpr key, toExpr declName, mkConst declName]
+            declareBuiltin declName val
+        | _ => throwError "unexpected type at '{declName}', '{df.valueTypeName}' expected"
       applicationTime := AttributeApplicationTime.afterCompilation
     }
   registerBuiltinAttribute {

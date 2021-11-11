@@ -60,13 +60,6 @@ def findLeanCmdInstall? (lean := "lean"): IO (Option LeanInstall) := do
   (← findLeanCmdHome? lean).map fun home => {home}
 
 /--
-  Try to get Lake's home by assuming
-  this executable is located at `<lake-home>/bin/lake`.
--/
-def findLakeBuildHome? : IO (Option FilePath) := do
-  (← IO.appPath).parent.bind FilePath.parent
-
-/--
   Check if Lake's executable is co-located with Lean, and, if so,
   try to return their joint home by assuming they are both located at `<home>/bin`.
 -/
@@ -77,6 +70,13 @@ def findLakeLeanJointHome? : IO (Option FilePath) := do
     if (← leanExe.pathExists) then
       return appDir.parent
   return none
+
+/--
+  Try to get Lake's home by assuming
+  the executable is located at `<lake-home>/bin/lake`.
+-/
+def lakeBuildHome? (lake : FilePath) : Option FilePath := do
+  lake.parent.bind FilePath.parent
 
 /--
   Try to find Lean's installation by
@@ -97,7 +97,7 @@ def findLeanInstall? : IO (Option LeanInstall) := do
 /--
   Try to find Lake's installation by
   first checking the `LAKE_HOME` environment variable
-  and then by trying `findLakeBuildHome?`.
+  and then by trying the `lakeBuildHome?` of the running executable.
 
   It assumes that the Lake installation is setup the same way it is built.
   That is, with its binary located at `<lake-home>/bin/lake` and its static
@@ -106,8 +106,9 @@ def findLeanInstall? : IO (Option LeanInstall) := do
 def findLakeInstall? : IO (Option LakeInstall) := do
   if let some home ← IO.getEnv "LAKE_HOME" then
     return some {home}
-  if let some home ← findLakeBuildHome? then
-    return some {home}
+  let lake ← IO.appPath
+  if let some home ← lakeBuildHome? lake then
+    return some {home, lake}
   return none
 
 /--

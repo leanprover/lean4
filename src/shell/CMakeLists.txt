@@ -46,7 +46,8 @@ add_test(lean_ghash2   "${CMAKE_BINARY_DIR}/bin/lean" --githash)
 add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_BINARY_DIR}/bin/lean" "-z")
 add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_BINARY_DIR}/bin/lean" "boofoo.lean")
 
-set(TEST_VARS "PATH=${LEAN_BIN}:$PATH ${LEAN_TEST_VARS}")
+# LEANC_OPTS is necessary for macOS c++ to find its headers
+set(TEST_VARS "PATH=${LEAN_BIN}:$PATH ${LEAN_TEST_VARS} CXX='${CMAKE_CXX_COMPILER} ${LEANC_OPTS}'")
 
 # LEAN TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
@@ -81,8 +82,7 @@ ENDFOREACH(T)
 
 add_test(NAME leancomptest_foreign
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler/foreign"
-         # LEANC_OPTS is necessary for macOS c++ to find its headers, GMP will be removed soon
-         COMMAND bash -c "LEANC_GMP=${GMP_LIBRARIES} ${LEAN_BIN}/leanmake --always-make CXX='${CMAKE_CXX_COMPILER} ${LEANC_OPTS}'")
+         COMMAND bash -c "LEANC_GMP=${GMP_LIBRARIES} ${LEAN_BIN}/leanmake --always-make")
 add_test(NAME leancomptest_doc_example
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/examples/compiler"
          COMMAND bash -c "export ${TEST_VARS}; leanmake --always-make bin && ./build/bin/test hello world")

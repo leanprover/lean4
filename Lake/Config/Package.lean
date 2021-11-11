@@ -9,6 +9,7 @@ import Std.Data.HashMap
 import Lake.LeanVersion
 import Lake.Build.TargetTypes
 import Lake.Config.Glob
+import Lake.Config.OpaquePackage
 import Lake.Config.Workspace
 import Lake.Config.Script
 
@@ -294,6 +295,28 @@ structure Package where
   -/
   scripts : NameMap Script := {}
   deriving Inhabited
+
+namespace OpaquePackage
+
+unsafe def unsafeMk (pkg : Package) : OpaquePackage :=
+  unsafeCast pkg
+
+@[implementedBy unsafeMk] constant mk (pkg : Package) : OpaquePackage :=
+  OpaquePackagePointed.val
+
+instance : Coe Package OpaquePackage := ⟨mk⟩
+instance : Inhabited OpaquePackage := ⟨mk Inhabited.default⟩
+
+unsafe def unsafeGet (self : OpaquePackage) : Package :=
+  unsafeCast self
+
+@[implementedBy unsafeGet] constant get (self : OpaquePackage) : Package
+
+instance : Coe OpaquePackage Package := ⟨get⟩
+
+@[simp] axiom get_mk {pkg : Package} : get (mk pkg) = pkg
+
+end OpaquePackage
 
 /--
   An alternate signature for package configurations

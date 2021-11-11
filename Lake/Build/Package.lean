@@ -73,7 +73,7 @@ def recBuildPackageWithDeps
         let depPkg ← liftM (m := BuildM) <| resolveDep pkg dep
         buildPkg depPkg
     depTargets := depTargets ++ targets
-  let pkgTarget ← build depTargets pkg
+  let pkgTarget ← adaptPackage pkg <| build depTargets pkg
   depTargets.push pkgTarget
 
 /--

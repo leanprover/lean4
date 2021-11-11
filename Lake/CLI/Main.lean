@@ -133,14 +133,14 @@ def getInstall : CliM (LeanInstall × LakeInstall) := do
   return (← getLeanInstall, ← getLakeInstall)
 
 /-- Perform the given build action using information from CLI. -/
-def runBuildM (x : BuildM α) : CliM α := do
+def runBuildM (pkg : Package) (x : BuildM α) : CliM α := do
   let (leanInstall, lakeInstall) ← getInstall
   let leanTrace ← computeTrace leanInstall.lean
-  x.run LogMethods.io {leanTrace, leanInstall, lakeInstall}
+  x.run LogMethods.io {leanTrace, leanInstall, lakeInstall, package := pkg}
 
 /-- Variant of `runBuildM` that discards the build monad's output. -/
-def runBuildM_ (x : BuildM α) : CliM PUnit :=
-  discard <| runBuildM x
+def runBuildM_  (pkg : Package) (x : BuildM α) : CliM PUnit :=
+  discard <| runBuildM pkg x
 
 -- ## Argument Parsing
 
@@ -251,7 +251,7 @@ def printPaths (imports : List String := []) : CliM PUnit := do
     let pkg ← loadPkg (← getSubArgs)
     let leanTrace ← computeTrace leanInstall.lean
     let pkgs ← pkg.buildImportsAndDeps imports |>.run LogMethods.eio {
-      leanTrace, leanInstall, lakeInstall
+      leanTrace, leanInstall, lakeInstall, package := pkg
     }
     IO.println <| Json.compress <| toJson {
       oleanPath := pkgs.map (·.oleanDir),
@@ -285,34 +285,34 @@ def parseTargetBaseSpec (rootPkg : Package) (spec : String) : CliM (Package × O
   | _ =>
     error s!"invalid target spec '{spec}' (too many '/')"
 
-partial def parseTargetSpec (rootPkg : Package) (spec : String) : CliM OpaqueTarget := do
+partial def parseTargetSpec (rootPkg : Package) (spec : String) : CliM (Package × OpaqueTarget) := do
   match spec.splitOn ":" with
   | [rootSpec] =>
     let (pkg, mod?) ← parseTargetBaseSpec rootPkg rootSpec
     if let some mod := mod? then
-      return pkg.moduleOleanTarget mod |>.withoutInfo
+      return (pkg, pkg.moduleOleanTarget mod |>.withoutInfo)
     else
-      return pkg.defaultTarget
+      return (pkg, pkg.defaultTarget)
   | [rootSpec, facet] =>
     let (pkg, mod?) ← parseTargetBaseSpec rootPkg rootSpec
     if let some mod := mod? then
       if facet == "olean" then
-        return pkg.moduleOleanTarget mod |>.withoutInfo
+        return (pkg, pkg.moduleOleanTarget mod |>.withoutInfo)
       else if facet == "c" then
-        return pkg.moduleOleanAndCTarget mod |>.withoutInfo
+        return (pkg, pkg.moduleOleanAndCTarget mod |>.withoutInfo)
       else if facet == "o" then
-        return pkg.moduleOTarget mod |>.withoutInfo
+        return (pkg, pkg.moduleOTarget mod |>.withoutInfo)
       else
         error s!"unknown module facet '{facet}'"
     else
       if facet == "bin" then
-        return pkg.binTarget.withoutInfo
+        return (pkg, pkg.binTarget.withoutInfo)
       else if facet == "staticLib" then
-        return pkg.staticLibTarget.withoutInfo
+        return (pkg, pkg.staticLibTarget.withoutInfo)
       else if facet == "sharedLib" then
-        return pkg.sharedLibTarget.withoutInfo
+        return (pkg, pkg.sharedLibTarget.withoutInfo)
       else if facet == "oleans" then
-        return pkg.oleanTarget.withoutInfo
+        return (pkg, pkg.oleanTarget.withoutInfo)
       else
         error s!"unknown package facet '{facet}'"
   | _ =>
@@ -321,9 +321,9 @@ partial def parseTargetSpec (rootPkg : Package) (spec : String) : CliM OpaqueTar
 def build (rootPkg : Package) (targetSpecs : List String) : CliM PUnit := do
   let targets ← targetSpecs.mapM (parseTargetSpec rootPkg)
   if targets.isEmpty then
-    runBuildM rootPkg.defaultTarget.build
+    runBuildM rootPkg rootPkg.defaultTarget.build
   else
-    runBuildM <| targets.forM (·.build)
+    runBuildM rootPkg <| targets.forM fun (pkg, t) => adaptPackage pkg <| t.build
 
 def server (leanInstall : LeanInstall) (pkg : Package) (args : List String) : CliM PUnit := do
   let child ← IO.Process.spawn {
@@ -332,12 +332,15 @@ def server (leanInstall : LeanInstall) (pkg : Package) (args : List String) : Cl
   }
   exit (← child.wait)
 
+def configure (pkg : Package) : CliM PUnit := do
+  runBuildM pkg pkg.buildDepOleans
+
 def command : (cmd : String) → CliM PUnit
 | "new"         => do noArgsRem <| new (← takeArg)
 | "init"        => do noArgsRem <| init (← takeArg)
 | "run"         => do noArgsRem <| script (← loadPkg []) (← takeArg) (← getSubArgs)
 | "server"      => do noArgsRem <| server (← getLeanInstall) (← loadPkg []) (← getSubArgs)
-| "configure"   => do noArgsRem <| runBuildM (← loadPkg (← getSubArgs)).buildDepOleans
+| "configure"   => do noArgsRem <| configure (← loadPkg (← getSubArgs))
 | "print-paths" => do printPaths (← takeArgs)
 | "build"       => do build (← loadPkg (← getSubArgs)) (← takeArgs)
 | "clean"       => do noArgsRem <| (← loadPkg (← getSubArgs)).clean

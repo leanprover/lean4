@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Data.Format
+import Lean.ToExpr
 
 namespace Lean
 
@@ -21,6 +22,11 @@ instance : ToFormat Position :=
 
 instance : ToString Position :=
   ⟨fun ⟨l, c⟩ => "⟨" ++ toString l ++ ", " ++ toString c ++ "⟩"⟩
+
+instance : ToExpr Position where
+  toExpr p   := mkAppN (mkConst ``Position.mk) #[toExpr p.line, toExpr p.column]
+  toTypeExpr := mkConst ``Position
+
 end Position
 
 structure FileMap where

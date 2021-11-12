@@ -336,10 +336,10 @@ void load_library(std::string path) {
 }
 
 namespace lean {
-extern "C" object * lean_run_frontend(object * input, object * opts, object * filename, object * main_module_name, object * w);
-pair_ref<environment, object_ref> run_new_frontend(std::string const & input, options const & opts, std::string const & file_name, name const & main_module_name) {
+extern "C" object * lean_run_frontend(object * input, object * opts, object * filename, object * main_module_name, uint32_t trust_level, object * w);
+pair_ref<environment, object_ref> run_new_frontend(std::string const & input, options const & opts, std::string const & file_name, name const & main_module_name, uint32_t trust_level) {
     return get_io_result<pair_ref<environment, object_ref>>(
-        lean_run_frontend(mk_string(input), opts.to_obj_arg(), mk_string(file_name), main_module_name.to_obj_arg(), io_mk_world()));
+        lean_run_frontend(mk_string(input), opts.to_obj_arg(), mk_string(file_name), main_module_name.to_obj_arg(), trust_level, io_mk_world()));
 }
 
 /* def workerMain : Options → IO UInt32 */
@@ -647,7 +647,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         if (!main_module_name)
             main_module_name = name("_stdin");
-        pair_ref<environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name);
+        pair_ref<environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl);
         env = r.fst();
         bool ok = unbox(r.snd().raw());
 

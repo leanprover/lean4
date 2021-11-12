@@ -47,7 +47,7 @@ def registerRpcCallHandler (method : Name)
     let sesh ← seshRef.get
 
     let t ← RequestM.asTask do
-      let paramsLsp ← parseRequestParams paramLspType j
+      let paramsLsp ← liftExcept <| parseRequestParams paramLspType j
       let act := rpcDecode (α := paramType) (β := paramLspType) (m := StateM FileWorker.RpcSession) paramsLsp
       match act.run' sesh with
       | Except.ok v => return v

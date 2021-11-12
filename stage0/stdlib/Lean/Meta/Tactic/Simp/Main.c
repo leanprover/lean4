@@ -7581,7 +7581,7 @@ return x_6;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_getSimpLetCase___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+lean_object* x_8; lean_object* x_9; 
 x_8 = lean_expr_instantiate1(x_1, x_2);
 lean_inc(x_6);
 lean_inc(x_5);
@@ -7589,6 +7589,9 @@ lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_8);
 x_9 = l_Lean_Meta_isTypeCorrect(x_8, x_3, x_4, x_5, x_6, x_7);
+if (lean_obj_tag(x_9) == 0)
+{
+lean_object* x_10; uint8_t x_11; 
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 x_11 = lean_unbox(x_10);
@@ -7781,6 +7784,35 @@ lean_ctor_set(x_54, 0, x_52);
 lean_ctor_set(x_54, 1, x_53);
 return x_54;
 }
+}
+}
+}
+else
+{
+uint8_t x_55; 
+lean_dec(x_8);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+x_55 = !lean_is_exclusive(x_9);
+if (x_55 == 0)
+{
+return x_9;
+}
+else
+{
+lean_object* x_56; lean_object* x_57; lean_object* x_58; 
+x_56 = lean_ctor_get(x_9, 0);
+x_57 = lean_ctor_get(x_9, 1);
+lean_inc(x_57);
+lean_inc(x_56);
+lean_dec(x_9);
+x_58 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_58, 0, x_56);
+lean_ctor_set(x_58, 1, x_57);
+return x_58;
 }
 }
 }

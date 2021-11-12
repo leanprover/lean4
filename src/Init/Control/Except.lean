@@ -135,6 +135,10 @@ end MonadExcept
 @[inline] def observing {ε α : Type u} {m : Type u → Type v} [Monad m] [MonadExcept ε m] (x : m α) : m (Except ε α) :=
   tryCatch (do let a ← x; pure (Except.ok a)) (fun ex => pure (Except.error ex))
 
+def liftExcept [MonadExceptOf ε m] [Pure m] : Except ε α → m α
+  | Except.ok a    => pure a
+  | Except.error e => throw e
+
 instance (ε : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (ExceptT ε m) where
   stM        := Except ε
   liftWith f := liftM <| f fun x => x.run

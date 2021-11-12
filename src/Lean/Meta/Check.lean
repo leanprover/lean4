@@ -74,7 +74,7 @@ partial def addPPExplicitToExposeDiff (a b : Expr) : MetaM (Expr × Expr) := do
   if (← getOptions).getBool `pp.all false || (← getOptions).getBool `pp.explicit false then
     return (a, b)
   else
-    visit a b
+    visit (← instantiateMVars a) (← instantiateMVars b)
 where
   visit (a b : Expr) : MetaM (Expr × Expr) := do
     try
@@ -89,26 +89,28 @@ where
         forallBoundedTelescope fType a.getAppNumArgs fun xs _ => do
           let mut as := a.getAppArgs
           let mut bs := b.getAppArgs
-          if (← hasExplicitDiff xs as bs) then
-            return (a, b)
+          if let some (as', bs') ← hasExplicitDiff? xs as bs then
+            return (mkAppN a.getAppFn as', mkAppN b.getAppFn bs')
           else
             for i in [:as.size] do
-              let (ai, bi) ← visit as[i] bs[i]
-              as := as.set! i ai
-              bs := bs.set! i bi
+              unless (← isDefEq as[i] bs[i]) do
+                let (ai, bi) ← visit as[i] bs[i]
+                as := as.set! i ai
+                bs := bs.set! i bi
             let a := mkAppN a.getAppFn as
             let b := mkAppN b.getAppFn bs
             return (a.setAppPPExplicit, b.setAppPPExplicit)
     catch _ =>
       return (a, b)
 
-  hasExplicitDiff (xs as bs : Array Expr) : MetaM Bool := do
+  hasExplicitDiff? (xs as bs : Array Expr) : MetaM (Option (Array Expr × Array Expr)) := do
     for i in [:xs.size] do
       let localDecl ← getLocalDecl xs[i].fvarId!
       if localDecl.binderInfo.isExplicit then
-         if not (← isDefEq as[i] bs[i]) then
-           return true
-    return false
+         unless (← isDefEq as[i] bs[i]) do
+           let (ai, bi) ← visit as[i] bs[i]
+           return some (as.set! i ai, bs.set! i bi)
+    return none
 
 /-
   Return error message "has type{givenType}\nbut is expected to have type{expectedType}"

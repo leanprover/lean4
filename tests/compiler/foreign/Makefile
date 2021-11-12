@@ -1,3 +1,4 @@
+CXX ?= c++
 CPPFLAGS = -O3
 include lean.mk
 
@@ -8,7 +9,7 @@ all: run_test run_interp
 
 $(OUT)/testcpp/%.o: %.cpp
 	@mkdir -p "$(@D)"
-	c++ -std=c++14 -c -o $@ $< $(CPPFLAGS) `leanc --print-cflags`
+	$(CXX) -std=c++14 -c -o $@ $< $(CPPFLAGS) `leanc --print-cflags`
 
 # to avoid conflicts between the system C++ stdlib needed by the above object file and the internal one used in the Lean runtime,
 # we need to dynamically link the Lean runtime.
@@ -22,10 +23,10 @@ else
 endif
 
 $(BIN_OUT)/testcpp.so: $(CPP_OBJS) | $(BIN_OUT)
-	c++ -shared -o $@ $^ `leanc -shared --print-ldflags`
+	$(CXX) -shared -o $@ $^ `leanc -shared --print-ldflags`
 
 $(BIN_OUT)/test: $(LIB_OUT)/libMain.a $(CPP_OBJS) | $(BIN_OUT)
-	c++ -o $@ $^ `leanc -shared --print-ldflags` -lleanshared $(TEST_SHARED_LINK_FLAGS)
+	$(CXX) -o $@ $^ `leanc -shared --print-ldflags` -lleanshared $(TEST_SHARED_LINK_FLAGS)
 
 run_test: $(BIN_OUT)/test
 	$^

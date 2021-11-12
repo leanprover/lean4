@@ -5133,7 +5133,7 @@ return x_3;
 LEAN_EXPORT lean_object* lean_get_extern_const_arity(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_4 = lean_box(0);
 x_5 = l_Lean_getExternConstArityExport___closed__2;
 x_6 = l_Lean_getExternConstArityExport___closed__5;
@@ -5144,9 +5144,6 @@ lean_ctor_set(x_8, 1, x_5);
 lean_ctor_set(x_8, 2, x_6);
 lean_ctor_set(x_8, 3, x_7);
 x_9 = lean_io_get_num_heartbeats(x_3);
-if (lean_obj_tag(x_9) == 0)
-{
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 x_11 = lean_ctor_get(x_9, 1);
@@ -5302,36 +5299,6 @@ lean_ctor_set(x_50, 0, x_49);
 lean_ctor_set(x_50, 1, x_48);
 return x_50;
 }
-}
-}
-}
-else
-{
-uint8_t x_51; 
-lean_dec(x_8);
-lean_dec(x_2);
-x_51 = !lean_is_exclusive(x_9);
-if (x_51 == 0)
-{
-lean_object* x_52; lean_object* x_53; 
-x_52 = lean_ctor_get(x_9, 0);
-lean_dec(x_52);
-x_53 = lean_box(0);
-lean_ctor_set_tag(x_9, 0);
-lean_ctor_set(x_9, 0, x_53);
-return x_9;
-}
-else
-{
-lean_object* x_54; lean_object* x_55; lean_object* x_56; 
-x_54 = lean_ctor_get(x_9, 1);
-lean_inc(x_54);
-lean_dec(x_9);
-x_55 = lean_box(0);
-x_56 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_56, 0, x_55);
-lean_ctor_set(x_56, 1, x_54);
-return x_56;
 }
 }
 }

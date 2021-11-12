@@ -173,8 +173,6 @@ section Initialization
     let srcPath := (← appDir) / ".." / "lib" / "lean" / "src"
     -- `lake/` should come first since on case-insensitive file systems, Lean thinks that `src/` also contains `Lake/`
     let mut srcSearchPath := [srcPath / "lake", srcPath]
-    if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
-      srcSearchPath := System.SearchPath.parse p ++ srcSearchPath
     let (headerEnv, msgLog) ← try
       -- NOTE: lake does not exist in stage 0 (yet?)
       if (← System.FilePath.pathExists lakePath) then
@@ -184,8 +182,15 @@ section Initialization
     catch e =>  -- should be from `lake print-paths`
       let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
       pure (← mkEmptyEnvironment, msgs)
+    if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
+      srcSearchPath := System.SearchPath.parse p ++ srcSearchPath
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
-    let cmdState := { cmdState with infoState.enabled := true, scopes := [{ header := "", opts := opts }] }
+    let cmdState := { cmdState with infoState := {
+      enabled := true
+      -- add dummy tree for invariant in `Snapshot.infoTree`
+      -- TODO: maybe even fill with useful stuff
+      trees := #[Elab.InfoTree.node (Elab.Info.ofCommandInfo { elaborator := `import, stx := headerStx }) #[].toPersistentArray].toPersistentArray
+    }}
     let headerSnap := {
       beginPos := 0
       stx := headerStx
@@ -288,11 +293,9 @@ section NotificationHandling
 
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
   let st ← get
-  match st.rpcSessions.find? p.sessionId with
-  | none =>
-    -- TODO(WN): should only print on log-level debug, if we had log-levels
-    IO.eprintln s!"Trying to release refs '{p.refs}' from outdated RPC session '{p.sessionId}'."
-  | some seshRef =>
+  -- NOTE(WN): when the worker restarts e.g. due to changed imports, we may receive `rpc/release`
+  -- for the previous RPC session. This is fine, just ignore.
+  if let some seshRef := st.rpcSessions.find? p.sessionId then
     let mut sesh ← seshRef.get
     for ref in p.refs do
       sesh := sesh.release ref |>.snd

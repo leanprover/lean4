@@ -119,14 +119,15 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
 
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
-partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) :=
-  t.smallestInfo? fun i => do
-    if let Info.ofTermInfo ti := i then
-      if ti.expr.isSyntheticSorry then
-        return false
+partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) := do
+  let res := t.smallestInfo? fun i => do
     if i matches Info.ofFieldInfo _ || i.toElabInfo?.isSome then
       return i.contains hoverPos
     return false
+  if let some (_, Info.ofTermInfo ti) := res then
+    if ti.expr.isSyntheticSorry then
+      return none
+  res
 
 def Info.type? (i : Info) : MetaM (Option Expr) :=
   match i with

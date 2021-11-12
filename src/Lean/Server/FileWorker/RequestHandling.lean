@@ -69,7 +69,10 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
     let mod? ← findModuleOf? n
     let modUri? ← match mod? with
       | some modName =>
-        let modFname? ← rc.srcSearchPath.findWithExt "lean" modName
+        let modFname? ←
+          match rc.srcMap.find? modName with
+          | some path => pure <| some path
+          | none => rc.srcSearchPath.findWithExt "lean" modName
         pure <| modFname?.map toFileUri
       | none         => pure <| some doc.meta.uri
 

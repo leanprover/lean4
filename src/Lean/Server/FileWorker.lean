@@ -54,12 +54,14 @@ open IO
 open Snapshots
 open Std (RBMap RBMap.empty)
 open JsonRpc
+open System
 
 structure WorkerContext where
   hIn           : FS.Stream
   hOut          : FS.Stream
   hLog          : FS.Stream
-  srcSearchPath : SearchPath
+  srcSearchPath : SearchPath  -- TODO: Remove once unused
+  srcMap        : NameMap FilePath
 
 /- Asynchronous snapshot elaboration. -/
 section Elab
@@ -118,9 +120,9 @@ abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 /- Worker initialization sequence. -/
 section Initialization
   /-- Use `lake print-paths` to compile dependencies on the fly and add them to `LEAN_PATH`.
-  Compilation progress is reported to `hOut` via LSP notifications. Return the search path for
-  source files. -/
-  partial def lakeSetupSearchPath (lakePath : System.FilePath) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO SearchPath := do
+  Compilation progress is reported to `hOut` via LSP notifications. Return the module to olean
+  and module to source mapping for all transitive dependencies. -/
+  partial def lakeResolveModules (lakePath : System.FilePath) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO (NameMap FilePath × NameMap FilePath) := do
     let args := #["print-paths"] ++ imports.map (toString ·.module)
     let cmdStr := " ".intercalate (toString lakePath :: args.toList)
     let lakeProc ← Process.spawn {
@@ -146,17 +148,21 @@ section Initialization
       -- ignore any output up to the last line
       -- TODO: leanpkg should instead redirect nested stdout output to stderr
       let stdout := stdout.split (· == '\n') |>.getLast!
-      let Except.ok (paths : LeanPaths) ← pure (Json.parse stdout >>= fromJson?)
+      let Except.ok (infos : Array ModulePaths) ← pure (Json.parse stdout >>= fromJson?)
         | throwServerError s!"invalid output from `{cmdStr}`:\n{stdout}\nstderr:\n{stderr}"
-      let sp ← getBuiltinSearchPath
-      let sp ← addSearchPathFromEnv sp
-      let sp := paths.oleanPath ++ sp
-      searchPathRef.set sp
-      paths.srcPath.mapM realPathNormalized
-    | 2 => pure []  -- no lakefile.lean
+      let mut oleanMap : NameMap FilePath := {}
+      let mut srcMap : NameMap FilePath := {}
+      for modInfo in infos do
+        let mod := modInfo.module
+        if let some path := modInfo.olean? then
+          oleanMap := oleanMap.insert mod path
+        if let some path := modInfo.src? then
+          srcMap := srcMap.insert mod path
+      return (oleanMap, srcMap)
+    | 2 => return ({}, {})  -- no lakefile.lean
     | _ => throwServerError s!"`{cmdStr}` failed:\n{stdout}\nstderr:\n{stderr}"
 
-  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) : IO (Snapshot × SearchPath) := do
+  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) : IO (Snapshot × SearchPath × NameMap FilePath) := do
     let inputCtx := Parser.mkInputContext m.text.source "<input>"
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
     let lakePath ← match (← IO.getEnv "LAKE") with
@@ -173,12 +179,23 @@ section Initialization
     let srcPath := (← appDir) / ".." / "lib" / "lean" / "src"
     -- `lake/` should come first since on case-insensitive file systems, Lean thinks that `src/` also contains `Lake/`
     let mut srcSearchPath := [srcPath / "lake", srcPath]
-    let (headerEnv, msgLog) ← try
+    let mut srcMap : NameMap FilePath := {}
+    let (headerEnv, msgs) ← try
+      let mut msgs := msgLog
+      let mut oleanMap : NameMap FilePath := {}
       -- NOTE: lake does not exist in stage 0 (yet?)
       if (← System.FilePath.pathExists lakePath) then
-        let pkgSearchPath ← lakeSetupSearchPath lakePath m (Lean.Elab.headerToImports headerStx).toArray hOut
-        srcSearchPath := pkgSearchPath ++ srcSearchPath
-      Elab.processHeader headerStx opts msgLog inputCtx
+        let imports := Lean.Elab.headerToImports headerStx |>.toArray
+        (oleanMap, srcMap) ← lakeResolveModules lakePath m imports hOut
+        for stx in headerStx[1].getArgs do
+          let id := stx[2].getId
+          unless oleanMap.contains id do
+            msgs := msgs.add {
+              fileName := "<ignored>",
+              pos := inputCtx.fileMap.toPosition <| stx.getPos?.getD 0,
+              data := s!"could not find olean for module `{id}`"
+            }
+      Elab.processHeader headerStx opts msgs inputCtx (preresolved := oleanMap)
     catch e =>  -- should be from `lake print-paths`
       let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
       pure (← mkEmptyEnvironment, msgs)
@@ -199,17 +216,18 @@ section Initialization
       interactiveDiags := ← cmdState.messages.msgs.mapM (Widget.msgToInteractiveDiagnostic m.text)
     }
     publishDiagnostics m headerSnap.diagnostics.toArray hOut
-    return (headerSnap, srcSearchPath)
+    return (headerSnap, srcSearchPath, srcMap)
 
   def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream) (opts : Options)
       : IO (WorkerContext × WorkerState) := do
-    let (headerSnap, srcSearchPath) ← compileHeader meta o opts
+    let (headerSnap, srcSearchPath, srcMap) ← compileHeader meta o opts
     let cancelTk ← CancelToken.new
     let ctx :=
       { hIn                := i
         hOut               := o
         hLog               := e
         srcSearchPath      := srcSearchPath
+        srcMap             := srcMap
       }
     let cmdSnaps ← unfoldCmdSnaps meta headerSnap cancelTk (initial := true) ctx
     let doc : EditableDocument := ⟨meta, headerSnap, cmdSnaps, cancelTk⟩
@@ -364,6 +382,7 @@ section MessageHandling
     let rc : RequestContext :=
       { rpcSessions := st.rpcSessions
         srcSearchPath := ctx.srcSearchPath
+        srcMap := ctx.srcMap
         doc := st.doc
         hLog := ctx.hLog }
     let t? ← EIO.toIO' <| handleLspRequest method params rc

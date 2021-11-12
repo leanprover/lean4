@@ -614,7 +614,7 @@ structure ImportState where
   regions       : Array CompactedRegion := #[]
 
 @[export lean_import_modules]
-partial def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts do
+partial def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) (preresolved : NameMap System.FilePath := {}) : IO Environment := profileitIO "import" opts do
   withImporting do
     let (_, s) ← importMods imports |>.run {}
     let mut numConsts := 0
@@ -656,7 +656,10 @@ where
       importMods is
     else do
       modify fun s => { s with moduleNameSet := s.moduleNameSet.insert i.module }
-      let mFile ← findOLean i.module
+      let mFile ←
+        match preresolved.find? i.module with
+        | some path => pure path
+        | none => findOLean i.module
       unless (← mFile.pathExists) do
         throw $ IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
       let (mod, region) ← readModuleData mFile

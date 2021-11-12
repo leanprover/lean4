@@ -57,6 +57,7 @@ def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
 structure RequestContext where
   rpcSessions   : Std.RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
   srcSearchPath : SearchPath
+  srcMap        : NameMap System.FilePath
   doc           : FileWorker.EditableDocument
   hLog          : IO.FS.Stream
 

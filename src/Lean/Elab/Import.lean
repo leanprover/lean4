@@ -14,10 +14,10 @@ def headerToImports (header : Syntax) : List Import :=
     let id      := stx[2].getId
     { module := id, runtimeOnly := runtime }
 
-def processHeader (header : Syntax) (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0)
+def processHeader (header : Syntax) (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0) (preresolved : NameMap System.FilePath := {})
     : IO (Environment × MessageLog) := do
   try
-    let env ← importModules (headerToImports header) opts trustLevel
+    let env ← importModules (headerToImports header) opts trustLevel preresolved
     pure (env, messages)
   catch e =>
     let env ← mkEmptyEnvironment

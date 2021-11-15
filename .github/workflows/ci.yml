@@ -131,8 +131,8 @@ jobs:
         run: ${{ matrix.binary-check }} lean-*/bin/* || true
       - name: List Install Tree
         run: |
-          # omit contents of src/, Init/, ...
-          tree --du -h lean-* | grep -Ev '\.o?lean'
+          # omit contents of Init/, ...
+          tree --du -h lean-* | grep -E ' (Init|Std|Lean|Lake|LICENSE|[a-z])'
       - name: Pack
         if: ${{ startsWith(github.ref, 'refs/tags/v') && matrix.release }}
         run: |

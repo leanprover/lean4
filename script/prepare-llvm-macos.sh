@@ -13,9 +13,9 @@ SDK=$(xcrun --show-sdk-path)
 mkdir -p stage1/{bin,lib/libc,include/clang}
 CP="gcp -d"  # preserve symlinks
 # a C compiler!
-$CP $(grealpath llvm/bin/clang) stage1/bin/clang
+gcp -L llvm/bin/clang stage1/bin/
 # a linker!
-gcp llvm/bin/ld64.lld stage1/bin/
+gcp -L llvm/bin/ld64.lld stage1/bin/
 # dependencies of the above
 $CP llvm/lib/lib{clang-cpp,LLVM}.dylib stage1/lib/
 #find stage1 -type f -exec strip --strip-unneeded '{}' \; 2> /dev/null

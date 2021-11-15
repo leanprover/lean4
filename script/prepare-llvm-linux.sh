@@ -12,9 +12,9 @@ set -uo pipefail
 mkdir -p stage1/{bin,lib,lib/glibc,include/clang}
 CP="cp -d"  # preserve symlinks
 # a C compiler!
-$CP $(realpath llvm/bin/clang) stage1/bin/clang
+cp -L llvm/bin/clang stage1/bin/
 # a linker!
-$CP llvm/bin/{ld.lld,lld} stage1/bin/
+cp -L llvm/bin/ld.lld stage1/bin/
 # dependencies of the above
 $CP llvm/lib/lib{clang-cpp,LLVM}*.so* stage1/lib/
 $CP $ZLIB/lib/libz.so* stage1/lib/

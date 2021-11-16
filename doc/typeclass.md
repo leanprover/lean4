@@ -423,8 +423,6 @@ instance : ToString Rational where
   toString r := s!"{r.num}/{r.den}"
 
 #check 2 -- Rational
-
-example
 ```
 Priorities are also useful to control the interaction between different default instances.
 For example, suppose `xs` has type `α`, when elaboration `xs.map (fun x => 2 * x)`, we want the homogeneous instance for multiplication

@@ -69,8 +69,12 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
     let mod? ← findModuleOf? n
     let modUri? ← match mod? with
       | some modName =>
-        let modFname? ← rc.srcSearchPath.findWithExt "lean" modName
-        pure <| modFname?.map toFileUri
+        let some modFname ← rc.srcSearchPath.findWithExt "lean" modName
+          | pure none
+        -- resolve symlinks (such as `src` in the build dir) so that files are opened
+        -- in the right folder
+        let modFname ← IO.FS.realPath modFname
+        pure <| some <| toFileUri modFname
       | none         => pure <| some doc.meta.uri
 
     let ranges? ← findDeclarationRanges? n

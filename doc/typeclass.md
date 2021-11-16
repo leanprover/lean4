@@ -406,7 +406,7 @@ By tagging the instance above with the attribute `defaultInstance`, we are instr
 to use this instance on pending type class synthesis problems.
 The actual Lean implementation defines homogeneous and heterogeneous classes for arithmetical operators.
 Moreover, `a+b`, `a*b`, `a-b`, `a/b`, and `a%b` are notations for the heterogeneous versions.
-The instance `OfNat Nat n` is the default instance for the `OfNat` class. This is why the numeral
+The instance `OfNat Nat n` is the default instance (with priority `100`) for the `OfNat` class. This is why the numeral
 `2` has type `Nat` when the expected type is not known. You can define default instances with higher
 priority to override the builtin ones.
 ```lean
@@ -415,7 +415,7 @@ structure Rational where
   den : Nat
   inv : den ≠ 0
 
-@[defaultInstance 1]
+@[defaultInstance 200]
 instance : OfNat Rational n where
   ofNat := { num := n, den := 1, inv := by decide }
 
@@ -423,6 +423,8 @@ instance : ToString Rational where
   toString r := s!"{r.num}/{r.den}"
 
 #check 2 -- Rational
+
+example
 ```
 Priorities are also useful to control the interaction between different default instances.
 For example, suppose `xs` has type `α`, when elaboration `xs.map (fun x => 2 * x)`, we want the homogeneous instance for multiplication

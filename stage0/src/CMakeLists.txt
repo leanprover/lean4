@@ -520,6 +520,13 @@ install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean" DESTINATION lib)
 
 install(CODE "execute_process(COMMAND sh -c \"cp ${CMAKE_BINARY_DIR}/lib/*.* \${CMAKE_INSTALL_PREFIX}/lib\")")
 
+# symlink source into expected installation location for go-to-definition, if file system allows it
+if(${STAGE} EQUAL 0)
+  file(CREATE_LINK ${CMAKE_SOURCE_DIR}/../../src ${CMAKE_BINARY_DIR}/lib/lean/src RESULT _IGNORE_RES SYMBOLIC)
+else()
+  file(CREATE_LINK ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib/lean/src RESULT _IGNORE_RES SYMBOLIC)
+endif()
+
 install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION lib/lean
         FILES_MATCHING
         PATTERN "*.lean"

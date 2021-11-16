@@ -33,10 +33,10 @@ where
   synthesizeInstance (x type : Expr) : SimpM Bool := do
     match (← trySynthInstance type) with
     | LOption.some val =>
-      if (← isDefEq x val) then
+      if (← withReducibleAndInstances <| isDefEq x val) then
         return true
       else
-        trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to assign instance{indentExpr type}"
+        trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to assign instance{indentExpr type}\nsythesized value{indentExpr val}\nis not definitionally equal to{indentExpr x}"
         return false
     | _ =>
       trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to synthesize instance{indentExpr type}"

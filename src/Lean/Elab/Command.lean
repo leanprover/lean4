@@ -274,7 +274,9 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
               elabCommand stxNew
         | _ =>
           match commandElabAttribute.getEntries s.env k with
-          | []      => throwError "elaboration function for '{k}' has not been implemented"
+          | []      =>
+            withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <|
+              throwError "elaboration function for '{k}' has not been implemented"
           | elabFns => elabCommandUsing s stx elabFns
     | _ => throwError "unexpected command"
 

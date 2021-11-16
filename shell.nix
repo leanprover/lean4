@@ -16,9 +16,6 @@ in { pkgs ? flakePkgs.nixpkgs, pkgsDist ? pkgs, llvmPackages ? null }:
     GMP = pkgsDist.gmp.override { withStatic = true; };
     GLIBC = pkgsDist.glibc;
     ZLIB = pkgsDist.zlib;
-    shellHook = ''
-      export LEAN_SRC_PATH="$PWD/src"
-    '';
   };
   with-temci = shell.overrideAttrs (old: {
     buildInputs = old.buildInputs ++ [ flakePkgs.temci ];

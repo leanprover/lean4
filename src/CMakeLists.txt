@@ -528,7 +528,16 @@ add_custom_target(clean-stdlib
 add_custom_target(clean-olean
   DEPENDS clean-stdlib)
 
-install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/" DESTINATION lib PATTERN temp EXCLUDE)
+install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/" DESTINATION lib
+  PATTERN src EXCLUDE  # symlink
+  PATTERN temp EXCLUDE)
+
+# symlink source into expected installation location for go-to-definition, if file system allows it
+if(${STAGE} EQUAL 0)
+  file(CREATE_LINK ${CMAKE_SOURCE_DIR}/../../src ${CMAKE_BINARY_DIR}/lib/lean/src RESULT _IGNORE_RES SYMBOLIC)
+else()
+  file(CREATE_LINK ${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib/lean/src RESULT _IGNORE_RES SYMBOLIC)
+endif()
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION lib/lean
         FILES_MATCHING

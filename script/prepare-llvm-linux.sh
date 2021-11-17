@@ -31,6 +31,7 @@ $CP llvm/lib/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a stage1/lib/
 $CP $GLIBC/lib/libc_nonshared.a stage1/lib/glibc
 for f in $GLIBC/lib/lib{c,dl,m,rt,pthread}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done
 OPTIONS=()
+echo -n " -DLEAN_STANDALONE=ON"
 echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang -DCMAKE_CXX_COMPILER=$PWD/llvm/bin/clang++ -DLEAN_CXX_STDLIB='-Wl,-Bstatic -lc++ -lc++abi -Wl,-Bdynamic'"
 # allow C++ code to include /usr since it needs quite a few more headers
 echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -I/usr/include -I/usr/include/x86_64-linux-gnu'"

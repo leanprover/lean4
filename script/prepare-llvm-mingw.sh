@@ -30,6 +30,7 @@ cp /clang64/x86_64-w64-mingw32/lib/{crtbegin,crtend,crt2,dllcrt2}.o stage1/lib/
 (cd llvm; cp --parents lib/clang/*/lib/*/libclang_rt.builtins* ../stage1)
 # further dependencies
 cp /clang64/x86_64-w64-mingw32/lib/lib{m,bcrypt,mingw32,moldname,mingwex,msvcrt,pthread,advapi32,shell32,user32,kernel32,ucrtbase}.* /clang64/lib/libgmp.a llvm/lib/lib{c++,c++abi,unwind}.a stage1/lib/
+echo -n " -DLEAN_STANDALONE=ON"
 echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang.exe -DCMAKE_CXX_COMPILER=$PWD/llvm/bin/clang++.exe -DLEAN_CXX_STDLIB='-lc++ -lc++abi'"
 echo -n " -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_CXX_COMPILER=clang++"
 # allow C++ code to include /usr since it needs quite a few more headers

@@ -28,6 +28,7 @@ gcp ${GMP:-/usr/local/opt/gmp}/lib/libgmp.a stage1/lib/
 cp $SDK/usr/lib/libSystem.tbd stage1/lib/libc
 # use for linking, use system libs for running
 gcp llvm/lib/lib{c++,c++abi,unwind}.dylib stage1/lib/libc
+echo -n " -DLEAN_STANDALONE=ON"
 echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang -DCMAKE_CXX_COMPILER=$PWD/llvm/bin/clang++"
 # allow C++ code to include /usr since it needs quite a few more headers
 # need no-macro-redefined for weird clang stdint.h

@@ -518,7 +518,9 @@ add_custom_target(clean-olean
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean" DESTINATION lib)
 
-install(CODE "execute_process(COMMAND sh -c \"cp ${CMAKE_BINARY_DIR}/lib/*.* \${CMAKE_INSTALL_PREFIX}/lib\")")
+# [Chris] there are no files in lib matching *.* so this produces a build error:
+# cp: cannot stat 'D:/a/lean4/lean4/build/stage1/lib/*.*': No such file or directory
+# install(CODE "execute_process(COMMAND sh -c \"cp ${CMAKE_BINARY_DIR}/lib/*.* \${CMAKE_INSTALL_PREFIX}/lib\")")
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION lib/lean
         FILES_MATCHING

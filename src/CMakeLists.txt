@@ -524,8 +524,6 @@ add_custom_target(clean-olean
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/" DESTINATION lib PATTERN temp EXCLUDE)
 
-install(CODE "execute_process(COMMAND sh -c \"cp ${CMAKE_BINARY_DIR}/lib/*.* \${CMAKE_INSTALL_PREFIX}/lib\")")
-
 install(DIRECTORY "${CMAKE_SOURCE_DIR}" DESTINATION lib/lean
         FILES_MATCHING
         PATTERN "*.lean"

@@ -23,43 +23,50 @@ jobs:
       matrix:
         include:
           # portable release build: use channel with older glibc (2.27)
-          - name: Linux release
-            os: ubuntu-latest
-            release: true
-            shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{}}" --run "bash -euxo pipefail {0}"
-            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-linux-gnu.tar.zst
-            prepare-llvm: script/prepare-llvm-linux.sh lean-llvm*
-            binary-check: ldd -v
-          - name: Linux
-            os: ubuntu-latest
-            check-stage3: true
-            test-speedcenter: true
-          - name: Linux Debug
-            os: ubuntu-latest
-            CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug
-          - name: Linux fsanitize
-            os: ubuntu-latest
-            # turn off custom allocator & symbolic functions to make LSAN do its magic
-            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF
-          - name: macOS
-            os: macos-latest
+          # - name: Linux release
+          #   os: ubuntu-latest
+          #   release: true
+          #   shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{}}" --run "bash -euxo pipefail {0}"
+          #   llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-linux-gnu.tar.zst
+          #   prepare-llvm: script/prepare-llvm-linux.sh lean-llvm*
+          #   binary-check: ldd -v
+          # - name: Linux
+          #   os: ubuntu-latest
+          #   check-stage3: true
+          #   test-speedcenter: true
+          # - name: Linux Debug
+          #   os: ubuntu-latest
+          #   CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug
+          # - name: Linux fsanitize
+          #   os: ubuntu-latest
+          #   # turn off custom allocator & symbolic functions to make LSAN do its magic
+          #   CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF
+          # - name: macOS
+          #   os: macos-latest
+          #   release: true
+          #   shell: bash -euxo pipefail {0}
+          #   # Mojave, oldest maintained version as of 2021
+          #   CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14
+          #   llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-apple-darwin.tar.zst
+          #   prepare-llvm: script/prepare-llvm-macos.sh lean-llvm*
+          #   binary-check: otool -L
+          # - name: Windows
+          #   os: windows-2022
+          #   release: true
+          #   shell: msys2 {0}
+          #   CMAKE_OPTIONS: -G "Unix Makefiles"
+          #   # for reasons unknown, interactivetests are flaky on Windows
+          #   CTEST_OPTIONS: --repeat until-pass:2
+          #   llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-w64-windows-gnu.tar.zst
+          #   prepare-llvm: script/prepare-llvm-mingw.sh lean-llvm*
+          #   binary-check: ldd
+          - name: Linux aarch64
+            os: ubuntu-20.04
+            CMAKE_OPTIONS: -DCMAKE_TOOLCHAIN_FILE=$PWD/../script/ubuntu-aarch64-toolchain.cmake
+            # disable tests that require leanc, which is not set up for cross-compilation
+            CTEST_OPTIONS: -E 'lean(comp|pkg|bench|plugin)test.*|lake.*'
             release: true
             shell: bash -euxo pipefail {0}
-            # Mojave, oldest maintained version as of 2021
-            CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14
-            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-apple-darwin.tar.zst
-            prepare-llvm: script/prepare-llvm-macos.sh lean-llvm*
-            binary-check: otool -L
-          - name: Windows
-            os: windows-2022
-            release: true
-            shell: msys2 {0}
-            CMAKE_OPTIONS: -G "Unix Makefiles"
-            # for reasons unknown, interactivetests are flaky on Windows
-            CTEST_OPTIONS: --repeat until-pass:2
-            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-w64-windows-gnu.tar.zst
-            prepare-llvm: script/prepare-llvm-mingw.sh lean-llvm*
-            binary-check: ldd
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}
@@ -87,6 +94,17 @@ jobs:
           msystem: clang64
           install: make python mingw-w64-clang-x86_64-cmake mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-ccache git zip unzip diffutils binutils tree mingw-w64-clang-x86_64-zstd tar
         if: matrix.os == 'windows-2022'
+      - uses: docker/setup-qemu-action@v1
+        if: matrix.name == 'Linux aarch64'
+      - name: Install cross compiler
+        if: matrix.name == 'Linux aarch64'
+        run: |
+          sudo sed -i 's/^deb/deb [arch=amd64,i386]/' /etc/apt/sources.list
+          sudo dpkg --add-architecture arm64
+          echo 'deb [arch=arm64] http://ports.ubuntu.com/ focal main restricted' | sudo tee -a /etc/apt/sources.list
+          echo 'deb [arch=arm64] http://ports.ubuntu.com/ focal-updates main restricted' | sudo tee -a /etc/apt/sources.list
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libgmp-dev libgmp-dev:arm64 g++-aarch64-linux-gnu ccache
       - name: Install Brew Packages
         run: |
           brew install ccache tree zstd coreutils
@@ -156,6 +174,7 @@ jobs:
           ctest -j4 --output-on-failure --timeout 300 ${{ matrix.CTEST_OPTIONS }} < /dev/null
       - name: Check Test Binary
         run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
+        if: matrix.name != 'Linux aarch64'
       - name: Build Stage 2
         run: |
           cd build

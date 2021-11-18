@@ -292,8 +292,9 @@ structure SemanticTokensContext where
   snap      : Snapshot
 
 structure SemanticTokensState where
-  data       : Array Nat
-  lastLspPos : Lsp.Position
+  data          : Array Nat
+  lastStringPos : String.Pos
+  lastLspPos    : Lsp.Position
 
 partial def handleSemanticTokens (beginPos endPos : String.Pos)
     : RequestM (RequestTask SemanticTokens) := do
@@ -301,7 +302,7 @@ partial def handleSemanticTokens (beginPos endPos : String.Pos)
   let text := doc.meta.text
   let t ← doc.cmdSnaps.waitAll (·.beginPos < endPos)
   mapTask t fun (snaps, _) =>
-    StateT.run' (s := { data := #[], lastLspPos := ⟨0, 0⟩ : SemanticTokensState }) do
+    StateT.run' (s := { data := #[], lastStringPos := 0, lastLspPos := ⟨0, 0⟩ : SemanticTokensState }) do
       for s in snaps do
         if s.endPos <= beginPos then
           continue
@@ -331,15 +332,19 @@ where
         | _, _, _ => none) do
         match ti.expr with
         | Expr.fvar .. => addToken ti.stx SemanticTokenType.variable
-        | _            => if ti.stx.getPos?.get! > range.start then addToken ti.stx SemanticTokenType.property
+        | _            => addToken ti.stx SemanticTokenType.property
   highlightKeyword stx := do
     if let Syntax.atom info val := stx then
       if val.bsize > 0 && val[0].isAlpha then
         addToken stx SemanticTokenType.keyword
   addToken stx type := do
     let ⟨beginPos, endPos, text, _⟩ ← read
-    if let (some pos, some tailPos) := (stx.getPos?, stx.getTailPos?) then
-      if beginPos <= pos && pos < endPos then
+    if let (some pos, some tailPos) := (stx.getPos? (originalOnly:=true), stx.getTailPos? (originalOnly:=true)) then
+      -- If a token is added for a location we've already passed over, the
+      -- deltas become invalid since they'd have to be negative but are
+      -- constrained to unsigned integers by the LSP protocol. So instead we
+      -- just ignore such tokens.
+      if beginPos <= pos && pos < endPos && pos >= (← get).lastStringPos then
         let lspPos := (← get).lastLspPos
         let lspPos' := text.utf8PosToLspPos pos
         let deltaLine := lspPos'.line - lspPos.line
@@ -349,6 +354,7 @@ where
         let tokenModifiers := 0
         modify fun st => {
           data := st.data ++ #[deltaLine, deltaStart, length, tokenType, tokenModifiers]
+          lastStringPos := pos,
           lastLspPos := lspPos'
         }
 

@@ -79,7 +79,7 @@ jobs:
           persist-credentials: false
           submodules: true
       - name: Install Nix
-        uses: cachix/install-nix-action@v12
+        uses: cachix/install-nix-action@v15
         if: matrix.os == 'ubuntu-latest'
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2

@@ -45,8 +45,7 @@ jobs:
             os: macos-latest
             release: true
             shell: bash -euxo pipefail {0}
-            # Mojave, oldest maintained version as of 2021
-            CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14
+            CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-apple-darwin.tar.zst
             prepare-llvm: script/prepare-llvm-macos.sh lean-llvm*
             binary-check: otool -L

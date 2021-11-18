@@ -7,7 +7,6 @@ which can be overridden with the environment variable `LEAN_CC`. All parameters 
 as-is to the wrapped compiler.
 
 Interesting options:
-* `-U LEAN_MULTI_THREAD` can be used to optimize programs not making use of multi-threading
 * `--print-cflags`: print C compiler flags necessary for building against the Lean runtime and exit
 * `--print-ldlags`: print C compiler flags necessary for statically linking against the Lean library and exit
 * Set the `LEANC_GMP` environment variable to a path to `libgmp.a` (or `-l:libgmp.a` on Linux) to link GMP statically.

@@ -69,6 +69,8 @@ jobs:
       CCACHE_COMPRESS: true
       # current cache limit
       CCACHE_MAXSIZE: 200M
+      # squelch error message about missing nixpkgs channel
+      NIX_BUILD_SHELL: bash
     steps:
       - name: Checkout
         uses: actions/checkout@v2

@@ -11,20 +11,6 @@ def tst : MetaM Unit := do
 
 #eval tst
 
-def declareLeanPath : MetaM Unit := do
-  addAndCompile <| Declaration.defnDecl {
-    name  := `leanPath
-    type  := mkConst ``String
-    value := toExpr <| System.SearchPath.separator.toString.intercalate ((← Lean.getBuiltinSearchPath).map toString)
-    levelParams := []
-    hints := ReducibilityHints.abbrev
-    safety := DefinitionSafety.safe
-  }
-
-#eval declareLeanPath
-
-#eval leanPath
-
 unsafe def main : IO Unit := do
-  initSearchPath s!"{leanPath}{System.SearchPath.separator}build"
+  initSearchPath (← Lean.findSysroot?) ["build"]
   withImportModules [{ module := `UserAttr.Tst : Import }] {} 0 fun env => ()

@@ -1,3 +1,7 @@
+import Lean.Compiler.FFI
+
+open Lean.Compiler.FFI
+
 def main (args : List String) : IO UInt32 := do
   if args.isEmpty then
     IO.println "Lean C compiler
@@ -18,26 +22,22 @@ Beware of the licensing consequences since GMP is LGPL."
     | none      => (← IO.appDir).parent.get!
   let rootify s := s.replace "ROOT" root.toString
 
+  let compileOnly := args.contains "-c"
+  let linkStatic := !args.contains "-shared"
+
   -- We assume that the CMake variables do not contain escaped spaces
-  let cflags := ["-I", (root / "include").toString] ++ "@LEANC_EXTRA_FLAGS@".trim.splitOn
+  let cflags := getCFlags root
   let mut cflagsInternal := "@LEANC_INTERNAL_FLAGS@".trim.splitOn
   let mut ldflagsInternal := "@LEANC_INTERNAL_LINKER_FLAGS@".trim.splitOn
-  let mut ldflags := ["-L", (root / "lib" / "lean").toString, (← IO.getEnv "LEANC_GMP").getD "-lgmp"] ++ "@LEAN_EXTRA_LINKER_FLAGS@".trim.splitOn
-  let mut ldflagsExt := "@LEANC_STATIC_LINKER_FLAGS@".trim.splitOn
+  let ldflags := getLinkerFlags root linkStatic ((← IO.getEnv "LEANC_GMP").getD "-lgmp")
 
   for arg in args do
     match arg with
-    | "-shared" =>
-      -- switch to shared linker flags
-      ldflagsExt := "@LEANC_SHARED_LINKER_FLAGS@".trim.splitOn
-    | "-c" =>
-      ldflags := []
-      ldflagsExt := []
     | "--print-cflags" =>
-      IO.println <| " ".intercalate (cflags.map rootify)
+      IO.println <| " ".intercalate (cflags.map rootify |>.toList)
       return 0
     | "--print-ldflags" =>
-      IO.println <| " ".intercalate ((cflags ++ ldflagsExt ++ ldflags).map rootify)
+      IO.println <| " ".intercalate ((cflags ++ ldflags).map rootify |>.toList)
       return 0
     | _ => ()
 
@@ -48,9 +48,9 @@ Beware of the licensing consequences since GMP is LGPL."
     cflagsInternal := []
     ldflagsInternal := []
   cc := rootify cc
-  let args := cflags ++ cflagsInternal ++ args ++ ldflagsInternal ++ ldflagsExt ++ ldflags ++ ["-Wno-unused-command-line-argument"]
+  let args := cflags ++ cflagsInternal ++ args ++ ldflagsInternal ++ ldflags ++ ["-Wno-unused-command-line-argument"]
   let args := args.filter (!·.isEmpty) |>.map rootify
   if args.contains "-v" then
-    IO.eprintln s!"{cc} {" ".intercalate args}"
-  let child ← IO.Process.spawn { cmd := cc, args := args.toArray }
+    IO.eprintln s!"{cc} {" ".intercalate args.toList}"
+  let child ← IO.Process.spawn { cmd := cc, args }
   child.wait

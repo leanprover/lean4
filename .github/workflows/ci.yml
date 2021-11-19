@@ -136,17 +136,20 @@ jobs:
           # omit contents of Init/, ...
           tree --du -h lean-* | grep -E ' (Init|Std|Lean|Lake|LICENSE|[a-z])'
       - name: Pack
-        if: ${{ startsWith(github.ref, 'refs/tags/v') && matrix.release }}
         run: |
           dir=$(echo lean-*)
           mkdir pack
-          which zstd
-          tar cf - $dir | zstd -T0 --no-progress -19 -o pack/$dir.tar.zst
-          zip -r pack/$dir.zip $dir
+          # high-compression tar.zst + zip for release, fast tar.zst otherwise
+          if [[ ${{ startsWith(github.ref, 'refs/tags/v') && matrix.release }} == true || -n ${LEAN_VERSION_STRING:-} ]]; then
+            tar cf - $dir | zstd -T0 --no-progress -19 -o pack/$dir.tar.zst
+            zip -r pack/$dir.zip $dir
+          else
+            tar cf - $dir | zstd -T0 --no-progress -o pack/$dir.tar.zst
+          fi
       - uses: actions/upload-artifact@v2
         with:
           name: build-${{ matrix.name }}
-          path: lean-*
+          path: pack/*.zst
       - name: Lean stats
         run: |
           build/stage1/bin/lean --stats src/Lean.lean

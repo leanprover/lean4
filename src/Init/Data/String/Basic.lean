@@ -244,11 +244,6 @@ def forward : Iterator → Nat → Iterator
 def remainingToString : Iterator → String
   | ⟨s, i⟩ => s.extract i s.bsize
 
-/-- `(isPrefixOfRemaining it₁ it₂)` is `true` iff `it₁.remainingToString` is a prefix
-   of `it₂.remainingToString`. -/
-def isPrefixOfRemaining : Iterator → Iterator → Bool
-  | ⟨s₁, i₁⟩, ⟨s₂, i₂⟩ => s₁.extract i₁ s₁.bsize = s₂.extract i₂ (i₂ + (s₁.bsize - i₁))
-
 def nextn : Iterator → Nat → Iterator
   | it, 0   => it
   | it, i+1 => nextn it.next i
@@ -320,15 +315,34 @@ def toNat? (s : String) : Option Nat :=
   else
     none
 
-/-- Return true iff `p` is a prefix of `s` -/
-partial def isPrefixOf (p : String) (s : String) : Bool :=
-  let rec loop (i : Pos) :=
-    if p.atEnd i then true
+/--
+Return `true` iff the substring of length `sz` starting at position `off1` in `s1` is equal to that starting at `off2` in `s2.`.
+False if either substring of that length does not exist. -/
+partial def substrEq (s1 : String) (off1 : String.Pos) (s2 : String) (off2 : String.Pos) (sz : Nat) : Bool :=
+  off1 + sz ≤ s1.bsize && off2 + sz ≤ s2.bsize && loop off1 off2 (off1 + sz)
+where
+  loop (off1 off2 stop1 : Pos) :=
+    if off1 >= stop1 then true
     else
-      let c₁ := p.get i
-      let c₂ := s.get i
-      c₁ == c₂ && loop (s.next i)
-  p.length ≤ s.length && loop 0
+      let c₁ := s1.get off1
+      let c₂ := s2.get off2
+      c₁ == c₂ && loop (off1 + csize c₁) (off2 + csize c₂) stop1
+
+/-- Return true iff `p` is a prefix of `s` -/
+def isPrefixOf (p : String) (s : String) : Bool :=
+  substrEq p 0 s 0 p.bsize
+
+/-- Replace all occurrences of `pattern` in `s` with `replacment`. -/
+partial def replace (s pattern replacement : String) : String :=
+  loop "" 0 0
+where
+  loop (acc : String) (accStop pos : String.Pos) :=
+    if pos + pattern.bsize > s.bsize then
+      acc ++ s.extract accStop s.bsize
+    else if s.substrEq pos pattern 0 pattern.bsize then
+      loop (acc ++ s.extract accStop pos ++ replacement) (pos + pattern.bsize) (pos + pattern.bsize)
+    else
+      loop acc accStop (s.next pos)
 
 end String
 
@@ -491,8 +505,7 @@ def toNat? (s : Substring) : Option Nat :=
     none
 
 def beq (ss1 ss2 : Substring) : Bool :=
-  -- TODO: should not allocate
-  ss1.bsize == ss2.bsize && ss1.toString == ss2.toString
+  ss1.bsize == ss2.bsize && ss1.str.substrEq ss1.startPos ss2.str ss2.startPos ss1.bsize
 
 instance hasBeq : BEq Substring := ⟨beq⟩
 

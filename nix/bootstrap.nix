@@ -1,5 +1,5 @@
 { debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl,
+  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused,
   ... } @ args:
 with builtins;
 rec {
@@ -36,7 +36,7 @@ rec {
       mv bin/ include/ share/ $out/
       mv leanc.sh $out/bin/leanc
       mv leanc/Leanc.lean $leanc_src/
-      substituteInPlace $out/bin/leanc --replace '$root' "$out"
+      substituteInPlace $out/bin/leanc --replace '$root' "$out" --replace " sed " " ${gnused}/bin/sed "
       substituteInPlace $out/bin/leanmake --replace "make" "${gnumake}/bin/make"
       substituteInPlace $out/share/lean/lean.mk --replace "/usr/bin/env bash" "${bash}/bin/bash"
     '';

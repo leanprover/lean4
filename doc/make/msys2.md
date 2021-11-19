@@ -9,6 +9,12 @@ It is easy to install all dependencies, it produces native
 
 An alternative to MSYS2 is to use [Lean in Windows WSL](wsl.md).
 
+While not necessary for pure building, you should first activate [Developer
+Mode](https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development)
+(Settings > Update & Security > For developers > Developer Mode),
+which will allow Lean to create symlinks that e.g. enable go-to-definition in
+the stdlib.
+
 ## Installing dependencies
 
 [The official webpage of MSYS2][msys2] provides one-click installers.

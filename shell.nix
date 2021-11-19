@@ -1,6 +1,6 @@
 let
   flakePkgs = (import ./default.nix).packages.${builtins.currentSystem};
-in { pkgs ? flakePkgs.nixpkgs, llvmPackages ? null }:
+in { pkgs ? flakePkgs.nixpkgs, pkgsDist ? pkgs, llvmPackages ? null }:
 # use `shell` as default
 (attribs: attribs.shell // attribs) rec {
   shell = pkgs.mkShell.override {
@@ -13,9 +13,9 @@ in { pkgs ? flakePkgs.nixpkgs, llvmPackages ? null }:
     hardeningDisable = [ "all" ];
     # more convenient `ctest` output
     CTEST_OUTPUT_ON_FAILURE = 1;
-    shellHook = ''
-      export LEAN_SRC_PATH="$PWD/src"
-    '';
+    GMP = pkgsDist.gmp.override { withStatic = true; };
+    GLIBC = pkgsDist.glibc;
+    ZLIB = pkgsDist.zlib;
   };
   with-temci = shell.overrideAttrs (old: {
     buildInputs = old.buildInputs ++ [ flakePkgs.temci ];

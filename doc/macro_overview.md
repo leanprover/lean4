@@ -33,8 +33,8 @@ itself, and while retaining the simple insert/singleton API.
 
 The general procedure is as follows:
 
-1. Lean parses the actual code in a given file, creating a Lean AST which
-   contains any unexpanded macros.
+1. Lean parses a command, creating a Lean syntax tree which contains any
+   unexpanded macros.
 
 2. Lean repeats the cycle (elaboration ~> (macro hygiene and expansion) ~>
    elaboration...)
@@ -45,10 +45,12 @@ macros can expand to other macros, and may expand to code that needs information
 from the elaborator. As you can see, the process of macro parsing and expansion
 is interleaved with the parsing and elaboration of non-macro code.
 
-By default, macros in Lean are hygienic, but hygiene can be disabled with the
-option `set_option hygiene false`. Readers can learn more about hygiene and how
-it's implemented in the official paper and supplement linked at the top of this
-guide.
+By default, macros in Lean are hygienic, which means the system avoids
+accidental name capture when reusing the same name inside and outside the macro.
+Users may occasionally want to disable hygiene, which can be accomplished with
+the command `set_option hygiene false`. More in-depth information about hygiene
+and how it's implemented in the official paper and supplement linked at the top
+of this guide.
 
 ## Elements of "a" macro (important types)
 
@@ -85,10 +87,10 @@ type `Syntax` e.g. `Syntax -> MacroM Syntax`; the leading syntax element is the
 thing that actually triggers the macro expansion by matching with the declared
 parser, and as a user, you will almost always be interested in inspecting and
 transforming that initial syntax element (though there are cases in which it can
-just be ignored, as in the exfalso tactic).
+just be ignored, as in the parameter-less exfalso tactic).
 
 Returning briefly to the API provided by Lean, `Lean.Syntax`, is pretty much
-what you would expect a basic syntax tree type to look like. This is a slightly
+what you would expect a basic syntax tree type to look like. Below is a slightly
 simplified representation which omits details in the `atom` and `ident`
 constructors; users can create atoms and idents which comport with this
 simplified representation using the `mkAtom` and `mkIdent` methods provided in
@@ -143,8 +145,8 @@ language and `syntax`, `macro_rules`, and `macro` is recommended.
 
 `declare_syntax_cat` declares a new syntax category, like `command`, `tactic`,
 or mathlib4's `binderterm`. These are the different categories of things that
-can be referred to in a quote/antiquote. Under the hood, `declare_syntax_cat`
-just declares a parser descriptor:
+can be referred to in a quote/antiquote. `declare_syntax_cat` results in a call
+to `registerParserCategory` and produces a new parser descriptor:
 
 ```
 set_option trace.Elab.definition true in
@@ -188,7 +190,6 @@ Lean.ParserDescr.node `tacticRwa__ 1022
     (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.nonReservedSymbol "rwa " false) Lean.Parser.Tactic.rwRuleSeq)
     (Lean.ParserDescr.unary `optional Lean.Parser.Tactic.location))
 
-[Elab.definition.scc] [tacticRwa__]
 -/
 
 ```
@@ -215,8 +216,6 @@ Lean.ParserDescr.node `introv 1022
   (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.nonReservedSymbol "introv " false)
     (Lean.ParserDescr.unary `many
       (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.const `colGt) (Lean.ParserDescr.const `ident))))
-
-[Elab.definition.scc] [introv]
 ```
 
 ## The pattern language
@@ -243,9 +242,9 @@ how it should be displayed, but such whitespace will not prevent a literal with
 no trailing whitespace from matching. The spaces are relevant, but not
 interpreted literally. When the ParserDescr is turned into a Parser, the actual
 token matcher [uses the .trim of the provided
-string](https://github.com/leanprover/lean4/blob/master/src/Lean/Parser/Basic.lean#L1193),
+string](https://github.com/leanprover/lean4/blob/53ec43ff9b8f55989b12c271e368287b7b997b54/src/Lean/Parser/Basic.lean#L1193),
 but the generated formatter [uses the spaces as
-specified](https://github.com/leanprover/lean4/blob/master/src/Lean/PrettyPrinter/Formatter.lean#L328),
+specified](https://github.com/leanprover/lean4/blob/8d370f151f7c88a687152a5b161dcb484c446ce2/src/Lean/PrettyPrinter/Formatter.lean#L328),
 that is, turning the atom "rwa" in the syntax into the string rwa as part of the
 pretty printed output.
 
@@ -261,7 +260,7 @@ output the user wants to expand to.
 A feature of Lean's macro system is that if there are multiple expansions for a
 particular match, Lean will try the most recently declared expansion first, and
 will retry with other matching expansions if the previous attempt failed. This
-is particularly useful for tactics.
+is particularly useful for extending existing tactics.
 
 The following example shows both the retry behavior, and the fact that macros
 declared using the shorthand `macro` syntax can still have additional expansions
@@ -275,18 +274,18 @@ macro_rules
   | `(tactic| transitivity $e) => `(tactic| apply Nat.lt_trans (m := $e))
 
 example (a b c : Nat) (h0 : a < b) (h1 : b < c) : a < c := by
-transitivity b <;>
-assumption
+  transitivity b <;>
+  assumption
 
 example (a b c : Nat) (h0 : a <= b) (h1 : b <= c) : a <= c := by
-transitivity b <;>
-assumption
+  transitivity b <;>
+  assumption
 
 /- This will fail, but is interesting in that it exposes the "most-recent first" behavior, since the
   error message complains about being unable to unify mvar1 <= mvar2, rather than mvar1 < mvar2. -/
 example (a b c : Nat) (h0 : a <= b) (h1 : b <= c) : False := by
-transitivity b <;>
-assumption
+  transitivity b <;>
+  assumption
 ```
 
 To see the desugared definition of the actual expansion, we can again use
@@ -337,8 +336,8 @@ syntax (name := myExfalsoParser) "myExfalso" : tactic
 fun stx => `(tactic| apply False.elim)
 
 example (p : Prop) (h : p) (f : p -> False) : 3 = 2 := by
-myExfalso
-exact f h
+  myExfalso
+  exact f h
 ```
 
 In the above example, we're still using the sugar Lean provides for creating
@@ -352,8 +351,8 @@ syntax (name := myExfalsoParser) "myExfalso" : tactic
     #[Lean.mkAtomFrom stx "apply", Lean.mkCIdentFrom stx ``False.elim]
 
 example (p : Prop) (h : p) (f : p -> False) : 3 = 2 := by
-myExfalso
-exact f h
+  myExfalso
+  exact f h
 ```
 
 ## The `macro` keyword

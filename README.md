@@ -5,7 +5,7 @@ With Lake, package configuration is written in Lean inside a dedicated `lakefile
 
 ## Getting Lake
 
-Lake is part of the [`lean4`](https://github.com/leanprover/lean4) repository and is distributed along with its official releases (e.g., as part of the [`elan`](https://github.com/leanprover/elan) toolchain). So if you have installed a semi-recent Lean 4 nightly, you should already have it!
+Lake is part of the [lean4](https://github.com/leanprover/lean4) repository and is distributed along with its official releases (e.g., as part of the [elan](https://github.com/leanprover/elan) toolchain). So if you have installed a semi-recent Lean 4 nightly, you should already have it!
 
 Note that the Lake included with Lean is not updated as frequently as this repository, so some bleeding edge features may be missing. If you want to build the latest version from the source yourself, check out the build instructions at the bottom of this README.
 
@@ -67,7 +67,7 @@ Hello, world!
 
 Lake packages can also have dependencies. Dependencies are other Lake packages the current package needs in order to function. To define a dependency, add an entry to the `dependencies` field of the package configuration. Each entry includes the name of the package and where to find it. Dependencies can be sourced directly from a local folder (e.g., a subdirectory of the package) or come from remote Git repositions.
 
-For example, one can depend on the Lean 4 port of [`mathlib`]() like so:
+For example, one can depend on the Lean 4 port of [mathlib](https://github.com/leanprover-community/mathlib4) like so:
 
 ```lean
 package hello {

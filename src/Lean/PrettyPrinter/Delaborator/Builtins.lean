@@ -59,7 +59,11 @@ def delabSort : Delab := do
 
 
 def unresolveNameGlobal (n₀ : Name) : DelabM Name := do
-  if n₀.hasMacroScopes || (← getPPOption getPPFullNames) then return n₀
+  if n₀.hasMacroScopes then return n₀
+  if (← getPPOption getPPFullNames) then
+    match (← resolveGlobalName n₀) with
+      | [(potentialMatch, _)] => if potentialMatch == n₀ then return n₀ else return rootNamespace ++ n₀
+      | _ => return n₀ -- if can't resolve, return the original
   let mut initialNames := (getRevAliases (← getEnv) n₀).toArray
   initialNames := initialNames.push (rootNamespace ++ n₀)
   for initialName in initialNames do

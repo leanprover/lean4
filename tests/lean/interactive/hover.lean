@@ -101,3 +101,16 @@ example : Id Nat := do
   n := 2
 --^ textDocument/hover
   n
+
+
+constant foo : Nat
+
+#check _root_.foo
+       --^ textDocument/hover
+
+namespace Bar
+
+constant foo : Nat
+
+#check _root_.foo
+       --^ textDocument/hover

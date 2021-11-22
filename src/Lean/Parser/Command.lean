@@ -62,7 +62,8 @@ def «theorem»        := leading_parser "theorem " >> declId >> declSig >> decl
 def «constant»       := leading_parser "constant " >> declId >> declSig >> optional declValSimple
 def «instance»       := leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal >> terminationSuffix
 def «axiom»          := leading_parser "axiom " >> declId >> declSig
-def «example»        := leading_parser "example " >> declSig >> declVal
+/- Note that `declSig` starts with a space, so "example" does not need a trailing space. -/
+def «example»        := leading_parser "example" >> declSig >> declVal
 def inferMod         := leading_parser atomic (symbol "{" >> "}")
 def ctor             := leading_parser "\n| " >> declModifiers true >> ident >> optional inferMod >> optDeclSig
 def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> Term.structInst))) ", "
@@ -79,7 +80,7 @@ def structureTk          := leading_parser "structure "
 def classTk              := leading_parser "class "
 def «extends»            := leading_parser " extends " >> sepBy1 termParser ", "
 def «structure»          := leading_parser
-    (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType
+    (structureTk <|> classTk) >> declId >> many (ppSpace >> Term.bracketedBinder) >> optional «extends» >> Term.optType
     >> optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields)
     >> optDeriving
 @[builtinCommandParser] def declaration := leading_parser

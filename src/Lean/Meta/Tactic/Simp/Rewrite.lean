@@ -117,7 +117,7 @@ def rewrite (e : Expr) (s : DiscrTree SimpLemma) (erased : Std.PHashSet Name) (d
     trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
     return { expr := e }
   else
-    let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority < e₂.1.priority
+    let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
     for (lemma, numExtraArgs) in candidates do
       unless inErasedSet lemma do
         if let some result ← tryLemmaWithExtraArgs? e lemma numExtraArgs discharge? then

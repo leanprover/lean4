@@ -423,6 +423,35 @@ def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
       modify fun s => { s with tableEntries := s.tableEntries.insert key newEntry }
       entry.waiters.forM (wakeUp answer)
 
+
+def removeUnusedArguments (mctx : MetavarContext) (mvar : Expr) : MetaM (Option (Prod Expr Expr)) :=
+withMCtx mctx do
+let E <- inferType mvar
+let E <- instantiateMVars E
+match E with
+  | Expr.forallE .. => forallTelescope E fun xs b => do
+      let mut ys : List Expr := []
+      let mut Ys : List Expr := []
+      for x in xs.reverse do
+        if (b.containsFVar x.fvarId! ∨ Ys.any (λ Y => Y.containsFVar x.fvarId!)) then do   --  ∨ Ys.any (λ Y => Y.containsFVar x.fvarId)!
+          ys := ys.concat x
+          Ys ← Ys.concat (← inferType x)
+
+      if xs.size != ys.length then
+        let E' ← mkForallFVars ys.reverse.toArray b
+
+        -- Creates transformer that takes (e' : E') and produces (e : E)
+        let fvarId <- mkFreshFVarId
+        let lctx := (<- getLCtx).mkLocalDecl fvarId `redf E'
+        let fvar := mkFVar fvarId
+        let transformer <-
+          withLCtx lctx #[] do
+            mkLambdaFVars (fvar::xs.toList).toArray (mkAppN fvar ys.toArray)
+        some (E', transformer)
+      else
+        none
+  | _ => none
+
 /-- Process the next subgoal in the given consumer node. -/
 def consume (cNode : ConsumerNode) : SynthM Unit :=
   match cNode.subgoals with
@@ -432,7 +461,35 @@ def consume (cNode : ConsumerNode) : SynthM Unit :=
      let key ← mkTableKeyFor cNode.mctx mvar
      let entry? ← findEntry? key
      match entry? with
-     | none       => newSubgoal cNode.mctx key mvar waiter
+     | none       => do
+       match (<- removeUnusedArguments cNode.mctx mvar) with
+       | none => newSubgoal cNode.mctx key mvar waiter
+       | some (M', trans) =>
+         let key' <- mkTableKey cNode.mctx M'
+         let entry'? <- findEntry? key'
+         trace[Meta.synthInstance.unusedArgs] "Removing unused arguments from '{key}' resulting in '{key'}'"
+         match entry'? with
+         | none => do
+           let (mctx', mvar') <-
+             withMCtx cNode.mctx do
+               let mvar' <- mkFreshExprMVar M'
+               (<- getMCtx, mvar')
+           newSubgoal mctx' key' mvar' (Waiter.consumerNode {cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals })
+         | some entry' => do
+
+           let answers' ← entry'.answers.mapM 
+             λ a => 
+               withMCtx cNode.mctx do
+                 let answr ← instantiateMVars a.result.expr
+                 let trAnswr ← whnf (mkApp trans answr)
+                 let trAnswrType ← inferType trAnswr
+                 { a with result := {a.result with expr := trAnswr},
+                          resultType := trAnswrType }
+
+           modify fun s =>
+           { s with
+             resumeStack  := answers'.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
+             tableEntries := s.tableEntries.insert key' { entry' with waiters := entry'.waiters.push waiter } }
      | some entry => modify fun s =>
        { s with
          resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
@@ -676,6 +733,7 @@ builtin_initialize
   registerTraceClass `Meta.synthInstance.tryResolve
   registerTraceClass `Meta.synthInstance.resume
   registerTraceClass `Meta.synthInstance.generate
+  registerTraceClass `Meta.synthInstance.unusedArgs
   registerTraceClass `Meta.synthPending
 
 end Lean.Meta

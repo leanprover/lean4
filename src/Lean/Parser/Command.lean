@@ -89,7 +89,7 @@ declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» 
 @[builtinCommandParser] def «section»      := leading_parser "section " >> optional ident
 @[builtinCommandParser] def «namespace»    := leading_parser "namespace " >> ident
 @[builtinCommandParser] def «end»          := leading_parser "end " >> optional ident
-@[builtinCommandParser] def «variable»     := leading_parser "variable" >> many1 Term.bracketedBinder
+@[builtinCommandParser] def «variable»     := leading_parser "variable" >> many1 (ppSpace >> Term.bracketedBinder)
 @[builtinCommandParser] def «universe»     := leading_parser "universe " >> many1 ident
 @[builtinCommandParser] def check          := leading_parser "#check " >> termParser
 @[builtinCommandParser] def check_failure  := leading_parser "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check

@@ -75,11 +75,7 @@ theorem bind_congr [Bind m] {x : m α} {f g : α → m β} (h : ∀ a, f a = g a
   simp [funext h]
 
 @[simp] theorem bind_pure_unit [Monad m] [LawfulMonad m] {x : m PUnit} : (x >>= fun _ => pure ⟨⟩) = x := by
-  have : (x >>= fun _ => pure ⟨⟩) = (x >>= pure) := by
-    apply bind_congr; intro u
-    cases u; simp
-  rw [bind_pure] at this
-  assumption
+  rw [bind_pure]
 
 theorem map_congr [Functor m] {x : m α} {f g : α → β} (h : ∀ a, f a = g a) : (f <$> x : m β) = g <$> x := by
   simp [funext h]
@@ -264,7 +260,7 @@ theorem ext {x y : StateT σ m α} (h : ∀ s, x.run s = y.run s) : x = y :=
 @[simp] theorem run_modify [Monad m] (f : σ → σ) (s : σ) : (modify f : StateT σ m PUnit).run s = pure (⟨⟩, f s) := rfl
 
 @[simp] theorem run_modifyGet [Monad m] (f : σ → α × σ) (s : σ) : (modifyGet f : StateT σ m α).run s = pure ((f s).1, (f s).2) := by
-  simp [modifyGet, MonadStateOf.modifyGet, StateT.modifyGet, run]; cases f s <;> rfl
+  simp [modifyGet, MonadStateOf.modifyGet, StateT.modifyGet, run]
 
 @[simp] theorem run_lift {α σ : Type u} [Monad m] (x : m α) (s : σ) : (StateT.lift x : StateT σ m α).run s = x >>= fun a => pure (a, s) := rfl
 

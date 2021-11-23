@@ -14,6 +14,6 @@ extern "C" object * lean_get_leanc_extra_flags(object *) {
 }
 
 extern "C" object * lean_get_linker_flags(uint8 link_static) {
-    return lean_mk_string(link_static ? "@LEAN_EXTRA_LINKER_FLAGS@ @LEANC_STATIC_LINKER_FLAGS@" : "@LEAN_EXTRA_LINKER_FLAGS@ @LEANC_SHARED_LINKER_FLAGS@");
+    return lean_mk_string(link_static ? "@LEANC_STATIC_LINKER_FLAGS@ @LEAN_EXTRA_LINKER_FLAGS@" : "@LEANC_SHARED_LINKER_FLAGS@ @LEAN_EXTRA_LINKER_FLAGS@");
 }
 }

@@ -44,7 +44,7 @@ attribute [simp] map_pure seq_pure
   simp [pure_seq]
 
 class LawfulMonad (m : Type u → Type v) [Monad m] extends LawfulApplicative m : Prop where
-  bind_pure_comp (f : α → β) (x : m α) : x >>= pure ∘ f = f <$> x
+  bind_pure_comp (f : α → β) (x : m α) : x >>= (fun a => pure (f a)) = f <$> x
   bind_map       {α β : Type u} (f : m (α → β)) (x : m α) : f >>= (. <$> x) = f <*> x
   pure_bind      (x : α) (f : α → m β) : pure x >>= f = f x
   bind_assoc     (x : m α) (f : α → m β) (g : β → m γ) : x >>= f >>= g = x >>= fun x => f x >>= g
@@ -52,9 +52,9 @@ class LawfulMonad (m : Type u → Type v) [Monad m] extends LawfulApplicative m 
   seq_pure g x    := (by rw [← bind_map]; simp [map_pure, bind_pure_comp])
   seq_assoc x g h := (by
     -- TODO: support for applying `symm` at `simp` arguments
-    let bind_pure_comp_symm {α β : Type u} (f : α → β) (x : m α) : f <$> x = x >>= pure ∘ f := by
+    have bind_pure_comp_symm {α β : Type u} (f : α → β) (x : m α) : f <$> x = x >>= fun a => pure (f a) := by
       rw [bind_pure_comp]
-    let bind_map_symm {α β : Type u} (f : m (α → (β : Type u))) (x : m α) : f <*> x = f >>= (. <$> x) := by
+    have bind_map_symm {α β : Type u} (f : m (α → (β : Type u))) (x : m α) : f <*> x = f >>= (. <$> x) := by
       rw [bind_map]
     simp[bind_pure_comp_symm, bind_map_symm, bind_assoc, pure_bind])
 
@@ -62,7 +62,7 @@ export LawfulMonad (bind_pure_comp bind_map pure_bind bind_assoc)
 attribute [simp] pure_bind bind_assoc
 
 @[simp] theorem bind_pure [Monad m] [LawfulMonad m] (x : m α) : x >>= pure = x := by
-  show x >>= pure ∘ id = x
+  show x >>= (fun a => pure (id a)) = x
   rw [bind_pure_comp, id_map]
 
 theorem map_eq_pure_bind [Monad m] [LawfulMonad m] (f : α → β) (x : m α) : f <$> x = x >>= fun a => pure (f a) := by

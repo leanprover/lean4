@@ -216,7 +216,7 @@ private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : Std.Persisten
   } tree
 
 private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttribute.AttributeEntry CommandElab) → CommandElabM Unit
-  | []                => throwError "unexpected syntax{indentD stx}"
+  | []                => withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <| throwError "unexpected syntax{indentD stx}"
   | (elabFn::elabFns) =>
     catchInternalId unsupportedSyntaxExceptionId
       (withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.declName stx) <| elabFn.value stx)
@@ -267,13 +267,16 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
         trace `Elab.command fun _ => stx;
         let s ← get
         match (← liftMacroM <| expandMacroImpl? s.env stx) with
-        | some (decl, stxNew) =>
+        | some (decl, stxNew?) =>
           withInfoTreeContext (mkInfoTree := mkInfoTree decl stx) do
-              withMacroExpansion stx stxNew do
-                elabCommand stxNew
+            let stxNew ← liftMacroM <| liftExcept stxNew?
+            withMacroExpansion stx stxNew do
+              elabCommand stxNew
         | _ =>
           match commandElabAttribute.getEntries s.env k with
-          | []      => throwError "elaboration function for '{k}' has not been implemented"
+          | []      =>
+            withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <|
+              throwError "elaboration function for '{k}' has not been implemented"
           | elabFns => elabCommandUsing s stx elabFns
     | _ => throwError "unexpected command"
 

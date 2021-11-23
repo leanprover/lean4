@@ -17,6 +17,35 @@ import Lean.Meta.UnificationHint
 namespace Lean.Meta
 
 /--
+  Return true `b` is of the form `mk a.1 ... a.n`.
+-/
+private def isDefEqEtaStruct (a b : Expr) : MetaM Bool :=
+  matchConstCtor b.getAppFn (fun _ => return false) fun ctorVal _ => do
+    if ctorVal.numParams + ctorVal.numFields != b.getAppNumArgs then
+      trace[Meta.isDefEq.eta.struct] "failed, insufficient number of arguments at{indentExpr b}"
+      return false
+    else
+      let inductVal ← getConstInfoInduct ctorVal.induct
+      if inductVal.nctors != 1 then
+        trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
+        return false
+      else checkpointDefEq do
+        let args := b.getAppArgs
+        for i in [ctorVal.numParams : args.size] do
+          match (← whnf args[i]) with
+          | Expr.proj _ j e _ =>
+            unless ctorVal.numParams + j == i do
+              trace[Meta.isDefEq.eta.struct] "failed, unexpect arg #{i}, unexpected projection #{j}, at{indentExpr b}"
+              return false
+            unless (← isDefEq e a) do
+              trace[Meta.isDefEq.eta.struct] "failed, unexpect arg #{i}, argument{e}\nis not defeq to{indentExpr a}"
+              return false
+          | e =>
+            trace[Meta.isDefEq.eta.struct] "failed, projection expected{indentExpr e}"
+            return false
+        return true
+
+/--
   Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`.
 
   Remark: eta-reduction is not a good alternative even in a system without universe cumulativity like Lean.
@@ -35,7 +64,7 @@ private def isDefEqEta (a b : Expr) : MetaM Bool := do
       checkpointDefEq <| Meta.isExprDefEqAux a b'
     | _ => pure false
   else
-    pure false
+    return false
 
 /-- Support for `Lean.reduceBool` and `Lean.reduceNat` -/
 def isDefEqNative (s t : Expr) : MetaM LBool := do
@@ -1436,6 +1465,8 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
 
 private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   if (← (isDefEqEta t s <||> isDefEqEta s t)) then pure true else
+  -- TODO: investigate whether this is the place for putting this check
+  if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then pure true else
   if (← isDefEqProj t s) then pure true else
   whenUndefDo (isDefEqNative t s) do
   whenUndefDo (isDefEqNat t s) do

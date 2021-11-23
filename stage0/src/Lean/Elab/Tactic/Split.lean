@@ -12,7 +12,7 @@ open Meta
 
 @[builtinTactic Lean.Parser.Tactic.split] def evalSplit : Tactic := fun stx => do
   unless stx[1].isNone do
-    throwError "'split' tatic, term to split is not supported yet"
+    throwError "'split' tactic, term to split is not supported yet"
   liftMetaTactic fun mvarId => do
     let loc := expandOptLocation stx[2]
     match loc with

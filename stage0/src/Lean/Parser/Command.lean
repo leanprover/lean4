@@ -39,7 +39,7 @@ def terminationSuffix := optional terminationBy >> optional decreasingBy
 def moduleDoc := leading_parser ppDedent $ "/-!" >> commentBody >> ppLine
 
 def namedPrio := leading_parser (atomic ("(" >> nonReservedSymbol "priority") >> " := " >> priorityParser >> ")")
-def optNamedPrio := optional namedPrio
+def optNamedPrio := optional (ppSpace >> namedPrio)
 
 def «private»        := leading_parser "private "
 def «protected»      := leading_parser "protected "
@@ -60,9 +60,11 @@ def optDefDeriving   := optional (atomic ("deriving " >> notSymbol "instance") >
 def «def»            := leading_parser "def " >> declId >> optDeclSig >> declVal >> optDefDeriving >> terminationSuffix
 def «theorem»        := leading_parser "theorem " >> declId >> declSig >> declVal >> terminationSuffix
 def «constant»       := leading_parser "constant " >> declId >> declSig >> optional declValSimple
-def «instance»       := leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal >> terminationSuffix
+/- As `declSig` starts with a space, "instance" does not need a trailing space if we put `ppSpace` in the optional fragments. -/
+def «instance»       := leading_parser Term.attrKind >> "instance" >> optNamedPrio >> optional (ppSpace >> declId) >> declSig >> declVal >> terminationSuffix
 def «axiom»          := leading_parser "axiom " >> declId >> declSig
-def «example»        := leading_parser "example " >> declSig >> declVal
+/- As `declSig` starts with a space, "example" does not need a trailing space. -/
+def «example»        := leading_parser "example" >> declSig >> declVal
 def inferMod         := leading_parser atomic (symbol "{" >> "}")
 def ctor             := leading_parser "\n| " >> declModifiers true >> ident >> optional inferMod >> optDeclSig
 def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> Term.structInst))) ", "
@@ -79,7 +81,7 @@ def structureTk          := leading_parser "structure "
 def classTk              := leading_parser "class "
 def «extends»            := leading_parser " extends " >> sepBy1 termParser ", "
 def «structure»          := leading_parser
-    (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> optional «extends» >> Term.optType
+    (structureTk <|> classTk) >> declId >> many (ppSpace >> Term.bracketedBinder) >> optional «extends» >> Term.optType
     >> optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields)
     >> optDeriving
 @[builtinCommandParser] def declaration := leading_parser
@@ -88,7 +90,7 @@ declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» 
 @[builtinCommandParser] def «section»      := leading_parser "section " >> optional ident
 @[builtinCommandParser] def «namespace»    := leading_parser "namespace " >> ident
 @[builtinCommandParser] def «end»          := leading_parser "end " >> optional ident
-@[builtinCommandParser] def «variable»     := leading_parser "variable" >> many1 Term.bracketedBinder
+@[builtinCommandParser] def «variable»     := leading_parser "variable" >> many1 (ppSpace >> Term.bracketedBinder)
 @[builtinCommandParser] def «universe»     := leading_parser "universe " >> many1 ident
 @[builtinCommandParser] def check          := leading_parser "#check " >> termParser
 @[builtinCommandParser] def check_failure  := leading_parser "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check

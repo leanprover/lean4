@@ -753,7 +753,6 @@ lean_dec(x_3);
 x_9 = lean_array_fget(x_1, x_8);
 lean_inc(x_2);
 x_10 = l_Lean_Syntax_structEq(x_2, x_9);
-lean_dec(x_9);
 if (x_10 == 0)
 {
 x_3 = x_8;

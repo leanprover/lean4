@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <cstring>
 #include <lean/lean.h>
 #include "runtime/hash.h"
 #include "runtime/compact.h"

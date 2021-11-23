@@ -6900,11 +6900,8 @@ return x_8;
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_Do_mkJmp___spec__2___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; 
+lean_object* x_5; lean_object* x_6; 
 x_5 = l_Lean_Elab_expandMacroImpl_x3f(x_1, x_2, x_3, x_4);
-if (lean_obj_tag(x_5) == 0)
-{
-lean_object* x_6; 
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 if (lean_obj_tag(x_6) == 0)
@@ -6921,36 +6918,42 @@ return x_9;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_10; lean_object* x_11; 
 x_10 = lean_ctor_get(x_6, 0);
 lean_inc(x_10);
 lean_dec(x_6);
-x_11 = lean_ctor_get(x_5, 1);
+x_11 = lean_ctor_get(x_10, 1);
 lean_inc(x_11);
-lean_dec(x_5);
-x_12 = lean_ctor_get(x_10, 1);
-lean_inc(x_12);
 lean_dec(x_10);
-x_13 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_13, 0, x_12);
+if (lean_obj_tag(x_11) == 0)
+{
+lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_dec(x_11);
+x_12 = lean_ctor_get(x_5, 1);
+lean_inc(x_12);
+lean_dec(x_5);
+x_13 = lean_box(0);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_11);
+lean_ctor_set(x_14, 1, x_12);
 return x_14;
-}
 }
 else
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = lean_ctor_get(x_5, 0);
+lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_15 = lean_ctor_get(x_5, 1);
 lean_inc(x_15);
-x_16 = lean_ctor_get(x_5, 1);
-lean_inc(x_16);
 lean_dec(x_5);
-x_17 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_17, 0, x_15);
-lean_ctor_set(x_17, 1, x_16);
-return x_17;
+x_16 = lean_ctor_get(x_11, 0);
+lean_inc(x_16);
+lean_dec(x_11);
+x_17 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_17, 0, x_16);
+x_18 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_18, 0, x_17);
+lean_ctor_set(x_18, 1, x_15);
+return x_18;
+}
 }
 }
 }

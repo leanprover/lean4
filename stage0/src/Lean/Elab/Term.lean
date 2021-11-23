@@ -1248,7 +1248,7 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     withNestedTraces do
     let env ← getEnv
     match (← liftMacroM (expandMacroImpl? env stx)) with
-    | some (decl, stxNew) =>
+    | some (decl, Except.ok stxNew) =>
       withInfoContext' (mkInfo := mkTermInfo decl (expectedType? := expectedType?) stx) <|
         withMacroExpansion stx stxNew <|
           withRef stxNew <|

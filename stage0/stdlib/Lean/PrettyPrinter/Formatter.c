@@ -6044,8 +6044,6 @@ lean_ctor_set(x_11, 0, x_1);
 lean_ctor_set(x_11, 1, x_8);
 lean_ctor_set(x_11, 2, x_10);
 x_12 = l_Substring_beq(x_11, x_9);
-lean_dec(x_9);
-lean_dec(x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 

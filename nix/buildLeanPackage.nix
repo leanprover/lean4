@@ -166,7 +166,7 @@ in rec {
   '';
   executable = runCommand executableName { buildInputs = [ stdenv.cc leanc ]; } ''
     mkdir -p $out/bin
-    leanc ${staticLib}/* ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)} \
+    leanc -Wl,--start-group ${staticLib}/* ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)} -Wl,--end-group \
       -o $out/bin/${executableName} \
       ${lib.concatStringsSep " " allLinkFlags}
   '' // {

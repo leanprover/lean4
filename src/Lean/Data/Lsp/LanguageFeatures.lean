@@ -67,6 +67,14 @@ structure DefinitionParams extends TextDocumentPositionParams
 structure TypeDefinitionParams extends TextDocumentPositionParams
   deriving FromJson, ToJson
 
+structure ReferenceContext where
+  includeDeclaration : Bool
+  deriving FromJson, ToJson
+
+structure ReferenceParams extends TextDocumentPositionParams where
+  context : ReferenceContext
+  deriving FromJson, ToJson
+
 structure DocumentHighlightParams extends TextDocumentPositionParams
   deriving FromJson, ToJson
 

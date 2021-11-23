@@ -39,7 +39,7 @@ def terminationSuffix := optional terminationBy >> optional decreasingBy
 def moduleDoc := leading_parser ppDedent $ "/-!" >> commentBody >> ppLine
 
 def namedPrio := leading_parser (atomic ("(" >> nonReservedSymbol "priority") >> " := " >> priorityParser >> ")")
-def optNamedPrio := optional namedPrio
+def optNamedPrio := optional (ppSpace >> namedPrio)
 
 def «private»        := leading_parser "private "
 def «protected»      := leading_parser "protected "
@@ -60,9 +60,10 @@ def optDefDeriving   := optional (atomic ("deriving " >> notSymbol "instance") >
 def «def»            := leading_parser "def " >> declId >> optDeclSig >> declVal >> optDefDeriving >> terminationSuffix
 def «theorem»        := leading_parser "theorem " >> declId >> declSig >> declVal >> terminationSuffix
 def «constant»       := leading_parser "constant " >> declId >> declSig >> optional declValSimple
-def «instance»       := leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal >> terminationSuffix
+/- As `declSig` starts with a space, "instance" does not need a trailing space if we put `ppSpace` in the optional fragments. -/
+def «instance»       := leading_parser Term.attrKind >> "instance" >> optNamedPrio >> optional (ppSpace >> declId) >> declSig >> declVal >> terminationSuffix
 def «axiom»          := leading_parser "axiom " >> declId >> declSig
-/- Note that `declSig` starts with a space, so "example" does not need a trailing space. -/
+/- As `declSig` starts with a space, "example" does not need a trailing space. -/
 def «example»        := leading_parser "example" >> declSig >> declVal
 def inferMod         := leading_parser atomic (symbol "{" >> "}")
 def ctor             := leading_parser "\n| " >> declModifiers true >> ident >> optional inferMod >> optDeclSig

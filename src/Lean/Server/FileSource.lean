@@ -54,6 +54,9 @@ instance : FileSource DefinitionParams :=
 instance : FileSource TypeDefinitionParams :=
   ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
 
+instance : FileSource ReferenceParams :=
+  ⟨fun h => fileSource h.toTextDocumentPositionParams⟩
+
 instance : FileSource WaitForDiagnosticsParams :=
   ⟨fun p => p.uri⟩
 

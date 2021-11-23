@@ -134,6 +134,64 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
             return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
       return #[]
 
+inductive RefIdent where
+  | name : Name → RefIdent
+  | fvar : FVarId → RefIdent
+  deriving BEq
+
+structure Reference where
+  ident : RefIdent
+  range : Range
+  isDeclaration : Bool
+
+open Elab in
+partial def handleReferences (p : ReferenceParams)
+    : RequestM (RequestTask (Array Location)) := do
+  let doc ← readDoc
+  let text := doc.meta.text
+  let hoverPos := text.lspPosToUtf8Pos p.position
+  let t ← doc.cmdSnaps.waitAll
+  mapTask t fun (snaps, _) => do
+    if let some snap := snaps.find? (fun s => s.endPos > hoverPos) then
+      if let some (ci, i) := snap.infoTree.hoverableInfoAt? hoverPos then
+        if let Info.ofTermInfo ti := i then
+          if let some ident := identOf ti.expr then
+            let refs := List.join <| snaps.map (findReferences doc)
+            return referencesTo doc ident (p.context.includeDeclaration) refs
+    return #[]
+  where
+    identOf : Expr → Option RefIdent
+      | Expr.const n .. => some (RefIdent.name n)
+      | Expr.fvar id .. => some (RefIdent.fvar id)
+      | _ => none
+
+    addReference (doc : EditableDocument) (ident : RefIdent) (ti : TermInfo) (refs : List Reference)
+        : List Reference :=
+      if let some range := ti.stx.getRange? (originalOnly := true) then
+        let text := doc.meta.text
+        let range := {
+          start := text.utf8PosToLspPos range.start,
+          «end» := text.utf8PosToLspPos range.stop
+        }
+        { ident, range, isDeclaration := ti.isBinder } :: refs
+      else
+        refs
+
+    findReferences (doc : EditableDocument) (snap : Snapshot) : List Reference :=
+      let infos := snap.infoTree.findAll fun
+        | Info.ofTermInfo _ => true
+        | _ => false
+      infos.foldl (init := []) fun refs info => do
+        if let Info.ofTermInfo ti := info then
+          if let some ident := identOf ti.expr then
+            return addReference doc ident ti refs
+        return refs
+
+    referencesTo (doc : EditableDocument) (ident : RefIdent) (includeDecl : Bool) (refs : List Reference)
+        : Array Location :=
+      let relevant := refs.filter fun ref => ref.ident == ident && (includeDecl || !ref.isDeclaration)
+      List.toArray <| relevant.map fun ref => { uri := doc.meta.uri, range := ref.range : Location}
+
 open RequestM in
 def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Option Widget.InteractiveGoals)) := do
   let doc ← readDoc
@@ -395,6 +453,7 @@ builtin_initialize
   registerLspRequestHandler "textDocument/declaration"          TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.declaration)
   registerLspRequestHandler "textDocument/definition"           TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.definition)
   registerLspRequestHandler "textDocument/typeDefinition"       TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.type)
+  registerLspRequestHandler "textDocument/references"           ReferenceParams            (Array Location)        handleReferences
   registerLspRequestHandler "textDocument/documentHighlight"    DocumentHighlightParams    DocumentHighlightResult handleDocumentHighlight
   registerLspRequestHandler "textDocument/documentSymbol"       DocumentSymbolParams       DocumentSymbolResult    handleDocumentSymbol
   registerLspRequestHandler "textDocument/semanticTokens/full"  SemanticTokensParams       SemanticTokens          handleSemanticTokensFull

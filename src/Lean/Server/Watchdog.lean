@@ -545,6 +545,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
   declarationProvider := true
   definitionProvider := true
   typeDefinitionProvider := true
+  referencesProvider := true
   documentHighlightProvider := true
   documentSymbolProvider := true
   semanticTokensProvider? := some {

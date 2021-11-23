@@ -37,7 +37,7 @@ structure State where
   nextInstIdx    : Nat := 1 -- for generating anonymous instance names
   ngen           : NameGenerator := {}
   infoState      : InfoState := {}
-  traceState      : TraceState    := {}
+  traceState     : TraceState := {}
   deriving Inhabited
 
 structure Context where

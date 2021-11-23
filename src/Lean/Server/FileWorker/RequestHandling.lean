@@ -337,7 +337,7 @@ where
           continue
         if let Expr.fvar .. := ti.expr then
           addToken ti.stx SemanticTokenType.variable
-        else
+        else if ti.stx.getPos?.get! > lastPos then
           -- any info after the start position: must be projection notation
           addToken ti.stx SemanticTokenType.property
           lastPos := ti.stx.getPos?.get!

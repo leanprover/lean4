@@ -20,6 +20,6 @@ private constant getBuiltinLinkerFlags (linkStatic : Bool) : String
 
 /-- Return linker flags for linking against Lean's libraries. -/
 def getLinkerFlags (leanSysroot : FilePath) (linkStatic := true) (gmp := "-lgmp") : Array String :=
-  #["-L", (leanSysroot / "lib" / "lean").toString, gmp] ++ (getBuiltinLinkerFlags linkStatic).trim.splitOn
+  #["-L", (leanSysroot / "lib" / "lean").toString] ++ (getBuiltinLinkerFlags linkStatic).trim.splitOn ++ [gmp]
 
 end Lean.Compiler.FFI

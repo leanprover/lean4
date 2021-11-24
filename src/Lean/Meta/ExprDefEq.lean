@@ -26,24 +26,21 @@ private def isDefEqEtaStruct (a b : Expr) : MetaM Bool :=
       return false
     else
       let inductVal ← getConstInfoInduct ctorVal.induct
-      if inductVal.nctors != 1 then
+      if inductVal.nctors != 1 || inductVal.numIndices != 0 || inductVal.isRec then
         trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
         return false
-      else checkpointDefEq do
-        let args := b.getAppArgs
-        for i in [ctorVal.numParams : args.size] do
-          match (← whnf args[i]) with
-          | Expr.proj _ j e _ =>
-            unless ctorVal.numParams + j == i do
-              trace[Meta.isDefEq.eta.struct] "failed, unexpect arg #{i}, unexpected projection #{j}, at{indentExpr b}"
+      else if (← isDefEq (← inferType a) (← inferType b)) then
+        checkpointDefEq do
+          let args := b.getAppArgs
+          for i in [ctorVal.numParams : args.size] do
+            let proj := mkProj inductVal.name (i - ctorVal.numParams) a
+            trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{i - ctorVal.numParams}], {proj} =?= {args[i]}"
+            unless (← isDefEq proj args[i]) do
+              trace[Meta.isDefEq.eta.struct] "failed, unexpect arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"
               return false
-            unless (← isDefEq e a) do
-              trace[Meta.isDefEq.eta.struct] "failed, unexpect arg #{i}, argument{e}\nis not defeq to{indentExpr a}"
-              return false
-          | e =>
-            trace[Meta.isDefEq.eta.struct] "failed, projection expected{indentExpr e}"
-            return false
-        return true
+          return true
+      else
+        return false
 
 /--
   Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`.
@@ -1433,7 +1430,7 @@ private def isDefEqProj : Expr → Expr → MetaM Bool
   | v, Expr.proj structName 0 s _ => isDefEqSingleton structName s v
   | _, _ => pure false
 where
-  /- If `structName` is a structure with a single field, then reduce `s.1 =?= v` to `s =?= ⟨v⟩` -/
+  /- If `structName` is a structure with a single field and `(?m ...).1 =?= v`, then solve contraint as `?m ... =?= ⟨v⟩` -/
   isDefEqSingleton (structName : Name) (s : Expr) (v : Expr) : MetaM Bool := do
     let ctorVal := getStructureCtor (← getEnv) structName
     if ctorVal.numFields != 1 then
@@ -1442,8 +1439,15 @@ where
     let sTypeFn := sType.getAppFn
     if !sTypeFn.isConstOf structName then
       return false
-    let ctorApp := mkApp (mkAppN (mkConst ctorVal.name sTypeFn.constLevels!) sType.getAppArgs) v
-    Meta.isExprDefEqAux s ctorApp
+    let s ← whnf s
+    let sFn := s.getAppFn
+    if !sFn.isMVar then
+      return false
+    if (← isAssignable sFn) then
+      let ctorApp := mkApp (mkAppN (mkConst ctorVal.name sTypeFn.constLevels!) sType.getAppArgs) v
+      processAssignment' s ctorApp
+    else
+      return false
 
 /-
   Given applications `t` and `s` that are in WHNF (modulo the current transparency setting),
@@ -1547,5 +1551,6 @@ builtin_initialize
   registerTraceClass `Meta.isDefEq.delta
   registerTraceClass `Meta.isDefEq.step
   registerTraceClass `Meta.isDefEq.assign
+  registerTraceClass `Meta.isDefEq.eta.struct
 
 end Lean.Meta

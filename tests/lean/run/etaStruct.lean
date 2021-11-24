@@ -33,3 +33,26 @@ example (b : Bla) : b.toNat.toBla = b :=
 example (b : Bla) : b.toNat.toBla = b := by
   cases b
   rfl
+
+example (x : Unit × α) : x = ((), x.2) := rfl
+
+example (x : (_ : True ∨ False) ×' α) : x = ⟨Or.inl ⟨⟩, x.2⟩ := rfl
+
+example (p : α × α → Prop) (h : ∀ x y, p (x, y)) : p z := h z.1 _
+
+class TopologicalSpace (α : Type)
+
+structure Homeomorph (α β : Type) [TopologicalSpace α] [TopologicalSpace β] extends Equiv α β where
+  continuousToFun : True
+  continuousInv : True
+
+def Homeomorph.symm [TopologicalSpace α] [TopologicalSpace β] (f : Homeomorph α β) : Homeomorph β α where
+  toFun           := f.invFun
+  invFun          := f.toFun
+  left_inv        := sorry
+  right_inv       := sorry
+  continuousToFun := f.continuousInv
+  continuousInv   := sorry
+
+example [TopologicalSpace α] [TopologicalSpace β] (f : Homeomorph α β) :
+  f.symm.symm = f := rfl -- fails

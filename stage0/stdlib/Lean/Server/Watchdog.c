@@ -7319,6 +7319,7 @@ lean_inc(x_25);
 x_26 = lean_ctor_get(x_24, 1);
 lean_inc(x_26);
 lean_dec(x_24);
+lean_inc(x_18);
 x_27 = l_Lean_Syntax_structEq(x_25, x_18);
 if (x_27 == 0)
 {
@@ -7549,6 +7550,7 @@ lean_inc(x_76);
 x_77 = lean_ctor_get(x_75, 1);
 lean_inc(x_77);
 lean_dec(x_75);
+lean_inc(x_69);
 x_78 = l_Lean_Syntax_structEq(x_76, x_69);
 if (x_78 == 0)
 {

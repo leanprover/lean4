@@ -10,6 +10,12 @@ Author: Leonardo de Moura
 #include "runtime/debug.h"
 #include "runtime/alloc.h"
 
+#ifdef LEAN_RUNTIME_STATS
+#define LEAN_RUNTIME_STAT_CODE(c) c
+#else
+#define LEAN_RUNTIME_STAT_CODE(c)
+#endif
+
 #if defined(__GNUC__) || defined(__clang__)
 #define LEAN_NOINLINE __attribute__((noinline))
 #else

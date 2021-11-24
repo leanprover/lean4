@@ -336,10 +336,10 @@ void load_library(std::string path) {
 }
 
 namespace lean {
-extern "C" object * lean_run_frontend(object * input, object * opts, object * filename, object * main_module_name, object * w);
-pair_ref<environment, object_ref> run_new_frontend(std::string const & input, options const & opts, std::string const & file_name, name const & main_module_name) {
+extern "C" object * lean_run_frontend(object * input, object * opts, object * filename, object * main_module_name, uint32_t trust_level, object * w);
+pair_ref<environment, object_ref> run_new_frontend(std::string const & input, options const & opts, std::string const & file_name, name const & main_module_name, uint32_t trust_level) {
     return get_io_result<pair_ref<environment, object_ref>>(
-        lean_run_frontend(mk_string(input), opts.to_obj_arg(), mk_string(file_name), main_module_name.to_obj_arg(), io_mk_world()));
+        lean_run_frontend(mk_string(input), opts.to_obj_arg(), mk_string(file_name), main_module_name.to_obj_arg(), trust_level, io_mk_world()));
 }
 
 /* def workerMain : Options → IO UInt32 */
@@ -355,9 +355,9 @@ uint32_t run_server_watchdog(buffer<string_ref> const & args) {
     return get_io_scalar_result<uint32_t>(lean_server_watchdog_main(arglist.to_obj_arg(), io_mk_world()));
 }
 
-extern "C" object* lean_init_search_path(object* opt_path, object* w);
+extern "C" object* lean_init_search_path(object* w);
 void init_search_path() {
-    get_io_scalar_result<unsigned>(lean_init_search_path(mk_option_none(), io_mk_world()));
+    get_io_scalar_result<unsigned>(lean_init_search_path(io_mk_world()));
 }
 
 extern "C" object* lean_module_name_of_file(object* fname, object * root_dir, object* w);
@@ -387,7 +387,7 @@ void environment_free_regions(environment && env) {
 }
 
 extern "C" object * lean_get_prefix(object * w);
-extern "C" object * lean_get_libdir(object * w);
+extern "C" object * lean_get_libdir(object * sysroot, object * w);
 
 void check_optarg(char const * option_name) {
     if (!optarg) {
@@ -571,7 +571,8 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     }
 
     if (print_libdir) {
-        std::cout << get_io_result<string_ref>(lean_get_libdir(io_mk_world())).data() << std::endl;
+        string_ref prefix = get_io_result<string_ref>(lean_get_prefix(io_mk_world()));
+        std::cout << get_io_result<string_ref>(lean_get_libdir(prefix.to_obj_arg(), io_mk_world())).data() << std::endl;
         return 0;
     }
 
@@ -647,7 +648,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         if (!main_module_name)
             main_module_name = name("_stdin");
-        pair_ref<environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name);
+        pair_ref<environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl);
         env = r.fst();
         bool ok = unbox(r.snd().raw());
 

@@ -148,10 +148,7 @@ section Initialization
       let stdout := stdout.split (· == '\n') |>.getLast!
       let Except.ok (paths : LeanPaths) ← pure (Json.parse stdout >>= fromJson?)
         | throwServerError s!"invalid output from `{cmdStr}`:\n{stdout}\nstderr:\n{stderr}"
-      let sp ← getBuiltinSearchPath
-      let sp ← addSearchPathFromEnv sp
-      let sp := paths.oleanPath ++ sp
-      searchPathRef.set sp
+      initSearchPath (← getBuildDir) paths.oleanPath
       paths.srcPath.mapM realPathNormalized
     | 2 => pure []  -- no lakefile.lean
     | _ => throwServerError s!"`{cmdStr}` failed:\n{stdout}\nstderr:\n{stderr}"

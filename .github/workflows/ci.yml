@@ -45,8 +45,7 @@ jobs:
             os: macos-latest
             release: true
             shell: bash -euxo pipefail {0}
-            # Mojave, oldest maintained version as of 2021
-            CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14
+            CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-apple-darwin.tar.zst
             prepare-llvm: script/prepare-llvm-macos.sh lean-llvm*
             binary-check: otool -L
@@ -79,7 +78,7 @@ jobs:
           persist-credentials: false
           submodules: true
       - name: Install Nix
-        uses: cachix/install-nix-action@v12
+        uses: cachix/install-nix-action@v15
         if: matrix.os == 'ubuntu-latest'
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
@@ -136,17 +135,20 @@ jobs:
           # omit contents of Init/, ...
           tree --du -h lean-* | grep -E ' (Init|Std|Lean|Lake|LICENSE|[a-z])'
       - name: Pack
-        if: ${{ startsWith(github.ref, 'refs/tags/v') && matrix.release }}
         run: |
           dir=$(echo lean-*)
           mkdir pack
-          which zstd
-          tar cf - $dir | zstd -T0 --no-progress -19 -o pack/$dir.tar.zst
-          zip -r pack/$dir.zip $dir
+          # high-compression tar.zst + zip for release, fast tar.zst otherwise
+          if [[ ${{ startsWith(github.ref, 'refs/tags/v') && matrix.release }} == true || -n ${LEAN_VERSION_STRING:-} ]]; then
+            tar cf - $dir | zstd -T0 --no-progress -19 -o pack/$dir.tar.zst
+            zip -r pack/$dir.zip $dir
+          else
+            tar cf - $dir | zstd -T0 --no-progress -o pack/$dir.tar.zst
+          fi
       - uses: actions/upload-artifact@v2
         with:
           name: build-${{ matrix.name }}
-          path: lean-*
+          path: pack/*.zst
       - name: Lean stats
         run: |
           build/stage1/bin/lean --stats src/Lean.lean

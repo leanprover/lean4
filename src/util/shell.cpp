@@ -355,9 +355,9 @@ uint32_t run_server_watchdog(buffer<string_ref> const & args) {
     return get_io_scalar_result<uint32_t>(lean_server_watchdog_main(arglist.to_obj_arg(), io_mk_world()));
 }
 
-extern "C" object* lean_init_search_path(object* opt_path, object* w);
+extern "C" object* lean_init_search_path(object* w);
 void init_search_path() {
-    get_io_scalar_result<unsigned>(lean_init_search_path(mk_option_none(), io_mk_world()));
+    get_io_scalar_result<unsigned>(lean_init_search_path(io_mk_world()));
 }
 
 extern "C" object* lean_module_name_of_file(object* fname, object * root_dir, object* w);
@@ -387,7 +387,7 @@ void environment_free_regions(environment && env) {
 }
 
 extern "C" object * lean_get_prefix(object * w);
-extern "C" object * lean_get_libdir(object * w);
+extern "C" object * lean_get_libdir(object * sysroot, object * w);
 
 void check_optarg(char const * option_name) {
     if (!optarg) {
@@ -571,7 +571,8 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     }
 
     if (print_libdir) {
-        std::cout << get_io_result<string_ref>(lean_get_libdir(io_mk_world())).data() << std::endl;
+        string_ref prefix = get_io_result<string_ref>(lean_get_prefix(io_mk_world()));
+        std::cout << get_io_result<string_ref>(lean_get_libdir(prefix.to_obj_arg(), io_mk_world())).data() << std::endl;
         return 0;
     }
 

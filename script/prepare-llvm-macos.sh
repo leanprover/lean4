@@ -29,11 +29,11 @@ cp $SDK/usr/lib/libSystem.tbd stage1/lib/libc
 # use for linking, use system libs for running
 gcp llvm/lib/lib{c++,c++abi,unwind}.dylib stage1/lib/libc
 echo -n " -DLEAN_STANDALONE=ON"
-echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang -DCMAKE_CXX_COMPILER=$PWD/llvm/bin/clang++"
-# allow C++ code to include /usr since it needs quite a few more headers
-# need no-macro-redefined for weird clang stdint.h
-echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm --stdlib=libc++ -I $SDK/usr/include -Wno-macro-redefined'"
+# do not change C++ compiler; libc++ etc. being system libraries means there's no danger of conflicts,
+# and the custom clang++ outputs a myriad of warnings when consuming the SDK
+echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang"
 echo -n " -DGMP_LIBRARIES=lib/libgmp.a -DGMP_INCLUDE_DIR=/usr/local/opt/gmp/include"
+# need no-macro-redefined for weird clang stdint.h
 echo -n " -DLEANC_INTERNAL_FLAGS='--sysroot ROOT -I ROOT/include/clang -Wno-macro-redefined' -DLEANC_CC=ROOT/bin/clang"
 echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/libc -fuse-ld=lld'"
 # do not set `LEAN_CC` for tests

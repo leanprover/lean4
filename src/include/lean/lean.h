@@ -63,12 +63,6 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 #define LEAN_SHARED
 #endif
 
-#ifdef LEAN_RUNTIME_STATS
-#define LEAN_RUNTIME_STAT_CODE(c) c
-#else
-#define LEAN_RUNTIME_STAT_CODE(c)
-#endif
-
 #define LEAN_BYTE(Var, Index) *(((uint8_t*)&Var)+Index)
 
 #define LeanMaxCtorTag  244

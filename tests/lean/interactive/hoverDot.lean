@@ -11,6 +11,7 @@ def Foo.foo : Foo := ⟨10⟩
 
 open Foo
 #check foo.f₁.succ
+     --^ textDocument/hover
          --^ textDocument/hover
             --^ textDocument/hover
 #check foo.f₂.succ

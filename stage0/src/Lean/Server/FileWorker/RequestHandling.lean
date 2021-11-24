@@ -69,8 +69,12 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
     let mod? ← findModuleOf? n
     let modUri? ← match mod? with
       | some modName =>
-        let modFname? ← rc.srcSearchPath.findWithExt "lean" modName
-        pure <| modFname?.map toFileUri
+        let some modFname ← rc.srcSearchPath.findWithExt "lean" modName
+          | pure none
+        -- resolve symlinks (such as `src` in the build dir) so that files are opened
+        -- in the right folder
+        let modFname ← IO.FS.realPath modFname
+        pure <| some <| toFileUri modFname
       | none         => pure <| some doc.meta.uri
 
     let ranges? ← findDeclarationRanges? n
@@ -221,7 +225,7 @@ partial def handleDocumentSymbol (p : DocumentSymbolParams)
     | some ElabTaskError.aborted =>
       throw RequestError.fileChanged
     | some (ElabTaskError.ioError e) =>
-      throwThe IO.Error e
+      throw (e : RequestError)
     | _ => ()
 
     let lastSnap := cmdSnaps.finishedPrefix.getLastD doc.headerSnap
@@ -320,14 +324,23 @@ where
           stx.getArgs.forM go
   highlightId (stx : Syntax) : ReaderT SemanticTokensContext (StateT SemanticTokensState RequestM) _ := do
     if let some range := stx.getRange? then
+      let mut lastPos := range.start
       for ti in (← read).snap.infoTree.deepestNodes (fun
         | _, i@(Elab.Info.ofTermInfo ti), _ => match i.pos? with
           | some ipos => if range.contains ipos then some ti else none
           | _         => none
         | _, _, _ => none) do
-        match ti.expr with
-        | Expr.fvar .. => addToken ti.stx SemanticTokenType.variable
-        | _            => if ti.stx.getPos?.get! > range.start then addToken ti.stx SemanticTokenType.property
+        let pos := ti.stx.getPos?.get!
+        -- avoid reporting same position twice; the info node can occur multiple times if
+        -- e.g. the term is elaborated multiple times
+        if pos < lastPos then
+          continue
+        if let Expr.fvar .. := ti.expr then
+          addToken ti.stx SemanticTokenType.variable
+        else if ti.stx.getPos?.get! > lastPos then
+          -- any info after the start position: must be projection notation
+          addToken ti.stx SemanticTokenType.property
+          lastPos := ti.stx.getPos?.get!
   highlightKeyword stx := do
     if let Syntax.atom info val := stx then
       if val.bsize > 0 && val[0].isAlpha then
@@ -371,7 +384,7 @@ partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
       waitLoop
   let t ← RequestM.asTask waitLoop
   RequestM.bindTask t fun doc? => do
-    let doc ← doc?
+    let doc ← liftExcept doc?
     let t₁ ← doc.cmdSnaps.waitAll
     return t₁.map fun _ => pure WaitForDiagnostics.mk
 

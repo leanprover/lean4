@@ -6,6 +6,7 @@ Authors: Wojciech Nawrocki
 -/
 import Lean.DocString
 import Lean.Elab.InfoTree
+import Lean.PrettyPrinter.Delaborator.Options
 import Lean.Util.Sorry
 
 protected structure String.Range where
@@ -164,7 +165,8 @@ where
     match i with
     | Info.ofTermInfo ti =>
       let tp ← Meta.inferType ti.expr
-      let eFmt ← Meta.ppExpr ti.expr
+      let eFmt ← Lean.withOptions (Lean.pp.fullNames.set . true) do
+        Meta.ppExpr ti.expr
       let tpFmt ← Meta.ppExpr tp
       -- try not to show too scary internals
       let fmt := if isAtomicFormat eFmt then f!"{eFmt} : {tpFmt}" else f!"{tpFmt}"

@@ -54,7 +54,6 @@ option(TRACK_LIVE_EXPRS    "TRACK_LIVE_EXPRS" OFF)
 option(CUSTOM_ALLOCATORS   "CUSTOM_ALLOCATORS" ON)
 option(SAVE_SNAPSHOT       "SAVE_SNAPSHOT" ON)
 option(SAVE_INFO           "SAVE_INFO" ON)
-option(FAKE_FREE           "Disable actually freeing runtime objects, useful for debugging memory management issues" OFF)
 option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" ON)
 option(LAZY_RC             "LAZY_RC" OFF)
 option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
@@ -65,11 +64,6 @@ option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current ver
 
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
 set(LEANC_CC              "cc"                         CACHE STRING "C compiler to use in `leanc`")
-
-if ("${FAKE_FREE}" MATCHES "ON")
-  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_FAKE_FREE")
-  string(APPEND LEANC_EXTRA_FLAGS " -D LEAN_FAKE_FREE")
-endif()
 
 if ("${LAZY_RC}" MATCHES "ON")
   set(LEAN_LAZY_RC "#define LEAN_LAZY_RC")
@@ -89,12 +83,10 @@ endif()
 
 if ("${RUNTIME_STATS}" MATCHES "ON")
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_RUNTIME_STATS")
-  string(APPEND LEANC_EXTRA_FLAGS " -D LEAN_RUNTIME_STATS")
 endif()
 
 if (NOT("${CHECK_OLEAN_VERSION}" MATCHES "ON"))
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_IGNORE_OLEAN_VERSION")
-  string(APPEND LEANC_EXTRA_FLAGS " -D LEAN_IGNORE_OLEAN_VERSION")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
@@ -111,7 +103,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     # > The simple and safe thing is to pass all -s flags at both compile and link time.
     set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 -s MAIN_MODULE=1 -fexceptions")
     string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_SETTINGS}")
-    string(APPEND LEANC_EXTRA_FLAGS " -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_SETTINGS}")
     string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${EMSCRIPTEN_SETTINGS}")
 endif()
 if (CMAKE_CROSSCOMPILING_EMULATOR)
@@ -134,7 +125,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     string(APPEND LEAN_EXTRA_LINKER_FLAGS " /STACK:${LEAN_WIN_STACK_SIZE}")
   else()
     string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,--stack,${LEAN_WIN_STACK_SIZE}")
-    string(APPEND LEANC_EXTRA_FLAGS " -Wl,--stack,${LEAN_WIN_STACK_SIZE}")
     set(EXTRA_UTIL_LIBS ${EXTRA_UTIL_LIBS} -lpsapi)
   endif()
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_WINDOWS -D LEAN_WIN_STACK_SIZE=${LEAN_WIN_STACK_SIZE}")
@@ -156,12 +146,10 @@ if(NOT MULTI_THREAD)
   set(AUTO_THREAD_FINALIZATION OFF)
 else()
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_MULTI_THREAD")
-  string(APPEND LEANC_EXTRA_FLAGS " -D LEAN_MULTI_THREAD")
 endif()
 
 if(AUTO_THREAD_FINALIZATION AND NOT MSVC)
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_AUTO_THREAD_FINALIZATION")
-  string(APPEND LEANC_EXTRA_FLAGS " -D LEAN_AUTO_THREAD_FINALIZATION")
 endif()
 
 if(LLVM)
@@ -173,7 +161,6 @@ if(LLVM)
 
   include_directories(${LLVM_INCLUDE_DIRS})
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_LLVM")
-  string(APPEND LEANC_EXTRA_FLAGS " -D LEAN_LLVM")
 else()
   #message(WARNING "Disabling LLVM support.  JIT compilation will not be available")
 endif()
@@ -252,7 +239,7 @@ else()
 endif()
 
 # ccache
-if(CCACHE)
+if(CCACHE AND NOT CMAKE_CXX_COMPILER_LAUNCHER AND NOT CMAKE_C_COMPILER_LAUNCHER)
   find_program(CCACHE_PATH ccache)
   if(CCACHE_PATH)
     set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PATH}")
@@ -327,9 +314,7 @@ endif()
 
 # On Windows, add bcrypt for random number generation
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lbcrypt")
-  string(APPEND LEANC_SHARED_LINKER_FLAGS " -lbcrypt")
-  string(APPEND LEANSHARED_LINKER_FLAGS " -lbcrypt")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -lbcrypt")
 endif()
 
 # Allow `lean` symbols in plugins without linking directly against it. If we linked against the
@@ -344,8 +329,7 @@ endif()
 # Linux ignores undefined symbols in shared libraries by default
 
 if(MULTI_THREAD AND NOT MSVC AND (NOT ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")))
-    string(APPEND CMAKE_EXE_LINKER_FLAGS " -pthread")
-    string(APPEND LEANC_EXTRA_FLAGS " -pthread")
+    string(APPEND LEAN_EXTRA_LINKER_FLAGS " -pthread")
 endif()
 
 # Git HASH

@@ -113,7 +113,7 @@ macro_rules | `($x > $y)  => `(binrel% GT.gt $x $y)
 macro_rules | `($x >= $y) => `(binrel% GE.ge $x $y)
 macro_rules | `($x ≥ $y)  => `(binrel% GE.ge $x $y)
 macro_rules | `($x = $y)  => `(binrel% Eq $x $y)
-macro_rules | `($x == $y) => `(binrel% BEq.beq $x $y)
+macro_rules | `($x == $y) => `(binrel_no_prop% BEq.beq $x $y)
 
 infixr:35 " /\\ " => And
 infixr:35 " ∧ "   => And

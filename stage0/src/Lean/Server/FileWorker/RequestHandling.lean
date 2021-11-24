@@ -330,13 +330,16 @@ where
           | some ipos => if range.contains ipos then some ti else none
           | _         => none
         | _, _, _ => none) do
+        let pos := ti.stx.getPos?.get!
+        -- avoid reporting same position twice; the info node can occur multiple times if
+        -- e.g. the term is elaborated multiple times
+        if pos < lastPos then
+          continue
         if let Expr.fvar .. := ti.expr then
           addToken ti.stx SemanticTokenType.variable
         else if ti.stx.getPos?.get! > lastPos then
           -- any info after the start position: must be projection notation
           addToken ti.stx SemanticTokenType.property
-          -- avoid reporting same position twice; the info node can occur multiple times if
-          -- e.g. the term is elaborated multiple times
           lastPos := ti.stx.getPos?.get!
   highlightKeyword stx := do
     if let Syntax.atom info val := stx then

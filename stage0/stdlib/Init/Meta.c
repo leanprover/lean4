@@ -4351,7 +4351,6 @@ lean_object* x_10; lean_object* x_11; uint8_t x_12;
 x_10 = lean_array_fget(x_4, x_6);
 x_11 = lean_array_fget(x_5, x_6);
 x_12 = l_Lean_Syntax_structEq(x_10, x_11);
-lean_dec(x_11);
 if (x_12 == 0)
 {
 uint8_t x_13; 
@@ -4502,6 +4501,7 @@ return x_3;
 else
 {
 uint8_t x_4; 
+lean_dec(x_2);
 x_4 = 0;
 return x_4;
 }
@@ -4517,12 +4517,17 @@ x_6 = lean_ctor_get(x_1, 2);
 lean_inc(x_6);
 lean_dec(x_1);
 x_7 = lean_ctor_get(x_2, 1);
+lean_inc(x_7);
 x_8 = lean_ctor_get(x_2, 2);
+lean_inc(x_8);
+lean_dec(x_2);
 x_9 = lean_name_eq(x_5, x_7);
+lean_dec(x_7);
 lean_dec(x_5);
 if (x_9 == 0)
 {
 uint8_t x_10; 
+lean_dec(x_8);
 lean_dec(x_6);
 x_10 = 0;
 return x_10;
@@ -4538,6 +4543,7 @@ lean_dec(x_11);
 if (x_13 == 0)
 {
 uint8_t x_14; 
+lean_dec(x_8);
 lean_dec(x_6);
 x_14 = 0;
 return x_14;
@@ -4547,6 +4553,7 @@ else
 lean_object* x_15; uint8_t x_16; 
 x_15 = lean_unsigned_to_nat(0u);
 x_16 = l_Array_isEqvAux___at_Lean_Syntax_structEq___spec__1(x_6, x_8, lean_box(0), x_6, x_8, x_15);
+lean_dec(x_8);
 lean_dec(x_6);
 return x_16;
 }
@@ -4555,6 +4562,7 @@ return x_16;
 else
 {
 uint8_t x_17; 
+lean_dec(x_2);
 lean_dec(x_1);
 x_17 = 0;
 return x_17;
@@ -4569,13 +4577,17 @@ x_18 = lean_ctor_get(x_1, 1);
 lean_inc(x_18);
 lean_dec(x_1);
 x_19 = lean_ctor_get(x_2, 1);
+lean_inc(x_19);
+lean_dec(x_2);
 x_20 = lean_string_dec_eq(x_18, x_19);
+lean_dec(x_19);
 lean_dec(x_18);
 return x_20;
 }
 else
 {
 uint8_t x_21; 
+lean_dec(x_2);
 lean_dec(x_1);
 x_21 = 0;
 return x_21;
@@ -4594,13 +4606,18 @@ x_24 = lean_ctor_get(x_1, 3);
 lean_inc(x_24);
 lean_dec(x_1);
 x_25 = lean_ctor_get(x_2, 1);
+lean_inc(x_25);
 x_26 = lean_ctor_get(x_2, 2);
+lean_inc(x_26);
 x_27 = lean_ctor_get(x_2, 3);
+lean_inc(x_27);
+lean_dec(x_2);
 x_28 = l_Substring_beq(x_22, x_25);
-lean_dec(x_22);
 if (x_28 == 0)
 {
 uint8_t x_29; 
+lean_dec(x_27);
+lean_dec(x_26);
 lean_dec(x_24);
 lean_dec(x_23);
 x_29 = 0;
@@ -4610,10 +4627,12 @@ else
 {
 uint8_t x_30; 
 x_30 = lean_name_eq(x_23, x_26);
+lean_dec(x_26);
 lean_dec(x_23);
 if (x_30 == 0)
 {
 uint8_t x_31; 
+lean_dec(x_27);
 lean_dec(x_24);
 x_31 = 0;
 return x_31;
@@ -4622,6 +4641,7 @@ else
 {
 uint8_t x_32; 
 x_32 = l_List_beq___at_Lean_Syntax_structEq___spec__2(x_24, x_27);
+lean_dec(x_27);
 lean_dec(x_24);
 return x_32;
 }
@@ -4630,6 +4650,7 @@ return x_32;
 else
 {
 uint8_t x_33; 
+lean_dec(x_2);
 lean_dec(x_1);
 x_33 = 0;
 return x_33;
@@ -4678,7 +4699,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Syntax_structEq(x_1, x_2);
-lean_dec(x_2);
 x_4 = lean_box(x_3);
 return x_4;
 }

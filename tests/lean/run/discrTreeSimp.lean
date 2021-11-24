@@ -18,4 +18,4 @@ theorem ex2 (f : Nat → Nat) : List.map f ∘ List.map f ∘ List.map f = List.
 attribute [simp] map_map
 
 theorem ex3 (f : Nat → Nat) (xs : List Nat) : (xs.map f |>.map f |>.map f) = xs.map (fun x => f (f (f x))) := by
-  simp
+  simp [Function.comp]

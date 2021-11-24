@@ -34,7 +34,6 @@ lean_object* l_Lean_registerTraceClass(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_IndPredBelow_mkConstructor___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_IndPredBelow_backwardsChaining___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_getConstInfoInduct___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoForKernelRec___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_IndPredBelow_mkBelowMatcher_convertToBelow___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_IndPredBelow_mkCtorType_copyVarName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -477,6 +476,7 @@ static lean_object* l_Array_mapIdxM_map___at_Lean_Meta_IndPredBelow_mkBelowMatch
 extern lean_object* l_Lean_instInhabitedInductiveVal;
 static lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_IndPredBelow_mkConstructor___spec__1___closed__2;
 lean_object* l_List_mapTRAux___at_Lean_Meta_substCore___spec__7(lean_object*, lean_object*);
+lean_object* l_Lean_getConstInfoInduct___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqEtaStruct___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_IndPredBelow_mkBrecOnDecl_mkIH___closed__2;
 extern lean_object* l_Lean_brecOnSuffix;
 static lean_object* l_Array_mapIdxM_map___at_Lean_Meta_IndPredBelow_mkBelowMatcher___spec__3___lambda__1___closed__2;
@@ -1383,7 +1383,7 @@ x_12 = lean_array_uget(x_3, x_2);
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = lean_array_uset(x_3, x_2, x_13);
 x_15 = x_12;
-x_16 = l_Lean_getConstInfoInduct___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoForKernelRec___spec__1(x_15, x_4, x_5, x_6, x_7, x_8);
+x_16 = l_Lean_getConstInfoInduct___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqEtaStruct___spec__1(x_15, x_4, x_5, x_6, x_7, x_8);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; size_t x_19; size_t x_20; lean_object* x_21; lean_object* x_22; 
@@ -1693,7 +1693,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_IndPredBelow_mkContext(lean_object* x_1, le
 _start:
 {
 lean_object* x_7; 
-x_7 = l_Lean_getConstInfoInduct___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoForKernelRec___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
+x_7 = l_Lean_getConstInfoInduct___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqEtaStruct___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; size_t x_15; size_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
@@ -12351,7 +12351,7 @@ lean_inc(x_16);
 lean_dec(x_14);
 x_17 = lean_ctor_get(x_15, 1);
 lean_inc(x_17);
-x_18 = l_Lean_getConstInfoInduct___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoForKernelRec___spec__1(x_17, x_2, x_3, x_4, x_5, x_16);
+x_18 = l_Lean_getConstInfoInduct___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqEtaStruct___spec__1(x_17, x_2, x_3, x_4, x_5, x_16);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
@@ -12490,7 +12490,7 @@ lean_object* x_17; lean_object* x_18;
 lean_dec(x_5);
 x_17 = l_Lean_Expr_constName_x21(x_3);
 lean_inc(x_17);
-x_18 = l_Lean_getConstInfoInduct___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoForKernelRec___spec__1(x_17, x_6, x_7, x_8, x_9, x_10);
+x_18 = l_Lean_getConstInfoInduct___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqEtaStruct___spec__1(x_17, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_18) == 0)
 {
 uint8_t x_19; 
@@ -22926,7 +22926,7 @@ x_31 = lean_ctor_get(x_7, 1);
 lean_inc(x_31);
 lean_dec(x_7);
 lean_inc(x_1);
-x_32 = l_Lean_getConstInfoInduct___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoForKernelRec___spec__1(x_1, x_2, x_3, x_4, x_5, x_31);
+x_32 = l_Lean_getConstInfoInduct___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqEtaStruct___spec__1(x_1, x_2, x_3, x_4, x_5, x_31);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; uint8_t x_34; 

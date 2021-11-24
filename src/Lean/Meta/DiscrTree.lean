@@ -259,7 +259,7 @@ where
   step (e : Expr) := do
     let e ← whnfCore e
     match (← unfoldDefinition? e) with
-    | some e' => if isBadKey e' then return e else step e'
+    | some e' => if isBadKey e'.getAppFn then return e else step e'
     | none    => return e
 
 /-- whnf for the discrimination tree module -/

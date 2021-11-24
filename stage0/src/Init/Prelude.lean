@@ -9,10 +9,10 @@ universe u v w
 
 @[inline] def id {α : Sort u} (a : α) : α := a
 
-abbrev Function.comp {α : Sort u} {β : Sort v} {δ : Sort w} (f : β → δ) (g : α → β) : α → δ :=
+@[inline] def Function.comp {α : Sort u} {β : Sort v} {δ : Sort w} (f : β → δ) (g : α → β) : α → δ :=
   fun x => f (g x)
 
-abbrev Function.const {α : Sort u} (β : Sort v) (a : α) : β → α :=
+@[inline] def Function.const {α : Sort u} (β : Sort v) (a : α) : β → α :=
   fun x => a
 
 set_option checkBinderAnnotations false in

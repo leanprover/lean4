@@ -209,15 +209,17 @@ private def replaceBinderAnnotation (binder : Syntax) : CommandElabM Bool := do
 
 open Meta
 
-@[builtinCommandElab Lean.Parser.Command.check] def elabCheck : CommandElab
+def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
   | `(#check%$tk $term) => withoutModifyingEnv $ runTermElabM (some `_check) fun _ => do
     let e ← Term.elabTerm term none
-    Term.synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := true)
+    Term.synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := ignoreStuckTC)
     let (e, _) ← Term.levelMVarToParam (← instantiateMVars e)
     let type ← inferType e
     unless e.isSyntheticSorry do
       logInfoAt tk m!"{e} : {type}"
   | _ => throwUnsupportedSyntax
+
+@[builtinCommandElab Lean.Parser.Command.check] def elabCheck : CommandElab := elabCheckCore (ignoreStuckTC := true)
 
 @[builtinCommandElab Lean.Parser.Command.reduce] def elabReduce : CommandElab
   | `(#reduce%$tk $term) => withoutModifyingEnv <| runTermElabM (some `_check) fun _ => do
@@ -256,7 +258,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
 
 @[builtinCommandElab «check_failure»] def elabCheckFailure : CommandElab
   | `(#check_failure $term) => do
-    failIfSucceeds <| elabCheck (← `(#check $term))
+    failIfSucceeds <| elabCheckCore (ignoreStuckTC := false) (← `(#check $term))
   | _ => throwUnsupportedSyntax
 
 private def mkEvalInstCore (evalClassName : Name) (e : Expr) : MetaM Expr := do

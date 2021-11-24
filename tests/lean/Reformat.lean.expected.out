@@ -138,7 +138,7 @@ theorem eqOfHEq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
         h₁ 
   this α α a a' h rfl 
 
-structure Prod(α : Type u)(β : Type v) := 
+structure Prod (α : Type u) (β : Type v) := 
   (fst : α)
   (snd : β)
 
@@ -146,16 +146,16 @@ attribute [unbox] Prod
 
 /--Similar to `Prod`, but `α` and `β` can be propositions.
    We use this Type internally to automatically generate the brecOn recursor. -/
-structure PProd(α : Sort u)(β : Sort v) := 
+structure PProd (α : Sort u) (β : Sort v) := 
   (fst : α)
   (snd : β)
 
 /--Similar to `Prod`, but `α` and `β` are in the same universe. -/
-structure MProd(α β : Type u) := 
+structure MProd (α β : Type u) := 
   (fst : α)
   (snd : β)
 
-structure And(a b : Prop) : Prop := intro :: 
+structure And (a b : Prop) : Prop := intro :: 
   (left : a)
   (right : b)
 
@@ -170,7 +170,7 @@ inductive Bool : Type
 export Bool(false true)
 
 /- Remark: Subtype must take a Sort instead of Type because of the axiom strongIndefiniteDescription. -/
-structure Subtype{α : Sort u}(p : α → Prop) := 
+structure Subtype {α : Sort u} (p : α → Prop) := 
   (val : α)
   (property : p val)
 
@@ -213,20 +213,20 @@ theorem neTrueOfEqFalse : {b : Bool} → Eq b false → Not (Eq b true)
 | true, h => Bool.noConfusion h
 | false, _ => fun h => Bool.noConfusion h 
 
-class Inhabited(α : Sort u) := mk{} :: 
+class Inhabited (α : Sort u) := mk{} :: 
   (default : α)
 
 constant arbitrary (α : Sort u) [s : Inhabited α] : α :=
   @Inhabited.default α s 
 
-instance  (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) :=
+instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) :=
   { default := fun _ => arbitrary β }
 
-instance  (α : Sort u) {β : α → Sort v} [(a : α) → Inhabited (β a)] : Inhabited ((a : α) → β a) :=
+instance (α : Sort u) {β : α → Sort v} [(a : α) → Inhabited (β a)] : Inhabited ((a : α) → β a) :=
   { default := fun a => arbitrary (β a) }
 
 /--Universe lifting operation from Sort to Type -/
-structure PLift(α : Sort u) : Type u := up :: 
+structure PLift (α : Sort u) : Type u := up :: 
   (down : α)
 
 /- Bijection between α and PLift α -/
@@ -241,11 +241,11 @@ structure PointedType :=
   (type : Type u)
   (val : type)
 
-instance  : Inhabited PointedType.{u} :=
+instance : Inhabited PointedType.{u} :=
   { default := { type := PUnit.{u + 1}, val := ⟨⟩ } }
 
 /--Universe lifting operation -/
-structure ULift.{r, s}(α : Type s) : Type (max s r) := up :: 
+structure ULift.{r, s} (α : Type s) : Type (max s r) := up :: 
   (down : α)
 
 /- Bijection between α and ULift.{v} α -/
@@ -302,7 +302,7 @@ theorem ofDecideEqFalse {p : Prop} [s : Decidable p] : Eq (decide p) false → N
     | isFalse h₁ => h₁
 
 @[inline]
-instance  : DecidableEq Bool :=
+instance : DecidableEq Bool :=
   fun a b =>
     match a, b with 
     | false, false => isTrue rfl
@@ -310,12 +310,12 @@ instance  : DecidableEq Bool :=
     | true, false => isFalse (fun h => Bool.noConfusion h)
     | true, true => isTrue rfl 
 
-class BEq(α : Type u) := 
+class BEq (α : Type u) := 
   (beq : α → α → Bool)
 
 open BEq(beq)
 
-instance  {α : Type u} [DecidableEq α] : BEq α :=
+instance {α : Type u} [DecidableEq α] : BEq α :=
   ⟨fun a b => decide (Eq a b)⟩
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition

@@ -53,7 +53,7 @@ inductive Simp.DischargeWrapper where
   | default
   | custom (ref : IO.Ref Term.State) (discharge : Simp.Discharge)
 
-def Simp.DischargeWrapper.with (w : Simp.DischargeWrapper) (x : Option Simp.Discharge → MetaM α) : TacticM α := do
+def Simp.DischargeWrapper.with (w : Simp.DischargeWrapper) (x : Option Simp.Discharge → TacticM α) : TacticM α := do
   match w with
   | default => x none
   | custom ref d =>
@@ -162,8 +162,6 @@ where
     else
       Term.elabCDotFunctionAlias? simpArgTerm
 
-abbrev FVarIdToLemmaId := FVarIdMap Name
-
 -- TODO: move?
 private def getPropHyps : MetaM (Array FVarId) := do
   let mut result := #[]
@@ -215,28 +213,47 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (ctx := false) (ignoreStarA
         ctx := { ctx with simpLemmas }
     return { ctx, fvarIdToLemmaId, dischargeWrapper }
 
+/--
+`simpLocation ctx discharge? varIdToLemmaId loc`
+runs the simplifier at locations specified by `loc`,
+using the simp lemmas collected in `ctx`
+optionally running a discharger specified in `discharge?` on generated subgoals.
+(Local hypotheses which have been added to the simp lemmas must be recorded in
+`fvarIdToLemmaId`.)
+
+Its primary use is as the implementation of the
+`simp [...] at ...` and `simp only [...] at ...` syntaxes,
+but can also be used by other tactics when a `Syntax` is not available.
+
+For many tactics other than the simplifier,
+one should use the `withLocation` tactic combinator
+when working with a `location`.
+-/
+def simpLocation (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (fvarIdToLemmaId : FVarIdToLemmaId := {}) (loc : Location) : TacticM Unit := do
+  match loc with
+  | Location.targets hUserNames simplifyTarget =>
+    withMainContext do
+      let fvarIds ← hUserNames.mapM fun hUserName => return (← getLocalDeclFromUserName hUserName).fvarId
+      go fvarIds simplifyTarget fvarIdToLemmaId
+  | Location.wildcard =>
+    withMainContext do
+      go (← getNondepPropHyps (← getMainGoal)) (simplifyTarget := true) fvarIdToLemmaId
+where
+  go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) (fvarIdToLemmaId : Lean.Meta.FVarIdToLemmaId) : TacticM Unit := do
+    let mvarId ← getMainGoal
+    let result? ← simpGoal mvarId ctx (simplifyTarget := simplifyTarget) (discharge? := discharge?) (fvarIdsToSimp := fvarIdsToSimp) (fvarIdToLemmaId := fvarIdToLemmaId)
+    match result? with
+    | none => replaceMainGoal []
+    | some (_, mvarId) => replaceMainGoal [mvarId]
+
 /-
   "simp " (config)? (discharger)? ("only ")? ("[" simpLemma,* "]")? (location)?
 -/
 @[builtinTactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
   let { ctx, fvarIdToLemmaId, dischargeWrapper } ← withMainContext <| mkSimpContext stx (eraseLocal := false)
   -- trace[Meta.debug] "Lemmas {← toMessageData ctx.simpLemmas.post}"
-  let loc := expandOptLocation stx[5]
-  match loc with
-  | Location.targets hUserNames simplifyTarget =>
-    withMainContext do
-      let fvarIds ← hUserNames.mapM fun hUserName => return (← getLocalDeclFromUserName hUserName).fvarId
-      go ctx dischargeWrapper fvarIds simplifyTarget fvarIdToLemmaId
-  | Location.wildcard =>
-    withMainContext do
-      go ctx dischargeWrapper (← getNondepPropHyps (← getMainGoal)) (simplifyTarget := true) fvarIdToLemmaId
-where
-  go (ctx : Simp.Context) (dischargeWrapper : Simp.DischargeWrapper) (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) (fvarIdToLemmaId : FVarIdToLemmaId) : TacticM Unit := do
-    let mvarId ← getMainGoal
-    let result? ← dischargeWrapper.with fun discharge? => return (← simpGoal mvarId ctx (simplifyTarget := simplifyTarget) (discharge? := discharge?) (fvarIdsToSimp := fvarIdsToSimp) (fvarIdToLemmaId := fvarIdToLemmaId)).map (·.2)
-    match result? with
-    | none => replaceMainGoal []
-    | some mvarId => replaceMainGoal [mvarId]
+  dischargeWrapper.with fun discharge? =>
+    simpLocation ctx discharge? fvarIdToLemmaId (expandOptLocation stx[5])
 
 @[builtinTactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => do
   let { ctx, .. } ← mkSimpContext stx (eraseLocal := true) (ctx := true) (ignoreStarArg := true)

@@ -39,7 +39,8 @@ structure StructFieldView where
   binderInfo : BinderInfo
   inferMod   : Bool
   declName   : Name
-  name       : Name
+  name       : Name -- The field name as it is going to be registered in the kernel. It does not include macroscopes.
+  rawName    : Name -- Same as `name` but including macroscopes.
   binders    : Syntax
   type?      : Option Syntax
   value?     : Option Syntax
@@ -208,7 +209,8 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
           pure (some optBinderTacticDefault[0][1])
     let idents := fieldBinder[2].getArgs
     idents.foldlM (init := views) fun (views : Array StructFieldView) ident => withRef ident do
-      let name := ident.getId.eraseMacroScopes
+      let rawName := ident.getId
+      let name    := rawName.eraseMacroScopes
       unless name.isAtomic do
         throwErrorAt ident "invalid field name '{name.eraseMacroScopes}', field names must be atomic"
       let declName := structDeclName ++ name
@@ -221,6 +223,7 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
         inferMod
         declName
         name
+        rawName
         binders
         type?
         value?
@@ -543,13 +546,13 @@ where
         match type?, value? with
         | none,      none => throwError "invalid field, type expected"
         | some type, _    =>
-          withLocalDecl view.name view.binderInfo type fun fieldFVar =>
+          withLocalDecl view.rawName view.binderInfo type fun fieldFVar =>
             let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
                                       kind := StructFieldKind.newField, inferMod := view.inferMod }
             go (i+1) defaultValsOverridden infos
         | none, some value =>
           let type ← inferType value
-          withLocalDecl view.name view.binderInfo type fun fieldFVar =>
+          withLocalDecl view.rawName view.binderInfo type fun fieldFVar =>
             let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value,
                                       kind := StructFieldKind.newField, inferMod := view.inferMod }
             go (i+1) defaultValsOverridden infos

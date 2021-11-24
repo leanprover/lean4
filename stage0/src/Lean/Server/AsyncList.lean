@@ -71,7 +71,7 @@ partial def getAll : AsyncList ε α → List α × Option ε
     | Except.error e => ⟨[], some e⟩
 
 /-- Spawns a `Task` waiting on the prefix of elements for which `p` is true. -/
-partial def waitAll [Coe Error ε] (p : α → Bool := fun _ => true) : AsyncList ε α → IO (Task (List α × Option ε))
+partial def waitAll [Coe Error ε] (p : α → Bool := fun _ => true) : AsyncList ε α → BaseIO (Task (List α × Option ε))
   | cons hd tl => do
     if p hd then
       let t ← tl.waitAll p
@@ -80,7 +80,7 @@ partial def waitAll [Coe Error ε] (p : α → Bool := fun _ => true) : AsyncLis
       return Task.pure ⟨[hd], none⟩
   | nil => return Task.pure ⟨[], none⟩
   | asyncTail tl => do
-    let t : Task (Except IO.Error (List α × Option ε)) ← IO.bindTask tl fun
+    let t : Task (Except IO.Error (List α × Option ε)) ← BaseIO.bindTask tl fun
       | Except.ok tl => Task.map Except.ok <$> tl.waitAll p
       | Except.error e => return Task.pure <| Except.ok ⟨[], some e⟩
     t.map fun
@@ -90,20 +90,20 @@ partial def waitAll [Coe Error ε] (p : α → Bool := fun _ => true) : AsyncLis
 /-- Spawns a `Task` acting like `List.find?` but which will wait for tail evalution
 when necessary to traverse the list. If the tail terminates before a matching element
 is found, the task throws the terminating value. -/
-partial def waitFind? (p : α → Bool) [Coe Error ε] : AsyncList ε α → IO (Task $ Except ε $ Option α)
+partial def waitFind? (p : α → Bool) [Coe Error ε] : AsyncList ε α → BaseIO (Task $ Except ε $ Option α)
   | nil => return Task.pure <| Except.ok none
   | cons hd tl => do
     if p hd then return Task.pure <| Except.ok <| some hd
     else tl.waitFind? p
   | asyncTail tl => do
-    let t ← IO.bindTask tl fun
+    let t ← BaseIO.bindTask tl fun
       | Except.ok tl => Task.map Except.ok <$> tl.waitFind? p
       | Except.error e => return Task.pure <| Except.ok <| Except.error e
     coeErr t
 
 /-- Extends the `finishedPrefix` as far as possible. If computation was ongoing
 and has finished, also returns the terminating value. -/
-partial def updateFinishedPrefix : AsyncList ε α → IO (AsyncList ε α × Option ε)
+partial def updateFinishedPrefix : AsyncList ε α → BaseIO (AsyncList ε α × Option ε)
   | cons hd tl => do
     let ⟨tl, e?⟩ ← tl.updateFinishedPrefix
     pure ⟨cons hd tl, e?⟩

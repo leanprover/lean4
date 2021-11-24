@@ -988,7 +988,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quota
 static lean_object* l_Lean_Elab_Term_Quotation___aux__Lean__Elab__Quotation______macroRules__Lean__Elab__Term__Quotation__commandElab__stx__quot______1___closed__1;
 static lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__11___closed__15;
 static lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_compileStxMatch___lambda__3___closed__9;
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__14___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation___aux__Lean__Elab__Quotation______macroRules__Lean__Elab__Term__Quotation__commandElab__stx__quot______1___closed__44;
 LEAN_EXPORT lean_object* l_List_mapM___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___spec__6___boxed(lean_object**);
 static lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__6___closed__1;
@@ -16701,11 +16700,16 @@ case 1:
 lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 lean_dec(x_4);
 x_6 = lean_ctor_get(x_5, 0);
+lean_inc(x_6);
 x_7 = lean_ctor_get(x_5, 1);
+lean_inc(x_7);
+lean_dec(x_5);
 x_8 = lean_name_eq(x_6, x_1);
+lean_dec(x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; 
+lean_dec(x_7);
 lean_dec(x_2);
 x_9 = lean_box(1);
 return x_9;
@@ -16718,6 +16722,7 @@ x_11 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
 x_12 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_734____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_314____spec__1(x_7, x_11);
 lean_dec(x_11);
+lean_dec(x_7);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -16744,6 +16749,7 @@ lean_dec(x_2);
 if (x_3 == 0)
 {
 lean_object* x_17; 
+lean_dec(x_5);
 lean_dec(x_4);
 x_17 = lean_box(1);
 return x_17;
@@ -16752,6 +16758,8 @@ else
 {
 lean_object* x_18; uint8_t x_19; 
 x_18 = lean_ctor_get(x_5, 0);
+lean_inc(x_18);
+lean_dec(x_5);
 x_19 = l_Lean_Syntax_structEq(x_4, x_18);
 if (x_19 == 0)
 {
@@ -16770,6 +16778,7 @@ return x_21;
 default: 
 {
 lean_object* x_22; 
+lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_2);
 x_22 = lean_box(1);
@@ -18970,6 +18979,7 @@ else
 {
 lean_object* x_7; 
 lean_dec(x_2);
+lean_dec(x_1);
 x_7 = lean_box(2);
 return x_7;
 }
@@ -24947,7 +24957,7 @@ lean_dec(x_73);
 lean_inc(x_12);
 x_124 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_124, 0, x_12);
-x_125 = lean_alloc_closure((void*)(l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__14___boxed), 2, 1);
+x_125 = lean_alloc_closure((void*)(l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__14), 2, 1);
 lean_closure_set(x_125, 0, x_12);
 x_126 = lean_alloc_closure((void*)(l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__22), 10, 1);
 lean_closure_set(x_126, 0, x_120);
@@ -25599,7 +25609,7 @@ lean_dec(x_242);
 lean_inc(x_190);
 x_293 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_293, 0, x_190);
-x_294 = lean_alloc_closure((void*)(l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__14___boxed), 2, 1);
+x_294 = lean_alloc_closure((void*)(l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__14), 2, 1);
 lean_closure_set(x_294, 0, x_190);
 x_295 = lean_alloc_closure((void*)(l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__22), 10, 1);
 lean_closure_set(x_295, 0, x_289);
@@ -26171,7 +26181,6 @@ uint8_t x_6; lean_object* x_7;
 x_6 = lean_unbox(x_3);
 lean_dec(x_3);
 x_7 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__9(x_1, x_2, x_6, x_4, x_5);
-lean_dec(x_5);
 lean_dec(x_1);
 return x_7;
 }
@@ -26205,15 +26214,6 @@ lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_7;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__14___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__14(x_1, x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__15___boxed(lean_object** _args) {

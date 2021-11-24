@@ -62,10 +62,13 @@ structure RequestContext where
 
 abbrev RequestTask α := Task (Except RequestError α)
 /-- Workers execute request handlers in this monad. -/
-abbrev RequestM := ReaderT RequestContext <| ExceptT RequestError IO
+abbrev RequestM := ReaderT RequestContext <| EIO RequestError
 
 instance : Inhabited (RequestM α) :=
-  ⟨throwThe IO.Error "executing Inhabited instance?!"⟩
+  ⟨throw ("executing Inhabited instance?!" : RequestError)⟩
+
+instance : MonadLift IO RequestM where
+  monadLift x := x.toEIO fun e => (e : RequestError)
 
 namespace RequestM
 open FileWorker
@@ -75,25 +78,15 @@ def readDoc : RequestM EditableDocument := fun rc =>
   rc.doc
 
 def asTask (t : RequestM α) : RequestM (RequestTask α) := fun rc => do
-  let t ← IO.asTask <| t rc
-  return t.map fun
-    | Except.error e => throwThe RequestError e
-    | Except.ok v    => v
+  let t ← EIO.asTask <| t rc
+  return t.map liftExcept
 
 def mapTask (t : Task α) (f : α → RequestM β) : RequestM (RequestTask β) := fun rc => do
-  let t ← (IO.mapTask · t) fun a => f a rc
-  return t.map fun
-    | Except.error e => throwThe RequestError e
-    | Except.ok v    => v
+  let t ← EIO.mapTask (f · rc) t
+  return t.map liftExcept
 
 def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := fun rc => do
-  let t ← IO.bindTask t fun a => do
-    match (← f a rc) with
-    | Except.error e => return Task.pure <| Except.ok <| Except.error e
-    | Except.ok t    => return t.map Except.ok
-  return t.map fun
-    | Except.error e => throwThe RequestError e
-    | Except.ok v    => v
+  EIO.bindTask t (f · rc)
 
 /-- Create a task which waits for the first snapshot matching `p`, handles various errors,
 and if a matching snapshot was found executes `x` with it. If not found, the task executes
@@ -110,7 +103,7 @@ def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
     | Except.error FileWorker.ElabTaskError.aborted =>
       throwThe RequestError RequestError.fileChanged
     | Except.error (FileWorker.ElabTaskError.ioError e) =>
-      throwThe IO.Error e
+      throw (e : RequestError)
     | Except.error FileWorker.ElabTaskError.eof => notFoundX
     | Except.ok none => notFoundX
     | Except.ok (some snap) => x snap
@@ -151,7 +144,7 @@ def registerLspRequestHandler (method : String)
   let fileSource := fun j =>
     parseRequestParams paramType j |>.map Lsp.fileSource
   let handle := fun j => do
-    let params ← parseRequestParams paramType j
+    let params ← liftExcept <| parseRequestParams paramType j
     let t ← handler params
     t.map <| Except.map ToJson.toJson
 
@@ -167,7 +160,7 @@ def routeLspRequest (method : String) (params : Json) : IO (Except RequestError 
 
 def handleLspRequest (method : String) (params : Json) : RequestM (RequestTask Json) := do
   match (← lookupLspRequestHandler method) with
-  | none => throwThe IO.Error <| IO.userError s!"internal server error: request '{method}' routed through watchdog but unknown in worker; are both using the same plugins?"
+  | none => throw (s!"internal server error: request '{method}' routed through watchdog but unknown in worker; are both using the same plugins?" : RequestError)
   | some rh => rh.handle params
 
 end HandlerTable

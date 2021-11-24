@@ -52,3 +52,7 @@ example : Nat :=
     --^ textDocument/definition
 where
   b := 2
+
+macro_rules | `(test) => `(3)
+#check test
+     --^ textDocument/definition

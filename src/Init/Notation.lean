@@ -201,6 +201,11 @@ macro_rules
 
 notation:50 e:51 " matches " p:51 => match e with | p => true | _ => false
 
+-- Declare `this` as a keyword that unhygienically binds to a scope-less `this` assumption (or other binding).
+-- The keyword prevents declaring a `this` binding except through metapgrogramming, as is done by `have`/`show`.
+/-- Special identifier introduced by "anonymous" `have : ...`, `suffices p ...` etc. -/
+macro tk:"this" : term => Syntax.ident tk.getHeadInfo "this".toSubstring `this []
+
 namespace Parser.Tactic
 /--
 Introduce one or more hypotheses, optionally naming and/or pattern-matching them.

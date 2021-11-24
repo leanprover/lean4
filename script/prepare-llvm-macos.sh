@@ -16,6 +16,8 @@ CP="gcp -d"  # preserve symlinks
 gcp -L llvm/bin/clang stage1/bin/
 # a linker!
 gcp -L llvm/bin/ld64.lld stage1/bin/
+# a static archiver!
+gcp -L llvm/bin/llvm-ar stage1/bin/
 # dependencies of the above
 $CP llvm/lib/lib{clang-cpp,LLVM}.dylib stage1/lib/
 #find stage1 -type f -exec strip --strip-unneeded '{}' \; 2> /dev/null

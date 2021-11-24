@@ -210,7 +210,7 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
       if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
         let trailSize := i.stx.getTrailingSize
         -- show info at EOF even if strictly outside token + trail
-        let atEOF := tailPos == text.source.bsize
+        let atEOF := tailPos + trailSize == text.source.bsize
         guard <| pos ≤ hoverPos ∧ (hoverPos < tailPos + trailSize || atEOF)
         return { ctxInfo := ctx, tacticInfo := ti, useAfter :=
           hoverPos > pos && (hoverPos >= tailPos || !cs.any (hasNestedTactic pos tailPos)) }

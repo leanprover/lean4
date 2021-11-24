@@ -15,7 +15,7 @@ open Lean.Parser.Command
   Remark: `k` is the user provided kind with the current namespace included.
   Recall that syntax node kinds contain the current namespace.
 -/
-def elabMacroRulesAux (doc? : Option Syntax) (attrKind : Syntax) (k : SyntaxNodeKind) (alts : Array Syntax) : CommandElabM Syntax := do
+def elabMacroRulesAux (doc? : Option Syntax) (attrKind tk : Syntax) (k : SyntaxNodeKind) (alts : Array Syntax) : CommandElabM Syntax := do
   let alts ← alts.mapM fun alt => match alt with
     | `(matchAltExpr| | $pats,* => $rhs) => do
       let pat := pats.elemsAndSeps[0]
@@ -36,19 +36,19 @@ def elabMacroRulesAux (doc? : Option Syntax) (attrKind : Syntax) (k : SyntaxNode
         throwErrorAt alt "invalid macro_rules alternative, unexpected syntax node kind '{k'}'"
     | _ => throwUnsupportedSyntax
   `($[$doc?:docComment]? @[$attrKind:attrKind macro $(Lean.mkIdent k)]
-    aux_def macroRules $(mkIdent k) : Macro :=
+    aux_def macroRules $(mkIdentFrom tk k) : Macro :=
      fun $alts:matchAlt* | _ => throw Lean.Macro.Exception.unsupportedSyntax)
 
 @[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
   adaptExpander fun stx => match stx with
-  | `($[$doc?:docComment]? $attrKind:attrKind macro_rules $alts:matchAlt*) =>
+  | `($[$doc?:docComment]? $attrKind:attrKind macro_rules%$tk $alts:matchAlt*) =>
     expandNoKindMacroRulesAux alts "macro_rules" fun kind? alts =>
-      `($[$doc?:docComment]? $attrKind:attrKind macro_rules $[(kind := $(mkIdent <$> kind?))]? $alts:matchAlt*)
-  | `($[$doc?:docComment]? $attrKind:attrKind macro_rules (kind := $kind) | $x:ident => $rhs) =>
+      `($[$doc?:docComment]? $attrKind:attrKind macro_rules%$tk $[(kind := $(mkIdent <$> kind?))]? $alts:matchAlt*)
+  | `($[$doc?:docComment]? $attrKind:attrKind macro_rules%$tk (kind := $kind) | $x:ident => $rhs) =>
     `($[$doc?:docComment]? @[$attrKind:attrKind macro $kind]
-      aux_def macroRules $kind : Macro := fun $x:ident => $rhs)
-  | `($[$doc?:docComment]? $attrKind:attrKind macro_rules (kind := $kind) $alts:matchAlt*) =>
-    do elabMacroRulesAux doc? attrKind (← resolveSyntaxKind kind.getId) alts
+      aux_def $(mkIdentFrom tk kind.getId) $kind : Macro := fun $x:ident => $rhs)
+  | `($[$doc?:docComment]? $attrKind:attrKind macro_rules%$tk (kind := $kind) $alts:matchAlt*) =>
+    do elabMacroRulesAux doc? attrKind tk (← resolveSyntaxKind kind.getId) alts
   | _  => throwUnsupportedSyntax
 
 end Lean.Elab.Command

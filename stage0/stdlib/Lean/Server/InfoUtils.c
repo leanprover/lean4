@@ -6409,7 +6409,7 @@ return x_11;
 }
 else
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; uint8_t x_36; 
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; uint8_t x_36; uint8_t x_37; 
 x_12 = lean_ctor_get(x_10, 0);
 lean_inc(x_12);
 if (lean_is_exclusive(x_10)) {
@@ -6422,33 +6422,33 @@ if (lean_is_exclusive(x_10)) {
 x_31 = l_Lean_Elab_Info_stx(x_4);
 x_32 = l_Lean_Syntax_getTrailingSize(x_31);
 lean_dec(x_31);
-x_33 = lean_ctor_get(x_2, 0);
-x_34 = lean_string_utf8_byte_size(x_33);
-x_35 = lean_nat_dec_eq(x_12, x_34);
-lean_dec(x_34);
-x_36 = lean_nat_dec_le(x_9, x_1);
-if (x_36 == 0)
-{
-lean_object* x_37; 
+x_33 = lean_nat_add(x_12, x_32);
 lean_dec(x_32);
+x_34 = lean_ctor_get(x_2, 0);
+x_35 = lean_string_utf8_byte_size(x_34);
+x_36 = lean_nat_dec_eq(x_33, x_35);
+lean_dec(x_35);
+x_37 = lean_nat_dec_le(x_9, x_1);
+if (x_37 == 0)
+{
+lean_object* x_38; 
+lean_dec(x_33);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_9);
 lean_dec(x_5);
 lean_dec(x_3);
-x_37 = lean_box(0);
-return x_37;
+x_38 = lean_box(0);
+return x_38;
 }
 else
 {
-lean_object* x_38; uint8_t x_39; 
-x_38 = lean_nat_add(x_12, x_32);
-lean_dec(x_32);
-x_39 = lean_nat_dec_lt(x_1, x_38);
-lean_dec(x_38);
+uint8_t x_39; 
+x_39 = lean_nat_dec_lt(x_1, x_33);
+lean_dec(x_33);
 if (x_39 == 0)
 {
-if (x_35 == 0)
+if (x_36 == 0)
 {
 lean_object* x_40; 
 lean_dec(x_13);

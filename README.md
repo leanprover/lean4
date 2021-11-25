@@ -71,8 +71,8 @@ For example, one can depend on the Lean 4 port of [mathlib](https://github.com/l
 
 ```lean
 package hello {
-  dependencies = #[{
-    name := `mathlib4
+  dependencies := #[{
+    name := `mathlib
     src := Source.git "https://github.com/leanprover-community/mathlib4.git" "master"
   }]
 }

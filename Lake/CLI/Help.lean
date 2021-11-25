@@ -62,11 +62,11 @@ errors and prints the list of available scripts.
 
 You can pass -h/--help after the script name to print its docstring."
 
-def helpServer :=
+def helpServe :=
 "Start the Lean language server
 
 USAGE:
-  lake server [-- <args>...]
+  lake serve [-- <args>...]
 
 Run the language server of the Lean installation (i.e., via `lean --server`)
 with the package configuration's `moreServerArgs` field and `args`.
@@ -131,7 +131,7 @@ def helpCmd : (cmd : String) → String
 | "new"       => helpNew
 | "init"      => helpInit
 | "run"       => helpRun
-| "server"    => helpServer
+| "serve"     => helpServe
 | "configure" => helpConfigure
 | "build"     => helpBuild
 | "clean"     => helpClean

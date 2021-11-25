@@ -232,7 +232,7 @@ def printPaths (imports : List String := []) : CliM PUnit := do
   else
     exit noConfigFileCode
 
-def server (leanInstall : LeanInstall) (pkg : Package) (args : List String) : CliM PUnit := do
+def serve (leanInstall : LeanInstall) (pkg : Package) (args : List String) : CliM PUnit := do
   let child ← IO.Process.spawn {
     cmd := leanInstall.lean.toString,
     args := #["--server"] ++ pkg.moreServerArgs ++ args
@@ -246,7 +246,7 @@ def command : (cmd : String) → CliM PUnit
 | "new"         => do noArgsRem <| new (← takeArg)
 | "init"        => do noArgsRem <| init (← takeArg)
 | "run"         => do noArgsRem <| script (← loadPkg []) (← takeArg) (← getSubArgs)
-| "server"      => do noArgsRem <| server (← getLeanInstall) (← loadPkg []) (← getSubArgs)
+| "serve"       => do noArgsRem <| serve (← getLeanInstall) (← loadPkg []) (← getSubArgs)
 | "configure"   => do noArgsRem <| configure (← loadPkg (← getSubArgs))
 | "print-paths" => do printPaths (← takeArgs)
 | "build"       => do runBuildM (← loadPkg (← getSubArgs)) <| build (← takeArgs)

@@ -4,40 +4,21 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lean.Util.Paths
-import Lake.Util.Error
 import Lake.Config.Load
 import Lake.Config.SearchPath
 import Lake.Config.InstallPath
+import Lake.Config.Util
+import Lake.Util.Error
 import Lake.Util.MainM
 import Lake.Util.CliT
 import Lake.CLI.Init
 import Lake.CLI.Help
-import Lake.Build
+import Lake.CLI.Build
 
 open System
 open Lean (Name LeanPaths Json toJson)
 
 namespace Lake
-
--- # Utilities
-
-def Package.run (script : String) (args : List String) (self : Package) : IO UInt32 :=
-  if let some script := self.scripts.find? script then
-    script.run args
-  else do
-    throw <| IO.userError s!"unknown script {script}"
-
-def Package.clean (self : Package) : IO PUnit := do
-  if (← self.buildDir.pathExists) then
-    IO.FS.removeDirAll self.buildDir
-
-open PackageFacet in
-def Package.defaultTarget (self : Package) : OpaqueTarget :=
-  match self.defaultFacet with
-  | bin => self.binTarget.withoutInfo
-  | staticLib => self.staticLibTarget.withoutInfo
-  | sharedLib => self.sharedLibTarget.withoutInfo
-  | oleans =>  self.oleanTarget.withoutInfo
 
 -- # CLI
 
@@ -250,72 +231,6 @@ def printPaths (imports : List String := []) : CliM PUnit := do
     }
   else
     exit noConfigFileCode
-
-def resolvePkgSpec (rootPkg : Package) (spec : String) : IO Package := do
-  if spec.isEmpty then
-    return rootPkg
-  let pkgName := spec.toName
-  if pkgName == rootPkg.name then
-    return rootPkg
-  if let some dep := rootPkg.dependencies.find? (·.name == pkgName) then
-    LogMethodsT.run LogMethods.io <| resolveDep rootPkg dep
-  else
-    error s!"unknown package `{spec}`"
-
-def parseTargetBaseSpec (rootPkg : Package) (spec : String) : IO (Package × Option Name) := do
-  match spec.splitOn "/" with
-  | [pkgStr] =>
-    return (← resolvePkgSpec rootPkg pkgStr, none)
-  | [pkgStr, modStr] =>
-    let mod := modStr.toName
-    let pkg ← resolvePkgSpec rootPkg pkgStr
-    if pkg.hasModule mod then
-      return (pkg, mod)
-    else
-      error s!"package '{pkgStr}' has no module '{modStr}'"
-  | _ =>
-    error s!"invalid target spec '{spec}' (too many '/')"
-
-def parseTargetSpec (rootPkg : Package) (spec : String) : IO (Package × OpaqueTarget) := do
-  match spec.splitOn ":" with
-  | [rootSpec] =>
-    let (pkg, mod?) ← parseTargetBaseSpec rootPkg rootSpec
-    if let some mod := mod? then
-      return (pkg, pkg.moduleOleanTarget mod |>.withoutInfo)
-    else
-      return (pkg, pkg.defaultTarget)
-  | [rootSpec, facet] =>
-    let (pkg, mod?) ← parseTargetBaseSpec rootPkg rootSpec
-    if let some mod := mod? then
-      if facet == "olean" then
-        return (pkg, pkg.moduleOleanTarget mod |>.withoutInfo)
-      else if facet == "c" then
-        return (pkg, pkg.moduleOleanAndCTarget mod |>.withoutInfo)
-      else if facet == "o" then
-        return (pkg, pkg.moduleOTarget mod |>.withoutInfo)
-      else
-        error s!"unknown module facet '{facet}'"
-    else
-      if facet == "bin" then
-        return (pkg, pkg.binTarget.withoutInfo)
-      else if facet == "staticLib" then
-        return (pkg, pkg.staticLibTarget.withoutInfo)
-      else if facet == "sharedLib" then
-        return (pkg, pkg.sharedLibTarget.withoutInfo)
-      else if facet == "oleans" then
-        return (pkg, pkg.oleanTarget.withoutInfo)
-      else
-        error s!"unknown package facet '{facet}'"
-  | _ =>
-    error s!"invalid target spec '{spec}' (too many ':')"
-
-def build (targetSpecs : List String) : BuildM PUnit := do
-  let pkg ← getPackage
-  let targets ← liftM <| targetSpecs.mapM (parseTargetSpec pkg)
-  if targets.isEmpty then
-    pkg.defaultTarget.build
-  else
-    targets.forM fun (pkg, t) => adaptPackage pkg <| t.build
 
 def server (leanInstall : LeanInstall) (pkg : Package) (args : List String) : CliM PUnit := do
   let child ← IO.Process.spawn {

@@ -3,6 +3,8 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Util.Error
+
 namespace Lake
 
 -- # Typeclass
@@ -18,6 +20,10 @@ instance [MonadLift m n] [MonadLog m] : MonadLog n where
   logInfo msg := liftM (m := m) <| logInfo msg
   logWarning msg := liftM (m := m) <| logWarning msg
   logError msg := liftM (m := m) <| logError msg
+
+/-- Log the given error message and then fail. -/
+protected def MonadLog.error [Alternative m] [MonadLog m] (msg : String) : m α :=
+  logError msg *> failure
 
 -- # Context
 

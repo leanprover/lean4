@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Util.Async
+import Lake.Util.OptionIO
 
 namespace Lake
 
@@ -15,6 +16,7 @@ instance : Monad Task where
   bind := Task.bind
 
 abbrev ETask ε := ExceptT ε Task
+abbrev OptionTask := OptionT Task
 
 -- # EIO Tasks
 
@@ -54,3 +56,46 @@ def seqRightAsync (self : EIOTask ε α) (act : EIO ε β) (prio := Task.Priorit
 instance : SeqRightAsync (EIO ε) (EIOTask ε) := ⟨seqRightAsync⟩
 
 end EIOTask
+
+-- # OptionIO Tasks
+
+def OptionIOTask ε := OptionTask ε
+instance : Monad OptionIOTask := inferInstanceAs <| Monad OptionTask
+
+def liftOption [Alternative m] : Option α → m α
+| some a => pure a
+| none => failure
+
+namespace OptionIOTask
+
+def spawn (act : OptionIO α) (prio := Task.Priority.dedicated) : OptionIO (OptionIOTask α) :=
+  act.toBaseIO.asTask prio
+
+instance : Async OptionIO OptionIOTask := ⟨spawn⟩
+
+def await (self : OptionIOTask α) : OptionIO α := do
+  liftOption (← IO.wait self)
+
+instance : Await OptionIOTask OptionIO := ⟨await⟩
+
+def mapAsync (f : α → OptionIO β) (self : OptionIOTask α) (prio := Task.Priority.dedicated) : OptionIO (OptionIOTask β) :=
+  BaseIO.mapTask (fun x => match x with | some a => f a |>.toBaseIO | none => pure none) self prio
+
+instance : MapAsync OptionIO OptionIOTask := ⟨mapAsync⟩
+
+def bindAsync (self : OptionIOTask α) (f : α → OptionIO (OptionIOTask β)) (prio := Task.Priority.dedicated) : OptionIO (OptionIOTask β) :=
+  BaseIO.bindTask self (fun x => match x with | some a => f a |>.catchFailure (fun _ => pure <| Task.pure none) | none => pure none) prio
+
+instance : BindAsync OptionIO OptionIOTask := ⟨bindAsync⟩
+
+def seqLeftAsync (self : OptionIOTask α) (act : OptionIO β) (prio := Task.Priority.dedicated) : OptionIO (OptionIOTask α) :=
+  self.mapAsync (fun a => do discard act; pure a) prio
+
+instance : SeqLeftAsync OptionIO OptionIOTask := ⟨seqLeftAsync⟩
+
+def seqRightAsync (self : OptionIOTask α) (act : OptionIO β) (prio := Task.Priority.dedicated) : OptionIO (OptionIOTask β) :=
+  self.mapAsync (fun _ => act) prio
+
+instance : SeqRightAsync OptionIO OptionIOTask := ⟨seqRightAsync⟩
+
+end OptionIOTask

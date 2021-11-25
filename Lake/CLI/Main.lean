@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lean.Util.Paths
+import Lake.Util.Error
 import Lake.Config.Load
 import Lake.Config.SearchPath
 import Lake.Config.InstallPath
@@ -56,20 +57,12 @@ open CliT
 -- ## Basic Actions
 
 /-- Print out a line wih the given message and then exit with an error code. -/
-def error (msg : String) (rc : UInt32 := 1) : CliM α := do
+protected def error (msg : String) (rc : UInt32 := 1) : CliM α := do
   IO.eprintln s!"error: {msg}" |>.catchExceptions fun _ => ()
   exit rc
 
-/--
-  Perform an IO action.
-  If it throws an error, invoke `error` with the its message.
--/
-def runIO (x : IO α) : CliM α := do
-  match (← x.toBaseIO) with
-  | Except.ok a => pure a
-  | Except.error e => error (toString e)
-
-instance : MonadLift IO CliM := ⟨runIO⟩
+instance : MonadError CliM := ⟨Cli.error⟩
+instance : MonadLift IO CliM := ⟨MonadError.runIO⟩
 
 -- ## State Management
 
@@ -258,18 +251,18 @@ def printPaths (imports : List String := []) : CliM PUnit := do
   else
     exit noConfigFileCode
 
-def resolvePkgSpec (rootPkg : Package) (spec : String) : CliM Package := do
+def resolvePkgSpec (rootPkg : Package) (spec : String) : IO Package := do
   if spec.isEmpty then
     return rootPkg
   let pkgName := spec.toName
   if pkgName == rootPkg.name then
     return rootPkg
   if let some dep := rootPkg.dependencies.find? (·.name == pkgName) then
-    runIO <| LogMethodsT.run LogMethods.io <| resolveDep rootPkg dep
+    LogMethodsT.run LogMethods.io <| resolveDep rootPkg dep
   else
     error s!"unknown package `{spec}`"
 
-def parseTargetBaseSpec (rootPkg : Package) (spec : String) : CliM (Package × Option Name) := do
+def parseTargetBaseSpec (rootPkg : Package) (spec : String) : IO (Package × Option Name) := do
   match spec.splitOn "/" with
   | [pkgStr] =>
     return (← resolvePkgSpec rootPkg pkgStr, none)
@@ -283,7 +276,7 @@ def parseTargetBaseSpec (rootPkg : Package) (spec : String) : CliM (Package × O
   | _ =>
     error s!"invalid target spec '{spec}' (too many '/')"
 
-partial def parseTargetSpec (rootPkg : Package) (spec : String) : CliM (Package × OpaqueTarget) := do
+def parseTargetSpec (rootPkg : Package) (spec : String) : IO (Package × OpaqueTarget) := do
   match spec.splitOn ":" with
   | [rootSpec] =>
     let (pkg, mod?) ← parseTargetBaseSpec rootPkg rootSpec
@@ -316,12 +309,13 @@ partial def parseTargetSpec (rootPkg : Package) (spec : String) : CliM (Package 
   | _ =>
     error s!"invalid target spec '{spec}' (too many ':')"
 
-def build (rootPkg : Package) (targetSpecs : List String) : CliM PUnit := do
-  let targets ← targetSpecs.mapM (parseTargetSpec rootPkg)
+def build (targetSpecs : List String) : BuildM PUnit := do
+  let pkg ← getPackage
+  let targets ← liftM <| targetSpecs.mapM (parseTargetSpec pkg)
   if targets.isEmpty then
-    runBuildM rootPkg rootPkg.defaultTarget.build
+    pkg.defaultTarget.build
   else
-    runBuildM rootPkg <| targets.forM fun (pkg, t) => adaptPackage pkg <| t.build
+    targets.forM fun (pkg, t) => adaptPackage pkg <| t.build
 
 def server (leanInstall : LeanInstall) (pkg : Package) (args : List String) : CliM PUnit := do
   let child ← IO.Process.spawn {
@@ -340,7 +334,7 @@ def command : (cmd : String) → CliM PUnit
 | "server"      => do noArgsRem <| server (← getLeanInstall) (← loadPkg []) (← getSubArgs)
 | "configure"   => do noArgsRem <| configure (← loadPkg (← getSubArgs))
 | "print-paths" => do printPaths (← takeArgs)
-| "build"       => do build (← loadPkg (← getSubArgs)) (← takeArgs)
+| "build"       => do runBuildM (← loadPkg (← getSubArgs)) <| build (← takeArgs)
 | "clean"       => do noArgsRem <| (← loadPkg (← getSubArgs)).clean
 | "help"        => do IO.println <| help (← takeArg?)
 | "self-check"  => noArgsRem <| verifyInstall

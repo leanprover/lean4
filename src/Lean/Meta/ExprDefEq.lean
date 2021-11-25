@@ -26,7 +26,7 @@ private def isDefEqEtaStruct (a b : Expr) : MetaM Bool :=
       return false
     else
       let inductVal ← getConstInfoInduct ctorVal.induct
-      if inductVal.nctors != 1 || inductVal.numIndices != 0 || inductVal.isRec then
+      if inductVal.numCtors != 1 || inductVal.numIndices != 0 || inductVal.isRec then
         trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
         return false
       else if (← isDefEq (← inferType a) (← inferType b)) then

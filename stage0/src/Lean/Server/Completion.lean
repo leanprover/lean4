@@ -74,7 +74,7 @@ structure State where
 abbrev M := OptionT $ StateRefT State MetaM
 
 private def addCompletionItem (label : Name) (type : Expr) (expectedType? : Option Expr) (declName? : Option Name) : M Unit := do
-  let docString? := if let some declName := declName? then findDocString? (← getEnv) declName else none
+  let docString? ← if let some declName := declName? then findDocString? (← getEnv) declName else none
   let item ← mkCompletionItem label type docString?
   if (← isTypeApplicable  type expectedType?) then
     modify fun s => { s with itemsMain := s.itemsMain.push item }

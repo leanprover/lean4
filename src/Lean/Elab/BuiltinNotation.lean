@@ -144,7 +144,7 @@ then aborted. -/
 
 /--
 `dbg_trace e; body` evaluates to `body` and prints `e` (which can be an
-interpolated string litera) to stderr. It should only be used for debugging. -/
+interpolated string literal) to stderr. It should only be used for debugging. -/
 @[builtinMacro Lean.Parser.Term.dbgTrace]  def expandDbgTrace : Macro := fun stx =>
   let arg  := stx[1]
   let body := stx[3]

@@ -8,8 +8,11 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
 namespace lean {
-/**\ brief Return recursor name for the given inductive datatype name */
+/** \brief Return recursor name for the given inductive datatype name */
 name mk_rec_name(name const & I);
+
+/** \brief Return true if the given declaration is a structure */
+bool is_structure_like(environment const & env, name const & decl_name);
 
 /* Auxiliary function for to_cnstr_when_K */
 optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, unsigned num_params);

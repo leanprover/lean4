@@ -23,6 +23,14 @@ name mk_rec_name(name const & I) {
     return I + name("rec");
 }
 
+/** \brief Return true if the given declaration is a structure */
+bool is_structure_like(environment const & env, name const & decl_name) {
+    constant_info I = env.get(decl_name);
+    if (!I.is_inductive()) return false;
+    inductive_val I_val = I.to_inductive_val();
+    return I_val.get_ncnstrs() == 1 && I_val.get_nindices() == 0 && !I_val.is_rec();
+}
+
 /** Return the names of all inductive datatypes */
 static names get_all_inductive_names(buffer<inductive_type> const & ind_types) {
     buffer<name> all_names;

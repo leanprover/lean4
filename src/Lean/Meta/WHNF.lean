@@ -103,6 +103,8 @@ private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
       return major
 
 private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr := do
+  unless (← getConfig).etaStruct do
+    return major
   let env ← getEnv
   if !isStructureLike env inductName then
     return major

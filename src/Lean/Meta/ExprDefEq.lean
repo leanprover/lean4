@@ -19,8 +19,9 @@ namespace Lean.Meta
 /--
   Return true `b` is of the form `mk a.1 ... a.n`.
 -/
-private def isDefEqEtaStruct (a b : Expr) : MetaM Bool :=
-  matchConstCtor b.getAppFn (fun _ => return false) fun ctorVal _ => do
+private def isDefEqEtaStruct (a b : Expr) : MetaM Bool := do
+  if !(← getConfig).etaStruct then return false
+  else matchConstCtor b.getAppFn (fun _ => return false) fun ctorVal _ => do
     if ctorVal.numParams + ctorVal.numFields != b.getAppNumArgs then
       trace[Meta.isDefEq.eta.struct] "failed, insufficient number of arguments at{indentExpr b}"
       return false

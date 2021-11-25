@@ -1948,7 +1948,7 @@ uint8_t x_1; uint8_t x_2; uint8_t x_3; lean_object* x_4;
 x_1 = 0;
 x_2 = 1;
 x_3 = 1;
-x_4 = lean_alloc_ctor(0, 0, 13);
+x_4 = lean_alloc_ctor(0, 0, 14);
 lean_ctor_set_uint8(x_4, 0, x_1);
 lean_ctor_set_uint8(x_4, 1, x_1);
 lean_ctor_set_uint8(x_4, 2, x_1);
@@ -1962,6 +1962,7 @@ lean_ctor_set_uint8(x_4, 9, x_3);
 lean_ctor_set_uint8(x_4, 10, x_1);
 lean_ctor_set_uint8(x_4, 11, x_3);
 lean_ctor_set_uint8(x_4, 12, x_3);
+lean_ctor_set_uint8(x_4, 13, x_3);
 return x_4;
 }
 }

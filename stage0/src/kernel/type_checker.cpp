@@ -757,14 +757,12 @@ bool type_checker::try_eta_struct_core(expr const & t, expr const & s) {
     if (!f_info.is_constructor()) return false;
     constructor_val f_val = f_info.to_constructor_val();
     if (get_app_num_args(s) != f_val.get_nparams() + f_val.get_nfields()) return false;
-    constant_info I = env().get(f_val.get_induct());
-    inductive_val I_val = I.to_inductive_val();
-    if (I_val.get_ncnstrs() != 1 || I_val.get_nindices() != 0 || I_val.is_rec()) return false;
+    if (!is_structure_like(env(), f_val.get_induct())) return false;
     if (!is_def_eq(infer_type(t), infer_type(s))) return false;
     buffer<expr> s_args;
     get_app_args(s, s_args);
     for (unsigned i = f_val.get_nparams(); i < s_args.size(); i++) {
-        expr proj = mk_proj(I.get_name(), i - f_val.get_nparams(), t);
+        expr proj = mk_proj(f_val.get_induct(), i - f_val.get_nparams(), t);
         if (!is_def_eq(proj, s_args[i])) return false;
     }
     return true;

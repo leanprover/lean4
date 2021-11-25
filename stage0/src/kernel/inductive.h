@@ -8,8 +8,19 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
 namespace lean {
-/**\ brief Return recursor name for the given inductive datatype name */
+/** \brief Return recursor name for the given inductive datatype name */
 name mk_rec_name(name const & I);
+
+bool is_inductive(environment const & env, name const & n);
+bool is_constructor(environment const & env, name const & n);
+bool is_recursor(environment const & env, name const & n);
+
+/** \brief If \c e is a constructor application, then return the name of the constructor.
+    Otherwise, return none. */
+optional<name> is_constructor_app(environment const & env, expr const & e);
+
+/** \brief Return true if the given declaration is a structure */
+bool is_structure_like(environment const & env, name const & decl_name);
 
 /* Auxiliary function for to_cnstr_when_K */
 optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, unsigned num_params);
@@ -17,31 +28,47 @@ optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, unsi
 /* For datatypes that support K-axiom, given `e` an element of that type, we convert (if possible)
    to the default constructor. For example, if `e : a = a`, then this method returns `eq.refl a` */
 template<typename WHNF, typename INFER, typename IS_DEF_EQ>
-inline optional<expr> to_cnstr_when_K(environment const & env, recursor_val const & rval, expr const & e,
-                                      WHNF const & whnf, INFER const & infer_type, IS_DEF_EQ const & is_def_eq) {
+inline expr to_cnstr_when_K(environment const & env, recursor_val const & rval, expr const & e,
+                            WHNF const & whnf, INFER const & infer_type, IS_DEF_EQ const & is_def_eq) {
     lean_assert(rval.is_k());
     expr app_type    = whnf(infer_type(e));
     expr const & app_type_I = get_app_fn(app_type);
-    if (!is_constant(app_type_I) || const_name(app_type_I) != rval.get_induct()) return none_expr(); // type incorrect
+    if (!is_constant(app_type_I) || const_name(app_type_I) != rval.get_induct()) return e; // type incorrect
     if (has_expr_mvar(app_type)) {
         buffer<expr> app_type_args;
         get_app_args(app_type, app_type_args);
         for (unsigned i = rval.get_nparams(); i < app_type_args.size(); i++) {
             if (has_expr_metavar(app_type_args[i]))
-                return none_expr();
+                return e;
         }
     }
     optional<expr> new_cnstr_app = mk_nullary_cnstr(env, app_type, rval.get_nparams());
-    if (!new_cnstr_app) return none_expr();
+    if (!new_cnstr_app) return e;
     expr new_type    = infer_type(*new_cnstr_app);
-    if (!is_def_eq(app_type, new_type)) return none_expr();
-    return some_expr(*new_cnstr_app);
+    if (!is_def_eq(app_type, new_type)) return e;
+    return *new_cnstr_app;
 }
 
 optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr const & major);
 
 expr nat_lit_to_constructor(expr const & e);
 expr string_lit_to_constructor(expr const & e);
+
+/* Auxiliary method for \c to_cnstr_when_structure, convert `e` into `mk e.1 ... e.n` */
+expr expand_eta_struct(environment const & env, expr const & e_type, expr const & e);
+
+/* For datatypes that support K-axiom, given `e` an element of that type, we convert (if possible)
+   to the default constructor. For example, if `e : a = a`, then this method returns `eq.refl a` */
+template<typename WHNF, typename INFER>
+inline expr to_cnstr_when_structure(environment const & env, name const & induct_name, expr const & e,
+                                    WHNF const & whnf, INFER const & infer_type) {
+    if (!is_structure_like(env, induct_name) || is_constructor_app(env, e))
+        return e;
+    expr e_type = whnf(infer_type(e));
+    if (!is_constant(get_app_fn(e_type), induct_name))
+        return e;
+    return expand_eta_struct(env, e_type, e);
+}
 
 template<typename WHNF, typename INFER, typename IS_DEF_EQ>
 inline optional<expr> inductive_reduce_rec(environment const & env, expr const & e,
@@ -57,15 +84,15 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     if (major_idx >= rec_args.size()) return none_expr(); // major premise is missing
     expr major     = rec_args[major_idx];
     if (rec_val.is_k()) {
-        if (optional<expr> c = to_cnstr_when_K(env, rec_val, major, whnf, infer_type, is_def_eq)) {
-            major = *c;
-        }
+        major = to_cnstr_when_K(env, rec_val, major, whnf, infer_type, is_def_eq);
     }
     major = whnf(major);
     if (is_nat_lit(major))
         major = nat_lit_to_constructor(major);
-    if (is_string_lit(major))
+    else if (is_string_lit(major))
         major = string_lit_to_constructor(major);
+    else
+        major = to_cnstr_when_structure(env, rec_val.get_induct(), major, whnf, infer_type);
     optional<recursor_rule> rule = get_rec_rule_for(rec_val, major);
     if (!rule) return none_expr();
     buffer<expr> major_args;

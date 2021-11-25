@@ -23,6 +23,41 @@ name mk_rec_name(name const & I) {
     return I + name("rec");
 }
 
+/** \brief Return true if the given declaration is a structure */
+bool is_structure_like(environment const & env, name const & decl_name) {
+    constant_info I = env.get(decl_name);
+    if (!I.is_inductive()) return false;
+    inductive_val I_val = I.to_inductive_val();
+    return I_val.get_ncnstrs() == 1 && I_val.get_nindices() == 0 && !I_val.is_rec();
+}
+
+bool is_inductive(environment const & env, name const & n) {
+    if (optional<constant_info> info = env.find(n))
+        return info->is_inductive();
+    return false;
+}
+
+bool is_constructor(environment const & env, name const & n) {
+    if (optional<constant_info> info = env.find(n))
+        return info->is_constructor();
+    return false;
+}
+
+bool is_recursor(environment const & env, name const & n) {
+    if (optional<constant_info> info = env.find(n))
+        return info->is_recursor();
+    return false;
+}
+
+optional<name> is_constructor_app(environment const & env, expr const & e) {
+    expr const & fn = get_app_fn(e);
+    if (is_constant(fn)) {
+        if (is_constructor(env, const_name(fn)))
+            return optional<name>(const_name(fn));
+    }
+    return optional<name>();
+}
+
 /** Return the names of all inductive datatypes */
 static names get_all_inductive_names(buffer<inductive_type> const & ind_types) {
     buffer<name> all_names;
@@ -58,6 +93,21 @@ optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, unsi
     if (!cnstr_name) return none_expr();
     args.shrink(num_params);
     return some(mk_app(mk_constant(*cnstr_name, const_levels(d)), args));
+}
+
+expr expand_eta_struct(environment const & env, expr const & e_type, expr const & e) {
+    buffer<expr> args;
+    expr const & I = get_app_args(e_type, args);
+    if (!is_constant(I)) return e;
+    auto ctor_name = get_first_cnstr(env, const_name(I));
+    if (!ctor_name) return e;
+    constructor_val ctor_val = env.get(*ctor_name).to_constructor_val();
+    args.shrink(ctor_val.get_nparams());
+    expr result = mk_app(mk_constant(*ctor_name, const_levels(I)), args);
+    for (unsigned i = 0; i < ctor_val.get_nfields(); i++) {
+        result = mk_app(result, mk_proj(const_name(I), nat(i), e));
+    }
+    return result;
 }
 
 optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr const & major) {

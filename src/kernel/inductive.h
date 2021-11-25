@@ -17,25 +17,25 @@ optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, unsi
 /* For datatypes that support K-axiom, given `e` an element of that type, we convert (if possible)
    to the default constructor. For example, if `e : a = a`, then this method returns `eq.refl a` */
 template<typename WHNF, typename INFER, typename IS_DEF_EQ>
-inline optional<expr> to_cnstr_when_K(environment const & env, recursor_val const & rval, expr const & e,
-                                      WHNF const & whnf, INFER const & infer_type, IS_DEF_EQ const & is_def_eq) {
+inline expr to_cnstr_when_K(environment const & env, recursor_val const & rval, expr const & e,
+                            WHNF const & whnf, INFER const & infer_type, IS_DEF_EQ const & is_def_eq) {
     lean_assert(rval.is_k());
     expr app_type    = whnf(infer_type(e));
     expr const & app_type_I = get_app_fn(app_type);
-    if (!is_constant(app_type_I) || const_name(app_type_I) != rval.get_induct()) return none_expr(); // type incorrect
+    if (!is_constant(app_type_I) || const_name(app_type_I) != rval.get_induct()) return e; // type incorrect
     if (has_expr_mvar(app_type)) {
         buffer<expr> app_type_args;
         get_app_args(app_type, app_type_args);
         for (unsigned i = rval.get_nparams(); i < app_type_args.size(); i++) {
             if (has_expr_metavar(app_type_args[i]))
-                return none_expr();
+                return e;
         }
     }
     optional<expr> new_cnstr_app = mk_nullary_cnstr(env, app_type, rval.get_nparams());
-    if (!new_cnstr_app) return none_expr();
+    if (!new_cnstr_app) return e;
     expr new_type    = infer_type(*new_cnstr_app);
-    if (!is_def_eq(app_type, new_type)) return none_expr();
-    return some_expr(*new_cnstr_app);
+    if (!is_def_eq(app_type, new_type)) return e;
+    return *new_cnstr_app;
 }
 
 optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr const & major);
@@ -57,9 +57,7 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     if (major_idx >= rec_args.size()) return none_expr(); // major premise is missing
     expr major     = rec_args[major_idx];
     if (rec_val.is_k()) {
-        if (optional<expr> c = to_cnstr_when_K(env, rec_val, major, whnf, infer_type, is_def_eq)) {
-            major = *c;
-        }
+        major = to_cnstr_when_K(env, rec_val, major, whnf, infer_type, is_def_eq);
     }
     major = whnf(major);
     if (is_nat_lit(major))

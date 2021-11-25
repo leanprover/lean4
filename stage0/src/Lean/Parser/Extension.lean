@@ -8,6 +8,8 @@ import Lean.ScopedEnvExtension
 import Lean.Parser.Basic
 import Lean.Parser.StrInterpolation
 import Lean.KeyedDeclsAttribute
+import Lean.DocString
+import Lean.DeclarationRange
 
 /-! Extensible parsing via attributes -/
 
@@ -419,22 +421,15 @@ def runParserCategory (env : Environment) (catName : Name) (input : String) (fil
   else
     Except.error ((s.mkError "end of input").toErrorMsg c)
 
-def declareBuiltinParser (env : Environment) (addFnName : Name) (catName : Name) (declName : Name) (prio : Nat) : IO Environment :=
-  let name := `_regBuiltinParser ++ declName
-  let type := mkApp (mkConst `IO) (mkConst `Unit)
-  let val  := mkAppN (mkConst addFnName) #[toExpr catName, toExpr declName, mkConst declName, mkRawNatLit prio]
-  let decl := Declaration.defnDecl { name := name, levelParams := [], type := type, value := val, hints := ReducibilityHints.opaque,
-                                     safety := DefinitionSafety.safe }
-  match env.addAndCompile {} decl with
-  -- TODO: pretty print error
-  | Except.error _ => throw (IO.userError ("failed to emit registration code for builtin parser '" ++ toString declName ++ "'"))
-  | Except.ok env  => IO.ofExcept (setBuiltinInitAttr env name)
+def declareBuiltinParser (addFnName : Name) (catName : Name) (declName : Name) (prio : Nat) : CoreM Unit :=
+  let val := mkAppN (mkConst addFnName) #[toExpr catName, toExpr declName, mkConst declName, mkRawNatLit prio]
+  declareBuiltin declName val
 
-def declareLeadingBuiltinParser (env : Environment) (catName : Name) (declName : Name) (prio : Nat) : IO Environment := -- TODO: use CoreM?
-  declareBuiltinParser env `Lean.Parser.addBuiltinLeadingParser catName declName prio
+def declareLeadingBuiltinParser (catName : Name) (declName : Name) (prio : Nat) : CoreM Unit :=
+  declareBuiltinParser `Lean.Parser.addBuiltinLeadingParser catName declName prio
 
-def declareTrailingBuiltinParser (env : Environment) (catName : Name) (declName : Name) (prio : Nat) : IO Environment := -- TODO: use CoreM?
-  declareBuiltinParser env `Lean.Parser.addBuiltinTrailingParser catName declName prio
+def declareTrailingBuiltinParser (catName : Name) (declName : Name) (prio : Nat) : CoreM Unit :=
+  declareBuiltinParser `Lean.Parser.addBuiltinTrailingParser catName declName prio
 
 def getParserPriority (args : Syntax) : Except String Nat :=
   match args.getNumArgs with
@@ -451,13 +446,15 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
   let decl ← getConstInfo declName
   let env ← getEnv
   match decl.type with
-  | Expr.const `Lean.Parser.TrailingParser _ _ => do
-    let env ← declareTrailingBuiltinParser env catName declName prio
-    setEnv env
-  | Expr.const `Lean.Parser.Parser _ _ => do
-    let env ← declareLeadingBuiltinParser env catName declName prio
-    setEnv env
+  | Expr.const `Lean.Parser.TrailingParser _ _ =>
+    declareTrailingBuiltinParser catName declName prio
+  | Expr.const `Lean.Parser.Parser _ _ =>
+    declareLeadingBuiltinParser catName declName prio
   | _ => throwError "unexpected parser type at '{declName}' (`Parser` or `TrailingParser` expected)"
+  if let some doc ← findDocString? (← getEnv) declName then
+    declareBuiltin (declName ++ `docString) (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
+  if let some declRanges ← findDeclarationRanges? declName then
+    declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])
   runParserAttributeHooks catName declName (builtin := true)
 
 /-

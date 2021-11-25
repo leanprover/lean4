@@ -84,21 +84,21 @@ private def getRecRuleFor (recVal : RecursorVal) (major : Expr) : Option Recurso
   | Expr.const fn _ _ => recVal.rules.find? fun r => r.ctor == fn
   | _                 => none
 
-private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM (Option Expr) := do
+private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
   let majorType ← inferType major
   let majorType ← instantiateMVars (← whnf majorType)
   let majorTypeI := majorType.getAppFn
   if !majorTypeI.isConstOf recVal.getInduct then
-    return none
+    return major
   else if majorType.hasExprMVar && majorType.getAppArgs[recVal.numParams:].any Expr.hasExprMVar then
-    return none
+    return major
   else do
-    let (some newCtorApp) ← mkNullaryCtor majorType recVal.numParams | pure none
+    let (some newCtorApp) ← mkNullaryCtor majorType recVal.numParams | pure major
     let newType ← inferType newCtorApp
     if (← isDefEq majorType newType) then
       return newCtorApp
     else
-      return none
+      return major
 
 /-- Auxiliary function for reducing recursor applications. -/
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
@@ -107,8 +107,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
     let major := recArgs.get ⟨majorIdx, h⟩
     let mut major ← whnf major
     if recVal.k then
-      let newMajor ← toCtorWhenK recVal major
-      major := newMajor.getD major
+      major ← toCtorWhenK recVal major
     major := toCtorIfLit major
     match getRecRuleFor recVal major with
     | some rule =>

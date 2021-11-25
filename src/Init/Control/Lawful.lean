@@ -245,13 +245,9 @@ theorem ext {x y : StateT σ m α} (h : ∀ s, x.run s = y.run s) : x = y :=
 @[simp] theorem run_bind [Monad m] (x : StateT σ m α) (f : α → StateT σ m β) (s : σ)
     : (x >>= f).run s = x.run s >>= λ p => (f p.1).run p.2 := by
   simp [bind, StateT.bind, run]
-  apply bind_congr
-  intro p; cases p; rfl
 
 @[simp] theorem run_map {α β σ : Type u} [Monad m] [LawfulMonad m] (f : α → β) (x : StateT σ m α) (s : σ) : (f <$> x).run s = (fun (p : α × σ) => (f p.1, p.2)) <$> x.run s := by
   simp [Functor.map, StateT.map, run, map_eq_pure_bind]
-  apply bind_congr
-  intro p; cases p; rfl
 
 @[simp] theorem run_get [Monad m] (s : σ)    : (get : StateT σ m σ).run s = pure (s, s) := rfl
 

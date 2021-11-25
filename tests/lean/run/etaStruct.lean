@@ -56,3 +56,8 @@ def Homeomorph.symm [TopologicalSpace α] [TopologicalSpace β] (f : Homeomorph 
 
 example [TopologicalSpace α] [TopologicalSpace β] (f : Homeomorph α β) :
   f.symm.symm = f := rfl -- fails
+
+def frob : Nat × Nat → Nat × Nat
+  | (x, y) => (x + y, 42)
+
+example (x : Nat × Nat) : (frob x).2 = 42 := rfl

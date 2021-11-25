@@ -95,6 +95,21 @@ optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, unsi
     return some(mk_app(mk_constant(*cnstr_name, const_levels(d)), args));
 }
 
+expr expand_eta_struct(environment const & env, expr const & e_type, expr const & e) {
+    buffer<expr> args;
+    expr const & I = get_app_args(e_type, args);
+    if (!is_constant(I)) return e;
+    auto ctor_name = get_first_cnstr(env, const_name(I));
+    if (!ctor_name) return e;
+    constructor_val ctor_val = env.get(*ctor_name).to_constructor_val();
+    args.shrink(ctor_val.get_nparams());
+    expr result = mk_app(mk_constant(*ctor_name, const_levels(I)), args);
+    for (unsigned i = 0; i < ctor_val.get_nfields(); i++) {
+        result = mk_app(result, mk_proj(const_name(I), nat(i), e));
+    }
+    return result;
+}
+
 optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr const & major) {
     expr const & fn = get_app_fn(major);
     if (!is_constant(fn)) return optional<recursor_rule>();

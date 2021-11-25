@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 import Lean.ToExpr
 import Lean.AuxRecursor
 import Lean.ProjFns
+import Lean.Structure
+import Lean.Util.Recognizers
 import Lean.Meta.Basic
 import Lean.Meta.LevelDefEq
 import Lean.Meta.GetConst
@@ -100,6 +102,28 @@ private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
     else
       return major
 
+private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr := do
+  let env ← getEnv
+  if !isStructureLike env inductName then
+    return major
+  else if let some _ := major.isConstructorApp? env then
+    return major
+  else
+    let majorType ← inferType major
+    let majorType ← instantiateMVars (← whnf majorType)
+    let majorTypeI := majorType.getAppFn
+    if !majorTypeI.isConstOf inductName then
+      return major
+    match majorType.getAppFn with
+    | Expr.const d us _ =>
+      let some ctorName ← getFirstCtor d | pure major
+      let ctorInfo ← getConstInfoCtor ctorName
+      let mut result := mkAppN (mkConst ctorName us) (majorType.getAppArgs.shrink ctorInfo.numParams)
+      for i in [:ctorInfo.numFields] do
+        result := mkApp result (mkProj inductName i major)
+      return result
+    | _ => return major
+
 /-- Auxiliary function for reducing recursor applications. -/
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let majorIdx := recVal.getMajorIdx
@@ -109,6 +133,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
     if recVal.k then
       major ← toCtorWhenK recVal major
     major := toCtorIfLit major
+    major ← toCtorWhenStructure recVal.getInduct major
     match getRecRuleFor recVal major with
     | some rule =>
       let majorArgs := major.getAppArgs

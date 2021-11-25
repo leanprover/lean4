@@ -31,6 +31,33 @@ bool is_structure_like(environment const & env, name const & decl_name) {
     return I_val.get_ncnstrs() == 1 && I_val.get_nindices() == 0 && !I_val.is_rec();
 }
 
+bool is_inductive(environment const & env, name const & n) {
+    if (optional<constant_info> info = env.find(n))
+        return info->is_inductive();
+    return false;
+}
+
+bool is_constructor(environment const & env, name const & n) {
+    if (optional<constant_info> info = env.find(n))
+        return info->is_constructor();
+    return false;
+}
+
+bool is_recursor(environment const & env, name const & n) {
+    if (optional<constant_info> info = env.find(n))
+        return info->is_recursor();
+    return false;
+}
+
+optional<name> is_constructor_app(environment const & env, expr const & e) {
+    expr const & fn = get_app_fn(e);
+    if (is_constant(fn)) {
+        if (is_constructor(env, const_name(fn)))
+            return optional<name>(const_name(fn));
+    }
+    return optional<name>();
+}
+
 /** Return the names of all inductive datatypes */
 static names get_all_inductive_names(buffer<inductive_type> const & ind_types) {
     buffer<name> all_names;

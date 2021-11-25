@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
+#include "kernel/inductive.h"
 #include "kernel/instantiate.h"
 #include "kernel/kernel_exception.h"
 #include "library/util.h"

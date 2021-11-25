@@ -25,15 +25,14 @@ private def isDefEqEtaStruct (a b : Expr) : MetaM Bool :=
       trace[Meta.isDefEq.eta.struct] "failed, insufficient number of arguments at{indentExpr b}"
       return false
     else
-      let inductVal ← getConstInfoInduct ctorVal.induct
-      if inductVal.numCtors != 1 || inductVal.numIndices != 0 || inductVal.isRec then
+      if !isStructureLike (← getEnv) ctorVal.induct then
         trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
         return false
       else if (← isDefEq (← inferType a) (← inferType b)) then
         checkpointDefEq do
           let args := b.getAppArgs
           for i in [ctorVal.numParams : args.size] do
-            let proj := mkProj inductVal.name (i - ctorVal.numParams) a
+            let proj := mkProj ctorVal.induct (i - ctorVal.numParams) a
             trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{i - ctorVal.numParams}], {proj} =?= {args[i]}"
             unless (← isDefEq proj args[i]) do
               trace[Meta.isDefEq.eta.struct] "failed, unexpect arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"

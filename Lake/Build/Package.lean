@@ -202,6 +202,21 @@ def Package.filterLocalImports
   return localImports
 
 /--
+  Build the package's dependencies, returning the list of packages built.
+
+  Builds only module `.olean` files if the default package facet is
+  just `oleans`. Otherwise, builds both `.olean` and `.c` files.
+-/
+def Package.buildDefaultDepTargets
+(self : Package) : BuildM (Array (ActiveBuildTarget Package)) := do
+  if self.defaultFacet == PackageFacet.oleans then
+    let depTargets ← self.buildDepTargets buildOleanTargetWithDepTargets
+    depTargets.map (·.withOnlyPackageInfo)
+  else
+    let depTargets ← self.buildDepTargets buildOleanAndCTargetWithDepTargets
+    depTargets.map (·.withOnlyPackageInfo)
+
+/--
   Build the package's dependencies and a list of imports,
   returning the list of packages built.
 
@@ -211,13 +226,7 @@ def Package.filterLocalImports
 def Package.buildImportsAndDeps
 (imports : List String := []) (self : Package) : BuildM (List Package) := do
   -- resolve and build deps
-  let depTargets ←
-    if self.defaultFacet == PackageFacet.oleans then
-      let depTargets ← self.buildDepTargets buildOleanTargetWithDepTargets
-      depTargets.map (·.withOnlyPackageInfo)
-    else
-      let depTargets ← self.buildDepTargets buildOleanAndCTargetWithDepTargets
-      depTargets.map (·.withOnlyPackageInfo)
+  let depTargets ← self.buildDefaultDepTargets
   let depTarget ← self.buildDepTargetWith depTargets
   let depPkgs := depTargets.map (·.info) |>.foldl (flip List.cons) []
   if imports.isEmpty then

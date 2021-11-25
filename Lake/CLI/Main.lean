@@ -239,20 +239,36 @@ def serve (leanInstall : LeanInstall) (pkg : Package) (args : List String) : Cli
   }
   exit (← child.wait)
 
+def env (pkg : Package) (cmd : String) (args : Array String) : CliM PUnit := do
+  let (leanInstall, lakeInstall) ← getInstall
+  let ctx ← mkBuildContext pkg leanInstall lakeInstall
+  let build : BuildM _ := do
+    let depTargets ← pkg.buildDefaultDepTargets
+    let depTarget ← pkg.buildDepTargetWith depTargets
+    depTargets.map (·.info)
+  let depPkgs ← build.run LogMethods.nop ctx
+  let oleanPath := SearchPath.toString <| pkg.oleanDir :: depPkgs.toList.map (·.oleanDir)
+  let child ← IO.Process.spawn {
+    cmd, args,
+    env := #[("LEAN_PATH", oleanPath)]
+  }
+  exit (← child.wait)
+
 def configure (pkg : Package) : CliM PUnit := do
   runBuildM pkg pkg.buildDepOleans
 
 def command : (cmd : String) → CliM PUnit
-| "new"         => do noArgsRem <| new (← takeArg)
-| "init"        => do noArgsRem <| init (← takeArg)
-| "run"         => do noArgsRem <| script (← loadPkg []) (← takeArg) (← getSubArgs)
-| "serve"       => do noArgsRem <| serve (← getLeanInstall) (← loadPkg []) (← getSubArgs)
-| "configure"   => do noArgsRem <| configure (← loadPkg (← getSubArgs))
-| "print-paths" => do printPaths (← takeArgs)
-| "build"       => do runBuildM (← loadPkg (← getSubArgs)) <| build (← takeArgs)
-| "clean"       => do noArgsRem <| (← loadPkg (← getSubArgs)).clean
+| "new"         => do processOptions; noArgsRem <| new (← takeArg)
+| "init"        => do processOptions; noArgsRem <| init (← takeArg)
+| "run"         => do processOptions; noArgsRem <| script (← loadPkg []) (← takeArg) (← getSubArgs)
+| "env"         => do env (← loadPkg []) (← takeArg) (← takeArgs).toArray
+| "serve"       => do processOptions; noArgsRem <| serve (← getLeanInstall) (← loadPkg []) (← getSubArgs)
+| "configure"   => do processOptions; noArgsRem <| configure (← loadPkg (← getSubArgs))
+| "print-paths" => do processOptions; printPaths (← takeArgs)
+| "build"       => do processOptions; runBuildM (← loadPkg (← getSubArgs)) <| build (← takeArgs)
+| "clean"       => do processOptions; noArgsRem <| (← loadPkg (← getSubArgs)).clean
+| "self-check"  => do processOptions; noArgsRem <| verifyInstall
 | "help"        => do IO.println <| help (← takeArg?)
-| "self-check"  => noArgsRem <| verifyInstall
 | cmd           => error s!"unknown command '{cmd}'"
 
 def processArgs : CliM PUnit := do
@@ -266,7 +282,6 @@ def processArgs : CliM PUnit := do
       if (← getWantsHelp) then
         IO.println <| help cmd
       else
-        processOptions -- after/intermixed with args
         command cmd
     else
       if (← getWantsHelp) then IO.println usage else error "expected command"

@@ -24,8 +24,9 @@ OPTIONS:
 COMMANDS:
   new <name>            create a Lean package in a new directory
   init <name>           create a Lean package in the current directory
-  server                start the Lean language server
   run <script>          run arbitrary package scripts
+  env <cmd> [<args>...] execute a command in the package's environment
+  serve                 start the Lean language server
   configure             download and build dependencies
   build [<targets>...]  configure and build targets
   clean                 remove build outputs
@@ -61,6 +62,16 @@ This command runs the given script from the package configuration's
 errors and prints the list of available scripts.
 
 You can pass -h/--help after the script name to print its docstring."
+
+def helpEnv :=
+"Execute a command in the package's environment
+
+USAGE:
+  lake env <cmd> [<args>...]
+
+Spawns a new process executing `cmd` with the given `args` and
+with the `LEAN_PATH` environment variable set to include the `.olean`
+directories of the package."
 
 def helpServe :=
 "Start the Lean language server
@@ -131,6 +142,7 @@ def helpCmd : (cmd : String) → String
 | "new"       => helpNew
 | "init"      => helpInit
 | "run"       => helpRun
+| "env"       => helpEnv
 | "serve"     => helpServe
 | "configure" => helpConfigure
 | "build"     => helpBuild

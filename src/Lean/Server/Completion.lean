@@ -252,15 +252,18 @@ private def optionCompletion (ctx : ContextInfo) (stx : Syntax) : IO (Option Com
       let opts ← getOptions
       let mut items := #[]
       for ⟨name, decl⟩ in decls do
-        if partialName.isPrefixOf name ||
-          (match partialName, name with
-            | Name.str p₁ s₁ _, Name.str p₂ s₂ _ => p₁ == p₂ && s₁.isPrefixOf s₂
-            | _, _ => false) then
+        if isPrefixOf partialName name then
           items := items.push
             { label := name.toString
               detail? := s!"({opts.get name decl.defValue}), {decl.descr}"
               documentation? := none }
       return some { items := sortCompletionItems items, isIncomplete := true }
+where
+  isPrefixOf (pref? : Name) (name : Name) : Bool :=
+    match pref?, name with
+    | Name.anonymous, _ => true
+    | p@(Name.str pn ps _), Name.str n s _ => if pn == n then ps.isPrefixOf s else isPrefixOf p n
+    | _, _ => false
 
 private def tacticCompletion (ctx : ContextInfo) : IO (Option CompletionList) :=
   -- Just return the list of tactics for now.

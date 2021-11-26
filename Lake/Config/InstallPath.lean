@@ -21,6 +21,7 @@ structure LeanInstall where
   includeDir := home / "include"
   lean := binDir / "lean" |>.withExtension FilePath.exeExtension
   leanc := binDir / "leanc" |>.withExtension FilePath.exeExtension
+  ar := binDir / "llvm-ar" |>.withExtension FilePath.exeExtension
   sharedLib := (if Platform.isWindows then binDir else libDir) / "libleanshared" |>.withExtension sharedLibExt
   deriving Inhabited, Repr
 

@@ -47,5 +47,8 @@ def getLeanTrace : BuildM BuildTrace := do
 def getLeanc : BuildM FilePath :=
   (·.leanc) <$> getLeanInstall
 
+def getLeanAr : BuildM FilePath :=
+  (·.ar) <$> getLeanInstall
+
 def getLakeInstall : BuildM LakeInstall :=
   (·.lakeInstall) <$> read

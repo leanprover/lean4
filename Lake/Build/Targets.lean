@@ -56,9 +56,9 @@ def leanOFileTarget (oFile : FilePath)
     compileO oFile srcFile args (← getLeanc)
 
 def staticLibTarget (libFile : FilePath)
-(oFileTargets : Array FileTarget) (ar : FilePath := "ar") : FileTarget :=
+(oFileTargets : Array FileTarget) (ar : Option FilePath := none) : FileTarget :=
   fileTargetWithDepArray libFile oFileTargets fun oFiles => do
-    compileStaticLib libFile oFiles ar
+    compileStaticLib libFile oFiles (ar.getD (← getLeanAr))
 
 def leanSharedLibTarget (binFile : FilePath)
 (linkTargets : Array FileTarget) (linkArgs : Array String := #[]) : FileTarget :=

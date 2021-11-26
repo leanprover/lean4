@@ -111,6 +111,21 @@ constant foo : Nat
 namespace Bar
 
 constant foo : Nat
+       --^ textDocument/hover
 
 #check _root_.foo
        --^ textDocument/hover
+
+def bar := 1
+  --^ textDocument/hover
+
+structure Foo := mk ::
+        --^ textDocument/hover
+               --^ textDocument/hover
+  hi : Nat
+--^ textDocument/hover
+
+inductive Bar
+        --^ textDocument/hover
+  | mk : Bar
+  --^ textDocument/hover

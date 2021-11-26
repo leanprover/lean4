@@ -36,6 +36,7 @@
       id : {α : Type} → α → α @ ⟨15, 2⟩-⟨15, 4⟩
       y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩ @ Lean.Elab.Term.elabIdent
         y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩
+  f : Nat → Nat × Nat @ ⟨13, 4⟩-⟨13, 5⟩
 [Elab.info] command @ ⟨17, 0⟩-⟨19, 8⟩ @ Lean.Elab.Command.elabDeclaration
   ∀ (x y : Nat), Bool → x + 0 = x : Prop @ ⟨17, 8⟩-⟨17, 44⟩ @ Lean.Elab.Term.elabDepArrow
     Nat : Type @ ⟨17, 15⟩-⟨17, 18⟩ @ Lean.Elab.Term.elabIdent
@@ -106,6 +107,7 @@
           b : Bool
           ⊢ x + 0 = x
           after no goals
+  h : ∀ (x y : Nat), Bool → x + 0 = x @ ⟨17, 4⟩-⟨17, 5⟩
 [Elab.info] command @ ⟨21, 0⟩-⟨25, 10⟩ @ Lean.Elab.Command.elabDeclaration
   Nat → Nat → Bool → Nat : Type @ ⟨21, 9⟩-⟨21, 39⟩ @ Lean.Elab.Term.elabDepArrow
     Nat : Type @ ⟨21, 16⟩-⟨21, 19⟩ @ Lean.Elab.Term.elabIdent
@@ -224,6 +226,7 @@
                       z : Nat @ ⟨25, 4⟩-⟨25, 5⟩
                     z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabIdent
                       z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩
+  f2 : Nat → Nat → Bool → Nat @ ⟨21, 4⟩-⟨21, 6⟩
 [Elab.info] command @ ⟨27, 0⟩-⟨28, 17⟩ @ Lean.Elab.Command.elabDeclaration
   Nat × Array (Array Nat) : Type @ ⟨27, 12⟩-⟨27, 35⟩ @ _aux_Init_Notation___macroRules_«term_×_»_1
     Macro expansion
@@ -266,6 +269,7 @@
     s.fst : Nat @ ⟨28, 14⟩-⟨28, 17⟩ @ Lean.Elab.Term.elabProj
       s : Nat × Array (Array Nat) @ ⟨28, 14⟩-⟨28, 15⟩
       Prod.fst : {α β : Type} → α × β → α @ ⟨28, 16⟩-⟨28, 17⟩
+  f3 : Nat × Array (Array Nat) → Array Nat @ ⟨27, 4⟩-⟨27, 6⟩
 [Elab.info] command @ ⟨30, 0⟩-⟨31, 20⟩ @ Lean.Elab.Command.elabDeclaration
   B : Type @ ⟨30, 14⟩-⟨30, 15⟩ @ Lean.Elab.Term.elabIdent
     [.] `B : some Sort.{?_uniq.803} @ ⟨30, 14⟩-⟨30, 15⟩
@@ -283,6 +287,7 @@
     [.] arg.pair.fst : A @ ⟨31, 2⟩-⟨31, 18⟩ : some Nat
     A.val : A → Nat → Nat @ ⟨31, 15⟩-⟨31, 18⟩
     0 : Nat @ ⟨31, 19⟩-⟨31, 20⟩ @ Lean.Elab.Term.elabNumLit
+  f4 : B → Nat @ ⟨30, 4⟩-⟨30, 6⟩
 [Elab.info] command @ ⟨33, 0⟩-⟨35, 1⟩ @ Lean.Elab.Command.elabDeclaration
   Nat : Type @ ⟨33, 12⟩-⟨33, 15⟩ @ Lean.Elab.Term.elabIdent
     [.] `Nat : some Sort.{?_uniq.827} @ ⟨33, 12⟩-⟨33, 15⟩
@@ -310,6 +315,7 @@
               id : {α : Type} → α → α @ ⟨34, 35⟩-⟨34, 37⟩
             val : Nat → Nat := id @ ⟨34, 28⟩-⟨34, 31⟩
     pair : A × A := ({ val := id }, { val := id }) @ ⟨34, 2⟩-⟨34, 6⟩
+  f5 : Nat → B @ ⟨33, 4⟩-⟨33, 6⟩
 def Nat.xor : Nat → Nat → Nat :=
 bitwise bne
 [Elab.info] command @ ⟨37, 0⟩-⟨38, 10⟩ @ Lean.Elab.Command.expandInCmd

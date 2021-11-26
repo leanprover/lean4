@@ -1,10 +1,82 @@
 {"textDocument": {"uri": "file://completionOption.lean"},
- "position": {"line": 0, "character": 20}}
+ "position": {"line": 1, "character": 13}}
 {"items":
- [{"label": "pp.proofs",
+ [{"label": "format.indent", "detail": "(2), indentation"},
+  {"label": "format.unicode", "detail": "(true), unicode characters"},
+  {"label": "format.width", "detail": "(120), indentation"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://completionOption.lean"},
+ "position": {"line": 4, "character": 17}}
+{"items":
+ [{"label": "format.indent", "detail": "(2), indentation"},
+  {"label": "format.unicode", "detail": "(true), unicode characters"},
+  {"label": "format.width", "detail": "(120), indentation"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://completionOption.lean"},
+ "position": {"line": 7, "character": 20}}
+{"items": [{"label": "format.indent", "detail": "(2), indentation"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://completionOption.lean"},
+ "position": {"line": 10, "character": 18}}
+{"items":
+ [{"label": "trace.pp.analyze",
    "detail":
-   "(false), (pretty printer) if set to false, replace proofs appearing as an argument to a function with a placeholder"},
-  {"label": "pp.proofs.withType",
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"label": "trace.pp.analyze.annotate",
    "detail":
-   "(true), (pretty printer) when eliding a proof (see `pp.proofs`), show its type instead"}],
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"label": "trace.pp.analyze.error",
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"label": "trace.pp.analyze.tryUnify",
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://completionOption.lean"},
+ "position": {"line": 13, "character": 19}}
+{"items":
+ [{"label": "trace.pp.analyze",
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"label": "trace.pp.analyze.annotate",
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"label": "trace.pp.analyze.error",
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"label": "trace.pp.analyze.tryUnify",
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://completionOption.lean"},
+ "position": {"line": 16, "character": 23}}
+{"items":
+ [{"label": "trace.pp.analyze",
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"label": "trace.pp.analyze.annotate",
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"label": "trace.pp.analyze.error",
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"label": "trace.pp.analyze.tryUnify",
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://completionOption.lean"},
+ "position": {"line": 19, "character": 27}}
+{"items":
+ [{"label": "trace.pp.analyze",
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"label": "trace.pp.analyze.annotate",
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"label": "trace.pp.analyze.error",
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"label": "trace.pp.analyze.tryUnify",
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}

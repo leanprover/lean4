@@ -871,6 +871,13 @@ private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sour
   DefaultFields.propagate struct
   return r
 
+/-- Structure instance. `{ x := e, ... }` assigns `e` to field `x`, which may be
+inherited. If `e` is itself a variable called `x`, it can be elided:
+`fun y => { x := 1, y }`.
+A *structure update* of an existing value can be given via `with`:
+`{ point with x := 1 }`.
+The structure type can be specified if not inferable:
+`{ x := 1, y := 2 : Point }`. -/
 @[builtinTermElab structInst] def elabStructInst : TermElab := fun stx expectedType? => do
   match (← expandNonAtomicExplicitSources stx) with
   | some stxNew => withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?

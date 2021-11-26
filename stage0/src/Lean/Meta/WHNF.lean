@@ -102,6 +102,12 @@ private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
     else
       return major
 
+/--
+  If `major` is not a constructor application, and its type is a structure `C ...`, then return `C.mk major.1 ... major.n`
+
+  \pre `inductName` is `C`.
+
+  If `Meta.Config.etaStruct` is `false` or the condition above does not hold, this method just returns `major`. -/
 private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr := do
   unless (← getConfig).etaStruct do
     return major

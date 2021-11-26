@@ -915,8 +915,11 @@ private def elabAtom : TermElab := fun stx expectedType? =>
   elabAppAux stx #[] #[] (ellipsis := false) expectedType?
 
 @[builtinTermElab ident] def elabIdent : TermElab := elabAtom
+/-- `x@e` matches the pattern `e` and binds its value to the identifier `x`. -/
 @[builtinTermElab namedPattern] def elabNamedPattern : TermElab := elabAtom
+/-- `x.{u, ...}` explicitly specifies the universes `u, ...` of the constant `x`. -/
 @[builtinTermElab explicitUniv] def elabExplicitUniv : TermElab := elabAtom
+/-- `e |>.x` is a shorthand for `(e).x`. It is especially useful for avoiding parentheses with repeated applications. -/
 @[builtinTermElab pipeProj] def elabPipeProj : TermElab
   | `($e |>.$f $args*), expectedType? =>
     withoutPostponingUniverseConstraints do
@@ -924,6 +927,9 @@ private def elabAtom : TermElab := fun stx expectedType? =>
       elabAppAux (← `($e |>.$f)) namedArgs args (ellipsis := ellipsis) expectedType?
   | _, _ => throwUnsupportedSyntax
 
+/--
+`@x` disables automatic insertion of implicit parameters of the constant `x`.
+`@e` for any term `e` also disables the insertion of implicit lambdas at this position. -/
 @[builtinTermElab explicit] def elabExplicit : TermElab := fun stx expectedType? =>
   match stx with
   | `(@$id:ident)         => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`

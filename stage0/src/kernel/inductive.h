@@ -57,8 +57,8 @@ expr string_lit_to_constructor(expr const & e);
 /* Auxiliary method for \c to_cnstr_when_structure, convert `e` into `mk e.1 ... e.n` */
 expr expand_eta_struct(environment const & env, expr const & e_type, expr const & e);
 
-/* For datatypes that support K-axiom, given `e` an element of that type, we convert (if possible)
-   to the default constructor. For example, if `e : a = a`, then this method returns `eq.refl a` */
+/* If `e` is not a constructor application and its type `C ...` is a structure, return `C.mk e.1 ... e.n`,
+   where `C.mk` is `C`s constructor. */
 template<typename WHNF, typename INFER>
 inline expr to_cnstr_when_structure(environment const & env, name const & induct_name, expr const & e,
                                     WHNF const & whnf, INFER const & infer_type) {

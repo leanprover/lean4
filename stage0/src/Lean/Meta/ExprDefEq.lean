@@ -1467,6 +1467,17 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   else
     isDefEqOnFailure t s
 
+/-- Return `true` if the types of the given expressions is an inductive datatype with an inductive datatype with a single constructor with no fields. -/
+private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
+  if !(← getConfig).etaStruct then return false
+  else
+    let tType ← whnf (← inferType t)
+    matchConstStruct tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
+      if ctorVal.numFields != 0 then
+        return false
+      else
+        Meta.isExprDefEqAux tType (← inferType s)
+
 private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   if (← (isDefEqEta t s <||> isDefEqEta s t)) then pure true else
   -- TODO: investigate whether this is the place for putting this check
@@ -1477,11 +1488,12 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   whenUndefDo (isDefEqOffset t s) do
   whenUndefDo (isDefEqDelta t s) do
   if t.isConst && s.isConst then
-    if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else pure false
-  else if t.isApp && s.isApp then
-    isDefEqApp t s
+    if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
+  else if (← t.isApp <&&> s.isApp <&&> isDefEqApp t s) then
+    return true
   else
     whenUndefDo (isDefEqStringLit t s) do
+    if (← isDefEqUnitLike t s) then return true else
     isDefEqOnFailure t s
 
 -- We only check DefEq cache for default and all transparency modes

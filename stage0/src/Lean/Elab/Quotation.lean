@@ -508,6 +508,7 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
     stx
   | _ => throwUnsupportedSyntax
 
+/-- Syntactic pattern match. Matches a `Syntax` value against quotations, pattern variables, or `_`. -/
 @[builtinTermElab «match»] def elabMatchSyntax : TermElab :=
   adaptExpander match_syntax.expand
 

@@ -163,10 +163,12 @@ def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
     instance : DecidableEq $(mkIdent declName) :=
       fun x y =>
         if h : x.toCtorIdx = y.toCtorIdx then
-          isTrue (by have aux := congrArg $ofNatIdent h; rw [$auxThmIdent:ident, $auxThmIdent:ident] at aux; assumption)
+          -- We use `rfl` in the following proof because the first script fails for unit-like datatypes due to etaStruct.
+          isTrue (by first | have aux := congrArg $ofNatIdent h; rw [$auxThmIdent:ident, $auxThmIdent:ident] at aux; assumption | rfl)
         else
           isFalse fun h => by subst h; contradiction
   )
+  trace[Elab.Deriving.decEq] "\n{cmd}"
   elabCommand cmd
 
 def mkDecEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do

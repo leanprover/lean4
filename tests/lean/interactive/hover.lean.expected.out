@@ -98,8 +98,50 @@ null
   "end": {"line": 107, "character": 17}},
  "contents": {"value": "```lean\nfoo : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
- "position": {"line": 114, "character": 9}}
+ "position": {"line": 112, "character": 9}}
 {"range":
- {"start": {"line": 114, "character": 7},
-  "end": {"line": 114, "character": 17}},
+ {"start": {"line": 112, "character": 9},
+  "end": {"line": 112, "character": 12}},
+ "contents": {"value": "```lean\nBar.foo : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 115, "character": 9}}
+{"range":
+ {"start": {"line": 115, "character": 7},
+  "end": {"line": 115, "character": 17}},
  "contents": {"value": "```lean\n_root_.foo : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 118, "character": 4}}
+{"range":
+ {"start": {"line": 118, "character": 4}, "end": {"line": 118, "character": 7}},
+ "contents": {"value": "```lean\nBar.bar : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 121, "character": 10}}
+{"range":
+ {"start": {"line": 121, "character": 10},
+  "end": {"line": 121, "character": 13}},
+ "contents": {"value": "```lean\nBar.Foo : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 121, "character": 17}}
+{"range":
+ {"start": {"line": 121, "character": 17},
+  "end": {"line": 121, "character": 19}},
+ "contents":
+ {"value": "```lean\nBar.Foo.mk : Nat → Foo\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 124, "character": 2}}
+{"range":
+ {"start": {"line": 124, "character": 2}, "end": {"line": 124, "character": 4}},
+ "contents":
+ {"value": "```lean\nBar.Foo.hi : Foo → Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 127, "character": 10}}
+{"range":
+ {"start": {"line": 127, "character": 10},
+  "end": {"line": 127, "character": 13}},
+ "contents": {"value": "```lean\nBar.Bar : Type\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 129, "character": 4}}
+{"range":
+ {"start": {"line": 129, "character": 4}, "end": {"line": 129, "character": 6}},
+ "contents":
+ {"value": "```lean\nBar.Bar.mk : Bar.Bar\n```", "kind": "markdown"}}

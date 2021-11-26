@@ -145,3 +145,17 @@ null
  {"start": {"line": 129, "character": 4}, "end": {"line": 129, "character": 6}},
  "contents":
  {"value": "```lean\nBar.Bar.mk : Bar.Bar\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 132, "character": 2}}
+{"range":
+ {"start": {"line": 132, "character": 0}, "end": {"line": 132, "character": 8}},
+ "contents":
+ {"value": "```lean\nBar.instToStringNat : ToString Nat\n```",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 134, "character": 9}}
+{"range":
+ {"start": {"line": 134, "character": 9},
+  "end": {"line": 134, "character": 10}},
+ "contents":
+ {"value": "```lean\nBar.f : ToString Nat\n```", "kind": "markdown"}}

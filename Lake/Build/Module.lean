@@ -35,7 +35,7 @@ protected def computeHash (self : OleanAndC) : IO Hash := do
 
 instance : ComputeHash OleanAndC := ⟨OleanAndC.computeHash⟩
 
-protected def checkExists (self : OleanAndC) : IO Bool := do
+protected def checkExists (self : OleanAndC) : BaseIO Bool := do
   return (← checkExists self.oleanFile) && (← checkExists self.cFile)
 
 instance : CheckExists OleanAndC := ⟨OleanAndC.checkExists⟩
@@ -101,10 +101,10 @@ def moduleTarget [CheckExists i] [GetMTime i] [ComputeHash i] (info : i)
   Target.mk info <| depTarget.mapOpaqueAsync fun depTrace => do
     let srcTrace : BuildTrace := ⟨Hash.ofString contents, ← getMTime leanFile⟩
     let fullTrace := (← getLeanTrace).mix <| srcTrace.mix depTrace
-    let (upToDate, trace) ← fullTrace.check info traceFile
+    let upToDate ← fullTrace.checkAgainstFile info traceFile
     unless upToDate do
       build
-    IO.FS.writeFile traceFile trace.hash.toString
+    fullTrace.writeToFile traceFile
     depTrace
 
 def moduleOleanAndCTarget

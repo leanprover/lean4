@@ -17,12 +17,12 @@ def inputFileTarget (path : FilePath) : FileTarget :=
 instance : Coe FilePath FileTarget := ⟨inputFileTarget⟩
 
 def buildFileUnlessUpToDate (file : FilePath)
-(trace : BuildTrace) (build : BuildM PUnit) : BuildM BuildTrace := do
+(depTrace : BuildTrace) (build : BuildM PUnit) : BuildM BuildTrace := do
   let traceFile := FilePath.mk <| file.toString ++ ".trace"
-  let (upToDate, trace) ← trace.check file traceFile
+  let upToDate ← depTrace.checkAgainstFile file traceFile
   unless upToDate do
     build
-  IO.FS.writeFile traceFile trace.hash.toString
+  depTrace.writeToFile traceFile
   computeTrace file
 
 def fileTargetWithDep (file : FilePath)

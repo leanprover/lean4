@@ -13,12 +13,17 @@ namespace Lake
 
 /-- Check whether there already exists an artifact for the given target info. -/
 class CheckExists.{u} (i : Type u) where
-  checkExists : i → IO Bool
+  checkExists : i → BaseIO Bool
 
 export CheckExists (checkExists)
 
+def checkPathExists (path : FilePath) : BaseIO Bool :=
+  fun s => match path.metadata () with
+  | EStateM.Result.ok _ s => EStateM.Result.ok true s
+  | EStateM.Result.error _ s => EStateM.Result.ok false s
+
 instance : CheckExists FilePath where
-  checkExists := FilePath.pathExists
+  checkExists := checkPathExists
 
 --------------------------------------------------------------------------------
 -- # Trace Abstraction
@@ -221,18 +226,24 @@ instance : MixTrace BuildTrace := ⟨mix⟩
   Check the build trace against the given target info and hash
   to see if the target is up-to-date.
 -/
-def check [CheckExists i] [GetMTime i]
-(info : i) (traceFile : FilePath) (self : BuildTrace)
-: IO (Bool × BuildTrace) := do
-  try
-    if (← checkExists info) then
-      if let some h ← Hash.loadFromFile traceFile then
-        if h == self.hash then
-          return (true, self.withoutMTime)
-      else if self.mtime < (← getMTime info) then
-        return (true, self)
-  catch _ =>
-    pure ()
-  return (false, self)
+def checkAgainstHash [CheckExists i]
+(info : i) (hash : Hash) (self : BuildTrace) : BaseIO Bool :=
+  hash == self.hash <&&> checkExists info
+
+/--
+  Check the build trace against the given target info and its trace file
+  to see if the target is up-to-date.
+-/
+def checkAgainstFile [CheckExists i] [GetMTime i]
+(info : i) (traceFile : FilePath) (self : BuildTrace) : BaseIO Bool := do
+  let act : IO _ := do
+    if let some hash ← Hash.loadFromFile traceFile then
+      self.checkAgainstHash info hash
+    else
+      return self.mtime < (← getMTime info)
+  act.catchExceptions fun _ => false
+
+def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit :=
+  IO.FS.writeFile traceFile self.hash.toString
 
 end BuildTrace

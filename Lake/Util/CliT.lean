@@ -118,9 +118,9 @@ def longShortOption (opt : String) : CliT m PUnit := do
   getMethods >>= (·.longShortOption opt)
 
 /--
-  Process an option, short or long.
-  An option is an argument of length > 1 starting with a dash (`-`).
-  An option may consume additional elements of the argument list.
+Process an option, short or long.
+An option is an argument of length > 1 starting with a dash (`-`).
+An option may consume additional elements of the argument list.
 -/
 def option (opt : String) : CliT m PUnit :=
   if opt[1] == '-' then -- `--(.*)`

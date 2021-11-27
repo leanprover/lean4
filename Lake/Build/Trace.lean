@@ -45,10 +45,7 @@ export NilTrace (nilTrace)
 instance [NilTrace t] : Inhabited t := ⟨nilTrace⟩
 
 class MixTrace.{u} (t : Type u) where
-  /--
-    Combine two traces.
-    The result should be dirty if either of the inputs is dirty.
-  -/
+  /-- Combine two traces. The result should be dirty if either of the inputs is dirty. -/
   mixTrace : t → t → t
 
 export MixTrace (mixTrace)
@@ -83,8 +80,8 @@ end
 --------------------------------------------------------------------------------
 
 /--
-  A content hash.
-  TODO: Use a secure hash rather than the builtin Lean hash function.
+A content hash.
+TODO: Use a secure hash rather than the builtin Lean hash function.
 -/
 structure Hash where
   val : UInt64
@@ -223,16 +220,16 @@ def mix (t1 t2 : BuildTrace) : BuildTrace :=
 instance : MixTrace BuildTrace := ⟨mix⟩
 
 /--
-  Check the build trace against the given target info and hash
-  to see if the target is up-to-date.
+Check the build trace against the given target info and hash
+to see if the target is up-to-date.
 -/
 def checkAgainstHash [CheckExists i]
 (info : i) (hash : Hash) (self : BuildTrace) : BaseIO Bool :=
   hash == self.hash <&&> checkExists info
 
 /--
-  Check the build trace against the given target info and its trace file
-  to see if the target is up-to-date.
+Check the build trace against the given target info and its trace file
+to see if the target is up-to-date.
 -/
 def checkAgainstFile [CheckExists i] [GetMTime i]
 (info : i) (traceFile : FilePath) (self : BuildTrace) : BaseIO Bool := do

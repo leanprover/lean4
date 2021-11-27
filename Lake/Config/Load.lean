@@ -65,8 +65,8 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
     throw <| IO.userError s!"package configuration `{configFile}` has errors"
 
 /--
-  Load the package located in
-  the given directory with the given configuration file.
+Load the package located in
+the given directory with the given configuration file.
 -/
 @[implementedBy loadUnsafe]
 constant load (dir : FilePath) (args : List String := [])

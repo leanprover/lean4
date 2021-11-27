@@ -9,8 +9,8 @@ namespace Lake
 abbrev ScriptFn := (args : List String) → IO UInt32
 
 /--
-  A package `Script` is a `ScriptFn` definition that is
-  indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
+A package `Script` is a `ScriptFn` definition that is
+indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
 -/
 structure Script where
   fn : ScriptFn

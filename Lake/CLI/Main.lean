@@ -130,8 +130,8 @@ def takeFileArg : CliM FilePath := do
   | some arg => arg
 
 /--
-  Verify that there are no CLI arguments remaining
-  before running the given action.
+Verify that there are no CLI arguments remaining
+before running the given action.
 -/
 def noArgsRem (act : CliM α) : CliM α := do
   let args ← takeArgs
@@ -212,11 +212,11 @@ def verifyInstall : CliM PUnit := do
 def noConfigFileCode : ExitCode := 2
 
 /--
-  Build a list of imports of the package
-  and print the `.olean` and source directories of every used package.
-  If no configuration file exists, exit silently with `noConfigFileCode` (i.e, 2).
+Build a list of imports of the package
+and print the `.olean` and source directories of every used package.
+If no configuration file exists, exit silently with `noConfigFileCode` (i.e, 2).
 
-  The `print-paths` command is used internally by Lean 4 server.
+The `print-paths` command is used internally by Lean 4 server.
 -/
 def printPaths (imports : List String := []) : CliM PUnit := do
   let (leanInstall, lakeInstall) ← getInstall

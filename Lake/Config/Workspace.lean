@@ -13,8 +13,8 @@ def defaultDepsDir : FilePath := "lean_packages"
 /-- A `Workspace`'s declarative configuration. -/
 structure WorkspaceConfig where
   /--
-    The directory to which Lake should download dependencies.
-    Defaults to `defaultDepsDir` (i.e., `lean_packages`).
+  The directory to which Lake should download dependencies.
+  Defaults to `defaultDepsDir` (i.e., `lean_packages`).
   -/
   depsDir : FilePath := defaultDepsDir
   deriving Inhabited, Repr

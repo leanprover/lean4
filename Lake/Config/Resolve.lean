@@ -12,8 +12,8 @@ namespace Lake
 
 open Git in
 /--
-  Materializes a Git package in the given `dir`,
-  cloning and/or updating it as necessary.
+Materializes a Git package in the given `dir`,
+cloning and/or updating it as necessary.
 -/
 def materializeGit
 (name : String) (dir : FilePath) (url rev : String) (branch : Option String)
@@ -31,8 +31,8 @@ def materializeGit
     checkoutDetach hash dir
 
 /--
-  Materializes a `Dependency` relative to the given `Package`,
-  downloading and/or updating it as necessary.
+Materializes a `Dependency` relative to the given `Package`,
+downloading and/or updating it as necessary.
 -/
 def materializeDep (pkg : Package) (dep : Dependency) : (LogT IO) FilePath :=
   match dep.src with
@@ -44,8 +44,8 @@ def materializeDep (pkg : Package) (dep : Dependency) : (LogT IO) FilePath :=
     depDir
 
 /--
-  Resolves a `Dependency` relative to the given `Package`
-  in the same `Workspace`, downloading and/or updating it as necessary.
+Resolves a `Dependency` relative to the given `Package`
+in the same `Workspace`, downloading and/or updating it as necessary.
 -/
 def resolveDep (pkg : Package) (dep : Dependency) : (LogT IO) Package := do
   let dir ← materializeDep pkg dep
@@ -57,8 +57,8 @@ def resolveDep (pkg : Package) (dep : Dependency) : (LogT IO) Package := do
   return depPkg.withWorkspace pkg.workspace
 
 /--
-  Resolves the package's direct dependencies,
-  downloading and/or updating them as necessary.
+Resolves the package's direct dependencies,
+downloading and/or updating them as necessary.
 -/
 def Package.resolveDirectDeps (self : Package) : (LogT IO) (Array Package) :=
   self.dependencies.mapM (resolveDep self ·)

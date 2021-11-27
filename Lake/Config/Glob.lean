@@ -14,10 +14,7 @@ namespace Lake
 inductive Glob
 | /-- Selects just the specified module name. -/
   one : Name → Glob
-| /--
-    Selects all submodules of the specified module,
-    but not the module itself.
-  -/
+| /-- Selects all submodules of the specified module, but not the module itself. -/
   submodules : Name → Glob
 | /-- Selects the specified module and all submodules. -/
   andSubmodules : Name → Glob

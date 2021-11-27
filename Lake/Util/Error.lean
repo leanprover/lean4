@@ -20,8 +20,8 @@ instance : MonadError (EIO String) where
   error msg := throw msg
 
 /--
-  Perform an IO action.
-  If it throws an error, invoke `error` with the its message.
+Perform an IO action.
+If it throws an error, invoke `error` with the its message.
 -/
 protected def MonadError.runIO [Monad m] [MonadError m] [MonadLiftT BaseIO m] (x : IO α) : m α := do
   match (← x.toBaseIO) with

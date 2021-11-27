@@ -45,12 +45,12 @@ def defaultBinRoot : Name := `Main
 --------------------------------------------------------------------------------
 
 /--
-  The `src` of a `Dependency`.
+The `src` of a `Dependency`.
 
-  In Lake, dependency sources currently come into flavors:
-  * Local `path`s relative to the package's directory.
-  * Remote `git` repositories that are download from a given `url`
-    into the packages's `depsDir`.
+In Lake, dependency sources currently come into flavors:
+* Local `path`s relative to the package's directory.
+* Remote `git` repositories that are download from a given `url`
+  into the packages's `depsDir`.
 -/
 inductive Source where
 | path (dir : FilePath) : Source
@@ -60,22 +60,22 @@ deriving Inhabited, Repr
 /-- A `Dependency` of a package. -/
 structure Dependency where
   /--
-    A `Name` for the dependency.
-    The names of a package's dependencies cannot clash.
+  A `Name` for the dependency.
+  The names of a package's dependencies cannot clash.
   -/
   name : Name
   /--
-    The source of a dependency.
-    See the documentation of `Source` for more information.
+  The source of a dependency.
+  See the documentation of `Source` for more information.
   -/
   src  : Source
   /--
-    The subdirectory of the dependency's source where
-    the dependency's package configuration is located.
+  The subdirectory of the dependency's source where
+  the dependency's package configuration is located.
   -/
   dir  : FilePath := "."
   /--
-    Arguments to pass to the dependency's package configuration.
+  Arguments to pass to the dependency's package configuration.
   -/
   args : List String := []
 
@@ -109,161 +109,158 @@ def toUpperCamelCase (name : Name) : Name :=
 /-- A `Package`'s declarative configuration. -/
 structure PackageConfig extends WorkspaceConfig where
 
-  /--
-    The `Name` of the package.
-  -/
+  /-- The `Name` of the package. -/
   name : Name
 
   /-
-    An `Array` of the package's dependencies.
-    See the documentation of `Dependency` for more information.
+  An `Array` of the package's dependencies.
+  See the documentation of `Dependency` for more information.
   -/
   dependencies : Array Dependency := #[]
 
   /--
-    An extra `OpaqueTarget` that should be built before the package.
+  An extra `OpaqueTarget` that should be built before the package.
 
-    `OpaqueTarget.collectList/collectArray` can be used combine multiple
-    extra targets into a single `extraDepTarget`.
+  `OpaqueTarget.collectList/collectArray` can be used combine multiple
+  extra targets into a single `extraDepTarget`.
   -/
   extraDepTarget : OpaqueTarget := Target.nil
 
   /--
-    The `PackageFacet` to build on a bare `lake build` of the package.
-    Can be one of `bin`, `staticLib`, `sharedLib`, or `oleans`. Defaults to `bin`.
-    See `lake help build` for more info on build facets.
+  The `PackageFacet` to build on a bare `lake build` of the package.
+  Can be one of `bin`, `staticLib`, `sharedLib`, or `oleans`. Defaults to `bin`.
+  See `lake help build` for more info on build facets.
   -/
   defaultFacet : PackageFacet := PackageFacet.bin
 
   /--
-    Additional arguments to pass to the Lean language server
-    (i.e., `lean --server`) launched by `lake server`.
+  Additional arguments to pass to the Lean language server
+  (i.e., `lean --server`) launched by `lake server`.
   -/
   moreServerArgs : Array String := #[]
 
   /--
-    The directory containing the package's Lean source files.
-    Defaults to the package's directory.
+  The directory containing the package's Lean source files.
+  Defaults to the package's directory.
 
-    (This will be passed to `lean` as the `-R` option.)
+  (This will be passed to `lean` as the `-R` option.)
   -/
   srcDir : FilePath := "."
 
   /--
-    The directory to which Lake should output the package's build results.
-    Defaults to `defaultBuildDir` (i.e., `build`).
+  The directory to which Lake should output the package's build results.
+  Defaults to `defaultBuildDir` (i.e., `build`).
   -/
   buildDir : FilePath := defaultBuildDir
 
   /--
-    The build subdirectory to which Lake should output the package's `.olean` files.
-    Defaults to  `defaultOleanDir` (i.e., `lib`).
+  The build subdirectory to which Lake should output the package's `.olean` files.
+  Defaults to  `defaultOleanDir` (i.e., `lib`).
   -/
   oleanDir : FilePath := defaultOleanDir
 
-  /-
-    The root module(s) of the package's library.
+  /--
+  The root module(s) of the package's library.
 
-    Submodules of these roots (e.g., `Pkg.Foo` of `Pkg`) are considered
-    part of the package.
+  Submodules of these roots (e.g., `Pkg.Foo` of `Pkg`) are considered
+  part of the package.
 
-    Defaults to a single root of the package's upper camel case `name`.
+  Defaults to a single root of the package's upper camel case `name`.
   -/
   libRoots : Array Name := #[toUpperCamelCase name]
 
   /--
-    An `Array` of module `Glob`s to build for the package's library.
-    Defaults to a `Glob.one` of each of the module's `libRoots`.
+  An `Array` of module `Glob`s to build for the package's library.
+  Defaults to a `Glob.one` of each of the module's `libRoots`.
 
-    Submodule globs build every source file within their directory.
-    Local imports of glob'ed files (i.e., fellow modules of the package) are
-    also recursively built.
+  Submodule globs build every source file within their directory.
+  Local imports of glob'ed files (i.e., fellow modules of the package) are
+  also recursively built.
   -/
   libGlobs : Array Glob := libRoots.map Glob.one
 
   /--
-    Additional arguments to pass to `lean` while compiling Lean source files.
+  Additional arguments to pass to `lean` while compiling Lean source files.
   -/
   moreLeanArgs : Array String := #[]
 
   /--
-    Additional arguments to pass to `leanc`
-    while compiling the C source files generated by `lean`.
+  Additional arguments to pass to `leanc`
+  while compiling the C source files generated by `lean`.
 
-    Lake already passes `-O3` and `-DNDEBUG` automatically,
-    but you can change this by, for example, adding `-O0` and `-UNDEBUG`.
+  Lake already passes `-O3` and `-DNDEBUG` automatically,
+  but you can change this by, for example, adding `-O0` and `-UNDEBUG`.
   -/
   moreLeancArgs : Array String := #[]
 
   /--
-    The build subdirectory to which Lake should output
-    the package's intermediary results (e.g., `.c` and `.o` files).
-    Defaults to `defaultIrDir` (i.e., `ir`).
+  The build subdirectory to which Lake should output
+  the package's intermediary results (e.g., `.c` and `.o` files).
+  Defaults to `defaultIrDir` (i.e., `ir`).
   -/
   irDir : FilePath := defaultIrDir
 
   /--
-    The name of the package's static library.
-    Defaults to the package's upper camel case `name`.
+  The name of the package's static library.
+  Defaults to the package's upper camel case `name`.
   -/
   libName : String := toUpperCamelCase name |>.toString (escape := false)
 
   /--
-    The build subdirectory to which Lake should output the package's static library.
-    Defaults to `defaultLibDir` (i.e., `lib`).
+  The build subdirectory to which Lake should output the package's static library.
+  Defaults to `defaultLibDir` (i.e., `lib`).
   -/
   libDir : FilePath := defaultLibDir
 
   /--
-    The name of the package's binary executable.
-    Defaults to the package's `name` with any `.` replaced with a `-`.
+  The name of the package's binary executable.
+  Defaults to the package's `name` with any `.` replaced with a `-`.
   -/
   binName : String := name.toStringWithSep "-" (escape := false)
 
   /--
-    The build subdirectory to which Lake should output the package's binary executable.
-    Defaults to `defaultBinDir` (i.e., `bin`).
+  The build subdirectory to which Lake should output the package's binary executable.
+  Defaults to `defaultBinDir` (i.e., `bin`).
   -/
   binDir : FilePath := defaultBinDir
 
   /--
-    The root module of the package's binary executable.
-    Defaults to `defaultBinRoot` (i.e., `Main`).
+  The root module of the package's binary executable.
+  Defaults to `defaultBinRoot` (i.e., `Main`).
 
-    The root is built by recursively building its
-    local imports (i.e., fellow modules of the package).
+  The root is built by recursively building its
+  local imports (i.e., fellow modules of the package).
 
-    This setting is most useful for packages that are distributing both a
-    library and a binary (like Lake itself). In such cases, it is common for
-    there to be code (e.g., `main`) that is needed for the binary but should
-    not be included in the library proper.
+  This setting is most useful for packages that are distributing both a
+  library and a binary (like Lake itself). In such cases, it is common for
+  there to be code (e.g., `main`) that is needed for the binary but should
+  not be included in the library proper.
   -/
   binRoot : Name := defaultBinRoot
 
   /--
-    Additional library `FileTarget`s
-      (beyond the package's and its dependencies' libraries)
-    to build and link to the package's binary executable
-      (and/or to dependent package's executables).
+  Additional library `FileTarget`s (beyond the package's and its dependencies'
+  libraries) to build and link to the package's binary executable (and/or to
+  dependent package's executables).
   -/
   moreLibTargets : Array FileTarget := #[]
 
   /--
-    Whether to expose symbols within the executable to the Lean interpreter.
-    This allows the executable to interpret Lean files (e.g.,  via
-    `Lean.Elab.runFrontend`).
+  Whether to expose symbols within the executable to the Lean interpreter.
+  This allows the executable to interpret Lean files (e.g.,  via
+  `Lean.Elab.runFrontend`).
 
-    Implementation-wise, this passes `-rdynamic` to the linker when building
-    on non-Windows systems.
+  Implementation-wise, this passes `-rdynamic` to the linker when building
+  on non-Windows systems.
 
-    Defaults to `false`.
+  Defaults to `false`.
   -/
   supportInterpreter : Bool := false
 
   /--
-    Additional arguments to pass to `leanc`
-      while compiling the package's binary executable.
-    These will come *after* the paths of libraries built with `moreLibTargets`.
+  Additional arguments to pass to `leanc` while compiling the package's
+  binary executable. These will come *after* the paths of libraries built
+  with `moreLibTargets`.
   -/
   moreLinkArgs : Array String := #[]
 
@@ -282,10 +279,10 @@ structure Package where
   /-- The workspace the package is contained in. -/
   workspace : Workspace := {dir, config := config.toWorkspaceConfig}
   /--
-    A `NameMap` of scripts for the package.
+  A `NameMap` of scripts for the package.
 
-    A `Script` is a `(args : List String) → IO UInt32` definition with
-    a `@[script]` tag that can be run by `lake run <script> [-- <args>]`.
+  A `Script` is a `(args : List String) → IO UInt32` definition with
+  a `@[script]` tag that can be run by `lake run <script> [-- <args>]`.
   -/
   scripts : NameMap Script := {}
   deriving Inhabited
@@ -313,14 +310,14 @@ instance : Coe OpaquePackage Package := ⟨get⟩
 end OpaquePackage
 
 /--
-  An alternate signature for package configurations
-  that permits more dynamic configurations, but is still pure.
+An alternate signature for package configurations
+that permits more dynamic configurations, but is still pure.
 -/
 def Packager := (pkgDir : FilePath) → (args : List String) → PackageConfig
 
 /--
-  An alternate signature for package configurations
-  that permits more dynamic configurations, including performing `IO`.
+An alternate signature for package configurations
+that permits more dynamic configurations, including performing `IO`.
 -/
 def IOPackager := (pkgDir : FilePath) → (args : List String) → IO PackageConfig
 
@@ -470,8 +467,8 @@ def binName (self : Package) : FilePath :=
   self.config.binName
 
 /--
-  The file name of package's binary executable
-  (i.e., `binName` plus the platform's `exeExtension`).
+The file name of package's binary executable
+(i.e., `binName` plus the platform's `exeExtension`).
 -/
 def binFileName (self : Package) : FilePath :=
   FilePath.withExtension self.binName FilePath.exeExtension

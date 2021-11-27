@@ -48,11 +48,11 @@ partial def buildTopCore [BEq k] [Inhabited o] [Monad m] [MonadStore k o m]
   return output
 
 /--
-  Recursively fills a `MonadStore` of key-object pairs by
-  building objects topologically (i.e., via a depth-first search with memoization).
-  If a cycle is detected, the list of keys traversed is thrown.
+Recursively fills a `MonadStore` of key-object pairs by
+building objects topologically (i.e., via a depth-first search with memoization).
+If a cycle is detected, the list of keys traversed is thrown.
 
-  Called a suspending scheduler in "Build systems à la carte".
+Called a suspending scheduler in "Build systems à la carte".
 -/
 def buildTop [BEq k] [Inhabited o] [Monad m] [MonadStore k o m]
 (build : RecBuild i o (ExceptT (List k) m)) (keyOf : i → k) (info : i) : ExceptT (List k) m o :=

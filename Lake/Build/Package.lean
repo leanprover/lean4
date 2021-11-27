@@ -43,8 +43,8 @@ def packageTargetsToOleanDirs (targets : Array (ActivePackageTarget i)) : List F
 -- # Build Packages
 
 /--
-  Builds the package's `extraDepTarget` and combines it with
-  the given package targets to create a single active opaque target.
+Builds the package's `extraDepTarget` and combines it with
+the given package targets to create a single active opaque target.
 -/
 def Package.buildDepTargetWith
 (depTargets : Array (ActiveBuildTarget i)) (self : Package) : BuildM ActiveOpaqueTarget := do
@@ -53,11 +53,11 @@ def Package.buildDepTargetWith
   extraDepTarget.mixOpaqueAsync depTarget
 
 /--
-  Build an active package target after
-  resolving the package's dependencies and recursively building them.
+Build an active package target after
+resolving the package's dependencies and recursively building them.
 
-  To build each package, run the given `build` function on it,
-  which takes the package and its building dependencies as arguments.
+To build each package, run the given `build` function on it,
+which takes the package and its building dependencies as arguments.
 -/
 def recBuildPackageWithDeps
 [Monad m] [MonadLiftT BuildM m] [MonadStore Name (Array (ActivePackageTarget i)) m]
@@ -77,8 +77,8 @@ def recBuildPackageWithDeps
   depTargets.push pkgTarget
 
 /--
-  Build the  package along with its dependencies
-  by using the given `build` function recursively.
+Build the  package along with its dependencies
+by using the given `build` function recursively.
 -/
 def Package.buildRec (self : Package) [Inhabited i]
 (build : Array (ActivePackageTarget i) → Package → BuildM (ActivePackageTarget i))
@@ -90,8 +90,8 @@ def Package.buildRec (self : Package) [Inhabited i]
   target.withInfo targets.back.info
 
 /--
-  Build an `Array` of `Package`s along with their dependencies
-  by using the given `build` function recursively.
+Build an `Array` of `Package`s along with their dependencies
+by using the given `build` function recursively.
 -/
 def buildPackageArrayWithDeps (pkgs : Array Package) [Inhabited i]
 (build : Array (ActivePackageTarget i) → Package → BuildM (ActivePackageTarget i))
@@ -106,8 +106,8 @@ def Package.buildDepTargets [Inhabited i]
   buildPackageArrayWithDeps (← self.resolveDirectDeps) build
 
 /--
-  Build an active target for the package by
-  running the given `RecModuleTargetBuild` on the given root module.
+Build an active target for the package by
+running the given `RecModuleTargetBuild` on the given root module.
 -/
 def Package.buildModuleDAGTarget [Inhabited i] (mod : Name)
 (buildMod : RecModuleTargetBuild i) (self : Package) : BuildM (ActivePackageTarget i) := do
@@ -117,8 +117,8 @@ def Package.buildModuleDAGTarget [Inhabited i] (mod : Name)
   return target.withInfo ⟨self, targetMap⟩
 
 /--
-  Build an active target for the package by
-  running the given `RecModuleTargetBuild` on the given root modules.
+Build an active target for the package by
+running the given `RecModuleTargetBuild` on the given root modules.
 -/
 def Package.buildModulesDAGTarget [Inhabited i] (mods : Array Name)
 (buildMod : RecModuleTargetBuild i) (self : Package) : BuildM (ActivePackageTarget i) := do
@@ -129,9 +129,9 @@ def Package.buildModulesDAGTarget [Inhabited i] (mods : Array Name)
   return target.withInfo ⟨self, targetMap⟩
 
 /--
-  Build an active target for the package by
-  running the given `RecModuleTargetBuild` on each of its top-level modules
-  (i.e., those specified in its `libGlobs` configuration).
+Build an active target for the package by
+running the given `RecModuleTargetBuild` on each of its top-level modules
+(i.e., those specified in its `libGlobs` configuration).
 -/
 def Package.buildTarget [Inhabited i]
 (buildMod : RecModuleTargetBuild i) (self : Package) : BuildM (ActivePackageTarget i) := do
@@ -202,10 +202,10 @@ def Package.filterLocalImports
   return localImports
 
 /--
-  Build the package's dependencies, returning the list of packages built.
+Build the package's dependencies, returning the list of packages built.
 
-  Builds only module `.olean` files if the default package facet is
-  just `oleans`. Otherwise, builds both `.olean` and `.c` files.
+Builds only module `.olean` files if the default package facet is
+just `oleans`. Otherwise, builds both `.olean` and `.c` files.
 -/
 def Package.buildDefaultDepTargets
 (self : Package) : BuildM (Array (ActiveBuildTarget Package)) := do
@@ -217,11 +217,11 @@ def Package.buildDefaultDepTargets
     depTargets.map (·.withOnlyPackageInfo)
 
 /--
-  Build the package's dependencies and a list of imports,
-  returning the list of packages built.
+Build the package's dependencies and a list of imports,
+returning the list of packages built.
 
-  Builds only module `.olean` files if the default package facet is
-  just `oleans`. Otherwise, builds both `.olean` and `.c` files.
+Builds only module `.olean` files if the default package facet is
+just `oleans`. Otherwise, builds both `.olean` and `.c` files.
 -/
 def Package.buildImportsAndDeps
 (imports : List String := []) (self : Package) : BuildM (List Package) := do

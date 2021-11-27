@@ -67,8 +67,8 @@ abbrev cFile (self : ActiveOleanAndCTargets) := self.cTarget.info
 end ActiveOleanAndCTargets
 
 /--
-  An active module `.olean` and `.c` target consists of a single task that
-  builds both with two dependent targets that compute their individual traces.
+An active module `.olean` and `.c` target consists of a single task that
+builds both with two dependent targets that compute their individual traces.
 -/
 abbrev ActiveOleanAndCTarget := ActiveBuildTarget ActiveOleanAndCTargets
 

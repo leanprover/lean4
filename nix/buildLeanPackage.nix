@@ -8,6 +8,8 @@ lib.makeOverridable (
   deps ? [ lean.Lean lean.Leanpkg ],
   # Static library dependencies. Each derivation `static` should contain a static library in the directory `${static}`.
   staticLibDeps ? [],
+  # Whether to wrap static library inputs in a -Wl,--start-group [...] -Wl,--end-group to ensure dependencies are resolved.
+  groupStaticLibs ? false,
   # Shared library dependencies included at interpretation with --load-dynlib and linked to. Each derivation `shared` should contain a 
   # shared library at the path `${shared}/${shared.libName or shared.name}` and a name to link to like `-l${shared.linkName or shared.name}`.
   # These libs are also linked to in packages that depend on this one.
@@ -57,13 +59,14 @@ with builtins; let
   srcRoot = src;
 
   # A flattened list of Lean-module dependencies (`deps`)
-  allExternalDeps = lib.foldr (dep: allExternalDeps: allExternalDeps // { ${dep.name} = dep; } // dep.allExternalDeps) {} deps;
+  allExternalDeps = lib.unique (lib.foldr (dep: allExternalDeps: allExternalDeps ++ [ dep ] ++ dep.allExternalDeps) [] deps);
   allNativeSharedLibs =
-    lib.unique (lib.flatten (nativeSharedLibs ++ (map (dep: dep.allNativeSharedLibs or []) (attrValues allExternalDeps))));
+    lib.unique (lib.flatten (nativeSharedLibs ++ (map (dep: dep.allNativeSharedLibs or []) allExternalDeps)));
+
   # A flattened list of all static library dependencies: this and every dep module's explicitly provided `staticLibDeps`, 
   # plus every dep module itself: `dep.staticLib`
   allStaticLibDeps = 
-    lib.unique (lib.flatten (staticLibDeps ++ (map (dep: [dep.staticLib] ++ dep.staticLibDeps or []) (attrValues allExternalDeps))));
+    lib.unique (lib.flatten (staticLibDeps ++ (map (dep: [dep.staticLib] ++ dep.staticLibDeps or []) allExternalDeps)));
 
   pathOfSharedLib = dep: dep.libPath or "${dep}/${dep.libName or dep.name}";
 
@@ -73,7 +76,7 @@ with builtins; let
   fakeDepRoot = runBareCommandLocal "${name}-dep-root" {} ''
     mkdir $out
     cd $out
-    mkdir ${lib.concatStringsSep " " ([name] ++ attrNames allExternalDeps)}
+    mkdir ${lib.concatStringsSep " " ([name] ++ (map (d: d.name) allExternalDeps))}
   '';
   print-lean-deps = writeShellScriptBin "print-lean-deps" ''
     export LEAN_PATH=${fakeDepRoot}
@@ -125,7 +128,7 @@ with builtins; let
     '';
   };
   singleton = name: value: listToAttrs [ { inherit name value; } ];
-  externalModMap = lib.foldr (dep: depMap: depMap // dep.mods) {} (attrValues allExternalDeps);
+  externalModMap = lib.foldr (dep: depMap: depMap // dep.mods) {} allExternalDeps;
   # Recursively build `mod` and its dependencies. `modMap` maps module names to
   # `{ deps, drv }` pairs of a derivation and its transitive dependencies (as a nested
   # mapping from module names to derivations). It is passed linearly through the
@@ -142,31 +145,38 @@ with builtins; let
     PATH=${lean}/bin:$PATH ${lean-vscode}/bin/code "$@"
   '';
   printPaths = deps: writeShellScriptBin "print-paths" ''
-    echo '${toJSON { oleanPath = [(depRoot "print-paths" deps)]; srcPath = ["."] ++ map (dep: dep.src) (attrValues allExternalDeps); }}'
+    echo '${toJSON { oleanPath = [(depRoot "print-paths" deps)]; srcPath = ["."] ++ map (dep: dep.src) allExternalDeps; }}'
   '';
   makePrintPathsFor = deps: mods: printPaths deps // mapAttrs (_: mod: makePrintPathsFor (deps ++ [mod]) mods) mods;
   mods      = buildModAndDeps name {};
   allLinkFlags = lib.foldr (shared: acc: acc ++ [ "-L${shared}" "-l${shared.linkName or shared.name}" ]) linkFlags allNativeSharedLibs;
-in rec {
-  inherit name lean deps staticLibDeps allNativeSharedLibs allLinkFlags allExternalDeps print-lean-deps src mods;
-  modRoot   = depRoot name [ mods.${name} ];
-  cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
+
   objects   = mapAttrs compileMod mods;
-  oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };
   staticLib = runCommand "${name}-lib" { buildInputs = [ stdenv.cc.bintools.bintools ]; } ''
     mkdir -p $out
     ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))};
   '';
+
+  # Static lib inputs
+  staticLibLinkWrapper = libs: if groupStaticLibs
+    then "-Wl,--start-group ${libs} -Wl,--end-group"
+    else "${libs}";
+  staticLibArguments = staticLibLinkWrapper ("${staticLib}/* ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)}");
+in rec {
+  inherit name lean deps staticLibDeps allNativeSharedLibs allLinkFlags allExternalDeps print-lean-deps src mods objects staticLib;
+  modRoot   = depRoot name [ mods.${name} ];
+  cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
+  oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };
   sharedLib = runCommand "${name}.so" { buildInputs = [ stdenv.cc gmp ]; } ''
     mkdir -p $out/lib
     ${leanc}/bin/leanc -fPIC -shared \
       -Wl,--whole-archive ${staticLib}/* -Wl,--no-whole-archive\
-      ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)} \
+      ${staticLibArguments} \
       -o $out/${name}.so
   '';
   executable = runCommand executableName { buildInputs = [ stdenv.cc leanc ]; } ''
     mkdir -p $out/bin
-    leanc -Wl,--start-group ${staticLib}/* ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)} -Wl,--end-group \
+    leanc ${staticLibArguments} \
       -o $out/bin/${executableName} \
       ${lib.concatStringsSep " " allLinkFlags}
   '' // {

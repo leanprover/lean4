@@ -967,6 +967,12 @@ where
     stx.isIdent && stx.getId.eraseMacroScopes.isAtomic
 
 -- leading_parser "match " >> sepBy1 termParser ", " >> optType >> " with " >> matchAlts
+/--
+Pattern matching. `match e, ... with | p, ... => f | ...` matches each given
+term `e` against each pattern `p` of a match alternative. When all patterns
+of an alternative match, the `match` term evaluates to the value of the
+corresponding right-hand side `f` with the pattern variables bound to the
+respective matched values. -/
 @[builtinTermElab «match»] def elabMatch : TermElab := fun stx expectedType? => do
   match stx with
   | `(match $discr:term with | $y:ident => $rhs:term) =>
@@ -987,6 +993,9 @@ builtin_initialize
   registerTraceClass `Elab.match
 
 -- leading_parser:leadPrec "nomatch " >> termParser
+/-- Empty match/ex falso. `nomatch e` is of arbitrary type `α : Sort u` if
+Lean can show that an empty set of patterns is exhaustive given `e`'s type,
+e.g. because it has no constructors. -/
 @[builtinTermElab «nomatch»] def elabNoMatch : TermElab := fun stx expectedType? => do
   match stx with
   | `(nomatch $discrExpr) =>

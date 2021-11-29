@@ -101,4 +101,16 @@ def hasInitAttr (env : Environment) (fn : Name) : Bool :=
 def setBuiltinInitAttr (env : Environment) (declName : Name) (initFnName : Name := Name.anonymous) : Except String Environment :=
   builtinInitAttr.setParam env declName initFnName
 
+def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit := do
+  let name := `_regBuiltin ++ forDecl
+  let type := mkApp (mkConst `IO) (mkConst `Unit)
+  let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := ReducibilityHints.opaque,
+                                     safety := DefinitionSafety.safe }
+  match (← getEnv).addAndCompile {} decl with
+  -- TODO: pretty print error
+  | Except.error e => do
+    let msg ← (e.toMessageData {}).toString
+    throwError "failed to emit registration code for builtin '{forDecl}': {msg}"
+  | Except.ok env  => IO.ofExcept (setBuiltinInitAttr env name) >>= setEnv
+
 end Lean

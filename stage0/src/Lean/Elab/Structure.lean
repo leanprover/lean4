@@ -829,8 +829,16 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         let instParents ← fieldInfos.filterM fun info => do
           let decl ← Term.getFVarLocalDecl! info.fvar
           pure (info.isSubobject && decl.binderInfo.isInstImplicit)
-        let projInstances := instParents.toList.map fun info => info.declName
+        withSaveInfoContext do  -- save new env
+          Term.addTermInfo view.ref[1] (← mkConstWithLevelParams view.declName) (isBinder := true)
+          if let some _ := view.ctor.ref[1].getPos? (originalOnly := true) then
+            Term.addTermInfo view.ctor.ref[1] (← mkConstWithLevelParams view.ctor.declName) (isBinder := true)
+          for field in view.fields do
+            -- may not exist if overriding inherited field
+            if (← getEnv).contains field.declName then
+              Term.addTermInfo field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
         Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
+        let projInstances := instParents.toList.map fun info => info.declName
         projInstances.forM fun declName => addInstance declName AttributeKind.global (eval_prio default)
         copiedParents.forM fun parent => mkCoercionToCopiedParent levelParams params view parent
         let lctx ← getLCtx

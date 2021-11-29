@@ -17,23 +17,42 @@ import Lean.Meta.UnificationHint
 namespace Lean.Meta
 
 /--
-  Return true `b` is of the form `mk a.1 ... a.n`.
+  Return true `b` is of the form `mk a.1 ... a.n`, and `a` is not a constructor application.
+
+  If `a` and `b` are constructor applications, the method returns `false` to force `isDefEq` to use `isDefEqArgs`.
+  For example, suppose we are trying to solve the constraint
+  ```
+  Fin.mk ?n ?h =?= Fin.mk n h
+  ```
+  If this method is applied, the constraints are reduced to
+  ```
+  n =?= (Fin.mk ?n ?h).1
+  h =?= (Fin.mk ?n ?h).2
+  ```
+  The first constraint produces the assignment `?n := n`. Then, the second constraint is solved using proof irrelevance without
+  assigning `?h`.
+  TODO: investigate better solutions for the proof irrelevance issue. The problem above can happen is other scenarios.
+  That is, proof irrelevance may prevent us from performing desired mvar assignments.
 -/
-private def isDefEqEtaStruct (a b : Expr) : MetaM Bool :=
-  matchConstCtor b.getAppFn (fun _ => return false) fun ctorVal _ => do
+private def isDefEqEtaStruct (a b : Expr) : MetaM Bool := do
+  if !(← getConfig).etaStruct then return false
+  else
+    matchConstCtor b.getAppFn (fun _ => return false) fun ctorVal _ =>
+    matchConstCtor a.getAppFn (fun _ => go ctorVal) fun _ _ => return false
+where
+  go ctorVal := do
     if ctorVal.numParams + ctorVal.numFields != b.getAppNumArgs then
       trace[Meta.isDefEq.eta.struct] "failed, insufficient number of arguments at{indentExpr b}"
       return false
     else
-      let inductVal ← getConstInfoInduct ctorVal.induct
-      if inductVal.nctors != 1 || inductVal.numIndices != 0 || inductVal.isRec then
+      if !isStructureLike (← getEnv) ctorVal.induct then
         trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
         return false
       else if (← isDefEq (← inferType a) (← inferType b)) then
         checkpointDefEq do
           let args := b.getAppArgs
           for i in [ctorVal.numParams : args.size] do
-            let proj := mkProj inductVal.name (i - ctorVal.numParams) a
+            let proj := mkProj ctorVal.induct (i - ctorVal.numParams) a
             trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{i - ctorVal.numParams}], {proj} =?= {args[i]}"
             unless (← isDefEq proj args[i]) do
               trace[Meta.isDefEq.eta.struct] "failed, unexpect arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"
@@ -1467,6 +1486,17 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   else
     isDefEqOnFailure t s
 
+/-- Return `true` if the types of the given expressions is an inductive datatype with an inductive datatype with a single constructor with no fields. -/
+private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
+  if !(← getConfig).etaStruct then return false
+  else
+    let tType ← whnf (← inferType t)
+    matchConstStruct tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
+      if ctorVal.numFields != 0 then
+        return false
+      else
+        Meta.isExprDefEqAux tType (← inferType s)
+
 private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   if (← (isDefEqEta t s <||> isDefEqEta s t)) then pure true else
   -- TODO: investigate whether this is the place for putting this check
@@ -1477,11 +1507,12 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   whenUndefDo (isDefEqOffset t s) do
   whenUndefDo (isDefEqDelta t s) do
   if t.isConst && s.isConst then
-    if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else pure false
-  else if t.isApp && s.isApp then
-    isDefEqApp t s
+    if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
+  else if (← t.isApp <&&> s.isApp <&&> isDefEqApp t s) then
+    return true
   else
     whenUndefDo (isDefEqStringLit t s) do
+    if (← isDefEqUnitLike t s) then return true else
     isDefEqOnFailure t s
 
 -- We only check DefEq cache for default and all transparency modes

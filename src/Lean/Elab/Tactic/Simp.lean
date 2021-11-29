@@ -231,9 +231,9 @@ when working with a `location`.
 -/
 def simpLocation (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (fvarIdToLemmaId : FVarIdToLemmaId := {}) (loc : Location) : TacticM Unit := do
   match loc with
-  | Location.targets hUserNames simplifyTarget =>
+  | Location.targets hyps simplifyTarget =>
     withMainContext do
-      let fvarIds ← hUserNames.mapM fun hUserName => return (← getLocalDeclFromUserName hUserName).fvarId
+      let fvarIds ← getFVarIds hyps
       go fvarIds simplifyTarget fvarIdToLemmaId
   | Location.wildcard =>
     withMainContext do

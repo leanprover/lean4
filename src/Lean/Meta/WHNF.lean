@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 import Lean.ToExpr
 import Lean.AuxRecursor
 import Lean.ProjFns
+import Lean.Structure
+import Lean.Util.Recognizers
 import Lean.Meta.Basic
 import Lean.Meta.LevelDefEq
 import Lean.Meta.GetConst
@@ -84,21 +86,51 @@ private def getRecRuleFor (recVal : RecursorVal) (major : Expr) : Option Recurso
   | Expr.const fn _ _ => recVal.rules.find? fun r => r.ctor == fn
   | _                 => none
 
-private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM (Option Expr) := do
+private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
   let majorType ← inferType major
   let majorType ← instantiateMVars (← whnf majorType)
   let majorTypeI := majorType.getAppFn
   if !majorTypeI.isConstOf recVal.getInduct then
-    return none
+    return major
   else if majorType.hasExprMVar && majorType.getAppArgs[recVal.numParams:].any Expr.hasExprMVar then
-    return none
+    return major
   else do
-    let (some newCtorApp) ← mkNullaryCtor majorType recVal.numParams | pure none
+    let (some newCtorApp) ← mkNullaryCtor majorType recVal.numParams | pure major
     let newType ← inferType newCtorApp
     if (← isDefEq majorType newType) then
       return newCtorApp
     else
-      return none
+      return major
+
+/--
+  If `major` is not a constructor application, and its type is a structure `C ...`, then return `C.mk major.1 ... major.n`
+
+  \pre `inductName` is `C`.
+
+  If `Meta.Config.etaStruct` is `false` or the condition above does not hold, this method just returns `major`. -/
+private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr := do
+  unless (← getConfig).etaStruct do
+    return major
+  let env ← getEnv
+  if !isStructureLike env inductName then
+    return major
+  else if let some _ := major.isConstructorApp? env then
+    return major
+  else
+    let majorType ← inferType major
+    let majorType ← instantiateMVars (← whnf majorType)
+    let majorTypeI := majorType.getAppFn
+    if !majorTypeI.isConstOf inductName then
+      return major
+    match majorType.getAppFn with
+    | Expr.const d us _ =>
+      let some ctorName ← getFirstCtor d | pure major
+      let ctorInfo ← getConstInfoCtor ctorName
+      let mut result := mkAppN (mkConst ctorName us) (majorType.getAppArgs.shrink ctorInfo.numParams)
+      for i in [:ctorInfo.numFields] do
+        result := mkApp result (mkProj inductName i major)
+      return result
+    | _ => return major
 
 /-- Auxiliary function for reducing recursor applications. -/
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
@@ -107,9 +139,9 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
     let major := recArgs.get ⟨majorIdx, h⟩
     let mut major ← whnf major
     if recVal.k then
-      let newMajor ← toCtorWhenK recVal major
-      major := newMajor.getD major
+      major ← toCtorWhenK recVal major
     major := toCtorIfLit major
+    major ← toCtorWhenStructure recVal.getInduct major
     match getRecRuleFor recVal major with
     | some rule =>
       let majorArgs := major.getAppArgs

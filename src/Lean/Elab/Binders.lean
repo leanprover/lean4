@@ -207,6 +207,10 @@ def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α
     mkForall (← MonadQuotation.addMacroScope `a) BinderInfo.default dom rng
   | _                    => throwUnsupportedSyntax
 
+/--
+The dependent arrow. `(x : α) → β` is equivalent to `∀ x : α, β`, but we usually
+reserve the latter for propositions. Also written as `Π x : α, β` (the "Pi-type")
+in the literature. -/
 @[builtinTermElab depArrow] def elabDepArrow : TermElab := fun stx _ =>
   -- bracketedBinder `->` term
   let binder := stx[0]

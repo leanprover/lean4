@@ -27,14 +27,24 @@ def getDeclarationRange [Monad m] [MonadFileMap m] (stx : Syntax) : m Declaratio
   ```
   "def " >> declId >> optDeclSig >> declVal
   ```
-  For instances, we use the whole header since the name is optional.
+  If the declaration name is absent, we use the keyword instead.
   This function converts the given `Syntax` into one that represents its "selection range".
 -/
 def getDeclarationSelectionRef (stx : Syntax) : Syntax :=
-  if stx.getKind == ``Parser.Command.«instance» then
-    stx.setArg 5 mkNullNode
+  if stx.isOfKind ``Lean.Parser.Command.instance then
+    -- must skip `attrKind` and `optPrio` for `instance`
+    if !stx[3].isNone then
+      stx[3][0]
+    else
+      stx[1]
   else
-    stx[1]
+    if stx[1][0].isIdent then
+      stx[1][0]  -- `declId`
+    else if stx[1].isIdent then
+      stx[1]  -- raw `ident`
+    else
+      stx[0]
+
 
 /--
   Store the `range` and `selectionRange` for `declName` where `stx` is the whole syntax object decribing `declName`.

@@ -13,20 +13,22 @@ open Meta
 @[builtinTactic Lean.Parser.Tactic.split] def evalSplit : Tactic := fun stx => do
   unless stx[1].isNone do
     throwError "'split' tactic, term to split is not supported yet"
-  liftMetaTactic fun mvarId => do
-    let loc := expandOptLocation stx[2]
-    match loc with
-    | Location.targets hUserNames simplifyTarget =>
-      if (hUserNames.size > 0 && simplifyTarget) || hUserNames.size > 1 then
-        throwErrorAt stx[2] "'split' tactic failed, select a single target to split"
-      if simplifyTarget then
+  let loc := expandOptLocation stx[2]
+  match loc with
+  | Location.targets hyps simplifyTarget =>
+    if (hyps.size > 0 && simplifyTarget) || hyps.size > 1 then
+      throwErrorAt stx[2] "'split' tactic failed, select a single target to split"
+    if simplifyTarget then
+      liftMetaTactic fun mvarId => do
         let some mvarIds ← splitTarget? mvarId | throwError "'split' tactic failed"
         return mvarIds
-      else
-        let fvarId := (← getLocalDeclFromUserName hUserNames[0]).fvarId
+    else
+      let fvarId ← getFVarId hyps[0]
+      liftMetaTactic fun mvarId => do
         let some mvarIds ← splitLocalDecl? mvarId fvarId | throwError "'split' tactic failed"
         return mvarIds
-    | Location.wildcard =>
+  | Location.wildcard =>
+    liftMetaTactic fun mvarId => do
       let fvarIds ← getNondepPropHyps mvarId
       for fvarId in fvarIds do
         if let some mvarIds ← splitLocalDecl? mvarId fvarId then

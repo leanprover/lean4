@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "runtime/flet.h"
 #include "kernel/instantiate.h"
 #include "kernel/replace_fn.h"
+#include "kernel/inductive.h"
 #include "library/compiler/util.h"
 #include "library/compiler/extern_attribute.h"
 

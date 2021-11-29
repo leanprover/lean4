@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
+#include "kernel/inductive.h"
 #include "library/trace.h"
 #include "library/suffixes.h"
 #include "library/compiler/util.h"

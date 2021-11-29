@@ -4,18 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.Tactic.Basic
+import Lean.Elab.Tactic.ElabTerm
 
 namespace Lean.Elab.Tactic
 
 inductive Location where
   | wildcard
-  | targets (hypotheses : Array Name) (type : Bool)
+  | targets (hypotheses : Array Syntax) (type : Bool)
 
 /-
 Recall that
 ```
 syntax locationWildcard := "*"
-syntax locationTargets  := (colGt ident)+ ("⊢" <|> "|-")?
+syntax locationHyp      := (colGt term:max)+ ("⊢" <|> "|-")?
 syntax location         := withPosition("at " locationWildcard <|> locationHyp)
 ```
 -/
@@ -24,7 +25,7 @@ def expandLocation (stx : Syntax) : Location :=
   if arg.getKind == ``Parser.Tactic.locationWildcard then
     Location.wildcard
   else
-    Location.targets (arg[0].getArgs.map fun stx => stx.getId) (!arg[1].isNone)
+    Location.targets arg[0].getArgs (!arg[1].isNone)
 
 def expandOptLocation (stx : Syntax) : Location :=
   if stx.isNone then
@@ -37,9 +38,9 @@ open Meta
 def withLocation (loc : Location) (atLocal : FVarId → TacticM Unit) (atTarget : TacticM Unit) (failed : MVarId → TacticM Unit) : TacticM Unit := do
   match loc with
   | Location.targets hyps type =>
-    hyps.forM fun userName => withMainContext do
-      let localDecl ← getLocalDeclFromUserName userName
-      atLocal localDecl.fvarId
+    hyps.forM fun hyp => withMainContext do
+      let fvarId ← getFVarId hyp
+      atLocal fvarId
     if type then
       atTarget
   | Location.wildcard =>

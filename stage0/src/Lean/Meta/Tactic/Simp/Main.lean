@@ -400,8 +400,8 @@ where
       modify fun s => { s with cache := s.cache.insert e r }
     return r
 
-def main (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Result := do
-  withReducible do
+def main (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Result :=
+  withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible do
     simp e methods ctx |>.run' {}
 
 abbrev Discharge := Expr → SimpM (Option Expr)

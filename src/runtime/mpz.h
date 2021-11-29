@@ -28,9 +28,17 @@ class mpz {
     mpz_t m_val;
     mpz(__mpz_struct const * v) { mpz_init_set(m_val, v); }
 #else
-    bool      m_sign;
-    unsigned  m_size;
-    mpn_digit m_digits[0];
+    bool        m_sign;
+    size_t      m_size;
+    mpn_digit * m_digits;
+    void allocate(size_t s);
+    void init();
+    void init_str(char const * v);
+    void init_uint(unsigned int v);
+    void init_int(int v);
+    void init_uint64(uint64 v);
+    void init_int64(int64 v);
+    void init_mpz(mpz const & v);
 #endif
 public:
     mpz();
@@ -66,25 +74,44 @@ public:
 #endif
     }
 
-    int sgn() const {
+    int sgn() const;
+
+    friend int sgn(mpz const & a) { return a.sgn(); }
+
+    bool is_pos() const {
 #ifdef LEAN_USE_GMP
-        return mpz_sgn(m_val);
+        return sgn() > 0;
+#else
+        return !m_sign && (m_size > 1 || m_digits[0] != 0);
+#endif
+    }
+
+    bool is_neg() const {
+#ifdef LEAN_USE_GMP
+        return sgn() < 0;
 #else
         return m_sign;
 #endif
     }
-    friend int sgn(mpz const & a) { return a.sgn(); }
-    bool is_pos() const { return sgn() > 0; }
-    bool is_neg() const { return sgn() < 0; }
-    bool is_zero() const { return sgn() == 0; }
+
+    bool is_zero() const {
+#ifdef LEAN_USE_GMP
+        return sgn() == 0;
+#else
+        return m_size == 1 && m_digits[0] == 0;
+#endif
+    }
+
     bool is_nonpos() const { return !is_pos(); }
+
     bool is_nonneg() const { return !is_neg(); }
 
     void neg() {
 #ifdef LEAN_USE_GMP
         mpz_neg(m_val, m_val);
 #else
-        m_sign = !m_sign;
+        if (!is_zero())
+            m_sign = !m_sign;
 #endif
     }
 
@@ -102,13 +129,9 @@ public:
 
     bool is_int() const;
     bool is_unsigned_int() const;
-    bool is_long_int() const;
-    bool is_unsigned_long_int() const;
     bool is_size_t() const;
 
-    long int get_long_int() const;
     int get_int() const;
-    unsigned long int get_unsigned_long_int() const;
     unsigned int get_unsigned_int() const;
     size_t get_size_t() const;
 
@@ -120,47 +143,40 @@ public:
 
     friend int cmp(mpz const & a, mpz const & b);
     friend int cmp(mpz const & a, unsigned b);
-    friend int cmp(mpz const & a, unsigned long b);
     friend int cmp(mpz const & a, int b);
 
     friend bool operator<(mpz const & a, mpz const & b) { return cmp(a, b) < 0; }
     friend bool operator<(mpz const & a, unsigned b) { return cmp(a, b) < 0; }
-    friend bool operator<(mpz const & a, unsigned long b) { return cmp(a, b) < 0; }
     friend bool operator<(mpz const & a, int b) { return cmp(a, b) < 0; }
     friend bool operator<(unsigned a, mpz const & b) { return cmp(b, a) > 0; }
     friend bool operator<(int a, mpz const & b) { return cmp(b, a) > 0; }
 
     friend bool operator>(mpz const & a, mpz const & b) { return cmp(a, b) > 0; }
     friend bool operator>(mpz const & a, unsigned b) { return cmp(a, b) > 0; }
-    friend bool operator>(mpz const & a, unsigned long b) { return cmp(a, b) > 0; }
     friend bool operator>(mpz const & a, int b) { return cmp(a, b) > 0; }
     friend bool operator>(unsigned a, mpz const & b) { return cmp(b, a) < 0; }
     friend bool operator>(int a, mpz const & b) { return cmp(b, a) < 0; }
 
     friend bool operator<=(mpz const & a, mpz const & b) { return cmp(a, b) <= 0; }
     friend bool operator<=(mpz const & a, unsigned b) { return cmp(a, b) <= 0; }
-    friend bool operator<=(mpz const & a, unsigned long b) { return cmp(a, b) <= 0; }
     friend bool operator<=(mpz const & a, int b) { return cmp(a, b) <= 0; }
     friend bool operator<=(unsigned a, mpz const & b) { return cmp(b, a) >= 0; }
     friend bool operator<=(int a, mpz const & b) { return cmp(b, a) >= 0; }
 
     friend bool operator>=(mpz const & a, mpz const & b) { return cmp(a, b) >= 0; }
     friend bool operator>=(mpz const & a, unsigned b) { return cmp(a, b) >= 0; }
-    friend bool operator>=(mpz const & a, unsigned long b) { return cmp(a, b) >= 0; }
     friend bool operator>=(mpz const & a, int b) { return cmp(a, b) >= 0; }
     friend bool operator>=(unsigned a, mpz const & b) { return cmp(b, a) <= 0; }
     friend bool operator>=(int a, mpz const & b) { return cmp(b, a) <= 0; }
 
     friend bool operator==(mpz const & a, mpz const & b) { return cmp(a, b) == 0; }
     friend bool operator==(mpz const & a, unsigned b) { return cmp(a, b) == 0; }
-    friend bool operator==(mpz const & a, unsigned long b) { return cmp(a, b) == 0; }
     friend bool operator==(mpz const & a, int b) { return cmp(a, b) == 0; }
     friend bool operator==(unsigned a, mpz const & b) { return cmp(b, a) == 0; }
     friend bool operator==(int a, mpz const & b) { return cmp(b, a) == 0; }
 
     friend bool operator!=(mpz const & a, mpz const & b) { return cmp(a, b) != 0; }
     friend bool operator!=(mpz const & a, unsigned b) { return cmp(a, b) != 0; }
-    friend bool operator!=(mpz const & a, unsigned long b) { return cmp(a, b) != 0; }
     friend bool operator!=(mpz const & a, int b) { return cmp(a, b) != 0; }
     friend bool operator!=(unsigned a, mpz const & b) { return cmp(b, a) != 0; }
     friend bool operator!=(int a, mpz const & b) { return cmp(b, a) != 0; }

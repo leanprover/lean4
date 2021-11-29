@@ -6,7 +6,9 @@ Author: Leonardo de Moura
 */
 #include <memory>
 #include <string>
+#include <cstring>
 #include "runtime/sstream.h"
+#include "runtime/alloc.h"
 #include "runtime/thread.h"
 #include "runtime/mpz.h"
 #include "runtime/debug.h"
@@ -74,20 +76,16 @@ void swap(mpz & a, mpz & b) {
     mpz_swap(a.m_val, b.m_val);
 }
 
+int mpz::sgn() const {
+    return mpz_sgn(m_val);
+}
+
 bool mpz::is_int() const {
     return mpz_fits_sint_p(m_val) != 0;
 }
 
 bool mpz::is_unsigned_int() const {
     return mpz_fits_uint_p(m_val) != 0;
-}
-
-bool mpz::is_long_int() const {
-    return mpz_fits_slong_p(m_val) != 0;
-}
-
-bool mpz::is_unsigned_long_int() const {
-    return mpz_fits_ulong_p(m_val) != 0;
 }
 
 bool mpz::is_size_t() const {
@@ -97,20 +95,14 @@ bool mpz::is_size_t() const {
     return is_nonneg() && mpz_size(m_val) <= 1;
 }
 
-long int mpz::get_long_int() const {
-    lean_assert(is_long_int()); return mpz_get_si(m_val);
-}
-
 int mpz::get_int() const {
-    lean_assert(is_int()); return static_cast<int>(get_long_int());
-}
-
-unsigned long int mpz::get_unsigned_long_int() const {
-    lean_assert(is_unsigned_long_int()); return mpz_get_ui(m_val);
+    lean_assert(is_int());
+    return static_cast<int>(mpz_get_si(m_val));
 }
 
 unsigned int mpz::get_unsigned_int() const {
-    lean_assert(is_unsigned_int()); return static_cast<unsigned>(get_unsigned_long_int());
+    lean_assert(is_unsigned_int());
+    return static_cast<unsigned>(mpz_get_ui(m_val));
 }
 
 size_t mpz::get_size_t() const {
@@ -142,10 +134,6 @@ int cmp(mpz const & a, mpz const & b) {
 }
 
 int cmp(mpz const & a, unsigned b) {
-    return mpz_cmp_ui(a.m_val, b);
-}
-
-int cmp(mpz const & a, unsigned long b) {
     return mpz_cmp_ui(a.m_val, b);
 }
 
@@ -250,54 +238,127 @@ std::ostream & operator<<(std::ostream & out, mpz const & v) {
 #else
 /***** NON GMP VERSION ******/
 
-mpz::mpz() {
+void mpz::allocate(size_t s) {
+    m_sign   = false;
+    m_size   = s;
+    m_digits = static_cast<mpn_digit*>(alloc(s * sizeof(mpn_digit)));
+}
+
+void mpz::init() {
+    allocate(1);
+    m_digits[0] = 0;
+}
+
+void mpz::init_str(char const * v) {
+    init();
+    char const * str = v;
+    bool sign = false;
+    while (str[0] == ' ') ++str;
+    if (str[0] == '-')
+        sign = true;
+    while (str[0]) {
+        if ('0' <= str[0] && str[0] <= '9') {
+            operator*=(10);
+            operator+=(static_cast<unsigned>(str[0] - '0'));
+        }
+        ++str;
+    }
+    if (sign)
+        neg();
+}
+
+void mpz::init_uint(unsigned int v) {
+    allocate(1);
+    m_digits[0] = v;
+}
+
+void mpz::init_int(int v) {
+    allocate(1);
+    if (v < 0) {
+        m_sign = true;
+        m_digits[0] = -v;
+    } else {
+        m_digits[0] = v;
+    }
+}
+
+void mpz::init_uint64(uint64 v) {
+    if (v <= std::numeric_limits<unsigned>::max()) {
+        allocate(1);
+        m_digits[0] = v;
+    } else {
+        allocate(2);
+        (reinterpret_cast<uint64*>(m_digits))[0] = v;
+    }
+}
+
+void mpz::init_int64(int64 v) {
     // TODO
     lean_unreachable();
+}
+
+void mpz::init_mpz(mpz const & v) {
+    m_sign   = v.m_sign;
+    m_size   = v.m_size;
+    m_digits = static_cast<mpn_digit*>(alloc(m_size * sizeof(mpn_digit)));
+    memcpy(m_digits, v.m_digits, m_size * sizeof(mpn_digit));
+}
+
+mpz::mpz() {
+    init();
 }
 
 mpz::mpz(char const * v) {
-    // TODO
-    lean_unreachable();
+    init_str(v);
 }
 
 mpz::mpz(unsigned int v) {
-    // TODO
-    lean_unreachable();
+    init_uint(v);
 }
 
 mpz::mpz(int v) {
-    // TODO
-    lean_unreachable();
+    init_int(v);
 }
 
 mpz::mpz(uint64 v) {
-    // TODO
-    lean_unreachable();
+    init_uint64(v);
 }
 
 mpz::mpz(int64 v) {
-    // TODO
-    lean_unreachable();
+    init_int64(v);
 }
 
 mpz::mpz(mpz const & s) {
-    // TODO
-    lean_unreachable();
+    init_mpz(s);
 }
 
-mpz::mpz(mpz && s):mpz() {
-    // TODO
-    lean_unreachable();
+mpz::mpz(mpz && s):
+    m_sign(s.m_sign),
+    m_size(s.m_size),
+    m_digits(s.m_digits) {
+    s.m_digits = nullptr;
 }
 
 mpz::~mpz() {
-    // TODO
-    lean_unreachable();
+    if (m_digits)
+        dealloc(m_digits, sizeof(mpn_digit)*m_size);
 }
 
 void swap(mpz & a, mpz & b) {
-    // TODO
-    lean_unreachable();
+    std::swap(a.m_sign, b.m_sign);
+    std::swap(a.m_size, b.m_size);
+    std::swap(a.m_digits, b.m_digits);
+}
+
+int mpz::sgn() const {
+    if (m_size > 1) {
+        return m_sign ? -1 : 1;
+    } else {
+        if (m_digits[0] == 0)
+            return 0;
+        else
+            return m_sign ? -1 : 1;
+    }
 }
 
 bool mpz::is_int() const {
@@ -306,36 +367,18 @@ bool mpz::is_int() const {
 }
 
 bool mpz::is_unsigned_int() const {
-    // TODO
-    lean_unreachable();
-}
-
-bool mpz::is_long_int() const {
-    // TODO
-    lean_unreachable();
-}
-
-bool mpz::is_unsigned_long_int() const {
-    // TODO
-    lean_unreachable();
+    return m_size == 1 && !m_sign;
 }
 
 bool mpz::is_size_t() const {
-    // TODO
-    lean_unreachable();
-}
-
-long int mpz::get_long_int() const {
-    // TODO
-    lean_unreachable();
+    if (sizeof(size_t) == 8) {
+        return m_size <= 2 && !m_sign;
+    } else {
+        return m_size == 1 && !m_sign;
+    }
 }
 
 int mpz::get_int() const {
-    // TODO
-    lean_unreachable();
-}
-
-unsigned long int mpz::get_unsigned_long_int() const {
     // TODO
     lean_unreachable();
 }
@@ -351,38 +394,51 @@ size_t mpz::get_size_t() const {
 }
 
 mpz & mpz::operator=(mpz const & v) {
-    // TODO
-    lean_unreachable();
+    dealloc(m_digits, sizeof(mpn_digit)*m_size);
+    init_mpz(v);
+    return *this;
 }
 
 mpz & mpz::operator=(char const * v) {
-    // TODO
-    lean_unreachable();
+    dealloc(m_digits, sizeof(mpn_digit)*m_size);
+    init_str(v);
+    return *this;
 }
 
 mpz & mpz::operator=(unsigned int v) {
-    // TODO
-    lean_unreachable();
+    dealloc(m_digits, sizeof(mpn_digit)*m_size);
+    init_uint(v);
+    return *this;
 }
 
 mpz & mpz::operator=(int v) {
-    // TODO
-    lean_unreachable();
+    dealloc(m_digits, sizeof(mpn_digit)*m_size);
+    init_int(v);
+    return *this;
 }
 
 int cmp(mpz const & a, mpz const & b) {
-    // TODO
-    lean_unreachable();
+    if (a.m_sign) {
+        if (b.m_sign) {
+            return mpn_compare(b.m_digits, b.m_size, a.m_digits, a.m_size);
+        } else {
+            return -1; // `a` is negative and `b` is nonnegative
+        }
+    } else {
+        if (b.m_sign) {
+            return 1; // `a` is nonnegative and `b` is negative
+        } else {
+            return mpn_compare(a.m_digits, a.m_size, b.m_digits, b.m_size);
+        }
+    }
 }
 
 int cmp(mpz const & a, unsigned b) {
-    // TODO
-    lean_unreachable();
-}
-
-int cmp(mpz const & a, unsigned long b) {
-    // TODO
-    lean_unreachable();
+    if (a.m_sign) {
+        return -1;
+    } else {
+        return mpn_compare(a.m_digits, a.m_size, &b, 1);
+    }
 }
 
 int cmp(mpz const & a, int b) {

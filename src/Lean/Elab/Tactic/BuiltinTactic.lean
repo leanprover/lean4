@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Elab.Tactic.Basic
+import Lean.Elab.Tactic.ElabTerm
 
 namespace Lean.Elab.Tactic
 open Meta
@@ -187,7 +188,7 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
   for h in hs do
     withMainContext do
       let fvarId ← getFVarId h
-      let mvarId ← tac (← getMainGoal) (← getFVarId h)
+      let mvarId ← tac (← getMainGoal) fvarId
       replaceMainGoal [mvarId]
 
 @[builtinTactic Lean.Parser.Tactic.subst] def evalSubst : Tactic := fun stx =>

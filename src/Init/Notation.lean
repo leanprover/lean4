@@ -228,13 +228,13 @@ syntax (name := intros) "intros " (colGt (ident <|> "_"))* : tactic
 or fails if no such hypothesis could be found. -/
 syntax (name := rename) "rename " term " => " ident : tactic
 /-- `revert x...` is the inverse of `intro x...`: it moves the given hypotheses into the main goal's target type. -/
-syntax (name := revert) "revert " (colGt ident)+ : tactic
+syntax (name := revert) "revert " (colGt term:max)+ : tactic
 /-- `clear x...` removes the given hypotheses, or fails if there are remaining references to a hypothesis. -/
-syntax (name := clear) "clear " (colGt ident)+ : tactic
+syntax (name := clear) "clear " (colGt term:max)+ : tactic
 /--
 `subst x...` substitutes each `x` with `e` in the goal if there is a hypothesis of type `x = e` or `e = x`.
 If `x` is itself a hypothesis of type `y = e` or `e = y`, `y` is substituted instead. -/
-syntax (name := subst) "subst " (colGt ident)+ : tactic
+syntax (name := subst) "subst " (colGt term:max)+ : tactic
 /--
 `assumption` tries to solve the main goal using a hypothesis of compatible type, or else fails.
 Note also the `‹t›` term notation, which is a shorthand for `show t by assumption`. -/
@@ -322,8 +322,7 @@ macro "infer_instance" : tactic => `(exact inferInstance)
 syntax config := atomic("(" &"config") " := " term ")"
 
 syntax locationWildcard := "*"
-syntax locationHyp      := (colGt ident)+ ("⊢" <|> "|-")? -- TODO: delete
-syntax locationTargets  := (colGt ident)+ ("⊢" <|> "|-")?
+syntax locationHyp      := (colGt term:max)+ ("⊢" <|> "|-")?
 syntax location         := withPosition(" at " (locationWildcard <|> locationHyp))
 
 syntax (name := change) "change " term (location)? : tactic
@@ -357,7 +356,7 @@ syntax discharger := atomic("(" (&"discharger" <|> &"disch")) " := " tacticSeq "
 syntax simpPre   := "↓"
 syntax simpPost  := "↑"
 syntax simpLemma := (simpPre <|> simpPost)? ("←" <|> "<-")? term
-syntax simpErase := "-" ident
+syntax simpErase := "-" term:max
 syntax simpStar  := "*"
 syntax (name := simp) "simp " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 syntax (name := simpAll) "simp_all " (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
@@ -389,7 +388,7 @@ macro "let' " d:letDecl : tactic => `(refine_lift' let $d:letDecl; ?_)
 
 syntax inductionAlt  := "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
-syntax (name := induction) "induction " term,+ (" using " ident)?  ("generalizing " ident+)? (inductionAlts)? : tactic
+syntax (name := induction) "induction " term,+ (" using " ident)?  ("generalizing " term:max+)? (inductionAlts)? : tactic
 
 syntax generalizeArg := atomic(ident " : ")? term:51 " = " ident
 /--

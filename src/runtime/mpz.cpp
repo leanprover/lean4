@@ -11,7 +11,8 @@ Author: Leonardo de Moura
 #include "runtime/mpz.h"
 
 namespace lean {
-
+/***** GMP VERSION ******/
+#ifdef LEAN_USE_GMP
 mpz::mpz() {
     mpz_init(m_val);
 }
@@ -244,6 +245,12 @@ std::ostream & operator<<(std::ostream & out, mpz const & v) {
     display(out, v.m_val);
     return out;
 }
+
+#else
+/***** NON GMP VERSION ******/
+
+#endif
+
 
 std::string mpz::to_string() const {
     std::ostringstream out;

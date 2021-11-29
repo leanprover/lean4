@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "runtime/thread.h"
 #include "runtime/mpz.h"
+#include "runtime/debug.h"
 
 namespace lean {
 /***** GMP VERSION ******/
@@ -249,6 +250,265 @@ std::ostream & operator<<(std::ostream & out, mpz const & v) {
 #else
 /***** NON GMP VERSION ******/
 
+mpz::mpz() {
+    // TODO
+    lean_unreachable();
+}
+
+mpz::mpz(char const * v) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz::mpz(unsigned int v) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz::mpz(int v) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz::mpz(uint64 v) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz::mpz(int64 v) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz::mpz(mpz const & s) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz::mpz(mpz && s):mpz() {
+    // TODO
+    lean_unreachable();
+}
+
+mpz::~mpz() {
+    // TODO
+    lean_unreachable();
+}
+
+void swap(mpz & a, mpz & b) {
+    // TODO
+    lean_unreachable();
+}
+
+bool mpz::is_int() const {
+    // TODO
+    lean_unreachable();
+}
+
+bool mpz::is_unsigned_int() const {
+    // TODO
+    lean_unreachable();
+}
+
+bool mpz::is_long_int() const {
+    // TODO
+    lean_unreachable();
+}
+
+bool mpz::is_unsigned_long_int() const {
+    // TODO
+    lean_unreachable();
+}
+
+bool mpz::is_size_t() const {
+    // TODO
+    lean_unreachable();
+}
+
+long int mpz::get_long_int() const {
+    // TODO
+    lean_unreachable();
+}
+
+int mpz::get_int() const {
+    // TODO
+    lean_unreachable();
+}
+
+unsigned long int mpz::get_unsigned_long_int() const {
+    // TODO
+    lean_unreachable();
+}
+
+unsigned int mpz::get_unsigned_int() const {
+    // TODO
+    lean_unreachable();
+}
+
+size_t mpz::get_size_t() const {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator=(mpz const & v) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator=(char const * v) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator=(unsigned int v) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator=(int v) {
+    // TODO
+    lean_unreachable();
+}
+
+int cmp(mpz const & a, mpz const & b) {
+    // TODO
+    lean_unreachable();
+}
+
+int cmp(mpz const & a, unsigned b) {
+    // TODO
+    lean_unreachable();
+}
+
+int cmp(mpz const & a, unsigned long b) {
+    // TODO
+    lean_unreachable();
+}
+
+int cmp(mpz const & a, int b) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator+=(mpz const & o) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator+=(unsigned u) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator+=(int u) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator-=(mpz const & o) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator-=(unsigned u) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator-=(int u) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator*=(mpz const & o) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator*=(unsigned u) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator*=(int u) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator/=(mpz const & o) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator/=(unsigned u) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz rem(mpz const & a, mpz const & b) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz mpz::pow(unsigned int exp) const {
+    // TODO
+    lean_unreachable();
+}
+
+size_t mpz::log2() const {
+    // TODO
+    lean_unreachable();
+}
+
+mpz operator%(mpz const & a, mpz const & b) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator&=(mpz const & o) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator|=(mpz const & o) {
+    // TODO
+    lean_unreachable();
+}
+
+mpz & mpz::operator^=(mpz const & o) {
+    // TODO
+    lean_unreachable();
+}
+
+void mul2k(mpz & a, mpz const & b, unsigned k) {
+    // TODO
+    lean_unreachable();
+}
+
+void div2k(mpz & a, mpz const & b, unsigned k) {
+    // TODO
+    lean_unreachable();
+}
+
+void mod2k(mpz & a, mpz const & b, unsigned k) {
+    // TODO
+    lean_unreachable();
+}
+
+void power(mpz & a, mpz const & b, unsigned k) {
+    // TODO
+    lean_unreachable();
+}
+
+void gcd(mpz & g, mpz const & a, mpz const & b) {
+    // TODO
+    lean_unreachable();
+}
+
+std::ostream & operator<<(std::ostream & out, mpz const & v) {
+    // TODO
+    lean_unreachable();
+}
 #endif
 
 

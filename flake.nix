@@ -54,6 +54,14 @@
       defaultPackage = lean-packages.lean;
 
       checks.lean = lean-packages.test;
+      devShell = pkgs.mkShell {
+        inputsFrom = [ lean-packages ];
+        buildInputs = [
+          lean-packages.lean
+        ];
+        LEAN_PATH = "${lean-packages.modRoot}";
+        LEAN_SRC_PATH = "${lean-packages.src}";
+      };
     }) // rec {
       templates.pkg = {
         path = ./nix/templates/pkg;

@@ -255,6 +255,7 @@ object * box_t(value v, type t) {
         case type::Irrelevant:
             return v.m_obj;
     }
+    lean_unreachable();
 }
 
 value unbox_t(object * o, type t) {
@@ -265,8 +266,12 @@ value unbox_t(object * o, type t) {
         case type::UInt32: return unbox_uint32(o);
         case type::UInt64: return unbox_uint64(o);
         case type::USize: return unbox_size_t(o);
-        default: lean_unreachable();
+        case type::Irrelevant:
+        case type::Object:
+        case type::TObject:
+            break;
     }
+    lean_unreachable();
 }
 
 /** \pre Very simple debug output of arbitrary values, should be extended. */
@@ -460,8 +465,13 @@ private:
                     case type::UInt16: return cnstr_get_uint16(o, offset);
                     case type::UInt32: return cnstr_get_uint32(o, offset);
                     case type::UInt64: return cnstr_get_uint64(o, offset);
-                    default: throw exception("invalid instruction");
+                    case type::USize:
+                    case type::Irrelevant:
+                    case type::Object:
+                    case type::TObject:
+                        break;
                 }
+                throw exception("invalid instruction");
             }
             case expr_kind::FAp: { // satured ("full") application of top-level function
                 if (expr_fap_args(e).size()) {
@@ -520,20 +530,21 @@ private:
                             case type::Object:
                             case type::TObject:
                                 return n.to_obj_arg();
-                            default:
-                                throw exception("invalid instruction");
+                            case type::Irrelevant:
+                                break;
                         }
+                        throw exception("invalid instruction");
                     }
                     case lit_val_kind::Str:
                         return lit_val_str(expr_lit_val(e)).to_obj_arg();
                 }
+                break;
             case expr_kind::IsShared:
                 return !is_exclusive(var(expr_is_shared_obj(e)).m_obj);
             case expr_kind::IsTaggedPtr:
                 return !is_scalar(var(expr_is_tagged_ptr_obj(e)).m_obj);
-            default:
-                throw exception(sstream() << "unexpected instruction kind " << static_cast<unsigned>(expr_tag(e)));
         }
+        throw exception(sstream() << "unexpected instruction kind " << static_cast<unsigned>(expr_tag(e)));
     }
 
     void check_system() {
@@ -636,7 +647,11 @@ private:
                         case type::UInt16: cnstr_set_uint16(o, offset, v.m_num); break;
                         case type::UInt32: cnstr_set_uint32(o, offset, v.m_num); break;
                         case type::UInt64: cnstr_set_uint64(o, offset, v.m_num); break;
-                        default: throw exception(sstream() << "invalid instruction");
+                        case type::USize:
+                        case type::Irrelevant:
+                        case type::Object:
+                        case type::TObject:
+                            throw exception(sstream() << "invalid instruction");
                     }
                     b = fn_body_sset_cont(b);
                     break;

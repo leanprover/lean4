@@ -17,11 +17,30 @@ import Lean.Meta.UnificationHint
 namespace Lean.Meta
 
 /--
-  Return true `b` is of the form `mk a.1 ... a.n`.
+  Return true `b` is of the form `mk a.1 ... a.n`, and `a` is not a constructor application.
+
+  If `a` and `b` are constructor applications, the method returns `false` to force `isDefEq` to use `isDefEqArgs`.
+  For example, suppose we are trying to solve the constraint
+  ```
+  Fin.mk ?n ?h =?= Fin.mk n h
+  ```
+  If this method is applied, the constraints are reduced to
+  ```
+  n =?= (Fin.mk ?n ?h).1
+  h =?= (Fin.mk ?n ?h).2
+  ```
+  The first constraint produces the assignment `?n := n`. Then, the second constraint is solved using proof irrelevance without
+  assigning `?h`.
+  TODO: investigate better solutions for the proof irrelevance issue. The problem above can happen is other scenarios.
+  That is, proof irrelevance may prevent us from performing desired mvar assignments.
 -/
 private def isDefEqEtaStruct (a b : Expr) : MetaM Bool := do
   if !(← getConfig).etaStruct then return false
-  else matchConstCtor b.getAppFn (fun _ => return false) fun ctorVal _ => do
+  else
+    matchConstCtor b.getAppFn (fun _ => return false) fun ctorVal _ =>
+    matchConstCtor a.getAppFn (fun _ => go ctorVal) fun _ _ => return false
+where
+  go ctorVal := do
     if ctorVal.numParams + ctorVal.numFields != b.getAppNumArgs then
       trace[Meta.isDefEq.eta.struct] "failed, insufficient number of arguments at{indentExpr b}"
       return false

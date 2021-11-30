@@ -16,7 +16,7 @@ inductive Location where
 Recall that
 ```
 syntax locationWildcard := "*"
-syntax locationTargets  := (colGt ident)+ ("⊢" <|> "|-")?
+syntax locationHyp      := (colGt term:max)+ ("⊢" <|> "|-")?
 syntax location         := withPosition("at " locationWildcard <|> locationHyp)
 ```
 -/

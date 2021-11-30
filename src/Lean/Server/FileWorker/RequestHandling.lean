@@ -143,6 +143,7 @@ structure Reference where
   ident : RefIdent
   range : Range
   isDeclaration : Bool
+  deriving BEq
 
 open Elab in
 partial def handleReferences (p : ReferenceParams)
@@ -170,7 +171,7 @@ partial def handleReferences (p : ReferenceParams)
       if let some range := ti.stx.getRange? (originalOnly := true) then
         let text := doc.meta.text
         let range := {
-          start := text.utf8PosToLspPos range.start,
+          start := text.utf8PosToLspPos range.start
           «end» := text.utf8PosToLspPos range.stop
         }
         { ident, range, isDeclaration := ti.isBinder } :: refs
@@ -190,7 +191,9 @@ partial def handleReferences (p : ReferenceParams)
     referencesTo (doc : EditableDocument) (ident : RefIdent) (includeDecl : Bool) (refs : List Reference)
         : Array Location :=
       let relevant := refs.filter fun ref => ref.ident == ident && (includeDecl || !ref.isDeclaration)
-      List.toArray <| relevant.map fun ref => { uri := doc.meta.uri, range := ref.range : Location}
+      let locations := relevant.map fun ref => { uri := doc.meta.uri, range := ref.range : Location}
+      -- TODO Remove duplicates more efficiently
+      List.toArray <| List.eraseDups <| locations
 
 open RequestM in
 def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Option Widget.InteractiveGoals)) := do

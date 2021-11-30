@@ -99,7 +99,9 @@ def runFrontend (input : String) (opts : Options) (fileName : String) (mainModul
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
   let (env, messages) ← processHeader header opts messages inputCtx trustLevel
   let env := env.setMainModule mainModuleName
-  let s ← IO.processCommands inputCtx parserState (Command.mkState env messages opts)
+  let s := Command.mkState env messages opts
+  let s := { s with infoState.enabled := true }
+  let s ← IO.processCommands inputCtx parserState s
   for msg in s.commandState.messages.toList do
     IO.print (← msg.toString (includeEndPos := getPrintMessageEndPos opts))
   pure (s.commandState.env, !s.commandState.messages.hasErrors)

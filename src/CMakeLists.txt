@@ -58,6 +58,7 @@ option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" ON)
 option(LAZY_RC             "LAZY_RC" OFF)
 option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
 option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared libraries (Linux)" ON)
+option(USE_GMP "USE_GMP" ON)
 
 # development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
@@ -227,15 +228,18 @@ elseif (MULTI_THREAD)
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MT ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
 endif ()
 
-if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
-  include_directories(${GMP_INSTALL_PREFIX}/include)
-  set(GMP_LIBRARIES "${GMP_INSTALL_PREFIX}/lib/libgmp.a")
-else()
-  # GMP
-  find_package(GMP 5.0.5 REQUIRED)
-  include_directories(${GMP_INCLUDE_DIR})
-  # dlopen
-  set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
+if("${USE_GMP}" MATCHES "ON")
+  set(CMAKE_CXX_FLAGS                "-D LEAN_USE_GMP ${CMAKE_CXX_FLAGS}")
+  if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+    include_directories(${GMP_INSTALL_PREFIX}/include)
+    set(GMP_LIBRARIES "${GMP_INSTALL_PREFIX}/lib/libgmp.a")
+  else()
+    # GMP
+    find_package(GMP 5.0.5 REQUIRED)
+    include_directories(${GMP_INCLUDE_DIR})
+    # dlopen
+    set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
+  endif()
 endif()
 
 # ccache

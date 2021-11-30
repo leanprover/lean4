@@ -256,6 +256,7 @@ bool object_compactor::insert_task(object * o) {
 }
 
 void object_compactor::insert_mpz(object * o) {
+#ifdef LEAN_USE_GMP
     size_t nlimbs = mpz_size(to_mpz(o)->m_value.m_val);
     size_t data_sz = sizeof(mp_limb_t) * nlimbs;
     size_t sz = sizeof(mpz_object) + data_sz;
@@ -269,6 +270,9 @@ void object_compactor::insert_mpz(object * o) {
     m._mp_d = reinterpret_cast<mp_limb_t *>(reinterpret_cast<char *>(data) - reinterpret_cast<char *>(m_begin) + reinterpret_cast<ptrdiff_t>(m_base_addr));
     m._mp_alloc = nlimbs;
     save(o, (lean_object*)new_o);
+#else
+    // TODO
+#endif
 }
 
 #ifdef LEAN_TAG_COUNTERS
@@ -418,9 +422,13 @@ inline void compacted_region::fix_task(object * o) {
 }
 
 void compacted_region::fix_mpz(object * o) {
+#ifdef LEAN_USE_GMP
     __mpz_struct & m = to_mpz(o)->m_value.m_val[0];
     m._mp_d = reinterpret_cast<mp_limb_t *>(static_cast<char *>(m_begin) + reinterpret_cast<size_t>(m._mp_d) - reinterpret_cast<size_t>(m_base_addr));
     move(sizeof(mpz_object) + sizeof(mp_limb_t) * mpz_size(to_mpz(o)->m_value.m_val));
+#else
+    // TODO
+#endif
 }
 
 object * compacted_region::read() {

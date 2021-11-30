@@ -39,6 +39,8 @@ class mpz {
     void init_uint64(uint64 v);
     void init_int64(int64 v);
     void init_mpz(mpz const & v);
+    void set(size_t sz, mpn_digit const * digits);
+    mpz & add(bool sign, size_t sz, mpn_digit const * digits);
 #endif
 public:
     mpz();

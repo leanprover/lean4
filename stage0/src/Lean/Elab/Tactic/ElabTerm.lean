@@ -136,7 +136,7 @@ def elabTermForApply (stx : Syntax) (mayPostpone := true) : TacticM Expr := do
     match (← Term.resolveId? stx (withInfo := true)) with
     | some e => return e
     | _      => pure ()
-  elabTerm stx none (mayPostpone := false)
+  elabTerm stx none mayPostpone
 
 def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syntax) : TacticM Unit := do
   withMainContext do
@@ -147,7 +147,8 @@ def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syn
 
 def getFVarId (id : Syntax) : TacticM FVarId := withRef id do
   -- use apply-like elaboration to suppress insertion of implicit arguments
-  let e ← elabTermForApply id (mayPostpone := false)
+  let e ← withMainContext do
+    elabTermForApply id (mayPostpone := false)
   match e with
   | Expr.fvar fvarId _ => return fvarId
   | _                  => throwError "unexpected term '{e}'; expected single reference to variable"

@@ -1060,6 +1060,7 @@ object * alloc_mpz(mpz const & m) {
     return (lean_object*)o;
 }
 
+#ifdef LEAN_USE_GMP
 extern "C" LEAN_EXPORT lean_object * lean_alloc_mpz(mpz_t v) {
     return alloc_mpz(mpz(v));
 }
@@ -1067,6 +1068,7 @@ extern "C" LEAN_EXPORT lean_object * lean_alloc_mpz(mpz_t v) {
 extern "C" LEAN_EXPORT void lean_extract_mpz_value(lean_object * o, mpz_t v) {
     return to_mpz(o)->m_value.set(v);
 }
+#endif
 
 object * mpz_to_nat_core(mpz const & m) {
     lean_assert(!m.is_size_t() || m.get_size_t() > LEAN_MAX_SMALL_NAT);

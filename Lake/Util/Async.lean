@@ -3,248 +3,234 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Util.Task
+import Lake.Util.OptionIO
 
 namespace Lake
+
+def liftOption [Alternative m] : Option α → m α
+| some a => pure a
+| none => failure
+
+instance [MonadLift m n] : MonadLift (ReaderT ρ m) (ReaderT ρ n) where
+  monadLift x := fun r => liftM <| x r
 
 --------------------------------------------------------------------------------
 -- # Async / Await Abstraction
 --------------------------------------------------------------------------------
 
-class Async (m : Type u → Type v) (n : outParam $ Type u → Type u) where
+class Async (m : Type u → Type v) (n : outParam $ Type u' → Type w) (k : outParam $ Type u → Type u') where
   /- Run the monadic action as an asynchronous task. -/
-  async : m α → m (n α)
+  async : m α → n (k α)
 
 export Async (async)
 
-class Await (n : Type u → Type v) (m : Type u → Type w)  where
+class Await (k : Type u → Type v) (m : outParam $ Type u → Type w)  where
   /- Wait for an asynchronous task to finish. -/
-  await : n α → m α
+  await : k α → m α
 
 export Await (await)
 
--- ## Monadic Specializations
+-- ## Instances
 
-class MapAsync (m : Type u → Type v) (n : Type u → Type u) where
-  mapAsync {α β : Type u} : (α → m β) → n α → m (n β)
-    -- := fun f x => async (await x >>= f)
+instance : Async Id Id Task := ⟨Task.pure⟩
+instance : Async (Unit → ·) Id Task := ⟨Task.spawn⟩
+instance : Async BaseIO BaseIO BaseIOTask := ⟨BaseIO.asTask⟩
+instance : Async (EIO ε) BaseIO (EIOTask ε) := ⟨EIO.asTask⟩
+instance : Async OptionIO BaseIO OptionIOTask := ⟨OptionIO.asTask⟩
 
-export MapAsync (mapAsync)
+instance [Async m n k] : Async (ReaderT ρ m) (ReaderT ρ n) k where
+  async x := fun r => async (x r)
 
-class SeqLeftAsync (m : Type u → Type v) (n : Type u → Type u)  where
-  seqLeftAsync {α β : Type u} : n α → m β → m (n α)
-    -- := fun x y => async (await x <* y)
+instance [Async m n k] : Async (ExceptT ε m) n (ExceptT ε k) where
+  async x := cast (by simp [ExceptT]) <| async (n := n) x.run
 
-export SeqLeftAsync (seqLeftAsync)
+instance [Async m n k] : Async (OptionT m) n (OptionT k) where
+  async x := cast (by simp [OptionT]) <| async (n := n) x.run
 
-class SeqRightAsync (m : Type u → Type v) (n : Type u → Type u) where
-  seqRightAsync {α β : Type u} : n α → m β → m (n β)
-    -- := fun x y => async (await x *> y)
+instance : Await Task Id := ⟨Task.get⟩
 
-export SeqRightAsync (seqRightAsync)
+instance : Await (EIOTask ε) (EIO ε) where
+  await x := IO.wait x >>= liftExcept
 
-class BindAsync (m : Type u → Type v) (n : outParam $ Type u → Type u) where
-  bindAsync {α β : Type u} : n α → (α → m (n β)) → m (n β)
-    -- := fun x f => async (await x >>= f >>= await)
+instance : Await OptionIOTask OptionIO where
+  await x := IO.wait x >>= liftOption
+
+instance [Await k m] : Await (ExceptT ε k) (ExceptT ε m) where
+  await x := ExceptT.mk <| await x.run
+
+instance [Await k m] : Await (OptionT k) (OptionT m) where
+  await x := OptionT.mk <| await x.run
+
+--------------------------------------------------------------------------------
+-- # Combinators
+--------------------------------------------------------------------------------
+
+class BindAsync (n : Type u → Type v) (k :  outParam $ Type u → Type u) where
+  /-- Perform a asynchronous task after another asynchronous task completes successfully. -/
+  bindAsync {α β : Type u} : k α → (α → n (k β)) → n (k β)
 
 export BindAsync (bindAsync)
 
---------------------------------------------------------------------------------
--- # ReaderT Instances
---------------------------------------------------------------------------------
+class BindAsync' (m : Type u → Type v) (n : outParam $ Type u' → Type w) (k : outParam $ Type u → Type u') where
+  /-- Perform a synchronous action after another asynchronous task completes successfully. -/
+  bindAsync' {α β : Type u} : k α → (α → m β) → n (k β)
 
-instance [Async m n] : Async (ReaderT ρ m) n where
-  async x := fun r => async (x r)
+export BindAsync' (bindAsync')
 
-instance [Await n m] : Await n (ReaderT ρ m) where
-  await x := fun _ => await x
+class SeqMapAsync (n : outParam $ Type u → Type v) (k : Type u → Type u) where
+  /-- Combine two asynchronous tasks using `f`. -/
+  seqMapAsync {α β : Type u} : (f : α → β → γ) → k α → k β → n (k γ)
 
-instance [MapAsync m n] : MapAsync (ReaderT ρ m) n where
-  mapAsync f x := fun r => mapAsync (fun a => f a r) x
+export SeqMapAsync (seqMapAsync)
 
-instance [BindAsync m n] : BindAsync (ReaderT ρ m) n where
-  bindAsync x f := fun r => bindAsync x (fun a => f a r)
+class SeqLeftAsync (n : outParam $ Type u → Type v) (k : Type u → Type u) where
+  /-- Combine two asynchronous tasks, returning the result of the first one. -/
+  seqLeftAsync {α β : Type u} : k α → k β → n (k α)
 
-instance [SeqLeftAsync m n] : SeqLeftAsync (ReaderT ρ m) n where
-  seqLeftAsync nx mx := fun r => seqLeftAsync nx (mx r)
+export SeqLeftAsync (seqLeftAsync)
 
-instance [SeqRightAsync m n] : SeqRightAsync (ReaderT ρ m) n where
-  seqRightAsync nx mx := fun r => seqRightAsync nx (mx r)
+class SeqRightAsync (n : outParam $ Type u → Type v) (k : Type u → Type u) where
+  /-- Combine two asynchronous tasks, returning the result of the second one. -/
+  seqRightAsync {α β : Type u} : k α → k β → n (k β)
+
+export SeqRightAsync (seqRightAsync)
+
+-- ## Instances
+
+instance : BindAsync Id Task := ⟨Task.bind⟩
+instance : BindAsync BaseIO BaseIOTask := ⟨BaseIO.bindTask⟩
+
+instance : BindAsync BaseIO (EIOTask ε) where
+  bindAsync ka f := BaseIO.bindTask ka.run fun
+    | Except.ok a => f a
+    | Except.error e => pure <| pure (Except.error e)
+
+instance : BindAsync BaseIO OptionIOTask where
+  bindAsync ka f := BaseIO.bindTask ka.run fun
+    | some a => f a
+    | none => pure <| pure none
+
+instance [BindAsync n k] : BindAsync (ReaderT ρ n) k where
+  bindAsync ka f := fun r => bindAsync ka fun a => f a r
+
+instance [BindAsync n k] [Pure n] [Pure k] : BindAsync n (ExceptT ε k) where
+  bindAsync ka f := cast (by simp [ExceptT]) <| bindAsync ka.run fun
+    | Except.ok a => f a
+    | Except.error e => pure <| pure <| Except.error e
+
+instance [BindAsync n k] [Pure n] [Pure k] : BindAsync n (OptionT k) where
+  bindAsync ka f := cast (by simp [OptionT]) <| bindAsync ka.run fun
+    | some a => f a
+    | none => pure <| pure <| none
+
+instance : BindAsync' Id Id Task := ⟨flip Task.map⟩
+instance : BindAsync' BaseIO BaseIO BaseIOTask := ⟨flip BaseIO.mapTask⟩
+
+instance : BindAsync' (EIO ε) BaseIO (ETask ε) where
+  bindAsync' ka f := ka.run |> BaseIO.mapTask fun
+    | Except.ok a => f a |>.toBaseIO
+    | Except.error e => pure <| Except.error e
+
+instance : BindAsync' OptionIO BaseIO OptionIOTask where
+  bindAsync' ka f := ka.run |> BaseIO.mapTask fun
+    | some a => f a |>.toBaseIO
+    | none => pure none
+
+instance [BindAsync' m n k] : BindAsync' (ReaderT ρ m) (ReaderT ρ n) k where
+  bindAsync' ka f := fun r => bindAsync' ka fun a => f a r
+
+instance [BindAsync' m n k] [Pure m] : BindAsync' (ExceptT ε m) n (ExceptT ε k) where
+  bindAsync' ka f := cast (by simp [ExceptT]) <| bindAsync' (n := n) ka.run fun
+    | Except.ok a => f a |>.run
+    | Except.error e => pure <| Except.error e
+
+instance [BindAsync' m n k] [Pure m] : BindAsync' (OptionT m) n (OptionT k) where
+  bindAsync' ka f := cast (by simp [OptionT]) <| bindAsync' ka.run fun
+    | some a => f a |>.run
+    | none => pure none
+
+instance : SeqMapAsync Id Task where
+  seqMapAsync f ka kb := ka.bind fun a => kb >>= fun b => pure <| f a b
+
+instance : SeqMapAsync BaseIO BaseIOTask where
+  seqMapAsync f ka kb := BaseIO.bindTask ka fun a => BaseIO.bindTask kb fun b => pure <| f a b
+
+instance [SeqMapAsync n k] : SeqMapAsync n (ExceptT ε k) where
+  seqMapAsync f ka kb :=
+    let h xa xb : Except ε _ := Id.run <| ExceptT.run do
+      let a ← liftExcept xa
+      let b ← liftExcept xb
+      pure <| f a b
+    cast (by simp [ExceptT]) <| seqMapAsync (n := n) h ka kb
+
+instance [SeqMapAsync n k] : SeqMapAsync n (OptionT k) where
+  seqMapAsync f ka kb :=
+    let h xa xb := Id.run <| OptionT.run do
+      let a ← liftOption xa
+      let b ← liftOption xb
+      pure <| f a b
+    cast (by simp [OptionT]) <| seqMapAsync (n := n) h ka kb
+
+instance [SeqMapAsync n k] : SeqLeftAsync n k where
+  seqLeftAsync ka kb := seqMapAsync (fun a _ => a) ka kb
+
+instance [SeqMapAsync n k] : SeqRightAsync n k where
+  seqRightAsync ka kb := seqMapAsync (fun _ b => b) ka kb
 
 --------------------------------------------------------------------------------
 -- #  List/Array Utilities
 --------------------------------------------------------------------------------
 
-def andThenAsync [Pure m] [BindAsync m n] (ta : n α) (tb : n β) : m (n β) :=
-  bindAsync ta fun _ => pure tb
+-- ## Sequencing Asynchronous Tasks
 
--- ## Sequencing Lists/Arrays of Asynchronous Tasks
+/-- Combine all asynchronous tasks in a `List` from right to left into a single task ending `last`. -/
+def seqLeftList1Async [SeqLeftAsync n k] [Monad n] (last : (k α)) : (tasks : List (k α)) → n (k α)
+  | [] => pure last
+  | t::ts => seqLeftList1Async t ts >>= (seqLeftAsync last ·)
 
-section
-variable [BindAsync m n]
-
--- ### List
-
-/-- Spawn the asynchronous task `last` after `tasks` finish. -/
-def afterListAsync (last : m (n β)) : (tasks : List (n α)) → m (n β)
-  | [] => last
-  | t::ts => bindAsync t fun _ => afterListAsync last ts
-
-/-- Join all asynchronous tasks in a List into a single task beginning with `init`. -/
-def joinTaskList1 [Pure m] (init : (n α)) : (tasks : List (n α)) → m (n α)
-  | [] => pure init
-  | t::ts => bindAsync init fun _ => joinTaskList1 t ts
-
-/-- Join all asynchronous tasks in a List into a single task. -/
-def joinTaskList [Pure m] [Pure n] : (tasks : List (n PUnit)) → m (n PUnit)
+/-- Combine all asynchronous tasks in a `List` from right to left into a single task. -/
+def seqLeftListAsync [SeqLeftAsync n k] [Monad n] [Pure k] : (tasks : List (k PUnit)) → n (k PUnit)
   | [] => pure (pure ())
-  | t::ts => joinTaskList1 t ts
+  | t::ts => seqLeftList1Async t ts
 
-/-- Asynchronously after completing `tasks`, perform `act`. -/
-def afterTaskList  [Async m n] (tasks : List (n α)) (act : m β) : m (n β) :=
-  afterListAsync (async act) tasks
+/-- Combine all asynchronous tasks in a `List` from left to right into a single task. -/
+def seqRightListAsync [SeqRightAsync n k] [Monad n] [Pure k] : (tasks : List (k PUnit)) → n (k PUnit)
+  | [] => pure (pure ())
+  | t::ts => ts.foldlM seqRightAsync t
 
--- ### Array
-
-/-- Efficient implementation of `afterArrayAsync`. Assumes Arrays are at max `USize`. -/
-@[inline] unsafe def afterArrayAsyncUnsafe (last : m (n β)) (tasks : Array (n α)) (start := 0) (stop := tasks.size) : m (n β) :=
- let rec @[specialize] fold (i : USize) (stop : USize) : m (n β) :=
-    if i == stop then
-      last
-    else
-      bindAsync (tasks.uget i lcProof) fun _ => fold (i+1) stop
-  if start < stop then
-    if stop ≤ tasks.size then
-      fold (USize.ofNat start) (USize.ofNat stop)
-    else
-      last
-  else
-    last
-
-/-- Spawn the asynchronous task `last` after `tasks` finish. -/
-@[implementedBy afterArrayAsyncUnsafe]
-def afterArrayAsync (last : m (n β)) (tasks : Array (n α)) (start := 0) (stop := tasks.size) : m (n β) :=
-  let fold (stop : Nat) (h : stop ≤ tasks.size) :=
-    let rec loop (i : Nat) (j : Nat) : m (n β) :=
-      if hlt : j < stop then
-        match i with
-        | Nat.zero => last
-        | Nat.succ i' =>
-          let t := tasks.get ⟨j, Nat.lt_of_lt_of_le hlt h⟩
-          bindAsync t fun _ => loop i' (j+1)
-      else
-        last
-    loop (stop - start) start
-  if h : stop ≤ tasks.size then
-    fold stop h
-  else
-    fold tasks.size (Nat.le_refl _)
-
-/-- Join all asynchronous tasks in a Array into a single task. -/
-def joinTaskArray [Pure m] [Pure n] (tasks : Array (n PUnit)) : m (n PUnit) :=
+/-- Combine all asynchronous tasks in a `Array` from right to left into a single task. -/
+def seqLeftArrayAsync [SeqLeftAsync n k] [Monad n] [Pure k] (tasks : Array (k PUnit)) : n (k PUnit) :=
   if h : 0 < tasks.size then
-    afterArrayAsync (tasks.get ⟨tasks.size - 1, Nat.sub_lt h (by decide)⟩) tasks.pop
+    tasks.pop.foldrM seqLeftAsync (tasks.get ⟨tasks.size - 1, Nat.sub_lt h (by decide)⟩)
   else
     pure (pure ())
 
-/-- Asynchronously after completing `tasks`, perform `act`. -/
-def afterTaskArray [Async m n] (tasks : Array (n α)) (act : m β) : m (n β) :=
-  afterArrayAsync (async act) tasks
-
-end
-
--- ## Folding / Mapping Lists/Arrays of Asynchronous Tasks
-
-section
-variable [BindAsync m n]
-
--- ### List
-
-def foldlListAsync [Monad m] [Pure n] (f : α → β → m β) (init : β) (tasks : List (n α)) : m (n β) :=
-  go tasks init
-where
-  go
-    | [], b => pure (pure b)
-    | t::tasks, b => bindAsync t fun a => f a b >>= go tasks
-
-/-- Abstract version of `IO.mapTasks`. -/
-def mapListAsync [Async m n] (f : List α → m β) (tasks : List (n α)) : m (n β) :=
-  go tasks []
-where
-  go
-    | [], as => async (f as.reverse)
-    | t::tasks, as => bindAsync t fun a => go tasks (a :: as)
-
--- ### Array
-
-/-- Efficient implementation of `foldlArrayAsync`. Assumes Arrays are at max `USize`. -/
-@[inline] unsafe def foldlArrayAsyncUnsafe [Monad m] [Pure n]
-(f : β → α → m β) (init : β) (tasks : Array (n α)) (start := 0) (stop := tasks.size) : m (n β) :=
- let rec @[specialize] fold (i : USize) (stop : USize) (b : β) : m (n β) :=
-    if i == stop then
-      pure (pure b)
-    else
-      bindAsync (tasks.uget i lcProof) fun a => f b a >>= fold (i+1) stop
-  if start < stop then
-    if stop ≤ tasks.size then
-      fold (USize.ofNat start) (USize.ofNat stop) init
-    else
-      pure (pure init)
+/-- Combine all asynchronous tasks in a `Array` from left to right into a single task. -/
+def seqRightArrayAsync [SeqRightAsync n k] [Monad n] [Pure k] (tasks : Array (k PUnit)) : n (k PUnit) :=
+  if h : 0 < tasks.size then
+    tasks.foldlM seqRightAsync (tasks.get ⟨0, h⟩)
   else
-    pure (pure init)
+    pure (pure ())
 
-@[implementedBy foldlArrayAsyncUnsafe]
-def foldlArrayAsync [Monad m] [Pure n]
-(f : β → α → m β) (init : β) (tasks : Array (n α)) (start := 0) (stop := tasks.size) : m (n β) :=
-  let fold (stop : Nat) (h : stop ≤ tasks.size) :=
-    let rec loop (i : Nat) (j : Nat) (b : β) : m (n β) :=
-      if hlt : j < stop then
-        match i with
-        | Nat.zero => pure (pure b)
-        | Nat.succ i' =>
-          let t := tasks.get ⟨j, Nat.lt_of_lt_of_le hlt h⟩
-          bindAsync t fun a => f b a >>= loop i' (j+1)
-      else
-        pure (pure b)
-    loop (stop - start) start init
-  if h : stop ≤ tasks.size then
-    fold stop h
-  else
-    fold tasks.size (Nat.le_refl _)
+-- ## Folding Asynchronous Tasks
 
-/-- Efficient implementation of `mapArrayAsync`. Assumes Arrays are at max `USize`. -/
-@[inline] unsafe def mapArrayAsyncUnsafe [Async m n]
-(f : Array α → m β) (tasks : Array (n α)) (start := 0) (stop := tasks.size) : m (n β) :=
- let rec @[specialize] fold (i : USize) (stop : USize) (as : Array α) : m (n β) :=
-    if i == stop then
-      async (f as)
-    else
-      bindAsync (tasks.uget i lcProof) fun a => fold (i+1) stop (as.push a)
-  if start < stop then
-    if stop ≤ tasks.size then
-      fold (USize.ofNat start) (USize.ofNat stop) (Array.mkEmpty (start - stop))
-    else
-      async (f #[])
-  else
-    async (f #[])
+/-- Fold asynchronous tasks in a `List` from right to left (i.e., a right fold) into a single task. -/
+def foldLeftListAsync [SeqMapAsync n k] [Monad n] [Pure k]
+(f : α → β → β) (init : β) (tasks : List (k α)) : n (k β) :=
+  tasks.foldrM (seqMapAsync f) init
 
-/-- Abstract version of `IO.mapTasks` for Arrays. -/
-@[implementedBy mapArrayAsyncUnsafe]
-def mapArrayAsync [Async m n]
-(f : Array α → m β) (tasks : Array (n α)) (start := 0) (stop := tasks.size) : m (n β) :=
-  let fold (stop : Nat) (h : stop ≤ tasks.size) :=
-    let rec loop (i : Nat) (j : Nat) (as : Array α) : m (n β) :=
-      if hlt : j < stop then
-        match i with
-        | Nat.zero => async (f as)
-        | Nat.succ i' =>
-          let t := tasks.get ⟨j, Nat.lt_of_lt_of_le hlt h⟩
-          bindAsync t fun a => loop i' (j+1) (as.push a)
-      else
-        async (f as)
-    loop (stop - start) start (Array.mkEmpty (stop - start))
-  if h : stop ≤ tasks.size then
-    fold stop h
-  else
-    fold tasks.size (Nat.le_refl _)
+/-- Fold asynchronous tasks in a `Array` from right to left (i.e., a right fold) into a single task. -/
+def foldLeftArrayAsync [SeqMapAsync n k] [Monad n] [Pure k]
+(f : α → β → β) (init : β) (tasks : Array (k α)) : n (k β) :=
+  tasks.foldrM (seqMapAsync f) init
 
-end
+/-- Fold asynchronous tasks in a `List` from left to right (i.e., a left fold) into a single task. -/
+def foldRightListAsync [SeqMapAsync n k] [Monad n] [Pure k]
+(f : β → α → β) (init : β) (tasks : List (k α)) : n (k β) :=
+  tasks.foldlM (seqMapAsync f) init
+
+/-- Fold asynchronous tasks in a `Array` from left to right (i.e., a left fold) into a single task. -/
+def foldRightArrayAsync [SeqMapAsync n k] [Monad n] [Pure k]
+(f : β → α → β) (init : β) (tasks : Array (k α)) : n (k β) :=
+  tasks.foldlM (seqMapAsync f) init

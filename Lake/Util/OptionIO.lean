@@ -38,3 +38,6 @@ protected def orElse (self : OptionIO α) (f : Unit → OptionIO α) : OptionIO 
 instance : Alternative OptionIO where
   failure := OptionIO.failure
   orElse := OptionIO.orElse
+
+def asTask (self : OptionIO α) (prio := Task.Priority.dedicated) : BaseIO (Task (Option α)) :=
+  self.toBaseIO.asTask prio

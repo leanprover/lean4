@@ -94,7 +94,14 @@ def getPrintMessageEndPos (opts : Options) : Bool :=
   opts.getBool `printMessageEndPos false
 
 @[export lean_run_frontend]
-def runFrontend (input : String) (opts : Options) (fileName : String) (mainModuleName : Name) (trustLevel : UInt32 := 0) : IO (Environment × Bool) := do
+def runFrontend
+    (input : String)
+    (opts : Options)
+    (fileName : String)
+    (mainModuleName : Name)
+    (trustLevel : UInt32 := 0)
+    (ileanFileName: Option String := none)
+    : IO (Environment × Bool) := do
   let inputCtx := Parser.mkInputContext input fileName
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
   let (env, messages) ← processHeader header opts messages inputCtx trustLevel

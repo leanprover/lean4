@@ -17,7 +17,11 @@ structure Foo where
 
 def mkFoo : Foo := {
   a := 2
+--^ textDocument/references : {"context": {"includeDeclaration": true}}
+--^ textDocument/references : {"context": {"includeDeclaration": false}}
   b := ⟨⟩
+--^ textDocument/references : {"context": {"includeDeclaration": true}}
+--^ textDocument/references : {"context": {"includeDeclaration": false}}
 : Foo }
 
 def foo (x : Foo) : Nat :=

@@ -41,6 +41,9 @@ class mpz {
     void init_mpz(mpz const & v);
     void set(size_t sz, mpn_digit const * digits);
     mpz & add(bool sign, size_t sz, mpn_digit const * digits);
+    mpz & mul(bool sign, size_t sz, mpn_digit const * digits);
+    mpz & div(bool sign, size_t sz, mpn_digit const * digits);
+    mpz & rem(size_t sz, mpn_digit const * digits);
 #endif
 public:
     mpz();
@@ -203,8 +206,8 @@ public:
     mpz & operator/=(uint64 u) { return u > std::numeric_limits<unsigned>::max() ? *this /= mpz(u) : *this /= static_cast<unsigned>(u); }
     mpz & operator/=(int u) { return operator/=(mpz(u)); } // TODO(Leo): improve
 
-    friend mpz rem(mpz const & a, mpz const & b);
     mpz & operator%=(mpz const & o);
+    friend mpz rem(mpz const & a, mpz const & b) { mpz r(a); return r %= b; }
 
     mpz pow(unsigned int exp) const;
 
@@ -240,7 +243,7 @@ public:
     friend mpz operator/(uint64 a, mpz const & b) { mpz r(a); return r /= b; }
     friend mpz operator/(int a, mpz const & b) { mpz r(a); return r /= b; }
 
-    friend mpz operator%(mpz const & a, mpz const & b);
+    friend mpz operator%(mpz a, mpz const & b) { return a %= b; }
 
     mpz & operator&=(mpz const & o);
     mpz & operator|=(mpz const & o);
@@ -254,8 +257,11 @@ public:
     friend void mul2k(mpz & a, mpz const & b, unsigned k);
     // a <- b / 2^k
     friend void div2k(mpz & a, mpz const & b, unsigned k);
-    // a <- b % 2^k
-    friend void mod2k(mpz & a, mpz const & b, unsigned k);
+
+    unsigned mod8() const;
+    unsigned mod16() const;
+    unsigned mod32() const;
+    uint64 mod64() const;
 
     /**
        \brief Return the position of the most significant bit.

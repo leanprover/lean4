@@ -271,7 +271,15 @@ void object_compactor::insert_mpz(object * o) {
     m._mp_alloc = nlimbs;
     save(o, (lean_object*)new_o);
 #else
-    // TODO
+    size_t data_sz = sizeof(mpn_digit) * to_mpz(o)->m_value.m_size;
+    size_t sz      = sizeof(mpz_object) + data_sz;
+    mpz_object * new_o = (mpz_object *)alloc(sz);
+    lean_set_non_heap_header_for_big((lean_object*)new_o, LeanMPZ, 0);
+    new_o->m_value.m_size   = to_mpz(o)->m_value.m_size;
+    new_o->m_value.m_sign   = to_mpz(o)->m_value.m_sign;
+    new_o->m_value.m_digits = reinterpret_cast<mpn_digit*>(reinterpret_cast<char*>(new_o) + sizeof(mpz_object));
+    memcpy(new_o->m_value.m_digits, to_mpz(o)->m_value.m_digits, data_sz);
+    save(o, (lean_object*)new_o);
 #endif
 }
 
@@ -427,7 +435,7 @@ void compacted_region::fix_mpz(object * o) {
     m._mp_d = reinterpret_cast<mp_limb_t *>(static_cast<char *>(m_begin) + reinterpret_cast<size_t>(m._mp_d) - reinterpret_cast<size_t>(m_base_addr));
     move(sizeof(mpz_object) + sizeof(mp_limb_t) * mpz_size(to_mpz(o)->m_value.m_val));
 #else
-    // TODO
+    move(sizeof(mpz_object) + sizeof(mpn_digit) * to_mpz(o)->m_value.m_size);
 #endif
 }
 

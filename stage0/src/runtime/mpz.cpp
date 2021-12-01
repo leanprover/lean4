@@ -690,7 +690,7 @@ mpz & mpz::operator%=(mpz const & o) {
 
 mpz mpz::pow(unsigned int p) const {
     unsigned mask = 1;
-    mpz power(p);
+    mpz power(*this);
     mpz result(1);
     while (mask <= p) {
         if (mask & p)

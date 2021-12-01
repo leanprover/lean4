@@ -24,8 +24,19 @@ Author: Leonardo de Moura
 #define LEAN_MAX_PRIO 8
 
 namespace lean {
+
+static void abort_on_panic() {
+#ifndef LEAN_EMSCRIPTEN
+    if (std::getenv("LEAN_ABORT_ON_PANIC")) {
+        int * v = nullptr;
+        *v = 0;
+    }
+#endif
+}
+
 extern "C" LEAN_EXPORT void lean_internal_panic(char const * msg) {
     std::cerr << "INTERNAL PANIC: " << msg << "\n";
+    abort_on_panic();
     std::exit(1);
 }
 
@@ -57,12 +68,7 @@ extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg
     if (g_panic_messages) {
         std::cerr << lean_string_cstr(msg) << "\n";
     }
-#ifndef LEAN_EMSCRIPTEN
-    if (std::getenv("LEAN_ABORT_ON_PANIC")) {
-        int * v = nullptr;
-        *v = 0;
-    }
-#endif
+    abort_on_panic();
     if (g_exit_on_panic) {
         std::exit(1);
     }

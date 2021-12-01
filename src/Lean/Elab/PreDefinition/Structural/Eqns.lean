@@ -91,7 +91,7 @@ private def simpIf? (mvarId : MVarId) : MetaM (Option MVarId) := do
   Auxiliary method for `mkEqnTypes`. We should "keep going"/"processing" the goal
    `... |- f ... = rhs` at `mkEqnTypes` IF `rhs` contains a `f` application containing loose bound
   variables. We do that to make sure we can create an elimination principle for `f` based
-  on the generateg equations.
+  on the generated equations.
 
   Remark: we have considered using the same heuristic used in the `BRecOn` module.
   That is we would do case-analysis on the `match` application because the recursive

@@ -787,6 +787,7 @@ void mul2k(mpz & a, mpz const & b, unsigned k) {
     for (size_t i = 0; i < old_sz; i++) {
         ds.push_back(b.m_digits[i]);
     }
+    ds.push_back(0);
     if (bit_shift > 0) {
         unsigned comp_shift = (8 * sizeof(mpn_digit)) - bit_shift;
         mpn_digit prev = 0;

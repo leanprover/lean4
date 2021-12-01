@@ -1465,21 +1465,15 @@ extern "C" LEAN_EXPORT bool lean_int_big_nonneg(object * a) {
 // UInt
 
 extern "C" LEAN_EXPORT uint8 lean_uint8_of_big_nat(b_obj_arg a) {
-    mpz r;
-    mod2k(r, mpz_value(a), 8);
-    return static_cast<uint8>(r.get_unsigned_int());
+    return static_cast<uint8>(mpz_value(a).mod8());
 }
 
 extern "C" LEAN_EXPORT uint16 lean_uint16_of_big_nat(b_obj_arg a) {
-    mpz r;
-    mod2k(r, mpz_value(a), 16);
-    return static_cast<uint16>(r.get_unsigned_int());
+    return static_cast<uint16>(mpz_value(a).mod16());
 }
 
 extern "C" LEAN_EXPORT uint32 lean_uint32_of_big_nat(b_obj_arg a) {
-    mpz r;
-    mod2k(r, mpz_value(a), 32);
-    return static_cast<uint32>(r.get_unsigned_int());
+    return mpz_value(a).mod32();
 }
 
 extern "C" LEAN_EXPORT uint32 lean_uint32_big_modn(uint32 a1, b_lean_obj_arg a2) {
@@ -1488,19 +1482,7 @@ extern "C" LEAN_EXPORT uint32 lean_uint32_big_modn(uint32 a1, b_lean_obj_arg a2)
 }
 
 extern "C" LEAN_EXPORT uint64 lean_uint64_of_big_nat(b_obj_arg a) {
-    mpz r;
-    mod2k(r, mpz_value(a), 64);
-    if (sizeof(void*) == 8) {
-        // 64 bit
-        return static_cast<uint64>(r.get_size_t());
-    } else {
-        // 32 bit
-        mpz l;
-        mod2k(l, r, 32);
-        mpz h;
-        div2k(h, r, 32);
-        return (static_cast<uint64>(h.get_unsigned_int()) << 32) + static_cast<uint64>(l.get_unsigned_int());
-    }
+    return mpz_value(a).mod64();
 }
 
 extern "C" LEAN_EXPORT uint64 lean_uint64_big_modn(uint64 a1, b_lean_obj_arg) {
@@ -2161,7 +2143,7 @@ extern "C" LEAN_EXPORT object * lean_dbg_sleep(uint32 ms, obj_arg fn) {
 }
 
 extern "C" LEAN_EXPORT object * lean_dbg_trace_if_shared(obj_arg s, obj_arg a) {
-    if (lean_is_shared(a)) {
+    if (!lean_is_scalar(a) && lean_is_shared(a)) {
         io_eprintln(mk_string(std::string("shared RC ") + lean_string_cstr(s)));
     }
     return a;

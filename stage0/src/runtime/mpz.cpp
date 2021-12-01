@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <cstring>
 #include "runtime/sstream.h"
+#include "runtime/buffer.h"
 #include "runtime/alloc.h"
 #include "runtime/thread.h"
 #include "runtime/mpz.h"
@@ -162,7 +163,7 @@ mpz & mpz::operator*=(int u) { mpz_mul_si(m_val, m_val, u); return *this; }
 mpz & mpz::operator/=(mpz const & o) { mpz_tdiv_q(m_val, m_val, o.m_val); return *this; }
 mpz & mpz::operator/=(unsigned u) { mpz_tdiv_q_ui(m_val, m_val, u); return *this; }
 
-mpz rem(mpz const & a, mpz const & b) { mpz r; mpz_tdiv_r(r.m_val, a.m_val, b.m_val); return r; }
+mpz & mpz::operator%=(mpz const & o) { mpz_tdiv_r(m_val, m_val, o.m_val); return *this; }
 
 mpz mpz::pow(unsigned int exp) const {
     mpz r;
@@ -176,10 +177,6 @@ size_t mpz::log2() const {
     size_t r = mpz_sizeinbase(m_val, 2);
     lean_assert(r > 0);
     return r - 1;
-}
-
-mpz operator%(mpz const & a, mpz const & b) {
-    return rem(a, b);
 }
 
 mpz & mpz::operator&=(mpz const & o) {
@@ -205,8 +202,32 @@ void div2k(mpz & a, mpz const & b, unsigned k) {
     mpz_tdiv_q_2exp(a.m_val, b.m_val, k);
 }
 
-void mod2k(mpz & a, mpz const & b, unsigned k) {
-    mpz_tdiv_r_2exp(a.m_val, b.m_val, k);
+unsigned mpz::mod8() const {
+    mpz a;
+    mpz_tdiv_r_2exp(a.m_val, m_val, 8);
+    return a.get_unsigned_int();
+}
+
+unsigned mpz::mod16() const {
+    mpz a;
+    mpz_tdiv_r_2exp(a.m_val, m_val, 16);
+    return a.get_unsigned_int();
+}
+
+unsigned mpz::mod32() const {
+    mpz a;
+    mpz_tdiv_r_2exp(a.m_val, m_val, 32);
+    return a.get_unsigned_int();
+}
+
+uint64 mpz::mod64() const {
+    mpz r;
+    mpz_tdiv_r_2exp(r.m_val, m_val, 64);
+    mpz l;
+    mpz_tdiv_r_2exp(l.m_val, r.m_val, 32);
+    mpz h;
+    mpz_tdiv_q_2exp(h.m_val, r.m_val, 32);
+    return (static_cast<uint64>(h.get_unsigned_int()) << 32) + static_cast<uint64>(l.get_unsigned_int());
 }
 
 void power(mpz & a, mpz const & b, unsigned k) {
@@ -285,20 +306,27 @@ void mpz::init_int(int v) {
 }
 
 void mpz::init_uint64(uint64 v) {
+    m_sign = false;
     if (v <= std::numeric_limits<unsigned>::max()) {
         allocate(1);
-        m_sign      = false;
         m_digits[0] = v;
     } else {
         allocate(2);
-        m_sign = false;
         (reinterpret_cast<uint64*>(m_digits))[0] = v;
     }
 }
 
 void mpz::init_int64(int64 v) {
-    // TODO
-    lean_unreachable();
+    if (v >= 0) {
+        init_uint64(v);
+    } else {
+        if (v == std::numeric_limits<int64>::min()) {
+            init_uint64(static_cast<uint64>(-(v+1)) + 1);
+        } else {
+            init_uint64(-v);
+        }
+        m_sign = true;
+    }
 }
 
 void mpz::init_mpz(mpz const & v) {
@@ -366,8 +394,11 @@ int mpz::sgn() const {
 }
 
 bool mpz::is_int() const {
-    // TODO
-    lean_unreachable();
+    if (m_sign) {
+        return m_size == 1 && m_digits[0] <= -static_cast<uint64_t>(std::numeric_limits<int>::min());
+    } else {
+        return m_size == 1 && m_digits[0] <= std::numeric_limits<int>::max();
+    }
 }
 
 bool mpz::is_unsigned_int() const {
@@ -383,23 +414,40 @@ bool mpz::is_size_t() const {
 }
 
 int mpz::get_int() const {
-    // TODO
-    lean_unreachable();
+    lean_assert(is_int());
+    if (m_sign) {
+        return -static_cast<int>(m_digits[0]);
+    } else {
+        return m_digits[0];
+    }
 }
 
 unsigned int mpz::get_unsigned_int() const {
-    // TODO
-    lean_unreachable();
+    lean_assert(is_unsigned_int());
+    return m_digits[0];
 }
 
 size_t mpz::get_size_t() const {
-    // TODO
-    lean_unreachable();
+    lean_assert(is_size_t());
+    if (sizeof(size_t) == 8) {
+        if (m_size == 1)
+            return m_digits[0];
+        else
+            return (reinterpret_cast<size_t*>(m_digits))[0];
+    } else {
+        return m_digits[0];
+    }
 }
 
 mpz & mpz::operator=(mpz const & v) {
-    dealloc(m_digits, sizeof(mpn_digit)*m_size);
-    init_mpz(v);
+    if (v.m_digits != m_digits) {
+        if (v.m_size == m_size) {
+            memcpy(m_digits, v.m_digits, m_size * sizeof(mpn_digit));
+        } else {
+            dealloc(m_digits, sizeof(mpn_digit)*m_size);
+            init_mpz(v);
+        }
+    }
     return *this;
 }
 
@@ -473,9 +521,105 @@ void mpz::set(size_t sz, mpn_digit const * digits) {
     memcpy(m_digits, digits, sizeof(mpn_digit)*sz);
 }
 
+typedef buffer<mpn_digit, 256> digit_buffer;
+
 mpz & mpz::add(bool sign, size_t sz, mpn_digit const * digits) {
-    // TODO
-    lean_unreachable();
+    digit_buffer tmp;
+    if (m_sign == sign) {
+        size_t new_sz = std::max(m_size, sz)+1;
+        size_t real_sz;
+        tmp.ensure_capacity(new_sz);
+        mpn_add(m_digits, m_size,
+                digits, sz,
+                tmp.begin(), new_sz, &real_sz);
+        lean_assert(real_sz <= sz);
+        set(real_sz, tmp.begin());
+    } else {
+        mpn_digit borrow;
+        int r = mpn_compare(m_digits, m_size,
+                            digits, sz);
+        if (r == 0) {
+            operator=(0);
+            return *this;
+        } else if (r < 0) {
+            size_t new_sz = sz;
+            tmp.ensure_capacity(new_sz);
+            mpn_sub(digits, sz,
+                    m_digits, m_size,
+                    tmp.begin(), &borrow);
+            lean_assert(borrow==0);
+            m_sign = sign;
+            set(new_sz, tmp.begin());
+        } else {
+            // r > 0
+            size_t new_sz = m_size;
+            tmp.ensure_capacity(new_sz);
+            mpn_sub(m_digits, m_size,
+                    digits, sz,
+                    tmp.begin(), &borrow);
+            lean_assert(borrow == 0);
+            set(new_sz, tmp.begin());
+        }
+    }
+    return *this;
+}
+
+mpz & mpz::mul(bool sign, size_t sz, mpn_digit const * digits) {
+    digit_buffer tmp;
+    size_t new_sz = m_size + sz;
+    tmp.ensure_capacity(new_sz);
+    mpn_mul(m_digits, m_size,
+            digits, sz,
+            tmp.begin());
+    m_sign = m_sign != sign;
+    set(new_sz, tmp.begin());
+    return *this;
+}
+
+mpz & mpz::div(bool sign, size_t sz, mpn_digit const * digits) {
+    /*
+      +26 / +7 = +3, remainder is +5
+      -26 / +7 = -3, remainder is -5
+      +26 / -7 = -3, remainder is +5
+      -26 / -7 = +3, remainder is -5
+    */
+    digit_buffer q1, r1;
+    if (sz > m_size) {
+        operator=(0);
+        return *this;
+    }
+    size_t q_sz = m_size - sz + 1;
+    size_t r_sz = sz;
+    q1.ensure_capacity(q_sz);
+    r1.ensure_capacity(r_sz);
+    mpn_div(m_digits, m_size,
+            digits, sz,
+            q1.begin(), r1.begin());
+    m_sign = m_sign != sign;
+    set(q_sz, q1.begin());
+    return *this;
+}
+
+mpz & mpz::rem(size_t sz, mpn_digit const * digits) {
+    /*
+      +26 / +7 = +3, remainder is +5
+      -26 / +7 = -3, remainder is -5
+      +26 / -7 = -3, remainder is +5
+      -26 / -7 = +3, remainder is -5
+    */
+    digit_buffer q1, r1;
+    if (sz > m_size) {
+        return *this;
+    }
+    size_t q_sz = m_size - sz + 1;
+    size_t r_sz = sz;
+    q1.ensure_capacity(q_sz);
+    r1.ensure_capacity(r_sz);
+    mpn_div(m_digits, m_size,
+            digits, sz,
+            q1.begin(), r1.begin());
+    set(r_sz, r1.begin());
+    return *this;
 }
 
 mpz & mpz::operator+=(mpz const & o) {
@@ -488,7 +632,7 @@ mpz & mpz::operator+=(unsigned u) {
 
 mpz & mpz::operator+=(int u) {
     if (u < 0) {
-        unsigned u1 = -u;
+        unsigned u1 = -static_cast<int64>(u);
         return add(true, 1, &u1);
     } else {
         unsigned u1 = u;
@@ -506,7 +650,7 @@ mpz & mpz::operator-=(unsigned u) {
 
 mpz & mpz::operator-=(int u) {
     if (u < 0) {
-        unsigned u1 = -u;
+        unsigned u1 = -static_cast<int64>(u);
         return add(false, 1, &u1);
     } else {
         unsigned u1 = u;
@@ -515,33 +659,33 @@ mpz & mpz::operator-=(int u) {
 }
 
 mpz & mpz::operator*=(mpz const & o) {
-    // TODO
-    lean_unreachable();
+    return mul(o.m_sign, o.m_size, o.m_digits);
 }
 
 mpz & mpz::operator*=(unsigned u) {
-    // TODO
-    lean_unreachable();
+    return mul(false, 1, &u);
 }
 
 mpz & mpz::operator*=(int u) {
-    // TODO
-    lean_unreachable();
+    if (u < 0) {
+        unsigned u1 = -static_cast<int64>(u);
+        return mul(true, 1, &u1);
+    } else {
+        unsigned u1 = u;
+        return mul(false, 1, &u1);
+    }
 }
 
 mpz & mpz::operator/=(mpz const & o) {
-    // TODO
-    lean_unreachable();
+    return div(o.m_sign, o.m_size, o.m_digits);
 }
 
 mpz & mpz::operator/=(unsigned u) {
-    // TODO
-    lean_unreachable();
+    return div(false, 1, &u);
 }
 
-mpz rem(mpz const & a, mpz const & b) {
-    // TODO
-    lean_unreachable();
+mpz & mpz::operator%=(mpz const & o) {
+    return rem(o.m_size, o.m_digits);
 }
 
 mpz mpz::pow(unsigned int p) const {
@@ -557,44 +701,170 @@ mpz mpz::pow(unsigned int p) const {
     return result;
 }
 
-size_t mpz::log2() const {
-    // TODO
-    lean_unreachable();
+static unsigned log2_uint(unsigned v) {
+    unsigned r = 0;
+    if (v & 0xFFFF0000) {
+        v >>= 16;
+        r |=  16;
+    }
+    if (v & 0xFF00) {
+        v >>= 8;
+        r |=  8;
+    }
+    if (v & 0xF0) {
+        v >>= 4;
+        r |=  4;
+    }
+    if (v & 0xC) {
+        v >>= 2;
+        r |=  2;
+    }
+    if (v & 0x2) {
+        v >>= 1;
+        r |=  1;
+    }
+    return r;
 }
 
-mpz operator%(mpz const & a, mpz const & b) {
-    // TODO
-    lean_unreachable();
+size_t mpz::log2() const {
+    return (m_size - 1)*sizeof(mpn_digit)*8 + log2_uint(m_digits[m_size - 1]);
 }
 
 mpz & mpz::operator&=(mpz const & o) {
-    // TODO
-    lean_unreachable();
+    digit_buffer r;
+    size_t sz = std::max(m_size, o.m_size);
+    r.ensure_capacity(sz);
+    for (size_t i = 0; i < sz; i++) {
+        mpn_digit u_i = (i < m_size)   ? m_digits[i]   : 0;
+        mpn_digit v_i = (i < o.m_size) ? o.m_digits[i] : 0;
+        r.push_back(u_i & v_i);
+    }
+    set(sz, r.begin());
+    return *this;
 }
 
 mpz & mpz::operator|=(mpz const & o) {
-    // TODO
-    lean_unreachable();
+    digit_buffer r;
+    size_t sz = std::max(m_size, o.m_size);
+    r.ensure_capacity(sz);
+    for (size_t i = 0; i < sz; i++) {
+        mpn_digit u_i = (i < m_size)   ? m_digits[i]   : 0;
+        mpn_digit v_i = (i < o.m_size) ? o.m_digits[i] : 0;
+        r.push_back(u_i | v_i);
+    }
+    set(sz, r.begin());
+    return *this;
 }
 
 mpz & mpz::operator^=(mpz const & o) {
-    // TODO
-    lean_unreachable();
+    digit_buffer r;
+    size_t sz = std::max(m_size, o.m_size);
+    r.ensure_capacity(sz);
+    for (size_t i = 0; i < sz; i++) {
+        mpn_digit u_i = (i < m_size)   ? m_digits[i]   : 0;
+        mpn_digit v_i = (i < o.m_size) ? o.m_digits[i] : 0;
+        r.push_back(u_i ^ v_i);
+    }
+    set(sz, r.begin());
+    return *this;
 }
 
 void mul2k(mpz & a, mpz const & b, unsigned k) {
-    // TODO
-    lean_unreachable();
+    lean_assert(!b.m_sign);
+    if (k == 0 || b.is_zero()) {
+        a = b;
+        return;
+    }
+    unsigned word_shift  = k / (8 * sizeof(mpn_digit));
+    unsigned bit_shift   = k % (8 * sizeof(mpn_digit));
+    size_t   old_sz      = b.m_size;
+    size_t   new_sz      = old_sz + word_shift + 1;
+    digit_buffer ds;
+    ds.ensure_capacity(new_sz);
+    for (size_t i = 0; i < word_shift; i++) {
+        ds.push_back(0);
+    }
+    for (size_t i = 0; i < old_sz; i++) {
+        ds.push_back(b.m_digits[i]);
+    }
+    if (bit_shift > 0) {
+        unsigned comp_shift = (8 * sizeof(mpn_digit)) - bit_shift;
+        mpn_digit prev = 0;
+        for (size_t i = word_shift; i < new_sz; i++) {
+            mpn_digit new_prev = (ds[i] >> comp_shift);
+            ds[i] <<= bit_shift;
+            ds[i] |= prev;
+            prev = new_prev;
+        }
+    }
+    a.m_sign = false;
+    a.set(new_sz, ds.begin());
 }
 
 void div2k(mpz & a, mpz const & b, unsigned k) {
-    // TODO
-    lean_unreachable();
+    lean_assert(!b.m_sign);
+    if (k == 0 || b.is_zero()) {
+        a = b;
+        return;
+    }
+    unsigned digit_shift = k / (8 * sizeof(mpn_digit));
+    if (digit_shift >= b.m_size) {
+        a = 0;
+        return;
+    }
+    size_t sz           = b.m_size;
+    size_t new_sz       = sz - digit_shift;
+    unsigned bit_shift  = k % (8 * sizeof(mpn_digit));
+    unsigned comp_shift = (8 * sizeof(mpn_digit)) - bit_shift;
+    digit_buffer ds;
+    ds.append(b.m_size, b.m_digits);
+    if (new_sz < sz) {
+        size_t i       = 0;
+        size_t j       = digit_shift;
+        if (bit_shift != 0) {
+            for (; i < new_sz - 1; i++, j++) {
+                ds[i] = ds[j];
+                ds[i] >>= bit_shift;
+                ds[i] |= (ds[j+1] << comp_shift);
+            }
+            ds[i] = ds[j];
+            ds[i] >>= bit_shift;
+        }
+        else {
+            for (; i < new_sz; i++, j++) {
+                ds[i] = ds[j];
+            }
+        }
+    }
+    else {
+        size_t i = 0;
+        for (; i < new_sz - 1; i++) {
+            ds[i] >>= bit_shift;
+            ds[i] |= (ds[i+1] << comp_shift);
+        }
+        ds[i] >>= bit_shift;
+    }
+    a.m_sign = false;
+    a.set(new_sz, ds.begin());
 }
 
-void mod2k(mpz & a, mpz const & b, unsigned k) {
-    // TODO
-    lean_unreachable();
+unsigned mpz::mod8() const {
+    return m_digits[0] & 0xFFu;
+}
+
+unsigned mpz::mod16() const {
+    return m_digits[0] & 0xFFFFu;
+}
+
+unsigned mpz::mod32() const {
+    return m_digits[0];
+}
+
+uint64 mpz::mod64() const {
+    if (m_size == 1)
+        return m_digits[0];
+    else
+        return (reinterpret_cast<uint64*>(m_digits))[0];
 }
 
 void power(mpz & a, mpz const & b, unsigned k) {
@@ -603,13 +873,36 @@ void power(mpz & a, mpz const & b, unsigned k) {
 }
 
 void gcd(mpz & g, mpz const & a, mpz const & b) {
-    // TODO
-    lean_unreachable();
+    mpz tmp1(a);
+    mpz tmp2(b);
+    mpz aux;
+    tmp1.abs();
+    tmp2.abs();
+    if (tmp1 < tmp2)
+        swap(tmp1, tmp2);
+
+    if (tmp2.is_zero()) {
+        swap(g, tmp1);
+    } else {
+        while (true) {
+            aux = rem(tmp1, tmp2);
+            if (aux.is_zero()) {
+                swap(g, tmp2);
+                break;
+            }
+            swap(tmp1, tmp2);
+            swap(tmp2, aux);
+        }
+    }
 }
 
 std::ostream & operator<<(std::ostream & out, mpz const & v) {
-    // TODO
-    lean_unreachable();
+    if (v.m_sign)
+        out << "-";
+    buffer<char, 1024> tmp;
+    tmp.resize(11*v.m_size, 0);
+    out << mpn_to_string(v.m_digits, v.m_size, tmp.begin(), tmp.size());
+    return out;
 }
 #endif
 

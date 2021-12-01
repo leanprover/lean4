@@ -155,37 +155,40 @@ partial def handleReferences (p : ReferenceParams)
   mapTask t fun (snaps, _) => do
     if let some snap := snaps.find? (fun s => s.endPos > hoverPos) then
       if let some (ci, i) := snap.infoTree.hoverableInfoAt? hoverPos then
-        if let Info.ofTermInfo ti := i then
-          if let some ident := identOf ti.expr then
-            let refs := List.join <| snaps.map (findReferences doc)
-            return referencesTo doc ident (p.context.includeDeclaration) refs
+        if let some (ident, isDecl) := identOf i then
+          let refs := List.join <| snaps.map (findReferences doc)
+          return referencesTo doc ident (p.context.includeDeclaration) refs
     return #[]
   where
-    identOf : Expr → Option RefIdent
-      | Expr.const n .. => some (RefIdent.name n)
-      | Expr.fvar id .. => some (RefIdent.fvar id)
+    identOf : Info → Option (RefIdent × Bool)
+      | Info.ofTermInfo ti => match ti.expr with
+        | Expr.const n .. => some (RefIdent.name n, ti.isBinder)
+        | Expr.fvar id .. => some (RefIdent.fvar id, ti.isBinder)
+        | _ => none
+      | Info.ofFieldInfo fi => some (RefIdent.name fi.projName, false)
       | _ => none
 
-    addReference (doc : EditableDocument) (ident : RefIdent) (ti : TermInfo) (refs : List Reference)
-        : List Reference :=
-      if let some range := ti.stx.getRange? (originalOnly := true) then
+    addReference (doc : EditableDocument) (info : Info)
+        (ident : RefIdent) (isDeclaration : Bool)
+        (refs : List Reference) : List Reference :=
+      if let some range := info.stx.getRange? (originalOnly := true) then
         let text := doc.meta.text
         let range := {
           start := text.utf8PosToLspPos range.start
           «end» := text.utf8PosToLspPos range.stop
         }
-        { ident, range, isDeclaration := ti.isBinder } :: refs
+        { ident, range, isDeclaration } :: refs
       else
         refs
 
     findReferences (doc : EditableDocument) (snap : Snapshot) : List Reference :=
       let infos := snap.infoTree.findAll fun
         | Info.ofTermInfo _ => true
+        | Info.ofFieldInfo _ => true
         | _ => false
       infos.foldl (init := []) fun refs info => do
-        if let Info.ofTermInfo ti := info then
-          if let some ident := identOf ti.expr then
-            return addReference doc ident ti refs
+        if let some (ident, isDecl) := identOf info then
+          return addReference doc info ident isDecl refs
         return refs
 
     referencesTo (doc : EditableDocument) (ident : RefIdent) (includeDecl : Bool) (refs : List Reference)

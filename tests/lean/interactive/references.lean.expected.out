@@ -21,29 +21,29 @@
   {"start": {"line": 4, "character": 10}, "end": {"line": 4, "character": 13}}},
  {"uri": "file://references.lean",
   "range":
-  {"start": {"line": 20, "character": 2}, "end": {"line": 20, "character": 5}}},
+  {"start": {"line": 24, "character": 2}, "end": {"line": 24, "character": 5}}},
  {"uri": "file://references.lean",
   "range":
   {"start": {"line": 17, "character": 12},
    "end": {"line": 17, "character": 15}}},
  {"uri": "file://references.lean",
   "range":
-  {"start": {"line": 22, "character": 13},
-   "end": {"line": 22, "character": 16}}}]
+  {"start": {"line": 26, "character": 13},
+   "end": {"line": 26, "character": 16}}}]
 {"textDocument": {"uri": "file://references.lean"},
  "position": {"line": 4, "character": 10},
  "context": {"includeDeclaration": false}}
 [{"uri": "file://references.lean",
   "range":
-  {"start": {"line": 20, "character": 2}, "end": {"line": 20, "character": 5}}},
+  {"start": {"line": 24, "character": 2}, "end": {"line": 24, "character": 5}}},
  {"uri": "file://references.lean",
   "range":
   {"start": {"line": 17, "character": 12},
    "end": {"line": 17, "character": 15}}},
  {"uri": "file://references.lean",
   "range":
-  {"start": {"line": 22, "character": 13},
-   "end": {"line": 22, "character": 16}}}]
+  {"start": {"line": 26, "character": 13},
+   "end": {"line": 26, "character": 16}}}]
 {"textDocument": {"uri": "file://references.lean"},
  "position": {"line": 7, "character": 2},
  "context": {"includeDeclaration": true}}
@@ -52,15 +52,21 @@
   {"start": {"line": 7, "character": 2}, "end": {"line": 7, "character": 3}}},
  {"uri": "file://references.lean",
   "range":
-  {"start": {"line": 27, "character": 13},
-   "end": {"line": 27, "character": 14}}}]
+  {"start": {"line": 18, "character": 2}, "end": {"line": 18, "character": 3}}},
+ {"uri": "file://references.lean",
+  "range":
+  {"start": {"line": 31, "character": 13},
+   "end": {"line": 31, "character": 14}}}]
 {"textDocument": {"uri": "file://references.lean"},
  "position": {"line": 7, "character": 2},
  "context": {"includeDeclaration": false}}
 [{"uri": "file://references.lean",
   "range":
-  {"start": {"line": 27, "character": 13},
-   "end": {"line": 27, "character": 14}}}]
+  {"start": {"line": 18, "character": 2}, "end": {"line": 18, "character": 3}}},
+ {"uri": "file://references.lean",
+  "range":
+  {"start": {"line": 31, "character": 13},
+   "end": {"line": 31, "character": 14}}}]
 {"textDocument": {"uri": "file://references.lean"},
  "position": {"line": 7, "character": 6},
  "context": {"includeDeclaration": true}}
@@ -69,18 +75,23 @@
   {"start": {"line": 7, "character": 6}, "end": {"line": 7, "character": 9}}},
  {"uri": "file://references.lean",
   "range":
-  {"start": {"line": 22, "character": 20},
-   "end": {"line": 22, "character": 23}}}]
+  {"start": {"line": 26, "character": 20},
+   "end": {"line": 26, "character": 23}}}]
 {"textDocument": {"uri": "file://references.lean"},
  "position": {"line": 11, "character": 2},
  "context": {"includeDeclaration": true}}
 [{"uri": "file://references.lean",
   "range":
-  {"start": {"line": 11, "character": 2}, "end": {"line": 11, "character": 3}}}]
+  {"start": {"line": 11, "character": 2}, "end": {"line": 11, "character": 3}}},
+ {"uri": "file://references.lean",
+  "range":
+  {"start": {"line": 21, "character": 2}, "end": {"line": 21, "character": 3}}}]
 {"textDocument": {"uri": "file://references.lean"},
  "position": {"line": 11, "character": 2},
  "context": {"includeDeclaration": false}}
-[]
+[{"uri": "file://references.lean",
+  "range":
+  {"start": {"line": 21, "character": 2}, "end": {"line": 21, "character": 3}}}]
 {"textDocument": {"uri": "file://references.lean"},
  "position": {"line": 11, "character": 6},
  "context": {"includeDeclaration": true}}
@@ -97,78 +108,105 @@
   "range":
   {"start": {"line": 11, "character": 6}, "end": {"line": 11, "character": 9}}}]
 {"textDocument": {"uri": "file://references.lean"},
- "position": {"line": 22, "character": 4},
+ "position": {"line": 18, "character": 2},
  "context": {"includeDeclaration": true}}
 [{"uri": "file://references.lean",
   "range":
-  {"start": {"line": 22, "character": 4}, "end": {"line": 22, "character": 7}}}]
+  {"start": {"line": 7, "character": 2}, "end": {"line": 7, "character": 3}}},
+ {"uri": "file://references.lean",
+  "range":
+  {"start": {"line": 18, "character": 2}, "end": {"line": 18, "character": 3}}},
+ {"uri": "file://references.lean",
+  "range":
+  {"start": {"line": 31, "character": 13},
+   "end": {"line": 31, "character": 14}}}]
 {"textDocument": {"uri": "file://references.lean"},
- "position": {"line": 22, "character": 4},
+ "position": {"line": 18, "character": 2},
+ "context": {"includeDeclaration": false}}
+[{"uri": "file://references.lean",
+  "range":
+  {"start": {"line": 18, "character": 2}, "end": {"line": 18, "character": 3}}},
+ {"uri": "file://references.lean",
+  "range":
+  {"start": {"line": 31, "character": 13},
+   "end": {"line": 31, "character": 14}}}]
+{"textDocument": {"uri": "file://references.lean"},
+ "position": {"line": 21, "character": 2},
+ "context": {"includeDeclaration": true}}
+[{"uri": "file://references.lean",
+  "range":
+  {"start": {"line": 11, "character": 2}, "end": {"line": 11, "character": 3}}},
+ {"uri": "file://references.lean",
+  "range":
+  {"start": {"line": 21, "character": 2}, "end": {"line": 21, "character": 3}}}]
+{"textDocument": {"uri": "file://references.lean"},
+ "position": {"line": 21, "character": 2},
+ "context": {"includeDeclaration": false}}
+[{"uri": "file://references.lean",
+  "range":
+  {"start": {"line": 21, "character": 2}, "end": {"line": 21, "character": 3}}}]
+{"textDocument": {"uri": "file://references.lean"},
+ "position": {"line": 26, "character": 4},
+ "context": {"includeDeclaration": true}}
+[{"uri": "file://references.lean",
+  "range":
+  {"start": {"line": 26, "character": 4}, "end": {"line": 26, "character": 7}}}]
+{"textDocument": {"uri": "file://references.lean"},
+ "position": {"line": 26, "character": 4},
  "context": {"includeDeclaration": false}}
 []
 {"textDocument": {"uri": "file://references.lean"},
- "position": {"line": 22, "character": 9},
+ "position": {"line": 26, "character": 9},
  "context": {"includeDeclaration": true}}
 [{"uri": "file://references.lean",
   "range":
-  {"start": {"line": 22, "character": 9},
-   "end": {"line": 22, "character": 10}}},
- {"uri": "file://references.lean",
-  "range":
-  {"start": {"line": 27, "character": 11},
-   "end": {"line": 27, "character": 12}}}]
+  {"start": {"line": 26, "character": 9},
+   "end": {"line": 26, "character": 10}}}]
 {"textDocument": {"uri": "file://references.lean"},
- "position": {"line": 22, "character": 9},
+ "position": {"line": 26, "character": 9},
  "context": {"includeDeclaration": false}}
-[{"uri": "file://references.lean",
-  "range":
-  {"start": {"line": 27, "character": 11},
-   "end": {"line": 27, "character": 12}}}]
+[]
 {"textDocument": {"uri": "file://references.lean"},
- "position": {"line": 27, "character": 11},
+ "position": {"line": 31, "character": 11},
  "context": {"includeDeclaration": true}}
 [{"uri": "file://references.lean",
   "range":
-  {"start": {"line": 22, "character": 9},
-   "end": {"line": 22, "character": 10}}},
- {"uri": "file://references.lean",
-  "range":
-  {"start": {"line": 27, "character": 11},
-   "end": {"line": 27, "character": 12}}}]
+  {"start": {"line": 31, "character": 11},
+   "end": {"line": 31, "character": 12}}}]
 {"textDocument": {"uri": "file://references.lean"},
- "position": {"line": 27, "character": 11},
+ "position": {"line": 31, "character": 11},
  "context": {"includeDeclaration": false}}
 [{"uri": "file://references.lean",
   "range":
-  {"start": {"line": 27, "character": 11},
-   "end": {"line": 27, "character": 12}}}]
+  {"start": {"line": 31, "character": 11},
+   "end": {"line": 31, "character": 12}}}]
 {"textDocument": {"uri": "file://references.lean"},
- "position": {"line": 27, "character": 6},
+ "position": {"line": 31, "character": 6},
  "context": {"includeDeclaration": true}}
 [{"uri": "file://references.lean",
   "range":
-  {"start": {"line": 32, "character": 2}, "end": {"line": 32, "character": 3}}},
+  {"start": {"line": 36, "character": 2}, "end": {"line": 36, "character": 3}}},
  {"uri": "file://references.lean",
   "range":
-  {"start": {"line": 27, "character": 6}, "end": {"line": 27, "character": 7}}}]
+  {"start": {"line": 31, "character": 6}, "end": {"line": 31, "character": 7}}}]
 {"textDocument": {"uri": "file://references.lean"},
- "position": {"line": 27, "character": 6},
+ "position": {"line": 31, "character": 6},
  "context": {"includeDeclaration": false}}
 [{"uri": "file://references.lean",
   "range":
-  {"start": {"line": 32, "character": 2}, "end": {"line": 32, "character": 3}}}]
+  {"start": {"line": 36, "character": 2}, "end": {"line": 36, "character": 3}}}]
 {"textDocument": {"uri": "file://references.lean"},
- "position": {"line": 32, "character": 2},
+ "position": {"line": 36, "character": 2},
  "context": {"includeDeclaration": true}}
 [{"uri": "file://references.lean",
   "range":
-  {"start": {"line": 32, "character": 2}, "end": {"line": 32, "character": 3}}},
+  {"start": {"line": 36, "character": 2}, "end": {"line": 36, "character": 3}}},
  {"uri": "file://references.lean",
   "range":
-  {"start": {"line": 27, "character": 6}, "end": {"line": 27, "character": 7}}}]
+  {"start": {"line": 31, "character": 6}, "end": {"line": 31, "character": 7}}}]
 {"textDocument": {"uri": "file://references.lean"},
- "position": {"line": 32, "character": 2},
+ "position": {"line": 36, "character": 2},
  "context": {"includeDeclaration": false}}
 [{"uri": "file://references.lean",
   "range":
-  {"start": {"line": 32, "character": 2}, "end": {"line": 32, "character": 3}}}]
+  {"start": {"line": 36, "character": 2}, "end": {"line": 36, "character": 3}}}]

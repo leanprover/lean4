@@ -532,7 +532,7 @@ mpz & mpz::add(bool sign, size_t sz, mpn_digit const * digits) {
         mpn_add(m_digits, m_size,
                 digits, sz,
                 tmp.begin(), new_sz, &real_sz);
-        lean_assert(real_sz <= sz);
+        lean_assert(real_sz <= new_sz);
         set(real_sz, tmp.begin());
     } else {
         mpn_digit borrow;

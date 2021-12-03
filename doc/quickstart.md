@@ -14,23 +14,24 @@ See [Setup](./setup.md) for other ways and more details on setting up Lean.
     del elan-init.ps1
     ```
     See the [elan repo](https://github.com/leanprover/elan) for other installation options and details.
-    
+
 1. Install [VS Code](https://code.visualstudio.com/).
 
-1. Open VS Code and install the `lean4` extension.
+1. Create a new folder called `Foo` and type:
+    ```lean
+    lake init Foo
+    ```
+
+1. Open this folder in VS Code and install the `lean4` extension.
 
     ![installing the vscode-lean4 extension](images/code-ext.png)
 
-1. Create a new file with the extension `.lean` and add the following code:
-    ```lean
-    import Leanpkg
-
-    #eval Leanpkg.leanVersionString
-    ```
-    You should get a syntax-highlighted file with a "Lean Infoview" on the right that tells you the installed Lean version when placing your cursor on the last line.
+    You should get a syntax-highlighted file with a "Lean Infoview" on the right.
+    Add the following #eval statement which tells you the installed Lean version
+    when placing your cursor on the last line.
 
     ![successful setup](images/code-success.png)
 
-1. You are set up! Try opening a Lean folder containing a package file `leanpkg.toml`. You can create your own packages using `leanpkg init` on the command line.
-   Packages **have** to be opened using "File > Open Folder..." for imports to work.
-   Saved changes are visible in other files after running "Lean 4: Refresh File Dependencies" (`Ctrl+Shift+X`).
+
+1. You are set up! You can now also run `lake build` from the command line to get
+   an executable version of your Lean program.

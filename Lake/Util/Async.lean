@@ -5,15 +5,9 @@ Authors: Mac Malone
 -/
 import Lake.Util.Task
 import Lake.Util.OptionIO
+import Lake.Util.Misc
 
 namespace Lake
-
-def liftOption [Alternative m] : Option α → m α
-| some a => pure a
-| none => failure
-
-instance [MonadLift m n] : MonadLift (ReaderT ρ m) (ReaderT ρ n) where
-  monadLift x := fun r => liftM <| x r
 
 --------------------------------------------------------------------------------
 -- # Async / Await Abstraction

@@ -65,7 +65,7 @@ Hello, world!
 
 ## Adding Dependencies
 
-Lake packages can also have dependencies. Dependencies are other Lake packages the current package needs in order to function. To define a dependency, add an entry to the `dependencies` field of the package configuration. Each entry includes the name of the package and where to find it. Dependencies can be sourced directly from a local folder (e.g., a subdirectory of the package) or come from remote Git repositions.
+Lake packages can also have dependencies. Dependencies are other Lake packages the current package needs in order to function. To define a dependency, add an entry to the `dependencies` field of the package configuration. Each entry includes the name of the package and where to find it. Dependencies can be sourced directly from a local folder (e.g., a subdirectory of the package) or come from remote Git repositories. When sourcing from a Git repository, specify the revision of the package to clone, which can be a commit hash, branch, or tag.
 
 For example, one can depend on the Lean 4 port of [mathlib](https://github.com/leanprover-community/mathlib4) like so:
 

@@ -16,11 +16,10 @@ Materializes a Git package in the given `dir`,
 cloning and/or updating it as necessary.
 -/
 def materializeGit
-(name : String) (dir : FilePath) (url rev : String) (branch : Option String)
+(name : String) (dir : FilePath) (url rev : String)
 : (LogT IO) Unit := do
   if ← dir.isDir then
-    let br := match branch with | none => "" | some br => "@" ++ br
-    logInfo s!"{name}: trying to update {dir} to revision {rev}{br}"
+    logInfo s!"{name}: trying to update {dir} to revision {rev}"
     let hash ← parseOriginRevision rev dir
     unless ← revisionExists hash dir do fetch dir
     checkoutDetach hash dir
@@ -37,10 +36,10 @@ downloading and/or updating it as necessary.
 def materializeDep (pkg : Package) (dep : Dependency) : (LogT IO) FilePath :=
   match dep.src with
   | Source.path dir => pkg.dir / dir
-  | Source.git url rev branch => do
+  | Source.git url rev => do
     let name := dep.name.toString (escape := false)
     let depDir := pkg.depsDir / name
-    materializeGit name depDir url rev branch
+    materializeGit name depDir url rev
     depDir
 
 /--

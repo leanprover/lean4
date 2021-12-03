@@ -1386,6 +1386,9 @@ namespace ReaderT
 section
 variable {ρ : Type u} {m : Type u → Type v} {α : Type u}
 
+instance [MonadLiftT m n] : MonadLiftT (ReaderT ρ m) (ReaderT ρ n) where
+  monadLift x := fun r => liftM (x r)
+
 instance  : MonadLift m (ReaderT ρ m) where
   monadLift x := fun _ => x
 

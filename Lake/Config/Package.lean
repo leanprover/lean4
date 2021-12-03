@@ -53,8 +53,8 @@ In Lake, dependency sources currently come into flavors:
   into the packages's `depsDir`.
 -/
 inductive Source where
-| path (dir : FilePath) : Source
-| git (url rev : String) : Source
+| path (dir : FilePath)
+| git (url rev : String)
 deriving Inhabited, Repr
 
 /-- A `Dependency` of a package. -/

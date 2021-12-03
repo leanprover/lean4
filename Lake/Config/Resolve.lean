@@ -16,8 +16,7 @@ Materializes a Git package in the given `dir`,
 cloning and/or updating it as necessary.
 -/
 def materializeGit
-(name : String) (dir : FilePath) (url rev : String)
-: (LogT IO) Unit := do
+(name : String) (dir : FilePath) (url rev : String) : (LogT IO) PUnit := do
   if ← dir.isDir then
     logInfo s!"{name}: trying to update {dir} to revision {rev}"
     let hash ← parseOriginRevision rev dir

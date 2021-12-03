@@ -39,7 +39,7 @@ Foo/
 build/         # `lake` build output directory
 ```
 
-After running `lake build` you will see a binary named `.\build\bin\Foo` and when you run it you should see the output:
+After running `lake build` you will see a binary named `./build/bin/Foo` and when you run it you should see the output:
 ```
 Hello, world!
 ```

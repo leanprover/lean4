@@ -35,3 +35,6 @@ See [Setup](./setup.md) for other ways and more details on setting up Lean.
 
 1. You are set up! You can now also run `lake build` from the command line to get
    an executable version of your Lean program.
+
+Note: Packages **have** to be opened using "File > Open Folder..." for imports to work.
+Saved changes are visible in other files after running "Lean 4: Refresh File Dependencies" (`Ctrl+Shift+X`).

@@ -37,6 +37,7 @@ instance : ToJson WaitForDiagnostics :=
 
 structure LeanFileProgressProcessingInfo where
   range : Range
+  error : Bool := false
   deriving FromJson, ToJson
 
 /-- `$/lean/fileProgress` client<-server notification.

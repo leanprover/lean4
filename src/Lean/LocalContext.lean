@@ -262,6 +262,11 @@ def getAt? (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
     | none      => pure b
     | some decl => f b decl
 
+@[specialize] def foldrM [Monad m] (lctx : LocalContext) (f : LocalDecl → β → m β) (init : β) : m β :=
+  lctx.decls.foldrM (init := init) fun decl b => match decl with
+    | none      => pure b
+    | some decl => f decl b
+
 @[specialize] def forM [Monad m] (lctx : LocalContext) (f : LocalDecl → m PUnit) : m PUnit :=
   lctx.decls.forM fun decl => match decl with
     | none      => pure PUnit.unit
@@ -284,6 +289,9 @@ instance : ForIn m LocalContext LocalDecl where
 
 @[inline] def foldl (lctx : LocalContext) (f : β → LocalDecl → β) (init : β) (start : Nat := 0) : β :=
   Id.run <| lctx.foldlM f init start
+
+@[inline] def foldr (lctx : LocalContext) (f : LocalDecl → β → β) (init : β) : β :=
+  Id.run <| lctx.foldrM f init
 
 @[inline] def findDecl? (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
   Id.run <| lctx.findDeclM? f

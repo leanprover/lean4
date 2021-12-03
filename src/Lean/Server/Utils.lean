@@ -144,8 +144,8 @@ def publishProgress (m : DocumentMeta) (processing : Array LeanFileProgressProce
     }
   }
 
-def publishProgressAtPos (m : DocumentMeta) (pos : String.Pos) (hOut : FS.Stream) : IO Unit :=
-  publishProgress m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.bsize⟩ }] hOut
+def publishProgressAtPos (m : DocumentMeta) (pos : String.Pos) (hOut : FS.Stream) (error : Bool := false) : IO Unit :=
+  publishProgress m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.bsize⟩, error := error }] hOut
 
 def publishProgressDone (m : DocumentMeta) (hOut : FS.Stream) : IO Unit :=
   publishProgress m #[] hOut

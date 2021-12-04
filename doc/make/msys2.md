@@ -74,6 +74,14 @@ The following linux command will do that:
 cp $(ldd lean.exe | cut -f3 -d' ' | grep mingw) .
 ```
 
+However, if you plan to use this build to compile lean programs
+to executable binaries using `lake build` in normal Windows command
+prompt outside of msys2 environment you will also need to add a windows
+version clang to your path.  This is done in the `.github\workflows\ci.yml`
+by downloading `lean-llvm-x86_64-w64-windows-gnu.tar.zst`.  You will
+see how these `clang` binaries are provided for you in a .elan toolchain
+install of Lean 4.
+
 ## Trouble shooting
 
 **-bash: gcc: command not found**

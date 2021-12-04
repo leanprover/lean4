@@ -6,8 +6,10 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 import Lake.Util.Git
 import Lake.Config.Load
 import Lake.Config.Workspace
+import Lake.Build.Recursive
 
 open System
+open Lean (Name NameMap)
 
 namespace Lake
 
@@ -38,7 +40,7 @@ def materializeDep (ws : Workspace) (pkg : Package) (dep : Dependency) : (LogT I
   | Source.path dir => pkg.dir / dir
   | Source.git url rev => do
     let name := dep.name.toString (escape := false)
-    let depDir := ws.depsDir / name
+    let depDir := ws.packagesDir / name
     materializeGit name depDir url rev
     depDir
 
@@ -56,8 +58,18 @@ def resolveDep (ws : Workspace) (pkg : Package) (dep : Dependency) : (LogT IO) P
   return depPkg
 
 /--
-Resolves the package's direct dependencies,
+Resolves the package's dependencies,
 downloading and/or updating them as necessary.
 -/
-def resolveDirectDeps (ws : Workspace) (self : Package) : (LogT IO) (Array Package) :=
-  self.dependencies.mapM (resolveDep ws self ·)
+def resolveDeps (ws : Workspace) (pkg : Package) : (LogT IO) (NameMap Package) := do
+  let resolve dep resolve := do
+    let pkg ← resolveDep ws pkg dep
+    pkg.dependencies.forM fun dep => discard <| resolve dep
+    return pkg
+  let (res, map) ← RBTopT.run <| pkg.dependencies.forM fun dep =>
+    discard <| buildRBTop (cmp := Name.quickCmp) resolve Dependency.name dep
+  match res with
+  | Except.ok _ => map
+  | Except.error cycle => do
+    let cycle := cycle.map (s!"  {·}")
+    error s!"dependency cycle detected:\n{"\n".intercalate cycle}"

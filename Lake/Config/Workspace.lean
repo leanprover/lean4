@@ -8,6 +8,8 @@ import Lake.Config.WorkspaceConfig
 import Lake.Config.Package
 
 open System
+open Lean (Name NameMap)
+
 namespace Lake
 
 /-- A Lake workspace -- the top-level package directory. -/
@@ -16,7 +18,9 @@ structure Workspace where
   dir : FilePath
   /-- The workspace's configuration. -/
   config : WorkspaceConfig
-  deriving Inhabited, Repr
+  /-- Name-package map of packages within the workspace. -/
+  packageMap : NameMap Package := {}
+  deriving Inhabited
 
 namespace OpaqueWorkspace
 
@@ -42,9 +46,22 @@ end OpaqueWorkspace
 
 namespace Workspace
 
+/-- Create a `Workspace` from a package using its directory and `WorkspaceConfig`. -/
 def ofPackage (pkg : Package) : Workspace :=
   {dir := pkg.dir, config := pkg.config.toWorkspaceConfig}
 
-/-- The workspace's `dir` joined with its `depsDir` configuration. -/
-def depsDir (self : Workspace) : FilePath :=
-  self.dir / self.config.depsDir
+/-- The workspace's `dir` joined with its `packagesDir` configuration. -/
+def packagesDir (self : Workspace) : FilePath :=
+  self.dir / self.config.packagesDir
+
+/-- Add a package to the workspace. -/
+def addPackage (pkg : Package) (self : Workspace) : Workspace :=
+  {self with packageMap := self.packageMap.insert pkg.name pkg}
+
+/-- Get a package within the workspace by name. -/
+def getPackage? (pkg : Name) (self : Workspace) : Option Package :=
+  self.packageMap.find? pkg
+
+/-- The `LEAN_PATH` of the workspace. -/
+def oleanPath (self : Workspace) : SearchPath :=
+  self.packageMap.toList.map (·.2.oleanDir)

@@ -16,7 +16,7 @@ def toolchainFileName : FilePath :=
 "lean-toolchain"
 
 def gitignoreContents :=
-s!"/{defaultBuildDir}\n/{defaultDepsDir}\n"
+s!"/{defaultBuildDir}\n/{defaultPackagesDir}\n"
 
 def libFileContents :=
   s!"def hello := \"world\""

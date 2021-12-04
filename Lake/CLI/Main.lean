@@ -7,6 +7,7 @@ import Lean.Util.Paths
 import Lake.Config.Load
 import Lake.Config.SearchPath
 import Lake.Config.InstallPath
+import Lake.Config.Resolve
 import Lake.Config.Util
 import Lake.Util.Error
 import Lake.Util.MainM
@@ -90,7 +91,10 @@ def loadPkg (args : List String) : CliM Package := do
 
 def loadConfig (args : List String) : CliM (Workspace × Package) := do
   let pkg ← loadPkg args
-  (Workspace.ofPackage pkg, pkg)
+  let ws ← Workspace.ofPackage pkg
+  let packageMap ← resolveDeps ws pkg |>.run LogMethods.eio (m := IO)
+  let packageMap := packageMap.insert pkg.name pkg
+  ({ws with packageMap}, pkg)
 
 /-- Get the Lean installation. Error if missing. -/
 def getLeanInstall : CliM LeanInstall := do
@@ -243,18 +247,10 @@ def serve (leanInstall : LeanInstall) (pkg : Package) (args : List String) : Cli
   }
   exit (← child.wait)
 
-def env (pkg : Package) (cmd : String) (args : Array String) : CliM PUnit := do
-  let (leanInstall, lakeInstall) ← getInstall
-  let ctx ← mkBuildContext (Workspace.ofPackage pkg) pkg leanInstall lakeInstall
-  let build : BuildM _ := do
-    let depTargets ← pkg.buildDefaultDepTargets
-    let depTarget ← pkg.buildDepTargetWith depTargets
-    depTargets.map (·.info)
-  let depPkgs ← build.run LogMethods.nop ctx
-  let oleanPath := SearchPath.toString <| pkg.oleanDir :: depPkgs.toList.map (·.oleanDir)
+def env (ws : Workspace) (cmd : String) (args : Array String) : CliM PUnit := do
   let child ← IO.Process.spawn {
     cmd, args,
-    env := #[("LEAN_PATH", oleanPath)]
+    env := #[("LEAN_PATH", ws.oleanPath.toString)]
   }
   exit (← child.wait)
 
@@ -265,7 +261,7 @@ def command : (cmd : String) → CliM PUnit
 | "new"         => do processOptions; noArgsRem <| new (← takeArg)
 | "init"        => do processOptions; noArgsRem <| init (← takeArg)
 | "run"         => do processOptions; noArgsRem <| script (← loadPkg []) (← takeArg) (← getSubArgs)
-| "env"         => do env (← loadPkg []) (← takeArg) (← takeArgs).toArray
+| "env"         => do env (← loadConfig []).1 (← takeArg) (← takeArgs).toArray
 | "serve"       => do processOptions; noArgsRem <| serve (← getLeanInstall) (← loadPkg []) (← getSubArgs)
 | "configure"   => do processOptions; let (ws, pkg) ← loadConfig (← getSubArgs); noArgsRem <| configure ws pkg
 | "print-paths" => do processOptions; printPaths (← takeArgs)

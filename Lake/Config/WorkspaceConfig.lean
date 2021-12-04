@@ -7,14 +7,14 @@ Authors: Mac Malone
 open System
 namespace Lake
 
-/-- The default setting for a `WorkspaceConfig`'s `depsDir` option. -/
-def defaultDepsDir : FilePath := "lean_packages"
+/-- The default setting for a `WorkspaceConfig`'s `packagesDir` option. -/
+def defaultPackagesDir : FilePath := "lean_packages"
 
 /-- A `Workspace`'s declarative configuration. -/
 structure WorkspaceConfig where
   /--
-  The directory to which Lake should download dependencies.
-  Defaults to `defaultDepsDir` (i.e., `lean_packages`).
+  The directory to which Lake should download remote dependencies.
+  Defaults to `defaultPackagesDir` (i.e., `lean_packages`).
   -/
-  depsDir : FilePath := defaultDepsDir
+  packagesDir : FilePath := defaultPackagesDir
   deriving Inhabited, Repr

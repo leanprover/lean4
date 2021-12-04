@@ -16,10 +16,9 @@ def resolvePkgSpec (ws : Workspace) (rootPkg : Package) (spec : String) : IO Pac
   let pkgName := spec.toName
   if pkgName == rootPkg.name then
     return rootPkg
-  if let some dep := rootPkg.dependencies.find? (·.name == pkgName) then
-    LogMethodsT.run LogMethods.io <| resolveDep ws rootPkg dep
-  else
-    error s!"unknown package `{spec}`"
+  match ws.getPackage? pkgName with
+  | some dep => dep
+  | none => error s!"unknown package `{spec}`"
 
 def parseTargetBaseSpec (ws : Workspace) (rootPkg : Package) (spec : String) : IO (Package × Option Name) := do
   match spec.splitOn "/" with

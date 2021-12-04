@@ -90,7 +90,7 @@ Lake provides a large assortment of configuration options for packages.
 
 Workspace options are shared across a package and its dependencies.
 
-* `depsDir`: The directory to which Lake should download dependencies. Defaults to `lean_packages`.
+* `packagesDir`: The directory to which Lake should download remote dependencies. Defaults to `lean_packages`.
 
 ### General
 

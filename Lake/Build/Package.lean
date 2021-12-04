@@ -6,7 +6,6 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 import Lean.Data.Name
 import Lean.Elab.Import
 import Lake.Config.Package
-import Lake.Config.Resolve
 import Lake.Build.Module
 
 open System
@@ -70,8 +69,7 @@ def recBuildPackageWithDeps
       if let some targets := targets? then
         pure targets
       else
-        let depPkg ← liftM (m := BuildM) <| resolveDep (← getWorkspace) pkg dep
-        buildPkg depPkg
+        buildPkg <| (← getWorkspace).getPackage? dep.name |>.get!
     depTargets := depTargets ++ targets
   let pkgTarget ← adaptPackage pkg <| build depTargets pkg
   depTargets.push pkgTarget
@@ -103,7 +101,9 @@ def buildPackageArrayWithDeps (pkgs : Array Package) [Inhabited i]
 def Package.buildDepTargets [Inhabited i]
 (build :  Array (ActivePackageTarget i) → Package → BuildM (ActivePackageTarget i)) (self : Package)
 : BuildM (Array (ActivePackageTarget i)) := do
-  buildPackageArrayWithDeps (← resolveDirectDeps (← getWorkspace) self) build
+  let ws ← getWorkspace
+  let depPkgs := self.dependencies.map fun dep => ws.getPackage? dep.name |>.get!
+  buildPackageArrayWithDeps depPkgs build
 
 /--
 Build an active target for the package by

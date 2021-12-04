@@ -46,8 +46,7 @@ protected def Package.sharedLibTarget (self : Package) : FileTarget :=
   Target.mk self.sharedLibFile do
     let depTargets ← self.buildDepTargets buildOleanAndCTargetWithDepTargets
     let depTarget ← self.buildDepTargetWith depTargets
-    let moreOleanDirs := packageTargetsToOleanDirs depTargets
-    let build := self.recBuildModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
+    let build := self.recBuildModuleOleanAndCTargetWithLocalImports depTarget
     let pkgTarget ← self.buildTarget build
     let linkTargets :=
       pkgTarget.oFileTargets ++ self.moreLibTargets ++
@@ -64,8 +63,7 @@ protected def Package.binTarget (self : Package) : FileTarget :=
   Target.mk self.binFile do
     let depTargets ← self.buildDepTargets buildOleanAndCTargetWithDepTargets
     let depTarget ← self.buildDepTargetWith depTargets
-    let moreOleanDirs := packageTargetsToOleanDirs depTargets
-    let build := self.recBuildModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
+    let build := self.recBuildModuleOleanAndCTargetWithLocalImports depTarget
     let pkgTarget ← self.buildModuleDAGTarget self.binRoot build
     let linkTargets :=
       pkgTarget.oFileTargets ++ self.moreLibTargets ++

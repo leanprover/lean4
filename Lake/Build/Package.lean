@@ -143,8 +143,7 @@ def Package.buildOleanTargetWithDepTargets
 (depTargets : Array (ActivePackageTarget x)) (self : Package)
 : BuildM (ActivePackageTarget FilePath) := do
   let depTarget ← self.buildDepTargetWith depTargets
-  let moreOleanDirs := packageTargetsToOleanDirs depTargets
-  self.buildTarget <| self.recBuildModuleOleanTargetWithLocalImports moreOleanDirs depTarget
+  self.buildTarget <| self.recBuildModuleOleanTargetWithLocalImports depTarget
 
 /-- Build the `.olean` and files of package and its dependencies' modules. -/
 def Package.buildOleanTarget (self : Package) : BuildM (ActivePackageTarget FilePath) := do
@@ -154,8 +153,7 @@ def Package.buildOleanAndCTargetWithDepTargets
 (depTargets : Array (ActivePackageTarget x)) (self : Package)
 : BuildM (ActivePackageTarget ActiveOleanAndCTargets) := do
   let depTarget ← self.buildDepTargetWith depTargets
-  let moreOleanDirs := packageTargetsToOleanDirs depTargets
-  self.buildTarget <| self.recBuildModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
+  self.buildTarget <| self.recBuildModuleOleanAndCTargetWithLocalImports depTarget
 
 /-- Build the `.olean` and `.c` files of package and its dependencies' modules. -/
 def Package.buildOleanAndCTarget (self : Package) : BuildM (ActivePackageTarget ActiveOleanAndCTargets) := do
@@ -177,16 +175,14 @@ def Package.moduleOleanTarget (mod : Name) (self : Package) : FileTarget :=
   Target.mk (self.modToOlean mod) do
     let depTargets ← self.buildDepTargets buildOleanTargetWithDepTargets
     let depTarget ← self.buildDepTargetWith depTargets
-    let moreOleanDirs := packageTargetsToOleanDirs depTargets
-    let build := self.recBuildModuleOleanTargetWithLocalImports moreOleanDirs depTarget
+    let build := self.recBuildModuleOleanTargetWithLocalImports depTarget
     return (← buildModule mod build).task
 
 def Package.moduleOleanAndCTarget (mod : Name) (self : Package) : OleanAndCTarget :=
   Target.mk ⟨self.modToOlean mod, self.modToC mod⟩ do
     let depTargets ← self.buildDepTargets buildOleanAndCTargetWithDepTargets
     let depTarget ← self.buildDepTargetWith depTargets
-    let moreOleanDirs := packageTargetsToOleanDirs depTargets
-    let build := self.recBuildModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
+    let build := self.recBuildModuleOleanAndCTargetWithLocalImports depTarget
     return (← buildModule mod build).task
 
 -- # Build Imports
@@ -217,31 +213,27 @@ def Package.buildDefaultDepTargets
     depTargets.map (·.withOnlyPackageInfo)
 
 /--
-Build the package's dependencies and a list of imports,
-returning the list of packages built.
+Build the package's dependencies and a list of imports.
 
 Builds only module `.olean` files if the default package facet is
 just `oleans`. Otherwise, builds both `.olean` and `.c` files.
 -/
 def Package.buildImportsAndDeps
-(imports : List String := []) (self : Package) : BuildM (List Package) := do
+(imports : List String := []) (self : Package) : BuildM PUnit := do
   -- resolve and build deps
   let depTargets ← self.buildDefaultDepTargets
   let depTarget ← self.buildDepTargetWith depTargets
-  let depPkgs := depTargets.map (·.info) |>.foldl (flip List.cons) []
   if imports.isEmpty then
     -- wait for deps to finish building
-    discard depTarget.materialize
+    depTarget.build
   else
      -- build local imports from list
-    let moreOleanDirs := depPkgs.map (·.oleanDir)
     let localImports := self.filterLocalImports imports
     if self.defaultFacet == PackageFacet.oleans then
-      let build := self.recBuildModuleOleanTargetWithLocalImports moreOleanDirs depTarget
+      let build := self.recBuildModuleOleanTargetWithLocalImports depTarget
       let targets ← buildModules localImports build
-      targets.forM (discard ·.materialize)
+      targets.forM (·.build)
     else
-      let build := self.recBuildModuleOleanAndCTargetWithLocalImports moreOleanDirs depTarget
+      let build := self.recBuildModuleOleanAndCTargetWithLocalImports depTarget
       let targets ← buildModules localImports build
-      targets.forM (discard ·.materialize)
-  return self :: depPkgs
+      targets.forM (·.build)

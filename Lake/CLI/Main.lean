@@ -3,7 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lean.Util.Paths
+
 import Lake.Config.Load
 import Lake.Config.SearchPath
 import Lake.Config.InstallPath
@@ -17,7 +17,7 @@ import Lake.CLI.Help
 import Lake.CLI.Build
 
 open System
-open Lean (Name LeanPaths Json toJson)
+open Lean (Name Json toJson)
 
 namespace Lake
 
@@ -232,11 +232,8 @@ def printPaths (imports : List String := []) : CliM PUnit := do
   if (← configFile.pathExists) then
     let (ws, pkg) ← loadConfig (← getSubArgs)
     let ctx ← mkBuildContext ws pkg leanInstall lakeInstall
-    let pkgs ← pkg.buildImportsAndDeps imports |>.run LogMethods.eio ctx
-    IO.println <| Json.compress <| toJson {
-      oleanPath := pkgs.map (·.oleanDir),
-      srcPath := pkgs.map (·.srcDir) : LeanPaths
-    }
+    pkg.buildImportsAndDeps imports |>.run LogMethods.eio ctx
+    IO.println <| Json.compress <| toJson ws.leanPaths
   else
     exit noConfigFileCode
 

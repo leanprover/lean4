@@ -58,6 +58,9 @@ def materializeAsync [Pure m] (self : ActiveTarget i k t) : m (k t) :=
 def materialize [Await k m'] [MonadLiftT m' m] (self : ActiveTarget i k t) : m t :=
   liftM <| await self.task
 
+def build [Await k m'] [MonadLiftT m' m] [Functor m] (self : ActiveTarget i k t) : m PUnit :=
+  discard <| self.materialize
+
 def mixOpaqueAsync
 [MixTrace t] [SeqMapAsync n k] [MonadLiftT n m] [Monad m]
 (t1 : ActiveTarget α k t) (t2 : ActiveTarget β k t) : m (ActiveTarget PUnit k t) := do

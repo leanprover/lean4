@@ -3,12 +3,13 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lean.Util.Paths
 import Lake.Config.Opaque
 import Lake.Config.WorkspaceConfig
 import Lake.Config.Package
 
 open System
-open Lean (Name NameMap)
+open Lean (Name NameMap LeanPaths)
 
 namespace Lake
 
@@ -62,6 +63,19 @@ def addPackage (pkg : Package) (self : Workspace) : Workspace :=
 def getPackage? (pkg : Name) (self : Workspace) : Option Package :=
   self.packageMap.find? pkg
 
+/-- The `.olean` directories of the workspace. -/
+def oleanDirs (self : Workspace) : List FilePath :=
+  self.packageMap.toList.map (·.2.oleanDir)
+
 /-- The `LEAN_PATH` of the workspace. -/
 def oleanPath (self : Workspace) : SearchPath :=
   self.packageMap.toList.map (·.2.oleanDir)
+
+/-- The `LEAN_SRC_PATH` of the workspace. -/
+def srcPath (self : Workspace) : SearchPath :=
+  self.packageMap.toList.map (·.2.srcDir)
+
+/-- The `LeanPaths` of the workspace. -/
+def leanPaths (self : Workspace) : LeanPaths :=
+  let pkgs := self.packageMap.toList
+  LeanPaths.mk (pkgs.map (·.2.oleanDir)) (pkgs.map (·.2.srcDir))

@@ -30,8 +30,11 @@ def getWorkspace : BuildM Workspace :=
 def getBuildDir : BuildM FilePath :=
   (·.buildDir) <$> getPackage
 
-def getOleanDir : BuildM FilePath :=
-  (·.oleanDir) <$> getPackage
+def getOleanDirs : BuildM (List FilePath) :=
+  (·.oleanDirs) <$> getWorkspace
+
+def getOleanPath : BuildM SearchPath :=
+  (·.oleanPath) <$> getWorkspace
 
 def getLeanInstall : BuildM LeanInstall :=
   (·.leanInstall) <$> read

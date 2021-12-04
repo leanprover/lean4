@@ -109,37 +109,33 @@ def moduleTarget [CheckExists i] [GetMTime i] [ComputeHash i] (info : i)
 
 def moduleOleanAndCTarget
 (leanFile cFile oleanFile traceFile : FilePath)
-(oleanDirs : List FilePath) (contents : String)  (depTarget : BuildTarget x)
+(contents : String)  (depTarget : BuildTarget x)
 (rootDir : FilePath := ".") (leanArgs : Array String := #[]) : OleanAndCTarget :=
   moduleTarget (OleanAndC.mk oleanFile cFile) leanFile traceFile contents depTarget do
-    compileOleanAndC leanFile oleanFile cFile oleanDirs rootDir leanArgs (← getLean)
+    compileOleanAndC leanFile oleanFile cFile  (← getOleanDirs) rootDir leanArgs (← getLean)
 
 def moduleOleanTarget
 (leanFile oleanFile traceFile : FilePath)
-(oleanDirs : List FilePath) (contents : String) (depTarget : BuildTarget x)
+(contents : String) (depTarget : BuildTarget x)
 (rootDir : FilePath := ".") (leanArgs : Array String := #[]) : FileTarget :=
   let target := moduleTarget oleanFile leanFile traceFile contents depTarget do
-    compileOlean leanFile oleanFile oleanDirs rootDir leanArgs (← getLean)
+    compileOlean leanFile oleanFile (← getOleanDirs) rootDir leanArgs (← getLean)
   target.withTask do target.mapAsync fun oleanFile depTrace => do
     return mixTrace (← computeTrace oleanFile) depTrace
 
-protected def Package.moduleOleanAndCTargetOnly
-(self : Package) (moreOleanDirs : List FilePath) (mod : Name)
-(leanFile : FilePath) (contents : String) (depTarget : BuildTarget x) :=
+protected def Package.moduleOleanAndCTargetOnly (self : Package)
+(mod : Name) (leanFile : FilePath) (contents : String) (depTarget : BuildTarget x) :=
   let cFile := self.modToC mod
   let oleanFile := self.modToOlean mod
   let traceFile := self.modToTraceFile mod
-  let oleanDirs :=  self.oleanDir :: moreOleanDirs
-  moduleOleanAndCTarget leanFile cFile oleanFile traceFile oleanDirs contents
+  moduleOleanAndCTarget leanFile cFile oleanFile traceFile contents
     depTarget self.rootDir self.moreLeanArgs
 
-protected def Package.moduleOleanTargetOnly
-(self : Package) (moreOleanDirs : List FilePath) (mod : Name)
-(leanFile : FilePath) (contents : String) (depTarget : BuildTarget x) :=
+protected def Package.moduleOleanTargetOnly (self : Package)
+(mod : Name) (leanFile : FilePath) (contents : String) (depTarget : BuildTarget x) :=
   let oleanFile := self.modToOlean mod
   let traceFile := self.modToTraceFile mod
-  let oleanDirs := self.oleanDir :: moreOleanDirs
-  moduleOleanTarget leanFile oleanFile traceFile oleanDirs contents depTarget
+  moduleOleanTarget leanFile oleanFile traceFile contents depTarget
     self.rootDir self.moreLeanArgs
 
 -- # Recursive Building
@@ -164,20 +160,20 @@ def recBuildModuleWithLocalImports (pkg : Package)
   build mod leanFile contents importTargets
 
 def Package.recBuildModuleOleanAndCTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
-(self : Package) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
+(self : Package) (depTarget : ActiveBuildTarget x)
 : RecBuild Name ActiveOleanAndCTarget m :=
   recBuildModuleWithLocalImports self fun mod leanFile contents importTargets => do
     let importTarget ← ActiveTarget.collectOpaqueList <| importTargets.map (·.oleanTarget)
     let allDepsTarget := Target.active <| ← depTarget.mixOpaqueAsync importTarget
-    self.moduleOleanAndCTargetOnly moreOleanDirs mod leanFile contents allDepsTarget |>.run'
+    self.moduleOleanAndCTargetOnly mod leanFile contents allDepsTarget |>.run'
 
 def Package.recBuildModuleOleanTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
-(self : Package) (moreOleanDirs : List FilePath) (depTarget : ActiveBuildTarget x)
+(self : Package) (depTarget : ActiveBuildTarget x)
 : RecBuild Name ActiveFileTarget m :=
   recBuildModuleWithLocalImports self fun mod leanFile contents importTargets => do
     let importTarget ← ActiveTarget.collectOpaqueList importTargets
     let allDepsTarget := Target.active <| ← depTarget.mixOpaqueAsync importTarget
-    self.moduleOleanTargetOnly moreOleanDirs mod leanFile contents allDepsTarget |>.run
+    self.moduleOleanTargetOnly mod leanFile contents allDepsTarget |>.run
 
 -- ## Definitions
 

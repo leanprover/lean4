@@ -70,7 +70,7 @@ def recBuildPackageWithDeps
       if let some targets := targets? then
         pure targets
       else
-        let depPkg ← liftM (m := BuildM) <| resolveDep pkg dep
+        let depPkg ← liftM (m := BuildM) <| resolveDep (← getWorkspace) pkg dep
         buildPkg depPkg
     depTargets := depTargets ++ targets
   let pkgTarget ← adaptPackage pkg <| build depTargets pkg
@@ -103,7 +103,7 @@ def buildPackageArrayWithDeps (pkgs : Array Package) [Inhabited i]
 def Package.buildDepTargets [Inhabited i]
 (build :  Array (ActivePackageTarget i) → Package → BuildM (ActivePackageTarget i)) (self : Package)
 : BuildM (Array (ActivePackageTarget i)) := do
-  buildPackageArrayWithDeps (← self.resolveDirectDeps) build
+  buildPackageArrayWithDeps (← resolveDirectDeps (← getWorkspace) self) build
 
 /--
 Build an active target for the package by

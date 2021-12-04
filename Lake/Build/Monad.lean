@@ -4,14 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Config.Package
+import Lake.Config.Workspace
 import Lake.Build.MonadBasic
 
 open System
 namespace Lake
 
-def mkBuildContext (pkg : Package) (leanInstall : LeanInstall) (lakeInstall : LakeInstall) : IO BuildContext := do
+def mkBuildContext (ws : Workspace) (pkg : Package) (leanInstall : LeanInstall) (lakeInstall : LakeInstall) : IO BuildContext := do
   let leanTrace := mixTrace (← computeTrace leanInstall.lean) (← computeTrace leanInstall.sharedLib)
-  return {package := pkg, leanInstall, lakeInstall, leanTrace}
+  return {package := pkg, workspace := ws, leanInstall, lakeInstall, leanTrace}
 
 deriving instance Inhabited for BuildContext
 
@@ -24,7 +25,7 @@ def getPackage : BuildM Package :=
   (·.package.get) <$> read
 
 def getWorkspace : BuildM Workspace :=
-  (·.workspace) <$> getPackage
+  (·.workspace.get) <$> read
 
 def getBuildDir : BuildM FilePath :=
   (·.buildDir) <$> getPackage

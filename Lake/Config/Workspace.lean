@@ -3,21 +3,12 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Config.Opaque
+import Lake.Config.WorkspaceConfig
+import Lake.Config.Package
 
 open System
 namespace Lake
-
-/-- The default setting for a `WorkspaceConfig`'s `depsDir` option. -/
-def defaultDepsDir : FilePath := "lean_packages"
-
-/-- A `Workspace`'s declarative configuration. -/
-structure WorkspaceConfig where
-  /--
-  The directory to which Lake should download dependencies.
-  Defaults to `defaultDepsDir` (i.e., `lean_packages`).
-  -/
-  depsDir : FilePath := defaultDepsDir
-  deriving Inhabited, Repr
 
 /-- A Lake workspace -- the top-level package directory. -/
 structure Workspace where
@@ -27,7 +18,32 @@ structure Workspace where
   config : WorkspaceConfig
   deriving Inhabited, Repr
 
+namespace OpaqueWorkspace
+
+unsafe def unsafeMk (ws : Workspace) : OpaqueWorkspace :=
+  unsafeCast ws
+
+@[implementedBy unsafeMk] constant mk (ws : Workspace) : OpaqueWorkspace :=
+  OpaqueWorkspacePointed.val
+
+instance : Coe Workspace OpaqueWorkspace := ⟨mk⟩
+instance : Inhabited OpaqueWorkspace := ⟨mk Inhabited.default⟩
+
+unsafe def unsafeGet (self : OpaqueWorkspace) : Workspace :=
+  unsafeCast self
+
+@[implementedBy unsafeGet] constant get (self : OpaqueWorkspace) : Workspace
+
+instance : Coe OpaqueWorkspace Workspace := ⟨get⟩
+
+@[simp] axiom get_mk {ws : Workspace} : get (mk ws) = ws
+
+end OpaqueWorkspace
+
 namespace Workspace
+
+def ofPackage (pkg : Package) : Workspace :=
+  {dir := pkg.dir, config := pkg.config.toWorkspaceConfig}
 
 /-- The workspace's `dir` joined with its `depsDir` configuration. -/
 def depsDir (self : Workspace) : FilePath :=

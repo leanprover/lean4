@@ -10,24 +10,24 @@ open Lean (Name)
 
 namespace Lake
 
-def resolvePkgSpec (rootPkg : Package) (spec : String) : IO Package := do
+def resolvePkgSpec (ws : Workspace) (rootPkg : Package) (spec : String) : IO Package := do
   if spec.isEmpty then
     return rootPkg
   let pkgName := spec.toName
   if pkgName == rootPkg.name then
     return rootPkg
   if let some dep := rootPkg.dependencies.find? (·.name == pkgName) then
-    LogMethodsT.run LogMethods.io <| resolveDep rootPkg dep
+    LogMethodsT.run LogMethods.io <| resolveDep ws rootPkg dep
   else
     error s!"unknown package `{spec}`"
 
-def parseTargetBaseSpec (rootPkg : Package) (spec : String) : IO (Package × Option Name) := do
+def parseTargetBaseSpec (ws : Workspace) (rootPkg : Package) (spec : String) : IO (Package × Option Name) := do
   match spec.splitOn "/" with
   | [pkgStr] =>
-    return (← resolvePkgSpec rootPkg pkgStr, none)
+    return (← resolvePkgSpec ws rootPkg pkgStr, none)
   | [pkgStr, modStr] =>
     let mod := modStr.toName
-    let pkg ← resolvePkgSpec rootPkg pkgStr
+    let pkg ← resolvePkgSpec ws rootPkg pkgStr
     if pkg.hasModule mod then
       return (pkg, mod)
     else
@@ -35,16 +35,16 @@ def parseTargetBaseSpec (rootPkg : Package) (spec : String) : IO (Package × Opt
   | _ =>
     error s!"invalid target spec '{spec}' (too many '/')"
 
-def parseTargetSpec (rootPkg : Package) (spec : String) : IO (Package × OpaqueTarget) := do
+def parseTargetSpec (ws : Workspace) (rootPkg : Package) (spec : String) : IO (Package × OpaqueTarget) := do
   match spec.splitOn ":" with
   | [rootSpec] =>
-    let (pkg, mod?) ← parseTargetBaseSpec rootPkg rootSpec
+    let (pkg, mod?) ← parseTargetBaseSpec ws rootPkg rootSpec
     if let some mod := mod? then
       return (pkg, pkg.moduleOleanTarget mod |>.withoutInfo)
     else
       return (pkg, pkg.defaultTarget)
   | [rootSpec, facet] =>
-    let (pkg, mod?) ← parseTargetBaseSpec rootPkg rootSpec
+    let (pkg, mod?) ← parseTargetBaseSpec ws rootPkg rootSpec
     if let some mod := mod? then
       if facet == "olean" then
         return (pkg, pkg.moduleOleanTarget mod |>.withoutInfo)
@@ -70,7 +70,7 @@ def parseTargetSpec (rootPkg : Package) (spec : String) : IO (Package × OpaqueT
 
 def build (targetSpecs : List String) : BuildM PUnit := do
   let pkg ← getPackage
-  let targets ← liftM <| targetSpecs.mapM (parseTargetSpec pkg)
+  let targets ← liftM <| targetSpecs.mapM (parseTargetSpec (← getWorkspace) pkg)
   if targets.isEmpty then
     pkg.defaultTarget.build
   else

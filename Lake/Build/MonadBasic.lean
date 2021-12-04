@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Util.Task
+import Lake.Config.Opaque
 import Lake.Config.InstallPath
-import Lake.Config.OpaquePackage
 import Lake.Build.Trace
 import Lake.Build.IO
 
@@ -14,6 +14,7 @@ namespace Lake
 
 structure BuildContext where
   package : OpaquePackage
+  workspace : OpaqueWorkspace
   leanInstall : LeanInstall
   lakeInstall : LakeInstall
   leanTrace : BuildTrace

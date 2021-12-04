@@ -88,6 +88,10 @@ def loadPkg (args : List String) : CliM Package := do
   setupLeanSearchPath (← getLeanInstall?) (← getLakeInstall?)
   Package.load dir args (dir / file)
 
+def loadConfig (args : List String) : CliM (Workspace × Package) := do
+  let pkg ← loadPkg args
+  (Workspace.ofPackage pkg, pkg)
+
 /-- Get the Lean installation. Error if missing. -/
 def getLeanInstall : CliM LeanInstall := do
   if let some leanInstall ← getLeanInstall? then
@@ -107,14 +111,14 @@ def getInstall : CliM (LeanInstall × LakeInstall) := do
   return (← getLeanInstall, ← getLakeInstall)
 
 /-- Perform the given build action using information from CLI. -/
-def runBuildM (pkg : Package) (x : BuildM α) : CliM α := do
+def runBuildM (ws : Workspace) (pkg : Package)  (x : BuildM α) : CliM α := do
   let (leanInstall, lakeInstall) ← getInstall
-  let ctx ← mkBuildContext pkg leanInstall lakeInstall
+  let ctx ← mkBuildContext ws pkg leanInstall lakeInstall
   x.run LogMethods.io ctx
 
 /-- Variant of `runBuildM` that discards the build monad's output. -/
-def runBuildM_  (pkg : Package) (x : BuildM α) : CliM PUnit :=
-  discard <| runBuildM pkg x
+def runBuildM_ (ws : Workspace) (pkg : Package) (x : BuildM α) : CliM PUnit :=
+  discard <| runBuildM ws pkg x
 
 -- ## Argument Parsing
 
@@ -222,8 +226,8 @@ def printPaths (imports : List String := []) : CliM PUnit := do
   let (leanInstall, lakeInstall) ← getInstall
   let configFile := (← getRootDir) / (← getConfigFile)
   if (← configFile.pathExists) then
-    let pkg ← loadPkg (← getSubArgs)
-    let ctx ← mkBuildContext pkg leanInstall lakeInstall
+    let (ws, pkg) ← loadConfig (← getSubArgs)
+    let ctx ← mkBuildContext ws pkg leanInstall lakeInstall
     let pkgs ← pkg.buildImportsAndDeps imports |>.run LogMethods.eio ctx
     IO.println <| Json.compress <| toJson {
       oleanPath := pkgs.map (·.oleanDir),
@@ -241,7 +245,7 @@ def serve (leanInstall : LeanInstall) (pkg : Package) (args : List String) : Cli
 
 def env (pkg : Package) (cmd : String) (args : Array String) : CliM PUnit := do
   let (leanInstall, lakeInstall) ← getInstall
-  let ctx ← mkBuildContext pkg leanInstall lakeInstall
+  let ctx ← mkBuildContext (Workspace.ofPackage pkg) pkg leanInstall lakeInstall
   let build : BuildM _ := do
     let depTargets ← pkg.buildDefaultDepTargets
     let depTarget ← pkg.buildDepTargetWith depTargets
@@ -254,8 +258,8 @@ def env (pkg : Package) (cmd : String) (args : Array String) : CliM PUnit := do
   }
   exit (← child.wait)
 
-def configure (pkg : Package) : CliM PUnit := do
-  runBuildM pkg pkg.buildDepOleans
+def configure (ws : Workspace) (pkg : Package) : CliM PUnit := do
+  runBuildM ws pkg pkg.buildDepOleans
 
 def command : (cmd : String) → CliM PUnit
 | "new"         => do processOptions; noArgsRem <| new (← takeArg)
@@ -263,9 +267,9 @@ def command : (cmd : String) → CliM PUnit
 | "run"         => do processOptions; noArgsRem <| script (← loadPkg []) (← takeArg) (← getSubArgs)
 | "env"         => do env (← loadPkg []) (← takeArg) (← takeArgs).toArray
 | "serve"       => do processOptions; noArgsRem <| serve (← getLeanInstall) (← loadPkg []) (← getSubArgs)
-| "configure"   => do processOptions; noArgsRem <| configure (← loadPkg (← getSubArgs))
+| "configure"   => do processOptions; let (ws, pkg) ← loadConfig (← getSubArgs); noArgsRem <| configure ws pkg
 | "print-paths" => do processOptions; printPaths (← takeArgs)
-| "build"       => do processOptions; runBuildM (← loadPkg (← getSubArgs)) <| build (← takeArgs)
+| "build"       => do processOptions; let (ws, pkg) ← loadConfig (← getSubArgs); runBuildM ws pkg <| build (← takeArgs)
 | "clean"       => do processOptions; noArgsRem <| (← loadPkg (← getSubArgs)).clean
 | "self-check"  => do processOptions; noArgsRem <| verifyInstall
 | "help"        => do IO.println <| help (← takeArg?)

@@ -5,6 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Util.Git
 import Lake.Config.Load
+import Lake.Config.Workspace
 
 open System
 
@@ -32,12 +33,12 @@ def materializeGit
 Materializes a `Dependency` relative to the given `Package`,
 downloading and/or updating it as necessary.
 -/
-def materializeDep (pkg : Package) (dep : Dependency) : (LogT IO) FilePath :=
+def materializeDep (ws : Workspace) (pkg : Package) (dep : Dependency) : (LogT IO) FilePath :=
   match dep.src with
   | Source.path dir => pkg.dir / dir
   | Source.git url rev => do
     let name := dep.name.toString (escape := false)
-    let depDir := pkg.depsDir / name
+    let depDir := ws.depsDir / name
     materializeGit name depDir url rev
     depDir
 
@@ -45,18 +46,18 @@ def materializeDep (pkg : Package) (dep : Dependency) : (LogT IO) FilePath :=
 Resolves a `Dependency` relative to the given `Package`
 in the same `Workspace`, downloading and/or updating it as necessary.
 -/
-def resolveDep (pkg : Package) (dep : Dependency) : (LogT IO) Package := do
-  let dir ← materializeDep pkg dep
+def resolveDep (ws : Workspace) (pkg : Package) (dep : Dependency) : (LogT IO) Package := do
+  let dir ← materializeDep ws pkg dep
   let depPkg ← Package.load (dir / dep.dir) dep.args
   unless depPkg.name == dep.name do
     throw <| IO.userError <|
       s!"{pkg.name} (in {pkg.dir}) depends on {dep.name}, " ++
       s!"but resolved dependency has name {depPkg.name} (in {depPkg.dir})"
-  return depPkg.withWorkspace pkg.workspace
+  return depPkg
 
 /--
 Resolves the package's direct dependencies,
 downloading and/or updating them as necessary.
 -/
-def Package.resolveDirectDeps (self : Package) : (LogT IO) (Array Package) :=
-  self.dependencies.mapM (resolveDep self ·)
+def resolveDirectDeps (ws : Workspace) (self : Package) : (LogT IO) (Array Package) :=
+  self.dependencies.mapM (resolveDep ws self ·)

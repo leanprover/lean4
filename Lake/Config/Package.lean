@@ -9,8 +9,8 @@ import Std.Data.HashMap
 import Lake.LeanVersion
 import Lake.Build.TargetTypes
 import Lake.Config.Glob
-import Lake.Config.OpaquePackage
-import Lake.Config.Workspace
+import Lake.Config.Opaque
+import Lake.Config.WorkspaceConfig
 import Lake.Config.Script
 
 open Std System
@@ -276,8 +276,6 @@ structure Package where
   dir : FilePath
   /-- The package's configuration. -/
   config : PackageConfig
-  /-- The workspace the package is contained in. -/
-  workspace : Workspace := {dir, config := config.toWorkspaceConfig}
   /--
   A `NameMap` of scripts for the package.
 
@@ -322,14 +320,6 @@ that permits more dynamic configurations, including performing `IO`.
 def IOPackager := (pkgDir : FilePath) → (args : List String) → IO PackageConfig
 
 namespace Package
-
-/-- Replace the package's workspace. -/
-def withWorkspace (ws : Workspace) (self : Package) : Package :=
-  {self with workspace := ws}
-
-/-- The workspace's `depsDir`. -/
-def depsDir (self : Package) : FilePath :=
-  self.workspace.depsDir
 
 /-- The package's `name` configuration. -/
 def name (self : Package) : Name :=

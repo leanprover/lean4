@@ -238,15 +238,6 @@ void get_constructor_names(environment const & env, name const & n, buffer<name>
     to_buffer(info.to_inductive_val().get_cnstrs(), result);
 }
 
-optional<name> is_constructor_app(environment const & env, expr const & e) {
-    expr const & fn = get_app_fn(e);
-    if (is_constant(fn)) {
-        if (is_constructor(env, const_name(fn)))
-            return optional<name>(const_name(fn));
-    }
-    return optional<name>();
-}
-
 optional<name> is_constructor_app_ext(environment const & env, expr const & e) {
     if (auto r = is_constructor_app(env, e))
         return r;

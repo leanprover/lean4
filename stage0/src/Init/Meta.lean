@@ -963,6 +963,7 @@ structure Config where
   zeta              : Bool := true
   beta              : Bool := true
   eta               : Bool := true
+  etaStruct         : Bool := true
   iota              : Bool := true
   proj              : Bool := true
   decide            : Bool := true

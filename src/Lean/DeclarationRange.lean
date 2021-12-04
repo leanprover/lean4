@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.MonadEnv
 import Lean.AuxRecursor
+import Lean.ToExpr
 
 namespace Lean
 
@@ -20,12 +21,24 @@ structure DeclarationRange where
   endCharUtf16 : Nat
   deriving Inhabited, DecidableEq, Repr
 
+instance : ToExpr DeclarationRange where
+  toExpr r   := mkAppN (mkConst ``DeclarationRange.mk) #[toExpr r.pos, toExpr r.charUtf16, toExpr r.endPos, toExpr r.endCharUtf16]
+  toTypeExpr := mkConst ``DeclarationRange
+
 structure DeclarationRanges where
   range          : DeclarationRange
   selectionRange : DeclarationRange
   deriving Inhabited, Repr
 
+instance : ToExpr DeclarationRanges where
+  toExpr r   := mkAppN (mkConst ``DeclarationRanges.mk) #[toExpr r.range, toExpr r.selectionRange]
+  toTypeExpr := mkConst ``DeclarationRanges
+
+builtin_initialize builtinDeclRanges : IO.Ref (NameMap DeclarationRanges) ← IO.mkRef {}
 builtin_initialize declRangeExt : MapDeclarationExtension DeclarationRanges ← mkMapDeclarationExtension `declranges
+
+def addBuiltinDeclarationRanges (declName : Name) (declRanges : DeclarationRanges) : IO Unit :=
+  builtinDeclRanges.modify (·.insert declName declRanges)
 
 def addDeclarationRanges [MonadEnv m] (declName : Name) (declRanges : DeclarationRanges) : m Unit :=
   modifyEnv fun env => declRangeExt.insert env declName declRanges
@@ -33,7 +46,9 @@ def addDeclarationRanges [MonadEnv m] (declName : Name) (declRanges : Declaratio
 def findDeclarationRangesCore? [Monad m] [MonadEnv m] (declName : Name) : m (Option DeclarationRanges) :=
   return declRangeExt.find? (← getEnv) declName
 
-def findDeclarationRanges? [Monad m] [MonadEnv m] (declName : Name) : m (Option DeclarationRanges) := do
+def findDeclarationRanges? [Monad m] [MonadEnv m] [MonadLiftT IO m] (declName : Name) : m (Option DeclarationRanges) := do
+  if let some ranges := (← builtinDeclRanges.get (m := IO)).find? declName then
+    return ranges
   let env ← getEnv
   if isAuxRecursor env declName || isNoConfusion env declName || (← isRec declName)  then
     findDeclarationRangesCore? declName.getPrefix

@@ -100,6 +100,8 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM U
                                hints := ReducibilityHints.regular (getMaxHeight env preDef.value + 1),
                                safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
     addDecl decl
+    withSaveInfoContext do  -- save new env
+      addTermInfo preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     if compile && shouldGenCodeFor preDef then
       compileDecl decl
@@ -122,6 +124,9 @@ def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSaf
         hints       := ReducibilityHints.opaque
       }
     addDecl decl
+    withSaveInfoContext do  -- save new env
+      for preDef in preDefs do
+        addTermInfo preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf preDefs AttributeApplicationTime.afterTypeChecking
     compileDecl decl
     applyAttributesOf preDefs AttributeApplicationTime.afterCompilation

@@ -390,15 +390,6 @@ def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVar
 def getNameOfIdent' (id : Syntax) : Name :=
   if id.isIdent then id.getId else `_
 
-def getFVarId (id : Syntax) : TacticM FVarId := withRef id do
-  let fvar? ← Term.isLocalIdent? id;
-  match fvar? with
-  | some fvar => pure fvar.fvarId!
-  | none      => throwError "unknown variable '{id.getId}'"
-
-def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
-  withMainContext do ids.mapM getFVarId
-
 /--
   Use position of `=> $body` for error messages.
   If there is a line break before `body`, the message will be displayed on `=>` only,

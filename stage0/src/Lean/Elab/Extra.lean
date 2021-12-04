@@ -266,6 +266,17 @@ private def relation? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) :=
   else
     return some (e.appFn!.appFn!, e.appFn!.appArg!, e.appArg!)
 
+/-- Step-wise reasoning over transitive relations.
+```
+calc
+  a = b := pab
+  b = c := pbc
+  ...
+  y = z := pyz
+```
+proves `a = z` from the given step-wise proofs. `=` can be replaced with any
+relation implementing the typeclass `Trans`. Instead of repeating the right-
+hand sides, subsequent left-hand sides can be replaced with `_`. -/
 @[builtinTermElab «calc»]
 def elabBinCalc : TermElab :=  fun stx expectedType? => do
   let stepStxs := stx[1].getArgs

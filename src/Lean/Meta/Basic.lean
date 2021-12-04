@@ -77,6 +77,8 @@ structure Config where
   ignoreLevelMVarDepth  : Bool := true
   /-- Enable/Disable support for offset constraints such as `?x + 1 =?= e` -/
   offsetCnstrs          : Bool := true
+  /-- Enable/Disable support for eta-structures. -/
+  etaStruct             : Bool := true
 
 structure ParamInfo where
   binderInfo     : BinderInfo := BinderInfo.default

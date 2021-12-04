@@ -91,7 +91,7 @@ private def simpIf? (mvarId : MVarId) : MetaM (Option MVarId) := do
   Auxiliary method for `mkEqnTypes`. We should "keep going"/"processing" the goal
    `... |- f ... = rhs` at `mkEqnTypes` IF `rhs` contains a `f` application containing loose bound
   variables. We do that to make sure we can create an elimination principle for `f` based
-  on the generateg equations.
+  on the generated equations.
 
   Remark: we have considered using the same heuristic used in the `BRecOn` module.
   That is we would do case-analysis on the `match` application because the recursive
@@ -111,10 +111,22 @@ private def keepGoing (mvarId : MVarId) : ReaderT EqnInfo (StateRefT (Array Expr
 
 private def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := withMVarContext mvarId do
   let target ← getMVarType' mvarId
-  let fvarIds ← sortFVarIds <| collectFVars {} target |>.fvarSet.toArray
-  -- We want to ensure the extra hypotheses occur after the main free variables
-  let (_, mvarId) ← revert mvarId fvarIds (preserveOrder := true)
-  let type ← instantiateMVars (← getMVarType mvarId)
+  let fvarState := collectFVars {} target
+  let fvarState ← (← getLCtx).foldrM (init := fvarState) fun decl fvarState => do
+    if fvarState.fvarSet.contains decl.fvarId then
+      collectFVars fvarState (← instantiateMVars decl.type)
+    else
+      fvarState
+  let mut fvarIds ← sortFVarIds <| fvarState.fvarSet.toArray
+  -- Include propositions that are not in fvarState.fvarSet, and only contains variables in
+  for decl in (← getLCtx) do
+    unless fvarState.fvarSet.contains decl.fvarId do
+      if (← isProp decl.type) then
+        let type ← instantiateMVars decl.type
+        let missing? := type.find? fun e => e.isFVar && !fvarState.fvarSet.contains e.fvarId!
+        if missing?.isNone then
+          fvarIds := fvarIds.push decl.fvarId
+  let type ← mkForallFVars (fvarIds.map mkFVar) target
   modify (·.push type)
 
 private partial def mkEqnTypes (mvarId : MVarId) : ReaderT EqnInfo (StateRefT (Array Expr) MetaM) Unit := do

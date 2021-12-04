@@ -265,7 +265,8 @@ where
 
 /--
   Create conditional equations and splitter for the given match auxiliary declaration. -/
-private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := do
+private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns :=
+  withConfig (fun c => { c with etaStruct := false }) do
   let baseName := mkBaseNameFor (← getEnv) matchDeclName
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam

@@ -98,7 +98,7 @@ def arrayLit? (e : Expr) : Option (Expr × List Expr) :=
 def prod? (e : Expr) : Option (Expr × Expr) :=
   e.app2? ``Prod
 
-private def getConstructorVal? (env : Environment) (ctorName : Name) : Option ConstructorVal := do
+private def getConstructorVal? (env : Environment) (ctorName : Name) : Option ConstructorVal :=
   match env.find? ctorName with
   | some (ConstantInfo.ctorInfo v) => v
   | _                              => none

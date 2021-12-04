@@ -105,3 +105,13 @@
   {"start": {"line": 53, "character": 2}, "end": {"line": 53, "character": 3}},
   "originSelectionRange":
   {"start": {"line": 50, "character": 6}, "end": {"line": 50, "character": 7}}}]
+{"textDocument": {"uri": "file://goTo.lean"},
+ "position": {"line": 56, "character": 7}}
+[{"targetUri": "file://goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 55, "character": 0}, "end": {"line": 55, "character": 11}},
+  "targetRange":
+  {"start": {"line": 55, "character": 0}, "end": {"line": 55, "character": 29}},
+  "originSelectionRange":
+  {"start": {"line": 56, "character": 7},
+   "end": {"line": 56, "character": 11}}}]

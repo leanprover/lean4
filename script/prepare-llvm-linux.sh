@@ -15,6 +15,8 @@ CP="cp -d"  # preserve symlinks
 cp -L llvm/bin/clang stage1/bin/
 # a linker!
 cp -L llvm/bin/ld.lld stage1/bin/
+# a static archiver!
+cp -L llvm/bin/llvm-ar stage1/bin/
 # dependencies of the above
 $CP llvm/lib/lib{clang-cpp,LLVM}*.so* stage1/lib/
 $CP $ZLIB/lib/libz.so* stage1/lib/

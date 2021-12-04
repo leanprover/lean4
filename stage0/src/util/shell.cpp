@@ -64,7 +64,7 @@ Author: Leonardo de Moura
 enum arg_opt { no_argument, required_argument, optional_argument };
 
 struct option {
-    const char name[12];
+    const char name[20];
     arg_opt has_arg;
     int *flag;
     char val;

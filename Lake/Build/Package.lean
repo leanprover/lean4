@@ -13,158 +13,71 @@ open Lean hiding SearchPath
 
 namespace Lake
 
--- # Build Target
-
-abbrev PackageTarget := BuildTarget Package
-
-abbrev ActivePackageTarget i := ActiveBuildTarget (Package × NameMap (ActiveBuildTarget i))
-
-namespace ActivePackageTarget
-
-def package (self : ActivePackageTarget i) :=
-  self.info.1
-
-def withOnlyPackageInfo (self : ActivePackageTarget i) : ActiveBuildTarget Package :=
-  self.withInfo self.package
-
-def moduleTargetMap (self : ActivePackageTarget i) : NameMap (ActiveBuildTarget i) :=
-  self.info.2
-
-def moduleTargets (self : ActivePackageTarget i) : Array (Name × ActiveBuildTarget i) :=
-  self.moduleTargetMap.fold (fun arr k v => arr.push (k, v)) #[]
-
-end ActivePackageTarget
-
-/-- Returns the `oleanDir`s of the given package targets in reverse order. -/
-def packageTargetsToOleanDirs (targets : Array (ActivePackageTarget i)) : List FilePath :=
-  targets.map (·.package.oleanDir) |>.foldl (flip List.cons) []
-
 -- # Build Packages
 
-/--
-Builds the package's `extraDepTarget` and combines it with
-the given package targets to create a single active opaque target.
--/
-def Package.buildDepTargetWith
-(depTargets : Array (ActiveBuildTarget i)) (self : Package) : BuildM ActiveOpaqueTarget := do
-  let extraDepTarget ← self.extraDepTarget.run
-  let depTarget ← ActiveTarget.collectOpaqueArray depTargets
-  extraDepTarget.mixOpaqueAsync depTarget
+/-- Build the `extraDepTarget` of all dependent packages into a single target. -/
+protected def Package.buildExtraDepsTarget (self : Package) : BuildM ActiveOpaqueTarget := do
+  let collect pkg depTargets := do
+    let extraDepTarget ← self.extraDepTarget.run
+    let depTarget ← ActiveTarget.collectOpaqueArray depTargets
+    extraDepTarget.mixOpaqueAsync depTarget
+  let build dep recurse := do
+    let pkg := (← getPackageByName? dep.name).get!
+    let depTargets ← pkg.dependencies.mapM recurse
+    liftM <| collect pkg depTargets
+  let targets ← failOnBuildCycle <| ← RBTopT.run' <| self.dependencies.mapM fun dep =>
+    buildRBTop (cmp := Name.quickCmp) build Dependency.name dep
+  collect self targets
+
+/-- Build the `extraDepTarget` of all workspace packages into a single target. -/
+def buildExtraDepsTarget : BuildM ActiveOpaqueTarget := do
+  ActiveTarget.collectOpaqueArray <| ← do
+    (← getWorkspace).packageArray.mapM (·.extraDepTarget.run)
 
 /--
-Build an active package target after
-resolving the package's dependencies and recursively building them.
-
-To build each package, run the given `build` function on it,
-which takes the package and its building dependencies as arguments.
+Build each module and using the given recursive module build function,
+constructing a module-target `NameMap`  of the results.
 -/
-def recBuildPackageWithDeps
-[Monad m] [MonadLiftT BuildM m] [MonadStore Name (Array (ActivePackageTarget i)) m]
-[Inhabited i] (build : Array (ActivePackageTarget i) → Package → BuildM (ActivePackageTarget i))
-: RecBuild Package (Array (ActivePackageTarget i)) m := fun pkg buildPkg => do
-  let mut depTargets := #[]
-  for dep in pkg.dependencies do
-    let targets? ← fetch? dep.name
-    let targets ← do
-      if let some targets := targets? then
-        pure targets
-      else
-        buildPkg <| (← getWorkspace).getPackage? dep.name |>.get!
-    depTargets := depTargets ++ targets
-  let pkgTarget ← adaptPackage pkg <| build depTargets pkg
-  depTargets.push pkgTarget
+def buildModuleTargetMap [Inhabited i]
+(mods : Array Name) (build : RecModuleTargetBuild i)
+: BuildM (NameMap (ActiveBuildTarget i)) := do
+  let (x, targetMap) ← RBTopT.run do
+    mods.forM fun mod => discard <| buildRBTop build id mod
+  failOnBuildCycle x
+  return targetMap
 
 /--
-Build the  package along with its dependencies
-by using the given `build` function recursively.
+Build each module and using the given recursive module build function,
+constructing a single opaque target for the whole build.
 -/
-def Package.buildRec (self : Package) [Inhabited i]
-(build : Array (ActivePackageTarget i) → Package → BuildM (ActivePackageTarget i))
-: BuildM (ActivePackageTarget i) := do
-  let recBuild := recBuildPackageWithDeps build
-  let targets ← failOnBuildCycle <| ← RBTopT.run' <|
-    buildRBTop (cmp := Name.quickCmp) recBuild Package.name self
-  let target ← ActiveTarget.collectOpaqueArray targets
-  target.withInfo targets.back.info
-
-/--
-Build an `Array` of `Package`s along with their dependencies
-by using the given `build` function recursively.
--/
-def buildPackageArrayWithDeps (pkgs : Array Package) [Inhabited i]
-(build : Array (ActivePackageTarget i) → Package → BuildM (ActivePackageTarget i))
-: BuildM (Array (ActivePackageTarget i)) := do
-  failOnBuildCycle <| ← RBTopT.run' <| pkgs.concatMapM fun pkg =>
-    buildRBTop (cmp := Name.quickCmp) (recBuildPackageWithDeps build) Package.name pkg
-
-/-- Build the dependencies of a package (as targets) using the given `build` function. -/
-def Package.buildDepTargets [Inhabited i]
-(build :  Array (ActivePackageTarget i) → Package → BuildM (ActivePackageTarget i)) (self : Package)
-: BuildM (Array (ActivePackageTarget i)) := do
-  let ws ← getWorkspace
-  let depPkgs := self.dependencies.map fun dep => ws.getPackage? dep.name |>.get!
-  buildPackageArrayWithDeps depPkgs build
-
-/--
-Build an active target for the package by
-running the given `RecModuleTargetBuild` on the given root module.
--/
-def Package.buildModuleDAGTarget [Inhabited i] (mod : Name)
-(buildMod : RecModuleTargetBuild i) (self : Package) : BuildM (ActivePackageTarget i) := do
-  let (targetE, targetMap) ← RBTopT.run do
-    buildRBTop buildMod id mod
-  let target ← failOnBuildCycle targetE
-  return target.withInfo ⟨self, targetMap⟩
-
-/--
-Build an active target for the package by
-running the given `RecModuleTargetBuild` on the given root modules.
--/
-def Package.buildModulesDAGTarget [Inhabited i] (mods : Array Name)
-(buildMod : RecModuleTargetBuild i) (self : Package) : BuildM (ActivePackageTarget i) := do
-  let (targetsE, targetMap) ← RBTopT.run do
-    mods.mapM fun mod => buildRBTop buildMod id mod
-  let targets ← failOnBuildCycle targetsE
-  let target ← ActiveTarget.collectOpaqueArray targets
-  return target.withInfo ⟨self, targetMap⟩
-
-/--
-Build an active target for the package by
-running the given `RecModuleTargetBuild` on each of its top-level modules
-(i.e., those specified in its `libGlobs` configuration).
--/
-def Package.buildTarget [Inhabited i]
-(buildMod : RecModuleTargetBuild i) (self : Package) : BuildM (ActivePackageTarget i) := do
-  self.buildModulesDAGTarget (← self.getModuleArray) buildMod
+def buildModulesTarget [Inhabited i] (mods : Array Name)
+(build : RecModuleTargetBuild i) : BuildM ActiveOpaqueTarget := do
+  failOnBuildCycle <| ← RBTopT.run' do
+    let targets ← mods.mapM fun mod =>
+      (·.withoutInfo) <$> buildRBTop build id mod
+    ActiveTarget.collectOpaqueArray targets
 
 -- # Build Package Modules
 
-def Package.buildOleanTargetWithDepTargets
-(depTargets : Array (ActivePackageTarget x)) (self : Package)
-: BuildM (ActivePackageTarget FilePath) := do
-  let depTarget ← self.buildDepTargetWith depTargets
-  self.buildTarget <| self.recBuildModuleOleanTargetWithLocalImports depTarget
-
 /-- Build the `.olean` and files of package and its dependencies' modules. -/
-def Package.buildOleanTarget (self : Package) : BuildM (ActivePackageTarget FilePath) := do
-  self.buildRec buildOleanTargetWithDepTargets
-
-def Package.buildOleanAndCTargetWithDepTargets
-(depTargets : Array (ActivePackageTarget x)) (self : Package)
-: BuildM (ActivePackageTarget ActiveOleanAndCTargets) := do
-  let depTarget ← self.buildDepTargetWith depTargets
-  self.buildTarget <| self.recBuildModuleOleanAndCTargetWithLocalImports depTarget
+def Package.buildOleanTarget (self : Package) : BuildM ActiveOpaqueTarget := do
+  let depTarget ← self.buildExtraDepsTarget
+  buildModulesTarget (← self.getModuleArray) do
+    recBuildModuleOleanTargetWithLocalImports depTarget
 
 /-- Build the `.olean` and `.c` files of package and its dependencies' modules. -/
-def Package.buildOleanAndCTarget (self : Package) : BuildM (ActivePackageTarget ActiveOleanAndCTargets) := do
-  self.buildRec buildOleanAndCTargetWithDepTargets
+def Package.buildOleanAndCTarget (self : Package) : BuildM ActiveOpaqueTarget := do
+  let depTarget ← self.buildExtraDepsTarget
+  buildModulesTarget (← self.getModuleArray) do
+    recBuildModuleOleanAndCTargetWithLocalImports depTarget
 
 def Package.buildDepOleans (self : Package) : BuildM PUnit := do
-  let targets ← self.buildDepTargets buildOleanTargetWithDepTargets
+  let targets ← self.dependencies.mapM fun dep => do
+    (← getPackageForModule? dep.name).get!.buildOleanTarget
   targets.forM fun target => discard <| target.materialize
 
-def Package.oleanTarget (self : Package) : PackageTarget :=
-  Target.mk self do pure (← self.buildOleanTarget).task
+def Package.oleanTarget (self : Package) : OpaqueTarget :=
+  Target.opaque do pure (← self.buildOleanTarget).task
 
 def Package.build (self : Package) : BuildM PUnit := do
   discard (← self.buildOleanTarget).materialize
@@ -173,23 +86,21 @@ def Package.build (self : Package) : BuildM PUnit := do
 
 def Package.moduleOleanTarget (mod : Name) (self : Package) : FileTarget :=
   Target.mk (self.modToOlean mod) do
-    let depTargets ← self.buildDepTargets buildOleanTargetWithDepTargets
-    let depTarget ← self.buildDepTargetWith depTargets
-    let build := self.recBuildModuleOleanTargetWithLocalImports depTarget
+    let depTarget ← self.buildExtraDepsTarget
+    let build := recBuildModuleOleanTargetWithLocalImports depTarget
     return (← buildModule mod build).task
 
 def Package.moduleOleanAndCTarget (mod : Name) (self : Package) : OleanAndCTarget :=
   Target.mk ⟨self.modToOlean mod, self.modToC mod⟩ do
-    let depTargets ← self.buildDepTargets buildOleanAndCTargetWithDepTargets
-    let depTarget ← self.buildDepTargetWith depTargets
-    let build := self.recBuildModuleOleanAndCTargetWithLocalImports depTarget
+    let depTarget ← self.buildExtraDepsTarget
+    let build := recBuildModuleOleanAndCTargetWithLocalImports depTarget
     return (← buildModule mod build).task
 
 -- # Build Imports
 
-/-- Pick the local imports of the package from a list of import strings. -/
-def Package.filterLocalImports
-(imports : List String) (self : Package) : Array Name := do
+/-- Pick the local imports of the workspace from a list of import strings. -/
+def Workspace.filterLocalImports
+(imports : List String) (self : Workspace) : Array Name := do
   let mut localImports := #[]
   for imp in imports do
     let impName := imp.toName
@@ -198,42 +109,24 @@ def Package.filterLocalImports
   return localImports
 
 /--
-Build the package's dependencies, returning the list of packages built.
+Build the workspace-local modules of list of imports.
 
 Builds only module `.olean` files if the default package facet is
 just `oleans`. Otherwise, builds both `.olean` and `.c` files.
 -/
-def Package.buildDefaultDepTargets
-(self : Package) : BuildM (Array (ActiveBuildTarget Package)) := do
-  if self.defaultFacet == PackageFacet.oleans then
-    let depTargets ← self.buildDepTargets buildOleanTargetWithDepTargets
-    depTargets.map (·.withOnlyPackageInfo)
-  else
-    let depTargets ← self.buildDepTargets buildOleanAndCTargetWithDepTargets
-    depTargets.map (·.withOnlyPackageInfo)
-
-/--
-Build the package's dependencies and a list of imports.
-
-Builds only module `.olean` files if the default package facet is
-just `oleans`. Otherwise, builds both `.olean` and `.c` files.
--/
-def Package.buildImportsAndDeps
-(imports : List String := []) (self : Package) : BuildM PUnit := do
-  -- resolve and build deps
-  let depTargets ← self.buildDefaultDepTargets
-  let depTarget ← self.buildDepTargetWith depTargets
+def buildImportsAndDeps (imports : List String := []) : BuildM PUnit := do
+  let depTarget ← buildExtraDepsTarget
   if imports.isEmpty then
     -- wait for deps to finish building
     depTarget.build
   else
-     -- build local imports from list
-    let localImports := self.filterLocalImports imports
-    if self.defaultFacet == PackageFacet.oleans then
-      let build := self.recBuildModuleOleanTargetWithLocalImports depTarget
+    -- build local imports from list
+    let localImports := (← getWorkspace).filterLocalImports imports
+    if (← getPackage).defaultFacet == PackageFacet.oleans then
+      let build := recBuildModuleOleanTargetWithLocalImports depTarget
       let targets ← buildModules localImports build
       targets.forM (·.build)
     else
-      let build := self.recBuildModuleOleanAndCTargetWithLocalImports depTarget
+      let build := recBuildModuleOleanAndCTargetWithLocalImports depTarget
       let targets ← buildModules localImports build
       targets.forM (·.build)

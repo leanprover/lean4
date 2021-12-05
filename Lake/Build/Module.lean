@@ -112,14 +112,14 @@ def moduleOleanAndCTarget
 (contents : String)  (depTarget : BuildTarget x)
 (rootDir : FilePath := ".") (leanArgs : Array String := #[]) : OleanAndCTarget :=
   moduleTarget (OleanAndC.mk oleanFile cFile) leanFile traceFile contents depTarget do
-    compileOleanAndC leanFile oleanFile cFile  (← getOleanDirs) rootDir leanArgs (← getLean)
+    compileOleanAndC leanFile oleanFile cFile (← getOleanPath) rootDir leanArgs (← getLean)
 
 def moduleOleanTarget
 (leanFile oleanFile traceFile : FilePath)
 (contents : String) (depTarget : BuildTarget x)
 (rootDir : FilePath := ".") (leanArgs : Array String := #[]) : FileTarget :=
   let target := moduleTarget oleanFile leanFile traceFile contents depTarget do
-    compileOlean leanFile oleanFile (← getOleanDirs) rootDir leanArgs (← getLean)
+    compileOlean leanFile oleanFile (← getOleanPath) rootDir leanArgs (← getLean)
   target.withTask do target.mapAsync fun oleanFile depTrace => do
     return mixTrace (← computeTrace oleanFile) depTrace
 
@@ -141,39 +141,43 @@ protected def Package.moduleOleanTargetOnly (self : Package)
 -- # Recursive Building
 
 /-
-  Produces a recursive module target builder that
-  builds the target module after recursively building its local imports
-  (relative to `pkg`).
+Produces a recursive module target builder that
+builds the target module after recursively building its local imports
+(relative to the workspace).
 -/
-def recBuildModuleWithLocalImports (pkg : Package)
-[Monad m] [MonadLiftT BuildM m] (build : Name → FilePath → String → List α → BuildM α)
-: RecBuild Name α m := fun mod buildImp => do
+def recBuildModuleWithLocalImports
+[Monad m] [MonadLiftT BuildM m] [MonadFunctorT BuildM m]
+(build : Name → FilePath → String → List α → BuildM α)
+: RecBuild Name α m := fun mod recurse => do
   have : MonadLift BuildM m := ⟨liftM⟩
+  have : MonadFunctor BuildM m := ⟨fun f => monadMap (m := BuildM) f⟩
+  let pkg ← getPackage
   let leanFile := pkg.modToSrc mod
   let contents ← IO.FS.readFile leanFile
-  -- parse direct local imports
   let (imports, _, _) ← Elab.parseImports contents leanFile.toString
-  let imports := imports.map (·.module) |>.filter pkg.isLocalModule
   -- we construct the import targets even if a rebuild is not required
   -- because other build processes (ex. `.o`) rely on the map being complete
-  let importTargets ← imports.mapM buildImp
+  let importTargets ← imports.filterMapM fun imp => OptionT.run do
+    let mod := imp.module
+    let pkg ← OptionT.mk <| getPackageForModule? mod
+    adaptPackage pkg <| recurse mod
   build mod leanFile contents importTargets
 
-def Package.recBuildModuleOleanAndCTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
-(self : Package) (depTarget : ActiveBuildTarget x)
+def recBuildModuleOleanAndCTargetWithLocalImports
+[Monad m] [MonadLiftT BuildM m] [MonadFunctorT BuildM m] (depTarget : ActiveBuildTarget x)
 : RecBuild Name ActiveOleanAndCTarget m :=
-  recBuildModuleWithLocalImports self fun mod leanFile contents importTargets => do
+  recBuildModuleWithLocalImports fun mod leanFile contents importTargets => do
     let importTarget ← ActiveTarget.collectOpaqueList <| importTargets.map (·.oleanTarget)
     let allDepsTarget := Target.active <| ← depTarget.mixOpaqueAsync importTarget
-    self.moduleOleanAndCTargetOnly mod leanFile contents allDepsTarget |>.run'
+    (← getPackage).moduleOleanAndCTargetOnly mod leanFile contents allDepsTarget |>.run'
 
-def Package.recBuildModuleOleanTargetWithLocalImports [Monad m] [MonadLiftT BuildM m]
-(self : Package) (depTarget : ActiveBuildTarget x)
+def recBuildModuleOleanTargetWithLocalImports
+[Monad m] [MonadLiftT BuildM m] [MonadFunctorT BuildM m] (depTarget : ActiveBuildTarget x)
 : RecBuild Name ActiveFileTarget m :=
-  recBuildModuleWithLocalImports self fun mod leanFile contents importTargets => do
+  recBuildModuleWithLocalImports fun mod leanFile contents importTargets => do
     let importTarget ← ActiveTarget.collectOpaqueList importTargets
     let allDepsTarget := Target.active <| ← depTarget.mixOpaqueAsync importTarget
-    self.moduleOleanTargetOnly mod leanFile contents allDepsTarget |>.run
+    (← getPackage).moduleOleanTargetOnly mod leanFile contents allDepsTarget |>.run
 
 -- ## Definitions
 

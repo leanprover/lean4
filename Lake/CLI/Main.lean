@@ -232,7 +232,7 @@ def printPaths (imports : List String := []) : CliM PUnit := do
   if (← configFile.pathExists) then
     let (ws, pkg) ← loadConfig (← getSubArgs)
     let ctx ← mkBuildContext ws pkg leanInstall lakeInstall
-    pkg.buildImportsAndDeps imports |>.run LogMethods.eio ctx
+    buildImportsAndDeps imports |>.run LogMethods.eio ctx
     IO.println <| Json.compress <| toJson ws.leanPaths
   else
     exit noConfigFileCode

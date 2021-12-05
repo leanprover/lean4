@@ -55,27 +55,43 @@ def ofPackage (pkg : Package) : Workspace :=
 def packagesDir (self : Workspace) : FilePath :=
   self.dir / self.config.packagesDir
 
+/-- The `List` of packages to the workspace. -/
+def packageList (self : Workspace) : List Package :=
+  self.packageMap.revFold (fun pkgs _ pkg => pkg :: pkgs) []
+
+/-- The `Array` of packages to the workspace. -/
+def packageArray (self : Workspace) : Array Package :=
+  self.packageMap.fold (fun pkgs _ pkg => pkgs.push pkg) #[]
+
 /-- Add a package to the workspace. -/
 def addPackage (pkg : Package) (self : Workspace) : Workspace :=
   {self with packageMap := self.packageMap.insert pkg.name pkg}
 
 /-- Get a package within the workspace by name. -/
-def getPackage? (pkg : Name) (self : Workspace) : Option Package :=
+def packageByName? (pkg : Name) (self : Workspace) : Option Package :=
   self.packageMap.find? pkg
 
-/-- The `.olean` directories of the workspace. -/
-def oleanDirs (self : Workspace) : List FilePath :=
-  self.packageMap.toList.map (·.2.oleanDir)
+/-- Find a package in the workspace satisfying the given predicate (if one exists). -/
+def findPackage? (f : Package → Bool) (self : Workspace) : Option Package :=
+  self.packageArray.find? f
+
+/-- Check if the module is local to any package in the workspace. -/
+def isLocalModule (mod : Name) (self : Workspace) : Bool :=
+  self.packageMap.any fun _ pkg => pkg.isLocalModule mod
+
+/-- Get the package for the module in the workspace (if it is local to one). -/
+def packageForModule? (mod : Name) (self : Workspace) : Option Package :=
+  self.findPackage? (·.isLocalModule mod)
 
 /-- The `LEAN_PATH` of the workspace. -/
 def oleanPath (self : Workspace) : SearchPath :=
-  self.packageMap.toList.map (·.2.oleanDir)
+  self.packageList.map (·.oleanDir)
 
 /-- The `LEAN_SRC_PATH` of the workspace. -/
-def srcPath (self : Workspace) : SearchPath :=
-  self.packageMap.toList.map (·.2.srcDir)
+def leanSrcPath (self : Workspace) : SearchPath :=
+  self.packageList.map (·.srcDir)
 
 /-- The `LeanPaths` of the workspace. -/
 def leanPaths (self : Workspace) : LeanPaths :=
-  let pkgs := self.packageMap.toList
-  LeanPaths.mk (pkgs.map (·.2.oleanDir)) (pkgs.map (·.2.srcDir))
+  let pkgs := self.packageList
+  LeanPaths.mk (pkgs.map (·.oleanDir)) (pkgs.map (·.srcDir))

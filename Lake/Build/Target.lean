@@ -46,11 +46,11 @@ protected def mapAsync [BindAsync' m n k] [MonadLiftT n m] (self : ActiveTarget 
 protected def mapOpaqueAsync [BindAsync' m n k] [MonadLiftT n m] (self : ActiveTarget i k α) (f : α → m β) : m (k β) :=
   liftM <| bindAsync' self.task f
 
-protected def bindAsync [BindAsync m k] (self : ActiveTarget i k α) (f : i → α → m (k β)) : m (k β) :=
-  bindAsync self.task (f self.info)
+protected def bindAsync [BindAsync n k] [MonadLiftT n m] (self : ActiveTarget i k α) (f : i → α → n (k β)) : m (k β) :=
+  liftM <| bindAsync self.task (f self.info)
 
-protected def bindOpaqueAsync [BindAsync m k] (self : ActiveTarget i k α) (f : α → m (k β)) : m (k β) :=
-  bindAsync self.task f
+protected def bindOpaqueAsync [BindAsync n k] [MonadLiftT n m] (self : ActiveTarget i k α) (f : α → n (k β)) : m (k β) :=
+  liftM <| bindAsync self.task f
 
 def materializeAsync [Pure m] (self : ActiveTarget i k t) : m (k t) :=
   pure self.task

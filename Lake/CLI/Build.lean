@@ -16,7 +16,7 @@ def resolvePkgSpec (ws : Workspace) (rootPkg : Package) (spec : String) : IO Pac
   let pkgName := spec.toName
   if pkgName == rootPkg.name then
     return rootPkg
-  match ws.getPackage? pkgName with
+  match ws.packageByName? pkgName with
   | some dep => dep
   | none => error s!"unknown package `{spec}`"
 

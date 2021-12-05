@@ -8,6 +8,8 @@ import Lake.Config.Workspace
 import Lake.Build.MonadBasic
 
 open System
+open Lean (Name)
+
 namespace Lake
 
 def mkBuildContext (ws : Workspace) (pkg : Package) (leanInstall : LeanInstall) (lakeInstall : LakeInstall) : IO BuildContext := do
@@ -16,10 +18,8 @@ def mkBuildContext (ws : Workspace) (pkg : Package) (leanInstall : LeanInstall) 
 
 deriving instance Inhabited for BuildContext
 
-def BuildM.adaptPackage (pkg : Package) (self : BuildM α) : BuildM α :=
-  self.adapt fun r => {r with package := pkg}
-
-export BuildM (adaptPackage)
+def adaptPackage [MonadWithReaderOf BuildContext m] (pkg : Package) (act : m α) : m α :=
+  withReader (fun ctx => {ctx with package := pkg}) act
 
 def getPackage : BuildM Package :=
   (·.package.get) <$> read
@@ -27,11 +27,14 @@ def getPackage : BuildM Package :=
 def getWorkspace : BuildM Workspace :=
   (·.workspace.get) <$> read
 
+def getPackageByName? (name : Name) : BuildM (Option Package) :=
+  (·.packageByName? name) <$> getWorkspace
+
+def getPackageForModule? (mod : Name) : BuildM (Option Package) :=
+  (·.packageForModule? mod) <$> getWorkspace
+
 def getBuildDir : BuildM FilePath :=
   (·.buildDir) <$> getPackage
-
-def getOleanDirs : BuildM (List FilePath) :=
-  (·.oleanDirs) <$> getWorkspace
 
 def getOleanPath : BuildM SearchPath :=
   (·.oleanPath) <$> getWorkspace

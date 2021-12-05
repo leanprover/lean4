@@ -28,7 +28,7 @@ def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
     failure
 
 def compileOlean (leanFile oleanFile : FilePath)
-(oleanDirs : List FilePath := [])  (rootDir : FilePath := ".")
+(oleanPath : SearchPath := []) (rootDir : FilePath := ".")
 (leanArgs : Array String := #[]) (lean : FilePath := "lean")
 : BuildM PUnit := do
   createParentDirs oleanFile
@@ -37,11 +37,11 @@ def compileOlean (leanFile oleanFile : FilePath)
     args := leanArgs ++ #[
       "-R", rootDir.toString, "-o", oleanFile.toString, leanFile.toString
     ]
-    env := #[("LEAN_PATH", SearchPath.toString oleanDirs)]
+    env := #[("LEAN_PATH", oleanPath.toString)]
   }
 
 def compileOleanAndC (leanFile oleanFile cFile : FilePath)
-(oleanDirs : List FilePath := []) (rootDir : FilePath := ".")
+(oleanPath : SearchPath := []) (rootDir : FilePath := ".")
 (leanArgs : Array String := #[]) (lean : FilePath := "lean")
 : BuildM PUnit := do
   createParentDirs cFile
@@ -52,7 +52,7 @@ def compileOleanAndC (leanFile oleanFile cFile : FilePath)
       "-R", rootDir.toString, "-o", oleanFile.toString, "-c",
       cFile.toString, leanFile.toString
     ]
-    env := #[("LEAN_PATH", SearchPath.toString oleanDirs)]
+    env := #[("LEAN_PATH", oleanPath.toString)]
   }
 
 def compileO (oFile srcFile : FilePath)

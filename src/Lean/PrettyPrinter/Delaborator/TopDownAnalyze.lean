@@ -3,7 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Selsam
 -/
-import Lean.Meta
+import Lean.Meta.SynthInstance
 import Lean.Util.FindMVar
 import Lean.Util.FindLevelMVar
 import Lean.Util.CollectLevelParams
@@ -625,7 +625,7 @@ open TopDownAnalyze SubExpr
 def topDownAnalyze (e : Expr) : MetaM OptionsPerPos := do
   let s₀ ← get
   traceCtx `pp.analyze do
-    withReader (fun ctx => { ctx with config := Lean.Elab.Term.setElabConfig ctx.config }) do
+    withReader (fun ctx => { ctx with config := setElabConfig ctx.config }) do
       let ϕ : AnalyzeM OptionsPerPos := do withNewMCtxDepth analyze; (← get).annotations
       try
         let knowsType := getPPAnalyzeKnowsType (← getOptions)

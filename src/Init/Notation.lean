@@ -319,7 +319,7 @@ macro dot:("·" <|> ".") ts:tacticSeq : tactic => `(tactic| {%$dot ($ts:tacticSe
 macro "rfl" : tactic => `(exact rfl)
 /-- `admit` is a shorthand for `exact sorry`. -/
 macro "admit" : tactic => `(exact sorry)
-/-- The `sorry` tactic isnxo a shorthand for `exact sorry`. -/
+/-- The `sorry` tactic is a shorthand for `exact sorry`. -/
 macro "sorry" : tactic => `(exact sorry)
 macro "infer_instance" : tactic => `(exact inferInstance)
 

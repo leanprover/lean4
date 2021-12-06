@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 import Lean.Data.Occurrences
 import Lean.HeadIndex
-import Lean.Meta.ExprDefEq
+import Lean.Meta.Basic
 
 namespace Lean.Meta
 

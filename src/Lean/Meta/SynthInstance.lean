@@ -7,7 +7,6 @@ Type class instance synthesizer using tabled resolution.
 -/
 import Lean.Meta.Basic
 import Lean.Meta.Instances
-import Lean.Meta.LevelDefEq
 import Lean.Meta.AbstractMVars
 import Lean.Meta.WHNF
 import Lean.Util.Profile

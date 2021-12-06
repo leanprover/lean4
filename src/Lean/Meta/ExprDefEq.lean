@@ -8,7 +8,6 @@ import Lean.Structure
 import Lean.Meta.WHNF
 import Lean.Meta.InferType
 import Lean.Meta.FunInfo
-import Lean.Meta.LevelDefEq
 import Lean.Meta.Check
 import Lean.Meta.Offset
 import Lean.Meta.ForEachExpr

@@ -9,7 +9,6 @@ import Lean.ProjFns
 import Lean.Structure
 import Lean.Util.Recognizers
 import Lean.Meta.Basic
-import Lean.Meta.LevelDefEq
 import Lean.Meta.GetConst
 import Lean.Meta.Match.MatcherInfo
 

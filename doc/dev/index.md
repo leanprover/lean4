@@ -64,13 +64,6 @@ cd src
 elan override set lean4-stage0
 ```
 
-Note that `lake build` will not work on this kind of linked elan toolchain because
-it will be missing the bundled clang compiler and headers and libraries.
-To get a more complete install of a local lean build using `-DCMAKE_INSTALL_PREFIX`
-to set your favorite install location and run `make install` after the build
-completes.  Now you can link your install location for a more complete functioning
-lean toolchain.
-
 You can also use the `+toolchain` shorthand (e.g. `lean +lean4-debug`) to switch
 toolchains on the spot. `lean4-mode` will automatically use the `lean` executable
 associated with the directory of the current file as long as `lean4-rootdir` is

@@ -1,4 +1,4 @@
-import Lean.Meta
+import Lean.Elab
 open Nat
 
 structure ProvedSkip(n m: Nat) where

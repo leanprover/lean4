@@ -21,9 +21,6 @@ $ elan default leanprover/lean4:nightly
 $ elan override set leanprover/lean4:stable
 ```
 
-NOTE: there are no `lean4:stable` releases yet, so for now
-just use `leanprover/lean4:nightly`
-
 ### `lake`
 
 Lean 4 comes with a package manager named `lake`.

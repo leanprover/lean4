@@ -16,6 +16,7 @@ import Lean.Meta.Tactic.Util
 import Lean.Hygiene
 import Lean.Util.RecDepth
 import Lean.Elab.Log
+import Lean.Elab.Config
 import Lean.Elab.Level
 import Lean.Elab.Attributes
 import Lean.Elab.AutoBound

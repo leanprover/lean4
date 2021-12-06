@@ -7,12 +7,9 @@ import Lean.ResolveName
 import Lean.Util.Sorry
 import Lean.Util.ReplaceExpr
 import Lean.Structure
-import Lean.Meta.ExprDefEq
 import Lean.Meta.AppBuilder
-import Lean.Meta.SynthInstance
 import Lean.Meta.CollectMVars
 import Lean.Meta.Coe
-import Lean.Meta.Tactic.Util
 import Lean.Hygiene
 import Lean.Util.RecDepth
 import Lean.Elab.Log

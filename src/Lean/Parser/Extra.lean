@@ -77,6 +77,30 @@ attribute [runBuiltinParserAttributeHooks]
   Dedenting can in particular be used to counteract automatic indentation. -/
 @[inline] def ppDedent : Parser → Parser := id
 
+/--
+  No-op parser combinator that allows the pretty printer to omit the group and
+  indent operation in the enclosing category parser.
+  ```
+  syntax ppAllowUngrouped "by " tacticSeq : term
+  -- allows a `by` after `:=` without linebreak in between:
+  theorem foo : True := by
+    trivial
+  ```
+-/
+@[inline] def ppAllowUngrouped : Parser := skip
+
+/--
+  No-op parser combinator that advises the pretty printer to dedent the given syntax,
+  if it was grouped by the category parser.
+  Dedenting can in particular be used to counteract automatic indentation. -/
+@[inline] def ppDedentIfGrouped : Parser → Parser := id
+
+/--
+  No-op parser combinator that prints a line break.
+  The line break is soft if the combinator is followed
+  by an ungrouped parser (see ppAllowUngrouped), otherwise hard. -/
+@[inline] def ppHardLineUnlessUngrouped : Parser := skip
+
 end Parser
 
 section
@@ -90,6 +114,20 @@ open PrettyPrinter
 @[combinatorFormatter Lean.Parser.ppDedent] def ppDedent.formatter (p : Formatter) : Formatter := do
   let opts ← getOptions
   Formatter.indent p (some ((0:Int) - Std.Format.getIndent opts))
+
+@[combinatorFormatter Lean.Parser.ppAllowUngrouped] def ppAllowUngrouped.formatter : Formatter := do
+  modify ({ · with mustBeGrouped := false })
+@[combinatorFormatter Lean.Parser.ppDedentIfGrouped] def ppDedentIfGrouped.formatter (p : Formatter) : Formatter := do
+  Formatter.concat p
+  let indent := Std.Format.getIndent (← getOptions)
+  unless (← get).isUngrouped do
+    modify fun st => { st with stack := st.stack.modify (st.stack.size - 1) (·.nest (0 - indent)) }
+@[combinatorFormatter Lean.Parser.ppHardLineUnlessUngrouped] def ppHardLineUnlessUngrouped.formatter : Formatter := do
+  if (← get).isUngrouped then
+    Formatter.pushLine
+  else
+    ppLine.formatter
+
 end
 
 namespace Parser
@@ -97,6 +135,7 @@ namespace Parser
 -- now synthesize parenthesizers
 attribute [runBuiltinParserAttributeHooks]
   ppHardSpace ppSpace ppLine ppGroup ppIndent ppDedent
+  ppAllowUngrouped ppDedentIfGrouped ppHardLineUnlessUngrouped
 
 macro "register_parser_alias" aliasName?:optional(strLit) declName:ident : term =>
   let aliasName := aliasName?.getD (Syntax.mkStrLit declName.getId.toString)
@@ -112,6 +151,9 @@ builtin_initialize
   register_parser_alias ppGroup
   register_parser_alias ppIndent
   register_parser_alias ppDedent
+  register_parser_alias ppAllowUngrouped
+  register_parser_alias ppDedentIfGrouped
+  register_parser_alias ppHardLineUnlessUngrouped
 
 end Parser
 

@@ -19,3 +19,6 @@ set_option trace.pp.ana
 
 set_option trace.pp.analyze
                          --^ textDocument/completion
+
+set_option fo true
+           --^ textDocument/completion

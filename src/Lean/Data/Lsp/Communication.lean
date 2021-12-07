@@ -23,7 +23,7 @@ section
     | [_] => none
     | name :: value :: rest =>
       let value := ": ".intercalate (value :: rest)
-      some ⟨name, value⟩
+      some ⟨name.trim, value.trim⟩
 
   private partial def readHeaderFields (h : FS.Stream) : IO (List (String × String)) := do
     let l ← h.getLine

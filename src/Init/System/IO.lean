@@ -613,7 +613,17 @@ def ofBuffer (r : Ref Buffer) : Stream := {
     let data := s.toUTF8
     { b with data := data.copySlice 0 b.data b.pos data.size false, pos := b.pos + data.size },
 }
+
 end Stream
+
+def openFileForRead(fname : FilePath) : IO FS.Stream := do
+  let hTee ← FS.Handle.mk fname FS.Mode.read true
+  return FS.Stream.ofHandle hTee
+
+def openFileForWrite(fname : FilePath) : IO FS.Stream := do
+  let hTee ← FS.Handle.mk fname FS.Mode.write true
+  return FS.Stream.ofHandle hTee
+
 
 /-- Run action with `stdin` emptied and `stdout+stderr` captured into a `String`. -/
 def withIsolatedStreams [Monad m] [MonadFinally m] [MonadExceptOf IO.Error m] [MonadLiftT IO m] (x : m α) : m (String × Except IO.Error α) := do

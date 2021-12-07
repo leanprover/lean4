@@ -373,6 +373,29 @@ def handleSemanticTokensRange (p : SemanticTokensRangeParams)
   let endPos := text.lspPosToUtf8Pos p.range.end
   handleSemanticTokens beginPos endPos
 
+def handleSignatureHelp (p: SignatureHelpParams)
+    : RequestM (RequestTask SignatureHelp) := do
+  let r : SignatureHelp := {
+    activeSignature := 0,
+    activeParameter := 0,
+    signatures := [
+      {
+        label := "append",
+        parameters := [
+          {
+            label := "x",
+            documentation := "The element to append"
+          },
+          {
+            label := "y",
+            documentation := "The element to append"
+          }
+        ],
+        documentation := None
+      }
+    ]
+  }
+
 partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
     : RequestM (RequestTask WaitForDiagnostics) := do
   let rec waitLoop : RequestM EditableDocument := do
@@ -399,6 +422,7 @@ builtin_initialize
   registerLspRequestHandler "textDocument/documentSymbol"       DocumentSymbolParams       DocumentSymbolResult    handleDocumentSymbol
   registerLspRequestHandler "textDocument/semanticTokens/full"  SemanticTokensParams       SemanticTokens          handleSemanticTokensFull
   registerLspRequestHandler "textDocument/semanticTokens/range" SemanticTokensRangeParams  SemanticTokens          handleSemanticTokensRange
+  registerLspRequestHandler "textDocument/signatureHelp"        SignatureHelpParams        SignatureHelp           handleSignatureHelp
   registerLspRequestHandler "$/lean/plainGoal"                  PlainGoalParams            (Option PlainGoal)      handlePlainGoal
   registerLspRequestHandler "$/lean/plainTermGoal"              PlainTermGoalParams        (Option PlainTermGoal)  handlePlainTermGoal
 

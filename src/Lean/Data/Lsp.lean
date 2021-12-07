@@ -11,6 +11,7 @@ import Lean.Data.Lsp.Diagnostics
 import Lean.Data.Lsp.Extra
 import Lean.Data.Lsp.InitShutdown
 import Lean.Data.Lsp.LanguageFeatures
+import Lean.Data.Lsp.SignatureHelp
 import Lean.Data.Lsp.TextSync
 import Lean.Data.Lsp.Utf16
 import Lean.Data.Lsp.Workspace

@@ -17,6 +17,8 @@ namespace Lsp
 
 open Json
 
+/-- ClientCapabilities define capabilities for dynamic registration, workspace and text document features the client
+  supports.-/
 -- TODO: right now we ignore the client's capabilities
 inductive ClientCapabilities where
   | mk
@@ -27,17 +29,88 @@ instance : FromJson ClientCapabilities :=
 instance ClientCapabilities.hasToJson : ToJson ClientCapabilities :=
   ⟨fun o => mkObj []⟩
 
--- TODO largely unimplemented
+/-- The server can signal the following capabilities -/
 structure ServerCapabilities where
+  /-- Defines how text documents are synced.-/
   textDocumentSync? : Option TextDocumentSyncOptions := none
+  /-- The server provides completion support. -/
   completionProvider? : Option CompletionOptions := none
+  /-- The server provides hover support. -/
   hoverProvider : Bool := false
-  documentHighlightProvider : Bool := false
-  documentSymbolProvider : Bool := false
-  definitionProvider : Bool := false
+  /-- The server provides signature help support.-/
+  signatureHelpProvider : Bool := false
+  /-- The server provides go to declaration support. -/
   declarationProvider : Bool := false
+  /-- The server provides goto definition support. -/
+  definitionProvider : Bool := false
+  /-- The server provides goto type definition support. -/
   typeDefinitionProvider : Bool := false
+  /-- The server provides document highlight support.-/
+  documentHighlightProvider : Bool := false
+  /-- The server provides document symbol support.-/
+  documentSymbolProvider : Bool := false
+  /-- The server provides semantic tokens support. -/
   semanticTokensProvider? : Option SemanticTokensOptions := none
+
+  /- Not implemented:
+  /-- The server provides goto implementation support. -/
+  implementationProvider : Bool := false
+
+  /-- The server provides find references support. -/
+  referencesProvider : Bool := false
+
+  /-- The server provides code actions. -/
+  codeActionProvider: Bool := false
+
+  /-- The server provides code lens. -/
+  codeLensProvider?: CodeLensOptions;
+
+  /-- The server provides document link support. -/
+  documentLinkProvider?: DocumentLinkOptions;
+
+  /-- The server provides color provider support. -/
+  colorProvider?: ColorProviderOptions;
+
+  /-- The server provides document formatting. -/
+  documentFormattingProvider?: boolean | DocumentFormattingOptions;
+
+  /-- The server provides document range formatting. -/
+  documentRangeFormattingProvider?: boolean | DocumentRangeFormattingOptions;
+
+  /-- The server provides document formatting on typing. -/
+  documentOnTypeFormattingProvider?: boolean | DocumentOnTypeFormattingOptions;
+
+  /-- The server provides refactor rename support. -/
+  renameProvider?: boolean | RenameOptions;
+
+  /-- The server provides document folding. -/
+  foldingRangeProvider?: boolean | FoldingRangeOptions;
+
+  /-- The server provides execute command support. -/
+  executeCommandProvider?: ExecuteCommandOptions;
+
+  /-- The server provides selection range support. -/
+  selectionRangeProvider?: boolean | SelectionRangeOptions;
+
+  /-- The server provides linked editing range support. -/
+  linkedEditingRangeProvider?: boolean | LinkedEditingRangeOptions;
+
+  /-- The server provides call hierarchy support. -/
+  callHierarchyProvider?: boolean | CallHierarchyOptions;
+
+  /-- Whether server provides moniker support. -/
+  monikerProvider?: boolean | MonikerOptions;
+
+  /-- The server provides workspace symbol support.-/
+  workspaceSymbolProvider?: boolean | WorkspaceSymbolOptions;
+
+  /-- Workspace specific server capabilities -/
+  workspace?: WorkspaceServerCapabilities;
+
+  /-- Experimental server capabilities.-/
+  experimental?: ExperimentalServerCapabilities;
+  -/
+
   deriving ToJson, FromJson
 
 end Lsp

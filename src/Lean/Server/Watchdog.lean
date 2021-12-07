@@ -542,6 +542,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     triggerCharacters? := some #["."]
   }
   hoverProvider := true
+  signatureHelpProvider := true
   declarationProvider := true
   definitionProvider := true
   typeDefinitionProvider := true

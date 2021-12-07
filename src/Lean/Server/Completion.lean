@@ -262,7 +262,7 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? :
 
 private def optionCompletion (ctx : ContextInfo) (stx : Syntax) : IO (Option CompletionList) :=
   ctx.runMetaM {} do
-      let partialName := stx[1].getId
+      let partialName := stx.getId
       -- HACK(WN): unfold the type so ForIn works
       let (decls : Std.RBMap _ _ _) ← getOptionDecls
       let opts ← getOptions

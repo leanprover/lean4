@@ -80,3 +80,10 @@
    "detail":
    "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
+{"textDocument": {"uri": "file://completionOption.lean"},
+ "position": {"line": 22, "character": 13}}
+{"items":
+ [{"label": "format.indent", "detail": "(2), indentation"},
+  {"label": "format.unicode", "detail": "(true), unicode characters"},
+  {"label": "format.width", "detail": "(120), indentation"}],
+ "isIncomplete": true}

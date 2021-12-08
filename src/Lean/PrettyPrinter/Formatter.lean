@@ -105,12 +105,15 @@ def getStackSize : FormatterM Nat := do
 def setStack (stack : Array Format) : FormatterM Unit :=
   modify fun st => { st with stack := stack }
 
-def push (f : Format) : FormatterM Unit :=
+private def push (f : Format) : FormatterM Unit :=
   modify fun st => { st with stack := st.stack.push f }
 
-def pushLine : FormatterM Unit := do
-  push Format.line;
+def pushWhitespace (f : Format) : FormatterM Unit := do
+  push f
   modify fun st => { st with leadWord := "" }
+
+def pushLine : FormatterM Unit :=
+  pushWhitespace Format.line
 
 /-- Execute `x` at the right-most child of the current node, if any, then advance to the left. -/
 def visitArgs (x : FormatterM Unit) : FormatterM Unit := do
@@ -276,13 +279,6 @@ def parseToken (s : String) : FormatterM ParserState := do
     options := ← getOptions,
     tokens := (← read).table } (Parser.mkParserState s)
 
-def pushTokenCore (tk : String) : FormatterM Unit := do
-  if tk.toSubstring.dropRightWhile (fun s => s == ' ') == tk.toSubstring then
-    push tk
-  else
-    pushLine
-    push tk.trimRight
-
 def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
   match info with
   | SourceInfo.original _ _ ss _ =>
@@ -304,15 +300,21 @@ def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
     let t ← parseToken $ tk' ++ st.leadWord
     if t.pos <= tk'.bsize then
       -- stopped within `tk` => use it as is, extend `leadWord` if not prefixed by whitespace
-      pushTokenCore tk
+      push tk
       modify fun st => { st with leadWord := if tk.trimLeft == tk then tk ++ st.leadWord else "" }
     else
       -- stopped after `tk` => add space
-      pushTokenCore $ tk ++ " "
+      push $ tk ++ " "
       modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" }
   else
     -- already separated => use `tk` as is
-    pushTokenCore tk
+    if st.leadWord == "" then
+      push tk.trimRight
+    else if tk.endsWith " " then
+      pushLine
+      push tk.trimRight
+    else
+      push tk -- preserve special whitespace for tokens like ":=\n"
     modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" }
 
   match info with
@@ -326,7 +328,8 @@ def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
         -- with the actual token, so dedent
         indent (push s!"{ss'}\n") (some ((0:Int) - Std.Format.getIndent (← getOptions)))
       else
-        push s!"{ss'} "
+        pushLine
+        push ss'.toString
       modify fun st => { st with leadWord := "" }
   | _ => pure ()
 

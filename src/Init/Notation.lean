@@ -150,13 +150,13 @@ macro_rules
 macro "if " "let " pat:term " := " d:term " then " t:term " else " e:term : term =>
   `(match $d:term with | $pat:term => $t | _ => $e)
 
-syntax:min term "<|" term:min : term
+syntax:min term " <| " term:min : term
 
 macro_rules
   | `($f $args* <| $a) => let args := args.push a; `($f $args*)
   | `($f <| $a) => `($f $a)
 
-syntax:min term "|>" term:min1 : term
+syntax:min term " |> " term:min1 : term
 
 macro_rules
   | `($a |> $f $args*) => let args := args.push a; `($f $args*)

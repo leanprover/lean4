@@ -384,7 +384,7 @@ partial def handleSignatureHelp (p: SignatureHelpParams)
       -- TODO: plug in parameter completion find method...
       -- if let some r ← Completion.find? doc.meta.text pos snap.infoTree then
       --  return r
-      let r : SignatureHelp := {
+      return {
         activeSignature? := some 0,
         activeParameter? := some 0,
         signatures := [
@@ -406,7 +406,6 @@ partial def handleSignatureHelp (p: SignatureHelpParams)
           }
         ]
       }
-      return r
 
 
 partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)

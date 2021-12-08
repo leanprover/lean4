@@ -145,7 +145,7 @@ structure SignatureHelpOptions extends WorkDoneProgressOptions where
   /--
   The characters that trigger signature help automatically.
   -/
-  triggerCharacters : List String := []
+  triggerCharacters : Array String := #[]
 
   /--
    List of characters that re-trigger signature help.
@@ -154,7 +154,7 @@ structure SignatureHelpOptions extends WorkDoneProgressOptions where
    showing. All trigger characters are also counted as re-trigger
    characters.
   -/
-  retriggerCharacters : List String := []
+  retriggerCharacters : Array String := #[]
   deriving FromJson, ToJson
 
 structure SignatureHelpParameterInformation where

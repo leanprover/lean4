@@ -69,6 +69,9 @@ instance : FileSource SemanticTokensParams :=
 instance : FileSource SemanticTokensRangeParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
+instance : FileSource SignatureHelpParams :=
+  ⟨fun p => fileSource p.textDocument⟩
+
 instance : FileSource PlainGoalParams :=
   ⟨fun p => fileSource p.textDocument⟩
 

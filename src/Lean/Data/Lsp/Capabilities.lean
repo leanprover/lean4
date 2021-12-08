@@ -7,6 +7,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 import Lean.Data.JsonRpc
 import Lean.Data.Lsp.TextSync
 import Lean.Data.Lsp.LanguageFeatures
+import Lean.Data.Lsp.SignatureHelp
 
 /-! Minimal LSP servers/clients do not have to implement a lot
 of functionality. Most useful additional behavior is instead
@@ -38,7 +39,7 @@ structure ServerCapabilities where
   /-- The server provides hover support. -/
   hoverProvider : Bool := false
   /-- The server provides signature help support.-/
-  signatureHelpProvider : Bool := false
+  signatureHelpProvider : Option SignatureHelpOptions := none
   /-- The server provides go to declaration support. -/
   declarationProvider : Bool := false
   /-- The server provides goto definition support. -/

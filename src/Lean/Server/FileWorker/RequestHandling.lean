@@ -373,28 +373,41 @@ def handleSemanticTokensRange (p : SemanticTokensRangeParams)
   let endPos := text.lspPosToUtf8Pos p.range.end
   handleSemanticTokens beginPos endPos
 
-def handleSignatureHelp (p: SignatureHelpParams)
+partial def handleSignatureHelp (p: SignatureHelpParams)
     : RequestM (RequestTask SignatureHelp) := do
-  let r : SignatureHelp := {
-    activeSignature := 0,
-    activeParameter := 0,
-    signatures := [
-      {
-        label := "append",
-        parameters := [
+  let doc ← readDoc
+  let text := doc.meta.text
+  let pos := text.lspPosToUtf8Pos p.position
+  -- NOTE: use `>=` since the cursor can be *after* the input
+  withWaitFindSnap doc (fun s => s.endPos >= pos)
+    (notFoundX := pure { :SignatureHelp }) fun snap => do
+      -- TODO: plug in parameter completion find method...
+      -- if let some r ← Completion.find? doc.meta.text pos snap.infoTree then
+      --  return r
+      let r : SignatureHelp := {
+        activeSignature? := some 0,
+        activeParameter? := some 0,
+        signatures := [
           {
-            label := "x",
-            documentation := "The element to append"
-          },
-          {
-            label := "y",
-            documentation := "The element to append"
+            label := "append",
+            documentation? := some "Append a list to the end of another list",
+            parameters? := some [
+              {
+                label := ParameterLabel.label "x",
+                documentation? := some "The element to append"
+                : ParameterInformation
+              },
+              {
+                label := ParameterLabel.label "y",
+                documentation? := some "The element to append"
+                : ParameterInformation
+              }
+            ]
           }
-        ],
-        documentation := None
+        ]
       }
-    ]
-  }
+      return r
+
 
 partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
     : RequestM (RequestTask WaitForDiagnostics) := do

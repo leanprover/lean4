@@ -1,4 +1,3 @@
-import Lean.Server.Utils
 import Lean.Data.Json
 import Lean.Data.JsonRpc
 import Lean.Data.Lsp.Basic
@@ -15,19 +14,32 @@ inductive SignatureHelpTriggerKind where
   TriggerCharacter
   | /-- Signature help was triggered by the cursor moving or by the document content changing. -/
   ContentChange
+  |
+  Unknown
+
+def signatureHelpTriggerKindFromInt (i : Int) :=
+  match i with
+  | 0 => SignatureHelpTriggerKind.Invoked
+  | 1 => SignatureHelpTriggerKind.TriggerCharacter
+  | 2 => SignatureHelpTriggerKind.ContentChange
+  | _  => SignatureHelpTriggerKind.Unknown
 
 instance : FromJson SignatureHelpTriggerKind := ⟨fun
   | str "invoked" => Except.ok SignatureHelpTriggerKind.Invoked
   | str "triggerCharacter"  => Except.ok SignatureHelpTriggerKind.TriggerCharacter
   | str "contentChange"  => Except.ok SignatureHelpTriggerKind.ContentChange
-  | _               => throw "unknown MarkupKind"⟩
+  | num (i : Int) => Except.ok (signatureHelpTriggerKindFromInt i)
+  | _  => throw "unknown MarkupKind"⟩
 
 instance : ToJson SignatureHelpTriggerKind := ⟨fun
   | SignatureHelpTriggerKind.Invoked => str "invoked"
   | SignatureHelpTriggerKind.TriggerCharacter => str "triggerCharacter"
-  | SignatureHelpTriggerKind.ContentChange  => str "contentChange"⟩
+  | SignatureHelpTriggerKind.ContentChange  => str "contentChange"
+  | SignatureHelpTriggerKind.Unknown  => str "unknown"⟩
 
-
+/--  Either a string or an inclusive start and exclusive end offsets within
+  its containing signature label. The offsets are based on a UTF-16 string
+  representation as `Position` and `Range` does. -/
 inductive ParameterLabel where
   | label : String -> ParameterLabel
   | range : Range -> ParameterLabel

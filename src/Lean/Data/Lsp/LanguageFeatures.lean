@@ -44,8 +44,50 @@ structure CompletionList where
   items : Array CompletionItem
   deriving FromJson, ToJson
 
+/-- How a completion was triggered -/
+inductive CompletionTriggerKind where
+  | /--  Completion was triggered by typing an identifier (24x7 code
+	  complete), manual invocation (e.g Ctrl+Space) or via API. -/
+  Invoked
+  | /-- Completion was triggered by a trigger character specified by
+	  the `triggerCharacters` properties of the `CompletionRegistrationOptions`. -/
+  TriggerCharacter
+  | /-- Completion was re-triggered as the current completion list is incomplete. -/
+  TriggerForIncompleteCompletions
+  |
+  Unknown
+
+instance : Inhabited CompletionTriggerKind where
+  default := CompletionTriggerKind.Unknown
+
+def completionTriggerKindFromInt (i : Int) :=
+  match i with
+  | 0 => CompletionTriggerKind.Invoked
+  | 1 => CompletionTriggerKind.TriggerCharacter
+  | 2 => CompletionTriggerKind.TriggerForIncompleteCompletions
+  | _  => CompletionTriggerKind.Unknown
+
+instance : FromJson CompletionTriggerKind := ⟨fun
+  | num (i : Int) => Except.ok (completionTriggerKindFromInt i)
+  | _  => throw "unknown CompletionTriggerKind"⟩
+
+instance : ToJson CompletionTriggerKind := ⟨fun
+  | CompletionTriggerKind.Invoked => 1
+  | CompletionTriggerKind.TriggerCharacter => 2
+  | CompletionTriggerKind.TriggerForIncompleteCompletions  => 3
+  | CompletionTriggerKind.Unknown  => 4⟩
+
+structure CompletionContext where
+  /-- How the completion was triggered.-/
+  triggerKind: CompletionTriggerKind
+
+  /-- The trigger character (a single character) that has trigger code
+  complete. -/
+  triggerCharacter?: Option String := none
+  deriving FromJson, ToJson
+
 structure CompletionParams extends TextDocumentPositionParams where
-  -- context? : CompletionContext
+  context? : Option CompletionContext := none
   deriving FromJson, ToJson
 
 structure Hover where

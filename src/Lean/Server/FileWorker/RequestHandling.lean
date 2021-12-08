@@ -20,6 +20,11 @@ open Lsp
 open RequestM
 open Snapshots
 
+def getOptionalTrigger (opt : Option CompletionContext) :=
+  match opt with
+  | none => CompletionTriggerKind.Unknown
+  | some x => x.triggerKind
+
 partial def handleCompletion (p : CompletionParams)
     : RequestM (RequestTask CompletionList) := do
   let doc ← readDoc
@@ -29,7 +34,8 @@ partial def handleCompletion (p : CompletionParams)
   -- NOTE: use `>=` since the cursor can be *after* the input
   withWaitFindSnap doc (fun s => s.endPos >= pos)
     (notFoundX := pure { items := #[], isIncomplete := true }) fun snap => do
-      if let some r ← Completion.find? doc.meta.text pos snap.infoTree then
+      let trigger := getOptionalTrigger p.context?
+      if let some r ← Completion.find? doc.meta.text pos snap.infoTree trigger then
         return r
       return { items := #[ ], isIncomplete := true }
 

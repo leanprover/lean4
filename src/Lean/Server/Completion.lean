@@ -274,7 +274,10 @@ private def tacticCompletion (ctx : ContextInfo) : IO (Option CompletionList) :=
       items.push { label := tk.toString, detail? := none, documentation? := none }
     return some { items := sortCompletionItems items, isIncomplete := true }
 
-partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTree) : IO (Option CompletionList) := do
+partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTree) (trigger : CompletionTriggerKind): IO (Option CompletionList) := do
+  -- TODO: When user types CTRL+SPACE in "Append.app|end" with the cursor placed in the middle of the word like
+  -- that then the trigger is CompletionTriggerKind.Invoke and in that case it is supposed to return all
+  -- CompletionItems matching to the left of the cursor, so "app" in this example.
   let ⟨hoverLine, _⟩ := fileMap.toPosition hoverPos
   match infoTree.foldInfo (init := none) (choose fileMap hoverLine) with
   | some (ctx, Info.ofCompletionInfo info) =>

@@ -29,7 +29,7 @@ instance : FromJson SignatureHelpTriggerKind := ⟨fun
   | str "triggerCharacter"  => Except.ok SignatureHelpTriggerKind.TriggerCharacter
   | str "contentChange"  => Except.ok SignatureHelpTriggerKind.ContentChange
   | num (i : Int) => Except.ok (signatureHelpTriggerKindFromInt i)
-  | _  => throw "unknown MarkupKind"⟩
+  | _  => throw "unknown SignatureHelpTriggerKind"⟩
 
 instance : ToJson SignatureHelpTriggerKind := ⟨fun
   | SignatureHelpTriggerKind.Invoked => str "invoked"

@@ -44,7 +44,6 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___lambda__3___closed__4;
-lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAppM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___spec__1___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmd_x3f___lambda__3___closed__2;
@@ -291,6 +290,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Inhabited_
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing_mkInstanceCmdWith___spec__6___closed__26;
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l_Std_HashMapImp_find_x3f___at_Lean_Meta_ForEachExpr_visit___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_mkInhabitedInstanceUsing(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l___private_Lean_Elab_Deriving_Inhabited_0__Lean_Elab_implicitBinderF___closed__1() {
 _start:
@@ -5776,7 +5776,7 @@ lean_object* x_119; lean_object* x_120; lean_object* x_121;
 x_119 = lean_ctor_get(x_117, 0);
 x_120 = lean_ctor_get(x_117, 1);
 lean_inc(x_3);
-x_121 = l_Std_HashMapImp_find_x3f___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__1(x_119, x_3);
+x_121 = l_Std_HashMapImp_find_x3f___at_Lean_Meta_ForEachExpr_visit___spec__1(x_119, x_3);
 if (lean_obj_tag(x_121) == 0)
 {
 lean_free_object(x_117);
@@ -5903,7 +5903,7 @@ lean_inc(x_145);
 lean_inc(x_144);
 lean_dec(x_117);
 lean_inc(x_3);
-x_146 = l_Std_HashMapImp_find_x3f___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__1(x_144, x_3);
+x_146 = l_Std_HashMapImp_find_x3f___at_Lean_Meta_ForEachExpr_visit___spec__1(x_144, x_3);
 if (lean_obj_tag(x_146) == 0)
 {
 if (lean_obj_tag(x_3) == 1)

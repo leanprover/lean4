@@ -53,6 +53,7 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInjections(lean_obj
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInjection___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalInjection___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInjections___closed__3;
+lean_object* l_List_mapTRAux___at_Lean_Meta_substCore___spec__6(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInjections_declRange___closed__4;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInjections___closed__5;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInjection_declRange___closed__7;
@@ -78,7 +79,6 @@ lean_object* l_Lean_Elab_Tactic_replaceMainGoal(lean_object*, lean_object*, lean
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInjection___closed__1;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_checkUnusedIds___closed__3;
-lean_object* l_List_mapTRAux___at_Lean_Meta_substCore___spec__7(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalInjections(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInjection___closed__11;
 lean_object* l_Lean_Meta_injection(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -226,7 +226,7 @@ if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_9 = lean_box(0);
-x_10 = l_List_mapTRAux___at_Lean_Meta_substCore___spec__7(x_2, x_9);
+x_10 = l_List_mapTRAux___at_Lean_Meta_substCore___spec__6(x_2, x_9);
 x_11 = l_Lean_MessageData_ofList(x_10);
 lean_dec(x_10);
 x_12 = l___private_Lean_Elab_Tactic_Injection_0__Lean_Elab_Tactic_checkUnusedIds___closed__4;

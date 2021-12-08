@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 import Lean.Util.ForEachExpr
 import Lean.Meta.Basic
 import Lean.Meta.AppBuilder
-import Lean.Meta.LevelDefEq
 import Lean.Meta.PPGoal
 
 namespace Lean.Meta

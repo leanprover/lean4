@@ -398,6 +398,7 @@ LEAN_EXPORT lean_object* l_ReaderT_bind___at___private_Lean_Meta_Tactic_Simp_Mai
 static lean_object* l_Lean_Meta_Simp_simp_simpForall___closed__7;
 static lean_object* l_Lean_Meta_simpTargetCore___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_simpLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simp_tryCongrLemma_x3f___spec__1___closed__9;
 lean_object* l_Lean_Meta_SimpLemmas_add(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -528,7 +529,6 @@ static lean_object* l_Lean_addTrace___at_Lean_Meta_Simp_simp_simpForall___spec__
 static lean_object* l_Lean_Meta_Simp_DefaultMethods_discharge_x3f___closed__1;
 static lean_object* l_Lean_Meta_Simp_simp_simpStep___closed__1;
 static lean_object* l_Lean_Meta_Simp_simp_simpForall___closed__6;
-lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_isPerm___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_simp_simpArrow___lambda__3___closed__2;
 static lean_object* l_Lean_Meta_Simp_simp_simpStep___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_simp_simpLit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7836,7 +7836,7 @@ lean_object* x_10; uint8_t x_11; lean_object* x_12;
 x_10 = lean_alloc_closure((void*)(l_Lean_Meta_Simp_getSimpLetCase___lambda__1___boxed), 7, 1);
 lean_closure_set(x_10, 0, x_4);
 x_11 = 0;
-x_12 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_isPerm___spec__1___rarg(x_1, x_11, x_2, x_10, x_5, x_6, x_7, x_8, x_9);
+x_12 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_1, x_11, x_2, x_10, x_5, x_6, x_7, x_8, x_9);
 return x_12;
 }
 }

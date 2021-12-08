@@ -3,14 +3,15 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Daniel Selsam
 -/
-import Lean.Meta
+import Std.Data.RBMap
+import Lean.Meta.SynthInstance
 import Lean.Util.FindMVar
 import Lean.Util.FindLevelMVar
 import Lean.Util.CollectLevelParams
 import Lean.Util.ReplaceLevel
 import Lean.PrettyPrinter.Delaborator.Options
 import Lean.PrettyPrinter.Delaborator.SubExpr
-import Std.Data.RBMap
+import Lean.Elab.Config
 
 /-!
 The top-down analyzer is an optional preprocessor to the delaborator that aims
@@ -625,7 +626,7 @@ open TopDownAnalyze SubExpr
 def topDownAnalyze (e : Expr) : MetaM OptionsPerPos := do
   let s₀ ← get
   traceCtx `pp.analyze do
-    withReader (fun ctx => { ctx with config := Lean.Elab.Term.setElabConfig ctx.config }) do
+    withReader (fun ctx => { ctx with config := Elab.Term.setElabConfig ctx.config }) do
       let ϕ : AnalyzeM OptionsPerPos := do withNewMCtxDepth analyze; (← get).annotations
       try
         let knowsType := getPPAnalyzeKnowsType (← getOptions)

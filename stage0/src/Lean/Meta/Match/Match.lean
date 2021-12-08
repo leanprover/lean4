@@ -715,11 +715,11 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
   | some nameNew => (mkMatcherConst nameNew, none)
   | none =>
     let decl := Declaration.defnDecl {
-      name        := name,
-      levelParams := result.levelParams.toList,
-      type        := result.type,
-      value       := result.value,
-      hints       := ReducibilityHints.regular (getMaxHeight env result.value + 1),
+      name
+      levelParams := result.levelParams.toList
+      type        := result.type
+      value       := result.value
+      hints       := ReducibilityHints.abbrev
       safety      := if env.hasUnsafe result.type || env.hasUnsafe result.value then DefinitionSafety.unsafe else DefinitionSafety.safe
     }
     trace[Meta.debug] "{name} : {result.type} := {result.value}"

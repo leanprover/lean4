@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Widget.InteractiveDiagnostic
-// Imports: Init Lean.Data.Lsp Lean.Message Lean.Elab.InfoTree Lean.PrettyPrinter Lean.Server.Utils Lean.Server.Rpc.Basic Lean.Widget.TaggedText Lean.Widget.InteractiveCode Lean.Widget.InteractiveGoal
+// Imports: Init Lean.Data.Lsp Lean.Message Lean.Elab.InfoTree Lean.Server.Utils Lean.Server.Rpc.Basic Lean.Widget.TaggedText Lean.Widget.InteractiveCode Lean.Widget.InteractiveGoal
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15803,7 +15803,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Widget_msgToInteractive___lambda__1___closed__1;
 x_2 = l_Lean_Widget_msgToInteractive___lambda__1___closed__2;
-x_3 = lean_unsigned_to_nat(167u);
+x_3 = lean_unsigned_to_nat(166u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Lean_Widget_msgToInteractive___lambda__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16235,7 +16235,6 @@ lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Data_Lsp(lean_object*);
 lean_object* initialize_Lean_Message(lean_object*);
 lean_object* initialize_Lean_Elab_InfoTree(lean_object*);
-lean_object* initialize_Lean_PrettyPrinter(lean_object*);
 lean_object* initialize_Lean_Server_Utils(lean_object*);
 lean_object* initialize_Lean_Server_Rpc_Basic(lean_object*);
 lean_object* initialize_Lean_Widget_TaggedText(lean_object*);
@@ -16256,9 +16255,6 @@ res = initialize_Lean_Message(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_InfoTree(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_PrettyPrinter(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_Utils(lean_io_mk_world());

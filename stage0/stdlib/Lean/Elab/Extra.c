@@ -194,7 +194,6 @@ static lean_object* l_Lean_Elab_Term_elabBinRelCore___lambda__2___closed__1;
 static lean_object* l___private_Lean_Elab_Extra_0__Lean_Elab_Term_BinOp_applyCoe_go___closed__4;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_elabBinRelNoProp_declRange(lean_object*);
 static lean_object* l_Lean_Elab_Term_BinOp_elabBinOp___lambda__2___closed__1;
-lean_object* l_Array_back___at_Lean_Meta_DiscrTree_mkPathAux___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabBinRelCore___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabBinRel___closed__10;
 static lean_object* l___regBuiltin_Lean_Elab_Term_BinOp_elabBinCalc___closed__2;
@@ -314,6 +313,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabForIn___lambda__1(lean_object*, le
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Extra_0__Lean_Elab_Term_BinOp_analyze___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabForIn_declRange___closed__4;
 static lean_object* l___private_Lean_Elab_Extra_0__Lean_Elab_Term_BinOp_analyze_go___closed__7;
+lean_object* l_Array_back___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__1(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabBinRel___closed__6;
 LEAN_EXPORT uint8_t l___private_Lean_Elab_Extra_0__Lean_Elab_Term_BinOp_AnalyzeResult_hasUncomparable___default;
 static lean_object* l_Lean_Elab_Term_elabForIn___closed__13;
@@ -11855,7 +11855,7 @@ return x_57;
 else
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; 
-x_58 = l_Array_back___at_Lean_Meta_DiscrTree_mkPathAux___spec__1(x_24);
+x_58 = l_Array_back___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__1(x_24);
 x_59 = l___private_Lean_Elab_Extra_0__Lean_Elab_Term_BinOp_relation_x3f(x_58, x_7, x_8, x_9, x_10, x_46);
 lean_dec(x_58);
 x_60 = lean_ctor_get(x_59, 0);

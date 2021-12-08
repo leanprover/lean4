@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Level
-// Imports: Init Lean.Meta.LevelDefEq Lean.Elab.Exception Lean.Elab.Log Lean.Elab.AutoBound
+// Imports: Init Lean.Elab.Exception Lean.Elab.Log Lean.Elab.AutoBound
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2950,7 +2950,6 @@ return x_5;
 }
 }
 lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Meta_LevelDefEq(lean_object*);
 lean_object* initialize_Lean_Elab_Exception(lean_object*);
 lean_object* initialize_Lean_Elab_Log(lean_object*);
 lean_object* initialize_Lean_Elab_AutoBound(lean_object*);
@@ -2960,9 +2959,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_LevelDefEq(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Exception(lean_io_mk_world());

@@ -8,7 +8,6 @@ import Lean.Structure
 import Lean.Meta.WHNF
 import Lean.Meta.InferType
 import Lean.Meta.FunInfo
-import Lean.Meta.LevelDefEq
 import Lean.Meta.Check
 import Lean.Meta.Offset
 import Lean.Meta.ForEachExpr
@@ -1036,14 +1035,18 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
   let tFn := t.getAppFn
   let sFn := s.getAppFn
   let info ← getConstInfo tFn.constName!
-  /- We only use the heuristic when `f` is a regular definition. That is, it is marked an abbreviation
-     (e.g., a user-facing projection) or as opaque (e.g., proof).
+  /- We only use the heuristic when `f` is a regular definition or an auxiliary `match` application.
+     That is, it is not marked an abbreviation (e.g., a user-facing projection) or as opaque (e.g., proof).
      We check whether terms contain metavariables to make sure we can solve constraints such
      as `S.proj ?x =?= S.proj t` without performing delta-reduction.
      That is, we are assuming the heuristic implemented by this method is seldom effective
      when `t` and `s` do not have metavariables, are not structurally equal, and `f` is an abbreviation.
-     On the other hand, by unfolding `f`, we often produce smaller terms. -/
-  unless info.hints.isRegular do
+     On the other hand, by unfolding `f`, we often produce smaller terms.
+
+     Recall that auxiliary `match` definitions are marked as abbreviations, but we must use the heuristic on
+     them since they will not be unfolded when smartUnfolding is turned on. The abbreviation annotation in this
+     case is used to help the kernel type checker. -/
+  unless info.hints.isRegular || isMatcherCore (← getEnv) tFn.constName! do
     unless t.hasExprMVar || s.hasExprMVar do
       return false
   traceCtx `Meta.isDefEq.delta do

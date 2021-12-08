@@ -257,27 +257,27 @@ def numIndices (lctx : LocalContext) : Nat :=
 def getAt? (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
   lctx.decls.get! i
 
-section
-universe u v
-variable {m : Type u → Type v} [Monad m]
-variable {β : Type u}
-
-@[specialize] def foldlM (lctx : LocalContext) (f : β → LocalDecl → m β) (init : β) (start : Nat := 0) : m β :=
+@[specialize] def foldlM [Monad m] (lctx : LocalContext) (f : β → LocalDecl → m β) (init : β) (start : Nat := 0) : m β :=
   lctx.decls.foldlM (init := init) (start := start) fun b decl => match decl with
     | none      => pure b
     | some decl => f b decl
 
-@[specialize] def forM (lctx : LocalContext) (f : LocalDecl → m PUnit) : m PUnit :=
+@[specialize] def foldrM [Monad m] (lctx : LocalContext) (f : LocalDecl → β → m β) (init : β) : m β :=
+  lctx.decls.foldrM (init := init) fun decl b => match decl with
+    | none      => pure b
+    | some decl => f decl b
+
+@[specialize] def forM [Monad m] (lctx : LocalContext) (f : LocalDecl → m PUnit) : m PUnit :=
   lctx.decls.forM fun decl => match decl with
     | none      => pure PUnit.unit
     | some decl => f decl
 
-@[specialize] def findDeclM? (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
+@[specialize] def findDeclM? [Monad m] (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
   lctx.decls.findSomeM? fun decl => match decl with
     | none      => pure none
     | some decl => f decl
 
-@[specialize] def findDeclRevM? (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
+@[specialize] def findDeclRevM? [Monad m] (lctx : LocalContext) (f : LocalDecl → m (Option β)) : m (Option β) :=
   lctx.decls.findSomeRevM? fun decl => match decl with
     | none      => pure none
     | some decl => f decl
@@ -287,15 +287,16 @@ instance : ForIn m LocalContext LocalDecl where
     | none   => ForInStep.yield b
     | some d => f d b
 
-end
-
-@[inline] def foldl {β} (lctx : LocalContext) (f : β → LocalDecl → β) (init : β) (start : Nat := 0) : β :=
+@[inline] def foldl (lctx : LocalContext) (f : β → LocalDecl → β) (init : β) (start : Nat := 0) : β :=
   Id.run <| lctx.foldlM f init start
 
-@[inline] def findDecl? {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
+@[inline] def foldr (lctx : LocalContext) (f : LocalDecl → β → β) (init : β) : β :=
+  Id.run <| lctx.foldrM f init
+
+@[inline] def findDecl? (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
   Id.run <| lctx.findDeclM? f
 
-@[inline] def findDeclRev? {β} (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
+@[inline] def findDeclRev? (lctx : LocalContext) (f : LocalDecl → Option β) : Option β :=
   Id.run <| lctx.findDeclRevM? f
 
 partial def isSubPrefixOfAux (a₁ a₂ : PArray (Option LocalDecl)) (exceptFVars : Array Expr) (i j : Nat) : Bool :=
@@ -344,21 +345,15 @@ def mkLambda (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
 def mkForall (lctx : LocalContext) (xs : Array Expr) (b : Expr) : Expr :=
   mkBinding false lctx xs b
 
-section
-universe u
-variable {m : Type → Type u} [Monad m]
-
-@[inline] def anyM (lctx : LocalContext) (p : LocalDecl → m Bool) : m Bool :=
+@[inline] def anyM [Monad m] (lctx : LocalContext) (p : LocalDecl → m Bool) : m Bool :=
   lctx.decls.anyM fun d => match d with
     | some decl => p decl
     | none      => pure false
 
-@[inline] def allM (lctx : LocalContext) (p : LocalDecl → m Bool) : m Bool :=
+@[inline] def allM [Monad m] (lctx : LocalContext) (p : LocalDecl → m Bool) : m Bool :=
   lctx.decls.allM fun d => match d with
     | some decl => p decl
     | none      => pure true
-
-end
 
 @[inline] def any (lctx : LocalContext) (p : LocalDecl → Bool) : Bool :=
   Id.run <| lctx.anyM p
@@ -389,7 +384,7 @@ class MonadLCtx (m : Type → Type) where
 
 export MonadLCtx (getLCtx)
 
-instance (m n) [MonadLift m n] [MonadLCtx m] : MonadLCtx n where
+instance [MonadLift m n] [MonadLCtx m] : MonadLCtx n where
   getLCtx := liftM (getLCtx : m _)
 
 def replaceFVarIdAtLocalDecl (fvarId : FVarId) (e : Expr) (d : LocalDecl) : LocalDecl :=

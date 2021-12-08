@@ -59,6 +59,6 @@ The test `tests/lean/infoTree.lean` shows how to inspect the info tree of a comm
 ## Code style
 
 Comments should exist to denote specifics of our implementation but, for the most part, we shouldn't copy whole
-paragraphs of protocol description over from the LSP specification to avoid unnecessary duplication. Bug simple comments
+paragraphs of protocol description over from the LSP specification to avoid unnecessary duplication. But simple comments
 on LSP structures and members is encouraged so that some amount of useful tooltips can be provided while editing
 LSP server code.

@@ -39,3 +39,9 @@ open Nat in
 instance : Inhabited Nat where
 
 macro
+
+-- `x` and `y` should both have a signature and a body binder definition
+set_option pp.raw true
+def f6 (x y : Nat) : x = x :=
+  let rec f7 (x y : Nat) : x = x := Eq.refl x
+  f7 x y

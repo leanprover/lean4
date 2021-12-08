@@ -246,24 +246,24 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? :
 
 private def optionCompletion (ctx : ContextInfo) (stx : Syntax) : IO (Option CompletionList) :=
   ctx.runMetaM {} do
-      let partialName := stx.getId
-      -- HACK(WN): unfold the type so ForIn works
-      let (decls : Std.RBMap _ _ _) ← getOptionDecls
-      let opts ← getOptions
-      let mut items := #[]
-      for ⟨name, decl⟩ in decls do
-        if isPrefixOf partialName name then
-          items := items.push
-            { label := name.toString
-              detail? := s!"({opts.get name decl.defValue}), {decl.descr}"
-              documentation? := none }
-      return some { items := sortCompletionItems items, isIncomplete := true }
-where
-  isPrefixOf (pref? : Name) (name : Name) : Bool :=
-    match pref?, name with
-    | Name.anonymous, _ => true
-    | p@(Name.str pn ps _), Name.str n s _ => if pn == n then ps.isPrefixOf s else isPrefixOf p n
-    | _, _ => false
+    let partialName := stx.getSubstring? (withLeading := false) (withTrailing := false) |>.get!
+    let partialName :=
+      if !partialName.str.atEnd partialName.stopPos && partialName.str[partialName.stopPos] == '.' then
+        -- include trailing dot, which is not parsed by `ident`
+        partialName.toString ++ "."
+      else
+        partialName.toString
+    -- HACK(WN): unfold the type so ForIn works
+    let (decls : Std.RBMap _ _ _) ← getOptionDecls
+    let opts ← getOptions
+    let mut items := #[]
+    for ⟨name, decl⟩ in decls do
+      if partialName.isPrefixOf name.toString then
+        items := items.push
+          { label := name.toString
+            detail? := s!"({opts.get name decl.defValue}), {decl.descr}"
+            documentation? := none }
+    return some { items := sortCompletionItems items, isIncomplete := true }
 
 private def tacticCompletion (ctx : ContextInfo) : IO (Option CompletionList) :=
   -- Just return the list of tactics for now.

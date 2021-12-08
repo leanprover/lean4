@@ -87,3 +87,10 @@
   {"label": "format.unicode", "detail": "(true), unicode characters"},
   {"label": "format.width", "detail": "(120), indentation"}],
  "isIncomplete": true}
+{"textDocument": {"uri": "file://completionOption.lean"},
+ "position": {"line": 25, "character": 18}}
+{"items":
+ [{"label": "format.indent", "detail": "(2), indentation"},
+  {"label": "format.unicode", "detail": "(true), unicode characters"},
+  {"label": "format.width", "detail": "(120), indentation"}],
+ "isIncomplete": true}

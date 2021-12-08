@@ -26,8 +26,10 @@ partial def handleCompletion (p : CompletionParams)
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
   -- dbg_trace ">> handleCompletion invoked {pos}"
-  -- NOTE: use `>=` since the cursor can be *after* the input
-  withWaitFindSnap doc (fun s => s.endPos >= pos)
+  -- NOTE: use `+ 1` since we sometimes want to consider invalid input technically after the command,
+  -- such as a trailing dot after an option name. This shouldn't be a problem since any subsequent
+  -- command starts with a keyword that (currently?) does not participate in completion.
+  withWaitFindSnap doc (·.endPos + 1 >= pos)
     (notFoundX := pure { items := #[], isIncomplete := true }) fun snap => do
       if let some r ← Completion.find? doc.meta.text pos snap.infoTree then
         return r

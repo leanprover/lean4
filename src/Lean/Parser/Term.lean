@@ -197,7 +197,7 @@ def letRecDecls      := leading_parser sepBy1 letRecDecl ", "
 def «letrec» := leading_parser:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >> optSemicolon termParser
 
 @[runBuiltinParserAttributeHooks]
-def whereDecls := leading_parser "where " >> many1Indent (group (letRecDecl >> optional ";"))
+def whereDecls := leading_parser " where" >> many1Indent (ppLine >> group (letRecDecl >> optional ";"))
 @[runBuiltinParserAttributeHooks]
 def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 

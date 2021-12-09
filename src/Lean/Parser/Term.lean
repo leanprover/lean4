@@ -133,7 +133,7 @@ def matchAlt (rhsParser : Parser := termParser) : Parser :=
 def matchAltExpr := matchAlt
 
 def matchAlts (rhsParser : Parser := termParser) : Parser :=
-  leading_parser ppDedent $ withPosition $ many1Indent (ppLine >> matchAlt rhsParser)
+  leading_parser withPosition $ many1Indent (ppLine >> matchAlt rhsParser)
 
 def matchDiscr := leading_parser optional (atomic (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> termParser
 
@@ -141,7 +141,7 @@ def trueVal  := leading_parser nonReservedSymbol "true"
 def falseVal := leading_parser nonReservedSymbol "false"
 def generalizingParam := leading_parser atomic ("(" >> nonReservedSymbol "generalizing") >> " := " >> (trueVal <|> falseVal)  >> ")"
 
-@[builtinTermParser] def «match» := leading_parser:leadPrec "match " >> optional generalizingParam >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
+@[builtinTermParser] def «match» := leading_parser:leadPrec "match " >> optional generalizingParam >> sepBy1 matchDiscr ", " >> optType >> " with " >> ppDedent matchAlts
 @[builtinTermParser] def «nomatch» := leading_parser:leadPrec "nomatch " >> termParser
 
 def funImplicitBinder := atomic (lookahead ("{" >> many1 binderIdent >> (symbol " : " <|> "}"))) >> implicitBinder

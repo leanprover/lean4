@@ -156,7 +156,7 @@ def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
 @[builtinTermParser] def «leading_parser»  := leading_parser:leadPrec "leading_parser " >> optExprPrecedence >> termParser
 @[builtinTermParser] def «trailing_parser» := leading_parser:leadPrec "trailing_parser " >> optExprPrecedence >> optExprPrecedence >> termParser
 
-@[builtinTermParser] def borrowed   := leading_parser "@&" >> termParser leadPrec
+@[builtinTermParser] def borrowed   := leading_parser "@& " >> termParser leadPrec
 @[builtinTermParser] def quotedName := leading_parser nameLit
 -- use `rawCh` because ``"`" >> ident`` overlaps with `nameLit`, with the latter being preferred by the tokenizer
 -- note that we cannot use ```"``"``` as a new token either because it would break `precheckedQuot`

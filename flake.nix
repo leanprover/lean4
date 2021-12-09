@@ -50,8 +50,7 @@
         };
         inherit self;
       };
-
-      defaultPackage = lean-packages.lean;
+      defaultPackage = lean-packages.lean-all;
 
       checks.lean = lean-packages.test;
     }) // rec {

@@ -80,3 +80,6 @@ deriving instance BEq for Option
 
 instance [LT α] : LT (Option α) where
   lt := Option.lt (· < ·)
+
+instance [o : OfNat α n] : OfNat (Option α) n where
+  ofNat := some o.ofNat

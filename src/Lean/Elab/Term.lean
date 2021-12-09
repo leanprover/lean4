@@ -92,6 +92,7 @@ inductive MVarErrorKind where
   | implicitArg (ctx : Expr)
   | hole
   | custom (msgData : MessageData)
+  deriving Inhabited
 
 instance : ToString MVarErrorKind where
   toString
@@ -103,6 +104,7 @@ structure MVarErrorInfo where
   mvarId    : MVarId
   ref       : Syntax
   kind      : MVarErrorKind
+  deriving Inhabited
 
 structure LetRecToLift where
   ref            : Syntax
@@ -119,7 +121,7 @@ structure LetRecToLift where
 structure State where
   levelNames        : List Name       := []
   syntheticMVars    : List SyntheticMVarDecl := []
-  mvarErrorInfos    : List MVarErrorInfo := []
+  mvarErrorInfos    : MVarIdMap MVarErrorInfo := {}
   messages          : MessageLog := {}
   letRecsToLift     : List LetRecToLift := []
   infoState         : InfoState := {}
@@ -378,13 +380,16 @@ def registerSyntheticMVarWithCurrRef (mvarId : MVarId) (kind : SyntheticMVarKind
   registerSyntheticMVar (← getRef) mvarId kind
 
 def registerMVarErrorHoleInfo (mvarId : MVarId) (ref : Syntax) : TermElabM Unit := do
-  modify fun s => { s with mvarErrorInfos := { mvarId := mvarId, ref := ref, kind := MVarErrorKind.hole } :: s.mvarErrorInfos }
+  modify fun s => { s with mvarErrorInfos := s.mvarErrorInfos.insert mvarId { mvarId := mvarId, ref := ref, kind := MVarErrorKind.hole } }
 
 def registerMVarErrorImplicitArgInfo (mvarId : MVarId) (ref : Syntax) (app : Expr) : TermElabM Unit := do
-  modify fun s => { s with mvarErrorInfos := { mvarId := mvarId, ref := ref, kind := MVarErrorKind.implicitArg app } :: s.mvarErrorInfos }
+  modify fun s => { s with mvarErrorInfos := s.mvarErrorInfos.insert mvarId { mvarId := mvarId, ref := ref, kind := MVarErrorKind.implicitArg app } }
 
 def registerMVarErrorCustomInfo (mvarId : MVarId) (ref : Syntax) (msgData : MessageData) : TermElabM Unit := do
-  modify fun s => { s with mvarErrorInfos := { mvarId := mvarId, ref := ref, kind := MVarErrorKind.custom msgData } :: s.mvarErrorInfos }
+  modify fun s => { s with mvarErrorInfos := s.mvarErrorInfos.insert mvarId { mvarId := mvarId, ref := ref, kind := MVarErrorKind.custom msgData } }
+
+def getMVarErrorInfo? (mvarId : MVarId) : TermElabM (Option MVarErrorInfo) := do
+  return (← get).mvarErrorInfos.find? mvarId
 
 def registerCustomErrorIfMVar (e : Expr) (ref : Syntax) (msgData : MessageData) : TermElabM Unit :=
   match e.getAppFn with
@@ -433,22 +438,23 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Op
   let hasOtherErrors := s.messages.hasErrors
   let mut hasNewErrors := false
   let mut alreadyVisited : MVarIdSet := {}
-  for mvarErrorInfo in s.mvarErrorInfos do
+  let mut errors : Array MVarErrorInfo := #[]
+  for (_, mvarErrorInfo) in s.mvarErrorInfos do
     let mvarId := mvarErrorInfo.mvarId
     unless alreadyVisited.contains mvarId do
       alreadyVisited := alreadyVisited.insert mvarId
-      let foundError ← withMVarContext mvarId do
-        /- The metavariable `mvarErrorInfo.mvarId` may have been assigned or
-           delayed assigned to another metavariable that is unassigned. -/
-        let mvarDeps ← getMVars (mkMVar mvarId)
-        if mvarDeps.any pendingMVarIds.contains then do
-          unless hasOtherErrors do
-            mvarErrorInfo.logError extraMsg?
-          pure true
-        else
-          pure false
-      if foundError then
+      /- The metavariable `mvarErrorInfo.mvarId` may have been assigned or
+         delayed assigned to another metavariable that is unassigned. -/
+      let mvarDeps ← getMVars (mkMVar mvarId)
+      if mvarDeps.any pendingMVarIds.contains then do
+        unless hasOtherErrors do
+          errors := errors.push mvarErrorInfo
         hasNewErrors := true
+  -- To sort the errors by position use
+  -- let sortedErrors := errors.qsort fun e₁ e₂ => e₁.ref.getPos?.getD 0 < e₂.ref.getPos?.getD 0
+  for error in errors do
+    withMVarContext error.mvarId do
+      error.logError extraMsg?
   return hasNewErrors
 
 /-- Ensure metavariables registered using `registerMVarErrorInfos` (and used in the given declaration) have been assigned. -/

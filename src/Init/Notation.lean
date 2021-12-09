@@ -333,7 +333,7 @@ syntax location         := withPosition(" at " (locationWildcard <|> locationHyp
 syntax (name := change) "change " term (location)? : tactic
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
 
-syntax rwRule    := ("←" <|> "<-")? term
+syntax rwRule    := ("← " <|> "<- ")? term
 syntax rwRuleSeq := "[" rwRule,+,? "]"
 
 syntax (name := rewriteSeq) "rewrite " (config)? rwRuleSeq (location)? : tactic
@@ -360,7 +360,7 @@ syntax discharger := atomic("(" (&"discharger" <|> &"disch")) " := " tacticSeq "
 
 syntax simpPre   := "↓"
 syntax simpPost  := "↑"
-syntax simpLemma := (simpPre <|> simpPost)? ("←" <|> "<-")? term
+syntax simpLemma := (simpPre <|> simpPost)? ("← " <|> "<- ")? term
 syntax simpErase := "-" term:max
 syntax simpStar  := "*"
 syntax (name := simp) "simp " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic

@@ -145,6 +145,7 @@ structure Reference where
   isDeclaration : Bool
   deriving BEq
 
+open Std in
 open Elab in
 partial def handleReferences (p : ReferenceParams)
     : RequestM (RequestTask (Array Location)) := do
@@ -155,9 +156,8 @@ partial def handleReferences (p : ReferenceParams)
   mapTask t fun (snaps, _) => do
     if let some snap := snaps.find? (fun s => s.endPos > hoverPos) then
       if let some (ci, i) := snap.infoTree.hoverableInfoAt? hoverPos then
-        if let some (ident, isDecl) := identOf i then
-          let refs := List.join <| snaps.map (findReferences doc)
-          return referencesTo doc ident (p.context.includeDeclaration) refs
+        if let some (ident, _) := identOf i then
+          return referencesTo doc ident (p.context.includeDeclaration) snaps
     return #[]
   where
     identOf : Info → Option (RefIdent × Bool)
@@ -170,33 +170,65 @@ partial def handleReferences (p : ReferenceParams)
 
     addReference (doc : EditableDocument) (info : Info)
         (ident : RefIdent) (isDeclaration : Bool)
-        (refs : List Reference) : List Reference :=
+        (refs : Array Reference) : Array Reference :=
       if let some range := info.stx.getRange? (originalOnly := true) then
         let text := doc.meta.text
         let range := {
           start := text.utf8PosToLspPos range.start
           «end» := text.utf8PosToLspPos range.stop
         }
-        { ident, range, isDeclaration } :: refs
+        refs.push { ident, range, isDeclaration }
       else
         refs
 
-    findReferences (doc : EditableDocument) (snap : Snapshot) : List Reference :=
+    addReferences (doc : EditableDocument) (snap : Snapshot)
+        (refs : Array Reference) : Array Reference :=
       let infos := snap.infoTree.findAll fun
         | Info.ofTermInfo _ => true
         | Info.ofFieldInfo _ => true
         | _ => false
-      infos.foldl (init := []) fun refs info => do
+      infos.foldl (init := refs) fun refs info => do
         if let some (ident, isDecl) := identOf info then
           return addReference doc info ident isDecl refs
         return refs
 
-    referencesTo (doc : EditableDocument) (ident : RefIdent) (includeDecl : Bool) (refs : List Reference)
+    findReferences (doc : EditableDocument) (snaps : List Snapshot) : Array Reference :=
+      snaps.foldl (init := #[]) fun refs snap => addReferences doc snap refs
+
+    applyIdMap : RefIdent → HashMap FVarId FVarId → RefIdent
+      | RefIdent.fvar id, m => RefIdent.fvar <| m.findD id id
+      | ident, _ => ident
+
+    -- The `FVarId`s of a function parameter in the function's definition and
+    -- body differ. However, they have `TermInfo` nodes with `binder := true` in
+    -- the exact same position. `combineFvars` builds a
+    -- `HashMap Lsp.Range FVarId` to detect such overlapping definitions and
+    -- then builds a `HashMap FVarId FVarId` to map all of them to the same
+    -- `FVarId`. This is overkill for single-file requests, but will become more
+    -- useful when references across an entire project are implemented.
+    combineFvars (refs : Array Reference) : (Array Reference × HashMap FVarId FVarId) :=
+      let (posMap, idMap) : (HashMap Lsp.Range FVarId × _):= refs.foldl (init := (HashMap.empty, HashMap.empty))
+        fun (posMap, idMap) ref => match ref with
+        | { ident := RefIdent.fvar id, range, isDeclaration := true } => match posMap.find? range with
+          | some baseId => (posMap, idMap.insert id baseId)
+          | none => (posMap.insert range id, idMap.insert id id)
+        | _ => (posMap, idMap)
+      let refs := refs.foldl (init := #[]) fun refs ref => match ref with
+        | { ident := RefIdent.fvar id, range, isDeclaration := true } =>
+          if idMap.contains id then refs.push ref else refs
+        | { ident := ident@(RefIdent.fvar _), range, isDeclaration := false } =>
+          refs.push { ident := applyIdMap ident idMap, range, isDeclaration := false }
+        | _ => refs.push ref
+      (refs, idMap)
+
+    referencesTo (doc : EditableDocument) (ident : RefIdent) (includeDecl : Bool) (snaps : List Snapshot)
         : Array Location :=
+      let (refs, idMap) := combineFvars $ findReferences doc snaps
+      let ident := applyIdMap ident idMap
       let relevant := refs.filter fun ref => ref.ident == ident && (includeDecl || !ref.isDeclaration)
       let locations := relevant.map fun ref => { uri := doc.meta.uri, range := ref.range : Location}
       -- TODO Remove duplicates more efficiently
-      List.toArray <| List.eraseDups <| locations
+      List.toArray <| List.eraseDups <| Array.toList <| locations
 
 open RequestM in
 def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Option Widget.InteractiveGoals)) := do

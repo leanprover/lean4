@@ -15,7 +15,7 @@ builtin_initialize registerBuiltinDynamicParserAttribute `doElemParser `doElem
   categoryParser `doElem rbp
 
 namespace Term
-def leftArrow : Parser := unicodeSymbol " ← " " <- "
+def leftArrow : Parser := unicodeSymbol "← " "<- "
 @[builtinTermParser] def liftMethod := leading_parser:minPrec leftArrow >> termParser
 
 def doSeqItem      := leading_parser ppLine >> doElemParser >> optional "; "
@@ -39,8 +39,8 @@ def notFollowedByRedefinedTermToken :=
 @[builtinDoElemParser] def doLet      := leading_parser "let " >> optional "mut " >> letDecl
 
 @[builtinDoElemParser] def doLetRec   := leading_parser group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
-def doIdDecl   := leading_parser atomic (ident >> optType >> leftArrow) >> doElemParser
-def doPatDecl  := leading_parser atomic (termParser >> leftArrow) >> doElemParser >> optional (checkColGt >> " | " >> doElemParser)
+def doIdDecl   := leading_parser atomic (ident >> optType >> ppSpace >> leftArrow) >> doElemParser
+def doPatDecl  := leading_parser atomic (termParser >> ppSpace >> leftArrow) >> doElemParser >> optional (checkColGt >> " | " >> doElemParser)
 @[builtinDoElemParser] def doLetArrow      := leading_parser withPosition ("let " >> optional "mut " >> (doIdDecl <|> doPatDecl))
 
 -- We use `letIdDeclNoBinders` to define `doReassign`.

@@ -53,7 +53,7 @@ Type → Type → Type
 decide (1 < 2) ||
   true
 id (fun a => a) 0
-typeAs Nat
+typeAs (Id Nat)
   (let x := 1;
   do 
     discard (pure 2)

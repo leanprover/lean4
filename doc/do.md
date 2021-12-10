@@ -276,8 +276,8 @@ def sum (xs : Array Nat) : IO Nat := do
 -- x: 3
 -- 6
 
--- We can write pure code using the `do` DSL too.
-def sum' (xs : Array Nat) : Nat := do
+-- We can write pure code using the `Id.run <| do` DSL too.
+def sum' (xs : Array Nat) : Nat := Id.run <| do
   let mut s := 0
   for x in xs do
     s := s + x

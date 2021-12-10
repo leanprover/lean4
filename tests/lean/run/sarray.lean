@@ -1,4 +1,4 @@
-def mkByteArray (n : Nat) : ByteArray := do
+def mkByteArray (n : Nat) : ByteArray := Id.run <| do
   let mut r := {}
   for i in [:n] do
     r := r.push (UInt8.ofNat i)

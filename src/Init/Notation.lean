@@ -164,7 +164,7 @@ macro_rules
 
 -- Haskell-like pipe <|
 -- Note that we have a whitespace after `$` to avoid an ambiguity with the antiquotations.
-syntax:min term atomic("$" ws) term:min : term
+syntax:min term atomic(" $" ws) term:min : term
 
 macro_rules
   | `($f $args* $ $a) => let args := args.push a; `($f $args*)

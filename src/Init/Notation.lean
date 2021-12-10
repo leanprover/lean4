@@ -391,7 +391,7 @@ macro "have' " d:haveDecl : tactic => `(refine_lift' have $d:haveDecl; ?_)
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x:ident : _ := $p)
 macro "let' " d:letDecl : tactic => `(refine_lift' let $d:letDecl; ?_)
 
-syntax inductionAlt  := "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
+syntax inductionAlt  := ppDedent(ppLine) "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
 syntax (name := induction) "induction " term,+ (" using " ident)?  ("generalizing " term:max+)? (inductionAlts)? : tactic
 

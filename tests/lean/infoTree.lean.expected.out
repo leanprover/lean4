@@ -333,6 +333,7 @@ infoTree.lean:41:0: error: expected identifier or term
 infoTree.lean:44:0: error: expected stx
 [Elab.info] command @ ⟨41, 0⟩-⟨41, 5⟩ @ no_elab
 [Elab.info] command @ ⟨44, 0⟩-⟨44, 22⟩ @ Lean.Elab.Command.elabSetOption
+  [.] (Command.set_option "set_option" `pp.raw) @ ⟨44, 0⟩-⟨44, 17⟩
 [Elab.info] command @ ⟨45, 0⟩-⟨47, 8⟩ @ Lean.Elab.Command.elabDeclaration
   Nat : Type @ ⟨45, 14⟩-⟨45, 17⟩ @ Lean.Elab.Term.elabIdent
     [.] `Nat : some Sort.{?_uniq.850} @ ⟨45, 14⟩-⟨45, 17⟩

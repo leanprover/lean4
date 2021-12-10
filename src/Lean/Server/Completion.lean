@@ -92,7 +92,7 @@ private def runM (ctx : ContextInfo) (lctx : LocalContext) (x : M Unit) : IO (Op
     | (some _, s) =>
       return some { items := sortCompletionItems s.itemsMain ++ sortCompletionItems s.itemsOther, isIncomplete := true }
 
-private def matchAtomic (id: Name) (declName : Name) : Bool :=
+private def matchAtomic (id : Name) (declName : Name) : Bool :=
   match id, declName with
   | Name.str Name.anonymous s₁ _, Name.str Name.anonymous s₂ _ => s₁.isPrefixOf s₂
   | _, _ => false
@@ -172,6 +172,14 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (danglingDot : Bool
             if (← matchUsingNamespace ns) then
               return ()
         | _ => pure ()
+  -- Recall that aliases may not be atomic and include the namespace where they were created.
+  let matchAlias (ns : Name) (alias : Name) : Bool :=
+    ns.isPrefixOf alias && matchAtomic id (alias.replacePrefix ns Name.anonymous)
+  -- Auxiliary function for `alias`
+  let addAlias (alias : Name) (declNames : List Name) : M Unit := do
+    declNames.forM fun declName => do
+      unless (← isBlackListed declName) do
+        addCompletionItemForDecl alias declName expectedType?
   -- search explicitily open `ids`
   for openDecl in ctx.openDecls do
     match openDecl with
@@ -179,13 +187,21 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (danglingDot : Bool
       unless (← isBlackListed resolvedId) do
         if matchAtomic id openedId then
           addCompletionItemForDecl openedId resolvedId expectedType?
-    | _ => pure ()
+    | OpenDecl.simple ns except =>
+      getAliasState env |>.forM fun alias declNames => do
+        if matchAlias ns alias then
+          addAlias alias declNames
   -- search for aliases
   getAliasState env |>.forM fun alias declNames => do
-    if matchAtomic id alias then
-      declNames.forM fun declName => do
-        unless (← isBlackListed declName) do
-          addCompletionItemForDecl alias declName expectedType?
+    -- use current namespace
+    let rec searchAlias (ns : Name) : M Unit := do
+      if matchAlias ns alias then
+        addAlias alias declNames
+      else
+        match ns with
+        | Name.str p ..  => searchAlias p
+        | _ => return ()
+    searchAlias ctx.currNamespace
   -- TODO search macros
   -- TODO search namespaces
 

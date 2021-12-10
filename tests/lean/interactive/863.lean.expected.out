@@ -1,0 +1,26 @@
+{"textDocument": {"uri": "file://863.lean"},
+ "position": {"line": 3, "character": 12}}
+{"items":
+ [{"label": "getReducibilityStatus",
+   "detail":
+   "[inst : Monad m] → [inst : MonadEnv m] → Name → m ReducibilityStatus"},
+  {"label": "getReducibilityStatusImp",
+   "detail": "Environment → Name → ReducibilityStatus"},
+  {"label": "getRef", "detail": "[self : MonadRef m] → m Syntax"},
+  {"label": "getRegularInitFnNameFor?",
+   "detail": "Environment → Name → Option Name"},
+  {"label": "getRevAliases", "detail": "Environment → Name → List Name"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://863.lean"},
+ "position": {"line": 7, "character": 12}}
+{"items":
+ [{"label": "getReducibilityStatus",
+   "detail":
+   "[inst : Monad m] → [inst : MonadEnv m] → Name → m ReducibilityStatus"},
+  {"label": "getReducibilityStatusImp",
+   "detail": "Environment → Name → ReducibilityStatus"},
+  {"label": "getRef", "detail": "[self : MonadRef m] → m Syntax"},
+  {"label": "getRegularInitFnNameFor?",
+   "detail": "Environment → Name → Option Name"},
+  {"label": "getRevAliases", "detail": "Environment → Name → List Name"}],
+ "isIncomplete": true}

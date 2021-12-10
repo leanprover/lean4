@@ -13,6 +13,7 @@ in { pkgs ? flakePkgs.nixpkgs, pkgsDist ? pkgs, llvmPackages ? null }:
     hardeningDisable = [ "all" ];
     # more convenient `ctest` output
     CTEST_OUTPUT_ON_FAILURE = 1;
+  } // pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
     GMP = pkgsDist.gmp.override { withStatic = true; };
     GLIBC = pkgsDist.glibc;
     ZLIB = pkgsDist.zlib;

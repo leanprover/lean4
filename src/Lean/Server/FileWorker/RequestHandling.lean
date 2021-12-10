@@ -135,7 +135,7 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
       return #[]
 
 inductive RefIdent where
-  | name : Name → RefIdent
+  | const : Name → RefIdent
   | fvar : FVarId → RefIdent
   deriving BEq
 
@@ -162,44 +162,28 @@ partial def handleReferences (p : ReferenceParams)
   where
     identOf : Info → Option (RefIdent × Bool)
       | Info.ofTermInfo ti => match ti.expr with
-        | Expr.const n .. => some (RefIdent.name n, ti.isBinder)
+        | Expr.const n .. => some (RefIdent.const n, ti.isBinder)
         | Expr.fvar id .. => some (RefIdent.fvar id, ti.isBinder)
         | _ => none
-      | Info.ofFieldInfo fi => some (RefIdent.name fi.projName, false)
+      | Info.ofFieldInfo fi => some (RefIdent.const fi.projName, false)
       | _ => none
 
-    addReference (doc : EditableDocument) (info : Info)
-        (ident : RefIdent) (isDeclaration : Bool)
-        (refs : Array Reference) : Array Reference :=
-      if let some range := info.stx.getRange? (originalOnly := true) then
-        let text := doc.meta.text
-        let range := {
-          start := text.utf8PosToLspPos range.start
-          «end» := text.utf8PosToLspPos range.stop
-        }
-        refs.push { ident, range, isDeclaration }
-      else
-        refs
-
-    addReferences (doc : EditableDocument) (snap : Snapshot)
-        (refs : Array Reference) : Array Reference :=
-      let infos := snap.infoTree.findAll fun
-        | Info.ofTermInfo _ => true
-        | Info.ofFieldInfo _ => true
-        | _ => false
-      infos.foldl (init := refs) fun refs info => do
-        if let some (ident, isDecl) := identOf info then
-          return addReference doc info ident isDecl refs
-        return refs
-
-    findReferences (doc : EditableDocument) (snaps : List Snapshot) : Array Reference :=
-      snaps.foldl (init := #[]) fun refs snap => addReferences doc snap refs
+    findReferences (doc : EditableDocument) (snaps : List Snapshot) : Array Reference := do
+      let text := doc.meta.text
+      let mut refs := #[]
+      for snap in snaps do
+        refs := refs.appendList <| snap.infoTree.deepestNodes fun _ info _ => do
+          if let some (ident, isDeclaration) := identOf info then
+            if let some range := info.range? then
+              return some { ident, range := range.toLspRange text, isDeclaration }
+          return none
+      refs
 
     applyIdMap : RefIdent → HashMap FVarId FVarId → RefIdent
       | RefIdent.fvar id, m => RefIdent.fvar <| m.findD id id
       | ident, _ => ident
 
-    -- The `FVarId`s of a function parameter in the function's definition and
+    -- The `FVarId`s of a function parameter in the function's signature and
     -- body differ. However, they have `TermInfo` nodes with `binder := true` in
     -- the exact same position. `combineFvars` builds a
     -- `HashMap Lsp.Range FVarId` to detect such overlapping definitions and
@@ -226,7 +210,7 @@ partial def handleReferences (p : ReferenceParams)
       let (refs, idMap) := combineFvars $ findReferences doc snaps
       let ident := applyIdMap ident idMap
       let relevant := refs.filter fun ref => ref.ident == ident && (includeDecl || !ref.isDeclaration)
-      let locations := relevant.map fun ref => { uri := doc.meta.uri, range := ref.range : Location}
+      let locations := relevant.map fun ref => { uri := doc.meta.uri, range := ref.range : Location }
       -- TODO Remove duplicates more efficiently
       List.toArray <| List.eraseDups <| Array.toList <| locations
 

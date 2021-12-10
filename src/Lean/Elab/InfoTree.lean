@@ -112,15 +112,6 @@ partial def InfoTree.findInfo? (p : Info → Bool) (t : InfoTree) : Option Info 
       ts.findSome? (findInfo? p)
   | _ => none
 
-partial def InfoTree.findAll (p : Info -> Bool) (t : InfoTree) : List Info :=
-  match t with
-  | context _ t => findAll p t
-  | node i ts =>
-    let first := if p i then [i] else []
-    let rest := List.join (ts.map (fun t => t.findAll p)).toList
-    first ++ rest
-  | _ => []
-
 structure InfoState where
   enabled    : Bool := false
   assignment : PersistentHashMap MVarId InfoTree := {} -- map from holeId to InfoTree

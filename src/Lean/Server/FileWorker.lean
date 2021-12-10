@@ -99,7 +99,7 @@ section Elab
     if initial && initSnap.msgLog.hasErrors then
       -- treat header processing errors as fatal so users aren't swamped with followup errors
       let hOut := (←read).hOut
-      publishProgressAtPos m initSnap.beginPos hOut (error := true)
+      publishProgressAtPos m initSnap.beginPos hOut (kind := LeanFileProgressKind.fatalError)
       AsyncList.nil
     else
       AsyncList.unfoldAsync (nextCmdSnap m . cancelTk (← read)) initSnap

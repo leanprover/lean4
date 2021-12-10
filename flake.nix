@@ -28,16 +28,20 @@
         name = packageName;
         inherit src;
       };
+      cli = leanPkgs.buildLeanPackage {
+        name = "Lake.Main";
+        deps = [ project ];
+        inherit src;
+      };
     in
     {
-      packages.${packageName} = project.lean-package;
-      packages.lakeProject = project;
+      packages.${packageName} = project;
+      packages.cli = cli.executable;
 
-      defaultPackage = self.packages.${system}.${packageName};
+      defaultPackage = self.packages.${system}.cli;
 
       apps.lake = flake-utils.lib.mkApp {
-        name = "lake";
-        drv = project.executable;
+        drv = cli.executable;
       };
 
       defaultApp = self.apps.${system}.lake;
@@ -47,6 +51,7 @@
         buildInputs = with pkgs; [
           leanPkgs.lean
         ];
+        LEAN_PATH = "${leanPkgs.Lean.modRoot}:${project.modRoot}";
       };
     });
 }

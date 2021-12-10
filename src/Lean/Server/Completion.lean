@@ -136,8 +136,38 @@ private def matchDecl? (ns : Name) (id : Name) (danglingDot : Bool) (declName : 
     else
       return none
 
-private def idCompletionCore (ctx : ContextInfo) (id : Name) (danglingDot : Bool) (expectedType? : Option Expr) : M Unit := do
-  let id := id.eraseMacroScopes
+/-
+  Truncate the given identifier and make sure it has length `≤ newLength`.
+  This function assumes `id` does not contain `Name.num` constructors.
+-/
+private partial def truncate (id : Name) (newLen : Nat) : Name :=
+  let rec go (id : Name) : Name × Nat :=
+     match id with
+     | Name.anonymous => (id, 0)
+     | Name.num ..    => unreachable!
+     | Name.str p s _ =>
+       let (p', len) := go p
+       if len + 1 >= newLen then
+         (p', len)
+       else
+         let optDot := if p.isAnonymous then 0 else 1
+         let len'   := len + optDot + s.length
+         if len' ≤ newLen then
+           (id, len')
+         else
+           (Name.mkStr p (s.extract 0 (newLen - optDot - len)), newLen)
+  (go id).1
+
+inductive HoverInfo where
+  | after
+  | inside (delta : Nat)
+
+private def idCompletionCore (ctx : ContextInfo) (id : Name) (hoverInfo : HoverInfo) (danglingDot : Bool) (expectedType? : Option Expr) : M Unit := do
+  let mut id := id.eraseMacroScopes
+  let mut danglingDot := danglingDot
+  if let HoverInfo.inside delta := hoverInfo then
+    id := truncate id delta
+    danglingDot := false
   -- dbg_trace ">> id {id} : {expectedType?}"
   if id.isAtomic then
     -- search for matches in the local context
@@ -205,9 +235,9 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (danglingDot : Bool
   -- TODO search macros
   -- TODO search namespaces
 
-private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (id : Name) (danglingDot : Bool) (expectedType? : Option Expr) : IO (Option CompletionList) :=
+private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (id : Name) (hoverInfo : HoverInfo) (danglingDot : Bool) (expectedType? : Option Expr) : IO (Option CompletionList) :=
   runM ctx lctx do
-    idCompletionCore ctx id danglingDot expectedType?
+    idCompletionCore ctx id hoverInfo danglingDot expectedType?
 
 private def isDotCompletionMethod (typeName : Name) (info : ConstantInfo) : MetaM Bool :=
   forallTelescopeReducing info.type fun xs _ => do
@@ -238,7 +268,7 @@ where
       | none => pure ()
     | _ => pure ()
 
-private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? : Option Expr) : IO (Option CompletionList) :=
+private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (hoverInfo : HoverInfo) (expectedType? : Option Expr) : IO (Option CompletionList) :=
   runM ctx info.lctx do
     let nameSet ←
       try
@@ -247,9 +277,10 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? :
         pure {}
     if nameSet.isEmpty then
       if info.stx.isIdent then
-        idCompletionCore ctx info.stx.getId (danglingDot := false) expectedType?
+        idCompletionCore ctx info.stx.getId hoverInfo (danglingDot := false) expectedType?
       else if info.stx.getKind == ``Lean.Parser.Term.completion && info.stx[0].isIdent then
-        idCompletionCore ctx info.stx[0].getId (danglingDot := true) expectedType?
+        -- TODO: truncation when there is a dangling dot
+        idCompletionCore ctx info.stx[0].getId HoverInfo.after (danglingDot := true) expectedType?
       else
         failure
     else
@@ -296,10 +327,10 @@ private def tacticCompletion (ctx : ContextInfo) : IO (Option CompletionList) :=
 partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTree) : IO (Option CompletionList) := do
   let ⟨hoverLine, _⟩ := fileMap.toPosition hoverPos
   match infoTree.foldInfo (init := none) (choose fileMap hoverLine) with
-  | some (ctx, Info.ofCompletionInfo info) =>
+  | some (hoverInfo, ctx, Info.ofCompletionInfo info) =>
     match info with
-    | CompletionInfo.dot info (expectedType? := expectedType?) .. => dotCompletion ctx info expectedType?
-    | CompletionInfo.id stx id danglingDot lctx expectedType? => idCompletion ctx lctx id danglingDot expectedType?
+    | CompletionInfo.dot info (expectedType? := expectedType?) .. => dotCompletion ctx info hoverInfo expectedType?
+    | CompletionInfo.id stx id danglingDot lctx expectedType? => idCompletion ctx lctx id hoverInfo danglingDot expectedType?
     | CompletionInfo.option stx => optionCompletion ctx stx
     | CompletionInfo.tactic .. => tacticCompletion ctx
     | _ => return none
@@ -307,18 +338,35 @@ partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTr
     -- TODO try to extract id from `fileMap` and some `ContextInfo` from `InfoTree`
     return none
 where
-  choose (fileMap : FileMap) (hoverLine : Nat) (ctx : ContextInfo) (info : Info) (best? : Option (ContextInfo × Info)) : Option (ContextInfo × Info) :=
+  choose (fileMap : FileMap) (hoverLine : Nat) (ctx : ContextInfo) (info : Info) (best? : Option (HoverInfo × ContextInfo × Info)) : Option (HoverInfo × ContextInfo × Info) :=
     if !info.isCompletion then best?
+    else if info.occursInside? hoverPos |>.isSome then
+      let headPos          := info.pos?.get!
+      let ⟨headPosLine, _⟩ := fileMap.toPosition headPos
+      let ⟨tailPosLine, _⟩ := fileMap.toPosition info.tailPos?.get!
+      if headPosLine != hoverLine || headPosLine != tailPosLine then
+        best?
+      else match best? with
+        | none                         => (HoverInfo.inside (hoverPos - headPos), ctx, info)
+        | some (HoverInfo.after, _, _) => (HoverInfo.inside (hoverPos - headPos), ctx, info)
+        | some (_, _, best) =>
+          if info.isSmaller best then
+            (HoverInfo.inside (hoverPos - headPos), ctx, info)
+          else
+            best?
+    else if let some (HoverInfo.inside _, _, _) := best? then
+      -- We assume the "inside matches" have precedence over "before ones".
+      best?
     else if let some d := info.occursBefore? hoverPos then
       let pos := info.tailPos?.get!
       let ⟨line, _⟩ := fileMap.toPosition pos
       if line != hoverLine then best?
       else match best? with
-        | none => (ctx, info)
-        | some (_, best) =>
+        | none => (HoverInfo.after, ctx, info)
+        | some (_, _, best) =>
           let dBest := best.occursBefore? hoverPos |>.get!
           if d < dBest || (d == dBest && info.isSmaller best) then
-            (ctx, info)
+            (HoverInfo.after, ctx, info)
           else
             best?
     else

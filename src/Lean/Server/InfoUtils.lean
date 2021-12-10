@@ -109,6 +109,12 @@ def Info.occursBefore? (i : Info) (hoverPos : String.Pos) : Option Nat := Option
   guard (tailPos ≤ hoverPos)
   return hoverPos - tailPos
 
+def Info.occursInside? (i : Info) (hoverPos : String.Pos) : Option Nat := OptionM.run do
+  let headPos ← i.pos?
+  let tailPos ← i.tailPos?
+  guard (headPos ≤ hoverPos && hoverPos < tailPos)
+  return hoverPos - headPos
+
 def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextInfo × Info) :=
   let ts := t.deepestNodes fun ctx i _ => if p i then some (ctx, i) else none
 

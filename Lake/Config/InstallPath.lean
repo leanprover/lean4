@@ -21,7 +21,7 @@ structure LeanInstall where
   includeDir := home / "include"
   lean := binDir / "lean" |>.withExtension FilePath.exeExtension
   leanc := binDir / "leanc" |>.withExtension FilePath.exeExtension
-  ar := binDir / "llvm-ar" |>.withExtension FilePath.exeExtension
+  ar : FilePath
   sharedLib := (if Platform.isWindows then binDir else libDir) / "libleanshared" |>.withExtension sharedLibExt
   deriving Inhabited, Repr
 
@@ -50,6 +50,20 @@ def findLeanCmdHome? (lean := "lean") : IO (Option FilePath) := do
     none
 
 /--
+Construct the `LeanInstall` object for the given Lean home.
+
+Checks if Lean is packaged with an `llvm-ar` if so, use it.
+Otherwise, use the `ar` in the system's `PATH`. This is needed because
+internal builds of Lean do not bundle `llvm-ar` (unlike user-facing releases).
+-/
+def LeanInstall.get (home : FilePath) : IO LeanInstall := do
+  let llvmAr := home / "bin" / "llvm-ar" |>.withExtension FilePath.exeExtension
+  if (← llvmAr.pathExists) then
+    return {home, ar := llvmAr}
+  else
+    return {home, ar := "ar"}
+
+/--
 Try to find the installation of the given `lean` command
 by calling `findLeanCmdHome?`.
 
@@ -57,8 +71,8 @@ It assumes that the Lean installation is setup the normal way.
 That is, with its binaries located in `<lean-home>/bin` and its
 libraries and `.olean` files located in `<lean-home>/lib/lean`.
 -/
-def findLeanCmdInstall? (lean := "lean"): IO (Option LeanInstall) := do
-  (← findLeanCmdHome? lean).map fun home => {home}
+def findLeanCmdInstall? (lean := "lean") : IO (Option LeanInstall) :=
+  OptionT.run do LeanInstall.get (← findLeanCmdHome? lean)
 
 /--
 Check if Lake's executable is co-located with Lean, and, if so,
@@ -90,9 +104,9 @@ libraries and `.olean` files located in `<lean-home>/lib/lean`.
 -/
 def findLeanInstall? : IO (Option LeanInstall) := do
   if let some home ← IO.getEnv "LEAN_SYSROOT" then
-    return some {home}
+    return some <| ← LeanInstall.get home
   if let some home ← findLeanCmdHome? then
-    return some {home}
+    return some <| ← LeanInstall.get home
   return none
 
 /--
@@ -124,6 +138,9 @@ Lake's static library and `.olean` files at `<lean-home>/lib/lean`.
 -/
 def findInstall? : IO (Option LeanInstall × Option LakeInstall) := do
   if let some home ← findLakeLeanJointHome? then
-    return (some {home}, some {home, libDir := home / "lib" / "lean"})
+    return (
+      some <| ← LeanInstall.get home,
+      some {home, libDir := home / "lib" / "lean"}
+    )
   else
     return (← findLeanInstall?, ← findLakeInstall?)

@@ -168,11 +168,11 @@ partial def handleReferences (p : ReferenceParams)
       | Info.ofFieldInfo fi => some (RefIdent.const fi.projName, false)
       | _ => none
 
-    findReferences (doc : EditableDocument) (snaps : List Snapshot) : Array Reference := do
+    findReferences (doc : EditableDocument) (snaps : List Snapshot) : Array Reference := Id.run <| do
       let text := doc.meta.text
       let mut refs := #[]
       for snap in snaps do
-        refs := refs.appendList <| snap.infoTree.deepestNodes fun _ info _ => do
+        refs := refs.appendList <| snap.infoTree.deepestNodes fun _ info _ => Id.run <| do
           if let some (ident, isDeclaration) := identOf info then
             if let some range := info.range? then
               return some { ident, range := range.toLspRange text, isDeclaration }
@@ -279,7 +279,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
   let rec highlightReturn? (doRange? : Option Range) : Syntax → Option DocumentHighlight
-    | stx@`(doElem|return%$i $e) => do
+    | stx@`(doElem|return%$i $e) => Id.run <| do
       if let some range := i.getRange? then
         if range.contains pos then
           return some { range := doRange?.getD (range.toLspRange text), kind? := DocumentHighlightKind.text }
@@ -319,7 +319,7 @@ partial def handleDocumentSymbol (p : DocumentSymbolParams)
       | `(namespace $id)  => sectionLikeToDocumentSymbols text stx stxs (id.getId.toString) SymbolKind.namespace id
       | `(section $(id)?) => sectionLikeToDocumentSymbols text stx stxs ((·.getId.toString) <$> id |>.getD "<section>") SymbolKind.namespace (id.getD stx)
       | `(end $(id)?) => ([], stx::stxs)
-      | _ => do
+      | _ => Id.run <| do
         let (syms, stxs') := toDocumentSymbols text stxs
         unless stx.isOfKind ``Lean.Parser.Command.declaration do
           return (syms, stxs')

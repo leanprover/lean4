@@ -365,7 +365,7 @@ def mkIdent (val : Name) : Syntax :=
 @[inline] def mkGroupNode (args : Array Syntax := #[]) : Syntax :=
   mkNode groupKind args
 
-def mkSepArray (as : Array Syntax) (sep : Syntax) : Array Syntax := do
+def mkSepArray (as : Array Syntax) (sep : Syntax) : Array Syntax := Id.run <| do
   let mut i := 0
   let mut r := #[]
   for a in as do

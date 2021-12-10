@@ -274,7 +274,7 @@ where
     -- guaranteed.
     | _                                => s!" {val} "
 
-def hasMissing (stx : Syntax) : Bool := do
+def hasMissing (stx : Syntax) : Bool := Id.run <| do
   for stx in stx.topDown do
     if stx.isMissing then
       return true

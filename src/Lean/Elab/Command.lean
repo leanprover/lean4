@@ -332,7 +332,7 @@ def getBracketedBinderIds : Syntax → Array Name
   | `(bracketedBinder|[$ty])                         => #[Name.anonymous]
   | _                                                => #[]
 
-private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context := do
+private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context := Id.run <| do
   let scope      := s.scopes.head!
   let mut sectionVars := {}
   for id in scope.varDecls.concatMap getBracketedBinderIds, uid in scope.varUIds do

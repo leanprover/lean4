@@ -598,7 +598,7 @@ def notFollowedByFn (p : ParserFn) (msg : String) : ParserFn := fun c s =>
   fn := notFollowedByFn p.fn msg
 }
 
-partial def manyAux (p : ParserFn) : ParserFn := fun c s => do
+partial def manyAux (p : ParserFn) : ParserFn := fun c s => Id.run <| do
   let iniSz  := s.stackSize
   let iniPos := s.pos
   let mut s  := p c s
@@ -631,7 +631,7 @@ partial def manyAux (p : ParserFn) : ParserFn := fun c s => do
 }
 
 private partial def sepByFnAux (p : ParserFn) (sep : ParserFn) (allowTrailingSep : Bool) (iniSz : Nat) (pOpt : Bool) : ParserFn :=
-  let rec parse (pOpt : Bool) (c s) := do
+  let rec parse (pOpt : Bool) (c s) := Id.run <| do
     let sz  := s.stackSize
     let pos := s.pos
     let mut s := p c s
@@ -1011,7 +1011,7 @@ def mkIdResult (startPos : Nat) (tk : Option Token) (val : Name) : ParserFn := f
     s.pushSyntax atom
 
 partial def identFnAux (startPos : Nat) (tk : Option Token) (r : Name) : ParserFn :=
-  let rec parse (r : Name) (c s) := do
+  let rec parse (r : Name) (c s) := Id.run <| do
     let input := c.input
     let i     := s.pos
     if input.atEnd i then
@@ -1392,7 +1392,7 @@ def invalidLongestMatchParser (s : ParserState) : ParserState :=
 
  Remark: `p` must produce exactly one syntax node.
  Remark: the `left?` is not none when we are processing trailing parsers. -/
-def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : ParserFn) : ParserFn := fun c s => do
+def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : ParserFn) : ParserFn := fun c s => Id.run <| do
   /-
     We assume any registered parser `p` has one of two forms:
     * a direct call to `leadingParser` or `trailingParser`
@@ -1694,7 +1694,7 @@ def pushNone : Parser :=
 def antiquotNestedExpr : Parser := node `antiquotNestedExpr (symbolNoAntiquot "(" >> decQuotDepth termParser >> symbolNoAntiquot ")")
 def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
 
-@[inline] def tokenWithAntiquotFn (p : ParserFn) : ParserFn := fun c s => do
+@[inline] def tokenWithAntiquotFn (p : ParserFn) : ParserFn := fun c s => Id.run <| do
   let s := p c s
   if s.hasError || c.quotDepth == 0 then
     return s
@@ -1739,7 +1739,7 @@ def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true
     checkNoWsBefore "no space before spliced term" >> antiquotExpr >>
     nameP
 
-def tryAnti (c : ParserContext) (s : ParserState) : Bool := do
+def tryAnti (c : ParserContext) (s : ParserState) : Bool := Id.run <| do
   if c.quotDepth == 0 then
     return false
   let (s, stx) := peekToken c s
@@ -1768,7 +1768,7 @@ def mkAntiquotSplice (kind : SyntaxNodeKind) (p suffix : Parser) : Parser :=
     checkNoWsBefore "no space before spliced term" >> symbol "[" >> node nullKind p >> symbol "]" >>
     suffix
 
-@[inline] def withAntiquotSuffixSpliceFn (kind : SyntaxNodeKind) (p suffix : ParserFn) : ParserFn := fun c s => do
+@[inline] def withAntiquotSuffixSpliceFn (kind : SyntaxNodeKind) (p suffix : ParserFn) : ParserFn := fun c s => Id.run <| do
   let s := p c s
   if s.hasError || c.quotDepth == 0 || !s.stxStack.back.isAntiquot then
     return s
@@ -1869,7 +1869,7 @@ private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
   if s.stackSize == iniSz + 1 then s
   else s.mkNode nullKind iniSz -- throw error instead?
 
-def leadingParserAux (kind : Name) (tables : PrattParsingTables) (behavior : LeadingIdentBehavior) : ParserFn := fun c s => do
+def leadingParserAux (kind : Name) (tables : PrattParsingTables) (behavior : LeadingIdentBehavior) : ParserFn := fun c s => Id.run <| do
   let iniSz   := s.stackSize
   let (s, ps) := indexed tables.leadingTable c s behavior
   if s.hasError then
@@ -1886,7 +1886,7 @@ def leadingParserAux (kind : Name) (tables : PrattParsingTables) (behavior : Lea
 def trailingLoopStep (tables : PrattParsingTables) (left : Syntax) (ps : List (Parser × Nat)) : ParserFn := fun c s =>
   longestMatchFn left (ps ++ tables.trailingParsers) c s
 
-partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) (s : ParserState) : ParserState := do
+partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) (s : ParserState) : ParserState := Id.run <| do
   let iniSz  := s.stackSize
   let iniPos := s.pos
   let (s, ps)       := indexed tables.trailingTable c s LeadingIdentBehavior.default

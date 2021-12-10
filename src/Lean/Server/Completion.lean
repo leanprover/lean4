@@ -311,11 +311,11 @@ where
       let ⟨line, _⟩ := fileMap.toPosition pos
       if line != hoverLine then best?
       else match best? with
-        | none => return (ctx, info)
+        | none => (ctx, info)
         | some (_, best) =>
           let dBest := best.occursBefore? hoverPos |>.get!
           if d < dBest || (d == dBest && info.isSmaller best) then
-            return (ctx, info)
+            (ctx, info)
           else
             best?
     else

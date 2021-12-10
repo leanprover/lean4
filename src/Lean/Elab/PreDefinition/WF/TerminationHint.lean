@@ -48,7 +48,7 @@ def TerminationHint.erase (t : TerminationHint) (clique : Array Name) : Terminat
   match t with
   | TerminationHint.none   => TerminationHint.none
   | TerminationHint.one .. => TerminationHint.none
-  | TerminationHint.many m => do
+  | TerminationHint.many m => Id.run <| do
     for declName in clique do
       if m.contains declName then
         let m := m.erase declName

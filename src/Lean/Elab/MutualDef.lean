@@ -320,7 +320,7 @@ Note that `g` is not a free variable at `(let g : B := ?m₂; body)`. We recover
 `f` depends on `g` because it contains `m₂`
 -/
 private def mkInitialUsedFVarsMap (mctx : MetavarContext) (sectionVars : Array Expr) (mainFVarIds : Array FVarId) (letRecsToLift : List LetRecToLift)
-    : UsedFVarsMap := do
+    : UsedFVarsMap := Id.run <| do
   let mut sectionVarSet := {}
   for var in sectionVars do
     sectionVarSet := sectionVarSet.insert var.fvarId!
@@ -418,7 +418,7 @@ abbrev FreeVarMap := FVarIdMap (Array FVarId)
 
 private def mkFreeVarMap
     (mctx : MetavarContext) (sectionVars : Array Expr) (mainFVarIds : Array FVarId)
-    (recFVarIds : Array FVarId) (letRecsToLift : List LetRecToLift) : FreeVarMap := do
+    (recFVarIds : Array FVarId) (letRecsToLift : List LetRecToLift) : FreeVarMap := Id.run <| do
   let usedFVarsMap  := mkInitialUsedFVarsMap mctx sectionVars mainFVarIds letRecsToLift
   let letRecFVarIds := letRecsToLift.map fun toLift => toLift.fvarId
   let usedFVarsMap  := FixPoint.run letRecFVarIds usedFVarsMap

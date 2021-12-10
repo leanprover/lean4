@@ -385,7 +385,7 @@ def isValidSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Bool :=
   let kinds := (parserExtension.getState env).kinds
   kinds.contains k
 
-def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind := do
+def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind :=
   let kinds := (parserExtension.getState env).kinds
   kinds.foldl (fun ks k _ => k::ks) []
 

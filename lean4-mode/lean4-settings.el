@@ -109,6 +109,9 @@ using `font-lock-comment-face' instead of the `✝` suffix used by Lean."
 (defcustom lean4-keybinding-leanpkg-test (kbd "C-c C-p C-t")
   "Lean Keybinding for lean4-leanpkg-test"
   :group 'lean4-keybinding :type 'key-sequence)
+(defcustom lean4-keybinding-lake-build (kbd "C-c C-p C-l")
+  "Lean Keybinding for lean4-lake-build"
+  :group 'lean4-keybinding :type 'key-sequence)
 (defcustom lean4-keybinding-refresh-file-dependencies (kbd "C-c C-d")
   "Lean Keybinding for lean4-refresh-file-dependencies"
   :group 'lean4-keybinding :type 'key-sequence)

@@ -41,6 +41,7 @@
 (require 'lean4-leanpkg)
 (require 'lean4-dev)
 (require 'lean4-fringe)
+(require 'lean4-lake)
 
 (defun lean4-compile-string (exe-name args file-name)
   "Concatenate EXE-NAME, ARGS, and FILE-NAME."
@@ -103,6 +104,7 @@
   (local-set-key lean4-keybinding-leanpkg-configure         #'lean4-leanpkg-configure)
   (local-set-key lean4-keybinding-leanpkg-build             #'lean4-leanpkg-build)
   (local-set-key lean4-keybinding-leanpkg-test              #'lean4-leanpkg-test)
+  (local-set-key lean4-keybinding-lake-build                #'lean4-lake-build)
   (local-set-key lean4-keybinding-refresh-file-dependencies #'lean4-refresh-file-dependencies)
   ;; This only works as a mouse binding due to the event, so it is not abstracted
   ;; to avoid user confusion.

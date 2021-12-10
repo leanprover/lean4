@@ -16,6 +16,8 @@ structure InteractiveHypothesis where
   names : Array String
   type : CodeWithInfos
   val? : Option CodeWithInfos := none
+  isInstance : Bool
+  isType : Bool
   deriving Inhabited, RpcEncoding
 
 structure InteractiveGoal where
@@ -65,6 +67,16 @@ structure InteractiveGoals where
   deriving RpcEncoding
 
 open Meta in
+def addInteractiveHypothesis (hyps : Array InteractiveHypothesis) (ids : Array Name) (type : Expr) (value? : Option Expr := none) : MetaM (Array InteractiveHypothesis) := do
+  return hyps.push {
+    names      := ids.map toString
+    type       := (← exprToInteractive type)
+    val?       := (← value?.mapM exprToInteractive)
+    isInstance := (← isClass? type).isSome
+    isType     := (← instantiateMVars type).isSort
+  }
+
+open Meta in
 /-- A variant of `Meta.ppGoal` which preserves subexpression information for interactivity. -/
 def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
   let some mvarDecl ← (← getMCtx).findDecl? mvarId
@@ -83,14 +95,13 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
       else
         match ids, type? with
         | _,  none      => pure hyps
-        | _,  some type =>
-          return hyps.push { names := ids.map toString, type := ← exprToInteractive type }
+        | _,  some type => addInteractiveHypothesis hyps ids type
     let rec ppVars (varNames : Array Name) (prevType? : Option Expr) (hyps : Array InteractiveHypothesis) (localDecl : LocalDecl)
        : MetaM (Array Name × Option Expr × Array InteractiveHypothesis) := do
       if hiddenProp.contains localDecl.fvarId then
         let hyps ← pushPending varNames prevType? hyps
         let type ← instantiateMVars localDecl.type
-        let hyps := hyps.push { names := #[], type := ← exprToInteractive type }
+        let hyps ← addInteractiveHypothesis hyps #[] type
         pure (#[], none, hyps)
       else
         match localDecl with
@@ -107,9 +118,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
           let hyps ← pushPending varNames prevType? hyps
           let type ← instantiateMVars type
           let val ← instantiateMVars val
-          let typeFmt ← exprToInteractive type
-          let valFmt ← exprToInteractive val
-          let hyps := hyps.push { names := #[toString varName], type := typeFmt, val? := valFmt }
+          let hyps ← addInteractiveHypothesis hyps #[varName] type val
           pure (#[], none, hyps)
     let (varNames, type?, hyps) ← lctx.foldlM (init := (#[], none, #[]))
       fun (varNames, prevType?, hyps) (localDecl : LocalDecl) =>

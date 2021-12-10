@@ -22,9 +22,9 @@ typeAs
     α → α)
   fun {α} a => a
 fun {α}
-  [inst :
-    ToString α]
-  a =>
+    [inst :
+      ToString α]
+    a =>
   @toString α inst a
 (α : Type) → α
 (α β : Type) → α
@@ -55,10 +55,10 @@ decide (1 < 2) ||
 id (fun a => a) 0
 typeAs (Id Nat)
   (let x := 1;
-  do 
-    discard (pure 2)
-    let y : Nat := 3
-    pure (x + y))
+  do
+  discard (pure 2)
+  let y : Nat := 3
+  pure (x + y))
 typeAs (Id Nat)
   (pure 1 >>= pure)
 (0 ≤ 1) = False

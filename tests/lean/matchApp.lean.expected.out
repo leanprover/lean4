@@ -1,5 +1,5 @@
 fun {α} motive h1 h2 h3 =>
-  match [], [] with 
+  match [], [] with
   | [], [] => h1 ()
   | x, [] => h2 x
   | x, x_1 =>

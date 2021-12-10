@@ -106,6 +106,13 @@ end FileRefMap
 
 def RefMap := HashMap String FileRefMap
 
+/-- Content of individual `.ilean` files -/
+structure Ilean where
+  version : Nat := 1
+  module : Name
+  references : FileRefMap
+  deriving FromJson, ToJson
+
 /- Collecting and deduplicating definitions and usages -/
 
 def identOf : Info → Option (RefIdent × Bool)
@@ -160,8 +167,13 @@ def combineFvars (refs : Array Reference) : Array Reference := Id.run do
       | m, RefIdent.fvar id => RefIdent.fvar <| m.findD id id
       | _, ident => ident
 
-def findFileRefs (text : FileMap) (trees : List InfoTree) : FileRefMap :=
-  let refs := combineFvars <| findReferences text trees
+def findFileRefs (text : FileMap) (trees : List InfoTree) (localVars : Bool := true)
+    : FileRefMap := Id.run do
+  let mut refs := combineFvars <| findReferences text trees
+  if !localVars then
+    refs := refs.filter fun
+      | { ident := RefIdent.fvar _, .. } => false
+      | _ => true
   refs.foldl (init := HashMap.empty) fun m ref => m.addRef ref
 
 end Lean.Server.References

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 import Lean.Elab.Import
 import Lean.Elab.Command
 import Lean.Util.Profile
+import Lean.Server.References
 
 namespace Lean.Elab.Frontend
 
@@ -106,9 +107,22 @@ def runFrontend
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
   let (env, messages) ← processHeader header opts messages inputCtx trustLevel
   let env := env.setMainModule mainModuleName
-  let s ← IO.processCommands inputCtx parserState (Command.mkState env messages opts)
+  let mut commandState := Command.mkState env messages opts
+
+  if ileanFileName.isSome then
+    -- Collect InfoTrees so we can later extract and export their info to the ilean file
+    commandState := { commandState with infoState := { commandState.infoState with enabled := true }}
+
+  let s ← IO.processCommands inputCtx parserState commandState
   for msg in s.commandState.messages.toList do
     IO.print (← msg.toString (includeEndPos := getPrintMessageEndPos opts))
+
+  if let some ileanFileName := ileanFileName then
+    let trees := s.commandState.infoState.trees.toList
+    let references := Lean.Server.References.findFileRefs inputCtx.fileMap trees (localVars := false)
+    let ilean := { module := mainModuleName, references : Lean.Server.References.Ilean }
+    IO.FS.writeFile ileanFileName $ toString $ toJson ilean
+
   pure (s.commandState.env, !s.commandState.messages.hasErrors)
 
 end Lean.Elab

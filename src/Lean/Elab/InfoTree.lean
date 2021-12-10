@@ -113,7 +113,7 @@ partial def InfoTree.findInfo? (p : Info → Bool) (t : InfoTree) : Option Info 
   | _ => none
 
 structure InfoState where
-  enabled    : Bool := false
+  enabled    : Bool := false -- whether info trees should be recorded
   assignment : PersistentHashMap MVarId InfoTree := {} -- map from holeId to InfoTree
   trees      : PersistentArray InfoTree := {}
   deriving Inhabited

@@ -129,7 +129,7 @@
         Nat : Type @ ⟨21, 36⟩-⟨21, 39⟩
   fun x y b =>
     let x := (x + y, x - y);
-    match x with 
+    match x with
     | (z, w) =>
       let z1 := z + w;
       z + z1 : Nat → Nat → Bool → Nat @ ⟨22, 2⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabFun
@@ -140,22 +140,22 @@
     Bool : Type @ ⟨22, 10⟩†-⟨22, 11⟩† @ Lean.Elab.Term.elabHole
     b : Bool @ ⟨22, 10⟩-⟨22, 11⟩
     let x := (x + y, x - y);
-    match x with 
+    match x with
     | (z, w) =>
       let z1 := z + w;
       z + z1 : Nat @ ⟨23, 4⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabLetDecl
       Macro expansion
       let (z, w) := (x + y, x - y)
-      let z1 := z + w 
+      let z1 := z + w
       z + z1
       ===>
       let x✝ : _ := (x + y, x - y);
-      match x✝ with 
+      match x✝ with
       | (z, w) =>
-        let z1 := z + w 
+        let z1 := z + w
         z + z1
         let x := (x + y, x - y);
-        match x with 
+        match x with
         | (z, w) =>
           let z1 := z + w;
           z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.elabLetDecl
@@ -188,7 +188,7 @@
                       y : Nat @ ⟨23, 30⟩-⟨23, 31⟩ @ Lean.Elab.Term.elabIdent
                         y : Nat @ ⟨23, 30⟩-⟨23, 31⟩
           x✝ : Nat × Nat @ ⟨23, 4⟩†-⟨25, 10⟩†
-          match x✝ with 
+          match x✝ with
           | (z, w) =>
             let z1 := z + w;
             z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.elabMatch

@@ -1,44 +1,44 @@
 [Elab.step] expected type: Sort ?u, term
 True
 [Elab.step] expected type: True, term
-by 
-  skip 
+by
+  skip
   trivial
 [Elab.step] 
-  skip 
+  skip
   trivial
 [Elab.step] 
-  skip 
+  skip
   trivial
 [Elab.step] skip
 [Elab.step] trivial
 [Elab.step] (apply And.intro✝) <;> trivial
-[Elab.step] focus 
+[Elab.step] focus
   (
     apply And.intro✝;
-    all_goals 
+    all_goals
       trivial)
 [Elab.step] 
   (
     apply And.intro✝;
-    all_goals 
+    all_goals
       trivial)
 [Elab.step] 
   (
     apply And.intro✝;
-    all_goals 
+    all_goals
       trivial)
 [Elab.step] (
   apply And.intro✝;
-  all_goals 
+  all_goals
     trivial)
 [Elab.step] 
   apply And.intro✝;
-  all_goals 
+  all_goals
     trivial
 [Elab.step] 
   apply And.intro✝;
-  all_goals 
+  all_goals
     trivial
 [Elab.step] apply And.intro✝
 [Elab.step] apply True.intro✝

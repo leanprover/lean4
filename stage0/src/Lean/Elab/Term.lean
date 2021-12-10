@@ -92,6 +92,7 @@ inductive MVarErrorKind where
   | implicitArg (ctx : Expr)
   | hole
   | custom (msgData : MessageData)
+  deriving Inhabited
 
 instance : ToString MVarErrorKind where
   toString
@@ -103,6 +104,8 @@ structure MVarErrorInfo where
   mvarId    : MVarId
   ref       : Syntax
   kind      : MVarErrorKind
+  argName?  : Option Name := none
+  deriving Inhabited
 
 structure LetRecToLift where
   ref            : Syntax
@@ -119,7 +122,7 @@ structure LetRecToLift where
 structure State where
   levelNames        : List Name       := []
   syntheticMVars    : List SyntheticMVarDecl := []
-  mvarErrorInfos    : List MVarErrorInfo := []
+  mvarErrorInfos    : MVarIdMap MVarErrorInfo := {}
   messages          : MessageLog := {}
   letRecsToLift     : List LetRecToLift := []
   infoState         : InfoState := {}
@@ -377,14 +380,20 @@ def registerSyntheticMVar (stx : Syntax) (mvarId : MVarId) (kind : SyntheticMVar
 def registerSyntheticMVarWithCurrRef (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit := do
   registerSyntheticMVar (← getRef) mvarId kind
 
-def registerMVarErrorHoleInfo (mvarId : MVarId) (ref : Syntax) : TermElabM Unit := do
-  modify fun s => { s with mvarErrorInfos := { mvarId := mvarId, ref := ref, kind := MVarErrorKind.hole } :: s.mvarErrorInfos }
+def registerMVarErrorInfo (mvarErrorInfo : MVarErrorInfo) : TermElabM Unit :=
+  modify fun s => { s with mvarErrorInfos := s.mvarErrorInfos.insert mvarErrorInfo.mvarId mvarErrorInfo }
+
+def registerMVarErrorHoleInfo (mvarId : MVarId) (ref : Syntax) : TermElabM Unit :=
+  registerMVarErrorInfo { mvarId := mvarId, ref := ref, kind := MVarErrorKind.hole }
 
 def registerMVarErrorImplicitArgInfo (mvarId : MVarId) (ref : Syntax) (app : Expr) : TermElabM Unit := do
-  modify fun s => { s with mvarErrorInfos := { mvarId := mvarId, ref := ref, kind := MVarErrorKind.implicitArg app } :: s.mvarErrorInfos }
+  registerMVarErrorInfo { mvarId := mvarId, ref := ref, kind := MVarErrorKind.implicitArg app }
 
 def registerMVarErrorCustomInfo (mvarId : MVarId) (ref : Syntax) (msgData : MessageData) : TermElabM Unit := do
-  modify fun s => { s with mvarErrorInfos := { mvarId := mvarId, ref := ref, kind := MVarErrorKind.custom msgData } :: s.mvarErrorInfos }
+  registerMVarErrorInfo { mvarId := mvarId, ref := ref, kind := MVarErrorKind.custom msgData }
+
+def getMVarErrorInfo? (mvarId : MVarId) : TermElabM (Option MVarErrorInfo) := do
+  return (← get).mvarErrorInfos.find? mvarId
 
 def registerCustomErrorIfMVar (e : Expr) (ref : Syntax) (msgData : MessageData) : TermElabM Unit :=
   match e.getAppFn with
@@ -406,16 +415,23 @@ def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) (extraMsg? : Option M
   match mvarErrorInfo.kind with
   | MVarErrorKind.implicitArg app => do
     let app ← instantiateMVars app
-    let msg : MessageData := m!"don't know how to synthesize implicit argument{indentExpr app.setAppPPExplicitForExposingMVars}"
-    let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
+    let msg := addArgName "don't know how to synthesize implicit argument"
+    let msg := msg ++ m!"{indentExpr app.setAppPPExplicitForExposingMVars}" ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
     logErrorAt mvarErrorInfo.ref (appendExtra msg)
   | MVarErrorKind.hole => do
-    let msg : MessageData := "don't know how to synthesize placeholder"
+    let msg := addArgName "don't know how to synthesize placeholder" " for argument"
     let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
     logErrorAt mvarErrorInfo.ref (MessageData.tagged `Elab.synthPlaceholder <| appendExtra msg)
   | MVarErrorKind.custom msg =>
     logErrorAt mvarErrorInfo.ref (appendExtra msg)
 where
+  /-- Append `mvarErrorInfo` argument name (if available) to the message.
+      Remark: if the argument name contains macro scopes we do not append it. -/
+  addArgName (msg : MessageData) (extra : String := "") : MessageData :=
+    match mvarErrorInfo.argName? with
+    | none => msg
+    | some argName => if argName.hasMacroScopes then msg else msg ++ extra ++ m!" '{argName}'"
+
   appendExtra (msg : MessageData) : MessageData :=
     match extraMsg? with
     | none => msg
@@ -433,22 +449,23 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Op
   let hasOtherErrors := s.messages.hasErrors
   let mut hasNewErrors := false
   let mut alreadyVisited : MVarIdSet := {}
-  for mvarErrorInfo in s.mvarErrorInfos do
+  let mut errors : Array MVarErrorInfo := #[]
+  for (_, mvarErrorInfo) in s.mvarErrorInfos do
     let mvarId := mvarErrorInfo.mvarId
     unless alreadyVisited.contains mvarId do
       alreadyVisited := alreadyVisited.insert mvarId
-      let foundError ← withMVarContext mvarId do
-        /- The metavariable `mvarErrorInfo.mvarId` may have been assigned or
-           delayed assigned to another metavariable that is unassigned. -/
-        let mvarDeps ← getMVars (mkMVar mvarId)
-        if mvarDeps.any pendingMVarIds.contains then do
-          unless hasOtherErrors do
-            mvarErrorInfo.logError extraMsg?
-          pure true
-        else
-          pure false
-      if foundError then
+      /- The metavariable `mvarErrorInfo.mvarId` may have been assigned or
+         delayed assigned to another metavariable that is unassigned. -/
+      let mvarDeps ← getMVars (mkMVar mvarId)
+      if mvarDeps.any pendingMVarIds.contains then do
+        unless hasOtherErrors do
+          errors := errors.push mvarErrorInfo
         hasNewErrors := true
+  -- To sort the errors by position use
+  -- let sortedErrors := errors.qsort fun e₁ e₂ => e₁.ref.getPos?.getD 0 < e₂.ref.getPos?.getD 0
+  for error in errors do
+    withMVarContext error.mvarId do
+      error.logError extraMsg?
   return hasNewErrors
 
 /-- Ensure metavariables registered using `registerMVarErrorInfos` (and used in the given declaration) have been assigned. -/

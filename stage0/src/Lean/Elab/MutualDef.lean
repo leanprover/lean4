@@ -22,6 +22,7 @@ structure DefViewElabHeader where
   shortDeclName : Name
   declName      : Name
   levelNames    : List Name
+  binderIds     : Array Syntax
   numParams     : Nat
   type          : Expr -- including the parameters
   valueStx      : Syntax
@@ -104,7 +105,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
       addDeclarationRanges declName view.ref
       applyAttributesAt declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration
       withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
-        elabBinders view.binders.getArgs fun xs => do
+        elabBindersEx view.binders.getArgs fun xs => do
           let refForElabFunType := view.value
           let type ← match view.type? with
             | some typeStx =>
@@ -117,6 +118,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
               registerFailedToInferDefTypeInfo type refForElabFunType
               pure type
           Term.synthesizeSyntheticMVarsNoPostponing
+          let (binderIds, xs) := xs.unzip
           let type ← mkForallFVars xs type
           let type ← mkForallFVars (← read).autoBoundImplicits.toArray type
           let type ← instantiateMVars type
@@ -133,6 +135,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
             shortDeclName := shortDeclName,
             declName      := declName,
             levelNames    := levelNames,
+            binderIds     := binderIds,
             numParams     := xs.size,
             type          := type,
             valueStx      := view.value : DefViewElabHeader }
@@ -196,6 +199,10 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
   headers.mapM fun header => withDeclName header.declName $ withLevelNames header.levelNames do
     let valStx ← liftMacroM $ declValToTerm header.valueStx
     forallBoundedTelescope header.type header.numParams fun xs type => do
+      -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
+      for i in [0:header.binderIds.size] do
+        -- skip auto-bound prefix in `xs`
+        addTermInfo (isBinder := true) header.binderIds[i] xs[header.numParams - header.binderIds.size + i]
       let val ← elabTermEnsuringType valStx type
       mkLambdaFVars xs val
 

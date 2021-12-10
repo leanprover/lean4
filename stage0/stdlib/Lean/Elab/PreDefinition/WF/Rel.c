@@ -131,6 +131,7 @@ x_33 = lean_ctor_get(x_31, 1);
 lean_inc(x_33);
 lean_dec(x_31);
 x_34 = l_Lean_Elab_Term_logUnassignedUsingErrorInfos(x_32, x_19, x_3, x_4, x_5, x_6, x_7, x_8, x_33);
+lean_dec(x_32);
 if (lean_obj_tag(x_34) == 0)
 {
 uint8_t x_35; 

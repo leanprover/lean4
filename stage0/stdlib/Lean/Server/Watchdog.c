@@ -15700,7 +15700,7 @@ x_1 = l_Lean_Server_Watchdog_mkLeanServerCapabilities___closed__2;
 x_2 = l_Lean_Server_Watchdog_mkLeanServerCapabilities___closed__6;
 x_3 = 1;
 x_4 = l_Lean_Server_Watchdog_mkLeanServerCapabilities___closed__9;
-x_5 = lean_alloc_ctor(0, 3, 6);
+x_5 = lean_alloc_ctor(0, 3, 7);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
 lean_ctor_set(x_5, 2, x_4);
@@ -15710,6 +15710,7 @@ lean_ctor_set_uint8(x_5, sizeof(void*)*3 + 2, x_3);
 lean_ctor_set_uint8(x_5, sizeof(void*)*3 + 3, x_3);
 lean_ctor_set_uint8(x_5, sizeof(void*)*3 + 4, x_3);
 lean_ctor_set_uint8(x_5, sizeof(void*)*3 + 5, x_3);
+lean_ctor_set_uint8(x_5, sizeof(void*)*3 + 6, x_3);
 return x_5;
 }
 }

@@ -35,12 +35,14 @@ lean_object* lean_name_mk_string(lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 uint64_t lean_uint64_of_nat(lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instForInMVarIdMapProdMVarId(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_isMVar___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux___at_Lean_Level_normalize___spec__2(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Level_updateIMax___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Level_mkData___closed__3;
 extern lean_object* l_Std_Format_defWidth;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
+lean_object* l_Std_RBMap_instForInRBMapProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_add(uint64_t, uint64_t);
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*);
 uint64_t lean_bool_to_uint64(uint8_t);
@@ -69,6 +71,7 @@ LEAN_EXPORT lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Level_PP_Res
 LEAN_EXPORT uint8_t lean_level_has_param(lean_object*);
 LEAN_EXPORT uint64_t l_Lean_Level_hash(lean_object*);
 static lean_object* l___private_Lean_Level_0__Lean_Level_PP_parenIfFalse___closed__4;
+static lean_object* l_Lean_instForInMVarIdMapProdMVarId___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Level_isExplicit___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instForInMVarIdSetMVarId(lean_object*);
 LEAN_EXPORT uint32_t lean_level_hash(lean_object*);
@@ -735,6 +738,27 @@ _start:
 lean_object* x_2; 
 x_2 = lean_box(0);
 return x_2;
+}
+}
+static lean_object* _init_l_Lean_instForInMVarIdMapProdMVarId___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_instForInMVarIdSetMVarId___closed__1;
+x_2 = lean_alloc_closure((void*)(l_Std_RBMap_instForInRBMapProd___boxed), 5, 4);
+lean_closure_set(x_2, 0, lean_box(0));
+lean_closure_set(x_2, 1, lean_box(0));
+lean_closure_set(x_2, 2, x_1);
+lean_closure_set(x_2, 3, lean_box(0));
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instForInMVarIdMapProdMVarId(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_instForInMVarIdMapProdMVarId___closed__1;
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_instInhabitedMVarIdMap(lean_object* x_1) {
@@ -1672,7 +1696,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l_Lean_Level_mvarId_x21___closed__1;
-x_3 = lean_unsigned_to_nat(176u);
+x_3 = lean_unsigned_to_nat(178u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Level_mvarId_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3161,7 +3185,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l_Lean_Level_normalize___closed__1;
-x_3 = lean_unsigned_to_nat(360u);
+x_3 = lean_unsigned_to_nat(362u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Lean_Level_normalize___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -5079,7 +5103,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l_Lean_Level_updateSucc_x21___closed__1;
-x_3 = lean_unsigned_to_nat(506u);
+x_3 = lean_unsigned_to_nat(508u);
 x_4 = lean_unsigned_to_nat(18u);
 x_5 = l_Lean_Level_updateSucc_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -5154,7 +5178,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l_Lean_Level_updateMax_x21___closed__1;
-x_3 = lean_unsigned_to_nat(515u);
+x_3 = lean_unsigned_to_nat(517u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Level_updateMax_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -5233,7 +5257,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l_Lean_Level_updateIMax_x21___closed__1;
-x_3 = lean_unsigned_to_nat(524u);
+x_3 = lean_unsigned_to_nat(526u);
 x_4 = lean_unsigned_to_nat(22u);
 x_5 = l_Lean_Level_updateIMax_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -8260,6 +8284,8 @@ l_Lean_instForInMVarIdSetMVarId___closed__1 = _init_l_Lean_instForInMVarIdSetMVa
 lean_mark_persistent(l_Lean_instForInMVarIdSetMVarId___closed__1);
 l_Lean_instForInMVarIdSetMVarId___closed__2 = _init_l_Lean_instForInMVarIdSetMVarId___closed__2();
 lean_mark_persistent(l_Lean_instForInMVarIdSetMVarId___closed__2);
+l_Lean_instForInMVarIdMapProdMVarId___closed__1 = _init_l_Lean_instForInMVarIdMapProdMVarId___closed__1();
+lean_mark_persistent(l_Lean_instForInMVarIdMapProdMVarId___closed__1);
 l_Lean_instInhabitedLevel___closed__1 = _init_l_Lean_instInhabitedLevel___closed__1();
 l_Lean_instInhabitedLevel___closed__2 = _init_l_Lean_instInhabitedLevel___closed__2();
 lean_mark_persistent(l_Lean_instInhabitedLevel___closed__2);

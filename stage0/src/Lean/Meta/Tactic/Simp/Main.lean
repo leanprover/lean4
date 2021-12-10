@@ -187,9 +187,15 @@ where
     | Expr.mvar ..     => return { expr := (← instantiateMVars e) }
     | Expr.fvar ..     => return { expr := (← reduceFVar (← getConfig) e) }
 
-  simpLit (e : Expr) : M Result :=
+  simpLit (e : Expr) : M Result := do
     match e.natLit? with
-    | some n => return { expr := (← mkNumeral (mkConst ``Nat) n) }
+    | some n =>
+      /- If `OfNat.ofNat` is marked to be unfolded, we do not pack orphan nat literals as `OfNat.ofNat` applications
+         to avoid non-termination. See issue #788.  -/
+      if (← getSimpLemmas).isDeclToUnfold ``OfNat.ofNat then
+        return { expr := e }
+      else
+        return { expr := (← mkNumeral (mkConst ``Nat) n) }
     | none   => return { expr := e }
 
   simpProj (e : Expr) : M Result := do

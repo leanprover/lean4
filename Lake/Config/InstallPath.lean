@@ -76,7 +76,7 @@ def findLakeLeanJointHome? : IO (Option FilePath) := do
 Try to get Lake's home by assuming
 the executable is located at `<lake-home>/bin/lake`.
 -/
-def lakeBuildHome? (lake : FilePath) : Option FilePath := do
+def lakeBuildHome? (lake : FilePath) : Option FilePath :=
   lake.parent.bind FilePath.parent
 
 /--

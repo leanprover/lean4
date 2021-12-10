@@ -62,13 +62,13 @@ def buildModulesTarget [Inhabited i] (mods : Array Name)
 /-- Build the `.olean` and files of package and its dependencies' modules. -/
 def Package.buildOleanTarget (self : Package) : BuildM ActiveOpaqueTarget := do
   let depTarget ← self.buildExtraDepsTarget
-  buildModulesTarget (← self.getModuleArray) do
+  buildModulesTarget (← self.getModuleArray) <|
     recBuildModuleOleanTargetWithLocalImports depTarget
 
 /-- Build the `.olean` and `.c` files of package and its dependencies' modules. -/
 def Package.buildOleanAndCTarget (self : Package) : BuildM ActiveOpaqueTarget := do
   let depTarget ← self.buildExtraDepsTarget
-  buildModulesTarget (← self.getModuleArray) do
+  buildModulesTarget (← self.getModuleArray) <|
     recBuildModuleOleanAndCTargetWithLocalImports depTarget
 
 def Package.buildDepOleans (self : Package) : BuildM PUnit := do
@@ -100,7 +100,7 @@ def Package.moduleOleanAndCTarget (mod : Name) (self : Package) : OleanAndCTarge
 
 /-- Pick the local imports of the workspace from a list of import strings. -/
 def Workspace.filterLocalImports
-(imports : List String) (self : Workspace) : Array Name := do
+(imports : List String) (self : Workspace) : Array Name := Id.run <| do
   let mut localImports := #[]
   for imp in imports do
     let impName := imp.toName

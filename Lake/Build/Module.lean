@@ -201,5 +201,5 @@ def buildModule (mod : Name)
 
 def buildModules (mods : Array Name)
 [Inhabited o] (build : RecModuleBuild o) : BuildM (Array o) := do
-  failOnBuildCycle <| ← RBTopT.run' <| mods.mapM do
+  failOnBuildCycle <| ← RBTopT.run' <| mods.mapM <|
     buildRBTop (cmp := Name.quickCmp) build id

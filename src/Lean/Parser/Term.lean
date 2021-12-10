@@ -16,7 +16,7 @@ def commentBody : Parser :=
 @[combinatorParenthesizer Lean.Parser.Command.commentBody] def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
 @[combinatorFormatter Lean.Parser.Command.commentBody] def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous
 
-def docComment       := leading_parser ppDedent $ "/--" >> commentBody >> ppLine
+def docComment       := leading_parser ppDedent $ "/--" >> ppSpace >> commentBody >> ppLine
 end Command
 
 builtin_initialize

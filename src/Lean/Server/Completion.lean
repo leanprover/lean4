@@ -262,13 +262,16 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (expectedType? :
 
 private def optionCompletion (ctx : ContextInfo) (stx : Syntax) : IO (Option CompletionList) :=
   ctx.runMetaM {} do
-    let partialName := stx.getSubstring? (withLeading := false) (withTrailing := false) |>.get!
     let partialName :=
-      if !partialName.str.atEnd partialName.stopPos && partialName.str[partialName.stopPos] == '.' then
-        -- include trailing dot, which is not parsed by `ident`
-        partialName.toString ++ "."
-      else
-        partialName.toString
+      -- `stx` is from `"set_option" >> ident`
+      match stx[1].getSubstring? (withLeading := false) (withTrailing := false) with
+      | none => ""  -- the `ident` is `missing`, list all options
+      | some ss =>
+        if !ss.str.atEnd ss.stopPos && ss.str[ss.stopPos] == '.' then
+          -- include trailing dot, which is not parsed by `ident`
+          ss.toString ++ "."
+        else
+          ss.toString
     -- HACK(WN): unfold the type so ForIn works
     let (decls : Std.RBMap _ _ _) ← getOptionDecls
     let opts ← getOptions

@@ -11,7 +11,10 @@ variable [Monad m] [MonadOptions m] [MonadExceptOf Exception m] [MonadRef m]
 variable [AddErrorMessageContext m] [MonadLiftT (EIO Exception) m] [MonadInfoTree m]
 
 def elabSetOption (id : Syntax) (val : Syntax) : m Options := do
-  addCompletionInfo <| CompletionInfo.option id
+  let ref ← getRef
+  -- For completion purposes, we discard `val` and any later arguments.
+  -- We include the first argument (the keyword) for position information in case `id` is `missing`.
+  addCompletionInfo <| CompletionInfo.option (ref.setArgs (ref.getArgs[0:2]))
   let optionName := id.getId.eraseMacroScopes
   match val.isStrLit? with
   | some str => setOption optionName (DataValue.ofString str)

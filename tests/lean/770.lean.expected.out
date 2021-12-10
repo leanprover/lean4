@@ -1,1 +1,2 @@
-file '770.lean' not found
+770.lean:1:25-3:40: error: invalid 'do' notation, expected type is not a monad application
+  Nat

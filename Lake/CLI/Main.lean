@@ -231,17 +231,23 @@ def printPaths (imports : List String := []) : CliM PUnit := do
   else
     exit noConfigFileCode
 
-def serve (leanInstall : LeanInstall) (pkg : Package) (args : List String) : CliM PUnit := do
+def serve (leanInstall : LeanInstall)
+(pkg : Package) (args : List String) : CliM PUnit := do
   let child ← IO.Process.spawn {
     cmd := leanInstall.lean.toString,
     args := #["--server"] ++ pkg.moreServerArgs ++ args
   }
   exit (← child.wait)
 
-def env (ws : Workspace) (cmd : String) (args : Array String) : CliM PUnit := do
+def env (leanInstall : LeanInstall) (ws : Workspace)
+(cmd : String) (args : Array String) : CliM PUnit := do
   let child ← IO.Process.spawn {
     cmd, args,
-    env := #[("LEAN_PATH", ws.oleanPath.toString)]
+    env := #[
+      ("LEAN_SYSROOT", leanInstall.home.toString),
+      ("LEAN_PATH", ws.oleanPath.toString),
+      ("LEAN_SRC_PATH", ws.leanSrcPath.toString)
+    ]
   }
   exit (← child.wait)
 
@@ -252,7 +258,7 @@ def command : (cmd : String) → CliM PUnit
 | "new"         => do processOptions; noArgsRem <| new (← takeArg "missing package name")
 | "init"        => do processOptions; noArgsRem <| init (← takeArg "missing package name")
 | "run"         => do processOptions; noArgsRem <| script (← loadPkg []) (← takeArg "missing script") (← getSubArgs)
-| "env"         => do env (← loadConfig []).1 (← takeArg "missing command") (← takeArgs).toArray
+| "env"         => do env (← getLeanInstall) (← loadConfig []).1 (← takeArg "missing command") (← takeArgs).toArray
 | "serve"       => do processOptions; noArgsRem <| serve (← getLeanInstall) (← loadPkg []) (← getSubArgs)
 | "configure"   => do processOptions; let (ws, pkg) ← loadConfig (← getSubArgs); noArgsRem <| configure ws pkg
 | "print-paths" => do processOptions; printPaths (← takeArgs)

@@ -113,7 +113,7 @@ jobs:
           cd build
           OPTIONS=()
           [[ -z '${{ matrix.llvm-url }}' ]] || wget -q ${{ matrix.llvm-url }}
-          [[ -z '${{ matrix.prepare-llvm }}' ]] || eval "OPTIONS+=($(../${{ matrix.prepare-llvm }}))"
+          [[ -z '${{ matrix.prepare-llvm }}' ]] || (extra_opts="$(../${{ matrix.prepare-llvm }})" && eval "OPTIONS+=($extra_opts)")
           if [[ $GITHUB_EVENT_NAME == 'schedule' && -n '${{ matrix.release }}' && -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
             git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
             git fetch nightly --tags

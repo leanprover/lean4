@@ -7,7 +7,7 @@ in { pkgs ? flakePkgs.nixpkgs, pkgsDist ? pkgs, llvmPackages ? null }:
     stdenv = pkgs.overrideCC pkgs.stdenv (if llvmPackages == null
                                           then flakePkgs.llvmPackages
                                           else pkgs.${"llvmPackages_${llvmPackages}"}).clang;
-  } rec {
+  } (rec {
     buildInputs = with pkgs; [ cmake gmp ccache ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
@@ -17,7 +17,7 @@ in { pkgs ? flakePkgs.nixpkgs, pkgsDist ? pkgs, llvmPackages ? null }:
     GMP = pkgsDist.gmp.override { withStatic = true; };
     GLIBC = pkgsDist.glibc;
     ZLIB = pkgsDist.zlib;
-  };
+  });
   with-temci = shell.overrideAttrs (old: {
     buildInputs = old.buildInputs ++ [ flakePkgs.temci ];
   });

@@ -126,15 +126,9 @@ def runBuildM_ (ws : Workspace) (pkg : Package) (x : BuildM α) : CliM PUnit :=
 
 -- ## Argument Parsing
 
-def takeArg : CliM String := do
-  let arg? ← takeArg?
-  match arg? with
-  | none => error "missing argument"
-  | some arg => arg
-
-def takeFileArg : CliM FilePath := do
+def takeArg (errMsg : String := "missing argument") : CliM String := do
   match (← takeArg?) with
-  | none => error "missing file argument"
+  | none => error errMsg
   | some arg => arg
 
 /--
@@ -142,7 +136,7 @@ Verify that there are no CLI arguments remaining
 before running the given action.
 -/
 def noArgsRem (act : CliM α) : CliM α := do
-  let args ← takeArgs
+  let args ← getArgs
   if args.isEmpty then act else
     error s!"unexpected arguments: {" ".intercalate args}"
 
@@ -153,8 +147,8 @@ def unknownShortOption (opt : Char) : CliM PUnit :=
 
 def shortOption : (opt : Char) → CliM PUnit
 | 'h' => setWantsHelp
-| 'd' => do setRootDir (← takeFileArg)
-| 'f' => do setConfigFile (← takeFileArg)
+| 'd' => do setRootDir <| ← takeArg "missing path after -d"
+| 'f' => do setConfigFile <| ← takeArg "missing path after -f"
 | opt => unknownShortOption opt
 
 def unknownLongOption (opt : String) : CliM PUnit :=
@@ -162,10 +156,10 @@ def unknownLongOption (opt : String) : CliM PUnit :=
 
 def longOption : (opt : String) → CliM PUnit
 | "--help"  => setWantsHelp
-| "--dir"   => do setRootDir (← takeFileArg)
-| "--file"  => do setConfigFile (← takeFileArg)
-| "--lean"  => do setLean (← takeArg)
-| "--"      => do setSubArgs (← takeArgs)
+| "--dir"   => do setRootDir <| ← takeArg "missing path after --dir"
+| "--file"  => do setConfigFile <| ← takeArg "missing path after --file"
+| "--lean"  => do setLean <| ← takeArg "missing command after --lean"
+| "--"      => do setSubArgs <| ← takeArgs
 | opt       => unknownLongOption opt
 
 /-- Splits a long option of the form `--long=arg` into `--long arg`. -/
@@ -255,10 +249,10 @@ def configure (ws : Workspace) (pkg : Package) : CliM PUnit := do
   runBuildM ws pkg pkg.buildDepOleans
 
 def command : (cmd : String) → CliM PUnit
-| "new"         => do processOptions; noArgsRem <| new (← takeArg)
-| "init"        => do processOptions; noArgsRem <| init (← takeArg)
-| "run"         => do processOptions; noArgsRem <| script (← loadPkg []) (← takeArg) (← getSubArgs)
-| "env"         => do env (← loadConfig []).1 (← takeArg) (← takeArgs).toArray
+| "new"         => do processOptions; noArgsRem <| new (← takeArg "missing package name")
+| "init"        => do processOptions; noArgsRem <| init (← takeArg "missing package name")
+| "run"         => do processOptions; noArgsRem <| script (← loadPkg []) (← takeArg "missing script") (← getSubArgs)
+| "env"         => do env (← loadConfig []).1 (← takeArg "missing command") (← takeArgs).toArray
 | "serve"       => do processOptions; noArgsRem <| serve (← getLeanInstall) (← loadPkg []) (← getSubArgs)
 | "configure"   => do processOptions; let (ws, pkg) ← loadConfig (← getSubArgs); noArgsRem <| configure ws pkg
 | "print-paths" => do processOptions; printPaths (← takeArgs)

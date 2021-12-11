@@ -29,9 +29,8 @@ unsafe def evalPackageDecl (env : Environment) (declName : Name)
   let m := env.evalConstCheck PackageConfig leanOpts ``PackageConfig declName
   if let Except.ok config := m.run.run then
     return config
-  throw <| IO.userError <|
-    s!"unexpected type at `{declName}`, " ++
-      "`Lake.IOPackager`, `Lake.Packager`, or `Lake.PackageConfig` expected"
+  error <| s!"unexpected type at `{declName}`, " ++
+    "`Lake.IOPackager`, `Lake.Packager`, or `Lake.PackageConfig` expected"
 
 /-- Evaluate a `script` declaration to its respective `Script`. -/
 unsafe def evalScriptDecl
@@ -50,19 +49,15 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
   let (env, ok) ← Elab.runFrontend input leanOpts configFile.toString configModName
   if ok then
     match packageAttr.ext.getState env |>.toList with
-    | [] =>
-      throw <| IO.userError
-        s!"configuration file is missing a `package` declaration"
+    | [] => error s!"configuration file is missing a `package` declaration"
     | [pkgDeclName] =>
       let config ← evalPackageDecl env pkgDeclName dir args leanOpts
       let scripts ← scriptAttr.ext.getState env |>.foldM (init := {})
         fun m d => do m.insert d <| ← evalScriptDecl env d leanOpts
       return {dir, config, scripts}
-    | _ =>
-      throw <| IO.userError
-        s!"configuration file has multiple `package` declarations"
+    | _ => error s!"configuration file has multiple `package` declarations"
   else
-    throw <| IO.userError s!"package configuration `{configFile}` has errors"
+    error s!"package configuration `{configFile}` has errors"
 
 /--
 Load the package located in

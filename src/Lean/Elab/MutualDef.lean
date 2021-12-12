@@ -156,13 +156,12 @@ private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (
       k fvars
   loop 0 #[]
 
-private def expandWhereDeclsAsStructInst : Macro
-  | `(whereDecls|where $[$decls:letRecDecl$[;]?]*) => do
+private def expandWhereStructInst : Macro
+  | `(Parser.Command.whereStructInst|where $[$decls:letDecl$[;]?]*) => do
     let letIdDecls ← decls.mapM fun stx => match stx with
-      | `(letRecDecl|$attrs:attributes $decl:letDecl) => Macro.throwErrorAt stx "attributes are 'where' elements are currently not supported here"
-      | `(letRecDecl|$decl:letPatDecl)  => Macro.throwErrorAt stx "patterns are not allowed here"
-      | `(letRecDecl|$decl:letEqnsDecl) => expandLetEqnsDecl decl
-      | `(letRecDecl|$decl:letIdDecl)   => pure decl
+      | `(letDecl|$decl:letPatDecl)  => Macro.throwErrorAt stx "patterns are not allowed here"
+      | `(letDecl|$decl:letEqnsDecl) => expandLetEqnsDecl decl
+      | `(letDecl|$decl:letIdDecl)   => pure decl
       | _                               => Macro.throwUnsupported
     let structInstFields ← letIdDecls.mapM fun
       | stx@`(letIdDecl|$id:ident $[$binders]* $[: $ty?]? := $val) => withRef stx do
@@ -184,12 +183,12 @@ def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls
 ```
 -/
 private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal do
-  if declVal.isOfKind `Lean.Parser.Command.declValSimple then
+  if declVal.isOfKind ``Lean.Parser.Command.declValSimple then
     expandWhereDeclsOpt declVal[2] declVal[1]
-  else if declVal.isOfKind `Lean.Parser.Command.declValEqns then
+  else if declVal.isOfKind ``Lean.Parser.Command.declValEqns then
     expandMatchAltsWhereDecls declVal[0]
-  else if declVal.isOfKind `Lean.Parser.Term.whereDecls then
-    expandWhereDeclsAsStructInst declVal
+  else if declVal.isOfKind ``Lean.Parser.Command.whereStructInst then
+    expandWhereStructInst declVal
   else if declVal.isMissing then
     Macro.throwErrorAt declVal "declaration body is missing"
   else

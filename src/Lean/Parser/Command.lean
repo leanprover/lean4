@@ -54,7 +54,12 @@ def declSig          := leading_parser many (ppSpace >> (Term.simpleBinderWithou
 def optDeclSig       := leading_parser many (ppSpace >> (Term.simpleBinderWithoutType <|> Term.bracketedBinder)) >> Term.optType
 def declValSimple    := leading_parser " :=\n" >> termParser >> optional Term.whereDecls
 def declValEqns      := leading_parser Term.matchAltsWhereDecls
-def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls
+def whereStructInst  := leading_parser "where " >> many1Indent (group (Term.letDecl >> optional ";"))
+/-
+  Remark: we should not use `Term.whereDecls` at `declVal` because `Term.whereDecls` is defined using `Term.letRecDecl` which may contain attributes.
+  Issue #753 showns an example that fails to be parsed when we used `Term.whereDecls`.
+-/
+def declVal          := declValSimple <|> declValEqns <|> whereStructInst
 def «abbrev»         := leading_parser "abbrev " >> declId >> optDeclSig >> declVal
 def optDefDeriving   := optional (atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
 def «def»            := leading_parser "def " >> declId >> optDeclSig >> declVal >> optDefDeriving >> terminationSuffix

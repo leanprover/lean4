@@ -25,7 +25,7 @@ fun x => IO.println x
 doNotation1.lean:51:0-51:13: error: type mismatch
   IO.mkRef true
 has type
-  IO (IO.Ref Bool) : Type
+  BaseIO (IO.Ref Bool) : Type
 but is expected to have type
   IO Unit : Type
 doNotation1.lean:58:2-58:20: error: type mismatch, result value has type

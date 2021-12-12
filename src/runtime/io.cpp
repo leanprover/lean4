@@ -105,22 +105,22 @@ MK_THREAD_LOCAL_GET(object_ref, get_stream_current_stdin,  g_stream_stdin);
 MK_THREAD_LOCAL_GET(object_ref, get_stream_current_stdout, g_stream_stdout);
 MK_THREAD_LOCAL_GET(object_ref, get_stream_current_stderr, g_stream_stderr);
 
-/* getStdin : IO FS.Stream */
+/* getStdin : BaseIO FS.Stream */
 extern "C" LEAN_EXPORT obj_res lean_get_stdin(obj_arg /* w */) {
     return io_result_mk_ok(get_stream_current_stdin().to_obj_arg());
 }
 
-/* getStdout : IO FS.Stream */
+/* getStdout : BaseIO FS.Stream */
 extern "C" LEAN_EXPORT obj_res lean_get_stdout(obj_arg /* w */) {
     return io_result_mk_ok(get_stream_current_stdout().to_obj_arg());
 }
 
-/* getStderr : IO FS.Stream */
+/* getStderr : BaseIO FS.Stream */
 extern "C" LEAN_EXPORT obj_res lean_get_stderr(obj_arg /* w */) {
     return io_result_mk_ok(get_stream_current_stderr().to_obj_arg());
 }
 
-/* setStdin  : FS.Stream -> IO FS.Stream */
+/* setStdin  : FS.Stream -> BaseIO FS.Stream */
 extern "C" LEAN_EXPORT obj_res lean_get_set_stdin(obj_arg h, obj_arg /* w */) {
     object_ref & x = get_stream_current_stdin();
     object * r = x.steal();
@@ -128,7 +128,7 @@ extern "C" LEAN_EXPORT obj_res lean_get_set_stdin(obj_arg h, obj_arg /* w */) {
     return io_result_mk_ok(r);
 }
 
-/* setStdout  : FS.Stream -> IO FS.Stream */
+/* setStdout  : FS.Stream -> BaseIO FS.Stream */
 extern "C" LEAN_EXPORT obj_res lean_get_set_stdout(obj_arg h, obj_arg /* w */) {
     object_ref & x = get_stream_current_stdout();
     object * r = x.steal();
@@ -136,7 +136,7 @@ extern "C" LEAN_EXPORT obj_res lean_get_set_stdout(obj_arg h, obj_arg /* w */) {
     return io_result_mk_ok(r);
 }
 
-/* setStderr  : FS.Stream -> IO FS.Stream */
+/* setStderr  : FS.Stream -> BaseIO FS.Stream */
 extern "C" LEAN_EXPORT obj_res lean_get_set_stderr(obj_arg h, obj_arg /* w */) {
     object_ref & x = get_stream_current_stderr();
     object * r = x.steal();
@@ -263,7 +263,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_mk(b_obj_arg filename, b_obj_
     }
 }
 
-/* Handle.isEof : (@& Handle) → IO Bool */
+/* Handle.isEof : (@& Handle) → BaseIO Bool */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_is_eof(b_obj_arg h, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);
     return io_result_mk_ok(box(std::feof(fp) != 0));
@@ -358,7 +358,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_put_str(b_obj_arg h, b_obj_ar
     }
 }
 
-/* monoMsNow : IO Nat */
+/* monoMsNow : BaseIO Nat */
 extern "C" LEAN_EXPORT obj_res lean_io_mono_ms_now(obj_arg /* w */) {
     auto now = std::chrono::steady_clock::now();
     auto tm = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());

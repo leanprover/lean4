@@ -712,6 +712,8 @@ where
       checkLetRecsToLiftTypes funFVars letRecsToLift
       withUsed vars headers values letRecsToLift fun vars => do
         let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
+        for preDef in preDefs do
+          trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
         let preDefs ← levelMVarToParamPreDecls preDefs
         let preDefs ← instantiateMVarsAtPreDecls preDefs
         let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames

@@ -1644,7 +1644,7 @@ def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState
 
 abbrev CategoryParserFn := Name → ParserFn
 
-builtin_initialize categoryParserFnRef : IO.Ref CategoryParserFn ← IO.mkRef fun _ => whitespace
+builtin_initialize categoryParserFnRef : IO.Ref CategoryParserFn ← IO.mkRef fun (_ : Name) => whitespace
 
 builtin_initialize categoryParserFnExtension : EnvExtension CategoryParserFn ← registerEnvExtension $ categoryParserFnRef.get
 

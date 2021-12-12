@@ -136,7 +136,7 @@ private def isNatValueTransition (p : Problem) : Bool :=
 private def processSkipInaccessible (p : Problem) : Problem :=
   match p.vars with
   | []      => unreachable!
-  | x :: xs => do
+  | x :: xs =>
     let alts := p.alts.map fun alt => match alt.patterns with
       | Pattern.inaccessible _ :: ps => { alt with patterns := ps }
       | _       => unreachable!
@@ -537,7 +537,7 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
         let newAlts := p.alts.filter isFirstPatternVar
         pure { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs }
 
-private def expandNatValuePattern (p : Problem) : Problem := do
+private def expandNatValuePattern (p : Problem) : Problem :=
   let alts := p.alts.map fun alt => match alt.patterns with
     | Pattern.val (Expr.lit (Literal.natVal 0) _) :: ps     => { alt with patterns := Pattern.ctor `Nat.zero [] [] [] :: ps }
     | Pattern.val (Expr.lit (Literal.natVal (n+1)) _) :: ps => { alt with patterns := Pattern.ctor `Nat.succ [] [] [Pattern.val (mkRawNatLit n)] :: ps }
@@ -588,12 +588,12 @@ private def List.moveToFront [Inhabited α] (as : List α) (i : Nat) : List α :
   b :: bs
 
 /-- Move variable `#i` to the beginning of the to-do list `p.vars`. -/
-private def moveToFront (p : Problem) (i : Nat) : Problem := do
+private def moveToFront (p : Problem) (i : Nat) : Problem :=
   if i == 0 then
     p
   else if h : i < p.vars.length then
     let x := p.vars.get i h
-    return { p with
+    { p with
       vars := List.moveToFront p.vars i
       alts := p.alts.map fun alt => { alt with patterns := List.moveToFront alt.patterns i }
     }

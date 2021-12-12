@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_string_data(lean_object*);
+LEAN_EXPORT lean_object* l_instInhabitedSubstring;
 LEAN_EXPORT lean_object* l_Array_getD(lean_object*);
 LEAN_EXPORT lean_object* l_instHShiftRight___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_run___rarg(lean_object*, lean_object*);
@@ -154,7 +155,6 @@ static lean_object* l_Lean_Macro_instInhabitedMethods___closed__3;
 LEAN_EXPORT lean_object* l_instInhabitedNat;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedMacroScopesView;
 static lean_object* l_Lean_instHashableName___closed__1;
-static lean_object* l_Lean_instInhabitedParserDescr___closed__2;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedParserDescr;
 LEAN_EXPORT lean_object* l_instLTFin(lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_dummySave(lean_object*, lean_object*);
@@ -193,8 +193,10 @@ LEAN_EXPORT lean_object* l_ReaderT_adapt___rarg(lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l_UInt8_ofNatCore___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_False_elim(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_List_concat___rarg(lean_object*, lean_object*);
+static lean_object* l_instInhabitedSubstring___closed__2;
 LEAN_EXPORT lean_object* l_EStateM_dummySave___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_nameLitKind;
+static lean_object* l_instInhabitedSubstring___closed__1;
 LEAN_EXPORT lean_object* l_cond(lean_object*);
 LEAN_EXPORT lean_object* l_MonadExcept_orElse___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_dummyRestore(lean_object*);
@@ -3586,6 +3588,35 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+static lean_object* _init_l_instInhabitedSubstring___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("");
+return x_1;
+}
+}
+static lean_object* _init_l_instInhabitedSubstring___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_instInhabitedSubstring___closed__1;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+lean_ctor_set(x_3, 2, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_instInhabitedSubstring() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_instInhabitedSubstring___closed__2;
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Substring_bsize(lean_object* x_1) {
@@ -8224,16 +8255,8 @@ return x_4;
 static lean_object* _init_l_Lean_instInhabitedParserDescr___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_instInhabitedParserDescr___closed__2() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_instInhabitedParserDescr___closed__1;
+x_1 = l_instInhabitedSubstring___closed__1;
 x_2 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -8243,7 +8266,7 @@ static lean_object* _init_l_Lean_instInhabitedParserDescr() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_instInhabitedParserDescr___closed__2;
+x_1 = l_Lean_instInhabitedParserDescr___closed__1;
 return x_1;
 }
 }
@@ -10540,6 +10563,12 @@ l_Char_utf8Size___closed__4 = _init_l_Char_utf8Size___closed__4();
 l_Char_utf8Size___closed__5 = _init_l_Char_utf8Size___closed__5();
 l_Char_utf8Size___closed__6 = _init_l_Char_utf8Size___closed__6();
 l_Char_utf8Size___closed__7 = _init_l_Char_utf8Size___closed__7();
+l_instInhabitedSubstring___closed__1 = _init_l_instInhabitedSubstring___closed__1();
+lean_mark_persistent(l_instInhabitedSubstring___closed__1);
+l_instInhabitedSubstring___closed__2 = _init_l_instInhabitedSubstring___closed__2();
+lean_mark_persistent(l_instInhabitedSubstring___closed__2);
+l_instInhabitedSubstring = _init_l_instInhabitedSubstring();
+lean_mark_persistent(l_instInhabitedSubstring);
 l_Array_empty___closed__1 = _init_l_Array_empty___closed__1();
 lean_mark_persistent(l_Array_empty___closed__1);
 l_Applicative_seqLeft___default___rarg___closed__1 = _init_l_Applicative_seqLeft___default___rarg___closed__1();
@@ -10686,8 +10715,6 @@ l_Lean_Syntax_getKind___closed__2 = _init_l_Lean_Syntax_getKind___closed__2();
 lean_mark_persistent(l_Lean_Syntax_getKind___closed__2);
 l_Lean_instInhabitedParserDescr___closed__1 = _init_l_Lean_instInhabitedParserDescr___closed__1();
 lean_mark_persistent(l_Lean_instInhabitedParserDescr___closed__1);
-l_Lean_instInhabitedParserDescr___closed__2 = _init_l_Lean_instInhabitedParserDescr___closed__2();
-lean_mark_persistent(l_Lean_instInhabitedParserDescr___closed__2);
 l_Lean_instInhabitedParserDescr = _init_l_Lean_instInhabitedParserDescr();
 lean_mark_persistent(l_Lean_instInhabitedParserDescr);
 l_Lean_reservedMacroScope = _init_l_Lean_reservedMacroScope();

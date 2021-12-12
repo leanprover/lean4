@@ -9,6 +9,7 @@ import Lean.Meta.Basic
 import Lean.Meta.Instances
 import Lean.Meta.AbstractMVars
 import Lean.Meta.WHNF
+import Lean.Meta.Check
 import Lean.Util.Profile
 
 namespace Lean.Meta
@@ -390,7 +391,7 @@ def wakeUp (answer : Answer) : Waiter → SynthM Unit
     modify fun s => { s with resumeStack := s.resumeStack.push (cNode, answer) }
 
 def isNewAnswer (oldAnswers : Array Answer) (answer : Answer) : Bool :=
-  oldAnswers.all fun oldAnswer => do
+  oldAnswers.all fun oldAnswer =>
     -- Remark: isDefEq here is too expensive. TODO: if `==` is too imprecise, add some light normalization to `resultType` at `addAnswer`
     -- iseq ← isDefEq oldAnswer.resultType answer.resultType; pure (!iseq)
     oldAnswer.resultType != answer.resultType
@@ -682,6 +683,32 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
           let resultType ← inferType result
           if (← withConfig (fun _ => inputConfig) <| isDefEq type resultType) then
             let result ← instantiateMVars result
+            /- We use `check` to propogate universe constraints implied by the `result`.
+               Recall that we use `ignoreLevelMVarDepth := true` which allows universe metavariables in the current depth to be assigned,
+               but these assignments are discarded by `withNewMCtxDepth`.
+
+               TODO: If this `check` is a performance bottleneck, we can improve performance by tracking whether
+                     a universe metavariable from previous universe levels have been assigned or not during TC resolution.
+                     We only need to perform the `check` if this kind of assignment have been performed.
+
+               The example in the issue #796 exposed this issue.
+               ```
+                structure A
+                class B (a : outParam A) (α : Sort u)
+                class C {a : A} (α : Sort u) [B a α]
+                class D {a : A} (α : Sort u) [B a α] [c : C α]
+                class E (a : A) where [c (α : Sort u) [B a α] : C α]
+                instance c {a : A} [e : E a] (α : Sort u) [B a α] : C α := e.c α
+
+                def d {a : A} [e : E a] (α : Sort u) [b : B a α] : D α := ⟨⟩
+               ```
+               The term `D α` has two instance implicit arguments. The second one has type `C α`, and TC
+               resolution produces the result `@c.{u} a e α b`.
+               Note that the `e` has type `E.{?v} a`, and `E` is universe polymorphic,
+               but the universe does not occur in the parameter `a`. We have that `?v := u` is implied by `@c.{u} a e α b`,
+               but this assignment is lost.
+            -/
+            check result
             pure (some result)
           else
             trace[Meta.synthInstance] "result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"

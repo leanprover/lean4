@@ -31,7 +31,7 @@ private partial def floatOutAntiquotTerms : Syntax → StateT (Syntax → TermEl
     Syntax.node i k (← args.mapM floatOutAntiquotTerms)
   | stx => pure stx
 
-private def getSepFromSplice (splice : Syntax) : Syntax := do
+private def getSepFromSplice (splice : Syntax) : Syntax :=
   if let Syntax.atom _ sep := getAntiquotSpliceSuffix splice then
     Syntax.mkStrLit (sep.dropRight 1)
   else

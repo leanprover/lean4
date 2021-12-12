@@ -234,6 +234,19 @@ def getTrailingSize (stx : Syntax) : Nat :=
   | some (SourceInfo.original (trailing := trailing) ..) => trailing.bsize
   | _ => 0
 
+/--
+  Return substring of original input covering `stx`.
+  Result is meaningful only if all involved `SourceInfo.original`s refer to the same string (as is the case after parsing). -/
+def getSubstring? (stx : Syntax) (withLeading := true) (withTrailing := true) : Option Substring :=
+  match stx.getHeadInfo, stx.getTailInfo with
+  | SourceInfo.original lead startPos _ _, SourceInfo.original _ _ trail stopPos =>
+    some {
+      str      := lead.str
+      startPos := if withLeading then lead.startPos else startPos
+      stopPos  := if withTrailing then trail.stopPos else stopPos
+    }
+  | _, _ => none
+
 @[specialize] private partial def updateLast {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
   if i == 0 then
     none
@@ -365,7 +378,7 @@ def mkIdent (val : Name) : Syntax :=
 @[inline] def mkGroupNode (args : Array Syntax := #[]) : Syntax :=
   mkNode groupKind args
 
-def mkSepArray (as : Array Syntax) (sep : Syntax) : Array Syntax := do
+def mkSepArray (as : Array Syntax) (sep : Syntax) : Array Syntax := Id.run <| do
   let mut i := 0
   let mut r := #[]
   for a in as do

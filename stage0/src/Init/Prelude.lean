@@ -1113,6 +1113,9 @@ structure Substring where
   startPos : String.Pos
   stopPos : String.Pos
 
+instance : Inhabited Substring where
+  default := ⟨"", 0, 0⟩
+
 @[inline] def Substring.bsize : Substring → Nat
   | ⟨_, b, e⟩ => e.sub b
 

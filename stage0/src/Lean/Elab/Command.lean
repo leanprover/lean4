@@ -301,7 +301,7 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do
   if !showPartialSyntaxErrors.get (← getOptions) && initMsgs.hasErrors && stx.hasMissing then
     -- discard elaboration errors, except for a few important and unlikely misleading ones, on parse error
     msgs := ⟨msgs.msgs.filter fun msg =>
-      msg.data.hasTag `Elab.synthPlaceholder || msg.data.hasTag `Tactic.unsolvedGoals⟩
+      msg.data.hasTag (fun tag => tag == `Elab.synthPlaceholder || tag == `Tactic.unsolvedGoals || (`_traceMsg).isSuffixOf tag)⟩
   for tree in (← getInfoTrees) do
     trace[Elab.info] (← tree.format)
   modify fun st => { st with
@@ -332,7 +332,7 @@ def getBracketedBinderIds : Syntax → Array Name
   | `(bracketedBinder|[$ty])                         => #[Name.anonymous]
   | _                                                => #[]
 
-private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context := do
+private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context := Id.run <| do
   let scope      := s.scopes.head!
   let mut sectionVars := {}
   for id in scope.varDecls.concatMap getBracketedBinderIds, uid in scope.varUIds do

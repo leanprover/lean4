@@ -195,6 +195,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Info_stx(lean_object*);
 lean_object* l_Lean_Elab_Info_toElabInfo_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_termGoalAt_x3f___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__11(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Info_occursInside_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__17(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Info_range_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_goalsAt_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -327,6 +328,7 @@ lean_object* l_Lean_Elab_CompletionInfo_stx(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_InfoTree_hoverableInfoAt_x3f___lambda__2___closed__1;
 static lean_object* l___private_Lean_Server_InfoUtils_0__String_reprRange____x40_Lean_Server_InfoUtils___hyg_35____closed__11;
+LEAN_EXPORT lean_object* l_Lean_Elab_Info_occursInside_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_getCompletionInfos___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_InfoTree_goalsAt_x3f_hasNestedTactic___closed__6;
 static lean_object* l_Lean_Elab_Info_fmtHover_x3f_fmtTerm_x3f___closed__7;
@@ -3243,6 +3245,124 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Elab_Info_occursBefore_x3f(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Info_occursInside_x3f(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Elab_Info_pos_x3f(x_1);
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; 
+x_4 = lean_box(0);
+return x_4;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_ctor_get(x_3, 0);
+lean_inc(x_5);
+lean_dec(x_3);
+x_6 = l_Lean_Elab_Info_tailPos_x3f(x_1);
+if (lean_obj_tag(x_6) == 0)
+{
+lean_object* x_7; 
+lean_dec(x_5);
+x_7 = lean_box(0);
+return x_7;
+}
+else
+{
+uint8_t x_8; 
+x_8 = !lean_is_exclusive(x_6);
+if (x_8 == 0)
+{
+lean_object* x_9; uint8_t x_10; 
+x_9 = lean_ctor_get(x_6, 0);
+x_10 = lean_nat_dec_le(x_5, x_2);
+if (x_10 == 0)
+{
+lean_object* x_11; 
+lean_free_object(x_6);
+lean_dec(x_9);
+lean_dec(x_5);
+x_11 = lean_box(0);
+return x_11;
+}
+else
+{
+uint8_t x_12; 
+x_12 = lean_nat_dec_lt(x_2, x_9);
+lean_dec(x_9);
+if (x_12 == 0)
+{
+lean_object* x_13; 
+lean_free_object(x_6);
+lean_dec(x_5);
+x_13 = lean_box(0);
+return x_13;
+}
+else
+{
+lean_object* x_14; 
+x_14 = lean_nat_sub(x_2, x_5);
+lean_dec(x_5);
+lean_ctor_set(x_6, 0, x_14);
+return x_6;
+}
+}
+}
+else
+{
+lean_object* x_15; uint8_t x_16; 
+x_15 = lean_ctor_get(x_6, 0);
+lean_inc(x_15);
+lean_dec(x_6);
+x_16 = lean_nat_dec_le(x_5, x_2);
+if (x_16 == 0)
+{
+lean_object* x_17; 
+lean_dec(x_15);
+lean_dec(x_5);
+x_17 = lean_box(0);
+return x_17;
+}
+else
+{
+uint8_t x_18; 
+x_18 = lean_nat_dec_lt(x_2, x_15);
+lean_dec(x_15);
+if (x_18 == 0)
+{
+lean_object* x_19; 
+lean_dec(x_5);
+x_19 = lean_box(0);
+return x_19;
+}
+else
+{
+lean_object* x_20; lean_object* x_21; 
+x_20 = lean_nat_sub(x_2, x_5);
+lean_dec(x_5);
+x_21 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_21, 0, x_20);
+return x_21;
+}
+}
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Info_occursInside_x3f___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Elab_Info_occursInside_x3f(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

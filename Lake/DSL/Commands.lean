@@ -30,7 +30,7 @@ syntax packageDeclTyped :=
   Term.typeSpec declValSimple
 
 syntax packageDeclSpec :=
-  ident (Term.whereDecls <|> packageDeclTyped <|> packageDeclWithBinders)?
+  ident (Command.whereStructInst <|> packageDeclTyped <|> packageDeclWithBinders)?
 
 scoped syntax (name := packageDecl)
 (docComment)? "package " packageDeclSpec : command

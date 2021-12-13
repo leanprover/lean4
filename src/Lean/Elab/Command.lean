@@ -26,6 +26,8 @@ structure Scope where
   varDecls      : Array Syntax := #[]
   /-- Globally unique internal identifiers for the `varDecls` -/
   varUIds       : Array Name := #[]
+  /-- noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for. -/
+  isNoncomputable : Bool := false
   deriving Inhabited
 
 structure State where

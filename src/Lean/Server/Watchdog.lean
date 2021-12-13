@@ -355,7 +355,7 @@ section NotificationHandling
       throwServerError "Got outdated version number"
     if changes.isEmpty then
       return
-    let (newDocText, _) := foldDocumentChanges changes oldDoc.meta.text
+    let newDocText := foldDocumentChanges changes oldDoc.meta.text
     let newMeta : DocumentMeta := ⟨doc.uri, newVersion, newDocText⟩
     let newHeaderAst ← parseHeaderAst newDocText.source
     if newHeaderAst != oldDoc.headerAst then

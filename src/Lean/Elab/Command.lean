@@ -339,12 +339,13 @@ private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) 
   let mut sectionVars := {}
   for id in scope.varDecls.concatMap getBracketedBinderIds, uid in scope.varUIds do
     sectionVars := sectionVars.insert id uid
-  { macroStack     := ctx.macroStack
-    fileName       := ctx.fileName
-    fileMap        := ctx.fileMap
-    currMacroScope := ctx.currMacroScope
-    declName?      := declName?
-    sectionVars    := sectionVars }
+  { macroStack             := ctx.macroStack
+    fileName               := ctx.fileName
+    fileMap                := ctx.fileMap
+    currMacroScope         := ctx.currMacroScope
+    declName?              := declName?
+    sectionVars            := sectionVars
+    isNoncomputableSection := scope.isNoncomputable }
 
 private def mkTermState (scope : Scope) (s : State) : Term.State := {
   messages          := {}

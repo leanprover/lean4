@@ -53,6 +53,8 @@ structure Context where
   sectionFVars       : NameMap Expr    := {}
   /-- Enable/disable implicit lambdas feature. -/
   implicitLambda     : Bool            := true
+  /-- noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for  -/
+  isNoncomputableSection : Bool        := false
 
 /-- Saved context for postponed terms and tactics to be executed. -/
 structure SavedContext where

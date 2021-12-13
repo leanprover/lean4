@@ -80,6 +80,16 @@ def addAsAxiom (preDef : PreDefinition) : MetaM Unit := do
 private def shouldGenCodeFor (preDef : PreDefinition) : Bool :=
   !preDef.kind.isTheorem && !preDef.modifiers.isNoncomputable
 
+private def compileDecl (decl : Declaration) : TermElabM Bool := do
+  try
+    Lean.compileDecl decl
+  catch ex =>
+    if (← read).isNoncomputableSection then
+      return false
+    else
+      throw ex
+  return true
+
 private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs preDef
@@ -104,7 +114,8 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM U
       addTermInfo preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     if compile && shouldGenCodeFor preDef then
-      compileDecl decl
+      unless (← compileDecl decl) do
+        return ()
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
 def addAndCompileNonRec (preDef : PreDefinition) : TermElabM Unit := do
@@ -128,9 +139,10 @@ def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSaf
       for preDef in preDefs do
         addTermInfo preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf preDefs AttributeApplicationTime.afterTypeChecking
-    compileDecl decl
+    unless (← compileDecl decl) do
+      return ()
     applyAttributesOf preDefs AttributeApplicationTime.afterCompilation
-    pure ()
+    return ()
 
 def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := do
   if preDefs.all shouldGenCodeFor then

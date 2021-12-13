@@ -93,6 +93,7 @@ def «structure»          := leading_parser
 @[builtinCommandParser] def declaration := leading_parser
 declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
 @[builtinCommandParser] def «deriving»     := leading_parser "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 ident ", "
+@[builtinCommandParser] def noncomputableSection := leading_parser "noncomputable " >> "section " >> optional ident
 @[builtinCommandParser] def «section»      := leading_parser "section " >> optional ident
 @[builtinCommandParser] def «namespace»    := leading_parser "namespace " >> ident
 @[builtinCommandParser] def «end»          := leading_parser "end " >> optional ident

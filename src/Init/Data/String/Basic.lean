@@ -126,6 +126,14 @@ def revFind (s : String) (p : Char → Bool) : Option Pos :=
   if s.bsize == 0 then none
   else revFindAux s p (s.prev s.bsize)
 
+/-- Returns the first position where the two strings differ. -/
+partial def firstDiffPos (a b : String) : Pos :=
+  let stopPos := a.bsize.min b.bsize
+  let rec loop (i : Pos) : Pos :=
+    if i == stopPos || a.get i != b.get i then i
+    else loop (a.next i)
+  loop 0
+
 private def utf8ExtractAux₂ : List Char → Pos → Pos → List Char
   | [],    _, _ => []
   | c::cs, i, e => if i = e then [] else c :: utf8ExtractAux₂ cs (i + csize c) e

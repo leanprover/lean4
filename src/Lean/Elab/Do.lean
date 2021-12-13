@@ -118,7 +118,7 @@ private partial def extractBind (expectedType? : Option Expr) : TermElabM Extrac
           | none => return none
     match (← extract? expectedType) with
     | some r => return r
-    | none   => throwError "invalid 'do' notation, expected type is not a monad application{indentExpr expectedType}"
+    | none   => throwError "invalid 'do' notation, expected type is not a monad application{indentExpr expectedType}\nYou can use the `do` notation in pure code by writing `Id.run do` instead of `do`, where `Id` is the identity monad."
 
 namespace Do
 

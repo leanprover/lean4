@@ -513,6 +513,8 @@ section MainLoop
       | Message.notification method (some params) =>
         handleNotification method (toJson params)
         mainLoop (←runClientTask)
+      | Message.response "register_ilean_watcher" result =>
+        mainLoop (←runClientTask)
       | _ => throwServerError "Got invalid JSON-RPC message"
     | ServerEvent.clientError e => throw e
     | ServerEvent.workerEvent fw ev =>
@@ -595,6 +597,19 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
       }
       : InitializeResult
     }
+  }
+  o.writeLspRequest {
+    id := RequestID.str "register_ilean_watcher"
+    method := "client/registerCapability"
+    param := some {
+      registrations := #[ {
+        id := "ilean_watcher"
+        method := "workspace/didChangeWatchedFiles"
+        registerOptions := some <| toJson {
+          watchers := #[ { globPattern := "**/*.ilean" } ]
+        : DidChangeWatchedFilesRegistrationOptions }
+      } ]
+    : RegistrationParams }
   }
   ReaderT.run initAndRunWatchdogAux {
     hIn            := i

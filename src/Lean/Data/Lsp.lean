@@ -6,6 +6,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Lean.Data.Lsp.Basic
 import Lean.Data.Lsp.Capabilities
+import Lean.Data.Lsp.Client
 import Lean.Data.Lsp.Communication
 import Lean.Data.Lsp.Diagnostics
 import Lean.Data.Lsp.Extra

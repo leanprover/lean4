@@ -90,6 +90,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Structural_findRecArg_
 lean_object* l_Nat_repr(lean_object*);
 static lean_object* l_Lean_Elab_Structural_findRecArg_go___rarg___closed__10;
 static lean_object* l_Lean_Elab_Structural_findRecArg_go___rarg___lambda__1___closed__3;
+lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_hasBadParamDep_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_hasConst___at_Lean_Elab_Structural_findRecArg_go___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_hasBadIndexDep_x3f___spec__2(lean_object*, lean_object*, size_t, size_t);
@@ -153,7 +154,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Structural_findRecArg_go___rarg___lambda__2
 lean_object* l_Lean_Meta_whnfD(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_brecOnSuffix;
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
-lean_object* l_IO_mkRef___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_findRecArg_go___rarg___closed__4;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_findRecArg_go___rarg___lambda__1___closed__2;
@@ -6879,7 +6879,7 @@ x_11 = lean_st_ref_get(x_8, x_9);
 x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
 lean_dec(x_11);
-x_13 = l_IO_mkRef___rarg(x_10, x_12);
+x_13 = lean_st_mk_ref(x_10, x_12);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_13, 1);

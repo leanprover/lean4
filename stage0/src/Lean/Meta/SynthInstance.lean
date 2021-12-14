@@ -429,7 +429,7 @@ def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
   Remark: This is syntactic check and no reduction is performed.
 -/
 private def hasUnusedArguments : Expr → Bool
-  | Expr.forallE _ d b _ => b.hasLooseBVar 0 || hasUnusedArguments b
+  | Expr.forallE _ d b _ => !b.hasLooseBVar 0 || hasUnusedArguments b
   | _ => false
 
 /--
@@ -768,12 +768,14 @@ private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <|
               return true
 
 builtin_initialize
+  registerTraceClass `Meta.synthPending
   registerTraceClass `Meta.synthInstance
   registerTraceClass `Meta.synthInstance.globalInstances
   registerTraceClass `Meta.synthInstance.newSubgoal
   registerTraceClass `Meta.synthInstance.tryResolve
   registerTraceClass `Meta.synthInstance.resume
   registerTraceClass `Meta.synthInstance.generate
-  registerTraceClass `Meta.synthPending
+  registerTraceClass `Meta.synthInstance.unusedArgs
+  registerTraceClass `Meta.synthInstance.newAnswer
 
 end Lean.Meta

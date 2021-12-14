@@ -1305,12 +1305,9 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Server_maybeTee(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = l_Lean_Server_maybeTee___closed__1;
 x_6 = lean_io_getenv(x_5, x_4);
-if (lean_obj_tag(x_6) == 0)
-{
-lean_object* x_7; 
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 if (lean_obj_tag(x_7) == 0)
@@ -1467,31 +1464,6 @@ lean_ctor_set(x_42, 0, x_40);
 lean_ctor_set(x_42, 1, x_41);
 return x_42;
 }
-}
-}
-}
-else
-{
-uint8_t x_43; 
-lean_dec(x_3);
-lean_dec(x_1);
-x_43 = !lean_is_exclusive(x_6);
-if (x_43 == 0)
-{
-return x_6;
-}
-else
-{
-lean_object* x_44; lean_object* x_45; lean_object* x_46; 
-x_44 = lean_ctor_get(x_6, 0);
-x_45 = lean_ctor_get(x_6, 1);
-lean_inc(x_45);
-lean_inc(x_44);
-lean_dec(x_6);
-x_46 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_46, 0, x_44);
-lean_ctor_set(x_46, 1, x_45);
-return x_46;
 }
 }
 }

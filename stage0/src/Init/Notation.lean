@@ -150,13 +150,13 @@ macro_rules
 macro "if " "let " pat:term " := " d:term " then " t:term " else " e:term : term =>
   `(match $d:term with | $pat:term => $t | _ => $e)
 
-syntax:min term "<|" term:min : term
+syntax:min term " <| " term:min : term
 
 macro_rules
   | `($f $args* <| $a) => let args := args.push a; `($f $args*)
   | `($f <| $a) => `($f $a)
 
-syntax:min term "|>" term:min1 : term
+syntax:min term " |> " term:min1 : term
 
 macro_rules
   | `($a |> $f $args*) => let args := args.push a; `($f $args*)
@@ -164,7 +164,7 @@ macro_rules
 
 -- Haskell-like pipe <|
 -- Note that we have a whitespace after `$` to avoid an ambiguity with the antiquotations.
-syntax:min term atomic("$" ws) term:min : term
+syntax:min term atomic(" $" ws) term:min : term
 
 macro_rules
   | `($f $args* $ $a) => let args := args.push a; `($f $args*)
@@ -333,7 +333,7 @@ syntax location         := withPosition(" at " (locationWildcard <|> locationHyp
 syntax (name := change) "change " term (location)? : tactic
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
 
-syntax rwRule    := ("←" <|> "<-")? term
+syntax rwRule    := ("← " <|> "<- ")? term
 syntax rwRuleSeq := "[" rwRule,+,? "]"
 
 syntax (name := rewriteSeq) "rewrite " (config)? rwRuleSeq (location)? : tactic
@@ -360,7 +360,7 @@ syntax discharger := atomic("(" (&"discharger" <|> &"disch")) " := " tacticSeq "
 
 syntax simpPre   := "↓"
 syntax simpPost  := "↑"
-syntax simpLemma := (simpPre <|> simpPost)? ("←" <|> "<-")? term
+syntax simpLemma := (simpPre <|> simpPost)? ("← " <|> "<- ")? term
 syntax simpErase := "-" term:max
 syntax simpStar  := "*"
 syntax (name := simp) "simp " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
@@ -391,7 +391,7 @@ macro "have' " d:haveDecl : tactic => `(refine_lift' have $d:haveDecl; ?_)
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x:ident : _ := $p)
 macro "let' " d:letDecl : tactic => `(refine_lift' let $d:letDecl; ?_)
 
-syntax inductionAlt  := "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
+syntax inductionAlt  := ppDedent(ppLine) "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
 syntax (name := induction) "induction " term,+ (" using " ident)?  ("generalizing " term:max+)? (inductionAlts)? : tactic
 

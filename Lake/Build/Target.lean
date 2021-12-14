@@ -52,13 +52,13 @@ protected def bindAsync [BindAsync n k] [MonadLiftT n m] (self : ActiveTarget i 
 protected def bindOpaqueAsync [BindAsync n k] [MonadLiftT n m] (self : ActiveTarget i k α) (f : α → n (k β)) : m (k β) :=
   liftM <| bindAsync self.task f
 
-def materializeAsync [Pure m] (self : ActiveTarget i k t) : m (k t) :=
-  pure self.task
-
 def materialize [Await k m'] [MonadLiftT m' m] (self : ActiveTarget i k t) : m t :=
   liftM <| await self.task
 
-def build [Await k m'] [MonadLiftT m' m] [Functor m] (self : ActiveTarget i k t) : m PUnit :=
+def build [Await k m'] [MonadLiftT m' m] [Functor m] (self : ActiveTarget i k t) : m i :=
+  Functor.mapConst self.info self.materialize
+
+def buildOpaque [Await k m'] [MonadLiftT m' m] [Functor m] (self : ActiveTarget i k t) : m PUnit :=
   discard <| self.materialize
 
 def mixOpaqueAsync
@@ -117,6 +117,12 @@ def withTask (task : m' (k' t')) (self : Target i m k t) : Target i m' k' t' :=
 def opaque (task : m (k t)) : Target PUnit m k t :=
   mk () task
 
+def opaqueAsync [Async m n k] [MonadLiftT n n'] (act : m t) : Target PUnit n' k t :=
+  mk () (liftM <| async act)
+
+protected def async [Async m n k] [MonadLiftT n n'] (info : i) (act : m t) : Target i n' k t :=
+  mk info (liftM <| async act)
+
 def active [Pure m] (target : ActiveTarget i k t) : Target i m k t :=
   mk target.info <| pure target.task
 
@@ -132,8 +138,26 @@ def computeSync [ComputeTrace i m' t] [MonadLiftT m' m] [Functor m] [Pure k] (in
 def computeAsync [ComputeTrace i m' t] [MonadLiftT m' m] [Async m n k] [MonadLiftT n m]  (info : i) : Target i m k t :=
   mk info <| liftM <| async <| liftM (n := m) <| ComputeTrace.computeTrace info
 
-def run [Monad m] (self : Target i m k t) : m (ActiveTarget i k t) :=
+def activate [Functor m] (self : Target i m k t) : m (ActiveTarget i k t) :=
   Functor.map (fun t => ActiveTarget.mk self.info t) self.task
+
+def materializeAsync (self : Target i m k t) : m (k t) :=
+  self.task
+
+def materialize [Await k n] [MonadLiftT n m] [Bind m] (self : Target i m k t) : m t := do
+  self.task >>= (liftM ∘ await)
+
+def build  [Await k n] [MonadLiftT n m] [Functor m] [Bind m] (self : Target i m k t) : m i := do
+  Functor.mapConst self.info self.materialize
+
+def buildOpaque  [Await k n] [MonadLiftT n m] [Functor m] [Bind m] (self : Target i m k t) : m PUnit := do
+  discard self.materialize
+
+def buildAsync [Functor m] [Functor k] (self : Target i m k t) : m (k i) :=
+  Functor.mapConst self.info <$> self.task
+
+def buildOpaqueAsync [Functor m] [Functor k] (self : Target i m k t) : m (k PUnit) :=
+  discard <$> self.task
 
 protected def mapAsync [BindAsync' m n k] [MonadLiftT n m] [Bind m] (self : Target i m k α) (f : i → α → m β) : m (k β) :=
   self.task >>= fun tk => liftM <| bindAsync' tk (f self.info)
@@ -146,15 +170,6 @@ protected def bindAsync [BindAsync n k] [MonadLiftT n m] [Bind m] (self : Target
 
 protected def bindOpaqueAsync [BindAsync n k] [MonadLiftT n m] [Bind m] (self : Target i m k α) (f : α → n (k β)) : m (k β) :=
   self.task >>= fun tk => liftM <| bindAsync tk f
-
-def materializeAsync (self : Target i m k t) : m (k t) :=
-  self.task
-
-def materialize [Await k n] [MonadLiftT n m] [Bind m] (self : Target i m k t) : m t := do
-  self.task >>= (liftM ∘ await)
-
-def build  [Await k n] [MonadLiftT n m] [Functor m] [Bind m] (self : Target i m k t) : m i := do
-  Functor.mapConst self.info self.materialize
 
 def mixOpaqueAsync
 [MixTrace t] [SeqMapAsync n k] [MonadLiftT n m] [Monad m]

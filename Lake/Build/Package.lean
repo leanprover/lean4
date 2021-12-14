@@ -18,7 +18,7 @@ namespace Lake
 /-- Build the `extraDepTarget` of all dependent packages into a single target. -/
 protected def Package.buildExtraDepsTarget (self : Package) : BuildM ActiveOpaqueTarget := do
   let collect pkg depTargets := do
-    let extraDepTarget ← self.extraDepTarget.run
+    let extraDepTarget ← self.extraDepTarget.activate
     let depTarget ← ActiveTarget.collectOpaqueArray depTargets
     extraDepTarget.mixOpaqueAsync depTarget
   let build dep recurse := do
@@ -32,7 +32,7 @@ protected def Package.buildExtraDepsTarget (self : Package) : BuildM ActiveOpaqu
 /-- Build the `extraDepTarget` of all workspace packages into a single target. -/
 def buildExtraDepsTarget : BuildM ActiveOpaqueTarget := do
   ActiveTarget.collectOpaqueArray <| ← do
-    (← getWorkspace).packageArray.mapM (·.extraDepTarget.run)
+    (← getWorkspace).packageArray.mapM (·.extraDepTarget.activate)
 
 -- # Build Package Modules
 
@@ -121,15 +121,15 @@ def Package.buildImportsAndDeps (imports : List String) (self : Package) : Build
   let depTarget ← self.buildExtraDepsTarget
   if imports.isEmpty then
     -- wait for deps to finish building
-    depTarget.build
+    depTarget.buildOpaque
   else
     -- build local imports from list
     let infos := (← getWorkspace).processImportList imports
     if self.defaultFacet == PackageFacet.oleans then
       let build := recBuildModuleOleanTargetWithLocalImports depTarget
       let targets ← buildModuleArray infos build
-      targets.forM (·.build)
+      targets.forM (·.buildOpaque)
     else
       let build := recBuildModuleOleanAndCTargetWithLocalImports depTarget
       let targets ← buildModuleArray infos build
-      targets.forM (·.build)
+      targets.forM (·.buildOpaque)

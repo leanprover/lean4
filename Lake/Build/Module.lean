@@ -82,8 +82,8 @@ abbrev cTarget (self : ActiveOleanAndCTarget) := self.info.cTarget
 
 end ActiveOleanAndCTarget
 
-def OleanAndCTarget.run' (self : OleanAndCTarget) : BuildM ActiveOleanAndCTarget := do
-  let t ← self.run
+def OleanAndCTarget.activate (self : OleanAndCTarget) : BuildM ActiveOleanAndCTarget := do
+  let t ← Target.activate self
   let oleanTask ← t.mapAsync fun info depTrace => do
     return mixTrace (← computeTrace info.oleanFile) depTrace
   let cTask ← t.mapAsync fun info _ => do
@@ -174,7 +174,7 @@ def recBuildModuleOleanAndCTargetWithLocalImports
   recBuildModuleWithLocalImports fun pkg mod leanFile contents importTargets => do
     let importTarget ← ActiveTarget.collectOpaqueList <| importTargets.map (·.oleanTarget)
     let allDepsTarget := Target.active <| ← depTarget.mixOpaqueAsync importTarget
-    pkg.moduleOleanAndCTargetOnly mod leanFile contents allDepsTarget |>.run'
+    pkg.moduleOleanAndCTargetOnly mod leanFile contents allDepsTarget |>.activate
 
 def recBuildModuleOleanTargetWithLocalImports
 [Monad m] [MonadLiftT BuildM m] [MonadFunctorT BuildM m] (depTarget : ActiveBuildTarget x)
@@ -182,7 +182,7 @@ def recBuildModuleOleanTargetWithLocalImports
   recBuildModuleWithLocalImports fun pkg mod leanFile contents importTargets => do
     let importTarget ← ActiveTarget.collectOpaqueList importTargets
     let allDepsTarget := Target.active <| ← depTarget.mixOpaqueAsync importTarget
-    pkg.moduleOleanTargetOnly mod leanFile contents allDepsTarget |>.run
+    pkg.moduleOleanTargetOnly mod leanFile contents allDepsTarget |>.activate
 
 -- ## Definitions
 

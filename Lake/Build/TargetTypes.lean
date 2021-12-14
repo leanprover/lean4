@@ -40,6 +40,12 @@ abbrev ActiveFileTarget := ActiveBuildTarget FilePath
 /-- A `BuildTarget` with no artifact information. -/
 abbrev OpaqueTarget := BuildTarget PUnit
 
+@[inline] def OpaqueTarget.mk (act : BuildM (BuildTask BuildTrace)) : OpaqueTarget :=
+  Target.opaque act
+
+@[inline] def OpaqueTarget.async (act : BuildM BuildTrace) : OpaqueTarget :=
+  Target.opaqueAsync act
+
 -- ## Active
 
 /-- An `ActiveBuildTarget` with no artifact information. -/

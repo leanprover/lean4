@@ -22,5 +22,51 @@ structure WorkspaceFolder where
 -- DidChangeWorkspaceFoldersParams,
 -- WorkspaceFoldersChangeEvent
 
+structure FileSystemWatcher where
+  globPattern : String
+  kind : Option Nat := none
+  deriving FromJson, ToJson
+
+namespace FileSystemWatcher
+
+-- Bit flags for `FileSystemWatcher.kind`
+def create := 1
+def change := 2
+def delete := 4
+
+end FileSystemWatcher
+
+structure DidChangeWatchedFilesRegistrationOptions where
+  watchers : Array FileSystemWatcher
+  deriving FromJson, ToJson
+
+inductive FileChangeType
+  | Created
+  | Changed
+  | Deleted
+
+instance : FromJson FileChangeType where
+  fromJson? j := do
+    match (← fromJson? j : Nat) with
+      | 1 => FileChangeType.Created
+      | 2 => FileChangeType.Changed
+      | 3 => FileChangeType.Deleted
+      | _ => throw s!"expected 1, 2, or 3, got {j}"
+
+instance : ToJson FileChangeType where
+  toJson
+    | FileChangeType.Created => toJson 1
+    | FileChangeType.Changed => toJson 2
+    | FileChangeType.Deleted => toJson 3
+
+structure FileEvent where
+  uri : DocumentUri
+  type : FileChangeType
+  deriving FromJson, ToJson
+
+structure DidChangeWatchedFilesParams where
+  changes : Array FileEvent
+  deriving FromJson, ToJson
+
 end Lsp
 end Lean

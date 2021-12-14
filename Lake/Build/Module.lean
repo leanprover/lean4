@@ -165,8 +165,8 @@ def recBuildModuleWithLocalImports
   let importTargets ← imports.filterMapM fun imp => OptionT.run do
     let mod := imp.module
     let pkg ← OptionT.mk <| getPackageForModule? mod
-    adaptPackage pkg <| recurse ⟨pkg, mod⟩
-  adaptPackage info.pkg <| build info.pkg info.name info.srcFile contents importTargets
+    recurse ⟨pkg, mod⟩
+  build info.pkg info.name info.srcFile contents importTargets
 
 def recBuildModuleOleanAndCTargetWithLocalImports
 [Monad m] [MonadLiftT BuildM m] [MonadFunctorT BuildM m] (depTarget : ActiveBuildTarget x)

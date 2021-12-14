@@ -67,10 +67,9 @@ def parseTargetSpec (ws : Workspace) (rootPkg : Package) (spec : String) : IO (B
   | _ =>
     error s!"invalid target spec '{spec}' (too many ':')"
 
-def build (targetSpecs : List String) : BuildM PUnit := do
-  let pkg ← getPackage
+def build (pkg : Package) (targetSpecs : List String) : BuildM PUnit := do
   let targets ← liftM <| targetSpecs.mapM (parseTargetSpec (← getWorkspace) pkg)
   if targets.isEmpty then
     pkg.defaultTarget.build
   else
-    targets.forM fun t => adaptPackage t.info <| discard <| t.build
+    targets.forM fun t => discard <| t.build

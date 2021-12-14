@@ -12,17 +12,11 @@ open Lean (Name)
 
 namespace Lake
 
-def mkBuildContext (ws : Workspace) (pkg : Package) (leanInstall : LeanInstall) (lakeInstall : LakeInstall) : IO BuildContext := do
+def mkBuildContext (ws : Workspace) (leanInstall : LeanInstall) (lakeInstall : LakeInstall) : IO BuildContext := do
   let leanTrace := mixTrace (← computeTrace leanInstall.lean) (← computeTrace leanInstall.sharedLib)
-  return {package := pkg, workspace := ws, leanInstall, lakeInstall, leanTrace}
+  return {workspace := ws, leanInstall, lakeInstall, leanTrace}
 
 deriving instance Inhabited for BuildContext
-
-def adaptPackage [MonadWithReaderOf BuildContext m] (pkg : Package) (act : m α) : m α :=
-  withReader (fun ctx => {ctx with package := pkg}) act
-
-def getPackage : BuildM Package :=
-  (·.package.get) <$> read
 
 def getWorkspace : BuildM Workspace :=
   (·.workspace.get) <$> read
@@ -32,9 +26,6 @@ def getPackageByName? (name : Name) : BuildM (Option Package) :=
 
 def getPackageForModule? (mod : Name) : BuildM (Option Package) :=
   (·.packageForModule? mod) <$> getWorkspace
-
-def getBuildDir : BuildM FilePath :=
-  (·.buildDir) <$> getPackage
 
 def getOleanPath : BuildM SearchPath :=
   (·.oleanPath) <$> getWorkspace

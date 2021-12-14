@@ -13,7 +13,6 @@ open System
 namespace Lake
 
 structure BuildContext where
-  package : OpaquePackage
   workspace : OpaqueWorkspace
   leanInstall : LeanInstall
   lakeInstall : LakeInstall

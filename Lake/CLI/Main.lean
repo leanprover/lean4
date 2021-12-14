@@ -115,14 +115,14 @@ def getInstall : CliM (LeanInstall × LakeInstall) := do
   return (← getLeanInstall, ← getLakeInstall)
 
 /-- Perform the given build action using information from CLI. -/
-def runBuildM (ws : Workspace) (pkg : Package)  (x : BuildM α) : CliM α := do
+def runBuildM (ws : Workspace) (x : BuildM α) : CliM α := do
   let (leanInstall, lakeInstall) ← getInstall
-  let ctx ← mkBuildContext ws pkg leanInstall lakeInstall
+  let ctx ← mkBuildContext ws leanInstall lakeInstall
   x.run LogMethods.io ctx
 
 /-- Variant of `runBuildM` that discards the build monad's output. -/
-def runBuildM_ (ws : Workspace) (pkg : Package) (x : BuildM α) : CliM PUnit :=
-  discard <| runBuildM ws pkg x
+def runBuildM_ (ws : Workspace) (x : BuildM α) : CliM PUnit :=
+  discard <| runBuildM ws x
 
 -- ## Argument Parsing
 
@@ -225,8 +225,8 @@ def printPaths (imports : List String := []) : CliM PUnit := do
   let configFile := (← getRootDir) / (← getConfigFile)
   if (← configFile.pathExists) then
     let (ws, pkg) ← loadConfig (← getSubArgs)
-    let ctx ← mkBuildContext ws pkg leanInstall lakeInstall
-    buildImportsAndDeps imports |>.run LogMethods.eio ctx
+    let ctx ← mkBuildContext ws leanInstall lakeInstall
+    pkg.buildImportsAndDeps imports |>.run LogMethods.eio ctx
     IO.println <| Json.compress <| toJson ws.leanPaths
   else
     exit noConfigFileCode
@@ -251,18 +251,15 @@ def env (leanInstall : LeanInstall) (ws : Workspace)
   }
   exit (← child.wait)
 
-def configure (ws : Workspace) (pkg : Package) : CliM PUnit := do
-  runBuildM ws pkg pkg.buildDepOleans
-
 def command : (cmd : String) → CliM PUnit
 | "new"         => do processOptions; noArgsRem <| new (← takeArg "missing package name")
 | "init"        => do processOptions; noArgsRem <| init (← takeArg "missing package name")
 | "run"         => do processOptions; noArgsRem <| script (← loadPkg []) (← takeArg "missing script") (← getSubArgs)
 | "env"         => do env (← getLeanInstall) (← loadConfig []).1 (← takeArg "missing command") (← takeArgs).toArray
 | "serve"       => do processOptions; noArgsRem <| serve (← getLeanInstall) (← loadPkg []) (← getSubArgs)
-| "configure"   => do processOptions; let (ws, pkg) ← loadConfig (← getSubArgs); noArgsRem <| configure ws pkg
+| "configure"   => do processOptions; let (ws, pkg) ← loadConfig (← getSubArgs); noArgsRem <| runBuildM ws pkg.buildDepOleans
 | "print-paths" => do processOptions; printPaths (← takeArgs)
-| "build"       => do processOptions; let (ws, pkg) ← loadConfig (← getSubArgs); runBuildM ws pkg <| build (← takeArgs)
+| "build"       => do processOptions; let (ws, pkg) ← loadConfig (← getSubArgs); runBuildM ws <| build pkg (← takeArgs)
 | "clean"       => do processOptions; noArgsRem <| (← loadPkg (← getSubArgs)).clean
 | "self-check"  => do processOptions; noArgsRem <| verifyInstall
 | "help"        => do IO.println <| help (← takeArg?)

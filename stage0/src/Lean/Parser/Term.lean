@@ -16,7 +16,7 @@ def commentBody : Parser :=
 @[combinatorParenthesizer Lean.Parser.Command.commentBody] def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
 @[combinatorFormatter Lean.Parser.Command.commentBody] def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous
 
-def docComment       := leading_parser ppDedent $ "/--" >> commentBody >> ppLine
+def docComment       := leading_parser ppDedent $ "/--" >> ppSpace >> commentBody >> ppLine
 end Command
 
 builtin_initialize
@@ -50,7 +50,7 @@ namespace Term
 
 /- Built-in parsers -/
 
-@[builtinTermParser] def byTactic := leading_parser:leadPrec "by " >> Tactic.tacticSeq
+@[builtinTermParser] def byTactic := leading_parser:leadPrec ppAllowUngrouped >> "by " >> Tactic.tacticSeq
 
 def optSemicolon (p : Parser) : Parser := ppDedent $ optional ";" >> ppLine >> p
 
@@ -70,7 +70,7 @@ def optSemicolon (p : Parser) : Parser := ppDedent $ optional ";" >> ppLine >> p
 def typeAscription := leading_parser " : " >> termParser
 def tupleTail      := leading_parser ", " >> sepBy1 termParser ", "
 def parenSpecial : Parser := optional (tupleTail <|> typeAscription)
-@[builtinTermParser] def paren := leading_parser "(" >> ppDedent (withoutPosition (withoutForbidden (optional (termParser >> parenSpecial)))) >> ")"
+@[builtinTermParser] def paren := leading_parser "(" >> (withoutPosition (withoutForbidden (optional (ppDedentIfGrouped termParser >> parenSpecial)))) >> ")"
 @[builtinTermParser] def anonymousCtor := leading_parser "⟨" >> sepBy termParser ", " >> "⟩"
 def optIdent : Parser := optional (atomic (ident >> " : "))
 def fromTerm   := leading_parser " from " >> termParser
@@ -133,7 +133,7 @@ def matchAlt (rhsParser : Parser := termParser) : Parser :=
 def matchAltExpr := matchAlt
 
 def matchAlts (rhsParser : Parser := termParser) : Parser :=
-  leading_parser ppDedent $ withPosition $ many1Indent (ppLine >> matchAlt rhsParser)
+  leading_parser withPosition $ many1Indent (ppLine >> matchAlt rhsParser)
 
 def matchDiscr := leading_parser optional (atomic (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> termParser
 
@@ -141,7 +141,7 @@ def trueVal  := leading_parser nonReservedSymbol "true"
 def falseVal := leading_parser nonReservedSymbol "false"
 def generalizingParam := leading_parser atomic ("(" >> nonReservedSymbol "generalizing") >> " := " >> (trueVal <|> falseVal)  >> ")"
 
-@[builtinTermParser] def «match» := leading_parser:leadPrec "match " >> optional generalizingParam >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
+@[builtinTermParser] def «match» := leading_parser:leadPrec "match " >> optional generalizingParam >> sepBy1 matchDiscr ", " >> optType >> " with " >> ppDedent matchAlts
 @[builtinTermParser] def «nomatch» := leading_parser:leadPrec "nomatch " >> termParser
 
 def funImplicitBinder := atomic (lookahead ("{" >> many1 binderIdent >> (symbol " : " <|> "}"))) >> implicitBinder
@@ -149,14 +149,14 @@ def funStrictImplicitBinder := atomic (lookahead (strictImplicitLeftBracket >> m
 def funSimpleBinder   := atomic (lookahead (many1 binderIdent >> " : ")) >> simpleBinder
 def funBinder : Parser := funStrictImplicitBinder <|> funImplicitBinder <|> instBinder <|> funSimpleBinder <|> termParser maxPrec
 -- NOTE: we use `nodeWithAntiquot` to ensure that `fun $b => ...` remains a `term` antiquotation
-def basicFun : Parser := nodeWithAntiquot "basicFun" `Lean.Parser.Term.basicFun (many1 (ppSpace >> funBinder) >> darrow >> termParser)
-@[builtinTermParser] def «fun» := leading_parser:maxPrec unicodeSymbol "λ" "fun" >> (basicFun <|> matchAlts)
+def basicFun : Parser := nodeWithAntiquot "basicFun" `Lean.Parser.Term.basicFun (ppGroup (many1 (ppSpace >> funBinder) >> " =>") >> ppSpace >> termParser)
+@[builtinTermParser] def «fun» := leading_parser:maxPrec ppAllowUngrouped >> unicodeSymbol "λ" "fun" >> (basicFun <|> matchAlts)
 
 def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
 @[builtinTermParser] def «leading_parser»  := leading_parser:leadPrec "leading_parser " >> optExprPrecedence >> termParser
 @[builtinTermParser] def «trailing_parser» := leading_parser:leadPrec "trailing_parser " >> optExprPrecedence >> optExprPrecedence >> termParser
 
-@[builtinTermParser] def borrowed   := leading_parser "@&" >> termParser leadPrec
+@[builtinTermParser] def borrowed   := leading_parser "@& " >> termParser leadPrec
 @[builtinTermParser] def quotedName := leading_parser nameLit
 -- use `rawCh` because ``"`" >> ident`` overlaps with `nameLit`, with the latter being preferred by the tokenizer
 -- note that we cannot use ```"``"``` as a new token either because it would break `precheckedQuot`
@@ -197,7 +197,7 @@ def letRecDecls      := leading_parser sepBy1 letRecDecl ", "
 def «letrec» := leading_parser:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >> optSemicolon termParser
 
 @[runBuiltinParserAttributeHooks]
-def whereDecls := leading_parser "where " >> many1Indent (group (letRecDecl >> optional ";"))
+def whereDecls := leading_parser " where" >> many1Indent (ppLine >> ppGroup (group (letRecDecl >> optional ";")))
 @[runBuiltinParserAttributeHooks]
 def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 

@@ -509,6 +509,7 @@ LEAN_EXPORT lean_object* l_Std_RBNode_ins___at_Lean_Parser_TokenMap_insert___spe
 static lean_object* l_Lean_Parser_antiquotNestedExpr___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Parser_mkIdResult(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_orelseInfo(lean_object*, lean_object*);
+lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_strLitNoAntiquot___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_sepByFn(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_fieldIdx___closed__2;
@@ -945,7 +946,6 @@ static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Parser
 LEAN_EXPORT lean_object* l_Lean_Parser_unicodeSymbolFn(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Syntax_forArgsM___spec__1___at_Lean_Syntax_forArgsM___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_epsilonInfo___elambda__1(lean_object*);
-lean_object* l_IO_mkRef___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_categoryParserFnExtension;
 LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_Parser_indexed___spec__5___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_finishCommentBlock_eoi(lean_object*);
@@ -26018,10 +26018,27 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Basic___hyg_9094_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; 
+lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_2 = l_Lean_Parser_initFn____x40_Lean_Parser_Basic___hyg_9094____closed__1;
-x_3 = l_IO_mkRef___rarg(x_2, x_1);
+x_3 = lean_st_mk_ref(x_2, x_1);
+x_4 = !lean_is_exclusive(x_3);
+if (x_4 == 0)
+{
 return x_3;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = lean_ctor_get(x_3, 0);
+x_6 = lean_ctor_get(x_3, 1);
+lean_inc(x_6);
+lean_inc(x_5);
+lean_dec(x_3);
+x_7 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_7, 0, x_5);
+lean_ctor_set(x_7, 1, x_6);
+return x_7;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Basic___hyg_9094____lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

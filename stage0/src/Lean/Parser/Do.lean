@@ -15,7 +15,7 @@ builtin_initialize registerBuiltinDynamicParserAttribute `doElemParser `doElem
   categoryParser `doElem rbp
 
 namespace Term
-def leftArrow : Parser := unicodeSymbol " ← " " <- "
+def leftArrow : Parser := unicodeSymbol "← " "<- "
 @[builtinTermParser] def liftMethod := leading_parser:minPrec leftArrow >> termParser
 
 def doSeqItem      := leading_parser ppLine >> doElemParser >> optional "; "
@@ -39,8 +39,8 @@ def notFollowedByRedefinedTermToken :=
 @[builtinDoElemParser] def doLet      := leading_parser "let " >> optional "mut " >> letDecl
 
 @[builtinDoElemParser] def doLetRec   := leading_parser group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
-def doIdDecl   := leading_parser atomic (ident >> optType >> leftArrow) >> doElemParser
-def doPatDecl  := leading_parser atomic (termParser >> leftArrow) >> doElemParser >> optional (checkColGt >> " | " >> doElemParser)
+def doIdDecl   := leading_parser atomic (ident >> optType >> ppSpace >> leftArrow) >> doElemParser
+def doPatDecl  := leading_parser atomic (termParser >> ppSpace >> leftArrow) >> doElemParser >> optional (checkColGt >> " | " >> doElemParser)
 @[builtinDoElemParser] def doLetArrow      := leading_parser withPosition ("let " >> optional "mut " >> (doIdDecl <|> doPatDecl))
 
 -- We use `letIdDeclNoBinders` to define `doReassign`.
@@ -94,7 +94,7 @@ def doIfCond    := withAntiquot (mkAntiquot "doIfCond" none (anonymous := false)
 def doForDecl := leading_parser termParser >> " in " >> withForbidden "do" termParser
 @[builtinDoElemParser] def doFor    := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
 
-def doMatchAlts := matchAlts (rhsParser := doSeq)
+def doMatchAlts := ppDedent <| matchAlts (rhsParser := doSeq)
 @[builtinDoElemParser] def doMatch := leading_parser:leadPrec "match " >> optional Term.generalizingParam >> sepBy1 matchDiscr ", " >> optType >> " with " >> doMatchAlts
 
 def doCatch      := leading_parser atomic ("catch " >> binderIdent) >> optional (" : " >> termParser) >> darrow >> doSeq
@@ -123,7 +123,7 @@ The second `notFollowedBy` prevents this problem.
 @[builtinDoElemParser] def doExpr   := leading_parser notFollowedByRedefinedTermToken >> termParser >> notFollowedBy (symbol ":=" <|> symbol "←" <|> symbol "<-") "unexpected token after 'expr' in 'do' block"
 @[builtinDoElemParser] def doNested := leading_parser "do " >> doSeq
 
-@[builtinTermParser] def «do»  := leading_parser:argPrec "do " >> doSeq
+@[builtinTermParser] def «do»  := leading_parser:argPrec ppAllowUngrouped >> "do " >> doSeq
 
 @[builtinTermParser] def doElem.quot : Parser := leading_parser "`(doElem|" >> incQuotDepth doElemParser >> ")"
 

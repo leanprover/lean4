@@ -54,6 +54,7 @@ lean_object* l_Lean_Meta_Simp_main(lean_object*, lean_object*, lean_object*, lea
 static lean_object* l___private_Lean_Elab_Tactic_Conv_Pattern_0__Lean_Elab_Tactic_Conv_getContext___rarg___closed__2;
 lean_object* l_Lean_Elab_Tactic_Conv_mkConvGoalFor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalPattern_declRange___closed__7;
+lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at___private_Lean_Elab_Tactic_Basic_0__Lean_Elab_Tactic_evalTacticUsing_loop___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalPattern___closed__4;
 lean_object* l_Lean_Meta_isExprDefEqGuarded(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -95,7 +96,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalPattern___closed__3
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Conv_Pattern_0__Lean_Elab_Tactic_Conv_pre___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Conv_Pattern_0__Lean_Elab_Tactic_Conv_findPattern_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_mkRef___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Conv_Pattern_0__Lean_Elab_Tactic_Conv_getContext___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Conv_evalPattern___lambda__1___closed__1;
 static lean_object* l_Lean_Elab_Tactic_Conv_evalPattern___closed__6;
@@ -1335,7 +1335,7 @@ x_9 = lean_st_ref_get(x_6, x_7);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
 lean_dec(x_9);
-x_11 = l_IO_mkRef___rarg(x_8, x_10);
+x_11 = lean_st_mk_ref(x_8, x_10);
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);

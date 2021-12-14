@@ -175,6 +175,7 @@ static lean_object* l_Lean_Elab_Tactic_mkSimpContext___lambda__2___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at___private_Lean_Elab_Tactic_Simp_0__Lean_Elab_Tactic_elabSimpArgs___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_tacticToDischarge___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConst___at___private_Lean_Elab_Tactic_Simp_0__Lean_Elab_Tactic_elabSimpArgs___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoLeaf___at___private_Lean_Elab_Tactic_Simp_0__Lean_Elab_Tactic_elabSimpArgs___spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalSimp___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -319,7 +320,6 @@ LEAN_EXPORT lean_object* l_Lean_withoutModifyingState___at_Lean_Elab_Tactic_elab
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSimp___closed__5;
 static lean_object* l_Lean_Elab_Tactic_mkSimpContext___closed__2;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_mkSimpContext___spec__3___at_Lean_Elab_Tactic_mkSimpContext___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_mkRef___rarg(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSimp_declRange___closed__4;
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_tacticToDischarge___closed__17;
@@ -2098,7 +2098,7 @@ x_56 = lean_st_ref_get(x_9, x_55);
 x_57 = lean_ctor_get(x_56, 1);
 lean_inc(x_57);
 lean_dec(x_56);
-x_58 = l_IO_mkRef___rarg(x_54, x_57);
+x_58 = lean_st_mk_ref(x_54, x_57);
 x_59 = !lean_is_exclusive(x_58);
 if (x_59 == 0)
 {

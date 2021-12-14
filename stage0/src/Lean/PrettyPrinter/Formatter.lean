@@ -31,6 +31,11 @@ structure State where
   -- Textual content of `stack` up to the first whitespace (not enclosed in an escaped ident). We assume that the textual
   -- content of `stack` is modified only by `pushText` and `pushLine`, so `leadWord` is adjusted there accordingly.
   leadWord : String := ""
+  -- Whether the generated format begins with the result of an ungrouped category formatter.
+  isUngrouped : Bool := false
+  -- Whether the resulting format must be grouped when used in a category formatter.
+  -- If the flag is set to false, then categoryParser omits the fill+nest operation.
+  mustBeGrouped : Bool := true
   -- Stack of generated Format objects, analogous to the Syntax stack in the parser.
   -- Note, however, that the stack is reversed because of the right-to-left traversal.
   stack    : Array Format := #[]
@@ -105,12 +110,15 @@ def getStackSize : FormatterM Nat := do
 def setStack (stack : Array Format) : FormatterM Unit :=
   modify fun st => { st with stack := stack }
 
-def push (f : Format) : FormatterM Unit :=
-  modify fun st => { st with stack := st.stack.push f }
+private def push (f : Format) : FormatterM Unit :=
+  modify fun st => { st with stack := st.stack.push f, isUngrouped := false }
 
-def pushLine : FormatterM Unit := do
-  push Format.line;
-  modify fun st => { st with leadWord := "" }
+def pushWhitespace (f : Format) : FormatterM Unit := do
+  push f
+  modify fun st => { st with leadWord := "", isUngrouped := false }
+
+def pushLine : FormatterM Unit :=
+  pushWhitespace Format.line
 
 /-- Execute `x` at the right-most child of the current node, if any, then advance to the left. -/
 def visitArgs (x : FormatterM Unit) : FormatterM Unit := do
@@ -137,9 +145,19 @@ def indent (x : Formatter) (indent : Option Int := none) : Formatter := do
   let indent := indent.getD $ Std.Format.getIndent ctx.options
   modify fun st => { st with stack := st.stack.modify (st.stack.size - 1) (Format.nest indent) }
 
+def fill (x : Formatter) : Formatter := do
+  concat x
+  modify fun st => { st with
+    stack := st.stack.modify (st.stack.size - 1) Format.fill
+    isUngrouped := false
+  }
+
 def group (x : Formatter) : Formatter := do
   concat x
-  modify fun st => { st with stack := st.stack.modify (st.stack.size - 1) Format.fill }
+  modify fun st => { st with
+    stack := st.stack.modify (st.stack.size - 1) Format.group
+    isUngrouped := false
+  }
 
 /-- If `pos?` has a position, run `x` and tag its results with that position. Otherwise just run `x`. -/
 def withMaybeTag (pos? : Option String.Pos) (x : FormatterM Unit) : Formatter := do
@@ -207,8 +225,8 @@ def tokenWithAntiquot.formatter (p : Formatter) : Formatter := do
   else
     p
 
-@[combinatorFormatter Lean.Parser.categoryParser]
-def categoryParser.formatter (cat : Name) : Formatter := group $ indent do
+def categoryFormatterCore (cat : Name) : Formatter := do
+  modify fun st => { st with mustBeGrouped := true, isUngrouped := false }
   let stx ← getCur
   trace[PrettyPrinter.format] "formatting {indentD (format stx)}"
   if stx.getKind == `choice then
@@ -218,6 +236,20 @@ def categoryParser.formatter (cat : Name) : Formatter := group $ indent do
       formatterForKind (← getCur).getKind
   else
     withAntiquot.formatter (mkAntiquot.formatter' cat.toString none) (formatterForKind stx.getKind)
+  modify fun st => { st with mustBeGrouped := true, isUngrouped := !st.mustBeGrouped }
+
+@[combinatorFormatter Lean.Parser.categoryParser]
+def categoryParser.formatter (cat : Name) : Formatter := do
+  concat <| categoryFormatterCore cat
+  unless (← get).isUngrouped do
+    let indent := Std.Format.getIndent (← read).options
+    modify fun st => { st with
+      stack := st.stack.modify (st.stack.size - 1) fun fmt =>
+        fmt.nest indent |>.fill
+    }
+
+def categoryFormatter (cat : Name) : Formatter :=
+  fill <| indent <| categoryFormatterCore cat
 
 @[combinatorFormatter Lean.Parser.categoryParserOfStack]
 def categoryParserOfStack.formatter (offset : Nat) : Formatter := do
@@ -276,13 +308,6 @@ def parseToken (s : String) : FormatterM ParserState := do
     options := ← getOptions,
     tokens := (← read).table } (Parser.mkParserState s)
 
-def pushTokenCore (tk : String) : FormatterM Unit := do
-  if tk.toSubstring.dropRightWhile (fun s => s == ' ') == tk.toSubstring then
-    push tk
-  else
-    pushLine
-    push tk.trimRight
-
 def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
   match info with
   | SourceInfo.original _ _ ss _ =>
@@ -304,15 +329,21 @@ def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
     let t ← parseToken $ tk' ++ st.leadWord
     if t.pos <= tk'.bsize then
       -- stopped within `tk` => use it as is, extend `leadWord` if not prefixed by whitespace
-      pushTokenCore tk
+      push tk
       modify fun st => { st with leadWord := if tk.trimLeft == tk then tk ++ st.leadWord else "" }
     else
       -- stopped after `tk` => add space
-      pushTokenCore $ tk ++ " "
+      push $ tk ++ " "
       modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" }
   else
     -- already separated => use `tk` as is
-    pushTokenCore tk
+    if st.leadWord == "" then
+      push tk.trimRight
+    else if tk.endsWith " " then
+      pushLine
+      push tk.trimRight
+    else
+      push tk -- preserve special whitespace for tokens like ":=\n"
     modify fun st => { st with leadWord := if tk.trimLeft == tk then tk else "" }
 
   match info with
@@ -326,7 +357,8 @@ def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
         -- with the actual token, so dedent
         indent (push s!"{ss'}\n") (some ((0:Int) - Std.Format.getIndent (← getOptions)))
       else
-        push s!"{ss'} "
+        pushLine
+        push ss'.toString
       modify fun st => { st with leadWord := "" }
   | _ => pure ()
 
@@ -493,9 +525,11 @@ def format (formatter : Formatter) (stx : Syntax) : CoreM Format := do
       pure $ Format.fill $ st.stack.get! 0)
     (fun _ => throwError "format: uncaught backtrack exception")
 
-def formatTerm := format $ categoryParser.formatter `term
-def formatTactic := format $ categoryParser.formatter `tactic
-def formatCommand := format $ categoryParser.formatter `command
+def formatCategory (cat : Name) := format $ categoryFormatter cat
+
+def formatTerm := formatCategory `term
+def formatTactic := formatCategory `tactic
+def formatCommand := formatCategory `command
 
 builtin_initialize registerTraceClass `PrettyPrinter.format;
 

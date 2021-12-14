@@ -145,10 +145,17 @@ def indent (x : Formatter) (indent : Option Int := none) : Formatter := do
   let indent := indent.getD $ Std.Format.getIndent ctx.options
   modify fun st => { st with stack := st.stack.modify (st.stack.size - 1) (Format.nest indent) }
 
-def group (x : Formatter) : Formatter := do
+def fill (x : Formatter) : Formatter := do
   concat x
   modify fun st => { st with
     stack := st.stack.modify (st.stack.size - 1) Format.fill
+    isUngrouped := false
+  }
+
+def group (x : Formatter) : Formatter := do
+  concat x
+  modify fun st => { st with
+    stack := st.stack.modify (st.stack.size - 1) Format.group
     isUngrouped := false
   }
 
@@ -242,7 +249,7 @@ def categoryParser.formatter (cat : Name) : Formatter := do
     }
 
 def categoryFormatter (cat : Name) : Formatter :=
-  group <| indent <| categoryFormatterCore cat
+  fill <| indent <| categoryFormatterCore cat
 
 @[combinatorFormatter Lean.Parser.categoryParserOfStack]
 def categoryParserOfStack.formatter (offset : Nat) : Formatter := do

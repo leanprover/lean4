@@ -140,6 +140,13 @@ protected def Package.moduleOleanTargetOnly (self : Package)
 
 -- # Recursive Building
 
+structure ModuleInfo where
+  pkg : Package
+  name : Name
+
+def ModuleInfo.srcFile (self : ModuleInfo) : FilePath :=
+  self.pkg.modToSrc self.name
+
 /-
 Produces a recursive module target builder that
 builds the target module after recursively building its local imports
@@ -147,37 +154,35 @@ builds the target module after recursively building its local imports
 -/
 def recBuildModuleWithLocalImports
 [Monad m] [MonadLiftT BuildM m] [MonadFunctorT BuildM m]
-(build : Name → FilePath → String → List α → BuildM α)
-: RecBuild Name α m := fun mod recurse => do
+(build : Package → Name → FilePath → String → List α → BuildM α)
+: RecBuild ModuleInfo α m := fun info recurse => do
   have : MonadLift BuildM m := ⟨liftM⟩
   have : MonadFunctor BuildM m := ⟨fun f => monadMap (m := BuildM) f⟩
-  let pkg ← getPackage
-  let leanFile := pkg.modToSrc mod
-  let contents ← IO.FS.readFile leanFile
-  let (imports, _, _) ← Elab.parseImports contents leanFile.toString
+  let contents ← IO.FS.readFile info.srcFile
+  let (imports, _, _) ← Elab.parseImports contents info.srcFile.toString
   -- we construct the import targets even if a rebuild is not required
   -- because other build processes (ex. `.o`) rely on the map being complete
   let importTargets ← imports.filterMapM fun imp => OptionT.run do
     let mod := imp.module
     let pkg ← OptionT.mk <| getPackageForModule? mod
-    adaptPackage pkg <| recurse mod
-  build mod leanFile contents importTargets
+    adaptPackage pkg <| recurse ⟨pkg, mod⟩
+  adaptPackage info.pkg <| build info.pkg info.name info.srcFile contents importTargets
 
 def recBuildModuleOleanAndCTargetWithLocalImports
 [Monad m] [MonadLiftT BuildM m] [MonadFunctorT BuildM m] (depTarget : ActiveBuildTarget x)
-: RecBuild Name ActiveOleanAndCTarget m :=
-  recBuildModuleWithLocalImports fun mod leanFile contents importTargets => do
+: RecBuild ModuleInfo ActiveOleanAndCTarget m :=
+  recBuildModuleWithLocalImports fun pkg mod leanFile contents importTargets => do
     let importTarget ← ActiveTarget.collectOpaqueList <| importTargets.map (·.oleanTarget)
     let allDepsTarget := Target.active <| ← depTarget.mixOpaqueAsync importTarget
-    (← getPackage).moduleOleanAndCTargetOnly mod leanFile contents allDepsTarget |>.run'
+    pkg.moduleOleanAndCTargetOnly mod leanFile contents allDepsTarget |>.run'
 
 def recBuildModuleOleanTargetWithLocalImports
 [Monad m] [MonadLiftT BuildM m] [MonadFunctorT BuildM m] (depTarget : ActiveBuildTarget x)
-: RecBuild Name ActiveFileTarget m :=
-  recBuildModuleWithLocalImports fun mod leanFile contents importTargets => do
+: RecBuild ModuleInfo ActiveFileTarget m :=
+  recBuildModuleWithLocalImports fun pkg mod leanFile contents importTargets => do
     let importTarget ← ActiveTarget.collectOpaqueList importTargets
     let allDepsTarget := Target.active <| ← depTarget.mixOpaqueAsync importTarget
-    (← getPackage).moduleOleanTargetOnly mod leanFile contents allDepsTarget |>.run
+    pkg.moduleOleanTargetOnly mod leanFile contents allDepsTarget |>.run
 
 -- ## Definitions
 
@@ -187,19 +192,36 @@ abbrev ModuleBuildM (α) :=
   EStateT (List Name) (NameMap α) BuildM
 
 abbrev RecModuleBuild (o) :=
-  RecBuild Name o (ModuleBuildM o)
+  RecBuild ModuleInfo o (ModuleBuildM o)
 
 abbrev RecModuleTargetBuild (i) :=
   RecModuleBuild (ActiveBuildTarget i)
 
 -- ## Builders
 
-def buildModule (mod : Name)
+/-- Build a single module using the recursive module build function `build`. -/
+def buildModule (mod : ModuleInfo)
 [Inhabited o] (build : RecModuleBuild o) : BuildM o := do
   failOnBuildCycle <| ← RBTopT.run' do
-    buildRBTop (cmp := Name.quickCmp) build id mod
+    buildRBTop (cmp := Name.quickCmp) build ModuleInfo.name mod
 
-def buildModules (mods : Array Name)
+/--
+Build each module using the recursive module function `build`,
+constructing an `Array`  of the results.
+-/
+def buildModuleArray (mods : Array ModuleInfo)
 [Inhabited o] (build : RecModuleBuild o) : BuildM (Array o) := do
   failOnBuildCycle <| ← RBTopT.run' <| mods.mapM <|
-    buildRBTop (cmp := Name.quickCmp) build id
+    buildRBTop (cmp := Name.quickCmp) build ModuleInfo.name
+
+/--
+Build each module using the recursive module function `build`,
+constructing a module-target `NameMap`  of the results.
+-/
+def buildModuleMap [Inhabited o]
+(infos : Array ModuleInfo) (build : RecModuleBuild o)
+: BuildM (NameMap o) := do
+  let (x, objMap) ← RBTopT.run do
+    infos.forM fun info => discard <| buildRBTop build ModuleInfo.name info
+  failOnBuildCycle x
+  return objMap

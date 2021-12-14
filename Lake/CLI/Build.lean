@@ -34,34 +34,34 @@ def parseTargetBaseSpec (ws : Workspace) (rootPkg : Package) (spec : String) : I
   | _ =>
     error s!"invalid target spec '{spec}' (too many '/')"
 
-def parseTargetSpec (ws : Workspace) (rootPkg : Package) (spec : String) : IO (Package × OpaqueTarget) := do
+def parseTargetSpec (ws : Workspace) (rootPkg : Package) (spec : String) : IO (BuildTarget Package) := do
   match spec.splitOn ":" with
   | [rootSpec] =>
     let (pkg, mod?) ← parseTargetBaseSpec ws rootPkg rootSpec
     if let some mod := mod? then
-      return (pkg, pkg.moduleOleanTarget mod |>.withoutInfo)
+      return pkg.moduleOleanTarget mod |>.withInfo pkg
     else
-      return (pkg, pkg.defaultTarget)
+      return pkg.defaultTarget |>.withInfo pkg
   | [rootSpec, facet] =>
     let (pkg, mod?) ← parseTargetBaseSpec ws rootPkg rootSpec
     if let some mod := mod? then
       if facet == "olean" then
-        return (pkg, pkg.moduleOleanTarget mod |>.withoutInfo)
+        return pkg.moduleOleanTarget mod |>.withInfo pkg
       else if facet == "c" then
-        return (pkg, pkg.moduleOleanAndCTarget mod |>.withoutInfo)
+        return pkg.moduleOleanAndCTarget mod |>.withInfo pkg
       else if facet == "o" then
-        return (pkg, pkg.moduleOTarget mod |>.withoutInfo)
+        return pkg.moduleOTarget mod |>.withInfo pkg
       else
         error s!"unknown module facet '{facet}'"
     else
       if facet == "bin" then
-        return (pkg, pkg.binTarget.withoutInfo)
+        return pkg.binTarget.withInfo pkg
       else if facet == "staticLib" then
-        return (pkg, pkg.staticLibTarget.withoutInfo)
+        return pkg.staticLibTarget.withInfo pkg
       else if facet == "sharedLib" then
-        return (pkg, pkg.sharedLibTarget.withoutInfo)
+        return pkg.sharedLibTarget.withInfo pkg
       else if facet == "oleans" then
-        return (pkg, pkg.oleanTarget.withoutInfo)
+        return pkg.oleanTarget.withInfo pkg
       else
         error s!"unknown package facet '{facet}'"
   | _ =>
@@ -73,4 +73,4 @@ def build (targetSpecs : List String) : BuildM PUnit := do
   if targets.isEmpty then
     pkg.defaultTarget.build
   else
-    targets.forM fun (pkg, t) => adaptPackage pkg <| t.build
+    targets.forM fun t => adaptPackage t.info <| discard <| t.build

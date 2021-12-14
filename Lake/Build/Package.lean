@@ -34,42 +34,42 @@ def buildExtraDepsTarget : BuildM ActiveOpaqueTarget := do
   ActiveTarget.collectOpaqueArray <| ← do
     (← getWorkspace).packageArray.mapM (·.extraDepTarget.run)
 
-/--
-Build each module and using the given recursive module build function,
-constructing a module-target `NameMap`  of the results.
--/
-def buildModuleTargetMap [Inhabited i]
-(mods : Array Name) (build : RecModuleTargetBuild i)
-: BuildM (NameMap (ActiveBuildTarget i)) := do
-  let (x, targetMap) ← RBTopT.run do
-    mods.forM fun mod => discard <| buildRBTop build id mod
-  failOnBuildCycle x
-  return targetMap
-
-/--
-Build each module and using the given recursive module build function,
-constructing a single opaque target for the whole build.
--/
-def buildModulesTarget [Inhabited i] (mods : Array Name)
-(build : RecModuleTargetBuild i) : BuildM ActiveOpaqueTarget := do
-  failOnBuildCycle <| ← RBTopT.run' do
-    let targets ← mods.mapM fun mod =>
-      (·.withoutInfo) <$> buildRBTop build id mod
-    ActiveTarget.collectOpaqueArray targets
-
 -- # Build Package Modules
 
-/-- Build the `.olean` and files of package and its dependencies' modules. -/
-def Package.buildOleanTarget (self : Package) : BuildM ActiveOpaqueTarget := do
+/--
+Build the `extraDepTarget` of a package and its (transitive) dependencies
+and then build their modules recursively using the given `build` function,
+constructing a `NameMap` of the results.
+-/
+protected def Package.buildModuleMap [Inhabited o]
+(build : ActiveOpaqueTarget → RecModuleBuild o) (self : Package)
+: BuildM (NameMap o) := do
   let depTarget ← self.buildExtraDepsTarget
-  buildModulesTarget (← self.getModuleArray) <|
-    recBuildModuleOleanTargetWithLocalImports depTarget
+  let infos := (← self.getModuleArray).map fun mod => ModuleInfo.mk self mod
+  buildModuleMap infos (build depTarget)
+
+/--
+Build the `extraDepTarget` of a package and its (transitive) dependencies
+and then build their modules recursively using the given `build` function,
+constructing a single opaque target for the whole build.
+-/
+def Package.buildTarget [Inhabited i]
+(build : ActiveOpaqueTarget → RecModuleTargetBuild i) (self : Package)
+: BuildM ActiveOpaqueTarget := do
+  let depTarget ← self.buildExtraDepsTarget
+  let mods ← self.getModuleArray
+  failOnBuildCycle <| ← RBTopT.run' do
+    let targets ← mods.mapM fun mod => (·.withoutInfo) <$>
+      buildRBTop (build depTarget) ModuleInfo.name (ModuleInfo.mk self mod)
+    ActiveTarget.collectOpaqueArray targets
+
+/-- Build the `.olean` files of package and its dependencies' modules. -/
+def Package.buildOleanTarget (self : Package) : BuildM ActiveOpaqueTarget := do
+  self.buildTarget <| recBuildModuleOleanTargetWithLocalImports
 
 /-- Build the `.olean` and `.c` files of package and its dependencies' modules. -/
 def Package.buildOleanAndCTarget (self : Package) : BuildM ActiveOpaqueTarget := do
-  let depTarget ← self.buildExtraDepsTarget
-  buildModulesTarget (← self.getModuleArray) <|
-    recBuildModuleOleanAndCTargetWithLocalImports depTarget
+  self.buildTarget <| recBuildModuleOleanAndCTargetWithLocalImports
 
 def Package.buildDepOleans (self : Package) : BuildM PUnit := do
   let targets ← self.dependencies.mapM fun dep => do
@@ -88,24 +88,27 @@ def Package.moduleOleanTarget (mod : Name) (self : Package) : FileTarget :=
   Target.mk (self.modToOlean mod) do
     let depTarget ← self.buildExtraDepsTarget
     let build := recBuildModuleOleanTargetWithLocalImports depTarget
-    return (← buildModule mod build).task
+    return (← buildModule ⟨self, mod⟩ build).task
 
 def Package.moduleOleanAndCTarget (mod : Name) (self : Package) : OleanAndCTarget :=
   Target.mk ⟨self.modToOlean mod, self.modToC mod⟩ do
     let depTarget ← self.buildExtraDepsTarget
     let build := recBuildModuleOleanAndCTargetWithLocalImports depTarget
-    return (← buildModule mod build).task
+    return (← buildModule ⟨self, mod⟩ build).task
 
 -- # Build Imports
 
-/-- Pick the local imports of the workspace from a list of import strings. -/
-def Workspace.filterLocalImports
-(imports : List String) (self : Workspace) : Array Name := Id.run <| do
+/--
+Construct an `Array` of `ModuleInfo`s for the workspace-local modules of
+a `List` of import strings.
+-/
+def Workspace.processImportList
+(imports : List String) (self : Workspace) : Array ModuleInfo := Id.run do
   let mut localImports := #[]
   for imp in imports do
-    let impName := imp.toName
-    if self.isLocalModule impName then
-      localImports := localImports.push impName
+    let mod := imp.toName
+    if let some pkg := self.packageForModule? mod then
+      localImports := localImports.push ⟨pkg, mod⟩
   return localImports
 
 /--
@@ -115,18 +118,19 @@ Builds only module `.olean` files if the default package facet is
 just `oleans`. Otherwise, builds both `.olean` and `.c` files.
 -/
 def buildImportsAndDeps (imports : List String := []) : BuildM PUnit := do
-  let depTarget ← buildExtraDepsTarget
+  let pkg ← getPackage
+  let depTarget ← pkg.buildExtraDepsTarget
   if imports.isEmpty then
     -- wait for deps to finish building
     depTarget.build
   else
     -- build local imports from list
-    let localImports := (← getWorkspace).filterLocalImports imports
-    if (← getPackage).defaultFacet == PackageFacet.oleans then
+    let infos := (← getWorkspace).processImportList imports
+    if pkg.defaultFacet == PackageFacet.oleans then
       let build := recBuildModuleOleanTargetWithLocalImports depTarget
-      let targets ← buildModules localImports build
+      let targets ← buildModuleArray infos build
       targets.forM (·.build)
     else
       let build := recBuildModuleOleanAndCTargetWithLocalImports depTarget
-      let targets ← buildModules localImports build
+      let targets ← buildModuleArray infos build
       targets.forM (·.build)

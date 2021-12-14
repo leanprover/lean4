@@ -33,9 +33,8 @@ def Package.moduleOTarget (mod : Name) (self : Package) : FileTarget :=
 
 protected def Package.staticLibTarget (self : Package) : FileTarget :=
  Target.mk self.staticLibFile do
-    let depTarget ← self.buildExtraDepsTarget
-    let moduleTargetMap ← buildModuleTargetMap (← self.getModuleArray) $
-      recBuildModuleOleanAndCTargetWithLocalImports depTarget
+    let moduleTargetMap ← self.buildModuleMap $
+      recBuildModuleOleanAndCTargetWithLocalImports
     let oFileTargets := self.oFileTargetsOf moduleTargetMap
     staticLibTarget self.staticLibFile oFileTargets |>.materializeAsync
 
@@ -59,9 +58,8 @@ def Package.linkTargetsOf
 
 protected def Package.sharedLibTarget (self : Package) : FileTarget :=
   Target.mk self.sharedLibFile do
-    let depTarget ← self.buildExtraDepsTarget
-    let moduleTargetMap ← buildModuleTargetMap (← self.getModuleArray) $
-      recBuildModuleOleanAndCTargetWithLocalImports depTarget
+    let moduleTargetMap ← self.buildModuleMap $
+      recBuildModuleOleanAndCTargetWithLocalImports
     let linkTargets ← self.linkTargetsOf moduleTargetMap
     let target := leanSharedLibTarget self.sharedLibFile linkTargets self.moreLinkArgs
     target.materializeAsync
@@ -74,7 +72,7 @@ def Package.buildSharedLib (self : Package) : BuildM FilePath :=
 protected def Package.binTarget (self : Package) : FileTarget :=
   Target.mk self.binFile do
     let depTarget ← self.buildExtraDepsTarget
-    let moduleTargetMap ← buildModuleTargetMap #[self.binRoot] $
+    let moduleTargetMap ← buildModuleMap #[⟨self, self.binRoot⟩] $
       recBuildModuleOleanAndCTargetWithLocalImports depTarget
     let pkgLinkTargets ← self.linkTargetsOf moduleTargetMap
     let linkTargets :=

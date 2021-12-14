@@ -169,7 +169,19 @@ def simpleBinderWithoutType := nodeWithAntiquot "simpleBinder" `Lean.Parser.Term
 def letIdLhs    : Parser := ident >> notFollowedBy (checkNoWsBefore "" >> "[") "space is required before instance '[...]' binders to distinguish them from array updates `let x[i] := e; ...`" >> many (ppSpace >> (simpleBinderWithoutType <|> bracketedBinder)) >> optType
 def letIdDecl   := nodeWithAntiquot "letIdDecl"   `Lean.Parser.Term.letIdDecl   $ atomic (letIdLhs >> " := ") >> termParser
 def letPatDecl  := nodeWithAntiquot "letPatDecl"  `Lean.Parser.Term.letPatDecl  $ atomic (termParser >> pushNone >> optType >> " := ") >> termParser
-def letEqnsDecl := nodeWithAntiquot "letEqnsDecl" `Lean.Parser.Term.letEqnsDecl $ letIdLhs >> matchAlts
+/-
+  Remark: the following `(" := " <|> matchAlts)` is a hack we use to produce a better error message at `letDecl`.
+  Consider this following example
+  ```
+  def myFun (n : Nat) : IO Nat :=
+    let q ← (10 : Nat)
+    n + q
+  ```
+  Without the hack, we get the error `expected '|'` at `←`. Reason: at `letDecl`, we use the parser `(letIdDecl <|> letPatDecl <|> letEqnsDecl)`,
+  `letIdDecl` and `letEqnsDecl` have the same prefix `letIdLhs`, but `letIdDecl` uses `atomic`.
+  Note that the hack relies on the fact that the parser `":="` never succeeds at `(" := " <|> matchAlts)`. It is there just to make sure we produce the error `expected ':=' or '|'`
+-/
+def letEqnsDecl := nodeWithAntiquot "letEqnsDecl" `Lean.Parser.Term.letEqnsDecl $ letIdLhs >> (" := " <|> matchAlts)
 -- Remark: we use `nodeWithAntiquot` here to make sure anonymous antiquotations (e.g., `$x`) are not `letDecl`
 def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFollowedBy (nonReservedSymbol "rec") "rec" >> (letIdDecl <|> letPatDecl <|> letEqnsDecl))
 @[builtinTermParser] def «let» := leading_parser:leadPrec  withPosition ("let " >> letDecl) >> optSemicolon termParser

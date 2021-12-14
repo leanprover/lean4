@@ -66,12 +66,16 @@ attribute [runBuiltinParserAttributeHooks]
 @[inline] def ppSpace : Parser := skip
 /-- No-op parser that advises the pretty printer to emit a hard line break. -/
 @[inline] def ppLine : Parser := skip
+/-- No-op parser combinator that advises the pretty printer to emit a `Format.fill` node. -/
+@[inline] def ppRealFill : Parser → Parser := id
+/-- No-op parser combinator that advises the pretty printer to emit a `Format.group` node. -/
+@[inline] def ppRealGroup : Parser → Parser := id
+/-- No-op parser combinator that advises the pretty printer to indent the given syntax without grouping it. -/
+@[inline] def ppIndent : Parser → Parser := id
 /--
   No-op parser combinator that advises the pretty printer to group and indent the given syntax.
   By default, only syntax categories are grouped. -/
-@[inline] def ppGroup : Parser → Parser := id
-/-- No-op parser combinator that advises the pretty printer to indent the given syntax without grouping it. -/
-@[inline] def ppIndent : Parser → Parser := id
+@[inline] def ppGroup (p : Parser) : Parser := ppRealFill (ppIndent p)
 /--
   No-op parser combinator that advises the pretty printer to dedent the given syntax.
   Dedenting can in particular be used to counteract automatic indentation. -/
@@ -109,7 +113,8 @@ open PrettyPrinter
 @[combinatorFormatter Lean.Parser.ppHardSpace] def ppHardSpace.formatter : Formatter := Formatter.pushWhitespace " "
 @[combinatorFormatter Lean.Parser.ppSpace] def ppSpace.formatter : Formatter := Formatter.pushLine
 @[combinatorFormatter Lean.Parser.ppLine] def ppLine.formatter : Formatter := Formatter.pushWhitespace "\n"
-@[combinatorFormatter Lean.Parser.ppGroup] def ppGroup.formatter (p : Formatter) : Formatter := Formatter.group $ Formatter.indent p
+@[combinatorFormatter Lean.Parser.ppRealFill] def ppRealFill.formatter (p : Formatter) : Formatter := Formatter.fill p
+@[combinatorFormatter Lean.Parser.ppRealGroup] def ppRealGroup.formatter (p : Formatter) : Formatter := Formatter.group p
 @[combinatorFormatter Lean.Parser.ppIndent] def ppIndent.formatter (p : Formatter) : Formatter := Formatter.indent p
 @[combinatorFormatter Lean.Parser.ppDedent] def ppDedent.formatter (p : Formatter) : Formatter := do
   let opts ← getOptions
@@ -134,7 +139,7 @@ namespace Parser
 
 -- now synthesize parenthesizers
 attribute [runBuiltinParserAttributeHooks]
-  ppHardSpace ppSpace ppLine ppGroup ppIndent ppDedent
+  ppHardSpace ppSpace ppLine ppGroup ppRealGroup ppRealFill ppIndent ppDedent
   ppAllowUngrouped ppDedentIfGrouped ppHardLineUnlessUngrouped
 
 macro "register_parser_alias" aliasName?:optional(strLit) declName:ident : term =>
@@ -149,6 +154,8 @@ builtin_initialize
   register_parser_alias ppSpace
   register_parser_alias ppLine
   register_parser_alias ppGroup
+  register_parser_alias ppRealGroup
+  register_parser_alias ppRealFill
   register_parser_alias ppIndent
   register_parser_alias ppDedent
   register_parser_alias ppAllowUngrouped

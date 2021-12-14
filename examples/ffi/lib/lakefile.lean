@@ -17,7 +17,7 @@ def cLibTarget (pkgDir : FilePath) : FileTarget :=
 
 package ffi (pkgDir) (args) {
   -- customize layout
-  srcDir := "lib"
+  srcDir := "lean"
   libRoots := #[`Ffi]
   -- specify the lib as an additional target
   moreLibTargets := #[cLibTarget pkgDir]

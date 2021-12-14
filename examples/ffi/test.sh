@@ -2,4 +2,5 @@ set -e
 
 ./clean.sh
 ./package.sh
-./build/bin/ffi
+./app/build/bin/app
+./lib/build/bin/ffi

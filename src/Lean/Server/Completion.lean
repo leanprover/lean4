@@ -62,10 +62,10 @@ private def isTypeApplicable (type : Expr) (expectedType? : Option Expr) : MetaM
 private def sortCompletionItems (items : Array CompletionItem) : Array CompletionItem :=
   items.qsort fun i1 i2 => i1.label < i2.label
 
-private def mkCompletionItem (label : Name) (type : Expr) (docString? : Option String) : MetaM CompletionItem := do
+private def mkCompletionItem (label : Name) (type : Expr) (docString? : Option String) (kind : CompletionItemKind) : MetaM CompletionItem := do
   let doc? := docString?.map fun docString => { value := docString, kind := MarkupKind.markdown : MarkupContent }
   let detail ← consumeImplicitPrefix type fun type => return toString (← Meta.ppExpr type)
-  return { label := label.getString!, detail? := detail, documentation? := doc? }
+  return { label := label.getString!, detail? := detail, documentation? := doc?, kind? := kind }
 
 structure State where
   itemsMain  : Array CompletionItem := #[]
@@ -73,20 +73,33 @@ structure State where
 
 abbrev M := OptionT $ StateRefT State MetaM
 
-private def addCompletionItem (label : Name) (type : Expr) (expectedType? : Option Expr) (declName? : Option Name) : M Unit := do
+private def addCompletionItem (label : Name) (type : Expr) (expectedType? : Option Expr) (declName? : Option Name) (kind : CompletionItemKind) : M Unit := do
   let docString? ← if let some declName := declName? then findDocString? (← getEnv) declName else none
-  let item ← mkCompletionItem label type docString?
+  let item ← mkCompletionItem label type docString? kind
   if (← isTypeApplicable  type expectedType?) then
     modify fun s => { s with itemsMain := s.itemsMain.push item }
   else
     modify fun s => { s with itemsOther := s.itemsOther.push item }
 
+private def getCompletionKindForDecl (constInfo : ConstantInfo) : M CompletionItemKind := do
+  let env ← getEnv
+  if constInfo.isCtor then
+    return CompletionItemKind.constructor
+  else if isStructure env constInfo.name then
+    return CompletionItemKind.struct
+  else if (← isEnumType constInfo.name) then
+    return CompletionItemKind.enum
+  else if (← whnf constInfo.type).isForall then
+    return CompletionItemKind.function
+  else
+    return CompletionItemKind.constant
+
 private def addCompletionItemForDecl (label : Name) (declName : Name) (expectedType? : Option Expr) : M Unit := do
   if let some c ← (← getEnv).find? declName then
-    addCompletionItem label c.type expectedType? (some declName)
+    addCompletionItem label c.type expectedType? (some declName) (← getCompletionKindForDecl c)
 
 private def addKeywordCompletionItem (keyword : String) : M Unit := do
-  let item := { label := keyword, detail? := "keyword", documentation? := none }
+  let item := { label := keyword, detail? := "keyword", documentation? := none, kind? := CompletionItemKind.keyword }
   modify fun s => { s with itemsMain := s.itemsMain.push item }
 
 private def runM (ctx : ContextInfo) (lctx : LocalContext) (x : M Unit) : IO (Option CompletionList) :=
@@ -177,7 +190,7 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (hoverInfo : HoverI
     -- search for matches in the local context
     for localDecl in (← getLCtx) do
       if matchAtomic id localDecl.userName then
-        addCompletionItem localDecl.userName localDecl.type expectedType? none
+        addCompletionItem localDecl.userName localDecl.type expectedType? none (kind := CompletionItemKind.variable)
   -- search for matches in the environment
   let env ← getEnv
   env.constants.forM fun declName c => do
@@ -185,7 +198,7 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (hoverInfo : HoverI
       let matchUsingNamespace (ns : Name): M Bool := do
         if let some label ← matchDecl? ns id danglingDot declName then
           -- dbg_trace "matched with {id}, {declName}, {label}"
-          addCompletionItem label c.type expectedType? declName
+          addCompletionItem label c.type expectedType? declName (← getCompletionKindForDecl c)
           return true
         else
           return false
@@ -297,7 +310,12 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (hoverInfo : Hov
         if nameSet.contains typeName then
           unless (← isBlackListed c.name) do
             if (← isDotCompletionMethod typeName c) then
-              addCompletionItem c.name.getString! c.type expectedType? c.name
+              let kind :=
+                if (← isProjectionFn c.name) then
+                  CompletionItemKind.field
+                else
+                  CompletionItemKind.method
+              addCompletionItem c.name.getString! c.type expectedType? c.name (kind := kind)
 
 private def optionCompletion (ctx : ContextInfo) (stx : Syntax) : IO (Option CompletionList) :=
   ctx.runMetaM {} do
@@ -320,7 +338,8 @@ private def optionCompletion (ctx : ContextInfo) (stx : Syntax) : IO (Option Com
         items := items.push
           { label := name.toString
             detail? := s!"({opts.get name decl.defValue}), {decl.descr}"
-            documentation? := none }
+            documentation? := none,
+            kind? := CompletionItemKind.property } -- TODO: investigate whether this is the best kind for options.
     return some { items := sortCompletionItems items, isIncomplete := true }
 
 private def tacticCompletion (ctx : ContextInfo) : IO (Option CompletionList) :=
@@ -329,7 +348,7 @@ private def tacticCompletion (ctx : ContextInfo) : IO (Option CompletionList) :=
     let table := Parser.getCategory (Parser.parserExtension.getState (← getEnv)).categories `tactic |>.get!.tables.leadingTable
     let items : Array CompletionItem := table.fold (init := #[]) fun items tk parser =>
       -- TODO pretty print tactic syntax
-      items.push { label := tk.toString, detail? := none, documentation? := none }
+      items.push { label := tk.toString, detail? := none, documentation? := none, kind? := CompletionItemKind.keyword }
     return some { items := sortCompletionItems items, isIncomplete := true }
 
 partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTree) : IO (Option CompletionList) := do

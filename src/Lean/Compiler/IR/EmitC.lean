@@ -187,6 +187,7 @@ def emitMainFn : M Unit := do
     let retTy := env.find? `main |>.get! |>.type |>.getForallBody
     -- either `UInt32` or `(P)Unit`
     let retTy := retTy.appArg!
+    -- finalize at least the task manager to avoid leak sanitizer false positives from tasks outliving the main thread
     emitLns ["lean_finalize_task_manager();",
              "if (lean_io_result_is_ok(res)) {",
              "  int ret = " ++ if retTy.constName? == some ``UInt32 then "lean_unbox_uint32(lean_io_result_get_value(res));" else "0;",

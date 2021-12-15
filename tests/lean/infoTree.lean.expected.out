@@ -192,6 +192,7 @@
           | (z, w) =>
             let z1 := z + w;
             z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.elabMatch
+            x✝ : Nat × Nat @ ⟨23, 4⟩†-⟨25, 10⟩†
             Prod.mk : {α : Type ?u} → {β : Type ?u} → α → β → α × β @ ⟨23, 4⟩†-⟨25, 10⟩†
             [.] `z : none @ ⟨23, 9⟩-⟨23, 10⟩
             [.] `w : none @ ⟨23, 12⟩-⟨23, 13⟩

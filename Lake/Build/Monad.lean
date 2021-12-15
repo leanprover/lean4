@@ -12,41 +12,54 @@ open Lean (Name)
 
 namespace Lake
 
-def mkBuildContext (ws : Workspace) (leanInstall : LeanInstall) (lakeInstall : LakeInstall) : IO BuildContext := do
-  let leanTrace := mixTrace (← computeTrace leanInstall.lean) (← computeTrace leanInstall.sharedLib)
-  return {workspace := ws, leanInstall, lakeInstall, leanTrace}
+def mkBuildContext (ws : Workspace) (lean : LeanInstall) (lake : LakeInstall) : IO BuildContext := do
+  let leanTrace :=
+    if lean.githash.isEmpty then
+      mixTrace (← computeTrace lean.lean) (← computeTrace lean.sharedLib)
+    else
+      Hash.ofString lean.githash
+  return {workspace := ws, lean, lake, leanTrace}
 
 deriving instance Inhabited for BuildContext
 
-def getWorkspace : BuildM Workspace :=
+@[inline] def getWorkspace : BuildM Workspace :=
   (·.workspace.get) <$> read
 
-def getPackageByName? (name : Name) : BuildM (Option Package) :=
+@[inline] def getPackageByName? (name : Name) : BuildM (Option Package) :=
   (·.packageByName? name) <$> getWorkspace
 
-def getPackageForModule? (mod : Name) : BuildM (Option Package) :=
+@[inline] def getPackageForModule? (mod : Name) : BuildM (Option Package) :=
   (·.packageForModule? mod) <$> getWorkspace
 
-def getOleanPath : BuildM SearchPath :=
+@[inline] def getOleanPath : BuildM SearchPath :=
   (·.oleanPath) <$> getWorkspace
 
-def getLeanInstall : BuildM LeanInstall :=
-  (·.leanInstall) <$> read
+@[inline] def getLeanInstall : BuildM LeanInstall :=
+  (·.lean) <$> read
 
-def getLeanIncludeDir : BuildM FilePath :=
+@[inline] def getLeanOleanDir : BuildM FilePath :=
+  (·.oleanDir) <$> getLeanInstall
+
+@[inline] def getLeanIncludeDir : BuildM FilePath :=
   (·.includeDir) <$> getLeanInstall
 
-def getLean : BuildM FilePath :=
+@[inline] def getLean : BuildM FilePath :=
   (·.lean) <$> getLeanInstall
 
-def getLeanTrace : BuildM BuildTrace := do
+@[inline] def getLeanTrace : BuildM BuildTrace :=
   (·.leanTrace) <$> read
 
-def getLeanc : BuildM FilePath :=
+@[inline] def getLeanc : BuildM FilePath :=
   (·.leanc) <$> getLeanInstall
 
-def getLeanAr : BuildM FilePath :=
+@[inline] def getLeanAr : BuildM FilePath :=
   (·.ar) <$> getLeanInstall
 
-def getLakeInstall : BuildM LakeInstall :=
-  (·.lakeInstall) <$> read
+@[inline] def getLeanCc : BuildM FilePath :=
+  (·.cc) <$> getLeanInstall
+
+@[inline] def getLakeInstall : BuildM LakeInstall :=
+  (·.lake) <$> read
+
+@[inline] def getLakeOleanDir : BuildM FilePath :=
+  (·.oleanDir) <$> getLakeInstall

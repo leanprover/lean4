@@ -12,56 +12,111 @@ def sharedLibExt : String :=
   else if Platform.isOSX  then "dylib"
   else "so"
 
+/-- Standard path of `lean` in Lean installation. -/
+def leanExe (sysroot : FilePath) :=
+  sysroot / "bin" / "lean" |>.withExtension FilePath.exeExtension
+
+/-- Standard path of `leanc` in Lean installation. -/
+def leancExe (sysroot : FilePath) :=
+  sysroot / "bin" / "leanc" |>.withExtension FilePath.exeExtension
+
+/-- Standard path of `llvm-ar` in Lean installation. -/
+def leanArExe (sysroot : FilePath) :=
+  sysroot / "bin" / "llvm-ar" |>.withExtension FilePath.exeExtension
+
+/-- Standard path of `clang` in Lean installation. -/
+def leanCcExe (sysroot : FilePath) :=
+  sysroot / "bin" / "clang" |>.withExtension FilePath.exeExtension
+
+/-- Standard path of `libleanshared` in Lean installation. -/
+def leanSharedLib (sysroot : FilePath) :=
+  let dir :=
+    if Platform.isWindows then
+      sysroot / "bin"
+    else
+      sysroot / "lib" / "lean"
+  dir / "libleanshared" |>.withExtension sharedLibExt
+
 /-- Path information about the local Lean installation. -/
 structure LeanInstall where
-  home : FilePath
-  binDir := home / "bin"
-  libDir := home / "lib" / "lean"
-  oleanDir := libDir
-  includeDir := home / "include"
-  lean := binDir / "lean" |>.withExtension FilePath.exeExtension
-  leanc := binDir / "leanc" |>.withExtension FilePath.exeExtension
+  sysroot : FilePath
+  githash : String
+  oleanDir := sysroot / "lib" / "lean"
+  includeDir := sysroot / "include"
+  lean := leanExe sysroot
+  leanc := leancExe sysroot
+  sharedLib := leanSharedLib sysroot
   ar : FilePath
-  sharedLib := (if Platform.isWindows then binDir else libDir) / "libleanshared" |>.withExtension sharedLibExt
+  cc : FilePath
   deriving Inhabited, Repr
 
 /-- Path information about the local Lake installation. -/
 structure LakeInstall where
   home : FilePath
-  binDir := home / "bin"
-  libDir := home / "lib"
-  oleanDir := libDir
-  lake := binDir / "lake" |>.withExtension FilePath.exeExtension
+  oleanDir := home / "lib"
+  lake := home / "bin" / "lake" |>.withExtension FilePath.exeExtension
   deriving Inhabited, Repr
 
 /--
-Try to find the home of the given `lean` command (if it exists)
+Try to find the sysroot of the given `lean` command (if it exists)
 by calling `lean --print-prefix` and returning the path it prints.
 Defaults to trying the `lean` in `PATH`.
 -/
-def findLeanCmdHome? (lean := "lean") : IO (Option FilePath) := do
-  let out ← IO.Process.output {
-    cmd := lean,
-    args := #["--print-prefix"]
-  }
-  if out.exitCode == 0 then
-    some <| FilePath.mk <| out.stdout.trim
-  else
-    none
+def findLeanSysroot? (lean := "lean") : BaseIO (Option FilePath) := do
+  let act : IO _ := do
+    let out ← IO.Process.output {
+      cmd := lean,
+      args := #["--print-prefix"]
+    }
+    if out.exitCode == 0 then
+      some <| FilePath.mk <| out.stdout.trim
+    else
+      none
+  act.catchExceptions fun _ => none
 
 /--
-Construct the `LeanInstall` object for the given Lean home.
+Construct the `LeanInstall` object for the given Lean sysroot.
 
-Checks if Lean is packaged with an `llvm-ar` if so, use it.
-Otherwise, use the `ar` in the system's `PATH`. This is needed because
-internal builds of Lean do not bundle `llvm-ar` (unlike user-facing releases).
+Does two things:
+1. Invokes `lean` to find out its `githash`.
+2. Finds the default `ar` and `cc` to use with Lean.
+
+For (1), if the invocation fails, `githash` is set to the empty string.
+
+For (2), if `LEAN_AR` or `LEAN_CC` are defined, it uses those paths.
+Otherwise, if Lean is packaged with an `llvm-ar` and/or `clang`, use them.
+If not, use the `ar` and/or `cc` in the system's `PATH`. This last step is
+needed because internal builds of Lean do not bundle these tools
+(unlike user-facing releases).
 -/
-def LeanInstall.get (home : FilePath) : IO LeanInstall := do
-  let llvmAr := home / "bin" / "llvm-ar" |>.withExtension FilePath.exeExtension
-  if (← llvmAr.pathExists) then
-    return {home, ar := llvmAr}
-  else
-    return {home, ar := "ar"}
+def LeanInstall.get (sysroot : FilePath) : BaseIO LeanInstall := do
+  return {
+    sysroot,
+    githash := ← getGithash
+    ar := ← findAr
+    cc := ← findCc
+  }
+where
+  getGithash := do
+    let act : IO _ := do
+      let out ← IO.Process.output {
+        cmd := leanExe sysroot |>.toString,
+        args := #["--githash"]
+      }
+      out.stdout.trim
+    act.catchExceptions fun _ => ""
+  findAr := do
+    if let some ar ← IO.getEnv "LEAN_AR" then
+      return ar
+    else
+      let ar := leanArExe sysroot
+      if (← ar.pathExists) then ar else "ar"
+  findCc := do
+    if let some cc ← IO.getEnv "LEAN_CC" then
+      return cc
+    else
+      let cc := leanCcExe sysroot
+      if (← cc.pathExists) then cc else "cc"
 
 /--
 Try to find the installation of the given `lean` command
@@ -71,19 +126,19 @@ It assumes that the Lean installation is setup the normal way.
 That is, with its binaries located in `<lean-home>/bin` and its
 libraries and `.olean` files located in `<lean-home>/lib/lean`.
 -/
-def findLeanCmdInstall? (lean := "lean") : IO (Option LeanInstall) :=
-  OptionT.run do LeanInstall.get (← findLeanCmdHome? lean)
+def findLeanCmdInstall? (lean := "lean") : BaseIO (Option LeanInstall) :=
+  OptionT.run do LeanInstall.get (← findLeanSysroot? lean)
 
 /--
 Check if Lake's executable is co-located with Lean, and, if so,
 try to return their joint home by assuming they are both located at `<home>/bin`.
 -/
-def findLakeLeanJointHome? : IO (Option FilePath) := do
-  let appPath ← IO.appPath
-  if let some appDir := appPath.parent then
-    let leanExe := appDir / "lean" |>.withExtension FilePath.exeExtension
-    if (← leanExe.pathExists) then
-      return appDir.parent
+def findLakeLeanJointHome? : BaseIO (Option FilePath) := do
+  if let Except.ok appPath ← IO.appPath.toBaseIO then
+    if let some appDir := appPath.parent then
+      let leanExe := appDir / "lean" |>.withExtension FilePath.exeExtension
+      if (← leanExe.pathExists) then
+        return appDir.parent
   return none
 
 /--
@@ -102,11 +157,11 @@ It assumes that the Lean installation is setup the normal way.
 That is, with its binaries located in `<lean-home>/bin` and its
 libraries and `.olean` files located in `<lean-home>/lib/lean`.
 -/
-def findLeanInstall? : IO (Option LeanInstall) := do
-  if let some home ← IO.getEnv "LEAN_SYSROOT" then
-    return some <| ← LeanInstall.get home
-  if let some home ← findLeanCmdHome? then
-    return some <| ← LeanInstall.get home
+def findLeanInstall? : BaseIO (Option LeanInstall) := do
+  if let some sysroot ← IO.getEnv "LEAN_SYSROOT" then
+    return some <| ← LeanInstall.get sysroot
+  if let some sysroot ← findLeanSysroot? then
+    return some <| ← LeanInstall.get sysroot
   return none
 
 /--
@@ -118,12 +173,12 @@ It assumes that the Lake installation is setup the same way it is built.
 That is, with its binary located at `<lake-home>/bin/lake` and its static
 library and `.olean` files in `<lake-home>/lib`.
 -/
-def findLakeInstall? : IO (Option LakeInstall) := do
+def findLakeInstall? : BaseIO (Option LakeInstall) := do
   if let some home ← IO.getEnv "LAKE_HOME" then
     return some {home}
-  let lake ← IO.appPath
-  if let some home ← lakeBuildHome? lake then
-    return some {home, lake}
+  if let Except.ok lake ← IO.appPath.toBaseIO then
+    if let some home ← lakeBuildHome? lake then
+      return some {home, lake}
   return none
 
 /--
@@ -136,11 +191,11 @@ Lean and their binaries are located in `<lean-home>/bin` with
 Lean's libraries and `.olean` files at `<lean-home>/lib/lean` and
 Lake's static library and `.olean` files at `<lean-home>/lib/lean`.
 -/
-def findInstall? : IO (Option LeanInstall × Option LakeInstall) := do
+def findInstall? : BaseIO (Option LeanInstall × Option LakeInstall) := do
   if let some home ← findLakeLeanJointHome? then
     return (
       some <| ← LeanInstall.get home,
-      some {home, libDir := home / "lib" / "lean"}
+      some {home, oleanDir := home / "lib" / "lean"}
     )
   else
     return (← findLeanInstall?, ← findLakeInstall?)

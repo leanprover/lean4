@@ -13,9 +13,9 @@ open System
 namespace Lake
 
 structure BuildContext where
+  lean : LeanInstall
+  lake : LakeInstall
   workspace : OpaqueWorkspace
-  leanInstall : LeanInstall
-  lakeInstall : LakeInstall
   leanTrace : BuildTrace
 
 abbrev BuildM :=

@@ -192,17 +192,10 @@ def script (pkg : Package) (name : String) (args : List String) :  CliM PUnit :=
 
 /-- Verify the Lean version Lake was built with matches that of the Lean installation. -/
 def verifyLeanVersion : CliM PUnit := do
-  let leanInstall ← getLeanInstall
-  let out ← IO.Process.output {
-    cmd := leanInstall.lean.toString,
-    args := #["--githash"]
-  }
-  if out.exitCode == 0 then
-    let githash := out.stdout.trim
-    unless githash == Lean.githash do
-      error s!"expected Lean commit {Lean.githash}, but got {githash}"
-  else
-    error s!"running `lean --githash` exited with code {out.exitCode}"
+  let lean ← getLeanInstall
+  unless lean.githash == Lean.githash do
+    let githash := if lean.githash.isEmpty then  "nothing" else lean.githash
+    error s!"expected Lean commit {Lean.githash}, but got {lean.githash}"
 
 /-- Output the detected installs and verify the Lean version. -/
 def verifyInstall : CliM PUnit := do
@@ -221,30 +214,32 @@ If no configuration file exists, exit silently with `noConfigFileCode` (i.e, 2).
 The `print-paths` command is used internally by Lean 4 server.
 -/
 def printPaths (imports : List String := []) : CliM PUnit := do
-  let (leanInstall, lakeInstall) ← getInstall
+  let (lean, lake) ← getInstall
   let configFile := (← getRootDir) / (← getConfigFile)
   if (← configFile.pathExists) then
     let (ws, pkg) ← loadConfig (← getSubArgs)
-    let ctx ← mkBuildContext ws leanInstall lakeInstall
+    let ctx ← mkBuildContext ws lean lake
     pkg.buildImportsAndDeps imports |>.run LogMethods.eio ctx
     IO.println <| Json.compress <| toJson ws.leanPaths
   else
     exit noConfigFileCode
 
-def serve (leanInstall : LeanInstall)
+def serve (lean : LeanInstall)
 (pkg : Package) (args : List String) : CliM PUnit := do
   let child ← IO.Process.spawn {
-    cmd := leanInstall.lean.toString,
+    cmd := lean.lean.toString,
     args := #["--server"] ++ pkg.moreServerArgs ++ args
   }
   exit (← child.wait)
 
-def env (leanInstall : LeanInstall) (ws : Workspace)
+def env (lean : LeanInstall) (ws : Workspace)
 (cmd : String) (args : Array String) : CliM PUnit := do
   let child ← IO.Process.spawn {
     cmd, args,
     env := #[
-      ("LEAN_SYSROOT", leanInstall.home.toString),
+      ("LEAN_SYSROOT", lean.sysroot.toString),
+      ("LEAN_AR", lean.ar.toString),
+      ("LEAN_CC", lean.cc.toString),
       ("LEAN_PATH", ws.oleanPath.toString),
       ("LEAN_SRC_PATH", ws.leanSrcPath.toString)
     ]

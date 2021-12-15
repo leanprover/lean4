@@ -425,7 +425,9 @@ where
           lastPos := ti.stx.getPos?.get!
   highlightKeyword stx := do
     if let Syntax.atom info val := stx then
-      if val.bsize > 0 && val[0].isAlpha then
+      if (val.length > 0 && val[0].isAlpha) ||
+         -- Support for keywords of the form `#<alpha>...`
+         (val.length > 1 && val[0] == '#' && val[1].isAlpha) then
         addToken stx SemanticTokenType.keyword
   addToken stx type := do
     let ⟨beginPos, endPos, text, _⟩ ← read

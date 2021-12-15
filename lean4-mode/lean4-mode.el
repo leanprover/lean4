@@ -57,16 +57,19 @@
   (when (called-interactively-p 'any)
     (setq arg (read-string "arg: " arg)))
   (let ((cc compile-command)
+	(lean-path (getenv "LEAN_PATH"))
         (target-file-name
          (or
           (buffer-file-name)
           (flymake-init-create-temp-buffer-copy 'lean4-create-temp-in-system-tempdir))))
+    (setenv "LEAN_PATH" (string-join (cons lean-path (lean4-lake-lib-paths)) ":"))
     (compile (lean4-compile-string
               (shell-quote-argument (f-full (lean4-get-executable lean4-executable-name)))
               (or arg "")
               (shell-quote-argument (f-full target-file-name))))
     ;; restore old value
-    (setq compile-command cc)))
+    (setq compile-command cc)
+    (setenv "LEAN_PATH" lean-path)))
 
 (defun lean4-std-exe ()
   (interactive)

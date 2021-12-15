@@ -18,4 +18,13 @@
     (with-existing-directory
       (compile "lake build"))))
 
+(defun lean4-lake-lib-paths ()
+  "Returns list of paths to package's oleans and its dependencies."
+  (if-let ((dir (lean4-lake-find-dir))
+	   (libdir (f-join dir "build" "lib"))
+	   (deplibs (mapcar (lambda (pkg_path)
+			      (f-join pkg_path "build" "lib"))
+			    (f-directories (f-join dir "lean_packages")))))
+    (append (list libdir) deplibs)))
+
 (provide 'lean4-lake)

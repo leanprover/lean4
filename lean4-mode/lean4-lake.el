@@ -16,7 +16,7 @@
   (interactive)
   (let* ((default-directory (file-name-as-directory (lean4-lake-find-dir-safe))))
     (with-existing-directory
-      (compile "lake build"))))
+      (compile (concat (lean4-get-executable "lake") " build")))))
 
 (defun lean4-lake-lib-paths ()
   "Returns list of paths to package's oleans and its dependencies."

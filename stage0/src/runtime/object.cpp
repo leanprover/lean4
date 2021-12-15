@@ -907,6 +907,13 @@ extern "C" LEAN_EXPORT void lean_init_task_manager() {
     lean_init_task_manager_using(hardware_concurrency());
 }
 
+extern "C" LEAN_EXPORT void lean_finalize_task_manager() {
+    if (g_task_manager) {
+        delete g_task_manager;
+        g_task_manager = nullptr;
+    }
+}
+
 scoped_task_manager::scoped_task_manager(unsigned num_workers) {
     lean_assert(g_task_manager == nullptr);
 #if defined(LEAN_MULTI_THREAD)

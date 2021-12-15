@@ -1063,6 +1063,7 @@ static inline lean_obj_res lean_thunk_get_own(b_lean_obj_arg t) {
 
 LEAN_SHARED void lean_init_task_manager();
 LEAN_SHARED void lean_init_task_manager_using(unsigned num_workers);
+LEAN_SHARED void lean_finalize_task_manager();
 
 LEAN_SHARED lean_obj_res lean_task_spawn_core(lean_obj_arg c, unsigned prio, bool keep_alive);
 /* Run a closure `Unit -> A` as a `Task A` */

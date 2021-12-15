@@ -1438,7 +1438,7 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
   else
     let numMissingLevels := cinfo.levelParams.length - explicitLevels.length
     let us ← mkFreshLevelMVars numMissingLevels
-    pure $ Lean.mkConst constName (explicitLevels ++ us)
+    return Lean.mkConst constName (explicitLevels ++ us)
 
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
   candidates.foldlM (init := []) fun result (constName, projs) => do

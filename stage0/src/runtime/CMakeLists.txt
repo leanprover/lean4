@@ -1,6 +1,6 @@
 set(RUNTIME_OBJS debug.cpp thread.cpp mpz.cpp utf8.cpp
 object.cpp apply.cpp exception.cpp interrupt.cpp memory.cpp
-stackinfo.cpp compact.cpp init_module.cpp io.cpp hash.cpp
+stackinfo.cpp compact.cpp init_module.cpp load_dynlib.cpp io.cpp hash.cpp
 platform.cpp alloc.cpp allocprof.cpp sharecommon.cpp stack_overflow.cpp
 process.cpp object_ref.cpp mpn.cpp)
 add_library(leanrt_initial-exec STATIC ${RUNTIME_OBJS})

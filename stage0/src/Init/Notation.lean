@@ -137,12 +137,16 @@ infixr:100 " <$> " => Functor.map
 macro_rules | `($x <|> $y) => `(binop_lazy% HOrElse.hOrElse $x $y)
 macro_rules | `($x >> $y)  => `(binop_lazy% HAndThen.hAndThen $x $y)
 
-syntax (name := termDepIfThenElse) ppGroup(ppDedent("if " ident " : " term " then" ppSpace term ppDedent(ppSpace "else") ppSpace term)) : term
+syntax (name := termDepIfThenElse)
+  ppRealGroup(ppRealFill(ppIndent("if " ident " : " term " then") ppSpace term)
+    ppDedent(ppSpace) ppRealFill("else " term)) : term
 
 macro_rules
   | `(if $h:ident : $c then $t:term else $e:term) => `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; dite ?m (fun $h:ident => $t) (fun $h:ident => $e))
 
-syntax (name := termIfThenElse) ppGroup(ppDedent("if " term " then" ppSpace term ppDedent(ppSpace "else") ppSpace term)) : term
+syntax (name := termIfThenElse)
+  ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace term)
+    ppDedent(ppSpace) ppRealFill("else " term)) : term
 
 macro_rules
   | `(if $c then $t:term else $e:term) => `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; ite ?m $t $e)

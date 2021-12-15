@@ -327,6 +327,7 @@ bitwise bne
   command @ ⟨37, 0⟩†-⟨38, 10⟩† @ Lean.Elab.Command.elabSection
   command @ ⟨37, 0⟩-⟨37, 8⟩ @ Lean.Elab.Command.elabOpen
   command @ ⟨38, 0⟩-⟨38, 10⟩ @ Lean.Elab.Command.elabPrint
+    [.] `xor : none @ ⟨38, 7⟩-⟨38, 10⟩
     xor : Nat → Nat → Nat @ ⟨38, 7⟩-⟨38, 10⟩
   command @ ⟨37, 0⟩†-⟨38, 10⟩† @ Lean.Elab.Command.elabEnd
 infoTree.lean:41:0: error: expected identifier or term

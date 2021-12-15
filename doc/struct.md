@@ -217,7 +217,7 @@ def msg2 : MessageExt where
 
 ## Updating structure fields
 
-Structure fields can be updated using `{ <struct> with <field> := <new-value> }`:
+Structure fields can be updated using `{ <struct-val> with <field> := <new-value>, ... }`:
 
 ```lean
 # structure Point (α : Type u) where

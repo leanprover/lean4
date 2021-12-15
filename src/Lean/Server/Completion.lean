@@ -85,6 +85,10 @@ private def addCompletionItemForDecl (label : Name) (declName : Name) (expectedT
   if let some c ← (← getEnv).find? declName then
     addCompletionItem label c.type expectedType? (some declName)
 
+private def addKeywordCompletionItem (keyword : String) : M Unit := do
+  let item := { label := keyword, detail? := "keyword", documentation? := none }
+  modify fun s => { s with itemsMain := s.itemsMain.push item }
+
 private def runM (ctx : ContextInfo) (lctx : LocalContext) (x : M Unit) : IO (Option CompletionList) :=
   ctx.runMetaM lctx do
     match (← x.run |>.run {}) with
@@ -232,7 +236,11 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (hoverInfo : HoverI
         | Name.str p ..  => searchAlias p
         | _ => return ()
     searchAlias ctx.currNamespace
-  -- TODO search macros
+  -- Search keywords
+  if let Name.str Name.anonymous s _ := id then
+    let keywords := Parser.getTokenTable env
+    for keyword in keywords.findPrefix s do
+      addKeywordCompletionItem keyword
   -- TODO search namespaces
 
 private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (id : Name) (hoverInfo : HoverInfo) (danglingDot : Bool) (expectedType? : Option Expr) : IO (Option CompletionList) :=

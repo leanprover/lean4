@@ -1,22 +1,22 @@
 {"textDocument": {"uri": "file://533.lean"},
  "position": {"line": 1, "character": 10}}
 {"items":
- [{"label": "False", "kind": 21, "detail": "Prop"},
+ [{"label": "False", "kind": 22, "detail": "Prop"},
   {"label": "Fin", "kind": 22, "detail": "Nat → Type"},
   {"label": "Float", "kind": 22, "detail": "Type"},
   {"label": "FloatArray", "kind": 22, "detail": "Type"},
   {"label": "FloatSpec", "kind": 22, "detail": "Type 1"},
   {"label": "Foo", "kind": 6, "detail": "Sort ?u"},
   {"label": "ForIn",
-   "kind": 22,
+   "kind": 7,
    "detail":
    "(Type u₁ → Type u₂) → Type u → outParam (Type v) → Type (max (max (max u (u₁ + 1)) u₂) v)"},
-  {"label": "ForInStep", "kind": 3, "detail": "Type u → Type u"},
+  {"label": "ForInStep", "kind": 22, "detail": "Type u → Type u"},
   {"label": "ForM",
-   "kind": 22,
+   "kind": 7,
    "detail":
    "(Type u → Type v) → Type w₁ → outParam (Type w₂) → Type (max (max (max (u + 1) v) w₁) w₂)"},
   {"label": "Functor",
-   "kind": 22,
+   "kind": 7,
    "detail": "(Type u → Type v) → Type (max (u + 1) v)"}],
  "isIncomplete": true}

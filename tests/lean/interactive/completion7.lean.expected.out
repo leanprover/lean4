@@ -2,13 +2,13 @@
  "position": {"line": 0, "character": 10}}
 {"items":
  [{"label": "And", "kind": 22, "detail": "Prop → Prop → Prop"},
-  {"label": "AndOp", "kind": 22, "detail": "Type u → Type u"},
-  {"label": "AndThen", "kind": 22, "detail": "Type u → Type u"}],
+  {"label": "AndOp", "kind": 7, "detail": "Type u → Type u"},
+  {"label": "AndThen", "kind": 7, "detail": "Type u → Type u"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completion7.lean"},
  "position": {"line": 2, "character": 11}}
 {"items":
  [{"label": "intro", "kind": 4, "detail": "a → b → a ∧ b"},
-  {"label": "left", "kind": 3, "detail": "a ∧ b → a"},
-  {"label": "right", "kind": 3, "detail": "a ∧ b → b"}],
+  {"label": "left", "kind": 5, "detail": "a ∧ b → a"},
+  {"label": "right", "kind": 5, "detail": "a ∧ b → b"}],
  "isIncomplete": true}

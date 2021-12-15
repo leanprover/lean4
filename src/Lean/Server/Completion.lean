@@ -85,10 +85,15 @@ private def getCompletionKindForDecl (constInfo : ConstantInfo) : M CompletionIt
   let env ← getEnv
   if constInfo.isCtor then
     return CompletionItemKind.constructor
-  else if isStructure env constInfo.name then
-    return CompletionItemKind.struct
-  else if (← isEnumType constInfo.name) then
-    return CompletionItemKind.enum
+  else if constInfo.isInductive then
+    if (← isClass env constInfo.name) then
+      return CompletionItemKind.class
+    else if (← isEnumType constInfo.name) then
+      return CompletionItemKind.enum
+    else
+      return CompletionItemKind.struct
+  else if (← isProjectionFn constInfo.name) then
+    return CompletionItemKind.field
   else if (← whnf constInfo.type).isForall then
     return CompletionItemKind.function
   else
@@ -310,12 +315,7 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (hoverInfo : Hov
         if nameSet.contains typeName then
           unless (← isBlackListed c.name) do
             if (← isDotCompletionMethod typeName c) then
-              let kind :=
-                if (← isProjectionFn c.name) then
-                  CompletionItemKind.field
-                else
-                  CompletionItemKind.method
-              addCompletionItem c.name.getString! c.type expectedType? c.name (kind := kind)
+              addCompletionItem c.name.getString! c.type expectedType? c.name (kind := (← getCompletionKindForDecl c))
 
 private def optionCompletion (ctx : ContextInfo) (stx : Syntax) : IO (Option CompletionList) :=
   ctx.runMetaM {} do

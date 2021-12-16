@@ -41,6 +41,7 @@ def leanSharedLib (sysroot : FilePath) :=
 structure LeanInstall where
   sysroot : FilePath
   githash : String
+  libDir := sysroot / "lib"
   oleanDir := sysroot / "lib" / "lean"
   includeDir := sysroot / "include"
   lean := leanExe sysroot

@@ -37,6 +37,12 @@ deriving instance Inhabited for BuildContext
 @[inline] def getLeanInstall : BuildM LeanInstall :=
   (·.lean) <$> read
 
+@[inline] def getLeanSysroot : BuildM FilePath :=
+  (·.sysroot) <$> getLeanInstall
+
+@[inline] def getLeanLibDir : BuildM FilePath :=
+  (·.libDir) <$> getLeanInstall
+
 @[inline] def getLeanOleanDir : BuildM FilePath :=
   (·.oleanDir) <$> getLeanInstall
 

@@ -429,21 +429,27 @@ extern "C" LEAN_EXPORT obj_res lean_io_timeit(b_obj_arg msg, obj_arg fn, obj_arg
     w = apply_1(fn, w);
     auto end   = std::chrono::steady_clock::now();
     auto diff  = std::chrono::duration<double>(end - start);
-    std::ostream & out = std::cerr; // TODO(Leo): replace?
+    sstream out;
     out << std::setprecision(3);
     if (diff < std::chrono::duration<double>(1)) {
-        out << string_cstr(msg) << " " << std::chrono::duration<double, std::milli>(diff).count() << "ms\n";
+        out << string_cstr(msg) << " " << std::chrono::duration<double, std::milli>(diff).count() << "ms";
     } else {
-        out << string_cstr(msg) << " " << diff.count() << "s\n";
+        out << string_cstr(msg) << " " << diff.count() << "s";
     }
+    io_eprintln(mk_string(out.str()));
     return w;
 }
 
 /* allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α */
 extern "C" LEAN_EXPORT obj_res lean_io_allocprof(b_obj_arg msg, obj_arg fn, obj_arg w) {
-    std::ostream & out = std::cerr; // TODO(Leo): replace?
-    allocprof prof(out, string_cstr(msg));
-    return apply_1(fn, w);
+    std::ostringstream out;
+    obj_res res;
+    {
+        allocprof prof(out, string_cstr(msg));
+        res = apply_1(fn, w);
+    }
+    io_eprintln(mk_string(out.str()));
+    return res;
 }
 
 /* getNumHeartbeats : BaseIO Nat */

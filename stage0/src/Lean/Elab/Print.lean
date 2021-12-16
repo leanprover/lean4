@@ -70,6 +70,7 @@ private def printIdCore (id : Name) : CommandElabM Unit := do
   | none => throwUnknownId id
 
 private def printId (id : Syntax) : CommandElabM Unit := do
+  addCompletionInfo <| CompletionInfo.id id id.getId (danglingDot := false) {} none
   let cs ← resolveGlobalConstWithInfos id
   cs.forM printIdCore
 

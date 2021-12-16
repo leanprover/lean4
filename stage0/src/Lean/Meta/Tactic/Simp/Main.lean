@@ -208,14 +208,18 @@ where
         if (← dependsOn (← inferType p) s.fvarId!) then
           return none
         else
-          return some (← mkLambdaFVars #[s] (← mkEq e p))
+          let motive ← mkLambdaFVars #[s] (← mkEq e p)
+          if !(← isTypeCorrect motive) then
+            return none
+          else
+            return some motive
       if let some motive := motive? then
         let r ← simp s
         let eNew := e.updateProj! r.expr
         match r.proof? with
         | none => return { expr := eNew }
         | some h =>
-          let hNew ← mkEqNDRec motive (← mkEqRefl s) h
+          let hNew ← mkEqNDRec motive (← mkEqRefl e) h
           return { expr := eNew, proof? := some hNew }
       else
         return { expr := (← dsimp e) }

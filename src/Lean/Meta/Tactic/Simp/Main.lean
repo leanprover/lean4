@@ -208,7 +208,11 @@ where
         if (← dependsOn (← inferType p) s.fvarId!) then
           return none
         else
-          return some (← mkLambdaFVars #[s] (← mkEq e p))
+          let motive ← mkLambdaFVars #[s] (← mkEq e p)
+          if !(← isTypeCorrect motive) then
+            return none
+          else
+            return some motive
       if let some motive := motive? then
         let r ← simp s
         let eNew := e.updateProj! r.expr

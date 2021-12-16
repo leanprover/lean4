@@ -37,6 +37,14 @@ def findWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FileP
     (p / pkg).isDir <||> ((p / pkg).withExtension ext).pathExists
   return root?.map (modToFilePath · mod ext)
 
+def findAllWithExt (sp : SearchPath) (ext : String) : IO (Array FilePath) := do
+  let mut paths := #[]
+  for p in sp do
+    for e in ← p.readDir do
+      if e.fileName.endsWith s!".{ext}" then
+        paths := paths.push e.path
+  paths
+
 end SearchPath
 
 builtin_initialize searchPathRef : IO.Ref SearchPath ← IO.mkRef {}

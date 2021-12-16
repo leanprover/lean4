@@ -4,7 +4,7 @@ import Lean.Data.Lsp
 import Lean.Server.InfoUtils
 import Lean.Server.Snapshots
 
-namespace Lean.Server.References
+namespace Lean.Server
 open Std
 open Lsp
 open Elab
@@ -104,8 +104,6 @@ def addRef (self : FileRefMap) (ref : Reference) : FileRefMap :=
 
 end FileRefMap
 
-def RefMap := HashMap String FileRefMap
-
 /-- Content of individual `.ilean` files -/
 structure Ilean where
   version : Nat := 1
@@ -176,4 +174,36 @@ def findFileRefs (text : FileMap) (trees : List InfoTree) (localVars : Bool := t
       | _ => true
   refs.foldl (init := HashMap.empty) fun m ref => m.addRef ref
 
-end Lean.Server.References
+/- Collecting and maintaining reference info from different sources -/
+
+structure References where
+  /-- References loaded from ilean files -/
+  ileans : HashMap Name (System.FilePath × FileRefMap)
+  /-- References from workers, overriding the corresponding ilean files -/
+  workers : HashMap Name (Nat × FileRefMap)
+
+namespace References
+
+def empty : References := { ileans := HashMap.empty, workers := HashMap.empty }
+
+def addIlean (self : References) (path : System.FilePath) (ilean : Ilean) : References :=
+  { self with ileans := self.ileans.insert ilean.module (path, ilean.references) }
+
+def removeIlean (self : References) (path : System.FilePath) : References :=
+  let namesToRemove := self.ileans.toList.filter (fun (_, p, _) => p == path)
+    |>.map (fun (n, _, _) => n)
+  namesToRemove.foldl (init := self) fun self name =>
+    { self with ileans := self.ileans.erase name }
+
+def addWorkerRefs (self : References) (name : Name) (version : Nat) (refs : FileRefMap) : References := Id.run do
+  if let some (currVersion, _) := self.workers.find? name then
+    if version <= currVersion then
+      return self
+  return { self with workers := self.workers.insert name (version, refs) }
+
+def removeWorkerRefs (self : References) (name : Name) : References :=
+  { self with workers := self.workers.erase name }
+
+end References
+
+end Lean.Server

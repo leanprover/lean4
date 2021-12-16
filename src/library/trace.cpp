@@ -122,8 +122,16 @@ scope_trace_env::~scope_trace_env() {
     get_disabled_trace_classes().resize(m_disable_sz);
 }
 
-std::ostream & tout() {
-    return std::cerr;
+extern "C" obj_res lean_io_eprint(obj_arg s, obj_arg w);
+static void io_eprint(obj_arg s) {
+    object * r = lean_io_eprint(s, lean_io_mk_world());
+    if (!lean_io_result_is_ok(r))
+        lean_io_result_show_error(r);
+    lean_dec(r);
+}
+
+tout::~tout() {
+    io_eprint(mk_string(m_out.str()));
 }
 
 std::ostream & operator<<(std::ostream & ios, tclass const & c) {

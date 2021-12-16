@@ -275,7 +275,7 @@ value unbox_t(object * o, type t) {
 }
 
 /** \pre Very simple debug output of arbitrary values, should be extended. */
-void print_value(std::ostream & ios, value const & v, type t) {
+void print_value(tout & ios, value const & v, type t) {
     if (t == type::Float) {
         ios << v.m_float;
     } else if (type_is_scalar(t)) {
@@ -290,6 +290,10 @@ void print_value(std::ostream & ios, value const & v, type t) {
             ios << v.m_obj;
         }
     }
+}
+
+void print_value(tout const & ios, value const & v, type t) {
+  return print_value(const_cast<tout &>(ios), v, t);
 }
 
 void * lookup_symbol_in_cur_exe(char const * sym) {

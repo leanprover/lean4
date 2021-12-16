@@ -13741,8 +13741,6 @@ x_164 = lean_ctor_get(x_3, 1);
 lean_inc(x_164);
 lean_dec(x_3);
 x_165 = l_Lean_KVMap_eqv(x_161, x_163);
-lean_dec(x_163);
-lean_dec(x_161);
 if (x_165 == 0)
 {
 uint8_t x_166; 

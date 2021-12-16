@@ -127,6 +127,7 @@ static lean_object* l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init
 LEAN_EXPORT lean_object* l___private_Init_System_IO_0__IO_FS_reprMetadata____x40_Init_System_IO___hyg_2352____boxed(lean_object*, lean_object*);
 static lean_object* l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1883____closed__12;
 LEAN_EXPORT lean_object* l_IO_setStderr___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lean_io_eprint(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Process_Stdio_toCtorIdx(uint8_t);
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__39;
 static lean_object* l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_2114____closed__2;
@@ -5133,6 +5134,14 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_IO_eprintln___rarg), 3, 0);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* lean_io_eprint(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_IO_eprint___at_IO_eprintln___spec__1(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_IO_eprintln___at___private_Init_System_IO_0__IO_eprintlnAux___spec__1(lean_object* x_1, lean_object* x_2) {

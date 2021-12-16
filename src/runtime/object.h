@@ -42,6 +42,21 @@ inline bool is_scalar(object * o) { return lean_is_scalar(o); }
 inline object * box(size_t n) { return lean_box(n); }
 inline size_t unbox(object * o) { return lean_unbox(o); }
 
+/*
+  Important: we have added support for initializing global constants
+  at program startup. This feature is particularly useful for
+  initializing `ST.Ref` values. Any `ST.Ref` value created during
+  initialization will be marked as persistent. Thus, to make `ST.Ref`
+  API thread-safe, we must treat persistent `ST.Ref` objects created
+  during initialization as a multi-threaded object. Then, whenever we store
+  a value `val` into a global `ST.Ref`, we have to mark `va`l as a multi-threaded
+  object as we do for multi-threaded `ST.Ref`s. It makes sense since
+  the global `ST.Ref` may be used to communicate data between threads.
+  Similar issues can happen with other types with interior mutability
+  such as `Task`s.
+*/
+inline bool ref_maybe_mt(b_obj_arg ref) { return lean_is_mt(ref) || lean_is_persistent(ref); }
+
 inline bool is_mt_heap_obj(object * o) { return lean_is_mt(o); }
 inline bool is_st_heap_obj(object * o) { return lean_is_st(o); }
 inline bool is_heap_obj(object * o) { return is_st_heap_obj(o) || is_mt_heap_obj(o); }

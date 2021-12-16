@@ -707,19 +707,6 @@ static inline atomic<object*> * mt_ref_val_addr(object * o) {
     return reinterpret_cast<atomic<object*> *>(&(lean_to_ref(o)->m_value));
 }
 
-/*
-  Important: we have added support for initializing global constants
-  at program startup. This feature is particularly useful for
-  initializing `ST.Ref` values. Any `ST.Ref` value created during
-  initialization will be marked as persistent. Thus, to make `ST.Ref`
-  API thread-safe, we must treat persistent `ST.Ref` objects created
-  during initialization as a multi-threaded object. Then, whenever we store
-  a value `val` into a global `ST.Ref`, we have to mark `va`l as a multi-threaded
-  object as we do for multi-threaded `ST.Ref`s. It makes sense since
-  the global `ST.Ref` may be used to communicate data between threads.
-*/
-static inline bool ref_maybe_mt(b_obj_arg ref) { return lean_is_mt(ref) || lean_is_persistent(ref); }
-
 extern "C" LEAN_EXPORT obj_res lean_st_ref_get(b_obj_arg ref, obj_arg) {
     if (ref_maybe_mt(ref)) {
         atomic<object *> * val_addr = mt_ref_val_addr(ref);

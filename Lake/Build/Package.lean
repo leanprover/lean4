@@ -18,7 +18,7 @@ namespace Lake
 /-- Build the `extraDepTarget` of all dependent packages into a single target. -/
 protected def Package.buildExtraDepsTarget (self : Package) : BuildM ActiveOpaqueTarget := do
   let collect pkg depTargets := do
-    let extraDepTarget ← self.extraDepTarget.activate
+    let extraDepTarget ← pkg.extraDepTarget.activate
     let depTarget ← ActiveTarget.collectOpaqueArray depTargets
     extraDepTarget.mixOpaqueAsync depTarget
   let build dep recurse := do

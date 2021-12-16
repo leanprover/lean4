@@ -32,7 +32,18 @@ public:
 
 struct tclass { name m_cls; tclass(name const & c):m_cls(c) {} };
 
-std::ostream & tout();
+struct tout {
+    sstream m_out;
+    ~tout();
+};
+
+template <typename T>
+tout & operator<<(tout const & out, T const & t) {
+    tout & out_mut = const_cast<tout &>(out);
+    out_mut.m_out << t;
+    return out_mut;
+}
+
 std::ostream & operator<<(std::ostream & ios, tclass const &);
 
 #define lean_trace(CName, CODE) {               \

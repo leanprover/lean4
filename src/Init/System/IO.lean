@@ -434,6 +434,10 @@ def eprint [ToString α] (s : α) : IO Unit := do
 def eprintln [ToString α] (s : α) : IO Unit :=
   eprint <| toString s |>.push '\n'
 
+@[export lean_io_eprint]
+private def eprintAux (s : String) : IO Unit :=
+  eprint s
+
 @[export lean_io_eprintln]
 private def eprintlnAux (s : String) : IO Unit :=
   eprintln s

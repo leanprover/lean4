@@ -177,6 +177,7 @@ section ServerM
     initParams     : InitializeParams
     editDelay      : Nat
     workerPath     : System.FilePath
+    srcSearchPath  : System.SearchPath
 
   abbrev ServerM := ReaderT ServerContext IO
 
@@ -576,12 +577,27 @@ def initAndRunWatchdogAux : ServerM Unit := do
     catch _ => pure (Message.notification "exit" none)
     | throwServerError "Got `shutdown` request, expected an `exit` notification"
 
-def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
+def findWorkerPath : IO System.FilePath := do
   let mut workerPath ← IO.appPath
   if let some path := (←IO.getEnv "LEAN_SYSROOT") then
     workerPath := System.FilePath.mk path / "bin" / "lean" |>.withExtension System.FilePath.exeExtension
   if let some path := (←IO.getEnv "LEAN_WORKER_PATH") then
     workerPath := System.FilePath.mk path
+  workerPath
+
+-- TODO Combine with FileWorker.lean#compileHeader to deduplicate logic
+-- TODO Support lake projects (src and olean paths)
+def findSrcSearchPath : IO System.SearchPath := do
+  let srcPath := (← appDir) / ".." / "lib" / "lean" / "src"
+  -- `lake/` should come first since on case-insensitive file systems, Lean thinks that `src/` also contains `Lake/`
+  let mut srcSearchPath := [srcPath / "lake", srcPath]
+  if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
+    srcSearchPath := System.SearchPath.parse p ++ srcSearchPath
+  srcSearchPath
+
+def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
+  let workerPath ← findWorkerPath
+  let srcSearchPath ← findSrcSearchPath
   let fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap)
   let i ← maybeTee "wdIn.txt" false i
   let o ← maybeTee "wdOut.txt" true o
@@ -619,7 +635,8 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
     fileWorkersRef := fileWorkersRef
     initParams     := initRequest.param
     editDelay      := initRequest.param.initializationOptions? |>.bind InitializationOptions.editDelay? |>.getD 200
-    workerPath     := workerPath
+    workerPath
+    srcSearchPath
     : ServerContext
   }
 

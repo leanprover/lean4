@@ -119,8 +119,8 @@ def runFrontend
 
   if let some ileanFileName := ileanFileName then
     let trees := s.commandState.infoState.trees.toList
-    let references := Lean.Server.References.findFileRefs inputCtx.fileMap trees (localVars := false)
-    let ilean := { module := mainModuleName, references : Lean.Server.References.Ilean }
+    let references := Lean.Server.findFileRefs inputCtx.fileMap trees (localVars := false)
+    let ilean := { module := mainModuleName, references : Lean.Server.Ilean }
     IO.FS.writeFile ileanFileName $ toString $ toJson ilean
 
   pure (s.commandState.env, !s.commandState.messages.hasErrors)

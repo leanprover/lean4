@@ -13,6 +13,7 @@ import Lean.Elab.Import
 import Lean.Data.Lsp
 import Lean.Server.Utils
 import Lean.Server.Requests
+import Lean.Server.References
 
 /-!
 For general server architecture, see `README.md`. This module implements the watchdog process.
@@ -178,6 +179,7 @@ section ServerM
     editDelay      : Nat
     workerPath     : System.FilePath
     srcSearchPath  : System.SearchPath
+    references     : References
 
   abbrev ServerM := ReaderT ServerContext IO
 
@@ -595,9 +597,21 @@ def findSrcSearchPath : IO System.SearchPath := do
     srcSearchPath := System.SearchPath.parse p ++ srcSearchPath
   srcSearchPath
 
+def loadReferences : IO References := do
+  let oleanSearchPath ← Lean.searchPathRef.get
+  let mut refs := References.empty
+  for path in ← oleanSearchPath.findAllWithExt "ilean" do
+    let content ← FS.readFile path
+    let ilean ← match Json.parse content >>= fromJson? with
+      | Except.ok ilean => pure ilean
+      | Except.error msg => throwServerError s!"Failed to load ilean at {path}: {msg}"
+    refs := refs.addIlean path ilean
+  refs
+
 def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
   let workerPath ← findWorkerPath
   let srcSearchPath ← findSrcSearchPath
+  let references ← loadReferences
   let fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap)
   let i ← maybeTee "wdIn.txt" false i
   let o ← maybeTee "wdOut.txt" true o
@@ -637,6 +651,7 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
     editDelay      := initRequest.param.initializationOptions? |>.bind InitializationOptions.editDelay? |>.getD 200
     workerPath
     srcSearchPath
+    references
     : ServerContext
   }
 

@@ -215,7 +215,7 @@ where
         match r.proof? with
         | none => return { expr := eNew }
         | some h =>
-          let hNew ← mkEqNDRec motive (← mkEqRefl s) h
+          let hNew ← mkEqNDRec motive (← mkEqRefl e) h
           return { expr := eNew, proof? := some hNew }
       else
         return { expr := (← dsimp e) }

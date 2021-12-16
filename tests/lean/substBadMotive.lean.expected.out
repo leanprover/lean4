@@ -1,0 +1,8 @@
+substBadMotive.lean:7:61-7:66: warning: declaration uses 'sorry'
+substBadMotive.lean:9:23-9:44: error: invalid `▸` notation, failed to compute motive for the substitution
+substBadMotive.lean:14:18-14:23: warning: declaration uses 'sorry'
+substBadMotive.lean:15:22-15:43: error: invalid `▸` notation, failed to compute motive for the substitution
+substBadMotive.lean:24:29-24:34: warning: declaration uses 'sorry'
+substBadMotive.lean:25:31-25:36: warning: declaration uses 'sorry'
+substBadMotive.lean:33:39-33:44: warning: declaration uses 'sorry'
+substBadMotive.lean:34:30-34:53: error: invalid `▸` notation, failed to compute motive for the substitution

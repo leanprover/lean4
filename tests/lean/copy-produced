@@ -2,6 +2,6 @@
 
 root="$(realpath $(dirname $0))"
 cd ${1:-$PWD}
-for f in *.produced.out; do
-    cp $f "$root/${f/produced/expected}"
+for f in $(find . -name '*.expected.out'); do
+    cp ${f/expected/produced} "$root/$f"
 done

@@ -383,7 +383,8 @@ def libGlobs (self : Package) : Array Glob :=
 
 /-- Whether the given module is considered local to the package. -/
 def isLocalModule (mod : Name) (self : Package) : Bool :=
-  self.libRoots.any fun root => root.isPrefixOf mod
+  self.libRoots.any (fun root => root.isPrefixOf mod) ||
+  self.libGlobs.any (fun glob => glob.matches mod)
 
 /-- Get an `Array` of the package's module. -/
 def getModuleArray (self : Package) : IO (Array Name) := do

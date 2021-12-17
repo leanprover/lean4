@@ -9,6 +9,7 @@ import Lean.Elab.Term
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.Arg
+import Lean.Elab.RecAppSyntax
 
 namespace Lean.Elab.Term
 open Meta
@@ -913,7 +914,13 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
 @[builtinTermElab app] def elabApp : TermElab := fun stx expectedType? =>
   withoutPostponingUniverseConstraints do
     let (f, namedArgs, args, ellipsis) ← expandApp stx
-    elabAppAux f namedArgs args (ellipsis := ellipsis) expectedType?
+    let result ← elabAppAux f namedArgs args (ellipsis := ellipsis) expectedType?
+    let resultFn := result.getAppFn
+    if resultFn.isFVar then
+      let localDecl ← getLocalDecl resultFn.fvarId!
+      if localDecl.isAuxDecl then
+        return mkRecAppWithSyntax result stx
+    return result
 
 private def elabAtom : TermElab := fun stx expectedType? =>
   elabAppAux stx #[] #[] (ellipsis := false) expectedType?

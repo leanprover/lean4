@@ -1,7 +1,14 @@
 {"textDocument": {"uri": "file://863.lean"},
  "position": {"line": 3, "character": 12}}
 {"items":
- [{"label": "getReducibilityStatus",
+ [{"label": "getRecAppSyntax?",
+   "kind": 3,
+   "documentation":
+   {"value":
+    "Retrieve (if available) the syntax object attached to a recursive application.\n",
+    "kind": "markdown"},
+   "detail": "Expr → Option Syntax"},
+  {"label": "getReducibilityStatus",
    "kind": 3,
    "detail":
    "[inst : Monad m] → [inst : MonadEnv m] → Name → m ReducibilityStatus"},
@@ -19,7 +26,14 @@
 {"textDocument": {"uri": "file://863.lean"},
  "position": {"line": 7, "character": 12}}
 {"items":
- [{"label": "getReducibilityStatus",
+ [{"label": "getRecAppSyntax?",
+   "kind": 3,
+   "documentation":
+   {"value":
+    "Retrieve (if available) the syntax object attached to a recursive application.\n",
+    "kind": "markdown"},
+   "detail": "Expr → Option Syntax"},
+  {"label": "getReducibilityStatus",
    "kind": 3,
    "detail":
    "[inst : Monad m] → [inst : MonadEnv m] → Name → m ReducibilityStatus"},

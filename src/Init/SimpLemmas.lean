@@ -109,7 +109,7 @@ theorem dite_congr {s : Decidable b} [Decidable c]
 @[simp] theorem iff_false (p : Prop) : (p ↔ False) = ¬p := propext <| Iff.intro (fun h hp => h.mp hp) (fun h => Iff.intro h False.elim)
 @[simp] theorem false_iff (p : Prop) : (False ↔ p) = ¬p := propext <| Iff.intro (fun h hp => h.mpr hp) (fun h => Iff.intro False.elim h)
 @[simp] theorem false_implies (p : Prop) : (False → p) = True := propext <| Iff.intro (fun _ => trivial) (by intros; trivial)
-@[simp] theorem implies_true (p : Prop) : (p → True) = True := propext <| Iff.intro (fun _ => trivial) (by intros; trivial)
+@[simp] theorem implies_true (α : Sort u) : (α → True) = True := propext <| Iff.intro (fun _ => trivial) (by intros; trivial)
 @[simp] theorem true_implies (p : Prop) : (True → p) = p := propext <| Iff.intro (fun h => h trivial) (by intros; trivial)
 
 @[simp] theorem Bool.or_false (b : Bool) : (b || false) = b  := by cases b <;> rfl

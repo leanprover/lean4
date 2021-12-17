@@ -183,6 +183,11 @@ section Initialization
     catch e =>  -- should be from `lake print-paths`
       let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
       pure (← mkEmptyEnvironment, msgs)
+    let mut headerEnv := headerEnv
+    try
+      if let some path := m.uri.toPath? then
+        headerEnv := headerEnv.setMainModule (← moduleNameOfFileName path none)
+    catch _ => ()
     if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
       srcSearchPath := System.SearchPath.parse p ++ srcSearchPath
     let cmdState := Elab.Command.mkState headerEnv msgLog opts

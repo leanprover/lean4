@@ -61,6 +61,30 @@ def withPrefix (a : Stream) (pre : String) : Stream :=
 end FS.Stream
 end IO
 
+namespace Lean.Lsp.DocumentUri
+
+/-- Transform the given path to a file:// URI. -/
+def ofPath (fname : System.FilePath) : DocumentUri :=
+  let fname := fname.normalize.toString
+  let fname := if System.Platform.isWindows then
+    fname.map fun c => if c == '\\' then '/' else c
+  else
+    fname
+  -- TODO(WN): URL-encode special characters
+  -- Three slashes denote localhost.
+  "file:///" ++ fname.dropWhile (· == '/')
+
+/-- Return local path from file:// URI, if any. -/
+def toPath? (uri : DocumentUri) : Option System.FilePath := Id.run do
+  if !uri.startsWith "file:///" then
+    return none
+  let mut p := uri.drop "file://".length
+  if System.Platform.isWindows then
+    p := p.map fun c => if c == '/' then '\\' else c
+  some ⟨p⟩
+
+end Lean.Lsp.DocumentUri
+
 namespace Lean.Server
 
 structure DocumentMeta where
@@ -91,17 +115,6 @@ def maybeTee (fName : String) (isOut : Bool) (h : FS.Stream) : IO FS.Stream := d
       hTee.chainLeft h true
     else
       h.chainRight hTee true
-
-/-- Transform the given path to a file:// URI. -/
-def toFileUri (fname : System.FilePath) : Lsp.DocumentUri :=
-  let fname := fname.normalize.toString
-  let fname := if System.Platform.isWindows then
-    fname.map fun c => if c == '\\' then '/' else c
-  else
-    fname
-  -- TODO(WN): URL-encode special characters
-  -- Three slashes denote localhost.
-  "file:///" ++ fname.dropWhile (· == '/')
 
 open Lsp
 

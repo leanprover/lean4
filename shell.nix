@@ -1,5 +1,6 @@
 let
-  flakePkgs = (import ./default.nix).packages.${builtins.currentSystem};
+  flake = (import ./default.nix);
+  flakePkgs = flake.packages.${builtins.currentSystem};
 in { pkgs ? flakePkgs.nixpkgs, pkgsDist ? pkgs, llvmPackages ? null }:
 # use `shell` as default
 (attribs: attribs.shell // attribs) rec {
@@ -21,10 +22,5 @@ in { pkgs ? flakePkgs.nixpkgs, pkgsDist ? pkgs, llvmPackages ? null }:
   with-temci = shell.overrideAttrs (old: {
     buildInputs = old.buildInputs ++ [ flakePkgs.temci ];
   });
-  nix = pkgs.mkShell {
-    buildInputs = [ flakePkgs.nix ];
-    shellHook = ''
-      export LEAN_SRC_PATH="$PWD/src"
-    '';
-  };
+  nix = flake.devShell.${builtins.currentSystem};
 }

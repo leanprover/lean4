@@ -52,6 +52,13 @@
       };
       defaultPackage = lean-packages.lean-all;
 
+      devShell = pkgs.mkShell {
+        buildInputs = [ lean-packages.nix ];
+        shellHook = ''
+          export LEAN_SRC_PATH="$PWD/src"
+        '';
+      };
+
       checks.lean = lean-packages.test;
     }) // rec {
       templates.pkg = {

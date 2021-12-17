@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.Match.Match
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Cleanup
+import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 
@@ -44,7 +45,11 @@ private partial def replaceRecApps (recFnName : Name) (decrTactic? : Option Synt
     | Expr.letE n type val body _ =>
       withLetDecl n (← loop F type) (← loop F val) fun x => do
         mkLetFVars #[x] (← loop F (body.instantiate1 x)) (usedLetOnly := false)
-    | Expr.mdata d e _   => return mkMData d (← loop F e)
+    | Expr.mdata d b _   =>
+      if let some stx := getRecAppSyntax? e then
+        withRef stx <| loop F b
+      else
+        return mkMData d (← loop F b)
     | Expr.proj n i e _  => return mkProj n i (← loop F e)
     | Expr.app _ _ _ =>
       let processApp (e : Expr) : TermElabM Expr :=

@@ -336,6 +336,19 @@ section ServerM
         handleCrash uri initialQueuedMsgs
 end ServerM
 
+section RequestHandling
+
+def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
+  dbg_trace "handling reference for '{p.textDocument.uri}' at {p.position}"
+  if let some path := p.textDocument.uri.toPath? then
+    let srcSearchPath := (← read).srcSearchPath
+    if let some name ← searchModuleNameOfFileName path srcSearchPath then
+      let references ← (← read).references.get
+      return #[] -- TODO Implement this
+  #[]
+
+end RequestHandling
+
 section NotificationHandling
   def handleDidOpen (p : DidOpenTextDocumentParams) : ServerM Unit :=
     let doc := p.textDocument
@@ -407,7 +420,7 @@ section MessageHandling
     | Except.ok parsed => pure parsed
     | Except.error inner => throwServerError s!"Got param with wrong structure: {params.compress}\n{inner}"
 
-  def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
+  def forwardRequestToWorker (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
     let uri: DocumentUri ←
       -- This request is handled specially.
       if method == "$/lean/rpc/connect" then
@@ -433,6 +446,24 @@ section MessageHandling
     let r := Request.mk id method params
     fw.pendingRequestsRef.modify (·.insert id r)
     tryWriteMessage uri r
+
+  def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
+    let handle α β [FromJson α] [ToJson β] (handler : α → ServerM β) : ServerM Unit := do
+      let hOut := (← read).hOut
+      try
+        let params ← parseParams α params
+        let result ← handler params
+        hOut.writeLspResponse ⟨id, result⟩
+      catch
+        -- TODO Do fancier error handling, like in file worker?
+        | e => hOut.writeLspResponseError {
+          id := id
+          code := ErrorCode.internalError
+          message := s!"Failed to process request {id}: {e}"
+        }
+    match method with
+      | "textDocument/references" => handle ReferenceParams (Array Location) handleReference
+      | _ => forwardRequestToWorker id method params
 
   def handleNotification (method : String) (params : Json) : ServerM Unit := do
     let handle := (fun α [FromJson α] (handler : α → ServerM Unit) => parseParams α params >>= handler)

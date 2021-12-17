@@ -339,12 +339,12 @@ end ServerM
 section RequestHandling
 
 def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
-  dbg_trace "handling reference for '{p.textDocument.uri}' at {p.position}"
   if let some path := p.textDocument.uri.toPath? then
     let srcSearchPath := (← read).srcSearchPath
-    if let some name ← searchModuleNameOfFileName path srcSearchPath then
+    if let some module ← searchModuleNameOfFileName path srcSearchPath then
       let references ← (← read).references.get
-      return #[] -- TODO Implement this
+      if let some ident := references.findAt? module p.position then
+        return ← references.referingTo ident srcSearchPath p.context.includeDeclaration
   #[]
 
 end RequestHandling

@@ -2,6 +2,7 @@ import Init.System.IO
 import Lean.Data.Json
 import Lean.Data.Lsp
 
+import Lean.Server.Utils
 import Lean.Server.InfoUtils
 import Lean.Server.Snapshots
 
@@ -63,6 +64,18 @@ def addRef : RefInfo → Reference → RefInfo
     { i with usages := usages.push range }
   | i, _ => i
 
+def contains (self : RefInfo) (pos : Lsp.Position) : Bool := Id.run do
+  if let some range := self.definition then
+    if contains range pos then
+      return true
+  for range in self.usages do
+    if contains range pos then
+      return true
+  false
+  where
+    contains (range : Lsp.Range) (pos : Lsp.Position) : Bool :=
+      range.start <= pos && pos < range.end
+
 end RefInfo
 
 instance : ToJson RefInfo where
@@ -87,30 +100,37 @@ instance : FromJson RefInfo where
     let usages ← usages.mapM listToRange
     pure { definition, usages }
 
-def FileRefMap := HashMap RefIdent RefInfo
+/-- References from a single module/file -/
+def ModuleRefs := HashMap RefIdent RefInfo
 
-instance : ToJson FileRefMap where
+instance : ToJson ModuleRefs where
   toJson m := Json.mkObj <| m.toList.map fun (ident, info) => (ident.toString, toJson info)
 
-instance : FromJson FileRefMap where
+instance : FromJson ModuleRefs where
   fromJson? j := do
     let node ← j.getObj?
     node.foldM (init := HashMap.empty) fun m k v => do
       m.insert (← RefIdent.fromString k) (← fromJson? v)
 
-namespace FileRefMap
+namespace ModuleRefs
 
-def addRef (self : FileRefMap) (ref : Reference) : FileRefMap :=
+def addRef (self : ModuleRefs) (ref : Reference) : ModuleRefs :=
   let refInfo := self.findD ref.ident RefInfo.empty
   self.insert ref.ident (refInfo.addRef ref)
 
-end FileRefMap
+def findAt? (self : ModuleRefs) (pos : Lsp.Position) : Option RefIdent := Id.run do
+  for (ident, info) in self.toList do
+    if info.contains pos then
+      return some ident
+  none
+
+end ModuleRefs
 
 /-- Content of individual `.ilean` files -/
 structure Ilean where
   version : Nat := 1
   module : Name
-  references : FileRefMap
+  references : ModuleRefs
   deriving FromJson, ToJson
 
 namespace Ilean
@@ -176,8 +196,8 @@ def combineFvars (refs : Array Reference) : Array Reference := Id.run do
       | m, RefIdent.fvar id => RefIdent.fvar <| m.findD id id
       | _, ident => ident
 
-def findFileRefs (text : FileMap) (trees : List InfoTree) (localVars : Bool := true)
-    : FileRefMap := Id.run do
+def findModuleRefs (text : FileMap) (trees : List InfoTree) (localVars : Bool := true)
+    : ModuleRefs := Id.run do
   let mut refs := combineFvars <| findReferences text trees
   if !localVars then
     refs := refs.filter fun
@@ -189,9 +209,9 @@ def findFileRefs (text : FileMap) (trees : List InfoTree) (localVars : Bool := t
 
 structure References where
   /-- References loaded from ilean files -/
-  ileans : HashMap Name (System.FilePath × FileRefMap)
+  ileans : HashMap Name (System.FilePath × ModuleRefs)
   /-- References from workers, overriding the corresponding ilean files -/
-  workers : HashMap Name (Nat × FileRefMap)
+  workers : HashMap Name (Nat × ModuleRefs)
 
 namespace References
 
@@ -206,7 +226,7 @@ def removeIlean (self : References) (path : System.FilePath) : References :=
   namesToRemove.foldl (init := self) fun self name =>
     { self with ileans := self.ileans.erase name }
 
-def addWorkerRefs (self : References) (name : Name) (version : Nat) (refs : FileRefMap) : References := Id.run do
+def addWorkerRefs (self : References) (name : Name) (version : Nat) (refs : ModuleRefs) : References := Id.run do
   if let some (currVersion, _) := self.workers.find? name then
     if version <= currVersion then
       return self
@@ -214,6 +234,29 @@ def addWorkerRefs (self : References) (name : Name) (version : Nat) (refs : File
 
 def removeWorkerRefs (self : References) (name : Name) : References :=
   { self with workers := self.workers.erase name }
+
+def allRefs (self : References) : HashMap Name ModuleRefs :=
+  let ileanRefs := self.ileans.toList.foldl (init := HashMap.empty) fun m (name, _, refs) => m.insert name refs
+  self.workers.toList.foldl (init := ileanRefs) fun m (name, _, refs) => m.insert name refs
+
+def findAt? (self : References) (module : Name) (pos : Lsp.Position) : Option RefIdent := Id.run do
+  if let some refs := self.allRefs.find? module then
+    return refs.findAt? pos
+  none
+
+def referingTo (self : References) (ident : RefIdent) (srcSearchPath : SearchPath)
+    (includeDefinition : Bool := true) : IO (Array Location) := do
+  let mut result := #[]
+  for (module, refs) in self.allRefs.toList do
+    if let some info := refs.find? ident then
+      if let some path ← srcSearchPath.findWithExt "lean" module then
+        let uri := DocumentUri.ofPath path
+        if includeDefinition then
+          if let some range := info.definition then
+            result := result.push ⟨uri, range⟩
+        for range in info.usages do
+          result := result.push ⟨uri, range⟩
+  result
 
 end References
 

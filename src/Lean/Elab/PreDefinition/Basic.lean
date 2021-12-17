@@ -5,7 +5,9 @@ Authors: Leonardo de Moura
 -/
 import Lean.Util.SCC
 import Lean.Meta.AbstractNestedProofs
+import Lean.Meta.Transform
 import Lean.Elab.Term
+import Lean.Elab.RecAppSyntax
 import Lean.Elab.DefView
 import Lean.Elab.PreDefinition.MkInhabitant
 
@@ -124,13 +126,19 @@ def addAndCompileNonRec (preDef : PreDefinition) : TermElabM Unit := do
 def addNonRec (preDef : PreDefinition) : TermElabM Unit := do
   addNonRecAux preDef false
 
+/--
+  Eliminate recursive application annotations containing syntax. These annotations are used by the well-founded recursion module
+  to produce better error messages. -/
+def eraseRecAppSyntax (e : Expr) : CoreM Expr :=
+  Core.transform e (post := fun e => TransformStep.done <| if (getRecAppSyntax? e).isSome then e.mdataExpr! else e)
+
 def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSafety.unsafe) : TermElabM Unit :=
   withRef preDefs[0].ref do
-    let decl := Declaration.mutualDefnDecl $ preDefs.toList.map fun preDef => {
+    let decl := Declaration.mutualDefnDecl <| ← preDefs.toList.mapM fun preDef => return {
         name        := preDef.declName
         levelParams := preDef.levelParams
         type        := preDef.type
-        value       := preDef.value
+        value       := (← eraseRecAppSyntax preDef.value)
         safety      := safety
         hints       := ReducibilityHints.opaque
       }

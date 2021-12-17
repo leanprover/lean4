@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "util/name.h"
 
 namespace lean {
-enum class data_value_kind { String, Bool, Name, Nat /*, Int*/ };
+enum class data_value_kind { String, Bool, Name, Nat, /* Int, Syntax */ };
 /*
 inductive DataValue
 | ofString (v : String)
@@ -18,6 +18,7 @@ inductive DataValue
 | ofName   (v : Name)
 | ofNat    (v : Nat)
 | ofInt    (v : Int)
+| ofSyntax (v : Syntax)
 */
 class data_value : public object_ref {
     data_value(b_obj_arg o, bool b):object_ref(o, b) {}

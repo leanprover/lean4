@@ -16,6 +16,10 @@ inductive DataValue where
   | ofSyntax (v : Syntax)
   deriving Inhabited, BEq
 
+@[export lean_data_value_beq]
+def DataValue.beqExp (a b : DataValue) : Bool :=
+  a == b
+
 @[export lean_mk_bool_data_value] def mkBoolDataValueEx (b : Bool) : DataValue := DataValue.ofBool b
 @[export lean_data_value_bool] def DataValue.getBoolEx : DataValue → Bool
   | DataValue.ofBool b => b

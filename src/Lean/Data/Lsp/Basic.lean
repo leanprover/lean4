@@ -36,6 +36,14 @@ structure Position where
 instance : ToString Position := ⟨fun p =>
   "(" ++ toString p.line ++ ", " ++ toString p.character ++ ")"⟩
 
+instance : Ord Position where
+  compare a b := match compare a.line b.line with
+    | Ordering.eq => compare a.character b.character
+    | o => o
+
+instance : LT Position := ltOfOrd
+instance : LE Position := leOfOrd
+
 structure Range where
   start : Position
   «end» : Position
@@ -73,7 +81,7 @@ def TextEditBatch := Array TextEdit
 instance : FromJson TextEditBatch :=
   ⟨@fromJson? (Array TextEdit) _⟩
 
-instance  : ToJson TextEditBatch :=
+instance : ToJson TextEditBatch :=
   ⟨@toJson (Array TextEdit) _⟩
 
 structure TextDocumentIdentifier where

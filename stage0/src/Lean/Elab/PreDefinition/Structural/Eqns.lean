@@ -27,7 +27,7 @@ def deltaLHS (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
 def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := withMVarContext mvarId do
   let target ← getMVarType' mvarId
   let some (_, lhs, rhs) ← target.eq? | throwTacticEx `deltaRHS mvarId "equality expected"
-  let some rhs ← delta? rhs (. == declName) | return none
+  let some rhs ← delta? rhs.consumeMData (. == declName) | return none
   replaceTargetDefEq mvarId (← mkEq lhs rhs)
 
 private partial def whnfAux (e : Expr) : MetaM Expr := do

@@ -173,14 +173,21 @@ section Initialization
     -- `lake/` should come first since on case-insensitive file systems, Lean thinks that `src/` also contains `Lake/`
     let mut srcSearchPath := [srcPath / "lake", srcPath]
     let (headerEnv, msgLog) ← try
-      -- NOTE: lake does not exist in stage 0 (yet?)
-      if (← System.FilePath.pathExists lakePath) then
-        let pkgSearchPath ← lakeSetupSearchPath lakePath m (Lean.Elab.headerToImports headerStx).toArray hOut
-        srcSearchPath := pkgSearchPath ++ srcSearchPath
+      if let some path := m.uri.toPath? then
+        -- NOTE: we assume for now that `lakefile.lean` does not have any non-stdlib deps
+        -- NOTE: lake does not exist in stage 0 (yet?)
+        if path.fileName != "lakefile.lean" && (← System.FilePath.pathExists lakePath) then
+          let pkgSearchPath ← lakeSetupSearchPath lakePath m (Lean.Elab.headerToImports headerStx).toArray hOut
+          srcSearchPath := pkgSearchPath ++ srcSearchPath
       Elab.processHeader headerStx opts msgLog inputCtx
     catch e =>  -- should be from `lake print-paths`
       let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
       pure (← mkEmptyEnvironment, msgs)
+    let mut headerEnv := headerEnv
+    try
+      if let some path := m.uri.toPath? then
+        headerEnv := headerEnv.setMainModule (← moduleNameOfFileName path none)
+    catch _ => ()
     if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
       srcSearchPath := System.SearchPath.parse p ++ srcSearchPath
     let cmdState := Elab.Command.mkState headerEnv msgLog opts

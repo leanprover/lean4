@@ -76,7 +76,7 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
         -- resolve symlinks (such as `src` in the build dir) so that files are opened
         -- in the right folder
         let modFname ← IO.FS.realPath modFname
-        pure <| some <| toFileUri modFname
+        pure <| some <| Lsp.DocumentUri.ofPath modFname
       | none         => pure <| some doc.meta.uri
 
     let ranges? ← findDeclarationRanges? n

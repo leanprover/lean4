@@ -179,7 +179,7 @@ section ServerM
     editDelay      : Nat
     workerPath     : System.FilePath
     srcSearchPath  : System.SearchPath
-    references     : References
+    references     : IO.Ref References
 
   abbrev ServerM := ReaderT ServerContext IO
 
@@ -374,6 +374,21 @@ section NotificationHandling
   def handleDidClose (p : DidCloseTextDocumentParams) : ServerM Unit :=
     terminateFileWorker p.textDocument.uri
 
+  def handleDidChangeWatchedFiles (p : DidChangeWatchedFilesParams) : ServerM Unit := do
+    let references := (← read).references
+    let oleanSearchPath ← Lean.searchPathRef.get
+    let ileans ← oleanSearchPath.findAllWithExt "ilean"
+    for change in p.changes do
+      if let some path := change.uri.toPath? then
+      if let FileChangeType.Deleted := change.type then
+        references.modify (fun r => r.removeIlean path)
+      else if ileans.contains path then
+        let ilean ← Ilean.load path
+        if let FileChangeType.Changed := change.type then
+          references.modify (fun r => r.removeIlean path |>.addIlean path ilean)
+        else
+          references.modify (fun r => r.addIlean path ilean)
+
   def handleCancelRequest (p : CancelParams) : ServerM Unit := do
     let fileWorkers ← (←read).fileWorkersRef.get
     for ⟨uri, fw⟩ in fileWorkers do
@@ -422,14 +437,15 @@ section MessageHandling
   def handleNotification (method : String) (params : Json) : ServerM Unit := do
     let handle := (fun α [FromJson α] (handler : α → ServerM Unit) => parseParams α params >>= handler)
     match method with
-    | "textDocument/didOpen"   => handle DidOpenTextDocumentParams handleDidOpen
+    | "textDocument/didOpen"            => handle DidOpenTextDocumentParams handleDidOpen
     /- NOTE: textDocument/didChange is handled in the main loop. -/
-    | "textDocument/didClose"  => handle DidCloseTextDocumentParams handleDidClose
-    | "$/cancelRequest"        => handle CancelParams handleCancelRequest
-    | "$/lean/rpc/connect"     => handle RpcConnectParams (forwardNotification method)
-    | "$/lean/rpc/release"     => handle RpcReleaseParams (forwardNotification method)
-    | "$/lean/rpc/keepAlive"   => handle RpcKeepAliveParams (forwardNotification method)
-    | _                        =>
+    | "textDocument/didClose"           => handle DidCloseTextDocumentParams handleDidClose
+    | "workspace/didChangeWatchedFiles" => handle DidChangeWatchedFilesParams handleDidChangeWatchedFiles
+    | "$/cancelRequest"                 => handle CancelParams handleCancelRequest
+    | "$/lean/rpc/connect"              => handle RpcConnectParams (forwardNotification method)
+    | "$/lean/rpc/release"              => handle RpcReleaseParams (forwardNotification method)
+    | "$/lean/rpc/keepAlive"            => handle RpcKeepAliveParams (forwardNotification method)
+    | _                                 =>
       if !"$/".isPrefixOf method then  -- implementation-dependent notifications can be safely ignored
         (←read).hLog.putStrLn s!"Got unsupported notification: {method}"
 end MessageHandling
@@ -601,17 +617,13 @@ def loadReferences : IO References := do
   let oleanSearchPath ← Lean.searchPathRef.get
   let mut refs := References.empty
   for path in ← oleanSearchPath.findAllWithExt "ilean" do
-    let content ← FS.readFile path
-    let ilean ← match Json.parse content >>= fromJson? with
-      | Except.ok ilean => pure ilean
-      | Except.error msg => throwServerError s!"Failed to load ilean at {path}: {msg}"
-    refs := refs.addIlean path ilean
+    refs := refs.addIlean path (← Ilean.load path)
   refs
 
 def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
   let workerPath ← findWorkerPath
   let srcSearchPath ← findSrcSearchPath
-  let references ← loadReferences
+  let references ← IO.mkRef (← loadReferences)
   let fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap)
   let i ← maybeTee "wdIn.txt" false i
   let o ← maybeTee "wdOut.txt" true o

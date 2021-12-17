@@ -121,6 +121,15 @@ def moduleNameOfFileName (fname : FilePath) (rootDir : Option FilePath) : IO Nam
   let modName    := modNameStr.components.foldl Name.mkStr Name.anonymous
   pure modName
 
+def searchModuleNameOfFileName (fname : FilePath) (rootDirs : SearchPath) : IO (Option Name) := do
+  for rootDir in rootDirs do
+    try
+      return some <| ← moduleNameOfFileName fname <| some rootDir
+    catch
+      -- Try the next one
+      | e => ()
+  none
+
 /--
   Find the system root of the given `lean` command
   by calling `lean --print-prefix` and returning the path it prints.

@@ -250,7 +250,9 @@ def referingTo (self : References) (ident : RefIdent) (srcSearchPath : SearchPat
   for (module, refs) in self.allRefs.toList do
     if let some info := refs.find? ident then
       if let some path ← srcSearchPath.findWithExt "lean" module then
-        let uri := DocumentUri.ofPath path
+        -- Resolve symlinks (such as `src` in the build dir) so that files are
+        -- opened in the right folder
+        let uri := DocumentUri.ofPath <| ← IO.FS.realPath path
         if includeDefinition then
           if let some range := info.definition then
             result := result.push ⟨uri, range⟩

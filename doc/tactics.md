@@ -313,13 +313,13 @@ You can use `let rec` to write local recursive functions. We lifted it to the ta
 and you can use it to create proofs by induction.
 
 ```lean
-theorem length_replicate {α} (n : Nat) (a : α) : (List.replicate n a).length = n := by
+theorem length_replicateTR {α} (n : Nat) (a : α) : (List.replicateTR n a).length = n := by
   let rec aux (n : Nat) (as : List α)
-      : (List.replicate.loop a n as).length = n + as.length := by
+      : (List.replicateTR.loop a n as).length = n + as.length := by
     match n with
     | 0   => rw [Nat.zero_add]; rfl
     | n+1 =>
-      show List.length (List.replicate.loop a n (a::as)) = Nat.succ n + as.length
+      show List.length (List.replicateTR.loop a n (a::as)) = Nat.succ n + as.length
       rw [aux n, List.length_cons, Nat.add_succ, Nat.succ_add]
   exact aux n []
 ```
@@ -328,14 +328,14 @@ You can also introduce auxiliary recursive declarations using `where` clause aft
 Lean converts them into a `let rec`.
 
 ```lean
-theorem length_replicate {α} (n : Nat) (a : α) : (List.replicate n a).length = n :=
+theorem length_replicateTR {α} (n : Nat) (a : α) : (List.replicateTR n a).length = n :=
   loop n []
 where
-  loop n as : (List.replicate.loop a n as).length = n + as.length := by
+  loop n as : (List.replicateTR.loop a n as).length = n + as.length := by
     match n with
     | 0   => rw [Nat.zero_add]; rfl
     | n+1 =>
-      show List.length (List.replicate.loop a n (a::as)) = Nat.succ n + as.length
+      show List.length (List.replicateTR.loop a n (a::as)) = Nat.succ n + as.length
       rw [loop n, List.length_cons, Nat.add_succ, Nat.succ_add]
 ```
 

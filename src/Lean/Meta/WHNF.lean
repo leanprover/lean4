@@ -590,9 +590,9 @@ unsafe def reduceNatNativeUnsafe (constName : Name) : MetaM Nat := evalConstChec
 def reduceNative? (e : Expr) : MetaM (Option Expr) :=
   match e with
   | Expr.app (Expr.const fName _ _) (Expr.const argName _ _) _ =>
-    if fName == `Lean.reduceBool then do
+    if fName == ``Lean.reduceBool then do
       return toExpr (← reduceBoolNative argName)
-    else if fName == `Lean.reduceNat then do
+    else if fName == ``Lean.reduceNat then do
       return toExpr (← reduceNatNative argName)
     else
       return none
@@ -626,18 +626,18 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
     return none
   else match e with
     | Expr.app (Expr.const fn _ _) a _                  =>
-      if fn == `Nat.succ then
+      if fn == ``Nat.succ then
         reduceUnaryNatOp Nat.succ a
       else
         return none
     | Expr.app (Expr.app (Expr.const fn _ _) a1 _) a2 _ =>
-      if fn == `Nat.add then reduceBinNatOp Nat.add a1 a2
-      else if fn == `Nat.sub then reduceBinNatOp Nat.sub a1 a2
-      else if fn == `Nat.mul then reduceBinNatOp Nat.mul a1 a2
-      else if fn == `Nat.div then reduceBinNatOp Nat.div a1 a2
-      else if fn == `Nat.mod then reduceBinNatOp Nat.mod a1 a2
-      else if fn == `Nat.beq then reduceBinNatPred Nat.beq a1 a2
-      else if fn == `Nat.ble then reduceBinNatPred Nat.ble a1 a2
+      if fn == ``Nat.add then reduceBinNatOp Nat.add a1 a2
+      else if fn == ``Nat.sub then reduceBinNatOp Nat.sub a1 a2
+      else if fn == ``Nat.mul then reduceBinNatOp Nat.mul a1 a2
+      else if fn == ``Nat.div then reduceBinNatOp Nat.div a1 a2
+      else if fn == ``Nat.mod then reduceBinNatOp Nat.mod a1 a2
+      else if fn == ``Nat.beq then reduceBinNatPred Nat.beq a1 a2
+      else if fn == ``Nat.ble then reduceBinNatPred Nat.ble a1 a2
       else return none
     | _ =>
       return none

@@ -14626,12 +14626,13 @@ x_2 = l___private_Lean_Elab_Command_0__Lean_Elab_Command_mkMetaContext___closed_
 x_3 = l_Lean_addMessageContextPartial___at_Lean_Elab_Command_instAddMessageContextCommandElabM___spec__1___closed__3;
 x_4 = l_Lean_Elab_Command_Scope_varDecls___default___closed__1;
 x_5 = lean_unsigned_to_nat(0u);
-x_6 = lean_alloc_ctor(0, 5, 0);
+x_6 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_6, 0, x_2);
 lean_ctor_set(x_6, 1, x_3);
 lean_ctor_set(x_6, 2, x_4);
 lean_ctor_set(x_6, 3, x_1);
 lean_ctor_set(x_6, 4, x_5);
+lean_ctor_set(x_6, 5, x_1);
 return x_6;
 }
 }

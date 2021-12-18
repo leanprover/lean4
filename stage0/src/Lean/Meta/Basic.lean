@@ -184,6 +184,10 @@ structure Context where
     Remark: in the current implementation, `synthPending` fails if `synthPendingDepth > 0`.
     We will add a configuration option if necessary. -/
   synthPendingDepth : Nat                  := 0
+  /--
+    A predicate to control whether a constant can be unfolded or not at `whnf`.
+    Note that we do not cache results at `whnf` when `canUnfold?` is not `none`. -/
+  canUnfold?        : Option (Config → ConstantInfo → CoreM Bool) := none
 
 abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 

@@ -136,7 +136,6 @@ extern lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUn
 LEAN_EXPORT lean_object* l_Std_RBNode_fold___at_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2705____spec__2___boxed(lean_object*, lean_object*);
 static lean_object* l_List_toStringAux___at_Lean_Meta_RecursorInfo_instToStringRecursorInfo___spec__2___closed__1;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2705____closed__5;
-lean_object* l_List_replicate___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Meta_RecursorInfo_numParams___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_toStringAux___at_Lean_Meta_RecursorInfo_instToStringRecursorInfo___spec__2___boxed(lean_object*, lean_object*);
@@ -238,6 +237,7 @@ lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obje
 static lean_object* l_Lean_Meta_RecursorInfo_instToStringRecursorInfo___closed__18;
 LEAN_EXPORT lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_getMajorPos_x3f___spec__3___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2705____spec__3(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_replicateTR___rarg(lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getUnivLevelPos___spec__1___closed__2;
 static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_getMajorPos_x3f___spec__3___closed__1;
 LEAN_EXPORT lean_object* l_Array_qpartition_loop___at_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2705____spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1972,7 +1972,7 @@ lean_inc(x_23);
 x_24 = 1;
 x_25 = lean_box(x_24);
 lean_inc(x_23);
-x_26 = l_List_replicate___rarg(x_23, x_25);
+x_26 = l_List_replicateTR___rarg(x_23, x_25);
 x_27 = lean_ctor_get(x_2, 2);
 lean_inc(x_27);
 lean_inc(x_27);
@@ -2075,7 +2075,7 @@ lean_inc(x_58);
 x_59 = 1;
 x_60 = lean_box(x_59);
 lean_inc(x_58);
-x_61 = l_List_replicate___rarg(x_58, x_60);
+x_61 = l_List_replicateTR___rarg(x_58, x_60);
 x_62 = lean_ctor_get(x_2, 2);
 lean_inc(x_62);
 lean_inc(x_62);
@@ -11016,12 +11016,13 @@ x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2705____lambda__2__
 x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2705____lambda__2___closed__8;
 x_4 = l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getParamsPos___closed__1;
 x_5 = lean_unsigned_to_nat(0u);
-x_6 = lean_alloc_ctor(0, 5, 0);
+x_6 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_6, 0, x_2);
 lean_ctor_set(x_6, 1, x_3);
 lean_ctor_set(x_6, 2, x_4);
 lean_ctor_set(x_6, 3, x_1);
 lean_ctor_set(x_6, 4, x_5);
+lean_ctor_set(x_6, 5, x_1);
 return x_6;
 }
 }

@@ -35,6 +35,16 @@ def version.isRelease : Bool := version.getIsRelease ()
 constant version.getSpecialDesc (u : Unit) : String
 def version.specialDesc : String := version.getSpecialDesc ()
 
+def versionStringCore :=
+  toString version.major ++ "." ++ toString Lean.version.minor ++ "." ++ toString Lean.version.patch
+
+def versionString :=
+  if version.isRelease then
+    versionStringCore
+  else if version.specialDesc ≠ "" then
+    version.specialDesc
+  else
+    "master (" ++ versionStringCore ++ ", commit " ++ getGithash () ++ ")"
 
 /- Valid identifier names -/
 def isGreek (c : Char) : Bool :=

@@ -23,9 +23,7 @@ See [Setup](./setup.md) for other ways and more details on setting up Lean.
 
 1. Create a new file with the extension `.lean` and add the following code:
     ```lean
-    import Leanpkg
-
-    #eval Leanpkg.leanVersionString
+    #eval Lean.versionString
     ```
     You should get a syntax-highlighted file with a "Lean Infoview" on the right that tells you the installed Lean version when placing your cursor on the last line.
 

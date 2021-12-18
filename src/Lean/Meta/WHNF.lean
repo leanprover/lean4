@@ -646,7 +646,7 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
 @[inline] private def useWHNFCache (e : Expr) : MetaM Bool := do
   -- We cache only closed terms without expr metavars.
   -- Potential refinement: cache if `e` is not stuck at a metavariable
-  if e.hasFVar || e.hasExprMVar then
+  if e.hasFVar || e.hasExprMVar || (← read).canUnfold?.isSome then
     return false
   else
     match (← getConfig).transparency with

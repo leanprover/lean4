@@ -7,23 +7,29 @@ import Lean.Meta.GlobalInstances
 
 namespace Lean.Meta
 
-private def getDefInfo (info : ConstantInfo) : MetaM (Option ConstantInfo) := do
+private def canUnfoldDefault (info : ConstantInfo) : MetaM Bool := do
   match (← read).config.transparency with
-  | TransparencyMode.all => return some info
-  | TransparencyMode.default => return some info
+  | TransparencyMode.all => return true
+  | TransparencyMode.default => return true
   | m =>
     if (← isReducible info.name) then
-      return some info
+      return true
     else if m == TransparencyMode.instances && isGlobalInstance (← getEnv) info.name then
-      return some info
+      return true
     else
-      return none
+      return false
+
+def canUnfold (info : ConstantInfo) : MetaM Bool := do
+  if let some f := (← read).canUnfold? then
+    f (← read).config info
+  else
+    canUnfoldDefault info
 
 def getConst? (constName : Name) : MetaM (Option ConstantInfo) := do
   let env ← getEnv
   match env.find? constName with
   | some (info@(ConstantInfo.thmInfo _))  => getTheoremInfo info
-  | some (info@(ConstantInfo.defnInfo _)) => getDefInfo info
+  | some (info@(ConstantInfo.defnInfo _)) => if (← canUnfold info) then return info else return none
   | some info                             => pure (some info)
   | none                                  => throwUnknownConstant constName
 
@@ -31,7 +37,7 @@ def getConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := do
   let env ← getEnv
   match env.find? constName with
   | some (info@(ConstantInfo.thmInfo _))  => getTheoremInfo info
-  | some (info@(ConstantInfo.defnInfo _)) => getDefInfo info
+  | some (info@(ConstantInfo.defnInfo _)) => if (← canUnfold info) then return info else return none
   | some info                             => pure (some info)
   | none                                  => pure none
 

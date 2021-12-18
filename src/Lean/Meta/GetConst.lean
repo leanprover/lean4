@@ -7,8 +7,8 @@ import Lean.Meta.GlobalInstances
 
 namespace Lean.Meta
 
-private def canUnfoldDefault (info : ConstantInfo) : MetaM Bool := do
-  match (← read).config.transparency with
+private def canUnfoldDefault (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
+  match cfg.transparency with
   | TransparencyMode.all => return true
   | TransparencyMode.default => return true
   | m =>
@@ -20,10 +20,11 @@ private def canUnfoldDefault (info : ConstantInfo) : MetaM Bool := do
       return false
 
 def canUnfold (info : ConstantInfo) : MetaM Bool := do
-  if let some f := (← read).canUnfold? then
-    f (← read).config info
+  let ctx ← read
+  if let some f := ctx.canUnfold? then
+    f ctx.config info
   else
-    canUnfoldDefault info
+    canUnfoldDefault ctx.config info
 
 def getConst? (constName : Name) : MetaM (Option ConstantInfo) := do
   let env ← getEnv

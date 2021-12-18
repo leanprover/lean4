@@ -159,7 +159,7 @@ where
       let init := r.expr
       modify fun s => { s with numSteps := s.numSteps + 1 }
       match (← pre r.expr) with
-      | Step.done r   => cacheResult cfg r
+      | Step.done r'  => cacheResult cfg (← mkEqTrans r r')
       | Step.visit r' =>
         let r ← mkEqTrans r r'
         let r ← mkEqTrans r (← simpStep r.expr)

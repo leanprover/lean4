@@ -21,21 +21,25 @@ $ elan default leanprover/lean4:nightly
 $ elan override set leanprover/lean4:stable
 ```
 
-### `leanpkg`
+### `lake`
 
-Lean 4 comes with a basic package manager, `leanpkg`.
-Use `leanpkg init Foo` to initialize a Lean package `Foo` in the current directory, and `leanpkg build` to typecheck and build it as well as all its dependencies; call `leanpkg help` to learn about further commands.
-The general directory structure of a package `Foo` is
+Lean 4 comes with a package manager named `lake`.
+Use `lake init foo` to initialize a Lean package `foo` in the current directory, and `lake build` to typecheck and build it as well as all its dependencies. Use `lake help` to learn about further commands.
+The general directory structure of a package `foo` is
 ```sh
-leanpkg.toml  # package configuration
-Foo.lean  # main file, import via `import Foo`
+lakefile.lean  # package configuration
+lean-toolchain # specifies the lean version to use
+Foo.lean       # main file, import via `import Foo`
 Foo/
-  A.lean  # further files, import via e.g. `import Foo.A`
-  A/...   # further nesting
-build/  # `leanpkg` output directory
+  A.lean       # further files, import via e.g. `import Foo.A`
+  A/...        # further nesting
+build/         # `lake` build output directory
 ```
-Note however that producing native binaries and libraries (`leanpkg build bin/lb`) currently depends on `make` and an external C compiler for recursive compilation.
-It has been tested on Windows by installing these tools using [MSYS2](https://www.msys2.org/), but [MinGW](http://www.mingw.org/) or WSL should work, too.
+
+After running `lake build` you will see a binary named `./build/bin/foo` and when you run it you should see the output:
+```
+Hello, world!
+```
 
 ### Editing
 

@@ -193,6 +193,50 @@ TODO
 
 TODO
 
+## Split
+
+The `split` tactic can be used to split the cases of an if-then-else or
+match into new subgoals, which can then be discharged individually.
+
+```lean
+def addMoreIfOdd (n : Nat) := if n % 2 = 0 then n + 1 else n + 2
+
+/- Examine each branch of the conditional to show that the result
+   is always positive -/
+example (n : Nat) : 0 < addMoreIfOdd n := by
+  simp only [addMoreIfOdd]
+  split
+  next => exact Nat.zero_lt_succ _
+  next => exact Nat.zero_lt_succ _
+```
+
+```lean
+def binToChar (n : Nat) : Option Char :=
+  match n with
+  | 0 => some '0'
+  | 1 => some '1'
+  | _ => none
+
+example (n : Nat) : (binToChar n).isSome -> n = 0 ∨ n = 1 := by
+  simp only [binToChar]
+  split
+  next => exact fun _ => Or.inl rfl
+  next => exact fun _ => Or.inr rfl
+  next => intro h; cases h
+
+/- Hypotheses about previous cases can be accessesd by assigning them a
+   name, like `ne_zero` below. Information about the matched term can also
+   be preserved using the `generalizing` tactic: -/
+example (n : Nat) : (n = 0) -> (binToChar n = some '0') := by
+  simp only [binToChar]
+  split
+  case h_1 => intro _; rfl
+  case h_2 => intro h; cases h
+  /- Here, we can introduce `n ≠ 0` and `n ≠ 1` this case assumes
+     neither of the previous cases matched. -/
+  case h_3 ne_zero _  => intro eq_zero; exact absurd eq_zero ne_zero
+```
+
 ## Dependent pattern matching
 
 The `match-with` expression implements dependent pattern matching. You can use it to create concise proofs.

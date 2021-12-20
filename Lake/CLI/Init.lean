@@ -60,8 +60,9 @@ def initPkg (dir : FilePath) (name : String) : IO PUnit := do
   unless (← mainFile.pathExists) do
     IO.FS.writeFile mainFile <| mainFileContents libRoot
 
-  -- write current toolchain to file for `elan`
-  IO.FS.writeFile (dir / toolchainFileName) <| leanVersionString ++ "\n"
+  -- write Lean's toolchain to file (if it has one) for `elan`
+  if Lean.toolchain ≠ "" then
+    IO.FS.writeFile (dir / toolchainFileName) <| Lean.toolchain ++ "\n"
 
   -- update `.gitignore`
   let h ← IO.FS.Handle.mk (dir / ".gitignore") IO.FS.Mode.append (bin := false)

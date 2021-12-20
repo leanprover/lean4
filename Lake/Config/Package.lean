@@ -6,7 +6,6 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 import Lean.Data.Name
 import Lean.Elab.Import
 import Std.Data.HashMap
-import Lake.LeanVersion
 import Lake.Build.TargetTypes
 import Lake.Config.Glob
 import Lake.Config.Opaque

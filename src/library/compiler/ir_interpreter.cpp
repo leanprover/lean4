@@ -368,12 +368,12 @@ class interpreter {
 
 public:
     template<class T>
-    static inline T with_interpreter(environment const & env, options const & opts, std::function<T(interpreter &)> const & f) {
+    static inline T with_interpreter(environment const & env, options const & opts, name const & fn, std::function<T(interpreter &)> const & f) {
         if (g_interpreter && is_eqp(g_interpreter->m_env, env) && is_eqp(g_interpreter->m_opts, opts)) {
             return f(*g_interpreter);
         } else {
             // We changed threads or the closure was stored and called in a different context.
-            time_task t("interpretation", opts);
+            time_task t("interpretation", opts, fn);
             scope_trace_env scope_trace(env, opts);
             // the caches contain data from the Environment, so we cannot reuse them when changing it
             interpreter interp(env, opts);
@@ -872,7 +872,7 @@ private:
 
     // closure stub
     object * stub_m(object ** args) {
-        decl d(args[2]);
+        decl const & d = TO_REF(decl, args[2]);
         size_t old_size = m_arg_stack.size();
         for (size_t i = 0; i < decl_params(d).size(); i++) {
             m_arg_stack.push_back(args[3 + i]);
@@ -887,7 +887,7 @@ private:
     static object * stub_m_aux(object ** args) {
         environment env(args[0]);
         options opts(args[1]);
-        return with_interpreter<object *>(env, opts, [&](interpreter & interp) {
+        return with_interpreter<object *>(env, opts, decl_fun_id(TO_REF(decl, args[2])), [&](interpreter & interp) {
             return interp.stub_m(args);
         });
     }
@@ -1050,10 +1050,10 @@ object * run_boxed(environment const & env, options const & opts, name const & f
     if (get_sorry_dep(env, fn)) {
         throw exception("cannot evaluate code because it uses 'sorry' and/or contains errors");
     }
-    return interpreter::with_interpreter<object *>(env, opts, [&](interpreter & interp) { return interp.call_boxed(fn, n, args); });
+    return interpreter::with_interpreter<object *>(env, opts, fn, [&](interpreter & interp) { return interp.call_boxed(fn, n, args); });
 }
 uint32 run_main(environment const & env, options const & opts, int argv, char * argc[]) {
-    return interpreter::with_interpreter<uint32>(env, opts, [&](interpreter & interp) { return interp.run_main(argv, argc); });
+    return interpreter::with_interpreter<uint32>(env, opts, "main", [&](interpreter & interp) { return interp.run_main(argv, argc); });
 }
 
 extern "C" LEAN_EXPORT object * lean_eval_const(object * env, object * opts, object * c) {
@@ -1065,7 +1065,7 @@ extern "C" LEAN_EXPORT object * lean_eval_const(object * env, object * opts, obj
 }
 
 extern "C" LEAN_EXPORT object * lean_run_init(object * env, object * opts, object * decl, object * init_decl, object *) {
-    return interpreter::with_interpreter<object *>(TO_REF(environment, env), TO_REF(options, opts), [&](interpreter & interp) {
+    return interpreter::with_interpreter<object *>(TO_REF(environment, env), TO_REF(options, opts), TO_REF(name, decl), [&](interpreter & interp) {
         return interp.run_init(TO_REF(name, decl), TO_REF(name, init_decl));
     });
 }

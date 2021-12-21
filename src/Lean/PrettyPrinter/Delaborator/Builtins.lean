@@ -100,11 +100,17 @@ def delabConst : Delab := do
           c := `_root_ ++ c
         else
           c := c₀
-      return mkIdent c
+      mkIdent c
     else
       `($(mkIdent c).{$[$(ls.toArray.map quote)],*})
 
-  maybeAddBlockImplicit stx
+  let stx ← maybeAddBlockImplicit stx
+  if (←getPPOption getPPTagSymbols) then
+    let stx ← annotateCurPos stx
+    addTermInfo (←getPos) stx (←getExpr)
+    stx
+  else
+    stx
 
 structure ParamKind where
   name        : Name

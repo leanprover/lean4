@@ -90,6 +90,11 @@ register_builtin_option pp.safeShadowing  : Bool := {
   group    := "pp"
   descr    := "(pretty printer) allow variable shadowing if there is no collision"
 }
+register_builtin_option pp.tagSymbols : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) tag symbol syntax with information"
+}
 register_builtin_option pp.proofs : Bool := {
   defValue := false
   group    := "pp"
@@ -180,6 +185,7 @@ def getPPMatch (o : Options) : Bool := o.get pp.match.name (!getPPAll o)
 def getPPStructureProjections (o : Options) : Bool := o.get pp.structureProjections.name (!getPPAll o)
 def getPPStructureInstances (o : Options) : Bool := o.get pp.structureInstances.name (!getPPAll o)
 def getPPStructureInstanceType (o : Options) : Bool := o.get pp.structureInstanceTypes.name (getPPAll o)
+def getPPTagSymbols (o : Options) : Bool := o.get pp.tagSymbols.name (getPPAll o)
 def getPPUniverses (o : Options) : Bool := o.get pp.universes.name (getPPAll o)
 def getPPFullNames (o : Options) : Bool := o.get pp.fullNames.name (getPPAll o)
 def getPPPrivateNames (o : Options) : Bool := o.get pp.privateNames.name (getPPAll o)

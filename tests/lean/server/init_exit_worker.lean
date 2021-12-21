@@ -1,7 +1,7 @@
 import Lean.Data.Lsp
 open IO Lean Lsp
 
-#eval (do
+def main : IO Unit := do
   Ipc.runWith (←IO.appPath) #["--worker"] do
     let hIn ← Ipc.stdin
     hIn.write (←FS.readBinFile "init_vscode_1_47_2.log")
@@ -14,4 +14,3 @@ open IO Lean Lsp
 
     Ipc.writeNotification ⟨"exit", Json.null⟩
     discard Ipc.waitForExit
-  : IO Unit)

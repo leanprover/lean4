@@ -705,10 +705,10 @@ class task_manager {
 
     void spawn_worker() {
         m_num_std_workers++;
-        m_idle_std_workers++;
         lthread([this]() {
             save_stack_info(false);
             unique_lock<mutex> lock(m_mutex);
+            m_idle_std_workers++;
             while (true) {
                 if (m_queues_size == 0) {
                     if (m_shutting_down) {

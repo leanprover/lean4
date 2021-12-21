@@ -367,7 +367,7 @@ def symbolNoAntiquot.formatter (sym : String) : Formatter := do
   let stx ← getCur
   if stx.isToken sym then do
     let (Syntax.atom info _) ← pure stx | unreachable!
-    pushToken info sym
+    withMaybeTag (getExprPos? stx) (pushToken info sym)
     goLeft
   else do
     trace[PrettyPrinter.format.backtrack] "unexpected syntax '{format stx}', expected symbol '{sym}'"

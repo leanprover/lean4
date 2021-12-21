@@ -171,6 +171,9 @@ where
   fmtTerm? : MetaM (Option Format) := do
     match i with
     | Info.ofTermInfo ti =>
+      if ti.expr.isSort then
+        -- types of sorts are funny to look at in widgets, but ultimately not very helpful
+        return none
       let tp ← Meta.inferType ti.expr
       let eFmt ← Lean.withOptions (Lean.pp.fullNames.set . true) do
         Meta.ppExpr ti.expr

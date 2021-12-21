@@ -539,6 +539,7 @@ LEAN_EXPORT lean_object* l_Array_mapIdxM_map___at_Lean_Elab_Term_toParserDescr_p
 static lean_object* l_Lean_Elab_Command_elabSyntax___lambda__4___closed__14;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Elab_Term_toParserDescr_resolveParserName___spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabSyntax___closed__2;
+lean_object* l_Array_sequenceMap___at___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__26;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_toParserDescr_processParserCategory(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabDeclareSyntaxCat_declRange___closed__5;
@@ -639,7 +640,6 @@ lean_object* l_Lean_Elab_Command_getScope___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_checkLeftRec___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__20;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_expandNoKindMacroRulesAux___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_sequenceMap___at___aux__Init__NotationExtra______macroRules___xabterm_x25_x5b___x7c___x5d_xbb__1___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_inferMacroRulesAltKind___closed__2;
 static lean_object* l___private_Lean_Elab_Syntax_0__Lean_Elab_Command_declareSyntaxCatQuotParser___closed__79;
 LEAN_EXPORT lean_object* l_List_forM___at_Lean_Elab_Term_checkLeftRec___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -16796,7 +16796,7 @@ x_17 = l_Lean_Syntax_getArg(x_1, x_16);
 x_18 = l_Lean_Syntax_getArgs(x_17);
 lean_dec(x_17);
 x_19 = l_Lean_Elab_Command_elabSyntax___lambda__7___closed__1;
-x_20 = l_Array_sequenceMap___at___aux__Init__NotationExtra______macroRules___xabterm_x25_x5b___x7c___x5d_xbb__1___spec__1(x_18, x_19);
+x_20 = l_Array_sequenceMap___at___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___spec__1(x_18, x_19);
 lean_dec(x_18);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -17878,7 +17878,7 @@ x_17 = l_Lean_Syntax_getArg(x_1, x_16);
 x_18 = l_Lean_Syntax_getArgs(x_17);
 lean_dec(x_17);
 x_19 = l_Lean_Elab_Command_elabSyntax___lambda__7___closed__1;
-x_20 = l_Array_sequenceMap___at___aux__Init__NotationExtra______macroRules___xabterm_x25_x5b___x7c___x5d_xbb__1___spec__1(x_18, x_19);
+x_20 = l_Array_sequenceMap___at___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___spec__1(x_18, x_19);
 lean_dec(x_18);
 if (lean_obj_tag(x_20) == 0)
 {

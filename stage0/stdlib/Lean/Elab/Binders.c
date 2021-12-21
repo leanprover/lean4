@@ -510,6 +510,7 @@ static lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandBinder
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_expandFun_declRange(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabLetDelayedDecl___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_expandWhereDecls___lambda__1___boxed(lean_object*, lean_object*);
+lean_object* l_Array_sequenceMap___at___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Elab_Term_elabLetDeclAux___spec__1(lean_object*);
 static lean_object* l_Lean_Elab_Term_elabLetDeclAux___lambda__1___closed__2;
 lean_object* l_Lean_Elab_Term_mkExplicitBinder(lean_object*, lean_object*);
@@ -613,7 +614,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabForall(lean_object*, lean_object*,
 static lean_object* l_Lean_Elab_Term_elabLetDeclCore___closed__18;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_quoteAutoTactic___spec__3___closed__1;
 static lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandBinderIdent___closed__8;
-lean_object* l_Array_sequenceMap___at___aux__Init__NotationExtra______macroRules___xabterm_x25_x5b___x7c___x5d_xbb__1___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandBinderType___boxed(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabDepArrow_declRange___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabForall___closed__2;
@@ -18152,7 +18152,7 @@ lean_dec(x_10);
 x_12 = l___private_Lean_Elab_Binders_0__Lean_Elab_Term_expandBinderIdent___closed__6;
 x_13 = lean_alloc_closure((void*)(l_Lean_Elab_Term_expandWhereDecls___lambda__2), 2, 1);
 lean_closure_set(x_13, 0, x_12);
-x_14 = l_Array_sequenceMap___at___aux__Init__NotationExtra______macroRules___xabterm_x25_x5b___x7c___x5d_xbb__1___spec__1(x_11, x_13);
+x_14 = l_Array_sequenceMap___at___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___spec__1(x_11, x_13);
 lean_dec(x_11);
 if (lean_obj_tag(x_14) == 0)
 {

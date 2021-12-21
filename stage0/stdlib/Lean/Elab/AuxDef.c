@@ -122,6 +122,7 @@ static lean_object* l_Lean_Elab_Command_aux__def___closed__30;
 static lean_object* l_Lean_Elab_Command_aux__def___closed__5;
 static lean_object* l_Lean_Elab_Command_aux__def___closed__7;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabAuxDef___spec__5(size_t, size_t, lean_object*);
+lean_object* l_Array_sequenceMap___at___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Elab_Command_elabAuxDef___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabAuxDef___lambda__2___closed__4;
 lean_object* l_Lean_Elab_Command_getMainModule___rarg(lean_object*, lean_object*);
@@ -153,7 +154,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabAuxDef(lean_object*, lean_objec
 static lean_object* l_Lean_Elab_Command_elabAuxDef___lambda__2___closed__21;
 lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_getScope___rarg(lean_object*, lean_object*);
-lean_object* l_Array_sequenceMap___at___aux__Init__NotationExtra______macroRules___xabterm_x25_x5b___x7c___x5d_xbb__1___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_aux__def___closed__29;
 lean_object* l_Lean_Name_replacePrefix(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_components(lean_object*);
@@ -1108,7 +1108,7 @@ x_10 = l_Lean_Syntax_getArg(x_1, x_9);
 x_11 = l_Lean_Syntax_getArgs(x_10);
 lean_dec(x_10);
 x_12 = l_Lean_Elab_Command_elabAuxDef___lambda__2___closed__1;
-x_13 = l_Array_sequenceMap___at___aux__Init__NotationExtra______macroRules___xabterm_x25_x5b___x7c___x5d_xbb__1___spec__1(x_11, x_12);
+x_13 = l_Array_sequenceMap___at___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___spec__1(x_11, x_12);
 lean_dec(x_11);
 if (lean_obj_tag(x_13) == 0)
 {

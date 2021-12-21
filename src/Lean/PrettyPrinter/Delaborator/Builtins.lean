@@ -197,8 +197,9 @@ def isRegularApp : DelabM Bool := do
 def unexpandRegularApp (stx : Syntax) : Delab := do
   let Expr.const c .. ← pure (unfoldMDatas (← getExpr).getAppFn) | unreachable!
   let fs ← appUnexpanderAttribute.getValues (← getEnv) c
+  let ref ← getRef
   fs.firstM fun f =>
-    match f stx |>.run () with
+    match f stx |>.run ref with
     | EStateM.Result.ok stx _ => pure stx
     | _ => failure
 

@@ -872,7 +872,7 @@ private:
 
     // closure stub
     object * stub_m(object ** args) {
-        decl const & d = TO_REF(decl, args[2]);
+        decl d(args[2]);
         size_t old_size = m_arg_stack.size();
         for (size_t i = 0; i < decl_params(d).size(); i++) {
             m_arg_stack.push_back(args[3 + i]);

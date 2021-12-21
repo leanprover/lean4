@@ -899,12 +899,23 @@ static task_manager * g_task_manager = nullptr;
 extern "C" LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers) {
     lean_assert(g_task_manager == nullptr);
 #if defined(LEAN_MULTI_THREAD)
-    g_task_manager = new task_manager(num_workers);
+    if (num_workers > 0) {
+        g_task_manager = new task_manager(num_workers);
+    }
 #endif
 }
 
+static unsigned get_lean_num_threads() {
+#ifndef LEAN_EMSCRIPTEN
+    if (char const * num_threads = std::getenv("LEAN_NUM_THREADS")) {
+        return atoi(num_threads);
+    }
+#endif
+    return hardware_concurrency();
+}
+
 extern "C" LEAN_EXPORT void lean_init_task_manager() {
-    lean_init_task_manager_using(hardware_concurrency());
+    lean_init_task_manager_using(get_lean_num_threads());
 }
 
 extern "C" LEAN_EXPORT void lean_finalize_task_manager() {

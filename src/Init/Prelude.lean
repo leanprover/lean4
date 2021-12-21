@@ -2253,7 +2253,7 @@ export Macro (expandMacro?)
 
 namespace PrettyPrinter
 
-abbrev UnexpandM := EStateM Unit Unit
+abbrev UnexpandM := EStateM Unit Syntax
 
 /--
   Function that tries to reverse macro expansions as a post-processing step of delaboration.
@@ -2264,8 +2264,13 @@ abbrev Unexpander := Syntax → UnexpandM Syntax
 
 -- unexpanders should not need to introduce new names
 instance : MonadQuotation UnexpandM where
-  getRef              := pure Syntax.missing
-  withRef             := fun _ => id
+  getRef              := get
+  withRef             := fun ref m => do
+    let orig ← get
+    set ref
+    let res ← m
+    set orig
+    return res
   getCurrMacroScope   := pure 0
   getMainModule       := pure `_fakeMod
   withFreshMacroScope := id

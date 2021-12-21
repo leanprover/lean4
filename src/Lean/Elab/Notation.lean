@@ -55,13 +55,13 @@ def mkSimpleDelab (attrKind : Syntax) (vars : Array Syntax) (pat qrhs : Syntax) 
     -- replace head constant with (unused) antiquotation so we're not dependent on the exact pretty printing of the head
     `(@[$attrKind:attrKind appUnexpander $(mkIdent c):ident]
       aux_def unexpand $(mkIdent c) : Lean.PrettyPrinter.Unexpander := fun
-       | `($$(_):ident $args*) => `($pat)
+       | `($$tk:ident $args*) => withRef tk `($pat)
        | _                     => throw ())
   | `($c:ident)        =>
     let [(c, [])] ← Macro.resolveGlobalName c.getId | failure
     `(@[$attrKind:attrKind appUnexpander $(mkIdent c):ident]
       aux_def unexpand $(mkIdent c) : Lean.PrettyPrinter.Unexpander := fun
-       | `($$(_):ident) => `($pat)
+       | `($$tk:ident) => withRef tk `($pat)
        | _              => throw ())
   | _                  => failure
 

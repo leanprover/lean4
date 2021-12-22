@@ -8,6 +8,7 @@ import Lake.Config.InstallPath
 import Lake.Config.Workspace
 import Lake.Config.Script
 import Lake.Config.Package
+import Lake.Config.Monad
 import Lake.Config.SearchPath
 import Lake.Config.Resolve
 import Lake.Config.Load

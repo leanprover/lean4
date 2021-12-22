@@ -84,12 +84,12 @@ def getLakeInstall? : CliM (Option LakeInstall) :=
 
 -- ## Complex Actions
 
-def loadPkg (args : List String) : CliM Package := do
+def loadPkg (args : List String := []) : CliM Package := do
   let dir ← getRootDir; let file ← getConfigFile
   setupLeanSearchPath (← getLeanInstall?) (← getLakeInstall?)
   Package.load dir args (dir / file)
 
-def loadConfig (args : List String) : CliM (Workspace × Package) := do
+def loadConfig (args : List String := []) : CliM (Workspace × Package) := do
   let pkg ← loadPkg args
   let ws ← Workspace.ofPackage pkg
   let packageMap ← resolveDeps ws pkg |>.run LogMethods.eio (m := IO)
@@ -175,16 +175,24 @@ def longOptionOrEq (optStr : String) : CliM PUnit :=
 
 -- ## Commands
 
+def withPackage [MonadLiftT m CliM] (x : Package → LakeT m α) : CliM α := do
+  let (ws, pkg) ← loadConfig
+  let (lean, lake) ← getInstall
+  liftM <| x pkg |>.run {lean, lake, opaqueWs := ws}
+
+def withContext [MonadLiftT m CliM] (x : LakeT m α) : CliM α :=
+  withPackage fun _ => x
+
 /-- Run the given script from the given package with the given arguments. -/
 def script (pkg : Package) (name : String) (args : List String) :  CliM PUnit := do
   if let some script := pkg.scripts.find? name then
     if (← getWantsHelp) then
-      if let some doc := script.doc? then
-        IO.print doc
+      if let some help := script.help? then
+        IO.print help
       else
         error s!"no documentation provided for `{name}`"
     else
-      exit (← script.run args)
+      exit <| ← withContext <| script.run args
   else
     pkg.scripts.forM (m := CliM) fun name _ => do
       IO.println <| name.toString (escape := false)
@@ -224,34 +232,18 @@ def printPaths (imports : List String := []) : CliM PUnit := do
   else
     exit noConfigFileCode
 
-def serve (lean : LeanInstall)
-(pkg : Package) (args : List String) : CliM PUnit := do
-  let child ← IO.Process.spawn {
-    cmd := lean.lean.toString,
-    args := #["--server"] ++ pkg.moreServerArgs ++ args
-  }
-  exit (← child.wait)
+def env (cmd : String) (args : Array String := #[]) : LakeT IO UInt32 := do
+  IO.Process.spawn {cmd, args, env := ← getLeanEnv} >>= (·.wait)
 
-def env (lean : LeanInstall) (ws : Workspace)
-(cmd : String) (args : Array String) : CliM PUnit := do
-  let child ← IO.Process.spawn {
-    cmd, args,
-    env := #[
-      ("LEAN_SYSROOT", lean.sysroot.toString),
-      ("LEAN_AR", lean.ar.toString),
-      ("LEAN_CC", lean.cc.toString),
-      ("LEAN_PATH", ws.oleanPath.toString),
-      ("LEAN_SRC_PATH", ws.leanSrcPath.toString)
-    ]
-  }
-  exit (← child.wait)
+def serve (pkg : Package) (args : Array String := #[]) : LakeT IO UInt32 := do
+  env (← getLean).toString <| #["--server"] ++ pkg.moreServerArgs ++ args
 
 def command : (cmd : String) → CliM PUnit
 | "new"         => do processOptions; noArgsRem <| new (← takeArg "missing package name")
 | "init"        => do processOptions; noArgsRem <| init (← takeArg "missing package name")
-| "run"         => do processOptions; noArgsRem <| script (← loadPkg []) (← takeArg "missing script") (← getSubArgs)
-| "env"         => do env (← getLeanInstall) (← loadConfig []).1 (← takeArg "missing command") (← takeArgs).toArray
-| "serve"       => do processOptions; noArgsRem <| serve (← getLeanInstall) (← loadPkg []) (← getSubArgs)
+| "run"         => do processOptions; noArgsRem <| script (← loadPkg) (← takeArg "missing script") (← getSubArgs)
+| "env"         => do exit <| ← withContext <| env (← takeArg "missing command") (← takeArgs).toArray
+| "serve"       => do processOptions; let args ← getSubArgs; exit <| ← noArgsRem <| withPackage fun pkg => serve pkg args.toArray
 | "configure"   => do processOptions; let (ws, pkg) ← loadConfig (← getSubArgs); noArgsRem <| runBuildM ws pkg.buildDepOleans
 | "print-paths" => do processOptions; printPaths (← takeArgs)
 | "build"       => do processOptions; let (ws, pkg) ← loadConfig (← getSubArgs); runBuildM ws <| build pkg (← takeArgs)

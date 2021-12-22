@@ -37,7 +37,7 @@ unsafe def evalScriptDecl
 (env : Environment) (declName : Name) (leanOpts := Options.empty) : IO Script := do
   let fn ← IO.ofExcept <| Id.run <| ExceptT.run <|
     env.evalConstCheck ScriptFn leanOpts ``ScriptFn declName
-  return {fn, doc? := (← findDocString? env declName)}
+  return {fn, help? := (← findDocString? env declName)}
 
 namespace Package
 

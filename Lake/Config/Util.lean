@@ -7,7 +7,7 @@ import Lake.Build
 
 namespace Lake
 
-def Package.run (script : String) (args : List String) (self : Package) : IO UInt32 :=
+def Package.run (script : String) (args : List String) (self : Package) : ScriptIO UInt32 :=
   if let some script := self.scripts.find? script then
     script.run args
   else do

@@ -120,7 +120,7 @@ Workspace options are shared across a package and its dependencies.
 
 ## Scripts
 
-A configuration file can also contain a number of `scripts` declaration. A script is an arbitrary `(args : List String) → IO UInt32` definition that can be run by `lake run <script> [-- <args>]`. For example, given the following `lakefile.lean`:
+A configuration file can also contain a number of `scripts` declaration. A script is an arbitrary `(args : List String) → ScriptIO UInt32` definition that can be run by `lake run <script> [-- <args>]`. For example, given the following `lakefile.lean`:
 
 ```lean
 import Lake

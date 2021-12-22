@@ -184,7 +184,11 @@ environment update_spec_info(environment const & env, comp_decls const & ds) {
                 if (is_const(fn) && has_nospecialize_attribute(env, const_name(fn))) {
                     info.second.push_back(spec_arg_kind::Fixed);
                 } else {
-                    info.second.push_back(spec_arg_kind::FixedInst);
+                    type_checker tc(env, lctx);
+                    if (tc.is_prop(type))
+                        info.second.push_back(spec_arg_kind::FixedNeutral);
+                    else
+                        info.second.push_back(spec_arg_kind::FixedInst);
                 }
             } else {
                 type_checker tc(env, lctx);

@@ -182,7 +182,7 @@ environment update_spec_info(environment const & env, comp_decls const & ds) {
             if (is_inst_implicit(binding_info(code))) {
                 expr const & fn = get_app_fn(type);
                 if (is_const(fn) && has_nospecialize_attribute(env, const_name(fn))) {
-                    info.second.push_back(spec_arg_kind::FixedNeutral);
+                    info.second.push_back(spec_arg_kind::Fixed);
                 } else {
                     info.second.push_back(spec_arg_kind::FixedInst);
                 }

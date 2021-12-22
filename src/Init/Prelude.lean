@@ -196,6 +196,8 @@ theorem ne_true_of_eq_false : {b : Bool} → Eq b false → Not (Eq b true)
 class Inhabited (α : Sort u) where
   mk {} :: (default : α)
 
+attribute [nospecialize] Inhabited
+
 constant arbitrary [Inhabited α] : α :=
   Inhabited.default
 

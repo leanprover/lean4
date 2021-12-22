@@ -180,7 +180,12 @@ environment update_spec_info(environment const & env, comp_decls const & ds) {
             expr fvar = lctx.mk_local_decl(ngen, binding_name(code), type);
             fvars.push_back(fvar);
             if (is_inst_implicit(binding_info(code))) {
-                info.second.push_back(spec_arg_kind::FixedInst);
+                expr const & fn = get_app_fn(type);
+                if (is_const(fn) && has_nospecialize_attribute(env, const_name(fn))) {
+                    info.second.push_back(spec_arg_kind::FixedNeutral);
+                } else {
+                    info.second.push_back(spec_arg_kind::FixedInst);
+                }
             } else {
                 type_checker tc(env, lctx);
                 type = tc.whnf(type);

@@ -104,7 +104,7 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   else
     throwUnsupportedSyntax
 
-@[builtinCommandElab choice] def elbChoice : CommandElab := fun stx =>
+@[builtinCommandElab choice] def elabChoice : CommandElab := fun stx =>
   elabChoiceAux stx.getArgs 0
 
 @[builtinCommandElab «universe»] def elabUniverse : CommandElab := fun n => do

@@ -21,7 +21,7 @@ namespace Lean.Meta
 -/
 structure SimpLemma where
   keys        : Array DiscrTree.Key := #[]
-  levelParams : Array Name := #[] -- non empty for local universe polymorhic proofs.
+  levelParams : Array Name := #[] -- non empty for local universe polymorphic proofs.
   proof       : Expr
   priority    : Nat  := eval_prio default
   post        : Bool := true

@@ -12,7 +12,7 @@ namespace Lake
 -- # General Utilities
 
 def inputFileTarget (path : FilePath) : FileTarget :=
-  Target.computeAsync path
+  Target.mk path <| async (m := BuildM) <| computeTrace path
 
 instance : Coe FilePath FileTarget := ⟨inputFileTarget⟩
 
@@ -28,19 +28,19 @@ def buildFileUnlessUpToDate (file : FilePath)
 def fileTargetWithDep (file : FilePath)
 (depTarget : BuildTarget i) (build : i → BuildM PUnit) : FileTarget :=
   Target.mk file do
-    depTarget.mapAsync fun depInfo depTrace => do
+    depTarget.bindSync fun depInfo depTrace =>
       buildFileUnlessUpToDate file depTrace <| build depInfo
 
 def fileTargetWithDepList (file : FilePath)
 (depTargets : List (BuildTarget i)) (build : List i → BuildM PUnit) : FileTarget :=
   Target.mk file do
-    Target.collectList depTargets |>.mapAsync fun depInfos depTrace => do
+    Target.collectList depTargets |>.bindSync fun depInfos depTrace =>
       buildFileUnlessUpToDate file depTrace <| build depInfos
 
 def fileTargetWithDepArray (file : FilePath)
 (depTargets : Array (BuildTarget i)) (build : Array i → BuildM PUnit) : FileTarget :=
   Target.mk file do
-    Target.collectArray depTargets |>.mapAsync fun depInfos depTrace => do
+    Target.collectArray depTargets |>.bindSync fun depInfos depTrace =>
       buildFileUnlessUpToDate file depTrace <| build depInfos
 
 -- # Specific Targets

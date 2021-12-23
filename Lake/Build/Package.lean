@@ -16,7 +16,7 @@ namespace Lake
 -- # Build Packages
 
 /-- Build the `extraDepTarget` of all dependent packages into a single target. -/
-protected def Package.buildExtraDepsTarget (self : Package) : BuildM ActiveOpaqueTarget := do
+protected def Package.buildExtraDepsTarget (self : Package) : SchedulerM ActiveOpaqueTarget := do
   let collect pkg depTargets := do
     let extraDepTarget ← pkg.extraDepTarget.activate
     let depTarget ← ActiveTarget.collectOpaqueArray depTargets
@@ -25,12 +25,14 @@ protected def Package.buildExtraDepsTarget (self : Package) : BuildM ActiveOpaqu
     let pkg := (← getPackageByName? dep.name).get!
     let depTargets ← pkg.dependencies.mapM recurse
     liftM <| collect pkg depTargets
-  let targets ← failOnBuildCycle <| ← RBTopT.run' <| self.dependencies.mapM fun dep =>
+  let targetsE ← RBTopT.run' <| self.dependencies.mapM fun dep =>
     buildRBTop (cmp := Name.quickCmp) build Dependency.name dep
-  collect self targets
+  match targetsE with
+  | Except.ok targets => collect self targets
+  | Except.error _ => panic! "dependency cycle emerged after resolution"
 
 /-- Build the `extraDepTarget` of all workspace packages into a single target. -/
-def buildExtraDepsTarget : BuildM ActiveOpaqueTarget := do
+def buildExtraDepsTarget : SchedulerM ActiveOpaqueTarget := do
   ActiveTarget.collectOpaqueArray <| ← do
     (← getWorkspace).packageArray.mapM (·.extraDepTarget.activate)
 
@@ -55,20 +57,22 @@ constructing a single opaque target for the whole build.
 -/
 def Package.buildTarget [Inhabited i]
 (build : ActiveOpaqueTarget → RecModuleTargetBuild i) (self : Package)
-: BuildM ActiveOpaqueTarget := do
+: SchedulerM ActiveOpaqueTarget := do
   let depTarget ← self.buildExtraDepsTarget
-  let mods ← self.getModuleArray
-  failOnBuildCycle <| ← RBTopT.run' do
-    let targets ← mods.mapM fun mod => (·.withoutInfo) <$>
-      buildRBTop (build depTarget) ModuleInfo.name (ModuleInfo.mk self mod)
-    ActiveTarget.collectOpaqueArray targets
+  let buildMods : BuildM _ := do
+    let mods ← self.getModuleArray
+    failOnBuildCycle <| ← RBTopT.run' do
+      let targets ← mods.mapM fun mod => (·.withoutInfo) <$>
+        buildRBTop (build depTarget) ModuleInfo.name (ModuleInfo.mk self mod)
+      ActiveTarget.collectOpaqueArray targets
+  buildMods.catchFailure fun _ => pure <| ActiveTarget.opaque failure
 
 /-- Build the `.olean` files of package and its dependencies' modules. -/
-def Package.buildOleanTarget (self : Package) : BuildM ActiveOpaqueTarget := do
+def Package.buildOleanTarget (self : Package) : SchedulerM ActiveOpaqueTarget := do
   self.buildTarget <| recBuildModuleOleanTargetWithLocalImports
 
 /-- Build the `.olean` and `.c` files of package and its dependencies' modules. -/
-def Package.buildOleanAndCTarget (self : Package) : BuildM ActiveOpaqueTarget := do
+def Package.buildOleanAndCTarget (self : Package) : SchedulerM ActiveOpaqueTarget := do
   self.buildTarget <| recBuildModuleOleanAndCTargetWithLocalImports
 
 def Package.buildDepOleans (self : Package) : BuildM PUnit := do
@@ -85,13 +89,13 @@ def Package.build (self : Package) : BuildM PUnit := do
 -- # Build Specific Modules of the Package
 
 def Package.moduleOleanTarget (mod : Name) (self : Package) : FileTarget :=
-  Target.mk (self.modToOlean mod) do
+  BuildTarget.mk' (self.modToOlean mod) do
     let depTarget ← self.buildExtraDepsTarget
     let build := recBuildModuleOleanTargetWithLocalImports depTarget
     return (← buildModule ⟨self, mod⟩ build).task
 
 def Package.moduleOleanAndCTarget (mod : Name) (self : Package) : OleanAndCTarget :=
-  Target.mk ⟨self.modToOlean mod, self.modToC mod⟩ do
+  BuildTarget.mk' ⟨self.modToOlean mod, self.modToC mod⟩ do
     let depTarget ← self.buildExtraDepsTarget
     let build := recBuildModuleOleanAndCTargetWithLocalImports depTarget
     return (← buildModule ⟨self, mod⟩ build).task

@@ -48,11 +48,11 @@ namespace OleanAndCTarget
 
 abbrev oleanFile (self : OleanAndCTarget) := self.info.oleanFile
 def oleanTarget (self : OleanAndCTarget) : FileTarget :=
-  Target.mk self.oleanFile do self.mapAsync fun i _ => computeTrace i.oleanFile
+  Target.mk self.oleanFile do self.bindSync fun i _ => computeTrace i.oleanFile
 
 abbrev cFile (self : OleanAndCTarget) := self.info.cFile
 def cTarget (self : OleanAndCTarget) : FileTarget :=
-  Target.mk self.cFile do self.mapAsync fun i _ => computeTrace i.cFile
+  Target.mk self.cFile do self.bindSync fun i _ => computeTrace i.cFile
 
 end OleanAndCTarget
 
@@ -82,11 +82,11 @@ abbrev cTarget (self : ActiveOleanAndCTarget) := self.info.cTarget
 
 end ActiveOleanAndCTarget
 
-def OleanAndCTarget.activate (self : OleanAndCTarget) : BuildM ActiveOleanAndCTarget := do
-  let t ← Target.activate self
-  let oleanTask ← t.mapAsync fun info depTrace => do
+def OleanAndCTarget.activate (self : OleanAndCTarget) : SchedulerM ActiveOleanAndCTarget := do
+  let t ← BuildTarget.activate self
+  let oleanTask ← t.bindSync fun info depTrace => do
     return mixTrace (← computeTrace info.oleanFile) depTrace
-  let cTask ← t.mapAsync fun info _ => do
+  let cTask ← t.bindSync fun info _ => do
     return mixTrace (← computeTrace info.cFile) (← getLeanTrace)
   return t.withInfo {
     oleanTarget := ActiveTarget.mk self.oleanFile oleanTask
@@ -98,7 +98,7 @@ def OleanAndCTarget.activate (self : OleanAndCTarget) : BuildM ActiveOleanAndCTa
 def moduleTarget [CheckExists i] [GetMTime i] [ComputeHash i] (info : i)
 (leanFile traceFile : FilePath) (contents : String) (depTarget : BuildTarget x)
 (build : BuildM PUnit) : BuildTarget i :=
-  Target.mk info <| depTarget.mapOpaqueAsync fun depTrace => do
+  Target.mk info <| depTarget.bindOpaqueSync fun depTrace => do
     let srcTrace : BuildTrace := ⟨Hash.ofString contents, ← getMTime leanFile⟩
     let fullTrace := (← getLeanTrace).mix <| srcTrace.mix depTrace
     let upToDate ← fullTrace.checkAgainstFile info traceFile
@@ -120,7 +120,7 @@ def moduleOleanTarget
 (rootDir : FilePath := ".") (leanArgs : Array String := #[]) : FileTarget :=
   let target := moduleTarget oleanFile leanFile traceFile contents depTarget do
     compileOlean leanFile oleanFile (← getOleanPath) rootDir leanArgs (← getLean)
-  target.withTask do target.mapAsync fun oleanFile depTrace => do
+  target.withTask do target.bindSync fun oleanFile depTrace => do
     return mixTrace (← computeTrace oleanFile) depTrace
 
 protected def Package.moduleOleanAndCTargetOnly (self : Package)

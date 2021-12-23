@@ -3,12 +3,12 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Util.Log
 import Lake.Util.Task
-import Lake.Config.Opaque
-import Lake.Config.InstallPath
+import Lake.Util.Error
+import Lake.Util.OptionIO
 import Lake.Config.Context
 import Lake.Build.Trace
-import Lake.Build.IO
 
 open System
 namespace Lake
@@ -17,11 +17,29 @@ namespace Lake
 structure BuildContext extends Context where
   leanTrace : BuildTrace
 
-/-- The monad for Lake builds. -/
-abbrev BuildM := ReaderT BuildContext BuildIO
+/-- A transformer to equip a monad with a `BuildContext`. -/
+abbrev BuildT := ReaderT BuildContext
 
-/-- `Task` type for `BuildM`/`BuildIO`. -/
+/-- The monad for the Lake build manager. -/
+abbrev SchedulerM := BuildT <| LogMethodsT BaseIO BaseIO
+
+/-- The monad for Lake builds. -/
+abbrev BuildM := BuildT <| LogMethodsT BaseIO OptionIO
+
+/-- The `Task` monad for Lake builds. -/
 abbrev BuildTask := OptionIOTask
 
+instance : MonadError BuildM := ⟨MonadLog.error⟩
+instance : MonadLift IO BuildM := ⟨MonadError.runIO⟩
+
+instance [Pure m] : MonadLift LakeM (BuildT m) where
+  monadLift x := fun ctx => pure <| x.run ctx.toContext
+
+instance : MonadLift (LogT IO) BuildM where
+  monadLift x := fun ctx meths => liftM (n := BuildM) (x.run meths.lift) ctx meths
+
 def BuildM.run (logMethods : LogMethods BaseIO) (ctx : BuildContext) (self : BuildM α) : IO α :=
-  self ctx |>.run logMethods
+  self ctx logMethods |>.toIO fun _ => IO.userError "build failed"
+
+def BuildM.catchFailure (f : Unit → BaseIO α) (self : BuildM α) : SchedulerM α :=
+  fun ctx logMethods => self ctx logMethods |>.catchFailure f

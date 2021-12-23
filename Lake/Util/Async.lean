@@ -160,12 +160,12 @@ instance [BindSync m n k] : BindSync (ReaderT ρ m) (ReaderT ρ n) k where
   bindSync ka f := fun r => bindSync ka fun a => f a r
 
 instance [BindSync m n k] [Pure m] : BindSync (ExceptT ε m) n (ExceptT ε k) where
-  bindSync ka f := cast (by simp [ExceptT]) <| bindSync (n := n) ka.run fun
+  bindSync ka f := cast (by delta ExceptT; rfl) <| bindSync (n := n) ka.run fun
     | Except.ok a => f a |>.run
     | Except.error e => pure <| Except.error e
 
 instance [BindSync m n k] [Pure m] : BindSync (OptionT m) n (OptionT k) where
-  bindSync ka f := cast (by simp [OptionT]) <| bindSync ka.run fun
+  bindSync ka f := cast (by delta OptionT; rfl) <| bindSync ka.run fun
     | some a => f a |>.run
     | none => pure none
 
@@ -186,12 +186,12 @@ instance [BindAsync n k] : BindAsync (ReaderT ρ n) k where
   bindAsync ka f := fun r => bindAsync ka fun a => f a r
 
 instance [BindAsync n k] [Pure n] [Pure k] : BindAsync n (ExceptT ε k) where
-  bindAsync ka f := cast (by simp [ExceptT]) <| bindAsync ka.run fun
+  bindAsync ka f := cast (by delta ExceptT; rfl) <| bindAsync ka.run fun
     | Except.ok a => f a
     | Except.error e => pure <| pure <| Except.error e
 
 instance [BindAsync n k] [Pure n] [Pure k] : BindAsync n (OptionT k) where
-  bindAsync ka f := cast (by simp [OptionT]) <| bindAsync ka.run fun
+  bindAsync ka f := cast (by delta OptionT; rfl) <| bindAsync ka.run fun
     | some a => f a
     | none => pure none
 
@@ -207,7 +207,7 @@ instance [ApplicativeAsync n k] : ApplicativeAsync n (ExceptT ε k) where
       let a ← liftExcept xa
       let b ← liftExcept xb
       pure <| f a b
-    cast (by simp [ExceptT]) <| seqWithAsync (n := n) h ka kb
+    cast (by delta ExceptT; rfl) <| seqWithAsync (n := n) h ka kb
 
 instance [ApplicativeAsync n k] : ApplicativeAsync n (OptionT k) where
   seqWithAsync f ka kb :=
@@ -215,7 +215,7 @@ instance [ApplicativeAsync n k] : ApplicativeAsync n (OptionT k) where
       let a ← liftOption xa
       let b ← liftOption xb
       pure <| f a b
-    cast (by simp [OptionT]) <| seqWithAsync (n := n) h ka kb
+    cast (by delta OptionT; rfl) <| seqWithAsync (n := n) h ka kb
 
 --------------------------------------------------------------------------------
 -- #  List/Array Utilities

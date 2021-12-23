@@ -21,7 +21,7 @@ def mkBuildContext (ws : Workspace) (lean : LeanInstall) (lake : LakeInstall) : 
       Hash.ofString lean.githash
   return {opaqueWs := ws, lean, lake, leanTrace}
 
-instance : MonadLake BuildM where
+instance [Monad m] : MonadLake (BuildT m) where
   getLeanInstall := (·.lean) <$> read
   getLakeInstall := (·.lake) <$> read
   getWorkspace := (·.workspace) <$> read

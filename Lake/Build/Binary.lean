@@ -32,7 +32,7 @@ def Package.moduleOTarget (mod : Name) (self : Package) : FileTarget :=
 -- # Build Package Static Lib
 
 protected def Package.staticLibTarget (self : Package) : FileTarget :=
- Target.mk self.staticLibFile do
+ BuildTarget.mk' self.staticLibFile do
     let moduleTargetMap ← self.buildModuleMap $
       recBuildModuleOleanAndCTargetWithLocalImports
     let oFileTargets := self.oFileTargetsOf moduleTargetMap
@@ -47,17 +47,19 @@ def Package.staticLibTargets (self : Package) : Array FileTarget :=
 -- # Build Package Shared Lib
 
 def Package.linkTargetsOf
-(targetMap : NameMap ActiveOleanAndCTarget) (self : Package) : BuildM (Array FileTarget) := do
+(targetMap : NameMap ActiveOleanAndCTarget) (self : Package) : LakeM (Array FileTarget) := do
   let collect dep recurse := do
       let pkg := (← getPackageByName? dep.name).get!
       let depTargets ← pkg.dependencies.concatMapM recurse
       return pkg.oFileTargetsOf targetMap ++ pkg.moreLibTargets ++ depTargets
-  let depLinkTargets ← failOnBuildCycle <| ← RBTopT.run' <| self.dependencies.concatMapM fun dep =>
+  let x ← RBTopT.run' <| self.dependencies.concatMapM fun dep =>
     buildRBTop (cmp := Name.quickCmp) collect Dependency.name dep
-  return self.oFileTargetsOf targetMap ++ self.moreLibTargets ++ depLinkTargets
+  match x with
+  | Except.ok ts => return self.oFileTargetsOf targetMap ++ self.moreLibTargets ++ ts
+  | Except.error _ => panic! "dependency cycle emerged after resolution"
 
 protected def Package.sharedLibTarget (self : Package) : FileTarget :=
-  Target.mk self.sharedLibFile do
+  BuildTarget.mk' self.sharedLibFile do
     let moduleTargetMap ← self.buildModuleMap $
       recBuildModuleOleanAndCTargetWithLocalImports
     let linkTargets ← self.linkTargetsOf moduleTargetMap
@@ -70,7 +72,7 @@ def Package.buildSharedLib (self : Package) : BuildM FilePath :=
 -- # Build Package Bin
 
 protected def Package.binTarget (self : Package) : FileTarget :=
-  Target.mk self.binFile do
+  BuildTarget.mk' self.binFile do
     let depTarget ← self.buildExtraDepsTarget
     let moduleTargetMap ← buildModuleMap #[⟨self, self.binRoot⟩] $
       recBuildModuleOleanAndCTargetWithLocalImports depTarget

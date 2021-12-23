@@ -91,8 +91,8 @@ macro:35 xs:bracketedExplicitBinders " × " b:term:35  : term => expandBrackedBi
 macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBinders ``PSigma xs b
 
 -- enforce indentation of calc steps so we know when to stop parsing them
-syntax calcStep := colGe term " := " withPosition(term)
-syntax (name := calc) "calc " withPosition((calcStep ppLine)+) : term
+syntax calcStep := ppIndent(colGe term " := " withPosition(term))
+syntax (name := calc) "calc" ppLine withPosition((calcStep ppLine)+) : term
 
 macro "calc " steps:withPosition(calcStep+) : tactic => `(exact calc $(steps.getArgs)*)
 

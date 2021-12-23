@@ -153,6 +153,13 @@ def registerLspRequestHandler (method : String)
 def lookupLspRequestHandler (method : String) : IO (Option RequestHandler) := do
   (← requestHandlers.get).find? method
 
+/-- NB: This method may only be called in `builtin_initialize` blocks.
+
+Register another handler to invoke after the last one registered for a method.
+At least one handler for the method must have already been registered to perform
+chaining.
+
+For more details on the registration of a handler, see `registerLspRequestHandler`. -/
 def chainLspRequestHandler (method : String)
     paramType [FromJson paramType]
     respType [FromJson respType] [ToJson respType]

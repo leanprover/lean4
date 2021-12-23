@@ -196,6 +196,11 @@ macro_rules
     `($mods:declModifiers class $id $params* extends $[$parents:term],* $[: $ty]?
       attribute [instance] $ctor)
 
+/-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
+syntax ("·" <|> ".") ppHardSpace many1Indent(group(tactic ";"? ppLine)) : tactic
+macro_rules
+  | `(tactic| ·%$dot $[$tacs:tactic $[;]?]*) => `(tactic| {%$dot $[$tacs:tactic]*})
+
 /-
   Similar to `first`, but succeeds only if one the given tactics solves the current goal.
 -/

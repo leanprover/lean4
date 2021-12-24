@@ -11,7 +11,7 @@ import Lake.Config.Resolve
 import Lake.Config.Util
 import Lake.Util.Error
 import Lake.Util.MainM
-import Lake.Util.CliT
+import Lake.Util.Cli
 import Lake.CLI.Init
 import Lake.CLI.Help
 import Lake.CLI.Build
@@ -23,7 +23,7 @@ namespace Lake
 
 -- # CLI
 
-structure CliState where
+structure LakeOptions where
   rootDir : FilePath := "."
   configFile : FilePath := defaultConfigFile
   leanInstall? : Option LeanInstall := none
@@ -31,65 +31,65 @@ structure CliState where
   subArgs : List String := []
   wantsHelp : Bool := false
 
-abbrev CliM := CliT <| StateT CliState MainM
+abbrev CliStateM := StateT LakeOptions <| MainM
+abbrev CliM := ArgsT CliStateM
 
 namespace Cli
-open CliT
 
 -- ## Basic Actions
 
 /-- Print out a line wih the given message and then exit with an error code. -/
-protected def error (msg : String) (rc : UInt32 := 1) : CliM α := do
+protected def error (msg : String) (rc : UInt32 := 1) : MainM α := do
   IO.eprintln s!"error: {msg}" |>.catchExceptions fun _ => ()
   exit rc
 
-instance : MonadError CliM := ⟨Cli.error⟩
-instance : MonadLift IO CliM := ⟨MonadError.runIO⟩
+instance : MonadError MainM := ⟨Cli.error⟩
+instance : MonadLift IO MainM := ⟨MonadError.runIO⟩
 
--- ## State Management
+-- ## Basic State Management
 
-def getRootDir : CliM FilePath :=
-  (·.rootDir) <$> getThe CliState
+def getRootDir : CliStateM FilePath :=
+  (·.rootDir) <$> get
 
-def setRootDir (dir : FilePath) : CliM PUnit :=
-  modifyThe CliState fun st => {st with rootDir := dir}
+def setRootDir (dir : FilePath) : CliStateM PUnit :=
+  modify fun st => {st with rootDir := dir}
 
-def getConfigFile : CliM FilePath :=
-  (·.configFile) <$> getThe CliState
+def getConfigFile : CliStateM FilePath :=
+  (·.configFile) <$> get
 
-def setConfigFile (file : FilePath) : CliM PUnit :=
-  modifyThe CliState fun st => {st with configFile := file}
+def setConfigFile (file : FilePath) : CliStateM PUnit :=
+  modify ({· with configFile := file})
 
-def getSubArgs : CliM (List String) :=
-  (·.subArgs) <$> getThe CliState
+def getSubArgs : CliStateM (List String) :=
+  (·.subArgs) <$> get
 
-def setSubArgs (args : List String) : CliM PUnit :=
-  modifyThe CliState fun st => {st with subArgs := args}
+def setSubArgs (args : List String) : CliStateM PUnit :=
+  modify fun st => {st with subArgs := args}
 
-def getWantsHelp : CliM Bool :=
-  (·.wantsHelp) <$> getThe CliState
+def getWantsHelp : CliStateM Bool :=
+  (·.wantsHelp) <$> get
 
-def setWantsHelp : CliM PUnit :=
-  modifyThe CliState fun st => {st with wantsHelp := true}
+def setWantsHelp : CliStateM PUnit :=
+  modify fun st => {st with wantsHelp := true}
 
-def setLean (lean : String) : CliM PUnit := do
+def setLean (lean : String) : CliStateM PUnit := do
   let leanInstall? ← findLeanCmdInstall? lean
-  modifyThe CliState fun st => {st with leanInstall?}
+  modify fun st => {st with leanInstall?}
 
-def getLeanInstall? : CliM (Option LeanInstall) :=
-  (·.leanInstall?) <$> getThe CliState
+def getLeanInstall? : CliStateM (Option LeanInstall) :=
+  (·.leanInstall?) <$> get
 
-def getLakeInstall? : CliM (Option LakeInstall) :=
-  (·.lakeInstall?) <$> getThe CliState
+def getLakeInstall? : CliStateM (Option LakeInstall) :=
+  (·.lakeInstall?) <$> get
 
--- ## Complex Actions
+-- ## Complex State Management
 
-def loadPkg (args : List String := []) : CliM Package := do
+def loadPkg (args : List String := []) : CliStateM Package := do
   let dir ← getRootDir; let file ← getConfigFile
   setupLeanSearchPath (← getLeanInstall?) (← getLakeInstall?)
   Package.load dir args (dir / file)
 
-def loadConfig (args : List String := []) : CliM (Workspace × Package) := do
+def loadConfig (args : List String := []) : CliStateM (Workspace × Package) := do
   let pkg ← loadPkg args
   let ws ← Workspace.ofPackage pkg
   let packageMap ← resolveDeps ws pkg |>.run LogMethods.eio (m := IO)
@@ -97,31 +97,31 @@ def loadConfig (args : List String := []) : CliM (Workspace × Package) := do
   ({ws with packageMap}, pkg)
 
 /-- Get the Lean installation. Error if missing. -/
-def getLeanInstall : CliM LeanInstall := do
+def getLeanInstall : CliStateM LeanInstall := do
   if let some leanInstall ← getLeanInstall? then
     return leanInstall
   else
     error "could not detect a Lean installation"
 
 /-- Get the Lake installation. Error if missing. -/
-def getLakeInstall : CliM LakeInstall := do
+def getLakeInstall : CliStateM LakeInstall := do
   if let some lakeInstall ← getLakeInstall? then
     return lakeInstall
   else
     error "could not detect the configuration of the Lake installation"
 
 /-- Get the Lean and Lake installation. Error if either is missing. -/
-def getInstall : CliM (LeanInstall × LakeInstall) := do
+def getInstall : CliStateM (LeanInstall × LakeInstall) := do
   return (← getLeanInstall, ← getLakeInstall)
 
 /-- Perform the given build action using information from CLI. -/
-def runBuildM (ws : Workspace) (x : BuildM α) : CliM α := do
+def runBuildM (ws : Workspace) (x : BuildM α) : CliStateM α := do
   let (leanInstall, lakeInstall) ← getInstall
   let ctx ← mkBuildContext ws leanInstall lakeInstall
   x.run LogMethods.io ctx
 
 /-- Variant of `runBuildM` that discards the build monad's output. -/
-def runBuildM_ (ws : Workspace) (x : BuildM α) : CliM PUnit :=
+def runBuildM_ (ws : Workspace) (x : BuildM α) : CliStateM PUnit :=
   discard <| runBuildM ws x
 
 -- ## Argument Parsing
@@ -135,7 +135,7 @@ def takeArg (errMsg : String := "missing argument") : CliM String := do
 Verify that there are no CLI arguments remaining
 before running the given action.
 -/
-def noArgsRem (act : CliM α) : CliM α := do
+def noArgsRem (act : CliStateM α) : CliM α := do
   let args ← getArgs
   if args.isEmpty then act else
     error s!"unexpected arguments: {" ".intercalate args}"
@@ -162,29 +162,25 @@ def longOption : (opt : String) → CliM PUnit
 | "--"      => do setSubArgs <| ← takeArgs
 | opt       => unknownLongOption opt
 
-/-- Splits a long option of the form `--long=arg` into `--long arg`. -/
-def longOptionOrEq (optStr : String) : CliM PUnit :=
-  let eqPos := optStr.posOf '='
-  let arg := optStr.drop eqPos.succ
-  let opt := optStr.take eqPos
-  if arg.isEmpty then
-    longOption opt
-  else do
-    consArg arg
-    longOption opt
+def lakeOption :=
+  option {
+    short := shortOption
+    long := longOption
+    longShort := shortOptionWithArg shortOption
+  }
 
 -- ## Commands
 
-def withPackage [MonadLiftT m CliM] (x : Package → LakeT m α) : CliM α := do
+def withPackage [MonadLiftT m CliStateM] (x : Package → LakeT m α) : CliStateM α := do
   let (ws, pkg) ← loadConfig
   let (lean, lake) ← getInstall
   liftM <| x pkg |>.run {lean, lake, opaqueWs := ws}
 
-def withContext [MonadLiftT m CliM] (x : LakeT m α) : CliM α :=
+def withContext [MonadLiftT m CliStateM] (x : LakeT m α) : CliStateM α :=
   withPackage fun _ => x
 
 /-- Run the given script from the given package with the given arguments. -/
-def script (pkg : Package) (name : String) (args : List String) :  CliM PUnit := do
+def script (pkg : Package) (name : String) (args : List String) : CliStateM PUnit := do
   if let some script := pkg.scripts.find? name then
     if (← getWantsHelp) then
       if let some help := script.help? then
@@ -194,19 +190,19 @@ def script (pkg : Package) (name : String) (args : List String) :  CliM PUnit :=
     else
       exit <| ← withContext <| script.run args
   else
-    pkg.scripts.forM (m := CliM) fun name _ => do
+    pkg.scripts.forM (m := CliStateM) fun name _ => do
       IO.println <| name.toString (escape := false)
     error s!"unknown script '{name}'"
 
 /-- Verify the Lean version Lake was built with matches that of the Lean installation. -/
-def verifyLeanVersion : CliM PUnit := do
+def verifyLeanVersion : CliStateM PUnit := do
   let lean ← getLeanInstall
   unless lean.githash == Lean.githash do
     let githash := if lean.githash.isEmpty then  "nothing" else lean.githash
     error s!"expected Lean commit {Lean.githash}, but got {lean.githash}"
 
 /-- Output the detected installs and verify the Lean version. -/
-def verifyInstall : CliM PUnit := do
+def verifyInstall : CliStateM PUnit := do
   IO.println s!"Lean:\n{repr <| ← getLeanInstall?}"
   IO.println s!"Lake:\n{repr <| ← getLakeInstall?}"
   verifyLeanVersion
@@ -221,7 +217,7 @@ If no configuration file exists, exit silently with `noConfigFileCode` (i.e, 2).
 
 The `print-paths` command is used internally by Lean 4 server.
 -/
-def printPaths (imports : List String := []) : CliM PUnit := do
+def printPaths (imports : List String := []) : CliStateM PUnit := do
   let (lean, lake) ← getInstall
   let configFile := (← getRootDir) / (← getConfigFile)
   if (← configFile.pathExists) then
@@ -239,27 +235,54 @@ def serve (pkg : Package) (args : Array String := #[]) : LakeT IO UInt32 := do
   env (← getLean).toString <| #["--server"] ++ pkg.moreServerArgs ++ args
 
 def command : (cmd : String) → CliM PUnit
-| "new"         => do processOptions; noArgsRem <| new (← takeArg "missing package name")
-| "init"        => do processOptions; noArgsRem <| init (← takeArg "missing package name")
-| "run"         => do processOptions; noArgsRem <| script (← loadPkg) (← takeArg "missing script") (← getSubArgs)
-| "env"         => do exit <| ← withContext <| env (← takeArg "missing command") (← takeArgs).toArray
-| "serve"       => do processOptions; let args ← getSubArgs; exit <| ← noArgsRem <| withPackage fun pkg => serve pkg args.toArray
-| "configure"   => do processOptions; let (ws, pkg) ← loadConfig (← getSubArgs); noArgsRem <| runBuildM ws pkg.buildDepOleans
-| "print-paths" => do processOptions; printPaths (← takeArgs)
-| "build"       => do processOptions; let (ws, pkg) ← loadConfig (← getSubArgs); runBuildM ws <| build pkg (← takeArgs)
-| "clean"       => do processOptions; noArgsRem <| (← loadPkg (← getSubArgs)).clean
-| "self-check"  => do processOptions; noArgsRem <| verifyInstall
-| "help"        => do IO.println <| help (← takeArg?)
-| cmd           => error s!"unknown command '{cmd}'"
+| "new" => do
+  processOptions lakeOption
+  let pkgName ← takeArg "missing package name"
+  noArgsRem <| new pkgName
+| "init" => do
+  processOptions lakeOption
+  let pkgName ← takeArg "missing package name"
+  noArgsRem <| init pkgName
+| "run" => do
+  processOptions lakeOption
+  let scriptName ← takeArg "missing script name"
+  noArgsRem <| script (← loadPkg) scriptName (← getSubArgs)
+| "env" => do
+  let cmd ← takeArg "missing command"; let args ← takeArgs
+  exit <| ← withContext <| env cmd args.toArray
+| "serve" => do
+  let args ← getSubArgs
+  noArgsRem <| exit <| ← withPackage fun pkg => serve pkg args.toArray
+| "configure" => do
+  processOptions lakeOption
+  let (ws, pkg) ← loadConfig (← getSubArgs)
+  noArgsRem <| runBuildM ws pkg.buildDepOleans
+| "print-paths" => do
+  processOptions lakeOption
+  printPaths (← takeArgs)
+| "build" => do
+  processOptions lakeOption
+  let (ws, pkg) ← loadConfig (← getSubArgs)
+  runBuildM ws <| build pkg (← takeArgs)
+| "clean" => do
+  processOptions lakeOption
+  noArgsRem <| (← loadPkg (← getSubArgs)).clean
+| "self-check"  => do
+  processOptions lakeOption
+  noArgsRem <| verifyInstall
+| "help" => do
+  IO.println <| help (← takeArg?)
+| cmd =>
+  error s!"unknown command '{cmd}'"
 
 def processArgs : CliM PUnit := do
   match (← getArgs) with
   | [] => IO.println usage
   | ["--version"] => IO.println uiVersionString
   | _ => -- normal CLI
-    processLeadingOptions -- between `lake` and command
+    processLeadingOptions lakeOption -- between `lake` and command
     if let some cmd ← takeArg? then
-      processLeadingOptions -- between command and args
+      processLeadingOptions lakeOption -- between command and args
       if (← getWantsHelp) then
         IO.println <| help cmd
       else
@@ -272,13 +295,7 @@ end Cli
 open Cli in
 def CliM.run (self : CliM α) (args : List String) : IO UInt32 := do
   let (leanInstall?, lakeInstall?) ← findInstall?
-  let initSt := {leanInstall?, lakeInstall?}
-  let methods := {
-    shortOption,
-    longOption := longOptionOrEq,
-    longShortOption := unknownLongOption,
-  }
-  match (← CliT.run self args methods |>.run' initSt |>.toIO') with
+  match (← self args |>.run' {leanInstall?, lakeInstall?} |>.toIO') with
   | Except.ok _ => pure 0
   | Except.error rc => pure rc
 

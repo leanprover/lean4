@@ -170,7 +170,7 @@ def chainLspRequestHandler (method : String)
     let handle := fun j => do
       let t ← oldHandler.handle j
       let t ← t.map fun x => x.bind fun j => FromJson.fromJson? j |>.mapError fun e =>
-        IO.userError s!"failed to parse original LSP request handler for `{method}` when chaining: {e}"
+        IO.userError s!"Failed to parse original LSP response for `{method}` when chaining: {e}"
       let params ← liftExcept <| parseRequestParams paramType j
       let t ← handler params t
       t.map <| Except.map ToJson.toJson

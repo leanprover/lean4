@@ -23,12 +23,12 @@ OPTIONS:
 COMMANDS:
   new <name>            create a Lean package in a new directory
   init <name>           create a Lean package in the current directory
-  run <script>          run arbitrary package scripts
-  env <cmd> [<args>...] execute a command in the package's environment
-  serve                 start the Lean language server
-  configure             download and build dependencies
   build [<targets>...]  configure and build targets
+  configure             download and build dependencies
   clean                 remove build outputs
+  script                manage and run workspace scripts
+  serve                 start the Lean language server
+  env <cmd> [<args>...] execute a command in the workspace's environment
 
 See `lake help <command>` for more information on a specific command."
 
@@ -49,53 +49,6 @@ USAGE:
 
 This command creates a new Lean package with the given name in
 the current directory."
-
-def helpRun :=
-"Run arbitrary package scripts
-
-USAGE:
-  lake run <script> [-h] [-- <args>...]
-
-This command runs the given script from the package configuration's
-`scripts` field, passing `args` to it. If the given script does not exist,
-errors and prints the list of available scripts.
-
-You can pass -h/--help after the script name to print its docstring."
-
-def helpEnv :=
-"Execute a command in the package's environment
-
-USAGE:
-  lake env <cmd> [<args>...]
-
-Spawns a new process executing `cmd` with the given `args` and
-with the `LEAN_PATH` environment variable set to include the `.olean`
-directories of the package."
-
-def helpServe :=
-"Start the Lean language server
-
-USAGE:
-  lake serve [-- <args>...]
-
-Run the language server of the Lean installation (i.e., via `lean --server`)
-with the package configuration's `moreServerArgs` field and `args`.
-"
-
-def helpConfigure :=
-"Download and build dependencies
-
-USAGE:
-  lake configure [-- <args>...]
-
-This command sets up the directory with the package's dependencies
-(i.e., by default, `lean_packages`). Passes `args` to the `Packager`
-if specified.
-
-For each (transitive) git dependency, the specified commit is checked out
-into a sub-directory of `depsDir`. If there are dependencies on multiple
-versions of the same package, the version materialized is undefined.
-No copy is made of local dependencies."
 
 def helpBuild :=
 "Build targets
@@ -128,6 +81,21 @@ TARGET EXAMPLES:
 A bare `build` command will build the default facet of the root package.
 Arguments to the `Packager` itself can be specified with `args`."
 
+def helpConfigure :=
+"Download and build dependencies
+
+USAGE:
+  lake configure [-- <args>...]
+
+This command sets up the directory with the package's dependencies
+(i.e., by default, `lean_packages`). Passes `args` to the `Packager`
+if specified.
+
+For each (transitive) git dependency, the specified commit is checked out
+into a sub-directory of `depsDir`. If there are dependencies on multiple
+versions of the same package, the version materialized is undefined.
+No copy is made of local dependencies."
+
 def helpClean :=
 "Remove build outputs
 
@@ -137,17 +105,77 @@ USAGE:
 Deletes the build directory of the package.
 Arguments to the  `Packager` itself can be specified with `args`."
 
-def helpCmd : (cmd : String) → String
+def helpScriptCli :=
+"Manage Lake scripts
+
+USAGE:
+  lake script <COMMAND>
+
+COMMANDS:
+  list                  list available scripts
+  run <script>          run a script
+  doc <script>          print the docstring of a given script
+
+See `lake help <command>` for more information on a specific command."
+
+def helpScriptList :=
+"List available scripts
+
+USAGE:
+  lake script list
+
+This command prints the list of all available scripts in the workspace."
+
+def helpScriptRun :=
+"Run a script
+
+USAGE:
+  lake script run [<package>/]<script> [<args>...]
+
+This command runs the given `script` from `package`, passing `args` to it.
+Defaults to the root package."
+
+def helpScriptDoc :=
+"Print a script's docstring
+
+USAGE:
+  lake script doc [<package>/]<script>
+
+Print the docstring of `script` in `package`. Defaults to the root package."
+
+def helpServe :=
+"Start the Lean language server
+
+USAGE:
+  lake serve [-- <args>...]
+
+Run the language server of the Lean installation (i.e., via `lean --server`)
+with the package configuration's `moreServerArgs` field and `args`.
+"
+
+def helpEnv :=
+"Execute a command in the package's environment
+
+USAGE:
+  lake env <cmd> [<args>...]
+
+Spawns a new process executing `cmd` with the given `args` and
+with the `LEAN_PATH` environment variable set to include the `.olean`
+directories of the package."
+
+def helpScript : (cmd : String) → String
+| "list"      => helpScriptList
+| "run"       => helpScriptRun
+| "doc"       => helpScriptDoc
+| _           => helpScriptCli
+
+def help : (cmd : String) → String
 | "new"       => helpNew
 | "init"      => helpInit
-| "run"       => helpRun
-| "env"       => helpEnv
-| "serve"     => helpServe
-| "configure" => helpConfigure
 | "build"     => helpBuild
+| "configure" => helpConfigure
 | "clean"     => helpClean
+| "script"    => helpScriptCli
+| "serve"     => helpServe
+| "env"       => helpEnv
 | _           => usage
-
-def help : (cmd? : Option String) → String
-| some cmd => helpCmd cmd
-| none => usage

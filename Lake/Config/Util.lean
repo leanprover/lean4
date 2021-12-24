@@ -7,11 +7,19 @@ import Lake.Build
 
 namespace Lake
 
-def Package.run (script : String) (args : List String) (self : Package) : ScriptIO UInt32 :=
+def Package.run (script : String) (args : List String) (self : Package) : ScriptM UInt32 :=
   if let some script := self.scripts.find? script then
     script.run args
   else do
-    throw <| IO.userError s!"unknown script {script}"
+    error s!"unknown script {script}"
+
+def Package.scriptDoc (scriptName : String) (self : Package) : LakeT IO PUnit :=
+  if let some script := self.scripts.find? scriptName then
+    match script.doc? with
+    | some doc => IO.println doc.trim
+    | none => error s!"no documentation provided for `{scriptName}`"
+  else
+    error s!"unknown script '{scriptName}'"
 
 def Package.clean (self : Package) : IO PUnit := do
   if (← self.buildDir.pathExists) then

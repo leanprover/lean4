@@ -120,7 +120,7 @@ Workspace options are shared across a package and its dependencies.
 
 ## Scripts
 
-A configuration file can also contain a number of `scripts` declaration. A script is an arbitrary `(args : List String) → ScriptIO UInt32` definition that can be run by `lake run <script> [-- <args>]`. For example, given the following `lakefile.lean`:
+A configuration file can also contain a number of `scripts` declaration. A script is an arbitrary `(args : List String) → ScriptM UInt32` definition that can be run by `lake script run`. For example, given the following `lakefile.lean`:
 
 ```lean
 import Lake
@@ -132,7 +132,7 @@ package scripts
 Display a greeting
 
 USAGE:
-  lake run greet [-h] [-- [name]]
+  lake run greet [name]
 
 Greet the entity with the given name. Otherwise, greet the whole world.
 -/
@@ -147,20 +147,20 @@ script greet (args) do
 The script `greet` can be run like so:
 
 ```
-$ lake run greet
+$ lake script run greet
 Hello, world!
-$ lake run greet -- me
+$ lake script run greet me
 Hello, me!
 ```
 
-You can print the docstring of a script by passing `-h`/`--help` after its name:
+You can print the docstring of a script with `lake script doc`:
 
 ```
-$ lake run greet --help
+$ lake script doc greet
 Display a greeting
 
 USAGE:
-  lake run greet [-h] [-- name]
+  lake run greet [name]
 
 Greet the entity with the given name. Otherwise, greet the whole world.
 ```

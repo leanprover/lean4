@@ -96,6 +96,9 @@ def loadConfig (args : List String := []) : CliStateM (Workspace × Package) := 
   let packageMap := packageMap.insert pkg.name pkg
   ({ws with packageMap}, pkg)
 
+def loadWorkspace (args : List String := []) : CliStateM Workspace :=
+  (·.1) <$> loadConfig args
+
 /-- Get the Lean installation. Error if missing. -/
 def getLeanInstall : CliStateM LeanInstall := do
   if let some leanInstall ← getLeanInstall? then
@@ -179,21 +182,6 @@ def withPackage [MonadLiftT m CliStateM] (x : Package → LakeT m α) : CliState
 def withContext [MonadLiftT m CliStateM] (x : LakeT m α) : CliStateM α :=
   withPackage fun _ => x
 
-/-- Run the given script from the given package with the given arguments. -/
-def script (pkg : Package) (name : String) (args : List String) : CliStateM PUnit := do
-  if let some script := pkg.scripts.find? name then
-    if (← getWantsHelp) then
-      if let some help := script.help? then
-        IO.print help
-      else
-        error s!"no documentation provided for `{name}`"
-    else
-      exit <| ← withContext <| script.run args
-  else
-    pkg.scripts.forM (m := CliStateM) fun name _ => do
-      IO.println <| name.toString (escape := false)
-    error s!"unknown script '{name}'"
-
 /-- Verify the Lean version Lake was built with matches that of the Lean installation. -/
 def verifyLeanVersion : CliStateM PUnit := do
   let lean ← getLeanInstall
@@ -234,6 +222,37 @@ def env (cmd : String) (args : Array String := #[]) : LakeT IO UInt32 := do
 def serve (pkg : Package) (args : Array String := #[]) : LakeT IO UInt32 := do
   env (← getLean).toString <| #["--server"] ++ pkg.moreServerArgs ++ args
 
+def parseScriptSpec (ws : Workspace) (rootPkg : Package) (spec : String) : IO (Package × String) :=
+  match spec.splitOn "/" with
+  | [script] => (rootPkg, script)
+  | [pkg, script] => do (← resolvePkgSpec ws rootPkg pkg, script)
+  | _ =>  error s!"invalid script spec '{spec}' (too many '/')"
+
+def script : (cmd : String) → CliM PUnit
+| "list" => do
+  processOptions lakeOption
+  noArgsRem <| (← loadWorkspace).packageMap.forM fun name pkg => do
+    let pkgName := pkg.name.toString (escape := false)
+    pkg.scripts.forM fun name script =>
+      let scriptName := name.toString (escape := false)
+      IO.println s!"{pkgName}/{scriptName}"
+| "run" => do
+  processOptions lakeOption
+  let spec ← takeArg "missing script name"; let args ← takeArgs
+  noArgsRem <| exit <| ← withPackage (m := IO) fun pkg => do
+    let (pkg, script) ← parseScriptSpec (← getWorkspace) pkg spec
+    pkg.run script args
+| "doc" => do
+  processOptions lakeOption
+  let spec ← takeArg "missing script name"
+  noArgsRem <| ← withPackage (m := IO) fun pkg => do
+    let (pkg, script) ← parseScriptSpec (← getWorkspace) pkg spec
+    pkg.scriptDoc script
+| "help" => do
+  IO.println <| helpScript <| (← takeArg?).getD ""
+| cmd =>
+  error s!"unknown command '{cmd}'"
+
 def command : (cmd : String) → CliM PUnit
 | "new" => do
   processOptions lakeOption
@@ -243,16 +262,10 @@ def command : (cmd : String) → CliM PUnit
   processOptions lakeOption
   let pkgName ← takeArg "missing package name"
   noArgsRem <| init pkgName
-| "run" => do
+| "build" => do
   processOptions lakeOption
-  let scriptName ← takeArg "missing script name"
-  noArgsRem <| script (← loadPkg) scriptName (← getSubArgs)
-| "env" => do
-  let cmd ← takeArg "missing command"; let args ← takeArgs
-  exit <| ← withContext <| env cmd args.toArray
-| "serve" => do
-  let args ← getSubArgs
-  noArgsRem <| exit <| ← withPackage fun pkg => serve pkg args.toArray
+  let (ws, pkg) ← loadConfig (← getSubArgs)
+  runBuildM ws <| build pkg (← takeArgs)
 | "configure" => do
   processOptions lakeOption
   let (ws, pkg) ← loadConfig (← getSubArgs)
@@ -260,18 +273,29 @@ def command : (cmd : String) → CliM PUnit
 | "print-paths" => do
   processOptions lakeOption
   printPaths (← takeArgs)
-| "build" => do
-  processOptions lakeOption
-  let (ws, pkg) ← loadConfig (← getSubArgs)
-  runBuildM ws <| build pkg (← takeArgs)
 | "clean" => do
   processOptions lakeOption
   noArgsRem <| (← loadPkg (← getSubArgs)).clean
+| "script" => do
+  if let some cmd ← takeArg? then
+    processLeadingOptions lakeOption -- between command and args
+    if (← getWantsHelp) then
+      IO.println <| helpScript cmd
+    else
+      script cmd
+  else
+    error "expected command"
+| "serve" => do
+  let args ← getSubArgs
+  noArgsRem <| exit <| ← withPackage fun pkg => serve pkg args.toArray
+| "env" => do
+  let cmd ← takeArg "missing command"; let args ← takeArgs
+  exit <| ← withContext <| env cmd args.toArray
 | "self-check"  => do
   processOptions lakeOption
   noArgsRem <| verifyInstall
 | "help" => do
-  IO.println <| help (← takeArg?)
+  IO.println <| help <| (← takeArg?).getD ""
 | cmd =>
   error s!"unknown command '{cmd}'"
 

@@ -5,7 +5,7 @@ let lean-final' = lean-final; in
 lib.makeOverridable (
 { name, src,  fullSrc ? src, 
   # Lean dependencies. Each entry should be an output of buildLeanPackage.
-  deps ? [ lean.Lean lean.Leanpkg ],
+  deps ? [ lean.Lean ],
   # Static library dependencies. Each derivation `static` should contain a static library in the directory `${static}`.
   staticLibDeps ? [],
   # Whether to wrap static library inputs in a -Wl,--start-group [...] -Wl,--end-group to ensure dependencies are resolved.

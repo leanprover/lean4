@@ -104,13 +104,11 @@ def delabConst : Delab := do
     else
       `($(mkIdent c).{$[$(ls.toArray.map quote)],*})
 
-  let stx ← maybeAddBlockImplicit stx
-  if (←getPPOption getPPTagSymbols) then
-    let stx ← annotateCurPos stx
-    addTermInfo (←getPos) stx (←getExpr)
-    stx
-  else
-    stx
+  let mut stx ← maybeAddBlockImplicit stx
+  if (← getPPOption getPPTagAppFns) then
+    stx ← annotateCurPos stx
+    addTermInfo (← getPos) stx (← getExpr)
+  stx
 
 structure ParamKind where
   name        : Name
@@ -199,7 +197,7 @@ def unexpandRegularApp (stx : Syntax) : Delab := do
   let fs ← appUnexpanderAttribute.getValues (← getEnv) c
   let ref ← getRef
   fs.firstM fun f =>
-    match f stx |>.run ref with
+    match f stx |>.run ref |>.run () with
     | EStateM.Result.ok stx _ => pure stx
     | _ => failure
 

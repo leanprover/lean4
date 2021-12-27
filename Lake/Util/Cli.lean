@@ -137,9 +137,7 @@ Process the leading options of the remaining argument list.
 Consumes empty leading arguments in the argument list.
 -/
 partial def processLeadingOptions (handle : String → m PUnit) : m PUnit := do
-  match (← getArgs) with
-  | [] => pure ()
-  | arg :: args =>
+  if let arg :: args ← getArgs then
     let len := arg.length
     if len > 1 && arg[0] == '-' then -- `-(.+)`
       setArgs args
@@ -151,10 +149,17 @@ partial def processLeadingOptions (handle : String → m PUnit) : m PUnit := do
 
 /-- Process every option and collect the remaining arguments into an `Array`. -/
 partial def collectArgs (option : String → m PUnit) (args : Array String := #[]) : m (Array String) := do
-  processLeadingOptions option
-  match (← takeArg?) with
-  | some arg => collectArgs option (args.push arg)
-  | none => args
+  if let some arg ← takeArg? then
+    let len := arg.length
+    if len > 1 && arg[0] == '-' then -- `-(.+)`
+      option arg
+      collectArgs option args
+    else if len == 0 then -- skip empty args
+      collectArgs option args
+    else
+      collectArgs option (args.push arg)
+  else
+    pure args
 
 /-- Process every option in the argument list. -/
 @[inline] def processOptions (handle : String → m PUnit) : m PUnit := do

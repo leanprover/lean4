@@ -33,7 +33,7 @@ instance : GetMTime OleanAndC := ⟨OleanAndC.getMTime⟩
 protected def computeHash (self : OleanAndC) : IO Hash := do
   return mixTrace (← computeHash self.oleanFile) (← computeHash self.cFile)
 
-instance : ComputeHash OleanAndC := ⟨OleanAndC.computeHash⟩
+instance : ComputeHash OleanAndC IO := ⟨OleanAndC.computeHash⟩
 
 protected def checkExists (self : OleanAndC) : BaseIO Bool := do
   return (← checkExists self.oleanFile) && (← checkExists self.cFile)
@@ -95,7 +95,8 @@ def OleanAndCTarget.activate (self : OleanAndCTarget) : SchedulerM ActiveOleanAn
 
 -- # Module Builders
 
-def moduleTarget [CheckExists i] [GetMTime i] [ComputeHash i] (info : i)
+def moduleTarget
+[CheckExists i] [GetMTime i] [ComputeHash i m] [MonadLiftT m BuildM] (info : i)
 (leanFile traceFile : FilePath) (contents : String) (depTarget : BuildTarget x)
 (build : BuildM PUnit) : BuildTarget i :=
   Target.mk info <| depTarget.bindOpaqueSync fun depTrace => do

@@ -11,19 +11,14 @@ namespace Lake
 -- # Utilities
 --------------------------------------------------------------------------------
 
-/-- Check whether there already exists an artifact for the given target info. -/
 class CheckExists.{u} (i : Type u) where
+  /-- Check whether there already exists an artifact for the given target info. -/
   checkExists : i → BaseIO Bool
 
 export CheckExists (checkExists)
 
-def checkPathExists (path : FilePath) : BaseIO Bool :=
-  fun s => match path.metadata () with
-  | EStateM.Result.ok _ s => EStateM.Result.ok true s
-  | EStateM.Result.error _ s => EStateM.Result.ok false s
-
 instance : CheckExists FilePath where
-  checkExists := checkPathExists
+  checkExists := FilePath.pathExists
 
 --------------------------------------------------------------------------------
 -- # Trace Abstraction
@@ -93,18 +88,12 @@ def ofNat (n : Nat) :=
   mk n.toUInt64
 
 def loadFromFile (hashFile : FilePath) : IO (Option Hash) := do
-  (← IO.FS.readFile hashFile).toNat?.map Hash.ofNat
+  (← IO.FS.readFile hashFile).toNat?.map ofNat
 
 def nil : Hash :=
   mk <| 1723 -- same as Name.anonymous
 
 instance : NilTrace Hash := ⟨nil⟩
-
-def ofString (str : String) :=
-  mk <| mixHash 1723 <| hash str -- same as Name.mkSimple
-
-def ofByteArray (bytes : ByteArray) :=
-  mk <| bytes.foldl (init := 1723) fun h b => mixHash h (hash b)
 
 def mix (h1 h2 : Hash) : Hash :=
   mk <| mixHash h1.val h2.val
@@ -116,19 +105,34 @@ protected def toString (self : Hash) : String :=
 
 instance : ToString Hash := ⟨Hash.toString⟩
 
+def ofString (str : String) :=
+  mix nil <| mk <| hash str -- same as Name.mkSimple
+
+def ofByteArray (bytes : ByteArray) :=
+  bytes.foldl (init := nil) fun h b => mix h (mk <| hash b)
+
 end Hash
 
-class ComputeHash (α) where
-  computeHash : α → IO Hash
+class ComputeHash (α : Type u) (m : outParam $ Type → Type v)  where
+  computeHash : α → m Hash
 
-export ComputeHash (computeHash)
-instance [ComputeHash α] : ComputeTrace α IO Hash := ⟨computeHash⟩
+instance [ComputeHash α m] : ComputeTrace α m Hash := ⟨ComputeHash.computeHash⟩
+
+def pureHash [ComputeHash α Id] (a : α) : Hash :=
+  ComputeHash.computeHash a
+
+def computeHash [ComputeHash α m] [MonadLiftT m n] (a : α) : n Hash :=
+  liftM <| ComputeHash.computeHash a
+
+instance : ComputeHash String Id := ⟨Hash.ofString⟩
 
 def computeFileHash (file : FilePath) : IO Hash :=
   Hash.ofByteArray <$> IO.FS.readBinFile file
 
-instance : ComputeHash FilePath := ⟨computeFileHash⟩
-instance : ComputeHash String := ⟨pure ∘ Hash.ofString⟩
+instance : ComputeHash FilePath IO := ⟨computeFileHash⟩
+
+instance [ComputeHash α m] [Monad m] : ComputeHash (Array α) m where
+  computeHash ar := ar.foldlM (fun b a => Hash.mix b <$> computeHash a) Hash.nil
 
 --------------------------------------------------------------------------------
 -- # Modification Time (MTime) Trace
@@ -209,10 +213,10 @@ def nil : BuildTrace :=
 
 instance : NilTrace BuildTrace := ⟨nil⟩
 
-def compute [ComputeHash i] [GetMTime i] (info : i) : IO BuildTrace := do
+def compute [ComputeHash i m] [MonadLiftT m IO] [GetMTime i] (info : i) : IO BuildTrace := do
   mk (← computeHash info) (← getMTime info)
 
-instance [ComputeHash i] [GetMTime i] : ComputeTrace i IO BuildTrace := ⟨compute⟩
+instance [ComputeHash i m] [MonadLiftT m IO] [GetMTime i] : ComputeTrace i IO BuildTrace := ⟨compute⟩
 
 def mix (t1 t2 : BuildTrace) : BuildTrace :=
   mk (Hash.mix t1.hash t2.hash) (max t1.mtime t2.mtime)

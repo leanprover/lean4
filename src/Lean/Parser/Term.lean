@@ -51,7 +51,7 @@ namespace Term
 /- Built-in parsers -/
 
 @[builtinTermParser] def byTactic := leading_parser:leadPrec ppAllowUngrouped >> "by " >> Tactic.tacticSeq
-def byTactic' := leading_parser:leadPrec ppAllowUngrouped >> "by " >> Tactic.tacticSeq
+def byTactic' := leading_parser "by " >> Tactic.tacticSeq
 
 def optSemicolon (p : Parser) : Parser := ppDedent $ optional ";" >> ppLine >> p
 

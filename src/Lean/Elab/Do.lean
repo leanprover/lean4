@@ -603,21 +603,27 @@ def getDoLetVars (doLet : Syntax) : TermElabM (Array Name) :=
   -- leading_parser "let " >> optional "mut " >> letDecl
   getLetDeclVars doLet[2]
 
-def getDoHaveVar (doHave : Syntax) : Name :=
-  /-
-    `leading_parser "have " >> Term.haveDecl`
-    where
-    ```
-    haveDecl := leading_parser optIdent >> termParser >> (haveAssign <|> fromTerm <|> byTactic)
-    optIdent := optional (try (ident >> " : "))
-
-    ```
-  -/
-  let optIdent := doHave[1][0]
+def getHaveIdLhsVar (optIdent : Syntax) : Name :=
   if optIdent.isNone then
     `this
   else
     optIdent[0].getId
+
+def getDoHaveVars (doHave : Syntax) : TermElabM (Array Name) :=
+  -- doHave := leading_parser "have " >> Term.haveDecl
+  -- haveDecl := leading_parser haveIdDecl <|> letPatDecl <|> haveEqnsDecl
+  let arg := doHave[1][0]
+  if arg.getKind == ``Lean.Parser.Term.haveIdDecl then
+    -- haveIdDecl := leading_parser atomic (haveIdLhs >> " := ") >> termParser
+    -- haveIdLhs := optional (ident >> many (ppSpace >> (simpleBinderWithoutType <|> bracketedBinder))) >> optType
+    pure #[getHaveIdLhsVar arg[0]]
+  else if arg.getKind == ``Lean.Parser.Term.letPatDecl then
+    getLetPatDeclVars arg
+  else if arg.getKind == ``Lean.Parser.Term.haveEqnsDecl then
+    -- haveEqnsDecl := leading_parser haveIdLhs >> matchAlts
+    pure #[getHaveIdLhsVar arg[0]]
+  else
+    throwError "unexpected kind of have declaration"
 
 def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Name) := do
   -- letRecDecls is an array of `(group (optional attributes >> letDecl))`
@@ -1530,9 +1536,9 @@ mutual
             checkNotShadowingMutable vars
             mkVarDeclCore vars doElem <$> withNewMutableVars vars (isMutableLet doElem) (doSeqToCode doElems)
           else if k == ``Lean.Parser.Term.doHave then
-            let var := getDoHaveVar doElem
-            checkNotShadowingMutable #[var]
-            mkVarDeclCore #[var] doElem <$> (doSeqToCode doElems)
+            let vars ← getDoHaveVars doElem
+            checkNotShadowingMutable vars
+            mkVarDeclCore vars doElem <$> (doSeqToCode doElems)
           else if k == ``Lean.Parser.Term.doLetRec then
             let vars ← getDoLetRecVars doElem
             checkNotShadowingMutable vars

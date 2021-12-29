@@ -9,6 +9,7 @@ import Lean.Elab.Term
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.Arg
+import Lean.Elab.RecAppSyntax
 
 namespace Lean.Elab.Term
 open Meta
@@ -142,23 +143,27 @@ def eraseNamedArg (binderName : Name) : M Unit :=
 /-
   Add a new argument to the result. That is, `f := f arg`, update `fType`.
   This method assumes `fType` is a function type. -/
-private def addNewArg (arg : Expr) : M Unit :=
+private def addNewArg (argName : Name) (arg : Expr) : M Unit := do
   modify fun s => { s with f := mkApp s.f arg, fType := s.fType.bindingBody!.instantiate1 arg }
+  if arg.isMVar then
+    let mvarId := arg.mvarId!
+    if let some mvarErrorInfo ← getMVarErrorInfo? mvarId then
+      registerMVarErrorInfo { mvarErrorInfo with argName? := argName }
 
 /-
   Elaborate the given `Arg` and add it to the result. See `addNewArg`.
   Recall that, `Arg` may be wrapping an already elaborated `Expr`. -/
-private def elabAndAddNewArg (arg : Arg) : M Unit := do
+private def elabAndAddNewArg (argName : Name) (arg : Arg) : M Unit := do
   let s ← get
   let expectedType ← getArgExpectedType
   match arg with
   | Arg.expr val =>
     let arg ← ensureArgType s.f val expectedType
-    addNewArg arg
+    addNewArg argName arg
   | Arg.stx val  =>
     let val ← elabTerm val expectedType
     let arg ← ensureArgType s.f val expectedType
-    addNewArg arg
+    addNewArg argName arg
 
 /- Return true if the given type contains `OptParam` or `AutoParams` -/
 private def hasOptAutoParams (type : Expr) : M Bool := do
@@ -343,36 +348,36 @@ mutual
   /-
     Create a fresh local variable with the current binder name and argument type, add it to `etaArgs` and `f`,
     and then execute the main loop.-/
-  private partial def addEtaArg : M Expr := do
+  private partial def addEtaArg (argName : Name) : M Expr := do
     let n    ← getBindingName
     let type ← getArgExpectedType
     withLocalDeclD n type fun x => do
       modify fun s => { s with etaArgs := s.etaArgs.push x }
-      addNewArg x
+      addNewArg argName x
       main
 
-  private partial def addImplicitArg : M Expr := do
+  private partial def addImplicitArg (argName : Name) : M Expr := do
     let argType ← getArgExpectedType
     let arg ← mkFreshExprMVar argType
     modify fun s => { s with toSetErrorCtx := s.toSetErrorCtx.push arg.mvarId! }
-    addNewArg arg
+    addNewArg argName arg
     main
 
   /-
     Process a `fType` of the form `(x : A) → B x`.
     This method assume `fType` is a function type -/
-  private partial def processExplictArg : M Expr := do
+  private partial def processExplictArg (argName : Name) : M Expr := do
     let s ← get
     match s.args with
     | arg::args =>
       propagateExpectedType arg
       modify fun s => { s with args := args }
-      elabAndAddNewArg arg
+      elabAndAddNewArg argName arg
       main
     | _ =>
       let argType ← getArgExpectedType
       match s.explicit, argType.getOptParamDefault?, argType.getAutoParamTactic? with
-      | false, some defVal, _  => addNewArg defVal; main
+      | false, some defVal, _  => addNewArg argName defVal; main
       | false, _, some (Expr.const tacticDecl _ _) =>
         let env ← getEnv
         let opts ← getOptions
@@ -384,21 +389,21 @@ mutual
           let argType     := argType.getArg! 0 -- `autoParam type := by tactic` ==> `type`
           let argNew := Arg.stx tacticBlock
           propagateExpectedType argNew
-          elabAndAddNewArg argNew
+          elabAndAddNewArg argName argNew
           main
       | false, _, some _ =>
         throwError "invalid autoParam, argument must be a constant"
       | _, _, _ =>
         if !s.namedArgs.isEmpty then
           if (← anyNamedArgDependsOnCurrent) then
-            addImplicitArg
+            addImplicitArg argName
           else
-            addEtaArg
+            addEtaArg argName
         else if !s.explicit then
           if (← fTypeHasOptAutoParams) then
-            addEtaArg
+            addEtaArg argName
           else if (← get).ellipsis then
-            addImplicitArg
+            addImplicitArg argName
           else
             finalize
         else
@@ -407,41 +412,41 @@ mutual
   /-
     Process a `fType` of the form `{x : A} → B x`.
     This method assume `fType` is a function type -/
-  private partial def processImplicitArg : M Expr := do
+  private partial def processImplicitArg (argName : Name) : M Expr := do
     if (← get).explicit then
-      processExplictArg
+      processExplictArg argName
     else
-      addImplicitArg
+      addImplicitArg argName
 
   /-
     Process a `fType` of the form `{{x : A}} → B x`.
     This method assume `fType` is a function type -/
-  private partial def processStrictImplicitArg : M Expr := do
+  private partial def processStrictImplicitArg (argName : Name) : M Expr := do
     if (← get).explicit then
-      processExplictArg
+      processExplictArg argName
     else if (← hasArgsToProcess) then
-      addImplicitArg
+      addImplicitArg argName
     else
       finalize
 
   /-
     Process a `fType` of the form `[x : A] → B x`.
     This method assume `fType` is a function type -/
-  private partial def processInstImplicitArg : M Expr := do
+  private partial def processInstImplicitArg (argName : Name) : M Expr := do
     if (← get).explicit then
       if (← isNextArgHole) then
         /- Recall that if '@' has been used, and the argument is '_', then we still use type class resolution -/
         let arg ← mkFreshExprMVar (← getArgExpectedType) MetavarKind.synthetic
         modify fun s => { s with args := s.args.tail! }
         addInstMVar arg.mvarId!
-        addNewArg arg
+        addNewArg argName arg
         main
       else
-        processExplictArg
+        processExplictArg argName
     else
       let arg ← mkFreshExprMVar (← getArgExpectedType) MetavarKind.synthetic
       addInstMVar arg.mvarId!
-      addNewArg arg
+      addNewArg argName arg
       main
 
   /- Elaborate function application arguments. -/
@@ -456,14 +461,14 @@ mutual
       | some namedArg =>
         propagateExpectedType namedArg.val
         eraseNamedArg binderName
-        elabAndAddNewArg namedArg.val
+        elabAndAddNewArg binderName namedArg.val
         main
       | none          =>
         match binfo with
-        | BinderInfo.implicit       => processImplicitArg
-        | BinderInfo.instImplicit   => processInstImplicitArg
-        | BinderInfo.strictImplicit => processStrictImplicitArg
-        | _                         => processExplictArg
+        | BinderInfo.implicit       => processImplicitArg binderName
+        | BinderInfo.instImplicit   => processInstImplicitArg binderName
+        | BinderInfo.strictImplicit => processStrictImplicitArg binderName
+        | _                         => processExplictArg binderName
     else if (← hasArgsToProcess) then
       synthesizePendingAndNormalizeFunType
       main
@@ -909,7 +914,13 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
 @[builtinTermElab app] def elabApp : TermElab := fun stx expectedType? =>
   withoutPostponingUniverseConstraints do
     let (f, namedArgs, args, ellipsis) ← expandApp stx
-    elabAppAux f namedArgs args (ellipsis := ellipsis) expectedType?
+    let result ← elabAppAux f namedArgs args (ellipsis := ellipsis) expectedType?
+    let resultFn := result.getAppFn
+    if resultFn.isFVar then
+      let localDecl ← getLocalDecl resultFn.fvarId!
+      if localDecl.isAuxDecl then
+        return mkRecAppWithSyntax result stx
+    return result
 
 private def elabAtom : TermElab := fun stx expectedType? =>
   elabAppAux stx #[] #[] (ellipsis := false) expectedType?

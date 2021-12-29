@@ -9,6 +9,7 @@ import Lean.Meta.WHNF
 import Lean.Meta.InferType
 import Lean.Meta.FunInfo
 import Lean.Meta.ExprDefEq
+import Lean.Meta.DecLevel
 import Lean.Meta.DiscrTree
 import Lean.Meta.Reduce
 import Lean.Meta.Instances

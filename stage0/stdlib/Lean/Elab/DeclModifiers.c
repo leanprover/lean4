@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DeclModifiers
-// Imports: Init Lean.Modifiers Lean.DocString Lean.Elab.Attributes Lean.Elab.Exception Lean.Elab.DeclUtil
+// Imports: Init Lean.Modifiers Lean.DocString Lean.Structure Lean.Elab.Attributes Lean.Elab.Exception Lean.Elab.DeclUtil
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3988,6 +3988,7 @@ return x_6;
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Modifiers(lean_object*);
 lean_object* initialize_Lean_DocString(lean_object*);
+lean_object* initialize_Lean_Structure(lean_object*);
 lean_object* initialize_Lean_Elab_Attributes(lean_object*);
 lean_object* initialize_Lean_Elab_Exception(lean_object*);
 lean_object* initialize_Lean_Elab_DeclUtil(lean_object*);
@@ -4003,6 +4004,9 @@ res = initialize_Lean_Modifiers(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_DocString(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Structure(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Attributes(lean_io_mk_world());

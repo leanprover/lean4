@@ -30,9 +30,6 @@ def get_cnstr_tag(o):
 def get_num_objs(o):
     return o['m_other']
 
-def get_mem_kind(o):
-    return 0 if o['m_rc'] > 0 else 1 if o['m_rc'] < 0 else 2
-
 def get_rc(o):
     return o['m_rc']
 
@@ -76,11 +73,7 @@ class LeanObjectPrinter:
         if is_scalar(self.val):
             return unbox(self.val)
         else:
-            k = get_mem_kind(self.val)
-            return "{} ({})".format(LeanObjectPrinter.kinds[self.kind][0],
-                                    get_rc(self.val) if k == 0 else
-                                    get_rc(self.val) + "/MT" if k == 1 else
-                                    "PERSIST")
+            return "{} ({})".format(LeanObjectPrinter.kinds[self.kind][0], get_rc(self.val))
 
     def children(self):
         if is_scalar(self.val):

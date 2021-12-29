@@ -59,8 +59,12 @@ lean_object * wrap_win_handle(HANDLE h) {
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
     HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
     DWORD exit_code;
-    WaitForSingleObject(h, INFINITE);
-    GetExitCodeProcess(h, &exit_code);
+    if (WaitForSingleObject(h, INFINITE) == WAIT_FAILED) {
+        return io_result_mk_error((sstream() << GetLastError()).str());
+    }
+    if (!GetExitCodeProcess(h, &exit_code)) {
+        return io_result_mk_error((sstream() << GetLastError()).str());
+    }
     return lean_io_result_mk_ok(box_uint32(exit_code));
 }
 
@@ -221,7 +225,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg c
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
     pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
     int status;
-    waitpid(pid, &status, 0);
+    if (waitpid(pid, &status, 0) == -1) {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    }
     if (WIFEXITED(status)) {
         return lean_io_result_mk_ok(box_uint32(static_cast<unsigned>(WEXITSTATUS(status))));
     } else {

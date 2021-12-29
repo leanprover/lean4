@@ -13,7 +13,7 @@ open Meta
   Return an array containing its "elements".
   Example: `mkTupleElems a 4` returns `#[a.1, a.2.1, a.2.2.1, a.2.2.2]`.
   -/
-private def mkTupleElems (t : Expr) (arity : Nat) : Array Expr := do
+private def mkTupleElems (t : Expr) (arity : Nat) : Array Expr := Id.run <| do
   let mut result := #[]
   let mut t := t
   for i in [:arity - 1] do
@@ -43,7 +43,9 @@ private partial def mkPSigmaCasesOn (y : Expr) (codomain : Expr) (xs : Array Exp
   let mvar ← mkFreshExprSyntheticOpaqueMVar codomain
   let rec go (mvarId : MVarId) (y : FVarId) (ys : Array Expr) : MetaM Unit := do
     if ys.size < xs.size - 1 then
-      let #[s] ← cases mvarId y | unreachable!
+      let xDecl  ← getLocalDecl xs[ys.size].fvarId!
+      let xDecl' ← getLocalDecl xs[ys.size + 1].fvarId!
+      let #[s] ← cases mvarId y #[{ varNames := [xDecl.userName, xDecl'.userName] }] | unreachable!
       go s.mvarId s.fields[1].fvarId! (ys.push s.fields[0])
     else
       let ys := ys.push (mkFVar y)

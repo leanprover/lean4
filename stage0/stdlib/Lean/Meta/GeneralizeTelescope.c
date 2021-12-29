@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.GeneralizeTelescope
-// Imports: Init Lean.Meta.KAbstract
+// Imports: Init Lean.Meta.KAbstract Lean.Meta.Check
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1130,6 +1130,7 @@ return x_11;
 }
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Meta_KAbstract(lean_object*);
+lean_object* initialize_Lean_Meta_Check(lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_GeneralizeTelescope(lean_object* w) {
 lean_object * res;
@@ -1139,6 +1140,9 @@ res = initialize_Init(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_KAbstract(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Check(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___rarg___lambda__2___closed__1 = _init_l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___rarg___lambda__2___closed__1();

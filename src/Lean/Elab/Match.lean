@@ -63,6 +63,7 @@ private def elabAtomicDiscr (discr : Syntax) : TermElabM Expr := do
   | some e@(Expr.fvar fvarId _) =>
     let localDecl ← getLocalDecl fvarId
     if !isAuxDiscrName localDecl.userName then
+      addTermInfo discr e
       return e -- it is not an auxiliary local created by `expandNonAtomicDiscrs?`
     else
       instantiateMVars localDecl.value
@@ -972,7 +973,10 @@ Pattern matching. `match e, ... with | p, ... => f | ...` matches each given
 term `e` against each pattern `p` of a match alternative. When all patterns
 of an alternative match, the `match` term evaluates to the value of the
 corresponding right-hand side `f` with the pattern variables bound to the
-respective matched values. -/
+respective matched values.
+When not constructing a proof, `match` does not automatically substitute variables
+matched on in dependent variables' types. Use `match (generalizing := true) ...` to
+enforce this. -/
 @[builtinTermElab «match»] def elabMatch : TermElab := fun stx expectedType? => do
   match stx with
   | `(match $discr:term with | $y:ident => $rhs:term) =>

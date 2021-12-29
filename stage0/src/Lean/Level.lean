@@ -66,6 +66,8 @@ def MVarIdMap (α : Type) := Std.RBMap MVarId α (Name.quickCmp ·.name ·.name)
 
 instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (Std.RBMap ..))
 
+instance : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.RBMap ..) ..)
+
 instance : Inhabited (MVarIdMap α) where
   default := {}
 

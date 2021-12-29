@@ -21,8 +21,8 @@ def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
 
 def isRecCore (env : Environment) (declName : Name) : Bool :=
   match env.find? declName with
-  | some (ConstantInfo.recInfo ..) => return true
-  | _ => return false
+  | some (ConstantInfo.recInfo ..) => true
+  | _ => false
 
 def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
   return isRecCore (← getEnv) declName

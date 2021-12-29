@@ -35,8 +35,9 @@ echo -n " -DLEAN_STANDALONE=ON"
 # and the custom clang++ outputs a myriad of warnings when consuming the SDK
 echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang"
 echo -n " -DGMP_LIBRARIES=lib/libgmp.a -DGMP_INCLUDE_DIR=/usr/local/opt/gmp/include"
+# set sysroot for C to make sure we have all necessary runtime files, but don't embed in `leanc` so users can still link to system libs
 # need no-macro-redefined for weird clang stdint.h
-echo -n " -DLEANC_INTERNAL_FLAGS='--sysroot ROOT -I ROOT/include/clang -Wno-macro-redefined' -DLEANC_CC=ROOT/bin/clang"
+echo -n " -DLEANC_INTERNAL_FLAGS='-I ROOT/include/clang -Wno-macro-redefined' -DLEANC_OPTS='--sysroot $PWD/stage1' -DLEANC_CC=ROOT/bin/clang"
 echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/libc -fuse-ld=lld'"
 # do not set `LEAN_CC` for tests
 echo -n " -DLEAN_TEST_VARS=''"

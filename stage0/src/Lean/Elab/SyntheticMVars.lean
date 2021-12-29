@@ -337,4 +337,7 @@ def elabTermAndSynthesize (stx : Syntax) (expectedType? : Option Expr) : TermEla
   withRef stx do
     instantiateMVars (← withSynthesize <| elabTerm stx expectedType?)
 
+builtin_initialize
+  registerTraceClass `Elab.resume
+
 end Lean.Elab.Term

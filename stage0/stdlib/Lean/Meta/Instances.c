@@ -2925,12 +2925,13 @@ x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_472____lambda__1___clo
 x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_472____lambda__1___closed__6;
 x_4 = l_Lean_Meta_instInhabitedInstanceEntry___closed__1;
 x_5 = lean_unsigned_to_nat(0u);
-x_6 = lean_alloc_ctor(0, 5, 0);
+x_6 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_6, 0, x_2);
 lean_ctor_set(x_6, 1, x_3);
 lean_ctor_set(x_6, 2, x_4);
 lean_ctor_set(x_6, 3, x_1);
 lean_ctor_set(x_6, 4, x_5);
+lean_ctor_set(x_6, 5, x_1);
 return x_6;
 }
 }

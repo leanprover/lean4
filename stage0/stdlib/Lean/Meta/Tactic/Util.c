@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Util
-// Imports: Init Lean.Util.ForEachExpr Lean.Meta.Basic Lean.Meta.AppBuilder Lean.Meta.LevelDefEq Lean.Meta.PPGoal
+// Imports: Init Lean.Util.ForEachExpr Lean.Meta.Basic Lean.Meta.AppBuilder Lean.Meta.PPGoal
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -5542,7 +5542,6 @@ lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Util_ForEachExpr(lean_object*);
 lean_object* initialize_Lean_Meta_Basic(lean_object*);
 lean_object* initialize_Lean_Meta_AppBuilder(lean_object*);
-lean_object* initialize_Lean_Meta_LevelDefEq(lean_object*);
 lean_object* initialize_Lean_Meta_PPGoal(lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Util(lean_object* w) {
@@ -5559,9 +5558,6 @@ res = initialize_Lean_Meta_Basic(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_AppBuilder(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Meta_LevelDefEq(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_PPGoal(lean_io_mk_world());

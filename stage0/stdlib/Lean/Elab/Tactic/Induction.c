@@ -43,6 +43,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_evalIndu
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCases_declRange___closed__6;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalAlt___lambda__2___closed__1;
+uint8_t l_Array_contains___at___private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps_visit___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_mkSort(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_ElimApp_setMotiveArg___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInduction___closed__4;
@@ -170,7 +171,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCases_declRange___closed
 lean_object* l_List_mapTRAux___at_Lean_resolveGlobalConstNoOverload___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingState___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_ElimApp_getNumExplicitFields___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalInduction___lambda__2___boxed(lean_object**);
-lean_object* l_Lean_addTrace___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalInduction(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getAltRHS___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_ElimApp_evalAlts_go___spec__5___lambda__2___boxed(lean_object**);
@@ -220,6 +220,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalAlt___lambda__1(lean_object*, le
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_checkAltsOfOptInductionAlts___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_withTacticInfoContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCases_declRange___closed__5;
+lean_object* l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_getInductiveValFromMajor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getAltDArrow___boxed(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_initFn____x40_Lean_Elab_Tactic_Induction___hyg_5779____closed__1;
@@ -360,7 +361,6 @@ lean_object* l_Lean_Elab_Tactic_appendGoals(lean_object*, lean_object*, lean_obj
 lean_object* l_List_filterAux___at_Lean_resolveGlobalConstCore___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getElimNameInfo___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_assignExprMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Array_contains___at_Lean_Meta_addImplicitTargets_collect___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_ElimApp_evalAlts___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_withoutModifyingState___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_ElimApp_getNumExplicitFields___spec__4___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_ElimApp_getNumExplicitFields___spec__5___closed__19;
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalName___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getElimNameInfo___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -407,7 +407,6 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_ElimApp_evalA
 lean_object* l_Lean_Elab_Tactic_setGoals(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_tagUntaggedGoals(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_ElimApp_getNumExplicitFields___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_resolveGlobalConstNoOverload___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getElimNameInfo___spec__2___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_generalizeTargets___lambda__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_mapTRAux___at_Lean_mkConstWithLevelParams___spec__1(lean_object*, lean_object*);
@@ -540,6 +539,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tac
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_ElimApp_evalAlts_go___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getBetterRef(lean_object*, lean_object*);
 static lean_object* l_Lean_withoutModifyingState___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_ElimApp_getNumExplicitFields___spec__4___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_ElimApp_getNumExplicitFields___spec__5___closed__6;
+lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCases___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_ElimApp_evalAlts___boxed(lean_object**);
@@ -2301,7 +2301,7 @@ lean_object* x_27; uint8_t x_28;
 x_27 = lean_ctor_get(x_24, 2);
 lean_inc(x_27);
 lean_dec(x_24);
-x_28 = l_Array_contains___at_Lean_Meta_addImplicitTargets_collect___spec__1(x_27, x_22);
+x_28 = l_Array_contains___at___private_Lean_Meta_FunInfo_0__Lean_Meta_collectDeps_visit___spec__2(x_27, x_22);
 lean_dec(x_22);
 lean_dec(x_27);
 if (x_28 == 0)
@@ -4612,7 +4612,7 @@ lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; uint
 x_71 = lean_ctor_get(x_65, 1);
 lean_inc(x_71);
 lean_dec(x_65);
-x_72 = l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___spec__2(x_25, x_3, x_4, x_5, x_6, x_71);
+x_72 = l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__13(x_25, x_3, x_4, x_5, x_6, x_71);
 x_73 = lean_ctor_get(x_72, 0);
 lean_inc(x_73);
 x_74 = lean_ctor_get(x_72, 1);
@@ -4681,7 +4681,7 @@ x_49 = l_Lean_Elab_Tactic_ElimApp_setMotiveArg___closed__6;
 x_50 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_50, 0, x_48);
 lean_ctor_set(x_50, 1, x_49);
-x_51 = l_Lean_addTrace___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___spec__1(x_25, x_50, x_3, x_4, x_5, x_6, x_27);
+x_51 = l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__1(x_25, x_50, x_3, x_4, x_5, x_6, x_27);
 x_52 = lean_ctor_get(x_51, 0);
 lean_inc(x_52);
 x_53 = lean_ctor_get(x_51, 1);
@@ -4703,7 +4703,7 @@ else
 {
 lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 x_57 = l_Lean_withoutModifyingState___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_ElimApp_getNumExplicitFields___spec__4___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_ElimApp_getNumExplicitFields___spec__5___closed__20;
-x_58 = l_Lean_addTrace___at___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___spec__1(x_25, x_57, x_3, x_4, x_5, x_6, x_27);
+x_58 = l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__1(x_25, x_57, x_3, x_4, x_5, x_6, x_27);
 x_59 = lean_ctor_get(x_58, 0);
 lean_inc(x_59);
 x_60 = lean_ctor_get(x_58, 1);

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Match.Match
+import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Structural.Basic
 
 namespace Lean.Elab.Structural
@@ -91,7 +92,11 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
     | Expr.letE n type val body _ =>
       withLetDecl n (← loop below type) (← loop below val) fun x => do
         mkLetFVars #[x] (← loop below (body.instantiate1 x)) (usedLetOnly := false)
-    | Expr.mdata d e _   => return mkMData d (← loop below e)
+    | Expr.mdata d b _   =>
+      if let some stx := getRecAppSyntax? e then
+        loop below b
+      else
+        return mkMData d (← loop below b)
     | Expr.proj n i e _  => return mkProj n i (← loop below e)
     | Expr.app _ _ _ =>
       let processApp (e : Expr) : M Expr :=

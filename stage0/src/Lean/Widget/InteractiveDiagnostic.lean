@@ -7,7 +7,6 @@ Authors: Wojciech Nawrocki
 import Lean.Data.Lsp
 import Lean.Message
 import Lean.Elab.InfoTree
-import Lean.PrettyPrinter
 
 import Lean.Server.Utils
 import Lean.Server.Rpc.Basic

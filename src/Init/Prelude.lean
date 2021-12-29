@@ -196,6 +196,8 @@ theorem ne_true_of_eq_false : {b : Bool} → Eq b false → Not (Eq b true)
 class Inhabited (α : Sort u) where
   mk {} :: (default : α)
 
+attribute [nospecialize] Inhabited
+
 constant arbitrary [Inhabited α] : α :=
   Inhabited.default
 
@@ -979,7 +981,7 @@ private theorem isValidChar_UInt32 {n : Nat} (h : n.isValidChar) : LT.lt n UInt3
   | Or.inr ⟨_, h⟩ => Nat.lt_trans h (by decide)
 
 @[extern "lean_uint32_of_nat"]
-private def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
+def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
   { val := ⟨{ val := n, isLt := isValidChar_UInt32 h }⟩, valid := h }
 
 @[noinline, matchPattern]
@@ -1112,6 +1114,9 @@ structure Substring where
   str : String
   startPos : String.Pos
   stopPos : String.Pos
+
+instance : Inhabited Substring where
+  default := ⟨"", 0, 0⟩
 
 @[inline] def Substring.bsize : Substring → Nat
   | ⟨_, b, e⟩ => e.sub b

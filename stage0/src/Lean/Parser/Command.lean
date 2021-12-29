@@ -52,30 +52,36 @@ def declModifiers (inline : Bool) := leading_parser optional docComment >> optio
 def declId           := leading_parser ident >> optional (".{" >> sepBy1 ident ", " >> "}")
 def declSig          := leading_parser many (ppSpace >> (Term.simpleBinderWithoutType <|> Term.bracketedBinder)) >> Term.typeSpec
 def optDeclSig       := leading_parser many (ppSpace >> (Term.simpleBinderWithoutType <|> Term.bracketedBinder)) >> Term.optType
-def declValSimple    := leading_parser " :=\n" >> termParser >> optional Term.whereDecls
+def declValSimple    := leading_parser " :=" >> ppHardLineUnlessUngrouped >> termParser >> optional Term.whereDecls
 def declValEqns      := leading_parser Term.matchAltsWhereDecls
-def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls
-def «abbrev»         := leading_parser "abbrev " >> declId >> optDeclSig >> declVal
+def whereStructField := leading_parser Term.letDecl
+def whereStructInst  := leading_parser " where" >> many1Indent (ppLine >> ppGroup (group (whereStructField >> optional ";")))
+/-
+  Remark: we should not use `Term.whereDecls` at `declVal` because `Term.whereDecls` is defined using `Term.letRecDecl` which may contain attributes.
+  Issue #753 showns an example that fails to be parsed when we used `Term.whereDecls`.
+-/
+def declVal          := declValSimple <|> declValEqns <|> whereStructInst
+def «abbrev»         := leading_parser "abbrev " >> declId >> ppIndent optDeclSig >> declVal
 def optDefDeriving   := optional (atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
-def «def»            := leading_parser "def " >> declId >> optDeclSig >> declVal >> optDefDeriving >> terminationSuffix
-def «theorem»        := leading_parser "theorem " >> declId >> declSig >> declVal >> terminationSuffix
-def «constant»       := leading_parser "constant " >> declId >> declSig >> optional declValSimple
+def «def»            := leading_parser "def " >> declId >> ppIndent optDeclSig >> declVal >> optDefDeriving >> terminationSuffix
+def «theorem»        := leading_parser "theorem " >> declId >> ppIndent declSig >> declVal >> terminationSuffix
+def «constant»       := leading_parser "constant " >> declId >> ppIndent declSig >> optional declValSimple
 /- As `declSig` starts with a space, "instance" does not need a trailing space if we put `ppSpace` in the optional fragments. -/
-def «instance»       := leading_parser Term.attrKind >> "instance" >> optNamedPrio >> optional (ppSpace >> declId) >> declSig >> declVal >> terminationSuffix
-def «axiom»          := leading_parser "axiom " >> declId >> declSig
+def «instance»       := leading_parser Term.attrKind >> "instance" >> optNamedPrio >> optional (ppSpace >> declId) >> ppIndent declSig >> declVal >> terminationSuffix
+def «axiom»          := leading_parser "axiom " >> declId >> ppIndent declSig
 /- As `declSig` starts with a space, "example" does not need a trailing space. -/
-def «example»        := leading_parser "example" >> declSig >> declVal
-def inferMod         := leading_parser atomic (symbol "{" >> "}")
-def ctor             := leading_parser "\n| " >> declModifiers true >> ident >> optional inferMod >> optDeclSig
+def «example»        := leading_parser "example" >> ppIndent declSig >> declVal
+def inferMod         := leading_parser ppSpace >> atomic (symbol "{" >> "}")
+def ctor             := leading_parser "\n| " >> ppIndent (declModifiers true >> ident >> optional inferMod >> optDeclSig)
 def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> Term.structInst))) ", "
-def optDeriving      := leading_parser optional (atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
-def «inductive»      := leading_parser "inductive " >> declId >> optDeclSig >> optional (symbol ":=" <|> "where") >> many ctor >> optDeriving
-def classInductive   := leading_parser atomic (group (symbol "class " >> "inductive ")) >> declId >> optDeclSig >> optional (symbol ":=" <|> "where") >> many ctor >> optDeriving
-def structExplicitBinder := leading_parser atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault) >> ")"
+def optDeriving      := leading_parser optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
+def «inductive»      := leading_parser "inductive " >> declId >> optDeclSig >> optional (symbol " :=" <|> " where") >> many ctor >> optDeriving
+def classInductive   := leading_parser atomic (group (symbol "class " >> "inductive ")) >> declId >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >> many ctor >> optDeriving
+def structExplicitBinder := leading_parser atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> ppIndent optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault) >> ")"
 def structImplicitBinder := leading_parser atomic (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
 def structInstBinder     := leading_parser atomic (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
 def structSimpleBinder   := leading_parser atomic (declModifiers true >> ident) >> optional inferMod >> optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault)
-def structFields         := leading_parser manyIndent (ppLine >> checkColGe >>(structExplicitBinder <|> structImplicitBinder <|> structInstBinder <|> structSimpleBinder))
+def structFields         := leading_parser manyIndent (ppLine >> checkColGe >> ppGroup (structExplicitBinder <|> structImplicitBinder <|> structInstBinder <|> structSimpleBinder))
 def structCtor           := leading_parser atomic (declModifiers true >> ident >> optional inferMod >> " :: ")
 def structureTk          := leading_parser "structure "
 def classTk              := leading_parser "class "
@@ -87,6 +93,7 @@ def «structure»          := leading_parser
 @[builtinCommandParser] def declaration := leading_parser
 declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
 @[builtinCommandParser] def «deriving»     := leading_parser "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 ident ", "
+@[builtinCommandParser] def noncomputableSection := leading_parser "noncomputable " >> "section " >> optional ident
 @[builtinCommandParser] def «section»      := leading_parser "section " >> optional ident
 @[builtinCommandParser] def «namespace»    := leading_parser "namespace " >> ident
 @[builtinCommandParser] def «end»          := leading_parser "end " >> optional ident
@@ -106,11 +113,11 @@ def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> st
 @[builtinCommandParser] def «set_option»   := leading_parser "set_option " >> ident >> ppSpace >> optionValue
 def eraseAttr := leading_parser "-" >> rawIdent
 @[builtinCommandParser] def «attribute»    := leading_parser "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "] " >> many1 ident
-@[builtinCommandParser] def «export»       := leading_parser "export " >> ident >> "(" >> many1 ident >> ")"
+@[builtinCommandParser] def «export»       := leading_parser "export " >> ident >> " (" >> many1 ident >> ")"
 def openHiding       := leading_parser atomic (ident >> "hiding") >> many1 (checkColGt >> ident)
-def openRenamingItem := leading_parser ident >> unicodeSymbol "→" "->" >> checkColGt >> ident
+def openRenamingItem := leading_parser ident >> unicodeSymbol " → " " -> " >> checkColGt >> ident
 def openRenaming     := leading_parser atomic (ident >> "renaming") >> sepBy1 openRenamingItem ", "
-def openOnly         := leading_parser atomic (ident >> "(") >> many1 ident >> ")"
+def openOnly         := leading_parser atomic (ident >> " (") >> many1 ident >> ")"
 def openSimple       := leading_parser many1 (checkColGt >> ident)
 def openScoped       := leading_parser "scoped " >> many1 (checkColGt >> ident)
 def openDecl         := openHiding <|> openRenaming <|> openOnly <|> openSimple <|> openScoped

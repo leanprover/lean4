@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/debug.h"
 #include "runtime/sstream.h"
+#include "runtime/load_dynlib.h"
 #include "util/timer.h"
 #include "util/macros.h"
 #include "util/io.h"
@@ -320,21 +321,6 @@ void load_plugin(std::string path) {
     // NOTE: we never unload plugins
 }
 
-void load_library(std::string path) {
-#ifdef LEAN_WINDOWS
-    HMODULE h = LoadLibrary(path.c_str());
-    if (!h) {
-        throw exception(sstream() << "error loading library " << path << ": " << GetLastError());
-    }
-#else
-    void *handle = dlopen(path.c_str(), RTLD_LAZY | RTLD_GLOBAL);
-    if (!handle) {
-        throw exception(sstream() << "error loading library, " << dlerror());
-    }
-#endif
-    // NOTE: we never unload libraries
-}
-
 namespace lean {
 extern "C" object * lean_run_frontend(object * input, object * opts, object * filename, object * main_module_name, uint32_t trust_level, object * w);
 pair_ref<environment, object_ref> run_new_frontend(std::string const & input, options const & opts, std::string const & file_name, name const & main_module_name, uint32_t trust_level) {
@@ -553,7 +539,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
                 break;
             case 'l':
                 check_optarg("l");
-                load_library(optarg);
+                lean::load_dynlib(optarg);
                 forwarded_args.push_back(string_ref("--load-dynlib=" + std::string(optarg)));
                 break;
             default:

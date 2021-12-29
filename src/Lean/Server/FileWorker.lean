@@ -98,6 +98,8 @@ section Elab
       : ReaderT WorkerContext IO (AsyncList ElabTaskError Snapshot) := do
     if initial && initSnap.msgLog.hasErrors then
       -- treat header processing errors as fatal so users aren't swamped with followup errors
+      let hOut := (←read).hOut
+      publishProgressAtPos m initSnap.beginPos hOut (kind := LeanFileProgressKind.fatalError)
       AsyncList.nil
     else
       AsyncList.unfoldAsync (nextCmdSnap m . cancelTk (← read)) initSnap
@@ -171,14 +173,21 @@ section Initialization
     -- `lake/` should come first since on case-insensitive file systems, Lean thinks that `src/` also contains `Lake/`
     let mut srcSearchPath := [srcPath / "lake", srcPath]
     let (headerEnv, msgLog) ← try
-      -- NOTE: lake does not exist in stage 0 (yet?)
-      if (← System.FilePath.pathExists lakePath) then
-        let pkgSearchPath ← lakeSetupSearchPath lakePath m (Lean.Elab.headerToImports headerStx).toArray hOut
-        srcSearchPath := pkgSearchPath ++ srcSearchPath
+      if let some path := m.uri.toPath? then
+        -- NOTE: we assume for now that `lakefile.lean` does not have any non-stdlib deps
+        -- NOTE: lake does not exist in stage 0 (yet?)
+        if path.fileName != "lakefile.lean" && (← System.FilePath.pathExists lakePath) then
+          let pkgSearchPath ← lakeSetupSearchPath lakePath m (Lean.Elab.headerToImports headerStx).toArray hOut
+          srcSearchPath := pkgSearchPath ++ srcSearchPath
       Elab.processHeader headerStx opts msgLog inputCtx
     catch e =>  -- should be from `lake print-paths`
       let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
       pure (← mkEmptyEnvironment, msgs)
+    let mut headerEnv := headerEnv
+    try
+      if let some path := m.uri.toPath? then
+        headerEnv := headerEnv.setMainModule (← moduleNameOfFileName path none)
+    catch _ => ()
     if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
       srcSearchPath := System.SearchPath.parse p ++ srcSearchPath
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
@@ -221,9 +230,8 @@ section Updates
   def updatePendingRequests (map : PendingRequestMap → PendingRequestMap) : WorkerM Unit := do
     modify fun st => { st with pendingRequests := map st.pendingRequests }
 
-  /-- Given the new document and `changePos`, the UTF-8 offset of a change into the pre-change source,
-      updates editable doc state. -/
-  def updateDocument (newMeta : DocumentMeta) (changePos : String.Pos) : WorkerM Unit := do
+  /-- Given the new document, updates editable doc state. -/
+  def updateDocument (newMeta : DocumentMeta) : WorkerM Unit := do
     -- The watchdog only restarts the file worker when the syntax tree of the header changes.
     -- If e.g. a newline is deleted, it will not restart this file worker, but we still
     -- need to reparse the header so that the offsets are correct.
@@ -241,6 +249,7 @@ section Updates
     | some (ElabTaskError.ioError ioError) => throw ioError
     | _ => -- No error or EOF
       oldDoc.cancelTk.set
+      let changePos := oldDoc.meta.text.source.firstDiffPos newMeta.text.source
       -- NOTE(WN): we invalidate eagerly as `endPos` consumes input greedily. To re-elaborate only
       -- when really necessary, we could do a whitespace-aware `Syntax` comparison instead.
       let mut validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)
@@ -282,8 +291,8 @@ section NotificationHandling
       -- TODO(WN): This happens on restart sometimes.
       IO.eprintln s!"Got outdated version number: {newVersion} ≤ {oldDoc.meta.version}"
     else if ¬ changes.isEmpty then
-      let (newDocText, minStartOff) := foldDocumentChanges changes oldDoc.meta.text
-      updateDocument ⟨docId.uri, newVersion, newDocText⟩ minStartOff
+      let newDocText := foldDocumentChanges changes oldDoc.meta.text
+      updateDocument ⟨docId.uri, newVersion, newDocText⟩
 
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)

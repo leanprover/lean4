@@ -43,6 +43,7 @@ static lean_object* l_Lean_Elab_macroAttribute___closed__12;
 static lean_object* l_Lean_Elab_mkMacroAttributeUnsafe___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MacroScopesView_format(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_802____at_Lean_Elab_getBetterRef___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_addMacroStack___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_macroAttribute___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -181,6 +182,7 @@ static lean_object* l_Lean_Elab_macroAttribute___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___rarg___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_mkElabAttribute___rarg___lambda__3___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_macroAttribute___lambda__7___boxed(lean_object*);
+LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_802____at_Lean_Elab_getBetterRef___spec__1(lean_object*, lean_object*);
 static lean_object* l_List_foldl___at_Lean_Elab_addMacroStack___spec__1___closed__1;
 lean_object* l_List_find_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_macroAttribute;
@@ -231,9 +233,7 @@ uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_expandOptNamedPrio___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_expandOptNamedPrio___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Elab_checkSyntaxNodeKind___at_Lean_Elab_checkSyntaxNodeKindAtCurrentNamespaces___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_734____at_Lean_Elab_getBetterRef___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forM___at_Lean_Elab_liftMacroM___spec__2___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_734____at_Lean_Elab_getBetterRef___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_expandOptNamedPrio___closed__1;
 lean_object* l_Lean_indentD(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_macroAttribute___lambda__4(lean_object*);
@@ -511,7 +511,7 @@ lean_dec(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_734____at_Lean_Elab_getBetterRef___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_802____at_Lean_Elab_getBetterRef___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -556,7 +556,7 @@ x_2 = lean_ctor_get(x_1, 0);
 x_3 = 0;
 x_4 = l_Lean_Syntax_getPos_x3f(x_2, x_3);
 x_5 = lean_box(0);
-x_6 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_734____at_Lean_Elab_getBetterRef___spec__1(x_4, x_5);
+x_6 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_802____at_Lean_Elab_getBetterRef___spec__1(x_4, x_5);
 lean_dec(x_4);
 if (x_6 == 0)
 {
@@ -617,11 +617,11 @@ return x_1;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_734____at_Lean_Elab_getBetterRef___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_802____at_Lean_Elab_getBetterRef___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_734____at_Lean_Elab_getBetterRef___spec__1(x_1, x_2);
+x_3 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_802____at_Lean_Elab_getBetterRef___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);

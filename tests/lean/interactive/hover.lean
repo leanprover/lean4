@@ -134,3 +134,6 @@ instance : ToString Nat := ⟨toString⟩
 --^ textDocument/hover
 instance f : ToString Nat := ⟨toString⟩
        --^ textDocument/hover
+
+example : Type 0 := Nat
+        --^ textDocument/hover

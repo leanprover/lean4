@@ -695,7 +695,7 @@ if (x_4 == 0)
 lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
-x_7 = 1;
+x_7 = 0;
 x_8 = l_Lean_Name_toString(x_5, x_7);
 lean_ctor_set(x_1, 1, x_2);
 lean_ctor_set(x_1, 0, x_8);
@@ -715,7 +715,7 @@ x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_dec(x_1);
-x_12 = 1;
+x_12 = 0;
 x_13 = l_Lean_Name_toString(x_10, x_12);
 x_14 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_14, 0, x_13);

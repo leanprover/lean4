@@ -153,7 +153,7 @@ def isFOLike (motive : Expr) : MetaM Bool := do
   let f := motive.getAppFn
   f.isFVar || f.isConst
 
-def isIdLike (arg : Expr) : Bool := do
+def isIdLike (arg : Expr) : Bool :=
   -- TODO: allow `id` constant as well?
   match arg with
   | Expr.lam _ _ (Expr.bvar ..) .. => true
@@ -190,7 +190,7 @@ private def valUnknown (e : Expr) : MetaM Bool := do
 private def typeUnknown (e : Expr) : MetaM Bool := do
   valUnknown (← inferType e)
 
-def isHBinOp (e : Expr) : Bool := do
+def isHBinOp (e : Expr) : Bool := Id.run <| do
   -- TODO: instead of tracking these explicitly,
   -- consider a more general solution that checks for defaultInstances
   if e.getAppNumArgs != 6 then return false

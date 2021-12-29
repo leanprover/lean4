@@ -26,6 +26,8 @@ structure Scope where
   varDecls      : Array Syntax := #[]
   /-- Globally unique internal identifiers for the `varDecls` -/
   varUIds       : Array Name := #[]
+  /-- noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for. -/
+  isNoncomputable : Bool := false
   deriving Inhabited
 
 structure State where
@@ -37,7 +39,7 @@ structure State where
   nextInstIdx    : Nat := 1 -- for generating anonymous instance names
   ngen           : NameGenerator := {}
   infoState      : InfoState := {}
-  traceState      : TraceState    := {}
+  traceState     : TraceState := {}
   deriving Inhabited
 
 structure Context where
@@ -301,7 +303,7 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do
   if !showPartialSyntaxErrors.get (← getOptions) && initMsgs.hasErrors && stx.hasMissing then
     -- discard elaboration errors, except for a few important and unlikely misleading ones, on parse error
     msgs := ⟨msgs.msgs.filter fun msg =>
-      msg.data.hasTag `Elab.synthPlaceholder || msg.data.hasTag `Tactic.unsolvedGoals⟩
+      msg.data.hasTag (fun tag => tag == `Elab.synthPlaceholder || tag == `Tactic.unsolvedGoals || (`_traceMsg).isSuffixOf tag)⟩
   for tree in (← getInfoTrees) do
     trace[Elab.info] (← tree.format)
   modify fun st => { st with
@@ -332,17 +334,18 @@ def getBracketedBinderIds : Syntax → Array Name
   | `(bracketedBinder|[$ty])                         => #[Name.anonymous]
   | _                                                => #[]
 
-private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context := do
+private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context := Id.run <| do
   let scope      := s.scopes.head!
   let mut sectionVars := {}
   for id in scope.varDecls.concatMap getBracketedBinderIds, uid in scope.varUIds do
     sectionVars := sectionVars.insert id uid
-  { macroStack     := ctx.macroStack
-    fileName       := ctx.fileName
-    fileMap        := ctx.fileMap
-    currMacroScope := ctx.currMacroScope
-    declName?      := declName?
-    sectionVars    := sectionVars }
+  { macroStack             := ctx.macroStack
+    fileName               := ctx.fileName
+    fileMap                := ctx.fileMap
+    currMacroScope         := ctx.currMacroScope
+    declName?              := declName?
+    sectionVars            := sectionVars
+    isNoncomputableSection := scope.isNoncomputable }
 
 private def mkTermState (scope : Scope) (s : State) : Term.State := {
   messages          := {}

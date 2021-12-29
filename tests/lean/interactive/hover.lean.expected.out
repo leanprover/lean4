@@ -80,7 +80,7 @@ null
 {"range":
  {"start": {"line": 93, "character": 8}, "end": {"line": 93, "character": 10}},
  "contents":
- {"value": "```lean\nid : ∀ {α : Prop}, α → α\n```", "kind": "markdown"}}
+ {"value": "```lean\nid.{0} : ∀ {α : Prop}, α → α\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 93, "character": 10}}
 {"range":
@@ -159,3 +159,11 @@ null
   "end": {"line": 134, "character": 10}},
  "contents":
  {"value": "```lean\nBar.f : ToString Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 137, "character": 10}}
+{"range":
+ {"start": {"line": 137, "character": 10},
+  "end": {"line": 137, "character": 16}},
+ "contents":
+ {"value": "A type universe. `Type ≡ Type 0`, `Type u ≡ Sort (u + 1)`. ",
+  "kind": "markdown"}}

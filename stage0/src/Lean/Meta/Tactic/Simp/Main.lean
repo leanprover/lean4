@@ -159,7 +159,7 @@ where
       let init := r.expr
       modify fun s => { s with numSteps := s.numSteps + 1 }
       match (← pre r.expr) with
-      | Step.done r   => cacheResult cfg r
+      | Step.done r'  => cacheResult cfg (← mkEqTrans r r')
       | Step.visit r' =>
         let r ← mkEqTrans r r'
         let r ← mkEqTrans r (← simpStep r.expr)
@@ -187,9 +187,15 @@ where
     | Expr.mvar ..     => return { expr := (← instantiateMVars e) }
     | Expr.fvar ..     => return { expr := (← reduceFVar (← getConfig) e) }
 
-  simpLit (e : Expr) : M Result :=
+  simpLit (e : Expr) : M Result := do
     match e.natLit? with
-    | some n => return { expr := (← mkNumeral (mkConst ``Nat) n) }
+    | some n =>
+      /- If `OfNat.ofNat` is marked to be unfolded, we do not pack orphan nat literals as `OfNat.ofNat` applications
+         to avoid non-termination. See issue #788.  -/
+      if (← getSimpLemmas).isDeclToUnfold ``OfNat.ofNat then
+        return { expr := e }
+      else
+        return { expr := (← mkNumeral (mkConst ``Nat) n) }
     | none   => return { expr := e }
 
   simpProj (e : Expr) : M Result := do
@@ -202,14 +208,18 @@ where
         if (← dependsOn (← inferType p) s.fvarId!) then
           return none
         else
-          return some (← mkLambdaFVars #[s] (← mkEq e p))
+          let motive ← mkLambdaFVars #[s] (← mkEq e p)
+          if !(← isTypeCorrect motive) then
+            return none
+          else
+            return some motive
       if let some motive := motive? then
         let r ← simp s
         let eNew := e.updateProj! r.expr
         match r.proof? with
         | none => return { expr := eNew }
         | some h =>
-          let hNew ← mkEqNDRec motive (← mkEqRefl s) h
+          let hNew ← mkEqNDRec motive (← mkEqRefl e) h
           return { expr := eNew, proof? := some hNew }
       else
         return { expr := (← dsimp e) }

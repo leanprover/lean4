@@ -91,8 +91,8 @@ macro:35 xs:bracketedExplicitBinders " × " b:term:35  : term => expandBrackedBi
 macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBinders ``PSigma xs b
 
 -- enforce indentation of calc steps so we know when to stop parsing them
-syntax calcStep := colGe term " := " withPosition(term)
-syntax (name := calc) "calc " withPosition((calcStep ppLine)+) : term
+syntax calcStep := ppIndent(colGe term " := " withPosition(term))
+syntax (name := calc) "calc" ppLine withPosition((calcStep ppLine)+) : term
 
 macro "calc " steps:withPosition(calcStep+) : tactic => `(exact calc $(steps.getArgs)*)
 
@@ -195,6 +195,11 @@ macro_rules
     let ctor := mkIdentFrom name <| name.getId.modifyBase (. ++ `mk)
     `($mods:declModifiers class $id $params* extends $[$parents:term],* $[: $ty]?
       attribute [instance] $ctor)
+
+/-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
+syntax ("·" <|> ".") ppHardSpace many1Indent(group(tactic ";"? ppLine)) : tactic
+macro_rules
+  | `(tactic| ·%$dot $[$tacs:tactic $[;]?]*) => `(tactic| {%$dot $[$tacs:tactic]*})
 
 /-
   Similar to `first`, but succeeds only if one the given tactics solves the current goal.

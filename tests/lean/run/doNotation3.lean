@@ -59,7 +59,7 @@ return ()
 
 macro "ret!" x:term : doElem => `(return $x)
 
-def f1 (x : Nat) : Nat := do
+def f1 (x : Nat) : Nat := Id.run <| do
   let mut x := x
   if x == 0 then
     ret! 100
@@ -75,7 +75,7 @@ syntax "inc!" ident : doElem
 macro_rules
 | `(doElem| inc! $x) => `(doElem| $x:ident := $x + 1)
 
-def f2 (x : Nat) : Nat := do
+def f2 (x : Nat) : Nat := Id.run <| do
   let mut x := x
   inc! x
   ret! x

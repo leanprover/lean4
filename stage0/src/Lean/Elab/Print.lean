@@ -14,7 +14,7 @@ private def throwUnknownId (id : Name) : CommandElabM Unit :=
 private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
   match levelParams with
   | []    => ""
-  | u::us => do
+  | u::us => Id.run <| do
     let mut m := m!".\{{u}"
     for u in us do
       m := m ++ ", " ++ toMessageData u
@@ -70,6 +70,7 @@ private def printIdCore (id : Name) : CommandElabM Unit := do
   | none => throwUnknownId id
 
 private def printId (id : Syntax) : CommandElabM Unit := do
+  addCompletionInfo <| CompletionInfo.id id id.getId (danglingDot := false) {} none
   let cs ← resolveGlobalConstWithInfos id
   cs.forM printIdCore
 

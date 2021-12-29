@@ -17,7 +17,7 @@ structure LetRecDeclView where
   attrs         : Array Attribute
   shortDeclName : Name
   declName      : Name
-  numParams     : Nat
+  binderIds     : Array Syntax
   type          : Expr
   mvar          : Expr -- auxiliary metavariable used to lift the 'let rec'
   valStx        : Syntax
@@ -46,11 +46,12 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
       addAuxDeclarationRanges declName decl declId
       let binders := decl[1].getArgs
       let typeStx := expandOptType declId decl[2]
-      let (type, numParams) ← elabBinders binders fun xs => do
+      let (type, binderIds) ← elabBindersEx binders fun xs => do
           let type ← elabType typeStx
           registerCustomErrorIfMVar type typeStx "failed to infer 'let rec' declaration type"
+          let (binderIds, xs) := xs.unzip
           let type ← mkForallFVars xs type
-          pure (type, xs.size)
+          pure (type, binderIds)
       let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
       let valStx ←
         if decl.isOfKind `Lean.Parser.Term.letIdDecl then
@@ -62,7 +63,7 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
         attrs         := attrs,
         shortDeclName := shortDeclName,
         declName      := declName,
-        numParams     := numParams,
+        binderIds     := binderIds,
         type          := type,
         mvar          := mvar,
         valStx        := valStx
@@ -85,7 +86,10 @@ private partial def withAuxLocalDecls {α} (views : Array LetRecDeclView) (k : A
 
 private def elabLetRecDeclValues (view : LetRecView) : TermElabM (Array Expr) :=
   view.decls.mapM fun view => do
-    forallBoundedTelescope view.type view.numParams fun xs type =>
+    forallBoundedTelescope view.type view.binderIds.size fun xs type => do
+      -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
+      for i in [0:view.binderIds.size] do
+        addTermInfo (isBinder := true) view.binderIds[i] xs[i]
        withDeclName view.declName do
          let value ← elabTermEnsuringType view.valStx type
          mkLambdaFVars xs value

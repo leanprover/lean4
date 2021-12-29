@@ -215,6 +215,7 @@ lean_object* lean_array_to_list(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkAuxFunction___closed__18;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkEnumOfNat_mkDecTree___closed__8;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkAuxFunction___closed__15;
+lean_object* l_Lean_addAndCompile___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__1___closed__20;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__1___closed__73;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkEnumOfNat___lambda__1___closed__2;
@@ -242,7 +243,6 @@ lean_object* l_Lean_Elab_Deriving_mkHeader___rarg(lean_object*, lean_object*, le
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkAuxFunction___closed__10;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___closed__11;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqCmds___closed__10;
-lean_object* l_Lean_addAndCompile___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_mkContext(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__1___closed__48;
@@ -330,6 +330,7 @@ static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_DecEq_mkMatch_mkAl
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__1___closed__37;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkAuxFunction___closed__17;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___closed__58;
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__1___closed__42;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__1___closed__53;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__1___closed__71;
@@ -412,7 +413,6 @@ static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Deriving_DecEq_mkMatch_mkAlts___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__1___closed__64;
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Elab_Command_mkDefViewOfConstant___spec__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_isPerm___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Elab_Deriving_mkInductiveApp___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_DecEq_mkMatch_mkAlts___spec__6___closed__5;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__1___closed__34;
@@ -7252,7 +7252,7 @@ lean_ctor_set(x_34, 2, x_32);
 lean_ctor_set_uint8(x_34, sizeof(void*)*3, x_33);
 x_35 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_35, 0, x_34);
-x_36 = l_Lean_addAndCompile___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__2(x_35, x_7, x_8, x_9, x_10, x_28);
+x_36 = l_Lean_addAndCompile___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__3(x_35, x_7, x_8, x_9, x_10, x_28);
 return x_36;
 }
 else
@@ -7330,7 +7330,7 @@ lean_closure_set(x_17, 3, x_16);
 lean_closure_set(x_17, 4, x_1);
 x_18 = l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__1___closed__62;
 x_19 = 0;
-x_20 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_isPerm___spec__1___rarg(x_18, x_19, x_16, x_17, x_2, x_3, x_4, x_5, x_9);
+x_20 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___spec__1___rarg(x_18, x_19, x_16, x_17, x_2, x_3, x_4, x_5, x_9);
 return x_20;
 }
 else
@@ -7486,7 +7486,7 @@ lean_ctor_set(x_42, 0, x_41);
 lean_ctor_set(x_42, 1, x_34);
 x_43 = lean_alloc_ctor(2, 1, 0);
 lean_ctor_set(x_43, 0, x_42);
-x_44 = l_Lean_addAndCompile___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__2(x_43, x_9, x_10, x_11, x_12, x_38);
+x_44 = l_Lean_addAndCompile___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__3(x_43, x_9, x_10, x_11, x_12, x_38);
 return x_44;
 }
 else
@@ -7723,7 +7723,7 @@ lean_closure_set(x_23, 5, x_21);
 lean_closure_set(x_23, 6, x_22);
 x_24 = l_Lean_Elab_Deriving_DecEq_mkEnumOfNatThm___closed__10;
 x_25 = 0;
-x_26 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Tactic_Simp_SimpLemmas_0__Lean_Meta_isPerm___spec__1___rarg(x_24, x_25, x_17, x_23, x_2, x_3, x_4, x_5, x_9);
+x_26 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___spec__1___rarg(x_24, x_25, x_17, x_23, x_2, x_3, x_4, x_5, x_9);
 return x_26;
 }
 else

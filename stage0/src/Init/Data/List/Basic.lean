@@ -21,7 +21,7 @@ theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.
     simp [length, lengthTRAux, ← ih, Nat.succ_add]
     rfl
 
-@[csimp] theorem length_eq_lenghtTR : @List.length = @List.lengthTR := by
+@[csimp] theorem length_eq_lengthTR : @List.length = @List.lengthTR := by
   apply funext; intro α; apply funext; intro as
   simp [lengthTR, ← length_add_eq_lengthTRAux]
 
@@ -388,23 +388,32 @@ protected def beq [BEq α] : List α → List α → Bool
 
 instance [BEq α] : BEq (List α) := ⟨List.beq⟩
 
-def replicate {α : Type u} (n : Nat) (a : α) : List α :=
+@[simp] def replicate : (n : Nat) → (a : α) → List α
+  | 0,   a => []
+  | n+1, a => a :: replicate n a
+
+def replicateTR {α : Type u} (n : Nat) (a : α) : List α :=
   let rec loop : Nat → List α → List α
     | 0, as => as
     | n+1, as => loop n (a::as)
   loop n []
+
+theorem replicateTR_loop_replicate_eq (a : α) (m n : Nat) :
+  replicateTR.loop a n (replicate m a) = replicate (n + m) a := by
+  induction n generalizing m with simp [replicateTR.loop]
+  | succ n ih => simp [Nat.succ_add]; exact ih (m+1)
+
+@[csimp] theorem replicate_eq_replicateTR : @List.replicate = @List.replicateTR := by
+  apply funext; intro α; apply funext; intro n; apply funext; intro a
+  exact (replicateTR_loop_replicate_eq _ 0 n).symm
 
 def dropLast {α} : List α → List α
   | []    => []
   | [a]   => []
   | a::as => a :: dropLast as
 
-@[simp] theorem length_replicate (n : Nat) (a : α) : (replicate n a).length = n :=
-  let rec aux (n : Nat) (as : List α) : (replicate.loop a n as).length = n + as.length := by
-    induction n generalizing as with
-    | zero => simp [replicate.loop]
-    | succ n ih => simp [replicate.loop, ih, Nat.succ_add, Nat.add_succ]
-  aux n []
+@[simp] theorem length_replicate (n : Nat) (a : α) : (replicate n a).length = n := by
+  induction n <;> simp_all
 
 @[simp] theorem length_concat (as : List α) (a : α) : (concat as a).length = as.length + 1 := by
   induction as with

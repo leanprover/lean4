@@ -88,12 +88,6 @@ structure ExtractMonadResult where
   m            : Expr
   α            : Expr
   expectedType : Expr
-  isPure       : Bool -- `true` when it is a pure `do` block. That is, Lean implicitly inserted the `Id` Monad.
-
-private def mkIdBindFor (type : Expr) : TermElabM ExtractMonadResult := do
-  let u ← getDecLevel type
-  let id        := Lean.mkConst ``Id [u]
-  pure { m := id, α := type, expectedType := mkApp id type, isPure := true }
 
 private partial def extractBind (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do
   match expectedType? with
@@ -105,7 +99,7 @@ private partial def extractBind (expectedType? : Option Expr) : TermElabM Extrac
         try
           let bindInstType ← mkAppM ``Bind #[m]
           let _  ← Meta.synthInstance bindInstType
-          return some { m := m, α := α, expectedType := expectedType, isPure := false }
+          return some { m := m, α := α, expectedType := expectedType }
         catch _ =>
           return none
       | _ =>
@@ -124,7 +118,7 @@ private partial def extractBind (expectedType? : Option Expr) : TermElabM Extrac
           | none => return none
     match (← extract? expectedType) with
     | some r => return r
-    | none   => mkIdBindFor expectedType
+    | none   => throwError "invalid 'do' notation, expected type is not a monad application{indentExpr expectedType}\nYou can use the `do` notation in pure code by writing `Id.run do` instead of `do`, where `Id` is the identity monad."
 
 namespace Do
 
@@ -1603,27 +1597,9 @@ private def mkMonadAlias (m : Expr) : TermElabM Syntax := do
   assignExprMVar mvar.mvarId! m
   pure result
 
-private partial def ensureArrowNotUsed (stx : Syntax) : MacroM Unit := do
-  /- We expand macros here because we stop the search at nested `do`s
-     So, we also want to stop the search at macros that expand `do ...`.
-     Hopefully this is not a performance bottleneck in practice. -/
-  let stx ← expandMacros stx
-  stx.getArgs.forM go
-where
-  go (stx : Syntax) : MacroM Unit :=
-    match stx with
-    | Syntax.node i k args => do
-      if k == ``Parser.Term.liftMethod || k == ``Parser.Term.doLetArrow || k == ``Parser.Term.doReassignArrow || k == ``Parser.Term.doIfLetBind then
-        Macro.throwErrorAt stx "`←` and `<-` are not allowed in pure `do` blocks, i.e., blocks where Lean implicitly used the `Id` monad"
-      unless k == ``Parser.Term.do do
-        args.forM go
-    | _ => pure ()
-
 @[builtinTermElab «do»] def elabDo : TermElab := fun stx expectedType? => do
   tryPostponeIfNoneOrMVar expectedType?
   let bindInfo ← extractBind expectedType?
-  if bindInfo.isPure then
-    liftMacroM <| ensureArrowNotUsed stx
   let m ← mkMonadAlias bindInfo.m
   let codeBlock ← ToCodeBlock.run stx m
   let stxNew ← liftMacroM $ ToTerm.run codeBlock.code m

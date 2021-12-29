@@ -16,25 +16,25 @@ namespace Lean.Elab.Command
      modifyEnv fun env => addMainModuleDoc env doc
    | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
 
-private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name) : CommandElabM Unit := do
+private def addScope (isNewNamespace : Bool) (isNoncomputable : Bool) (header : String) (newNamespace : Name) : CommandElabM Unit := do
   modify fun s => { s with
     env    := s.env.registerNamespace newNamespace,
-    scopes := { s.scopes.head! with header := header, currNamespace := newNamespace } :: s.scopes
+    scopes := { s.scopes.head! with header := header, currNamespace := newNamespace, isNoncomputable := s.scopes.head!.isNoncomputable || isNoncomputable } :: s.scopes
   }
   pushScope
   if isNewNamespace then
     activateScoped newNamespace
 
-private def addScopes (isNewNamespace : Bool) : Name → CommandElabM Unit
+private def addScopes (isNewNamespace : Bool) (isNoncomputable : Bool) : Name → CommandElabM Unit
   | Name.anonymous => pure ()
   | Name.str p header _ => do
-    addScopes isNewNamespace p
+    addScopes isNewNamespace isNoncomputable p
     let currNamespace ← getCurrNamespace
-    addScope isNewNamespace header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace)
+    addScope isNewNamespace isNoncomputable header (if isNewNamespace then Name.mkStr currNamespace header else currNamespace)
   | _ => throwError "invalid scope"
 
 private def addNamespace (header : Name) : CommandElabM Unit :=
-  addScopes (isNewNamespace := true) header
+  addScopes (isNewNamespace := true) (isNoncomputable := false) header
 
 def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
   addNamespace ns
@@ -60,10 +60,16 @@ private def checkEndHeader : Name → List Scope → Bool
   | `(namespace $n) => addNamespace n.getId
   | _               => throwUnsupportedSyntax
 
-@[builtinCommandElab «section»] def elabSection : CommandElab := fun stx =>
+@[builtinCommandElab «section»] def elabSection : CommandElab := fun stx => do
   match stx with
-  | `(section $header:ident) => addScopes (isNewNamespace := false) header.getId
-  | `(section)               => do let currNamespace ← getCurrNamespace; addScope (isNewNamespace := false) "" currNamespace
+  | `(section $header:ident) => addScopes (isNewNamespace := false) (isNoncomputable := false) header.getId
+  | `(section)               => addScope (isNewNamespace := false) (isNoncomputable := false) "" (← getCurrNamespace)
+  | _                        => throwUnsupportedSyntax
+
+@[builtinCommandElab noncomputableSection] def elabNonComputableSection : CommandElab := fun stx => do
+  match stx with
+  | `(noncomputable section $header:ident) => addScopes (isNewNamespace := false) (isNoncomputable := true) header.getId
+  | `(noncomputable section)               => addScope (isNewNamespace := false) (isNoncomputable := true) "" (← getCurrNamespace)
   | _                        => throwUnsupportedSyntax
 
 @[builtinCommandElab «end»] def elabEnd : CommandElab := fun stx => do

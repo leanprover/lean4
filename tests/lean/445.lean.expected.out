@@ -1,5 +1,5 @@
 true
-(match Nat.add i 0 with 
+(match Nat.add i 0 with
   | 0 => true
   | Nat.succ x => true) &&
   f (Nat.add i 0)

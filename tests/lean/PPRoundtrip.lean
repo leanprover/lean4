@@ -99,7 +99,7 @@ set_option pp.structureInstanceTypes true in
 
 #eval checkM `(id (fun a => a) 0)
 
-#eval checkM `(typeAs Nat (do
+#eval checkM `(typeAs (Id Nat) (do
   let x := 1
   discard <| pure 2
   let y := 3

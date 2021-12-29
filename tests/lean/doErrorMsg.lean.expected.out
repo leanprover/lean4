@@ -1,7 +1,7 @@
 doErrorMsg.lean:3:2-3:13: error: type mismatch
   IO.getStdin
 has type
-  IO IO.FS.Stream : Type
+  BaseIO IO.FS.Stream : Type
 but is expected to have type
   IO PUnit : Type
 doErrorMsg.lean:15:19-15:21: error: type mismatch

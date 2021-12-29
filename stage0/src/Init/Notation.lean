@@ -137,12 +137,16 @@ infixr:100 " <$> " => Functor.map
 macro_rules | `($x <|> $y) => `(binop_lazy% HOrElse.hOrElse $x $y)
 macro_rules | `($x >> $y)  => `(binop_lazy% HAndThen.hAndThen $x $y)
 
-syntax (name := termDepIfThenElse) ppGroup(ppDedent("if " ident " : " term " then" ppSpace term ppDedent(ppSpace "else") ppSpace term)) : term
+syntax (name := termDepIfThenElse)
+  ppRealGroup(ppRealFill(ppIndent("if " ident " : " term " then") ppSpace term)
+    ppDedent(ppSpace) ppRealFill("else " term)) : term
 
 macro_rules
   | `(if $h:ident : $c then $t:term else $e:term) => `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; dite ?m (fun $h:ident => $t) (fun $h:ident => $e))
 
-syntax (name := termIfThenElse) ppGroup(ppDedent("if " term " then" ppSpace term ppDedent(ppSpace "else") ppSpace term)) : term
+syntax (name := termIfThenElse)
+  ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace term)
+    ppDedent(ppSpace) ppRealFill("else " term)) : term
 
 macro_rules
   | `(if $c then $t:term else $e:term) => `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; ite ?m $t $e)
@@ -150,13 +154,13 @@ macro_rules
 macro "if " "let " pat:term " := " d:term " then " t:term " else " e:term : term =>
   `(match $d:term with | $pat:term => $t | _ => $e)
 
-syntax:min term "<|" term:min : term
+syntax:min term " <| " term:min : term
 
 macro_rules
   | `($f $args* <| $a) => let args := args.push a; `($f $args*)
   | `($f <| $a) => `($f $a)
 
-syntax:min term "|>" term:min1 : term
+syntax:min term " |> " term:min1 : term
 
 macro_rules
   | `($a |> $f $args*) => let args := args.push a; `($f $args*)
@@ -164,7 +168,7 @@ macro_rules
 
 -- Haskell-like pipe <|
 -- Note that we have a whitespace after `$` to avoid an ambiguity with the antiquotations.
-syntax:min term atomic("$" ws) term:min : term
+syntax:min term atomic(" $" ws) term:min : term
 
 macro_rules
   | `($f $args* $ $a) => let args := args.push a; `($f $args*)
@@ -319,7 +323,7 @@ macro dot:("·" <|> ".") ts:tacticSeq : tactic => `(tactic| {%$dot ($ts:tacticSe
 macro "rfl" : tactic => `(exact rfl)
 /-- `admit` is a shorthand for `exact sorry`. -/
 macro "admit" : tactic => `(exact sorry)
-/-- The `sorry` tactic isnxo a shorthand for `exact sorry`. -/
+/-- The `sorry` tactic is a shorthand for `exact sorry`. -/
 macro "sorry" : tactic => `(exact sorry)
 macro "infer_instance" : tactic => `(exact inferInstance)
 
@@ -333,7 +337,7 @@ syntax location         := withPosition(" at " (locationWildcard <|> locationHyp
 syntax (name := change) "change " term (location)? : tactic
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
 
-syntax rwRule    := ("←" <|> "<-")? term
+syntax rwRule    := ("← " <|> "<- ")? term
 syntax rwRuleSeq := "[" rwRule,+,? "]"
 
 syntax (name := rewriteSeq) "rewrite " (config)? rwRuleSeq (location)? : tactic
@@ -360,7 +364,7 @@ syntax discharger := atomic("(" (&"discharger" <|> &"disch")) " := " tacticSeq "
 
 syntax simpPre   := "↓"
 syntax simpPost  := "↑"
-syntax simpLemma := (simpPre <|> simpPost)? ("←" <|> "<-")? term
+syntax simpLemma := (simpPre <|> simpPost)? ("← " <|> "<- ")? term
 syntax simpErase := "-" term:max
 syntax simpStar  := "*"
 syntax (name := simp) "simp " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
@@ -391,7 +395,7 @@ macro "have' " d:haveDecl : tactic => `(refine_lift' have $d:haveDecl; ?_)
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x:ident : _ := $p)
 macro "let' " d:letDecl : tactic => `(refine_lift' let $d:letDecl; ?_)
 
-syntax inductionAlt  := "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
+syntax inductionAlt  := ppDedent(ppLine) "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
 syntax (name := induction) "induction " term,+ (" using " ident)?  ("generalizing " term:max+)? (inductionAlts)? : tactic
 

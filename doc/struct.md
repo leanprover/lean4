@@ -217,4 +217,11 @@ def msg2 : MessageExt where
 
 ## Updating structure fields
 
-TODO
+Structure fields can be updated using `{ <struct-val> with <field> := <new-value>, ... }`:
+
+```lean
+# structure Point (α : Type u) where
+#  x : α
+#  y : α
+def incrementX (p : Point Nat) : Point Nat := { p with x := p.x + 1 }
+```

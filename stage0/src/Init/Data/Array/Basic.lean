@@ -545,7 +545,7 @@ def getMax? (as : Array α) (lt : α → α → Bool) : Option α :=
     none
 
 @[inline]
-def partition (p : α → Bool) (as : Array α) : Array α × Array α := do
+def partition (p : α → Bool) (as : Array α) : Array α × Array α := Id.run <| do
   let mut bs := #[]
   let mut cs := #[]
   for a in as do

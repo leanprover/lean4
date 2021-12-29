@@ -10,7 +10,7 @@ open Std
 
 namespace Int
 
-  def roundedDiv (a b : Int) : Int := do
+  def roundedDiv (a b : Int) : Int := Id.run <| do
     let mut div := a / b
     let sgn := if a ≥ 0 ∧ b ≥ 0 ∨ a < 0 ∧ b < 0 then 1 else -1
     let rest := (a % b).natAbs
@@ -18,7 +18,7 @@ namespace Int
       div := div + sgn
     return div
 
-  def mod' (a b : Int) : Int := 
+  def mod' (a b : Int) : Int :=
     a - b*(a.roundedDiv b)
 
 end Int
@@ -31,7 +31,7 @@ namespace Std.AssocList
 
   def filter (p : α → β → Bool) : AssocList α β → AssocList α β
     | AssocList.nil        => AssocList.nil
-    | AssocList.cons k v t => 
+    | AssocList.cons k v t =>
       if p k v then
         AssocList.cons k v (filter p t)
       else
@@ -65,7 +65,7 @@ namespace Std.HashMap
     let v := xs.find! k
     xs.erase k |>.insert k (f v)
 
-  def any (xs : HashMap α β) (p : α → β → Bool) : Bool := do
+  def any (xs : HashMap α β) (p : α → β → Bool) : Bool := Id.run <| do
     for (k, v) in xs do
       if p k v then
         return true
@@ -87,7 +87,7 @@ namespace Std.HashMap
     let size := buckets.foldl (fun acc bucket => bucket.foldl (fun acc _ _ => acc + 1) acc) 0
     ⟨⟨size, ⟨buckets, sorry⟩⟩, sorry⟩
 
-  def getAny? (x : HashMap α β) : Option (α × β) := do
+  def getAny? (x : HashMap α β) : Option (α × β) := Id.run <| do
     for bucket in x.val.buckets.val do
       for (k, v) in bucket do
         return some (k, v)
@@ -107,35 +107,35 @@ def gcd (coeffs : HashMap Nat Int) : Nat :=
   match coeffsContent with
   | #[]           => panic! "Cannot calculate GCD of empty list of coefficients"
   | #[(i, x)]     => x
-  | coeffsContent => 
-    coeffsContent[0].2.gcd coeffsContent[1].2 
+  | coeffsContent =>
+    coeffsContent[0].2.gcd coeffsContent[1].2
       |> coeffs.fold fun acc k v => acc.gcd v
 
 namespace Equation
 
-  def preprocess? (e : Equation) : Option Equation := do
+  def preprocess? (e : Equation) : Option Equation := Id.run <| do
     let gcd : Int := gcd e.coeffs
     if e.const % gcd ≠ 0 then
       return none
-    return some { e with 
+    return some { e with
       coeffs := e.coeffs.fastMapVals fun _ coeff => coeff / gcd
       const  := e.const / gcd }
 
-  def subst (fromEq toEq : Equation) (varIdx : Nat) : Equation := do
+  def subst (fromEq toEq : Equation) (varIdx : Nat) : Equation := Id.run <| do
     -- varIdx ≡ k
-    -- fromEq ≡ sₖxₖ + ∑ i ∈ V_fromEq\{k}. aᵢxᵢ = A  
+    -- fromEq ≡ sₖxₖ + ∑ i ∈ V_fromEq\{k}. aᵢxᵢ = A
     --       ⇔ xₖ = sₖA - ∑ i ∈ V_fromEq\{k}. sₖaᵢxᵢ
     -- toEq ≡ bₖxₖ + ∑ i ∈ V_toEq\{k}. bᵢxᵢ = B
     --     ⇝ B = bₖ(sₖA - ∑ i ∈ V_fromEq\{k}. sₖaᵢxᵢ) + ∑ i ∈ V_toEq\{k}. bᵢxᵢ
     --          = bₖsₖA - ∑ i ∈ V_fromEq\{k}. sₖbₖaᵢxᵢ + ∑ i ∈ V_toEq\{k}. bᵢxᵢ
-    --          = bₖsₖA + ∑ i ∈ V_fromEq\V_toEq. -sₖbₖaᵢxᵢ 
+    --          = bₖsₖA + ∑ i ∈ V_fromEq\V_toEq. -sₖbₖaᵢxᵢ
     --                 + ∑ i ∈ V_toEq\{k} ∩ V_fromEq. (bᵢ - sₖbₖaᵢ)xᵢ
     --                 + ∑ i ∈ V_toEq\V_fromEq. bᵢxᵢ
     --     ⇔ B - bₖsₖA = + ∑ i ∈ X. -sₖbₖaᵢxᵢ
     --                   + ∑ i ∈ Y. (bᵢ - sₖbₖaᵢ)xᵢ
     --                   + ∑ i ∈ Z. bᵢxᵢ
     --        with X, Y, Z defined as above, X ∪ Y ∪ Z = (V_fromEq ∪ V_toEq)\{k}
-    --        and X, Y, Z pairwise disjoint  
+    --        and X, Y, Z pairwise disjoint
     let A := fromEq.const
     let B := toEq.const
     let V_fromEq := fromEq.coeffs
@@ -156,37 +156,37 @@ namespace Equation
     let B' := B - bₖ*sₖ*A
     { toEq with coeffs := V_toEq, const := B' }
 
-  def normalize (e : Equation) : Equation := do
+  def normalize (e : Equation) : Equation := Id.run <| do
     if e.coeffs.size ≠ 1 then
       return e
     let (i, c) := e.coeffs.getAny?.get!
-    return { e with 
+    return { e with
       coeffs := e.coeffs.insert i 1
       const := e.const / c }
 
   def invert (e : Equation) : Equation :=
-    { e with 
+    { e with
       coeffs := e.coeffs.fastMapVals fun _ coeff => (-1)*coeff
       const  := (-1)*e.const }
 
-  def reorganizeFor (e : Equation) (varIdx : Nat) : Equation := do
+  def reorganizeFor (e : Equation) (varIdx : Nat) : Equation := Id.run <| do
     let singletonCoeff := e.coeffs.find! varIdx
     let mut e := { e with coeffs := e.coeffs.fastMapVals fun _ coeff => (-1)*coeff }
     if singletonCoeff = -1 then
       e := e.invert
     { e with coeffs := e.coeffs.erase varIdx }
 
-  def findSingleton? (e : Equation) : Option (Nat × Int) := do
+  def findSingleton? (e : Equation) : Option (Nat × Int) := Id.run <| do
     for (i, coeff) in e.coeffs do
       if coeff = 1 ∨ coeff = -1 then
         return some (i, coeff)
     return none
 
-  def findAbsMinimumCoeff? (e : Equation) : Option (Nat × Int) := do
+  def findAbsMinimumCoeff? (e : Equation) : Option (Nat × Int) := Id.run <| do
     let mut r? : Option (Nat × Int) := none
     for (i, coeff) in e.coeffs do
       match r? with
-      | none => 
+      | none =>
         r? := some (i, coeff)
       | some (i', coeff') =>
         if coeff.natAbs < coeff'.natAbs then
@@ -202,10 +202,10 @@ structure Problem where
   nVars           : Nat
   deriving Inhabited
 
-def preprocess? (eqs : HashMap Nat Equation) : Option (HashMap Nat Equation) := 
+def preprocess? (eqs : HashMap Nat Equation) : Option (HashMap Nat Equation) :=
   OptionM.run <| eqs.mapValsM (·.preprocess?)
 
-def eliminateSingleton (p : Problem) (singletonEq : Equation) (varIdx : Nat) : Problem := do
+def eliminateSingleton (p : Problem) (singletonEq : Equation) (varIdx : Nat) : Problem := Id.run <| do
   let mut eqsWithVarIdx : Array Nat := #[]
   for (id, eq) in p.equations do
     if eq.coeffs.contains varIdx then
@@ -217,11 +217,11 @@ def eliminateSingleton (p : Problem) (singletonEq : Equation) (varIdx : Nat) : P
     equations := equations.modify! id fun eq => singletonEq.subst eq varIdx |>.normalize
   equations := equations.erase singletonEq.id
   let solvedEquations := p.solvedEquations.insert varIdx <| singletonEq.reorganizeFor varIdx
-  return { p with 
+  return { p with
     equations := equations
     solvedEquations := solvedEquations }
 
-partial def eliminateSingletons (p : Problem) : Problem := do
+partial def eliminateSingletons (p : Problem) : Problem := Id.run <| do
   let mut r? : Option (Equation × Nat) := none
   for (id, eq) in p.equations do
     match eq.findSingleton? with
@@ -236,14 +236,14 @@ partial def eliminateSingletons (p : Problem) : Problem := do
     let p := eliminateSingleton p eq varIdx
     return eliminateSingletons p
 
-def addAuxEquation (p : Problem) : Problem := do
+def addAuxEquation (p : Problem) : Problem := Id.run <| do
   let mut E? : Option Equation := none
   let mut k? : Option Nat := none
   let mut aₖ? : Option Int := none
   for (_, eq) in p.equations do
     match eq.findAbsMinimumCoeff?, aₖ? with
     | none, _ => continue
-    | some (k', aₖ'), none => 
+    | some (k', aₖ'), none =>
       E? := some eq
       k? := some k'
       aₖ? := some aₖ'
@@ -260,12 +260,12 @@ def addAuxEquation (p : Problem) : Problem := do
     E := E.invert
   let m := aₖ + 1
   let σIdx := p.nVars
-  let newEqCoeffs := E.coeffs.fastMapVals (fun _ coeff => coeff.mod' m) 
+  let newEqCoeffs := E.coeffs.fastMapVals (fun _ coeff => coeff.mod' m)
     |>.insert σIdx (-m)
     |>.filter (fun _ coeff => coeff ≠ 0)
   let newEqConst := E.const.mod' m
   let newEq : Equation := ⟨p.nEquations, newEqCoeffs, newEqConst⟩
-  let E'coeffs := E.coeffs.filter (fun i _ => i ≠ k) 
+  let E'coeffs := E.coeffs.filter (fun i _ => i ≠ k)
     |>.fastMapVals (fun _ aᵢ => aᵢ.roundedDiv m + aᵢ.mod' m)
     |>.insert σIdx (-aₖ)
     |>.filter (fun _ coeff => coeff ≠ 0)
@@ -273,18 +273,18 @@ def addAuxEquation (p : Problem) : Problem := do
   let E'const := c.roundedDiv m + c.mod' m
   let E' := { E with coeffs := E'coeffs, const := E'const }.normalize
   let equations' := p.equations.insert E'.id E' |>.insert newEq.id newEq
-  let p' : Problem := { p with 
+  let p' : Problem := { p with
                         equations  := equations'
                         nVars      := p.nVars + 1
                         nEquations := p.nEquations + 1 }
   return eliminateSingleton p' newEq k
-  
+
 inductive Solution
   | unsat
   | sat (assignment : Array Int)
   deriving Inhabited
 
-partial def readSolution? (p : Problem) : Option Solution := do
+partial def readSolution? (p : Problem) : Option Solution := Id.run <| do
   if p.equations.any (fun _ eq => eq.coeffs.size ≠ 0) then
     return none
   if p.equations.any (fun _ eq => eq.const ≠ 0) then
@@ -294,7 +294,7 @@ partial def readSolution? (p : Problem) : Option Solution := do
     assignment := readSolution i assignment
   return Solution.sat <| assignment.map (·.get!)
 where
-  readSolution (varIdx : Nat) (assignment : Array (Option Int)) : Array (Option Int) := do
+  readSolution (varIdx : Nat) (assignment : Array (Option Int)) : Array (Option Int) := Id.run <| do
     match p.solvedEquations.find? varIdx with
     | none =>
       return assignment.set! varIdx (some 0)
@@ -307,7 +307,7 @@ where
         r := r + coeff*assignment[i].get!
       return assignment.set! varIdx (some r)
 
-partial def solveProblem' (p : Problem) : Solution := do
+partial def solveProblem' (p : Problem) : Solution := Id.run <| do
   match readSolution? p with
   | some solution => return solution
   | none =>
@@ -318,8 +318,8 @@ partial def solveProblem' (p : Problem) : Solution := do
       let p := addAuxEquation p
       return solveProblem' p
 
-def isSatAssignment (p : Problem) (assignment : Array Int) : Bool := 
-  ¬ p.equations.any fun _ (eq : Equation) => do
+def isSatAssignment (p : Problem) (assignment : Array Int) : Bool :=
+  ¬ p.equations.any fun _ (eq : Equation) => Id.run <| do
     let mut r := 0
     for (i, coeff) in eq.coeffs do
       r := r + coeff*assignment[i]
@@ -328,9 +328,9 @@ def isSatAssignment (p : Problem) (assignment : Array Int) : Bool :=
 def solveProblem (p : Problem) : Solution :=
   let nVars := p.nVars
   match solveProblem' p with
-  | Solution.unsat => 
+  | Solution.unsat =>
     Solution.unsat
-  | Solution.sat assignment => 
+  | Solution.sat assignment =>
     let assignment' := assignment.extract 0 nVars
     if isSatAssignment p assignment' then
       Solution.sat assignment'
@@ -341,17 +341,17 @@ def error (msg : String) : IO α :=
   throw <| IO.userError s!"Error: {msg}."
 
 def Array.ithVal (xs : Array String) (i : Nat) (name : String) : IO Int := do
-  let some unparsed ← xs.get? i 
+  let some unparsed ← xs.get? i
     | error s!"Missing {name}"
   let some parsed ← String.toInt? unparsed
     | error s!"Invalid {name}: `{unparsed}`"
   return parsed
 
 def main (args : List String) : IO UInt32 := do
-  let some path ← args.head? 
+  let some path ← args.head?
     | error "Usage: liasolver <input file>"
   let lines ← IO.FS.lines path <&> Array.filter (¬·.isEmpty)
-  let some headerLine ← lines.get? 0 
+  let some headerLine ← lines.get? 0
     | error "No header line"
   let header := headerLine.splitOn.toArray
   let nEquations ← header.ithVal 0 "amount of equations"

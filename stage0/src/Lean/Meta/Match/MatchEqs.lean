@@ -211,7 +211,7 @@ private partial def mkSplitterProof (matchDeclName : Name) (template : Expr) (al
     proveSubgoal mvarId
   instantiateMVars proof
 where
-  mkMap : FVarIdMap Expr := do
+  mkMap : FVarIdMap Expr := Id.run <| do
     let mut m := {}
     for alt in alts, altNew in altsNew do
       m := m.insert alt.fvarId! altNew

@@ -37,6 +37,7 @@ structure ServerCapabilities where
   definitionProvider : Bool := false
   declarationProvider : Bool := false
   typeDefinitionProvider : Bool := false
+  referencesProvider : Bool := false
   semanticTokensProvider? : Option SemanticTokensOptions := none
   deriving ToJson, FromJson
 

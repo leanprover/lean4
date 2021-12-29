@@ -1,0 +1,61 @@
+815b.lean:1:42-1:47: warning: declaration uses 'sorry'
+815b.lean:6:47-6:52: warning: declaration uses 'sorry'
+815b.lean:7:52-7:57: warning: declaration uses 'sorry'
+815b.lean:8:83-8:88: warning: declaration uses 'sorry'
+815b.lean:9:80-9:85: warning: declaration uses 'sorry'
+815b.lean:10:97-10:102: warning: declaration uses 'sorry'
+815b.lean:11:152-11:157: warning: declaration uses 'sorry'
+[Meta.synthInstance] preprocess: IsSmooth fun g a => f (g a) d ==> IsSmooth fun g a => f (g a) d
+  [Meta.synthInstance] 
+    [Meta.synthInstance] main goal IsSmooth fun g a => f (g a) d
+    [Meta.synthInstance.unusedArgs] α → IsSmooth f
+    has unused arguments, reduced type
+      IsSmooth f
+    Transformer
+      fun redf a => redf
+    [Meta.synthInstance.unusedArgs] α → IsSmooth f
+    has unused arguments, reduced type
+      IsSmooth f
+    Transformer
+      fun redf a => redf
+    [Meta.synthInstance.unusedArgs] α → ∀ (b : β), IsSmooth (f b)
+    has unused arguments, reduced type
+      ∀ (b : β), IsSmooth (f b)
+    Transformer
+      fun redf a b => redf b
+    [Meta.synthInstance.unusedArgs] α → δ → IsSmooth f
+    has unused arguments, reduced type
+      IsSmooth f
+    Transformer
+      fun redf a a => redf
+    [Meta.synthInstance.unusedArgs] α → δ → ∀ (b : β), IsSmooth (f b)
+    has unused arguments, reduced type
+      ∀ (b : β), IsSmooth (f b)
+    Transformer
+      fun redf a a b => redf b
+    [Meta.synthInstance.unusedArgs] ∀ (a : α), δ → IsSmooth fun g => f (g a)
+    has unused arguments, reduced type
+      ∀ (a : α), IsSmooth fun g => f (g a)
+    Transformer
+      fun redf a a_1 => redf a
+    [Meta.synthInstance.unusedArgs] α → IsSmooth f
+    has unused arguments, reduced type
+      IsSmooth f
+    Transformer
+      fun redf a => redf
+    [Meta.synthInstance.unusedArgs] α → IsSmooth fun g => g
+    has unused arguments, reduced type
+      IsSmooth fun g => g
+    Transformer
+      fun redf a => redf
+    [Meta.synthInstance.unusedArgs] α → IsSmooth fun g => g
+    has unused arguments, reduced type
+      IsSmooth fun g => g
+    Transformer
+      fun redf a => redf
+    [Meta.synthInstance.unusedArgs] α → IsSmooth fun g => g
+    has unused arguments, reduced type
+      IsSmooth fun g => g
+    Transformer
+      fun redf a => redf
+  [Meta.synthInstance] result swap fun a g => f (g a) d

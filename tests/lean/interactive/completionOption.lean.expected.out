@@ -1,34 +1,43 @@
 {"textDocument": {"uri": "file://completionOption.lean"},
  "position": {"line": 1, "character": 13}}
 {"items":
- [{"label": "format.indent", "detail": "(2), indentation"},
-  {"label": "format.unicode", "detail": "(true), unicode characters"},
-  {"label": "format.width", "detail": "(120), indentation"}],
+ [{"label": "format.indent", "kind": 10, "detail": "(2), indentation"},
+  {"label": "format.unicode",
+   "kind": 10,
+   "detail": "(true), unicode characters"},
+  {"label": "format.width", "kind": 10, "detail": "(120), indentation"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completionOption.lean"},
  "position": {"line": 4, "character": 17}}
 {"items":
- [{"label": "format.indent", "detail": "(2), indentation"},
-  {"label": "format.unicode", "detail": "(true), unicode characters"},
-  {"label": "format.width", "detail": "(120), indentation"}],
+ [{"label": "format.indent", "kind": 10, "detail": "(2), indentation"},
+  {"label": "format.unicode",
+   "kind": 10,
+   "detail": "(true), unicode characters"},
+  {"label": "format.width", "kind": 10, "detail": "(120), indentation"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completionOption.lean"},
  "position": {"line": 7, "character": 20}}
-{"items": [{"label": "format.indent", "detail": "(2), indentation"}],
+{"items":
+ [{"label": "format.indent", "kind": 10, "detail": "(2), indentation"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completionOption.lean"},
  "position": {"line": 10, "character": 18}}
 {"items":
  [{"label": "trace.pp.analyze",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"},
   {"label": "trace.pp.analyze.annotate",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"},
   {"label": "trace.pp.analyze.error",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"},
   {"label": "trace.pp.analyze.tryUnify",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
@@ -36,15 +45,19 @@
  "position": {"line": 13, "character": 19}}
 {"items":
  [{"label": "trace.pp.analyze",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"},
   {"label": "trace.pp.analyze.annotate",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"},
   {"label": "trace.pp.analyze.error",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"},
   {"label": "trace.pp.analyze.tryUnify",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
@@ -52,15 +65,19 @@
  "position": {"line": 16, "character": 23}}
 {"items":
  [{"label": "trace.pp.analyze",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"},
   {"label": "trace.pp.analyze.annotate",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"},
   {"label": "trace.pp.analyze.error",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"},
   {"label": "trace.pp.analyze.tryUnify",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
@@ -68,15 +85,37 @@
  "position": {"line": 19, "character": 27}}
 {"items":
  [{"label": "trace.pp.analyze",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"},
   {"label": "trace.pp.analyze.annotate",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"},
   {"label": "trace.pp.analyze.error",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"},
   {"label": "trace.pp.analyze.tryUnify",
+   "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://completionOption.lean"},
+ "position": {"line": 22, "character": 13}}
+{"items":
+ [{"label": "format.indent", "kind": 10, "detail": "(2), indentation"},
+  {"label": "format.unicode",
+   "kind": 10,
+   "detail": "(true), unicode characters"},
+  {"label": "format.width", "kind": 10, "detail": "(120), indentation"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://completionOption.lean"},
+ "position": {"line": 25, "character": 18}}
+{"items":
+ [{"label": "format.indent", "kind": 10, "detail": "(2), indentation"},
+  {"label": "format.unicode",
+   "kind": 10,
+   "detail": "(true), unicode characters"},
+  {"label": "format.width", "kind": 10, "detail": "(120), indentation"}],
  "isIncomplete": true}

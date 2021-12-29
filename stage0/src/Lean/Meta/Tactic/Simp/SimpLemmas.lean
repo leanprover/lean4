@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 import Lean.ScopedEnvExtension
 import Lean.Util.Recognizers
-import Lean.Meta.LevelDefEq
 import Lean.Meta.DiscrTree
 import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.AuxLemma

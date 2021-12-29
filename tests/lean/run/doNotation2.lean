@@ -30,7 +30,7 @@ rfl
 theorem ex2 : (g [] |>.run' 0) = 1 :=
 rfl
 
-def h (x : Nat) (y : Nat) : Nat := do
+def h (x : Nat) (y : Nat) : Nat := Id.run <| do
 let mut x := x
 let mut y := y
 if x > 0 then
@@ -46,7 +46,7 @@ rfl
 theorem ex4 (y : Nat) : h 1 y = (1 + 1) + y :=
 rfl
 
-def sumOdd (xs : List Nat) (threshold : Nat) : Nat := do
+def sumOdd (xs : List Nat) (threshold : Nat) : Nat := Id.run <| do
 let mut sum := 0
 for x in xs do
   if x % 2 == 1 then
@@ -72,7 +72,7 @@ for x in xs do
     break
 return result
 
-def sumDiff (ps : List (Nat × Nat)) : Nat := do
+def sumDiff (ps : List (Nat × Nat)) : Nat := Id.run do
 let mut sum := 0
 for (x, y) in ps do
   sum := sum + x - y
@@ -102,7 +102,7 @@ IO.println ("isOdd(" ++ toString x ++ "): " ++ toString (isOdd x))
 #eval f2 11
 #eval f2 10
 
-def split (xs : List Nat) : List Nat × List Nat := do
+def split (xs : List Nat) : List Nat × List Nat := Id.run do
 let mut evens := []
 let mut odds  := []
 for x in xs.reverse do
@@ -119,7 +119,7 @@ def f3 (x : Nat) : IO Bool := do
 let y ← cond (x == 0) (do IO.println "hello"; true) false;
 !y
 
-def f4 (x y : Nat) : Nat × Nat := do
+def f4 (x y : Nat) : Nat × Nat := Id.run <| do
   let mut (x, y) := (x, y)
   match x with
   | 0 => y := y + 1
@@ -135,7 +135,7 @@ rfl
 theorem ex10 (x y : Nat) : f4 (x+1) y = ((x+1)+y, y) :=
 rfl
 
-def f5 (x y : Nat) : Nat × Nat := do
+def f5 (x y : Nat) : Nat × Nat := Id.run <| do
   let mut (x, y) := (x, y)
   match x with
   | 0   => y := y + 1
@@ -147,7 +147,7 @@ def f5 (x y : Nat) : Nat × Nat := do
 theorem ex11 (x y : Nat) : f5 (x+1) y = ((x+1)+y, y) :=
 rfl
 
-def f6 (x : Nat) : Nat := do
+def f6 (x : Nat) : Nat := Id.run <| do
   let mut x := x
   if x > 10 then
     return 0
@@ -160,7 +160,7 @@ rfl
 theorem ex13 : f6 5 = 6 :=
 rfl
 
-def findOdd (xs : List Nat) : Nat := do
+def findOdd (xs : List Nat) : Nat := Id.run <| do
 for x in xs do
   if x % 2 == 1 then
     return x

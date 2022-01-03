@@ -105,7 +105,6 @@ def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
       throwThe RequestError RequestError.fileChanged
     | Except.error (FileWorker.ElabTaskError.ioError e) =>
       throw (e : RequestError)
-    | Except.error FileWorker.ElabTaskError.eof => notFoundX
     | Except.ok none => notFoundX
     | Except.ok (some snap) => x snap
 

@@ -19,7 +19,6 @@ def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
 
 inductive ElabTaskError where
   | aborted
-  | eof
   | ioError (e : IO.Error)
 
 instance : Coe IO.Error ElabTaskError :=

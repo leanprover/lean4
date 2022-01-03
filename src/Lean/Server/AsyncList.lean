@@ -40,20 +40,22 @@ private def coeErr {β} [Coe Error ε] (t : Task $ Except Error $ Except ε β) 
     | Except.ok v              => v
     | Except.error (e : Error) => Except.error (e : ε)
 
-/-- Given a step computation `f` which takes the accumulator and either produces
-another value or stops with a terminating value, produces an async stream of its
-iterated applications. The initial value is *not* included. The computation can
-throw IO exceptions, so to handle this the terminating value type must include
+/-- A stateful step computation `f` is applied iteratively, forming an async
+stream. The stream ends once `f` returns `none` for the first time. The
+computation can throw IO exceptions, so to handle this `ε` must include
 `IO.Error`.
 
 For cooperatively cancelling an ongoing computation, we recommend referencing
 a cancellation token in `f` and checking it when appropriate. -/
-partial def unfoldAsync [Coe Error ε] (f : α → ExceptT ε IO α) (init : α)
-: IO (AsyncList ε α) := do
-  let rec step (a : α) : ExceptT ε IO (AsyncList ε α) := do
-    let aNext ← f a
-    let tNext ← coeErr <$> asTask (step aNext)
-    return cons aNext $ asyncTail tNext
+partial def unfoldAsync [Coe Error ε] (f : StateT σ (ExceptT ε IO) $ Option α) (init : σ)
+    : IO (AsyncList ε α) := do
+  let rec step (s : σ) : ExceptT ε IO (AsyncList ε α) := do
+    let (aNext, sNext) ← f s
+    match aNext with
+      | none => return nil
+      | some aNext => do
+        let tNext ← coeErr <$> asTask (step sNext)
+        return cons aNext $ asyncTail tNext
 
   let tInit ← coeErr <$> asTask (step init)
   asyncTail tInit

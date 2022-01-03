@@ -129,16 +129,20 @@ def addNonRec (preDef : PreDefinition) : TermElabM Unit := do
 /--
   Eliminate recursive application annotations containing syntax. These annotations are used by the well-founded recursion module
   to produce better error messages. -/
-def eraseRecAppSyntax (e : Expr) : CoreM Expr :=
+def eraseRecAppSyntaxExpr (e : Expr) : CoreM Expr :=
   Core.transform e (post := fun e => TransformStep.done <| if (getRecAppSyntax? e).isSome then e.mdataExpr! else e)
 
-def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSafety.unsafe) : TermElabM Unit :=
+def eraseRecAppSyntax (preDef : PreDefinition) : CoreM PreDefinition :=
+  return { preDef with value := (← eraseRecAppSyntaxExpr preDef.value) }
+
+def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSafety.unsafe) : TermElabM Unit := do
+  let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
   withRef preDefs[0].ref do
     let decl := Declaration.mutualDefnDecl <| ← preDefs.toList.mapM fun preDef => return {
         name        := preDef.declName
         levelParams := preDef.levelParams
         type        := preDef.type
-        value       := (← eraseRecAppSyntax preDef.value)
+        value       := preDef.value
         safety      := safety
         hints       := ReducibilityHints.opaque
       }

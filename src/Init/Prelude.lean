@@ -196,8 +196,6 @@ theorem ne_true_of_eq_false : {b : Bool} → Eq b false → Not (Eq b true)
 class Inhabited (α : Sort u) where
   mk {} :: (default : α)
 
-attribute [nospecialize] Inhabited
-
 constant arbitrary [Inhabited α] : α :=
   Inhabited.default
 
@@ -1148,7 +1146,7 @@ unsafe def unsafeCast {α : Type u} {β : Type v} (a : α) : β :=
 @[neverExtract, extern "lean_panic_fn"]
 constant panicCore {α : Type u} [Inhabited α] (msg : String) : α
 
-/--
+/-
   This is workaround for `panic` occurring in monadic code. See issue #695.
   The `panicCore` definition cannot be specialized since it is an extern.
   When `panic` occurs in monadic code, the `Inhabited α` parameter depends on a `[inst : Monad m]` instance.
@@ -1159,6 +1157,9 @@ constant panicCore {α : Type u} [Inhabited α] (msg : String) : α
 @[noinline, neverExtract]
 def panic {α : Type u} [Inhabited α] (msg : String) : α :=
   panicCore msg
+
+-- TODO: this be applied directly to `Inhabited`'s definition when we remove the above workaround
+attribute [nospecialize] Inhabited
 
 /-
 The Compiler has special support for arrays.

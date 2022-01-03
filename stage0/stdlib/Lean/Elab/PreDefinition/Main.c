@@ -4593,7 +4593,6 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_3);
 lean_inc(x_2);
-lean_inc(x_1);
 x_20 = l_Lean_Elab_Structural_structuralRecursion(x_1, x_2, x_3, x_5, x_6, x_7, x_8, x_18);
 if (lean_obj_tag(x_20) == 0)
 {

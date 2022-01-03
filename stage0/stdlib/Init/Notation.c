@@ -35037,7 +35037,7 @@ x_1 = l_Lean_Parser_Tactic_rwRule;
 x_2 = l___aux__Init__Notation______macroRules__stx___x3c_x7c_x3e____1___closed__7;
 x_3 = l_term_x5b___x5d___closed__6;
 x_4 = 1;
-x_5 = lean_alloc_ctor(11, 3, 1);
+x_5 = lean_alloc_ctor(10, 3, 1);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
 lean_ctor_set(x_5, 2, x_3);

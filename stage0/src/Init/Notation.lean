@@ -335,7 +335,7 @@ syntax (name := change) "change " term (location)? : tactic
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
 
 syntax rwRule    := ("← " <|> "<- ")? term
-syntax rwRuleSeq := "[" rwRule,+,? "]"
+syntax rwRuleSeq := "[" rwRule,*,? "]"
 
 syntax (name := rewriteSeq) "rewrite " (config)? rwRuleSeq (location)? : tactic
 

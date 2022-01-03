@@ -15220,20 +15220,14 @@ lean_inc(x_3);
 x_8 = lean_infer_type(x_1, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
 lean_dec(x_8);
-lean_inc(x_6);
-lean_inc(x_5);
 lean_inc(x_4);
-lean_inc(x_3);
 x_11 = l_Lean_Meta_instantiateMVars(x_9, x_3, x_4, x_5, x_6, x_10);
-if (lean_obj_tag(x_11) == 0)
-{
-lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
@@ -15304,60 +15298,28 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-x_28 = !lean_is_exclusive(x_11);
+x_28 = !lean_is_exclusive(x_8);
 if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; 
-x_29 = lean_ctor_get(x_11, 0);
+x_29 = lean_ctor_get(x_8, 0);
 lean_dec(x_29);
 x_30 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__3___closed__1;
-lean_ctor_set_tag(x_11, 0);
-lean_ctor_set(x_11, 0, x_30);
-return x_11;
+lean_ctor_set_tag(x_8, 0);
+lean_ctor_set(x_8, 0, x_30);
+return x_8;
 }
 else
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; 
-x_31 = lean_ctor_get(x_11, 1);
+x_31 = lean_ctor_get(x_8, 1);
 lean_inc(x_31);
-lean_dec(x_11);
+lean_dec(x_8);
 x_32 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__3___closed__1;
 x_33 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_33, 0, x_32);
 lean_ctor_set(x_33, 1, x_31);
 return x_33;
-}
-}
-}
-else
-{
-uint8_t x_34; 
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-x_34 = !lean_is_exclusive(x_8);
-if (x_34 == 0)
-{
-lean_object* x_35; lean_object* x_36; 
-x_35 = lean_ctor_get(x_8, 0);
-lean_dec(x_35);
-x_36 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__3___closed__1;
-lean_ctor_set_tag(x_8, 0);
-lean_ctor_set(x_8, 0, x_36);
-return x_8;
-}
-else
-{
-lean_object* x_37; lean_object* x_38; lean_object* x_39; 
-x_37 = lean_ctor_get(x_8, 1);
-lean_inc(x_37);
-lean_dec(x_8);
-x_38 = l___private_Lean_Server_Completion_0__Lean_Server_Completion_dotCompletion___lambda__3___closed__1;
-x_39 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_39, 0, x_38);
-lean_ctor_set(x_39, 1, x_37);
-return x_39;
 }
 }
 }

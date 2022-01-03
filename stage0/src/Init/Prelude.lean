@@ -1139,9 +1139,8 @@ def String.utf8ByteSize : (@& String) → Nat
   stopPos  := s.bsize
 }
 
-@[extern c inline "#3"]
 unsafe def unsafeCast {α : Type u} {β : Type v} (a : α) : β :=
-  cast lcProof (PUnit.{v})
+  ULift.down.{max u v} (cast lcProof (ULift.up.{max u v} a))
 
 @[neverExtract, extern "lean_panic_fn"]
 constant panicCore {α : Type u} [Inhabited α] (msg : String) : α

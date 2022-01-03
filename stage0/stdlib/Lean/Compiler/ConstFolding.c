@@ -41,6 +41,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_NumScalarTypeInfo_size___default___boxe
 static lean_object* l_Lean_Compiler_foldCharOfNat___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldUIntSub___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_natFoldFns___closed__15;
+static lean_object* l_Lean_Compiler_toDecidableExpr___closed__6;
 static lean_object* l_Lean_Compiler_foldCharOfNat___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_NumScalarTypeInfo_ofNatFn___default(lean_object*);
 extern lean_object* l_System_Platform_numBits;
@@ -75,7 +76,6 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_NumScalarTypeInfo_size___default(lean_o
 static lean_object* l_Lean_Compiler_foldUIntSub___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldNatPow___rarg(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_getBoolLit___closed__3;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_nat_pow(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldNatMod(uint8_t);
@@ -103,14 +103,13 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__19;
 LEAN_EXPORT lean_object* l_Lean_Compiler_mkUInt32Lit(lean_object*);
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__17;
-extern lean_object* l_Lean_Compiler_neutralExpr;
+static lean_object* l_Lean_Compiler_toDecidableExpr___closed__4;
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__27;
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__4;
 static lean_object* l_Lean_Compiler_natFoldFns___closed__16;
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_binFoldFns;
 static lean_object* l_Lean_Compiler_mkNatLe___closed__2;
-static lean_object* l_Lean_Compiler_getBoolLit___closed__5;
 lean_object* l_Lean_mkDecIsTrue(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldStrictOr___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_natFoldFns___closed__7;
@@ -119,6 +118,7 @@ LEAN_EXPORT lean_object* l_List_lookup___at_Lean_Compiler_findUnFoldFn___spec__1
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__8;
 static lean_object* l_Lean_Compiler_binFoldFns___closed__1;
 static lean_object* l_Lean_Compiler_mkNatEq___closed__3;
+static lean_object* l_Lean_Compiler_toDecidableExpr___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldUIntDiv___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_natFoldFns___closed__21;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldNatDecEq(uint8_t, lean_object*, lean_object*);
@@ -237,6 +237,8 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_foldNatSucc___rarg(lean_object*);
 static lean_object* l_Lean_Compiler_mkNatEq___closed__7;
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__21;
 static lean_object* l_Lean_Compiler_natFoldFns___closed__29;
+static lean_object* l_Lean_Compiler_toDecidableExpr___closed__3;
+static lean_object* l_Lean_Compiler_toDecidableExpr___closed__5;
 static lean_object* l_Lean_Compiler_natFoldFns___closed__33;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldUIntDiv(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_isToNat___boxed(lean_object*);
@@ -288,6 +290,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_toDecidableExpr(uint8_t, lean_object*, 
 LEAN_EXPORT uint8_t l_List_foldr___at_Lean_Compiler_isOfNat___spec__1(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldNatAdd___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_mkUInt32Lit___boxed(lean_object*);
+static lean_object* l_Lean_Compiler_toDecidableExpr___closed__7;
 LEAN_EXPORT lean_object* l_List_foldr___at_Lean_Compiler_isToNat___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_foldNatDecEq___closed__1;
 static lean_object* l_Lean_Compiler_mkNatLt___closed__11;
@@ -301,7 +304,6 @@ static lean_object* l_Lean_Compiler_natFoldFns___closed__1;
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__19;
 LEAN_EXPORT lean_object* l_Lean_Compiler_getInfoFromVal___boxed(lean_object*);
 static lean_object* l_Lean_Compiler_natFoldFns___closed__23;
-static lean_object* l_Lean_Compiler_getBoolLit___closed__4;
 static lean_object* l_Lean_Compiler_preUIntBinFoldFns___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Compiler_foldUIntMul___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_numScalarTypes___closed__11;
@@ -2436,19 +2438,75 @@ return x_7;
 static lean_object* _init_l_Lean_Compiler_toDecidableExpr___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_neutralExpr;
-x_2 = l_Lean_mkDecIsFalse(x_1, x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string("Bool");
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Compiler_toDecidableExpr___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_neutralExpr;
-x_2 = l_Lean_mkDecIsTrue(x_1, x_1);
-return x_2;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Compiler_toDecidableExpr___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_toDecidableExpr___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("false");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_toDecidableExpr___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_toDecidableExpr___closed__2;
+x_2 = l_Lean_Compiler_toDecidableExpr___closed__3;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_toDecidableExpr___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Compiler_toDecidableExpr___closed__4;
+x_3 = l_Lean_mkConst(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_toDecidableExpr___closed__6() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("true");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_toDecidableExpr___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_toDecidableExpr___closed__2;
+x_2 = l_Lean_Compiler_toDecidableExpr___closed__6;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_toDecidableExpr___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Compiler_toDecidableExpr___closed__7;
+x_3 = l_Lean_mkConst(x_2, x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Compiler_toDecidableExpr(uint8_t x_1, lean_object* x_2, uint8_t x_3) {
@@ -2460,13 +2518,13 @@ lean_dec(x_2);
 if (x_3 == 0)
 {
 lean_object* x_4; 
-x_4 = l_Lean_Compiler_toDecidableExpr___closed__1;
+x_4 = l_Lean_Compiler_toDecidableExpr___closed__5;
 return x_4;
 }
 else
 {
 lean_object* x_5; 
-x_5 = l_Lean_Compiler_toDecidableExpr___closed__2;
+x_5 = l_Lean_Compiler_toDecidableExpr___closed__8;
 return x_5;
 }
 }
@@ -3070,30 +3128,6 @@ return x_1;
 static lean_object* _init_l_Lean_Compiler_getBoolLit___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("Bool");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_getBoolLit___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("true");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_getBoolLit___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("false");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_getBoolLit___closed__4() {
-_start:
-{
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = 0;
 x_2 = lean_box(x_1);
@@ -3102,7 +3136,7 @@ lean_ctor_set(x_3, 0, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_getBoolLit___closed__5() {
+static lean_object* _init_l_Lean_Compiler_getBoolLit___closed__2() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; 
@@ -3133,7 +3167,7 @@ if (lean_obj_tag(x_4) == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = lean_ctor_get(x_3, 1);
-x_7 = l_Lean_Compiler_getBoolLit___closed__1;
+x_7 = l_Lean_Compiler_toDecidableExpr___closed__1;
 x_8 = lean_string_dec_eq(x_6, x_7);
 if (x_8 == 0)
 {
@@ -3144,12 +3178,12 @@ return x_9;
 else
 {
 lean_object* x_10; uint8_t x_11; 
-x_10 = l_Lean_Compiler_getBoolLit___closed__2;
+x_10 = l_Lean_Compiler_toDecidableExpr___closed__6;
 x_11 = lean_string_dec_eq(x_5, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; uint8_t x_13; 
-x_12 = l_Lean_Compiler_getBoolLit___closed__3;
+x_12 = l_Lean_Compiler_toDecidableExpr___closed__3;
 x_13 = lean_string_dec_eq(x_5, x_12);
 if (x_13 == 0)
 {
@@ -3160,14 +3194,14 @@ return x_14;
 else
 {
 lean_object* x_15; 
-x_15 = l_Lean_Compiler_getBoolLit___closed__4;
+x_15 = l_Lean_Compiler_getBoolLit___closed__1;
 return x_15;
 }
 }
 else
 {
 lean_object* x_16; 
-x_16 = l_Lean_Compiler_getBoolLit___closed__5;
+x_16 = l_Lean_Compiler_getBoolLit___closed__2;
 return x_16;
 }
 }
@@ -4536,6 +4570,18 @@ l_Lean_Compiler_toDecidableExpr___closed__1 = _init_l_Lean_Compiler_toDecidableE
 lean_mark_persistent(l_Lean_Compiler_toDecidableExpr___closed__1);
 l_Lean_Compiler_toDecidableExpr___closed__2 = _init_l_Lean_Compiler_toDecidableExpr___closed__2();
 lean_mark_persistent(l_Lean_Compiler_toDecidableExpr___closed__2);
+l_Lean_Compiler_toDecidableExpr___closed__3 = _init_l_Lean_Compiler_toDecidableExpr___closed__3();
+lean_mark_persistent(l_Lean_Compiler_toDecidableExpr___closed__3);
+l_Lean_Compiler_toDecidableExpr___closed__4 = _init_l_Lean_Compiler_toDecidableExpr___closed__4();
+lean_mark_persistent(l_Lean_Compiler_toDecidableExpr___closed__4);
+l_Lean_Compiler_toDecidableExpr___closed__5 = _init_l_Lean_Compiler_toDecidableExpr___closed__5();
+lean_mark_persistent(l_Lean_Compiler_toDecidableExpr___closed__5);
+l_Lean_Compiler_toDecidableExpr___closed__6 = _init_l_Lean_Compiler_toDecidableExpr___closed__6();
+lean_mark_persistent(l_Lean_Compiler_toDecidableExpr___closed__6);
+l_Lean_Compiler_toDecidableExpr___closed__7 = _init_l_Lean_Compiler_toDecidableExpr___closed__7();
+lean_mark_persistent(l_Lean_Compiler_toDecidableExpr___closed__7);
+l_Lean_Compiler_toDecidableExpr___closed__8 = _init_l_Lean_Compiler_toDecidableExpr___closed__8();
+lean_mark_persistent(l_Lean_Compiler_toDecidableExpr___closed__8);
 l_Lean_Compiler_foldNatDecEq___closed__1 = _init_l_Lean_Compiler_foldNatDecEq___closed__1();
 lean_mark_persistent(l_Lean_Compiler_foldNatDecEq___closed__1);
 l_Lean_Compiler_foldNatDecEq___closed__2 = _init_l_Lean_Compiler_foldNatDecEq___closed__2();
@@ -4626,12 +4672,6 @@ l_Lean_Compiler_getBoolLit___closed__1 = _init_l_Lean_Compiler_getBoolLit___clos
 lean_mark_persistent(l_Lean_Compiler_getBoolLit___closed__1);
 l_Lean_Compiler_getBoolLit___closed__2 = _init_l_Lean_Compiler_getBoolLit___closed__2();
 lean_mark_persistent(l_Lean_Compiler_getBoolLit___closed__2);
-l_Lean_Compiler_getBoolLit___closed__3 = _init_l_Lean_Compiler_getBoolLit___closed__3();
-lean_mark_persistent(l_Lean_Compiler_getBoolLit___closed__3);
-l_Lean_Compiler_getBoolLit___closed__4 = _init_l_Lean_Compiler_getBoolLit___closed__4();
-lean_mark_persistent(l_Lean_Compiler_getBoolLit___closed__4);
-l_Lean_Compiler_getBoolLit___closed__5 = _init_l_Lean_Compiler_getBoolLit___closed__5();
-lean_mark_persistent(l_Lean_Compiler_getBoolLit___closed__5);
 l_Lean_Compiler_boolFoldFns___closed__1 = _init_l_Lean_Compiler_boolFoldFns___closed__1();
 lean_mark_persistent(l_Lean_Compiler_boolFoldFns___closed__1);
 l_Lean_Compiler_boolFoldFns___closed__2 = _init_l_Lean_Compiler_boolFoldFns___closed__2();

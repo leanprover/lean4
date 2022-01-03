@@ -26,7 +26,6 @@ lean_object* l_id___rarg___boxed(lean_object*);
 extern lean_object* l_Lean_instHashableName;
 static lean_object* l_Lean_Meta_globalInstanceExtension___closed__10;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4____closed__7;
-lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_globalInstanceExtension___lambda__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_globalInstanceExtension___lambda__5(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_globalInstanceExtension___closed__3;
@@ -35,63 +34,41 @@ lean_object* l_Lean_ScopedEnvExtension_addScopedEntry___rarg(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_Meta_globalInstanceExtension___lambda__5___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_globalInstanceExtension___lambda__6___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4_(lean_object*);
-static lean_object* l_panic___at_Lean_Meta_isGlobalInstance___spec__4___closed__1;
 static lean_object* l_Lean_Meta_globalInstanceExtension___lambda__6___closed__1;
-LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_isGlobalInstance___spec__5(lean_object*);
-extern lean_object* l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 LEAN_EXPORT lean_object* l_Lean_Meta_addGlobalInstance(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_globalInstanceExtension___closed__9;
 static lean_object* l_Lean_Meta_globalInstanceExtension___closed__6;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_instInhabitedPersistentHashMap___rarg(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_addLocalEntry___rarg(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_isGlobalInstance___closed__1;
 static lean_object* l_Lean_Meta_globalInstanceExtension___lambda__1___closed__3;
 static lean_object* l_Lean_Meta_globalInstanceExtension___closed__5;
-LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_isGlobalInstance___spec__4(lean_object*);
-static lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__2;
 lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_globalInstanceExtension___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_addGlobalInstance___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__4;
 lean_object* l_Std_PersistentHashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_globalInstanceExtension;
-LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_ScopedEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_globalInstanceExtension___closed__4;
 static lean_object* l_Lean_Meta_globalInstanceExtension___lambda__1___closed__2;
-static lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__1;
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___lambda__1(lean_object*);
 static lean_object* l_Lean_Meta_globalInstanceExtension___closed__8;
-static lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__3;
 static lean_object* l_Lean_Meta_globalInstanceExtension___closed__2;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4____closed__8;
 static lean_object* l_Lean_Meta_globalInstanceExtension___closed__1;
-static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__2;
-LEAN_EXPORT lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addGlobalInstance___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4____closed__2;
-LEAN_EXPORT lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_globalInstanceExtension___lambda__6(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_globalInstanceExtension___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_instInhabitedPersistentEnvExtensionState___rarg(lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_globalInstanceExtension___lambda__7___boxed(lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4____lambda__1(lean_object*, lean_object*);
-lean_object* l_Lean_ScopedEnvExtension_instInhabitedStateStack(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4____closed__4;
-LEAN_EXPORT lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_globalInstanceExtension___closed__12;
 lean_object* l_Lean_ScopedEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_globalInstanceExtension___lambda__7(lean_object*);
-static lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__3;
-static lean_object* l_panic___at_Lean_Meta_isGlobalInstance___spec__4___closed__2;
-lean_object* l_unsafeCast(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_globalInstanceExtension___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_globalInstanceExtension___lambda__3___boxed(lean_object*);
 uint8_t l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__4(lean_object*, lean_object*);
@@ -100,9 +77,7 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4_
 static lean_object* l_Lean_Meta_globalInstanceExtension___closed__11;
 static uint32_t l_Lean_Meta_globalInstanceExtension___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_globalInstanceExtension___lambda__4___boxed(lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_instBEqName;
-static lean_object* l_panic___at_Lean_Meta_isGlobalInstance___spec__5___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4____lambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -780,105 +755,7 @@ x_9 = l_Lean_Meta_addGlobalInstance(x_1, x_8, x_3, x_4, x_5, x_6, x_7);
 return x_9;
 }
 }
-static lean_object* _init_l_panic___at_Lean_Meta_isGlobalInstance___spec__4___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_ScopedEnvExtension_instInhabitedStateStack(lean_box(0), lean_box(0), lean_box(0));
-return x_1;
-}
-}
-static lean_object* _init_l_panic___at_Lean_Meta_isGlobalInstance___spec__4___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_panic___at_Lean_Meta_isGlobalInstance___spec__4___closed__1;
-x_2 = l_Lean_instInhabitedPersistentEnvExtensionState___rarg(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_isGlobalInstance___spec__4(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_panic___at_Lean_Meta_isGlobalInstance___spec__4___closed__2;
-x_3 = lean_panic_fn(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Environment");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.EnvExtensionInterfaceUnsafe.getState");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__1;
-x_2 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__2;
-x_3 = lean_unsigned_to_nat(223u);
-x_4 = lean_unsigned_to_nat(4u);
-x_5 = l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-lean_dec(x_1);
-x_4 = lean_ctor_get(x_2, 2);
-x_5 = lean_array_get_size(x_4);
-x_6 = lean_nat_dec_lt(x_3, x_5);
-lean_dec(x_5);
-if (x_6 == 0)
-{
-lean_object* x_7; lean_object* x_8; 
-lean_dec(x_3);
-x_7 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__3;
-x_8 = l_panic___at_Lean_Meta_isGlobalInstance___spec__4(x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; lean_object* x_10; 
-x_9 = lean_array_fget(x_4, x_3);
-lean_dec(x_3);
-x_10 = x_9;
-return x_10;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__2(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 0);
-lean_inc(x_3);
-lean_dec(x_1);
-x_4 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3(x_3, x_2);
-x_5 = lean_ctor_get(x_4, 1);
-lean_inc(x_5);
-lean_dec(x_4);
-return x_5;
-}
-}
-static lean_object* _init_l_panic___at_Lean_Meta_isGlobalInstance___spec__5___closed__1() {
+static lean_object* _init_l_Lean_Meta_isGlobalInstance___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -888,119 +765,16 @@ x_3 = l_Std_PersistentHashMap_instInhabitedPersistentHashMap___rarg(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_isGlobalInstance___spec__5(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_panic___at_Lean_Meta_isGlobalInstance___spec__5___closed__1;
-x_3 = lean_panic_fn(x_2, x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.ScopedEnvExtension");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("Lean.ScopedEnvExtension.getState");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__1;
-x_2 = l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__2;
-x_3 = lean_unsigned_to_nat(157u);
-x_4 = lean_unsigned_to_nat(16u);
-x_5 = l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
-lean_dec(x_1);
-x_4 = l_Lean_PersistentEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__2(x_3, x_2);
-x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
-lean_dec(x_4);
-if (lean_obj_tag(x_5) == 0)
-{
-lean_object* x_6; lean_object* x_7; 
-x_6 = l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__4;
-x_7 = l_panic___at_Lean_Meta_isGlobalInstance___spec__5(x_6);
-return x_7;
-}
-else
-{
-lean_object* x_8; lean_object* x_9; 
-x_8 = lean_ctor_get(x_5, 0);
-lean_inc(x_8);
-lean_dec(x_5);
-x_9 = lean_ctor_get(x_8, 0);
-lean_inc(x_9);
-lean_dec(x_8);
-return x_9;
-}
-}
-}
 LEAN_EXPORT uint8_t lean_is_instance(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = l_Lean_Meta_globalInstanceExtension;
-x_4 = l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1(x_3, x_1);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_3 = l_Lean_Meta_isGlobalInstance___closed__1;
+x_4 = l_Lean_Meta_globalInstanceExtension;
+x_5 = l_Lean_ScopedEnvExtension_getState___rarg(x_3, x_4, x_1);
 lean_dec(x_1);
-x_5 = l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__4(x_4, x_2);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_PersistentEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__2___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_PersistentEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__2(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1(x_1, x_2);
-lean_dec(x_2);
-return x_3;
+x_6 = l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__4(x_5, x_2);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_isGlobalInstance___boxed(lean_object* x_1, lean_object* x_2) {
@@ -1081,26 +855,8 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_globalInstanceExtension = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_globalInstanceExtension);
 lean_dec_ref(res);
-l_panic___at_Lean_Meta_isGlobalInstance___spec__4___closed__1 = _init_l_panic___at_Lean_Meta_isGlobalInstance___spec__4___closed__1();
-lean_mark_persistent(l_panic___at_Lean_Meta_isGlobalInstance___spec__4___closed__1);
-l_panic___at_Lean_Meta_isGlobalInstance___spec__4___closed__2 = _init_l_panic___at_Lean_Meta_isGlobalInstance___spec__4___closed__2();
-lean_mark_persistent(l_panic___at_Lean_Meta_isGlobalInstance___spec__4___closed__2);
-l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__1 = _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__1();
-lean_mark_persistent(l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__1);
-l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__2 = _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__2();
-lean_mark_persistent(l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__2);
-l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__3 = _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__3();
-lean_mark_persistent(l_Lean_EnvExtensionInterfaceUnsafe_getState___at_Lean_Meta_isGlobalInstance___spec__3___closed__3);
-l_panic___at_Lean_Meta_isGlobalInstance___spec__5___closed__1 = _init_l_panic___at_Lean_Meta_isGlobalInstance___spec__5___closed__1();
-lean_mark_persistent(l_panic___at_Lean_Meta_isGlobalInstance___spec__5___closed__1);
-l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__1 = _init_l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__1();
-lean_mark_persistent(l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__1);
-l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__2 = _init_l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__2();
-lean_mark_persistent(l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__2);
-l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__3 = _init_l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__3();
-lean_mark_persistent(l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__3);
-l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__4 = _init_l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__4();
-lean_mark_persistent(l_Lean_ScopedEnvExtension_getState___at_Lean_Meta_isGlobalInstance___spec__1___closed__4);
+l_Lean_Meta_isGlobalInstance___closed__1 = _init_l_Lean_Meta_isGlobalInstance___closed__1();
+lean_mark_persistent(l_Lean_Meta_isGlobalInstance___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

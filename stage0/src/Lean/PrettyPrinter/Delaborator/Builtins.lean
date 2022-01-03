@@ -100,11 +100,15 @@ def delabConst : Delab := do
           c := `_root_ ++ c
         else
           c := c₀
-      return mkIdent c
+      mkIdent c
     else
       `($(mkIdent c).{$[$(ls.toArray.map quote)],*})
 
-  maybeAddBlockImplicit stx
+  let mut stx ← maybeAddBlockImplicit stx
+  if (← getPPOption getPPTagAppFns) then
+    stx ← annotateCurPos stx
+    addTermInfo (← getPos) stx (← getExpr)
+  stx
 
 structure ParamKind where
   name        : Name
@@ -191,8 +195,9 @@ def isRegularApp : DelabM Bool := do
 def unexpandRegularApp (stx : Syntax) : Delab := do
   let Expr.const c .. ← pure (unfoldMDatas (← getExpr).getAppFn) | unreachable!
   let fs ← appUnexpanderAttribute.getValues (← getEnv) c
+  let ref ← getRef
   fs.firstM fun f =>
-    match f stx |>.run () with
+    match f stx |>.run ref |>.run () with
     | EStateM.Result.ok stx _ => pure stx
     | _ => failure
 

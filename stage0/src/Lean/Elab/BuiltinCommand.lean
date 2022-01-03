@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.DocString
+import Lean.Util.CollectLevelParams
 import Lean.Elab.Command
 import Lean.Elab.Open
 
@@ -104,7 +105,7 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   else
     throwUnsupportedSyntax
 
-@[builtinCommandElab choice] def elbChoice : CommandElab := fun stx =>
+@[builtinCommandElab choice] def elabChoice : CommandElab := fun stx =>
   elabChoiceAux stx.getArgs 0
 
 @[builtinCommandElab «universe»] def elabUniverse : CommandElab := fun n => do
@@ -296,10 +297,13 @@ unsafe def elabEvalUnsafe : CommandElab
     let n := `_eval
     let ctx ← read
     let addAndCompile (value : Expr) : TermElabM Unit := do
+      let (value, _) ← Term.levelMVarToParam (← instantiateMVars value)
       let type ← inferType value
+      let us := collectLevelParams {} value |>.params
+      let value ← instantiateMVars value
       let decl := Declaration.defnDecl {
         name        := n
-        levelParams := []
+        levelParams := us.toList
         type        := type
         value       := value
         hints       := ReducibilityHints.opaque

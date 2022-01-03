@@ -129,6 +129,7 @@ def exprToInteractiveExplicit (e : Expr) : MetaM CodeWithInfos := do
     openDecls := ← getOpenDecls
     fileMap := arbitrary
   }
+  let infos := infos.erase 1 -- remove highlight for entire expression in popups
   tagExprInfos ctx infos tt
 
 end Lean.Widget

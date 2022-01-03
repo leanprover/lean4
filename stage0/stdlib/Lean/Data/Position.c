@@ -55,11 +55,11 @@ static lean_object* l_Lean_Position_instToExprPosition___closed__2;
 LEAN_EXPORT lean_object* l_Lean_FileMap_toPosition_toColumn(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__1___boxed(lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instReprPosition___closed__1;
 lean_object* l_Nat_repr(lean_object*);
 static lean_object* l_Lean_Position_instToFormatPosition___closed__5;
+lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Position_instToExprPosition___closed__3;
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_160____closed__16;
@@ -79,10 +79,7 @@ static lean_object* l_Lean_Position_instToFormatPosition___closed__3;
 static lean_object* l_Lean_instInhabitedFileMap___closed__3;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_160____closed__11;
-LEAN_EXPORT lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__1(lean_object*);
-LEAN_EXPORT lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__2___boxed(lean_object*);
 static lean_object* l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_160____closed__10;
-LEAN_EXPORT lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instDecidableEqPosition___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedFileMap___closed__1;
 static lean_object* l_Lean_Position_instToExprPosition___lambda__1___closed__8;
@@ -956,34 +953,6 @@ lean_dec(x_1);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = lean_array_get_size(x_1);
-x_3 = lean_unsigned_to_nat(1u);
-x_4 = lean_nat_sub(x_2, x_3);
-lean_dec(x_2);
-x_5 = l_instInhabitedNat;
-x_6 = lean_array_get(x_5, x_1, x_4);
-lean_dec(x_4);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__2(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = lean_array_get_size(x_1);
-x_3 = lean_unsigned_to_nat(1u);
-x_4 = lean_nat_sub(x_2, x_3);
-lean_dec(x_2);
-x_5 = l_instInhabitedNat;
-x_6 = lean_array_get(x_5, x_1, x_4);
-lean_dec(x_4);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_FileMap_toPosition(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1001,82 +970,66 @@ lean_dec(x_6);
 x_9 = l_Array_isEmpty___rarg(x_5);
 if (x_9 == 0)
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_10 = l_Array_back___at_Lean_FileMap_toPosition___spec__1(x_5);
-x_11 = l_Array_back___at_Lean_FileMap_toPosition___spec__2(x_4);
-x_12 = lean_nat_sub(x_2, x_11);
-lean_dec(x_11);
-x_13 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_13, 0, x_10);
-lean_ctor_set(x_13, 1, x_12);
-return x_13;
-}
-else
-{
-lean_object* x_14; 
-x_14 = l_Lean_instInhabitedPosition___closed__1;
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_10 = l_instInhabitedNat;
+x_11 = l_Array_back___rarg(x_10, x_5);
+x_12 = l_Array_back___rarg(x_10, x_4);
+x_13 = lean_nat_sub(x_2, x_12);
+lean_dec(x_12);
+x_14 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_14, 0, x_11);
+lean_ctor_set(x_14, 1, x_13);
 return x_14;
 }
+else
+{
+lean_object* x_15; 
+x_15 = l_Lean_instInhabitedPosition___closed__1;
+return x_15;
+}
 }
 else
 {
-lean_object* x_15; uint8_t x_16; 
-x_15 = l_Array_back___at_Lean_FileMap_toPosition___spec__2(x_4);
-x_16 = lean_nat_dec_le(x_2, x_15);
-if (x_16 == 0)
+lean_object* x_16; lean_object* x_17; uint8_t x_18; 
+x_16 = l_instInhabitedNat;
+x_17 = l_Array_back___rarg(x_16, x_4);
+x_18 = lean_nat_dec_le(x_2, x_17);
+if (x_18 == 0)
 {
-uint8_t x_17; 
+uint8_t x_19; 
 lean_dec(x_6);
-x_17 = l_Array_isEmpty___rarg(x_5);
-if (x_17 == 0)
+x_19 = l_Array_isEmpty___rarg(x_5);
+if (x_19 == 0)
 {
-lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_18 = l_Array_back___at_Lean_FileMap_toPosition___spec__1(x_5);
-x_19 = lean_nat_sub(x_2, x_15);
-lean_dec(x_15);
-x_20 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_20, 0, x_18);
-lean_ctor_set(x_20, 1, x_19);
-return x_20;
+lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_20 = l_Array_back___rarg(x_16, x_5);
+x_21 = lean_nat_sub(x_2, x_17);
+lean_dec(x_17);
+x_22 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_22, 0, x_20);
+lean_ctor_set(x_22, 1, x_21);
+return x_22;
 }
 else
 {
-lean_object* x_21; 
-lean_dec(x_15);
-x_21 = l_Lean_instInhabitedPosition___closed__1;
-return x_21;
+lean_object* x_23; 
+lean_dec(x_17);
+x_23 = l_Lean_instInhabitedPosition___closed__1;
+return x_23;
 }
 }
 else
 {
-lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-lean_dec(x_15);
-x_22 = lean_unsigned_to_nat(1u);
-x_23 = lean_nat_sub(x_6, x_22);
+lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+lean_dec(x_17);
+x_24 = lean_unsigned_to_nat(1u);
+x_25 = lean_nat_sub(x_6, x_24);
 lean_dec(x_6);
-x_24 = lean_unsigned_to_nat(0u);
-x_25 = l_Lean_FileMap_toPosition_loop(x_2, x_3, x_4, x_5, x_24, x_23);
-return x_25;
+x_26 = lean_unsigned_to_nat(0u);
+x_27 = l_Lean_FileMap_toPosition_loop(x_2, x_3, x_4, x_5, x_26, x_25);
+return x_27;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__1___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Array_back___at_Lean_FileMap_toPosition___spec__1(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Array_back___at_Lean_FileMap_toPosition___spec__2___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Array_back___at_Lean_FileMap_toPosition___spec__2(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_FileMap_toPosition___boxed(lean_object* x_1, lean_object* x_2) {

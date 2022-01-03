@@ -109,8 +109,8 @@ def mkNatLe (a b : Expr) : Expr :=
 
 def toDecidableExpr (beforeErasure : Bool) (pred : Expr) (r : Bool) : Expr :=
   match beforeErasure, r with
-  | false, true  => mkDecIsTrue  neutralExpr neutralExpr
-  | false, false => mkDecIsFalse neutralExpr neutralExpr
+  | false, true  => mkConst ``Bool.true
+  | false, false => mkConst ``Bool.false
   | true,  true  => mkDecIsTrue pred (mkLcProof pred)
   | true,  false => mkDecIsFalse pred (mkLcProof pred)
 

@@ -73,10 +73,10 @@ def parenSpecial : Parser := optional (tupleTail <|> typeAscription)
 @[builtinTermParser] def paren := leading_parser "(" >> (withoutPosition (withoutForbidden (optional (ppDedentIfGrouped termParser >> parenSpecial)))) >> ")"
 @[builtinTermParser] def anonymousCtor := leading_parser "⟨" >> sepBy termParser ", " >> "⟩"
 def optIdent : Parser := optional (atomic (ident >> " : "))
-def fromTerm   := leading_parser " from " >> termParser
-def sufficesDecl := leading_parser optIdent >> termParser >> (fromTerm <|> byTactic)
+def fromTerm   := leading_parser "from " >> termParser
+def sufficesDecl := leading_parser optIdent >> termParser >> ppSpace >> (fromTerm <|> byTactic)
 @[builtinTermParser] def «suffices» := leading_parser:leadPrec withPosition ("suffices " >> sufficesDecl) >> optSemicolon termParser
-@[builtinTermParser] def «show»     := leading_parser:leadPrec "show " >> termParser >> (fromTerm <|> byTactic)
+@[builtinTermParser] def «show»     := leading_parser:leadPrec "show " >> termParser >> ppSpace >> (fromTerm <|> byTactic)
 def structInstArrayRef := leading_parser "[" >> termParser >>"]"
 def structInstLVal   := leading_parser (ident <|> fieldIdx <|> structInstArrayRef) >> many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
 def structInstField  := ppGroup $ leading_parser structInstLVal >> " := " >> termParser

@@ -1139,14 +1139,13 @@ def String.utf8ByteSize : (@& String) → Nat
   stopPos  := s.bsize
 }
 
-@[extern c inline "#3"]
 unsafe def unsafeCast {α : Type u} {β : Type v} (a : α) : β :=
-  cast lcProof (PUnit.{v})
+  ULift.down.{max u v} (cast lcProof (ULift.up.{max u v} a))
 
 @[neverExtract, extern "lean_panic_fn"]
 constant panicCore {α : Type u} [Inhabited α] (msg : String) : α
 
-/--
+/-
   This is workaround for `panic` occurring in monadic code. See issue #695.
   The `panicCore` definition cannot be specialized since it is an extern.
   When `panic` occurs in monadic code, the `Inhabited α` parameter depends on a `[inst : Monad m]` instance.
@@ -1157,6 +1156,9 @@ constant panicCore {α : Type u} [Inhabited α] (msg : String) : α
 @[noinline, neverExtract]
 def panic {α : Type u} [Inhabited α] (msg : String) : α :=
   panicCore msg
+
+-- TODO: this be applied directly to `Inhabited`'s definition when we remove the above workaround
+attribute [nospecialize] Inhabited
 
 /-
 The Compiler has special support for arrays.
@@ -2251,7 +2253,7 @@ export Macro (expandMacro?)
 
 namespace PrettyPrinter
 
-abbrev UnexpandM := EStateM Unit Unit
+abbrev UnexpandM := ReaderT Syntax (EStateM Unit Unit)
 
 /--
   Function that tries to reverse macro expansions as a post-processing step of delaboration.
@@ -2260,10 +2262,10 @@ abbrev UnexpandM := EStateM Unit Unit
 -- a `kindUnexpander` could reasonably be added later
 abbrev Unexpander := Syntax → UnexpandM Syntax
 
--- unexpanders should not need to introduce new names
 instance : MonadQuotation UnexpandM where
-  getRef              := pure Syntax.missing
-  withRef             := fun _ => id
+  getRef              := read
+  withRef ref x       := withReader (fun _ => ref) x
+  -- unexpanders should not need to introduce new names
   getCurrMacroScope   := pure 0
   getMainModule       := pure `_fakeMod
   withFreshMacroScope := id

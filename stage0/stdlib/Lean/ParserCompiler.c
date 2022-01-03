@@ -24036,7 +24036,6 @@ x_27 = lean_ctor_get(x_1, 1);
 lean_inc(x_27);
 x_28 = lean_ctor_get(x_1, 2);
 lean_inc(x_28);
-lean_inc(x_28);
 x_29 = l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(x_28, x_25, x_14);
 if (lean_obj_tag(x_29) == 0)
 {
@@ -24548,7 +24547,6 @@ x_143 = lean_ctor_get(x_1, 1);
 lean_inc(x_143);
 x_144 = lean_ctor_get(x_1, 2);
 lean_inc(x_144);
-lean_inc(x_144);
 x_145 = l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(x_144, x_141, x_130);
 if (lean_obj_tag(x_145) == 0)
 {
@@ -25031,7 +25029,6 @@ lean_inc(x_254);
 x_255 = lean_ctor_get(x_1, 1);
 lean_inc(x_255);
 x_256 = lean_ctor_get(x_1, 2);
-lean_inc(x_256);
 lean_inc(x_256);
 x_257 = l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(x_256, x_253, x_242);
 if (lean_obj_tag(x_257) == 0)
@@ -25516,7 +25513,6 @@ x_367 = lean_ctor_get(x_1, 1);
 lean_inc(x_367);
 x_368 = lean_ctor_get(x_1, 2);
 lean_inc(x_368);
-lean_inc(x_368);
 x_369 = l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(x_368, x_365, x_354);
 if (lean_obj_tag(x_369) == 0)
 {
@@ -25999,7 +25995,6 @@ lean_inc(x_478);
 x_479 = lean_ctor_get(x_1, 1);
 lean_inc(x_479);
 x_480 = lean_ctor_get(x_1, 2);
-lean_inc(x_480);
 lean_inc(x_480);
 x_481 = l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(x_480, x_477, x_466);
 if (lean_obj_tag(x_481) == 0)
@@ -26499,7 +26494,6 @@ x_596 = lean_ctor_get(x_1, 1);
 lean_inc(x_596);
 x_597 = lean_ctor_get(x_1, 2);
 lean_inc(x_597);
-lean_inc(x_597);
 x_598 = l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(x_597, x_594, x_583);
 if (lean_obj_tag(x_598) == 0)
 {
@@ -26982,7 +26976,6 @@ lean_inc(x_707);
 x_708 = lean_ctor_get(x_1, 1);
 lean_inc(x_708);
 x_709 = lean_ctor_get(x_1, 2);
-lean_inc(x_709);
 lean_inc(x_709);
 x_710 = l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(x_709, x_706, x_695);
 if (lean_obj_tag(x_710) == 0)
@@ -27467,7 +27460,6 @@ x_820 = lean_ctor_get(x_1, 1);
 lean_inc(x_820);
 x_821 = lean_ctor_get(x_1, 2);
 lean_inc(x_821);
-lean_inc(x_821);
 x_822 = l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(x_821, x_818, x_807);
 if (lean_obj_tag(x_822) == 0)
 {
@@ -27951,7 +27943,6 @@ x_932 = lean_ctor_get(x_1, 1);
 lean_inc(x_932);
 x_933 = lean_ctor_get(x_1, 2);
 lean_inc(x_933);
-lean_inc(x_933);
 x_934 = l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(x_933, x_930, x_919);
 if (lean_obj_tag(x_934) == 0)
 {
@@ -28434,7 +28425,6 @@ lean_inc(x_1043);
 x_1044 = lean_ctor_get(x_1, 1);
 lean_inc(x_1044);
 x_1045 = lean_ctor_get(x_1, 2);
-lean_inc(x_1045);
 lean_inc(x_1045);
 x_1046 = l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(x_1045, x_1042, x_1031);
 if (lean_obj_tag(x_1046) == 0)

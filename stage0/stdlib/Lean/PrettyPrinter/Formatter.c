@@ -111,6 +111,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_pushLine(lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_notFollowedByCategoryToken_formatter(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_instMonadTraverserFormatterM___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_optionalNoAntiquot_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_instInhabitedNat;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_formatterAttribute___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_evalInsideQuot_formatter___boxed(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Formatter_unicodeSymbolNoAntiquot_formatter___closed__3;
@@ -280,6 +281,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_lookahead_formatter___ra
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_combinatorFormatterAttribute;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_combinatorFormatterAttribute___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PrettyPrinter_Formatter_State_mustBeGrouped___default;
+lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_many1Unbox_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_dbgTraceState_formatter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -459,7 +461,6 @@ extern lean_object* l_Std_instInhabitedFormat;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_concat___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_parserOfStack_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Formatter___hyg_4542_(lean_object*);
-lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(lean_object*);
 static lean_object* l_Lean_addTrace___at_Lean_PrettyPrinter_Formatter_categoryFormatterCore___spec__2___closed__7;
 lean_object* lean_int_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_formatter___closed__6;
@@ -496,7 +497,6 @@ static lean_object* l_Lean_PrettyPrinter_combinatorFormatterAttribute___closed__
 uint32_t lean_uint32_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_suppressInsideQuot_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_checkLinebreakBefore_formatter___rarg(lean_object*);
-lean_object* l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_rawCh_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_Traverser_left(lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_map___at_Lean_PrettyPrinter_Formatter_instMonadTraverserFormatterM___spec__1(lean_object*, lean_object*);
@@ -6145,7 +6145,7 @@ return x_10;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_categoryParserOfStack_formatter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_7 = lean_st_ref_get(x_5, x_6);
 x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
@@ -6161,22 +6161,24 @@ lean_inc(x_12);
 lean_dec(x_10);
 x_13 = lean_ctor_get(x_12, 1);
 lean_inc(x_13);
-x_14 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_13);
+x_14 = l_Lean_instInhabitedSyntax;
+x_15 = l_Array_back___rarg(x_14, x_13);
 lean_dec(x_13);
-x_15 = lean_ctor_get(x_12, 2);
-lean_inc(x_15);
+x_16 = lean_ctor_get(x_12, 2);
+lean_inc(x_16);
 lean_dec(x_12);
-x_16 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(x_15);
-lean_dec(x_15);
-x_17 = lean_nat_sub(x_16, x_1);
+x_17 = l_instInhabitedNat;
+x_18 = l_Array_back___rarg(x_17, x_16);
 lean_dec(x_16);
-x_18 = l_Lean_Syntax_getArg(x_14, x_17);
-lean_dec(x_17);
-lean_dec(x_14);
-x_19 = l_Lean_Syntax_getId(x_18);
+x_19 = lean_nat_sub(x_18, x_1);
 lean_dec(x_18);
-x_20 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter(x_19, x_2, x_3, x_4, x_5, x_11);
-return x_20;
+x_20 = l_Lean_Syntax_getArg(x_15, x_19);
+lean_dec(x_19);
+lean_dec(x_15);
+x_21 = l_Lean_Syntax_getId(x_20);
+lean_dec(x_20);
+x_22 = l_Lean_PrettyPrinter_Formatter_categoryParser_formatter(x_21, x_2, x_3, x_4, x_5, x_11);
+return x_22;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_categoryParserOfStack_formatter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -6191,7 +6193,7 @@ return x_7;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_parserOfStack_formatter(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_8 = lean_st_ref_get(x_6, x_7);
 x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
@@ -6207,21 +6209,23 @@ lean_inc(x_13);
 lean_dec(x_11);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
-x_15 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__2(x_14);
+x_15 = l_Lean_instInhabitedSyntax;
+x_16 = l_Array_back___rarg(x_15, x_14);
 lean_dec(x_14);
-x_16 = lean_ctor_get(x_13, 2);
-lean_inc(x_16);
+x_17 = lean_ctor_get(x_13, 2);
+lean_inc(x_17);
 lean_dec(x_13);
-x_17 = l_Array_back___at_Lean_Syntax_Traverser_up___spec__1(x_16);
-lean_dec(x_16);
-x_18 = lean_nat_sub(x_17, x_1);
+x_18 = l_instInhabitedNat;
+x_19 = l_Array_back___rarg(x_18, x_17);
 lean_dec(x_17);
-x_19 = l_Lean_Syntax_getArg(x_15, x_18);
-lean_dec(x_18);
-lean_dec(x_15);
-x_20 = l_Lean_Syntax_getKind(x_19);
-x_21 = l_Lean_PrettyPrinter_Formatter_formatterForKindUnsafe(x_20, x_3, x_4, x_5, x_6, x_12);
-return x_21;
+x_20 = lean_nat_sub(x_19, x_1);
+lean_dec(x_19);
+x_21 = l_Lean_Syntax_getArg(x_16, x_20);
+lean_dec(x_20);
+lean_dec(x_16);
+x_22 = l_Lean_Syntax_getKind(x_21);
+x_23 = l_Lean_PrettyPrinter_Formatter_formatterForKindUnsafe(x_22, x_3, x_4, x_5, x_6, x_12);
+return x_23;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_parserOfStack_formatter___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {

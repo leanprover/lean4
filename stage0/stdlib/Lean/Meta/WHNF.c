@@ -151,6 +151,7 @@ static lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_canUnfoldAtMatcher__
 LEAN_EXPORT lean_object* l_Lean_Meta_smartUnfoldingSuffix;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_cache(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reduceNat_x3f___closed__12;
+lean_object* l_Lean_MapDeclarationExtension_find_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_project_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isAuxDef(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -200,6 +201,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_markSmartUnfoldingMatch(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_deltaDefinition___at_Lean_Meta_unfoldDefinition_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reduceNat_x3f___closed__20;
 LEAN_EXPORT lean_object* l_Lean_List_toExprAux___at_Lean_Meta_toCtorIfLit___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedProjectionFunctionInfo;
 uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
 static lean_object* l_Lean_List_toExprAux___at_Lean_Meta_toCtorIfLit___spec__1___closed__1;
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
@@ -407,7 +409,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_reduceNative_x3f(lean_object*, lean_object*
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reduceNative_x3f___closed__4;
 static lean_object* l_Lean_List_toExprAux___at_Lean_Meta_toCtorIfLit___spec__1___closed__2;
-lean_object* l_Lean_MapDeclarationExtension_find_x3f___at_Lean_Environment_getProjectionFnInfo_x3f___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_whnfCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reduceNative_x3f___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Meta_whnfEasyCases___at_Lean_Meta_whnfCore___spec__3___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -15532,33 +15533,35 @@ x_7 = lean_st_ref_get(x_5, x_6);
 x_8 = !lean_is_exclusive(x_7);
 if (x_8 == 0)
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_9 = lean_ctor_get(x_7, 0);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec(x_9);
-x_11 = l_Lean_projectionFnInfoExt;
-x_12 = l_Lean_MapDeclarationExtension_find_x3f___at_Lean_Environment_getProjectionFnInfo_x3f___spec__1(x_11, x_10, x_1);
-lean_ctor_set(x_7, 0, x_12);
+x_11 = l_Lean_instInhabitedProjectionFunctionInfo;
+x_12 = l_Lean_projectionFnInfoExt;
+x_13 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_11, x_12, x_10, x_1);
+lean_ctor_set(x_7, 0, x_13);
 return x_7;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
-x_13 = lean_ctor_get(x_7, 0);
-x_14 = lean_ctor_get(x_7, 1);
-lean_inc(x_14);
-lean_inc(x_13);
-lean_dec(x_7);
-x_15 = lean_ctor_get(x_13, 0);
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+x_14 = lean_ctor_get(x_7, 0);
+x_15 = lean_ctor_get(x_7, 1);
 lean_inc(x_15);
-lean_dec(x_13);
-x_16 = l_Lean_projectionFnInfoExt;
-x_17 = l_Lean_MapDeclarationExtension_find_x3f___at_Lean_Environment_getProjectionFnInfo_x3f___spec__1(x_16, x_15, x_1);
-x_18 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_18, 0, x_17);
-lean_ctor_set(x_18, 1, x_14);
-return x_18;
+lean_inc(x_14);
+lean_dec(x_7);
+x_16 = lean_ctor_get(x_14, 0);
+lean_inc(x_16);
+lean_dec(x_14);
+x_17 = l_Lean_instInhabitedProjectionFunctionInfo;
+x_18 = l_Lean_projectionFnInfoExt;
+x_19 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_17, x_18, x_16, x_1);
+x_20 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_20, 0, x_19);
+lean_ctor_set(x_20, 1, x_15);
+return x_20;
 }
 }
 }

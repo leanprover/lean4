@@ -98,6 +98,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Structural_mkBRecOn___lambda__2(lean_object
 static lean_object* l_Lean_Elab_Structural_mkBRecOn___lambda__10___closed__3;
 static lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_withBelowDict___spec__1___rarg___closed__1;
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
+uint8_t l_Array_contains___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_mkMData(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_mkBRecOn___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___lambda__2___closed__1;
@@ -151,7 +152,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_BRecOn_0
 lean_object* l_Nat_repr(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_toBelowAux___lambda__5___closed__10;
-uint8_t l_Array_contains___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Structural_ensureNoRecFn(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_replaceRecApps_loop___lambda__1___closed__1;
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_BRecOn_0__Lean_Elab_Structural_toBelowAux___lambda__5___closed__12;
@@ -6064,7 +6064,7 @@ if (x_9 == 0)
 {
 lean_object* x_12; uint8_t x_13; 
 x_12 = lean_ctor_get(x_1, 7);
-x_13 = l_Array_contains___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__4(x_12, x_8);
+x_13 = l_Array_contains___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__3(x_12, x_8);
 if (x_13 == 0)
 {
 lean_object* x_14; 

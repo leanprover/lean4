@@ -27,8 +27,6 @@ def checkValidInductiveModifier [Monad m] [MonadError m] (modifiers : Modifiers)
     throwError "invalid use of 'noncomputable' in inductive declaration"
   if modifiers.isPartial then
     throwError "invalid use of 'partial' in inductive declaration"
-  unless modifiers.attrs.size == 0 || (modifiers.attrs.size == 1 && modifiers.attrs[0].name == `class) do
-    throwError "invalid use of attributes in inductive declaration"
 
 def checkValidCtorModifier [Monad m] [MonadError m] (modifiers : Modifiers) : m Unit := do
   if modifiers.isNoncomputable then

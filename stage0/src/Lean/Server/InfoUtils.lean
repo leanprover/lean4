@@ -171,12 +171,15 @@ where
   fmtTerm? : MetaM (Option Format) := do
     match i with
     | Info.ofTermInfo ti =>
+      if ti.expr.isSort then
+        -- types of sorts are funny to look at in widgets, but ultimately not very helpful
+        return none
       let tp ← Meta.inferType ti.expr
-      let eFmt ← Lean.withOptions (Lean.pp.fullNames.set . true) do
+      let eFmt ← Lean.withOptions (Lean.pp.fullNames.set · true |> (Lean.pp.universes.set · true)) do
         Meta.ppExpr ti.expr
       let tpFmt ← Meta.ppExpr tp
       -- try not to show too scary internals
-      let fmt := if isAtomicFormat eFmt then f!"{eFmt} : {tpFmt}" else f!"{tpFmt}"
+      let fmt := if ti.expr.isConst || isAtomicFormat eFmt then f!"{eFmt} : {tpFmt}" else f!"{tpFmt}"
       return some f!"```lean
 {fmt}
 ```"

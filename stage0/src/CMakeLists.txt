@@ -311,6 +311,7 @@ endif()
 if(NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   # export symbols for the interpreter (done via `LEAN_EXPORT` for Windows)
   string(APPEND LEAN_DYN_EXE_LINKER_FLAGS " -rdynamic")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -rdynamic")
   # hide all other symbols
   string(APPEND CMAKE_CXX_FLAGS " -fvisibility=hidden -fvisibility-inlines-hidden")
   string(APPEND LEANC_EXTRA_FLAGS " -fvisibility=hidden")

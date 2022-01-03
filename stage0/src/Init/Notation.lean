@@ -316,9 +316,6 @@ macro "try " t:tacticSeq : tactic => `(first | $t | skip)
 /-- `tac <;> tac'` runs `tac` on the main goal and `tac'` on each produced goal, concatenating all goals produced by `tac'`. -/
 macro:1 x:tactic " <;> " y:tactic:0 : tactic => `(tactic| focus ($x:tactic; all_goals $y:tactic))
 
-/-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
-macro dot:("·" <|> ".") ts:tacticSeq : tactic => `(tactic| {%$dot ($ts:tacticSeq) })
-
 /-- `rfl` is a shorthand for `exact rfl`. -/
 macro "rfl" : tactic => `(exact rfl)
 /-- `admit` is a shorthand for `exact sorry`. -/

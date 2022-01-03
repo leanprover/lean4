@@ -705,10 +705,10 @@ class task_manager {
 
     void spawn_worker() {
         m_num_std_workers++;
-        m_idle_std_workers++;
         lthread([this]() {
             save_stack_info(false);
             unique_lock<mutex> lock(m_mutex);
+            m_idle_std_workers++;
             while (true) {
                 if (m_queues_size == 0) {
                     if (m_shutting_down) {
@@ -899,12 +899,23 @@ static task_manager * g_task_manager = nullptr;
 extern "C" LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers) {
     lean_assert(g_task_manager == nullptr);
 #if defined(LEAN_MULTI_THREAD)
-    g_task_manager = new task_manager(num_workers);
+    if (num_workers > 0) {
+        g_task_manager = new task_manager(num_workers);
+    }
 #endif
 }
 
+static unsigned get_lean_num_threads() {
+#ifndef LEAN_EMSCRIPTEN
+    if (char const * num_threads = std::getenv("LEAN_NUM_THREADS")) {
+        return atoi(num_threads);
+    }
+#endif
+    return hardware_concurrency();
+}
+
 extern "C" LEAN_EXPORT void lean_init_task_manager() {
-    lean_init_task_manager_using(hardware_concurrency());
+    lean_init_task_manager_using(get_lean_num_threads());
 }
 
 extern "C" LEAN_EXPORT void lean_finalize_task_manager() {

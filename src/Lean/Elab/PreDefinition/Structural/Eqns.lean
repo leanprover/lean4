@@ -119,14 +119,6 @@ builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclara
 def registerEqnsInfo (preDef : PreDefinition) (recArgPos : Nat) : CoreM Unit := do
   modifyEnv fun env => eqnInfoExt.insert env preDef.declName { preDef with recArgPos }
 
-structure EqnsExtState where
-  map : Std.PHashMap Name (Array Name) := {}
-  deriving Inhabited
-
-/- We generate the equations on demand, and do not save them on .olean files. -/
-builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
-  registerEnvExtension (pure {})
-
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   let env ← getEnv
   if let some eqs := eqnsExt.getState env |>.map.find? declName then

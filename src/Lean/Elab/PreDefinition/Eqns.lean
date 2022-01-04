@@ -101,4 +101,12 @@ where
     else
       saveEqn mvarId
 
+structure EqnsExtState where
+  map : Std.PHashMap Name (Array Name) := {}
+  deriving Inhabited
+
+/- We generate the equations on demand, and do not save them on .olean files. -/
+builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
+  registerEnvExtension (pure {})
+
 end Lean.Elab.Eqns

@@ -240,7 +240,7 @@ section ServerM
     let workerProc ← Process.spawn {
       toStdioConfig := workerCfg
       cmd           := st.workerPath.toString
-      args          := #["--worker"] ++ st.args.toArray
+      args          := #["--worker"] ++ st.args.toArray ++ #[m.uri]
     }
     let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
     -- The task will never access itself, so this is fine

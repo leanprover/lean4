@@ -51,6 +51,13 @@ namespace Term
 /- Built-in parsers -/
 
 @[builtinTermParser] def byTactic := leading_parser:leadPrec ppAllowUngrouped >> "by " >> Tactic.tacticSeq
+
+/--
+  This is the same as `byTactic`, but it uses a different syntax kind. This is
+  used by `show` and `suffices` instead of `byTactic` because these syntaxes don't
+  support arbitrary terms where `byTactic` is accepted. Mathport uses this to e.g.
+  safely find-replace `by exact $e` by `$e` in any context without causing
+  incorrect syntax when the full expression is `show $T by exact $e`. -/
 def byTactic' := leading_parser "by " >> Tactic.tacticSeq
 
 def optSemicolon (p : Parser) : Parser := ppDedent $ optional ";" >> ppLine >> p

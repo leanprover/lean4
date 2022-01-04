@@ -7,10 +7,12 @@ import Lean.Meta.Eqns
 import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.Apply
 import Lean.Elab.PreDefinition.Basic
+import Lean.Elab.PreDefinition.Eqns
 import Lean.Elab.PreDefinition.Structural.Basic
 
 namespace Lean.Elab
 open Meta
+open Eqns
 
 /-- Try to close goal using `rfl` with smart unfolding turned off. -/
 def tryURefl (mvarId : MVarId) : MetaM Bool :=
@@ -59,90 +61,6 @@ structure EqnInfo where
   recArgPos   : Nat
   deriving Inhabited
 
-private partial def expand : Expr → Expr
-  | Expr.letE _ t v b _ => expand (b.instantiate1 v)
-  | Expr.mdata _ b _    => expand b
-  | e => e
-
-private def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do
-  let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) ← target.eq? | return none
-  unless rhs.isLet || rhs.isMData do return none
-  return some (← replaceTargetDefEq mvarId (← mkEq lhs (expand rhs)))
-
-private def funext? (mvarId : MVarId) : MetaM (Option MVarId) := do
-  let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) ← target.eq? | return none
-  unless rhs.isLambda do return none
-  commitWhenSome? do
-    let [mvarId] ← apply mvarId (← mkConstWithFreshMVarLevels ``funext) | return none
-    let (_, mvarId) ← intro1 mvarId
-    return some mvarId
-
-private def simpMatch? (mvarId : MVarId) : MetaM (Option MVarId) := do
-  let mvarId' ← Split.simpMatchTarget mvarId
-  if mvarId != mvarId' then return some mvarId' else return none
-
-private def simpIf? (mvarId : MVarId) : MetaM (Option MVarId) := do
-  let mvarId' ← simpIfTarget mvarId (useDecide := true)
-  if mvarId != mvarId' then return some mvarId' else return none
-
-/--
-  Auxiliary method for `mkEqnTypes`. We should "keep going"/"processing" the goal
-   `... |- f ... = rhs` at `mkEqnTypes` IF `rhs` contains a `f` application containing loose bound
-  variables. We do that to make sure we can create an elimination principle for `f` based
-  on the generated equations.
-
-  Remark: we have considered using the same heuristic used in the `BRecOn` module.
-  That is we would do case-analysis on the `match` application because the recursive
-  argument (may) depend on it. We abandoned this approach because it was incompatible
-  with the generation of induction principles.
-
-  Remark: we could also always return `true` here, and split **all** match expressions on the `rhs`
-  even if they are not relevant for the `brecOn` construction.
-  TODO: reconsider this design decision in the future.
-  Another possible design option is to "split" other control structures such as `if-then-else`.
--/
-private def keepGoing (mvarId : MVarId) : ReaderT EqnInfo (StateRefT (Array Expr) MetaM) Bool := do
-  let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) ← target.eq? | return false
-  let ctx ← read
-  return Option.isSome <| rhs.find? fun e => e.isAppOf ctx.declName && e.hasLooseBVars
-
-private def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := withMVarContext mvarId do
-  let target ← getMVarType' mvarId
-  let fvarState := collectFVars {} target
-  let fvarState ← (← getLCtx).foldrM (init := fvarState) fun decl fvarState => do
-    if fvarState.fvarSet.contains decl.fvarId then
-      collectFVars fvarState (← instantiateMVars decl.type)
-    else
-      fvarState
-  let mut fvarIds ← sortFVarIds <| fvarState.fvarSet.toArray
-  -- Include propositions that are not in fvarState.fvarSet, and only contains variables in
-  for decl in (← getLCtx) do
-    unless fvarState.fvarSet.contains decl.fvarId do
-      if (← isProp decl.type) then
-        let type ← instantiateMVars decl.type
-        let missing? := type.find? fun e => e.isFVar && !fvarState.fvarSet.contains e.fvarId!
-        if missing?.isNone then
-          fvarIds := fvarIds.push decl.fvarId
-  let type ← mkForallFVars (fvarIds.map mkFVar) target
-  modify (·.push type)
-
-private partial def mkEqnTypes (mvarId : MVarId) : ReaderT EqnInfo (StateRefT (Array Expr) MetaM) Unit := do
-  if !(← keepGoing mvarId) then
-    saveEqn mvarId
-  else if let some mvarId ← expandRHS? mvarId then
-    mkEqnTypes mvarId
-  else if let some mvarId ← funext? mvarId then
-    mkEqnTypes mvarId
-  else if let some mvarId ← simpMatch? mvarId then
-    mkEqnTypes mvarId
-  else if let some mvarIds ← splitTarget? mvarId then
-    mvarIds.forM mkEqnTypes
-  else
-    saveEqn mvarId
-
 /-- Create a "unique" base name for equations and splitter -/
 private def mkBaseNameFor (env : Environment) (declName : Name) : Name :=
   Lean.mkBaseNameFor env declName `eq_1 `_eqns
@@ -181,8 +99,7 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) := do
     let us := info.levelParams.map mkLevelParam
     let target ← mkEq (mkAppN (Lean.mkConst info.declName us) xs) body
     let goal ← mkFreshExprSyntheticOpaqueMVar target
-    let (_, eqnTypes) ← mkEqnTypes goal.mvarId! |>.run info |>.run #[]
-    return eqnTypes
+    mkEqnTypes #[info.declName] goal.mvarId!
   let baseName := mkBaseNameFor (← getEnv) info.declName
   let mut thmNames := #[]
   for i in [: eqnTypes.size] do
@@ -201,14 +118,6 @@ builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclara
 
 def registerEqnsInfo (preDef : PreDefinition) (recArgPos : Nat) : CoreM Unit := do
   modifyEnv fun env => eqnInfoExt.insert env preDef.declName { preDef with recArgPos }
-
-structure EqnsExtState where
-  map : Std.PHashMap Name (Array Name) := {}
-  deriving Inhabited
-
-/- We generate the equations on demand, and do not save them on .olean files. -/
-builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
-  registerEnvExtension (pure {})
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   let env ← getEnv

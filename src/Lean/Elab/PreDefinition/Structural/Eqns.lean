@@ -61,10 +61,6 @@ structure EqnInfo where
   recArgPos   : Nat
   deriving Inhabited
 
-/-- Create a "unique" base name for equations and splitter -/
-private def mkBaseNameFor (env : Environment) (declName : Name) : Name :=
-  Lean.mkBaseNameFor env declName `eq_1 `_eqns
-
 private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
   trace[Elab.definition.structural.eqns] "proving: {type}"
   withNewMCtxDepth do
@@ -93,14 +89,14 @@ where
     else
       throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 
-def mkEqns (info : EqnInfo) : MetaM (Array Name) := do
+def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set . false) do
   let eqnTypes ← withNewMCtxDepth <| lambdaTelescope info.value fun xs body => do
     let us := info.levelParams.map mkLevelParam
     let target ← mkEq (mkAppN (Lean.mkConst info.declName us) xs) body
     let goal ← mkFreshExprSyntheticOpaqueMVar target
     mkEqnTypes #[info.declName] goal.mvarId!
-  let baseName := mkBaseNameFor (← getEnv) info.declName
+  let baseName := Eqns.mkBaseNameFor (← getEnv) info.declName
   let mut thmNames := #[]
   for i in [: eqnTypes.size] do
     let type := eqnTypes[i]

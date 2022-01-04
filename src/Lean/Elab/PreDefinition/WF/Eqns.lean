@@ -18,8 +18,29 @@ structure EqnInfo where
   declNameNonRec : Name
   deriving Inhabited
 
-def mkEqns (info : EqnInfo) : MetaM (Array Name) := do
-  return #[] -- TODO
+private def mkProof (declName : Name) (type : Expr) : MetaM Expr :=
+  mkSorry type false -- TODO
+
+def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
+  withOptions (tactic.hygienic.set . false) do
+  let eqnTypes ← withNewMCtxDepth <| lambdaTelescope info.value fun xs body => do
+    let us := info.levelParams.map mkLevelParam
+    let target ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
+    let goal ← mkFreshExprSyntheticOpaqueMVar target
+    mkEqnTypes info.declNames goal.mvarId!
+  let baseName := Eqns.mkBaseNameFor (← getEnv) declName
+  let mut thmNames := #[]
+  for i in [: eqnTypes.size] do
+    let type := eqnTypes[i]
+    trace[Elab.definition.wf.eqns] "{eqnTypes[i]}"
+    let name := baseName ++ (`eq).appendIndexAfter (i+1)
+    thmNames := thmNames.push name
+    let value ← mkProof declName type
+    addDecl <| Declaration.thmDecl {
+      name, type, value
+      levelParams := info.levelParams
+    }
+  return thmNames
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension `wfEqInfo
 
@@ -34,7 +55,7 @@ def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some eqs := eqnsExt.getState env |>.map.find? declName then
     return some eqs
   else if let some info := eqnInfoExt.find? env declName then
-    let eqs ← mkEqns info
+    let eqs ← mkEqns declName info
     modifyEnv fun env => eqnsExt.modifyState env fun s => { s with map := s.map.insert declName eqs }
     return some eqs
   else

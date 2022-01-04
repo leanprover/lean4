@@ -109,4 +109,8 @@ structure EqnsExtState where
 builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
   registerEnvExtension (pure {})
 
+/-- Create a "unique" base name for equations and splitter -/
+def mkBaseNameFor (env : Environment) (declName : Name) : Name :=
+  Lean.mkBaseNameFor env declName `eq_1 `_eqns
+
 end Lean.Elab.Eqns

@@ -17,6 +17,7 @@ import Lean.Util.Paths
 import Lean.Server.Utils
 import Lean.Server.Snapshots
 import Lean.Server.AsyncList
+import Lean.Server.References
 
 import Lean.Server.FileWorker.Utils
 import Lean.Server.FileWorker.RequestHandling
@@ -75,6 +76,15 @@ section Elab
 
   abbrev AsyncElabM := StateT AsyncElabState $ ExceptT ElabTaskError IO
 
+  -- Placed here instead of Lean.Server.Utils because of an import loop
+  private def publishReferences (m : DocumentMeta) (s : AsyncElabState) (hOut : FS.Stream) : IO Unit := do
+    let trees := (s.headerSnap :: s.snaps).map fun snap => snap.infoTree
+    let references := findModuleRefs m.text trees (localVars := true)
+    hOut.writeLspNotification {
+      method := "$/lean/ileanInfo"
+      param := { version := m.version, references : LeanIleanInfoParams }
+    }
+
   /-- Elaborates the next command after `parentSnap` and emits diagnostics into `hOut`. -/
   private def nextCmdSnap (ctx : WorkerContext) (m : DocumentMeta) (cancelTk : CancelToken)
       : AsyncElabM (Option Snapshot) := do
@@ -84,6 +94,7 @@ section Elab
     if lastSnap.isAtEnd then
       publishDiagnostics m lastSnap.diagnostics.toArray ctx.hOut
       publishProgressDone m ctx.hOut
+      publishReferences m s ctx.hOut
       return none
     publishProgressAtPos m lastSnap.endPos ctx.hOut
     let snap ← compileNextCmd m.text lastSnap

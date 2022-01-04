@@ -124,10 +124,13 @@ def combineFvars (refs : Array Reference) : Array Reference := Id.run do
         idMap := idMap.insert id id
 
   refs.foldl (init := #[]) fun refs ref => match ref with
-    | { ident := RefIdent.fvar id, range, isDeclaration := true } =>
-      -- Since deduplication works via definitions, we know that this keeps (at
-      -- least) one definition.
-      if idMap.contains id then refs.push ref else refs
+    | { ident := RefIdent.fvar id, range, isDeclaration := true } => Id.run do
+      -- Since deduplication works via definitions, we know that a definition
+      -- for the base id exists.
+      if let some baseId := idMap.find? id then
+        if id == baseId then -- Only keep the base definition
+          return refs.push ref
+      return refs
     | { ident := ident@(RefIdent.fvar _), range, isDeclaration := false } =>
       refs.push { ident := applyIdMap idMap ident, range, isDeclaration := false }
     | _ => refs.push ref

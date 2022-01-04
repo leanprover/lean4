@@ -10,6 +10,7 @@ import Std.Data.RBMap
 
 import Lean.Elab.Import
 
+import Lean.Data.Json
 import Lean.Data.Lsp
 import Lean.Server.Utils
 import Lean.Server.Requests
@@ -195,12 +196,22 @@ section ServerM
     return fw
 
   def eraseFileWorker (uri : DocumentUri) : ServerM Unit := do
-    (←read).fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase uri)
+    let s ← read
+    s.fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase uri)
+    if let some path := uri.toPath? then
+      if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
+        s.references.modify fun refs => refs.removeWorkerRefs module
 
   def log (msg : String) : ServerM Unit := do
     let st ← read
     st.hLog.putStrLn msg
     st.hLog.flush
+
+  def handleIleanInfo (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
+    let s ← read
+    if let some path := fw.doc.meta.uri.toPath? then
+      if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
+        s.references.modify fun refs => refs.addWorkerRefs module params.version params.references
 
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
@@ -213,6 +224,10 @@ section ServerM
           fw.erasePendingRequest id
         if let Message.responseError id _ _ _ := msg then
           fw.erasePendingRequest id
+        if let Message.notification "$/lean/ileanInfo" params := msg then
+          if let some params := params then
+            if let Except.ok params := FromJson.fromJson? $ ToJson.toJson params then
+              handleIleanInfo fw params
         -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
         o.writeLspMessage msg
       catch err =>

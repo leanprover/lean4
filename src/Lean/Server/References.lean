@@ -6,42 +6,10 @@ import Lean.Server.Utils
 import Lean.Server.InfoUtils
 import Lean.Server.Snapshots
 
-namespace Lean.Server
-open IO
-open Std
-open Lsp
-open Elab
-open Snapshots
-
 /- Representing collected and deduplicated definitions and usages -/
 
-inductive RefIdent where
-  | const : Name → RefIdent
-  | fvar : FVarId → RefIdent
-  deriving BEq, Hashable
-
-namespace RefIdent
-
-def toString : RefIdent → String
-  | RefIdent.const n => s!"c:{n}"
-  | RefIdent.fvar id => s!"f:{id.name}"
-
-def fromString (s : String) : Except String RefIdent := do
-  let sPrefix := s.take 2
-  let sName := s.drop 2
-  let mk ← match sPrefix with
-    | "c:" => RefIdent.const
-    | "f:" => fun n => RefIdent.fvar <| FVarId.mk n
-    | _ => throw "string must start with 'c:' or 'f:'"
-  -- See `FromJson Name`
-  let name ← match sName with
-    | "[anonymous]" => Name.anonymous
-    | _ => match Syntax.decodeNameLit ("`" ++ sName) with
-      | some n => n
-      | none => throw s!"expected a Name, got {sName}"
-  mk name
-
-end RefIdent
+namespace Lean.Server
+open Lsp
 
 structure Reference where
   ident : RefIdent
@@ -49,11 +17,10 @@ structure Reference where
   isDeclaration : Bool
   deriving BEq
 
-structure RefInfo where
-  definition : Option Lsp.Range
-  usages : Array Lsp.Range
+end Lean.Server
 
-namespace RefInfo
+namespace Lean.Lsp.RefInfo
+open Server
 
 def empty : RefInfo := ⟨ none, #[] ⟩
 
@@ -76,43 +43,10 @@ def contains (self : RefInfo) (pos : Lsp.Position) : Bool := Id.run do
     contains (range : Lsp.Range) (pos : Lsp.Position) : Bool :=
       range.start <= pos && pos < range.end
 
-end RefInfo
+end Lean.Lsp.RefInfo
 
-instance : ToJson RefInfo where
-  toJson i :=
-    let rangeToList (r : Lsp.Range) : List Nat :=
-      [r.start.line, r.start.character, r.end.line, r.end.character]
-    Json.mkObj [
-      ("definition", toJson $ i.definition.map rangeToList),
-      ("usages", toJson $ i.usages.map rangeToList)
-    ]
-
-instance : FromJson RefInfo where
-  fromJson? j := do
-    let listToRange (l : List Nat) : Except String Lsp.Range := match l with
-      | [sLine, sChar, eLine, eChar] => pure ⟨⟨sLine, sChar⟩, ⟨eLine, eChar⟩⟩
-      | _ => throw s!"Expected list of length 4, not {l.length}"
-    let definition ← j.getObjValAs? (Option $ List Nat) "definition"
-    let definition ← match definition with
-      | none => pure none
-      | some list => some <$> listToRange list
-    let usages ← j.getObjValAs? (Array $ List Nat) "usages"
-    let usages ← usages.mapM listToRange
-    pure { definition, usages }
-
-/-- References from a single module/file -/
-def ModuleRefs := HashMap RefIdent RefInfo
-
-instance : ToJson ModuleRefs where
-  toJson m := Json.mkObj <| m.toList.map fun (ident, info) => (ident.toString, toJson info)
-
-instance : FromJson ModuleRefs where
-  fromJson? j := do
-    let node ← j.getObj?
-    node.foldM (init := HashMap.empty) fun m k v => do
-      m.insert (← RefIdent.fromString k) (← fromJson? v)
-
-namespace ModuleRefs
+namespace Lean.Lsp.ModuleRefs
+open Server
 
 def addRef (self : ModuleRefs) (ref : Reference) : ModuleRefs :=
   let refInfo := self.findD ref.ident RefInfo.empty
@@ -124,7 +58,13 @@ def findAt? (self : ModuleRefs) (pos : Lsp.Position) : Option RefIdent := Id.run
       return some ident
   none
 
-end ModuleRefs
+end Lean.Lsp.ModuleRefs
+
+namespace Lean.Server
+open IO
+open Std
+open Lsp
+open Elab
 
 /-- Content of individual `.ilean` files -/
 structure Ilean where

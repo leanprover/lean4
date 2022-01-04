@@ -9,6 +9,7 @@ import Lean.Elab.PreDefinition.WF.PackDomain
 import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Elab.PreDefinition.WF.Rel
 import Lean.Elab.PreDefinition.WF.Fix
+import Lean.Elab.PreDefinition.WF.Eqns
 
 namespace Lean.Elab
 open WF
@@ -58,9 +59,11 @@ def wfRecursion (preDefs : Array PreDefinition) (wfStx? : Option Syntax) (decrTa
     mkFix unaryPreDef wfRel decrTactic?
   let preDefNonRec ← eraseRecAppSyntax preDefNonRec
   trace[Elab.definition.wf] ">> {preDefNonRec.declName}"
+  let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
   addNonRec preDefNonRec
   addNonRecPreDefs preDefs preDefNonRec
   addAndCompilePartialRec preDefs
+  registerEqnsInfo preDefs preDefNonRec.declName
 
 builtin_initialize registerTraceClass `Elab.definition.wf
 

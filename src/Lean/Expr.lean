@@ -822,6 +822,9 @@ def betaRev (f : Expr) (revArgs : Array Expr) : Expr :=
   if revArgs.size == 0 then f
   else betaRevAux revArgs revArgs.size f 0
 
+def beta (f : Expr) (args : Array Expr) : Expr :=
+  betaRev f args.reverse
+
 def isHeadBetaTargetFn : Expr → Bool
   | Expr.lam _ _ _ _ => true
   | Expr.mdata _ b _ => isHeadBetaTargetFn b

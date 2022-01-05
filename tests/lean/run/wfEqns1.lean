@@ -23,5 +23,5 @@ decreasing_by
 #print isEven
 
 #eval tst ``isEven
-#check @isEven.eq_1
-#check @isEven.eq_2
+#check @isEven._eq_1
+#check @isEven._eq_2

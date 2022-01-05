@@ -14,43 +14,6 @@ namespace Lean.Elab
 open Meta
 open Eqns
 
-/-- Try to close goal using `rfl` with smart unfolding turned off. -/
-def tryURefl (mvarId : MVarId) : MetaM Bool :=
-  withOptions (smartUnfolding.set . false) do
-    try applyRefl mvarId; return true catch _ => return false
-
-/-- Delta reduce the equation left-hand-side -/
-def deltaLHS (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
-  let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) ← target.eq? | throwTacticEx `deltaLHS mvarId "equality expected"
-  let some lhs ← delta? lhs | throwTacticEx `deltaLHS mvarId "failed to delta reduce lhs"
-  replaceTargetDefEq mvarId (← mkEq lhs rhs)
-
-def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := withMVarContext mvarId do
-  let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) ← target.eq? | throwTacticEx `deltaRHS mvarId "equality expected"
-  let some rhs ← delta? rhs.consumeMData (. == declName) | return none
-  replaceTargetDefEq mvarId (← mkEq lhs rhs)
-
-private partial def whnfAux (e : Expr) : MetaM Expr := do
-  let e ← whnfR e
-  match e with
-  | Expr.proj _ _ s _ => e.updateProj! (← whnfAux s)
-  | _ => e
-
-/-- Apply `whnfR` to lhs, return `none` if `lhs` was not modified -/
-def whnfReducibleLHS? (mvarId : MVarId) : MetaM (Option MVarId) := withMVarContext mvarId do
-  let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) ← target.eq? | throwTacticEx `whnfReducibleLHS mvarId "equality expected"
-  let lhs' ← whnfAux lhs
-  if lhs' != lhs then
-    return some (← replaceTargetDefEq mvarId (← mkEq lhs' rhs))
-  else
-    return none
-
-def tryContradiction (mvarId : MVarId) : MetaM Bool := do
-  try contradiction mvarId { genDiseq := true }; return true catch _ => return false
-
 namespace Structural
 
 structure EqnInfo where

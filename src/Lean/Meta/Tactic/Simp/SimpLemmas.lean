@@ -195,16 +195,22 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension) : IO
   registerBuiltinAttribute {
     name  := attrName
     descr := attrDescr
+    applicationTime := AttributeApplicationTime.afterCompilation
     add   := fun declName stx attrKind =>
       let go : MetaM Unit := do
         let info ← getConstInfo declName
+        let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
+        let prio ← getAttrParamOptPrio stx[2]
         if (← isProp info.type) then
-          let post :=
-            if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
-          let prio ← getAttrParamOptPrio stx[2]
           addSimpLemma ext declName post (inv := false) attrKind prio
         else if info.hasValue then
-          ext.add (SimpEntry.toUnfold declName) attrKind
+          if hasSmartUnfoldingDecl (← getEnv) declName then
+            ext.add (SimpEntry.toUnfold declName) attrKind
+          else if let some eqns ← getEqnsFor? declName then
+            for eqn in eqns do
+              addSimpLemma ext eqn post (inv := false) attrKind prio
+          else
+            ext.add (SimpEntry.toUnfold declName) attrKind
         else
           throwError "invalid 'simp', it is not a proposition nor a definition (to unfold)"
       discard <| go.run {} {}

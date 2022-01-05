@@ -54,8 +54,6 @@ where
       go mvarId
     else if let some mvarId ← whnfReducibleLHS? mvarId then
       go mvarId
-    else if let some mvarId ← deltaRHS? mvarId declName then
-      go mvarId
     else if let some mvarIds ← casesOnStuckLHS? mvarId then
       mvarIds.forM go
     else

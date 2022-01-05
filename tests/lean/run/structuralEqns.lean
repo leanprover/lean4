@@ -6,8 +6,8 @@ def tst (declName : Name) : MetaM Unit := do
   IO.println (← getEqnsFor? declName)
 
 #eval tst ``List.map
-#check @List.map.eq_1
-#check @List.map.eq_2
+#check @List.map._eq_1
+#check @List.map._eq_2
 
 def foo (xs ys zs : List Nat) : List Nat :=
   match (xs, ys) with
@@ -20,8 +20,8 @@ def foo (xs ys zs : List Nat) : List Nat :=
 
 #eval tst ``foo
 
-#check foo.eq_1
-#check foo.eq_2
+#check foo._eq_1
+#check foo._eq_2
 
 #eval tst ``foo
 
@@ -33,11 +33,11 @@ def g : List Nat → List Nat → Nat
   | x::xs,      []    => g xs []
 
 #eval tst ``g
-#check g.eq_1
-#check g.eq_2
-#check g.eq_3
-#check g.eq_4
-#check g.eq_5
+#check g._eq_1
+#check g._eq_2
+#check g._eq_3
+#check g._eq_4
+#check g._eq_5
 
 def h (xs : List Nat) (y : Nat) : Nat :=
   match xs with
@@ -48,9 +48,9 @@ def h (xs : List Nat) (y : Nat) : Nat :=
     | y+1 => h xs y
 
 #eval tst ``h
-#check h.eq_1
-#check h.eq_2
-#check h.eq_3
+#check h._eq_1
+#check h._eq_2
+#check h._eq_3
 
 def r (i j : Nat) : Nat :=
   i +
@@ -62,9 +62,9 @@ def r (i j : Nat) : Nat :=
           | Nat.succ j => r i j
 
 #eval tst ``r
-#check r.eq_1
-#check r.eq_2
-#check r.eq_3
+#check r._eq_1
+#check r._eq_2
+#check r._eq_3
 
 def bla (f g : α → α → α) (a : α) (i : α) (j : Nat) : α :=
   f i <|
@@ -76,6 +76,6 @@ def bla (f g : α → α → α) (a : α) (i : α) (j : Nat) : α :=
           | Nat.succ j => bla f g a i j
 
 #eval tst ``bla
-#check @bla.eq_1
-#check @bla.eq_2
-#check @bla.eq_3
+#check @bla._eq_1
+#check @bla._eq_2
+#check @bla._eq_3

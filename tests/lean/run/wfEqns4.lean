@@ -36,9 +36,9 @@ decreasing_by
 #eval f 5 'a' 'b'
 
 #eval tst ``f
-#check @f.eq_1
-#check @f.eq_2
+#check @f._eq_1
+#check @f._eq_2
 
 #eval tst ``h
-#check @h.eq_1
-#check @h.eq_2
+#check @h._eq_1
+#check @h._eq_2

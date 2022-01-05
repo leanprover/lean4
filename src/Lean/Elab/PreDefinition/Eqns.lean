@@ -111,7 +111,7 @@ builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
 
 /-- Create a "unique" base name for equations and splitter -/
 def mkBaseNameFor (env : Environment) (declName : Name) : Name :=
-  Lean.mkBaseNameFor env declName `eq_1 `_eqns
+  Lean.mkBaseNameFor env declName `_eq_1 `_eqns
 
 /-- Try to close goal using `rfl` with smart unfolding turned off. -/
 def tryURefl (mvarId : MVarId) : MetaM Bool :=

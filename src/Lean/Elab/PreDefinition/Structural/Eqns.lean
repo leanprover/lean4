@@ -64,7 +64,7 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
   for i in [: eqnTypes.size] do
     let type := eqnTypes[i]
     trace[Elab.definition.structural.eqns] "{eqnTypes[i]}"
-    let name := baseName ++ (`eq).appendIndexAfter (i+1)
+    let name := baseName ++ (`_eq).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     let value ← mkProof info.declName type
     addDecl <| Declaration.thmDecl {

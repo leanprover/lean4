@@ -7,6 +7,7 @@ import Lean.ScopedEnvExtension
 import Lean.Util.Recognizers
 import Lean.Meta.DiscrTree
 import Lean.Meta.AppBuilder
+import Lean.Meta.Eqns
 import Lean.Meta.Tactic.AuxLemma
 namespace Lean.Meta
 
@@ -66,7 +67,7 @@ where
     | none => s
     | some name => s.insert name
 
-def SimpLemmas.addDeclToUnfold (d : SimpLemmas) (declName : Name) : SimpLemmas :=
+def SimpLemmas.addDeclToUnfoldCore (d : SimpLemmas) (declName : Name) : SimpLemmas :=
   { d with toUnfold := d.toUnfold.insert declName }
 
 def SimpLemmas.isDeclToUnfold (d : SimpLemmas) (declName : Name) : Bool :=
@@ -220,7 +221,7 @@ def mkSimpExt (extName : Name) : IO SimpExtension :=
     addEntry := fun d e =>
       match e with
       | SimpEntry.lemma e => addSimpLemmaEntry d e
-      | SimpEntry.toUnfold n => d.addDeclToUnfold n
+      | SimpEntry.toUnfold n => d.addDeclToUnfoldCore n
   }
 
 def registerSimpAttr (attrName : Name) (attrDescr : String) (extName : Name := attrName.appendAfter "Ext") : IO SimpExtension := do
@@ -280,5 +281,17 @@ where
         return localDecl.userName
       else
         return none
+
+def SimpLemmas.addDeclToUnfold (d : SimpLemmas) (declName : Name) : MetaM SimpLemmas := do
+  if hasSmartUnfoldingDecl (← getEnv) declName then
+    return d.addDeclToUnfoldCore declName
+  else withLCtx {} {} do
+    if let some eqns ← getEqnsFor? declName then
+      let mut d := d
+      for eqn in eqns do
+        d ← SimpLemmas.addConst d eqn
+      return d
+    else
+      return d.addDeclToUnfoldCore declName
 
 end Lean.Meta

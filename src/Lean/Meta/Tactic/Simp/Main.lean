@@ -414,12 +414,35 @@ def main (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Result :=
   withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible do
     simp e methods ctx |>.run' {}
 
+partial def isEqnThmHypothesis (e : Expr) : Bool :=
+  e.isForall && go e
+where
+  go (e : Expr) : Bool :=
+    if e.isForall then
+      go e.bindingBody!
+    else
+      e.isConstOf ``False
+
 abbrev Discharge := Expr → SimpM (Option Expr)
+
+def dischargeUsingAssumption (e : Expr) : SimpM (Option Expr) := do
+  (← getLCtx).findDeclRevM? fun localDecl => do
+    if localDecl.isAuxDecl then
+      return none
+    else if (← isDefEq e localDecl.type) then
+      return some localDecl.toExpr
+    else
+      return none
 
 namespace DefaultMethods
 mutual
   partial def discharge? (e : Expr) : SimpM (Option Expr) := do
+    if isEqnThmHypothesis e then
+      let r ← dischargeUsingAssumption e
+      if r.isSome then
+        return r
     let ctx ← read
+    trace[Meta.Tactic.simp.discharge] ">> discharge?: {e}"
     if ctx.dischargeDepth >= ctx.config.maxDischargeDepth then
       trace[Meta.Tactic.simp.discharge] "maximum discharge depth has been reached"
       return none

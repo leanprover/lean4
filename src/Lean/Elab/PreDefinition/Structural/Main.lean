@@ -84,10 +84,10 @@ def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
     let preDefNonRec ← eraseRecAppSyntax preDefNonRec
     let preDef ← eraseRecAppSyntax preDefs[0]
     state.addMatchers.forM liftM
+    registerEqnsInfo preDef recArgPos
     mapError (addNonRec preDefNonRec) (fun msg => m!"structural recursion failed, produced type incorrect term{indentD msg}")
     addAndCompilePartialRec #[preDef]
     addSmartUnfoldingDef preDef recArgPos
-    registerEqnsInfo preDef recArgPos
 
 builtin_initialize
   registerTraceClass `Elab.definition.structural

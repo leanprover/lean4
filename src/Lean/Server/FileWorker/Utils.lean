@@ -24,6 +24,9 @@ inductive ElabTaskError where
 instance : Coe IO.Error ElabTaskError :=
   ⟨ElabTaskError.ioError⟩
 
+instance : MonadLift IO (EIO ElabTaskError) where
+  monadLift act := act.toEIO (coe ·)
+
 structure CancelToken where
   ref : IO.Ref Bool
   deriving Inhabited

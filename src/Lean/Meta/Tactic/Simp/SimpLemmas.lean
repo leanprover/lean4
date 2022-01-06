@@ -215,12 +215,12 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension) : IO
         if (← isProp info.type) then
           addSimpLemma ext declName post (inv := false) attrKind prio
         else if info.hasValue then
-          if hasSmartUnfoldingDecl (← getEnv) declName then
-            ext.add (SimpEntry.toUnfold declName) attrKind
-          else if let some eqns ← getEqnsFor? declName then
+          if let some eqns ← getEqnsFor? declName then
             for eqn in eqns do
               addSimpLemma ext eqn post (inv := false) attrKind prio
             ext.add (SimpEntry.toUnfoldThms declName eqns) attrKind
+            if hasSmartUnfoldingDecl (← getEnv) declName then
+              ext.add (SimpEntry.toUnfold declName) attrKind
           else
             ext.add (SimpEntry.toUnfold declName) attrKind
         else
@@ -302,14 +302,14 @@ where
       else
         return none
 
-def SimpLemmas.addDeclToUnfold (d : SimpLemmas) (declName : Name) : MetaM SimpLemmas := do
-  if hasSmartUnfoldingDecl (← getEnv) declName then
-    return d.addDeclToUnfoldCore declName
-  else withLCtx {} {} do
+def SimpLemmas.addDeclToUnfold (d : SimpLemmas) (declName : Name) : MetaM SimpLemmas :=
+  withLCtx {} {} do
     if let some eqns ← getEqnsFor? declName then
       let mut d := d
       for eqn in eqns do
         d ← SimpLemmas.addConst d eqn
+      if hasSmartUnfoldingDecl (← getEnv) declName then
+        d := d.addDeclToUnfoldCore declName
       return d
     else
       return d.addDeclToUnfoldCore declName

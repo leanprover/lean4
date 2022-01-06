@@ -72,7 +72,7 @@ section Elab
   private def AsyncElabState.lastSnap (s : AsyncElabState) : Snapshot :=
     s.snaps.getD (s.snaps.size - 1) s.headerSnap
 
-  abbrev AsyncElabM := StateT AsyncElabState $ ExceptT ElabTaskError IO
+  abbrev AsyncElabM := StateT AsyncElabState <| EIO ElabTaskError
 
   -- Placed here instead of Lean.Server.Utils because of an import loop
   private def publishReferences (m : DocumentMeta) (s : AsyncElabState) (hOut : FS.Stream) : IO Unit := do

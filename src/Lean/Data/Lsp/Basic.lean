@@ -31,15 +31,10 @@ offsets. For diagnostics, one-based `Lean.Position`s are used internally.
 structure Position where
   line : Nat
   character : Nat
-  deriving Inhabited, BEq, Hashable, ToJson, FromJson
+  deriving Inhabited, BEq, Ord, Hashable, ToJson, FromJson
 
 instance : ToString Position := ⟨fun p =>
   "(" ++ toString p.line ++ ", " ++ toString p.character ++ ")"⟩
-
-instance : Ord Position where
-  compare a b := match compare a.line b.line with
-    | Ordering.eq => compare a.character b.character
-    | o => o
 
 instance : LT Position := ltOfOrd
 instance : LE Position := leOfOrd

@@ -359,7 +359,7 @@ def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
     if let some module ← searchModuleNameOfFileName path srcSearchPath then
       let references ← (← read).references.get
       if let some ident := references.findAt? module p.position then
-        return ← references.referingTo ident srcSearchPath p.context.includeDeclaration
+        return ← references.referringTo ident srcSearchPath p.context.includeDeclaration
   #[]
 
 end RequestHandling

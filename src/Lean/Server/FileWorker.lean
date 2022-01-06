@@ -70,9 +70,7 @@ section Elab
     snaps : List Snapshot
 
   private def AsyncElabState.lastSnap (s : AsyncElabState) : Snapshot :=
-    match s.snaps.getLast? with
-      | some snap => snap
-      | none => s.headerSnap
+    s.snaps.getLastD s.headerSnap
 
   abbrev AsyncElabM := StateT AsyncElabState $ ExceptT ElabTaskError IO
 

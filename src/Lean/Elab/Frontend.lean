@@ -101,7 +101,7 @@ def runFrontend
     (fileName : String)
     (mainModuleName : Name)
     (trustLevel : UInt32 := 0)
-    (ileanFileName: Option String := none)
+    (ileanFileName? : Option String := none)
     : IO (Environment × Bool) := do
   let inputCtx := Parser.mkInputContext input fileName
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
@@ -109,16 +109,16 @@ def runFrontend
   let env := env.setMainModule mainModuleName
   let mut commandState := Command.mkState env messages opts
 
-  if ileanFileName.isSome then
+  if ileanFileName?.isSome then
     -- Collect InfoTrees so we can later extract and export their info to the ilean file
-    commandState := { commandState with infoState := { commandState.infoState with enabled := true }}
+    commandState := { commandState with infoState.enabled := true }
 
   let s ← IO.processCommands inputCtx parserState commandState
   for msg in s.commandState.messages.toList do
     IO.print (← msg.toString (includeEndPos := getPrintMessageEndPos opts))
 
-  if let some ileanFileName := ileanFileName then
-    let trees := s.commandState.infoState.trees.toList
+  if let some ileanFileName := ileanFileName? then
+    let trees := s.commandState.infoState.trees.toArray
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
     let ilean := { module := mainModuleName, references : Lean.Server.Ilean }
     IO.FS.writeFile ileanFileName $ toString $ toJson ilean

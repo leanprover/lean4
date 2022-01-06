@@ -32,17 +32,16 @@ def toString : RefIdent → String
 def fromString (s : String) : Except String RefIdent := do
   let sPrefix := s.take 2
   let sName := s.drop 2
-  let mk ← match sPrefix with
-    | "c:" => RefIdent.const
-    | "f:" => fun n => RefIdent.fvar <| FVarId.mk n
-    | _ => throw "string must start with 'c:' or 'f:'"
   -- See `FromJson Name`
   let name ← match sName with
     | "[anonymous]" => Name.anonymous
     | _ => match Syntax.decodeNameLit ("`" ++ sName) with
       | some n => n
       | none => throw s!"expected a Name, got {sName}"
-  mk name
+  match sPrefix with
+    | "c:" => RefIdent.const name
+    | "f:" => RefIdent.fvar <| FVarId.mk name
+    | _ => throw "string must start with 'c:' or 'f:'"
 
 end RefIdent
 

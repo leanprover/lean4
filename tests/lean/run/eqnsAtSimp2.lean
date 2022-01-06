@@ -27,3 +27,13 @@ attribute [simp] f
 
 theorem f_succ (x : Nat) : f (x+1) = f x * 2 := by
   simp
+
+theorem f_succ₂ (x : Nat) : f (x+1) = f x * 2 := by
+  simp [-f]
+  simp
+
+attribute [-simp] f
+
+theorem f_succ₃ (x : Nat) : f (x+1) = f x * 2 := by
+  simp
+  simp [f]

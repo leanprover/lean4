@@ -49,11 +49,12 @@ instance : BEq SimpLemma where
   beq e₁ e₂ := e₁.proof == e₂.proof
 
 structure SimpLemmas where
-  pre         : DiscrTree SimpLemma := DiscrTree.empty
-  post        : DiscrTree SimpLemma := DiscrTree.empty
-  lemmaNames  : Std.PHashSet Name := {}
-  toUnfold    : Std.PHashSet Name := {}
-  erased      : Std.PHashSet Name := {}
+  pre          : DiscrTree SimpLemma := DiscrTree.empty
+  post         : DiscrTree SimpLemma := DiscrTree.empty
+  lemmaNames   : Std.PHashSet Name := {}
+  toUnfold     : Std.PHashSet Name := {}
+  erased       : Std.PHashSet Name := {}
+  toUnfoldThms : Std.PHashMap Name (Array Name) := {}
   deriving Inhabited
 
 def addSimpLemmaEntry (d : SimpLemmas) (e : SimpLemma) : SimpLemmas :=
@@ -70,17 +71,26 @@ where
 def SimpLemmas.addDeclToUnfoldCore (d : SimpLemmas) (declName : Name) : SimpLemmas :=
   { d with toUnfold := d.toUnfold.insert declName }
 
+/-- Return `true` if `declName` is tagged to be unfolded using `unfoldDefinition?` (i.e., without using equational theorems). -/
 def SimpLemmas.isDeclToUnfold (d : SimpLemmas) (declName : Name) : Bool :=
   d.toUnfold.contains declName
 
 def SimpLemmas.isLemma (d : SimpLemmas) (declName : Name) : Bool :=
   d.lemmaNames.contains declName
 
-def SimpLemmas.eraseCore [Monad m] [MonadError m] (d : SimpLemmas) (declName : Name) : m SimpLemmas := do
-  return { d with erased := d.erased.insert declName, lemmaNames := d.lemmaNames.erase declName, toUnfold := d.toUnfold.erase declName }
+/-- Register the equational theorems for the given definition. -/
+def SimpLemmas.registerDeclToUnfoldThms (d : SimpLemmas) (declName : Name) (eqThms : Array Name) : SimpLemmas :=
+  { d with toUnfoldThms := d.toUnfoldThms.insert declName eqThms }
+
+partial def SimpLemmas.eraseCore (d : SimpLemmas) (declName : Name) : SimpLemmas :=
+  let d := { d with erased := d.erased.insert declName, lemmaNames := d.lemmaNames.erase declName, toUnfold := d.toUnfold.erase declName }
+  if let some thms := d.toUnfoldThms.find? declName then
+    thms.foldl (init := d) eraseCore
+  else
+    d
 
 def SimpLemmas.erase [Monad m] [MonadError m] (d : SimpLemmas) (declName : Name) : m SimpLemmas := do
-  unless d.isLemma declName || d.isDeclToUnfold declName do
+  unless d.isLemma declName || d.isDeclToUnfold declName || d.toUnfoldThms.contains declName do
     throwError "'{declName}' does not have [simp] attribute"
   d.eraseCore declName
 
@@ -179,6 +189,7 @@ private def mkSimpLemmasFromConst (declName : Name) (post : Bool) (inv : Bool) (
 inductive SimpEntry where
   | lemma    : SimpLemma → SimpEntry
   | toUnfold : Name → SimpEntry
+  | toUnfoldThms : Name → Array Name → SimpEntry
   deriving Inhabited
 
 abbrev SimpExtension := SimpleScopedEnvExtension SimpEntry SimpLemmas
@@ -209,6 +220,7 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension) : IO
           else if let some eqns ← getEqnsFor? declName then
             for eqn in eqns do
               addSimpLemma ext eqn post (inv := false) attrKind prio
+            ext.add (SimpEntry.toUnfoldThms declName eqns) attrKind
           else
             ext.add (SimpEntry.toUnfold declName) attrKind
         else
@@ -228,6 +240,7 @@ def mkSimpExt (extName : Name) : IO SimpExtension :=
       match e with
       | SimpEntry.lemma e => addSimpLemmaEntry d e
       | SimpEntry.toUnfold n => d.addDeclToUnfoldCore n
+      | SimpEntry.toUnfoldThms n thms => d.registerDeclToUnfoldThms n thms
   }
 
 def registerSimpAttr (attrName : Name) (attrDescr : String) (extName : Name := attrName.appendAfter "Ext") : IO SimpExtension := do
@@ -242,6 +255,7 @@ def getSimpLemmas : CoreM SimpLemmas :=
 
 /- Auxiliary method for adding a global declaration to a `SimpLemmas` datastructure. -/
 def SimpLemmas.addConst (s : SimpLemmas) (declName : Name) (post : Bool := true) (inv : Bool := false) (prio : Nat := eval_prio default) : MetaM SimpLemmas := do
+  let s := { s with erased := s.erased.erase declName }
   let simpLemmas ← mkSimpLemmasFromConst declName post inv prio
   return simpLemmas.foldl addSimpLemmaEntry s
 

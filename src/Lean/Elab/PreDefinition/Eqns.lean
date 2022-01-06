@@ -132,10 +132,11 @@ def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := wit
   replaceTargetDefEq mvarId (← mkEq lhs rhs)
 
 private partial def whnfAux (e : Expr) : MetaM Expr := do
-  let e ← whnfR e
-  match e with
-  | Expr.proj _ _ s _ => e.updateProj! (← whnfAux s)
-  | _ => e
+  let e ← whnfI e -- Must reduce instances too, otherwise it will not be able to reduce `(Nat.rec ... ... (OfNat.ofNat 0))`
+  let f := e.getAppFn
+  match f with
+  | Expr.proj _ _ s _ => mkAppN (f.updateProj! (← whnfAux s)) e.getAppArgs
+  | _ => return e
 
 /-- Apply `whnfR` to lhs, return `none` if `lhs` was not modified -/
 def whnfReducibleLHS? (mvarId : MVarId) : MetaM (Option MVarId) := withMVarContext mvarId do

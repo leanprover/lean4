@@ -67,16 +67,16 @@ structure WorkerContext where
 section Elab
   structure AsyncElabState where
     headerSnap : Snapshot
-    snaps : List Snapshot
+    snaps : Array Snapshot
 
   private def AsyncElabState.lastSnap (s : AsyncElabState) : Snapshot :=
-    s.snaps.getLastD s.headerSnap
+    s.snaps.getD (s.snaps.size - 1) s.headerSnap
 
   abbrev AsyncElabM := StateT AsyncElabState $ ExceptT ElabTaskError IO
 
   -- Placed here instead of Lean.Server.Utils because of an import loop
   private def publishReferences (m : DocumentMeta) (s : AsyncElabState) (hOut : FS.Stream) : IO Unit := do
-    let trees := (s.headerSnap :: s.snaps).map fun snap => snap.infoTree
+    let trees := (s.snaps.insertAt 0 s.headerSnap).map fun snap => snap.infoTree
     let references := findModuleRefs m.text trees (localVars := true)
     hOut.writeLspNotification {
       method := "$/lean/ileanInfo"
@@ -96,7 +96,7 @@ section Elab
       return none
     publishProgressAtPos m lastSnap.endPos ctx.hOut
     let snap ← compileNextCmd m.text lastSnap
-    set { s with snaps := s.snaps.append [snap] }
+    set { s with snaps := s.snaps.push snap }
     -- TODO(MH): check for interrupt with increased precision
     cancelTk.check
     /- NOTE(MH): This relies on the client discarding old diagnostics upon receiving new ones
@@ -116,7 +116,7 @@ section Elab
 
   /-- Elaborates all commands after the last snap (using `headerSnap` if `snaps`
   is empty), emitting the diagnostics into `hOut`. -/
-  def unfoldCmdSnaps (m : DocumentMeta) (headerSnap : Snapshot) (snaps : List Snapshot) (cancelTk : CancelToken)
+  def unfoldCmdSnaps (m : DocumentMeta) (headerSnap : Snapshot) (snaps : Array Snapshot) (cancelTk : CancelToken)
       : ReaderT WorkerContext IO (AsyncList ElabTaskError Snapshot) := do
     if snaps.isEmpty && headerSnap.msgLog.hasErrors then
       -- Treat header processing errors as fatal so users aren't swamped with
@@ -242,7 +242,7 @@ section Initialization
         srcSearchPath      := srcSearchPath
         initParams         := initParams
       }
-    let cmdSnaps ← unfoldCmdSnaps meta headerSnap [] cancelTk ctx
+    let cmdSnaps ← unfoldCmdSnaps meta headerSnap #[] cancelTk ctx
     let doc : EditableDocument := ⟨meta, headerSnap, cmdSnaps, cancelTk⟩
     return (ctx,
     { doc             := doc
@@ -280,7 +280,7 @@ section Updates
       let mut validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)
       if validSnaps.length = 0 then
         let cancelTk ← CancelToken.new
-        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap [] cancelTk ctx
+        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap #[] cancelTk ctx
         modify fun st => { st with doc := ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩ }
       else
         /- When at least one valid non-header snap exists, it may happen that a change does not fall
@@ -296,7 +296,7 @@ section Updates
         if newLastStx != lastSnap.stx then
           validSnaps ← validSnaps.dropLast
         let cancelTk ← CancelToken.new
-        let newSnaps ← unfoldCmdSnaps newMeta newHeaderSnap validSnaps cancelTk ctx
+        let newSnaps ← unfoldCmdSnaps newMeta newHeaderSnap validSnaps.toArray cancelTk ctx
         let newCmdSnaps := AsyncList.ofList validSnaps ++ newSnaps
         modify fun st => { st with doc := ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩ }
 end Updates

@@ -42,6 +42,9 @@ def writeNotification (n : Notification α) : IpcM Unit := do
 def readMessage : IpcM JsonRpc.Message := do
   (←stdout).readLspMessage
 
+def readRequestAs (expectedMethod : String) (α) [FromJson α] : IpcM (Request α) := do
+  (←stdout).readLspRequestAs expectedMethod α
+
 def readResponseAs (expectedID : RequestID) (α) [FromJson α] : IpcM (Response α) := do
   (←stdout).readLspResponseAs expectedID α
 

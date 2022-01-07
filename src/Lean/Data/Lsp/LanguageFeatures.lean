@@ -34,11 +34,18 @@ instance : FromJson CompletionItemKind where
     let i : Nat ← fromJson? v
     return CompletionItemKind.ofNat (i-1)
 
+structure InsertReplaceEdit where
+  newText : String
+  insert : Range
+  replace : Range
+  deriving FromJson, ToJson
+
 structure CompletionItem where
   label : String
   detail? : Option String
   documentation? : Option MarkupContent
   kind? : Option CompletionItemKind
+  textEdit? : Option InsertReplaceEdit := none
   /-
   tags? : CompletionItemTag[]
   deprecated? : boolean
@@ -48,7 +55,6 @@ structure CompletionItem where
   insertText? : string
   insertTextFormat? : InsertTextFormat
   insertTextMode? : InsertTextMode
-  textEdit? : TextEdit | InsertReplaceEdit
   additionalTextEdits? : TextEdit[]
   commitCharacters? : string[]
   command? : Command

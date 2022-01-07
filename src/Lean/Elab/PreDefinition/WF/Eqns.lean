@@ -11,11 +11,8 @@ namespace Lean.Elab.WF
 open Meta
 open Eqns
 
-structure EqnInfo where
+structure EqnInfo extends EqnInfoCore where
   declNames      : Array Name
-  levelParams    : List Name
-  type           : Expr
-  value          : Expr
   declNameNonRec : Name
   deriving Inhabited
 
@@ -62,7 +59,6 @@ where
 def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set . false) do
   let baseName := Eqns.mkBaseNameFor (← getEnv) declName
-  -- let unfoldLemma ← mkUnfoldLemma declName info baseName
   let eqnTypes ← withNewMCtxDepth <| lambdaTelescope info.value fun xs body => do
     let us := info.levelParams.map mkLevelParam
     let target ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
@@ -100,8 +96,13 @@ def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   else
     return none
 
+def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
+  let env ← getEnv
+  Eqns.getUnfoldFor? declName fun _ => eqnInfoExt.find? env declName |>.map (·.toEqnInfoCore)
+
 builtin_initialize
   registerGetEqnsFn getEqnsFor?
+  registerGetUnfoldEqnFn getUnfoldFor?
   registerTraceClass `Elab.definition.wf.eqns
 
 end Lean.Elab.WF

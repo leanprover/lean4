@@ -16,11 +16,7 @@ open Eqns
 
 namespace Structural
 
-structure EqnInfo where
-  declName    : Name
-  levelParams : List Name
-  type        : Expr
-  value       : Expr
+structure EqnInfo extends EqnInfoCore where
   recArgPos   : Nat
   deriving Inhabited
 
@@ -89,8 +85,13 @@ def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   else
     return none
 
+def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
+  let env ← getEnv
+  Eqns.getUnfoldFor? declName fun _ => eqnInfoExt.find? env declName |>.map (·.toEqnInfoCore)
+
 builtin_initialize
   registerGetEqnsFn getEqnsFor?
+  registerGetUnfoldEqnFn getUnfoldFor?
   registerTraceClass `Elab.definition.structural.eqns
 
 end Structural

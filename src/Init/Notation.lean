@@ -394,7 +394,7 @@ macro "let' " d:letDecl : tactic => `(refine_lift' let $d:letDecl; ?_)
 
 syntax inductionAlt  := ppDedent(ppLine) "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
-syntax (name := induction) "induction " term,+ (" using " ident)?  ("generalizing " term:max+)? (inductionAlts)? : tactic
+syntax (name := induction) "induction " term,+ (" using " ident)?  ("generalizing " (colGt term:max)+)? (inductionAlts)? : tactic
 
 syntax generalizeArg := atomic(ident " : ")? term:51 " = " ident
 /--

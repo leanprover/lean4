@@ -193,9 +193,18 @@ section Initialization
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let cmdState := { cmdState with infoState := {
       enabled := true
-      -- add dummy tree for invariant in `Snapshot.infoTree`
-      -- TODO: maybe even fill with useful stuff
-      trees := #[Elab.InfoTree.node (Elab.Info.ofCommandInfo { elaborator := `import, stx := headerStx }) #[].toPersistentArray].toPersistentArray
+      trees := #[Elab.InfoTree.context ({
+        env := headerEnv
+        fileMap := m.text
+      }) (Elab.InfoTree.node
+          (Elab.Info.ofCommandInfo { elaborator := `import, stx := headerStx })
+          (headerStx[1].getArgs.toList.map (fun importStx =>
+            Elab.InfoTree.node (Elab.Info.ofCommandInfo {
+              elaborator := Name.anonymous,
+              stx := importStx
+            }) #[].toPersistentArray
+          )).toPersistentArray
+      )].toPersistentArray
     }}
     let headerSnap := {
       beginPos := 0

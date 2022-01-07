@@ -21,10 +21,9 @@ partial def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
   throwError "'casesOnStuckLHS' failed"
 where
   findFVar? (e : Expr) : MetaM (Option FVarId) := do
-    match e with
+    match e.getAppFn with
     | Expr.proj _ _ e _ => findFVar? e
-    | Expr.app .. =>
-      let f := e.getAppFn
+    | f =>
       if !f.isConst then
         return none
       else
@@ -37,7 +36,7 @@ where
           else
             return none
         | none =>
-          matchConstRec e.getAppFn (fun _ => return none) fun recVal _ => do
+          matchConstRec f (fun _ => return none) fun recVal _ => do
             if recVal.getMajorIdx >= args.size then
               return none
             let major := args[recVal.getMajorIdx]
@@ -45,7 +44,6 @@ where
               return some major.fvarId!
             else
               return none
-    | _ => return none
 
 def casesOnStuckLHS? (mvarId : MVarId) : MetaM (Option (Array MVarId)) := do
   try casesOnStuckLHS mvarId catch _ => return none

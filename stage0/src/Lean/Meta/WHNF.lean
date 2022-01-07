@@ -23,6 +23,9 @@ def smartUnfoldingSuffix := "_sunfold"
 @[inline] def mkSmartUnfoldingNameFor (declName : Name) : Name :=
   Name.mkStr declName smartUnfoldingSuffix
 
+def hasSmartUnfoldingDecl (env : Environment) (declName : Name) : Bool :=
+  env.contains (mkSmartUnfoldingNameFor declName)
+
 register_builtin_option smartUnfolding : Bool := {
   defValue := true
   descr := "when computing weak head normal form, use auxiliary definition created for functions defined by structural recursion"

@@ -45,7 +45,7 @@ private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonR
       let arg ← mkSum 0 domain
       mkLambdaFVars xs (mkApp (mkConst preDefNonRec.declName us) arg)
     trace[Elab.definition.wf] "{preDef.declName} := {value}"
-    addNonRec { preDef with value }
+    addNonRec { preDef with value } (applyAttrAfterCompilation := false)
 
 def wfRecursion (preDefs : Array PreDefinition) (wfStx? : Option Syntax) (decrTactic? : Option Syntax) : TermElabM Unit := do
   let unaryPreDef ← withoutModifyingEnv do
@@ -62,8 +62,10 @@ def wfRecursion (preDefs : Array PreDefinition) (wfStx? : Option Syntax) (decrTa
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
   addNonRec preDefNonRec
   addNonRecPreDefs preDefs preDefNonRec
-  addAndCompilePartialRec preDefs
   registerEqnsInfo preDefs preDefNonRec.declName
+  for preDef in preDefs do
+    applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
+  addAndCompilePartialRec preDefs
 
 builtin_initialize registerTraceClass `Elab.definition.wf
 

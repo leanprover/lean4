@@ -22,3 +22,6 @@ theorem isEven_double (x : Nat) : isEven (2 * x) = true := by
     rw [Nat.add_succ]
     simp
     exact ih
+
+theorem isEven_succ_succ (x : Nat) : isEven (x + 2) = isEven x := by
+  conv => lhs; unfold isEven; rw [Nat.add_succ]; simp; unfold isOdd; rw [Nat.add_succ]; simp

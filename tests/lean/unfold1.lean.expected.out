@@ -1,0 +1,14 @@
+case succ
+x : Nat
+ih : isEven (2 * x) = true
+⊢ (match 2 * Nat.succ x with
+    | 0 => true
+    | Nat.succ n => isOdd n) =
+    true
+case succ
+x : Nat
+ih : isEven (2 * x) = true
+⊢ (match 2 * x + 1 with
+    | 0 => false
+    | Nat.succ n => isEven n) =
+    true

@@ -371,6 +371,11 @@ syntax (name := simpAll) "simp_all " (config)? (discharger)? (&"only ")? ("[" (s
   Delta expand the given definition.
   This is a low-level tactic, it will expose how recursive definitions have been compiled by Lean. -/
 syntax (name := delta) "delta " ident (location)? : tactic
+/--
+  Unfold definition. For non-recursive definitions, this tactic is identical to `delta`.
+  For recursive definitions, it hides the encoding tricks used by the Lean frontend to convince the
+  kernel that the definition terminates. -/
+syntax (name := unfold) "unfold " ident (location)? : tactic
 
 -- Auxiliary macro for lifting have/suffices/let/...
 -- It makes sure the "continuation" `?_` is the main goal after refining

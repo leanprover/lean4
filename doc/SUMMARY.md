@@ -47,7 +47,6 @@
   - [Thunk](./thunk.md)
   - [Task and Thread](./task.md)
 - [Functions](./functions.md)
-- [Tactics](./tactics.md)
 
 # Other
 

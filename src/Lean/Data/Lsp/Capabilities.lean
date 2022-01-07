@@ -17,15 +17,21 @@ namespace Lsp
 
 open Json
 
--- TODO: right now we ignore the client's capabilities
-inductive ClientCapabilities where
-  | mk
+structure CompletionItemCapabilities where
+  insertReplaceSupport? : Option Bool
+  deriving ToJson, FromJson
 
-instance : FromJson ClientCapabilities :=
-  ⟨fun j => ClientCapabilities.mk⟩
+structure CompletionClientCapabilities where
+  completionItem? : Option CompletionItemCapabilities
+  deriving ToJson, FromJson
 
-instance ClientCapabilities.hasToJson : ToJson ClientCapabilities :=
-  ⟨fun o => mkObj []⟩
+structure TextDocumentClientCapabilities where
+  completion? : Option CompletionClientCapabilities
+  deriving ToJson, FromJson
+
+structure ClientCapabilities where
+  textDocument? : Option TextDocumentClientCapabilities
+  deriving ToJson, FromJson
 
 -- TODO largely unimplemented
 structure ServerCapabilities where

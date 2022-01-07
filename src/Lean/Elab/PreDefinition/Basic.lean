@@ -92,7 +92,7 @@ private def compileDecl (decl : Declaration) : TermElabM Bool := do
       throw ex
   return true
 
-private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM Unit :=
+private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (applyAttrAfterCompilation := true) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs preDef
     let env ← getEnv
@@ -118,13 +118,14 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM U
     if compile && shouldGenCodeFor preDef then
       unless (← compileDecl decl) do
         return ()
-    applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
+    if applyAttrAfterCompilation then
+      applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
 def addAndCompileNonRec (preDef : PreDefinition) : TermElabM Unit := do
   addNonRecAux preDef true
 
-def addNonRec (preDef : PreDefinition) : TermElabM Unit := do
-  addNonRecAux preDef false
+def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) : TermElabM Unit := do
+  addNonRecAux preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation)
 
 /--
   Eliminate recursive application annotations containing syntax. These annotations are used by the well-founded recursion module

@@ -60,6 +60,7 @@ structure WorkerContext where
   hOut          : FS.Stream
   hLog          : FS.Stream
   srcSearchPath : SearchPath
+  initParams    : InitializeParams
 
 /- Asynchronous snapshot elaboration. -/
 section Elab
@@ -207,7 +208,7 @@ section Initialization
     publishDiagnostics m headerSnap.diagnostics.toArray hOut
     return (headerSnap, srcSearchPath)
 
-  def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream) (opts : Options)
+  def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
       : IO (WorkerContext × WorkerState) := do
     let (headerSnap, srcSearchPath) ← compileHeader meta o opts
     let cancelTk ← CancelToken.new
@@ -216,6 +217,7 @@ section Initialization
         hOut               := o
         hLog               := e
         srcSearchPath      := srcSearchPath
+        initParams         := initParams
       }
     let cmdSnaps ← unfoldCmdSnaps meta headerSnap cancelTk (initial := true) ctx
     let doc : EditableDocument := ⟨meta, headerSnap, cmdSnaps, cancelTk⟩
@@ -371,7 +373,8 @@ section MessageHandling
       { rpcSessions := st.rpcSessions
         srcSearchPath := ctx.srcSearchPath
         doc := st.doc
-        hLog := ctx.hLog }
+        hLog := ctx.hLog
+        initParams := ctx.initParams }
     let t? ← EIO.toIO' <| handleLspRequest method params rc
     let t₁ ← match t? with
       | Except.error e =>
@@ -426,7 +429,7 @@ end MainLoop
 def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let i ← maybeTee "fwIn.txt" false i
   let o ← maybeTee "fwOut.txt" true o
-  let _ ← i.readLspRequestAs "initialize" InitializeParams
+  let initParams ← i.readLspRequestAs "initialize" InitializeParams
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" DidOpenTextDocumentParams
   let doc := param.textDocument
   /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
@@ -438,7 +441,7 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let e ← e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   try
-    let (ctx, st) ← initializeWorker meta i o e opts
+    let (ctx, st) ← initializeWorker meta i o e initParams.param opts
     let _ ← StateRefT'.run (s := st) <| ReaderT.run (r := ctx) mainLoop
     return (0 : UInt32)
   catch e =>

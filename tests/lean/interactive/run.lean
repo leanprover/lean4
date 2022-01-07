@@ -7,7 +7,16 @@ partial def main (args : List String) : IO Unit := do
   let uri := s!"file://{args.head!}"
   Ipc.runWith (←IO.appPath) #["--server"] do
     let hIn ← Ipc.stdin
-    Ipc.writeRequest ⟨0, "initialize", { capabilities := ⟨⟩ : InitializeParams }⟩
+    let capabilities := {
+      textDocument? := some {
+        completion? := some {
+          completionItem? := some {
+            insertReplaceSupport? := true
+          }
+        }
+      }
+    }
+    Ipc.writeRequest ⟨0, "initialize", { capabilities : InitializeParams }⟩
     let _ ← Ipc.readResponseAs 0 InitializeResult
     Ipc.writeNotification ⟨"initialized", InitializedParams.mk⟩
 

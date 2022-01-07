@@ -166,19 +166,27 @@ structure UnfoldEqnExtState where
 builtin_initialize unfoldEqnExt : EnvExtension UnfoldEqnExtState ←
   registerEnvExtension (pure {})
 
-private def tryEqns (mvarId : MVarId) (eqs : Array Name) : MetaM Bool :=
-  eqs.anyM fun eq => commitWhen do
-    try
-      let subgoals ← apply mvarId (← mkConstWithFreshMVarLevels eq)
-      subgoals.allM assumptionCore
-    catch _ =>
-      return false
-
-partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) (eqs : Array Name) : MetaM Unit := do
-  go mvarId
-where
-  go (mvarId : MVarId) : MetaM Unit := do
-    if (← tryEqns mvarId eqs) then
+/--
+  Auxiliary method for `mkUnfoldEq`. The structure is based on `mkEqnTypes`.
+  `mvarId` is the goal to be proved. It is a goal of the form
+  ```
+  declName x_1 ... x_n = body[x_1, ..., x_n]
+  ```
+  The proof is constracted using the automatically generated equational theorems.
+  We basically keep splitting the `match` and `if-then-else` expressions in the right hand side
+  until one of the equational theorems is applicable.
+-/
+partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
+  let some eqs ← getEqnsFor? declName | throwError "failed to generate equations for '{declName}'"
+  let tryEqns (mvarId : MVarId) : MetaM Bool :=
+    eqs.anyM fun eq => commitWhen do
+      try
+        let subgoals ← apply mvarId (← mkConstWithFreshMVarLevels eq)
+        subgoals.allM assumptionCore
+      catch _ =>
+        return false
+  let rec go (mvarId : MVarId) : MetaM Unit := do
+    if (← tryEqns mvarId) then
       return ()
     else if let some mvarId ← funext? mvarId then
       go mvarId
@@ -188,17 +196,18 @@ where
       mvarIds.forM go
     else
      throwError "failed to generate unfold theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+  go mvarId
 
+/-- Generate the "unfold" lemma for `declName`. -/
 def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := do
   let env ← getEnv
-  let some eqs ← getEqnsFor? declName | throwError "failed to generate equations for '{declName}'"
   withOptions (tactic.hygienic.set . false) do
     let baseName := Lean.mkBaseNameFor env declName `_unfold `_unfold
     lambdaTelescope info.value fun xs body => do
       let us := info.levelParams.map mkLevelParam
       let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
       let goal ← mkFreshExprSyntheticOpaqueMVar type
-      mkUnfoldProof declName goal.mvarId! eqs
+      mkUnfoldProof declName goal.mvarId!
       let type ← mkForallFVars xs type
       let value ← mkLambdaFVars xs (← instantiateMVars goal)
       let name := baseName ++ `_unfold

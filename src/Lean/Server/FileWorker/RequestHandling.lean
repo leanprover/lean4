@@ -69,30 +69,32 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
   let hoverPos := text.lspPosToUtf8Pos p.position
 
   let locationLinksFromDecl (i : Elab.Info) (n : Name) := do
-    let mod? ← findModuleOf? n
-    let modUri? ← match mod? with
+    let some ranges ← findDeclarationRanges? n
+      | return #[]
+
+    let mod? ← match (← findBuiltinModuleOf? n) with
+      | some mod => some mod
+      | none     => findModuleOf? n
+    let modUri ← match mod? with
       | some modName =>
         let some modFname ← rc.srcSearchPath.findWithExt "lean" modName
-          | pure none
+          | return #[]
         -- resolve symlinks (such as `src` in the build dir) so that files are opened
         -- in the right folder
         let modFname ← IO.FS.realPath modFname
-        pure <| some <| Lsp.DocumentUri.ofPath modFname
-      | none         => pure <| some doc.meta.uri
+        pure <| Lsp.DocumentUri.ofPath modFname
+      | none         => pure doc.meta.uri
 
-    let ranges? ← findDeclarationRanges? n
-    if let (some ranges, some modUri) := (ranges?, modUri?) then
-      let declRangeToLspRange (r : DeclarationRange) : Lsp.Range :=
-        { start := ⟨r.pos.line - 1, r.charUtf16⟩
-          «end» := ⟨r.endPos.line - 1, r.endCharUtf16⟩ }
-      let ll : LocationLink := {
-        originSelectionRange? := (·.toLspRange text) <$> i.range?
-        targetUri := modUri
-        targetRange := declRangeToLspRange ranges.range
-        targetSelectionRange := declRangeToLspRange ranges.selectionRange
-      }
-      return #[ll]
-    return #[]
+    let declRangeToLspRange (r : DeclarationRange) : Lsp.Range :=
+      { start := ⟨r.pos.line - 1, r.charUtf16⟩
+        «end» := ⟨r.endPos.line - 1, r.endCharUtf16⟩ }
+    let ll : LocationLink := {
+      originSelectionRange? := (·.toLspRange text) <$> i.range?
+      targetUri := modUri
+      targetRange := declRangeToLspRange ranges.range
+      targetSelectionRange := declRangeToLspRange ranges.selectionRange
+    }
+    return #[ll]
 
   let locationLinksFromBinder (t : InfoTree) (i : Elab.Info) (id : FVarId) := do
     if let some i' := t.findInfo? fun
@@ -131,9 +133,9 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
             return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
         -- If other go-tos fail, we try to show the elaborator or parser
         if let some ei := i.toElabInfo? then
-          if kind == declaration && ci.env.contains ei.stx.getKind then
+          if kind == declaration then
             return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.stx.getKind
-          if kind == definition && ci.env.contains ei.elaborator then
+          if kind == definition then
             return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
       return #[]
 

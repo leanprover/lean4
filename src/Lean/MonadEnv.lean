@@ -151,10 +151,16 @@ builtin_initialize builtinModuleMap : IO.Ref (NameMap Name) ← IO.mkRef {}
 def addToBuiltinModuleMap (declName modName : Name) : IO Unit :=
   builtinModuleMap.modify (·.insert declName modName)
 
-def findModuleOf? [Monad m] [MonadEnv m] [MonadError m] [MonadLift IO m] (declName : Name) : m (Option Name) := do
+/--
+  Return module of built-in declaration registered with `addToBuiltinModuleMap`.
+  The declaration and module might not actually be part of any `Environment` object. -/
+def findBuiltinModuleOf? (declName : Name) : IO (Option Name) := do
+  return (← builtinModuleMap.get).find? declName
+
+def findModuleOf? [Monad m] [MonadEnv m] [MonadError m] [MonadLiftT IO m] (declName : Name) : m (Option Name) := do
   discard <| getConstInfo declName -- ensure declaration exists
   match (← getEnv).getModuleIdxFor? declName with
-  | none        => return (← builtinModuleMap.get).find? declName
+  | none        => return none
   | some modIdx => return some ((← getEnv).allImportedModuleNames[modIdx])
 
 def isEnumType  [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Bool := do

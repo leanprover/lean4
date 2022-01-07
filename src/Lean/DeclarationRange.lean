@@ -37,7 +37,8 @@ instance : ToExpr DeclarationRanges where
 builtin_initialize builtinDeclRanges : IO.Ref (NameMap DeclarationRanges) ← IO.mkRef {}
 builtin_initialize declRangeExt : MapDeclarationExtension DeclarationRanges ← mkMapDeclarationExtension `declranges
 
-def addBuiltinDeclarationRanges (declName : Name) (declRanges : DeclarationRanges) : IO Unit :=
+def addBuiltinDeclarationRanges (declName modName : Name) (declRanges : DeclarationRanges) : IO Unit := do
+  addToBuiltinModuleMap declName modName
   builtinDeclRanges.modify (·.insert declName declRanges)
 
 def addDeclarationRanges [MonadEnv m] (declName : Name) (declRanges : DeclarationRanges) : m Unit :=

@@ -145,10 +145,16 @@ unsafe def evalConst [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α)
 unsafe def evalConstCheck [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α) (typeName : Name) (constName : Name) : m α := do
   ofExcept <| (← getEnv).evalConstCheck α (← getOptions) typeName constName
 
-def findModuleOf? [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m (Option Name) := do
+-- map built-in parsers/elaborators to module names even if not imported
+builtin_initialize builtinModuleMap : IO.Ref (NameMap Name) ← IO.mkRef {}
+
+def addToBuiltinModuleMap (declName modName : Name) : IO Unit :=
+  builtinModuleMap.modify (·.insert declName modName)
+
+def findModuleOf? [Monad m] [MonadEnv m] [MonadError m] [MonadLift IO m] (declName : Name) : m (Option Name) := do
   discard <| getConstInfo declName -- ensure declaration exists
   match (← getEnv).getModuleIdxFor? declName with
-  | none        => return none
+  | none        => return (← builtinModuleMap.get).find? declName
   | some modIdx => return some ((← getEnv).allImportedModuleNames[modIdx])
 
 def isEnumType  [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Bool := do

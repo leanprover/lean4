@@ -199,7 +199,7 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
   go mvarId
 
 /-- Generate the "unfold" lemma for `declName`. -/
-def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := do
+def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {} {} do
   let env ← getEnv
   withOptions (tactic.hygienic.set . false) do
     let baseName := Lean.mkBaseNameFor env declName `_unfold `_unfold

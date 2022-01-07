@@ -76,7 +76,7 @@ with builtins; let
   fakeDepRoot = runBareCommandLocal "${name}-dep-root" {} ''
     mkdir $out
     cd $out
-    mkdir ${lib.concatStringsSep " " ([name] ++ (map (d: d.name) allExternalDeps))}
+    mkdir ${lib.concatStringsSep " " (lib.unique ([name] ++ (map (d: d.name) allExternalDeps)))}
   '';
   print-lean-deps = writeShellScriptBin "print-lean-deps" ''
     export LEAN_PATH=${fakeDepRoot}

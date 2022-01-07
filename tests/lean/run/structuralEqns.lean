@@ -3,11 +3,12 @@ import Lean
 open Lean
 open Lean.Meta
 def tst (declName : Name) : MetaM Unit := do
-  IO.println (← getEqnsFor? declName)
+  IO.println (← getUnfoldEqnFor? declName)
 
 #eval tst ``List.map
 #check @List.map._eq_1
 #check @List.map._eq_2
+#check @List.map._unfold
 
 def foo (xs ys zs : List Nat) : List Nat :=
   match (xs, ys) with
@@ -22,6 +23,7 @@ def foo (xs ys zs : List Nat) : List Nat :=
 
 #check foo._eq_1
 #check foo._eq_2
+#check foo._unfold
 
 #eval tst ``foo
 
@@ -38,6 +40,7 @@ def g : List Nat → List Nat → Nat
 #check g._eq_3
 #check g._eq_4
 #check g._eq_5
+#check g._unfold
 
 def h (xs : List Nat) (y : Nat) : Nat :=
   match xs with
@@ -51,6 +54,7 @@ def h (xs : List Nat) (y : Nat) : Nat :=
 #check h._eq_1
 #check h._eq_2
 #check h._eq_3
+#check h._unfold
 
 def r (i j : Nat) : Nat :=
   i +
@@ -65,6 +69,7 @@ def r (i j : Nat) : Nat :=
 #check r._eq_1
 #check r._eq_2
 #check r._eq_3
+#check r._unfold
 
 def bla (f g : α → α → α) (a : α) (i : α) (j : Nat) : α :=
   f i <|
@@ -79,3 +84,4 @@ def bla (f g : α → α → α) (a : α) (i : α) (j : Nat) : α :=
 #check @bla._eq_1
 #check @bla._eq_2
 #check @bla._eq_3
+#check @bla._unfold

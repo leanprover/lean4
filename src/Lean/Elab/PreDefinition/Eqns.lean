@@ -166,9 +166,28 @@ structure UnfoldEqnExtState where
 builtin_initialize unfoldEqnExt : EnvExtension UnfoldEqnExtState ←
   registerEnvExtension (pure {})
 
-def mkUnfoldProof (declName : Name) (mvarId : MVarId) (eqs : Array Name) : MetaM Unit := do
-  -- TODO
-  throwError "failed to generate unfold theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+private def tryEqns (mvarId : MVarId) (eqs : Array Name) : MetaM Bool :=
+  eqs.anyM fun eq => commitWhen do
+    try
+      let subgoals ← apply mvarId (← mkConstWithFreshMVarLevels eq)
+      subgoals.allM assumptionCore
+    catch _ =>
+      return false
+
+partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) (eqs : Array Name) : MetaM Unit := do
+  go mvarId
+where
+  go (mvarId : MVarId) : MetaM Unit := do
+    if (← tryEqns mvarId eqs) then
+      return ()
+    else if let some mvarId ← funext? mvarId then
+      go mvarId
+    else if let some mvarId ← simpMatch? mvarId then
+      go mvarId
+    else if let some mvarIds ← splitTarget? mvarId then
+      mvarIds.forM go
+    else
+     throwError "failed to generate unfold theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 
 def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := do
   let env ← getEnv

@@ -3,7 +3,7 @@ import Lean
 open Lean
 open Lean.Meta
 def tst (declName : Name) : MetaM Unit := do
-  IO.println (← getEqnsFor? declName)
+  IO.println (← getUnfoldEqnFor? declName)
 
 inductive Wk: Nat -> Nat -> Type 0 where
   | id: Wk n n
@@ -17,3 +17,4 @@ def wk_comp : Wk n m → Wk m l → Wk n l
 
 #check @wk_comp._eq_1
 #check @wk_comp._eq_2
+#check @wk_comp._unfold

@@ -3,7 +3,7 @@ import Lean
 open Lean
 open Lean.Meta
 def tst (declName : Name) : MetaM Unit := do
-  IO.println (← getEqnsFor? declName)
+  IO.println (← getUnfoldEqnFor? declName)
 
 mutual
 def g (i j : Nat) : Nat :=
@@ -34,6 +34,8 @@ decreasing_by
 #check g._eq_1
 #check g._eq_2
 #check g._eq_3
+#check g._unfold
 #eval tst ``h
 #check h._eq_1
 #check h._eq_2
+#check h._unfold

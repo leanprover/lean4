@@ -3,7 +3,7 @@ import Lean
 open Lean
 open Lean.Meta
 def tst (declName : Name) : MetaM Unit := do
-  IO.println (← getEqnsFor? declName)
+  IO.println (← getUnfoldEqnFor? declName)
 
 def f (x : Nat) : Nat :=
   if h : x = 0 then
@@ -17,3 +17,4 @@ decreasing_by
 
 #eval tst ``f
 #check f._eq_1
+#check f._unfold

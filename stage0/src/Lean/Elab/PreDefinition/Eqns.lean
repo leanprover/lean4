@@ -11,6 +11,13 @@ import Lean.Meta.Tactic.Apply
 namespace Lean.Elab.Eqns
 open Meta
 
+structure EqnInfoCore where
+  declName    : Name
+  levelParams : List Name
+  type        : Expr
+  value       : Expr
+  deriving Inhabited
+
 partial def expand : Expr → Expr
   | Expr.letE _ t v b _ => expand (b.instantiate1 v)
   | Expr.mdata _ b _    => expand b
@@ -108,5 +115,92 @@ structure EqnsExtState where
 /- We generate the equations on demand, and do not save them on .olean files. -/
 builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
   registerEnvExtension (pure {})
+
+/-- Create a "unique" base name for equations and splitter -/
+def mkBaseNameFor (env : Environment) (declName : Name) : Name :=
+  Lean.mkBaseNameFor env declName `_eq_1 `_eqns
+
+/-- Try to close goal using `rfl` with smart unfolding turned off. -/
+def tryURefl (mvarId : MVarId) : MetaM Bool :=
+  withOptions (smartUnfolding.set . false) do
+    try applyRefl mvarId; return true catch _ => return false
+
+/-- Delta reduce the equation left-hand-side -/
+def deltaLHS (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
+  let target ← getMVarType' mvarId
+  let some (_, lhs, rhs) ← target.eq? | throwTacticEx `deltaLHS mvarId "equality expected"
+  let some lhs ← delta? lhs | throwTacticEx `deltaLHS mvarId "failed to delta reduce lhs"
+  replaceTargetDefEq mvarId (← mkEq lhs rhs)
+
+def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := withMVarContext mvarId do
+  let target ← getMVarType' mvarId
+  let some (_, lhs, rhs) ← target.eq? | throwTacticEx `deltaRHS mvarId "equality expected"
+  let some rhs ← delta? rhs.consumeMData (. == declName) | return none
+  replaceTargetDefEq mvarId (← mkEq lhs rhs)
+
+private partial def whnfAux (e : Expr) : MetaM Expr := do
+  let e ← whnfI e -- Must reduce instances too, otherwise it will not be able to reduce `(Nat.rec ... ... (OfNat.ofNat 0))`
+  let f := e.getAppFn
+  match f with
+  | Expr.proj _ _ s _ => mkAppN (f.updateProj! (← whnfAux s)) e.getAppArgs
+  | _ => return e
+
+/-- Apply `whnfR` to lhs, return `none` if `lhs` was not modified -/
+def whnfReducibleLHS? (mvarId : MVarId) : MetaM (Option MVarId) := withMVarContext mvarId do
+  let target ← getMVarType' mvarId
+  let some (_, lhs, rhs) ← target.eq? | throwTacticEx `whnfReducibleLHS mvarId "equality expected"
+  let lhs' ← whnfAux lhs
+  if lhs' != lhs then
+    return some (← replaceTargetDefEq mvarId (← mkEq lhs' rhs))
+  else
+    return none
+
+def tryContradiction (mvarId : MVarId) : MetaM Bool := do
+  try contradiction mvarId { genDiseq := true }; return true catch _ => return false
+
+structure UnfoldEqnExtState where
+  map : Std.PHashMap Name Name := {}
+  deriving Inhabited
+
+/- We generate the unfold equation on demand, and do not save them on .olean files. -/
+builtin_initialize unfoldEqnExt : EnvExtension UnfoldEqnExtState ←
+  registerEnvExtension (pure {})
+
+def mkUnfoldProof (declName : Name) (mvarId : MVarId) (eqs : Array Name) : MetaM Unit := do
+  -- TODO
+  throwError "failed to generate unfold theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+
+def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := do
+  let env ← getEnv
+  let some eqs ← getEqnsFor? declName | throwError "failed to generate equations for '{declName}'"
+  withOptions (tactic.hygienic.set . false) do
+    let baseName := Lean.mkBaseNameFor env declName `_unfold `_unfold
+    lambdaTelescope info.value fun xs body => do
+      let us := info.levelParams.map mkLevelParam
+      let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
+      let goal ← mkFreshExprSyntheticOpaqueMVar type
+      mkUnfoldProof declName goal.mvarId! eqs
+      let type ← mkForallFVars xs type
+      let value ← mkLambdaFVars xs (← instantiateMVars goal)
+      let name := baseName ++ `_unfold
+      addDecl <| Declaration.thmDecl {
+        name, type, value
+        levelParams := info.levelParams
+      }
+      return name
+
+def getUnfoldFor? (declName : Name) (getInfo? : Unit → Option EqnInfoCore) : MetaM (Option Name) := do
+  let env ← getEnv
+  if let some eq := unfoldEqnExt.getState env |>.map.find? declName then
+    return some eq
+  else if let some info := getInfo? () then
+    let eq ← mkUnfoldEq declName info
+    modifyEnv fun env => unfoldEqnExt.modifyState env fun s => { s with map := s.map.insert declName eq }
+    return some eq
+  else
+    return none
+
+builtin_initialize
+  registerTraceClass `Elab.definition.unfoldEqn
 
 end Lean.Elab.Eqns

@@ -59,6 +59,7 @@ structure RequestContext where
   srcSearchPath : SearchPath
   doc           : FileWorker.EditableDocument
   hLog          : IO.FS.Stream
+  initParams    : Lsp.InitializeParams
 
 abbrev RequestTask α := Task (Except RequestError α)
 /-- Workers execute request handlers in this monad. -/

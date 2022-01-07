@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Environment
 import Lean.Parser.Term
 import Lean.Data.Lsp.LanguageFeatures
+import Lean.Data.Lsp.Capabilities
 import Lean.Data.Lsp.Utf16
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Match.MatcherInfo
@@ -318,7 +319,7 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (hoverInfo : Hov
             if (← isDotCompletionMethod typeName c) then
               addCompletionItem c.name.getString! c.type expectedType? c.name (kind := (← getCompletionKindForDecl c))
 
-private def optionCompletion (ctx : ContextInfo) (stx : Syntax) : IO (Option CompletionList) :=
+private def optionCompletion (ctx : ContextInfo) (stx : Syntax) (caps : ClientCapabilities) : IO (Option CompletionList) :=
   ctx.runMetaM {} do
     let (partialName, trailingDot) :=
       -- `stx` is from `"set_option" >> ident`
@@ -337,7 +338,9 @@ private def optionCompletion (ctx : ContextInfo) (stx : Syntax) : IO (Option Com
     for ⟨name, decl⟩ in decls do
       if partialName.isPrefixOf name.toString then
         let textEdit :=
-          if let some ⟨start, stop⟩ := stx[1].getRange? then
+          if !caps.textDocument?.any (·.completion?.any (·.completionItem?.any (·.insertReplaceSupport?.any (·)))) then
+            none -- InsertReplaceEdit not supported by client
+          else if let some ⟨start, stop⟩ := stx[1].getRange? then
             let stop := if trailingDot then stop + 1 else stop
             let range := ⟨ctx.fileMap.utf8PosToLspPos start, ctx.fileMap.utf8PosToLspPos stop⟩
             some { newText := name.toString, insert := range, replace := range : InsertReplaceEdit }
@@ -360,14 +363,14 @@ private def tacticCompletion (ctx : ContextInfo) : IO (Option CompletionList) :=
       items.push { label := tk.toString, detail? := none, documentation? := none, kind? := CompletionItemKind.keyword }
     return some { items := sortCompletionItems items, isIncomplete := true }
 
-partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTree) : IO (Option CompletionList) := do
+partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTree) (caps : ClientCapabilities) : IO (Option CompletionList) := do
   let ⟨hoverLine, _⟩ := fileMap.toPosition hoverPos
   match infoTree.foldInfo (init := none) (choose fileMap hoverLine) with
   | some (hoverInfo, ctx, Info.ofCompletionInfo info) =>
     match info with
     | CompletionInfo.dot info (expectedType? := expectedType?) .. => dotCompletion ctx info hoverInfo expectedType?
     | CompletionInfo.id stx id danglingDot lctx expectedType? => idCompletion ctx lctx id hoverInfo danglingDot expectedType?
-    | CompletionInfo.option stx => optionCompletion ctx stx
+    | CompletionInfo.option stx => optionCompletion ctx stx caps
     | CompletionInfo.tactic .. => tacticCompletion ctx
     | _ => return none
   | _ =>

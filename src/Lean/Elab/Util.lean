@@ -106,10 +106,11 @@ unsafe def mkElabAttribute (γ) (attrDeclName attrBuiltinName attrName : Name) (
     evalKey       := fun _ stx => syntaxNodeKindOfAttrParam parserNamespace stx
     onAdded       := fun builtin declName => do
       if builtin then
-      if let some doc ← findDocString? (← getEnv) declName then
-        declareBuiltin (declName ++ `docString) (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
-      if let some declRanges ← findDeclarationRanges? declName then
-        declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])
+        let env ← getEnv
+        if let some doc ← findDocString? env declName then
+          declareBuiltin (declName ++ `docString) (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
+        if let some declRanges ← findDeclarationRanges? declName then
+          declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr env.mainModule, toExpr declRanges])
   } attrDeclName
 
 unsafe def mkMacroAttributeUnsafe : IO (KeyedDeclsAttribute Macro) :=

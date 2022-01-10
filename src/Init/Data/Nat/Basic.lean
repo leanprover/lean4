@@ -411,12 +411,15 @@ theorem not_eq_zero_of_pos (h : 0 < a) : a ≠ 0 := by
   contradiction
   apply Nat.noConfusion
 
-theorem add_sub_self (a b : Nat) : (a + b) - a = b := by
+theorem add_sub_self_left (a b : Nat) : (a + b) - a = b := by
   induction a with
   | zero => simp
   | succ a ih =>
     rw [Nat.succ_add, Nat.succ_sub_succ]
     apply ih
+
+theorem add_sub_self_right (a b : Nat) : (a + b) - b = a := by
+  rw [Nat.add_comm]; apply add_sub_self_left
 
 theorem sub_le_succ_sub (a i : Nat) : a - i ≤ a.succ - i := by
   cases i with
@@ -428,7 +431,7 @@ theorem zero_lt_sub_of_lt (h : i < a) : 0 < a - i := by
   | zero => contradiction
   | succ a ih =>
     match Nat.eq_or_lt_of_le h with
-    | Or.inl h => injection h with h; subst h; rw [←Nat.add_one, Nat.add_sub_self]; decide
+    | Or.inl h => injection h with h; subst h; rw [←Nat.add_one, Nat.add_sub_self_left]; decide
     | Or.inr h =>
       have : 0 < a - i := ih (Nat.lt_of_succ_lt_succ h)
       exact Nat.lt_of_lt_of_le this (Nat.sub_le_succ_sub _ _)

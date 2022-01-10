@@ -102,7 +102,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
   let mut headers := #[]
   for view in views do
     let newHeader ← withRef view.ref do
-      let ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+      let ⟨shortDeclName, declName, levelNames⟩ ← Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
       addDeclarationRanges declName view.ref
       applyAttributesAt declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration
       withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|

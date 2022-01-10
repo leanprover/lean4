@@ -7,4 +7,5 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural
 import Lean.Elab.PreDefinition.Main
 import Lean.Elab.PreDefinition.MkInhabitant
+import Lean.Elab.PreDefinition.WF
 import Lean.Elab.PreDefinition.Eqns

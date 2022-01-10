@@ -475,7 +475,7 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
   if let some doc ← findDocString? (← getEnv) declName then
     declareBuiltin (declName ++ `docString) (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
   if let some declRanges ← findDeclarationRanges? declName then
-    declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])
+    declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr env.mainModule, toExpr declRanges])
   runParserAttributeHooks catName declName (builtin := true)
 
 /-

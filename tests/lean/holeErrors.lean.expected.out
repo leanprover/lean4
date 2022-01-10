@@ -20,6 +20,5 @@ holeErrors.lean:15:7-16:10: error: failed to infer definition type
 holeErrors.lean:19:13-19:15: error: don't know how to synthesize implicit argument
   @id ?m
 context:
-x : ?m → ?m
 ⊢ Sort u_1
 holeErrors.lean:19:8-19:9: error: failed to infer 'let rec' declaration type

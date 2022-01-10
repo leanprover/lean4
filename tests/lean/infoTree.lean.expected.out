@@ -357,7 +357,7 @@ infoTree.lean:44:0: error: expected stx
           _uniq.851 : Nat @ ⟨45, 25⟩-⟨45, 26⟩
   _uniq.860 : Nat @ ⟨45, 8⟩-⟨45, 9⟩
   _uniq.861 : Nat @ ⟨45, 10⟩-⟨45, 11⟩
-  (fun (f7 : forall (x : Nat), Nat -> (Eq.{1} Nat x x)) => f7 _uniq.860 _uniq.861) f6.f7 : Eq.{1} Nat _uniq.860 _uniq.860 @ ⟨46, 2⟩-⟨47, 8⟩ @ Lean.Elab.Term.elabLetRec
+  (fun (f7 : forall (x : Nat), Nat -> (Eq.{1} Nat x x)) => [mdata _recApp: f7 _uniq.860 _uniq.861]) f6.f7 : Eq.{1} Nat _uniq.860 _uniq.860 @ ⟨46, 2⟩-⟨47, 8⟩ @ Lean.Elab.Term.elabLetRec
     Nat : Type @ ⟨46, 20⟩-⟨46, 23⟩ @ Lean.Elab.Term.elabIdent
       [.] `Nat : some Sort.{?_uniq.862} @ ⟨46, 20⟩-⟨46, 23⟩
       Nat : Type @ ⟨46, 20⟩-⟨46, 23⟩
@@ -384,7 +384,7 @@ infoTree.lean:44:0: error: expected stx
       Eq.refl.{1} : forall {α : Type} (a : α), Eq.{1} α a a @ ⟨46, 36⟩-⟨46, 43⟩
       _uniq.873 : Nat @ ⟨46, 44⟩-⟨46, 45⟩ @ Lean.Elab.Term.elabIdent
         _uniq.873 : Nat @ ⟨46, 44⟩-⟨46, 45⟩
-    _uniq.870 _uniq.860 _uniq.861 : Eq.{1} Nat _uniq.860 _uniq.860 @ ⟨47, 2⟩-⟨47, 8⟩ @ Lean.Elab.Term.elabApp
+    [mdata _recApp: _uniq.870 _uniq.860 _uniq.861] : Eq.{1} Nat _uniq.860 _uniq.860 @ ⟨47, 2⟩-⟨47, 8⟩ @ Lean.Elab.Term.elabApp
       _uniq.870 : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨47, 2⟩-⟨47, 4⟩
       _uniq.860 : Nat @ ⟨47, 5⟩-⟨47, 6⟩ @ Lean.Elab.Term.elabIdent
         _uniq.860 : Nat @ ⟨47, 5⟩-⟨47, 6⟩

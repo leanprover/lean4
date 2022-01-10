@@ -266,7 +266,7 @@ theorem zero_lt_of_lt : {a b : Nat} → a < b → 0 < b
     have : a < b := Nat.lt_trans (Nat.lt_succ_self _) h
     zero_lt_of_lt this
 
-theorem lt_or_eq_or_le_succ {m n : Nat} (h : m ≤ succ n) : m ≤ n ∨ m = succ n :=
+theorem le_or_eq_or_le_succ {m n : Nat} (h : m ≤ succ n) : m ≤ n ∨ m = succ n :=
   Decidable.byCases
     (fun (h' : m = succ n) => Or.inr h')
     (fun (h' : m ≠ succ n) =>
@@ -387,7 +387,7 @@ theorem pow_le_pow_of_le_right {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤
     have : i = 0 := eq_zero_of_le_zero h
     this.symm ▸ Nat.le_refl _
   | succ j, h =>
-    match lt_or_eq_or_le_succ h with
+    match le_or_eq_or_le_succ h with
     | Or.inl h => show n^i ≤ n^j * n from
       have : n^i * 1 ≤ n^j * n := Nat.mul_le_mul (pow_le_pow_of_le_right hx h) hx
       Nat.mul_one (n^i) ▸ this

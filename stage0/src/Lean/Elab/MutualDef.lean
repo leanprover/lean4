@@ -7,6 +7,7 @@ import Lean.Parser.Term
 import Lean.Meta.Closure
 import Lean.Meta.Check
 import Lean.Elab.Command
+import Lean.Elab.Match
 import Lean.Elab.DefView
 import Lean.Elab.PreDefinition
 import Lean.Elab.DeclarationRange
@@ -101,7 +102,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
   let mut headers := #[]
   for view in views do
     let newHeader ← withRef view.ref do
-      let ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+      let ⟨shortDeclName, declName, levelNames⟩ ← Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
       addDeclarationRanges declName view.ref
       applyAttributesAt declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration
       withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
@@ -690,6 +691,16 @@ def processDefDeriving (className : Name) (declName : Name) : TermElabM Bool := 
   catch ex =>
     return false
 
+/-- Remove auxiliary match discriminant let-declarations. -/
+def eraseAuxDiscr (e : Expr) : CoreM Expr := do
+  Core.transform e fun e => match e with
+    | Expr.letE n _ v b .. =>
+      if isAuxDiscrName n then
+        return TransformStep.visit (b.instantiate1 v)
+      else
+        return TransformStep.visit e
+    | e => return TransformStep.visit e
+
 def elabMutualDef (vars : Array Expr) (views : Array DefView) (hints : TerminationHints) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv go
@@ -716,6 +727,11 @@ where
         let preDefs ← levelMVarToParamPreDecls preDefs
         let preDefs ← instantiateMVarsAtPreDecls preDefs
         let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
+        let preDefs ← preDefs.mapM fun preDef =>
+          if preDef.kind.isTheorem || preDef.kind.isExample then
+            return preDef
+          else
+            return { preDef with value := (← eraseAuxDiscr preDef.value) }
         addPreDefinitions preDefs hints
         processDeriving headers
 

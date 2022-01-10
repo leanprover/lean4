@@ -23,3 +23,4 @@ import Lean.Meta.Tactic.AuxLemma
 import Lean.Meta.Tactic.SplitIf
 import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.Cleanup
+import Lean.Meta.Tactic.Unfold

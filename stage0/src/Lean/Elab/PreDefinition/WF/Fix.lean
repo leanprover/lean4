@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.Match.Match
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Cleanup
+import Lean.Elab.Tactic.Basic
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
@@ -17,12 +18,9 @@ private def toUnfold : Std.PHashSet Name :=
   [``measure, ``id, ``Prod.lex, ``invImage, ``InvImage, ``Nat.lt_wfRel].foldl (init := {}) fun s a => s.insert a
 
 private def applyDefaultDecrTactic (mvarId : MVarId) : TermElabM Unit := do
-  let ctx ← Simp.Context.mkDefault
-  let ctx := { ctx with simpLemmas.toUnfold := toUnfold }
-  if let some mvarId ← simpTarget mvarId ctx then
-    -- TODO: invoke tactic to close the goal
-    Term.reportUnsolvedGoals [mvarId]
-    throwAbortTactic
+  let remainingGoals ← Tactic.run mvarId do
+    Tactic.evalTactic (← `(tactic| default_decreasing_tactic))
+  remainingGoals.forM fun mvarId => Term.reportUnsolvedGoals [mvarId]
 
 private def mkDecreasingProof (decreasingProp : Expr) (decrTactic? : Option Syntax) : TermElabM Expr := do
   let mvar ← mkFreshExprSyntheticOpaqueMVar decreasingProp

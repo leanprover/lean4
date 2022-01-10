@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition
-// Imports: Init Lean.Elab.PreDefinition.Basic Lean.Elab.PreDefinition.Structural Lean.Elab.PreDefinition.Main Lean.Elab.PreDefinition.MkInhabitant Lean.Elab.PreDefinition.Eqns
+// Imports: Init Lean.Elab.PreDefinition.Basic Lean.Elab.PreDefinition.Structural Lean.Elab.PreDefinition.Main Lean.Elab.PreDefinition.MkInhabitant Lean.Elab.PreDefinition.WF Lean.Elab.PreDefinition.Eqns
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ lean_object* initialize_Lean_Elab_PreDefinition_Basic(lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_Structural(lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_Main(lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_MkInhabitant(lean_object*);
+lean_object* initialize_Lean_Elab_PreDefinition_WF(lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_Eqns(lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition(lean_object* w) {
@@ -37,6 +38,9 @@ res = initialize_Lean_Elab_PreDefinition_Main(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_PreDefinition_MkInhabitant(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_PreDefinition_WF(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_PreDefinition_Eqns(lean_io_mk_world());

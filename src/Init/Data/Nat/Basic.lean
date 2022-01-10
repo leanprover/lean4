@@ -405,6 +405,41 @@ protected def min (n m : Nat) : Nat :=
 protected def max (n m : Nat) : Nat :=
   if n ≤ m then m else n
 
+/- Auxiliary theorems for well-founded recursion -/
+theorem not_eq_zero_of_pos (h : 0 < a) : a ≠ 0 := by
+  cases a
+  contradiction
+  apply Nat.noConfusion
+
+theorem add_sub_self (a b : Nat) : (a + b) - a = b := by
+  induction a with
+  | zero => simp
+  | succ a ih =>
+    rw [Nat.succ_add, Nat.succ_sub_succ]
+    apply ih
+
+theorem sub_le_succ_sub (a i : Nat) : a - i ≤ a.succ - i := by
+  cases i with
+  | zero => apply Nat.le_of_lt; apply Nat.lt_succ_self
+  | succ i => rw [Nat.sub_succ, Nat.succ_sub_succ]; apply Nat.pred_le
+
+theorem zero_lt_sub_of_lt (h : i < a) : 0 < a - i := by
+  induction a with
+  | zero => contradiction
+  | succ a ih =>
+    match Nat.eq_or_lt_of_le h with
+    | Or.inl h => injection h with h; subst h; rw [←Nat.add_one, Nat.add_sub_self]; decide
+    | Or.inr h =>
+      have : 0 < a - i := ih (Nat.lt_of_succ_lt_succ h)
+      exact Nat.lt_of_lt_of_le this (Nat.sub_le_succ_sub _ _)
+
+theorem sub_succ_lt_self (a i : Nat) (h : i < a) : a - (i + 1) < a - i := by
+  rw [Nat.add_succ, Nat.sub_succ]
+  apply Nat.pred_lt
+  apply Nat.not_eq_zero_of_pos
+  apply Nat.zero_lt_sub_of_lt
+  assumption
+
 end Nat
 
 namespace Prod

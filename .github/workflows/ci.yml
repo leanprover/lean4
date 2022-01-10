@@ -72,6 +72,7 @@ jobs:
       CCACHE_MAXSIZE: 200M
       # squelch error message about missing nixpkgs channel
       NIX_BUILD_SHELL: bash
+      LSAN_OPTIONS: max_leaks=10
     steps:
       - name: Checkout
         uses: actions/checkout@v2

@@ -121,7 +121,7 @@ def runFrontend
     let trees := s.commandState.infoState.trees.toArray
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
     let ilean := { module := mainModuleName, references : Lean.Server.Ilean }
-    IO.FS.writeFile ileanFileName $ toString $ toJson ilean
+    IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
 
   pure (s.commandState.env, !s.commandState.messages.hasErrors)
 

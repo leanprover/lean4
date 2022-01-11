@@ -182,6 +182,14 @@ add_test(NAME leanpkgtest_user_attr
            find . -name '*.olean' -delete
            leanmake")
 
+add_test(NAME leanpkgtest_user_deriving
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/deriving"
+         COMMAND bash -c "
+           set -eu
+           export ${TEST_VARS}
+           find . -name '*.olean' -delete
+           leanmake")
+
 add_test(NAME leanpkgtest_user_opt
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/user_opt"
          COMMAND bash -c "

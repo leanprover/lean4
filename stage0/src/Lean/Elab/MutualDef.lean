@@ -641,7 +641,7 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
       else
         newHeaders := newHeaders.push header
     return newHeaders
-  let newHeaders ← process.run' 1
+  let newHeaders ← (process).run' 1
   newHeaders.mapM fun header => return { header with type := (← instantiateMVars header.type) }
 
 /-- Result for `mkInst?` -/

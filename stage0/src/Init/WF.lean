@@ -264,8 +264,10 @@ def lexAccessible {a} (aca : Acc r a) (acb : (a : α) → WellFounded (s a)) (b 
       | right => apply ihb; assumption
 
 -- The lexicographical order of well founded relations is well-founded
-def lex (ha : WellFounded r) (hb : (x : α) → WellFounded (s x)) : WellFounded (Lex r s) :=
-  WellFounded.intro fun ⟨a, b⟩ => lexAccessible (WellFounded.apply ha a) hb b
+def lex (ha : WellFoundedRelation α) (hb : (a : α) → WellFoundedRelation (β a)) : WellFoundedRelation (PSigma β) where
+  rel := Lex ha.rel (fun a => hb a |>.rel)
+  wf  := WellFounded.intro fun ⟨a, b⟩ => lexAccessible (WellFounded.apply ha.wf a) (fun a => hb a |>.wf) b
+
 end
 
 section

@@ -26,7 +26,7 @@
       ===>
       Prod.mk✝ x x
         (x, x) : Nat × Nat @ ⟨14, 11⟩†-⟨14, 16⟩ @ Lean.Elab.Term.elabApp
-          Prod.mk : {α β : Type} → α → β → α × β @ ⟨14, 11⟩†-⟨14, 17⟩†
+          @Prod.mk : {α β : Type} → α → β → α × β @ ⟨14, 11⟩†-⟨14, 17⟩†
           x : Nat @ ⟨14, 12⟩-⟨14, 13⟩ @ Lean.Elab.Term.elabIdent
             x : Nat @ ⟨14, 12⟩-⟨14, 13⟩
           x : Nat @ ⟨14, 15⟩-⟨14, 16⟩ @ Lean.Elab.Term.elabIdent
@@ -34,7 +34,7 @@
     y : Nat × Nat @ ⟨14, 6⟩-⟨14, 7⟩
     id y : Nat × Nat @ ⟨15, 2⟩-⟨15, 6⟩ @ Lean.Elab.Term.elabApp
       [.] `id : some Prod.{0 0} Nat Nat @ ⟨15, 2⟩-⟨15, 4⟩
-      id : {α : Type} → α → α @ ⟨15, 2⟩-⟨15, 4⟩
+      @id : {α : Type} → α → α @ ⟨15, 2⟩-⟨15, 4⟩
       y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩ @ Lean.Elab.Term.elabIdent
         y : Nat × Nat @ ⟨15, 5⟩-⟨15, 6⟩
   f : Nat → Nat × Nat @ ⟨13, 4⟩-⟨13, 5⟩
@@ -166,7 +166,7 @@
             ===>
             Prod.mk✝ (x + y) (x - y)
               (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩†-⟨23, 31⟩ @ Lean.Elab.Term.elabApp
-                Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 18⟩†-⟨23, 32⟩†
+                @Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 18⟩†-⟨23, 32⟩†
                 x + y : Nat @ ⟨23, 19⟩-⟨23, 24⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
                   Macro expansion
                   x + y
@@ -193,11 +193,11 @@
             let z1 := z + w;
             z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.elabMatch
             x✝ : Nat × Nat @ ⟨23, 4⟩†-⟨25, 10⟩†
-            Prod.mk : {α : Type ?u} → {β : Type ?u} → α → β → α × β @ ⟨23, 4⟩†-⟨25, 10⟩†
+            @Prod.mk : {α : Type ?u} → {β : Type ?u} → α → β → α × β @ ⟨23, 4⟩†-⟨25, 10⟩†
             [.] `z : none @ ⟨23, 9⟩-⟨23, 10⟩
             [.] `w : none @ ⟨23, 12⟩-⟨23, 13⟩
             (z, w) : Nat × Nat @ ⟨23, 4⟩†-⟨23, 13⟩ @ Lean.Elab.Term.elabApp
-              Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 4⟩†-⟨25, 10⟩†
+              @Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 4⟩†-⟨25, 10⟩†
               Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩† @ Lean.Elab.Term.elabHole
               Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩† @ Lean.Elab.Term.elabHole
               z : Nat @ ⟨23, 9⟩-⟨23, 10⟩ @ Lean.Elab.Term.elabIdent
@@ -264,14 +264,14 @@
   s : Nat × Array (Array Nat) @ ⟨27, 8⟩-⟨27, 9⟩
   Array.push (Array.getOp s.snd 1) s.fst : Array Nat @ ⟨28, 2⟩-⟨28, 17⟩ @ Lean.Elab.Term.elabApp
     s : Nat × Array (Array Nat) @ ⟨28, 2⟩-⟨28, 3⟩
-    Prod.snd : {α β : Type} → α × β → β @ ⟨28, 4⟩-⟨28, 5⟩
-    Array.getOp : {α : Type} → [inst : Inhabited α] → Array α → Nat → α @ ⟨28, 5⟩-⟨28, 6⟩
+    @Prod.snd : {α β : Type} → α × β → β @ ⟨28, 4⟩-⟨28, 5⟩
+    @Array.getOp : {α : Type} → [inst : Inhabited α] → Array α → Nat → α @ ⟨28, 5⟩-⟨28, 6⟩
     1 : Nat @ ⟨28, 6⟩-⟨28, 7⟩ @ Lean.Elab.Term.elabNumLit
     [.] Array.getOp s.snd 1 : Array Nat @ ⟨28, 2⟩-⟨28, 8⟩ : some Array.{0} Nat
-    Array.push : {α : Type} → Array α → α → Array α @ ⟨28, 9⟩-⟨28, 13⟩
+    @Array.push : {α : Type} → Array α → α → Array α @ ⟨28, 9⟩-⟨28, 13⟩
     s.fst : Nat @ ⟨28, 14⟩-⟨28, 17⟩ @ Lean.Elab.Term.elabProj
       s : Nat × Array (Array Nat) @ ⟨28, 14⟩-⟨28, 15⟩
-      Prod.fst : {α β : Type} → α × β → α @ ⟨28, 16⟩-⟨28, 17⟩
+      @Prod.fst : {α β : Type} → α × β → α @ ⟨28, 16⟩-⟨28, 17⟩
   f3 : Nat × Array (Array Nat) → Array Nat @ ⟨27, 4⟩-⟨27, 6⟩
 [Elab.info] command @ ⟨30, 0⟩-⟨31, 20⟩ @ Lean.Elab.Command.elabDeclaration
   B : Type @ ⟨30, 14⟩-⟨30, 15⟩ @ Lean.Elab.Term.elabIdent
@@ -287,7 +287,7 @@
     [.] arg : B @ ⟨31, 2⟩-⟨31, 18⟩ : some Nat
     B.pair : B → A × A @ ⟨31, 6⟩-⟨31, 10⟩
     [.] arg.pair : A × A @ ⟨31, 2⟩-⟨31, 18⟩ : some Nat
-    Prod.fst : {α β : Type} → α × β → α @ ⟨31, 11⟩-⟨31, 14⟩
+    @Prod.fst : {α β : Type} → α × β → α @ ⟨31, 11⟩-⟨31, 14⟩
     [.] arg.pair.fst : A @ ⟨31, 2⟩-⟨31, 18⟩ : some Nat
     A.val : A → Nat → Nat @ ⟨31, 15⟩-⟨31, 18⟩
     0 : Nat @ ⟨31, 19⟩-⟨31, 20⟩ @ Lean.Elab.Term.elabNumLit
@@ -308,16 +308,16 @@
       ===>
       Prod.mk✝ { val := id } { val := id }
         ({ val := id }, { val := id }) : A × A @ ⟨34, 10⟩†-⟨34, 39⟩ @ Lean.Elab.Term.elabApp
-          Prod.mk : {α β : Type} → α → β → α × β @ ⟨34, 10⟩†-⟨34, 40⟩†
+          @Prod.mk : {α β : Type} → α → β → α × β @ ⟨34, 10⟩†-⟨34, 40⟩†
           { val := id } : A @ ⟨34, 11⟩-⟨34, 24⟩ @ Lean.Elab.Term.StructInst.elabStructInst
             id : Nat → Nat @ ⟨34, 20⟩-⟨34, 22⟩ @ Lean.Elab.Term.elabIdent
               [.] `id : some Nat -> Nat @ ⟨34, 20⟩-⟨34, 22⟩
-              id : {α : Type} → α → α @ ⟨34, 20⟩-⟨34, 22⟩
+              @id : {α : Type} → α → α @ ⟨34, 20⟩-⟨34, 22⟩
             val : Nat → Nat := id @ ⟨34, 13⟩-⟨34, 16⟩
           { val := id } : A @ ⟨34, 26⟩-⟨34, 39⟩ @ Lean.Elab.Term.StructInst.elabStructInst
             id : Nat → Nat @ ⟨34, 35⟩-⟨34, 37⟩ @ Lean.Elab.Term.elabIdent
               [.] `id : some Nat -> Nat @ ⟨34, 35⟩-⟨34, 37⟩
-              id : {α : Type} → α → α @ ⟨34, 35⟩-⟨34, 37⟩
+              @id : {α : Type} → α → α @ ⟨34, 35⟩-⟨34, 37⟩
             val : Nat → Nat := id @ ⟨34, 28⟩-⟨34, 31⟩
     pair : A × A := ({ val := id }, { val := id }) @ ⟨34, 2⟩-⟨34, 6⟩
   f5 : Nat → B @ ⟨33, 4⟩-⟨33, 6⟩

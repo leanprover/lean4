@@ -39,6 +39,10 @@ set_option format.width 20
 -- #eval checkM `(Type _)
 -- #eval checkM `(Type (_ + 2))
 
+#eval checkM `(@max Nat)
+#eval checkM `(@HEq Nat 1)
+#eval checkM `(@List.nil)
+
 #eval checkM `(Nat)
 #eval checkM `(List Nat)
 #eval checkM `(id Nat)

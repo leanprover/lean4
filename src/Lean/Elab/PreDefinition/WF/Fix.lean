@@ -14,12 +14,9 @@ import Lean.Elab.PreDefinition.Structural.Basic
 namespace Lean.Elab.WF
 open Meta
 
-private def toUnfold : Std.PHashSet Name :=
-  [``measure, ``id, ``Prod.lex, ``invImage, ``InvImage, ``Nat.lt_wfRel].foldl (init := {}) fun s a => s.insert a
-
 private def applyDefaultDecrTactic (mvarId : MVarId) : TermElabM Unit := do
   let remainingGoals ← Tactic.run mvarId do
-    Tactic.evalTactic (← `(tactic| default_decreasing_tactic))
+    Tactic.evalTactic (← `(tactic| decreasing_tactic))
   remainingGoals.forM fun mvarId => Term.reportUnsolvedGoals [mvarId]
 
 private def mkDecreasingProof (decreasingProp : Expr) (decrTactic? : Option Syntax) : TermElabM Expr := do

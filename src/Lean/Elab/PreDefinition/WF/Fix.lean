@@ -53,7 +53,7 @@ private partial def replaceRecApps (recFnName : Name) (decrTactic? : Option Synt
       let processApp (e : Expr) : TermElabM Expr :=
         e.withApp fun f args => do
           if f.isConstOf recFnName && args.size == 1 then
-            let r := mkApp F args[0]
+            let r := mkApp F (← loop F args[0])
             let decreasingProp := (← whnf (← inferType r)).bindingDomain!
             return mkApp r (← mkDecreasingProof decreasingProp decrTactic?)
           else

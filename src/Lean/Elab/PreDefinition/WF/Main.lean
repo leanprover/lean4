@@ -58,7 +58,7 @@ def wfRecursion (preDefs : Array PreDefinition) (wfStx? : Option Syntax) (decrTa
     addAsAxiom unaryPreDef
     mkFix unaryPreDef wfRel decrTactic?
   let preDefNonRec ← eraseRecAppSyntax preDefNonRec
-  trace[Elab.definition.wf] ">> {preDefNonRec.declName}"
+  trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
   addNonRec preDefNonRec
   addNonRecPreDefs preDefs preDefNonRec

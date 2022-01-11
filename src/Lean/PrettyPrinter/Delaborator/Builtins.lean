@@ -110,6 +110,27 @@ def delabConst : Delab := do
     addTermInfo (← getPos) stx (← getExpr)
   stx
 
+def withMDataOptions [Inhabited α] (x : DelabM α) : DelabM α := do
+  match ← getExpr with
+  | Expr.mdata m .. =>
+    let mut posOpts := (← read).optionsPerPos
+    let pos ← getPos
+    for (k, v) in m do
+      if (`pp).isPrefixOf k then
+        let opts := posOpts.find? pos |>.getD {}
+        posOpts := posOpts.insert pos (opts.insert k v)
+    withReader ({ · with optionsPerPos := posOpts }) $ withMDataExpr x
+  | _ => x
+
+partial def withMDatasOptions [Inhabited α] (x : DelabM α) : DelabM α := do
+  if (← getExpr).isMData then withMDataOptions (withMDatasOptions x) else x
+
+def delabAppFn : Delab := do
+  if (← getExpr).consumeMData.isConst then
+    withMDatasOptions delabConst
+  else
+    delab
+
 structure ParamKind where
   name        : Name
   bInfo       : BinderInfo
@@ -144,8 +165,7 @@ def delabAppExplicit : Delab := whenPPOption getPPExplicit do
   let paramKinds ← getParamKinds
   let (fnStx, _, argStxs) ← withAppFnArgs
     (do
-      let fn ← getExpr
-      let stx ← if fn.isConst then delabConst else delab
+      let stx ← delabAppFn
       let needsExplicit := paramKinds.any (fun param => !param.isRegularExplicit) && stx.getKind != `Lean.Parser.Term.explicit
       let stx ← if needsExplicit then `(@$stx) else pure stx
       pure (stx, paramKinds.toList, #[]))
@@ -168,21 +188,6 @@ def shouldShowMotive (motive : Expr) (opts : Options) : MetaM Bool := do
   getPPMotivesAll opts
   <||> (← getPPMotivesPi opts <&&> returnsPi motive)
   <||> (← getPPMotivesNonConst opts <&&> isNonConstFun motive)
-
-def withMDataOptions [Inhabited α] (x : DelabM α) : DelabM α := do
-  match ← getExpr with
-  | Expr.mdata m .. =>
-    let mut posOpts := (← read).optionsPerPos
-    let pos ← getPos
-    for (k, v) in m do
-      if (`pp).isPrefixOf k then
-        let opts := posOpts.find? pos |>.getD {}
-        posOpts := posOpts.insert pos (opts.insert k v)
-    withReader ({ · with optionsPerPos := posOpts }) $ withMDataExpr x
-  | _ => x
-
-partial def withMDatasOptions [Inhabited α] (x : DelabM α) : DelabM α := do
-  if (← getExpr).isMData then withMDataOptions (withMDatasOptions x) else x
 
 def isRegularApp : DelabM Bool := do
   let e ← getExpr
@@ -248,10 +253,7 @@ def delabAppImplicit : Delab := do
     if paramKinds.any (fun param => !param.isRegularExplicit) then failure
 
   let (fnStx, _, argStxs) ← withAppFnArgs
-    (do
-      let fn ← getExpr
-      let stx ← if fn.isConst then delabConst else delab
-      pure (stx, paramKinds.toList, #[]))
+    (return (← delabAppFn, paramKinds.toList, #[]))
     (fun (fnStx, paramKinds, argStxs) => do
       let arg ← getExpr
       let opts ← getOptions

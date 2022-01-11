@@ -161,12 +161,12 @@ where
           k (xs ++ ys) b
 
 @[builtinDelab app]
-def delabAppExplicit : Delab := whenPPOption getPPExplicit do
+def delabAppExplicit : Delab := do
   let paramKinds ← getParamKinds
   let (fnStx, _, argStxs) ← withAppFnArgs
     (do
       let stx ← delabAppFn
-      let needsExplicit := paramKinds.any (fun param => !param.isRegularExplicit) && stx.getKind != `Lean.Parser.Term.explicit
+      let needsExplicit := stx.getKind != ``Lean.Parser.Term.explicit
       let stx ← if needsExplicit then `(@$stx) else pure stx
       pure (stx, paramKinds.toList, #[]))
     (fun ⟨fnStx, paramKinds, argStxs⟩ => do
@@ -251,6 +251,14 @@ def delabAppImplicit : Delab := do
   let paramKinds ← getParamKinds
   if ← getPPOption getPPExplicit then
     if paramKinds.any (fun param => !param.isRegularExplicit) then failure
+
+  -- If the application has an implicit function type, fall back to delabAppExplicit.
+  -- This is e.g. necessary for `@Eq`.
+  let isImplicitApp ← try
+      let ty ← whnf (← inferType (← getExpr))
+      ty.isForall && (ty.binderInfo == BinderInfo.implicit || ty.binderInfo == BinderInfo.instImplicit)
+    catch _ => false
+  if isImplicitApp then failure
 
   let (fnStx, _, argStxs) ← withAppFnArgs
     (return (← delabAppFn, paramKinds.toList, #[]))

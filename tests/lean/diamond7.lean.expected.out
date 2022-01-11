@@ -27,7 +27,7 @@ fun (α : Type u) [self : CommMonoid.{u} α] =>
 def CommGroup.toCommMonoid.{u} : {α : Type u} → [self : CommGroup.{u} α] → CommMonoid.{u} α :=
 fun (α : Type u) [self : CommGroup.{u} α] =>
   @CommMonoid.mk.{u} α (@Group.toMonoid.{u} α (@CommGroup.toGroup.{u} α self)) (@CommGroup.mul_comm.{u} α self)
-Field.mk : {α : Type u_1} → [toDivisionRing : DivisionRing α] → (∀ (a b : α), a * b = b * a) → Field α
+@Field.mk : {α : Type u_1} → [toDivisionRing : DivisionRing α] → (∀ (a b : α), a * b = b * a) → Field α
 def Field.toDivisionRing.{u} : {α : Type u} → [self : Field.{u} α] → DivisionRing.{u} α :=
 fun (α : Type u) [self : Field.{u} α] => self.1
 def Field.toCommRing.{u} : {α : Type u} → [self : Field.{u} α] → CommRing.{u} α :=

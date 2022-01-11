@@ -1,4 +1,4 @@
-fn : {p : P} → Bar.fn p
+fn.imp : {p : P} → Bar.fn p
 439.lean:20:7-20:12: error: function expected at
   Fn.imp fn
 term has type

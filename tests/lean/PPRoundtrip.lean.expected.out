@@ -2,6 +2,9 @@ Prop
 Type
 Type
 Type 1
+@max Nat
+@HEq Nat 1
+@List.nil
 Nat
 List Nat
 id Nat

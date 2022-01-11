@@ -172,7 +172,14 @@ enabled and disabled respectively.")
   ;; Flycheck
   (setq-local flycheck-disabled-checkers '())
   ;; Lean massively benefits from semantic tokens, so change default to enabled
-  (setq-local lsp-semantic-tokens-enable t))
+  (setq-local lsp-semantic-tokens-enable t)
+  (lean4-create-lsp-workspace))
+
+(defun lean4-create-lsp-workspace ()
+  "This will allow us to use emacs when a repo contains
+multiple lean packages"
+  (when-let ((root (vc-find-root "." "lakefile.lean")))
+    (lsp-workspace-folders-add root)))
 
 ;; Automode List
 ;;;###autoload

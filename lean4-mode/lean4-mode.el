@@ -208,9 +208,30 @@ Invokes `lean4-mode-hook'.
 ;;;###autoload
 (push '("\\.lean$" . lean4-mode) auto-mode-alist)
 
+(defun lean--version ()
+  (let ((version-line (car (process-lines "lean" "-v"))))
+    (setq version-line (string-remove-prefix "Lean (version " version-line))
+    (setq version-line (split-string version-line (rx (or "." " " ","))))
+    (-take 3 version-line)))
+(defalias 'lean4--version 'lean--version)
+
+(defun lean-show-version ()
+  (interactive)
+  (message "Lean %s" (mapconcat 'identity (lean--version) ".")))
+(defalias 'lean4-show-version 'lean-show-version)
+
+(defun lean-select-mode ()
+  (if lean4-autodetect-lean3
+      (let ((version (lean--version)))
+        (cond ((equal (car version) "4") (lean4-mode))
+              ((equal (car version) "3") (lean-mode))))
+    (lean4-mode)))
+(defalias 'lean4-select-mode 'lean4-select-mode)
+
+
 ;;;###autoload
 (with-eval-after-load 'markdown-mode
-  (add-to-list 'markdown-code-lang-modes '("lean" . lean4-mode)))
+  (add-to-list 'markdown-code-lang-modes '("lean" . lean4-select-mode)))
 
 ;; Use utf-8 encoding
 ;;;### autoload

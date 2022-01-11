@@ -11,7 +11,7 @@ mutual
     else
       n
 end
-termination_by
+termination_by'
   invImage
     (fun
      | Sum.inl ⟨n, true⟩ => (n, 2)

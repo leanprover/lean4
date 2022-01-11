@@ -12,7 +12,7 @@ mutual
     | a, b, 0 => b
     | a, b, n+1 => f n a b
 end
-termination_by
+termination_by'
   invImage
     (fun
       | Sum.inl ⟨_, n, _, _⟩ => (n, 2)
@@ -48,7 +48,7 @@ mutual
     | a, b, 0 => b
     | a, b, n+1 => f n a b
 end
-termination_by
+termination_by'
   invImage
     (fun
       | Sum.inl ⟨_, n, _, _⟩ => (n, 2)

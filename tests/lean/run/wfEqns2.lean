@@ -16,7 +16,7 @@ def h (i j : Nat) : Nat :=
   | 0 => g i 0
   | Nat.succ j => g i j
 end
-termination_by
+termination_by'
  invImage
     (fun
       | Sum.inl ⟨_, n⟩ => (n, 0)

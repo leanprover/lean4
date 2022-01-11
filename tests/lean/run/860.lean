@@ -21,7 +21,7 @@ def pack (n: Nat) : List Nat :=
       | true => loop (next n) 0 (List.cons acc accs)
       | false => loop (next n) (acc+1) accs
   loop n 0 []
-termination_by
+termination_by'
   invImage (fun ⟨n, _, _⟩ => n) Nat.lt_wfRel
 decreasing_by
   simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel]

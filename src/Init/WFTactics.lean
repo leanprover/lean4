@@ -10,6 +10,7 @@ import Init.WF
 macro "default_decreasing_tactic" : tactic =>
  `((simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel];
     repeat (first | apply Prod.Lex.right | apply Prod.Lex.left)
+    repeat (first | apply PSigma.Lex.right | apply PSigma.Lex.left)
     first
     | apply Nat.lt_succ_self                   -- i < i+1
     | decide                                   -- e.g., 0 < 1

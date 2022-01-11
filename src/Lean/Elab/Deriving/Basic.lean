@@ -15,8 +15,7 @@ def DerivingHandlerNoArgs := (typeNames : Array Name) → CommandElabM Bool
 builtin_initialize derivingHandlersRef : IO.Ref (NameMap DerivingHandler) ← IO.mkRef {}
 
 def registerBuiltinDerivingHandlerWithArgs (className : Name) (handler : DerivingHandler) : IO Unit := do
-  let initializing ← IO.initializing
-  unless initializing do
+  unless (← initializing) do
     throw (IO.userError "failed to register deriving handler, it can only be registered during initialization")
   if (← derivingHandlersRef.get).contains className then
     throw (IO.userError s!"failed to register deriving handler, a handler has already been registered for '{className}'")

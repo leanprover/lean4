@@ -154,7 +154,7 @@ jobs:
       - name: Test
         run: |
           cd build/stage1
-          ctest -j4 --output-on-failure --timeout 300 ${{ matrix.CTEST_OPTIONS }} < /dev/null
+          ctest -j4 --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
       - name: Check Test Binary
         run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
       - name: Build Stage 2

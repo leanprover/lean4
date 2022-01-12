@@ -26,6 +26,9 @@ let
     # https://github.com/NixOS/nixpkgs/issues/119779
     installPhase = builtins.replaceStrings ["use_response_file_by_default=1"] ["use_response_file_by_default=0"] old.installPhase;
   });
+  emcc = cc.overrideAttrs (old: {
+    cc = pkgs.emscripten;
+  });
   stdenv' = if stdenv.isLinux then useGoldLinker stdenv else stdenv;
   lean = callPackage (import ./bootstrap.nix) (args // {
     stdenv = overrideCC stdenv' cc;
@@ -100,8 +103,9 @@ let
     dontInstall = true;
   };
 in {
-  inherit cc lean4-mode buildLeanPackage llvmPackages vscode-lean4;
+  inherit cc emcc lean4-mode buildLeanPackage buildLeanWasmPackage llvmPackages vscode-lean4;
   lean = lean.stage1;
+  emlean = emlean;
   stage0print-paths = lean.stage1.Leanpkg.print-paths;
   HEAD-as-stage0 = (lean.stage1.Lean.overrideArgs { srcTarget = "..#stage0-from-input.stage0"; srcArgs = "(--override-input lean-stage0 ..\?rev=$(git rev-parse HEAD) -- -Dinterpreter.prefer_native=false \"$@\")"; });
   HEAD-as-stage1 = (lean.stage1.Lean.overrideArgs { srcTarget = "..\?rev=$(git rev-parse HEAD)#stage0"; });

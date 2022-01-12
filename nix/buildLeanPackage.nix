@@ -1,6 +1,6 @@
 { lean, lean-leanDeps ? lean, lean-final ? lean, leanc,
   stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, lean-emacs, lean-vscode, nix, substituteAll, symlinkJoin, linkFarmFromDrvs,
-  runCommand, gmp, darwin, ... }:
+  runCommand, gmp, darwin, emscripten, ... }:
 let lean-final' = lean-final; in
 lib.makeOverridable (
 { name, src,  fullSrc ? src, 
@@ -220,6 +220,16 @@ in rec {
         ${lib.concatStringsSep " " allLinkFlags}
     '';
   };
+  wasm = runCommand executableName {
+    buildInputs = [ stdenv.cc leanc emscripten ];
+    LEAN_CC = "${emscripten}/bin/emcc";
+    LEANC_GMP = " ";
+  } ''
+    mkdir -p $out/bin
+    leanc ${staticLibArguments} -pthread -v \
+      -o $out/bin/${executableName} \
+      ${lib.concatStringsSep " " allLinkFlags}
+  '';
 
   lean-package = writeShellScriptBin "lean" ''
     LEAN_PATH=${modRoot}:$LEAN_PATH LEAN_SRC_PATH=${src}:$LEAN_SRC_PATH ${lean-final}/bin/lean "$@"

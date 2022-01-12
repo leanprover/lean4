@@ -71,9 +71,4 @@ def TerminationHint.ensureIsEmpty (t : TerminationHint) : MacroM Unit := do
   | TerminationHint.many m  => m.forM fun _ v => Macro.throwErrorAt v.ref "unused termination hint element"
   | _ => pure ()
 
-structure TerminationStrategy where
-  terminationBy    : TerminationHint := TerminationHint.none
-  decreasingTactic : TerminationHint := TerminationHint.none
-  deriving Inhabited
-
 end Lean.Elab.WF

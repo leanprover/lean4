@@ -210,7 +210,8 @@ Invokes `lean4-mode-hook'.
 
 (defun lean--version ()
   (let ((version-line
-         (car (process-lines (lean4-get-executable "lean") "-v"))))
+         (car (last (process-lines (lean4-get-executable "lean")
+                                   "-v")))))
     (setq version-line (string-remove-prefix "Lean (version " version-line))
     (setq version-line (split-string version-line (rx (or "." " " ","))))
     (-take 3 version-line)))

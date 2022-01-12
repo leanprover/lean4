@@ -21,6 +21,8 @@ def elabWFRel (unaryPreDef : PreDefinition) (wf? : Option TerminationWF) : TermE
       let pendingMVarIds ← getMVars wfRel
       discard <| logUnassignedUsingErrorInfos pendingMVarIds
       return wfRel
+  | some (TerminationWF.ext clique) =>
+    throwError "`termination_by` syntax is being modified/simplified. To use the old syntax, please use `termination_by'` instead"
   | none =>
     -- TODO: try to synthesize some default relation
     throwError "'termination_by' modifier missing"

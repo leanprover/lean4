@@ -89,10 +89,10 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
       let mut decrTactic? := none
       if let some wf := terminationBy.find? (preDefs.map (·.declName)) then
         wf? := some wf
-        terminationBy := terminationBy.erase (preDefs.map (·.declName))
+        terminationBy := terminationBy.markAsUsed (preDefs.map (·.declName))
       if let some { ref, value := decrTactic } := decreasingBy.find? (preDefs.map (·.declName)) then
         decrTactic? := some (← withRef ref `(by $decrTactic))
-        decreasingBy := decreasingBy.erase (preDefs.map (·.declName))
+        decreasingBy := decreasingBy.markAsUsed (preDefs.map (·.declName))
       if wf?.isSome || decrTactic?.isSome then
         wfRecursion preDefs wf? decrTactic?
       else
@@ -103,8 +103,8 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
           (fun msg =>
             let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
             m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
-  liftMacroM <| terminationBy.ensureIsEmpty
-  liftMacroM <| decreasingBy.ensureIsEmpty
+  liftMacroM <| terminationBy.ensureAllUsed
+  liftMacroM <| decreasingBy.ensureAllUsed
 
 builtin_initialize
   registerTraceClass `Elab.definition.body

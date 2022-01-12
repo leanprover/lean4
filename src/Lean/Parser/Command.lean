@@ -34,8 +34,7 @@ def terminationByCore := leading_parser "termination_by' " >> terminationHint te
 def decreasingBy := leading_parser "decreasing_by " >> terminationHint Tactic.tacticSeq
 
 def terminationByElement   := leading_parser ppLine >> many (ident <|> "_") >> " => " >> termParser >> optional ";"
-def terminationByComponent := leading_parser many1Indent terminationByElement >> optional (ppLine >> " using " >> termParser)
-def terminationBy          := leading_parser ppLine >> "termination_by " >> many terminationByComponent
+def terminationBy          := leading_parser ppLine >> "termination_by " >> many1Indent terminationByElement
 
 def terminationSuffix := optional (terminationBy <|> terminationByCore) >> optional decreasingBy
 

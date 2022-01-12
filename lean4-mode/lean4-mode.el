@@ -227,7 +227,7 @@ Invokes `lean4-mode-hook'.
         (cond ((equal (car version) "4") (lean4-mode))
               ((equal (car version) "3") (lean-mode))))
     (lean4-mode)))
-(defalias 'lean4-select-mode 'lean4-select-mode)
+(defalias 'lean4-select-mode 'lean-select-mode)
 
 
 ;;;###autoload

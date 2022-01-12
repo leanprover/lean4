@@ -67,8 +67,8 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
     trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
   let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
   let cliques ← partitionPreDefs preDefs
-  let mut terminationBy ← liftMacroM <| WF.expandTerminationHint hints.terminationBy? (cliques.map fun ds => ds.map (·.declName))
-  let mut decreasingBy ← liftMacroM <| WF.expandTerminationHint hints.decreasingBy? (cliques.map fun ds => ds.map (·.declName))
+  let mut terminationBy ← liftMacroM <| WF.expandTerminationBy hints.terminationBy? (cliques.map fun ds => ds.map (·.declName))
+  let mut decreasingBy  ← liftMacroM <| WF.expandTerminationHint hints.decreasingBy? (cliques.map fun ds => ds.map (·.declName))
   for preDefs in cliques do
     trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
     if preDefs.size == 1 && isNonRecursive preDefs[0] then
@@ -85,16 +85,16 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
           withRef preDef.ref <| throwError "invalid use of 'partial', '{preDef.declName}' is not a function{indentExpr preDef.type}"
       addAndCompilePartial preDefs
     else
-      let mut wfStx? := none
+      let mut wf? := none
       let mut decrTactic? := none
-      if let some { value := wfStx, .. } := terminationBy.find? (preDefs.map (·.declName)) then
-        wfStx? := some wfStx
+      if let some wf := terminationBy.find? (preDefs.map (·.declName)) then
+        wf? := some wf
         terminationBy := terminationBy.erase (preDefs.map (·.declName))
       if let some { ref, value := decrTactic } := decreasingBy.find? (preDefs.map (·.declName)) then
         decrTactic? := some (← withRef ref `(by $decrTactic))
         decreasingBy := decreasingBy.erase (preDefs.map (·.declName))
-      if wfStx?.isSome || decrTactic?.isSome then
-        wfRecursion preDefs wfStx? decrTactic?
+      if wf?.isSome || decrTactic?.isSome then
+        wfRecursion preDefs wf? decrTactic?
       else
         withRef (preDefs[0].ref) <| mapError
           (orelseMergeErrors

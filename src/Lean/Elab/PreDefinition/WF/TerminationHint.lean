@@ -71,4 +71,31 @@ def TerminationHint.ensureIsEmpty (t : TerminationHint) : MacroM Unit := do
   | TerminationHint.many m  => m.forM fun _ v => Macro.throwErrorAt v.ref "unused termination hint element"
   | _ => pure ()
 
+inductive TerminationBy where
+  | core (hint : TerminationHint)
+
+inductive TerminationWF where
+  | core (stx : Syntax)
+
+def expandTerminationBy (hint? : Option Syntax) (cliques : Array (Array Name)) : MacroM TerminationBy :=
+  if let some hint := hint? then
+    if hint.isOfKind ``Parser.Command.terminationByCore then
+      return TerminationBy.core (← expandTerminationHint hint? cliques)
+    else
+      withRef hint <| Macro.throwError "`termination_by` syntax is being modified/simplified. To use the old syntax, please use `termination_by'` instead"
+  else
+      return TerminationBy.core TerminationHint.none
+
+def TerminationBy.erase (t : TerminationBy) (clique : Array Name) : TerminationBy :=
+  match t with
+  | core hint => core (hint.erase clique)
+
+def TerminationBy.find? (t : TerminationBy) (clique : Array Name) : Option TerminationWF :=
+  match t with
+  | core hint => hint.find? clique |>.map fun v => TerminationWF.core v.value
+
+def TerminationBy.ensureIsEmpty (t : TerminationBy) : MacroM Unit :=
+  match t with
+  | core hint => hint.ensureIsEmpty
+
 end Lean.Elab.WF

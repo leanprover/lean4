@@ -37,7 +37,7 @@ end Acc
 inductive WellFounded {α : Sort u} (r : α → α → Prop) : Prop where
   | intro (h : ∀ a, Acc r a) : WellFounded r
 
-structure WellFoundedRelation (α : Sort u) where
+class WellFoundedRelation (α : Sort u) where
   rel : α → α → Prop
   wf  : WellFounded rel
 
@@ -180,6 +180,9 @@ def SizeOfRef (α : Sort u) [SizeOf α] : α → α → Prop :=
 def sizeOfWFRel {α : Sort u} [SizeOf α] : WellFoundedRelation α :=
   measure sizeOf
 
+instance (priority := low) [SizeOf α] : WellFoundedRelation α :=
+  sizeOfWFRel
+
 namespace Prod
 open WellFounded
 
@@ -218,6 +221,9 @@ def lexAccessible (aca : (a : α) → Acc ra a) (acb : (b : β) → Acc rb b) (a
 def lex (ha : WellFoundedRelation α) (hb : WellFoundedRelation β) : WellFoundedRelation (α × β) where
   rel := Lex ha.rel hb.rel
   wf  := ⟨fun (a, b) => lexAccessible (WellFounded.apply ha.wf) (WellFounded.apply hb.wf) a b⟩
+
+instance [ha : WellFoundedRelation α] [hb : WellFoundedRelation β] : WellFoundedRelation (α × β) :=
+  lex ha hb
 
 -- relational product is a Subrelation of the Lex
 def RProdSubLex (a : α × β) (b : α × β) (h : RProd ra rb a b) : Lex ra rb a b := by
@@ -264,8 +270,13 @@ def lexAccessible {a} (aca : Acc r a) (acb : (a : α) → WellFounded (s a)) (b 
       | right => apply ihb; assumption
 
 -- The lexicographical order of well founded relations is well-founded
-def lex (ha : WellFounded r) (hb : (x : α) → WellFounded (s x)) : WellFounded (Lex r s) :=
-  WellFounded.intro fun ⟨a, b⟩ => lexAccessible (WellFounded.apply ha a) hb b
+def lex (ha : WellFoundedRelation α) (hb : (a : α) → WellFoundedRelation (β a)) : WellFoundedRelation (PSigma β) where
+  rel := Lex ha.rel (fun a => hb a |>.rel)
+  wf  := WellFounded.intro fun ⟨a, b⟩ => lexAccessible (WellFounded.apply ha.wf a) (fun a => hb a |>.wf) b
+
+instance [ha : WellFoundedRelation α] [hb : (a : α) → WellFoundedRelation (β a)] : WellFoundedRelation (PSigma β) :=
+  lex ha hb
+
 end
 
 section

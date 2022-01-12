@@ -521,8 +521,8 @@ def delabLam : Delab :=
     if !blockImplicitLambda then
       pure stxBody
     else
-      let group ← match e.binderInfo, ppTypes with
-        | BinderInfo.default,     true   =>
+      let defaultCase (_ : Unit) : Delab := do
+        if ppTypes then
           -- "default" binder group is the only one that expects binder names
           -- as a term, i.e. a single `Syntax.ident` or an application thereof
           let stxCurNames ←
@@ -531,7 +531,11 @@ def delabLam : Delab :=
             else
               pure $ curNames.get! 0;
           `(funBinder| ($stxCurNames : $stxT))
-        | BinderInfo.default,        false  => pure curNames.back  -- here `curNames.size == 1`
+        else
+          pure curNames.back  -- here `curNames.size == 1`
+      let group ← match e.binderInfo, ppTypes with
+        | BinderInfo.default,        _      => defaultCase ()
+        | BinderInfo.auxDecl,        _      => defaultCase ()
         | BinderInfo.implicit,       true   => `(funBinder| {$curNames* : $stxT})
         | BinderInfo.implicit,       false  => `(funBinder| {$curNames*})
         | BinderInfo.strictImplicit, true   => `(funBinder| ⦃$curNames* : $stxT⦄)
@@ -539,7 +543,6 @@ def delabLam : Delab :=
         | BinderInfo.instImplicit,   _     =>
           if usedDownstream then `(funBinder| [$curNames.back : $stxT])  -- here `curNames.size == 1`
           else  `(funBinder| [$stxT])
-        | _                      , _     => unreachable!;
       match stxBody with
       | `(fun $binderGroups* => $stxBody) => `(fun $group $binderGroups* => $stxBody)
       | _                                 => `(fun $group => $stxBody)

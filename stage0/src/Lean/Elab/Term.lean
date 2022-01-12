@@ -12,6 +12,7 @@ import Lean.Meta.CollectMVars
 import Lean.Meta.Coe
 import Lean.Hygiene
 import Lean.Util.RecDepth
+
 import Lean.Elab.Log
 import Lean.Elab.Config
 import Lean.Elab.Level
@@ -20,6 +21,7 @@ import Lean.Elab.AutoBound
 import Lean.Elab.InfoTree
 import Lean.Elab.Open
 import Lean.Elab.SetOption
+import Lean.Elab.DeclModifiers
 
 namespace Lean.Elab.Term
 structure Context where
@@ -1573,6 +1575,12 @@ def withoutPostponingUniverseConstraints (x : TermElabM α) : TermElabM α := do
   catch ex =>
     setPostponed postponed
     throw ex
+
+def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : TermElabM ExpandDeclIdResult := do
+  let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers
+  if (← read).sectionVars.contains r.shortName then
+    throwError "invalid declaration name '{r.shortName}', there is a section variable with the same name"
+  return r
 
 end Term
 

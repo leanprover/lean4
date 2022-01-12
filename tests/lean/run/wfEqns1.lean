@@ -13,7 +13,7 @@ mutual
     | 0 => false
     | n+1 => isEven n
 end
-termination_by measure fun
+termination_by' measure fun
   | Sum.inl n => n
   | Sum.inr n => n
 decreasing_by

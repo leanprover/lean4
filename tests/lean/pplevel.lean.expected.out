@@ -1,6 +1,6 @@
 Type (max u v w) : Type ((max u v w) + 1)
 Type u : Type (u + 1)
-id.{max u v w} : {α : Sort (max u v w)} → α → α
+@id.{max u v w} : {α : Sort (max u v w)} → α → α
 Monad.{max u v, w + 1} : (Type (max u v) → Type (w + 1)) → Type (max ((max u v) + 1) (w + 1))
 Type (max (u + 1) w (v + 2)) : Type ((max (u + 1) w (v + 2)) + 1)
 Type u_1 : Type (u_1 + 1)

@@ -10,3 +10,4 @@ import Lean.Elab.Tactic.Conv.Change
 import Lean.Elab.Tactic.Conv.Simp
 import Lean.Elab.Tactic.Conv.Pattern
 import Lean.Elab.Tactic.Conv.Delta
+import Lean.Elab.Tactic.Conv.Unfold

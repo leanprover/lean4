@@ -187,7 +187,6 @@ def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM St
   tryRewriteCtorEq e <| rewritePre e discharge?
 
 def postDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
-  -- TODO: try equation lemmas
   tryRewriteCtorEq e <| tryRewriteUsingDecide e <| rewritePost e discharge?
 
 end Lean.Meta.Simp

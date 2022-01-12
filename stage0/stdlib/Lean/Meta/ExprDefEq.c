@@ -46829,24 +46829,23 @@ return x_73;
 LEAN_EXPORT uint8_t l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_sameHeadSymbol(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Lean_Expr_getAppFn(x_1);
-if (lean_obj_tag(x_3) == 4)
-{
-lean_object* x_4; 
-lean_dec(x_3);
-x_4 = l_Lean_Expr_getAppFn(x_2);
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_Lean_Expr_getAppFn(x_2);
+x_4 = l_Lean_Expr_getAppFn(x_1);
 if (lean_obj_tag(x_4) == 4)
 {
-uint8_t x_5; 
 lean_dec(x_4);
+if (lean_obj_tag(x_3) == 4)
+{
+uint8_t x_5; 
+lean_dec(x_3);
 x_5 = 1;
 return x_5;
 }
 else
 {
 uint8_t x_6; 
-lean_dec(x_4);
+lean_dec(x_3);
 x_6 = 0;
 return x_6;
 }
@@ -46854,6 +46853,7 @@ return x_6;
 else
 {
 uint8_t x_7; 
+lean_dec(x_4);
 lean_dec(x_3);
 x_7 = 0;
 return x_7;

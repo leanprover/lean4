@@ -5,14 +5,15 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.PreDefinition.Basic
+import Lean.Elab.PreDefinition.WF.TerminationHint
 
 namespace Lean.Elab.WF
 open Meta
 open Term
 
-def elabWFRel (unaryPreDef : PreDefinition) (wfStx? : Option Syntax) : TermElabM Expr := do
-  if let some wfStx := wfStx? then
-    withDeclName unaryPreDef.declName do
+def elabWFRel (unaryPreDef : PreDefinition) (wf? : Option TerminationWF) : TermElabM Expr := do
+  match wf? with
+  | some (TerminationWF.core wfStx) => withDeclName unaryPreDef.declName do
       let α := unaryPreDef.type.bindingDomain!
       let u ← getLevel α
       let expectedType := mkApp (mkConst ``WellFoundedRelation [u]) α
@@ -20,7 +21,7 @@ def elabWFRel (unaryPreDef : PreDefinition) (wfStx? : Option Syntax) : TermElabM
       let pendingMVarIds ← getMVars wfRel
       discard <| logUnassignedUsingErrorInfos pendingMVarIds
       return wfRel
-  else
+  | none =>
     -- TODO: try to synthesize some default relation
     throwError "'termination_by' modifier missing"
 

@@ -11,21 +11,13 @@ mutual
     else
       n
 end
-termination_by
+termination_by'
   invImage
     (fun
      | Sum.inl ⟨n, true⟩ => (n, 2)
      | Sum.inl ⟨n, false⟩ => (n, 1)
      | Sum.inr n => (n, 0))
   $ Prod.lex sizeOfWFRel sizeOfWFRel
-decreasing_by
-  simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel]
-  first
-  | apply Prod.Lex.left
-    apply Nat.pred_lt
-    assumption
-  | apply Prod.Lex.right
-    decide
 
 #print f
 #print g

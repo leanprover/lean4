@@ -14,6 +14,11 @@ lib.makeOverridable (
   # shared library at the path `${shared}/${shared.libName or shared.name}` and a name to link to like `-l${shared.linkName or shared.name}`.
   # These libs are also linked to in packages that depend on this one.
   nativeSharedLibs ? [],
+  # Whether to compile each module into a native shared library that is loaded whenever the module is imported in order to accelerate evaluation
+  precompileModules ? false,
+  # Whether to compile the package into a native shared library that is loaded whenever *any* of the package's modules is imported into another package.
+  # If `precompileModules` is also `true`, the latter only affects imports within the current package.
+  precompilePackage ? precompileModules,
   # Lean plugin dependencies. Each derivation `plugin` should contain a plugin library at path `${plugin}/${plugin.name}`.
   pluginDeps ? [],
   debug ? false, leanFlags ? [], leancFlags ? [], linkFlags ? [], executableName ? lib.toLower name,
@@ -76,7 +81,7 @@ with builtins; let
   pathOfSharedLib = dep: dep.libPath or "${dep}/${dep.libName or dep.name}";
 
   leanPluginFlags = lib.concatStringsSep " " (map (dep: "--plugin=${pathOfSharedLib dep}") pluginDeps);
-  leanLoadDynlibFlags = lib.concatStringsSep " " (map (dep: "--load-dynlib=${pathOfSharedLib dep}") allNativeSharedLibs);
+  pkgLeanLoadDynlibFlags = map (dep: "--load-dynlib=${pathOfSharedLib dep}") allNativeSharedLibs;
 
   fakeDepRoot = runBareCommandLocal "${name}-dep-root" {} ''
     mkdir $out
@@ -110,7 +115,8 @@ with builtins; let
     oleanPath = relpath + ".olean";
     ileanPath = relpath + ".ilean";
     cPath = relpath + ".c";
-    inherit leanFlags leanPluginFlags leanLoadDynlibFlags;
+    inherit leanFlags leanPluginFlags;
+    leanLoadDynlibFlags = pkgLeanLoadDynlibFlags ++ map (d: lib.optional (d ? sharedLib) "--load-dynlib=${d.sharedLib}/${d.sharedLib.name}") deps;
     buildCommand = ''
       dir=$(dirname $relpath)
       mkdir -p $dir $out/$dir $ilean/$dir $c/$dir
@@ -134,10 +140,11 @@ with builtins; let
       leanc -c -o $out/$oPath $leancFlags -fPIC ${if debug then "${drv.c}/${drv.cPath} -g" else "src.c -O3 -DNDEBUG"}
     '';
   };
+  precompileMod = mod: obj: deps: mkSharedLib mod "${obj}/${obj.oPath} ${lib.concatStringsSep " " (map (d: "${d.sharedLib}/*") deps)}";
   mkMod = mod: deps:
     let drv = buildMod mod deps;
         obj = compileMod mod drv; in
-      drv // { inherit obj; };
+      drv // { inherit obj; } // lib.optionalAttrs precompileModules { sharedLib = precompileMod mod obj deps; };
   externalModMap = lib.foldr (dep: depMap: depMap // dep.mods) {} allExternalDeps;
   # Recursively build `mod` and its dependencies. `modMap` maps module names to
   # `{ deps, drv }` pairs of a derivation and its transitive dependencies (as a nested
@@ -173,7 +180,8 @@ with builtins; let
     else "${libs}";
   staticLibArguments = staticLibLinkWrapper ("${staticLib}/* ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)}");
 in rec {
-  inherit name lean deps staticLibDeps allNativeSharedLibs allLinkFlags allExternalDeps print-lean-deps src mods objects staticLib;
+  inherit name lean deps staticLibDeps allNativeSharedLibs allLinkFlags allExternalDeps print-lean-deps src objects staticLib;
+  mods = if precompilePackage then mapAttrs (_: m: m // { inherit sharedLib; }) mods' else mods';
   modRoot   = depRoot name [ mods.${name} ];
   cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
   oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };

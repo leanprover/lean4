@@ -6,7 +6,7 @@ def f (n : Nat) : Nat :=
     2 * f (n-1)
 termination_by' measure id
 decreasing_by
-  simp [measure, id, invImage, InvImage, Nat.lt_wfRel]
+  simp [measure, id, invImage, InvImage, Nat.lt_wfRel, WellFoundedRelation.rel]
   apply Nat.pred_lt h
 
 #print f

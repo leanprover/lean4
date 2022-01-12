@@ -23,7 +23,7 @@ termination_by'
       | Sum.inr ⟨_, n⟩ => (n, 1))
     (Prod.lex sizeOfWFRel sizeOfWFRel)
 decreasing_by
-  simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel]
+  simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel]
   first
   | apply Prod.Lex.left
     apply Nat.lt_succ_self

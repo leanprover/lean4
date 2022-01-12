@@ -206,7 +206,7 @@ Invokes `lean4-mode-hook'.
 
 ;; Automatically use lean4-mode for .lean files.
 ;;;###autoload
-(push '("\\.lean$" . lean4-mode) auto-mode-alist)
+(push '("\\.lean$" . lean4-select-mode) auto-mode-alist)
 
 (defun lean--version ()
   (let ((version-line

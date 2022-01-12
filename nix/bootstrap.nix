@@ -92,9 +92,9 @@ rec {
       } // args);
     in (all: all // all.lean) rec {
       inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
-      Init = build { name = "Init"; deps = []; };
-      Std  = build { name = "Std";  deps = [ Init ]; };
-      Lean = build { name = "Lean"; deps = [ Init Std ]; };
+      Init = build { name = "Init"; deps = []; } // { sharedLib = leanshared; };
+      Std  = build { name = "Std";  deps = [ Init ]; } // { sharedLib = leanshared; };
+      Lean = build { name = "Lean"; deps = [ Init Std ]; } // { sharedLib = leanshared; };
       stdlib = [ Init Std Lean ];
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       Leanpkg = build { name = "Leanpkg"; deps = stdlib; linkFlags = ["-L${gmp}/lib -L${leanshared}"]; };

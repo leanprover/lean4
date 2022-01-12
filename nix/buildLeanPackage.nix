@@ -134,7 +134,10 @@ with builtins; let
       leanc -c -o $out/$oPath $leancFlags -fPIC ${if debug then "${drv.c}/${drv.cPath} -g" else "src.c -O3 -DNDEBUG"}
     '';
   };
-  singleton = name: value: listToAttrs [ { inherit name value; } ];
+  mkMod = mod: deps:
+    let drv = buildMod mod deps;
+        obj = compileMod mod drv; in
+      drv // { inherit obj; };
   externalModMap = lib.foldr (dep: depMap: depMap // dep.mods) {} allExternalDeps;
   # Recursively build `mod` and its dependencies. `modMap` maps module names to
   # `{ deps, drv }` pairs of a derivation and its transitive dependencies (as a nested
@@ -144,7 +147,7 @@ with builtins; let
     let
       deps = filter (p: p != "") (lib.splitString "\n" (readFile (leanDeps mod)));
       modMap' = lib.foldr buildModAndDeps modMap deps;
-    in modMap' // { ${mod} = buildMod mod (map (dep: if modMap' ? ${dep} then modMap'.${dep} else externalModMap.${dep}) deps); };
+    in modMap' // { ${mod} = mkMod mod (map (dep: if modMap' ? ${dep} then modMap'.${dep} else externalModMap.${dep}) deps); };
   makeEmacsWrapper = name: lean: writeShellScriptBin name ''
     ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\"))" "$@"
   '';
@@ -155,10 +158,10 @@ with builtins; let
     echo '${toJSON { oleanPath = [(depRoot "print-paths" deps)]; srcPath = ["."] ++ map (dep: dep.src) allExternalDeps; }}'
   '';
   makePrintPathsFor = deps: mods: printPaths deps // mapAttrs (_: mod: makePrintPathsFor (deps ++ [mod]) mods) mods;
-  mods      = buildModAndDeps name {};
+  mods' = buildModAndDeps name {};
   allLinkFlags = lib.foldr (shared: acc: acc ++ [ "-L${shared}" "-l${shared.linkName or shared.name}" ]) linkFlags allNativeSharedLibs;
 
-  objects   = mapAttrs compileMod mods;
+  objects   = mapAttrs (_: m: m.obj) mods';
   staticLib = runCommand "${name}-lib" { buildInputs = [ stdenv.cc.bintools.bintools ]; } ''
     mkdir -p $out
     ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))};

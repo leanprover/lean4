@@ -68,7 +68,7 @@ private partial def replaceRecApps (recFnName : Name) (decrTactic? : Option Synt
                 throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
               let FAlt := xs[numParams - 1]
               mkLambdaFVars xs (← loop FAlt altBody)
-          pure { matcherApp with alts := altsNew }.toExpr
+          return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
       | none => processApp e
     | e => Structural.ensureNoRecFn recFnName e
   loop F e

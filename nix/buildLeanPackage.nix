@@ -47,7 +47,7 @@ with builtins; let
   }) buildCommand;
   mkSharedLib = name: args: runBareCommand "${name}.so" { buildInputs = [ stdenv.cc ] ++ lib.optional stdenv.isDarwin darwin.cctools; } ''
     mkdir -p $out
-    ${leanc}/bin/leanc -fPIC -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} -L ${gmp}/lib \
+    ${leanc}/bin/leanc -fPIC -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} ${lib.optionalString stdenv.isDarwin "-Wl,-undefined,dynamic_lookup"} -L ${gmp}/lib \
       ${args} -o $out/${name}.so
   '';
   depRoot = name: deps: mkBareDerivation {
@@ -187,7 +187,7 @@ in rec {
   oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };
   iTree     = symlinkJoin { name = "${name}-iTree"; paths = map (mod: mod.ilean) (attrValues mods); };
   sharedLib = mkSharedLib name ''
-    ${if stdenv.isDarwin then "-Wl,-force_load,${staticLib}/*" else "-Wl,--whole-archive ${staticLib}/* -Wl,--no-whole-archive"} \
+    ${if stdenv.isDarwin then "-Wl,-force_load,${staticLib}/lib${name}.a" else "-Wl,--whole-archive ${staticLib}/lib${name}.a -Wl,--no-whole-archive"} \
     ${lib.concatStringsSep " " (map (d: "${d.sharedLib}/*") deps)}'';
   executable = runCommand executableName { buildInputs = [ stdenv.cc leanc ]; } ''
     mkdir -p $out/bin

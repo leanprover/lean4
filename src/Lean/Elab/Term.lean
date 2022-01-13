@@ -57,6 +57,8 @@ structure Context where
   implicitLambda     : Bool            := true
   /-- noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for  -/
   isNoncomputableSection : Bool        := false
+  /-- when `true` we skip TC failures. We use this option when processing patterns -/
+  ignoreTCFailures : Bool := false
 
 /-- Saved context for postponed terms and tactics to be executed. -/
 structure SavedContext where
@@ -653,8 +655,12 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
       unless (← isDefEq (mkMVar instMVar) val) do
         throwError "failed to assign synthesized type class instance{indentExpr val}"
     pure true
-  | LOption.undef    => pure false -- we will try later
-  | LOption.none     => throwError "failed to synthesize instance{indentExpr type}"
+  | LOption.undef    => return false -- we will try later
+  | LOption.none     =>
+    if (← read).ignoreTCFailures then
+      return false
+    else
+      throwError "failed to synthesize instance{indentExpr type}"
 
 register_builtin_option autoLift : Bool := {
   defValue := true
@@ -728,6 +734,7 @@ def synthesizeInst (type : Expr) : TermElabM Expr := do
   let type ← instantiateMVars type
   match (← trySynthInstance type) with
   | LOption.some val => pure val
+  -- Note that `ignoreTCFailures` is not checked here since it must return a result.
   | LOption.undef    => throwError "failed to synthesize instance{indentExpr type}"
   | LOption.none     => throwError "failed to synthesize instance{indentExpr type}"
 

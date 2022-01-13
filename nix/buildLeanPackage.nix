@@ -1,6 +1,6 @@
 { lean, lean-leanDeps ? lean, lean-final ? lean, leanc,
   stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, lean-emacs, lean-vscode, nix, substituteAll, symlinkJoin, linkFarmFromDrvs,
-  runCommand, gmp, ... }:
+  runCommand, gmp, darwin, ... }:
 let lean-final' = lean-final; in
 lib.makeOverridable (
 { name, src,  fullSrc ? src, 
@@ -45,7 +45,7 @@ with builtins; let
     preferLocalBuild = true;
     allowSubstitutes = false;
   }) buildCommand;
-  mkSharedLib = name: args: runBareCommand "${name}.so" { buildInputs = [ stdenv.cc ]; } ''
+  mkSharedLib = name: args: runBareCommand "${name}.so" { buildInputs = [ stdenv.cc ] ++ lib.optional stdenv.isDarwin darwin.cctools; } ''
     mkdir -p $out
     ${leanc}/bin/leanc -fPIC -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} -L ${gmp}/lib \
       ${args} -o $out/${name}.so

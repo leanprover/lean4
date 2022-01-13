@@ -140,7 +140,7 @@ with builtins; let
       leanc -c -o $out/$oPath $leancFlags -fPIC ${if debug then "${drv.c}/${drv.cPath} -g" else "src.c -O3 -DNDEBUG"}
     '';
   };
-  precompileMod = mod: obj: deps: mkSharedLib mod "${obj}/${obj.oPath} ${lib.concatStringsSep " " (map (d: "${d.sharedLib}/*") deps)}";
+  precompileMod = mod: obj: deps: mkSharedLib mod "${obj}/${obj.oPath} ${lib.concatStringsSep " " (map (d: "${d.sharedLib}/*") (filter (d: !(d ? builtin)) deps))}";
   mkMod = mod: deps:
     let drv = buildMod mod deps;
         obj = compileMod mod drv; in

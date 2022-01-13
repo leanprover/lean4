@@ -139,7 +139,7 @@ private def expandTerminationByNonCore (hint : Syntax) (cliques : Array (Array N
       if let some missing := clique.find? fun declName => elements.find? (·.declName == declName) |>.isNone then
         withRef elements[0].ref <| Macro.throwError s!"invalid `termination_by` syntax, missing case for function '{missing}'"
       result := result.push { elements }
-  unless usedElse do
+  if !usedElse && elseElemStx?.isSome then
     withRef elseElemStx?.get! <| Macro.throwError s!"invalid `termination_by` syntax, unnecessary else-case"
   return TerminationBy.ext result
 

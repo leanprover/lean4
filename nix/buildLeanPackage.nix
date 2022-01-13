@@ -45,9 +45,9 @@ with builtins; let
     preferLocalBuild = true;
     allowSubstitutes = false;
   }) buildCommand;
-  mkSharedLib = name: args: runCommand "${name}.so" { buildInputs = [ stdenv.cc gmp ]; } ''
+  mkSharedLib = name: args: runBareCommand "${name}.so" { buildInputs = [ stdenv.cc ]; } ''
     mkdir -p $out
-    ${leanc}/bin/leanc -fPIC -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} \
+    ${leanc}/bin/leanc -fPIC -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} -L ${gmp}/lib \
       ${args} -o $out/${name}.so
   '';
   depRoot = name: deps: mkBareDerivation {
@@ -181,7 +181,7 @@ with builtins; let
   staticLibArguments = staticLibLinkWrapper ("${staticLib}/* ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)}");
 in rec {
   inherit name lean deps staticLibDeps allNativeSharedLibs allLinkFlags allExternalDeps print-lean-deps src objects staticLib;
-  mods = if precompilePackage then mapAttrs (_: m: m // { inherit sharedLib; }) mods' else mods';
+  mods = if precompilePackage then mapAttrs (_: m: m // { inherit sharedLib; origShlib = m.sharedLib; }) mods' else mods';
   modRoot   = depRoot name [ mods.${name} ];
   cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
   oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };

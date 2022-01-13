@@ -30,9 +30,11 @@ def terminationHintMany (p : Parser) := leading_parser atomic (lookahead (ident 
 def terminationHint1 (p : Parser) := leading_parser p
 def terminationHint (p : Parser) := terminationHintMany p <|> terminationHint1 p
 
-def terminationBy := leading_parser "termination_by " >> terminationHint termParser
 def terminationByCore := leading_parser "termination_by' " >> terminationHint termParser
 def decreasingBy := leading_parser "decreasing_by " >> terminationHint Tactic.tacticSeq
+
+def terminationByElement   := leading_parser ppLine >> (ident <|> "_") >> many (ident <|> "_") >> " => " >> termParser >> optional ";"
+def terminationBy          := leading_parser ppLine >> "termination_by " >> many1Indent terminationByElement
 
 def terminationSuffix := optional (terminationBy <|> terminationByCore) >> optional decreasingBy
 

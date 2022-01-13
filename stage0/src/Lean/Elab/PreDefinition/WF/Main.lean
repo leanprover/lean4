@@ -47,13 +47,13 @@ private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonR
     trace[Elab.definition.wf] "{preDef.declName} := {value}"
     addNonRec { preDef with value } (applyAttrAfterCompilation := false)
 
-def wfRecursion (preDefs : Array PreDefinition) (wfStx? : Option Syntax) (decrTactic? : Option Syntax) : TermElabM Unit := do
+def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (decrTactic? : Option Syntax) : TermElabM Unit := do
   let unaryPreDef ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef
     let unaryPreDefs ← packDomain preDefs
     packMutual unaryPreDefs
-  let wfRel ← elabWFRel unaryPreDef wfStx?
+  let wfRel ← elabWFRel preDefs unaryPreDef wf?
   let preDefNonRec ← withoutModifyingEnv do
     addAsAxiom unaryPreDef
     mkFix unaryPreDef wfRel decrTactic?

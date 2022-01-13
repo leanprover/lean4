@@ -27,7 +27,7 @@ namespace Array
       let as := as.swap! i hi
       (i, as)
   loop as lo lo
-termination_by measure fun ⟨_, _, _, hi, _, _, _, j⟩ => hi - j
+termination_by' measure fun ⟨_, _, _, hi, _, _, _, j⟩ => hi - j
 
 @[inline] partial def qsort {α : Type} [Inhabited α] (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1) : Array α :=
   let rec @[specialize] sort (as : Array α) (low high : Nat) :=

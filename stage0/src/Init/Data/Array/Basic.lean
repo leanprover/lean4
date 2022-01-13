@@ -441,7 +441,7 @@ def reverse (as : Array α) : Array α :=
     else
       as
   rev as 0
-termination_by measure fun ⟨_, _, mid, as, i⟩ => mid - i
+termination_by' measure fun ⟨_, _, mid, as, i⟩ => mid - i
 
 @[inline] def getEvenElems (as : Array α) : Array α :=
   (·.2) <| as.foldl (init := (true, Array.empty)) fun (even, r) a =>
@@ -505,7 +505,7 @@ def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) (
      | false => false
   else
     true
-termination_by measure fun ⟨_, a, _, _, _, i⟩ => a.size - i
+termination_by' measure fun ⟨_, a, _, _, _, i⟩ => a.size - i
 
 @[inline] def isEqv (a b : Array α) (p : α → α → Bool) : Bool :=
   if h : a.size = b.size then
@@ -610,7 +610,7 @@ def indexOfAux [BEq α] (a : Array α) (v : α) : Nat → Option (Fin a.size)
       if a.get idx == v then some idx
       else indexOfAux a v (i+1)
     else none
-termination_by measure fun ⟨_, _, a, _, i⟩ => a.size - i
+termination_by' measure fun ⟨_, _, a, _, i⟩ => a.size - i
 
 def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
   indexOfAux a v 0
@@ -632,7 +632,7 @@ def eraseIdxAux : Nat → Array α → Array α
       eraseIdxAux (i+1) a'
     else
       a.pop
-termination_by measure fun ⟨_, i, a⟩ => a.size - i
+termination_by' measure fun ⟨_, i, a⟩ => a.size - i
 
 def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
   eraseIdxAux (i.val + 1) a
@@ -648,7 +648,7 @@ def eraseIdxSzAux (a : Array α) : ∀ (i : Nat) (r : Array α), r.size = a.size
       eraseIdxSzAux a (i+1) (r.swap idx idx1) ((size_swap r idx idx1).trans heq)
     else
       ⟨r.pop, (size_pop r).trans (heq ▸ rfl)⟩
-termination_by measure fun ⟨_, _, i, r, _⟩ => r.size - i
+termination_by' measure fun ⟨_, _, i, r, _⟩ => r.size - i
 
 def eraseIdx' (a : Array α) (i : Fin a.size) : { r : Array α // r.size = a.size - 1 } :=
   eraseIdxSzAux a (i.val + 1) a rfl
@@ -665,7 +665,7 @@ def insertAtAux (i : Nat) : Array α → Nat → Array α
       insertAtAux i as (j-1)
     else
       as
-termination_by measure fun ⟨_, _, _, j⟩ => j
+termination_by' measure fun ⟨_, _, _, j⟩ => j
 
 /--
   Insert element `a` at position `i`.
@@ -735,7 +735,7 @@ def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) : Nat 
         false
     else
       true
-termination_by measure fun ⟨_, _, as, _, _, i⟩ => as.size - i
+termination_by' measure fun ⟨_, _, as, _, _, i⟩ => as.size - i
 
 /- Return true iff `as` is a prefix of `bs` -/
 def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
@@ -756,7 +756,7 @@ private def allDiffAux [BEq α] (as : Array α) : Nat → Bool
       allDiffAuxAux as (as.get ⟨i, h⟩) i h && allDiffAux as (i+1)
     else
       true
-termination_by measure fun ⟨_, _, as, i⟩ => as.size - i
+termination_by' measure fun ⟨_, _, as, i⟩ => as.size - i
 
 def allDiff [BEq α] (as : Array α) : Bool :=
   allDiffAux as 0
@@ -772,7 +772,7 @@ def allDiff [BEq α] (as : Array α) : Bool :=
         cs
     else
       cs
-termination_by measure fun ⟨_, _, _, _, as, _, i, _⟩ => as.size - i
+termination_by' measure fun ⟨_, _, _, _, as, _, i, _⟩ => as.size - i
 
 @[inline] def zipWith (as : Array α) (bs : Array β) (f : α → β → γ) : Array γ :=
   zipWithAux f as bs 0 #[]

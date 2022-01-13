@@ -7,6 +7,7 @@ import Lean.Meta.CollectMVars
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Constructor
 import Lean.Meta.Tactic.Assert
+import Lean.Meta.Tactic.Rename
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.SyntheticMVars
 
@@ -217,10 +218,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
         match fvarId? with
         | none => throwError "failed to find a hypothesis with type{indentExpr type}"
         | some fvarId => return fvarId
-      let lctxNew := (← getLCtx).setUserName fvarId h.getId
-      let mvarNew ← mkFreshExprMVarAt lctxNew (← getLocalInstances) (← getMainTarget) MetavarKind.syntheticOpaque (← getMainTag)
-      assignExprMVar (← getMainGoal) mvarNew
-      replaceMainGoal [mvarNew.mvarId!]
+      replaceMainGoal [← rename (← getMainGoal) fvarId h.getId]
   | _ => throwUnsupportedSyntax
 
 /--

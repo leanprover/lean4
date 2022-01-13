@@ -62,11 +62,14 @@ private def findPattern? (pattern : AbstractMVarsResult) (e : Expr) : MetaM (Opt
 @[builtinTactic Lean.Parser.Tactic.Conv.pattern] def evalPattern : Tactic := fun stx => withMainContext do
   match stx with
   | `(conv| pattern $p) =>
-    let pattern ← Term.withoutPending <| Term.elabTerm p none
-    let patternA ← abstractMVars pattern
+    let patternA ←
+       withTheReader Term.Context (fun ctx => { ctx with ignoreTCFailures := true }) <|
+       Term.withoutModifyingElabMetaStateWithInfo <| withRef p <|
+       Term.withoutErrToSorry do
+         abstractMVars (← Term.elabTerm p none)
     let lhs ← getLhs
     match (← findPattern? patternA lhs) with
-    | none => throwError "'pattern' conv tactic failed, pattern was not found{indentExpr pattern}"
+    | none => throwError "'pattern' conv tactic failed, pattern was not found{indentExpr patternA.expr}"
     | some (mvarId', result) =>
       updateLhs result.expr (← result.getProof)
       applyRefl (← getMainGoal)

@@ -26,7 +26,6 @@ lean_object* lean_io_error_to_string(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PPContext_opts___default;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____lambda__3___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_6____closed__3;
-LEAN_EXPORT lean_object* l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____lambda__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_6____closed__5;
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____lambda__3___closed__1;
@@ -51,7 +50,6 @@ static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____closed__1;
 LEAN_EXPORT lean_object* l_Lean_pp_raw;
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____closed__2;
 static lean_object* l_Lean_PPContext_mctx___default___closed__1;
-LEAN_EXPORT uint8_t l_Lean_Option_get___at_Lean_ppTerm___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_ppTerm___closed__1;
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____closed__4;
 LEAN_EXPORT lean_object* l_Lean_ppGoal(lean_object*, lean_object*, lean_object*);
@@ -61,6 +59,7 @@ static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____lambda__3_
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_6____closed__6;
 static lean_object* l_Lean_ppExt___closed__1;
 static lean_object* l_Lean_PPContext_mctx___default___closed__4;
+lean_object* l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_27____spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_54____spec__1(lean_object*, lean_object*, lean_object*);
@@ -89,8 +88,6 @@ static lean_object* l_Lean_PPContext_lctx___default___closed__4;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedPPFns___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedPPFns;
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___lambda__1(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Option_get___at_Lean_ppTerm___spec__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_90____closed__3;
 static lean_object* l_Lean_ppTerm___closed__2;
 static lean_object* l_Lean_instInhabitedPPFns___lambda__1___closed__3;
@@ -607,41 +604,6 @@ lean_dec(x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____spec__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_2, 0);
-x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_findCore(x_1, x_3);
-if (lean_obj_tag(x_5) == 0)
-{
-lean_inc(x_4);
-return x_4;
-}
-else
-{
-lean_object* x_6; 
-x_6 = lean_ctor_get(x_5, 0);
-lean_inc(x_6);
-lean_dec(x_5);
-if (lean_obj_tag(x_6) == 3)
-{
-lean_object* x_7; 
-x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
-lean_dec(x_6);
-return x_7;
-}
-else
-{
-lean_dec(x_6);
-lean_inc(x_4);
-return x_4;
-}
-}
-}
-}
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -661,7 +623,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 x_4 = lean_ctor_get(x_1, 3);
 x_5 = l_Lean_pp_raw_maxDepth;
-x_6 = l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____spec__1(x_4, x_5);
+x_6 = l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(x_4, x_5);
 x_7 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 x_8 = 0;
@@ -765,16 +727,6 @@ lean_ctor_set(x_7, 0, x_5);
 lean_ctor_set(x_7, 1, x_6);
 return x_7;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____spec__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____spec__1(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1150,42 +1102,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Option_get___at_Lean_ppTerm___spec__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_2, 0);
-x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_Lean_KVMap_findCore(x_1, x_3);
-if (lean_obj_tag(x_5) == 0)
-{
-uint8_t x_6; 
-x_6 = lean_unbox(x_4);
-return x_6;
-}
-else
-{
-lean_object* x_7; 
-x_7 = lean_ctor_get(x_5, 0);
-lean_inc(x_7);
-lean_dec(x_5);
-if (lean_obj_tag(x_7) == 1)
-{
-uint8_t x_8; 
-x_8 = lean_ctor_get_uint8(x_7, 0);
-lean_dec(x_7);
-return x_8;
-}
-else
-{
-uint8_t x_9; 
-lean_dec(x_7);
-x_9 = lean_unbox(x_4);
-return x_9;
-}
-}
-}
-}
 static lean_object* _init_l_Lean_ppTerm___closed__1() {
 _start:
 {
@@ -1294,11 +1210,11 @@ x_27 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_27, 0, x_25);
 lean_ctor_set(x_27, 1, x_26);
 x_28 = l_Lean_pp_raw_maxDepth;
-x_29 = l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____spec__1(x_4, x_28);
+x_29 = l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(x_4, x_28);
 x_30 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_30, 0, x_29);
 x_31 = l_Lean_pp_raw_showInfo;
-x_32 = l_Lean_Option_get___at_Lean_ppTerm___spec__1(x_4, x_31);
+x_32 = l_Lean_Option_get___at_Lean_ppExpr___spec__1(x_4, x_31);
 lean_dec(x_4);
 x_33 = lean_unsigned_to_nat(0u);
 x_34 = l_Lean_Syntax_formatStxAux(x_30, x_32, x_33, x_2);
@@ -1359,11 +1275,11 @@ x_52 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_52, 0, x_50);
 lean_ctor_set(x_52, 1, x_51);
 x_53 = l_Lean_pp_raw_maxDepth;
-x_54 = l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____spec__1(x_4, x_53);
+x_54 = l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(x_4, x_53);
 x_55 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_55, 0, x_54);
 x_56 = l_Lean_pp_raw_showInfo;
-x_57 = l_Lean_Option_get___at_Lean_ppTerm___spec__1(x_4, x_56);
+x_57 = l_Lean_Option_get___at_Lean_ppExpr___spec__1(x_4, x_56);
 lean_dec(x_4);
 x_58 = lean_unsigned_to_nat(0u);
 x_59 = l_Lean_Syntax_formatStxAux(x_55, x_57, x_58, x_2);
@@ -1387,11 +1303,11 @@ else
 lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; uint8_t x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; 
 lean_dec(x_1);
 x_63 = l_Lean_pp_raw_maxDepth;
-x_64 = l_Lean_Option_get___at_Lean_initFn____x40_Lean_Util_PPExt___hyg_245____spec__1(x_4, x_63);
+x_64 = l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(x_4, x_63);
 x_65 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_65, 0, x_64);
 x_66 = l_Lean_pp_raw_showInfo;
-x_67 = l_Lean_Option_get___at_Lean_ppTerm___spec__1(x_4, x_66);
+x_67 = l_Lean_Option_get___at_Lean_ppExpr___spec__1(x_4, x_66);
 lean_dec(x_4);
 x_68 = lean_unsigned_to_nat(0u);
 x_69 = l_Lean_Syntax_formatStxAux(x_65, x_67, x_68, x_2);
@@ -1401,17 +1317,6 @@ lean_ctor_set(x_70, 0, x_69);
 lean_ctor_set(x_70, 1, x_3);
 return x_70;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Option_get___at_Lean_ppTerm___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_Option_get___at_Lean_ppTerm___spec__1(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-x_4 = lean_box(x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_ppGoal(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

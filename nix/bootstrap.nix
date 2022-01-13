@@ -90,11 +90,14 @@ rec {
         fullSrc = ../.;
         inherit debug;
       } // args);
+      setBuiltin = pkg: pkg // {
+        mods = mapAttrs (_: m: m // { builtin = true; }) pkg.mods;
+      };
     in (all: all // all.lean) rec {
       inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
-      Init = build { name = "Init"; deps = []; } // { sharedLib = leanshared; };
-      Std  = build { name = "Std";  deps = [ Init ]; } // { sharedLib = leanshared; };
-      Lean = build { name = "Lean"; deps = [ Init Std ]; } // { sharedLib = leanshared; };
+      Init = setBuiltin (build { name = "Init"; deps = []; });
+      Std  = setBuiltin (build { name = "Std";  deps = [ Init ]; });
+      Lean = setBuiltin (build { name = "Lean"; deps = [ Init Std ]; });
       stdlib = [ Init Std Lean ];
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       Leanpkg = build { name = "Leanpkg"; deps = stdlib; linkFlags = ["-L${gmp}/lib -L${leanshared}"]; };

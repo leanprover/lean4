@@ -58,6 +58,13 @@ structure EditableDocument where
   cancelTk   : CancelToken
   deriving Inhabited
 
+namespace EditableDocument
+
+def allSnaps (doc : EditableDocument) : AsyncList ElabTaskError Snapshot :=
+  AsyncList.cons doc.headerSnap doc.cmdSnaps
+
+end EditableDocument
+
 structure RpcSession where
   /-- Objects that are being kept alive for the RPC client, together with their type names,
   mapped to by their RPC reference.

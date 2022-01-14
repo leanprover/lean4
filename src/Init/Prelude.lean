@@ -196,6 +196,17 @@ theorem ne_true_of_eq_false : {b : Bool} → Eq b false → Not (Eq b true)
 class Inhabited (α : Sort u) where
   mk {} :: (default : α)
 
+class inductive Nonempty (α : Sort u) : Prop where
+  | intro (val : α) : Nonempty α
+
+axiom Classical.choice {α : Sort u} : Nonempty α → α
+
+protected def Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ : α → p) : p :=
+  h₂ h₁.1
+
+instance {α : Sort u} [Inhabited α] : Nonempty α :=
+  ⟨Inhabited.default⟩
+
 constant arbitrary [Inhabited α] : α :=
   Inhabited.default
 

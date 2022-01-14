@@ -13,8 +13,6 @@ universe u v
 
 namespace Classical
 
-axiom choice {α : Sort u} : Nonempty α → α
-
 noncomputable def indefiniteDescription {α : Sort u} (p : α → Prop) (h : ∃ x, p x) : {x // p x} :=
   choice <| let ⟨x, px⟩ := h; ⟨⟨x, px⟩⟩
 

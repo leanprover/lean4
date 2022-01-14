@@ -221,10 +221,10 @@ section Initialization
         env := headerEnv
         fileMap := m.text
       }) (Elab.InfoTree.node
-          (Elab.Info.ofCommandInfo { elaborator := `import, stx := headerStx })
+          (Elab.Info.ofCommandInfo { elaborator := `header, stx := headerStx })
           (headerStx[1].getArgs.toList.map (fun importStx =>
             Elab.InfoTree.node (Elab.Info.ofCommandInfo {
-              elaborator := Name.anonymous,
+              elaborator := `import
               stx := importStx
             }) #[].toPersistentArray
           )).toPersistentArray

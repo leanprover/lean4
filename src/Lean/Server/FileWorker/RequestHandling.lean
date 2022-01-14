@@ -111,48 +111,49 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
         return #[ll]
     return #[]
 
-  if hoverPos <= doc.headerSnap.endPos then do
-    if kind == definition || kind == declaration then
-      if let some (ci, i) := doc.headerSnap.infoTree.smallestInfo? (fun i => i.contains hoverPos) then
-        let name := i.stx[2].getId
-        if let some modUri ← ci.runMetaM i.lctx <| documentUriFromModule name then
-          let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
-          let ll : LocationLink := {
-            originSelectionRange? := none
-            targetUri := modUri
-            targetRange := range
-            targetSelectionRange := range
-          }
-          return Task.pure #[ll]
-    return Task.pure #[]
-  else
-    withWaitFindSnap doc (fun s => s.endPos > hoverPos)
-      (notFoundX := pure #[]) fun snap => do
-        if let some (ci, i) := snap.infoTree.hoverableInfoAt? hoverPos then
-          if let Info.ofTermInfo ti := i then
-            let mut expr := ti.expr
-            if kind == type then
-              expr ← ci.runMetaM i.lctx do
-                Expr.getAppFn (← Meta.instantiateMVars (← Meta.inferType expr))
-            match expr with
-            | Expr.const n .. => return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
-            | Expr.fvar id .. => return ← ci.runMetaM i.lctx <| locationLinksFromBinder snap.infoTree i id
-            | _ => pure ()
-          if let Info.ofFieldInfo fi := i then
-            if kind == type then
-              let expr ← ci.runMetaM i.lctx do
-                Meta.instantiateMVars (← Meta.inferType fi.val)
-              if let some n := expr.getAppFn.constName? then
-                return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
-            else
-              return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
-          -- If other go-tos fail, we try to show the elaborator or parser
-          if let some ei := i.toElabInfo? then
-            if kind == declaration && ci.env.contains ei.stx.getKind then
-              return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.stx.getKind
-            if kind == definition && ci.env.contains ei.elaborator then
-              return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
-        return #[]
+  let locationLinksFromImport (i : Elab.Info) := do
+    let name := i.stx[2].getId
+    if let some modUri ← documentUriFromModule name then
+      let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
+      let ll : LocationLink := {
+        originSelectionRange? := none
+        targetUri := modUri
+        targetRange := range
+        targetSelectionRange := range
+      }
+      return #[ll]
+    return #[]
+
+  withWaitFindSnap doc (fun s => s.endPos > hoverPos)
+    (notFoundX := pure #[]) fun snap => do
+      if let some (ci, i) := snap.infoTree.hoverableInfoAt? hoverPos then
+        if let Info.ofTermInfo ti := i then
+          let mut expr := ti.expr
+          if kind == type then
+            expr ← ci.runMetaM i.lctx do
+              Expr.getAppFn (← Meta.instantiateMVars (← Meta.inferType expr))
+          match expr with
+          | Expr.const n .. => return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
+          | Expr.fvar id .. => return ← ci.runMetaM i.lctx <| locationLinksFromBinder snap.infoTree i id
+          | _ => pure ()
+        if let Info.ofFieldInfo fi := i then
+          if kind == type then
+            let expr ← ci.runMetaM i.lctx do
+              Meta.instantiateMVars (← Meta.inferType fi.val)
+            if let some n := expr.getAppFn.constName? then
+              return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
+          else
+            return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
+        if let Info.ofCommandInfo ⟨`import, _⟩ := i then
+          if kind == definition || kind == declaration then
+            return ← ci.runMetaM i.lctx <| locationLinksFromImport i
+        -- If other go-tos fail, we try to show the elaborator or parser
+        if let some ei := i.toElabInfo? then
+          if kind == declaration && ci.env.contains ei.stx.getKind then
+            return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.stx.getKind
+          if kind == definition && ci.env.contains ei.elaborator then
+            return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
+      return #[]
 
 open RequestM in
 def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Option Widget.InteractiveGoals)) := do

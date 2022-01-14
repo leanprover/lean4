@@ -437,6 +437,10 @@ def mkLe (a b : Expr) : MetaM Expr :=
 def mkArbitrary (α : Expr) : MetaM Expr :=
   mkAppOptM ``arbitrary #[α, none]
 
+/-- Return `@Classical.ofNonempty α _` -/
+def mkOfNonempty (α : Expr) : MetaM Expr := do
+  mkAppOptM ``Classical.ofNonempty #[α, none]
+
 /-- Return `sorryAx type` -/
 def mkSyntheticSorry (type : Expr) : MetaM Expr :=
   return mkApp2 (mkConst ``sorryAx [← getLevel type]) type (mkConst ``Bool.true)

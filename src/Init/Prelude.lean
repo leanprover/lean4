@@ -207,6 +207,9 @@ protected def Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ 
 instance {α : Sort u} [Inhabited α] : Nonempty α :=
   ⟨Inhabited.default⟩
 
+noncomputable def Classical.ofNonempty {α : Sort u} [Nonempty α] : α :=
+  Classical.choice inferInstance
+
 constant arbitrary [Inhabited α] : α :=
   Inhabited.default
 

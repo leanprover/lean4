@@ -95,7 +95,7 @@ def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
   (notFoundX : RequestM β)
   (x : Snapshot → RequestM β)
     : RequestM (RequestTask β) := do
-  let findTask ← doc.cmdSnaps.waitFind? p
+  let findTask ← doc.allSnaps.waitFind? p
   mapTask findTask fun
     /- The elaboration task that we're waiting for may be aborted if the file contents change.
     In that case, we reply with the `fileChanged` error. Thanks to this, the server doesn't

@@ -43,6 +43,21 @@ constant CompactedRegion.isMemoryMapped : CompactedRegion → Bool
 @[extern "lean_compacted_region_free"]
 unsafe constant CompactedRegion.free : CompactedRegion → IO Unit
 
+/- Opaque persistent environment extension entry. -/
+constant EnvExtensionEntrySpec : PointedType.{0}
+def EnvExtensionEntry : Type := EnvExtensionEntrySpec.type
+instance : Nonempty EnvExtensionEntry := EnvExtensionEntrySpec.property
+
+/- Content of a .olean file.
+   We use `compact.cpp` to generate the image of this object in disk. -/
+structure ModuleData where
+  imports    : Array Import
+  constants  : Array ConstantInfo
+  entries    : Array (Name × Array EnvExtensionEntry)
+
+instance : Inhabited ModuleData :=
+  ⟨{imports := arbitrary, constants := arbitrary, entries := arbitrary }⟩
+
 /- Environment fields that are not used often. -/
 structure EnvironmentHeader where
   trustLevel   : UInt32       := 0
@@ -51,6 +66,7 @@ structure EnvironmentHeader where
   imports      : Array Import := #[] -- direct imports
   regions      : Array CompactedRegion := #[] -- compacted regions of all imported modules
   moduleNames  : Array Name   := #[] -- names of all imported modules
+  moduleData   : Array ModuleData := #[] -- ModuleData of all imported modules
   deriving Inhabited
 
 open Std (HashMap)
@@ -318,11 +334,6 @@ structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) where
   exportEntriesFn : σ → Array α
   statsFn         : σ → Format
 
-/- Opaque persistent environment extension entry. -/
-constant EnvExtensionEntrySpec : PointedType.{0}
-def EnvExtensionEntry : Type := EnvExtensionEntrySpec.type
-instance : Nonempty EnvExtensionEntry := EnvExtensionEntrySpec.property
-
 instance {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
   ⟨{importedEntries := #[], state := arbitrary }⟩
 
@@ -496,16 +507,6 @@ def contains [Inhabited α] (ext : MapDeclarationExtension α) (env : Environmen
 
 end MapDeclarationExtension
 
-/- Content of a .olean file.
-   We use `compact.cpp` to generate the image of this object in disk. -/
-structure ModuleData where
-  imports    : Array Import
-  constants  : Array ConstantInfo
-  entries    : Array (Name × Array EnvExtensionEntry)
-
-instance : Inhabited ModuleData :=
-  ⟨{imports := arbitrary, constants := arbitrary, entries := arbitrary }⟩
-
 @[extern "lean_save_module_data"]
 constant saveModuleData (fname : @& System.FilePath) (mod : @& Name) (data : @& ModuleData) : IO Unit
 @[extern "lean_read_module_data"]
@@ -642,6 +643,7 @@ partial def importModules (imports : List Import) (opts : Options) (trustLevel :
         imports      := imports.toArray,
         regions      := s.regions,
         moduleNames  := s.moduleNames
+        moduleData   := s.moduleData
       }
     }
     let env ← setImportedEntries env s.moduleData

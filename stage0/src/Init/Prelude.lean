@@ -196,6 +196,8 @@ theorem ne_true_of_eq_false : {b : Bool} → Eq b false → Not (Eq b true)
 class Inhabited (α : Sort u) where
   mk {} :: (default : α)
 
+export Inhabited (default)
+
 class inductive Nonempty (α : Sort u) : Prop where
   | intro (val : α) : Nonempty α
 
@@ -242,12 +244,12 @@ theorem PLift.down_up {α : Sort u} (a : α) : Eq (down (up a)) a :=
   rfl
 
 /- Pointed types -/
-def PointedType := Subtype fun α : Type u => Nonempty α
+def NonemptyType := Subtype fun α : Type u => Nonempty α
 
-abbrev PointedType.type (type : PointedType.{u}) : Type u :=
+abbrev NonemptyType.type (type : NonemptyType.{u}) : Type u :=
   type.val
 
-instance : Inhabited PointedType.{u} where
+instance : Inhabited NonemptyType.{u} where
   default := ⟨PUnit.{u+1}, Nonempty.intro ⟨⟩⟩
 
 /-- Universe lifting operation -/
@@ -2164,7 +2166,7 @@ def maxRecDepthErrorMessage : String :=
 namespace Macro
 
 /- References -/
-private constant MethodsRefPointed : PointedType.{0}
+private constant MethodsRefPointed : NonemptyType.{0}
 
 private def MethodsRef : Type := MethodsRefPointed.type
 

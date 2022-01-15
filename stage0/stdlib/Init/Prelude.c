@@ -517,6 +517,7 @@ uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_EStateM_nonBacktrackable___closed__3;
 LEAN_EXPORT lean_object* l___private_Init_Prelude_0__Lean_eraseMacroScopesAux(lean_object*);
+LEAN_EXPORT lean_object* l_instInhabitedNonemptyType;
 LEAN_EXPORT lean_object* l_instHMul(lean_object*);
 LEAN_EXPORT lean_object* l_Substring_bsize___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_redLength___rarg(lean_object*);
@@ -555,7 +556,6 @@ LEAN_EXPORT lean_object* l_max(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_withIncRecDepth(lean_object*);
 static lean_object* l_Lean_Name_instBEqName___closed__1;
 LEAN_EXPORT lean_object* l_EStateM_adaptExcept___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instInhabitedPointedType;
 LEAN_EXPORT lean_object* l_Lean_Syntax_getArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Applicative_map___default(lean_object*);
@@ -1180,7 +1180,7 @@ x_1 = 0;
 return x_1;
 }
 }
-static lean_object* _init_l_instInhabitedPointedType() {
+static lean_object* _init_l_instInhabitedNonemptyType() {
 _start:
 {
 return lean_box(0);
@@ -10476,7 +10476,7 @@ l_Unit_unit = _init_l_Unit_unit();
 lean_mark_persistent(l_Unit_unit);
 l_instInhabitedSort = _init_l_instInhabitedSort();
 l_instInhabitedBool = _init_l_instInhabitedBool();
-l_instInhabitedPointedType = _init_l_instInhabitedPointedType();
+l_instInhabitedNonemptyType = _init_l_instInhabitedNonemptyType();
 l_instInhabitedNat = _init_l_instInhabitedNat();
 lean_mark_persistent(l_instInhabitedNat);
 l_instAddNat___closed__1 = _init_l_instAddNat___closed__1();

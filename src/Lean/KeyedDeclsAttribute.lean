@@ -66,8 +66,10 @@ structure KeyedDeclsAttribute (γ : Type) where
   -- imported/builtin instances
   tableRef : IO.Ref (KeyedDeclsAttribute.Table γ)
   -- instances from current module
-  ext      : KeyedDeclsAttribute.Extension γ
-  deriving Inhabited
+  ext : KeyedDeclsAttribute.Extension γ
+
+instance : Nonempty (KeyedDeclsAttribute γ) :=
+  Nonempty.intro { defn := arbitrary, tableRef := Classical.ofNonempty, ext := arbitrary }
 
 namespace KeyedDeclsAttribute
 

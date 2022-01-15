@@ -242,12 +242,13 @@ theorem PLift.down_up {α : Sort u} (a : α) : Eq (down (up a)) a :=
   rfl
 
 /- Pointed types -/
-structure PointedType where
-  (type : Type u)
-  (val : type)
+def PointedType := Subtype fun α : Type u => Nonempty α
+
+abbrev PointedType.type (type : PointedType.{u}) : Type u :=
+  type.val
 
 instance : Inhabited PointedType.{u} where
-  default := { type := PUnit.{u+1}, val := ⟨⟩ }
+  default := ⟨PUnit.{u+1}, Nonempty.intro ⟨⟩⟩
 
 /-- Universe lifting operation -/
 structure ULift.{r, s} (α : Type s) : Type (max s r) where
@@ -2167,6 +2168,8 @@ private constant MethodsRefPointed : PointedType.{0}
 
 private def MethodsRef : Type := MethodsRefPointed.type
 
+instance : Nonempty MethodsRef := MethodsRefPointed.property
+
 structure Context where
   methods        : MethodsRef
   mainModule     : Name
@@ -2237,7 +2240,7 @@ unsafe def mkMethodsImp (methods : Methods) : MethodsRef :=
   unsafeCast methods
 
 @[implementedBy mkMethodsImp]
-constant mkMethods (methods : Methods) : MethodsRef := MethodsRefPointed.val
+constant mkMethods (methods : Methods) : MethodsRef
 
 instance : Inhabited MethodsRef where
   default := mkMethods arbitrary

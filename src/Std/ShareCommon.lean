@@ -89,7 +89,7 @@ unsafe def ObjectPersistentSet.insert (s : ObjectPersistentSet) (o : Object) : O
 constant StatePointed : PointedType
 abbrev State : Type u := StatePointed.type
 @[extern "lean_sharecommon_mk_state"]
-constant mkState : Unit → State := fun _ => StatePointed.val
+constant mkState : Unit → State := fun _ => Classical.choice StatePointed.property
 def State.empty : State := mkState ()
 instance State.inhabited : Inhabited State := ⟨State.empty⟩
 
@@ -97,7 +97,7 @@ instance State.inhabited : Inhabited State := ⟨State.empty⟩
 constant PersistentStatePointed : PointedType
 abbrev PersistentState : Type u := PersistentStatePointed.type
 @[extern "lean_sharecommon_mk_pstate"]
-constant mkPersistentState : Unit → PersistentState := fun _ => PersistentStatePointed.val
+constant mkPersistentState : Unit → PersistentState := fun _ => Classical.choice PersistentStatePointed.property
 def PersistentState.empty : PersistentState := mkPersistentState ()
 instance PersistentState.inhabited : Inhabited PersistentState := ⟨PersistentState.empty⟩
 abbrev PState : Type u := PersistentState

@@ -95,7 +95,6 @@ set_option pp.piBinderTypes false in
 #eval checkM `("hi")
 
 set_option pp.structureInstanceTypes true in
-#eval checkM `({ type := Nat, val := 0 : PointedType })
 #eval checkM `((1,2,3))
 #eval checkM `((1,2).fst)
 

@@ -46,10 +46,10 @@ constant RefPointed : PointedType.{0}
 
 structure Ref (σ : Type) (α : Type) : Type where
   ref : RefPointed.type
-  h : Nonempty α
+  h   : Nonempty α
 
-instance {σ α} [Inhabited α] : Inhabited (Ref σ α) where
-  default := { ref := RefPointed.val, h := Nonempty.intro arbitrary }
+instance {σ α} [s : Nonempty α] : Nonempty (Ref σ α) :=
+  Nonempty.intro { ref := Classical.choice RefPointed.property, h := s }
 
 namespace Prim
 
@@ -59,7 +59,7 @@ private noncomputable def inhabitedFromRef {σ α} (r : Ref σ α) : ST σ α :=
   pure arbitrary
 
 @[extern "lean_st_mk_ref"]
-constant mkRef {σ α} (a : α) : ST σ (Ref σ α) := pure { ref := RefPointed.val, h := Nonempty.intro a }
+constant mkRef {σ α} (a : α) : ST σ (Ref σ α) := pure { ref := Classical.choice RefPointed.property, h := Nonempty.intro a }
 @[extern "lean_st_ref_get"]
 constant Ref.get {σ α} (r : @& Ref σ α) : ST σ α := inhabitedFromRef r
 @[extern "lean_st_ref_set"]

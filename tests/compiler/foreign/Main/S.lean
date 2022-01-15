@@ -1,4 +1,4 @@
-constant SPointed : PointedType
+constant SPointed : NonemptyType
 def S : Type := SPointed.type
 instance : Nonempty S := SPointed.property
 

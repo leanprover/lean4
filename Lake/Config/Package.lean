@@ -289,8 +289,7 @@ namespace OpaquePackage
 unsafe def unsafeMk (pkg : Package) : OpaquePackage :=
   unsafeCast pkg
 
-@[implementedBy unsafeMk] constant mk (pkg : Package) : OpaquePackage :=
-  OpaquePackagePointed.val
+@[implementedBy unsafeMk] constant mk (pkg : Package) : OpaquePackage
 
 instance : Coe Package OpaquePackage := ⟨mk⟩
 instance : Inhabited OpaquePackage := ⟨mk Inhabited.default⟩

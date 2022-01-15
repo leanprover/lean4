@@ -28,8 +28,7 @@ namespace OpaqueWorkspace
 unsafe def unsafeMk (ws : Workspace) : OpaqueWorkspace :=
   unsafeCast ws
 
-@[implementedBy unsafeMk] constant mk (ws : Workspace) : OpaqueWorkspace :=
-  OpaqueWorkspacePointed.val
+@[implementedBy unsafeMk] constant mk (ws : Workspace) : OpaqueWorkspace
 
 instance : Coe Workspace OpaqueWorkspace := ⟨mk⟩
 instance : Inhabited OpaqueWorkspace := ⟨mk Inhabited.default⟩

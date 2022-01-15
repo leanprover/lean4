@@ -10,7 +10,11 @@ constant OpaquePackagePointed : PointedType.{0}
 /-- Opaque reference to a `Package` used for forward declaration. -/
 def OpaquePackage : Type := OpaquePackagePointed.type
 
+instance : Nonempty OpaquePackage := OpaquePackagePointed.property
+
 constant OpaqueWorkspacePointed : PointedType.{0}
 
 /-- Opaque reference to a `Workspace` used for forward declaration. -/
 def OpaqueWorkspace : Type := OpaqueWorkspacePointed.type
+
+instance : Nonempty OpaqueWorkspace := OpaqueWorkspacePointed.property

@@ -14,10 +14,9 @@ import Lean.Util.Profile
 
 namespace Lean
 /- Opaque environment extension state. -/
-constant EnvExtensionStateSpec : PointedType.{0}
-def EnvExtensionState : Type := EnvExtensionStateSpec.type
-instance : Inhabited EnvExtensionState where
-  default := EnvExtensionStateSpec.val
+constant EnvExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
+def EnvExtensionState : Type := EnvExtensionStateSpec.fst
+instance : Inhabited EnvExtensionState := EnvExtensionStateSpec.snd
 
 def ModuleIdx := Nat
 
@@ -322,7 +321,7 @@ structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) where
 /- Opaque persistent environment extension entry. -/
 constant EnvExtensionEntrySpec : PointedType.{0}
 def EnvExtensionEntry : Type := EnvExtensionEntrySpec.type
-instance : Inhabited EnvExtensionEntry := ⟨EnvExtensionEntrySpec.val⟩
+instance : Nonempty EnvExtensionEntry := EnvExtensionEntrySpec.property
 
 instance {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
   ⟨{importedEntries := #[], state := arbitrary }⟩

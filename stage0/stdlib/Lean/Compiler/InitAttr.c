@@ -45,7 +45,6 @@ LEAN_EXPORT lean_object* l_Lean_setEnv___at_Lean_declareBuiltin___spec__2(lean_o
 static lean_object* l_Lean_declareBuiltin___closed__9;
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_registerInitAttrUnsafe___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_registerInitAttr(lean_object*, uint8_t);
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_Lean_declareBuiltin___closed__8;
 static lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__6;
@@ -102,7 +101,6 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_registerInitAttrUnsa
 lean_object* lean_eval_const(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_hasInitAttr___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_get_regular_init_fn_name_for(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_registerInitAttr___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_registerInitAttrUnsafe___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at_Lean_registerInitAttrUnsafe___spec__1___closed__4;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_registerInitAttrUnsafe___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -149,23 +147,19 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_InitAttr_0__Lean_getIOTypeArg
 lean_object* l_Lean_registerParametricAttribute___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_runInit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_resolveGlobalConst___at_Lean_registerInitAttrUnsafe___spec__5___closed__3;
-static lean_object* l_Lean_registerInitAttr___rarg___closed__2;
 lean_object* lean_run_init(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_registerInitAttr___boxed(lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
 static lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__2;
 static lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__1;
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_InitAttr_0__Lean_isUnitType(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getInitFnNameForCore_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toString___at_Lean_resolveGlobalConstNoOverloadCore___spec__2(lean_object*);
-uint32_t lean_uint32_of_nat(lean_object*);
 static lean_object* l_Lean_declareBuiltin___closed__10;
 static lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_registerInitAttrUnsafe___spec__4___closed__3;
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 static lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__8;
 lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstCore___at_Lean_registerInitAttrUnsafe___spec__8___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static uint32_t l_Lean_registerInitAttr___rarg___closed__1;
 static lean_object* l_Lean_registerInitAttrUnsafe___lambda__1___closed__4;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 static lean_object* _init_l___private_Lean_Compiler_InitAttr_0__Lean_getIOTypeArg___closed__1() {
@@ -2121,59 +2115,6 @@ x_5 = l_Lean_registerInitAttrUnsafe(x_1, x_4, x_3);
 return x_5;
 }
 }
-static uint32_t _init_l_Lean_registerInitAttr___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; uint32_t x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_uint32_of_nat(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_registerInitAttr___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; uint32_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(0);
-x_2 = l_Lean_registerInitAttr___rarg___closed__1;
-x_3 = l_Lean_resolveGlobalConstNoOverload___at_Lean_registerInitAttrUnsafe___spec__4___closed__3;
-x_4 = lean_alloc_ctor(0, 2, 4);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_3);
-lean_ctor_set_uint32(x_4, sizeof(void*)*2, x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_registerInitAttr___rarg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_registerInitAttr___rarg___closed__2;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_registerInitAttr(lean_object* x_1, uint8_t x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_registerInitAttr___rarg), 1, 0);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_registerInitAttr___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = lean_unbox(x_2);
-lean_dec(x_2);
-x_4 = l_Lean_registerInitAttr(x_1, x_3);
-lean_dec(x_1);
-return x_4;
-}
-}
 static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_698____closed__1() {
 _start:
 {
@@ -3012,9 +2953,6 @@ l_Lean_registerInitAttrUnsafe___closed__2 = _init_l_Lean_registerInitAttrUnsafe_
 lean_mark_persistent(l_Lean_registerInitAttrUnsafe___closed__2);
 l_Lean_registerInitAttrUnsafe___closed__3 = _init_l_Lean_registerInitAttrUnsafe___closed__3();
 lean_mark_persistent(l_Lean_registerInitAttrUnsafe___closed__3);
-l_Lean_registerInitAttr___rarg___closed__1 = _init_l_Lean_registerInitAttr___rarg___closed__1();
-l_Lean_registerInitAttr___rarg___closed__2 = _init_l_Lean_registerInitAttr___rarg___closed__2();
-lean_mark_persistent(l_Lean_registerInitAttr___rarg___closed__2);
 l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_698____closed__1 = _init_l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_698____closed__1();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_698____closed__1);
 l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_698____closed__2 = _init_l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_698____closed__2();

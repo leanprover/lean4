@@ -5,7 +5,7 @@ open Lean.Meta
 
 def bug : MetaM Unit := do
   let i := 0
-  forallTelescopeReducing arbitrary fun ys _ => do
+  forallTelescopeReducing default fun ys _ => do
     let mut j := 0
     for y in ys do
       throwError "#{i+1}"

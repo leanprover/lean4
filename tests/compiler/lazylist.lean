@@ -36,7 +36,7 @@ partial def toList : LazyList α → List α
   | delayed as   => toList as.get
 
 partial def head [Inhabited α] : LazyList α → α
-  | nil          => arbitrary
+  | nil          => default
   | cons a as    => a
   | delayed as   => head as.get
 

@@ -8,7 +8,7 @@ def Vec.repeat (a : α) (n : Nat) : Vec α n :=
   | n+1 => cons a (repeat a n)
 
 instance [Inhabited α] : Inhabited (Vec α n) where
-  default := Vec.repeat arbitrary n
+  default := Vec.repeat default n
 
 def Vec.map (v : Vec α n) (f : α → β) : Vec β n :=
   match n, v with

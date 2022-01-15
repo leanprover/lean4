@@ -182,7 +182,7 @@ if worked then
   throwError "unexpected success"
 
 def ex0 (x : Nat) : LHS (forall (y : Nat), Pat y)
-:= arbitrary
+:= default
 
 #eval test `ex0 1 `elimTest0
 #print elimTest0
@@ -192,7 +192,7 @@ def ex1 (α : Type u) (β : Type v) (n : Nat) (x : List α) (y : List β) :
 × LHS (forall (a : α) (as : List α) (b : β) (bs : List β), Pat (a::as) × Pat (b::bs))
 × LHS (forall (a : α) (as : List α), Pat (a::as) × Pat ([] : List β))
 × LHS (forall (b : β) (bs : List β), Pat ([] : List α) × Pat (b::bs))
-:= arbitrary
+:= default
 
 #eval test `ex1 2 `elimTest1
 
@@ -205,7 +205,7 @@ inductive Vec (α : Type u) : Nat → Type u
 def ex2 (α : Type u) (n : Nat) (xs : Vec α n) (ys : Vec α n) :
   LHS (Pat (inaccessible 0) × Pat (Vec.nil : Vec α 0) × Pat (Vec.nil : Vec α 0))
 × LHS (forall (n : Nat) (x : α) (xs : Vec α n) (y : α) (ys : Vec α n), Pat (inaccessible (n+1)) × Pat (Vec.cons x xs) × Pat (Vec.cons y ys)) :=
-arbitrary
+default
 
 #eval test `ex2 3 `elimTest2
 #print elimTest2
@@ -215,7 +215,7 @@ def ex3 (α : Type u) (β : Type v) (n : Nat) (x : List α) (y : List β) :
 × LHS (forall (a : α) (b : β), Pat [a] × Pat [b])
 × LHS (forall (a₁ a₂ : α) (as : List α) (b₁ b₂ : β) (bs : List β), Pat (a₁::a₂::as) × Pat (b₁::b₂::bs))
 × LHS (forall (as : List α) (bs : List β), Pat as × Pat bs)
-:= arbitrary
+:= default
 
 -- set_option trace.Meta.EqnCompiler.match true
 -- set_option trace.Meta.EqnCompiler.matchDebug true
@@ -226,7 +226,7 @@ def ex3 (α : Type u) (β : Type v) (n : Nat) (x : List α) (y : List β) :
 def ex4 (α : Type u) (n : Nat) (xs : Vec α n) :
   LHS (Pat (inaccessible 0) × Pat (Vec.nil : Vec α 0))
 × LHS (forall (n : Nat) (xs : Vec α (n+1)), Pat (inaccessible (n+1)) × Pat xs) :=
-arbitrary
+default
 
 #eval test `ex4 2 `elimTest4
 #print elimTest4
@@ -234,7 +234,7 @@ arbitrary
 def ex5 (α : Type u) (n : Nat) (xs : Vec α n) :
   LHS (Pat Nat.zero × Pat (Vec.nil : Vec α 0))
 × LHS (forall (n : Nat) (xs : Vec α (n+1)), Pat (Nat.succ n) × Pat xs) :=
-arbitrary
+default
 
 #eval test `ex5 2 `elimTest5
 #print elimTest5
@@ -242,7 +242,7 @@ arbitrary
 def ex6 (α : Type u) (n : Nat) (xs : Vec α n) :
   LHS (Pat (inaccessible Nat.zero) × Pat (Vec.nil : Vec α 0))
 × LHS (forall (N : Nat) (XS : Vec α N), Pat (inaccessible N) × Pat XS) :=
-arbitrary
+default
 
 -- set_option trace.Meta.Match.match true
 -- set_option trace.Meta.Match.debug true
@@ -253,7 +253,7 @@ arbitrary
 def ex7 (α : Type u) (n : Nat) (xs : Vec α n) :
   LHS (forall (a : α), Pat (inaccessible 1) × Pat (Vec.cons a Vec.nil))
 × LHS (forall (N : Nat) (XS : Vec α N), Pat (inaccessible N) × Pat XS) :=
-arbitrary
+default
 
 #eval test `ex7 2 `elimTest7
 -- #check elimTest7
@@ -275,7 +275,7 @@ elimTest7 _ (fun _ _ => Option Nat) n xs (fun a => some a) (fun _ _ => none)
 def ex8 (α : Type u) (n : Nat) (xs : Vec α n) :
   LHS (forall (a b : α), Pat (inaccessible 2) × Pat (Vec.cons a (Vec.cons b Vec.nil)))
 × LHS (forall (N : Nat) (XS : Vec α N), Pat (inaccessible N) × Pat XS) :=
-arbitrary
+default
 
 #eval test `ex8 2 `elimTest8
 #print elimTest8
@@ -297,7 +297,7 @@ structure Node : Type :=
 def ex9 (xs : List Node) :
   LHS (forall (h : Node) (t : List Node), Pat (h :: Node.mk 1 1 (Op.mk 1) :: t))
 × LHS (forall (ys : List Node), Pat ys) :=
-arbitrary
+default
 
 #eval test `ex9 1 `elimTest9
 #print elimTest9
@@ -319,14 +319,14 @@ inductive Foo : Bool → Prop
 def ex10 (x : Bool) (y : Foo x) :
   LHS (Pat (inaccessible false) × Pat Foo.bar)
 × LHS (forall (x : Bool) (y : Foo x), Pat (inaccessible x) × Pat y) :=
-arbitrary
+default
 
 #eval test `ex10 2 `elimTest10 true
 
 def ex11 (xs : List Node) :
   LHS (forall (h : Node) (t : List Node), Pat (h :: Node.mk 1 1 (Op.mk 1) :: t))
 × LHS (Pat ([] : List Node)) :=
-arbitrary
+default
 
 #eval testFailure `ex11 1 `elimTest11 -- should produce error message
 
@@ -334,7 +334,7 @@ def ex12 (x y z : Bool) :
   LHS (forall (x y : Bool), Pat x × Pat y    × Pat true)
 × LHS (forall (x z : Bool), Pat false × Pat true × Pat z)
 × LHS (forall (y z : Bool), Pat true × Pat false × Pat z) :=
-arbitrary
+default
 
 #eval testFailure `ex12 3 `elimTest12 -- should produce error message
 
@@ -342,7 +342,7 @@ def ex13 (xs : List Node) :
   LHS (forall (h : Node) (t : List Node), Pat (h :: Node.mk 1 1 (Op.mk 1) :: t))
 × LHS (forall (ys : List Node), Pat ys)
 × LHS (forall (ys : List Node), Pat ys) :=
-arbitrary
+default
 
 #eval testFailure `ex13 1 `elimTest13 -- should produce error message
 
@@ -350,7 +350,7 @@ def ex14 (x y : Nat) :
   LHS (Pat (val 1) × Pat (val 2))
 × LHS (Pat (val 2) × Pat (val 3))
 × LHS (forall (x y : Nat), Pat x × Pat y) :=
-arbitrary
+default
 
 -- set_option trace.Meta.Match true
 
@@ -370,7 +370,7 @@ def ex15 (xs : Array (List Nat)) :
   LHS (forall (a : Nat), Pat (ArrayLit1 [a]))
 × LHS (forall (a b : Nat), Pat (ArrayLit2 [a] [b]))
 × LHS (forall (ys : Array (List Nat)), Pat ys) :=
-arbitrary
+default
 
 #eval test `ex15 1 `elimTest15
 -- #check elimTest15
@@ -390,7 +390,7 @@ def ex16 (xs : List Nat) :
   LHS (forall (a : Nat) (xs : List Nat) (b : Nat) (as : List Nat), Pat (a :: As xs (b :: as)))
 × LHS (forall (a : Nat), Pat ([a]))
 × LHS (Pat ([] : List Nat)) :=
-arbitrary
+default
 
 #eval test `ex16 1 `elimTest16
 

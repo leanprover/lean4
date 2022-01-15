@@ -37,7 +37,6 @@ lean_object* lean_eval_const(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_getValues___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
-lean_object* l_Lean_getConstInfo___at_Lean_getExternConstArity___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Basic___hyg_5____closed__1;
 lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
@@ -50,6 +49,7 @@ LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind_
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_PrettyPrinter_runForNodeKind___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_getConstInfo___at___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_runForNodeKind___spec__4(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_runForNodeKind___rarg___closed__12;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_backtrackExceptionId;
@@ -365,7 +365,7 @@ if (lean_obj_tag(x_12) == 0)
 lean_object* x_13; 
 lean_free_object(x_7);
 lean_inc(x_2);
-x_13 = l_Lean_getConstInfo___at_Lean_getExternConstArity___spec__1(x_2, x_4, x_5, x_10);
+x_13 = l_Lean_getConstInfo___at___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___spec__1(x_2, x_4, x_5, x_10);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
@@ -566,7 +566,7 @@ if (lean_obj_tag(x_57) == 0)
 {
 lean_object* x_58; 
 lean_inc(x_2);
-x_58 = l_Lean_getConstInfo___at_Lean_getExternConstArity___spec__1(x_2, x_4, x_5, x_55);
+x_58 = l_Lean_getConstInfo___at___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___spec__1(x_2, x_4, x_5, x_55);
 if (lean_obj_tag(x_58) == 0)
 {
 lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; uint8_t x_63; 

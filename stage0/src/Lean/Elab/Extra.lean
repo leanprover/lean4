@@ -313,7 +313,6 @@ def elabBinCalc : TermElab :=  fun stx expectedType? => do
     pure ()
   ensureHasType expectedType? result
 
-/-
 @[builtinTermElab arbitraryOrOfNonempty]
 def elabArbitraryOrNonempty : TermElab :=  fun stx expectedType? => do
   tryPostponeIfNoneOrMVar expectedType?
@@ -326,7 +325,6 @@ def elabArbitraryOrNonempty : TermElab :=  fun stx expectedType? => do
       mkOfNonempty expectedType
     catch _ =>
       throw ex
--/
 
 builtin_initialize
   registerTraceClass `Elab.binop

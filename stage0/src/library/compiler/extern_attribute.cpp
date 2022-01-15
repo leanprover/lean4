@@ -14,6 +14,8 @@ Authors: Leonardo de Moura
 #include "library/util.h"
 #include "library/projection.h"
 #include "library/compiler/borrowed_annotation.h"
+#include "library/compiler/init_attribute.h"
+#include "library/compiler/implemented_by_attribute.h"
 #include "library/compiler/util.h"
 #include "library/compiler/ir.h"
 #include "library/compiler/extern_attribute.h"
@@ -27,6 +29,18 @@ optional<extern_attr_data_value> get_extern_attr_data(environment const & env, n
 
 bool is_extern_constant(environment const & env, name const & c) {
     return static_cast<bool>(get_extern_attr_data(env, c));
+}
+
+bool skip_code_generation(environment const & env, name const & c) {
+    if (is_extern_constant(env, c)) {
+        return true;
+    } else if (auto info = env.find(c)) {
+        // `declarations marked with `init`
+        return info->is_opaque() && has_init_attribute(env, c);
+    } else {
+        // `declarations marked with `implementedBy`
+        return has_implemented_by_attribute(env, c);
+    }
 }
 
 extern "C" object * lean_get_extern_const_arity(object* env, object*, object* w);
@@ -68,7 +82,7 @@ bool get_extern_borrowed_info(environment const & env, name const & c, buffer<bo
 }
 
 optional<expr> get_extern_constant_ll_type(environment const & env, name const & c) {
-    if (is_extern_constant(env, c)) {
+    if (skip_code_generation(env, c)) {
         unsigned arity = 0;
         expr type = env.get(c).get_type();
         type_checker::state st(env);

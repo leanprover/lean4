@@ -210,6 +210,12 @@ instance {α : Sort u} [Inhabited α] : Nonempty α :=
 noncomputable def Classical.ofNonempty {α : Sort u} [Nonempty α] : α :=
   Classical.choice inferInstance
 
+instance (α : Sort u) {β : Sort v} [Nonempty β] : Nonempty (α → β) :=
+  Nonempty.intro fun _ => Classical.ofNonempty
+
+instance (α : Sort u) {β : α → Sort v} [(a : α) → Nonempty (β a)] : Nonempty ((a : α) → β a) :=
+  Nonempty.intro fun _ => Classical.ofNonempty
+
 constant arbitrary [Inhabited α] : α :=
   Inhabited.default
 

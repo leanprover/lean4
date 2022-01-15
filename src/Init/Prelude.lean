@@ -196,6 +196,8 @@ theorem ne_true_of_eq_false : {b : Bool} → Eq b false → Not (Eq b true)
 class Inhabited (α : Sort u) where
   mk {} :: (default : α)
 
+export Inhabited (default)
+
 class inductive Nonempty (α : Sort u) : Prop where
   | intro (val : α) : Nonempty α
 

@@ -438,6 +438,10 @@ end Decl
 @[export lean_ir_mk_extern_decl] def mkExternDecl (f : FunId) (xs : Array Param) (ty : IRType) (e : ExternAttrData) : Decl :=
   Decl.extern f xs ty e
 
+-- Hack: we use this declaration as a stub for declarations annotated with `implementedBy` or `init`
+@[export lean_ir_mk_dummy_extern_decl] def mkDummyExternDecl (f : FunId) (xs : Array Param) (ty : IRType) : Decl :=
+  Decl.fdecl f xs ty FnBody.unreachable {}
+
 open Std (RBTree RBTree.empty RBMap)
 
 /-- Set of variable and join point names -/

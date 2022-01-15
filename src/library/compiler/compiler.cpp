@@ -185,7 +185,7 @@ environment compile(environment const & env, options const & opts, names cs) {
 
     if (length(cs) == 1) {
         name c = get_real_name(head(cs));
-        if (is_extern_constant(env, c)) {
+        if (skip_code_generation(env, c)) {
             /* Generate boxed version for extern/native constant if needed. */
             return ir::add_extern(env, c);
         }

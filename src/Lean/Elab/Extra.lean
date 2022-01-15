@@ -326,6 +326,19 @@ def elabArbitraryOrNonempty : TermElab :=  fun stx expectedType? => do
     catch _ =>
       throw ex
 
+@[builtinTermElab defaultOrOfNonempty]
+def elabDefaultOrNonempty : TermElab :=  fun stx expectedType? => do
+  tryPostponeIfNoneOrMVar expectedType?
+  match expectedType? with
+  | none => throwError "invalid 'default_or_ofNonempty%', expected type is not known"
+  | some expectedType =>
+    try
+      mkDefault expectedType
+    catch ex => try
+      mkOfNonempty expectedType
+    catch _ =>
+      throw ex
+
 builtin_initialize
   registerTraceClass `Elab.binop
 

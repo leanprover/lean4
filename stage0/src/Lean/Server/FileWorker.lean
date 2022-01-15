@@ -17,6 +17,7 @@ import Lean.Util.Paths
 import Lean.Server.Utils
 import Lean.Server.Snapshots
 import Lean.Server.AsyncList
+import Lean.Server.References
 
 import Lean.Server.FileWorker.Utils
 import Lean.Server.FileWorker.RequestHandling
@@ -64,19 +65,38 @@ structure WorkerContext where
 
 /- Asynchronous snapshot elaboration. -/
 section Elab
-  abbrev AsyncElabM := ExceptT ElabTaskError (ReaderT WorkerContext IO)
+  structure AsyncElabState where
+    headerSnap : Snapshot
+    snaps : Array Snapshot
+
+  private def AsyncElabState.lastSnap (s : AsyncElabState) : Snapshot :=
+    s.snaps.getD (s.snaps.size - 1) s.headerSnap
+
+  abbrev AsyncElabM := StateT AsyncElabState <| EIO ElabTaskError
+
+  -- Placed here instead of Lean.Server.Utils because of an import loop
+  private def publishReferences (m : DocumentMeta) (s : AsyncElabState) (hOut : FS.Stream) : IO Unit := do
+    let trees := (s.snaps.insertAt 0 s.headerSnap).map fun snap => snap.infoTree
+    let references := findModuleRefs m.text trees (localVars := true)
+    hOut.writeLspNotification {
+      method := "$/lean/ileanInfo"
+      param := { version := m.version, references : LeanIleanInfoParams }
+    }
 
   /-- Elaborates the next command after `parentSnap` and emits diagnostics into `hOut`. -/
-  private def nextCmdSnap (m : DocumentMeta) (parentSnap : Snapshot) (cancelTk : CancelToken)
-      : AsyncElabM Snapshot := do
+  private def nextCmdSnap (ctx : WorkerContext) (m : DocumentMeta) (cancelTk : CancelToken)
+      : AsyncElabM (Option Snapshot) := do
     cancelTk.check
-    let hOut := (←read).hOut
-    if parentSnap.isAtEnd then
-      publishDiagnostics m parentSnap.diagnostics.toArray hOut
-      publishProgressDone m hOut
-      throw ElabTaskError.eof
-    publishProgressAtPos m parentSnap.endPos hOut
-    let snap ← compileNextCmd m.text parentSnap
+    let s ← get
+    let lastSnap := s.lastSnap
+    if lastSnap.isAtEnd then
+      publishDiagnostics m lastSnap.diagnostics.toArray ctx.hOut
+      publishProgressDone m ctx.hOut
+      publishReferences m s ctx.hOut
+      return none
+    publishProgressAtPos m lastSnap.endPos ctx.hOut
+    let snap ← compileNextCmd m.text lastSnap
+    set { s with snaps := s.snaps.push snap }
     -- TODO(MH): check for interrupt with increased precision
     cancelTk.check
     /- NOTE(MH): This relies on the client discarding old diagnostics upon receiving new ones
@@ -91,19 +111,22 @@ section Elab
     -- NOTE(WN): this is *not* redundent even if there are no new diagnostics in this snapshot
     -- because empty diagnostics clear existing error/information squiggles. Therefore we always
     -- want to publish in case there was previously a message at this position.
-    publishDiagnostics m snap.diagnostics.toArray hOut
-    return snap
+    publishDiagnostics m snap.diagnostics.toArray ctx.hOut
+    return some snap
 
-  /-- Elaborates all commands after `initSnap`, emitting the diagnostics into `hOut`. -/
-  def unfoldCmdSnaps (m : DocumentMeta) (initSnap : Snapshot) (cancelTk : CancelToken) (initial : Bool)
+  /-- Elaborates all commands after the last snap (using `headerSnap` if `snaps`
+  is empty), emitting the diagnostics into `hOut`. -/
+  def unfoldCmdSnaps (m : DocumentMeta) (headerSnap : Snapshot) (snaps : Array Snapshot) (cancelTk : CancelToken)
       : ReaderT WorkerContext IO (AsyncList ElabTaskError Snapshot) := do
-    if initial && initSnap.msgLog.hasErrors then
-      -- treat header processing errors as fatal so users aren't swamped with followup errors
+    if snaps.isEmpty && headerSnap.msgLog.hasErrors then
+      -- Treat header processing errors as fatal so users aren't swamped with
+      -- followup errors
       let hOut := (←read).hOut
-      publishProgressAtPos m initSnap.beginPos hOut (kind := LeanFileProgressKind.fatalError)
+      publishProgressAtPos m headerSnap.beginPos hOut (kind := LeanFileProgressKind.fatalError)
       AsyncList.nil
     else
-      AsyncList.unfoldAsync (nextCmdSnap m . cancelTk (← read)) initSnap
+      let ctx ← read
+      AsyncList.unfoldAsync (nextCmdSnap ctx m cancelTk) { headerSnap, snaps }
 end Elab
 
 -- Pending requests are tracked so they can be cancelled
@@ -194,9 +217,18 @@ section Initialization
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let cmdState := { cmdState with infoState := {
       enabled := true
-      -- add dummy tree for invariant in `Snapshot.infoTree`
-      -- TODO: maybe even fill with useful stuff
-      trees := #[Elab.InfoTree.node (Elab.Info.ofCommandInfo { elaborator := `import, stx := headerStx }) #[].toPersistentArray].toPersistentArray
+      trees := #[Elab.InfoTree.context ({
+        env := headerEnv
+        fileMap := m.text
+      }) (Elab.InfoTree.node
+          (Elab.Info.ofCommandInfo { elaborator := `header, stx := headerStx })
+          (headerStx[1].getArgs.toList.map (fun importStx =>
+            Elab.InfoTree.node (Elab.Info.ofCommandInfo {
+              elaborator := `import
+              stx := importStx
+            }) #[].toPersistentArray
+          )).toPersistentArray
+      )].toPersistentArray
     }}
     let headerSnap := {
       beginPos := 0
@@ -219,7 +251,7 @@ section Initialization
         srcSearchPath      := srcSearchPath
         initParams         := initParams
       }
-    let cmdSnaps ← unfoldCmdSnaps meta headerSnap cancelTk (initial := true) ctx
+    let cmdSnaps ← unfoldCmdSnaps meta headerSnap #[] cancelTk ctx
     let doc : EditableDocument := ⟨meta, headerSnap, cmdSnaps, cancelTk⟩
     return (ctx,
     { doc             := doc
@@ -257,7 +289,7 @@ section Updates
       let mut validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)
       if validSnaps.length = 0 then
         let cancelTk ← CancelToken.new
-        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap cancelTk (initial := true) ctx
+        let newCmdSnaps ← unfoldCmdSnaps newMeta newHeaderSnap #[] cancelTk ctx
         modify fun st => { st with doc := ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩ }
       else
         /- When at least one valid non-header snap exists, it may happen that a change does not fall
@@ -266,16 +298,14 @@ section Updates
            token can merge two or more previous commands into one. To do so would require reparsing
            the entire file. -/
         let mut lastSnap := validSnaps.getLast!
-        let preLastSnap :=
-          if validSnaps.length ≥ 2
+        let preLastSnap := if validSnaps.length ≥ 2
           then validSnaps.get! (validSnaps.length - 2)
           else newHeaderSnap
         let newLastStx ← parseNextCmd newMeta.text.source preLastSnap
         if newLastStx != lastSnap.stx then
           validSnaps ← validSnaps.dropLast
-          lastSnap ← preLastSnap
         let cancelTk ← CancelToken.new
-        let newSnaps ← unfoldCmdSnaps newMeta lastSnap cancelTk (initial := false) ctx
+        let newSnaps ← unfoldCmdSnaps newMeta newHeaderSnap validSnaps.toArray cancelTk ctx
         let newCmdSnaps := AsyncList.ofList validSnaps ++ newSnaps
         modify fun st => { st with doc := ⟨newMeta, newHeaderSnap, newCmdSnaps, cancelTk⟩ }
 end Updates

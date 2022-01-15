@@ -460,15 +460,6 @@ instance : Inhabited Prop where
 
 deriving instance Inhabited for NonScalar, PNonScalar, True, ForInStep
 
-class inductive Nonempty (α : Sort u) : Prop where
-  | intro (val : α) : Nonempty α
-
-protected def Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ : α → p) : p :=
-  h₂ h₁.1
-
-instance {α : Sort u} [Inhabited α] : Nonempty α :=
-  ⟨arbitrary⟩
-
 theorem nonempty_of_exists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
   | ⟨w, h⟩ => ⟨w⟩
 

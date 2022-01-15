@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.Basic
-// Imports: Init Lean.Util.SCC Lean.Meta.AbstractNestedProofs Lean.Meta.Transform Lean.Elab.Term Lean.Elab.RecAppSyntax Lean.Elab.DefView Lean.Elab.PreDefinition.MkInhabitant
+// Imports: Init Lean.Util.SCC Lean.Meta.AbstractNestedProofs Lean.Meta.Transform Lean.Elab.Term Lean.Elab.RecAppSyntax Lean.Elab.DefView
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -8307,7 +8307,6 @@ lean_object* initialize_Lean_Meta_Transform(lean_object*);
 lean_object* initialize_Lean_Elab_Term(lean_object*);
 lean_object* initialize_Lean_Elab_RecAppSyntax(lean_object*);
 lean_object* initialize_Lean_Elab_DefView(lean_object*);
-lean_object* initialize_Lean_Elab_PreDefinition_MkInhabitant(lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_Basic(lean_object* w) {
 lean_object * res;
@@ -8332,9 +8331,6 @@ res = initialize_Lean_Elab_RecAppSyntax(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_DefView(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_MkInhabitant(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_instInhabitedPreDefinition___closed__1 = _init_l_Lean_Elab_instInhabitedPreDefinition___closed__1();

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural
 import Lean.Elab.PreDefinition.WF
+import Lean.Elab.PreDefinition.MkInhabitant
 namespace Lean.Elab
 open Meta
 open Term
@@ -19,11 +20,11 @@ private def addAndCompilePartial (preDefs : Array PreDefinition) : TermElabM Uni
   for preDef in preDefs do
     trace[Elab.definition] "processing {preDef.declName}"
     forallTelescope preDef.type fun xs type => do
-      let inh ← liftM $ mkInhabitantFor preDef.declName xs type
+      let val ← liftM $ mkInhabitantFor preDef.declName xs type
       trace[Elab.definition] "inhabitant for {preDef.declName}"
       addNonRec { preDef with
-        kind  := DefKind.«opaque»,
-        value := inh
+        kind  := DefKind.«opaque»
+        value := val
       }
   addAndCompilePartialRec preDefs
 

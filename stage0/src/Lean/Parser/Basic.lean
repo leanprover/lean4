@@ -1444,7 +1444,7 @@ def longestMatchStep (left? : Option Syntax) (startSize startLhsPrec : Nat) (sta
     (s.pushSyntax successNode, prio) -- put successNode back on the stack
 
 def longestMatchMkResult (startSize : Nat) (s : ParserState) : ParserState :=
-  if !s.hasError && s.stackSize > startSize + 1 then s.mkNode choiceKind startSize else s
+  if s.stackSize > startSize + 1 then s.mkNode choiceKind startSize else s
 
 def longestMatchFnAux (left? : Option Syntax) (startSize startLhsPrec : Nat) (startPos : String.Pos) (prevPrio : Nat) (ps : List (Parser × Nat)) : ParserFn :=
   let rec parse (prevPrio : Nat) (ps : List (Parser × Nat)) :=

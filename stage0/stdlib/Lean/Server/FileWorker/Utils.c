@@ -38,8 +38,10 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_instMonadRpcSession___rarg___l
 static lean_object* l_Lean_Server_FileWorker_logSnapContent___closed__4;
 size_t lean_usize_shift_right(size_t, size_t);
 static lean_object* l_Lean_Server_FileWorker_instInhabitedEditableDocument___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_instMonadLiftIOEIOElabTaskError___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_instInhabitedEditableDocument___closed__21;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_instInhabitedCancelToken;
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_EditableDocument_allSnaps___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_CancelToken_new(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_CancelToken_check___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -64,6 +66,7 @@ static lean_object* l_Lean_Server_FileWorker_instInhabitedEditableDocument___clo
 lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
 static size_t l_Lean_Server_FileWorker_instInhabitedEditableDocument___closed__15;
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_instMonadLiftIOEIOElabTaskError(lean_object*);
 extern lean_object* l_Lean_Lsp_instBEqRpcRef;
 lean_object* l_Nat_repr(lean_object*);
 static size_t l_Std_PersistentHashMap_containsAux___at_Lean_Server_FileWorker_RpcSession_release___spec__2___closed__1;
@@ -88,6 +91,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_instCoeErrorElabTaskError(lean
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_RpcSession_new(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_CancelToken_check___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_instMonadRpcSession___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_EditableDocument_allSnaps(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_instInhabitedEditableDocument;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_instInhabitedEditableDocument___closed__7;
@@ -201,8 +205,74 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_instCoeErrorElabTaskError(lean
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_instMonadLiftIOEIOElabTaskError___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_1(x_1, x_2);
+if (lean_obj_tag(x_3) == 0)
+{
+uint8_t x_4; 
+x_4 = !lean_is_exclusive(x_3);
+if (x_4 == 0)
+{
+return x_3;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_5 = lean_ctor_get(x_3, 0);
+x_6 = lean_ctor_get(x_3, 1);
+lean_inc(x_6);
+lean_inc(x_5);
+lean_dec(x_3);
+x_7 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_7, 0, x_5);
+lean_ctor_set(x_7, 1, x_6);
+return x_7;
+}
+}
+else
+{
+uint8_t x_8; 
+x_8 = !lean_is_exclusive(x_3);
+if (x_8 == 0)
+{
+lean_object* x_9; lean_object* x_10; 
+x_9 = lean_ctor_get(x_3, 0);
+x_10 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+lean_ctor_set(x_3, 0, x_10);
+return x_3;
+}
+else
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+x_11 = lean_ctor_get(x_3, 0);
+x_12 = lean_ctor_get(x_3, 1);
+lean_inc(x_12);
+lean_inc(x_11);
+lean_dec(x_3);
+x_13 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_13, 0, x_11);
+x_14 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_14, 0, x_13);
+lean_ctor_set(x_14, 1, x_12);
+return x_14;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_instMonadLiftIOEIOElabTaskError(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Server_FileWorker_instMonadLiftIOEIOElabTaskError___rarg), 2, 0);
 return x_2;
 }
 }
@@ -645,6 +715,29 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_Server_FileWorker_instInhabitedEditableDocument___closed__23;
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_EditableDocument_allSnaps(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = lean_ctor_get(x_1, 1);
+x_3 = lean_ctor_get(x_1, 2);
+lean_inc(x_3);
+lean_inc(x_2);
+x_4 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_EditableDocument_allSnaps___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Server_FileWorker_EditableDocument_allSnaps(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Server_FileWorker_RpcSession_keepAliveTimeMs() {

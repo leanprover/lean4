@@ -32,14 +32,13 @@ bool is_extern_constant(environment const & env, name const & c) {
 }
 
 bool skip_code_generation(environment const & env, name const & c) {
-    if (is_extern_constant(env, c)) {
+    if (is_extern_constant(env, c) || has_implemented_by_attribute(env, c)) {
         return true;
     } else if (auto info = env.find(c)) {
         // `declarations marked with `init`
         return info->is_opaque() && has_init_attribute(env, c);
     } else {
-        // `declarations marked with `implementedBy`
-        return has_implemented_by_attribute(env, c);
+        return false;
     }
 }
 

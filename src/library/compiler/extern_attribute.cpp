@@ -31,8 +31,8 @@ bool is_extern_constant(environment const & env, name const & c) {
     return static_cast<bool>(get_extern_attr_data(env, c));
 }
 
-bool skip_code_generation(environment const & env, name const & c) {
-    if (is_extern_constant(env, c) || has_implemented_by_attribute(env, c)) {
+bool is_extern_or_init_constant(environment const & env, name const & c) {
+    if (is_extern_constant(env, c)) {
         return true;
     } else if (auto info = env.find(c)) {
         // `declarations marked with `init`
@@ -81,7 +81,7 @@ bool get_extern_borrowed_info(environment const & env, name const & c, buffer<bo
 }
 
 optional<expr> get_extern_constant_ll_type(environment const & env, name const & c) {
-    if (skip_code_generation(env, c)) {
+    if (is_extern_or_init_constant(env, c)) {
         unsigned arity = 0;
         expr type = env.get(c).get_type();
         type_checker::state st(env);

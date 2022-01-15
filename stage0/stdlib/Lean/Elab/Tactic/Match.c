@@ -50,6 +50,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_AuxMatchTermState_cases___default;
 size_t lean_usize_sub(size_t, size_t);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__5;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
+static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__15;
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__2___closed__23;
 lean_object* l_Lean_mkIdentFrom(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_evalEraseAuxDiscrs___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -62,6 +63,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Elab_Tactic_withMainContext___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__2___closed__17;
+static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalMatch___spec__4___rarg___closed__2;
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__2___closed__8;
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTermAux___spec__2___closed__4;
 size_t lean_usize_shift_right(size_t, size_t);
@@ -991,6 +993,14 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___c
 _start:
 {
 lean_object* x_1; 
+x_1 = l_Lean_Elab_Tactic_tacticElabAttribute;
+return x_1;
+}
+}
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__15() {
+_start:
+{
+lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalEraseAuxDiscrs___boxed), 1, 0);
 return x_1;
 }
@@ -999,10 +1009,10 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs(lean
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l_Lean_Elab_Tactic_tacticElabAttribute;
+x_2 = l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__14;
 x_3 = l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__8;
 x_4 = l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__13;
-x_5 = l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__14;
+x_5 = l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__15;
 x_6 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_5, x_1);
 return x_6;
 }
@@ -2886,9 +2896,17 @@ return x_26;
 static lean_object* _init_l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalMatch___spec__4___rarg___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = l_Lean_Elab_unsupportedSyntaxExceptionId;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalMatch___spec__4___rarg___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Elab_unsupportedSyntaxExceptionId;
+x_2 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalMatch___spec__4___rarg___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -2899,7 +2917,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tacti
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalMatch___spec__4___rarg___closed__1;
+x_2 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalMatch___spec__4___rarg___closed__2;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -3747,7 +3765,7 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalMatch(lean_object* 
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l_Lean_Elab_Tactic_tacticElabAttribute;
+x_2 = l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__14;
 x_3 = l___regBuiltin_Lean_Elab_Tactic_evalMatch___closed__1;
 x_4 = l___regBuiltin_Lean_Elab_Tactic_evalMatch___closed__3;
 x_5 = l___regBuiltin_Lean_Elab_Tactic_evalMatch___closed__4;
@@ -3914,6 +3932,8 @@ l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__13 = _init_l___regB
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__13);
 l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__14 = _init_l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__14();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__14);
+l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__15 = _init_l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__15();
+lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs___closed__15);
 res = l___regBuiltin_Lean_Elab_Tactic_evalEraseAuxDiscrs(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -4024,6 +4044,8 @@ l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTerm___cl
 lean_mark_persistent(l___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTerm___closed__1);
 l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalMatch___spec__4___rarg___closed__1 = _init_l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalMatch___spec__4___rarg___closed__1();
 lean_mark_persistent(l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalMatch___spec__4___rarg___closed__1);
+l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalMatch___spec__4___rarg___closed__2 = _init_l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalMatch___spec__4___rarg___closed__2();
+lean_mark_persistent(l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalMatch___spec__4___rarg___closed__2);
 l_Lean_Elab_Tactic_evalMatch___closed__1 = _init_l_Lean_Elab_Tactic_evalMatch___closed__1();
 lean_mark_persistent(l_Lean_Elab_Tactic_evalMatch___closed__1);
 l_Lean_Elab_Tactic_evalMatch___closed__2 = _init_l_Lean_Elab_Tactic_evalMatch___closed__2();

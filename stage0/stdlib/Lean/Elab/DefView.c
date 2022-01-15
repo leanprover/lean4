@@ -217,6 +217,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_DefKind_isExample___boxed(lean_object*);
 lean_object* l_Lean_Elab_toAttributeKind___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__4___rarg___closed__1;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__4___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_mkDefView(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Command_MkInstanceName_main___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_DefView_0__Lean_Elab_Command_MkInstanceName_kindReplacements___closed__30;
@@ -4482,9 +4483,17 @@ return x_20;
 static lean_object* _init_l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__4___rarg___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = l_Lean_Elab_unsupportedSyntaxExceptionId;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__4___rarg___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Elab_unsupportedSyntaxExceptionId;
+x_2 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__4___rarg___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -4495,7 +4504,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Comma
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__4___rarg___closed__1;
+x_2 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__4___rarg___closed__2;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -5466,7 +5475,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Comma
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__4___rarg___closed__1;
+x_2 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__4___rarg___closed__2;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -5844,7 +5853,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Comma
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__4___rarg___closed__1;
+x_2 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__4___rarg___closed__2;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -7134,6 +7143,8 @@ l_Lean_Elab_Command_MkInstanceName_isFirst___closed__1 = _init_l_Lean_Elab_Comma
 lean_mark_persistent(l_Lean_Elab_Command_MkInstanceName_isFirst___closed__1);
 l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__4___rarg___closed__1 = _init_l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__4___rarg___closed__1();
 lean_mark_persistent(l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__4___rarg___closed__1);
+l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__4___rarg___closed__2 = _init_l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__4___rarg___closed__2();
+lean_mark_persistent(l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Command_MkInstanceName_main___spec__4___rarg___closed__2);
 l_Lean_Elab_Command_MkInstanceName_main___closed__1 = _init_l_Lean_Elab_Command_MkInstanceName_main___closed__1();
 lean_mark_persistent(l_Lean_Elab_Command_MkInstanceName_main___closed__1);
 l_Lean_Elab_Command_mkDefViewOfConstant___closed__1 = _init_l_Lean_Elab_Command_mkDefViewOfConstant___closed__1();

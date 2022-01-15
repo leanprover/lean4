@@ -326,6 +326,7 @@ static lean_object* l_Lean_Server_Watchdog_tryWriteMessage___closed__13;
 lean_object* l_Lean_Server_References_addWorkerRefs(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_handleEdits___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_RBNode_forIn_visit___at_Lean_Server_Watchdog_handleCancelRequest___spec__3___closed__2;
+static lean_object* l_Lean_Server_Watchdog_handleDidChangeWatchedFiles___closed__2;
 static lean_object* l_Lean_Server_Watchdog_tryWriteMessage___closed__6;
 static lean_object* l_Lean_Server_Watchdog_findWorkerPath___lambda__2___closed__1;
 static lean_object* l_IO_FS_Stream_readLspNotificationAs___at_Lean_Server_Watchdog_initAndRunWatchdogAux___spec__1___closed__1;
@@ -8982,6 +8983,14 @@ static lean_object* _init_l_Lean_Server_Watchdog_handleDidChangeWatchedFiles___c
 _start:
 {
 lean_object* x_1; 
+x_1 = l_Lean_searchPathRef;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Server_Watchdog_handleDidChangeWatchedFiles___closed__2() {
+_start:
+{
+lean_object* x_1; 
 x_1 = lean_mk_string("ilean");
 return x_1;
 }
@@ -8991,14 +9000,14 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_4 = lean_ctor_get(x_2, 9);
-x_5 = l_Lean_searchPathRef;
+x_5 = l_Lean_Server_Watchdog_handleDidChangeWatchedFiles___closed__1;
 x_6 = lean_st_ref_get(x_5, x_3);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_6, 1);
 lean_inc(x_8);
 lean_dec(x_6);
-x_9 = l_Lean_Server_Watchdog_handleDidChangeWatchedFiles___closed__1;
+x_9 = l_Lean_Server_Watchdog_handleDidChangeWatchedFiles___closed__2;
 x_10 = l_Lean_SearchPath_findAllWithExt(x_7, x_9, x_8);
 if (lean_obj_tag(x_10) == 0)
 {
@@ -18792,14 +18801,14 @@ LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_loadReferences(lean_object* x_1)
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = l_Lean_searchPathRef;
+x_2 = l_Lean_Server_Watchdog_handleDidChangeWatchedFiles___closed__1;
 x_3 = lean_st_ref_get(x_2, x_1);
 x_4 = lean_ctor_get(x_3, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
-x_6 = l_Lean_Server_Watchdog_handleDidChangeWatchedFiles___closed__1;
+x_6 = l_Lean_Server_Watchdog_handleDidChangeWatchedFiles___closed__2;
 x_7 = l_Lean_SearchPath_findAllWithExt(x_4, x_6, x_5);
 if (lean_obj_tag(x_7) == 0)
 {
@@ -22053,6 +22062,8 @@ l_Array_forInUnsafe_loop___at_Lean_Server_Watchdog_handleDidChangeWatchedFiles__
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Server_Watchdog_handleDidChangeWatchedFiles___spec__3___closed__1);
 l_Lean_Server_Watchdog_handleDidChangeWatchedFiles___closed__1 = _init_l_Lean_Server_Watchdog_handleDidChangeWatchedFiles___closed__1();
 lean_mark_persistent(l_Lean_Server_Watchdog_handleDidChangeWatchedFiles___closed__1);
+l_Lean_Server_Watchdog_handleDidChangeWatchedFiles___closed__2 = _init_l_Lean_Server_Watchdog_handleDidChangeWatchedFiles___closed__2();
+lean_mark_persistent(l_Lean_Server_Watchdog_handleDidChangeWatchedFiles___closed__2);
 l_Std_RBNode_forIn_visit___at_Lean_Server_Watchdog_handleCancelRequest___spec__3___closed__1 = _init_l_Std_RBNode_forIn_visit___at_Lean_Server_Watchdog_handleCancelRequest___spec__3___closed__1();
 lean_mark_persistent(l_Std_RBNode_forIn_visit___at_Lean_Server_Watchdog_handleCancelRequest___spec__3___closed__1);
 l_Std_RBNode_forIn_visit___at_Lean_Server_Watchdog_handleCancelRequest___spec__3___closed__2 = _init_l_Std_RBNode_forIn_visit___at_Lean_Server_Watchdog_handleCancelRequest___spec__3___closed__2();

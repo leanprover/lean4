@@ -211,6 +211,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOp
 LEAN_EXPORT lean_object* l_Lean_Elab_OpenDecl_instMonadResolveNameM(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalName___at_Lean_Elab_OpenDecl_resolveId___spec__3___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at_Lean_Elab_OpenDecl_resolveId___spec__4(lean_object*);
+static lean_object* l_Lean_activateScoped___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__3___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenHiding___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstNoOverloadCore___at_Lean_Elab_OpenDecl_resolveId___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_OpenDecl_resolveId___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1537,8 +1538,16 @@ return x_13;
 static lean_object* _init_l_Lean_activateScoped___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__3___rarg___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; 
 x_1 = l_Lean_scopedEnvExtensionsRef;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_activateScoped___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__3___rarg___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_activateScoped___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__3___rarg___closed__1;
 x_2 = lean_alloc_closure((void*)(l_ST_Prim_Ref_get___boxed), 4, 3);
 lean_closure_set(x_2, 0, lean_box(0));
 lean_closure_set(x_2, 1, lean_box(0));
@@ -1550,7 +1559,7 @@ LEAN_EXPORT lean_object* l_Lean_activateScoped___at___private_Lean_Elab_Open_0__
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_6 = l_Lean_activateScoped___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__3___rarg___closed__1;
+x_6 = l_Lean_activateScoped___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__3___rarg___closed__2;
 x_7 = lean_apply_2(x_3, lean_box(0), x_6);
 x_8 = lean_ctor_get(x_1, 1);
 lean_inc(x_8);
@@ -2141,7 +2150,7 @@ LEAN_EXPORT lean_object* l_Lean_activateScoped___at___private_Lean_Elab_Open_0__
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_6 = l_Lean_activateScoped___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__3___rarg___closed__1;
+x_6 = l_Lean_activateScoped___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__3___rarg___closed__2;
 x_7 = lean_apply_2(x_3, lean_box(0), x_6);
 x_8 = lean_ctor_get(x_1, 1);
 lean_inc(x_8);
@@ -4251,6 +4260,8 @@ l_Array_forInUnsafe_loop___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_ela
 lean_mark_persistent(l_Array_forInUnsafe_loop___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__4___rarg___lambda__2___closed__1);
 l_Lean_activateScoped___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__3___rarg___closed__1 = _init_l_Lean_activateScoped___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__3___rarg___closed__1();
 lean_mark_persistent(l_Lean_activateScoped___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__3___rarg___closed__1);
+l_Lean_activateScoped___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__3___rarg___closed__2 = _init_l_Lean_activateScoped___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__3___rarg___closed__2();
+lean_mark_persistent(l_Lean_activateScoped___at___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_elabOpenSimple___spec__3___rarg___closed__2);
 l_Lean_Elab_OpenDecl_elabOpenDecl___rarg___lambda__5___closed__1 = _init_l_Lean_Elab_OpenDecl_elabOpenDecl___rarg___lambda__5___closed__1();
 lean_mark_persistent(l_Lean_Elab_OpenDecl_elabOpenDecl___rarg___lambda__5___closed__1);
 l_Lean_Elab_OpenDecl_elabOpenDecl___rarg___lambda__5___closed__2 = _init_l_Lean_Elab_OpenDecl_elabOpenDecl___rarg___lambda__5___closed__2();

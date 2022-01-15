@@ -119,6 +119,7 @@ lean_object* l_Lean_Message_toString(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_getParserState___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_process(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_updateCmdPos___rarg(lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_runFrontend___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_runFrontend___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_processCommands(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_runFrontend___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2785,6 +2786,14 @@ x_3 = lean_nat_add(x_1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Elab_runFrontend___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_maxRecDepth;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* lean_run_frontend(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint32_t x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -2860,7 +2869,7 @@ x_30 = lean_ctor_get(x_22, 1);
 lean_dec(x_30);
 x_31 = lean_ctor_get(x_22, 0);
 lean_dec(x_31);
-x_32 = l_Lean_maxRecDepth;
+x_32 = l_Lean_Elab_runFrontend___closed__2;
 x_33 = l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(x_2, x_32);
 x_34 = !lean_is_exclusive(x_26);
 if (x_34 == 0)
@@ -2917,7 +2926,7 @@ lean_inc(x_50);
 lean_inc(x_49);
 lean_inc(x_48);
 lean_dec(x_22);
-x_52 = l_Lean_maxRecDepth;
+x_52 = l_Lean_Elab_runFrontend___closed__2;
 x_53 = l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(x_2, x_52);
 x_54 = lean_ctor_get(x_50, 0);
 lean_inc(x_54);
@@ -3123,6 +3132,8 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_runFrontend___closed__1 = _init_l_Lean_Elab_runFrontend___closed__1();
 lean_mark_persistent(l_Lean_Elab_runFrontend___closed__1);
+l_Lean_Elab_runFrontend___closed__2 = _init_l_Lean_Elab_runFrontend___closed__2();
+lean_mark_persistent(l_Lean_Elab_runFrontend___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

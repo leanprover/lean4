@@ -337,7 +337,6 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_getExpr___at_L
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_replaceLPsWithVars___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeMData(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_pp_analyze___closed__1;
 static lean_object* l_Lean_addTrace___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_annotateBoolAt___spec__3___closed__7;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
@@ -679,6 +678,7 @@ lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBinOp___lambda__1___closed__47;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_topDownAnalyze___closed__6;
 LEAN_EXPORT lean_object* l_Std_RBNode_ins___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_annotateBoolAt___spec__2(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_checkKnowsType___closed__2;
 static lean_object* l_Lean_addTrace___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_annotateBoolAt___spec__3___closed__8;
 static lean_object* l_Std_Range_forIn_loop___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeAppStagedCore_applyFunBinderHeuristic_core___spec__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__10___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -870,19 +870,6 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_2 = l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_9____closed__4;
 x_3 = l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_9____closed__7;
 x_4 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Options___hyg_6____spec__1(x_2, x_3, x_1);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_pp_analyze___closed__1() {
-_start:
-{
-lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(0);
-x_2 = 0;
-x_3 = lean_box(x_2);
-x_4 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
@@ -8562,9 +8549,17 @@ return x_3;
 static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_checkKnowsType___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeFailureId;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_checkKnowsType___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeFailureId;
+x_2 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_checkKnowsType___closed__1;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
@@ -8579,7 +8574,7 @@ x_8 = lean_ctor_get_uint8(x_1, sizeof(void*)*1);
 if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
-x_9 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_checkKnowsType___closed__1;
+x_9 = l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_checkKnowsType___closed__2;
 x_10 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_7);
@@ -28025,8 +28020,6 @@ l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_9____cl
 lean_mark_persistent(l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_9____closed__6);
 l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_9____closed__7 = _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_9____closed__7();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_9____closed__7);
-l_Lean_pp_analyze___closed__1 = _init_l_Lean_pp_analyze___closed__1();
-lean_mark_persistent(l_Lean_pp_analyze___closed__1);
 res = l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_9_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_pp_analyze = lean_io_result_get_value(res);
@@ -28447,6 +28440,8 @@ lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyzeFail
 lean_dec_ref(res);
 l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_checkKnowsType___closed__1 = _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_checkKnowsType___closed__1();
 lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_checkKnowsType___closed__1);
+l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_checkKnowsType___closed__2 = _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_checkKnowsType___closed__2();
+lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_checkKnowsType___closed__2);
 l_Lean_addTrace___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_annotateBoolAt___spec__3___closed__1 = _init_l_Lean_addTrace___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_annotateBoolAt___spec__3___closed__1();
 lean_mark_persistent(l_Lean_addTrace___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_annotateBoolAt___spec__3___closed__1);
 l_Lean_addTrace___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_annotateBoolAt___spec__3___closed__2 = _init_l_Lean_addTrace___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_annotateBoolAt___spec__3___closed__2();

@@ -29,7 +29,6 @@ instance : MonadLift IO (EIO ElabTaskError) where
 
 structure CancelToken where
   ref : IO.Ref Bool
-  deriving Inhabited
 
 namespace CancelToken
 
@@ -56,7 +55,6 @@ structure EditableDocument where
   /- Subsequent snapshots occur after each command. -/
   cmdSnaps   : AsyncList ElabTaskError Snapshot
   cancelTk   : CancelToken
-  deriving Inhabited
 
 namespace EditableDocument
 

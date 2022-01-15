@@ -139,6 +139,7 @@ LEAN_EXPORT lean_object* l_Lean_Core_getMaxHeartbeats(lean_object*);
 lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_Core_instMonadTraceCoreM___closed__1;
 static lean_object* l_Lean_Core_initFn____x40_Lean_CoreM___hyg_7____closed__2;
+static lean_object* l_Lean_Core_instMetaEvalCoreM___rarg___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_printTraces___at_Lean_Core_instMetaEvalCoreM___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Core_instMetaEvalCoreM___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadResolveNameCoreM___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -166,8 +167,8 @@ LEAN_EXPORT lean_object* l_Lean_Core_Context_initHeartbeats___default;
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadResolveNameCoreM___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_instMetaEvalCoreM(lean_object*);
 static lean_object* l_Lean_Core_initFn____x40_Lean_CoreM___hyg_7____closed__4;
-static lean_object* l_Lean_Core_maxHeartbeats___closed__1;
 static lean_object* l_Lean_Core_instInhabitedState___closed__6;
+static lean_object* l_Lean_Core_getMaxHeartbeats___closed__1;
 static lean_object* l_Lean_Core_instInhabitedState___closed__14;
 static lean_object* l_Lean_Core_withIncRecDepth___rarg___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Core_checkMaxHeartbeatsCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -302,23 +303,19 @@ x_4 = l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hy
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Core_maxHeartbeats___closed__1() {
+static lean_object* _init_l_Lean_Core_getMaxHeartbeats___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
+lean_object* x_1; 
+x_1 = l_Lean_Core_maxHeartbeats;
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Core_getMaxHeartbeats(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_Lean_Core_maxHeartbeats;
+x_2 = l_Lean_Core_getMaxHeartbeats___closed__1;
 x_3 = l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(x_1, x_2);
 x_4 = lean_unsigned_to_nat(1000u);
 x_5 = lean_nat_mul(x_3, x_4);
@@ -3393,11 +3390,19 @@ x_9 = l_Std_PersistentArray_forM___at_Lean_Core_instMetaEvalCoreM___spec__2(x_8,
 return x_9;
 }
 }
+static lean_object* _init_l_Lean_Core_instMetaEvalCoreM___rarg___lambda__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_maxRecDepth;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Core_instMetaEvalCoreM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5, lean_object* x_6) {
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
-x_29 = l_Lean_maxRecDepth;
+x_29 = l_Lean_Core_instMetaEvalCoreM___rarg___lambda__1___closed__1;
 x_30 = l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(x_3, x_29);
 x_31 = lean_box(0);
 x_32 = l_Lean_Core_getMaxHeartbeats(x_3);
@@ -4517,13 +4522,13 @@ l_Lean_Core_initFn____x40_Lean_CoreM___hyg_7____closed__4 = _init_l_Lean_Core_in
 lean_mark_persistent(l_Lean_Core_initFn____x40_Lean_CoreM___hyg_7____closed__4);
 l_Lean_Core_initFn____x40_Lean_CoreM___hyg_7____closed__5 = _init_l_Lean_Core_initFn____x40_Lean_CoreM___hyg_7____closed__5();
 lean_mark_persistent(l_Lean_Core_initFn____x40_Lean_CoreM___hyg_7____closed__5);
-l_Lean_Core_maxHeartbeats___closed__1 = _init_l_Lean_Core_maxHeartbeats___closed__1();
-lean_mark_persistent(l_Lean_Core_maxHeartbeats___closed__1);
 res = l_Lean_Core_initFn____x40_Lean_CoreM___hyg_7_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Core_maxHeartbeats = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Core_maxHeartbeats);
 lean_dec_ref(res);
+l_Lean_Core_getMaxHeartbeats___closed__1 = _init_l_Lean_Core_getMaxHeartbeats___closed__1();
+lean_mark_persistent(l_Lean_Core_getMaxHeartbeats___closed__1);
 l_Lean_Core_State_nextMacroScope___default___closed__1 = _init_l_Lean_Core_State_nextMacroScope___default___closed__1();
 lean_mark_persistent(l_Lean_Core_State_nextMacroScope___default___closed__1);
 l_Lean_Core_State_nextMacroScope___default = _init_l_Lean_Core_State_nextMacroScope___default();
@@ -4672,6 +4677,8 @@ l_Lean_Core_instMonadTraceCoreM = _init_l_Lean_Core_instMonadTraceCoreM();
 lean_mark_persistent(l_Lean_Core_instMonadTraceCoreM);
 l_Lean_Core_CoreM_toIO___rarg___closed__1 = _init_l_Lean_Core_CoreM_toIO___rarg___closed__1();
 lean_mark_persistent(l_Lean_Core_CoreM_toIO___rarg___closed__1);
+l_Lean_Core_instMetaEvalCoreM___rarg___lambda__1___closed__1 = _init_l_Lean_Core_instMetaEvalCoreM___rarg___lambda__1___closed__1();
+lean_mark_persistent(l_Lean_Core_instMetaEvalCoreM___rarg___lambda__1___closed__1);
 l_Lean_Core_withIncRecDepth___rarg___lambda__2___closed__1 = _init_l_Lean_Core_withIncRecDepth___rarg___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_Core_withIncRecDepth___rarg___lambda__2___closed__1);
 l_Lean_Core_withIncRecDepth___rarg___lambda__2___closed__2 = _init_l_Lean_Core_withIncRecDepth___rarg___lambda__2___closed__2();

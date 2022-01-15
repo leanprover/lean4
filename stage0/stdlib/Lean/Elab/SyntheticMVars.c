@@ -197,6 +197,7 @@ lean_object* l_Lean_Elab_Term_traceAtCmdPos(lean_object*, lean_object*, lean_obj
 static lean_object* l_Lean_commitWhenSome_x3f___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstance___spec__2___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstance___spec__3___closed__10;
 extern lean_object* l_Lean_Elab_postponeExceptionId;
 static lean_object* l_List_filterAuxM___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizeSyntheticMVarsStep___spec__1___closed__7;
+static lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_resumePostponed___lambda__2___closed__3;
 static lean_object* l_List_forIn_loop___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_reportStuckSyntheticMVars___spec__2___lambda__1___closed__1;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_SavedState_restore(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -272,6 +273,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_withSynthesize___rarg___boxed(lean_obj
 LEAN_EXPORT lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_withSynthesizeImp___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_resumePostponed___lambda__2___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_getDefaultInstances___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstances___spec__1___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_resumeElabTerm(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -1570,6 +1572,14 @@ lean_ctor_set(x_4, 1, x_2);
 return x_4;
 }
 }
+static lean_object* _init_l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_resumePostponed___lambda__2___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Elab_postponeExceptionId;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_resumePostponed___lambda__2(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
@@ -1711,7 +1721,7 @@ x_46 = lean_ctor_get(x_24, 0);
 lean_dec(x_46);
 x_47 = lean_ctor_get(x_29, 0);
 lean_inc(x_47);
-x_48 = l_Lean_Elab_postponeExceptionId;
+x_48 = l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_resumePostponed___lambda__2___closed__3;
 x_49 = lean_nat_dec_eq(x_47, x_48);
 lean_dec(x_47);
 if (x_49 == 0)
@@ -1750,7 +1760,7 @@ lean_inc(x_55);
 lean_dec(x_24);
 x_56 = lean_ctor_get(x_29, 0);
 lean_inc(x_56);
-x_57 = l_Lean_Elab_postponeExceptionId;
+x_57 = l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_resumePostponed___lambda__2___closed__3;
 x_58 = lean_nat_dec_eq(x_56, x_57);
 lean_dec(x_56);
 if (x_58 == 0)
@@ -3594,6 +3604,14 @@ lean_dec(x_3);
 return x_11;
 }
 }
+static lean_object* _init_l_Lean_Meta_getDefaultInstances___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstances___spec__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Meta_defaultInstanceExtension;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_getDefaultInstances___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstances___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -3608,7 +3626,7 @@ x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 lean_dec(x_11);
 x_13 = l_Lean_Meta_instInhabitedDefaultInstances;
-x_14 = l_Lean_Meta_defaultInstanceExtension;
+x_14 = l_Lean_Meta_getDefaultInstances___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstances___spec__1___closed__1;
 x_15 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_13, x_14, x_12);
 lean_dec(x_12);
 x_16 = lean_ctor_get(x_15, 0);
@@ -3645,7 +3663,7 @@ x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
 x_23 = l_Lean_Meta_instInhabitedDefaultInstances;
-x_24 = l_Lean_Meta_defaultInstanceExtension;
+x_24 = l_Lean_Meta_getDefaultInstances___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstances___spec__1___closed__1;
 x_25 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_23, x_24, x_22);
 lean_dec(x_22);
 x_26 = lean_ctor_get(x_25, 0);
@@ -4796,7 +4814,7 @@ x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec(x_5);
 x_7 = l_Lean_Meta_instInhabitedDefaultInstances;
-x_8 = l_Lean_Meta_defaultInstanceExtension;
+x_8 = l_Lean_Meta_getDefaultInstances___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstances___spec__1___closed__1;
 x_9 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_7, x_8, x_6);
 lean_dec(x_6);
 x_10 = lean_ctor_get(x_9, 1);
@@ -4817,7 +4835,7 @@ x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
 x_14 = l_Lean_Meta_instInhabitedDefaultInstances;
-x_15 = l_Lean_Meta_defaultInstanceExtension;
+x_15 = l_Lean_Meta_getDefaultInstances___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstances___spec__1___closed__1;
 x_16 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_14, x_15, x_13);
 lean_dec(x_13);
 x_17 = lean_ctor_get(x_16, 1);
@@ -12333,6 +12351,8 @@ l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_resumePostponed___lambda_
 lean_mark_persistent(l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_resumePostponed___lambda__2___closed__1);
 l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_resumePostponed___lambda__2___closed__2 = _init_l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_resumePostponed___lambda__2___closed__2();
 lean_mark_persistent(l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_resumePostponed___lambda__2___closed__2);
+l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_resumePostponed___lambda__2___closed__3 = _init_l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_resumePostponed___lambda__2___closed__3();
+lean_mark_persistent(l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_resumePostponed___lambda__2___closed__3);
 l_panic___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizePendingInstMVar___spec__1___closed__1 = _init_l_panic___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizePendingInstMVar___spec__1___closed__1();
 lean_mark_persistent(l_panic___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizePendingInstMVar___spec__1___closed__1);
 l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizePendingInstMVar___lambda__1___closed__1 = _init_l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizePendingInstMVar___lambda__1___closed__1();
@@ -12373,6 +12393,8 @@ l_Lean_commitWhenSome_x3f___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_T
 lean_mark_persistent(l_Lean_commitWhenSome_x3f___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstance___spec__2___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstance___spec__3___closed__9);
 l_Lean_commitWhenSome_x3f___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstance___spec__2___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstance___spec__3___closed__10 = _init_l_Lean_commitWhenSome_x3f___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstance___spec__2___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstance___spec__3___closed__10();
 lean_mark_persistent(l_Lean_commitWhenSome_x3f___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstance___spec__2___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstance___spec__3___closed__10);
+l_Lean_Meta_getDefaultInstances___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstances___spec__1___closed__1 = _init_l_Lean_Meta_getDefaultInstances___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstances___spec__1___closed__1();
+lean_mark_persistent(l_Lean_Meta_getDefaultInstances___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstances___spec__1___closed__1);
 l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstances___lambda__2___closed__1 = _init_l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstances___lambda__2___closed__1();
 lean_mark_persistent(l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_tryToSynthesizeUsingDefaultInstances___lambda__2___closed__1);
 l_Std_RBNode_forIn_visit___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizeUsingDefault___spec__2___closed__1 = _init_l_Std_RBNode_forIn_visit___at___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizeUsingDefault___spec__2___closed__1();

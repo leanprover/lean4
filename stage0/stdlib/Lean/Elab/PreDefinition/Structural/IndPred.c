@@ -151,6 +151,7 @@ lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMe
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps___closed__1;
 LEAN_EXPORT lean_object* l_Lean_addTrace___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop_addBelow___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Match_MatcherInfo_arity(lean_object*);
@@ -3514,13 +3515,21 @@ lean_dec(x_1);
 return x_13;
 }
 }
+static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Meta_IndPredBelow_maxBackwardChainingDepth;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_11 = lean_ctor_get(x_8, 0);
 lean_inc(x_11);
-x_12 = l_Lean_Meta_IndPredBelow_maxBackwardChainingDepth;
+x_12 = l___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps___closed__1;
 x_13 = l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(x_11, x_12);
 lean_dec(x_11);
 x_14 = l___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop(x_1, x_2, x_3, x_13, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
@@ -4979,6 +4988,8 @@ l___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_r
 lean_mark_persistent(l___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop___closed__7);
 l___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop___closed__8 = _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop___closed__8();
 lean_mark_persistent(l___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop___closed__8);
+l___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps___closed__1 = _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps___closed__1();
+lean_mark_persistent(l___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps___closed__1);
 l_Lean_Elab_Structural_mkIndPredBRecOn___lambda__2___closed__1 = _init_l_Lean_Elab_Structural_mkIndPredBRecOn___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_Elab_Structural_mkIndPredBRecOn___lambda__2___closed__1);
 l_Lean_Elab_Structural_mkIndPredBRecOn___lambda__2___closed__2 = _init_l_Lean_Elab_Structural_mkIndPredBRecOn___lambda__2___closed__2();

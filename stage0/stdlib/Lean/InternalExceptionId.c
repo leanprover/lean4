@@ -26,6 +26,7 @@ LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_registerInternalExceptionId
 LEAN_EXPORT lean_object* l_Lean_instBEqInternalExceptionId;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
+static lean_object* l_Lean_registerInternalExceptionId___lambda__1___closed__1;
 static lean_object* l_Lean_InternalExceptionId_getName___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -214,12 +215,20 @@ return x_11;
 }
 }
 }
+static lean_object* _init_l_Lean_registerInternalExceptionId___lambda__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_internalExceptionsRef;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_registerInternalExceptionId___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_5 = lean_array_get_size(x_1);
-x_6 = l_Lean_internalExceptionsRef;
+x_6 = l_Lean_registerInternalExceptionId___lambda__1___closed__1;
 x_7 = lean_st_ref_take(x_6, x_4);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
@@ -270,7 +279,7 @@ LEAN_EXPORT lean_object* l_Lean_registerInternalExceptionId(lean_object* x_1, le
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = l_Lean_internalExceptionsRef;
+x_3 = l_Lean_registerInternalExceptionId___lambda__1___closed__1;
 x_4 = lean_st_ref_get(x_3, x_2);
 x_5 = !lean_is_exclusive(x_4);
 if (x_5 == 0)
@@ -431,7 +440,7 @@ LEAN_EXPORT lean_object* l_Lean_InternalExceptionId_getName(lean_object* x_1, le
 _start:
 {
 lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = l_Lean_internalExceptionsRef;
+x_3 = l_Lean_registerInternalExceptionId___lambda__1___closed__1;
 x_4 = lean_st_ref_get(x_3, x_2);
 x_5 = !lean_is_exclusive(x_4);
 if (x_5 == 0)
@@ -526,6 +535,8 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_internalExceptionsRef = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_internalExceptionsRef);
 lean_dec_ref(res);
+l_Lean_registerInternalExceptionId___lambda__1___closed__1 = _init_l_Lean_registerInternalExceptionId___lambda__1___closed__1();
+lean_mark_persistent(l_Lean_registerInternalExceptionId___lambda__1___closed__1);
 l_Lean_registerInternalExceptionId___closed__1 = _init_l_Lean_registerInternalExceptionId___closed__1();
 lean_mark_persistent(l_Lean_registerInternalExceptionId___closed__1);
 l_Lean_registerInternalExceptionId___closed__2 = _init_l_Lean_registerInternalExceptionId___closed__2();

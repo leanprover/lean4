@@ -52,6 +52,7 @@ static lean_object* l_Lean_moduleNameOfFileName___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_findOLean(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_modToFilePath___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_pathExists(lean_object*, lean_object*);
+static lean_object* l_Lean_initSearchPath___closed__1;
 LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_802____at_Lean_SearchPath_findAllWithExt___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_SearchPath_findAllWithExt___spec__3___lambda__1(lean_object*, lean_object*);
 static uint8_t l_Lean_getLibDir___closed__2;
@@ -1257,6 +1258,14 @@ return x_19;
 }
 }
 }
+static lean_object* _init_l_Lean_initSearchPath___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_searchPathRef;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_initSearchPath(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1277,7 +1286,7 @@ x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec(x_7);
 x_10 = l_List_appendTR___rarg(x_2, x_8);
-x_11 = l_Lean_searchPathRef;
+x_11 = l_Lean_initSearchPath___closed__1;
 x_12 = lean_st_ref_set(x_11, x_10, x_9);
 x_13 = !lean_is_exclusive(x_12);
 if (x_13 == 0)
@@ -1519,7 +1528,7 @@ LEAN_EXPORT lean_object* l_Lean_findOLean(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_3 = l_Lean_searchPathRef;
+x_3 = l_Lean_initSearchPath___closed__1;
 x_4 = lean_st_ref_get(x_3, x_2);
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
@@ -2362,6 +2371,8 @@ l_Lean_getLibDir___closed__4 = _init_l_Lean_getLibDir___closed__4();
 lean_mark_persistent(l_Lean_getLibDir___closed__4);
 l_Lean_addSearchPathFromEnv___closed__1 = _init_l_Lean_addSearchPathFromEnv___closed__1();
 lean_mark_persistent(l_Lean_addSearchPathFromEnv___closed__1);
+l_Lean_initSearchPath___closed__1 = _init_l_Lean_initSearchPath___closed__1();
+lean_mark_persistent(l_Lean_initSearchPath___closed__1);
 l_Lean_findOLean_maybeThisOne___closed__1 = _init_l_Lean_findOLean_maybeThisOne___closed__1();
 lean_mark_persistent(l_Lean_findOLean_maybeThisOne___closed__1);
 l_Lean_findOLean_maybeThisOne___closed__2 = _init_l_Lean_findOLean_maybeThisOne___closed__2();

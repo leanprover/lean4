@@ -31,13 +31,11 @@ LEAN_EXPORT lean_object* l_Lean_StructureInfo_fieldInfo___default;
 static lean_object* l_Lean_getStructureCtor___closed__4;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkDefaultFnOfProjFn___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__1(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____closed__14;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedStructureState;
 uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
-static lean_object* l_Lean_structureExt___closed__7;
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____closed__15;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_mkDefaultFnOfProjFn___closed__1;
@@ -62,7 +60,6 @@ LEAN_EXPORT lean_object* l_Lean_StructureInfo_fieldNames___default;
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____closed__4;
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____closed__8;
 LEAN_EXPORT lean_object* l_Lean_getProjFnForField_x3f(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__4___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_244____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_244____spec__1___closed__1;
@@ -75,8 +72,6 @@ LEAN_EXPORT lean_object* l_Lean_mkDefaultFnOfProjFn(lean_object*);
 lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getStructureFieldsFlattened___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_StructureFieldInfo_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__3___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__3(lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedStructureFieldInfo___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux___spec__1(lean_object*, lean_object*, uint8_t, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getFieldInfo_x3f(lean_object*, lean_object*, lean_object*);
@@ -114,15 +109,12 @@ static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo___
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getStructureInfo_x3f(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____closed__22;
-static lean_object* l_Lean_structureExt___closed__4;
 LEAN_EXPORT lean_object* l_Lean_instReprStructureFieldInfo;
 LEAN_EXPORT lean_object* l_Lean_StructureInfo_lt___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__2___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getPathToBaseStructure_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findField_x3f___lambda__1(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentHashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_structureExt___closed__1;
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____closed__16;
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____closed__11;
@@ -135,18 +127,13 @@ LEAN_EXPORT lean_object* l_Array_binSearchAux___at_Lean_getFieldInfo_x3f___spec_
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_findField_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getAllParentStructures(lean_object*, lean_object*);
-lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___lambda__1(lean_object*);
 static lean_object* l_Lean_getStructureFields___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_registerStructure___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__4___rarg(lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_376_(uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__4(lean_object*, lean_object*);
 static lean_object* l_Lean_getStructureCtor___closed__6;
-static lean_object* l_Lean_structureExt___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61_(lean_object*, lean_object*);
 lean_object* l_List_redLength___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_contains___at_Lean_findField_x3f___spec__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__1___boxed(lean_object*);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____closed__20;
 LEAN_EXPORT lean_object* l_Lean_getParentStructures(lean_object*, lean_object*);
 static lean_object* l_Array_qsort_sort___at_Lean_registerStructure___spec__2___closed__1;
@@ -155,10 +142,8 @@ LEAN_EXPORT lean_object* l_Lean_getDefaultFnForField_x3f(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_registerStructure___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 static lean_object* l_Lean_mkDefaultFnOfProjFn___closed__2;
-static lean_object* l_Lean_structureExt___closed__2;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Structure___hyg_244_(lean_object*);
 static lean_object* l___private_Lean_Structure_0__Lean_StructureState_map___default___closed__3;
-static lean_object* l_Lean_structureExt___closed__5;
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____closed__10;
 LEAN_EXPORT lean_object* l_Lean_getStructureCtor(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isStructure___boxed(lean_object*, lean_object*);
@@ -176,11 +161,10 @@ LEAN_EXPORT lean_object* l_Lean_instInhabitedStructureInfo;
 LEAN_EXPORT lean_object* l_Lean_isSubobjectField_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structure___hyg_244____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____closed__21;
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__2(lean_object*);
 lean_object* lean_string_length(lean_object*);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____closed__13;
 LEAN_EXPORT lean_object* l_Lean_findField_x3f(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_structureExt___closed__6;
+static lean_object* l_Lean_registerStructure___closed__1;
 LEAN_EXPORT lean_object* l_Lean_getPathToBaseStructureAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_findField_x3f___closed__1;
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____closed__23;
@@ -191,7 +175,6 @@ lean_object* l_Std_PersistentHashMap_find_x3f___rarg(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at_Lean_getStructureInfo_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getPathToBaseStructure_x3f___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isStructureLike(lean_object*, lean_object*);
-uint32_t lean_uint32_of_nat(lean_object*);
 static lean_object* l_Lean_instInhabitedStructureDescr___closed__1;
 LEAN_EXPORT lean_object* l_Lean_StructureFieldInfo_lt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findField_x3f___boxed(lean_object*, lean_object*, lean_object*);
@@ -201,17 +184,14 @@ static lean_object* l_Lean_initFn____x40_Lean_Structure___hyg_244____closed__3;
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____closed__12;
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_findField_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_structureExt___elambda__4___rarg___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Structure_0__Lean_getStructureFieldsFlattenedAux(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_getAllParentStructures_visit___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_61____closed__26;
 LEAN_EXPORT uint8_t l_Lean_isStructure(lean_object*, lean_object*);
-static uint32_t l_Lean_structureExt___elambda__4___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_getPathToBaseStructureAux(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Structure___hyg_244____closed__5;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_instBEqName;
-static lean_object* l_Lean_structureExt___elambda__4___rarg___closed__2;
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_instInhabitedStructureFieldInfo___closed__1() {
 _start:
@@ -1120,189 +1100,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_box(0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__2(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_StructureInfo_fieldNames___default___closed__1;
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__3(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-static uint32_t _init_l_Lean_structureExt___elambda__4___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; uint32_t x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_uint32_of_nat(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_structureExt___elambda__4___rarg___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_structureExt___elambda__4___rarg___closed__3() {
-_start:
-{
-lean_object* x_1; uint32_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(0);
-x_2 = l_Lean_structureExt___elambda__4___rarg___closed__1;
-x_3 = l_Lean_structureExt___elambda__4___rarg___closed__2;
-x_4 = lean_alloc_ctor(0, 2, 4);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_3);
-lean_ctor_set_uint32(x_4, sizeof(void*)*2, x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__4___rarg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_structureExt___elambda__4___rarg___closed__3;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__4(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_structureExt___elambda__4___rarg), 1, 0);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_structureExt___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___lambda__1), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_structureExt___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_structureExt___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_structureExt___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_structureExt___elambda__4___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_structureExt___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_structureExt___elambda__3___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_structureExt___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_structureExt___elambda__2___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_structureExt___closed__6() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_structureExt___elambda__1___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_structureExt___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_1 = l_Lean_structureExt___closed__2;
-x_2 = lean_box(0);
-x_3 = l_Lean_structureExt___closed__3;
-x_4 = l_Lean_structureExt___closed__4;
-x_5 = l_Lean_structureExt___closed__5;
-x_6 = l_Lean_structureExt___closed__6;
-x_7 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_7, 0, x_1);
-lean_ctor_set(x_7, 1, x_2);
-lean_ctor_set(x_7, 2, x_3);
-lean_ctor_set(x_7, 3, x_4);
-lean_ctor_set(x_7, 4, x_5);
-lean_ctor_set(x_7, 5, x_6);
-return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__1___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_structureExt___elambda__1(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__2___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_structureExt___elambda__2(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__3___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_structureExt___elambda__3(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_structureExt___elambda__4___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_structureExt___elambda__4(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 static lean_object* _init_l_Lean_instInhabitedStructureDescr___closed__1() {
 _start:
 {
@@ -1509,6 +1306,14 @@ return x_7;
 }
 }
 }
+static lean_object* _init_l_Lean_registerStructure___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_structureExt;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_registerStructure(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1534,7 +1339,7 @@ x_14 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_14, 0, x_3);
 lean_ctor_set(x_14, 1, x_8);
 lean_ctor_set(x_14, 2, x_13);
-x_15 = l_Lean_structureExt;
+x_15 = l_Lean_registerStructure___closed__1;
 x_16 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_15, x_1, x_14);
 return x_16;
 }
@@ -1662,7 +1467,7 @@ if (lean_obj_tag(x_3) == 0)
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_4 = l_Lean_instInhabitedStructureState;
-x_5 = l_Lean_structureExt;
+x_5 = l_Lean_registerStructure___closed__1;
 x_6 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_4, x_5, x_1);
 lean_dec(x_1);
 x_7 = l_Lean_Name_instBEqName;
@@ -1677,7 +1482,7 @@ x_10 = lean_ctor_get(x_3, 0);
 lean_inc(x_10);
 lean_dec(x_3);
 x_11 = l_Lean_getStructureInfo_x3f___closed__1;
-x_12 = l_Lean_structureExt;
+x_12 = l_Lean_registerStructure___closed__1;
 x_13 = l_Lean_PersistentEnvExtension_getModuleEntries___rarg(x_11, x_12, x_1, x_10);
 lean_dec(x_10);
 lean_dec(x_1);
@@ -3514,25 +3319,6 @@ l_Lean_initFn____x40_Lean_Structure___hyg_244____closed__5 = _init_l_Lean_initFn
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Structure___hyg_244____closed__5);
 l_Lean_initFn____x40_Lean_Structure___hyg_244____closed__6 = _init_l_Lean_initFn____x40_Lean_Structure___hyg_244____closed__6();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Structure___hyg_244____closed__6);
-l_Lean_structureExt___elambda__4___rarg___closed__1 = _init_l_Lean_structureExt___elambda__4___rarg___closed__1();
-l_Lean_structureExt___elambda__4___rarg___closed__2 = _init_l_Lean_structureExt___elambda__4___rarg___closed__2();
-lean_mark_persistent(l_Lean_structureExt___elambda__4___rarg___closed__2);
-l_Lean_structureExt___elambda__4___rarg___closed__3 = _init_l_Lean_structureExt___elambda__4___rarg___closed__3();
-lean_mark_persistent(l_Lean_structureExt___elambda__4___rarg___closed__3);
-l_Lean_structureExt___closed__1 = _init_l_Lean_structureExt___closed__1();
-lean_mark_persistent(l_Lean_structureExt___closed__1);
-l_Lean_structureExt___closed__2 = _init_l_Lean_structureExt___closed__2();
-lean_mark_persistent(l_Lean_structureExt___closed__2);
-l_Lean_structureExt___closed__3 = _init_l_Lean_structureExt___closed__3();
-lean_mark_persistent(l_Lean_structureExt___closed__3);
-l_Lean_structureExt___closed__4 = _init_l_Lean_structureExt___closed__4();
-lean_mark_persistent(l_Lean_structureExt___closed__4);
-l_Lean_structureExt___closed__5 = _init_l_Lean_structureExt___closed__5();
-lean_mark_persistent(l_Lean_structureExt___closed__5);
-l_Lean_structureExt___closed__6 = _init_l_Lean_structureExt___closed__6();
-lean_mark_persistent(l_Lean_structureExt___closed__6);
-l_Lean_structureExt___closed__7 = _init_l_Lean_structureExt___closed__7();
-lean_mark_persistent(l_Lean_structureExt___closed__7);
 res = l_Lean_initFn____x40_Lean_Structure___hyg_244_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_structureExt = lean_io_result_get_value(res);
@@ -3544,6 +3330,8 @@ l_Lean_instInhabitedStructureDescr = _init_l_Lean_instInhabitedStructureDescr();
 lean_mark_persistent(l_Lean_instInhabitedStructureDescr);
 l_Array_qsort_sort___at_Lean_registerStructure___spec__2___closed__1 = _init_l_Array_qsort_sort___at_Lean_registerStructure___spec__2___closed__1();
 lean_mark_persistent(l_Array_qsort_sort___at_Lean_registerStructure___spec__2___closed__1);
+l_Lean_registerStructure___closed__1 = _init_l_Lean_registerStructure___closed__1();
+lean_mark_persistent(l_Lean_registerStructure___closed__1);
 l_Lean_getStructureInfo_x3f___closed__1 = _init_l_Lean_getStructureInfo_x3f___closed__1();
 lean_mark_persistent(l_Lean_getStructureInfo_x3f___closed__1);
 l_Lean_getStructureCtor___closed__1 = _init_l_Lean_getStructureCtor___closed__1();

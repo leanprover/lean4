@@ -67,7 +67,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_IndPredBelow_proveBrecOn(lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_Meta_IndPredBelow_mkContext_mkHeader___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_IndPredBelow_mkBelowMatcher_convertToBelow___lambda__2___closed__2;
 extern lean_object* l_Lean_ExprStructEq_instHashableExprStructEq;
-static lean_object* l_Lean_Meta_IndPredBelow_maxBackwardChainingDepth___closed__1;
 extern lean_object* l_Lean_maxRecDepthErrorMessage;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapIdxM_map___at_Lean_Meta_IndPredBelow_mkBelowDecl___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -499,6 +498,7 @@ static lean_object* l_Lean_Meta_IndPredBelow_mkContext_motiveName___closed__3;
 static lean_object* l_Lean_Meta_IndPredBelow_proveBrecOn_closeGoal___rarg___closed__16;
 LEAN_EXPORT lean_object* l_Array_mapIdxM_map___at_Lean_Meta_IndPredBelow_proveBrecOn_induction___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_IndPredBelow_mkBelowMatcher_convertToBelow___spec__1___closed__2;
+static lean_object* l_Lean_Meta_IndPredBelow_proveBrecOn___closed__3;
 static lean_object* l_Lean_Meta_transform___at_Lean_Meta_IndPredBelow_mkCtorType_checkCount___spec__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_IndPredBelow_mkBelowMatcher_transformFields_loop___spec__2___boxed(lean_object**);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
@@ -589,18 +589,6 @@ x_2 = l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPredBelow___hyg_7____c
 x_3 = l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPredBelow___hyg_7____closed__5;
 x_4 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____spec__1(x_2, x_3, x_1);
 return x_4;
-}
-}
-static lean_object* _init_l_Lean_Meta_IndPredBelow_maxBackwardChainingDepth___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
 }
 }
 static lean_object* _init_l_Lean_Meta_IndPredBelow_instInhabitedVariables___closed__1() {
@@ -10752,6 +10740,14 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Meta_IndPredBelow_proveBrecOn___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Meta_IndPredBelow_maxBackwardChainingDepth;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_IndPredBelow_proveBrecOn(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
@@ -10855,7 +10851,7 @@ lean_inc(x_32);
 lean_dec(x_30);
 x_33 = lean_ctor_get(x_6, 0);
 lean_inc(x_33);
-x_34 = l_Lean_Meta_IndPredBelow_maxBackwardChainingDepth;
+x_34 = l_Lean_Meta_IndPredBelow_proveBrecOn___closed__3;
 x_35 = l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(x_33, x_34);
 lean_dec(x_33);
 lean_inc(x_7);
@@ -23127,8 +23123,6 @@ l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPredBelow___hyg_7____closed_
 lean_mark_persistent(l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPredBelow___hyg_7____closed__4);
 l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPredBelow___hyg_7____closed__5 = _init_l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPredBelow___hyg_7____closed__5();
 lean_mark_persistent(l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPredBelow___hyg_7____closed__5);
-l_Lean_Meta_IndPredBelow_maxBackwardChainingDepth___closed__1 = _init_l_Lean_Meta_IndPredBelow_maxBackwardChainingDepth___closed__1();
-lean_mark_persistent(l_Lean_Meta_IndPredBelow_maxBackwardChainingDepth___closed__1);
 res = l_Lean_Meta_IndPredBelow_initFn____x40_Lean_Meta_IndPredBelow___hyg_7_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_IndPredBelow_maxBackwardChainingDepth = lean_io_result_get_value(res);
@@ -23233,6 +23227,8 @@ l_Lean_Meta_IndPredBelow_proveBrecOn___closed__1 = _init_l_Lean_Meta_IndPredBelo
 lean_mark_persistent(l_Lean_Meta_IndPredBelow_proveBrecOn___closed__1);
 l_Lean_Meta_IndPredBelow_proveBrecOn___closed__2 = _init_l_Lean_Meta_IndPredBelow_proveBrecOn___closed__2();
 lean_mark_persistent(l_Lean_Meta_IndPredBelow_proveBrecOn___closed__2);
+l_Lean_Meta_IndPredBelow_proveBrecOn___closed__3 = _init_l_Lean_Meta_IndPredBelow_proveBrecOn___closed__3();
+lean_mark_persistent(l_Lean_Meta_IndPredBelow_proveBrecOn___closed__3);
 l_Lean_Meta_IndPredBelow_mkBrecOnDecl_mkIH___closed__1 = _init_l_Lean_Meta_IndPredBelow_mkBrecOnDecl_mkIH___closed__1();
 lean_mark_persistent(l_Lean_Meta_IndPredBelow_mkBrecOnDecl_mkIH___closed__1);
 l_Lean_Meta_IndPredBelow_mkBrecOnDecl_mkIH___closed__2 = _init_l_Lean_Meta_IndPredBelow_mkBrecOnDecl_mkIH___closed__2();

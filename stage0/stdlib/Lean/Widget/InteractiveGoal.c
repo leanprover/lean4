@@ -629,6 +629,7 @@ LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_Widget_Lean_Widget_Interac
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_mapM___at_Lean_Widget_Lean_Widget_InteractiveGoal_instRpcEncodingInteractiveGoalRpcEncodingPacket___spec__32___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_Widget_Lean_Widget_InteractiveHypothesis_instRpcEncodingInteractiveHypothesisRpcEncodingPacket___spec__16(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_Lean_Widget_InteractiveHypothesis_instRpcEncodingInteractiveHypothesisRpcEncodingPacket___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Widget_goalToInteractive___closed__4;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_Lean_Widget_InteractiveGoal_instRpcEncodingInteractiveGoalRpcEncodingPacket___spec__33___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_Widget_Lean_Widget_InteractiveGoal_instRpcEncodingInteractiveGoalRpcEncodingPacket___spec__14___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_Lean_Widget_InteractiveTermGoal_instRpcEncodingInteractiveTermGoalRpcEncodingPacket___spec__9___rarg(lean_object*, size_t, size_t, lean_object*);
@@ -23164,6 +23165,14 @@ x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Widget_goalToInteractive___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Meta_pp_auxDecls;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Widget_goalToInteractive(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -23212,7 +23221,7 @@ lean_inc(x_20);
 lean_dec(x_13);
 x_21 = lean_ctor_get(x_4, 0);
 lean_inc(x_21);
-x_22 = l_Lean_Meta_pp_auxDecls;
+x_22 = l_Lean_Widget_goalToInteractive___closed__4;
 x_23 = l_Lean_Option_get___at_Lean_ppExpr___spec__1(x_21, x_22);
 x_24 = lean_ctor_get(x_20, 1);
 lean_inc(x_24);
@@ -23666,6 +23675,8 @@ l_Lean_Widget_goalToInteractive___closed__2 = _init_l_Lean_Widget_goalToInteract
 lean_mark_persistent(l_Lean_Widget_goalToInteractive___closed__2);
 l_Lean_Widget_goalToInteractive___closed__3 = _init_l_Lean_Widget_goalToInteractive___closed__3();
 lean_mark_persistent(l_Lean_Widget_goalToInteractive___closed__3);
+l_Lean_Widget_goalToInteractive___closed__4 = _init_l_Lean_Widget_goalToInteractive___closed__4();
+lean_mark_persistent(l_Lean_Widget_goalToInteractive___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

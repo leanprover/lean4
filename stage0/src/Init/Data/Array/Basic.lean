@@ -117,8 +117,17 @@ def modifyM [Monad m] [Inhabited α] (a : Array α) (i : Nat) (f : α → m α) 
     pure a
 
 @[inline]
-def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=
-  Id.run <| a.modifyM i f
+unsafe def modifyUnsafe (a : Array α) (i : Nat) (f : α → α) : Array α :=
+  if h : i < a.size then
+    let idx : Fin a.size := ⟨i, h⟩
+    let v                := a.get idx
+    let a'               := a.set idx (unsafeCast ())
+    a'.set (size_set a .. ▸ idx) (f v)
+  else
+    a
+
+@[implementedBy modifyUnsafe]
+constant modify (a : Array α) (i : Nat) (f : α → α) : Array α
 
 @[inline]
 def modifyOp [Inhabited α] (self : Array α) (idx : Nat) (f : α → α) : Array α :=

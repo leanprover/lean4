@@ -21,6 +21,7 @@ LEAN_EXPORT lean_object* l_Lean_isClosedTermName___boxed(lean_object*, lean_obje
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_50____closed__1;
 LEAN_EXPORT lean_object* l_Lean_ClosedTermCache_constNames___default;
 static lean_object* l_Lean_ClosedTermCache_map___default___closed__2;
+static lean_object* l_Lean_cacheClosedTermName___closed__1;
 LEAN_EXPORT lean_object* lean_cache_closed_term_name(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ClosedTermCache_map___default___closed__1;
 extern lean_object* l_Lean_Expr_instHashableExpr;
@@ -28,13 +29,10 @@ lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Lean_closedTermCacheExt;
 lean_object* l_Std_PersistentHashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
-lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ClosedTermCache_map___default;
 static lean_object* l_Lean_ClosedTermCache_map___default___closed__3;
 static lean_object* l_Lean_instInhabitedClosedTermCache___closed__1;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedClosedTermCache;
-static lean_object* l_Lean_closedTermCacheExt___closed__1;
-static lean_object* l_Lean_closedTermCacheExt___closed__2;
 LEAN_EXPORT uint8_t l_Lean_isClosedTermName(lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_instBEqExpr;
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
@@ -128,26 +126,6 @@ x_3 = l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(x_2, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_closedTermCacheExt___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___lambda__1), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_closedTermCacheExt___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_closedTermCacheExt___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_cacheClosedTermName___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -169,6 +147,14 @@ lean_ctor_set(x_11, 1, x_10);
 return x_11;
 }
 }
+static lean_object* _init_l_Lean_cacheClosedTermName___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_closedTermCacheExt;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* lean_cache_closed_term_name(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -176,7 +162,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6;
 x_4 = lean_alloc_closure((void*)(l_Lean_cacheClosedTermName___lambda__1), 3, 2);
 lean_closure_set(x_4, 0, x_2);
 lean_closure_set(x_4, 1, x_3);
-x_5 = l_Lean_closedTermCacheExt;
+x_5 = l_Lean_cacheClosedTermName___closed__1;
 x_6 = l_Lean_EnvExtensionInterfaceUnsafe_imp___elambda__2___rarg(x_5, x_1, x_4);
 return x_6;
 }
@@ -186,7 +172,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_3 = l_Lean_instInhabitedClosedTermCache;
-x_4 = l_Lean_closedTermCacheExt;
+x_4 = l_Lean_cacheClosedTermName___closed__1;
 x_5 = l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(x_3, x_4, x_1);
 lean_dec(x_1);
 x_6 = lean_ctor_get(x_5, 0);
@@ -203,7 +189,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_3 = l_Lean_instInhabitedClosedTermCache;
-x_4 = l_Lean_closedTermCacheExt;
+x_4 = l_Lean_cacheClosedTermName___closed__1;
 x_5 = l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(x_3, x_4, x_1);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
@@ -253,15 +239,13 @@ l_Lean_instInhabitedClosedTermCache = _init_l_Lean_instInhabitedClosedTermCache(
 lean_mark_persistent(l_Lean_instInhabitedClosedTermCache);
 l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_50____closed__1 = _init_l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_50____closed__1();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_50____closed__1);
-l_Lean_closedTermCacheExt___closed__1 = _init_l_Lean_closedTermCacheExt___closed__1();
-lean_mark_persistent(l_Lean_closedTermCacheExt___closed__1);
-l_Lean_closedTermCacheExt___closed__2 = _init_l_Lean_closedTermCacheExt___closed__2();
-lean_mark_persistent(l_Lean_closedTermCacheExt___closed__2);
 res = l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_50_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_closedTermCacheExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_closedTermCacheExt);
 lean_dec_ref(res);
+l_Lean_cacheClosedTermName___closed__1 = _init_l_Lean_cacheClosedTermName___closed__1();
+lean_mark_persistent(l_Lean_cacheClosedTermName___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -56,7 +56,7 @@ namespace Prim
 /- Auxiliary definition for showing that `ST σ α` is inhabited when we have a `Ref σ α` -/
 private noncomputable def inhabitedFromRef {σ α} (r : Ref σ α) : ST σ α :=
   let inh : Inhabited α := Classical.inhabited_of_nonempty r.h
-  pure arbitrary
+  pure default
 
 @[extern "lean_st_mk_ref"]
 constant mkRef {σ α} (a : α) : ST σ (Ref σ α) := pure { ref := Classical.choice RefPointed.property, h := Nonempty.intro a }

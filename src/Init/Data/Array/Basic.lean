@@ -110,7 +110,7 @@ def modifyM [Monad m] [Inhabited α] (a : Array α) (i : Nat) (f : α → m α) 
   if h : i < a.size then
     let idx : Fin a.size := ⟨i, h⟩
     let v                := a.get idx
-    let a'               := a.set idx arbitrary
+    let a'               := a.set idx default
     let v ← f v
     pure <| a'.set (size_set a .. ▸ idx) v
   else
@@ -247,7 +247,7 @@ unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad
   let rec @[specialize] map (i : USize) (r : Array NonScalar) : m (Array PNonScalar.{v}) := do
     if i < sz then
      let v    := r.uget i lcProof
-     let r    := r.uset i arbitrary lcProof
+     let r    := r.uset i default lcProof
      let vNew ← f (unsafeCast v)
      map (i+1) (r.uset i (unsafeCast vNew) lcProof)
     else

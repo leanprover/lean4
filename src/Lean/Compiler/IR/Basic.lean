@@ -293,7 +293,7 @@ abbrev Alt := AltCore FnBody
 @[matchPattern] abbrev Alt.ctor    := @AltCore.ctor FnBody
 @[matchPattern] abbrev Alt.default := @AltCore.default FnBody
 
-instance : Inhabited Alt := ⟨Alt.default arbitrary⟩
+instance : Inhabited Alt := ⟨Alt.default default⟩
 
 def FnBody.isTerminal : FnBody → Bool
   | FnBody.case _ _ _ _  => true
@@ -373,7 +373,7 @@ partial def reshapeAux (a : Array FnBody) (i : Nat) (b : FnBody) : FnBody :=
   if i == 0 then b
   else
     let i         := i - 1
-    let (curr, a) := a.swapAt! i arbitrary
+    let (curr, a) := a.swapAt! i default
     let b         := curr.setBody b
     reshapeAux a i b
 

@@ -321,7 +321,7 @@ private def getVarDecls (s : State) : Array Syntax :=
   s.scopes.head!.varDecls
 
 instance {α} : Inhabited (CommandElabM α) where
-  default := throw arbitrary
+  default := throw default
 
 private def mkMetaContext : Meta.Context := {
   config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true }

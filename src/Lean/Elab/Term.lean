@@ -144,7 +144,7 @@ instance : Monad TermElabM := let i := inferInstanceAs (Monad TermElabM); { pure
 open Meta
 
 instance : Inhabited (TermElabM α) where
-  default := throw arbitrary
+  default := throw default
 
 structure SavedState where
   meta   : Meta.SavedState
@@ -170,7 +170,7 @@ instance : MonadBacktrack SavedState TermElabM where
 abbrev TermElabResult (α : Type) := EStateM.Result Exception SavedState α
 
 instance [Inhabited α] : Inhabited (TermElabResult α) where
-  default := EStateM.Result.ok arbitrary arbitrary
+  default := EStateM.Result.ok default default
 
 def setMessageLog (messages : MessageLog) : TermElabM Unit :=
   modify fun s => { s with messages := messages }
@@ -1514,7 +1514,7 @@ def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (
 
 private def mkSomeContext : Context := {
   fileName      := "<TermElabM>"
-  fileMap       := arbitrary
+  fileMap       := default
 }
 
 def TermElabM.run (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM (α × State) :=

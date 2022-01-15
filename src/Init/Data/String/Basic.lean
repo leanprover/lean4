@@ -41,7 +41,7 @@ def toList (s : String) : List Char :=
   s.data
 
 private def utf8GetAux : List Char → Pos → Pos → Char
-  | [],    i, p => arbitrary
+  | [],    i, p => default
   | c::cs, i, p => if i = p then c else utf8GetAux cs (i + csize c) p
 
 @[extern "lean_string_utf8_get"]

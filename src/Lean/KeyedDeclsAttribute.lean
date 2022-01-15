@@ -69,7 +69,7 @@ structure KeyedDeclsAttribute (γ : Type) where
   ext : KeyedDeclsAttribute.Extension γ
 
 instance : Nonempty (KeyedDeclsAttribute γ) :=
-  Nonempty.intro { defn := arbitrary, tableRef := Classical.ofNonempty, ext := arbitrary }
+  Nonempty.intro { defn := default, tableRef := Classical.ofNonempty, ext := default }
 
 namespace KeyedDeclsAttribute
 

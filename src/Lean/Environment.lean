@@ -54,15 +54,13 @@ structure ModuleData where
   imports    : Array Import
   constants  : Array ConstantInfo
   entries    : Array (Name × Array EnvExtensionEntry)
-
-instance : Inhabited ModuleData :=
-  ⟨{imports := arbitrary, constants := arbitrary, entries := arbitrary }⟩
+  deriving Inhabited
 
 /- Environment fields that are not used often. -/
 structure EnvironmentHeader where
   trustLevel   : UInt32       := 0
   quotInit     : Bool         := false
-  mainModule   : Name         := arbitrary
+  mainModule   : Name         := default
   imports      : Array Import := #[] -- direct imports
   regions      : Array CompactedRegion := #[] -- compacted regions of all imported modules
   moduleNames  : Array Name   := #[] -- names of all imported modules
@@ -256,7 +254,7 @@ def mkInitialExtStates : IO (Array EnvExtensionState) := do
 unsafe def imp : EnvExtensionInterface := {
   ext                  := Ext
   ensureExtensionsSize := ensureExtensionsArraySize
-  inhabitedExt         := fun _ => ⟨arbitrary⟩
+  inhabitedExt         := fun _ => ⟨default⟩
   registerExt          := registerExt
   setState             := setState
   modifyState          := modifyState
@@ -335,13 +333,13 @@ structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) where
   statsFn         : σ → Format
 
 instance {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
-  ⟨{importedEntries := #[], state := arbitrary }⟩
+  ⟨{importedEntries := #[], state := default }⟩
 
 instance {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ) where
   default := {
-     toEnvExtension := arbitrary,
-     name := arbitrary,
-     addImportedFn := fun _ => arbitrary,
+     toEnvExtension := default,
+     name := default,
+     addImportedFn := fun _ => default,
      addEntryFn := fun s _ => s,
      exportEntriesFn := fun _ => #[],
      statsFn := fun _ => Format.nil
@@ -495,14 +493,14 @@ def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Na
 def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Option α :=
   match env.getModuleIdxFor? declName with
   | some modIdx =>
-    match (ext.getModuleEntries env modIdx).binSearch (declName, arbitrary) (fun a b => Name.quickLt a.1 b.1) with
+    match (ext.getModuleEntries env modIdx).binSearch (declName, default) (fun a b => Name.quickLt a.1 b.1) with
     | some e => some e.2
     | none   => none
   | none => (ext.getState env).find? declName
 
 def contains [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Bool :=
   match env.getModuleIdxFor? declName with
-  | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains (declName, arbitrary) (fun a b => Name.quickLt a.1 b.1)
+  | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains (declName, default) (fun a b => Name.quickLt a.1 b.1)
   | none        => (ext.getState env).contains declName
 
 end MapDeclarationExtension

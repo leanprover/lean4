@@ -458,7 +458,7 @@ private def mkLocalDeclFor (mvar : Expr) : M Pattern := do
        If this generates problems in the future, we should update the metavariable declarations. -/
     assignExprMVar mvarId (mkFVar fvarId)
     let userName ← mkFreshBinderName
-    let newDecl := LocalDecl.cdecl arbitrary fvarId userName type BinderInfo.default;
+    let newDecl := LocalDecl.cdecl default fvarId userName type BinderInfo.default;
     modify fun s =>
       { s with
         newLocals  := s.newLocals.insert fvarId,

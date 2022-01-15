@@ -207,7 +207,7 @@ protected def Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ 
   h₂ h₁.1
 
 instance {α : Sort u} [Inhabited α] : Nonempty α :=
-  ⟨Inhabited.default⟩
+  ⟨default⟩
 
 noncomputable def Classical.ofNonempty {α : Sort u} [Nonempty α] : α :=
   Classical.choice inferInstance
@@ -218,17 +218,14 @@ instance (α : Sort u) {β : Sort v} [Nonempty β] : Nonempty (α → β) :=
 instance (α : Sort u) {β : α → Sort v} [(a : α) → Nonempty (β a)] : Nonempty ((a : α) → β a) :=
   Nonempty.intro fun _ => Classical.ofNonempty
 
-constant arbitrary [Inhabited α] : α :=
-  Inhabited.default
-
 instance : Inhabited (Sort u) where
   default := PUnit
 
 instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) where
-  default := fun _ => arbitrary
+  default := fun _ => default
 
 instance (α : Sort u) {β : α → Sort v} [(a : α) → Inhabited (β a)] : Inhabited ((a : α) → β a) where
-  default := fun _ => arbitrary
+  default := fun _ => default
 
 deriving instance Inhabited for Bool
 
@@ -1216,7 +1213,7 @@ def Array.get {α : Type u} (a : @& Array α) (i : @& Fin a.size) : α :=
 /- "Comfortable" version of `fget`. It performs a bound check at runtime. -/
 @[extern "lean_array_get"]
 def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
-  Array.getD a i arbitrary
+  Array.getD a i default
 
 def Array.getOp {α : Type u} [Inhabited α] (self : Array α) (idx : Nat) : α :=
   self.get! idx
@@ -1301,7 +1298,7 @@ instance {α : Type u} {m : Type u → Type v} [Monad m] : Inhabited (α → m �
   default := pure
 
 instance {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α] : Inhabited (m α) where
-  default := pure arbitrary
+  default := pure default
 
 -- A fusion of Haskell's `sequence` and `map`
 def Array.sequenceMap {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : α → m β) : m (Array β) :=
@@ -1364,7 +1361,7 @@ inductive Except (ε : Type u) (α : Type v) where
 attribute [unbox] Except
 
 instance {ε : Type u} {α : Type v} [Inhabited ε] : Inhabited (Except ε α) where
-  default := Except.error arbitrary
+  default := Except.error default
 
 /-- An implementation of [MonadError](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Except.html#t:MonadError) -/
 class MonadExceptOf (ε : Type u) (m : Type v → Type w) where
@@ -1404,7 +1401,7 @@ def ReaderT (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v)
   ρ → m α
 
 instance (ρ : Type u) (m : Type u → Type v) (α : Type u) [Inhabited (m α)] : Inhabited (ReaderT ρ m α) where
-  default := fun _ => arbitrary
+  default := fun _ => default
 
 @[inline] def ReaderT.run {ρ : Type u} {m : Type u → Type v} {α : Type u} (x : ReaderT ρ m α) (r : ρ) : m α :=
   x r
@@ -1563,7 +1560,7 @@ inductive Result (ε σ α : Type u) where
 variable {ε σ α : Type u}
 
 instance [Inhabited ε] [Inhabited σ] : Inhabited (Result ε σ α) where
-  default := Result.error arbitrary arbitrary
+  default := Result.error default default
 
 end EStateM
 
@@ -1575,7 +1572,7 @@ namespace EStateM
 variable {ε σ α β : Type u}
 
 instance [Inhabited ε] : Inhabited (EStateM ε σ α) where
-  default := fun s => Result.error arbitrary s
+  default := fun s => Result.error default s
 
 @[inline] protected def pure (a : α) : EStateM ε σ α := fun s =>
   Result.ok a s
@@ -2093,7 +2090,7 @@ structure MacroScopesView where
   scopes     : List MacroScope
 
 instance : Inhabited MacroScopesView where
-  default := ⟨arbitrary, arbitrary, arbitrary, arbitrary⟩
+  default := ⟨default, default, default, default⟩
 
 def MacroScopesView.review (view : MacroScopesView) : Name :=
   match view.scopes with
@@ -2245,7 +2242,7 @@ unsafe def mkMethodsImp (methods : Methods) : MethodsRef :=
 constant mkMethods (methods : Methods) : MethodsRef
 
 instance : Inhabited MethodsRef where
-  default := mkMethods arbitrary
+  default := mkMethods default
 
 unsafe def getMethodsImp : MacroM Methods :=
   bind read fun ctx => pure (unsafeCast (ctx.methods))

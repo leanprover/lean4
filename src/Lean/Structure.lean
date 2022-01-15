@@ -76,7 +76,7 @@ def getStructureFields (env : Environment) (structName : Name) : Array Name :=
 
 def getFieldInfo? (env : Environment) (structName : Name) (fieldName : Name) : Option StructureFieldInfo :=
   if let some info := getStructureInfo? env structName then
-    info.fieldInfo.binSearch { fieldName := fieldName, projFn := arbitrary, subobject? := none, binderInfo := arbitrary, inferMod := false } StructureFieldInfo.lt
+    info.fieldInfo.binSearch { fieldName := fieldName, projFn := default, subobject? := none, binderInfo := default, inferMod := false } StructureFieldInfo.lt
   else
     none
 

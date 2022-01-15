@@ -44,7 +44,7 @@ constant CompactedRegion.isMemoryMapped : CompactedRegion → Bool
 unsafe constant CompactedRegion.free : CompactedRegion → IO Unit
 
 /- Opaque persistent environment extension entry. -/
-constant EnvExtensionEntrySpec : PointedType.{0}
+constant EnvExtensionEntrySpec : NonemptyType.{0}
 def EnvExtensionEntry : Type := EnvExtensionEntrySpec.type
 instance : Nonempty EnvExtensionEntry := EnvExtensionEntrySpec.property
 

@@ -42,7 +42,7 @@ instance {ε σ} : MonadLift (ST σ) (EST ε σ) := ⟨fun x s =>
 namespace ST
 
 /- References -/
-constant RefPointed : PointedType.{0}
+constant RefPointed : NonemptyType.{0}
 
 structure Ref (σ : Type) (α : Type) : Type where
   ref : RefPointed.type

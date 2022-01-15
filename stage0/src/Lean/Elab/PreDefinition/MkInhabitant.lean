@@ -12,7 +12,7 @@ private def mkInhabitant? (type : Expr) (useOfNonempty : Bool) : MetaM (Option E
     if useOfNonempty then
       return some (← mkOfNonempty type)
     else
-      return some (← mkArbitrary type)
+      return some (← mkDefault type)
   catch ex =>
     return none
 

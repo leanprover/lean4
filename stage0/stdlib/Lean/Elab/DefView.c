@@ -5184,7 +5184,7 @@ static lean_object* _init_l_Lean_Elab_Command_mkDefViewOfConstant___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("arbitraryOrOfNonempty");
+x_1 = lean_mk_string("defaultOrOfNonempty");
 return x_1;
 }
 }
@@ -5202,7 +5202,7 @@ static lean_object* _init_l_Lean_Elab_Command_mkDefViewOfConstant___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("arbitrary_or_ofNonempty%");
+x_1 = lean_mk_string("default_or_ofNonempty%");
 return x_1;
 }
 }

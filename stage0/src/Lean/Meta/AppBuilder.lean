@@ -437,6 +437,10 @@ def mkLe (a b : Expr) : MetaM Expr :=
 def mkArbitrary (α : Expr) : MetaM Expr :=
   mkAppOptM ``arbitrary #[α, none]
 
+/-- Return `Inhabited.default α` -/
+def mkDefault (α : Expr) : MetaM Expr :=
+  mkAppOptM ``Inhabited.default #[α, none]
+
 /-- Return `@Classical.ofNonempty α _` -/
 def mkOfNonempty (α : Expr) : MetaM Expr := do
   mkAppOptM ``Classical.ofNonempty #[α, none]

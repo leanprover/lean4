@@ -109,6 +109,10 @@ private def addKeywordCompletionItem (keyword : String) : M Unit := do
   let item := { label := keyword, detail? := "keyword", documentation? := none, kind? := CompletionItemKind.keyword }
   modify fun s => { s with itemsMain := s.itemsMain.push item }
 
+private def addNamespaceCompletionItem (ns : Name) : M Unit := do
+  let item := { label := ns.toString, detail? := "namespace", documentation? := none, kind? := CompletionItemKind.module }
+  modify fun s => { s with itemsMain := s.itemsMain.push item }
+
 private def runM (ctx : ContextInfo) (lctx : LocalContext) (x : M Unit) : IO (Option CompletionList) :=
   ctx.runMetaM lctx do
     match (← x.run |>.run {}) with
@@ -186,6 +190,40 @@ inductive HoverInfo where
   | after
   | inside (delta : Nat)
 
+def matchNamespace (ns : Name) (nsFragment : Name) (danglingDot : Bool) : Bool :=
+  if danglingDot then
+    nsFragment != ns && nsFragment.isPrefixOf ns
+  else
+    match ns, nsFragment with
+    | Name.str p₁ s₁ _, Name.str p₂ s₂ _ => p₁ == p₂ && s₂.isPrefixOf s₁
+    | _, _ => false
+
+def completeNamespaces (ctx : ContextInfo) (id : Name) (danglingDot : Bool) : M Unit := do
+  let env ← getEnv
+  let add (ns : Name) (ns' : Name) : M Unit :=
+    if danglingDot then
+      addNamespaceCompletionItem (ns.replacePrefix (ns' ++ id) Name.anonymous)
+    else
+      addNamespaceCompletionItem (ns.replacePrefix ns' Name.anonymous)
+  env.getNamespaceSet |>.forM fun ns => do
+    unless env.contains ns do -- Ignore namespaces that are also declaration names
+      for openDecl in ctx.openDecls do
+        match openDecl with
+        | OpenDecl.simple ns' except =>
+          if matchNamespace ns (ns' ++ id) danglingDot then
+            add ns ns'
+            return ()
+        | _ => pure ()
+      -- use current namespace
+      let rec visitNamespaces (ns' : Name) : M Unit := do
+        if matchNamespace ns (ns' ++ id) danglingDot then
+          add ns ns'
+        else
+          match ns' with
+          | Name.str p .. => visitNamespaces p
+          | _ => return ()
+      visitNamespaces ctx.currNamespace
+
 private def idCompletionCore (ctx : ContextInfo) (id : Name) (hoverInfo : HoverInfo) (danglingDot : Bool) (expectedType? : Option Expr) : M Unit := do
   let mut id := id.eraseMacroScopes
   let mut danglingDot := danglingDot
@@ -261,7 +299,8 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (hoverInfo : HoverI
     let keywords := Parser.getTokenTable env
     for keyword in keywords.findPrefix s do
       addKeywordCompletionItem keyword
-  -- TODO search namespaces
+  -- Search namespaces
+  completeNamespaces ctx id danglingDot
 
 private def idCompletion (ctx : ContextInfo) (lctx : LocalContext) (id : Name) (hoverInfo : HoverInfo) (danglingDot : Bool) (expectedType? : Option Expr) : IO (Option CompletionList) :=
   runM ctx lctx do

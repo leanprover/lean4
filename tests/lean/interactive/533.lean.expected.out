@@ -16,6 +16,7 @@
    "kind": 7,
    "detail":
    "(Type u → Type v) → Type w₁ → outParam (Type w₂) → Type (max (max (max (u + 1) v) w₁) w₂)"},
+  {"label": "Function", "kind": 9, "detail": "namespace"},
   {"label": "Functor",
    "kind": 7,
    "detail": "(Type u → Type v) → Type (max (u + 1) v)"}],

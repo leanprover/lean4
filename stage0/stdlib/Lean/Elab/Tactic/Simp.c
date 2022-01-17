@@ -329,7 +329,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalUnsafe____x40_Lean_Elab_Tactic_S
 lean_object* l_Lean_Meta_SimpLemmas_addConst(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_withoutModifyingState___at_Lean_Elab_Tactic_elabSimpConfigCore___spec__1___at_Lean_Elab_Tactic_elabSimpConfigCore___spec__2___closed__6;
 lean_object* l_List_toString___at_Lean_resolveGlobalConstNoOverloadCore___spec__2(lean_object*);
-uint8_t l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__4(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalUnsafe____x40_Lean_Elab_Tactic_Simp___hyg_5____closed__7;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Simp_0__Lean_Elab_Tactic_addDeclToUnfoldOrLemma(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -343,6 +342,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Simp_0__Lean_Elab_Tactic_e
 static lean_object* l___private_Lean_Elab_Tactic_Simp_0__Lean_Elab_Tactic_elabSimpArgs_resolveSimpIdLemma_x3f___closed__1;
 lean_object* l_Lean_Meta_SimpExtension_getLemmas(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_isLocalIdent_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__3(lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_constName_x21(lean_object*);
 lean_object* l_Lean_Elab_Term_saveState___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -9836,7 +9836,7 @@ lean_inc(x_24);
 lean_dec(x_22);
 x_25 = l_Lean_LocalDecl_userName(x_23);
 lean_inc(x_1);
-x_26 = l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__4(x_1, x_25);
+x_26 = l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__3(x_1, x_25);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; uint8_t x_33; 
@@ -10075,7 +10075,7 @@ lean_inc(x_88);
 lean_dec(x_86);
 x_89 = l_Lean_LocalDecl_userName(x_87);
 lean_inc(x_1);
-x_90 = l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__4(x_1, x_89);
+x_90 = l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__3(x_1, x_89);
 if (x_90 == 0)
 {
 lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; uint8_t x_105; uint8_t x_106; lean_object* x_107; lean_object* x_108; 
@@ -10279,7 +10279,7 @@ lean_inc(x_23);
 lean_dec(x_21);
 x_24 = l_Lean_LocalDecl_userName(x_22);
 lean_inc(x_1);
-x_25 = l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__4(x_1, x_24);
+x_25 = l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__3(x_1, x_24);
 if (x_25 == 0)
 {
 lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; 
@@ -10518,7 +10518,7 @@ lean_inc(x_87);
 lean_dec(x_85);
 x_88 = l_Lean_LocalDecl_userName(x_86);
 lean_inc(x_1);
-x_89 = l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__4(x_1, x_88);
+x_89 = l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__3(x_1, x_88);
 if (x_89 == 0)
 {
 lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; uint8_t x_104; uint8_t x_105; lean_object* x_106; lean_object* x_107; 

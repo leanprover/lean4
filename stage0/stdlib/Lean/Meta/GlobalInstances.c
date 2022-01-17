@@ -29,11 +29,11 @@ LEAN_EXPORT lean_object* l_Lean_Meta_addGlobalInstance(lean_object*, uint8_t, le
 lean_object* l_Std_PersistentHashMap_instInhabitedPersistentHashMap___rarg(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_addLocalEntry___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Std_PersistentHashMap_insert___at_Lean_NameSSet_insert___spec__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_isGlobalInstance___closed__1;
 lean_object* l_Std_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_addGlobalInstance___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_addGlobalInstance___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_PersistentHashMap_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_globalInstanceExtension;
 lean_object* l_Lean_ScopedEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4____closed__8;
@@ -44,18 +44,16 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4_
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4____lambda__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4____closed__4;
 lean_object* l_Lean_ScopedEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__4(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4____closed__6;
+uint8_t l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__3(lean_object*, lean_object*);
 extern lean_object* l_Lean_Name_instBEqName;
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4____lambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = l_Lean_Name_instBEqName;
-x_4 = l_Lean_instHashableName;
-x_5 = lean_box(0);
-x_6 = l_Std_PersistentHashMap_insert___rarg(x_3, x_4, x_1, x_2, x_5);
-return x_6;
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_box(0);
+x_4 = l_Std_PersistentHashMap_insert___at_Lean_NameSSet_insert___spec__2(x_1, x_2, x_3);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_GlobalInstances___hyg_4____closed__1() {
@@ -460,7 +458,7 @@ x_3 = l_Lean_Meta_isGlobalInstance___closed__1;
 x_4 = l_Lean_Meta_addGlobalInstance___closed__1;
 x_5 = l_Lean_ScopedEnvExtension_getState___rarg(x_3, x_4, x_1);
 lean_dec(x_1);
-x_6 = l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__4(x_5, x_2);
+x_6 = l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__3(x_5, x_2);
 return x_6;
 }
 }

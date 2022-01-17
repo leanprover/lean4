@@ -164,7 +164,7 @@ def emitMainFn : M Unit := do
     /- We disable panic messages because they do not mesh well with extracted closed terms.
        See issue #534. We can remove this workaround after we implement issue #467. -/
     emitLn "lean_set_panic_messages(false);"
-    emitLn ("res = " ++ mkModuleInitializationFunctionName modName ++ "(lean_io_mk_world());")
+    emitLn ("res = " ++ mkModuleInitializationFunctionName modName ++ "(1 /* builtin */, lean_io_mk_world());")
     emitLn "lean_set_panic_messages(true);"
     emitLns ["lean_io_mark_end_initialization();",
              "if (lean_io_result_is_ok(res)) {",
@@ -703,27 +703,31 @@ def emitDeclInit (d : Decl) : M Unit := do
   else if d.params.size == 0 then
     match getInitFnNameFor? env d.name with
     | some initFn =>
+      if getBuiltinInitFnNameFor? env d.name |>.isSome then
+        emit "if (builtin) {"
       emit "res = "; emitCName initFn; emitLn "(lean_io_mk_world());"
       emitLn "if (lean_io_result_is_error(res)) return res;"
       emitCName n; emitLn " = lean_io_result_get_value(res);"
       emitMarkPersistent d n
       emitLn "lean_dec_ref(res);"
+      if getBuiltinInitFnNameFor? env d.name |>.isSome then
+        emit "}"
     | _ =>
       emitCName n; emit " = "; emitCInitName n; emitLn "();"; emitMarkPersistent d n
 
 def emitInitFn : M Unit := do
   let env ← getEnv
   let modName ← getModName
-  env.imports.forM fun imp => emitLn ("lean_object* " ++ mkModuleInitializationFunctionName imp.module ++ "(lean_object*);")
+  env.imports.forM fun imp => emitLn ("lean_object* " ++ mkModuleInitializationFunctionName imp.module ++ "(uint8_t builtin, lean_object*);")
   emitLns [
     "static bool _G_initialized = false;",
-    "LEAN_EXPORT lean_object* " ++ mkModuleInitializationFunctionName modName ++ "(lean_object* w) {",
+    "LEAN_EXPORT lean_object* " ++ mkModuleInitializationFunctionName modName ++ "(uint8_t builtin, lean_object* w) {",
     "lean_object * res;",
     "if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));",
     "_G_initialized = true;"
   ]
   env.imports.forM fun imp => emitLns [
-    "res = " ++ mkModuleInitializationFunctionName imp.module ++ "(lean_io_mk_world());",
+    "res = " ++ mkModuleInitializationFunctionName imp.module ++ "(builtin, lean_io_mk_world());",
     "if (lean_io_result_is_error(res)) return res;",
     "lean_dec_ref(res);"]
   let decls := getDecls env

@@ -57,7 +57,7 @@ def elabWFRel (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition) (wf?
       let pendingMVarIds ← getMVars wfRel
       discard <| logUnassignedUsingErrorInfos pendingMVarIds
       return wfRel
-  | some (TerminationWF.ext elements) => withRef (getRefFromElems elements) do
+  | some (TerminationWF.ext elements) => withDeclName unaryPreDef.declName <| withRef (getRefFromElems elements) do
     let mainMVarId := (← mkFreshExprSyntheticOpaqueMVar expectedType).mvarId!
     let [fMVarId, wfRelMVarId, _] ← apply mainMVarId (← mkConstWithFreshMVarLevels ``invImage) | throwError "failed to apply 'invImage'"
     let (d, fMVarId) ← intro1 fMVarId

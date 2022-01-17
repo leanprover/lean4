@@ -666,6 +666,7 @@ where
         moduleNames := s.moduleNames.push i.module
       }
       importMods is
+
 /--
   Create environment object from imports and free compacted regions after calling `act`. No live references to the
   environment object or imported objects may exist after `act` finishes. -/
@@ -724,6 +725,10 @@ def displayStats (env : Environment) : IO Unit := do
     unless fmt.isNil do IO.println ("  " ++ toString (Format.nest 2 (extDescr.statsFn s.state)))
     IO.println ("  number of imported entries: " ++ toString (s.importedEntries.foldl (fun sum es => sum + es.size) 0))
 
+/--
+  Evaluate the given declaration under the given environment to a value of the given type.
+  This function is only safe to use if the type matches the declaration's type in the environment
+  and if `enableInitializersExecution` has been used before importing any modules. -/
 @[extern "lean_eval_const"]
 unsafe constant evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) : Except String α
 
@@ -731,7 +736,7 @@ private def throwUnexpectedType {α} (typeName : Name) (constName : Name) : Exce
   throw ("unexpected type at '" ++ toString constName ++ "', `" ++ toString typeName ++ "` expected")
 
 /-- Like `evalConst`, but first check that `constName` indeed is a declaration of type `typeName`.
-    This function is still unsafe because it cannot guarantee that `typeName` is in fact the name of the type `α`. -/
+    Note that this function cannot guarantee that `typeName` is in fact the name of the type `α`. -/
 unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (typeName : Name) (constName : Name) : ExceptT String Id α :=
   match env.find? constName with
   | none      => throw ("unknown constant '" ++ toString constName ++ "'")

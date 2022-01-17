@@ -415,6 +415,7 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
         else
           mkEqRefl rhs
       let thmValue ← mkLambdaFVars thmParams thmValue
+      trace[Meta.sizeOf] "sizeOf spec theorem: {thmName}"
       addDecl <| Declaration.thmDecl {
         name        := thmName
         levelParams := ctorInfo.levelParams

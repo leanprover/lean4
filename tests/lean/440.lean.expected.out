@@ -6,4 +6,4 @@ context:
 x : Nat
 ⊢ Nat
 f : Nat → Nat
-440.lean:11:0-11:9: error: cannot evaluate code because it uses 'sorry' and/or contains errors
+440.lean:11:0-11:9: error: cannot evaluate code because 'g' uses 'sorry' and/or contains errors

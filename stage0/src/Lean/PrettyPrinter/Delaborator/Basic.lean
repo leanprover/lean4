@@ -62,7 +62,7 @@ abbrev DelabM := ReaderT Context (StateRefT State MetaM)
 abbrev Delab := DelabM Syntax
 
 instance : Inhabited (DelabM α) where
-  default := throw arbitrary
+  default := throw default
 
 @[inline] protected def orElse (d₁ : DelabM α) (d₂ : Unit → DelabM α) : DelabM α := do
   catchInternalId delabFailureId d₁ fun _ => d₂ ()
@@ -92,8 +92,8 @@ instance (priority := low) : MonadStateOf SubExpr.HoleIterator DelabM where
 -- Macro scopes in the delaborator output are ultimately ignored by the pretty printer,
 -- so give a trivial implementation.
 instance : MonadQuotation DelabM := {
-  getCurrMacroScope   := pure arbitrary,
-  getMainModule       := pure arbitrary,
+  getCurrMacroScope   := pure default
+  getMainModule       := pure default
   withFreshMacroScope := fun x => x
 }
 

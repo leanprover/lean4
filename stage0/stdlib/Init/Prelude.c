@@ -93,7 +93,6 @@ LEAN_EXPORT lean_object* l_Lean_Macro_trace___boxed(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_instDecidableEqUInt8___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_instInhabitedState;
 LEAN_EXPORT lean_object* l_Lean_withRef___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_arbitrary___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_bind___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_run(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadStateOf___rarg(lean_object*, lean_object*);
@@ -165,7 +164,6 @@ LEAN_EXPORT lean_object* l_ReaderT_instMonadReaderT___rarg___lambda__4(lean_obje
 LEAN_EXPORT lean_object* l_Lean_instMonadQuotation(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_interpolatedStrKind;
 LEAN_EXPORT lean_object* l_Monad_seqRight___default___rarg___lambda__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_arbitrary___rarg(lean_object*);
 lean_object* lean_nat_pow(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadLiftT__1___rarg(lean_object*);
 static lean_object* l_EStateM_instMonadEStateM___closed__4;
@@ -722,7 +720,6 @@ LEAN_EXPORT lean_object* l_String_utf8ByteSize___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_id___rarg(lean_object*);
 static lean_object* l_Lean_interpolatedStrKind___closed__1;
 LEAN_EXPORT lean_object* l_Monad_seqLeft___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_arbitrary(lean_object*);
 LEAN_EXPORT lean_object* l_Eq_ndrec___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SourceInfo_getPos_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* lean_simp_macro_scopes(lean_object*);
@@ -1099,30 +1096,6 @@ x_3 = lean_unbox(x_2);
 lean_dec(x_2);
 x_4 = lean_sorry(x_3);
 return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_arbitrary___rarg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_arbitrary(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_arbitrary___rarg___boxed), 1, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_arbitrary___rarg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_arbitrary___rarg(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 static lean_object* _init_l_instInhabitedSort() {

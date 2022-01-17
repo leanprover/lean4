@@ -433,10 +433,6 @@ def mkLt (a b : Expr) : MetaM Expr :=
 def mkLe (a b : Expr) : MetaM Expr :=
   mkAppM ``LE.le #[a, b]
 
-/-- Return `arbitrary α` -/
-def mkArbitrary (α : Expr) : MetaM Expr :=
-  mkAppOptM ``arbitrary #[α, none]
-
 /-- Return `Inhabited.default α` -/
 def mkDefault (α : Expr) : MetaM Expr :=
   mkAppOptM ``Inhabited.default #[α, none]

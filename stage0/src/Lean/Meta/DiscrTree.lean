@@ -343,7 +343,7 @@ private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Tri
           (fun a b => a.1 < b.1)
           (fun ⟨_, s⟩ => let c := insertAux keys v (i+1) s; (k, c)) -- merge with existing
           (fun _ => let c := createNodes keys v (i+1); (k, c))
-          (k, arbitrary)
+          (k, default)
       Trie.node vs c
     else
       Trie.node (insertVal vs v) cs
@@ -422,7 +422,7 @@ private def getStarResult (d : DiscrTree α) : Array α :=
   | some (Trie.node vs _) => result ++ vs
 
 private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
-  cs.binSearch (k, arbitrary) (fun a b => a.1 < b.1)
+  cs.binSearch (k, default) (fun a b => a.1 < b.1)
 
 private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
   match c with

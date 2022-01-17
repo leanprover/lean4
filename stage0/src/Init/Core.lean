@@ -548,10 +548,10 @@ section
 variable {α : Type u} {β : Type v}
 
 instance Sum.inhabitedLeft [h : Inhabited α] : Inhabited (Sum α β) where
-  default := Sum.inl arbitrary
+  default := Sum.inl default
 
 instance Sum.inhabitedRight [h : Inhabited β] : Inhabited (Sum α β) where
-  default := Sum.inr arbitrary
+  default := Sum.inr default
 
 instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) := fun a b =>
   match a, b with
@@ -569,7 +569,7 @@ end
 /- Product -/
 
 instance [Inhabited α] [Inhabited β] : Inhabited (α × β) where
-  default := (arbitrary, arbitrary)
+  default := (default, default)
 
 instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
   fun (a, b) (a', b') =>

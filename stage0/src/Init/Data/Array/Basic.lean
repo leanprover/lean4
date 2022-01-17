@@ -106,31 +106,35 @@ def shrink (a : Array α) (n : Nat) : Array α :=
   loop (a.size - n) a
 
 @[inline]
-def modifyM [Monad m] [Inhabited α] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
+unsafe def modifyMUnsafe [Monad m] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
   if h : i < a.size then
     let idx : Fin a.size := ⟨i, h⟩
     let v                := a.get idx
-    let a'               := a.set idx arbitrary
+    -- Replace a[i] by `box(0)`.  This ensures that `v` remains unshared if possible.
+    -- Note: we assume that arrays have a uniform representation irrespective
+    -- of the element type, and that it is valid to store `box(0)` in any array.
+    let a'               := a.set idx (unsafeCast ())
     let v ← f v
     pure <| a'.set (size_set a .. ▸ idx) v
   else
     pure a
 
-@[inline]
-unsafe def modifyUnsafe (a : Array α) (i : Nat) (f : α → α) : Array α :=
+@[implementedBy modifyMUnsafe]
+def modifyM [Monad m] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
   if h : i < a.size then
-    let idx : Fin a.size := ⟨i, h⟩
-    let v                := a.get idx
-    let a'               := a.set idx (unsafeCast ())
-    a'.set (size_set a .. ▸ idx) (f v)
+    let idx := ⟨i, h⟩
+    let v   := a.get idx
+    let v ← f v
+    pure <| a.set idx v
   else
-    a
-
-@[implementedBy modifyUnsafe]
-constant modify (a : Array α) (i : Nat) (f : α → α) : Array α
+    pure a
 
 @[inline]
-def modifyOp [Inhabited α] (self : Array α) (idx : Nat) (f : α → α) : Array α :=
+def modify (a : Array α) (i : Nat) (f : α → α) : Array α :=
+  Id.run <| modifyM a i f
+
+@[inline]
+def modifyOp (self : Array α) (idx : Nat) (f : α → α) : Array α :=
   self.modify idx f
 
 /-
@@ -247,7 +251,10 @@ unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad
   let rec @[specialize] map (i : USize) (r : Array NonScalar) : m (Array PNonScalar.{v}) := do
     if i < sz then
      let v    := r.uget i lcProof
-     let r    := r.uset i arbitrary lcProof
+     -- Replace r[i] by `box(0)`.  This ensures that `v` remains unshared if possible.
+     -- Note: we assume that arrays have a uniform representation irrespective
+     -- of the element type, and that it is valid to store `box(0)` in any array.
+     let r    := r.uset i default lcProof
      let vNew ← f (unsafeCast v)
      map (i+1) (r.uset i (unsafeCast vNew) lcProof)
     else

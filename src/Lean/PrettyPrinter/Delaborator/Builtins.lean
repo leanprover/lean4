@@ -685,16 +685,6 @@ where
       | none   => withBindingBodyUnusedName fun h => do
         return (← delab, h.getId)
 
-@[builtinDelab app.namedPatternOld]
-def delabNamedPatternOld : Delab := do
-  -- Note: we keep this as a delaborator because it accesses the DelabM context
-  guard (← read).inPattern
-  guard $ (← getExpr).getAppNumArgs == 3
-  let x ← withAppFn $ withAppArg delab
-  let p ← withAppArg delab
-  guard x.isIdent
-  `($x:ident@$p:term)
-
 @[builtinDelab app.namedPattern]
 def delabNamedPattern : Delab := do
   -- Note: we keep this as a delaborator because it accesses the DelabM context

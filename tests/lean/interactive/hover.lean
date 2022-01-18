@@ -137,3 +137,7 @@ instance f : ToString Nat := ⟨toString⟩
 
 example : Type 0 := Nat
         --^ textDocument/hover
+
+def foo.bar : Nat := 1
+  --^ textDocument/hover
+      --^ textDocument/hover

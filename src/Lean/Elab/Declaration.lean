@@ -22,10 +22,13 @@ def expandDeclIdNamespace? (declId : Syntax) : Option (Name × Syntax) :=
   | Name.str Name.anonymous s _ => none
   | Name.str pre s _            =>
     let nameNew := { scpView with name := Name.mkSimple s }.review
+    -- preserve "original" info, if any, so that hover etc. on the namespaced
+    -- name access the info tree node of the declaration name
+    let id := mkIdent nameNew |>.setInfo declId.getHeadInfo
     if declId.isIdent then
-      some (pre, mkIdentFrom declId nameNew)
+      some (pre, id)
     else
-      some (pre, declId.setArg 0 (mkIdentFrom declId nameNew))
+      some (pre, declId.setArg 0 id)
   | _ => none
 
 /- given declarations such as `@[...] def Foo.Bla.f ...` return `some (Foo.Bla, @[...] def f ...)` -/

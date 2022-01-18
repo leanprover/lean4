@@ -167,3 +167,15 @@ null
  "contents":
  {"value": "A type universe. `Type ≡ Type 0`, `Type u ≡ Sort (u + 1)`. ",
   "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 140, "character": 4}}
+{"range":
+ {"start": {"line": 140, "character": 4},
+  "end": {"line": 140, "character": 11}},
+ "contents": {"value": "```lean\nBar.foo.bar : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 140, "character": 8}}
+{"range":
+ {"start": {"line": 140, "character": 4},
+  "end": {"line": 140, "character": 11}},
+ "contents": {"value": "```lean\nBar.foo.bar : Nat\n```", "kind": "markdown"}}

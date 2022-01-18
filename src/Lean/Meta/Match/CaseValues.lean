@@ -75,8 +75,11 @@ structure CaseValuesSubgoal where
   The type of `x` must have decidable equality.
 
   Remark: the last subgoal is for the "else" catchall case, and its `subst` is `{}`.
-  Remark: the fiels `newHs` has size 1 forall but the last subgoal. -/
-def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNamePrefix := `h) : MetaM (Array CaseValuesSubgoal) :=
+  Remark: the fiels `newHs` has size 1 forall but the last subgoal.
+
+  If `substNewEqs = true`, then the new `h_i` equality hypotheses are substituted in the first `n` cases.
+-/
+def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNamePrefix := `h) (substNewEqs := false) : MetaM (Array CaseValuesSubgoal) :=
   let rec loop : Nat → MVarId → List Expr → Array FVarId → Array CaseValuesSubgoal → MetaM (Array CaseValuesSubgoal)
     | i, mvarId, [],    hs, subgoals => throwTacticEx `caseValues mvarId "list of values must not be empty"
     | i, mvarId, v::vs, hs, subgoals => do
@@ -87,7 +90,12 @@ def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNameP
           | Expr.fvar fvarId _ => tryClear thenMVarId fvarId
           | _                  => pure thenMVarId)
         thenSubgoal.mvarId
-      let subgoals := subgoals.push { mvarId := thenMVarId, newHs := #[thenSubgoal.newH], subst := thenSubgoal.subst }
+      let subgoals ←
+         if substNewEqs then
+           let (subst, mvarId) ← substCore thenMVarId thenSubgoal.newH false thenSubgoal.subst true
+           pure <| subgoals.push { mvarId := mvarId, newHs := #[], subst := subst }
+         else
+           pure <| subgoals.push { mvarId := thenMVarId, newHs := #[thenSubgoal.newH], subst := thenSubgoal.subst }
       match vs with
       | [] => do
         appendTagSuffix elseSubgoal.mvarId ((`case).appendIndexAfter (i+1))

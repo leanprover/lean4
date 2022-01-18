@@ -13,8 +13,8 @@ structure LazyInitExtension (m : Type → Type) (α : Type) where
 
 instance [Monad m] [Inhabited α] : Inhabited (LazyInitExtension m α) where
   default := {
-    ext := arbitrary
-    fn  := pure arbitrary
+    ext := default
+    fn  := pure default
   }
 
 /--

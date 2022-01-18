@@ -9,7 +9,6 @@ import Lean.Meta.Transform
 import Lean.Elab.Term
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.DefView
-import Lean.Elab.PreDefinition.MkInhabitant
 
 namespace Lean.Elab
 open Meta

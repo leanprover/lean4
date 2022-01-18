@@ -393,6 +393,7 @@ end SizeOfSpecNested
 private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name) (recMap : NameMap Name) (ctorName : Name) : MetaM Unit := do
   let ctorInfo ← getConstInfoCtor ctorName
   let us := ctorInfo.levelParams.map mkLevelParam
+  let simpAttr ← ofExcept <| getAttributeImpl (← getEnv) `simp
   forallTelescopeReducing ctorInfo.type fun xs _ => do
     let params := xs[:ctorInfo.numParams]
     let fields := xs[ctorInfo.numParams:]
@@ -415,12 +416,14 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
         else
           mkEqRefl rhs
       let thmValue ← mkLambdaFVars thmParams thmValue
+      trace[Meta.sizeOf] "sizeOf spec theorem: {thmName}"
       addDecl <| Declaration.thmDecl {
         name        := thmName
         levelParams := ctorInfo.levelParams
         type        := thmType
         value       := thmValue
       }
+      simpAttr.add thmName default AttributeKind.global
 
 private def mkSizeOfSpecTheorems (indTypeNames : Array Name) (sizeOfFns : Array Name) (recMap : NameMap Name) : MetaM Unit := do
   for indTypeName in indTypeNames do

@@ -1,6 +1,6 @@
-constant SPointed : PointedType
+constant SPointed : NonemptyType
 def S : Type := SPointed.type
-instance : Inhabited S := ⟨SPointed.val⟩
+instance : Nonempty S := SPointed.property
 
 @[extern "lean_mk_S"] constant mkS (x y : UInt32) (s : @& String) : S
 @[extern "lean_S_add_x_y"] constant S.addXY (s : @& S) : UInt32

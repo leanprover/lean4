@@ -23,7 +23,6 @@ LEAN_EXPORT lean_object* l_List_toFloatArray(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_FloatArray_push___boxed(lean_object*, lean_object*);
 lean_object* lean_float_array_uset(lean_object*, size_t, double);
-LEAN_EXPORT lean_object* l_FloatArray_foldlM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_forIn_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_float_array_push(lean_object*, double);
 LEAN_EXPORT lean_object* l_FloatArray_forIn_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -61,15 +60,12 @@ static lean_object* l_List_toStringAux___at_instToStringFloatArray___spec__2___c
 lean_object* lean_float_to_string(double);
 LEAN_EXPORT lean_object* l_FloatArray_mk___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldlM_loop___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_forIn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe_loop___rarg___lambda__1(lean_object*, size_t, lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_forInUnsafe___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldl(lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_foldlM(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 double lean_float_array_fget(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_FloatArray_forIn___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instForInFloatArrayFloat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instForInFloatArrayFloat___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instInhabitedFloatArray;
@@ -616,24 +612,6 @@ lean_dec(x_4);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_FloatArray_forIn___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; 
-x_5 = lean_float_array_size(x_2);
-x_6 = l_FloatArray_forIn_loop___rarg(x_1, x_2, x_4, x_5, lean_box(0), x_3);
-lean_dec(x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_FloatArray_forIn(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_FloatArray_forIn___rarg), 4, 0);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_FloatArray_instForInFloatArrayFloat___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -906,40 +884,6 @@ lean_object* x_9;
 x_9 = l_FloatArray_foldlM_loop___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_6);
 return x_9;
-}
-}
-LEAN_EXPORT lean_object* l_FloatArray_foldlM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; uint8_t x_8; 
-x_7 = lean_float_array_size(x_4);
-x_8 = lean_nat_dec_le(x_6, x_7);
-if (x_8 == 0)
-{
-lean_object* x_9; lean_object* x_10; 
-lean_dec(x_6);
-x_9 = lean_nat_sub(x_7, x_5);
-x_10 = l_FloatArray_foldlM_loop___rarg(x_1, x_2, x_4, x_7, lean_box(0), x_9, x_5, x_3);
-lean_dec(x_9);
-return x_10;
-}
-else
-{
-lean_object* x_11; lean_object* x_12; 
-lean_dec(x_7);
-x_11 = lean_nat_sub(x_6, x_5);
-x_12 = l_FloatArray_foldlM_loop___rarg(x_1, x_2, x_4, x_6, lean_box(0), x_11, x_5, x_3);
-lean_dec(x_11);
-return x_12;
-}
-}
-}
-LEAN_EXPORT lean_object* l_FloatArray_foldlM(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_FloatArray_foldlM___rarg), 6, 0);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___at_FloatArray_foldl___spec__1___rarg(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {

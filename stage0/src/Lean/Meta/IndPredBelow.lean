@@ -501,9 +501,9 @@ where
       let ctor := Pattern.ctor belowCtor.name us belowParams.toList belowFields.toList
       trace[Meta.IndPredBelow.match] "{originalPattern.toMessageData} ↦ {ctor.toMessageData}"
       (additionalFVars, ctor)
-    | Pattern.as varId p =>
+    | Pattern.as varId p hId =>
       let (additionalFVars, p) ← convertToBelow indName p
-      (additionalFVars, Pattern.as varId p)
+      (additionalFVars, Pattern.as varId p hId)
     | Pattern.var varId =>
       let var := mkFVar varId
       (←inferType var).withApp fun ind args => do

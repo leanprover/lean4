@@ -74,7 +74,7 @@ def singleton (a : α) : Heap α :=
     hs.foldl (init := h.val) fun r n => if le r n.val then r else n.val
 
 @[inline] def head [Inhabited α] (le : α → α → Bool) (h : Heap α) : α :=
-  head? le h |>.getD arbitrary
+  head? le h |>.getD default
 
 @[specialize] def findMin (le : α → α → Bool) : List (HeapNode α) → Nat → HeapNode α × Nat → HeapNode α × Nat
   | [],    _,   r          => r

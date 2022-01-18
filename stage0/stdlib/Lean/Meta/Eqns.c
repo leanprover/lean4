@@ -18,10 +18,12 @@ LEAN_EXPORT lean_object* l_Lean_Meta_registerGetUnfoldEqnFn___lambda__1(lean_obj
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Eqns_0__Lean_Meta_getEqnsFnsRef;
 static lean_object* l_Lean_Meta_registerGetEqnsFn___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_registerGetUnfoldEqnFn___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_registerGetUnfoldEqnFn___lambda__1___closed__1;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Meta_getEqnsFor_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_registerGetEqnsFn___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_registerGetEqnsFn___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_registerGetEqnsFn___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_registerGetEqnsFn___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getEqnsFor_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -63,11 +65,19 @@ return x_7;
 }
 }
 }
+static lean_object* _init_l_Lean_Meta_registerGetEqnsFn___lambda__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l___private_Lean_Meta_Eqns_0__Lean_Meta_getEqnsFnsRef;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_registerGetEqnsFn___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_4 = l___private_Lean_Meta_Eqns_0__Lean_Meta_getEqnsFnsRef;
+x_4 = l_Lean_Meta_registerGetEqnsFn___lambda__1___closed__1;
 x_5 = lean_st_ref_take(x_4, x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
@@ -371,7 +381,7 @@ x_7 = lean_st_ref_get(x_5, x_6);
 x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
 lean_dec(x_7);
-x_9 = l___private_Lean_Meta_Eqns_0__Lean_Meta_getEqnsFnsRef;
+x_9 = l_Lean_Meta_registerGetEqnsFn___lambda__1___closed__1;
 x_10 = lean_st_ref_get(x_9, x_8);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -507,11 +517,19 @@ return x_7;
 }
 }
 }
+static lean_object* _init_l_Lean_Meta_registerGetUnfoldEqnFn___lambda__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l___private_Lean_Meta_Eqns_0__Lean_Meta_getUnfoldEqnFnsRef;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_registerGetUnfoldEqnFn___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_4 = l___private_Lean_Meta_Eqns_0__Lean_Meta_getUnfoldEqnFnsRef;
+x_4 = l_Lean_Meta_registerGetUnfoldEqnFn___lambda__1___closed__1;
 x_5 = lean_st_ref_take(x_4, x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
@@ -775,7 +793,7 @@ x_7 = lean_st_ref_get(x_5, x_6);
 x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
 lean_dec(x_7);
-x_9 = l___private_Lean_Meta_Eqns_0__Lean_Meta_getUnfoldEqnFnsRef;
+x_9 = l_Lean_Meta_registerGetUnfoldEqnFn___lambda__1___closed__1;
 x_10 = lean_st_ref_get(x_9, x_8);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -890,6 +908,8 @@ if (lean_io_result_is_error(res)) return res;
 l___private_Lean_Meta_Eqns_0__Lean_Meta_getEqnsFnsRef = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_Meta_Eqns_0__Lean_Meta_getEqnsFnsRef);
 lean_dec_ref(res);
+l_Lean_Meta_registerGetEqnsFn___lambda__1___closed__1 = _init_l_Lean_Meta_registerGetEqnsFn___lambda__1___closed__1();
+lean_mark_persistent(l_Lean_Meta_registerGetEqnsFn___lambda__1___closed__1);
 l_Lean_Meta_registerGetEqnsFn___closed__1 = _init_l_Lean_Meta_registerGetEqnsFn___closed__1();
 lean_mark_persistent(l_Lean_Meta_registerGetEqnsFn___closed__1);
 l_Lean_Meta_registerGetEqnsFn___closed__2 = _init_l_Lean_Meta_registerGetEqnsFn___closed__2();
@@ -901,6 +921,8 @@ if (lean_io_result_is_error(res)) return res;
 l___private_Lean_Meta_Eqns_0__Lean_Meta_getUnfoldEqnFnsRef = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_Meta_Eqns_0__Lean_Meta_getUnfoldEqnFnsRef);
 lean_dec_ref(res);
+l_Lean_Meta_registerGetUnfoldEqnFn___lambda__1___closed__1 = _init_l_Lean_Meta_registerGetUnfoldEqnFn___lambda__1___closed__1();
+lean_mark_persistent(l_Lean_Meta_registerGetUnfoldEqnFn___lambda__1___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

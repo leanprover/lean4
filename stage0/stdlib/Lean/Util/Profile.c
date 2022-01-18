@@ -18,13 +18,10 @@ LEAN_EXPORT lean_object* l_Lean_profileitM___rarg___lambda__1___boxed(lean_objec
 LEAN_EXPORT lean_object* l_Lean_profileitM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_profileit(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitIOUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_profileitIO(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitIOUnsafe___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_profileitIO___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitIOUnsafe(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_profileitIO___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitIOUnsafe___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileit___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -120,32 +117,6 @@ lean_object* x_5;
 x_5 = l_Lean_profileitIOUnsafe___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_profileitIO___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_apply_1(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_profileitIO(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_Lean_profileitIO___rarg), 2, 0);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_profileitIO___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = l_Lean_profileitIO(x_1, x_2, x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
 return x_5;
 }
 }

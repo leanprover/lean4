@@ -196,7 +196,7 @@ abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 instance : Monad MetaM := let i := inferInstanceAs (Monad MetaM); { pure := i.pure, bind := i.bind }
 
 instance : Inhabited (MetaM α) where
-  default := fun _ _ => arbitrary
+  default := fun _ _ => default
 
 instance : MonadLCtx MetaM where
   getLCtx := return (← read).lctx

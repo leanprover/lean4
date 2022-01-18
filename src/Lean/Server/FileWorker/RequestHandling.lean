@@ -68,16 +68,18 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
 
+  let documentUriFromModule (modName : Name) : MetaM (Option DocumentUri) := do
+    let some modFname ← rc.srcSearchPath.findWithExt "lean" modName
+      | pure none
+    -- resolve symlinks (such as `src` in the build dir) so that files are opened
+    -- in the right folder
+    let modFname ← IO.FS.realPath modFname
+    pure <| some <| Lsp.DocumentUri.ofPath modFname
+
   let locationLinksFromDecl (i : Elab.Info) (n : Name) := do
     let mod? ← findModuleOf? n
     let modUri? ← match mod? with
-      | some modName =>
-        let some modFname ← rc.srcSearchPath.findWithExt "lean" modName
-          | pure none
-        -- resolve symlinks (such as `src` in the build dir) so that files are opened
-        -- in the right folder
-        let modFname ← IO.FS.realPath modFname
-        pure <| some <| Lsp.DocumentUri.ofPath modFname
+      | some modName => documentUriFromModule modName
       | none         => pure <| some doc.meta.uri
 
     let ranges? ← findDeclarationRanges? n
@@ -109,6 +111,19 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
         return #[ll]
     return #[]
 
+  let locationLinksFromImport (i : Elab.Info) := do
+    let name := i.stx[2].getId
+    if let some modUri ← documentUriFromModule name then
+      let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
+      let ll : LocationLink := {
+        originSelectionRange? := none
+        targetUri := modUri
+        targetRange := range
+        targetSelectionRange := range
+      }
+      return #[ll]
+    return #[]
+
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure #[]) fun snap => do
       if let some (ci, i) := snap.infoTree.hoverableInfoAt? hoverPos then
@@ -129,6 +144,9 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
               return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
           else
             return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
+        if let Info.ofCommandInfo ⟨`import, _⟩ := i then
+          if kind == definition || kind == declaration then
+            return ← ci.runMetaM i.lctx <| locationLinksFromImport i
         -- If other go-tos fail, we try to show the elaborator or parser
         if let some ei := i.toElabInfo? then
           if kind == declaration && ci.env.contains ei.stx.getKind then
@@ -136,86 +154,6 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
           if kind == definition && ci.env.contains ei.elaborator then
             return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
       return #[]
-
-inductive RefIdent where
-  | const : Name → RefIdent
-  | fvar : FVarId → RefIdent
-  deriving BEq
-
-structure Reference where
-  ident : RefIdent
-  range : Range
-  isDeclaration : Bool
-  deriving BEq
-
-open Std in
-open Elab in
-partial def handleReferences (p : ReferenceParams)
-    : RequestM (RequestTask (Array Location)) := do
-  let doc ← readDoc
-  let text := doc.meta.text
-  let hoverPos := text.lspPosToUtf8Pos p.position
-  let t ← doc.cmdSnaps.waitAll
-  mapTask t fun (snaps, _) => do
-    if let some snap := snaps.find? (fun s => s.endPos > hoverPos) then
-      if let some (ci, i) := snap.infoTree.hoverableInfoAt? hoverPos then
-        if let some (ident, _) := identOf i then
-          return referencesTo doc ident (p.context.includeDeclaration) snaps
-    return #[]
-  where
-    identOf : Info → Option (RefIdent × Bool)
-      | Info.ofTermInfo ti => match ti.expr with
-        | Expr.const n .. => some (RefIdent.const n, ti.isBinder)
-        | Expr.fvar id .. => some (RefIdent.fvar id, ti.isBinder)
-        | _ => none
-      | Info.ofFieldInfo fi => some (RefIdent.const fi.projName, false)
-      | _ => none
-
-    findReferences (doc : EditableDocument) (snaps : List Snapshot) : Array Reference := Id.run <| do
-      let text := doc.meta.text
-      let mut refs := #[]
-      for snap in snaps do
-        refs := refs.appendList <| snap.infoTree.deepestNodes fun _ info _ => Id.run <| do
-          if let some (ident, isDeclaration) := identOf info then
-            if let some range := info.range? then
-              return some { ident, range := range.toLspRange text, isDeclaration }
-          return none
-      refs
-
-    applyIdMap : RefIdent → HashMap FVarId FVarId → RefIdent
-      | RefIdent.fvar id, m => RefIdent.fvar <| m.findD id id
-      | ident, _ => ident
-
-    -- The `FVarId`s of a function parameter in the function's signature and
-    -- body differ. However, they have `TermInfo` nodes with `binder := true` in
-    -- the exact same position. `combineFvars` builds a
-    -- `HashMap Lsp.Range FVarId` to detect such overlapping definitions and
-    -- then builds a `HashMap FVarId FVarId` to map all of them to the same
-    -- `FVarId`. This is overkill for single-file requests, but will become more
-    -- useful when references across an entire project are implemented.
-    combineFvars (refs : Array Reference) : (Array Reference × HashMap FVarId FVarId) :=
-      let (posMap, idMap) : (HashMap Lsp.Range FVarId × _):= refs.foldl (init := (HashMap.empty, HashMap.empty))
-        fun (posMap, idMap) ref => match ref with
-        | { ident := RefIdent.fvar id, range, isDeclaration := true } => match posMap.find? range with
-          | some baseId => (posMap, idMap.insert id baseId)
-          | none => (posMap.insert range id, idMap.insert id id)
-        | _ => (posMap, idMap)
-      let refs := refs.foldl (init := #[]) fun refs ref => match ref with
-        | { ident := RefIdent.fvar id, range, isDeclaration := true } =>
-          if idMap.contains id then refs.push ref else refs
-        | { ident := ident@(RefIdent.fvar _), range, isDeclaration := false } =>
-          refs.push { ident := applyIdMap ident idMap, range, isDeclaration := false }
-        | _ => refs.push ref
-      (refs, idMap)
-
-    referencesTo (doc : EditableDocument) (ident : RefIdent) (includeDecl : Bool) (snaps : List Snapshot)
-        : Array Location :=
-      let (refs, idMap) := combineFvars $ findReferences doc snaps
-      let ident := applyIdMap ident idMap
-      let relevant := refs.filter fun ref => ref.ident == ident && (includeDecl || !ref.isDeclaration)
-      let locations := relevant.map fun ref => { uri := doc.meta.uri, range := ref.range : Location }
-      -- TODO Remove duplicates more efficiently
-      List.toArray <| List.eraseDups <| Array.toList <| locations
 
 open RequestM in
 def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Option Widget.InteractiveGoals)) := do
@@ -480,7 +418,6 @@ builtin_initialize
   registerLspRequestHandler "textDocument/declaration"          TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.declaration)
   registerLspRequestHandler "textDocument/definition"           TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.definition)
   registerLspRequestHandler "textDocument/typeDefinition"       TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.type)
-  registerLspRequestHandler "textDocument/references"           ReferenceParams            (Array Location)        handleReferences
   registerLspRequestHandler "textDocument/documentHighlight"    DocumentHighlightParams    DocumentHighlightResult handleDocumentHighlight
   registerLspRequestHandler "textDocument/documentSymbol"       DocumentSymbolParams       DocumentSymbolResult    handleDocumentSymbol
   registerLspRequestHandler "textDocument/semanticTokens/full"  SemanticTokensParams       SemanticTokens          handleSemanticTokensFull

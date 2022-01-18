@@ -3,4 +3,4 @@ fun a => 10
 def g : Unit → Unit :=
 fun a =>
   match a with
-  | b@PUnit.unit => b
+  | b@h:PUnit.unit => b

@@ -131,10 +131,10 @@ namespace MapVars
   | Arg.var x => Arg.var (f x)
   | a         => a
 
-@[specialize] def mapArgs (f : VarId → VarId) (as : Array Arg) : Array Arg :=
+def mapArgs (f : VarId → VarId) (as : Array Arg) : Array Arg :=
   as.map (mapArg f)
 
-@[specialize] def mapExpr (f : VarId → VarId) : Expr → Expr
+def mapExpr (f : VarId → VarId) : Expr → Expr
   | Expr.ctor c ys      => Expr.ctor c (mapArgs f ys)
   | Expr.reset n x      => Expr.reset n (f x)
   | Expr.reuse x c u ys => Expr.reuse (f x) c u (mapArgs f ys)
@@ -150,7 +150,7 @@ namespace MapVars
   | Expr.isTaggedPtr x  => Expr.isTaggedPtr (f x)
   | e@(Expr.lit v)      =>  e
 
-@[specialize] partial def mapFnBody (f : VarId → VarId) : FnBody → FnBody
+partial def mapFnBody (f : VarId → VarId) : FnBody → FnBody
   | FnBody.vdecl x t v b         => FnBody.vdecl x t (mapExpr f v) (mapFnBody f b)
   | FnBody.jdecl j ys v b        => FnBody.jdecl j ys (mapFnBody f v) (mapFnBody f b)
   | FnBody.set x i y b           => FnBody.set (f x) i (mapArg f y) (mapFnBody f b)

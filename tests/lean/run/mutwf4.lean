@@ -11,13 +11,9 @@ mutual
     else
       n
 end
-termination_by'
-  invImage
-    (fun
-     | Sum.inl ⟨n, true⟩ => (n, 2)
-     | Sum.inl ⟨n, false⟩ => (n, 1)
-     | Sum.inr n => (n, 0))
-  $ Prod.lex sizeOfWFRel sizeOfWFRel
+termination_by
+  f n b => (n, if b then 2 else 1)
+  g n   => (n, 0)
 
 #print f
 #print g

@@ -458,7 +458,7 @@ private def mkLocalDeclFor (mvar : Expr) : M Pattern := do
        If this generates problems in the future, we should update the metavariable declarations. -/
     assignExprMVar mvarId (mkFVar fvarId)
     let userName ← mkFreshBinderName
-    let newDecl := LocalDecl.cdecl arbitrary fvarId userName type BinderInfo.default;
+    let newDecl := LocalDecl.cdecl default fvarId userName type BinderInfo.default;
     modify fun s =>
       { s with
         newLocals  := s.newLocals.insert fvarId,
@@ -493,11 +493,12 @@ partial def main (e : Expr) : M Pattern := do
     | some (α, lits) =>
       return Pattern.arrayLit α (← lits.mapM main)
     | none =>
-      if e.isAppOfArity `namedPattern 3 then
+      -- TODO: namedPattern will have 4 arguments
+      if e.isAppOfArity ``_root_.namedPattern 4 then
         let p ← main <| e.getArg! 2
-        match e.getArg! 1 with
-        | Expr.fvar fvarId _ => return Pattern.as fvarId p
-        | _                  => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
+        match e.getArg! 1, e.getArg! 3 with
+        | Expr.fvar x _, Expr.fvar h _ => return Pattern.as x p h
+        | _,             _             => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
       else if isMatchValue e then
         return Pattern.val e
       else if e.isFVar then

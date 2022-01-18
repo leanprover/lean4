@@ -59,6 +59,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_post(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Context_mkDefault___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Step_result___boxed(lean_object*);
+static lean_object* l_Lean_Meta_Simp_Context_mkDefault___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_getSimpLemmas___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_instInhabitedMethods___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -387,11 +388,19 @@ x_1 = l_Lean_Meta_Simp_instInhabitedContext___closed__5;
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Meta_Simp_Context_mkDefault___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Meta_simpExtension;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Context_mkDefault___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_4 = l_Lean_Meta_simpExtension;
+x_4 = l_Lean_Meta_Simp_Context_mkDefault___rarg___closed__1;
 x_5 = l_Lean_Meta_SimpExtension_getLemmas(x_4, x_1, x_2, x_3);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
@@ -1603,6 +1612,8 @@ l_Lean_Meta_Simp_instInhabitedContext___closed__5 = _init_l_Lean_Meta_Simp_instI
 lean_mark_persistent(l_Lean_Meta_Simp_instInhabitedContext___closed__5);
 l_Lean_Meta_Simp_instInhabitedContext = _init_l_Lean_Meta_Simp_instInhabitedContext();
 lean_mark_persistent(l_Lean_Meta_Simp_instInhabitedContext);
+l_Lean_Meta_Simp_Context_mkDefault___rarg___closed__1 = _init_l_Lean_Meta_Simp_Context_mkDefault___rarg___closed__1();
+lean_mark_persistent(l_Lean_Meta_Simp_Context_mkDefault___rarg___closed__1);
 l_Lean_Meta_Simp_State_cache___default = _init_l_Lean_Meta_Simp_State_cache___default();
 lean_mark_persistent(l_Lean_Meta_Simp_State_cache___default);
 l_Lean_Meta_Simp_State_numSteps___default = _init_l_Lean_Meta_Simp_State_numSteps___default();

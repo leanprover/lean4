@@ -114,7 +114,7 @@ def exprToInteractive (e : Expr) : MetaM CodeWithInfos := do
     options := ← getOptions
     currNamespace := ← getCurrNamespace
     openDecls := ← getOpenDecls
-    fileMap := arbitrary
+    fileMap := default
   }
   tagExprInfos ctx infos tt
 
@@ -127,7 +127,7 @@ def exprToInteractiveExplicit (e : Expr) : MetaM CodeWithInfos := do
     options := ← getOptions
     currNamespace := ← getCurrNamespace
     openDecls := ← getOpenDecls
-    fileMap := arbitrary
+    fileMap := default
   }
   let infos := infos.erase 1 -- remove highlight for entire expression in popups
   tagExprInfos ctx infos tt

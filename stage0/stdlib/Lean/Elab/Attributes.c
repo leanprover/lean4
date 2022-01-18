@@ -188,6 +188,28 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Elab_instInhabitedAttribute___closed__1() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = lean_box(0);
+x_3 = lean_box(0);
+x_4 = lean_alloc_ctor(0, 2, 1);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_3);
+lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Elab_instInhabitedAttribute() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Elab_instInhabitedAttribute___closed__1;
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Elab_instToFormatAttribute___closed__1() {
 _start:
 {
@@ -363,28 +385,6 @@ lean_ctor_set(x_31, 0, x_29);
 lean_ctor_set_uint8(x_31, sizeof(void*)*1, x_30);
 return x_31;
 }
-}
-}
-static lean_object* _init_l_Lean_Elab_instInhabitedAttribute___closed__1() {
-_start:
-{
-uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = 0;
-x_2 = lean_box(0);
-x_3 = lean_box(0);
-x_4 = lean_alloc_ctor(0, 2, 1);
-lean_ctor_set(x_4, 0, x_2);
-lean_ctor_set(x_4, 1, x_3);
-lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_Elab_instInhabitedAttribute() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Elab_instInhabitedAttribute___closed__1;
-return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_toAttributeKind___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2645,6 +2645,10 @@ lean_dec_ref(res);
 l_Lean_Elab_Attribute_kind___default = _init_l_Lean_Elab_Attribute_kind___default();
 l_Lean_Elab_Attribute_stx___default = _init_l_Lean_Elab_Attribute_stx___default();
 lean_mark_persistent(l_Lean_Elab_Attribute_stx___default);
+l_Lean_Elab_instInhabitedAttribute___closed__1 = _init_l_Lean_Elab_instInhabitedAttribute___closed__1();
+lean_mark_persistent(l_Lean_Elab_instInhabitedAttribute___closed__1);
+l_Lean_Elab_instInhabitedAttribute = _init_l_Lean_Elab_instInhabitedAttribute();
+lean_mark_persistent(l_Lean_Elab_instInhabitedAttribute);
 l_Lean_Elab_instToFormatAttribute___closed__1 = _init_l_Lean_Elab_instToFormatAttribute___closed__1();
 lean_mark_persistent(l_Lean_Elab_instToFormatAttribute___closed__1);
 l_Lean_Elab_instToFormatAttribute___closed__2 = _init_l_Lean_Elab_instToFormatAttribute___closed__2();
@@ -2665,10 +2669,6 @@ l_Lean_Elab_instToFormatAttribute___closed__9 = _init_l_Lean_Elab_instToFormatAt
 lean_mark_persistent(l_Lean_Elab_instToFormatAttribute___closed__9);
 l_Lean_Elab_instToFormatAttribute___closed__10 = _init_l_Lean_Elab_instToFormatAttribute___closed__10();
 lean_mark_persistent(l_Lean_Elab_instToFormatAttribute___closed__10);
-l_Lean_Elab_instInhabitedAttribute___closed__1 = _init_l_Lean_Elab_instInhabitedAttribute___closed__1();
-lean_mark_persistent(l_Lean_Elab_instInhabitedAttribute___closed__1);
-l_Lean_Elab_instInhabitedAttribute = _init_l_Lean_Elab_instInhabitedAttribute();
-lean_mark_persistent(l_Lean_Elab_instInhabitedAttribute);
 l_Lean_Elab_toAttributeKind___closed__1 = _init_l_Lean_Elab_toAttributeKind___closed__1();
 lean_mark_persistent(l_Lean_Elab_toAttributeKind___closed__1);
 l_Lean_Elab_toAttributeKind___closed__2 = _init_l_Lean_Elab_toAttributeKind___closed__2();

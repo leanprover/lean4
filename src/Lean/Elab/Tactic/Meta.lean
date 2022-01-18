@@ -11,7 +11,7 @@ open Term
 
 private def runTactic.defaultContext : Context := {
   fileName      := "<runTactic>"
-  fileMap       := arbitrary
+  fileMap       := default
 }
 
 /-- Apply the give tactic code to `mvarId` in `MetaM`. -/

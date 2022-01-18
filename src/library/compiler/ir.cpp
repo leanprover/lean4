@@ -40,6 +40,7 @@ extern "C" object * lean_ir_mk_jmp(object * j, object * ys);
 extern "C" object * lean_ir_mk_alt(object * n, object * cidx, object * size, object * usize, object * ssize, object * b);
 extern "C" object * lean_ir_mk_decl(object * f, object * xs, object * ty, object * b);
 extern "C" object * lean_ir_mk_extern_decl(object * f, object * xs, object * ty, object * ext_entry);
+extern "C" object * lean_ir_mk_dummy_extern_decl(object * f, object * xs, object * ty);
 extern "C" object * lean_ir_decl_to_string(object * d);
 extern "C" object * lean_ir_compile(object * env, object * opts, object * decls);
 extern "C" object * lean_ir_log_to_string(object * log);
@@ -91,6 +92,9 @@ decl mk_decl(fun_id const & f, buffer<param> const & xs, type ty, fn_body const 
 }
 decl mk_extern_decl(fun_id const & f, buffer<param> const & xs, type ty, extern_attr_data_value const & v) {
     return decl(lean_ir_mk_extern_decl(f.to_obj_arg(), to_array(xs), box_type(ty), v.to_obj_arg()));
+}
+decl mk_dummy_extern_decl(fun_id const & f, buffer<param> const & xs, type ty) {
+    return decl(lean_ir_mk_dummy_extern_decl(f.to_obj_arg(), to_array(xs), box_type(ty)));
 }
 std::string decl_to_string(decl const & d) {
     string_ref r(lean_ir_decl_to_string(d.to_obj_arg()));
@@ -492,8 +496,12 @@ public:
             type = binding_body(type);
         }
         ir::type result_type = to_ir_type(type);
-        extern_attr_data_value attr = *get_extern_attr_data(env(), fn);
-        return ir::mk_extern_decl(fn, xs, result_type, attr);
+        if (optional<extern_attr_data_value> attr = get_extern_attr_data(env(), fn)) {
+            return ir::mk_extern_decl(fn, xs, result_type, *attr);
+        } else {
+            // Hack: `fn` is marked with `implementedBy` or `init`
+            return ir::mk_dummy_extern_decl(fn, xs, result_type);
+        }
     }
 };
 

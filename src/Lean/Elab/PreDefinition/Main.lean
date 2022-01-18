@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural
 import Lean.Elab.PreDefinition.WF
+import Lean.Elab.PreDefinition.MkInhabitant
 namespace Lean.Elab
 open Meta
 open Term
@@ -19,11 +20,11 @@ private def addAndCompilePartial (preDefs : Array PreDefinition) : TermElabM Uni
   for preDef in preDefs do
     trace[Elab.definition] "processing {preDef.declName}"
     forallTelescope preDef.type fun xs type => do
-      let inh ← liftM $ mkInhabitantFor preDef.declName xs type
+      let val ← liftM $ mkInhabitantFor preDef.declName xs type
       trace[Elab.definition] "inhabitant for {preDef.declName}"
       addNonRec { preDef with
-        kind  := DefKind.«opaque»,
-        value := inh
+        kind  := DefKind.«opaque»
+        value := val
       }
   addAndCompilePartialRec preDefs
 
@@ -89,10 +90,10 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
       let mut decrTactic? := none
       if let some wf := terminationBy.find? (preDefs.map (·.declName)) then
         wf? := some wf
-        terminationBy := terminationBy.erase (preDefs.map (·.declName))
+        terminationBy := terminationBy.markAsUsed (preDefs.map (·.declName))
       if let some { ref, value := decrTactic } := decreasingBy.find? (preDefs.map (·.declName)) then
         decrTactic? := some (← withRef ref `(by $decrTactic))
-        decreasingBy := decreasingBy.erase (preDefs.map (·.declName))
+        decreasingBy := decreasingBy.markAsUsed (preDefs.map (·.declName))
       if wf?.isSome || decrTactic?.isSome then
         wfRecursion preDefs wf? decrTactic?
       else
@@ -103,8 +104,8 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
           (fun msg =>
             let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
             m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
-  liftMacroM <| terminationBy.ensureIsEmpty
-  liftMacroM <| decreasingBy.ensureIsEmpty
+  liftMacroM <| terminationBy.ensureAllUsed
+  liftMacroM <| decreasingBy.ensureAllUsed
 
 builtin_initialize
   registerTraceClass `Elab.definition.body

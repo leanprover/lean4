@@ -37,6 +37,13 @@ def findWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FileP
     (p / pkg).isDir <||> ((p / pkg).withExtension ext).pathExists
   return root?.map (modToFilePath · mod ext)
 
+def findAllWithExt (sp : SearchPath) (ext : String) : IO (Array FilePath) := do
+  let mut paths := #[]
+  for p in sp do
+    if (← p.isDir) then
+      paths := paths ++ (← p.walkDir).filter (·.extension == some ext)
+  paths
+
 end SearchPath
 
 builtin_initialize searchPathRef : IO.Ref SearchPath ← IO.mkRef {}
@@ -112,6 +119,15 @@ def moduleNameOfFileName (fname : FilePath) (rootDir : Option FilePath) : IO Nam
   let modNameStr := FilePath.mk fnameSuffix |>.withExtension ""
   let modName    := modNameStr.components.foldl Name.mkStr Name.anonymous
   pure modName
+
+def searchModuleNameOfFileName (fname : FilePath) (rootDirs : SearchPath) : IO (Option Name) := do
+  for rootDir in rootDirs do
+    try
+      return some <| ← moduleNameOfFileName fname <| some rootDir
+    catch
+      -- Try the next one
+      | e => ()
+  none
 
 /--
   Find the system root of the given `lean` command

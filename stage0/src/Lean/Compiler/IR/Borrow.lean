@@ -138,7 +138,7 @@ def applyParamMap (decls : Array Decl) (map : ParamMap) : Array Decl :=
 structure BorrowInfCtx where
   env      : Environment
   decls    : Array Decl  -- block of mutually recursive functions
-  currFn   : FunId    := arbitrary -- Function being analyzed.
+  currFn   : FunId    := default -- Function being analyzed.
   paramSet : IndexSet := {} -- Set of all function parameters in scope. This is used to implement the heuristic at `ownArgsUsingParams`
 
 structure BorrowInfState where

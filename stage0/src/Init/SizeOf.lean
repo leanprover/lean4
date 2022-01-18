@@ -25,8 +25,12 @@ protected def default.sizeOf (α : Sort u) : α → Nat
 instance (priority := low) (α : Sort u) : SizeOf α where
   sizeOf := default.sizeOf α
 
+@[simp] theorem sizeOf_default (n : α) : sizeOf n = 0 := rfl
+
 instance : SizeOf Nat where
   sizeOf n := n
+
+@[simp] theorem sizeOf_nat (n : Nat) : sizeOf n = n := rfl
 
 deriving instance SizeOf for Prod
 deriving instance SizeOf for PUnit

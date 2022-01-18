@@ -42,7 +42,7 @@ instance [Monad m] : MonadLift m (ExceptCpsT σ m) where
   monadLift := ExceptCpsT.lift
 
 instance [Inhabited ε] : Inhabited (ExceptCpsT ε m α) where
-  default := fun _ k₁ k₂ => k₂ arbitrary
+  default := fun _ k₁ k₂ => k₂ default
 
 @[simp] theorem run_pure [Monad m] : run (pure x : ExceptCpsT ε m α) = pure (Except.ok x) := rfl
 

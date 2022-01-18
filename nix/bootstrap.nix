@@ -96,6 +96,7 @@ rec {
       Std  = build { name = "Std";  deps = [ Init ]; };
       Lean = build { name = "Lean"; deps = [ Init Std ]; };
       stdlib = [ Init Std Lean ];
+      iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       Leanpkg = build { name = "Leanpkg"; deps = stdlib; linkFlags = ["-L${gmp}/lib -L${leanshared}"]; };
       extlib = stdlib ++ [ Leanpkg ];
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; linkFlags = ["-L${gmp}/lib -L${leanshared}"]; };

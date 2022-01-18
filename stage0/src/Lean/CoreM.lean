@@ -48,7 +48,7 @@ abbrev CoreM := ReaderT Context $ StateRefT State (EIO Exception)
 instance : Monad CoreM := let i := inferInstanceAs (Monad CoreM); { pure := i.pure, bind := i.bind }
 
 instance : Inhabited (CoreM α) where
-  default := fun _ _ => throw arbitrary
+  default := fun _ _ => throw default
 
 instance : MonadRef CoreM where
   getRef := return (← read).ref

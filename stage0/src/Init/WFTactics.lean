@@ -7,23 +7,8 @@ prelude
 import Init.SizeOf
 import Init.WF
 
-macro "default_decreasing_tactic" : tactic =>
- `((simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel];
-    repeat (first | apply Prod.Lex.right | apply Prod.Lex.left)
-    repeat (first | apply PSigma.Lex.right | apply PSigma.Lex.left)
-    first
-    | apply Nat.lt_succ_self                   -- i < i+1
-    | decide                                   -- e.g., 0 < 1
-    | apply Nat.pred_lt; assumption            -- i-1 < i if i ≠ 0
-    | apply Nat.pred_lt'; assumption           -- i-1 < i if j < i
-    | apply Nat.sub_succ_lt_self; assumption   -- a - (i+1) < a - i if i < a
-    | assumption
-    -- TODO: linearith
-    -- TODO: improve
-))
-
 macro "decreasing_tactic" : tactic =>
- `((simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel];
+ `((simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel]
     repeat (first | apply Prod.Lex.right | apply Prod.Lex.left)
     repeat (first | apply PSigma.Lex.right | apply PSigma.Lex.left)
     first

@@ -126,6 +126,16 @@ where
       | some (_, lhs, rhs) => simpEq lhs rhs
       | _ => throwError "failed to generate equality theorems for 'match', equality expected{indentExpr eq}"
 
+private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := withMVarContext mvarId do
+  for localDecl in (← getLCtx) do
+    if let some (_, lhs, rhs) ← matchEq? localDecl.type then
+      if lhs.isFVar then
+        if !(← dependsOn rhs lhs.fvarId!) then
+          match (← subst? mvarId lhs.fvarId!) with
+          | some mvarId => return #[mvarId]
+          | none => pure ()
+  throwError "substSomeVar failed"
+
 /--
   Helper method for proving a conditional equational theorem associated with an alternative of
   the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem. -/
@@ -158,7 +168,9 @@ where
           else
             throwError "spliIf failed")
       <|>
-      (throwError "failed to generate equality theorems for `match` expression, support for array literals has not been implemented yet\n{MessageData.ofGoal mvarId}")
+      (substSomeVar mvarId)
+      <|>
+      (throwError "failed to generate equality theorems for `match` expression\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go . (depth+1))
 
 

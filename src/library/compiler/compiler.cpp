@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/specialize.h"
 #include "library/compiler/eager_lambda_lifting.h"
+#include "library/compiler/implemented_by_attribute.h"
 #include "library/compiler/lambda_lifting.h"
 #include "library/compiler/extract_closed.h"
 #include "library/compiler/reduce_arity.h"
@@ -185,7 +186,9 @@ environment compile(environment const & env, options const & opts, names cs) {
 
     if (length(cs) == 1) {
         name c = get_real_name(head(cs));
-        if (is_extern_constant(env, c)) {
+        if (has_implemented_by_attribute(env, c))
+            return env;
+        if (is_extern_or_init_constant(env, c)) {
             /* Generate boxed version for extern/native constant if needed. */
             return ir::add_extern(env, c);
         }

@@ -125,7 +125,7 @@ where
     let ci : Elab.ContextInfo := {
       env := ctx.env
       mctx := ctx.mctx
-      fileMap := arbitrary
+      fileMap := default
       options := ctx.opts
       currNamespace := nCtx.currNamespace
       openDecls := nCtx.openDecls

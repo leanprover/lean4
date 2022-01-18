@@ -157,31 +157,6 @@ export Inhabited (default)
 -- true
 # end Ex
 ```
-Sometimes we want to think of the default element of a type as being an *arbitrary* element, whose specific value should not play a role in our proofs.
-For that purpose, we can write ``arbitrary`` instead of ``default``. We define ``arbitrary`` as an *opaque* constant.
-Opaque constants are never unfolded by the type checker.
-```lean
-# namespace Ex
-# export Inhabited (default)
-theorem defNatEq0 : (default : Nat) = 0 :=
-  rfl
-
-constant arbitrary [Inhabited a] : a :=
-  Inhabited.default
-
--- theorem arbitraryNatEq0 : (arbitrary : Nat) = 0 :=
---   rfl
-/-
-error: type mismatch
-  rfl
-has type
-  arbitrary = arbitrary
-but is expected to have type
-  arbitrary = 0
--/
-# end Ex
-```
-The theorem `defNatEq0` type checks because the type checker can unfold `(default : Nat)` and reduce it to `0`. This is not the case in the theorem `arbitraryNatEq0` because `arbitrary` is an opaque constant.
 
 ## Chaining Instances
 
@@ -194,7 +169,7 @@ This causes class inference to chain through instances recursively, backtracking
 For example, the following definition shows that if two types ``a`` and ``b`` are inhabited, then so is their product:
 ```lean
 instance [Inhabited a] [Inhabited b] : Inhabited (a × b) where
-  default := (arbitrary, arbitrary)
+  default := (default, default)
 ```
 With this added to the earlier instance declarations, type class instance can infer, for example, a default element of ``Nat × Bool``:
 ```lean
@@ -205,19 +180,19 @@ With this added to the earlier instance declarations, type class instance can in
 #  default := true
 # instance : Inhabited Nat where
 #  default := 0
-# constant arbitrary [Inhabited a] : a :=
+# constant default [Inhabited a] : a :=
 #  Inhabited.default
 instance [Inhabited a] [Inhabited b] : Inhabited (a × b) where
-  default := (arbitrary, arbitrary)
+  default := (default, default)
 
-#eval (arbitrary : Nat × Bool)
+#eval (default : Nat × Bool)
 -- (0, true)
 # end Ex
 ```
 Similarly, we can inhabit type function with suitable constant functions:
 ```lean
 instance [Inhabited b] : Inhabited (a -> b) where
-  default := fun _ => arbitrary
+  default := fun _ => default
 ```
 As an exercise, try defining default instances for other types, such as `List` and `Sum` types.
 
@@ -229,7 +204,7 @@ and is useful for triggering the type class resolution procedure when the expect
 def foo : Inhabited (Nat × Nat) :=
   inferInstance
 
-theorem ex : foo.default = (arbitrary, arbitrary) :=
+theorem ex : foo.default = (default, default) :=
   rfl
 ```
 You can use the command `#print` to inspect how simple `inferInstance` is.

@@ -9,6 +9,7 @@ Authors: Leonardo de Moura
 #include "kernel/environment.h"
 namespace lean {
 bool is_extern_constant(environment const & env, name const & c);
+bool is_extern_or_init_constant(environment const & env, name const & c);
 optional<expr> get_extern_constant_ll_type(environment const & env, name const & c);
 optional<unsigned> get_extern_constant_arity(environment const & env, name const & c);
 typedef object_ref extern_attr_data_value;

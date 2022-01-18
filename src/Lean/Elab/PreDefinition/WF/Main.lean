@@ -53,7 +53,7 @@ def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (de
       addAsAxiom preDef
     let unaryPreDefs ← packDomain preDefs
     packMutual unaryPreDefs
-  let wfRel ← elabWFRel unaryPreDef wf?
+  let wfRel ← elabWFRel preDefs unaryPreDef wf?
   let preDefNonRec ← withoutModifyingEnv do
     addAsAxiom unaryPreDef
     mkFix unaryPreDef wfRel decrTactic?

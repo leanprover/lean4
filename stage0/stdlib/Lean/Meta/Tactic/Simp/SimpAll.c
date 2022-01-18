@@ -83,7 +83,7 @@ lean_object* l_Lean_Meta_SimpLemmas_eraseCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_Tactic_Simp_SimpAll_0__Lean_Meta_SimpAll_loop___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_SimpAll_main___spec__1(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_SimpAll_0__Lean_Meta_SimpAll_getSimpLemmas___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__4(lean_object*, lean_object*);
+uint8_t l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_simpAll___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static uint64_t _init_l_Lean_Meta_SimpAll_instInhabitedEntry___closed__1() {
@@ -219,7 +219,7 @@ lean_dec(x_22);
 x_25 = l_Lean_LocalDecl_userName(x_23);
 lean_inc(x_25);
 lean_inc(x_1);
-x_26 = l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__4(x_1, x_25);
+x_26 = l_Std_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__3(x_1, x_25);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; uint8_t x_42; uint8_t x_43; lean_object* x_44; lean_object* x_45; 
@@ -1009,7 +1009,7 @@ goto block_34;
 else
 {
 lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; uint8_t x_129; 
-x_125 = l_Lean_Meta_SimpAll_instInhabitedEntry___closed__3;
+x_125 = lean_box(0);
 x_126 = lean_array_fset(x_112, x_3, x_125);
 lean_ctor_set(x_42, 4, x_85);
 lean_ctor_set(x_42, 3, x_86);
@@ -1104,7 +1104,7 @@ goto block_34;
 else
 {
 lean_object* x_145; lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; 
-x_145 = l_Lean_Meta_SimpAll_instInhabitedEntry___closed__3;
+x_145 = lean_box(0);
 x_146 = lean_array_fset(x_112, x_3, x_145);
 lean_ctor_set(x_42, 4, x_85);
 lean_ctor_set(x_42, 3, x_86);
@@ -1222,7 +1222,7 @@ goto block_34;
 else
 {
 lean_object* x_170; lean_object* x_171; lean_object* x_172; lean_object* x_173; lean_object* x_174; lean_object* x_175; lean_object* x_176; lean_object* x_177; lean_object* x_178; 
-x_170 = l_Lean_Meta_SimpAll_instInhabitedEntry___closed__3;
+x_170 = lean_box(0);
 x_171 = lean_array_fset(x_154, x_3, x_170);
 lean_ctor_set(x_42, 4, x_85);
 lean_ctor_set(x_42, 3, x_86);
@@ -1469,7 +1469,7 @@ goto block_34;
 else
 {
 lean_object* x_230; lean_object* x_231; lean_object* x_232; lean_object* x_233; lean_object* x_234; lean_object* x_235; lean_object* x_236; lean_object* x_237; lean_object* x_238; 
-x_230 = l_Lean_Meta_SimpAll_instInhabitedEntry___closed__3;
+x_230 = lean_box(0);
 x_231 = lean_array_fset(x_213, x_3, x_230);
 lean_ctor_set(x_42, 4, x_186);
 lean_ctor_set(x_42, 3, x_187);
@@ -1734,7 +1734,7 @@ goto block_34;
 else
 {
 lean_object* x_293; lean_object* x_294; lean_object* x_295; lean_object* x_296; lean_object* x_297; lean_object* x_298; lean_object* x_299; lean_object* x_300; lean_object* x_301; 
-x_293 = l_Lean_Meta_SimpAll_instInhabitedEntry___closed__3;
+x_293 = lean_box(0);
 x_294 = lean_array_fset(x_276, x_3, x_293);
 lean_ctor_set(x_42, 4, x_248);
 lean_ctor_set(x_42, 3, x_249);
@@ -2113,7 +2113,7 @@ goto block_34;
 else
 {
 lean_object* x_379; lean_object* x_380; lean_object* x_381; lean_object* x_382; lean_object* x_383; lean_object* x_384; lean_object* x_385; lean_object* x_386; lean_object* x_387; 
-x_379 = l_Lean_Meta_SimpAll_instInhabitedEntry___closed__3;
+x_379 = lean_box(0);
 x_380 = lean_array_fset(x_362, x_3, x_379);
 lean_ctor_set(x_42, 4, x_334);
 lean_ctor_set(x_42, 3, x_335);
@@ -2518,7 +2518,7 @@ goto block_34;
 else
 {
 lean_object* x_472; lean_object* x_473; lean_object* x_474; lean_object* x_475; lean_object* x_476; lean_object* x_477; lean_object* x_478; lean_object* x_479; lean_object* x_480; lean_object* x_481; 
-x_472 = l_Lean_Meta_SimpAll_instInhabitedEntry___closed__3;
+x_472 = lean_box(0);
 x_473 = lean_array_fset(x_455, x_3, x_472);
 x_474 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_474, 0, x_398);

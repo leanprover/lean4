@@ -42,24 +42,24 @@ instance {ε σ} : MonadLift (ST σ) (EST ε σ) := ⟨fun x s =>
 namespace ST
 
 /- References -/
-constant RefPointed : PointedType.{0}
+constant RefPointed : NonemptyType.{0}
 
 structure Ref (σ : Type) (α : Type) : Type where
   ref : RefPointed.type
-  h : Nonempty α
+  h   : Nonempty α
 
-instance {σ α} [Inhabited α] : Inhabited (Ref σ α) where
-  default := { ref := RefPointed.val, h := Nonempty.intro arbitrary }
+instance {σ α} [s : Nonempty α] : Nonempty (Ref σ α) :=
+  Nonempty.intro { ref := Classical.choice RefPointed.property, h := s }
 
 namespace Prim
 
 /- Auxiliary definition for showing that `ST σ α` is inhabited when we have a `Ref σ α` -/
 private noncomputable def inhabitedFromRef {σ α} (r : Ref σ α) : ST σ α :=
   let inh : Inhabited α := Classical.inhabited_of_nonempty r.h
-  pure arbitrary
+  pure default
 
 @[extern "lean_st_mk_ref"]
-constant mkRef {σ α} (a : α) : ST σ (Ref σ α) := pure { ref := RefPointed.val, h := Nonempty.intro a }
+constant mkRef {σ α} (a : α) : ST σ (Ref σ α) := pure { ref := Classical.choice RefPointed.property, h := Nonempty.intro a }
 @[extern "lean_st_ref_get"]
 constant Ref.get {σ α} (r : @& Ref σ α) : ST σ α := inhabitedFromRef r
 @[extern "lean_st_ref_set"]

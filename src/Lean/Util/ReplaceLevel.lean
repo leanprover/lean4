@@ -31,11 +31,11 @@ structure State where
 
 abbrev ReplaceM := StateM State
 
-@[inline] unsafe def cache (i : USize) (key : Expr) (result : Expr) : ReplaceM Expr := do
+unsafe def cache (i : USize) (key : Expr) (result : Expr) : ReplaceM Expr := do
   modify fun s => { keys := s.keys.uset i key lcProof, results := s.results.uset i result lcProof };
   pure result
 
-@[specialize] unsafe def replaceUnsafeM (f? : Level → Option Level) (size : USize) (e : Expr) : ReplaceM Expr := do
+unsafe def replaceUnsafeM (f? : Level → Option Level) (size : USize) (e : Expr) : ReplaceM Expr := do
   let rec visit (e : Expr) := do
     let c ← get
     let h := ptrAddrUnsafe e
@@ -58,7 +58,7 @@ unsafe def initCache : State :=
   { keys    := mkArray cacheSize.toNat (cast lcProof ()), -- `()` is not a valid `Expr`
     results := mkArray cacheSize.toNat default }
 
-@[inline] unsafe def replaceUnsafe (f? : Level → Option Level) (e : Expr) : Expr :=
+unsafe def replaceUnsafe (f? : Level → Option Level) (e : Expr) : Expr :=
   (replaceUnsafeM f? cacheSize e).run' initCache
 
 end ReplaceLevelImpl

@@ -99,9 +99,8 @@ private def expandNotationAux (ref : Syntax)
   | some delabDecl => mkNullNode #[stxDecl, macroDecl, delabDecl]
   | none           => mkNullNode #[stxDecl, macroDecl]
 
-@[builtinMacro Lean.Parser.Command.notation] def expandNotation : Macro := fun stx =>
-  match stx with
-  | `($attrKind:attrKind notation $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $items* => $rhs) => do
+@[builtinMacro Lean.Parser.Command.notation] def expandNotation : Macro
+  | stx@`($attrKind:attrKind notation $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $items* => $rhs) => do
     -- trigger scoped checks early and only once
     let _ ← toAttributeKind attrKind
     expandNotationAux stx (← Macro.getCurrNamespace) attrKind prec? name? prio? items rhs

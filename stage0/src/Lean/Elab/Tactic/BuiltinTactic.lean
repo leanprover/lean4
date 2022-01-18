@@ -234,9 +234,8 @@ def renameInaccessibles (mvarId : MVarId) (hs : Array Syntax) : TacticM MVarId :
     assignExprMVar mvarId mvarNew
     return mvarNew.mvarId!
 
-@[builtinTactic «case»] def evalCase : Tactic := fun stx =>
-  match stx with
-  | `(tactic| case $tag $hs* =>%$arr $tac:tacticSeq) => do
+@[builtinTactic «case»] def evalCase : Tactic
+  | stx@`(tactic| case $tag $hs* =>%$arr $tac:tacticSeq) => do
     let gs ← getUnsolvedGoals
     let g ←
       if tag.isIdent then
@@ -259,9 +258,8 @@ def renameInaccessibles (mvarId : MVarId) (hs : Array Syntax) : TacticM MVarId :
     setGoals gs
   | _ => throwUnsupportedSyntax
 
-@[builtinTactic «renameI»] def evalRenameInaccessibles : Tactic := fun stx =>
-  match stx with
-  | `(tactic| rename_i $hs*) => do replaceMainGoal [← renameInaccessibles (← getMainGoal) hs]
+@[builtinTactic «renameI»] def evalRenameInaccessibles : Tactic
+  | stx@`(tactic| rename_i $hs*) => do replaceMainGoal [← renameInaccessibles (← getMainGoal) hs]
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic «first»] partial def evalFirst : Tactic := fun stx => do

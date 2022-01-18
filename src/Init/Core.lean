@@ -20,6 +20,8 @@ def inline {α : Sort u} (a : α) : α := a
 
 @[simp] theorem Function.comp_apply {f : β → δ} {g : α → β} {x : α} : comp f g x = f (g x) := rfl
 
+attribute [simp] namedPattern
+
 /--
   Thunks are "lazy" values that are evaluated when first accessed using `Thunk.get/map/bind`.
   The value is then stored and not recomputed for all further accesses. -/

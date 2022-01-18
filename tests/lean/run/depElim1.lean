@@ -14,7 +14,6 @@ unless x do
 
 def inaccessible {α : Sort u} (a : α) : α := a
 def val {α : Sort u} (a : α) : α := a
-def As {α : Sort u} (v a : α) : α := a
 
 inductive Pat {α : Sort u} (a : α) : Type u
 | mk : Pat a
@@ -51,11 +50,6 @@ partial def mkPattern : Expr → MetaM Pattern
     return Pattern.inaccessible e.appArg!
   else if e.isFVar then
     return Pattern.var e.fvarId!
-  else if e.isAppOfArity `As 3 && (e.getArg! 1).isFVar then
-    let v := e.getArg! 1
-    let p := e.getArg! 2
-    let p ← mkPattern p
-    return Pattern.as v.fvarId! p
   else if e.isAppOfArity `ArrayLit0 1 ||
           e.isAppOfArity `ArrayLit1 2 ||
           e.isAppOfArity `ArrayLit2 3 ||
@@ -385,26 +379,3 @@ elimTest15 (fun _ => Nat) xs
 #eval check (h3 #[[3], [2]] == 5)
 #eval check (h3 #[[1, 2]] == 1)
 #eval check (h3 #[[1, 2], [2, 3], [3]] == 3)
-
-def ex16 (xs : List Nat) :
-  LHS (forall (a : Nat) (xs : List Nat) (b : Nat) (as : List Nat), Pat (a :: As xs (b :: as)))
-× LHS (forall (a : Nat), Pat ([a]))
-× LHS (Pat ([] : List Nat)) :=
-default
-
-#eval test `ex16 1 `elimTest16
-
--- #check elimTest16
-#print elimTest16
-
-
-
-def h4 (xs : List Nat) : List Nat :=
-elimTest16 (fun _ => List Nat) xs
-  (fun a xs b ys => xs)
-  (fun a         => [])
-  (fun _         => [1])
-
-#eval check (h4 [1, 2, 3] == [2, 3])
-#eval check (h4 [1] == [])
-#eval check (h4 []  == [1])

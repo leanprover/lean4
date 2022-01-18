@@ -494,11 +494,11 @@ partial def main (e : Expr) : M Pattern := do
       return Pattern.arrayLit α (← lits.mapM main)
     | none =>
       -- TODO: namedPattern will have 4 arguments
-      if e.isAppOfArity ``_root_.namedPatternOld 3 then
+      if e.isAppOfArity ``_root_.namedPattern 4 then
         let p ← main <| e.getArg! 2
-        match e.getArg! 1 with
-        | Expr.fvar fvarId _ => return Pattern.as fvarId p
-        | _                  => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
+        match e.getArg! 1, e.getArg! 3 with
+        | Expr.fvar x _, Expr.fvar h _ => return Pattern.as x p h
+        | _,             _             => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
       else if isMatchValue e then
         return Pattern.val e
       else if e.isFVar then

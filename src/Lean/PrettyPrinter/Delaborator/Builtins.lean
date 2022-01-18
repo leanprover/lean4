@@ -699,11 +699,13 @@ def delabNamedPatternOld : Delab := do
 def delabNamedPattern : Delab := do
   -- Note: we keep this as a delaborator because it accesses the DelabM context
   guard (← read).inPattern
-  guard $ (← getExpr).getAppNumArgs == 3
-  let x ← withAppFn $ withAppArg delab
-  let p ← withAppArg delab
+  guard $ (← getExpr).getAppNumArgs == 4
+  let x ← withAppFn $ withAppFn $ withAppArg delab
+  let p ← withAppFn $ withAppArg delab
+  -- TODO: we should hide `h` if it has an inaccessible name and is not used in the rhs
+  let h ← withAppArg delab
   guard x.isIdent
-  `($x:ident@$p:term)
+  `($x:ident@$h:ident:$p:term)
 
 -- Sigma and PSigma delaborators
 def delabSigmaCore (sigma : Bool) : Delab := whenPPOption getPPNotation do

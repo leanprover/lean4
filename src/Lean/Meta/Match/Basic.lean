@@ -15,8 +15,7 @@ inductive Pattern : Type where
   | ctor         (ctorName : Name) (us : List Level) (params : List Expr) (fields : List Pattern) : Pattern
   | val          (e : Expr) : Pattern
   | arrayLit     (type : Expr) (xs : List Pattern) : Pattern
-  -- TODO: add case for equality
-  | as           (varId : FVarId) (p : Pattern) : Pattern
+  | as           (varId : FVarId) (p : Pattern) (hId : FVarId) : Pattern
   deriving Inhabited
 
 namespace Pattern
@@ -28,7 +27,7 @@ partial def toMessageData : Pattern → MessageData
   | ctor ctorName _ _ pats => m!"({ctorName}{pats.foldl (fun (msg : MessageData) pat => msg ++ " " ++ toMessageData pat) Format.nil})"
   | val e                  => e
   | arrayLit _ pats        => m!"#[{MessageData.joinSep (pats.map toMessageData) ", "}]"
-  | as varId p             => m!"{mkFVar varId}@{toMessageData p}"
+  | as varId p h           => m!"{mkFVar varId}@{toMessageData p}"
 
 partial def toExpr (p : Pattern) (annotate := false) : MetaM Expr :=
   visit p
@@ -42,10 +41,10 @@ where
         pure e
     | var fvarId                     => pure $ mkFVar fvarId
     | val e                          => pure e
-    | as fvarId p                    =>
+    | as fvarId p hId                =>
       -- TODO
       if annotate then
-        mkAppM ``namedPatternOld #[mkFVar fvarId, (← visit p)]
+        mkAppM ``namedPattern #[mkFVar fvarId, (← visit p), mkFVar hId]
       else
         visit p
     | arrayLit type xs               =>
@@ -64,8 +63,8 @@ partial def applyFVarSubst (s : FVarSubst) : Pattern → Pattern
   | var fvarId      => match s.find? fvarId with
     | some e => inaccessible e
     | none   => var fvarId
-  | as fvarId p     => match s.find? fvarId with
-    | none   => as fvarId $ applyFVarSubst s p
+  | as fvarId p hId => match s.find? fvarId with
+    | none   => as fvarId (applyFVarSubst s p) hId
     | some _ => applyFVarSubst s p
 
 def replaceFVarId (fvarId : FVarId) (v : Expr) (p : Pattern) : Pattern :=
@@ -76,7 +75,7 @@ partial def hasExprMVar : Pattern → Bool
   | inaccessible e => e.hasExprMVar
   | ctor _ _ ps fs => ps.any (·.hasExprMVar) || fs.any hasExprMVar
   | val e          => e.hasExprMVar
-  | as _ p         => hasExprMVar p
+  | as _ p _       => hasExprMVar p
   | arrayLit t xs  => t.hasExprMVar || xs.any hasExprMVar
   | _              => false
 
@@ -86,7 +85,7 @@ partial def instantiatePatternMVars : Pattern → MetaM Pattern
   | Pattern.inaccessible e      => return Pattern.inaccessible (← instantiateMVars e)
   | Pattern.val e               => return Pattern.val (← instantiateMVars e)
   | Pattern.ctor n us ps fields => return Pattern.ctor n us (← ps.mapM instantiateMVars) (← fields.mapM instantiatePatternMVars)
-  | Pattern.as x p              => return Pattern.as x (← instantiatePatternMVars p)
+  | Pattern.as x p h            => return Pattern.as x (← instantiatePatternMVars p) h
   | Pattern.arrayLit t xs       => return Pattern.arrayLit (← instantiateMVars t) (← xs.mapM instantiatePatternMVars)
   | p                   => return p
 
@@ -277,12 +276,11 @@ partial def toPattern (e : Expr) : MetaM Pattern := do
     | some (α, lits) =>
       return Pattern.arrayLit α (← lits.mapM toPattern)
     | none =>
-      -- TODO: `namedPattern` will have 4 arguments
-      if e.isAppOfArity ``namedPatternOld 3 then
+      if e.isAppOfArity ``namedPattern 4 then
         let p ← toPattern <| e.getArg! 2
-        match e.getArg! 1 with
-        | Expr.fvar fvarId _ => return Pattern.as fvarId p
-        | _                  => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
+        match e.getArg! 1, e.getArg! 3 with
+        | Expr.fvar x _, Expr.fvar h _ => return Pattern.as x p h
+        | _,             _               => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
       else if isMatchValue e then
         return Pattern.val e
       else if e.isFVar then

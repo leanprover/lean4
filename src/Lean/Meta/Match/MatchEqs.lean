@@ -158,7 +158,7 @@ where
           else
             throwError "spliIf failed")
       <|>
-      (throwError "failed to generate equality theorems for `match` expression, support for array literals has not been implemented yet\n{MessageData.ofGoal mvarId}")
+      (throwError "failed to generate equality theorems for `match` expression\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go . (depth+1))
 
 

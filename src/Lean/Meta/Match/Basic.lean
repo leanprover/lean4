@@ -45,7 +45,7 @@ where
     | as fvarId p                    =>
       -- TODO
       if annotate then
-        mkAppM `namedPattern #[mkFVar fvarId, (← visit p)]
+        mkAppM ``namedPatternOld #[mkFVar fvarId, (← visit p)]
       else
         visit p
     | arrayLit type xs               =>
@@ -278,7 +278,7 @@ partial def toPattern (e : Expr) : MetaM Pattern := do
       return Pattern.arrayLit α (← lits.mapM toPattern)
     | none =>
       -- TODO: `namedPattern` will have 4 arguments
-      if e.isAppOfArity ``namedPattern 3 then
+      if e.isAppOfArity ``namedPatternOld 3 then
         let p ← toPattern <| e.getArg! 2
         match e.getArg! 1 with
         | Expr.fvar fvarId _ => return Pattern.as fvarId p

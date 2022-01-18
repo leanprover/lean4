@@ -210,7 +210,7 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     discard <| processVar id
     let pat := stx[3]
     let pat ← collect pat
-    `(_root_.namedPattern $id $pat)
+    ``(_root_.namedPatternOld $id $pat)
   else if k == ``Lean.Parser.Term.binop then
     let lhs ← collect stx[2]
     let rhs ← collect stx[3]

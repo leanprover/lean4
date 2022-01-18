@@ -16346,7 +16346,7 @@ static lean_object* _init_l_Lean_Elab_Term_ToDepElimPattern_main___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("namedPattern");
+x_1 = lean_mk_string("namedPatternOld");
 return x_1;
 }
 }

@@ -42,8 +42,7 @@ structure PPFns where
   ppExpr : PPContext → Expr → IO Format
   ppTerm : PPContext → Syntax → IO Format
   ppGoal : PPContext → MVarId → IO Format
-
-instance : Inhabited PPFns := ⟨⟨arbitrary, arbitrary, arbitrary⟩⟩
+  deriving Inhabited
 
 builtin_initialize ppFnsRef : IO.Ref PPFns ←
   IO.mkRef {

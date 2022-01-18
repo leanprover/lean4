@@ -26,7 +26,7 @@ structure AttributeImplCore where
 
 inductive AttributeKind
   | «global» | «local» | «scoped»
-  deriving BEq
+  deriving BEq, Inhabited
 
 instance : ToString AttributeKind where
   toString
@@ -208,7 +208,7 @@ namespace ParametricAttribute
 def getParam {α : Type} [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
   match env.getModuleIdxFor? decl with
   | some modIdx =>
-    match (attr.ext.getModuleEntries env modIdx).binSearch (decl, arbitrary) (fun a b => Name.quickLt a.1 b.1) with
+    match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
     | some (_, val) => some val
     | none          => none
   | none        => (attr.ext.getState env).find? decl
@@ -267,7 +267,7 @@ namespace EnumAttributes
 def getValue {α : Type} [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl : Name) : Option α :=
   match env.getModuleIdxFor? decl with
   | some modIdx =>
-    match (attr.ext.getModuleEntries env modIdx).binSearch (decl, arbitrary) (fun a b => Name.quickLt a.1 b.1) with
+    match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
     | some (_, val) => some val
     | none          => none
   | none        => (attr.ext.getState env).find? decl

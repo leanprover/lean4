@@ -1,0 +1,3 @@
+x : Int
+h : x = 1
+⊢ add_one x

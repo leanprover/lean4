@@ -321,7 +321,7 @@ private def getVarDecls (s : State) : Array Syntax :=
   s.scopes.head!.varDecls
 
 instance {α} : Inhabited (CommandElabM α) where
-  default := throw arbitrary
+  default := throw default
 
 private def mkMetaContext : Meta.Context := {
   config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true }
@@ -435,7 +435,11 @@ def addUnivLevel (idStx : Syntax) : CommandElabM Unit := withRef idStx do
 def expandDeclId (declId : Syntax) (modifiers : Modifiers) : CommandElabM ExpandDeclIdResult := do
   let currNamespace ← getCurrNamespace
   let currLevelNames ← getLevelNames
-  Lean.Elab.expandDeclId currNamespace currLevelNames declId modifiers
+  let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers
+  for id in (← getScope).varDecls.concatMap getBracketedBinderIds do
+    if id == r.shortName then
+      throwError "invalid declaration name '{r.shortName}', there is a section variable with the same name"
+  return r
 
 end Elab.Command
 

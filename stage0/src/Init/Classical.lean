@@ -13,8 +13,6 @@ universe u v
 
 namespace Classical
 
-axiom choice {α : Sort u} : Nonempty α → α
-
 noncomputable def indefiniteDescription {α : Sort u} (p : α → Prop) (h : ∃ x, p x) : {x // p x} :=
   choice <| let ⟨x, px⟩ := h; ⟨⟨x, px⟩⟩
 
@@ -81,7 +79,7 @@ noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
 
 noncomputable def typeDecidable (α : Sort u) : PSum α (α → False) :=
   match (propDecidable (Nonempty α)) with
-  | (isTrue hp)  => PSum.inl (@arbitrary _ (inhabited_of_nonempty hp))
+  | (isTrue hp)  => PSum.inl (@default _ (inhabited_of_nonempty hp))
   | (isFalse hn) => PSum.inr (fun a => absurd (Nonempty.intro a) hn)
 
 noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop) (h : Nonempty α) : {x : α // (∃ y : α, p y) → p x} :=

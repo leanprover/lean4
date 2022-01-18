@@ -15,7 +15,6 @@ mutual
   partial def visit (p : MVarId → Bool) (e : Expr) : Visitor := fun s =>
     if s.isSome || !e.hasLevelMVar then s else main p e s
 
-  @[specialize]
   partial def main (p : MVarId → Bool) : Expr → Visitor
     | Expr.sort l _        => visitLevel p l
     | Expr.const _ ls _    => ls.foldr (init := id) fun l acc => visitLevel p l ∘ acc
@@ -30,7 +29,6 @@ mutual
   partial def visitLevel (p : MVarId → Bool) (l : Level) : Visitor := fun s =>
     if s.isSome || !l.hasMVar then s else mainLevel p l s
 
-  @[specialize]
   partial def mainLevel (p : MVarId → Bool) : Level → Visitor
     | Level.zero _        => id
     | Level.succ l _      => visitLevel p l

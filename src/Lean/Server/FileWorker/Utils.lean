@@ -19,15 +19,16 @@ def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
 
 inductive ElabTaskError where
   | aborted
-  | eof
   | ioError (e : IO.Error)
 
 instance : Coe IO.Error ElabTaskError :=
   ⟨ElabTaskError.ioError⟩
 
+instance : MonadLift IO (EIO ElabTaskError) where
+  monadLift act := act.toEIO (coe ·)
+
 structure CancelToken where
   ref : IO.Ref Bool
-  deriving Inhabited
 
 namespace CancelToken
 
@@ -54,7 +55,13 @@ structure EditableDocument where
   /- Subsequent snapshots occur after each command. -/
   cmdSnaps   : AsyncList ElabTaskError Snapshot
   cancelTk   : CancelToken
-  deriving Inhabited
+
+namespace EditableDocument
+
+def allSnaps (doc : EditableDocument) : AsyncList ElabTaskError Snapshot :=
+  AsyncList.cons doc.headerSnap doc.cmdSnaps
+
+end EditableDocument
 
 structure RpcSession where
   /-- Objects that are being kept alive for the RPC client, together with their type names,
@@ -96,8 +103,8 @@ def release (st : RpcSession) (ref : Lsp.RpcRef) : Bool × RpcSession :=
   let released := st.aliveRefs.contains ref
   (released, { st with aliveRefs := st.aliveRefs.erase ref })
 
-def keptAlive (s : RpcSession) : IO RpcSession := do
-  return { s with expireTime := (← IO.monoMsNow) + keepAliveTimeMs }
+def keptAlive (monoMsNow : Nat) (s : RpcSession) : RpcSession :=
+  { s with expireTime := monoMsNow + keepAliveTimeMs }
 
 def hasExpired (s : RpcSession) : IO Bool :=
   return s.expireTime ≤ (← IO.monoMsNow)

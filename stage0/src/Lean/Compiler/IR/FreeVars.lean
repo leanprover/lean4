@@ -30,7 +30,7 @@ private def collectArg : Arg → Collector
   | Arg.var x  => collectVar x
   | irrelevant => skip
 
-@[specialize] private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
+private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
   fun m => as.foldl (fun m a => f a m) m
 
 private def collectArgs (as : Array Arg) : Collector := collectArray as collectArg
@@ -127,7 +127,7 @@ private def collectArg : Arg → Collector
   | Arg.var x  => collectVar x
   | irrelevant => skip
 
-@[specialize] private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
+private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
   fun bv fv => as.foldl (fun fv a => f a bv fv) fv
 
 private def collectArgs (as : Array Arg) : Collector :=

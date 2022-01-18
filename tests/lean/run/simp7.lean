@@ -26,7 +26,7 @@ theorem ex3 : fact x > 0 := by
     apply ih
 
 def head [Inhabited α] : List α → α
-  | []   => arbitrary
+  | []   => default
   | a::_ => a
 
 theorem ex4 [Inhabited α] (a : α) (as : List α) : head (a::as) = a :=

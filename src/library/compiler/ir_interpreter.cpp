@@ -1047,8 +1047,9 @@ optional<name> get_sorry_dep(environment const & env, name const & n) {
 }
 
 object * run_boxed(environment const & env, options const & opts, name const & fn, unsigned n, object **args) {
-    if (get_sorry_dep(env, fn)) {
-        throw exception("cannot evaluate code because it uses 'sorry' and/or contains errors");
+    if (optional<name> decl_with_sorry = get_sorry_dep(env, fn)) {
+        throw exception(sstream() << "cannot evaluate code because '" << *decl_with_sorry
+            << "' uses 'sorry' and/or contains errors");
     }
     return interpreter::with_interpreter<object *>(env, opts, fn, [&](interpreter & interp) { return interp.call_boxed(fn, n, args); });
 }

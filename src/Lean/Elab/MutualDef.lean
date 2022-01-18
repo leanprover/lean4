@@ -7,6 +7,7 @@ import Lean.Parser.Term
 import Lean.Meta.Closure
 import Lean.Meta.Check
 import Lean.Elab.Command
+import Lean.Elab.Match
 import Lean.Elab.DefView
 import Lean.Elab.PreDefinition
 import Lean.Elab.DeclarationRange
@@ -101,7 +102,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
   let mut headers := #[]
   for view in views do
     let newHeader ← withRef view.ref do
-      let ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+      let ⟨shortDeclName, declName, levelNames⟩ ← Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
       addDeclarationRanges declName view.ref
       applyAttributesAt declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration
       withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
@@ -457,7 +458,7 @@ private def pushLocalDecl (toProcess : Array FVarId) (fvarId : FVarId) (userName
     : StateRefT ClosureState TermElabM (Array FVarId) := do
   let type ← preprocess type
   modify fun s => { s with
-    newLocalDecls := s.newLocalDecls.push $ LocalDecl.cdecl arbitrary fvarId userName type bi,
+    newLocalDecls := s.newLocalDecls.push $ LocalDecl.cdecl default fvarId userName type bi,
     exprArgs      := s.exprArgs.push (mkFVar fvarId)
   }
   pure $ pushNewVars toProcess (collectFVars {} type)
@@ -485,7 +486,7 @@ private partial def mkClosureForAux (toProcess : Array FVarId) : StateRefT Closu
         let type ← preprocess type
         let val  ← preprocess val
         modify fun s => { s with
-          newLetDecls   := s.newLetDecls.push $ LocalDecl.ldecl arbitrary fvarId userName type val false,
+          newLetDecls   := s.newLetDecls.push $ LocalDecl.ldecl default fvarId userName type val false,
           /- We don't want to interleave let and lambda declarations in our closure. So, we expand any occurrences of fvarId
              at `newLocalDecls` and `localDecls` -/
           newLocalDecls := s.newLocalDecls.map (replaceFVarIdAtLocalDecl fvarId val),
@@ -640,7 +641,7 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
       else
         newHeaders := newHeaders.push header
     return newHeaders
-  let newHeaders ← process.run' 1
+  let newHeaders ← (process).run' 1
   newHeaders.mapM fun header => return { header with type := (← instantiateMVars header.type) }
 
 /-- Result for `mkInst?` -/
@@ -690,6 +691,16 @@ def processDefDeriving (className : Name) (declName : Name) : TermElabM Bool := 
   catch ex =>
     return false
 
+/-- Remove auxiliary match discriminant let-declarations. -/
+def eraseAuxDiscr (e : Expr) : CoreM Expr := do
+  Core.transform e fun e => match e with
+    | Expr.letE n _ v b .. =>
+      if isAuxDiscrName n then
+        return TransformStep.visit (b.instantiate1 v)
+      else
+        return TransformStep.visit e
+    | e => return TransformStep.visit e
+
 def elabMutualDef (vars : Array Expr) (views : Array DefView) (hints : TerminationHints) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv go
@@ -716,6 +727,11 @@ where
         let preDefs ← levelMVarToParamPreDecls preDefs
         let preDefs ← instantiateMVarsAtPreDecls preDefs
         let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
+        let preDefs ← preDefs.mapM fun preDef =>
+          if preDef.kind.isTheorem || preDef.kind.isExample then
+            return preDef
+          else
+            return { preDef with value := (← eraseAuxDiscr preDef.value) }
         addPreDefinitions preDefs hints
         processDeriving headers
 

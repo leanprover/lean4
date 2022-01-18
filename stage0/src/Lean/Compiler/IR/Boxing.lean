@@ -56,15 +56,15 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
       pure (newVDecls, xs.push (Arg.var q.x))
     else
       let x ← N.mkFresh
-      pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) arbitrary), xs.push (Arg.var x))
+      pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) default), xs.push (Arg.var x))
   let r ← N.mkFresh
-  let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) arbitrary)
+  let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) default)
   let body ←
     if !decl.resultType.isScalar then
       pure <| reshape newVDecls (FnBody.ret (Arg.var r))
     else
       let newR ← N.mkFresh
-      let newVDecls := newVDecls.push (FnBody.vdecl newR IRType.object (Expr.box decl.resultType r) arbitrary)
+      let newVDecls := newVDecls.push (FnBody.vdecl newR IRType.object (Expr.box decl.resultType r) default)
       pure <| reshape newVDecls (FnBody.ret (Arg.var newR))
   return Decl.fdecl (mkBoxedName decl.name) qs IRType.object body decl.getInfo
 
@@ -97,7 +97,7 @@ def eqvTypes (t₁ t₂ : IRType) : Bool :=
   (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
 
 structure BoxingContext where
-  f : FunId := arbitrary
+  f : FunId := default
   localCtx : LocalContext := {}
   resultType : IRType := IRType.irrelevant
   decls : Array Decl
@@ -146,7 +146,7 @@ def getDecl (fid : FunId) : M Decl := do
   let ctx ← read
   match findEnvDecl' ctx.env fid ctx.decls with
   | some decl => pure decl
-  | none      => pure arbitrary -- unreachable if well-formed
+  | none      => pure default -- unreachable if well-formed
 
 @[inline] def withParams {α : Type} (xs : Array Param) (k : M α) : M α :=
   withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addParams xs }) k
@@ -222,7 +222,7 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
   | Arg.var x => castVarIfNeeded x expected (fun x => k (Arg.var x))
   | _         => k x
 
-@[specialize] def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Array Arg × Array FnBody) := do
+def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Array Arg × Array FnBody) := do
   let mut xs' := #[]
   let mut bs  := #[]
   let mut i   := 0

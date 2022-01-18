@@ -28,6 +28,7 @@ syntax (name := arg) "arg " num : conv
 syntax (name := ext) "ext " (colGt ident)* : conv
 syntax (name := change) "change " term : conv
 syntax (name := delta) "delta " ident : conv
+syntax (name := unfold) "unfold " ident : conv
 syntax (name := pattern) "pattern " term : conv
 syntax (name := rewrite) "rewrite " (config)? rwRuleSeq : conv
 syntax (name := simp) "simp " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? : conv

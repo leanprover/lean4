@@ -155,7 +155,7 @@ private def addNewArg (argName : Name) (arg : Expr) : M Unit := do
   Recall that, `Arg` may be wrapping an already elaborated `Expr`. -/
 private def elabAndAddNewArg (argName : Name) (arg : Arg) : M Unit := do
   let s ← get
-  let expectedType ← getArgExpectedType
+  let expectedType := (← getArgExpectedType).consumeAutoOptParam
   match arg with
   | Arg.expr val =>
     let arg ← ensureArgType s.f val expectedType
@@ -386,7 +386,6 @@ mutual
         | Except.ok tacticSyntax =>
           -- TODO(Leo): does this work correctly for tactic sequences?
           let tacticBlock ← `(by $tacticSyntax)
-          let argType     := argType.getArg! 0 -- `autoParam type := by tactic` ==> `type`
           let argNew := Arg.stx tacticBlock
           propagateExpectedType argNew
           elabAndAddNewArg argName argNew

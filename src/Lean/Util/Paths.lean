@@ -11,9 +11,20 @@ import Lean.Util.Path
 
 namespace Lean
 
+open System
+
 structure LeanPaths where
   oleanPath : SearchPath
   srcPath   : SearchPath
   deriving ToJson, FromJson
+
+def initSrcSearchPath (leanSysroot : FilePath) (sp : SearchPath := ∅) : IO SearchPath := do
+  let srcSearchPath :=
+    if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
+      System.SearchPath.parse p
+    else []
+  let srcPath := (← IO.appDir) / ".." / "lib" / "lean" / "src"
+  -- `lake/` should come first since on case-insensitive file systems, Lean thinks that `src/` also contains `Lake/`
+  return srcSearchPath ++ [srcPath / "lake", srcPath]
 
 end Lean

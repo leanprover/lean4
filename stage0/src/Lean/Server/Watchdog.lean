@@ -9,10 +9,13 @@ import Init.Data.ByteArray
 import Std.Data.RBMap
 
 import Lean.Elab.Import
+import Lean.Util.Paths
 
+import Lean.Data.Json
 import Lean.Data.Lsp
 import Lean.Server.Utils
 import Lean.Server.Requests
+import Lean.Server.References
 
 /-!
 For general server architecture, see `README.md`. This module implements the watchdog process.
@@ -177,6 +180,8 @@ section ServerM
     initParams     : InitializeParams
     editDelay      : Nat
     workerPath     : System.FilePath
+    srcSearchPath  : System.SearchPath
+    references     : IO.Ref References
 
   abbrev ServerM := ReaderT ServerContext IO
 
@@ -192,12 +197,22 @@ section ServerM
     return fw
 
   def eraseFileWorker (uri : DocumentUri) : ServerM Unit := do
-    (←read).fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase uri)
+    let s ← read
+    s.fileWorkersRef.modify (fun fileWorkers => fileWorkers.erase uri)
+    if let some path := uri.toPath? then
+      if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
+        s.references.modify fun refs => refs.removeWorkerRefs module
 
   def log (msg : String) : ServerM Unit := do
     let st ← read
     st.hLog.putStrLn msg
     st.hLog.flush
+
+  def handleIleanInfo (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
+    let s ← read
+    if let some path := fw.doc.meta.uri.toPath? then
+      if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
+        s.references.modify fun refs => refs.addWorkerRefs module params.version params.references
 
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
@@ -210,6 +225,10 @@ section ServerM
           fw.erasePendingRequest id
         if let Message.responseError id _ _ _ := msg then
           fw.erasePendingRequest id
+        if let Message.notification "$/lean/ileanInfo" params := msg then
+          if let some params := params then
+            if let Except.ok params := FromJson.fromJson? $ ToJson.toJson params then
+              handleIleanInfo fw params
         -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
         o.writeLspMessage msg
       catch err =>
@@ -240,7 +259,7 @@ section ServerM
     let workerProc ← Process.spawn {
       toStdioConfig := workerCfg
       cmd           := st.workerPath.toString
-      args          := #["--worker"] ++ st.args.toArray
+      args          := #["--worker"] ++ st.args.toArray ++ #[m.uri]
     }
     let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
     -- The task will never access itself, so this is fine
@@ -333,6 +352,19 @@ section ServerM
         handleCrash uri initialQueuedMsgs
 end ServerM
 
+section RequestHandling
+
+def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
+  if let some path := p.textDocument.uri.toPath? then
+    let srcSearchPath := (← read).srcSearchPath
+    if let some module ← searchModuleNameOfFileName path srcSearchPath then
+      let references ← (← read).references.get
+      if let some ident := references.findAt? module p.position then
+        return ← references.referringTo ident srcSearchPath p.context.includeDeclaration
+  #[]
+
+end RequestHandling
+
 section NotificationHandling
   def handleDidOpen (p : DidOpenTextDocumentParams) : ServerM Unit :=
     let doc := p.textDocument
@@ -371,6 +403,21 @@ section NotificationHandling
   def handleDidClose (p : DidCloseTextDocumentParams) : ServerM Unit :=
     terminateFileWorker p.textDocument.uri
 
+  def handleDidChangeWatchedFiles (p : DidChangeWatchedFilesParams) : ServerM Unit := do
+    let references := (← read).references
+    let oleanSearchPath ← Lean.searchPathRef.get
+    let ileans ← oleanSearchPath.findAllWithExt "ilean"
+    for change in p.changes do
+      if let some path := change.uri.toPath? then
+      if let FileChangeType.Deleted := change.type then
+        references.modify (fun r => r.removeIlean path)
+      else if ileans.contains path then
+        let ilean ← Ilean.load path
+        if let FileChangeType.Changed := change.type then
+          references.modify (fun r => r.removeIlean path |>.addIlean path ilean)
+        else
+          references.modify (fun r => r.addIlean path ilean)
+
   def handleCancelRequest (p : CancelParams) : ServerM Unit := do
     let fileWorkers ← (←read).fileWorkersRef.get
     for ⟨uri, fw⟩ in fileWorkers do
@@ -389,7 +436,7 @@ section MessageHandling
     | Except.ok parsed => pure parsed
     | Except.error inner => throwServerError s!"Got param with wrong structure: {params.compress}\n{inner}"
 
-  def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
+  def forwardRequestToWorker (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
     let uri: DocumentUri ←
       -- This request is handled specially.
       if method == "$/lean/rpc/connect" then
@@ -416,17 +463,36 @@ section MessageHandling
     fw.pendingRequestsRef.modify (·.insert id r)
     tryWriteMessage uri r
 
+  def handleRequest (id : RequestID) (method : String) (params : Json) : ServerM Unit := do
+    let handle α β [FromJson α] [ToJson β] (handler : α → ServerM β) : ServerM Unit := do
+      let hOut := (← read).hOut
+      try
+        let params ← parseParams α params
+        let result ← handler params
+        hOut.writeLspResponse ⟨id, result⟩
+      catch
+        -- TODO Do fancier error handling, like in file worker?
+        | e => hOut.writeLspResponseError {
+          id := id
+          code := ErrorCode.internalError
+          message := s!"Failed to process request {id}: {e}"
+        }
+    match method with
+      | "textDocument/references" => handle ReferenceParams (Array Location) handleReference
+      | _ => forwardRequestToWorker id method params
+
   def handleNotification (method : String) (params : Json) : ServerM Unit := do
     let handle := (fun α [FromJson α] (handler : α → ServerM Unit) => parseParams α params >>= handler)
     match method with
-    | "textDocument/didOpen"   => handle DidOpenTextDocumentParams handleDidOpen
+    | "textDocument/didOpen"            => handle DidOpenTextDocumentParams handleDidOpen
     /- NOTE: textDocument/didChange is handled in the main loop. -/
-    | "textDocument/didClose"  => handle DidCloseTextDocumentParams handleDidClose
-    | "$/cancelRequest"        => handle CancelParams handleCancelRequest
-    | "$/lean/rpc/connect"     => handle RpcConnectParams (forwardNotification method)
-    | "$/lean/rpc/release"     => handle RpcReleaseParams (forwardNotification method)
-    | "$/lean/rpc/keepAlive"   => handle RpcKeepAliveParams (forwardNotification method)
-    | _                        =>
+    | "textDocument/didClose"           => handle DidCloseTextDocumentParams handleDidClose
+    | "workspace/didChangeWatchedFiles" => handle DidChangeWatchedFilesParams handleDidChangeWatchedFiles
+    | "$/cancelRequest"                 => handle CancelParams handleCancelRequest
+    | "$/lean/rpc/connect"              => handle RpcConnectParams (forwardNotification method)
+    | "$/lean/rpc/release"              => handle RpcReleaseParams (forwardNotification method)
+    | "$/lean/rpc/keepAlive"            => handle RpcKeepAliveParams (forwardNotification method)
+    | _                                 =>
       if !"$/".isPrefixOf method then  -- implementation-dependent notifications can be safely ignored
         (←read).hLog.putStrLn s!"Got unsupported notification: {method}"
 end MessageHandling
@@ -513,6 +579,8 @@ section MainLoop
       | Message.notification method (some params) =>
         handleNotification method (toJson params)
         mainLoop (←runClientTask)
+      | Message.response "register_ilean_watcher" result =>
+        mainLoop (←runClientTask)
       | _ => throwServerError "Got invalid JSON-RPC message"
     | ServerEvent.clientError e => throw e
     | ServerEvent.workerEvent fw ev =>
@@ -574,12 +642,25 @@ def initAndRunWatchdogAux : ServerM Unit := do
     catch _ => pure (Message.notification "exit" none)
     | throwServerError "Got `shutdown` request, expected an `exit` notification"
 
-def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
+def findWorkerPath : IO System.FilePath := do
   let mut workerPath ← IO.appPath
   if let some path := (←IO.getEnv "LEAN_SYSROOT") then
     workerPath := System.FilePath.mk path / "bin" / "lean" |>.withExtension System.FilePath.exeExtension
   if let some path := (←IO.getEnv "LEAN_WORKER_PATH") then
     workerPath := System.FilePath.mk path
+  workerPath
+
+def loadReferences : IO References := do
+  let oleanSearchPath ← Lean.searchPathRef.get
+  let mut refs := References.empty
+  for path in ← oleanSearchPath.findAllWithExt "ilean" do
+    refs := refs.addIlean path (← Ilean.load path)
+  refs
+
+def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
+  let workerPath ← findWorkerPath
+  let srcSearchPath ← initSrcSearchPath (← getBuildDir)
+  let references ← IO.mkRef (← loadReferences)
   let fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap)
   let i ← maybeTee "wdIn.txt" false i
   let o ← maybeTee "wdOut.txt" true o
@@ -596,6 +677,19 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
       : InitializeResult
     }
   }
+  o.writeLspRequest {
+    id := RequestID.str "register_ilean_watcher"
+    method := "client/registerCapability"
+    param := some {
+      registrations := #[ {
+        id := "ilean_watcher"
+        method := "workspace/didChangeWatchedFiles"
+        registerOptions := some <| toJson {
+          watchers := #[ { globPattern := "**/*.ilean" } ]
+        : DidChangeWatchedFilesRegistrationOptions }
+      } ]
+    : RegistrationParams }
+  }
   ReaderT.run initAndRunWatchdogAux {
     hIn            := i
     hOut           := o
@@ -604,7 +698,9 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
     fileWorkersRef := fileWorkersRef
     initParams     := initRequest.param
     editDelay      := initRequest.param.initializationOptions? |>.bind InitializationOptions.editDelay? |>.getD 200
-    workerPath     := workerPath
+    workerPath
+    srcSearchPath
+    references
     : ServerContext
   }
 

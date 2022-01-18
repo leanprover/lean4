@@ -12,6 +12,7 @@ import Lean.Meta.CollectMVars
 import Lean.Meta.Coe
 import Lean.Hygiene
 import Lean.Util.RecDepth
+
 import Lean.Elab.Log
 import Lean.Elab.Config
 import Lean.Elab.Level
@@ -20,6 +21,7 @@ import Lean.Elab.AutoBound
 import Lean.Elab.InfoTree
 import Lean.Elab.Open
 import Lean.Elab.SetOption
+import Lean.Elab.DeclModifiers
 
 namespace Lean.Elab.Term
 structure Context where
@@ -55,6 +57,8 @@ structure Context where
   implicitLambda     : Bool            := true
   /-- noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for  -/
   isNoncomputableSection : Bool        := false
+  /-- when `true` we skip TC failures. We use this option when processing patterns -/
+  ignoreTCFailures : Bool := false
 
 /-- Saved context for postponed terms and tactics to be executed. -/
 structure SavedContext where
@@ -140,7 +144,7 @@ instance : Monad TermElabM := let i := inferInstanceAs (Monad TermElabM); { pure
 open Meta
 
 instance : Inhabited (TermElabM α) where
-  default := throw arbitrary
+  default := throw default
 
 structure SavedState where
   meta   : Meta.SavedState
@@ -166,7 +170,7 @@ instance : MonadBacktrack SavedState TermElabM where
 abbrev TermElabResult (α : Type) := EStateM.Result Exception SavedState α
 
 instance [Inhabited α] : Inhabited (TermElabResult α) where
-  default := EStateM.Result.ok arbitrary arbitrary
+  default := EStateM.Result.ok default default
 
 def setMessageLog (messages : MessageLog) : TermElabM Unit :=
   modify fun s => { s with messages := messages }
@@ -651,8 +655,12 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
       unless (← isDefEq (mkMVar instMVar) val) do
         throwError "failed to assign synthesized type class instance{indentExpr val}"
     pure true
-  | LOption.undef    => pure false -- we will try later
-  | LOption.none     => throwError "failed to synthesize instance{indentExpr type}"
+  | LOption.undef    => return false -- we will try later
+  | LOption.none     =>
+    if (← read).ignoreTCFailures then
+      return false
+    else
+      throwError "failed to synthesize instance{indentExpr type}"
 
 register_builtin_option autoLift : Bool := {
   defValue := true
@@ -726,6 +734,7 @@ def synthesizeInst (type : Expr) : TermElabM Expr := do
   let type ← instantiateMVars type
   match (← trySynthInstance type) with
   | LOption.some val => pure val
+  -- Note that `ignoreTCFailures` is not checked here since it must return a result.
   | LOption.undef    => throwError "failed to synthesize instance{indentExpr type}"
   | LOption.none     => throwError "failed to synthesize instance{indentExpr type}"
 
@@ -1216,7 +1225,8 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     withNestedTraces do
     let env ← getEnv
     match (← liftMacroM (expandMacroImpl? env stx)) with
-    | some (decl, Except.ok stxNew) =>
+    | some (decl, stxNew?) =>
+      let stxNew ← liftMacroM <| liftExcept stxNew?
       withInfoContext' (mkInfo := mkTermInfo decl (expectedType? := expectedType?) stx) <|
         withMacroExpansion stx stxNew <|
           withRef stxNew <|
@@ -1504,7 +1514,7 @@ def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (
 
 private def mkSomeContext : Context := {
   fileName      := "<TermElabM>"
-  fileMap       := arbitrary
+  fileMap       := default
 }
 
 def TermElabM.run (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM (α × State) :=
@@ -1572,6 +1582,12 @@ def withoutPostponingUniverseConstraints (x : TermElabM α) : TermElabM α := do
   catch ex =>
     setPostponed postponed
     throw ex
+
+def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : TermElabM ExpandDeclIdResult := do
+  let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers
+  if (← read).sectionVars.contains r.shortName then
+    throwError "invalid declaration name '{r.shortName}', there is a section variable with the same name"
+  return r
 
 end Term
 

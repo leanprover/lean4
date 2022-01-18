@@ -1,0 +1,5 @@
+letRecMissingAnnotation.lean:4:6-4:34: error: tactic 'assumption' failed, 
+as : Array Nat
+i s : Nat
+h : i < Array.size as
+⊢ Array.size as - (i + 2) < Array.size as - i

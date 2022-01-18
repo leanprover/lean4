@@ -13,6 +13,7 @@ structure Attribute where
   kind  : AttributeKind := AttributeKind.global
   name  : Name
   stx   : Syntax := Syntax.missing
+  deriving Inhabited
 
 instance : ToFormat Attribute where
   format attr :=
@@ -21,9 +22,6 @@ instance : ToFormat Attribute where
      | AttributeKind.local  => "local "
      | AttributeKind.scoped => "scoped "
    Format.bracket "@[" f!"{kindStr}{attr.name}{toString attr.stx}" "]"
-
-instance : Inhabited Attribute where
-  default := { name := arbitrary }
 
 /-
   ```
@@ -46,7 +44,7 @@ def mkAttrKindGlobal : Syntax :=
 def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (attrInstance : Syntax) : m Attribute := do
   /- attrInstance     := ppGroup $ leading_parser attrKind >> attrParser -/
   let attrKind ← liftMacroM <| toAttributeKind attrInstance[0]
-  let attr := attrInstance[1]  
+  let attr := attrInstance[1]
   let attr ← liftMacroM <| expandMacros attr
   let attrName ←
     if attr.getKind == ``Parser.Attr.simple then

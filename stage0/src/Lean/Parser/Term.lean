@@ -52,6 +52,14 @@ namespace Term
 
 @[builtinTermParser] def byTactic := leading_parser:leadPrec ppAllowUngrouped >> "by " >> Tactic.tacticSeq
 
+/--
+  This is the same as `byTactic`, but it uses a different syntax kind. This is
+  used by `show` and `suffices` instead of `byTactic` because these syntaxes don't
+  support arbitrary terms where `byTactic` is accepted. Mathport uses this to e.g.
+  safely find-replace `by exact $e` by `$e` in any context without causing
+  incorrect syntax when the full expression is `show $T by exact $e`. -/
+def byTactic' := leading_parser "by " >> Tactic.tacticSeq
+
 def optSemicolon (p : Parser) : Parser := ppDedent $ optional ";" >> ppLine >> p
 
 -- `checkPrec` necessary for the pretty printer
@@ -74,9 +82,10 @@ def parenSpecial : Parser := optional (tupleTail <|> typeAscription)
 @[builtinTermParser] def anonymousCtor := leading_parser "⟨" >> sepBy termParser ", " >> "⟩"
 def optIdent : Parser := optional (atomic (ident >> " : "))
 def fromTerm   := leading_parser "from " >> termParser
-def sufficesDecl := leading_parser optIdent >> termParser >> ppSpace >> (fromTerm <|> byTactic)
+def showRhs := fromTerm <|> byTactic'
+def sufficesDecl := leading_parser optIdent >> termParser >> ppSpace >> showRhs
 @[builtinTermParser] def «suffices» := leading_parser:leadPrec withPosition ("suffices " >> sufficesDecl) >> optSemicolon termParser
-@[builtinTermParser] def «show»     := leading_parser:leadPrec "show " >> termParser >> ppSpace >> (fromTerm <|> byTactic)
+@[builtinTermParser] def «show»     := leading_parser:leadPrec "show " >> termParser >> ppSpace >> showRhs
 def structInstArrayRef := leading_parser "[" >> termParser >>"]"
 def structInstLVal   := leading_parser (ident <|> fieldIdx <|> structInstArrayRef) >> many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
 def structInstField  := ppGroup $ leading_parser structInstLVal >> " := " >> termParser
@@ -233,6 +242,8 @@ def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 @[builtinTermParser] def waitIfTypeContainsMVar := leading_parser "wait_if_type_contains_mvar% " >> "?" >> ident >> "; " >> termParser
 @[builtinTermParser] def waitIfContainsMVar     := leading_parser "wait_if_contains_mvar% " >> "?" >> ident >> "; " >> termParser
 
+@[builtinTermParser] def defaultOrOfNonempty   := leading_parser "default_or_ofNonempty%"
+
 def namedArgument  := leading_parser atomic ("(" >> ident >> " := ") >> termParser >> ")"
 def ellipsis       := leading_parser ".."
 def argument       :=
@@ -254,7 +265,7 @@ def isIdent (stx : Syntax) : Bool :=
   stx.isAntiquot || stx.isIdent
 
 @[builtinTermParser] def explicitUniv : TrailingParser := trailing_parser checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '.{'" >> ".{" >> sepBy1 levelParser ", " >> "}"
-@[builtinTermParser] def namedPattern : TrailingParser := trailing_parser checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '@'" >> "@" >> termParser maxPrec
+@[builtinTermParser] def namedPattern : TrailingParser := trailing_parser checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '@'" >> "@" >> optional (atomic (ident >> ":")) >> termParser maxPrec
 
 @[builtinTermParser] def pipeProj   := trailing_parser:minPrec " |>." >> checkNoWsBefore >> (fieldIdx <|> ident) >> many argument
 @[builtinTermParser] def pipeCompletion := trailing_parser:minPrec " |>."

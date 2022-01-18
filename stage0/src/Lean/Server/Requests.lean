@@ -59,6 +59,7 @@ structure RequestContext where
   srcSearchPath : SearchPath
   doc           : FileWorker.EditableDocument
   hLog          : IO.FS.Stream
+  initParams    : Lsp.InitializeParams
 
 abbrev RequestTask α := Task (Except RequestError α)
 /-- Workers execute request handlers in this monad. -/
@@ -95,7 +96,7 @@ def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
   (notFoundX : RequestM β)
   (x : Snapshot → RequestM β)
     : RequestM (RequestTask β) := do
-  let findTask ← doc.cmdSnaps.waitFind? p
+  let findTask ← doc.allSnaps.waitFind? p
   mapTask findTask fun
     /- The elaboration task that we're waiting for may be aborted if the file contents change.
     In that case, we reply with the `fileChanged` error. Thanks to this, the server doesn't
@@ -104,7 +105,6 @@ def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
       throwThe RequestError RequestError.fileChanged
     | Except.error (FileWorker.ElabTaskError.ioError e) =>
       throw (e : RequestError)
-    | Except.error FileWorker.ElabTaskError.eof => notFoundX
     | Except.ok none => notFoundX
     | Except.ok (some snap) => x snap
 

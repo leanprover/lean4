@@ -203,7 +203,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
     let newFVarId ← mkFreshFVarId
     let userName ← mkNextUserName
     modify fun s => { s with
-      newLocalDeclsForMVars := s.newLocalDeclsForMVars.push $ LocalDecl.cdecl arbitrary newFVarId userName type BinderInfo.default,
+      newLocalDeclsForMVars := s.newLocalDeclsForMVars.push $ LocalDecl.cdecl default newFVarId userName type BinderInfo.default,
       exprMVarArgs          := s.exprMVarArgs.push e
     }
     return mkFVar newFVarId
@@ -248,7 +248,7 @@ def pushFVarArg (e : Expr) : ClosureM Unit :=
 
 def pushLocalDecl (newFVarId : FVarId) (userName : Name) (type : Expr) (bi := BinderInfo.default) : ClosureM Unit := do
   let type ← collectExpr type
-  modify fun s => { s with newLocalDecls := s.newLocalDecls.push <| LocalDecl.cdecl arbitrary newFVarId userName type bi }
+  modify fun s => { s with newLocalDecls := s.newLocalDecls.push <| LocalDecl.cdecl default newFVarId userName type bi }
 
 partial def process : ClosureM Unit := do
   match (← pickNextToProcess?) with
@@ -277,7 +277,7 @@ partial def process : ClosureM Unit := do
         /- Dependent let-decl -/
         let type ← collectExpr type
         let val  ← collectExpr val
-        modify fun s => { s with newLetDecls := s.newLetDecls.push <| LocalDecl.ldecl arbitrary newFVarId userName type val false }
+        modify fun s => { s with newLetDecls := s.newLetDecls.push <| LocalDecl.ldecl default newFVarId userName type val false }
         /- We don't want to interleave let and lambda declarations in our closure. So, we expand any occurrences of newFVarId
            at `newLocalDecls` -/
         modify fun s => { s with newLocalDecls := s.newLocalDecls.map (replaceFVarIdAtLocalDecl newFVarId val) }

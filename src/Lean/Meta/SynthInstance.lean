@@ -146,9 +146,7 @@ structure Answer where
   result     : AbstractMVarsResult
   resultType : Expr
   size       : Nat
-
-instance : Inhabited Answer where
-  default := { result := arbitrary, resultType := arbitrary, size := 0 }
+  deriving Inhabited
 
 structure TableEntry where
   waiters : Array Waiter
@@ -180,7 +178,7 @@ def checkMaxHeartbeats : SynthM Unit := do
   monadMap @f
 
 instance : Inhabited (SynthM α) where
-  default := fun _ _ => arbitrary
+  default := fun _ _ => default
 
 /-- Return globals and locals instances that may unify with `type` -/
 def getInstances (type : Expr) : MetaM (Array Expr) := do

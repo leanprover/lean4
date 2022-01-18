@@ -301,7 +301,7 @@ def setCur (t : Traverser) (stx : Syntax) : Traverser :=
 /-- Advance to the `idx`-th child of the current node. -/
 def down (t : Traverser) (idx : Nat) : Traverser :=
   if idx < t.cur.getNumArgs then
-    { cur := t.cur.getArg idx, parents := t.parents.push $ t.cur.setArg idx arbitrary, idxs := t.idxs.push idx }
+    { cur := t.cur.getArg idx, parents := t.parents.push $ t.cur.setArg idx default, idxs := t.idxs.push idx }
   else
     { cur := Syntax.missing, parents := t.parents.push t.cur, idxs := t.idxs.push idx }
 

@@ -35,6 +35,7 @@ static lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__1___closed__1;
 lean_object* l_Lean_commitWhenSome_x3f___at_Lean_Meta_splitTarget_x3f___spec__1___at_Lean_Meta_splitTarget_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_evalSplit___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalSplit___closed__2;
+static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__15;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit_declRange___closed__5;
 static lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__6___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Tactic_evalSplit___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1572,6 +1573,14 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__14
 _start:
 {
 lean_object* x_1; 
+x_1 = l_Lean_Elab_Tactic_tacticElabAttribute;
+return x_1;
+}
+}
+static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__15() {
+_start:
+{
+lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalSplit), 10, 0);
 return x_1;
 }
@@ -1580,10 +1589,10 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit(lean_object* 
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l_Lean_Elab_Tactic_tacticElabAttribute;
+x_2 = l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__14;
 x_3 = l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__8;
 x_4 = l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__13;
-x_5 = l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__14;
+x_5 = l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__15;
 x_6 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_5, x_1);
 return x_6;
 }
@@ -1757,6 +1766,8 @@ l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__13 = _init_l___regBuiltin_Le
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__13);
 l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__14 = _init_l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__14();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__14);
+l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__15 = _init_l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__15();
+lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__15);
 res = l___regBuiltin_Lean_Elab_Tactic_evalSplit(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

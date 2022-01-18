@@ -401,6 +401,28 @@ def isDir (p : FilePath) : BaseIO Bool := do
 def pathExists (p : FilePath) : BaseIO Bool := do
   (← p.metadata.toBaseIO).toBool
 
+/--
+  Return all filesystem entries of a preorder traversal of all directories satisfying `enter`, starting at `p`.
+  Symbolic links are visited as well by default. -/
+partial def walkDir (p : FilePath) (enter : FilePath → IO Bool := fun _ => true) : IO (Array FilePath) :=
+  Prod.snd <$> StateT.run (go p) #[]
+where
+  go p := do
+    if !(← enter p) then
+      return ()
+    for d in (← p.readDir) do
+      modify (·.push d.path)
+      let m ← d.path.metadata
+      match m.type with
+      | FS.FileType.symlink =>
+        let p' ← FS.realPath d.path
+        if (← p'.isDir) then
+          -- do not call `enter` on a non-directory symlink
+          if (← enter p) then
+            go p'
+      | FS.FileType.dir => go d.path
+      | _ => ()
+
 end System.FilePath
 
 namespace IO

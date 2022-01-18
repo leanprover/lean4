@@ -1,5 +1,9 @@
-mutwf1.lean:27:2-27:6: error: unsolved goals
+mutwf1.lean:28:2-28:6: error: unsolved goals
 case h.a
 n : Nat
 h : n ≠ 0
 ⊢ Nat.sub n 0 ≠ 0
+mutwf1.lean:37:22-37:28: error: tactic 'assumption' failed, 
+case h
+n : Nat
+⊢ n + 1 < n

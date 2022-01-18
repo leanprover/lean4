@@ -88,6 +88,7 @@ static lean_object* l_Lean_Elab_Command_mkSimpleDelab___closed__57;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___closed__4;
 static lean_object* l___private_Lean_Elab_Notation_0__Lean_Elab_Command_expandNotationAux___lambda__2___closed__3;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___closed__27;
+static lean_object* l___regBuiltin_Lean_Elab_Command_expandNotation___closed__4;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___closed__45;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___closed__9;
 static lean_object* l_Lean_Elab_Command_mkSimpleDelab___closed__67;
@@ -9568,6 +9569,14 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_expandNotation___clos
 _start:
 {
 lean_object* x_1; 
+x_1 = l_Lean_Elab_macroAttribute;
+return x_1;
+}
+}
+static lean_object* _init_l___regBuiltin_Lean_Elab_Command_expandNotation___closed__4() {
+_start:
+{
+lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Command_expandNotation), 3, 0);
 return x_1;
 }
@@ -9576,10 +9585,10 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Command_expandNotation(lean_ob
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l_Lean_Elab_macroAttribute;
+x_2 = l___regBuiltin_Lean_Elab_Command_expandNotation___closed__3;
 x_3 = l_Lean_Elab_Command_expandNotation___closed__2;
 x_4 = l___regBuiltin_Lean_Elab_Command_expandNotation___closed__2;
-x_5 = l___regBuiltin_Lean_Elab_Command_expandNotation___closed__3;
+x_5 = l___regBuiltin_Lean_Elab_Command_expandNotation___closed__4;
 x_6 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_5, x_1);
 return x_6;
 }
@@ -10017,6 +10026,8 @@ l___regBuiltin_Lean_Elab_Command_expandNotation___closed__2 = _init_l___regBuilt
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Command_expandNotation___closed__2);
 l___regBuiltin_Lean_Elab_Command_expandNotation___closed__3 = _init_l___regBuiltin_Lean_Elab_Command_expandNotation___closed__3();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Command_expandNotation___closed__3);
+l___regBuiltin_Lean_Elab_Command_expandNotation___closed__4 = _init_l___regBuiltin_Lean_Elab_Command_expandNotation___closed__4();
+lean_mark_persistent(l___regBuiltin_Lean_Elab_Command_expandNotation___closed__4);
 res = l___regBuiltin_Lean_Elab_Command_expandNotation(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

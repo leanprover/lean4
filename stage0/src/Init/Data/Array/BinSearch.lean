@@ -16,12 +16,12 @@ namespace Array
 @[specialize] partial def binSearchAux {α : Type u} {β : Type v} [Inhabited α] [Inhabited β] (lt : α → α → Bool) (found : Option α → β) (as : Array α) (k : α) : Nat → Nat → β
   | lo, hi =>
     if lo <= hi then
-      let m := (lo + hi)/2;
-      let a := as.get! m;
-      if lt a k then binSearchAux lt found as k    (m+1) hi
+      let m := (lo + hi)/2
+      let a := as.get! m
+      if lt a k then binSearchAux lt found as k (m+1) hi
       else if lt k a then
         if m == 0 then found none
-        else binSearchAux lt found as k    lo (m-1)
+        else binSearchAux lt found as k lo (m-1)
       else found (some a)
     else found none
 
@@ -47,17 +47,17 @@ namespace Array
     (k : α) : Nat → Nat → m (Array α)
   | lo, hi =>
     -- as[lo] < k < as[hi]
-    let mid    := (lo + hi)/2;
-    let midVal := as.get! mid;
+    let mid    := (lo + hi)/2
+    let midVal := as.get! mid
     if lt midVal k then
       if mid == lo then do let v ← add (); pure <| as.insertAt (lo+1) v
-      else binInsertAux lt merge add as k      mid hi
+      else binInsertAux lt merge add as k mid hi
     else if lt k midVal then
-      binInsertAux lt merge add as k      lo mid
+      binInsertAux lt merge add as k lo mid
     else do
       as.modifyM mid <| fun v => merge v
 
-@[specialize] partial def binInsertM {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α]
+@[specialize] def binInsertM {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α]
     (lt : α → α → Bool)
     (merge : α → m α)
     (add : Unit → m α)

@@ -10,6 +10,7 @@ import Init.Core
 import Init.Control
 import Init.Data.Basic
 import Init.WF
+import Init.WFTactics
 import Init.Data
 import Init.System
 import Init.Util

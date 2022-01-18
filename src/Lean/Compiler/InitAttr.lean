@@ -22,7 +22,8 @@ private def isIOUnit (type : Expr) : Bool :=
   | _ => false
 
 /--
-  Run the initializer of the given module. Return `false` if the initializer is not available as native code.
+  Run the initializer of the given module (without `builtin_initialize` commands).
+  Return `false` if the initializer is not available as native code.
   Initializers do not have corresponding Lean definitions, so they cannot be interpreted in this case. -/
 @[extern "lean_run_mod_init"]
 unsafe constant runModInit (mod : Name) : IO Bool

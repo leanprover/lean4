@@ -52,6 +52,9 @@ rec {
       mv runtime/libleanrt_initial-exec.a $out/lib
     '';
   };
+  leancpp-single-thread = leancpp.overrideAttrs (old: {
+    cmakeFlags = old.cmakeFlags ++ [ "-DMULTI_THREAD=OFF" "-DUSE_GMP=OFF" ];
+  });
   # rename derivation so `nix run` uses the right executable name but we still see the stage in the build log
   wrapStage = stage: runCommand "lean" {} ''
     ln -s ${stage} $out
@@ -122,6 +125,10 @@ rec {
       lean = runCommand "lean" { buildInputs = lib.optional stdenv.isDarwin darwin.cctools; } ''
         mkdir -p $out/bin
         ${leanc}/bin/leanc ${leancpp}/lib/lean.cpp.o ${leanshared}/* -o $out/bin/lean
+      '';
+      lean-single-thread = runCommand "lean" {} ''
+        mkdir -p $out/bin
+        ${leanc}/bin/leanc ${leancpp-single-thread}/lib/lean.cpp.o ${leanshared}/* -o $out/bin/lean
       '';
       leanpkg = Leanpkg.executable.withSharedStdlib;
       # derivation following the directory layout of the "basic" setup, mostly useful for running tests

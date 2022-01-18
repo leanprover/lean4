@@ -142,10 +142,11 @@ if ((${MULTI_THREAD} MATCHES "ON") AND (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
   set(LEAN_EXTRA_MAKE_OPTS -s40000 ${LEAN_EXTRA_MAKE_OPTS})
 endif ()
 
-if(NOT MULTI_THREAD)
+if(${MULTI_THREAD} MATCHES "ON")
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
   set(AUTO_THREAD_FINALIZATION OFF)
 else()
+  message(STATUS "Enabled multi-thread support")
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_MULTI_THREAD")
 endif()
 

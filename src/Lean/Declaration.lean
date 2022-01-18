@@ -223,7 +223,7 @@ def mkInductiveValEx (name : Name) (levelParams : List Name) (type : Expr) (numP
 @[export lean_inductive_val_is_reflexive] def InductiveVal.isReflexiveEx (v : InductiveVal) : Bool := v.isReflexive
 @[export lean_inductive_val_is_nested] def InductiveVal.isNestedEx (v : InductiveVal) : Bool := v.isNested
 
-def InductiveVal.nctors (v : InductiveVal) : Nat := v.ctors.length
+def InductiveVal.numCtors (v : InductiveVal) : Nat := v.ctors.length
 
 structure ConstructorVal extends ConstantVal where
   induct  : Name    -- Inductive Type this Constructor is a member of
@@ -373,6 +373,10 @@ def hints : ConstantInfo → ReducibilityHints
 def isCtor : ConstantInfo → Bool
   | ctorInfo _ => true
   | _          => false
+
+def isInductive : ConstantInfo → Bool
+  | inductInfo _ => true
+  | _            => false
 
 @[extern "lean_instantiate_type_lparams"]
 constant instantiateTypeLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr

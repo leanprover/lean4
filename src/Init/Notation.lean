@@ -137,12 +137,16 @@ infixr:100 " <$> " => Functor.map
 macro_rules | `($x <|> $y) => `(binop_lazy% HOrElse.hOrElse $x $y)
 macro_rules | `($x >> $y)  => `(binop_lazy% HAndThen.hAndThen $x $y)
 
-syntax (name := termDepIfThenElse) ppGroup(ppDedent("if " ident " : " term " then" ppSpace term ppDedent(ppSpace "else") ppSpace term)) : term
+syntax (name := termDepIfThenElse)
+  ppRealGroup(ppRealFill(ppIndent("if " ident " : " term " then") ppSpace term)
+    ppDedent(ppSpace) ppRealFill("else " term)) : term
 
 macro_rules
   | `(if $h:ident : $c then $t:term else $e:term) => `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; dite ?m (fun $h:ident => $t) (fun $h:ident => $e))
 
-syntax (name := termIfThenElse) ppGroup(ppDedent("if " term " then" ppSpace term ppDedent(ppSpace "else") ppSpace term)) : term
+syntax (name := termIfThenElse)
+  ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace term)
+    ppDedent(ppSpace) ppRealFill("else " term)) : term
 
 macro_rules
   | `(if $c then $t:term else $e:term) => `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; ite ?m $t $e)
@@ -150,13 +154,13 @@ macro_rules
 macro "if " "let " pat:term " := " d:term " then " t:term " else " e:term : term =>
   `(match $d:term with | $pat:term => $t | _ => $e)
 
-syntax:min term "<|" term:min : term
+syntax:min term " <| " term:min : term
 
 macro_rules
   | `($f $args* <| $a) => let args := args.push a; `($f $args*)
   | `($f <| $a) => `($f $a)
 
-syntax:min term "|>" term:min1 : term
+syntax:min term " |> " term:min1 : term
 
 macro_rules
   | `($a |> $f $args*) => let args := args.push a; `($f $args*)
@@ -164,7 +168,7 @@ macro_rules
 
 -- Haskell-like pipe <|
 -- Note that we have a whitespace after `$` to avoid an ambiguity with the antiquotations.
-syntax:min term atomic("$" ws) term:min : term
+syntax:min term atomic(" $" ws) term:min : term
 
 macro_rules
   | `($f $args* $ $a) => let args := args.push a; `($f $args*)
@@ -201,6 +205,11 @@ macro_rules
 
 notation:50 e:51 " matches " p:51 => match e with | p => true | _ => false
 
+-- Declare `this` as a keyword that unhygienically binds to a scope-less `this` assumption (or other binding).
+-- The keyword prevents declaring a `this` binding except through metapgrogramming, as is done by `have`/`show`.
+/-- Special identifier introduced by "anonymous" `have : ...`, `suffices p ...` etc. -/
+macro tk:"this" : term => Syntax.ident tk.getHeadInfo "this".toSubstring `this []
+
 namespace Parser.Tactic
 /--
 Introduce one or more hypotheses, optionally naming and/or pattern-matching them.
@@ -228,13 +237,13 @@ syntax (name := intros) "intros " (colGt (ident <|> "_"))* : tactic
 or fails if no such hypothesis could be found. -/
 syntax (name := rename) "rename " term " => " ident : tactic
 /-- `revert x...` is the inverse of `intro x...`: it moves the given hypotheses into the main goal's target type. -/
-syntax (name := revert) "revert " (colGt ident)+ : tactic
+syntax (name := revert) "revert " (colGt term:max)+ : tactic
 /-- `clear x...` removes the given hypotheses, or fails if there are remaining references to a hypothesis. -/
-syntax (name := clear) "clear " (colGt ident)+ : tactic
+syntax (name := clear) "clear " (colGt term:max)+ : tactic
 /--
 `subst x...` substitutes each `x` with `e` in the goal if there is a hypothesis of type `x = e` or `e = x`.
 If `x` is itself a hypothesis of type `y = e` or `e = y`, `y` is substituted instead. -/
-syntax (name := subst) "subst " (colGt ident)+ : tactic
+syntax (name := subst) "subst " (colGt term:max)+ : tactic
 /--
 `assumption` tries to solve the main goal using a hypothesis of compatible type, or else fails.
 Note also the `‹t›` term notation, which is a shorthand for `show t by assumption`. -/
@@ -307,14 +316,11 @@ macro "try " t:tacticSeq : tactic => `(first | $t | skip)
 /-- `tac <;> tac'` runs `tac` on the main goal and `tac'` on each produced goal, concatenating all goals produced by `tac'`. -/
 macro:1 x:tactic " <;> " y:tactic:0 : tactic => `(tactic| focus ($x:tactic; all_goals $y:tactic))
 
-/-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
-macro dot:("·" <|> ".") ts:tacticSeq : tactic => `(tactic| {%$dot ($ts:tacticSeq) })
-
 /-- `rfl` is a shorthand for `exact rfl`. -/
 macro "rfl" : tactic => `(exact rfl)
 /-- `admit` is a shorthand for `exact sorry`. -/
 macro "admit" : tactic => `(exact sorry)
-/-- The `sorry` tactic isnxo a shorthand for `exact sorry`. -/
+/-- The `sorry` tactic is a shorthand for `exact sorry`. -/
 macro "sorry" : tactic => `(exact sorry)
 macro "infer_instance" : tactic => `(exact inferInstance)
 
@@ -322,15 +328,14 @@ macro "infer_instance" : tactic => `(exact inferInstance)
 syntax config := atomic("(" &"config") " := " term ")"
 
 syntax locationWildcard := "*"
-syntax locationHyp      := (colGt ident)+ ("⊢" <|> "|-")? -- TODO: delete
-syntax locationTargets  := (colGt ident)+ ("⊢" <|> "|-")?
+syntax locationHyp      := (colGt term:max)+ ("⊢" <|> "|-")?
 syntax location         := withPosition(" at " (locationWildcard <|> locationHyp))
 
 syntax (name := change) "change " term (location)? : tactic
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
 
-syntax rwRule    := ("←" <|> "<-")? term
-syntax rwRuleSeq := "[" rwRule,+,? "]"
+syntax rwRule    := ("← " <|> "<- ")? term
+syntax rwRuleSeq := "[" rwRule,*,? "]"
 
 syntax (name := rewriteSeq) "rewrite " (config)? rwRuleSeq (location)? : tactic
 
@@ -356,8 +361,8 @@ syntax discharger := atomic("(" (&"discharger" <|> &"disch")) " := " tacticSeq "
 
 syntax simpPre   := "↓"
 syntax simpPost  := "↑"
-syntax simpLemma := (simpPre <|> simpPost)? ("←" <|> "<-")? term
-syntax simpErase := "-" ident
+syntax simpLemma := (simpPre <|> simpPost)? ("← " <|> "<- ")? term
+syntax simpErase := "-" term:max
 syntax simpStar  := "*"
 syntax (name := simp) "simp " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 syntax (name := simpAll) "simp_all " (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
@@ -366,6 +371,11 @@ syntax (name := simpAll) "simp_all " (config)? (discharger)? (&"only ")? ("[" (s
   Delta expand the given definition.
   This is a low-level tactic, it will expose how recursive definitions have been compiled by Lean. -/
 syntax (name := delta) "delta " ident (location)? : tactic
+/--
+  Unfold definition. For non-recursive definitions, this tactic is identical to `delta`.
+  For recursive definitions, it hides the encoding tricks used by the Lean frontend to convince the
+  kernel that the definition terminates. -/
+syntax (name := unfold) "unfold " ident (location)? : tactic
 
 -- Auxiliary macro for lifting have/suffices/let/...
 -- It makes sure the "continuation" `?_` is the main goal after refining
@@ -387,9 +397,9 @@ macro "have' " d:haveDecl : tactic => `(refine_lift' have $d:haveDecl; ?_)
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x:ident : _ := $p)
 macro "let' " d:letDecl : tactic => `(refine_lift' let $d:letDecl; ?_)
 
-syntax inductionAlt  := "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
+syntax inductionAlt  := ppDedent(ppLine) "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
-syntax (name := induction) "induction " term,+ (" using " ident)?  ("generalizing " ident+)? (inductionAlts)? : tactic
+syntax (name := induction) "induction " term,+ (" using " ident)?  ("generalizing " (colGt term:max)+)? (inductionAlts)? : tactic
 
 syntax generalizeArg := atomic(ident " : ")? term:51 " = " ident
 /--

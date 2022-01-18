@@ -8,18 +8,18 @@ fun (a : Nat) =>
     (@Eq.{1} Bool
       (@BEq.beq.{0} Nat (@instBEq.{0} Nat fun (a b : Nat) => instDecidableEqNat a b) a
         (@OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)))
-      true)
+      Bool.true)
     (instDecidableEqBool
       (@BEq.beq.{0} Nat (@instBEq.{0} Nat fun (a b : Nat) => instDecidableEqNat a b) a
         (@OfNat.ofNat.{0} Nat 0 (instOfNatNat 0)))
-      true)
+      Bool.true)
     (@Eq.{1} Bool
       (@bne.{0} Nat (@instBEq.{0} Nat fun (a b : Nat) => instDecidableEqNat a b) a
         (@OfNat.ofNat.{0} Nat 1 (instOfNatNat 1)))
-      true)
+      Bool.true)
     (@Eq.{1} Bool
       (@bne.{0} Nat (@instBEq.{0} Nat fun (a b : Nat) => instDecidableEqNat a b) a
         (@OfNat.ofNat.{0} Nat 2 (instOfNatNat 2)))
-      true)
+      Bool.true)
 def s : Option Nat :=
 HOrElse.hOrElse (ConstantFunction.f myFun 3) fun x => ConstantFunction.f myFun 4

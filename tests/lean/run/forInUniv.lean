@@ -1,7 +1,6 @@
-
 universe u
 
-def f {α : Type u} [BEq α] (xs : List α) (y : α) : α := do
+def f {α : Type u} [BEq α] (xs : List α) (y : α) : α := Id.run <| do
 for x in xs do
   if x == y then
     return x

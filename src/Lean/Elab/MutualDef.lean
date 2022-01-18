@@ -7,6 +7,7 @@ import Lean.Parser.Term
 import Lean.Meta.Closure
 import Lean.Meta.Check
 import Lean.Elab.Command
+import Lean.Elab.Match
 import Lean.Elab.DefView
 import Lean.Elab.PreDefinition
 import Lean.Elab.DeclarationRange
@@ -22,6 +23,7 @@ structure DefViewElabHeader where
   shortDeclName : Name
   declName      : Name
   levelNames    : List Name
+  binderIds     : Array Syntax
   numParams     : Nat
   type          : Expr -- including the parameters
   valueStx      : Syntax
@@ -100,11 +102,11 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
   let mut headers := #[]
   for view in views do
     let newHeader ← withRef view.ref do
-      let ⟨shortDeclName, declName, levelNames⟩ ← expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+      let ⟨shortDeclName, declName, levelNames⟩ ← Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
       addDeclarationRanges declName view.ref
       applyAttributesAt declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration
       withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
-        elabBinders view.binders.getArgs fun xs => do
+        elabBindersEx view.binders.getArgs fun xs => do
           let refForElabFunType := view.value
           let type ← match view.type? with
             | some typeStx =>
@@ -117,6 +119,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
               registerFailedToInferDefTypeInfo type refForElabFunType
               pure type
           Term.synthesizeSyntheticMVarsNoPostponing
+          let (binderIds, xs) := xs.unzip
           let type ← mkForallFVars xs type
           let type ← mkForallFVars (← read).autoBoundImplicits.toArray type
           let type ← instantiateMVars type
@@ -133,6 +136,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
             shortDeclName := shortDeclName,
             declName      := declName,
             levelNames    := levelNames,
+            binderIds     := binderIds,
             numParams     := xs.size,
             type          := type,
             valueStx      := view.value : DefViewElabHeader }
@@ -153,13 +157,12 @@ private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (
       k fvars
   loop 0 #[]
 
-private def expandWhereDeclsAsStructInst : Macro
-  | `(whereDecls|where $[$decls:letRecDecl$[;]?]*) => do
+private def expandWhereStructInst : Macro
+  | `(Parser.Command.whereStructInst|where $[$decls:letDecl$[;]?]*) => do
     let letIdDecls ← decls.mapM fun stx => match stx with
-      | `(letRecDecl|$attrs:attributes $decl:letDecl) => Macro.throwErrorAt stx "attributes are 'where' elements are currently not supported here"
-      | `(letRecDecl|$decl:letPatDecl)  => Macro.throwErrorAt stx "patterns are not allowed here"
-      | `(letRecDecl|$decl:letEqnsDecl) => expandLetEqnsDecl decl
-      | `(letRecDecl|$decl:letIdDecl)   => pure decl
+      | `(letDecl|$decl:letPatDecl)  => Macro.throwErrorAt stx "patterns are not allowed here"
+      | `(letDecl|$decl:letEqnsDecl) => expandLetEqnsDecl decl
+      | `(letDecl|$decl:letIdDecl)   => pure decl
       | _                               => Macro.throwUnsupported
     let structInstFields ← letIdDecls.mapM fun
       | stx@`(letIdDecl|$id:ident $[$binders]* $[: $ty?]? := $val) => withRef stx do
@@ -181,12 +184,12 @@ def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls
 ```
 -/
 private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal do
-  if declVal.isOfKind `Lean.Parser.Command.declValSimple then
+  if declVal.isOfKind ``Lean.Parser.Command.declValSimple then
     expandWhereDeclsOpt declVal[2] declVal[1]
-  else if declVal.isOfKind `Lean.Parser.Command.declValEqns then
+  else if declVal.isOfKind ``Lean.Parser.Command.declValEqns then
     expandMatchAltsWhereDecls declVal[0]
-  else if declVal.isOfKind `Lean.Parser.Term.whereDecls then
-    expandWhereDeclsAsStructInst declVal
+  else if declVal.isOfKind ``Lean.Parser.Command.whereStructInst then
+    expandWhereStructInst declVal
   else if declVal.isMissing then
     Macro.throwErrorAt declVal "declaration body is missing"
   else
@@ -196,6 +199,10 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
   headers.mapM fun header => withDeclName header.declName $ withLevelNames header.levelNames do
     let valStx ← liftMacroM $ declValToTerm header.valueStx
     forallBoundedTelescope header.type header.numParams fun xs type => do
+      -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
+      for i in [0:header.binderIds.size] do
+        -- skip auto-bound prefix in `xs`
+        addTermInfo (isBinder := true) header.binderIds[i] xs[header.numParams - header.binderIds.size + i]
       let val ← elabTermEnsuringType valStx type
       mkLambdaFVars xs val
 
@@ -313,7 +320,7 @@ Note that `g` is not a free variable at `(let g : B := ?m₂; body)`. We recover
 `f` depends on `g` because it contains `m₂`
 -/
 private def mkInitialUsedFVarsMap (mctx : MetavarContext) (sectionVars : Array Expr) (mainFVarIds : Array FVarId) (letRecsToLift : List LetRecToLift)
-    : UsedFVarsMap := do
+    : UsedFVarsMap := Id.run <| do
   let mut sectionVarSet := {}
   for var in sectionVars do
     sectionVarSet := sectionVarSet.insert var.fvarId!
@@ -411,7 +418,7 @@ abbrev FreeVarMap := FVarIdMap (Array FVarId)
 
 private def mkFreeVarMap
     (mctx : MetavarContext) (sectionVars : Array Expr) (mainFVarIds : Array FVarId)
-    (recFVarIds : Array FVarId) (letRecsToLift : List LetRecToLift) : FreeVarMap := do
+    (recFVarIds : Array FVarId) (letRecsToLift : List LetRecToLift) : FreeVarMap := Id.run <| do
   let usedFVarsMap  := mkInitialUsedFVarsMap mctx sectionVars mainFVarIds letRecsToLift
   let letRecFVarIds := letRecsToLift.map fun toLift => toLift.fvarId
   let usedFVarsMap  := FixPoint.run letRecFVarIds usedFVarsMap
@@ -634,7 +641,7 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
       else
         newHeaders := newHeaders.push header
     return newHeaders
-  let newHeaders ← process.run' 1
+  let newHeaders ← (process).run' 1
   newHeaders.mapM fun header => return { header with type := (← instantiateMVars header.type) }
 
 /-- Result for `mkInst?` -/
@@ -684,6 +691,16 @@ def processDefDeriving (className : Name) (declName : Name) : TermElabM Bool := 
   catch ex =>
     return false
 
+/-- Remove auxiliary match discriminant let-declarations. -/
+def eraseAuxDiscr (e : Expr) : CoreM Expr := do
+  Core.transform e fun e => match e with
+    | Expr.letE n _ v b .. =>
+      if isAuxDiscrName n then
+        return TransformStep.visit (b.instantiate1 v)
+      else
+        return TransformStep.visit e
+    | e => return TransformStep.visit e
+
 def elabMutualDef (vars : Array Expr) (views : Array DefView) (hints : TerminationHints) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv go
@@ -705,9 +722,16 @@ where
       checkLetRecsToLiftTypes funFVars letRecsToLift
       withUsed vars headers values letRecsToLift fun vars => do
         let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
+        for preDef in preDefs do
+          trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
         let preDefs ← levelMVarToParamPreDecls preDefs
         let preDefs ← instantiateMVarsAtPreDecls preDefs
         let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
+        let preDefs ← preDefs.mapM fun preDef =>
+          if preDef.kind.isTheorem || preDef.kind.isExample then
+            return preDef
+          else
+            return { preDef with value := (← eraseAuxDiscr preDef.value) }
         addPreDefinitions preDefs hints
         processDeriving headers
 

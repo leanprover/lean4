@@ -9,6 +9,7 @@ import Lean.Elab.PreDefinition.WF.PackDomain
 import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Elab.PreDefinition.WF.Rel
 import Lean.Elab.PreDefinition.WF.Fix
+import Lean.Elab.PreDefinition.WF.Eqns
 
 namespace Lean.Elab
 open WF
@@ -44,7 +45,7 @@ private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonR
       let arg ← mkSum 0 domain
       mkLambdaFVars xs (mkApp (mkConst preDefNonRec.declName us) arg)
     trace[Elab.definition.wf] "{preDef.declName} := {value}"
-    addNonRec { preDef with value }
+    addNonRec { preDef with value } (applyAttrAfterCompilation := false)
 
 def wfRecursion (preDefs : Array PreDefinition) (wfStx? : Option Syntax) (decrTactic? : Option Syntax) : TermElabM Unit := do
   let unaryPreDef ← withoutModifyingEnv do
@@ -56,9 +57,14 @@ def wfRecursion (preDefs : Array PreDefinition) (wfStx? : Option Syntax) (decrTa
   let preDefNonRec ← withoutModifyingEnv do
     addAsAxiom unaryPreDef
     mkFix unaryPreDef wfRel decrTactic?
-  trace[Elab.definition.wf] ">> {preDefNonRec.declName}"
+  let preDefNonRec ← eraseRecAppSyntax preDefNonRec
+  trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
+  let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
   addNonRec preDefNonRec
   addNonRecPreDefs preDefs preDefNonRec
+  registerEqnsInfo preDefs preDefNonRec.declName
+  for preDef in preDefs do
+    applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
   addAndCompilePartialRec preDefs
 
 builtin_initialize registerTraceClass `Elab.definition.wf

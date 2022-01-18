@@ -96,8 +96,8 @@ def release (st : RpcSession) (ref : Lsp.RpcRef) : Bool × RpcSession :=
   let released := st.aliveRefs.contains ref
   (released, { st with aliveRefs := st.aliveRefs.erase ref })
 
-def keptAlive (s : RpcSession) : IO RpcSession := do
-  return { s with expireTime := (← IO.monoMsNow) + keepAliveTimeMs }
+def keptAlive (monoMsNow : Nat) (s : RpcSession) : RpcSession :=
+  { s with expireTime := monoMsNow + keepAliveTimeMs }
 
 def hasExpired (s : RpcSession) : IO Bool :=
   return s.expireTime ≤ (← IO.monoMsNow)

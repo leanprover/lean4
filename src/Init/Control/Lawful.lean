@@ -44,7 +44,7 @@ attribute [simp] map_pure seq_pure
   simp [pure_seq]
 
 class LawfulMonad (m : Type u → Type v) [Monad m] extends LawfulApplicative m : Prop where
-  bind_pure_comp (f : α → β) (x : m α) : x >>= pure ∘ f = f <$> x
+  bind_pure_comp (f : α → β) (x : m α) : x >>= (fun a => pure (f a)) = f <$> x
   bind_map       {α β : Type u} (f : m (α → β)) (x : m α) : f >>= (. <$> x) = f <*> x
   pure_bind      (x : α) (f : α → m β) : pure x >>= f = f x
   bind_assoc     (x : m α) (f : α → m β) (g : β → m γ) : x >>= f >>= g = x >>= fun x => f x >>= g
@@ -52,9 +52,9 @@ class LawfulMonad (m : Type u → Type v) [Monad m] extends LawfulApplicative m 
   seq_pure g x    := (by rw [← bind_map]; simp [map_pure, bind_pure_comp])
   seq_assoc x g h := (by
     -- TODO: support for applying `symm` at `simp` arguments
-    let bind_pure_comp_symm {α β : Type u} (f : α → β) (x : m α) : f <$> x = x >>= pure ∘ f := by
+    have bind_pure_comp_symm {α β : Type u} (f : α → β) (x : m α) : f <$> x = x >>= fun a => pure (f a) := by
       rw [bind_pure_comp]
-    let bind_map_symm {α β : Type u} (f : m (α → (β : Type u))) (x : m α) : f <*> x = f >>= (. <$> x) := by
+    have bind_map_symm {α β : Type u} (f : m (α → (β : Type u))) (x : m α) : f <*> x = f >>= (. <$> x) := by
       rw [bind_map]
     simp[bind_pure_comp_symm, bind_map_symm, bind_assoc, pure_bind])
 
@@ -62,7 +62,7 @@ export LawfulMonad (bind_pure_comp bind_map pure_bind bind_assoc)
 attribute [simp] pure_bind bind_assoc
 
 @[simp] theorem bind_pure [Monad m] [LawfulMonad m] (x : m α) : x >>= pure = x := by
-  show x >>= pure ∘ id = x
+  show x >>= (fun a => pure (id a)) = x
   rw [bind_pure_comp, id_map]
 
 theorem map_eq_pure_bind [Monad m] [LawfulMonad m] (f : α → β) (x : m α) : f <$> x = x >>= fun a => pure (f a) := by
@@ -75,11 +75,7 @@ theorem bind_congr [Bind m] {x : m α} {f g : α → m β} (h : ∀ a, f a = g a
   simp [funext h]
 
 @[simp] theorem bind_pure_unit [Monad m] [LawfulMonad m] {x : m PUnit} : (x >>= fun _ => pure ⟨⟩) = x := by
-  have : (x >>= fun _ => pure ⟨⟩) = (x >>= pure) := by
-    apply bind_congr; intro u
-    cases u; simp
-  rw [bind_pure] at this
-  assumption
+  rw [bind_pure]
 
 theorem map_congr [Functor m] {x : m α} {f g : α → β} (h : ∀ a, f a = g a) : (f <$> x : m β) = g <$> x := by
   simp [funext h]
@@ -249,13 +245,9 @@ theorem ext {x y : StateT σ m α} (h : ∀ s, x.run s = y.run s) : x = y :=
 @[simp] theorem run_bind [Monad m] (x : StateT σ m α) (f : α → StateT σ m β) (s : σ)
     : (x >>= f).run s = x.run s >>= λ p => (f p.1).run p.2 := by
   simp [bind, StateT.bind, run]
-  apply bind_congr
-  intro p; cases p; rfl
 
 @[simp] theorem run_map {α β σ : Type u} [Monad m] [LawfulMonad m] (f : α → β) (x : StateT σ m α) (s : σ) : (f <$> x).run s = (fun (p : α × σ) => (f p.1, p.2)) <$> x.run s := by
   simp [Functor.map, StateT.map, run, map_eq_pure_bind]
-  apply bind_congr
-  intro p; cases p; rfl
 
 @[simp] theorem run_get [Monad m] (s : σ)    : (get : StateT σ m σ).run s = pure (s, s) := rfl
 
@@ -264,7 +256,7 @@ theorem ext {x y : StateT σ m α} (h : ∀ s, x.run s = y.run s) : x = y :=
 @[simp] theorem run_modify [Monad m] (f : σ → σ) (s : σ) : (modify f : StateT σ m PUnit).run s = pure (⟨⟩, f s) := rfl
 
 @[simp] theorem run_modifyGet [Monad m] (f : σ → α × σ) (s : σ) : (modifyGet f : StateT σ m α).run s = pure ((f s).1, (f s).2) := by
-  simp [modifyGet, MonadStateOf.modifyGet, StateT.modifyGet, run]; cases f s <;> rfl
+  simp [modifyGet, MonadStateOf.modifyGet, StateT.modifyGet, run]
 
 @[simp] theorem run_lift {α σ : Type u} [Monad m] (x : m α) (s : σ) : (StateT.lift x : StateT σ m α).run s = x >>= fun a => pure (a, s) := rfl
 

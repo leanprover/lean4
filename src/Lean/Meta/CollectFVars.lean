@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Util.CollectFVars
-import Lean.Elab.Term
+import Lean.Meta.Basic
 
 namespace Lean.Meta
 open Meta

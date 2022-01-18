@@ -8,6 +8,9 @@ import Lean.Parser.Syntax
 import Lean.Parser.Extension
 import Lean.KeyedDeclsAttribute
 import Lean.Elab.Exception
+import Lean.DocString
+import Lean.DeclarationRange
+import Lean.Compiler.InitAttr
 
 namespace Lean
 
@@ -101,6 +104,12 @@ unsafe def mkElabAttribute (γ) (attrDeclName attrBuiltinName attrName : Name) (
     descr         := kind ++ " elaborator"
     valueTypeName := typeName
     evalKey       := fun _ stx => syntaxNodeKindOfAttrParam parserNamespace stx
+    onAdded       := fun builtin declName => do
+      if builtin then
+      if let some doc ← findDocString? (← getEnv) declName then
+        declareBuiltin (declName ++ `docString) (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
+      if let some declRanges ← findDeclarationRanges? declName then
+        declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])
   } attrDeclName
 
 unsafe def mkMacroAttributeUnsafe : IO (KeyedDeclsAttribute Macro) :=
@@ -115,14 +124,14 @@ builtin_initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribu
 Try to expand macro at syntax tree root and return macro declaration name and new syntax if successful.
 Return none if all macros threw `Macro.Exception.unsupportedSyntax`.
 -/
-def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Syntax)) := fun stx => do
+def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Except Macro.Exception Syntax)) := fun stx => do
   for e in macroAttribute.getEntries env stx.getKind do
     try
       let stx' ← withFreshMacroScope (e.value stx)
-      return (e.declName, stx')
+      return (e.declName, Except.ok stx')
     catch
       | Macro.Exception.unsupportedSyntax => pure ()
-      | ex                                => throw ex
+      | ex                                => return (e.declName, Except.error ex)
   return none
 
 class MonadMacroAdapter (m : Type → Type) where
@@ -144,8 +153,8 @@ def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEn
     -- TODO: record recursive expansions in info tree?
     expandMacro?     := fun stx => do
       match (← expandMacroImpl? env stx) with
-      | some (_, stx) => some stx
-      | none          => none
+      | some (_, Except.ok stx) => some stx
+      | _                       => none
     hasDecl          := fun declName => return env.contains declName
     getCurrNamespace := return currNamespace
     resolveNamespace? := fun n => return ResolveName.resolveNamespace? env currNamespace openDecls n

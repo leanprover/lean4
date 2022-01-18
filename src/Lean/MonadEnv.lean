@@ -21,8 +21,8 @@ def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
 
 def isRecCore (env : Environment) (declName : Name) : Bool :=
   match env.find? declName with
-  | some (ConstantInfo.recInfo ..) => return true
-  | _ => return false
+  | some (ConstantInfo.recInfo ..) => true
+  | _ => false
 
 def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
   return isRecCore (← getEnv) declName
@@ -96,7 +96,7 @@ def getConstInfoRec [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m
 
 @[inline] def matchConstStruct [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (failK : Unit → m α) (k : InductiveVal → List Level → ConstructorVal → m α) : m α :=
   matchConstInduct e failK fun ival us => do
-    if ival.isRec then failK ()
+    if ival.isRec || ival.numIndices != 0 then failK ()
     else match ival.ctors with
       | [ctor] =>
         match (← getConstInfo ctor) with

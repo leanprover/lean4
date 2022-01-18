@@ -31,7 +31,7 @@ private partial def floatOutAntiquotTerms : Syntax → StateT (Syntax → TermEl
     Syntax.node i k (← args.mapM floatOutAntiquotTerms)
   | stx => pure stx
 
-private def getSepFromSplice (splice : Syntax) : Syntax := do
+private def getSepFromSplice (splice : Syntax) : Syntax :=
   if let Syntax.atom _ sep := getAntiquotSpliceSuffix splice then
     Syntax.mkStrLit (sep.dropRight 1)
   else
@@ -508,6 +508,7 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
     stx
   | _ => throwUnsupportedSyntax
 
+/-- Syntactic pattern match. Matches a `Syntax` value against quotations, pattern variables, or `_`. -/
 @[builtinTermElab «match»] def elabMatchSyntax : TermElab :=
   adaptExpander match_syntax.expand
 

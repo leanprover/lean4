@@ -59,6 +59,7 @@ structure RequestContext where
   srcSearchPath : SearchPath
   doc           : FileWorker.EditableDocument
   hLog          : IO.FS.Stream
+  initParams    : Lsp.InitializeParams
 
 abbrev RequestTask α := Task (Except RequestError α)
 /-- Workers execute request handlers in this monad. -/
@@ -114,7 +115,7 @@ end RequestM
 section HandlerTable
 open Lsp
 
-private structure RequestHandler where
+structure RequestHandler where
   fileSource : Json → Except RequestError Lsp.DocumentUri
   handle : Json → RequestM (RequestTask Json)
 
@@ -139,7 +140,7 @@ def registerLspRequestHandler (method : String)
     (handler : paramType → RequestM (RequestTask respType)) : IO Unit := do
   if !(← IO.initializing) then
     throw <| IO.userError s!"Failed to register LSP request handler for '{method}': only possible during initialization"
-  if (←requestHandlers.get).contains method then
+  if (← requestHandlers.get).contains method then
     throw <| IO.userError s!"Failed to register LSP request handler for '{method}': already registered"
   let fileSource := fun j =>
     parseRequestParams paramType j |>.map Lsp.fileSource
@@ -150,8 +151,34 @@ def registerLspRequestHandler (method : String)
 
   requestHandlers.modify fun rhs => rhs.insert method { fileSource, handle }
 
-private def lookupLspRequestHandler (method : String) : IO (Option RequestHandler) := do
+def lookupLspRequestHandler (method : String) : IO (Option RequestHandler) := do
   (← requestHandlers.get).find? method
+
+/-- NB: This method may only be called in `builtin_initialize` blocks.
+
+Register another handler to invoke after the last one registered for a method.
+At least one handler for the method must have already been registered to perform
+chaining.
+
+For more details on the registration of a handler, see `registerLspRequestHandler`. -/
+def chainLspRequestHandler (method : String)
+    paramType [FromJson paramType]
+    respType [FromJson respType] [ToJson respType]
+    (handler : paramType → RequestTask respType → RequestM (RequestTask respType)) : IO Unit := do
+  if !(← IO.initializing) then
+    throw <| IO.userError s!"Failed to chain LSP request handler for '{method}': only possible during initialization"
+  if let some oldHandler ← lookupLspRequestHandler method then
+    let handle := fun j => do
+      let t ← oldHandler.handle j
+      let t ← t.map fun x => x.bind fun j => FromJson.fromJson? j |>.mapError fun e =>
+        IO.userError s!"Failed to parse original LSP response for `{method}` when chaining: {e}"
+      let params ← liftExcept <| parseRequestParams paramType j
+      let t ← handler params t
+      t.map <| Except.map ToJson.toJson
+
+    requestHandlers.modify fun rhs => rhs.insert method {oldHandler with handle}
+  else
+    throw <| IO.userError s!"Failed to chain LSP request handler for '{method}': no initial handler registered"
 
 def routeLspRequest (method : String) (params : Json) : IO (Except RequestError DocumentUri) := do
   match (← lookupLspRequestHandler method) with

@@ -7,7 +7,6 @@ Authors: Wojciech Nawrocki
 import Lean.Data.Lsp
 import Lean.Message
 import Lean.Elab.InfoTree
-import Lean.PrettyPrinter
 
 import Lean.Server.Utils
 import Lean.Server.Rpc.Basic
@@ -194,12 +193,16 @@ def msgToInteractiveDiagnostic (text : FileMap) (m : Message) : IO InteractiveDi
     | MessageSeverity.warning     => DiagnosticSeverity.warning
     | MessageSeverity.error       => DiagnosticSeverity.error
   let source := "Lean 4"
+  let message ← try
+      msgToInteractive m.data
+    catch ex =>
+      TaggedText.text s!"[error when printing message: {ex.toString}]"
   pure {
     range := range
     fullRange := fullRange
     severity? := severity
     source? := source
-    message := ← msgToInteractive m.data
+    message := message
   }
 
 end Lean.Widget

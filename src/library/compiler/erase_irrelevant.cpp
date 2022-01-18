@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
+#include "kernel/inductive.h"
 #include "library/compiler/util.h"
 
 namespace lean {
@@ -262,7 +263,7 @@ class erase_irrelevant_fn {
                 buffer<expr> fields;
                 while (is_lambda(minor)) {
                     expr v = mk_proj(I_name, i, major);
-                    expr t = infer_type(v);
+                    expr t = instantiate_rev(binding_domain(minor), fields.size(), fields.data());
                     name n = next_name();
                     expr fvar = m_lctx.mk_local_decl(ngen(), n, t, v);
                     fields.push_back(fvar);

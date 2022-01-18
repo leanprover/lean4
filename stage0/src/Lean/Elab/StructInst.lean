@@ -851,11 +851,33 @@ private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sour
   let struct ← liftMacroM <| mkStructView stx structName source
   let struct ← expandStruct struct
   trace[Elab.struct] "{struct}"
-  let (r, struct) ← elabStruct struct expectedType?
+  /- We try to synthesize pending problems with `withSynthesize` combinator before trying to use default values.
+     This is important in examples such as
+      ```
+      structure MyStruct where
+          {α : Type u}
+          {β : Type v}
+          a : α
+          b : β
+
+      #check { a := 10, b := true : MyStruct }
+      ```
+     were the `α` will remain "unknown" until the default instance for `OfNat` is used to ensure that `10` is a `Nat`.
+
+     TODO: investigate whether this design decision may have unintended side effects or produce confusing behavior.
+  -/
+  let (r, struct) ← withSynthesize (mayPostpone := true) <| elabStruct struct expectedType?
   trace[Elab.struct] "before propagate {r}"
   DefaultFields.propagate struct
   return r
 
+/-- Structure instance. `{ x := e, ... }` assigns `e` to field `x`, which may be
+inherited. If `e` is itself a variable called `x`, it can be elided:
+`fun y => { x := 1, y }`.
+A *structure update* of an existing value can be given via `with`:
+`{ point with x := 1 }`.
+The structure type can be specified if not inferable:
+`{ x := 1, y := 2 : Point }`. -/
 @[builtinTermElab structInst] def elabStructInst : TermElab := fun stx expectedType? => do
   match (← expandNonAtomicExplicitSources stx) with
   | some stxNew => withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?

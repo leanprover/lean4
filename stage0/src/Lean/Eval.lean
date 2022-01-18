@@ -19,6 +19,6 @@ instance {α : Type u} [Eval α] : MetaEval α :=
   ⟨fun env opts a hideUnit => do Eval.eval (fun _ => a) hideUnit; pure env⟩
 
 def runMetaEval {α : Type u} [MetaEval α] (env : Environment) (opts : Options) (a : α) : IO (String × Except IO.Error Environment) :=
-  IO.FS.withIsolatedStreams (MetaEval.eval env opts a false)
+  IO.FS.withIsolatedStreams (MetaEval.eval env opts a false |>.toBaseIO)
 
 end Lean

@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/debug.h"
 #include "runtime/sstream.h"
+#include "runtime/load_dynlib.h"
 #include "util/timer.h"
 #include "util/macros.h"
 #include "util/io.h"
@@ -64,7 +65,7 @@ Author: Leonardo de Moura
 enum arg_opt { no_argument, required_argument, optional_argument };
 
 struct option {
-    const char name[12];
+    const char name[20];
     arg_opt has_arg;
     int *flag;
     char val;
@@ -320,21 +321,6 @@ void load_plugin(std::string path) {
     // NOTE: we never unload plugins
 }
 
-void load_library(std::string path) {
-#ifdef LEAN_WINDOWS
-    HMODULE h = LoadLibrary(path.c_str());
-    if (!h) {
-        throw exception(sstream() << "error loading library " << path << ": " << GetLastError());
-    }
-#else
-    void *handle = dlopen(path.c_str(), RTLD_LAZY | RTLD_GLOBAL);
-    if (!handle) {
-        throw exception(sstream() << "error loading library, " << dlerror());
-    }
-#endif
-    // NOTE: we never unload libraries
-}
-
 namespace lean {
 extern "C" object * lean_run_frontend(object * input, object * opts, object * filename, object * main_module_name, uint32_t trust_level, object * w);
 pair_ref<environment, object_ref> run_new_frontend(std::string const & input, options const & opts, std::string const & file_name, name const & main_module_name, uint32_t trust_level) {
@@ -355,9 +341,9 @@ uint32_t run_server_watchdog(buffer<string_ref> const & args) {
     return get_io_scalar_result<uint32_t>(lean_server_watchdog_main(arglist.to_obj_arg(), io_mk_world()));
 }
 
-extern "C" object* lean_init_search_path(object* opt_path, object* w);
+extern "C" object* lean_init_search_path(object* w);
 void init_search_path() {
-    get_io_scalar_result<unsigned>(lean_init_search_path(mk_option_none(), io_mk_world()));
+    get_io_scalar_result<unsigned>(lean_init_search_path(io_mk_world()));
 }
 
 extern "C" object* lean_module_name_of_file(object* fname, object * root_dir, object* w);
@@ -387,7 +373,7 @@ void environment_free_regions(environment && env) {
 }
 
 extern "C" object * lean_get_prefix(object * w);
-extern "C" object * lean_get_libdir(object * w);
+extern "C" object * lean_get_libdir(object * sysroot, object * w);
 
 void check_optarg(char const * option_name) {
     if (!optarg) {
@@ -553,7 +539,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
                 break;
             case 'l':
                 check_optarg("l");
-                load_library(optarg);
+                lean::load_dynlib(optarg);
                 forwarded_args.push_back(string_ref("--load-dynlib=" + std::string(optarg)));
                 break;
             default:
@@ -571,7 +557,8 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     }
 
     if (print_libdir) {
-        std::cout << get_io_result<string_ref>(lean_get_libdir(io_mk_world())).data() << std::endl;
+        string_ref prefix = get_io_result<string_ref>(lean_get_prefix(io_mk_world()));
+        std::cout << get_io_result<string_ref>(lean_get_libdir(prefix.to_obj_arg(), io_mk_world())).data() << std::endl;
         return 0;
     }
 

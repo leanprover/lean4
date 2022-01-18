@@ -598,7 +598,7 @@ def notFollowedByFn (p : ParserFn) (msg : String) : ParserFn := fun c s =>
   fn := notFollowedByFn p.fn msg
 }
 
-partial def manyAux (p : ParserFn) : ParserFn := fun c s => do
+partial def manyAux (p : ParserFn) : ParserFn := fun c s => Id.run <| do
   let iniSz  := s.stackSize
   let iniPos := s.pos
   let mut s  := p c s
@@ -631,7 +631,7 @@ partial def manyAux (p : ParserFn) : ParserFn := fun c s => do
 }
 
 private partial def sepByFnAux (p : ParserFn) (sep : ParserFn) (allowTrailingSep : Bool) (iniSz : Nat) (pOpt : Bool) : ParserFn :=
-  let rec parse (pOpt : Bool) (c s) := do
+  let rec parse (pOpt : Bool) (c s) := Id.run <| do
     let sz  := s.stackSize
     let pos := s.pos
     let mut s := p c s
@@ -1011,7 +1011,7 @@ def mkIdResult (startPos : Nat) (tk : Option Token) (val : Name) : ParserFn := f
     s.pushSyntax atom
 
 partial def identFnAux (startPos : Nat) (tk : Option Token) (r : Name) : ParserFn :=
-  let rec parse (r : Name) (c s) := do
+  let rec parse (r : Name) (c s) := Id.run <| do
     let input := c.input
     let i     := s.pos
     if input.atEnd i then
@@ -1392,7 +1392,7 @@ def invalidLongestMatchParser (s : ParserState) : ParserState :=
 
  Remark: `p` must produce exactly one syntax node.
  Remark: the `left?` is not none when we are processing trailing parsers. -/
-def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : ParserFn) : ParserFn := fun c s => do
+def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : ParserFn) : ParserFn := fun c s => Id.run <| do
   /-
     We assume any registered parser `p` has one of two forms:
     * a direct call to `leadingParser` or `trailingParser`
@@ -1644,7 +1644,7 @@ def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState
 
 abbrev CategoryParserFn := Name → ParserFn
 
-builtin_initialize categoryParserFnRef : IO.Ref CategoryParserFn ← IO.mkRef fun _ => whitespace
+builtin_initialize categoryParserFnRef : IO.Ref CategoryParserFn ← IO.mkRef fun (_ : Name) => whitespace
 
 builtin_initialize categoryParserFnExtension : EnvExtension CategoryParserFn ← registerEnvExtension $ categoryParserFnRef.get
 
@@ -1694,7 +1694,7 @@ def pushNone : Parser :=
 def antiquotNestedExpr : Parser := node `antiquotNestedExpr (symbolNoAntiquot "(" >> decQuotDepth termParser >> symbolNoAntiquot ")")
 def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
 
-@[inline] def tokenWithAntiquotFn (p : ParserFn) : ParserFn := fun c s => do
+@[inline] def tokenWithAntiquotFn (p : ParserFn) : ParserFn := fun c s => Id.run <| do
   let s := p c s
   if s.hasError || c.quotDepth == 0 then
     return s
@@ -1739,7 +1739,7 @@ def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true
     checkNoWsBefore "no space before spliced term" >> antiquotExpr >>
     nameP
 
-def tryAnti (c : ParserContext) (s : ParserState) : Bool := do
+def tryAnti (c : ParserContext) (s : ParserState) : Bool := Id.run <| do
   if c.quotDepth == 0 then
     return false
   let (s, stx) := peekToken c s
@@ -1768,7 +1768,7 @@ def mkAntiquotSplice (kind : SyntaxNodeKind) (p suffix : Parser) : Parser :=
     checkNoWsBefore "no space before spliced term" >> symbol "[" >> node nullKind p >> symbol "]" >>
     suffix
 
-@[inline] def withAntiquotSuffixSpliceFn (kind : SyntaxNodeKind) (p suffix : ParserFn) : ParserFn := fun c s => do
+@[inline] def withAntiquotSuffixSpliceFn (kind : SyntaxNodeKind) (p suffix : ParserFn) : ParserFn := fun c s => Id.run <| do
   let s := p c s
   if s.hasError || c.quotDepth == 0 || !s.stxStack.back.isAntiquot then
     return s
@@ -1817,59 +1817,11 @@ def categoryParserOfStackFn (offset : Nat) : ParserFn := fun ctx s =>
 def categoryParserOfStack (offset : Nat) (prec : Nat := 0) : Parser :=
   { fn := fun c s => categoryParserOfStackFn offset { c with prec := prec } s }
 
-unsafe def evalParserConstUnsafe (declName : Name) : ParserFn := fun ctx s =>
-  match ctx.env.evalConstCheck Parser ctx.options `Lean.Parser.Parser declName <|>
-        ctx.env.evalConstCheck Parser ctx.options `Lean.Parser.TrailingParser declName with
-  | Except.ok p    => p.fn ctx s
-  | Except.error e => s.mkUnexpectedError s!"error running parser {declName}: {e}"
-
-@[implementedBy evalParserConstUnsafe]
-constant evalParserConst (declName : Name) : ParserFn
-
-unsafe def parserOfStackFnUnsafe (offset : Nat) : ParserFn := fun ctx s =>
-  let stack := s.stxStack
-  if stack.size < offset + 1 then
-    s.mkUnexpectedError ("failed to determine parser using syntax stack, stack is too small")
-  else
-    match stack.get! (stack.size - offset - 1) with
-    | Syntax.ident (val := parserName) .. =>
-      match ctx.resolveName parserName with
-      | [(parserName, [])] =>
-        let iniSz := s.stackSize
-        let s := evalParserConst parserName ctx s
-        if !s.hasError && s.stackSize != iniSz + 1 then
-          s.mkUnexpectedError "expected parser to return exactly one syntax object"
-        else
-          s
-      | _::_::_ => s.mkUnexpectedError s!"ambiguous parser name {parserName}"
-      | _ => s.mkUnexpectedError s!"unknown parser {parserName}"
-    | _ => s.mkUnexpectedError ("failed to determine parser using syntax stack, the specified element on the stack is not an identifier")
-
-@[implementedBy parserOfStackFnUnsafe]
-constant parserOfStackFn (offset : Nat) : ParserFn
-
-def parserOfStack (offset : Nat) (prec : Nat := 0) : Parser :=
-  { fn := fun c s => parserOfStackFn offset { c with prec := prec } s }
-
-register_builtin_option internal.parseQuotWithCurrentStage : Bool := {
-  defValue := false
-  group    := "internal"
-  descr    := "(Lean bootstrapping) use parsers from the current stage inside quotations"
-}
-
-/-- Run `declName` if possible and inside a quotation, or else `p`. The `ParserInfo` will always be taken from `p`. -/
-def evalInsideQuot (declName : Name) (p : Parser) : Parser := { p with
-  fn := fun c s =>
-    if c.quotDepth > 0 && !c.suppressInsideQuot && internal.parseQuotWithCurrentStage.get c.options && c.env.contains declName then
-      evalParserConst declName c s
-    else
-      p.fn c s }
-
 private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
   if s.stackSize == iniSz + 1 then s
   else s.mkNode nullKind iniSz -- throw error instead?
 
-def leadingParserAux (kind : Name) (tables : PrattParsingTables) (behavior : LeadingIdentBehavior) : ParserFn := fun c s => do
+def leadingParserAux (kind : Name) (tables : PrattParsingTables) (behavior : LeadingIdentBehavior) : ParserFn := fun c s => Id.run <| do
   let iniSz   := s.stackSize
   let (s, ps) := indexed tables.leadingTable c s behavior
   if s.hasError then
@@ -1886,7 +1838,7 @@ def leadingParserAux (kind : Name) (tables : PrattParsingTables) (behavior : Lea
 def trailingLoopStep (tables : PrattParsingTables) (left : Syntax) (ps : List (Parser × Nat)) : ParserFn := fun c s =>
   longestMatchFn left (ps ++ tables.trailingParsers) c s
 
-partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) (s : ParserState) : ParserState := do
+partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) (s : ParserState) : ParserState := Id.run <| do
   let iniSz  := s.stackSize
   let iniPos := s.pos
   let (s, ps)       := indexed tables.trailingTable c s LeadingIdentBehavior.default

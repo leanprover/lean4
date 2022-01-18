@@ -140,7 +140,7 @@ partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targets : Array E
       pure ()
   let f ← Term.mkConst elimName
   let fType ← inferType f
-  let (_, s) ← loop.run { elimInfo := elimInfo, targets := targets } |>.run { f := f, fType := fType }
+  let (_, s) ← (loop).run { elimInfo := elimInfo, targets := targets } |>.run { f := f, fType := fType }
   let mut others := #[]
   for mvarId in s.insts do
     try

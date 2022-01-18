@@ -13,17 +13,17 @@ namespace List
 /- The following functions can't be defined at `Init.Data.List.Basic`, because they depend on `Init.Util`,
    and `Init.Util` depends on `Init.Data.List.Basic`. -/
 
-def get! [Inhabited α] : Nat → List α → α
-  | 0,   a::as => a
-  | n+1, a::as => get! n as
-  | _,   _     => panic! "invalid index"
+def get! [Inhabited α] : List α → Nat → α
+  | a::as, 0   => a
+  | a::as, n+1 => get! as n
+  | _,     _   => panic! "invalid index"
 
-def get? : Nat → List α → Option α
-  | 0,   a::as => some a
-  | n+1, a::as => get? n as
-  | _,   _     => none
+def get? : List α → Nat → Option α
+  | a::as, 0   => some a
+  | a::as, n+1 => get? as n
+  | _,     _   => none
 
-def getD (idx : Nat) (as : List α) (a₀ : α) : α :=
+def getD (as : List α) (idx : Nat) (a₀ : α) : α :=
   (as.get? idx).getD a₀
 
 def head! [Inhabited α] : List α → α

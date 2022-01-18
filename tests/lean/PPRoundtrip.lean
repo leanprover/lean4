@@ -39,6 +39,10 @@ set_option format.width 20
 -- #eval checkM `(Type _)
 -- #eval checkM `(Type (_ + 2))
 
+#eval checkM `(@max Nat)
+#eval checkM `(@HEq Nat 1)
+#eval checkM `(@List.nil)
+
 #eval checkM `(Nat)
 #eval checkM `(List Nat)
 #eval checkM `(id Nat)
@@ -99,7 +103,7 @@ set_option pp.structureInstanceTypes true in
 
 #eval checkM `(id (fun a => a) 0)
 
-#eval checkM `(typeAs Nat (do
+#eval checkM `(typeAs (Id Nat) (do
   let x := 1
   discard <| pure 2
   let y := 3

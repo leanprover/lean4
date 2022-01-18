@@ -131,12 +131,12 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
    ∀ {x : α}, x ∈ s → x ∈ t
    ```
 -/
-def elabTermForApply (stx : Syntax) : TacticM Expr := do
+def elabTermForApply (stx : Syntax) (mayPostpone := true) : TacticM Expr := do
   if stx.isIdent then
     match (← Term.resolveId? stx (withInfo := true)) with
     | some e => return e
     | _      => pure ()
-  elabTerm stx none (mayPostpone := true)
+  elabTerm stx none mayPostpone
 
 def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syntax) : TacticM Unit := do
   withMainContext do
@@ -144,6 +144,17 @@ def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syn
     let mvarIds'  ← tac (← getMainGoal) val
     Term.synthesizeSyntheticMVarsNoPostponing
     replaceMainGoal mvarIds'
+
+def getFVarId (id : Syntax) : TacticM FVarId := withRef id do
+  -- use apply-like elaboration to suppress insertion of implicit arguments
+  let e ← withMainContext do
+    elabTermForApply id (mayPostpone := false)
+  match e with
+  | Expr.fvar fvarId _ => return fvarId
+  | _                  => throwError "unexpected term '{e}'; expected single reference to variable"
+
+def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
+  withMainContext do ids.mapM getFVarId
 
 @[builtinTactic Lean.Parser.Tactic.apply] def evalApply : Tactic := fun stx =>
   match stx with

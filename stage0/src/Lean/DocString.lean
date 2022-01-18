@@ -7,7 +7,11 @@ import Lean.MonadEnv
 
 namespace Lean
 
+private builtin_initialize builtinDocStrings : IO.Ref (NameMap String) ← IO.mkRef {}
 private builtin_initialize docStringExt : MapDeclarationExtension String ← mkMapDeclarationExtension `docstring
+
+def addBuiltinDocString (declName : Name) (docString : String) : IO Unit :=
+  builtinDocStrings.modify (·.insert declName docString)
 
 def addDocString [MonadEnv m] (declName : Name) (docString : String) : m Unit :=
   modifyEnv fun env => docStringExt.insert env declName docString
@@ -17,8 +21,8 @@ def addDocString' [Monad m] [MonadEnv m] (declName : Name) (docString? : Option 
   | some docString => addDocString declName docString
   | none => return ()
 
-def findDocString? (env : Environment) (declName : Name) : Option String :=
-  docStringExt.find? env declName
+def findDocString? (env : Environment) (declName : Name) : IO (Option String) := do
+  (← builtinDocStrings.get).find? declName |>.orElse fun _ => docStringExt.find? env declName
 
 private builtin_initialize moduleDocExt : SimplePersistentEnvExtension String (Std.PersistentArray String) ← registerSimplePersistentEnvExtension {
   name          := `moduleDocExt

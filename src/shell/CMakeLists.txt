@@ -17,12 +17,12 @@ if(LLVM)
     set(LLVM_SYSTEM_LIBS "-lz")
   endif()
   if(${STATIC} AND NOT ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin"))
-    set(LEAN_EXE_LINKER_FLAGS "${LEAN_EXE_LINKER_FLAGS} `llvm-config --link-static --ldflags --libs nativecodegen` -Wl,-Bstatic ${LLVM_SYSTEM_LIBS} -Wl,-Bdynamic")
+    string(APPEND LEAN_EXE_LINKER_FLAGS " `llvm-config --link-static --ldflags --libs nativecodegen` -Wl,-Bstatic ${LLVM_SYSTEM_LIBS} -Wl,-Bdynamic")
   else()
-    set(LEAN_EXE_LINKER_FLAGS "${LEAN_EXE_LINKER_FLAGS} `llvm-config --ldflags --libs nativecodegen` ${LLVM_SYSTEM_LIBS}")
+    string(APPEND LEAN_EXE_LINKER_FLAGS " `llvm-config --ldflags --libs nativecodegen` ${LLVM_SYSTEM_LIBS}")
   endif()
   if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set(LEAN_EXE_LINKER_FLAGS "${LEAN_EXE_LINKER_FLAGS} -lole32 -luuid")
+    string(APPEND LEAN_EXE_LINKER_FLAGS " -lole32 -luuid")
   endif()
 endif()
 
@@ -46,6 +46,9 @@ add_test(lean_ghash2   "${CMAKE_BINARY_DIR}/bin/lean" --githash)
 add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_BINARY_DIR}/bin/lean" "-z")
 add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_BINARY_DIR}/bin/lean" "boofoo.lean")
 
+# LEANC_OPTS is necessary for macOS c++ to find its headers
+set(TEST_VARS "PATH=${LEAN_BIN}:$PATH ${LEAN_TEST_VARS} CXX='${CMAKE_CXX_COMPILER} ${LEANC_OPTS}'")
+
 # LEAN TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
 FOREACH(T ${LEANTESTS})
@@ -53,7 +56,7 @@ FOREACH(T ${LEANTESTS})
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
     add_test(NAME "leantest_${T_NAME}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
-             COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
+             COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
   endif()
 ENDFOREACH(T)
 
@@ -64,7 +67,7 @@ FOREACH(T ${LEANRUNTESTS})
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
     add_test(NAME "leanruntest_${T_NAME}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/run"
-             COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
+             COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
   endif()
 ENDFOREACH(T)
 
@@ -74,15 +77,15 @@ FOREACH(T ${LEANCOMPTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leancomptest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler"
-           COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
+           COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
 ENDFOREACH(T)
 
 add_test(NAME leancomptest_foreign
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler/foreign"
-         COMMAND bash -c "${LEAN_BIN}/leanmake --always-make CXX='${CMAKE_CXX_COMPILER} ${LEANC_OPTS}'")
+         COMMAND bash -c "LEANC_GMP=${GMP_LIBRARIES} ${LEAN_BIN}/leanmake --always-make")
 add_test(NAME leancomptest_doc_example
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/examples/compiler"
-         COMMAND bash -c "${LEAN_BIN}/leanmake --always-make bin && ./build/bin/test hello world")
+         COMMAND bash -c "export ${TEST_VARS}; leanmake --always-make bin && ./build/bin/test hello world")
 
 # LEAN INTERPRETER TESTS
 file(GLOB LEANINTERPTESTS "${LEAN_SOURCE_DIR}/../tests/compiler/*.lean")
@@ -91,7 +94,7 @@ FOREACH(T ${LEANINTERPTESTS})
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
     add_test(NAME "leaninterptest_${T_NAME}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler"
-             COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single_interpret.sh ${T_NAME}")
+             COMMAND bash -c "${TEST_VARS} ./test_single_interpret.sh ${T_NAME}")
   endif()
 ENDFOREACH(T)
 
@@ -103,7 +106,7 @@ FOREACH(T_OUT ${LEANBENCHTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leanbenchtest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/bench"
-           COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
+           COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
 ENDFOREACH(T_OUT)
 
 file(GLOB LEANINTERPTESTS "${LEAN_SOURCE_DIR}/../tests/plugin/*.lean")
@@ -111,7 +114,7 @@ FOREACH(T ${LEANINTERPTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leanplugintest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/plugin"
-           COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
+           COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
 ENDFOREACH(T)
 
 # LEAN TESTS using --trust=0
@@ -120,7 +123,7 @@ FOREACH(T ${LEANT0TESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leant0test_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/trust0"
-           COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
+           COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
 ENDFOREACH(T)
 
 # LEAN SERVER TESTS
@@ -130,7 +133,7 @@ FOREACH(T ${LEANTESTS})
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
     add_test(NAME "leanservertest_${T_NAME}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/server"
-             COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
+             COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
   endif()
 ENDFOREACH(T)
 
@@ -141,7 +144,7 @@ FOREACH(T ${LEANTESTS})
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
     add_test(NAME "leaninteractivetest_${T_NAME}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/interactive"
-             COMMAND bash -c "PATH=${LEAN_BIN}:$PATH ./test_single.sh ${T_NAME}")
+             COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
   endif()
 ENDFOREACH(T)
 
@@ -149,7 +152,7 @@ add_test(NAME leanpkgtest
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/b"
          COMMAND bash -c "
            set -eu
-           export PATH=${LEAN_BIN}:$PATH
+           export ${TEST_VARS}
            leanpkg build
            # linking requires some manual steps
            (cd ../a; leanpkg build lib)
@@ -160,14 +163,14 @@ add_test(NAME leanpkgtest_cyclic
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/cyclic"
          COMMAND bash -c "
            set -eu
-           export PATH=${LEAN_BIN}:$PATH
+           export ${TEST_VARS}
            leanpkg build 2>&1 | grep 'import cycle'")
 
 add_test(NAME leanpkgtest_user_ext
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/user_ext"
          COMMAND bash -c "
            set -eu
-           export PATH=${LEAN_BIN}:$PATH
+           export ${TEST_VARS}
            find . -name '*.olean' -delete
            leanmake | grep 'world, hello, test'")
 
@@ -175,7 +178,15 @@ add_test(NAME leanpkgtest_user_attr
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/user_attr"
          COMMAND bash -c "
            set -eu
-           export PATH=${LEAN_BIN}:$PATH
+           export ${TEST_VARS}
+           find . -name '*.olean' -delete
+           leanmake")
+
+add_test(NAME leanpkgtest_user_deriving
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/deriving"
+         COMMAND bash -c "
+           set -eu
+           export ${TEST_VARS}
            find . -name '*.olean' -delete
            leanmake")
 
@@ -183,7 +194,7 @@ add_test(NAME leanpkgtest_user_opt
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/user_opt"
          COMMAND bash -c "
            set -eu
-           export PATH=${LEAN_BIN}:$PATH
+           export ${TEST_VARS}
            find . -name '*.olean' -delete
            leanmake")
 
@@ -191,7 +202,7 @@ add_test(NAME leanpkgtest_prv
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/prv"
          COMMAND bash -c "
            set -eu
-           export PATH=${LEAN_BIN}:$PATH
+           export ${TEST_VARS}
            find . -name '*.olean' -delete
            leanmake 2>&1 | grep 'error: field.*private'")
 
@@ -199,7 +210,7 @@ add_test(NAME leanpkgtest_user_attr_app
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/user_attr_app"
          COMMAND bash -c "
            set -eu
-           export PATH=${LEAN_BIN}:$PATH
+           export ${TEST_VARS}
            find . -name '*.olean' -delete
            leanmake bin LINK_OPTS='${LEAN_DYN_EXE_LINKER_FLAGS}' && build/bin/UserAttr")
 
@@ -211,9 +222,20 @@ add_test(NAME leanpkgtest_builtin_attr
            find . -name '*.olean' -delete
            leanmake")
 
-add_test(NAME laketest
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/lake/examples"
-         COMMAND bash -c "
-           set -eu
-           export PATH=${LEAN_BIN}:$PATH
-           make LAKE=lake test")
+# Create a lake test for each subdirectory of `lake/examples` which contains a `test.sh` file.
+# We skip the subdirectories `lean_packages` and `bootstrap` since `lake/examples/Makefile` do no consider them.
+file(GLOB_RECURSE LEANLAKETESTS "${LEAN_SOURCE_DIR}/lake/examples/test.sh")
+FOREACH(T ${LEANLAKETESTS})
+  if(NOT T MATCHES ".*lean_packages.*")
+  if(NOT T MATCHES ".*bootstrap.*")
+    GET_FILENAME_COMPONENT(T_DIR ${T} DIRECTORY)
+    GET_FILENAME_COMPONENT(DIR_NAME ${T_DIR} NAME)
+    add_test(NAME "leanlaketest_${DIR_NAME}"
+             WORKING_DIRECTORY "${T_DIR}"
+             COMMAND bash -c "
+               set -eu
+               export ${TEST_VARS}
+               LAKE=lake ./test.sh")
+  endif()
+  endif()
+ENDFOREACH(T)

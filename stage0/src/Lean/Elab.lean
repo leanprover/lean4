@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.Import
 import Lean.Elab.Exception
+import Lean.Elab.Config
 import Lean.Elab.Command
 import Lean.Elab.Term
 import Lean.Elab.App
@@ -39,3 +40,4 @@ import Lean.Elab.Notation
 import Lean.Elab.Mixfix
 import Lean.Elab.MacroRules
 import Lean.Elab.BuiltinCommand
+import Lean.Elab.RecAppSyntax

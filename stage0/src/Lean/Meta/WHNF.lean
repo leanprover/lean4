@@ -6,8 +6,9 @@ Authors: Leonardo de Moura
 import Lean.ToExpr
 import Lean.AuxRecursor
 import Lean.ProjFns
+import Lean.Structure
+import Lean.Util.Recognizers
 import Lean.Meta.Basic
-import Lean.Meta.LevelDefEq
 import Lean.Meta.GetConst
 import Lean.Meta.Match.MatcherInfo
 
@@ -21,6 +22,9 @@ def smartUnfoldingSuffix := "_sunfold"
 
 @[inline] def mkSmartUnfoldingNameFor (declName : Name) : Name :=
   Name.mkStr declName smartUnfoldingSuffix
+
+def hasSmartUnfoldingDecl (env : Environment) (declName : Name) : Bool :=
+  env.contains (mkSmartUnfoldingNameFor declName)
 
 register_builtin_option smartUnfolding : Bool := {
   defValue := true
@@ -84,21 +88,51 @@ private def getRecRuleFor (recVal : RecursorVal) (major : Expr) : Option Recurso
   | Expr.const fn _ _ => recVal.rules.find? fun r => r.ctor == fn
   | _                 => none
 
-private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM (Option Expr) := do
+private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
   let majorType ← inferType major
   let majorType ← instantiateMVars (← whnf majorType)
   let majorTypeI := majorType.getAppFn
   if !majorTypeI.isConstOf recVal.getInduct then
-    return none
+    return major
   else if majorType.hasExprMVar && majorType.getAppArgs[recVal.numParams:].any Expr.hasExprMVar then
-    return none
+    return major
   else do
-    let (some newCtorApp) ← mkNullaryCtor majorType recVal.numParams | pure none
+    let (some newCtorApp) ← mkNullaryCtor majorType recVal.numParams | pure major
     let newType ← inferType newCtorApp
     if (← isDefEq majorType newType) then
       return newCtorApp
     else
-      return none
+      return major
+
+/--
+  If `major` is not a constructor application, and its type is a structure `C ...`, then return `C.mk major.1 ... major.n`
+
+  \pre `inductName` is `C`.
+
+  If `Meta.Config.etaStruct` is `false` or the condition above does not hold, this method just returns `major`. -/
+private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr := do
+  unless (← getConfig).etaStruct do
+    return major
+  let env ← getEnv
+  if !isStructureLike env inductName then
+    return major
+  else if let some _ := major.isConstructorApp? env then
+    return major
+  else
+    let majorType ← inferType major
+    let majorType ← instantiateMVars (← whnf majorType)
+    let majorTypeI := majorType.getAppFn
+    if !majorTypeI.isConstOf inductName then
+      return major
+    match majorType.getAppFn with
+    | Expr.const d us _ =>
+      let some ctorName ← getFirstCtor d | pure major
+      let ctorInfo ← getConstInfoCtor ctorName
+      let mut result := mkAppN (mkConst ctorName us) (majorType.getAppArgs.shrink ctorInfo.numParams)
+      for i in [:ctorInfo.numFields] do
+        result := mkApp result (mkProj inductName i major)
+      return result
+    | _ => return major
 
 /-- Auxiliary function for reducing recursor applications. -/
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
@@ -107,9 +141,9 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
     let major := recArgs.get ⟨majorIdx, h⟩
     let mut major ← whnf major
     if recVal.k then
-      let newMajor ← toCtorWhenK recVal major
-      major := newMajor.getD major
+      major ← toCtorWhenK recVal major
     major := toCtorIfLit major
+    major ← toCtorWhenStructure recVal.getInduct major
     match getRecRuleFor recVal major with
     | some rule =>
       let majorArgs := major.getAppArgs
@@ -265,7 +299,71 @@ inductive ReduceMatcherResult where
   | notMatcher
   | partialApp
 
-def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
+/--
+  The "match" compiler uses `if-then-else` expressions and other auxiliary declarations to compile match-expressions such as
+  ```
+  match v with
+  | 'a' => 1
+  | 'b' => 2
+  | _   => 3
+  ```
+  because it is more efficient than using `casesOn` recursors.
+  The method `reduceMatcher?` fails if these auxiliary definitions (e.g., `ite`) cannot be unfolded in the current
+  transparency setting. This is problematic because tactics such as `simp` use `TransparencyMode.reducible`, and
+  most users assume that expressions such as
+  ```
+  match 0 with
+  | 0 => 1
+  | 100 => 2
+  | _ => 3
+  ```
+  should reduce in any transparency mode.
+  Thus, we define a custom `canUnfoldAtMatcher` predicate for `whnfMatcher`.
+
+  This solution is not very modular because modications at the `match` compiler require changes here.
+  We claim this is defensible because it is reducing the auxiliary declaration defined by the `match` compiler.
+
+  Alternative solution: tactics that use `TransparencyMode.reducible` should rely on the equations we generated for match-expressions.
+  This solution is also not perfect because the match-expression above will not reduce during type checking when we are not using
+  `TransparencyMode.default` or `TransparencyMode.all`.
+-/
+private def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
+  match cfg.transparency with
+  | TransparencyMode.all     => return true
+  | TransparencyMode.default => return true
+  | m =>
+    if (← isReducible info.name) || isGlobalInstance (← getEnv) info.name then
+      return true
+    else
+      return info.name == ``ite
+       || info.name == ``dite
+       || info.name == ``decEq
+       || info.name == ``Nat.decEq
+       || info.name == ``Char.ofNat   || info.name == ``Char.ofNatAux
+       || info.name == ``String.decEq || info.name == ``List.hasDecEq
+       || info.name == ``Fin.ofNat
+       || info.name == ``UInt8.ofNat  || info.name == ``UInt8.decEq
+       || info.name == ``UInt16.ofNat || info.name == ``UInt16.decEq
+       || info.name == ``UInt32.ofNat || info.name == ``UInt32.decEq
+       || info.name == ``UInt64.ofNat || info.name == ``UInt64.decEq
+       /- Remark: we need to unfold the following two definitions because they are used for `Fin`, and
+          lazy unfolding at `isDefEq` does not unfold projections.  -/
+       || info.name == ``HMod.hMod || info.name == ``Mod.mod
+
+private def whnfMatcher (e : Expr) : MetaM Expr := do
+  /- When reducing `match` expressions, if the reducibility setting is at `TransparencyMode.reducible`,
+     we increase it to `TransparencyMode.instance`. We use the `TransparencyMode.reducible` in many places (e.g., `simp`),
+     and this setting prevents us from reducing `match` expressions where the discriminants are terms such as `OfNat.ofNat α n inst`.
+     For example, `simp [Int.div]` will not unfold the application `Int.div 2 1` occuring in the target.
+
+     TODO: consider other solutions; investigate whether the solution above produces counterintuitive behavior.  -/
+  let mut transparency ← getTransparency
+  if transparency == TransparencyMode.reducible then
+    transparency := TransparencyMode.instances
+  withTransparency transparency <| withReader (fun ctx => { ctx with canUnfold? := canUnfoldAtMatcher }) do
+    whnf e
+
+partial def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
   match e.getAppFn with
   | Expr.const declName declLevels _ =>
     let some info ← getMatcherInfo? declName
@@ -280,17 +378,7 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
       let auxApp := mkAppN f args[0:prefixSz]
       let auxAppType ← inferType auxApp
       forallBoundedTelescope auxAppType info.numAlts fun hs _ => do
-        let auxApp := mkAppN auxApp hs
-        /- When reducing `match` expressions, if the reducibility setting is at `TransparencyMode.reducible`,
-           we increase it to `TransparencyMode.instance`. We use the `TransparencyMode.reducible` in many places (e.g., `simp`),
-           and this setting prevents us from reducing `match` expressions where the discriminants are terms such as `OfNat.ofNat α n inst`.
-           For example, `simp [Int.div]` will not unfold the application `Int.div 2 1` occuring in the target.
-
-           TODO: consider other solutions; investigate whether the solution above produces counterintuitive behavior.  -/
-        let mut transparency ← getTransparency
-        if transparency == TransparencyMode.reducible then
-          transparency := TransparencyMode.instances
-        let auxApp ← withTransparency transparency <| whnf auxApp
+        let auxApp ← whnfMatcher (mkAppN auxApp hs)
         let auxAppFn := auxApp.getAppFn
         let mut i := prefixSz
         for h in hs do
@@ -302,7 +390,6 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
         return ReduceMatcherResult.stuck auxApp
   | _ => pure ReduceMatcherResult.notMatcher
 
-/- Given an expression `e`, compute its WHNF and if the result is a constructor, return field #i. -/
 def project? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
   let e ← whnf e
   let e := toCtorIfLit e
@@ -559,9 +646,9 @@ unsafe def reduceNatNativeUnsafe (constName : Name) : MetaM Nat := evalConstChec
 def reduceNative? (e : Expr) : MetaM (Option Expr) :=
   match e with
   | Expr.app (Expr.const fName _ _) (Expr.const argName _ _) _ =>
-    if fName == `Lean.reduceBool then do
+    if fName == ``Lean.reduceBool then do
       return toExpr (← reduceBoolNative argName)
-    else if fName == `Lean.reduceNat then do
+    else if fName == ``Lean.reduceNat then do
       return toExpr (← reduceNatNative argName)
     else
       return none
@@ -595,18 +682,18 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
     return none
   else match e with
     | Expr.app (Expr.const fn _ _) a _                  =>
-      if fn == `Nat.succ then
+      if fn == ``Nat.succ then
         reduceUnaryNatOp Nat.succ a
       else
         return none
     | Expr.app (Expr.app (Expr.const fn _ _) a1 _) a2 _ =>
-      if fn == `Nat.add then reduceBinNatOp Nat.add a1 a2
-      else if fn == `Nat.sub then reduceBinNatOp Nat.sub a1 a2
-      else if fn == `Nat.mul then reduceBinNatOp Nat.mul a1 a2
-      else if fn == `Nat.div then reduceBinNatOp Nat.div a1 a2
-      else if fn == `Nat.mod then reduceBinNatOp Nat.mod a1 a2
-      else if fn == `Nat.beq then reduceBinNatPred Nat.beq a1 a2
-      else if fn == `Nat.ble then reduceBinNatPred Nat.ble a1 a2
+      if fn == ``Nat.add then reduceBinNatOp Nat.add a1 a2
+      else if fn == ``Nat.sub then reduceBinNatOp Nat.sub a1 a2
+      else if fn == ``Nat.mul then reduceBinNatOp Nat.mul a1 a2
+      else if fn == ``Nat.div then reduceBinNatOp Nat.div a1 a2
+      else if fn == ``Nat.mod then reduceBinNatOp Nat.mod a1 a2
+      else if fn == ``Nat.beq then reduceBinNatPred Nat.beq a1 a2
+      else if fn == ``Nat.ble then reduceBinNatPred Nat.ble a1 a2
       else return none
     | _ =>
       return none
@@ -615,7 +702,7 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
 @[inline] private def useWHNFCache (e : Expr) : MetaM Bool := do
   -- We cache only closed terms without expr metavars.
   -- Potential refinement: cache if `e` is not stuck at a metavariable
-  if e.hasFVar || e.hasExprMVar then
+  if e.hasFVar || e.hasExprMVar || (← read).canUnfold?.isSome then
     return false
   else
     match (← getConfig).transparency with
@@ -677,5 +764,6 @@ def reduceProjOf? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do
 
 builtin_initialize
   registerTraceClass `Meta.whnf
+  registerTraceClass `Meta.isDefEq.whnf.reduceBinOp
 
 end Lean.Meta

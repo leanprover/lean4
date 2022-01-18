@@ -8,6 +8,8 @@ import Lean.ScopedEnvExtension
 import Lean.Parser.Basic
 import Lean.Parser.StrInterpolation
 import Lean.KeyedDeclsAttribute
+import Lean.DocString
+import Lean.DeclarationRange
 
 /-! Extensible parsing via attributes -/
 
@@ -145,20 +147,6 @@ private def updateBuiltinTokens (info : ParserInfo) (declName : Name) : IO Unit 
   | Except.ok tokenTable => builtinTokenTable.set tokenTable
   | Except.error msg     => throw (IO.userError s!"invalid builtin parser '{declName}', {msg}")
 
-def addBuiltinParser (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : IO Unit := do
-  let p := evalInsideQuot declName p
-  let categories ← builtinParserCategoriesRef.get
-  let categories ← IO.ofExcept $ addParser categories catName declName leading p prio
-  builtinParserCategoriesRef.set categories
-  builtinSyntaxNodeKindSetRef.modify p.info.collectKinds
-  updateBuiltinTokens p.info declName
-
-def addBuiltinLeadingParser (catName : Name) (declName : Name) (p : Parser) (prio : Nat) : IO Unit :=
-  addBuiltinParser catName declName true p prio
-
-def addBuiltinTrailingParser (catName : Name) (declName : Name) (p : TrailingParser) (prio : Nat) : IO Unit :=
-  addBuiltinParser catName declName false p prio
-
 def ParserExtension.addEntryImpl (s : State) (e : Entry) : State :=
   match e with
   | Entry.token tk =>
@@ -175,34 +163,6 @@ def ParserExtension.addEntryImpl (s : State) (e : Entry) : State :=
     match addParser s.categories catName declName leading parser prio with
     | Except.ok categories => { s with categories := categories }
     | _ => unreachable!
-
-unsafe def mkParserOfConstantUnsafe
-    (categories : ParserCategories) (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser) := do
-  let env  := (← read).env
-  let opts := (← read).opts
-  match env.find? constName with
-  | none      => throw ↑s!"unknow constant '{constName}'"
-  | some info =>
-    match info.type with
-    | Expr.const `Lean.Parser.TrailingParser _ _ =>
-      let p ← IO.ofExcept $ env.evalConst Parser opts constName
-      pure ⟨false, p⟩
-    | Expr.const `Lean.Parser.Parser _ _ =>
-      let p ← IO.ofExcept $ env.evalConst Parser opts constName
-      pure ⟨true, p⟩
-    | Expr.const `Lean.ParserDescr _ _ =>
-      let d ← IO.ofExcept $ env.evalConst ParserDescr opts constName
-      let p ← compileParserDescr d
-      pure ⟨true, p⟩
-    | Expr.const `Lean.TrailingParserDescr _ _ =>
-      let d ← IO.ofExcept $ env.evalConst TrailingParserDescr opts constName
-      let p ← compileParserDescr d
-      pure ⟨false, p⟩
-    | _ => throw ↑s!"unexpected parser type at '{constName}' (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected"
-
-@[implementedBy mkParserOfConstantUnsafe]
-constant mkParserOfConstantAux
-    (categories : ParserCategories) (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser)
 
 /- Parser aliases for making `ParserDescr` extensible -/
 inductive AliasValue (α : Type) where
@@ -266,6 +226,32 @@ def ensureBinaryParserAlias (aliasName : Name) : IO Unit :=
 def ensureConstantParserAlias (aliasName : Name) : IO Unit :=
   discard $ getConstAlias parserAliasesRef aliasName
 
+unsafe def mkParserOfConstantUnsafe (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser) := do
+  let env  := (← read).env
+  let opts := (← read).opts
+  match env.find? constName with
+  | none      => throw ↑s!"unknow constant '{constName}'"
+  | some info =>
+    match info.type with
+    | Expr.const `Lean.Parser.TrailingParser _ _ =>
+      let p ← IO.ofExcept $ env.evalConst Parser opts constName
+      pure ⟨false, p⟩
+    | Expr.const `Lean.Parser.Parser _ _ =>
+      let p ← IO.ofExcept $ env.evalConst Parser opts constName
+      pure ⟨true, p⟩
+    | Expr.const `Lean.ParserDescr _ _ =>
+      let d ← IO.ofExcept $ env.evalConst ParserDescr opts constName
+      let p ← compileParserDescr d
+      pure ⟨true, p⟩
+    | Expr.const `Lean.TrailingParserDescr _ _ =>
+      let d ← IO.ofExcept $ env.evalConst TrailingParserDescr opts constName
+      let p ← compileParserDescr d
+      pure ⟨false, p⟩
+    | _ => throw ↑s!"unexpected parser type at '{constName}' (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected"
+
+@[implementedBy mkParserOfConstantUnsafe]
+constant mkParserOfConstantAux (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser)
+
 partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr) : ImportM Parser :=
   let rec visit : ParserDescr → ImportM Parser
     | ParserDescr.const n                             => getConstAlias parserAliasesRef n
@@ -279,7 +265,7 @@ partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr)
     | ParserDescr.symbol tk                           => return symbol tk
     | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol tk includeIdent
     | ParserDescr.parser constName                    => do
-      let (_, p) ← mkParserOfConstantAux categories constName visit;
+      let (_, p) ← mkParserOfConstantAux constName visit;
       pure p
     | ParserDescr.cat catName prec                    =>
       match getCategory categories catName with
@@ -288,7 +274,7 @@ partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr)
   visit d
 
 def mkParserOfConstant (categories : ParserCategories) (constName : Name) : ImportM (Bool × Parser) :=
-  mkParserOfConstantAux categories constName (compileParserDescr categories)
+  mkParserOfConstantAux constName (compileParserDescr categories)
 
 structure ParserAttributeHook where
   /- Called after a parser attribute is applied to a declaration. -/
@@ -352,6 +338,43 @@ def leadingIdentBehavior (env : Environment) (catName : Name) : LeadingIdentBeha
   | none     => LeadingIdentBehavior.default
   | some cat => cat.behavior
 
+unsafe def evalParserConstUnsafe (declName : Name) : ParserFn := fun ctx s => unsafeBaseIO do
+  let categories := (parserExtension.getState ctx.env).categories
+  match (← (mkParserOfConstant categories declName { env := ctx.env, opts := ctx.options }).toBaseIO) with
+  | Except.ok (bool, p) => p.fn ctx s
+  | Except.error e => s.mkUnexpectedError e.toString
+
+@[implementedBy evalParserConstUnsafe]
+constant evalParserConst (declName : Name) : ParserFn
+
+register_builtin_option internal.parseQuotWithCurrentStage : Bool := {
+  defValue := false
+  group    := "internal"
+  descr    := "(Lean bootstrapping) use parsers from the current stage inside quotations"
+}
+
+/-- Run `declName` if possible and inside a quotation, or else `p`. The `ParserInfo` will always be taken from `p`. -/
+def evalInsideQuot (declName : Name) (p : Parser) : Parser := { p with
+  fn := fun c s =>
+    if c.quotDepth > 0 && !c.suppressInsideQuot && internal.parseQuotWithCurrentStage.get c.options && c.env.contains declName then
+      evalParserConst declName c s
+    else
+      p.fn c s }
+
+def addBuiltinParser (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : IO Unit := do
+  let p := evalInsideQuot declName p
+  let categories ← builtinParserCategoriesRef.get
+  let categories ← IO.ofExcept $ addParser categories catName declName leading p prio
+  builtinParserCategoriesRef.set categories
+  builtinSyntaxNodeKindSetRef.modify p.info.collectKinds
+  updateBuiltinTokens p.info declName
+
+def addBuiltinLeadingParser (catName : Name) (declName : Name) (p : Parser) (prio : Nat) : IO Unit :=
+  addBuiltinParser catName declName true p prio
+
+def addBuiltinTrailingParser (catName : Name) (declName : Name) (p : TrailingParser) (prio : Nat) : IO Unit :=
+  addBuiltinParser catName declName false p prio
+
 def mkCategoryAntiquotParser (kind : Name) : Parser :=
   mkAntiquot kind.toString none
 
@@ -383,7 +406,7 @@ def isValidSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Bool :=
   let kinds := (parserExtension.getState env).kinds
   kinds.contains k
 
-def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind := do
+def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind :=
   let kinds := (parserExtension.getState env).kinds
   kinds.foldl (fun ks k _ => k::ks) []
 
@@ -419,22 +442,15 @@ def runParserCategory (env : Environment) (catName : Name) (input : String) (fil
   else
     Except.error ((s.mkError "end of input").toErrorMsg c)
 
-def declareBuiltinParser (env : Environment) (addFnName : Name) (catName : Name) (declName : Name) (prio : Nat) : IO Environment :=
-  let name := `_regBuiltinParser ++ declName
-  let type := mkApp (mkConst `IO) (mkConst `Unit)
-  let val  := mkAppN (mkConst addFnName) #[toExpr catName, toExpr declName, mkConst declName, mkRawNatLit prio]
-  let decl := Declaration.defnDecl { name := name, levelParams := [], type := type, value := val, hints := ReducibilityHints.opaque,
-                                     safety := DefinitionSafety.safe }
-  match env.addAndCompile {} decl with
-  -- TODO: pretty print error
-  | Except.error _ => throw (IO.userError ("failed to emit registration code for builtin parser '" ++ toString declName ++ "'"))
-  | Except.ok env  => IO.ofExcept (setBuiltinInitAttr env name)
+def declareBuiltinParser (addFnName : Name) (catName : Name) (declName : Name) (prio : Nat) : CoreM Unit :=
+  let val := mkAppN (mkConst addFnName) #[toExpr catName, toExpr declName, mkConst declName, mkRawNatLit prio]
+  declareBuiltin declName val
 
-def declareLeadingBuiltinParser (env : Environment) (catName : Name) (declName : Name) (prio : Nat) : IO Environment := -- TODO: use CoreM?
-  declareBuiltinParser env `Lean.Parser.addBuiltinLeadingParser catName declName prio
+def declareLeadingBuiltinParser (catName : Name) (declName : Name) (prio : Nat) : CoreM Unit :=
+  declareBuiltinParser `Lean.Parser.addBuiltinLeadingParser catName declName prio
 
-def declareTrailingBuiltinParser (env : Environment) (catName : Name) (declName : Name) (prio : Nat) : IO Environment := -- TODO: use CoreM?
-  declareBuiltinParser env `Lean.Parser.addBuiltinTrailingParser catName declName prio
+def declareTrailingBuiltinParser (catName : Name) (declName : Name) (prio : Nat) : CoreM Unit :=
+  declareBuiltinParser `Lean.Parser.addBuiltinTrailingParser catName declName prio
 
 def getParserPriority (args : Syntax) : Except String Nat :=
   match args.getNumArgs with
@@ -451,13 +467,15 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
   let decl ← getConstInfo declName
   let env ← getEnv
   match decl.type with
-  | Expr.const `Lean.Parser.TrailingParser _ _ => do
-    let env ← declareTrailingBuiltinParser env catName declName prio
-    setEnv env
-  | Expr.const `Lean.Parser.Parser _ _ => do
-    let env ← declareLeadingBuiltinParser env catName declName prio
-    setEnv env
+  | Expr.const `Lean.Parser.TrailingParser _ _ =>
+    declareTrailingBuiltinParser catName declName prio
+  | Expr.const `Lean.Parser.Parser _ _ =>
+    declareLeadingBuiltinParser catName declName prio
   | _ => throwError "unexpected parser type at '{declName}' (`Parser` or `TrailingParser` expected)"
+  if let some doc ← findDocString? (← getEnv) declName then
+    declareBuiltin (declName ++ `docString) (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
+  if let some declRanges ← findDeclarationRanges? declName then
+    declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])
   runParserAttributeHooks catName declName (builtin := true)
 
 /-
@@ -608,6 +626,28 @@ def withOpenDeclFn (p : ParserFn) : ParserFn := fun c s =>
   info := p.info
   fn   := withOpenDeclFn  p.fn
 }
+
+def parserOfStackFn (offset : Nat) : ParserFn := fun ctx s =>
+  let stack := s.stxStack
+  if stack.size < offset + 1 then
+    s.mkUnexpectedError ("failed to determine parser using syntax stack, stack is too small")
+  else
+    match stack.get! (stack.size - offset - 1) with
+    | Syntax.ident (val := parserName) .. =>
+      match ctx.resolveName parserName with
+      | [(parserName, [])] =>
+        let iniSz := s.stackSize
+        let s := evalParserConst parserName ctx s
+        if !s.hasError && s.stackSize != iniSz + 1 then
+          s.mkUnexpectedError "expected parser to return exactly one syntax object"
+        else
+          s
+      | _::_::_ => s.mkUnexpectedError s!"ambiguous parser name {parserName}"
+      | _ => s.mkUnexpectedError s!"unknown parser {parserName}"
+    | _ => s.mkUnexpectedError ("failed to determine parser using syntax stack, the specified element on the stack is not an identifier")
+
+def parserOfStack (offset : Nat) (prec : Nat := 0) : Parser :=
+  { fn := fun c s => parserOfStackFn offset { c with prec := prec } s }
 
 end Parser
 end Lean

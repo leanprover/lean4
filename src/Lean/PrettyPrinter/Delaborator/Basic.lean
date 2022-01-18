@@ -222,7 +222,7 @@ partial def delabFor : Name → Delab
         addTermInfo (← getPos) stx (← getExpr)
         stx)
     -- have `app.Option.some` fall back to `app` etc.
-    <|> delabFor k.getRoot
+    <|> if k.isAtomic then failure else delabFor k.getRoot
 
 partial def delab : Delab := do
   checkMaxHeartbeats "delab"

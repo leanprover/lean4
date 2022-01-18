@@ -13,6 +13,12 @@ import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Term
 open Meta
 
+/--
+The *anonymous constructor* `⟨e, ...⟩` is equivalent to `c e ...` if the
+expected type is an inductive type with a single constructor `c`.
+If more terms are given than `c` has parameters, the remaining arguments
+are turned into a new anonymous constructor application. For example,
+`⟨a, b, c⟩ : α × (β × γ)` is equivalent to `⟨a, ⟨b, c⟩⟩`. -/
 @[builtinTermElab anonymousCtor] def elabAnonymousCtor : TermElab := fun stx expectedType? =>
   match stx with
   | `(⟨$args,*⟩) => do
@@ -107,6 +113,13 @@ private def elabTParserMacroAux (prec lhsPrec : Syntax) (e : Syntax) : TermElabM
     elabTParserMacroAux (prec?.getD <| quote Parser.maxPrec) (lhsPrec?.getD <| quote 0) e
   | _ => throwUnsupportedSyntax
 
+/--
+`panic! msg` formally evaluates to `@Inhabited.default α` if the expected type
+`α` implements `Inhabited`.
+At runtime, `msg` and the file position are printed to stderr unless the C
+function `lean_set_panic_messages(false)` has been executed before. If the C
+function `lean_set_exit_on_panic(true)` has been executed before, the process is
+then aborted. -/
 @[builtinTermElab panic] def elabPanic : TermElab := fun stx expectedType? => do
   let arg := stx[1]
   let pos ← getRefPosition
@@ -116,9 +129,11 @@ private def elabTParserMacroAux (prec lhsPrec : Syntax) (e : Syntax) : TermElabM
   | none => `(panicWithPos $(quote (toString env.mainModule)) $(quote pos.line) $(quote pos.column) $arg)
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 
+/-- A shorthand for `panic! "unreachable code has been reached"`. -/
 @[builtinMacro Lean.Parser.Term.unreachable]  def expandUnreachable : Macro := fun stx =>
   `(panic! "unreachable code has been reached")
 
+/-- `assert! cond` panics if `cond` evaluates to `false`. -/
 @[builtinMacro Lean.Parser.Term.assert]  def expandAssert : Macro := fun stx =>
   -- TODO: support for disabling runtime assertions
   let cond := stx[1]
@@ -127,6 +142,9 @@ private def elabTParserMacroAux (prec lhsPrec : Syntax) (e : Syntax) : TermElabM
   | some code => `(if $cond then $body else panic! ("assertion violation: " ++ $(quote code)))
   | none => `(if $cond then $body else panic! ("assertion violation"))
 
+/--
+`dbg_trace e; body` evaluates to `body` and prints `e` (which can be an
+interpolated string literal) to stderr. It should only be used for debugging. -/
 @[builtinMacro Lean.Parser.Term.dbgTrace]  def expandDbgTrace : Macro := fun stx =>
   let arg  := stx[1]
   let body := stx[3]
@@ -135,6 +153,7 @@ private def elabTParserMacroAux (prec lhsPrec : Syntax) (e : Syntax) : TermElabM
   else
     `(dbgTrace (toString $arg) fun _ => $body)
 
+/-- A temporary placeholder for a missing proof or value. -/
 @[builtinTermElab «sorry»] def elabSorry : TermElab := fun stx expectedType? => do
   logWarning "declaration uses 'sorry'"
   let stxNew ← `(sorryAx _ false)
@@ -215,7 +234,7 @@ where
     | _ => Term.expandCDot? stx
 
 
-/--
+/-
   Try to expand `·` notation.
   Recall that in Lean the `·` notation must be surrounded by parentheses.
   We may change this is the future, but right now, here are valid examples
@@ -248,11 +267,30 @@ where
     ensureHasType type e
   | _ => throwUnsupportedSyntax
 
+/-- Return `true` if `lhs` is a free variable and `rhs` does not depend on it. -/
+private def isSubstCandidate (lhs rhs : Expr) : MetaM Bool :=
+  if lhs.isFVar then
+    return !(← dependsOn rhs lhs.fvarId!)
+  else
+    return false
+
+/--
+  Given an expression `e` that is the elaboration of `stx`, if `e` is a free variable, then return `k stx`.
+  Otherwise, return `(fun x => k x) e`
+-/
+private def withLocalIdentFor (stx : Syntax) (e : Expr) (k : Syntax → TermElabM Expr) : TermElabM Expr := do
+  if e.isFVar then
+    k stx
+  else
+    let id ← mkFreshUserName `h
+    let aux ← withLocalDeclD id (← inferType e) fun x => do mkLambdaFVars #[x] (← k (mkIdentFrom stx id))
+    return mkApp aux e
+
 @[builtinTermElab subst] def elabSubst : TermElab := fun stx expectedType? => do
   let expectedType ← tryPostponeIfHasMVars expectedType? "invalid `▸` notation"
   match stx with
-  | `($heq ▸ $h) => do
-     let mut heq ← elabTerm heq none
+  | `($heqStx ▸ $hStx) => do
+     let mut heq ← elabTerm heqStx none
      let heqType ← inferType heq
      let heqType ← instantiateMVars heqType
      match (← Meta.matchEq? heqType) with
@@ -271,10 +309,10 @@ where
          heq ← mkEqSymm heq
          (lhs, rhs) := (rhs, lhs)
        let hExpectedType := expectedAbst.instantiate1 lhs
-       let h ← withRef h do
-         let h ← elabTerm h hExpectedType
+       let (h, badMotive?) ← withRef hStx do
+         let h ← elabTerm hStx hExpectedType
          try
-           ensureHasType hExpectedType h
+           return (← ensureHasType hExpectedType h, none)
          catch ex =>
            -- if `rhs` occurs in `hType`, we try to apply `heq` to `h` too
            let hType ← inferType h
@@ -284,8 +322,23 @@ where
            let hTypeNew := hTypeAbst.instantiate1 lhs
            unless (← isDefEq hExpectedType hTypeNew) do
              throw ex
-           mkEqNDRec (← mkMotive hTypeAbst) h (← mkEqSymm heq)
-       mkEqNDRec (← mkMotive expectedAbst) h heq
+           let motive ← mkMotive hTypeAbst
+           if !(← isTypeCorrect motive) then
+             return (h, some motive)
+           else
+             return (← mkEqNDRec motive h (← mkEqSymm heq), none)
+       let motive ← mkMotive expectedAbst
+       if badMotive?.isSome || !(← isTypeCorrect motive) then
+         -- Before failing try tos use `subst`
+         if ← (isSubstCandidate lhs rhs <||> isSubstCandidate rhs lhs) then
+           withLocalIdentFor heqStx heq fun heqStx =>
+           withLocalIdentFor hStx h fun hStx => do
+             let stxNew ← `(by subst $heqStx; exact $hStx)
+             withMacroExpansion stx stxNew (elabTerm stxNew expectedType)
+         else
+           throwError "invalid `▸` notation, failed to compute motive for the substitution"
+       else
+         mkEqNDRec motive h heq
   | _ => throwUnsupportedSyntax
 
 @[builtinTermElab stateRefT] def elabStateRefT : TermElab := fun stx _ => do

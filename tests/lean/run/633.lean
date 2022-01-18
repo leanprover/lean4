@@ -16,21 +16,21 @@ def definst (mnem:String) (body: expression 8 -> semantics Unit) : instruction :
 , patterns := ((body (expression.const 8)).run []).snd.reverse
 }
 
-def mul : instruction := do -- this is a "pure" do block (as in it is the Id monad)
+def mul : instruction := Id.run <| do -- this is a "pure" do block (as in it is the Id monad)
  definst "mul" $ fun (src : expression 8) =>
     let action : semantics Unit := do -- this is not "pure" do block
       let tmp <- eval $ uext src 16
       set_overflow $ tmp
     action
 
-def mul' : instruction := do -- this is a "pure" do block (as in it is the Id monad)
+def mul' : instruction := Id.run <| do -- this is a "pure" do block (as in it is the Id monad)
  definst "mul" $ fun (src : expression 8) =>
     let rec action : semantics Unit := do -- this is not "pure" do block
       let tmp <- eval $ uext src 16
       set_overflow $ tmp
     action
 
-def mul'' : instruction := do -- this is a "pure" do block (as in it is the Id monad)
+def mul'' : instruction := Id.run <| do -- this is a "pure" do block (as in it is the Id monad)
  definst "mul" $ fun (src : expression 8) =>
     let action : semantics (expression 8) :=
       return (<- eval $ uext src 16)

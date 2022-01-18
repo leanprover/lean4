@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.WFTactics
 import Init.Data.Nat.Basic
 import Init.Data.Fin.Basic
 import Init.Data.UInt
@@ -431,16 +432,16 @@ def contains [BEq α] (as : Array α) (a : α) : Bool :=
 def elem [BEq α] (a : α) (as : Array α) : Bool :=
   as.contains a
 
--- TODO(Leo): justify termination using wf-rec, and use `swap`
-partial def reverse (as : Array α) : Array α :=
+def reverse (as : Array α) : Array α :=
   let n   := as.size
   let mid := n / 2
   let rec rev (as : Array α) (i : Nat) :=
-    if i < mid then
+    if h : i < mid then
       rev (as.swap! i (n - i - 1)) (i+1)
     else
       as
   rev as 0
+termination_by' measure fun ⟨_, _, mid, as, i⟩ => mid - i
 
 @[inline] def getEvenElems (as : Array α) : Array α :=
   (·.2) <| as.foldl (init := (true, Array.empty)) fun (even, r) a =>
@@ -495,7 +496,7 @@ namespace Array
 
 -- TODO(Leo): cleanup
 @[specialize]
-partial def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) (i : Nat) : Bool :=
+def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) (i : Nat) : Bool :=
   if h : i < a.size then
      let aidx : Fin a.size := ⟨i, h⟩;
      let bidx : Fin b.size := ⟨i, hsz ▸ h⟩;
@@ -504,6 +505,7 @@ partial def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α →
      | false => false
   else
     true
+termination_by' measure fun ⟨_, a, _, _, _, i⟩ => a.size - i
 
 @[inline] def isEqv (a b : Array α) (p : α → α → Bool) : Bool :=
   if h : a.size = b.size then
@@ -545,7 +547,7 @@ def getMax? (as : Array α) (lt : α → α → Bool) : Option α :=
     none
 
 @[inline]
-def partition (p : α → Bool) (as : Array α) : Array α × Array α := do
+def partition (p : α → Bool) (as : Array α) : Array α × Array α := Id.run <| do
   let mut bs := #[]
   let mut cs := #[]
   for a in as do
@@ -601,31 +603,17 @@ end Array
 -- CLEANUP the following code
 namespace Array
 
-partial def indexOfAux [BEq α] (a : Array α) (v : α) : Nat → Option (Fin a.size)
+def indexOfAux [BEq α] (a : Array α) (v : α) : Nat → Option (Fin a.size)
   | i =>
     if h : i < a.size then
       let idx : Fin a.size := ⟨i, h⟩;
       if a.get idx == v then some idx
       else indexOfAux a v (i+1)
     else none
+termination_by' measure fun ⟨_, _, a, _, i⟩ => a.size - i
 
 def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
   indexOfAux a v 0
-
-partial def eraseIdxAux : Nat → Array α → Array α
-  | i, a =>
-    if h : i < a.size then
-      let idx  : Fin a.size := ⟨i, h⟩;
-      let idx1 : Fin a.size := ⟨i - 1, by exact Nat.lt_of_le_of_lt (Nat.pred_le i) h⟩;
-      eraseIdxAux (i+1) (a.swap idx idx1)
-    else
-      a.pop
-
-def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
-  eraseIdxAux (i.val + 1) a
-
-def eraseIdx (a : Array α) (i : Nat) : Array α :=
-  if i < a.size then eraseIdxAux (i+1) a else a
 
 @[simp] theorem size_swap (a : Array α) (i j : Fin a.size) : (a.swap i j).size = a.size := by
   show ((a.set i (a.get j)).set (size_set a i _ ▸ j) (a.get i)).size = a.size
@@ -634,13 +622,25 @@ def eraseIdx (a : Array α) (i : Nat) : Array α :=
 @[simp] theorem size_pop (a : Array α) : a.pop.size = a.size - 1 :=
   List.length_dropLast ..
 
-section
-/- Instance for justifying `partial` declaration.
-   We should be able to delete it as soon as we restore support for well-founded recursion. -/
-instance eraseIdxSzAuxInstance (a : Array α) : Inhabited { r : Array α // r.size = a.size - 1 } where
-  default := ⟨a.pop, size_pop a⟩
+def eraseIdxAux : Nat → Array α → Array α
+  | i, a =>
+    if h : i < a.size then
+      let idx  : Fin a.size := ⟨i, h⟩;
+      let idx1 : Fin a.size := ⟨i - 1, by exact Nat.lt_of_le_of_lt (Nat.pred_le i) h⟩;
+      let a' := a.swap idx idx1
+      have : a'.size - (i+1) < a.size - i := by rw [size_swap]; apply Nat.sub_succ_lt_self; assumption
+      eraseIdxAux (i+1) a'
+    else
+      a.pop
+termination_by' measure fun ⟨_, i, a⟩ => a.size - i
 
-partial def eraseIdxSzAux (a : Array α) : ∀ (i : Nat) (r : Array α), r.size = a.size → { r : Array α // r.size = a.size - 1 }
+def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
+  eraseIdxAux (i.val + 1) a
+
+def eraseIdx (a : Array α) (i : Nat) : Array α :=
+  if i < a.size then eraseIdxAux (i+1) a else a
+
+def eraseIdxSzAux (a : Array α) : ∀ (i : Nat) (r : Array α), r.size = a.size → { r : Array α // r.size = a.size - 1 }
   | i, r, heq =>
     if h : i < r.size then
       let idx  : Fin r.size := ⟨i, h⟩;
@@ -648,7 +648,7 @@ partial def eraseIdxSzAux (a : Array α) : ∀ (i : Nat) (r : Array α), r.size 
       eraseIdxSzAux a (i+1) (r.swap idx idx1) ((size_swap r idx idx1).trans heq)
     else
       ⟨r.pop, (size_pop r).trans (heq ▸ rfl)⟩
-end
+termination_by' measure fun ⟨_, _, i, r, _⟩ => r.size - i
 
 def eraseIdx' (a : Array α) (i : Fin a.size) : { r : Array α // r.size = a.size - 1 } :=
   eraseIdxSzAux a (i.val + 1) a rfl
@@ -658,12 +658,14 @@ def erase [BEq α] (as : Array α) (a : α) : Array α :=
   | none   => as
   | some i => as.feraseIdx i
 
-partial def insertAtAux (i : Nat) : Array α → Nat → Array α
+def insertAtAux (i : Nat) : Array α → Nat → Array α
   | as, j =>
-    if i == j then as
-    else
+    if h : i < j then
       let as := as.swap! (j-1) j;
       insertAtAux i as (j-1)
+    else
+      as
+termination_by' measure fun ⟨_, _, _, j⟩ => j
 
 /--
   Insert element `a` at position `i`.
@@ -722,7 +724,7 @@ theorem toArrayLit_eq (a : Array α) (n : Nat) (hsz : a.size = n) : a = toArrayL
   Then using Array.extLit, we have that a = List.toArray <| toListLitAux a n hsz n _ []
   -/
 
-partial def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) : Nat → Bool
+def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) : Nat → Bool
   | i =>
     if h : i < as.size then
       let a := as.get ⟨i, h⟩;
@@ -733,6 +735,7 @@ partial def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size
         false
     else
       true
+termination_by' measure fun ⟨_, _, as, _, _, i⟩ => as.size - i
 
 /- Return true iff `as` is a prefix of `bs` -/
 def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
@@ -747,17 +750,18 @@ private def allDiffAuxAux [BEq α] (as : Array α) (a : α) : forall (i : Nat), 
     have : i < as.size := Nat.lt_trans (Nat.lt_succ_self _) h;
     a != as.get ⟨i, this⟩ && allDiffAuxAux as a i this
 
-private partial def allDiffAux [BEq α] (as : Array α) : Nat → Bool
+private def allDiffAux [BEq α] (as : Array α) : Nat → Bool
   | i =>
     if h : i < as.size then
       allDiffAuxAux as (as.get ⟨i, h⟩) i h && allDiffAux as (i+1)
     else
       true
+termination_by' measure fun ⟨_, _, as, i⟩ => as.size - i
 
 def allDiff [BEq α] (as : Array α) : Bool :=
   allDiffAux as 0
 
-@[specialize] partial def zipWithAux (f : α → β → γ) (as : Array α) (bs : Array β) : Nat → Array γ → Array γ
+@[specialize] def zipWithAux (f : α → β → γ) (as : Array α) (bs : Array β) : Nat → Array γ → Array γ
   | i, cs =>
     if h : i < as.size then
       let a := as.get ⟨i, h⟩;
@@ -768,6 +772,7 @@ def allDiff [BEq α] (as : Array α) : Bool :=
         cs
     else
       cs
+termination_by' measure fun ⟨_, _, _, _, as, _, i, _⟩ => as.size - i
 
 @[inline] def zipWith (as : Array α) (bs : Array β) (f : α → β → γ) : Array γ :=
   zipWithAux f as bs 0 #[]

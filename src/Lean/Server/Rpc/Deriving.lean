@@ -36,9 +36,9 @@ private def deriveWithRefInstance (typeNm : Name) : CommandElabM Bool := do
     private constant decode [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
       throw "unreachable"
 
-    instance : RpcEncoding (WithRpcRef $typeId:ident) Lsp.RpcRef where
-      rpcEncode a := encode a
-      rpcDecode a := decode a
+    instance : RpcEncoding (WithRpcRef $typeId:ident) Lsp.RpcRef :=
+      { rpcEncode := encode
+        rpcDecode := decode }
     end $typeId:ident
   )
   elabCommand cmds
@@ -99,16 +99,16 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
           $[($fieldIds : $fieldEncTs)]*
           deriving $(mkIdent ``Lean.FromJson), $(mkIdent ``Lean.ToJson)
 
-        instance : RpcEncoding $typeId:ident RpcEncodingPacket where
-          rpcEncode a := do
+        instance : RpcEncoding $typeId:ident RpcEncodingPacket := {
+          rpcEncode := fun a => do
             return {
               $[$encFields]*
             }
-          rpcDecode a := do
+          rpcDecode := fun a => do
             return {
               $[$decFields]*
             }
-
+        }
         end $typeId:ident
       )
 

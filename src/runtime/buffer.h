@@ -17,12 +17,12 @@ namespace lean {
     This collection is useful when writing functions that need
     temporary storage.
 */
-template<typename T, unsigned INITIAL_SIZE = 16>
+template<typename T, size_t INITIAL_SIZE = 16>
 class buffer {
 protected:
     T *      m_buffer;
-    unsigned m_pos;
-    unsigned m_capacity;
+    size_t   m_pos;
+    size_t   m_capacity;
     char     m_initial_buffer[INITIAL_SIZE * sizeof(T)];
 
     void free_memory() {
@@ -30,14 +30,18 @@ protected:
             delete[] reinterpret_cast<char*>(m_buffer);
     }
 
-    void expand() {
-        unsigned new_capacity  = m_capacity << 1;
+    void set_capacity(size_t new_capacity) {
+        lean_assert(new_capacity > m_capacity);
         char * new_buffer_char = new char[sizeof(T) * new_capacity];
         T * new_buffer         = reinterpret_cast<T*>(new_buffer_char);
         std::uninitialized_copy(m_buffer, m_buffer + m_pos, new_buffer);
         destroy();
         m_buffer              = new_buffer;
         m_capacity            = new_capacity;
+    }
+
+    void expand() {
+        set_capacity(m_capacity << 1);
     }
 
     void destroy_elements() {
@@ -67,6 +71,12 @@ public:
         std::for_each(source.begin(), source.end(), [=](T const & e) { push_back(e); });
     }
 
+    void ensure_capacity(size_t new_capacity) {
+        if (new_capacity > m_capacity) {
+            set_capacity(new_capacity);
+        }
+    }
+
     ~buffer() { destroy(); }
 
     buffer & operator=(buffer const & source) {
@@ -79,7 +89,7 @@ public:
         if (size() != other.size()) {
             return false;
         } else {
-            for (unsigned i = 0; i < size(); i++) {
+            for (size_t i = 0; i < size(); i++) {
                 if (operator[](i) != other[i])
                     return false;
             }
@@ -93,10 +103,10 @@ public:
 
     T const & back() const { lean_assert(!empty() && m_pos > 0); return m_buffer[m_pos - 1]; }
     T & back() { lean_assert(!empty() && m_pos > 0); return m_buffer[m_pos - 1]; }
-    T & operator[](unsigned idx) { lean_assert(idx < size());  return m_buffer[idx]; }
-    T const & operator[](unsigned idx) const { lean_assert(idx < size()); return m_buffer[idx]; }
+    T & operator[](size_t idx) { lean_assert(idx < size());  return m_buffer[idx]; }
+    T const & operator[](size_t idx) const { lean_assert(idx < size()); return m_buffer[idx]; }
     void clear() { destroy_elements(); m_pos = 0; }
-    unsigned size() const { return m_pos; }
+    size_t size() const { return m_pos; }
     T const * data() const { return m_buffer; }
     T * data() { return m_buffer; }
     bool empty() const { return m_pos == 0;  }
@@ -104,7 +114,7 @@ public:
     iterator end() { return m_buffer + size(); }
     const_iterator begin() const { return m_buffer; }
     const_iterator end() const { return m_buffer + size(); }
-    unsigned capacity() const { return m_capacity; }
+    size_t capacity() const { return m_capacity; }
 
     void push_back(T const & elem) {
         if (m_pos >= m_capacity)
@@ -126,8 +136,9 @@ public:
         m_pos--;
     }
 
-    void append(unsigned sz, T const * elems) {
-        for (unsigned i = 0; i < sz; i++)
+    void append(size_t sz, T const * elems) {
+        ensure_capacity(size() + sz);
+        for (size_t i = 0; i < sz; i++)
             push_back(elems[i]);
     }
 
@@ -136,27 +147,28 @@ public:
         append(c.size(), c.data());
     }
 
-    void resize(unsigned nsz, T const & elem = T()) {
-        unsigned sz = size();
+    void resize(size_t nsz, T const & elem = T()) {
+        size_t sz = size();
         if (nsz > sz) {
-            for (unsigned i = sz; i < nsz; i++)
+            ensure_capacity(nsz);
+            for (size_t i = sz; i < nsz; i++)
                 push_back(elem);
         } else if (nsz < sz) {
-            for (unsigned i = nsz; i < sz; i++)
+            for (size_t i = nsz; i < sz; i++)
                 pop_back();
         }
         lean_assert(size() == nsz);
     }
 
-    void erase(unsigned idx) {
+    void erase(size_t idx) {
         lean_assert(idx < size());
-        for (unsigned i = idx+1; i < size(); i++)
+        for (size_t i = idx+1; i < size(); i++)
             m_buffer[i-1] = std::move(m_buffer[i]);
         pop_back();
     }
 
     void erase_elem(T const & elem) {
-        for (unsigned i = 0; i < size(); i++) {
+        for (size_t i = 0; i < size(); i++) {
             if (m_buffer[i] == elem) {
                 erase(i);
                 return;
@@ -164,27 +176,27 @@ public:
         }
     }
 
-    optional<unsigned> index_of(T const & elem) const {
-        for (unsigned i = 0; i < size(); i++)
-            if (m_buffer[i] == elem) return optional<unsigned>(i);
-        return optional<unsigned>();
+    optional<size_t> index_of(T const & elem) const {
+        for (size_t i = 0; i < size(); i++)
+            if (m_buffer[i] == elem) return optional<size_t>(i);
+        return optional<size_t>();
     }
 
-    void insert(unsigned idx, T const & elem) {
+    void insert(size_t idx, T const & elem) {
         using std::swap;
         lean_assert(idx <= size());
         push_back(elem);
-        unsigned i = size();
+        size_t i = size();
         while (i > idx + 1) {
             --i;
             swap(m_buffer[i], m_buffer[i-1]);
         }
     }
 
-    void shrink(unsigned nsz) {
-        unsigned sz = size();
+    void shrink(size_t nsz) {
+        size_t sz = size();
         lean_assert(nsz <= sz);
-        for (unsigned i = nsz; i < sz; i++)
+        for (size_t i = nsz; i < sz; i++)
             pop_back();
         lean_assert(size() == nsz);
     }

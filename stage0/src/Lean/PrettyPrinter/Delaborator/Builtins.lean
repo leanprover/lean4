@@ -60,8 +60,11 @@ def delabSort : Delab := do
 
 def unresolveNameGlobal (n₀ : Name) : DelabM Name := do
   if n₀.hasMacroScopes then return n₀
-  let mut initialNames := #[]
-  if !(← getPPOption getPPFullNames) then initialNames := initialNames ++ getRevAliases (← getEnv) n₀
+  if (← getPPOption getPPFullNames) then
+    match (← resolveGlobalName n₀) with
+      | [(potentialMatch, _)] => if potentialMatch == n₀ then return n₀ else return rootNamespace ++ n₀
+      | _ => return n₀ -- if can't resolve, return the original
+  let mut initialNames := (getRevAliases (← getEnv) n₀).toArray
   initialNames := initialNames.push (rootNamespace ++ n₀)
   for initialName in initialNames do
     match (← unresolveNameCore initialName) with
@@ -97,11 +100,15 @@ def delabConst : Delab := do
           c := `_root_ ++ c
         else
           c := c₀
-      return mkIdent c
+      mkIdent c
     else
       `($(mkIdent c).{$[$(ls.toArray.map quote)],*})
 
-  maybeAddBlockImplicit stx
+  let mut stx ← maybeAddBlockImplicit stx
+  if (← getPPOption getPPTagAppFns) then
+    stx ← annotateCurPos stx
+    addTermInfo (← getPos) stx (← getExpr)
+  stx
 
 structure ParamKind where
   name        : Name
@@ -188,8 +195,9 @@ def isRegularApp : DelabM Bool := do
 def unexpandRegularApp (stx : Syntax) : Delab := do
   let Expr.const c .. ← pure (unfoldMDatas (← getExpr).getAppFn) | unreachable!
   let fs ← appUnexpanderAttribute.getValues (← getEnv) c
+  let ref ← getRef
   fs.firstM fun f =>
-    match f stx |>.run () with
+    match f stx |>.run ref |>.run () with
     | EStateM.Result.ok stx _ => pure stx
     | _ => failure
 
@@ -513,8 +521,8 @@ def delabLam : Delab :=
     if !blockImplicitLambda then
       pure stxBody
     else
-      let group ← match e.binderInfo, ppTypes with
-        | BinderInfo.default,     true   =>
+      let defaultCase (_ : Unit) : Delab := do
+        if ppTypes then
           -- "default" binder group is the only one that expects binder names
           -- as a term, i.e. a single `Syntax.ident` or an application thereof
           let stxCurNames ←
@@ -523,7 +531,11 @@ def delabLam : Delab :=
             else
               pure $ curNames.get! 0;
           `(funBinder| ($stxCurNames : $stxT))
-        | BinderInfo.default,        false  => pure curNames.back  -- here `curNames.size == 1`
+        else
+          pure curNames.back  -- here `curNames.size == 1`
+      let group ← match e.binderInfo, ppTypes with
+        | BinderInfo.default,        _      => defaultCase ()
+        | BinderInfo.auxDecl,        _      => defaultCase ()
         | BinderInfo.implicit,       true   => `(funBinder| {$curNames* : $stxT})
         | BinderInfo.implicit,       false  => `(funBinder| {$curNames*})
         | BinderInfo.strictImplicit, true   => `(funBinder| ⦃$curNames* : $stxT⦄)
@@ -531,7 +543,6 @@ def delabLam : Delab :=
         | BinderInfo.instImplicit,   _     =>
           if usedDownstream then `(funBinder| [$curNames.back : $stxT])  -- here `curNames.size == 1`
           else  `(funBinder| [$stxT])
-        | _                      , _     => unreachable!;
       match stxBody with
       | `(fun $binderGroups* => $stxBody) => `(fun $group $binderGroups* => $stxBody)
       | _                                 => `(fun $group => $stxBody)

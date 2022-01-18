@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
-import Lean.PrettyPrinter
+import Lean.PrettyPrinter.Delaborator.Basic
 import Lean.Server.Rpc.Basic
 import Lean.Widget.TaggedText
 
@@ -129,6 +129,7 @@ def exprToInteractiveExplicit (e : Expr) : MetaM CodeWithInfos := do
     openDecls := ← getOpenDecls
     fileMap := arbitrary
   }
+  let infos := infos.erase 1 -- remove highlight for entire expression in popups
   tagExprInfos ctx infos tt
 
 end Lean.Widget

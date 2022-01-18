@@ -1,0 +1,10 @@
+{"textDocument": {"uri": "file://keywordCompletion.lean"},
+ "position": {"line": 4, "character": 16}}
+{"items": [{"label": "register_string", "kind": 14, "detail": "keyword"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://keywordCompletion.lean"},
+ "position": {"line": 7, "character": 10}}
+{"items":
+ [{"label": "register_string", "kind": 14, "detail": "keyword"},
+  {"label": "regular", "kind": 21, "detail": "Nat"}],
+ "isIncomplete": true}

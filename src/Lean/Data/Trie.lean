@@ -61,6 +61,26 @@ partial def find? (t : Trie α) (s : String) : Option α :=
         | some t => loop t i
   loop t 0
 
+/-- Return values that match the given `prefix` -/
+partial def findPrefix (t : Trie α) (pre : String) : Array α :=
+  go t 0 |>.run #[] |>.2
+where
+  go (t : Trie α) (i : String.Pos) : StateM (Array α) Unit :=
+    if pre.atEnd i then
+      collect t
+    else
+      let k := pre.get i
+      let i := pre.next i
+      let ⟨_, cs⟩ := t
+      cs.forM fun k' c => do
+        if k == k' then go c i
+
+  collect (t : Trie α) : StateM (Array α) Unit := do
+    let ⟨a?, cs⟩ := t
+    if let some a := a? then
+      modify (·.push a)
+    cs.forM fun _ c => collect c
+
 private def updtAcc (v : Option α) (i : String.Pos) (acc : String.Pos × Option α) : String.Pos × Option α :=
   match v, acc with
   | some v, (j, w) => (i, some v)  -- we pattern match on `acc` to enable memory reuse

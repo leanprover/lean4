@@ -39,7 +39,8 @@ structure StructFieldView where
   binderInfo : BinderInfo
   inferMod   : Bool
   declName   : Name
-  name       : Name
+  name       : Name -- The field name as it is going to be registered in the kernel. It does not include macroscopes.
+  rawName    : Name -- Same as `name` but including macroscopes.
   binders    : Syntax
   type?      : Option Syntax
   value?     : Option Syntax
@@ -208,7 +209,8 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
           pure (some optBinderTacticDefault[0][1])
     let idents := fieldBinder[2].getArgs
     idents.foldlM (init := views) fun (views : Array StructFieldView) ident => withRef ident do
-      let name := ident.getId.eraseMacroScopes
+      let rawName := ident.getId
+      let name    := rawName.eraseMacroScopes
       unless name.isAtomic do
         throwErrorAt ident "invalid field name '{name.eraseMacroScopes}', field names must be atomic"
       let declName := structDeclName ++ name
@@ -221,6 +223,7 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
         inferMod
         declName
         name
+        rawName
         binders
         type?
         value?
@@ -468,7 +471,7 @@ where
       | none => throwError "failed to copied fields from parent structure{indentExpr parentType}" -- TODO improve error message
     return result
 
-private partial def mkToParentName (parentStructName : Name) (p : Name → Bool) : Name := do
+private partial def mkToParentName (parentStructName : Name) (p : Name → Bool) : Name := Id.run <| do
   let base := Name.mkSimple $ "to" ++ parentStructName.eraseMacroScopes.getString!
   if p base then
     base
@@ -543,13 +546,13 @@ where
         match type?, value? with
         | none,      none => throwError "invalid field, type expected"
         | some type, _    =>
-          withLocalDecl view.name view.binderInfo type fun fieldFVar =>
+          withLocalDecl view.rawName view.binderInfo type fun fieldFVar =>
             let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
                                       kind := StructFieldKind.newField, inferMod := view.inferMod }
             go (i+1) defaultValsOverridden infos
         | none, some value =>
           let type ← inferType value
-          withLocalDecl view.name view.binderInfo type fun fieldFVar =>
+          withLocalDecl view.rawName view.binderInfo type fun fieldFVar =>
             let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value,
                                       kind := StructFieldKind.newField, inferMod := view.inferMod }
             go (i+1) defaultValsOverridden infos
@@ -826,8 +829,16 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         let instParents ← fieldInfos.filterM fun info => do
           let decl ← Term.getFVarLocalDecl! info.fvar
           pure (info.isSubobject && decl.binderInfo.isInstImplicit)
-        let projInstances := instParents.toList.map fun info => info.declName
+        withSaveInfoContext do  -- save new env
+          Term.addTermInfo view.ref[1] (← mkConstWithLevelParams view.declName) (isBinder := true)
+          if let some _ := view.ctor.ref[1].getPos? (originalOnly := true) then
+            Term.addTermInfo view.ctor.ref[1] (← mkConstWithLevelParams view.ctor.declName) (isBinder := true)
+          for field in view.fields do
+            -- may not exist if overriding inherited field
+            if (← getEnv).contains field.declName then
+              Term.addTermInfo field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
         Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
+        let projInstances := instParents.toList.map fun info => info.declName
         projInstances.forM fun declName => addInstance declName AttributeKind.global (eval_prio default)
         copiedParents.forM fun parent => mkCoercionToCopiedParent levelParams params view parent
         let lctx ← getLCtx

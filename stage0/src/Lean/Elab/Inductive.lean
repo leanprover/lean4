@@ -27,8 +27,6 @@ def checkValidInductiveModifier [Monad m] [MonadError m] (modifiers : Modifiers)
     throwError "invalid use of 'noncomputable' in inductive declaration"
   if modifiers.isPartial then
     throwError "invalid use of 'partial' in inductive declaration"
-  unless modifiers.attrs.size == 0 || (modifiers.attrs.size == 1 && modifiers.attrs[0].name == `class) do
-    throwError "invalid use of attributes in inductive declaration"
 
 def checkValidCtorModifier [Monad m] [MonadError m] (modifiers : Modifiers) : m Unit := do
   if modifiers.isNoncomputable then
@@ -390,7 +388,7 @@ private def updateParams (vars : Array Expr) (indTypes : List InductiveType) : T
       pure { ctor with type := ctorType }
     pure { indType with type := type, ctors := ctors }
 
-private def collectLevelParamsInInductive (indTypes : List InductiveType) : Array Name := do
+private def collectLevelParamsInInductive (indTypes : List InductiveType) : Array Name := Id.run <| do
   let mut usedParams : CollectLevelParams.State := {}
   for indType in indTypes do
     usedParams := collectLevelParams usedParams indType.type
@@ -398,7 +396,7 @@ private def collectLevelParamsInInductive (indTypes : List InductiveType) : Arra
       usedParams := collectLevelParams usedParams ctor.type
   return usedParams.params
 
-private def mkIndFVar2Const (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name) : ExprMap Expr := do
+private def mkIndFVar2Const (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name) : ExprMap Expr := Id.run <| do
   let levelParams := levelNames.map mkLevelParam;
   let mut m : ExprMap Expr := {}
   for i in [:views.size] do
@@ -427,7 +425,7 @@ private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : 
 
 abbrev Ctor2InferMod := Std.HashMap Name Bool
 
-private def mkCtor2InferMod (views : Array InductiveView) : Ctor2InferMod := do
+private def mkCtor2InferMod (views : Array InductiveView) : Ctor2InferMod := Id.run <| do
   let mut m := {}
   for view in views do
     for ctorView in view.ctors do
@@ -499,9 +497,13 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
           Term.ensureNoUnassignedMVars decl
           addDecl decl
           mkAuxConstructions views
-          -- We need to invoke `applyAttributes` because `class` is implemented as an attribute.
-          for view in views do
-            Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
+          withSaveInfoContext do  -- save new env
+            for view in views do
+              Term.addTermInfo view.ref[1] (← mkConstWithLevelParams view.declName) (isBinder := true)
+              for ctor in view.ctors do
+                Term.addTermInfo ctor.ref[2] (← mkConstWithLevelParams ctor.declName) (isBinder := true)
+              -- We need to invoke `applyAttributes` because `class` is implemented as an attribute.
+              Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
 
 private def applyDerivingHandlers (views : Array InductiveView) : CommandElabM Unit := do
   let mut processed : NameSet := {}

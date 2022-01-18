@@ -7,6 +7,7 @@ import Lean.Structure
 import Lean.Util.Recognizers
 import Lean.Meta.SynthInstance
 import Lean.Meta.Check
+import Lean.Meta.DecLevel
 
 namespace Lean.Meta
 

@@ -255,6 +255,7 @@ object * box_t(value v, type t) {
         case type::Irrelevant:
             return v.m_obj;
     }
+    lean_unreachable();
 }
 
 value unbox_t(object * o, type t) {
@@ -265,12 +266,16 @@ value unbox_t(object * o, type t) {
         case type::UInt32: return unbox_uint32(o);
         case type::UInt64: return unbox_uint64(o);
         case type::USize: return unbox_size_t(o);
-        default: lean_unreachable();
+        case type::Irrelevant:
+        case type::Object:
+        case type::TObject:
+            break;
     }
+    lean_unreachable();
 }
 
 /** \pre Very simple debug output of arbitrary values, should be extended. */
-void print_value(std::ostream & ios, value const & v, type t) {
+void print_value(tout & ios, value const & v, type t) {
     if (t == type::Float) {
         ios << v.m_float;
     } else if (type_is_scalar(t)) {
@@ -285,6 +290,10 @@ void print_value(std::ostream & ios, value const & v, type t) {
             ios << v.m_obj;
         }
     }
+}
+
+void print_value(tout const & ios, value const & v, type t) {
+  return print_value(const_cast<tout &>(ios), v, t);
 }
 
 void * lookup_symbol_in_cur_exe(char const * sym) {
@@ -359,12 +368,12 @@ class interpreter {
 
 public:
     template<class T>
-    static inline T with_interpreter(environment const & env, options const & opts, std::function<T(interpreter &)> const & f) {
+    static inline T with_interpreter(environment const & env, options const & opts, name const & fn, std::function<T(interpreter &)> const & f) {
         if (g_interpreter && is_eqp(g_interpreter->m_env, env) && is_eqp(g_interpreter->m_opts, opts)) {
             return f(*g_interpreter);
         } else {
             // We changed threads or the closure was stored and called in a different context.
-            time_task t("interpretation", opts);
+            time_task t("interpretation", opts, fn);
             scope_trace_env scope_trace(env, opts);
             // the caches contain data from the Environment, so we cannot reuse them when changing it
             interpreter interp(env, opts);
@@ -460,8 +469,13 @@ private:
                     case type::UInt16: return cnstr_get_uint16(o, offset);
                     case type::UInt32: return cnstr_get_uint32(o, offset);
                     case type::UInt64: return cnstr_get_uint64(o, offset);
-                    default: throw exception("invalid instruction");
+                    case type::USize:
+                    case type::Irrelevant:
+                    case type::Object:
+                    case type::TObject:
+                        break;
                 }
+                throw exception("invalid instruction");
             }
             case expr_kind::FAp: { // satured ("full") application of top-level function
                 if (expr_fap_args(e).size()) {
@@ -520,20 +534,21 @@ private:
                             case type::Object:
                             case type::TObject:
                                 return n.to_obj_arg();
-                            default:
-                                throw exception("invalid instruction");
+                            case type::Irrelevant:
+                                break;
                         }
+                        throw exception("invalid instruction");
                     }
                     case lit_val_kind::Str:
                         return lit_val_str(expr_lit_val(e)).to_obj_arg();
                 }
+                break;
             case expr_kind::IsShared:
                 return !is_exclusive(var(expr_is_shared_obj(e)).m_obj);
             case expr_kind::IsTaggedPtr:
                 return !is_scalar(var(expr_is_tagged_ptr_obj(e)).m_obj);
-            default:
-                throw exception(sstream() << "unexpected instruction kind " << static_cast<unsigned>(expr_tag(e)));
         }
+        throw exception(sstream() << "unexpected instruction kind " << static_cast<unsigned>(expr_tag(e)));
     }
 
     void check_system() {
@@ -636,7 +651,11 @@ private:
                         case type::UInt16: cnstr_set_uint16(o, offset, v.m_num); break;
                         case type::UInt32: cnstr_set_uint32(o, offset, v.m_num); break;
                         case type::UInt64: cnstr_set_uint64(o, offset, v.m_num); break;
-                        default: throw exception(sstream() << "invalid instruction");
+                        case type::USize:
+                        case type::Irrelevant:
+                        case type::Object:
+                        case type::TObject:
+                            throw exception(sstream() << "invalid instruction");
                     }
                     b = fn_body_sset_cont(b);
                     break;
@@ -868,7 +887,7 @@ private:
     static object * stub_m_aux(object ** args) {
         environment env(args[0]);
         options opts(args[1]);
-        return with_interpreter<object *>(env, opts, [&](interpreter & interp) {
+        return with_interpreter<object *>(env, opts, decl_fun_id(TO_REF(decl, args[2])), [&](interpreter & interp) {
             return interp.stub_m(args);
         });
     }
@@ -1031,10 +1050,10 @@ object * run_boxed(environment const & env, options const & opts, name const & f
     if (get_sorry_dep(env, fn)) {
         throw exception("cannot evaluate code because it uses 'sorry' and/or contains errors");
     }
-    return interpreter::with_interpreter<object *>(env, opts, [&](interpreter & interp) { return interp.call_boxed(fn, n, args); });
+    return interpreter::with_interpreter<object *>(env, opts, fn, [&](interpreter & interp) { return interp.call_boxed(fn, n, args); });
 }
 uint32 run_main(environment const & env, options const & opts, int argv, char * argc[]) {
-    return interpreter::with_interpreter<uint32>(env, opts, [&](interpreter & interp) { return interp.run_main(argv, argc); });
+    return interpreter::with_interpreter<uint32>(env, opts, "main", [&](interpreter & interp) { return interp.run_main(argv, argc); });
 }
 
 extern "C" LEAN_EXPORT object * lean_eval_const(object * env, object * opts, object * c) {
@@ -1046,7 +1065,7 @@ extern "C" LEAN_EXPORT object * lean_eval_const(object * env, object * opts, obj
 }
 
 extern "C" LEAN_EXPORT object * lean_run_init(object * env, object * opts, object * decl, object * init_decl, object *) {
-    return interpreter::with_interpreter<object *>(TO_REF(environment, env), TO_REF(options, opts), [&](interpreter & interp) {
+    return interpreter::with_interpreter<object *>(TO_REF(environment, env), TO_REF(options, opts), TO_REF(name, decl), [&](interpreter & interp) {
         return interp.run_init(TO_REF(name, decl), TO_REF(name, init_decl));
     });
 }

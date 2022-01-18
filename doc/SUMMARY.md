@@ -24,8 +24,10 @@
 - [Tactics](./tactics.md)
 - [Syntax Extensions](./syntax.md)
   - [The `do` Notation](./do.md)
+  - [User-defined notation](./notation.md)
   - [String Interpolation](./stringinterp.md)
-- [Metaprogramming](./metaprogramming.md)
+  - [Macro Overview](./macro_overview.md)
+  - [A Guided Example](./syntax_example.md)
 - [Declaring New Types](./decltypes.md)
   - [Enumerated Types](./enum.md)
   - [Inductive Types](./inductive.md)
@@ -45,7 +47,6 @@
   - [Thunk](./thunk.md)
   - [Task and Thread](./task.md)
 - [Functions](./functions.md)
-- [Tactics](./tactics.md)
 
 # Other
 

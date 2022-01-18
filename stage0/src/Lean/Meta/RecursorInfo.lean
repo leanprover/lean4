@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.AuxRecursor
 import Lean.Util.FindExpr
-import Lean.Meta.ExprDefEq
+import Lean.Meta.Basic
 
 namespace Lean.Meta
 

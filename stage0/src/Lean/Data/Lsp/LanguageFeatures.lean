@@ -18,12 +18,35 @@ structure CompletionOptions where
   resolveProvider      : Bool := false
   deriving FromJson, ToJson
 
+inductive CompletionItemKind where
+  | text | method | function | constructor | field
+  | «variable» | «class» | interface | module | property
+  | unit | value | enum | keyword | snippet
+  | color | file | reference | folder | enumMember
+  | «constant» | struct | event | operator | typeParameter
+  deriving Inhabited, DecidableEq, Repr
+
+instance : ToJson CompletionItemKind where
+  toJson a := toJson (a.toCtorIdx + 1)
+
+instance : FromJson CompletionItemKind where
+  fromJson? v := do
+    let i : Nat ← fromJson? v
+    return CompletionItemKind.ofNat (i-1)
+
+structure InsertReplaceEdit where
+  newText : String
+  insert : Range
+  replace : Range
+  deriving FromJson, ToJson
+
 structure CompletionItem where
   label : String
   detail? : Option String
   documentation? : Option MarkupContent
+  kind? : Option CompletionItemKind
+  textEdit? : Option InsertReplaceEdit := none
   /-
-  kind? : CompletionItemKind
   tags? : CompletionItemTag[]
   deprecated? : boolean
   preselect? : boolean
@@ -32,7 +55,6 @@ structure CompletionItem where
   insertText? : string
   insertTextFormat? : InsertTextFormat
   insertTextMode? : InsertTextMode
-  textEdit? : TextEdit | InsertReplaceEdit
   additionalTextEdits? : TextEdit[]
   commitCharacters? : string[]
   command? : Command
@@ -65,6 +87,14 @@ structure DefinitionParams extends TextDocumentPositionParams
   deriving FromJson, ToJson
 
 structure TypeDefinitionParams extends TextDocumentPositionParams
+  deriving FromJson, ToJson
+
+structure ReferenceContext where
+  includeDeclaration : Bool
+  deriving FromJson, ToJson
+
+structure ReferenceParams extends TextDocumentPositionParams where
+  context : ReferenceContext
   deriving FromJson, ToJson
 
 structure DocumentHighlightParams extends TextDocumentPositionParams

@@ -8,13 +8,57 @@ import Lean.Structure
 import Lean.Meta.WHNF
 import Lean.Meta.InferType
 import Lean.Meta.FunInfo
-import Lean.Meta.LevelDefEq
 import Lean.Meta.Check
 import Lean.Meta.Offset
 import Lean.Meta.ForEachExpr
 import Lean.Meta.UnificationHint
 
 namespace Lean.Meta
+
+/--
+  Return true `b` is of the form `mk a.1 ... a.n`, and `a` is not a constructor application.
+
+  If `a` and `b` are constructor applications, the method returns `false` to force `isDefEq` to use `isDefEqArgs`.
+  For example, suppose we are trying to solve the constraint
+  ```
+  Fin.mk ?n ?h =?= Fin.mk n h
+  ```
+  If this method is applied, the constraints are reduced to
+  ```
+  n =?= (Fin.mk ?n ?h).1
+  h =?= (Fin.mk ?n ?h).2
+  ```
+  The first constraint produces the assignment `?n := n`. Then, the second constraint is solved using proof irrelevance without
+  assigning `?h`.
+  TODO: investigate better solutions for the proof irrelevance issue. The problem above can happen is other scenarios.
+  That is, proof irrelevance may prevent us from performing desired mvar assignments.
+-/
+private def isDefEqEtaStruct (a b : Expr) : MetaM Bool := do
+  if !(← getConfig).etaStruct then return false
+  else
+    matchConstCtor b.getAppFn (fun _ => return false) fun ctorVal _ =>
+    matchConstCtor a.getAppFn (fun _ => go ctorVal) fun _ _ => return false
+where
+  go ctorVal := do
+    if ctorVal.numParams + ctorVal.numFields != b.getAppNumArgs then
+      trace[Meta.isDefEq.eta.struct] "failed, insufficient number of arguments at{indentExpr b}"
+      return false
+    else
+      if !isStructureLike (← getEnv) ctorVal.induct then
+        trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
+        return false
+      else if (← isDefEq (← inferType a) (← inferType b)) then
+        checkpointDefEq do
+          let args := b.getAppArgs
+          for i in [ctorVal.numParams : args.size] do
+            let proj := mkProj ctorVal.induct (i - ctorVal.numParams) a
+            trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{i - ctorVal.numParams}], {proj} =?= {args[i]}"
+            unless (← isDefEq proj args[i]) do
+              trace[Meta.isDefEq.eta.struct] "failed, unexpect arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"
+              return false
+          return true
+      else
+        return false
 
 /--
   Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`.
@@ -35,7 +79,7 @@ private def isDefEqEta (a b : Expr) : MetaM Bool := do
       checkpointDefEq <| Meta.isExprDefEqAux a b'
     | _ => pure false
   else
-    pure false
+    return false
 
 /-- Support for `Lean.reduceBool` and `Lean.reduceNat` -/
 def isDefEqNative (s t : Expr) : MetaM LBool := do
@@ -286,7 +330,7 @@ where
   /- Return true if there are let-declarions between `xs[0]` and `xs[xs.size-1]`.
      We use it a quick-check to avoid the more expensive collection procedure. -/
   hasLetDeclsInBetween : MetaM Bool := do
-    let check (lctx : LocalContext) : Bool := do
+    let check (lctx : LocalContext) : Bool := Id.run <| do
       let start := lctx.getFVar! xs[0] |>.index
       let stop  := lctx.getFVar! xs.back |>.index
       for i in [start+1:stop] do
@@ -991,14 +1035,18 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
   let tFn := t.getAppFn
   let sFn := s.getAppFn
   let info ← getConstInfo tFn.constName!
-  /- We only use the heuristic when `f` is a regular definition. That is, it is marked an abbreviation
-     (e.g., a user-facing projection) or as opaque (e.g., proof).
+  /- We only use the heuristic when `f` is a regular definition or an auxiliary `match` application.
+     That is, it is not marked an abbreviation (e.g., a user-facing projection) or as opaque (e.g., proof).
      We check whether terms contain metavariables to make sure we can solve constraints such
      as `S.proj ?x =?= S.proj t` without performing delta-reduction.
      That is, we are assuming the heuristic implemented by this method is seldom effective
      when `t` and `s` do not have metavariables, are not structurally equal, and `f` is an abbreviation.
-     On the other hand, by unfolding `f`, we often produce smaller terms. -/
-  unless info.hints.isRegular do
+     On the other hand, by unfolding `f`, we often produce smaller terms.
+
+     Recall that auxiliary `match` definitions are marked as abbreviations, but we must use the heuristic on
+     them since they will not be unfolded when smartUnfolding is turned on. The abbreviation annotation in this
+     case is used to help the kernel type checker. -/
+  unless info.hints.isRegular || isMatcherCore (← getEnv) tFn.constName! do
     unless t.hasExprMVar || s.hasExprMVar do
       return false
   traceCtx `Meta.isDefEq.delta do
@@ -1404,7 +1452,7 @@ private def isDefEqProj : Expr → Expr → MetaM Bool
   | v, Expr.proj structName 0 s _ => isDefEqSingleton structName s v
   | _, _ => pure false
 where
-  /- If `structName` is a structure with a single field, then reduce `s.1 =?= v` to `s =?= ⟨v⟩` -/
+  /- If `structName` is a structure with a single field and `(?m ...).1 =?= v`, then solve contraint as `?m ... =?= ⟨v⟩` -/
   isDefEqSingleton (structName : Name) (s : Expr) (v : Expr) : MetaM Bool := do
     let ctorVal := getStructureCtor (← getEnv) structName
     if ctorVal.numFields != 1 then
@@ -1413,8 +1461,15 @@ where
     let sTypeFn := sType.getAppFn
     if !sTypeFn.isConstOf structName then
       return false
-    let ctorApp := mkApp (mkAppN (mkConst ctorVal.name sTypeFn.constLevels!) sType.getAppArgs) v
-    Meta.isExprDefEqAux s ctorApp
+    let s ← whnf s
+    let sFn := s.getAppFn
+    if !sFn.isMVar then
+      return false
+    if (← isAssignable sFn) then
+      let ctorApp := mkApp (mkAppN (mkConst ctorVal.name sTypeFn.constLevels!) sType.getAppArgs) v
+      processAssignment' s ctorApp
+    else
+      return false
 
 /-
   Given applications `t` and `s` that are in WHNF (modulo the current transparency setting),
@@ -1434,19 +1489,33 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   else
     isDefEqOnFailure t s
 
+/-- Return `true` if the types of the given expressions is an inductive datatype with an inductive datatype with a single constructor with no fields. -/
+private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
+  if !(← getConfig).etaStruct then return false
+  else
+    let tType ← whnf (← inferType t)
+    matchConstStruct tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
+      if ctorVal.numFields != 0 then
+        return false
+      else
+        Meta.isExprDefEqAux tType (← inferType s)
+
 private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   if (← (isDefEqEta t s <||> isDefEqEta s t)) then pure true else
+  -- TODO: investigate whether this is the place for putting this check
+  if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then pure true else
   if (← isDefEqProj t s) then pure true else
   whenUndefDo (isDefEqNative t s) do
   whenUndefDo (isDefEqNat t s) do
   whenUndefDo (isDefEqOffset t s) do
   whenUndefDo (isDefEqDelta t s) do
   if t.isConst && s.isConst then
-    if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else pure false
-  else if t.isApp && s.isApp then
-    isDefEqApp t s
+    if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
+  else if (← t.isApp <&&> s.isApp <&&> isDefEqApp t s) then
+    return true
   else
     whenUndefDo (isDefEqStringLit t s) do
+    if (← isDefEqUnitLike t s) then return true else
     isDefEqOnFailure t s
 
 -- We only check DefEq cache for default and all transparency modes
@@ -1516,5 +1585,6 @@ builtin_initialize
   registerTraceClass `Meta.isDefEq.delta
   registerTraceClass `Meta.isDefEq.step
   registerTraceClass `Meta.isDefEq.assign
+  registerTraceClass `Meta.isDefEq.eta.struct
 
 end Lean.Meta

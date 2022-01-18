@@ -44,12 +44,10 @@ def registerRpcCallHandler (method : Name)
     let some seshRef ← rc.rpcSessions.find? seshId
       | throwThe RequestError { code := JsonRpc.ErrorCode.rpcNeedsReconnect
                                 message := s!"Outdated RPC session" }
-    let sesh ← seshRef.get
-
     let t ← RequestM.asTask do
-      let paramsLsp ← parseRequestParams paramLspType j
+      let paramsLsp ← liftExcept <| parseRequestParams paramLspType j
       let act := rpcDecode (α := paramType) (β := paramLspType) (m := StateM FileWorker.RpcSession) paramsLsp
-      match act.run' sesh with
+      match act.run' (← seshRef.get) with
       | Except.ok v => return v
       | Except.error e => throwThe RequestError {
           code := JsonRpc.ErrorCode.invalidParams
@@ -64,9 +62,7 @@ def registerRpcCallHandler (method : Name)
       | Except.error e => throw e
       | Except.ok ret => do
         let act := rpcEncode (α := respType) (β := respLspType) (m := StateM FileWorker.RpcSession) ret
-        let (retLsp, sesh') := act.run sesh
-        seshRef.set sesh'
-        return toJson retLsp
+        toJson (← seshRef.modifyGet act.run)
 
   rpcProcedures.modify fun ps => ps.insert method ⟨wrapper⟩
 

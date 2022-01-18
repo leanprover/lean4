@@ -149,10 +149,10 @@ def ContextInfo.toPPContext (info : ContextInfo) (lctx : LocalContext) : PPConte
 def ContextInfo.ppSyntax (info : ContextInfo) (lctx : LocalContext) (stx : Syntax) : IO Format := do
   ppTerm (info.toPPContext lctx) stx
 
-private def formatStxRange (ctx : ContextInfo) (stx : Syntax) : Format := do
+private def formatStxRange (ctx : ContextInfo) (stx : Syntax) : Format :=
   let pos    := stx.getPos?.getD 0
   let endPos := stx.getTailPos?.getD pos
-  return f!"{fmtPos pos stx.getHeadInfo}-{fmtPos endPos stx.getTailInfo}"
+  f!"{fmtPos pos stx.getHeadInfo}-{fmtPos endPos stx.getTailInfo}"
 where fmtPos pos info :=
     let pos := format <| ctx.fileMap.toPosition pos
     match info with

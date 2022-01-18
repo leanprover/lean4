@@ -41,6 +41,7 @@ instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (E
 def BaseIO := EIO Empty
 
 instance : Monad BaseIO := inferInstanceAs (Monad (EIO Empty))
+instance : MonadFinally BaseIO := inferInstanceAs (MonadFinally (EIO Empty))
 
 @[inline] def BaseIO.toEIO (act : BaseIO α) : EIO ε α :=
   fun s => match act s with
@@ -95,7 +96,7 @@ set_option compiler.extract_closed false in
    which IO action is executed to set the value of an opaque constant.
 
    The action `initializing` returns `true` iff it is invoked during initialization. -/
-@[extern "lean_io_initializing"] constant IO.initializing : IO Bool
+@[extern "lean_io_initializing"] constant IO.initializing : BaseIO Bool
 
 namespace BaseIO
 
@@ -162,7 +163,7 @@ def lazyPure (fn : Unit → α) : IO α :=
   pure (fn ())
 
 /-- Monotonically increasing time since an unspecified past point in milliseconds. No relation to wall clock time. -/
-@[extern "lean_io_mono_ms_now"] constant monoMsNow : IO Nat
+@[extern "lean_io_mono_ms_now"] constant monoMsNow : BaseIO Nat
 
 /-- Read bytes from a system entropy source. Not guaranteed to be cryptographically secure.
 If `nBytes = 0`, return immediately with an empty buffer. -/
@@ -222,19 +223,20 @@ structure FS.Stream where
   write   : ByteArray → IO Unit
   getLine : IO String
   putStr  : String → IO Unit
+  deriving Inhabited
 
 open FS
 
-@[extern "lean_get_stdin"] constant getStdin  : IO FS.Stream
-@[extern "lean_get_stdout"] constant getStdout : IO FS.Stream
-@[extern "lean_get_stderr"] constant getStderr : IO FS.Stream
+@[extern "lean_get_stdin"] constant getStdin  : BaseIO FS.Stream
+@[extern "lean_get_stdout"] constant getStdout : BaseIO FS.Stream
+@[extern "lean_get_stderr"] constant getStderr : BaseIO FS.Stream
 
 /-- Replaces the stdin stream of the current thread and returns its previous value. -/
-@[extern "lean_get_set_stdin"] constant setStdin  : FS.Stream → IO FS.Stream
+@[extern "lean_get_set_stdin"] constant setStdin  : FS.Stream → BaseIO FS.Stream
 /-- Replaces the stdout stream of the current thread and returns its previous value. -/
-@[extern "lean_get_set_stdout"] constant setStdout : FS.Stream → IO FS.Stream
+@[extern "lean_get_set_stdout"] constant setStdout : FS.Stream → BaseIO FS.Stream
 /-- Replaces the stderr stream of the current thread and returns its previous value. -/
-@[extern "lean_get_set_stderr"] constant setStderr : FS.Stream → IO FS.Stream
+@[extern "lean_get_set_stderr"] constant setStderr : FS.Stream → BaseIO FS.Stream
 
 @[specialize] partial def iterate (a : α) (f : α → IO (Sum α β)) : IO β := do
   let v ← f a
@@ -266,7 +268,7 @@ Returns whether the end of the file has been reached while reading a file.
 `h.isEof` returns true /after/ the first attempt at reading past the end of `h`.
 Once `h.isEof` is true, reading `h` will always return an empty array.
 -/
-@[extern "lean_io_prim_handle_is_eof"] constant isEof (h : @& Handle) : IO Bool
+@[extern "lean_io_prim_handle_is_eof"] constant isEof (h : @& Handle) : BaseIO Bool
 @[extern "lean_io_prim_handle_flush"] constant flush (h : @& Handle) : IO Unit
 @[extern "lean_io_prim_handle_read"] constant read  (h : @& Handle) (bytes : USize) : IO ByteArray
 @[extern "lean_io_prim_handle_write"] constant write (h : @& Handle) (buffer : @& ByteArray) : IO Unit
@@ -284,7 +286,7 @@ end Handle
 
 end FS
 
-@[extern "lean_io_getenv"] constant getEnv (var : @& String) : IO (Option String)
+@[extern "lean_io_getenv"] constant getEnv (var : @& String) : BaseIO (Option String)
 @[extern "lean_io_app_path"] constant appPath : IO FilePath
 @[extern "lean_io_current_dir"] constant currentDir : IO FilePath
 
@@ -391,31 +393,30 @@ constant readDir : @& FilePath → IO (Array IO.FS.DirEntry)
 @[extern "lean_io_metadata"]
 constant metadata : @& FilePath → IO IO.FS.Metadata
 
-def isDir (p : FilePath) : IO Bool :=
-  try
-    return (← p.metadata).type == IO.FS.FileType.dir
-  catch _ =>
-    return false
+def isDir (p : FilePath) : BaseIO Bool := do
+  match (← p.metadata.toBaseIO) with
+  | Except.ok m => m.type == IO.FS.FileType.dir
+  | Except.error _ => false
 
-def pathExists (p : FilePath) : IO Bool :=
-  (p.metadata *> pure true) <|> pure false
+def pathExists (p : FilePath) : BaseIO Bool := do
+  (← p.metadata.toBaseIO).toBool
 
 end System.FilePath
 
 namespace IO
 
-def withStdin [Monad m] [MonadFinally m] [MonadLiftT IO m] (h : FS.Stream) (x : m α) : m α := do
+def withStdin [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStdin h
   try x finally discard <| setStdin prev
 
-def withStdout [Monad m] [MonadFinally m] [MonadLiftT IO m] (h : FS.Stream) (x : m α) : m α := do
+def withStdout [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStdout h
   try
     x
   finally
     discard <| setStdout prev
 
-def withStderr [Monad m] [MonadFinally m] [MonadLiftT IO m] (h : FS.Stream) (x : m α) : m α := do
+def withStderr [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStderr h
   try x finally discard <| setStderr prev
 
@@ -432,6 +433,10 @@ def eprint [ToString α] (s : α) : IO Unit := do
 
 def eprintln [ToString α] (s : α) : IO Unit :=
   eprint <| toString s |>.push '\n'
+
+@[export lean_io_eprint]
+private def eprintAux (s : String) : IO Unit :=
+  eprint s
 
 @[export lean_io_eprintln]
 private def eprintlnAux (s : String) : IO Unit :=
@@ -574,7 +579,7 @@ abbrev Ref (α : Type) := ST.Ref IO.RealWorld α
 
 instance : MonadLift (ST IO.RealWorld) BaseIO := ⟨id⟩
 
-def mkRef (a : α) : IO (IO.Ref α) :=
+def mkRef (a : α) : BaseIO (IO.Ref α) :=
   ST.mkRef a
 
 namespace FS
@@ -616,14 +621,14 @@ def ofBuffer (r : Ref Buffer) : Stream := {
 end Stream
 
 /-- Run action with `stdin` emptied and `stdout+stderr` captured into a `String`. -/
-def withIsolatedStreams [Monad m] [MonadFinally m] [MonadExceptOf IO.Error m] [MonadLiftT IO m] (x : m α) : m (String × Except IO.Error α) := do
+def withIsolatedStreams [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (x : m α) : m (String × α) := do
   let bIn ← mkRef { : Stream.Buffer }
   let bOut ← mkRef { : Stream.Buffer }
   let r ← withStdin (Stream.ofBuffer bIn) <|
     withStdout (Stream.ofBuffer bOut) <|
       withStderr (Stream.ofBuffer bOut) <|
-        observing x
-  let bOut ← liftM (m := IO) bOut.get
+        x
+  let bOut ← liftM (m := BaseIO) bOut.get
   let out := String.fromUTF8Unchecked bOut.data
   pure (out, r)
 
@@ -656,7 +661,7 @@ instance [Eval α] : Eval (IO α) where
     Eval.eval fun _ => a
 
 @[noinline, nospecialize] def runEval [Eval α] (a : Unit → α) : IO (String × Except IO.Error Unit) :=
-  IO.FS.withIsolatedStreams (Eval.eval a false)
+  IO.FS.withIsolatedStreams (Eval.eval a false |>.toBaseIO)
 
 end Lean
 

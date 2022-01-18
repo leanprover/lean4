@@ -3,7 +3,7 @@ import Lean
 open Lean
 open Lean.Meta
 def tst (declName : Name) : MetaM Unit := do
-  IO.println (← getEqnsFor? declName)
+  IO.println (← getUnfoldEqnFor? declName)
 
 def g (i j : Nat) : Nat :=
   if i < 5 then 0 else
@@ -12,9 +12,10 @@ def g (i j : Nat) : Nat :=
   | Nat.succ j => g i j
 
 #eval tst ``g
-#check g.eq_1
-#check g.eq_2
-#check g.eq_3
+#check g._eq_1
+#check g._eq_2
+#check g._eq_3
+#check g._unfold
 
 def h (i j : Nat) : Nat :=
   let z :=
@@ -24,5 +25,6 @@ def h (i j : Nat) : Nat :=
   z + z
 
 #eval tst ``h
-#check h.eq_1
-#check h.eq_2
+#check h._eq_1
+#check h._eq_2
+#check h._unfold

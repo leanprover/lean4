@@ -2,7 +2,7 @@
   [Meta.synthInstance] 
     [Meta.synthInstance] main goal Inhabited Nat
     [Meta.synthInstance.newSubgoal] Inhabited Nat
-    [Meta.synthInstance.globalInstances] Inhabited Nat, [instInhabited, instInhabitedNat]
+    [Meta.synthInstance.globalInstances] Inhabited Nat, [@instInhabited, instInhabitedNat]
     [Meta.synthInstance.generate] instance instInhabitedNat
     [Meta.synthInstance.tryResolve] 
       [Meta.synthInstance.tryResolve] Inhabited Nat =?= Inhabited Nat

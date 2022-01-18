@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 import Lean.ScopedEnvExtension
 import Lean.Util.Recognizers
 import Lean.Meta.DiscrTree
-import Lean.Meta.LevelDefEq
 import Lean.Meta.SynthInstance
 
 namespace Lean.Meta

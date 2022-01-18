@@ -2,6 +2,9 @@ Prop
 Type
 Type
 Type 1
+@max Nat
+@HEq Nat 1
+@List.nil
 Nat
 List Nat
 id Nat
@@ -22,9 +25,9 @@ typeAs
     α → α)
   fun {α} a => a
 fun {α}
-  [inst :
-    ToString α]
-  a =>
+    [inst :
+      ToString α]
+    a =>
   @toString α inst a
 (α : Type) → α
 (α β : Type) → α
@@ -53,12 +56,12 @@ Type → Type → Type
 decide (1 < 2) ||
   true
 id (fun a => a) 0
-typeAs Nat
+typeAs (Id Nat)
   (let x := 1;
-  do 
-    discard (pure 2)
-    let y : Nat := 3
-    pure (x + y))
+  do
+  discard (pure 2)
+  let y : Nat := 3
+  pure (x + y))
 typeAs (Id Nat)
   (pure 1 >>= pure)
 (0 ≤ 1) = False

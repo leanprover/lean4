@@ -49,15 +49,15 @@ def getBuildDir : IO FilePath := do
   return (← IO.appDir).parent |>.get!
 
 @[export lean_get_libdir]
-def getLibDir : IO FilePath := do
-  let mut buildDir ← getBuildDir
+def getLibDir (leanSysroot : FilePath) : IO FilePath := do
+  let mut buildDir := leanSysroot
   -- use stage1 stdlib with stage0 executable (which should never be distributed outside of the build directory)
   if isStage0 () then
     buildDir := buildDir / ".." / "stage1"
   buildDir / "lib" / "lean"
 
-def getBuiltinSearchPath : IO SearchPath :=
-  return [← getLibDir]
+def getBuiltinSearchPath (leanSysroot : FilePath) : IO SearchPath :=
+  return [← getLibDir leanSysroot]
 
 def addSearchPathFromEnv (sp : SearchPath) : IO SearchPath := do
   let val ← IO.getEnv "LEAN_PATH"
@@ -65,14 +65,17 @@ def addSearchPathFromEnv (sp : SearchPath) : IO SearchPath := do
   | none     => pure sp
   | some val => pure <| SearchPath.parse val ++ sp
 
+/--
+Initialize Lean's search path given Lean's system root and an initial search path.
+The system root can be obtained via `getBuildDir` (for internal use) or
+`findSysroot?` (for external users). -/
+def initSearchPath (leanSysroot : FilePath) (sp : SearchPath := ∅) : IO Unit := do
+  let sp := sp ++ (← addSearchPathFromEnv (← getBuiltinSearchPath leanSysroot))
+  searchPathRef.set sp
+
 @[export lean_init_search_path]
-def initSearchPath (path : Option String := none) : IO Unit :=
-  match path with
-  | some path => searchPathRef.set <| SearchPath.parse path
-  | none      => do
-    let sp ← getBuiltinSearchPath
-    let sp ← addSearchPathFromEnv sp
-    searchPathRef.set sp
+private def initSearchPathInternal : IO Unit := do
+  initSearchPath (← getBuildDir)
 
 partial def findOLean (mod : Name) : IO FilePath := do
   let sp ← searchPathRef.get
@@ -109,5 +112,23 @@ def moduleNameOfFileName (fname : FilePath) (rootDir : Option FilePath) : IO Nam
   let modNameStr := FilePath.mk fnameSuffix |>.withExtension ""
   let modName    := modNameStr.components.foldl Name.mkStr Name.anonymous
   pure modName
+
+/--
+  Find the system root of the given `lean` command
+  by calling `lean --print-prefix` and returning the path it prints.
+  Defaults to trying the `lean` in `PATH`.
+  If set, the `LEAN_SYSROOT` environment variable takes precedence.
+  Note that the called `lean` binary might not be part of the system root,
+  e.g. in the case of `elan`'s proxy binary.
+  Users internal to Lean should use `Lean.getBuildDir` instead.
+-/
+def findSysroot? (lean := "lean") : IO FilePath := do
+  if let some root ← IO.getEnv "LEAN_SYSROOT" then
+    return root
+  let out ← IO.Process.run {
+    cmd := lean
+    args := #["--print-prefix"]
+  }
+  out.trim
 
 end Lean

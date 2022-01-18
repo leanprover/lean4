@@ -5,6 +5,7 @@ Authors: Sebastian Ullrich
 -/
 import Lean.Util.ReplaceExpr
 import Lean.Meta.Basic
+import Lean.Meta.ReduceEval
 import Lean.Meta.WHNF
 import Lean.ParserCompiler.Attribute
 import Lean.Parser.Extension
@@ -30,10 +31,27 @@ def replaceParserTy {α} (ctx : Context α) (e : Expr) : Expr :=
     let e := if e.isOptParam then e.appFn!.appArg! else e
     if e.isConstOf `Lean.Parser.Parser then mkConst ctx.tyName else none
 
+open Meta Parser in
+/-- Takes an expression of type `Parser`, and determines the syntax kind of the root node it produces. -/
+partial def parserNodeKind? (e : Expr) : MetaM (Option Name) := do
+  let reduceEval? e : MetaM (Option Name) := do
+    try some (← reduceEval e) catch _ => none
+  let e ← whnfCore e
+  if e matches Expr.lam .. then
+    lambdaLetTelescope e fun xs e => parserNodeKind? e
+  else if e.isAppOfArity ``nodeWithAntiquot 4 then
+    reduceEval? (e.getArg! 1)
+  else if e.isAppOfArity ``withAntiquot 2 then
+    parserNodeKind? (e.getArg! 1)
+  else if e.isAppOfArity ``leadingNode 3 || e.isAppOfArity ``trailingNode 4 || e.isAppOfArity ``node 2 then
+    reduceEval? (e.getArg! 0)
+  else
+    none
+
 section
 open Meta
 
-variable {α} (ctx : Context α) (force : Bool := false) in
+variable {α} (ctx : Context α) (builtin : Bool) (force : Bool) in
 /--
   Translate an expression of type `Parser` into one of type `tyName`, tagging intermediary constants with
   `ctx.combinatorAttr`. If `force` is `false`, refuse to do so for imported constants. -/
@@ -88,6 +106,16 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
           | Except.ok    env => pure env
           | Except.error kex => do throwError (← (kex.toMessageData {}).toString)
         setEnv $ ctx.combinatorAttr.setDeclFor env c c'
+        if cinfo.type.isConst then
+          if let some kind ← parserNodeKind? cinfo.value! then
+            -- If the parser is parameter-less and produces a node of kind `kind`,
+            -- then tag the compiled definition as `[(builtin)Parenthesizer kind]`
+            -- (or `[(builtin)Formatter kind]`, resp.)
+            let attrName := if builtin then ctx.categoryAttr.defn.builtinName else ctx.categoryAttr.defn.name
+            -- Create syntax node for a simple attribute of the form
+            -- `def simple := leading_parser ident >> optional (ident <|> priorityParser)`
+            let stx := mkNode `Lean.Parser.Attr.simple #[mkIdent attrName, mkNullNode #[mkIdent kind]]
+            Attribute.add c' attrName stx
         mkCall c'
       else
         -- if this is a generic function, e.g. `AndThen.andthen`, it's easier to just unfold it until we are
@@ -97,34 +125,12 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
         compileParserExpr e'
 end
 
-open Core
-
-/-- Compile the given declaration into a `[(builtin)categoryAttr declName]` -/
-def compileCategoryParser {α} (ctx : Context α) (declName : Name) (builtin : Bool) : AttrM Unit := do
-  -- This will also tag the declaration as a `[combinatorParenthesizer declName]` in case the parser is used by other parsers.
-  -- Note that simply having `[(builtin)Parenthesizer]` imply `[combinatorParenthesizer]` is not ideal since builtin
-  -- attributes are active only in the next stage, while `[combinatorParenthesizer]` is active immediately (since we never
-  -- call them at compile time but only reference them).
-  let (Expr.const c' _ _) ← (compileParserExpr ctx (mkConst declName) (force := false)).run'
-    | unreachable!
-  -- We assume that for tagged parsers, the kind is equal to the declaration name. This is automatically true for parsers
-  -- using `leading_parser` or `syntax`.
-  let kind := declName
-  let attrName := if builtin then ctx.categoryAttr.defn.builtinName else ctx.categoryAttr.defn.name
-  -- Create syntax node for a simple attribute of the form
-  -- `def simple := leading_parser ident >> optional (ident <|> priorityParser)`
-  let stx := mkNode `Lean.Parser.Attr.simple #[
-    mkIdent attrName,
-    mkNullNode #[mkIdent kind]
-  ]
-  Attribute.add c' attrName stx
-
-variable {α} (ctx : Context α) in
+variable {α} (ctx : Context α) (builtin : Bool) in
 def compileEmbeddedParsers : ParserDescr → MetaM Unit
   | ParserDescr.const _                => pure ()
   | ParserDescr.unary _ d              => compileEmbeddedParsers d
   | ParserDescr.binary _ d₁ d₂         => compileEmbeddedParsers d₁ *> compileEmbeddedParsers d₂
-  | ParserDescr.parser constName       => discard $ compileParserExpr ctx (mkConst constName) (force := false)
+  | ParserDescr.parser constName       => discard $ compileParserExpr ctx (mkConst constName) (builtin := builtin) (force := false)
   | ParserDescr.node _ _ d             => compileEmbeddedParsers d
   | ParserDescr.nodeWithAntiquot _ _ d => compileEmbeddedParsers d
   | ParserDescr.sepBy p _ psep _       => compileEmbeddedParsers p *> compileEmbeddedParsers psep
@@ -142,13 +148,11 @@ unsafe def registerParserCompiler {α} (ctx : Context α) : IO Unit := do
       if info.type.isConstOf `Lean.ParserDescr || info.type.isConstOf `Lean.TrailingParserDescr then
         let d ← evalConstCheck ParserDescr `Lean.ParserDescr constName <|>
           evalConstCheck TrailingParserDescr `Lean.TrailingParserDescr constName
-        compileEmbeddedParsers ctx d |>.run'
+        compileEmbeddedParsers ctx d (builtin := builtin) |>.run'
       else
-        if catName.isAnonymous then
-          -- `[runBuiltinParserAttributeHooks]` => force compilation even if imported, do not apply `ctx.categoryAttr`.
-          discard (compileParserExpr ctx (mkConst constName) (force := true)).run'
-        else
-          compileCategoryParser ctx constName builtin
+        -- `[runBuiltinParserAttributeHooks]` => force compilation even if imported, do not apply `ctx.categoryAttr`.
+        let force := catName.isAnonymous
+        discard (compileParserExpr ctx (mkConst constName) (builtin := builtin) (force := force)).run'
   }
 
 end ParserCompiler

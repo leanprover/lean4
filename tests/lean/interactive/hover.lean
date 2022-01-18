@@ -101,3 +101,39 @@ example : Id Nat := do
   n := 2
 --^ textDocument/hover
   n
+
+
+constant foo : Nat
+
+#check _root_.foo
+       --^ textDocument/hover
+
+namespace Bar
+
+constant foo : Nat
+       --^ textDocument/hover
+
+#check _root_.foo
+       --^ textDocument/hover
+
+def bar := 1
+  --^ textDocument/hover
+
+structure Foo := mk ::
+        --^ textDocument/hover
+               --^ textDocument/hover
+  hi : Nat
+--^ textDocument/hover
+
+inductive Bar
+        --^ textDocument/hover
+  | mk : Bar
+  --^ textDocument/hover
+
+instance : ToString Nat := ⟨toString⟩
+--^ textDocument/hover
+instance f : ToString Nat := ⟨toString⟩
+       --^ textDocument/hover
+
+example : Type 0 := Nat
+        --^ textDocument/hover

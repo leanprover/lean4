@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/inductive.h"
 #include "library/util.h"
 #include "library/trace.h"
 #include "library/compiler/util.h"

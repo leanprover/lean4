@@ -476,6 +476,7 @@ inline b_obj_res io_result_get_value(b_obj_arg r) { return lean_io_result_get_va
 inline b_obj_res io_result_get_error(b_obj_arg r) { return lean_io_result_get_error(r); }
 inline void io_result_show_error(b_obj_arg r) { return lean_io_result_show_error(r); }
 inline void io_mark_end_initialization() { return lean_io_mark_end_initialization(); }
+void io_eprintln(obj_arg s);
 
 // =======================================
 // ST ref primitives

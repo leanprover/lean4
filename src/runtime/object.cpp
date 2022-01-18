@@ -24,8 +24,19 @@ Author: Leonardo de Moura
 #define LEAN_MAX_PRIO 8
 
 namespace lean {
+
+static void abort_on_panic() {
+#ifndef LEAN_EMSCRIPTEN
+    if (std::getenv("LEAN_ABORT_ON_PANIC")) {
+        int * v = nullptr;
+        *v = 0;
+    }
+#endif
+}
+
 extern "C" LEAN_EXPORT void lean_internal_panic(char const * msg) {
     std::cerr << "INTERNAL PANIC: " << msg << "\n";
+    abort_on_panic();
     std::exit(1);
 }
 
@@ -57,12 +68,7 @@ extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg
     if (g_panic_messages) {
         std::cerr << lean_string_cstr(msg) << "\n";
     }
-#ifndef LEAN_EMSCRIPTEN
-    if (std::getenv("LEAN_ABORT_ON_PANIC")) {
-        int * v = nullptr;
-        *v = 0;
-    }
-#endif
+    abort_on_panic();
     if (g_exit_on_panic) {
         std::exit(1);
     }
@@ -699,10 +705,10 @@ class task_manager {
 
     void spawn_worker() {
         m_num_std_workers++;
-        m_idle_std_workers++;
         lthread([this]() {
             save_stack_info(false);
             unique_lock<mutex> lock(m_mutex);
+            m_idle_std_workers++;
             while (true) {
                 if (m_queues_size == 0) {
                     if (m_shutting_down) {
@@ -893,12 +899,30 @@ static task_manager * g_task_manager = nullptr;
 extern "C" LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers) {
     lean_assert(g_task_manager == nullptr);
 #if defined(LEAN_MULTI_THREAD)
-    g_task_manager = new task_manager(num_workers);
+    if (num_workers > 0) {
+        g_task_manager = new task_manager(num_workers);
+    }
 #endif
 }
 
+static unsigned get_lean_num_threads() {
+#ifndef LEAN_EMSCRIPTEN
+    if (char const * num_threads = std::getenv("LEAN_NUM_THREADS")) {
+        return atoi(num_threads);
+    }
+#endif
+    return hardware_concurrency();
+}
+
 extern "C" LEAN_EXPORT void lean_init_task_manager() {
-    lean_init_task_manager_using(hardware_concurrency());
+    lean_init_task_manager_using(get_lean_num_threads());
+}
+
+extern "C" LEAN_EXPORT void lean_finalize_task_manager() {
+    if (g_task_manager) {
+        delete g_task_manager;
+        g_task_manager = nullptr;
+    }
 }
 
 scoped_task_manager::scoped_task_manager(unsigned num_workers) {
@@ -1060,6 +1084,7 @@ object * alloc_mpz(mpz const & m) {
     return (lean_object*)o;
 }
 
+#ifdef LEAN_USE_GMP
 extern "C" LEAN_EXPORT lean_object * lean_alloc_mpz(mpz_t v) {
     return alloc_mpz(mpz(v));
 }
@@ -1067,6 +1092,7 @@ extern "C" LEAN_EXPORT lean_object * lean_alloc_mpz(mpz_t v) {
 extern "C" LEAN_EXPORT void lean_extract_mpz_value(lean_object * o, mpz_t v) {
     return to_mpz(o)->m_value.set(v);
 }
+#endif
 
 object * mpz_to_nat_core(mpz const & m) {
     lean_assert(!m.is_size_t() || m.get_size_t() > LEAN_MAX_SMALL_NAT);
@@ -1463,21 +1489,15 @@ extern "C" LEAN_EXPORT bool lean_int_big_nonneg(object * a) {
 // UInt
 
 extern "C" LEAN_EXPORT uint8 lean_uint8_of_big_nat(b_obj_arg a) {
-    mpz r;
-    mod2k(r, mpz_value(a), 8);
-    return static_cast<uint8>(r.get_unsigned_int());
+    return static_cast<uint8>(mpz_value(a).mod8());
 }
 
 extern "C" LEAN_EXPORT uint16 lean_uint16_of_big_nat(b_obj_arg a) {
-    mpz r;
-    mod2k(r, mpz_value(a), 16);
-    return static_cast<uint16>(r.get_unsigned_int());
+    return static_cast<uint16>(mpz_value(a).mod16());
 }
 
 extern "C" LEAN_EXPORT uint32 lean_uint32_of_big_nat(b_obj_arg a) {
-    mpz r;
-    mod2k(r, mpz_value(a), 32);
-    return static_cast<uint32>(r.get_unsigned_int());
+    return mpz_value(a).mod32();
 }
 
 extern "C" LEAN_EXPORT uint32 lean_uint32_big_modn(uint32 a1, b_lean_obj_arg a2) {
@@ -1486,19 +1506,7 @@ extern "C" LEAN_EXPORT uint32 lean_uint32_big_modn(uint32 a1, b_lean_obj_arg a2)
 }
 
 extern "C" LEAN_EXPORT uint64 lean_uint64_of_big_nat(b_obj_arg a) {
-    mpz r;
-    mod2k(r, mpz_value(a), 64);
-    if (sizeof(void*) == 8) {
-        // 64 bit
-        return static_cast<uint64>(r.get_size_t());
-    } else {
-        // 32 bit
-        mpz l;
-        mod2k(l, r, 32);
-        mpz h;
-        div2k(h, r, 32);
-        return (static_cast<uint64>(h.get_unsigned_int()) << 32) + static_cast<uint64>(l.get_unsigned_int());
-    }
+    return mpz_value(a).mod64();
 }
 
 extern "C" LEAN_EXPORT uint64 lean_uint64_big_modn(uint64 a1, b_lean_obj_arg) {
@@ -1647,6 +1655,10 @@ extern "C" LEAN_EXPORT object * lean_string_append(object * s1, object * s2) {
     lean_to_string(r)->m_length = new_len;
     w_string_cstr(r)[new_sz - 1] = 0;
     return r;
+}
+
+extern "C" LEAN_EXPORT bool lean_string_eq_cold(b_lean_obj_arg s1, b_lean_obj_arg s2) {
+    return std::memcmp(lean_string_cstr(s1), lean_string_cstr(s2), lean_string_size(s1)) == 0;
 }
 
 bool string_eq(object * s1, char const * s2) {
@@ -2063,11 +2075,17 @@ extern "C" LEAN_EXPORT obj_res lean_copy_expand_array(obj_arg a, bool expand) {
     object ** it   = lean_array_cptr(a);
     object ** end  = it + sz;
     object ** dest = lean_array_cptr(r);
-    for (; it != end; ++it, ++dest) {
-        *dest = *it;
-        lean_inc(*it);
+    if (lean_is_exclusive(a)) {
+        // transfer ownership of elements directly instead of inc+dec
+        memcpy(dest, it, sz * sizeof(object *));
+        lean_dealloc(a, lean_array_byte_size(a));
+    } else {
+        for (; it != end; ++it, ++dest) {
+            *dest = *it;
+            lean_inc(*it);
+        }
+        lean_dec(a);
     }
-    lean_dec(a);
     return r;
 }
 
@@ -2155,7 +2173,7 @@ extern "C" LEAN_EXPORT object * lean_dbg_sleep(uint32 ms, obj_arg fn) {
 }
 
 extern "C" LEAN_EXPORT object * lean_dbg_trace_if_shared(obj_arg s, obj_arg a) {
-    if (lean_is_shared(a)) {
+    if (!lean_is_scalar(a) && lean_is_shared(a)) {
         io_eprintln(mk_string(std::string("shared RC ") + lean_string_cstr(s)));
     }
     return a;

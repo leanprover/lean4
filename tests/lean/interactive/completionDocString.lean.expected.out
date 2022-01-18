@@ -2,9 +2,12 @@
  "position": {"line": 0, "character": 20}}
 {"items":
  [{"label": "insertAt",
+   "kind": 3,
    "documentation":
    {"value": "Insert element `a` at position `i`.\n  Pre: `i < as.size` ",
     "kind": "markdown"},
    "detail": "Array α → Nat → α → Array α"},
-  {"label": "insertAtAux", "detail": "Nat → Array α → Nat → Array α"}],
+  {"label": "insertAtAux",
+   "kind": 3,
+   "detail": "Nat → Array α → Nat → Array α"}],
  "isIncomplete": true}

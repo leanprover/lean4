@@ -1,6 +1,5 @@
 unsafe def f._cstage2 : _obj → UInt8 :=
 fun x =>
-  List.casesOn
-    fun head tail =>
-      let _x_1 := Nat.decLt 0 head;
-      Bool.casesOn false (f tail)
+  List.casesOn fun head tail =>
+    let _x_1 := Nat.decLt 0 head;
+    Bool.casesOn false (f tail)

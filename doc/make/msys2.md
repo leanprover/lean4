@@ -9,6 +9,12 @@ It is easy to install all dependencies, it produces native
 
 An alternative to MSYS2 is to use [Lean in Windows WSL](wsl.md).
 
+While not necessary for pure building, you should first activate [Developer
+Mode](https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development)
+(Settings > Update & Security > For developers > Developer Mode),
+which will allow Lean to create symlinks that e.g. enable go-to-definition in
+the stdlib.
+
 ## Installing dependencies
 
 [The official webpage of MSYS2][msys2] provides one-click installers.
@@ -67,6 +73,14 @@ The following linux command will do that:
 ```bash
 cp $(ldd lean.exe | cut -f3 -d' ' | grep mingw) .
 ```
+
+However, if you plan to use this build to compile lean programs
+to executable binaries using `lake build` in normal Windows command
+prompt outside of msys2 environment you will also need to add a windows
+version clang to your path.  This is done in the `.github\workflows\ci.yml`
+by downloading `lean-llvm-x86_64-w64-windows-gnu.tar.zst`.  You can
+see how these `clang` binaries are provided for you in a .elan toolchain
+install of Lean 4.
 
 ## Trouble shooting
 

@@ -6,22 +6,18 @@ Authors: Leonardo de Moura
 import Lean.Meta.Match.Match
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Cleanup
+import Lean.Elab.Tactic.Basic
+import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 
 namespace Lean.Elab.WF
 open Meta
 
-private def toUnfold : Std.PHashSet Name :=
-  [``measure, ``id, ``Prod.lex, ``invImage, ``InvImage, ``Nat.lt_wfRel].foldl (init := {}) fun s a => s.insert a
-
 private def applyDefaultDecrTactic (mvarId : MVarId) : TermElabM Unit := do
-  let ctx ← Simp.Context.mkDefault
-  let ctx := { ctx with simpLemmas.toUnfold := toUnfold }
-  if let some mvarId ← simpTarget mvarId ctx then
-    -- TODO: invoke tactic to close the goal
-    Term.reportUnsolvedGoals [mvarId]
-    throwAbortTactic
+  let remainingGoals ← Tactic.run mvarId do
+    Tactic.evalTactic (← `(tactic| decreasing_tactic))
+  remainingGoals.forM fun mvarId => Term.reportUnsolvedGoals [mvarId]
 
 private def mkDecreasingProof (decreasingProp : Expr) (decrTactic? : Option Syntax) : TermElabM Expr := do
   let mvar ← mkFreshExprSyntheticOpaqueMVar decreasingProp
@@ -44,13 +40,17 @@ private partial def replaceRecApps (recFnName : Name) (decrTactic? : Option Synt
     | Expr.letE n type val body _ =>
       withLetDecl n (← loop F type) (← loop F val) fun x => do
         mkLetFVars #[x] (← loop F (body.instantiate1 x)) (usedLetOnly := false)
-    | Expr.mdata d e _   => return mkMData d (← loop F e)
+    | Expr.mdata d b _   =>
+      if let some stx := getRecAppSyntax? e then
+        withRef stx <| loop F b
+      else
+        return mkMData d (← loop F b)
     | Expr.proj n i e _  => return mkProj n i (← loop F e)
     | Expr.app _ _ _ =>
       let processApp (e : Expr) : TermElabM Expr :=
         e.withApp fun f args => do
           if f.isConstOf recFnName && args.size == 1 then
-            let r := mkApp F args[0]
+            let r := mkApp F (← loop F args[0])
             let decreasingProp := (← whnf (← inferType r)).bindingDomain!
             return mkApp r (← mkDecreasingProof decreasingProp decrTactic?)
           else

@@ -121,7 +121,7 @@ partial def findSplit? (env : Environment) (e : Expr) : Option Expr :=
   else
     none
 where
-  isCandidate (e : Expr) : Bool := do
+  isCandidate (e : Expr) : Bool := Id.run <| do
     if e.isIte || e.isDIte then
       !(e.getArg! 1 5).hasLooseBVars
     else if let some info := isMatcherAppCore? env e then

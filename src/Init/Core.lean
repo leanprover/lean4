@@ -16,6 +16,10 @@ def inline {α : Sort u} (a : α) : α := a
 @[inline] def flip {α : Sort u} {β : Sort v} {φ : Sort w} (f : α → β → φ) : β → α → φ :=
   fun b a => f a b
 
+@[simp] theorem Function.const_apply {y : β} {x : α} : const α y x = y := rfl
+
+@[simp] theorem Function.comp_apply {f : β → δ} {g : α → β} {x : α} : comp f g x = f (g x) := rfl
+
 /--
   Thunks are "lazy" values that are evaluated when first accessed using `Thunk.get/map/bind`.
   The value is then stored and not recomputed for all further accesses. -/

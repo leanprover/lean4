@@ -219,8 +219,9 @@ end Leanpkg
 def main (args : List String) : IO UInt32 := do
   try
     Lean.enableInitializersExecution
-    Lean.initSearchPath none  -- HACK
+    Lean.initSearchPath (← Lean.getBuildDir)
     let (cmd, outerArgs, innerArgs) ← Leanpkg.splitCmdlineArgs args
+    IO.eprintln "warning: leanpkg has been deprecated in favor of Lake (https://github.com/leanprover/lake) and will be removed in the next release."
     Leanpkg.main cmd outerArgs innerArgs
   catch e =>
     IO.eprintln e  -- avoid "uncaught exception: ..."

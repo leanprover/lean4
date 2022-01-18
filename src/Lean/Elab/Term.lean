@@ -7,72 +7,23 @@ import Lean.ResolveName
 import Lean.Util.Sorry
 import Lean.Util.ReplaceExpr
 import Lean.Structure
-import Lean.Meta.ExprDefEq
 import Lean.Meta.AppBuilder
-import Lean.Meta.SynthInstance
 import Lean.Meta.CollectMVars
 import Lean.Meta.Coe
-import Lean.Meta.Tactic.Util
 import Lean.Hygiene
 import Lean.Util.RecDepth
+
 import Lean.Elab.Log
+import Lean.Elab.Config
 import Lean.Elab.Level
 import Lean.Elab.Attributes
 import Lean.Elab.AutoBound
 import Lean.Elab.InfoTree
 import Lean.Elab.Open
 import Lean.Elab.SetOption
+import Lean.Elab.DeclModifiers
 
 namespace Lean.Elab.Term
-/-
-  Set isDefEq configuration for the elaborator.
-  Note that we enable all approximations but `quasiPatternApprox`
-
-  In Lean3 and Lean 4, we used to use the quasi-pattern approximation during elaboration.
-  The example:
-  ```
-  def ex : StateT δ (StateT σ Id) σ :=
-  monadLift (get : StateT σ Id σ)
-  ```
-  demonstrates why it produces counterintuitive behavior.
-  We have the `Monad-lift` application:
-  ```
-  @monadLift ?m ?n ?c ?α (get : StateT σ id σ) : ?n ?α
-  ```
-  It produces the following unification problem when we process the expected type:
-  ```
-  ?n ?α =?= StateT δ (StateT σ id) σ
-  ==> (approximate using first-order unification)
-  ?n := StateT δ (StateT σ id)
-  ?α := σ
-  ```
-  Then, we need to solve:
-  ```
-  ?m ?α =?= StateT σ id σ
-  ==> instantiate metavars
-  ?m σ =?= StateT σ id σ
-  ==> (approximate since it is a quasi-pattern unification constraint)
-  ?m := fun σ => StateT σ id σ
-  ```
-  Note that the constraint is not a Milner pattern because σ is in
-  the local context of `?m`. We are ignoring the other possible solutions:
-  ```
-  ?m := fun σ' => StateT σ id σ
-  ?m := fun σ' => StateT σ' id σ
-  ?m := fun σ' => StateT σ id σ'
-  ```
-
-  We need the quasi-pattern approximation for elaborating recursor-like expressions (e.g., dependent `match with` expressions).
-
-  If we had use first-order unification, then we would have produced
-  the right answer: `?m := StateT σ id`
-
-  Haskell would work on this example since it always uses
-  first-order unification.
--/
-def setElabConfig (cfg : Meta.Config) : Meta.Config :=
-  { cfg with foApprox := true, ctxApprox := true, constApprox := false, quasiPatternApprox := false }
-
 structure Context where
   fileName        : String
   fileMap         : FileMap
@@ -104,6 +55,8 @@ structure Context where
   sectionFVars       : NameMap Expr    := {}
   /-- Enable/disable implicit lambdas feature. -/
   implicitLambda     : Bool            := true
+  /-- noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for  -/
+  isNoncomputableSection : Bool        := false
 
 /-- Saved context for postponed terms and tactics to be executed. -/
 structure SavedContext where
@@ -143,6 +96,7 @@ inductive MVarErrorKind where
   | implicitArg (ctx : Expr)
   | hole
   | custom (msgData : MessageData)
+  deriving Inhabited
 
 instance : ToString MVarErrorKind where
   toString
@@ -154,6 +108,8 @@ structure MVarErrorInfo where
   mvarId    : MVarId
   ref       : Syntax
   kind      : MVarErrorKind
+  argName?  : Option Name := none
+  deriving Inhabited
 
 structure LetRecToLift where
   ref            : Syntax
@@ -170,7 +126,7 @@ structure LetRecToLift where
 structure State where
   levelNames        : List Name       := []
   syntheticMVars    : List SyntheticMVarDecl := []
-  mvarErrorInfos    : List MVarErrorInfo := []
+  mvarErrorInfos    : MVarIdMap MVarErrorInfo := {}
   messages          : MessageLog := {}
   letRecsToLift     : List LetRecToLift := []
   infoState         : InfoState := {}
@@ -428,14 +384,20 @@ def registerSyntheticMVar (stx : Syntax) (mvarId : MVarId) (kind : SyntheticMVar
 def registerSyntheticMVarWithCurrRef (mvarId : MVarId) (kind : SyntheticMVarKind) : TermElabM Unit := do
   registerSyntheticMVar (← getRef) mvarId kind
 
-def registerMVarErrorHoleInfo (mvarId : MVarId) (ref : Syntax) : TermElabM Unit := do
-  modify fun s => { s with mvarErrorInfos := { mvarId := mvarId, ref := ref, kind := MVarErrorKind.hole } :: s.mvarErrorInfos }
+def registerMVarErrorInfo (mvarErrorInfo : MVarErrorInfo) : TermElabM Unit :=
+  modify fun s => { s with mvarErrorInfos := s.mvarErrorInfos.insert mvarErrorInfo.mvarId mvarErrorInfo }
+
+def registerMVarErrorHoleInfo (mvarId : MVarId) (ref : Syntax) : TermElabM Unit :=
+  registerMVarErrorInfo { mvarId := mvarId, ref := ref, kind := MVarErrorKind.hole }
 
 def registerMVarErrorImplicitArgInfo (mvarId : MVarId) (ref : Syntax) (app : Expr) : TermElabM Unit := do
-  modify fun s => { s with mvarErrorInfos := { mvarId := mvarId, ref := ref, kind := MVarErrorKind.implicitArg app } :: s.mvarErrorInfos }
+  registerMVarErrorInfo { mvarId := mvarId, ref := ref, kind := MVarErrorKind.implicitArg app }
 
 def registerMVarErrorCustomInfo (mvarId : MVarId) (ref : Syntax) (msgData : MessageData) : TermElabM Unit := do
-  modify fun s => { s with mvarErrorInfos := { mvarId := mvarId, ref := ref, kind := MVarErrorKind.custom msgData } :: s.mvarErrorInfos }
+  registerMVarErrorInfo { mvarId := mvarId, ref := ref, kind := MVarErrorKind.custom msgData }
+
+def getMVarErrorInfo? (mvarId : MVarId) : TermElabM (Option MVarErrorInfo) := do
+  return (← get).mvarErrorInfos.find? mvarId
 
 def registerCustomErrorIfMVar (e : Expr) (ref : Syntax) (msgData : MessageData) : TermElabM Unit :=
   match e.getAppFn with
@@ -457,16 +419,23 @@ def MVarErrorInfo.logError (mvarErrorInfo : MVarErrorInfo) (extraMsg? : Option M
   match mvarErrorInfo.kind with
   | MVarErrorKind.implicitArg app => do
     let app ← instantiateMVars app
-    let msg : MessageData := m!"don't know how to synthesize implicit argument{indentExpr app.setAppPPExplicitForExposingMVars}"
-    let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
+    let msg := addArgName "don't know how to synthesize implicit argument"
+    let msg := msg ++ m!"{indentExpr app.setAppPPExplicitForExposingMVars}" ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
     logErrorAt mvarErrorInfo.ref (appendExtra msg)
   | MVarErrorKind.hole => do
-    let msg : MessageData := "don't know how to synthesize placeholder"
+    let msg := addArgName "don't know how to synthesize placeholder" " for argument"
     let msg := msg ++ Format.line ++ "context:" ++ Format.line ++ MessageData.ofGoal mvarErrorInfo.mvarId
     logErrorAt mvarErrorInfo.ref (MessageData.tagged `Elab.synthPlaceholder <| appendExtra msg)
   | MVarErrorKind.custom msg =>
     logErrorAt mvarErrorInfo.ref (appendExtra msg)
 where
+  /-- Append `mvarErrorInfo` argument name (if available) to the message.
+      Remark: if the argument name contains macro scopes we do not append it. -/
+  addArgName (msg : MessageData) (extra : String := "") : MessageData :=
+    match mvarErrorInfo.argName? with
+    | none => msg
+    | some argName => if argName.hasMacroScopes then msg else msg ++ extra ++ m!" '{argName}'"
+
   appendExtra (msg : MessageData) : MessageData :=
     match extraMsg? with
     | none => msg
@@ -484,22 +453,23 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Op
   let hasOtherErrors := s.messages.hasErrors
   let mut hasNewErrors := false
   let mut alreadyVisited : MVarIdSet := {}
-  for mvarErrorInfo in s.mvarErrorInfos do
+  let mut errors : Array MVarErrorInfo := #[]
+  for (_, mvarErrorInfo) in s.mvarErrorInfos do
     let mvarId := mvarErrorInfo.mvarId
     unless alreadyVisited.contains mvarId do
       alreadyVisited := alreadyVisited.insert mvarId
-      let foundError ← withMVarContext mvarId do
-        /- The metavariable `mvarErrorInfo.mvarId` may have been assigned or
-           delayed assigned to another metavariable that is unassigned. -/
-        let mvarDeps ← getMVars (mkMVar mvarId)
-        if mvarDeps.any pendingMVarIds.contains then do
-          unless hasOtherErrors do
-            mvarErrorInfo.logError extraMsg?
-          pure true
-        else
-          pure false
-      if foundError then
+      /- The metavariable `mvarErrorInfo.mvarId` may have been assigned or
+         delayed assigned to another metavariable that is unassigned. -/
+      let mvarDeps ← getMVars (mkMVar mvarId)
+      if mvarDeps.any pendingMVarIds.contains then do
+        unless hasOtherErrors do
+          errors := errors.push mvarErrorInfo
         hasNewErrors := true
+  -- To sort the errors by position use
+  -- let sortedErrors := errors.qsort fun e₁ e₂ => e₁.ref.getPos?.getD 0 < e₂.ref.getPos?.getD 0
+  for error in errors do
+    withMVarContext error.mvarId do
+      error.logError extraMsg?
   return hasNewErrors
 
 /-- Ensure metavariables registered using `registerMVarErrorInfos` (and used in the given declaration) have been assigned. -/
@@ -1248,7 +1218,8 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     withNestedTraces do
     let env ← getEnv
     match (← liftMacroM (expandMacroImpl? env stx)) with
-    | some (decl, Except.ok stxNew) =>
+    | some (decl, stxNew?) =>
+      let stxNew ← liftMacroM <| liftExcept stxNew?
       withInfoContext' (mkInfo := mkTermInfo decl (expectedType? := expectedType?) stx) <|
         withMacroExpansion stx stxNew <|
           withRef stxNew <|
@@ -1470,7 +1441,7 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
   else
     let numMissingLevels := cinfo.levelParams.length - explicitLevels.length
     let us ← mkFreshLevelMVars numMissingLevels
-    pure $ Lean.mkConst constName (explicitLevels ++ us)
+    return Lean.mkConst constName (explicitLevels ++ us)
 
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
   candidates.foldlM (init := []) fun result (constName, projs) => do
@@ -1604,6 +1575,12 @@ def withoutPostponingUniverseConstraints (x : TermElabM α) : TermElabM α := do
   catch ex =>
     setPostponed postponed
     throw ex
+
+def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : TermElabM ExpandDeclIdResult := do
+  let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers
+  if (← read).sectionVars.contains r.shortName then
+    throwError "invalid declaration name '{r.shortName}', there is a section variable with the same name"
+  return r
 
 end Term
 

@@ -240,7 +240,7 @@ section ServerM
     let workerProc ← Process.spawn {
       toStdioConfig := workerCfg
       cmd           := st.workerPath.toString
-      args          := #["--worker"] ++ st.args.toArray
+      args          := #["--worker"] ++ st.args.toArray ++ #[m.uri]
     }
     let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
     -- The task will never access itself, so this is fine
@@ -355,7 +355,7 @@ section NotificationHandling
       throwServerError "Got outdated version number"
     if changes.isEmpty then
       return
-    let (newDocText, _) := foldDocumentChanges changes oldDoc.meta.text
+    let newDocText := foldDocumentChanges changes oldDoc.meta.text
     let newMeta : DocumentMeta := ⟨doc.uri, newVersion, newDocText⟩
     let newHeaderAst ← parseHeaderAst newDocText.source
     if newHeaderAst != oldDoc.headerAst then
@@ -545,6 +545,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
   declarationProvider := true
   definitionProvider := true
   typeDefinitionProvider := true
+  referencesProvider := true
   documentHighlightProvider := true
   documentSymbolProvider := true
   semanticTokensProvider? := some {
@@ -590,7 +591,7 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
       capabilities := mkLeanServerCapabilities
       serverInfo?  := some {
         name     := "Lean 4 Server"
-        version? := "0.1"
+        version? := "0.1.1"
       }
       : InitializeResult
     }

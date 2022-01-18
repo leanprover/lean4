@@ -59,13 +59,17 @@ structure RequestContext where
   srcSearchPath : SearchPath
   doc           : FileWorker.EditableDocument
   hLog          : IO.FS.Stream
+  initParams    : Lsp.InitializeParams
 
 abbrev RequestTask α := Task (Except RequestError α)
 /-- Workers execute request handlers in this monad. -/
-abbrev RequestM := ReaderT RequestContext <| ExceptT RequestError IO
+abbrev RequestM := ReaderT RequestContext <| EIO RequestError
 
 instance : Inhabited (RequestM α) :=
-  ⟨throwThe IO.Error "executing Inhabited instance?!"⟩
+  ⟨throw ("executing Inhabited instance?!" : RequestError)⟩
+
+instance : MonadLift IO RequestM where
+  monadLift x := x.toEIO fun e => (e : RequestError)
 
 namespace RequestM
 open FileWorker
@@ -75,25 +79,15 @@ def readDoc : RequestM EditableDocument := fun rc =>
   rc.doc
 
 def asTask (t : RequestM α) : RequestM (RequestTask α) := fun rc => do
-  let t ← IO.asTask <| t rc
-  return t.map fun
-    | Except.error e => throwThe RequestError e
-    | Except.ok v    => v
+  let t ← EIO.asTask <| t rc
+  return t.map liftExcept
 
 def mapTask (t : Task α) (f : α → RequestM β) : RequestM (RequestTask β) := fun rc => do
-  let t ← (IO.mapTask · t) fun a => f a rc
-  return t.map fun
-    | Except.error e => throwThe RequestError e
-    | Except.ok v    => v
+  let t ← EIO.mapTask (f · rc) t
+  return t.map liftExcept
 
 def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := fun rc => do
-  let t ← IO.bindTask t fun a => do
-    match (← f a rc) with
-    | Except.error e => return Task.pure <| Except.ok <| Except.error e
-    | Except.ok t    => return t.map Except.ok
-  return t.map fun
-    | Except.error e => throwThe RequestError e
-    | Except.ok v    => v
+  EIO.bindTask t (f · rc)
 
 /-- Create a task which waits for the first snapshot matching `p`, handles various errors,
 and if a matching snapshot was found executes `x` with it. If not found, the task executes
@@ -110,7 +104,7 @@ def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
     | Except.error FileWorker.ElabTaskError.aborted =>
       throwThe RequestError RequestError.fileChanged
     | Except.error (FileWorker.ElabTaskError.ioError e) =>
-      throwThe IO.Error e
+      throw (e : RequestError)
     | Except.error FileWorker.ElabTaskError.eof => notFoundX
     | Except.ok none => notFoundX
     | Except.ok (some snap) => x snap
@@ -121,7 +115,7 @@ end RequestM
 section HandlerTable
 open Lsp
 
-private structure RequestHandler where
+structure RequestHandler where
   fileSource : Json → Except RequestError Lsp.DocumentUri
   handle : Json → RequestM (RequestTask Json)
 
@@ -146,19 +140,45 @@ def registerLspRequestHandler (method : String)
     (handler : paramType → RequestM (RequestTask respType)) : IO Unit := do
   if !(← IO.initializing) then
     throw <| IO.userError s!"Failed to register LSP request handler for '{method}': only possible during initialization"
-  if (←requestHandlers.get).contains method then
+  if (← requestHandlers.get).contains method then
     throw <| IO.userError s!"Failed to register LSP request handler for '{method}': already registered"
   let fileSource := fun j =>
     parseRequestParams paramType j |>.map Lsp.fileSource
   let handle := fun j => do
-    let params ← parseRequestParams paramType j
+    let params ← liftExcept <| parseRequestParams paramType j
     let t ← handler params
     t.map <| Except.map ToJson.toJson
 
   requestHandlers.modify fun rhs => rhs.insert method { fileSource, handle }
 
-private def lookupLspRequestHandler (method : String) : IO (Option RequestHandler) := do
+def lookupLspRequestHandler (method : String) : IO (Option RequestHandler) := do
   (← requestHandlers.get).find? method
+
+/-- NB: This method may only be called in `builtin_initialize` blocks.
+
+Register another handler to invoke after the last one registered for a method.
+At least one handler for the method must have already been registered to perform
+chaining.
+
+For more details on the registration of a handler, see `registerLspRequestHandler`. -/
+def chainLspRequestHandler (method : String)
+    paramType [FromJson paramType]
+    respType [FromJson respType] [ToJson respType]
+    (handler : paramType → RequestTask respType → RequestM (RequestTask respType)) : IO Unit := do
+  if !(← IO.initializing) then
+    throw <| IO.userError s!"Failed to chain LSP request handler for '{method}': only possible during initialization"
+  if let some oldHandler ← lookupLspRequestHandler method then
+    let handle := fun j => do
+      let t ← oldHandler.handle j
+      let t ← t.map fun x => x.bind fun j => FromJson.fromJson? j |>.mapError fun e =>
+        IO.userError s!"Failed to parse original LSP response for `{method}` when chaining: {e}"
+      let params ← liftExcept <| parseRequestParams paramType j
+      let t ← handler params t
+      t.map <| Except.map ToJson.toJson
+
+    requestHandlers.modify fun rhs => rhs.insert method {oldHandler with handle}
+  else
+    throw <| IO.userError s!"Failed to chain LSP request handler for '{method}': no initial handler registered"
 
 def routeLspRequest (method : String) (params : Json) : IO (Except RequestError DocumentUri) := do
   match (← lookupLspRequestHandler method) with
@@ -167,7 +187,7 @@ def routeLspRequest (method : String) (params : Json) : IO (Except RequestError 
 
 def handleLspRequest (method : String) (params : Json) : RequestM (RequestTask Json) := do
   match (← lookupLspRequestHandler method) with
-  | none => throwThe IO.Error <| IO.userError s!"internal server error: request '{method}' routed through watchdog but unknown in worker; are both using the same plugins?"
+  | none => throw (s!"internal server error: request '{method}' routed through watchdog but unknown in worker; are both using the same plugins?" : RequestError)
   | some rh => rh.handle params
 
 end HandlerTable

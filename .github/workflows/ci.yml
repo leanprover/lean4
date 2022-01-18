@@ -22,11 +22,14 @@ jobs:
     strategy:
       matrix:
         include:
-          # portable release build: link most libraries statically and use channel with older glibc (2.27; LLVM 7)
+          # portable release build: use channel with older glibc (2.27)
           - name: Linux release
             os: ubuntu-latest
             release: true
-            shell: nix-shell --arg pkgs "import (fetchTarball \"channel:nixos-19.03\") {{}}" --argstr llvmPackages latest --run "bash -euxo pipefail {0}"
+            shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{}}" --run "bash -euxo pipefail {0}"
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-linux-gnu.tar.zst
+            prepare-llvm: script/prepare-llvm-linux.sh lean-llvm*
+            binary-check: ldd -v
           - name: Linux
             os: ubuntu-latest
             check-stage3: true
@@ -38,19 +41,26 @@ jobs:
             os: ubuntu-latest
             # turn off custom allocator & symbolic functions to make LSAN do its magic
             CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF
+            # exclude problematic tests
+            CTEST_OPTIONS: -E StackOverflow
           - name: macOS
             os: macos-latest
             release: true
             shell: bash -euxo pipefail {0}
-            # Mojave, oldest maintained version as of 2021
-            CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14
+            CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-apple-darwin.tar.zst
+            prepare-llvm: script/prepare-llvm-macos.sh lean-llvm*
+            binary-check: otool -L
           - name: Windows
             os: windows-2022
             release: true
             shell: msys2 {0}
-            CMAKE_OPTIONS: -G "Unix Makefiles" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+            CMAKE_OPTIONS: -G "Unix Makefiles"
             # for reasons unknown, interactivetests are flaky on Windows
             CTEST_OPTIONS: --repeat until-pass:2
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-w64-windows-gnu.tar.zst
+            prepare-llvm: script/prepare-llvm-mingw.sh lean-llvm*
+            binary-check: ldd
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}
@@ -60,6 +70,9 @@ jobs:
       CCACHE_COMPRESS: true
       # current cache limit
       CCACHE_MAXSIZE: 200M
+      # squelch error message about missing nixpkgs channel
+      NIX_BUILD_SHELL: bash
+      LSAN_OPTIONS: max_leaks=10
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -68,16 +81,17 @@ jobs:
           persist-credentials: false
           submodules: true
       - name: Install Nix
-        uses: cachix/install-nix-action@v12
+        uses: cachix/install-nix-action@v15
         if: matrix.os == 'ubuntu-latest'
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
-          install: make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache git unzip diffutils binutils
+          msystem: clang64
+          install: make python mingw-w64-clang-x86_64-cmake mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-ccache git zip unzip diffutils binutils tree mingw-w64-clang-x86_64-zstd tar
         if: matrix.os == 'windows-2022'
       - name: Install Brew Packages
         run: |
-          brew install ccache
+          brew install ccache tree zstd coreutils
         if: matrix.os == 'macos-latest'
       - name: Cache
         uses: actions/cache@v2
@@ -92,82 +106,57 @@ jobs:
           # open nix-shell once for initial setup
           true
         if: matrix.os == 'ubuntu-latest'
-      # remove problematic tests for sanitized build
-      - name: Pre build
-        run: rm tests/compiler/StackOverflow.lean tests/compiler/StackOverflowTask.lean
-        if: matrix.name == 'Linux fsanitize'
       - name: Build
         run: |
           mkdir build
           cd build
-          OPTIONS=
+          OPTIONS=()
+          [[ -z '${{ matrix.llvm-url }}' ]] || wget -q ${{ matrix.llvm-url }}
+          [[ -z '${{ matrix.prepare-llvm }}' ]] || eval "OPTIONS+=($(../${{ matrix.prepare-llvm }}))"
           if [[ $GITHUB_EVENT_NAME == 'schedule' && -n '${{ matrix.release }}' && -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
             git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
             git fetch nightly --tags
             LEAN_VERSION_STRING="nightly-$(date -u +%F)"
             # do nothing if commit already has a different tag
             if [[ $(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo $LEAN_VERSION_STRING) == $LEAN_VERSION_STRING ]]; then
-              OPTIONS=-DLEAN_SPECIAL_VERSION_DESC=$LEAN_VERSION_STRING
+              OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=$LEAN_VERSION_STRING)
               echo "LEAN_VERSION_STRING=$LEAN_VERSION_STRING" >> $GITHUB_ENV
             fi
           fi
-          cmake .. ${{ matrix.CMAKE_OPTIONS }} $OPTIONS
+          # contortion to support empty OPTIONS with old macOS bash
+          cmake .. ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
           make -j4
-      # de-Nix-ify binaries
-      - name: Patch
-        if: matrix.name == 'Linux release'
+          make install
+      - name: Check Binaries
+        run: ${{ matrix.binary-check }} lean-*/bin/* || true
+      - name: List Install Tree
         run: |
-          cd build/stage1
-          for f in lib/lean/libleanshared.so bin/lean bin/leanpkg bin/leanc bin/lake; do
-            cp -n $(ldd "$f" | cut -f3 -d' ' | grep -Ev 'libc|lean') lib/ || true
-            if [[ "$f" == bin/* ]]; then
-              patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --set-rpath '$ORIGIN/../lib:$ORIGIN/../lib/lean' $f
-            else
-              # library: use executable RPATH
-              patchelf --remove-rpath $f
-            fi
-            ldd $f
-          done
-          ls -l lib/
-      - name: Patch
-        if: matrix.name == 'macOS'
-        run: |
-          cd build/stage1
-          cp /usr/local/opt/gmp/lib/libgmp.* lib/
-          for f in lib/lean/libleanshared.dylib bin/lean bin/leanpkg bin/leanc bin/lake; do
-            for lib in $(otool -L $f | tail -n +2 | cut -d' ' -f1); do
-              # copy Homebrew dependencies
-              if [[ "$lib" == /usr/local/opt/* ]]; then cp -n "$lib" lib/ || true; fi
-              [[ "$lib" == /usr/lib/* ]] || install_name_tool -change "$lib" "@rpath/$(basename $lib)" $f
-            done
-            otool -L $f
-          done
-          ls -l lib/
-      - name: Patch
-        if: matrix.name == 'Windows'
-        run: |
-          cd build/stage1
-          cp $(ldd bin/lean.exe | cut -f3 -d' ' | grep mingw) bin/
-          ldd bin/lean.exe
-          ls -l bin/
-      - name: Test Binary without Nix Shell
-        if: matrix.name != 'Windows'
-        shell: bash {0}
-        run: |
-          build/stage1/bin/lean -h
+          # omit contents of Init/, ...
+          tree --du -h lean-* | grep -E ' (Init|Std|Lean|Lake|LICENSE|[a-z])'
       - name: Pack
-        run: cd build/stage1; cpack
+        run: |
+          dir=$(echo lean-*)
+          mkdir pack
+          # high-compression tar.zst + zip for release, fast tar.zst otherwise
+          if [[ ${{ startsWith(github.ref, 'refs/tags/v') && matrix.release }} == true || -n ${LEAN_VERSION_STRING:-} ]]; then
+            tar cf - $dir | zstd -T0 --no-progress -19 -o pack/$dir.tar.zst
+            zip -r pack/$dir.zip $dir
+          else
+            tar cf - $dir | zstd -T0 --no-progress -o pack/$dir.tar.zst
+          fi
       - uses: actions/upload-artifact@v2
         with:
           name: build-${{ matrix.name }}
-          path: build/stage1/lean-*
+          path: pack/*.zst
       - name: Lean stats
         run: |
           build/stage1/bin/lean --stats src/Lean.lean
       - name: Test
         run: |
           cd build/stage1
-          ctest -j4 --output-on-failure --timeout 300 ${{ matrix.CTEST_OPTIONS }} < /dev/null
+          ctest -j4 --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
+      - name: Check Test Binary
+        run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
       - name: Build Stage 2
         run: |
           cd build
@@ -195,7 +184,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: ${{ startsWith(github.ref, 'refs/tags/v') && matrix.release }}
         with:
-          files: build/stage1/lean-*
+          files: pack/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Prepare Nightly Release
@@ -223,7 +212,7 @@ jobs:
         with:
           body_path: diff.md
           prerelease: true
-          files: build/stage1/lean-*
+          files: pack/*
           tag_name: ${{ env.LEAN_VERSION_STRING }}
           repository: ${{ github.repository_owner }}/lean4-nightly
         env:

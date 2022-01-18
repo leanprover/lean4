@@ -7,9 +7,9 @@ Type class instance synthesizer using tabled resolution.
 -/
 import Lean.Meta.Basic
 import Lean.Meta.Instances
-import Lean.Meta.LevelDefEq
 import Lean.Meta.AbstractMVars
 import Lean.Meta.WHNF
+import Lean.Meta.Check
 import Lean.Util.Profile
 
 namespace Lean.Meta
@@ -391,7 +391,7 @@ def wakeUp (answer : Answer) : Waiter → SynthM Unit
     modify fun s => { s with resumeStack := s.resumeStack.push (cNode, answer) }
 
 def isNewAnswer (oldAnswers : Array Answer) (answer : Answer) : Bool :=
-  oldAnswers.all fun oldAnswer => do
+  oldAnswers.all fun oldAnswer =>
     -- Remark: isDefEq here is too expensive. TODO: if `==` is too imprecise, add some light normalization to `resultType` at `addAnswer`
     -- iseq ← isDefEq oldAnswer.resultType answer.resultType; pure (!iseq)
     oldAnswer.resultType != answer.resultType
@@ -423,6 +423,58 @@ def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
       modify fun s => { s with tableEntries := s.tableEntries.insert key newEntry }
       entry.waiters.forM (wakeUp answer)
 
+/--
+  Return `true` if a type of the form `(a_1 : A_1) → ... → (a_n : A_n) → B` has an unused argument `a_i`.
+
+  Remark: This is syntactic check and no reduction is performed.
+-/
+private def hasUnusedArguments : Expr → Bool
+  | Expr.forallE _ d b _ => !b.hasLooseBVar 0 || hasUnusedArguments b
+  | _ => false
+
+/--
+  If the type of the metavariable `mvar` has unused argument, return a pair `(α, transformer)`
+  where `α` is a new type without the unused arguments and the `transformer` is a function for coverting a
+  solution with type `α` into a value that can be assigned to `mvar`.
+  Example: suppose `mvar` has type `(a : A) → (b : B a) → (c : C a) → D a c`, the result is the pair
+  ```
+  ((a : A) → (c : C a) → D a c,
+   fun (f : (a : A) → (c : C a) → D a c) (a : A) (b : B a) (c : C a) => f a c
+  )
+  ```
+
+  This method is used to improve the effectiveness of the TC resolution procedure. It was suggested and prototyped by
+  Tomas Skrivan. It improves the support for instances of type `a : A → C` where `a` does not appear in class `C`.
+  When we look for such an instance it is enough to look for an instance `c : C` and then return `fun _ => c`.
+
+  Tomas' approach makes sure that instance of a type like `a : A → C` never gets tabled/cached. More on that later.
+  At the core is the this methos. it takes an expression E and does two things:
+
+  The modification to TC resolution works this way: We are looking for an instance of `E`, if it is tabled
+  just get it as normal, but if not first remove all unused arguments producing `E'`. Now we look up the table again but
+  for `E'`. If it exists, use the transforme to create E. If it does not exists, create a new goal `E'`.
+-/
+private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM (Option (Expr × Expr)) :=
+  withMCtx mctx do
+    let mvarType ← instantiateMVars (← inferType mvar)
+    if !hasUnusedArguments mvarType then
+      return none
+    else
+      forallTelescope mvarType fun xs body => do
+        let ys ← xs.foldrM (init := []) fun x ys => do
+          if body.containsFVar x.fvarId! then
+            return x :: ys
+          else if (← ys.anyM fun y => return (← inferType y).containsFVar x.fvarId!) then
+            return x :: ys
+          else
+            return ys
+        let ys := ys.toArray
+        let mvarType' ← mkForallFVars ys body
+        withLocalDeclD `redf mvarType' fun f => do
+          let transformer ← mkLambdaFVars #[f] (← mkLambdaFVars xs (mkAppN f ys))
+          trace[Meta.synthInstance.unusedArgs] "{mvarType}\nhas unused arguments, reduced type{indentExpr mvarType'}\nTransformer{indentExpr transformer}"
+          return some (mvarType', transformer)
+
 /-- Process the next subgoal in the given consumer node. -/
 def consume (cNode : ConsumerNode) : SynthM Unit :=
   match cNode.subgoals with
@@ -432,7 +484,27 @@ def consume (cNode : ConsumerNode) : SynthM Unit :=
      let key ← mkTableKeyFor cNode.mctx mvar
      let entry? ← findEntry? key
      match entry? with
-     | none       => newSubgoal cNode.mctx key mvar waiter
+     | none       =>
+       -- Remove unused arguments and try again, see comment at `removeUnusedArguments?`
+       match (← removeUnusedArguments? cNode.mctx mvar) with
+       | none => newSubgoal cNode.mctx key mvar waiter
+       | some (mvarType', transformer) =>
+         let key' ← mkTableKey cNode.mctx mvarType'
+         match (← findEntry? key') with
+         | none => do
+           let (mctx', mvar') ← withMCtx cNode.mctx do
+             let mvar' ← mkFreshExprMVar mvarType'
+             return (← getMCtx, mvar')
+           newSubgoal mctx' key' mvar' (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals })
+         | some entry' => do
+           let answers' ← entry'.answers.mapM fun a => withMCtx cNode.mctx do
+             let trAnswr := Expr.betaRev transformer #[← instantiateMVars a.result.expr]
+             let trAnswrType ← inferType trAnswr
+             { a with result.expr := trAnswr, resultType := trAnswrType }
+           modify fun s =>
+             { s with
+               resumeStack  := answers'.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
+               tableEntries := s.tableEntries.insert key' { entry' with waiters := entry'.waiters.push waiter } }
      | some entry => modify fun s =>
        { s with
          resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
@@ -611,6 +683,32 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
           let resultType ← inferType result
           if (← withConfig (fun _ => inputConfig) <| isDefEq type resultType) then
             let result ← instantiateMVars result
+            /- We use `check` to propogate universe constraints implied by the `result`.
+               Recall that we use `ignoreLevelMVarDepth := true` which allows universe metavariables in the current depth to be assigned,
+               but these assignments are discarded by `withNewMCtxDepth`.
+
+               TODO: If this `check` is a performance bottleneck, we can improve performance by tracking whether
+                     a universe metavariable from previous universe levels have been assigned or not during TC resolution.
+                     We only need to perform the `check` if this kind of assignment have been performed.
+
+               The example in the issue #796 exposed this issue.
+               ```
+                structure A
+                class B (a : outParam A) (α : Sort u)
+                class C {a : A} (α : Sort u) [B a α]
+                class D {a : A} (α : Sort u) [B a α] [c : C α]
+                class E (a : A) where [c (α : Sort u) [B a α] : C α]
+                instance c {a : A} [e : E a] (α : Sort u) [B a α] : C α := e.c α
+
+                def d {a : A} [e : E a] (α : Sort u) [b : B a α] : D α := ⟨⟩
+               ```
+               The term `D α` has two instance implicit arguments. The second one has type `C α`, and TC
+               resolution produces the result `@c.{u} a e α b`.
+               Note that the `e` has type `E.{?v} a`, and `E` is universe polymorphic,
+               but the universe does not occur in the parameter `a`. We have that `?v := u` is implied by `@c.{u} a e α b`,
+               but this assignment is lost.
+            -/
+            check result
             pure (some result)
           else
             trace[Meta.synthInstance] "result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
@@ -670,12 +768,14 @@ private def synthPendingImp (mvarId : MVarId) : MetaM Bool := withIncRecDepth <|
               return true
 
 builtin_initialize
+  registerTraceClass `Meta.synthPending
   registerTraceClass `Meta.synthInstance
   registerTraceClass `Meta.synthInstance.globalInstances
   registerTraceClass `Meta.synthInstance.newSubgoal
   registerTraceClass `Meta.synthInstance.tryResolve
   registerTraceClass `Meta.synthInstance.resume
   registerTraceClass `Meta.synthInstance.generate
-  registerTraceClass `Meta.synthPending
+  registerTraceClass `Meta.synthInstance.unusedArgs
+  registerTraceClass `Meta.synthInstance.newAnswer
 
 end Lean.Meta

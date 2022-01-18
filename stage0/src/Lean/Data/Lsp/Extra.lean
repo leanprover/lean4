@@ -35,8 +35,23 @@ instance : FromJson WaitForDiagnostics :=
 instance : ToJson WaitForDiagnostics :=
   ⟨fun o => mkObj []⟩
 
+inductive LeanFileProgressKind
+  | processing | fatalError
+  deriving Inhabited, BEq
+
+instance : FromJson LeanFileProgressKind := ⟨fun j =>
+  match j.getNat? with
+  | Except.ok 1 => LeanFileProgressKind.processing
+  | Except.ok 2 => LeanFileProgressKind.fatalError
+  | _           => throw s!"unknown LeanFileProgressKind '{j}'"⟩
+
+instance : ToJson LeanFileProgressKind := ⟨fun
+  | LeanFileProgressKind.processing => 1
+  | LeanFileProgressKind.fatalError => 2⟩
+
 structure LeanFileProgressProcessingInfo where
   range : Range
+  kind : LeanFileProgressKind := LeanFileProgressKind.processing
   deriving FromJson, ToJson
 
 /-- `$/lean/fileProgress` client<-server notification.

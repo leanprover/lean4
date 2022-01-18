@@ -149,9 +149,9 @@ register_builtin_option checkBinderAnnotations : Bool := {
   descr    := "check whether type is a class instance whenever the binder annotation `[...]` is used"
 }
 
-private partial def elabBinderViews {α} (binderViews : Array BinderView) (fvars : Array Expr) (k : Array Expr → TermElabM α)
+private partial def elabBinderViews {α} (binderViews : Array BinderView) (fvars : Array (Syntax × Expr)) (k : Array (Syntax × Expr) → TermElabM α)
     : TermElabM α :=
-  let rec loop (i : Nat) (fvars : Array Expr) : TermElabM α := do
+  let rec loop (i : Nat) (fvars : Array (Syntax × Expr)) : TermElabM α := do
     if h : i < binderViews.size then
       let binderView := binderViews.get ⟨i, h⟩
       ensureAtomicBinderName binderView
@@ -162,13 +162,13 @@ private partial def elabBinderViews {α} (binderViews : Array BinderView) (fvars
           throwErrorAt binderView.type "invalid binder annotation, type is not a class instance{indentExpr type}\nuse the command `set_option checkBinderAnnotations false` to disable the check"
       withLocalDecl binderView.id.getId binderView.bi type fun fvar => do
         addLocalVarInfo binderView.id fvar
-        loop (i+1) (fvars.push fvar)
+        loop (i+1) (fvars.push (binderView.id, fvar))
     else
       k fvars
   loop 0 fvars
 
-private partial def elabBindersAux {α} (binders : Array Syntax) (k : Array Expr → TermElabM α) : TermElabM α :=
-  let rec loop (i : Nat) (fvars : Array Expr) : TermElabM α := do
+private partial def elabBindersAux {α} (binders : Array Syntax) (k : Array (Syntax × Expr) → TermElabM α) : TermElabM α :=
+  let rec loop (i : Nat) (fvars : Array (Syntax × Expr)) : TermElabM α := do
     if h : i < binders.size then
       let binderViews ← matchBinder (binders.get ⟨i, h⟩)
       elabBinderViews binderViews fvars <| loop (i+1)
@@ -177,15 +177,23 @@ private partial def elabBindersAux {α} (binders : Array Syntax) (k : Array Expr
   loop 0 #[]
 
 /--
-  Elaborate the given binders (i.e., `Syntax` objects for `simpleBinder <|> bracketedBinder`),
-  update the local context, set of local instances, reset instance chache (if needed), and then
-  execute `x` with the updated context. -/
-def elabBinders {α} (binders : Array Syntax) (k : Array Expr → TermElabM α) : TermElabM α :=
+  Like `elabBinders`, but also pass syntax node per binder.
+  `elabBinders(Ex)` automatically adds binder info nodes for the produced fvars, but storing the syntax nodes
+  might be necessary when later adding the same binders back to the local context so that info nodes can
+  manually be added for the new fvars; see `MutualDef` for an example. -/
+def elabBindersEx {α} (binders : Array Syntax) (k : Array (Syntax × Expr) → TermElabM α) : TermElabM α :=
   withoutPostponingUniverseConstraints do
     if binders.isEmpty then
       k #[]
     else
       elabBindersAux binders k
+
+/--
+  Elaborate the given binders (i.e., `Syntax` objects for `simpleBinder <|> bracketedBinder`),
+  update the local context, set of local instances, reset instance chache (if needed), and then
+  execute `x` with the updated context. -/
+def elabBinders (binders : Array Syntax) (k : Array Expr → TermElabM α) : TermElabM α :=
+  elabBindersEx binders (fun fvars => k (fvars.map (·.2)))
 
 def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
   elabBinders #[binder] fun fvars => x fvars[0]
@@ -207,6 +215,10 @@ def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α
     mkForall (← MonadQuotation.addMacroScope `a) BinderInfo.default dom rng
   | _                    => throwUnsupportedSyntax
 
+/--
+The dependent arrow. `(x : α) → β` is equivalent to `∀ x : α, β`, but we usually
+reserve the latter for propositions. Also written as `Π x : α, β` (the "Pi-type")
+in the literature. -/
 @[builtinTermElab depArrow] def elabDepArrow : TermElab := fun stx _ =>
   -- bracketedBinder `->` term
   let binder := stx[0]

@@ -66,9 +66,6 @@ def reparseHeader (contents : String) (header : Snapshot) (opts : Options := {})
   let (newStx, newMpState, _) ← Parser.parseHeader inputCtx
   pure { header with stx := newStx, mpState := newMpState }
 
-private def ioErrorFromEmpty (ex : Empty) : IO.Error :=
-  nomatch ex
-
 /-- Parses the next command occurring after the given snapshot
 without elaborating it. -/
 def parseNextCmd (contents : String) (snap : Snapshot) : IO Syntax := do
@@ -126,11 +123,10 @@ def compileNextCmd (text : FileMap) (snap : Snapshot) : IO Snapshot := do
       fileName := inputCtx.fileName
       fileMap  := inputCtx.fileMap
     }
-    let (output, _) ← IO.FS.withIsolatedStreams do
-      EIO.toIO ioErrorFromEmpty do
-        Elab.Command.catchExceptions
-          (getResetInfoTrees *> Elab.Command.elabCommandTopLevel cmdStx)
-          cmdCtx cmdStateRef
+    let (output, _) ← IO.FS.withIsolatedStreams <| liftM (m := BaseIO) do
+      Elab.Command.catchExceptions
+        (getResetInfoTrees *> Elab.Command.elabCommandTopLevel cmdStx)
+        cmdCtx cmdStateRef
     let mut postCmdState ← cmdStateRef.get
     if !output.isEmpty then
       postCmdState := {

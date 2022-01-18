@@ -60,6 +60,7 @@ structure WorkerContext where
   hOut          : FS.Stream
   hLog          : FS.Stream
   srcSearchPath : SearchPath
+  initParams    : InitializeParams
 
 /- Asynchronous snapshot elaboration. -/
 section Elab
@@ -98,6 +99,8 @@ section Elab
       : ReaderT WorkerContext IO (AsyncList ElabTaskError Snapshot) := do
     if initial && initSnap.msgLog.hasErrors then
       -- treat header processing errors as fatal so users aren't swamped with followup errors
+      let hOut := (←read).hOut
+      publishProgressAtPos m initSnap.beginPos hOut (kind := LeanFileProgressKind.fatalError)
       AsyncList.nil
     else
       AsyncList.unfoldAsync (nextCmdSnap m . cancelTk (← read)) initSnap
@@ -148,10 +151,7 @@ section Initialization
       let stdout := stdout.split (· == '\n') |>.getLast!
       let Except.ok (paths : LeanPaths) ← pure (Json.parse stdout >>= fromJson?)
         | throwServerError s!"invalid output from `{cmdStr}`:\n{stdout}\nstderr:\n{stderr}"
-      let sp ← getBuiltinSearchPath
-      let sp ← addSearchPathFromEnv sp
-      let sp := paths.oleanPath ++ sp
-      searchPathRef.set sp
+      initSearchPath (← getBuildDir) paths.oleanPath
       paths.srcPath.mapM realPathNormalized
     | 2 => pure []  -- no lakefile.lean
     | _ => throwServerError s!"`{cmdStr}` failed:\n{stdout}\nstderr:\n{stderr}"
@@ -174,14 +174,21 @@ section Initialization
     -- `lake/` should come first since on case-insensitive file systems, Lean thinks that `src/` also contains `Lake/`
     let mut srcSearchPath := [srcPath / "lake", srcPath]
     let (headerEnv, msgLog) ← try
-      -- NOTE: lake does not exist in stage 0 (yet?)
-      if (← System.FilePath.pathExists lakePath) then
-        let pkgSearchPath ← lakeSetupSearchPath lakePath m (Lean.Elab.headerToImports headerStx).toArray hOut
-        srcSearchPath := pkgSearchPath ++ srcSearchPath
+      if let some path := m.uri.toPath? then
+        -- NOTE: we assume for now that `lakefile.lean` does not have any non-stdlib deps
+        -- NOTE: lake does not exist in stage 0 (yet?)
+        if path.fileName != "lakefile.lean" && (← System.FilePath.pathExists lakePath) then
+          let pkgSearchPath ← lakeSetupSearchPath lakePath m (Lean.Elab.headerToImports headerStx).toArray hOut
+          srcSearchPath := pkgSearchPath ++ srcSearchPath
       Elab.processHeader headerStx opts msgLog inputCtx
     catch e =>  -- should be from `lake print-paths`
       let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
       pure (← mkEmptyEnvironment, msgs)
+    let mut headerEnv := headerEnv
+    try
+      if let some path := m.uri.toPath? then
+        headerEnv := headerEnv.setMainModule (← moduleNameOfFileName path none)
+    catch _ => ()
     if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
       srcSearchPath := System.SearchPath.parse p ++ srcSearchPath
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
@@ -201,7 +208,7 @@ section Initialization
     publishDiagnostics m headerSnap.diagnostics.toArray hOut
     return (headerSnap, srcSearchPath)
 
-  def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream) (opts : Options)
+  def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
       : IO (WorkerContext × WorkerState) := do
     let (headerSnap, srcSearchPath) ← compileHeader meta o opts
     let cancelTk ← CancelToken.new
@@ -210,6 +217,7 @@ section Initialization
         hOut               := o
         hLog               := e
         srcSearchPath      := srcSearchPath
+        initParams         := initParams
       }
     let cmdSnaps ← unfoldCmdSnaps meta headerSnap cancelTk (initial := true) ctx
     let doc : EditableDocument := ⟨meta, headerSnap, cmdSnaps, cancelTk⟩
@@ -224,9 +232,8 @@ section Updates
   def updatePendingRequests (map : PendingRequestMap → PendingRequestMap) : WorkerM Unit := do
     modify fun st => { st with pendingRequests := map st.pendingRequests }
 
-  /-- Given the new document and `changePos`, the UTF-8 offset of a change into the pre-change source,
-      updates editable doc state. -/
-  def updateDocument (newMeta : DocumentMeta) (changePos : String.Pos) : WorkerM Unit := do
+  /-- Given the new document, updates editable doc state. -/
+  def updateDocument (newMeta : DocumentMeta) : WorkerM Unit := do
     -- The watchdog only restarts the file worker when the syntax tree of the header changes.
     -- If e.g. a newline is deleted, it will not restart this file worker, but we still
     -- need to reparse the header so that the offsets are correct.
@@ -244,6 +251,7 @@ section Updates
     | some (ElabTaskError.ioError ioError) => throw ioError
     | _ => -- No error or EOF
       oldDoc.cancelTk.set
+      let changePos := oldDoc.meta.text.source.firstDiffPos newMeta.text.source
       -- NOTE(WN): we invalidate eagerly as `endPos` consumes input greedily. To re-elaborate only
       -- when really necessary, we could do a whitespace-aware `Syntax` comparison instead.
       let mut validSnaps := cmdSnaps.finishedPrefix.takeWhile (fun s => s.endPos < changePos)
@@ -285,8 +293,8 @@ section NotificationHandling
       -- TODO(WN): This happens on restart sometimes.
       IO.eprintln s!"Got outdated version number: {newVersion} ≤ {oldDoc.meta.version}"
     else if ¬ changes.isEmpty then
-      let (newDocText, minStartOff) := foldDocumentChanges changes oldDoc.meta.text
-      updateDocument ⟨docId.uri, newVersion, newDocText⟩ minStartOff
+      let newDocText := foldDocumentChanges changes oldDoc.meta.text
+      updateDocument ⟨docId.uri, newVersion, newDocText⟩
 
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
@@ -296,20 +304,19 @@ def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
   -- NOTE(WN): when the worker restarts e.g. due to changed imports, we may receive `rpc/release`
   -- for the previous RPC session. This is fine, just ignore.
   if let some seshRef := st.rpcSessions.find? p.sessionId then
-    let mut sesh ← seshRef.get
-    for ref in p.refs do
-      sesh := sesh.release ref |>.snd
-    sesh ← sesh.keptAlive
-    seshRef.set sesh
+    let monoMsNow ← IO.monoMsNow
+    seshRef.modify fun sesh => Id.run do
+      let mut sesh := sesh
+      for ref in p.refs do
+        sesh := sesh.release ref |>.snd
+      sesh.keptAlive monoMsNow
 
 def handleRpcKeepAlive (p : Lsp.RpcKeepAliveParams) : WorkerM Unit := do
   let st ← get
   match st.rpcSessions.find? p.sessionId with
   | none => return
   | some seshRef =>
-    let sesh ← seshRef.get
-    let sesh ← sesh.keptAlive
-    seshRef.set sesh
+    seshRef.modify (·.keptAlive (← IO.monoMsNow))
 
 end NotificationHandling
 
@@ -365,7 +372,8 @@ section MessageHandling
       { rpcSessions := st.rpcSessions
         srcSearchPath := ctx.srcSearchPath
         doc := st.doc
-        hLog := ctx.hLog }
+        hLog := ctx.hLog
+        initParams := ctx.initParams }
     let t? ← EIO.toIO' <| handleLspRequest method params rc
     let t₁ ← match t? with
       | Except.error e =>
@@ -420,7 +428,7 @@ end MainLoop
 def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let i ← maybeTee "fwIn.txt" false i
   let o ← maybeTee "fwOut.txt" true o
-  let _ ← i.readLspRequestAs "initialize" InitializeParams
+  let initParams ← i.readLspRequestAs "initialize" InitializeParams
   let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" DidOpenTextDocumentParams
   let doc := param.textDocument
   /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
@@ -432,7 +440,7 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let e ← e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   try
-    let (ctx, st) ← initializeWorker meta i o e opts
+    let (ctx, st) ← initializeWorker meta i o e initParams.param opts
     let _ ← StateRefT'.run (s := st) <| ReaderT.run (r := ctx) mainLoop
     return (0 : UInt32)
   catch e =>

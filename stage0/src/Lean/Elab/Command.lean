@@ -26,6 +26,8 @@ structure Scope where
   varDecls      : Array Syntax := #[]
   /-- Globally unique internal identifiers for the `varDecls` -/
   varUIds       : Array Name := #[]
+  /-- noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for. -/
+  isNoncomputable : Bool := false
   deriving Inhabited
 
 structure State where
@@ -37,7 +39,7 @@ structure State where
   nextInstIdx    : Nat := 1 -- for generating anonymous instance names
   ngen           : NameGenerator := {}
   infoState      : InfoState := {}
-  traceState      : TraceState    := {}
+  traceState     : TraceState := {}
   deriving Inhabited
 
 structure Context where
@@ -216,7 +218,7 @@ private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : Std.Persisten
   } tree
 
 private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttribute.AttributeEntry CommandElab) → CommandElabM Unit
-  | []                => throwError "unexpected syntax{indentD stx}"
+  | []                => withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <| throwError "unexpected syntax{indentD stx}"
   | (elabFn::elabFns) =>
     catchInternalId unsupportedSyntaxExceptionId
       (withInfoTreeContext (mkInfoTree := mkInfoTree elabFn.declName stx) <| elabFn.value stx)
@@ -267,13 +269,16 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
         trace `Elab.command fun _ => stx;
         let s ← get
         match (← liftMacroM <| expandMacroImpl? s.env stx) with
-        | some (decl, stxNew) =>
+        | some (decl, stxNew?) =>
           withInfoTreeContext (mkInfoTree := mkInfoTree decl stx) do
-              withMacroExpansion stx stxNew do
-                elabCommand stxNew
+            let stxNew ← liftMacroM <| liftExcept stxNew?
+            withMacroExpansion stx stxNew do
+              elabCommand stxNew
         | _ =>
           match commandElabAttribute.getEntries s.env k with
-          | []      => throwError "elaboration function for '{k}' has not been implemented"
+          | []      =>
+            withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <|
+              throwError "elaboration function for '{k}' has not been implemented"
           | elabFns => elabCommandUsing s stx elabFns
     | _ => throwError "unexpected command"
 
@@ -298,7 +303,7 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do
   if !showPartialSyntaxErrors.get (← getOptions) && initMsgs.hasErrors && stx.hasMissing then
     -- discard elaboration errors, except for a few important and unlikely misleading ones, on parse error
     msgs := ⟨msgs.msgs.filter fun msg =>
-      msg.data.hasTag `Elab.synthPlaceholder || msg.data.hasTag `Tactic.unsolvedGoals⟩
+      msg.data.hasTag (fun tag => tag == `Elab.synthPlaceholder || tag == `Tactic.unsolvedGoals || (`_traceMsg).isSuffixOf tag)⟩
   for tree in (← getInfoTrees) do
     trace[Elab.info] (← tree.format)
   modify fun st => { st with
@@ -329,17 +334,18 @@ def getBracketedBinderIds : Syntax → Array Name
   | `(bracketedBinder|[$ty])                         => #[Name.anonymous]
   | _                                                => #[]
 
-private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context := do
+private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context := Id.run <| do
   let scope      := s.scopes.head!
   let mut sectionVars := {}
   for id in scope.varDecls.concatMap getBracketedBinderIds, uid in scope.varUIds do
     sectionVars := sectionVars.insert id uid
-  { macroStack     := ctx.macroStack
-    fileName       := ctx.fileName
-    fileMap        := ctx.fileMap
-    currMacroScope := ctx.currMacroScope
-    declName?      := declName?
-    sectionVars    := sectionVars }
+  { macroStack             := ctx.macroStack
+    fileName               := ctx.fileName
+    fileMap                := ctx.fileMap
+    currMacroScope         := ctx.currMacroScope
+    declName?              := declName?
+    sectionVars            := sectionVars
+    isNoncomputableSection := scope.isNoncomputable }
 
 private def mkTermState (scope : Scope) (s : State) : Term.State := {
   messages          := {}
@@ -429,7 +435,11 @@ def addUnivLevel (idStx : Syntax) : CommandElabM Unit := withRef idStx do
 def expandDeclId (declId : Syntax) (modifiers : Modifiers) : CommandElabM ExpandDeclIdResult := do
   let currNamespace ← getCurrNamespace
   let currLevelNames ← getLevelNames
-  Lean.Elab.expandDeclId currNamespace currLevelNames declId modifiers
+  let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers
+  for id in (← getScope).varDecls.concatMap getBracketedBinderIds do
+    if id == r.shortName then
+      throwError "invalid declaration name '{r.shortName}', there is a section variable with the same name"
+  return r
 
 end Elab.Command
 

@@ -27,10 +27,7 @@ install`. You use `elan` instead.
 You can use any of the [supported editors](../setup.md) for editing
 the Lean source code. If you set up `elan` as below, opening `src/` as
 a *workspace folder* should ensure that stage 0 will be used for file
-in that directory. You should also set the `LEAN_SRC_PATH` environment
-variable to the path of the `src/` directory to enable
-go-to-definition in the stdlib (automatically set when using
-`nix-shell`).
+in that directory.
 
 ## Dev setup using elan
 

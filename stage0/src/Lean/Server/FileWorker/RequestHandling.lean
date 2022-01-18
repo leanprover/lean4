@@ -25,11 +25,14 @@ partial def handleCompletion (p : CompletionParams)
   let doc ← readDoc
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
+  let caps := (← read).initParams.capabilities
   -- dbg_trace ">> handleCompletion invoked {pos}"
-  -- NOTE: use `>=` since the cursor can be *after* the input
-  withWaitFindSnap doc (fun s => s.endPos >= pos)
+  -- NOTE: use `+ 1` since we sometimes want to consider invalid input technically after the command,
+  -- such as a trailing dot after an option name. This shouldn't be a problem since any subsequent
+  -- command starts with a keyword that (currently?) does not participate in completion.
+  withWaitFindSnap doc (·.endPos + 1 >= pos)
     (notFoundX := pure { items := #[], isIncomplete := true }) fun snap => do
-      if let some r ← Completion.find? doc.meta.text pos snap.infoTree then
+      if let some r ← Completion.find? doc.meta.text pos snap.infoTree caps then
         return r
       return { items := #[ ], isIncomplete := true }
 
@@ -69,8 +72,12 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
     let mod? ← findModuleOf? n
     let modUri? ← match mod? with
       | some modName =>
-        let modFname? ← rc.srcSearchPath.findWithExt "lean" modName
-        pure <| modFname?.map toFileUri
+        let some modFname ← rc.srcSearchPath.findWithExt "lean" modName
+          | pure none
+        -- resolve symlinks (such as `src` in the build dir) so that files are opened
+        -- in the right folder
+        let modFname ← IO.FS.realPath modFname
+        pure <| some <| Lsp.DocumentUri.ofPath modFname
       | none         => pure <| some doc.meta.uri
 
     let ranges? ← findDeclarationRanges? n
@@ -129,6 +136,86 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
           if kind == definition && ci.env.contains ei.elaborator then
             return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
       return #[]
+
+inductive RefIdent where
+  | const : Name → RefIdent
+  | fvar : FVarId → RefIdent
+  deriving BEq
+
+structure Reference where
+  ident : RefIdent
+  range : Range
+  isDeclaration : Bool
+  deriving BEq
+
+open Std in
+open Elab in
+partial def handleReferences (p : ReferenceParams)
+    : RequestM (RequestTask (Array Location)) := do
+  let doc ← readDoc
+  let text := doc.meta.text
+  let hoverPos := text.lspPosToUtf8Pos p.position
+  let t ← doc.cmdSnaps.waitAll
+  mapTask t fun (snaps, _) => do
+    if let some snap := snaps.find? (fun s => s.endPos > hoverPos) then
+      if let some (ci, i) := snap.infoTree.hoverableInfoAt? hoverPos then
+        if let some (ident, _) := identOf i then
+          return referencesTo doc ident (p.context.includeDeclaration) snaps
+    return #[]
+  where
+    identOf : Info → Option (RefIdent × Bool)
+      | Info.ofTermInfo ti => match ti.expr with
+        | Expr.const n .. => some (RefIdent.const n, ti.isBinder)
+        | Expr.fvar id .. => some (RefIdent.fvar id, ti.isBinder)
+        | _ => none
+      | Info.ofFieldInfo fi => some (RefIdent.const fi.projName, false)
+      | _ => none
+
+    findReferences (doc : EditableDocument) (snaps : List Snapshot) : Array Reference := Id.run <| do
+      let text := doc.meta.text
+      let mut refs := #[]
+      for snap in snaps do
+        refs := refs.appendList <| snap.infoTree.deepestNodes fun _ info _ => Id.run <| do
+          if let some (ident, isDeclaration) := identOf info then
+            if let some range := info.range? then
+              return some { ident, range := range.toLspRange text, isDeclaration }
+          return none
+      refs
+
+    applyIdMap : RefIdent → HashMap FVarId FVarId → RefIdent
+      | RefIdent.fvar id, m => RefIdent.fvar <| m.findD id id
+      | ident, _ => ident
+
+    -- The `FVarId`s of a function parameter in the function's signature and
+    -- body differ. However, they have `TermInfo` nodes with `binder := true` in
+    -- the exact same position. `combineFvars` builds a
+    -- `HashMap Lsp.Range FVarId` to detect such overlapping definitions and
+    -- then builds a `HashMap FVarId FVarId` to map all of them to the same
+    -- `FVarId`. This is overkill for single-file requests, but will become more
+    -- useful when references across an entire project are implemented.
+    combineFvars (refs : Array Reference) : (Array Reference × HashMap FVarId FVarId) :=
+      let (posMap, idMap) : (HashMap Lsp.Range FVarId × _):= refs.foldl (init := (HashMap.empty, HashMap.empty))
+        fun (posMap, idMap) ref => match ref with
+        | { ident := RefIdent.fvar id, range, isDeclaration := true } => match posMap.find? range with
+          | some baseId => (posMap, idMap.insert id baseId)
+          | none => (posMap.insert range id, idMap.insert id id)
+        | _ => (posMap, idMap)
+      let refs := refs.foldl (init := #[]) fun refs ref => match ref with
+        | { ident := RefIdent.fvar id, range, isDeclaration := true } =>
+          if idMap.contains id then refs.push ref else refs
+        | { ident := ident@(RefIdent.fvar _), range, isDeclaration := false } =>
+          refs.push { ident := applyIdMap ident idMap, range, isDeclaration := false }
+        | _ => refs.push ref
+      (refs, idMap)
+
+    referencesTo (doc : EditableDocument) (ident : RefIdent) (includeDecl : Bool) (snaps : List Snapshot)
+        : Array Location :=
+      let (refs, idMap) := combineFvars $ findReferences doc snaps
+      let ident := applyIdMap ident idMap
+      let relevant := refs.filter fun ref => ref.ident == ident && (includeDecl || !ref.isDeclaration)
+      let locations := relevant.map fun ref => { uri := doc.meta.uri, range := ref.range : Location }
+      -- TODO Remove duplicates more efficiently
+      List.toArray <| List.eraseDups <| Array.toList <| locations
 
 open RequestM in
 def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Option Widget.InteractiveGoals)) := do
@@ -195,7 +282,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
   let rec highlightReturn? (doRange? : Option Range) : Syntax → Option DocumentHighlight
-    | stx@`(doElem|return%$i $e) => do
+    | stx@`(doElem|return%$i $e) => Id.run <| do
       if let some range := i.getRange? then
         if range.contains pos then
           return some { range := doRange?.getD (range.toLspRange text), kind? := DocumentHighlightKind.text }
@@ -221,7 +308,7 @@ partial def handleDocumentSymbol (p : DocumentSymbolParams)
     | some ElabTaskError.aborted =>
       throw RequestError.fileChanged
     | some (ElabTaskError.ioError e) =>
-      throwThe IO.Error e
+      throw (e : RequestError)
     | _ => ()
 
     let lastSnap := cmdSnaps.finishedPrefix.getLastD doc.headerSnap
@@ -235,7 +322,7 @@ partial def handleDocumentSymbol (p : DocumentSymbolParams)
       | `(namespace $id)  => sectionLikeToDocumentSymbols text stx stxs (id.getId.toString) SymbolKind.namespace id
       | `(section $(id)?) => sectionLikeToDocumentSymbols text stx stxs ((·.getId.toString) <$> id |>.getD "<section>") SymbolKind.namespace (id.getD stx)
       | `(end $(id)?) => ([], stx::stxs)
-      | _ => do
+      | _ => Id.run <| do
         let (syms, stxs') := toDocumentSymbols text stxs
         unless stx.isOfKind ``Lean.Parser.Command.declaration do
           return (syms, stxs')
@@ -320,17 +407,28 @@ where
           stx.getArgs.forM go
   highlightId (stx : Syntax) : ReaderT SemanticTokensContext (StateT SemanticTokensState RequestM) _ := do
     if let some range := stx.getRange? then
+      let mut lastPos := range.start
       for ti in (← read).snap.infoTree.deepestNodes (fun
         | _, i@(Elab.Info.ofTermInfo ti), _ => match i.pos? with
           | some ipos => if range.contains ipos then some ti else none
           | _         => none
         | _, _, _ => none) do
-        match ti.expr with
-        | Expr.fvar .. => addToken ti.stx SemanticTokenType.variable
-        | _            => if ti.stx.getPos?.get! > range.start then addToken ti.stx SemanticTokenType.property
+        let pos := ti.stx.getPos?.get!
+        -- avoid reporting same position twice; the info node can occur multiple times if
+        -- e.g. the term is elaborated multiple times
+        if pos < lastPos then
+          continue
+        if let Expr.fvar .. := ti.expr then
+          addToken ti.stx SemanticTokenType.variable
+        else if ti.stx.getPos?.get! > lastPos then
+          -- any info after the start position: must be projection notation
+          addToken ti.stx SemanticTokenType.property
+          lastPos := ti.stx.getPos?.get!
   highlightKeyword stx := do
     if let Syntax.atom info val := stx then
-      if val.bsize > 0 && val[0].isAlpha then
+      if (val.length > 0 && val[0].isAlpha) ||
+         -- Support for keywords of the form `#<alpha>...`
+         (val.length > 1 && val[0] == '#' && val[1].isAlpha) then
         addToken stx SemanticTokenType.keyword
   addToken stx type := do
     let ⟨beginPos, endPos, text, _⟩ ← read
@@ -371,7 +469,7 @@ partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
       waitLoop
   let t ← RequestM.asTask waitLoop
   RequestM.bindTask t fun doc? => do
-    let doc ← doc?
+    let doc ← liftExcept doc?
     let t₁ ← doc.cmdSnaps.waitAll
     return t₁.map fun _ => pure WaitForDiagnostics.mk
 
@@ -382,6 +480,7 @@ builtin_initialize
   registerLspRequestHandler "textDocument/declaration"          TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.declaration)
   registerLspRequestHandler "textDocument/definition"           TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.definition)
   registerLspRequestHandler "textDocument/typeDefinition"       TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.type)
+  registerLspRequestHandler "textDocument/references"           ReferenceParams            (Array Location)        handleReferences
   registerLspRequestHandler "textDocument/documentHighlight"    DocumentHighlightParams    DocumentHighlightResult handleDocumentHighlight
   registerLspRequestHandler "textDocument/documentSymbol"       DocumentSymbolParams       DocumentSymbolResult    handleDocumentSymbol
   registerLspRequestHandler "textDocument/semanticTokens/full"  SemanticTokensParams       SemanticTokens          handleSemanticTokensFull

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.InferType
-import Lean.Meta.LevelDefEq
 
 /-
 This is not the Kernel type checker, but an auxiliary method for checking

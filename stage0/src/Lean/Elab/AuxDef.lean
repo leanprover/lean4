@@ -21,12 +21,12 @@ def elabAuxDef : CommandElab
   | `($[$doc?:docComment]? $[$attrs?:attributes]? aux_def $[$suggestion:ident]* : $ty := $body) => do
     let id := suggestion.map (·.getId.eraseMacroScopes) |>.foldl (· ++ ·) Name.anonymous
     let id := `_aux ++ (← getMainModule) ++ `_ ++ id
-    let id := String.intercalate "_" <| id.components.map (·.toString)
+    let id := String.intercalate "_" <| id.components.map (·.toString (escape := false))
     let ns ← getCurrNamespace
     -- make sure we only add a single component so that scoped workes
     let id ← mkAuxName (ns.mkStr id) 1
     let id := id.replacePrefix ns Name.anonymous -- TODO: replace with def _root_.id
     elabCommand <|
       ← `($[$doc?:docComment]? $[$attrs?:attributes]?
-          def $(mkIdent id):ident : $ty := $body)
+          def $(mkIdentFrom (mkNullNode suggestion) id):ident : $ty := $body)
   | _ => throwUnsupportedSyntax

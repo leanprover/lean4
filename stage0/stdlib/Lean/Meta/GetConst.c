@@ -20,7 +20,7 @@ lean_object* lean_environment_find(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getConstNoEx_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getConst_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8407_(uint8_t, uint8_t);
+uint8_t l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8416_(uint8_t, uint8_t);
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getReducibilityStatus___at___private_Lean_Meta_GetConst_0__Lean_Meta_canUnfoldDefault___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isReducible___at___private_Lean_Meta_GetConst_0__Lean_Meta_canUnfoldDefault___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -170,7 +170,7 @@ x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 lean_dec(x_15);
 x_17 = 3;
-x_18 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8407_(x_6, x_17);
+x_18 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8416_(x_6, x_17);
 if (x_18 == 0)
 {
 uint8_t x_19; lean_object* x_20; 
@@ -215,7 +215,7 @@ x_28 = lean_ctor_get(x_26, 0);
 lean_inc(x_28);
 lean_dec(x_26);
 x_29 = 3;
-x_30 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8407_(x_6, x_29);
+x_30 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8416_(x_6, x_29);
 if (x_30 == 0)
 {
 uint8_t x_31; lean_object* x_32; lean_object* x_33; 
@@ -311,7 +311,7 @@ x_57 = lean_ctor_get(x_56, 0);
 lean_inc(x_57);
 lean_dec(x_56);
 x_58 = 3;
-x_59 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8407_(x_6, x_58);
+x_59 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8416_(x_6, x_58);
 if (x_59 == 0)
 {
 uint8_t x_60; lean_object* x_61; 
@@ -356,7 +356,7 @@ x_69 = lean_ctor_get(x_67, 0);
 lean_inc(x_69);
 lean_dec(x_67);
 x_70 = 3;
-x_71 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8407_(x_6, x_70);
+x_71 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_8416_(x_6, x_70);
 if (x_71 == 0)
 {
 uint8_t x_72; lean_object* x_73; lean_object* x_74; 

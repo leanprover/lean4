@@ -88,6 +88,7 @@ private def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := wit
         if missing?.isNone then
           fvarIds := fvarIds.push decl.fvarId
   let type ← mkForallFVars (fvarIds.map mkFVar) target
+  let type ← Match.unfoldNamedPattern type
   modify (·.push type)
 
 partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do

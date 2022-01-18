@@ -273,6 +273,14 @@ where
     let mvarId ← tryClearMany mvarId (alts.map (·.fvarId!))
     proveSubgoalLoop mvarId
 
+def unfoldNamedPattern (e : Expr) : MetaM Expr := do
+  let visit (e : Expr) : MetaM TransformStep := do
+    if e.isAppOfArity ``namedPattern 4 then
+      if let some eNew ← unfoldDefinition? e then
+        return TransformStep.visit eNew
+    return TransformStep.visit e
+  Meta.transform e (pre := visit)
+
 /--
   Create conditional equations and splitter for the given match auxiliary declaration. -/
 private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns :=
@@ -316,6 +324,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns :=
         let thmType ← mkEq lhs rhs
         let thmType ← hs.foldrM (init := thmType) mkArrow
         let thmType ← mkForallFVars (params ++ #[motive] ++ alts ++ ys) thmType
+        let thmType ← unfoldNamedPattern thmType
         let thmVal ← proveCondEqThm matchDeclName thmType
         addDecl <| Declaration.thmDecl {
           name        := thmName

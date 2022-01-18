@@ -136,14 +136,14 @@ def moduleOleanAndCTarget
 (contents : String)  (depTarget : BuildTarget x)
 (rootDir : FilePath := ".") (leanArgs : Array String := #[]) : OleanAndCTarget :=
   moduleTarget (OleanAndC.mk oleanFile cFile) leanFile traceFile contents depTarget do
-    compileOleanAndC leanFile oleanFile cFile (← getOleanPath) rootDir leanArgs (← getLean)
+    compileModule leanFile oleanFile cFile (← getOleanPath) rootDir leanArgs (← getLean)
 
 def moduleOleanTarget
 (leanFile oleanFile traceFile : FilePath)
 (contents : String) (depTarget : BuildTarget x)
 (rootDir : FilePath := ".") (leanArgs : Array String := #[]) : FileTarget :=
   let target := moduleTarget oleanFile leanFile traceFile contents depTarget do
-    compileOlean leanFile oleanFile (← getOleanPath) rootDir leanArgs (← getLean)
+    compileModule leanFile oleanFile none (← getOleanPath) rootDir leanArgs (← getLean)
   target.withTask do target.bindSync fun oleanFile depTrace => do
     return mixTrace (← computeTrace oleanFile) depTrace
 

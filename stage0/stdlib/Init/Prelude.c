@@ -170,7 +170,7 @@ static lean_object* l_EStateM_instMonadEStateM___closed__4;
 LEAN_EXPORT lean_object* l_instDecidableAnd___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadReaderOfReaderT___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instMonadWithReaderOfReaderT___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_namedPattern___rarg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_namedPattern___rarg___boxed(lean_object*, lean_object*);
 lean_object* lean_uint64_to_nat(uint64_t);
 static lean_object* l_Applicative_seqRight___default___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Macro_instMonadQuotationMacroM;
@@ -248,7 +248,7 @@ LEAN_EXPORT uint8_t l_instDecidableEqChar(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_ReaderT_instMonadReaderT___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_dummyRestore___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_instMonadQuotationMacroM___lambda__2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_namedPattern___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_namedPattern___rarg(lean_object*, lean_object*);
 static lean_object* l_instSubNat___closed__1;
 LEAN_EXPORT uint8_t l_not(uint8_t);
 LEAN_EXPORT lean_object* l_min(lean_object*, lean_object*);
@@ -1092,7 +1092,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_namedPattern___rarg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_namedPattern___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_inc(x_1);
@@ -1103,17 +1103,17 @@ LEAN_EXPORT lean_object* l_namedPattern(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_namedPattern___rarg___boxed), 1, 0);
+x_3 = lean_alloc_closure((void*)(l_namedPattern___rarg___boxed), 2, 0);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_namedPattern___rarg___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_namedPattern___rarg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_namedPattern___rarg(x_1);
+lean_object* x_3; 
+x_3 = l_namedPattern___rarg(x_1, x_2);
 lean_dec(x_1);
-return x_2;
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_namedPattern___boxed(lean_object* x_1, lean_object* x_2) {

@@ -170,6 +170,9 @@ structure Subtype {α : Sort u} (p : α → Prop) where
 /-- Auxiliary Declaration used to implement the notation (a : α) -/
 @[reducible] def typedExpr (α : Sort u) (a : α) : α := a
 
+-- TODO: delete
+@[reducible] def namedPatternOld {α : Sort u} (x a : α) : α := a
+
 /-- Auxiliary Declaration used to implement the named patterns `x@p`
     -- TODO: add proof for `x = a`
 -/

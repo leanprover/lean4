@@ -66,33 +66,45 @@ Return values and `@[export]` parameters are always owned at the moment.
 ## Initialization
 
 When including Lean code as part of a larger program, modules must be *initialized* before accessing any of their declarations.
+Module initialization entails
+* initialization of all "constants" (nullary functions), including closed terms lifted out of other functions
+* execution of all `[init]` functions
+* execution of all `[builtinInit]` functions, if the `builtin` parameter of the module initializer has been set
+
+The module initializer is automatically run with the `builtin` flag for executables compiled from Lean code and for "plugins" loaded with `lean --plugin`.
+For all other modules imported by `lean`, the initializer is run without `builtin`.
+Thus `[init]` functions are run iff their module is imported, regardless of whether they have native code available or not, while `[builtinInit]` functions are only run for native executable or plugins, regardless of whether their module is imported or not.
+`lean` uses built-in initializers for e.g. registering basic parsers that should be available even without importing their module (which is necessary for bootstrapping).
+  
 The initializer for module `A.B` is called `initialize_A_B` and will automatically initialize any imported modules.
-Module initializers are idempotent, but not thread-safe.
+Module initializers are idempotent (when run with the same `builtin` flag), but not thread-safe.
 Together with initialization of the Lean runtime, you should execute code like the following exactly once before accessing any Lean declarations:
 ```c
 void lean_initialize_runtime_module();
 void lean_initialize();
-lean_object * initialize_A_B(lean_object *);
-lean_object * initialize_C(lean_object *);
+lean_object * initialize_A_B(uint8_t builtin, lean_object *);
+lean_object * initialize_C(uint8_t builtin, lean_object *);
 ...
 
 lean_initialize_runtime_module();
 //lean_initialize();  // necessary if you (indirectly) access the `Lean` package
 
 lean_object * res;
-res = initialize_A_B(lean_io_mk_world());
+// use same default as for Lean executables
+uint8_t builtin = 1;
+res = initialize_A_B(builtin, lean_io_mk_world());
 if (lean_io_result_is_ok(res)) {
     lean_dec_ref(res);
 } else {
     lean_io_result_show_error(res);
     lean_dec(res);
-    return ...; // do not access Lean declarations if initialization failed
+    return ...;  // do not access Lean declarations if initialization failed
 }
-res = initialize_C(lean_io_mk_world());
+res = initialize_C(builtin, lean_io_mk_world());
 if (lean_io_result_is_ok(res)) {
 ...
 
-//lean_init_task_manager(); // necessary if you (indirectly) use `Task`
+//lean_init_task_manager();  // necessary if you (indirectly) use `Task`
 lean_io_mark_end_initialization();
 ```
 

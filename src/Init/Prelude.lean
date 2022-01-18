@@ -173,10 +173,8 @@ structure Subtype {α : Sort u} (p : α → Prop) where
 -- TODO: delete
 @[reducible] def namedPatternOld {α : Sort u} (x a : α) : α := a
 
-/-- Auxiliary Declaration used to implement the named patterns `x@p`
-    -- TODO: add proof for `x = a`
--/
-@[reducible] def namedPattern {α : Sort u} (x a : α) : α := a
+/-- Auxiliary Declaration used to implement the named patterns `x@h:p` -/
+@[reducible] def namedPattern {α : Sort u} (x a : α) (h : Eq x a) : α := a
 
 /- Auxiliary axiom used to implement `sorry`. -/
 @[extern "lean_sorry", neverExtract]

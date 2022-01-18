@@ -219,8 +219,9 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
   let doc ← readDoc
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
-  let rec highlightReturn? (doRange? : Option Range) : Syntax → Option DocumentHighlight
-    | stx@`(doElem|return%$i $e) => Id.run <| do
+  let rec highlightReturn? (doRange? : Option Range) : Syntax → Option DocumentHighlight := fun stx =>
+    match stx with
+    | `(doElem|return%$i $e) => Id.run <| do
       if let some range := i.getRange? then
         if range.contains pos then
           return some { range := doRange?.getD (range.toLspRange text), kind? := DocumentHighlightKind.text }

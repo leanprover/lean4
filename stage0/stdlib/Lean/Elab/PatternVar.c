@@ -5885,7 +5885,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Elab_Term_CollectPatternVars_collect_pushNewArg___closed__1;
 x_2 = l_Lean_Elab_Term_CollectPatternVars_collect_pushNewArg___closed__2;
-x_3 = lean_unsigned_to_nat(267u);
+x_3 = lean_unsigned_to_nat(271u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Lean_Elab_Term_CollectPatternVars_collect_pushNewArg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -6439,7 +6439,7 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16;
 x_13 = lean_ctor_get(x_12, 1);
 lean_inc(x_13);
 lean_dec(x_12);
-x_14 = lean_unsigned_to_nat(2u);
+x_14 = lean_unsigned_to_nat(3u);
 x_15 = l_Lean_Syntax_getArg(x_3, x_14);
 lean_inc(x_10);
 lean_inc(x_9);

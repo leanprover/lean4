@@ -170,7 +170,9 @@ structure Subtype {α : Sort u} (p : α → Prop) where
 /-- Auxiliary Declaration used to implement the notation (a : α) -/
 @[reducible] def typedExpr (α : Sort u) (a : α) : α := a
 
-/-- Auxiliary Declaration used to implement the named patterns `x@p` -/
+/-- Auxiliary Declaration used to implement the named patterns `x@p`
+    -- TODO: add proof for `x = a`
+-/
 @[reducible] def namedPattern {α : Sort u} (x a : α) : α := a
 
 /- Auxiliary axiom used to implement `sorry`. -/

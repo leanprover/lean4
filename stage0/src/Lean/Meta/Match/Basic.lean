@@ -15,6 +15,7 @@ inductive Pattern : Type where
   | ctor         (ctorName : Name) (us : List Level) (params : List Expr) (fields : List Pattern) : Pattern
   | val          (e : Expr) : Pattern
   | arrayLit     (type : Expr) (xs : List Pattern) : Pattern
+  -- TODO: add case for equality
   | as           (varId : FVarId) (p : Pattern) : Pattern
   deriving Inhabited
 
@@ -42,6 +43,7 @@ where
     | var fvarId                     => pure $ mkFVar fvarId
     | val e                          => pure e
     | as fvarId p                    =>
+      -- TODO
       if annotate then
         mkAppM `namedPattern #[mkFVar fvarId, (← visit p)]
       else
@@ -275,7 +277,8 @@ partial def toPattern (e : Expr) : MetaM Pattern := do
     | some (α, lits) =>
       return Pattern.arrayLit α (← lits.mapM toPattern)
     | none =>
-      if e.isAppOfArity `namedPattern 3 then
+      -- TODO: `namedPattern` will have 4 arguments
+      if e.isAppOfArity ``namedPattern 3 then
         let p ← toPattern <| e.getArg! 2
         match e.getArg! 1 with
         | Expr.fvar fvarId _ => return Pattern.as fvarId p

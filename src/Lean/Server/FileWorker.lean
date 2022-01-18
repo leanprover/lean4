@@ -182,6 +182,7 @@ section Initialization
   def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) : IO (Snapshot × SearchPath) := do
     let inputCtx := Parser.mkInputContext m.text.source "<input>"
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
+    let mut srcSearchPath ← initSrcSearchPath (← getBuildDir)
     let lakePath ← match (← IO.getEnv "LAKE") with
       | some path => System.FilePath.mk path
       | none =>
@@ -193,9 +194,6 @@ section Initialization
           | some path => pure <| System.FilePath.mk path / "bin" / lakePath
           | _         => pure <| (← appDir) / lakePath
         lakePath.withExtension System.FilePath.exeExtension
-    let srcPath := (← appDir) / ".." / "lib" / "lean" / "src"
-    -- `lake/` should come first since on case-insensitive file systems, Lean thinks that `src/` also contains `Lake/`
-    let mut srcSearchPath := [srcPath / "lake", srcPath]
     let (headerEnv, msgLog) ← try
       if let some path := m.uri.toPath? then
         -- NOTE: we assume for now that `lakefile.lean` does not have any non-stdlib deps
@@ -212,8 +210,6 @@ section Initialization
       if let some path := m.uri.toPath? then
         headerEnv := headerEnv.setMainModule (← moduleNameOfFileName path none)
     catch _ => ()
-    if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
-      srcSearchPath := System.SearchPath.parse p ++ srcSearchPath
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let cmdState := { cmdState with infoState := {
       enabled := true

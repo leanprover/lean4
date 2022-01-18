@@ -498,14 +498,15 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
       `(@fun x => $body)
   loop (getMatchAltsNumPatterns matchAlts) #[]
 
-@[builtinMacro Lean.Parser.Term.fun] partial def expandFun : Macro
+@[builtinMacro Lean.Parser.Term.fun] partial def expandFun : Macro := fun stx =>
+  match stx with
   | `(fun $binders* => $body) => do
     let (binders, body, expandedPattern) ← expandFunBinders binders body
     if expandedPattern then
       `(fun $binders* => $body)
     else
       Macro.throwUnsupported
-  | stx@`(fun $m:matchAlts) => expandMatchAltsIntoMatch stx m
+  | `(fun $m:matchAlts) => expandMatchAltsIntoMatch stx m
   | _ => Macro.throwUnsupported
 
 open Lean.Elab.Term.Quotation in

@@ -182,7 +182,7 @@ private partial def isDefEqArgsFirstPass
       pure (some postponed)
   loop 0 #[]
 
-@[specialize] private def trySynthPending (e : Expr) : MetaM Bool := do
+private def trySynthPending (e : Expr) : MetaM Bool := do
   let mvarId? ← getStuckMVar? e
   match mvarId? with
   | some mvarId => Meta.synthPending mvarId

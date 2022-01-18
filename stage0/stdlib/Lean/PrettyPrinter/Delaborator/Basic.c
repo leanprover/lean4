@@ -104,6 +104,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_addTermInfo_mkTermInfo
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstNoOverloadCore___at_Lean_PrettyPrinter_Delaborator_mkAppUnexpanderAttribute___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delab___lambda__1___closed__2;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_getExprKind___closed__11;
+lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_mkAppUnexpanderAttribute(lean_object*);
 lean_object* l_ReaderT_instMonadLiftReaderT(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_delabCore___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -226,7 +227,6 @@ static lean_object* l_Lean_PrettyPrinter_Delaborator_instAlternativeDelabM___clo
 static lean_object* l_Lean_PrettyPrinter_Delaborator_getExprKind___closed__16;
 lean_object* l_Lean_resolveGlobalConstCore___at_Lean_registerInitAttrUnsafe___spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_delab(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_FindImpl_initCache;
 static lean_object* l_Lean_PrettyPrinter_delabCore___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_getOptionsAtCurrPos___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_getExprKind___closed__21;
@@ -309,7 +309,6 @@ static lean_object* l_Lean_PrettyPrinter_Delaborator_instMonadQuotationDelabM___
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_Delaborator_delab___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_PrettyPrinter_Delaborator_delab___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
-lean_object* l_Lean_Expr_FindImpl_findM_x3f_visit(lean_object*, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_2657_(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_delabCore___closed__5;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withBindingBody___at_Lean_PrettyPrinter_Delaborator_withBindingBodyUnusedName___spec__1(lean_object*);
@@ -3052,28 +3051,23 @@ return x_10;
 LEAN_EXPORT uint8_t l_Lean_PrettyPrinter_Delaborator_getUnusedName_bodyUsesSuggestion(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; size_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_object* x_4; lean_object* x_5; 
 x_4 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_getUnusedName_bodyUsesSuggestion___lambda__1___boxed), 3, 2);
 lean_closure_set(x_4, 0, x_2);
 lean_closure_set(x_4, 1, x_3);
-x_5 = 8192;
-x_6 = l_Lean_Expr_FindImpl_initCache;
-x_7 = l_Lean_Expr_FindImpl_findM_x3f_visit(x_4, x_5, x_1, x_6);
-x_8 = lean_ctor_get(x_7, 0);
-lean_inc(x_8);
-lean_dec(x_7);
-if (lean_obj_tag(x_8) == 0)
+x_5 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_4, x_1);
+if (lean_obj_tag(x_5) == 0)
 {
-uint8_t x_9; 
-x_9 = 0;
-return x_9;
+uint8_t x_6; 
+x_6 = 0;
+return x_6;
 }
 else
 {
-uint8_t x_10; 
-lean_dec(x_8);
-x_10 = 1;
-return x_10;
+uint8_t x_7; 
+lean_dec(x_5);
+x_7 = 1;
+return x_7;
 }
 }
 }

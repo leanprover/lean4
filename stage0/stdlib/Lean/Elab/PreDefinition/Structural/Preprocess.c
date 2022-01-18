@@ -16,6 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_preprocess___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_preprocess___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Elab_PreDefinition_Structural_Preprocess_0__Lean_Elab_Structural_shouldBetaReduce(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_preprocess___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Preprocess_0__Lean_Elab_Structural_shouldBetaReduce___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_preprocess(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -26,9 +27,7 @@ static lean_object* l_Lean_Elab_Structural_preprocess___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_preprocess___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 lean_object* l_Lean_Core_transform___at_Lean_Core_betaReduce___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_FindImpl_initCache;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_Preprocess_0__Lean_Elab_Structural_shouldBetaReduce___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_FindImpl_findM_x3f_visit(lean_object*, size_t, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Elab_PreDefinition_Structural_Preprocess_0__Lean_Elab_Structural_shouldBetaReduce___lambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -52,28 +51,23 @@ return x_4;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; size_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = lean_alloc_closure((void*)(l___private_Lean_Elab_PreDefinition_Structural_Preprocess_0__Lean_Elab_Structural_shouldBetaReduce___lambda__1___boxed), 2, 1);
 lean_closure_set(x_5, 0, x_2);
 x_6 = l_Lean_Expr_getAppFn(x_1);
-x_7 = 8192;
-x_8 = l_Lean_Expr_FindImpl_initCache;
-x_9 = l_Lean_Expr_FindImpl_findM_x3f_visit(x_5, x_7, x_6, x_8);
-x_10 = lean_ctor_get(x_9, 0);
-lean_inc(x_10);
-lean_dec(x_9);
-if (lean_obj_tag(x_10) == 0)
+x_7 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_5, x_6);
+if (lean_obj_tag(x_7) == 0)
 {
-uint8_t x_11; 
-x_11 = 0;
-return x_11;
+uint8_t x_8; 
+x_8 = 0;
+return x_8;
 }
 else
 {
-uint8_t x_12; 
-lean_dec(x_10);
-x_12 = 1;
-return x_12;
+uint8_t x_9; 
+lean_dec(x_7);
+x_9 = 1;
+return x_9;
 }
 }
 }

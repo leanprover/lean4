@@ -81,7 +81,6 @@ private def isFirstOcc (xs : Array Arg) (i : Nat) : Bool :=
 
 /- Return true if `x` also occurs in `ys` in a position that is not consumed.
    That is, it is also passed as a borrow reference. -/
-@[specialize]
 private def isBorrowParamAux (x : VarId) (ys : Array Arg) (consumeParamPred : Nat → Bool) : Bool :=
   ys.size.any fun i =>
     let y := ys[i]
@@ -97,7 +96,6 @@ Return `n`, the number of times `x` is consumed.
 - `ys` is a sequence of instruction parameters where we search for `x`.
 - `consumeParamPred i = true` if parameter `i` is consumed.
 -/
-@[specialize]
 private def getNumConsumptions (x : VarId) (ys : Array Arg) (consumeParamPred : Nat → Bool) : Nat :=
   ys.size.fold (init := 0) fun i n =>
     let y := ys[i]
@@ -105,7 +103,6 @@ private def getNumConsumptions (x : VarId) (ys : Array Arg) (consumeParamPred : 
     | Arg.irrelevant => n
     | Arg.var y      => if x == y && consumeParamPred i then n+1 else n
 
-@[specialize]
 private def addIncBeforeAux (ctx : Context) (xs : Array Arg) (consumeParamPred : Nat → Bool) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
   xs.size.fold (init := b) fun i b =>
     let x := xs[i]

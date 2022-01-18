@@ -20,6 +20,8 @@ def inline {α : Sort u} (a : α) : α := a
 
 @[simp] theorem Function.comp_apply {f : β → δ} {g : α → β} {x : α} : comp f g x = f (g x) := rfl
 
+attribute [simp] namedPattern
+
 /--
   Thunks are "lazy" values that are evaluated when first accessed using `Thunk.get/map/bind`.
   The value is then stored and not recomputed for all further accesses. -/
@@ -781,38 +783,41 @@ def Quotient {α : Sort u} (s : Setoid α) :=
 namespace Quotient
 
 @[inline]
-protected def mk {α : Sort u} [s : Setoid α] (a : α) : Quotient s :=
+protected def mk {α : Sort u} (s : Setoid α) (a : α) : Quotient s :=
   Quot.mk Setoid.r a
 
-def sound {α : Sort u} [s : Setoid α] {a b : α} : a ≈ b → Quotient.mk a = Quotient.mk b :=
+protected def mk' {α : Sort u} [s : Setoid α] (a : α) : Quotient s :=
+  Quotient.mk s a
+
+def sound {α : Sort u} {s : Setoid α} {a b : α} : a ≈ b → Quotient.mk s a = Quotient.mk s b :=
   Quot.sound
 
-protected abbrev lift {α : Sort u} {β : Sort v} [s : Setoid α] (f : α → β) : ((a b : α) → a ≈ b → f a = f b) → Quotient s → β :=
+protected abbrev lift {α : Sort u} {β : Sort v} {s : Setoid α} (f : α → β) : ((a b : α) → a ≈ b → f a = f b) → Quotient s → β :=
   Quot.lift f
 
-protected theorem ind {α : Sort u} [s : Setoid α] {motive : Quotient s → Prop} : ((a : α) → motive (Quotient.mk a)) → (q : Quot Setoid.r) → motive q :=
+protected theorem ind {α : Sort u} {s : Setoid α} {motive : Quotient s → Prop} : ((a : α) → motive (Quotient.mk s a)) → (q : Quot Setoid.r) → motive q :=
   Quot.ind
 
-protected abbrev liftOn {α : Sort u} {β : Sort v} [s : Setoid α] (q : Quotient s) (f : α → β) (c : (a b : α) → a ≈ b → f a = f b) : β :=
+protected abbrev liftOn {α : Sort u} {β : Sort v} {s : Setoid α} (q : Quotient s) (f : α → β) (c : (a b : α) → a ≈ b → f a = f b) : β :=
   Quot.liftOn q f c
 
-protected theorem inductionOn {α : Sort u} [s : Setoid α] {motive : Quotient s → Prop}
+protected theorem inductionOn {α : Sort u} {s : Setoid α} {motive : Quotient s → Prop}
     (q : Quotient s)
-    (h : (a : α) → motive (Quotient.mk a))
+    (h : (a : α) → motive (Quotient.mk s a))
     : motive q :=
   Quot.inductionOn q h
 
-theorem exists_rep {α : Sort u} [s : Setoid α] (q : Quotient s) : Exists (fun (a : α) => Quotient.mk a = q) :=
+theorem exists_rep {α : Sort u} {s : Setoid α} (q : Quotient s) : Exists (fun (a : α) => Quotient.mk s a = q) :=
   Quot.exists_rep q
 
 section
 variable {α : Sort u}
-variable [s : Setoid α]
+variable {s : Setoid α}
 variable {motive : Quotient s → Sort v}
 
 @[inline]
 protected def rec
-    (f : (a : α) → motive (Quotient.mk a))
+    (f : (a : α) → motive (Quotient.mk s a))
     (h : (a b : α) → (p : a ≈ b) → Eq.ndrec (f a) (Quotient.sound p) = f b)
     (q : Quotient s)
     : motive q :=
@@ -820,21 +825,21 @@ protected def rec
 
 protected abbrev recOn
     (q : Quotient s)
-    (f : (a : α) → motive (Quotient.mk a))
+    (f : (a : α) → motive (Quotient.mk s a))
     (h : (a b : α) → (p : a ≈ b) → Eq.ndrec (f a) (Quotient.sound p) = f b)
     : motive q :=
   Quot.recOn q f h
 
 protected abbrev recOnSubsingleton
-    [h : (a : α) → Subsingleton (motive (Quotient.mk a))]
+    [h : (a : α) → Subsingleton (motive (Quotient.mk s a))]
     (q : Quotient s)
-    (f : (a : α) → motive (Quotient.mk a))
+    (f : (a : α) → motive (Quotient.mk s a))
     : motive q :=
   Quot.recOnSubsingleton (h := h) q f
 
 protected abbrev hrecOn
     (q : Quotient s)
-    (f : (a : α) → motive (Quotient.mk a))
+    (f : (a : α) → motive (Quotient.mk s a))
     (c : (a b : α) → (p : a ≈ b) → HEq (f a) (f b))
     : motive q :=
   Quot.hrecOn q f c
@@ -843,7 +848,7 @@ end
 section
 universe uA uB uC
 variable {α : Sort uA} {β : Sort uB} {φ : Sort uC}
-variable [s₁ : Setoid α] [s₂ : Setoid β]
+variable {s₁ : Setoid α} {s₂ : Setoid β}
 
 protected abbrev lift₂
     (f : α → β → φ)
@@ -865,7 +870,7 @@ protected abbrev liftOn₂
 
 protected theorem ind₂
     {motive : Quotient s₁ → Quotient s₂ → Prop}
-    (h : (a : α) → (b : β) → motive (Quotient.mk a) (Quotient.mk b))
+    (h : (a : α) → (b : β) → motive (Quotient.mk s₁ a) (Quotient.mk s₂ b))
     (q₁ : Quotient s₁)
     (q₂ : Quotient s₂)
     : motive q₁ q₂ := by
@@ -877,19 +882,19 @@ protected theorem inductionOn₂
     {motive : Quotient s₁ → Quotient s₂ → Prop}
     (q₁ : Quotient s₁)
     (q₂ : Quotient s₂)
-    (h : (a : α) → (b : β) → motive (Quotient.mk a) (Quotient.mk b))
+    (h : (a : α) → (b : β) → motive (Quotient.mk s₁ a) (Quotient.mk s₂ b))
     : motive q₁ q₂ := by
   induction q₁ using Quotient.ind
   induction q₂ using Quotient.ind
   apply h
 
 protected theorem inductionOn₃
-    [s₃ : Setoid φ]
+    {s₃ : Setoid φ}
     {motive : Quotient s₁ → Quotient s₂ → Quotient s₃ → Prop}
     (q₁ : Quotient s₁)
     (q₂ : Quotient s₂)
     (q₃ : Quotient s₃)
-    (h : (a : α) → (b : β) → (c : φ) → motive (Quotient.mk a) (Quotient.mk b) (Quotient.mk c))
+    (h : (a : α) → (b : β) → (c : φ) → motive (Quotient.mk s₁ a) (Quotient.mk s₂ b) (Quotient.mk s₃ c))
     : motive q₁ q₂ q₃ := by
   induction q₁ using Quotient.ind
   induction q₂ using Quotient.ind
@@ -902,7 +907,7 @@ section Exact
 
 variable   {α : Sort u}
 
-private def rel [s : Setoid α] (q₁ q₂ : Quotient s) : Prop :=
+private def rel {s : Setoid α} (q₁ q₂ : Quotient s) : Prop :=
   Quotient.liftOn₂ q₁ q₂
     (fun a₁ a₂ => a₁ ≈ a₂)
     (fun a₁ a₂ b₁ b₂ a₁b₁ a₂b₂ =>
@@ -910,13 +915,13 @@ private def rel [s : Setoid α] (q₁ q₂ : Quotient s) : Prop :=
         (fun a₁a₂ => Setoid.trans (Setoid.symm a₁b₁) (Setoid.trans a₁a₂ a₂b₂))
         (fun b₁b₂ => Setoid.trans a₁b₁ (Setoid.trans b₁b₂ (Setoid.symm a₂b₂)))))
 
-private theorem rel.refl [s : Setoid α] (q : Quotient s) : rel q q :=
+private theorem rel.refl {s : Setoid α} (q : Quotient s) : rel q q :=
   Quot.inductionOn (motive := fun q => rel q q) q (fun a => Setoid.refl a)
 
-private theorem rel_of_eq [s : Setoid α] {q₁ q₂ : Quotient s} : q₁ = q₂ → rel q₁ q₂ :=
+private theorem rel_of_eq {s : Setoid α} {q₁ q₂ : Quotient s} : q₁ = q₂ → rel q₁ q₂ :=
   fun h => Eq.ndrecOn h (rel.refl q₁)
 
-theorem exact [s : Setoid α] {a b : α} : Quotient.mk a = Quotient.mk b → a ≈ b :=
+theorem exact {s : Setoid α} {a b : α} : Quotient.mk s a = Quotient.mk s b → a ≈ b :=
   fun h => rel_of_eq h
 
 end Exact
@@ -924,14 +929,14 @@ end Exact
 section
 universe uA uB uC
 variable {α : Sort uA} {β : Sort uB}
-variable [s₁ : Setoid α] [s₂ : Setoid β]
+variable {s₁ : Setoid α} {s₂ : Setoid β}
 
 protected abbrev recOnSubsingleton₂
     {motive : Quotient s₁ → Quotient s₂ → Sort uC}
-    [s : (a : α) → (b : β) → Subsingleton (motive (Quotient.mk a) (Quotient.mk b))]
+    [s : (a : α) → (b : β) → Subsingleton (motive (Quotient.mk s₁ a) (Quotient.mk s₂ b))]
     (q₁ : Quotient s₁)
     (q₂ : Quotient s₂)
-    (g : (a : α) → (b : β) → motive (Quotient.mk a) (Quotient.mk b))
+    (g : (a : α) → (b : β) → motive (Quotient.mk s₁ a) (Quotient.mk s₂ b))
     : motive q₁ q₂ := by
   induction q₁ using Quot.recOnSubsingleton
   induction q₂ using Quot.recOnSubsingleton
@@ -994,7 +999,7 @@ private def extfunApp (f : Quotient <| funSetoid α β) (x : α) : β x :=
     (fun f₁ f₂ h => h x)
 
 theorem funext {f₁ f₂ : ∀ (x : α), β x} (h : ∀ x, f₁ x = f₂ x) : f₁ = f₂ := by
-  show extfunApp (Quotient.mk f₁) = extfunApp (Quotient.mk f₂)
+  show extfunApp (Quotient.mk' f₁) = extfunApp (Quotient.mk' f₂)
   apply congrArg
   apply Quotient.sound
   exact h

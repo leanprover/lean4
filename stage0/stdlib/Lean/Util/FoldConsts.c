@@ -135,73 +135,9 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Expr_FoldConstsImpl_fold_visit___rarg(lean_object* x_1, size_t x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_6; size_t x_82; size_t x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; size_t x_87; uint8_t x_88; 
-x_82 = lean_ptr_addr(x_3);
-x_83 = lean_usize_mod(x_82, x_2);
-x_84 = lean_ctor_get(x_5, 0);
-lean_inc(x_84);
-x_85 = lean_ctor_get(x_5, 1);
-lean_inc(x_85);
-x_86 = lean_array_uget(x_84, x_83);
-x_87 = lean_ptr_addr(x_86);
-lean_dec(x_86);
-x_88 = lean_usize_dec_eq(x_87, x_82);
-if (x_88 == 0)
-{
-uint8_t x_89; 
-x_89 = !lean_is_exclusive(x_5);
-if (x_89 == 0)
-{
-lean_object* x_90; lean_object* x_91; lean_object* x_92; uint8_t x_93; lean_object* x_94; lean_object* x_95; 
-x_90 = lean_ctor_get(x_5, 1);
-lean_dec(x_90);
-x_91 = lean_ctor_get(x_5, 0);
-lean_dec(x_91);
+lean_object* x_6; lean_object* x_7; uint8_t x_8; 
 lean_inc(x_3);
-x_92 = lean_array_uset(x_84, x_83, x_3);
-lean_ctor_set(x_5, 0, x_92);
-x_93 = 0;
-x_94 = lean_box(x_93);
-x_95 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_95, 0, x_94);
-lean_ctor_set(x_95, 1, x_5);
-x_6 = x_95;
-goto block_81;
-}
-else
-{
-lean_object* x_96; lean_object* x_97; uint8_t x_98; lean_object* x_99; lean_object* x_100; 
-lean_dec(x_5);
-lean_inc(x_3);
-x_96 = lean_array_uset(x_84, x_83, x_3);
-x_97 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_97, 0, x_96);
-lean_ctor_set(x_97, 1, x_85);
-x_98 = 0;
-x_99 = lean_box(x_98);
-x_100 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_100, 0, x_99);
-lean_ctor_set(x_100, 1, x_97);
-x_6 = x_100;
-goto block_81;
-}
-}
-else
-{
-uint8_t x_101; lean_object* x_102; lean_object* x_103; 
-lean_dec(x_85);
-lean_dec(x_84);
-x_101 = 1;
-x_102 = lean_box(x_101);
-x_103 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_103, 0, x_102);
-lean_ctor_set(x_103, 1, x_5);
-x_6 = x_103;
-goto block_81;
-}
-block_81:
-{
-lean_object* x_7; uint8_t x_8; 
+x_6 = l_Lean_Expr_FoldConstsImpl_visited(x_3, x_2, x_5);
 x_7 = lean_ctor_get(x_6, 0);
 lean_inc(x_7);
 x_8 = lean_unbox(x_7);
@@ -503,7 +439,6 @@ x_80 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_80, 0, x_4);
 lean_ctor_set(x_80, 1, x_79);
 return x_80;
-}
 }
 }
 }

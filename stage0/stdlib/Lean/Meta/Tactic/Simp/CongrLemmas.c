@@ -131,6 +131,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_r
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__5___closed__5;
 size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT uint8_t l_Lean_Meta_mkCongrLemma_onlyMVarsAt(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_SMap_toList___at___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemmas____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_150____spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_mkCongrLemma___spec__9___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemma____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_52____closed__21;
@@ -254,7 +255,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_r
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__7___lambda__5(lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAux_traverse___at_Lean_Meta_addCongrLemmaEntry___spec__4(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemmas____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_150____spec__13___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_Expr_FindImpl_initCache;
 static lean_object* l_Lean_Meta_addCongrLemma___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemmas____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_150____closed__5;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__7___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -332,7 +332,6 @@ lean_object* l_Lean_ScopedEnvExtension_addEntry___rarg(lean_object*, lean_object
 static lean_object* l___private_Lean_Meta_Tactic_Simp_CongrLemmas_0__Lean_Meta_reprCongrLemma____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_52____closed__20;
 lean_object* lean_string_length(lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_FindImpl_findM_x3f_visit(lean_object*, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedCongrLemmas;
 LEAN_EXPORT uint8_t l_Lean_Meta_mkCongrLemma_onlyMVarsAt___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -3762,27 +3761,22 @@ return x_8;
 LEAN_EXPORT uint8_t l_Lean_Meta_mkCongrLemma_onlyMVarsAt(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; size_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_3; lean_object* x_4; 
 x_3 = lean_alloc_closure((void*)(l_Lean_Meta_mkCongrLemma_onlyMVarsAt___lambda__1___boxed), 2, 1);
 lean_closure_set(x_3, 0, x_2);
-x_4 = 8192;
-x_5 = l_Lean_Expr_FindImpl_initCache;
-x_6 = l_Lean_Expr_FindImpl_findM_x3f_visit(x_3, x_4, x_1, x_5);
-x_7 = lean_ctor_get(x_6, 0);
-lean_inc(x_7);
-lean_dec(x_6);
-if (lean_obj_tag(x_7) == 0)
+x_4 = l_Lean_Expr_FindImpl_findUnsafe_x3f(x_3, x_1);
+if (lean_obj_tag(x_4) == 0)
 {
-uint8_t x_8; 
-x_8 = 1;
-return x_8;
+uint8_t x_5; 
+x_5 = 1;
+return x_5;
 }
 else
 {
-uint8_t x_9; 
-lean_dec(x_7);
-x_9 = 0;
-return x_9;
+uint8_t x_6; 
+lean_dec(x_4);
+x_6 = 0;
+return x_6;
 }
 }
 }

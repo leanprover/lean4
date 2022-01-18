@@ -69,8 +69,8 @@ private def isNextVar (p : Problem) : Bool :=
 
 private def hasAsPattern (p : Problem) : Bool :=
   p.alts.any fun alt => match alt.patterns with
-    | Pattern.as _ _ :: _ => true
-    | _                   => false
+    | Pattern.as _ _ _ :: _ => true
+    | _                     => false
 
 private def hasCtorPattern (p : Problem) : Bool :=
   p.alts.any fun alt => match alt.patterns with
@@ -160,7 +160,7 @@ private def processAsPattern (p : Problem) : MetaM Problem :=
   | []      => unreachable!
   | x :: xs => withGoalOf p do
     let alts ← p.alts.mapM fun alt => match alt.patterns with
-      | Pattern.as fvarId p :: ps =>
+      | Pattern.as fvarId p h :: ps => do
         /- We used to use `checkAndReplaceFVarId` here, but `x` and `fvarId` may have different types
            when dependent types are beind used. Let's consider the repro for issue #471
            ```
@@ -185,7 +185,8 @@ private def processAsPattern (p : Problem) : MetaM Problem :=
           The right-hand-side is temporarily type incorrect, but we claim this is fine because it will be type correct again after
           we the pattern `(vec.cons n h t)`. TODO: try to find a cleaner solution.
          -/
-        { alt with patterns := p :: ps }.replaceFVarId fvarId x
+        let r ← mkEqRefl x
+        { alt with patterns := p :: ps }.replaceFVarId fvarId x |>.replaceFVarId h r
       | _ => pure alt
     pure { p with alts := alts }
 
@@ -455,13 +456,15 @@ private def processValue (p : Problem) : MetaM (Array Problem) := do
   | []      => unreachable!
   | x :: xs => do
     let values := collectValues p
-    let subgoals ← caseValues p.mvarId x.fvarId! values
+    let subgoals ← caseValues p.mvarId x.fvarId! values (substNewEqs := true)
     subgoals.mapIdxM fun i subgoal => do
+      trace[Meta.Match.match] "processValue subgoal\n{MessageData.ofGoal subgoal.mvarId}"
       if h : i.val < values.size then
         let value := values.get ⟨i, h⟩
         -- (x = value) branch
         let subst := subgoal.subst
-        let examples := p.examples.map $ Example.replaceFVarId x.fvarId! (Example.val value)
+        trace[Meta.Match.match] "processValue subst: {subst.map.toList.map fun p => mkFVar p.1}, {subst.map.toList.map fun p => p.2}"
+          let examples := p.examples.map $ Example.replaceFVarId x.fvarId! (Example.val value)
         let examples := examples.map $ Example.applyFVarSubst subst
         let newAlts  := p.alts.filter fun alt => match alt.patterns with
           | Pattern.val v :: _ => v == value

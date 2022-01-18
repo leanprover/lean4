@@ -94,7 +94,7 @@ static lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_intr
 static lean_object* l_Lean_Meta_getArrayArgType___closed__6;
 static lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit_loop___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Meta_introArrayLit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_caseValues(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_caseValues(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_caseArraySizes___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_caseArraySizes___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1963,7 +1963,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_29);
-x_40 = l_Lean_Meta_caseValues(x_35, x_29, x_39, x_4, x_6, x_7, x_8, x_9, x_33);
+x_40 = l_Lean_Meta_caseValues(x_35, x_29, x_39, x_4, x_25, x_6, x_7, x_8, x_9, x_33);
 if (lean_obj_tag(x_40) == 0)
 {
 lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; 

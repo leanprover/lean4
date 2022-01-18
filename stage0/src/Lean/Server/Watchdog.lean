@@ -9,6 +9,7 @@ import Init.Data.ByteArray
 import Std.Data.RBMap
 
 import Lean.Elab.Import
+import Lean.Util.Paths
 
 import Lean.Data.Json
 import Lean.Data.Lsp
@@ -649,16 +650,6 @@ def findWorkerPath : IO System.FilePath := do
     workerPath := System.FilePath.mk path
   workerPath
 
--- TODO Combine with FileWorker.lean#compileHeader to deduplicate logic
--- TODO Support lake projects (src and olean paths)
-def findSrcSearchPath : IO System.SearchPath := do
-  let srcPath := (← appDir) / ".." / "lib" / "lean" / "src"
-  -- `lake/` should come first since on case-insensitive file systems, Lean thinks that `src/` also contains `Lake/`
-  let mut srcSearchPath := [srcPath / "lake", srcPath]
-  if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
-    srcSearchPath := System.SearchPath.parse p ++ srcSearchPath
-  srcSearchPath
-
 def loadReferences : IO References := do
   let oleanSearchPath ← Lean.searchPathRef.get
   let mut refs := References.empty
@@ -668,7 +659,7 @@ def loadReferences : IO References := do
 
 def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
   let workerPath ← findWorkerPath
-  let srcSearchPath ← findSrcSearchPath
+  let srcSearchPath ← initSrcSearchPath (← getBuildDir)
   let references ← IO.mkRef (← loadReferences)
   let fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap)
   let i ← maybeTee "wdIn.txt" false i

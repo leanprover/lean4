@@ -77,7 +77,7 @@ def Package.buildOleanAndCTarget (self : Package) : SchedulerM ActiveOpaqueTarge
 
 def Package.buildDepOleans (self : Package) : BuildM PUnit := do
   let targets ← self.dependencies.mapM fun dep => do
-    (← getPackageForModule? dep.name).get!.buildOleanTarget
+    (← getPackageByName? dep.name).get!.buildOleanTarget
   targets.forM fun target => discard <| target.materialize
 
 def Package.oleanTarget (self : Package) : OpaqueTarget :=

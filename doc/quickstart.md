@@ -9,8 +9,8 @@ See [Setup](./setup.md) for other ways and more details on setting up Lean.
 containing the following:
 
     ```lean
-    import Leanpkg
-    #eval Leanpkg.leanVersionString
+    import Lean
+    #eval Lean.versionString
     ```
 
 1. Open this folder in VS Code and install the `lean4` extension.

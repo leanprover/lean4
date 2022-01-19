@@ -364,6 +364,34 @@ def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
         return ← references.referringTo ident srcSearchPath p.context.includeDeclaration
   #[]
 
+-- TODO Better matching https://github.com/leanprover/lean4/issues/960
+def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInformation) := do
+  let references ← (← read).references.get
+  let srcSearchPath := (← read).srcSearchPath
+  let symbols ← references.definitionsMatching srcSearchPath (maxAmount := some 100)
+    fun name => containsCaseInsensitive p.query $ name.toString
+  -- TODO Sort symbols by some useful metric?
+  symbols.map fun (name, location) =>
+    { name := name.toString, kind := SymbolKind.constant, location }
+where
+  containsCaseInsensitive (value : String) : String → Bool :=
+    let value := value.toLower
+    fun target => containsInOrder value target.toLower
+
+  containsInOrder (value : String) (target : String) : Bool := Id.run do
+    if value.length == 0 then
+      return true
+    let mut valueIdx := 0
+    let mut valueChar := value.get valueIdx
+    for targetIdx in [:target.length] do
+      let targetChar := target.get targetIdx
+      if valueChar == targetChar then
+        valueIdx := valueIdx + 1
+        if valueIdx >= value.length then
+          return true
+        valueChar := value.get valueIdx
+    return false
+
 end RequestHandling
 
 section NotificationHandling
@@ -480,6 +508,7 @@ section MessageHandling
         }
     match method with
       | "textDocument/references" => handle ReferenceParams (Array Location) handleReference
+      | "workspace/symbol" => handle WorkspaceSymbolParams (Array SymbolInformation) handleWorkspaceSymbol
       | _ => forwardRequestToWorker id method params
 
   def handleNotification (method : String) (params : Json) : ServerM Unit := do
@@ -615,6 +644,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
   definitionProvider := true
   typeDefinitionProvider := true
   referencesProvider := true
+  workspaceSymbolProvider := true
   documentHighlightProvider := true
   documentSymbolProvider := true
   semanticTokensProvider? := some {

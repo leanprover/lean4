@@ -199,7 +199,7 @@ def referringTo (self : References) (ident : RefIdent) (srcSearchPath : SearchPa
   let mut result := #[]
   for (module, refs) in self.allRefs.toList do
     if let some info := refs.find? ident then
-      if let some path ← srcSearchPath.findWithExt "lean" module then
+      if let some path ← srcSearchPath.findModuleWithExt "lean" module then
         -- Resolve symlinks (such as `src` in the build dir) so that files are
         -- opened in the right folder
         let uri := DocumentUri.ofPath <| ← IO.FS.realPath path
@@ -209,6 +209,24 @@ def referringTo (self : References) (ident : RefIdent) (srcSearchPath : SearchPa
         for range in info.usages do
           result := result.push ⟨uri, range⟩
   result
+
+def definitionsMatching (self : References) (srcSearchPath : SearchPath) (filter : Name -> Bool)
+    (maxAmount : Option Nat := none) : IO $ Array (Name × Location) := do
+  let mut result := #[]
+  let mut amount := 0
+  for (module, refs) in self.allRefs.toList do
+    if let some path ← srcSearchPath.findModuleWithExt "lean" module then
+      let uri := DocumentUri.ofPath <| ← IO.FS.realPath path
+      for (ident, info) in refs.toList do
+        if let RefIdent.const name := ident then
+          if let some definition := info.definition then
+            if filter name then
+              result := result.push (name, ⟨uri, definition⟩)
+              amount := amount + 1
+              if let some maxAmount := maxAmount then
+                if amount >= maxAmount then
+                  return result
+  return result
 
 end References
 

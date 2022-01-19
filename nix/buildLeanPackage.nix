@@ -45,7 +45,7 @@ with builtins; let
     preferLocalBuild = true;
     allowSubstitutes = false;
   }) buildCommand;
-  mkSharedLib = name: args: runBareCommand "${name}.so" { buildInputs = [ stdenv.cc ] ++ lib.optional stdenv.isDarwin darwin.cctools; } ''
+  mkSharedLib = name: args: runBareCommand "${name}-dynlib" { buildInputs = [ stdenv.cc ] ++ lib.optional stdenv.isDarwin darwin.cctools; } ''
     mkdir -p $out
     ${leanc}/bin/leanc -fPIC -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} ${lib.optionalString stdenv.isDarwin "-Wl,-undefined,dynamic_lookup"} -L ${gmp}/lib \
       ${args} -o $out/${name}.so

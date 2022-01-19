@@ -229,8 +229,9 @@ section ServerM
           if let some params := params then
             if let Except.ok params := FromJson.fromJson? $ ToJson.toJson params then
               handleIleanInfo fw params
-        -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
-        o.writeLspMessage msg
+        else
+          -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
+          o.writeLspMessage msg
       catch err =>
         -- If writeLspMessage from above errors we will block here, but the main task will
         -- quit eventually anyways if that happens

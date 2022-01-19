@@ -37,6 +37,12 @@ def toMonad [Monad m] [Alternative m] : Option α → m α
 @[inline] protected def map (f : α → β) (o : Option α) : Option β :=
   Option.bind o (some ∘ f)
 
+@[inline] protected def mapM [Monad m] (f : α → m β) (o : Option α) : m (Option β) := do
+  if let some a := o then
+    return some (← f a)
+  else
+    return none
+
 theorem map_id : (Option.map id : Option α → Option α) = id :=
   funext (fun o => match o with | none => rfl | some x => rfl)
 

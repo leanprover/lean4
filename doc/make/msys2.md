@@ -78,7 +78,7 @@ However, if you plan to use this build to compile lean programs
 to executable binaries using `lake build` in normal Windows command
 prompt outside of msys2 environment you will also need to add a windows
 version clang to your path.  This is done in the `.github\workflows\ci.yml`
-by downloading `lean-llvm-x86_64-w64-windows-gnu.tar.zst`.  You will
+by downloading `lean-llvm-x86_64-w64-windows-gnu.tar.zst`.  You can
 see how these `clang` binaries are provided for you in a .elan toolchain
 install of Lean 4.
 

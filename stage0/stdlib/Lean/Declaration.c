@@ -40,6 +40,7 @@ LEAN_EXPORT lean_object* lean_mk_reducibility_hints_regular(uint32_t);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__2___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lean_opaque_val_is_unsafe(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_ConstantInfo_isInductive(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Declaration_forExprM___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ReducibilityHints_isRegular___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_ConstantInfo_isUnsafe(lean_object*);
@@ -131,6 +132,7 @@ LEAN_EXPORT lean_object* l_Lean_RecursorVal_getInduct___boxed(lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedDefinitionVal;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedConstantInfo;
+LEAN_EXPORT lean_object* l_Lean_ConstantInfo_isInductive___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_isCtor___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_hints(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkQuotValEx___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2682,6 +2684,33 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_Lean_ConstantInfo_isCtor(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT uint8_t l_Lean_ConstantInfo_isInductive(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 5)
+{
+uint8_t x_2; 
+x_2 = 1;
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = 0;
+return x_3;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_ConstantInfo_isInductive___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_ConstantInfo_isInductive(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;

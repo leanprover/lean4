@@ -37,14 +37,14 @@ private def escapeAux (acc : String) (c : Char) : String :=
       Nat.digitChar ((n % 256) / 16),
       Nat.digitChar (n % 16) ].asString
 
-def escape (s : String) : String := do
+def escape (s : String) : String :=
   s.foldl escapeAux ""
 
 def renderString (s : String) : String :=
   "\"" ++ escape s ++ "\""
 
 section
-@[specialize]
+
 partial def render : Json → Format
   | null       => "null"
   | bool true  => "true"

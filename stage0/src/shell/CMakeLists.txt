@@ -182,6 +182,14 @@ add_test(NAME leanpkgtest_user_attr
            find . -name '*.olean' -delete
            leanmake")
 
+add_test(NAME leanpkgtest_user_deriving
+         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/deriving"
+         COMMAND bash -c "
+           set -eu
+           export ${TEST_VARS}
+           find . -name '*.olean' -delete
+           leanmake")
+
 add_test(NAME leanpkgtest_user_opt
          WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/user_opt"
          COMMAND bash -c "
@@ -214,9 +222,20 @@ add_test(NAME leanpkgtest_builtin_attr
            find . -name '*.olean' -delete
            leanmake")
 
-add_test(NAME laketest
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/lake/examples"
-         COMMAND bash -c "
-           set -eu
-           export ${TEST_VARS}
-           make LAKE=lake test")
+# Create a lake test for each subdirectory of `lake/examples` which contains a `test.sh` file.
+# We skip the subdirectories `lean_packages` and `bootstrap` since `lake/examples/Makefile` do no consider them.
+file(GLOB_RECURSE LEANLAKETESTS "${LEAN_SOURCE_DIR}/lake/examples/test.sh")
+FOREACH(T ${LEANLAKETESTS})
+  if(NOT T MATCHES ".*lean_packages.*")
+  if(NOT T MATCHES ".*bootstrap.*")
+    GET_FILENAME_COMPONENT(T_DIR ${T} DIRECTORY)
+    GET_FILENAME_COMPONENT(DIR_NAME ${T_DIR} NAME)
+    add_test(NAME "leanlaketest_${DIR_NAME}"
+             WORKING_DIRECTORY "${T_DIR}"
+             COMMAND bash -c "
+               set -eu
+               export ${TEST_VARS}
+               LAKE=lake ./test.sh")
+  endif()
+  endif()
+ENDFOREACH(T)

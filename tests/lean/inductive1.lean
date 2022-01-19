@@ -79,7 +79,7 @@ end Boo
 
 partial inductive T1 : Type -- invalid use of partial
 noncomputable inductive T1 : Type -- invalid use of noncomputable
-@[inline] inductive T1 : Type -- invalid use of attributes
+@[inline] inductive T1' : Type -- declaration is not a definition
 
 private inductive T1 : Type
 | private mk : T1 -- invalid private constructor in private inductive type

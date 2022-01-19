@@ -41,7 +41,7 @@ def toList (s : String) : List Char :=
   s.data
 
 private def utf8GetAux : List Char → Pos → Pos → Char
-  | [],    i, p => arbitrary
+  | [],    i, p => default
   | c::cs, i, p => if i = p then c else utf8GetAux cs (i + csize c) p
 
 @[extern "lean_string_utf8_get"]
@@ -125,6 +125,14 @@ partial def revFindAux (s : String) (p : Char → Bool) (pos : Pos) : Option Pos
 def revFind (s : String) (p : Char → Bool) : Option Pos :=
   if s.bsize == 0 then none
   else revFindAux s p (s.prev s.bsize)
+
+/-- Returns the first position where the two strings differ. -/
+partial def firstDiffPos (a b : String) : Pos :=
+  let stopPos := a.bsize.min b.bsize
+  let rec loop (i : Pos) : Pos :=
+    if i == stopPos || a.get i != b.get i then i
+    else loop (a.next i)
+  loop 0
 
 private def utf8ExtractAux₂ : List Char → Pos → Pos → List Char
   | [],    _, _ => []

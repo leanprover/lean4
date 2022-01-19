@@ -36,7 +36,11 @@ protected def max : RBNode α β → Option (Sigma (fun k => β k))
   | b, leaf           => b
   | b, node _ l k v r => fold f (f (fold f b l) k v) r
 
-@[specialize] def foldM {m : Type w → Type w'} [Monad m] (f : σ → (k : α) → β k → m σ) : (init : σ) → RBNode α β → m σ
+@[specialize] def forM [Monad m] (f : (k : α) → β k → m Unit) : RBNode α β → m Unit
+  | leaf           => pure ()
+  | node _ l k v r => do forM f l; f k v; forM f r
+
+@[specialize] def foldM [Monad m] (f : σ → (k : α) → β k → m σ) : (init : σ) → RBNode α β → m σ
   | b, leaf           => pure b
   | b, node _ l k v r => do
     let b ← foldM f b l
@@ -105,7 +109,7 @@ variable (cmp : α → α → Ordering)
     | Ordering.eq => node red a kx vx b
   | node black a ky vy b, kx, vx =>
     match cmp kx ky with
-    | Ordering.lt => 
+    | Ordering.lt =>
       if isRed a then balance1 ky vy b (ins a kx vx)
         else node black (ins a kx vx) ky vy b
     | Ordering.gt =>

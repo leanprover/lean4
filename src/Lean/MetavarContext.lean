@@ -715,7 +715,7 @@ instance : MonadHashMapCacheAdapter ExprStructEq Expr M where
   modifyCache := fun f => modify fun s => { s with cache := f s.cache }
 
 /-- Return the local declaration of the free variable `x` in `xs` with the smallest index -/
-private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) : LocalDecl := do
+private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) : LocalDecl := Id.run <| do
   let mut d : LocalDecl := lctx.getFVar! xs[0]
   for i in [1:xs.size] do
     let curr := lctx.getFVar! xs[i]

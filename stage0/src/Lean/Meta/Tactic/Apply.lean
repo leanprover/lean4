@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.FindMVar
-import Lean.Meta.ExprDefEq
 import Lean.Meta.SynthInstance
 import Lean.Meta.CollectMVars
 import Lean.Meta.Tactic.Util

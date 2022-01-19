@@ -15,7 +15,6 @@ mutual
   partial def visit (p : MVarId → Bool) (e : Expr) : Visitor := fun s =>
     if s.isSome || !e.hasMVar then s else main p e s
 
-  @[specialize]
   partial def main (p : MVarId → Bool) : Expr → Visitor
     | Expr.proj _ _ e _    => visit p e
     | Expr.forallE _ d b _ => visit p b ∘ visit p d

@@ -162,6 +162,15 @@ static void update_info_buffer(environment const & env, expr e, name_set const &
     }
 }
 
+bool is_class(environment const & env, expr type) {
+    // This is a temporary hack. We do not unfold `type` here, but we should. We will fix it when we reimplement the compiler in Lean.
+    while (is_pi(type)) {
+        type = binding_body(type);
+    }
+    type = get_app_fn(type);
+    return is_constant(type) && is_class(env, const_name(type));
+}
+
 environment update_spec_info(environment const & env, comp_decls const & ds) {
     name_set S;
     spec_info_buffer d_infos;
@@ -179,8 +188,17 @@ environment update_spec_info(environment const & env, comp_decls const & ds) {
             expr type = instantiate_rev(binding_domain(code), fvars.size(), fvars.data());
             expr fvar = lctx.mk_local_decl(ngen, binding_name(code), type);
             fvars.push_back(fvar);
-            if (is_inst_implicit(binding_info(code))) {
-                info.second.push_back(spec_arg_kind::FixedInst);
+            if (is_inst_implicit(binding_info(code)) || (is_implicit(binding_info(code)) && is_class(env, type))) {
+                expr const & fn = get_app_fn(type);
+                if (is_const(fn) && has_nospecialize_attribute(env, const_name(fn))) {
+                    info.second.push_back(spec_arg_kind::Fixed);
+                } else {
+                    type_checker tc(env, lctx);
+                    if (tc.is_prop(type))
+                        info.second.push_back(spec_arg_kind::FixedNeutral);
+                    else
+                        info.second.push_back(spec_arg_kind::FixedInst);
+                }
             } else {
                 type_checker tc(env, lctx);
                 type = tc.whnf(type);

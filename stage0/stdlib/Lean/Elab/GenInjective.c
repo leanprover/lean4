@@ -82,6 +82,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Command_elabGenInjecti
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
+static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__15;
 lean_object* l_Lean_Elab_Command_getScope___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_resolveGlobalConst___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__2___closed__3;
 lean_object* l_List_toString___at_Lean_resolveGlobalConstNoOverloadCore___spec__2(lean_object*);
@@ -954,6 +955,14 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheor
 _start:
 {
 lean_object* x_1; 
+x_1 = l_Lean_Elab_Command_commandElabAttribute;
+return x_1;
+}
+}
+static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__15() {
+_start:
+{
+lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Command_elabGenInjectiveTheorems___boxed), 4, 0);
 return x_1;
 }
@@ -962,10 +971,10 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheore
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_2 = l_Lean_Elab_Command_commandElabAttribute;
+x_2 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__14;
 x_3 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__8;
 x_4 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__13;
-x_5 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__14;
+x_5 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__15;
 x_6 = l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(x_2, x_3, x_4, x_5, x_1);
 return x_6;
 }
@@ -1137,6 +1146,8 @@ l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__13 = _init_l
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__13);
 l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__14 = _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__14();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__14);
+l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__15 = _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__15();
+lean_mark_persistent(l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__15);
 res = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -144,7 +144,7 @@ partial def popLeaf : PersistentArrayNode α → Option (Array α) × Array (Per
     if h : cs.size ≠ 0 then
       let idx : Fin cs.size := ⟨cs.size - 1, by exact Nat.pred_lt h⟩
       let last := cs.get idx
-      let cs'  := cs.set idx arbitrary
+      let cs'  := cs.set idx default
       match popLeaf last with
       | (none,   _)       => (none, emptyArray)
       | (some l, newLast) =>
@@ -202,8 +202,15 @@ variable {β : Type v}
   else if start >= t.tailOff then
     t.tail.foldlM (init := init) (start := start - t.tailOff) f
   else do
-    let b ← foldlFromMAux f t.root (USize.ofNat start) t.shift init;
+    let b ← foldlFromMAux f t.root (USize.ofNat start) t.shift init
     t.tail.foldlM f b
+
+@[specialize] private partial def foldrMAux [Monad m] (f : α → β → m β) : PersistentArrayNode α → β → m β
+  | node cs, b => cs.foldrM (fun c b => foldrMAux f c b) b
+  | leaf vs, b => vs.foldrM f b
+
+@[specialize] def foldrM [Monad m] (t : PersistentArray α) (f : α → β → m β) (init : β) : m β := do
+  foldrMAux f t.root (← t.tail.foldrM f init)
 
 @[specialize]
 partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] [inh : Inhabited β]
@@ -264,8 +271,11 @@ instance : ForIn m (PersistentArray α) α where
 
 end
 
-@[inline] def foldl {β} (t : PersistentArray α) (f : β → α → β) (init : β) (start : Nat := 0) : β :=
-  Id.run $ t.foldlM f init start
+@[inline] def foldl (t : PersistentArray α) (f : β → α → β) (init : β) (start : Nat := 0) : β :=
+  Id.run <| t.foldlM f init start
+
+@[inline] def foldr (t : PersistentArray α) (f : α → β → β) (init : β) : β :=
+  Id.run <| t.foldrM f init
 
 @[inline] def filter (as : PersistentArray α) (p : α → Bool) : PersistentArray α :=
   as.foldl (init := {}) fun asNew a => if p a then asNew.push a else asNew

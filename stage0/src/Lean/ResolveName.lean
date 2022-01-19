@@ -11,7 +11,8 @@ import Lean.Exception
 namespace Lean
 /-!
   We use aliases to implement the `export <id> (<id>+)` command.
-  An `export A (x)` in the namespace `B` produces an alias `B.x ~> A.x`. -/
+  An `export A (x)` in the namespace `B` produces an alias `B.x ~> A.x`.
+-/
 
 abbrev AliasState := SMap Name (List Name)
 abbrev AliasEntry := Name × Name

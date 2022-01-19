@@ -21,7 +21,6 @@ static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__4
 LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_maxRecDepth___closed__1;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6_(lean_object*);
 extern lean_object* l_Lean_defaultMaxRecDepth;
 static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__3;
@@ -168,18 +167,6 @@ lean_dec(x_2);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_maxRecDepth___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Data_Options(lean_object*);
 static bool _G_initialized = false;
@@ -203,8 +190,6 @@ l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__4 = _init_l_Lean_init
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__4);
 l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__5 = _init_l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__5();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__5);
-l_Lean_maxRecDepth___closed__1 = _init_l_Lean_maxRecDepth___closed__1();
-lean_mark_persistent(l_Lean_maxRecDepth___closed__1);
 res = l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_maxRecDepth = lean_io_result_get_value(res);

@@ -165,8 +165,11 @@ def subst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId :=
         | throwTacticEx `subst mvarId m!"did not find equation for eliminating '{mkFVar hFVarId}'"
       return (← substCore mvarId fvarId (symm := symm) (tryToSkip := true)).2
 
+def subst? (mvarId : MVarId) (hFVarId : FVarId) : MetaM (Option MVarId) :=
+  observing? (subst mvarId hFVarId)
+
 def trySubst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId := do
-  match (← observing? (subst mvarId hFVarId)) with
+  match (← subst? mvarId hFVarId) with
   | some mvarId => return mvarId
   | none => return mvarId
 

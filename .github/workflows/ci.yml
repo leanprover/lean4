@@ -41,6 +41,8 @@ jobs:
             os: ubuntu-latest
             # turn off custom allocator & symbolic functions to make LSAN do its magic
             CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF
+            # exclude problematic tests
+            CTEST_OPTIONS: -E StackOverflow -E laketest_deps
           - name: macOS
             os: macos-latest
             release: true
@@ -70,6 +72,7 @@ jobs:
       CCACHE_MAXSIZE: 200M
       # squelch error message about missing nixpkgs channel
       NIX_BUILD_SHELL: bash
+      LSAN_OPTIONS: max_leaks=10
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -103,10 +106,6 @@ jobs:
           # open nix-shell once for initial setup
           true
         if: matrix.os == 'ubuntu-latest'
-      # remove problematic tests for sanitized build
-      - name: Pre build
-        run: rm tests/compiler/StackOverflow.lean tests/compiler/StackOverflowTask.lean
-        if: matrix.name == 'Linux fsanitize'
       - name: Build
         run: |
           mkdir build
@@ -155,7 +154,7 @@ jobs:
       - name: Test
         run: |
           cd build/stage1
-          ctest -j4 --output-on-failure --timeout 300 ${{ matrix.CTEST_OPTIONS }} < /dev/null
+          ctest -j4 --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
       - name: Check Test Binary
         run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
       - name: Build Stage 2

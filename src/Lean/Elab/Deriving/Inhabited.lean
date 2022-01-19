@@ -76,7 +76,7 @@ where
     for i in [:ctorVal.numParams] do
       ctorArgs := ctorArgs.push (← `(_))
     for i in [:ctorVal.numFields] do
-      ctorArgs := ctorArgs.push (← `(arbitrary))
+      ctorArgs := ctorArgs.push (← ``(Inhabited.default))
     let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs:ident*⟩)
     `(instance $binders:explicitBinder* : $type := $val)
 

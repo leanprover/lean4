@@ -54,6 +54,7 @@ instance : ToFormat DataValue where
     | DataValue.ofName v   => "`" ++ format v
     | DataValue.ofNat v    => format v
     | DataValue.ofInt v    => format v
+    | DataValue.ofSyntax v => format v
 
 instance : ToFormat (Name × DataValue) where
   format

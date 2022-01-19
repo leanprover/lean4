@@ -1,7 +1,7 @@
 variable (C : Type) [Inhabited C]
 
-example : C := arbitrary
+example : C := default
 
 variable {C}
 
-example : C := arbitrary
+example : C := default

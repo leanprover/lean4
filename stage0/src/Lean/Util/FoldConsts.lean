@@ -18,7 +18,6 @@ structure State where
 
 abbrev FoldM := StateM State
 
-@[inline]
 unsafe def visited (e : Expr) (size : USize) : FoldM Bool := do
   let s ← get
   let h := ptrAddrUnsafe e
@@ -29,7 +28,6 @@ unsafe def visited (e : Expr) (size : USize) : FoldM Bool := do
     modify $ fun s => { s with visitedTerms := s.visitedTerms.uset i e lcProof }
     pure false
 
-@[specialize]
 unsafe def fold {α : Type} (f : Name → α → α) (size : USize) (e : Expr) (acc : α) : FoldM α :=
   let rec visit (e : Expr) (acc : α) : FoldM α := do
     if (← visited e size) then

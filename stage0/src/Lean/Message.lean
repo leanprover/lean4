@@ -77,14 +77,14 @@ where
     | node msgs                 => node <| msgs.map (visit . mctx)
     | _                         => msg
 
-variable (tag : Name) in
+variable (p : Name → Bool) in
 partial def hasTag : MessageData → Bool
   | withContext _ msg       => hasTag msg
   | withNamingContext _ msg => hasTag msg
   | nest _ msg              => hasTag msg
   | group msg               => hasTag msg
   | compose msg₁ msg₂       => hasTag msg₁ || hasTag msg₂
-  | tagged n msg            => tag == n || hasTag msg
+  | tagged n msg            => p n || hasTag msg
   | node msgs               => msgs.any hasTag
   | _                       => false
 

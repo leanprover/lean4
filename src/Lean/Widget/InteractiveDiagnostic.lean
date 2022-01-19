@@ -7,7 +7,6 @@ Authors: Wojciech Nawrocki
 import Lean.Data.Lsp
 import Lean.Message
 import Lean.Elab.InfoTree
-import Lean.PrettyPrinter
 
 import Lean.Server.Utils
 import Lean.Server.Rpc.Basic
@@ -126,7 +125,7 @@ where
     let ci : Elab.ContextInfo := {
       env := ctx.env
       mctx := ctx.mctx
-      fileMap := arbitrary
+      fileMap := default
       options := ctx.opts
       currNamespace := nCtx.currNamespace
       openDecls := nCtx.openDecls

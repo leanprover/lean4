@@ -26,7 +26,7 @@ theorem ex3 : fact x > 0 := by
     apply ih
 
 def head [Inhabited α] : List α → α
-  | []   => arbitrary
+  | []   => default
   | a::_ => a
 
 theorem ex4 [Inhabited α] (a : α) (as : List α) : head (a::as) = a :=
@@ -38,12 +38,13 @@ theorem ex5 (x : Nat) : foo + x = 10 + x := by
   simp [foo]
   done
 
-def g (x : Nat) : Nat := do
+def g (x : Nat) : Nat := Id.run <| do
   let x := x
   return x
 
 theorem ex6 : g x = x := by
   simp [g, bind, pure]
+  rfl
 
 def f1 : StateM Nat Unit := do
   modify fun x => g x

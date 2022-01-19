@@ -138,23 +138,25 @@ def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option S
   | ExternEntry.foreign _ n  => pure n
   | _ => failure
 
-def getExternConstArity (declName : Name) : CoreM (Option Nat) := do
+private def getExternConstArity (declName : Name) : CoreM Nat := do
+  let fromSignature : Unit → CoreM Nat := fun _ => do
+    let cinfo ← getConstInfo declName
+    let (arity, _) ← (Meta.forallTelescopeReducing cinfo.type fun xs _ => pure xs.size : MetaM Nat).run
+    return arity
   let env ← getEnv
   match getExternAttrData env declName with
-  | none      => pure none
+  | none      => fromSignature ()
   | some data => match data.arity? with
-    | some arity => pure arity
-    | none       =>
-      let cinfo ← getConstInfo declName
-      let (arity, _) ← (Meta.forallTelescopeReducing cinfo.type fun xs _ => pure xs.size : MetaM Nat).run
-      pure (some arity)
+    | some arity => return arity
+    | none       => fromSignature ()
 
 @[export lean_get_extern_const_arity]
 def getExternConstArityExport (env : Environment) (declName : Name) : IO (Option Nat) := do
   try
-    let (arity?, _) ← (getExternConstArity declName).toIO {} { env := env }
-    pure arity?
-  catch _ =>
-    pure none
+    let (arity, _) ← (getExternConstArity declName).toIO {} { env := env }
+    return some arity
+  catch
+   | IO.Error.userError msg => return none
+   | _  => return none
 
 end Lean

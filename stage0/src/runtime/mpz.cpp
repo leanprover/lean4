@@ -312,7 +312,8 @@ void mpz::init_uint64(uint64 v) {
         m_digits[0] = v;
     } else {
         allocate(2);
-        (reinterpret_cast<uint64*>(m_digits))[0] = v;
+        m_digits[0] = static_cast<mpn_digit>(v);
+        m_digits[1] = static_cast<mpn_digit>(v >> 8*sizeof(mpn_digit));
     }
 }
 
@@ -433,7 +434,7 @@ size_t mpz::get_size_t() const {
         if (m_size == 1)
             return m_digits[0];
         else
-            return (reinterpret_cast<size_t*>(m_digits))[0];
+            return m_digits[0] + (static_cast<size_t>(m_digits[1]) << 8*sizeof(mpn_digit));
     } else {
         return m_digits[0];
     }
@@ -532,7 +533,7 @@ mpz & mpz::add(bool sign, size_t sz, mpn_digit const * digits) {
         mpn_add(m_digits, m_size,
                 digits, sz,
                 tmp.begin(), new_sz, &real_sz);
-        lean_assert(real_sz <= sz);
+        lean_assert(real_sz <= new_sz);
         set(real_sz, tmp.begin());
     } else {
         mpn_digit borrow;
@@ -865,7 +866,7 @@ uint64 mpz::mod64() const {
     if (m_size == 1)
         return m_digits[0];
     else
-        return (reinterpret_cast<uint64*>(m_digits))[0];
+        return m_digits[0] + (static_cast<uint64>(m_digits[1]) << 8*sizeof(mpn_digit));
 }
 
 void power(mpz & a, mpz const & b, unsigned k) {

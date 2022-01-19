@@ -13,7 +13,12 @@ inductive DataValue where
   | ofName   (v : Name)
   | ofNat    (v : Nat)
   | ofInt    (v : Int)
+  | ofSyntax (v : Syntax)
   deriving Inhabited, BEq
+
+@[export lean_data_value_beq]
+def DataValue.beqExp (a b : DataValue) : Bool :=
+  a == b
 
 @[export lean_mk_bool_data_value] def mkBoolDataValueEx (b : Bool) : DataValue := DataValue.ofBool b
 @[export lean_data_value_bool] def DataValue.getBoolEx : DataValue → Bool
@@ -26,6 +31,7 @@ def DataValue.sameCtor : DataValue → DataValue → Bool
   | DataValue.ofName _,   DataValue.ofName _   => true
   | DataValue.ofNat _,    DataValue.ofNat _    => true
   | DataValue.ofInt _,    DataValue.ofInt _    => true
+  | DataValue.ofSyntax _, DataValue.ofSyntax _ => true
   | _,                    _                    => false
 
 @[export lean_data_value_to_string]
@@ -35,6 +41,7 @@ def DataValue.str : DataValue → String
   | DataValue.ofName v   => toString v
   | DataValue.ofNat v    => toString v
   | DataValue.ofInt v    => toString v
+  | DataValue.ofSyntax v => toString v
 
 instance : ToString DataValue := ⟨DataValue.str⟩
 
@@ -43,6 +50,8 @@ instance : Coe Bool DataValue   := ⟨DataValue.ofBool⟩
 instance : Coe Name DataValue   := ⟨DataValue.ofName⟩
 instance : Coe Nat DataValue    := ⟨DataValue.ofNat⟩
 instance : Coe Int DataValue    := ⟨DataValue.ofInt⟩
+instance : Coe Syntax DataValue := ⟨DataValue.ofSyntax⟩
+
 
 /- Remark: we do not use RBMap here because we need to manipulate KVMap objects in
    C++ and RBMap is implemented in Lean. So, we use just a List until we can
@@ -108,6 +117,11 @@ def getName (m : KVMap) (k : Name) (defVal := Name.anonymous) : Name :=
   | some (DataValue.ofName v) => v
   | _                         => defVal
 
+def getSyntax (m : KVMap) (k : Name) (defVal := Syntax.missing) : Syntax :=
+  match m.find k with
+  | some (DataValue.ofSyntax v) => v
+  | _                           => defVal
+
 def setString (m : KVMap) (k : Name) (v : String) : KVMap :=
   m.insert k (DataValue.ofString v)
 
@@ -122,6 +136,9 @@ def setBool (m : KVMap) (k : Name) (v : Bool) : KVMap :=
 
 def setName (m : KVMap) (k : Name) (v : Name) : KVMap :=
   m.insert k (DataValue.ofName v)
+
+def setSyntax (m : KVMap) (k : Name) (v : Syntax) : KVMap :=
+  m.insert k (DataValue.ofSyntax v)
 
 @[inline] protected def forIn.{w, w'} {δ : Type w} {m : Type w → Type w'} [Monad m]
   (kv : KVMap) (init : δ) (f : Name × DataValue → δ → m (ForInStep δ)) : m δ :=
@@ -191,6 +208,12 @@ instance : Value String where
   toDataValue  := DataValue.ofString
   ofDataValue?
     | DataValue.ofString n => some n
+    | _                    => none
+
+instance : Value Syntax where
+  toDataValue  := DataValue.ofSyntax
+  ofDataValue?
+    | DataValue.ofSyntax n => some n
     | _                    => none
 
 end Lean.KVMap

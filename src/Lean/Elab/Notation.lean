@@ -53,16 +53,17 @@ def mkSimpleDelab (attrKind : Syntax) (vars : Array Syntax) (pat qrhs : Syntax) 
     guard <| args.all (Syntax.isIdent ∘ getAntiquotTerm)
     guard <| args.allDiff
     -- replace head constant with (unused) antiquotation so we're not dependent on the exact pretty printing of the head
+    -- The reference is attached to the syntactic representation of the called function itself, not the entire function application
     `(@[$attrKind:attrKind appUnexpander $(mkIdent c):ident]
       aux_def unexpand $(mkIdent c) : Lean.PrettyPrinter.Unexpander := fun
-       | `($$(_):ident $args*) => `($pat)
-       | _                     => throw ())
+       | `($$f:ident $args*) => withRef f `($pat)
+       | _                   => throw ())
   | `($c:ident)        =>
     let [(c, [])] ← Macro.resolveGlobalName c.getId | failure
     `(@[$attrKind:attrKind appUnexpander $(mkIdent c):ident]
       aux_def unexpand $(mkIdent c) : Lean.PrettyPrinter.Unexpander := fun
-       | `($$(_):ident) => `($pat)
-       | _              => throw ())
+       | `($$f:ident) => withRef f `($pat)
+       | _            => throw ())
   | _                  => failure
 
 private def isLocalAttrKind (attrKind : Syntax) : Bool :=

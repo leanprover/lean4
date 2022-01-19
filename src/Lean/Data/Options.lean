@@ -79,6 +79,7 @@ def setOptionFromString (opts : Options) (entry : String) : IO Options := do
     match val.toInt? with
     | none   => throw (IO.userError s!"invalid Int option value '{val}'")
     | some v => pure $ opts.setInt key v
+  | DataValue.ofSyntax _ => throw (IO.userError s!"invalid Syntax option value")
 
 class MonadOptions (m : Type → Type) where
   getOptions : m Options

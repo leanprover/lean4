@@ -10,9 +10,9 @@ class Bar.{w} (P : Sort u) :=
 
 variable {P : Sort u} (B : Bar P)
 variable (fn : Fn ((p : P) -> B.fn p) ({p : P} -> B.fn p))
-#check coeFun fn -- Result is as expected (implicit)
+#check (@fn : {p : P} → Bar.fn p) -- Result is as expected (implicit)
 /-
-  fn : {p : P} → Bar.fn p
+  fn.imp : {p : P} → Bar.fn p
 -/
 
 variable (p : P)

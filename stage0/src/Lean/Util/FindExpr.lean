@@ -28,7 +28,7 @@ unsafe def visited (e : Expr) (size : USize) : FindM Bool := do
     modify fun s => { keys := s.keys.uset i e lcProof }
     pure false
 
-@[specialize] unsafe def findM? (p : Expr → Bool) (size : USize) (e : Expr) : OptionT FindM Expr :=
+unsafe def findM? (p : Expr → Bool) (size : USize) (e : Expr) : OptionT FindM Expr :=
   let rec visit (e : Expr) := do
     if (← visited e size)  then
       failure
@@ -48,7 +48,7 @@ unsafe def visited (e : Expr) (size : USize) : FindM Bool := do
 unsafe def initCache : State :=
   { keys    := mkArray cacheSize.toNat (cast lcProof ()) }
 
-@[inline] unsafe def findUnsafe? (p : Expr → Bool) (e : Expr) : Option Expr :=
+unsafe def findUnsafe? (p : Expr → Bool) (e : Expr) : Option Expr :=
   Id.run <| findM? p cacheSize e |>.run' initCache
 
 end FindImpl

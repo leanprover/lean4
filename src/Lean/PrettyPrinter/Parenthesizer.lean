@@ -190,9 +190,9 @@ def visitArgs (x : ParenthesizerM Unit) : ParenthesizerM Unit := do
 -- Macro scopes in the parenthesizer output are ultimately ignored by the pretty printer,
 -- so give a trivial implementation.
 instance : MonadQuotation ParenthesizerM := {
-  getCurrMacroScope   := pure arbitrary,
-  getMainModule       := pure arbitrary,
-  withFreshMacroScope := fun x => x,
+  getCurrMacroScope   := pure default
+  getMainModule       := pure default
+  withFreshMacroScope := fun x => x
 }
 
 /--

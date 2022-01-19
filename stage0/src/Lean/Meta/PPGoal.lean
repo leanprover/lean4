@@ -131,7 +131,7 @@ def collect (goalTarget : Expr) : MetaM (FVarIdSet × FVarIdSet) := do
     return ({}, {})
   else
     let lctx ← getLCtx
-    let hiddenInaccessible := lctx.foldl (init := {}) fun hiddenInaccessible localDecl => do
+    let hiddenInaccessible := lctx.foldl (init := {}) fun hiddenInaccessible localDecl => Id.run <| do
       if localDecl.userName.isInaccessibleUserName then
         hiddenInaccessible.insert localDecl.fvarId
       else

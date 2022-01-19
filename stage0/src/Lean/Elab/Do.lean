@@ -88,12 +88,6 @@ structure ExtractMonadResult where
   m            : Expr
   α            : Expr
   expectedType : Expr
-  isPure       : Bool -- `true` when it is a pure `do` block. That is, Lean implicitly inserted the `Id` Monad.
-
-private def mkIdBindFor (type : Expr) : TermElabM ExtractMonadResult := do
-  let u ← getDecLevel type
-  let id        := Lean.mkConst ``Id [u]
-  pure { m := id, α := type, expectedType := mkApp id type, isPure := true }
 
 private partial def extractBind (expectedType? : Option Expr) : TermElabM ExtractMonadResult := do
   match expectedType? with
@@ -105,7 +99,7 @@ private partial def extractBind (expectedType? : Option Expr) : TermElabM Extrac
         try
           let bindInstType ← mkAppM ``Bind #[m]
           let _  ← Meta.synthInstance bindInstType
-          return some { m := m, α := α, expectedType := expectedType, isPure := false }
+          return some { m := m, α := α, expectedType := expectedType }
         catch _ =>
           return none
       | _ =>
@@ -124,7 +118,7 @@ private partial def extractBind (expectedType? : Option Expr) : TermElabM Extrac
           | none => return none
     match (← extract? expectedType) with
     | some r => return r
-    | none   => mkIdBindFor expectedType
+    | none   => throwError "invalid 'do' notation, expected type is not a monad application{indentExpr expectedType}\nYou can use the `do` notation in pure code by writing `Id.run do` instead of `do`, where `Id` is the identity monad."
 
 namespace Do
 
@@ -609,21 +603,27 @@ def getDoLetVars (doLet : Syntax) : TermElabM (Array Name) :=
   -- leading_parser "let " >> optional "mut " >> letDecl
   getLetDeclVars doLet[2]
 
-def getDoHaveVar (doHave : Syntax) : Name :=
-  /-
-    `leading_parser "have " >> Term.haveDecl`
-    where
-    ```
-    haveDecl := leading_parser optIdent >> termParser >> (haveAssign <|> fromTerm <|> byTactic)
-    optIdent := optional (try (ident >> " : "))
-
-    ```
-  -/
-  let optIdent := doHave[1][0]
+def getHaveIdLhsVar (optIdent : Syntax) : Name :=
   if optIdent.isNone then
     `this
   else
     optIdent[0].getId
+
+def getDoHaveVars (doHave : Syntax) : TermElabM (Array Name) :=
+  -- doHave := leading_parser "have " >> Term.haveDecl
+  -- haveDecl := leading_parser haveIdDecl <|> letPatDecl <|> haveEqnsDecl
+  let arg := doHave[1][0]
+  if arg.getKind == ``Lean.Parser.Term.haveIdDecl then
+    -- haveIdDecl := leading_parser atomic (haveIdLhs >> " := ") >> termParser
+    -- haveIdLhs := optional (ident >> many (ppSpace >> (simpleBinderWithoutType <|> bracketedBinder))) >> optType
+    pure #[getHaveIdLhsVar arg[0]]
+  else if arg.getKind == ``Lean.Parser.Term.letPatDecl then
+    getLetPatDeclVars arg
+  else if arg.getKind == ``Lean.Parser.Term.haveEqnsDecl then
+    -- haveEqnsDecl := leading_parser haveIdLhs >> matchAlts
+    pure #[getHaveIdLhsVar arg[0]]
+  else
+    throwError "unexpected kind of have declaration"
 
 def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Name) := do
   -- letRecDecls is an array of `(group (optional attributes >> letDecl))`
@@ -1536,9 +1536,9 @@ mutual
             checkNotShadowingMutable vars
             mkVarDeclCore vars doElem <$> withNewMutableVars vars (isMutableLet doElem) (doSeqToCode doElems)
           else if k == ``Lean.Parser.Term.doHave then
-            let var := getDoHaveVar doElem
-            checkNotShadowingMutable #[var]
-            mkVarDeclCore #[var] doElem <$> (doSeqToCode doElems)
+            let vars ← getDoHaveVars doElem
+            checkNotShadowingMutable vars
+            mkVarDeclCore vars doElem <$> (doSeqToCode doElems)
           else if k == ``Lean.Parser.Term.doLetRec then
             let vars ← getDoLetRecVars doElem
             checkNotShadowingMutable vars
@@ -1603,27 +1603,9 @@ private def mkMonadAlias (m : Expr) : TermElabM Syntax := do
   assignExprMVar mvar.mvarId! m
   pure result
 
-private partial def ensureArrowNotUsed (stx : Syntax) : MacroM Unit := do
-  /- We expand macros here because we stop the search at nested `do`s
-     So, we also want to stop the search at macros that expand `do ...`.
-     Hopefully this is not a performance bottleneck in practice. -/
-  let stx ← expandMacros stx
-  stx.getArgs.forM go
-where
-  go (stx : Syntax) : MacroM Unit :=
-    match stx with
-    | Syntax.node i k args => do
-      if k == ``Parser.Term.liftMethod || k == ``Parser.Term.doLetArrow || k == ``Parser.Term.doReassignArrow || k == ``Parser.Term.doIfLetBind then
-        Macro.throwErrorAt stx "`←` and `<-` are not allowed in pure `do` blocks, i.e., blocks where Lean implicitly used the `Id` monad"
-      unless k == ``Parser.Term.do do
-        args.forM go
-    | _ => pure ()
-
 @[builtinTermElab «do»] def elabDo : TermElab := fun stx expectedType? => do
   tryPostponeIfNoneOrMVar expectedType?
   let bindInfo ← extractBind expectedType?
-  if bindInfo.isPure then
-    liftMacroM <| ensureArrowNotUsed stx
   let m ← mkMonadAlias bindInfo.m
   let codeBlock ← ToCodeBlock.run stx m
   let stxNew ← liftMacroM $ ToTerm.run codeBlock.code m

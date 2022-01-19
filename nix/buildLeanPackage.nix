@@ -5,7 +5,7 @@ let lean-final' = lean-final; in
 lib.makeOverridable (
 { name, src,  fullSrc ? src, 
   # Lean dependencies. Each entry should be an output of buildLeanPackage.
-  deps ? [ lean.Lean lean.Leanpkg ],
+  deps ? [ lean.Lean ],
   # Static library dependencies. Each derivation `static` should contain a static library in the directory `${static}`.
   staticLibDeps ? [],
   # Whether to wrap static library inputs in a -Wl,--start-group [...] -Wl,--end-group to ensure dependencies are resolved.
@@ -101,14 +101,16 @@ with builtins; let
     buildInputs = [ lean ];
     leanPath = relpath + ".lean";
     src = srcRoot + ("/" + leanPath);
-    outputs = [ "out" "c" ];
+    outputs = [ "out" "ilean" "c" ];
     oleanPath = relpath + ".olean";
+    ileanPath = relpath + ".ilean";
     cPath = relpath + ".c";
     inherit leanFlags leanPluginFlags leanLoadDynlibFlags;
     buildCommand = ''
-      mkdir -p $(dirname $relpath) $out/$(dirname $relpath) $c/$(dirname $relpath)
+      dir=$(dirname $relpath)
+      mkdir -p $dir $out/$dir $ilean/$dir $c/$dir
       cp $src $leanPath
-      lean -o $out/$oleanPath -c $c/$cPath $leanPath $leanFlags $leanPluginFlags $leanLoadDynlibFlags
+      lean -o $out/$oleanPath -i $ilean/$ileanPath -c $c/$cPath $leanPath $leanFlags $leanPluginFlags $leanLoadDynlibFlags
     '';
   } // {
     inherit deps;
@@ -167,6 +169,7 @@ in rec {
   modRoot   = depRoot name [ mods.${name} ];
   cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
   oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };
+  iTree     = symlinkJoin { name = "${name}-iTree"; paths = map (mod: mod.ilean) (attrValues mods); };
   sharedLib = runCommand "${name}.so" { buildInputs = [ stdenv.cc gmp ]; } ''
     mkdir -p $out/lib
     ${leanc}/bin/leanc -fPIC -shared \

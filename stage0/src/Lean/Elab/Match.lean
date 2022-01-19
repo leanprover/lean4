@@ -63,6 +63,7 @@ private def elabAtomicDiscr (discr : Syntax) : TermElabM Expr := do
   | some e@(Expr.fvar fvarId _) =>
     let localDecl ← getLocalDecl fvarId
     if !isAuxDiscrName localDecl.userName then
+      addTermInfo discr e
       return e -- it is not an auxiliary local created by `expandNonAtomicDiscrs?`
     else
       instantiateMVars localDecl.value
@@ -457,7 +458,7 @@ private def mkLocalDeclFor (mvar : Expr) : M Pattern := do
        If this generates problems in the future, we should update the metavariable declarations. -/
     assignExprMVar mvarId (mkFVar fvarId)
     let userName ← mkFreshBinderName
-    let newDecl := LocalDecl.cdecl arbitrary fvarId userName type BinderInfo.default;
+    let newDecl := LocalDecl.cdecl default fvarId userName type BinderInfo.default;
     modify fun s =>
       { s with
         newLocals  := s.newLocals.insert fvarId,
@@ -492,11 +493,12 @@ partial def main (e : Expr) : M Pattern := do
     | some (α, lits) =>
       return Pattern.arrayLit α (← lits.mapM main)
     | none =>
-      if e.isAppOfArity `namedPattern 3 then
+      -- TODO: namedPattern will have 4 arguments
+      if e.isAppOfArity ``_root_.namedPattern 4 then
         let p ← main <| e.getArg! 2
-        match e.getArg! 1 with
-        | Expr.fvar fvarId _ => return Pattern.as fvarId p
-        | _                  => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
+        match e.getArg! 1, e.getArg! 3 with
+        | Expr.fvar x _, Expr.fvar h _ => return Pattern.as x p h
+        | _,             _             => throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
       else if isMatchValue e then
         return Pattern.val e
       else if e.isFVar then
@@ -972,7 +974,10 @@ Pattern matching. `match e, ... with | p, ... => f | ...` matches each given
 term `e` against each pattern `p` of a match alternative. When all patterns
 of an alternative match, the `match` term evaluates to the value of the
 corresponding right-hand side `f` with the pattern variables bound to the
-respective matched values. -/
+respective matched values.
+When not constructing a proof, `match` does not automatically substitute variables
+matched on in dependent variables' types. Use `match (generalizing := true) ...` to
+enforce this. -/
 @[builtinTermElab «match»] def elabMatch : TermElab := fun stx expectedType? => do
   match stx with
   | `(match $discr:term with | $y:ident => $rhs:term) =>

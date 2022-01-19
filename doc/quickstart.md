@@ -13,17 +13,11 @@ containing the following:
     #eval Lake.leanVersionString
     ```
 
-    and a file named `lean-toolchain` containing just this:
-
-    ```
-    leanprover/lean4:nightly
-    ```
-
 1. Open this folder in VS Code and install the `lean4` extension.
 
     ![installing the vscode-lean4 extension](images/code-ext.png)
 
-1. Open the file named `foo.lean` and you should see the following popup:
+1. Open the file named `hello.lean` you created earlier and you should see the following popup:
     ![elan](images/install_elan.png)
 
     Click the "Install Lean using Elan" link and follow the progress
@@ -40,7 +34,15 @@ containing the following:
 
     ![successful setup](images/code-success.png)
 
-1. You are set up! You can now also run `lake init foo` from the command line to create a package, followed by `lake build` to get an executable version of your Lean program.
+1. You are set up!
+
+You can now also run `lake init foo` from the the "View > Terminal" to create a package, followed by `lake build` to get an executable version of your Lean program.
 
 Note: Packages **have** to be opened using "File > Open Folder..." for imports to work.
 Saved changes are visible in other files after running "Lean 4: Refresh File Dependencies" (`Ctrl+Shift+X`).
+
+## Troubleshooting
+
+**The InfoView says "Waiting for Lean server to start..." forever.**
+
+Try running the command "Developer: Reload Window".

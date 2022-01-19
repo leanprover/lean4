@@ -19,3 +19,11 @@ set_option trace.pp.ana
 
 set_option trace.pp.analyze
                          --^ textDocument/completion
+
+set_option fo true
+           --^ textDocument/completion
+
+set_option format.
+                --^ textDocument/completion
+
+#check false -- curiously completion with a trailing dot worked even before special casing if triggered on the last token

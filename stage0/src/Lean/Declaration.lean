@@ -374,6 +374,10 @@ def isCtor : ConstantInfo → Bool
   | ctorInfo _ => true
   | _          => false
 
+def isInductive : ConstantInfo → Bool
+  | inductInfo _ => true
+  | _            => false
+
 @[extern "lean_instantiate_type_lparams"]
 constant instantiateTypeLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr
 

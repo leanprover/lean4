@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic
-// Imports: Init Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Assumption Lean.Meta.Tactic.Contradiction Lean.Meta.Tactic.Apply Lean.Meta.Tactic.Revert Lean.Meta.Tactic.Clear Lean.Meta.Tactic.Assert Lean.Meta.Tactic.Rewrite Lean.Meta.Tactic.Generalize Lean.Meta.Tactic.Replace Lean.Meta.Tactic.Induction Lean.Meta.Tactic.Cases Lean.Meta.Tactic.ElimInfo Lean.Meta.Tactic.Delta Lean.Meta.Tactic.Constructor Lean.Meta.Tactic.Simp Lean.Meta.Tactic.AuxLemma Lean.Meta.Tactic.SplitIf Lean.Meta.Tactic.Split Lean.Meta.Tactic.Cleanup
+// Imports: Init Lean.Meta.Tactic.Intro Lean.Meta.Tactic.Assumption Lean.Meta.Tactic.Contradiction Lean.Meta.Tactic.Apply Lean.Meta.Tactic.Revert Lean.Meta.Tactic.Clear Lean.Meta.Tactic.Assert Lean.Meta.Tactic.Rewrite Lean.Meta.Tactic.Generalize Lean.Meta.Tactic.Replace Lean.Meta.Tactic.Induction Lean.Meta.Tactic.Cases Lean.Meta.Tactic.ElimInfo Lean.Meta.Tactic.Delta Lean.Meta.Tactic.Constructor Lean.Meta.Tactic.Simp Lean.Meta.Tactic.AuxLemma Lean.Meta.Tactic.SplitIf Lean.Meta.Tactic.Split Lean.Meta.Tactic.Cleanup Lean.Meta.Tactic.Unfold Lean.Meta.Tactic.Rename
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -34,6 +34,8 @@ lean_object* initialize_Lean_Meta_Tactic_AuxLemma(lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_SplitIf(lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Split(lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Cleanup(lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Unfold(lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Rename(lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic(lean_object* w) {
 lean_object * res;
@@ -100,6 +102,12 @@ res = initialize_Lean_Meta_Tactic_Split(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Cleanup(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Unfold(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Rename(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

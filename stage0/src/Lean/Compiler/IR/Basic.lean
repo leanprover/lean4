@@ -293,7 +293,7 @@ abbrev Alt := AltCore FnBody
 @[matchPattern] abbrev Alt.ctor    := @AltCore.ctor FnBody
 @[matchPattern] abbrev Alt.default := @AltCore.default FnBody
 
-instance : Inhabited Alt := ⟨Alt.default arbitrary⟩
+instance : Inhabited Alt := ⟨Alt.default default⟩
 
 def FnBody.isTerminal : FnBody → Bool
   | FnBody.case _ _ _ _  => true
@@ -373,7 +373,7 @@ partial def reshapeAux (a : Array FnBody) (i : Nat) (b : FnBody) : FnBody :=
   if i == 0 then b
   else
     let i         := i - 1
-    let (curr, a) := a.swapAt! i arbitrary
+    let (curr, a) := a.swapAt! i default
     let b         := curr.setBody b
     reshapeAux a i b
 
@@ -437,6 +437,10 @@ end Decl
 
 @[export lean_ir_mk_extern_decl] def mkExternDecl (f : FunId) (xs : Array Param) (ty : IRType) (e : ExternAttrData) : Decl :=
   Decl.extern f xs ty e
+
+-- Hack: we use this declaration as a stub for declarations annotated with `implementedBy` or `init`
+@[export lean_ir_mk_dummy_extern_decl] def mkDummyExternDecl (f : FunId) (xs : Array Param) (ty : IRType) : Decl :=
+  Decl.fdecl f xs ty FnBody.unreachable {}
 
 open Std (RBTree RBTree.empty RBMap)
 
@@ -605,8 +609,8 @@ instance : Inhabited VarIdSet := ⟨{}⟩
 
 def mkIf (x : VarId) (t e : FnBody) : FnBody :=
   FnBody.case `Bool x IRType.uint8 #[
-    Alt.ctor {name := `Bool.false, cidx := 0, size := 0, usize := 0, ssize := 0} e,
-    Alt.ctor {name := `Bool.true, cidx := 1, size := 0, usize := 0, ssize := 0} t
+    Alt.ctor {name := ``Bool.false, cidx := 0, size := 0, usize := 0, ssize := 0} e,
+    Alt.ctor {name := ``Bool.true, cidx := 1, size := 0, usize := 0, ssize := 0} t
   ]
 
 end Lean.IR

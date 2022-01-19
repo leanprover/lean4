@@ -39,10 +39,10 @@ structure Descr (α : Type) (β : Type) (σ : Type) where
 
 instance [Inhabited α] : Inhabited (Descr α β σ) where
   default := {
-    name         := arbitrary
-    mkInitial    := arbitrary
-    ofOLeanEntry := arbitrary
-    toOLeanEntry := arbitrary
+    name         := default
+    mkInitial    := default
+    ofOLeanEntry := default
+    toOLeanEntry := default
     addEntry     := fun s _ => s
   }
 
@@ -168,7 +168,7 @@ def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env :
         match s.scopedEntries.map.find? namespaceName with
         | none =>
           { top with activeScopes := activeScopes }
-        | some bs => do
+        | some bs => Id.run <| do
           let mut state := top.state
           for b in bs do
             state := ext.descr.addEntry state b

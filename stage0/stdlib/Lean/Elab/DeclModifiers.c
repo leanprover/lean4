@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DeclModifiers
-// Imports: Init Lean.Modifiers Lean.DocString Lean.Elab.Attributes Lean.Elab.Exception Lean.Elab.DeclUtil
+// Imports: Init Lean.Modifiers Lean.DocString Lean.Structure Lean.Elab.Attributes Lean.Elab.Exception Lean.Elab.DeclUtil
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -73,6 +73,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_instInhabitedRecKind;
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_applyVisibility___rarg___lambda__2___closed__1;
 lean_object* l_Std_Format_joinSep___at_instReprProd___spec__1(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Modifiers_docString_x3f___default;
@@ -2720,11 +2721,19 @@ x_6 = lean_apply_2(x_5, lean_box(0), x_2);
 return x_6;
 }
 }
+static lean_object* _init_l_Lean_Elab_applyVisibility___rarg___lambda__2___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_protectedExt;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Elab_applyVisibility___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_6 = l_Lean_protectedExt;
+x_6 = l_Lean_Elab_applyVisibility___rarg___lambda__2___closed__1;
 lean_inc(x_1);
 x_7 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_6, x_5, x_1);
 x_8 = l_Lean_setEnv___rarg(x_2, x_7);
@@ -3988,6 +3997,7 @@ return x_6;
 lean_object* initialize_Init(lean_object*);
 lean_object* initialize_Lean_Modifiers(lean_object*);
 lean_object* initialize_Lean_DocString(lean_object*);
+lean_object* initialize_Lean_Structure(lean_object*);
 lean_object* initialize_Lean_Elab_Attributes(lean_object*);
 lean_object* initialize_Lean_Elab_Exception(lean_object*);
 lean_object* initialize_Lean_Elab_DeclUtil(lean_object*);
@@ -4003,6 +4013,9 @@ res = initialize_Lean_Modifiers(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_DocString(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Structure(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Attributes(lean_io_mk_world());
@@ -4172,6 +4185,8 @@ l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__10 = _init_l_Lean_Elab_el
 lean_mark_persistent(l_Lean_Elab_elabModifiers___rarg___lambda__3___closed__10);
 l_Lean_Elab_elabModifiers___rarg___closed__1 = _init_l_Lean_Elab_elabModifiers___rarg___closed__1();
 lean_mark_persistent(l_Lean_Elab_elabModifiers___rarg___closed__1);
+l_Lean_Elab_applyVisibility___rarg___lambda__2___closed__1 = _init_l_Lean_Elab_applyVisibility___rarg___lambda__2___closed__1();
+lean_mark_persistent(l_Lean_Elab_applyVisibility___rarg___lambda__2___closed__1);
 l_Array_forInUnsafe_loop___at_Lean_Elab_checkIfShadowingStructureField___spec__1___rarg___lambda__2___closed__1 = _init_l_Array_forInUnsafe_loop___at_Lean_Elab_checkIfShadowingStructureField___spec__1___rarg___lambda__2___closed__1();
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Elab_checkIfShadowingStructureField___spec__1___rarg___lambda__2___closed__1);
 l_Array_forInUnsafe_loop___at_Lean_Elab_checkIfShadowingStructureField___spec__1___rarg___closed__1 = _init_l_Array_forInUnsafe_loop___at_Lean_Elab_checkIfShadowingStructureField___spec__1___rarg___closed__1();

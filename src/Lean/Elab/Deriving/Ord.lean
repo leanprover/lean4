@@ -31,7 +31,8 @@ where
           indPatterns := indPatterns.push (← `(_))
         let mut ctorArgs1 := #[]
         let mut ctorArgs2 := #[]
-        let mut rhs ← `(Ordering.eq)
+        -- construct RHS top-down as continuation over the remaining comparison
+        let mut rhsCont : Syntax → TermElabM Syntax := fun rhs => pure rhs
         -- add `_` for inductive parameters, they are inaccessible
         for i in [:indVal.numParams] do
           ctorArgs1 := ctorArgs1.push (← `(_))
@@ -47,15 +48,16 @@ where
             let b := mkIdent (← mkFreshUserName `b)
             ctorArgs1 := ctorArgs1.push a
             ctorArgs2 := ctorArgs2.push b
-            rhs ← `(match compare $a:ident $b:ident with
-                    | Ordering.lt => Ordering.lt
-                    | Ordering.gt => Ordering.gt
-                    | Ordering.eq => $rhs)
+            rhsCont := fun rhs => `(match compare $a:ident $b:ident with
+              | Ordering.lt => Ordering.lt
+              | Ordering.gt => Ordering.gt
+              | Ordering.eq => $rhs) >>= rhsCont
         let lPat ← `(@$(mkIdent ctorName):ident $ctorArgs1:term*)
         let rPat ← `(@$(mkIdent ctorName):ident $ctorArgs2:term*)
         let patterns := indPatterns ++ #[lPat, rPat]
         let ltPatterns := indPatterns ++ #[lPat, ←`(_)]
         let gtPatterns := indPatterns ++ #[←`(_), rPat]
+        let rhs ← rhsCont (← `(Ordering.eq))
         #[←`(matchAltExpr| | $[$(patterns):term],* => $rhs:term),
           ←`(matchAltExpr| | $[$(ltPatterns):term],* => Ordering.lt),
           ←`(matchAltExpr| | $[$(gtPatterns):term],* => Ordering.gt)]

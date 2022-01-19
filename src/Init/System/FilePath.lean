@@ -14,7 +14,7 @@ open Platform
 
 structure FilePath where
   toString : String
-  deriving Inhabited, DecidableEq
+  deriving Inhabited, DecidableEq, Hashable
 
 instance : Repr FilePath where
   reprPrec p := Repr.addAppParen ("FilePath.mk " ++ repr p.toString)

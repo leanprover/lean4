@@ -5,9 +5,10 @@ Authors: Leonardo de Moura
 -/
 import Lean.Util.SCC
 import Lean.Meta.AbstractNestedProofs
+import Lean.Meta.Transform
 import Lean.Elab.Term
+import Lean.Elab.RecAppSyntax
 import Lean.Elab.DefView
-import Lean.Elab.PreDefinition.MkInhabitant
 
 namespace Lean.Elab
 open Meta
@@ -80,7 +81,17 @@ def addAsAxiom (preDef : PreDefinition) : MetaM Unit := do
 private def shouldGenCodeFor (preDef : PreDefinition) : Bool :=
   !preDef.kind.isTheorem && !preDef.modifiers.isNoncomputable
 
-private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM Unit :=
+private def compileDecl (decl : Declaration) : TermElabM Bool := do
+  try
+    Lean.compileDecl decl
+  catch ex =>
+    if (← read).isNoncomputableSection then
+      return false
+    else
+      throw ex
+  return true
+
+private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (applyAttrAfterCompilation := true) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs preDef
     let env ← getEnv
@@ -104,18 +115,30 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM U
       addTermInfo preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     if compile && shouldGenCodeFor preDef then
-      compileDecl decl
-    applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
+      unless (← compileDecl decl) do
+        return ()
+    if applyAttrAfterCompilation then
+      applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
 def addAndCompileNonRec (preDef : PreDefinition) : TermElabM Unit := do
   addNonRecAux preDef true
 
-def addNonRec (preDef : PreDefinition) : TermElabM Unit := do
-  addNonRecAux preDef false
+def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) : TermElabM Unit := do
+  addNonRecAux preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation)
 
-def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSafety.unsafe) : TermElabM Unit :=
+/--
+  Eliminate recursive application annotations containing syntax. These annotations are used by the well-founded recursion module
+  to produce better error messages. -/
+def eraseRecAppSyntaxExpr (e : Expr) : CoreM Expr :=
+  Core.transform e (post := fun e => TransformStep.done <| if (getRecAppSyntax? e).isSome then e.mdataExpr! else e)
+
+def eraseRecAppSyntax (preDef : PreDefinition) : CoreM PreDefinition :=
+  return { preDef with value := (← eraseRecAppSyntaxExpr preDef.value) }
+
+def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSafety.unsafe) : TermElabM Unit := do
+  let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
   withRef preDefs[0].ref do
-    let decl := Declaration.mutualDefnDecl $ preDefs.toList.map fun preDef => {
+    let decl := Declaration.mutualDefnDecl <| ← preDefs.toList.mapM fun preDef => return {
         name        := preDef.declName
         levelParams := preDef.levelParams
         type        := preDef.type
@@ -128,9 +151,10 @@ def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSaf
       for preDef in preDefs do
         addTermInfo preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf preDefs AttributeApplicationTime.afterTypeChecking
-    compileDecl decl
+    unless (← compileDecl decl) do
+      return ()
     applyAttributesOf preDefs AttributeApplicationTime.afterCompilation
-    pure ()
+    return ()
 
 def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := do
   if preDefs.all shouldGenCodeFor then

@@ -1,4 +1,4 @@
-def build (n : Nat) : Array Unit := do
+def build (n : Nat) : Array Unit := Id.run <| do
   let mut out := #[]
   for _ in [0:n] do
     out := out.push ()

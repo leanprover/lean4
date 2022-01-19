@@ -471,7 +471,7 @@ where
       | none => throwError "failed to copied fields from parent structure{indentExpr parentType}" -- TODO improve error message
     return result
 
-private partial def mkToParentName (parentStructName : Name) (p : Name → Bool) : Name := do
+private partial def mkToParentName (parentStructName : Name) (p : Name → Bool) : Name := Id.run <| do
   let base := Name.mkSimple $ "to" ++ parentStructName.eraseMacroScopes.getString!
   if p base then
     base

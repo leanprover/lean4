@@ -1,38 +1,40 @@
 
 inductive SimpleInd
-| A
-| B
+  | A
+  | B
 deriving Ord
 
 mutual 
 inductive Foo
-| A : Int → (3 = 3) → String → Foo
-| B : Bar → Foo
+  | A : Int → (3 = 3) → String → Foo
+  | B : Bar → Foo
 deriving Ord
 inductive Bar
-| C
-| D : Foo → Bar 
+  | C
+  | D : Foo → Bar
 deriving Ord
 end
 
 inductive ManyConstructors | A | B | C | D | E | F | G | H | I | J | K | L 
-| M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z
+  | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z
 deriving Ord
 
-structure Person := 
-  FirstName : String
-  LastName : String
-  Age : Nat
+structure Person :=
+  firstName : String
+  lastName : String
+  age : Nat
 deriving Ord
+
+example : compare { firstName := "A", lastName := "B", age := 10 : Person } ⟨"B", "A", 9⟩ = Ordering.lt := rfl
 
 structure Company :=
-  Name : String
-  CEO : Person
-  NumberOfEmployees : Nat
+  name : String
+  ceo : Person
+  numberOfEmployees : Nat
 deriving Ord
 
 structure Fixed (α : Type u) where
-  (val : Int)
+  val : Int
 deriving Ord
 
 inductive Fixed' : Type → Type 1 where

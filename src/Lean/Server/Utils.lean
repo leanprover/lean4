@@ -61,6 +61,30 @@ def withPrefix (a : Stream) (pre : String) : Stream :=
 end FS.Stream
 end IO
 
+namespace Lean.Lsp.DocumentUri
+
+/-- Transform the given path to a file:// URI. -/
+def ofPath (fname : System.FilePath) : DocumentUri :=
+  let fname := fname.normalize.toString
+  let fname := if System.Platform.isWindows then
+    fname.map fun c => if c == '\\' then '/' else c
+  else
+    fname
+  -- TODO(WN): URL-encode special characters
+  -- Three slashes denote localhost.
+  "file:///" ++ fname.dropWhile (· == '/')
+
+/-- Return local path from file:// URI, if any. -/
+def toPath? (uri : DocumentUri) : Option System.FilePath := Id.run do
+  if !uri.startsWith "file:///" then
+    return none
+  let mut p := uri.drop "file://".length
+  if System.Platform.isWindows then
+    p := p.map fun c => if c == '/' then '\\' else c
+  some ⟨p⟩
+
+end Lean.Lsp.DocumentUri
+
 namespace Lean.Server
 
 structure DocumentMeta where
@@ -92,36 +116,18 @@ def maybeTee (fName : String) (isOut : Bool) (h : FS.Stream) : IO FS.Stream := d
     else
       h.chainRight hTee true
 
-/-- Transform the given path to a file:// URI. -/
-def toFileUri (fname : System.FilePath) : Lsp.DocumentUri :=
-  let fname := fname.normalize.toString
-  let fname := if System.Platform.isWindows then
-    fname.map fun c => if c == '\\' then '/' else c
-  else
-    fname
-  -- TODO(WN): URL-encode special characters
-  -- Three slashes denote localhost.
-  "file:///" ++ fname.dropWhile (· == '/')
-
 open Lsp
 
-/-- Returns the document contents with all changes applied, together with the position of the change
-which lands earliest in the file. Panics if there are no changes. -/
-def foldDocumentChanges (changes : @& Array Lsp.TextDocumentContentChangeEvent) (oldText : FileMap)
-  : FileMap × String.Pos :=
-  if changes.isEmpty then panic! "Lean.Server.foldDocumentChanges: empty change array" else
-  let accumulateChanges : FileMap × String.Pos → TextDocumentContentChangeEvent → FileMap × String.Pos :=
-    fun ⟨newDocText, minStartOff⟩ change =>
-      match change with
-      | TextDocumentContentChangeEvent.rangeChange (range : Range) (newText : String) =>
-        let startOff    := oldText.lspPosToUtf8Pos range.start
-        let newDocText  := replaceLspRange newDocText range newText
-        let minStartOff := minStartOff.min startOff
-        ⟨newDocText, minStartOff⟩
-      | TextDocumentContentChangeEvent.fullChange (newText : String) =>
-        ⟨newText.toFileMap, 0⟩
-  -- NOTE: We assume Lean files are below 16 EiB.
-  changes.foldl accumulateChanges (oldText, 0xffffffff)
+/-- Returns the document contents with the change applied. -/
+def applyDocumentChange (oldText : FileMap) : (change : Lsp.TextDocumentContentChangeEvent) → FileMap
+  | TextDocumentContentChangeEvent.rangeChange (range : Range) (newText : String) =>
+    replaceLspRange oldText range newText
+  | TextDocumentContentChangeEvent.fullChange (newText : String) =>
+    newText.toFileMap
+
+/-- Returns the document contents with all changes applied. -/
+def foldDocumentChanges (changes : Array Lsp.TextDocumentContentChangeEvent) (oldText : FileMap) : FileMap :=
+  changes.foldl applyDocumentChange oldText
 
 def publishDiagnostics (m : DocumentMeta) (diagnostics : Array Lsp.Diagnostic) (hOut : FS.Stream) : IO Unit :=
   hOut.writeLspNotification {
@@ -144,8 +150,8 @@ def publishProgress (m : DocumentMeta) (processing : Array LeanFileProgressProce
     }
   }
 
-def publishProgressAtPos (m : DocumentMeta) (pos : String.Pos) (hOut : FS.Stream) : IO Unit :=
-  publishProgress m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.bsize⟩ }] hOut
+def publishProgressAtPos (m : DocumentMeta) (pos : String.Pos) (hOut : FS.Stream) (kind : LeanFileProgressKind := LeanFileProgressKind.processing) : IO Unit :=
+  publishProgress m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.bsize⟩, kind := kind }] hOut
 
 def publishProgressDone (m : DocumentMeta) (hOut : FS.Stream) : IO Unit :=
   publishProgress m #[] hOut

@@ -69,8 +69,8 @@ private def isNextVar (p : Problem) : Bool :=
 
 private def hasAsPattern (p : Problem) : Bool :=
   p.alts.any fun alt => match alt.patterns with
-    | Pattern.as _ _ :: _ => true
-    | _                   => false
+    | Pattern.as _ _ _ :: _ => true
+    | _                     => false
 
 private def hasCtorPattern (p : Problem) : Bool :=
   p.alts.any fun alt => match alt.patterns with
@@ -136,7 +136,7 @@ private def isNatValueTransition (p : Problem) : Bool :=
 private def processSkipInaccessible (p : Problem) : Problem :=
   match p.vars with
   | []      => unreachable!
-  | x :: xs => do
+  | x :: xs =>
     let alts := p.alts.map fun alt => match alt.patterns with
       | Pattern.inaccessible _ :: ps => { alt with patterns := ps }
       | _       => unreachable!
@@ -160,7 +160,7 @@ private def processAsPattern (p : Problem) : MetaM Problem :=
   | []      => unreachable!
   | x :: xs => withGoalOf p do
     let alts ← p.alts.mapM fun alt => match alt.patterns with
-      | Pattern.as fvarId p :: ps =>
+      | Pattern.as fvarId p h :: ps => do
         /- We used to use `checkAndReplaceFVarId` here, but `x` and `fvarId` may have different types
            when dependent types are beind used. Let's consider the repro for issue #471
            ```
@@ -185,7 +185,8 @@ private def processAsPattern (p : Problem) : MetaM Problem :=
           The right-hand-side is temporarily type incorrect, but we claim this is fine because it will be type correct again after
           we the pattern `(vec.cons n h t)`. TODO: try to find a cleaner solution.
          -/
-        { alt with patterns := p :: ps }.replaceFVarId fvarId x
+        let r ← mkEqRefl x
+        { alt with patterns := p :: ps }.replaceFVarId fvarId x |>.replaceFVarId h r
       | _ => pure alt
     pure { p with alts := alts }
 
@@ -455,13 +456,15 @@ private def processValue (p : Problem) : MetaM (Array Problem) := do
   | []      => unreachable!
   | x :: xs => do
     let values := collectValues p
-    let subgoals ← caseValues p.mvarId x.fvarId! values
+    let subgoals ← caseValues p.mvarId x.fvarId! values (substNewEqs := true)
     subgoals.mapIdxM fun i subgoal => do
+      trace[Meta.Match.match] "processValue subgoal\n{MessageData.ofGoal subgoal.mvarId}"
       if h : i.val < values.size then
         let value := values.get ⟨i, h⟩
         -- (x = value) branch
         let subst := subgoal.subst
-        let examples := p.examples.map $ Example.replaceFVarId x.fvarId! (Example.val value)
+        trace[Meta.Match.match] "processValue subst: {subst.map.toList.map fun p => mkFVar p.1}, {subst.map.toList.map fun p => p.2}"
+          let examples := p.examples.map $ Example.replaceFVarId x.fvarId! (Example.val value)
         let examples := examples.map $ Example.applyFVarSubst subst
         let newAlts  := p.alts.filter fun alt => match alt.patterns with
           | Pattern.val v :: _ => v == value
@@ -537,7 +540,7 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
         let newAlts := p.alts.filter isFirstPatternVar
         pure { p with mvarId := subgoal.mvarId, alts := newAlts, vars := x::xs }
 
-private def expandNatValuePattern (p : Problem) : Problem := do
+private def expandNatValuePattern (p : Problem) : Problem :=
   let alts := p.alts.map fun alt => match alt.patterns with
     | Pattern.val (Expr.lit (Literal.natVal 0) _) :: ps     => { alt with patterns := Pattern.ctor `Nat.zero [] [] [] :: ps }
     | Pattern.val (Expr.lit (Literal.natVal (n+1)) _) :: ps => { alt with patterns := Pattern.ctor `Nat.succ [] [] [Pattern.val (mkRawNatLit n)] :: ps }
@@ -588,12 +591,12 @@ private def List.moveToFront [Inhabited α] (as : List α) (i : Nat) : List α :
   b :: bs
 
 /-- Move variable `#i` to the beginning of the to-do list `p.vars`. -/
-private def moveToFront (p : Problem) (i : Nat) : Problem := do
+private def moveToFront (p : Problem) (i : Nat) : Problem :=
   if i == 0 then
     p
   else if h : i < p.vars.length then
     let x := p.vars.get i h
-    return { p with
+    { p with
       vars := List.moveToFront p.vars i
       alts := p.alts.map fun alt => { alt with patterns := List.moveToFront alt.patterns i }
     }
@@ -715,11 +718,11 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
   | some nameNew => (mkMatcherConst nameNew, none)
   | none =>
     let decl := Declaration.defnDecl {
-      name        := name,
-      levelParams := result.levelParams.toList,
-      type        := result.type,
-      value       := result.value,
-      hints       := ReducibilityHints.regular (getMaxHeight env result.value + 1),
+      name
+      levelParams := result.levelParams.toList
+      type        := result.type
+      value       := result.value
+      hints       := ReducibilityHints.abbrev
       safety      := if env.hasUnsafe result.type || env.hasUnsafe result.value then DefinitionSafety.unsafe else DefinitionSafety.safe
     }
     trace[Meta.debug] "{name} : {result.type} := {result.value}"

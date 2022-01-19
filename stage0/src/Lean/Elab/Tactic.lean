@@ -18,3 +18,4 @@ import Lean.Elab.Tactic.Split
 import Lean.Elab.Tactic.Conv
 import Lean.Elab.Tactic.Delta
 import Lean.Elab.Tactic.Meta
+import Lean.Elab.Tactic.Unfold

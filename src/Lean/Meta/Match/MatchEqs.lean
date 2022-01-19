@@ -21,10 +21,9 @@ partial def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
   throwError "'casesOnStuckLHS' failed"
 where
   findFVar? (e : Expr) : MetaM (Option FVarId) := do
-    match e with
+    match e.getAppFn with
     | Expr.proj _ _ e _ => findFVar? e
-    | Expr.app .. =>
-      let f := e.getAppFn
+    | f =>
       if !f.isConst then
         return none
       else
@@ -37,7 +36,7 @@ where
           else
             return none
         | none =>
-          matchConstRec e.getAppFn (fun _ => return none) fun recVal _ => do
+          matchConstRec f (fun _ => return none) fun recVal _ => do
             if recVal.getMajorIdx >= args.size then
               return none
             let major := args[recVal.getMajorIdx]
@@ -45,7 +44,6 @@ where
               return some major.fvarId!
             else
               return none
-    | _ => return none
 
 def casesOnStuckLHS? (mvarId : MVarId) : MetaM (Option (Array MVarId)) := do
   try casesOnStuckLHS mvarId catch _ => return none
@@ -128,6 +126,16 @@ where
       | some (_, lhs, rhs) => simpEq lhs rhs
       | _ => throwError "failed to generate equality theorems for 'match', equality expected{indentExpr eq}"
 
+private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := withMVarContext mvarId do
+  for localDecl in (← getLCtx) do
+    if let some (_, lhs, rhs) ← matchEq? localDecl.type then
+      if lhs.isFVar then
+        if !(← dependsOn rhs lhs.fvarId!) then
+          match (← subst? mvarId lhs.fvarId!) with
+          | some mvarId => return #[mvarId]
+          | none => pure ()
+  throwError "substSomeVar failed"
+
 /--
   Helper method for proving a conditional equational theorem associated with an alternative of
   the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem. -/
@@ -160,7 +168,9 @@ where
           else
             throwError "spliIf failed")
       <|>
-      (throwError "failed to generate equality theorems for `match` expression, support for array literals has not been implemented yet\n{MessageData.ofGoal mvarId}")
+      (substSomeVar mvarId)
+      <|>
+      (throwError "failed to generate equality theorems for `match` expression\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go . (depth+1))
 
 
@@ -211,7 +221,7 @@ private partial def mkSplitterProof (matchDeclName : Name) (template : Expr) (al
     proveSubgoal mvarId
   instantiateMVars proof
 where
-  mkMap : FVarIdMap Expr := do
+  mkMap : FVarIdMap Expr := Id.run <| do
     let mut m := {}
     for alt in alts, altNew in altsNew do
       m := m.insert alt.fvarId! altNew

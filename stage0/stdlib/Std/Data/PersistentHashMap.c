@@ -780,7 +780,7 @@ else
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_17 = lean_array_fget(x_9, x_14);
-x_18 = lean_box(2);
+x_18 = lean_box(0);
 x_19 = lean_array_fset(x_9, x_14, x_18);
 switch (lean_obj_tag(x_17)) {
 case 0:
@@ -942,7 +942,7 @@ else
 {
 lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 x_61 = lean_array_fget(x_52, x_57);
-x_62 = lean_box(2);
+x_62 = lean_box(0);
 x_63 = lean_array_fset(x_52, x_57, x_62);
 switch (lean_obj_tag(x_61)) {
 case 0:

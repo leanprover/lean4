@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta
-// Imports: Init Lean.Meta.Basic Lean.Meta.LevelDefEq Lean.Meta.WHNF Lean.Meta.InferType Lean.Meta.FunInfo Lean.Meta.ExprDefEq Lean.Meta.DiscrTree Lean.Meta.Reduce Lean.Meta.Instances Lean.Meta.AbstractMVars Lean.Meta.SynthInstance Lean.Meta.AppBuilder Lean.Meta.Tactic Lean.Meta.KAbstract Lean.Meta.RecursorInfo Lean.Meta.GeneralizeTelescope Lean.Meta.Match Lean.Meta.ReduceEval Lean.Meta.Closure Lean.Meta.AbstractNestedProofs Lean.Meta.ForEachExpr Lean.Meta.Transform Lean.Meta.PPGoal Lean.Meta.UnificationHint Lean.Meta.Inductive Lean.Meta.SizeOf Lean.Meta.IndPredBelow Lean.Meta.Coe Lean.Meta.SortLocalDecls Lean.Meta.CollectFVars Lean.Meta.GeneralizeVars Lean.Meta.Injective Lean.Meta.Structure Lean.Meta.Constructions Lean.Meta.CongrTheorems Lean.Meta.Eqns
+// Imports: Init Lean.Meta.Basic Lean.Meta.LevelDefEq Lean.Meta.WHNF Lean.Meta.InferType Lean.Meta.FunInfo Lean.Meta.ExprDefEq Lean.Meta.DecLevel Lean.Meta.DiscrTree Lean.Meta.Reduce Lean.Meta.Instances Lean.Meta.AbstractMVars Lean.Meta.SynthInstance Lean.Meta.AppBuilder Lean.Meta.Tactic Lean.Meta.KAbstract Lean.Meta.RecursorInfo Lean.Meta.GeneralizeTelescope Lean.Meta.Match Lean.Meta.ReduceEval Lean.Meta.Closure Lean.Meta.AbstractNestedProofs Lean.Meta.ForEachExpr Lean.Meta.Transform Lean.Meta.PPGoal Lean.Meta.UnificationHint Lean.Meta.Inductive Lean.Meta.SizeOf Lean.Meta.IndPredBelow Lean.Meta.Coe Lean.Meta.SortLocalDecls Lean.Meta.CollectFVars Lean.Meta.GeneralizeVars Lean.Meta.Injective Lean.Meta.Structure Lean.Meta.Constructions Lean.Meta.CongrTheorems Lean.Meta.Eqns
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,6 +20,7 @@ lean_object* initialize_Lean_Meta_WHNF(lean_object*);
 lean_object* initialize_Lean_Meta_InferType(lean_object*);
 lean_object* initialize_Lean_Meta_FunInfo(lean_object*);
 lean_object* initialize_Lean_Meta_ExprDefEq(lean_object*);
+lean_object* initialize_Lean_Meta_DecLevel(lean_object*);
 lean_object* initialize_Lean_Meta_DiscrTree(lean_object*);
 lean_object* initialize_Lean_Meta_Reduce(lean_object*);
 lean_object* initialize_Lean_Meta_Instances(lean_object*);
@@ -74,6 +75,9 @@ res = initialize_Lean_Meta_FunInfo(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_ExprDefEq(lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_DecLevel(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_DiscrTree(lean_io_mk_world());

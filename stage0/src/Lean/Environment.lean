@@ -14,10 +14,9 @@ import Lean.Util.Profile
 
 namespace Lean
 /- Opaque environment extension state. -/
-constant EnvExtensionStateSpec : PointedType.{0}
-def EnvExtensionState : Type := EnvExtensionStateSpec.type
-instance : Inhabited EnvExtensionState where
-  default := EnvExtensionStateSpec.val
+constant EnvExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
+def EnvExtensionState : Type := EnvExtensionStateSpec.fst
+instance : Inhabited EnvExtensionState := EnvExtensionStateSpec.snd
 
 def ModuleIdx := Nat
 
@@ -44,14 +43,28 @@ constant CompactedRegion.isMemoryMapped : CompactedRegion → Bool
 @[extern "lean_compacted_region_free"]
 unsafe constant CompactedRegion.free : CompactedRegion → IO Unit
 
+/- Opaque persistent environment extension entry. -/
+constant EnvExtensionEntrySpec : NonemptyType.{0}
+def EnvExtensionEntry : Type := EnvExtensionEntrySpec.type
+instance : Nonempty EnvExtensionEntry := EnvExtensionEntrySpec.property
+
+/- Content of a .olean file.
+   We use `compact.cpp` to generate the image of this object in disk. -/
+structure ModuleData where
+  imports    : Array Import
+  constants  : Array ConstantInfo
+  entries    : Array (Name × Array EnvExtensionEntry)
+  deriving Inhabited
+
 /- Environment fields that are not used often. -/
 structure EnvironmentHeader where
   trustLevel   : UInt32       := 0
   quotInit     : Bool         := false
-  mainModule   : Name         := arbitrary
+  mainModule   : Name         := default
   imports      : Array Import := #[] -- direct imports
   regions      : Array CompactedRegion := #[] -- compacted regions of all imported modules
   moduleNames  : Array Name   := #[] -- names of all imported modules
+  moduleData   : Array ModuleData := #[] -- ModuleData of all imported modules
   deriving Inhabited
 
 open Std (HashMap)
@@ -241,7 +254,7 @@ def mkInitialExtStates : IO (Array EnvExtensionState) := do
 unsafe def imp : EnvExtensionInterface := {
   ext                  := Ext
   ensureExtensionsSize := ensureExtensionsArraySize
-  inhabitedExt         := fun _ => ⟨arbitrary⟩
+  inhabitedExt         := fun _ => ⟨default⟩
   registerExt          := registerExt
   setState             := setState
   modifyState          := modifyState
@@ -319,19 +332,14 @@ structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) where
   exportEntriesFn : σ → Array α
   statsFn         : σ → Format
 
-/- Opaque persistent environment extension entry. -/
-constant EnvExtensionEntrySpec : PointedType.{0}
-def EnvExtensionEntry : Type := EnvExtensionEntrySpec.type
-instance : Inhabited EnvExtensionEntry := ⟨EnvExtensionEntrySpec.val⟩
-
 instance {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
-  ⟨{importedEntries := #[], state := arbitrary }⟩
+  ⟨{importedEntries := #[], state := default }⟩
 
 instance {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ) where
   default := {
-     toEnvExtension := arbitrary,
-     name := arbitrary,
-     addImportedFn := fun _ => arbitrary,
+     toEnvExtension := default,
+     name := default,
+     addImportedFn := fun _ => default,
      addEntryFn := fun s _ => s,
      exportEntriesFn := fun _ => #[],
      statsFn := fun _ => Format.nil
@@ -485,27 +493,17 @@ def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Na
 def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Option α :=
   match env.getModuleIdxFor? declName with
   | some modIdx =>
-    match (ext.getModuleEntries env modIdx).binSearch (declName, arbitrary) (fun a b => Name.quickLt a.1 b.1) with
+    match (ext.getModuleEntries env modIdx).binSearch (declName, default) (fun a b => Name.quickLt a.1 b.1) with
     | some e => some e.2
     | none   => none
   | none => (ext.getState env).find? declName
 
 def contains [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Bool :=
   match env.getModuleIdxFor? declName with
-  | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains (declName, arbitrary) (fun a b => Name.quickLt a.1 b.1)
+  | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains (declName, default) (fun a b => Name.quickLt a.1 b.1)
   | none        => (ext.getState env).contains declName
 
 end MapDeclarationExtension
-
-/- Content of a .olean file.
-   We use `compact.cpp` to generate the image of this object in disk. -/
-structure ModuleData where
-  imports    : Array Import
-  constants  : Array ConstantInfo
-  entries    : Array (Name × Array EnvExtensionEntry)
-
-instance : Inhabited ModuleData :=
-  ⟨{imports := arbitrary, constants := arbitrary, entries := arbitrary }⟩
 
 @[extern "lean_save_module_data"]
 constant saveModuleData (fname : @& System.FilePath) (mod : @& Name) (data : @& ModuleData) : IO Unit
@@ -643,6 +641,7 @@ partial def importModules (imports : List Import) (opts : Options) (trustLevel :
         imports      := imports.toArray,
         regions      := s.regions,
         moduleNames  := s.moduleNames
+        moduleData   := s.moduleData
       }
     }
     let env ← setImportedEntries env s.moduleData

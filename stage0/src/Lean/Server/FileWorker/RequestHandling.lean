@@ -25,11 +25,14 @@ partial def handleCompletion (p : CompletionParams)
   let doc ← readDoc
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
+  let caps := (← read).initParams.capabilities
   -- dbg_trace ">> handleCompletion invoked {pos}"
-  -- NOTE: use `>=` since the cursor can be *after* the input
-  withWaitFindSnap doc (fun s => s.endPos >= pos)
+  -- NOTE: use `+ 1` since we sometimes want to consider invalid input technically after the command,
+  -- such as a trailing dot after an option name. This shouldn't be a problem since any subsequent
+  -- command starts with a keyword that (currently?) does not participate in completion.
+  withWaitFindSnap doc (·.endPos + 1 >= pos)
     (notFoundX := pure { items := #[], isIncomplete := true }) fun snap => do
-      if let some r ← Completion.find? doc.meta.text pos snap.infoTree then
+      if let some r ← Completion.find? doc.meta.text pos snap.infoTree caps then
         return r
       return { items := #[ ], isIncomplete := true }
 
@@ -65,16 +68,18 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
 
+  let documentUriFromModule (modName : Name) : MetaM (Option DocumentUri) := do
+    let some modFname ← rc.srcSearchPath.findWithExt "lean" modName
+      | pure none
+    -- resolve symlinks (such as `src` in the build dir) so that files are opened
+    -- in the right folder
+    let modFname ← IO.FS.realPath modFname
+    pure <| some <| Lsp.DocumentUri.ofPath modFname
+
   let locationLinksFromDecl (i : Elab.Info) (n : Name) := do
     let mod? ← findModuleOf? n
     let modUri? ← match mod? with
-      | some modName =>
-        let some modFname ← rc.srcSearchPath.findWithExt "lean" modName
-          | pure none
-        -- resolve symlinks (such as `src` in the build dir) so that files are opened
-        -- in the right folder
-        let modFname ← IO.FS.realPath modFname
-        pure <| some <| toFileUri modFname
+      | some modName => documentUriFromModule modName
       | none         => pure <| some doc.meta.uri
 
     let ranges? ← findDeclarationRanges? n
@@ -106,6 +111,19 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
         return #[ll]
     return #[]
 
+  let locationLinksFromImport (i : Elab.Info) := do
+    let name := i.stx[2].getId
+    if let some modUri ← documentUriFromModule name then
+      let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
+      let ll : LocationLink := {
+        originSelectionRange? := none
+        targetUri := modUri
+        targetRange := range
+        targetSelectionRange := range
+      }
+      return #[ll]
+    return #[]
+
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure #[]) fun snap => do
       if let some (ci, i) := snap.infoTree.hoverableInfoAt? hoverPos then
@@ -126,6 +144,9 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
               return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
           else
             return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
+        if let Info.ofCommandInfo ⟨`import, _⟩ := i then
+          if kind == definition || kind == declaration then
+            return ← ci.runMetaM i.lctx <| locationLinksFromImport i
         -- If other go-tos fail, we try to show the elaborator or parser
         if let some ei := i.toElabInfo? then
           if kind == declaration && ci.env.contains ei.stx.getKind then
@@ -199,7 +220,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
   let rec highlightReturn? (doRange? : Option Range) : Syntax → Option DocumentHighlight
-    | stx@`(doElem|return%$i $e) => do
+    | stx@`(doElem|return%$i $e) => Id.run <| do
       if let some range := i.getRange? then
         if range.contains pos then
           return some { range := doRange?.getD (range.toLspRange text), kind? := DocumentHighlightKind.text }
@@ -239,7 +260,7 @@ partial def handleDocumentSymbol (p : DocumentSymbolParams)
       | `(namespace $id)  => sectionLikeToDocumentSymbols text stx stxs (id.getId.toString) SymbolKind.namespace id
       | `(section $(id)?) => sectionLikeToDocumentSymbols text stx stxs ((·.getId.toString) <$> id |>.getD "<section>") SymbolKind.namespace (id.getD stx)
       | `(end $(id)?) => ([], stx::stxs)
-      | _ => do
+      | _ => Id.run <| do
         let (syms, stxs') := toDocumentSymbols text stxs
         unless stx.isOfKind ``Lean.Parser.Command.declaration do
           return (syms, stxs')
@@ -343,7 +364,9 @@ where
           lastPos := ti.stx.getPos?.get!
   highlightKeyword stx := do
     if let Syntax.atom info val := stx then
-      if val.bsize > 0 && val[0].isAlpha then
+      if (val.length > 0 && val[0].isAlpha) ||
+         -- Support for keywords of the form `#<alpha>...`
+         (val.length > 1 && val[0] == '#' && val[1].isAlpha) then
         addToken stx SemanticTokenType.keyword
   addToken stx type := do
     let ⟨beginPos, endPos, text, _⟩ ← read

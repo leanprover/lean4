@@ -267,11 +267,30 @@ where
     ensureHasType type e
   | _ => throwUnsupportedSyntax
 
+/-- Return `true` if `lhs` is a free variable and `rhs` does not depend on it. -/
+private def isSubstCandidate (lhs rhs : Expr) : MetaM Bool :=
+  if lhs.isFVar then
+    return !(← dependsOn rhs lhs.fvarId!)
+  else
+    return false
+
+/--
+  Given an expression `e` that is the elaboration of `stx`, if `e` is a free variable, then return `k stx`.
+  Otherwise, return `(fun x => k x) e`
+-/
+private def withLocalIdentFor (stx : Syntax) (e : Expr) (k : Syntax → TermElabM Expr) : TermElabM Expr := do
+  if e.isFVar then
+    k stx
+  else
+    let id ← mkFreshUserName `h
+    let aux ← withLocalDeclD id (← inferType e) fun x => do mkLambdaFVars #[x] (← k (mkIdentFrom stx id))
+    return mkApp aux e
+
 @[builtinTermElab subst] def elabSubst : TermElab := fun stx expectedType? => do
   let expectedType ← tryPostponeIfHasMVars expectedType? "invalid `▸` notation"
   match stx with
-  | `($heq ▸ $h) => do
-     let mut heq ← elabTerm heq none
+  | `($heqStx ▸ $hStx) => do
+     let mut heq ← elabTerm heqStx none
      let heqType ← inferType heq
      let heqType ← instantiateMVars heqType
      match (← Meta.matchEq? heqType) with
@@ -290,10 +309,10 @@ where
          heq ← mkEqSymm heq
          (lhs, rhs) := (rhs, lhs)
        let hExpectedType := expectedAbst.instantiate1 lhs
-       let h ← withRef h do
-         let h ← elabTerm h hExpectedType
+       let (h, badMotive?) ← withRef hStx do
+         let h ← elabTerm hStx hExpectedType
          try
-           ensureHasType hExpectedType h
+           return (← ensureHasType hExpectedType h, none)
          catch ex =>
            -- if `rhs` occurs in `hType`, we try to apply `heq` to `h` too
            let hType ← inferType h
@@ -303,8 +322,23 @@ where
            let hTypeNew := hTypeAbst.instantiate1 lhs
            unless (← isDefEq hExpectedType hTypeNew) do
              throw ex
-           mkEqNDRec (← mkMotive hTypeAbst) h (← mkEqSymm heq)
-       mkEqNDRec (← mkMotive expectedAbst) h heq
+           let motive ← mkMotive hTypeAbst
+           if !(← isTypeCorrect motive) then
+             return (h, some motive)
+           else
+             return (← mkEqNDRec motive h (← mkEqSymm heq), none)
+       let motive ← mkMotive expectedAbst
+       if badMotive?.isSome || !(← isTypeCorrect motive) then
+         -- Before failing try tos use `subst`
+         if ← (isSubstCandidate lhs rhs <||> isSubstCandidate rhs lhs) then
+           withLocalIdentFor heqStx heq fun heqStx =>
+           withLocalIdentFor hStx h fun hStx => do
+             let stxNew ← `(by subst $heqStx; exact $hStx)
+             withMacroExpansion stx stxNew (elabTerm stxNew expectedType)
+         else
+           throwError "invalid `▸` notation, failed to compute motive for the substitution"
+       else
+         mkEqNDRec motive h heq
   | _ => throwUnsupportedSyntax
 
 @[builtinTermElab stateRefT] def elabStateRefT : TermElab := fun stx _ => do

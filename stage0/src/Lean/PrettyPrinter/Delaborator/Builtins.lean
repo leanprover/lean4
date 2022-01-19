@@ -100,11 +100,36 @@ def delabConst : Delab := do
           c := `_root_ ++ c
         else
           c := c₀
-      return mkIdent c
+      mkIdent c
     else
       `($(mkIdent c).{$[$(ls.toArray.map quote)],*})
 
-  maybeAddBlockImplicit stx
+  let mut stx ← maybeAddBlockImplicit stx
+  if (← getPPOption getPPTagAppFns) then
+    stx ← annotateCurPos stx
+    addTermInfo (← getPos) stx (← getExpr)
+  stx
+
+def withMDataOptions [Inhabited α] (x : DelabM α) : DelabM α := do
+  match ← getExpr with
+  | Expr.mdata m .. =>
+    let mut posOpts := (← read).optionsPerPos
+    let pos ← getPos
+    for (k, v) in m do
+      if (`pp).isPrefixOf k then
+        let opts := posOpts.find? pos |>.getD {}
+        posOpts := posOpts.insert pos (opts.insert k v)
+    withReader ({ · with optionsPerPos := posOpts }) $ withMDataExpr x
+  | _ => x
+
+partial def withMDatasOptions [Inhabited α] (x : DelabM α) : DelabM α := do
+  if (← getExpr).isMData then withMDataOptions (withMDatasOptions x) else x
+
+def delabAppFn : Delab := do
+  if (← getExpr).consumeMData.isConst then
+    withMDatasOptions delabConst
+  else
+    delab
 
 structure ParamKind where
   name        : Name
@@ -136,13 +161,12 @@ where
           k (xs ++ ys) b
 
 @[builtinDelab app]
-def delabAppExplicit : Delab := whenPPOption getPPExplicit do
+def delabAppExplicit : Delab := do
   let paramKinds ← getParamKinds
   let (fnStx, _, argStxs) ← withAppFnArgs
     (do
-      let fn ← getExpr
-      let stx ← if fn.isConst then delabConst else delab
-      let needsExplicit := paramKinds.any (fun param => !param.isRegularExplicit) && stx.getKind != `Lean.Parser.Term.explicit
+      let stx ← delabAppFn
+      let needsExplicit := stx.getKind != ``Lean.Parser.Term.explicit
       let stx ← if needsExplicit then `(@$stx) else pure stx
       pure (stx, paramKinds.toList, #[]))
     (fun ⟨fnStx, paramKinds, argStxs⟩ => do
@@ -165,21 +189,6 @@ def shouldShowMotive (motive : Expr) (opts : Options) : MetaM Bool := do
   <||> (← getPPMotivesPi opts <&&> returnsPi motive)
   <||> (← getPPMotivesNonConst opts <&&> isNonConstFun motive)
 
-def withMDataOptions [Inhabited α] (x : DelabM α) : DelabM α := do
-  match ← getExpr with
-  | Expr.mdata m .. =>
-    let mut posOpts := (← read).optionsPerPos
-    let pos ← getPos
-    for (k, v) in m do
-      if (`pp).isPrefixOf k then
-        let opts := posOpts.find? pos |>.getD {}
-        posOpts := posOpts.insert pos (opts.insert k v)
-    withReader ({ · with optionsPerPos := posOpts }) $ withMDataExpr x
-  | _ => x
-
-partial def withMDatasOptions [Inhabited α] (x : DelabM α) : DelabM α := do
-  if (← getExpr).isMData then withMDataOptions (withMDatasOptions x) else x
-
 def isRegularApp : DelabM Bool := do
   let e ← getExpr
   if not (unfoldMDatas e.getAppFn).isConst then return false
@@ -191,8 +200,9 @@ def isRegularApp : DelabM Bool := do
 def unexpandRegularApp (stx : Syntax) : Delab := do
   let Expr.const c .. ← pure (unfoldMDatas (← getExpr).getAppFn) | unreachable!
   let fs ← appUnexpanderAttribute.getValues (← getEnv) c
+  let ref ← getRef
   fs.firstM fun f =>
-    match f stx |>.run () with
+    match f stx |>.run ref |>.run () with
     | EStateM.Result.ok stx _ => pure stx
     | _ => failure
 
@@ -242,11 +252,16 @@ def delabAppImplicit : Delab := do
   if ← getPPOption getPPExplicit then
     if paramKinds.any (fun param => !param.isRegularExplicit) then failure
 
+  -- If the application has an implicit function type, fall back to delabAppExplicit.
+  -- This is e.g. necessary for `@Eq`.
+  let isImplicitApp ← try
+      let ty ← whnf (← inferType (← getExpr))
+      ty.isForall && (ty.binderInfo == BinderInfo.implicit || ty.binderInfo == BinderInfo.instImplicit)
+    catch _ => false
+  if isImplicitApp then failure
+
   let (fnStx, _, argStxs) ← withAppFnArgs
-    (do
-      let fn ← getExpr
-      let stx ← if fn.isConst then delabConst else delab
-      pure (stx, paramKinds.toList, #[]))
+    (return (← delabAppFn, paramKinds.toList, #[]))
     (fun (fnStx, paramKinds, argStxs) => do
       let arg ← getExpr
       let opts ← getOptions
@@ -516,8 +531,8 @@ def delabLam : Delab :=
     if !blockImplicitLambda then
       pure stxBody
     else
-      let group ← match e.binderInfo, ppTypes with
-        | BinderInfo.default,     true   =>
+      let defaultCase (_ : Unit) : Delab := do
+        if ppTypes then
           -- "default" binder group is the only one that expects binder names
           -- as a term, i.e. a single `Syntax.ident` or an application thereof
           let stxCurNames ←
@@ -526,7 +541,11 @@ def delabLam : Delab :=
             else
               pure $ curNames.get! 0;
           `(funBinder| ($stxCurNames : $stxT))
-        | BinderInfo.default,        false  => pure curNames.back  -- here `curNames.size == 1`
+        else
+          pure curNames.back  -- here `curNames.size == 1`
+      let group ← match e.binderInfo, ppTypes with
+        | BinderInfo.default,        _      => defaultCase ()
+        | BinderInfo.auxDecl,        _      => defaultCase ()
         | BinderInfo.implicit,       true   => `(funBinder| {$curNames* : $stxT})
         | BinderInfo.implicit,       false  => `(funBinder| {$curNames*})
         | BinderInfo.strictImplicit, true   => `(funBinder| ⦃$curNames* : $stxT⦄)
@@ -534,7 +553,6 @@ def delabLam : Delab :=
         | BinderInfo.instImplicit,   _     =>
           if usedDownstream then `(funBinder| [$curNames.back : $stxT])  -- here `curNames.size == 1`
           else  `(funBinder| [$stxT])
-        | _                      , _     => unreachable!;
       match stxBody with
       | `(fun $binderGroups* => $stxBody) => `(fun $group $binderGroups* => $stxBody)
       | _                                 => `(fun $group => $stxBody)
@@ -667,8 +685,8 @@ where
       | none   => withBindingBodyUnusedName fun h => do
         return (← delab, h.getId)
 
-@[builtinDelab app.namedPattern]
-def delabNamedPattern : Delab := do
+@[builtinDelab app.namedPatternOld]
+def delabNamedPatternOld : Delab := do
   -- Note: we keep this as a delaborator because it accesses the DelabM context
   guard (← read).inPattern
   guard $ (← getExpr).getAppNumArgs == 3
@@ -676,6 +694,18 @@ def delabNamedPattern : Delab := do
   let p ← withAppArg delab
   guard x.isIdent
   `($x:ident@$p:term)
+
+@[builtinDelab app.namedPattern]
+def delabNamedPattern : Delab := do
+  -- Note: we keep this as a delaborator because it accesses the DelabM context
+  guard (← read).inPattern
+  guard $ (← getExpr).getAppNumArgs == 4
+  let x ← withAppFn $ withAppFn $ withAppArg delab
+  let p ← withAppFn $ withAppArg delab
+  -- TODO: we should hide `h` if it has an inaccessible name and is not used in the rhs
+  let h ← withAppArg delab
+  guard x.isIdent
+  `($x:ident@$h:ident:$p:term)
 
 -- Sigma and PSigma delaborators
 def delabSigmaCore (sigma : Bool) : Delab := whenPPOption getPPNotation do

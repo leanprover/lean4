@@ -36,8 +36,10 @@ echo -n " -DLEAN_STANDALONE=ON"
 echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang.exe -DCMAKE_CXX_COMPILER=$PWD/llvm/bin/clang++.exe -DLEAN_CXX_STDLIB='-lc++ -lc++abi'"
 echo -n " -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_CXX_COMPILER=clang++"
 # allow C++ code to include /usr since it needs quite a few more headers
+# allow C++ code to include /usr since it needs quite a few more headers
+# set sysroot for both C++ and C to make sure we have all necessary runtime files, but don't embed in `leanc` so users can still link to system libs
 echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -I/clang64/include/ -I/clang64/x86_64-w64-mingw32/include/'"
-echo -n " -DLEANC_INTERNAL_FLAGS='--sysroot ROOT -I ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang.exe"
+echo -n " -DLEANC_INTERNAL_FLAGS='-I ROOT/include/clang' -DLEANC_OPTS='--sysroot $PWD/stage1' -DLEANC_CC=ROOT/bin/clang.exe"
 echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -static-libgcc -Wl,-Bstatic -lgmp -lunwind -Wl,-Bdynamic -lucrtbase -fuse-ld=lld'"
 # do not set `LEAN_CC` for tests
 echo -n " -DAUTO_THREAD_FINALIZATION=OFF -DSTAGE0_AUTO_THREAD_FINALIZATION=OFF"

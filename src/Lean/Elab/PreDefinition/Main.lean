@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural
 import Lean.Elab.PreDefinition.WF
+import Lean.Elab.PreDefinition.MkInhabitant
 namespace Lean.Elab
 open Meta
 open Term
@@ -19,11 +20,11 @@ private def addAndCompilePartial (preDefs : Array PreDefinition) : TermElabM Uni
   for preDef in preDefs do
     trace[Elab.definition] "processing {preDef.declName}"
     forallTelescope preDef.type fun xs type => do
-      let inh ← liftM $ mkInhabitantFor preDef.declName xs type
+      let val ← liftM $ mkInhabitantFor preDef.declName xs type
       trace[Elab.definition] "inhabitant for {preDef.declName}"
       addNonRec { preDef with
-        kind  := DefKind.«opaque»,
-        value := inh
+        kind  := DefKind.«opaque»
+        value := val
       }
   addAndCompilePartialRec preDefs
 
@@ -67,8 +68,8 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
     trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
   let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
   let cliques ← partitionPreDefs preDefs
-  let mut terminationBy ← liftMacroM <| WF.expandTerminationHint hints.terminationBy? (cliques.map fun ds => ds.map (·.declName))
-  let mut decreasingBy ← liftMacroM <| WF.expandTerminationHint hints.decreasingBy? (cliques.map fun ds => ds.map (·.declName))
+  let mut terminationBy ← liftMacroM <| WF.expandTerminationBy hints.terminationBy? (cliques.map fun ds => ds.map (·.declName))
+  let mut decreasingBy  ← liftMacroM <| WF.expandTerminationHint hints.decreasingBy? (cliques.map fun ds => ds.map (·.declName))
   for preDefs in cliques do
     trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
     if preDefs.size == 1 && isNonRecursive preDefs[0] then
@@ -85,16 +86,16 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
           withRef preDef.ref <| throwError "invalid use of 'partial', '{preDef.declName}' is not a function{indentExpr preDef.type}"
       addAndCompilePartial preDefs
     else
-      let mut wfStx? := none
+      let mut wf? := none
       let mut decrTactic? := none
-      if let some { value := wfStx, .. } := terminationBy.find? (preDefs.map (·.declName)) then
-        wfStx? := some wfStx
-        terminationBy := terminationBy.erase (preDefs.map (·.declName))
+      if let some wf := terminationBy.find? (preDefs.map (·.declName)) then
+        wf? := some wf
+        terminationBy := terminationBy.markAsUsed (preDefs.map (·.declName))
       if let some { ref, value := decrTactic } := decreasingBy.find? (preDefs.map (·.declName)) then
         decrTactic? := some (← withRef ref `(by $decrTactic))
-        decreasingBy := decreasingBy.erase (preDefs.map (·.declName))
-      if wfStx?.isSome || decrTactic?.isSome then
-        wfRecursion preDefs wfStx? decrTactic?
+        decreasingBy := decreasingBy.markAsUsed (preDefs.map (·.declName))
+      if wf?.isSome || decrTactic?.isSome then
+        wfRecursion preDefs wf? decrTactic?
       else
         withRef (preDefs[0].ref) <| mapError
           (orelseMergeErrors
@@ -103,8 +104,8 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
           (fun msg =>
             let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
             m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
-  liftMacroM <| terminationBy.ensureIsEmpty
-  liftMacroM <| decreasingBy.ensureIsEmpty
+  liftMacroM <| terminationBy.ensureAllUsed
+  liftMacroM <| decreasingBy.ensureAllUsed
 
 builtin_initialize
   registerTraceClass `Elab.definition.body

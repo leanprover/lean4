@@ -2,7 +2,7 @@ def diag : Bool → Bool → Bool → Nat
 | b,  true, false => 1
 | false, b,  true => 2
 | true, false, b  => 3
-| b1, b2, b3 => arbitrary
+| b1, b2, b3 => default
 
 theorem diag1 (a : Bool) : diag a true false = 1 :=
 match a with
@@ -15,16 +15,16 @@ by cases a; exact rfl; exact rfl
 theorem diag3 (a : Bool) : diag true false a = 3 :=
 by cases a; exact rfl; exact rfl
 
-theorem diag4_1 : diag false false false = arbitrary :=
+theorem diag4_1 : diag false false false = default :=
 rfl
 
-theorem diag4_2 : diag true true true = arbitrary :=
+theorem diag4_2 : diag true true true = default :=
 rfl
 
 def f : Nat → Nat → Nat
 | n, 0 => 0
 | 0, n => 1
-| n, m => arbitrary
+| n, m => default
 
 theorem f_zero_right : (a : Nat) → f a 0 = 0
 | 0   => rfl
@@ -33,7 +33,7 @@ theorem f_zero_right : (a : Nat) → f a 0 = 0
 theorem f_zero_succ (a : Nat) : f 0 (a+1) = 1 :=
 rfl
 
-theorem f_succ_succ (a b : Nat) : f (a+1) (b+1) = arbitrary :=
+theorem f_succ_succ (a b : Nat) : f (a+1) (b+1) = default :=
 rfl
 
 def app {α} : List α → List α → List α

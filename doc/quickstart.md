@@ -45,4 +45,5 @@ Saved changes are visible in other files after running "Lean 4: Refresh File Dep
 
 **The InfoView says "Waiting for Lean server to start..." forever.**
 
-Try running the command "Developer: Reload Window".
+Check that the VS Code Terminal is not prompting you with `Press ENTER key to start Lean:`.  If so click in the terminal window and pressthe  ENTER key.
+If that doesn't work try also running the VS Code command `Developer: Reload Window`.

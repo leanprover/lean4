@@ -64,7 +64,7 @@ private def tryLemmaCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo)
         -- We do not report unification failures when `lhs` is a metavariable
         -- Example: `x = ()`
         -- TODO: reconsider if we want lemmas such as `(x : Unit) → x = ()`
-        trace[Meta.Tactic.simp.unify] "{lemma}, failed to unify {lhs} with {e}"
+        trace[Meta.Tactic.simp.unify] "{lemma}, failed to unify{indentExpr lhs}\nwith{indentExpr e}"
       return none
   /- Check whether we need something more sophisticated here.
      This simple approach was good enough for Mathlib 3 -/

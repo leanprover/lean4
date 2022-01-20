@@ -236,11 +236,6 @@ set_option pp.analyze.typeAscriptions false in
   expecting (fun (x : Unit) => id read) ()
 
 instance : CoeFun Bool (fun b => Bool → Bool) := { coe := fun b x => b && x }
-set_option pp.analyze.trustCoe false in
-#testDelab coeFun true false expecting coeFun (γ := fun b => Bool → Bool) true false
-
-set_option pp.analyze.trustCoe true in
-#testDelab coeFun true false expecting true false
 
 #testDelab fun (xs : List Nat) => xs ≠ xs
   expecting fun xs => xs ≠ xs

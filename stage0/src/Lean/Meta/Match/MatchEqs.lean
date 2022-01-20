@@ -71,14 +71,56 @@ private def registerMatchEqns (matchDeclName : Name) (matchEqns : MatchEqns) : C
 private def mkBaseNameFor (env : Environment) (matchDeclName : Name) : Name :=
   Lean.mkBaseNameFor env matchDeclName `splitter `_matchEqns
 
+def unfoldNamedPattern (e : Expr) : MetaM Expr := do
+  let visit (e : Expr) : MetaM TransformStep := do
+    if e.isAppOfArity ``namedPattern 4 then
+      if let some eNew ← unfoldDefinition? e then
+        return TransformStep.visit eNew
+    return TransformStep.visit e
+  Meta.transform e (pre := visit)
+
 /--
-  Helper method. Recall that alternatives that do not have variables have a `Unit` parameter to ensure
-  they are not eagerly evaluated. -/
-private def toFVarsRHSArgs (ys : Array Expr) (resultType : Expr) : MetaM (Array Expr × Array Expr) := do
-  if ys.size == 1 then
-    if (← inferType ys[0]).isConstOf ``Unit && !(← dependsOn resultType ys[0].fvarId!) then
-      return (#[], #[mkConst ``Unit.unit])
-  return (ys, ys)
+  Similar to `forallTelescopeReducing`, but eliminates arguments for named parameters and the associated
+  equation proofs. The continuation `k` takes four arguments `ys args mask type`.
+  - `ys` are variables for the hypotheses that have not been eliminated.
+  - `args` are the arguments for the alternative `alt` that has type `altType`. `ys.size <= args.size`
+  - `mask[i]` is true if the hypotheses has not been eliminated. `mask.size == args.size`.
+  - `type` is the resulting type for `altType`.
+
+  We use the `mask` to build the splitter proof. See `mkSplitterProof`.
+-/
+partial def forallAltTelescope (altType : Expr) (k : Array Expr → Array Expr → Array Bool → Expr → MetaM α) : MetaM α := do
+  go #[] #[] #[] altType
+where
+  go (ys : Array Expr) (args : Array Expr) (mask : Array Bool) (type : Expr) : MetaM α := do
+    let type ← whnfForall type
+    match type with
+    | Expr.forallE n d b .. =>
+      let d ← unfoldNamedPattern d
+      withLocalDeclD n d fun y => do
+        let typeNew := b.instantiate1 y
+        if let some (_, lhs, rhs) ← matchEq? d then
+          if lhs.isFVar && ys.contains lhs && args.contains lhs && isNamedPatternProof typeNew y then
+             let some i  ← ys.getIdx? lhs | unreachable!
+             let ys      := ys.eraseIdx i
+             let mask    := mask.set! i false
+             let args    := args.map fun arg => if arg == lhs then rhs else arg
+             let args    := args.push (← mkEqRefl rhs)
+             let typeNew := typeNew.replaceFVar lhs rhs
+             return (← go ys args (mask.push false) typeNew)
+        go (ys.push y) (args.push y) (mask.push true) typeNew
+    | _ =>
+      let type ← unfoldNamedPattern type
+      /- Recall that alternatives that do not have variables have a `Unit` parameter to ensure
+         they are not eagerly evaluated. -/
+      if ys.size == 1 then
+        if (← inferType ys[0]).isConstOf ``Unit && !(← dependsOn type ys[0].fvarId!) then
+          return (← k #[] #[mkConst ``Unit.unit] #[false] type)
+      k ys args mask type
+
+  isNamedPatternProof (type : Expr) (h : Expr) : Bool :=
+    Option.isSome <| type.find? fun e =>
+      e.isAppOfArity ``namedPattern 4 && e.appArg! == h
 
 /--
   Simplify/filter hypotheses that ensure that a match alternative does not match the previous ones.
@@ -126,6 +168,16 @@ where
       | some (_, lhs, rhs) => simpEq lhs rhs
       | _ => throwError "failed to generate equality theorems for 'match', equality expected{indentExpr eq}"
 
+private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := withMVarContext mvarId do
+  for localDecl in (← getLCtx) do
+    if let some (_, lhs, rhs) ← matchEq? localDecl.type then
+      if lhs.isFVar then
+        if !(← dependsOn rhs lhs.fvarId!) then
+          match (← subst? mvarId lhs.fvarId!) with
+          | some mvarId => return #[mvarId]
+          | none => pure ()
+  throwError "substSomeVar failed"
+
 /--
   Helper method for proving a conditional equational theorem associated with an alternative of
   the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem. -/
@@ -135,7 +187,7 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr) : MetaM Expr := 
     let mvar0  ← mkFreshExprSyntheticOpaqueMVar target
     let mvarId ← deltaTarget mvar0.mvarId! (. == matchDeclName)
     trace[Meta.Match.matchEqs] "{MessageData.ofGoal mvarId}"
-    go mvarId 0
+    withDefault <| go mvarId 0
     mkLambdaFVars ys (← instantiateMVars mvar0)
 where
   go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do
@@ -158,7 +210,9 @@ where
           else
             throwError "spliIf failed")
       <|>
-      (throwError "failed to generate equality theorems for `match` expression, support for array literals has not been implemented yet\n{MessageData.ofGoal mvarId}")
+      (substSomeVar mvarId)
+      <|>
+      (throwError "failed to generate equality theorems for `match` expression\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go . (depth+1))
 
 
@@ -200,7 +254,8 @@ private def injenctionAny (mvarId : MVarId) : MetaM InjectionAnyResult :=
   - `alts` are free variables corresponding to alternatives of the `match` auxiliary declaration being processed.
   - `altNews` are the new free variables which contains aditional hypotheses that ensure they are only used
      when the previous overlapping alternatives are not applicable. -/
-private partial def mkSplitterProof (matchDeclName : Name) (template : Expr) (alts altsNew : Array Expr) : MetaM Expr := do
+private partial def mkSplitterProof (matchDeclName : Name) (template : Expr) (alts altsNew : Array Expr)
+    (altArgMasks : Array (Array Bool)) : MetaM Expr := do
   trace[Meta.Match.matchEqs] "proof template: {template}"
   let map := mkMap
   let (proof, mvarIds) ← convertTemplate map |>.run #[]
@@ -209,43 +264,30 @@ private partial def mkSplitterProof (matchDeclName : Name) (template : Expr) (al
     proveSubgoal mvarId
   instantiateMVars proof
 where
-  mkMap : FVarIdMap Expr := Id.run <| do
+  mkMap : FVarIdMap (Expr × Array Bool) := Id.run <| do
     let mut m := {}
-    for alt in alts, altNew in altsNew do
-      m := m.insert alt.fvarId! altNew
+    for alt in alts, altNew in altsNew, argMask in altArgMasks do
+      m := m.insert alt.fvarId! (altNew, argMask)
     return m
 
-  convertTemplate (m : FVarIdMap Expr) : StateRefT (Array MVarId) MetaM Expr :=
+  convertTemplate (m : FVarIdMap (Expr × Array Bool)) : StateRefT (Array MVarId) MetaM Expr :=
     transform template fun e => do
       match e.getAppFn with
       | Expr.fvar fvarId .. =>
         match m.find? fvarId with
-        | some altNew =>
+        | some (altNew, argMask) =>
           trace[Meta.Match.matchEqs] ">> {e}, {altNew}"
-          let eNew ←
-            if (← shouldCopyArgs e) then
-              addExtraParams (mkAppN altNew e.getAppArgs)
-            else
-              addExtraParams altNew
+          let mut newArgs := #[]
+          for arg in e.getAppArgs, includeArg in argMask do
+            if includeArg then
+              newArgs := newArgs.push arg
+          let eNew := mkAppN altNew newArgs
+          let (mvars, _, _) ← forallMetaTelescopeReducing (← inferType eNew) (kind := MetavarKind.syntheticOpaque)
+          modify fun s => s ++ (mvars.map (·.mvarId!))
+          let eNew := mkAppN eNew mvars
           return TransformStep.done eNew
         | none => return TransformStep.visit e
       | _ => return TransformStep.visit e
-
-  shouldCopyArgs (e : Expr) : MetaM Bool := do
-    if e.getAppNumArgs == 1 then
-      match (← whnfD (← inferType e.appFn!)) with
-      | Expr.forallE _ d b _ =>
-        /- If result type does not depend on the argument, then
-           argument is an auxiliary unit used because Lean is an eager language, we should not copy it. -/
-        return b.hasLooseBVar 0
-      | _ => unreachable!
-    return true
-
-  addExtraParams (e : Expr) : StateRefT (Array MVarId) MetaM Expr := do
-    trace[Meta.Match.matchEqs] "addExtraParams {e}"
-    let (mvars, _, _) ← forallMetaTelescopeReducing (← inferType e) (kind := MetavarKind.syntheticOpaque)
-    modify fun s => s ++ (mvars.map (·.mvarId!))
-    return mkAppN e mvars
 
   proveSubgoalLoop (mvarId : MVarId) : MetaM Unit := do
     if (← contradictionCore mvarId {}) then
@@ -280,12 +322,11 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns :=
     let mut idx := 1
     let mut splitterAltTypes := #[]
     let mut splitterAltNumParams := #[]
+    let mut altArgMasks := #[] -- masks produced by `forallAltTelescope`
     for alt in alts do
       let thmName := baseName ++ ((`eq).appendIndexAfter idx)
       eqnNames := eqnNames.push thmName
-      let altType ← inferType alt
-      let (notAlt, splitterAltType, splitterAltNumParam) ← forallTelescopeReducing altType fun ys altResultType => do
-        let (ys, rhsArgs) ← toFVarsRHSArgs ys altResultType
+      let (notAlt, splitterAltType, splitterAltNumParam, argMask) ← forallAltTelescope (← inferType alt) fun ys rhsArgs argMask altResultType => do
         let patterns := altResultType.getAppArgs
         let mut hs := #[]
         for notAlt in notAlts do
@@ -304,6 +345,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns :=
         let thmType ← mkEq lhs rhs
         let thmType ← hs.foldrM (init := thmType) mkArrow
         let thmType ← mkForallFVars (params ++ #[motive] ++ alts ++ ys) thmType
+        let thmType ← unfoldNamedPattern thmType
         let thmVal ← proveCondEqThm matchDeclName thmType
         addDecl <| Declaration.thmDecl {
           name        := thmName
@@ -311,10 +353,11 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns :=
           type        := thmType
           value       := thmVal
         }
-        return (notAlt, splitterAltType, splitterAltNumParam)
+        return (notAlt, splitterAltType, splitterAltNumParam, argMask)
       notAlts := notAlts.push notAlt
       splitterAltTypes := splitterAltTypes.push splitterAltType
       splitterAltNumParams := splitterAltNumParams.push splitterAltNumParam
+      altArgMasks := altArgMasks.push argMask
       trace[Meta.Match.matchEqs] "splitterAltType: {splitterAltType}"
       idx := idx + 1
     -- Define splitter with conditional/refined alternatives
@@ -324,7 +367,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns :=
       trace[Meta.Match.matchEqs] "splitterType: {splitterType}"
       let template ← mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
       let template ← deltaExpand template (. == constInfo.name)
-      let splitterVal ← mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew)
+      let splitterVal ← mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew altArgMasks)
       let splitterName := baseName ++ `splitter
       addDecl <| Declaration.thmDecl {
         name        := splitterName

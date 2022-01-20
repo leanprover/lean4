@@ -112,6 +112,7 @@ LEAN_EXPORT uint8_t l___private_Lean_Data_Json_Basic_0__Lean_decEqJsonNumber____
 static lean_object* l_Lean_JsonNumber_instReprJsonNumber___closed__5;
 lean_object* lean_int_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_instCoeNatJson(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Json_instOfNatJson(lean_object*);
 extern lean_object* l_Nat_instModNat;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Json_Basic_0__Lean_Json_beq_x27___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Json_getBool_x3f___closed__2;
@@ -129,6 +130,7 @@ LEAN_EXPORT lean_object* l_Std_RBNode_fold___at___private_Lean_Data_Json_Basic_0
 extern lean_object* l_Id_instMonadId;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t l_Std_RBNode_isRed___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_JsonNumber_instOfNatJsonNumber(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonNumber_normalize___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at___private_Lean_Data_Json_Basic_0__Lean_Json_beq_x27___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_JsonNumber_instReprJsonNumber___closed__1;
@@ -292,6 +294,14 @@ _start:
 lean_object* x_1; 
 x_1 = l_Lean_JsonNumber_instCoeIntJsonNumber___closed__1;
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_JsonNumber_instOfNatJsonNumber(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_JsonNumber_fromNat(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Data_Json_Basic_0__Lean_JsonNumber_countDigits_loop(lean_object* x_1, lean_object* x_2) {
@@ -6127,6 +6137,16 @@ x_3 = l_Lean_Json_instCoeBoolJson(x_2);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Json_instOfNatJson(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_JsonNumber_fromNat(x_1);
+x_3 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+return x_3;
+}
+}
 LEAN_EXPORT uint8_t l_Lean_Json_isNull(lean_object* x_1) {
 _start:
 {
@@ -6710,7 +6730,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Json_setObjVal_x21___closed__1;
 x_2 = l_Lean_Json_setObjVal_x21___closed__2;
-x_3 = lean_unsigned_to_nat(230u);
+x_3 = lean_unsigned_to_nat(232u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Json_setObjVal_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

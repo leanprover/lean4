@@ -14,8 +14,7 @@ namespace Lean.Meta
 -/
 def isCoeDecl (declName : Name) : Bool :=
   declName == ``coe  ||
-  declName == ``coeB ||  declName == ``coeHead || declName == ``coeTail || declName == ``coeD ||
-  declName == ``coeTC || declName == ``coeFun || declName == ``coeSort ||
+  declName == ``coeFun || declName == ``coeSort ||
   declName == ``Coe.coe || declName == ``CoeTC.coe || declName == ``CoeHead.coe ||
   declName == ``CoeTail.coe || declName == ``CoeHTCT.coe || declName == ``CoeDep.coe ||
   declName == ``CoeT.coe || declName == ``CoeFun.coe || declName == ``CoeSort.coe ||

@@ -265,11 +265,11 @@ end Unify
 private def unify? (altFVarDecls : List LocalDecl) (a b : Expr) : MetaM (Option FVarSubst) := do
   let a ← instantiateMVars a
     let b ← instantiateMVars b
-    let (b, s) ← Unify.unify a b { altFVarDecls := altFVarDecls} |>.run {}
-    if b then
+    let (r, s) ← Unify.unify a b { altFVarDecls := altFVarDecls} |>.run {}
+    if r then
       pure s.fvarSubst
     else
-      trace[Meta.Match.unify] "failed to unify {a} =?= {b}"
+      trace[Meta.Match.unify] "failed to unify{indentExpr a}\nwith{indentExpr b}"
       pure none
 
 private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) : MetaM (Option Alt) :=

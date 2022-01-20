@@ -22,6 +22,9 @@ attribute [extern "lean_int_neg_succ_of_nat"] Int.negSucc
 
 instance : Coe Nat Int := ⟨Int.ofNat⟩
 
+instance : OfNat Int n where
+  ofNat := Int.ofNat n
+
 namespace Int
 instance : Inhabited Int := ⟨ofNat 0⟩
 

@@ -21,6 +21,13 @@ private def isIOUnit (type : Expr) : Bool :=
   | some type => isUnitType type
   | _ => false
 
+/--
+  Run the initializer of the given module (without `builtin_initialize` commands).
+  Return `false` if the initializer is not available as native code.
+  Initializers do not have corresponding Lean definitions, so they cannot be interpreted in this case. -/
+@[extern "lean_run_mod_init"]
+unsafe constant runModInit (mod : Name) : IO Bool
+
 /-- Run the initializer for `decl` and store its value for global access. Should only be used while importing. -/
 @[extern "lean_run_init"]
 unsafe constant runInit (env : @& Environment) (opts : @& Options) (decl initDecl : @& Name) : IO Unit
@@ -46,13 +53,20 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) : IO
     afterImport := fun entries => do
       let ctx ← read
       if runAfterImport && (← isInitializerExecutionEnabled) then
-        for modEntries in entries do
-          for (decl, initDecl) in modEntries do
-            if initDecl.isAnonymous then
-              let initFn ← IO.ofExcept <| ctx.env.evalConst (IO Unit) ctx.opts decl
-              initFn
-            else
-              runInit ctx.env ctx.opts decl initDecl
+        for mod in ctx.env.header.moduleNames,
+            modEntries in entries do
+          -- any native Lean code reachable by the interpreter (i.e. from shared
+          -- libraries with their corresponding module in the Environment) must
+          -- first be initialized
+          if !(← runModInit mod) then
+            -- If no native code for the module is available, run `[init]` decls manually.
+            -- All other constants (nullary functions) are lazily initialized by the interpreter.
+            for (decl, initDecl) in modEntries do
+              if initDecl.isAnonymous then
+                let initFn ← IO.ofExcept <| ctx.env.evalConst (IO Unit) ctx.opts decl
+                initFn
+              else
+                runInit ctx.env ctx.opts decl initDecl
   }
 
 @[implementedBy registerInitAttrUnsafe]

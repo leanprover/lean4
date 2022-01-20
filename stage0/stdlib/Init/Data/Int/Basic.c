@@ -61,6 +61,7 @@ uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Int_instInhabitedInt___closed__1;
 lean_object* lean_nat_abs(lean_object*);
 lean_object* lean_int_div(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instOfNatInt(lean_object*);
 LEAN_EXPORT lean_object* l_Int_ofNat___boxed(lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
@@ -91,6 +92,14 @@ return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_instCoeNatInt(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_instOfNatInt(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

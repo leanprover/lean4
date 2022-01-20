@@ -97,6 +97,10 @@ structure ReferenceParams extends TextDocumentPositionParams where
   context : ReferenceContext
   deriving FromJson, ToJson
 
+structure WorkspaceSymbolParams where
+  query : String
+  deriving FromJson, ToJson
+
 structure DocumentHighlightParams extends TextDocumentPositionParams
   deriving FromJson, ToJson
 
@@ -205,6 +209,21 @@ structure DocumentSymbolResult where
 
 instance : ToJson DocumentSymbolResult where
   toJson dsr := toJson dsr.syms
+
+inductive SymbolTag where
+  | deprecated
+
+instance : ToJson SymbolTag where
+ toJson
+   | SymbolTag.deprecated => 1
+
+structure SymbolInformation where
+  name : String
+  kind : SymbolKind
+  tags : Array SymbolTag := #[]
+  location : Location
+  containerName? : Option String := none
+  deriving ToJson
 
 inductive SemanticTokenType where
   | keyword

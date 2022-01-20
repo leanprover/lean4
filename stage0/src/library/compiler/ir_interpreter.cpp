@@ -1065,6 +1065,26 @@ extern "C" LEAN_EXPORT object * lean_eval_const(object * env, object * opts, obj
     }
 }
 
+/* mkModuleInitializationFunctionName (moduleName : Name) : String */
+extern "C" obj_res lean_mk_module_initialization_function_name(obj_arg);
+
+extern "C" LEAN_EXPORT object * lean_run_mod_init(object * mod, object *) {
+    string_ref mangled = string_ref(lean_mk_module_initialization_function_name(mod));
+    if (void * init = lookup_symbol_in_cur_exe(mangled.data())) {
+        auto init_fn = reinterpret_cast<object *(*)(uint8_t, object *)>(init);
+        uint8_t builtin = 0;
+        object * r = init_fn(builtin, io_mk_world());
+        if (io_result_is_ok(r)) {
+            dec_ref(r);
+            return lean_io_result_mk_ok(box(true));
+        } else {
+            return r;
+        }
+    } else {
+        return lean_io_result_mk_ok(box(false));
+    }
+}
+
 extern "C" LEAN_EXPORT object * lean_run_init(object * env, object * opts, object * decl, object * init_decl, object *) {
     return interpreter::with_interpreter<object *>(TO_REF(environment, env), TO_REF(options, opts), TO_REF(name, decl), [&](interpreter & interp) {
         return interp.run_init(TO_REF(name, decl), TO_REF(name, init_decl));

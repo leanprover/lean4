@@ -70,6 +70,34 @@ private def keepGoing (mvarId : MVarId) : ReaderT Context (StateRefT (Array Expr
   let ctx ← read
   return Option.isSome <| rhs.find? fun e => ctx.declNames.any e.isAppOf && e.hasLooseBVars
 
+def simpEqnType (eqnType : Expr) : MetaM Expr := do
+  forallTelescopeReducing (← instantiateMVars eqnType) fun ys type => do
+    let proofVars := collect type
+    trace[Meta.debug] "proofVars: {proofVars.toList.map mkFVar}"
+    let mut type ← Match.unfoldNamedPattern type
+    let mut eliminated : FVarIdSet := {}
+    for y in ys.reverse do
+      if proofVars.contains y.fvarId! then
+        let some (_, Expr.fvar fvarId _, rhs) ← matchEq? (← inferType y) | throwError "unexpected hypothesis in altenative{indentExpr eqnType}"
+        eliminated := eliminated.insert fvarId
+        type := type.replaceFVarId fvarId rhs
+      else if eliminated.contains y.fvarId! then
+        if (← dependsOn type y.fvarId!) then
+          type ← mkForallFVars #[y] type
+      else
+        type ← mkForallFVars #[y] type
+    return type
+where
+  -- Collect eq proof vars used in `namedPatterns`
+  collect (e : Expr) : FVarIdSet :=
+    let go (e : Expr) (ω) : ST ω FVarIdSet := do
+      let ref ← ST.mkRef {}
+      e.forEach fun e => do
+        if e.isAppOfArity ``namedPattern 4 && e.appArg!.isFVar then
+          ST.Prim.Ref.modify ref (·.insert e.appArg!.fvarId!)
+      ST.Prim.Ref.get ref
+    runST (go e)
+
 private def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := withMVarContext mvarId do
   let target ← getMVarType' mvarId
   let fvarState := collectFVars {} target
@@ -88,6 +116,7 @@ private def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := wit
         if missing?.isNone then
           fvarIds := fvarIds.push decl.fvarId
   let type ← mkForallFVars (fvarIds.map mkFVar) target
+  let type ← simpEqnType type
   modify (·.push type)
 
 partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do

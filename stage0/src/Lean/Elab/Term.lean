@@ -693,7 +693,7 @@ def mkCoe (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr := n
   let v ← getLevel expectedType
   let coeTInstType := mkAppN (mkConst ``CoeT [u, v]) #[eType, e, expectedType]
   let mvar ← mkFreshExprMVar coeTInstType MetavarKind.synthetic
-  let eNew := mkAppN (mkConst ``coe [u, v]) #[eType, expectedType, e, mvar]
+  let eNew := mkAppN (mkConst ``CoeT.coe [u, v]) #[eType, e, expectedType, mvar]
   let mvarId := mvar.mvarId!
   try
     withoutMacroStackAtErr do
@@ -1308,7 +1308,6 @@ def mkInstMVar (type : Expr) : TermElabM Expr := do
   Relevant definitions:
   ```
   class CoeSort (α : Sort u) (β : outParam (Sort v))
-  abbrev coeSort {α : Sort u} {β : Sort v} (a : α) [CoeSort α β] : β
   ```
   -/
 private def tryCoeSort (α : Expr) (a : Expr) : TermElabM Expr := do
@@ -1321,9 +1320,9 @@ private def tryCoeSort (α : Expr) (a : Expr) : TermElabM Expr := do
   try
     withoutMacroStackAtErr do
       if (← synthesizeCoeInstMVarCore mvarId) then
-        let result ← expandCoe <| mkAppN (Lean.mkConst ``coeSort [u, v]) #[α, β, a, mvar]
+        let result ← expandCoe <| mkAppN (Lean.mkConst ``CoeSort.coe [u, v]) #[α, β, mvar, a]
         unless (← isType result) do
-          throwError "failed to coerse{indentExpr a}\nto a type, after applying `coeSort`, result is still not a type{indentExpr result}\nthis is often due to incorrect `CoeSort` instances, the synthesized value for{indentExpr coeSortInstType}\nwas{indentExpr mvar}"
+          throwError "failed to coerse{indentExpr a}\nto a type, after applying `CoeSort.coe`, result is still not a type{indentExpr result}\nthis is often due to incorrect `CoeSort` instances, the synthesized value for{indentExpr coeSortInstType}\nwas{indentExpr mvar}"
         return result
       else
         throwError "type expected"

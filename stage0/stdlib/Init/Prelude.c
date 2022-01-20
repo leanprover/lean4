@@ -285,13 +285,11 @@ LEAN_EXPORT lean_object* l_ReaderT_read___at_Lean_PrettyPrinter_instMonadQuotati
 LEAN_EXPORT lean_object* l_withTheReader___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt16_val___boxed(lean_object*);
 static lean_object* l_Lean_Macro_instInhabitedMethods___closed__2;
-LEAN_EXPORT lean_object* l_namedPatternOld___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_strLitKind;
 static uint32_t l_Char_utf8Size___closed__5;
 LEAN_EXPORT lean_object* l_EStateM_modifyGet___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_mixHash___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableEqList___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_namedPatternOld___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_map(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getId___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instMonadWithReaderOfReaderT___rarg(lean_object*, lean_object*, lean_object*);
@@ -386,7 +384,6 @@ LEAN_EXPORT lean_object* l_Lean_Macro_throwErrorAt___rarg(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_False_elim___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedList(lean_object*);
 LEAN_EXPORT lean_object* l_instMonadWithReaderOf(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_namedPatternOld___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_getOp(lean_object*);
 static lean_object* l_Lean_numLitKind___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Syntax_isMissing___boxed(lean_object*);
@@ -448,7 +445,6 @@ LEAN_EXPORT lean_object* l_List_length(lean_object*);
 static uint32_t l_instInhabitedUInt32___closed__1;
 LEAN_EXPORT lean_object* l_ReaderT_instMonadLiftReaderT___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadFunctorT___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_namedPatternOld(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ite___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_namedPattern___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_or(uint8_t, uint8_t);
@@ -1057,39 +1053,6 @@ lean_object* x_2;
 x_2 = l_typedExpr___rarg(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_namedPatternOld___rarg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_namedPatternOld(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_namedPatternOld___rarg___boxed), 1, 0);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_namedPatternOld___rarg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_namedPatternOld___rarg(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_namedPatternOld___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_namedPatternOld(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_namedPattern___rarg(lean_object* x_1, lean_object* x_2) {

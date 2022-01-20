@@ -161,9 +161,10 @@ def isIdLike (arg : Expr) : Bool :=
 
 def isCoe (e : Expr) : Bool :=
   -- TODO: `coeSort? Builtins doesn't seem to render them anyway
-  e.isAppOfArity `coe 4
-  || (e.isAppOf `coeFun && e.getAppNumArgs >= 4)
-  || e.isAppOfArity `coeSort 4
+  -- TODO: should we delete this function, we want to eagerly expand all coercions
+  e.isAppOfArity ``CoeT.coe 4
+  || (e.isAppOf ``CoeFun.coe && e.getAppNumArgs >= 4)
+  || e.isAppOfArity ``CoeSort.coe 4
 
 def isStructureInstance (e : Expr) : MetaM Bool := do
   match e.isConstructorApp? (← getEnv) with

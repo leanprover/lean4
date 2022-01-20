@@ -23,6 +23,8 @@ inductive RequestID where
   | null
   deriving Inhabited, BEq, Ord
 
+instance : OfNat RequestID n := ⟨RequestID.num n⟩
+
 instance : ToString RequestID where
   toString
   | RequestID.str s => s!"\"s\""

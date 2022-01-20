@@ -4771,7 +4771,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_Rewrite_0__Lean_Meta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", failed to unify ");
+x_1 = lean_mk_string(", failed to unify");
 return x_1;
 }
 }
@@ -4788,7 +4788,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_Rewrite_0__Lean_Meta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" with ");
+x_1 = lean_mk_string("\nwith");
 return x_1;
 }
 }
@@ -4911,10 +4911,8 @@ lean_ctor_set(x_38, 1, x_37);
 x_39 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_39, 0, x_31);
 lean_ctor_set(x_39, 1, x_38);
-x_40 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_40, 0, x_1);
-x_41 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_41, 0, x_8);
+x_40 = l_Lean_indentExpr(x_1);
+x_41 = l_Lean_indentExpr(x_8);
 if (x_27 == 0)
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 

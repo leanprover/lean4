@@ -40,26 +40,13 @@ class CoeFun (α : Sort u) (γ : outParam (α → Sort v)) where
 class CoeSort (α : Sort u) (β : outParam (Sort v)) where
   coe : α → β
 
-abbrev coeB {α : Sort u} {β : Sort v} [Coe α β] (a : α) : β :=
-  Coe.coe a
-
-abbrev coeHead {α : Sort u} {β : Sort v} [CoeHead α β] (a : α) : β :=
-  CoeHead.coe a
-
-abbrev coeTail {α : Sort u} {β : Sort v} [CoeTail α β] (a : α) : β :=
-  CoeTail.coe a
-
-abbrev coeD {α : Sort u} {β : Sort v} (a : α) [CoeDep α a β] : β :=
-  CoeDep.coe a
-
-abbrev coeTC {α : Sort u} {β : Sort v} [CoeTC α β] (a : α) : β :=
-  CoeTC.coe a
-
-/-- Apply coercion manually. -/
 abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β :=
   CoeT.coe a
 
-prefix:max "↑" => coe
+syntax:max (name := coeNotation) "↑" term : term
+
+macro_rules -- TODO: delete after update stage0
+  | `(↑ $x) => `(CoeT.coe $x)
 
 abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a :=
   CoeFun.coe a
@@ -68,34 +55,34 @@ abbrev coeSort {α : Sort u} {β : Sort v} (a : α) [CoeSort α β] : β :=
   CoeSort.coe a
 
 instance coeTrans {α : Sort u} {β : Sort v} {δ : Sort w} [Coe β δ] [CoeTC α β] : CoeTC α δ where
-  coe a := coeB (coeTC a : β)
+  coe a := Coe.coe (CoeTC.coe a : β)
 
 instance coeBase {α : Sort u} {β : Sort v} [Coe α β] : CoeTC α β where
-  coe a := coeB a
+  coe a := Coe.coe a
 
 instance coeOfHeafOfTCOfTail {α : Sort u} {β : Sort v} {δ : Sort w} {γ : Sort w'} [CoeHead α β] [CoeTail δ γ] [CoeTC β δ] : CoeHTCT α γ where
-  coe a := coeTail (coeTC (coeHead a : β) : δ)
+  coe a := CoeTail.coe (CoeTC.coe (CoeHead.coe a : β) : δ)
 
 instance coeOfHeadOfTC {α : Sort u} {β : Sort v} {δ : Sort w} [CoeHead α β] [CoeTC β δ] : CoeHTCT α δ  where
-  coe a := coeTC (coeHead a : β)
+  coe a := CoeTC.coe (CoeHead.coe a : β)
 
 instance coeOfTCOfTail {α : Sort u} {β : Sort v} {δ : Sort w} [CoeTail β δ] [CoeTC α β] : CoeHTCT α δ where
-  coe a := coeTail (coeTC a : β)
+  coe a := CoeTail.coe (CoeTC.coe a : β)
 
 instance coeOfHead {α : Sort u} {β : Sort v} [CoeHead α β] : CoeHTCT α β where
-  coe a := coeHead a
+  coe a := CoeHead.coe a
 
 instance coeOfTail {α : Sort u} {β : Sort v} [CoeTail α β] : CoeHTCT α β where
-  coe a := coeTail a
+  coe a := CoeTail.coe a
 
 instance coeOfTC {α : Sort u} {β : Sort v} [CoeTC α β] : CoeHTCT α β where
-  coe a := coeTC a
+  coe a := CoeTC.coe a
 
 instance coeOfHTCT {α : Sort u} {β : Sort v} [CoeHTCT α β] (a : α) : CoeT α a β where
   coe := CoeHTCT.coe a
 
 instance coeOfDep {α : Sort u} {β : Sort v} (a : α) [CoeDep α a β] : CoeT α a β where
-  coe := coeD a
+  coe := CoeDep.coe a
 
 instance coeId {α : Sort u} (a : α) : CoeT α a α where
   coe := a
@@ -123,14 +110,7 @@ instance optionCoe {α : Type u} : CoeTail α (Option α) where
 instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeHead { x // p x } α where
   coe v := v.val
 
-/- Coe & OfNat bridge -/
-
-/-
-  Remark: one may question why we use `OfNat α` instead of `Coe Nat α`.
-  Reason: `OfNat` is for implementing polymorphic numeric literals, and we may
-  want to have numeric literals for a type α and **no** coercion from `Nat` to `α`. -/
-instance hasOfNatOfCoe [Coe α β] [OfNat α n] : OfNat β n where
-  ofNat := coe (OfNat.ofNat n : α)
+/- Coe bridge -/
 
 @[inline] def liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β := do
   let a ← liftM x

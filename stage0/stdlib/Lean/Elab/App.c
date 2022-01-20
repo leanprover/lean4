@@ -1474,7 +1474,7 @@ static lean_object* _init_l___private_Lean_Elab_App_0__Lean_Elab_Term_tryCoeFun_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("coeFun");
+x_1 = lean_mk_string("coe");
 return x_1;
 }
 }
@@ -1482,7 +1482,7 @@ static lean_object* _init_l___private_Lean_Elab_App_0__Lean_Elab_Term_tryCoeFun_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l___private_Lean_Elab_App_0__Lean_Elab_Term_tryCoeFun_x3f___closed__2;
 x_2 = l___private_Lean_Elab_App_0__Lean_Elab_Term_tryCoeFun_x3f___closed__4;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
@@ -1626,8 +1626,8 @@ x_52 = l_Lean_mkConst(x_51, x_28);
 x_53 = l___private_Lean_Elab_App_0__Lean_Elab_Term_tryCoeFun_x3f___closed__6;
 x_54 = lean_array_push(x_53, x_1);
 x_55 = lean_array_push(x_54, x_21);
-x_56 = lean_array_push(x_55, x_2);
-x_57 = lean_array_push(x_56, x_38);
+x_56 = lean_array_push(x_55, x_38);
+x_57 = lean_array_push(x_56, x_2);
 x_58 = l_Lean_mkAppN(x_52, x_57);
 x_59 = l_Lean_Meta_expandCoe(x_58, x_5, x_6, x_7, x_8, x_50);
 if (lean_obj_tag(x_59) == 0)
@@ -16828,7 +16828,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppLValsAux_loop___lambda__3___closed__1;
 x_2 = l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppLValsAux_loop___lambda__3___closed__2;
-x_3 = lean_unsigned_to_nat(724u);
+x_3 = lean_unsigned_to_nat(723u);
 x_4 = lean_unsigned_to_nat(8u);
 x_5 = l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppLValsAux_loop___lambda__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -24108,7 +24108,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppLValsAux_loop___lambda__3___closed__1;
 x_2 = l_Array_mapMUnsafe_map___at___private_Lean_Elab_App_0__Lean_Elab_Term_mergeFailures___spec__2___closed__1;
-x_3 = lean_unsigned_to_nat(891u);
+x_3 = lean_unsigned_to_nat(890u);
 x_4 = lean_unsigned_to_nat(35u);
 x_5 = l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppLValsAux_loop___lambda__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -24420,7 +24420,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppLValsAux_loop___lambda__3___closed__1;
 x_2 = l_Array_mapMUnsafe_map___at___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppAux___spec__2___closed__1;
-x_3 = lean_unsigned_to_nat(908u);
+x_3 = lean_unsigned_to_nat(907u);
 x_4 = lean_unsigned_to_nat(35u);
 x_5 = l___private_Lean_Elab_App_0__Lean_Elab_Term_elabAppLValsAux_loop___lambda__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

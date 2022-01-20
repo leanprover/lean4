@@ -170,10 +170,11 @@ def TermInfo.runMetaM (info : TermInfo) (ctx : ContextInfo) (x : MetaM α) : IO 
 
 def TermInfo.format (ctx : ContextInfo) (info : TermInfo) : IO Format := do
   info.runMetaM ctx do
-    try
-      return f!"{← Meta.ppExpr info.expr} : {← Meta.ppExpr (← Meta.inferType info.expr)} @ {formatElabInfo ctx info.toElabInfo}"
+    let ty : Format ← try
+      Meta.ppExpr (← Meta.inferType info.expr)
     catch _ =>
-      return f!"{← Meta.ppExpr info.expr} : <failed-to-infer-type> @ {formatElabInfo ctx info.toElabInfo}"
+      pure "<failed-to-infer-type>"
+    return f!"{← Meta.ppExpr info.expr} {if info.isBinder then "(isBinder := true) " else ""}: {ty} @ {formatElabInfo ctx info.toElabInfo}"
 
 def CompletionInfo.format (ctx : ContextInfo) (info : CompletionInfo) : IO Format :=
   match info with

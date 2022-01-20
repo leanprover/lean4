@@ -216,7 +216,7 @@ def splitCmdlineArgs : List String → IO (String × List String × List String)
 
 end Leanpkg
 
-def main (args : List String) : IO UInt32 := do
+unsafe def main (args : List String) : IO UInt32 := do
   try
     Lean.enableInitializersExecution
     Lean.initSearchPath (← Lean.getBuildDir)

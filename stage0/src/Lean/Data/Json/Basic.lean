@@ -20,6 +20,7 @@ protected def fromInt (n : Int) : JsonNumber := ⟨n, 0⟩
 
 instance : Coe Nat JsonNumber := ⟨JsonNumber.fromNat⟩
 instance : Coe Int JsonNumber := ⟨JsonNumber.fromInt⟩
+instance : OfNat JsonNumber n := ⟨JsonNumber.fromNat n⟩
 
 private partial def countDigits (n : Nat) : Nat :=
   let rec loop (n digits : Nat) : Nat :=
@@ -175,6 +176,7 @@ instance : Coe Nat Json := ⟨fun n => Json.num n⟩
 instance : Coe Int Json := ⟨fun n => Json.num n⟩
 instance : Coe String Json := ⟨Json.str⟩
 instance : Coe Bool Json := ⟨Json.bool⟩
+instance : OfNat Json n := ⟨Json.num n⟩
 
 def isNull : Json -> Bool
   | null => true

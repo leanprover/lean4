@@ -128,9 +128,9 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
   | BinderInfo.instImplicit   => 3
   | BinderInfo.auxDecl        => 4
 
-@[inline] private def Expr.mkDataCore
-    (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8)
-    (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) (bi : BinderInfo)
+def Expr.mkData
+    (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt8 := 0)
+    (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) (bi : BinderInfo := BinderInfo.default) (nonDepLet : Bool := false)
     : Expr.Data :=
   if looseBVarRange > Nat.pow 2 16 - 1 then panic! "bound variable index is too big"
   else
@@ -146,14 +146,30 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
       looseBVarRange.toUInt64.shiftLeft 48
     r
 
-def Expr.mkData (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt8 := 0) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) : Expr.Data :=
-  Expr.mkDataCore h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam false BinderInfo.default
+@[inline] def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.Data :=
+  Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam bi false
 
-def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.Data :=
-  Expr.mkDataCore h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam false bi
+@[inline] def Expr.mkDataForLet (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : Expr.Data :=
+  Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam BinderInfo.default nonDepLet
 
-def Expr.mkDataForLet (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : Expr.Data :=
-  Expr.mkDataCore h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet BinderInfo.default
+instance : Repr Expr.Data where
+  reprPrec v prec := Id.run do
+    let mut r := "Expr.mkData " ++ toString v.hash
+    if v.looseBVarRange != 0 then
+      r := r ++ " (looseBVarRange := " ++ toString v.looseBVarRange ++ ")"
+    if v.approxDepth != 0 then
+      r := r ++ " (approxDepth := " ++ toString v.approxDepth ++ ")"
+    if v.hasFVar then
+      r := r ++ " (hasFVar := " ++ toString v.hasFVar ++ ")"
+    if v.hasExprMVar then
+      r := r ++ " (hasExprMVar := " ++ toString v.hasExprMVar ++ ")"
+    if v.hasLevelMVar then
+      r := r ++ " (hasLevelMVar := " ++ toString v.hasLevelMVar ++ ")"
+    if v.nonDepLet then
+      r := r ++ " (nonDepLet := " ++ toString v.nonDepLet ++ ")"
+    if v.binderInfo == BinderInfo.default then
+      r := r ++ " (bi := " ++ toString (repr v.binderInfo) ++ ")"
+    Repr.addAppParen r prec
 
 open Expr
 
@@ -194,7 +210,7 @@ inductive Expr where
   | lit     : Literal → Data → Expr                   -- literals
   | mdata   : MData → Expr → Data → Expr              -- metadata
   | proj    : Name → Nat → Expr → Data → Expr         -- projection
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 namespace Expr
 

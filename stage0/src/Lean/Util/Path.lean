@@ -30,12 +30,20 @@ abbrev SearchPath := System.SearchPath
 namespace SearchPath
 
 /-- If the package of `mod` can be found in `sp`, return the path with extension
-`ext` (`lean` or `olean`) corresponding to `mod`. Otherwise, return `none.` -/
+`ext` (`lean` or `olean`) corresponding to `mod`. Otherwise, return `none`. Does
+not check whether the returned path exists. -/
 def findWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FilePath) := do
   let pkg := mod.getRoot.toString
   let root? ← sp.findM? fun p =>
     (p / pkg).isDir <||> ((p / pkg).withExtension ext).pathExists
   return root?.map (modToFilePath · mod ext)
+
+/-- Like `findWithExt`, but ensures the returned path exists. -/
+def findModuleWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FilePath) := do
+  if let some path ← findWithExt sp ext mod then
+    if ← path.pathExists then
+      return some path
+  return none
 
 def findAllWithExt (sp : SearchPath) (ext : String) : IO (Array FilePath) := do
   let mut paths := #[]

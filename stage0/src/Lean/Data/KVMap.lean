@@ -14,7 +14,7 @@ inductive DataValue where
   | ofNat    (v : Nat)
   | ofInt    (v : Int)
   | ofSyntax (v : Syntax)
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Repr
 
 @[export lean_data_value_beq]
 def DataValue.beqExp (a b : DataValue) : Bool :=
@@ -58,7 +58,7 @@ instance : Coe Syntax DataValue := ⟨DataValue.ofSyntax⟩
    generate C++ code from Lean code. -/
 structure KVMap where
   entries : List (Name × DataValue) := []
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 namespace KVMap
 instance : ToString KVMap := ⟨fun m => toString m.entries⟩

@@ -123,14 +123,7 @@ instance optionCoe {α : Type u} : CoeTail α (Option α) where
 instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeHead { x // p x } α where
   coe v := v.val
 
-/- Coe & OfNat bridge -/
-
-/-
-  Remark: one may question why we use `OfNat α` instead of `Coe Nat α`.
-  Reason: `OfNat` is for implementing polymorphic numeric literals, and we may
-  want to have numeric literals for a type α and **no** coercion from `Nat` to `α`. -/
-instance hasOfNatOfCoe [Coe α β] [OfNat α n] : OfNat β n where
-  ofNat := coe (OfNat.ofNat n : α)
+/- Coe bridge -/
 
 @[inline] def liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β := do
   let a ← liftM x

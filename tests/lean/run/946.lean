@@ -19,6 +19,9 @@ instance : Coe Int DataEntry where
 instance : Coe Float DataEntry where
   coe := DataEntry.EFloat
 
+instance : OfNat DataEntry n where
+  ofNat := DataEntry.EInt n
+
 instance : OfScientific DataEntry where
   ofScientific m s e := DataEntry.EFloat (OfScientific.ofScientific m s e)
 

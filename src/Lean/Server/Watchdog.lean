@@ -381,15 +381,14 @@ where
   containsInOrder (value : String) (target : String) : Bool := Id.run do
     if value.length == 0 then
       return true
-    let mut valueIdx := 0
-    let mut valueChar := value.get valueIdx
-    for targetIdx in [:target.length] do
-      let targetChar := target.get targetIdx
-      if valueChar == targetChar then
-        valueIdx := valueIdx + 1
-        if valueIdx >= value.length then
+    let mut valueIt := value.mkIterator
+    let mut targetIt := target.mkIterator
+    for _ in [:target.bsize] do
+      if valueIt.curr == targetIt.curr then
+        valueIt := valueIt.next
+        if !valueIt.hasNext then
           return true
-        valueChar := value.get valueIdx
+      targetIt := targetIt.next
     return false
 
 end RequestHandling

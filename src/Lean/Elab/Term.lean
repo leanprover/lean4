@@ -664,7 +664,7 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
 
 register_builtin_option autoLift : Bool := {
   defValue := true
-  descr    := "insert monadic lifts (i.e., `liftM` and `liftCoeM`) when needed"
+  descr    := "insert monadic lifts (i.e., `liftM` and coercions) when needed"
 }
 
 register_builtin_option maxCoeSize : Nat := {
@@ -863,7 +863,7 @@ private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr
   let some (m, α) ← isTypeApp? eType | tryPureCoeAndSimple
   if (← isDefEq m n) then
     let some monadInst ← isMonad? n | tryCoeSimple
-    try expandCoe (← mkAppOptM ``coeM #[m, α, β, none, monadInst, e]) catch _ => throwMismatch
+    try expandCoe (← mkAppOptM ``Lean.Internal.coeM #[m, α, β, none, monadInst, e]) catch _ => throwMismatch
   else if autoLift.get (← getOptions) then
     try
       -- Construct lift from `m` to `n`
@@ -882,7 +882,7 @@ private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr
         let v ← getLevel β
         let coeTInstType := Lean.mkForall `a BinderInfo.default α $ mkAppN (mkConst ``CoeT [u, v]) #[α, mkBVar 0, β]
         let coeTInstVal ← synthesizeInst coeTInstType
-        let eNew ← expandCoe (← mkAppN (Lean.mkConst ``liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e])
+        let eNew ← expandCoe (← mkAppN (Lean.mkConst ``Lean.Internal.liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e])
         let eNewType ← inferType eNew
         unless (← isDefEq expectedType eNewType) do throwMismatch
         return eNew -- approach 3 worked

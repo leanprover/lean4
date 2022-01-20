@@ -16,7 +16,7 @@ def isCoeDecl (declName : Name) : Bool :=
   declName == ``Coe.coe || declName == ``CoeTC.coe || declName == ``CoeHead.coe ||
   declName == ``CoeTail.coe || declName == ``CoeHTCT.coe || declName == ``CoeDep.coe ||
   declName == ``CoeT.coe || declName == ``CoeFun.coe || declName == ``CoeSort.coe ||
-  declName == ``liftCoeM || declName == ``coeM
+  declName == ``Lean.Internal.liftCoeM || declName == ``Lean.Internal.coeM
 
 /-- Expand coercions occurring in `e` -/
 partial def expandCoe (e : Expr) : MetaM Expr :=

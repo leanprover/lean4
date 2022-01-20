@@ -369,10 +369,15 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInf
   let references ← (← read).references.get
   let srcSearchPath := (← read).srcSearchPath
   let symbols ← references.definitionsMatching srcSearchPath (maxAmount := some 100)
-    fun name => containsCaseInsensitive p.query $ name.toString
+    fun name =>
+      let name := privateToUserName? name |>.getD name
+      if containsCaseInsensitive p.query name.toString then
+        some name.toString
+      else
+        none
   -- TODO Sort symbols by some useful metric?
   symbols.map fun (name, location) =>
-    { name := name.toString, kind := SymbolKind.constant, location }
+    { name, kind := SymbolKind.constant, location }
 where
   containsCaseInsensitive (value : String) : String → Bool :=
     if value.any (·.isUpper) then

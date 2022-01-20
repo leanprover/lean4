@@ -375,8 +375,12 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInf
     { name := name.toString, kind := SymbolKind.constant, location }
 where
   containsCaseInsensitive (value : String) : String → Bool :=
-    let value := value.toLower
-    fun target => containsInOrder value target.toLower
+    if value.any (·.isUpper) then
+      containsInOrder value
+    else
+      -- ignore case if query is all lower-case
+      let value := value.toLower
+      fun target => containsInOrder value target.toLower
 
   containsInOrder (value : String) (target : String) : Bool := Id.run do
     if value.length == 0 then

@@ -97,20 +97,10 @@ instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeHead { x // p x } α wh
 
 /- Coe bridge -/
 
--- TODO: delete
-@[inline] def liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β := do
-  let a ← liftM x
-  pure (CoeT.coe a)
-
 -- Helper definition used by the elaborator. It is not meant to be used directly by users
 @[inline] def Lean.Internal.liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β := do
   let a ← liftM x
   pure (CoeT.coe a)
-
--- TODO: delete
-@[inline] def coeM {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] (x : m α) : m β := do
-  let a ← x
-  pure <| CoeT.coe a
 
 -- Helper definition used by the elaborator. It is not meant to be used directly by users
 @[inline] def Lean.Internal.coeM {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] (x : m α) : m β := do

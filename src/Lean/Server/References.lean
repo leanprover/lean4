@@ -211,21 +211,18 @@ def referringTo (self : References) (ident : RefIdent) (srcSearchPath : SearchPa
   result
 
 def definitionsMatching (self : References) (srcSearchPath : SearchPath) (filter : Name → Option α)
-    (maxAmount : Option Nat := none) : IO $ Array (α × Location) := do
+    (maxAmount? : Option Nat := none) : IO $ Array (α × Location) := do
   let mut result := #[]
-  let mut amount := 0
   for (module, refs) in self.allRefs.toList do
     if let some path ← srcSearchPath.findModuleWithExt "lean" module then
       let uri := DocumentUri.ofPath <| ← IO.FS.realPath path
       for (ident, info) in refs.toList do
-        if let RefIdent.const name := ident then
-          if let some definition := info.definition then
-            if let some a := filter name then
-              result := result.push (a, ⟨uri, definition⟩)
-              amount := amount + 1
-              if let some maxAmount := maxAmount then
-                if amount >= maxAmount then
-                  return result
+        if let (RefIdent.const name, some definition) := (ident, info.definition) then
+          if let some a := filter name then
+            result := result.push (a, ⟨uri, definition⟩)
+            if let some maxAmount := maxAmount? then
+              if result.size >= maxAmount then
+                return result
   return result
 
 end References

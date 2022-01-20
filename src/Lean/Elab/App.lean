@@ -40,7 +40,6 @@ private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermEl
   Relevant definitions:
   ```
   class CoeFun (α : Sort u) (γ : α → outParam (Sort v))
-  abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a
   ```
 -/
 private def tryCoeFun? (α : Expr) (a : Expr) : TermElabM (Option Expr) := do
@@ -53,7 +52,7 @@ private def tryCoeFun? (α : Expr) (a : Expr) : TermElabM (Option Expr) := do
   let mvarId := mvar.mvarId!
   try
     if (← synthesizeCoeInstMVarCore mvarId) then
-      expandCoe <| mkAppN (Lean.mkConst ``coeFun [u, v]) #[α, γ, a, mvar]
+      expandCoe <| mkAppN (Lean.mkConst ``CoeFun.coe [u, v]) #[α, γ, mvar, a]
     else
       return none
   catch _ =>

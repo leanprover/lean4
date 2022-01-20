@@ -13,6 +13,19 @@ import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Term
 open Meta
 
+@[builtinTermElab coeNotation] def elabCoe : TermElab := fun stx expectedType? => do
+  let stx := stx[1]
+  tryPostponeIfNoneOrMVar expectedType?
+  let e ← elabTerm stx none
+  let type ← inferType e
+  match expectedType? with
+  | some expectedType =>
+    if (← isDefEq expectedType type) then
+      return e
+    else
+      mkCoe expectedType type e
+  | _ => throwError "invalid coercion notation, expected type is not known"
+
 /--
 The *anonymous constructor* `⟨e, ...⟩` is equivalent to `c e ...` if the
 expected type is an inductive type with a single constructor `c`.

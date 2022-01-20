@@ -210,8 +210,8 @@ def referringTo (self : References) (ident : RefIdent) (srcSearchPath : SearchPa
           result := result.push ⟨uri, range⟩
   result
 
-def definitionsMatching (self : References) (srcSearchPath : SearchPath) (filter : Name -> Bool)
-    (maxAmount : Option Nat := none) : IO $ Array (Name × Location) := do
+def definitionsMatching (self : References) (srcSearchPath : SearchPath) (filter : Name → Option α)
+    (maxAmount : Option Nat := none) : IO $ Array (α × Location) := do
   let mut result := #[]
   let mut amount := 0
   for (module, refs) in self.allRefs.toList do
@@ -220,8 +220,8 @@ def definitionsMatching (self : References) (srcSearchPath : SearchPath) (filter
       for (ident, info) in refs.toList do
         if let RefIdent.const name := ident then
           if let some definition := info.definition then
-            if filter name then
-              result := result.push (name, ⟨uri, definition⟩)
+            if let some a := filter name then
+              result := result.push (a, ⟨uri, definition⟩)
               amount := amount + 1
               if let some maxAmount := maxAmount then
                 if amount >= maxAmount then

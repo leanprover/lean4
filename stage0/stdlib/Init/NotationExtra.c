@@ -14319,21 +14319,21 @@ x_13 = l_Array_mapMUnsafe_map___at___aux__Init__NotationExtra______macroRules__s
 return x_13;
 }
 }
-lean_object* initialize_Init_Meta(lean_object*);
-lean_object* initialize_Init_Data_Array_Subarray(lean_object*);
-lean_object* initialize_Init_Data_ToString(lean_object*);
+lean_object* initialize_Init_Meta(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Subarray(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_ToString(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_NotationExtra(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_NotationExtra(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Meta(lean_io_mk_world());
+res = initialize_Init_Meta(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Subarray(lean_io_mk_world());
+res = initialize_Init_Data_Array_Subarray(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ToString(lean_io_mk_world());
+res = initialize_Init_Data_ToString(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_termMacro_x2etrace_x5b_____x5d_____closed__1 = _init_l_Lean_termMacro_x2etrace_x5b_____x5d_____closed__1();

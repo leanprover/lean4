@@ -13969,33 +13969,33 @@ x_3 = l_Lean_registerTraceClass(x_2, x_1);
 return x_3;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Structure(lean_object*);
-lean_object* initialize_Lean_Util_Recognizers(lean_object*);
-lean_object* initialize_Lean_Meta_SynthInstance(lean_object*);
-lean_object* initialize_Lean_Meta_Check(lean_object*);
-lean_object* initialize_Lean_Meta_DecLevel(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Structure(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Util_Recognizers(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_SynthInstance(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Check(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_DecLevel(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Meta_AppBuilder(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Structure(lean_io_mk_world());
+res = initialize_Lean_Structure(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_Recognizers(lean_io_mk_world());
+res = initialize_Lean_Util_Recognizers(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_SynthInstance(lean_io_mk_world());
+res = initialize_Lean_Meta_SynthInstance(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Check(lean_io_mk_world());
+res = initialize_Lean_Meta_Check(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_DecLevel(lean_io_mk_world());
+res = initialize_Lean_Meta_DecLevel(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_mkId___closed__1 = _init_l_Lean_Meta_mkId___closed__1();

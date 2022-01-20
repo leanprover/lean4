@@ -41423,33 +41423,33 @@ x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3, x_1);
 return x_4;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Elab_Term(lean_object*);
-lean_object* initialize_Lean_Elab_BindersUtil(lean_object*);
-lean_object* initialize_Lean_Elab_PatternVar(lean_object*);
-lean_object* initialize_Lean_Elab_Quotation_Util(lean_object*);
-lean_object* initialize_Lean_Parser_Do(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Term(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_BindersUtil(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_PatternVar(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Quotation_Util(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Parser_Do(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Elab_Do(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Elab_Do(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Term(lean_io_mk_world());
+res = initialize_Lean_Elab_Term(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_BindersUtil(lean_io_mk_world());
+res = initialize_Lean_Elab_BindersUtil(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PatternVar(lean_io_mk_world());
+res = initialize_Lean_Elab_PatternVar(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Quotation_Util(lean_io_mk_world());
+res = initialize_Lean_Elab_Quotation_Util(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser_Do(lean_io_mk_world());
+res = initialize_Lean_Parser_Do(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Elab_Do_0__Lean_Elab_Term_getDoSeqElems___closed__1 = _init_l___private_Lean_Elab_Do_0__Lean_Elab_Term_getDoSeqElems___closed__1();

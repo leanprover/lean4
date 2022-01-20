@@ -2534,25 +2534,25 @@ lean_dec(x_7);
 return x_9;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Data_Lsp_Extra(lean_object*);
-lean_object* initialize_Lean_Server_Requests(lean_object*);
-lean_object* initialize_Lean_Server_Rpc_Basic(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Lsp_Extra(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Server_Requests(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Server_Rpc_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Server_Rpc_RequestHandling(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Server_Rpc_RequestHandling(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_Extra(lean_io_mk_world());
+res = initialize_Lean_Data_Lsp_Extra(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_Requests(lean_io_mk_world());
+res = initialize_Lean_Server_Requests(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_Rpc_Basic(lean_io_mk_world());
+res = initialize_Lean_Server_Rpc_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_23____closed__1 = _init_l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_23____closed__1();
@@ -2561,12 +2561,12 @@ l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_23____closed__
 lean_mark_persistent(l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_23____closed__2);
 l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_23____closed__3 = _init_l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_23____closed__3();
 lean_mark_persistent(l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_23____closed__3);
-res = l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_23_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_23_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Server_rpcProcedures = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Server_rpcProcedures);
 lean_dec_ref(res);
-l_Std_PersistentHashMap_findAux___at___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_handleRpcCall___spec__2___closed__1 = _init_l_Std_PersistentHashMap_findAux___at___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_handleRpcCall___spec__2___closed__1();
+}l_Std_PersistentHashMap_findAux___at___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_handleRpcCall___spec__2___closed__1 = _init_l_Std_PersistentHashMap_findAux___at___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_handleRpcCall___spec__2___closed__1();
 l_Std_PersistentHashMap_findAux___at___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_handleRpcCall___spec__2___closed__2 = _init_l_Std_PersistentHashMap_findAux___at___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_handleRpcCall___spec__2___closed__2();
 l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_handleRpcCall___closed__1 = _init_l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_handleRpcCall___closed__1();
 lean_mark_persistent(l___private_Lean_Server_Rpc_RequestHandling_0__Lean_Server_handleRpcCall___closed__1);

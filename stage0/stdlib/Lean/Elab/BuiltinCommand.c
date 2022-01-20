@@ -19337,29 +19337,29 @@ x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3, x_1);
 return x_4;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_DocString(lean_object*);
-lean_object* initialize_Lean_Util_CollectLevelParams(lean_object*);
-lean_object* initialize_Lean_Elab_Command(lean_object*);
-lean_object* initialize_Lean_Elab_Open(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_DocString(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Util_CollectLevelParams(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Command(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Open(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Elab_BuiltinCommand(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Elab_BuiltinCommand(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_DocString(lean_io_mk_world());
+res = initialize_Lean_DocString(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_CollectLevelParams(lean_io_mk_world());
+res = initialize_Lean_Util_CollectLevelParams(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Command(lean_io_mk_world());
+res = initialize_Lean_Elab_Command(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Open(lean_io_mk_world());
+res = initialize_Lean_Elab_Open(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_Command_elabModuleDoc___closed__1 = _init_l_Lean_Elab_Command_elabModuleDoc___closed__1();

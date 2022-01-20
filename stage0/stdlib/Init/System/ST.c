@@ -640,21 +640,21 @@ x_3 = lean_alloc_closure((void*)(l_ST_Ref_modifyGet___rarg), 5, 0);
 return x_3;
 }
 }
-lean_object* initialize_Init_Classical(lean_object*);
-lean_object* initialize_Init_Control_EState(lean_object*);
-lean_object* initialize_Init_Control_Reader(lean_object*);
+lean_object* initialize_Init_Classical(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Control_EState(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Control_Reader(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_System_ST(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_System_ST(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Classical(lean_io_mk_world());
+res = initialize_Init_Classical(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_EState(lean_io_mk_world());
+res = initialize_Init_Control_EState(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Control_Reader(lean_io_mk_world());
+res = initialize_Init_Control_Reader(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instMonadEST___closed__1 = _init_l_instMonadEST___closed__1();

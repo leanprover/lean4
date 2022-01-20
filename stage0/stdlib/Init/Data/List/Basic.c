@@ -4424,17 +4424,17 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* initialize_Init_SimpLemmas(lean_object*);
-lean_object* initialize_Init_Data_Nat_Basic(lean_object*);
+lean_object* initialize_Init_SimpLemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Nat_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_List_Basic(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_List_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_SimpLemmas(lean_io_mk_world());
+res = initialize_Init_SimpLemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Nat_Basic(lean_io_mk_world());
+res = initialize_Init_Data_Nat_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_List_instAppendList___closed__1 = _init_l_List_instAppendList___closed__1();

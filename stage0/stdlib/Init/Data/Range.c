@@ -2861,13 +2861,13 @@ return x_165;
 }
 }
 }
-lean_object* initialize_Init_Meta(lean_object*);
+lean_object* initialize_Init_Meta(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Range(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Range(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Meta(lean_io_mk_world());
+res = initialize_Init_Meta(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Range_start___default = _init_l_Std_Range_start___default();

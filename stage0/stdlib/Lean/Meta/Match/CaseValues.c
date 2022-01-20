@@ -2124,25 +2124,25 @@ x_12 = l_Lean_Meta_caseValues(x_1, x_2, x_3, x_4, x_11, x_6, x_7, x_8, x_9, x_10
 return x_12;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Subst(lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Clear(lean_object*);
-lean_object* initialize_Lean_Meta_Match_Value(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Subst(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Clear(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Match_Value(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Meta_Match_CaseValues(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Meta_Match_CaseValues(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Subst(lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Subst(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Clear(lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Clear(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Match_Value(lean_io_mk_world());
+res = initialize_Lean_Meta_Match_Value(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_CaseValueSubgoal_subst___default = _init_l_Lean_Meta_CaseValueSubgoal_subst___default();

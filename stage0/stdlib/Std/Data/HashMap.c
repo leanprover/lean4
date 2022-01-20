@@ -3366,17 +3366,17 @@ x_3 = lean_alloc_closure((void*)(l_Std_HashMap_ofListWith___rarg), 4, 0);
 return x_3;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Std_Data_AssocList(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_AssocList(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Std_Data_HashMap(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Std_Data_HashMap(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_AssocList(lean_io_mk_world());
+res = initialize_Std_Data_AssocList(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_mkHashMapImp___rarg___closed__1 = _init_l_Std_mkHashMapImp___rarg___closed__1();

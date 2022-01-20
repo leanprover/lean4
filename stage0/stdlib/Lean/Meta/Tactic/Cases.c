@@ -16333,33 +16333,33 @@ x_3 = l_Lean_registerTraceClass(x_2, x_1);
 return x_3;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Meta_AppBuilder(lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Induction(lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Injection(lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Assert(lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Subst(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_AppBuilder(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Induction(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Injection(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Assert(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Subst(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Cases(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Cases(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_AppBuilder(lean_io_mk_world());
+res = initialize_Lean_Meta_AppBuilder(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Induction(lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Induction(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Injection(lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Injection(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Assert(lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Assert(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Subst(lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Subst(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_throwInductiveTypeExpected___rarg___closed__1 = _init_l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_throwInductiveTypeExpected___rarg___closed__1();

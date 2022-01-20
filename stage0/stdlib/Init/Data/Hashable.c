@@ -455,17 +455,17 @@ x_4 = lean_box_uint64(x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init_Data_UInt(lean_object*);
-lean_object* initialize_Init_Data_String(lean_object*);
+lean_object* initialize_Init_Data_UInt(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_String(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Hashable(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Hashable(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_UInt(lean_io_mk_world());
+res = initialize_Init_Data_UInt(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String(lean_io_mk_world());
+res = initialize_Init_Data_String(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instHashableInt___closed__1 = _init_l_instHashableInt___closed__1();

@@ -3637,25 +3637,25 @@ x_3 = l_Lean_IR_Decl_normalizeIds(x_2);
 return x_3;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Compiler_IR_CompilerM(lean_object*);
-lean_object* initialize_Lean_Compiler_IR_NormIds(lean_object*);
-lean_object* initialize_Lean_Compiler_IR_FreeVars(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_IR_CompilerM(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_IR_NormIds(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_IR_FreeVars(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_ExpandResetReuse(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_ExpandResetReuse(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_IR_CompilerM(lean_io_mk_world());
+res = initialize_Lean_Compiler_IR_CompilerM(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_IR_NormIds(lean_io_mk_world());
+res = initialize_Lean_Compiler_IR_NormIds(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_IR_FreeVars(lean_io_mk_world());
+res = initialize_Lean_Compiler_IR_FreeVars(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_IR_ExpandResetReuse_eraseProjIncFor___closed__1 = _init_l_Lean_IR_ExpandResetReuse_eraseProjIncFor___closed__1();

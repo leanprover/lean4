@@ -13,25 +13,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Server_Watchdog(lean_object*);
-lean_object* initialize_Lean_Server_FileWorker(lean_object*);
-lean_object* initialize_Lean_Server_Rpc(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Server_Watchdog(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Server_FileWorker(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Server_Rpc(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Server(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Server(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_Watchdog(lean_io_mk_world());
+res = initialize_Lean_Server_Watchdog(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_FileWorker(lean_io_mk_world());
+res = initialize_Lean_Server_FileWorker(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_Rpc(lean_io_mk_world());
+res = initialize_Lean_Server_Rpc(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

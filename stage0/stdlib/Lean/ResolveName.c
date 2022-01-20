@@ -4981,29 +4981,29 @@ x_2 = lean_alloc_closure((void*)(l_Lean_resolveGlobalConstNoOverload___rarg), 5,
 return x_2;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Data_OpenDecl(lean_object*);
-lean_object* initialize_Lean_Hygiene(lean_object*);
-lean_object* initialize_Lean_Modifiers(lean_object*);
-lean_object* initialize_Lean_Exception(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_OpenDecl(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Hygiene(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Modifiers(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Exception(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_ResolveName(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_ResolveName(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_OpenDecl(lean_io_mk_world());
+res = initialize_Lean_Data_OpenDecl(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Hygiene(lean_io_mk_world());
+res = initialize_Lean_Hygiene(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Modifiers(lean_io_mk_world());
+res = initialize_Lean_Modifiers(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Exception(lean_io_mk_world());
+res = initialize_Lean_Exception(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_PersistentHashMap_findAux___at_Lean_addAliasEntry___spec__3___closed__1 = _init_l_Std_PersistentHashMap_findAux___at_Lean_addAliasEntry___spec__3___closed__1();
@@ -5028,12 +5028,12 @@ l_Lean_initFn____x40_Lean_ResolveName___hyg_66____closed__5 = _init_l_Lean_initF
 lean_mark_persistent(l_Lean_initFn____x40_Lean_ResolveName___hyg_66____closed__5);
 l_Lean_initFn____x40_Lean_ResolveName___hyg_66____closed__6 = _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_66____closed__6();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_ResolveName___hyg_66____closed__6);
-res = l_Lean_initFn____x40_Lean_ResolveName___hyg_66_(lean_io_mk_world());
+if (builtin) {res = l_Lean_initFn____x40_Lean_ResolveName___hyg_66_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_aliasExtension = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_aliasExtension);
 lean_dec_ref(res);
-l_Lean_addAlias___closed__1 = _init_l_Lean_addAlias___closed__1();
+}l_Lean_addAlias___closed__1 = _init_l_Lean_addAlias___closed__1();
 lean_mark_persistent(l_Lean_addAlias___closed__1);
 l_Lean_getAliasState___closed__1 = _init_l_Lean_getAliasState___closed__1();
 lean_mark_persistent(l_Lean_getAliasState___closed__1);

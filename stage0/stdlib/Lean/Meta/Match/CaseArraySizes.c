@@ -2246,21 +2246,21 @@ lean_dec(x_1);
 return x_20;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Assert(lean_object*);
-lean_object* initialize_Lean_Meta_Match_CaseValues(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Assert(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Match_CaseValues(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Meta_Match_CaseArraySizes(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Meta_Match_CaseArraySizes(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Assert(lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Assert(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Match_CaseValues(lean_io_mk_world());
+res = initialize_Lean_Meta_Match_CaseValues(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_CaseArraySizesSubgoal_elems___default___closed__1 = _init_l_Lean_Meta_CaseArraySizesSubgoal_elems___default___closed__1();

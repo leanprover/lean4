@@ -3820,21 +3820,21 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Attributes(lean_object*);
-lean_object* initialize_Lean_Compiler_Util(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Attributes(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_Util(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Compiler_Specialize(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Compiler_Specialize(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Attributes(lean_io_mk_world());
+res = initialize_Lean_Attributes(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_Util(lean_io_mk_world());
+res = initialize_Lean_Compiler_Util(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Compiler_SpecializeAttributeKind_noConfusion___rarg___closed__1 = _init_l_Lean_Compiler_SpecializeAttributeKind_noConfusion___rarg___closed__1();
@@ -3874,12 +3874,12 @@ l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_31____closed__14 = 
 lean_mark_persistent(l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_31____closed__14);
 l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_31____closed__15 = _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_31____closed__15();
 lean_mark_persistent(l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_31____closed__15);
-res = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_31_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_31_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Compiler_specializeAttrs = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Compiler_specializeAttrs);
 lean_dec_ref(res);
-l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux___closed__1 = _init_l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux___closed__1();
+}l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux___closed__1 = _init_l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux___closed__1();
 lean_mark_persistent(l___private_Lean_Compiler_Specialize_0__Lean_Compiler_hasSpecializeAttrAux___closed__1);
 l_Lean_Compiler_instInhabitedSpecArgKind = _init_l_Lean_Compiler_instInhabitedSpecArgKind();
 l_Lean_Compiler_instInhabitedSpecInfo___closed__1 = _init_l_Lean_Compiler_instInhabitedSpecInfo___closed__1();
@@ -3924,12 +3924,12 @@ l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_333____closed__3 = 
 lean_mark_persistent(l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_333____closed__3);
 l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_333____closed__4 = _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_333____closed__4();
 lean_mark_persistent(l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_333____closed__4);
-res = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_333_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize___hyg_333_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Compiler_specExtension = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Compiler_specExtension);
 lean_dec_ref(res);
-l_Lean_Compiler_addSpecializationInfo___closed__1 = _init_l_Lean_Compiler_addSpecializationInfo___closed__1();
+}l_Lean_Compiler_addSpecializationInfo___closed__1 = _init_l_Lean_Compiler_addSpecializationInfo___closed__1();
 lean_mark_persistent(l_Lean_Compiler_addSpecializationInfo___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

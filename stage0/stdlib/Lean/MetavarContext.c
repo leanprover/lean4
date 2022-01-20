@@ -55223,21 +55223,21 @@ lean_dec(x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Util_MonadCache(lean_object*);
-lean_object* initialize_Lean_LocalContext(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Util_MonadCache(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_LocalContext(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_MetavarContext(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_MetavarContext(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_MonadCache(lean_io_mk_world());
+res = initialize_Lean_Util_MonadCache(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_LocalContext(lean_io_mk_world());
+res = initialize_Lean_LocalContext(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_instInhabitedLocalInstance___closed__1 = _init_l_Lean_instInhabitedLocalInstance___closed__1();

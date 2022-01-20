@@ -10370,25 +10370,25 @@ lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_ScopedEnvExtension(lean_object*);
-lean_object* initialize_Lean_Util_Recognizers(lean_object*);
-lean_object* initialize_Lean_Meta_Basic(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_ScopedEnvExtension(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Util_Recognizers(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Simp_CongrLemmas(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Simp_CongrLemmas(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ScopedEnvExtension(lean_io_mk_world());
+res = initialize_Lean_ScopedEnvExtension(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_Recognizers(lean_io_mk_world());
+res = initialize_Lean_Util_Recognizers(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Basic(lean_io_mk_world());
+res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_instInhabitedCongrLemma___closed__1 = _init_l_Lean_Meta_instInhabitedCongrLemma___closed__1();
@@ -10543,12 +10543,12 @@ l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_307____closed_
 lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_307____closed__4);
 l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_307____closed__5 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_307____closed__5();
 lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_307____closed__5);
-res = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_307_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Simp_CongrLemmas___hyg_307_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_congrExtension = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_congrExtension);
 lean_dec_ref(res);
-l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__3___closed__1 = _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__3___closed__1();
+}l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__3___closed__1 = _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__3___closed__1();
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__3___closed__1);
 l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__3___closed__2 = _init_l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__3___closed__2();
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Meta_mkCongrLemma___spec__3___closed__2);

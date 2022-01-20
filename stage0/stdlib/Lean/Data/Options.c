@@ -3705,21 +3705,21 @@ return x_214;
 }
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_ImportingFlag(lean_object*);
-lean_object* initialize_Lean_Data_KVMap(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_ImportingFlag(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_KVMap(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Data_Options(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Data_Options(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ImportingFlag(lean_io_mk_world());
+res = initialize_Lean_ImportingFlag(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_KVMap(lean_io_mk_world());
+res = initialize_Lean_Data_KVMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Options_empty = _init_l_Lean_Options_empty();
@@ -3746,12 +3746,12 @@ l_Lean_instInhabitedOptionDecl = _init_l_Lean_instInhabitedOptionDecl();
 lean_mark_persistent(l_Lean_instInhabitedOptionDecl);
 l_Lean_instInhabitedOptionDecls = _init_l_Lean_instInhabitedOptionDecls();
 lean_mark_persistent(l_Lean_instInhabitedOptionDecls);
-res = l_Lean_initFn____x40_Lean_Data_Options___hyg_124_(lean_io_mk_world());
+if (builtin) {res = l_Lean_initFn____x40_Lean_Data_Options___hyg_124_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l___private_Lean_Data_Options_0__Lean_optionDeclsRef = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_Data_Options_0__Lean_optionDeclsRef);
 lean_dec_ref(res);
-l_Lean_registerOption___lambda__1___closed__1 = _init_l_Lean_registerOption___lambda__1___closed__1();
+}l_Lean_registerOption___lambda__1___closed__1 = _init_l_Lean_registerOption___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_registerOption___lambda__1___closed__1);
 l_Lean_registerOption___lambda__2___closed__1 = _init_l_Lean_registerOption___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_registerOption___lambda__2___closed__1);

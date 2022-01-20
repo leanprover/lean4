@@ -1698,21 +1698,21 @@ return x_39;
 }
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Util_Recognizers(lean_object*);
-lean_object* initialize_Lean_Meta_Basic(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Util_Recognizers(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Meta_MatchUtil(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Meta_MatchUtil(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Util_Recognizers(lean_io_mk_world());
+res = initialize_Lean_Util_Recognizers(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Basic(lean_io_mk_world());
+res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_matchEq_x3f___closed__1 = _init_l_Lean_Meta_matchEq_x3f___closed__1();

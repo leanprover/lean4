@@ -14129,29 +14129,29 @@ lean_ctor_set(x_13, 3, x_10);
 return x_13;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Data_KVMap(lean_object*);
-lean_object* initialize_Lean_Data_Name(lean_object*);
-lean_object* initialize_Lean_Data_Format(lean_object*);
-lean_object* initialize_Lean_Compiler_ExternAttr(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_KVMap(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Name(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Format(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_ExternAttr(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_Basic(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR_Basic(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_KVMap(lean_io_mk_world());
+res = initialize_Lean_Data_KVMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Name(lean_io_mk_world());
+res = initialize_Lean_Data_Name(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Format(lean_io_mk_world());
+res = initialize_Lean_Data_Format(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_ExternAttr(lean_io_mk_world());
+res = initialize_Lean_Compiler_ExternAttr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_IR_instInhabitedVarId = _init_l_Lean_IR_instInhabitedVarId();

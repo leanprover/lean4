@@ -8858,33 +8858,33 @@ x_4 = l_Lean_Elab_registerBuiltinDerivingHandlerWithArgs(x_2, x_3, x_1);
 return x_4;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Elab_Command(lean_object*);
-lean_object* initialize_Lean_Elab_Term(lean_object*);
-lean_object* initialize_Lean_Elab_Deriving_Basic(lean_object*);
-lean_object* initialize_Lean_PrettyPrinter(lean_object*);
-lean_object* initialize_Lean_Server_Rpc_Basic(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Command(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Term(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Deriving_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_PrettyPrinter(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Server_Rpc_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Server_Rpc_Deriving(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Server_Rpc_Deriving(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Command(lean_io_mk_world());
+res = initialize_Lean_Elab_Command(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Term(lean_io_mk_world());
+res = initialize_Lean_Elab_Term(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Deriving_Basic(lean_io_mk_world());
+res = initialize_Lean_Elab_Deriving_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_PrettyPrinter(lean_io_mk_world());
+res = initialize_Lean_PrettyPrinter(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_Rpc_Basic(lean_io_mk_world());
+res = initialize_Lean_Server_Rpc_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncoding_deriveWithRefInstance___closed__1 = _init_l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncoding_deriveWithRefInstance___closed__1();

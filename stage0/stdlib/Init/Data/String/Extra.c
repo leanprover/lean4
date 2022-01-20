@@ -161,21 +161,21 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init_Control_Except(lean_object*);
-lean_object* initialize_Init_Data_ByteArray(lean_object*);
-lean_object* initialize_Init_Util(lean_object*);
+lean_object* initialize_Init_Control_Except(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_ByteArray(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Util(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_String_Extra(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_String_Extra(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Control_Except(lean_io_mk_world());
+res = initialize_Init_Control_Except(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ByteArray(lean_io_mk_world());
+res = initialize_Init_Data_ByteArray(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Util(lean_io_mk_world());
+res = initialize_Init_Util(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_String_toNat_x21___closed__1 = _init_l_String_toNat_x21___closed__1();

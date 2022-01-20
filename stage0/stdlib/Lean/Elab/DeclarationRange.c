@@ -478,25 +478,25 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Elab_addAuxDeclarationRanges___rarg), 6,
 return x_2;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_DeclarationRange(lean_object*);
-lean_object* initialize_Lean_Elab_Log(lean_object*);
-lean_object* initialize_Lean_Data_Lsp_Utf16(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_DeclarationRange(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Log(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Lsp_Utf16(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Elab_DeclarationRange(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Elab_DeclarationRange(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_DeclarationRange(lean_io_mk_world());
+res = initialize_Lean_DeclarationRange(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Log(lean_io_mk_world());
+res = initialize_Lean_Elab_Log(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_Utf16(lean_io_mk_world());
+res = initialize_Lean_Data_Lsp_Utf16(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_getDeclarationSelectionRef___closed__1 = _init_l_Lean_Elab_getDeclarationSelectionRef___closed__1();

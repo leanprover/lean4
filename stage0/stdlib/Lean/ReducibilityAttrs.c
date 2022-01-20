@@ -1001,17 +1001,17 @@ x_4 = l_Lean_isReducible___rarg___lambda__1(x_1, x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Attributes(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Attributes(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_ReducibilityAttrs(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_ReducibilityAttrs(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Attributes(lean_io_mk_world());
+res = initialize_Lean_Attributes(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_ReducibilityStatus_noConfusion___rarg___closed__1 = _init_l_Lean_ReducibilityStatus_noConfusion___rarg___closed__1();
@@ -1097,12 +1097,12 @@ l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_125____closed__17 = _init_l_Le
 lean_mark_persistent(l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_125____closed__17);
 l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_125____closed__18 = _init_l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_125____closed__18();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_125____closed__18);
-res = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_125_(lean_io_mk_world());
+if (builtin) {res = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_125_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_reducibilityAttrs = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_reducibilityAttrs);
 lean_dec_ref(res);
-l_Lean_getReducibilityStatusImp___closed__1 = _init_l_Lean_getReducibilityStatusImp___closed__1();
+}l_Lean_getReducibilityStatusImp___closed__1 = _init_l_Lean_getReducibilityStatusImp___closed__1();
 lean_mark_persistent(l_Lean_getReducibilityStatusImp___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }

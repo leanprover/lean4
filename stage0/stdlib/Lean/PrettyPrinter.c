@@ -1970,33 +1970,33 @@ x_6 = l_Lean_ParserCompiler_registerParserCompiler___rarg(x_5, x_4);
 return x_6;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_PrettyPrinter_Delaborator(lean_object*);
-lean_object* initialize_Lean_PrettyPrinter_Parenthesizer(lean_object*);
-lean_object* initialize_Lean_PrettyPrinter_Formatter(lean_object*);
-lean_object* initialize_Lean_Parser_Module(lean_object*);
-lean_object* initialize_Lean_ParserCompiler(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_PrettyPrinter_Delaborator(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_PrettyPrinter_Parenthesizer(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_PrettyPrinter_Formatter(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Parser_Module(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_ParserCompiler(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_PrettyPrinter(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_PrettyPrinter(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_PrettyPrinter_Delaborator(lean_io_mk_world());
+res = initialize_Lean_PrettyPrinter_Delaborator(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_PrettyPrinter_Parenthesizer(lean_io_mk_world());
+res = initialize_Lean_PrettyPrinter_Parenthesizer(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_PrettyPrinter_Formatter(lean_io_mk_world());
+res = initialize_Lean_PrettyPrinter_Formatter(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Parser_Module(lean_io_mk_world());
+res = initialize_Lean_Parser_Module(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ParserCompiler(lean_io_mk_world());
+res = initialize_Lean_ParserCompiler(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_PPContext_runCoreM___rarg___closed__1 = _init_l_Lean_PPContext_runCoreM___rarg___closed__1();

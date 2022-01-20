@@ -10248,25 +10248,25 @@ return x_10;
 }
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Syntax(lean_object*);
-lean_object* initialize_Lean_CoreM(lean_object*);
-lean_object* initialize_Lean_ResolveName(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Syntax(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_CoreM(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_ResolveName(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Lean_Attributes(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Attributes(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Syntax(lean_io_mk_world());
+res = initialize_Lean_Syntax(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_CoreM(lean_io_mk_world());
+res = initialize_Lean_CoreM(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_ResolveName(lean_io_mk_world());
+res = initialize_Lean_ResolveName(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_AttributeApplicationTime_noConfusion___rarg___closed__1 = _init_l_Lean_AttributeApplicationTime_noConfusion___rarg___closed__1();
@@ -10316,12 +10316,12 @@ l_Lean_initFn____x40_Lean_Attributes___hyg_236____closed__2 = _init_l_Lean_initF
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Attributes___hyg_236____closed__2);
 l_Lean_initFn____x40_Lean_Attributes___hyg_236____closed__3 = _init_l_Lean_initFn____x40_Lean_Attributes___hyg_236____closed__3();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Attributes___hyg_236____closed__3);
-res = l_Lean_initFn____x40_Lean_Attributes___hyg_236_(lean_io_mk_world());
+if (builtin) {res = l_Lean_initFn____x40_Lean_Attributes___hyg_236_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_attributeMapRef = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_attributeMapRef);
 lean_dec_ref(res);
-l_Std_PersistentHashMap_insertAux___at_Lean_registerBuiltinAttribute___spec__2___closed__1 = _init_l_Std_PersistentHashMap_insertAux___at_Lean_registerBuiltinAttribute___spec__2___closed__1();
+}l_Std_PersistentHashMap_insertAux___at_Lean_registerBuiltinAttribute___spec__2___closed__1 = _init_l_Std_PersistentHashMap_insertAux___at_Lean_registerBuiltinAttribute___spec__2___closed__1();
 l_Std_PersistentHashMap_insertAux___at_Lean_registerBuiltinAttribute___spec__2___closed__2 = _init_l_Std_PersistentHashMap_insertAux___at_Lean_registerBuiltinAttribute___spec__2___closed__2();
 l_Std_PersistentHashMap_insertAux___at_Lean_registerBuiltinAttribute___spec__2___closed__3 = _init_l_Std_PersistentHashMap_insertAux___at_Lean_registerBuiltinAttribute___spec__2___closed__3();
 lean_mark_persistent(l_Std_PersistentHashMap_insertAux___at_Lean_registerBuiltinAttribute___spec__2___closed__3);
@@ -10478,12 +10478,12 @@ l_Lean_EnumAttributes_setValue___rarg___closed__1 = _init_l_Lean_EnumAttributes_
 lean_mark_persistent(l_Lean_EnumAttributes_setValue___rarg___closed__1);
 l_Lean_EnumAttributes_setValue___rarg___closed__2 = _init_l_Lean_EnumAttributes_setValue___rarg___closed__2();
 lean_mark_persistent(l_Lean_EnumAttributes_setValue___rarg___closed__2);
-res = l_Lean_initFn____x40_Lean_Attributes___hyg_2650_(lean_io_mk_world());
+if (builtin) {res = l_Lean_initFn____x40_Lean_Attributes___hyg_2650_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_attributeImplBuilderTableRef = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_attributeImplBuilderTableRef);
 lean_dec_ref(res);
-l_Lean_registerAttributeImplBuilder___lambda__1___closed__1 = _init_l_Lean_registerAttributeImplBuilder___lambda__1___closed__1();
+}l_Lean_registerAttributeImplBuilder___lambda__1___closed__1 = _init_l_Lean_registerAttributeImplBuilder___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_registerAttributeImplBuilder___lambda__1___closed__1);
 l_Lean_registerAttributeImplBuilder___closed__1 = _init_l_Lean_registerAttributeImplBuilder___closed__1();
 lean_mark_persistent(l_Lean_registerAttributeImplBuilder___closed__1);
@@ -10523,12 +10523,12 @@ l_Lean_initFn____x40_Lean_Attributes___hyg_3232____closed__7 = _init_l_Lean_init
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Attributes___hyg_3232____closed__7);
 l_Lean_initFn____x40_Lean_Attributes___hyg_3232____closed__8 = _init_l_Lean_initFn____x40_Lean_Attributes___hyg_3232____closed__8();
 lean_mark_persistent(l_Lean_initFn____x40_Lean_Attributes___hyg_3232____closed__8);
-res = l_Lean_initFn____x40_Lean_Attributes___hyg_3232_(lean_io_mk_world());
+if (builtin) {res = l_Lean_initFn____x40_Lean_Attributes___hyg_3232_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_attributeExtension = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_attributeExtension);
 lean_dec_ref(res);
-l_Std_PersistentHashMap_foldlMAux___at_Lean_getBuiltinAttributeNames___spec__2___closed__1 = _init_l_Std_PersistentHashMap_foldlMAux___at_Lean_getBuiltinAttributeNames___spec__2___closed__1();
+}l_Std_PersistentHashMap_foldlMAux___at_Lean_getBuiltinAttributeNames___spec__2___closed__1 = _init_l_Std_PersistentHashMap_foldlMAux___at_Lean_getBuiltinAttributeNames___spec__2___closed__1();
 lean_mark_persistent(l_Std_PersistentHashMap_foldlMAux___at_Lean_getBuiltinAttributeNames___spec__2___closed__1);
 l_Lean_getBuiltinAttributeImpl___closed__1 = _init_l_Lean_getBuiltinAttributeImpl___closed__1();
 lean_mark_persistent(l_Lean_getBuiltinAttributeImpl___closed__1);

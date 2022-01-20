@@ -25,7 +25,7 @@ instance : Coe IO.Error ElabTaskError :=
   ⟨ElabTaskError.ioError⟩
 
 instance : MonadLift IO (EIO ElabTaskError) where
-  monadLift act := act.toEIO (coe ·)
+  monadLift act := act.toEIO (↑ ·)
 
 structure CancelToken where
   ref : IO.Ref Bool

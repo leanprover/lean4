@@ -561,21 +561,21 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_Format_Basic(lean_object*);
-lean_object* initialize_Init_Data_Array_Basic(lean_object*);
-lean_object* initialize_Init_Data_ToString_Basic(lean_object*);
+lean_object* initialize_Init_Data_Format_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-LEAN_EXPORT lean_object* initialize_Init_Data_Format_Instances(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Init_Data_Format_Instances(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Format_Basic(lean_io_mk_world());
+res = initialize_Init_Data_Format_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Basic(lean_io_mk_world());
+res = initialize_Init_Data_Array_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_ToString_Basic(lean_io_mk_world());
+res = initialize_Init_Data_ToString_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_instToFormat___rarg___closed__1 = _init_l_instToFormat___rarg___closed__1();

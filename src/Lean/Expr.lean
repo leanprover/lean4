@@ -79,7 +79,7 @@ abbrev MData.empty : MData := {}
    binderInfo     : 3-bits
    approxDepth    : 8-bits -- the approximate depth is used to minimize the number of hash collisions
    looseBVarRange : 16-bits -/
-def Expr.Data := UInt64 deriving Repr
+def Expr.Data := UInt64
 
 instance: Inhabited Expr.Data :=
   inferInstanceAs (Inhabited UInt64)
@@ -151,6 +151,25 @@ def Expr.mkData
 
 @[inline] def Expr.mkDataForLet (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : Expr.Data :=
   Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam BinderInfo.default nonDepLet
+
+instance : Repr Expr.Data where
+  reprPrec v prec := Id.run do
+    let mut r := "Expr.mkData " ++ toString v.hash
+    if v.looseBVarRange != 0 then
+      r := r ++ " (looseBVarRange := " ++ toString v.looseBVarRange ++ ")"
+    if v.approxDepth != 0 then
+      r := r ++ " (approxDepth := " ++ toString v.approxDepth ++ ")"
+    if v.hasFVar then
+      r := r ++ " (hasFVar := " ++ toString v.hasFVar ++ ")"
+    if v.hasExprMVar then
+      r := r ++ " (hasExprMVar := " ++ toString v.hasExprMVar ++ ")"
+    if v.hasLevelMVar then
+      r := r ++ " (hasLevelMVar := " ++ toString v.hasLevelMVar ++ ")"
+    if v.nonDepLet then
+      r := r ++ " (nonDepLet := " ++ toString v.nonDepLet ++ ")"
+    if v.binderInfo == BinderInfo.default then
+      r := r ++ " (bi := " ++ toString (repr v.binderInfo) ++ ")"
+    Repr.addAppParen r prec
 
 open Expr
 

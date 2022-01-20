@@ -22,7 +22,7 @@ namespace Lean
    hasMVar   : 1-bit
    hasParam  : 1-bit
    depth     : 24-bits -/
-def Level.Data := UInt64 deriving Repr
+def Level.Data := UInt64
 
 instance : Inhabited Level.Data :=
   inferInstanceAs (Inhabited UInt64)
@@ -42,11 +42,22 @@ def Level.Data.hasMVar (c : Level.Data) : Bool :=
 def Level.Data.hasParam (c : Level.Data) : Bool :=
   ((c.shiftRight 33).land 1) == 1
 
-def Level.mkData (h : UInt64) (depth : Nat) (hasMVar hasParam : Bool) : Level.Data :=
+def Level.mkData (h : UInt64) (depth : Nat := 0) (hasMVar hasParam : Bool := false) : Level.Data :=
   if depth > Nat.pow 2 24 - 1 then panic! "universe level depth is too big"
   else
     let r : UInt64 := h.toUInt32.toUInt64 + hasMVar.toUInt64.shiftLeft 32 + hasParam.toUInt64.shiftLeft 33 + depth.toUInt64.shiftLeft 40
     r
+
+instance : Repr Level.Data where
+  reprPrec v prec := Id.run do
+    let mut r := "Level.mkData " ++ toString v.hash
+    if v.depth != 0 then
+      r := r ++ " (depth := " ++ toString v.depth ++ ")"
+    if v.hasMVar then
+      r := r ++ " (hasMVar := " ++ toString v.hasMVar ++ ")"
+    if v.hasParam then
+      r := r ++ " (hasParam := " ++ toString v.hasParam ++ ")"
+    Repr.addAppParen r prec
 
 open Level
 

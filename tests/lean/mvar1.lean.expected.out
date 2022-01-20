@@ -1,5 +1,35 @@
 
 "fun (α : Type) (x : Nat) (y : α) => f α (g x y) (fun (z : Vec.{0} x) => f z)"
+Lean.Expr.lam
+  `α
+  (Lean.Expr.sort
+    (Lean.Level.succ (Lean.Level.zero (Level.mkData 2221)) (Level.mkData 1676277521 (depth := 1)))
+    (Expr.mkData 1469443585 (bi := Lean.BinderInfo.default)))
+  (Lean.Expr.lam
+    `x
+    (Lean.Expr.const `Nat [] (Expr.mkData 607656011 (bi := Lean.BinderInfo.default)))
+    (Lean.Expr.lam
+      `y
+      (Lean.Expr.bvar 1 (Expr.mkData 4280418285 (looseBVarRange := 2) (bi := Lean.BinderInfo.default)))
+      (Lean.Expr.app
+        (Lean.Expr.app
+          (Lean.Expr.const `f [] (Expr.mkData 3992371127 (bi := Lean.BinderInfo.default)))
+          (Lean.Expr.app
+            (Lean.Expr.app
+              (Lean.Expr.app
+                (Lean.Expr.mvar `m4 (Expr.mkData 3167598817 (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
+                (Lean.Expr.bvar 2 (Expr.mkData 4281466863 (looseBVarRange := 3) (bi := Lean.BinderInfo.default)))
+                (Expr.mkData 3865815667 (looseBVarRange := 3) (approxDepth := 1) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
+              (Lean.Expr.bvar 1 (Expr.mkData 4280418285 (looseBVarRange := 2) (bi := Lean.BinderInfo.default)))
+              (Expr.mkData 2569666812 (looseBVarRange := 3) (approxDepth := 2) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
+            (Lean.Expr.bvar 0 (Expr.mkData 4279369707 (looseBVarRange := 1) (bi := Lean.BinderInfo.default)))
+            (Expr.mkData 301857211 (looseBVarRange := 3) (approxDepth := 3) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
+          (Expr.mkData 2680907926 (looseBVarRange := 3) (approxDepth := 4) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
+        (Lean.Expr.bvar 1 (Expr.mkData 4280418285 (looseBVarRange := 2) (bi := Lean.BinderInfo.default)))
+        (Expr.mkData 664898593 (looseBVarRange := 3) (approxDepth := 5) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
+      (Expr.mkData 1849307364 (looseBVarRange := 2) (approxDepth := 6) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
+    (Expr.mkData 2223649209 (looseBVarRange := 1) (approxDepth := 7) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
+  (Expr.mkData 2139697862 (approxDepth := 8) (hasExprMVar := true) (bi := Lean.BinderInfo.default))
 
 "fun (α : Type) (x : Nat) (y : α) => f (?m4 α x y) x"
 "fun (α : Type) (x : Nat) (y : α) => f (?m4 α x y) x"

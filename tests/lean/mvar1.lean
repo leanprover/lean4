@@ -67,6 +67,8 @@ def mctx10 := mctx9.assignExpr `m1 a
 
 def t2 := lctx5.mkLambda #[α, x, y] $ mkAppN f #[mkAppN m4 #[α, x, y], x]
 
+#eval t2
+
 #eval check (!t2.hasFVar)
 #eval toString t2
 #eval toString (mctx6.instantiateMVars t2).1

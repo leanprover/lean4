@@ -187,7 +187,7 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr) : MetaM Expr := 
     let mvar0  ← mkFreshExprSyntheticOpaqueMVar target
     let mvarId ← deltaTarget mvar0.mvarId! (. == matchDeclName)
     trace[Meta.Match.matchEqs] "{MessageData.ofGoal mvarId}"
-    go mvarId 0
+    withDefault <| go mvarId 0
     mkLambdaFVars ys (← instantiateMVars mvar0)
 where
   go (mvarId : MVarId) (depth : Nat) : MetaM Unit := withIncRecDepth do

@@ -368,7 +368,7 @@ def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
 def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInformation) := do
   let references ← (← read).references.get
   let srcSearchPath := (← read).srcSearchPath
-  let symbols ← references.definitionsMatching srcSearchPath (maxAmount := some 100)
+  let symbols ← references.definitionsMatching srcSearchPath (maxAmount? := some 100)
     fun name =>
       let name := privateToUserName? name |>.getD name
       if containsCaseInsensitive p.query name.toString then

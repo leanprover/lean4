@@ -40,8 +40,10 @@ def findWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FileP
 
 /-- Like `findWithExt`, but ensures the returned path exists. -/
 def findModuleWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FilePath) := do
-  let root? ← sp.findM? fun p => do (modToFilePath p mod ext).pathExists
-  root?.map (modToFilePath · mod ext)
+  if let some path ← findWithExt sp ext mod then
+    if ← path.pathExists then
+      return some path
+  return none
 
 def findAllWithExt (sp : SearchPath) (ext : String) : IO (Array FilePath) := do
   let mut paths := #[]

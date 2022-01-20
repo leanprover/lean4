@@ -76,7 +76,7 @@ def sortNamePairs {α} [Inhabited α] (xs : List (MVarId × α)) : List (MVarId 
 
 #eval toString $ sortNames $ mctx5.decls.toList.map (·.1.name)
 #eval toString $ sortNamePairs $ mctx5.eAssignment.toList
-#eval e1
+#eval toString e1
 #eval check (!e1.hasFVar)
 
 def R2 :=
@@ -90,7 +90,7 @@ def mctx6 := R2.1
 #eval toString $ sortNamePairs $ mctx6.eAssignment.toList
 -- ?n.2 was delayed assigned because ?m.3 is synthetic
 #eval toString $ sortNames $ mctx6.dAssignment.toList.map (·.1.name)
-#eval e2
+#eval toString e2
 
 #print "assigning ?m1 and ?n.1"
 def R3 :=
@@ -100,4 +100,4 @@ let mctx := mctx.assignExpr (Name.mkNum `n 1) (mkLambda `_ bi typeE natE);
 (mctx.instantiateMVars e2)
 def e3    := R3.1
 def mctx7 := R3.2
-#eval e3
+#eval toString e3

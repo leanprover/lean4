@@ -57,6 +57,6 @@ def mctx7  := mctx6.assignExpr `m1 natE
 def t2 := lctx4.mkLambda #[α, x, y] $ mkAppN f #[mkAppN m3 #[α, x], x]
 
 #eval check (!t2.hasFVar)
-#eval t2
-#eval (mctx6.instantiateMVars t2).1
-#eval (mctx7.instantiateMVars t2).1
+#eval toString t2
+#eval toString (mctx6.instantiateMVars t2).1
+#eval toString (mctx7.instantiateMVars t2).1

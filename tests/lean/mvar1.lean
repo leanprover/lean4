@@ -52,7 +52,7 @@ def lctx6 := lctx5.mkLocalDecl `w `w (arrow natE (mkAppN m6 #[α, x, y]))
 
 def t1 := lctx5.mkLambda #[α, x, y] $ mkAppN f #[α, mkAppN g #[x, y], lctx5.mkLambda #[z] (mkApp f z)]
 #eval check (!t1.hasFVar)
-#eval t1
+#eval toString t1
 
 def mctx1 : MetavarContext := {}
 def mctx2  := mctx1.addExprMVarDecl `m1 `m1 lctx3 #[] natE
@@ -68,34 +68,34 @@ def mctx10 := mctx9.assignExpr `m1 a
 def t2 := lctx5.mkLambda #[α, x, y] $ mkAppN f #[mkAppN m4 #[α, x, y], x]
 
 #eval check (!t2.hasFVar)
-#eval t2
-#eval (mctx6.instantiateMVars t2).1
+#eval toString t2
+#eval toString (mctx6.instantiateMVars t2).1
 #eval check (!(mctx9.instantiateMVars t2).1.hasMVar)
 #eval check (!(mctx9.instantiateMVars t2).1.hasFVar)
-#eval (mctx9.instantiateMVars t2).1
+#eval toString (mctx9.instantiateMVars t2).1
 
 -- t3 is ill-formed since m3's localcontext contains ‵α`, `x` and `y`
 def t3 := lctx5.mkLambda #[α, x, y] $ mkAppN f #[m3, x]
 #eval check (mctx10.instantiateMVars t3).1.hasFVar
-#eval (mctx7.instantiateMVars t3).1
+#eval toString (mctx7.instantiateMVars t3).1
 
 partial def mkDiamond : Nat → Expr
 | 0     => m1
 | (n+1) => mkAppN f #[mkDiamond n, mkDiamond n]
 
-#eval (mctx7.instantiateMVars (mkDiamond 3)).1
-#eval (mctx10.instantiateMVars (mkDiamond 3)).1
-#eval (mctx7.instantiateMVars (mkDiamond 100)).1.getAppFn
-#eval (mctx10.instantiateMVars (mkDiamond 100)).1.getAppFn
+#eval toString (mctx7.instantiateMVars (mkDiamond 3)).1
+#eval toString (mctx10.instantiateMVars (mkDiamond 3)).1
+#eval toString (mctx7.instantiateMVars (mkDiamond 100)).1.getAppFn
+#eval toString (mctx10.instantiateMVars (mkDiamond 100)).1.getAppFn
 
 def mctx11 := mctx10.assignDelayed `m6 lctx5 #[α, x, y] m5
 def mctx12 := mctx11.assignExpr `m5 (arrow α α)
 
 def t4 := lctx6.mkLambda #[α, x, y, w] $ mkAppN f #[mkAppN m4 #[α, x, y], x]
 
-#eval t4
-#eval (mctx9.instantiateMVars t4).1
-#eval (mctx12.instantiateMVars t4).1
+#eval toString t4
+#eval toString (mctx9.instantiateMVars t4).1
+#eval toString (mctx12.instantiateMVars t4).1
 #eval check (mctx9.instantiateMVars t4).1.hasMVar
 #eval check (!((mctx9.instantiateMVars t4).1.hasFVar))
 #eval check (!(mctx12.instantiateMVars t4).1.hasMVar)

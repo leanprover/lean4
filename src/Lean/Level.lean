@@ -22,7 +22,7 @@ namespace Lean
    hasMVar   : 1-bit
    hasParam  : 1-bit
    depth     : 24-bits -/
-def Level.Data := UInt64
+def Level.Data := UInt64 deriving Repr
 
 instance : Inhabited Level.Data :=
   inferInstanceAs (Inhabited UInt64)
@@ -52,7 +52,7 @@ open Level
 
 structure MVarId where
   name : Name
-  deriving Inhabited, BEq, Hashable
+  deriving Inhabited, BEq, Hashable, Repr
 
 instance : Repr MVarId where
   reprPrec n p := reprPrec n.name p
@@ -78,7 +78,7 @@ inductive Level where
   | imax   : Level → Level → Data → Level
   | param  : Name → Data → Level
   | mvar   : MVarId → Data → Level
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 namespace Level
 

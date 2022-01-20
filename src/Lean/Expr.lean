@@ -79,7 +79,7 @@ abbrev MData.empty : MData := {}
    binderInfo     : 3-bits
    approxDepth    : 8-bits -- the approximate depth is used to minimize the number of hash collisions
    looseBVarRange : 16-bits -/
-def Expr.Data := UInt64
+def Expr.Data := UInt64 deriving Repr
 
 instance: Inhabited Expr.Data :=
   inferInstanceAs (Inhabited UInt64)
@@ -128,9 +128,9 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
   | BinderInfo.instImplicit   => 3
   | BinderInfo.auxDecl        => 4
 
-@[inline] private def Expr.mkDataCore
-    (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8)
-    (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) (bi : BinderInfo)
+def Expr.mkData
+    (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt8 := 0)
+    (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) (bi : BinderInfo := BinderInfo.default) (nonDepLet : Bool := false)
     : Expr.Data :=
   if looseBVarRange > Nat.pow 2 16 - 1 then panic! "bound variable index is too big"
   else
@@ -146,14 +146,11 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
       looseBVarRange.toUInt64.shiftLeft 48
     r
 
-def Expr.mkData (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt8 := 0) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) : Expr.Data :=
-  Expr.mkDataCore h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam false BinderInfo.default
+@[inline] def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.Data :=
+  Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam bi false
 
-def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.Data :=
-  Expr.mkDataCore h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam false bi
-
-def Expr.mkDataForLet (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : Expr.Data :=
-  Expr.mkDataCore h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet BinderInfo.default
+@[inline] def Expr.mkDataForLet (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : Expr.Data :=
+  Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam BinderInfo.default nonDepLet
 
 open Expr
 
@@ -194,7 +191,7 @@ inductive Expr where
   | lit     : Literal → Data → Expr                   -- literals
   | mdata   : MData → Expr → Data → Expr              -- metadata
   | proj    : Name → Nat → Expr → Data → Expr         -- projection
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 namespace Expr
 

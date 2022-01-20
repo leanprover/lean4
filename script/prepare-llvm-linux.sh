@@ -36,9 +36,11 @@ OPTIONS=()
 echo -n " -DLEAN_STANDALONE=ON"
 echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang -DCMAKE_CXX_COMPILER=$PWD/llvm/bin/clang++ -DLEAN_CXX_STDLIB='-Wl,-Bstatic -lc++ -lc++abi -Wl,-Bdynamic'"
 # allow C++ code to include /usr since it needs quite a few more headers
-# set sysroot for both C++ and C to make sure we have all necessary runtime files, but don't embed in `leanc` so users can still link to system libs
-echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -I/usr/include -I/usr/include/x86_64-linux-gnu'"
-echo -n " -DLEANC_INTERNAL_FLAGS='-I ROOT/include/clang' -DLEANC_OPTS='--sysroot $PWD/stage1' -DLEANC_CC=ROOT/bin/clang"
+# set sysroot for clang to make sure we have all necessary runtime files
+echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -isystem /usr/include -isystem /usr/include/x86_64-linux-gnu'"
+# ... but don't embed in `leanc` so users can still link to system libs, while using `-nostdinc` to make sure headers are not visible by default
+# (in particular, not to `#include_next` in the clang headers)
+echo -n " -DLEANC_INTERNAL_FLAGS='-nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang"
 echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/glibc ROOT/lib/glibc/libc_nonshared.a -Wl,--as-needed -static-libgcc -Wl,-Bstatic -lgmp -lunwind -Wl,-Bdynamic -fuse-ld=lld'"
 # do not set `LEAN_CC` for tests
 echo -n " -DLEAN_TEST_VARS=''"

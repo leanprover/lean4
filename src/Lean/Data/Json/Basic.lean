@@ -100,7 +100,7 @@ protected def toString : JsonNumber → String
     let exp := if exp < 0 then exp else 0
     let e' := (10 : Int) ^ (e - exp.natAbs)
     let left := (m / e').repr
-    let right := e' + coe m % e'
+    let right := e' + ↑m % e'
       |>.repr.toSubstring.drop 1
       |>.dropRightWhile (fun c => c = '0')
       |>.toString

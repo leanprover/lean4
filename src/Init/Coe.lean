@@ -40,19 +40,7 @@ class CoeFun (α : Sort u) (γ : outParam (α → Sort v)) where
 class CoeSort (α : Sort u) (β : outParam (Sort v)) where
   coe : α → β
 
-abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β :=
-  CoeT.coe a
-
-syntax:max (name := coeNotation) "↑" term : term
-
-macro_rules -- TODO: delete after update stage0
-  | `(↑ $x) => `(CoeT.coe $x)
-
-abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a :=
-  CoeFun.coe a
-
-abbrev coeSort {α : Sort u} {β : Sort v} (a : α) [CoeSort α β] : β :=
-  CoeSort.coe a
+syntax:max (name := coeNotation) "↑" term:max : term
 
 instance coeTrans {α : Sort u} {β : Sort v} {δ : Sort w} [Coe β δ] [CoeTC α β] : CoeTC α δ where
   coe a := Coe.coe (CoeTC.coe a : β)
@@ -96,10 +84,7 @@ instance coeSortToCoeTail [inst : CoeSort α β] : CoeTail α β where
   coe b := b = true
 
 instance boolToSort : CoeSort Bool Prop where
-  coe b := b
-
-@[inline] instance coeDecidableEq (x : Bool) : Decidable (coe x) :=
-  inferInstanceAs (Decidable (x = true))
+  coe b := b = true
 
 instance decPropToBool (p : Prop) [Decidable p] : CoeDep Prop p Bool where
   coe := decide p
@@ -114,17 +99,17 @@ instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeHead { x // p x } α wh
 
 @[inline] def liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β := do
   let a ← liftM x
-  pure (coe a)
+  pure (CoeT.coe a)
 
 @[inline] def coeM {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] (x : m α) : m β := do
   let a ← x
-  pure <| coe a
+  pure <| CoeT.coe a
 
 instance [CoeFun α β] (a : α) : CoeDep α a (β a) where
-  coe := coeFun a
+  coe := CoeFun.coe a
 
 instance [CoeFun α (fun _ => β)] : CoeTail α β  where
-  coe a := coeFun a
+  coe a := CoeFun.coe a
 
 instance [CoeSort α β] : CoeTail α β where
-  coe a := coeSort a
+  coe a := CoeSort.coe a

@@ -13,6 +13,7 @@ import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
 
 import Lean.Util.Paths
+import Lean.LoadDynlib
 
 import Lean.Server.Utils
 import Lean.Server.Snapshots
@@ -175,6 +176,7 @@ section Initialization
       let Except.ok (paths : LeanPaths) ← pure (Json.parse stdout >>= fromJson?)
         | throwServerError s!"invalid output from `{cmdStr}`:\n{stdout}\nstderr:\n{stderr}"
       initSearchPath (← getBuildDir) paths.oleanPath
+      paths.loadDynlibPaths.forM loadDynlib
       paths.srcPath.mapM realPathNormalized
     | 2 => pure []  -- no lakefile.lean
     | _ => throwServerError s!"`{cmdStr}` failed:\n{stdout}\nstderr:\n{stderr}"

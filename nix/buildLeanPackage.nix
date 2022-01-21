@@ -45,10 +45,13 @@ with builtins; let
     preferLocalBuild = true;
     allowSubstitutes = false;
   }) buildCommand;
-  mkSharedLib = name: args: runBareCommand "${name}-dynlib" { buildInputs = [ stdenv.cc ] ++ lib.optional stdenv.isDarwin darwin.cctools; } ''
+  mkSharedLib = name: args: runBareCommand "${name}-dynlib" {
+    buildInputs = [ stdenv.cc ] ++ lib.optional stdenv.isDarwin darwin.cctools;
+    libName = "${name}.${stdenv.hostPlatform.extensions.sharedLibrary}";
+  } ''
     mkdir -p $out
     ${leanc}/bin/leanc -fPIC -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} ${lib.optionalString stdenv.isDarwin "-Wl,-undefined,dynamic_lookup"} -L ${gmp}/lib \
-      ${args} -o $out/${name}.so
+      ${args} -o $out/$libName
   '';
   depRoot = name: deps: mkBareDerivation {
     name = "${name}-depRoot";
@@ -81,7 +84,8 @@ with builtins; let
   pathOfSharedLib = dep: dep.libPath or "${dep}/${dep.libName or dep.name}";
 
   leanPluginFlags = lib.concatStringsSep " " (map (dep: "--plugin=${pathOfSharedLib dep}") pluginDeps);
-  pkgLeanLoadDynlibFlags = map (dep: "--load-dynlib=${pathOfSharedLib dep}") allNativeSharedLibs;
+  pkgLeanLoadDynlibPaths = map pathOfSharedLib allNativeSharedLibs;
+  loadDynlibPathsOfDeps = deps: concatMap (d: lib.optional (d ? sharedLib) (pathOfSharedLib d.sharedLib)) deps;
 
   fakeDepRoot = runBareCommandLocal "${name}-dep-root" {} ''
     mkdir $out
@@ -116,7 +120,7 @@ with builtins; let
     ileanPath = relpath + ".ilean";
     cPath = relpath + ".c";
     inherit leanFlags leanPluginFlags;
-    leanLoadDynlibFlags = pkgLeanLoadDynlibFlags ++ map (d: lib.optional (d ? sharedLib) "--load-dynlib=${d.sharedLib}/${d.sharedLib.name}") deps;
+    leanLoadDynlibFlags = map (p: "--load-dynlib=${p}") (pkgLeanLoadDynlibPaths ++ loadDynlibPathsOfDeps deps);
     buildCommand = ''
       dir=$(dirname $relpath)
       mkdir -p $dir $out/$dir $ilean/$dir $c/$dir
@@ -162,7 +166,11 @@ with builtins; let
     PATH=${lean}/bin:$PATH ${lean-vscode}/bin/code "$@"
   '';
   printPaths = deps: writeShellScriptBin "print-paths" ''
-    echo '${toJSON { oleanPath = [(depRoot "print-paths" deps)]; srcPath = ["."] ++ map (dep: dep.src) allExternalDeps; }}'
+    echo '${toJSON {
+      oleanPath = [(depRoot "print-paths" deps)];
+      srcPath = ["."] ++ map (dep: dep.src) allExternalDeps;
+      loadDynlibPaths = loadDynlibPathsOfDeps deps;
+    }}'
   '';
   makePrintPathsFor = deps: mods: printPaths deps // mapAttrs (_: mod: makePrintPathsFor (deps ++ [mod]) mods) mods;
   mods' = buildModAndDeps name {};
@@ -209,7 +217,7 @@ in rec {
   emacs-package = makeEmacsWrapper "emacs-package" lean-package;
   vscode-package = makeVSCodeWrapper "vscode-package" lean-package;
 
-  print-paths = makePrintPathsFor [] (mods // externalModMap);
+  print-paths = makePrintPathsFor [] (mods' // externalModMap);
   # `lean` wrapper that dynamically runs Nix for the actual `lean` executable so the same editor can be
   # used for multiple projects/after upgrading the `lean` input/for editing both stage 1 and the tests
   lean-bin-dev = substituteAll {

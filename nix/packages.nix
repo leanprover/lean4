@@ -49,12 +49,11 @@ let
     pname = "lean4-mode";
     version = "1";
     commit = "1";
-    src = ../lean4-mode;
+    src = args.lean4-mode;
     packageRequires = with pkgs.emacsPackages.melpaPackages; [ dash f flycheck magit-section lsp-mode s ];
     recipe = pkgs.writeText "recipe" ''
-      (lean4-mode :repo "leanprover/lean4" :fetcher github :files ("*.el"))
+      (lean4-mode :repo "leanprover/lean4-mode" :fetcher github)
     '';
-    fileSpecs = [ "*.el" ];
   };
   lean-emacs = emacsWithPackages [ lean4-mode ];
   # updating might be nicer by building from source from a flake input, but this is good enough for now

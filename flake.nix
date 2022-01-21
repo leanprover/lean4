@@ -12,6 +12,10 @@
     url = github:leanprover/mdBook;
     flake = false;
   };
+  inputs.lean4-mode = {
+    url = github:leanprover/lean4-mode;
+    flake = false;
+  };
   # used *only* by `stage0-from-input` below
   inputs.lean-stage0 = {
     url = github:leanprover/lean4;
@@ -22,14 +26,14 @@
     inputs.mdBook.follows = "mdBook";
   };
 
-  outputs = { self, nixpkgs, flake-utils, temci, nix, mdBook, lean-stage0 }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, flake-utils, temci, nix, mdBook, lean4-mode, lean-stage0 }: flake-utils.lib.eachDefaultSystem (system:
     let
       pkgs = import nixpkgs {
         inherit system;
         # for `vscode-with-extensions`
         config.allowUnfree = true;
       };
-      lean-packages = pkgs.callPackage (./nix/packages.nix) { inherit nix temci mdBook; };
+      lean-packages = pkgs.callPackage (./nix/packages.nix) { inherit nix temci mdBook lean4-mode; };
     in {
       packages = lean-packages // rec {
         debug = lean-packages.override { debug = true; };

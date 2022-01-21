@@ -5,19 +5,11 @@ See [Setup](./setup.md) for other ways and more details on setting up Lean.
 
 1. Install [VS Code](https://code.visualstudio.com/).
 
-1. Create a new folder called `foo` and add a file named `hello.lean`
-containing the following:
-
-    ```lean
-    import Lean
-    #eval Lean.versionString
-    ```
-
-1. Open this folder in VS Code and install the `lean4` extension.
+1. Launch VS Code and install the `lean4` extension.
 
     ![installing the vscode-lean4 extension](images/code-ext.png)
 
-1. Open the file named `hello.lean` you created earlier and you should see the following popup:
+1. Create a new file using  "File > New File" and click the `Select a language` link and type in `lean4` and hit ENTER.  You should see the following popup:
     ![elan](images/install_elan.png)
 
     Click the "Install Lean using Elan" link and follow the progress
@@ -29,14 +21,23 @@ containing the following:
     info: downloading component 'lean'
     ```
 
-    You should get a syntax-highlighted file with a "Lean Infoview" on the right.  You will see the output of the #eval statement when
+1. While it is installing you can paste the following Lean program into the new file:
+
+    ```lean
+    import Lean
+    #eval Lean.versionString
+    ```
+
+    When the install finishes the Lean Language Server should start automatically and you should get a syntax-highlighting and a "Lean Infoview" popping up on the right.  You will see the output of the #eval statement when
     you place your cursor at the end of the #eval statement.
 
     ![successful setup](images/code-success.png)
 
-1. You are set up!
+You are set up!
 
-You can now also run `lake init foo` from the the "View > Terminal" to create a package, followed by `lake build` to get an executable version of your Lean program.
+## Create a Lean Project
+
+You can now create a Lean Project in a new folder, run `lake init foo` from the the "View > Terminal" to create a package, followed by `lake build` to get an executable version of your Lean program.
 
 Note: Packages **have** to be opened using "File > Open Folder..." for imports to work.
 Saved changes are visible in other files after running "Lean 4: Refresh File Dependencies" (`Ctrl+Shift+X`).

@@ -1,0 +1,2 @@
+instDecidableLeThingAInstLEThingA : (t₁ t₂ : ThingA) → Decidable (t₁ ≤ t₂)
+instDecidableLeThingBInstLEThingB : (t₁ t₂ : ThingB) → Decidable (t₁ ≤ t₂)

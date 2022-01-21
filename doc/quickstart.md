@@ -36,7 +36,8 @@ You are set up!
 
 ## Create a Lean Project
 
-You can now create a Lean Project in a new folder, run `lake init foo` from the the "View > Terminal" to create a package, followed by `lake build` to get an executable version of your Lean program.
+You can now create a Lean project in a new folder. Run `lake init foo` from the "View > Terminal" to create a package, followed by `lake build` to get an executable version of your Lean program.
+On Linux/macOS, you first have to follow the instructions printed by the Lean installation or log out and in again for the Lean executables to be available in you terminal.
 
 Note: Packages **have** to be opened using "File > Open Folder..." for imports to work.
 Saved changes are visible in other files after running "Lean 4: Refresh File Dependencies" (`Ctrl+Shift+X`).

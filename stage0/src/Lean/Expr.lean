@@ -446,6 +446,10 @@ def isSort : Expr → Bool
   | sort _ _ => true
   | _        => false
 
+def isType : Expr → Bool
+  | sort (Level.succ ..) _ => true
+  | _ => false
+
 def isProp : Expr → Bool
   | sort (Level.zero ..) _ => true
   | _ => false

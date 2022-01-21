@@ -35,6 +35,7 @@ LEAN_EXPORT lean_object* l_coeOfTail(lean_object*, lean_object*);
 static lean_object* l_coeNotation___closed__5;
 LEAN_EXPORT lean_object* l_coeOfHeadOfTC___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_coeNotation___closed__8;
+LEAN_EXPORT lean_object* l_Lean_Internal_liftCoeM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_decPropToBool___rarg___boxed(lean_object*);
 static lean_object* l_coeNotation___closed__4;
 LEAN_EXPORT lean_object* l_instCoeDep(lean_object*, lean_object*);
@@ -42,7 +43,6 @@ LEAN_EXPORT lean_object* l_coeNotation;
 LEAN_EXPORT lean_object* l_coeSortToCoeTail___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Internal_liftCoeM(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_coeNotation___closed__3;
-LEAN_EXPORT lean_object* l_liftCoeM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Internal_coeM___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_coeOfHTCT(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_boolToSort;
@@ -55,7 +55,6 @@ LEAN_EXPORT lean_object* l_coeOfHead(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_optionCoe___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_coeOfDep___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_coeOfTC(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_liftCoeM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_coeOfTail___rarg(lean_object*, lean_object*);
 static lean_object* l_coeNotation___closed__7;
 LEAN_EXPORT lean_object* l_instCoeTail__1(lean_object*, lean_object*);
@@ -63,13 +62,10 @@ LEAN_EXPORT lean_object* l_coeOfDep___boxed(lean_object*, lean_object*, lean_obj
 static lean_object* l_coeNotation___closed__11;
 LEAN_EXPORT lean_object* l_coeTrans___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_optionCoe(lean_object*);
-LEAN_EXPORT lean_object* l_coeM(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_coeId(lean_object*);
 LEAN_EXPORT lean_object* l_subtypeCoe___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_subtypeCoe(lean_object*, lean_object*);
 static lean_object* l_coeNotation___closed__6;
-LEAN_EXPORT lean_object* l_coeM___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_liftCoeM(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_coeOfHeafOfTCOfTail___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_boolToProp;
 LEAN_EXPORT lean_object* l_coeId___rarg(lean_object*);
@@ -507,7 +503,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_liftCoeM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Internal_liftCoeM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
@@ -522,28 +518,6 @@ x_7 = lean_apply_2(x_5, lean_box(0), x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_liftCoeM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_5 = lean_ctor_get(x_3, 1);
-lean_inc(x_5);
-x_6 = lean_apply_2(x_1, lean_box(0), x_4);
-x_7 = lean_alloc_closure((void*)(l_liftCoeM___rarg___lambda__1), 3, 2);
-lean_closure_set(x_7, 0, x_3);
-lean_closure_set(x_7, 1, x_2);
-x_8 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_6, x_7);
-return x_8;
-}
-}
-LEAN_EXPORT lean_object* l_liftCoeM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
-_start:
-{
-lean_object* x_5; 
-x_5 = lean_alloc_closure((void*)(l_liftCoeM___rarg), 4, 0);
-return x_5;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Internal_liftCoeM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -551,7 +525,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 x_6 = lean_apply_2(x_1, lean_box(0), x_4);
-x_7 = lean_alloc_closure((void*)(l_liftCoeM___rarg___lambda__1), 3, 2);
+x_7 = lean_alloc_closure((void*)(l_Lean_Internal_liftCoeM___rarg___lambda__1), 3, 2);
 lean_closure_set(x_7, 0, x_3);
 lean_closure_set(x_7, 1, x_2);
 x_8 = lean_apply_4(x_5, lean_box(0), lean_box(0), x_6, x_7);
@@ -566,34 +540,13 @@ x_5 = lean_alloc_closure((void*)(l_Lean_Internal_liftCoeM___rarg), 4, 0);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_coeM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_ctor_get(x_2, 1);
-lean_inc(x_4);
-x_5 = lean_alloc_closure((void*)(l_liftCoeM___rarg___lambda__1), 3, 2);
-lean_closure_set(x_5, 0, x_2);
-lean_closure_set(x_5, 1, x_1);
-x_6 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_3, x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_coeM(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = lean_alloc_closure((void*)(l_coeM___rarg), 3, 0);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Internal_coeM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
-x_5 = lean_alloc_closure((void*)(l_liftCoeM___rarg___lambda__1), 3, 2);
+x_5 = lean_alloc_closure((void*)(l_Lean_Internal_liftCoeM___rarg___lambda__1), 3, 2);
 lean_closure_set(x_5, 0, x_2);
 lean_closure_set(x_5, 1, x_1);
 x_6 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_3, x_5);

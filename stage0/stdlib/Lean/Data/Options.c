@@ -117,7 +117,7 @@ static lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a
 LEAN_EXPORT lean_object* l_Lean_instMonadOptions___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 static lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d_____closed__13;
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_124_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_121_(lean_object*);
 static lean_object* l_Lean_setOptionFromString___closed__8;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
 lean_object* l_Std_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
@@ -333,7 +333,7 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_124_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Data_Options___hyg_121_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
@@ -3746,7 +3746,7 @@ l_Lean_instInhabitedOptionDecl = _init_l_Lean_instInhabitedOptionDecl();
 lean_mark_persistent(l_Lean_instInhabitedOptionDecl);
 l_Lean_instInhabitedOptionDecls = _init_l_Lean_instInhabitedOptionDecls();
 lean_mark_persistent(l_Lean_instInhabitedOptionDecls);
-if (builtin) {res = l_Lean_initFn____x40_Lean_Data_Options___hyg_124_(lean_io_mk_world());
+if (builtin) {res = l_Lean_initFn____x40_Lean_Data_Options___hyg_121_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l___private_Lean_Data_Options_0__Lean_optionDeclsRef = lean_io_result_get_value(res);
 lean_mark_persistent(l___private_Lean_Data_Options_0__Lean_optionDeclsRef);

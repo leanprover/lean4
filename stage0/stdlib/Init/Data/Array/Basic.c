@@ -214,7 +214,6 @@ static lean_object* l_Array_instReprArray___rarg___closed__7;
 LEAN_EXPORT lean_object* l_Array_findRev_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Array_appendList___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Array_instHAppendArrayListArray___closed__1;
 LEAN_EXPORT lean_object* l_List_foldl___at_Array_appendList___spec__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Array_filter___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_instBEqArray___rarg(lean_object*, lean_object*, lean_object*);
@@ -424,6 +423,7 @@ LEAN_EXPORT lean_object* l_Array_isEmpty___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_erase(lean_object*);
 LEAN_EXPORT lean_object* l_Array_isPrefixOf___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_instHAppendArrayList(lean_object*);
 LEAN_EXPORT lean_object* l_Array_reverse_rev___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Data__Array__Basic______macroRules__term_x23_x5b___x2c_x5d__1___closed__13;
 static lean_object* l_term_x23_x5b___x2c_x5d___closed__10;
@@ -473,6 +473,7 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyM_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Data__Array__Basic______macroRules__term_x23_x5b___x2c_x5d__1___closed__8;
+static lean_object* l_Array_instHAppendArrayList___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Array_toList___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_unzip___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Array_unzip___rarg___boxed(lean_object*);
@@ -543,7 +544,6 @@ LEAN_EXPORT lean_object* l_Array_contains___rarg___boxed(lean_object*, lean_obje
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Array_insertAt___spec__1___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Array_toList___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Array_instHAppendArrayListArray(lean_object*);
 LEAN_EXPORT lean_object* l_Array_eraseIdxAux___rarg(lean_object*, lean_object*);
 static lean_object* l_Array_instReprArray___rarg___closed__3;
 static lean_object* l___aux__Init__Data__Array__Basic______macroRules__term_x23_x5b___x2c_x5d__1___closed__24;
@@ -6539,7 +6539,7 @@ x_2 = lean_alloc_closure((void*)(l_Array_appendList___rarg), 2, 0);
 return x_2;
 }
 }
-static lean_object* _init_l_Array_instHAppendArrayListArray___closed__1() {
+static lean_object* _init_l_Array_instHAppendArrayList___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -6547,11 +6547,11 @@ x_1 = lean_alloc_closure((void*)(l_Array_appendList___rarg), 2, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Array_instHAppendArrayListArray(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Array_instHAppendArrayList(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Array_instHAppendArrayListArray___closed__1;
+x_2 = l_Array_instHAppendArrayList___closed__1;
 return x_2;
 }
 }
@@ -9696,8 +9696,8 @@ l_Array_instToStringArray___rarg___closed__1 = _init_l_Array_instToStringArray__
 lean_mark_persistent(l_Array_instToStringArray___rarg___closed__1);
 l_Array_instAppendArray___closed__1 = _init_l_Array_instAppendArray___closed__1();
 lean_mark_persistent(l_Array_instAppendArray___closed__1);
-l_Array_instHAppendArrayListArray___closed__1 = _init_l_Array_instHAppendArrayListArray___closed__1();
-lean_mark_persistent(l_Array_instHAppendArrayListArray___closed__1);
+l_Array_instHAppendArrayList___closed__1 = _init_l_Array_instHAppendArrayList___closed__1();
+lean_mark_persistent(l_Array_instHAppendArrayList___closed__1);
 l_term_x23_x5b___x2c_x5d___closed__1 = _init_l_term_x23_x5b___x2c_x5d___closed__1();
 lean_mark_persistent(l_term_x23_x5b___x2c_x5d___closed__1);
 l_term_x23_x5b___x2c_x5d___closed__2 = _init_l_term_x23_x5b___x2c_x5d___closed__2();

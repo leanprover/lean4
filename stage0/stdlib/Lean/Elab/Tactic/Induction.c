@@ -353,7 +353,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tac
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_withCaseRef___at_Lean_Elab_Tactic_evalAlt___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstCore___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getElimNameInfo___spec__6___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_ElimApp_mkElimApp_loop___closed__1;
-lean_object* l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_376_(uint8_t, lean_object*);
+lean_object* l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_372_(uint8_t, lean_object*);
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_ElimApp_getNumExplicitFields___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_appendGoals(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4038,7 +4038,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_376_(x_1, x_2);
+x_3 = l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_372_(x_1, x_2);
 return x_3;
 }
 }
@@ -4067,7 +4067,7 @@ lean_dec(x_1);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = lean_unbox(x_5);
 lean_dec(x_5);
-x_8 = l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_376_(x_7, x_6);
+x_8 = l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_372_(x_7, x_6);
 return x_8;
 }
 else
@@ -4079,7 +4079,7 @@ lean_dec(x_1);
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = lean_unbox(x_9);
 lean_dec(x_9);
-x_12 = l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_376_(x_11, x_10);
+x_12 = l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_372_(x_11, x_10);
 lean_inc(x_2);
 x_13 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_13, 0, x_12);

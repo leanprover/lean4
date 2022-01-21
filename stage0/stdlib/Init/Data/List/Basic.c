@@ -115,6 +115,7 @@ LEAN_EXPORT lean_object* l_List_zipWith(lean_object*, lean_object*, lean_object*
 LEAN_EXPORT uint8_t l_List_foldr___at_List_all___spec__1___rarg(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_List_append___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_lookup(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_List_instForAllListDecidableLeInstLEList___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_takeWhile___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_eraseDupsAux(lean_object*);
 LEAN_EXPORT lean_object* l_min___at_List_minimum_x3f___spec__1(lean_object*, lean_object*);
@@ -122,10 +123,8 @@ LEAN_EXPORT lean_object* l_List_map_u2082(lean_object*, lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_List_hasDecidableLt(lean_object*);
 LEAN_EXPORT lean_object* l_List_unzip(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_map(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_List_instListDecidableLe___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_eraseReps___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_instListDecidableLe(lean_object*);
 LEAN_EXPORT lean_object* l_List_removeAll(lean_object*);
 LEAN_EXPORT lean_object* l_List_replicateTR_loop(lean_object*);
 LEAN_EXPORT lean_object* l_List_enumFrom___rarg(lean_object*, lean_object*);
@@ -186,8 +185,8 @@ LEAN_EXPORT lean_object* l_List_groupBy(lean_object*);
 static lean_object* l_List_instAppendList___closed__1;
 LEAN_EXPORT lean_object* l_List_reverseAux___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_List_maximum_x3f___spec__2(lean_object*);
-LEAN_EXPORT lean_object* l_List_instListDecidableLe___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_any___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_instForAllListDecidableLeInstLEList(lean_object*);
 LEAN_EXPORT lean_object* l_List_isPrefixOf(lean_object*);
 LEAN_EXPORT lean_object* l_List_intercalate(lean_object*);
 LEAN_EXPORT lean_object* l_List_beq(lean_object*);
@@ -203,6 +202,7 @@ LEAN_EXPORT lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_hasDecidableLt___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTRAux___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_elem(lean_object*);
+LEAN_EXPORT lean_object* l_List_instForAllListDecidableLeInstLEList___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_partition___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_reverseAux___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
@@ -3711,7 +3711,7 @@ lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT uint8_t l_List_instListDecidableLe___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT uint8_t l_List_instForAllListDecidableLeInstLEList___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; uint8_t x_6; 
@@ -3720,19 +3720,19 @@ x_6 = l_instDecidableNot___rarg(x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_List_instListDecidableLe(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_List_instForAllListDecidableLeInstLEList(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_instListDecidableLe___rarg___boxed), 4, 0);
+x_2 = lean_alloc_closure((void*)(l_List_instForAllListDecidableLeInstLEList___rarg___boxed), 4, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_List_instListDecidableLe___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_List_instForAllListDecidableLeInstLEList___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
 uint8_t x_5; lean_object* x_6; 
-x_5 = l_List_instListDecidableLe___rarg(x_1, x_2, x_3, x_4);
+x_5 = l_List_instForAllListDecidableLeInstLEList___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_1);
 x_6 = lean_box(x_5);
 return x_6;

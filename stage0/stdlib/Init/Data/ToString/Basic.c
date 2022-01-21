@@ -56,7 +56,6 @@ LEAN_EXPORT lean_object* l_instToStringUInt32(uint32_t);
 LEAN_EXPORT lean_object* l_instToStringDecidable(lean_object*);
 static lean_object* l_instReprExcept___rarg___closed__2;
 LEAN_EXPORT lean_object* l_instToStringUInt8___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_instToStringId__1(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringUnit___boxed(lean_object*);
 static lean_object* l_String_toInt_x3f___closed__3;
@@ -108,6 +107,7 @@ static lean_object* l_instReprExcept___rarg___closed__1;
 extern lean_object* l_Id_instMonadId;
 LEAN_EXPORT lean_object* l_instToStringOption(lean_object*);
 uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instToStringIdType___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instReprExcept___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_toString(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringSum(lean_object*, lean_object*);
@@ -116,7 +116,6 @@ static lean_object* l_instToStringPUnit___closed__1;
 static lean_object* l_instToStringInt___closed__2;
 LEAN_EXPORT lean_object* l_instToStringPUnit___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringInt(lean_object*);
-LEAN_EXPORT lean_object* l_instToStringId__1___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringUInt32___boxed(lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 static lean_object* l_instToStringSum___rarg___closed__2;
@@ -126,13 +125,13 @@ static lean_object* l_instToStringOption___rarg___closed__1;
 LEAN_EXPORT lean_object* l_instToStringUInt16___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instReprExcept(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instToStringId__1___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringSubstring___boxed(lean_object*);
 lean_object* lean_uint64_to_nat(uint64_t);
 LEAN_EXPORT lean_object* l_instToStringId___rarg___boxed(lean_object*);
 static lean_object* l_instReprExcept___rarg___closed__3;
 LEAN_EXPORT lean_object* l_instToStringUSize___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringDecidable___rarg(uint8_t);
+LEAN_EXPORT lean_object* l_instToStringIdType(lean_object*);
 lean_object* l_OptionT_instAlternativeOptionT___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringULift___rarg(lean_object*, lean_object*);
 static lean_object* l_addParenHeuristic___closed__3;
@@ -147,6 +146,7 @@ lean_object* lean_uint16_to_nat(uint16_t);
 LEAN_EXPORT lean_object* l_instToStringBool___boxed(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_instToStringDecidable___rarg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_instToStringIdType___rarg___boxed(lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 static lean_object* l_instReprExcept___rarg___closed__4;
 lean_object* lean_nat_to_int(lean_object*);
@@ -155,6 +155,30 @@ static lean_object* l_addParenHeuristic___closed__1;
 lean_object* lean_uint8_to_nat(uint8_t);
 LEAN_EXPORT lean_object* l_instToStringFin___boxed(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instToStringIdType___rarg(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_instToStringIdType(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instToStringIdType___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_instToStringIdType___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_instToStringIdType___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_instToStringId___rarg(lean_object* x_1) {
 _start:
 {
@@ -175,30 +199,6 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_instToStringId___rarg(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_instToStringId__1___rarg(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_instToStringId__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_instToStringId__1___rarg___boxed), 1, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_instToStringId__1___rarg___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_instToStringId__1___rarg(x_1);
 lean_dec(x_1);
 return x_2;
 }

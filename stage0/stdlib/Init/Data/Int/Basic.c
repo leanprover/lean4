@@ -36,7 +36,6 @@ lean_object* lean_int_mul(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_instDecidableEqInt___boxed(lean_object*, lean_object*);
 static lean_object* l_Int_instSubInt___closed__1;
-LEAN_EXPORT lean_object* l_Int_instHPowIntNatInt;
 LEAN_EXPORT lean_object* l_Int_subNatNat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_instModInt;
 LEAN_EXPORT lean_object* l_Int_toNat___boxed(lean_object*);
@@ -51,6 +50,7 @@ LEAN_EXPORT lean_object* l_Int_instLEInt;
 LEAN_EXPORT lean_object* l_Int_natMod___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_toNat(lean_object*);
 lean_object* lean_int_neg(lean_object*);
+LEAN_EXPORT lean_object* l_Int_instHPowIntNat;
 LEAN_EXPORT lean_object* l_instCoeNatInt(lean_object*);
 lean_object* lean_int_neg_succ_of_nat(lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
@@ -68,11 +68,11 @@ lean_object* lean_int_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_natAbs___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Int_neg___boxed(lean_object*);
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
-static lean_object* l_Int_instHPowIntNatInt___closed__1;
 LEAN_EXPORT lean_object* l_Int_add___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_instMulInt;
 LEAN_EXPORT lean_object* l_Int_instAddInt;
 lean_object* lean_nat_to_int(lean_object*);
+static lean_object* l_Int_instHPowIntNat___closed__1;
 static lean_object* l_Int_pow___closed__1;
 LEAN_EXPORT lean_object* l_Int_pow___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_ofNat___boxed(lean_object* x_1) {
@@ -534,7 +534,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_Int_instHPowIntNatInt___closed__1() {
+static lean_object* _init_l_Int_instHPowIntNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -542,11 +542,11 @@ x_1 = lean_alloc_closure((void*)(l_Int_pow___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_Int_instHPowIntNatInt() {
+static lean_object* _init_l_Int_instHPowIntNat() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Int_instHPowIntNatInt___closed__1;
+x_1 = l_Int_instHPowIntNat___closed__1;
 return x_1;
 }
 }
@@ -601,10 +601,10 @@ l_Int_instModInt = _init_l_Int_instModInt();
 lean_mark_persistent(l_Int_instModInt);
 l_Int_pow___closed__1 = _init_l_Int_pow___closed__1();
 lean_mark_persistent(l_Int_pow___closed__1);
-l_Int_instHPowIntNatInt___closed__1 = _init_l_Int_instHPowIntNatInt___closed__1();
-lean_mark_persistent(l_Int_instHPowIntNatInt___closed__1);
-l_Int_instHPowIntNatInt = _init_l_Int_instHPowIntNatInt();
-lean_mark_persistent(l_Int_instHPowIntNatInt);
+l_Int_instHPowIntNat___closed__1 = _init_l_Int_instHPowIntNat___closed__1();
+lean_mark_persistent(l_Int_instHPowIntNat___closed__1);
+l_Int_instHPowIntNat = _init_l_Int_instHPowIntNat();
+lean_mark_persistent(l_Int_instHPowIntNat);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

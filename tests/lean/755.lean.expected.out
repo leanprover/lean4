@@ -9,16 +9,16 @@ but is expected to have type
 has type
   2 * 3 = @HMul.hMul Nat Nat Nat instHMul 2 3 : Prop
 but is expected to have type
-  2 * 3 = @HMul.hMul (Foo Nat) (Foo Nat) (Foo Nat) instHMulFooFooFoo 2 3 : Prop
+  2 * 3 = @HMul.hMul (Foo Nat) (Foo Nat) (Foo Nat) instHMulFoo 2 3 : Prop
 755.lean:27:2-27:5: error: type mismatch
   rfl
 has type
   2 + 3 = @HAdd.hAdd Nat Nat Nat instHAdd 2 3 : Prop
 but is expected to have type
-  2 + 3 = @HAdd.hAdd (Foo Nat) (Foo Nat) (Foo Nat) instHAddFooFooFoo 2 3 : Prop
+  2 + 3 = @HAdd.hAdd (Foo Nat) (Foo Nat) (Foo Nat) instHAddFoo 2 3 : Prop
 755.lean:30:2-30:5: error: type mismatch
   rfl
 has type
   2 - 3 = @HSub.hSub Nat Nat Nat instHSub 2 3 : Prop
 but is expected to have type
-  2 - 3 = @HSub.hSub (Foo Nat) (Foo Nat) (Foo Nat) instHSubFooFooFoo 2 3 : Prop
+  2 - 3 = @HSub.hSub (Foo Nat) (Foo Nat) (Foo Nat) instHSubFoo 2 3 : Prop

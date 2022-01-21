@@ -24,7 +24,6 @@ See [Setup](./setup.md) for other ways and more details on setting up Lean.
 1. While it is installing you can paste the following Lean program into the new file:
 
     ```lean
-    import Lean
     #eval Lean.versionString
     ```
 

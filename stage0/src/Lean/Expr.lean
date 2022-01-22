@@ -129,9 +129,10 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
   | BinderInfo.auxDecl        => 4
 
 def Expr.mkData
-    (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt8 := 0)
+    (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt32 := 0)
     (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) (bi : BinderInfo := BinderInfo.default) (nonDepLet : Bool := false)
     : Expr.Data :=
+  let approxDepth : UInt8 := if approxDepth > 255 then 255 else approxDepth.toUInt8
   if looseBVarRange > Nat.pow 2 16 - 1 then panic! "bound variable index is too big"
   else
     let r : UInt64 :=
@@ -146,10 +147,10 @@ def Expr.mkData
       looseBVarRange.toUInt64.shiftLeft 48
     r
 
-@[inline] def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.Data :=
+@[inline] def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.Data :=
   Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam bi false
 
-@[inline] def Expr.mkDataForLet (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : Expr.Data :=
+@[inline] def Expr.mkDataForLet (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : Expr.Data :=
   Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam BinderInfo.default nonDepLet
 
 instance : Repr Expr.Data where
@@ -263,8 +264,8 @@ def hasMVar (e : Expr) : Bool :=
 def hasLevelParam (e : Expr) : Bool :=
   e.data.hasLevelParam
 
-def approxDepth (e : Expr) : UInt8 :=
-  e.data.approxDepth
+def approxDepth (e : Expr) : UInt32 :=
+  e.data.approxDepth.toUInt32
 
 def looseBVarRange (e : Expr) : Nat :=
   e.data.looseBVarRange.toNat

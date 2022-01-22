@@ -89,27 +89,29 @@ rec {
         src = ../src;
         fullSrc = ../.;
         inherit debug;
+        builtin = true;
       } // args);
-      setBuiltin = pkg: pkg // {
-        mods = mapAttrs (_: m: m // { builtin = true; }) pkg.mods;
+      attachSharedLib = sharedLib: pkg: pkg // {
+        inherit sharedLib;
+        mods = mapAttrs (_: m: m // { inherit sharedLib; }) pkg.mods;
       };
     in (all: all // all.lean) rec {
       inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
-      Init = setBuiltin (build { name = "Init"; deps = []; });
-      Std  = setBuiltin (build { name = "Std";  deps = [ Init ]; });
-      Lean = setBuiltin (build { name = "Lean"; deps = [ Init Std ]; });
+      Init = attachSharedLib leanshared (build { name = "Init"; deps = []; });
+      Std  = attachSharedLib leanshared (build { name = "Std";  deps = [ Init ]; });
+      Lean = attachSharedLib leanshared (build { name = "Lean"; deps = [ Init Std ]; });
       stdlib = [ Init Std Lean ];
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       Leanpkg = build { name = "Leanpkg"; deps = stdlib; linkFlags = ["-L${gmp}/lib -L${leanshared}"]; };
       extlib = stdlib ++ [ Leanpkg ];
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; linkFlags = ["-L${gmp}/lib -L${leanshared}"]; };
       stdlibLinkFlags = "-L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
-      leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; } ''
+      leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
         mkdir $out
         LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} \
           ${if stdenv.isDarwin then "-Wl,-force_load,${Init.staticLib}/libInit.a -Wl,-force_load,${Std.staticLib}/libStd.a -Wl,-force_load,${Lean.staticLib}/libLean.a -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a -lc++"
             else "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++"} -lm ${stdlibLinkFlags} \
-          -o $out/libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}
+          -o $out/$libName
       '';
       mods = Init.mods // Std.mods // Lean.mods;
       leanc = writeShellScriptBin "leanc" ''

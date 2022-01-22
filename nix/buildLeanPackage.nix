@@ -21,6 +21,8 @@ lib.makeOverridable (
   precompilePackage ? precompileModules,
   # Lean plugin dependencies. Each derivation `plugin` should contain a plugin library at path `${plugin}/${plugin.name}`.
   pluginDeps ? [],
+  # set only when compiling the stdlib
+  builtin ? false,
   debug ? false, leanFlags ? [], leancFlags ? [], linkFlags ? [], executableName ? lib.toLower name,
   srcTarget ? "..#stage0", srcArgs ? "(\${args[*]})", lean-final ? lean-final' }:
 with builtins; let
@@ -47,7 +49,7 @@ with builtins; let
   }) buildCommand;
   mkSharedLib = name: args: runBareCommand "${name}-dynlib" {
     buildInputs = [ stdenv.cc ] ++ lib.optional stdenv.isDarwin darwin.cctools;
-    libName = "${name}.${stdenv.hostPlatform.extensions.sharedLibrary}";
+    libName = "${name}${stdenv.hostPlatform.extensions.sharedLibrary}";
   } ''
     mkdir -p $out
     ${leanc}/bin/leanc -fPIC -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} ${lib.optionalString stdenv.isDarwin "-Wl,-undefined,dynamic_lookup"} -L ${gmp}/lib \
@@ -85,7 +87,7 @@ with builtins; let
 
   leanPluginFlags = lib.concatStringsSep " " (map (dep: "--plugin=${pathOfSharedLib dep}") pluginDeps);
   pkgLeanLoadDynlibPaths = map pathOfSharedLib allNativeSharedLibs;
-  loadDynlibPathsOfDeps = deps: concatMap (d: lib.optional (d ? sharedLib) (pathOfSharedLib d.sharedLib)) deps;
+  loadDynlibPathsOfDeps = deps: concatMap (d: lib.optional (!builtin && d ? sharedLib) (pathOfSharedLib d.sharedLib)) deps;
 
   fakeDepRoot = runBareCommandLocal "${name}-dep-root" {} ''
     mkdir $out
@@ -144,7 +146,7 @@ with builtins; let
       leanc -c -o $out/$oPath $leancFlags -fPIC ${if debug then "${drv.c}/${drv.cPath} -g" else "src.c -O3 -DNDEBUG"}
     '';
   };
-  precompileMod = mod: obj: deps: mkSharedLib mod "${obj}/${obj.oPath} ${lib.concatStringsSep " " (map (d: "${d.sharedLib}/*") (filter (d: !(d ? builtin)) deps))}";
+  precompileMod = mod: obj: deps: mkSharedLib mod "${obj}/${obj.oPath} ${lib.concatStringsSep " " (map (d: "${d.sharedLib}/*") deps)}";
   mkMod = mod: deps:
     let drv = buildMod mod deps;
         obj = compileMod mod drv; in
@@ -189,7 +191,7 @@ with builtins; let
   staticLibArguments = staticLibLinkWrapper ("${staticLib}/* ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)}");
 in rec {
   inherit name lean deps staticLibDeps allNativeSharedLibs allLinkFlags allExternalDeps print-lean-deps src objects staticLib;
-  mods = if precompilePackage then mapAttrs (_: m: m // { inherit sharedLib; origShlib = m.sharedLib; }) mods' else mods';
+  mods = if precompilePackage then mapAttrs (_: m: m // { inherit sharedLib; }) mods' else mods';
   modRoot   = depRoot name [ mods.${name} ];
   cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
   oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };

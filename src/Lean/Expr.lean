@@ -589,6 +589,14 @@ def appArg! : Expr → Expr
   | app _ a _ => a
   | _         => panic! "application expected"
 
+def sortLevel! : Expr → Level
+  | sort u .. => u
+  | _         => panic! "sort expected"
+
+def litValue! : Expr → Literal
+  | lit v .. => v
+  | _        => panic! "literal expected"
+
 def isNatLit : Expr → Bool
   | lit (Literal.natVal _) _ => true
   | _                        => false
@@ -649,8 +657,20 @@ def bindingInfo! : Expr → BinderInfo
   | _               => panic! "binding expected"
 
 def letName! : Expr → Name
-  | letE n _ _ _ _ => n
-  | _              => panic! "let expression expected"
+  | letE n .. => n
+  | _         => panic! "let expression expected"
+
+def letType! : Expr → Expr
+  | letE _ t .. => t
+  | _           => panic! "let expression expected"
+
+def letValue! : Expr → Expr
+  | letE _ _ v .. => v
+  | _             => panic! "let expression expected"
+
+def letBody! : Expr → Expr
+  | letE _ _ _ b .. => b
+  | _               => panic! "let expression expected"
 
 def consumeMData : Expr → Expr
   | mdata _ e _ => consumeMData e
@@ -662,6 +682,10 @@ def mdataExpr! : Expr → Expr
 
 def projExpr! : Expr → Expr
   | proj _ _ e _ => e
+  | _            => panic! "proj expression expected"
+
+def projIdx! : Expr → Nat
+  | proj _ i _ _ => i
   | _            => panic! "proj expression expected"
 
 def hasLooseBVars (e : Expr) : Bool :=

@@ -1,0 +1,93 @@
+{"textDocument": {"uri": "file://highlight.lean"},
+ "position": {"line": 1, "character": 23}}
+[{"range":
+  {"start": {"line": 1, "character": 15}, "end": {"line": 1, "character": 18}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 1, "character": 22}, "end": {"line": 1, "character": 25}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 8, "character": 11}, "end": {"line": 8, "character": 14}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 14, "character": 8}, "end": {"line": 14, "character": 11}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 15, "character": 9}, "end": {"line": 15, "character": 12}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 18, "character": 23},
+   "end": {"line": 18, "character": 26}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 22, "character": 16},
+   "end": {"line": 22, "character": 19}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 22, "character": 16},
+   "end": {"line": 22, "character": 19}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://highlight.lean"},
+ "position": {"line": 5, "character": 7}}
+[{"range":
+  {"start": {"line": 1, "character": 4}, "end": {"line": 1, "character": 8}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 4, "character": 6}, "end": {"line": 4, "character": 10}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 5, "character": 6}, "end": {"line": 5, "character": 10}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://highlight.lean"},
+ "position": {"line": 10, "character": 3}}
+[{"range":
+  {"start": {"line": 9, "character": 6}, "end": {"line": 9, "character": 9}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 10, "character": 2}, "end": {"line": 10, "character": 5}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://highlight.lean"},
+ "position": {"line": 15, "character": 3}}
+[{"range":
+  {"start": {"line": 15, "character": 2}, "end": {"line": 15, "character": 6}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 23, "character": 16},
+   "end": {"line": 23, "character": 20}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://highlight.lean"},
+ "position": {"line": 19, "character": 7}}
+[{"range":
+  {"start": {"line": 14, "character": 2}, "end": {"line": 14, "character": 5}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 19, "character": 6}, "end": {"line": 19, "character": 9}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 23, "character": 4}, "end": {"line": 23, "character": 7}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://highlight.lean"},
+ "position": {"line": 23, "character": 5}}
+[{"range":
+  {"start": {"line": 14, "character": 2}, "end": {"line": 14, "character": 5}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 19, "character": 6}, "end": {"line": 19, "character": 9}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 23, "character": 4}, "end": {"line": 23, "character": 7}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://highlight.lean"},
+ "position": {"line": 23, "character": 12}}
+[{"range":
+  {"start": {"line": 22, "character": 10},
+   "end": {"line": 22, "character": 13}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 23, "character": 11},
+   "end": {"line": 23, "character": 14}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 23, "character": 24},
+   "end": {"line": 23, "character": 27}},
+  "kind": 1}]

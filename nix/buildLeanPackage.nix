@@ -21,8 +21,6 @@ lib.makeOverridable (
   precompilePackage ? precompileModules,
   # Lean plugin dependencies. Each derivation `plugin` should contain a plugin library at path `${plugin}/${plugin.name}`.
   pluginDeps ? [],
-  # set only when compiling the stdlib
-  builtin ? false,
   debug ? false, leanFlags ? [], leancFlags ? [], linkFlags ? [], executableName ? lib.toLower name,
   srcTarget ? "..#stage0", srcArgs ? "(\${args[*]})", lean-final ? lean-final' }:
 with builtins; let
@@ -86,8 +84,7 @@ with builtins; let
   pathOfSharedLib = dep: dep.libPath or "${dep}/${dep.libName or dep.name}";
 
   leanPluginFlags = lib.concatStringsSep " " (map (dep: "--plugin=${pathOfSharedLib dep}") pluginDeps);
-  pkgLeanLoadDynlibPaths = map pathOfSharedLib allNativeSharedLibs;
-  loadDynlibPathsOfDeps = deps: concatMap (d: lib.optional (!builtin && d ? sharedLib) (pathOfSharedLib d.sharedLib)) deps;
+  loadDynlibsOfDeps = deps: lib.unique (concatMap (d: d.propagatedLoadDynlibs) deps);
 
   fakeDepRoot = runBareCommandLocal "${name}-dep-root" {} ''
     mkdir $out
@@ -122,7 +119,7 @@ with builtins; let
     ileanPath = relpath + ".ilean";
     cPath = relpath + ".c";
     inherit leanFlags leanPluginFlags;
-    leanLoadDynlibFlags = map (p: "--load-dynlib=${p}") (pkgLeanLoadDynlibPaths ++ loadDynlibPathsOfDeps deps);
+    leanLoadDynlibFlags = map (p: "--load-dynlib=${pathOfSharedLib p}") (loadDynlibsOfDeps deps);
     buildCommand = ''
       dir=$(dirname $relpath)
       mkdir -p $dir $out/$dir $ilean/$dir $c/$dir
@@ -131,6 +128,7 @@ with builtins; let
     '';
   } // {
     inherit deps;
+    propagatedLoadDynlibs = loadDynlibsOfDeps deps;
   };
   compileMod = mod: drv: mkBareDerivation {
     name = "${mod}-cc";
@@ -146,11 +144,16 @@ with builtins; let
       leanc -c -o $out/$oPath $leancFlags -fPIC ${if debug then "${drv.c}/${drv.cPath} -g" else "src.c -O3 -DNDEBUG"}
     '';
   };
-  precompileMod = mod: obj: deps: mkSharedLib mod "${obj}/${obj.oPath} ${lib.concatStringsSep " " (map (d: "${d.sharedLib}/*") deps)}";
   mkMod = mod: deps:
     let drv = buildMod mod deps;
-        obj = compileMod mod drv; in
-      drv // { inherit obj; } // lib.optionalAttrs precompileModules { sharedLib = precompileMod mod obj deps; };
+        obj = compileMod mod drv;
+        # this attribute will only be used if any dependent module is precompiled
+        sharedLib = mkSharedLib mod "${obj}/${obj.oPath} ${lib.concatStringsSep " " (map (d: pathOfSharedLib d.sharedLib) deps)}";
+    in drv // {
+      inherit obj sharedLib;
+    } // lib.optionalAttrs precompileModules {
+      propagatedLoadDynlibs = [sharedLib];
+    };
   externalModMap = lib.foldr (dep: depMap: depMap // dep.mods) {} allExternalDeps;
   # Recursively build `mod` and its dependencies. `modMap` maps module names to
   # `{ deps, drv }` pairs of a derivation and its transitive dependencies (as a nested
@@ -171,7 +174,7 @@ with builtins; let
     echo '${toJSON {
       oleanPath = [(depRoot "print-paths" deps)];
       srcPath = ["."] ++ map (dep: dep.src) allExternalDeps;
-      loadDynlibPaths = loadDynlibPathsOfDeps deps;
+      loadDynlibPaths = map pathOfSharedLib (loadDynlibsOfDeps deps);
     }}'
   '';
   makePrintPathsFor = deps: mods: printPaths deps // mapAttrs (_: mod: makePrintPathsFor (deps ++ [mod]) mods) mods;
@@ -191,7 +194,12 @@ with builtins; let
   staticLibArguments = staticLibLinkWrapper ("${staticLib}/* ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)}");
 in rec {
   inherit name lean deps staticLibDeps allNativeSharedLibs allLinkFlags allExternalDeps print-lean-deps src objects staticLib;
-  mods = if precompilePackage then mapAttrs (_: m: m // { inherit sharedLib; }) mods' else mods';
+  mods = mapAttrs (_: m:
+      m //
+      # if neither precompilation option was set but a dependent module wants to be precompiled, default to precompiling this package whole
+      lib.optionalAttrs (precompilePackage || !precompileModules) { inherit sharedLib; } //
+      lib.optionalAttrs precompilePackage { propagatedLoadDynlibs = [sharedLib]; })
+    mods';
   modRoot   = depRoot name [ mods.${name} ];
   cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
   oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };

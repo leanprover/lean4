@@ -89,17 +89,19 @@ rec {
         src = ../src;
         fullSrc = ../.;
         inherit debug;
-        builtin = true;
       } // args);
+      Init' = build { name = "Init"; deps = []; };
+      Std'  = build { name = "Std";  deps = [ Init' ]; };
+      Lean' = build { name = "Lean"; deps = [ Init' Std' ]; };
       attachSharedLib = sharedLib: pkg: pkg // {
         inherit sharedLib;
-        mods = mapAttrs (_: m: m // { inherit sharedLib; }) pkg.mods;
+        mods = mapAttrs (_: m: m // { inherit sharedLib; propagatedLoadDynlibs = []; }) pkg.mods;
       };
     in (all: all // all.lean) rec {
       inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
-      Init = attachSharedLib leanshared (build { name = "Init"; deps = []; });
-      Std  = attachSharedLib leanshared (build { name = "Std";  deps = [ Init ]; });
-      Lean = attachSharedLib leanshared (build { name = "Lean"; deps = [ Init Std ]; });
+      Init = attachSharedLib leanshared Init';
+      Std  = attachSharedLib leanshared Std'  // { allExternalDeps = [ Init ]; };
+      Lean = attachSharedLib leanshared Lean' // { allExternalDeps = [ Init Std ]; };
       stdlib = [ Init Std Lean ];
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       Leanpkg = build { name = "Leanpkg"; deps = stdlib; linkFlags = ["-L${gmp}/lib -L${leanshared}"]; };

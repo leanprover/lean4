@@ -93,4 +93,4 @@ def leanSrcPath (self : Workspace) : SearchPath :=
 /-- The `LeanPaths` of the workspace. -/
 def leanPaths (self : Workspace) : LeanPaths :=
   let pkgs := self.packageList
-  LeanPaths.mk (pkgs.map (·.oleanDir)) (pkgs.map (·.srcDir))
+  { oleanPath := pkgs.map (·.oleanDir), srcPath := pkgs.map (·.srcDir) }

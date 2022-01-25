@@ -3,7 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Util.ACLt
+import Lean.Meta.ACLt
 import Lean.Meta.AppBuilder
 import Lean.Meta.SynthInstance
 import Lean.Meta.Tactic.Simp.Types
@@ -55,9 +55,10 @@ private def tryLemmaCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo)
       let rhs   ← instantiateMVars type.appArg!
       if e == rhs then
         return none
-      if lemma.perm && !Expr.acLt rhs e then
-        trace[Meta.Tactic.simp.rewrite] "{lemma}, perm rejected {e} ==> {rhs}"
-        return none
+      if lemma.perm then
+        if !(← Expr.acLt rhs e) then
+          trace[Meta.Tactic.simp.rewrite] "{lemma}, perm rejected {e} ==> {rhs}"
+          return none
       trace[Meta.Tactic.simp.rewrite] "{lemma}, {e} ==> {rhs}"
       return some { expr := rhs, proof? := proof }
     else

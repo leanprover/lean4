@@ -194,6 +194,16 @@ def findAt? (self : References) (module : Name) (pos : Lsp.Position) : Option Re
     return refs.findAt? pos
   none
 
+def countReferencesTo (self : References) (ident : RefIdent)
+    (includeDefinition : Bool := true) : Nat := Id.run do
+  let mut result := 0
+  for (module, refs) in self.allRefs.toList do
+    if let some info := refs.find? ident then
+      result := result + info.usages.size
+      if includeDefinition && info.definition.isSome then
+        result := result + 1
+  return result
+
 def referringTo (self : References) (ident : RefIdent) (srcSearchPath : SearchPath)
     (includeDefinition : Bool := true) : IO (Array Location) := do
   let mut result := #[]

@@ -213,6 +213,7 @@ section ServerM
     if let some path := fw.doc.meta.uri.toPath? then
       if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
         s.references.modify fun refs => refs.addWorkerRefs module params.version params.references
+        s.hOut.writeLspNotification { method := "workspace/codeLens/refresh", param := Json.null }
 
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
@@ -400,6 +401,47 @@ where
       targetIt := targetIt.next
     return false
 
+open Std in
+def handleCodeLens (p : CodeLensParams) : ServerM (Array CodeLens) := do
+  if let some path := p.textDocument.uri.toPath? then
+    let srcSearchPath := (← read).srcSearchPath
+    if let some module ← searchModuleNameOfFileName path srcSearchPath then
+      let references ← (← read).references.get
+      if let some refs := references.allRefs.find? module then
+        return lineDefs refs |>.map fun (name, range) =>
+          { range, command? := none, data := CodeLensInfo.ref name : CodeLens }
+  #[]
+where
+  lineDefs (refs : ModuleRefs) : Array (Name × Lsp.Range) := Id.run do
+    -- Construct hash map from line to definition. If there exists an entry in
+    -- the hash map, there's at least one definition for this line. Definitions
+    -- with local identifiers and multi-line definitions are ignored.
+    let lineMap := refs.fold (init := HashMap.empty) fun m ident info => Id.run do
+      if let (RefIdent.const name, some range) := (ident, info.definition) then
+        if range.start.line == range.end.line then
+          let line := range.start.line
+          if m.contains line then
+            -- Multiple definitions per line aren't allowed, but this line needs
+            -- to be marked as containing at least one definition.
+            return m.insert line none
+          else
+            return m.insert line $ some (name, range)
+      return m
+    return lineMap.fold (init := #[]) fun l _ info =>
+      if let some info := info then l.push info else l
+
+def handleCodeLensResolve (lens : CodeLens) : ServerM CodeLens := do
+  match lens.data with | CodeLensInfo.ref name => do
+    let references ← (← read).references.get
+    let count := references.countReferencesTo (RefIdent.const name) (includeDefinition := false)
+    let title := if count == 1 then s!"{count} reference" else s!"{count} references"
+    -- This needs to be implemented in the editor-specific lean plugins. The LSP
+    -- spec says: "The protocol currently doesn’t specify a set of well-known
+    -- commands." At least in VSCode, an empty command string makes the code
+    -- lenses non-clickable.
+    let command := ""
+    return { lens with command? := some { title, command } }
+
 end RequestHandling
 
 section NotificationHandling
@@ -517,6 +559,8 @@ section MessageHandling
     match method with
       | "textDocument/references" => handle ReferenceParams (Array Location) handleReference
       | "workspace/symbol" => handle WorkspaceSymbolParams (Array SymbolInformation) handleWorkspaceSymbol
+      | "textDocument/codeLens" => handle CodeLensParams (Array CodeLens) handleCodeLens
+      | "codeLens/resolve" => handle CodeLens CodeLens handleCodeLensResolve
       | _ => forwardRequestToWorker id method params
 
   def handleNotification (method : String) (params : Json) : ServerM Unit := do
@@ -655,6 +699,9 @@ def mkLeanServerCapabilities : ServerCapabilities := {
   workspaceSymbolProvider := true
   documentHighlightProvider := true
   documentSymbolProvider := true
+  codeLensProvider? := some {
+    resolveProvider? := true
+  }
   semanticTokensProvider? := some {
     legend := {
       tokenTypes     := SemanticTokenType.names

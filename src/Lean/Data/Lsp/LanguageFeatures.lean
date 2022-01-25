@@ -210,6 +210,27 @@ structure DocumentSymbolResult where
 instance : ToJson DocumentSymbolResult where
   toJson dsr := toJson dsr.syms
 
+structure CodeLensOptions where
+  resolveProvider? : Option Bool := false
+  deriving FromJson, ToJson
+
+structure CodeLensParams where
+  textDocument : TextDocumentIdentifier
+  deriving FromJson, ToJson
+
+inductive CodeLensInfo where
+  | ref (name : Name)
+  deriving FromJson, ToJson
+
+structure CodeLens where
+  range : Range
+  command? : Option Command
+  -- According to the LSP spec, the data field is optional and may contain any
+  -- sort of value. However, it is set by the server and preserved between
+  -- requests, so we can use a more specific type since we control its values.
+  data : CodeLensInfo
+  deriving FromJson, ToJson
+
 inductive SymbolTag where
   | deprecated
 

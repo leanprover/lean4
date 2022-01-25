@@ -40,6 +40,7 @@ structure ServerCapabilities where
   hoverProvider : Bool := false
   documentHighlightProvider : Bool := false
   documentSymbolProvider : Bool := false
+  codeLensProvider? : Option CodeLensOptions := none
   definitionProvider : Bool := false
   declarationProvider : Bool := false
   typeDefinitionProvider : Bool := false

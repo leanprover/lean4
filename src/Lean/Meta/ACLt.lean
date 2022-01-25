@@ -142,7 +142,6 @@ where
   someChildGe (a b : Expr) : MetaM Bool :=
     return !(← allChildrenLt a b)
 
-  -- lpo is only used when `a` and `b` have the same approximate depth, and it is >= 255
   lpo (a b : Expr) : MetaM Bool := do
     -- Case 1: `a < b` if for some child `b_i` of `b`, we have `b_i >= a`
     someChildGe b a

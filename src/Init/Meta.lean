@@ -1010,6 +1010,14 @@ structure Config where
 structure ConfigCtx extends Config where
   contextual := true
 
+def neutralConfig : Simp.Config :=
+  { zeta              := false
+    beta              := false
+    eta               := false
+    iota              := false
+    proj              := false
+    decide            := false }
+
 end Simp
 
 namespace Rewrite

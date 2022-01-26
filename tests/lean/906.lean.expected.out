@@ -1,0 +1,2 @@
+906.lean:7:14-7:19: warning: declaration uses 'sorry'
+906.lean:12:2-12:28: error: (deterministic) timeout at 'simp', maximum number of heartbeats (50000) has been reached (use 'set_option maxHeartbeats <num>' to set the limit)

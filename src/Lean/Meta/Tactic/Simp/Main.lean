@@ -270,9 +270,13 @@ where
         try
           if (← processCongrHypothesis x) then
             modified := true
-        catch _ =>
+        catch ex =>
           trace[Meta.Tactic.simp.congr] "processCongrHypothesis {c.theoremName} failed {← inferType x}"
-          return none
+          if ex.isMaxRecDepth then
+            -- Recall that `processCongrHypothesis` invokes `simp` recursively.
+            throw ex
+          else
+            return none
       unless modified do
         trace[Meta.Tactic.simp.congr] "{c.theoremName} not modified"
         return none

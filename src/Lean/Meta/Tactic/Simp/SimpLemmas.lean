@@ -106,8 +106,18 @@ private partial def isPerm : Expr → Expr → MetaM Bool
   | Expr.proj _ i₁ b₁ _, Expr.proj _ i₂ b₂ _ => i₁ == i₂ <&&> isPerm b₁ b₂
   | s, t => s == t
 
+private def checkBadRewrite (lhs rhs : Expr) : MetaM Unit := do
+  let lhs ← DiscrTree.whnfDT lhs (root := true)
+  if lhs == rhs && lhs.isFVar then
+    throwError "invalid `simp` theorem, equation is equivalent to{indentExpr (← mkEq lhs rhs)}"
+
 private partial def shouldPreprocess (type : Expr) : MetaM Bool :=
-  forallTelescopeReducing type fun xs result => return !result.isEq
+  forallTelescopeReducing type fun xs result => do
+    if let some (_, lhs, rhs) := result.eq? then
+      checkBadRewrite lhs rhs
+      return false
+    else
+      return true
 
 private partial def preprocess (e type : Expr) (inv : Bool) : MetaM (List (Expr × Expr)) := do
   let type ← whnf type
@@ -118,6 +128,7 @@ private partial def preprocess (e type : Expr) (inv : Bool) : MetaM (List (Expr 
       ps.mapM fun (e, type) =>
         return (← mkLambdaFVars xs e, ← mkForallFVars xs type)
   else if let some (_, lhs, rhs) := type.eq? then
+    checkBadRewrite lhs rhs
     if inv then
       let type ← mkEq rhs lhs
       let e    ← mkEqSymm e
@@ -125,6 +136,7 @@ private partial def preprocess (e type : Expr) (inv : Bool) : MetaM (List (Expr 
     else
       return [(e, type)]
   else if let some (lhs, rhs) := type.iff? then
+    checkBadRewrite lhs rhs
     if inv then
       let type ← mkEq rhs lhs
       let e    ← mkEqSymm (← mkPropExt e)

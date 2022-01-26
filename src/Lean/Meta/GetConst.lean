@@ -10,7 +10,7 @@ namespace Lean.Meta
 private def canUnfoldDefault (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
   match cfg.transparency with
   | TransparencyMode.all => return true
-  | TransparencyMode.default => return true
+  | TransparencyMode.default => return !(← isIrreducible info.name)
   | m =>
     if (← isReducible info.name) then
       return true

@@ -142,6 +142,7 @@ def getSimpLetCase (n : Name) (t : Expr) (v : Expr) (b : Expr) : MetaM SimpLetCa
       return SimpLetCase.dep
 
 partial def simp (e : Expr) : M Result := withIncRecDepth do
+  checkMaxHeartbeats "simp"
   let cfg ← getConfig
   if (← isProof e) then
     return { expr := e }

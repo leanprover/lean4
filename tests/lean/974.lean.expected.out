@@ -1,0 +1,7 @@
+Formula.count_quantifiers._eq_1 : ∀ (x : Nat) (f₁ f₂ : Formula x),
+  Formula.count_quantifiers (Formula.imp f₁ f₂) = Formula.count_quantifiers f₁ + Formula.count_quantifiers f₂
+Formula.count_quantifiers._eq_2 : ∀ (x : Nat) (f : Formula (x + 1)),
+  Formula.count_quantifiers (Formula.all f) = Formula.count_quantifiers f + 1
+Formula.count_quantifiers._eq_3 : ∀ (x : Nat) (x_1 : Formula x),
+  (∀ (f₁ f₂ : Formula x), x_1 = Formula.imp f₁ f₂ → False) →
+    (∀ (f : Formula (x + 1)), x_1 = Formula.all f → False) → Formula.count_quantifiers x_1 = 0

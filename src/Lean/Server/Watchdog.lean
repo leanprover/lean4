@@ -249,7 +249,7 @@ section ServerM
           return WorkerEvent.crashed err
       loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
-    task.map $ fun
+    task.map fun
       | Except.ok ev   => ev
       | Except.error e => WorkerEvent.ioError e
 
@@ -554,7 +554,7 @@ section MainLoop
       /- Runs asynchronously. -/
       let msg ← st.hIn.readLspMessage
       ServerEvent.clientMsg msg
-    let clientTask := (←IO.asTask readMsgAction).map $ fun
+    let clientTask := (← IO.asTask readMsgAction).map fun
       | Except.ok ev   => ev
       | Except.error e => ServerEvent.clientError e
     return clientTask

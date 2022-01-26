@@ -62,11 +62,11 @@ partial def merge (v₁ v₂ : Value) : Value :=
   | top, _ => top
   | _, top => top
   | v₁@(ctor i₁ vs₁), v₂@(ctor i₂ vs₂) =>
-    if i₁ == i₂ then ctor i₁ $ vs₁.size.fold (init := #[]) fun i r => r.push (merge vs₁[i] vs₂[i])
+    if i₁ == i₂ then ctor i₁ <| vs₁.size.fold (init := #[]) fun i r => r.push (merge vs₁[i] vs₂[i])
     else choice [v₁, v₂]
-  | choice vs₁, choice vs₂ => choice $ vs₁.foldl (addChoice merge) vs₂
-  | choice vs, v => choice $ addChoice merge vs v
-  | v, choice vs => choice $ addChoice merge vs v
+  | choice vs₁, choice vs₂ => choice <| vs₁.foldl (addChoice merge) vs₂
+  | choice vs, v => choice <| addChoice merge vs v
+  | v, choice vs => choice <| addChoice merge vs v
 
 protected partial def format : Value → Format
   | top => "top"
@@ -159,7 +159,7 @@ def findVarValue (x : VarId) : M Value := do
   let ctx ← read
   let s ← get
   let assignment := s.assignments[ctx.currFnIdx]
-  pure $ assignment.findD x bot
+  return assignment.findD x bot
 
 def findArgValue (arg : Arg) : M Value :=
   match arg with
@@ -200,7 +200,7 @@ def interpExpr : Expr → M Value
 partial def containsCtor : Value → CtorInfo → Bool
   | top,       _ => true
   | ctor i _,  j => i == j
-  | choice vs, j => vs.any $ fun v => containsCtor v j
+  | choice vs, j => vs.any fun v => containsCtor v j
   | _,         _ => false
 
 def updateCurrFnSummary (v : Value) : M Unit := do
@@ -254,7 +254,6 @@ partial def interpFnBody : FnBody → M Unit
       | Alt.default b => interpFnBody b
   | FnBody.ret x => do
     let v ← findArgValue x
-    -- dbgTrace ("ret " ++ toString v) $ fun _ =>
     updateCurrFnSummary v
   | FnBody.jmp j xs => do
     let ctx ← read
@@ -296,7 +295,7 @@ partial def elimDeadAux (assignment : Assignment) : FnBody → FnBody
     let v := assignment.findD x bot
     let alts := alts.map fun alt =>
       match alt with
-      | Alt.ctor i b  => Alt.ctor i $ if containsCtor v i then elimDeadAux assignment b else FnBody.unreachable
+      | Alt.ctor i b  => Alt.ctor i <| if containsCtor v i then elimDeadAux assignment b else FnBody.unreachable
       | Alt.default b => Alt.default (elimDeadAux assignment b)
     FnBody.case tid x xType alts
   | e =>
@@ -329,6 +328,6 @@ def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
     let env := decls.size.fold (init := s.env) fun i env =>
       addFunctionSummary env decls[i].name funVals[i]
     { s with env := env }
-  pure $ decls.mapIdx fun i decl => elimDead assignments[i] decl
+  return decls.mapIdx fun i decl => elimDead assignments[i] decl
 
 end Lean.IR

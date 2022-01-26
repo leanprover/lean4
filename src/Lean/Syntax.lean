@@ -40,13 +40,13 @@ namespace SyntaxNode
   | ⟨Syntax.ident _ _ _ _, h⟩ => unreachIsNodeIdent h
 
 @[inline] def getNumArgs (n : SyntaxNode) : Nat :=
-  withArgs n $ fun args => args.size
+  withArgs n fun args => args.size
 
 @[inline] def getArg (n : SyntaxNode) (i : Nat) : Syntax :=
-  withArgs n $ fun args => args.get! i
+  withArgs n fun args => args.get! i
 
 @[inline] def getArgs (n : SyntaxNode) : Array Syntax :=
-  withArgs n $ fun args => args
+  withArgs n fun args => args
 
 @[inline] def modifyArgs (n : SyntaxNode) (fn : Array Syntax → Array Syntax) : Syntax :=
   match n with
@@ -110,7 +110,7 @@ def getIdAt (stx : Syntax) (i : Nat) : Name :=
   | stx => fn stx
 
 @[inline] def rewriteBottomUp (fn : Syntax → Syntax) (stx : Syntax) : Syntax :=
-  Id.run $ stx.rewriteBottomUpM fn
+  Id.run <| stx.rewriteBottomUpM fn
 
 private def updateInfo : SourceInfo → String.Pos → String.Pos → SourceInfo
   | SourceInfo.original lead pos trail endPos, leadStart, trailStop =>
@@ -128,12 +128,12 @@ private def updateLeadingAux : Syntax → StateM String.Pos (Option Syntax)
     let trailStop := chooseNiceTrailStop trail
     let newInfo := updateInfo info (← get) trailStop
     set trailStop
-    pure $ some (atom newInfo val)
+    return some (atom newInfo val)
   | ident info@(SourceInfo.original lead _ trail _) rawVal val pre => do
     let trailStop := chooseNiceTrailStop trail
     let newInfo := updateInfo info (← get) trailStop
     set trailStop
-    pure $ some (ident newInfo rawVal val pre)
+    return some (ident newInfo rawVal val pre)
   | _ => pure none
 
 /-- Set `SourceInfo.leading` according to the trailing stop of the preceding token.
@@ -301,7 +301,7 @@ def setCur (t : Traverser) (stx : Syntax) : Traverser :=
 /-- Advance to the `idx`-th child of the current node. -/
 def down (t : Traverser) (idx : Nat) : Traverser :=
   if idx < t.cur.getNumArgs then
-    { cur := t.cur.getArg idx, parents := t.parents.push $ t.cur.setArg idx default, idxs := t.idxs.push idx }
+    { cur := t.cur.getArg idx, parents := t.parents.push <| t.cur.setArg idx default, idxs := t.idxs.push idx }
   else
     { cur := Syntax.missing, parents := t.parents.push t.cur, idxs := t.idxs.push idx }
 
@@ -397,7 +397,7 @@ def isEscapedAntiquot (stx : Syntax) : Bool :=
 -- Also works for antiquotation splices.
 def unescapeAntiquot (stx : Syntax) : Syntax :=
   if isAntiquot stx then
-    stx.setArg 1 $ mkNullNode stx[1].getArgs.pop
+    stx.setArg 1 <| mkNullNode stx[1].getArgs.pop
   else
     stx
 

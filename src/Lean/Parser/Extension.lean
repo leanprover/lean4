@@ -108,7 +108,7 @@ def addLeadingParser (categories : ParserCategories) (catName : Name) (parserNam
     throwUnknownParserCategory catName
   | some cat =>
     let addTokens (tks : List Token) : Except String ParserCategories :=
-      let tks    := tks.map $ fun tk => Name.mkSimple tk
+      let tks    := tks.map fun tk => Name.mkSimple tk
       let tables := tks.eraseDups.foldl (fun (tables : PrattParsingTables) tk => { tables with leadingTable := tables.leadingTable.insert tk (p, prio) }) cat.tables
       pure $ categories.insert catName { cat with tables := tables }
     match p.info.firstTokens with

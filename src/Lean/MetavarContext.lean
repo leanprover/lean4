@@ -596,7 +596,7 @@ def instantiateMVars (mctx : MetavarContext) (e : Expr) : Expr × MetavarContext
   if !e.hasMVar then
     (e, mctx)
   else
-    let instantiate {ω} (e : Expr) : (MonadCacheT ExprStructEq Expr $ StateRefT MetavarContext $ ST ω) Expr :=
+    let instantiate {ω} (e : Expr) : (MonadCacheT ExprStructEq Expr <| StateRefT MetavarContext (ST ω)) Expr :=
       instantiateExprMVars e
     runST fun _ => instantiate e |>.run |>.run mctx
 
@@ -1049,7 +1049,7 @@ structure State where
   nextParamIdx : Nat
   cache        : HashMap ExprStructEq Expr := {}
 
-abbrev M := ReaderT Context $ StateM State
+abbrev M := ReaderT Context <| StateM State
 
 instance : MonadCache ExprStructEq Expr M where
   findCached? e   := return (← get).cache.find? e

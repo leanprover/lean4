@@ -41,7 +41,7 @@ structure Context where
   initHeartbeats : Nat := 0
   maxHeartbeats  : Nat := getMaxHeartbeats options
 
-abbrev CoreM := ReaderT Context $ StateRefT State (EIO Exception)
+abbrev CoreM := ReaderT Context <| StateRefT State (EIO Exception)
 
 -- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
 -- whole monad stack at every use site. May eventually be covered by `deriving`.
@@ -110,7 +110,7 @@ def mkFreshUserName (n : Name) : CoreM Name :=
 
 @[inline] def CoreM.toIO (x : CoreM α) (ctx : Context) (s : State) : IO (α × State) := do
   match (← (x.run { ctx with initHeartbeats := (← IO.getNumHeartbeats) } s).toIO') with
-  | Except.error (Exception.error _ msg)   => do let e ← msg.toString; throw $ IO.userError e
+  | Except.error (Exception.error _ msg)   => throw <| IO.userError (← msg.toString)
   | Except.error (Exception.internal id _) => throw <| IO.userError <| "internal exception #" ++ toString id.idx
   | Except.ok a                            => return a
 

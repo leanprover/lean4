@@ -38,7 +38,7 @@ supposedly produced by `p prec` if
    are from the same syntax category.
 
 Note that in case 2, it is also sufficient to parenthesize a *parent* node as long as the offending parser is still to
-the right of that node. For example, imagine the tree structure of `(f $ fun x => x) y` without parentheses. We need to
+the right of that node. For example, imagine the tree structure of `(f fun x => x) y` without parentheses. We need to
 insert *some* parentheses between `x` and `y` since the lambda body is parsed with precedence 0, while the identifier
 parser for `y` has precedence `maxPrec`. But we need to parenthesize the `$` node anyway since the precedence of its
 RHS (0) again is smaller than that of `y`. So it's better to only parenthesize the outer node than ending up with
@@ -455,7 +455,7 @@ def optionalNoAntiquot.parenthesizer (p : Parenthesizer) : Parenthesizer := do
 @[combinatorParenthesizer Lean.Parser.sepByNoAntiquot]
 def sepByNoAntiquot.parenthesizer (p pSep : Parenthesizer) : Parenthesizer := do
   let stx ← getCur
-  visitArgs $ (List.range stx.getArgs.size).reverse.forM $ fun i => if i % 2 == 0 then p else pSep
+  visitArgs <| (List.range stx.getArgs.size).reverse.forM fun i => if i % 2 == 0 then p else pSep
 
 @[combinatorParenthesizer Lean.Parser.sepBy1NoAntiquot] def sepBy1NoAntiquot.parenthesizer := sepByNoAntiquot.parenthesizer
 

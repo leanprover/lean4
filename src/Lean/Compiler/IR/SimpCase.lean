@@ -37,10 +37,10 @@ private def maxOccs (alts : Array Alt) : Alt × Nat := Id.run <| do
 private def addDefault (alts : Array Alt) : Array Alt :=
   if alts.size <= 1 || alts.any Alt.isDefault then alts
   else
-    let (max, noccs) := maxOccs alts;
+    let (max, noccs) := maxOccs alts
     if noccs == 1 then alts
     else
-      let alts := alts.filter $ (fun alt => alt.body != max.body);
+      let alts := alts.filter fun alt => alt.body != max.body
       alts.push (Alt.default max.body)
 
 private def mkSimpCase (tid : Name) (x : VarId) (xType : IRType) (alts : Array Alt) : FnBody :=
@@ -58,7 +58,7 @@ partial def FnBody.simpCase (b : FnBody) : FnBody :=
   let bs         := modifyJPs bs simpCase;
   match term with
   | FnBody.case tid x xType alts =>
-    let alts := alts.map $ fun alt => alt.modifyBody simpCase;
+    let alts := alts.map fun alt => alt.modifyBody simpCase;
     reshape bs (mkSimpCase tid x xType alts)
   | other => reshape bs term
 

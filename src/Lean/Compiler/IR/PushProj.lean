@@ -18,10 +18,10 @@ partial def pushProjs (bs : Array FnBody) (alts : Array Alt) (altsF : Array Inde
     let skip (_ : Unit) := pushProjs bs alts altsF (ctx.push b) (b.collectFreeIndices ctxF)
     let push (x : VarId) (t : IRType) (v : Expr) :=
         if !ctxF.contains x.idx then
-          let alts := alts.mapIdx $ fun i alt => alt.modifyBody $ fun b' =>
+          let alts := alts.mapIdx fun i alt => alt.modifyBody fun b' =>
              if (altsF.get! i).contains x.idx then b.setBody b'
              else b'
-          let altsF  := altsF.map $ fun s => if s.contains x.idx then b.collectFreeIndices s else s
+          let altsF  := altsF.map fun s => if s.contains x.idx then b.collectFreeIndices s else s
           pushProjs bs alts altsF ctx ctxF
         else
           skip ()
@@ -41,9 +41,9 @@ partial def FnBody.pushProj (b : FnBody) : FnBody :=
   let bs         := modifyJPs bs pushProj
   match term with
   | FnBody.case tid x xType alts =>
-    let altsF      := alts.map $ fun alt => alt.body.freeIndices
+    let altsF      := alts.map fun alt => alt.body.freeIndices
     let (bs, alts) := pushProjs bs alts altsF #[] (mkIndexSet x.idx)
-    let alts       := alts.map $ fun alt => alt.modifyBody pushProj
+    let alts       := alts.map fun alt => alt.modifyBody pushProj
     let term       := FnBody.case tid x xType alts
     reshape bs term
   | other => reshape bs term

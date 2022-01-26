@@ -58,7 +58,7 @@ protected def throwErrorAt [Monad m] [MonadError m] (ref : Syntax) (msg : Messag
 def ofExcept [Monad m] [MonadError m] [ToString ε] (x : Except ε α) : m α :=
   match x with
   | Except.ok a    => pure a
-  | Except.error e => Lean.throwError $ toString e
+  | Except.error e => Lean.throwError <| toString e
 
 def throwKernelException [Monad m] [MonadError m] [MonadOptions m] (ex : KernelException) : m α := do
   Lean.throwError <| ex.toMessageData (← getOptions)

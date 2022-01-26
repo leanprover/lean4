@@ -105,14 +105,14 @@ def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext :=
 }
 
 partial def formatAux : NamingContext → Option MessageDataContext → MessageData → IO Format
-  | _,    _,         ofFormat fmt             => pure fmt
-  | _,    _,         ofLevel u                => pure $ format u
-  | _,    _,         ofName n                 => pure $ format n
+  | _,    _,         ofFormat fmt             => return fmt
+  | _,    _,         ofLevel u                => return format u
+  | _,    _,         ofName n                 => return format n
   | nCtx, some ctx,  ofSyntax s               => ppTerm (mkPPContext nCtx ctx) s  -- HACK: might not be a term
-  | _,    none,      ofSyntax s               => pure $ s.formatStx
-  | _,    none,      ofExpr e                 => pure $ format (toString e)
+  | _,    none,      ofSyntax s               => return s.formatStx
+  | _,    none,      ofExpr e                 => return format (toString e)
   | nCtx, some ctx,  ofExpr e                 => ppExpr (mkPPContext nCtx ctx) e
-  | _,    none,      ofGoal mvarId            => pure $ "goal " ++ format (mkMVar mvarId)
+  | _,    none,      ofGoal mvarId            => return "goal " ++ format (mkMVar mvarId)
   | nCtx, some ctx,  ofGoal mvarId            => ppGoal (mkPPContext nCtx ctx) mvarId
   | nCtx, _,         withContext ctx d        => formatAux nCtx ctx d
   | _,    ctx,       withNamingContext nCtx d => formatAux nCtx ctx d
@@ -125,16 +125,15 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
     else
       formatAux nCtx ctx d
   | nCtx, ctx,       nest n d                 => Format.nest n <$> formatAux nCtx ctx d
-  | nCtx, ctx,       compose d₁ d₂            => do let d₁ ← formatAux nCtx ctx d₁; let d₂ ← formatAux nCtx ctx d₂; pure $ d₁ ++ d₂
+  | nCtx, ctx,       compose d₁ d₂            => return (← formatAux nCtx ctx d₁) ++ (← formatAux nCtx ctx d₂)
   | nCtx, ctx,       group d                  => Format.group <$> formatAux nCtx ctx d
-  | nCtx, ctx,       node ds                  => Format.nest 2 <$> ds.foldlM (fun r d => do let d ← formatAux nCtx ctx d; pure $ r ++ Format.line ++ d) Format.nil
+  | nCtx, ctx,       node ds                  => Format.nest 2 <$> ds.foldlM (fun r d => return r ++ Format.line ++ (← formatAux nCtx ctx d)) Format.nil
 
 protected def format (msgData : MessageData) : IO Format :=
   formatAux { currNamespace := Name.anonymous, openDecls := [] } none msgData
 
 protected def toString (msgData : MessageData) : IO String := do
-  let fmt ← msgData.format
-  pure $ toString fmt
+  return toString (← msgData.format)
 
 instance : Append MessageData := ⟨compose⟩
 
@@ -156,7 +155,7 @@ partial def arrayExpr.toMessageData (es : Array Expr) (i : Nat) (acc : MessageDa
 
 instance : Coe (Array Expr) MessageData := ⟨fun es => arrayExpr.toMessageData es 0 "#["⟩
 
-def bracket (l : String) (f : MessageData) (r : String) : MessageData := group (nest l.length $ l ++ f ++ r)
+def bracket (l : String) (f : MessageData) (r : String) : MessageData := group (nest l.length <| l ++ f ++ r)
 def paren (f : MessageData) : MessageData := bracket "(" f ")"
 def sbracket (f : MessageData) : MessageData := bracket "[" f "]"
 def joinSep : List MessageData → MessageData → MessageData
@@ -165,12 +164,12 @@ def joinSep : List MessageData → MessageData → MessageData
   | a::as, sep => a ++ sep ++ joinSep as sep
 def ofList: List MessageData → MessageData
   | [] => "[]"
-  | xs => sbracket $ joinSep xs (ofFormat "," ++ Format.line)
+  | xs => sbracket <| joinSep xs (ofFormat "," ++ Format.line)
 def ofArray (msgs : Array MessageData) : MessageData :=
   ofList msgs.toList
 
 instance : Coe (List MessageData) MessageData := ⟨ofList⟩
-instance : Coe (List Expr) MessageData := ⟨fun es => ofList $ es.map ofExpr⟩
+instance : Coe (List Expr) MessageData := ⟨fun es => ofList <| es.map ofExpr⟩
 
 end MessageData
 
@@ -258,14 +257,14 @@ instance (m n) [MonadLift m n] [AddMessageContext m] : AddMessageContext n where
 def addMessageContextPartial {m} [Monad m] [MonadEnv m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
   let env ← getEnv
   let opts ← getOptions
-  pure $ MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts } msgData
+  return MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts } msgData
 
 def addMessageContextFull {m} [Monad m] [MonadEnv m] [MonadMCtx m] [MonadLCtx m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
   let env ← getEnv
   let mctx ← getMCtx
   let lctx ← getLCtx
   let opts ← getOptions
-  pure $ MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msgData
+  return MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msgData
 
 class ToMessageData (α : Type) where
   toMessageData : α → MessageData
@@ -285,7 +284,7 @@ instance : ToMessageData String        := ⟨stringToMessageData⟩
 instance : ToMessageData Syntax        := ⟨MessageData.ofSyntax⟩
 instance : ToMessageData Format        := ⟨MessageData.ofFormat⟩
 instance : ToMessageData MessageData   := ⟨id⟩
-instance {α} [ToMessageData α] : ToMessageData (List α)  := ⟨fun as => MessageData.ofList $ as.map toMessageData⟩
+instance {α} [ToMessageData α] : ToMessageData (List α)  := ⟨fun as => MessageData.ofList <| as.map toMessageData⟩
 instance {α} [ToMessageData α] : ToMessageData (Array α) := ⟨fun as => toMessageData as.toList⟩
 instance {α} [ToMessageData α] : ToMessageData (Subarray α) := ⟨fun as => toMessageData as.toArray.toList⟩
 instance {α} [ToMessageData α] : ToMessageData (Option α) := ⟨fun | none => "none" | some e => "some (" ++ toMessageData e ++ ")"⟩

@@ -202,13 +202,13 @@ def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : S
         (fun levelNames idStx =>
           let id := idStx.getId
           if levelNames.elem id then
-            withRef idStx $ throwAlreadyDeclaredUniverseLevel id
+            withRef idStx <| throwAlreadyDeclaredUniverseLevel id
           else
             pure (id :: levelNames))
         currLevelNames
-  let (declName, shortName) ← withRef declId $ mkDeclName currNamespace modifiers shortName
+  let (declName, shortName) ← withRef declId <| mkDeclName currNamespace modifiers shortName
   addDocString' declName modifiers.docString?
-  pure { shortName := shortName, declName := declName, levelNames := levelNames }
+  return { shortName := shortName, declName := declName, levelNames := levelNames }
 
 end Methods
 

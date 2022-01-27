@@ -128,7 +128,7 @@ def mkDefViewOfConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
     | some val => pure val
     | none     =>
       let val ← `(default_or_ofNonempty%)
-      pure $ mkNode ``Parser.Command.declValSimple #[ mkAtomFrom stx ":=", val ]
+      pure <| mkNode ``Parser.Command.declValSimple #[ mkAtomFrom stx ":=", val ]
   return {
     ref := stx, kind := DefKind.opaque, modifiers := modifiers,
     declId := stx[1], binders := binders, type? := some type, value := val
@@ -154,17 +154,17 @@ def isDefLike (stx : Syntax) : Bool :=
 def mkDefView (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView :=
   let declKind := stx.getKind
   if declKind == ``Parser.Command.«abbrev» then
-    pure $ mkDefViewOfAbbrev modifiers stx
+    return mkDefViewOfAbbrev modifiers stx
   else if declKind == ``Parser.Command.«def» then
-    pure $ mkDefViewOfDef modifiers stx
+    return mkDefViewOfDef modifiers stx
   else if declKind == ``Parser.Command.«theorem» then
-    pure $ mkDefViewOfTheorem modifiers stx
+    return mkDefViewOfTheorem modifiers stx
   else if declKind == ``Parser.Command.«constant» then
     mkDefViewOfConstant modifiers stx
   else if declKind == ``Parser.Command.«instance» then
     mkDefViewOfInstance modifiers stx
   else if declKind == ``Parser.Command.«example» then
-    pure $ mkDefViewOfExample modifiers stx
+    return mkDefViewOfExample modifiers stx
   else
     throwError "unexpected kind of definition"
 

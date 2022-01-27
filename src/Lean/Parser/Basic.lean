@@ -68,9 +68,6 @@ namespace Lean
 
 namespace Parser
 
-def isLitKind (k : SyntaxNodeKind) : Bool :=
-  k == strLitKind || k == numLitKind || k == charLitKind || k == nameLitKind || k == scientificLitKind
-
 abbrev mkAtom (info : SourceInfo) (val : String) : Syntax :=
   Syntax.atom info val
 

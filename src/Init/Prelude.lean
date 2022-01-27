@@ -1874,6 +1874,13 @@ def matchesNull (stx : Syntax) (n : Nat) : Bool :=
 def matchesIdent (stx : Syntax) (id : Name) : Bool :=
   and stx.isIdent (beq stx.getId id)
 
+def matchesLit (stx : Syntax) (k : SyntaxNodeKind) (val : String) : Bool :=
+  match stx with
+  | Syntax.node _ k' args => and (beq k k') (match args.getD 0 Syntax.missing with
+    | Syntax.atom _ val' => beq val val'
+    | _                  => false)
+  | _                     => false
+
 def setArgs (stx : Syntax) (args : Array Syntax) : Syntax :=
   match stx with
   | node info k _ => node info k args

@@ -4,22 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 
 Elaboration of syntax quotations as terms and patterns (in `match_syntax`). See also `./Hygiene.lean` for the basic
-hygiene workings and data types.
-
-We ignore `Syntax.atom`s during matching by default because it a waste of time for keywords such as `if` and `then` and would blow up the generated code.
-However, for literals we *do* match against the atom contents because otherwise they are indistinguishable (https://github.com/leanprover/lean4/issues/801).
-
-For users introducing new atoms, we recommend wrapping them in dedicated syntax kinds if they should participate in matching.
-For example, in
-```lean
-syntax "c" ("foo" <|> "bar") ...
-```
-`foo` and `bar` are indistinguishable during matching, but in
-```lean
-syntax foo := "foo"
-syntax "c" (foo <|> "bar") ...
-```
-they are not. -/
+hygiene workings and data types. -/
 import Lean.Syntax
 import Lean.ResolveName
 import Lean.Elab.Term
@@ -403,8 +388,9 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       let argPats := quoted.getArgs.map fun arg => Unhygienic.run `(`($(arg)))
       pure {
         check :=
-          -- identifiers only match identical identifiers - custom matching such as by the preresolved names only should be done explicitly
-          -- for literals, see module docstring
+          -- Atoms are matched only within literals because it would be a waste of time for keywords
+          -- such as `if` and `then` and would blow up the generated code.
+          -- See also `elabMatchSyntax` docstring below.
           if quoted.isIdent || lit then
             -- NOTE: We could make this case split more precise by refining `HeadCheck`,
             -- but matching on literals is quite rare.
@@ -529,7 +515,23 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
     stx
   | _ => throwUnsupportedSyntax
 
-/-- Syntactic pattern match. Matches a `Syntax` value against quotations, pattern variables, or `_`. -/
+/--
+  Syntactic pattern match. Matches a `Syntax` value against quotations, pattern variables, or `_`.
+
+  Quoted identifiers only match identical identifiers - custom matching such as by the preresolved names only should be done explicitly.
+
+  `Syntax.atom`s are ignored during matching by default except when part of a built-in literal.
+  For users introducing new atoms, we recommend wrapping them in dedicated syntax kinds if they should participate in matching.
+  For example, in
+  ```lean
+  syntax "c" ("foo" <|> "bar") ...
+  ```
+  `foo` and `bar` are indistinguishable during matching, but in
+  ```lean
+  syntax foo := "foo"
+  syntax "c" (foo <|> "bar") ...
+  ```
+  they are not. -/
 @[builtinTermElab «match»] def elabMatchSyntax : TermElab :=
   adaptExpander match_syntax.expand
 

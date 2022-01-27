@@ -23,6 +23,9 @@ def unreachIsNodeMissing {β} (h : IsNode Syntax.missing) : β := False.elim (no
 def unreachIsNodeAtom {β} {info val} (h : IsNode (Syntax.atom info val)) : β := False.elim (nomatch h)
 def unreachIsNodeIdent {β info rawVal val preresolved} (h : IsNode (Syntax.ident info rawVal val preresolved)) : β := False.elim (nomatch h)
 
+def isLitKind (k : SyntaxNodeKind) : Bool :=
+  k == strLitKind || k == numLitKind || k == charLitKind || k == nameLitKind || k == scientificLitKind
+
 namespace SyntaxNode
 
 @[inline] def getKind (n : SyntaxNode) : SyntaxNodeKind :=

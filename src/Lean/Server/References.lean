@@ -31,6 +31,12 @@ open Server
 
 def empty : RefInfo := ⟨ none, #[] ⟩
 
+def merge (a : RefInfo) (b : RefInfo) : RefInfo :=
+  {
+    definition := b.definition.orElse fun _ => a.definition
+    usages := a.usages.append b.usages
+  }
+
 def addRef : RefInfo → Reference → RefInfo
   | i@{ definition := none, .. }, { range, isDeclaration := true, .. } =>
     { i with definition := range }
@@ -176,9 +182,20 @@ def removeIlean (self : References) (path : System.FilePath) : References :=
   namesToRemove.foldl (init := self) fun self name =>
     { self with ileans := self.ileans.erase name }
 
-def addWorkerRefs (self : References) (name : Name) (version : Nat) (refs : ModuleRefs) : References := Id.run do
+def updateWorkerRefs (self : References) (name : Name) (version : Nat) (refs : ModuleRefs) : References := Id.run do
   if let some (currVersion, _) := self.workers.find? name then
-    if version <= currVersion then
+    if version > currVersion then
+      return { self with workers := self.workers.insert name (version, refs) }
+    if version == currVersion then
+      let current := self.workers.findD name (version, HashMap.empty)
+      let merged := refs.fold (init := current.snd) fun m ident info =>
+        m.findD ident RefInfo.empty |>.merge info |> m.insert ident
+      return { self with workers := self.workers.insert name (version, merged) }
+  return self
+
+def finalizeWorkerRefs (self : References) (name : Name) (version : Nat) (refs : ModuleRefs) : References := Id.run do
+  if let some (currVersion, _) := self.workers.find? name then
+    if version < currVersion then
       return self
   return { self with workers := self.workers.insert name (version, refs) }
 

@@ -77,13 +77,18 @@ section Elab
   abbrev AsyncElabM := StateT AsyncElabState <| EIO ElabTaskError
 
   -- Placed here instead of Lean.Server.Utils because of an import loop
-  private def publishReferences (m : DocumentMeta) (s : AsyncElabState) (hOut : FS.Stream) : IO Unit := do
-    let trees := (s.snaps.insertAt 0 s.headerSnap).map fun snap => snap.infoTree
+  private def publishIleanInfo (method : String) (m : DocumentMeta) (hOut : FS.Stream)
+      (snaps : Array Snapshot) : IO Unit := do
+    let trees := snaps.map fun snap => snap.infoTree
     let references := findModuleRefs m.text trees (localVars := true)
-    hOut.writeLspNotification {
-      method := "$/lean/ileanInfo"
-      param := { version := m.version, references : LeanIleanInfoParams }
-    }
+    let param := { version := m.version, references : LeanIleanInfoParams }
+    hOut.writeLspNotification { method, param }
+
+  private def publishIleanInfoUpdate : DocumentMeta → FS.Stream → Array Snapshot → IO Unit :=
+    publishIleanInfo "$/lean/ileanInfoUpdate"
+
+  private def publishIleanInfoFinal : DocumentMeta → FS.Stream → Array Snapshot → IO Unit :=
+    publishIleanInfo "$/lean/ileanInfoFinal"
 
   /-- Elaborates the next command after `parentSnap` and emits diagnostics into `hOut`. -/
   private def nextCmdSnap (ctx : WorkerContext) (m : DocumentMeta) (cancelTk : CancelToken)
@@ -94,7 +99,7 @@ section Elab
     if lastSnap.isAtEnd then
       publishDiagnostics m lastSnap.diagnostics.toArray ctx.hOut
       publishProgressDone m ctx.hOut
-      publishReferences m s ctx.hOut
+      publishIleanInfoFinal m ctx.hOut <| s.snaps.insertAt 0 s.headerSnap
       return none
     publishProgressAtPos m lastSnap.endPos ctx.hOut
     let snap ← compileNextCmd m.text lastSnap ctx.clientHasWidgets
@@ -114,20 +119,22 @@ section Elab
     -- because empty diagnostics clear existing error/information squiggles. Therefore we always
     -- want to publish in case there was previously a message at this position.
     publishDiagnostics m snap.diagnostics.toArray ctx.hOut
+    publishIleanInfoUpdate m ctx.hOut #[snap]
     return some snap
 
   /-- Elaborates all commands after the last snap (using `headerSnap` if `snaps`
   is empty), emitting the diagnostics into `hOut`. -/
   def unfoldCmdSnaps (m : DocumentMeta) (headerSnap : Snapshot) (snaps : Array Snapshot) (cancelTk : CancelToken)
       : ReaderT WorkerContext IO (AsyncList ElabTaskError Snapshot) := do
+    let ctx ← read
     if snaps.isEmpty && headerSnap.msgLog.hasErrors then
       -- Treat header processing errors as fatal so users aren't swamped with
       -- followup errors
-      let hOut := (←read).hOut
-      publishProgressAtPos m headerSnap.beginPos hOut (kind := LeanFileProgressKind.fatalError)
+      publishProgressAtPos m headerSnap.beginPos ctx.hOut (kind := LeanFileProgressKind.fatalError)
+      publishIleanInfoFinal m ctx.hOut #[headerSnap]
       AsyncList.nil
     else
-      let ctx ← read
+      publishIleanInfoUpdate m ctx.hOut <| snaps.insertAt 0 headerSnap
       AsyncList.unfoldAsync (nextCmdSnap ctx m cancelTk) { headerSnap, snaps }
 end Elab
 

@@ -53,7 +53,6 @@ unsafe def lt (a b : Expr) : MetaM Bool :=
     lt a b.mdataExpr!
   else
     lpo a b
-
 where
   ltPair (a₁ a₂ b₁ b₂ : Expr) : MetaM Bool := do
     if (← lt a₁ b₁) then
@@ -144,11 +143,20 @@ where
 
   lpo (a b : Expr) : MetaM Bool := do
     -- Case 1: `a < b` if for some child `b_i` of `b`, we have `b_i >= a`
-    someChildGe b a
-    -- Case 2: `a < b` if `a.ctorWeight < b.ctorWeight` and for all children `a_i` of `a`, `a_i < b`
-    <||> (a.ctorWeight < b.ctorWeight <&&> allChildrenLt a b)
-    -- Case 3: `a < b` if `a` & `b` have the same ctor, and `a` is lexicographically smaller
-    <||> (a.ctorWeight == b.ctorWeight <&&> lexSameCtor a b)
+    if (← someChildGe b a) then
+      return true
+    else if a.ctorWeight > b.ctorWeight then
+      return false
+    else
+      -- Case 2: `a < b` if `a.ctorWeight < b.ctorWeight` and for all children `a_i` of `a`, `a_i < b`
+      -- Case 3: `a < b` if `a` & `b` have the same ctor, and `a` is lexicographically smaller, and for all children `a_i` of a, `a_i < b`
+      if !(← allChildrenLt a b) then
+        return false -- Cases 2 and 3 can't be true
+      else if a.ctorWeight < b.ctorWeight then
+        return true -- Case 2
+      else
+        -- `a.ctorWeight == b.ctorWeight`
+        lexSameCtor a b -- Case 3
 
 end
 

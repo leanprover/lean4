@@ -368,6 +368,15 @@ end ServerM
 
 section RequestHandling
 
+def findDefinition (p : TextDocumentPositionParams) : ServerM <| Option Location := do
+  if let some path := p.textDocument.uri.toPath? then
+    let srcSearchPath := (← read).srcSearchPath
+    if let some module ← searchModuleNameOfFileName path srcSearchPath then
+      let references ← (← read).references.get
+      if let some ident := references.findAt? module p.position then
+        return ← references.definitionOf ident srcSearchPath
+  return none
+
 def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
   if let some path := p.textDocument.uri.toPath? then
     let srcSearchPath := (← read).srcSearchPath
@@ -527,6 +536,10 @@ section MessageHandling
           code := ErrorCode.internalError
           message := s!"Failed to process request {id}: {e}"
         }
+    if method == "textDocument/definition" || method == "textDocument/declaration" then
+      let params ← parseParams TextDocumentPositionParams params
+      if let some definition ← findDefinition params then
+        (← read).hOut.writeLspResponse ⟨id, #[definition]⟩
     match method with
       | "textDocument/references" => handle ReferenceParams (Array Location) handleReference
       | "workspace/symbol" => handle WorkspaceSymbolParams (Array SymbolInformation) handleWorkspaceSymbol

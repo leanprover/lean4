@@ -208,11 +208,17 @@ section ServerM
     st.hLog.putStrLn msg
     st.hLog.flush
 
-  def handleIleanInfo (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
+  def handleIleanInfoUpdate (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let s ← read
     if let some path := fw.doc.meta.uri.toPath? then
       if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
-        s.references.modify fun refs => refs.addWorkerRefs module params.version params.references
+        s.references.modify fun refs => refs.updateWorkerRefs module params.version params.references
+
+  def handleIleanInfoFinal (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
+    let s ← read
+    if let some path := fw.doc.meta.uri.toPath? then
+      if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
+        s.references.modify fun refs => refs.finalizeWorkerRefs module params.version params.references
 
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
@@ -221,17 +227,24 @@ section ServerM
     let rec loop : ServerM WorkerEvent := do
       try
         let msg ← fw.stdout.readLspMessage
-        if let Message.response id _ := msg then
-          fw.erasePendingRequest id
-        if let Message.responseError id _ _ _ := msg then
-          fw.erasePendingRequest id
-        if let Message.notification "$/lean/ileanInfo" params := msg then
-          if let some params := params then
-            if let Except.ok params := FromJson.fromJson? $ ToJson.toJson params then
-              handleIleanInfo fw params
-        else
-          -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
-          o.writeLspMessage msg
+        -- Re. `o.writeLspMessage msg`:
+        -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
+        match msg with
+          | Message.response id _ => do
+            fw.erasePendingRequest id
+            o.writeLspMessage msg
+          | Message.responseError id _ _ _ => do
+            fw.erasePendingRequest id
+            o.writeLspMessage msg
+          | Message.notification "$/lean/ileanInfoUpdate" params =>
+            if let some params := params then
+              if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
+                handleIleanInfoUpdate fw params
+          | Message.notification "$/lean/ileanInfoFinal" params =>
+            if let some params := params then
+              if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
+                handleIleanInfoFinal fw params
+          | _ => o.writeLspMessage msg
       catch err =>
         -- If writeLspMessage from above errors we will block here, but the main task will
         -- quit eventually anyways if that happens

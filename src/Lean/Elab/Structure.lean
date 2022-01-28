@@ -446,7 +446,12 @@ where
                 trace[Meta.debug] "composite, {fieldName} := {fieldVal}"
                 copy (i+1) infos (fieldMap.insert fieldName fieldVal) expandedStructNames
             else
-              addNewField
+              let subfieldNames := getStructureFieldsFlattened (← getEnv) fieldParentStructName
+              let fieldName := fieldInfo.fieldName
+              withLocalDecl fieldName fieldInfo.binderInfo fieldType fun parentFVar =>
+                let infos := infos.push { name := fieldName, declName := structDeclName ++ fieldName, fvar := parentFVar, kind := StructFieldKind.subobject }
+                processSubfields structDeclName parentFVar fieldParentStructName subfieldNames infos fun infos =>
+                  copy (i+1) infos (fieldMap.insert fieldName parentFVar) expandedStructNames
           else
             addNewField
       else
@@ -468,7 +473,7 @@ where
     for fieldName in getStructureFields env parentStructName do
       match fieldMap.find? fieldName with
       | some val => result := mkApp result val
-      | none => throwError "failed to copied fields from parent structure{indentExpr parentType}" -- TODO improve error message
+      | none => throwError "failed to copy fields from parent structure{indentExpr parentType}" -- TODO improve error message
     return result
 
 private partial def mkToParentName (parentStructName : Name) (p : Name → Bool) : Name := Id.run <| do

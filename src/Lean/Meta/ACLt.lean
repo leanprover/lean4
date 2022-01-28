@@ -96,10 +96,10 @@ where
     match a with
     -- Atomic
     | Expr.bvar i ..    => i < b.bvarIdx!
-    | Expr.fvar id ..   => Name.quickLt id.name b.fvarId!.name
-    | Expr.mvar id ..   => Name.quickLt id.name b.mvarId!.name
+    | Expr.fvar id ..   => Name.lt id.name b.fvarId!.name
+    | Expr.mvar id ..   => Name.lt id.name b.mvarId!.name
     | Expr.sort u ..    => Level.normLt u b.sortLevel!
-    | Expr.const n ..   => Name.quickLt n b.constName! -- We igore the levels
+    | Expr.const n ..   => Name.lt n b.constName! -- We igore the levels
     | Expr.lit v ..     => Literal.lt v b.litValue!
     -- Composite
     | Expr.proj _ i e ..    => if i != b.projIdx! then i < b.projIdx! else lt e b.projExpr!

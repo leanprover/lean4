@@ -227,6 +227,18 @@ def referringTo (self : References) (ident : RefIdent) (srcSearchPath : SearchPa
           result := result.push ⟨uri, range⟩
   result
 
+def definitionOf (self : References) (ident : RefIdent) (srcSearchPath : SearchPath)
+    : IO (Option Location) := do
+  for (module, refs) in self.allRefs.toList do
+    if let some info := refs.find? ident then
+      if let some definition := info.definition then
+        if let some path ← srcSearchPath.findModuleWithExt "lean" module then
+          -- Resolve symlinks (such as `src` in the build dir) so that files are
+          -- opened in the right folder
+          let uri := DocumentUri.ofPath <| ← IO.FS.realPath path
+          return some ⟨uri, definition⟩
+  return none
+
 def definitionsMatching (self : References) (srcSearchPath : SearchPath) (filter : Name → Option α)
     (maxAmount? : Option Nat := none) : IO $ Array (α × Location) := do
   let mut result := #[]

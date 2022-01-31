@@ -536,10 +536,16 @@ section MessageHandling
           code := ErrorCode.internalError
           message := s!"Failed to process request {id}: {e}"
         }
+    -- If a definition is in a different, modified file, the ilean data should
+    -- have the correct location while the olean still has outdated info from
+    -- the last compilation. This is easier than catching the client's reply and
+    -- fixing the definition's location afterwards, but it doesn't work for
+    -- go-to-type-definition.
     if method == "textDocument/definition" || method == "textDocument/declaration" then
       let params ← parseParams TextDocumentPositionParams params
       if let some definition ← findDefinition params then
         (← read).hOut.writeLspResponse ⟨id, #[definition]⟩
+        return
     match method with
       | "textDocument/references" => handle ReferenceParams (Array Location) handleReference
       | "workspace/symbol" => handle WorkspaceSymbolParams (Array SymbolInformation) handleWorkspaceSymbol

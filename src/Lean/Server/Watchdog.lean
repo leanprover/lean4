@@ -368,13 +368,13 @@ end ServerM
 
 section RequestHandling
 
-def findDefinition (p : TextDocumentPositionParams) : ServerM <| Option Location := do
+def findDefinition? (p : TextDocumentPositionParams) : ServerM <| Option Location := do
   if let some path := p.textDocument.uri.toPath? then
     let srcSearchPath := (← read).srcSearchPath
     if let some module ← searchModuleNameOfFileName path srcSearchPath then
       let references ← (← read).references.get
       if let some ident := references.findAt? module p.position then
-        return ← references.definitionOf ident srcSearchPath
+        return ← references.definitionOf? ident srcSearchPath
   return none
 
 def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
@@ -543,7 +543,7 @@ section MessageHandling
     -- go-to-type-definition.
     if method == "textDocument/definition" || method == "textDocument/declaration" then
       let params ← parseParams TextDocumentPositionParams params
-      if let some definition ← findDefinition params then
+      if let some definition ← findDefinition? params then
         (← read).hOut.writeLspResponse ⟨id, #[definition]⟩
         return
     match method with

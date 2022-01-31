@@ -1,1 +1,3 @@
-def b := "B"
+import Root
+
+def b := s!"B{root}"

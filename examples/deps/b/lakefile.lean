@@ -1,3 +1,8 @@
 import Lake
-open Lake DSL
-package b
+open System Lake DSL
+
+package b {
+  dependencies := #[
+    { name := `root, src := Source.path (FilePath.mk ".." / "root") }
+  ]
+}

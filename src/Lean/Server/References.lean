@@ -22,7 +22,7 @@ structure Reference where
   ident : RefIdent
   range : Lsp.Range
   isDeclaration : Bool
-  deriving BEq
+  deriving BEq, Inhabited
 
 end Lean.Server
 
@@ -146,9 +146,18 @@ where
     | m, RefIdent.fvar id => RefIdent.fvar <| m.findD id id
     | _, ident => ident
 
+def dedupReferences (refs : Array Reference) : Array Reference := Id.run do
+  let mut refsByIdAndRange : HashMap (RefIdent × Lsp.Range) Reference := HashMap.empty
+  for ref in refs do
+    if ref.isDeclaration || !(refsByIdAndRange.contains (ref.ident, ref.range)) then
+      refsByIdAndRange := refsByIdAndRange.insert (ref.ident, ref.range) ref
+
+  let dedupedRefs := refsByIdAndRange.fold (init := #[]) fun refs _ ref => refs.push ref
+  return dedupedRefs.qsort (·.range < ·.range)
+
 def findModuleRefs (text : FileMap) (trees : Array InfoTree) (localVars : Bool := true)
     : ModuleRefs := Id.run do
-  let mut refs := combineFvars <| findReferences text trees
+  let mut refs := dedupReferences <| combineFvars <| findReferences text trees
   if !localVars then
     refs := refs.filter fun
       | { ident := RefIdent.fvar _, .. } => false

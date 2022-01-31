@@ -227,7 +227,7 @@ def referringTo (self : References) (ident : RefIdent) (srcSearchPath : SearchPa
           result := result.push ⟨uri, range⟩
   result
 
-def definitionOf (self : References) (ident : RefIdent) (srcSearchPath : SearchPath)
+def definitionOf? (self : References) (ident : RefIdent) (srcSearchPath : SearchPath)
     : IO (Option Location) := do
   for (module, refs) in self.allRefs.toList do
     if let some info := refs.find? ident then

@@ -99,6 +99,8 @@ section Elab
     if lastSnap.isAtEnd then
       publishDiagnostics m lastSnap.diagnostics.toArray ctx.hOut
       publishProgressDone m ctx.hOut
+      -- This will overwrite existing ilean info for the file, in case something
+      -- went wrong during the incremental updates.
       publishIleanInfoFinal m ctx.hOut <| s.snaps.insertAt 0 s.headerSnap
       return none
     publishProgressAtPos m lastSnap.endPos ctx.hOut
@@ -134,6 +136,8 @@ section Elab
       publishIleanInfoFinal m ctx.hOut #[headerSnap]
       AsyncList.nil
     else
+      -- This will overwrite existing ilean info for the file since this has a
+      -- higher version number.
       publishIleanInfoUpdate m ctx.hOut <| snaps.insertAt 0 headerSnap
       AsyncList.unfoldAsync (nextCmdSnap ctx m cancelTk) { headerSnap, snaps }
 end Elab

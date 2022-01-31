@@ -47,7 +47,7 @@ protected def Package.buildModuleMap [Inhabited o]
 (build : ActiveOpaqueTarget → RecModuleBuild o) (self : Package)
 : BuildM (NameMap o) := do
   let depTarget ← self.buildExtraDepsTarget
-  let infos := (← self.getModuleArray).map fun mod => ModuleInfo.mk self mod
+  let infos := (← self.getModuleArray).map fun mod => Module.mk self mod
   buildModuleMap infos (build depTarget)
 
 /--
@@ -63,7 +63,7 @@ def Package.buildTarget [Inhabited i]
     let mods ← self.getModuleArray
     failOnBuildCycle <| ← RBTopT.run' do
       let targets ← mods.mapM fun mod => (·.withoutInfo) <$>
-        buildRBTop (build depTarget) ModuleInfo.name (ModuleInfo.mk self mod)
+        buildRBTop (build depTarget) Module.name (Module.mk self mod)
       ActiveTarget.collectOpaqueArray targets
   buildMods.catchFailure fun _ => pure <| ActiveTarget.opaque failure
 
@@ -103,11 +103,11 @@ def Package.moduleOleanAndCTarget (mod : Name) (self : Package) : OleanAndCTarge
 -- # Build Imports
 
 /--
-Construct an `Array` of `ModuleInfo`s for the workspace-local modules of
+Construct an `Array` of `Module`s for the workspace-local modules of
 a `List` of import strings.
 -/
 def Workspace.processImportList
-(imports : List String) (self : Workspace) : Array ModuleInfo := Id.run do
+(imports : List String) (self : Workspace) : Array Module := Id.run do
   let mut localImports := #[]
   for imp in imports do
     let mod := imp.toName

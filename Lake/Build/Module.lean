@@ -16,6 +16,29 @@ open Lean hiding SearchPath
 
 namespace Lake
 
+-- # Info
+
+structure Module where
+  pkg : Package
+  name : Name
+  deriving Inhabited
+
+namespace Module
+
+@[inline] def srcFile (self : Module) : FilePath :=
+  self.pkg.modToSrc self.name
+
+@[inline] def oleanFile (self : Module) : FilePath :=
+  self.pkg.modToOlean self.name
+
+@[inline] def cFile (self : Module) : FilePath :=
+  self.pkg.modToC self.name
+
+@[inline] def traceFile (self : Module) : FilePath :=
+  self.pkg.modToTraceFile self.name
+
+end Module
+
 -- # Targets
 
 structure OleanAndC where
@@ -141,13 +164,6 @@ protected def Package.moduleOleanTargetOnly (self : Package)
 
 -- # Recursive Building
 
-structure ModuleInfo where
-  pkg : Package
-  name : Name
-
-def ModuleInfo.srcFile (self : ModuleInfo) : FilePath :=
-  self.pkg.modToSrc self.name
-
 /-
 Produces a recursive module target builder that
 builds the target module after recursively building its local imports
@@ -156,7 +172,7 @@ builds the target module after recursively building its local imports
 def recBuildModuleWithLocalImports
 [Monad m] [MonadLiftT BuildM m] [MonadFunctorT BuildM m]
 (build : Package → Name → FilePath → String → List α → BuildM α)
-: RecBuild ModuleInfo α m := fun info recurse => do
+: RecBuild Module α m := fun info recurse => do
   have : MonadLift BuildM m := ⟨liftM⟩
   have : MonadFunctor BuildM m := ⟨fun f => monadMap (m := BuildM) f⟩
   let contents ← IO.FS.readFile info.srcFile
@@ -171,7 +187,7 @@ def recBuildModuleWithLocalImports
 
 def recBuildModuleOleanAndCTargetWithLocalImports
 [Monad m] [MonadLiftT BuildM m] [MonadFunctorT BuildM m] (depTarget : ActiveBuildTarget x)
-: RecBuild ModuleInfo ActiveOleanAndCTarget m :=
+: RecBuild Module ActiveOleanAndCTarget m :=
   recBuildModuleWithLocalImports fun pkg mod leanFile contents importTargets => do
     let importTarget ← ActiveTarget.collectOpaqueList <| importTargets.map (·.oleanTarget)
     let allDepsTarget := Target.active <| ← depTarget.mixOpaqueAsync importTarget
@@ -179,7 +195,7 @@ def recBuildModuleOleanAndCTargetWithLocalImports
 
 def recBuildModuleOleanTargetWithLocalImports
 [Monad m] [MonadLiftT BuildM m] [MonadFunctorT BuildM m] (depTarget : ActiveBuildTarget x)
-: RecBuild ModuleInfo ActiveFileTarget m :=
+: RecBuild Module ActiveFileTarget m :=
   recBuildModuleWithLocalImports fun pkg mod leanFile contents importTargets => do
     let importTarget ← ActiveTarget.collectOpaqueList importTargets
     let allDepsTarget := Target.active <| ← depTarget.mixOpaqueAsync importTarget
@@ -193,7 +209,7 @@ abbrev ModuleBuildM (α) :=
   EStateT (List Name) (NameMap α) BuildM
 
 abbrev RecModuleBuild (o) :=
-  RecBuild ModuleInfo o (ModuleBuildM o)
+  RecBuild Module o (ModuleBuildM o)
 
 abbrev RecModuleTargetBuild (i) :=
   RecModuleBuild (ActiveBuildTarget i)
@@ -201,28 +217,28 @@ abbrev RecModuleTargetBuild (i) :=
 -- ## Builders
 
 /-- Build a single module using the recursive module build function `build`. -/
-def buildModule (mod : ModuleInfo)
+def buildModule (mod : Module)
 [Inhabited o] (build : RecModuleBuild o) : BuildM o := do
   failOnBuildCycle <| ← RBTopT.run' do
-    buildRBTop (cmp := Name.quickCmp) build ModuleInfo.name mod
+    buildRBTop (cmp := Name.quickCmp) build Module.name mod
 
 /--
 Build each module using the recursive module function `build`,
 constructing an `Array`  of the results.
 -/
-def buildModuleArray (mods : Array ModuleInfo)
+def buildModuleArray (mods : Array Module)
 [Inhabited o] (build : RecModuleBuild o) : BuildM (Array o) := do
   failOnBuildCycle <| ← RBTopT.run' <| mods.mapM <|
-    buildRBTop (cmp := Name.quickCmp) build ModuleInfo.name
+    buildRBTop (cmp := Name.quickCmp) build Module.name
 
 /--
 Build each module using the recursive module function `build`,
 constructing a module-target `NameMap`  of the results.
 -/
 def buildModuleMap [Inhabited o]
-(infos : Array ModuleInfo) (build : RecModuleBuild o)
+(infos : Array Module) (build : RecModuleBuild o)
 : BuildM (NameMap o) := do
   let (x, objMap) ← RBTopT.run do
-    infos.forM fun info => discard <| buildRBTop build ModuleInfo.name info
+    infos.forM fun info => discard <| buildRBTop build Module.name info
   failOnBuildCycle x
   return objMap

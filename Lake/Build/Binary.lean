@@ -50,12 +50,14 @@ def Package.linkTargetsOf
 (targetMap : NameMap ActiveOleanAndCTarget) (self : Package) : LakeM (Array FileTarget) := do
   let collect dep recurse := do
       let pkg := (← getPackageByName? dep.name).get!
-      let depTargets ← pkg.dependencies.concatMapM recurse
-      return pkg.oFileTargetsOf targetMap ++ pkg.moreLibTargets ++ depTargets
-  let x ← RBTopT.run' <| self.dependencies.concatMapM fun dep =>
-    buildRBTop (cmp := Name.quickCmp) collect Dependency.name dep
+      pkg.dependencies.forM fun dep => discard <| recurse dep
+      return pkg.oFileTargetsOf targetMap ++ pkg.moreLibTargets
+  let ⟨x, map⟩ ← RBTopT.run <| self.dependencies.forM fun dep =>
+    discard <| buildRBTop (cmp := Name.quickCmp) collect Dependency.name dep
   match x with
-  | Except.ok ts => return self.oFileTargetsOf targetMap ++ self.moreLibTargets ++ ts
+  | Except.ok _ =>
+    let ts := map.fold (fun acc _ vs => acc ++ vs) #[]
+    return self.oFileTargetsOf targetMap ++ self.moreLibTargets ++ ts
   | Except.error _ => panic! "dependency cycle emerged after resolution"
 
 protected def Package.sharedLibTarget (self : Package) : FileTarget :=

@@ -22,10 +22,6 @@
  {"range":
   {"start": {"line": 22, "character": 16},
    "end": {"line": 22, "character": 19}},
-  "kind": 1},
- {"range":
-  {"start": {"line": 22, "character": 16},
-   "end": {"line": 22, "character": 19}},
   "kind": 1}]
 {"textDocument": {"uri": "file://highlight.lean"},
  "position": {"line": 5, "character": 7}}

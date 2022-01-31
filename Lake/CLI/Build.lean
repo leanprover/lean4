@@ -10,23 +10,21 @@ open Lean (Name)
 
 namespace Lake
 
-def resolvePkgSpec (ws : Workspace) (rootPkg : Package) (spec : String) : IO Package := do
+def parsePkgSpec (ws : Workspace) (spec : String) : IO Package :=
   if spec.isEmpty then
-    return rootPkg
-  let pkgName := spec.toName
-  if pkgName == rootPkg.name then
-    return rootPkg
-  match ws.packageByName? pkgName with
-  | some dep => dep
-  | none => error s!"unknown package `{spec}`"
+    ws.root
+  else
+    match ws.packageByName? spec.toName with
+    | some pkg => pkg
+    | none => error s!"unknown package `{spec}`"
 
-def parseTargetBaseSpec (ws : Workspace) (rootPkg : Package) (spec : String) : IO (Package × Option Name) := do
+def parseTargetBaseSpec (ws : Workspace) (spec : String) : IO (Package × Option Name) := do
   match spec.splitOn "/" with
   | [pkgStr] =>
-    return (← resolvePkgSpec ws rootPkg pkgStr, none)
+    return (← parsePkgSpec ws pkgStr, none)
   | [pkgStr, modStr] =>
     let mod := modStr.toName
-    let pkg ← resolvePkgSpec ws rootPkg pkgStr
+    let pkg ← parsePkgSpec ws pkgStr
     if pkg.hasModule mod then
       return (pkg, mod)
     else
@@ -34,16 +32,16 @@ def parseTargetBaseSpec (ws : Workspace) (rootPkg : Package) (spec : String) : I
   | _ =>
     error s!"invalid target spec '{spec}' (too many '/')"
 
-def parseTargetSpec (ws : Workspace) (rootPkg : Package) (spec : String) : IO (BuildTarget Package) := do
+def parseTargetSpec (ws : Workspace) (spec : String) : IO (BuildTarget Package) := do
   match spec.splitOn ":" with
   | [rootSpec] =>
-    let (pkg, mod?) ← parseTargetBaseSpec ws rootPkg rootSpec
+    let (pkg, mod?) ← parseTargetBaseSpec ws rootSpec
     if let some mod := mod? then
       return pkg.moduleOleanTarget mod |>.withInfo pkg
     else
       return pkg.defaultTarget |>.withInfo pkg
   | [rootSpec, facet] =>
-    let (pkg, mod?) ← parseTargetBaseSpec ws rootPkg rootSpec
+    let (pkg, mod?) ← parseTargetBaseSpec ws rootSpec
     if let some mod := mod? then
       if facet == "olean" then
         return pkg.moduleOleanTarget mod |>.withInfo pkg
@@ -67,9 +65,10 @@ def parseTargetSpec (ws : Workspace) (rootPkg : Package) (spec : String) : IO (B
   | _ =>
     error s!"invalid target spec '{spec}' (too many ':')"
 
-def build (pkg : Package) (targetSpecs : List String) : BuildM PUnit := do
-  let targets ← liftM <| targetSpecs.mapM (parseTargetSpec (← getWorkspace) pkg)
+def build (targetSpecs : List String) : BuildM PUnit := do
+  let ws ← getWorkspace
+  let targets ← liftM <| targetSpecs.mapM <| parseTargetSpec ws
   if targets.isEmpty then
-    pkg.defaultTarget.build
+    ws.root.defaultTarget.build
   else
     targets.forM fun t => discard <| t.build

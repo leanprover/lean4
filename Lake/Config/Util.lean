@@ -13,7 +13,7 @@ def Package.run (script : String) (args : List String) (self : Package) : Script
   else do
     error s!"unknown script {script}"
 
-def Package.scriptDoc (scriptName : String) (self : Package) : LakeT IO PUnit :=
+def Package.printScriptDoc (scriptName : String) (self : Package) : IO PUnit :=
   if let some script := self.scripts.find? scriptName then
     match script.doc? with
     | some doc => IO.println doc.trim

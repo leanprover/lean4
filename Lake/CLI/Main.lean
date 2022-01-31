@@ -89,15 +89,12 @@ def loadPkg (args : List String := []) : CliStateM Package := do
   setupLeanSearchPath (← getLeanInstall?) (← getLakeInstall?)
   Package.load dir args (dir / file)
 
-def loadConfig (args : List String := []) : CliStateM (Workspace × Package) := do
+def loadWorkspace (args : List String := []) : CliStateM Workspace := do
   let pkg ← loadPkg args
   let ws ← Workspace.ofPackage pkg
   let packageMap ← resolveDeps ws pkg |>.run LogMethods.eio (m := IO)
   let packageMap := packageMap.insert pkg.name pkg
-  ({ws with packageMap}, pkg)
-
-def loadWorkspace (args : List String := []) : CliStateM Workspace :=
-  (·.1) <$> loadConfig args
+  {ws with packageMap}
 
 /-- Get the Lean installation. Error if missing. -/
 def getLeanInstall : CliStateM LeanInstall := do
@@ -174,13 +171,10 @@ def lakeOption :=
 
 -- ## Commands
 
-def withPackage [MonadLiftT m CliStateM] (x : Package → LakeT m α) : CliStateM α := do
-  let (ws, pkg) ← loadConfig
+def withContext [MonadLiftT m CliStateM] (x : LakeT m α) : CliStateM α := do
+  let ws ← loadWorkspace
   let (lean, lake) ← getInstall
-  liftM <| x pkg |>.run {lean, lake, opaqueWs := ws}
-
-def withContext [MonadLiftT m CliStateM] (x : LakeT m α) : CliStateM α :=
-  withPackage fun _ => x
+  liftM <| x |>.run {lean, lake, opaqueWs := ws}
 
 /-- Verify the Lean version Lake was built with matches that of the Lean installation. -/
 def verifyLeanVersion : CliStateM PUnit := do
@@ -209,9 +203,9 @@ def printPaths (imports : List String := []) : CliStateM PUnit := do
   let (lean, lake) ← getInstall
   let configFile := (← getRootDir) / (← getConfigFile)
   if (← configFile.pathExists) then
-    let (ws, pkg) ← loadConfig (← getSubArgs)
+    let ws ← loadWorkspace (← getSubArgs)
     let ctx ← mkBuildContext ws lean lake
-    pkg.buildImportsAndDeps imports |>.run LogMethods.eio ctx
+    ws.root.buildImportsAndDeps imports |>.run LogMethods.eio ctx
     IO.println <| Json.compress <| toJson ws.leanPaths
   else
     exit noConfigFileCode
@@ -222,10 +216,10 @@ def env (cmd : String) (args : Array String := #[]) : LakeT IO UInt32 := do
 def serve (pkg : Package) (args : Array String := #[]) : LakeT IO UInt32 := do
   env (← getLean).toString <| #["--server"] ++ pkg.moreServerArgs ++ args
 
-def parseScriptSpec (ws : Workspace) (rootPkg : Package) (spec : String) : IO (Package × String) :=
+def parseScriptSpec (ws : Workspace) (spec : String) : IO (Package × String) :=
   match spec.splitOn "/" with
-  | [script] => (rootPkg, script)
-  | [pkg, script] => do (← resolvePkgSpec ws rootPkg pkg, script)
+  | [script] => (ws.root, script)
+  | [pkg, script] => do (← parsePkgSpec ws pkg, script)
   | _ =>  error s!"invalid script spec '{spec}' (too many '/')"
 
 def script : (cmd : String) → CliM PUnit
@@ -238,16 +232,16 @@ def script : (cmd : String) → CliM PUnit
       IO.println s!"{pkgName}/{scriptName}"
 | "run" => do
   processOptions lakeOption
-  let spec ← takeArg "missing script name"; let args ← takeArgs
-  noArgsRem <| exit <| ← withPackage (m := IO) fun pkg => do
-    let (pkg, script) ← parseScriptSpec (← getWorkspace) pkg spec
+  let spec ← takeArg "missing script spec"; let args ← takeArgs
+  exit <| ← withContext (m := IO) do
+    let (pkg, script) ← parseScriptSpec (← getWorkspace) spec
     pkg.run script args
 | "doc" => do
   processOptions lakeOption
-  let spec ← takeArg "missing script name"
-  noArgsRem <| ← withPackage (m := IO) fun pkg => do
-    let (pkg, script) ← parseScriptSpec (← getWorkspace) pkg spec
-    pkg.scriptDoc script
+  let spec ← takeArg "missing script spec"
+  noArgsRem <| withContext (m := IO) do
+    let (pkg, script) ← parseScriptSpec (← getWorkspace) spec
+    pkg.printScriptDoc script
 | "help" => do
   IO.println <| helpScript <| (← takeArg?).getD ""
 | cmd =>
@@ -264,12 +258,12 @@ def command : (cmd : String) → CliM PUnit
   noArgsRem <| init pkgName
 | "build" => do
   processOptions lakeOption
-  let (ws, pkg) ← loadConfig (← getSubArgs)
-  runBuildM ws <| build pkg (← takeArgs)
+  let ws ← loadWorkspace (← getSubArgs)
+  runBuildM ws <| build (← takeArgs)
 | "configure" => do
   processOptions lakeOption
-  let (ws, pkg) ← loadConfig (← getSubArgs)
-  noArgsRem <| runBuildM ws pkg.buildDepOleans
+  let ws ← loadWorkspace (← getSubArgs)
+  noArgsRem <| runBuildM ws ws.root.buildDepOleans
 | "print-paths" => do
   processOptions lakeOption
   printPaths (← takeArgs)
@@ -287,7 +281,8 @@ def command : (cmd : String) → CliM PUnit
     error "expected command"
 | "serve" => do
   let args ← getSubArgs
-  noArgsRem <| exit <| ← withPackage fun pkg => serve pkg args.toArray
+  noArgsRem do exit <| ← withContext (m := IO) do
+    serve (← getWorkspace).root args.toArray
 | "env" => do
   let cmd ← takeArg "missing command"; let args ← takeArgs
   exit <| ← withContext <| env cmd args.toArray

@@ -15,10 +15,8 @@ namespace Lake
 
 /-- A Lake workspace -- the top-level package directory. -/
 structure Workspace where
-  /-- The path to the workspace's directory. -/
-  dir : FilePath
-  /-- The workspace's configuration. -/
-  config : WorkspaceConfig
+  /-- The root package of the workspace. -/
+  root : Package
   /-- Name-package map of packages within the workspace. -/
   packageMap : NameMap Package := {}
   deriving Inhabited
@@ -48,7 +46,15 @@ namespace Workspace
 
 /-- Create a `Workspace` from a package using its directory and `WorkspaceConfig`. -/
 def ofPackage (pkg : Package) : Workspace :=
-  {dir := pkg.dir, config := pkg.config.toWorkspaceConfig}
+  {root := pkg}
+
+/-- The path to the workspace's directory (i.e., the directory of the root package). -/
+def dir (self : Workspace) : FilePath :=
+  self.root.dir
+
+/-- The workspace's configuration. -/
+def config (self : Workspace) : WorkspaceConfig :=
+  self.root.config.toWorkspaceConfig
 
 /-- The workspace's `dir` joined with its `packagesDir` configuration. -/
 def packagesDir (self : Workspace) : FilePath :=

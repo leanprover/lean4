@@ -42,10 +42,7 @@ instance : LE Position := leOfOrd
 structure Range where
   start : Position
   «end» : Position
-  deriving Inhabited, BEq, Hashable, ToJson, FromJson
-
-instance : Ord Range where
-  compare a b := Ordering.lexOrdering [compare a.start b.start, compare a.end b.end]
+  deriving Inhabited, BEq, Hashable, ToJson, FromJson, Ord
 
 instance : LT Range := ltOfOrd
 instance : LE Range := leOfOrd

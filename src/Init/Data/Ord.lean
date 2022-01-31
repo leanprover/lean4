@@ -12,14 +12,6 @@ inductive Ordering where
   | lt | eq | gt
 deriving Inhabited, BEq
 
-namespace Ordering
-
-def lexOrdering (orderings : List Ordering) : Ordering :=
-  orderings.foldr (init := Ordering.eq) fun ordering result =>
-    if ordering == Ordering.eq then result else ordering
-
-end Ordering
-
 
 class Ord (α : Type u) where
   compare : α → α → Ordering

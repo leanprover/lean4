@@ -27,20 +27,25 @@ def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
     logError s!"external command {args.cmd} exited with status {out.exitCode}"
     failure
 
-def compileModule (leanFile oleanFile : FilePath) (cFile? : Option FilePath)
+def compileLeanModule (leanFile : FilePath)
+(oleanFile? ileanFile? cFile? : Option FilePath)
 (oleanPath : SearchPath := []) (rootDir : FilePath := ".")
 (leanArgs : Array String := #[]) (lean : FilePath := "lean")
 : BuildM PUnit := do
-  createParentDirs oleanFile
-  let ileanFile := oleanFile.withExtension "ilean"
-  let mut args := leanArgs ++ #[
-    "-R", rootDir.toString, "-o", oleanFile.toString, "-i", ileanFile.toString]
+  let mut args := leanArgs ++
+    #[leanFile.toString, "-R", rootDir.toString]
+  if let some oleanFile := oleanFile? then
+    createParentDirs oleanFile
+    args := args ++ #["-o", oleanFile.toString]
+  if let some ileanFile := ileanFile? then
+    createParentDirs ileanFile
+    args := args ++ #["-i", ileanFile.toString]
   if let some cFile := cFile? then
     createParentDirs cFile
     args := args ++ #["-c", cFile.toString]
   proc {
+    args,
     cmd := lean.toString
-    args := args ++ #[leanFile.toString]
     env := #[("LEAN_PATH", oleanPath.toString)]
   }
 

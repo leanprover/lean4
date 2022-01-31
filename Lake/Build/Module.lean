@@ -31,6 +31,9 @@ namespace Module
 @[inline] def oleanFile (self : Module) : FilePath :=
   self.pkg.modToOlean self.name
 
+@[inline] def ileanFile (self : Module) : FilePath :=
+  self.pkg.modToIlean self.name
+
 @[inline] def cFile (self : Module) : FilePath :=
   self.pkg.modToC self.name
 
@@ -135,15 +138,17 @@ def moduleOleanAndCTarget
 (leanFile cFile oleanFile traceFile : FilePath)
 (contents : String)  (depTarget : BuildTarget x)
 (rootDir : FilePath := ".") (leanArgs : Array String := #[]) : OleanAndCTarget :=
+  let ileanFile := oleanFile.withExtension "ilean"
   moduleTarget (OleanAndC.mk oleanFile cFile) leanFile traceFile contents depTarget do
-    compileModule leanFile oleanFile cFile (← getOleanPath) rootDir leanArgs (← getLean)
+    compileLeanModule leanFile oleanFile ileanFile cFile (← getOleanPath) rootDir leanArgs (← getLean)
 
 def moduleOleanTarget
 (leanFile oleanFile traceFile : FilePath)
 (contents : String) (depTarget : BuildTarget x)
 (rootDir : FilePath := ".") (leanArgs : Array String := #[]) : FileTarget :=
+  let ileanFile := oleanFile.withExtension "ilean"
   let target := moduleTarget oleanFile leanFile traceFile contents depTarget do
-    compileModule leanFile oleanFile none (← getOleanPath) rootDir leanArgs (← getLean)
+    compileLeanModule leanFile oleanFile ileanFile none (← getOleanPath) rootDir leanArgs (← getLean)
   target.withTask do target.bindSync fun oleanFile depTrace => do
     return mixTrace (← computeTrace oleanFile) depTrace
 

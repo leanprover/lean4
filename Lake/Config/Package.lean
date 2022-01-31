@@ -367,6 +367,10 @@ def moreLeanArgs (self : Package) : Array String :=
 def modToOlean (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.oleanDir mod "olean"
 
+/-- The path to a module's `.ilean` file within the package. -/
+def modToIlean (mod : Name) (self : Package) : FilePath :=
+  Lean.modToFilePath self.oleanDir mod "ilean"
+
 /-- The path to module's `.trace` file within the package. -/
 def modToTraceFile (mod : Name) (self : Package) : FilePath :=
   Lean.modToFilePath self.oleanDir mod "trace"

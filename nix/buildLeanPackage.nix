@@ -1,6 +1,6 @@
 { lean, lean-leanDeps ? lean, lean-final ? lean, leanc,
   stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, lean-emacs, lean-vscode, nix, substituteAll, symlinkJoin, linkFarmFromDrvs,
-  runCommand, gmp, darwin, emscripten, ... }:
+  runCommand, gmp, darwin, emscripten, ar, ... }:
 let lean-final' = lean-final; in
 lib.makeOverridable (
 { name, src,  fullSrc ? src, 
@@ -21,7 +21,18 @@ lib.makeOverridable (
   precompilePackage ? precompileModules,
   # Lean plugin dependencies. Each derivation `plugin` should contain a plugin library at path `${plugin}/${plugin.name}`.
   pluginDeps ? [],
-  debug ? false, leanFlags ? [], leancFlags ? [], linkFlags ? [], executableName ? lib.toLower name,
+  # Compile with debug symbols and enable verbose build output.
+  debug ? false,
+  # List of flags passed to all invocations of the lean command when generating c and olean files.
+  leanFlags ? [],
+  # List of flags passed to all invocations of the leanc command.
+  leancFlags ? [],
+  # List of flags passed to all invocations of the leanc command when compiling to wasm.
+  wasmFlags ? [ "-s LLD_REPORT_UNDEFINED" "-s EXPORTED_FUNCTIONS='[\"_main\"]'" "-s USE_PTHREADS=0" "-s STANDALONE_WASM" ],
+  # List of flags passed to all invocations of the leanc command when linking.
+  linkFlags ? [],
+  # Name if the executable to generate. Defaults to lower case of name.
+  executableName ? lib.toLower name,
   srcTarget ? "..#stage0", srcArgs ? "(\${args[*]})", lean-final ? lean-final' }:
 with builtins; let
   # "Init.Core" ~> "Init/Core"
@@ -50,7 +61,7 @@ with builtins; let
     libName = "${name}${stdenv.hostPlatform.extensions.sharedLibrary}";
   } ''
     mkdir -p $out
-    ${leanc}/bin/leanc -fPIC -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} ${lib.optionalString stdenv.isDarwin "-Wl,-undefined,dynamic_lookup"} -L ${gmp}/lib \
+    ${leanc}/bin/leanc -fPIC -shared ${lib.concatStringsSep " " leancFlags} ${lib.optionalString stdenv.isLinux "-Bsymbolic"} ${lib.optionalString stdenv.isDarwin "-Wl,-undefined,dynamic_lookup"} -L ${gmp}/lib \
       ${args} -o $out/$libName
   '';
   depRoot = name: deps: mkBareDerivation {
@@ -184,7 +195,7 @@ with builtins; let
   objects   = mapAttrs (_: m: m.obj) mods';
   staticLib = runCommand "${name}-lib" { buildInputs = [ stdenv.cc.bintools.bintools ]; } ''
     mkdir -p $out
-    ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))};
+    ${ar} Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))};
   '';
 
   # Static lib inputs
@@ -209,7 +220,7 @@ in rec {
     ${lib.concatStringsSep " " (map (d: "${d.sharedLib}/*") deps)}'';
   executable = runCommand executableName { buildInputs = [ stdenv.cc leanc ]; } ''
     mkdir -p $out/bin
-    leanc ${staticLibArguments} \
+    leanc ${staticLibArguments} ${lib.concatStringsSep " " leancFlags} \
       -o $out/bin/${executableName} \
       ${lib.concatStringsSep " " allLinkFlags}
   '' // {
@@ -220,13 +231,14 @@ in rec {
         ${lib.concatStringsSep " " allLinkFlags}
     '';
   };
-  wasm = runCommand executableName {
-    buildInputs = [ stdenv.cc leanc emscripten ];
+  wasm = runCommand "${executableName}.wasm" {
+    buildInputs = [ leanc emscripten ];
     LEAN_CC = "${emscripten}/bin/emcc";
     LEANC_GMP = " ";
+    USE_GMP = "OFF";
   } ''
     mkdir -p $out/bin
-    leanc ${staticLibArguments} -pthread -v \
+    leanc ${staticLibArguments} ${lib.concatStringsSep " " wasmFlags} ${lib.concatStringsSep " " leancFlags} \
       -o $out/bin/${executableName} \
       ${lib.concatStringsSep " " allLinkFlags}
   '';

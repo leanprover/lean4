@@ -1,5 +1,5 @@
 { debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin,
+  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, buildLeanWasm, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, emscripten,
   ... } @ args:
 with builtins;
 rec {
@@ -53,7 +53,28 @@ rec {
     '';
   };
   leancpp-single-thread = leancpp.overrideAttrs (old: {
+    name = "leancpp-single-thread";
     cmakeFlags = old.cmakeFlags ++ [ "-DMULTI_THREAD=OFF" "-DUSE_GMP=OFF" ];
+  });
+  leancpp-emscripten = leancpp-single-thread.overrideAttrs (old: {
+    name = "leancpp-emscripten";
+    nativeBuildInputs = [ cmake emscripten ];
+    cmakeFlags = old.cmakeFlags ++ [ "-DCMAKE_BUILD_TYPE=Emscripten" ];
+    NIX_DEBUG=1;
+    preConfigure = ''
+      # ignore absence of submodule
+      sed -i 's!lake/Lake.lean!!' CMakeLists.txt
+    '';
+    configurePhase = ''
+      sh -c "$preConfigure"
+      mkdir build
+      cd build
+      emcmake cmake .. $cmakeFlags
+      patchShebangs .
+    '';
+    buildPhase = ''
+      cmake --build . --verbose -- -d
+    '';
   });
   # rename derivation so `nix run` uses the right executable name but we still see the stage in the build log
   wrapStage = stage: runCommand "lean" {} ''
@@ -118,6 +139,13 @@ rec {
             else "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++"} -lm ${stdlibLinkFlags} \
           -o $out/$libName
       '';
+      stdlibLinkFlagsWasm = "-L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp-emscripten}/lib/lean";
+      leansharedWasm = runCommand "leansharedWasm" { buildInputs = [ emscripten ]; libName = "libleanshared.wasm"; } ''
+        mkdir $out
+        LEAN_CC=${emscripten}/bin/emcc ${lean-bin-tools-unwrapped}/bin/leanc -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} \
+          -Wl,--whole-archive -lInit -lStd -lLean -lleancpp ${leancpp-emscripten}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++" -lm ${stdlibLinkFlagsWasm} \
+          -o $out/libleanshared.wasm
+      '';
       mods = Init.mods // Std.mods // Lean.mods;
       leanc = writeShellScriptBin "leanc" ''
         LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable.withSharedStdlib}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${leanshared} "$@"
@@ -125,6 +153,9 @@ rec {
       lean = runCommand "lean" { buildInputs = lib.optional stdenv.isDarwin darwin.cctools; } ''
         mkdir -p $out/bin
         ${leanc}/bin/leanc ${leancpp}/lib/lean.cpp.o ${leanshared}/* -o $out/bin/lean
+      '';
+      leancEmcc = writeShellScriptBin "leanc" ''
+        LEAN_CC=${emscripten}/bin/emcc ${Leanc.executable.withSharedStdlib}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${leansharedWasm} "$@"
       '';
       lean-single-thread = runCommand "lean" {} ''
         mkdir -p $out/bin

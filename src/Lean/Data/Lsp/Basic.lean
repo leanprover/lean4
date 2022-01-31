@@ -44,6 +44,12 @@ structure Range where
   «end» : Position
   deriving Inhabited, BEq, Hashable, ToJson, FromJson
 
+instance : Ord Range where
+  compare a b := Ordering.lexOrdering [compare a.start b.start, compare a.end b.end]
+
+instance : LT Range := ltOfOrd
+instance : LE Range := leOfOrd
+
 structure Location where
   uri : DocumentUri
   range : Range

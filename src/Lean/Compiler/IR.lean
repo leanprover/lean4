@@ -74,7 +74,7 @@ def addBoxedVersionAux (decl : Decl) : CompilerM Unit := do
     let decl := ExplicitBoxing.mkBoxedVersion decl
     let decls : Array Decl := #[decl]
     let decls ← explicitRC decls
-    decls.forM fun decl => modifyEnv $ fun env => addDeclAux env decl
+    decls.forM fun decl => modifyEnv fun env => addDeclAux env decl
     pure ()
 
 -- Remark: we are ignoring the `Log` here. This should be fine.

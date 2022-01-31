@@ -13,7 +13,7 @@ builtin_initialize internalExceptionsRef : IO.Ref (Array Name) ← IO.mkRef #[]
 
 def registerInternalExceptionId (name : Name) : IO InternalExceptionId := do
   let exs ← internalExceptionsRef.get
-  if exs.contains name then throw $ IO.userError s!"invalid internal exception id, '{name}' has already been used"
+  if exs.contains name then throw <| IO.userError s!"invalid internal exception id, '{name}' has already been used"
   let nextIdx := exs.size
   internalExceptionsRef.modify fun a => a.push name
   pure { idx := nextIdx }
@@ -25,8 +25,8 @@ def InternalExceptionId.getName (id : InternalExceptionId) : IO Name :=  do
   let exs ← internalExceptionsRef.get
   let i := id.idx;
   if h : i < exs.size then
-    pure $ exs.get ⟨i, h⟩
+    return exs.get ⟨i, h⟩
   else
-    throw $ IO.userError "invalid internal exception id"
+    throw <| IO.userError "invalid internal exception id"
 
 end Lean

@@ -62,7 +62,7 @@ inductive InjectionResult where
   | solved
   | subgoal (mvarId : MVarId) (newEqs : Array FVarId) (remainingNames : List Name)
 
-private def heqToEq (mvarId : MVarId) (fvarId : FVarId) (tryToClear : Bool) : MetaM (FVarId × MVarId) :=
+def heqToEq (mvarId : MVarId) (fvarId : FVarId) (tryToClear : Bool) : MetaM (FVarId × MVarId) :=
   withMVarContext mvarId do
    let decl ← getLocalDecl fvarId
    let type ← whnf decl.type

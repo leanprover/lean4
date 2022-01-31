@@ -36,7 +36,7 @@ echo -n " -DLEAN_STANDALONE=ON"
 echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang.exe -DCMAKE_CXX_COMPILER=$PWD/llvm/bin/clang++.exe -DLEAN_CXX_STDLIB='-lc++ -lc++abi'"
 echo -n " -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_CXX_COMPILER=clang++"
 echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -isystem /clang64/include/ -isystem /clang64/x86_64-w64-mingw32/include/'"
-echo -n " -DLEANC_INTERNAL_FLAGS='-nostdinc -isystem ROOT/include/clang' -DLEANC_OPTS='--sysroot $PWD/stage1' -DLEANC_CC=ROOT/bin/clang.exe"
+echo -n " -DLEANC_INTERNAL_FLAGS='--sysroot ROOT -nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang.exe"
 echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -static-libgcc -Wl,-Bstatic -lgmp -lunwind -Wl,-Bdynamic -lucrtbase -fuse-ld=lld'"
 # do not set `LEAN_CC` for tests
 echo -n " -DAUTO_THREAD_FINALIZATION=OFF -DSTAGE0_AUTO_THREAD_FINALIZATION=OFF"

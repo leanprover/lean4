@@ -26,7 +26,7 @@ builtin_initialize
     `Lean.Widget.InteractiveDiagnostics.msgToInteractive
     MsgToInteractive
     (TaggedText MsgEmbed)
-    fun ⟨⟨m⟩, i⟩ => RequestM.asTask do msgToInteractive m i
+    fun ⟨⟨m⟩, i⟩ => RequestM.asTask do msgToInteractive m i (hasWidgets := true)
 
 structure InfoPopup where
   type : Option CodeWithInfos

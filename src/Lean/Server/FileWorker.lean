@@ -13,6 +13,7 @@ import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
 
 import Lean.Util.Paths
+import Lean.LoadDynlib
 
 import Lean.Server.Utils
 import Lean.Server.Snapshots
@@ -57,11 +58,12 @@ open Std (RBMap RBMap.empty)
 open JsonRpc
 
 structure WorkerContext where
-  hIn           : FS.Stream
-  hOut          : FS.Stream
-  hLog          : FS.Stream
-  srcSearchPath : SearchPath
-  initParams    : InitializeParams
+  hIn              : FS.Stream
+  hOut             : FS.Stream
+  hLog             : FS.Stream
+  srcSearchPath    : SearchPath
+  initParams       : InitializeParams
+  clientHasWidgets : Bool
 
 /- Asynchronous snapshot elaboration. -/
 section Elab
@@ -95,7 +97,7 @@ section Elab
       publishReferences m s ctx.hOut
       return none
     publishProgressAtPos m lastSnap.endPos ctx.hOut
-    let snap ← compileNextCmd m.text lastSnap
+    let snap ← compileNextCmd m.text lastSnap ctx.clientHasWidgets
     set { s with snaps := s.snaps.push snap }
     -- TODO(MH): check for interrupt with increased precision
     cancelTk.check
@@ -175,11 +177,13 @@ section Initialization
       let Except.ok (paths : LeanPaths) ← pure (Json.parse stdout >>= fromJson?)
         | throwServerError s!"invalid output from `{cmdStr}`:\n{stdout}\nstderr:\n{stderr}"
       initSearchPath (← getBuildDir) paths.oleanPath
+      paths.loadDynlibPaths.forM loadDynlib
       paths.srcPath.mapM realPathNormalized
     | 2 => pure []  -- no lakefile.lean
     | _ => throwServerError s!"`{cmdStr}` failed:\n{stdout}\nstderr:\n{stderr}"
 
-  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) : IO (Snapshot × SearchPath) := do
+  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) (hasWidgets : Bool)
+      : IO (Snapshot × SearchPath) := do
     let inputCtx := Parser.mkInputContext m.text.source "<input>"
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
     let mut srcSearchPath ← initSrcSearchPath (← getBuildDir)
@@ -231,21 +235,23 @@ section Initialization
       stx := headerStx
       mpState := headerParserState
       cmdState := cmdState
-      interactiveDiags := ← cmdState.messages.msgs.mapM (Widget.msgToInteractiveDiagnostic m.text)
+      interactiveDiags := ← cmdState.messages.msgs.mapM (Widget.msgToInteractiveDiagnostic m.text · hasWidgets)
     }
     publishDiagnostics m headerSnap.diagnostics.toArray hOut
     return (headerSnap, srcSearchPath)
 
   def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
       : IO (WorkerContext × WorkerState) := do
-    let (headerSnap, srcSearchPath) ← compileHeader meta o opts
+    let clientHasWidgets := initParams.initializationOptions?.bind (·.hasWidgets?) |>.getD false
+    let (headerSnap, srcSearchPath) ← compileHeader meta o opts (hasWidgets := clientHasWidgets)
     let cancelTk ← CancelToken.new
     let ctx :=
-      { hIn                := i
-        hOut               := o
-        hLog               := e
-        srcSearchPath      := srcSearchPath
-        initParams         := initParams
+      { hIn  := i
+        hOut := o
+        hLog := e
+        srcSearchPath
+        initParams
+        clientHasWidgets
       }
     let cmdSnaps ← unfoldCmdSnaps meta headerSnap #[] cancelTk ctx
     let doc : EditableDocument := ⟨meta, headerSnap, cmdSnaps, cancelTk⟩

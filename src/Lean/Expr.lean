@@ -129,9 +129,10 @@ def BinderInfo.toUInt64 : BinderInfo → UInt64
   | BinderInfo.auxDecl        => 4
 
 def Expr.mkData
-    (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt8 := 0)
+    (h : UInt64) (looseBVarRange : Nat := 0) (approxDepth : UInt32 := 0)
     (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) (bi : BinderInfo := BinderInfo.default) (nonDepLet : Bool := false)
     : Expr.Data :=
+  let approxDepth : UInt8 := if approxDepth > 255 then 255 else approxDepth.toUInt8
   if looseBVarRange > Nat.pow 2 16 - 1 then panic! "bound variable index is too big"
   else
     let r : UInt64 :=
@@ -146,10 +147,10 @@ def Expr.mkData
       looseBVarRange.toUInt64.shiftLeft 48
     r
 
-@[inline] def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.Data :=
+@[inline] def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.Data :=
   Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam bi false
 
-@[inline] def Expr.mkDataForLet (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt8) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : Expr.Data :=
+@[inline] def Expr.mkDataForLet (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam nonDepLet : Bool) : Expr.Data :=
   Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam BinderInfo.default nonDepLet
 
 instance : Repr Expr.Data where
@@ -263,8 +264,8 @@ def hasMVar (e : Expr) : Bool :=
 def hasLevelParam (e : Expr) : Bool :=
   e.data.hasLevelParam
 
-def approxDepth (e : Expr) : UInt8 :=
-  e.data.approxDepth
+def approxDepth (e : Expr) : UInt32 :=
+  e.data.approxDepth.toUInt32
 
 def looseBVarRange (e : Expr) : Nat :=
   e.data.looseBVarRange.toNat
@@ -284,7 +285,7 @@ def binderInfo (e : Expr) : BinderInfo :=
 end Expr
 
 def mkConst (n : Name) (lvls : List Level := []) : Expr :=
-  Expr.const n lvls $ mkData (mixHash 5 $ mixHash (hash n) (hash lvls)) 0 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
+  Expr.const n lvls <| mkData (mixHash 5 <| mixHash (hash n) (hash lvls)) 0 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
 
 def Literal.type : Literal → Expr
   | Literal.natVal _ => mkConst `Nat
@@ -294,29 +295,29 @@ def Literal.type : Literal → Expr
 def Literal.typeEx : Literal → Expr := Literal.type
 
 def mkBVar (idx : Nat) : Expr :=
-  Expr.bvar idx $ mkData (mixHash 7 $ hash idx) (idx+1)
+  Expr.bvar idx <| mkData (mixHash 7 <| hash idx) (idx+1)
 
 def mkSort (lvl : Level) : Expr :=
-  Expr.sort lvl $ mkData (mixHash 11 $ hash lvl) 0 0 false false lvl.hasMVar lvl.hasParam
+  Expr.sort lvl <| mkData (mixHash 11 <| hash lvl) 0 0 false false lvl.hasMVar lvl.hasParam
 
 def mkFVar (fvarId : FVarId) : Expr :=
-  Expr.fvar fvarId $ mkData (mixHash 13 $ hash fvarId) 0 0 true
+  Expr.fvar fvarId <| mkData (mixHash 13 <| hash fvarId) 0 0 true
 
 def mkMVar (fvarId : MVarId) : Expr :=
-  Expr.mvar fvarId $ mkData (mixHash 17 $ hash fvarId) 0 0 false true
+  Expr.mvar fvarId <| mkData (mixHash 17 <| hash fvarId) 0 0 false true
 
 def mkMData (m : MData) (e : Expr) : Expr :=
   let d := e.approxDepth+1
-  Expr.mdata m e $ mkData (mixHash d.toUInt64 $ hash e) e.looseBVarRange d e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
+  Expr.mdata m e <| mkData (mixHash d.toUInt64 <| hash e) e.looseBVarRange d e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkProj (s : Name) (i : Nat) (e : Expr) : Expr :=
   let d := e.approxDepth+1
-  Expr.proj s i e $ mkData (mixHash d.toUInt64 $ mixHash (hash s) $ mixHash (hash i) (hash e))
+  Expr.proj s i e <| mkData (mixHash d.toUInt64 <| mixHash (hash s) <| mixHash (hash i) (hash e))
       e.looseBVarRange d e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkApp (f a : Expr) : Expr :=
   let d := (max f.approxDepth a.approxDepth) + 1
-  Expr.app f a $ mkData (mixHash d.toUInt64 $ mixHash (hash f) (hash a))
+  Expr.app f a <| mkData (mixHash d.toUInt64 <| mixHash (hash f) (hash a))
     (max f.looseBVarRange a.looseBVarRange)
     d
     (f.hasFVar || a.hasFVar)
@@ -327,7 +328,7 @@ def mkApp (f a : Expr) : Expr :=
 def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
   let d := (max t.approxDepth b.approxDepth) + 1
   -- let x := x.eraseMacroScopes
-  Expr.lam x t b $ mkDataForBinder (mixHash d.toUInt64 $ mixHash (hash t) (hash b))
+  Expr.lam x t b <| mkDataForBinder (mixHash d.toUInt64 <| mixHash (hash t) (hash b))
     (max t.looseBVarRange (b.looseBVarRange - 1))
     d
     (t.hasFVar || b.hasFVar)
@@ -339,7 +340,7 @@ def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
 def mkForall (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
   let d := (max t.approxDepth b.approxDepth) + 1
   -- let x := x.eraseMacroScopes
-  Expr.forallE x t b $ mkDataForBinder (mixHash d.toUInt64 $ mixHash (hash t) (hash b))
+  Expr.forallE x t b <| mkDataForBinder (mixHash d.toUInt64 <| mixHash (hash t) (hash b))
     (max t.looseBVarRange (b.looseBVarRange - 1))
     d
     (t.hasFVar || b.hasFVar)
@@ -359,7 +360,7 @@ def mkSimpleThunk (type : Expr) : Expr :=
 def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
   let d := (max (max t.approxDepth v.approxDepth) b.approxDepth) + 1
   -- let x := x.eraseMacroScopes
-  Expr.letE x t v b $ mkDataForLet (mixHash d.toUInt64 $ mixHash (hash t) $ mixHash (hash v) (hash b))
+  Expr.letE x t v b <| mkDataForLet (mixHash d.toUInt64 <| mixHash (hash t) <| mixHash (hash v) (hash b))
     (max (max t.looseBVarRange v.looseBVarRange) (b.looseBVarRange - 1))
     d
     (t.hasFVar || v.hasFVar || b.hasFVar)
@@ -380,7 +381,7 @@ def mkApp9 (f a b c d e₁ e₂ e₃ e₄ e₅ : Expr) := mkApp5 (mkApp4 f a b c
 def mkApp10 (f a b c d e₁ e₂ e₃ e₄ e₅ e₆ : Expr) := mkApp6 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅ e₆
 
 def mkLit (l : Literal) : Expr :=
-  Expr.lit l $ mkData (mixHash 3 (hash l))
+  Expr.lit l <| mkData (mixHash 3 (hash l))
 
 def mkRawNatLit (n : Nat) : Expr :=
   mkLit (Literal.natVal n)
@@ -588,6 +589,14 @@ def appArg! : Expr → Expr
   | app _ a _ => a
   | _         => panic! "application expected"
 
+def sortLevel! : Expr → Level
+  | sort u .. => u
+  | _         => panic! "sort expected"
+
+def litValue! : Expr → Literal
+  | lit v .. => v
+  | _        => panic! "literal expected"
+
 def isNatLit : Expr → Bool
   | lit (Literal.natVal _) _ => true
   | _                        => false
@@ -648,8 +657,20 @@ def bindingInfo! : Expr → BinderInfo
   | _               => panic! "binding expected"
 
 def letName! : Expr → Name
-  | letE n _ _ _ _ => n
-  | _              => panic! "let expression expected"
+  | letE n .. => n
+  | _         => panic! "let expression expected"
+
+def letType! : Expr → Expr
+  | letE _ t .. => t
+  | _           => panic! "let expression expected"
+
+def letValue! : Expr → Expr
+  | letE _ _ v .. => v
+  | _             => panic! "let expression expected"
+
+def letBody! : Expr → Expr
+  | letE _ _ _ b .. => b
+  | _               => panic! "let expression expected"
 
 def consumeMData : Expr → Expr
   | mdata _ e _ => consumeMData e
@@ -661,6 +682,10 @@ def mdataExpr! : Expr → Expr
 
 def projExpr! : Expr → Expr
   | proj _ _ e _ => e
+  | _            => panic! "proj expression expected"
+
+def projIdx! : Expr → Nat
+  | proj _ i _ _ => i
   | _            => panic! "proj expression expected"
 
 def hasLooseBVars (e : Expr) : Bool :=

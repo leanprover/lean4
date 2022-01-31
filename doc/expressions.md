@@ -219,7 +219,7 @@ def f2 (a b c : Bool) : Bool :=
 
 #eval (1, 2)
 
-def p : Nat × Bool := (1,
+def p : Nat × Bool := (1, false)
 
 section
 variables (a b c : Nat) (p : Nat × bool)

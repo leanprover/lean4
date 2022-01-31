@@ -168,7 +168,12 @@ def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEn
             maxRecDepth    := ← MonadRecDepth.getMaxRecDepth
           } { macroScope := (← MonadMacroAdapter.getNextMacroScope) } with
   | EStateM.Result.error Macro.Exception.unsupportedSyntax _ => throwUnsupportedSyntax
-  | EStateM.Result.error (Macro.Exception.error ref msg) _   => throwErrorAt ref msg
+  | EStateM.Result.error (Macro.Exception.error ref msg) _   =>
+    if msg == maxRecDepthErrorMessage then
+      -- Make sure we can detect exception using `Exception.isMaxRecDepth`
+      throwMaxRecDepthAt ref
+    else
+      throwErrorAt ref msg
   | EStateM.Result.ok a  s                                   =>
     MonadMacroAdapter.setNextMacroScope s.macroScope
     s.traceMsgs.reverse.forM fun (clsName, msg) => trace clsName fun _ => msg

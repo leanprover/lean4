@@ -142,6 +142,7 @@ def getSimpLetCase (n : Name) (t : Expr) (v : Expr) (b : Expr) : MetaM SimpLetCa
       return SimpLetCase.dep
 
 partial def simp (e : Expr) : M Result := withIncRecDepth do
+  checkMaxHeartbeats "simp"
   let cfg ← getConfig
   if (← isProof e) then
     return { expr := e }
@@ -270,9 +271,13 @@ where
         try
           if (← processCongrHypothesis x) then
             modified := true
-        catch _ =>
+        catch ex =>
           trace[Meta.Tactic.simp.congr] "processCongrHypothesis {c.theoremName} failed {← inferType x}"
-          return none
+          if ex.isMaxRecDepth then
+            -- Recall that `processCongrHypothesis` invokes `simp` recursively.
+            throw ex
+          else
+            return none
       unless modified do
         trace[Meta.Tactic.simp.congr] "{c.theoremName} not modified"
         return none

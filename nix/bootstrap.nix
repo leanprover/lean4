@@ -1,5 +1,5 @@
 { debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused,
+  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin,
   ... } @ args:
 with builtins;
 rec {
@@ -90,29 +90,36 @@ rec {
         fullSrc = ../.;
         inherit debug;
       } // args);
+      Init' = build { name = "Init"; deps = []; };
+      Std'  = build { name = "Std";  deps = [ Init' ]; };
+      Lean' = build { name = "Lean"; deps = [ Init' Std' ]; };
+      attachSharedLib = sharedLib: pkg: pkg // {
+        inherit sharedLib;
+        mods = mapAttrs (_: m: m // { inherit sharedLib; propagatedLoadDynlibs = []; }) pkg.mods;
+      };
     in (all: all // all.lean) rec {
       inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
-      Init = build { name = "Init"; deps = []; };
-      Std  = build { name = "Std";  deps = [ Init ]; };
-      Lean = build { name = "Lean"; deps = [ Init Std ]; };
+      Init = attachSharedLib leanshared Init';
+      Std  = attachSharedLib leanshared Std'  // { allExternalDeps = [ Init ]; };
+      Lean = attachSharedLib leanshared Lean' // { allExternalDeps = [ Init Std ]; };
       stdlib = [ Init Std Lean ];
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       Leanpkg = build { name = "Leanpkg"; deps = stdlib; linkFlags = ["-L${gmp}/lib -L${leanshared}"]; };
       extlib = stdlib ++ [ Leanpkg ];
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; linkFlags = ["-L${gmp}/lib -L${leanshared}"]; };
       stdlibLinkFlags = "-L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
-      leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; } ''
+      leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
         mkdir $out
         LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} \
           ${if stdenv.isDarwin then "-Wl,-force_load,${Init.staticLib}/libInit.a -Wl,-force_load,${Std.staticLib}/libStd.a -Wl,-force_load,${Lean.staticLib}/libLean.a -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a -lc++"
             else "-Wl,--whole-archive -lInit -lStd -lLean -lleancpp ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++"} -lm ${stdlibLinkFlags} \
-          -o $out/libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}
+          -o $out/$libName
       '';
       mods = Init.mods // Std.mods // Lean.mods;
       leanc = writeShellScriptBin "leanc" ''
         LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable.withSharedStdlib}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${leanshared} "$@"
       '';
-      lean = runCommand "lean" {} ''
+      lean = runCommand "lean" { buildInputs = lib.optional stdenv.isDarwin darwin.cctools; } ''
         mkdir -p $out/bin
         ${leanc}/bin/leanc ${leancpp}/lib/lean.cpp.o ${leanshared}/* -o $out/bin/lean
       '';
@@ -122,7 +129,7 @@ rec {
         name = "lean-${desc}";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
-          ln -sf ${leancpp}/lib/lean/* ${lib.concatMapStringsSep " " (l: "${l.modRoot}/* ${l.staticLib}/*") (lib.reverseList extlib)} $out/lib/lean/
+          ln -sf ${leancpp}/lib/lean/* ${lib.concatMapStringsSep " " (l: "${l.modRoot}/* ${l.staticLib}/*") (lib.reverseList extlib)} ${leanshared}/* $out/lib/lean/
           # put everything in a single final derivation so `IO.appDir` references work
           cp ${lean}/bin/lean ${leanpkg}/bin/leanpkg ${leanc}/bin/leanc $out/bin
           # NOTE: `lndir` will not override existing `bin/leanc`

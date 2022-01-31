@@ -14,8 +14,9 @@ namespace Lean
 open System
 
 structure LeanPaths where
-  oleanPath : SearchPath
-  srcPath   : SearchPath
+  oleanPath       : SearchPath
+  srcPath         : SearchPath
+  loadDynlibPaths : Array FilePath := #[]
   deriving ToJson, FromJson
 
 def initSrcSearchPath (leanSysroot : FilePath) (sp : SearchPath := ∅) : IO SearchPath := do

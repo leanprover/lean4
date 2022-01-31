@@ -1,6 +1,6 @@
 { lean, lean-leanDeps ? lean, lean-final ? lean, leanc,
   stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, lean-emacs, lean-vscode, nix, substituteAll, symlinkJoin, linkFarmFromDrvs,
-  runCommand, gmp, ... }:
+  runCommand, gmp, darwin, ... }:
 let lean-final' = lean-final; in
 lib.makeOverridable (
 { name, src,  fullSrc ? src, 
@@ -14,6 +14,11 @@ lib.makeOverridable (
   # shared library at the path `${shared}/${shared.libName or shared.name}` and a name to link to like `-l${shared.linkName or shared.name}`.
   # These libs are also linked to in packages that depend on this one.
   nativeSharedLibs ? [],
+  # Whether to compile each module into a native shared library that is loaded whenever the module is imported in order to accelerate evaluation
+  precompileModules ? false,
+  # Whether to compile the package into a native shared library that is loaded whenever *any* of the package's modules is imported into another package.
+  # If `precompileModules` is also `true`, the latter only affects imports within the current package.
+  precompilePackage ? precompileModules,
   # Lean plugin dependencies. Each derivation `plugin` should contain a plugin library at path `${plugin}/${plugin.name}`.
   pluginDeps ? [],
   debug ? false, leanFlags ? [], leancFlags ? [], linkFlags ? [], executableName ? lib.toLower name,
@@ -40,6 +45,14 @@ with builtins; let
     preferLocalBuild = true;
     allowSubstitutes = false;
   }) buildCommand;
+  mkSharedLib = name: args: runBareCommand "${name}-dynlib" {
+    buildInputs = [ stdenv.cc ] ++ lib.optional stdenv.isDarwin darwin.cctools;
+    libName = "${name}${stdenv.hostPlatform.extensions.sharedLibrary}";
+  } ''
+    mkdir -p $out
+    ${leanc}/bin/leanc -fPIC -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} ${lib.optionalString stdenv.isDarwin "-Wl,-undefined,dynamic_lookup"} -L ${gmp}/lib \
+      ${args} -o $out/$libName
+  '';
   depRoot = name: deps: mkBareDerivation {
     name = "${name}-depRoot";
     inherit deps;
@@ -71,7 +84,7 @@ with builtins; let
   pathOfSharedLib = dep: dep.libPath or "${dep}/${dep.libName or dep.name}";
 
   leanPluginFlags = lib.concatStringsSep " " (map (dep: "--plugin=${pathOfSharedLib dep}") pluginDeps);
-  leanLoadDynlibFlags = lib.concatStringsSep " " (map (dep: "--load-dynlib=${pathOfSharedLib dep}") allNativeSharedLibs);
+  loadDynlibsOfDeps = deps: lib.unique (concatMap (d: d.propagatedLoadDynlibs) deps);
 
   fakeDepRoot = runBareCommandLocal "${name}-dep-root" {} ''
     mkdir $out
@@ -93,7 +106,7 @@ with builtins; let
     preferLocalBuild = true;
     allowSubstitutes = false;
   };
-  # build module (.olean and .c) given derivations of all (transitive) dependencies
+  # build module (.olean and .c) given derivations of all (immediate) dependencies
   buildMod = mod: deps: mkBareDerivation rec {
     name = "${mod}";
     LEAN_PATH = depRoot mod deps;
@@ -105,7 +118,8 @@ with builtins; let
     oleanPath = relpath + ".olean";
     ileanPath = relpath + ".ilean";
     cPath = relpath + ".c";
-    inherit leanFlags leanPluginFlags leanLoadDynlibFlags;
+    inherit leanFlags leanPluginFlags;
+    leanLoadDynlibFlags = map (p: "--load-dynlib=${pathOfSharedLib p}") (loadDynlibsOfDeps deps);
     buildCommand = ''
       dir=$(dirname $relpath)
       mkdir -p $dir $out/$dir $ilean/$dir $c/$dir
@@ -114,6 +128,7 @@ with builtins; let
     '';
   } // {
     inherit deps;
+    propagatedLoadDynlibs = loadDynlibsOfDeps deps;
   };
   compileMod = mod: drv: mkBareDerivation {
     name = "${mod}-cc";
@@ -129,7 +144,16 @@ with builtins; let
       leanc -c -o $out/$oPath $leancFlags -fPIC ${if debug then "${drv.c}/${drv.cPath} -g" else "src.c -O3 -DNDEBUG"}
     '';
   };
-  singleton = name: value: listToAttrs [ { inherit name value; } ];
+  mkMod = mod: deps:
+    let drv = buildMod mod deps;
+        obj = compileMod mod drv;
+        # this attribute will only be used if any dependent module is precompiled
+        sharedLib = mkSharedLib mod "${obj}/${obj.oPath} ${lib.concatStringsSep " " (map (d: pathOfSharedLib d.sharedLib) deps)}";
+    in drv // {
+      inherit obj sharedLib;
+    } // lib.optionalAttrs precompileModules {
+      propagatedLoadDynlibs = [sharedLib];
+    };
   externalModMap = lib.foldr (dep: depMap: depMap // dep.mods) {} allExternalDeps;
   # Recursively build `mod` and its dependencies. `modMap` maps module names to
   # `{ deps, drv }` pairs of a derivation and its transitive dependencies (as a nested
@@ -139,7 +163,7 @@ with builtins; let
     let
       deps = filter (p: p != "") (lib.splitString "\n" (readFile (leanDeps mod)));
       modMap' = lib.foldr buildModAndDeps modMap deps;
-    in modMap' // { ${mod} = buildMod mod (map (dep: if modMap' ? ${dep} then modMap'.${dep} else externalModMap.${dep}) deps); };
+    in modMap' // { ${mod} = mkMod mod (map (dep: if modMap' ? ${dep} then modMap'.${dep} else externalModMap.${dep}) deps); };
   makeEmacsWrapper = name: lean: writeShellScriptBin name ''
     ${lean-emacs}/bin/emacs --eval "(progn (setq lean4-rootdir \"${lean}\"))" "$@"
   '';
@@ -147,36 +171,42 @@ with builtins; let
     PATH=${lean}/bin:$PATH ${lean-vscode}/bin/code "$@"
   '';
   printPaths = deps: writeShellScriptBin "print-paths" ''
-    echo '${toJSON { oleanPath = [(depRoot "print-paths" deps)]; srcPath = ["."] ++ map (dep: dep.src) allExternalDeps; }}'
+    echo '${toJSON {
+      oleanPath = [(depRoot "print-paths" deps)];
+      srcPath = ["."] ++ map (dep: dep.src) allExternalDeps;
+      loadDynlibPaths = map pathOfSharedLib (loadDynlibsOfDeps deps);
+    }}'
   '';
   makePrintPathsFor = deps: mods: printPaths deps // mapAttrs (_: mod: makePrintPathsFor (deps ++ [mod]) mods) mods;
-  mods      = buildModAndDeps name {};
+  mods' = buildModAndDeps name {};
   allLinkFlags = lib.foldr (shared: acc: acc ++ [ "-L${shared}" "-l${shared.linkName or shared.name}" ]) linkFlags allNativeSharedLibs;
 
-  objects   = mapAttrs compileMod mods;
+  objects   = mapAttrs (_: m: m.obj) mods';
   staticLib = runCommand "${name}-lib" { buildInputs = [ stdenv.cc.bintools.bintools ]; } ''
     mkdir -p $out
     ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))};
   '';
 
   # Static lib inputs
-  staticLibLinkWrapper = libs: if groupStaticLibs
+  staticLibLinkWrapper = libs: if groupStaticLibs && !stdenv.isDarwin
     then "-Wl,--start-group ${libs} -Wl,--end-group"
     else "${libs}";
   staticLibArguments = staticLibLinkWrapper ("${staticLib}/* ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)}");
 in rec {
-  inherit name lean deps staticLibDeps allNativeSharedLibs allLinkFlags allExternalDeps print-lean-deps src mods objects staticLib;
+  inherit name lean deps staticLibDeps allNativeSharedLibs allLinkFlags allExternalDeps print-lean-deps src objects staticLib;
+  mods = mapAttrs (_: m:
+      m //
+      # if neither precompilation option was set but a dependent module wants to be precompiled, default to precompiling this package whole
+      lib.optionalAttrs (precompilePackage || !precompileModules) { inherit sharedLib; } //
+      lib.optionalAttrs precompilePackage { propagatedLoadDynlibs = [sharedLib]; })
+    mods';
   modRoot   = depRoot name [ mods.${name} ];
   cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
   oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };
   iTree     = symlinkJoin { name = "${name}-iTree"; paths = map (mod: mod.ilean) (attrValues mods); };
-  sharedLib = runCommand "${name}.so" { buildInputs = [ stdenv.cc gmp ]; } ''
-    mkdir -p $out/lib
-    ${leanc}/bin/leanc -fPIC -shared \
-      -Wl,--whole-archive ${staticLib}/* -Wl,--no-whole-archive\
-      ${staticLibArguments} \
-      -o $out/${name}.so
-  '';
+  sharedLib = mkSharedLib name ''
+    ${if stdenv.isDarwin then "-Wl,-force_load,${staticLib}/lib${name}.a" else "-Wl,--whole-archive ${staticLib}/lib${name}.a -Wl,--no-whole-archive"} \
+    ${lib.concatStringsSep " " (map (d: "${d.sharedLib}/*") deps)}'';
   executable = runCommand executableName { buildInputs = [ stdenv.cc leanc ]; } ''
     mkdir -p $out/bin
     leanc ${staticLibArguments} \
@@ -197,7 +227,7 @@ in rec {
   emacs-package = makeEmacsWrapper "emacs-package" lean-package;
   vscode-package = makeVSCodeWrapper "vscode-package" lean-package;
 
-  print-paths = makePrintPathsFor [] (mods // externalModMap);
+  print-paths = makePrintPathsFor [] (mods' // externalModMap);
   # `lean` wrapper that dynamically runs Nix for the actual `lean` executable so the same editor can be
   # used for multiple projects/after upgrading the `lean` input/for editing both stage 1 and the tests
   lean-bin-dev = substituteAll {

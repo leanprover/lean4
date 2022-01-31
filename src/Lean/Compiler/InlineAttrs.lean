@@ -20,7 +20,7 @@ builtin_initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
      (`macroInline, "mark definition to always be inlined before ANF conversion", InlineAttributeKind.macroInline)]
     (fun declName _ => do
       let env ← getEnv
-      ofExcept $ checkIsDefinition env declName)
+      ofExcept <| checkIsDefinition env declName)
 
 private partial def hasInlineAttrAux (env : Environment) (kind : InlineAttributeKind) (n : Name) : Bool :=
   /- We never inline auxiliary declarations created by eager lambda lifting -/

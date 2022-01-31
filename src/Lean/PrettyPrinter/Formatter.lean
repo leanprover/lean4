@@ -442,7 +442,7 @@ def many1Unbox.formatter (p : Formatter) : Formatter := do
 @[combinatorFormatter Lean.Parser.sepByNoAntiquot]
 def sepByNoAntiquot.formatter (p pSep : Formatter) : Formatter := do
   let stx ← getCur
-  visitArgs $ (List.range stx.getArgs.size).reverse.forM $ fun i => if i % 2 == 0 then p else pSep
+  visitArgs <| (List.range stx.getArgs.size).reverse.forM fun i => if i % 2 == 0 then p else pSep
 
 @[combinatorFormatter Lean.Parser.sepBy1NoAntiquot] def sepBy1NoAntiquot.formatter := sepByNoAntiquot.formatter
 

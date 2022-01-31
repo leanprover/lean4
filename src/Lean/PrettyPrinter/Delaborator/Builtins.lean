@@ -571,7 +571,7 @@ def delabForall : Delab :=
     | _                         =>
       -- heuristic: use non-dependent arrows only if possible for whole group to avoid
       -- noisy mix like `(α : Type) → Type → (γ : Type) → ...`.
-      let dependent := curNames.any $ fun n => hasIdent n.getId stxBody
+      let dependent := curNames.any fun n => hasIdent n.getId stxBody
       -- NOTE: non-dependent arrows are available only for the default binder info
       if dependent then
         if prop && !(← getPPOption getPPPiBinderTypes) then

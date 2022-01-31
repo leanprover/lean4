@@ -130,7 +130,7 @@ def mkSlowPath (x y : VarId) (mask : Mask) (b : FnBody) : FnBody :=
 
 abbrev M := ReaderT Context (StateM Nat)
   def mkFresh : M VarId :=
-  modifyGet $ fun n => ({ idx := n }, n + 1)
+  modifyGet fun n => ({ idx := n }, n + 1)
 
 def releaseUnreadFields (y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
   mask.size.foldM (init := b) fun i b =>
@@ -245,7 +245,7 @@ partial def expand (mainFn : FnBody → Array FnBody → M FnBody)
   let bFast ← mainFn bFast #[]
   let c ← mkFresh
   let b := FnBody.vdecl c IRType.uint8 (Expr.isShared y) (mkIf c bSlow bFast)
-  pure $ reshape bs b
+  return reshape bs b
 
 partial def searchAndExpand : FnBody → Array FnBody → M FnBody
   | d@(FnBody.vdecl x t (Expr.reset n y) b), bs =>
@@ -257,10 +257,10 @@ partial def searchAndExpand : FnBody → Array FnBody → M FnBody
     let v ← searchAndExpand v #[]
     searchAndExpand b (push bs (FnBody.jdecl j xs v FnBody.nil))
   | FnBody.case tid x xType alts,   bs => do
-    let alts ← alts.mapM $ fun alt => alt.mmodifyBody fun b => searchAndExpand b #[]
-    pure $ reshape bs (FnBody.case tid x xType alts)
+    let alts ← alts.mapM fun alt => alt.mmodifyBody fun b => searchAndExpand b #[]
+    return reshape bs (FnBody.case tid x xType alts)
   | b, bs =>
-    if b.isTerminal then pure $ reshape bs b
+    if b.isTerminal then return reshape bs b
     else searchAndExpand b.body (push bs b)
 
 def main (d : Decl) : Decl :=

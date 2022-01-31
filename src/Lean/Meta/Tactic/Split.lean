@@ -13,12 +13,7 @@ private def getSimpMatchContext : MetaM Simp.Context :=
    return {
       simpLemmas    := {}
       congrLemmas   := (← getCongrLemmas)
-      config.zeta   := false
-      config.beta   := false
-      config.eta    := false
-      config.iota   := false
-      config.proj   := false
-      config.decide := false
+      config        := Simp.neutralConfig
    }
 
 def simpMatch (e : Expr) : MetaM Simp.Result := do

@@ -1,0 +1,4 @@
+f._eq_1 : f 0 = 1
+f._eq_2 : f 100 = 2
+f._eq_3 : f 1000 = 3
+f._eq_4 : ∀ (x_1 : Nat), (x_1 = 99 → False) → (x_1 = 999 → False) → f (Nat.succ x_1) = f x_1

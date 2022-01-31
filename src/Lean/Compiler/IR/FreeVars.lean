@@ -54,7 +54,7 @@ private def collectExpr : Expr → Collector
   | Expr.isTaggedPtr x  => collectVar x
 
 private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collector :=
-  collectArray alts $ fun alt => f alt.body
+  collectArray alts fun alt => f alt.body
 
 partial def collectFnBody : FnBody → Collector
   | FnBody.vdecl x _ v b    => collectVar x >> collectExpr v >> collectFnBody b
@@ -150,7 +150,7 @@ private def collectExpr : Expr → Collector
   | Expr.isTaggedPtr x  => collectVar x
 
 private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collector :=
-  collectArray alts $ fun alt => f alt.body
+  collectArray alts fun alt => f alt.body
 
 partial def collectFnBody : FnBody → Collector
   | FnBody.vdecl x _ v b    => collectExpr v >> withVar x (collectFnBody b)

@@ -182,9 +182,6 @@ section Initialization
     let stderr ← IO.ofExcept stderr.get
     match (← lakeProc.wait) with
     | 0 =>
-      -- ignore any output up to the last line
-      -- TODO: leanpkg should instead redirect nested stdout output to stderr
-      let stdout := stdout.split (· == '\n') |>.getLast!
       let Except.ok (paths : LeanPaths) ← pure (Json.parse stdout >>= fromJson?)
         | throwServerError s!"invalid output from `{cmdStr}`:\n{stdout}\nstderr:\n{stderr}"
       initSearchPath (← getBuildDir) paths.oleanPath
@@ -201,13 +198,9 @@ section Initialization
     let lakePath ← match (← IO.getEnv "LAKE") with
       | some path => pure <| System.FilePath.mk path
       | none =>
-        let lakePath :=
-          -- backward compatibility, kill when `leanpkg` is removed
-          if (← System.FilePath.pathExists "leanpkg.toml") && !(← System.FilePath.pathExists "lakefile.lean") then "leanpkg"
-          else "lake"
         let lakePath ← match (← IO.getEnv "LEAN_SYSROOT") with
-          | some path => pure <| System.FilePath.mk path / "bin" / lakePath
-          | _         => pure <| (← appDir) / lakePath
+          | some path => pure <| System.FilePath.mk path / "bin" / "lake"
+          | _         => pure <| (← appDir) / "lake"
         pure <| lakePath.withExtension System.FilePath.exeExtension
     let (headerEnv, msgLog) ← try
       if let some path := m.uri.toPath? then

@@ -81,7 +81,7 @@ From a Lean shell, run
 $ nix flake new mypkg -t github:leanprover/lean4
 ```
 to create a new Lean package in directory `mypkg` using the latest commit of Lean 4.
-Such packages follow the same directory layout as described in the basic setup above, except for a `leanpkg.toml`/`lakefile.lean` replaced by a `flake.nix` file set up so you can run Nix commands on it, for example:
+Such packages follow the same directory layout as described in the basic setup above, except for a `lakefile.lean` replaced by a `flake.nix` file set up so you can run Nix commands on it, for example:
 ```bash
 $ nix build  # build package and all dependencies
 $ nix build .#executable  # compile `main` definition into executable (after you've added one)
@@ -116,5 +116,5 @@ nix-collect-garbage
 ```
 This will remove everything not reachable from "GC roots" such as the `./result` symlink created by `nix build`.
 
-Note that the package information in `flake.nix` is currently completely independent from `leanpkg.toml` used in the basic setup.
+Note that the package information in `flake.nix` is currently completely independent from `lakefile.lean` used in the basic setup.
 Unifying the two formats is TBD.

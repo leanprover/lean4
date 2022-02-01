@@ -32,7 +32,7 @@ let
   temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "64eca12970e8096aa20557c35fd089dd6c668e1b"; }) { inherit pkgs; };
 in pkgs.stdenv.mkDerivation rec {
   name = "bench";
-  src = pkgs.lib.sourceFilesBySuffices ./. ["Makefile" "leanpkg.path" "temci.yaml" ".py" ".lean" ".hs" ".ml" ".sml"];
+  src = pkgs.lib.sourceFilesBySuffices ./. ["Makefile" "temci.yaml" ".py" ".lean" ".hs" ".ml" ".sml"];
   LEAN_BIN = "${lean}/bin";
   #LEAN_GCC_BIN = "${lean { stdenv = pkgs.gcc9Stdenv; }}/bin";
   LEAN_NO_REUSE_BIN = "${lean.overrideAttrs (attrs: {

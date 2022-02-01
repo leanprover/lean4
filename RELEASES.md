@@ -15,3 +15,5 @@ theorem dep_congr [DecidableEq ι] {p : ι → Set α} [∀ i, Inhabited (p i)] 
 * [Partially applied congruence theorems.](https://github.com/leanprover/lean4/issues/988)
 
 * Improve elaboration postponement heuristic when expected type is a metavariable. Lean now reduces the expected type before performing the test.
+
+* [Remove deprecated leanpkg](https://github.com/leanprover/lean4/pull/985) in favor of [Lake](https://github.com/leanprover/lake) now bundled with Lean.

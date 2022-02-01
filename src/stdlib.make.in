@@ -24,7 +24,7 @@ ifeq "${STAGE}" "0"
   LEANMAKE_OPTS+=C_ONLY=1 C_OUT=../stdlib/
 endif
 
-.PHONY: Init Std Lean leanshared Leanpkg Lake lean
+.PHONY: Init Std Lean leanshared Lake lean
 
 # These can be phony since the inner Makefile will have the correct dependencies and avoid rebuilds
 Init:
@@ -45,9 +45,6 @@ ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}: $
 	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o $@ ${LEANSHARED_LINKER_FLAGS} ${LEANC_OPTS}
 
 leanshared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
-
-Leanpkg:
-	+"${LEAN_BIN}/leanmake" bin PKG=Leanpkg BIN_NAME=leanpkg${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS='-lleanshared ${CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE}'
 
 Lake:
 # must put lake in its own directory because of submodule, so must adjust relative paths...

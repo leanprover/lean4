@@ -104,8 +104,7 @@ rec {
       Lean = attachSharedLib leanshared Lean' // { allExternalDeps = [ Init Std ]; };
       stdlib = [ Init Std Lean ];
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
-      Leanpkg = build { name = "Leanpkg"; deps = stdlib; linkFlags = ["-L${gmp}/lib -L${leanshared}"]; };
-      extlib = stdlib ++ [ Leanpkg ];
+      extlib = stdlib;  # TODO: add Lake
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; linkFlags = ["-L${gmp}/lib -L${leanshared}"]; };
       stdlibLinkFlags = "-L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
       leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
@@ -123,7 +122,6 @@ rec {
         mkdir -p $out/bin
         ${leanc}/bin/leanc ${leancpp}/lib/lean.cpp.o ${leanshared}/* -o $out/bin/lean
       '';
-      leanpkg = Leanpkg.executable.withSharedStdlib;
       # derivation following the directory layout of the "basic" setup, mostly useful for running tests
       lean-all = wrapStage(stdenv.mkDerivation {
         name = "lean-${desc}";
@@ -131,7 +129,7 @@ rec {
           mkdir -p $out/bin $out/lib/lean
           ln -sf ${leancpp}/lib/lean/* ${lib.concatMapStringsSep " " (l: "${l.modRoot}/* ${l.staticLib}/*") (lib.reverseList extlib)} ${leanshared}/* $out/lib/lean/
           # put everything in a single final derivation so `IO.appDir` references work
-          cp ${lean}/bin/lean ${leanpkg}/bin/leanpkg ${leanc}/bin/leanc $out/bin
+          cp ${lean}/bin/lean ${leanc}/bin/leanc $out/bin
           # NOTE: `lndir` will not override existing `bin/leanc`
           ${lndir}/bin/lndir -silent ${lean-bin-tools-unwrapped} $out
         '';

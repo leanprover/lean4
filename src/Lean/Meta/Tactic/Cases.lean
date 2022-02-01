@@ -296,25 +296,28 @@ private def inductionCasesOn (mvarId : MVarId) (majorFVarId : FVarId) (givenName
   let s ← induction mvarId majorFVarId casesOn givenNames
   return toCasesSubgoals s ctors majorFVarId us params
 
-def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `cases
-    let context? ← mkCasesContext? majorFVarId
-    match context? with
-    | none     => throwTacticEx `cases mvarId "not applicable to the given hypothesis"
-    | some ctx =>
-      /- Remark: if caller does not need a `FVarSubst` (variable substitution), and `hasIndepIndices ctx` is true,
-         then we can also use the simple case. This is a minor optimization, and we currently do not even
-         allow callers to specify whether they want the `FVarSubst` or not. -/
-      if ctx.inductiveVal.numIndices == 0 then
-        -- Simple case
-        inductionCasesOn mvarId majorFVarId givenNames ctx
-      else
-        let s₁ ← generalizeIndices mvarId majorFVarId
-        trace[Meta.Tactic.cases] "after generalizeIndices\n{MessageData.ofGoal s₁.mvarId}"
-        let s₂ ← inductionCasesOn s₁.mvarId s₁.fvarId givenNames ctx
-        let s₂ ← elimAuxIndices s₁ s₂
-        unifyCasesEqs s₁.numEqs s₂
+def cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) := do
+  try
+    withMVarContext mvarId do
+      checkNotAssigned mvarId `cases
+      let context? ← mkCasesContext? majorFVarId
+      match context? with
+      | none     => throwTacticEx `cases mvarId "not applicable to the given hypothesis"
+      | some ctx =>
+        /- Remark: if caller does not need a `FVarSubst` (variable substitution), and `hasIndepIndices ctx` is true,
+           then we can also use the simple case. This is a minor optimization, and we currently do not even
+           allow callers to specify whether they want the `FVarSubst` or not. -/
+        if ctx.inductiveVal.numIndices == 0 then
+          -- Simple case
+          inductionCasesOn mvarId majorFVarId givenNames ctx
+        else
+          let s₁ ← generalizeIndices mvarId majorFVarId
+          trace[Meta.Tactic.cases] "after generalizeIndices\n{MessageData.ofGoal s₁.mvarId}"
+          let s₂ ← inductionCasesOn s₁.mvarId s₁.fvarId givenNames ctx
+          let s₂ ← elimAuxIndices s₁ s₂
+          unifyCasesEqs s₁.numEqs s₂
+  catch ex =>
+    throwNestedTacticEx `cases ex
 
 end Cases
 

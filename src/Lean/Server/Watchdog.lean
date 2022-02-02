@@ -725,7 +725,13 @@ def loadReferences : IO References := do
   let oleanSearchPath ← Lean.searchPathRef.get
   let mut refs := References.empty
   for path in ← oleanSearchPath.findAllWithExt "ilean" do
-    refs := refs.addIlean path (← Ilean.load path)
+    try
+      refs := refs.addIlean path (← Ilean.load path)
+    catch _ =>
+      -- could be a race with the build system, for example
+      -- ilean load errors should not be fatal, but we *should* log them
+      -- when we add logging to the server
+      pure ()
   refs
 
 def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do

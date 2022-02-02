@@ -27,7 +27,7 @@ private def toFormat (traces : PersistentArray TraceElem) (sep : Format) : IO Fo
   traces.size.foldM
     (fun i r => do
       let curr ← (traces.get! i).msg.format
-      pure $ if i > 0 then r ++ sep ++ curr else r ++ curr)
+      return if i > 0 then r ++ sep ++ curr else r ++ curr)
     Format.nil
 
 end TraceState
@@ -61,9 +61,8 @@ def checkTraceOption (opts : Options) (cls : Name) : Bool :=
   if opts.isEmpty then false
   else checkTraceOptionAux opts (`trace ++ cls)
 
-private def checkTraceOptionM [MonadOptions m] (cls : Name) : m Bool := do
-  let opts ← getOptions
-  pure $ checkTraceOption opts cls
+private def checkTraceOptionM [MonadOptions m] (cls : Name) : m Bool :=
+  return checkTraceOption (← getOptions) cls
 
 @[inline] def isTracingEnabledFor [MonadOptions m] (cls : Name) : m Bool := do
   let s ← getTraceState

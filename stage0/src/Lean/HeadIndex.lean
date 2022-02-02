@@ -21,11 +21,11 @@ inductive HeadIndex where
 namespace HeadIndex
 
 protected def HeadIndex.hash : HeadIndex → UInt64
-  | fvar fvarId         => mixHash 11 $ hash fvarId
-  | mvar mvarId         => mixHash 13 $ hash mvarId
-  | const constName     => mixHash 17 $ hash constName
-  | proj structName idx => mixHash 19 $ mixHash (hash structName) (hash idx)
-  | lit litVal          => mixHash 23 $ hash litVal
+  | fvar fvarId         => mixHash 11 <| hash fvarId
+  | mvar mvarId         => mixHash 13 <| hash mvarId
+  | const constName     => mixHash 17 <| hash constName
+  | proj structName idx => mixHash 19 <| mixHash (hash structName) (hash idx)
+  | lit litVal          => mixHash 23 <| hash litVal
   | sort                => 29
   | lam                 => 31
   | forallE             => 37

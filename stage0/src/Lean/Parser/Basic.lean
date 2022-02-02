@@ -68,9 +68,6 @@ namespace Lean
 
 namespace Parser
 
-def isLitKind (k : SyntaxNodeKind) : Bool :=
-  k == strLitKind || k == numLitKind || k == charLitKind || k == nameLitKind || k == scientificLitKind
-
 abbrev mkAtom (info : SourceInfo) (val : String) : Syntax :=
   Syntax.atom info val
 
@@ -1233,7 +1230,7 @@ def checkLinebreakBefore (errorMsg : String := "line break") : Parser := {
 }
 
 private def pickNonNone (stack : Array Syntax) : Syntax :=
-  match stack.findRev? $ fun stx => !stx.isNone with
+  match stack.findRev? fun stx => !stx.isNone with
   | none => Syntax.missing
   | some stx => stx
 

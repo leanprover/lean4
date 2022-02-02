@@ -387,8 +387,8 @@ def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=
 
 @[inline] def mmodifyJPs {m : Type → Type} [Monad m] (bs : Array FnBody) (f : FnBody → m FnBody) : m (Array FnBody) :=
   bs.mapM fun b => match b with
-    | FnBody.jdecl j xs v k => do let v ← f v; pure $ FnBody.jdecl j xs v k
-    | other                 => pure other
+    | FnBody.jdecl j xs v k => return FnBody.jdecl j xs (← f v) k
+    | other                 => return other
 
 @[export lean_ir_mk_alt] def mkAlt (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (b : FnBody) : Alt :=
   Alt.ctor ⟨n, cidx, size, usize, ssize⟩ b

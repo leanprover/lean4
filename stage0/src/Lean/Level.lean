@@ -123,24 +123,24 @@ def hasParam (u : Level) : Bool :=
 end Level
 
 def levelZero :=
-  Level.zero $ mkData 2221 0 false false
+  Level.zero <| mkData 2221 0 false false
 
 def mkLevelMVar (mvarId : MVarId) :=
-  Level.mvar mvarId $ mkData (mixHash 2237 $ hash mvarId) 0 true false
+  Level.mvar mvarId <| mkData (mixHash 2237 <| hash mvarId) 0 true false
 
 def mkLevelParam (name : Name) :=
-  Level.param name $ mkData (mixHash 2239 $ hash name) 0 false true
+  Level.param name <| mkData (mixHash 2239 <| hash name) 0 false true
 
 def mkLevelSucc (u : Level) :=
-  Level.succ u $ mkData (mixHash 2243 $ hash u) (u.depth + 1) u.hasMVar u.hasParam
+  Level.succ u <| mkData (mixHash 2243 <| hash u) (u.depth + 1) u.hasMVar u.hasParam
 
 def mkLevelMax (u v : Level) :=
-  Level.max u v $ mkData (mixHash 2251 $ mixHash (hash u) (hash v)) (Nat.max u.depth v.depth + 1)
+  Level.max u v <| mkData (mixHash 2251 <| mixHash (hash u) (hash v)) (Nat.max u.depth v.depth + 1)
      (u.hasMVar || v.hasMVar)
      (u.hasParam || v.hasParam)
 
 def mkLevelIMax (u v : Level) :=
-  Level.imax u v $ mkData (mixHash 2267 $ mixHash (hash u) (hash v)) (Nat.max u.depth v.depth + 1)
+  Level.imax u v <| mkData (mixHash 2267 <| mixHash (hash u) (hash v)) (Nat.max u.depth v.depth + 1)
      (u.hasMVar || v.hasMVar)
      (u.hasParam || v.hasParam)
 
@@ -437,8 +437,8 @@ mutual
     | Result.offset f (k+1), r =>
       let f' := format f false;
       parenIfFalse (f' ++ "+" ++ Std.format (k+1)) r
-    | Result.maxNode fs,    r => parenIfFalse (Format.group $ "max"  ++ formatLst fs) r
-    | Result.imaxNode fs,   r => parenIfFalse (Format.group $ "imax" ++ formatLst fs) r
+    | Result.maxNode fs,    r => parenIfFalse (Format.group <| "max"  ++ formatLst fs) r
+    | Result.imaxNode fs,   r => parenIfFalse (Format.group <| "imax" ++ formatLst fs) r
 end
 
 protected partial def Result.quote (r : Result) (prec : Nat) : Syntax :=

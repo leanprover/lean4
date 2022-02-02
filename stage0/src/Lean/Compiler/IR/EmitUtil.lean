@@ -16,7 +16,7 @@ def isTailCallTo (g : Name) (b : FnBody) : Bool :=
   | _  => false
 
 def usesModuleFrom (env : Environment) (modulePrefix : Name) : Bool :=
-  env.allImportedModuleNames.toList.any $ fun modName => modulePrefix.isPrefixOf modName
+  env.allImportedModuleNames.toList.any fun modName => modulePrefix.isPrefixOf modName
 
 namespace CollectUsedDecls
 
@@ -32,7 +32,7 @@ partial def collectFnBody : FnBody → M Unit
     | Expr.pap f _ => collect f *> collectFnBody b
     | other        => collectFnBody b
   | FnBody.jdecl _ _ v b   => collectFnBody v *> collectFnBody b
-  | FnBody.case _ _ _ alts => alts.forM $ fun alt => collectFnBody alt.body
+  | FnBody.case _ _ _ alts => alts.forM fun alt => collectFnBody alt.body
   | e => do unless e.isTerminal do collectFnBody e.body
 
 def collectInitDecl (fn : Name) : M Unit := do

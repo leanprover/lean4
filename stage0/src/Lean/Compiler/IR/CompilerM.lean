@@ -95,17 +95,15 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
 def findEnvDecl (env : Environment) (n : Name) : Option Decl :=
   (declMapExt.getState env).find? n
 
-def findDecl (n : Name) : CompilerM (Option Decl) := do
-  let s ← get
-  pure $ findEnvDecl s.env n
+def findDecl (n : Name) : CompilerM (Option Decl) :=
+  return findEnvDecl (← get).env n
 
-def containsDecl (n : Name) : CompilerM Bool := do
-  let s ← get
-  pure $ (declMapExt.getState s.env).contains n
+def containsDecl (n : Name) : CompilerM Bool :=
+  return (declMapExt.getState (← get).env).contains n
 
 def getDecl (n : Name) : CompilerM Decl := do
   let (some decl) ← findDecl n | throw s!"unknown declaration '{n}'"
-  pure decl
+  return decl
 
 @[export lean_ir_add_decl]
 def addDeclAux (env : Environment) (decl : Decl) : Environment :=
@@ -128,15 +126,14 @@ def findEnvDecl' (env : Environment) (n : Name) (decls : Array Decl) : Option De
   | some decl => some decl
   | none      => (declMapExt.getState env).find? n
 
-def findDecl' (n : Name) (decls : Array Decl) : CompilerM (Option Decl) := do
-  let s ← get; pure $ findEnvDecl' s.env n decls
+def findDecl' (n : Name) (decls : Array Decl) : CompilerM (Option Decl) :=
+  return findEnvDecl' (← get).env n decls
 
 def containsDecl' (n : Name) (decls : Array Decl) : CompilerM Bool := do
   if decls.any fun decl => decl.name == n then
-    pure true
+    return true
   else
-    let s ← get
-    pure $ (declMapExt.getState s.env).contains n
+    return (declMapExt.getState (← get).env).contains n
 
 def getDecl' (n : Name) (decls : Array Decl) : CompilerM Decl := do
   let (some decl) ← findDecl' n decls | throw s!"unknown declaration '{n}'"

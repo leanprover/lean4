@@ -66,7 +66,7 @@ builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
     afterSet := fun declName _ => do
       let mut env ← getEnv
       if env.isProjectionFn declName || env.isConstructor declName then do
-        env ← ofExcept $ addExtern env declName
+        env ← ofExcept <| addExtern env declName
         setEnv env
       else
         pure ()

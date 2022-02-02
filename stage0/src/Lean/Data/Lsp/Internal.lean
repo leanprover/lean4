@@ -21,7 +21,7 @@ reduce the size of the resulting JSON. -/
 inductive RefIdent where
   | const : Name → RefIdent
   | fvar : FVarId → RefIdent
-  deriving BEq, Hashable
+  deriving BEq, Hashable, Inhabited
 
 namespace RefIdent
 
@@ -83,7 +83,7 @@ instance : FromJson ModuleRefs where
     node.foldM (init := HashMap.empty) fun m k v => do
       m.insert (← RefIdent.fromString k) (← fromJson? v)
 
-/-- `$/lean/ileanInfo` watchdog<-worker notification.
+/-- `$/lean/ileanInfoUpdate` and `$/lean/ileanInfoFinal` watchdog<-worker notifications.
 
 Contains the file's definitions and references. -/
 structure LeanIleanInfoParams where

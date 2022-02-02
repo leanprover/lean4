@@ -29,18 +29,23 @@ def setReducibilityStatusImp (env : Environment) (declName : Name) (s : Reducibi
   | Except.ok env => env
   | _ => env -- TODO(Leo): we should extend EnumAttributes.setValue in the future and ensure it never fails
 
-def getReducibilityStatus {m} [Monad m] [MonadEnv m] (declName : Name) : m ReducibilityStatus := do
+def getReducibilityStatus [Monad m] [MonadEnv m] (declName : Name) : m ReducibilityStatus := do
   return getReducibilityStatusImp (← getEnv) declName
 
-def setReducibilityStatus {m} [Monad m] [MonadEnv m] (declName : Name) (s : ReducibilityStatus) : m Unit := do
+def setReducibilityStatus [Monad m] [MonadEnv m] (declName : Name) (s : ReducibilityStatus) : m Unit := do
   modifyEnv fun env => setReducibilityStatusImp env declName s
 
-def setReducibleAttribute {m} [Monad m] [MonadEnv m] (declName : Name) : m Unit := do
+def setReducibleAttribute [Monad m] [MonadEnv m] (declName : Name) : m Unit := do
   setReducibilityStatus declName ReducibilityStatus.reducible
 
-def isReducible {m} [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
+def isReducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
   match (← getReducibilityStatus declName) with
   | ReducibilityStatus.reducible => true
+  | _ => false
+
+def isIrreducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
+  match (← getReducibilityStatus declName) with
+  | ReducibilityStatus.irreducible => true
   | _ => false
 
 end Lean

@@ -68,6 +68,7 @@ static lean_object* l_Lean_LocalContext_foldrM___at___private_Lean_Elab_PreDefin
 LEAN_EXPORT lean_object* l_Std_PersistentArray_forInAux___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_saveEqn___spec__29___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_CollectFVars_main(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withMVarContext___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_saveEqn___spec__34(lean_object*);
+lean_object* l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_RBNode_findCore___at_Lean_Meta_ToHide_isMarked___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_saveEqn___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -272,6 +273,7 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___private_Lean_Elab_PreD
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_saveEqn___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_smartUnfolding;
 static lean_object* l_Lean_Elab_Eqns_initFn____x40_Lean_Elab_PreDefinition_Eqns___hyg_3400____closed__6;
+lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_saveEqn___spec__23___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ForEachExpr_visit___at_Lean_Elab_Eqns_simpEqnType_collect___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Eqns_simpEqnType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -338,7 +340,6 @@ lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBTree_toList___at_Lean_Elab_Eqns_simpEqnType___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Elab_Eqns_getUnfoldFor_x3f___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Eqns_mkUnfoldProof_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Eqns_mkUnfoldProof___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_findAtAux___at_Lean_Elab_Eqns_getUnfoldFor_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_saveEqn___spec__31(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -381,7 +382,6 @@ uint8_t l_Lean_Expr_isLet(lean_object*);
 lean_object* l_runST___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Eqns_mkUnfoldProof___closed__4;
 lean_object* l_Std_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static uint64_t _init_l_Lean_Elab_Eqns_instInhabitedEqnInfoCore___closed__1() {
 _start:
@@ -3655,7 +3655,7 @@ x_68 = l_Array_forInUnsafe_loop___at_Lean_Elab_Eqns_simpEqnType___spec__1___clos
 x_69 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_69, 0, x_67);
 lean_ctor_set(x_69, 1, x_68);
-x_70 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_69, x_8, x_9, x_10, x_11, x_64);
+x_70 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_69, x_8, x_9, x_10, x_11, x_64);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -3736,7 +3736,7 @@ x_89 = l_Array_forInUnsafe_loop___at_Lean_Elab_Eqns_simpEqnType___spec__1___clos
 x_90 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_90, 0, x_88);
 lean_ctor_set(x_90, 1, x_89);
-x_91 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_90, x_8, x_9, x_10, x_11, x_85);
+x_91 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_90, x_8, x_9, x_10, x_11, x_85);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -4032,7 +4032,7 @@ x_151 = l_Array_forInUnsafe_loop___at_Lean_Elab_Eqns_simpEqnType___spec__1___clo
 x_152 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_152, 0, x_150);
 lean_ctor_set(x_152, 1, x_151);
-x_153 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_152, x_8, x_9, x_10, x_11, x_147);
+x_153 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_152, x_8, x_9, x_10, x_11, x_147);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -4115,7 +4115,7 @@ x_173 = l_Array_forInUnsafe_loop___at_Lean_Elab_Eqns_simpEqnType___spec__1___clo
 x_174 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_174, 0, x_172);
 lean_ctor_set(x_174, 1, x_173);
-x_175 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_174, x_8, x_9, x_10, x_11, x_169);
+x_175 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_174, x_8, x_9, x_10, x_11, x_169);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -4443,7 +4443,7 @@ x_67 = l_Array_forInUnsafe_loop___at_Lean_Elab_Eqns_simpEqnType___spec__1___clos
 x_68 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_68, 0, x_66);
 lean_ctor_set(x_68, 1, x_67);
-x_69 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_68, x_7, x_8, x_9, x_10, x_63);
+x_69 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_68, x_7, x_8, x_9, x_10, x_63);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -4524,7 +4524,7 @@ x_88 = l_Array_forInUnsafe_loop___at_Lean_Elab_Eqns_simpEqnType___spec__1___clos
 x_89 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_89, 0, x_87);
 lean_ctor_set(x_89, 1, x_88);
-x_90 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_89, x_7, x_8, x_9, x_10, x_84);
+x_90 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_89, x_7, x_8, x_9, x_10, x_84);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -4820,7 +4820,7 @@ x_150 = l_Array_forInUnsafe_loop___at_Lean_Elab_Eqns_simpEqnType___spec__1___clo
 x_151 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_151, 0, x_149);
 lean_ctor_set(x_151, 1, x_150);
-x_152 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_151, x_7, x_8, x_9, x_10, x_146);
+x_152 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_151, x_7, x_8, x_9, x_10, x_146);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -4903,7 +4903,7 @@ x_172 = l_Array_forInUnsafe_loop___at_Lean_Elab_Eqns_simpEqnType___spec__1___clo
 x_173 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_173, 0, x_171);
 lean_ctor_set(x_173, 1, x_172);
-x_174 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_173, x_7, x_8, x_9, x_10, x_168);
+x_174 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_173, x_7, x_8, x_9, x_10, x_168);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -5261,7 +5261,7 @@ lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; uint
 x_35 = lean_ctor_get(x_29, 1);
 lean_inc(x_35);
 lean_dec(x_29);
-x_36 = l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__13(x_10, x_4, x_5, x_6, x_7, x_35);
+x_36 = l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__14(x_10, x_4, x_5, x_6, x_7, x_35);
 x_37 = lean_ctor_get(x_36, 0);
 lean_inc(x_37);
 x_38 = lean_ctor_get(x_36, 1);

@@ -146,7 +146,7 @@ def registerTagAttribute (name : Name) (descr : String) (validate : Name → Att
         throwError "invalid attribute '{name}', declaration is in an imported module"
       validate decl
       let env ← getEnv
-      setEnv $ ext.addEntry env decl
+      setEnv <| ext.addEntry env decl
   }
   registerBuiltinAttribute attrImpl
   return { attr := attrImpl, ext := ext }
@@ -255,7 +255,7 @@ def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDesc
       unless (env.getModuleIdxFor? decl).isNone do
         throwError "invalid attribute '{name}', declaration is in an imported module"
       validate decl val
-      setEnv $ ext.addEntry env (decl, val)
+      setEnv <| ext.addEntry env (decl, val)
     applicationTime := applicationTime
     : AttributeImpl
   }
@@ -300,7 +300,7 @@ def mkAttributeImplOfBuilder (builderId : Name) (args : List DataValue) : IO Att
   let table ← attributeImplBuilderTableRef.get
   match table.find? builderId with
   | none         => throw (IO.userError ("unknown attribute implementation builder '" ++ toString builderId ++ "'"))
-  | some builder => IO.ofExcept $ builder args
+  | some builder => IO.ofExcept <| builder args
 
 inductive AttributeExtensionOLeanEntry where
   | decl (declName : Name) -- `declName` has type `AttributeImpl`
@@ -330,7 +330,7 @@ constant mkAttributeImplOfConstant (env : Environment) (opts : Options) (declNam
 
 def mkAttributeImplOfEntry (env : Environment) (opts : Options) (e : AttributeExtensionOLeanEntry) : IO AttributeImpl :=
   match e with
-  | AttributeExtensionOLeanEntry.decl declName          => IO.ofExcept $ mkAttributeImplOfConstant env opts declName
+  | AttributeExtensionOLeanEntry.decl declName          => IO.ofExcept <| mkAttributeImplOfConstant env opts declName
   | AttributeExtensionOLeanEntry.builder builderId args => mkAttributeImplOfBuilder builderId args
 
 private def AttributeExtension.addImported (es : Array (Array AttributeExtensionOLeanEntry)) : ImportM AttributeExtensionState := do
@@ -340,8 +340,8 @@ private def AttributeExtension.addImported (es : Array (Array AttributeExtension
     (fun map entries =>
       entries.foldlM
         (fun (map : PersistentHashMap Name AttributeImpl) entry => do
-          let attrImpl ← liftM $ mkAttributeImplOfEntry ctx.env ctx.opts entry
-          pure $ map.insert attrImpl.name attrImpl)
+          let attrImpl ← mkAttributeImplOfEntry ctx.env ctx.opts entry
+          return map.insert attrImpl.name attrImpl)
         map)
     map
   pure { map := map }
@@ -365,8 +365,8 @@ def isBuiltinAttribute (n : Name) : IO Bool := do
   let m ← attributeMapRef.get; pure (m.contains n)
 
 /- Return the name of all registered attributes. -/
-def getBuiltinAttributeNames : IO (List Name) := do
-  let m ← attributeMapRef.get; pure $ m.foldl (fun r n _ => n::r) []
+def getBuiltinAttributeNames : IO (List Name) :=
+  return (← attributeMapRef.get).foldl (init := []) fun r n _ => n::r
 
 def getBuiltinAttributeImpl (attrName : Name) : IO AttributeImpl := do
   let m ← attributeMapRef.get

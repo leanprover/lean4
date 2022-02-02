@@ -83,7 +83,7 @@ def toCInitName (n : Name) : M String := do
   let env ← getEnv;
   -- TODO: we should support simple export names only
   match getExportNameFor env n with
-  | some (Name.str Name.anonymous s _) => pure $ "_init_" ++ s
+  | some (Name.str Name.anonymous s _) => return "_init_" ++ s
   | some _                             => throwInvalidExportName n
   | none                               => pure ("_init_" ++ n.mangle)
 
@@ -204,7 +204,7 @@ def emitMainFn : M Unit := do
 def hasMainFn : M Bool := do
   let env ← getEnv
   let decls := getDecls env
-  pure $ decls.any (fun d => d.name == `main)
+  return decls.any (fun d => d.name == `main)
 
 def emitMainFnIfNeeded : M Unit := do
   if (← hasMainFn) then emitMainFn
@@ -523,7 +523,7 @@ def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
 def isTailCall (x : VarId) (v : Expr) (b : FnBody) : M Bool := do
   let ctx ← read;
   match v, b with
-  | Expr.fap f _, FnBody.ret (Arg.var y) => pure $ f == ctx.mainFn && x == y
+  | Expr.fap f _, FnBody.ret (Arg.var y) => return f == ctx.mainFn && x == y
   | _, _ => pure false
 
 def paramEqArg (p : Param) (x : Arg) : Bool :=
@@ -548,7 +548,7 @@ That is, we have
 -/
 def overwriteParam (ps : Array Param) (ys : Array Arg) : Bool :=
   let n := ps.size;
-  n.any $ fun i =>
+  n.any fun i =>
     let p := ps[i]
     (i+1, n).anyI fun j => paramEqArg p ys[j]
 

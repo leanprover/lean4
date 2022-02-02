@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 
 Elaboration of syntax quotations as terms and patterns (in `match_syntax`). See also `./Hygiene.lean` for the basic
-hygiene workings and data types.
--/
+hygiene workings and data types. -/
 import Lean.Syntax
 import Lean.ResolveName
 import Lean.Elab.Term
@@ -145,7 +144,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
         else do
           let arg ← quoteSyntax arg
           args := args.push arg
-      `(Syntax.node SourceInfo.none $(quote k) $(args.build))
+      `(Syntax.synthNode $(quote k) $(args.build))
   | Syntax.atom _ val =>
     `(Syntax.atom info $(quote val))
   | Syntax.missing => throwUnsupportedSyntax
@@ -385,20 +384,22 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       -- not an antiquotation, or an escaped antiquotation: match head shape
       let quoted  := unescapeAntiquot quoted
       let kind := quoted.getKind
+      let lit := isLitKind kind
       let argPats := quoted.getArgs.map fun arg => Unhygienic.run `(`($(arg)))
       pure {
         check :=
-          if quoted.isIdent then
-            -- identifiers only match identical identifiers
-            -- NOTE: We could make this case more precise by including the matched identifier,
-            -- if any, in the `shape` constructor, but matching on literal identifiers is quite
-            -- rare.
+          -- Atoms are matched only within literals because it would be a waste of time for keywords
+          -- such as `if` and `then` and would blow up the generated code.
+          -- See also `elabMatchSyntax` docstring below.
+          if quoted.isIdent || lit then
+            -- NOTE: We could make this case split more precise by refining `HeadCheck`,
+            -- but matching on literals is quite rare.
             other quoted
           else
             shape kind argPats.size,
         onMatch := fun
           | other stx' =>
-            if quoted.isIdent && quoted == stx' then
+            if (quoted.isIdent || lit) && quoted == stx' then
               covered pure (exhaustive := true)
             else
               uncovered
@@ -409,11 +410,17 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
               uncovered
           | _ => uncovered,
         doMatch := fun yes no => do
-          let cond ← match kind with
-          | `null => `(Syntax.matchesNull discr $(quote argPats.size))
-          | `ident => `(Syntax.matchesIdent discr $(quote quoted.getId))
-          | _     => `(Syntax.isOfKind discr $(quote kind))
-          let newDiscrs ← (List.range argPats.size).mapM fun i => `(Syntax.getArg discr $(quote i))
+          let (cond, newDiscrs) ←
+            if lit then
+              let cond ← `(Syntax.matchesLit discr $(quote kind) $(quote (isLit? kind quoted).get!))
+              pure (cond, [])
+            else
+              let cond ← match kind with
+              | `null => `(Syntax.matchesNull discr $(quote argPats.size))
+              | `ident => `(Syntax.matchesIdent discr $(quote quoted.getId))
+              | _     => `(Syntax.isOfKind discr $(quote kind))
+              let newDiscrs ← (List.range argPats.size).mapM fun i => `(Syntax.getArg discr $(quote i))
+              pure (cond, newDiscrs)
           `(ite (Eq $cond true) $(← yes newDiscrs) $(← no))
       }
   else match pat with
@@ -508,7 +515,23 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
     stx
   | _ => throwUnsupportedSyntax
 
-/-- Syntactic pattern match. Matches a `Syntax` value against quotations, pattern variables, or `_`. -/
+/--
+  Syntactic pattern match. Matches a `Syntax` value against quotations, pattern variables, or `_`.
+
+  Quoted identifiers only match identical identifiers - custom matching such as by the preresolved names only should be done explicitly.
+
+  `Syntax.atom`s are ignored during matching by default except when part of a built-in literal.
+  For users introducing new atoms, we recommend wrapping them in dedicated syntax kinds if they should participate in matching.
+  For example, in
+  ```lean
+  syntax "c" ("foo" <|> "bar") ...
+  ```
+  `foo` and `bar` are indistinguishable during matching, but in
+  ```lean
+  syntax foo := "foo"
+  syntax "c" (foo <|> "bar") ...
+  ```
+  they are not. -/
 @[builtinTermElab «match»] def elabMatchSyntax : TermElab :=
   adaptExpander match_syntax.expand
 

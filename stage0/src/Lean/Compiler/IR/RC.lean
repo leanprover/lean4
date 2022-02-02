@@ -119,9 +119,6 @@ private def addIncBeforeAux (ctx : Context) (xs : Array Arg) (consumeParamPred :
              isBorrowParamAux x xs consumeParamPred  -- `x` is used in a position that is passed as a borrow reference
           then numConsuptions
           else numConsuptions - 1
-        -- dbgTrace ("addInc " ++ toString x ++ " nconsumptions: " ++ toString numConsuptions ++ " incs: " ++ toString numIncs
-        --         ++ " consume: " ++ toString info.consume ++ " live: " ++ toString (liveVarsAfter.contains x)
-        --         ++ " borrowParam : " ++ toString (isBorrowParamAux x xs consumeParamPred)) $ fun _ =>
         addInc ctx x b numIncs
 
 private def addIncBefore (ctx : Context) (xs : Array Arg) (ps : Array Param) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
@@ -192,7 +189,6 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
     | (Expr.uproj _ x)       => FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
     | (Expr.sproj _ _ x)     => FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
     | (Expr.fap f ys)        =>
-      -- dbgTrace ("processVDecl " ++ toString v) $ fun _ =>
       let ps := (getDecl ctx f).params
       let b  := addDecAfterFullApp ctx ys ps b bLiveVars
       let b  := FnBody.vdecl z t v b
@@ -242,7 +238,7 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
     (FnBody.mdata m b, s)
   | b@(FnBody.case tid x xType alts), ctx =>
     let caseLiveVars := collectLiveVars b ctx.jpLiveVarMap
-    let alts         := alts.map $ fun alt => match alt with
+    let alts         := alts.map fun alt => match alt with
       | Alt.ctor c b  =>
         let ctx              := updateRefUsingCtorInfo ctx x c
         let (b, altLiveVars) := visitFnBody b ctx
@@ -282,6 +278,6 @@ end ExplicitRC
 
 def explicitRC (decls : Array Decl) : CompilerM (Array Decl) := do
   let env ← getEnv
-  pure $ decls.map (ExplicitRC.visitDecl env decls)
+  return decls.map (ExplicitRC.visitDecl env decls)
 
 end Lean.IR

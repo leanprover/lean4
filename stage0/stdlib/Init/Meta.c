@@ -300,6 +300,7 @@ static lean_object* l___private_Init_Meta_0__Lean_Meta_reprTransparencyMode____x
 LEAN_EXPORT lean_object* l_Lean_Syntax_SepArray_ofElemsUsingRef___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Name_appendIndexAfter___closed__1;
 uint8_t l_instDecidableNot___rarg(uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Meta_Simp_neutralConfig;
 uint8_t l_String_contains(lean_object*, uint32_t);
 static lean_object* l_Lean_Parser_Tactic_tacticErw_______closed__1;
 static lean_object* l_repr___at___private_Init_Meta_0__Lean_Name_reprSyntax____x40_Init_Meta___hyg_1043____spec__3___closed__7;
@@ -658,6 +659,7 @@ static lean_object* l___private_Init_Meta_0__Lean_Meta_Simp_reprConfig____x40_In
 LEAN_EXPORT lean_object* l_Lean___aux__Init__Meta______macroRules__Lean__Parser__Syntax__addPrec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Meta_0__Lean_Name_reprSyntax____x40_Init_Meta___hyg_1043____closed__14;
 LEAN_EXPORT lean_object* l_Lean_instQuoteNat(lean_object*);
+static lean_object* l_Lean_Meta_Simp_neutralConfig___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__tacticErw______1___closed__28;
@@ -17944,6 +17946,38 @@ x_1 = 1;
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Meta_Simp_neutralConfig___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; uint8_t x_3; uint8_t x_4; lean_object* x_5; 
+x_1 = l_Lean_Meta_Simp_defaultMaxSteps;
+x_2 = lean_unsigned_to_nat(2u);
+x_3 = 0;
+x_4 = 1;
+x_5 = lean_alloc_ctor(0, 2, 10);
+lean_ctor_set(x_5, 0, x_1);
+lean_ctor_set(x_5, 1, x_2);
+lean_ctor_set_uint8(x_5, sizeof(void*)*2, x_3);
+lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 1, x_4);
+lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 2, x_3);
+lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 3, x_3);
+lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 4, x_3);
+lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 5, x_3);
+lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 6, x_4);
+lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 7, x_3);
+lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 8, x_3);
+lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 9, x_3);
+return x_5;
+}
+}
+static lean_object* _init_l_Lean_Meta_Simp_neutralConfig() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Meta_Simp_neutralConfig___closed__1;
+return x_1;
+}
+}
 static uint8_t _init_l_Lean_Meta_Rewrite_Config_transparency___default() {
 _start:
 {
@@ -19587,6 +19621,10 @@ lean_mark_persistent(l_Lean_Meta_Simp_instReprConfig___closed__1);
 l_Lean_Meta_Simp_instReprConfig = _init_l_Lean_Meta_Simp_instReprConfig();
 lean_mark_persistent(l_Lean_Meta_Simp_instReprConfig);
 l_Lean_Meta_Simp_ConfigCtx_contextual___default = _init_l_Lean_Meta_Simp_ConfigCtx_contextual___default();
+l_Lean_Meta_Simp_neutralConfig___closed__1 = _init_l_Lean_Meta_Simp_neutralConfig___closed__1();
+lean_mark_persistent(l_Lean_Meta_Simp_neutralConfig___closed__1);
+l_Lean_Meta_Simp_neutralConfig = _init_l_Lean_Meta_Simp_neutralConfig();
+lean_mark_persistent(l_Lean_Meta_Simp_neutralConfig);
 l_Lean_Meta_Rewrite_Config_transparency___default = _init_l_Lean_Meta_Rewrite_Config_transparency___default();
 l_Lean_Meta_Rewrite_Config_offsetCnstrs___default = _init_l_Lean_Meta_Rewrite_Config_offsetCnstrs___default();
 l_Lean_Parser_Tactic_tacticErw_______closed__1 = _init_l_Lean_Parser_Tactic_tacticErw_______closed__1();

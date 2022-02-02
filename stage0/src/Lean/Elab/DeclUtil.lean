@@ -73,7 +73,7 @@ def isFreshInstanceName (name : Name) : Bool :=
 
   Remark: `explicitParams` are in reverse declaration order. That is, the head is the last declared parameter. -/
 def sortDeclLevelParams (scopeParams : List Name) (allUserParams : List Name) (usedParams : Array Name) : Except String (List Name) :=
-  match allUserParams.find? $ fun u => !usedParams.contains u && !scopeParams.elem u with
+  match allUserParams.find? fun u => !usedParams.contains u && !scopeParams.elem u with
   | some u => throw s!"unused universe parameter '{u}'"
   | none   =>
     let result := allUserParams.foldl (fun result levelName => if usedParams.elem levelName then levelName :: result else result) []

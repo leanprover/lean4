@@ -50,6 +50,7 @@ LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_Recurso
 LEAN_EXPORT lean_object* l_Lean_Meta_RecursorInfo_isMinor___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_RecursorInfo___hyg_2707____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_RecursorInfo_instToStringRecursorInfo___closed__6;
+lean_object* l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTRAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoForKernelRec___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__3___lambda__1(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -297,7 +298,6 @@ static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_RecursorInfo
 LEAN_EXPORT uint8_t l_Array_getIdx_x3f___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___spec__1___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getProduceMotiveAndRecursive___spec__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerParametricAttribute___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoAux___spec__2___boxed(lean_object**);
 LEAN_EXPORT lean_object* l_Lean_Meta_RecursorInfo_instToStringRecursorInfo(lean_object*);
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
@@ -3239,7 +3239,7 @@ x_17 = l___private_Lean_Meta_RecursorInfo_0__Lean_Meta_getMajorPosDepElim___clos
 x_18 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_18, x_6, x_7, x_8, x_9, x_10);
+x_19 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_18, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -3854,7 +3854,7 @@ x_38 = l_Std_Range_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta
 x_39 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_39, 0, x_37);
 lean_ctor_set(x_39, 1, x_38);
-x_40 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_39, x_9, x_10, x_11, x_12, x_32);
+x_40 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_39, x_9, x_10, x_11, x_12, x_32);
 lean_dec(x_12);
 lean_dec(x_11);
 lean_dec(x_10);
@@ -4508,7 +4508,7 @@ x_26 = l_Std_Range_forIn_loop___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta
 x_27 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_27, 0, x_25);
 lean_ctor_set(x_27, 1, x_26);
-x_28 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_27, x_11, x_12, x_13, x_14, x_22);
+x_28 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_27, x_11, x_12, x_13, x_14, x_22);
 lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
@@ -4910,7 +4910,7 @@ x_27 = l_Lean_getConstInfoInduct___at___private_Lean_Meta_RecursorInfo_0__Lean_M
 x_28 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);
-x_29 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_28, x_6, x_7, x_8, x_9, x_10);
+x_29 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_28, x_6, x_7, x_8, x_9, x_10);
 x_30 = !lean_is_exclusive(x_29);
 if (x_30 == 0)
 {
@@ -6849,7 +6849,7 @@ x_32 = l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta
 x_33 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_32);
-x_34 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_33, x_8, x_9, x_10, x_11, x_20);
+x_34 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_33, x_8, x_9, x_10, x_11, x_20);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -7035,7 +7035,7 @@ x_72 = l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta
 x_73 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_73, 0, x_71);
 lean_ctor_set(x_73, 1, x_72);
-x_74 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_73, x_8, x_9, x_10, x_11, x_60);
+x_74 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_73, x_8, x_9, x_10, x_11, x_60);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -7221,7 +7221,7 @@ x_112 = l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Met
 x_113 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_113, 0, x_111);
 lean_ctor_set(x_113, 1, x_112);
-x_114 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_113, x_8, x_9, x_10, x_11, x_100);
+x_114 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_113, x_8, x_9, x_10, x_11, x_100);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -7407,7 +7407,7 @@ x_152 = l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Met
 x_153 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_153, 0, x_151);
 lean_ctor_set(x_153, 1, x_152);
-x_154 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_153, x_8, x_9, x_10, x_11, x_140);
+x_154 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_153, x_8, x_9, x_10, x_11, x_140);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -7593,7 +7593,7 @@ x_192 = l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Met
 x_193 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_193, 0, x_191);
 lean_ctor_set(x_193, 1, x_192);
-x_194 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_193, x_8, x_9, x_10, x_11, x_180);
+x_194 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_193, x_8, x_9, x_10, x_11, x_180);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -7796,7 +7796,7 @@ x_238 = l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Met
 x_239 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_239, 0, x_237);
 lean_ctor_set(x_239, 1, x_238);
-x_240 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_239, x_8, x_9, x_10, x_11, x_226);
+x_240 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_239, x_8, x_9, x_10, x_11, x_226);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -7982,7 +7982,7 @@ x_278 = l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Met
 x_279 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_279, 0, x_277);
 lean_ctor_set(x_279, 1, x_278);
-x_280 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_279, x_8, x_9, x_10, x_11, x_266);
+x_280 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_279, x_8, x_9, x_10, x_11, x_266);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -8168,7 +8168,7 @@ x_318 = l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Met
 x_319 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_319, 0, x_317);
 lean_ctor_set(x_319, 1, x_318);
-x_320 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_319, x_8, x_9, x_10, x_11, x_306);
+x_320 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_319, x_8, x_9, x_10, x_11, x_306);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -8354,7 +8354,7 @@ x_358 = l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Met
 x_359 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_359, 0, x_357);
 lean_ctor_set(x_359, 1, x_358);
-x_360 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_359, x_8, x_9, x_10, x_11, x_346);
+x_360 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_359, x_8, x_9, x_10, x_11, x_346);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -8540,7 +8540,7 @@ x_398 = l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Met
 x_399 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_399, 0, x_397);
 lean_ctor_set(x_399, 1, x_398);
-x_400 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_399, x_8, x_9, x_10, x_11, x_386);
+x_400 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_399, x_8, x_9, x_10, x_11, x_386);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -8726,7 +8726,7 @@ x_438 = l_Lean_Expr_withAppAux___at___private_Lean_Meta_RecursorInfo_0__Lean_Met
 x_439 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_439, 0, x_437);
 lean_ctor_set(x_439, 1, x_438);
-x_440 = l_Lean_throwError___at_Lean_Meta_withIncRecDepth___spec__1(x_439, x_8, x_9, x_10, x_11, x_426);
+x_440 = l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(x_439, x_8, x_9, x_10, x_11, x_426);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);

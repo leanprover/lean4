@@ -15,7 +15,7 @@ def checkId (id : Index) : M Bool :=
     else (true, s.insert id)
 
 def checkParams (ps : Array Param) : M Bool :=
-  ps.allM $ fun p => checkId p.x.idx
+  ps.allM fun p => checkId p.x.idx
 
 partial def checkFnBody : FnBody → M Bool
   | FnBody.vdecl x _ _ b    => checkId x.idx <&&> checkFnBody b
@@ -53,7 +53,7 @@ def normArg : Arg → M Arg
   | other     => pure other
 
 def normArgs (as : Array Arg) : M (Array Arg) := fun m =>
-  as.map $ fun a => normArg a m
+  as.map fun a => normArg a m
 
 def normExpr : Expr → M Expr
   | Expr.ctor c ys,      m => Expr.ctor c (normArgs ys m)
@@ -84,12 +84,12 @@ abbrev N := ReaderT IndexRenaming (StateM Nat)
 @[inline] def withParams {α : Type} (ps : Array Param) (k : Array Param → N α) : N α := fun m => do
   let m ← ps.foldlM (init := m) fun m p => do
     let n ← getModify fun n => n + 1
-    pure $ m.insert p.x.idx n
+    return m.insert p.x.idx n
   let ps := ps.map fun p => { p with x := normVar p.x m }
   k ps m
 
 instance : MonadLift M N :=
-  ⟨fun x m => pure $ x m⟩
+  ⟨fun x m => return x m⟩
 
 partial def normFnBody : FnBody → N FnBody
   | FnBody.vdecl x t v b    => do let v ← normExpr v; withVar x fun x => return FnBody.vdecl x t v (← normFnBody b)

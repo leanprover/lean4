@@ -65,7 +65,7 @@ instance : ToString ParamMap := ⟨fun m => Format.pretty (format m)⟩
 namespace InitParamMap
 /- Mark parameters that take a reference as borrow -/
 def initBorrow (ps : Array Param) : Array Param :=
-  ps.map $ fun p => { p with borrow := p.ty.isObj }
+  ps.map fun p => { p with borrow := p.ty.isObj }
 
 /- We do perform borrow inference for constants marked as `export`.
    Reason: we current write wrappers in C++ for using exported functions.
@@ -112,7 +112,7 @@ partial def visitFnBody (fn : FunId) (paramMap : ParamMap) : FnBody → FnBody
     | some ys => FnBody.jdecl j ys v b
     | none    => unreachable!
   | FnBody.case tid x xType alts =>
-    FnBody.case tid x xType $ alts.map $ fun alt => alt.modifyBody (visitFnBody fn paramMap)
+    FnBody.case tid x xType <| alts.map fun alt => alt.modifyBody (visitFnBody fn paramMap)
   | e =>
     if e.isTerminal then e
     else
@@ -132,7 +132,6 @@ def visitDecls (decls : Array Decl) (paramMap : ParamMap) : Array Decl :=
 end ApplyParamMap
 
 def applyParamMap (decls : Array Decl) (map : ParamMap) : Array Decl :=
-  -- dbgTrace ("applyParamMap " ++ toString map) $ fun _ =>
   ApplyParamMap.visitDecls decls map
 
 structure BorrowInfCtx where
@@ -157,7 +156,6 @@ def markModified : M Unit :=
   modify fun s => { s with modified := true }
 
 def ownVar (x : VarId) : M Unit := do
-  -- dbgTrace ("ownVar " ++ toString x) $ fun _ =>
   let currFn ← getCurrFn
   modify fun s =>
     if s.owned.contains (currFn, x.idx) then s
@@ -174,7 +172,7 @@ def ownArgs (xs : Array Arg) : M Unit :=
 def isOwned (x : VarId) : M Bool := do
   let currFn ← getCurrFn
   let s      ← get
-  pure $ s.owned.contains (currFn, x.idx)
+  return s.owned.contains (currFn, x.idx)
 
 /- Updates `map[k]` using the current set of `owned` variables. -/
 def updateParamMap (k : ParamMap.Key) : M Unit := do

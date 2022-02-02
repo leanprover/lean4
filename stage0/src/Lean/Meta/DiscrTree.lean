@@ -94,7 +94,7 @@ def empty : DiscrTree α := { root := {} }
 partial def Trie.format [ToFormat α] : Trie α → Format
   | Trie.node vs cs => Format.group $ Format.paren $
     "node" ++ (if vs.isEmpty then Format.nil else " " ++ Std.format vs)
-    ++ Format.join (cs.toList.map $ fun ⟨k, c⟩ => Format.line ++ Format.paren (Std.format k ++ " => " ++ format c))
+    ++ Format.join (cs.toList.map fun ⟨k, c⟩ => Format.line ++ Format.paren (Std.format k ++ " => " ++ format c))
 
 instance [ToFormat α] : ToFormat (Trie α) := ⟨Trie.format⟩
 
@@ -263,7 +263,7 @@ where
     | none    => return e
 
 /-- whnf for the discrimination tree module -/
-private def whnfDT (e : Expr) (root : Bool) : MetaM Expr :=
+def whnfDT (e : Expr) (root : Bool) : MetaM Expr :=
   if root then whnfUntilBadKey e else whnfEta e
 
 /- Remark: we use `shouldAddAsStar` only for nested terms, and `root == false` for nested terms -/

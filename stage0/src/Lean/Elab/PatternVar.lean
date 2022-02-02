@@ -64,15 +64,6 @@ abbrev M := StateRefT State TermElabM
 private def throwCtorExpected {α} : M α :=
   throwError "invalid pattern, constructor or constant marked with '[matchPattern]' expected"
 
-private def getNumExplicitCtorParams (ctorVal : ConstructorVal) : TermElabM Nat :=
-  forallBoundedTelescope ctorVal.type ctorVal.numParams fun ps _ => do
-    let mut result := 0
-    for p in ps do
-      let localDecl ← getLocalDecl p.fvarId!
-      if localDecl.binderInfo.isExplicit then
-        result := result+1
-    pure result
-
 private def throwInvalidPattern {α} : M α :=
   throwError "invalid pattern"
 

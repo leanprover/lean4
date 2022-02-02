@@ -1874,6 +1874,13 @@ def matchesNull (stx : Syntax) (n : Nat) : Bool :=
 def matchesIdent (stx : Syntax) (id : Name) : Bool :=
   and stx.isIdent (beq stx.getId id)
 
+def matchesLit (stx : Syntax) (k : SyntaxNodeKind) (val : String) : Bool :=
+  match stx with
+  | Syntax.node _ k' args => and (beq k k') (match args.getD 0 Syntax.missing with
+    | Syntax.atom _ val' => beq val val'
+    | _                  => false)
+  | _                     => false
+
 def setArgs (stx : Syntax) (args : Array Syntax) : Syntax :=
   match stx with
   | node info k _ => node info k args
@@ -1925,6 +1932,13 @@ partial def getTailPos? (stx : Syntax) (originalOnly := false) : Option String.P
       | false => none
     loop 0
   | _, _ => none
+
+def synthNode (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax :=
+  let info := ite (Eq args.size 0) SourceInfo.none
+    (match args[0].getPos?, args[args.size.sub 1].getTailPos? with
+    | some pos, some tailPos => SourceInfo.synthetic pos tailPos
+    | _,        _            => SourceInfo.none)
+  Syntax.node info kind args
 
 /--
   An array of syntax elements interspersed with separators. Can be coerced to/from `Array Syntax` to automatically

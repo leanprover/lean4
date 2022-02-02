@@ -173,6 +173,18 @@ def trySubst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId := do
   | some mvarId => return mvarId
   | none => return mvarId
 
+def substSomeVar? (mvarId : MVarId) : MetaM (Option MVarId) := withMVarContext mvarId do
+  for localDecl in (← getLCtx) do
+    if let some mvarId ← subst? mvarId localDecl.fvarId then
+       return some mvarId
+  return none
+
+partial def substVars (mvarId : MVarId) : MetaM MVarId := do
+  if let some mvarId ← substSomeVar? mvarId then
+    substVars mvarId
+  else
+    return mvarId
+
 builtin_initialize registerTraceClass `Meta.Tactic.subst
 
 end Meta

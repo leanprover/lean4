@@ -93,11 +93,11 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
           | throwError "don't know how to generate {ctx.varName} for non-definition '{e}'"
         unless (env.getModuleIdxFor? c).isNone || force do
           throwError "refusing to generate code for imported parser declaration '{c}'; use `@[runParserAttributeHooks]` on its definition instead."
-        let value ← compileParserExpr $ replaceParserTy ctx value
+        let value ← compileParserExpr <| replaceParserTy ctx value
         let ty ← forallTelescope cinfo.type fun params _ =>
           params.foldrM (init := mkConst ctx.tyName) fun param ty => do
             let paramTy ← replaceParserTy ctx <$> inferType param
-            pure $ mkForall `_ BinderInfo.default paramTy ty
+            return mkForall `_ BinderInfo.default paramTy ty
         let decl := Declaration.defnDecl {
           name := c', levelParams := [],
           type := ty, value := value, hints := ReducibilityHints.opaque, safety := DefinitionSafety.safe }
@@ -105,7 +105,7 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
         let env ← match env.addAndCompile {} decl with
           | Except.ok    env => pure env
           | Except.error kex => do throwError (← (kex.toMessageData {}).toString)
-        setEnv $ ctx.combinatorAttr.setDeclFor env c c'
+        setEnv <| ctx.combinatorAttr.setDeclFor env c c'
         if cinfo.type.isConst then
           if let some kind ← parserNodeKind? cinfo.value! then
             -- If the parser is parameter-less and produces a node of kind `kind`,
@@ -130,7 +130,7 @@ def compileEmbeddedParsers : ParserDescr → MetaM Unit
   | ParserDescr.const _                => pure ()
   | ParserDescr.unary _ d              => compileEmbeddedParsers d
   | ParserDescr.binary _ d₁ d₂         => compileEmbeddedParsers d₁ *> compileEmbeddedParsers d₂
-  | ParserDescr.parser constName       => discard $ compileParserExpr ctx (mkConst constName) (builtin := builtin) (force := false)
+  | ParserDescr.parser constName       => discard <| compileParserExpr ctx (mkConst constName) (builtin := builtin) (force := false)
   | ParserDescr.node _ _ d             => compileEmbeddedParsers d
   | ParserDescr.nodeWithAntiquot _ _ d => compileEmbeddedParsers d
   | ParserDescr.sepBy p _ psep _       => compileEmbeddedParsers p *> compileEmbeddedParsers psep

@@ -12,6 +12,7 @@ import Lean.Data.Lsp
 import Lean.Server.FileWorker.Utils
 import Lean.Server.Requests
 import Lean.Server.Completion
+import Lean.Server.References
 
 import Lean.Widget.InteractiveGoal
 
@@ -219,6 +220,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
   let doc ← readDoc
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
+
   let rec highlightReturn? (doRange? : Option Range) : Syntax → Option DocumentHighlight
     | stx@`(doElem|return%$i $e) => Id.run <| do
       if let some range := i.getRange? then
@@ -228,8 +230,24 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
     | `(do%$i $elems) => highlightReturn? (i.getRange?.get!.toLspRange text) elems
     | stx => stx.getArgs.findSome? (highlightReturn? doRange?)
 
+  let highlightRefs? (snaps : Array Snapshot) (pos : Lsp.Position) : Option (Array DocumentHighlight) := Id.run do
+    let trees := snaps.map (·.infoTree)
+    let refs := findModuleRefs text trees
+    let some ident ← refs.findAt? p.position
+      | none
+    let some info ← refs.find? ident
+      | none
+    let mut ranges := #[]
+    if let some definition := info.definition then
+      ranges := ranges.push definition
+    ranges := ranges.append info.usages
+    some <| ranges.map ({ range := ·, kind? := DocumentHighlightKind.text })
+
   withWaitFindSnap doc (fun s => s.endPos > pos)
     (notFoundX := pure #[]) fun snap => do
+      let (snaps, _) ← doc.allSnaps.updateFinishedPrefix
+      if let some his ← highlightRefs? snaps.finishedPrefix.toArray p.position then
+        return his
       if let some hi := highlightReturn? none snap.stx then
         return #[hi]
       return #[]

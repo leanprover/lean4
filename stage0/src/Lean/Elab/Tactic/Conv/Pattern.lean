@@ -14,12 +14,7 @@ private def getContext : MetaM Simp.Context := do
   return {
     simpLemmas    := {}
     congrLemmas   := (← getCongrLemmas)
-    config.zeta   := false
-    config.beta   := false
-    config.eta    := false
-    config.iota   := false
-    config.proj   := false
-    config.decide := false
+    config        := Simp.neutralConfig
   }
 
 partial def matchPattern? (pattern : AbstractMVarsResult) (e : Expr) : MetaM (Option (Expr × Array Expr)) :=

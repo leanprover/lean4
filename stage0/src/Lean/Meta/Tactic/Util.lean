@@ -30,6 +30,9 @@ def mkFreshExprSyntheticOpaqueMVar (type : Expr) (tag : Name := Name.anonymous) 
 def throwTacticEx {α} (tacticName : Name) (mvarId : MVarId) (msg : MessageData) (ref := Syntax.missing) : MetaM α :=
   throwError "tactic '{tacticName}' failed, {msg}\n{MessageData.ofGoal mvarId}"
 
+def throwNestedTacticEx {α} (tacticName : Name) (ex : Exception) : MetaM α := do
+  throwError "tactic '{tacticName}' failed\n{ex.toMessageData}"
+
 def checkNotAssigned (mvarId : MVarId) (tacticName : Name) : MetaM Unit := do
   if (← isExprMVarAssigned mvarId) then
     throwTacticEx tacticName mvarId "metavariable has already been assigned"

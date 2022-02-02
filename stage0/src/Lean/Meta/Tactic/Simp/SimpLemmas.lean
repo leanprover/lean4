@@ -106,18 +106,33 @@ private partial def isPerm : Expr → Expr → MetaM Bool
   | Expr.proj _ i₁ b₁ _, Expr.proj _ i₂ b₂ _ => i₁ == i₂ <&&> isPerm b₁ b₂
   | s, t => s == t
 
-private partial def shouldPreprocess (type : Expr) : MetaM Bool :=
-  forallTelescopeReducing type fun xs result => return !result.isEq
+private def checkBadRewrite (lhs rhs : Expr) : MetaM Unit := do
+  let lhs ← DiscrTree.whnfDT lhs (root := true)
+  if lhs == rhs && lhs.isFVar then
+    throwError "invalid `simp` theorem, equation is equivalent to{indentExpr (← mkEq lhs rhs)}"
 
-private partial def preprocess (e type : Expr) (inv : Bool) : MetaM (List (Expr × Expr)) := do
+private partial def shouldPreprocess (type : Expr) : MetaM Bool :=
+  forallTelescopeReducing type fun xs result => do
+    if let some (_, lhs, rhs) := result.eq? then
+      checkBadRewrite lhs rhs
+      return false
+    else
+      return true
+
+private partial def preprocess (e type : Expr) (inv : Bool) (isGlobal : Bool) : MetaM (List (Expr × Expr)) :=
+  go e type
+where
+  go (e type : Expr) : MetaM (List (Expr × Expr)) := do
   let type ← whnf type
   if type.isForall then
     forallTelescopeReducing type fun xs type => do
       let e := mkAppN e xs
-      let ps ← preprocess e type inv
+      let ps ← go e type
       ps.mapM fun (e, type) =>
         return (← mkLambdaFVars xs e, ← mkForallFVars xs type)
   else if let some (_, lhs, rhs) := type.eq? then
+    if isGlobal then
+      checkBadRewrite lhs rhs
     if inv then
       let type ← mkEq rhs lhs
       let e    ← mkEqSymm e
@@ -125,6 +140,8 @@ private partial def preprocess (e type : Expr) (inv : Bool) : MetaM (List (Expr 
     else
       return [(e, type)]
   else if let some (lhs, rhs) := type.iff? then
+    if isGlobal then
+      checkBadRewrite lhs rhs
     if inv then
       let type ← mkEq rhs lhs
       let e    ← mkEqSymm (← mkPropExt e)
@@ -148,7 +165,7 @@ private partial def preprocess (e type : Expr) (inv : Bool) : MetaM (List (Expr 
   else if let some (type₁, type₂) := type.and? then
     let e₁ := mkProj ``And 0 e
     let e₂ := mkProj ``And 1 e
-    return (← preprocess e₁ type₁ inv) ++ (← preprocess e₂ type₂ inv)
+    return (← go e₁ type₁) ++ (← go e₂ type₂)
   else
     if inv then
       throwError "invalid '←' modifier in rewrite rule to 'True'"
@@ -179,7 +196,7 @@ private def mkSimpLemmasFromConst (declName : Name) (post : Bool) (inv : Bool) (
     checkTypeIsProp type
     if inv || (← shouldPreprocess type) then
       let mut r := #[]
-      for (val, type) in (← preprocess val type inv) do
+      for (val, type) in (← preprocess val type inv (isGlobal := true)) do
         let auxName ← mkAuxLemma cinfo.levelParams type val
         r := r.push <| (← mkSimpLemmaCore (mkConst auxName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst auxName) post prio declName)
       return r
@@ -273,7 +290,7 @@ def SimpLemma.getValue (simpLemma : SimpLemma) : MetaM Expr := do
 private def preprocessProof (val : Expr) (inv : Bool) : MetaM (Array Expr) := do
   let type ← inferType val
   checkTypeIsProp type
-  let ps ← preprocess val type inv
+  let ps ← preprocess val type inv (isGlobal := false)
   return ps.toArray.map fun (val, _) => val
 
 /- Auxiliary method for creating simp lemmas from a proof term `val`. -/

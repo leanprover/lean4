@@ -8,7 +8,7 @@
     Nat × Nat
     ===>
     Prod✝ Nat Nat
-      Nat × Nat : Type @ ⟨13, 18⟩†-⟨13, 27⟩ @ Lean.Elab.Term.elabApp
+      Nat × Nat : Type @ ⟨13, 18⟩†-⟨13, 27⟩† @ Lean.Elab.Term.elabApp
         Prod : Type → Type → Type @ ⟨13, 18⟩†-⟨13, 27⟩†
         Nat : Type @ ⟨13, 18⟩-⟨13, 21⟩ @ Lean.Elab.Term.elabIdent
           [.] `Nat : some Type.{?_uniq.419} @ ⟨13, 18⟩-⟨13, 21⟩
@@ -25,7 +25,7 @@
       ⟨x, x⟩
       ===>
       Prod.mk✝ x x
-        (x, x) : Nat × Nat @ ⟨14, 11⟩†-⟨14, 16⟩ @ Lean.Elab.Term.elabApp
+        (x, x) : Nat × Nat @ ⟨14, 11⟩†-⟨14, 16⟩† @ Lean.Elab.Term.elabApp
           @Prod.mk : {α β : Type} → α → β → α × β @ ⟨14, 11⟩†-⟨14, 17⟩†
           x : Nat @ ⟨14, 12⟩-⟨14, 13⟩ @ Lean.Elab.Term.elabIdent
             x : Nat @ ⟨14, 12⟩-⟨14, 13⟩
@@ -58,13 +58,13 @@
         x + 0 = x
         ===>
         binrel% Eq✝ (x + 0)x
-          x + 0 = x : Prop @ ⟨17, 35⟩†-⟨17, 44⟩ @ Lean.Elab.Term.elabBinRel
+          x + 0 = x : Prop @ ⟨17, 35⟩†-⟨17, 44⟩† @ Lean.Elab.Term.elabBinRel
             x + 0 : Nat @ ⟨17, 35⟩-⟨17, 40⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
               Macro expansion
               x + 0
               ===>
               binop% HAdd.hAdd✝ x 0
-                x + 0 : Nat @ ⟨17, 35⟩†-⟨17, 40⟩ @ Lean.Elab.Term.BinOp.elabBinOp
+                x + 0 : Nat @ ⟨17, 35⟩†-⟨17, 40⟩† @ Lean.Elab.Term.BinOp.elabBinOp
                   x : Nat @ ⟨17, 35⟩-⟨17, 36⟩ @ Lean.Elab.Term.elabIdent
                     x : Nat @ ⟨17, 35⟩-⟨17, 36⟩
                   0 : Nat @ ⟨17, 39⟩-⟨17, 40⟩ @ Lean.Elab.Term.elabNumLit
@@ -158,21 +158,21 @@
         match x with
         | (z, w) =>
           let z1 := z + w;
-          z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.elabLetDecl
+          z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩† @ Lean.Elab.Term.elabLetDecl
           Nat × Nat : Type @ ⟨23, 8⟩†-⟨23, 14⟩† @ Lean.Elab.Term.elabHole
           (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩-⟨23, 32⟩ @ Lean.Elab.Term.expandParen
             Macro expansion
             (x + y, x - y)
             ===>
             Prod.mk✝ (x + y) (x - y)
-              (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩†-⟨23, 31⟩ @ Lean.Elab.Term.elabApp
+              (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩†-⟨23, 31⟩† @ Lean.Elab.Term.elabApp
                 @Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 18⟩†-⟨23, 32⟩†
                 x + y : Nat @ ⟨23, 19⟩-⟨23, 24⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
                   Macro expansion
                   x + y
                   ===>
                   binop% HAdd.hAdd✝ x y
-                    x + y : Nat @ ⟨23, 19⟩†-⟨23, 24⟩ @ Lean.Elab.Term.BinOp.elabBinOp
+                    x + y : Nat @ ⟨23, 19⟩†-⟨23, 24⟩† @ Lean.Elab.Term.BinOp.elabBinOp
                       x : Nat @ ⟨23, 19⟩-⟨23, 20⟩ @ Lean.Elab.Term.elabIdent
                         x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
                       y : Nat @ ⟨23, 23⟩-⟨23, 24⟩ @ Lean.Elab.Term.elabIdent
@@ -182,7 +182,7 @@
                   x - y
                   ===>
                   binop% HSub.hSub✝ x y
-                    x - y : Nat @ ⟨23, 26⟩†-⟨23, 31⟩ @ Lean.Elab.Term.BinOp.elabBinOp
+                    x - y : Nat @ ⟨23, 26⟩†-⟨23, 31⟩† @ Lean.Elab.Term.BinOp.elabBinOp
                       x : Nat @ ⟨23, 26⟩-⟨23, 27⟩ @ Lean.Elab.Term.elabIdent
                         x : Nat @ ⟨23, 26⟩-⟨23, 27⟩
                       y : Nat @ ⟨23, 30⟩-⟨23, 31⟩ @ Lean.Elab.Term.elabIdent
@@ -191,7 +191,7 @@
           match x✝ with
           | (z, w) =>
             let z1 := z + w;
-            z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.elabMatch
+            z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩† @ Lean.Elab.Term.elabMatch
             x✝ : Nat × Nat @ ⟨23, 4⟩†-⟨25, 10⟩†
             @Prod.mk : {α : Type ?u} → {β : Type ?u} → α → β → α × β @ ⟨23, 4⟩†-⟨25, 10⟩†
             [.] `z : none @ ⟨23, 9⟩-⟨23, 10⟩
@@ -212,7 +212,7 @@
                 z + w
                 ===>
                 binop% HAdd.hAdd✝ z w
-                  z + w : Nat @ ⟨24, 14⟩†-⟨24, 19⟩ @ Lean.Elab.Term.BinOp.elabBinOp
+                  z + w : Nat @ ⟨24, 14⟩†-⟨24, 19⟩† @ Lean.Elab.Term.BinOp.elabBinOp
                     z : Nat @ ⟨24, 14⟩-⟨24, 15⟩ @ Lean.Elab.Term.elabIdent
                       z : Nat @ ⟨24, 14⟩-⟨24, 15⟩
                     w : Nat @ ⟨24, 18⟩-⟨24, 19⟩ @ Lean.Elab.Term.elabIdent
@@ -223,7 +223,7 @@
                 z + z1
                 ===>
                 binop% HAdd.hAdd✝ z z1
-                  z + z1 : Nat @ ⟨25, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.BinOp.elabBinOp
+                  z + z1 : Nat @ ⟨25, 4⟩†-⟨25, 10⟩† @ Lean.Elab.Term.BinOp.elabBinOp
                     z : Nat @ ⟨25, 4⟩-⟨25, 5⟩ @ Lean.Elab.Term.elabIdent
                       z : Nat @ ⟨25, 4⟩-⟨25, 5⟩
                     z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabIdent
@@ -235,7 +235,7 @@
     Nat × Array (Array Nat)
     ===>
     Prod✝ Nat (Array (Array Nat))
-      Nat × Array (Array Nat) : Type @ ⟨27, 12⟩†-⟨27, 35⟩ @ Lean.Elab.Term.elabApp
+      Nat × Array (Array Nat) : Type @ ⟨27, 12⟩†-⟨27, 35⟩† @ Lean.Elab.Term.elabApp
         Prod : Type → Type → Type @ ⟨27, 12⟩†-⟨27, 35⟩†
         Nat : Type @ ⟨27, 12⟩-⟨27, 15⟩ @ Lean.Elab.Term.elabIdent
           [.] `Nat : some Type.{?_uniq.759} @ ⟨27, 12⟩-⟨27, 15⟩
@@ -307,7 +307,7 @@
       ({ val := id }, { val := id })
       ===>
       Prod.mk✝ { val := id } { val := id }
-        ({ val := id }, { val := id }) : A × A @ ⟨34, 10⟩†-⟨34, 39⟩ @ Lean.Elab.Term.elabApp
+        ({ val := id }, { val := id }) : A × A @ ⟨34, 10⟩†-⟨34, 39⟩† @ Lean.Elab.Term.elabApp
           @Prod.mk : {α β : Type} → α → β → α × β @ ⟨34, 10⟩†-⟨34, 40⟩†
           { val := id } : A @ ⟨34, 11⟩-⟨34, 24⟩ @ Lean.Elab.Term.StructInst.elabStructInst
             id : Nat → Nat @ ⟨34, 20⟩-⟨34, 22⟩ @ Lean.Elab.Term.elabIdent
@@ -350,7 +350,7 @@ infoTree.lean:44:0: error: expected stx
     («term_=_» `x "=" `x)
     ===>
     (Term.binrel "binrel%" `Eq._@.infoTree._hyg.177 `x `x)
-      Eq.{1} Nat _uniq.851 _uniq.851 : Prop @ ⟨45, 21⟩†-⟨45, 26⟩ @ Lean.Elab.Term.elabBinRel
+      Eq.{1} Nat _uniq.851 _uniq.851 : Prop @ ⟨45, 21⟩†-⟨45, 26⟩† @ Lean.Elab.Term.elabBinRel
         _uniq.851 : Nat @ ⟨45, 21⟩-⟨45, 22⟩ @ Lean.Elab.Term.elabIdent
           _uniq.851 : Nat @ ⟨45, 21⟩-⟨45, 22⟩
         _uniq.851 : Nat @ ⟨45, 25⟩-⟨45, 26⟩ @ Lean.Elab.Term.elabIdent
@@ -371,7 +371,7 @@ infoTree.lean:44:0: error: expected stx
       («term_=_» `x "=" `x)
       ===>
       (Term.binrel "binrel%" `Eq._@.infoTree._hyg.185 `x `x)
-        Eq.{1} Nat _uniq.863 _uniq.863 : Prop @ ⟨46, 27⟩†-⟨46, 32⟩ @ Lean.Elab.Term.elabBinRel
+        Eq.{1} Nat _uniq.863 _uniq.863 : Prop @ ⟨46, 27⟩†-⟨46, 32⟩† @ Lean.Elab.Term.elabBinRel
           _uniq.863 : Nat @ ⟨46, 27⟩-⟨46, 28⟩ @ Lean.Elab.Term.elabIdent
             _uniq.863 : Nat @ ⟨46, 27⟩-⟨46, 28⟩
           _uniq.863 : Nat @ ⟨46, 31⟩-⟨46, 32⟩ @ Lean.Elab.Term.elabIdent

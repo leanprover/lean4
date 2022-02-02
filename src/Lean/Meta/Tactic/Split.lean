@@ -96,13 +96,16 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
     return mvarIds.reverse
 
 def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do
-  let some app ← matchMatcherApp? e | throwError "match application expected"
-  let matchEqns ← Match.getEquationsFor app.matcherName
-  let mvarIds ← applyMatchSplitter mvarId app.matcherName app.matcherLevels app.params app.discrs
-  let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
-    let mvarId ← simpMatchTargetCore mvarId app.matcherName matchEqns.eqnNames[i]
-    return (i+1, mvarId::mvarIds)
-  return mvarIds.reverse
+  try
+    let some app ← matchMatcherApp? e | throwError "match application expected"
+    let matchEqns ← Match.getEquationsFor app.matcherName
+    let mvarIds ← applyMatchSplitter mvarId app.matcherName app.matcherLevels app.params app.discrs
+    let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
+      let mvarId ← simpMatchTargetCore mvarId app.matcherName matchEqns.eqnNames[i]
+      return (i+1, mvarId::mvarIds)
+    return mvarIds.reverse
+  catch ex =>
+    throwNestedTacticEx `splitMatch ex
 
 /-- Return an `if-then-else` or `match-expr` to split. -/
 partial def findSplit? (env : Environment) (e : Expr) : Option Expr :=

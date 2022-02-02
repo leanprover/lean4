@@ -65,9 +65,18 @@ private def generalizeMatchDiscrs (mvarId : MVarId) (discrs : Array Expr) : Meta
   if discrs.all (·.isFVar) then
     return (discrs.map (·.fvarId!), mvarId)
   else
-    let args ← discrs.mapM fun d => return { expr := d, hName? := (← mkFreshUserName `h) : GeneralizeArg }
-    let (fvarIds, mvarId) ← generalize mvarId args
-    return (fvarIds[:discrs.size], mvarId)
+    let discrsToGeneralize := discrs.filter fun d => !d.isFVar
+    let args ← discrsToGeneralize.mapM fun d => return { expr := d, hName? := (← mkFreshUserName `h) : GeneralizeArg }
+    let (fvarIdsNew, mvarId) ← generalize mvarId args
+    let mut result := #[]
+    let mut j := 0
+    for discr in discrs do
+      if discr.isFVar then
+        result := result.push discr.fvarId!
+      else
+        result := result.push fvarIdsNew[j]
+        j := j + 1
+    return (result, mvarId)
 
 def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Level) (params : Array Expr) (discrs : Array Expr) : MetaM (List MVarId) := do
   let (discrFVarIds, mvarId) ← generalizeMatchDiscrs mvarId discrs

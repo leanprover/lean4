@@ -8,12 +8,12 @@ example (a b : Bool) (x y z : Nat) (xs : List Nat) (h1 : (if a then x else y) = 
   simp [g]
   repeat any_goals (split at *)
   any_goals (first | decide | contradiction | injections)
-  next b c _ _ _ =>
+  next b c _ _ =>
     show Nat.succ b = 1
-    subst xs; simp [List.head!] at h2; simp [h2]
-  next b c _ _ _ =>
+    simp [List.head!] at h2; simp [h2]
+  next b c _ _ =>
     show Nat.succ b = 1
-    subst xs; simp [List.head!] at h2; simp [h2]
+    simp [List.head!] at h2; simp [h2]
 
 example (a : Bool) (h1 : (if a then x else y) = 1) : x + y > 0 := by
   split at h1

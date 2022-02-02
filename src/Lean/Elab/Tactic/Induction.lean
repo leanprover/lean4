@@ -408,8 +408,17 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr) :=
       return args.map (·.expr)
     else
       liftMetaTacticAux fun mvarId => do
-        let (fvarIds, mvarId) ← generalize mvarId args
-        return (fvarIds[:targets.size].toArray.map mkFVar, [mvarId])
+        let argsToGeneralize ← args.filter fun arg => !(arg.expr.isFVar && arg.hName?.isNone)
+        let (fvarIdsNew, mvarId) ← generalize mvarId argsToGeneralize
+        let mut result := #[]
+        let mut j := 0
+        for arg in args do
+          if arg.expr.isFVar && arg.hName?.isNone then
+            result := result.push arg.expr
+          else
+            result := result.push (mkFVar fvarIdsNew[j])
+            j := j+1
+        return (result, [mvarId])
 
 builtin_initialize registerTraceClass `Elab.cases
 

@@ -116,7 +116,7 @@ partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targets : Array E
           throwError "insufficient number of targets for '{elimName}'"
         let target := ctx.targets[s.targetPos]
         let expectedType ← getArgExpectedType
-        let target ← Term.ensureHasType expectedType target
+        let target ← withConfig (fun cfg => { cfg with assignSyntheticOpaque := true }) do Term.ensureHasType expectedType target
         modify fun s => { s with targetPos := s.targetPos + 1 }
         addNewArg target
       else match c.binderInfo with
@@ -150,7 +150,8 @@ partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targets : Array E
     catch _ =>
       setMVarKind mvarId MetavarKind.syntheticOpaque
       others := others.push mvarId
-  return { elimApp := (← instantiateMVars s.f), alts := s.alts, others := others }
+  let alts ← s.alts.filterM fun alt => return !(← isExprMVarAssigned alt.2)
+  return { elimApp := (← instantiateMVars s.f), alts, others := others }
 
 /- Given a goal `... targets ... |- C[targets]` associated with `mvarId`, assign
   `motiveArg := fun targets => C[targets]` -/

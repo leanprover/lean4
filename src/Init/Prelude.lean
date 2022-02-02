@@ -1933,6 +1933,13 @@ partial def getTailPos? (stx : Syntax) (originalOnly := false) : Option String.P
     loop 0
   | _, _ => none
 
+def synthNode (kind : SyntaxNodeKind) (args : Array Syntax) : Syntax :=
+  let info := ite (Eq args.size 0) SourceInfo.none
+    (match args[0].getPos?, args[args.size.sub 1].getTailPos? with
+    | some pos, some tailPos => SourceInfo.synthetic pos tailPos
+    | _,        _            => SourceInfo.none)
+  Syntax.node info kind args
+
 /--
   An array of syntax elements interspersed with separators. Can be coerced to/from `Array Syntax` to automatically
   remove/insert the separators. -/

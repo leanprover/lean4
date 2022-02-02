@@ -15,10 +15,10 @@ fun x =>
     let scp ← Lean.getCurrMacroScope
     let mainModule ← Lean.getMainModule
     pure
-        (Lean.Syntax.node Lean.SourceInfo.none `Lean.Parser.Term.app
+        (Lean.Syntax.synthNode `Lean.Parser.Term.app
           #[Lean.Syntax.ident info (String.toSubstring "Nat.add") (Lean.addMacroScope mainModule `Nat.add scp)
               [(`Nat.add, [])],
-            Lean.Syntax.node Lean.SourceInfo.none `null #[lhs, rhs]])
+            Lean.Syntax.synthNode `null #[lhs, rhs]])
   else
     let discr := x;
     throw Lean.Macro.Exception.unsupportedSyntax
@@ -39,7 +39,7 @@ fun x =>
           let info ← Lean.MonadRef.mkInfoFromRefPos
           let _ ← Lean.getCurrMacroScope
           let _ ← Lean.getMainModule
-          pure (Lean.Syntax.node Lean.SourceInfo.none `«term_+++_» #[lhs, Lean.Syntax.atom info "+++", rhs])
+          pure (Lean.Syntax.synthNode `«term_+++_» #[lhs, Lean.Syntax.atom info "+++", rhs])
       else
         let discr := Lean.Syntax.getArg discr 1;
         throw ())

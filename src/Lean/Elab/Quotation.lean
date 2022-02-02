@@ -144,7 +144,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
         else do
           let arg ← quoteSyntax arg
           args := args.push arg
-      `(Syntax.node SourceInfo.none $(quote k) $(args.build))
+      `(Syntax.synthNode $(quote k) $(args.build))
   | Syntax.atom _ val =>
     `(Syntax.atom info $(quote val))
   | Syntax.missing => throwUnsupportedSyntax

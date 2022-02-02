@@ -8,9 +8,8 @@ macro_rules
 
 syntax "b" str : term
 
-open Lean
-example : Syntax → Nat := fun stx => match stx with
-  | `(b "foo") => 0
-  | `(b "bla") => 1
+macro_rules
+  | `(b "foo") => `("foo!")
+  | `(b "bla") => `("bla!")
 
 #check b "bla"

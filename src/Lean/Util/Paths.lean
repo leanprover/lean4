@@ -24,7 +24,7 @@ def initSrcSearchPath (leanSysroot : FilePath) (sp : SearchPath := ∅) : IO Sea
     if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
       System.SearchPath.parse p
     else []
-  let srcPath := (← IO.appDir) / ".." / "lib" / "lean" / "src"
+  let srcPath := (← IO.appDir) / ".." / "src" / "lean"
   -- `lake/` should come first since on case-insensitive file systems, Lean thinks that `src/` also contains `Lake/`
   return srcSearchPath ++ [srcPath / "lake", srcPath]
 

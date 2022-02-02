@@ -79,29 +79,31 @@ private def generalizeMatchDiscrs (mvarId : MVarId) (discrs : Array Expr) : Meta
     return (result, mvarId)
 
 def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Level) (params : Array Expr) (discrs : Array Expr) : MetaM (List MVarId) := do
-  let (discrFVarIds, mvarId) ← generalizeMatchDiscrs mvarId discrs
-  let (reverted, mvarId) ← revert mvarId discrFVarIds (preserveOrder := true)
-  let (discrFVarIds, mvarId) ← introNP mvarId discrFVarIds.size
-  let numExtra := reverted.size - discrFVarIds.size
-  let discrs := discrFVarIds.map mkFVar
   let some info ← getMatcherInfo? matcherDeclName | throwError "'applyMatchSplitter' failed, '{matcherDeclName}' is not a 'match' auxiliary declaration."
   let matchEqns ← Match.getEquationsFor matcherDeclName
+  let mut us := us
+  if let some uElimPos := info.uElimPos? then
+    -- Set universe elimination level to zero (Prop).
+    us := us.set! uElimPos levelZero
+  let splitter := mkAppN (mkConst matchEqns.splitterName us.toList) params
+  let motiveType := (← whnfForall (← inferType splitter)).bindingDomain!
+  let (discrFVarIds, mvarId) ← generalizeMatchDiscrs mvarId discrs
+  let mvarId ← generalizeTargetsEq mvarId motiveType (discrFVarIds.map mkFVar)
+  let numEqs := discrs.size
+  let (discrFVarIdsNew, mvarId) ← introN mvarId discrs.size
+  let discrsNew := discrFVarIdsNew.map mkFVar
   withMVarContext mvarId do
-    let motive ← mkLambdaFVars discrs (← getMVarType mvarId)
-    -- Fix universe
-    let mut us := us
-    if let some uElimPos := info.uElimPos? then
-      -- Set universe elimination level to zero (Prop).
-      us := us.set! uElimPos levelZero
-    let splitter := mkAppN (mkConst matchEqns.splitterName us.toList) params
-    let splitter := mkAppN (mkApp splitter motive) discrs
-    check splitter -- TODO
+    let motive ← mkLambdaFVars discrsNew (← getMVarType mvarId)
+    let splitter := mkAppN (mkApp splitter motive) discrsNew
+    check splitter
     let mvarIds ← apply mvarId splitter
     let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
       let numParams := matchEqns.splitterAltNumParams[i]
       let (_, mvarId) ← introN mvarId numParams
-      let (_, mvarId) ← introNP mvarId numExtra
-      return (i+1, mvarId::mvarIds)
+      match (← Cases.unifyEqs numEqs mvarId {}) with
+      | none   => return (i+1, mvarIds) -- case was solved
+      | some (mvarId, _) =>
+        return (i+1, mvarId::mvarIds)
     return mvarIds.reverse
 
 def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do

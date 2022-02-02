@@ -37,6 +37,6 @@ def g (xs ys : List Nat) : Nat :=
 example (xs ys : List Nat) : g xs ys > 0 := by
   simp [g]
   split
-  next a b _    => show Nat.succ (a + b) > 0; apply Nat.zero_lt_succ
+  next a b      => show Nat.succ (a + b) > 0; apply Nat.zero_lt_succ
   next xs b c _ => show Nat.succ b > 0; apply Nat.zero_lt_succ
   next => decide

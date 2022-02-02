@@ -8,10 +8,10 @@ example (a b : Bool) (x y z : Nat) (xs : List Nat) (h1 : (if a then x else y) = 
   simp [g]
   repeat any_goals (split at *)
   any_goals (first | decide | contradiction | injections)
-  next b c _ _ =>
+  next b c _ =>
     show Nat.succ b = 1
     simp [List.head!] at h2; simp [h2]
-  next b c _ _ =>
+  next b c _ =>
     show Nat.succ b = 1
     simp [List.head!] at h2; simp [h2]
 

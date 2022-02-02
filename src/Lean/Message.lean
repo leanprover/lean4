@@ -143,6 +143,7 @@ instance : Coe Level MessageData  := ⟨ofLevel⟩
 instance : Coe Expr MessageData   := ⟨ofExpr⟩
 instance : Coe Name MessageData   := ⟨ofName⟩
 instance : Coe Syntax MessageData := ⟨ofSyntax⟩
+instance : Coe MVarId MessageData := ⟨ofGoal⟩
 instance : Coe (Option Expr) MessageData := ⟨fun o => match o with | none => "none" | some e => ofExpr e⟩
 
 partial def arrayExpr.toMessageData (es : Array Expr) (i : Nat) (acc : MessageData) : MessageData :=
@@ -283,6 +284,7 @@ instance : ToMessageData Name          := ⟨MessageData.ofName⟩
 instance : ToMessageData String        := ⟨stringToMessageData⟩
 instance : ToMessageData Syntax        := ⟨MessageData.ofSyntax⟩
 instance : ToMessageData Format        := ⟨MessageData.ofFormat⟩
+instance : ToMessageData MVarId        := ⟨MessageData.ofGoal⟩
 instance : ToMessageData MessageData   := ⟨id⟩
 instance {α} [ToMessageData α] : ToMessageData (List α)  := ⟨fun as => MessageData.ofList <| as.map toMessageData⟩
 instance {α} [ToMessageData α] : ToMessageData (Array α) := ⟨fun as => toMessageData as.toList⟩

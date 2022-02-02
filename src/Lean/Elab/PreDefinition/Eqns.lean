@@ -70,13 +70,24 @@ private def keepGoing (mvarId : MVarId) : ReaderT Context (StateRefT (Array Expr
   let ctx ← read
   return Option.isSome <| rhs.find? fun e => ctx.declNames.any e.isAppOf && e.hasLooseBVars
 
+private def lhsDependsOn (type : Expr) (fvarId : FVarId) : MetaM Bool :=
+  forallTelescope type fun _ type => do
+    if let some (_, lhs, _) ← matchEq? type then
+      dependsOn lhs fvarId
+    else
+      dependsOn type fvarId
+
+/--
+  Eliminate `namedPatterns` from equation, and trivial hypotheses.
+-/
 def simpEqnType (eqnType : Expr) : MetaM Expr := do
   forallTelescopeReducing (← instantiateMVars eqnType) fun ys type => do
     let proofVars := collect type
-    trace[Meta.debug] "proofVars: {proofVars.toList.map mkFVar}"
+    trace[Meta.debug] "simpEqnType: {type}"
     let mut type ← Match.unfoldNamedPattern type
     let mut eliminated : FVarIdSet := {}
     for y in ys.reverse do
+      trace[Meta.debug] ">> simpEqnType: {← inferType y}, {type}"
       if proofVars.contains y.fvarId! then
         let some (_, Expr.fvar fvarId _, rhs) ← matchEq? (← inferType y) | throwError "unexpected hypothesis in altenative{indentExpr eqnType}"
         eliminated := eliminated.insert fvarId
@@ -85,6 +96,14 @@ def simpEqnType (eqnType : Expr) : MetaM Expr := do
         if (← dependsOn type y.fvarId!) then
           type ← mkForallFVars #[y] type
       else
+        if let some (_, lhs, rhs) ← matchEq? (← inferType y) then
+          if (← isDefEq lhs rhs) then
+            if !(← dependsOn type y.fvarId!) then
+              continue
+            else if !(← lhsDependsOn type y.fvarId!) then
+              -- Since the `lhs` of the `type` does not depend on `y`, we replace it with `Eq.refl` in the `rhs`
+              type := type.replaceFVar y (← mkEqRefl lhs)
+              continue
         type ← mkForallFVars #[y] type
     return type
 where

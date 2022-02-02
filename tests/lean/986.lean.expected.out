@@ -1,0 +1,11 @@
+@Array.insertionSort.swapLoop._eq_1 : ∀ {α : Type u_1} (lt : α → α → Bool) (a : Array α) (h : 0 < Array.size a),
+  Array.insertionSort.swapLoop lt a 0 h = a
+@Array.insertionSort.swapLoop._eq_2 : ∀ {α : Type u_1} (lt : α → α → Bool) (a : Array α) (j' : Nat)
+  (h : Nat.succ j' < Array.size a),
+  Array.insertionSort.swapLoop lt a (Nat.succ j') h =
+    (fun h' =>
+        if lt (Array.get a { val := Nat.succ j', isLt := h }) (Array.get a { val := j', isLt := h' }) = true then
+          Array.insertionSort.swapLoop lt (Array.swap a { val := Nat.succ j', isLt := h } { val := j', isLt := h' }) j'
+            (_ : j' < Array.size (Array.swap a { val := Nat.succ j', isLt := h } { val := j', isLt := h' }))
+        else a)
+      (_ : j' < Array.size a)

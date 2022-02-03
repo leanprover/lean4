@@ -348,6 +348,44 @@ TODO: describe `forIn`
 
 TODO
 
+## Returning early from a failed match
+
+Inside a `do` block, the pattern `let _ ← <success> | <fail>` will continue with the rest of the block if the match on the left hand side succeeds, but will execute the right hand side and exit the block on failure:
+
+```lean
+def showUserInfo (username favoriteColor : Option String) : IO Unit := do
+  let some n ← username | IO.println "no username"
+  IO.println s!"username: {n}"
+  let some c ← favoriteColor | IO.println "user didn't provide a favorite color"
+  IO.println s!"favorite color: {c}"
+
+-- username: JohnDoe
+-- favorite color: red
+#eval showUserInfo (some "JohnDoe") (some "red")
+
+-- no username
+#eval showUserInfo none (some "purple")
+
+-- username: JaneDoe
+-- user didn't provide a favorite color
+#eval showUserInfo (some "JaneDoe") none
+```
+
+## If-let
+
+Inside a `do` block, users can employ the `if let` pattern to destructure actions:
+
+```lean
+def tryLength (input : Option String) : Except String Nat := do
+  if let some x ← input then return x.length else Except.error "No input!"
+
+-- Except.ok 9
+#eval tryLength (some "I am some")
+
+-- Except.error "No input!"
+#eval tryLength none
+```
+
 ## Pattern matching
 
 TODO

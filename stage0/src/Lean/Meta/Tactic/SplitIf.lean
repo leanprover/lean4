@@ -20,12 +20,7 @@ builtin_initialize ext : LazyInitExtension MetaM Simp.Context ←
     return {
       simpLemmas    := s
       congrLemmas   := (← getCongrLemmas)
-      config.zeta   := false
-      config.beta   := false
-      config.eta    := false
-      config.iota   := false
-      config.proj   := false
-      config.decide := false
+      config        := Simp.neutralConfig
     }
 
 /--

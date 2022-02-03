@@ -13,12 +13,7 @@ private def getSimpMatchContext : MetaM Simp.Context :=
    return {
       simpLemmas    := {}
       congrLemmas   := (← getCongrLemmas)
-      config.zeta   := false
-      config.beta   := false
-      config.eta    := false
-      config.iota   := false
-      config.proj   := false
-      config.decide := false
+      config        := Simp.neutralConfig
    }
 
 def simpMatch (e : Expr) : MetaM Simp.Result := do
@@ -70,44 +65,58 @@ private def generalizeMatchDiscrs (mvarId : MVarId) (discrs : Array Expr) : Meta
   if discrs.all (·.isFVar) then
     return (discrs.map (·.fvarId!), mvarId)
   else
-    let args ← discrs.mapM fun d => return { expr := d, hName? := (← mkFreshUserName `h) : GeneralizeArg }
-    let (fvarIds, mvarId) ← generalize mvarId args
-    return (fvarIds[:discrs.size], mvarId)
+    let discrsToGeneralize := discrs.filter fun d => !d.isFVar
+    let args ← discrsToGeneralize.mapM fun d => return { expr := d, hName? := (← mkFreshUserName `h) : GeneralizeArg }
+    let (fvarIdsNew, mvarId) ← generalize mvarId args
+    let mut result := #[]
+    let mut j := 0
+    for discr in discrs do
+      if discr.isFVar then
+        result := result.push discr.fvarId!
+      else
+        result := result.push fvarIdsNew[j]
+        j := j + 1
+    return (result, mvarId)
 
 def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Level) (params : Array Expr) (discrs : Array Expr) : MetaM (List MVarId) := do
-  let (discrFVarIds, mvarId) ← generalizeMatchDiscrs mvarId discrs
-  let (reverted, mvarId) ← revert mvarId discrFVarIds (preserveOrder := true)
-  let (discrFVarIds, mvarId) ← introNP mvarId discrFVarIds.size
-  let numExtra := reverted.size - discrFVarIds.size
-  let discrs := discrFVarIds.map mkFVar
   let some info ← getMatcherInfo? matcherDeclName | throwError "'applyMatchSplitter' failed, '{matcherDeclName}' is not a 'match' auxiliary declaration."
   let matchEqns ← Match.getEquationsFor matcherDeclName
+  let mut us := us
+  if let some uElimPos := info.uElimPos? then
+    -- Set universe elimination level to zero (Prop).
+    us := us.set! uElimPos levelZero
+  let splitter := mkAppN (mkConst matchEqns.splitterName us.toList) params
+  let motiveType := (← whnfForall (← inferType splitter)).bindingDomain!
+  let (discrFVarIds, mvarId) ← generalizeMatchDiscrs mvarId discrs
+  let mvarId ← generalizeTargetsEq mvarId motiveType (discrFVarIds.map mkFVar)
+  let numEqs := discrs.size
+  let (discrFVarIdsNew, mvarId) ← introN mvarId discrs.size
+  let discrsNew := discrFVarIdsNew.map mkFVar
   withMVarContext mvarId do
-    let motive ← mkLambdaFVars discrs (← getMVarType mvarId)
-    -- Fix universe
-    let mut us := us
-    if let some uElimPos := info.uElimPos? then
-      -- Set universe elimination level to zero (Prop).
-      us := us.set! uElimPos levelZero
-    let splitter := mkAppN (mkConst matchEqns.splitterName us.toList) params
-    let splitter := mkAppN (mkApp splitter motive) discrs
-    check splitter -- TODO
+    let motive ← mkLambdaFVars discrsNew (← getMVarType mvarId)
+    let splitter := mkAppN (mkApp splitter motive) discrsNew
+    check splitter
     let mvarIds ← apply mvarId splitter
     let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
       let numParams := matchEqns.splitterAltNumParams[i]
       let (_, mvarId) ← introN mvarId numParams
-      let (_, mvarId) ← introNP mvarId numExtra
-      return (i+1, mvarId::mvarIds)
+      match (← Cases.unifyEqs numEqs mvarId {}) with
+      | none   => return (i+1, mvarIds) -- case was solved
+      | some (mvarId, _) =>
+        return (i+1, mvarId::mvarIds)
     return mvarIds.reverse
 
 def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do
-  let some app ← matchMatcherApp? e | throwError "match application expected"
-  let matchEqns ← Match.getEquationsFor app.matcherName
-  let mvarIds ← applyMatchSplitter mvarId app.matcherName app.matcherLevels app.params app.discrs
-  let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
-    let mvarId ← simpMatchTargetCore mvarId app.matcherName matchEqns.eqnNames[i]
-    return (i+1, mvarId::mvarIds)
-  return mvarIds.reverse
+  try
+    let some app ← matchMatcherApp? e | throwError "match application expected"
+    let matchEqns ← Match.getEquationsFor app.matcherName
+    let mvarIds ← applyMatchSplitter mvarId app.matcherName app.matcherLevels app.params app.discrs
+    let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
+      let mvarId ← simpMatchTargetCore mvarId app.matcherName matchEqns.eqnNames[i]
+      return (i+1, mvarId::mvarIds)
+    return mvarIds.reverse
+  catch ex =>
+    throwNestedTacticEx `splitMatch ex
 
 /-- Return an `if-then-else` or `match-expr` to split. -/
 partial def findSplit? (env : Environment) (e : Expr) : Option Expr :=

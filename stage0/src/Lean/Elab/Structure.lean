@@ -280,54 +280,29 @@ where
     else
       k infos
 
-/-- Return `some (structName, fieldName, struct)` if `e` is a projection function application -/
-private def isProjFnApp? (e : Expr) : MetaM (Option (Name × Name × Expr)) := do
-  match e.getAppFn with
-  | Expr.const declName .. =>
-    match (← getProjectionFnInfo? declName) with
-    | some { ctorName := ctorName, numParams := n, .. } =>
-      if declName.isStr && e.getAppNumArgs == n+1 then
-        let ConstantInfo.ctorInfo ctorVal ← getConstInfo ctorName | unreachable!
-        return some (ctorVal.induct, declName.getString!, e.appArg!)
-      else
-        return none
-    | _ => return none
-  | _ => return none
-
-/--
-  Return `some fieldName`, if `e` is an expression that represents an access to field `fieldName` of the structure `s`.
-  The name of the structure type must be `structName`. -/
-private partial def isProjectionOf? (e : Expr) (structName : Name) (s : Expr) : MetaM (Option Name) := do
-  if let some (baseStructName, fieldName, e) ← isProjFnApp? e then
-    if let some path ← visit e #[] then
-      if let some path' := getPathToBaseStructure? (← getEnv) baseStructName structName then
-        if path'.toArray == path.reverse then
-          return some fieldName
-  return none
-where
-  visit (e : Expr) (path : Array Name) : MetaM (Option (Array Name)) := do
-    if e == s then return some path
-    -- Check whether `e` is a `toParent` field
-    if let some (_, _, e') ← isProjFnApp? e then
-      visit e' (path.push e.getAppFn.constName!)
-    else
-      return none
-
-/-- Auxiliary method for `copyNewFieldsFrom`. -/
+/-- Get field type of `fieldName` in `parentStructName`, but replace references
+  to other fields of that structure by existing field fvars.
+  Auxiliary method for `copyNewFieldsFrom`. -/
 private def getFieldType (infos : Array StructFieldInfo) (parentStructName : Name) (parentType : Expr) (fieldName : Name) : MetaM Expr := do
   withLocalDeclD (← mkFreshId) parentType fun parent => do
     let proj ← mkProjection parent fieldName
     let projType ← inferType proj
-    /- Eliminate occurrences of `parent`. This may happen when structure contains dependent fields. -/
+    /- Eliminate occurrences of `parent.field`. This happens when the structure contains dependent fields. -/
     let visit (e : Expr) : MetaM TransformStep := do
-      if let some fieldName ← isProjectionOf? e parentStructName parent then
-        -- trace[Meta.debug] "field '{fieldName}' of {e}"
-        match (← findFieldInfo? infos fieldName) with
-        | some existingFieldInfo => return TransformStep.done existingFieldInfo.fvar
-        | none => throwError "unexpected field access {indentExpr e}"
-      else
-        return TransformStep.done e
-    Meta.transform projType (post := visit)
+      if let Expr.const subProjName .. := e.getAppFn then
+        if let some { ctorName, numParams, .. } ← getProjectionFnInfo? subProjName then
+          let Name.str subStructName subFieldName .. ← subProjName
+            | throwError "invalid projection name {subProjName}"
+          let args := e.getAppArgs
+          if args.get? numParams == parent then
+            let some existingFieldInfo ← findFieldInfo? infos subFieldName
+              | throwError "unexpected field access to {fieldName} in{indentExpr e}"
+            return TransformStep.done <| mkAppN existingFieldInfo.fvar args[numParams+1:args.size]
+      return TransformStep.done e
+    let projType ← Meta.transform projType (post := visit)
+    if projType.containsFVar parent.fvarId! then
+      throwError "unsupported dependent field in {fieldName} : {projType}"
+    projType
 
 private def toVisibility (fieldInfo : StructureFieldInfo) : CoreM Visibility := do
   if isProtected (← getEnv) fieldInfo.projFn then
@@ -446,7 +421,12 @@ where
                 trace[Meta.debug] "composite, {fieldName} := {fieldVal}"
                 copy (i+1) infos (fieldMap.insert fieldName fieldVal) expandedStructNames
             else
-              addNewField
+              let subfieldNames := getStructureFieldsFlattened (← getEnv) fieldParentStructName
+              let fieldName := fieldInfo.fieldName
+              withLocalDecl fieldName fieldInfo.binderInfo fieldType fun parentFVar =>
+                let infos := infos.push { name := fieldName, declName := structDeclName ++ fieldName, fvar := parentFVar, kind := StructFieldKind.subobject }
+                processSubfields structDeclName parentFVar fieldParentStructName subfieldNames infos fun infos =>
+                  copy (i+1) infos (fieldMap.insert fieldName parentFVar) expandedStructNames
           else
             addNewField
       else
@@ -468,7 +448,7 @@ where
     for fieldName in getStructureFields env parentStructName do
       match fieldMap.find? fieldName with
       | some val => result := mkApp result val
-      | none => throwError "failed to copied fields from parent structure{indentExpr parentType}" -- TODO improve error message
+      | none => throwError "failed to copy fields from parent structure{indentExpr parentType}" -- TODO improve error message
     return result
 
 private partial def mkToParentName (parentStructName : Name) (p : Name → Bool) : Name := Id.run <| do

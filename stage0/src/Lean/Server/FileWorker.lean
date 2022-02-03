@@ -13,6 +13,7 @@ import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
 
 import Lean.Util.Paths
+import Lean.LoadDynlib
 
 import Lean.Server.Utils
 import Lean.Server.Snapshots
@@ -57,11 +58,12 @@ open Std (RBMap RBMap.empty)
 open JsonRpc
 
 structure WorkerContext where
-  hIn           : FS.Stream
-  hOut          : FS.Stream
-  hLog          : FS.Stream
-  srcSearchPath : SearchPath
-  initParams    : InitializeParams
+  hIn              : FS.Stream
+  hOut             : FS.Stream
+  hLog             : FS.Stream
+  srcSearchPath    : SearchPath
+  initParams       : InitializeParams
+  clientHasWidgets : Bool
 
 /- Asynchronous snapshot elaboration. -/
 section Elab
@@ -75,13 +77,18 @@ section Elab
   abbrev AsyncElabM := StateT AsyncElabState <| EIO ElabTaskError
 
   -- Placed here instead of Lean.Server.Utils because of an import loop
-  private def publishReferences (m : DocumentMeta) (s : AsyncElabState) (hOut : FS.Stream) : IO Unit := do
-    let trees := (s.snaps.insertAt 0 s.headerSnap).map fun snap => snap.infoTree
+  private def publishIleanInfo (method : String) (m : DocumentMeta) (hOut : FS.Stream)
+      (snaps : Array Snapshot) : IO Unit := do
+    let trees := snaps.map fun snap => snap.infoTree
     let references := findModuleRefs m.text trees (localVars := true)
-    hOut.writeLspNotification {
-      method := "$/lean/ileanInfo"
-      param := { version := m.version, references : LeanIleanInfoParams }
-    }
+    let param := { version := m.version, references : LeanIleanInfoParams }
+    hOut.writeLspNotification { method, param }
+
+  private def publishIleanInfoUpdate : DocumentMeta → FS.Stream → Array Snapshot → IO Unit :=
+    publishIleanInfo "$/lean/ileanInfoUpdate"
+
+  private def publishIleanInfoFinal : DocumentMeta → FS.Stream → Array Snapshot → IO Unit :=
+    publishIleanInfo "$/lean/ileanInfoFinal"
 
   /-- Elaborates the next command after `parentSnap` and emits diagnostics into `hOut`. -/
   private def nextCmdSnap (ctx : WorkerContext) (m : DocumentMeta) (cancelTk : CancelToken)
@@ -92,10 +99,12 @@ section Elab
     if lastSnap.isAtEnd then
       publishDiagnostics m lastSnap.diagnostics.toArray ctx.hOut
       publishProgressDone m ctx.hOut
-      publishReferences m s ctx.hOut
+      -- This will overwrite existing ilean info for the file, in case something
+      -- went wrong during the incremental updates.
+      publishIleanInfoFinal m ctx.hOut <| s.snaps.insertAt 0 s.headerSnap
       return none
     publishProgressAtPos m lastSnap.endPos ctx.hOut
-    let snap ← compileNextCmd m.text lastSnap
+    let snap ← compileNextCmd m.text lastSnap ctx.clientHasWidgets
     set { s with snaps := s.snaps.push snap }
     -- TODO(MH): check for interrupt with increased precision
     cancelTk.check
@@ -112,20 +121,24 @@ section Elab
     -- because empty diagnostics clear existing error/information squiggles. Therefore we always
     -- want to publish in case there was previously a message at this position.
     publishDiagnostics m snap.diagnostics.toArray ctx.hOut
+    publishIleanInfoUpdate m ctx.hOut #[snap]
     return some snap
 
   /-- Elaborates all commands after the last snap (using `headerSnap` if `snaps`
   is empty), emitting the diagnostics into `hOut`. -/
   def unfoldCmdSnaps (m : DocumentMeta) (headerSnap : Snapshot) (snaps : Array Snapshot) (cancelTk : CancelToken)
       : ReaderT WorkerContext IO (AsyncList ElabTaskError Snapshot) := do
+    let ctx ← read
     if snaps.isEmpty && headerSnap.msgLog.hasErrors then
       -- Treat header processing errors as fatal so users aren't swamped with
       -- followup errors
-      let hOut := (←read).hOut
-      publishProgressAtPos m headerSnap.beginPos hOut (kind := LeanFileProgressKind.fatalError)
+      publishProgressAtPos m headerSnap.beginPos ctx.hOut (kind := LeanFileProgressKind.fatalError)
+      publishIleanInfoFinal m ctx.hOut #[headerSnap]
       AsyncList.nil
     else
-      let ctx ← read
+      -- This will overwrite existing ilean info for the file since this has a
+      -- higher version number.
+      publishIleanInfoUpdate m ctx.hOut <| snaps.insertAt 0 headerSnap
       AsyncList.unfoldAsync (nextCmdSnap ctx m cancelTk) { headerSnap, snaps }
 end Elab
 
@@ -175,11 +188,13 @@ section Initialization
       let Except.ok (paths : LeanPaths) ← pure (Json.parse stdout >>= fromJson?)
         | throwServerError s!"invalid output from `{cmdStr}`:\n{stdout}\nstderr:\n{stderr}"
       initSearchPath (← getBuildDir) paths.oleanPath
+      paths.loadDynlibPaths.forM loadDynlib
       paths.srcPath.mapM realPathNormalized
     | 2 => pure []  -- no lakefile.lean
     | _ => throwServerError s!"`{cmdStr}` failed:\n{stdout}\nstderr:\n{stderr}"
 
-  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) : IO (Snapshot × SearchPath) := do
+  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) (hasWidgets : Bool)
+      : IO (Snapshot × SearchPath) := do
     let inputCtx := Parser.mkInputContext m.text.source "<input>"
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
     let mut srcSearchPath ← initSrcSearchPath (← getBuildDir)
@@ -231,21 +246,23 @@ section Initialization
       stx := headerStx
       mpState := headerParserState
       cmdState := cmdState
-      interactiveDiags := ← cmdState.messages.msgs.mapM (Widget.msgToInteractiveDiagnostic m.text)
+      interactiveDiags := ← cmdState.messages.msgs.mapM (Widget.msgToInteractiveDiagnostic m.text · hasWidgets)
     }
     publishDiagnostics m headerSnap.diagnostics.toArray hOut
     return (headerSnap, srcSearchPath)
 
   def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
       : IO (WorkerContext × WorkerState) := do
-    let (headerSnap, srcSearchPath) ← compileHeader meta o opts
+    let clientHasWidgets := initParams.initializationOptions?.bind (·.hasWidgets?) |>.getD false
+    let (headerSnap, srcSearchPath) ← compileHeader meta o opts (hasWidgets := clientHasWidgets)
     let cancelTk ← CancelToken.new
     let ctx :=
-      { hIn                := i
-        hOut               := o
-        hLog               := e
-        srcSearchPath      := srcSearchPath
-        initParams         := initParams
+      { hIn  := i
+        hOut := o
+        hLog := e
+        srcSearchPath
+        initParams
+        clientHasWidgets
       }
     let cmdSnaps ← unfoldCmdSnaps meta headerSnap #[] cancelTk ctx
     let doc : EditableDocument := ⟨meta, headerSnap, cmdSnaps, cancelTk⟩

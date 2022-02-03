@@ -48,6 +48,7 @@ LEAN_EXPORT lean_object* l_String_split___at_Lean_stringToMessageData___spec__1(
 static lean_object* l_Lean_MessageData_arrayExpr_toMessageData___closed__6;
 extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Lean_MessageData_instCoeNameMessageData(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_MessageData_instCoeMVarIdMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MessageLog_hasErrors___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_foldlFromMAux___at_Lean_MessageLog_getInfoMessages___spec__2(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_KernelException_toMessageData___closed__24;
@@ -86,6 +87,7 @@ lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MessageData_formatAux___closed__1;
 LEAN_EXPORT lean_object* l_Lean_MessageData_instCoeArrayExprMessageData___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Message_severity___default;
+LEAN_EXPORT lean_object* l_Lean_instToMessageDataMVarId(lean_object*);
 static lean_object* l_Lean_instInhabitedMessageLog___closed__2;
 LEAN_EXPORT lean_object* l_Lean_MessageData_instCoeArrayExprMessageData(lean_object*);
 size_t lean_usize_shift_right(size_t, size_t);
@@ -2956,6 +2958,15 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_MessageData_instCoeMVarIdMessageData(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -5890,6 +5901,15 @@ _start:
 {
 lean_object* x_2; 
 x_2 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_instToMessageDataMVarId(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }

@@ -103,7 +103,7 @@ private abbrev MsgFmtM := StateT (Array EmbedFmt) IO
 open MessageData in
 /-- We first build a `Nat`-tagged `Format` with the most shallow tag, if any,
 in every branch indexing into the array of embedded objects. -/
-private partial def msgToInteractiveAux (msgData : MessageData) : IO (Format × Array EmbedFmt) :=
+private partial def msgToInteractiveAux (msgData : MessageData) (hasWidgets : Bool) : IO (Format × Array EmbedFmt) :=
   go { currNamespace := Name.anonymous, openDecls := [] } none msgData #[]
 where
   pushEmbed (e : EmbedFmt) : MsgFmtM Nat :=
@@ -140,8 +140,13 @@ where
   | nCtx, ctx,       tagged t d               => do
     -- We postfix trace contexts with `_traceCtx` in order to detect them in messages.
     if let Name.str cls "_traceCtx" _ := t then
-      let f ← pushEmbed <| EmbedFmt.lazyTrace nCtx ctx cls d
-      Format.tag f s!"[{cls}] (trace hidden)"
+      -- When interactive trace exploration is possible, we hide traces which can otherwise
+      -- take significant resources to pretty-print.
+      if hasWidgets then
+        let f ← pushEmbed <| EmbedFmt.lazyTrace nCtx ctx cls d
+        Format.tag f s!"[{cls}] (trace hidden)"
+      else
+        go nCtx ctx d
     else
       go nCtx ctx d
   | nCtx, ctx,       nest n d                 => Format.nest n <$> go nCtx ctx d
@@ -149,8 +154,8 @@ where
   | nCtx, ctx,       group d                  => Format.group <$> go nCtx ctx d
   | nCtx, ctx,       node ds                  => Format.nest 2 <$> ds.foldlM (fun r d => do let d ← go nCtx ctx d; pure $ r ++ Format.line ++ d) Format.nil
 
-partial def msgToInteractive (msgData : MessageData) (indent : Nat := 0) : IO (TaggedText MsgEmbed) := do
-  let (fmt, embeds) ← msgToInteractiveAux msgData
+partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent : Nat := 0) : IO (TaggedText MsgEmbed) := do
+  let (fmt, embeds) ← msgToInteractiveAux msgData hasWidgets
   let tt := TaggedText.prettyTagged fmt indent
   /- Here we rewrite a `TaggedText Nat` corresponding to a whole `MessageData` into one where
   the tags are `TaggedText MsgEmbed`s corresponding to embedded objects with their subtree
@@ -173,7 +178,7 @@ partial def msgToInteractive (msgData : MessageData) (indent : Nat := 0) : IO (T
     | EmbedFmt.ignoreTags => TaggedText.text subTt.stripTags
 
 /-- Transform a Lean Message concerning the given text into an LSP Diagnostic. -/
-def msgToInteractiveDiagnostic (text : FileMap) (m : Message) : IO InteractiveDiagnostic := do
+def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool) : IO InteractiveDiagnostic := do
   let low : Lsp.Position := text.leanPosToLspPos m.pos
   let fullHigh := text.leanPosToLspPos <| m.endPos.getD m.pos
   let high : Lsp.Position := match m.endPos with
@@ -194,7 +199,7 @@ def msgToInteractiveDiagnostic (text : FileMap) (m : Message) : IO InteractiveDi
     | MessageSeverity.error       => DiagnosticSeverity.error
   let source := "Lean 4"
   let message ← try
-      msgToInteractive m.data
+      msgToInteractive m.data hasWidgets
     catch ex =>
       TaggedText.text s!"[error when printing message: {ex.toString}]"
   pure {

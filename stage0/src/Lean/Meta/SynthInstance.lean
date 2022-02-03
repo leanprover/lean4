@@ -409,7 +409,7 @@ private def mkAnswer (cNode : ConsumerNode) : MetaM Answer :=
   And then, store it in the tabled entries map, and wakeup waiters. -/
 def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
   if cNode.size ≥ (← read).maxResultSize then
-    traceM `Meta.synthInstance.discarded do m!"size: {cNode.size} ≥ {(← read).maxResultSize}, {← inferType cNode.mvar}"
+    traceM `Meta.synthInstance.discarded do withMCtx cNode.mctx do m!"size: {cNode.size} ≥ {(← read).maxResultSize}, {← inferType cNode.mvar}"
     return ()
   else
     let answer ← mkAnswer cNode

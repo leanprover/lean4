@@ -99,7 +99,7 @@ partial def parseAhead (contents : String) (snap : Snapshot) : IO (Array Syntax)
 -- NOTE: This code is really very similar to Elab.Frontend. But generalizing it
 -- over "store snapshots"/"don't store snapshots" would likely result in confusing
 -- isServer? conditionals and not be worth it due to how short it is.
-def compileNextCmd (text : FileMap) (snap : Snapshot) : IO Snapshot := do
+def compileNextCmd (text : FileMap) (snap : Snapshot) (hasWidgets : Bool) : IO Snapshot := do
   let inputCtx := Parser.mkInputContext text.source "<input>"
   let cmdState := snap.cmdState
   let scope := cmdState.scopes.head!
@@ -156,7 +156,7 @@ where
     let mut ret := snap.interactiveDiags
     for i in List.iota newMsgCount do
       let newMsg := msgLog.msgs.get! (msgLog.msgs.size - i)
-      ret := ret.push (← Widget.msgToInteractiveDiagnostic text newMsg)
+      ret := ret.push (← Widget.msgToInteractiveDiagnostic text newMsg hasWidgets)
     return ret
 
 end Lean.Server.Snapshots

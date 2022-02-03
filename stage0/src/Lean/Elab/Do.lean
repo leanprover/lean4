@@ -1307,6 +1307,14 @@ mutual
     else
       throwError "unexpected kind of 'do' declaration"
 
+  partial def doLetElseToCode (doLetElse : Syntax) (doElems : List Syntax) : M CodeBlock := do
+    -- "let " >> termParser >> " := " >> termParser >> checkColGt >> " | " >> doElemParser
+    let pattern := doLetElse[1]
+    let val     := doLetElse[3]
+    let elseSeq := mkSingletonDoSeq doLetElse[5]
+    let contSeq := mkDoSeq doElems.toArray
+    let auxDo ← `(do let discr := $val; match discr with | $pattern:term => $contSeq | _ => $elseSeq)
+    doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
 
   /- Generate `CodeBlock` for `doReassignArrow; doElems`
      `doReassignArrow` is of the form
@@ -1550,6 +1558,8 @@ mutual
             mkReassignCore vars doElem k
           else if k == ``Lean.Parser.Term.doLetArrow then
             doLetArrowToCode doElem doElems
+          else if k == ``Lean.Parser.Term.doLetElse then
+            doLetElseToCode doElem doElems
           else if k == ``Lean.Parser.Term.doReassignArrow then
             doReassignArrowToCode doElem doElems
           else if k == ``Lean.Parser.Term.doIf then

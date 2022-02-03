@@ -18,18 +18,18 @@ private def mangleAux : Nat → String.Iterator → String → String
     else if c.toNat < 0x100 then
       let n := c.toNat
       let r := r ++ "_x"
-      let r := r.push $ Nat.digitChar (n / 0x10)
-      let r := r.push $ Nat.digitChar (n % 0x10)
+      let r := r.push <| Nat.digitChar (n / 0x10)
+      let r := r.push <| Nat.digitChar (n % 0x10)
       mangleAux i it.next r
     else if c.toNat < 0x10000 then
       let n := c.toNat
       let r := r ++ "_u"
-      let r := r.push $ Nat.digitChar (n / 0x1000)
+      let r := r.push <| Nat.digitChar (n / 0x1000)
       let n := n % 0x1000
-      let r := r.push $ Nat.digitChar (n / 0x100)
+      let r := r.push <| Nat.digitChar (n / 0x100)
       let n := n % 0x100
-      let r := r.push $ Nat.digitChar (n / 0x10)
-      let r := r.push $ Nat.digitChar (n % 0x10)
+      let r := r.push <| Nat.digitChar (n / 0x10)
+      let r := r.push <| Nat.digitChar (n % 0x10)
       mangleAux i it.next r
     else
       let n := c.toNat

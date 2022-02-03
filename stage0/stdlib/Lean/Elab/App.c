@@ -10338,7 +10338,10 @@ x_16 = l_Array_isEmpty___rarg(x_3);
 if (x_16 == 0)
 {
 lean_object* x_17; 
+lean_inc(x_14);
+lean_inc(x_13);
 lean_inc(x_12);
+lean_inc(x_11);
 lean_inc(x_9);
 lean_inc(x_5);
 x_17 = l_Lean_Elab_Term_tryPostponeIfMVar(x_5, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
@@ -10395,7 +10398,10 @@ x_25 = l_Array_isEmpty___rarg(x_2);
 if (x_25 == 0)
 {
 lean_object* x_26; 
+lean_inc(x_14);
+lean_inc(x_13);
 lean_inc(x_12);
+lean_inc(x_11);
 lean_inc(x_9);
 lean_inc(x_5);
 x_26 = l_Lean_Elab_Term_tryPostponeIfMVar(x_5, x_9, x_10, x_11, x_12, x_13, x_14, x_15);
@@ -13152,7 +13158,10 @@ if (x_17 == 0)
 lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_18 = lean_ctor_get(x_15, 0);
 x_19 = lean_ctor_get(x_15, 1);
+lean_inc(x_11);
+lean_inc(x_10);
 lean_inc(x_9);
+lean_inc(x_8);
 lean_inc(x_6);
 lean_inc(x_19);
 x_20 = l_Lean_Elab_Term_tryPostponeIfMVar(x_19, x_6, x_7, x_8, x_9, x_10, x_11, x_16);
@@ -13534,7 +13543,10 @@ x_82 = lean_ctor_get(x_15, 1);
 lean_inc(x_82);
 lean_inc(x_81);
 lean_dec(x_15);
+lean_inc(x_11);
+lean_inc(x_10);
 lean_inc(x_9);
+lean_inc(x_8);
 lean_inc(x_6);
 lean_inc(x_82);
 x_83 = l_Lean_Elab_Term_tryPostponeIfMVar(x_82, x_6, x_7, x_8, x_9, x_10, x_11, x_16);

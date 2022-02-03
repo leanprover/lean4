@@ -206,7 +206,7 @@ def completeNamespaces (ctx : ContextInfo) (id : Name) (danglingDot : Bool) : M 
     else
       addNamespaceCompletionItem (ns.replacePrefix ns' Name.anonymous)
   env.getNamespaceSet |>.forM fun ns => do
-    unless env.contains ns do -- Ignore namespaces that are also declaration names
+    unless ns.isInternal || env.contains ns do -- Ignore internal and namespaces that are also declaration names
       for openDecl in ctx.openDecls do
         match openDecl with
         | OpenDecl.simple ns' except =>

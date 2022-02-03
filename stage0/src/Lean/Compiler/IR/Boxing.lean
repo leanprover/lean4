@@ -161,19 +161,19 @@ def getDecl (fid : FunId) : M Decl := do
    and `x`'s type is not cheap to box (e.g., it is `UInt64), then return its value. -/
 private def isExpensiveConstantValueBoxing (x : VarId) (xType : IRType) : M (Option Expr) :=
   if !xType.isScalar then
-    pure none -- We assume unboxing is always cheap
+    return none -- We assume unboxing is always cheap
   else match xType with
-    | IRType.uint8  => pure none
-    | IRType.uint16 => pure none
+    | IRType.uint8  => return none
+    | IRType.uint16 => return none
     | _ => do
       let localCtx ← getLocalContext
       match localCtx.getValue x with
       | some val =>
         match val with
-        | Expr.lit _ => pure $ some val
-        | Expr.fap _ args => pure $ if args.size == 0 then some val else none
-        | _ => pure none
-      | _ => pure none
+        | Expr.lit _ => return some val
+        | Expr.fap _ args => return if args.size == 0 then some val else none
+        | _ => return none
+      | _ => return none
 
 /- Auxiliary function used by castVarIfNeeded.
    It is used when the expected type does not match `xType`.
@@ -257,27 +257,27 @@ def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Arr
 def unboxResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody := do
   if ty.isScalar then
     let y ← M.mkFresh
-    pure $ FnBody.vdecl y IRType.object e (FnBody.vdecl x ty (Expr.unbox y) b)
+    return FnBody.vdecl y IRType.object e (FnBody.vdecl x ty (Expr.unbox y) b)
   else
-    pure $ FnBody.vdecl x ty e b
+    return FnBody.vdecl x ty e b
 
 def castResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (eType : IRType) (b : FnBody) : M FnBody := do
   if eqvTypes ty eType then
-    pure $ FnBody.vdecl x ty e b
+    return FnBody.vdecl x ty e b
   else
     let y ← M.mkFresh
     let v ← mkCast y eType ty
-    pure $ FnBody.vdecl y eType e (FnBody.vdecl x ty v b)
+    return FnBody.vdecl y eType e (FnBody.vdecl x ty v b)
 
 def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody :=
   match e with
   | Expr.ctor c ys =>
     if c.isScalar && ty.isScalar then
-      pure $ FnBody.vdecl x ty (Expr.lit (LitVal.num c.cidx)) b
+      return FnBody.vdecl x ty (Expr.lit (LitVal.num c.cidx)) b
     else
-      boxArgsIfNeeded ys fun ys => pure $ FnBody.vdecl x ty (Expr.ctor c ys) b
+      boxArgsIfNeeded ys fun ys => return FnBody.vdecl x ty (Expr.ctor c ys) b
   | Expr.reuse w c u ys =>
-    boxArgsIfNeeded ys fun ys => pure $ FnBody.vdecl x ty (Expr.reuse w c u ys) b
+    boxArgsIfNeeded ys fun ys => return FnBody.vdecl x ty (Expr.reuse w c u ys) b
   | Expr.fap f ys => do
     let decl ← getDecl f
     castArgsIfNeeded ys decl.params fun ys =>
@@ -286,12 +286,12 @@ def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody 
     let env ← getEnv
     let decl ← getDecl f
     let f := if requiresBoxedVersion env decl then mkBoxedName f else f
-    boxArgsIfNeeded ys fun ys => pure $ FnBody.vdecl x ty (Expr.pap f ys) b
+    boxArgsIfNeeded ys fun ys => return FnBody.vdecl x ty (Expr.pap f ys) b
   | Expr.ap f ys =>
     boxArgsIfNeeded ys fun ys =>
     unboxResultIfNeeded x ty (Expr.ap f ys) b
   | other =>
-    pure $ FnBody.vdecl x ty e b
+    return FnBody.vdecl x ty e b
 
 partial def visitFnBody : FnBody → M FnBody
   | FnBody.vdecl x t v b     => do
@@ -300,28 +300,28 @@ partial def visitFnBody : FnBody → M FnBody
   | FnBody.jdecl j xs v b    => do
     let v ← withParams xs (visitFnBody v)
     let b ← withJDecl j xs v (visitFnBody b)
-    pure $ FnBody.jdecl j xs v b
+    return FnBody.jdecl j xs v b
   | FnBody.uset x i y b      => do
     let b ← visitFnBody b
     castVarIfNeeded y IRType.usize fun y =>
-      pure $ FnBody.uset x i y b
+      return FnBody.uset x i y b
   | FnBody.sset x i o y ty b => do
     let b ← visitFnBody b
     castVarIfNeeded y ty fun y =>
-      pure $ FnBody.sset x i o y ty b
+      return FnBody.sset x i o y ty b
   | FnBody.mdata d b         =>
     FnBody.mdata d <$> visitFnBody b
   | FnBody.case tid x _ alts   => do
     let expected := getScrutineeType alts
     let alts ← alts.mapM fun alt => alt.mmodifyBody visitFnBody
     castVarIfNeeded x expected fun x => do
-      pure $ FnBody.case tid x expected alts
+      return FnBody.case tid x expected alts
   | FnBody.ret x             => do
     let expected ← getResultType
-    castArgIfNeeded x expected (fun x => pure $ FnBody.ret x)
+    castArgIfNeeded x expected (fun x => return FnBody.ret x)
   | FnBody.jmp j ys          => do
     let ps ← getJPParams j
-    castArgsIfNeeded ys ps fun ys => pure $ FnBody.jmp j ys
+    castArgsIfNeeded ys ps fun ys => return FnBody.jmp j ys
   | other                    =>
     pure other
 
@@ -343,6 +343,6 @@ end ExplicitBoxing
 
 def explicitBoxing (decls : Array Decl) : CompilerM (Array Decl) := do
   let env ← getEnv
-  pure $ ExplicitBoxing.run env decls
+  return ExplicitBoxing.run env decls
 
 end Lean.IR

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.ScopedEnvExtension
 import Lean.Util.Recognizers
+import Lean.Util.CollectMVars
 import Lean.Meta.Basic
 
 namespace Lean.Meta
@@ -54,10 +55,8 @@ def mkCongrLemma (declName : Name) (prio : Nat) : MetaM CongrLemma := withReduci
         throwError "invalid 'congr' theorem, equality left/right-hand sides must be applications of the same function{indentExpr type}"
       let mut foundMVars : MVarIdSet := {}
       for lhsArg in lhsArgs do
-        unless lhsArg.isSort do
-          unless lhsArg.isMVar do
-            throwError "invalid 'congr' theorem, arguments in the left-hand-side must be variables or sorts{indentExpr lhs}"
-          foundMVars := foundMVars.insert lhsArg.mvarId!
+        for mvarId in (lhsArg.collectMVars {}).result do
+          foundMVars := foundMVars.insert mvarId
       let mut i := 0
       let mut hypothesesPos := #[]
       for x in xs, bi in bis do

@@ -53,3 +53,11 @@ theorem aux {p : Nat → Set Nat} {i j y : Nat} (x : p j) (h₁ : x = y) (h₂ :
 
 example {p : Nat → Set Nat} [∀ i, Inhabited (p i)] (i : Nat) (x : p (0 + i)) (y : Nat) : Pi.single (f := (p ·)) (0 + i) x = Pi.single (f := (p ·)) i ⟨x, aux x rfl (Nat.zero_add i).symm ⟩ := by
   simp
+
+def Submodule (α : Type u) [OfNat α 0] := { s : Set α // s.mem 0 }
+instance [OfNat α 0] : CoeSort (Submodule α) (Type u) where coe s := s.1
+instance [OfNat α 0] (p : Submodule α) : Inhabited p where default := ⟨0, p.2⟩
+
+example (p : Nat → Submodule Nat) :
+    Pi.single (f := (p ·)) (x - x) ⟨0, (p ..).2⟩ = Pi.single 0 ⟨0, (p ..).2⟩ := by
+  simp only [Nat.sub_self] -- should work

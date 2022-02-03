@@ -17,12 +17,12 @@ partial def addSmartUnfoldingDefAux (preDef : PreDefinition) (recArgPos : Nat) :
   }
 where
   /--
-     Auxiliary method for annotating `match`-alternatives with `markSmartUnfoldingMatch` and `markSmartUnfoldigMatchAlt`.
+     Auxiliary method for annotating `match`-alternatives with `markSmartUnfoldingMatch` and `markSmartUnfoldingMatchAlt`.
 
      It uses the following approach:
      - Whenever it finds a `match` application `e` s.t. `recArgHasLooseBVarsAt preDef.declName recArgPos e`,
        it marks the `match` with `markSmartUnfoldingMatch`, and each alternative that does not contain a nested marked `match`
-       is marked with `markSmartUnfoldigMatchAlt`.
+       is marked with `markSmartUnfoldingMatchAlt`.
 
      Recall that the condition `recArgHasLooseBVarsAt preDef.declName recArgPos e` is the one used at `mkBRecOn`.
   -/
@@ -52,7 +52,7 @@ where
               let containsSUnfoldMatch := Option.isSome <| altBody.find? fun e => smartUnfoldingMatch? e |>.isSome
               if !containsSUnfoldMatch then
                 let altBody ← mkLambdaFVars xs[numParams:xs.size] altBody
-                let altBody ← markSmartUnfoldigMatchAlt altBody
+                let altBody ← markSmartUnfoldingMatchAlt altBody
                 mkLambdaFVars xs[0:numParams] altBody
               else
                 mkLambdaFVars xs altBody

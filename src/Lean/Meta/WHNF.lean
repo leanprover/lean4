@@ -39,7 +39,7 @@ def smartUnfoldingMatch? (e : Expr) : Option Expr :=
   annotation? `sunfoldMatch e
 
 /-- Add auxiliary annotation to indicate expression `e` (a `match` alternative rhs) was successfully reduced by smart unfolding. -/
-def markSmartUnfoldigMatchAlt (e : Expr) : Expr :=
+def markSmartUnfoldingMatchAlt (e : Expr) : Expr :=
   mkAnnotation `sunfoldMatchAlt e
 
 def smartUnfoldingMatchAlt? (e : Expr) : Option Expr :=
@@ -472,7 +472,7 @@ partial def whnfCore (e : Expr) : MetaM Expr :=
     | _ => unreachable!
 
 /--
-  Recall that `_sunfold` auxiliary definitions contains the markers: `markSmartUnfoldigMatch` (*) and `markSmartUnfoldigMatchAlt` (**).
+  Recall that `_sunfold` auxiliary definitions contains the markers: `markSmartUnfoldingMatch` (*) and `markSmartUnfoldingMatchAlt` (**).
   For example, consider the following definition
   ```
   def r (i j : Nat) : Nat :=
@@ -496,7 +496,7 @@ partial def whnfCore (e : Expr) : MetaM Expr :=
             | Nat.succ j => (**) r i j
   ```
 
-  `match` expressions marked with `markSmartUnfoldigMatch` (*) must be reduced, otherwise the resulting term is not definitionally
+  `match` expressions marked with `markSmartUnfoldingMatch` (*) must be reduced, otherwise the resulting term is not definitionally
    equal to the given expression. The recursion may be interrupted as soon as the annotation `markSmartUnfoldingAlt` (**) is reached.
 
   For example, the term `r i j.succ.succ` reduces to the definitionally equal term `i + i * r i j`

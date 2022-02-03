@@ -225,10 +225,12 @@ where
       else
         return { expr := (← dsimp e) }
 
-  congrDefault (e : Expr) : M Result :=
-    withParent e <| e.withApp fun f args => do
-      let infos := (← getFunInfoNArgs f args.size).paramInfo
-      let mut r ← simp f
+  congrArgs (r : Result) (args : Array Expr) : M Result := do
+    if args.isEmpty then
+      return r
+    else
+      let infos := (← getFunInfoNArgs r.expr args.size).paramInfo
+      let mut r := r
       let mut i := 0
       for arg in args do
         trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
@@ -240,6 +242,10 @@ where
           r ← mkCongrFun r (← dsimp arg)
         i := i + 1
       return r
+
+  congrDefault (e : Expr) : M Result :=
+    withParent e <| e.withApp fun f args => do
+      congrArgs (← simp f) args
 
   /- Return true iff processing the given congruence lemma hypothesis produced a non-refl proof. -/
   processCongrHypothesis (h : Expr) : M Bool := do
@@ -264,6 +270,13 @@ where
       return none
     let lhs := type.appFn!.appArg!
     let rhs := type.appArg!
+    let numArgs := lhs.getAppNumArgs
+    let mut e := e
+    let mut extraArgs := #[]
+    if e.getAppNumArgs > numArgs then
+      let args := e.getAppArgs
+      e := mkAppN e.getAppFn args[:numArgs]
+      extraArgs := args[numArgs:].toArray
     if (← isDefEq lhs e) then
       let mut modified := false
       for i in c.hypothesesPos do
@@ -286,7 +299,7 @@ where
         return none
       let eNew ← instantiateMVars rhs
       let proof ← instantiateMVars (mkAppN lemma xs)
-      return some { expr := eNew, proof? := proof }
+      congrArgs { expr := eNew, proof? := proof } extraArgs
     else
       return none
 

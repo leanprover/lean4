@@ -940,10 +940,9 @@ def tryPostpone : TermElabM Unit := do
 
 /-- If `mayPostpone == true` and `e`'s head is a metavariable, throw `Exception.postpone`. -/
 def tryPostponeIfMVar (e : Expr) : TermElabM Unit := do
+  let e ← whnfR e
   if e.getAppFn.isMVar then
-    let e ← instantiateMVars e
-    if e.getAppFn.isMVar then
-      tryPostpone
+    tryPostpone
 
 def tryPostponeIfNoneOrMVar (e? : Option Expr) : TermElabM Unit :=
   match e? with

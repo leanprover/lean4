@@ -40,14 +40,14 @@ def nop [Pure m] : LogMethods m :=
 instance [Pure m] : Inhabited (LogMethods m) := ⟨LogMethods.nop⟩
 
 def io [MonadLiftT BaseIO m] : LogMethods m where
-  logInfo msg := IO.println msg |>.catchExceptions fun _ => ()
-  logWarning msg := IO.eprintln s!"warning: {msg}" |>.catchExceptions fun _ => ()
-  logError msg := IO.eprintln s!"error: {msg}" |>.catchExceptions fun _ => ()
+  logInfo msg := IO.println msg |>.catchExceptions fun _ => pure ()
+  logWarning msg := IO.eprintln s!"warning: {msg}" |>.catchExceptions fun _ => pure ()
+  logError msg := IO.eprintln s!"error: {msg}" |>.catchExceptions fun _ => pure ()
 
 def eio [MonadLiftT BaseIO m] : LogMethods m where
-  logInfo msg := IO.eprintln s!"info: {msg}" |>.catchExceptions fun _ => ()
-  logWarning msg := IO.eprintln s!"warning: {msg}" |>.catchExceptions fun _ => ()
-  logError msg := IO.eprintln s!"error: {msg}" |>.catchExceptions fun _ => ()
+  logInfo msg := IO.eprintln s!"info: {msg}" |>.catchExceptions fun _ => pure ()
+  logWarning msg := IO.eprintln s!"warning: {msg}" |>.catchExceptions fun _ => pure ()
+  logError msg := IO.eprintln s!"error: {msg}" |>.catchExceptions fun _ => pure ()
 
 def lift [MonadLiftT m n] (self : LogMethods m) : LogMethods n where
   logInfo msg := liftM <| self.logInfo msg

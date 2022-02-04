@@ -53,7 +53,7 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
     | [pkgDeclName] =>
       let config ← evalPackageDecl env pkgDeclName dir args leanOpts
       let scripts ← scriptAttr.ext.getState env |>.foldM (init := {})
-        fun m d => do m.insert d <| ← evalScriptDecl env d leanOpts
+        fun m d => return m.insert d <| ← evalScriptDecl env d leanOpts
       return {dir, config, scripts}
     | _ => error s!"configuration file has multiple `package` declarations"
   else

@@ -37,10 +37,10 @@ scoped syntax (name := packageDecl)
 
 def expandPackageBinders
 : (dir? : Option Syntax) → (args? : Option Syntax) → MacroM (Bool × Syntax × Syntax)
-| none,     none      => do let hole ← `(_); (false, hole, hole)
-| some dir, none      => do (true, dir, ← `(_))
-| none,     some args => do (true, ← `(_), args)
-| some dir, some args => do (true, dir, args)
+| none,     none      => do let hole ← `(_); return (false, hole, hole)
+| some dir, none      => return (true, dir, ← `(_))
+| none,     some args => return (true, ← `(_), args)
+| some dir, some args => return (true, dir, args)
 
 def mkPackageDef (id : Syntax) (defn : Syntax) (doc? : Option Syntax)
 (dir? : Option Syntax) (args? : Option Syntax) (wds? : Option Syntax) : MacroM Syntax := do

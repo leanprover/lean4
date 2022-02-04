@@ -64,7 +64,7 @@ def buildOpaque [Await k m'] [MonadLiftT m' m] [Functor m] (self : ActiveTarget 
 def mixOpaqueAsync
 [MixTrace t] [SeqWithAsync n k] [MonadLiftT n m] [Monad m]
 (t1 : ActiveTarget α k t) (t2 : ActiveTarget β k t) : m (ActiveTarget PUnit k t) := do
-  ActiveTarget.opaque <| ← liftM <| seqWithAsync mixTrace t1.task t2.task
+  pure <| ActiveTarget.opaque <| ← liftM <| seqWithAsync mixTrace t1.task t2.task
 
 section
 variable [NilTrace t] [MixTrace t]
@@ -78,16 +78,16 @@ def materializeArray [Await k n] [MonadLiftT n m] [Monad m] (targets : Array (Ac
 variable [SeqWithAsync n k] [Monad n] [MonadLiftT n m] [Monad m] [Pure k]
 
 def collectList (targets : List (ActiveTarget i k t)) : m (ActiveTarget (List i) k t) := do
-  mk (targets.map (·.info)) <| ← liftM <| foldRightListAsync mixTrace nilTrace <| targets.map (·.task)
+  pure <| mk (targets.map (·.info)) <| ← liftM <| foldRightListAsync mixTrace nilTrace <| targets.map (·.task)
 
 def collectArray (targets : Array (ActiveTarget i k t)) : m (ActiveTarget (Array i) k t) := do
-  mk (targets.map (·.info)) <| ← liftM <| foldRightArrayAsync mixTrace nilTrace <| targets.map (·.task)
+  pure <| mk (targets.map (·.info)) <| ← liftM <| foldRightArrayAsync mixTrace nilTrace <| targets.map (·.task)
 
 def collectOpaqueList (targets : List (ActiveTarget i k t)) : m (ActiveTarget PUnit k t) := do
-  opaque <| ← liftM <| foldRightListAsync mixTrace nilTrace <| targets.map (·.task)
+  pure <| opaque <| ← liftM <| foldRightListAsync mixTrace nilTrace <| targets.map (·.task)
 
 def collectOpaqueArray (targets : Array (ActiveTarget i k t)) : m (ActiveTarget PUnit k t) := do
-  opaque <| ← liftM <| foldRightArrayAsync mixTrace nilTrace <| targets.map (·.task)
+  pure <| opaque <| ← liftM <| foldRightArrayAsync mixTrace nilTrace <| targets.map (·.task)
 
 end
 end ActiveTarget
@@ -130,10 +130,10 @@ protected def async [Async m n k] (info : i) (act : m t) : Target i n k t :=
   mk info <| async act
 
 def active [Pure n] (target : ActiveTarget i k t) : Target i n k t :=
-  mk target.info <| target.task
+  mk target.info <| pure target.task
 
 protected def pure [Pure n] [Pure k] (info : i) (trace : t) : Target i n k t :=
-  mk info <| pure trace
+  mk info <| pure <| pure trace
 
 def nil [NilTrace t] [Pure n] [Pure k] : Target PUnit n k t :=
   mk () <| pure <| pure <| nilTrace

@@ -43,7 +43,7 @@ partial def pushSubmodules
 
 def Glob.pushModules
 (dir : FilePath) (arr : Array Name) : (self : Glob) → IO (Array Name)
-| one n => #[n]
+| one n => pure #[n]
 | submodules n => pushSubmodules dir n arr
 | andSubmodules n => pushSubmodules dir n (arr.push n)
 

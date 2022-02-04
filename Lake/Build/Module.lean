@@ -132,7 +132,7 @@ def moduleTarget
     unless upToDate do
       build
     fullTrace.writeToFile traceFile
-    depTrace
+    return depTrace
 
 def moduleOleanAndCTarget
 (leanFile cFile oleanFile traceFile : FilePath)

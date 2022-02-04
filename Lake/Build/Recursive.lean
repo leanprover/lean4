@@ -82,7 +82,7 @@ abbrev RBMapT.{u,v} (k : Type u) (o : Type u) (cmp : k → k → Ordering) (m : 
   StateT (RBMap k o cmp) m
 
 instance (cmp) [Monad m] : MonadStore k o (RBMapT k o cmp m) where
-  fetch? key := do (← get).find? key
+  fetch? key := return (← get).find? key
   store key obj := modify (·.insert key obj)
 
 /-- Monad transformer for an `RBMap`-based topological walk. -/

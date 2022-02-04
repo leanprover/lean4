@@ -37,12 +37,12 @@ downloading and/or updating it as necessary.
 -/
 def materializeDep (ws : Workspace) (pkg : Package) (dep : Dependency) : (LogT IO) FilePath :=
   match dep.src with
-  | Source.path dir => pkg.dir / dir
+  | Source.path dir => return pkg.dir / dir
   | Source.git url rev => do
     let name := dep.name.toString (escape := false)
     let depDir := ws.packagesDir / name
     materializeGit name depDir url rev
-    depDir
+    return depDir
 
 /--
 Resolves a `Dependency` relative to the given `Package`
@@ -69,7 +69,7 @@ def resolveDeps (ws : Workspace) (pkg : Package) : (LogT IO) (NameMap Package) :
   let (res, map) ← RBTopT.run <| pkg.dependencies.forM fun dep =>
     discard <| buildRBTop (cmp := Name.quickCmp) resolve Dependency.name dep
   match res with
-  | Except.ok _ => map
+  | Except.ok _ => return map
   | Except.error cycle => do
     let cycle := cycle.map (s!"  {·}")
     error s!"dependency cycle detected:\n{"\n".intercalate cycle}"

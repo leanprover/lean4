@@ -40,7 +40,7 @@ namespace Cli
 
 /-- Print out a line wih the given message and then exit with an error code. -/
 protected def error (msg : String) (rc : UInt32 := 1) : MainM α := do
-  IO.eprintln s!"error: {msg}" |>.catchExceptions fun _ => ()
+  IO.eprintln s!"error: {msg}" |>.catchExceptions fun _ => pure ()
   exit rc
 
 instance : MonadError MainM := ⟨Cli.error⟩
@@ -91,10 +91,10 @@ def loadPkg (args : List String := []) : CliStateM Package := do
 
 def loadWorkspace (args : List String := []) : CliStateM Workspace := do
   let pkg ← loadPkg args
-  let ws ← Workspace.ofPackage pkg
+  let ws := Workspace.ofPackage pkg
   let packageMap ← resolveDeps ws pkg |>.run LogMethods.eio (m := IO)
   let packageMap := packageMap.insert pkg.name pkg
-  {ws with packageMap}
+  return {ws with packageMap}
 
 /-- Get the Lean installation. Error if missing. -/
 def getLeanInstall : CliStateM LeanInstall := do
@@ -129,7 +129,7 @@ def runBuildM_ (ws : Workspace) (x : BuildM α) : CliStateM PUnit :=
 def takeArg (errMsg : String := "missing argument") : CliM String := do
   match (← takeArg?) with
   | none => error errMsg
-  | some arg => arg
+  | some arg => return arg
 
 /--
 Verify that there are no CLI arguments remaining
@@ -218,8 +218,8 @@ def serve (pkg : Package) (args : Array String := #[]) : LakeT IO UInt32 := do
 
 def parseScriptSpec (ws : Workspace) (spec : String) : IO (Package × String) :=
   match spec.splitOn "/" with
-  | [script] => (ws.root, script)
-  | [pkg, script] => do (← parsePkgSpec ws pkg, script)
+  | [script] => return (ws.root, script)
+  | [pkg, script] => return (← parsePkgSpec ws pkg, script)
   | _ =>  error s!"invalid script spec '{spec}' (too many '/')"
 
 def script : (cmd : String) → CliM PUnit

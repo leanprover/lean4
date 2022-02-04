@@ -12,10 +12,10 @@ namespace Lake
 
 def parsePkgSpec (ws : Workspace) (spec : String) : IO Package :=
   if spec.isEmpty then
-    ws.root
+    return ws.root
   else
     match ws.packageByName? spec.toName with
-    | some pkg => pkg
+    | some pkg => return pkg
     | none => error s!"unknown package `{spec}`"
 
 def parseTargetBaseSpec (ws : Workspace) (spec : String) : IO (Package × Option Name) := do

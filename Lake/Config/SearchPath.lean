@@ -33,9 +33,9 @@ def setupLeanSearchPath
 (leanInstall? : Option LeanInstall) (lakeInstall? : Option LakeInstall)
 : IO Unit := do
   let mut sp : SearchPath := []
-  if let some leanInstall ← leanInstall? then
+  if let some leanInstall := leanInstall? then
     sp := leanInstall.oleanDir :: sp
-  if let some lakeInstall ← lakeInstall? then
+  if let some lakeInstall := lakeInstall? then
     sp := lakeInstall.oleanDir :: sp
   sp ← Lean.addSearchPathFromEnv sp
   Lean.searchPathRef.set sp

@@ -87,8 +87,8 @@ namespace Hash
 def ofNat (n : Nat) :=
   mk n.toUInt64
 
-def loadFromFile (hashFile : FilePath) : IO (Option Hash) := do
-  (← IO.FS.readFile hashFile).toNat?.map ofNat
+def loadFromFile (hashFile : FilePath) : IO (Option Hash) :=
+  return (← IO.FS.readFile hashFile).toNat?.map ofNat
 
 def nil : Hash :=
   mk <| 1723 -- same as Name.anonymous
@@ -165,14 +165,14 @@ class GetMTime (α) where
 export GetMTime (getMTime)
 instance [GetMTime α] : ComputeTrace α IO MTime := ⟨getMTime⟩
 
-def getFileMTime (file : FilePath) : IO MTime := do
-  (← file.metadata).modified
+def getFileMTime (file : FilePath) : IO MTime :=
+  return (← file.metadata).modified
 
 instance : GetMTime FilePath := ⟨getFileMTime⟩
 
 /-- Check if the info's `MTIme` is at least `depMTime`. -/
 def checkIfNewer [GetMTime i] (info : i) (depMTime : MTime) : IO Bool := do
-  try (← getMTime info) >= depMTime catch _ => false
+  try pure ((← getMTime info) >= depMTime) catch _ => pure false
 
 --------------------------------------------------------------------------------
 -- # Lake Build Trace (Hash + MTIme)
@@ -213,8 +213,8 @@ def nil : BuildTrace :=
 
 instance : NilTrace BuildTrace := ⟨nil⟩
 
-def compute [ComputeHash i m] [MonadLiftT m IO] [GetMTime i] (info : i) : IO BuildTrace := do
-  mk (← computeHash info) (← getMTime info)
+def compute [ComputeHash i m] [MonadLiftT m IO] [GetMTime i] (info : i) : IO BuildTrace :=
+  return mk (← computeHash info) (← getMTime info)
 
 instance [ComputeHash i m] [MonadLiftT m IO] [GetMTime i] : ComputeTrace i IO BuildTrace := ⟨compute⟩
 
@@ -229,7 +229,7 @@ to see if the target is up-to-date.
 -/
 def checkAgainstHash [CheckExists i]
 (info : i) (hash : Hash) (self : BuildTrace) : BaseIO Bool :=
-  hash == self.hash <&&> checkExists info
+  pure (hash == self.hash) <&&> checkExists info
 
 /--
 Check the build trace against the given target info and its trace file
@@ -242,7 +242,7 @@ def checkAgainstFile [CheckExists i] [GetMTime i]
       self.checkAgainstHash info hash
     else
       return self.mtime < (← getMTime info)
-  act.catchExceptions fun _ => false
+  act.catchExceptions fun _ => pure false
 
 def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit :=
   IO.FS.writeFile traceFile self.hash.toString

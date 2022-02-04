@@ -30,7 +30,7 @@ instance [Monad m] : MonadLake (BuildT m) where
   (·.leanTrace) <$> read
 
 def failOnBuildCycle [ToString k] : Except (List k) α → BuildM α
-| Except.ok a => a
+| Except.ok a => pure a
 | Except.error cycle => do
   let cycle := cycle.map (s!"  {·}")
   error s!"build cycle detected:\n{"\n".intercalate cycle}"

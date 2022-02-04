@@ -70,10 +70,10 @@ def findLeanSysroot? (lean := "lean") : BaseIO (Option FilePath) := do
       args := #["--print-prefix"]
     }
     if out.exitCode == 0 then
-      some <| FilePath.mk <| out.stdout.trim
+      pure <| some <| FilePath.mk <| out.stdout.trim
     else
-      none
-  act.catchExceptions fun _ => none
+      pure <| none
+  act.catchExceptions fun _ => pure none
 
 /--
 Construct the `LeanInstall` object for the given Lean sysroot.
@@ -104,20 +104,20 @@ where
         cmd := leanExe sysroot |>.toString,
         args := #["--githash"]
       }
-      out.stdout.trim
-    act.catchExceptions fun _ => ""
+      pure <| out.stdout.trim
+    act.catchExceptions fun _ => pure ""
   findAr := do
     if let some ar ← IO.getEnv "LEAN_AR" then
       return ar
     else
       let ar := leanArExe sysroot
-      if (← ar.pathExists) then ar else "ar"
+      if (← ar.pathExists) then pure ar else pure "ar"
   findCc := do
     if let some cc ← IO.getEnv "LEAN_CC" then
       return cc
     else
       let cc := leanCcExe sysroot
-      if (← cc.pathExists) then cc else "cc"
+      if (← cc.pathExists) then pure cc else pure "cc"
 
 /--
 Try to find the installation of the given `lean` command
@@ -178,7 +178,7 @@ def findLakeInstall? : BaseIO (Option LakeInstall) := do
   if let some home ← IO.getEnv "LAKE_HOME" then
     return some {home}
   if let Except.ok lake ← IO.appPath.toBaseIO then
-    if let some home ← lakeBuildHome? lake then
+    if let some home := lakeBuildHome? lake then
       return some {home, lake}
   return none
 

@@ -180,7 +180,7 @@ instance : BindAsync BaseIO (EIOTask ε) where
 instance : BindAsync BaseIO OptionIOTask where
   bindAsync ka f := BaseIO.bindTask ka.run fun
     | some a => f a
-    | none => pure none
+    | none => pure (pure none)
 
 instance [BindAsync n k] : BindAsync (ReaderT ρ n) k where
   bindAsync ka f := fun r => bindAsync ka fun a => f a r
@@ -193,13 +193,13 @@ instance [BindAsync n k] [Pure n] [Pure k] : BindAsync n (ExceptT ε k) where
 instance [BindAsync n k] [Pure n] [Pure k] : BindAsync n (OptionT k) where
   bindAsync ka f := cast (by delta OptionT; rfl) <| bindAsync ka.run fun
     | some a => f a
-    | none => pure none
+    | none => pure (pure none)
 
 instance : ApplicativeAsync Id Task where
   seqWithAsync f ka kb := ka.bind fun a => kb.bind fun b => pure <| f a b
 
 instance : ApplicativeAsync BaseIO BaseIOTask where
-  seqWithAsync f ka kb := BaseIO.bindTask ka fun a => BaseIO.bindTask kb fun b => pure <| f a b
+  seqWithAsync f ka kb := BaseIO.bindTask ka fun a => BaseIO.bindTask kb fun b => pure <| pure <| f a b
 
 instance [ApplicativeAsync n k] : ApplicativeAsync n (ExceptT ε k) where
   seqWithAsync f ka kb :=
@@ -230,12 +230,12 @@ def seqLeftList1Async [SeqLeftAsync n k] [Monad n] (last : (k α)) : (tasks : Li
 
 /-- Combine all (a)synchronous tasks in a `List` from right to left into a single task. -/
 def seqLeftListAsync [SeqLeftAsync n k] [Monad n] [Pure k] : (tasks : List (k PUnit)) → n (k PUnit)
-| [] => return ()
+| [] => return (pure ())
 | t::ts => seqLeftList1Async t ts
 
 /-- Combine all (a)synchronous tasks in a `List` from left to right into a single task. -/
 def seqRightListAsync [SeqRightAsync n k] [Monad n] [Pure k] : (tasks : List (k PUnit)) → n (k PUnit)
-| [] => return ()
+| [] => return (pure ())
 | t::ts => ts.foldlM seqRightAsync t
 
 /-- Combine all (a)synchronous tasks in a `Array` from right to left into a single task. -/
@@ -243,14 +243,14 @@ def seqLeftArrayAsync [SeqLeftAsync n k] [Monad n] [Pure k] (tasks : Array (k PU
   if h : 0 < tasks.size then
     tasks.pop.foldrM seqLeftAsync (tasks.get ⟨tasks.size - 1, Nat.sub_lt h (by decide)⟩)
   else
-    return ()
+    return (pure ())
 
 /-- Combine all (a)synchronous tasks in a `Array` from left to right into a single task. -/
 def seqRightArrayAsync [SeqRightAsync n k] [Monad n] [Pure k] (tasks : Array (k PUnit)) : n (k PUnit) :=
   if h : 0 < tasks.size then
     tasks.foldlM seqRightAsync (tasks.get ⟨0, h⟩)
   else
-    return ()
+    return (pure ())
 
 -- ## Folding (A)synchronous Tasks
 
@@ -258,16 +258,16 @@ variable [SeqWithAsync n k] [Monad n] [Pure k]
 
 /-- Fold a `List` of (a)synchronous tasks from right to left (i.e., a right fold) into a single task. -/
 def foldLeftListAsync (f : α → β → β) (init : β) (tasks : List (k α)) : n (k β) :=
-  tasks.foldrM (seqWithAsync f) init
+  tasks.foldrM (seqWithAsync f) (pure init)
 
 /-- Fold an `Array` of (a)synchronous tasks from right to left (i.e., a right fold) into a single task. -/
 def foldLeftArrayAsync (f : α → β → β) (init : β) (tasks : Array (k α)) : n (k β) :=
-  tasks.foldrM (seqWithAsync f) init
+  tasks.foldrM (seqWithAsync f) (pure init)
 
 /-- Fold a `List` of (a)synchronous tasks from left to right (i.e., a left fold) into a single task. -/
 def foldRightListAsync (f : β → α → β) (init : β) (tasks : List (k α)) : n (k β) :=
-  tasks.foldlM (seqWithAsync f) init
+  tasks.foldlM (seqWithAsync f) (pure init)
 
 /-- Fold an `Array` of (a)synchronous tasks from left to right (i.e., a left fold) into a single task. -/
 def foldRightArrayAsync (f : β → α → β) (init : β) (tasks : Array (k α)) : n (k β) :=
-  tasks.foldlM (seqWithAsync f) init
+  tasks.foldlM (seqWithAsync f) (pure init)

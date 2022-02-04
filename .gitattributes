@@ -1,3 +1,3 @@
 *.expected.out -text
-doc/changes.md merge=union
+doc/RELASES.md merge=union
 stage0/** binary linguist-generated

@@ -28,9 +28,9 @@ inductive Trace where
 
 instance : FromJson Trace := ⟨fun j =>
   match j.getStr? with
-  | Except.ok "off"      => Trace.off
-  | Except.ok "messages" => Trace.messages
-  | Except.ok "verbose"  => Trace.verbose
+  | Except.ok "off"      => return Trace.off
+  | Except.ok "messages" => return Trace.messages
+  | Except.ok "verbose"  => return Trace.verbose
   | _               => throw "uknown trace"⟩
 
 instance Trace.hasToJson : ToJson Trace :=
@@ -92,7 +92,7 @@ inductive InitializedParams where
   | mk
 
 instance : FromJson InitializedParams :=
-  ⟨fun _ => InitializedParams.mk⟩
+  ⟨fun _ => pure InitializedParams.mk⟩
 
 instance : ToJson InitializedParams :=
   ⟨fun _ => Json.null⟩

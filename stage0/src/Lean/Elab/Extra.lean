@@ -156,7 +156,7 @@ where
     match s with
     | `(binop% $f $lhs $rhs) => processOp (lazy := false) f lhs rhs
     | `(binop_lazy% $f $lhs $rhs) => processOp (lazy := true) f lhs rhs
-    | `(($e)) => (← go e)
+    | `(($e)) => go e
     | _ =>
        return Tree.term s (← elabTerm s none)
 

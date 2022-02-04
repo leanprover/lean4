@@ -92,7 +92,7 @@ partial def SimpLemmas.eraseCore (d : SimpLemmas) (declName : Name) : SimpLemmas
 def SimpLemmas.erase [Monad m] [MonadError m] (d : SimpLemmas) (declName : Name) : m SimpLemmas := do
   unless d.isLemma declName || d.isDeclToUnfold declName || d.toUnfoldThms.contains declName do
     throwError "'{declName}' does not have [simp] attribute"
-  d.eraseCore declName
+  return d.eraseCore declName
 
 private partial def isPerm : Expr → Expr → MetaM Bool
   | Expr.app f₁ a₁ _, Expr.app f₂ a₂ _ => isPerm f₁ f₂ <&&> isPerm a₁ a₂
@@ -103,8 +103,8 @@ private partial def isPerm : Expr → Expr → MetaM Bool
   | Expr.lam n₁ d₁ b₁ _, Expr.lam n₂ d₂ b₂ _ => isPerm d₁ d₂ <&&> withLocalDeclD n₁ d₁ fun x => isPerm (b₁.instantiate1 x) (b₂.instantiate1 x)
   | Expr.letE n₁ t₁ v₁ b₁ _, Expr.letE n₂ t₂ v₂ b₂ _ =>
     isPerm t₁ t₂ <&&> isPerm v₁ v₂ <&&> withLetDecl n₁ t₁ v₁ fun x => isPerm (b₁.instantiate1 x) (b₂.instantiate1 x)
-  | Expr.proj _ i₁ b₁ _, Expr.proj _ i₂ b₂ _ => i₁ == i₂ <&&> isPerm b₁ b₂
-  | s, t => s == t
+  | Expr.proj _ i₁ b₁ _, Expr.proj _ i₂ b₂ _ => pure (i₁ == i₂) <&&> isPerm b₁ b₂
+  | s, t => return s == t
 
 private def checkBadRewrite (lhs rhs : Expr) : MetaM Unit := do
   let lhs ← DiscrTree.whnfDT lhs (root := true)
@@ -201,7 +201,7 @@ private def mkSimpLemmasFromConst (declName : Name) (post : Bool) (inv : Bool) (
         r := r.push <| (← mkSimpLemmaCore (mkConst auxName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst auxName) post prio declName)
       return r
     else
-      #[← mkSimpLemmaCore (mkConst declName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst declName) post prio declName]
+      return #[← mkSimpLemmaCore (mkConst declName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst declName) post prio declName]
 
 inductive SimpEntry where
   | lemma    : SimpLemma → SimpEntry
@@ -244,7 +244,7 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension) : IO
           throwError "invalid 'simp', it is not a proposition nor a definition (to unfold)"
       discard <| go.run {} {}
     erase := fun declName => do
-      let s ← ext.getState (← getEnv)
+      let s := ext.getState (← getEnv)
       let s ← s.erase declName
       modifyEnv fun env => ext.modifyState env fun _ => s
   }
@@ -285,7 +285,7 @@ def SimpLemma.getValue (simpLemma : SimpLemma) : MetaM Expr := do
       return simpLemma.proof.updateConst! (← info.levelParams.mapM (fun _ => mkFreshLevelMVar))
   else
     let us ← simpLemma.levelParams.mapM fun _ => mkFreshLevelMVar
-    simpLemma.proof.instantiateLevelParamsArray simpLemma.levelParams us
+    return simpLemma.proof.instantiateLevelParamsArray simpLemma.levelParams us
 
 private def preprocessProof (val : Expr) (inv : Bool) : MetaM (Array Expr) := do
   let type ← inferType val

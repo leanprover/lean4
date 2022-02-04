@@ -134,24 +134,24 @@ def getPPAnalysisBlockImplicit   (o : Options) : Bool := o.get `pp.analysis.bloc
 namespace PrettyPrinter.Delaborator
 
 def returnsPi (motive : Expr) : MetaM Bool := do
-  lambdaTelescope motive fun xs b => b.isForall
+  lambdaTelescope motive fun xs b => return b.isForall
 
 def isNonConstFun (motive : Expr) : MetaM Bool := do
   match motive with
   | Expr.lam name d b _ => isNonConstFun b
-  | _ => motive.hasLooseBVars
+  | _ => return motive.hasLooseBVars
 
-def isSimpleHOFun (motive : Expr) : MetaM Bool := do
-  not (← returnsPi motive) && not (← isNonConstFun motive)
+def isSimpleHOFun (motive : Expr) : MetaM Bool :=
+  return not (← returnsPi motive) && not (← isNonConstFun motive)
 
 def isType2Type (motive : Expr) : MetaM Bool := do
   match ← inferType motive with
-  | Expr.forallE _ (Expr.sort ..) (Expr.sort ..) .. => true
-  | _ => false
+  | Expr.forallE _ (Expr.sort ..) (Expr.sort ..) .. => return true
+  | _ => return false
 
 def isFOLike (motive : Expr) : MetaM Bool := do
   let f := motive.getAppFn
-  f.isFVar || f.isConst
+  return f.isFVar || f.isConst
 
 def isIdLike (arg : Expr) : Bool :=
   -- TODO: allow `id` constant as well?
@@ -168,21 +168,21 @@ def isCoe (e : Expr) : Bool :=
 
 def isStructureInstance (e : Expr) : MetaM Bool := do
   match e.isConstructorApp? (← getEnv) with
-  | some s => isStructure (← getEnv) s.induct
-  | none   => false
+  | some s => return isStructure (← getEnv) s.induct
+  | none   => return false
 
 namespace TopDownAnalyze
 
 partial def hasMVarAtCurrDepth (e : Expr) : MetaM Bool := do
   let mctx ← getMCtx
-  Option.isSome $ e.findMVar? fun mvarId =>
+  return Option.isSome <| e.findMVar? fun mvarId =>
     match mctx.findDecl? mvarId with
     | some mdecl => mdecl.depth == mctx.depth
     | _ => false
 
 partial def hasLevelMVarAtCurrDepth (e : Expr) : MetaM Bool := do
   let mctx ← getMCtx
-  Option.isSome $ e.findLevelMVar? fun mvarId =>
+  return Option.isSome <| e.findLevelMVar? fun mvarId =>
     mctx.findLevelDepth? mvarId == some mctx.depth
 
 private def valUnknown (e : Expr) : MetaM Bool := do
@@ -225,10 +225,10 @@ def checkpointDefEq (t s : Expr) : MetaM Bool := do
     isDefEqAssigning t s
 
 def isHigherOrder (type : Expr) : MetaM Bool := do
-  forallTelescopeReducing type fun xs b => xs.size > 0 && b.isSort
+  forallTelescopeReducing type fun xs b => return xs.size > 0 && b.isSort
 
 def isFunLike (e : Expr) : MetaM Bool := do
-  forallTelescopeReducing (← inferType e) fun xs b => xs.size > 0
+  forallTelescopeReducing (← inferType e) fun xs b => return xs.size > 0
 
 def isSubstLike (e : Expr) : Bool :=
   e.isAppOfArity `Eq.ndrec 6 || e.isAppOfArity `Eq.rec 6
@@ -241,8 +241,8 @@ where
     | Name.num ..   => true
     | Name.anonymous => false
 
-def mvarName (mvar : Expr) : MetaM Name := do
-  (← getMVarDecl mvar.mvarId!).userName
+def mvarName (mvar : Expr) : MetaM Name :=
+  return (← getMVarDecl mvar.mvarId!).userName
 
 def containsBadMax : Level → Bool
   | Level.succ u ..   => containsBadMax u
@@ -312,7 +312,7 @@ partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
   -- These are incomplete (and possibly unsound) heuristics.
   -- TODO: do I need to snapshot the state before calling this?
   match fuel with
-  | 0 => false
+  | 0 => return false
   | fuel + 1 =>
     if ← isTrivialBottomUp e then return true
     let f := e.getAppFn
@@ -323,10 +323,10 @@ partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 
     for i in [:mvars.size] do
       if bInfos[i] == BinderInfo.instImplicit then
         inspectOutParams args[i] mvars[i]
-      else if ← bInfos[i] == BinderInfo.default then
+      else if bInfos[i] == BinderInfo.default then
         if ← isTrivialBottomUp args[i] then tryUnify args[i] mvars[i]
         else if ← typeUnknown mvars[i] <&&> canBottomUp args[i] mvars[i] fuel then tryUnify args[i] mvars[i]
-    if ← (isHBinOp e <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then tryUnify mvars[0] mvars[1]
+    if ← (pure (isHBinOp e) <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then tryUnify mvars[0] mvars[1]
     if mvar?.isSome then tryUnify resultType (← inferType mvar?.get!)
     return !(← valUnknown resultType)
 
@@ -371,7 +371,7 @@ mutual
     trace[pp.analyze] "{(← read).knowsType}.{(← read).knowsLevel}"
     let e ← getExpr
     let opts ← getOptions
-    if ← !e.isAtomic <&&> !(getPPProofs opts) <&&> (try Meta.isProof e catch ex => false) then
+    if ← (pure !e.isAtomic) <&&> pure !(getPPProofs opts) <&&> (try Meta.isProof e catch ex => pure false) then
       if getPPProofsWithType opts then
         withType $ withKnowing true true $ analyze
       return ()
@@ -398,7 +398,7 @@ mutual
         withType $ withKnowing true false $ analyze
         willKnowType := true
 
-      else if ← (!(← read).knowsType <||> (← read).inBottomUp) <&&> isStructureInstance (← getExpr) then
+      else if ← (pure !(← read).knowsType <||> pure (← read).inBottomUp) <&&> isStructureInstance (← getExpr) then
         withType do
           annotateBool `pp.structureInstanceTypes
           withKnowing true false $ analyze
@@ -515,7 +515,7 @@ mutual
 
     hBinOpHeuristic := do
       let { args, mvars, bInfos, ..} ← read
-      if ← (isHBinOp (← getExpr) <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then
+      if ← (pure (isHBinOp (← getExpr)) <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then
         tryUnify mvars[0] mvars[1]
 
     collectTrivialBottomUps := do
@@ -536,7 +536,7 @@ mutual
         | Expr.lam .., Expr.forallE n t b .. =>
           let mut annotated := false
           for i in [:argIdx] do
-            if ← bInfos[i] == BinderInfo.implicit <&&> valUnknown mvars[i] <&&> withNewMCtxDepth (checkpointDefEq t mvars[i]) then
+            if ← pure (bInfos[i] == BinderInfo.implicit) <&&> valUnknown mvars[i] <&&> withNewMCtxDepth (checkpointDefEq t mvars[i]) then
               annotateBool `pp.funBinderTypes
               tryUnify args[i] mvars[i]
               -- Note: currently we always analyze the lambda binding domains in `analyzeLam`
@@ -549,7 +549,7 @@ mutual
         | _, _ => return false
 
       for i in [:args.size] do
-        if ← bInfos[i] == BinderInfo.default then
+        if bInfos[i] == BinderInfo.default then
           let b ← withNaryArg i (core i (← inferType mvars[i]))
           if b then modify fun s => { s with funBinders := s.funBinders.set! i true }
 
@@ -569,7 +569,7 @@ mutual
       let argType ← inferType arg
 
       let processNaturalImplicit : AnalyzeAppM Unit := do
-        if (← valUnknown mvars[i] <||> higherOrders[i]) && !forceRegularApp then
+        if (← valUnknown mvars[i] <||> pure higherOrders[i]) && !forceRegularApp then
           annotateNamedArg (← mvarName mvars[i])
           modify fun s => { s with provideds := s.provideds.set! i true }
         else
@@ -580,7 +580,7 @@ mutual
 
           match bInfos[i] with
           | BinderInfo.default =>
-            if ← getPPAnalyzeExplicitHoles (← getOptions) <&&> !(← valUnknown mvars[i]) <&&> !(← readThe Context).inBottomUp <&&> !(← isFunLike arg) <&&> !funBinders[i] <&&> checkpointDefEq mvars[i] arg then
+            if ← pure (getPPAnalyzeExplicitHoles (← getOptions)) <&&> pure !(← valUnknown mvars[i]) <&&> pure !(← readThe Context).inBottomUp <&&> pure !(← isFunLike arg) <&&> pure !funBinders[i] <&&> checkpointDefEq mvars[i] arg then
               annotateBool `pp.analysis.hole
             else
               modify fun s => { s with provideds := s.provideds.set! i true }
@@ -596,7 +596,7 @@ mutual
               annotateBool `pp.analysis.skip
               provided := false
             else if getPPAnalyzeCheckInstances (← getOptions) then
-              let instResult ← try trySynthInstance argType catch _ => LOption.undef
+              let instResult ← try trySynthInstance argType catch _ => pure LOption.undef
               match instResult with
               | LOption.some inst =>
                 if ← checkpointDefEq inst arg then annotateBool `pp.analysis.skip; provided := false
@@ -628,7 +628,7 @@ def topDownAnalyze (e : Expr) : MetaM OptionsPerPos := do
   let s₀ ← get
   traceCtx `pp.analyze do
     withReader (fun ctx => { ctx with config := Elab.Term.setElabConfig ctx.config }) do
-      let ϕ : AnalyzeM OptionsPerPos := do withNewMCtxDepth analyze; (← get).annotations
+      let ϕ : AnalyzeM OptionsPerPos := do withNewMCtxDepth analyze; pure (← get).annotations
       try
         let knowsType := getPPAnalyzeKnowsType (← getOptions)
         ϕ { knowsType := knowsType, knowsLevel := knowsType, subExpr := mkRoot e }

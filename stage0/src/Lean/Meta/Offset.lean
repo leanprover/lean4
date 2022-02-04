@@ -99,8 +99,8 @@ private partial def isOffset : Expr → OptionT MetaM (Expr × Nat)
 
 private def isNatZero (e : Expr) : MetaM Bool := do
   match (← evalNat e) with
-  | some v => v == 0
-  | _      => false
+  | some v => return v == 0
+  | _      => return false
 
 private def mkOffset (e : Expr) (offset : Nat) : MetaM Expr := do
   if offset == 0 then

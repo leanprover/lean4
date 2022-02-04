@@ -132,7 +132,7 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
           let mut expr := ti.expr
           if kind == type then
             expr ← ci.runMetaM i.lctx do
-              Expr.getAppFn (← Meta.instantiateMVars (← Meta.inferType expr))
+              return Expr.getAppFn (← Meta.instantiateMVars (← Meta.inferType expr))
           match expr with
           | Expr.const n .. => return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
           | Expr.fvar id .. => return ← ci.runMetaM i.lctx <| locationLinksFromBinder snap.infoTree i id
@@ -177,7 +177,7 @@ open Elab in
 partial def handlePlainGoal (p : PlainGoalParams)
     : RequestM (RequestTask (Option PlainGoal)) := do
   let t ← getInteractiveGoals p
-  t.map <| Except.map <| Option.map <| fun ⟨goals⟩ =>
+  return t.map <| Except.map <| Option.map <| fun ⟨goals⟩ =>
     if goals.isEmpty then
       { goals := #[], rendered := "no goals" }
     else
@@ -210,7 +210,7 @@ partial def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
 def handlePlainTermGoal (p : PlainTermGoalParams)
     : RequestM (RequestTask (Option PlainTermGoal)) := do
   let t ← getInteractiveTermGoal p
-  t.map <| Except.map <| Option.map fun goal =>
+  return t.map <| Except.map <| Option.map fun goal =>
     { goal := toString goal.toInteractiveGoal.pretty
       range := goal.range
     }
@@ -246,7 +246,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
   withWaitFindSnap doc (fun s => s.endPos > pos)
     (notFoundX := pure #[]) fun snap => do
       let (snaps, _) ← doc.allSnaps.updateFinishedPrefix
-      if let some his ← highlightRefs? snaps.finishedPrefix.toArray p.position then
+      if let some his := highlightRefs? snaps.finishedPrefix.toArray p.position then
         return his
       if let some hi := highlightReturn? none snap.stx then
         return #[hi]
@@ -265,7 +265,7 @@ partial def handleDocumentSymbol (p : DocumentSymbolParams)
       throw RequestError.fileChanged
     | some (ElabTaskError.ioError e) =>
       throw (e : RequestError)
-    | _ => ()
+    | _ => pure ()
 
     let lastSnap := cmdSnaps.finishedPrefix.getLastD doc.headerSnap
     stxs := stxs ++ (← parseAhead doc.meta.text.source lastSnap).toList

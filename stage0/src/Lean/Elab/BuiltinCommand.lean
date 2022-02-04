@@ -283,7 +283,7 @@ private def mkRunMetaEval (e : Expr) : MetaM Expr :=
     let α ← inferType e
     let u ← getDecLevel α
     let instVal ← mkEvalInstCore ``Lean.MetaEval e
-    let e ← mkAppN (mkConst ``Lean.runMetaEval [u]) #[α, instVal, env, opts, e]
+    let e := mkAppN (mkConst ``Lean.runMetaEval [u]) #[α, instVal, env, opts, e]
     instantiateMVars (← mkLambdaFVars #[env, opts] e)
 
 private def mkRunEval (e : Expr) : MetaM Expr := do

@@ -291,18 +291,18 @@ private def getFieldType (infos : Array StructFieldInfo) (parentStructName : Nam
     let visit (e : Expr) : MetaM TransformStep := do
       if let Expr.const subProjName .. := e.getAppFn then
         if let some { ctorName, numParams, .. } ← getProjectionFnInfo? subProjName then
-          let Name.str subStructName subFieldName .. ← subProjName
+          let Name.str subStructName subFieldName .. := subProjName
             | throwError "invalid projection name {subProjName}"
           let args := e.getAppArgs
           if args.get? numParams == parent then
-            let some existingFieldInfo ← findFieldInfo? infos subFieldName
+            let some existingFieldInfo := findFieldInfo? infos subFieldName
               | throwError "unexpected field access to {fieldName} in{indentExpr e}"
             return TransformStep.done <| mkAppN existingFieldInfo.fvar args[numParams+1:args.size]
       return TransformStep.done e
     let projType ← Meta.transform projType (post := visit)
     if projType.containsFVar parent.fvarId! then
       throwError "unsupported dependent field in {fieldName} : {projType}"
-    projType
+    return projType
 
 private def toVisibility (fieldInfo : StructureFieldInfo) : CoreM Visibility := do
   if isProtected (← getEnv) fieldInfo.projFn then
@@ -394,7 +394,7 @@ where
       if h : i < fieldNames.size then
         let fieldName := fieldNames.get ⟨i, h⟩
         let fieldType ← getFieldType infos parentStructName parentType fieldName
-        match (← findFieldInfo? infos fieldName) with
+        match findFieldInfo? infos fieldName with
         | some existingFieldInfo =>
           let existingFieldType ← inferType existingFieldInfo.fvar
           unless (← isDefEq fieldType existingFieldType) do
@@ -402,7 +402,7 @@ where
           /- Remark: if structure has a default value for this field, it will be set at the `processOveriddenDefaultValues` below. -/
           copy (i+1) infos (fieldMap.insert fieldName existingFieldInfo.fvar) expandedStructNames
         | none =>
-          let some fieldInfo ← getFieldInfo? (← getEnv) parentStructName fieldName | unreachable!
+          let some fieldInfo := getFieldInfo? (← getEnv) parentStructName fieldName | unreachable!
           let addNewField : TermElabM α := do
             let value? ← copyDefaultValue? fieldMap expandedStructNames parentStructName fieldName
             withLocalDecl fieldName fieldInfo.binderInfo fieldType fun fieldFVar => do
@@ -727,7 +727,7 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
   let env ← getEnv
   let structName := view.declName
   let sourceFieldNames := getStructureFieldsFlattened env structName
-  let structType ← mkAppN (Lean.mkConst structName (levelParams.map mkLevelParam)) params
+  let structType := mkAppN (Lean.mkConst structName (levelParams.map mkLevelParam)) params
   let Expr.const parentStructName us _ ← pure parentType.getAppFn | unreachable!
   let binfo := if view.isClass && isClass env parentStructName then BinderInfo.instImplicit else BinderInfo.default
   withLocalDecl `self binfo structType fun source => do
@@ -743,7 +743,7 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
           result := mkApp result fieldVal
         else
           -- fieldInfo must be a field of `parentStructName`
-          let some fieldInfo ← getFieldInfo? env parentStructName fieldName | unreachable!
+          let some fieldInfo := getFieldInfo? env parentStructName fieldName | unreachable!
           if fieldInfo.subobject?.isNone then throwError "failed to build coercion to parent structure"
           let resultType ← whnfD (← inferType result)
           unless resultType.isForall do throwError "failed to build coercion to parent structure, unexpect type{indentExpr resultType}"

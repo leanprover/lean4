@@ -215,8 +215,8 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
 /--
 A resolved name literal. Evaluates to the full name of the given constant if
 existent in the current context, or else fails. -/
-@[builtinTermElab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ => do
-  toExpr (← resolveGlobalConstNoOverloadWithInfo stx[2])
+@[builtinTermElab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ =>
+  return toExpr (← resolveGlobalConstNoOverloadWithInfo stx[2])
 
 @[builtinTermElab typeOf] def elabTypeOf : TermElab := fun stx _ => do
   inferType (← elabTerm stx[1] none)

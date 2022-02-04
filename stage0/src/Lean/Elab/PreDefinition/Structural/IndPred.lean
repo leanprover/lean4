@@ -32,7 +32,7 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
             let ty ← inferType e
             let main ← mkFreshExprSyntheticOpaqueMVar ty
             if (← IndPredBelow.backwardsChaining main.mvarId! maxDepth) then
-              main
+              pure main
             else
               throwError "could not solve using backwards chaining {MessageData.ofGoal main.mvarId!}"
           else
@@ -49,7 +49,7 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
               modify fun s => { s with addMatchers := s.addMatchers.push addMatcher }
               let some newApp ← matchMatcherApp? newApp | throwError "not a matcherApp: {newApp}"
               addBelow newApp
-            else matcherApp.toExpr
+            else pure matcherApp.toExpr
 
           let newApp ← addBelow matcherApp
           if newApp == matcherApp.toExpr then

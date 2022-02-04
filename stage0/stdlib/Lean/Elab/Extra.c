@@ -248,7 +248,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_BinOp_elabDefaultOrNonempty_de
 static lean_object* l_Lean_Elab_Term_elabBinRelCore_toBoolIfNecessary___closed__5;
 extern lean_object* l_Lean_instInhabitedSyntax;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Extra_0__Lean_Elab_Term_BinOp_toExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_BinOp_initFn____x40_Lean_Elab_Extra___hyg_4993_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_BinOp_initFn____x40_Lean_Elab_Extra___hyg_4977_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabBinRel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_elabBinRelCore___lambda__2___closed__5;
 LEAN_EXPORT uint8_t l___private_Lean_Elab_Extra_0__Lean_Elab_Term_BinOp_isUnknow(lean_object*);
@@ -5670,55 +5670,26 @@ return x_66;
 }
 else
 {
-lean_object* x_67; 
 lean_dec(x_2);
-x_67 = l___private_Lean_Elab_Extra_0__Lean_Elab_Term_BinOp_toTree_go(x_1, x_50, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-if (lean_obj_tag(x_67) == 0)
-{
-uint8_t x_68; 
-x_68 = !lean_is_exclusive(x_67);
-if (x_68 == 0)
-{
-return x_67;
+x_2 = x_50;
+goto _start;
 }
-else
-{
-lean_object* x_69; lean_object* x_70; lean_object* x_71; 
-x_69 = lean_ctor_get(x_67, 0);
-x_70 = lean_ctor_get(x_67, 1);
-lean_inc(x_70);
-lean_inc(x_69);
-lean_dec(x_67);
-x_71 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_71, 0, x_69);
-lean_ctor_set(x_71, 1, x_70);
-return x_71;
+}
 }
 }
 else
 {
-uint8_t x_72; 
-x_72 = !lean_is_exclusive(x_67);
-if (x_72 == 0)
-{
-return x_67;
-}
-else
-{
-lean_object* x_73; lean_object* x_74; lean_object* x_75; 
-x_73 = lean_ctor_get(x_67, 0);
-x_74 = lean_ctor_get(x_67, 1);
-lean_inc(x_74);
-lean_inc(x_73);
-lean_dec(x_67);
-x_75 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_75, 0, x_73);
-lean_ctor_set(x_75, 1, x_74);
+lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; uint8_t x_74; lean_object* x_75; 
+x_68 = lean_unsigned_to_nat(1u);
+x_69 = l_Lean_Syntax_getArg(x_2, x_68);
+x_70 = lean_unsigned_to_nat(2u);
+x_71 = l_Lean_Syntax_getArg(x_2, x_70);
+x_72 = lean_unsigned_to_nat(3u);
+x_73 = l_Lean_Syntax_getArg(x_2, x_72);
+lean_dec(x_2);
+x_74 = 1;
+x_75 = l___private_Lean_Elab_Extra_0__Lean_Elab_Term_BinOp_toTree_processOp(x_1, x_69, x_71, x_73, x_74, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_75;
-}
-}
-}
-}
 }
 }
 else
@@ -5731,24 +5702,9 @@ x_79 = l_Lean_Syntax_getArg(x_2, x_78);
 x_80 = lean_unsigned_to_nat(3u);
 x_81 = l_Lean_Syntax_getArg(x_2, x_80);
 lean_dec(x_2);
-x_82 = 1;
+x_82 = 0;
 x_83 = l___private_Lean_Elab_Extra_0__Lean_Elab_Term_BinOp_toTree_processOp(x_1, x_77, x_79, x_81, x_82, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 return x_83;
-}
-}
-else
-{
-lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; uint8_t x_90; lean_object* x_91; 
-x_84 = lean_unsigned_to_nat(1u);
-x_85 = l_Lean_Syntax_getArg(x_2, x_84);
-x_86 = lean_unsigned_to_nat(2u);
-x_87 = l_Lean_Syntax_getArg(x_2, x_86);
-x_88 = lean_unsigned_to_nat(3u);
-x_89 = l_Lean_Syntax_getArg(x_2, x_88);
-lean_dec(x_2);
-x_90 = 0;
-x_91 = l___private_Lean_Elab_Extra_0__Lean_Elab_Term_BinOp_toTree_processOp(x_1, x_85, x_87, x_89, x_90, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-return x_91;
 }
 }
 }
@@ -15714,7 +15670,7 @@ x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3, x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_BinOp_initFn____x40_Lean_Elab_Extra___hyg_4993_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_BinOp_initFn____x40_Lean_Elab_Extra___hyg_4977_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -16238,7 +16194,7 @@ lean_mark_persistent(l___regBuiltin_Lean_Elab_Term_BinOp_elabDefaultOrNonempty_d
 res = l___regBuiltin_Lean_Elab_Term_BinOp_elabDefaultOrNonempty_declRange(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l_Lean_Elab_Term_BinOp_initFn____x40_Lean_Elab_Extra___hyg_4993_(lean_io_mk_world());
+res = l_Lean_Elab_Term_BinOp_initFn____x40_Lean_Elab_Extra___hyg_4977_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

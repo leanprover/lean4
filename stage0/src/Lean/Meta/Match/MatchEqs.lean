@@ -103,7 +103,7 @@ where
         let typeNew := b.instantiate1 y
         if let some (_, lhs, rhs) ← matchEq? d then
           if lhs.isFVar && ys.contains lhs && args.contains lhs && isNamedPatternProof typeNew y then
-             let some i  ← ys.getIdx? lhs | unreachable!
+             let some i  := ys.getIdx? lhs | unreachable!
              let ys      := ys.eraseIdx i
              let mask    := mask.set! i false
              let args    := args.map fun arg => if arg == lhs then rhs else arg
@@ -445,7 +445,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns :=
       let splitterParams := params.toArray ++ #[motive] ++ discrs.toArray ++ altsNew
       let splitterType ← mkForallFVars splitterParams matchResultType
       trace[Meta.Match.matchEqs] "splitterType: {splitterType}"
-      let template ← mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
+      let template := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
       let template ← deltaExpand template (. == constInfo.name)
       let splitterVal ← mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew altArgMasks)
       let splitterName := baseName ++ `splitter

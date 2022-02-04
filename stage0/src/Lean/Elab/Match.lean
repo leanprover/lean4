@@ -103,7 +103,7 @@ private partial def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptT
           trace[Elab.match] "discr #{i} {discr} : {d}"
           if b.hasLooseBVars then
             isDep := true
-          matchType ← b.instantiate1 discr
+          matchType := b.instantiate1 discr
           discrs := discrs.push discr
         | _ =>
           throwError "invalid type provided to match-expression, function type with arity #{discrStxs.size} expected"
@@ -956,14 +956,14 @@ private def elabMatchCore (stx : Syntax) (expectedType? : Option Expr) : TermEla
 
 private def isPatternVar (stx : Syntax) : TermElabM Bool := do
   match (← resolveId? stx "pattern") with
-  | none   => isAtomicIdent stx
+  | none   => return isAtomicIdent stx
   | some f => match f with
     | Expr.const fName _ _ =>
       match (← getEnv).find? fName with
       | some (ConstantInfo.ctorInfo _) => return false
       | some _                         => return !hasMatchPatternAttribute (← getEnv) fName
-      | _                              => isAtomicIdent stx
-    | _ => isAtomicIdent stx
+      | _                              => return isAtomicIdent stx
+    | _ => return isAtomicIdent stx
 where
   isAtomicIdent (stx : Syntax) : Bool :=
     stx.isIdent && stx.getId.eraseMacroScopes.isAtomic

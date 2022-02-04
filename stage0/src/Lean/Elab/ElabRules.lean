@@ -37,8 +37,8 @@ def elabElabRulesAux (doc? : Option Syntax) (attrKind : Syntax) (k : SyntaxNodeK
         throwErrorAt alt "invalid elab_rules alternative, unexpected syntax node kind '{k'}'"
     | _ => throwUnsupportedSyntax
   let catName ← match cat?, expty? with
-    | some cat, _ => cat.getId
-    | _, some _   => `term
+    | some cat, _ => pure cat.getId
+    | _, some _   => pure `term
     -- TODO: infer category from quotation kind, possibly even kind of quoted syntax?
     | _, _        => throwError "invalid elab_rules command, specify category using `elab_rules : <cat> ...`"
   if let some expId := expty? then

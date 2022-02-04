@@ -54,7 +54,7 @@ partial def withLockFile (x : IO α) : IO α := do
 def getRootPart (pkg : FilePath := ".") : IO Lean.Name := do
   let entries ← pkg.readDir
   match entries.filter (FilePath.extension ·.fileName == "lean") with
-  | #[rootFile] => FilePath.withExtension rootFile.fileName "" |>.toString
+  | #[rootFile] => pure <| FilePath.withExtension rootFile.fileName "" |>.toString
   | #[]         => throw <| IO.userError s!"no '.lean' file found in {← IO.FS.realPath "."}"
   | _           => throw <| IO.userError s!"{← IO.FS.realPath "."} must contain a unique '.lean' file as the package root"
 

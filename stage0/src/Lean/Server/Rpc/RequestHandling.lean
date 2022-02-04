@@ -19,7 +19,7 @@ builtin_initialize rpcProcedures : IO.Ref (Std.PersistentHashMap Name RpcProcedu
 
 private def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
   let rc ← read
-  let some proc ← (← rpcProcedures.get).find? p.method
+  let some proc := (← rpcProcedures.get).find? p.method
     | throwThe RequestError { code := JsonRpc.ErrorCode.methodNotFound
                               message := s!"No RPC method '{p.method}' bound" }
   proc.wrapper p.sessionId p.params
@@ -41,7 +41,7 @@ def registerRpcCallHandler (method : Name)
   let wrapper seshId j := do
     let rc ← read
 
-    let some seshRef ← rc.rpcSessions.find? seshId
+    let some seshRef := rc.rpcSessions.find? seshId
       | throwThe RequestError { code := JsonRpc.ErrorCode.rpcNeedsReconnect
                                 message := s!"Outdated RPC session" }
     let t ← RequestM.asTask do
@@ -62,7 +62,7 @@ def registerRpcCallHandler (method : Name)
       | Except.error e => throw e
       | Except.ok ret => do
         let act := rpcEncode (α := respType) (β := respLspType) (m := StateM FileWorker.RpcSession) ret
-        toJson (← seshRef.modifyGet act.run)
+        return toJson (← seshRef.modifyGet act.run)
 
   rpcProcedures.modify fun ps => ps.insert method ⟨wrapper⟩
 

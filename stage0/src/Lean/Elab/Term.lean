@@ -831,7 +831,7 @@ private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr
         let v ← getLevel β
         let coeTInstType := Lean.mkForall `a BinderInfo.default α $ mkAppN (mkConst ``CoeT [u, v]) #[α, mkBVar 0, β]
         let coeTInstVal ← synthesizeInst coeTInstType
-        let eNew ← expandCoe (← mkAppN (Lean.mkConst ``Lean.Internal.liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e])
+        let eNew ← expandCoe (mkAppN (Lean.mkConst ``Lean.Internal.liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e])
         let eNewType ← inferType eNew
         unless (← isDefEq expectedType eNewType) do throwMismatch
         return eNew -- approach 3 worked

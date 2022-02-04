@@ -188,8 +188,8 @@ section ServerM
   def updateFileWorkers (val : FileWorker) : ServerM Unit := do
     (←read).fileWorkersRef.modify (fun fileWorkers => fileWorkers.insert val.doc.meta.uri val)
 
-  def findFileWorker? (uri : DocumentUri) : ServerM (Option FileWorker) := do
-    (←(←read).fileWorkersRef.get).find? uri
+  def findFileWorker? (uri : DocumentUri) : ServerM (Option FileWorker) :=
+    return (← (←read).fileWorkersRef.get).find? uri
 
   def findFileWorker! (uri : DocumentUri) : ServerM FileWorker := do
     let some fw ← findFileWorker? uri
@@ -262,7 +262,7 @@ section ServerM
           return WorkerEvent.crashed err
       loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
-    task.map fun
+    return task.map fun
       | Except.ok ev   => ev
       | Except.error e => WorkerEvent.ioError e
 
@@ -384,7 +384,7 @@ def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
       let references ← (← read).references.get
       if let some ident := references.findAt? module p.position then
         return ← references.referringTo ident srcSearchPath p.context.includeDeclaration
-  #[]
+  return #[]
 
 -- TODO Better matching https://github.com/leanprover/lean4/issues/960
 def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInformation) := do
@@ -398,7 +398,7 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInf
       else
         none
   -- TODO Sort symbols by some useful metric?
-  symbols.map fun (name, location) =>
+  return symbols.map fun (name, location) =>
     { name, kind := SymbolKind.constant, location }
 where
   containsCaseInsensitive (value : String) : String → Bool :=
@@ -500,12 +500,12 @@ section MessageHandling
       -- This request is handled specially.
       if method == "$/lean/rpc/connect" then
         let ps ← parseParams Lsp.RpcConnectParams params
-        fileSource ps
+        pure <| fileSource ps
       else match (← routeLspRequest method params) with
       | Except.error e =>
         (←read).hOut.writeLspResponseError <| e.toLspResponseError id
         return
-      | Except.ok uri => uri
+      | Except.ok uri => pure uri
     let some fw ← findFileWorker? uri
       /- Clients may send requests to closed files, which we respond to with an error.
       For example, VSCode sometimes sends requests just after closing a file,
@@ -585,7 +585,7 @@ section MainLoop
     let readMsgAction : IO ServerEvent := do
       /- Runs asynchronously. -/
       let msg ← st.hIn.readLspMessage
-      ServerEvent.clientMsg msg
+      pure <| ServerEvent.clientMsg msg
     let clientTask := (← IO.asTask readMsgAction).map fun
       | Except.ok ev   => ev
       | Except.error e => ServerEvent.clientError e
@@ -641,7 +641,7 @@ section MainLoop
                 code := ErrorCode.contentModified
                 message := "File changed."
               }
-            | _ => () -- notifications do not need to be cancelled
+            | _ => pure () -- notifications do not need to be cancelled
         | _ =>
           let t ← fw.runEditsSignalTask
           fw.groupedEditsRef.modify (Option.map fun ge => { ge with signalTask := t } )
@@ -719,7 +719,7 @@ def findWorkerPath : IO System.FilePath := do
     workerPath := System.FilePath.mk path / "bin" / "lean" |>.withExtension System.FilePath.exeExtension
   if let some path := (←IO.getEnv "LEAN_WORKER_PATH") then
     workerPath := System.FilePath.mk path
-  workerPath
+  return workerPath
 
 def loadReferences : IO References := do
   let oleanSearchPath ← Lean.searchPathRef.get
@@ -732,7 +732,7 @@ def loadReferences : IO References := do
       -- ilean load errors should not be fatal, but we *should* log them
       -- when we add logging to the server
       pure ()
-  refs
+  return refs
 
 def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
   let workerPath ← findWorkerPath

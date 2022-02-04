@@ -327,7 +327,7 @@ def withSaveInfoContext [MonadFinally m] [MonadEnv m] [MonadOptions m] [MonadMCt
       let st    ← getInfoState
       let trees ← st.trees.mapM fun tree => do
         let tree := tree.substitute st.assignment
-        InfoTree.context {
+        pure <| InfoTree.context {
           env := (← getEnv), fileMap := (← getFileMap), mctx := (← getMCtx), currNamespace := (← getCurrNamespace), openDecls := (← getOpenDecls), options := (← getOptions)
         } tree
       modifyInfoTrees fun _ => treesSaved ++ trees

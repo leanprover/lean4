@@ -52,7 +52,7 @@ Macros without registered precheck hook are unfolded, and identifier-less syntax
 
 partial def precheck : Precheck := fun stx => do
   if let p::_ := precheckAttribute.getValues (← getEnv) stx.getKind then
-    if ← catchInternalId unsupportedSyntaxExceptionId (do withRef stx <| p stx; true) (fun _ => false) then
+    if ← catchInternalId unsupportedSyntaxExceptionId (do withRef stx <| p stx; pure true) (fun _ => pure false) then
       return
   if stx.isAnyAntiquot then
     return
@@ -131,6 +131,6 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
 @[builtinTermElab precheckedQuot] def elabPrecheckedQuot : TermElab := fun stx expectedType? => do
   let singleQuot := stx[1]
   runPrecheck singleQuot.getQuotContent
-  adaptExpander (fun _ => singleQuot) stx expectedType?
+  adaptExpander (fun _ => pure singleQuot) stx expectedType?
 
 end Lean.Elab.Term.Quotation

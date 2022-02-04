@@ -51,7 +51,7 @@ partial def unfoldAsync (f : StateT σ (EIO ε) $ Option α) (init : σ)
         return cons aNext $ asyncTail tNext
 
   let tInit ← EIO.asTask (step init)
-  asyncTail tInit
+  return asyncTail tInit
 
 /-- The computed, synchronous list. If an async tail was present, returns also
 its terminating value. -/
@@ -70,14 +70,14 @@ partial def waitAll (p : α → Bool := fun _ => true) : AsyncList ε α → Bas
   | cons hd tl => do
     if p hd then
       let t ← tl.waitAll p
-      t.map fun ⟨l, e?⟩ => ⟨hd :: l, e?⟩
+      return t.map fun ⟨l, e?⟩ => ⟨hd :: l, e?⟩
     else
       return Task.pure ⟨[hd], none⟩
   | nil => return Task.pure ⟨[], none⟩
   | asyncTail tl => do
     BaseIO.bindTask tl fun
       | Except.ok tl   => tl.waitAll p
-      | Except.error e => Task.pure ⟨[], some e⟩
+      | Except.error e => return Task.pure ⟨[], some e⟩
 
 /-- Spawns a `Task` acting like `List.find?` but which will wait for tail evalution
 when necessary to traverse the list. If the tail terminates before a matching element
@@ -90,7 +90,7 @@ partial def waitFind? (p : α → Bool) : AsyncList ε α → BaseIO (Task $ Exc
   | asyncTail tl => do
     BaseIO.bindTask tl fun
       | Except.ok tl   => tl.waitFind? p
-      | Except.error e => Task.pure <| Except.error e
+      | Except.error e => return Task.pure <| Except.error e
 
 /-- Extends the `finishedPrefix` as far as possible. If computation was ongoing
 and has finished, also returns the terminating value. -/

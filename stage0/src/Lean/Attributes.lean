@@ -418,7 +418,7 @@ def Attribute.erase (declName : Name) (attrName : Name) : AttrM Unit := do
 @[export lean_update_env_attributes]
 def updateEnvAttributesImpl (env : Environment) : IO Environment := do
   let map ← attributeMapRef.get
-  let s ← attributeExtension.getState env
+  let s := attributeExtension.getState env
   let s := map.foldl (init := s) fun s attrName attrImpl =>
     if s.map.contains attrName then
       s

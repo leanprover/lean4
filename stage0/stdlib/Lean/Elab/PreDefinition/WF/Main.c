@@ -64,7 +64,7 @@ lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_Main_0__Lean_Elab_addNonRecPreDefs_mkSum___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_WF_registerEqnsInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_Main___hyg_1007_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_Main___hyg_998_(lean_object*);
 static lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_WF_Main_0__Lean_Elab_addNonRecPreDefs_mkSum___spec__1___closed__10;
 extern lean_object* l_Lean_Elab_instInhabitedPreDefinition;
 lean_object* l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_addNonRecAux(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1314,7 +1314,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_WF_Main_0__Lean_Elab_addNonRecPreDefs_mkSum___spec__1___closed__4;
 x_2 = l___private_Lean_Elab_PreDefinition_WF_Main_0__Lean_Elab_addNonRecPreDefs___lambda__1___closed__1;
 x_3 = lean_unsigned_to_nat(27u);
-x_4 = lean_unsigned_to_nat(54u);
+x_4 = lean_unsigned_to_nat(55u);
 x_5 = l___private_Lean_Elab_PreDefinition_WF_Main_0__Lean_Elab_addNonRecPreDefs___lambda__1___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
@@ -2419,7 +2419,7 @@ lean_dec(x_5);
 return x_15;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_Main___hyg_1007_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_Main___hyg_998_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -2533,7 +2533,7 @@ l_Lean_Elab_wfRecursion___closed__3 = _init_l_Lean_Elab_wfRecursion___closed__3(
 lean_mark_persistent(l_Lean_Elab_wfRecursion___closed__3);
 l_Lean_Elab_wfRecursion___closed__4 = _init_l_Lean_Elab_wfRecursion___closed__4();
 lean_mark_persistent(l_Lean_Elab_wfRecursion___closed__4);
-res = l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_Main___hyg_1007_(lean_io_mk_world());
+res = l_Lean_Elab_initFn____x40_Lean_Elab_PreDefinition_WF_Main___hyg_998_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

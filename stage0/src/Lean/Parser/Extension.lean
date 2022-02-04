@@ -313,7 +313,7 @@ private def ParserExtension.OLeanEntry.toEntry (s : State) : OLeanEntry → Impo
   | category c l => return Entry.category c l
   | parser catName declName prio => do
     let (leading, p) ← mkParserOfConstant s.categories declName
-    Entry.parser catName declName leading p prio
+    return Entry.parser catName declName leading p prio
 
 builtin_initialize parserExtension : ParserExtension ←
   registerScopedEnvExtension {
@@ -341,8 +341,8 @@ def leadingIdentBehavior (env : Environment) (catName : Name) : LeadingIdentBeha
 unsafe def evalParserConstUnsafe (declName : Name) : ParserFn := fun ctx s => unsafeBaseIO do
   let categories := (parserExtension.getState ctx.env).categories
   match (← (mkParserOfConstant categories declName { env := ctx.env, opts := ctx.options }).toBaseIO) with
-  | Except.ok (bool, p) => p.fn ctx s
-  | Except.error e => s.mkUnexpectedError e.toString
+  | Except.ok (bool, p) => return p.fn ctx s
+  | Except.error e => return s.mkUnexpectedError e.toString
 
 @[implementedBy evalParserConstUnsafe]
 constant evalParserConst (declName : Name) : ParserFn

@@ -186,7 +186,7 @@ private def processAsPattern (p : Problem) : MetaM Problem :=
           we the pattern `(vec.cons n h t)`. TODO: try to find a cleaner solution.
          -/
         let r ← mkEqRefl x
-        { alt with patterns := p :: ps }.replaceFVarId fvarId x |>.replaceFVarId h r
+        pure <| { alt with patterns := p :: ps }.replaceFVarId fvarId x |>.replaceFVarId h r
       | _ => pure alt
     pure { p with alts := alts }
 
@@ -715,7 +715,7 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
   let mkMatcherConst name :=
     mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
   match (matcherExt.getState env).find? (result.value, compile) with
-  | some nameNew => (mkMatcherConst nameNew, none)
+  | some nameNew => pure (mkMatcherConst nameNew, none)
   | none =>
     let decl := Declaration.defnDecl {
       name
@@ -733,8 +733,7 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
       setInlineAttribute name
       if compile then
         compileDecl decl
-    (mkMatcherConst name, some addMatcher)
-
+    return (mkMatcherConst name, some addMatcher)
 
 structure MkMatcherInput where
   matcherName : Name
@@ -798,7 +797,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult :=
           altNumParams := minors.map Prod.snd,
           uElimPos? }
         |> addMatcher
-      | none => ()
+      | none => pure ()
 
     trace[Meta.Match.debug] "matcher: {matcher}"
     let unusedAltIdxs := lhss.length.fold (init := []) fun i r =>

@@ -75,7 +75,7 @@ def parseNextCmd (contents : String) (snap : Snapshot) : IO Syntax := do
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
   let (cmdStx, _, _) :=
     Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
-  cmdStx
+  return cmdStx
 
 /--
   Parse remaining file without elaboration. NOTE that doing so can lead to parse errors or even wrong syntax objects,
@@ -90,7 +90,7 @@ partial def parseAhead (contents : String) (snap : Snapshot) : IO (Array Syntax)
     go inputCtx pmctx cmdParserState stxs := do
       let (cmdStx, cmdParserState, _) := Parser.parseCommand inputCtx pmctx cmdParserState snap.msgLog
       if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
-        stxs.push cmdStx
+        return stxs.push cmdStx
       else
         go inputCtx pmctx cmdParserState (stxs.push cmdStx)
 
@@ -115,7 +115,7 @@ def compileNextCmd (text : FileMap) (snap : Snapshot) (hasWidgets : Bool) : IO S
       cmdState := snap.cmdState
       interactiveDiags := ← withNewInteractiveDiags msgLog
     }
-    endSnap
+    return endSnap
   else
     let cmdStateRef ← IO.mkRef { snap.cmdState with messages := msgLog }
     let cmdCtx : Elab.Command.Context := {
@@ -145,7 +145,7 @@ def compileNextCmd (text : FileMap) (snap : Snapshot) (hasWidgets : Bool) : IO S
       cmdState := postCmdState
       interactiveDiags := ← withNewInteractiveDiags postCmdState.messages
     }
-    postCmdSnap
+    return postCmdSnap
 
 where
   /-- Compute the current interactive diagnostics log by finding a "diff" relative to the parent

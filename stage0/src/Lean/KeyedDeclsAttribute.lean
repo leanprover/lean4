@@ -135,7 +135,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
     name            := df.name
     descr           := df.descr
     erase           := fun declName => do
-      let s ← ext.getState (← getEnv)
+      let s := ext.getState (← getEnv)
       let s ← s.erase df.name declName
       modifyEnv fun env => ext.modifyState env fun _ => s
     add             := fun declName stx attrKind => do

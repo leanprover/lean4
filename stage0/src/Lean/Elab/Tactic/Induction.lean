@@ -194,7 +194,7 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (optPreTac : 
   let hasAlts := altsSyntax.size > 0
   if hasAlts then
     -- default to initial state outside of alts
-    withInfoContext go initialInfo
+    withInfoContext go (pure initialInfo)
   else go
 where
   go := do
@@ -243,7 +243,7 @@ where
             else
               throwError "alternative '{altName}' is not needed"
           let altVarNames := getAltVarNames altStx
-          let numFieldsToName ← if altHasExplicitModifier altStx then numFields else getNumExplicitFields altMVarId numFields
+          let numFieldsToName ← if altHasExplicitModifier altStx then pure numFields else getNumExplicitFields altMVarId numFields
           trace[Meta.debug] "numFields: {numFields}, numFieldsToName: {numFieldsToName}, altNames: {altVarNames.size}"
           if altVarNames.size > numFieldsToName then
             logError m!"too many variable names provided at alternative '{altName}', #{altVarNames.size} provided, but #{numFieldsToName} expected"
@@ -408,7 +408,7 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr) :=
       return args.map (·.expr)
     else
       liftMetaTacticAux fun mvarId => do
-        let argsToGeneralize ← args.filter fun arg => !(arg.expr.isFVar && arg.hName?.isNone)
+        let argsToGeneralize := args.filter fun arg => !(arg.expr.isFVar && arg.hName?.isNone)
         let (fvarIdsNew, mvarId) ← generalize mvarId argsToGeneralize
         let mut result := #[]
         let mut j := 0

@@ -153,8 +153,8 @@ def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEn
     -- TODO: record recursive expansions in info tree?
     expandMacro?     := fun stx => do
       match (← expandMacroImpl? env stx) with
-      | some (_, Except.ok stx) => some stx
-      | _                       => none
+      | some (_, Except.ok stx) => return some stx
+      | _                       => return none
     hasDecl          := fun declName => return env.contains declName
     getCurrNamespace := return currNamespace
     resolveNamespace? := fun n => return ResolveName.resolveNamespace? env currNamespace openDecls n
@@ -190,7 +190,7 @@ partial def mkUnusedBaseName (baseName : Name) : MacroM Name := do
        if ← Macro.hasDecl (currNamespace ++ name) then
          loop (idx+1)
        else
-         name
+         return name
     loop 1
   else
     return baseName

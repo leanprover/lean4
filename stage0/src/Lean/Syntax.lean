@@ -349,7 +349,7 @@ def goRight               : m Unit := @modify _ _ t.st (fun t => t.right)
 
 def getIdx : m Nat := do
   let st ← t.st.get
-  st.idxs.back?.getD 0
+  return st.idxs.back?.getD 0
 
 end MonadTraverser
 end Syntax

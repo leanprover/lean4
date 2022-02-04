@@ -183,44 +183,44 @@ def isNull : Json -> Bool
   | _    => false
 
 def getObj? : Json → Except String (RBNode String (fun _ => Json))
-  | obj kvs => kvs
+  | obj kvs => return kvs
   | _       => throw "object expected"
 
 def getArr? : Json → Except String (Array Json)
-  | arr a => a
+  | arr a => return a
   | _     => throw "array expected"
 
 def getStr? : Json → Except String String
-  | str s => s
+  | str s => return s
   | _     => throw "String expected"
 
 def getNat? : Json → Except String Nat
-  | (n : Nat) => n
+  | (n : Nat) => return n
   | _         => throw "Natural number expected"
 
 def getInt? : Json → Except String Int
-  | (i : Int) => i
+  | (i : Int) => return i
   | _         => throw "Integer expected"
 
 def getBool? : Json → Except String Bool
-  | (b : Bool) => b
+  | (b : Bool) => return b
   | _          => throw "Bool expected"
 
 def getNum? : Json → Except String JsonNumber
-  | num n => n
+  | num n => return n
   | _     => throw "number expected"
 
 def getObjVal? : Json → String → Except String Json
   | obj kvs, k =>
     match kvs.find compare k with
-    | some v => v
+    | some v => return v
     | none => throw s!"property not found: {k}"
   | _      , _ => throw "object expected"
 
 def getArrVal? : Json → Nat → Except String Json
   | arr a, i =>
     match a.get? i with
-    | some v => v
+    | some v => return v
     | none => throw s!"index out of bounds: {i}"
   | _    , _ => throw "array expected"
 

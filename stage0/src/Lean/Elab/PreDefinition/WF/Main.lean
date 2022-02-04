@@ -24,7 +24,7 @@ private def isOnlyOneUnaryDef (preDefs : Array PreDefinition) : MetaM Bool := do
 private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonRec : PreDefinition) : TermElabM Unit := do
   if (← isOnlyOneUnaryDef preDefs) then
     return ()
-  let Expr.forallE _ domain _ _ ← preDefNonRec.type | unreachable!
+  let Expr.forallE _ domain _ _ := preDefNonRec.type | unreachable!
   let us := preDefNonRec.levelParams.map mkLevelParam
   for fidx in [:preDefs.size] do
     let preDef := preDefs[fidx]

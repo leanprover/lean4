@@ -41,7 +41,7 @@ def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
 def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) : m Instances := do
   unless d.instanceNames.contains declName do
     throwError "'{declName}' does not have [instance] attribute"
-  d.eraseCore declName
+  return d.eraseCore declName
 
 builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry Instances ←
   registerSimpleScopedEnvExtension {
@@ -70,7 +70,7 @@ builtin_initialize
       let prio ← getAttrParamOptPrio stx[1]
       discard <| addInstance declName attrKind prio |>.run {} {}
     erase := fun declName => do
-      let s ← instanceExtension.getState (← getEnv)
+      let s := instanceExtension.getState (← getEnv)
       let s ← s.erase declName
       modifyEnv fun env => instanceExtension.modifyState env fun _ => s
   }

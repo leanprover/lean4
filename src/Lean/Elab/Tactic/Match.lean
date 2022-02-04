@@ -63,7 +63,7 @@ private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM
 def evalMatch : Tactic := fun stx => do
   let tag ← getMainTag
   let (matchTerm, cases) ← liftMacroM <| mkAuxiliaryMatchTerm tag stx
-  let refineMatchTerm ← `(tactic| refine $matchTerm)
+  let refineMatchTerm ← `(tactic| refine no_implicit_lambda% $matchTerm)
   let stxNew := mkNullNode (#[refineMatchTerm] ++ cases)
   withMacroExpansion stx stxNew <| evalTactic stxNew
 

@@ -1,0 +1,16 @@
+995.lean:1:40-5:14: error: unsolved goals
+case match_1
+x : Nat
+⊢ {h : 0 = 0} → Nat
+
+case match_2
+x n : Nat
+⊢ {h : n + 1 = n + 1} → Nat
+995.lean:7:41-10:14: error: unsolved goals
+case match_1
+x : Nat
+⊢ {h : 0 = 0} → Nat
+
+case match_2
+x n : Nat
+⊢ {h : n + 1 = n + 1} → Nat

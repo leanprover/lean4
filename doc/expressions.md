@@ -430,6 +430,9 @@ Every computable definition in Lean is compiled to bytecode at definition time. 
     #reduce f 5
     #eval   f 5
 
+    #reduce @Nat.rec (λ n => Nat) (0 : Nat)
+                     (λ n recval : Nat => recval + n + 1) (5 : Nat)
+
     def g : Nat → Nat
     | 0     => 0
     | (n+1) => g n + n + 1

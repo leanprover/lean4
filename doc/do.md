@@ -361,14 +361,14 @@ def showUserInfo (username favoriteColor : IO (Option String)) : IO Unit := do
 
 -- username: JohnDoe
 -- favorite color: red
-#eval showUserInfo (some "JohnDoe") (some "red")
+#eval showUserInfo (pure <| some "JohnDoe") (pure <| some "red")
 
 -- no username
-#eval showUserInfo none (some "purple")
+#eval showUserInfo (pure none) (pure <| some "purple")
 
 -- username: JaneDoe
 -- user didn't provide a favorite color
-#eval showUserInfo (some "JaneDoe") none
+#eval showUserInfo (pure <| some "JaneDoe") (pure none)
 ```
 
 ## If-let
@@ -380,8 +380,6 @@ def tryIncrement (input : IO (Option Nat)) : IO (Except String Nat) := do
   if let some n ← input
   then return Except.ok n.succ
   else return Except.error "argument was `none`"
-
--- Note: the `pure` in these two examples is optional.
 
 -- Except.ok 2
 #eval tryIncrement (pure <| some 1)

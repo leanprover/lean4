@@ -18,7 +18,7 @@ def main : IO Unit := do
       let diag := diags.getLast!
       FS.writeFile "content_diag.json.produced" (toString <| toJson (diag : JsonRpc.Message))
 
-      if let some (refDiag : JsonRpc.Notification PublishDiagnosticsParams) :=
+      if let Except.ok (refDiag : JsonRpc.Notification PublishDiagnosticsParams) :=
         (Json.parse $ ←FS.readFile "content_diag.json") >>= fromJson?
       then
         assert! (diag == refDiag)

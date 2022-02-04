@@ -69,26 +69,26 @@ def f' (stx : Syntax) : Unhygienic Syntax := match stx with
 open Parser.Term
 #eval run do
   match ← `(structInstField|a := b) with
-  | `(Parser.Term.structInstField| $lhs:ident := $rhs) => #[lhs, rhs]
+  | `(Parser.Term.structInstField| $lhs:ident := $rhs) => pure #[lhs, rhs]
   | _ => unreachable!
 
 #eval run do
   match ← `({ a := a : a }) with
-  | `({ $f:ident := $e : 0 })      => "0"
-  | `({ $f:ident := $e $[: $a?]?}) => "1"
-  | stx                    => "2"
+  | `({ $f:ident := $e : 0 })      => pure "0"
+  | `({ $f:ident := $e $[: $a?]?}) => pure "1"
+  | stx                    => pure "2"
 
 #eval run `(sufficesDecl|x from x)
 
 #eval run do
   match ← `([1, 2, 3, 4]) with
-    | `([$x, $ys,*, $z]) => #[x, mkNullNode ys, z]
+    | `([$x, $ys,*, $z]) => pure #[x, mkNullNode ys, z]
     | _ => unreachable!
 
 #eval run do
   match ← `([1, 2]) with
-    | `([$x, $y, $zs,*]) => zs.getElems
-    | `([$x, $ys,*])     => ys.getElems
+    | `([$x, $y, $zs,*]) => pure zs.getElems
+    | `([$x, $ys,*])     => pure ys.getElems
     | _ => unreachable!
 
 #check (match · with | `([1, $ys,*, 2, $zs,*, 3]) => _)
@@ -110,6 +110,6 @@ syntax "foo" term : term
 
 #eval run do
   match mkIdent `b with
-  | `(a) => "0"
-  | `(b) => "1"
-  | _    => "2"
+  | `(a) => pure "0"
+  | `(b) => pure "1"
+  | _    => pure "2"

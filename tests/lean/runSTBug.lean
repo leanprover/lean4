@@ -6,7 +6,7 @@ def f (xs : List Nat) (delta : Nat) : List Nat :=
   runST (fun ω => visit xs |>.run)
 where
   visit {ω} : List Nat → MonadCacheT Nat Nat (ST ω) (List Nat)
-    | []    => []
+    | []    => return []
     | a::as => do
       let b ← checkCache a fun _ => return a + delta
       return b :: (← visit as)

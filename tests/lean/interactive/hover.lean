@@ -42,7 +42,7 @@ example : True := by
 
 
 /-- My notation -/
-macro "mynota" e:term : term => e
+macro "mynota" e:term : term => pure e
 
 #check mynota 1
      --^ textDocument/hover

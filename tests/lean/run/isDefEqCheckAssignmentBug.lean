@@ -18,7 +18,7 @@ def tst : MetaM Unit := do
     trace[Meta.debug] "{m2} : {← inferType m2}"
     trace[Meta.debug] "{m1} : {← inferType m1}"
     let e ← mkForallFVars #[x] m2 -- `forall (x : f ?m2), ?m2`
-    trace[Meta.debug] "{e} : {← e}"
+    trace[Meta.debug] "{e} : {← inferType e}"
     return ()
 
 set_option trace.Meta.isDefEq true

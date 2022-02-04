@@ -79,7 +79,7 @@ def addInteractiveHypothesis (hyps : Array InteractiveHypothesis) (ids : Array N
 open Meta in
 /-- A variant of `Meta.ppGoal` which preserves subexpression information for interactivity. -/
 def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
-  let some mvarDecl ← (← getMCtx).findDecl? mvarId
+  let some mvarDecl := (← getMCtx).findDecl? mvarId
     | throwError "unknown goal {mvarId.name}"
   let ppAuxDecls := pp.auxDecls.get (← getOptions)
   let lctx := mvarDecl.lctx

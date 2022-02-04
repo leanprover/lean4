@@ -46,9 +46,9 @@ partial def map : TaggedText α → TaggedText β
 
 variable [Monad m] (f : α → m β) in
 partial def mapM : TaggedText α → m (TaggedText β)
-  | text s => text s
-  | append as => do append (← as.mapM mapM)
-  | tag t a => do tag (← f t) (← mapM a)
+  | text s => return text s
+  | append as => return append (← as.mapM mapM)
+  | tag t a => return tag (← f t) (← mapM a)
 
 variable (f : α → TaggedText α → TaggedText β) in
 partial def rewrite : TaggedText α → TaggedText β
@@ -59,8 +59,8 @@ partial def rewrite : TaggedText α → TaggedText β
 variable [Monad m] (f : α → TaggedText α → m (TaggedText β)) in
 /-- Like `mapM` but allows rewriting the whole subtree at `tag` nodes. -/
 partial def rewriteM : TaggedText α → m (TaggedText β)
-  | text s => text s
-  | append as => do append (← as.mapM rewriteM)
+  | text s => return text s
+  | append as => return append (← as.mapM rewriteM)
   | tag t a => f t a
 
 instance [RpcEncoding α β] : RpcEncoding (TaggedText α) (TaggedText β) where

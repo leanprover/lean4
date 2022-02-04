@@ -446,11 +446,11 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
           return result
       let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
         match findKey cs k with
-        | none   => result
+        | none   => return result
         | some c => getMatchLoop (todo ++ args) c.2 result
       let result ← visitStar result
       match k with
-      | Key.star  => result
+      | Key.star  => return result
       /-
         Recall that dependent arrows are `(Key.other, #[])`, and non-dependent arrows are `(Key.arrow, #[a, b])`.
         A non-dependent arrow may be an instance of a dependent arrow (stored at `DiscrTree`). Thus, we also visit the `Key.other` child.
@@ -534,7 +534,7 @@ where
             return result
         let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
           match findKey cs k with
-          | none   => result
+          | none   => return result
           | some c => process 0 (todo ++ args) c.2 result
         match k with
         | Key.star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result

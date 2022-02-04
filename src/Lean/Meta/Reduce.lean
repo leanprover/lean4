@@ -12,9 +12,9 @@ namespace Lean.Meta
 partial def reduce (e : Expr) (explicitOnly skipTypes skipProofs := true) : MetaM Expr :=
   let rec visit (e : Expr) : MonadCacheT Expr Expr MetaM Expr :=
     checkCache e fun _ => Core.withIncRecDepth do
-      if (← (skipTypes <&&> isType e)) then
+      if (← (pure skipTypes <&&> isType e)) then
         return e
-      else if (← (skipProofs <&&> isProof e)) then
+      else if (← (pure skipProofs <&&> isProof e)) then
         return e
       else
         let e ← whnf e

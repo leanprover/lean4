@@ -55,15 +55,15 @@ def mkContext (declName : Name) : MetaM Context := do
   let indVal ← getConstInfoInduct declName
   let typeInfos ← indVal.all.toArray.mapM getConstInfoInduct
   let motiveTypes ← typeInfos.mapM motiveType
-  let motives ← motiveTypes.mapIdxM fun j motive => do
-    (← motiveName motiveTypes j.val, motive)
+  let motives ← motiveTypes.mapIdxM fun j motive =>
+    return (← motiveName motiveTypes j.val, motive)
   let headers ← typeInfos.mapM $ mkHeader motives indVal.numParams
   return {
     motives := motives
     typeInfos := typeInfos
     numParams := indVal.numParams
     headers := headers
-    belowNames := (← indVal.all.toArray.map (· ++ `below))
+    belowNames := indVal.all.toArray.map (· ++ `below)
   }
 where
   motiveName (motiveTypes : Array Expr) (i : Nat) : MetaM Name :=
@@ -108,14 +108,14 @@ partial def mkCtorType
 where
   addHeaderVars (vars : Variables) := do
     let headersWithNames ← ctx.headers.mapIdxM fun idx header =>
-      (ctx.belowNames[idx], fun _ : Array Expr => pure header)
+      return (ctx.belowNames[idx], fun _ : Array Expr => pure header)
 
     withLocalDeclsD headersWithNames fun xs =>
       addMotives { vars with indVal := xs }
 
   addMotives (vars : Variables) := do
     let motiveBuilders ← ctx.motives.mapM fun (motiveName, motiveType) =>
-      (motiveName, BinderInfo.implicit, fun _ : Array Expr =>
+      return (motiveName, BinderInfo.implicit, fun _ : Array Expr =>
         instantiateForall motiveType vars.params)
     withLocalDecls motiveBuilders fun xs =>
       modifyBinders { vars with target := vars.target ++ xs, motives := xs } 0
@@ -141,7 +141,7 @@ where
       let innerType := mkAppN vars.indVal[belowIdx] $
         vars.params ++ vars.motives ++ args[ctx.numParams:] ++ #[hApp]
       let x ← mkForallFVars vars.target innerType
-      replaceTempVars vars x
+      return replaceTempVars vars x
 
   replaceTempVars (vars : Variables) (ctor : Expr) :=
     let levelParams :=
@@ -152,11 +152,11 @@ where
 
   checkCount (domain : Expr) : MetaM Bool := do
     let run (x : StateRefT Nat MetaM Expr) : MetaM (Expr × Nat) := StateRefT'.run x 0
-    let (_, cnt) ← run $ transform domain fun e => do
+    let (_, cnt) ← run <| transform domain fun e => do
       if let some name := e.constName? then
         if let some idx := ctx.typeInfos.findIdx? fun indVal => indVal.name == name then
           modify (. + 1)
-      TransformStep.visit e
+      return TransformStep.visit e
 
     if cnt > 1 then
       throwError "only arrows are allowed as premises. Multiple recursive occurrences detected:{indentExpr domain}"
@@ -225,21 +225,21 @@ def mkInductiveType
 
 def mkBelowDecl (ctx : Context) : MetaM Declaration := do
   let lparams := ctx.typeInfos[0].levelParams
-  Declaration.inductDecl
+  return Declaration.inductDecl
     lparams
     (ctx.numParams + ctx.motives.size)
     (←ctx.typeInfos.mapIdxM $ mkInductiveType ctx).toList
     ctx.typeInfos[0].isUnsafe
 
 partial def backwardsChaining (m : MVarId) (depth : Nat) : MetaM Bool := do
-  if depth = 0 then false
+  if depth = 0 then return false
   else
     withMVarContext m do
     let lctx ← getLCtx
     let mTy ← getMVarType m
     lctx.anyM fun localDecl =>
       if localDecl.isAuxDecl then
-        false
+        return false
       else
         commitWhen do
         let (mvars, _, t) ← forallMetaTelescope localDecl.type
@@ -247,7 +247,7 @@ partial def backwardsChaining (m : MVarId) (depth : Nat) : MetaM Bool := do
           assignExprMVar m (mkAppN localDecl.toExpr mvars)
           mvars.allM fun v =>
             isExprMVarAssigned v.mvarId! <||> backwardsChaining v.mvarId! (depth - 1)
-        else false
+        else return false
 
 partial def proveBrecOn (ctx : Context) (indVal : InductiveVal) (type : Expr) : MetaM Expr := do
   let main ← mkFreshExprSyntheticOpaqueMVar type
@@ -270,8 +270,8 @@ where
 
   applyIH (m : MVarId) (vars : BrecOnVariables) : MetaM (List MVarId) := do
     match (← vars.indHyps.findSomeM?
-      fun ih => do try some $ (←apply m $ mkFVar ih) catch ex => none) with
-    | some goals => goals
+      fun ih => do try pure <| some <| (←apply m $ mkFVar ih) catch ex => pure none) with
+    | some goals => pure goals
     | none => throwError "cannot apply induction hypothesis: {MessageData.ofGoal m}"
 
   induction (m : MVarId) (vars : BrecOnVariables) : MetaM (List MVarId) := do
@@ -287,7 +287,7 @@ where
       if recursorInfo.numLevelParams > levelParams.length
       then levelZero::levelParams
       else levelParams
-    let recursor ← mkAppN (mkConst recursorInfo.name $ recLevels) $ params ++ motives
+    let recursor := mkAppN (mkConst recursorInfo.name $ recLevels) $ params ++ motives
     apply m recursor
 
   applyCtors (ms : List MVarId) : MetaM $ List MVarId := do
@@ -305,7 +305,7 @@ where
     return mss.foldr List.append []
 
   introNPRec (m : MVarId) : MetaM MVarId := do
-    if (← getMVarType m).isForall then introNPRec (←intro1P m).2 else m
+    if (← getMVarType m).isForall then introNPRec (←intro1P m).2 else return m
 
   closeGoal (vars : BrecOnVariables) (maxDepth : Nat) (m : MVarId) : MetaM Unit := do
     unless (← isExprMVarAssigned m) do
@@ -318,7 +318,7 @@ def mkBrecOnDecl (ctx : Context) (idx : Nat) : MetaM Declaration := do
   let type ← mkType
   let indVal := ctx.typeInfos[idx]
   let name := indVal.name ++ brecOnSuffix
-  Declaration.thmDecl {
+  return Declaration.thmDecl {
     name := name
     levelParams := indVal.levelParams
     type := type
@@ -352,7 +352,7 @@ where
         let conclusion :=
           mkAppN motives[idx] ys
         mkForallFVars ys (←mkArrow premise conclusion)
-    (←name, mkDomain)
+    return (←name, mkDomain)
 
 /-- Given a constructor name, find the indices of the corresponding `below` version thereof. -/
 partial def getBelowIndices (ctorName : Name) : MetaM $ Array Nat := do
@@ -368,7 +368,7 @@ where
       (rest : Expr)
       (belowIndices : Array Nat)
       (xIdx yIdx : Nat) : MetaM $ Array Nat := do
-    if xIdx ≥ xs.size then belowIndices else
+    if xIdx ≥ xs.size then return belowIndices else
     let x := xs[xIdx]
     let xTy ← inferType x
     let yTy := rest.bindingDomain!
@@ -385,7 +385,7 @@ private def belowType (motive : Expr) (xs : Array Expr) (idx : Nat) : MetaM $ Na
     let indInfo ← getConstInfoInduct indName
     let belowArgs := args[:indInfo.numParams] ++ #[motive] ++ args[indInfo.numParams:] ++ #[xs[idx]]
     let belowType := mkAppN (mkConst (indName ++ `below) type.constLevels!) belowArgs
-    (indName, belowType)
+    return (indName, belowType)
 
 /-- This function adds an additional `below` discriminant to a matcher application.
     It is used for modifying the patterns, such that the structural recursion can use the new
@@ -414,7 +414,7 @@ partial def mkBelowMatcher
       withLocalDeclD (←mkFreshUserName `h_below) belowType fun h_below => do
       mkForallFVars (xs.push h_below) t
     let motive ← newMotive belowType xs
-    (indName, belowType.replaceFVars xs matcherApp.discrs, motive, matchType)
+    pure (indName, belowType.replaceFVars xs matcherApp.discrs, motive, matchType)
 
   let lhss ← mkMatcherInput.lhss.mapM $ addBelowPattern indName
   let alts ← mkMatcherInput.lhss.zip lhss |>.toArray.zip matcherApp.alts |>.mapIdxM fun idx ((oldLhs, lhs), alt) => do
@@ -431,12 +431,12 @@ partial def mkBelowMatcher
     trace[Meta.IndPredBelow.match] "xs = {xs}; oldFVars = {oldFVars.map (·.toExpr)}; fvars = {fvars}; new = {fvars[:oldFVars.size] ++ xs[oldFVars.size:] ++ fvars[oldFVars.size:]}"
     let newAlt ← mkLambdaFVars (fvars[:oldFVars.size] ++ xs[oldFVars.size:] ++ fvars[oldFVars.size:]) t
     trace[Meta.IndPredBelow.match] "alt {idx}:\n{alt} ↦ {newAlt}"
-    newAlt
+    pure newAlt
 
   let matcherName ← mkFreshUserName mkMatcherInput.matcherName
   withExistingLocalDecls (lhss.foldl (init := []) fun s v => s ++ v.fvarDecls) do
     for lhs in lhss do
-      trace[Meta.IndPredBelow.match] "{←lhs.patterns.mapM (·.toMessageData)}"
+      trace[Meta.IndPredBelow.match] "{lhs.patterns.map (·.toMessageData)}"
   let res ← Match.mkMatcher { matcherName, matchType, numDiscrs := (mkMatcherInput.numDiscrs + 1), lhss }
   res.addMatcher
   -- if a wrong index is picked, the resulting matcher can be type-incorrect.
@@ -446,7 +446,7 @@ partial def mkBelowMatcher
   let newApp := mkApp res.matcher motive
   let newApp := mkAppN newApp $ matcherApp.discrs.push below
   let newApp := mkAppN newApp alts
-  (newApp, res.addMatcher)
+  return (newApp, res.addMatcher)
 
 where
   addBelowPattern (indName : Name) (lhs : AltLHS) : MetaM AltLHS := do
@@ -457,7 +457,7 @@ where
     withExistingLocalDecls fVars.toList do
     let patterns := patterns.push belowPattern
     let patterns := patterns.set! idx (←toInaccessible originalPattern)
-    { lhs with patterns := patterns.toList, fvarDecls := lhs.fvarDecls ++ fVars.toList }
+    return { lhs with patterns := patterns.toList, fvarDecls := lhs.fvarDecls ++ fVars.toList }
 
   /--
     this function changes the type of the pattern from the original type to the `below` version thereof.
@@ -500,18 +500,18 @@ where
       withExistingLocalDecls additionalFVars.toList do
       let ctor := Pattern.ctor belowCtor.name us belowParams.toList belowFields.toList
       trace[Meta.IndPredBelow.match] "{originalPattern.toMessageData} ↦ {ctor.toMessageData}"
-      (additionalFVars, ctor)
+      return (additionalFVars, ctor)
     | Pattern.as varId p hId =>
       let (additionalFVars, p) ← convertToBelow indName p
-      (additionalFVars, Pattern.as varId p hId)
+      return (additionalFVars, Pattern.as varId p hId)
     | Pattern.var varId =>
       let var := mkFVar varId
       (←inferType var).withApp fun ind args => do
       let (_, tgtType) ← belowType belowMotive #[var] 0
       withLocalDeclD (←mkFreshUserName `h) tgtType fun h => do
       let localDecl ← getFVarLocalDecl h
-      (#[localDecl], Pattern.var h.fvarId!)
-    | p => (#[], p)
+      return (#[localDecl], Pattern.var h.fvarId!)
+    | p => return (#[], p)
 
   transformFields belowCtor indName belowFieldOpts :=
     let rec loop
@@ -519,7 +519,7 @@ where
       (belowFieldOpts : Array $ Option Pattern)
       (belowFields : Array Pattern)
       (additionalFVars : Array LocalDecl) : MetaM (Array LocalDecl × Array Pattern) := do
-      if belowFields.size ≥ belowFieldOpts.size then (additionalFVars, belowFields) else
+      if belowFields.size ≥ belowFieldOpts.size then pure (additionalFVars, belowFields) else
       if let some belowField := belowFieldOpts[belowFields.size] then
         let belowFieldExpr ← belowField.toExpr
         let belowCtor := mkApp belowCtor belowFieldExpr
@@ -545,17 +545,17 @@ where
     loop belowCtor belowFieldOpts #[] #[]
 
   toInaccessible : Pattern → MetaM Pattern
-  | Pattern.inaccessible p => Pattern.inaccessible p
-  | Pattern.var v => Pattern.var v
-  | p => do Pattern.inaccessible $ ←p.toExpr
+  | Pattern.inaccessible p => return Pattern.inaccessible p
+  | Pattern.var v => return Pattern.var v
+  | p => return Pattern.inaccessible $ ←p.toExpr
 
   newMotive (belowType : Expr) (ys : Array Expr) : MetaM Expr :=
     lambdaTelescope matcherApp.motive fun xs t => do
     let numDiscrs := matcherApp.discrs.size
-    withLocalDeclD (←mkFreshUserName `h_below) (←belowType.replaceFVars ys xs) fun h_below => do
+    withLocalDeclD (←mkFreshUserName `h_below) (belowType.replaceFVars ys xs) fun h_below => do
     let motive ← mkLambdaFVars (xs[:numDiscrs] ++ #[h_below] ++ xs[numDiscrs:]) t
     trace[Meta.IndPredBelow.match] "motive := {motive}"
-    motive
+    return motive
 
 def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat) := do
   xs.findSomeM? fun x => do
@@ -570,13 +570,13 @@ def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat
         trace[Meta.IndPredBelow.match] "{←Meta.ppGoal below.mvarId!}"
         if (← backwardsChaining below.mvarId! 10) then
           trace[Meta.IndPredBelow.match] "Found below term in the local context: {below}"
-          if (← xs.anyM (isDefEq below)) then none else (below, idx.val)
+          if (← xs.anyM (isDefEq below)) then pure none else pure (below, idx.val)
         else
           trace[Meta.IndPredBelow.match] "could not find below term in the local context"
-          none
-      catch _ => none
-    else none
-  | _, _ => none
+          pure none
+      catch _ => pure none
+    else pure none
+  | _, _ => pure none
 
 def mkBelow (declName : Name) : MetaM Unit := do
   if (← isInductivePredicate declName) then

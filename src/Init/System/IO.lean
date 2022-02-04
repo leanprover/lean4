@@ -144,7 +144,7 @@ namespace EIO
 
 /-- `EIO` specialization of `BaseIO.bindTask`. -/
 @[inline] def bindTask (t : Task α) (f : α → EIO ε (Task (Except ε β))) (prio := Task.Priority.default) : BaseIO (Task (Except ε β)) :=
-  BaseIO.bindTask t (fun a => f a |>.catchExceptions fun e => Task.pure <| Except.error e) prio
+  BaseIO.bindTask t (fun a => f a |>.catchExceptions fun e => return Task.pure <| Except.error e) prio
 
 /-- `EIO` specialization of `BaseIO.mapTasks`. -/
 @[inline] def mapTasks (f : List α → EIO ε β) (tasks : List (Task α)) (prio := Task.Priority.default) : BaseIO (Task (Except ε β)) :=
@@ -200,7 +200,7 @@ def sleep (ms : UInt32) : IO Unit :=
 
 /-- Wait for the task to finish, then return its result. -/
 @[extern "lean_io_wait"] constant wait (t : Task α) : BaseIO α :=
-  t.get
+  return t.get
 
 /-- Wait until any of the tasks in the given list has finished, then return its result. -/
 @[extern "lean_io_wait_any"] constant waitAny : @& List (Task α) → IO α
@@ -395,16 +395,16 @@ constant metadata : @& FilePath → IO IO.FS.Metadata
 
 def isDir (p : FilePath) : BaseIO Bool := do
   match (← p.metadata.toBaseIO) with
-  | Except.ok m => m.type == IO.FS.FileType.dir
-  | Except.error _ => false
+  | Except.ok m => return m.type == IO.FS.FileType.dir
+  | Except.error _ => return false
 
-def pathExists (p : FilePath) : BaseIO Bool := do
-  (← p.metadata.toBaseIO).toBool
+def pathExists (p : FilePath) : BaseIO Bool :=
+  return (← p.metadata.toBaseIO).toBool
 
 /--
   Return all filesystem entries of a preorder traversal of all directories satisfying `enter`, starting at `p`.
   Symbolic links are visited as well by default. -/
-partial def walkDir (p : FilePath) (enter : FilePath → IO Bool := fun _ => true) : IO (Array FilePath) :=
+partial def walkDir (p : FilePath) (enter : FilePath → IO Bool := fun _ => pure true) : IO (Array FilePath) :=
   Prod.snd <$> StateT.run (go p) #[]
 where
   go p := do
@@ -421,7 +421,7 @@ where
           if (← enter p) then
             go p'
       | FS.FileType.dir => go d.path
-      | _ => ()
+      | _ => return ()
 
 end System.FilePath
 

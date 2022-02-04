@@ -298,7 +298,7 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do
 
   -- note the order: first process current messages & info trees, then add back old messages & trees,
   -- then convert new traces to messages
-  let mut msgs ← (← get).messages
+  let mut msgs := (← get).messages
   -- `stx.hasMissing` should imply `initMsgs.hasErrors`, but the latter should be cheaper to check in general
   if !showPartialSyntaxErrors.get (← getOptions) && initMsgs.hasErrors && stx.hasMissing then
     -- discard elaboration errors, except for a few important and unlikely misleading ones, on parse error

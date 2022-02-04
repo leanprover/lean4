@@ -35,7 +35,7 @@ open Meta Parser in
 /-- Takes an expression of type `Parser`, and determines the syntax kind of the root node it produces. -/
 partial def parserNodeKind? (e : Expr) : MetaM (Option Name) := do
   let reduceEval? e : MetaM (Option Name) := do
-    try some (← reduceEval e) catch _ => none
+    try pure <| some (← reduceEval e) catch _ => pure none
   let e ← whnfCore e
   if e matches Expr.lam .. then
     lambdaLetTelescope e fun xs e => parserNodeKind? e
@@ -46,7 +46,7 @@ partial def parserNodeKind? (e : Expr) : MetaM (Option Name) := do
   else if e.isAppOfArity ``leadingNode 3 || e.isAppOfArity ``trailingNode 4 || e.isAppOfArity ``node 2 then
     reduceEval? (e.getArg! 0)
   else
-    none
+    return none
 
 section
 open Meta

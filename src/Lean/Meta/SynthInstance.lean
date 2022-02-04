@@ -396,7 +396,7 @@ def isNewAnswer (oldAnswers : Array Answer) (answer : Answer) : Bool :=
 
 private def mkAnswer (cNode : ConsumerNode) : MetaM Answer :=
   withMCtx cNode.mctx do
-    traceM `Meta.synthInstance.newAnswer do m!"size: {cNode.size}, {← inferType cNode.mvar}"
+    traceM `Meta.synthInstance.newAnswer do pure m!"size: {cNode.size}, {← inferType cNode.mvar}"
     let val ← instantiateMVars cNode.mvar
     trace[Meta.synthInstance.newAnswer] "val: {val}"
     let result ← abstractMVars val -- assignable metavariables become parameters
@@ -409,7 +409,7 @@ private def mkAnswer (cNode : ConsumerNode) : MetaM Answer :=
   And then, store it in the tabled entries map, and wakeup waiters. -/
 def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
   if cNode.size ≥ (← read).maxResultSize then
-    traceM `Meta.synthInstance.discarded do withMCtx cNode.mctx do m!"size: {cNode.size} ≥ {(← read).maxResultSize}, {← inferType cNode.mvar}"
+    traceM `Meta.synthInstance.discarded do withMCtx cNode.mctx do pure m!"size: {cNode.size} ≥ {(← read).maxResultSize}, {← inferType cNode.mvar}"
     return ()
   else
     let answer ← mkAnswer cNode
@@ -487,7 +487,7 @@ def consume (cNode : ConsumerNode) : SynthM Unit :=
        match (← removeUnusedArguments? cNode.mctx mvar) with
        | none => newSubgoal cNode.mctx key mvar waiter
        | some (mvarType', transformer) =>
-         let key' ← mkTableKey cNode.mctx mvarType'
+         let key' := mkTableKey cNode.mctx mvarType'
          match (← findEntry? key') with
          | none => do
            let (mctx', mvar') ← withMCtx cNode.mctx do
@@ -498,7 +498,7 @@ def consume (cNode : ConsumerNode) : SynthM Unit :=
            let answers' ← entry'.answers.mapM fun a => withMCtx cNode.mctx do
              let trAnswr := Expr.betaRev transformer #[← instantiateMVars a.result.expr]
              let trAnswrType ← inferType trAnswr
-             { a with result.expr := trAnswr, resultType := trAnswrType }
+             pure { a with result.expr := trAnswr, resultType := trAnswrType }
            modify fun s =>
              { s with
                resumeStack  := answers'.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,

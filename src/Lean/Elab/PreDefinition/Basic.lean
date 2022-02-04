@@ -130,7 +130,7 @@ def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) : Ter
   Eliminate recursive application annotations containing syntax. These annotations are used by the well-founded recursion module
   to produce better error messages. -/
 def eraseRecAppSyntaxExpr (e : Expr) : CoreM Expr :=
-  Core.transform e (post := fun e => TransformStep.done <| if (getRecAppSyntax? e).isSome then e.mdataExpr! else e)
+  Core.transform e (post := fun e => pure <| TransformStep.done <| if (getRecAppSyntax? e).isSome then e.mdataExpr! else e)
 
 def eraseRecAppSyntax (preDef : PreDefinition) : CoreM PreDefinition :=
   return { preDef with value := (← eraseRecAppSyntaxExpr preDef.value) }

@@ -21,8 +21,8 @@ def addDocString' [Monad m] [MonadEnv m] (declName : Name) (docString? : Option 
   | some docString => addDocString declName docString
   | none => return ()
 
-def findDocString? (env : Environment) (declName : Name) : IO (Option String) := do
-  (← builtinDocStrings.get).find? declName |>.orElse fun _ => docStringExt.find? env declName
+def findDocString? (env : Environment) (declName : Name) : IO (Option String) :=
+  return (← builtinDocStrings.get).find? declName |>.orElse fun _ => docStringExt.find? env declName
 
 private builtin_initialize moduleDocExt : SimplePersistentEnvExtension String (Std.PersistentArray String) ← registerSimplePersistentEnvExtension {
   name          := `moduleDocExt

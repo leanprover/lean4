@@ -25,7 +25,7 @@ builtin_initialize auxLemmasExt : EnvExtension AuxLemmas ← registerEnvExtensio
 -/
 def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) : MetaM Name := do
   let env ← getEnv
-  let s ← auxLemmasExt.getState env
+  let s := auxLemmasExt.getState env
   let mkNewAuxLemma := do
     let auxName := Name.mkNum (env.mainModule ++ `_auxLemma) s.idx
     addDecl <| Declaration.thmDecl {

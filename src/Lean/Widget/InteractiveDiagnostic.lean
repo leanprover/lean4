@@ -115,12 +115,12 @@ where
     return Format.tag t fmt
 
   go : NamingContext → Option MessageDataContext → MessageData → MsgFmtM Format
-  | _,    _,         ofFormat fmt             => withIgnoreTags fmt
-  | _,    _,         ofLevel u                => format u
-  | _,    _,         ofName n                 => format n
+  | _,    _,         ofFormat fmt             => withIgnoreTags (pure fmt)
+  | _,    _,         ofLevel u                => return format u
+  | _,    _,         ofName n                 => return format n
   | nCtx, some ctx,  ofSyntax s               => withIgnoreTags (ppTerm (mkPPContext nCtx ctx) s) -- HACK: might not be a term
-  | _,    none,      ofSyntax s               => withIgnoreTags s.formatStx
-  | _,    none,      ofExpr e                 => format (toString e)
+  | _,    none,      ofSyntax s               => withIgnoreTags (pure s.formatStx)
+  | _,    none,      ofExpr e                 => return format (toString e)
   | nCtx, some ctx,  ofExpr e                 => do
     let ci : Elab.ContextInfo := {
       env := ctx.env
@@ -144,7 +144,7 @@ where
       -- take significant resources to pretty-print.
       if hasWidgets then
         let f ← pushEmbed <| EmbedFmt.lazyTrace nCtx ctx cls d
-        Format.tag f s!"[{cls}] (trace hidden)"
+        return Format.tag f s!"[{cls}] (trace hidden)"
       else
         go nCtx ctx d
     else
@@ -165,7 +165,7 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
     match embeds.get! n with
     | EmbedFmt.expr ctx infos =>
       let subTt' := tagExprInfos ctx infos subTt
-      TaggedText.tag (MsgEmbed.expr subTt') (TaggedText.text subTt.stripTags)
+      return TaggedText.tag (MsgEmbed.expr subTt') (TaggedText.text subTt.stripTags)
     | EmbedFmt.goal ctx lctx g =>
       -- TODO(WN): use InteractiveGoal types here
       unreachable!
@@ -174,8 +174,8 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
         match ctx? with
         | some ctx => MessageData.withNamingContext nCtx <| MessageData.withContext ctx m
         | none     => MessageData.withNamingContext nCtx m
-      TaggedText.tag (MsgEmbed.lazyTrace col cls ⟨msg⟩) (TaggedText.text subTt.stripTags)
-    | EmbedFmt.ignoreTags => TaggedText.text subTt.stripTags
+      return TaggedText.tag (MsgEmbed.lazyTrace col cls ⟨msg⟩) (TaggedText.text subTt.stripTags)
+    | EmbedFmt.ignoreTags => return TaggedText.text subTt.stripTags
 
 /-- Transform a Lean Message concerning the given text into an LSP Diagnostic. -/
 def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool) : IO InteractiveDiagnostic := do
@@ -201,7 +201,7 @@ def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool
   let message ← try
       msgToInteractive m.data hasWidgets
     catch ex =>
-      TaggedText.text s!"[error when printing message: {ex.toString}]"
+      pure <| TaggedText.text s!"[error when printing message: {ex.toString}]"
   pure {
     range := range
     fullRange := fullRange

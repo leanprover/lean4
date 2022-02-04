@@ -75,12 +75,12 @@ where
         else if (← compatibleCtors ctorName₁ ctorName₂) then
           patterns := patterns ++ #[(← `($(mkIdent ctorName₁) ..)), (← `($(mkIdent ctorName₂) ..))]
           let rhs ← `(isFalse (by intro h; injection h))
-          alts ← alts.push (← `(matchAltExpr| | $[$patterns:term],* => $rhs:term))
+          alts := alts.push (← `(matchAltExpr| | $[$patterns:term],* => $rhs:term))
     return alts
 
 def mkAuxFunction (ctx : Context) : TermElabM Syntax := do
-  let auxFunName ← ctx.auxFunNames[0]
-  let indVal     ← ctx.typeInfos[0]
+  let auxFunName := ctx.auxFunNames[0]
+  let indVal     :=ctx.typeInfos[0]
   let header     ← mkDecEqHeader ctx indVal
   let mut body   ← mkMatch ctx header indVal auxFunName header.argNames
   let binders    := header.binders

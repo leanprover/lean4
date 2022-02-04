@@ -212,7 +212,7 @@ def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α
     -- elaborate independently from each other
     let dom ← elabType dom
     let rng ← elabType rng
-    mkForall (← MonadQuotation.addMacroScope `a) BinderInfo.default dom rng
+    return mkForall (← MonadQuotation.addMacroScope `a) BinderInfo.default dom rng
   | _                    => throwUnsupportedSyntax
 
 /--
@@ -391,7 +391,7 @@ def expandWhereDecls (whereDecls : Syntax) (body : Syntax) : MacroM Syntax :=
 
 def expandWhereDeclsOpt (whereDeclsOpt : Syntax) (body : Syntax) : MacroM Syntax :=
   if whereDeclsOpt.isNone then
-    body
+    return body
   else
     expandWhereDecls whereDeclsOpt[0] body
 

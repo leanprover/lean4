@@ -134,7 +134,7 @@ section Elab
       -- followup errors
       publishProgressAtPos m headerSnap.beginPos ctx.hOut (kind := LeanFileProgressKind.fatalError)
       publishIleanInfoFinal m ctx.hOut #[headerSnap]
-      AsyncList.nil
+      pure AsyncList.nil
     else
       -- This will overwrite existing ilean info for the file since this has a
       -- higher version number.
@@ -199,7 +199,7 @@ section Initialization
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
     let mut srcSearchPath ← initSrcSearchPath (← getBuildDir)
     let lakePath ← match (← IO.getEnv "LAKE") with
-      | some path => System.FilePath.mk path
+      | some path => pure <| System.FilePath.mk path
       | none =>
         let lakePath :=
           -- backward compatibility, kill when `leanpkg` is removed
@@ -208,7 +208,7 @@ section Initialization
         let lakePath ← match (← IO.getEnv "LEAN_SYSROOT") with
           | some path => pure <| System.FilePath.mk path / "bin" / lakePath
           | _         => pure <| (← appDir) / lakePath
-        lakePath.withExtension System.FilePath.exeExtension
+        pure <| lakePath.withExtension System.FilePath.exeExtension
     let (headerEnv, msgLog) ← try
       if let some path := m.uri.toPath? then
         -- NOTE: we assume for now that `lakefile.lean` does not have any non-stdlib deps
@@ -224,7 +224,7 @@ section Initialization
     try
       if let some path := m.uri.toPath? then
         headerEnv := headerEnv.setMainModule (← moduleNameOfFileName path none)
-    catch _ => ()
+    catch _ => pure ()
     let cmdState := Elab.Command.mkState headerEnv msgLog opts
     let cmdState := { cmdState with infoState := {
       enabled := true
@@ -316,7 +316,7 @@ section Updates
           else newHeaderSnap
         let newLastStx ← parseNextCmd newMeta.text.source preLastSnap
         if newLastStx != lastSnap.stx then
-          validSnaps ← validSnaps.dropLast
+          validSnaps := validSnaps.dropLast
         let cancelTk ← CancelToken.new
         let newSnaps ← unfoldCmdSnaps newMeta newHeaderSnap validSnaps.toArray cancelTk ctx
         let newCmdSnaps := AsyncList.ofList validSnaps ++ newSnaps
@@ -437,13 +437,13 @@ section MainLoop
     let msg ← ctx.hIn.readLspMessage
     let filterFinishedTasks (acc : PendingRequestMap) (id : RequestID) (task : Task (Except IO.Error Unit))
         : IO PendingRequestMap := do
-      if (←hasFinished task) then
+      if (← hasFinished task) then
         /- Handler tasks are constructed so that the only possible errors here
         are failures of writing a response into the stream. -/
         if let Except.error e := task.get then
           throwServerError s!"Failed responding to request {id}: {e}"
-        acc.erase id
-      else acc
+        pure <| acc.erase id
+      else pure acc
     let pendingRequests ← st.pendingRequests.foldM (fun acc id task => filterFinishedTasks acc id task) st.pendingRequests
     st := { st with pendingRequests }
 
@@ -459,7 +459,7 @@ section MainLoop
       handleRequest id method (toJson params)
       mainLoop
     | Message.notification "exit" none =>
-      let doc ← (←get).doc
+      let doc := (←get).doc
       doc.cancelTk.set
       return ()
     | Message.notification method (some params) =>
@@ -480,7 +480,7 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
     so if we get the line number correct it shouldn't matter that there
     is a CR there. -/
   let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap⟩
-  let e ← e.withPrefix s!"[{param.textDocument.uri}] "
+  let e := e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   try
     let (ctx, st) ← initializeWorker meta i o e initParams.param opts

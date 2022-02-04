@@ -30,24 +30,24 @@ def hexChar : Parsec Nat := do
 def escapedChar : Parsec Char := do
   let c ← anyChar
   match c with
-  | '\\' => '\\'
-  | '"'  => '"'
-  | '/'  => '/'
-  | 'b'  => '\x08'
-  | 'f'  => '\x0c'
-  | 'n'  => '\n'
-  | 'r'  => '\x0d'
-  | 't'  => '\t'
+  | '\\' => return '\\'
+  | '"'  => return '"'
+  | '/'  => return '/'
+  | 'b'  => return '\x08'
+  | 'f'  => return '\x0c'
+  | 'n'  => return '\n'
+  | 'r'  => return '\x0d'
+  | 't'  => return '\t'
   | 'u'  =>
     let u1 ← hexChar; let u2 ← hexChar; let u3 ← hexChar; let u4 ← hexChar
-    Char.ofNat $ 4096*u1 + 256*u2 + 16*u3 + u4
+    return Char.ofNat $ 4096*u1 + 256*u2 + 16*u3 + u4
   | _ => fail "illegal \\u escape"
 
 partial def strCore (acc : String) : Parsec String := do
   let c ← peek!
   if c = '"' then -- "
     skip
-    acc
+    return acc
   else
     let c ← anyChar
     let ec ←
@@ -57,7 +57,7 @@ partial def strCore (acc : String) : Parsec String := do
       -- the JSON standard is not definite: both directly printing the character
       -- and encoding it with multiple \u is allowed. we choose the former.
       else if 0x0020 ≤ c.val ∧ c.val ≤ 0x10ffff then
-        c
+        pure c
       else
         fail "unexpected character in string"
     strCore (acc.push ec)
@@ -65,27 +65,27 @@ partial def strCore (acc : String) : Parsec String := do
 def str : Parsec String := strCore ""
 
 partial def natCore (acc digits : Nat) : Parsec (Nat × Nat) := do
-  let some c ← peek? | (acc, digits)
+  let some c ← peek? | return (acc, digits)
   if '0' ≤ c ∧ c ≤ '9' then
     skip
     let acc' := 10*acc + (c.val.toNat - '0'.val.toNat)
     natCore acc' (digits+1)
   else
-    (acc, digits)
+    return (acc, digits)
 
 @[inline]
 def lookahead (p : Char → Prop) (desc : String) [DecidablePred p] : Parsec Unit := do
   let c ← peek!
   if p c then
-    ()
+    return ()
   else
-    fail $ "expected " ++ desc
+    fail <| "expected " ++ desc
 
 @[inline]
 def natNonZero : Parsec Nat := do
   lookahead (fun c => '1' ≤ c ∧ c ≤ '9') "1-9"
   let (n, _) ← natCore 0 0
-  n
+  return n
 
 @[inline]
 def natNumDigits : Parsec (Nat × Nat) := do
@@ -95,7 +95,7 @@ def natNumDigits : Parsec (Nat × Nat) := do
 @[inline]
 def natMaybeZero : Parsec Nat := do
   let (n, _) ← natNumDigits
-  n
+  return n
 
 def num : Parsec JsonNumber := do
   let c ← peek!
@@ -120,9 +120,9 @@ def num : Parsec JsonNumber := do
       if d > USize.size then fail "too many decimals"
       let mantissa' := sign * (res * (10^d : Nat) + n)
       let exponent' := d
-      JsonNumber.mk mantissa' exponent'
+      pure <| JsonNumber.mk mantissa' exponent'
     else
-      JsonNumber.fromInt (sign * res)
+      pure <| JsonNumber.fromInt (sign * res)
   let c? ← peek?
   if c? = some 'e' ∨ c? = some 'E' then
     skip
@@ -130,14 +130,14 @@ def num : Parsec JsonNumber := do
     if c = '-' then
       skip
       let n ← natMaybeZero
-      res.shiftr n
+      return res.shiftr n
     else
       if c = '+' then skip
       let n ← natMaybeZero
       if n > USize.size then fail "exp too large"
-      res.shiftl n
+      return res.shiftl n
   else
-    res
+    return res
 
 partial def arrayCore (anyCore : Unit → Parsec Json) (acc : Array Json) : Parsec (Array Json) := do
   let hd ← anyCore ()
@@ -145,7 +145,7 @@ partial def arrayCore (anyCore : Unit → Parsec Json) (acc : Array Json) : Pars
   let c ← anyChar
   if c = ']' then
     ws
-    acc'
+    return acc'
   else if c = ',' then
     ws
     arrayCore anyCore acc'
@@ -160,11 +160,11 @@ partial def objectCore (anyCore : Unit → Parsec Json) : Parsec (RBNode String 
   let c ← anyChar
   if c = '}' then
     ws
-    RBNode.singleton k v
+    return RBNode.singleton k v
   else if c = ',' then
     ws
     let kvs ← objectCore anyCore
-    kvs.insert compare k v
+    return kvs.insert compare k v
   else
     fail "unexpected character in object"
 
@@ -177,37 +177,37 @@ partial def anyCore (u : Unit) : Parsec Json := do
     let c ← peek!
     if c = ']' then
       skip; ws
-      Json.arr (Array.mkEmpty 0)
+      return Json.arr (Array.mkEmpty 0)
     else
       let a ← arrayCore anyCore (Array.mkEmpty 4)
-      Json.arr a
+      return Json.arr a
   else if c = '{' then
     skip; ws
     let c ← peek!
     if c = '}' then
       skip; ws
-      Json.obj (RBNode.leaf)
+      return Json.obj (RBNode.leaf)
     else
       let kvs ← objectCore anyCore
-      Json.obj kvs
+      return Json.obj kvs
   else if c = '\"' then
     skip
     let s ← strCore ""
     ws
-    Json.str s
+    return Json.str s
   else if c = 'f' then
     skipString "false"; ws
-    Json.bool false
+    return Json.bool false
   else if c = 't' then
     skipString "true"; ws
-    Json.bool true
+    return Json.bool true
   else if c = 'n' then
     skipString "null"; ws
-    Json.null
+    return Json.null
   else if c = '-' ∨ ('0' ≤ c ∧ c ≤ '9') then
     let n ← num
     ws
-    Json.num n
+    return Json.num n
   else
     fail "unexpected input"
 
@@ -216,7 +216,7 @@ def any : Parsec Json := do
   ws
   let res ← anyCore ()
   eof
-  res
+  return res
 
 end Json.Parser
 

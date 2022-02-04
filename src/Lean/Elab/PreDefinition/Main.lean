@@ -67,7 +67,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
   for preDef in preDefs do
     trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
   let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
-  let cliques ← partitionPreDefs preDefs
+  let cliques := partitionPreDefs preDefs
   let mut terminationBy ← liftMacroM <| WF.expandTerminationBy hints.terminationBy? (cliques.map fun ds => ds.map (·.declName))
   let mut decreasingBy  ← liftMacroM <| WF.expandTerminationHint hints.decreasingBy? (cliques.map fun ds => ds.map (·.declName))
   for preDefs in cliques do

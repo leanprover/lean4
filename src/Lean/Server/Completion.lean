@@ -26,11 +26,11 @@ def addToBlackList (env : Environment) (declName : Name) : Environment :=
 
 private def isBlackListed (declName : Name) : MetaM Bool := do
   let env ← getEnv
-  (declName.isInternal && !isPrivateName declName)
-  <||> isAuxRecursor env declName
-  <||> isNoConfusion env declName
+  (pure (declName.isInternal && !isPrivateName declName))
+  <||> (pure <| isAuxRecursor env declName)
+  <||> (pure <| isNoConfusion env declName)
   <||> isRec declName
-  <||> completionBlackListExt.isTagged env declName
+  <||> (pure <| completionBlackListExt.isTagged env declName)
   <||> isMatcher declName
 
 private partial def consumeImplicitPrefix (e : Expr) (k : Expr → MetaM α) : MetaM α := do
@@ -76,7 +76,7 @@ structure State where
 abbrev M := OptionT $ StateRefT State MetaM
 
 private def addCompletionItem (label : Name) (type : Expr) (expectedType? : Option Expr) (declName? : Option Name) (kind : CompletionItemKind) : M Unit := do
-  let docString? ← if let some declName := declName? then findDocString? (← getEnv) declName else none
+  let docString? ← if let some declName := declName? then findDocString? (← getEnv) declName else pure none
   let item ← mkCompletionItem label type docString? kind
   if (← isTypeApplicable  type expectedType?) then
     modify fun s => { s with itemsMain := s.itemsMain.push item }
@@ -88,7 +88,7 @@ private def getCompletionKindForDecl (constInfo : ConstantInfo) : M CompletionIt
   if constInfo.isCtor then
     return CompletionItemKind.constructor
   else if constInfo.isInductive then
-    if (← isClass env constInfo.name) then
+    if isClass env constInfo.name then
       return CompletionItemKind.class
     else if (← isEnumType constInfo.name) then
       return CompletionItemKind.enum
@@ -102,7 +102,7 @@ private def getCompletionKindForDecl (constInfo : ConstantInfo) : M CompletionIt
     return CompletionItemKind.constant
 
 private def addCompletionItemForDecl (label : Name) (declName : Name) (expectedType? : Option Expr) : M Unit := do
-  if let some c ← (← getEnv).find? declName then
+  if let some c := (← getEnv).find? declName then
     addCompletionItem label c.type expectedType? (some declName) (← getCompletionKindForDecl c)
 
 private def addKeywordCompletionItem (keyword : String) : M Unit := do
@@ -160,7 +160,7 @@ private def matchDecl? (ns : Name) (id : Name) (danglingDot : Bool) (declName : 
           return some s₂
         else
           return none
-      | _, _ => none
+      | _, _ => return none
     else
       return none
 

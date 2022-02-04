@@ -264,7 +264,7 @@ where
   | `(($e))         => return (← expandCDot? e).getD e
   | `(($e, $es,*))  => do
     let pairs ← mkPairs (#[e] ++ es)
-    (← expandCDot? pairs).getD pairs
+    return (← expandCDot? pairs).getD pairs
   | stx =>
     if !stx[1][0].isMissing && stx[1][1].isMissing then
       -- parsed `(` and `term`, assume it's a basic parenthesis to get any elaboration output at all

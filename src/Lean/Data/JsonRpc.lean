@@ -48,16 +48,16 @@ inductive ErrorCode where
   deriving Inhabited, BEq
 
 instance : FromJson ErrorCode := ⟨fun
-  | num (-32700 : Int) => ErrorCode.parseError
-  | num (-32600 : Int) => ErrorCode.invalidRequest
-  | num (-32601 : Int) => ErrorCode.methodNotFound
-  | num (-32602 : Int) => ErrorCode.invalidParams
-  | num (-32603 : Int) => ErrorCode.internalError
-  | num (-32002 : Int) => ErrorCode.serverNotInitialized
-  | num (-32001 : Int) => ErrorCode.unknownErrorCode
-  | num (-32801 : Int) => ErrorCode.contentModified
-  | num (-32800 : Int) => ErrorCode.requestCancelled
-  | num (-32900 : Int) => ErrorCode.rpcNeedsReconnect
+  | num (-32700 : Int) => return ErrorCode.parseError
+  | num (-32600 : Int) => return ErrorCode.invalidRequest
+  | num (-32601 : Int) => return ErrorCode.methodNotFound
+  | num (-32602 : Int) => return ErrorCode.invalidParams
+  | num (-32603 : Int) => return ErrorCode.internalError
+  | num (-32002 : Int) => return ErrorCode.serverNotInitialized
+  | num (-32001 : Int) => return ErrorCode.unknownErrorCode
+  | num (-32801 : Int) => return ErrorCode.contentModified
+  | num (-32800 : Int) => return ErrorCode.requestCancelled
+  | num (-32900 : Int) => return ErrorCode.rpcNeedsReconnect
   | _  => throw "expected error code"⟩
 
 instance : ToJson ErrorCode := ⟨fun
@@ -141,8 +141,8 @@ instance (a b : RequestID) : Decidable (a < b) :=
 
 instance : FromJson RequestID := ⟨fun j =>
   match j with
-  | str s => RequestID.str s
-  | num n => RequestID.num n
+  | str s => return RequestID.str s
+  | num n => return RequestID.num n
   | _     => throw "a request id needs to be a number or a string"⟩
 
 instance : ToJson RequestID := ⟨fun rid =>
@@ -196,7 +196,7 @@ instance [FromJson α] : FromJson (Notification α) where
   fromJson? j := do
     let msg : Message ← fromJson? j
     if let Message.notification method params? := msg then
-      let params ← params?
+      let params := params?
       let param : α ← fromJson? (toJson params)
       pure $ ⟨method, param⟩
     else throw "not a notfication"

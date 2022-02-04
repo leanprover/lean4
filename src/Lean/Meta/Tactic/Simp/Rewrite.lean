@@ -181,11 +181,11 @@ def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndIn
     x
 
 def rewritePre (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
-  let lemmas ← (← read).simpLemmas
+  let lemmas := (← read).simpLemmas
   return Step.visit (← rewrite e lemmas.pre lemmas.erased discharge? (tag := "pre"))
 
 def rewritePost (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
-  let lemmas ← (← read).simpLemmas
+  let lemmas := (← read).simpLemmas
   return Step.visit (← rewrite e lemmas.post lemmas.erased discharge? (tag := "post"))
 
 def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step :=

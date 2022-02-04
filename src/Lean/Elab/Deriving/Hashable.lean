@@ -54,8 +54,8 @@ where
     return alts
 
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
-  let auxFunName ← ctx.auxFunNames[i]
-  let indVal     ← ctx.typeInfos[i]
+  let auxFunName := ctx.auxFunNames[i]
+  let indVal     := ctx.typeInfos[i]
   let header     ← mkHashableHeader ctx indVal
   let body       ← mkMatch ctx header indVal i
   let binders    := header.binders

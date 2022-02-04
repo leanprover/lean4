@@ -274,19 +274,19 @@ def mkAuxDeclFor {m} [Monad m] [MonadQuotation m] (e : Syntax) (mkCont : Syntax 
 /- Convert `action _ e` instructions in `c` into `let y ← e; jmp _ jp (xs y)`. -/
 partial def convertTerminalActionIntoJmp (code : Code) (jp : Name) (xs : Array Name) : MacroM Code :=
   let rec loop : Code → MacroM Code
-    | Code.decl xs stx k           => do Code.decl xs stx (← loop k)
-    | Code.reassign xs stx k       => do Code.reassign xs stx (← loop k)
-    | Code.joinpoint n ps b k      => do Code.joinpoint n ps (← loop b) (← loop k)
-    | Code.seq e k                 => do Code.seq e (← loop k)
-    | Code.ite ref x? h c t e      => do Code.ite ref x? h c (← loop t) (← loop e)
-    | Code.«match» ref g ds t alts => do Code.«match» ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← loop alt.rhs) })
+    | Code.decl xs stx k           => return Code.decl xs stx (← loop k)
+    | Code.reassign xs stx k       => return Code.reassign xs stx (← loop k)
+    | Code.joinpoint n ps b k      => return Code.joinpoint n ps (← loop b) (← loop k)
+    | Code.seq e k                 => return Code.seq e (← loop k)
+    | Code.ite ref x? h c t e      => return Code.ite ref x? h c (← loop t) (← loop e)
+    | Code.«match» ref g ds t alts => return Code.«match» ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← loop alt.rhs) })
     | Code.action e                => mkAuxDeclFor e fun y =>
       let ref := e
       -- We jump to `jp` with xs **and** y
       let jmpArgs := xs.map $ mkIdentFrom ref
       let jmpArgs := jmpArgs.push y
-      pure $ Code.jmp ref jp jmpArgs
-    | c                            => pure c
+      return Code.jmp ref jp jmpArgs
+    | c                            => return c
   loop code
 
 structure JPDecl where
@@ -358,14 +358,13 @@ def mkJmp (ref : Syntax) (rs : NameSet) (val : Syntax) (mkJPBody : Syntax → Ma
 
 /- `pullExitPointsAux rs c` auxiliary method for `pullExitPoints`, `rs` is the set of update variable in the current path.  -/
 partial def pullExitPointsAux : NameSet → Code → StateRefT (Array JPDecl) TermElabM Code
-  | rs, Code.decl xs stx k           => do Code.decl xs stx (← pullExitPointsAux (eraseVars rs xs) k)
-  | rs, Code.reassign xs stx k       => do Code.reassign xs stx (← pullExitPointsAux (insertVars rs xs) k)
-  | rs, Code.joinpoint j ps b k      => do Code.joinpoint j ps (← pullExitPointsAux rs b) (← pullExitPointsAux rs k)
-  | rs, Code.seq e k                 => do Code.seq e (← pullExitPointsAux rs k)
-  | rs, Code.ite ref x? o c t e      => do Code.ite ref x? o c (← pullExitPointsAux (eraseOptVar rs x?) t) (← pullExitPointsAux (eraseOptVar rs x?) e)
-  | rs, Code.«match» ref g ds t alts => do
-    Code.«match» ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← pullExitPointsAux (eraseVars rs alt.vars) alt.rhs) })
-  | rs, c@(Code.jmp _ _ _)           => pure c
+  | rs, Code.decl xs stx k           => return Code.decl xs stx (← pullExitPointsAux (eraseVars rs xs) k)
+  | rs, Code.reassign xs stx k       => return Code.reassign xs stx (← pullExitPointsAux (insertVars rs xs) k)
+  | rs, Code.joinpoint j ps b k      => return Code.joinpoint j ps (← pullExitPointsAux rs b) (← pullExitPointsAux rs k)
+  | rs, Code.seq e k                 => return Code.seq e (← pullExitPointsAux rs k)
+  | rs, Code.ite ref x? o c t e      => return Code.ite ref x? o c (← pullExitPointsAux (eraseOptVar rs x?) t) (← pullExitPointsAux (eraseOptVar rs x?) e)
+  | rs, Code.«match» ref g ds t alts => return Code.«match» ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← pullExitPointsAux (eraseVars rs alt.vars) alt.rhs) })
+  | rs, c@(Code.jmp _ _ _)           => return  c
   | rs, Code.«break» ref             => mkSimpleJmp ref rs (Code.«break» ref)
   | rs, Code.«continue» ref          => mkSimpleJmp ref rs (Code.«continue» ref)
   | rs, Code.«return» ref val        => mkJmp ref rs val (fun y => pure $ Code.«return» ref y)
@@ -433,29 +432,29 @@ def pullExitPoints (c : Code) : TermElabM Code := do
 
 partial def extendUpdatedVarsAux (c : Code) (ws : NameSet) : TermElabM Code :=
   let rec update : Code → TermElabM Code
-    | Code.joinpoint j ps b k          => do Code.joinpoint j ps (← update b) (← update k)
-    | Code.seq e k                     => do Code.seq e (← update k)
+    | Code.joinpoint j ps b k          => return Code.joinpoint j ps (← update b) (← update k)
+    | Code.seq e k                     => return Code.seq e (← update k)
     | c@(Code.«match» ref g ds t alts) => do
       if alts.any fun alt => alt.vars.any fun x => ws.contains x then
         -- If a pattern variable is shadowing a variable in ws, we `pullExitPoints`
         pullExitPoints c
       else
-        Code.«match» ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← update alt.rhs) })
-    | Code.ite ref none o c t e => do Code.ite ref none o c (← update t) (← update e)
+        return Code.«match» ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← update alt.rhs) })
+    | Code.ite ref none o c t e => return Code.ite ref none o c (← update t) (← update e)
     | c@(Code.ite ref (some h) o cond t e) => do
       if ws.contains h then
         -- if the `h` at `if h:c then t else e` shadows a variable in `ws`, we `pullExitPoints`
         pullExitPoints c
       else
-        Code.ite ref (some h) o cond (← update t) (← update e)
-    | Code.reassign xs stx k => do Code.reassign xs stx (← update k)
+        return Code.ite ref (some h) o cond (← update t) (← update e)
+    | Code.reassign xs stx k => return Code.reassign xs stx (← update k)
     | c@(Code.decl xs stx k) => do
       if xs.any fun x => ws.contains x then
         -- One the declared variables is shadowing a variable in `ws`
         pullExitPoints c
       else
-        Code.decl xs stx (← update k)
-    | c => pure c
+        return Code.decl xs stx (← update k)
+    | c => return  c
   update c
 
 /-
@@ -540,7 +539,7 @@ private def mkPureUnit : MacroM Syntax :=
   ``(pure PUnit.unit)
 
 def mkPureUnitAction : MacroM CodeBlock := do
-  mkTerminalAction (← mkPureUnit)
+  return mkTerminalAction (← mkPureUnit)
 
 def mkUnless (cond : Syntax) (c : CodeBlock) : MacroM CodeBlock := do
   let thenBranch ← mkPureUnitAction
@@ -677,7 +676,7 @@ private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx wit
     let mut e      := e?.getD (← `(doSeq|pure PUnit.unit))
     let mut eIsSeq := true
     for (i, cond, t) in Array.zip (is.reverse.push i) (Array.zip (conds.reverse.push cond) (ts.reverse.push t)) do
-      e ← if eIsSeq then e else `(doSeq|$e:doElem)
+      e ← if eIsSeq then pure e else `(doSeq|$e:doElem)
       e ← withRef cond <| match cond with
         | `(doIfCond|let $pat := $d) => `(doElem| match%$i $d:term with | $pat:term => $t | _ => $e)
         | `(doIfCond|let $pat ← $d)  => `(doElem| match%$i ← $d    with | $pat:term => $t | _ => $e)
@@ -1084,14 +1083,14 @@ def matchNestedTermResult (term : Syntax) (uvars : Array Name) (a r bc : Bool) :
   match a, r, bc with
   | true, false, false =>
     if uvars.isEmpty then
-      toDoElems (← `(do $term:term))
+      return toDoElems (← `(do $term:term))
     else
-      toDoElems (← `(do let r ← $term:term; $u:term := r.2; pure r.1))
+      return toDoElems (← `(do let r ← $term:term; $u:term := r.2; pure r.1))
   | false, true, false =>
     if uvars.isEmpty then
-      toDoElems (← `(do let r ← $term:term; return r))
+      return toDoElems (← `(do let r ← $term:term; return r))
     else
-      toDoElems (← `(do let r ← $term:term; $u:term := r.2; return r.1))
+      return toDoElems (← `(do let r ← $term:term; $u:term := r.2; return r.1))
   | false, false, true => toDoElems <$>
     `(do let r ← $term:term;
          match r with

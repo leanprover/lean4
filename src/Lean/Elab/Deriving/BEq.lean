@@ -69,8 +69,8 @@ where
     return alts
 
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
-  let auxFunName ← ctx.auxFunNames[i]
-  let indVal     ← ctx.typeInfos[i]
+  let auxFunName := ctx.auxFunNames[i]
+  let indVal     := ctx.typeInfos[i]
   let header     ← mkBEqHeader ctx indVal
   let mut body   ← mkMatch ctx header indVal auxFunName
   if ctx.usePartial then
@@ -98,7 +98,7 @@ private def mkBEqInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax
   return cmds
 
 private def mkBEqEnumFun (ctx : Context) (name : Name) : TermElabM Syntax := do
-  let auxFunName ← ctx.auxFunNames[0]
+  let auxFunName := ctx.auxFunNames[0]
   `(private def $(mkIdent auxFunName):ident  (x y : $(mkIdent name)) : Bool := x.toCtorIdx == y.toCtorIdx)
 
 private def mkBEqEnumCmd (name : Name): TermElabM (Array Syntax) := do

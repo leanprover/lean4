@@ -26,8 +26,8 @@ private partial def floatOutAntiquotTerms : Syntax → StateT (Syntax → TermEl
         return ← withFreshMacroScope do
           let a ← `(a)
           modify (fun cont stx => (`(let $a:ident := $e; $stx) : TermElabM _))
-          stx.setArg 2 a
-    Syntax.node i k (← args.mapM floatOutAntiquotTerms)
+          pure <| stx.setArg 2 a
+    return Syntax.node i k (← args.mapM floatOutAntiquotTerms)
   | stx => pure stx
 
 private def getSepFromSplice (splice : Syntax) : Syntax :=
@@ -38,7 +38,7 @@ private def getSepFromSplice (splice : Syntax) : Syntax :=
 
 partial def mkTuple : Array Syntax → TermElabM Syntax
   | #[]  => `(Unit.unit)
-  | #[e] => e
+  | #[e] => return e
   | es   => do
     let stx ← mkTuple (es.eraseIdx 0)
     `(Prod.mk $(es[0]) $stx)
@@ -95,7 +95,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
   -- if antiquotation, insert contents as-is, else recurse
   | stx@(Syntax.node _ k _) => do
     if isAntiquot stx && !isEscapedAntiquot stx then
-      getAntiquotTerm stx
+      return getAntiquotTerm stx
     else if isTokenAntiquot stx && !isEscapedAntiquot stx then
       match stx[0] with
       | Syntax.atom _ val => `(Syntax.atom (Option.getD (getHeadInfo? $(getAntiquotTerm stx)) info) $(quote val))
@@ -118,7 +118,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
             | `optional => `(match $(getAntiquotTerm antiquot):term with
               | some x => Array.empty.push x
               | none   => Array.empty)
-            | `many     => getAntiquotTerm antiquot
+            | `many     => return getAntiquotTerm antiquot
             | `sepBy    => `(@SepArray.elemsAndSeps $(getSepFromSplice arg) $(getAntiquotTerm antiquot))
             | k         => throwErrorAt arg "invalid antiquotation suffix splice kind '{k}'"
         else if k == nullKind && isAntiquotSplice arg then
@@ -138,7 +138,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
           let arr ←
             if k == `sepBy then
               `(mkSepArray $arr (mkAtom $(getSepFromSplice arg)))
-            else arr
+            else pure arr
           let arr ← bindLets arr
           args := args.append arr
         else do
@@ -253,7 +253,7 @@ private def noOpMatchAdaptPats : HeadCheck → Alt → Alt
   | _,                 alt         => alt
 
 private def adaptRhs (fn : Syntax → TermElabM Syntax) : Alt → TermElabM Alt
-  | (pats, rhs) => do (pats, ← fn rhs)
+  | (pats, rhs) => return (pats, ← fn rhs)
 
 private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
   let pat := alt.fst.head!
@@ -334,7 +334,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
           let tuple ← mkTuple ids
           let mut yes := yes
           let resId ← match ids with
-            | #[id] => id
+            | #[id] => pure id
             | _     =>
               for id in ids do
                 yes ← `(let $id := tuples.map (fun $tuple => $id); $yes)
@@ -368,7 +368,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
               let argPats := quoted.getArgs.mapIdx fun i arg =>
                 let arg := if (i : Nat) == idx then mkNullNode #[arg] else arg
                 Unhygienic.run `(`($(arg)))
-              covered (fun (pats, rhs) => (argPats.toList ++ pats, rhs)) (exhaustive := true)
+              covered (fun (pats, rhs) => pure (argPats.toList ++ pats, rhs)) (exhaustive := true)
             else uncovered
           | _ => uncovered
         doMatch := fun yes no => do
@@ -405,7 +405,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
               uncovered
           | shape k' sz =>
             if k' == kind && sz == argPats.size then
-              covered (fun (pats, rhs) => (argPats.toList ++ pats, rhs)) (exhaustive := true)
+              covered (fun (pats, rhs) => pure (argPats.toList ++ pats, rhs)) (exhaustive := true)
             else
               uncovered
           | _ => uncovered,
@@ -428,7 +428,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
     | `($id:ident)      => unconditionally (`(let $id := discr; $(·)))
     | `($id:ident@$pat) => do
       let info ← getHeadInfo (pat::alt.1.tail!, alt.2)
-      { info with onMatch := fun taken => match info.onMatch taken with
+      return { info with onMatch := fun taken => match info.onMatch taken with
           | covered f exh => covered (fun alt => f alt >>= adaptRhs (`(let $id := discr; $(·)))) exh
           | r             => r }
     | _               => throwErrorAt pat "match (syntax) : unexpected pattern kind {pat}"
@@ -445,10 +445,10 @@ private def deduplicate (floatedLetDecls : Array Syntax) : Alt → TermElabM (Ar
       | #[] =>
         -- no antiquotations => introduce Unit parameter to preserve evaluation order
         let rhs' ← `(rhs Unit.unit)
-        (floatedLetDecls.push (← `(letDecl|rhs _ := $rhs)), (pats, rhs'))
+        pure (floatedLetDecls.push (← `(letDecl|rhs _ := $rhs)), (pats, rhs'))
       | vars =>
         let rhs' ← `(rhs $vars*)
-        (floatedLetDecls.push (← `(letDecl|rhs $vars:ident* := $rhs)), (pats, rhs'))
+        pure (floatedLetDecls.push (← `(letDecl|rhs $vars:ident* := $rhs)), (pats, rhs'))
 
 private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : TermElabM Syntax := do
   trace[Elab.match_syntax] "match {discrs} with {alts}"
@@ -460,7 +460,7 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
   | discr::discrs, alt::alts    => do
     let info ← getHeadInfo alt
     let pat  := alt.1.head!
-    let alts ← (alt::alts).mapM fun alt => do ((← getHeadInfo alt).onMatch info.check, alt)
+    let alts ← (alt::alts).mapM fun alt => return ((← getHeadInfo alt).onMatch info.check, alt)
     let mut yesAlts           := #[]
     let mut undecidedAlts     := #[]
     let mut nonExhaustiveAlts := #[]
@@ -512,7 +512,7 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
       throwUnsupportedSyntax
     let stx ← compileStxMatch discrs.toList (patss.map (·.toList) |>.zip rhss).toList
     trace[Elab.match_syntax.result] "{stx}"
-    stx
+    return stx
   | _ => throwUnsupportedSyntax
 
 /--

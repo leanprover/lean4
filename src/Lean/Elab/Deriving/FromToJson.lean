@@ -21,13 +21,13 @@ def mkJsonField (n : Name) : Bool × Syntax :=
 
 def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if declNames.size == 1 then
-    if (← isStructure (← getEnv) declNames[0]) then
+    if isStructure (← getEnv) declNames[0] then
       let cmds ← liftTermElabM none <| do
         let ctx ← mkContext "toJson" declNames[0]
         let header ← mkHeader ctx ``ToJson 1 ctx.typeInfos[0]
         let fields := getStructureFieldsFlattened (← getEnv) declNames[0] (includeSubobjectFields := false)
         let fields : Array Syntax ← fields.mapM fun field => do
-          let (isOptField, nm) ← mkJsonField field
+          let (isOptField, nm) := mkJsonField field
           if isOptField then `(opt $nm $(mkIdent <| header.targetNames[0] ++ field))
           else `([($nm, toJson $(mkIdent <| header.targetNames[0] ++ field))])
         let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:explicitBinder* :=
@@ -102,7 +102,7 @@ where
 
 def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if declNames.size == 1 then
-    if (← isStructure (← getEnv) declNames[0]) then
+    if isStructure (← getEnv) declNames[0] then
       let cmds ← liftTermElabM none <| do
         let ctx ← mkContext "fromJson" declNames[0]
         let header ← mkHeader ctx ``FromJson 0 ctx.typeInfos[0]
@@ -178,10 +178,10 @@ where
             (fun jsons => do
               $[let $identNames:ident ← $fromJsons]*
               return $(mkIdent ctor):ident $identNames*))
-        (stx, ctorInfo.numFields)
+        pure (stx, ctorInfo.numFields)
   -- the smaller cases, especially the ones without fields are likely faster
   let alts := alts.qsort (fun (_, x) (_, y) => x < y)
-  alts.map Prod.fst
+  return alts.map Prod.fst
 
 builtin_initialize
   registerBuiltinDerivingHandler ``ToJson mkToJsonInstanceHandler

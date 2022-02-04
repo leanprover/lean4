@@ -18,7 +18,7 @@ structure EqnInfo extends EqnInfoCore where
 
 private partial def deltaLHSUntilFix (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
   let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) ← target.eq? | throwTacticEx `deltaLHSUntilFix mvarId "equality expected"
+  let some (_, lhs, rhs) := target.eq? | throwTacticEx `deltaLHSUntilFix mvarId "equality expected"
   if lhs.isAppOf ``WellFounded.fix then
     return mvarId
   else
@@ -26,7 +26,7 @@ private partial def deltaLHSUntilFix (mvarId : MVarId) : MetaM MVarId := withMVa
 
 private def rwFixEq (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
   let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) ← target.eq? | unreachable!
+  let some (_, lhs, rhs) := target.eq? | unreachable!
   let h := mkAppN (mkConst ``WellFounded.fix_eq lhs.getAppFn.constLevels!) lhs.getAppArgs
   let r ← rewrite mvarId target h
   replaceTargetEq mvarId r.eNew r.eqProof

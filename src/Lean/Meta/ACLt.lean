@@ -45,7 +45,7 @@ mutual
 -/
 unsafe def lt (a b : Expr) : MetaM Bool :=
   if ptrAddrUnsafe a == ptrAddrUnsafe b then
-    false
+    return false
   -- We ignore metadata
   else if a.isMData then
     lt a.mdataExpr! b
@@ -95,14 +95,14 @@ where
   lexSameCtor (a b : Expr) : MetaM Bool :=
     match a with
     -- Atomic
-    | Expr.bvar i ..    => i < b.bvarIdx!
-    | Expr.fvar id ..   => Name.lt id.name b.fvarId!.name
-    | Expr.mvar id ..   => Name.lt id.name b.mvarId!.name
-    | Expr.sort u ..    => Level.normLt u b.sortLevel!
-    | Expr.const n ..   => Name.lt n b.constName! -- We igore the levels
-    | Expr.lit v ..     => Literal.lt v b.litValue!
+    | Expr.bvar i ..    => return i < b.bvarIdx!
+    | Expr.fvar id ..   => return Name.lt id.name b.fvarId!.name
+    | Expr.mvar id ..   => return Name.lt id.name b.mvarId!.name
+    | Expr.sort u ..    => return Level.normLt u b.sortLevel!
+    | Expr.const n ..   => return Name.lt n b.constName! -- We igore the levels
+    | Expr.lit v ..     => return Literal.lt v b.litValue!
     -- Composite
-    | Expr.proj _ i e ..    => if i != b.projIdx! then i < b.projIdx! else lt e b.projExpr!
+    | Expr.proj _ i e ..    => if i != b.projIdx! then return i < b.projIdx! else lt e b.projExpr!
     | Expr.app ..           => ltApp a b
     | Expr.lam _ d e ..     => ltPair d e b.bindingDomain! b.bindingBody!
     | Expr.forallE _ d e .. => ltPair d e b.bindingDomain! b.bindingBody!

@@ -27,9 +27,9 @@ partial def getPatternVars (stx : Syntax) : TermElabM (Array Syntax) :=
   if stx.isQuot then
     getAntiquotationIds stx
   else match stx with
-    | `(_)            => #[]
-    | `($id:ident)    => #[id]
-    | `($id:ident@$e) => do (← getPatternVars e).push id
+    | `(_)            => return #[]
+    | `($id:ident)    => return #[id]
+    | `($id:ident@$e) => return (← getPatternVars e).push id
     | _               => throwErrorAt stx "unsupported pattern in syntax match{indentD stx}"
 
 partial def getPatternsVars (pats : Array Syntax) : TermElabM (Array Syntax) :=

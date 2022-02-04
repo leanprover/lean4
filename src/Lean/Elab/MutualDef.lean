@@ -169,7 +169,7 @@ private def expandWhereStructInst : Macro
         let mut val := val
         if let some ty := ty? then
           val ← `(($val : $ty))
-        val ← if binders.size > 0 then `(fun $[$binders]* => $val:term) else val
+        val ← if binders.size > 0 then `(fun $[$binders]* => $val:term) else pure val
         `(structInstField|$id:ident := $val)
       | _ => Macro.throwUnsupported
     `({ $[$structInstFields,]* })

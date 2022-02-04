@@ -81,7 +81,7 @@ instance : FromJson Name where
     if s == "[anonymous]" then
       return Name.anonymous
     else
-      let some n ← Syntax.decodeNameLit ("`" ++ s)
+      let some n := Syntax.decodeNameLit ("`" ++ s)
         | throw s!"expected a `Name`, got '{j}'"
       return n
 
@@ -92,7 +92,7 @@ instance : ToJson Name where
 cannot represent 64-bit numbers. -/
 def bignumFromJson? (j : Json) : Except String Nat := do
   let s ← j.getStr?
-  let some v ← Syntax.decodeNatLitVal? s -- TODO maybe this should be in Std
+  let some v := Syntax.decodeNatLitVal? s -- TODO maybe this should be in Std
     | throw s!"expected a string-encoded number, got '{j}'"
   return v
 
@@ -122,8 +122,8 @@ instance : ToJson UInt64 where
 namespace Json
 
 instance : FromJson Structured := ⟨fun
-  | arr a => Structured.arr a
-  | obj o => Structured.obj o
+  | arr a => return Structured.arr a
+  | obj o => return Structured.obj o
   | j     => throw s!"expected structured object, got '{j}'"⟩
 
 instance : ToJson Structured := ⟨fun

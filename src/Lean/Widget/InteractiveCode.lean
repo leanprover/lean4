@@ -46,7 +46,7 @@ where
 
   go (addr : List Nat) (lctx : LocalContext) (e : Expr) : MetaM (LocalContext × Expr) := do
     match addr with
-    | [] => (lctx, e)
+    | [] => return (lctx, e)
     | a::as => do
       let go' (e' : Expr) := do
         go as (← getLCtx) e'
@@ -69,7 +69,7 @@ where
             go' (e₃.instantiate1 fvar)
         | 0, mdata _ e₁ _  => go' e₁
         | 0, proj _ _ e₁ _ => go' e₁
-        | _, _             => (lctx, e) -- panic! s!"cannot descend {a} into {e.expr}"
+        | _, _             => return (lctx, e) -- panic! s!"cannot descend {a} into {e.expr}"
 
 -- TODO(WN): should the two fns below go in `Lean.PrettyPrinter` ?
 open PrettyPrinter in
@@ -116,7 +116,7 @@ def exprToInteractive (e : Expr) : MetaM CodeWithInfos := do
     openDecls := ← getOpenDecls
     fileMap := default
   }
-  tagExprInfos ctx infos tt
+  return tagExprInfos ctx infos tt
 
 def exprToInteractiveExplicit (e : Expr) : MetaM CodeWithInfos := do
   let (fmt, infos) ← formatExplicitInfos e
@@ -130,6 +130,6 @@ def exprToInteractiveExplicit (e : Expr) : MetaM CodeWithInfos := do
     fileMap := default
   }
   let infos := infos.erase 1 -- remove highlight for entire expression in popups
-  tagExprInfos ctx infos tt
+  return tagExprInfos ctx infos tt
 
 end Lean.Widget

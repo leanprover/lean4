@@ -65,7 +65,7 @@ def parse (input : String) : IO Value := do
   if s.hasError then
     throw <| IO.userError (s.toErrorMsg c)
   else if input.atEnd s.pos then
-    ofSyntax s.stxStack.back
+    return ofSyntax s.stxStack.back
   else
     throw <| IO.userError ((s.mkError "end of input").toErrorMsg c)
 

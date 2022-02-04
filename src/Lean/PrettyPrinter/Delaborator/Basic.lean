@@ -138,10 +138,10 @@ def getExprKind : DelabM Name := do
 def getOptionsAtCurrPos : DelabM Options := do
   let ctx ← read
   let mut opts := ctx.defaultOptions
-  if let some opts' ← ctx.optionsPerPos.find? (← getPos) then
+  if let some opts' := ctx.optionsPerPos.find? (← getPos) then
     for (k, v) in opts' do
       opts := opts.insert k v
-  opts
+  return opts
 
 /-- Evaluate option accessor, using subterm-specific options if set. -/
 def getPPOption (opt : Options → Bool) : DelabM Bool := do
@@ -158,8 +158,8 @@ def whenNotPPOption (opt : Options → Bool) (d : Delab) : Delab := do
 def annotatePos (pos : Nat) (stx : Syntax) : Syntax :=
   stx.setInfo (SourceInfo.synthetic pos pos)
 
-def annotateCurPos (stx : Syntax) : Delab := do
-  annotatePos (← getPos) stx
+def annotateCurPos (stx : Syntax) : Delab :=
+  return annotatePos (← getPos) stx
 
 def getUnusedName (suggestion : Name) (body : Expr) : DelabM Name := do
   -- Use a nicer binder name than `[anonymous]`. We probably shouldn't do this in all LocalContext use cases, so do it here.
@@ -193,7 +193,7 @@ def addTermInfo (pos : Pos) (stx : Syntax) (e : Expr) (isBinder : Bool := false)
   let info ← mkTermInfo stx e isBinder
   modify fun s => { s with infos := s.infos.insert pos info }
 where
-  mkTermInfo stx e isBinder := do Info.ofTermInfo {
+  mkTermInfo stx e isBinder := return Info.ofTermInfo {
     elaborator := `Delab,
     stx := stx,
     lctx := (← getLCtx),
@@ -206,7 +206,7 @@ def addFieldInfo (pos : Pos) (projName fieldName : Name) (stx : Syntax) (val : E
   let info ← mkFieldInfo projName fieldName stx val
   modify fun s => { s with infos := s.infos.insert pos info }
 where
-  mkFieldInfo projName fieldName stx val := do Info.ofFieldInfo {
+  mkFieldInfo projName fieldName stx val := return Info.ofFieldInfo {
     projName := projName,
     fieldName := fieldName,
     lctx := (← getLCtx),
@@ -220,7 +220,7 @@ partial def delabFor : Name → Delab
     (do let stx ← (delabAttribute.getValues (← getEnv) k).firstM id
         let stx ← annotateCurPos stx
         addTermInfo (← getPos) stx (← getExpr)
-        stx)
+        pure stx)
     -- have `app.Option.some` fall back to `app` etc.
     <|> if k.isAtomic then failure else delabFor k.getRoot
 
@@ -229,7 +229,7 @@ partial def delab : Delab := do
   let e ← getExpr
 
   -- no need to hide atomic proofs
-  if ← !e.isAtomic <&&> !(← getPPOption getPPProofs) <&&> (try Meta.isProof e catch ex => false) then
+  if ← pure !e.isAtomic <&&> pure !(← getPPOption getPPProofs) <&&> (try Meta.isProof e catch ex => pure false) then
     if ← getPPOption getPPProofsWithType then
       let stx ← withType delab
       return ← ``((_ : $stx))
@@ -237,10 +237,11 @@ partial def delab : Delab := do
       return ← ``(_)
   let k ← getExprKind
   let stx ← delabFor k <|> (liftM $ show MetaM Syntax from throwError "don't know how to delaborate '{k}'")
-  if ← getPPOption getPPAnalyzeTypeAscriptions <&&> getPPOption getPPAnalysisNeedsType <&&> !e.isMData then
+  if ← getPPOption getPPAnalyzeTypeAscriptions <&&> getPPOption getPPAnalysisNeedsType <&&> pure !e.isMData then
     let typeStx ← withType delab
     `(($stx:term : $typeStx:term)) >>= annotateCurPos
-  else stx
+  else
+    return stx
 
 unsafe def mkAppUnexpanderAttribute : IO (KeyedDeclsAttribute Unexpander) :=
   KeyedDeclsAttribute.init {
@@ -267,11 +268,11 @@ def delabCore (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (opt
   if pp.proofs.get? opts == none then
     try if ← Meta.isProof e then opts := pp.proofs.set opts true
     catch _ => pure ()
-  let e ← if getPPInstantiateMVars opts then ← Meta.instantiateMVars e else e
+  let e ← if getPPInstantiateMVars opts then Meta.instantiateMVars e else pure e
   let optionsPerPos ←
     if !getPPAll opts && getPPAnalyze opts && optionsPerPos.isEmpty then
       withTheReader Core.Context (fun ctx => { ctx with options := opts }) do topDownAnalyze e
-    else optionsPerPos
+    else pure optionsPerPos
   let (stx, {infos := infos, ..}) ← catchInternalId Delaborator.delabFailureId
     (Delaborator.delab
       { defaultOptions := opts
@@ -286,7 +287,7 @@ def delabCore (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (opt
 /-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/
 def delab (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Syntax := do
   let (stx, _) ← delabCore currNamespace openDecls e optionsPerPos
-  stx
+  return stx
 
 builtin_initialize registerTraceClass `PrettyPrinter.delab
 

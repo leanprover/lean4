@@ -37,7 +37,7 @@ def expandNotationItemIntoSyntaxItem (stx : Syntax) : MacroM Syntax :=
 def expandNotationItemIntoPattern (stx : Syntax) : MacroM Syntax :=
   let k := stx.getKind
   if k == `Lean.Parser.Command.identPrec then
-    mkAntiquotNode stx[0]
+    return mkAntiquotNode stx[0]
   else if k == strLitKind then
     strLitToPattern stx
   else
@@ -96,8 +96,8 @@ private def expandNotationAux (ref : Syntax)
     -- Make sure the quotation pre-checker takes section variables into account for local notation.
     macroDecl ← `(section set_option quotPrecheck.allowSectionVars true $macroDecl end)
   match (← mkSimpleDelab attrKind vars pat qrhs |>.run) with
-  | some delabDecl => mkNullNode #[stxDecl, macroDecl, delabDecl]
-  | none           => mkNullNode #[stxDecl, macroDecl]
+  | some delabDecl => return mkNullNode #[stxDecl, macroDecl, delabDecl]
+  | none           => return mkNullNode #[stxDecl, macroDecl]
 
 @[builtinMacro Lean.Parser.Command.notation] def expandNotation : Macro
   | stx@`($attrKind:attrKind notation $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $items* => $rhs) => do

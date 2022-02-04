@@ -22,9 +22,9 @@ def mkReprHeader (ctx : Context) (indVal : InductiveVal) : TermElabM Header := d
 
 def mkBodyForStruct (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Syntax := do
   let ctorVal ← getConstInfoCtor indVal.ctors.head!
-  let fieldNames ← getStructureFields (← getEnv) indVal.name
-  let numParams := indVal.numParams
-  let target    := mkIdent header.targetNames[0]
+  let fieldNames := getStructureFields (← getEnv) indVal.name
+  let numParams  := indVal.numParams
+  let target     := mkIdent header.targetNames[0]
   forallTelescopeReducing ctorVal.type fun xs _ => do
     let mut fields : Syntax ← `(Format.nil)
     let mut first := true
@@ -84,8 +84,8 @@ def mkBody (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunName
     mkBodyForInduct ctx header indVal auxFunName
 
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
-  let auxFunName ← ctx.auxFunNames[i]
-  let indVal     ← ctx.typeInfos[i]
+  let auxFunName := ctx.auxFunNames[i]
+  let indVal     := ctx.typeInfos[i]
   let header     ← mkReprHeader ctx indVal
   let mut body   ← mkBody ctx header indVal auxFunName
   if ctx.usePartial then

@@ -115,7 +115,7 @@ where
       /- Convert `candidates` in a list of pairs `(c, isDescr)`, where `c` is the parser name,
          and `isDescr` is true iff `c` has type `Lean.ParserDescr` or `Lean.TrailingParser` -/
       let env ← getEnv
-      candidates.filterMap fun c =>
+      return candidates.filterMap fun c =>
          match env.find? c with
          | none      => none
          | some info =>
@@ -312,7 +312,7 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   let precDefault  := if isAtomLikeSyntax syntaxParser then Parser.maxPrec else Parser.leadPrec
   let prec ← match prec? with
     | some prec => liftMacroM <| evalPrec prec
-    | none      => precDefault
+    | none      => pure precDefault
   let name ← match name? with
     | some name => pure name.getId
     | none => liftMacroM <| mkNameFromParserSyntax cat syntaxParser
@@ -366,11 +366,11 @@ def expandNoKindMacroRulesAux (alts : Array Syntax) (cmdName : String) (mkCmd : 
     if altsNotK.isEmpty then
       mkCmd k altsK
     else
-      mkNullNode #[← mkCmd k altsK, ← mkCmd none altsNotK]
+      return mkNullNode #[← mkCmd k altsK, ← mkCmd none altsNotK]
 
 def strLitToPattern (stx: Syntax) : MacroM Syntax :=
   match stx.isStrLit? with
-  | some str => pure $ mkAtomFrom stx str
+  | some str => return mkAtomFrom stx str
   | none     => Macro.throwUnsupported
 
 builtin_initialize

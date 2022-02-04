@@ -193,6 +193,12 @@ def verifyInstall : CliStateM PUnit := do
 def noConfigFileCode : ExitCode := 2
 
 /--
+Environment variable that is set when `lake serve` cannot parse the Lake configuration file
+and falls back to plain `lean --server`.
+-/
+def invalidConfigEnvVar := "LAKE_INVALID_CONFIG"
+
+/--
 Build a list of imports of the package
 and print the `.olean` and source directories of every used package.
 If no configuration file exists, exit silently with `noConfigFileCode` (i.e, 2).
@@ -202,7 +208,10 @@ The `print-paths` command is used internally by Lean 4 server.
 def printPaths (imports : List String := []) : CliStateM PUnit := do
   let (lean, lake) ← getInstall
   let configFile := (← getRootDir) / (← getConfigFile)
-  if (← configFile.pathExists) then
+  if (← IO.getEnv invalidConfigEnvVar) matches some .. then
+    IO.eprintln s!"Error parsing '{configFile}'.  Please restart the lean server after fixing the Lake configuration file."
+    exit 1
+  else if (← configFile.pathExists) then
     let ws ← loadWorkspace (← getSubArgs)
     let ctx ← mkBuildContext ws lean lake
     ws.root.buildImportsAndDeps imports |>.run LogMethods.eio ctx
@@ -213,8 +222,19 @@ def printPaths (imports : List String := []) : CliStateM PUnit := do
 def env (cmd : String) (args : Array String := #[]) : LakeT IO UInt32 := do
   IO.Process.spawn {cmd, args, env := ← getLeanEnv} >>= (·.wait)
 
-def serve (pkg : Package) (args : Array String := #[]) : LakeT IO UInt32 := do
-  env (← getLean).toString <| #["--server"] ++ pkg.moreServerArgs ++ args
+def serve (args : Array String) : CliStateM UInt32 := do
+  let (lean, lake) ← getInstall
+  let (extraEnv, moreServerArgs) ←
+    try
+      withContext (m := IO) <|
+        return (← getLeanEnv, (← getWorkspace).root.moreServerArgs)
+    catch _ =>
+      pure (#[(invalidConfigEnvVar, "1")], #[])
+  (← IO.Process.spawn {
+    cmd := lean.lean.toString
+    args := #["--server"] ++ moreServerArgs ++ args
+    env := extraEnv
+  }).wait
 
 def parseScriptSpec (ws : Workspace) (spec : String) : IO (Package × String) :=
   match spec.splitOn "/" with
@@ -281,8 +301,7 @@ def command : (cmd : String) → CliM PUnit
     error "expected command"
 | "serve" => do
   let args ← getSubArgs
-  noArgsRem do exit <| ← withContext (m := IO) do
-    serve (← getWorkspace).root args.toArray
+  noArgsRem do exit (← serve args.toArray)
 | "env" => do
   let cmd ← takeArg "missing command"; let args ← takeArgs
   exit <| ← withContext <| env cmd args.toArray

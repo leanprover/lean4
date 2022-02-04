@@ -42,7 +42,7 @@ jobs:
             # turn off custom allocator & symbolic functions to make LSAN do its magic
             CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF
             # exclude problematic tests
-            CTEST_OPTIONS: -E StackOverflow -E laketest_deps -E laketest_ffi
+            CTEST_OPTIONS: -E laketest
           - name: macOS
             os: macos-latest
             release: true

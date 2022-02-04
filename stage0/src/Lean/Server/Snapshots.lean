@@ -75,7 +75,7 @@ def parseNextCmd (contents : String) (snap : Snapshot) : IO Syntax := do
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
   let (cmdStx, _, _) :=
     Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
-  cmdStx
+  return cmdStx
 
 /--
   Parse remaining file without elaboration. NOTE that doing so can lead to parse errors or even wrong syntax objects,
@@ -90,7 +90,7 @@ partial def parseAhead (contents : String) (snap : Snapshot) : IO (Array Syntax)
     go inputCtx pmctx cmdParserState stxs := do
       let (cmdStx, cmdParserState, _) := Parser.parseCommand inputCtx pmctx cmdParserState snap.msgLog
       if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
-        stxs.push cmdStx
+        return stxs.push cmdStx
       else
         go inputCtx pmctx cmdParserState (stxs.push cmdStx)
 
@@ -99,7 +99,7 @@ partial def parseAhead (contents : String) (snap : Snapshot) : IO (Array Syntax)
 -- NOTE: This code is really very similar to Elab.Frontend. But generalizing it
 -- over "store snapshots"/"don't store snapshots" would likely result in confusing
 -- isServer? conditionals and not be worth it due to how short it is.
-def compileNextCmd (text : FileMap) (snap : Snapshot) : IO Snapshot := do
+def compileNextCmd (text : FileMap) (snap : Snapshot) (hasWidgets : Bool) : IO Snapshot := do
   let inputCtx := Parser.mkInputContext text.source "<input>"
   let cmdState := snap.cmdState
   let scope := cmdState.scopes.head!
@@ -115,7 +115,7 @@ def compileNextCmd (text : FileMap) (snap : Snapshot) : IO Snapshot := do
       cmdState := snap.cmdState
       interactiveDiags := ← withNewInteractiveDiags msgLog
     }
-    endSnap
+    return endSnap
   else
     let cmdStateRef ← IO.mkRef { snap.cmdState with messages := msgLog }
     let cmdCtx : Elab.Command.Context := {
@@ -145,7 +145,7 @@ def compileNextCmd (text : FileMap) (snap : Snapshot) : IO Snapshot := do
       cmdState := postCmdState
       interactiveDiags := ← withNewInteractiveDiags postCmdState.messages
     }
-    postCmdSnap
+    return postCmdSnap
 
 where
   /-- Compute the current interactive diagnostics log by finding a "diff" relative to the parent
@@ -156,7 +156,7 @@ where
     let mut ret := snap.interactiveDiags
     for i in List.iota newMsgCount do
       let newMsg := msgLog.msgs.get! (msgLog.msgs.size - i)
-      ret := ret.push (← Widget.msgToInteractiveDiagnostic text newMsg)
+      ret := ret.push (← Widget.msgToInteractiveDiagnostic text newMsg hasWidgets)
     return ret
 
 end Lean.Server.Snapshots

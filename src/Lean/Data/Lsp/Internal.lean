@@ -34,13 +34,13 @@ def fromString (s : String) : Except String RefIdent := do
   let sName := s.drop 2
   -- See `FromJson Name`
   let name ← match sName with
-    | "[anonymous]" => Name.anonymous
+    | "[anonymous]" => pure Name.anonymous
     | _ => match Syntax.decodeNameLit ("`" ++ sName) with
-      | some n => n
+      | some n => pure n
       | none => throw s!"expected a Name, got {sName}"
   match sPrefix with
-    | "c:" => RefIdent.const name
-    | "f:" => RefIdent.fvar <| FVarId.mk name
+    | "c:" => return RefIdent.const name
+    | "f:" => return RefIdent.fvar <| FVarId.mk name
     | _ => throw "string must start with 'c:' or 'f:'"
 
 end RefIdent
@@ -80,8 +80,8 @@ instance : ToJson ModuleRefs where
 instance : FromJson ModuleRefs where
   fromJson? j := do
     let node ← j.getObj?
-    node.foldM (init := HashMap.empty) fun m k v => do
-      m.insert (← RefIdent.fromString k) (← fromJson? v)
+    node.foldM (init := HashMap.empty) fun m k v =>
+      return m.insert (← RefIdent.fromString k) (← fromJson? v)
 
 /-- `$/lean/ileanInfoUpdate` and `$/lean/ileanInfoFinal` watchdog<-worker notifications.
 

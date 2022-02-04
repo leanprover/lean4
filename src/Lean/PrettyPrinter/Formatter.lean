@@ -297,9 +297,9 @@ def trailingNode.formatter (k : SyntaxNodeKind) (_ _ : Nat) (p : Formatter) : Fo
     -- leading term, not actually produced by `p`
     categoryParser.formatter `foo
 
-def parseToken (s : String) : FormatterM ParserState := do
+def parseToken (s : String) : FormatterM ParserState :=
   -- include comment tokens, e.g. when formatting `- -0`
-  (Parser.andthenFn Parser.whitespace (Parser.tokenFn [])) {
+  return (Parser.andthenFn Parser.whitespace (Parser.tokenFn [])) {
     input := s,
     fileName := "",
     fileMap := FileMap.ofString "",

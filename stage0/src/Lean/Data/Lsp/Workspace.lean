@@ -48,9 +48,9 @@ inductive FileChangeType
 instance : FromJson FileChangeType where
   fromJson? j := do
     match (← fromJson? j : Nat) with
-      | 1 => FileChangeType.Created
-      | 2 => FileChangeType.Changed
-      | 3 => FileChangeType.Deleted
+      | 1 => return FileChangeType.Created
+      | 2 => return FileChangeType.Changed
+      | 3 => return FileChangeType.Deleted
       | _ => throw s!"expected 1, 2, or 3, got {j}"
 
 instance : ToJson FileChangeType where

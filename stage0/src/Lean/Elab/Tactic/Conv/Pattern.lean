@@ -14,12 +14,7 @@ private def getContext : MetaM Simp.Context := do
   return {
     simpLemmas    := {}
     congrLemmas   := (← getCongrLemmas)
-    config.zeta   := false
-    config.beta   := false
-    config.eta    := false
-    config.iota   := false
-    config.proj   := false
-    config.decide := false
+    config        := Simp.neutralConfig
   }
 
 partial def matchPattern? (pattern : AbstractMVarsResult) (e : Expr) : MetaM (Option (Expr × Array Expr)) :=
@@ -33,7 +28,7 @@ partial def matchPattern? (pattern : AbstractMVarsResult) (e : Expr) : MetaM (Op
       else if (← isDefEqGuarded pattern e) then
         return some (e, #[])
       else if e.isApp then
-        (← go? e.appFn!).map fun (f, extra) => (f, extra.push e.appArg!)
+        return (← go? e.appFn!).map fun (f, extra) => (f, extra.push e.appArg!)
       else
         return none
     withReducible <| go? e

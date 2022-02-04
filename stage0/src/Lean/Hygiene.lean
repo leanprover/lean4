@@ -27,12 +27,12 @@ structure Unhygienic.Context where
     processing of a file). It uses the state monad to query and allocate the
     next macro scope, and uses the reader monad to store the stack of scopes
     corresponding to `withFreshMacroScope` calls. -/
-abbrev Unhygienic := ReaderT Lean.Unhygienic.Context $ StateM MacroScope
+abbrev Unhygienic := ReaderT Lean.Unhygienic.Context <| StateM MacroScope
 namespace Unhygienic
 instance : MonadQuotation Unhygienic where
-  getRef              := do (← read).ref
+  getRef              := return (← read).ref
   withRef             := fun ref => withReader ({ · with ref := ref })
-  getCurrMacroScope   := do (← read).scope
+  getCurrMacroScope   := return (← read).scope
   getMainModule       := pure `UnhygienicMain
   withFreshMacroScope := fun x => do
     let fresh ← modifyGet fun n => (n, n + 1)

@@ -48,7 +48,7 @@ private def deriveWithRefInstance (typeNm : Name) : CommandElabM Bool := do
 by their `RpcEncoding` and uses that to instantiate `RpcEncoding α LspPacket`. -/
 private def deriveInstance (typeName : Name) : CommandElabM Bool := do
   let env ← getEnv
-  if !(← isStructure env typeName) then
+  if !isStructure env typeName then
     throwError "only structures are supported"
   let indVal ← getConstInfoInduct typeName
   if indVal.all.length ≠ 1 then
@@ -69,7 +69,7 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
           throwError "failed to construct 'RpcEncoding {tp} {β}':\n{ex.toMessageData}"
       match (← trySynthInstance clTp) with
       | LOption.some _ => instantiateMVars β
-      | _ => none
+      | _ => pure none
 
     forallTelescopeReducing ctorVal.type fun xs _ => do
       if xs.size != numParams + fields.size then

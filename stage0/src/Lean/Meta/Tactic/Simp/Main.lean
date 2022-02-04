@@ -142,6 +142,7 @@ def getSimpLetCase (n : Name) (t : Expr) (v : Expr) (b : Expr) : MetaM SimpLetCa
       return SimpLetCase.dep
 
 partial def simp (e : Expr) : M Result := withIncRecDepth do
+  checkMaxHeartbeats "simp"
   let cfg ← getConfig
   if (← isProof e) then
     return { expr := e }
@@ -224,10 +225,12 @@ where
       else
         return { expr := (← dsimp e) }
 
-  congrDefault (e : Expr) : M Result :=
-    withParent e <| e.withApp fun f args => do
-      let infos := (← getFunInfoNArgs f args.size).paramInfo
-      let mut r ← simp f
+  congrArgs (r : Result) (args : Array Expr) : M Result := do
+    if args.isEmpty then
+      return r
+    else
+      let infos := (← getFunInfoNArgs r.expr args.size).paramInfo
+      let mut r := r
       let mut i := 0
       for arg in args do
         trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
@@ -239,6 +242,10 @@ where
           r ← mkCongrFun r (← dsimp arg)
         i := i + 1
       return r
+
+  congrDefault (e : Expr) : M Result :=
+    withParent e <| e.withApp fun f args => do
+      congrArgs (← simp f) args
 
   /- Return true iff processing the given congruence lemma hypothesis produced a non-refl proof. -/
   processCongrHypothesis (h : Expr) : M Bool := do
@@ -263,6 +270,13 @@ where
       return none
     let lhs := type.appFn!.appArg!
     let rhs := type.appArg!
+    let numArgs := lhs.getAppNumArgs
+    let mut e := e
+    let mut extraArgs := #[]
+    if e.getAppNumArgs > numArgs then
+      let args := e.getAppArgs
+      e := mkAppN e.getAppFn args[:numArgs]
+      extraArgs := args[numArgs:].toArray
     if (← isDefEq lhs e) then
       let mut modified := false
       for i in c.hypothesesPos do
@@ -270,9 +284,13 @@ where
         try
           if (← processCongrHypothesis x) then
             modified := true
-        catch _ =>
+        catch ex =>
           trace[Meta.Tactic.simp.congr] "processCongrHypothesis {c.theoremName} failed {← inferType x}"
-          return none
+          if ex.isMaxRecDepth then
+            -- Recall that `processCongrHypothesis` invokes `simp` recursively.
+            throw ex
+          else
+            return none
       unless modified do
         trace[Meta.Tactic.simp.congr] "{c.theoremName} not modified"
         return none
@@ -281,7 +299,7 @@ where
         return none
       let eNew ← instantiateMVars rhs
       let proof ← instantiateMVars (mkAppN lemma xs)
-      return some { expr := eNew, proof? := proof }
+      congrArgs { expr := eNew, proof? := proof } extraArgs
     else
       return none
 
@@ -343,7 +361,7 @@ where
     let q := e.bindingBody!
     let rp ← simp p
     trace[Debug.Meta.Tactic.simp] "arrow [{(← getConfig).contextual}] {p} [{← isProp p}] -> {q} [{← isProp q}]"
-    if (← (← getConfig).contextual <&&> isProp p <&&> isProp q) then
+    if (← pure (← getConfig).contextual <&&> isProp p <&&> isProp q) then
       trace[Debug.Meta.Tactic.simp] "ctx arrow {rp.expr} -> {q}"
       withLocalDeclD e.bindingName! rp.expr fun h => do
         let s ← getSimpLemmas
@@ -374,7 +392,7 @@ where
       return { expr := (← dsimp e) }
 
   simpLet (e : Expr) : M Result := do
-    let Expr.letE n t v b _ ← e | unreachable!
+    let Expr.letE n t v b _ := e | unreachable!
     if (← getConfig).zeta then
       return { expr := b.instantiate1 v }
     else
@@ -580,7 +598,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
       let type ← instantiateMVars localDecl.type
       let ctx ← match fvarIdToLemmaId.find? localDecl.fvarId with
         | none => pure ctx
-        | some lemmaId => pure { ctx with simpLemmas := (← ctx.simpLemmas.eraseCore lemmaId) }
+        | some lemmaId => pure { ctx with simpLemmas := ctx.simpLemmas.eraseCore lemmaId }
       match (← simpStep mvarId (mkFVar fvarId) type ctx discharge?) with
       | none => return none
       | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }

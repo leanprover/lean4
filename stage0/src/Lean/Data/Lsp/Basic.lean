@@ -42,7 +42,10 @@ instance : LE Position := leOfOrd
 structure Range where
   start : Position
   «end» : Position
-  deriving Inhabited, BEq, Hashable, ToJson, FromJson
+  deriving Inhabited, BEq, Hashable, ToJson, FromJson, Ord
+
+instance : LT Range := ltOfOrd
+instance : LE Range := leOfOrd
 
 structure Location where
   uri : DocumentUri

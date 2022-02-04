@@ -28,7 +28,7 @@ private def expandDeclIdNamespace? (declId : Syntax) : MacroM (Option (Name × S
   let (id, optUnivDeclStx) := expandDeclIdCore declId
   let scpView := extractMacroScopes id
   match scpView.name with
-  | Name.str Name.anonymous s _ => none
+  | Name.str Name.anonymous s _ => return none
   | Name.str pre s _            =>
     ensureValidNamespace pre
     let nameNew := { scpView with name := Name.mkSimple s }.review
@@ -36,15 +36,15 @@ private def expandDeclIdNamespace? (declId : Syntax) : MacroM (Option (Name × S
     -- name access the info tree node of the declaration name
     let id := mkIdent nameNew |>.setInfo declId.getHeadInfo
     if declId.isIdent then
-      some (pre, id)
+      return some (pre, id)
     else
-      some (pre, declId.setArg 0 id)
-  | _ => none
+      return some (pre, declId.setArg 0 id)
+  | _ => return none
 
 /- given declarations such as `@[...] def Foo.Bla.f ...` return `some (Foo.Bla, @[...] def f ...)` -/
 private def expandDeclNamespace? (stx : Syntax) : MacroM (Option (Name × Syntax)) := do
   if !stx.isOfKind `Lean.Parser.Command.declaration then
-    none
+    return none
   else
     let decl := stx[1]
     let k := decl.getKind
@@ -57,16 +57,16 @@ private def expandDeclNamespace? (stx : Syntax) : MacroM (Option (Name × Syntax
        k == ``Lean.Parser.Command.classInductive ||
        k == ``Lean.Parser.Command.structure then
       match (← expandDeclIdNamespace? decl[1]) with
-      | some (ns, declId) => some (ns, stx.setArg 1 (decl.setArg 1 declId))
-      | none              => none
+      | some (ns, declId) => return some (ns, stx.setArg 1 (decl.setArg 1 declId))
+      | none              => return none
     else if k == ``Lean.Parser.Command.instance then
       let optDeclId := decl[3]
-      if optDeclId.isNone then none
+      if optDeclId.isNone then return none
       else match (← expandDeclIdNamespace? optDeclId[0]) with
-        | some (ns, declId) => some (ns, stx.setArg 1 (decl.setArg 3 (optDeclId.setArg 0 declId)))
-        | none              => none
+        | some (ns, declId) => return some (ns, stx.setArg 1 (decl.setArg 3 (optDeclId.setArg 0 declId)))
+        | none              => return none
     else
-      none
+      return none
 
 def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   -- leading_parser "axiom " >> declId >> declSig

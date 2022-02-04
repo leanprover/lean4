@@ -14,26 +14,37 @@ namespace Lean.Elab.Command
 
 open Meta
 
+private def ensureValidNamespace (name : Name) : MacroM Unit := do
+  match name with
+  | Name.str p s _ =>
+    if s == "_root_" then
+      Macro.throwError s!"invalid namespace '{name}', '_root_' is a reserved namespace"
+    ensureValidNamespace p
+  | Name.num p .. => Macro.throwError s!"invalid namespace '{name}', it must not contain numeric parts"
+  | Name.anonymous => pure ()
+
 /- Auxiliary function for `expandDeclNamespace?` -/
-def expandDeclIdNamespace? (declId : Syntax) : Option (Name × Syntax) :=
+private def expandDeclIdNamespace? (declId : Syntax) : MacroM (Option (Name × Syntax)) := do
   let (id, optUnivDeclStx) := expandDeclIdCore declId
   let scpView := extractMacroScopes id
   match scpView.name with
-  | Name.str Name.anonymous s _ => none
+  | Name.str Name.anonymous s _ => return none
   | Name.str pre s _            =>
+    ensureValidNamespace pre
     let nameNew := { scpView with name := Name.mkSimple s }.review
     -- preserve "original" info, if any, so that hover etc. on the namespaced
     -- name access the info tree node of the declaration name
     let id := mkIdent nameNew |>.setInfo declId.getHeadInfo
     if declId.isIdent then
-      some (pre, id)
+      return some (pre, id)
     else
-      some (pre, declId.setArg 0 id)
-  | _ => none
+      return some (pre, declId.setArg 0 id)
+  | _ => return none
 
 /- given declarations such as `@[...] def Foo.Bla.f ...` return `some (Foo.Bla, @[...] def f ...)` -/
-def expandDeclNamespace? (stx : Syntax) : Option (Name × Syntax) :=
-  if !stx.isOfKind `Lean.Parser.Command.declaration then none
+private def expandDeclNamespace? (stx : Syntax) : MacroM (Option (Name × Syntax)) := do
+  if !stx.isOfKind `Lean.Parser.Command.declaration then
+    return none
   else
     let decl := stx[1]
     let k := decl.getKind
@@ -45,17 +56,17 @@ def expandDeclNamespace? (stx : Syntax) : Option (Name × Syntax) :=
        k == ``Lean.Parser.Command.inductive ||
        k == ``Lean.Parser.Command.classInductive ||
        k == ``Lean.Parser.Command.structure then
-      match expandDeclIdNamespace? decl[1] with
-      | some (ns, declId) => some (ns, stx.setArg 1 (decl.setArg 1 declId))
-      | none              => none
+      match (← expandDeclIdNamespace? decl[1]) with
+      | some (ns, declId) => return some (ns, stx.setArg 1 (decl.setArg 1 declId))
+      | none              => return none
     else if k == ``Lean.Parser.Command.instance then
       let optDeclId := decl[3]
-      if optDeclId.isNone then none
-      else match expandDeclIdNamespace? optDeclId[0] with
-        | some (ns, declId) => some (ns, stx.setArg 1 (decl.setArg 3 (optDeclId.setArg 0 declId)))
-        | none              => none
+      if optDeclId.isNone then return none
+      else match (← expandDeclIdNamespace? optDeclId[0]) with
+        | some (ns, declId) => return some (ns, stx.setArg 1 (decl.setArg 3 (optDeclId.setArg 0 declId)))
+        | none              => return none
     else
-      none
+      return none
 
 def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   -- leading_parser "axiom " >> declId >> declSig
@@ -152,8 +163,8 @@ def getTerminationHints (stx : Syntax) : TerminationHints :=
     {}
 
 @[builtinCommandElab declaration]
-def elabDeclaration : CommandElab := fun stx =>
-  match expandDeclNamespace? stx with
+def elabDeclaration : CommandElab := fun stx => do
+  match (← liftMacroM <| expandDeclNamespace? stx) with
   | some (ns, newStx) => do
     let ns := mkIdentFrom stx ns
     let newStx ← `(namespace $ns:ident $newStx end $ns:ident)
@@ -221,7 +232,7 @@ def expandMutualNamespace : Macro := fun stx => do
   let mut ns?      := none
   let mut elemsNew := #[]
   for elem in stx[1].getArgs do
-    match ns?, expandDeclNamespace? elem with
+    match ns?, (← expandDeclNamespace? elem) with
     | _, none                         => elemsNew := elemsNew.push elem
     | none, some (ns, elem)           => ns? := some ns; elemsNew := elemsNew.push elem
     | some nsCurr, some (nsNew, elem) =>

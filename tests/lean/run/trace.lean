@@ -39,7 +39,7 @@ do traceCtx `module $ do {
    -- if `trace.slow is active.
    trace[slow] (m!"slow message: " ++ toString (slow b))
    -- This is true even if it is a monad computation:
-   trace[slow] (m!"slow message: " ++ (← toString (slow b)))
+   trace[slow] (m!"slow message: " ++ (toString (slow b)))
 
 def run (x : M Unit) : M Unit :=
 withReader

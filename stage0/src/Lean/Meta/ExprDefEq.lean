@@ -341,9 +341,9 @@ where
         | _ => pure ()
       return false
     if xs.size <= 1 then
-      pure false
+      return false
     else
-      check (← getLCtx)
+      return check (← getLCtx)
 
   /- Traverse `e` and stores in the state `NameHashSet` any let-declaration with index greater than `(← read)`.
      The context `Nat` is the position of `xs[0]` in the local context. -/
@@ -1511,7 +1511,7 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   whenUndefDo (isDefEqDelta t s) do
   if t.isConst && s.isConst then
     if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
-  else if (← t.isApp <&&> s.isApp <&&> isDefEqApp t s) then
+  else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
     return true
   else
     whenUndefDo (isDefEqStringLit t s) do

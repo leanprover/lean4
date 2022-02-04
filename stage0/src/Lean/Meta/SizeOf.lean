@@ -17,7 +17,7 @@ where
       let param := params[i]
       let paramType ← inferType param
       let instType? ← forallTelescopeReducing paramType fun xs _ => do
-        let type ← mkAppN param xs
+        let type := mkAppN param xs
         try
           let sizeOf ← mkAppM `SizeOf #[type]
           let instType ← mkForallFVars xs sizeOf

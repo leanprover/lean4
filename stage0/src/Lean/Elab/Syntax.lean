@@ -115,7 +115,7 @@ where
       /- Convert `candidates` in a list of pairs `(c, isDescr)`, where `c` is the parser name,
          and `isDescr` is true iff `c` has type `Lean.ParserDescr` or `Lean.TrailingParser` -/
       let env ← getEnv
-      candidates.filterMap fun c =>
+      return candidates.filterMap fun c =>
          match env.find? c with
          | none      => none
          | some info =>
@@ -312,7 +312,7 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   let precDefault  := if isAtomLikeSyntax syntaxParser then Parser.maxPrec else Parser.leadPrec
   let prec ← match prec? with
     | some prec => liftMacroM <| evalPrec prec
-    | none      => precDefault
+    | none      => pure precDefault
   let name ← match name? with
     | some name => pure name.getId
     | none => liftMacroM <| mkNameFromParserSyntax cat syntaxParser
@@ -334,10 +334,10 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
 @[builtinCommandElab «syntaxAbbrev»] def elabSyntaxAbbrev : CommandElab := fun stx => do
   let `($[$doc?:docComment]? syntax $declName:ident := $[$ps:stx]*) ← pure stx | throwUnsupportedSyntax
   -- TODO: nonatomic names
-  let (val, _) ← runTermElabM none $ fun _ => Term.toParserDescr (mkNullNode ps) Name.anonymous
+  let (val, _) ← runTermElabM none fun _ => Term.toParserDescr (mkNullNode ps) Name.anonymous
   let stxNodeKind := (← getCurrNamespace) ++ declName.getId
   let stx' ← `($[$doc?:docComment]? def $declName:ident : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
-  withMacroExpansion stx stx' $ elabCommand stx'
+  withMacroExpansion stx stx' <| elabCommand stx'
 
 def checkRuleKind (given expected : SyntaxNodeKind) : Bool :=
   given == expected || given == expected ++ `antiquot
@@ -366,11 +366,11 @@ def expandNoKindMacroRulesAux (alts : Array Syntax) (cmdName : String) (mkCmd : 
     if altsNotK.isEmpty then
       mkCmd k altsK
     else
-      mkNullNode #[← mkCmd k altsK, ← mkCmd none altsNotK]
+      return mkNullNode #[← mkCmd k altsK, ← mkCmd none altsNotK]
 
 def strLitToPattern (stx: Syntax) : MacroM Syntax :=
   match stx.isStrLit? with
-  | some str => pure $ mkAtomFrom stx str
+  | some str => return mkAtomFrom stx str
   | none     => Macro.throwUnsupported
 
 builtin_initialize

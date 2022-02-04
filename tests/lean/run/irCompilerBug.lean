@@ -7,7 +7,7 @@ structure Payload :=
 
 
 @[noinline] def get? (p : Payload) (k : Nat) : OptionM Nat :=
-if p.key == k then p.val else none
+if p.key == k then pure p.val else failure
 
 inductive T
 | a (i : Nat)

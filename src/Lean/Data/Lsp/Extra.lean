@@ -30,7 +30,7 @@ structure WaitForDiagnosticsParams where
 structure WaitForDiagnostics
 
 instance : FromJson WaitForDiagnostics :=
-  ⟨fun j => WaitForDiagnostics.mk⟩
+  ⟨fun j => pure WaitForDiagnostics.mk⟩
 
 instance : ToJson WaitForDiagnostics :=
   ⟨fun o => mkObj []⟩
@@ -41,8 +41,8 @@ inductive LeanFileProgressKind
 
 instance : FromJson LeanFileProgressKind := ⟨fun j =>
   match j.getNat? with
-  | Except.ok 1 => LeanFileProgressKind.processing
-  | Except.ok 2 => LeanFileProgressKind.fatalError
+  | Except.ok 1 => return LeanFileProgressKind.processing
+  | Except.ok 2 => return LeanFileProgressKind.fatalError
   | _           => throw s!"unknown LeanFileProgressKind '{j}'"⟩
 
 instance : ToJson LeanFileProgressKind := ⟨fun

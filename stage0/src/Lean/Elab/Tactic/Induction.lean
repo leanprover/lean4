@@ -116,7 +116,7 @@ partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targets : Array E
           throwError "insufficient number of targets for '{elimName}'"
         let target := ctx.targets[s.targetPos]
         let expectedType ← getArgExpectedType
-        let target ← Term.ensureHasType expectedType target
+        let target ← withConfig (fun cfg => { cfg with assignSyntheticOpaque := true }) do Term.ensureHasType expectedType target
         modify fun s => { s with targetPos := s.targetPos + 1 }
         addNewArg target
       else match c.binderInfo with
@@ -150,7 +150,8 @@ partial def mkElimApp (elimName : Name) (elimInfo : ElimInfo) (targets : Array E
     catch _ =>
       setMVarKind mvarId MetavarKind.syntheticOpaque
       others := others.push mvarId
-  return { elimApp := (← instantiateMVars s.f), alts := s.alts, others := others }
+  let alts ← s.alts.filterM fun alt => return !(← isExprMVarAssigned alt.2)
+  return { elimApp := (← instantiateMVars s.f), alts, others := others }
 
 /- Given a goal `... targets ... |- C[targets]` associated with `mvarId`, assign
   `motiveArg := fun targets => C[targets]` -/
@@ -193,7 +194,7 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (optPreTac : 
   let hasAlts := altsSyntax.size > 0
   if hasAlts then
     -- default to initial state outside of alts
-    withInfoContext go initialInfo
+    withInfoContext go (pure initialInfo)
   else go
 where
   go := do
@@ -242,7 +243,7 @@ where
             else
               throwError "alternative '{altName}' is not needed"
           let altVarNames := getAltVarNames altStx
-          let numFieldsToName ← if altHasExplicitModifier altStx then numFields else getNumExplicitFields altMVarId numFields
+          let numFieldsToName ← if altHasExplicitModifier altStx then pure numFields else getNumExplicitFields altMVarId numFields
           trace[Meta.debug] "numFields: {numFields}, numFieldsToName: {numFieldsToName}, altNames: {altVarNames.size}"
           if altVarNames.size > numFieldsToName then
             logError m!"too many variable names provided at alternative '{altName}', #{altVarNames.size} provided, but #{numFieldsToName} expected"
@@ -407,8 +408,17 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr) :=
       return args.map (·.expr)
     else
       liftMetaTacticAux fun mvarId => do
-        let (fvarIds, mvarId) ← generalize mvarId args
-        return (fvarIds[:targets.size].toArray.map mkFVar, [mvarId])
+        let argsToGeneralize := args.filter fun arg => !(arg.expr.isFVar && arg.hName?.isNone)
+        let (fvarIdsNew, mvarId) ← generalize mvarId argsToGeneralize
+        let mut result := #[]
+        let mut j := 0
+        for arg in args do
+          if arg.expr.isFVar && arg.hName?.isNone then
+            result := result.push arg.expr
+          else
+            result := result.push (mkFVar fvarIdsNew[j])
+            j := j+1
+        return (result, [mvarId])
 
 builtin_initialize registerTraceClass `Elab.cases
 

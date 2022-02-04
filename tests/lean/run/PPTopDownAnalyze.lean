@@ -26,7 +26,7 @@ def checkDelab (e : Expr) (tgt? : Option Syntax) (name? : Option Name := none) :
       let e' ← instantiateMVars e'
       -- let ⟨e', _⟩ ← levelMVarToParam e'
       throwErrorIfErrors
-      e'
+      pure e'
     catch ex => throwError "{pfix} failed to re-elaborate,\n{stx}\n{← ex.toMessageData.toString}"
 
   withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `pp.all true }) do
@@ -54,7 +54,7 @@ syntax (name := testDelabTDN) "#testDelabN " ident : command
   | `(#testDelabN $name:ident) => liftTermElabM `delabTD do
     let name := name.getId
     let [name] ← resolveGlobalConst (mkIdent name) | throwError "cannot resolve name"
-    let some cInfo ← (← getEnv).find? name | throwError "no decl for name"
+    let some cInfo := (← getEnv).find? name | throwError "no decl for name"
     let some value ← pure cInfo.value? | throwError "decl has no value"
     modify fun s => { s with levelNames := cInfo.levelParams }
     withTheReader Core.Context (fun ctx => { ctx with currNamespace := name.getPrefix, openDecls := [] }) do
@@ -270,7 +270,7 @@ set_option pp.proofs.withType false in
 #testDelab ∀ (α : Type u) (vals vals_1 : List α), { data := vals : Array α } = { data := vals_1 : Array α }
   expecting ∀ (α : Type u) (vals vals_1 : List α), { data := vals : Array α } = { data := vals_1 }
 
-#testDelab (do let ctxCore ← readThe Core.Context; ctxCore.currNamespace : MetaM Name)
+#testDelab (do let ctxCore ← readThe Core.Context; pure ctxCore.currNamespace : MetaM Name)
   expecting do
     let ctxCore ← readThe Core.Context
     pure ctxCore.currNamespace

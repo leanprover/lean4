@@ -94,7 +94,7 @@ def empty : DiscrTree α := { root := {} }
 partial def Trie.format [ToFormat α] : Trie α → Format
   | Trie.node vs cs => Format.group $ Format.paren $
     "node" ++ (if vs.isEmpty then Format.nil else " " ++ Std.format vs)
-    ++ Format.join (cs.toList.map $ fun ⟨k, c⟩ => Format.line ++ Format.paren (Std.format k ++ " => " ++ format c))
+    ++ Format.join (cs.toList.map fun ⟨k, c⟩ => Format.line ++ Format.paren (Std.format k ++ " => " ++ format c))
 
 instance [ToFormat α] : ToFormat (Trie α) := ⟨Trie.format⟩
 
@@ -263,7 +263,7 @@ where
     | none    => return e
 
 /-- whnf for the discrimination tree module -/
-private def whnfDT (e : Expr) (root : Bool) : MetaM Expr :=
+def whnfDT (e : Expr) (root : Bool) : MetaM Expr :=
   if root then whnfUntilBadKey e else whnfEta e
 
 /- Remark: we use `shouldAddAsStar` only for nested terms, and `root == false` for nested terms -/
@@ -446,11 +446,11 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
           return result
       let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
         match findKey cs k with
-        | none   => result
+        | none   => return result
         | some c => getMatchLoop (todo ++ args) c.2 result
       let result ← visitStar result
       match k with
-      | Key.star  => result
+      | Key.star  => return result
       /-
         Recall that dependent arrows are `(Key.other, #[])`, and non-dependent arrows are `(Key.arrow, #[a, b])`.
         A non-dependent arrow may be an instance of a dependent arrow (stored at `DiscrTree`). Thus, we also visit the `Key.other` child.
@@ -534,7 +534,7 @@ where
             return result
         let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
           match findKey cs k with
-          | none   => result
+          | none   => return result
           | some c => process 0 (todo ++ args) c.2 result
         match k with
         | Key.star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result

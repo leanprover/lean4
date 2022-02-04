@@ -41,8 +41,8 @@ variable [MonadLiftT IO m]
 
 def mkRoot (e : Expr) : SubExpr := ⟨e, 1⟩
 
-def getExpr : m Expr := do (← readThe SubExpr).expr
-def getPos  : m Pos  := do (← readThe SubExpr).pos
+def getExpr : m Expr := return (← readThe SubExpr).expr
+def getPos  : m Pos  := return (← readThe SubExpr).pos
 
 def descend (child : Expr) (childIdx : Pos) (x : m α) : m α :=
   withTheReader SubExpr (fun cfg => { cfg with expr := child, pos := cfg.pos * maxChildren + childIdx }) x
@@ -128,7 +128,7 @@ def nextExtraPos : m Pos := do
   let iter ← getThe HoleIterator
   let pos := iter.toPos
   modifyThe HoleIterator HoleIterator.next
-  pos
+  return pos
 
 end Hole
 end SubExpr

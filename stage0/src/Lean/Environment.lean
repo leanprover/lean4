@@ -359,10 +359,10 @@ def getState {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α �
   (ext.toEnvExtension.getState env).state
 
 def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (s : σ) : Environment :=
-  ext.toEnvExtension.modifyState env $ fun ps => { ps with  state := s }
+  ext.toEnvExtension.modifyState env fun ps => { ps with  state := s }
 
 def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (f : σ → σ) : Environment :=
-  ext.toEnvExtension.modifyState env $ fun ps => { ps with state := f (ps.state) }
+  ext.toEnvExtension.modifyState env fun ps => { ps with state := f (ps.state) }
 
 end PersistentEnvExtension
 
@@ -564,7 +564,7 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
   for mod in mods do
     for extDescr in pExtDescrs[startingAt:] do
       let entries := getEntriesFor mod extDescr.name 0
-      env ← extDescr.toEnvExtension.modifyState env fun s => { s with importedEntries := s.importedEntries.push entries }
+      env := extDescr.toEnvExtension.modifyState env fun s => { s with importedEntries := s.importedEntries.push entries }
   return env
 
 /--
@@ -592,7 +592,7 @@ where
       let prevSize := (← persistentEnvExtensionsRef.get).size
       let prevAttrSize ← getNumBuiltiAttributes
       let newState ← extDescr.addImportedFn s.importedEntries { env := env, opts := opts }
-      let mut env ← extDescr.toEnvExtension.setState env { s with state := newState }
+      let mut env := extDescr.toEnvExtension.setState env { s with state := newState }
       env ← ensureExtensionsArraySize env
       if (← persistentEnvExtensionsRef.get).size > prevSize || (← getNumBuiltiAttributes) > prevAttrSize then
         -- This branch is executed when `pExtDescrs[i]` is the extension associated with the `init` attribute, and
@@ -657,7 +657,7 @@ where
       modify fun s => { s with moduleNameSet := s.moduleNameSet.insert i.module }
       let mFile ← findOLean i.module
       unless (← mFile.pathExists) do
-        throw $ IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
+        throw <| IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
       let (mod, region) ← readModuleData mFile
       importMods mod.imports.toList
       modify fun s => { s with
@@ -718,7 +718,7 @@ def displayStats (env : Environment) : IO Unit := do
   IO.println ("number of buckets for imported consts: " ++ toString env.constants.numBuckets);
   IO.println ("trust level:                           " ++ toString env.header.trustLevel);
   IO.println ("number of extensions:                  " ++ toString env.extensions.size);
-  pExtDescrs.forM $ fun extDescr => do
+  pExtDescrs.forM fun extDescr => do
     IO.println ("extension '" ++ toString extDescr.name ++ "'")
     let s := extDescr.toEnvExtension.getState env
     let fmt := extDescr.statsFn s.state
@@ -748,7 +748,7 @@ unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (typeName : 
     | _ => throwUnexpectedType typeName constName
 
 def hasUnsafe (env : Environment) (e : Expr) : Bool :=
-  let c? := e.find? $ fun e => match e with
+  let c? := e.find? fun e => match e with
     | Expr.const c _ _ =>
       match env.find? c with
       | some cinfo => cinfo.isUnsafe

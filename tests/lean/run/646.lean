@@ -6,7 +6,7 @@ def build (n : Nat) : Array Unit := Id.run <| do
 
 @[noinline] def size : IO Nat := pure 50000
 
-def bench (f : ∀ {α : Type}, α → IO Unit := fun _ => ()) : IO Unit := do
+def bench (f : ∀ {α : Type}, α → IO Unit := fun _ => pure ()) : IO Unit := do
   let n ← size
   let arr := build n
   timeit "time" $

@@ -163,9 +163,9 @@ def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option Format) := do
     if let some m ← i.docString? then
       fmts := fmts.push m
     if fmts.isEmpty then
-      none
+      return none
     else
-      f!"\n***\n".joinSep fmts.toList
+      return f!"\n***\n".joinSep fmts.toList
 
 where
   fmtTerm? : MetaM (Option Format) := do

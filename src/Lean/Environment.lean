@@ -564,7 +564,7 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
   for mod in mods do
     for extDescr in pExtDescrs[startingAt:] do
       let entries := getEntriesFor mod extDescr.name 0
-      env ← extDescr.toEnvExtension.modifyState env fun s => { s with importedEntries := s.importedEntries.push entries }
+      env := extDescr.toEnvExtension.modifyState env fun s => { s with importedEntries := s.importedEntries.push entries }
   return env
 
 /--
@@ -592,7 +592,7 @@ where
       let prevSize := (← persistentEnvExtensionsRef.get).size
       let prevAttrSize ← getNumBuiltiAttributes
       let newState ← extDescr.addImportedFn s.importedEntries { env := env, opts := opts }
-      let mut env ← extDescr.toEnvExtension.setState env { s with state := newState }
+      let mut env := extDescr.toEnvExtension.setState env { s with state := newState }
       env ← ensureExtensionsArraySize env
       if (← persistentEnvExtensionsRef.get).size > prevSize || (← getNumBuiltiAttributes) > prevAttrSize then
         -- This branch is executed when `pExtDescrs[i]` is the extension associated with the `init` attribute, and

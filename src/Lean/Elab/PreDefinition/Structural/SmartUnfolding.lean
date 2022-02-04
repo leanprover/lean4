@@ -51,8 +51,7 @@ where
               let altBody ← visit altBody
               let containsSUnfoldMatch := Option.isSome <| altBody.find? fun e => smartUnfoldingMatch? e |>.isSome
               if !containsSUnfoldMatch then
-                let altBody ← mkLambdaFVars xs[numParams:xs.size] altBody
-                let altBody ← markSmartUnfoldingMatchAlt altBody
+                let altBody := markSmartUnfoldingMatchAlt altBody
                 mkLambdaFVars xs[0:numParams] altBody
               else
                 mkLambdaFVars xs altBody

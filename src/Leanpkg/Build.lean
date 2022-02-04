@@ -57,7 +57,7 @@ partial def buildModule (mod : Name) : BuildM Result := do
   let deps ← localImports.mapM fun i =>
     withReader (fun ctx => { ctx with parents := mod :: ctx.parents }) <|
       buildModule i.module
-  let depMTimes ← deps.mapM (·.maxMTime)
+  let depMTimes := deps.map (·.maxMTime)
   let maxMTime := List.maximum? (leanMData.modified :: ctx.moreDepsMTime :: depMTimes) |>.get!
 
   -- check whether we have an up-to-date .olean

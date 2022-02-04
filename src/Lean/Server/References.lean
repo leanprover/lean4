@@ -234,7 +234,7 @@ def referringTo (self : References) (ident : RefIdent) (srcSearchPath : SearchPa
             result := result.push ⟨uri, range⟩
         for range in info.usages do
           result := result.push ⟨uri, range⟩
-  result
+  return result
 
 def definitionOf? (self : References) (ident : RefIdent) (srcSearchPath : SearchPath)
     : IO (Option Location) := do

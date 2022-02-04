@@ -284,7 +284,7 @@ def getAt? (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
 
 instance : ForIn m LocalContext LocalDecl where
   forIn lctx init f := lctx.decls.forIn init fun d? b => match d? with
-    | none   => ForInStep.yield b
+    | none   => return ForInStep.yield b
     | some d => f d b
 
 @[inline] def foldl (lctx : LocalContext) (f : β → LocalDecl → β) (init : β) (start : Nat := 0) : β :=

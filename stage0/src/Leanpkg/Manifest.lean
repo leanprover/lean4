@@ -18,12 +18,12 @@ namespace Source
 
 def fromToml (v : Toml.Value) : OptionM Source :=
   (do let Toml.Value.str dir ← v.lookup "path" | none
-      path ⟨dir⟩) <|>
+      pure <| path ⟨dir⟩) <|>
   (do let Toml.Value.str url ← v.lookup "git" | none
       let Toml.Value.str rev ← v.lookup "rev" | none
       match v.lookup "branch" with
-      | none                         => git url rev none
-      | some (Toml.Value.str branch) => git url rev (some branch)
+      | none                         => pure <| git url rev none
+      | some (Toml.Value.str branch) => pure <| git url rev (some branch)
       | _ => none)
 
 def toToml : Source → Toml.Value
@@ -69,7 +69,7 @@ def fromToml (t : Toml.Value) : Option Manifest := OptionM.run do
     | none => some none
     | _ => none
   let Toml.Value.table deps ← t.lookup "dependencies" <|> some (Toml.Value.table []) | none
-  let deps ← deps.mapM fun ⟨n, src⟩ => do Dependency.mk n (← Source.fromToml src)
+  let deps ← deps.mapM fun ⟨n, src⟩ => return Dependency.mk n (← Source.fromToml src)
   return { name := n, version := ver, leanVersion := leanVer,
            path := path, dependencies := deps, timeout := tm }
 
@@ -78,7 +78,7 @@ def fromFile (fn : System.FilePath) : IO Manifest := do
   let toml ← Toml.parse cnts
   let some manifest ← pure (fromToml toml)
     | throw <| IO.userError s!"cannot read manifest from {fn}"
-  manifest
+  return manifest
 
 end Manifest
 

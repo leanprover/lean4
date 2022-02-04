@@ -43,11 +43,11 @@ builtin_initialize
       i.ctx.runMetaM i.info.lctx do
         let type? ← match (← i.info.type?) with
           | some type => some <$> exprToInteractive type
-          | none => none
+          | none => pure none
         let exprExplicit? ← match i.info with
           | Elab.Info.ofTermInfo ti => some <$> exprToInteractiveExplicit ti.expr
-          | Elab.Info.ofFieldInfo fi => some (TaggedText.text fi.fieldName.toString)
-          | _ => none
+          | Elab.Info.ofFieldInfo fi => pure <| some (TaggedText.text fi.fieldName.toString)
+          | _ => pure none
         return {
           type := type?
           exprExplicit := exprExplicit?
@@ -76,17 +76,17 @@ structure GetInteractiveDiagnosticsParams where
 open RequestM in
 def getInteractiveDiagnostics (params : GetInteractiveDiagnosticsParams) : RequestM (RequestTask (Array InteractiveDiagnostic)) := do
   let doc ← readDoc
-  let rangeEnd ← params.lineRange?.map fun range =>
+  let rangeEnd := params.lineRange?.map fun range =>
     doc.meta.text.lspPosToUtf8Pos ⟨range.«end», 0⟩
   let t ← doc.cmdSnaps.waitAll fun snap => rangeEnd.all (snap.beginPos < ·)
-  t.map fun (snaps, _) =>
+  pure <| t.map fun (snaps, _) =>
     let diags? := snaps.getLast?.map fun snap =>
       snap.interactiveDiags.toArray.filter fun diag =>
         params.lineRange?.all fun ⟨s, e⟩ =>
           -- does [s,e) intersect [diag.fullRange.start.line,diag.fullRange.end.line)?
           s ≤ diag.fullRange.start.line ∧ diag.fullRange.start.line < e ∨
           diag.fullRange.start.line ≤ s ∧ s < diag.fullRange.end.line
-    diags?.getD #[]
+    pure <| diags?.getD #[]
 
 builtin_initialize
   registerRpcCallHandler

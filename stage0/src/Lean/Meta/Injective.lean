@@ -46,7 +46,7 @@ private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useE
             eqs := eqs.push (← mkEq arg1 arg2)
           else
             eqs := eqs.push (← mkHEq arg1 arg2)
-      if let some andEqs ← mkAnd? eqs then
+      if let some andEqs := mkAnd? eqs then
         let result ←
           if useEq then
             mkEq eq andEqs

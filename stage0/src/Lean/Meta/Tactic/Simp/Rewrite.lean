@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Meta.ACLt
 import Lean.Meta.AppBuilder
 import Lean.Meta.SynthInstance
 import Lean.Meta.Tactic.Simp.Types
@@ -17,6 +18,9 @@ def synthesizeArgs (lemmaName : Name) (xs : Array Expr) (bis : Array BinderInfo)
         return false
     else if (← instantiateMVars x).isMVar then
       if (← isProp type) then
+        if (← hasAssignableMVar (← instantiateMVars type)) then
+          trace[Meta.Tactic.simp.discharge] "{lemmaName}, hypothesis contains metavariables{indentExpr type}"
+          return false
         match (← discharge? type) with
         | some proof =>
           unless (← isDefEq x proof) do
@@ -54,9 +58,10 @@ private def tryLemmaCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo)
       let rhs   ← instantiateMVars type.appArg!
       if e == rhs then
         return none
-      if lemma.perm && !Expr.lt rhs e then
-        trace[Meta.Tactic.simp.rewrite] "{lemma}, perm rejected {e} ==> {rhs}"
-        return none
+      if lemma.perm then
+        if !(← Expr.acLt rhs e) then
+          trace[Meta.Tactic.simp.rewrite] "{lemma}, perm rejected {e} ==> {rhs}"
+          return none
       trace[Meta.Tactic.simp.rewrite] "{lemma}, {e} ==> {rhs}"
       return some { expr := rhs, proof? := proof }
     else
@@ -176,11 +181,11 @@ def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndIn
     x
 
 def rewritePre (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
-  let lemmas ← (← read).simpLemmas
+  let lemmas := (← read).simpLemmas
   return Step.visit (← rewrite e lemmas.pre lemmas.erased discharge? (tag := "pre"))
 
 def rewritePost (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
-  let lemmas ← (← read).simpLemmas
+  let lemmas := (← read).simpLemmas
   return Step.visit (← rewrite e lemmas.post lemmas.erased discharge? (tag := "post"))
 
 def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step :=

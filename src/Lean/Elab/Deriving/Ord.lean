@@ -58,15 +58,15 @@ where
         let ltPatterns := indPatterns ++ #[lPat, ←`(_)]
         let gtPatterns := indPatterns ++ #[←`(_), rPat]
         let rhs ← rhsCont (← `(Ordering.eq))
-        #[←`(matchAltExpr| | $[$(patterns):term],* => $rhs:term),
-          ←`(matchAltExpr| | $[$(ltPatterns):term],* => Ordering.lt),
-          ←`(matchAltExpr| | $[$(gtPatterns):term],* => Ordering.gt)]
+        pure #[←`(matchAltExpr| | $[$(patterns):term],* => $rhs:term),
+               ←`(matchAltExpr| | $[$(ltPatterns):term],* => Ordering.lt),
+               ←`(matchAltExpr| | $[$(gtPatterns):term],* => Ordering.gt)]
       alts := alts ++ alt
     return alts.pop.pop
 
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
-  let auxFunName ← ctx.auxFunNames[i]
-  let indVal     ← ctx.typeInfos[i]
+  let auxFunName := ctx.auxFunNames[i]
+  let indVal     := ctx.typeInfos[i]
   let header     ← mkOrdHeader ctx indVal
   let mut body   ← mkMatch ctx header indVal auxFunName
   if ctx.usePartial || indVal.isRec then

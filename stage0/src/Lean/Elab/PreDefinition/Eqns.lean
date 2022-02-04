@@ -25,13 +25,13 @@ partial def expand : Expr → Expr
 
 def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) ← target.eq? | return none
+  let some (_, lhs, rhs) := target.eq? | return none
   unless rhs.isLet || rhs.isMData do return none
   return some (← replaceTargetDefEq mvarId (← mkEq lhs (expand rhs)))
 
 def funext? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) ← target.eq? | return none
+  let some (_, lhs, rhs) := target.eq? | return none
   unless rhs.isLambda do return none
   commitWhenSome? do
     let [mvarId] ← apply mvarId (← mkConstWithFreshMVarLevels ``funext) | return none
@@ -66,17 +66,28 @@ structure Context where
 -/
 private def keepGoing (mvarId : MVarId) : ReaderT Context (StateRefT (Array Expr) MetaM) Bool := do
   let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) ← target.eq? | return false
+  let some (_, lhs, rhs) := target.eq? | return false
   let ctx ← read
   return Option.isSome <| rhs.find? fun e => ctx.declNames.any e.isAppOf && e.hasLooseBVars
 
+private def lhsDependsOn (type : Expr) (fvarId : FVarId) : MetaM Bool :=
+  forallTelescope type fun _ type => do
+    if let some (_, lhs, _) ← matchEq? type then
+      dependsOn lhs fvarId
+    else
+      dependsOn type fvarId
+
+/--
+  Eliminate `namedPatterns` from equation, and trivial hypotheses.
+-/
 def simpEqnType (eqnType : Expr) : MetaM Expr := do
   forallTelescopeReducing (← instantiateMVars eqnType) fun ys type => do
     let proofVars := collect type
-    trace[Meta.debug] "proofVars: {proofVars.toList.map mkFVar}"
+    trace[Meta.debug] "simpEqnType: {type}"
     let mut type ← Match.unfoldNamedPattern type
     let mut eliminated : FVarIdSet := {}
     for y in ys.reverse do
+      trace[Meta.debug] ">> simpEqnType: {← inferType y}, {type}"
       if proofVars.contains y.fvarId! then
         let some (_, Expr.fvar fvarId _, rhs) ← matchEq? (← inferType y) | throwError "unexpected hypothesis in altenative{indentExpr eqnType}"
         eliminated := eliminated.insert fvarId
@@ -85,6 +96,14 @@ def simpEqnType (eqnType : Expr) : MetaM Expr := do
         if (← dependsOn type y.fvarId!) then
           type ← mkForallFVars #[y] type
       else
+        if let some (_, lhs, rhs) ← matchEq? (← inferType y) then
+          if (← isDefEq lhs rhs) then
+            if !(← dependsOn type y.fvarId!) then
+              continue
+            else if !(← lhsDependsOn type y.fvarId!) then
+              -- Since the `lhs` of the `type` does not depend on `y`, we replace it with `Eq.refl` in the `rhs`
+              type := type.replaceFVar y (← mkEqRefl lhs)
+              continue
         type ← mkForallFVars #[y] type
     return type
 where
@@ -103,9 +122,9 @@ private def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := wit
   let fvarState := collectFVars {} target
   let fvarState ← (← getLCtx).foldrM (init := fvarState) fun decl fvarState => do
     if fvarState.fvarSet.contains decl.fvarId then
-      collectFVars fvarState (← instantiateMVars decl.type)
+      return collectFVars fvarState (← instantiateMVars decl.type)
     else
-      fvarState
+      return fvarState
   let mut fvarIds ← sortFVarIds <| fvarState.fvarSet.toArray
   -- Include propositions that are not in fvarState.fvarSet, and only contains variables in
   for decl in (← getLCtx) do
@@ -157,13 +176,13 @@ def tryURefl (mvarId : MVarId) : MetaM Bool :=
 /-- Delta reduce the equation left-hand-side -/
 def deltaLHS (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
   let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) ← target.eq? | throwTacticEx `deltaLHS mvarId "equality expected"
+  let some (_, lhs, rhs) := target.eq? | throwTacticEx `deltaLHS mvarId "equality expected"
   let some lhs ← delta? lhs | throwTacticEx `deltaLHS mvarId "failed to delta reduce lhs"
   replaceTargetDefEq mvarId (← mkEq lhs rhs)
 
 def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := withMVarContext mvarId do
   let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) ← target.eq? | throwTacticEx `deltaRHS mvarId "equality expected"
+  let some (_, lhs, rhs) := target.eq? | throwTacticEx `deltaRHS mvarId "equality expected"
   let some rhs ← delta? rhs.consumeMData (. == declName) | return none
   replaceTargetDefEq mvarId (← mkEq lhs rhs)
 
@@ -171,13 +190,13 @@ private partial def whnfAux (e : Expr) : MetaM Expr := do
   let e ← whnfI e -- Must reduce instances too, otherwise it will not be able to reduce `(Nat.rec ... ... (OfNat.ofNat 0))`
   let f := e.getAppFn
   match f with
-  | Expr.proj _ _ s _ => mkAppN (f.updateProj! (← whnfAux s)) e.getAppArgs
+  | Expr.proj _ _ s _ => return mkAppN (f.updateProj! (← whnfAux s)) e.getAppArgs
   | _ => return e
 
 /-- Apply `whnfR` to lhs, return `none` if `lhs` was not modified -/
 def whnfReducibleLHS? (mvarId : MVarId) : MetaM (Option MVarId) := withMVarContext mvarId do
   let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) ← target.eq? | throwTacticEx `whnfReducibleLHS mvarId "equality expected"
+  let some (_, lhs, rhs) := target.eq? | throwTacticEx `whnfReducibleLHS mvarId "equality expected"
   let lhs' ← whnfAux lhs
   if lhs' != lhs then
     return some (← replaceTargetDefEq mvarId (← mkEq lhs' rhs))

@@ -103,7 +103,7 @@ def extractXY : Lean.Expr → Lean.MetaM Coords
   let y ← Lean.Meta.whnf sizeArgs[1]
   let numCols := (Lean.Expr.natLit? x).get!
   let numRows := (Lean.Expr.natLit? y).get!
-  Coords.mk numCols numRows
+  return Coords.mk numCols numRows
 
 partial def extractWallList : Lean.Expr → Lean.MetaM (List Coords)
 | exp => do
@@ -113,8 +113,8 @@ partial def extractWallList : Lean.Expr → Lean.MetaM (List Coords)
   then let consArgs := Lean.Expr.getAppArgs exp'
        let rest ← extractWallList consArgs[2]
        let ⟨wallCol, wallRow⟩ ← extractXY consArgs[1]
-       (Coords.mk wallCol wallRow) :: rest
-  else [] -- "List.nil"
+       return (Coords.mk wallCol wallRow) :: rest
+  else return [] -- "List.nil"
 
 partial def extractGameState : Lean.Expr → Lean.MetaM GameState
 | exp => do

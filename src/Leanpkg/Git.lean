@@ -18,7 +18,7 @@ def gitdefaultRevision : Option String → String
 
 def gitParseRevision (gitRepo : FilePath) (rev : String) : IO String := do
   let rev ← IO.Process.run {cmd := "git", args := #["rev-parse", "-q", "--verify", rev], cwd := gitRepo}
-  rev.trim -- remove newline at end
+  pure rev.trim -- remove newline at end
 
 def gitHeadRevision (gitRepo : FilePath) : IO String :=
   gitParseRevision gitRepo "HEAD"
@@ -34,7 +34,7 @@ def gitLatestOriginRevision (gitRepo : FilePath) (branch : Option String) : IO S
 def gitRevisionExists (gitRepo : FilePath) (rev : String) : IO Bool := do
   try
     discard <| gitParseRevision gitRepo (rev ++ "^{commit}")
-    true
-  catch _ => false
+    pure true
+  catch _ => pure false
 
 end Leanpkg

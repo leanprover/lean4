@@ -4076,7 +4076,10 @@ lean_inc(x_21);
 x_22 = lean_ctor_get(x_20, 1);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_8);
+lean_inc(x_7);
 lean_inc(x_6);
+lean_inc(x_5);
 lean_inc(x_3);
 x_23 = l_Lean_Elab_Term_tryPostponeIfMVar(x_21, x_3, x_4, x_5, x_6, x_7, x_8, x_22);
 if (lean_obj_tag(x_23) == 0)

@@ -85,7 +85,7 @@ private partial def processSumCasesOn (x F val : Expr) (k : (x : Expr) → (F : 
       return (← mkLambdaFVars xs type, ← getLevel type)
     let mkMinorNew (ctorName : Name) (minor : Expr) : TermElabM Expr :=
       lambdaTelescope minor fun xs body => do
-        let xNew ← xs[0]
+        let xNew := xs[0]
         let valNew ← mkLambdaFVars xs[1:] body
         let FTypeNew := FDecl.type.replaceFVar x (← mkAppOptM ctorName #[α, β, xNew])
         withLocalDeclD FDecl.userName FTypeNew fun FNew => do
@@ -101,7 +101,7 @@ private partial def processSumCasesOn (x F val : Expr) (k : (x : Expr) → (F : 
 private partial def processPSigmaCasesOn (x F val : Expr) (k : (F : Expr) → (val : Expr) → TermElabM Expr) : TermElabM Expr := do
   if x.isFVar && val.isAppOfArity ``PSigma.casesOn 5 && val.getArg! 3 == x && (val.getArg! 4).isLambda && (val.getArg! 4).bindingBody!.isLambda then
     let args := val.getAppArgs
-    let [_, u, v] ← val.getAppFn.constLevels! | unreachable!
+    let [_, u, v] := val.getAppFn.constLevels! | unreachable!
     let α := args[0]
     let β := args[1]
     let FDecl ← getLocalDecl F.fvarId!
@@ -109,8 +109,8 @@ private partial def processPSigmaCasesOn (x F val : Expr) (k : (F : Expr) → (v
       let type ← mkArrow (FDecl.type.replaceFVar x xs[0]) type
       return (← mkLambdaFVars xs type, ← getLevel type)
     let minor ← lambdaTelescope args[4] fun xs body => do
-        let a ← xs[0]
-        let xNew ← xs[1]
+        let a := xs[0]
+        let xNew := xs[1]
         let valNew ← mkLambdaFVars xs[2:] body
         let FTypeNew := FDecl.type.replaceFVar x (← mkAppOptM `PSigma.mk #[α, β, a, xNew])
         withLocalDeclD FDecl.userName FTypeNew fun FNew => do

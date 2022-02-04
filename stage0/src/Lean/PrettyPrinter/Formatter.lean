@@ -297,9 +297,9 @@ def trailingNode.formatter (k : SyntaxNodeKind) (_ _ : Nat) (p : Formatter) : Fo
     -- leading term, not actually produced by `p`
     categoryParser.formatter `foo
 
-def parseToken (s : String) : FormatterM ParserState := do
+def parseToken (s : String) : FormatterM ParserState :=
   -- include comment tokens, e.g. when formatting `- -0`
-  (Parser.andthenFn Parser.whitespace (Parser.tokenFn [])) {
+  return (Parser.andthenFn Parser.whitespace (Parser.tokenFn [])) {
     input := s,
     fileName := "",
     fileMap := FileMap.ofString "",
@@ -442,7 +442,7 @@ def many1Unbox.formatter (p : Formatter) : Formatter := do
 @[combinatorFormatter Lean.Parser.sepByNoAntiquot]
 def sepByNoAntiquot.formatter (p pSep : Formatter) : Formatter := do
   let stx ← getCur
-  visitArgs $ (List.range stx.getArgs.size).reverse.forM $ fun i => if i % 2 == 0 then p else pSep
+  visitArgs <| (List.range stx.getArgs.size).reverse.forM fun i => if i % 2 == 0 then p else pSep
 
 @[combinatorFormatter Lean.Parser.sepBy1NoAntiquot] def sepBy1NoAntiquot.formatter := sepByNoAntiquot.formatter
 

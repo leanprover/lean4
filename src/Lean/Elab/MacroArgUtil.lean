@@ -13,25 +13,25 @@ open Lean.Parser.Command
 /- Convert `macro` arg into a `syntax` command item and a pattern element -/
 def expandMacroArg (stx : Syntax) : MacroM (Syntax × Syntax) := do
   let (id?, id, stx) ← match (← expandMacros stx) with
-    | `(macroArg| $id:ident:$stx) => (some id, id, stx)
-    | `(macroArg| $stx:stx)       => (none, (← `(x)), stx)
+    | `(macroArg| $id:ident:$stx) => pure (some id, id, stx)
+    | `(macroArg| $stx:stx)       => pure (none, (← `(x)), stx)
     | _                           => Macro.throwUnsupported
   let pat ← match stx with
-    | `(stx| $s:strLit)      => mkNode `token_antiquot #[← strLitToPattern s, mkAtom "%", mkAtom "$", id]
-    | `(stx| &$s:strLit)     => mkNode `token_antiquot #[← strLitToPattern s, mkAtom "%", mkAtom "$", id]
-    | `(stx| optional($stx)) => mkSplicePat `optional id "?"
-    | `(stx| many($stx))     => mkSplicePat `many id "*"
-    | `(stx| many1($stx))    => mkSplicePat `many id "*"
+    | `(stx| $s:strLit)      => pure <| mkNode `token_antiquot #[← strLitToPattern s, mkAtom "%", mkAtom "$", id]
+    | `(stx| &$s:strLit)     => pure <| mkNode `token_antiquot #[← strLitToPattern s, mkAtom "%", mkAtom "$", id]
+    | `(stx| optional($stx)) => pure <| mkSplicePat `optional id "?"
+    | `(stx| many($stx))     => pure <| mkSplicePat `many id "*"
+    | `(stx| many1($stx))    => pure <| mkSplicePat `many id "*"
     | `(stx| sepBy($stx, $sep:strLit $[, $stxsep]? $[, allowTrailingSep]?)) =>
-      mkSplicePat `sepBy id ((isStrLit? sep).get! ++ "*")
+      pure <| mkSplicePat `sepBy id ((isStrLit? sep).get! ++ "*")
     | `(stx| sepBy1($stx, $sep:strLit $[, $stxsep]? $[, allowTrailingSep]?)) =>
-      mkSplicePat `sepBy id ((isStrLit? sep).get! ++ "*")
+      pure <| mkSplicePat `sepBy id ((isStrLit? sep).get! ++ "*")
     | _ => match id? with
       -- if there is a binding, we assume the user knows what they are doing
-      | some id => mkAntiquotNode id
+      | some id => pure <| mkAntiquotNode id
       -- otherwise `group` the syntax to enforce arity 1, e.g. for `noWs`
       | none    => return (← `(stx| group($stx)), mkAntiquotNode id)
-  (stx, pat)
+  pure (stx, pat)
 where mkSplicePat kind id suffix :=
   mkNullNode #[mkAntiquotSuffixSpliceNode kind (mkAntiquotNode id) suffix]
 

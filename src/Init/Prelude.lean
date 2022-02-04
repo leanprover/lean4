@@ -1308,7 +1308,7 @@ def Array.sequenceMap {α : Type u} {β : Type v} {m : Type v → Type w} [Monad
         match i with
         | 0           => pure bs
         | Nat.succ i' => Bind.bind (f (as.get ⟨j, hlt⟩)) fun b => loop i' (hAdd j 1) (bs.push b))
-      (fun _ => bs)
+      (fun _ => pure bs)
   loop as.size 0 Array.empty
 
 /-- A Function for lifting a computation from an inner Monad to an outer Monad.
@@ -2032,8 +2032,8 @@ class MonadQuotation (m : Type → Type) extends MonadRef m where
 
 export MonadQuotation (getCurrMacroScope getMainModule withFreshMacroScope)
 
-def MonadRef.mkInfoFromRefPos [Monad m] [MonadRef m] : m SourceInfo := do
-  SourceInfo.fromRef (← getRef)
+def MonadRef.mkInfoFromRefPos [Monad m] [MonadRef m] : m SourceInfo :=
+  return SourceInfo.fromRef (← getRef)
 
 instance {m n : Type → Type} [MonadFunctor m n] [MonadLift m n] [MonadQuotation m] : MonadQuotation n where
   getCurrMacroScope   := liftM (m := m) getCurrMacroScope

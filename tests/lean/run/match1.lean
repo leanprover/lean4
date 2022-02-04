@@ -8,11 +8,11 @@ def checkWithMkMatcherInput (matcher : Lean.Name) : Lean.MetaM Unit :=
     throwError "matcher name not reconstructed correctly: {matcher} ≟ {input.matcherName}"
 
   let lCtx ← Lean.getLCtx
-  let fvars ← Lean.collectFVars {} res.matcher
-  let closure ← Lean.Meta.Closure.mkLambda (fvars.fvarSet.toList.toArray.map lCtx.get!) res.matcher
+  let fvars := Lean.collectFVars {} res.matcher
+  let closure := Lean.Meta.Closure.mkLambda (fvars.fvarSet.toList.toArray.map lCtx.get!) res.matcher
 
   let origTy := origMatcher.value!
-  let newTy ← closure
+  let newTy := closure
   if not <| ←Lean.Meta.isDefEq origTy newTy then
     throwError "matcher {matcher} does not round-trip correctly:\n{origTy} ≟ {newTy}"
 

@@ -112,24 +112,24 @@ def skipChar (c : Char) : Parsec Unit := pchar c *> pure ()
 @[inline]
 def digit : Parsec Char := attempt do
   let c ← anyChar
-  if '0' ≤ c ∧ c ≤ '9' then c else fail s!"digit expected"
+  if '0' ≤ c ∧ c ≤ '9' then return c else fail s!"digit expected"
 
 @[inline]
 def hexDigit : Parsec Char := attempt do
   let c ← anyChar
   if ('0' ≤ c ∧ c ≤ '9')
    ∨ ('a' ≤ c ∧ c ≤ 'a')
-   ∨ ('A' ≤ c ∧ c ≤ 'A') then c else fail s!"hex digit expected"
+   ∨ ('A' ≤ c ∧ c ≤ 'A') then return c else fail s!"hex digit expected"
 
 @[inline]
 def asciiLetter : Parsec Char := attempt do
   let c ← anyChar
-  if ('A' ≤ c ∧ c ≤ 'Z') ∨ ('a' ≤ c ∧ c ≤ 'z') then c else fail s!"ASCII letter expected"
+  if ('A' ≤ c ∧ c ≤ 'Z') ∨ ('a' ≤ c ∧ c ≤ 'z') then return c else fail s!"ASCII letter expected"
 
 @[inline]
 def satisfy (p : Char → Bool) : Parsec Char := attempt do
   let c ← anyChar
-  if p c then c else fail "condition not satisfied"
+  if p c then return c else fail "condition not satisfied"
 
 @[inline]
 def notFollowedBy (p : Parsec α) : Parsec Unit := λ it =>
@@ -157,7 +157,7 @@ def peek? : Parsec (Option Char) := fun it =>
 @[inline]
 def peek! : Parsec Char := do
   let some c ← peek? | fail unexpectedEndOfInput
-  c
+  return c
 
 @[inline]
 def skip : Parsec Unit := fun it =>

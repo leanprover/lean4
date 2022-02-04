@@ -153,8 +153,8 @@ def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEn
     -- TODO: record recursive expansions in info tree?
     expandMacro?     := fun stx => do
       match (← expandMacroImpl? env stx) with
-      | some (_, Except.ok stx) => some stx
-      | _                       => none
+      | some (_, Except.ok stx) => return some stx
+      | _                       => return none
     hasDecl          := fun declName => return env.contains declName
     getCurrNamespace := return currNamespace
     resolveNamespace? := fun n => return ResolveName.resolveNamespace? env currNamespace openDecls n
@@ -168,7 +168,12 @@ def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEn
             maxRecDepth    := ← MonadRecDepth.getMaxRecDepth
           } { macroScope := (← MonadMacroAdapter.getNextMacroScope) } with
   | EStateM.Result.error Macro.Exception.unsupportedSyntax _ => throwUnsupportedSyntax
-  | EStateM.Result.error (Macro.Exception.error ref msg) _   => throwErrorAt ref msg
+  | EStateM.Result.error (Macro.Exception.error ref msg) _   =>
+    if msg == maxRecDepthErrorMessage then
+      -- Make sure we can detect exception using `Exception.isMaxRecDepth`
+      throwMaxRecDepthAt ref
+    else
+      throwErrorAt ref msg
   | EStateM.Result.ok a  s                                   =>
     MonadMacroAdapter.setNextMacroScope s.macroScope
     s.traceMsgs.reverse.forM fun (clsName, msg) => trace clsName fun _ => msg
@@ -185,7 +190,7 @@ partial def mkUnusedBaseName (baseName : Name) : MacroM Name := do
        if ← Macro.hasDecl (currNamespace ++ name) then
          loop (idx+1)
        else
-         name
+         return name
     loop 1
   else
     return baseName

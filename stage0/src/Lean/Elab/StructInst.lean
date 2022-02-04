@@ -450,7 +450,7 @@ private def getFieldIdx (structName : Name) (fieldNames : Array Name) (fieldName
   | none     => throwError "field '{fieldName}' is not a valid field of '{structName}'"
 
 def mkProjStx? (s : Syntax) (structName : Name) (fieldName : Name) : TermElabM (Option Syntax) := do
-  if (← findField? (← getEnv) structName fieldName).isNone then
+  if (findField? (← getEnv) structName fieldName).isNone then
     return none
   return some $ mkNode ``Lean.Parser.Term.proj #[s, mkAtomFrom s ".", mkIdentFrom s fieldName]
 

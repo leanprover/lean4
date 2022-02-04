@@ -52,10 +52,10 @@ instance [FromJson α] [ToJson α] : RpcEncoding α α where
 
 instance [RpcEncoding α β] : RpcEncoding (Option α) (Option β) where
   rpcEncode v := match v with
-    | none => none
+    | none => pure none
     | some v => some <$> rpcEncode v
   rpcDecode v := match v with
-    | none => none
+    | none => pure none
     | some v => some <$> rpcDecode v
 
 -- TODO(WN): instance [RpcEncoding α β] [Traversable t] : RpcEncoding (t α) (t β)
@@ -98,7 +98,7 @@ protected unsafe def decodeUnsafeAs (α) (typeName : Name) (r : Lsp.RpcRef) : Ex
     | some (nm, obj) =>
       if nm != typeName then
         throw s!"RPC call type mismatch in reference '{r}'\nexpected '{typeName}', got '{nm}'"
-      WithRpcRef.mk <| @unsafeCast NonScalar α obj
+      return WithRpcRef.mk <| @unsafeCast NonScalar α obj
 
 end WithRpcRef
 end Lean.Server

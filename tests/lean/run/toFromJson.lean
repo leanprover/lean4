@@ -12,8 +12,8 @@ syntax "json " json : term
 
 /- declare a micro json parser, so we can write our tests in a more legible way. -/
 open Json in macro_rules
-  | `(json $s:strLit) => s
-  | `(json $n:numLit) => n
+  | `(json $s:strLit) => pure s
+  | `(json $n:numLit) => pure n
   | `(json { $[$ns : $js],* }) => do
     let mut fields := #[]
     for n in ns, j in js do
@@ -28,15 +28,15 @@ open Json in macro_rules
 def checkToJson [ToJson α] (obj : α) (rhs : Json) : MetaM Unit :=
   let lhs := (obj |> toJson).pretty
   if lhs == rhs.pretty then
-    ()
+    pure ()
   else
     throwError "{lhs} ≟ {rhs}"
 
-def checkRoundTrip [Repr α] [BEq α] [ToJson α] [FromJson α] (obj : α) : MetaM Unit :=
+def checkRoundTrip [Repr α] [BEq α] [ToJson α] [FromJson α] (obj : α) : MetaM Unit := do
   let roundTripped := obj |> toJson |> fromJson?
-  if let some roundTripped := roundTripped then
+  if let Except.ok roundTripped := roundTripped then
     if obj == roundTripped then
-      ()
+      pure ()
     else
       throwError "{repr obj} ≟ {repr roundTripped}"
   else

@@ -53,9 +53,9 @@ inductive Kind
   (msg       : String :=
     let complementaryName? : Option String := OptionM.run do
       if inputFlag.isShort then
-        s!" (`--{flag.longName}`)"
+        pure s!" (`--{flag.longName}`)"
       else
-        s!" (`-{← flag.shortName?}`)"
+        pure s!" (`-{← flag.shortName?}`)"
     s!"Duplicate flag `{inputFlag}`.")
 | redundantFlagArg
   (flag       : Flag)

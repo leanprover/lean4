@@ -24,10 +24,10 @@ inductive DiagnosticSeverity where
 
 instance : FromJson DiagnosticSeverity := ⟨fun j =>
   match j.getNat? with
-  | Except.ok 1 => DiagnosticSeverity.error
-  | Except.ok 2 => DiagnosticSeverity.warning
-  | Except.ok 3 => DiagnosticSeverity.information
-  | Except.ok 4 => DiagnosticSeverity.hint
+  | Except.ok 1 => return DiagnosticSeverity.error
+  | Except.ok 2 => return DiagnosticSeverity.warning
+  | Except.ok 3 => return DiagnosticSeverity.information
+  | Except.ok 4 => return DiagnosticSeverity.hint
   | _           => throw s!"unknown DiagnosticSeverity '{j}'"⟩
 
 instance : ToJson DiagnosticSeverity := ⟨fun
@@ -42,8 +42,8 @@ inductive DiagnosticCode where
   deriving Inhabited, BEq
 
 instance : FromJson DiagnosticCode := ⟨fun
-  | num (i : Int) => DiagnosticCode.int i
-  | str s         => DiagnosticCode.string s
+  | num (i : Int) => return DiagnosticCode.int i
+  | str s         => return DiagnosticCode.string s
   | j             => throw s!"expected string or integer diagnostic code, got '{j}'"⟩
 
 instance : ToJson DiagnosticCode := ⟨fun
@@ -57,8 +57,8 @@ inductive DiagnosticTag where
 
 instance : FromJson DiagnosticTag := ⟨fun j =>
   match j.getNat? with
-  | Except.ok 1 => DiagnosticTag.unnecessary
-  | Except.ok 2 => DiagnosticTag.deprecated
+  | Except.ok 1 => return DiagnosticTag.unnecessary
+  | Except.ok 2 => return DiagnosticTag.deprecated
   | _      => throw "unknown DiagnosticTag"⟩
 
 instance : ToJson DiagnosticTag := ⟨fun

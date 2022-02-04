@@ -29,12 +29,12 @@ end Assignment
 
 abbrev Solver := StateT Assignment IO
 
-def notYetAssigned (d : String) : Solver Bool := do
-  ¬ (← get).contains d
+def notYetAssigned (d : String) : Solver Bool :=
+  return ! (← get).contains d
 
 def resolvedPath (d : String) : Solver FilePath := do
   let some path ← pure ((← get).lookup d) | unreachable!
-  path
+  return path
 
 def materialize (relpath : FilePath) (dep : Dependency) : Solver Unit :=
   match dep.src with
@@ -72,10 +72,10 @@ def solveDepsCore (relPath : FilePath) (d : Manifest) : (maxDepth : Nat) → Sol
 
 def solveDeps (d : Manifest) : IO Assignment := do
   let (_, assg) ← (solveDepsCore ⟨"."⟩ d 1024).run <| Assignment.empty.insert d.name ⟨"."⟩
-  assg
+  return assg
 
 def constructPathCore (depname : String) (dirname : FilePath) : IO FilePath := do
-  let path ← Manifest.effectivePath (← Manifest.fromFile <| dirname / leanpkgTomlFn)
+  let path := Manifest.effectivePath (← Manifest.fromFile <| dirname / leanpkgTomlFn)
   return dirname / path
 
 def constructPath (assg : Assignment) : IO (List FilePath) := do

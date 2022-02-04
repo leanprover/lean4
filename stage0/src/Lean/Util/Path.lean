@@ -13,8 +13,8 @@ import Lean.Data.Name
 namespace Lean
 open System
 
-def realPathNormalized (p : FilePath) : IO FilePath := do
-  (← IO.FS.realPath p).normalize
+def realPathNormalized (p : FilePath) : IO FilePath :=
+  return (← IO.FS.realPath p).normalize
 
 def modToFilePath (base : FilePath) (mod : Name) (ext : String) : FilePath :=
   go mod |>.withExtension ext
@@ -50,7 +50,7 @@ def findAllWithExt (sp : SearchPath) (ext : String) : IO (Array FilePath) := do
   for p in sp do
     if (← p.isDir) then
       paths := paths ++ (← p.walkDir).filter (·.extension == some ext)
-  paths
+  return paths
 
 end SearchPath
 
@@ -69,7 +69,7 @@ def getLibDir (leanSysroot : FilePath) : IO FilePath := do
   -- use stage1 stdlib with stage0 executable (which should never be distributed outside of the build directory)
   if isStage0 () then
     buildDir := buildDir / ".." / "stage1"
-  buildDir / "lib" / "lean"
+  return buildDir / "lib" / "lean"
 
 def getBuiltinSearchPath (leanSysroot : FilePath) : IO SearchPath :=
   return [← getLibDir leanSysroot]
@@ -102,7 +102,7 @@ partial def findOLean (mod : Name) : IO FilePath := do
     let rec maybeThisOne dir := do
       if ← (dir / pkg).isDir then
         return some s!"\nYou might need to open '{dir}' as a workspace in your editor"
-      if let some dir ← dir.parent then
+      if let some dir := dir.parent then
         maybeThisOne dir
       else
        return none
@@ -134,8 +134,8 @@ def searchModuleNameOfFileName (fname : FilePath) (rootDirs : SearchPath) : IO (
       return some <| ← moduleNameOfFileName fname <| some rootDir
     catch
       -- Try the next one
-      | e => ()
-  none
+      | e => pure ()
+  return none
 
 /--
   Find the system root of the given `lean` command
@@ -153,6 +153,6 @@ def findSysroot? (lean := "lean") : IO FilePath := do
     cmd := lean
     args := #["--print-prefix"]
   }
-  out.trim
+  return out.trim
 
 end Lean

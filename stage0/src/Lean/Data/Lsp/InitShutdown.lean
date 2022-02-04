@@ -28,9 +28,9 @@ inductive Trace where
 
 instance : FromJson Trace := ⟨fun j =>
   match j.getStr? with
-  | Except.ok "off"      => Trace.off
-  | Except.ok "messages" => Trace.messages
-  | Except.ok "verbose"  => Trace.verbose
+  | Except.ok "off"      => return Trace.off
+  | Except.ok "messages" => return Trace.messages
+  | Except.ok "verbose"  => return Trace.verbose
   | _               => throw "uknown trace"⟩
 
 instance Trace.hasToJson : ToJson Trace :=
@@ -44,6 +44,10 @@ structure InitializationOptions where
   /-- Time (in milliseconds) which must pass since latest edit until elaboration begins. Lower
   values may make editors feel faster at the cost of higher CPU usage. Defaults to 200ms. -/
   editDelay? : Option Nat
+  /-- Whether the client supports interactive widgets. When true, in order to improve performance
+  the server may cease including information which can be retrieved interactively in some standard
+  LSP messages. Defaults to false. -/
+  hasWidgets? : Option Bool
   deriving ToJson, FromJson
 
 structure InitializeParams where
@@ -76,19 +80,19 @@ instance : FromJson InitializeParams where
     let trace := (j.getObjValAs? Trace "trace").toOption.getD Trace.off
     let workspaceFolders? := j.getObjValAs? (Array WorkspaceFolder) "workspaceFolders"
     return ⟨
-      processId?.toOption, 
-      clientInfo?.toOption, 
-      rootUri?.toOption, 
-      initializationOptions?.toOption, 
-      capabilities, 
-      trace, 
+      processId?.toOption,
+      clientInfo?.toOption,
+      rootUri?.toOption,
+      initializationOptions?.toOption,
+      capabilities,
+      trace,
       workspaceFolders?.toOption⟩
 
 inductive InitializedParams where
   | mk
 
 instance : FromJson InitializedParams :=
-  ⟨fun _ => InitializedParams.mk⟩
+  ⟨fun _ => pure InitializedParams.mk⟩
 
 instance : ToJson InitializedParams :=
   ⟨fun _ => Json.null⟩

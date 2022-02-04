@@ -84,7 +84,7 @@ partial def abstractExprMVars (e : Expr) : M Expr := do
       if decl.depth != s.mctx.depth then
         return e
       else
-        let (eNew, mctxNew) ← s.mctx.instantiateMVars e
+        let (eNew, mctxNew) := s.mctx.instantiateMVars e
         if e != eNew then
           modify fun s => { s with mctx := mctxNew }
           abstractExprMVars eNew

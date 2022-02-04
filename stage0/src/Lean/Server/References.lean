@@ -22,7 +22,7 @@ structure Reference where
   ident : RefIdent
   range : Lsp.Range
   isDeclaration : Bool
-  deriving BEq
+  deriving BEq, Inhabited
 
 end Lean.Server
 
@@ -30,6 +30,12 @@ namespace Lean.Lsp.RefInfo
 open Server
 
 def empty : RefInfo := ⟨ none, #[] ⟩
+
+def merge (a : RefInfo) (b : RefInfo) : RefInfo :=
+  {
+    definition := b.definition.orElse fun _ => a.definition
+    usages := a.usages.append b.usages
+  }
 
 def addRef : RefInfo → Reference → RefInfo
   | i@{ definition := none, .. }, { range, isDeclaration := true, .. } =>
@@ -146,9 +152,18 @@ where
     | m, RefIdent.fvar id => RefIdent.fvar <| m.findD id id
     | _, ident => ident
 
+def dedupReferences (refs : Array Reference) : Array Reference := Id.run do
+  let mut refsByIdAndRange : HashMap (RefIdent × Lsp.Range) Reference := HashMap.empty
+  for ref in refs do
+    if ref.isDeclaration || !(refsByIdAndRange.contains (ref.ident, ref.range)) then
+      refsByIdAndRange := refsByIdAndRange.insert (ref.ident, ref.range) ref
+
+  let dedupedRefs := refsByIdAndRange.fold (init := #[]) fun refs _ ref => refs.push ref
+  return dedupedRefs.qsort (·.range < ·.range)
+
 def findModuleRefs (text : FileMap) (trees : Array InfoTree) (localVars : Bool := true)
     : ModuleRefs := Id.run do
-  let mut refs := combineFvars <| findReferences text trees
+  let mut refs := dedupReferences <| combineFvars <| findReferences text trees
   if !localVars then
     refs := refs.filter fun
       | { ident := RefIdent.fvar _, .. } => false
@@ -176,9 +191,20 @@ def removeIlean (self : References) (path : System.FilePath) : References :=
   namesToRemove.foldl (init := self) fun self name =>
     { self with ileans := self.ileans.erase name }
 
-def addWorkerRefs (self : References) (name : Name) (version : Nat) (refs : ModuleRefs) : References := Id.run do
+def updateWorkerRefs (self : References) (name : Name) (version : Nat) (refs : ModuleRefs) : References := Id.run do
   if let some (currVersion, _) := self.workers.find? name then
-    if version <= currVersion then
+    if version > currVersion then
+      return { self with workers := self.workers.insert name (version, refs) }
+    if version == currVersion then
+      let current := self.workers.findD name (version, HashMap.empty)
+      let merged := refs.fold (init := current.snd) fun m ident info =>
+        m.findD ident RefInfo.empty |>.merge info |> m.insert ident
+      return { self with workers := self.workers.insert name (version, merged) }
+  return self
+
+def finalizeWorkerRefs (self : References) (name : Name) (version : Nat) (refs : ModuleRefs) : References := Id.run do
+  if let some (currVersion, _) := self.workers.find? name then
+    if version < currVersion then
       return self
   return { self with workers := self.workers.insert name (version, refs) }
 
@@ -208,7 +234,19 @@ def referringTo (self : References) (ident : RefIdent) (srcSearchPath : SearchPa
             result := result.push ⟨uri, range⟩
         for range in info.usages do
           result := result.push ⟨uri, range⟩
-  result
+  return result
+
+def definitionOf? (self : References) (ident : RefIdent) (srcSearchPath : SearchPath)
+    : IO (Option Location) := do
+  for (module, refs) in self.allRefs.toList do
+    if let some info := refs.find? ident then
+      if let some definition := info.definition then
+        if let some path ← srcSearchPath.findModuleWithExt "lean" module then
+          -- Resolve symlinks (such as `src` in the build dir) so that files are
+          -- opened in the right folder
+          let uri := DocumentUri.ofPath <| ← IO.FS.realPath path
+          return some ⟨uri, definition⟩
+  return none
 
 def definitionsMatching (self : References) (srcSearchPath : SearchPath) (filter : Name → Option α)
     (maxAmount? : Option Nat := none) : IO $ Array (α × Location) := do

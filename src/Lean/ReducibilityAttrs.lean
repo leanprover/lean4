@@ -40,12 +40,12 @@ def setReducibleAttribute [Monad m] [MonadEnv m] (declName : Name) : m Unit := d
 
 def isReducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
   match (← getReducibilityStatus declName) with
-  | ReducibilityStatus.reducible => true
-  | _ => false
+  | ReducibilityStatus.reducible => return true
+  | _ => return false
 
 def isIrreducible [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
   match (← getReducibilityStatus declName) with
-  | ReducibilityStatus.irreducible => true
-  | _ => false
+  | ReducibilityStatus.irreducible => return true
+  | _ => return false
 
 end Lean

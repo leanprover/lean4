@@ -23,7 +23,7 @@ end Lean.Parser.Syntax
 macro "max"  : prec => `(1024) -- maximum precedence used in term parsers, in particular for terms in function position (`ident`, `paren`, ...)
 macro "arg"  : prec => `(1023) -- precedence used for application arguments (`do`, `by`, ...)
 macro "lead" : prec => `(1022) -- precedence used for terms not supposed to be used as arguments (`let`, `have`, ...)
-macro "(" p:prec ")" : prec => p
+macro "(" p:prec ")" : prec => return p
 macro "min"  : prec => `(10)   -- minimum precedence used in term parsers
 macro "min1" : prec => `(11)   -- `(min+1) we can only `min+1` after `Meta.lean`
 /-
@@ -35,7 +35,7 @@ macro "default" : prio => `(1000)
 macro "low"     : prio => `(100)
 macro "mid"     : prio => `(1000)
 macro "high"    : prio => `(10000)
-macro "(" p:prio ")" : prio => p
+macro "(" p:prio ")" : prio => return p
 
 -- Basic notation for defining parsers
 -- NOTE: precedence must be at least `arg` to be used in `macro` without parentheses
@@ -203,12 +203,12 @@ macro_rules
     else
       `(%[ $elems,* | List.nil ])
 
-notation:50 e:51 " matches " p:51 => match e with | p => true | _ => false
+notation:50 e:51 " matches " p:51 => ((match e with | p => true | _ => false) : Bool)
 
 -- Declare `this` as a keyword that unhygienically binds to a scope-less `this` assumption (or other binding).
 -- The keyword prevents declaring a `this` binding except through metapgrogramming, as is done by `have`/`show`.
 /-- Special identifier introduced by "anonymous" `have : ...`, `suffices p ...` etc. -/
-macro tk:"this" : term => Syntax.ident tk.getHeadInfo "this".toSubstring `this []
+macro tk:"this" : term => return Syntax.ident tk.getHeadInfo "this".toSubstring `this []
 
 namespace Parser.Tactic
 /--

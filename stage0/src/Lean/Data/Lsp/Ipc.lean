@@ -28,10 +28,10 @@ abbrev IpcM := ReaderT (Process.Child ipcStdioConfig) IO
 variable [ToJson α]
 
 def stdin : IpcM FS.Stream := do
-  FS.Stream.ofHandle (←read).stdin
+  return FS.Stream.ofHandle (←read).stdin
 
 def stdout : IpcM FS.Stream := do
-  FS.Stream.ofHandle (←read).stdout
+  return FS.Stream.ofHandle (←read).stdout
 
 def writeRequest (r : Request α) : IpcM Unit := do
   (←stdin).writeLspRequest r
@@ -59,7 +59,7 @@ partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target :
   let rec loop : IpcM (List (Notification PublishDiagnosticsParams)) := do
     match (←readMessage) with
     | Message.response id _ =>
-      if id == waitForDiagnosticsId then []
+      if id == waitForDiagnosticsId then return []
       else loop
     | Message.responseError id code msg _ =>
       if id == waitForDiagnosticsId then
@@ -67,7 +67,7 @@ partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target :
       else loop
     | Message.notification "textDocument/publishDiagnostics" (some param) =>
       match fromJson? (toJson param) with
-      | Except.ok diagnosticParam => ⟨"textDocument/publishDiagnostics", diagnosticParam⟩ :: (←loop)
+      | Except.ok diagnosticParam => return ⟨"textDocument/publishDiagnostics", diagnosticParam⟩ :: (←loop)
       | Except.error inner => throw $ userError s!"Cannot decode publishDiagnostics parameters\n{inner}"
     | _ => loop
   loop

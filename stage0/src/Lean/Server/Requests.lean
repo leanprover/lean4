@@ -76,7 +76,7 @@ open FileWorker
 open Snapshots
 
 def readDoc : RequestM EditableDocument := fun rc =>
-  rc.doc
+  return rc.doc
 
 def asTask (t : RequestM α) : RequestM (RequestTask α) := fun rc => do
   let t ← EIO.asTask <| t rc
@@ -146,12 +146,12 @@ def registerLspRequestHandler (method : String)
   let handle := fun j => do
     let params ← liftExcept <| parseRequestParams paramType j
     let t ← handler params
-    t.map <| Except.map ToJson.toJson
+    pure <| t.map <| Except.map ToJson.toJson
 
   requestHandlers.modify fun rhs => rhs.insert method { fileSource, handle }
 
-def lookupLspRequestHandler (method : String) : IO (Option RequestHandler) := do
-  (← requestHandlers.get).find? method
+def lookupLspRequestHandler (method : String) : IO (Option RequestHandler) :=
+  return (← requestHandlers.get).find? method
 
 /-- NB: This method may only be called in `builtin_initialize` blocks.
 
@@ -169,11 +169,11 @@ def chainLspRequestHandler (method : String)
   if let some oldHandler ← lookupLspRequestHandler method then
     let handle := fun j => do
       let t ← oldHandler.handle j
-      let t ← t.map fun x => x.bind fun j => FromJson.fromJson? j |>.mapError fun e =>
+      let t := t.map fun x => x.bind fun j => FromJson.fromJson? j |>.mapError fun e =>
         IO.userError s!"Failed to parse original LSP response for `{method}` when chaining: {e}"
       let params ← liftExcept <| parseRequestParams paramType j
       let t ← handler params t
-      t.map <| Except.map ToJson.toJson
+      pure <| t.map <| Except.map ToJson.toJson
 
     requestHandlers.modify fun rhs => rhs.insert method {oldHandler with handle}
   else

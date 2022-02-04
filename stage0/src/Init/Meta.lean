@@ -779,7 +779,7 @@ instance : Quote Substring := ⟨fun s => Syntax.mkCApp `String.toSubstring #[qu
 
 -- in contrast to `Name.toString`, we can, and want to be, precise here
 private def getEscapedNameParts? (acc : List String) : Name → OptionM (List String)
-  | Name.anonymous => acc
+  | Name.anonymous => return acc
   | Name.str n s _ => do
     let s ← Name.escapePart s
     getEscapedNameParts? (s::acc) n
@@ -1009,6 +1009,14 @@ structure Config where
 -- Configuration object for `simp_all`
 structure ConfigCtx extends Config where
   contextual := true
+
+def neutralConfig : Simp.Config :=
+  { zeta              := false
+    beta              := false
+    eta               := false
+    iota              := false
+    proj              := false
+    decide            := false }
 
 end Simp
 

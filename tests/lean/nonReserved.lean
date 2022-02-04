@@ -1,7 +1,7 @@
 syntax "foo" &"bla" term : term
 
 macro_rules
-  | `(foo bla $x) => x
+  | `(foo bla $x) => pure x
 
 -- bla is still a valid identifier
 def bla := 10

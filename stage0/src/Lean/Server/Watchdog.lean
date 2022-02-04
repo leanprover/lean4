@@ -188,8 +188,8 @@ section ServerM
   def updateFileWorkers (val : FileWorker) : ServerM Unit := do
     (←read).fileWorkersRef.modify (fun fileWorkers => fileWorkers.insert val.doc.meta.uri val)
 
-  def findFileWorker? (uri : DocumentUri) : ServerM (Option FileWorker) := do
-    (←(←read).fileWorkersRef.get).find? uri
+  def findFileWorker? (uri : DocumentUri) : ServerM (Option FileWorker) :=
+    return (← (←read).fileWorkersRef.get).find? uri
 
   def findFileWorker! (uri : DocumentUri) : ServerM FileWorker := do
     let some fw ← findFileWorker? uri
@@ -208,11 +208,17 @@ section ServerM
     st.hLog.putStrLn msg
     st.hLog.flush
 
-  def handleIleanInfo (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
+  def handleIleanInfoUpdate (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let s ← read
     if let some path := fw.doc.meta.uri.toPath? then
       if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
-        s.references.modify fun refs => refs.addWorkerRefs module params.version params.references
+        s.references.modify fun refs => refs.updateWorkerRefs module params.version params.references
+
+  def handleIleanInfoFinal (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
+    let s ← read
+    if let some path := fw.doc.meta.uri.toPath? then
+      if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
+        s.references.modify fun refs => refs.finalizeWorkerRefs module params.version params.references
 
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
@@ -221,17 +227,24 @@ section ServerM
     let rec loop : ServerM WorkerEvent := do
       try
         let msg ← fw.stdout.readLspMessage
-        if let Message.response id _ := msg then
-          fw.erasePendingRequest id
-        if let Message.responseError id _ _ _ := msg then
-          fw.erasePendingRequest id
-        if let Message.notification "$/lean/ileanInfo" params := msg then
-          if let some params := params then
-            if let Except.ok params := FromJson.fromJson? $ ToJson.toJson params then
-              handleIleanInfo fw params
-        else
-          -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
-          o.writeLspMessage msg
+        -- Re. `o.writeLspMessage msg`:
+        -- Writes to Lean I/O channels are atomic, so these won't trample on each other.
+        match msg with
+          | Message.response id _ => do
+            fw.erasePendingRequest id
+            o.writeLspMessage msg
+          | Message.responseError id _ _ _ => do
+            fw.erasePendingRequest id
+            o.writeLspMessage msg
+          | Message.notification "$/lean/ileanInfoUpdate" params =>
+            if let some params := params then
+              if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
+                handleIleanInfoUpdate fw params
+          | Message.notification "$/lean/ileanInfoFinal" params =>
+            if let some params := params then
+              if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
+                handleIleanInfoFinal fw params
+          | _ => o.writeLspMessage msg
       catch err =>
         -- If writeLspMessage from above errors we will block here, but the main task will
         -- quit eventually anyways if that happens
@@ -249,7 +262,7 @@ section ServerM
           return WorkerEvent.crashed err
       loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
-    task.map $ fun
+    return task.map fun
       | Except.ok ev   => ev
       | Except.error e => WorkerEvent.ioError e
 
@@ -355,6 +368,15 @@ end ServerM
 
 section RequestHandling
 
+def findDefinition? (p : TextDocumentPositionParams) : ServerM <| Option Location := do
+  if let some path := p.textDocument.uri.toPath? then
+    let srcSearchPath := (← read).srcSearchPath
+    if let some module ← searchModuleNameOfFileName path srcSearchPath then
+      let references ← (← read).references.get
+      if let some ident := references.findAt? module p.position then
+        return ← references.definitionOf? ident srcSearchPath
+  return none
+
 def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
   if let some path := p.textDocument.uri.toPath? then
     let srcSearchPath := (← read).srcSearchPath
@@ -362,7 +384,7 @@ def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
       let references ← (← read).references.get
       if let some ident := references.findAt? module p.position then
         return ← references.referringTo ident srcSearchPath p.context.includeDeclaration
-  #[]
+  return #[]
 
 -- TODO Better matching https://github.com/leanprover/lean4/issues/960
 def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInformation) := do
@@ -376,7 +398,7 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInf
       else
         none
   -- TODO Sort symbols by some useful metric?
-  symbols.map fun (name, location) =>
+  return symbols.map fun (name, location) =>
     { name, kind := SymbolKind.constant, location }
 where
   containsCaseInsensitive (value : String) : String → Bool :=
@@ -478,12 +500,12 @@ section MessageHandling
       -- This request is handled specially.
       if method == "$/lean/rpc/connect" then
         let ps ← parseParams Lsp.RpcConnectParams params
-        fileSource ps
+        pure <| fileSource ps
       else match (← routeLspRequest method params) with
       | Except.error e =>
         (←read).hOut.writeLspResponseError <| e.toLspResponseError id
         return
-      | Except.ok uri => uri
+      | Except.ok uri => pure uri
     let some fw ← findFileWorker? uri
       /- Clients may send requests to closed files, which we respond to with an error.
       For example, VSCode sometimes sends requests just after closing a file,
@@ -514,6 +536,16 @@ section MessageHandling
           code := ErrorCode.internalError
           message := s!"Failed to process request {id}: {e}"
         }
+    -- If a definition is in a different, modified file, the ilean data should
+    -- have the correct location while the olean still has outdated info from
+    -- the last compilation. This is easier than catching the client's reply and
+    -- fixing the definition's location afterwards, but it doesn't work for
+    -- go-to-type-definition.
+    if method == "textDocument/definition" || method == "textDocument/declaration" then
+      let params ← parseParams TextDocumentPositionParams params
+      if let some definition ← findDefinition? params then
+        (← read).hOut.writeLspResponse ⟨id, #[definition]⟩
+        return
     match method with
       | "textDocument/references" => handle ReferenceParams (Array Location) handleReference
       | "workspace/symbol" => handle WorkspaceSymbolParams (Array SymbolInformation) handleWorkspaceSymbol
@@ -553,8 +585,8 @@ section MainLoop
     let readMsgAction : IO ServerEvent := do
       /- Runs asynchronously. -/
       let msg ← st.hIn.readLspMessage
-      ServerEvent.clientMsg msg
-    let clientTask := (←IO.asTask readMsgAction).map $ fun
+      pure <| ServerEvent.clientMsg msg
+    let clientTask := (← IO.asTask readMsgAction).map fun
       | Except.ok ev   => ev
       | Except.error e => ServerEvent.clientError e
     return clientTask
@@ -609,7 +641,7 @@ section MainLoop
                 code := ErrorCode.contentModified
                 message := "File changed."
               }
-            | _ => () -- notifications do not need to be cancelled
+            | _ => pure () -- notifications do not need to be cancelled
         | _ =>
           let t ← fw.runEditsSignalTask
           fw.groupedEditsRef.modify (Option.map fun ge => { ge with signalTask := t } )
@@ -687,14 +719,20 @@ def findWorkerPath : IO System.FilePath := do
     workerPath := System.FilePath.mk path / "bin" / "lean" |>.withExtension System.FilePath.exeExtension
   if let some path := (←IO.getEnv "LEAN_WORKER_PATH") then
     workerPath := System.FilePath.mk path
-  workerPath
+  return workerPath
 
 def loadReferences : IO References := do
   let oleanSearchPath ← Lean.searchPathRef.get
   let mut refs := References.empty
   for path in ← oleanSearchPath.findAllWithExt "ilean" do
-    refs := refs.addIlean path (← Ilean.load path)
-  refs
+    try
+      refs := refs.addIlean path (← Ilean.load path)
+    catch _ =>
+      -- could be a race with the build system, for example
+      -- ilean load errors should not be fatal, but we *should* log them
+      -- when we add logging to the server
+      pure ()
+  return refs
 
 def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
   let workerPath ← findWorkerPath

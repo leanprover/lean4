@@ -540,7 +540,7 @@ def filter (p : α → Bool) (as : Array α) (start := 0) (stop := as.size) : Ar
 @[inline]
 def filterM [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m (Array α) :=
   as.foldlM (init := #[]) (start := start) (stop := stop) fun r a => do
-    if (← p a) then r.push a else r
+    if (← p a) then return r.push a else return r
 
 @[specialize]
 def filterMapM [Monad m] (f : α → m (Option β)) (as : Array α) (start := 0) (stop := as.size) : m (Array β) :=

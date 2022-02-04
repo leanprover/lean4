@@ -55,7 +55,7 @@ def mkContext (fnPrefix : String) (typeName : Name) : TermElabM Context := do
   let indVal ← getConstInfoInduct typeName
   let mut typeInfos := #[]
   for typeName in indVal.all do
-    typeInfos ← typeInfos.push (← getConstInfoInduct typeName)
+    typeInfos := typeInfos.push (← getConstInfoInduct typeName)
   let mut auxFunNames := #[]
   for typeName in indVal.all do
     match typeName.eraseMacroScopes with

@@ -132,7 +132,7 @@ private def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool)
         if arg.getKind == ``Lean.Parser.Tactic.simpErase then
           if eraseLocal && (← Term.isLocalIdent? arg[1]).isSome then
             -- We use `eraseCore` because the simp lemma for the hypothesis was not added yet
-            lemmas ← lemmas.eraseCore arg[1].getId
+            lemmas := lemmas.eraseCore arg[1].getId
           else
             let declName ← resolveGlobalConstNoOverloadWithInfo arg[1]
             lemmas ← lemmas.erase declName

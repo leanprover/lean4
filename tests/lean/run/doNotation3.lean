@@ -6,7 +6,7 @@ theorem zero_lt_of_lt : {a b : Nat} → a < b → 0 < b
 
 def fold {m α β} [Monad m] (as : Array α) (b : β) (f : α → β → m β) : m β := do
 let rec loop : (i : Nat) → i ≤ as.size → β → m β
-  | 0,   h, b => b
+  | 0,   h, b => pure b
   | i+1, h, b => do
     have h' : i < as.size          := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
     have : as.size - 1 < as.size     := Nat.sub_lt (zero_lt_of_lt h') (by decide)

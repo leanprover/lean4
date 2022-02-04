@@ -69,6 +69,11 @@ class expr_eq_fn {
         if (is_bvar(a))            return bvar_idx(a) == bvar_idx(b);
         if (m_cache.check(a, b))
             return true;
+        /*
+           We increase the number of heartbeats here because some code (e.g., `simp`) may spend a lot of time comparing
+           `Expr`s (e.g., checking a cache with many collisions) without allocating any significant amount of memory.
+         */
+        lean_inc_heartbeat();
         switch (a.kind()) {
         case expr_kind::BVar:
             lean_unreachable(); // LCOV_EXCL_LINE

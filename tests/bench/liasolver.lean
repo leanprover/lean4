@@ -72,7 +72,7 @@ namespace Std.HashMap
     return false
 
   def mapValsM [Monad m] (f : β → m γ) (xs : HashMap α β) : m (HashMap α γ) :=
-    mkHashMap (capacity := xs.size) |> xs.foldM fun acc k v => do acc.insert k (←f v)
+    mkHashMap (capacity := xs.size) |> xs.foldM fun acc k v => return acc.insert k (←f v)
 
   def mapVals (f : β → γ) (xs : HashMap α β) : HashMap α γ :=
     mkHashMap (capacity := xs.size) |> xs.fold fun acc k v => acc.insert k (f v)
@@ -341,17 +341,17 @@ def error (msg : String) : IO α :=
   throw <| IO.userError s!"Error: {msg}."
 
 def Array.ithVal (xs : Array String) (i : Nat) (name : String) : IO Int := do
-  let some unparsed ← xs.get? i
+  let some unparsed := xs.get? i
     | error s!"Missing {name}"
-  let some parsed ← String.toInt? unparsed
+  let some parsed := String.toInt? unparsed
     | error s!"Invalid {name}: `{unparsed}`"
   return parsed
 
 def main (args : List String) : IO UInt32 := do
-  let some path ← args.head?
+  let some path := args.head?
     | error "Usage: liasolver <input file>"
   let lines ← IO.FS.lines path <&> Array.filter (¬·.isEmpty)
-  let some headerLine ← lines.get? 0
+  let some headerLine := lines.get? 0
     | error "No header line"
   let header := headerLine.splitOn.toArray
   let nEquations ← header.ithVal 0 "amount of equations"

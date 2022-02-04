@@ -361,7 +361,7 @@ where
     let q := e.bindingBody!
     let rp ← simp p
     trace[Debug.Meta.Tactic.simp] "arrow [{(← getConfig).contextual}] {p} [{← isProp p}] -> {q} [{← isProp q}]"
-    if (← (← getConfig).contextual <&&> isProp p <&&> isProp q) then
+    if (← pure (← getConfig).contextual <&&> isProp p <&&> isProp q) then
       trace[Debug.Meta.Tactic.simp] "ctx arrow {rp.expr} -> {q}"
       withLocalDeclD e.bindingName! rp.expr fun h => do
         let s ← getSimpLemmas
@@ -392,7 +392,7 @@ where
       return { expr := (← dsimp e) }
 
   simpLet (e : Expr) : M Result := do
-    let Expr.letE n t v b _ ← e | unreachable!
+    let Expr.letE n t v b _ := e | unreachable!
     if (← getConfig).zeta then
       return { expr := b.instantiate1 v }
     else
@@ -598,7 +598,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
       let type ← instantiateMVars localDecl.type
       let ctx ← match fvarIdToLemmaId.find? localDecl.fvarId with
         | none => pure ctx
-        | some lemmaId => pure { ctx with simpLemmas := (← ctx.simpLemmas.eraseCore lemmaId) }
+        | some lemmaId => pure { ctx with simpLemmas := ctx.simpLemmas.eraseCore lemmaId }
       match (← simpStep mvarId (mkFVar fvarId) type ctx discharge?) with
       | none => return none
       | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }

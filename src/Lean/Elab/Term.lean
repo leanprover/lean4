@@ -742,43 +742,6 @@ def isMonadApp (type : Expr) : TermElabM Bool := do
   let some (m, _) ← isTypeApp? type | pure false
   return (← isMonad? m) |>.isSome
 
-/--
-  Try to coerce `a : α` into `m β` by first coercing `a : α` into ‵β`, and then using `pure`.
-  The method is only applied if `α` is not monadic (e.g., `Nat → IO Unit`), and the head symbol
-  of the resulting type is not a metavariable (e.g., `?m Unit` or `Bool → ?m Nat`).
-
-  The main limitation of the approach above is polymorphic code. As usual, coercions and polymorphism
-  do not interact well. In the example above, the lift is successfully applied to `true`, `false` and `!y`
-  since none of them is polymorphic
-  ```
-  def f (x : Bool) : IO Bool := do
-  let y ← if x == 0 then IO.println "hello"; true else false;
-  !y
-  ```
-  On the other hand, the following fails since `+` is polymorphic
-  ```
-  def f (x : Bool) : IO Nat := do
-  IO.prinln x
-  x + x  -- Error: failed to synthesize `Add (IO Nat)`
-  ```
--/
-private def tryPureCoe? (errorMsgHeader? : Option String) (m β α a : Expr) : TermElabM (Option Expr) :=
-  commitWhenSome? do
-    let doIt : TermElabM (Option Expr) := do
-      try
-        let aNew ← tryCoe errorMsgHeader? β α a none
-        let aNew ← mkPure m aNew
-        pure (some aNew)
-      catch _ =>
-        pure none
-    forallTelescope α fun _ α => do
-      if (← isMonadApp α) then
-        pure none
-      else if !α.getAppFn.isMVar  then
-        doIt
-      else
-        pure none
-
 /-
 Try coercions and monad lifts to make sure `e` has type `expectedType`.
 
@@ -786,13 +749,6 @@ If `expectedType` is of the form `n β`, we try monad lifts and other extensions
 Otherwise, we just use the basic `tryCoe`.
 
 Extensions for monads.
-
-Given an expected type of the form `n β`, if `eType` is of the form `α`, but not `m α`
-
-1 - Try to coerce ‵α` into ‵β`, and use `pure` to lift it to `n α`.
-    It only works if `n` implements `Pure`
-
-If `eType` is of the form `m α`. We use the following approaches.
 
 1- Try to unify `n` and `m`. If it succeeds, then we use
    ```
@@ -853,14 +809,7 @@ private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr
   let tryCoeSimple : TermElabM Expr :=
     tryCoe errorMsgHeader? expectedType eType e f?
   let some (n, β) ← isTypeApp? expectedType | tryCoeSimple
-  let tryPureCoeAndSimple : TermElabM Expr := do
-    if autoLift.get (← getOptions) then
-      match (← tryPureCoe? errorMsgHeader? n β eType e) with
-      | some eNew => pure eNew
-      | none      => tryCoeSimple
-    else
-      tryCoeSimple
-  let some (m, α) ← isTypeApp? eType | tryPureCoeAndSimple
+  let some (m, α) ← isTypeApp? eType | tryCoeSimple
   if (← isDefEq m n) then
     let some monadInst ← isMonad? n | tryCoeSimple
     try expandCoe (← mkAppOptM ``Lean.Internal.coeM #[m, α, β, none, monadInst, e]) catch _ => throwMismatch
@@ -882,18 +831,13 @@ private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr
         let v ← getLevel β
         let coeTInstType := Lean.mkForall `a BinderInfo.default α $ mkAppN (mkConst ``CoeT [u, v]) #[α, mkBVar 0, β]
         let coeTInstVal ← synthesizeInst coeTInstType
-        let eNew ← expandCoe (← mkAppN (Lean.mkConst ``Lean.Internal.liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e])
+        let eNew ← expandCoe (mkAppN (Lean.mkConst ``Lean.Internal.liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e])
         let eNewType ← inferType eNew
         unless (← isDefEq expectedType eNewType) do throwMismatch
         return eNew -- approach 3 worked
     catch _ =>
-      /-
-        If `m` is not a monad, then we try to use `tryPureCoe?` and then `tryCoe?`.
-        Otherwise, we just try `tryCoe?`.
-      -/
-      match (← isMonad? m) with
-      | none   => tryPureCoeAndSimple
-      | some _ => tryCoeSimple
+      /- If `m` is not a monad, then we try to use `tryCoe?`. -/
+      tryCoeSimple
   else
     tryCoeSimple
 

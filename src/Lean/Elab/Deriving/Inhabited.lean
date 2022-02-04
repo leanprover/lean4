@@ -92,7 +92,7 @@ where
           trace[Elab.Deriving.inhabited] "checking {instType} for '{ctorName}'"
           match (← trySynthInstance instType) with
           | LOption.some e =>
-            usedInstIdxs ← collectUsedLocalsInsts usedInstIdxs localInst2Index e
+            usedInstIdxs := collectUsedLocalsInsts usedInstIdxs localInst2Index e
           | _ =>
             trace[Elab.Deriving.inhabited] "failed to generate instance using '{ctorName}' {if addHypotheses then "(assuming parameters are inhabited)" else ""} because of field with type{indentExpr (← inferType x)}"
             ok := false

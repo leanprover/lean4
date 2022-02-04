@@ -62,11 +62,11 @@ def foldBinUInt (fn : NumScalarTypeInfo → Bool → Nat → Nat → Nat) (befor
     let info ← getInfoFromVal a₁
     return mkUIntLit info (fn info beforeErasure n₁ n₂)
 
-def foldUIntAdd := foldBinUInt $ fun _ _ => Add.add
-def foldUIntMul := foldBinUInt $ fun _ _ => Mul.mul
-def foldUIntDiv := foldBinUInt $ fun _ _ => Div.div
-def foldUIntMod := foldBinUInt $ fun _ _ => Mod.mod
-def foldUIntSub := foldBinUInt $ fun info _ a b => (a + (info.size - b))
+def foldUIntAdd := foldBinUInt fun _ _ => Add.add
+def foldUIntMul := foldBinUInt fun _ _ => Mul.mul
+def foldUIntDiv := foldBinUInt fun _ _ => Div.div
+def foldUIntMod := foldBinUInt fun _ _ => Mod.mod
+def foldUIntSub := foldBinUInt fun info _ a b => (a + (info.size - b))
 
 def preUIntBinFoldFns : List (Name × BinFoldFn) :=
   [(`add, foldUIntAdd), (`mul, foldUIntMul), (`div, foldUIntDiv),

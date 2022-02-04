@@ -7,5 +7,5 @@ open Lean
 initialize registerBuiltinAttribute {
     name := `bar,
     descr := "",
-    add := fun _ _ _ => ()
+    add := fun _ _ _ => pure ()
   }

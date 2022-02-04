@@ -508,13 +508,13 @@ where
     match e with
     | Expr.letE n t v b _ => withLetDecl n t (← go v) fun x => do mkLetFVars #[x] (← go (b.instantiate1 x))
     | Expr.lam .. => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← go b)
-    | Expr.app f a .. => mkApp (← go f) (← go a)
-    | Expr.proj _ _ s _ => e.updateProj! (← go s)
+    | Expr.app f a .. => return mkApp (← go f) (← go a)
+    | Expr.proj _ _ s _ => return e.updateProj! (← go s)
     | Expr.mdata _ b _  =>
       if let some m := smartUnfoldingMatch? e then
         goMatch m
       else
-        e.updateMData! (← go b)
+        return e.updateMData! (← go b)
     | _ => return e
 
   goMatch (e : Expr) : OptionT MetaM Expr := do
@@ -706,9 +706,9 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
     return false
   else
     match (← getConfig).transparency with
-    | TransparencyMode.default => true
-    | TransparencyMode.all     => true
-    | _                        => false
+    | TransparencyMode.default => return true
+    | TransparencyMode.all     => return true
+    | _                        => return false
 
 @[inline] private def cached? (useCache : Bool) (e : Expr) : MetaM (Option Expr) := do
   if useCache then

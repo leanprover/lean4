@@ -50,7 +50,7 @@ private partial def loop : M Bool := do
     let entry := (← get).entries[i]
     let ctx := (← get).ctx
     -- We disable the current entry to prevent it to be simplified to `True`
-    let simpLemmasWithoutEntry ← (← getSimpLemmas).eraseCore entry.id
+    let simpLemmasWithoutEntry := (← getSimpLemmas).eraseCore entry.id
     let ctx := { ctx with simpLemmas := simpLemmasWithoutEntry }
     match (← simpStep (← get).mvarId entry.proof entry.type ctx) with
     | none => return true -- closed the goal

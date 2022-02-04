@@ -25,7 +25,7 @@ unsafe def visited (e : Expr) (size : USize) : FoldM Bool := do
   let k := s.visitedTerms.uget i lcProof
   if ptrAddrUnsafe k == h then pure true
   else do
-    modify $ fun s => { s with visitedTerms := s.visitedTerms.uset i e lcProof }
+    modify fun s => { s with visitedTerms := s.visitedTerms.uset i e lcProof }
     pure false
 
 unsafe def fold {α : Type} (f : Name → α → α) (size : USize) (e : Expr) (acc : α) : FoldM α :=
@@ -69,7 +69,7 @@ def getUsedConstants (e : Expr) : Array Name :=
 end Expr
 
 def getMaxHeight (env : Environment) (e : Expr) : UInt32 :=
-  e.foldConsts 0 $ fun constName max =>
+  e.foldConsts 0 fun constName max =>
     match env.find? constName with
     | ConstantInfo.defnInfo val =>
       match val.hints with

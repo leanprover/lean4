@@ -18,8 +18,8 @@ Beware of the licensing consequences since GMP is LGPL."
     return 1
 
   let root ← match (← IO.getEnv "LEAN_SYSROOT") with
-    | some root => System.FilePath.mk root
-    | none      => (← IO.appDir).parent.get!
+    | some root => pure <| System.FilePath.mk root
+    | none      => pure <| (← IO.appDir).parent.get!
   let rootify s := s.replace "ROOT" root.toString
 
   let compileOnly := args.contains "-c"
@@ -39,7 +39,7 @@ Beware of the licensing consequences since GMP is LGPL."
     | "--print-ldflags" =>
       IO.println <| " ".intercalate ((cflags ++ ldflags).map rootify |>.toList)
       return 0
-    | _ => ()
+    | _ => pure ()
 
   let mut cc := "@LEANC_CC@"
   if let some cc' ← IO.getEnv "LEAN_CC" then

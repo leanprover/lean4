@@ -12,6 +12,7 @@ import Lean.Data.Lsp
 import Lean.Server.FileWorker.Utils
 import Lean.Server.Requests
 import Lean.Server.Completion
+import Lean.Server.References
 
 import Lean.Widget.InteractiveGoal
 
@@ -131,7 +132,7 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
           let mut expr := ti.expr
           if kind == type then
             expr ← ci.runMetaM i.lctx do
-              Expr.getAppFn (← Meta.instantiateMVars (← Meta.inferType expr))
+              return Expr.getAppFn (← Meta.instantiateMVars (← Meta.inferType expr))
           match expr with
           | Expr.const n .. => return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
           | Expr.fvar id .. => return ← ci.runMetaM i.lctx <| locationLinksFromBinder snap.infoTree i id
@@ -176,7 +177,7 @@ open Elab in
 partial def handlePlainGoal (p : PlainGoalParams)
     : RequestM (RequestTask (Option PlainGoal)) := do
   let t ← getInteractiveGoals p
-  t.map <| Except.map <| Option.map <| fun ⟨goals⟩ =>
+  return t.map <| Except.map <| Option.map <| fun ⟨goals⟩ =>
     if goals.isEmpty then
       { goals := #[], rendered := "no goals" }
     else
@@ -209,7 +210,7 @@ partial def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
 def handlePlainTermGoal (p : PlainTermGoalParams)
     : RequestM (RequestTask (Option PlainTermGoal)) := do
   let t ← getInteractiveTermGoal p
-  t.map <| Except.map <| Option.map fun goal =>
+  return t.map <| Except.map <| Option.map fun goal =>
     { goal := toString goal.toInteractiveGoal.pretty
       range := goal.range
     }
@@ -219,6 +220,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
   let doc ← readDoc
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
+
   let rec highlightReturn? (doRange? : Option Range) : Syntax → Option DocumentHighlight
     | stx@`(doElem|return%$i $e) => Id.run <| do
       if let some range := i.getRange? then
@@ -228,8 +230,24 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
     | `(do%$i $elems) => highlightReturn? (i.getRange?.get!.toLspRange text) elems
     | stx => stx.getArgs.findSome? (highlightReturn? doRange?)
 
+  let highlightRefs? (snaps : Array Snapshot) (pos : Lsp.Position) : Option (Array DocumentHighlight) := Id.run do
+    let trees := snaps.map (·.infoTree)
+    let refs := findModuleRefs text trees
+    let some ident ← refs.findAt? p.position
+      | none
+    let some info ← refs.find? ident
+      | none
+    let mut ranges := #[]
+    if let some definition := info.definition then
+      ranges := ranges.push definition
+    ranges := ranges.append info.usages
+    some <| ranges.map ({ range := ·, kind? := DocumentHighlightKind.text })
+
   withWaitFindSnap doc (fun s => s.endPos > pos)
     (notFoundX := pure #[]) fun snap => do
+      let (snaps, _) ← doc.allSnaps.updateFinishedPrefix
+      if let some his := highlightRefs? snaps.finishedPrefix.toArray p.position then
+        return his
       if let some hi := highlightReturn? none snap.stx then
         return #[hi]
       return #[]
@@ -247,7 +265,7 @@ partial def handleDocumentSymbol (p : DocumentSymbolParams)
       throw RequestError.fileChanged
     | some (ElabTaskError.ioError e) =>
       throw (e : RequestError)
-    | _ => ()
+    | _ => pure ()
 
     let lastSnap := cmdSnaps.finishedPrefix.getLastD doc.headerSnap
     stxs := stxs ++ (← parseAhead doc.meta.text.source lastSnap).toList

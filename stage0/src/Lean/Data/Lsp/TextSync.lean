@@ -21,9 +21,9 @@ inductive TextDocumentSyncKind where
 
 instance : FromJson TextDocumentSyncKind := ⟨fun j =>
   match j.getNat? with
-  | Except.ok 0 => TextDocumentSyncKind.none
-  | Except.ok 1 => TextDocumentSyncKind.full
-  | Except.ok 2 => TextDocumentSyncKind.incremental
+  | Except.ok 0 => return TextDocumentSyncKind.none
+  | Except.ok 1 => return TextDocumentSyncKind.full
+  | Except.ok 2 => return TextDocumentSyncKind.incremental
   | _      => throw "unknown TextDocumentSyncKind"⟩
 
 instance : ToJson TextDocumentSyncKind := ⟨fun

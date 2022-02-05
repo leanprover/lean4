@@ -390,5 +390,5 @@ infoTree.lean:44:0: error: expected stx
         _uniq.862 : Nat @ ⟨47, 5⟩-⟨47, 6⟩
       _uniq.863 : Nat @ ⟨47, 7⟩-⟨47, 8⟩ @ Lean.Elab.Term.elabIdent
         _uniq.863 : Nat @ ⟨47, 7⟩-⟨47, 8⟩
-  f6.f7 (isBinder := true) : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨46, 10⟩-⟨46, 45⟩
+  f6.f7 (isBinder := true) : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨46, 10⟩-⟨46, 12⟩
   f6 (isBinder := true) : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨45, 4⟩-⟨45, 6⟩

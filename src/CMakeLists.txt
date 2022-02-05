@@ -515,6 +515,7 @@ install(DIRECTORY "${CMAKE_BINARY_DIR}/lib/" DESTINATION lib
   PATTERN temp EXCLUDE)
 
 # symlink source into expected installation location for go-to-definition, if file system allows it
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
 if(${STAGE} EQUAL 0)
   file(CREATE_LINK ${CMAKE_SOURCE_DIR}/../../src ${CMAKE_BINARY_DIR}/src/lean RESULT _IGNORE_RES SYMBOLIC)
 else()

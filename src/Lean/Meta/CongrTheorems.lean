@@ -157,6 +157,9 @@ private partial def mkCast (e : Expr) (type : Expr) (deps : Array Nat) (eqs : Ar
 private def hasCastLike (kinds : Array CongrArgKind) : Bool :=
   kinds.any fun kind => kind matches CongrArgKind.cast || kind matches CongrArgKind.subsingletonInst
 
+private def withNext (type : Expr) (k : Expr → Expr → MetaM α) : MetaM α := do
+  forallBoundedTelescope type (some 1) fun xs type => k xs[0] type
+
 /--
   Create a congruence theorem that is useful for the simplifier.
 -/
@@ -195,14 +198,14 @@ where
           else
             let hyps := hyps.push lhss[i]
             match kinds[i] with
+            | CongrArgKind.heq => unreachable!
+            | CongrArgKind.fixedNoParam => unreachable!
             | CongrArgKind.eq =>
               let localDecl ← getLocalDecl lhss[i].fvarId!
               withLocalDecl localDecl.userName localDecl.binderInfo localDecl.type fun rhs => do
               withLocalDeclD ((`e).appendIndexAfter (eqs.size+1)) (← mkEq lhss[i] rhs) fun eq => do
                 go (i+1) (rhss.push rhs) (eqs.push eq) (hyps.push rhs |>.push eq)
-            | CongrArgKind.heq => unreachable!
             | CongrArgKind.fixed => go (i+1) (rhss.push lhss[i]) (eqs.push none) hyps
-            | CongrArgKind.fixedNoParam => unreachable!
             | CongrArgKind.cast =>
               let rhsType := (← inferType lhss[i]).replaceFVars (lhss[:rhss.size]) rhss
               let rhs ← mkCast lhss[i] rhsType info.paramInfo[i].backDeps eqs
@@ -216,7 +219,32 @@ where
       return none
 
   mkProof (type : Expr) (kinds : Array CongrArgKind) : MetaM Expr := do
-    mkSorry type false -- TODO
+    let rec go (i : Nat) (type : Expr) : MetaM Expr := do
+      if i == kinds.size then
+        let some (_, lhs, _) := type.eq? | unreachable!
+        mkEqRefl lhs
+      else
+        withNext type fun lhs type => do
+        match kinds[i] with
+        | CongrArgKind.heq => unreachable!
+        | CongrArgKind.fixedNoParam => unreachable!
+        | CongrArgKind.fixed => mkLambdaFVars #[lhs] (← go (i+1) type)
+        | CongrArgKind.cast => mkLambdaFVars #[lhs] (← go (i+1) type)
+        | CongrArgKind.eq =>
+          let typeSub := type.bindingBody!.bindingBody!.instantiate #[(← mkEqRefl lhs), lhs]
+          withNext type fun rhs type =>
+          withNext type fun heq type => do
+            let motive ← mkLambdaFVars #[rhs, heq] type
+            let proofSub ← go (i+1) typeSub
+            mkLambdaFVars #[lhs, rhs, heq] (← mkEqRec motive proofSub heq)
+        | CongrArgKind.subsingletonInst =>
+          let typeSub := type.bindingBody!.instantiate #[lhs]
+          withNext type fun rhs type => do
+            let motive ← mkLambdaFVars #[rhs] type
+            let proofSub ← go (i+1) typeSub
+            let heq ← mkAppM ``Subsingleton.elim #[lhs, rhs]
+            mkLambdaFVars #[lhs, rhs] (← mkEqNDRec motive proofSub heq)
+     go 0 type
 
   getKinds (info : FunInfo) : Array CongrArgKind := Id.run do
     /- The default `CongrArgKind` is `eq`, which allows `simp` to rewrite this

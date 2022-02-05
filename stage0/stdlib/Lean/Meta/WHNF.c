@@ -90,6 +90,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_getStuckMVar_x3f(lean_object*, lean_object*
 static lean_object* l_Lean_Meta_toCtorIfLit___closed__5;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getConstNoEx_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_markSmartUnfoldingMatchAlt___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_withNatValue___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_whnfEasyCases___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_cached_x3f(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -106,6 +107,7 @@ static lean_object* l_Lean_Meta_toCtorIfLit___closed__10;
 LEAN_EXPORT uint8_t l___private_Lean_Meta_WHNF_0__Lean_Meta_getRecRuleFor___lambda__1(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reduceNative_x3f___closed__5;
+static lean_object* l_Lean_Meta_markSmartUnfoldingMatchAlt___closed__1;
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_reduceNat_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -116,7 +118,6 @@ static lean_object* l_Lean_Meta_whnfEasyCases___closed__3;
 LEAN_EXPORT lean_object* l_Lean_List_toExprAux___at_Lean_Meta_toCtorIfLit___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reduceBinNatOp___closed__13;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_reduceQuotRec(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_markSmartUnfoldigMatchAlt(lean_object*);
 lean_object* l_Lean_Meta_getConst_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_unfoldDefinition_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_whnfEasyCases___at_Lean_Meta_whnfUntil___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -185,7 +186,6 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_toCtorIfLit___closed__15;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_getRecRuleFor___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_canUnfoldAtMatcher___closed__27;
-static lean_object* l_Lean_Meta_markSmartUnfoldigMatchAlt___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_reduceBoolNativeUnsafe___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_useWHNFCache(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_markSmartUnfoldingMatch___closed__2;
@@ -246,7 +246,6 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_WHNF___hyg_24____closed_
 lean_object* l_Lean_Meta_getDelayedAssignment_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_WHNF_0__Lean_Meta_toCtorWhenStructure___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_canUnfoldAtMatcher___closed__30;
-static lean_object* l_Lean_Meta_markSmartUnfoldigMatchAlt___closed__2;
 static lean_object* l_Lean_Meta_whnfEasyCases___at_Lean_Meta_whnfCore___spec__3___lambda__3___closed__1;
 static lean_object* l_Lean_Meta_whnfEasyCases___at_Lean_Meta_whnfCore___spec__3___lambda__3___closed__2;
 static lean_object* l_Lean_Meta_reduceNat_x3f___closed__19;
@@ -413,6 +412,7 @@ lean_object* l___private_Lean_Expr_0__Lean_mkAppRangeAux(lean_object*, lean_obje
 lean_object* lean_expr_abstract(lean_object*, lean_object*);
 static lean_object* l_Lean_List_toExprAux___at_Lean_Meta_toCtorIfLit___spec__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_reduceNat_x3f___lambda__1___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_markSmartUnfoldingMatchAlt(lean_object*);
 static lean_object* l_Lean_Meta_reduceBinNatOp___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Meta_reduceBinNatOp___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_whnfEasyCases___at_Lean_Meta_whnfImp___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -659,7 +659,7 @@ lean_dec(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_markSmartUnfoldigMatchAlt___closed__1() {
+static lean_object* _init_l_Lean_Meta_markSmartUnfoldingMatchAlt___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -667,21 +667,21 @@ x_1 = lean_mk_string("sunfoldMatchAlt");
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_markSmartUnfoldigMatchAlt___closed__2() {
+static lean_object* _init_l_Lean_Meta_markSmartUnfoldingMatchAlt___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_markSmartUnfoldigMatchAlt___closed__1;
+x_2 = l_Lean_Meta_markSmartUnfoldingMatchAlt___closed__1;
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_markSmartUnfoldigMatchAlt(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_markSmartUnfoldingMatchAlt(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Meta_markSmartUnfoldigMatchAlt___closed__2;
+x_2 = l_Lean_Meta_markSmartUnfoldingMatchAlt___closed__2;
 x_3 = l_Lean_mkAnnotation(x_2, x_1);
 return x_3;
 }
@@ -690,7 +690,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_smartUnfoldingMatchAlt_x3f(lean_object* x_1
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_Meta_markSmartUnfoldigMatchAlt___closed__2;
+x_2 = l_Lean_Meta_markSmartUnfoldingMatchAlt___closed__2;
 x_3 = l_Lean_annotation_x3f(x_2, x_1);
 return x_3;
 }
@@ -30246,10 +30246,10 @@ lean_dec_ref(res);
 lean_mark_persistent(l_Lean_Meta_markSmartUnfoldingMatch___closed__1);
 l_Lean_Meta_markSmartUnfoldingMatch___closed__2 = _init_l_Lean_Meta_markSmartUnfoldingMatch___closed__2();
 lean_mark_persistent(l_Lean_Meta_markSmartUnfoldingMatch___closed__2);
-l_Lean_Meta_markSmartUnfoldigMatchAlt___closed__1 = _init_l_Lean_Meta_markSmartUnfoldigMatchAlt___closed__1();
-lean_mark_persistent(l_Lean_Meta_markSmartUnfoldigMatchAlt___closed__1);
-l_Lean_Meta_markSmartUnfoldigMatchAlt___closed__2 = _init_l_Lean_Meta_markSmartUnfoldigMatchAlt___closed__2();
-lean_mark_persistent(l_Lean_Meta_markSmartUnfoldigMatchAlt___closed__2);
+l_Lean_Meta_markSmartUnfoldingMatchAlt___closed__1 = _init_l_Lean_Meta_markSmartUnfoldingMatchAlt___closed__1();
+lean_mark_persistent(l_Lean_Meta_markSmartUnfoldingMatchAlt___closed__1);
+l_Lean_Meta_markSmartUnfoldingMatchAlt___closed__2 = _init_l_Lean_Meta_markSmartUnfoldingMatchAlt___closed__2();
+lean_mark_persistent(l_Lean_Meta_markSmartUnfoldingMatchAlt___closed__2);
 l_Lean_Meta_isAuxDef___closed__1 = _init_l_Lean_Meta_isAuxDef___closed__1();
 lean_mark_persistent(l_Lean_Meta_isAuxDef___closed__1);
 l___private_Lean_Meta_WHNF_0__Lean_Meta_mkNullaryCtor___closed__1 = _init_l___private_Lean_Meta_WHNF_0__Lean_Meta_mkNullaryCtor___closed__1();

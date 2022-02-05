@@ -64,6 +64,8 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
           pinfo := pinfo.push {
             backDeps     := backDeps
             binderInfo   := decl.binderInfo
+            isProp       := (← isProp decl.type)
+            isDecInst    := (← forallTelescopeReducing decl.type fun _ type => return type.isAppOf ``Decidable)
           }
         let resultDeps := collectDeps fvars type
         pinfo := updateHasFwdDeps pinfo resultDeps

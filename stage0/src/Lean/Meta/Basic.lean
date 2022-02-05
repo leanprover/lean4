@@ -85,6 +85,8 @@ structure ParamInfo where
   binderInfo     : BinderInfo := BinderInfo.default
   hasFwdDeps     : Bool       := false
   backDeps       : Array Nat  := #[]
+  isProp         : Bool       := false
+  isDecInst      : Bool       := false
   deriving Inhabited
 
 def ParamInfo.isImplicit (p : ParamInfo) : Bool :=

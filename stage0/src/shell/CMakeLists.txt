@@ -148,82 +148,8 @@ FOREACH(T ${LEANTESTS})
   endif()
 ENDFOREACH(T)
 
-add_test(NAME leanpkgtest
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/b"
-         COMMAND bash -c "
-           set -eu
-           export ${TEST_VARS}
-           leanpkg build
-           # linking requires some manual steps
-           (cd ../a; leanpkg build lib)
-           leanpkg build bin LINK_OPTS=../a/build/lib/libA.a
-           ./build/bin/B")
-
-add_test(NAME leanpkgtest_cyclic
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/cyclic"
-         COMMAND bash -c "
-           set -eu
-           export ${TEST_VARS}
-           leanpkg build 2>&1 | grep 'import cycle'")
-
-add_test(NAME leanpkgtest_user_ext
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/user_ext"
-         COMMAND bash -c "
-           set -eu
-           export ${TEST_VARS}
-           find . -name '*.olean' -delete
-           leanmake | grep 'world, hello, test'")
-
-add_test(NAME leanpkgtest_user_attr
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/user_attr"
-         COMMAND bash -c "
-           set -eu
-           export ${TEST_VARS}
-           find . -name '*.olean' -delete
-           leanmake")
-
-add_test(NAME leanpkgtest_user_deriving
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/deriving"
-         COMMAND bash -c "
-           set -eu
-           export ${TEST_VARS}
-           find . -name '*.olean' -delete
-           leanmake")
-
-add_test(NAME leanpkgtest_user_opt
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/user_opt"
-         COMMAND bash -c "
-           set -eu
-           export ${TEST_VARS}
-           find . -name '*.olean' -delete
-           leanmake")
-
-add_test(NAME leanpkgtest_prv
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/prv"
-         COMMAND bash -c "
-           set -eu
-           export ${TEST_VARS}
-           find . -name '*.olean' -delete
-           leanmake 2>&1 | grep 'error: field.*private'")
-
-add_test(NAME leanpkgtest_user_attr_app
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/user_attr_app"
-         COMMAND bash -c "
-           set -eu
-           export ${TEST_VARS}
-           find . -name '*.olean' -delete
-           leanmake bin LINK_OPTS='${LEAN_DYN_EXE_LINKER_FLAGS}' && build/bin/UserAttr")
-
-add_test(NAME leanpkgtest_builtin_attr
-         WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/leanpkg/builtin_attr"
-         COMMAND bash -c "
-           set -eu
-           export PATH=${LEAN_BIN}:$PATH
-           find . -name '*.olean' -delete
-           leanmake")
-
 # Create a lake test for each subdirectory of `lake/examples` which contains a `test.sh` file.
-# We skip the subdirectories `lean_packages` and `bootstrap` since `lake/examples/Makefile` do no consider them.
+# We skip the subdirectories `lean_packages` and `bootstrap` since `lake/examples/Makefile` does not consider them either.
 file(GLOB_RECURSE LEANLAKETESTS "${LEAN_SOURCE_DIR}/lake/examples/test.sh")
 FOREACH(T ${LEANLAKETESTS})
   if(NOT T MATCHES ".*lean_packages.*")

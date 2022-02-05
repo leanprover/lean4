@@ -368,23 +368,27 @@ end ServerM
 
 section RequestHandling
 
-def findDefinition? (p : TextDocumentPositionParams) : ServerM <| Option Location := do
+def findDefinitions (p : TextDocumentPositionParams) : ServerM <| Array Location := do
+  let mut definitions := #[]
   if let some path := p.textDocument.uri.toPath? then
     let srcSearchPath := (← read).srcSearchPath
     if let some module ← searchModuleNameOfFileName path srcSearchPath then
       let references ← (← read).references.get
-      if let some ident := references.findAt? module p.position then
-        return ← references.definitionOf? ident srcSearchPath
-  return none
+      for ident in references.findAt module p.position do
+        if let some definition ← references.definitionOf? ident srcSearchPath then
+          definitions := definitions.push definition
+  return definitions
 
 def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
+  let mut result := #[]
   if let some path := p.textDocument.uri.toPath? then
     let srcSearchPath := (← read).srcSearchPath
     if let some module ← searchModuleNameOfFileName path srcSearchPath then
       let references ← (← read).references.get
-      if let some ident := references.findAt? module p.position then
-        return ← references.referringTo ident srcSearchPath p.context.includeDeclaration
-  return #[]
+      for ident in references.findAt module p.position do
+        let identRefs ← references.referringTo ident srcSearchPath p.context.includeDeclaration
+        result := result.append identRefs
+  return result
 
 -- TODO Better matching https://github.com/leanprover/lean4/issues/960
 def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInformation) := do
@@ -543,8 +547,9 @@ section MessageHandling
     -- go-to-type-definition.
     if method == "textDocument/definition" || method == "textDocument/declaration" then
       let params ← parseParams TextDocumentPositionParams params
-      if let some definition ← findDefinition? params then
-        (← read).hOut.writeLspResponse ⟨id, #[definition]⟩
+      let definitions ← findDefinitions params
+      if !definitions.isEmpty then
+        (← read).hOut.writeLspResponse ⟨id, definitions⟩
         return
     match method with
       | "textDocument/references" => handle ReferenceParams (Array Location) handleReference

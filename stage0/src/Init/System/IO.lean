@@ -421,7 +421,7 @@ where
           if (← enter p) then
             go p'
       | FS.FileType.dir => go d.path
-      | _ => return ()
+      | _ => pure ()
 
 end System.FilePath
 

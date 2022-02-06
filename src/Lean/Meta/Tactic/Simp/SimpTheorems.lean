@@ -12,10 +12,10 @@ import Lean.Meta.Tactic.AuxLemma
 namespace Lean.Meta
 
 /--
-  The fields `levelParams` and `proof` are used to encode the proof of the simp lemma.
+  The fields `levelParams` and `proof` are used to encode the proof of the simp theorem.
   If the `proof` is a global declaration `c`, we store `Expr.const c []` at `proof` without the universe levels, and `levelParams` is set to `#[]`
   When using the lemma, we create fresh universe metavariables.
-  Motivation: most simp lemmas are global declarations, and this approach is faster and saves memory.
+  Motivation: most simp theorems are global declarations, and this approach is faster and saves memory.
 
   The field `levelParams` is not empty only when we elaborate an expression provided by the user, and it contains universe metavariables.
   Then, we use `abstractMVars` to abstract the universe metavariables and create new fresh universe parameters that are stored at the field `levelParams`.
@@ -204,20 +204,20 @@ private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool)
       return #[← mkSimpTheoremCore (mkConst declName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst declName) post prio declName]
 
 inductive SimpEntry where
-  | lemma    : SimpTheorem → SimpEntry
+  | thm      : SimpTheorem → SimpEntry
   | toUnfold : Name → SimpEntry
   | toUnfoldThms : Name → Array Name → SimpEntry
   deriving Inhabited
 
 abbrev SimpExtension := SimpleScopedEnvExtension SimpEntry SimpTheorems
 
-def SimpExtension.getLemmas (ext : SimpExtension) : CoreM SimpTheorems :=
+def SimpExtension.getTheorems (ext : SimpExtension) : CoreM SimpTheorems :=
   return ext.getState (← getEnv)
 
 def addSimpTheorem (ext : SimpExtension) (declName : Name) (post : Bool) (inv : Bool) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
-  let simpLemmas ← mkSimpTheoremsFromConst declName post inv prio
-  for simpLemma in simpLemmas do
-    ext.add (SimpEntry.lemma simpLemma) attrKind
+  let simpThms ← mkSimpTheoremsFromConst declName post inv prio
+  for simpThm in simpThms do
+    ext.add (SimpEntry.thm simpThm) attrKind
 
 def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension) : IO Unit :=
   registerBuiltinAttribute {
@@ -255,7 +255,7 @@ def mkSimpExt (extName : Name) : IO SimpExtension :=
     initial  := {}
     addEntry := fun d e =>
       match e with
-      | SimpEntry.lemma e => addSimpTheoremEntry d e
+      | SimpEntry.thm e => addSimpTheoremEntry d e
       | SimpEntry.toUnfold n => d.addDeclToUnfoldCore n
       | SimpEntry.toUnfoldThms n thms => d.registerDeclToUnfoldThms n thms
   }
@@ -268,24 +268,24 @@ def registerSimpAttr (attrName : Name) (attrDescr : String) (extName : Name := a
 builtin_initialize simpExtension : SimpExtension ← registerSimpAttr `simp "simplification theorem"
 
 def getSimpTheorems : CoreM SimpTheorems :=
-  simpExtension.getLemmas
+  simpExtension.getTheorems
 
 /- Auxiliary method for adding a global declaration to a `SimpTheorems` datastructure. -/
 def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post : Bool := true) (inv : Bool := false) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do
   let s := { s with erased := s.erased.erase declName }
-  let simpLemmas ← mkSimpTheoremsFromConst declName post inv prio
-  return simpLemmas.foldl addSimpTheoremEntry s
+  let simpThms ← mkSimpTheoremsFromConst declName post inv prio
+  return simpThms.foldl addSimpTheoremEntry s
 
-def SimpTheorem.getValue (simpLemma : SimpTheorem) : MetaM Expr := do
-  if simpLemma.proof.isConst && simpLemma.levelParams.isEmpty then
-    let info ← getConstInfo simpLemma.proof.constName!
+def SimpTheorem.getValue (simpThm : SimpTheorem) : MetaM Expr := do
+  if simpThm.proof.isConst && simpThm.levelParams.isEmpty then
+    let info ← getConstInfo simpThm.proof.constName!
     if info.levelParams.isEmpty then
-      return simpLemma.proof
+      return simpThm.proof
     else
-      return simpLemma.proof.updateConst! (← info.levelParams.mapM (fun _ => mkFreshLevelMVar))
+      return simpThm.proof.updateConst! (← info.levelParams.mapM (fun _ => mkFreshLevelMVar))
   else
-    let us ← simpLemma.levelParams.mapM fun _ => mkFreshLevelMVar
-    return simpLemma.proof.instantiateLevelParamsArray simpLemma.levelParams us
+    let us ← simpThm.levelParams.mapM fun _ => mkFreshLevelMVar
+    return simpThm.proof.instantiateLevelParamsArray simpThm.levelParams us
 
 private def preprocessProof (val : Expr) (inv : Bool) : MetaM (Array Expr) := do
   let type ← inferType val
@@ -293,18 +293,18 @@ private def preprocessProof (val : Expr) (inv : Bool) : MetaM (Array Expr) := do
   let ps ← preprocess val type inv (isGlobal := false)
   return ps.toArray.map fun (val, _) => val
 
-/- Auxiliary method for creating simp lemmas from a proof term `val`. -/
+/- Auxiliary method for creating simp theorems from a proof term `val`. -/
 def mkSimpTheorems (levelParams : Array Name) (proof : Expr) (post : Bool := true) (inv : Bool := false) (prio : Nat := eval_prio default) (name? : Option Name := none): MetaM (Array SimpTheorem) :=
   withReducible do
     (← preprocessProof proof inv).mapM fun val => mkSimpTheoremCore val levelParams val post prio name?
 
-/- Auxiliary method for adding a local simp lemma to a `SimpTheorems` datastructure. -/
+/- Auxiliary method for adding a local simp theorem to a `SimpTheorems` datastructure. -/
 def SimpTheorems.add (s : SimpTheorems) (levelParams : Array Name) (proof : Expr) (inv : Bool := false) (post : Bool := true) (prio : Nat := eval_prio default) (name? : Option Name := none): MetaM SimpTheorems := do
   if proof.isConst then
     s.addConst proof.constName! post inv prio
   else
-    let simpLemmas ← mkSimpTheorems levelParams proof post inv prio (← getName? proof)
-    return simpLemmas.foldl addSimpTheoremEntry s
+    let simpThms ← mkSimpTheorems levelParams proof post inv prio (← getName? proof)
+    return simpThms.foldl addSimpTheoremEntry s
 where
   getName? (e : Expr) : MetaM (Option Name) := do
     match name? with

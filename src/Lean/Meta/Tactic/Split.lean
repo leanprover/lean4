@@ -11,8 +11,8 @@ namespace Split
 
 private def getSimpMatchContext : MetaM Simp.Context :=
    return {
-      simpLemmas    := {}
-      congrLemmas   := (← getSimpCongrTheorems)
+      simpTheorems   := {}
+      congrTheorems := (← getSimpCongrTheorems)
       config        := Simp.neutralConfig
    }
 
@@ -27,7 +27,7 @@ where
     | none    =>
       for matchEq in (← Match.getEquationsFor app.matcherName).eqnNames do
         -- Try lemma
-        match (← withReducible <| Simp.tryLemma? e { proof := mkConst matchEq, name? := some matchEq } SplitIf.discharge?) with
+        match (← withReducible <| Simp.tryTheorem? e { proof := mkConst matchEq, name? := some matchEq } SplitIf.discharge?) with
         | none   => pure ()
         | some r => return Simp.Step.done r
       return Simp.Step.visit { expr := e }
@@ -47,7 +47,7 @@ where
       | some e' => return Simp.Step.done { expr := e' }
       | none    =>
       -- Try lemma
-      match (← withReducible <| Simp.tryLemma? e { proof := mkConst matchEqDeclName, name? := matchEqDeclName } SplitIf.discharge?) with
+      match (← withReducible <| Simp.tryTheorem? e { proof := mkConst matchEqDeclName, name? := matchEqDeclName } SplitIf.discharge?) with
       | none => return Simp.Step.visit { expr := e }
       | some r => return Simp.Step.done r
     else

@@ -19,14 +19,14 @@ abbrev Cache := ExprMap Result
 
 structure Context where
   config         : Config      := {}
-  simpLemmas     : SimpTheorems  := {}
-  congrLemmas    : SimpCongrTheorems := {}
+  simpTheorems   : SimpTheorems  := {}
+  congrTheorems  : SimpCongrTheorems := {}
   parent?        : Option Expr := none
   dischargeDepth : Nat      := 0
   deriving Inhabited
 
 def Context.mkDefault : MetaM Context :=
-  return { config := {}, simpLemmas := (← getSimpTheorems), congrLemmas := (← getSimpCongrTheorems) }
+  return { config := {}, simpTheorems := (← getSimpTheorems), congrTheorems := (← getSimpCongrTheorems) }
 
 structure State where
   cache    : Cache := {}
@@ -72,16 +72,16 @@ def getConfig : M Config :=
   withTheReader Context (fun ctx => { ctx with parent? := parent }) f
 
 def getSimpTheorems : M SimpTheorems :=
-  return (← readThe Context).simpLemmas
+  return (← readThe Context).simpTheorems
 
 def getSimpCongrTheorems : M SimpCongrTheorems :=
-  return (← readThe Context).congrLemmas
+  return (← readThe Context).congrTheorems
 
 @[inline] def withSimpTheorems (s : SimpTheorems) (x : M α) : M α := do
   let cacheSaved := (← get).cache
   modify fun s => { s with cache := {} }
   try
-    withTheReader Context (fun ctx => { ctx with simpLemmas := s }) x
+    withTheReader Context (fun ctx => { ctx with simpTheorems := s }) x
   finally
     modify fun s => { s with cache := cacheSaved }
 

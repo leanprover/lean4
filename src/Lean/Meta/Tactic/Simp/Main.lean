@@ -65,7 +65,7 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
     | none => return none
     | some projInfo =>
       if projInfo.fromClass then
-        if (← read).simpLemmas.isDeclToUnfold cinfo.name then
+        if (← read).simpTheorems.isDeclToUnfold cinfo.name then
           -- We only unfold class projections when the user explicitly requested them to be unfolded.
           -- Recall that `unfoldDefinition?` has support for unfolding this kind of projection.
           withReducibleAndInstances <| unfoldDefinition? e
@@ -95,7 +95,7 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
   let fName := f.constName!
   if (← isProjectionFn fName) then
     return none -- should be reduced by `reduceProjFn?`
-  if (← read).simpLemmas.isDeclToUnfold e.getAppFn.constName! then
+  if (← read).simpTheorems.isDeclToUnfold e.getAppFn.constName! then
     withDefault <| unfoldDefinition? e
   else
     return none
@@ -598,7 +598,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
       let type ← instantiateMVars localDecl.type
       let ctx ← match fvarIdToLemmaId.find? localDecl.fvarId with
         | none => pure ctx
-        | some lemmaId => pure { ctx with simpLemmas := ctx.simpLemmas.eraseCore lemmaId }
+        | some thmId => pure { ctx with simpTheorems := ctx.simpTheorems.eraseCore thmId }
       match (← simpStep mvarId (mkFVar fvarId) type ctx discharge?) with
       | none => return none
       | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }

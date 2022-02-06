@@ -30,8 +30,8 @@ open Lean
 open Lean.Meta
 
 def tst1 : MetaM Unit := do
-  let lemmas  ← Meta.getSimpLemmas
-  trace[Meta.debug] "{lemmas.pre}\n-----\n{lemmas.post}"
+  let thms  ← Meta.getSimpTheorems
+  trace[Meta.debug] "{thms.pre}\n-----\n{thms.post}"
 
 set_option trace.Meta.debug true in
 #eval tst1
@@ -43,7 +43,7 @@ def tst2 : MetaM Unit := do
     | none => throwError "unexpected"
     | some (_, lhs, _) =>
       trace[Meta.debug] "lhs: {lhs}"
-      let s ← Meta.getSimpLemmas
+      let s ← Meta.getSimpTheorems
       let m ← s.post.getMatch lhs
       trace[Meta.debug] "result: {m}"
       assert! m.any fun s => s.name? == `ex2

@@ -193,7 +193,7 @@ where
     | some n =>
       /- If `OfNat.ofNat` is marked to be unfolded, we do not pack orphan nat literals as `OfNat.ofNat` applications
          to avoid non-termination. See issue #788.  -/
-      if (← getSimpLemmas).isDeclToUnfold ``OfNat.ofNat then
+      if (← getSimpTheorems).isDeclToUnfold ``OfNat.ofNat then
         return { expr := e }
       else
         return { expr := (← mkNumeral (mkConst ``Nat) n) }
@@ -331,14 +331,14 @@ where
 
   withNewLemmas {α} (xs : Array Expr) (f : M α) : M α := do
     if (← getConfig).contextual then
-      let mut s ← getSimpLemmas
+      let mut s ← getSimpTheorems
       let mut updated := false
       for x in xs do
         if (← isProof x) then
           s ← s.add #[] x
           updated := true
       if updated then
-        withSimpLemmas s f
+        withSimpTheorems s f
       else
         f
     else
@@ -364,9 +364,9 @@ where
     if (← pure (← getConfig).contextual <&&> isProp p <&&> isProp q) then
       trace[Debug.Meta.Tactic.simp] "ctx arrow {rp.expr} -> {q}"
       withLocalDeclD e.bindingName! rp.expr fun h => do
-        let s ← getSimpLemmas
+        let s ← getSimpTheorems
         let s ← s.add #[] h
-        withSimpLemmas s do
+        withSimpTheorems s do
           let rq ← simp q
           match rq.proof? with
           | none    => mkImpCongr rp rq

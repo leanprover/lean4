@@ -46,7 +46,7 @@ where
       trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to synthesize instance{indentExpr type}"
       return false
 
-private def tryLemmaCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (lemma : SimpLemma) (numExtraArgs : Nat) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) := do
+private def tryLemmaCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (lemma : SimpTheorem) (numExtraArgs : Nat) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) := do
   let rec go (e : Expr) : SimpM (Option Result) := do
     if (← isDefEq lhs e) then
       unless (← synthesizeArgs lemma.getName xs bis discharge?) do
@@ -88,7 +88,7 @@ private def tryLemmaCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo)
       proof ← mkCongrFun proof extraArg
     return some { expr := mkAppN eNew extraArgs, proof? := some proof }
 
-def tryLemmaWithExtraArgs? (e : Expr) (lemma : SimpLemma) (numExtraArgs : Nat) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) :=
+def tryLemmaWithExtraArgs? (e : Expr) (lemma : SimpTheorem) (numExtraArgs : Nat) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) :=
   withNewMCtxDepth do
     let val  ← lemma.getValue
     let type ← inferType val
@@ -97,7 +97,7 @@ def tryLemmaWithExtraArgs? (e : Expr) (lemma : SimpLemma) (numExtraArgs : Nat) (
     let lhs := type.appFn!.appArg!
     tryLemmaCore lhs xs bis val type e lemma numExtraArgs discharge?
 
-def tryLemma? (e : Expr) (lemma : SimpLemma) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) := do
+def tryLemma? (e : Expr) (lemma : SimpTheorem) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) := do
   withNewMCtxDepth do
     let val  ← lemma.getValue
     let type ← inferType val
@@ -116,7 +116,7 @@ def tryLemma? (e : Expr) (lemma : SimpLemma) (discharge? : Expr → SimpM (Optio
 /-
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
 -/
-def rewrite (e : Expr) (s : DiscrTree SimpLemma) (erased : Std.PHashSet Name) (discharge? : Expr → SimpM (Option Expr)) (tag : String) : SimpM Result := do
+def rewrite (e : Expr) (s : DiscrTree SimpTheorem) (erased : Std.PHashSet Name) (discharge? : Expr → SimpM (Option Expr)) (tag : String) : SimpM Result := do
   let candidates ← s.getMatchWithExtra e
   if candidates.isEmpty then
     trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
@@ -129,7 +129,7 @@ def rewrite (e : Expr) (s : DiscrTree SimpLemma) (erased : Std.PHashSet Name) (d
           return result
     return { expr := e }
 where
-  inErasedSet (lemma : SimpLemma) : Bool :=
+  inErasedSet (lemma : SimpTheorem) : Bool :=
     match lemma.name? with
     | none => false
     | some name => erased.contains name

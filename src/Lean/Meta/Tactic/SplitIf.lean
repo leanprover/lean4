@@ -12,7 +12,7 @@ namespace SplitIf
 
 builtin_initialize ext : LazyInitExtension MetaM Simp.Context ←
   registerLazyInitExtension do
-    let mut s : SimpLemmas := {}
+    let mut s : SimpTheorems := {}
     s ← s.addConst ``if_pos
     s ← s.addConst ``if_neg
     s ← s.addConst ``dif_pos

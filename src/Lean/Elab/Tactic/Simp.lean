@@ -79,7 +79,7 @@ def elabSimpConfig (optConfig : Syntax) (ctx : Bool) : TermElabM Meta.Simp.Confi
   else
     elabSimpConfigCore optConfig
 
-private def addDeclToUnfoldOrLemma (lemmas : Meta.SimpLemmas) (e : Expr) (post : Bool) (inv : Bool) : MetaM Meta.SimpLemmas := do
+private def addDeclToUnfoldOrLemma (lemmas : Meta.SimpTheorems) (e : Expr) (post : Bool) (inv : Bool) : MetaM Meta.SimpTheorems := do
   if e.isConst then
     let declName := e.constName!
     let info ← getConstInfo declName
@@ -92,7 +92,7 @@ private def addDeclToUnfoldOrLemma (lemmas : Meta.SimpLemmas) (e : Expr) (post :
   else
     lemmas.add #[] e (post := post) (inv := inv)
 
-private def addSimpLemma (lemmas : Meta.SimpLemmas) (stx : Syntax) (post : Bool) (inv : Bool) : TermElabM Meta.SimpLemmas := do
+private def addSimpTheorem (lemmas : Meta.SimpTheorems) (stx : Syntax) (post : Bool) (inv : Bool) : TermElabM Meta.SimpTheorems := do
   let (levelParams, proof) ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx <| Term.withoutErrToSorry do
     let e ← Term.elabTerm stx none
     Term.synthesizeSyntheticMVars (mayPostpone := false) (ignoreStuckTC := true)
@@ -146,7 +146,7 @@ private def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool)
           let term := arg[2]
           match (← resolveSimpIdLemma? term) with
           | some e => lemmas ← addDeclToUnfoldOrLemma lemmas e post inv
-          | _      => lemmas ← addSimpLemma lemmas term post inv
+          | _      => lemmas ← addSimpTheorem lemmas term post inv
         else if arg.getKind == ``Lean.Parser.Tactic.simpStar then
           starArg := true
         else
@@ -186,9 +186,9 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (ctx := false) (ignoreStarA
   let simpOnly := !stx[3].isNone
   let simpLemmas ←
     if simpOnly then
-      ({} : SimpLemmas).addConst ``eq_self
+      ({} : SimpTheorems).addConst ``eq_self
     else
-      getSimpLemmas
+      getSimpTheorems
   let congrLemmas ← getCongrLemmas
   let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) {
     config      := (← elabSimpConfig stx[1] (ctx := ctx))

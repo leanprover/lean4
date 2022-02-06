@@ -40,7 +40,7 @@ private def initEntries : M Unit := do
       let entry : Entry := { fvarId := fvarId, userName := localDecl.userName, id := id, type := (← instantiateMVars localDecl.type), proof := proof }
       modify fun s => { s with entries := s.entries.push entry, ctx.simpLemmas := simpLemmas }
 
-private abbrev getSimpLemmas : M SimpLemmas :=
+private abbrev getSimpLemmas : M SimpTheorems :=
   return (← get).ctx.simpLemmas
 
 private partial def loop : M Bool := do
@@ -50,14 +50,14 @@ private partial def loop : M Bool := do
     let entry := (← get).entries[i]
     let ctx := (← get).ctx
     -- We disable the current entry to prevent it to be simplified to `True`
-    let simpLemmasWithoutEntry := (← getSimpLemmas).eraseCore entry.id
+    let simpLemmasWithoutEntry := (← getSimpTheorems).eraseCore entry.id
     let ctx := { ctx with simpLemmas := simpLemmasWithoutEntry }
     match (← simpStep (← get).mvarId entry.proof entry.type ctx) with
     | none => return true -- closed the goal
     | some (proofNew, typeNew) =>
       unless typeNew == entry.type do
         let id ← mkFreshUserName `h
-        let simpLemmasNew ← (← getSimpLemmas).add #[] proofNew (name? := id)
+        let simpLemmasNew ← (← getSimpTheorems).add #[] proofNew (name? := id)
         modify fun s => { s with
           modified       := true
           ctx.simpLemmas := simpLemmasNew

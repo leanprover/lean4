@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.AppBuilder
-import Lean.Meta.Tactic.Simp.SimpLemmas
+import Lean.Meta.Tactic.Simp.SimpTheorems
 import Lean.Meta.Tactic.Simp.CongrLemmas
 
 namespace Lean.Meta
@@ -19,14 +19,14 @@ abbrev Cache := ExprMap Result
 
 structure Context where
   config         : Config      := {}
-  simpLemmas     : SimpLemmas  := {}
+  simpLemmas     : SimpTheorems  := {}
   congrLemmas    : CongrLemmas := {}
   parent?        : Option Expr := none
   dischargeDepth : Nat      := 0
   deriving Inhabited
 
 def Context.mkDefault : MetaM Context :=
-  return { config := {}, simpLemmas := (← getSimpLemmas), congrLemmas := (← getCongrLemmas) }
+  return { config := {}, simpLemmas := (← getSimpTheorems), congrLemmas := (← getCongrLemmas) }
 
 structure State where
   cache    : Cache := {}
@@ -71,13 +71,13 @@ def getConfig : M Config :=
 @[inline] def withParent (parent : Expr) (f : M α) : M α :=
   withTheReader Context (fun ctx => { ctx with parent? := parent }) f
 
-def getSimpLemmas : M SimpLemmas :=
+def getSimpTheorems : M SimpTheorems :=
   return (← readThe Context).simpLemmas
 
 def getCongrLemmas : M CongrLemmas :=
   return (← readThe Context).congrLemmas
 
-@[inline] def withSimpLemmas (s : SimpLemmas) (x : M α) : M α := do
+@[inline] def withSimpTheorems (s : SimpTheorems) (x : M α) : M α := do
   let cacheSaved := (← get).cache
   modify fun s => { s with cache := {} }
   try

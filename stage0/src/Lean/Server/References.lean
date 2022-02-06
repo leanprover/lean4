@@ -65,11 +65,12 @@ def addRef (self : ModuleRefs) (ref : Reference) : ModuleRefs :=
   let refInfo := self.findD ref.ident RefInfo.empty
   self.insert ref.ident (refInfo.addRef ref)
 
-def findAt? (self : ModuleRefs) (pos : Lsp.Position) : Option RefIdent := Id.run do
+def findAt (self : ModuleRefs) (pos : Lsp.Position) : Array RefIdent := Id.run do
+  let mut result := #[]
   for (ident, info) in self.toList do
     if info.contains pos then
-      return some ident
-  none
+      result := result.push ident
+  result
 
 end Lean.Lsp.ModuleRefs
 
@@ -215,10 +216,10 @@ def allRefs (self : References) : HashMap Name ModuleRefs :=
   let ileanRefs := self.ileans.toList.foldl (init := HashMap.empty) fun m (name, _, refs) => m.insert name refs
   self.workers.toList.foldl (init := ileanRefs) fun m (name, _, refs) => m.insert name refs
 
-def findAt? (self : References) (module : Name) (pos : Lsp.Position) : Option RefIdent := Id.run do
+def findAt (self : References) (module : Name) (pos : Lsp.Position) : Array RefIdent := Id.run do
   if let some refs := self.allRefs.find? module then
-    return refs.findAt? pos
-  none
+    return refs.findAt pos
+  #[]
 
 def referringTo (self : References) (ident : RefIdent) (srcSearchPath : SearchPath)
     (includeDefinition : Bool := true) : IO (Array Location) := do

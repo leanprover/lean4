@@ -233,14 +233,14 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
   let highlightRefs? (snaps : Array Snapshot) (pos : Lsp.Position) : Option (Array DocumentHighlight) := Id.run do
     let trees := snaps.map (·.infoTree)
     let refs := findModuleRefs text trees
-    let some ident ← refs.findAt? p.position
-      | none
-    let some info ← refs.find? ident
-      | none
     let mut ranges := #[]
-    if let some definition := info.definition then
-      ranges := ranges.push definition
-    ranges := ranges.append info.usages
+    for ident in ← refs.findAt p.position do
+      if let some info ← refs.find? ident then
+        if let some definition := info.definition then
+          ranges := ranges.push definition
+        ranges := ranges.append info.usages
+    if ranges.isEmpty then
+      return none
     some <| ranges.map ({ range := ·, kind? := DocumentHighlightKind.text })
 
   withWaitFindSnap doc (fun s => s.endPos > pos)

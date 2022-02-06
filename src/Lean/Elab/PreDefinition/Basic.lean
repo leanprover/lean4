@@ -56,7 +56,7 @@ def fixLevelParams (preDefs : Array PreDefinition) (scopeLevelNames allUserLevel
     e.replace fun c => match c with
       | Expr.const declName _ _ => if preDefs.any fun preDef => preDef.declName == declName then some $ Lean.mkConst declName us else none
       | _ => none
-  pure $ preDefs.map fun preDef =>
+  return preDefs.map fun preDef =>
     { preDef with
       type        := fixExpr preDef.type,
       value       := fixExpr preDef.value,
@@ -160,14 +160,14 @@ def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := 
   if preDefs.all shouldGenCodeFor then
     addAndCompileUnsafe (safety := DefinitionSafety.partial) <| preDefs.map fun preDef =>
       { preDef with
-        declName  := Compiler.mkUnsafeRecName preDef.declName,
+        declName  := Compiler.mkUnsafeRecName preDef.declName
         value     := preDef.value.replace fun e => match e with
           | Expr.const declName us _ =>
             if preDefs.any fun preDef => preDef.declName == declName then
-              some $ mkConst (Compiler.mkUnsafeRecName declName) us
+              some <| mkConst (Compiler.mkUnsafeRecName declName) us
             else
               none
-          | _ => none,
+          | _ => none
         modifiers := {} }
 
 end Lean.Elab

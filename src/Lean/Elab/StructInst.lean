@@ -500,18 +500,18 @@ mutual
   private partial def addMissingFields (s : Struct) : TermElabM Struct := do
     let env ← getEnv
     let fieldNames := getStructureFields env s.structName
-    let ref := s.ref
+    let ref := s.ref.mkSynthetic
     withRef ref do
       let fields ← fieldNames.foldlM (init := []) fun fields fieldName => do
         match findField? s.fields fieldName with
         | some field => return field::fields
         | none       =>
           let addField (val : FieldVal Struct) : TermElabM Fields := do
-            return { ref := s.ref, lhs := [FieldLHS.fieldName s.ref fieldName], val := val } :: fields
+            return { ref, lhs := [FieldLHS.fieldName ref fieldName], val := val } :: fields
           match Lean.isSubobjectField? env s.structName fieldName with
           | some substructName => do
             let addSubstruct : TermElabM Fields := do
-              let substruct := Struct.mk s.ref substructName [] s.source
+              let substruct := Struct.mk ref substructName [] s.source
               let substruct ← expandStruct substruct
               addField (FieldVal.nested substruct)
             match s.source with
@@ -526,7 +526,7 @@ mutual
           | none =>
             match s.source with
             | Source.none         => addField FieldVal.default
-            | Source.implicit _   => addField (FieldVal.term (mkHole s.ref))
+            | Source.implicit _   => addField (FieldVal.term (mkHole ref))
             | Source.explicit sources =>
               if let some val ← sources.findSomeM? fun source => mkProjStx? source.stx source.structName fieldName then
                 addField (FieldVal.term val)

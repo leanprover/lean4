@@ -37,6 +37,7 @@ LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Meta_mkInjectiveTheorems___
 LEAN_EXPORT lean_object* l_Lean_Meta_elimOptParam___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_injTheoremFailureHeader___closed__3;
 static lean_object* l_Subarray_forInUnsafe_loop___at___private_Lean_Meta_Injective_0__Lean_Meta_mkAnd_x3f___spec__1___closed__1;
+lean_object* l_Lean_Meta_addSimpTheorem(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_elimOptParam___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at___private_Lean_Meta_Injective_0__Lean_Meta_mkAnd_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkInjectiveTheorems(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -103,7 +104,6 @@ static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_injTheoremFailu
 lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheorem___closed__1;
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_addSimpLemma(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f_mkArgs2___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f___lambda__3(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
@@ -4182,7 +4182,7 @@ x_37 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheorem___close
 x_38 = 0;
 x_39 = 0;
 x_40 = lean_unsigned_to_nat(1000u);
-x_41 = l_Lean_Meta_addSimpLemma(x_37, x_26, x_7, x_38, x_39, x_40, x_2, x_3, x_4, x_5, x_36);
+x_41 = l_Lean_Meta_addSimpTheorem(x_37, x_26, x_7, x_38, x_39, x_40, x_2, x_3, x_4, x_5, x_36);
 return x_41;
 }
 else
@@ -4305,7 +4305,7 @@ x_67 = l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheorem___close
 x_68 = 0;
 x_69 = 0;
 x_70 = lean_unsigned_to_nat(1000u);
-x_71 = l_Lean_Meta_addSimpLemma(x_67, x_55, x_7, x_68, x_69, x_70, x_2, x_3, x_4, x_5, x_66);
+x_71 = l_Lean_Meta_addSimpTheorem(x_67, x_55, x_7, x_68, x_69, x_70, x_2, x_3, x_4, x_5, x_66);
 return x_71;
 }
 else

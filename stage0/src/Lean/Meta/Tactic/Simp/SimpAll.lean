@@ -14,7 +14,7 @@ namespace SimpAll
 structure Entry where
   fvarId   : FVarId -- original fvarId
   userName : Name
-  id       : Name   -- id of the lemma at `SimpLemmas`
+  id       : Name   -- id of the theorem at `SimpTheorems`
   type     : Expr
   proof    : Expr
   deriving Inhabited
@@ -29,19 +29,19 @@ abbrev M := StateRefT State MetaM
 
 private def initEntries : M Unit := do
   let hs ← getNondepPropHyps (← get).mvarId
-  let erased := (← get).ctx.simpLemmas.erased
+  let erased := (← get).ctx.simpTheorems.erased
   for h in hs do
     let localDecl ← getLocalDecl h
     unless erased.contains localDecl.userName do
       let fvarId := localDecl.fvarId
       let proof  := localDecl.toExpr
       let id     ← mkFreshUserName `h
-      let simpLemmas ← (← get).ctx.simpLemmas.add #[] proof (name? := id)
+      let simpThms ← (← get).ctx.simpTheorems.add #[] proof (name? := id)
       let entry : Entry := { fvarId := fvarId, userName := localDecl.userName, id := id, type := (← instantiateMVars localDecl.type), proof := proof }
-      modify fun s => { s with entries := s.entries.push entry, ctx.simpLemmas := simpLemmas }
+      modify fun s => { s with entries := s.entries.push entry, ctx.simpTheorems := simpThms }
 
-private abbrev getSimpLemmas : M SimpLemmas :=
-  return (← get).ctx.simpLemmas
+private abbrev getSimpTheorems : M SimpTheorems :=
+  return (← get).ctx.simpTheorems
 
 private partial def loop : M Bool := do
   modify fun s => { s with modified := false }
@@ -50,18 +50,18 @@ private partial def loop : M Bool := do
     let entry := (← get).entries[i]
     let ctx := (← get).ctx
     -- We disable the current entry to prevent it to be simplified to `True`
-    let simpLemmasWithoutEntry := (← getSimpLemmas).eraseCore entry.id
-    let ctx := { ctx with simpLemmas := simpLemmasWithoutEntry }
+    let simpThmsWithoutEntry := (← getSimpTheorems).eraseCore entry.id
+    let ctx := { ctx with simpTheorems := simpThmsWithoutEntry }
     match (← simpStep (← get).mvarId entry.proof entry.type ctx) with
     | none => return true -- closed the goal
     | some (proofNew, typeNew) =>
       unless typeNew == entry.type do
         let id ← mkFreshUserName `h
-        let simpLemmasNew ← (← getSimpLemmas).add #[] proofNew (name? := id)
+        let simpThmsNew ← (← getSimpTheorems).add #[] proofNew (name? := id)
         modify fun s => { s with
-          modified       := true
-          ctx.simpLemmas := simpLemmasNew
-          entries[i]     := { entry with type := typeNew, proof := proofNew, id := id }
+          modified         := true
+          ctx.simpTheorems := simpThmsNew
+          entries[i]       := { entry with type := typeNew, proof := proofNew, id := id }
         }
   -- simplify target
   let mvarId := (← get).mvarId

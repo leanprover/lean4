@@ -11,7 +11,7 @@ inductive CongrArgKind where
   | /-- It is a parameter for the congruence theorem, the parameter occurs in the left and right hand sides. -/
     fixed
   | /--
-      It is not a parameter for the congruence theorem, the lemma was specialized for this parameter.
+      It is not a parameter for the congruence theorem, the theorem was specialized for this parameter.
       This only happens if the parameter is a subsingleton/proposition, and other parameters depend on it. -/
     fixedNoParam
   | /--
@@ -181,7 +181,7 @@ where
     In this kind of theorem, if the i-th argument is a `cast` argument, then the theorem
     contains an input `a_i` representing the i-th argument in the left-hand-side, and
     it appears with a cast (e.g., `Eq.drec ... a_i ...`) in the right-hand-side.
-    The idea is that the right-hand-side of this lemma "tells" the simplifier
+    The idea is that the right-hand-side of this theorem "tells" the simplifier
     how the resulting term looks like. -/
   mk? (f : Expr) (info : FunInfo) (kinds : Array CongrArgKind) : MetaM (Option CongrTheorem) := do
     try

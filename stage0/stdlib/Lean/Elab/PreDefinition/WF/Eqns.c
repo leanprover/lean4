@@ -55,6 +55,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_Elab_WF_deltaLHSUntilFix___lambda__1___closed__4;
+lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_SimpTheorems_eraseCore___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_Elab_WF_deltaLHSUntilFix(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_WF_mkEqns___spec__1___lambda__1___closed__1;
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -117,12 +118,12 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_WF_registerEqnsIn
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__14(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_WF_mkEqns___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_SimpLemmas_eraseCore___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_Elab_WF_deltaLHSUntilFix___lambda__1___closed__7;
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_Elab_WF_rwFixEq___lambda__1___closed__2;
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_Elab_WF_mkProof_go___closed__2;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+lean_object* l_Std_PersistentHashMap_insert___at_Lean_Meta_SimpTheorems_registerDeclToUnfoldThms___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_getUnfoldFor_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_WF_mkEqns___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -169,7 +170,6 @@ lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_obj
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_getEqnsFor_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
-lean_object* l_Std_PersistentHashMap_insert___at_Lean_Meta_SimpLemmas_registerDeclToUnfoldThms___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_initFn____x40_Lean_Elab_PreDefinition_WF_Eqns___hyg_1089____closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_WF_registerEqnsInfo___spec__1(size_t, size_t, lean_object*);
 lean_object* l_Lean_Meta_registerGetUnfoldEqnFn(lean_object*, lean_object*);
@@ -3133,7 +3133,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_WF_getEqnsFor_x3f___lambda__1(lean_object* 
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Std_PersistentHashMap_insert___at_Lean_Meta_SimpLemmas_registerDeclToUnfoldThms___spec__1(x_3, x_1, x_2);
+x_4 = l_Std_PersistentHashMap_insert___at_Lean_Meta_SimpTheorems_registerDeclToUnfoldThms___spec__1(x_3, x_1, x_2);
 return x_4;
 }
 }
@@ -3163,7 +3163,7 @@ x_12 = l_Lean_Elab_Eqns_instInhabitedEqnsExtState;
 x_13 = l_Lean_Elab_WF_getEqnsFor_x3f___closed__1;
 x_14 = l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(x_12, x_13, x_11);
 lean_inc(x_1);
-x_15 = l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_SimpLemmas_eraseCore___spec__1(x_14, x_1);
+x_15 = l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_SimpTheorems_eraseCore___spec__1(x_14, x_1);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; 
@@ -3466,7 +3466,7 @@ x_82 = l_Lean_Elab_Eqns_instInhabitedEqnsExtState;
 x_83 = l_Lean_Elab_WF_getEqnsFor_x3f___closed__1;
 x_84 = l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(x_82, x_83, x_81);
 lean_inc(x_1);
-x_85 = l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_SimpLemmas_eraseCore___spec__1(x_84, x_1);
+x_85 = l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_SimpTheorems_eraseCore___spec__1(x_84, x_1);
 if (lean_obj_tag(x_85) == 0)
 {
 lean_object* x_86; lean_object* x_87; lean_object* x_88; 

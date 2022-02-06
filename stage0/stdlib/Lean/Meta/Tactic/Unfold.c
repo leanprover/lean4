@@ -17,7 +17,6 @@ lean_object* l_Lean_Meta_applySimpResultToLocalDecl(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_Meta_unfold_pre___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_getCongrLemmas___rarg(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_unfold___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_unfold_pre___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -31,7 +30,6 @@ lean_object* l_Lean_Meta_Simp_main(lean_object*, lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___rarg___closed__2;
 static lean_object* l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___rarg___closed__1;
-lean_object* l_Lean_Meta_Simp_tryLemma_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_unfold___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_unfoldTarget(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___rarg___closed__4;
@@ -53,6 +51,7 @@ lean_object* l_Lean_Meta_getLocalDecl(lean_object*, lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_Meta_unfold___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_unfold_pre___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Simp_tryTheorem_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_unfold___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_deltaExpand(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -67,6 +66,7 @@ lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_unfoldLocalDecl___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instInhabitedMetaM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_empty(lean_object*);
+lean_object* l_Lean_Meta_getSimpCongrTheorems___rarg(lean_object*, lean_object*);
 static lean_object* _init_l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___rarg___closed__1() {
 _start:
 {
@@ -126,7 +126,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSim
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_Lean_Meta_getCongrLemmas___rarg(x_1, x_2);
+x_3 = l_Lean_Meta_getSimpCongrTheorems___rarg(x_1, x_2);
 x_4 = !lean_is_exclusive(x_3);
 if (x_4 == 0)
 {
@@ -295,7 +295,7 @@ lean_inc(x_6);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_28 = l_Lean_Meta_Simp_tryLemma_x3f(x_2, x_17, x_27, x_3, x_4, x_26, x_6, x_7, x_8, x_9);
+x_28 = l_Lean_Meta_Simp_tryTheorem_x3f(x_2, x_17, x_27, x_3, x_4, x_26, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_29; 
@@ -436,7 +436,7 @@ lean_inc(x_6);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_62 = l_Lean_Meta_Simp_tryLemma_x3f(x_2, x_17, x_61, x_3, x_4, x_60, x_6, x_7, x_8, x_9);
+x_62 = l_Lean_Meta_Simp_tryTheorem_x3f(x_2, x_17, x_61, x_3, x_4, x_60, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_62) == 0)
 {
 lean_object* x_63; 

@@ -12,19 +12,19 @@ namespace SplitIf
 
 builtin_initialize ext : LazyInitExtension MetaM Simp.Context ←
   registerLazyInitExtension do
-    let mut s : SimpLemmas := {}
+    let mut s : SimpTheorems := {}
     s ← s.addConst ``if_pos
     s ← s.addConst ``if_neg
     s ← s.addConst ``dif_pos
     s ← s.addConst ``dif_neg
     return {
-      simpLemmas    := s
-      congrLemmas   := (← getCongrLemmas)
+      simpTheorems  := s
+      congrTheorems := (← getSimpCongrTheorems)
       config        := Simp.neutralConfig
     }
 
 /--
-  Default `Simp.Context` for `simpIf` methods. It contains all congruence lemmas, but
+  Default `Simp.Context` for `simpIf` methods. It contains all congruence theorems, but
   just the rewriting rules for reducing `if` expressions. -/
 def getSimpContext : MetaM Simp.Context :=
   ext.get

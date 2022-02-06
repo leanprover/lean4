@@ -135,12 +135,12 @@ instance : Inhabited (DiscrTree α) where
     to the discrimination tree IF we ignored the implict `Nat` argument.
     This would be BAD since **ALL** decidable equality instances would be in the same path.
     So, we index implicit arguments if they are types.
-    This setting seems sensible for simplification lemmas such as:
+    This setting seems sensible for simplification theorems such as:
     ```
     forall (x y : Unit), (@Eq Unit x y) = true
     ```
     If we ignore the implicit argument `Unit`, the `DiscrTree` will say it is a candidate
-    simplification lemma for any equality in our goal.
+    simplification theorem for any equality in our goal.
 
   Remark: if users have problems with the solution above, we may provide a `noIndexing` annotation,
   and `ignoreArg` would return true for any term of the form `noIndexing t`.

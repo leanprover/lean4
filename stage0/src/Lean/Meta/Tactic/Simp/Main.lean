@@ -65,7 +65,7 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
     | none => return none
     | some projInfo =>
       if projInfo.fromClass then
-        if (← read).simpLemmas.isDeclToUnfold cinfo.name then
+        if (← read).simpTheorems.isDeclToUnfold cinfo.name then
           -- We only unfold class projections when the user explicitly requested them to be unfolded.
           -- Recall that `unfoldDefinition?` has support for unfolding this kind of projection.
           withReducibleAndInstances <| unfoldDefinition? e
@@ -95,7 +95,7 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
   let fName := f.constName!
   if (← isProjectionFn fName) then
     return none -- should be reduced by `reduceProjFn?`
-  if (← read).simpLemmas.isDeclToUnfold e.getAppFn.constName! then
+  if (← read).simpTheorems.isDeclToUnfold e.getAppFn.constName! then
     withDefault <| unfoldDefinition? e
   else
     return none
@@ -193,7 +193,7 @@ where
     | some n =>
       /- If `OfNat.ofNat` is marked to be unfolded, we do not pack orphan nat literals as `OfNat.ofNat` applications
          to avoid non-termination. See issue #788.  -/
-      if (← getSimpLemmas).isDeclToUnfold ``OfNat.ofNat then
+      if (← getSimpTheorems).isDeclToUnfold ``OfNat.ofNat then
         return { expr := e }
       else
         return { expr := (← mkNumeral (mkConst ``Nat) n) }
@@ -247,7 +247,7 @@ where
     withParent e <| e.withApp fun f args => do
       congrArgs (← simp f) args
 
-  /- Return true iff processing the given congruence lemma hypothesis produced a non-refl proof. -/
+  /- Return true iff processing the given congruence theorem hypothesis produced a non-refl proof. -/
   processCongrHypothesis (h : Expr) : M Bool := do
     forallTelescopeReducing (← inferType h) fun xs hType => withNewLemmas xs do
       let lhs ← instantiateMVars hType.appFn!.appArg!
@@ -261,8 +261,8 @@ where
           throwCongrHypothesisFailed
         return r.proof?.isSome
 
-  /- Try to rewrite `e` children using the given congruence lemma -/
-  tryCongrLemma? (c : CongrLemma) (e : Expr) : M (Option Result) := withNewMCtxDepth do
+  /- Try to rewrite `e` children using the given congruence theorem -/
+  trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : M (Option Result) := withNewMCtxDepth do
     trace[Debug.Meta.Tactic.simp.congr] "{c.theoremName}, {e}"
     let lemma ← mkConstWithFreshMVarLevels c.theoremName
     let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType lemma)
@@ -306,10 +306,10 @@ where
   congr (e : Expr) : M Result := do
     let f := e.getAppFn
     if f.isConst then
-      let congrLemmas ← getCongrLemmas
-      let cs := congrLemmas.get f.constName!
+      let congrThms ← getSimpCongrTheorems
+      let cs := congrThms.get f.constName!
       for c in cs do
-        match (← tryCongrLemma? c e) with
+        match (← trySimpCongrTheorem? c e) with
         | none   => pure ()
         | some r => return r
       congrDefault e
@@ -331,14 +331,14 @@ where
 
   withNewLemmas {α} (xs : Array Expr) (f : M α) : M α := do
     if (← getConfig).contextual then
-      let mut s ← getSimpLemmas
+      let mut s ← getSimpTheorems
       let mut updated := false
       for x in xs do
         if (← isProof x) then
           s ← s.add #[] x
           updated := true
       if updated then
-        withSimpLemmas s f
+        withSimpTheorems s f
       else
         f
     else
@@ -364,9 +364,9 @@ where
     if (← pure (← getConfig).contextual <&&> isProp p <&&> isProp q) then
       trace[Debug.Meta.Tactic.simp] "ctx arrow {rp.expr} -> {q}"
       withLocalDeclD e.bindingName! rp.expr fun h => do
-        let s ← getSimpLemmas
+        let s ← getSimpTheorems
         let s ← s.add #[] h
-        withSimpLemmas s do
+        withSimpTheorems s do
           let rq ← simp q
           match rq.proof? with
           | none    => mkImpCongr rp rq
@@ -598,7 +598,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
       let type ← instantiateMVars localDecl.type
       let ctx ← match fvarIdToLemmaId.find? localDecl.fvarId with
         | none => pure ctx
-        | some lemmaId => pure { ctx with simpLemmas := ctx.simpLemmas.eraseCore lemmaId }
+        | some thmId => pure { ctx with simpTheorems := ctx.simpTheorems.eraseCore thmId }
       match (← simpStep mvarId (mkFVar fvarId) type ctx discharge?) with
       | none => return none
       | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }

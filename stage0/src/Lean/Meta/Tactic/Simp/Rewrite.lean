@@ -10,7 +10,7 @@ import Lean.Meta.Tactic.Simp.Types
 
 namespace Lean.Meta.Simp
 
-def synthesizeArgs (lemmaName : Name) (xs : Array Expr) (bis : Array BinderInfo) (discharge? : Expr → SimpM (Option Expr)) : SimpM Bool := do
+def synthesizeArgs (thmName : Name) (xs : Array Expr) (bis : Array BinderInfo) (discharge? : Expr → SimpM (Option Expr)) : SimpM Bool := do
   for x in xs, bi in bis do
     let type ← inferType x
     if bi.isInstImplicit then
@@ -19,15 +19,15 @@ def synthesizeArgs (lemmaName : Name) (xs : Array Expr) (bis : Array BinderInfo)
     else if (← instantiateMVars x).isMVar then
       if (← isProp type) then
         if (← hasAssignableMVar (← instantiateMVars type)) then
-          trace[Meta.Tactic.simp.discharge] "{lemmaName}, hypothesis contains metavariables{indentExpr type}"
+          trace[Meta.Tactic.simp.discharge] "{thmName}, hypothesis contains metavariables{indentExpr type}"
           return false
         match (← discharge? type) with
         | some proof =>
           unless (← isDefEq x proof) do
-            trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to assign proof{indentExpr type}"
+            trace[Meta.Tactic.simp.discharge] "{thmName}, failed to assign proof{indentExpr type}"
             return false
         | none =>
-          trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to discharge hypotheses{indentExpr type}"
+          trace[Meta.Tactic.simp.discharge] "{thmName}, failed to discharge hypotheses{indentExpr type}"
           return false
       else if (← isClass? type).isSome then
         unless (← synthesizeInstance x type) do
@@ -40,36 +40,36 @@ where
       if (← withReducibleAndInstances <| isDefEq x val) then
         return true
       else
-        trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to assign instance{indentExpr type}\nsythesized value{indentExpr val}\nis not definitionally equal to{indentExpr x}"
+        trace[Meta.Tactic.simp.discharge] "{thmName}, failed to assign instance{indentExpr type}\nsythesized value{indentExpr val}\nis not definitionally equal to{indentExpr x}"
         return false
     | _ =>
-      trace[Meta.Tactic.simp.discharge] "{lemmaName}, failed to synthesize instance{indentExpr type}"
+      trace[Meta.Tactic.simp.discharge] "{thmName}, failed to synthesize instance{indentExpr type}"
       return false
 
-private def tryLemmaCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (lemma : SimpLemma) (numExtraArgs : Nat) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) := do
+private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) := do
   let rec go (e : Expr) : SimpM (Option Result) := do
     if (← isDefEq lhs e) then
-      unless (← synthesizeArgs lemma.getName xs bis discharge?) do
+      unless (← synthesizeArgs thm.getName xs bis discharge?) do
         return none
       let proof ← instantiateMVars (mkAppN val xs)
       if ← hasAssignableMVar proof then
-        trace[Meta.Tactic.simp.rewrite] "{lemma}, has unassigned metavariables after unification"
+        trace[Meta.Tactic.simp.rewrite] "{thm}, has unassigned metavariables after unification"
         return none
       let rhs   ← instantiateMVars type.appArg!
       if e == rhs then
         return none
-      if lemma.perm then
+      if thm.perm then
         if !(← Expr.acLt rhs e) then
-          trace[Meta.Tactic.simp.rewrite] "{lemma}, perm rejected {e} ==> {rhs}"
+          trace[Meta.Tactic.simp.rewrite] "{thm}, perm rejected {e} ==> {rhs}"
           return none
-      trace[Meta.Tactic.simp.rewrite] "{lemma}, {e} ==> {rhs}"
+      trace[Meta.Tactic.simp.rewrite] "{thm}, {e} ==> {rhs}"
       return some { expr := rhs, proof? := proof }
     else
       unless lhs.isMVar do
         -- We do not report unification failures when `lhs` is a metavariable
         -- Example: `x = ()`
-        -- TODO: reconsider if we want lemmas such as `(x : Unit) → x = ()`
-        trace[Meta.Tactic.simp.unify] "{lemma}, failed to unify{indentExpr lhs}\nwith{indentExpr e}"
+        -- TODO: reconsider if we want thms such as `(x : Unit) → x = ()`
+        trace[Meta.Tactic.simp.unify] "{thm}, failed to unify{indentExpr lhs}\nwith{indentExpr e}"
       return none
   /- Check whether we need something more sophisticated here.
      This simple approach was good enough for Mathlib 3 -/
@@ -88,49 +88,49 @@ private def tryLemmaCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo)
       proof ← mkCongrFun proof extraArg
     return some { expr := mkAppN eNew extraArgs, proof? := some proof }
 
-def tryLemmaWithExtraArgs? (e : Expr) (lemma : SimpLemma) (numExtraArgs : Nat) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) :=
+def tryTheoremWithExtraArgs? (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) :=
   withNewMCtxDepth do
-    let val  ← lemma.getValue
+    let val  ← thm.getValue
     let type ← inferType val
     let (xs, bis, type) ← forallMetaTelescopeReducing type
     let type ← whnf (← instantiateMVars type)
     let lhs := type.appFn!.appArg!
-    tryLemmaCore lhs xs bis val type e lemma numExtraArgs discharge?
+    tryTheoremCore lhs xs bis val type e thm numExtraArgs discharge?
 
-def tryLemma? (e : Expr) (lemma : SimpLemma) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) := do
+def tryTheorem? (e : Expr) (thm : SimpTheorem) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) := do
   withNewMCtxDepth do
-    let val  ← lemma.getValue
+    let val  ← thm.getValue
     let type ← inferType val
     let (xs, bis, type) ← forallMetaTelescopeReducing type
     let type ← whnf (← instantiateMVars type)
     let lhs := type.appFn!.appArg!
-    match (← tryLemmaCore lhs xs bis val type e lemma 0 discharge?) with
+    match (← tryTheoremCore lhs xs bis val type e thm 0 discharge?) with
     | some result => return some result
     | none =>
       let lhsNumArgs := lhs.getAppNumArgs
       let eNumArgs   := e.getAppNumArgs
       if eNumArgs > lhsNumArgs then
-        tryLemmaCore lhs xs bis val type e lemma (eNumArgs - lhsNumArgs) discharge?
+        tryTheoremCore lhs xs bis val type e thm (eNumArgs - lhsNumArgs) discharge?
       else
         return none
 /-
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
 -/
-def rewrite (e : Expr) (s : DiscrTree SimpLemma) (erased : Std.PHashSet Name) (discharge? : Expr → SimpM (Option Expr)) (tag : String) : SimpM Result := do
+def rewrite (e : Expr) (s : DiscrTree SimpTheorem) (erased : Std.PHashSet Name) (discharge? : Expr → SimpM (Option Expr)) (tag : String) : SimpM Result := do
   let candidates ← s.getMatchWithExtra e
   if candidates.isEmpty then
     trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
     return { expr := e }
   else
     let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
-    for (lemma, numExtraArgs) in candidates do
-      unless inErasedSet lemma do
-        if let some result ← tryLemmaWithExtraArgs? e lemma numExtraArgs discharge? then
+    for (thm, numExtraArgs) in candidates do
+      unless inErasedSet thm do
+        if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs discharge? then
           return result
     return { expr := e }
 where
-  inErasedSet (lemma : SimpLemma) : Bool :=
-    match lemma.name? with
+  inErasedSet (thm : SimpTheorem) : Bool :=
+    match thm.name? with
     | none => false
     | some name => erased.contains name
 
@@ -181,12 +181,12 @@ def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndIn
     x
 
 def rewritePre (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
-  let lemmas := (← read).simpLemmas
-  return Step.visit (← rewrite e lemmas.pre lemmas.erased discharge? (tag := "pre"))
+  let thms := (← read).simpTheorems
+  return Step.visit (← rewrite e thms.pre thms.erased discharge? (tag := "pre"))
 
 def rewritePost (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
-  let lemmas := (← read).simpLemmas
-  return Step.visit (← rewrite e lemmas.post lemmas.erased discharge? (tag := "post"))
+  let thms := (← read).simpTheorems
+  return Step.visit (← rewrite e thms.post thms.erased discharge? (tag := "post"))
 
 def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step :=
   tryRewriteCtorEq e <| rewritePre e discharge?

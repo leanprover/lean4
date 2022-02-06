@@ -12,8 +12,8 @@ open Meta
 
 private def getContext : MetaM Simp.Context := do
   return {
-    simpLemmas    := {}
-    congrLemmas   := (← getCongrLemmas)
+    simpTheorems  := {}
+    congrTheorems := (← getSimpCongrTheorems)
     config        := Simp.neutralConfig
   }
 

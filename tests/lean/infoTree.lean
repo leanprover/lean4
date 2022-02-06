@@ -45,3 +45,6 @@ set_option pp.raw true
 def f6 (x y : Nat) : x = x :=
   let rec f7 (x y : Nat) : x = x := Eq.refl x
   f7 x y
+
+-- should not have `original` span of `pair` reference
+def f7 (b : B) : B := { b with }

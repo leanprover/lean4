@@ -340,6 +340,10 @@ partial def getHead? : Syntax → Option Syntax
 def copyHeadTailInfoFrom (target source : Syntax) : Syntax :=
   target.setHeadInfo source.getHeadInfo |>.setTailInfo source.getTailInfo
 
+/-- Ensure head position is synthetic. The server regards syntax as "original" only if both head and tail info are `original`. -/
+def mkSynthetic (stx : Syntax) : Syntax :=
+  stx.setHeadInfo (SourceInfo.fromRef stx)
+
 end Syntax
 
 /-- Use the head atom/identifier of the current `ref` as the `ref` -/

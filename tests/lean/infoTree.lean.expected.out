@@ -392,3 +392,19 @@ infoTree.lean:44:0: error: expected stx
         _uniq.863 : Nat @ ⟨47, 7⟩-⟨47, 8⟩
   f6.f7 (isBinder := true) : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨46, 10⟩-⟨46, 12⟩
   f6 (isBinder := true) : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨45, 4⟩-⟨45, 6⟩
+[Elab.info] command @ ⟨50, 0⟩-⟨50, 32⟩ @ Lean.Elab.Command.elabDeclaration
+  B : Type @ ⟨50, 12⟩-⟨50, 13⟩ @ Lean.Elab.Term.elabIdent
+    [.] `B : some Sort.{?_uniq.899} @ ⟨50, 12⟩-⟨50, 13⟩
+    B : Type @ ⟨50, 12⟩-⟨50, 13⟩
+  _uniq.900 (isBinder := true) : B @ ⟨50, 8⟩-⟨50, 9⟩
+  B : Type @ ⟨50, 17⟩-⟨50, 18⟩ @ Lean.Elab.Term.elabIdent
+    [.] `B : some Sort.{?_uniq.901} @ ⟨50, 17⟩-⟨50, 18⟩
+    B : Type @ ⟨50, 17⟩-⟨50, 18⟩
+  _uniq.904 (isBinder := true) : B @ ⟨50, 8⟩-⟨50, 9⟩
+  B.mk (B.pair _uniq.904) : B @ ⟨50, 22⟩-⟨50, 32⟩ @ Lean.Elab.Term.StructInst.elabStructInst
+    B.pair _uniq.904 : Prod.{0 0} A A @ ⟨50, 24⟩-⟨50, 25⟩† @ Lean.Elab.Term.elabProj
+      _uniq.904 : B @ ⟨50, 24⟩-⟨50, 25⟩
+      [.] _uniq.904 : B @ ⟨50, 24⟩-⟨50, 25⟩ : some Prod.{0 0} A A
+      B.pair : B -> (Prod.{0 0} A A) @ ⟨50, 24⟩†-⟨50, 25⟩†
+    pair : Prod.{0 0} A A := B.pair _uniq.904 @ ⟨50, 22⟩†-⟨50, 32⟩
+  f7 (isBinder := true) : B -> B @ ⟨50, 4⟩-⟨50, 6⟩

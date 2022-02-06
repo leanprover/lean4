@@ -12,7 +12,7 @@ namespace Lean.Meta
 private def getSimpUnfoldContext : MetaM Simp.Context :=
    return {
       simpLemmas    := {}
-      congrLemmas   := (← getCongrLemmas)
+      congrLemmas   := (← getSimpCongrTheorems)
       config        := Simp.neutralConfig
    }
 

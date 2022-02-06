@@ -247,7 +247,7 @@ where
     withParent e <| e.withApp fun f args => do
       congrArgs (← simp f) args
 
-  /- Return true iff processing the given congruence lemma hypothesis produced a non-refl proof. -/
+  /- Return true iff processing the given congruence theorem hypothesis produced a non-refl proof. -/
   processCongrHypothesis (h : Expr) : M Bool := do
     forallTelescopeReducing (← inferType h) fun xs hType => withNewLemmas xs do
       let lhs ← instantiateMVars hType.appFn!.appArg!
@@ -261,8 +261,8 @@ where
           throwCongrHypothesisFailed
         return r.proof?.isSome
 
-  /- Try to rewrite `e` children using the given congruence lemma -/
-  tryCongrLemma? (c : CongrLemma) (e : Expr) : M (Option Result) := withNewMCtxDepth do
+  /- Try to rewrite `e` children using the given congruence theorem -/
+  trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : M (Option Result) := withNewMCtxDepth do
     trace[Debug.Meta.Tactic.simp.congr] "{c.theoremName}, {e}"
     let lemma ← mkConstWithFreshMVarLevels c.theoremName
     let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType lemma)
@@ -306,10 +306,10 @@ where
   congr (e : Expr) : M Result := do
     let f := e.getAppFn
     if f.isConst then
-      let congrLemmas ← getCongrLemmas
-      let cs := congrLemmas.get f.constName!
+      let congrThms ← getSimpCongrTheorems
+      let cs := congrThms.get f.constName!
       for c in cs do
-        match (← tryCongrLemma? c e) with
+        match (← trySimpCongrTheorem? c e) with
         | none   => pure ()
         | some r => return r
       congrDefault e

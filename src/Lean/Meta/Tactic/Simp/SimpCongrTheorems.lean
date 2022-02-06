@@ -10,41 +10,47 @@ import Lean.Meta.Basic
 
 namespace Lean.Meta
 
-structure CongrLemma where
+/--
+  Data for user-defined theorems marked with the `congr` attribute.
+
+  This type should be confused with `CongrTheorem` which reprents different kinds of automatically
+  generated congruence theorems. The `simp` tactic also uses some of them.
+-/
+structure SimpCongrTheorem where
   theoremName   : Name
   funName       : Name
   hypothesesPos : Array Nat
   priority      : Nat
 deriving Inhabited, Repr
 
-structure CongrLemmas where
-  lemmas : SMap Name (List CongrLemma) := {}
+structure SimpCongrTheorems where
+  lemmas : SMap Name (List SimpCongrTheorem) := {}
   deriving Inhabited, Repr
 
-def CongrLemmas.get (d : CongrLemmas) (declName : Name) : List CongrLemma :=
+def SimpCongrTheorems.get (d : SimpCongrTheorems) (declName : Name) : List SimpCongrTheorem :=
   match d.lemmas.find? declName with
   | none    => []
   | some cs => cs
 
-def addCongrLemmaEntry (d : CongrLemmas) (e : CongrLemma) : CongrLemmas :=
+def addSimpCongrTheoremEntry (d : SimpCongrTheorems) (e : SimpCongrTheorem) : SimpCongrTheorems :=
   { d with lemmas :=
       match d.lemmas.find? e.funName with
       | none    => d.lemmas.insert e.funName [e]
       | some es => d.lemmas.insert e.funName <| insert es }
 where
-  insert : List CongrLemma → List CongrLemma
+  insert : List SimpCongrTheorem → List SimpCongrTheorem
     | []     => [e]
     | e'::es => if e.priority ≥ e'.priority then e::e'::es else e' :: insert es
 
-builtin_initialize congrExtension : SimpleScopedEnvExtension CongrLemma CongrLemmas ←
+builtin_initialize congrExtension : SimpleScopedEnvExtension SimpCongrTheorem SimpCongrTheorems ←
   registerSimpleScopedEnvExtension {
     name           := `congrExt
     initial        := {}
-    addEntry       := addCongrLemmaEntry
+    addEntry       := addSimpCongrTheoremEntry
     finalizeImport := fun s => { s with lemmas := s.lemmas.switch }
   }
 
-def mkCongrLemma (declName : Name) (prio : Nat) : MetaM CongrLemma := withReducible do
+def mkSimpCongrTheorem (declName : Name) (prio : Nat) : MetaM SimpCongrTheorem := withReducible do
   let c ← mkConstWithLevelParams declName
   let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType c)
   match type.eq? with
@@ -100,8 +106,8 @@ where
   onlyMVarsAt (t : Expr) (mvarSet : MVarIdSet) : Bool :=
     Option.isNone <| t.find? fun e => e.isMVar && !mvarSet.contains e.mvarId!
 
-def addCongrLemma (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
-  let lemma ← mkCongrLemma declName prio
+def addSimpCongrTheorem (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
+  let lemma ← mkSimpCongrTheorem declName prio
   congrExtension.add lemma attrKind
 
 builtin_initialize
@@ -110,10 +116,10 @@ builtin_initialize
     descr := "congruence theorem"
     add   := fun declName stx attrKind => do
       let prio ← getAttrParamOptPrio stx[1]
-      discard <| addCongrLemma declName attrKind prio |>.run {} {}
+      discard <| addSimpCongrTheorem declName attrKind prio |>.run {} {}
   }
 
-def getCongrLemmas : MetaM CongrLemmas :=
+def getSimpCongrTheorems : MetaM SimpCongrTheorems :=
   return congrExtension.getState (← getEnv)
 
 end Lean.Meta

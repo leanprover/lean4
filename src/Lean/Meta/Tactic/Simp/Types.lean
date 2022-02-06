@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.AppBuilder
 import Lean.Meta.Tactic.Simp.SimpTheorems
-import Lean.Meta.Tactic.Simp.CongrLemmas
+import Lean.Meta.Tactic.Simp.SimpCongrTheorems
 
 namespace Lean.Meta
 namespace Simp
@@ -20,13 +20,13 @@ abbrev Cache := ExprMap Result
 structure Context where
   config         : Config      := {}
   simpLemmas     : SimpTheorems  := {}
-  congrLemmas    : CongrLemmas := {}
+  congrLemmas    : SimpCongrTheorems := {}
   parent?        : Option Expr := none
   dischargeDepth : Nat      := 0
   deriving Inhabited
 
 def Context.mkDefault : MetaM Context :=
-  return { config := {}, simpLemmas := (← getSimpTheorems), congrLemmas := (← getCongrLemmas) }
+  return { config := {}, simpLemmas := (← getSimpTheorems), congrLemmas := (← getSimpCongrTheorems) }
 
 structure State where
   cache    : Cache := {}
@@ -74,7 +74,7 @@ def getConfig : M Config :=
 def getSimpTheorems : M SimpTheorems :=
   return (← readThe Context).simpLemmas
 
-def getCongrLemmas : M CongrLemmas :=
+def getSimpCongrTheorems : M SimpCongrTheorems :=
   return (← readThe Context).congrLemmas
 
 @[inline] def withSimpTheorems (s : SimpTheorems) (x : M α) : M α := do

@@ -189,7 +189,7 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (ctx := false) (ignoreStarA
       ({} : SimpTheorems).addConst ``eq_self
     else
       getSimpTheorems
-  let congrLemmas ← getCongrLemmas
+  let congrLemmas ← getSimpCongrTheorems
   let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) {
     config      := (← elabSimpConfig stx[1] (ctx := ctx))
     simpLemmas, congrLemmas

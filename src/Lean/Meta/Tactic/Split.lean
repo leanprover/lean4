@@ -12,7 +12,7 @@ namespace Split
 private def getSimpMatchContext : MetaM Simp.Context :=
    return {
       simpLemmas    := {}
-      congrLemmas   := (← getCongrLemmas)
+      congrLemmas   := (← getSimpCongrTheorems)
       config        := Simp.neutralConfig
    }
 

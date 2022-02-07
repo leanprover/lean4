@@ -353,10 +353,10 @@ TODO
 Inside a `do` block, the pattern `let _ ← <success> | <fail>` will continue with the rest of the block if the match on the left hand side succeeds, but will execute the right hand side and exit the block on failure:
 
 ```lean
-def showUserInfo (username favoriteColor : IO (Option String)) : IO Unit := do
-  let some n ← username | IO.println "no username!"
+def showUserInfo (getUsername getFavoriteColor : IO (Option String)) : IO Unit := do
+  let some n ← getUsername | IO.println "no username!"
   IO.println s!"username: {n}"
-  let some c ← favoriteColor | IO.println "user didn't provide a favorite color!"
+  let some c ← getFavoriteColor | IO.println "user didn't provide a favorite color!"
   IO.println s!"favorite color: {c}"
 
 -- username: JohnDoe
@@ -376,8 +376,8 @@ def showUserInfo (username favoriteColor : IO (Option String)) : IO Unit := do
 Inside a `do` block, users can employ the `if let` pattern to destructure actions:
 
 ```lean
-def tryIncrement (input : IO (Option Nat)) : IO (Except String Nat) := do
-  if let some n ← input
+def tryIncrement (getInput : IO (Option Nat)) : IO (Except String Nat) := do
+  if let some n ← getInput
   then return Except.ok n.succ
   else return Except.error "argument was `none`"
 

@@ -31718,7 +31718,6 @@ lean_ctor_set(x_26, 5, x_19);
 lean_ctor_set(x_26, 6, x_20);
 lean_ctor_set(x_26, 7, x_21);
 x_27 = l_Lean_Elab_Term_Do_ToCodeBlock_doSeqToCode___closed__2;
-lean_inc(x_26);
 x_28 = l_Lean_Core_checkMaxHeartbeats(x_27, x_26, x_8, x_9);
 if (lean_obj_tag(x_28) == 0)
 {

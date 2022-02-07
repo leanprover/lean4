@@ -13714,7 +13714,6 @@ x_29 = lean_nat_add(x_11, x_28);
 lean_dec(x_11);
 lean_ctor_set(x_7, 1, x_29);
 x_30 = l_Lean_Meta_Simp_simp___closed__1;
-lean_inc(x_7);
 x_31 = l_Lean_Core_checkMaxHeartbeats(x_30, x_7, x_8, x_9);
 if (lean_obj_tag(x_31) == 0)
 {
@@ -13872,7 +13871,6 @@ lean_ctor_set(x_60, 5, x_15);
 lean_ctor_set(x_60, 6, x_16);
 lean_ctor_set(x_60, 7, x_17);
 x_61 = l_Lean_Meta_Simp_simp___closed__1;
-lean_inc(x_60);
 x_62 = l_Lean_Core_checkMaxHeartbeats(x_61, x_60, x_8, x_9);
 if (lean_obj_tag(x_62) == 0)
 {

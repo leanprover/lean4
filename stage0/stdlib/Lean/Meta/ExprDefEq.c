@@ -62719,7 +62719,6 @@ _start:
 {
 lean_object* x_9; lean_object* x_10; 
 x_9 = l_Std_Range_forIn_loop___at___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqEtaStruct_go___spec__1___closed__3;
-lean_inc(x_6);
 x_10 = l_Lean_Core_checkMaxHeartbeats(x_9, x_6, x_7, x_8);
 if (lean_obj_tag(x_10) == 0)
 {

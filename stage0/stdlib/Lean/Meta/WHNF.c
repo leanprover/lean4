@@ -27751,7 +27751,6 @@ case 4:
 {
 lean_object* x_92; lean_object* x_93; 
 x_92 = l_Lean_Meta_whnfEasyCases___at_Lean_Meta_whnfCore___spec__3___closed__3;
-lean_inc(x_4);
 x_93 = l_Lean_Core_checkMaxHeartbeats(x_92, x_4, x_5, x_6);
 if (lean_obj_tag(x_93) == 0)
 {
@@ -28269,7 +28268,6 @@ case 5:
 {
 lean_object* x_194; lean_object* x_195; 
 x_194 = l_Lean_Meta_whnfEasyCases___at_Lean_Meta_whnfCore___spec__3___closed__3;
-lean_inc(x_4);
 x_195 = l_Lean_Core_checkMaxHeartbeats(x_194, x_4, x_5, x_6);
 if (lean_obj_tag(x_195) == 0)
 {
@@ -28787,7 +28785,6 @@ case 8:
 {
 lean_object* x_296; lean_object* x_297; 
 x_296 = l_Lean_Meta_whnfEasyCases___at_Lean_Meta_whnfCore___spec__3___closed__3;
-lean_inc(x_4);
 x_297 = l_Lean_Core_checkMaxHeartbeats(x_296, x_4, x_5, x_6);
 if (lean_obj_tag(x_297) == 0)
 {
@@ -29314,7 +29311,6 @@ case 11:
 {
 lean_object* x_400; lean_object* x_401; 
 x_400 = l_Lean_Meta_whnfEasyCases___at_Lean_Meta_whnfCore___spec__3___closed__3;
-lean_inc(x_4);
 x_401 = l_Lean_Core_checkMaxHeartbeats(x_400, x_4, x_5, x_6);
 if (lean_obj_tag(x_401) == 0)
 {

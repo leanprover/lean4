@@ -7769,7 +7769,6 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; 
 x_8 = l_Lean_PrettyPrinter_Delaborator_mkDelabAttribute___closed__3;
-lean_inc(x_5);
 x_9 = l_Lean_Core_checkMaxHeartbeats(x_8, x_5, x_6, x_7);
 if (lean_obj_tag(x_9) == 0)
 {

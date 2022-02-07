@@ -33495,7 +33495,6 @@ _start:
 {
 lean_object* x_13; lean_object* x_14; 
 x_13 = l___private_Lean_Elab_Term_0__Lean_Elab_Term_elabTermAux___lambda__4___closed__1;
-lean_inc(x_10);
 x_14 = l_Lean_Core_checkMaxHeartbeats(x_13, x_10, x_11, x_12);
 if (lean_obj_tag(x_14) == 0)
 {

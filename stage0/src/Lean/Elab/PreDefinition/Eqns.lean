@@ -164,10 +164,6 @@ structure EqnsExtState where
 builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
   registerEnvExtension (pure {})
 
-/-- Create a "unique" base name for equations and splitter -/
-def mkBaseNameFor (env : Environment) (declName : Name) : Name :=
-  Lean.mkBaseNameFor env declName `_eq_1 `_eqns
-
 /-- Try to close goal using `rfl` with smart unfolding turned off. -/
 def tryURefl (mvarId : MVarId) : MetaM Bool :=
   withOptions (smartUnfolding.set . false) do
@@ -250,7 +246,7 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
 def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {} {} do
   let env ← getEnv
   withOptions (tactic.hygienic.set . false) do
-    let baseName := Lean.mkBaseNameFor env declName `_unfold `_unfold
+    let baseName := mkPrivateName env declName
     lambdaTelescope info.value fun xs body => do
       let us := info.levelParams.map mkLevelParam
       let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body

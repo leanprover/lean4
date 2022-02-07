@@ -264,8 +264,8 @@ where
   /- Try to rewrite `e` children using the given congruence theorem -/
   trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : M (Option Result) := withNewMCtxDepth do
     trace[Debug.Meta.Tactic.simp.congr] "{c.theoremName}, {e}"
-    let lemma ← mkConstWithFreshMVarLevels c.theoremName
-    let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType lemma)
+    let thm ← mkConstWithFreshMVarLevels c.theoremName
+    let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType thm)
     if c.hypothesesPos.any (· ≥ xs.size) then
       return none
     let lhs := type.appFn!.appArg!
@@ -298,7 +298,7 @@ where
         trace[Meta.Tactic.simp.congr] "{c.theoremName} synthesizeArgs failed"
         return none
       let eNew ← instantiateMVars rhs
-      let proof ← instantiateMVars (mkAppN lemma xs)
+      let proof ← instantiateMVars (mkAppN thm xs)
       congrArgs { expr := eNew, proof? := proof } extraArgs
     else
       return none

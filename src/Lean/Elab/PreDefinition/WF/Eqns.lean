@@ -58,7 +58,7 @@ where
 
 def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set . false) do
-  let baseName := Eqns.mkBaseNameFor (← getEnv) declName
+  let baseName := mkPrivateName (← getEnv) declName
   let eqnTypes ← withNewMCtxDepth <| lambdaTelescope info.value fun xs body => do
     let us := info.levelParams.map mkLevelParam
     let target ← mkEq (mkAppN (Lean.mkConst declName us) xs) body

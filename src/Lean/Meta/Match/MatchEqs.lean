@@ -69,10 +69,6 @@ builtin_initialize matchEqnsExt : EnvExtension MatchEqnsExtState ←
 private def registerMatchEqns (matchDeclName : Name) (matchEqns : MatchEqns) : CoreM Unit :=
   modifyEnv fun env => matchEqnsExt.modifyState env fun s => { s with map := s.map.insert matchDeclName matchEqns }
 
-/-- Create a "unique" base name for conditional equations and splitter -/
-private def mkBaseNameFor (env : Environment) (matchDeclName : Name) : Name :=
-  Lean.mkBaseNameFor env matchDeclName `splitter `_matchEqns
-
 def unfoldNamedPattern (e : Expr) : MetaM Expr := do
   let visit (e : Expr) : MetaM TransformStep := do
     if e.isAppOfArity ``namedPattern 4 then
@@ -383,7 +379,7 @@ where
   Create conditional equations and splitter for the given match auxiliary declaration. -/
 private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns :=
   withConfig (fun c => { c with etaStruct := false }) do
-  let baseName := mkBaseNameFor (← getEnv) matchDeclName
+  let baseName := mkPrivateName (← getEnv) matchDeclName
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
   let some matchInfo ← getMatcherInfo? matchDeclName | throwError "'{matchDeclName}' is not a matcher function"

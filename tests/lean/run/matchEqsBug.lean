@@ -29,6 +29,6 @@ test% f.match_1
 def g.match_1.splitter := 4
 
 test% g.match_1
-#check g.match_1._matchEqns_1.eq_1
-#check g.match_1._matchEqns_1.eq_2
-#check g.match_1._matchEqns_1.splitter
+#check g.match_1.eq_1
+#check g.match_1.eq_2
+#check g.match_1.splitter

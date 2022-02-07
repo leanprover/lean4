@@ -61,7 +61,7 @@ structure StructView where
 
 inductive StructFieldKind where
   | newField | copiedField | fromParent | subobject
-  deriving Inhabited, BEq
+  deriving Inhabited, DecidableEq, Repr
 
 structure StructFieldInfo where
   name     : Name
@@ -70,7 +70,7 @@ structure StructFieldInfo where
   kind     : StructFieldKind
   inferMod : Bool := false
   value?   : Option Expr := none
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 def StructFieldInfo.isFromParent (info : StructFieldInfo) : Bool :=
   match info.kind with
@@ -280,6 +280,14 @@ where
     else
       k infos
 
+/-- Given `obj.foo.bar.baz`, return `obj`. -/
+private partial def getNestedProjectionArg (e : Expr) : MetaM Expr := do
+  if let Expr.const subProjName .. := e.getAppFn then
+    if let some { numParams, .. } ← getProjectionFnInfo? subProjName then
+      if e.getAppNumArgs == numParams + 1 then
+        return ← getNestedProjectionArg e.appArg!
+  return e
+
 /-- Get field type of `fieldName` in `parentStructName`, but replace references
   to other fields of that structure by existing field fvars.
   Auxiliary method for `copyNewFieldsFrom`. -/
@@ -287,17 +295,20 @@ private def getFieldType (infos : Array StructFieldInfo) (parentStructName : Nam
   withLocalDeclD (← mkFreshId) parentType fun parent => do
     let proj ← mkProjection parent fieldName
     let projType ← inferType proj
-    /- Eliminate occurrences of `parent.field`. This happens when the structure contains dependent fields. -/
+    /- Eliminate occurrences of `parent.field`. This happens when the structure contains dependent fields.
+    If the copied parent extended another structure via a subobject,
+    then the occurrence can also look like `parent.toGrandparent.field`
+    (where `toGrandparent` is not a field of the current structure). -/
     let visit (e : Expr) : MetaM TransformStep := do
       if let Expr.const subProjName .. := e.getAppFn then
         if let some { ctorName, numParams, .. } ← getProjectionFnInfo? subProjName then
           let Name.str subStructName subFieldName .. := subProjName
             | throwError "invalid projection name {subProjName}"
           let args := e.getAppArgs
-          if args.get? numParams == parent then
-            let some existingFieldInfo := findFieldInfo? infos subFieldName
-              | throwError "unexpected field access to {fieldName} in{indentExpr e}"
-            return TransformStep.done <| mkAppN existingFieldInfo.fvar args[numParams+1:args.size]
+          if let some major := args.get? numParams then
+            if (← getNestedProjectionArg major) == parent then
+              if let some existingFieldInfo := findFieldInfo? infos subFieldName then
+                return TransformStep.done <| mkAppN existingFieldInfo.fvar args[numParams+1:args.size]
       return TransformStep.done e
     let projType ← Meta.transform projType (post := visit)
     if projType.containsFVar parent.fvarId! then

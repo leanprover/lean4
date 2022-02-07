@@ -419,33 +419,31 @@ Every computable definition in Lean is compiled to bytecode at definition time. 
 
 .. code-block:: lean
 
-    #reduce (λ x, x + 3) 5
-    #eval   (λ x, x + 3) 5
+    #reduce (fun x => x + 3) 5
+    #eval   (fun x => x + 3) 5
 
-    #reduce let x := 5 in x + 3
-    #eval   let x := 5 in x + 3
+    #reduce let x := 5; x + 3
+    #eval   let x := 5; x + 3
 
     def f x := x + 3
 
     #reduce f 5
     #eval   f 5
 
-    #reduce @nat.rec (λ n, Nat) (0 : Nat)
-                     (λ n recval : Nat, recval + n + 1) (5 : Nat)
-    #eval   @nat.rec (λ n, Nat) (0 : Nat)
-                     (λ n recval : Nat, recval + n + 1) (5 : Nat)
+    #reduce @Nat.rec (λ n => Nat) (0 : Nat)
+                     (λ n recval : Nat => recval + n + 1) (5 : Nat)
 
     def g : Nat → Nat
-    | 0     := 0
-    | (n+1) := g n + n + 1
+    | 0     => 0
+    | (n+1) => g n + n + 1
 
     #reduce g 5
     #eval   g 5
 
-    #eval   g 50000
+    #eval   g 5000
 
-    example : (λ x, x + 3) 5 = 8 := rfl
-    example : (λ x, f x) = f := rfl
+    example : (fun x => x + 3) 5 = 8 := rfl
+    example : (fun x => f x) = f := rfl
     example (p : Prop) (h₁ h₂ : p) : h₁ = h₂ := rfl
 
 Note: the combination of proof irrelevance and singleton ``Prop`` elimination in ι-reduction renders the ideal version of definitional equality, as described above, undecidable. Lean's procedure for checking definitional equality is only an approximation to the ideal. It is not transitive, as illustrated by the example below. Once again, this does not compromise the consistency or soundness of Lean; it only means that Lean is more conservative in the terms it recognizes as well typed, and this does not cause problems in practice. Singleton elimination will be discussed in greater detail in [Inductive Types](inductive.md).

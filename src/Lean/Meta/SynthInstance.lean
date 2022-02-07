@@ -587,7 +587,13 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
      let action : SynthM (Option AbstractMVarsResult) := do
        newSubgoal mctx key mvar Waiter.root
        synth
-     action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {}
+     try
+       action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {}
+     catch ex =>
+       if ex.isMaxHeartbeat then
+         throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}"
+       else
+         throw ex
 
 end SynthInstance
 

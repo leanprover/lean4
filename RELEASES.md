@@ -19,3 +19,5 @@ theorem dep_congr [DecidableEq ι] {p : ι → Set α} [∀ i, Inhabited (p i)] 
 * [Remove deprecated leanpkg](https://github.com/leanprover/lean4/pull/985) in favor of [Lake](https://github.com/leanprover/lake) now bundled with Lean.
 
 * Various improvements to go-to-definition & find-all-references accuracy.
+
+* Auto generated congruence lemmas with support for casts on proofs and `Decidable` instances (see [whishlist](https://github.com/leanprover/lean4/issues/988)).

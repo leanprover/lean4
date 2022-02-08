@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Transform
+import Lean.Meta.CongrTheorems
 import Lean.Meta.Tactic.Replace
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Clear
@@ -141,6 +142,10 @@ def getSimpLetCase (n : Name) (t : Expr) (v : Expr) (b : Expr) : MetaM SimpLetCa
     else
       return SimpLetCase.dep
 
+/-- Given the application `e`, remove unnecessary casts of the form `Eq.rec a rfl` and `Eq.ndrec a rfl`. -/
+def removeUnnecessaryCasts (e : Expr) : MetaM Expr :=
+  return e -- TODO
+
 partial def simp (e : Expr) : M Result := withIncRecDepth do
   checkMaxHeartbeats "simp"
   let cfg ← getConfig
@@ -243,9 +248,93 @@ where
         i := i + 1
       return r
 
-  congrDefault (e : Expr) : M Result :=
-    withParent e <| e.withApp fun f args => do
-      congrArgs (← simp f) args
+  visitFn (e : Expr) : M Result := do
+    let f := e.getAppFn
+    let fNew ← simp f
+    if fNew.expr == f then
+      return { expr := e }
+    else
+      let args := e.getAppArgs
+      let eNew := mkAppN fNew.expr args
+      if fNew.proof?.isNone then return { expr := eNew }
+      let mut proof ← fNew.getProof
+      for arg in args do
+        proof ← Meta.mkCongrFun proof arg
+      return { expr := eNew, proof? := proof }
+
+  /-- Try to use automatically generated congruence theorems. See `mkCongrSimp?`. -/
+  tryAutoCongrTheorem? (e : Expr) : M (Option Result) := do
+    if (← isMatcherApp e) then return none
+    let f := e.getAppFn
+    -- TODO: cache
+    let some cgrThm ← mkCongrSimp? f | return none
+    if cgrThm.argKinds.all fun k => match k with | CongrArgKind.fixed => true | CongrArgKind.eq => true | _ => false then
+      -- If all argument kinds are `fixed` or `eq`, then using simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a more compact proof
+      return none
+    if cgrThm.argKinds.size != e.getAppNumArgs then return none
+    let mut simplified := false
+    let mut hasProof   := false
+    let mut hasCast    := false
+    let mut argsNew    := #[]
+    let mut argResults := #[]
+    let args := e.getAppArgs
+    for arg in args, kind in cgrThm.argKinds do
+      match kind with
+      | CongrArgKind.fixed => argsNew := argsNew.push arg
+      | CongrArgKind.cast  => hasCast := true; argsNew := argsNew.push arg
+      | CongrArgKind.subsingletonInst => argsNew := argsNew.push arg
+      | CongrArgKind.eq =>
+        let argResult ← simp arg
+        argResults := argResults.push argResult
+        argsNew    := argsNew.push argResult.expr
+        if argResult.proof?.isSome then hasProof := true
+        if arg != argResult.expr then simplified := true
+      | _ => unreachable!
+    if !simplified then return some { expr := e }
+    if !hasProof then return some { expr := mkAppN f argsNew }
+    let mut proof := cgrThm.proof
+    let mut type  := cgrThm.type
+    let mut j := 0 -- index at argResults
+    let mut subst := #[]
+    for arg in args, kind in cgrThm.argKinds do
+      proof := mkApp proof arg
+      subst := subst.push arg
+      type := type.bindingBody!
+      match kind with
+      | CongrArgKind.fixed => pure ()
+      | CongrArgKind.cast  => pure ()
+      | CongrArgKind.subsingletonInst =>
+        let clsNew := type.bindingDomain!.instantiateRev subst
+        let instNew ←
+          if (← isDefEq (← inferType arg) clsNew) then
+            pure arg
+          else
+            match (← trySynthInstance clsNew) with
+            | LOption.some val => pure val
+            | _ =>
+              trace[Meta.Tactic.simp.congr] "failed to synthesize instance{indentExpr clsNew}"
+              return none
+        proof := mkApp proof instNew
+        subst := subst.push instNew
+        type := type.bindingBody!
+      | CongrArgKind.eq =>
+        let argResult := argResults[j]
+        let argProof ← argResult.getProof
+        j := j + 1
+        proof := mkApp2 proof argResult.expr argProof
+        subst := subst.push argResult.expr |>.push argProof
+        type := type.bindingBody!.bindingBody!
+      | _ => unreachable!
+    let some (_, _, rhs) := type.instantiateRev subst |>.eq? | unreachable!
+    let rhs ← if hasCast then removeUnnecessaryCasts rhs else pure rhs
+    return some { expr := rhs, proof? := proof }
+
+  congrDefault (e : Expr) : M Result := do
+    if let some result ← tryAutoCongrTheorem? e then
+      mkEqTrans result (← visitFn result.expr)
+    else
+      withParent e <| e.withApp fun f args => do
+        congrArgs (← simp f) args
 
   /- Return true iff processing the given congruence theorem hypothesis produced a non-refl proof. -/
   processCongrHypothesis (h : Expr) : M Bool := do

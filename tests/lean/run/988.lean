@@ -25,13 +25,6 @@ example (as : Array (Nat → Nat)) (h : 0 + x < as.size) :
     as.get ⟨0 + x, h⟩ i = as.get ⟨x, Nat.zero_add x ▸ h⟩ (0+i) := by
   simp -- should also work
 
--- TODO: generate the following lemma automatically
-@[congr] theorem decide_congr (p q : Prop) (h : p = q) [s₁ : Decidable p] [s₂ : Decidable q] : decide p = decide q := by
-  subst h
-  have : s₁ = s₂ := Subsingleton.elim s₁ s₂
-  subst this
-  rfl
-
 example [Decidable p] : decide (p ∧ True) = decide p := by simp -- should work
 
 def Pi.single [DecidableEq ι] {f : ι → Type u} [∀ i, Inhabited (f i)] (i : ι) (x : f i) : ∀ i, f i :=

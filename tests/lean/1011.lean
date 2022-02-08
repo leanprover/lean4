@@ -1,5 +1,5 @@
 def f (x : A) := x
 
-set_option relaxedAutoBoundImplicitLocal false
+set_option relaxedAutoImplicit false
 
 def g (x : A) := x

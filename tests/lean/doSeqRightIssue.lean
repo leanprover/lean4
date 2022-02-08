@@ -1,5 +1,5 @@
 --
-set_option autoBoundImplicitLocal false
+set_option autoImplicit false
 universe u
 variable {α : Type u}
 variable {β : α → Type v}

@@ -9,12 +9,12 @@ import Lean.Data.Options
 
 namespace Lean.Elab
 
-register_builtin_option autoBoundImplicitLocal : Bool := {
+register_builtin_option autoImplicit : Bool := {
     defValue := true
     descr    := "Unbound local variables in declaration headers become implicit arguments. In \"relaxed\" mode (default), any atomic identifier is eligible, otherwise only a lower case or greek letter followed by numeric digits are eligible. For example, `def f (x : Vector α n) : Vector α n :=` automatically introduces the implicit variables {α n}."
   }
 
-register_builtin_option relaxedAutoBoundImplicitLocal : Bool := {
+register_builtin_option relaxedAutoImplicit : Bool := {
     defValue := true
     descr    := "When \"relaxed\" mode is enabled, any atomic nonempty identifier is eligible for auto bound implicit locals (see optin `autoBoundImplicitLocal`."
   }

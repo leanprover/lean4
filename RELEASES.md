@@ -22,4 +22,6 @@ theorem dep_congr [DecidableEq ι] {p : ι → Set α} [∀ i, Inhabited (p i)] 
 
 * Auto generated congruence lemmas with support for casts on proofs and `Decidable` instances (see [whishlist](https://github.com/leanprover/lean4/issues/988)).
 
-* [Relax auto-implicit restrictions](https://github.com/leanprover/lean4/pull/1011). The command `set_option relaxedAutoBoundImplicitLocal false` disables the relaxations.
+* Rename option `autoBoundImplicitLocal` => `autoImplicit`.
+
+* [Relax auto-implicit restrictions](https://github.com/leanprover/lean4/pull/1011). The command `set_option relaxedAutoImplicit false` disables the relaxations.

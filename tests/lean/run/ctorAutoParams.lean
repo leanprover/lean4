@@ -25,7 +25,7 @@ inductive Bigstep : Command × State → State → Nat → Prop where
 
 namespace WithoutAutoImplicit
 
-set_option autoBoundImplicitLocal false
+set_option autoImplicit false
 
 inductive Bigstep : Command × State → State → Nat → Prop where
   | skip    {σ} : Bigstep (skip, σ) σ 1

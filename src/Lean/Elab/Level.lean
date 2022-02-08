@@ -72,7 +72,7 @@ partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
   else if kind == identKind then
     let paramName := stx.getId
     unless (← get).levelNames.contains paramName do
-      if (← read).autoBoundImplicit && isValidAutoBoundLevelName paramName then
+      if (← read).autoBoundImplicit && isValidAutoBoundLevelName paramName (relaxedAutoBoundImplicitLocal.get (← read).options) then
         modify fun s => { s with levelNames := paramName :: s.levelNames }
       else
         throwError "unknown universe level '{paramName}'"

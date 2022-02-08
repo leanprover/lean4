@@ -1,5 +1,5 @@
 def myid (a : α) := a -- works
-
+set_option relaxedAutoBoundImplicitLocal false
 #check myid 10
 #check myid true
 

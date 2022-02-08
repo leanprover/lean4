@@ -1,5 +1,5 @@
 {"textDocument": {"uri": "file://533.lean"},
- "position": {"line": 1, "character": 10}}
+ "position": {"line": 2, "character": 10}}
 {"items":
  [{"label": "False", "kind": 22, "detail": "Prop"},
   {"label": "Fin", "kind": 22, "detail": "Nat → Type"},

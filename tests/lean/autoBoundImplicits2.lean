@@ -1,6 +1,6 @@
 def f [Add α] (a : α) : α :=
   a + a
-
+set_option relaxedAutoBoundImplicitLocal false
 def BV (n : Nat) := { a : Array Bool // a.size = n }
 
 def allZero (bv : BV n) : Prop :=

@@ -1418,7 +1418,7 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List (Name × List Stri
     throw ex
 where process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
   if candidates.isEmpty then
-    if (← read).autoBoundImplicit && isValidAutoBoundImplicitName n then
+    if (← read).autoBoundImplicit && isValidAutoBoundImplicitName n (relaxedAutoBoundImplicitLocal.get (← getOptions)) then
       throwAutoBoundImplicitLocal n
     else
       throwError "unknown identifier '{Lean.mkConst n}'"

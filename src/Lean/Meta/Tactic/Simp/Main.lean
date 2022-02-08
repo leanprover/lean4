@@ -142,9 +142,30 @@ def getSimpLetCase (n : Name) (t : Expr) (v : Expr) (b : Expr) : MetaM SimpLetCa
     else
       return SimpLetCase.dep
 
+#check Eq.ndrec
+
 /-- Given the application `e`, remove unnecessary casts of the form `Eq.rec a rfl` and `Eq.ndrec a rfl`. -/
-def removeUnnecessaryCasts (e : Expr) : MetaM Expr :=
-  return e -- TODO
+partial def removeUnnecessaryCasts (e : Expr) : MetaM Expr := do
+  let mut args := e.getAppArgs
+  let mut modified := false
+  for i in [:args.size] do
+    let arg := args[i]
+    if isDummyEqRec arg then
+      args := args.set! i (elimDummyEqRec arg)
+      modified := true
+  if modified then
+    return mkAppN e.getAppFn args
+  else
+    return e
+where
+  isDummyEqRec (e : Expr) : Bool :=
+    (e.isAppOfArity ``Eq.rec 6 || e.isAppOfArity ``Eq.ndrec 6) && e.appArg!.isAppOf ``Eq.refl
+
+  elimDummyEqRec (e : Expr) : Expr :=
+    if isDummyEqRec e then
+      elimDummyEqRec e.appFn!.appFn!.appArg!
+    else
+      e
 
 partial def simp (e : Expr) : M Result := withIncRecDepth do
   checkMaxHeartbeats "simp"

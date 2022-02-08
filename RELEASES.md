@@ -1,4 +1,4 @@
-v4.0.0-m4
+v4.0.0-m4 (WIP)
 ---------
 
 * Support notation `let <pattern> := <expr> | <else-case>` in `do` blocks.

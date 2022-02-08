@@ -10,7 +10,3 @@ def tst : MetaM Unit := do
   pure ()
 
 #eval tst
-
-unsafe def main : IO Unit := do
-  initSearchPath (← Lean.findSysroot?) ["build"]
-  withImportModules [{ module := `UserAttr.Tst : Import }] {} 0 fun env => pure ()

@@ -126,6 +126,17 @@ FOREACH(T ${LEANT0TESTS})
            COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
 ENDFOREACH(T)
 
+# LEAN PACKAGE TESTS
+file(GLOB LEANPKGTESTS "${LEAN_SOURCE_DIR}/../tests/pkg/*")
+FOREACH(T ${LEANPKGTESTS})
+  if(IS_DIRECTORY ${T})
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    add_test(NAME "leanpkgtest_${T_NAME}"
+            WORKING_DIRECTORY "${T}"
+            COMMAND bash -c "${TEST_VARS} ./test.sh")
+  endif()
+ENDFOREACH(T)
+
 # LEAN SERVER TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/server/*.lean")
 FOREACH(T ${LEANTESTS})
@@ -149,7 +160,6 @@ FOREACH(T ${LEANTESTS})
 ENDFOREACH(T)
 
 # Create a lake test for each subdirectory of `lake/examples` which contains a `test.sh` file.
-# We skip the subdirectories `lean_packages` and `bootstrap` since `lake/examples/Makefile` does not consider them either.
 file(GLOB_RECURSE LEANLAKETESTS "${LEAN_SOURCE_DIR}/lake/examples/test.sh")
 FOREACH(T ${LEANLAKETESTS})
   if(NOT T MATCHES ".*lean_packages.*")

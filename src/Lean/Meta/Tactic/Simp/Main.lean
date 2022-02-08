@@ -262,15 +262,26 @@ where
         proof ← Meta.mkCongrFun proof arg
       return { expr := eNew, proof? := proof }
 
+  mkCongrSimp? (f : Expr) : M (Option CongrTheorem) := do
+    let info ← getFunInfo f
+    let kinds := getCongrSimpKinds info
+    if kinds.all fun k => match k with | CongrArgKind.fixed => true | CongrArgKind.eq => true | _ => false then
+      /- If all argument kinds are `fixed` or `eq`, then using
+         simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a more compact proof -/
+      return none
+    match (← get).congrCache.find? f with
+    | some thm? => return thm?
+    | none =>
+      let thm? ← mkCongrSimpCore? f info kinds
+      modify fun s => { s with congrCache := s.congrCache.insert f thm? }
+      return thm?
+
   /-- Try to use automatically generated congruence theorems. See `mkCongrSimp?`. -/
   tryAutoCongrTheorem? (e : Expr) : M (Option Result) := do
     if (← isMatcherApp e) then return none
     let f := e.getAppFn
     -- TODO: cache
     let some cgrThm ← mkCongrSimp? f | return none
-    if cgrThm.argKinds.all fun k => match k with | CongrArgKind.fixed => true | CongrArgKind.eq => true | _ => false then
-      -- If all argument kinds are `fixed` or `eq`, then using simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a more compact proof
-      return none
     if cgrThm.argKinds.size != e.getAppNumArgs then return none
     let mut simplified := false
     let mut hasProof   := false

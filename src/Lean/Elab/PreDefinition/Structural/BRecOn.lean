@@ -80,6 +80,21 @@ private partial def toBelow (below : Expr) (numIndParams : Nat) (recArg : Expr) 
   withBelowDict below numIndParams fun C belowDict =>
     toBelowAux C belowDict recArg below
 
+/--
+  This method is used after `matcherApp.addArg arg` to check whether the new type of `arg` has been "refined/modified"
+  in at least one alternative.
+-/
+def refinedArgType (matcherApp : MatcherApp) (arg : Expr) : MetaM Bool := do
+  let argType ← inferType arg
+  (Array.zip matcherApp.alts matcherApp.altNumParams).anyM fun (alt, numParams) =>
+    lambdaTelescope alt fun xs altBody => do
+      if xs.size >= numParams then
+        let refinedArg := xs[numParams - 1]
+        trace[Meta.debug] "refinedArgType {argType} =?= {← inferType refinedArg}"
+        return !(← isDefEq (← inferType refinedArg) argType)
+      else
+        return false
+
 private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) (below : Expr) (e : Expr) : M Expr :=
   let rec loop (below : Expr) (e : Expr) : M Expr := do
     match e with
@@ -146,14 +161,17 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
              this may generate weird error messages, when it doesn't work. -/
           trace[Elab.definition.structural] "below before matcherApp.addArg: {below} : {← inferType below}"
           let matcherApp ← mapError (matcherApp.addArg below) (fun msg => "failed to add `below` argument to 'matcher' application" ++ indentD msg)
-          let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
-            lambdaTelescope alt fun xs altBody => do
-              trace[Elab.definition.structural] "altNumParams: {numParams}, xs: {xs}"
-              unless xs.size >= numParams do
-                throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-              let belowForAlt := xs[numParams - 1]
-              mkLambdaFVars xs (← loop belowForAlt altBody)
-          pure { matcherApp with alts := altsNew }.toExpr
+          if !(← refinedArgType matcherApp below) then
+            processApp e
+          else
+            let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
+              lambdaTelescope alt fun xs altBody => do
+                trace[Elab.definition.structural] "altNumParams: {numParams}, xs: {xs}"
+                unless xs.size >= numParams do
+                  throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
+                let belowForAlt := xs[numParams - 1]
+                mkLambdaFVars xs (← loop belowForAlt altBody)
+            pure { matcherApp with alts := altsNew }.toExpr
       | none => processApp e
     | e => ensureNoRecFn recFnName e
   loop below e

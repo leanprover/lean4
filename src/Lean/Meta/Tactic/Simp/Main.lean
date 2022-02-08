@@ -284,6 +284,9 @@ where
       return { expr := eNew, proof? := proof }
 
   mkCongrSimp? (f : Expr) : M (Option CongrTheorem) := do
+    if f.isConst then if (← isMatcher f.constName!) then
+      -- We always use simple congruence theorems for auxiliary match applications
+      return none
     let info ← getFunInfo f
     let kinds := getCongrSimpKinds info
     if kinds.all fun k => match k with | CongrArgKind.fixed => true | CongrArgKind.eq => true | _ => false then
@@ -299,7 +302,6 @@ where
 
   /-- Try to use automatically generated congruence theorems. See `mkCongrSimp?`. -/
   tryAutoCongrTheorem? (e : Expr) : M (Option Result) := do
-    if (← isMatcherApp e) then return none
     let f := e.getAppFn
     -- TODO: cache
     let some cgrThm ← mkCongrSimp? f | return none

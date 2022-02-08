@@ -51,10 +51,14 @@ where
       go mvarId
     else if let some mvarId ← whnfReducibleLHS? mvarId then
       go mvarId
-    else if let some mvarIds ← casesOnStuckLHS? mvarId then
-      mvarIds.forM go
-    else
-      throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+    else match (← simpTargetStar mvarId {}) with
+      | TacticResultCNM.closed => return ()
+      | TacticResultCNM.modified mvarId => go mvarId
+      | TacticResultCNM.noChange =>
+        if let some mvarIds ← casesOnStuckLHS? mvarId then
+          mvarIds.forM go
+        else
+          throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 
 def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set . false) do

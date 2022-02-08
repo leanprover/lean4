@@ -551,7 +551,10 @@ where
 
 def main (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Result :=
   withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible do
-    simp e methods ctx |>.run' {}
+    try
+      simp e methods ctx |>.run' {}
+    catch ex =>
+      if ex.isMaxHeartbeat then throwNestedTacticEx `simp ex else throw ex
 
 partial def isEqnThmHypothesis (e : Expr) : Bool :=
   e.isForall && go e
@@ -730,5 +733,23 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
     let (fvarIdsNew, mvarIdNew) ← assertHypotheses mvarId toAssert
     let mvarIdNew ← tryClearMany mvarIdNew fvarIdsToSimp
     return (fvarIdsNew, mvarIdNew)
+
+def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM TacticResultCNM := withMVarContext mvarId do
+  trace[Meta.debug] "simpTargetStar:\n{mvarId}"
+  let mut ctx := ctx
+  for h in (← getPropHyps) do
+    let localDecl ← getLocalDecl h
+    let proof  := localDecl.toExpr
+    trace[Meta.debug] "adding {localDecl.toExpr}"
+    let simpTheorems ← ctx.simpTheorems.add #[] proof
+    ctx := { ctx with simpTheorems }
+  match (← simpTarget mvarId ctx discharge?) with
+  | none => return TacticResultCNM.closed
+  | some mvarId' =>
+    trace[Meta.debug] "simpTargetStar result:\n{mvarId'}"
+    if (← getMVarType mvarId) == (← getMVarType mvarId') then
+      return TacticResultCNM.noChange
+    else
+      return TacticResultCNM.modified mvarId'
 
 end Lean.Meta

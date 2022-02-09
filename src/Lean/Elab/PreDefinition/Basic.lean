@@ -170,4 +170,16 @@ def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := 
           | _ => none
         modifiers := {} }
 
+private def containsRecFn (recFnName : Name) (e : Expr) : Bool :=
+  (e.find? fun e => e.isConstOf recFnName).isSome
+
+def ensureNoRecFn (recFnName : Name) (e : Expr) : MetaM Expr := do
+  if containsRecFn recFnName e then
+    Meta.forEachExpr e fun e => do
+      if e.isAppOf recFnName then
+        throwError "unexpected occurrence of recursive application{indentExpr e}"
+    pure e
+  else
+    pure e
+
 end Lean.Elab

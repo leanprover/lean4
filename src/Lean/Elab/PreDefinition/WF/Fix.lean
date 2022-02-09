@@ -74,7 +74,7 @@ private partial def replaceRecApps (recFnName : Name) (decrTactic? : Option Synt
                 mkLambdaFVars xs (← loop FAlt altBody)
             return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
       | none => processApp e
-    | e => Structural.ensureNoRecFn recFnName e
+    | e => ensureNoRecFn recFnName e
   loop F e
 
 /-- Refine `F` over `Sum.casesOn` -/

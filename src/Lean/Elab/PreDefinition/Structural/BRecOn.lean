@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Match.Match
 import Lean.Elab.RecAppSyntax
+import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 
 namespace Lean.Elab.Structural

@@ -57,23 +57,11 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
         if decl.isOfKind `Lean.Parser.Term.letIdDecl then
           pure decl[4]
         else
-          liftMacroM $ expandMatchAltsIntoMatch decl decl[3]
-      pure {
-        ref           := declId
-        attrs         := attrs
-        shortDeclName := shortDeclName
-        declName      := declName
-        binderIds     := binderIds
-        type          := type
-        mvar          := mvar
-        valStx        := valStx
-        : LetRecDeclView }
+          liftMacroM <| expandMatchAltsIntoMatch decl decl[3]
+      pure { ref := declId, attrs, shortDeclName, declName, binderIds, type, mvar, valStx : LetRecDeclView }
     else
       throwUnsupportedSyntax
-  pure {
-    decls := decls,
-    body  := letRec[3]
-  }
+  return { decls, body := letRec[3] }
 
 private partial def withAuxLocalDecls {α} (views : Array LetRecDeclView) (k : Array Expr → TermElabM α) : TermElabM α :=
   let rec loop (i : Nat) (fvars : Array Expr) : TermElabM α :=
@@ -101,17 +89,17 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
       withRef view.ref do
         throwError "'{view.declName}' has already been declared"
   let lctx ← getLCtx
-  let localInsts ← getLocalInstances
+  let localInstances ← getLocalInstances
   let toLift := views.mapIdx fun i view => {
-    ref            := view.ref,
-    fvarId         := fvars[i].fvarId!,
-    attrs          := view.attrs,
-    shortDeclName  := view.shortDeclName,
-    declName       := view.declName,
-    lctx           := lctx,
-    localInstances := localInsts,
-    type           := view.type,
-    val            := values[i],
+    ref            := view.ref
+    fvarId         := fvars[i].fvarId!
+    attrs          := view.attrs
+    shortDeclName  := view.shortDeclName
+    declName       := view.declName
+    lctx
+    localInstances
+    type           := view.type
+    val            := values[i]
     mvarId         := view.mvar.mvarId!
     : LetRecToLift }
   modify fun s => { s with letRecsToLift := toLift.toList ++ s.letRecsToLift }
@@ -125,6 +113,6 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
     let body ← elabTermEnsuringType view.body expectedType?
     registerLetRecsToLift view.decls fvars values
     let mvars := view.decls.map (·.mvar)
-    pure $ mkAppN (← mkLambdaFVars fvars body) mvars
+    return mkAppN (← mkLambdaFVars fvars body) mvars
 
 end Lean.Elab.Term

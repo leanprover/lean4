@@ -11,4 +11,4 @@ argument #2 was not used for structural recursion
 
 structural recursion cannot be used
 
-'termination_by' modifier missing
+well-founded recursion cannot be used, function 'g' contains application of function 'g' with #1 argument(s), but function has arity 2

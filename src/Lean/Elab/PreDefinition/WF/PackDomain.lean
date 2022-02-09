@@ -115,7 +115,11 @@ def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) := 
           else
             return TransformStep.done e
         mkLambdaFVars #[y] (← transform newBody (post := visit))
-    if let some bad := valueNew.find? fun e => (isAppOfPreDef? e).isSome && e.getAppNumArgs > 1 then
+    let isBad (e : Expr) : Bool :=
+      match isAppOfPreDef? e with
+      | none   => false
+      | some i => e.getAppNumArgs > 1 || preDefsNew[i].declName != preDefs[i].declName
+    if let some bad := valueNew.find? isBad then
       if let some i := isAppOfPreDef? bad then
         throwErrorAt preDef.ref "well-founded recursion cannot be used, function '{preDef.declName}' contains application of function '{preDefs[i].declName}' with #{bad.getAppNumArgs} argument(s), but function has arity {arities[i]}"
     preDefsNew := preDefsNew.set! i { preDefNew with value := valueNew }

@@ -232,9 +232,9 @@ jobs:
           git push nightly ${{ needs.set-nightly.outputs.nightly }}
           last_tag=$(git describe HEAD^ --abbrev=0 --tags)
           echo -e "*Changes since ${last_tag}:*\n\n" > diff.md
-          git show $last_tag:doc/RELEASES.md > old.md
+          git show $last_tag:RELEASES.md > old.md
           #./script/diff_changelogs.py old.md doc/changes.md >> diff.md
-          diff --changed-group-format='%>' --unchanged-group-format='' old.md doc/RELEASES.md >> diff.md
+          diff --changed-group-format='%>' --unchanged-group-format='' old.md RELEASES.md >> diff.md
           echo -e "\n*Full commit log*\n" >> diff.md
           git log --oneline $last_tag..HEAD | sed 's/^/* /' >> diff.md
       - name: Release Nightly

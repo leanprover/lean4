@@ -119,21 +119,24 @@ def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do
     throwNestedTacticEx `splitMatch ex
 
 /-- Return an `if-then-else` or `match-expr` to split. -/
-partial def findSplit? (env : Environment) (e : Expr) (exceptionSet : ExprSet := {}) : Option Expr :=
-  if let some target := e.find? isCandidate then
-    if e.isIte || e.isDIte then
-      let cond := target.getArg! 1 5
-      -- Try to find a nested `if` in `cond`
-      findSplit? env cond exceptionSet |>.getD target
-    else
-      some target
-  else
-    none
+partial def findSplit? (env : Environment) (e : Expr) (splitIte := true) (exceptionSet : ExprSet := {}) : Option Expr :=
+  go e
 where
+  go (e : Expr) : Option Expr :=
+    if let some target := e.find? isCandidate then
+      if e.isIte || e.isDIte then
+        let cond := target.getArg! 1 5
+        -- Try to find a nested `if` in `cond`
+        go cond |>.getD target
+      else
+        some target
+    else
+      none
+
   isCandidate (e : Expr) : Bool := Id.run <| do
     if exceptionSet.contains e then
       false
-    else if e.isIte || e.isDIte then
+    else if splitIte && (e.isIte || e.isDIte) then
       !(e.getArg! 1 5).hasLooseBVars
     else if let some info := isMatcherAppCore? env e then
       let args := e.getAppArgs
@@ -148,9 +151,9 @@ end Split
 
 open Split
 
-partial def splitTarget? (mvarId : MVarId) : MetaM (Option (List MVarId)) := commitWhenSome? do
+partial def splitTarget? (mvarId : MVarId) (splitIte := true) : MetaM (Option (List MVarId)) := commitWhenSome? do
   let rec go (badCases : ExprSet) : MetaM (Option (List MVarId)) := do
-    if let some e := findSplit? (← getEnv) (← instantiateMVars (← getMVarType mvarId)) badCases then
+    if let some e := findSplit? (← getEnv) (← instantiateMVars (← getMVarType mvarId)) splitIte badCases then
       if e.isIte || e.isDIte then
         return (← splitIfTarget? mvarId).map fun (s₁, s₂) => [s₁.mvarId, s₂.mvarId]
       else

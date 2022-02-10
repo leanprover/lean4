@@ -1,0 +1,11 @@
+heapSort.lean:32:28-32:33: warning: declaration uses 'sorry'
+heapSort.lean:51:22-51:27: warning: declaration uses 'sorry'
+heapSort.lean:61:30-61:35: warning: declaration uses 'sorry'
+heapSort.lean:110:29-110:34: warning: declaration uses 'sorry'
+@Array.heapSort.loop._eq_1 : ∀ {α : Type u_1} (lt : α → α → Bool) (a : BinaryHeap α fun y x => lt x y) (out : Array α),
+  Array.heapSort.loop lt a out =
+    match BinaryHeap.max a, (_ : BinaryHeap.max a = BinaryHeap.max a) with
+    | none, e => out
+    | some x, e =>
+      let_fun this := (_ : BinaryHeap.size (BinaryHeap.popMax a) < BinaryHeap.size a);
+      Array.heapSort.loop lt (BinaryHeap.popMax a) (Array.push out x)

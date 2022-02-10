@@ -311,7 +311,8 @@ structure AppMatchState where
 private partial def delabPatterns (st : AppMatchState) : DelabM (Array (Array Syntax)) :=
   withReader (fun ctx => { ctx with inPattern := true, optionsPerPos := {} }) do
     let ty ← instantiateForall st.matcherTy st.params
-    forallTelescope ty fun params _ => do
+    -- need to reduce `let`s that are lifted into the matcher type
+    forallTelescopeReducing ty fun params _ => do
       -- skip motive and discriminators
       let alts := Array.ofSubarray params[1 + st.discrs.size:]
       alts.mapIdxM fun idx alt => do

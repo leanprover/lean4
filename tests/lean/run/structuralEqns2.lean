@@ -14,7 +14,6 @@ def g (i j : Nat) : Nat :=
 #eval tst ``g
 #check g._eq_1
 #check g._eq_2
-#check g._eq_3
 #check g._unfold
 
 def h (i j : Nat) : Nat :=

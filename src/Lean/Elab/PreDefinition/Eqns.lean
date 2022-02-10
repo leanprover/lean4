@@ -154,7 +154,7 @@ where
       go mvarId
     else if let some mvarId ← simpMatch? mvarId then
       go mvarId
-    else if let some mvarIds ← splitTarget? mvarId then
+    else if let some mvarIds ← splitTarget? mvarId (splitIte := false) then
       mvarIds.forM go
     else
       saveEqn mvarId
@@ -239,7 +239,7 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
       go mvarId
     else if let some mvarId ← simpMatch? mvarId then
       go mvarId
-    else if let some mvarIds ← splitTarget? mvarId then
+    else if let some mvarIds ← splitTarget? mvarId (splitIte := false) then
       mvarIds.forM go
     else
      throwError "failed to generate unfold theorem for '{declName}'\n{MessageData.ofGoal mvarId}"

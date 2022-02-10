@@ -33,7 +33,6 @@ decreasing_by
 #eval tst ``g
 #check g._eq_1
 #check g._eq_2
-#check g._eq_3
 #check g._unfold
 #eval tst ``h
 #check h._eq_1

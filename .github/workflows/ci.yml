@@ -215,15 +215,15 @@ jobs:
     if: needs.set-nightly.outputs.nightly
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v2
-        with:
-          path: artifacts
       - name: Checkout
         uses: actions/checkout@v2
         with:
           # needed for tagging
           fetch-depth: 0
           token: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
+      - uses: actions/download-artifact@v2
+        with:
+          path: artifacts
       - name: Prepare Nightly Release
         run: |
           git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git

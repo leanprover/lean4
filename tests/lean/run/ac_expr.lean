@@ -105,7 +105,7 @@ where
       | var i =>
         cases a with
         | var j =>
-          byCases h : i > j
+          by_cases h : i > j
           focus
             simp [sort.swap, h]
             match h:sort.swap (var j) b with
@@ -123,7 +123,7 @@ where
     | var j =>
       cases e₁ with
       | var i =>
-        byCases h : i > j
+        by_cases h : i > j
         focus simp [sort.swap, h, denote, Context.comm]
         focus simp [sort.swap, h]
       | _ => rfl

@@ -27,3 +27,5 @@ theorem dep_congr [DecidableEq ι] {p : ι → Set α} [∀ i, Inhabited (p i)] 
 * [Relax auto-implicit restrictions](https://github.com/leanprover/lean4/pull/1011). The command `set_option relaxedAutoImplicit false` disables the relaxations.
 
 * `contradiction` tactic now closes the goal if there is a `False.elim` application in the target.
+
+* Renamed tatic `byCases` => `by_cases` (motivation: enforcing naming convention).

@@ -1,7 +1,7 @@
 example : (p → q → False) ↔ (¬ p ∨ ¬ q) := by
   apply Iff.intro
   . intro h
-    byCases hp:p <;> byCases hq:q
+    by_cases hp:p <;> by_cases hq:q
     . specialize h hp hq; contradiction
     . exact Or.inr hq
     . exact Or.inl hp

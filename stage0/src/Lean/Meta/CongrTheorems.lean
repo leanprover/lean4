@@ -161,11 +161,43 @@ private def withNext (type : Expr) (k : Expr → Expr → MetaM α) : MetaM α :
   forallBoundedTelescope type (some 1) fun xs type => k xs[0] type
 
 /--
+  Test whether we should use `subsingletonInst` kind for instances which depend on `eq`.
+  (Otherwise `fixKindsForDependencies`will downgrade them to Fixed -/
+private def shouldUseSubsingletonInst (info : FunInfo) (kinds : Array CongrArgKind) (i : Nat) : Bool := Id.run do
+  if info.paramInfo[i].isDecInst then
+    for j in info.paramInfo[i].backDeps do
+      if kinds[j] matches CongrArgKind.eq then
+        return true
+  return false
+
+def getCongrSimpKinds (info : FunInfo) : Array CongrArgKind := Id.run do
+  /- The default `CongrArgKind` is `eq`, which allows `simp` to rewrite this
+     argument. However, if there are references from `i` to `j`, we cannot
+     rewrite both `i` and `j`. So we must change the `CongrArgKind` at
+     either `i` or `j`. In principle, if there is a dependency with `i`
+     appearing after `j`, then we set `j` to `fixed` (or `cast`). But there is
+     an optimization: if `i` is a subsingleton, we can fix it instead of
+     `j`, since all subsingletons are equal anyway. The fixing happens in
+      two loops: one for the special cases, and one for the general case. -/
+  let mut result := #[]
+  for i in [:info.paramInfo.size] do
+    if info.resultDeps.contains i then
+      result := result.push CongrArgKind.fixed
+    else if info.paramInfo[i].isProp then
+      result := result.push CongrArgKind.cast
+    else if info.paramInfo[i].isInstImplicit then
+      if shouldUseSubsingletonInst info result i then
+        result := result.push CongrArgKind.subsingletonInst
+      else
+        result := result.push CongrArgKind.fixed
+    else
+      result := result.push CongrArgKind.eq
+  return fixKindsForDependencies info result
+
+/--
   Create a congruence theorem that is useful for the simplifier.
 -/
-partial def mkCongrSimpWithArity? (f : Expr) (numArgs : Nat) : MetaM (Option CongrTheorem) := do
-  let info ← getFunInfo f
-  let kinds := getKinds info
+partial def mkCongrSimpCore? (f : Expr) (info : FunInfo) (kinds : Array CongrArgKind) : MetaM (Option CongrTheorem) := do
   if let some result ← mk? f info kinds then
     return some result
   else if hasCastLike kinds then
@@ -246,41 +278,8 @@ where
             mkLambdaFVars #[lhs, rhs] (← mkEqNDRec motive proofSub heq)
      go 0 type
 
-  getKinds (info : FunInfo) : Array CongrArgKind := Id.run do
-    /- The default `CongrArgKind` is `eq`, which allows `simp` to rewrite this
-       argument. However, if there are references from `i` to `j`, we cannot
-       rewrite both `i` and `j`. So we must change the `CongrArgKind` at
-       either `i` or `j`. In principle, if there is a dependency with `i`
-       appearing after `j`, then we set `j` to `fixed` (or `cast`). But there is
-       an optimization: if `i` is a subsingleton, we can fix it instead of
-       `j`, since all subsingletons are equal anyway. The fixing happens in
-        two loops: one for the special cases, and one for the general case. -/
-    let mut result := #[]
-    for i in [:info.paramInfo.size] do
-      if info.resultDeps.contains i then
-        result := result.push CongrArgKind.fixed
-      else if info.paramInfo[i].isProp then
-        result := result.push CongrArgKind.cast
-      else if info.paramInfo[i].isInstImplicit then
-        if shouldUseSubsingletonInst info result i then
-          result := result.push CongrArgKind.subsingletonInst
-        else
-          result := result.push CongrArgKind.fixed
-      else
-        result := result.push CongrArgKind.eq
-    return fixKindsForDependencies info result
-
-  /--
-    Test whether we should use `subsingletonInst` kind for instances which depend on `eq`.
-    (Otherwise `fixKindsForDependencies`will downgrade them to Fixed -/
-  shouldUseSubsingletonInst (info : FunInfo) (kinds : Array CongrArgKind) (i : Nat) : Bool := Id.run do
-    if info.paramInfo[i].isDecInst then
-      for j in info.paramInfo[i].backDeps do
-        if kinds[j] matches CongrArgKind.eq then
-          return true
-    return false
-
 def mkCongrSimp? (f : Expr) : MetaM (Option CongrTheorem) := do
-  mkCongrSimpWithArity? f (← getFunInfo f).getArity
+  let info ← getFunInfo f
+  mkCongrSimpCore? f info (getCongrSimpKinds info)
 
 end Lean.Meta

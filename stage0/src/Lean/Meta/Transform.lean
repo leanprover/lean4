@@ -79,19 +79,19 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
         | Expr.lam n d b c =>
           withLocalDecl n c.binderInfo (← visit (d.instantiateRev fvars)) fun x =>
             visitLambda (fvars.push x) b
-        | e => visitPost (← mkLambdaFVars fvars (← visit (e.instantiateRev fvars)))
+        | e => visitPost (← mkLambdaFVars (usedLetOnly := false) fvars (← visit (e.instantiateRev fvars)))
       let rec visitForall (fvars : Array Expr) (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match e with
         | Expr.forallE n d b c =>
           withLocalDecl n c.binderInfo (← visit (d.instantiateRev fvars)) fun x =>
             visitForall (fvars.push x) b
-        | e => visitPost (← mkForallFVars fvars (← visit (e.instantiateRev fvars)))
+        | e => visitPost (← mkForallFVars (usedLetOnly := false) fvars (← visit (e.instantiateRev fvars)))
       let rec visitLet (fvars : Array Expr) (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match e with
         | Expr.letE n t v b _ =>
           withLetDecl n (← visit (t.instantiateRev fvars)) (← visit (v.instantiateRev fvars)) fun x =>
             visitLet (fvars.push x) b
-        | e => visitPost (← mkLetFVars fvars (← visit (e.instantiateRev fvars)))
+        | e => visitPost (← mkLetFVars (usedLetOnly := false) fvars (← visit (e.instantiateRev fvars)))
       let visitApp (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
         e.withApp fun f args => do
           visitPost (mkAppN (← visit f) (← args.mapM visit))

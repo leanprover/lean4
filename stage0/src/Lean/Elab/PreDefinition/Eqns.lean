@@ -125,15 +125,17 @@ private def saveEqn (mvarId : MVarId) : StateRefT (Array Expr) MetaM Unit := wit
       return collectFVars fvarState (← instantiateMVars decl.type)
     else
       return fvarState
+  let mut fvarSet := fvarState.fvarSet
   let mut fvarIds ← sortFVarIds <| fvarState.fvarSet.toArray
-  -- Include propositions that are not in fvarState.fvarSet, and only contains variables in
+  -- Include propositions that are not in fvarState.fvarSet, and only contains variables in fvarSet
   for decl in (← getLCtx) do
-    unless fvarState.fvarSet.contains decl.fvarId do
+    unless fvarSet.contains decl.fvarId do
       if (← isProp decl.type) then
         let type ← instantiateMVars decl.type
-        let missing? := type.find? fun e => e.isFVar && !fvarState.fvarSet.contains e.fvarId!
+        let missing? := type.find? fun e => e.isFVar && !fvarSet.contains e.fvarId!
         if missing?.isNone then
           fvarIds := fvarIds.push decl.fvarId
+          fvarSet := fvarSet.insert decl.fvarId
   let type ← mkForallFVars (fvarIds.map mkFVar) target
   let type ← simpEqnType type
   modify (·.push type)
@@ -143,6 +145,7 @@ partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array
   return eqnTypes
 where
   go (mvarId : MVarId) : ReaderT Context (StateRefT (Array Expr) MetaM) Unit := do
+    trace[Elab.definition.structural.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
     if !(← keepGoing mvarId) then
       saveEqn mvarId
     else if let some mvarId ← expandRHS? mvarId then
@@ -151,7 +154,7 @@ where
       go mvarId
     else if let some mvarId ← simpMatch? mvarId then
       go mvarId
-    else if let some mvarIds ← splitTarget? mvarId then
+    else if let some mvarIds ← splitTarget? mvarId (splitIte := false) then
       mvarIds.forM go
     else
       saveEqn mvarId
@@ -236,7 +239,7 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
       go mvarId
     else if let some mvarId ← simpMatch? mvarId then
       go mvarId
-    else if let some mvarIds ← splitTarget? mvarId then
+    else if let some mvarIds ← splitTarget? mvarId (splitIte := false) then
       mvarIds.forM go
     else
      throwError "failed to generate unfold theorem for '{declName}'\n{MessageData.ofGoal mvarId}"

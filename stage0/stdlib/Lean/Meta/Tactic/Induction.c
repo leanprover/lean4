@@ -98,7 +98,7 @@ lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_InductionSubgoal_subst___default;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Expr_isHeadBetaTarget(lean_object*);
+uint8_t l_Lean_Expr_isHeadBetaTarget(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
 static lean_object* l_Lean_Meta_instInhabitedInductionSubgoal___closed__1;
@@ -250,20 +250,21 @@ goto _start;
 }
 default: 
 {
-uint8_t x_8; 
-x_8 = l_Lean_Expr_isHeadBetaTarget(x_1);
-if (x_8 == 0)
+uint8_t x_8; uint8_t x_9; 
+x_8 = 0;
+x_9 = l_Lean_Expr_isHeadBetaTarget(x_1, x_8);
+if (x_9 == 0)
 {
-lean_object* x_9; 
+lean_object* x_10; 
 lean_dec(x_1);
-x_9 = lean_unsigned_to_nat(0u);
-return x_9;
+x_10 = lean_unsigned_to_nat(0u);
+return x_10;
 }
 else
 {
-lean_object* x_10; 
-x_10 = l_Lean_Expr_headBeta(x_1);
-x_1 = x_10;
+lean_object* x_11; 
+x_11 = l_Lean_Expr_headBeta(x_1);
+x_1 = x_11;
 goto _start;
 }
 }

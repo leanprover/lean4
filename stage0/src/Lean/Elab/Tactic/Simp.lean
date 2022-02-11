@@ -162,15 +162,6 @@ where
     else
       Term.elabCDotFunctionAlias? simpArgTerm
 
--- TODO: move?
-private def getPropHyps : MetaM (Array FVarId) := do
-  let mut result := #[]
-  for localDecl in (← getLCtx) do
-    unless localDecl.isAuxDecl do
-      if (← isProp localDecl.type) then
-        result := result.push localDecl.fvarId
-  return result
-
 structure MkSimpContextResult where
   ctx              : Simp.Context
   dischargeWrapper : Simp.DischargeWrapper

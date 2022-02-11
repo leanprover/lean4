@@ -10,6 +10,7 @@ import Lean.Elab.Tactic.Basic
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
+import Lean.Elab.PreDefinition.Structural.BRecOn
 
 namespace Lean.Elab.WF
 open Meta
@@ -62,15 +63,18 @@ private partial def replaceRecApps (recFnName : Name) (decrTactic? : Option Synt
           processApp e
         else
           let matcherApp ← mapError (matcherApp.addArg F) (fun msg => "failed to add functional argument to 'matcher' application" ++ indentD msg)
-          let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
-            lambdaTelescope alt fun xs altBody => do
-              unless xs.size >= numParams do
-                throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-              let FAlt := xs[numParams - 1]
-              mkLambdaFVars xs (← loop FAlt altBody)
-          return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
+          if !(← Structural.refinedArgType matcherApp F) then
+            processApp e
+          else
+            let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
+              lambdaTelescope alt fun xs altBody => do
+                unless xs.size >= numParams do
+                  throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
+                let FAlt := xs[numParams - 1]
+                mkLambdaFVars xs (← loop FAlt altBody)
+            return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
       | none => processApp e
-    | e => Structural.ensureNoRecFn recFnName e
+    | e => ensureNoRecFn recFnName e
   loop F e
 
 /-- Refine `F` over `Sum.casesOn` -/

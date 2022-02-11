@@ -9,10 +9,16 @@ import Lean.Data.Options
 
 namespace Lean.Elab
 
-register_builtin_option autoBoundImplicitLocal : Bool := {
+register_builtin_option autoImplicit : Bool := {
     defValue := true
-    descr    := "Unbound local variables in declaration headers become implicit arguments if they are a lower case or greek letter followed by numeric digits. For example, `def f (x : Vector α n) : Vector α n :=` automatically introduces the implicit variables {α n}."
+    descr    := "Unbound local variables in declaration headers become implicit arguments. In \"relaxed\" mode (default), any atomic identifier is eligible, otherwise only a lower case or greek letter followed by numeric digits are eligible. For example, `def f (x : Vector α n) : Vector α n :=` automatically introduces the implicit variables {α n}."
   }
+
+register_builtin_option relaxedAutoImplicit : Bool := {
+    defValue := true
+    descr    := "When \"relaxed\" mode is enabled, any atomic nonempty identifier is eligible for auto bound implicit locals (see optin `autoBoundImplicitLocal`."
+  }
+
 
 private def isValidAutoBoundSuffix (s : String) : Bool :=
   s.toSubstring.drop 1 |>.all fun c => c.isDigit || isSubScriptAlnum c || c == '_' || c == '\''
@@ -31,14 +37,14 @@ When, we try again, a `x` with a new macro scope is created and this process kee
 Therefore, we do consider identifier with macro scopes anymore.
 -/
 
-def isValidAutoBoundImplicitName (n : Name) : Bool :=
+def isValidAutoBoundImplicitName (n : Name) (relaxed : Bool) : Bool :=
   match n with
-  | Name.str Name.anonymous s _ => s.length > 0 && (isGreek s[0] || s[0].isLower) && isValidAutoBoundSuffix s
+  | Name.str Name.anonymous s _ => s.length > 0 && (relaxed || ((isGreek s[0] || s[0].isLower) && isValidAutoBoundSuffix s))
   | _ => false
 
-def isValidAutoBoundLevelName (n : Name) : Bool :=
+def isValidAutoBoundLevelName (n : Name) (relaxed : Bool) : Bool :=
   match n with
-  | Name.str Name.anonymous s _ => s.length > 0 && s[0].isLower && isValidAutoBoundSuffix s
+  | Name.str Name.anonymous s _ => s.length > 0 && (relaxed || (s[0].isLower && isValidAutoBoundSuffix s))
   | _ => false
 
 end Lean.Elab

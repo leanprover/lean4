@@ -21,6 +21,19 @@ structure Contradiction.Config where
      This kind of hypotheses appear when proving conditional equation theorems for match expressions. -/
   genDiseq : Bool := false
 
+/--
+  Try to close the current goal by looking for a proof of `False` nested in a `False.Elim` application in the target.
+  Return `true` iff the goal has been closed.
+-/
+private def nestedFalseElim (mvarId : MVarId) : MetaM Bool := do
+  let target ← getMVarType mvarId
+  if let some falseElim := target.find? fun e => e.isAppOfArity ``False.elim 2 && !e.appArg!.hasLooseBVars then
+    let falseProof := falseElim.appArg!
+    assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) falseProof)
+    return true
+  else
+    return false
+
 -- We only consider inductives with no constructors and indexed families
 private def isElimEmptyInductiveCandidate (fvarId : FVarId) : MetaM Bool := do
   let localDecl ← getLocalDecl fvarId
@@ -106,6 +119,8 @@ private def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bo
 def contradictionCore (mvarId : MVarId) (config : Contradiction.Config) : MetaM Bool := do
   withMVarContext mvarId do
     checkNotAssigned mvarId `contradiction
+    if (← nestedFalseElim mvarId) then
+      return true
     for localDecl in (← getLCtx) do
       unless localDecl.isAuxDecl do
         -- (h : ¬ p) (h' : p)

@@ -841,46 +841,59 @@ private partial def mkAppRevRangeAux (revArgs : Array Expr) (start : Nat) (b : E
 def mkAppRevRange (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : Expr :=
   mkAppRevRangeAux revArgs beginIdx f endIdx
 
-private def betaRevAux (revArgs : Array Expr) (sz : Nat) : Expr → Nat → Expr
-  | Expr.lam _ _ b _, i =>
-    if i + 1 < sz then
-      betaRevAux revArgs sz b (i+1)
-    else
-      let n := sz - (i + 1)
-      mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
-  | Expr.mdata _ b _, i => betaRevAux revArgs sz b i
-  | b,                i =>
-    let n := sz - i
-    mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
+/--
+  If `f` is a lambda expression, than "beta-reduce" it using `revArgs`.
+  This function is often used with `getAppRev` or `withAppRev`.
+  Examples:
+  - `betaRev (fun x y => t x y) #[]` ==> `fun x y => t x y`
+  - `betaRev (fun x y => t x y) #[a]` ==> `fun y => t a y`
+  - `betaRev (fun x y => t x y) #[a, b]` ==> t b a`
+  - `betaRev (fun x y => t x y) #[a, b, c, d]` ==> t d c b a`
+  Suppose `t` is `(fun x y => t x y) a b c d`, then
+  `args := t.getAppRev` is `#[d, c, b, a]`,
+  and `betaRev (fun x y => t x y) #[d, c, b, a]` is `t a b c d`.
 
-/-- If `f` is a lambda expression, than "beta-reduce" it using `revArgs`.
-    This function is often used with `getAppRev` or `withAppRev`.
-    Examples:
-    - `betaRev (fun x y => t x y) #[]` ==> `fun x y => t x y`
-    - `betaRev (fun x y => t x y) #[a]` ==> `fun y => t a y`
-    - `betaRev (fun x y => t x y) #[a, b]` ==> t b a`
-    - `betaRev (fun x y => t x y) #[a, b, c, d]` ==> t d c b a`
-    Suppose `t` is `(fun x y => t x y) a b c d`, then
-    `args := t.getAppRev` is `#[d, c, b, a]`,
-    and `betaRev (fun x y => t x y) #[d, c, b, a]` is `t a b c d`. -/
-def betaRev (f : Expr) (revArgs : Array Expr) : Expr :=
+  If `useZeta` is true, the function also performs zeta-reduction to create further
+  opportunities for beta reduction.
+-/
+partial def betaRev (f : Expr) (revArgs : Array Expr) (useZeta := false) : Expr :=
   if revArgs.size == 0 then f
-  else betaRevAux revArgs revArgs.size f 0
+  else
+    let sz := revArgs.size
+    let rec go : Expr → Nat → Expr
+      | Expr.lam _ _ b _, i =>
+        if i + 1 < sz then
+          go b (i+1)
+        else
+          let n := sz - (i + 1)
+          mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
+      | e@(Expr.letE _ _ v b _), i =>
+        if useZeta && i < sz then
+          go (b.instantiate1 v) i
+        else
+          let n := sz - i
+          mkAppRevRange (e.instantiateRange n sz revArgs) 0 n revArgs
+      | Expr.mdata _ b _, i => go b i
+      | b,                i =>
+        let n := sz - i
+        mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
+    go f 0
 
 def beta (f : Expr) (args : Array Expr) : Expr :=
   betaRev f args.reverse
 
-def isHeadBetaTargetFn : Expr → Bool
-  | Expr.lam _ _ _ _ => true
-  | Expr.mdata _ b _ => isHeadBetaTargetFn b
-  | _                => false
+def isHeadBetaTargetFn (useZeta : Bool) : Expr → Bool
+  | Expr.lam ..         => true
+  | Expr.letE _ _ _ b _ => useZeta && isHeadBetaTargetFn useZeta b
+  | Expr.mdata _ b _    => isHeadBetaTargetFn useZeta b
+  | _                   => false
 
 def headBeta (e : Expr) : Expr :=
   let f := e.getAppFn
-  if f.isHeadBetaTargetFn then betaRev f e.getAppRevArgs else e
+  if f.isHeadBetaTargetFn false then betaRev f e.getAppRevArgs else e
 
-def isHeadBetaTarget (e : Expr) : Bool :=
-  e.getAppFn.isHeadBetaTargetFn
+def isHeadBetaTarget (e : Expr) (useZeta := false) : Bool :=
+  e.getAppFn.isHeadBetaTargetFn useZeta
 
 private def etaExpandedBody : Expr → Nat → Nat → Option Expr
   | app f (bvar j _) _, n+1, i => if j == i then etaExpandedBody f n (i+1) else none

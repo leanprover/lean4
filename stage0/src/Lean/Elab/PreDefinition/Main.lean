@@ -63,10 +63,23 @@ private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM
   else
     return preDef
 
+/--
+  Letrec declarations produce terms of the form `(fun .. => ..) d` where `d` is a (partial) application of an auxiliary declaration for a letrec declaration.
+  This method beta-reduces them to make sure they can be eliminated by the well-founded recursion module. -/
+private def betaReduceLetRecApps (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) :=
+  preDefs.mapM fun preDef => do
+    let value ← transform preDef.value fun e => do
+      if e.isApp && e.getAppFn.isLambda && e.getAppArgs.all fun arg => arg.getAppFn.isConst && preDefs.any fun preDef => preDef.declName == arg.getAppFn.constName! then
+        return TransformStep.visit e.headBeta
+      else
+        return TransformStep.visit e
+    return { preDef with value }
+
 def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints) : TermElabM Unit := withLCtx {} {} do
   for preDef in preDefs do
     trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
   let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
+  let preDefs ← betaReduceLetRecApps preDefs
   let cliques := partitionPreDefs preDefs
   let mut terminationBy ← liftMacroM <| WF.expandTerminationBy hints.terminationBy? (cliques.map fun ds => ds.map (·.declName))
   let mut decreasingBy  ← liftMacroM <| WF.expandTerminationHint hints.decreasingBy? (cliques.map fun ds => ds.map (·.declName))

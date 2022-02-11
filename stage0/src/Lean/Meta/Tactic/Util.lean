@@ -109,4 +109,18 @@ def ensureAtMostOne (mvarIds : List MVarId) (msg : MessageData := "unexpected nu
   | [mvarId] => return some mvarId
   | _        => throwError msg
 
+/-- Return all propositions in the local context. -/
+def getPropHyps : MetaM (Array FVarId) := do
+  let mut result := #[]
+  for localDecl in (← getLCtx) do
+    unless localDecl.isAuxDecl do
+      if (← isProp localDecl.type) then
+        result := result.push localDecl.fvarId
+  return result
+
+inductive TacticResultCNM where
+  | closed
+  | noChange
+  | modified (mvarId : MVarId)
+
 end Lean.Meta

@@ -15573,7 +15573,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_CheckAssignment_check___closed__1;
 x_2 = l_Lean_Meta_CheckAssignment_check___closed__2;
-x_3 = lean_unsigned_to_nat(1001u);
+x_3 = lean_unsigned_to_nat(1014u);
 x_4 = lean_unsigned_to_nat(19u);
 x_5 = l_Lean_Meta_CheckAssignment_check___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -15602,7 +15602,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_CheckAssignment_check___closed__1;
 x_2 = l_Lean_Meta_CheckAssignment_check___closed__5;
-x_3 = lean_unsigned_to_nat(1006u);
+x_3 = lean_unsigned_to_nat(1019u);
 x_4 = lean_unsigned_to_nat(20u);
 x_5 = l_Lean_Meta_CheckAssignment_check___closed__6;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -15631,7 +15631,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_CheckAssignment_check___closed__1;
 x_2 = l_Lean_Meta_CheckAssignment_check___closed__8;
-x_3 = lean_unsigned_to_nat(1034u);
+x_3 = lean_unsigned_to_nat(1047u);
 x_4 = lean_unsigned_to_nat(19u);
 x_5 = l_Lean_Meta_CheckAssignment_check___closed__9;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -15660,7 +15660,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_CheckAssignment_check___closed__1;
 x_2 = l_Lean_Meta_CheckAssignment_check___closed__11;
-x_3 = lean_unsigned_to_nat(1020u);
+x_3 = lean_unsigned_to_nat(1033u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lean_Meta_CheckAssignment_check___closed__12;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -15689,7 +15689,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_CheckAssignment_check___closed__1;
 x_2 = l_Lean_Meta_CheckAssignment_check___closed__14;
-x_3 = lean_unsigned_to_nat(1043u);
+x_3 = lean_unsigned_to_nat(1056u);
 x_4 = lean_unsigned_to_nat(22u);
 x_5 = l_Lean_Meta_CheckAssignment_check___closed__15;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

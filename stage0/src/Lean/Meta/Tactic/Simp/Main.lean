@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Transform
+import Lean.Meta.CongrTheorems
 import Lean.Meta.Tactic.Replace
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Clear
@@ -141,6 +142,29 @@ def getSimpLetCase (n : Name) (t : Expr) (v : Expr) (b : Expr) : MetaM SimpLetCa
     else
       return SimpLetCase.dep
 
+/-- Given the application `e`, remove unnecessary casts of the form `Eq.rec a rfl` and `Eq.ndrec a rfl`. -/
+partial def removeUnnecessaryCasts (e : Expr) : MetaM Expr := do
+  let mut args := e.getAppArgs
+  let mut modified := false
+  for i in [:args.size] do
+    let arg := args[i]
+    if isDummyEqRec arg then
+      args := args.set! i (elimDummyEqRec arg)
+      modified := true
+  if modified then
+    return mkAppN e.getAppFn args
+  else
+    return e
+where
+  isDummyEqRec (e : Expr) : Bool :=
+    (e.isAppOfArity ``Eq.rec 6 || e.isAppOfArity ``Eq.ndrec 6) && e.appArg!.isAppOf ``Eq.refl
+
+  elimDummyEqRec (e : Expr) : Expr :=
+    if isDummyEqRec e then
+      elimDummyEqRec e.appFn!.appFn!.appArg!
+    else
+      e
+
 partial def simp (e : Expr) : M Result := withIncRecDepth do
   checkMaxHeartbeats "simp"
   let cfg ← getConfig
@@ -243,9 +267,106 @@ where
         i := i + 1
       return r
 
-  congrDefault (e : Expr) : M Result :=
-    withParent e <| e.withApp fun f args => do
-      congrArgs (← simp f) args
+  visitFn (e : Expr) : M Result := do
+    let f := e.getAppFn
+    let fNew ← simp f
+    if fNew.expr == f then
+      return { expr := e }
+    else
+      let args := e.getAppArgs
+      let eNew := mkAppN fNew.expr args
+      if fNew.proof?.isNone then return { expr := eNew }
+      let mut proof ← fNew.getProof
+      for arg in args do
+        proof ← Meta.mkCongrFun proof arg
+      return { expr := eNew, proof? := proof }
+
+  mkCongrSimp? (f : Expr) : M (Option CongrTheorem) := do
+    if f.isConst then if (← isMatcher f.constName!) then
+      -- We always use simple congruence theorems for auxiliary match applications
+      return none
+    let info ← getFunInfo f
+    let kinds := getCongrSimpKinds info
+    if kinds.all fun k => match k with | CongrArgKind.fixed => true | CongrArgKind.eq => true | _ => false then
+      /- If all argument kinds are `fixed` or `eq`, then using
+         simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a more compact proof -/
+      return none
+    match (← get).congrCache.find? f with
+    | some thm? => return thm?
+    | none =>
+      let thm? ← mkCongrSimpCore? f info kinds
+      modify fun s => { s with congrCache := s.congrCache.insert f thm? }
+      return thm?
+
+  /-- Try to use automatically generated congruence theorems. See `mkCongrSimp?`. -/
+  tryAutoCongrTheorem? (e : Expr) : M (Option Result) := do
+    let f := e.getAppFn
+    -- TODO: cache
+    let some cgrThm ← mkCongrSimp? f | return none
+    if cgrThm.argKinds.size != e.getAppNumArgs then return none
+    let mut simplified := false
+    let mut hasProof   := false
+    let mut hasCast    := false
+    let mut argsNew    := #[]
+    let mut argResults := #[]
+    let args := e.getAppArgs
+    for arg in args, kind in cgrThm.argKinds do
+      match kind with
+      | CongrArgKind.fixed => argsNew := argsNew.push arg
+      | CongrArgKind.cast  => hasCast := true; argsNew := argsNew.push arg
+      | CongrArgKind.subsingletonInst => argsNew := argsNew.push arg
+      | CongrArgKind.eq =>
+        let argResult ← simp arg
+        argResults := argResults.push argResult
+        argsNew    := argsNew.push argResult.expr
+        if argResult.proof?.isSome then hasProof := true
+        if arg != argResult.expr then simplified := true
+      | _ => unreachable!
+    if !simplified then return some { expr := e }
+    if !hasProof then return some { expr := mkAppN f argsNew }
+    let mut proof := cgrThm.proof
+    let mut type  := cgrThm.type
+    let mut j := 0 -- index at argResults
+    let mut subst := #[]
+    for arg in args, kind in cgrThm.argKinds do
+      proof := mkApp proof arg
+      subst := subst.push arg
+      type := type.bindingBody!
+      match kind with
+      | CongrArgKind.fixed => pure ()
+      | CongrArgKind.cast  => pure ()
+      | CongrArgKind.subsingletonInst =>
+        let clsNew := type.bindingDomain!.instantiateRev subst
+        let instNew ←
+          if (← isDefEq (← inferType arg) clsNew) then
+            pure arg
+          else
+            match (← trySynthInstance clsNew) with
+            | LOption.some val => pure val
+            | _ =>
+              trace[Meta.Tactic.simp.congr] "failed to synthesize instance{indentExpr clsNew}"
+              return none
+        proof := mkApp proof instNew
+        subst := subst.push instNew
+        type := type.bindingBody!
+      | CongrArgKind.eq =>
+        let argResult := argResults[j]
+        let argProof ← argResult.getProof
+        j := j + 1
+        proof := mkApp2 proof argResult.expr argProof
+        subst := subst.push argResult.expr |>.push argProof
+        type := type.bindingBody!.bindingBody!
+      | _ => unreachable!
+    let some (_, _, rhs) := type.instantiateRev subst |>.eq? | unreachable!
+    let rhs ← if hasCast then removeUnnecessaryCasts rhs else pure rhs
+    return some { expr := rhs, proof? := proof }
+
+  congrDefault (e : Expr) : M Result := do
+    if let some result ← tryAutoCongrTheorem? e then
+      mkEqTrans result (← visitFn result.expr)
+    else
+      withParent e <| e.withApp fun f args => do
+        congrArgs (← simp f) args
 
   /- Return true iff processing the given congruence theorem hypothesis produced a non-refl proof. -/
   processCongrHypothesis (h : Expr) : M Bool := do
@@ -264,8 +385,8 @@ where
   /- Try to rewrite `e` children using the given congruence theorem -/
   trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : M (Option Result) := withNewMCtxDepth do
     trace[Debug.Meta.Tactic.simp.congr] "{c.theoremName}, {e}"
-    let lemma ← mkConstWithFreshMVarLevels c.theoremName
-    let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType lemma)
+    let thm ← mkConstWithFreshMVarLevels c.theoremName
+    let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType thm)
     if c.hypothesesPos.any (· ≥ xs.size) then
       return none
     let lhs := type.appFn!.appArg!
@@ -298,7 +419,7 @@ where
         trace[Meta.Tactic.simp.congr] "{c.theoremName} synthesizeArgs failed"
         return none
       let eNew ← instantiateMVars rhs
-      let proof ← instantiateMVars (mkAppN lemma xs)
+      let proof ← instantiateMVars (mkAppN thm xs)
       congrArgs { expr := eNew, proof? := proof } extraArgs
     else
       return none
@@ -430,7 +551,10 @@ where
 
 def main (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Result :=
   withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible do
-    simp e methods ctx |>.run' {}
+    try
+      simp e methods ctx |>.run' {}
+    catch ex =>
+      if ex.isMaxHeartbeat then throwNestedTacticEx `simp ex else throw ex
 
 partial def isEqnThmHypothesis (e : Expr) : Bool :=
   e.isForall && go e
@@ -609,5 +733,23 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
     let (fvarIdsNew, mvarIdNew) ← assertHypotheses mvarId toAssert
     let mvarIdNew ← tryClearMany mvarIdNew fvarIdsToSimp
     return (fvarIdsNew, mvarIdNew)
+
+def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM TacticResultCNM := withMVarContext mvarId do
+  trace[Meta.debug] "simpTargetStar:\n{mvarId}"
+  let mut ctx := ctx
+  for h in (← getPropHyps) do
+    let localDecl ← getLocalDecl h
+    let proof  := localDecl.toExpr
+    trace[Meta.debug] "adding {localDecl.toExpr}"
+    let simpTheorems ← ctx.simpTheorems.add #[] proof
+    ctx := { ctx with simpTheorems }
+  match (← simpTarget mvarId ctx discharge?) with
+  | none => return TacticResultCNM.closed
+  | some mvarId' =>
+    trace[Meta.debug] "simpTargetStar result:\n{mvarId'}"
+    if (← getMVarType mvarId) == (← getMVarType mvarId') then
+      return TacticResultCNM.noChange
+    else
+      return TacticResultCNM.modified mvarId'
 
 end Lean.Meta

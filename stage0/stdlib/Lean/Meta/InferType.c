@@ -185,7 +185,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_le(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_inferLambdaType___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
-lean_object* l_Lean_Expr_betaRev(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_betaRev(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Meta_throwUnknownFVar___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppRev(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_throwIncorrectNumberOfLevels___rarg___closed__2;
@@ -950,43 +950,43 @@ return x_20;
 }
 else
 {
-lean_object* x_25; 
-x_25 = l_Lean_Expr_betaRev(x_15, x_22);
+uint8_t x_25; lean_object* x_26; 
+x_25 = 0;
+x_26 = l_Lean_Expr_betaRev(x_15, x_22, x_25);
 lean_dec(x_22);
-lean_dec(x_15);
-lean_ctor_set(x_20, 0, x_25);
+lean_ctor_set(x_20, 0, x_26);
 return x_20;
 }
 }
 else
 {
-lean_object* x_26; lean_object* x_27; uint8_t x_28; 
-x_26 = lean_ctor_get(x_20, 0);
-x_27 = lean_ctor_get(x_20, 1);
+lean_object* x_27; lean_object* x_28; uint8_t x_29; 
+x_27 = lean_ctor_get(x_20, 0);
+x_28 = lean_ctor_get(x_20, 1);
+lean_inc(x_28);
 lean_inc(x_27);
-lean_inc(x_26);
 lean_dec(x_20);
-x_28 = l_Lean_Expr_isBVar(x_7);
+x_29 = l_Lean_Expr_isBVar(x_7);
 lean_dec(x_7);
-if (x_28 == 0)
+if (x_29 == 0)
 {
-lean_object* x_29; lean_object* x_30; 
-x_29 = l_Lean_mkAppRev(x_15, x_26);
-x_30 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_30, 0, x_29);
-lean_ctor_set(x_30, 1, x_27);
-return x_30;
+lean_object* x_30; lean_object* x_31; 
+x_30 = l_Lean_mkAppRev(x_15, x_27);
+x_31 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_31, 0, x_30);
+lean_ctor_set(x_31, 1, x_28);
+return x_31;
 }
 else
 {
-lean_object* x_31; lean_object* x_32; 
-x_31 = l_Lean_Expr_betaRev(x_15, x_26);
-lean_dec(x_26);
-lean_dec(x_15);
-x_32 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_32, 0, x_31);
-lean_ctor_set(x_32, 1, x_27);
-return x_32;
+uint8_t x_32; lean_object* x_33; lean_object* x_34; 
+x_32 = 0;
+x_33 = l_Lean_Expr_betaRev(x_15, x_27, x_32);
+lean_dec(x_27);
+x_34 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_34, 0, x_33);
+lean_ctor_set(x_34, 1, x_28);
+return x_34;
 }
 }
 }

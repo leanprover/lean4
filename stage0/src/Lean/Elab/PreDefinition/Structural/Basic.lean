@@ -54,16 +54,4 @@ def recArgHasLooseBVarsAt (recFnName : Name) (recArgPos : Nat) (e : Expr) : Bool
      e.isAppOf recFnName && e.getAppNumArgs > recArgPos && (e.getArg! recArgPos).hasLooseBVars
   app?.isSome
 
-private def containsRecFn (recFnName : Name) (e : Expr) : Bool :=
-  (e.find? fun e => e.isConstOf recFnName).isSome
-
-def ensureNoRecFn (recFnName : Name) (e : Expr) : MetaM Expr := do
-  if containsRecFn recFnName e then
-    Meta.forEachExpr e fun e => do
-      if e.isAppOf recFnName then
-        throwError "unexpected occurrence of recursive application{indentExpr e}"
-    pure e
-  else
-    pure e
-
 end Lean.Elab.Structural

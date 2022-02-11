@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.AppBuilder
+import Lean.Meta.CongrTheorems
 import Lean.Meta.Tactic.Simp.SimpTheorems
 import Lean.Meta.Tactic.Simp.SimpCongrTheorems
 
@@ -17,6 +18,8 @@ structure Result where
 
 abbrev Cache := ExprMap Result
 
+abbrev CongrCache := ExprMap (Option CongrTheorem)
+
 structure Context where
   config         : Config      := {}
   simpTheorems   : SimpTheorems  := {}
@@ -29,8 +32,9 @@ def Context.mkDefault : MetaM Context :=
   return { config := {}, simpTheorems := (← getSimpTheorems), congrTheorems := (← getSimpCongrTheorems) }
 
 structure State where
-  cache    : Cache := {}
-  numSteps : Nat := 0
+  cache      : Cache := {}
+  congrCache : CongrCache := {}
+  numSteps   : Nat := 0
 
 abbrev SimpM := ReaderT Context $ StateRefT State MetaM
 

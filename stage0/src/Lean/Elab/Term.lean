@@ -1297,7 +1297,7 @@ def elabType (stx : Syntax) : TermElabM Expr := do
   Enable auto-bound implicits, and execute `k` while catching auto bound implicit exceptions. When an exception is caught,
   a new local declaration is created, registered, and `k` is tried to be executed again. -/
 partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
-  let flag := autoBoundImplicitLocal.get (← getOptions)
+  let flag := autoImplicit.get (← getOptions)
   if flag then
     withReader (fun ctx => { ctx with autoBoundImplicit := flag, autoBoundImplicits := {} }) do
       let rec loop (s : SavedState) : TermElabM α := do
@@ -1418,7 +1418,7 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List (Name × List Stri
     throw ex
 where process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
   if candidates.isEmpty then
-    if (← read).autoBoundImplicit && isValidAutoBoundImplicitName n then
+    if (← read).autoBoundImplicit && isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
       throwAutoBoundImplicitLocal n
     else
       throwError "unknown identifier '{Lean.mkConst n}'"

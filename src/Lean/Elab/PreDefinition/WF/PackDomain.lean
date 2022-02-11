@@ -57,7 +57,7 @@ private partial def mkPSigmaCasesOn (y : Expr) (codomain : Expr) (xs : Array Exp
   Convert the given pre-definitions into unary functions.
   We "pack" the arguments using `PSigma`.
 -/
-def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) := do
+partial def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) := do
   let mut preDefsNew := #[]
   let mut arities := #[]
   let mut modified := false
@@ -86,16 +86,6 @@ def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) := 
     preDefsNew := preDefsNew.push preDefNew
   if !modified then
     return preDefs
-  /- Return `some i` if `e` is a `preDefs[i]` application -/
-  let isAppOfPreDef? (e : Expr) : OptionM Nat := do
-    let f := e.getAppFn
-    guard f.isConst
-    preDefs.findIdx? (·.declName == f.constName!)
-  /- Return `some i` if `e` is a `preDefs[i]` application with `arities[i]` arguments.  -/
-  let isTargetApp? (e : Expr) : OptionM Nat := do
-    let i ← isAppOfPreDef? e
-    guard (e.getAppNumArgs == arities[i])
-    return i
   -- Update values
   for i in [:preDefs.size] do
     let preDef := preDefs[i]
@@ -105,16 +95,7 @@ def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) := 
       forallBoundedTelescope preDefNew.type (some 1) fun y codomain => do
         let y := y[0]
         let newBody ← mkPSigmaCasesOn y codomain xs body
-        let visit (e : Expr) : MetaM TransformStep := do
-          if let some idx := isTargetApp? e |>.run then
-            let f := e.getAppFn
-            let fNew := mkConst preDefsNew[idx].declName f.constLevels!
-            let Expr.forallE _ d .. ← inferType fNew | unreachable!
-            let argNew ← mkUnaryArg d e.getAppArgs
-            return TransformStep.done <| mkApp fNew argNew
-          else
-            return TransformStep.done e
-        mkLambdaFVars #[y] (← transform newBody (post := visit))
+        mkLambdaFVars #[y] (← packApplications newBody arities preDefsNew)
     let isBad (e : Expr) : Bool :=
       match isAppOfPreDef? e with
       | none   => false
@@ -124,5 +105,57 @@ def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) := 
         throwErrorAt preDef.ref "well-founded recursion cannot be used, function '{preDef.declName}' contains application of function '{preDefs[i].declName}' with #{bad.getAppNumArgs} argument(s), but function has arity {arities[i]}"
     preDefsNew := preDefsNew.set! i { preDefNew with value := valueNew }
   return preDefsNew
+where
+  /-- Return `some i` if `e` is a `preDefs[i]` application -/
+  isAppOfPreDef? (e : Expr) : OptionM Nat := do
+    let f := e.getAppFn
+    guard f.isConst
+    preDefs.findIdx? (·.declName == f.constName!)
+
+  packApplications (e : Expr) (arities : Array Nat) (preDefsNew : Array PreDefinition) : MetaM Expr := do
+    let pack (e : Expr) (funIdx : Nat) : MetaM Expr := do
+      let f := e.getAppFn
+      let fNew := mkConst preDefsNew[funIdx].declName f.constLevels!
+      let Expr.forallE _ d .. ← inferType fNew | unreachable!
+      let argNew ← mkUnaryArg d e.getAppArgs
+      return mkApp fNew argNew
+    let rec
+      visit (e : Expr) : MetaM Expr := do
+        match e with
+        | Expr.lam ..          => lambdaTelescope e fun xs b => do mkLambdaFVars (usedLetOnly := false) xs (← visit b)
+        | Expr.letE n t v b _  => withLetDecl n t (← visit v) fun x => do mkLambdaFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
+        | Expr.forallE ..      => forallTelescope e fun xs b => do mkForallFVars (usedLetOnly := false) xs (← visit b)
+        | Expr.proj n i s ..   => return mkProj n i (← visit s)
+        | Expr.mdata d b _     => return mkMData d (← visit b)
+        | Expr.app ..          => visitApp e
+        | Expr.const ..        => visitApp e
+        | e                    => return e,
+      visitApp (e : Expr) : MetaM Expr := e.withApp fun f args => do
+        let args ← args.mapM visit
+        if let some funIdx := isAppOfPreDef? f then
+          let numArgs := args.size
+          let arity   := arities[funIdx]
+          if numArgs < arity then
+            -- Partial application
+            let extra := arity - numArgs
+            withDefault do forallBoundedTelescope (← inferType e) extra fun xs _ => do
+              if xs.size != extra then
+                return (mkAppN f args) -- It will fail later
+              else
+                mkLambdaFVars xs (← pack (mkAppN (mkAppN f args) xs) funIdx)
+          else if numArgs > arity then
+            -- Over application
+            let r ← pack (mkAppN f args[:arity]) funIdx
+            let rType ← inferType r
+            -- Make sure the new auxiliary definition has only one argument.
+            withLetDecl (← mkFreshUserName `aux) rType r fun aux =>
+              mkLetFVars #[aux] (mkAppN aux args[arity:])
+          else
+            pack (mkAppN f args) funIdx
+        else if args.isEmpty then
+          return f
+        else
+          return mkAppN (← visit f) args
+    visit e
 
 end Lean.Elab.WF

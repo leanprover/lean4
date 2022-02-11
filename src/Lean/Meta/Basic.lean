@@ -1295,6 +1295,17 @@ abbrev isDefEqGuarded (t s : Expr) : MetaM Bool :=
 def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
   approxDefEq <| isDefEq t s
 
+/--
+  Eta expand the given expression.
+  Example:
+  ```
+  etaExpand (mkConst `Nat.add)
+  ```
+  produces `fun x y => Nat.add x y`
+-/
+def etaExpand (e : Expr) : MetaM Expr :=
+  withDefault do forallTelescopeReducing (← inferType e) fun xs _ => mkLambdaFVars xs (mkAppN e xs)
+
 end Meta
 
 builtin_initialize

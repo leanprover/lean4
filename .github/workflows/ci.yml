@@ -2,7 +2,7 @@ name: CI
 on:
   push:
     branches:
-      - 'master'
+      - '*'
     tags:
       - '*'
   pull_request:
@@ -14,7 +14,7 @@ on:
 jobs:
   set-nightly:
     # don't schedule nightlies on forks
-    if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4'
+    #if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4'
     runs-on: ubuntu-latest
     outputs:
       nightly: ${{ steps.set.outputs.nightly }}
@@ -29,9 +29,9 @@ jobs:
             git fetch nightly --tags
             LEAN_VERSION_STRING="nightly-$(date -u +%F)"
             # do nothing if commit already has a different tag
-            if [[ $(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo $LEAN_VERSION_STRING) == $LEAN_VERSION_STRING ]]; then
+            #if [[ $(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo $LEAN_VERSION_STRING) == $LEAN_VERSION_STRING ]]; then
               echo "::set-output name=nightly::$LEAN_VERSION_STRING"
-            fi
+            #fi
           fi
 
   build:
@@ -227,17 +227,18 @@ jobs:
           path: artifacts
       - name: Prepare Nightly Release
         run: |
+          set -x
           git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
           git fetch nightly --tags
-          git tag ${{ needs.set-nightly.outputs.nightly }}
-          git push nightly ${{ needs.set-nightly.outputs.nightly }}
-          last_tag=$(git describe HEAD^ --abbrev=0 --tags)
+          #git tag ${{ needs.set-nightly.outputs.nightly }}
+          #git push nightly ${{ needs.set-nightly.outputs.nightly }}
+          last_tag=$(git describe HEAD^^ --abbrev=0 --tags)
           echo -e "*Changes since ${last_tag}:*\n\n" > diff.md
           git show $last_tag:RELEASES.md > old.md
           #./script/diff_changelogs.py old.md doc/changes.md >> diff.md
           diff --changed-group-format='%>' --unchanged-group-format='' old.md RELEASES.md >> diff.md
           echo -e "\n*Full commit log*\n" >> diff.md
-          git log --oneline $last_tag..HEAD | sed 's/^/* /' >> diff.md
+          git log --oneline $last_tag..HEAD^ | sed 's/^/* /' >> diff.md
       - name: Release Nightly
         uses: softprops/action-gh-release@v1
         with:

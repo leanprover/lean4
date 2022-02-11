@@ -252,8 +252,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
         return #[hi]
       return #[]
 
-section -- TODO https://github.com/leanprover/lean4/issues/529
-open Parser.Command
+open Parser.Command in
 partial def handleDocumentSymbol (p : DocumentSymbolParams)
     : RequestM (RequestTask DocumentSymbolResult) := do
   let doc ← readDoc
@@ -313,7 +312,6 @@ partial def handleDocumentSymbol (p : DocumentSymbolParams)
           selectionRange := selection.getRange? |>.map (·.toLspRange text) |>.getD range
           children? := syms.toArray
         } :: syms', stxs'')
-end
 
 def noHighlightKinds : Array SyntaxNodeKind := #[
   -- usually have special highlighting by the client

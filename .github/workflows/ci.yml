@@ -207,6 +207,7 @@ jobs:
         uses: softprops/action-gh-release@v1       
         with:
           files: artifacts/*/*
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
@@ -243,6 +244,7 @@ jobs:
           body_path: diff.md
           prerelease: true
           files: artifacts/*/*
+          fail_on_unmatched_files: true
           tag_name: ${{ needs.set-nightly.outputs.nightly }}
           repository: ${{ github.repository_owner }}/lean4-nightly
         env:

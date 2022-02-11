@@ -120,17 +120,18 @@ where
       let argNew ← mkUnaryArg d e.getAppArgs
       return mkApp fNew argNew
     let rec
-      visit (e : Expr) : MetaM Expr := do
-        match e with
-        | Expr.lam ..          => lambdaTelescope e fun xs b => do mkLambdaFVars (usedLetOnly := false) xs (← visit b)
-        | Expr.letE n t v b _  => withLetDecl n t (← visit v) fun x => do mkLambdaFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
-        | Expr.forallE ..      => forallTelescope e fun xs b => do mkForallFVars (usedLetOnly := false) xs (← visit b)
-        | Expr.proj n i s ..   => return mkProj n i (← visit s)
-        | Expr.mdata d b _     => return mkMData d (← visit b)
-        | Expr.app ..          => visitApp e
-        | Expr.const ..        => visitApp e
-        | e                    => return e,
-      visitApp (e : Expr) : MetaM Expr := e.withApp fun f args => do
+      visit (e : Expr) : MonadCacheT ExprStructEq Expr MetaM Expr := do
+        checkCache { val := e : ExprStructEq } fun _ => Meta.withIncRecDepth do
+          match e with
+          | Expr.lam ..          => lambdaTelescope e fun xs b => do mkLambdaFVars (usedLetOnly := false) xs (← visit b)
+          | Expr.letE n t v b _  => withLetDecl n t (← visit v) fun x => do mkLambdaFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
+          | Expr.forallE ..      => forallTelescope e fun xs b => do mkForallFVars (usedLetOnly := false) xs (← visit b)
+          | Expr.proj n i s ..   => return mkProj n i (← visit s)
+          | Expr.mdata d b _     => return mkMData d (← visit b)
+          | Expr.app ..          => visitApp e
+          | Expr.const ..        => visitApp e
+          | e                    => return e,
+      visitApp (e : Expr) : MonadCacheT ExprStructEq Expr MetaM Expr := e.withApp fun f args => do
         let args ← args.mapM visit
         if let some funIdx := isAppOfPreDef? f then
           let numArgs := args.size
@@ -156,6 +157,6 @@ where
           return f
         else
           return mkAppN (← visit f) args
-    visit e
+    visit e |>.run
 
 end Lean.Elab.WF

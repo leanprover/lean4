@@ -306,6 +306,11 @@ theorem gt_of_not_le {n m : Nat} (h : ¬ n ≤ m) : n > m :=
   | Or.inl h₁ => h₁
   | Or.inr h₁ => absurd h₁ h
 
+theorem ge_of_not_lt {n m : Nat} (h : ¬ n < m) : n ≥ m :=
+  match Nat.lt_or_ge n m with
+  | Or.inl h₁ => absurd h₁ h
+  | Or.inr h₁ => h₁
+
 protected theorem add_le_add_left {n m : Nat} (h : n ≤ m) (k : Nat) : k + n ≤ k + m :=
   match le.dest h with
   | ⟨w, hw⟩ =>

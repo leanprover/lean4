@@ -514,11 +514,7 @@ namespace Array
 @[specialize]
 def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) (i : Nat) : Bool :=
   if h : i < a.size then
-     let aidx : Fin a.size := ⟨i, h⟩;
-     let bidx : Fin b.size := ⟨i, hsz ▸ h⟩;
-     match p (a.get aidx) (b.get bidx) with
-     | true  => isEqvAux a b hsz p (i+1)
-     | false => false
+     p (a.get ⟨i, h⟩) (b.get ⟨i, hsz ▸ h⟩) && isEqvAux a b hsz p (i+1)
   else
     true
 termination_by _ => a.size - i

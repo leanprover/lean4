@@ -117,9 +117,13 @@ theorem dite_congr {s : Decidable b} [Decidable c]
 @[simp] theorem Bool.false_or (b : Bool) : (false || b) = b  := by cases b <;> rfl
 @[simp] theorem Bool.true_or (b : Bool) : (true || b) = true := by cases b <;> rfl
 @[simp] theorem Bool.or_self (b : Bool) : (b || b) = b       := by cases b <;> rfl
+@[simp] theorem Bool.or_eq_true (a b : Bool) : ((a || b) = true) = (a = true ∨ b = true) := by cases a <;> cases b <;> decide
 
 @[simp] theorem Bool.and_false (b : Bool) : (b && false) = false := by cases b <;> rfl
 @[simp] theorem Bool.and_true (b : Bool) : (b && true) = b       := by cases b <;> rfl
 @[simp] theorem Bool.false_and (b : Bool) : (false && b) = false := by cases b <;> rfl
 @[simp] theorem Bool.true_and (b : Bool) : (true && b) = b       := by cases b <;> rfl
 @[simp] theorem Bool.and_self (b : Bool) : (b && b) = b          := by cases b <;> rfl
+@[simp] theorem Bool.and_eq_true (a b : Bool) : ((a && b) = true) = (a = true ∧ b = true) := by cases a <;> cases b <;> decide
+
+@[simp] theorem decide_eq_true_eq [Decidable p] : (decide p = true) = p := propext <| Iff.intro of_decide_eq_true decide_eq_true

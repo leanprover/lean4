@@ -8,7 +8,6 @@ inductive TreeList (α : Type u) where
   | cons : Tree α → TreeList α → TreeList α
 end
 
-mutual
 def Tree.size : Tree α → Nat
   | Tree.node l =>
     -- see "TODO: linarith" in Init.WFTactics
@@ -29,7 +28,6 @@ where sizeList : TreeList α → Nat
       apply Nat.lt_succ_of_le
       apply Nat.le_add_left
     t.size + sizeList l
-end
 -- use automatically synthesized size function, which is not quite the number of leaves
 termination_by
   size t => sizeOf t

@@ -72,6 +72,9 @@ instance : FileSource SemanticTokensParams :=
 instance : FileSource SemanticTokensRangeParams :=
   ⟨fun p => fileSource p.textDocument⟩
 
+instance : FileSource FoldingRangeParams :=
+  ⟨fun p => fileSource p.textDocument⟩
+
 instance : FileSource PlainGoalParams :=
   ⟨fun p => fileSource p.textDocument⟩
 

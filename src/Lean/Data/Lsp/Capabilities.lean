@@ -45,6 +45,7 @@ structure ServerCapabilities where
   typeDefinitionProvider : Bool := false
   referencesProvider : Bool := false
   workspaceSymbolProvider : Bool := false
+  foldingRangeProvider : Bool := false
   semanticTokensProvider? : Option SemanticTokensOptions := none
   deriving ToJson, FromJson
 

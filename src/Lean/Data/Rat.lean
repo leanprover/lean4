@@ -14,7 +14,7 @@ structure Rat where
   private mk ::
     num : Int
     den : Nat := 1
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, DecidableEq
 
 instance : ToString Rat where
   toString a := if a.den == 1 then toString a.num else s!"{a.num}/{a.den}"
@@ -30,6 +30,9 @@ def mkRat (num : Int) (den : Nat) : Rat :=
   if den == 0 then { num := 0 } else Rat.normalize { num, den }
 
 namespace Rat
+
+protected def isInt (a : Rat) : Bool :=
+  a.den == 1
 
 protected def lt (a b : Rat) : Bool :=
   if a.num < 0 && b.num >= 0 then
@@ -87,6 +90,20 @@ protected def sub (a b : Rat) : Rat :=
 
 protected def neg (a : Rat) : Rat :=
   { a with num := - a.num }
+
+protected def floor (a : Rat) : Int :=
+  if a.den == 1 then
+    a.num
+  else
+    let r := a.num / a.den
+    if a.num < 0 then r - 1 else r
+
+protected def ceil (a : Rat) : Int :=
+  if a.den == 1 then
+    a.num
+  else
+    let r := a.num / a.den
+    if a.num > 0 then r + 1 else r
 
 instance : LT Rat where
   lt a b := (Rat.lt a b) = true

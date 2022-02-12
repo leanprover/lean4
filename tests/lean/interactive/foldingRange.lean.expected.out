@@ -10,4 +10,5 @@
  {"startLine": 33, "kind": "region", "endLine": 34},
  {"startLine": 35, "kind": "region", "endLine": 36},
  {"startLine": 11, "kind": "region", "endLine": 39},
- {"startLine": 6, "kind": "region", "endLine": 40}]
+ {"startLine": 6, "kind": "region", "endLine": 40},
+ {"startLine": 42, "kind": "region", "endLine": 46}]

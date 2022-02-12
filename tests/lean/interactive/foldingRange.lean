@@ -39,3 +39,9 @@ end
 
 end Bar
 end Foo
+
+#check #[
+  1,
+  2,
+  3
+]

@@ -415,18 +415,9 @@ def handleSemanticTokensRange (p : SemanticTokensRangeParams)
 partial def handleFoldingRange (p : FoldingRangeParams)
   : RequestM (RequestTask (Array FoldingRange)) := do
   let doc ← readDoc
-  asTask do
-    let ⟨snaps, e?⟩ ← doc.allSnaps.updateFinishedPrefix
-    let mut stxs := snaps.finishedPrefix.map (·.stx)
-    match e? with
-    | some ElabTaskError.aborted =>
-      throw RequestError.fileChanged
-    | some (ElabTaskError.ioError e) =>
-      throw (e : RequestError)
-    | _ => pure ()
-
-    let lastSnap := snaps.finishedPrefix.getLastD doc.headerSnap
-    stxs := stxs ++ (← parseAhead doc.meta.text.source lastSnap).toList
+  let t ← doc.allSnaps.waitAll
+  mapTask t fun (snaps, _) => do
+    let stxs := snaps.map (·.stx)
     let (_, ranges) ← StateT.run (addRanges doc.meta.text [] stxs) #[]
     return ranges
   where
@@ -449,18 +440,13 @@ partial def handleFoldingRange (p : FoldingRangeParams)
         addRanges text sections stxs
       | _ => do
         if isImport stx then
-          addImportRanges text sections stx.getPos? stx.getTailPos? stxs
+          let (imports, stxs) := stxs.span isImport
+          let last := imports.getLastD stx
+          addRange text FoldingRangeKind.imports stx.getPos? last.getTailPos?
+          addRanges text sections stxs
         else
           addCommandRange text stx
           addRanges text sections stxs
-
-    addImportRanges (text : FileMap) sections startP endP stxs := do
-      if let stx::stxs := stxs then
-        if isImport stx then
-          return ← addImportRanges text sections (startP <|> stx.getPos?) (stx.getTailPos? <|> endP) stxs
-
-      addRange text FoldingRangeKind.imports startP endP
-      addRanges text sections stxs
 
     addCommandRange text stx :=
       match stx.getKind with
@@ -475,16 +461,15 @@ partial def handleFoldingRange (p : FoldingRangeParams)
             addRangeFromSyntax text FoldingRangeKind.comment comment
 
           addRangeFromSyntax text FoldingRangeKind.region decl
-          return
-
-        addRangeFromSyntax text FoldingRangeKind.region stx
+        else
+          addRangeFromSyntax text FoldingRangeKind.region stx
       | _ =>
-        addRangeFromSyntax text FoldingRangeKind.comment stx
+        addRangeFromSyntax text FoldingRangeKind.region stx
 
     addRangeFromSyntax (text : FileMap) kind stx := addRange text kind stx.getPos? stx.getTailPos?
 
-    addRange (text : FileMap) kind start stop := do
-      if let (Option.some startP, Option.some endP) := (start, stop) then
+    addRange (text : FileMap) kind start? stop? := do
+      if let (some startP, some endP) := (start?, stop?) then
         let startP := text.utf8PosToLspPos startP
         let endP := text.utf8PosToLspPos endP
         if startP.line != endP.line then

@@ -29,3 +29,10 @@ theorem dep_congr [DecidableEq ι] {p : ι → Set α} [∀ i, Inhabited (p i)] 
 * `contradiction` tactic now closes the goal if there is a `False.elim` application in the target.
 
 * Renamed tatic `byCases` => `by_cases` (motivation: enforcing naming convention).
+
+* Local instances occurring in patterns are now considered by the type class resolution procedure. Example:
+```lean
+def concat : List ((α : Type) × ToString α × α) → String
+  | [] => ""
+  | ⟨_, _, a⟩ :: as => toString a ++ concat as
+```

@@ -562,11 +562,12 @@ private def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : ExceptT P
   trace[Elab.match] "patternVars: {patternVars}"
   withPatternVars patternVars fun patternVarDecls => do
     withElaboratedLHS alt.ref patternVarDecls alt.patterns matchType fun altLHS matchType => do
-      let rhs ← elabTermEnsuringType alt.rhs matchType
-      let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr
-      let rhs ← if xs.isEmpty then pure <| mkSimpleThunk rhs else mkLambdaFVars xs rhs
-      trace[Elab.match] "rhs: {rhs}"
-      return (altLHS, rhs)
+      withLocalInstances altLHS.fvarDecls do
+        let rhs ← elabTermEnsuringType alt.rhs matchType
+        let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr
+        let rhs ← if xs.isEmpty then pure <| mkSimpleThunk rhs else mkLambdaFVars xs rhs
+        trace[Elab.match] "rhs: {rhs}"
+        return (altLHS, rhs)
 
 /--
   Collect problematic index for the "discriminant refinement feature". This method is invoked

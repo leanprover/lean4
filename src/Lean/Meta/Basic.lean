@@ -946,21 +946,28 @@ private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → M
 def withLetDecl (name : Name) (type : Expr) (val : Expr) (k : Expr → n α) : n α :=
   map1MetaM (fun k => withLetDeclImp name type val k) k
 
+def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
+  let localInsts := (← read).localInstances
+  let size := localInsts.size
+  let localInstsNew ← decls.foldlM (init := localInsts) fun localInstsNew decl => do
+    match (← isClass? decl.type) with
+    | none => return localInstsNew
+    | some className => return localInstsNew.push { className, fvar := decl.toExpr }
+  if localInstsNew.size == size then
+    k
+  else
+    resettingSynthInstanceCache <| withReader (fun ctx => { ctx with localInstances := localInstsNew }) k
+
+/-- Register any local instance in `decls` -/
+def withLocalInstances (decls : List LocalDecl) : n α → n α :=
+  mapMetaM <| withLocalInstancesImp decls
+
 private def withExistingLocalDeclsImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := do
   let ctx ← read
   let numLocalInstances := ctx.localInstances.size
   let lctx := decls.foldl (fun (lctx : LocalContext) decl => lctx.addDecl decl) ctx.lctx
   withReader (fun ctx => { ctx with lctx := lctx }) do
-    let newLocalInsts ← decls.foldlM
-      (fun (newlocalInsts : Array LocalInstance) (decl : LocalDecl) => (do {
-        match (← isClass? decl.type) with
-        | none   => pure newlocalInsts
-        | some c => pure <| newlocalInsts.push { className := c, fvar := decl.toExpr } } : MetaM _))
-      ctx.localInstances;
-    if newLocalInsts.size == numLocalInstances then
-      k
-    else
-      resettingSynthInstanceCache <| withReader (fun ctx => { ctx with localInstances := newLocalInsts }) k
+    withLocalInstancesImp decls k
 
 def withExistingLocalDecls (decls : List LocalDecl) : n α → n α :=
   mapMetaM <| withExistingLocalDeclsImp decls

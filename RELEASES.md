@@ -36,3 +36,23 @@ def concat : List ((α : Type) × ToString α × α) → String
   | [] => ""
   | ⟨_, _, a⟩ :: as => toString a ++ concat as
 ```
+
+* Notation for providing the motive for `match` expressions has changed.
+Before:
+```lean
+match x, rfl : (y : Nat) → x = y → Nat with
+| 0,   h => ...
+| x+1, h => ...
+```
+Now:
+```lean
+match (motive := (y : Nat) → x = y → Nat) x, rfl with
+| 0,   h => ...
+| x+1, h => ...
+```
+With this change, the notation for giving names to equality proofs in `match`-expressions is not whitespace sensitive anymore. That is,
+we can now write
+```lean
+match h : sort.swap a b with
+| (r₁, r₂) => ... -- `h : sort.swap a b = (r₁, r₂)`
+```

@@ -22,6 +22,12 @@ private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
 
 private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type : Expr) (safety : DefinitionSafety) : CommandElabM MessageData := do
   let m : MessageData :=
+    match (← getReducibilityStatus id) with
+    | ReducibilityStatus.irreducible => "@[irreducible] "
+    | ReducibilityStatus.reducible => "@[reducible] "
+    | ReducibilityStatus.semireducible => ""
+  let m :=
+    m ++
     match safety with
     | DefinitionSafety.unsafe  => "unsafe "
     | DefinitionSafety.partial => "partial "

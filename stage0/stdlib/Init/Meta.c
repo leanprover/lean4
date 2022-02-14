@@ -2412,17 +2412,18 @@ return x_5;
 }
 else
 {
-uint8_t x_6; uint8_t x_7; 
-x_6 = l_Lean_Name_toString_maybePseudoSyntax(x_1);
+uint8_t x_6; 
 lean_inc(x_1);
-x_7 = lean_is_inaccessible_user_name(x_1);
+x_6 = lean_is_inaccessible_user_name(x_1);
+if (x_6 == 0)
+{
+uint8_t x_7; 
+x_7 = l_Lean_Name_hasMacroScopes(x_1);
 if (x_7 == 0)
 {
 uint8_t x_8; 
-x_8 = l_Lean_Name_hasMacroScopes(x_1);
+x_8 = l_Lean_Name_toString_maybePseudoSyntax(x_1);
 if (x_8 == 0)
-{
-if (x_6 == 0)
 {
 lean_object* x_9; uint8_t x_10; lean_object* x_11; 
 x_9 = l_Lean_versionStringCore___closed__2;

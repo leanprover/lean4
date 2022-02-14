@@ -99,7 +99,10 @@ private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
   else do
     let (some newCtorApp) ← mkNullaryCtor majorType recVal.numParams | pure major
     let newType ← inferType newCtorApp
-    if (← isDefEq majorType newType) then
+    /- TODO: check whether changing reducibility to default hurts performance here.
+       We do that to make sure auxiliary `Eq.rec` introduced by the `match`-compiler
+       are reduced even when `TransparencyMode.reducible` (like in `simp`) -/
+    if (← withAtLeastTransparency TransparencyMode.default <| isDefEq majorType newType) then
       return newCtorApp
     else
       return major

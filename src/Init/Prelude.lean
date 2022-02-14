@@ -616,7 +616,7 @@ theorem Nat.ne_of_beq_eq_false : {n m : Nat} → Eq (beq n m) false → Not (Eq 
     have : Eq (beq n m) false := h₁
     Nat.noConfusion h₂ (fun h₂ => absurd h₂ (ne_of_beq_eq_false this))
 
-@[extern "lean_nat_dec_eq"]
+@[reducible, extern "lean_nat_dec_eq"]
 protected def Nat.decEq (n m : @& Nat) : Decidable (Eq n m) :=
   match h:beq n m with
   | true  => isTrue (eq_of_beq_eq_true h)

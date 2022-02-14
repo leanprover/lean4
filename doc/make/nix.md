@@ -52,10 +52,13 @@ This is because modules are discovered not from a directory listing anymore but 
 As in the standard Nix setup.
 After adding `src/` as an LSP workspace, it should automatically fall back to using stage 0 in there.
 
-Note that the UX of `emacs/vscode-dev` is quite different from the Make-based setup regarding the compilation of dependencies:
+Note that the UX of `{emacs,vscode}-dev` is quite different from the Make-based setup regarding the compilation of dependencies:
 there is no mutable directory incrementally filled by the build that we could point the editor at for .olean files.
 Instead, `emacs-dev` will gather the individual dependency outputs from the Nix store when checking a file -- and build them on the fly when necessary.
 However, it will only ever load changes saved to disk, not ones opened in other buffers.
+
+The absence of a mutable output directory also means that the Lean server will not automatically pick up `.ilean` metadata from newly compiled files.
+Instead, you can run `nix run .#link-ilean` to symlink the `.ilean` tree of the stdlib state at that point in time to `src/build/lib`, where the server should automatically find them.
 
 ## Other Fun Stuff to Do with Nix
 

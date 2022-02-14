@@ -163,6 +163,11 @@ rec {
         ${update-stage0}/bin/update-stage0
         git commit -m "chore: update stage0"
       '';
+      link-ilean = writeShellScriptBin "link-ilean" ''
+        dest=''${1:-src}
+        mkdir -p $dest/build/lib
+        ln -sf ${iTree}/* $dest/build/lib
+      '';
       benchmarks =
         let
           entries = attrNames (readDir ../tests/bench);

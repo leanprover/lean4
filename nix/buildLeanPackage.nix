@@ -227,6 +227,12 @@ in rec {
   emacs-package = makeEmacsWrapper "emacs-package" lean-package;
   vscode-package = makeVSCodeWrapper "vscode-package" lean-package;
 
+  link-ilean = writeShellScriptBin "link-ilean" ''
+    dest=''${1:-.}
+    mkdir -p $dest/build/lib
+    ln -sf ${iTree}/* $dest/build/lib
+  '';
+
   print-paths = makePrintPathsFor [] (mods' // externalModMap);
   # `lean` wrapper that dynamically runs Nix for the actual `lean` executable so the same editor can be
   # used for multiple projects/after upgrading the `lean` input/for editing both stage 1 and the tests

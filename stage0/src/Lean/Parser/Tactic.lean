@@ -20,7 +20,7 @@ builtin_initialize
 
 def matchRhs  := Term.hole <|> Term.syntheticHole <|> tacticSeq
 def matchAlts := Term.matchAlts (rhsParser := matchRhs)
-@[builtinTacticParser] def «match» := leading_parser:leadPrec "match " >> optional Term.generalizingParam >> sepBy1 Term.matchDiscr ", " >> Term.optType >> " with " >> ppDedent matchAlts
+@[builtinTacticParser] def «match» := leading_parser:leadPrec "match " >> optional Term.generalizingParam >> optional Term.motive >> sepBy1 Term.matchDiscr ", " >> " with " >> ppDedent matchAlts
 @[builtinTacticParser] def introMatch := leading_parser nonReservedSymbol "intro " >> matchAlts
 
 @[builtinTacticParser] def decide := leading_parser nonReservedSymbol "decide"

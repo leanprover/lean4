@@ -64,6 +64,7 @@ where
         safety      := DefinitionSafety.safe
         hints       := ReducibilityHints.abbrev
       }
+      setReducibleAttribute declName
 
   mkNoConfusionType : MetaM Unit := do
     let enumType := mkConst enumName
@@ -83,6 +84,7 @@ where
         safety      := DefinitionSafety.safe
         hints       := ReducibilityHints.abbrev
       }
+      setReducibleAttribute declName
 
   mkNoConfusion : MetaM Unit := do
     let enumType := mkConst enumName
@@ -105,6 +107,7 @@ where
         safety      := DefinitionSafety.safe
         hints       := ReducibilityHints.abbrev
       }
+      setReducibleAttribute declName
 
 def mkNoConfusion (declName : Name) : MetaM Unit := do
   if (← isEnumType declName) then

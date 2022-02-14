@@ -446,14 +446,17 @@ instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT :
   | isFalse hc => dE hc
 
 /- Auxiliary definitions for generating compact `noConfusion` for enumeration types -/
-abbrev noConfusionTypeEnum {α : Sort u} {β : Sort v} [DecidableEq β] (f : α → β) (P : Sort w) (x y : α) : Sort w :=
-  if f x = f y then P → P else P
+abbrev noConfusionTypeEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : α → β) (P : Sort w) (x y : α) : Sort w :=
+  Decidable.casesOn (motive := fun _ => Sort w) (inst (f x) (f y))
+    (fun _ => P)
+    (fun _ => P → P)
 
-abbrev noConfusionEnum {α : Sort u} {β : Sort v} [DecidableEq β] (f : α → β) {P : Sort w} {x y : α} (h : x = y) : noConfusionTypeEnum f P x y :=
-  if h' : f x = f y then
-    cast (@if_pos _ _ h' _ (P → P) (P)).symm (fun (h : P) => h)
-  else
-    False.elim (h' (congrArg f h))
+abbrev noConfusionEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : α → β) {P : Sort w} {x y : α} (h : x = y) : noConfusionTypeEnum f P x y :=
+  Decidable.casesOn
+    (motive := fun (inst : Decidable (f x = f y)) => Decidable.casesOn (motive := fun _ => Sort w) inst (fun _ => P) (fun _ => P → P))
+    (inst (f x) (f y))
+    (fun h' => False.elim (h' (congrArg f h)))
+    (fun h' => fun x => x)
 
 /- Inhabited -/
 

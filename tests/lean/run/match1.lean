@@ -156,7 +156,7 @@ theorem fooEq (b : Bla) : foo b = b.optional? :=
 rfl
 
 def Bla.isNat2? (b : Bla) : Option { x : Nat // optional? b = some x } :=
-match h:foo b with
+match h : foo b with
 | some y => some ⟨y, Eq.trans (fooEq b).symm h⟩
 | none   => none
 #eval checkWithMkMatcherInput ``Bla.isNat2?.match_1

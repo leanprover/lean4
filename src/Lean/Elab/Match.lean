@@ -77,13 +77,14 @@ structure ElabMatchTypeAndDiscrsResult where
   isDep     : Bool
   alts      : Array MatchAltView
 
-private partial def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptType : Syntax) (matchAltViews : Array MatchAltView) (expectedType : Expr)
+private partial def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptMotive : Syntax) (matchAltViews : Array MatchAltView) (expectedType : Expr)
       : TermElabM ElabMatchTypeAndDiscrsResult := do
     let numDiscrs := discrStxs.size
-    if matchOptType.isNone then
+    if matchOptMotive.isNone then
       elabDiscrs 0 #[]
     else
-      let matchTypeStx := matchOptType[0][1]
+      -- motive := leading_parser atomic ("(" >> nonReservedSymbol "motive" >> " := ") >> termParser >> ")"
+      let matchTypeStx := matchOptMotive[0][3]
       let matchType ← elabType matchTypeStx
       let (discrs, isDep) ← elabDiscrsWitMatchType matchType expectedType
       return { discrs := discrs, matchType := matchType, isDep := isDep, alts := matchAltViews }
@@ -106,7 +107,7 @@ private partial def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptT
           matchType := b.instantiate1 discr
           discrs := discrs.push discr
         | _ =>
-          throwError "invalid type provided to match-expression, function type with arity #{discrStxs.size} expected"
+          throwError "invalid motive provided to match-expression, function type with arity #{discrStxs.size} expected"
       return (discrs, isDep)
 
     markIsDep (r : ElabMatchTypeAndDiscrsResult) :=
@@ -157,13 +158,13 @@ def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array Matc
     pure { matchAlt with patterns := patterns }
 
 private def getMatchGeneralizing? : Syntax → Option Bool
-  | `(match (generalizing := true)  $discrs,* $[: $ty?]? with $alts:matchAlt*) => some true
-  | `(match (generalizing := false) $discrs,* $[: $ty?]? with $alts:matchAlt*) => some false
+  | `(match (generalizing := true)  $[$motive]? $discrs,* with $alts:matchAlt*) => some true
+  | `(match (generalizing := false) $[$motive]? $discrs,* with $alts:matchAlt*) => some false
   | _ => none
 
 /- Given `stx` a match-expression, return its alternatives. -/
 private def getMatchAlts : Syntax → Array MatchAltView
-  | `(match $[$gen]? $discrs,* $[: $ty?]? with $alts:matchAlt*) =>
+  | `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) =>
     alts.filterMap fun alt => match alt with
       | `(matchAltExpr| | $patterns,* => $rhs) => some {
           ref      := alt,
@@ -409,7 +410,7 @@ def finalizePatternDecls (patternVarDecls : Array PatternVarDecl) : TermElabM (A
       let decl ← instantiateLocalDeclMVars decl
       decls := decls.push decl
     | PatternVarDecl.anonymousVar mvarId fvarId =>
-       let e ← instantiateMVars (mkMVar mvarId);
+       let e ← instantiateMVars (mkMVar mvarId)
        trace[Elab.match] "finalizePatternDecls: mvarId: {mvarId.name} := {e}, fvar: {mkFVar fvarId}"
        match e with
        | Expr.mvar newMVarId _ =>
@@ -458,7 +459,7 @@ private def mkLocalDeclFor (mvar : Expr) : M Pattern := do
        If this generates problems in the future, we should update the metavariable declarations. -/
     assignExprMVar mvarId (mkFVar fvarId)
     let userName ← mkFreshBinderName
-    let newDecl := LocalDecl.cdecl default fvarId userName type BinderInfo.default;
+    let newDecl := LocalDecl.cdecl default fvarId userName type BinderInfo.default
     modify fun s =>
       { s with
         newLocals  := s.newLocals.insert fvarId,
@@ -764,15 +765,16 @@ private def isMatchUnit? (altLHSS : List Match.AltLHS) (rhss : Array Expr) : Met
     | Expr.lam _ _ b _ => return if b.hasLooseBVars then none else b
     | _ => return none
   | _ => return none
-private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax) (altViews : Array MatchAltView) (matchOptType : Syntax) (expectedType : Expr)
+
+private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax) (altViews : Array MatchAltView) (matchOptMotive : Syntax) (expectedType : Expr)
     : TermElabM Expr := do
   let mut generalizing? := generalizing?
-  if !matchOptType.isNone then
+  if !matchOptMotive.isNone then
     if generalizing? == some true then
-      throwError "the '(generalizing := true)' parameter is not supported when the 'match' type is explicitly provided"
+      throwError "the '(generalizing := true)' parameter is not supported when the 'match' motive is explicitly provided"
     generalizing? := some false
   let (discrs, matchType, altLHSS, isDep, rhss) ← commitIfDidNotPostpone do
-    let ⟨discrs, matchType, isDep, altViews⟩ ← elabMatchTypeAndDiscrs discrStxs matchOptType altViews expectedType
+    let ⟨discrs, matchType, isDep, altViews⟩ ← elabMatchTypeAndDiscrs discrStxs matchOptMotive altViews expectedType
     let matchAlts ← liftMacroM <| expandMacrosInPatterns altViews
     trace[Elab.match] "matchType: {matchType}"
     let (discrs, matchType, alts, refined) ← elabMatchAltViews generalizing? discrs matchType matchAlts
@@ -845,16 +847,24 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
     trace[Elab.match] "result: {r}"
     return r
 
-private def getDiscrs (matchStx : Syntax) : Array Syntax :=
-  matchStx[2].getSepArgs
+-- leading_parser "match " >> optional generalizingParam >> optional motive >> sepBy1 matchDiscr ", " >> " with " >> ppDedent matchAlts
 
-private def getMatchOptType (matchStx : Syntax) : Syntax :=
-  matchStx[3]
+private def getDiscrs (matchStx : Syntax) : Array Syntax :=
+  if matchStx[3].isNone then -- HACK for bootstrapping issues
+    matchStx[2].getSepArgs
+  else
+    matchStx[3].getSepArgs
+
+private def getMatchOptMotive (matchStx : Syntax) : Syntax :=
+  if !matchStx[2].isNone && matchStx[2][0].isOfKind ``Lean.Parser.Term.matchDiscr then -- HACK for bootstrapping issues
+    mkNullNode
+  else
+    matchStx[2]
 
 private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Syntax) :=
-  let matchOptType := getMatchOptType matchStx;
-  if matchOptType.isNone then do
-    let discrs := getDiscrs matchStx;
+  let matchOptMotive := getMatchOptMotive matchStx
+  if matchOptMotive.isNone then do
+    let discrs := getDiscrs matchStx
     let allLocal ← discrs.allM fun discr => Option.isSome <$> isAtomicDiscr? discr[1]
     if allLocal then
       return none
@@ -864,17 +874,17 @@ private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Synta
       let rec loop (discrs : List Syntax) (discrsNew : Array Syntax) (foundFVars : FVarIdSet) := do
         match discrs with
         | [] =>
-          let discrs := Syntax.mkSep discrsNew (mkAtomFrom matchStx ", ");
-          pure (matchStx.setArg 2 discrs)
+          let discrs := Syntax.mkSep discrsNew (mkAtomFrom matchStx ", ")
+          pure (matchStx.setArg 3 discrs)
         | discr :: discrs =>
           -- Recall that
           -- matchDiscr := leading_parser optional (ident >> ":") >> termParser
           let term := discr[1]
           let addAux : TermElabM Syntax := withFreshMacroScope do
-            let d ← `(_discr);
+            let d ← `(_discr)
             unless isAuxDiscrName d.getId do -- Use assertion?
               throwError "unexpected internal auxiliary discriminant name"
-            let discrNew := discr.setArg 1 d;
+            let discrNew := discr.setArg 1 d
             let r ← loop discrs (discrsNew.push discrNew) foundFVars
             `(let _discr := $term; $r)
           match (← isAtomicDiscr? term) with
@@ -893,7 +903,7 @@ private def waitExpectedType (expectedType? : Option Expr) : TermElabM Expr := d
 
 private def tryPostponeIfDiscrTypeIsMVar (matchStx : Syntax) : TermElabM Unit := do
   -- We don't wait for the discriminants types when match type is provided by user
-  if getMatchOptType matchStx |>.isNone then
+  if getMatchOptMotive matchStx |>.isNone then
     let discrs := getDiscrs matchStx
     for discr in discrs do
       let term := discr[1]
@@ -943,17 +953,17 @@ private def waitExpectedTypeAndDiscrs (matchStx : Syntax) (expectedType? : Optio
 
 /-
 ```
-leading_parser:leadPrec "match " >> sepBy1 matchDiscr ", " >> optType >> " with " >> matchAlts
+leading_parser "match " >> optional generalizingParam >> optional motive >> sepBy1 matchDiscr ", " >> " with " >> ppDedent matchAlts
 ```
 Remark the `optIdent` must be `none` at `matchDiscr`. They are expanded by `expandMatchDiscr?`.
 -/
 private def elabMatchCore (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
-  let expectedType ← waitExpectedTypeAndDiscrs stx expectedType?
-  let discrStxs := (getDiscrs stx).map fun d => d
-  let gen?         := getMatchGeneralizing? stx
-  let altViews     := getMatchAlts stx
-  let matchOptType := getMatchOptType stx
-  elabMatchAux gen? discrStxs altViews matchOptType expectedType
+  let expectedType   ← waitExpectedTypeAndDiscrs stx expectedType?
+  let discrStxs      := (getDiscrs stx).map fun d => d
+  let gen?           := getMatchGeneralizing? stx
+  let altViews       := getMatchAlts stx
+  let matchOptMotive := getMatchOptMotive stx
+  elabMatchAux gen? discrStxs altViews matchOptMotive expectedType
 
 private def isPatternVar (stx : Syntax) : TermElabM Bool := do
   match (← resolveId? stx "pattern") with
@@ -969,7 +979,7 @@ where
   isAtomicIdent (stx : Syntax) : Bool :=
     stx.isIdent && stx.getId.eraseMacroScopes.isAtomic
 
--- leading_parser "match " >> sepBy1 termParser ", " >> optType >> " with " >> matchAlts
+-- leading_parser "match " >> optional generalizingParam >> optional motive >> sepBy1 matchDiscr ", " >> " with " >> ppDedent matchAlts
 /--
 Pattern matching. `match e, ... with | p, ... => f | ...` matches each given
 term `e` against each pattern `p` of a match alternative. When all patterns
@@ -989,10 +999,10 @@ where
     match (← expandNonAtomicDiscrs? stx) with
     | some stxNew => withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
     | none =>
-      let discrs       := getDiscrs stx;
-      let matchOptType := getMatchOptType stx;
-      if !matchOptType.isNone && discrs.any fun d => !d[0].isNone then
-        throwErrorAt matchOptType "match expected type should not be provided when discriminants with equality proofs are used"
+      let discrs         := getDiscrs stx
+      let matchOptMotive := getMatchOptMotive stx
+      if !matchOptMotive.isNone && discrs.any fun d => !d[0].isNone then
+        throwErrorAt matchOptMotive "match motive should not be provided when discriminants with equality proofs are used"
       elabMatchCore stx expectedType?
 
 builtin_initialize

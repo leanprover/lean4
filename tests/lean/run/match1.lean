@@ -162,7 +162,7 @@ match h:foo b with
 #eval checkWithMkMatcherInput ``Bla.isNat2?.match_1
 
 def foo2 (x : Nat) : Nat :=
-match x, rfl : (y : Nat) → x = y → Nat with
+match (motive := (y : Nat) → x = y → Nat) x, rfl with
 | 0,   h => 0
 | x+1, h => 1
 #eval checkWithMkMatcherInput ``foo2.match_1

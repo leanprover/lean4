@@ -190,7 +190,7 @@ inductive Code where
   | «return»     (ref : Syntax) (val : Syntax)
   /- Recall that an if-then-else may declare a variable using `optIdent` for the branches `thenBranch` and `elseBranch`. We store the variable name at `var?`. -/
   | ite          (ref : Syntax) (h? : Option Name) (optIdent : Syntax) (cond : Syntax) (thenBranch : Code) (elseBranch : Code)
-  | «match»      (ref : Syntax) (gen : Syntax) (discrs : Syntax) (optType : Syntax) (alts : Array (Alt Code))
+  | «match»      (ref : Syntax) (gen : Syntax) (discrs : Syntax) (optMotive : Syntax) (alts : Array (Alt Code))
   | jmp          (ref : Syntax) (jpName : Name) (args : Array Syntax)
   deriving Inhabited
 
@@ -545,13 +545,13 @@ def mkUnless (cond : Syntax) (c : CodeBlock) : MacroM CodeBlock := do
   let thenBranch ← mkPureUnitAction
   pure { c with code := Code.ite (← getRef) none mkNullNode cond thenBranch.code c.code }
 
-def mkMatch (ref : Syntax) (genParam : Syntax) (discrs : Syntax) (optType : Syntax) (alts : Array (Alt CodeBlock)) : TermElabM CodeBlock := do
+def mkMatch (ref : Syntax) (genParam : Syntax) (discrs : Syntax) (optMotive : Syntax) (alts : Array (Alt CodeBlock)) : TermElabM CodeBlock := do
   -- nary version of homogenize
   let ws := alts.foldl (union · ·.rhs.uvars) {}
   let alts ← alts.mapM fun alt => do
     let rhs ← extendUpdatedVars alt.rhs ws
-    pure { ref := alt.ref, vars := alt.vars, patterns := alt.patterns, rhs := rhs.code : Alt Code }
-  pure { code := Code.«match» ref genParam discrs optType alts, uvars := ws }
+    return { ref := alt.ref, vars := alt.vars, patterns := alt.patterns, rhs := rhs.code : Alt Code }
+  return { code := Code.«match» ref genParam discrs optMotive alts, uvars := ws }
 
 /- Return a code block that executes `terminal` and then `k` with the value produced by `terminal`.
    This method assumes `terminal` is a terminal -/
@@ -1036,14 +1036,14 @@ partial def toTerm : Code → M Syntax
   | Code.reassign _ stx k   => do reassignToTerm stx (← toTerm k)
   | Code.seq stx k          => do seqToTerm stx (← toTerm k)
   | Code.ite ref _ o c t e  => withRef ref <| do mkIte o c (← toTerm t) (← toTerm e)
-  | Code.«match» ref genParam discrs optType alts => do
+  | Code.«match» ref genParam discrs optMotive alts => do
     let mut termAlts := #[]
     for alt in alts do
       let rhs ← toTerm alt.rhs
       let termAlt := mkNode `Lean.Parser.Term.matchAlt #[mkAtomFrom alt.ref "|", alt.patterns, mkAtomFrom alt.ref "=>", rhs]
       termAlts := termAlts.push termAlt
     let termMatchAlts := mkNode `Lean.Parser.Term.matchAlts #[mkNullNode termAlts]
-    pure $ mkNode `Lean.Parser.Term.«match» #[mkAtomFrom ref "match", genParam, discrs, optType, mkAtomFrom ref "with", termMatchAlts]
+    return mkNode `Lean.Parser.Term.«match» #[mkAtomFrom ref "match", genParam, optMotive, discrs, mkAtomFrom ref "with", termMatchAlts]
 
 def run (code : Code) (m : Syntax) (uvars : Array Name := #[]) (kind := Kind.regular) : MacroM Syntax := do
   let term ← toTerm code { m := m, kind := kind, uvars := uvars }
@@ -1445,8 +1445,8 @@ mutual
   partial def doMatchToCode (doMatch : Syntax) (doElems: List Syntax) : M CodeBlock := do
     let ref       := doMatch
     let genParam  := doMatch[1]
-    let discrs    := doMatch[2]
-    let optType   := doMatch[3]
+    let optMotive := doMatch[2]
+    let discrs    := doMatch[3]
     let matchAlts := doMatch[5][0].getArgs -- Array of `doMatchAlt`
     let alts ←  matchAlts.mapM fun matchAlt => do
       let patterns := matchAlt[1]
@@ -1455,7 +1455,7 @@ mutual
       let rhs  := matchAlt[3]
       let rhs ← doSeqToCode (getDoSeqElems rhs)
       pure { ref := matchAlt, vars := vars, patterns := patterns, rhs := rhs : Alt CodeBlock }
-    let matchCode ← mkMatch ref genParam discrs optType alts
+    let matchCode ← mkMatch ref genParam discrs optMotive alts
     concatWith matchCode doElems
 
   /--

@@ -421,7 +421,7 @@ def delabAppMatch : Delab := whenPPOption getPPNotation <| whenPPOption getPPMat
       let opts ← getOptions
       -- TODO: disable the match if other implicits are needed?
       if ← pure st.motiveNamed <||> shouldShowMotive lamMotive opts then
-        `(match $[$st.discrs:term],* : $piStx with $[| $pats,* => $st.rhss]*)
+        `(match (motive := $piStx) $[$st.discrs:term],* with $[| $pats,* => $st.rhss]*)
       else
         `(match $[$st.discrs:term],* with $[| $pats,* => $st.rhss]*)
     return Syntax.mkApp stx st.moreArgs

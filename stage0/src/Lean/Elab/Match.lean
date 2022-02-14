@@ -850,16 +850,10 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
 -- leading_parser "match " >> optional generalizingParam >> optional motive >> sepBy1 matchDiscr ", " >> " with " >> ppDedent matchAlts
 
 private def getDiscrs (matchStx : Syntax) : Array Syntax :=
-  if matchStx[3].isNone then -- HACK for bootstrapping issues
-    matchStx[2].getSepArgs
-  else
-    matchStx[3].getSepArgs
+  matchStx[3].getSepArgs
 
 private def getMatchOptMotive (matchStx : Syntax) : Syntax :=
-  if !matchStx[2].isNone && matchStx[2][0].isOfKind ``Lean.Parser.Term.matchDiscr then -- HACK for bootstrapping issues
-    mkNullNode
-  else
-    matchStx[2]
+  matchStx[2]
 
 private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Syntax) :=
   let matchOptMotive := getMatchOptMotive matchStx

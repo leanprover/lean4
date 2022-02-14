@@ -36,7 +36,7 @@ fun x x_1 =>
   | some a, some b => some (a + b)
   | x, x_2 => none : Option Nat → Option Nat → Option Nat
 fun x =>
-  (match x : Nat → Nat → Nat with
+  (match (motive := Nat → Nat → Nat) x with
     | 0 => id
     | Nat.succ x => id)
     x : Nat → Nat

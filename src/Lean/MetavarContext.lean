@@ -637,13 +637,25 @@ private def shouldVisit (e : Expr) : M Bool := do
         pure false
       else
         visitMain e,
+    visitApp : Expr → M Bool
+      | Expr.app f a .. => visitApp f <||> visit a
+      | e => visit e,
     visitMain : Expr → M Bool
       | Expr.proj _ _ s _    => visit s
       | Expr.forallE _ d b _ => visit d <||> visit b
       | Expr.lam _ d b _     => visit d <||> visit b
       | Expr.letE _ t v b _  => visit t <||> visit v <||> visit b
       | Expr.mdata _ b _     => visit b
-      | Expr.app f a _       => visit a <||> if f.isApp then visitMain f else visit f
+      | e@(Expr.app ..)      =>
+        let f := e.getAppFn
+        if f.isMVar then
+          let (e', _) := instantiateMVars mctx e
+          if e'.getAppFn != f then
+            visitMain e'
+          else
+            visitApp e
+        else
+          visitApp e
       | Expr.mvar mvarId _   =>
         match mctx.getExprAssignment? mvarId with
         | some a => visit a

@@ -25,3 +25,4 @@ import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.Cleanup
 import Lean.Meta.Tactic.Unfold
 import Lean.Meta.Tactic.Rename
+import Lean.Meta.Tactic.LinearArith

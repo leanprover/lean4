@@ -600,9 +600,8 @@ private def generalize (discrs : Array Expr) (matchType : Expr) (altViews : Arra
   if !gen then
     return (discrs, matchType, altViews, false)
   else
-    let ysFVarIds ← getFVarsToGeneralize discrs
     /- let-decls are currently being ignored by the generalizer. -/
-    let ysFVarIds ← ysFVarIds.filterM fun fvarId => return !(← getLocalDecl fvarId).isLet
+    let ysFVarIds ← getFVarsToGeneralize discrs (ignoreLetDecls := true)
     if ysFVarIds.isEmpty then
       return (discrs, matchType, altViews, false)
     else

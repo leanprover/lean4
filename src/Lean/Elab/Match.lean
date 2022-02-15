@@ -666,7 +666,18 @@ where
           updateMatchType indices matchType
         catch ex =>
           throwEx first
-      let altViews  ← addWildcardPatterns indices.size altViews
+      let ref ← getRef
+      let wildcards ← indices.mapM fun index => do
+        if index.isFVar then
+          let localDecl ← getLocalDecl index.fvarId!
+          if localDecl.userName.hasMacroScopes then
+            return mkHole ref
+          else
+            let id := mkIdentFrom ref localDecl.userName
+            `(?$id:ident)
+        else
+          return mkHole ref
+      let altViews  := altViews.map fun altView => { altView with patterns := wildcards ++ altView.patterns }
       let discrs    := indices ++ discrs
       loop discrs matchType altViews first
 
@@ -726,10 +737,6 @@ where
     check matchType
     return matchType
 
-  addWildcardPatterns (num : Nat) (altViews : Array MatchAltView) : TermElabM (Array MatchAltView) := do
-    let hole := mkHole (← getRef)
-    let wildcards := mkArray num hole
-    return altViews.map fun altView => { altView with patterns := wildcards ++ altView.patterns }
 
 def mkMatcher (input : Meta.Match.MkMatcherInput) : TermElabM MatcherResult :=
   Meta.Match.mkMatcher input

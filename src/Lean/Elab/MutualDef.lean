@@ -116,6 +116,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
             | none =>
               let hole := mkHole refForElabFunType
               let type ← elabType hole
+              trace[Elab.definition] ">> type: {type}\n{type.mvarId!}"
               registerFailedToInferDefTypeInfo type refForElabFunType
               pure type
           Term.synthesizeSyntheticMVarsNoPostponing
@@ -196,8 +197,8 @@ private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal 
     Macro.throwErrorAt declVal "unexpected declaration body"
 
 private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array Expr) :=
-  headers.mapM fun header => withDeclName header.declName $ withLevelNames header.levelNames do
-    let valStx ← liftMacroM $ declValToTerm header.valueStx
+  headers.mapM fun header => withDeclName header.declName <| withLevelNames header.levelNames do
+    let valStx ← liftMacroM <| declValToTerm header.valueStx
     forallBoundedTelescope header.type header.numParams fun xs type => do
       -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
       for i in [0:header.binderIds.size] do
@@ -222,7 +223,7 @@ private def removeUnusedVars (vars : Array Expr) (headers : Array DefViewElabHea
 private def withUsed {α} (vars : Array Expr) (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
     (k : Array Expr → TermElabM α) : TermElabM α := do
   let (lctx, localInsts, vars) ← removeUnusedVars vars headers values toLift
-  withLCtx lctx localInsts $ k vars
+  withLCtx lctx localInsts <| k vars
 
 private def isExample (views : Array DefView) : Bool :=
   views.any (·.kind.isExample)
@@ -378,10 +379,10 @@ private def modifyUsedFVars (f : UsedFVarsMap → UsedFVarsMap) : M Unit := modi
 private def merge (s₁ s₂ : FVarIdSet) : M FVarIdSet :=
   s₂.foldM (init := s₁) fun s₁ k => do
     if s₁.contains k then
-      pure s₁
+      return s₁
     else
       markModified
-      pure $ s₁.insert k
+      return s₁.insert k
 
 private def updateUsedVarsOf (fvarId : FVarId) : M Unit := do
   let usedFVarsMap ← getUsedFVarsMap
@@ -458,10 +459,10 @@ private def pushLocalDecl (toProcess : Array FVarId) (fvarId : FVarId) (userName
     : StateRefT ClosureState TermElabM (Array FVarId) := do
   let type ← preprocess type
   modify fun s => { s with
-    newLocalDecls := s.newLocalDecls.push $ LocalDecl.cdecl default fvarId userName type bi,
+    newLocalDecls := s.newLocalDecls.push <| LocalDecl.cdecl default fvarId userName type bi,
     exprArgs      := s.exprArgs.push (mkFVar fvarId)
   }
-  pure $ pushNewVars toProcess (collectFVars {} type)
+  return pushNewVars toProcess (collectFVars {} type)
 
 private partial def mkClosureForAux (toProcess : Array FVarId) : StateRefT ClosureState TermElabM Unit := do
   let lctx ← getLCtx
@@ -486,7 +487,7 @@ private partial def mkClosureForAux (toProcess : Array FVarId) : StateRefT Closu
         let type ← preprocess type
         let val  ← preprocess val
         modify fun s => { s with
-          newLetDecls   := s.newLetDecls.push $ LocalDecl.ldecl default fvarId userName type val false,
+          newLetDecls   := s.newLetDecls.push <| LocalDecl.ldecl default fvarId userName type val false,
           /- We don't want to interleave let and lambda declarations in our closure. So, we expand any occurrences of fvarId
              at `newLocalDecls` and `localDecls` -/
           newLocalDecls := s.newLocalDecls.map (replaceFVarIdAtLocalDecl fvarId val),
@@ -514,9 +515,9 @@ private def mkLetRecClosureFor (toLift : LetRecToLift) (freeVars : Array FVarId)
   lambdaTelescope toLift.val fun xs val => do
     let type ← instantiateForall toLift.type xs
     let lctx ← getLCtx
-    let s ← mkClosureFor freeVars $ xs.map fun x => lctx.get! x.fvarId!
-    let type := Closure.mkForall s.localDecls $ Closure.mkForall s.newLetDecls type
-    let val  := Closure.mkLambda s.localDecls $ Closure.mkLambda s.newLetDecls val
+    let s ← mkClosureFor freeVars <| xs.map fun x => lctx.get! x.fvarId!
+    let type := Closure.mkForall s.localDecls <| Closure.mkForall s.newLetDecls type
+    let val  := Closure.mkLambda s.localDecls <| Closure.mkLambda s.newLetDecls val
     let c    := mkAppN (Lean.mkConst toLift.declName) s.exprArgs
     assignExprMVar toLift.mvarId c
     return {

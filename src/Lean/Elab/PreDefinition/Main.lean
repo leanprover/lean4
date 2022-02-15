@@ -16,12 +16,15 @@ structure TerminationHints where
   decreasingBy? : Option Syntax := none
   deriving Inhabited
 
-private def addAndCompilePartial (preDefs : Array PreDefinition) : TermElabM Unit := do
+private def addAndCompilePartial (preDefs : Array PreDefinition) (useSorry := false) : TermElabM Unit := do
   for preDef in preDefs do
     trace[Elab.definition] "processing {preDef.declName}"
     forallTelescope preDef.type fun xs type => do
-      let val ← liftM $ mkInhabitantFor preDef.declName xs type
-      trace[Elab.definition] "inhabitant for {preDef.declName}"
+      let val ←
+        if useSorry then
+          mkLambdaFVars xs (← mkSorry type (synthetic := true))
+        else
+          liftM <| mkInhabitantFor preDef.declName xs type
       addNonRec { preDef with
         kind  := DefKind.«opaque»
         value := val
@@ -141,8 +144,9 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
           if preDefs.all fun preDef => preDef.kind == DefKind.def || preDefs.all fun preDef => preDef.kind == DefKind.abbrev then
             -- try to add as partial definition
             try
-              addAndCompilePartial preDefs
+              addAndCompilePartial preDefs (useSorry := true)
             catch _ =>
+              -- Compilation failed try again just as axiom
               s.restore
               addAsAxioms preDefs
           else if preDefs.all fun preDef => preDef.kind == DefKind.theorem then

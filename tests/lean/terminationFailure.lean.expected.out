@@ -7,7 +7,9 @@ structural recursion does not handle mutually recursive functions
 'termination_by' modifier missing
 f : Nat → Nat
 f.g : Nat → Nat
-terminationFailure.lean:17:4-17:5: error: fail to show termination for
+1
+2
+terminationFailure.lean:20:4-20:5: error: fail to show termination for
   h
 with errors
 argument #1 was not used for structural recursion
@@ -18,3 +20,4 @@ structural recursion cannot be used
 
 'termination_by' modifier missing
 h : Nat → Foo
+Foo.a

@@ -11,9 +11,12 @@ where
 #check f
 #check f.g
 
+#eval f 0
+#eval f.g 0
+
 inductive Foo where
   | a | b | c
-
+  deriving Repr
 def h (x : Nat) : Foo :=
   match x with
   | 0 => Foo.a
@@ -21,3 +24,5 @@ def h (x : Nat) : Foo :=
   | x => h x
 
 #check h
+
+#eval h 0

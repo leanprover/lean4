@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.DeclarationRange
 import Lean.MonadEnv
 
 namespace Lean
@@ -24,20 +25,24 @@ def addDocString' [Monad m] [MonadEnv m] (declName : Name) (docString? : Option 
 def findDocString? (env : Environment) (declName : Name) : IO (Option String) :=
   return (← builtinDocStrings.get).find? declName |>.orElse fun _ => docStringExt.find? env declName
 
-private builtin_initialize moduleDocExt : SimplePersistentEnvExtension String (Std.PersistentArray String) ← registerSimplePersistentEnvExtension {
+structure ModuleDoc where
+  doc : String
+  declarationRange : DeclarationRange
+
+private builtin_initialize moduleDocExt : SimplePersistentEnvExtension ModuleDoc (Std.PersistentArray ModuleDoc) ← registerSimplePersistentEnvExtension {
   name          := `moduleDocExt
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => s.push e
   toArrayFn     := fun es => es.toArray
 }
 
-def addMainModuleDoc (env : Environment) (doc : String) : Environment :=
+def addMainModuleDoc (env : Environment) (doc : ModuleDoc) : Environment :=
   moduleDocExt.addEntry env doc
 
-def getMainModuleDoc (env : Environment)  : Std.PersistentArray String :=
+def getMainModuleDoc (env : Environment) : Std.PersistentArray ModuleDoc :=
   moduleDocExt.getState env
 
-def getModuleDoc? (env : Environment) (moduleName : Name) : Option (Array String) :=
+def getModuleDoc? (env : Environment) (moduleName : Name) : Option (Array ModuleDoc) :=
   env.getModuleIdx? moduleName |>.map fun modIdx => moduleDocExt.getModuleEntries env modIdx
 
 end Lean

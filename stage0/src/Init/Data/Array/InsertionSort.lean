@@ -18,7 +18,7 @@ where
       else
         a
   @[specialize] swapLoop (a : Array α) (j : Nat) (h : j < a.size) : Array α :=
-    match he:j with
+    match (generalizing := false) he:j with -- using `generalizing` because we don't want to refine the type of `h`
     | 0    => a
     | j'+1 =>
       have h' : j' < a.size := by subst j; exact Nat.lt_trans (Nat.lt_succ_self _) h

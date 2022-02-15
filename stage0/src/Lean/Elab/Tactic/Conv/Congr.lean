@@ -70,7 +70,7 @@ private def selectIdx (tacticName : String) (mvarIds : List MVarId) (i : Int) : 
       for mvarId in mvarIds, j in [:mvarIds.length] do
         if i != j then
           applyRefl mvarId
-      replaceMainGoal [mvarIds.get i h]
+      replaceMainGoal [mvarIds.get ⟨i, h⟩]
       return ()
   throwError "invalid '{tacticName}' conv tactic, application has only {mvarIds.length} (nondependent) argument(s)"
 

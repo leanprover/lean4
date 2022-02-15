@@ -48,7 +48,7 @@ LEAN_EXPORT lean_object* l_Array_getD___rarg(lean_object*, lean_object*, lean_ob
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Applicative_seqRight___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_seqRight___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_get___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_get___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_instInhabitedMethods___lambda__2___boxed(lean_object*, lean_object*);
 uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getHeadInfo_x3f(lean_object*);
@@ -819,7 +819,7 @@ lean_object* lean_uint8_to_nat(uint8_t);
 LEAN_EXPORT lean_object* l_List_get(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_decEq___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_nameLitKind___closed__1;
-LEAN_EXPORT lean_object* l_List_get___rarg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_get___rarg___boxed(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Char_ofNat(lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_pure___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3471,30 +3471,29 @@ x_2 = lean_alloc_closure((void*)(l_List_concat___rarg), 2, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_List_get___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_get___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_4 = lean_ctor_get(x_1, 0);
-x_5 = lean_ctor_get(x_1, 1);
-x_6 = lean_unsigned_to_nat(0u);
-x_7 = lean_nat_dec_eq(x_2, x_6);
-if (x_7 == 0)
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_3 = lean_ctor_get(x_1, 0);
+x_4 = lean_ctor_get(x_1, 1);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = lean_nat_dec_eq(x_2, x_5);
+if (x_6 == 0)
 {
-lean_object* x_8; lean_object* x_9; 
-x_8 = lean_unsigned_to_nat(1u);
-x_9 = lean_nat_sub(x_2, x_8);
+lean_object* x_7; lean_object* x_8; 
+x_7 = lean_unsigned_to_nat(1u);
+x_8 = lean_nat_sub(x_2, x_7);
 lean_dec(x_2);
-x_1 = x_5;
-x_2 = x_9;
-x_3 = lean_box(0);
+x_1 = x_4;
+x_2 = x_8;
 goto _start;
 }
 else
 {
 lean_dec(x_2);
-lean_inc(x_4);
-return x_4;
+lean_inc(x_3);
+return x_3;
 }
 }
 }
@@ -3502,17 +3501,17 @@ LEAN_EXPORT lean_object* l_List_get(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_get___rarg___boxed), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_List_get___rarg___boxed), 2, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_List_get___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_get___rarg___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_4; 
-x_4 = l_List_get___rarg(x_1, x_2, x_3);
+lean_object* x_3; 
+x_3 = l_List_get___rarg(x_1, x_2);
 lean_dec(x_1);
-return x_4;
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_String_mk___boxed(lean_object* x_1) {

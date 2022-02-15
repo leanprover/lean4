@@ -25,7 +25,7 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_congrImplies___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_mkSort(lean_object*);
-lean_object* l_List_get___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_get___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Conv_evalArg___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalExt_declRange___closed__7;
 static lean_object* l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_congrImplies___closed__2;
@@ -3220,7 +3220,7 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean
 x_26 = lean_ctor_get(x_25, 1);
 lean_inc(x_26);
 lean_dec(x_25);
-x_27 = l_List_get___rarg(x_2, x_17, lean_box(0));
+x_27 = l_List_get___rarg(x_2, x_17);
 lean_dec(x_2);
 x_28 = lean_box(0);
 x_29 = lean_alloc_ctor(1, 2, 0);

@@ -588,8 +588,6 @@ where
   "Generalize" variables that depend on the discriminants.
 
   Remarks and limitations:
-  - If `matchType` is a proposition, then we generalize even when the user did not provide `(generalizing := true)`.
-    Motivation: users should have control about the actual `match`-expressions in their programs.
   - We currently do not generalize let-decls.
   - We abort generalization if the new `matchType` is type incorrect.
   - Only discriminants that are free variables are considered during specialization.
@@ -598,16 +596,12 @@ where
     this is the exact behavior users would get if they had written it by hand. Recall there is no `clear` in term mode.
 -/
 private def generalize (discrs : Array Expr) (matchType : Expr) (altViews : Array MatchAltView) (generalizing? : Option Bool) : TermElabM (Array Expr × Expr × Array MatchAltView × Bool) := do
-  let gen ←
-    match generalizing? with
-    | some g => pure g
-    | _ => isProp matchType
+  let gen := if let some g := generalizing? then g else true
   if !gen then
     return (discrs, matchType, altViews, false)
   else
-    let ysFVarIds ← getFVarsToGeneralize discrs
     /- let-decls are currently being ignored by the generalizer. -/
-    let ysFVarIds ← ysFVarIds.filterM fun fvarId => return !(← getLocalDecl fvarId).isLet
+    let ysFVarIds ← getFVarsToGeneralize discrs (ignoreLetDecls := true)
     if ysFVarIds.isEmpty then
       return (discrs, matchType, altViews, false)
     else

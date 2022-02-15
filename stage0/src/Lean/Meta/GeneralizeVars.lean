@@ -54,20 +54,20 @@ where
   Remark: we *not* collect instance implicit arguments nor auxiliary declarations for compiling
   recursive declarations.
 -/
-def getFVarSetToGeneralize (targets : Array Expr) (forbidden : FVarIdSet) : MetaM FVarIdSet := do
+def getFVarSetToGeneralize (targets : Array Expr) (forbidden : FVarIdSet) (ignoreLetDecls := false) : MetaM FVarIdSet := do
   let mut s : FVarIdSet := targets.foldl (init := {}) fun s target => if target.isFVar then s.insert target.fvarId! else s
   let mut r : FVarIdSet := {}
   for localDecl in (← getLCtx) do
     unless forbidden.contains localDecl.fvarId do
-      unless localDecl.isAuxDecl || localDecl.binderInfo.isInstImplicit do
+      unless localDecl.isAuxDecl || localDecl.binderInfo.isInstImplicit || (ignoreLetDecls && localDecl.isLet) do
       if (← getMCtx).findLocalDeclDependsOn localDecl fun fvarId => s.contains fvarId then
         r := r.insert localDecl.fvarId
         s := s.insert localDecl.fvarId
   return r
 
-def getFVarsToGeneralize (targets : Array Expr) (forbidden : FVarIdSet := {}) : MetaM (Array FVarId) := do
+def getFVarsToGeneralize (targets : Array Expr) (forbidden : FVarIdSet := {}) (ignoreLetDecls := false) : MetaM (Array FVarId) := do
   let forbidden ← mkGeneralizationForbiddenSet targets forbidden
-  let s ← getFVarSetToGeneralize targets forbidden
+  let s ← getFVarSetToGeneralize targets forbidden ignoreLetDecls
   sortFVarIds s.toArray
 
 end Lean.Meta

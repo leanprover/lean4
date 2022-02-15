@@ -595,7 +595,7 @@ private def moveToFront (p : Problem) (i : Nat) : Problem :=
   if i == 0 then
     p
   else if h : i < p.vars.length then
-    let x := p.vars.get i h
+    let x := p.vars.get ⟨i, h⟩
     { p with
       vars := List.moveToFront p.vars i
       alts := p.alts.map fun alt => { alt with patterns := List.moveToFront alt.patterns i }
@@ -662,7 +662,7 @@ where
     We only consider variables that do not depend on other variables at `p.vars`. -/
   findNext (i : Nat) : MetaM (Option Nat) := do
     if h : i < p.vars.length then
-      let x := p.vars.get i h
+      let x := p.vars.get ⟨i, h⟩
       if (← checkVarDeps p.vars i (← inferType x)) then
         return i
       else

@@ -75,6 +75,20 @@ private def betaReduceLetRecApps (preDefs : Array PreDefinition) : MetaM (Array 
         return TransformStep.visit e
     return { preDef with value }
 
+private def addAsAxioms (preDefs : Array PreDefinition) : TermElabM Unit := do
+  for preDef in preDefs do
+    let decl := Declaration.axiomDecl {
+      name        := preDef.declName,
+      levelParams := preDef.levelParams,
+      type        := preDef.type,
+      isUnsafe    := preDef.modifiers.isUnsafe
+    }
+    addDecl decl
+    withSaveInfoContext do  -- save new env
+      addTermInfo preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
+    applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
+    applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
+
 def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints) : TermElabM Unit := withLCtx {} {} do
   for preDef in preDefs do
     trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
@@ -83,6 +97,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
   let cliques := partitionPreDefs preDefs
   let mut terminationBy ← liftMacroM <| WF.expandTerminationBy hints.terminationBy? (cliques.map fun ds => ds.map (·.declName))
   let mut decreasingBy  ← liftMacroM <| WF.expandTerminationHint hints.decreasingBy? (cliques.map fun ds => ds.map (·.declName))
+  let mut hasErrors := false
   for preDefs in cliques do
     trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
     if preDefs.size == 1 && isNonRecursive preDefs[0] then
@@ -99,26 +114,43 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
           withRef preDef.ref <| throwError "invalid use of 'partial', '{preDef.declName}' is not a function{indentExpr preDef.type}"
       addAndCompilePartial preDefs
     else
-      let mut wf? := none
-      let mut decrTactic? := none
-      if let some wf := terminationBy.find? (preDefs.map (·.declName)) then
-        wf? := some wf
-        terminationBy := terminationBy.markAsUsed (preDefs.map (·.declName))
-      if let some { ref, value := decrTactic } := decreasingBy.find? (preDefs.map (·.declName)) then
-        decrTactic? := some (← withRef ref `(by $decrTactic))
-        decreasingBy := decreasingBy.markAsUsed (preDefs.map (·.declName))
-      if wf?.isSome || decrTactic?.isSome then
-        wfRecursion preDefs wf? decrTactic?
-      else
-        withRef (preDefs[0].ref) <| mapError
-          (orelseMergeErrors
-            (structuralRecursion preDefs)
-            (wfRecursion preDefs none none))
-          (fun msg =>
-            let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
-            m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
-  liftMacroM <| terminationBy.ensureAllUsed
-  liftMacroM <| decreasingBy.ensureAllUsed
+      try
+        let mut wf? := none
+        let mut decrTactic? := none
+        if let some wf := terminationBy.find? (preDefs.map (·.declName)) then
+          wf? := some wf
+          terminationBy := terminationBy.markAsUsed (preDefs.map (·.declName))
+        if let some { ref, value := decrTactic } := decreasingBy.find? (preDefs.map (·.declName)) then
+          decrTactic? := some (← withRef ref `(by $decrTactic))
+          decreasingBy := decreasingBy.markAsUsed (preDefs.map (·.declName))
+        if wf?.isSome || decrTactic?.isSome then
+          wfRecursion preDefs wf? decrTactic?
+        else
+          withRef (preDefs[0].ref) <| mapError
+            (orelseMergeErrors
+              (structuralRecursion preDefs)
+              (wfRecursion preDefs none none))
+            (fun msg =>
+              let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
+              m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
+      catch ex =>
+        hasErrors := true
+        logException ex
+        let s ← saveState
+        try
+          if preDefs.all fun preDef => preDef.kind == DefKind.def || preDefs.all fun preDef => preDef.kind == DefKind.abbrev then
+            -- try to add as partial definition
+            try
+              addAndCompilePartial preDefs
+            catch _ =>
+              s.restore
+              addAsAxioms preDefs
+          else if preDefs.all fun preDef => preDef.kind == DefKind.theorem then
+            addAsAxioms preDefs
+        catch _ => s.restore
+  unless hasErrors do
+    liftMacroM <| terminationBy.ensureAllUsed
+    liftMacroM <| decreasingBy.ensureAllUsed
 
 builtin_initialize
   registerTraceClass `Elab.definition.body

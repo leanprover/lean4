@@ -1,16 +1,16 @@
 theorem unsound : False := -- Error
   unsound
 
-partial theorem unsound : False := -- Error
-  unsound
+partial theorem unsound2 : False := -- Error
+  unsound2
 
-unsafe theorem unsound : False := -- Error
-  unsound
+unsafe theorem unsound3 : False := -- Error
+  unsound3
 
-constant unsound : False  -- Error
+constant unsound4 : False  -- Error
 
 axiom magic : False -- OK
-
+namespace Foo
 partial def foo (x : Nat) : Nat := foo x  -- OK
 
 unsafe def unsound2 : False := unsound  -- OK

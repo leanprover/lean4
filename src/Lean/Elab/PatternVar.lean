@@ -14,11 +14,11 @@ open Meta
 inductive PatternVar where
   | localVar     (userName : Name)
   -- anonymous variables (`_`) are encoded using metavariables
-  | anonymousVar (mvarId   : MVarId)
+  | anonymousVar (mvarId   : MVarId) (userName : Name)
 
 instance : ToString PatternVar := ⟨fun
-  | PatternVar.localVar x          => toString x
-  | PatternVar.anonymousVar mvarId => s!"?m{mvarId.name}"⟩
+  | PatternVar.localVar x            => toString x
+  | PatternVar.anonymousVar mvarId _ => s!"?m{mvarId.name}"⟩
 
 /--
   Create an auxiliary Syntax node wrapping a fresh metavariable id.
@@ -172,7 +172,12 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     return stx.setArg 2 <| mkNullNode fields
   else if k == ``Lean.Parser.Term.hole then
     let r ← mkMVarSyntax
-    modify fun s => { s with vars := s.vars.push <| PatternVar.anonymousVar <| getMVarSyntaxMVarId r }
+    modify fun s => { s with vars := s.vars.push <| PatternVar.anonymousVar (getMVarSyntaxMVarId r) Name.anonymous }
+    return r
+  else if k == ``Lean.Parser.Term.syntheticHole then
+    let r ← mkMVarSyntax
+    let userName := if stx[1].isIdent then stx[1].getId else Name.anonymous
+    modify fun s => { s with vars := s.vars.push <| PatternVar.anonymousVar (getMVarSyntaxMVarId r) userName }
     return r
   else if k == ``Lean.Parser.Term.paren then
     let arg := stx[1]

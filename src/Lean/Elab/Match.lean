@@ -494,7 +494,6 @@ partial def main (e : Expr) : M Pattern := do
     | some (α, lits) =>
       return Pattern.arrayLit α (← lits.mapM main)
     | none =>
-      -- TODO: namedPattern will have 4 arguments
       if e.isAppOfArity ``_root_.namedPattern 4 then
         let p ← main <| e.getArg! 2
         match e.getArg! 1, e.getArg! 3 with

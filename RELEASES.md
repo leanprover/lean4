@@ -56,3 +56,5 @@ we can now write
 match h : sort.swap a b with
 | (r₁, r₂) => ... -- `h : sort.swap a b = (r₁, r₂)`
 ```
+
+* `(generalizing := true)` is the default behavior for `match` expressions even if the expected type is not a proposition.

@@ -57,4 +57,14 @@ match h : sort.swap a b with
 | (r₁, r₂) => ... -- `h : sort.swap a b = (r₁, r₂)`
 ```
 
-* `(generalizing := true)` is the default behavior for `match` expressions even if the expected type is not a proposition.
+* `(generalizing := true)` is the default behavior for `match` expressions even if the expected type is not a proposition. In the following example, we used to have to include `(generalizing := true)` manually.
+```lean
+inductive Fam : Type → Type 1 where
+  | any : Fam α
+  | nat : Nat → Fam Nat
+
+example (a : α) (x : Fam α) : α :=
+  match x with
+  | Fam.any   => a
+  | Fam.nat n => n
+```

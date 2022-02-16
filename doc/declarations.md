@@ -675,18 +675,18 @@ When a ``match`` has only one line, the vertical bar may be left out. In that ca
     def bar₄ (p : Nat × Nat) : Nat :=
     let ⟨m, n⟩ := p in m + n
 
-Information about the term being matched can be preserved in each branch using the syntax `match h:t with` (with no whitespace between the name of the hypothesis, the colon, and the term). For example, a user may want to match a term `ns : List Nat`, while tracking the hypothesis `ns = []` or `ns = h :: t` in the respective match arm:
+Information about the term being matched can be preserved in each branch using the syntax `match h : t with`. For example, a user may want to match a term `ns ++ ms : List Nat`, while tracking the hypothesis `ns ++ ms = []` or `ns ++ ms= h :: t` in the respective match arm:
 
 ```lean
-def foo (ns : List Nat) (h1 : ns ≠ []) (k : Nat -> Char) : Char :=
-  match h2:ns with
-  -- in this arm, we have the hypothesis `h2 : ns = []`
+def foo (ns ms : List Nat) (h1 : ns ++ ms ≠ []) (k : Nat -> Char) : Char :=
+  match h2 : ns ++ ms with
+  -- in this arm, we have the hypothesis `h2 : ns ++ ms = []`
   | [] => absurd h2 h1
-  -- in this arm, we have the hypothesis `h2 : ns = h :: t`
+  -- in this arm, we have the hypothesis `h2 : ns ++ ms = h :: t`
   | h :: t => k h
 
 -- '7'
-#eval foo [7, 8, 9] (by decide) Nat.digitChar
+#eval foo [7, 8, 9] [] (by decide) Nat.digitChar
 ```
 
 .. _structures_and_records:

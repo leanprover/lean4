@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.SCC
+import Lean.Compiler.NoncomputableAttr
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Transform
 import Lean.Elab.Term
@@ -94,26 +95,30 @@ private def compileDecl (decl : Declaration) : TermElabM Bool := do
 private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (applyAttrAfterCompilation := true) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs preDef
-    let env ← getEnv
-    let decl :=
+    let decl ←
       match preDef.kind with
       | DefKind.«theorem» =>
-        Declaration.thmDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value }
+        pure <| Declaration.thmDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value }
       | DefKind.«opaque»  =>
-        Declaration.opaqueDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value,
-                                 isUnsafe := preDef.modifiers.isUnsafe }
+        pure <| Declaration.opaqueDecl {
+          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
+          isUnsafe := preDef.modifiers.isUnsafe }
       | DefKind.«abbrev»  =>
-        Declaration.defnDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value,
-                               hints := ReducibilityHints.«abbrev»,
-                               safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
+        pure <| Declaration.defnDecl {
+          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
+          hints := ReducibilityHints.«abbrev»
+          safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
       | _ => -- definitions and examples
-        Declaration.defnDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value,
-                               hints := ReducibilityHints.regular (getMaxHeight env preDef.value + 1),
-                               safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
+        pure <| Declaration.defnDecl {
+          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value,
+          hints := ReducibilityHints.regular (getMaxHeight (← getEnv) preDef.value + 1),
+          safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
     addDecl decl
     withSaveInfoContext do  -- save new env
       addTermInfo preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
+    if preDef.modifiers.isNoncomputable then
+      modifyEnv fun env => addNoncomputable env preDef.declName
     if compile && shouldGenCodeFor preDef then
       unless (← compileDecl decl) do
         return ()

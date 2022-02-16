@@ -659,7 +659,7 @@ where
       if (← discrs.anyM fun discr => isDefEq discr index) then
         throwEx (← updateFirst first? ex)
       let first ← updateFirst first? ex
-      s.restore
+      s.restore (restoreInfo := true)
       let indices ← collectDeps #[index] discrs
       let matchType ←
         try
@@ -682,7 +682,7 @@ where
       loop discrs matchType altViews first
 
   throwEx {α} (p : SavedState × Exception) : TermElabM α := do
-    p.1.restore; throw p.2
+    p.1.restore (restoreInfo := true); throw p.2
 
   updateFirst (first? : Option (SavedState × Exception)) (ex : Exception) : TermElabM (SavedState × Exception) := do
     match first? with

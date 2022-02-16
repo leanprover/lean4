@@ -310,6 +310,20 @@ def iota : Nat → List Nat
   | 0       => []
   | m@(n+1) => m :: iota n
 
+def iotaTR (n : Nat) : List Nat :=
+  let rec go : Nat → List Nat → List Nat
+    | 0, r => r.reverse
+    | m@(n+1), r => go n (m::r)
+  go n []
+
+@[csimp]
+theorem iota_eq_iotaTR : @iota = @iotaTR :=
+  have aux (n : Nat) (r : List Nat) : iotaTR.go n r = r.reverse ++ iota n := by
+    induction n generalizing r with
+    | zero => simp [iota, iotaTR.go]
+    | succ n ih => simp [iota, iotaTR.go, ih, append_assoc]
+  funext fun n => by simp [iotaTR, aux]
+
 def enumFrom : Nat → List α → List (Nat × α)
   | n, [] => nil
   | n, x :: xs   => (n, x) :: enumFrom (n + 1) xs

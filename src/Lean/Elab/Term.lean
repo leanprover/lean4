@@ -124,6 +124,7 @@ structure LetRecToLift where
   type           : Expr
   val            : Expr
   mvarId         : MVarId
+  deriving Inhabited
 
 structure State where
   levelNames        : List Name       := []

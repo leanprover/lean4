@@ -207,28 +207,29 @@ inductive PatternVarDecl where
   | localVar     (fvarId : FVarId)
 
 private partial def withPatternVars {α} (pVars : Array PatternVar) (k : Array PatternVarDecl → TermElabM α) : TermElabM α :=
-  let rec loop (i : Nat) (decls : Array PatternVarDecl) := do
+  let rec loop (i : Nat) (decls : Array PatternVarDecl) (userNames : Array Name) := do
     if h : i < pVars.size then
       match pVars.get ⟨i, h⟩ with
-      | PatternVar.anonymousVar mvarId =>
+      | PatternVar.anonymousVar mvarId userName =>
         let type ← mkFreshTypeMVar
-        let userName ← mkFreshBinderName
-        withLocalDecl userName BinderInfo.default type fun x =>
-          loop (i+1) (decls.push (PatternVarDecl.anonymousVar mvarId x.fvarId!))
+        let userNameFVar ← if userName.isAnonymous then mkFreshBinderName else pure userName
+        withLocalDecl userNameFVar BinderInfo.default type fun x =>
+          loop (i+1) (decls.push (PatternVarDecl.anonymousVar mvarId x.fvarId!)) (userNames.push userName)
       | PatternVar.localVar userName   =>
         let type ← mkFreshTypeMVar
         withLocalDecl userName BinderInfo.default type fun x =>
-          loop (i+1) (decls.push (PatternVarDecl.localVar x.fvarId!))
+          loop (i+1) (decls.push (PatternVarDecl.localVar x.fvarId!)) (userNames.push Name.anonymous)
     else
       /- We must create the metavariables for `PatternVar.anonymousVar` AFTER we create the new local decls using `withLocalDecl`.
          Reason: their scope must include the new local decls since some of them are assigned by typing constraints. -/
-      decls.forM fun decl => match decl with
+      for decl in decls, userName in userNames do
+        match decl with
         | PatternVarDecl.anonymousVar mvarId fvarId => do
           let type ← inferType (mkFVar fvarId)
-          discard <| mkFreshExprMVarWithId mvarId type
+          discard <| mkFreshExprMVarWithId mvarId type (userName := userName)
         | _ => pure ()
       k decls
-  loop 0 #[]
+  loop 0 #[] #[]
 
 /-
 Remark: when performing dependent pattern matching, we often had to write code such as
@@ -454,11 +455,12 @@ private def mkLocalDeclFor (mvar : Expr) : M Pattern := do
   | some val => return Pattern.inaccessible val
   | none =>
     let fvarId ← mkFreshFVarId
-    let type   ← inferType mvar
+    let mvarDecl ← getMVarDecl mvarId
+    let type := mvarDecl.type
     /- HACK: `fvarId` is not in the scope of `mvarId`
        If this generates problems in the future, we should update the metavariable declarations. -/
     assignExprMVar mvarId (mkFVar fvarId)
-    let userName ← mkFreshBinderName
+    let userName ← if mvarDecl.userName.isAnonymous then mkFreshBinderName else pure mvarDecl.userName
     let newDecl := LocalDecl.cdecl default fvarId userName type BinderInfo.default
     modify fun s =>
       { s with
@@ -494,7 +496,6 @@ partial def main (e : Expr) : M Pattern := do
     | some (α, lits) =>
       return Pattern.arrayLit α (← lits.mapM main)
     | none =>
-      -- TODO: namedPattern will have 4 arguments
       if e.isAppOfArity ``_root_.namedPattern 4 then
         let p ← main <| e.getArg! 2
         match e.getArg! 1, e.getArg! 3 with
@@ -539,12 +540,15 @@ partial def main (e : Expr) : M Pattern := do
 
 end ToDepElimPattern
 
-def withDepElimPatterns {α} (localDecls : Array LocalDecl) (ps : Array Expr) (k : Array LocalDecl → Array Pattern → TermElabM α) : TermElabM α := do
+def withDepElimPatterns {α} (patternVarDecls : Array PatternVarDecl) (localDecls : Array LocalDecl) (ps : Array Expr) (k : Array LocalDecl → Array Pattern → TermElabM α) : TermElabM α := do
   let (patterns, s) ← (ps.mapM ToDepElimPattern.main).run { localDecls := localDecls }
   let localDecls ← s.localDecls.mapM fun d => instantiateLocalDeclMVars d
   /- toDepElimPatterns may have added new localDecls. Thus, we must update the local context before we execute `k` -/
   let lctx ← getLCtx
-  let lctx := localDecls.foldl (fun (lctx : LocalContext) d => lctx.erase d.fvarId) lctx
+  let lctx := patternVarDecls.foldl (init := lctx) fun (lctx : LocalContext) d =>
+    match d with
+    | PatternVarDecl.anonymousVar _ fvarId =>  lctx.erase fvarId
+    | PatternVarDecl.localVar fvarId => lctx.erase fvarId
   let lctx := localDecls.foldl (fun (lctx : LocalContext) d => lctx.addDecl d) lctx
   withTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) do
     k localDecls patterns
@@ -555,7 +559,7 @@ private def withElaboratedLHS {α} (ref : Syntax) (patternVarDecls : Array Patte
   id (α := TermElabM α) do
     let localDecls ← finalizePatternDecls patternVarDecls
     let patterns ← patterns.mapM (instantiateMVars ·)
-    withDepElimPatterns localDecls patterns fun localDecls patterns =>
+    withDepElimPatterns patternVarDecls localDecls patterns fun localDecls patterns => do
       k { ref := ref, fvarDecls := localDecls.toList, patterns := patterns.toList } matchType
 
 private def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : ExceptT PatternElabException TermElabM (AltLHS × Expr) := withRef alt.ref do
@@ -651,23 +655,34 @@ where
       trace[Meta.debug] "pathToIndex: {toString pathToIndex}"
       let some index ← getIndexToInclude? discrs[patternIdx] pathToIndex
         | throwEx (← updateFirst first? ex)
-      trace[Meta.debug] "index: {index}"
+      trace[Elab.match] "index to include: {index}"
       if (← discrs.anyM fun discr => isDefEq discr index) then
         throwEx (← updateFirst first? ex)
       let first ← updateFirst first? ex
-      s.restore
+      s.restore (restoreInfo := true)
       let indices ← collectDeps #[index] discrs
       let matchType ←
         try
           updateMatchType indices matchType
         catch ex =>
           throwEx first
-      let altViews  ← addWildcardPatterns indices.size altViews
+      let ref ← getRef
+      let wildcards ← indices.mapM fun index => do
+        if index.isFVar then
+          let localDecl ← getLocalDecl index.fvarId!
+          if localDecl.userName.hasMacroScopes then
+            return mkHole ref
+          else
+            let id := mkIdentFrom ref localDecl.userName
+            `(?$id:ident)
+        else
+          return mkHole ref
+      let altViews  := altViews.map fun altView => { altView with patterns := wildcards ++ altView.patterns }
       let discrs    := indices ++ discrs
       loop discrs matchType altViews first
 
   throwEx {α} (p : SavedState × Exception) : TermElabM α := do
-    p.1.restore; throw p.2
+    p.1.restore (restoreInfo := true); throw p.2
 
   updateFirst (first? : Option (SavedState × Exception)) (ex : Exception) : TermElabM (SavedState × Exception) := do
     match first? with
@@ -722,10 +737,6 @@ where
     check matchType
     return matchType
 
-  addWildcardPatterns (num : Nat) (altViews : Array MatchAltView) : TermElabM (Array MatchAltView) := do
-    let hole := mkHole (← getRef)
-    let wildcards := mkArray num hole
-    return altViews.map fun altView => { altView with patterns := wildcards ++ altView.patterns }
 
 def mkMatcher (input : Meta.Match.MkMatcherInput) : TermElabM MatcherResult :=
   Meta.Match.mkMatcher input

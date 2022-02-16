@@ -116,6 +116,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
             | none =>
               let hole := mkHole refForElabFunType
               let type ← elabType hole
+              trace[Elab.definition] ">> type: {type}\n{type.mvarId!}"
               registerFailedToInferDefTypeInfo type refForElabFunType
               pure type
           Term.synthesizeSyntheticMVarsNoPostponing
@@ -196,8 +197,8 @@ private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal 
     Macro.throwErrorAt declVal "unexpected declaration body"
 
 private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array Expr) :=
-  headers.mapM fun header => withDeclName header.declName $ withLevelNames header.levelNames do
-    let valStx ← liftMacroM $ declValToTerm header.valueStx
+  headers.mapM fun header => withDeclName header.declName <| withLevelNames header.levelNames do
+    let valStx ← liftMacroM <| declValToTerm header.valueStx
     forallBoundedTelescope header.type header.numParams fun xs type => do
       -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
       for i in [0:header.binderIds.size] do
@@ -222,7 +223,7 @@ private def removeUnusedVars (vars : Array Expr) (headers : Array DefViewElabHea
 private def withUsed {α} (vars : Array Expr) (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
     (k : Array Expr → TermElabM α) : TermElabM α := do
   let (lctx, localInsts, vars) ← removeUnusedVars vars headers values toLift
-  withLCtx lctx localInsts $ k vars
+  withLCtx lctx localInsts <| k vars
 
 private def isExample (views : Array DefView) : Bool :=
   views.any (·.kind.isExample)
@@ -319,7 +320,7 @@ we would have a `LetRecToLift` containing:
 Note that `g` is not a free variable at `(let g : B := ?m₂; body)`. We recover the fact that
 `f` depends on `g` because it contains `m₂`
 -/
-private def mkInitialUsedFVarsMap (mctx : MetavarContext) (sectionVars : Array Expr) (mainFVarIds : Array FVarId) (letRecsToLift : List LetRecToLift)
+private def mkInitialUsedFVarsMap (mctx : MetavarContext) (sectionVars : Array Expr) (mainFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift)
     : UsedFVarsMap := Id.run <| do
   let mut sectionVarSet := {}
   for var in sectionVars do
@@ -366,7 +367,7 @@ structure State where
   usedFVarsMap : UsedFVarsMap := {}
   modified     : Bool         := false
 
-abbrev M := ReaderT (List FVarId) $ StateM State
+abbrev M := ReaderT (Array FVarId) $ StateM State
 
 private def isModified : M Bool := do pure (← get).modified
 private def resetModified : M Unit := modify fun s => { s with modified := false }
@@ -378,10 +379,10 @@ private def modifyUsedFVars (f : UsedFVarsMap → UsedFVarsMap) : M Unit := modi
 private def merge (s₁ s₂ : FVarIdSet) : M FVarIdSet :=
   s₂.foldM (init := s₁) fun s₁ k => do
     if s₁.contains k then
-      pure s₁
+      return s₁
     else
       markModified
-      pure $ s₁.insert k
+      return s₁.insert k
 
 private def updateUsedVarsOf (fvarId : FVarId) : M Unit := do
   let usedFVarsMap ← getUsedFVarsMap
@@ -408,7 +409,7 @@ private partial def fixpoint : Unit → M Unit
     if (← isModified) then
       fixpoint ()
 
-def run (letRecFVarIds : List FVarId) (usedFVarsMap : UsedFVarsMap) : UsedFVarsMap :=
+def run (letRecFVarIds : Array FVarId) (usedFVarsMap : UsedFVarsMap) : UsedFVarsMap :=
   let (_, s) := ((fixpoint ()).run letRecFVarIds).run { usedFVarsMap := usedFVarsMap }
   s.usedFVarsMap
 
@@ -418,7 +419,7 @@ abbrev FreeVarMap := FVarIdMap (Array FVarId)
 
 private def mkFreeVarMap
     (mctx : MetavarContext) (sectionVars : Array Expr) (mainFVarIds : Array FVarId)
-    (recFVarIds : Array FVarId) (letRecsToLift : List LetRecToLift) : FreeVarMap := Id.run <| do
+    (recFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift) : FreeVarMap := Id.run <| do
   let usedFVarsMap  := mkInitialUsedFVarsMap mctx sectionVars mainFVarIds letRecsToLift
   let letRecFVarIds := letRecsToLift.map fun toLift => toLift.fvarId
   let usedFVarsMap  := FixPoint.run letRecFVarIds usedFVarsMap
@@ -432,7 +433,7 @@ private def mkFreeVarMap
       else
         fvarIds
     freeVarMap := freeVarMap.insert toLift.fvarId fvarIds
-  pure freeVarMap
+  return freeVarMap
 
 structure ClosureState where
   newLocalDecls : Array LocalDecl := #[]
@@ -458,10 +459,10 @@ private def pushLocalDecl (toProcess : Array FVarId) (fvarId : FVarId) (userName
     : StateRefT ClosureState TermElabM (Array FVarId) := do
   let type ← preprocess type
   modify fun s => { s with
-    newLocalDecls := s.newLocalDecls.push $ LocalDecl.cdecl default fvarId userName type bi,
+    newLocalDecls := s.newLocalDecls.push <| LocalDecl.cdecl default fvarId userName type bi,
     exprArgs      := s.exprArgs.push (mkFVar fvarId)
   }
-  pure $ pushNewVars toProcess (collectFVars {} type)
+  return pushNewVars toProcess (collectFVars {} type)
 
 private partial def mkClosureForAux (toProcess : Array FVarId) : StateRefT ClosureState TermElabM Unit := do
   let lctx ← getLCtx
@@ -486,7 +487,7 @@ private partial def mkClosureForAux (toProcess : Array FVarId) : StateRefT Closu
         let type ← preprocess type
         let val  ← preprocess val
         modify fun s => { s with
-          newLetDecls   := s.newLetDecls.push $ LocalDecl.ldecl default fvarId userName type val false,
+          newLetDecls   := s.newLetDecls.push <| LocalDecl.ldecl default fvarId userName type val false,
           /- We don't want to interleave let and lambda declarations in our closure. So, we expand any occurrences of fvarId
              at `newLocalDecls` and `localDecls` -/
           newLocalDecls := s.newLocalDecls.map (replaceFVarIdAtLocalDecl fvarId val),
@@ -514,9 +515,9 @@ private def mkLetRecClosureFor (toLift : LetRecToLift) (freeVars : Array FVarId)
   lambdaTelescope toLift.val fun xs val => do
     let type ← instantiateForall toLift.type xs
     let lctx ← getLCtx
-    let s ← mkClosureFor freeVars $ xs.map fun x => lctx.get! x.fvarId!
-    let type := Closure.mkForall s.localDecls $ Closure.mkForall s.newLetDecls type
-    let val  := Closure.mkLambda s.localDecls $ Closure.mkLambda s.newLetDecls val
+    let s ← mkClosureFor freeVars <| xs.map fun x => lctx.get! x.fvarId!
+    let type := Closure.mkForall s.localDecls <| Closure.mkForall s.newLetDecls type
+    let val  := Closure.mkLambda s.localDecls <| Closure.mkLambda s.newLetDecls val
     let c    := mkAppN (Lean.mkConst toLift.declName) s.exprArgs
     assignExprMVar toLift.mvarId c
     return {
@@ -526,8 +527,23 @@ private def mkLetRecClosureFor (toLift : LetRecToLift) (freeVars : Array FVarId)
       toLift     := { toLift with val := val, type := type }
     }
 
-private def mkLetRecClosures (letRecsToLift : List LetRecToLift) (freeVarMap : FreeVarMap) : TermElabM (List LetRecClosure) :=
-  letRecsToLift.mapM fun toLift => mkLetRecClosureFor toLift (freeVarMap.find? toLift.fvarId).get!
+private def mkLetRecClosures (sectionVars : Array Expr) (mainFVarIds : Array FVarId) (recFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift) : TermElabM (List LetRecClosure) := do
+  -- Compute the set of free variables (excluding `recFVarIds`) for each let-rec.
+  let mut letRecsToLift := letRecsToLift
+  let mut freeVarMap    := mkFreeVarMap (← getMCtx) sectionVars mainFVarIds recFVarIds letRecsToLift
+  let mut result := #[]
+  for i in [:letRecsToLift.size] do
+    if letRecsToLift[i].val.hasExprMVar then
+      -- This can happen when this particular let-rec has nested let-rec that have been resolved in previous iterations.
+      -- This code relies on the fact that nested let-recs occur before the outer most let-recs at `letRecsToLift`.
+      -- Unresolved nested let-recs appear as metavariables before they are resolved. See `assignExprMVar` at `mkLetRecClosureFor`
+      let valNew ← instantiateMVars letRecsToLift[i].val
+      letRecsToLift := letRecsToLift.modify i fun t => { t with val := valNew }
+      -- We have to recompute the `freeVarMap` in this case. This overhead should not be an issue in practice.
+      freeVarMap := mkFreeVarMap (← getMCtx) sectionVars mainFVarIds recFVarIds letRecsToLift
+    let toLift := letRecsToLift[i]
+    result := result.push (← mkLetRecClosureFor toLift (freeVarMap.find? toLift.fvarId).get!)
+  return result.toList
 
 /- Mapping from FVarId of mutually recursive functions being defined to "closure" expression. -/
 abbrev Replacement := FVarIdMap Expr
@@ -598,16 +614,17 @@ def getModifiersForLetRecs (mainHeaders : Array DefViewElabHeader) : Modifiers :
 def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainFVars : Array Expr) (mainVals : Array Expr) (letRecsToLift : List LetRecToLift)
     : TermElabM (Array PreDefinition) := do
   -- Store in recFVarIds the fvarId of every function being defined by the mutual block.
+  let letRecsToLift := letRecsToLift.toArray
   let mainFVarIds := mainFVars.map Expr.fvarId!
-  let recFVarIds  := (letRecsToLift.toArray.map fun toLift => toLift.fvarId) ++ mainFVarIds
-  -- Compute the set of free variables (excluding `recFVarIds`) for each let-rec.
-  let mctx ← getMCtx
-  let freeVarMap := mkFreeVarMap mctx sectionVars mainFVarIds recFVarIds letRecsToLift
+  let recFVarIds  := (letRecsToLift.map fun toLift => toLift.fvarId) ++ mainFVarIds
   resetZetaFVarIds
   withTrackingZeta do
     -- By checking `toLift.type` and `toLift.val` we populate `zetaFVarIds`. See comments at `src/Lean/Meta/Closure.lean`.
-    letRecsToLift.forM fun toLift => withLCtx toLift.lctx toLift.localInstances do Meta.check toLift.type; Meta.check toLift.val
-    let letRecClosures ← mkLetRecClosures letRecsToLift freeVarMap
+    let letRecsToLift ← letRecsToLift.mapM fun toLift => withLCtx toLift.lctx toLift.localInstances do
+      Meta.check toLift.type
+      Meta.check toLift.val
+      return { toLift with val := (← instantiateMVars toLift.val), type := (← instantiateMVars toLift.type) }
+    let letRecClosures ← mkLetRecClosures sectionVars mainFVarIds recFVarIds letRecsToLift
     -- mkLetRecClosures assign metavariables that were placeholders for the lifted declarations.
     let mainVals    ← mainVals.mapM (instantiateMVars ·)
     let mainHeaders ← mainHeaders.mapM instantiateMVarsAtHeader

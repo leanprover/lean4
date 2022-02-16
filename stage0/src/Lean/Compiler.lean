@@ -13,3 +13,4 @@ import Lean.Compiler.NeverExtractAttr
 import Lean.Compiler.IR
 import Lean.Compiler.CSimpAttr
 import Lean.Compiler.FFI
+import Lean.Compiler.NoncomputableAttr

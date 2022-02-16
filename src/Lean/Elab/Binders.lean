@@ -206,6 +206,13 @@ def elabBinder {α} (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α
       mkForallFVars xs e
   | _ => throwUnsupportedSyntax
 
+open Lean.Elab.Term.Quotation in
+@[builtinQuotPrecheck Lean.Parser.Term.arrow] def precheckArrow : Precheck
+  | `($dom:term -> $rng) => do
+    precheck dom
+    precheck rng
+  | _ => throwUnsupportedSyntax
+
 @[builtinTermElab arrow] def elabArrow : TermElab := fun stx _ =>
   match stx with
   | `($dom:term -> $rng) => do

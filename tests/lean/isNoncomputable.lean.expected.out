@@ -1,0 +1,4 @@
+List.map is not marked as noncomputable
+foo is marked as noncomputable
+Classical.ofNonempty is marked as noncomputable
+Array.map is not marked as noncomputable

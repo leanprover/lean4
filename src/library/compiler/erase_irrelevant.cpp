@@ -405,7 +405,7 @@ class erase_irrelevant_fn {
             expr fvar  = m_lctx.mk_local_decl(ngen(), n, t, v);
             curr_fvars.push_back(fvar);
             expr new_t = mk_runtime_type(t);
-            expr new_v = visit(v);
+            expr new_v = is_enf_neutral(new_t) ? mk_enf_neutral() : visit(v);
             m_let_fvars.push_back(fvar);
             m_let_entries.emplace_back(n, new_t, new_v);
             e = let_body(e);

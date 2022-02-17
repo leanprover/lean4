@@ -68,15 +68,18 @@ def checkArgs (as : Array Arg) : M Unit :=
 
 @[inline] def checkEqTypes (ty₁ ty₂ : IRType) : M Unit := do
   unless ty₁ == ty₂ do
-    throw "unexpected type"
+    throw "unexpected type '{ty₁}' != '{ty₂}'"
 
-@[inline] def checkType (ty : IRType) (p : IRType → Bool) : M Unit := do
+@[inline] def checkType (ty : IRType) (p : IRType → Bool) (suffix? : Option String := none): M Unit := do
   unless p ty do
-   throw s!"unexpected type '{ty}'"
+   let mut msg := s!"unexpected type '{ty}'"
+   if let some suffix := suffix? then
+     msg := s!"{msg}, {suffix}"
+   throw msg
 
-def checkObjType (ty : IRType) : M Unit := checkType ty IRType.isObj
+def checkObjType (ty : IRType) : M Unit := checkType ty IRType.isObj "object expected"
 
-def checkScalarType (ty : IRType) : M Unit := checkType ty IRType.isScalar
+def checkScalarType (ty : IRType) : M Unit := checkType ty IRType.isScalar "scalar expected"
 
 def getType (x : VarId) : M IRType := do
   let ctx ← read
@@ -84,14 +87,14 @@ def getType (x : VarId) : M IRType := do
   | some ty => pure ty
   | none    => throw s!"unknown variable '{x}'"
 
-@[inline] def checkVarType (x : VarId) (p : IRType → Bool) : M Unit := do
-  let ty ← getType x; checkType ty p
+@[inline] def checkVarType (x : VarId) (p : IRType → Bool) (suffix? : Option String := none) : M Unit := do
+  let ty ← getType x; checkType ty p suffix?
 
 def checkObjVar (x : VarId) : M Unit :=
-  checkVarType x IRType.isObj
+  checkVarType x IRType.isObj "object expected"
 
 def checkScalarVar (x : VarId) : M Unit :=
-  checkVarType x IRType.isScalar
+  checkVarType x IRType.isScalar "scalar expected"
 
 def checkFullApp (c : FunId) (ys : Array Arg) : M Unit := do
   let decl ← getDecl c

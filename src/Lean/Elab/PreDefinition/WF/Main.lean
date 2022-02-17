@@ -47,7 +47,39 @@ private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonR
     trace[Elab.definition.wf] "{preDef.declName} := {value}"
     addNonRec { preDef with value } (applyAttrAfterCompilation := false)
 
+partial def withCommonTelescope (preDefs : Array PreDefinition) (k : Array Expr → Array Expr → TermElabM α) : TermElabM α :=
+  go #[] (preDefs.map (·.value))
+where
+  go (fvars : Array Expr) (vals : Array Expr) : TermElabM α := do
+    if !(vals.all fun val => val.isLambda) then
+      k fvars vals
+    else if !(← vals.allM fun val => return val.bindingName! == vals[0].bindingName! && val.binderInfo == vals[0].binderInfo && (← isDefEq val.bindingDomain! vals[0].bindingDomain!)) then
+      k fvars vals
+    else
+      withLocalDecl vals[0].bindingName! vals[0].binderInfo vals[0].bindingDomain! fun x =>
+        go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
+
+def getFixedPrefix (preDefs : Array PreDefinition) : TermElabM Nat :=
+  withCommonTelescope preDefs fun xs vals => do
+    let resultRef ← IO.mkRef xs.size
+    for val in vals do
+      if (← resultRef.get) == 0 then return 0
+      forEachExpr' val fun e => do
+        if preDefs.any fun preDef => e.isAppOf preDef.declName then
+          let args := e.getAppArgs
+          resultRef.modify (min args.size .)
+          for arg in args, x in xs do
+            if !(← withoutProofIrrelevance <| withReducible <| isDefEq arg x) then
+              -- We continue searching if e's arguments are not a prefix of `xs`
+              return true
+          return false
+        else
+          return true
+    resultRef.get
+
 def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (decrTactic? : Option Syntax) : TermElabM Unit := do
+  let fixedPrefix ← getFixedPrefix preDefs
+  trace[Elab.definition.wf] "fixed prefix: {fixedPrefix}"
   let unaryPreDef ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef

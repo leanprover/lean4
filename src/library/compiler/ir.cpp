@@ -518,7 +518,7 @@ environment compile(environment const & env, options const & opts, comp_decls co
     buffer<decl> ir_decls;
     for (comp_decl const & decl : decls) {
         lean_trace(name({"compiler", "lambda_pure"}),
-                   tout() << ">> " << decl.fst() << "\n" << decl.snd() << "\n";);
+                   tout() << ">> " << decl.fst() << " := " << trace_pp_expr(decl.snd()) << "\n";);
         ir_decls.push_back(to_ir_decl(env, decl));
     }
     object * r   = lean_ir_compile(env.to_obj_arg(), opts.to_obj_arg(), to_array(ir_decls));

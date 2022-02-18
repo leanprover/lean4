@@ -57,17 +57,20 @@ private partial def mkPSigmaCasesOn (y : Expr) (codomain : Expr) (xs : Array Exp
   Convert the given pre-definitions into unary functions.
   We "pack" the arguments using `PSigma`.
 -/
-partial def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) := do
+partial def packDomain (fixedPrefix : Nat) (preDefs : Array PreDefinition) : MetaM (Array PreDefinition) := do
   let mut preDefsNew := #[]
   let mut arities := #[]
   let mut modified := false
   for preDef in preDefs do
     let (preDefNew, arity, modifiedCurr) ← lambdaTelescope preDef.value fun xs body => do
-      if xs.size == 0 then
-        throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any arguments"
-      if xs.size > 1 then
+      if xs.size == fixedPrefix then
+        throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
+      let arity := xs.size
+      if arity > fixedPrefix + 1 then
         let bodyType ← instantiateForall preDef.type xs
         let mut d ← inferType xs.back
+        let ys : Array Expr := xs[:fixedPrefix]
+        let xs : Array Expr := xs[fixedPrefix:]
         for x in xs.pop.reverse do
           d ← mkAppOptM ``PSigma #[some (← inferType x), some (← mkLambdaFVars #[x] d)]
         withLocalDeclD (← mkFreshUserName `_x) d fun tuple => do
@@ -75,12 +78,12 @@ partial def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinit
           let codomain := bodyType.replaceFVars xs elems
           let preDefNew:= { preDef with
             declName := preDef.declName ++ `_unary
-            type := (← mkForallFVars #[tuple] codomain)
+            type := (← mkForallFVars (ys.push tuple) codomain)
           }
           addAsAxiom preDefNew
-          return (preDefNew, xs.size, true)
+          return (preDefNew, arity, true)
       else
-        return (preDef, 1, false)
+        return (preDef, arity, false)
     modified := modified || modifiedCurr
     arities := arities.push arity
     preDefsNew := preDefsNew.push preDefNew
@@ -92,14 +95,17 @@ partial def packDomain (preDefs : Array PreDefinition) : MetaM (Array PreDefinit
     let preDefNew := preDefsNew[i]
     let arity := arities[i]
     let valueNew ← lambdaTelescope preDef.value fun xs body => do
-      forallBoundedTelescope preDefNew.type (some 1) fun y codomain => do
-        let y := y[0]
-        let newBody ← mkPSigmaCasesOn y codomain xs body
-        mkLambdaFVars #[y] (← packApplications newBody arities preDefsNew)
+      let ys : Array Expr := xs[:fixedPrefix]
+      let xs : Array Expr := xs[fixedPrefix:]
+      let type ← instantiateForall preDefNew.type ys
+      forallBoundedTelescope type (some 1) fun z codomain => do
+        let z := z[0]
+        let newBody ← mkPSigmaCasesOn z codomain xs body
+        mkLambdaFVars (ys.push z) (← packApplications newBody arities preDefsNew)
     let isBad (e : Expr) : Bool :=
       match isAppOfPreDef? e with
       | none   => false
-      | some i => e.getAppNumArgs > 1 || preDefsNew[i].declName != preDefs[i].declName
+      | some i => e.getAppNumArgs > fixedPrefix + 1 || preDefsNew[i].declName != preDefs[i].declName
     if let some bad := valueNew.find? isBad then
       if let some i := isAppOfPreDef? bad then
         throwErrorAt preDef.ref "well-founded recursion cannot be used, function '{preDef.declName}' contains application of function '{preDefs[i].declName}' with #{bad.getAppNumArgs} argument(s), but function has arity {arities[i]}"
@@ -115,9 +121,11 @@ where
   packApplications (e : Expr) (arities : Array Nat) (preDefsNew : Array PreDefinition) : MetaM Expr := do
     let pack (e : Expr) (funIdx : Nat) : MetaM Expr := do
       let f := e.getAppFn
+      let args := e.getAppArgs
       let fNew := mkConst preDefsNew[funIdx].declName f.constLevels!
+      let fNew := mkAppN fNew args[:fixedPrefix]
       let Expr.forallE _ d .. ← inferType fNew | unreachable!
-      let argNew ← mkUnaryArg d e.getAppArgs
+      let argNew ← mkUnaryArg d args[fixedPrefix:]
       return mkApp fNew argNew
     let rec
       visit (e : Expr) : MonadCacheT ExprStructEq Expr MetaM Expr := do

@@ -80,14 +80,17 @@ def getFixedPrefix (preDefs : Array PreDefinition) : TermElabM Nat :=
 def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (decrTactic? : Option Syntax) : TermElabM Unit := do
   let fixedPrefix ← getFixedPrefix preDefs
   trace[Elab.definition.wf] "fixed prefix: {fixedPrefix}"
+  let fixedPrefix := 0 -- TODO: remove after we convert all code in this module to use the fixedPrefix
   let unaryPreDef ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef
-    let unaryPreDefs ← packDomain preDefs
-    packMutual unaryPreDefs
+    let unaryPreDefs ← packDomain fixedPrefix preDefs
+    -- unaryPreDefs.forM fun d => do trace[Elab.definition.wf] "packDomain result {d.declName} := {d.value}"; check d.value
+    packMutual fixedPrefix unaryPreDefs
   let wfRel ← elabWFRel preDefs unaryPreDef wf?
   let preDefNonRec ← withoutModifyingEnv do
     addAsAxiom unaryPreDef
+    -- trace[Elab.definition.wf] "after packMutual {unaryPreDef.declName} := {unaryPreDef.value}"; check unaryPreDef.value
     mkFix unaryPreDef wfRel decrTactic?
   let preDefNonRec ← eraseRecAppSyntax preDefNonRec
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"

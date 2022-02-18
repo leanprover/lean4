@@ -3,7 +3,7 @@ sanitychecks.lean:1:8-1:15: error: fail to show termination for
 with errors
 structural recursion cannot be used
 
-well-founded recursion cannot be used, 'unsound' does not take any arguments
+well-founded recursion cannot be used, 'unsound' does not take any (non-fixed) arguments
 sanitychecks.lean:4:8-5:10: error: 'partial' theorems are not allowed, 'partial' is a code generation directive
 sanitychecks.lean:7:7-8:10: error: 'unsafe' theorems are not allowed
 sanitychecks.lean:10:0-10:25: error: failed to synthesize

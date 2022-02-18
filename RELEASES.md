@@ -68,3 +68,5 @@ example (a : α) (x : Fam α) : α :=
   | Fam.any   => a
   | Fam.nat n => n
 ```
+
+* We now use `PSum` (instead of `Sum`) when compiling mutually recursive definitions using well-founded recursion.

@@ -38,10 +38,10 @@ private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonR
           (← whnfD type).withApp fun f args => do
             assert! args.size == 2
             if i == fidx then
-              return mkApp3 (mkConst ``Sum.inl f.constLevels!) args[0] args[1] (← mkProd args[0])
+              return mkApp3 (mkConst ``PSum.inl f.constLevels!) args[0] args[1] (← mkProd args[0])
             else
               let r ← mkSum (i+1) args[1]
-              return mkApp3 (mkConst ``Sum.inr f.constLevels!) args[0] args[1] r
+              return mkApp3 (mkConst ``PSum.inr f.constLevels!) args[0] args[1] r
       let arg ← mkSum 0 domain
       mkLambdaFVars xs (mkApp (mkConst preDefNonRec.declName us) arg)
     trace[Elab.definition.wf] "{preDef.declName} := {value}"

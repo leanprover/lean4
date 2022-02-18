@@ -15,9 +15,9 @@ end
 termination_by'
   invImage
     (fun
-      | Sum.inl ⟨_, n, _, _⟩ => (n, 2)
-      | Sum.inr <| Sum.inl ⟨_, _, n, _⟩ => (n, 1)
-      | Sum.inr <| Sum.inr ⟨_, _, _, n⟩ => (n, 0))
+      | PSum.inl ⟨_, n, _, _⟩ => (n, 2)
+      | PSum.inr <| PSum.inl ⟨_, _, n, _⟩ => (n, 1)
+      | PSum.inr <| PSum.inr ⟨_, _, _, n⟩ => (n, 0))
     (Prod.lex sizeOfWFRel sizeOfWFRel)
 decreasing_by
   simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel]
@@ -51,9 +51,9 @@ end
 termination_by'
   invImage
     (fun
-      | Sum.inl ⟨_, n, _, _⟩ => (n, 2)
-      | Sum.inr <| Sum.inl ⟨_, _, n, _⟩ => (n, 1)
-      | Sum.inr <| Sum.inr ⟨_, _, _, n⟩ => (n, 0))
+      | PSum.inl ⟨_, n, _, _⟩ => (n, 2)
+      | PSum.inr <| PSum.inl ⟨_, _, n, _⟩ => (n, 1)
+      | PSum.inr <| PSum.inr ⟨_, _, _, n⟩ => (n, 0))
     (Prod.lex sizeOfWFRel sizeOfWFRel)
 
 #print f._unary._mutual

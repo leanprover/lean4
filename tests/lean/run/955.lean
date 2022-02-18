@@ -22,5 +22,5 @@ mutual
     | 0 => false
     | n+1 => isEven n
 end
-termination_by' measure (fun n => match n with | Sum.inl n => n | Sum.inr n => n)
+termination_by' measure (fun n => match n with | PSum.inl n => n | PSum.inr n => n)
 end Ex3

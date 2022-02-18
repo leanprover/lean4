@@ -8,8 +8,8 @@ mutual
     | n+1 => isEven n
 end
 termination_by' measure fun
-  | Sum.inl n => n
-  | Sum.inr n => n
+  | PSum.inl n => n
+  | PSum.inr n => n
 
 #print isEven
 #print isOdd

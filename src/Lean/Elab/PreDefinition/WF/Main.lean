@@ -78,21 +78,25 @@ def getFixedPrefix (preDefs : Array PreDefinition) : TermElabM Nat :=
     resultRef.get
 
 def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (decrTactic? : Option Syntax) : TermElabM Unit := do
-  let fixedPrefix ← getFixedPrefix preDefs
-  trace[Elab.definition.wf] "fixed prefix: {fixedPrefix}"
-  let fixedPrefix := 0 -- TODO: remove after we convert all code in this module to use the fixedPrefix
+  let fixedPrefixSize ← getFixedPrefix preDefs
+  trace[Elab.definition.wf] "fixed prefix: {fixedPrefixSize}"
+  let fixedPrefixSize := 0 -- TODO: remove after we convert all code in this module to use the fixedPrefix
   let unaryPreDef ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef
-    let unaryPreDefs ← packDomain fixedPrefix preDefs
+    let unaryPreDefs ← packDomain fixedPrefixSize preDefs
     -- unaryPreDefs.forM fun d => do trace[Elab.definition.wf] "packDomain result {d.declName} := {d.value}"; check d.value
-    packMutual fixedPrefix unaryPreDefs
-  let wfRel ← elabWFRel preDefs unaryPreDef wf?
-  let preDefNonRec ← withoutModifyingEnv do
-    addAsAxiom unaryPreDef
-    -- trace[Elab.definition.wf] "after packMutual {unaryPreDef.declName} := {unaryPreDef.value}"; check unaryPreDef.value
-    mkFix unaryPreDef wfRel decrTactic?
-  let preDefNonRec ← eraseRecAppSyntax preDefNonRec
+    packMutual fixedPrefixSize unaryPreDefs
+  -- trace[Elab.definition.wf] "after packMutual {unaryPreDef.declName} := {unaryPreDef.value}"
+  let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedPrefixSize fun prefixArgs type => do
+    let packedArgType := type.bindingDomain!
+    let wfRel ← elabWFRel preDefs unaryPreDef.declName fixedPrefixSize packedArgType wf?
+    trace[Elab.definition.wf] "wfRel: {wfRel}"
+    withoutModifyingEnv do
+      addAsAxiom unaryPreDef
+      let value ← mkFix unaryPreDef prefixArgs wfRel decrTactic?
+      let value ← eraseRecAppSyntaxExpr value
+      return { unaryPreDef with value }
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
   addNonRec preDefNonRec

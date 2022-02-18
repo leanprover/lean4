@@ -19,8 +19,8 @@ end
 termination_by'
  invImage
     (fun
-      | PSum.inl ⟨_, n⟩ => (n, 0)
-      | PSum.inr ⟨_, n⟩ => (n, 1))
+      | PSum.inl n => (n, 0)
+      | PSum.inr n => (n, 1))
     (Prod.lex sizeOfWFRel sizeOfWFRel)
 decreasing_by
   simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel]

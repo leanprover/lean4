@@ -70,3 +70,13 @@ example (a : α) (x : Fam α) : α :=
 ```
 
 * We now use `PSum` (instead of `Sum`) when compiling mutually recursive definitions using well-founded recursion.
+
+* Better support for parametric well-founded relations. See [issue #1017](https://github.com/leanprover/lean4/issues/1017). This change affects the low-level `termination_by'` hint because the fixed prefix of the function parameters in not "packed" anymore when constructing the well-founded relation type. For example, in the following definition, `as` is part of the fixed prefix, and is not packed anymore. In previous versions, the `termination_by'` term would be written as `measure fun ⟨as, i, _⟩ => as.size - i`
+```lean
+def sum (as : Array Nat) (i : Nat) (s : Nat) : Nat :=
+  if h : i < as.size then
+    sum as (i+1) (s + as.get ⟨i, h⟩)
+  else
+    s
+termination_by' measure fun ⟨i, _⟩ => as.size - i
+```

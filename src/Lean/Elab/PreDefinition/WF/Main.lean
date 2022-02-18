@@ -15,22 +15,22 @@ namespace Lean.Elab
 open WF
 open Meta
 
-private def isOnlyOneUnaryDef (preDefs : Array PreDefinition) : MetaM Bool := do
+private def isOnlyOneUnaryDef (preDefs : Array PreDefinition) (fixedPrefixSize : Nat) : MetaM Bool := do
   if preDefs.size == 1 then
-    lambdaTelescope preDefs[0].value fun xs _ => return xs.size == 1
+    lambdaTelescope preDefs[0].value fun xs _ => return xs.size == fixedPrefixSize + 1
   else
     return false
 
-private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonRec : PreDefinition) : TermElabM Unit := do
-  if (← isOnlyOneUnaryDef preDefs) then
+private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonRec : PreDefinition) (fixedPrefixSize : Nat) : TermElabM Unit := do
+  if (← isOnlyOneUnaryDef preDefs fixedPrefixSize) then
     return ()
-  let Expr.forallE _ domain _ _ := preDefNonRec.type | unreachable!
   let us := preDefNonRec.levelParams.map mkLevelParam
   for fidx in [:preDefs.size] do
     let preDef := preDefs[fidx]
     let value ← lambdaTelescope preDef.value fun xs _ => do
+      let packedArgs : Array Expr := xs[fixedPrefixSize:]
       let mkProd (type : Expr) : MetaM Expr := do
-        mkUnaryArg type xs
+        mkUnaryArg type packedArgs
       let rec mkSum (i : Nat) (type : Expr) : MetaM Expr := do
         if i == preDefs.size - 1 then
           mkProd type
@@ -42,8 +42,9 @@ private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonR
             else
               let r ← mkSum (i+1) args[1]
               return mkApp3 (mkConst ``PSum.inr f.constLevels!) args[0] args[1] r
+      let Expr.forallE _ domain _ _ := (← instantiateForall preDefNonRec.type xs[:fixedPrefixSize]) | unreachable!
       let arg ← mkSum 0 domain
-      mkLambdaFVars xs (mkApp (mkConst preDefNonRec.declName us) arg)
+      mkLambdaFVars xs (mkApp (mkAppN (mkConst preDefNonRec.declName us) xs[:fixedPrefixSize]) arg)
     trace[Elab.definition.wf] "{preDef.declName} := {value}"
     addNonRec { preDef with value } (applyAttrAfterCompilation := false)
 
@@ -80,14 +81,11 @@ def getFixedPrefix (preDefs : Array PreDefinition) : TermElabM Nat :=
 def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (decrTactic? : Option Syntax) : TermElabM Unit := do
   let fixedPrefixSize ← getFixedPrefix preDefs
   trace[Elab.definition.wf] "fixed prefix: {fixedPrefixSize}"
-  let fixedPrefixSize := 0 -- TODO: remove after we convert all code in this module to use the fixedPrefix
   let unaryPreDef ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef
     let unaryPreDefs ← packDomain fixedPrefixSize preDefs
-    -- unaryPreDefs.forM fun d => do trace[Elab.definition.wf] "packDomain result {d.declName} := {d.value}"; check d.value
     packMutual fixedPrefixSize unaryPreDefs
-  -- trace[Elab.definition.wf] "after packMutual {unaryPreDef.declName} := {unaryPreDef.value}"
   let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedPrefixSize fun prefixArgs type => do
     let packedArgType := type.bindingDomain!
     let wfRel ← elabWFRel preDefs unaryPreDef.declName fixedPrefixSize packedArgType wf?
@@ -100,7 +98,7 @@ def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (de
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
   addNonRec preDefNonRec
-  addNonRecPreDefs preDefs preDefNonRec
+  addNonRecPreDefs preDefs preDefNonRec fixedPrefixSize
   registerEqnsInfo preDefs preDefNonRec.declName
   for preDef in preDefs do
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation

@@ -32,17 +32,22 @@ private partial def unpackMutual (preDefs : Array PreDefinition) (mvarId : MVarI
 private partial def unpackUnary (preDef : PreDefinition) (prefixSize : Nat) (mvarId : MVarId) (fvarId : FVarId) (element : TerminationByElement) : TermElabM MVarId := do
   let varNames ← lambdaTelescope preDef.value fun xs body => do
     let mut varNames ← xs.mapM fun x => return (← getLocalDecl x.fvarId!).userName
-    if element.vars.size > varNames.size - prefixSize then
+    if element.vars.size > varNames.size then
       throwErrorAt element.vars[varNames.size] "too many variable names"
     for i in [:element.vars.size] do
       let varStx := element.vars[i]
       if varStx.isIdent then
         varNames := varNames.set! (varNames.size - element.vars.size + i) varStx.getId
     return varNames
+  let mut mvarId := mvarId
+  for localDecl in (← Term.getMVarDecl mvarId).lctx, varName in varNames[:prefixSize] do
+    unless localDecl.userName == varName do
+      mvarId ← rename mvarId localDecl.fvarId varName
   let numPackedArgs := varNames.size - prefixSize
   let rec go (i : Nat) (mvarId : MVarId) (fvarId : FVarId) : TermElabM MVarId := do
+    trace[Elab.definition.wf] "i: {i}, varNames: {varNames}, goal: {mvarId}"
     if i < numPackedArgs - 1 then
-      let #[s] ← cases mvarId fvarId #[{ varNames := [varNames[i]] }] | unreachable!
+      let #[s] ← cases mvarId fvarId #[{ varNames := [varNames[prefixSize + i]] }] | unreachable!
       go (i+1) s.mvarId s.fields[1].fvarId!
     else
       rename mvarId fvarId varNames.back
@@ -52,6 +57,7 @@ def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPre
   let α := argType
   let u ← getLevel α
   let expectedType := mkApp (mkConst ``WellFoundedRelation [u]) α
+  trace[Elab.definition.wf] "elabWFRel start: {(← mkFreshTypeMVar).mvarId!}"
   match wf? with
   | some (TerminationWF.core wfStx) => withDeclName unaryPreDefName do
       let wfRel ← instantiateMVars (← withSynthesize <| elabTermEnsuringType wfStx expectedType)

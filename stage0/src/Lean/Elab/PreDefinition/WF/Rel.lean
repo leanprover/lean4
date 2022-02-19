@@ -29,7 +29,7 @@ private partial def unpackMutual (preDefs : Array PreDefinition) (mvarId : MVarI
       return result.push (fvarId, mvarId)
   go 0 mvarId fvarId #[]
 
-private partial def unpackUnary (preDef : PreDefinition) (mvarId : MVarId) (fvarId : FVarId) (element : TerminationByElement) : TermElabM MVarId := do
+private partial def unpackUnary (preDef : PreDefinition) (prefixSize : Nat) (mvarId : MVarId) (fvarId : FVarId) (element : TerminationByElement) : TermElabM MVarId := do
   let varNames ← lambdaTelescope preDef.value fun xs body => do
     let mut varNames ← xs.mapM fun x => return (← getLocalDecl x.fvarId!).userName
     if element.vars.size > varNames.size then
@@ -39,31 +39,38 @@ private partial def unpackUnary (preDef : PreDefinition) (mvarId : MVarId) (fvar
       if varStx.isIdent then
         varNames := varNames.set! (varNames.size - element.vars.size + i) varStx.getId
     return varNames
+  let mut mvarId := mvarId
+  for localDecl in (← Term.getMVarDecl mvarId).lctx, varName in varNames[:prefixSize] do
+    unless localDecl.userName == varName do
+      mvarId ← rename mvarId localDecl.fvarId varName
+  let numPackedArgs := varNames.size - prefixSize
   let rec go (i : Nat) (mvarId : MVarId) (fvarId : FVarId) : TermElabM MVarId := do
-    if i < varNames.size - 1 then
-      let #[s] ← cases mvarId fvarId #[{ varNames := [varNames[i]] }] | unreachable!
+    trace[Elab.definition.wf] "i: {i}, varNames: {varNames}, goal: {mvarId}"
+    if i < numPackedArgs - 1 then
+      let #[s] ← cases mvarId fvarId #[{ varNames := [varNames[prefixSize + i]] }] | unreachable!
       go (i+1) s.mvarId s.fields[1].fvarId!
     else
       rename mvarId fvarId varNames.back
   go 0 mvarId fvarId
 
-def elabWFRel (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition) (wf? : Option TerminationWF) : TermElabM Expr := do
-  let α := unaryPreDef.type.bindingDomain!
+def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPrefixSize : Nat) (argType : Expr) (wf? : Option TerminationWF) : TermElabM Expr := do
+  let α := argType
   let u ← getLevel α
   let expectedType := mkApp (mkConst ``WellFoundedRelation [u]) α
+  trace[Elab.definition.wf] "elabWFRel start: {(← mkFreshTypeMVar).mvarId!}"
   match wf? with
-  | some (TerminationWF.core wfStx) => withDeclName unaryPreDef.declName do
+  | some (TerminationWF.core wfStx) => withDeclName unaryPreDefName do
       let wfRel ← instantiateMVars (← withSynthesize <| elabTermEnsuringType wfStx expectedType)
       let pendingMVarIds ← getMVars wfRel
       discard <| logUnassignedUsingErrorInfos pendingMVarIds
       return wfRel
-  | some (TerminationWF.ext elements) => withDeclName unaryPreDef.declName <| withRef (getRefFromElems elements) do
+  | some (TerminationWF.ext elements) => withDeclName unaryPreDefName <| withRef (getRefFromElems elements) do
     let mainMVarId := (← mkFreshExprSyntheticOpaqueMVar expectedType).mvarId!
     let [fMVarId, wfRelMVarId, _] ← apply mainMVarId (← mkConstWithFreshMVarLevels ``invImage) | throwError "failed to apply 'invImage'"
     let (d, fMVarId) ← intro1 fMVarId
     let subgoals ← unpackMutual preDefs fMVarId d
     for (d, mvarId) in subgoals, element in elements, preDef in preDefs do
-      let mvarId ← unpackUnary preDef mvarId d element
+      let mvarId ← unpackUnary preDef fixedPrefixSize mvarId d element
       withMVarContext mvarId do
         let value ← Term.withSynthesize <| elabTermEnsuringType element.body (← getMVarType mvarId)
         assignExprMVar mvarId value

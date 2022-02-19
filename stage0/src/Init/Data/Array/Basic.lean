@@ -633,6 +633,29 @@ def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
 @[simp] theorem size_pop (a : Array α) : a.pop.size = a.size - 1 :=
   List.length_dropLast ..
 
+def popWhile (p : α → Bool) (as : Array α) : Array α :=
+  if h : as.size > 0 then
+    if p (as.get ⟨as.size - 1, Nat.sub_lt h (by decide)⟩) then
+      popWhile p as.pop
+    else
+      as
+  else
+    as
+termination_by popWhile as => as.size
+
+def takeWhile (p : α → Bool) (as : Array α) : Array α :=
+  let rec go (i : Nat) (r : Array α) : Array α :=
+    if h : i < as.size then
+      let a := as.get ⟨i, h⟩
+      if p a then
+        go (i+1) (r.push a)
+      else
+        r
+    else
+      r
+  go 0 #[]
+termination_by go i r => as.size - i
+
 def eraseIdxAux (i : Nat) (a : Array α) : Array α :=
   if h : i < a.size then
     let idx  : Fin a.size := ⟨i, h⟩;

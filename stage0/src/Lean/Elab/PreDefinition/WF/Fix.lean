@@ -29,7 +29,7 @@ private def mkDecreasingProof (decreasingProp : Expr) (decrTactic? : Option Synt
   | some decrTactic => Term.runTactic mvarId decrTactic
   instantiateMVars mvar
 
-private partial def replaceRecApps (recFnName : Name) (decrTactic? : Option Syntax) (F : Expr) (e : Expr) : TermElabM Expr :=
+private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (decrTactic? : Option Syntax) (F : Expr) (e : Expr) : TermElabM Expr :=
   let rec loop (F : Expr) (e : Expr) : TermElabM Expr := do
     match e with
     | Expr.lam n d b c =>
@@ -50,8 +50,8 @@ private partial def replaceRecApps (recFnName : Name) (decrTactic? : Option Synt
     | Expr.app _ _ _ =>
       let processApp (e : Expr) : TermElabM Expr :=
         e.withApp fun f args => do
-          if f.isConstOf recFnName && args.size == 1 then
-            let r := mkApp F (← loop F args[0])
+          if f.isConstOf recFnName && args.size == fixedPrefixSize + 1 then
+            let r := mkApp F (← loop F args.back)
             let decreasingProp := (← whnf (← inferType r)).bindingDomain!
             return mkApp r (← mkDecreasingProof decreasingProp decrTactic?)
           else
@@ -59,7 +59,7 @@ private partial def replaceRecApps (recFnName : Name) (decrTactic? : Option Synt
       let matcherApp? ← matchMatcherApp? e
       match matcherApp? with
       | some matcherApp =>
-        if !Structural.recArgHasLooseBVarsAt recFnName 0 e then
+        if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
           processApp e
         else
           let matcherApp ← mapError (matcherApp.addArg F) (fun msg => "failed to add functional argument to 'matcher' application" ++ indentD msg)
@@ -77,9 +77,9 @@ private partial def replaceRecApps (recFnName : Name) (decrTactic? : Option Synt
     | e => ensureNoRecFn recFnName e
   loop F e
 
-/-- Refine `F` over `Sum.casesOn` -/
+/-- Refine `F` over `PSum.casesOn` -/
 private partial def processSumCasesOn (x F val : Expr) (k : (x : Expr) → (F : Expr) → (val : Expr) → TermElabM Expr) : TermElabM Expr := do
-  if x.isFVar && val.isAppOfArity ``Sum.casesOn 6 && val.getArg! 3 == x && (val.getArg! 4).isLambda && (val.getArg! 5).isLambda then
+  if x.isFVar && val.isAppOfArity ``PSum.casesOn 6 && val.getArg! 3 == x && (val.getArg! 4).isLambda && (val.getArg! 5).isLambda then
     let args := val.getAppArgs
     let α := args[0]
     let β := args[1]
@@ -94,9 +94,9 @@ private partial def processSumCasesOn (x F val : Expr) (k : (x : Expr) → (F : 
         let FTypeNew := FDecl.type.replaceFVar x (← mkAppOptM ctorName #[α, β, xNew])
         withLocalDeclD FDecl.userName FTypeNew fun FNew => do
           mkLambdaFVars #[xNew, FNew] (← processSumCasesOn xNew FNew valNew k)
-    let minorLeft ← mkMinorNew ``Sum.inl args[4]
-    let minorRight ← mkMinorNew ``Sum.inr args[5]
-    let result := mkAppN (mkConst ``Sum.casesOn [u, (← getDecLevel α), (← getDecLevel β)]) #[α, β, motiveNew, x, minorLeft, minorRight, F]
+    let minorLeft ← mkMinorNew ``PSum.inl args[4]
+    let minorRight ← mkMinorNew ``PSum.inr args[5]
+    let result := mkAppN (mkConst ``PSum.casesOn [u, (← getLevel α), (← getLevel β)]) #[α, β, motiveNew, x, minorLeft, minorRight, F]
     return result
   else
     k x F val
@@ -124,8 +124,9 @@ private partial def processPSigmaCasesOn (x F val : Expr) (k : (F : Expr) → (v
   else
     k F val
 
-def mkFix (preDef : PreDefinition) (wfRel : Expr) (decrTactic? : Option Syntax) : TermElabM PreDefinition := do
-  let wfFix ← forallBoundedTelescope preDef.type (some 1) fun x type => do
+def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (wfRel : Expr) (decrTactic? : Option Syntax) : TermElabM Expr := do
+  let type ← instantiateForall preDef.type prefixArgs
+  let wfFix ← forallBoundedTelescope type (some 1) fun x type => do
     let x := x[0]
     let α ← inferType x
     let u ← getLevel α
@@ -137,8 +138,10 @@ def mkFix (preDef : PreDefinition) (wfRel : Expr) (decrTactic? : Option Syntax) 
   forallBoundedTelescope (← whnf (← inferType wfFix)).bindingDomain! (some 2) fun xs _ => do
     let x   := xs[0]
     let F   := xs[1]
-    let val := preDef.value.betaRev #[x]
-    let val ← processSumCasesOn x F val fun x F val => processPSigmaCasesOn x F val (replaceRecApps preDef.declName decrTactic?)
-    return { preDef with value := mkApp wfFix (← mkLambdaFVars #[x, F] val) }
+    let val := preDef.value.beta (prefixArgs.push x)
+    trace[Elab.definition.wf] ">> val: {val}"
+    let val ← processSumCasesOn x F val fun x F val => do
+      processPSigmaCasesOn x F val (replaceRecApps preDef.declName prefixArgs.size decrTactic?)
+    mkLambdaFVars prefixArgs (mkApp wfFix (← mkLambdaFVars #[x, F] val))
 
 end Lean.Elab.WF

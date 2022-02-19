@@ -1273,7 +1273,7 @@ private def isDefEqProofIrrel (t s : Expr) : MetaM LBool := do
 /- Try to solve constraint of the form `?m args₁ =?= ?m args₂`.
    - First try to unify `args₁` and `args₂`, and return true if successful
    - Otherwise, try to assign `?m` to a constant function of the form `fun x_1 ... x_n => ?n`
-     where `?n` is a fresh metavariable. See `processConstApprox`. -/
+     where `?n` is a fresh metavariable. See `assignConst`. -/
 private def isDefEqMVarSelf (mvar : Expr) (args₁ args₂ : Array Expr) : MetaM Bool := do
   if args₁.size != args₂.size then
     pure false

@@ -568,7 +568,15 @@ private def elabMatchAltView (alt : MatchAltView) (matchType : Expr) : ExceptT P
   withPatternVars patternVars fun patternVarDecls => do
     withElaboratedLHS alt.ref patternVarDecls alt.patterns matchType fun altLHS matchType => do
       withLocalInstances altLHS.fvarDecls do
-        let rhs ← elabTermEnsuringType alt.rhs matchType
+        trace[Elab.match] "elabMatchAltView: {matchType}"
+        let matchType ← instantiateMVars matchType
+        -- If `matchType` is of the form `@m ...`, we create a new metavariable with the current scope.
+        -- This improves the effectiveness of the `isDefEq` default approximations
+        let matchType' ← if matchType.getAppFn.isMVar then mkFreshTypeMVar else pure matchType
+        let rhs ← elabTermEnsuringType alt.rhs matchType'
+        -- We use all approximations to ensure the auxiliary type is defeq to the original one.
+        unless (← fullApproxDefEq <| isDefEq matchType' matchType) do
+          throwError "type mistmatch, alternative {← mkHasTypeButIsExpectedMsg matchType' matchType}"
         let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr
         let rhs ← if xs.isEmpty then pure <| mkSimpleThunk rhs else mkLambdaFVars xs rhs
         trace[Elab.match] "rhs: {rhs}"

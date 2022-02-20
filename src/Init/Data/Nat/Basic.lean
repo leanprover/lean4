@@ -462,13 +462,75 @@ theorem sub_ne_zero_of_lt : {a b : Nat} → a < b → b - a ≠ 0
   | succ a, 0, h => absurd h (Nat.not_lt_zero a.succ)
   | succ a, succ b, h => by rw [Nat.succ_sub_succ]; exact sub_ne_zero_of_lt (Nat.lt_of_succ_lt_succ h)
 
-theorem add_sub_self {a b : Nat} (h : a ≤ b) : a + (b - a) = b := by
+theorem add_sub_of_le {a b : Nat} (h : a ≤ b) : a + (b - a) = b := by
   induction a with
   | zero => simp
   | succ a ih =>
     have hne : b - a ≠ 0 := Nat.sub_ne_zero_of_lt h
     have : a ≤ b := Nat.le_of_succ_le h
     rw [sub_succ, Nat.succ_add, ← Nat.add_succ, Nat.succ_pred hne, ih this]
+
+protected theorem sub_add_cancel {n m : Nat} (h : m ≤ n) : n - m + m = n := by
+  rw [Nat.add_comm, Nat.add_sub_of_le h]
+
+protected theorem add_sub_add_right (n k m : Nat) : (n + k) - (m + k) = n - m := by
+  induction k with
+  | zero => simp
+  | succ k ih => simp [add_succ, add_succ, succ_sub_succ, ih]
+
+protected theorem add_sub_add_left (k n m : Nat) : (k + n) - (k + m) = n - m := by
+  rw [Nat.add_comm k n, Nat.add_comm k m, Nat.add_sub_add_right]
+
+protected theorem add_sub_cancel (n m : Nat) : n + m - m = n :=
+  suffices n + m - (0 + m) = n by rw [Nat.zero_add] at this; assumption
+  by rw [Nat.add_sub_add_right, Nat.sub_zero]
+
+protected theorem add_sub_cancel_left (n m : Nat) : n + m - n = m :=
+  show n + m - (n + 0) = m from
+  by rw [Nat.add_sub_add_left, Nat.sub_zero]
+
+protected theorem add_sub_assoc {m k : Nat} (h : k ≤ m) (n : Nat) : n + m - k = n + (m - k) := by
+ cases Nat.le.dest h
+ rename_i l hl
+ rw [← hl, Nat.add_sub_cancel_left, Nat.add_comm k, ← Nat.add_assoc, Nat.add_sub_cancel]
+
+protected theorem eq_add_of_sub_eq {a b c : Nat} (hle : b ≤ a) (h : a - b = c) : a = c + b := by
+  rw [h.symm, Nat.sub_add_cancel hle]
+
+protected theorem sub_eq_of_eq_add {a b c : Nat} (h : a = c + b) : a - b = c := by
+  rw [h, Nat.add_sub_cancel]
+
+@[simp] protected theorem pred_zero : pred 0 = 0 :=
+  rfl
+
+@[simp] protected theorem pred_succ (n : Nat) : pred n.succ = n :=
+  rfl
+
+@[simp] protected theorem zero_sub (n : Nat) : 0 - n = 0 := by
+  induction n with
+  | zero => rfl
+  | succ n ih => simp [ih, Nat.sub_succ]
+
+theorem mul_pred_left (n m : Nat) : pred n * m = n * m - m := by
+  cases n with
+  | zero   => simp
+  | succ n => rw [Nat.pred_succ, succ_mul, Nat.add_sub_cancel]
+
+theorem mul_pred_right (n m : Nat) : n * pred m = n * m - n := by
+  rw [Nat.mul_comm, mul_pred_left, Nat.mul_comm]
+
+protected theorem sub_sub (n m k : Nat) : n - m - k = n - (m + k) := by
+  induction k with
+  | zero => simp
+  | succ k ih => rw [Nat.add_succ, Nat.sub_succ, Nat.sub_succ, ih]
+
+protected theorem mul_sub_right_distrib (n m k : Nat) : (n - m) * k = n * k - m * k := by
+  induction m with
+  | zero => simp
+  | succ m ih => rw [Nat.sub_succ, Nat.mul_pred_left, ih, succ_mul, Nat.sub_sub]; done
+
+protected theorem mul_sub_left_distrib (n m k : Nat) : n * (m - k) = n * m - n * k := by
+  rw [Nat.mul_comm, Nat.mul_sub_right_distrib, Nat.mul_comm m n, Nat.mul_comm n k]
 
 end Nat
 

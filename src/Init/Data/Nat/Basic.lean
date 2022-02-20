@@ -194,7 +194,7 @@ theorem sub_succ (n m : Nat) : n - succ m = pred (n - m) :=
 theorem succ_sub_succ (n m : Nat) : succ n - succ m = n - m :=
   succ_sub_succ_eq_sub n m
 
-protected theorem sub_self : ∀ (n : Nat), n - n = 0
+@[simp] protected theorem sub_self : ∀ (n : Nat), n - n = 0
   | 0        => by rw [Nat.sub_zero]
   | (succ n) => by rw [succ_sub_succ, Nat.sub_self n]
 
@@ -450,6 +450,25 @@ theorem sub_succ_lt_self (a i : Nat) (h : i < a) : a - (i + 1) < a - i := by
   apply Nat.not_eq_zero_of_lt
   apply Nat.zero_lt_sub_of_lt
   assumption
+
+theorem succ_pred {a : Nat} (h : a ≠ 0) : a.pred.succ = a := by
+  induction a with
+  | zero => contradiction
+  | succ => rfl
+
+theorem sub_ne_zero_of_lt : {a b : Nat} → a < b → b - a ≠ 0
+  | 0, 0, h      => absurd h (Nat.lt_irrefl 0)
+  | 0, succ b, h => by simp
+  | succ a, 0, h => absurd h (Nat.not_lt_zero a.succ)
+  | succ a, succ b, h => by rw [Nat.succ_sub_succ]; exact sub_ne_zero_of_lt (Nat.lt_of_succ_lt_succ h)
+
+theorem add_sub_self {a b : Nat} (h : a ≤ b) : a + (b - a) = b := by
+  induction a with
+  | zero => simp
+  | succ a ih =>
+    have hne : b - a ≠ 0 := Nat.sub_ne_zero_of_lt h
+    have : a ≤ b := Nat.le_of_succ_le h
+    rw [sub_succ, Nat.succ_add, ← Nat.add_succ, Nat.succ_pred hne, ih this]
 
 end Nat
 

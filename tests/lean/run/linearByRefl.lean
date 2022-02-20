@@ -103,6 +103,94 @@ def Monomials.sort (m : Monomials) : Monomials :=
 @[simp] theorem Monomials.denote_sort (ctx : Context) (m : Monomials) : m.sort.denote ctx = m.denote ctx := by
   simp [sort, denote]
 
+@[simp] theorem Monomials.denote_append (ctx : Context) (m₁ m₂ : Monomials) : (m₁ ++ m₂).denote ctx = m₁.denote ctx + m₂.denote ctx := by
+  match m₁ with
+  | []  => simp [denote]
+  | (k, v) :: m₁ => simp [denote, denote_append ctx m₁ m₂]
+
+@[simp] theorem Monomials.denote_cons (ctx : Context) (k : Nat) (v : Var) (m : Monomials) : denote ctx ((k, v) :: m) = k * v.denote ctx + m.denote ctx := by
+  match m with
+  | []  => simp [denote]
+  | _ :: m => simp [denote, denote_cons ctx k v m]
+
+@[simp] theorem Monomials.denote_reverseAux (ctx : Context) (m₁ m₂ : Monomials) : denote ctx (List.reverseAux m₁ m₂) = denote ctx (m₁ ++ m₂) := by
+  match m₁ with
+  | [] => simp [denote, List.reverseAux]
+  | (k, v) :: m₁ => simp [denote, List.reverseAux, denote_reverseAux ctx m₁]
+
+@[simp] theorem Monomials.denote_reverse (ctx : Context) (m : Monomials) : denote ctx (List.reverse m) = denote ctx m := by
+  simp [List.reverse]
+
+def Monomials.cancelAux (fuel : Nat) (m₁ m₂ r₁ r₂ : Monomials) : Monomials × Monomials :=
+  match fuel with
+  | 0 => (r₁.reverse ++ m₁, r₂.reverse ++ m₂)
+  | fuel + 1 =>
+    match m₁, m₂ with
+    | m₁, [] => (r₁.reverse ++ m₁, r₂.reverse)
+    | [], m₂ => (r₁.reverse, r₂.reverse ++ m₂)
+    | (k₁, v₁) :: m₁, (k₂, v₂) :: m₂ =>
+      if v₁ < v₂ then
+        cancelAux fuel m₁ ((k₂, v₂) :: m₂) ((k₁, v₁) :: r₁) r₂
+      else if v₁ > v₂ then
+        cancelAux fuel ((k₁, v₁) :: m₁) m₂ r₁ ((k₂, v₂) :: r₂)
+      else if k₁ < k₂ then
+        cancelAux fuel m₁ m₂ r₁ ((k₂ - k₁, v₁) :: r₂)
+      else if k₁ > k₂ then
+        cancelAux fuel m₁ m₂ ((k₁ - k₂, v₁) :: r₁) r₂
+      else
+        cancelAux fuel m₁ m₂ r₁ r₂
+
+def Monomials.denote_eq (ctx : Context) (mp : Monomials × Monomials) : Prop := mp.1.denote ctx = mp.2.denote ctx
+
+-- TODO : cleanup proof
+theorem Monomials.denote_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r₂ : Monomials)
+    (h : denote_eq ctx (r₁.reverse ++ m₁, r₂.reverse ++ m₂)) : denote_eq ctx (cancelAux fuel m₁ m₂ r₁ r₂) := by
+  induction fuel generalizing m₁ m₂ r₁ r₂ with
+  | zero => assumption
+  | succ fuel ih =>
+    simp [cancelAux]
+    split
+    . simp_all
+    . simp_all
+    . rename_i k₁ v₁ m₁ k₂ v₂ m₂
+      by_cases hltv : v₁ < v₂
+      . simp [hltv]; apply ih; simp [denote_eq, denote] at h |-; assumption
+      . by_cases hgtv : v₁ > v₂
+        . simp [hltv, hgtv]; apply ih; simp [denote_eq, denote] at h |-; assumption
+        . simp [hltv, hgtv]
+          have heqv : v₁ = v₂ := Nat.le_antisymm (Nat.ge_of_not_lt hgtv) (Nat.ge_of_not_lt hltv)
+          subst heqv
+          by_cases hltk : k₁ < k₂
+          . simp [hltk]; apply ih; simp [denote_eq, denote] at h |-
+            rw [Nat.mul_sub_right_distrib, ← Nat.add_assoc, ← Nat.add_sub_assoc]
+            apply Eq.symm
+            apply Nat.sub_eq_of_eq_add
+            simp [h]
+            exact Nat.mul_le_mul_right _ (Nat.le_of_lt hltk)
+          . by_cases hgtk : k₁ > k₂
+            . simp [hltk, hgtk]
+              apply ih
+              simp [denote_eq, denote] at h |-
+              rw [Nat.mul_sub_right_distrib, ← Nat.add_assoc, ← Nat.add_sub_assoc]
+              apply Nat.sub_eq_of_eq_add
+              simp [h]
+              exact Nat.mul_le_mul_right _ (Nat.le_of_lt hgtk)
+            . simp [hltk, hgtk]
+              have heqk : k₁ = k₂ := Nat.le_antisymm (Nat.ge_of_not_lt hgtk) (Nat.ge_of_not_lt hltk)
+              subst heqk
+              apply ih
+              simp [denote_eq, denote] at h |-
+              rw [← Nat.add_assoc, ← Nat.add_assoc] at h
+              exact Nat.add_right_cancel h
+
+def Monomials.cancel (m₁ m₂ : Monomials) : Monomials × Monomials :=
+  cancelAux (m₁.length + m₂.length) m₁ m₂ [] []
+
+theorem Monomials.denote_cancel (ctx : Context) (m₁ m₂ : Monomials) (h : denote_eq ctx (m₁, m₂)) : denote_eq ctx (cancel m₁ m₂) := by
+  simp [cancel]
+  apply denote_cancelAux
+  simp [h]
+
 structure Poly where
   m : Monomials := []
   k : Nat       := 0

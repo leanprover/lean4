@@ -320,19 +320,19 @@ def Expr.toPoly : Expr → Poly
 def Expr.toNormPoly (e : Expr) : Poly :=
   e.toPoly.sort.fuse
 
-theorem Expr.eq_of_toPoly_sort_eq (ctx : Context) (a b : Expr) (h : a.toNormPoly = b.toNormPoly) : a.denote ctx = b.denote ctx := by
+theorem Expr.eq_of_toNormPoly (ctx : Context) (a b : Expr) (h : a.toNormPoly = b.toNormPoly) : a.denote ctx = b.denote ctx := by
   simp [toNormPoly] at h
   have h := congrArg (Poly.denote ctx) h
   simp at h
   assumption
 
-theorem Expr.of_cancel_eq (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.toNormPoly b.toNormPoly = (c.toNormPoly, d.toNormPoly)) : (a.denote ctx = b.denote ctx) = (c.denote ctx = d.denote ctx) := by
+theorem Expr.of_cancel_eq (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.toNormPoly b.toNormPoly = (c.toPoly, d.toPoly)) : (a.denote ctx = b.denote ctx) = (c.denote ctx = d.denote ctx) := by
   have := Poly.denote_eq_cancel_eq ctx a.toNormPoly b.toNormPoly
   rw [h] at this
   simp [toNormPoly, Poly.denote_eq] at this
   exact this.symm
 
-theorem Expr.of_cancel_le (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.toNormPoly b.toNormPoly = (c.toNormPoly, d.toNormPoly)) : (a.denote ctx ≤ b.denote ctx) = (c.denote ctx ≤ d.denote ctx) := by
+theorem Expr.of_cancel_le (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.toNormPoly b.toNormPoly = (c.toPoly, d.toPoly)) : (a.denote ctx ≤ b.denote ctx) = (c.denote ctx ≤ d.denote ctx) := by
   have := Poly.denote_le_cancel_eq ctx a.toNormPoly b.toNormPoly
   rw [h] at this
   simp [toNormPoly, Poly.denote_le] at this
@@ -341,11 +341,34 @@ theorem Expr.of_cancel_le (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.to
 def Expr.inc (e : Expr) : Expr :=
    Expr.add e (Expr.num 1)
 
-theorem Expr.of_cancel_lt (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.inc.toNormPoly b.toNormPoly = (c.inc.toNormPoly, d.toNormPoly)) : (a.denote ctx < b.denote ctx) = (c.denote ctx < d.denote ctx) :=
+theorem Expr.of_cancel_lt (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.inc.toNormPoly b.toNormPoly = (c.inc.toPoly, d.toPoly)) : (a.denote ctx < b.denote ctx) = (c.denote ctx < d.denote ctx) :=
   of_cancel_le ctx a.inc b c.inc d h
 
+structure ExprLe where
+  lhs : Expr
+  rhs : Expr
+  deriving Repr
+
+def ExprLe.denote (ctx : Context) (c : ExprLe) := c.lhs.denote ctx ≤ c.rhs.denote ctx
+
+def ExprLe.add (c d : ExprLe) : ExprLe :=
+  { lhs := Expr.add c.lhs d.lhs, rhs := Expr.add c.rhs d.rhs }
+
+def ExprLe.toNormPoly (c : ExprLe) : Poly × Poly :=
+  Poly.cancel c.lhs.toNormPoly c.rhs.toNormPoly
+
+def ExprLe.toPoly (c : ExprLe) : Poly × Poly :=
+  (c.lhs.toPoly, c.rhs.toPoly)
+
+theorem ExprLe.combine (ctx : Context) (c d e : ExprLe) (h₁ : c.denote ctx) (h₂ : d.denote ctx) (h₃ : e.toPoly = (c.add d).toNormPoly) : e.denote ctx := by
+  match c, d, e with
+  | { lhs := cLhs, rhs := cRhs }, { lhs := dLhs, rhs := dRhs }, { lhs := eLhs, rhs := eRhs } =>
+    simp [add, denote, Expr.denote, toPoly, toNormPoly] at h₁ h₂ h₃ |-
+    rw [← Expr.of_cancel_le ctx (h := h₃.symm)]
+    exact Nat.add_le_add h₁ h₂
+
 example (x₁ x₂ x₃ : Nat) : (x₁ + x₂) + (x₂ + x₃) = x₃ + 2*x₂ + x₁ :=
-  Expr.eq_of_toPoly_sort_eq { vars := [x₁, x₂, x₃] }
+  Expr.eq_of_toNormPoly { vars := [x₁, x₂, x₃] }
    (Expr.add (Expr.add (Expr.var 0) (Expr.var 1)) (Expr.add (Expr.var 1) (Expr.var 2)))
    (Expr.add (Expr.add (Expr.var 2) (Expr.mulL 2 (Expr.var 1))) (Expr.var 0))
    rfl
@@ -372,4 +395,13 @@ example (x₁ x₂ x₃ : Nat) : ((x₁ + x₂) + (x₂ + x₃) < x₃ + x₂) =
     (Expr.add (Expr.var 2) (Expr.var 1))
     (Expr.add (Expr.var 0) (Expr.var 1))
     (Expr.num 0)
+    rfl
+
+example (x₁ x₂) (h₁ : x₁ + 2 ≤ 3*x₂) (h₂ : 4*x₂ ≤ 3 + x₁) : x₂ ≤ 1 :=
+  ExprLe.combine { vars := [x₁, x₂] }
+    { lhs := Expr.add (Expr.var 0) (Expr.num 2), rhs := Expr.mulL 3 (Expr.var 1) }
+    { lhs := Expr.mulL 4 (Expr.var 1), rhs := Expr.add (Expr.num 3) (Expr.var 0) }
+    { lhs := Expr.var 1, rhs := Expr.num 1 }
+    h₁
+    h₂
     rfl

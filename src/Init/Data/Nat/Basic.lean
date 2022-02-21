@@ -338,6 +338,17 @@ theorem add_le_add {a b c d : Nat} (h₁ : a ≤ b) (h₂ : c ≤ d) : a + c ≤
 theorem add_lt_add {a b c d : Nat} (h₁ : a < b) (h₂ : c < d) : a + c < b + d :=
   Nat.lt_trans (Nat.add_lt_add_right h₁ c) (Nat.add_lt_add_left h₂ b)
 
+protected theorem le_of_add_le_add_left {a b c : Nat} (h : a + b ≤ a + c) : b ≤ c := by
+  match le.dest h with
+  | ⟨d, hd⟩ =>
+    apply @le.intro _ _ d
+    rw [Nat.add_assoc] at hd
+    apply Nat.add_left_cancel hd
+
+protected theorem le_of_add_le_add_right {a b c : Nat} : a + b ≤ c + b → a ≤ c := by
+  rw [Nat.add_comm _ b, Nat.add_comm _ b]
+  apply Nat.le_of_add_le_add_left
+
 /- Basic theorems for comparing numerals -/
 
 theorem ctor_eq_zero : Nat.zero = 0 :=
@@ -411,6 +422,7 @@ protected def max (n m : Nat) : Nat :=
   if n ≤ m then m else n
 
 /- Auxiliary theorems for well-founded recursion -/
+
 theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := by
   cases a
   exact absurd h (Nat.not_lt_zero _)
@@ -418,6 +430,8 @@ theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := by
 
 theorem pred_lt' {n m : Nat} (h : m < n) : pred n < n :=
   pred_lt (not_eq_zero_of_lt h)
+
+/- sub/pred theorems -/
 
 theorem add_sub_self_left (a b : Nat) : (a + b) - a = b := by
   induction a with
@@ -499,6 +513,37 @@ protected theorem eq_add_of_sub_eq {a b c : Nat} (hle : b ≤ a) (h : a - b = c)
 
 protected theorem sub_eq_of_eq_add {a b c : Nat} (h : a = c + b) : a - b = c := by
   rw [h, Nat.add_sub_cancel]
+
+theorem le_add_of_sub_le {a b c : Nat} (hle : b ≤ a) (h : a - b ≤ c) : a ≤ c + b := by
+  match le.dest h with
+  | ⟨d, hd⟩ =>
+    apply @le.intro _ _ d
+    rw [Nat.add_comm, ← Nat.add_sub_assoc hle] at hd
+    have hd := Nat.eq_add_of_sub_eq (Nat.le_trans hle (Nat.le_add_left ..)) hd
+    rw [Nat.add_comm, hd]
+
+theorem sub_le_of_le_add {a b c : Nat} (hle : b ≤ a) (h : a ≤ c + b) : a - b ≤ c := by
+  match le.dest h with
+  | ⟨d, hd⟩ =>
+    apply @le.intro _ _ d
+    have hd := Nat.sub_eq_of_eq_add hd
+    rw [Nat.add_comm, ← Nat.add_sub_assoc hle, Nat.add_comm]
+    exact hd
+
+theorem add_le_of_le_sub {a b c : Nat} (hle : b ≤ c) (h : a ≤ c - b) : a + b ≤ c := by
+  match le.dest h with
+  | ⟨d, hd⟩ =>
+    apply @le.intro _ _ d
+    rw [Nat.eq_add_of_sub_eq hle hd.symm]
+    simp [Nat.add_comm, Nat.add_assoc, Nat.add_left_comm]
+
+theorem le_sub_of_add_le {a b c : Nat} (h : a + b ≤ c) : a ≤ c - b := by
+  match le.dest h with
+  | ⟨d, hd⟩ =>
+    apply @le.intro _ _ d
+    have hd : a + d + b = c := by simp [← hd, Nat.add_comm, Nat.add_assoc, Nat.add_left_comm]
+    have hd := Nat.sub_eq_of_eq_add hd.symm
+    exact hd.symm
 
 @[simp] protected theorem pred_zero : pred 0 = 0 :=
   rfl

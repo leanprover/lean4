@@ -166,6 +166,10 @@ private def substRHS (eq : FVarId) (rhs : FVarId) : M Unit := do
 private def isDone : M Bool :=
   return (← get).eqs.isEmpty
 
+/-- Customized `contradiction` tactic for `simpH?` -/
+private def contradiction (mvarId : MVarId) : MetaM Bool :=
+  contradictionCore mvarId { genDiseq := false, emptyType := false }
+
 /--
   Auxiliary tactic that tries to replace as many variables as possible and then apply `contradiction`.
   We use it to discard redundant hypotheses.
@@ -173,13 +177,13 @@ private def isDone : M Bool :=
 private def trySubstVarsAndContradiction (mvarId : MVarId) : MetaM Bool :=
   commitWhen do
     let mvarId ← substVars mvarId
-    contradictionCore mvarId {}
+    contradiction mvarId
 
 private def processNextEq : M Bool := do
   let s ← get
   withMVarContext s.mvarId do
     -- If the goal is contradictory, the hypothesis is redundant.
-    if (← contradictionCore s.mvarId {}) then
+    if (← contradiction s.mvarId) then
       return false
     if let eq :: eqs := s.eqs then
       modify fun s => { s with eqs }

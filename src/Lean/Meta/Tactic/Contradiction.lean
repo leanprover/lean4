@@ -12,9 +12,11 @@ namespace Lean.Meta
 
 structure Contradiction.Config where
   useDecide  : Bool := true
-  /- When checking for empty types, `searchFuel` specifies the number of goals visited. -/
+  /-- Check whether any of the hypotheses is an empty type. -/
+  emptyType  : Bool := true
+  /-- When checking for empty types, `searchFuel` specifies the number of goals visited. -/
   searchFuel : Nat  := 16
-  /- Support for hypotheses such as
+  /-- Support for hypotheses such as
      ```
      h : (x y : Nat) (ys : List Nat) → x = 0 → y::ys = [a, b, c] → False
      ```
@@ -142,6 +144,16 @@ def contradictionCore (mvarId : MVarId) (config : Contradiction.Config) : MetaM 
           if lhsCtor.name != rhsCtor.name then
             assignExprMVar mvarId (← mkNoConfusion (← getMVarType mvarId) localDecl.toExpr)
             return true
+        let mut isHEq := false
+        -- (h : HEq (ctor₁ ...) (ctor₂ ...))
+        if let some (α, lhs, β, rhs) ← matchHEq? localDecl.type then
+          isHEq := true
+          if let some lhsCtor ← matchConstructorApp? lhs then
+          if let some rhsCtor ← matchConstructorApp? rhs then
+          if lhsCtor.name != rhsCtor.name then
+            if (← isDefEq α β) then
+              assignExprMVar mvarId (← mkNoConfusion (← getMVarType mvarId) (← mkEqOfHEq localDecl.toExpr))
+              return true
         -- (h : p) s.t. `decide p` evaluates to `false`
         if config.useDecide && !localDecl.type.hasFVar then
           let type ← instantiateMVars localDecl.type
@@ -160,7 +172,7 @@ def contradictionCore (mvarId : MVarId) (config : Contradiction.Config) : MetaM 
           if (← processGenDiseq mvarId localDecl) then
             return true
         -- (h : <empty-inductive-type>)
-        unless isEq do
+        if config.emptyType && !isEq && !isHEq then
           -- We do not use `elimEmptyInductive` for equality, since `cases h` produces a huge proof
           -- when `(h : 10000 = 10001)`. TODO: `cases` add a threshold at `cases`
           if (← elimEmptyInductive mvarId localDecl.fvarId config.searchFuel) then

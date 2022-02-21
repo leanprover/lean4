@@ -221,7 +221,7 @@ end SimpH
 /--
   Auxiliary method for simplifying equational theorem hypotheses.
 
-  Recall that each equation contains additional hypotheses to ensure the associated case does not taken by previous cases.
+  Recall that each equation contains additional hypotheses to ensure the associated case was not taken by previous cases.
   We have one hypothesis for each previous case.
 -/
 private partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := withDefault do

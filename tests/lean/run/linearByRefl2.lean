@@ -143,7 +143,6 @@ abbrev PolyEq := Poly × Poly
 
 def Poly.denote_eq (ctx : Context) (mp : Poly × Poly) : Prop := mp.1.denote ctx = mp.2.denote ctx
 
--- TODO : cleanup proof
 theorem Poly.denote_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r₂ : Poly)
     (h : denote_eq ctx (r₁.reverse ++ m₁, r₂.reverse ++ m₂)) : denote_eq ctx (cancelAux fuel m₁ m₂ r₁ r₂) := by
   induction fuel generalizing m₁ m₂ r₁ r₂ with
@@ -221,11 +220,11 @@ theorem Poly.of_denote_cancel {ctx : Context} {m₁ m₂ : Poly} (h : denote_eq 
   simp at this
   assumption
 
-theorem Poly.denote_cancel_eq {ctx : Context} {m₁ m₂ : Poly} : denote_eq ctx (cancel m₁ m₂) = denote_eq ctx (m₁, m₂) :=
+theorem Poly.denote_cancel_eq (ctx : Context) (m₁ m₂ : Poly) : denote_eq ctx (cancel m₁ m₂) = denote_eq ctx (m₁, m₂) :=
   propext <| Iff.intro (fun h => of_denote_cancel h) (fun h => denote_cancel h)
 
 def Expr.toPoly : Expr → Poly
-  | Expr.num k    => [ (k, fixedVar) ]
+  | Expr.num k    => if k = 0 then [] else [ (k, fixedVar) ]
   | Expr.var i    => [(1, i)]
   | Expr.add a b  => a.toPoly ++ b.toPoly
   | Expr.mulL k a => a.toPoly.mul k
@@ -233,7 +232,7 @@ def Expr.toPoly : Expr → Poly
 
 @[simp] theorem Expr.denote_toPoly (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.denote ctx := by
   induction e with
-  | num k => simp [denote, toPoly, Poly.denote, Poly.denote, Var.denote]
+  | num k => by_cases h : k = 0 <;> simp [toPoly, h, Poly.denote, Var.denote, denote]
   | var i => simp [denote, toPoly, Poly.denote, Poly.denote]
   | add a b iha ihb => simp [denote, toPoly, iha, ihb]; done
   | mulL k a ih => simp [denote, toPoly, ih]; done
@@ -249,3 +248,17 @@ example (x₁ x₂ x₃ : Nat) : (x₁ + x₂) + (x₂ + x₃) = x₃ + 2*x₂ +
    (Expr.add (Expr.add (Expr.var 0) (Expr.var 1)) (Expr.add (Expr.var 1) (Expr.var 2)))
    (Expr.add (Expr.add (Expr.var 2) (Expr.mulL 2 (Expr.var 1))) (Expr.var 0))
    rfl
+
+theorem Expr.of_poly_cancel (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.toPoly.sort.fuse b.toPoly.sort.fuse = (c.toPoly.sort.fuse, d.toPoly.sort.fuse)) : (a.denote ctx = b.denote ctx) = (c.denote ctx = d.denote ctx) := by
+  have := Poly.denote_cancel_eq ctx a.toPoly.sort.fuse b.toPoly.sort.fuse
+  rw [h] at this
+  simp [Poly.denote_eq] at this
+  exact this.symm
+
+example (x₁ x₂ x₃ : Nat) : ((x₁ + x₂) + (x₂ + x₃) = x₃ + x₂) = (x₁ + x₂ = 0) :=
+  Expr.of_poly_cancel { vars := [x₁, x₂, x₃] }
+    (Expr.add (Expr.add (Expr.var 0) (Expr.var 1)) (Expr.add (Expr.var 1) (Expr.var 2)))
+    (Expr.add (Expr.var 2) (Expr.var 1))
+    (Expr.add (Expr.var 0) (Expr.var 1))
+    (Expr.num 0)
+    rfl

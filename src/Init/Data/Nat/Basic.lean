@@ -387,6 +387,18 @@ protected theorem mul_pos {n m : Nat} (ha : n > 0) (hb : m > 0) : n * m > 0 :=
   have h : 0 * m < n * m := Nat.mul_lt_mul_of_pos_right ha hb
   Nat.zero_mul m ▸ h
 
+protected theorem le_of_mul_le_mul_left {a b c : Nat} (h : c * a ≤ c * b) (hc : 0 < c) : a ≤ b :=
+  Nat.ge_of_not_lt fun hlt : b < a =>
+    have h' : c * b < c * a := Nat.mul_lt_mul_of_pos_left hlt hc
+    absurd h (Nat.not_le_of_gt h')
+
+protected theorem eq_of_mul_eq_mul_left {m k n : Nat} (hn : 0 < n) (h : n * m = n * k) : m = k :=
+  Nat.le_antisymm (Nat.le_of_mul_le_mul_left (Nat.le_of_eq h) hn)
+                  (Nat.le_of_mul_le_mul_left (Nat.le_of_eq h.symm) hn)
+
+theorem eq_of_mul_eq_mul_right {n m k : Nat} (hm : 0 < m) (h : n * m = k * m) : n = k := by
+  rw [Nat.mul_comm n m, Nat.mul_comm k m] at h; exact Nat.eq_of_mul_eq_mul_left hm h
+
 /- power -/
 
 theorem pow_succ (n m : Nat) : n^(succ m) = n^m * n :=

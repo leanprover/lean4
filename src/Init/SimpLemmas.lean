@@ -126,4 +126,20 @@ theorem dite_congr {s : Decidable b} [Decidable c]
 @[simp] theorem Bool.and_self (b : Bool) : (b && b) = b          := by cases b <;> rfl
 @[simp] theorem Bool.and_eq_true (a b : Bool) : ((a && b) = true) = (a = true ∧ b = true) := by cases a <;> cases b <;> decide
 
+@[simp] theorem Bool.not_not (b : Bool) : (!!b) = b := by cases b <;> rfl
+@[simp] theorem Bool.not_true  : (!true) = false := by decide
+@[simp] theorem Bool.not_false : (!false) = true := by decide
+@[simp] theorem Bool.not_beq_true (b : Bool) : (!(b == true)) = (b == false) := by cases b <;> rfl
+@[simp] theorem Bool.not_beq_false (b : Bool) : (!(b == false)) = (b == true) := by cases b <;> rfl
+
+@[simp] theorem Bool.beq_to_eq (a b : Bool) : ((a == b) = true) = (a = b) := by cases a <;> cases b <;> decide
+@[simp] theorem Bool.not_beq_to_not_eq (a b : Bool) : ((!(a == b)) = true) = ¬(a = b) := by cases a <;> cases b <;> decide
+@[simp] theorem Bool.not_eq_true (b : Bool) : (¬ (b = true)) = (b = false) := by cases b <;> decide
+@[simp] theorem Bool.not_eq_false (b : Bool) : (¬ (b = false)) = (b = true) := by cases b <;> decide
+
 @[simp] theorem decide_eq_true_eq [Decidable p] : (decide p = true) = p := propext <| Iff.intro of_decide_eq_true decide_eq_true
+@[simp] theorem decide_not [h : Decidable p] : decide (¬ p) = !decide p := by cases h <;> rfl
+@[simp] theorem not_decide_eq_true [h : Decidable p] : ((!decide p) = true) = ¬ p := by cases h <;> simp [decide, *]
+
+@[simp] theorem Nat.beq_to_eq (a b : Nat) : ((a == b) = true) = (a = b) := by simp [BEq.beq]
+@[simp] theorem Nat.not_beq_to_not_eq (a b : Nat) : ((!(a == b)) = true) = ¬(a = b) := by simp [BEq.beq]

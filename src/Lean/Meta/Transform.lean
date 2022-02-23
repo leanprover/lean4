@@ -122,5 +122,25 @@ def zetaReduce (e : Expr) : MetaM Expr := do
     | e => if e.hasFVar then return TransformStep.visit e else return TransformStep.done e
   liftM (m := CoreM) <| Core.transform e (pre := pre)
 
+/-- Unfold definitions and theorems in `e` that are not in the current environment, but are in `biggerEnv`. -/
+def unfoldDeclsFrom (biggerEnv : Environment) (e : Expr) : CoreM Expr := do
+  withoutModifyingEnv do
+    let env ← getEnv
+    setEnv biggerEnv -- `e` has declarations from `biggerEnv` that are not in `env`
+    let pre (e : Expr) : CoreM TransformStep := do
+      match e with
+      | Expr.const declName us .. =>
+        if env.contains declName then
+          return TransformStep.done e
+        else if let some info := biggerEnv.find? declName then
+          if info.hasValue then
+            return TransformStep.visit (info.instantiateValueLevelParams us)
+          else
+            return TransformStep.done e
+        else
+          return TransformStep.done e
+      | _ => return TransformStep.visit e
+    Core.transform e (pre := pre)
+
 end Meta
 end Lean

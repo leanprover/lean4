@@ -90,11 +90,13 @@ def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (de
     let packedArgType := type.bindingDomain!
     let wfRel ← elabWFRel preDefs unaryPreDef.declName fixedPrefixSize packedArgType wf?
     trace[Elab.definition.wf] "wfRel: {wfRel}"
-    withoutModifyingEnv do
+    let (value, envNew) ← withoutModifyingEnv' do
       addAsAxiom unaryPreDef
       let value ← mkFix unaryPreDef prefixArgs wfRel decrTactic?
-      let value ← eraseRecAppSyntaxExpr value
-      return { unaryPreDef with value }
+      eraseRecAppSyntaxExpr value
+    /- `mkFix` invokes `decreasing_tactic` which may add auxiliary theorems to the environment. -/
+    let value ← unfoldDeclsFrom envNew value
+    return { unaryPreDef with value }
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
   addNonRec preDefNonRec

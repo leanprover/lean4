@@ -54,7 +54,7 @@ unsafe def findUnsafe? (p : Expr → Bool) (e : Expr) : Option Expr :=
 end FindImpl
 
 @[implementedBy FindImpl.findUnsafe?]
-partial def find? (p : Expr → Bool) (e : Expr) : Option Expr :=
+def find? (p : Expr → Bool) (e : Expr) : Option Expr :=
   /- This is a reference implementation for the unsafe one above -/
   if p e then
     some e
@@ -70,6 +70,51 @@ partial def find? (p : Expr → Bool) (e : Expr) : Option Expr :=
 /-- Return true if `e` occurs in `t` -/
 def occurs (e : Expr) (t : Expr) : Bool :=
   (t.find? fun s => s == e).isSome
+
+/--
+  Return type for `findExt?` function argument.
+-/
+inductive FindStep where
+  | /-- Found desired subterm -/ found
+  | /-- Search subterms -/ visit
+  | /-- Do not search subterms -/ done
+
+namespace FindExtImpl
+
+unsafe def findM? (p : Expr → FindStep) (size : USize) (e : Expr) : OptionT FindImpl.FindM Expr :=
+  visit e
+where
+  visitApp (e : Expr) :=
+    match e with
+    | Expr.app f a .. => visitApp f <|> visit a
+    | e => visit e
+
+  visit (e : Expr) := do
+    if (← FindImpl.visited e size)  then
+      failure
+    else match p e with
+      | FindStep.done  => failure
+      | FindStep.found => pure e
+      | FindStep.visit =>
+        match e with
+        | Expr.forallE _ d b _   => visit d <|> visit b
+        | Expr.lam _ d b _       => visit d <|> visit b
+        | Expr.mdata _ b _       => visit b
+        | Expr.letE _ t v b _    => visit t <|> visit v <|> visit b
+        | Expr.app ..            => visitApp e
+        | Expr.proj _ _ b _      => visit b
+        | e                      => failure
+
+unsafe def findUnsafe? (p : Expr → FindStep) (e : Expr) : Option Expr :=
+  Id.run <| findM? p FindImpl.cacheSize e |>.run' FindImpl.initCache
+
+end FindExtImpl
+
+/--
+  Similar to `find?`, but `p` can return `FindStep.done` to interrupt the search on subterms.
+  Remark: Differently from `find?`, we do not invoke `p` for partial applications of an application. -/
+@[implementedBy FindExtImpl.findUnsafe?]
+constant findExt? (p : Expr → FindStep) (e : Expr) : Option Expr
 
 end Expr
 end Lean

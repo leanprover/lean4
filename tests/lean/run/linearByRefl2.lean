@@ -98,6 +98,14 @@ def Poly.isNum? (p : Poly) : Option Nat :=
   | [(k, v)] => if v = fixedVar then some k else none
   | _ => none
 
+def Poly.isZero (p : Poly) : Bool :=
+  p = []
+
+def Poly.isNonZero (p : Poly) : Bool :=
+  match p with
+  | [] => false
+  | (k, v) :: p => if v = fixedVar then k > 0 else isNonZero p
+
 def Poly.denote_eq (ctx : Context) (mp : Poly × Poly) : Prop := mp.1.denote ctx = mp.2.denote ctx
 
 def Poly.denote_le (ctx : Context) (mp : Poly × Poly) : Prop := mp.1.denote ctx ≤ mp.2.denote ctx
@@ -143,9 +151,16 @@ def PolyCnstr.norm (c : PolyCnstr) : PolyCnstr :=
   { eq := c.eq, lhs, rhs }
 
 def PolyCnstr.isUnsat (c : PolyCnstr) : Bool :=
-  match c.lhs.isNum?, c.rhs.isNum? with
-  | some k₁, some k₂ => if c.eq then k₁ != k₂ else k₁ > k₂
-  | _, _ => false
+  if c.eq then
+    (c.lhs.isZero && c.rhs.isNonZero) || (c.lhs.isNonZero && c.rhs.isZero)
+  else
+    c.lhs.isNonZero && c.rhs.isZero
+
+def PolyCnstr.isValid (c : PolyCnstr) : Bool :=
+  if c.eq then
+    c.lhs.isZero && c.rhs.isZero
+  else
+    c.lhs.isZero
 
 def ExprCnstr.denote (ctx : Context) (c : ExprCnstr) : Prop :=
   if c.eq then
@@ -487,16 +502,51 @@ theorem Poly.isNum?_eq_some (ctx : Context) {p : Poly} {k : Nat} : p.isNum? = so
   next k v => by_cases h : v = fixedVar <;> simp [h]; intros; simp [Var.denote]; assumption
   next => intros; contradiction
 
-theorem PolyCnstr.of_isUnsat (ctx : Context) {c : PolyCnstr} : c.isUnsat → c.denote ctx = False := by
+def Poly.of_isZero (ctx : Context) {p : Poly} (h : isZero p = true) : p.denote ctx = 0 := by
+  simp [isZero] at h
+  simp [h]
+
+def Poly.of_isNonZero (ctx : Context) {p : Poly} (h : isNonZero p = true) : p.denote ctx > 0 := by
+  match p with
+  | [] => contradiction
+  | (k, v) :: p =>
+    by_cases he : v = fixedVar <;> simp [he, isNonZero] at h ⊢
+    . simp [Var.denote]; apply Nat.lt_of_succ_le; exact Nat.le_trans h (Nat.le_add_right ..)
+    . have ih := of_isNonZero ctx h
+      exact Nat.le_trans ih (Nat.le_add_right ..)
+
+def PolyCnstr.eq_false_of_isUnsat (ctx : Context) {c : PolyCnstr} : c.isUnsat → c.denote ctx = False := by
   cases c; rename_i eq lhs rhs
   simp [isUnsat]
-  by_cases he : eq = true <;> simp [he]
-  . split
-    next k₁ k₂ h₁ h₂ => simp [denote, Poly.denote_eq, bne]; rw [Poly.isNum?_eq_some ctx h₁, Poly.isNum?_eq_some ctx h₂]; intro h; simp [h]
-    next => intros; contradiction
-  . split
-    next k₁ k₂ h₁ h₂ => simp [denote, Poly.denote_le, bne, he]; rw [Poly.isNum?_eq_some ctx h₁, Poly.isNum?_eq_some ctx h₂]; intro h; simp [Nat.not_le_of_gt h]
-    next => intros; contradiction
+  by_cases he : eq = true <;> simp [he, denote, Poly.denote_eq, Poly.denote_le]
+  . intro
+      | Or.inl ⟨h₁, h₂⟩ => simp [Poly.of_isZero, h₁]; have := Nat.not_eq_zero_of_lt (Poly.of_isNonZero ctx h₂); simp [this.symm]
+      | Or.inr ⟨h₁, h₂⟩ => simp [Poly.of_isZero, h₂]; have := Nat.not_eq_zero_of_lt (Poly.of_isNonZero ctx h₁); simp [this]
+  . intro ⟨h₁, h₂⟩
+    simp [Poly.of_isZero, h₂]
+    have := Nat.not_le_of_gt (Poly.of_isNonZero ctx h₁)
+    simp [this]
+
+def PolyCnstr.eq_true_of_isValid (ctx : Context) {c : PolyCnstr} : c.isValid → c.denote ctx = True := by
+  cases c; rename_i eq lhs rhs
+  simp [isValid]
+  by_cases he : eq = true <;> simp [he, denote, Poly.denote_eq, Poly.denote_le]
+  . intro ⟨h₁, h₂⟩
+    simp [Poly.of_isZero, h₁, h₂]
+  . intro h
+    simp [Poly.of_isZero, h]
+    have := Nat.zero_le (Poly.denote ctx rhs)
+    simp [this]
+
+def ExprCnstr.eq_false_of_isUnsat (ctx : Context) (c : ExprCnstr) (h : c.toPoly.isUnsat) : c.denote ctx = False := by
+  have := PolyCnstr.eq_false_of_isUnsat ctx h
+  simp at this
+  assumption
+
+def ExprCnstr.eq_true_of_isValid (ctx : Context) (c : ExprCnstr) (h : c.toPoly.isValid) : c.denote ctx = True := by
+  have := PolyCnstr.eq_true_of_isValid ctx h
+  simp at this
+  assumption
 
 theorem Certificate.of_combineHyps (ctx : Context) (c : PolyCnstr) (cs : Certificate) (h : (combineHyps c cs).denote ctx → False) : c.denote ctx → cs.denote ctx := by
   match cs with
@@ -519,7 +569,7 @@ theorem Certificate.of_combine (ctx : Context) (cs : Certificate) (h : cs.combin
     simp [h']
 
 theorem Certificate.of_combine_isUnsat (ctx : Context) (cs : Certificate) (h : cs.combine.isUnsat) : cs.denote ctx :=
-  have h := PolyCnstr.of_isUnsat ctx h
+  have h := PolyCnstr.eq_false_of_isUnsat ctx h
   of_combine ctx cs (fun h' => Eq.mp h h')
 
 example (x₁ x₂ x₃ : Nat) : (x₁ + x₂) + (x₂ + x₃) = x₃ + 2*x₂ + x₁ :=
@@ -554,7 +604,17 @@ example (x₁ x₂ x₃ : Nat) : ((x₁ + x₂) + (x₂ + x₃) < x₃ + x₂) =
 
 example (x₁ x₂ : Nat) : x₁ + 2 ≤ 3*x₂ → 4*x₂ ≤ 3 + x₁ → 3 ≤ 2*x₂ → False :=
   Certificate.of_combine_isUnsat { vars := [x₁, x₂] }
-    [  (1, { eq := false, lhs := Expr.add (Expr.var 0) (Expr.num 2), rhs := Expr.mulL 3 (Expr.var 1) }),
-       (1, { eq := false, lhs := Expr.mulL 4 (Expr.var 1), rhs := Expr.add (Expr.num 3) (Expr.var 0) }),
-       (0, { eq := false, lhs := Expr.num 3, rhs := Expr.mulL 2 (Expr.var 1) }) ]
+    [ (1, { eq := false, lhs := Expr.add (Expr.var 0) (Expr.num 2), rhs := Expr.mulL 3 (Expr.var 1) }),
+      (1, { eq := false, lhs := Expr.mulL 4 (Expr.var 1), rhs := Expr.add (Expr.num 3) (Expr.var 0) }),
+      (0, { eq := false, lhs := Expr.num 3, rhs := Expr.mulL 2 (Expr.var 1) }) ]
+    rfl
+
+example (x : Nat) (xs : List Nat) : (sizeOf x < 1 + (1 + sizeOf x + sizeOf xs)) = True :=
+  ExprCnstr.eq_true_of_isValid { vars := [sizeOf x, sizeOf xs]  }
+    { eq := false, lhs := Expr.inc (Expr.var 0), rhs := Expr.add (Expr.num 1) (Expr.add (Expr.add (Expr.num 1) (Expr.var 0)) (Expr.var 1)) }
+    rfl
+
+example (x : Nat) (xs : List Nat) : (1 + (1 + sizeOf x + sizeOf xs) < sizeOf x) = False :=
+  ExprCnstr.eq_false_of_isUnsat { vars := [sizeOf x, sizeOf xs]  }
+    { eq := false, lhs := Expr.inc <| Expr.add (Expr.num 1) (Expr.add (Expr.add (Expr.num 1) (Expr.var 0)) (Expr.var 1)), rhs := Expr.var 0 }
     rfl

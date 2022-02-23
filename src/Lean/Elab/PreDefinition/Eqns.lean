@@ -46,29 +46,41 @@ def simpIf? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let mvarId' ← simpIfTarget mvarId (useDecide := true)
   if mvarId != mvarId' then return some mvarId' else return none
 
+private def findMatchToSplit? (env : Environment) (e : Expr) (declNames : Array Name) (exceptionSet : ExprSet) : Option Expr :=
+  e.findExt? fun e => Id.run do
+    if e.hasLooseBVars || exceptionSet.contains e then
+      return Expr.FindStep.visit
+    else if let some info := isMatcherAppCore? env e then
+      let args := e.getAppArgs
+      -- At least one alternative must contain a `declNames` application with loose bound variables.
+      for i in [info.getFirstAltPos : info.getFirstAltPos + info.numAlts] do
+        let alt := args[i]
+        if Option.isSome <| alt.find? fun e => declNames.any e.isAppOf && e.hasLooseBVars then
+          return Expr.FindStep.found
+      return Expr.FindStep.visit
+    else
+      let Expr.const declName .. := e.getAppFn | return Expr.FindStep.visit
+      if declName == ``WellFounded.fix || isBRecOnRecursor env declName then
+        -- We should not go inside unfolded nested recursive applications
+        return Expr.FindStep.done
+      else
+        return Expr.FindStep.visit
+
+partial def splitMatch? (mvarId : MVarId) (declNames : Array Name) : MetaM (Option (List MVarId)) := commitWhenSome? do
+  let target ← getMVarType' mvarId
+  let rec go (badCases : ExprSet) : MetaM (Option (List MVarId)) := do
+    if let some e := findMatchToSplit? (← getEnv) target declNames badCases then
+      try
+        Meta.Split.splitMatch mvarId e
+      catch _ =>
+        go (badCases.insert e)
+    else
+      trace[Meta.Tactic.split] "did not find term to split\n{MessageData.ofGoal mvarId}"
+      return none
+  go {}
+
 structure Context where
   declNames : Array Name
-
-/--
-  Auxiliary method for `mkEqnTypes`. We should "keep going"/"processing" the goal
-   `... |- f ... = rhs` at `mkEqnTypes` IF `rhs` contains a recursive application containing loose bound
-  variables. We do that to make sure we can create an elimination principle for the recursive functions.
-
-  Remark: we have considered using the same heuristic used in the `BRecOn` module.
-  That is we would do case-analysis on the `match` application because the recursive
-  argument (may) depend on it. We abandoned this approach because it was incompatible
-  with the generation of induction principles.
-
-  Remark: we could also always return `true` here, and split **all** match expressions on the `rhs`
-  even if they are not relevant for the `brecOn` construction.
-  TODO: reconsider this design decision in the future.
-  Another possible design option is to "split" other control structures such as `if-then-else`.
--/
-private def keepGoing (mvarId : MVarId) : ReaderT Context (StateRefT (Array Expr) MetaM) Bool := do
-  let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) := target.eq? | return false
-  let ctx ← read
-  return Option.isSome <| rhs.find? fun e => ctx.declNames.any e.isAppOf && e.hasLooseBVars
 
 private def lhsDependsOn (type : Expr) (fvarId : FVarId) : MetaM Bool :=
   forallTelescope type fun _ type => do
@@ -146,15 +158,13 @@ partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array
 where
   go (mvarId : MVarId) : ReaderT Context (StateRefT (Array Expr) MetaM) Unit := do
     trace[Elab.definition.structural.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
-    if !(← keepGoing mvarId) then
-      saveEqn mvarId
-    else if let some mvarId ← expandRHS? mvarId then
+    if let some mvarId ← expandRHS? mvarId then
       go mvarId
     else if let some mvarId ← funext? mvarId then
       go mvarId
     else if let some mvarId ← simpMatch? mvarId then
       go mvarId
-    else if let some mvarIds ← splitTarget? mvarId (splitIte := false) then
+    else if let some mvarIds ← splitMatch? mvarId declNames then
       mvarIds.forM go
     else
       saveEqn mvarId

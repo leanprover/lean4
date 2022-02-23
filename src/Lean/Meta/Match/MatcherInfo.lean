@@ -32,6 +32,9 @@ def MatcherInfo.arity (info : MatcherInfo) : Nat :=
 def MatcherInfo.getFirstDiscrPos (info : MatcherInfo) : Nat :=
   info.numParams + 1
 
+def MatcherInfo.getFirstAltPos (info : MatcherInfo) : Nat :=
+  info.numParams + 1 + info.numDiscrs
+
 def MatcherInfo.getMotivePos (info : MatcherInfo) : Nat :=
   info.numParams
 

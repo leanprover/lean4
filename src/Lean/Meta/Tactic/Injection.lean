@@ -28,35 +28,44 @@ def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCor
     checkNotAssigned mvarId `injection
     let decl ← getLocalDecl fvarId
     let type ← whnf decl.type
-    match type.eq? with
-    | none           => throwTacticEx `injection mvarId "equality expected"
-    | some (α, a, b) =>
-      let a ← whnf a
-      let b ← whnf b
-      let target ← getMVarType mvarId
-      let env ← getEnv
-      match a.isConstructorApp? env, b.isConstructorApp? env with
-      | some aCtor, some bCtor =>
-        let val ← mkNoConfusion target (mkFVar fvarId)
-        if aCtor.name != bCtor.name then
-          assignExprMVar mvarId val
-          pure InjectionResultCore.solved
-        else
-          let valType ← inferType val
-          let valType ← whnf valType
-          match valType with
-          | Expr.forallE _ newTarget _ _ =>
-            let newTarget := newTarget.headBeta
-            let tag ← getMVarTag mvarId
-            let newMVar ← mkFreshExprSyntheticOpaqueMVar newTarget tag
-            assignExprMVar mvarId (mkApp val newMVar)
-            let mvarId ← tryClear newMVar.mvarId! fvarId
-            /- Recall that `noConfusion` does not include equalities for
-               propositions since they are trivial due to proof irrelevance. -/
-            let numPropFields ← getCtorNumPropFields aCtor
-            return InjectionResultCore.subgoal mvarId (aCtor.numFields - numPropFields)
-          | _ => throwTacticEx `injection mvarId "ill-formed noConfusion auxiliary construction"
-      | _, _ => throwTacticEx `injection mvarId "equality of constructor applications expected"
+    let go (type prf : Expr) : MetaM InjectionResultCore := do
+      match type.eq? with
+      | none           => throwTacticEx `injection mvarId "equality expected"
+      | some (α, a, b) =>
+        let a ← whnf a
+        let b ← whnf b
+        let target ← getMVarType mvarId
+        let env ← getEnv
+        match a.isConstructorApp? env, b.isConstructorApp? env with
+        | some aCtor, some bCtor =>
+          let val ← mkNoConfusion target prf
+          if aCtor.name != bCtor.name then
+            assignExprMVar mvarId val
+            return InjectionResultCore.solved
+          else
+            let valType ← inferType val
+            let valType ← whnf valType
+            match valType with
+            | Expr.forallE _ newTarget _ _ =>
+              let newTarget := newTarget.headBeta
+              let tag ← getMVarTag mvarId
+              let newMVar ← mkFreshExprSyntheticOpaqueMVar newTarget tag
+              assignExprMVar mvarId (mkApp val newMVar)
+              let mvarId ← tryClear newMVar.mvarId! fvarId
+              /- Recall that `noConfusion` does not include equalities for
+                 propositions since they are trivial due to proof irrelevance. -/
+              let numPropFields ← getCtorNumPropFields aCtor
+              return InjectionResultCore.subgoal mvarId (aCtor.numFields - numPropFields)
+            | _ => throwTacticEx `injection mvarId "ill-formed noConfusion auxiliary construction"
+        | _, _ => throwTacticEx `injection mvarId "equality of constructor applications expected"
+    let prf := mkFVar fvarId
+    if let some (α, a, β, b) := type.heq? then
+      if (← isDefEq α β) then
+        go (← mkEq a b) (← mkEqOfHEq prf)
+      else
+        go type prf
+    else
+      go type prf
 
 inductive InjectionResult where
   | solved

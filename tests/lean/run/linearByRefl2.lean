@@ -61,6 +61,8 @@ def Poly.fuse (p : Poly) : Poly :=
 def Poly.mul (k : Nat) (p : Poly) : Poly :=
   if k = 0 then
     []
+  else if k = 1 then
+    p
   else
     go p
 where
@@ -87,8 +89,14 @@ def Poly.cancelAux (fuel : Nat) (m₁ m₂ r₁ r₂ : Poly) : Poly × Poly :=
       else
         cancelAux fuel m₁ m₂ r₁ r₂
 
-def Poly.cancel (m₁ m₂ : Poly) : Poly × Poly :=
-  cancelAux (m₁.length + m₂.length) m₁ m₂ [] []
+def Poly.cancel (p₁ p₂ : Poly) : Poly × Poly :=
+  cancelAux (p₁.length + p₂.length) p₁ p₂ [] []
+
+def Poly.isNum? (p : Poly) : Option Nat :=
+  match p with
+  | [] => some 0
+  | [(k, v)] => if v = fixedVar then some k else none
+  | _ => none
 
 def Poly.denote_eq (ctx : Context) (mp : Poly × Poly) : Prop := mp.1.denote ctx = mp.2.denote ctx
 
@@ -107,25 +115,68 @@ def Expr.toNormPoly (e : Expr) : Poly :=
 def Expr.inc (e : Expr) : Expr :=
    Expr.add e (Expr.num 1)
 
-structure ExprLe where
+structure PolyCnstr  where
+  eq  : Bool
+  lhs : Poly
+  rhs : Poly
+
+def PolyCnstr.mul (k : Nat) (c : PolyCnstr) : PolyCnstr :=
+  { c with lhs := c.lhs.mul k, rhs := c.rhs.mul k }
+
+def PolyCnstr.combine (c₁ c₂ : PolyCnstr) : PolyCnstr :=
+  let (lhs, rhs) := Poly.cancel (c₁.lhs ++ c₂.lhs).sort.fuse (c₁.rhs ++ c₂.rhs).sort.fuse
+  { eq := c₁.eq && c₂.eq, lhs, rhs }
+
+structure ExprCnstr where
+  eq  : Bool
   lhs : Expr
   rhs : Expr
-  deriving Repr
 
-def ExprLe.denote (ctx : Context) (c : ExprLe) := c.lhs.denote ctx ≤ c.rhs.denote ctx
+def PolyCnstr.denote (ctx : Context) (c : PolyCnstr) : Prop :=
+  if c.eq then
+    Poly.denote_eq ctx (c.lhs, c.rhs)
+  else
+    Poly.denote_le ctx (c.lhs, c.rhs)
 
-def ExprLe.add (c d : ExprLe) : ExprLe :=
-  { lhs := Expr.add c.lhs d.lhs, rhs := Expr.add c.rhs d.rhs }
+def PolyCnstr.norm (c : PolyCnstr) : PolyCnstr :=
+  let (lhs, rhs) := Poly.cancel c.lhs.sort.fuse c.rhs.sort.fuse
+  { eq := c.eq, lhs, rhs }
 
-def ExprLe.toNormPoly (c : ExprLe) : Poly × Poly :=
-  Poly.cancel c.lhs.toNormPoly c.rhs.toNormPoly
+def PolyCnstr.isUnsat (c : PolyCnstr) : Bool :=
+  match c.lhs.isNum?, c.rhs.isNum? with
+  | some k₁, some k₂ => if c.eq then k₁ != k₂ else k₁ > k₂
+  | _, _ => false
 
-def ExprLe.toPoly (c : ExprLe) : Poly × Poly :=
-  (c.lhs.toPoly, c.rhs.toPoly)
+def ExprCnstr.denote (ctx : Context) (c : ExprCnstr) : Prop :=
+  if c.eq then
+    c.lhs.denote ctx = c.rhs.denote ctx
+  else
+    c.lhs.denote ctx ≤ c.rhs.denote ctx
+
+def ExprCnstr.toPoly (c : ExprCnstr) : PolyCnstr :=
+  let (lhs, rhs) := Poly.cancel c.lhs.toNormPoly c.rhs.toNormPoly
+  { c with lhs, rhs }
+
+abbrev Certificate := List (Nat × ExprCnstr)
+
+def Certificate.combineHyps (c : PolyCnstr) (hs : Certificate) : PolyCnstr :=
+  match hs with
+  | [] => c
+  | (k, c') :: hs => combineHyps (PolyCnstr.combine c (c'.toPoly.mul (k+1))) hs
+
+def Certificate.combine (hs : Certificate) : PolyCnstr :=
+  match hs with
+  | [] => { eq := true, lhs := [], rhs := [] }
+  | (k, c) :: hs => combineHyps (c.toPoly.mul (k+1)) hs
+
+def Certificate.denote (ctx : Context) (c : Certificate) : Prop :=
+  match c with
+  | [] => False
+  | (_, c)::hs => c.denote ctx → denote ctx hs
 
 attribute [local simp] Nat.add_comm Nat.add_assoc Nat.add_left_comm Nat.right_distrib Nat.left_distrib Nat.mul_assoc Nat.mul_comm
 
-attribute [local simp] Poly.denote Expr.denote Poly.insertSorted Poly.sort Poly.sort.go Poly.fuse Poly.cancelAux Poly.cancel
+attribute [local simp] Poly.denote Expr.denote Poly.insertSorted Poly.sort Poly.sort.go Poly.fuse Poly.cancelAux
 attribute [local simp] Poly.mul Poly.mul.go
 
 theorem Poly.denote_insertSorted (ctx : Context) (k : Nat) (v : Var) (p : Poly) : (p.insertSorted k v).denote ctx = p.denote ctx + k * v.denote ctx := by
@@ -188,7 +239,7 @@ attribute [local simp] Poly.denote_fuse
 theorem Poly.denote_mul (ctx : Context) (k : Nat) (p : Poly) : (p.mul k).denote ctx = k * p.denote ctx := by
   simp
   by_cases h : k = 0 <;> simp [h]
-  simp [h]
+  by_cases h : k = 1 <;> simp [h]
   induction p with
   | nil  => simp
   | cons kv m ih => cases kv with | _ k' v => simp [ih]
@@ -272,6 +323,8 @@ theorem Poly.of_denote_eq_cancel {ctx : Context} {m₁ m₂ : Poly} (h : denote_
 theorem Poly.denote_eq_cancel_eq (ctx : Context) (m₁ m₂ : Poly) : denote_eq ctx (cancel m₁ m₂) = denote_eq ctx (m₁, m₂) :=
   propext <| Iff.intro (fun h => of_denote_eq_cancel h) (fun h => denote_eq_cancel h)
 
+attribute [local simp] Poly.denote_eq_cancel_eq
+
 theorem Poly.denote_le_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r₂ : Poly)
     (h : denote_le ctx (r₁.reverse ++ m₁, r₂.reverse ++ m₂)) : denote_le ctx (cancelAux fuel m₁ m₂ r₁ r₂) := by
   induction fuel generalizing m₁ m₂ r₁ r₂ with
@@ -351,6 +404,8 @@ theorem Poly.of_denote_le_cancel {ctx : Context} {m₁ m₂ : Poly} (h : denote_
 theorem Poly.denote_le_cancel_eq (ctx : Context) (m₁ m₂ : Poly) : denote_le ctx (cancel m₁ m₂) = denote_le ctx (m₁, m₂) :=
   propext <| Iff.intro (fun h => of_denote_le_cancel h) (fun h => denote_le_cancel h)
 
+attribute [local simp] Poly.denote_le_cancel_eq
+
 @[simp] theorem Expr.denote_toPoly (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.denote ctx := by
   induction e with
   | num k => by_cases h : k = 0 <;> simp [toPoly, h, Var.denote]
@@ -380,13 +435,92 @@ theorem Expr.of_cancel_le (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.to
 theorem Expr.of_cancel_lt (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.inc.toNormPoly b.toNormPoly = (c.inc.toPoly, d.toPoly)) : (a.denote ctx < b.denote ctx) = (c.denote ctx < d.denote ctx) :=
   of_cancel_le ctx a.inc b c.inc d h
 
-theorem ExprLe.combine (ctx : Context) (c d e : ExprLe) (h₃ : e.toPoly = (c.add d).toNormPoly) : c.denote ctx → d.denote ctx → e.denote ctx := by
-  intro h₁ h₂
-  match c, d, e with
-  | { lhs := cLhs, rhs := cRhs }, { lhs := dLhs, rhs := dRhs }, { lhs := eLhs, rhs := eRhs } =>
-    simp [add, denote, Expr.denote, toPoly, toNormPoly] at h₁ h₂ h₃ |-
-    rw [← Expr.of_cancel_le ctx (h := h₃.symm)]
-    exact Nat.add_le_add h₁ h₂
+theorem ExprCnstr.denote_toPoly (ctx : Context) (c : ExprCnstr) : c.toPoly.denote ctx = c.denote ctx := by
+  cases c; rename_i eq lhs rhs
+  simp [ExprCnstr.denote, PolyCnstr.denote, ExprCnstr.toPoly]
+  by_cases h : eq = true <;> simp [h]
+  . rw [Poly.denote_eq_cancel_eq]; simp [Poly.denote_eq, Expr.toNormPoly]
+  . rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_le, Expr.toNormPoly]
+
+attribute [local simp] ExprCnstr.denote_toPoly
+
+theorem Poly.mul.go_denote (ctx : Context) (k : Nat) (p : Poly) : (Poly.mul.go k p).denote ctx = k * p.denote ctx := by
+  match p with
+  | [] => rfl
+  | (k', v) :: p => simp [Poly.mul.go, go_denote]
+
+attribute [local simp] Poly.mul.go_denote
+
+section
+attribute [-simp] Nat.right_distrib Nat.left_distrib
+
+theorem PolyCnstr.denote_mul (ctx : Context) (k : Nat) (c : PolyCnstr) : (c.mul (k+1)).denote ctx = c.denote ctx := by
+  cases c; rename_i eq lhs rhs
+  have hn : ¬ (k + 1 = 0) := Nat.succ_ne_zero k
+  by_cases he : eq = true <;> simp [he, PolyCnstr.mul, PolyCnstr.denote, Poly.denote_le, Poly.denote_eq]
+    <;> by_cases hk : k = 0 <;> simp [hk, hn] <;> apply propext <;> apply Iff.intro <;> intro h
+  . exact Nat.eq_of_mul_eq_mul_left (Nat.zero_lt_succ _) h
+  . rw [h]
+  . exact Nat.le_of_mul_le_mul_left h (Nat.zero_lt_succ _)
+  . apply Nat.mul_le_mul_left _ h
+
+end
+
+attribute [local simp] PolyCnstr.denote_mul
+
+theorem PolyCnstr.denote_combine {ctx : Context} {c₁ c₂ : PolyCnstr} (h₁ : c₁.denote ctx) (h₂ : c₂.denote ctx) : (c₁.combine c₂).denote ctx := by
+  cases c₁; cases c₂; rename_i eq₁ lhs₁ rhs₁ eq₂ lhs₂ rhs₂
+  simp [denote] at h₁ h₂
+  simp [PolyCnstr.combine, denote]
+  by_cases he₁ : eq₁ = true <;> by_cases he₂ : eq₂ = true <;> simp [he₁, he₂] at h₁ h₂ |-
+  . rw [Poly.denote_eq_cancel_eq]; simp [Poly.denote_eq] at h₁ h₂ |-; simp [h₁, h₂]
+  . rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_eq, Poly.denote_le] at h₁ h₂ |-; rw [h₁]; apply Nat.add_le_add_left h₂
+  . rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_eq, Poly.denote_le] at h₁ h₂ |-; rw [h₂]; apply Nat.add_le_add_right h₁
+  . rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_eq, Poly.denote_le] at h₁ h₂ |-; apply Nat.add_le_add h₁ h₂
+
+attribute [local simp] PolyCnstr.denote_combine
+
+theorem Poly.isNum?_eq_some (ctx : Context) {p : Poly} {k : Nat} : p.isNum? = some k → p.denote ctx = k := by
+  simp [isNum?]
+  split
+  next => intro h; injection h; subst k; simp
+  next k v => by_cases h : v = fixedVar <;> simp [h]; intros; simp [Var.denote]; assumption
+  next => intros; contradiction
+
+theorem PolyCnstr.of_isUnsat (ctx : Context) {c : PolyCnstr} : c.isUnsat → c.denote ctx = False := by
+  cases c; rename_i eq lhs rhs
+  simp [isUnsat]
+  by_cases he : eq = true <;> simp [he]
+  . split
+    next k₁ k₂ h₁ h₂ => simp [denote, Poly.denote_eq, bne]; rw [Poly.isNum?_eq_some ctx h₁, Poly.isNum?_eq_some ctx h₂]; intro h; simp [h]
+    next => intros; contradiction
+  . split
+    next k₁ k₂ h₁ h₂ => simp [denote, Poly.denote_le, bne, he]; rw [Poly.isNum?_eq_some ctx h₁, Poly.isNum?_eq_some ctx h₂]; intro h; simp [Nat.not_le_of_gt h]
+    next => intros; contradiction
+
+theorem Certificate.of_combineHyps (ctx : Context) (c : PolyCnstr) (cs : Certificate) (h : (combineHyps c cs).denote ctx → False) : c.denote ctx → cs.denote ctx := by
+  match cs with
+  | [] => simp [combineHyps, denote] at *; exact h
+  | (k, c')::cs =>
+    intro h₁ h₂
+    have := PolyCnstr.denote_combine (ctx := ctx) (c₂ := PolyCnstr.mul (k + 1) (ExprCnstr.toPoly c')) h₁
+    simp at this
+    have := this h₂
+    have ih := of_combineHyps ctx (PolyCnstr.combine c (PolyCnstr.mul (k + 1) (ExprCnstr.toPoly c'))) cs
+    exact ih h this
+
+theorem Certificate.of_combine (ctx : Context) (cs : Certificate) (h : cs.combine.denote ctx → False) : cs.denote ctx := by
+  match cs with
+  | [] => simp [combine, PolyCnstr.denote, Poly.denote_eq] at h
+  | (k, c)::cs =>
+    simp [denote, combine] at *
+    intro h'
+    apply of_combineHyps (h := h)
+    simp [h']
+
+theorem Certificate.of_combine_isUnsat (ctx : Context) (cs : Certificate) (h : cs.combine.isUnsat) : cs.denote ctx :=
+  have h := PolyCnstr.of_isUnsat ctx h
+  of_combine ctx cs (fun h' => Eq.mp h h')
 
 example (x₁ x₂ x₃ : Nat) : (x₁ + x₂) + (x₂ + x₃) = x₃ + 2*x₂ + x₁ :=
   Expr.eq_of_toNormPoly { vars := [x₁, x₂, x₃] }
@@ -418,9 +552,9 @@ example (x₁ x₂ x₃ : Nat) : ((x₁ + x₂) + (x₂ + x₃) < x₃ + x₂) =
     (Expr.num 0)
     rfl
 
-example (x₁ x₂ : Nat) : x₁ + 2 ≤ 3*x₂ → 4*x₂ ≤ 3 + x₁ → x₂ ≤ 1 :=
-  ExprLe.combine { vars := [x₁, x₂] }
-    { lhs := Expr.add (Expr.var 0) (Expr.num 2), rhs := Expr.mulL 3 (Expr.var 1) }
-    { lhs := Expr.mulL 4 (Expr.var 1), rhs := Expr.add (Expr.num 3) (Expr.var 0) }
-    { lhs := Expr.var 1, rhs := Expr.num 1 }
+example (x₁ x₂ : Nat) : x₁ + 2 ≤ 3*x₂ → 4*x₂ ≤ 3 + x₁ → 3 ≤ 2*x₂ → False :=
+  Certificate.of_combine_isUnsat { vars := [x₁, x₂] }
+    [  (1, { eq := false, lhs := Expr.add (Expr.var 0) (Expr.num 2), rhs := Expr.mulL 3 (Expr.var 1) }),
+       (1, { eq := false, lhs := Expr.mulL 4 (Expr.var 1), rhs := Expr.add (Expr.num 3) (Expr.var 0) }),
+       (0, { eq := false, lhs := Expr.num 3, rhs := Expr.mulL 2 (Expr.var 1) }) ]
     rfl

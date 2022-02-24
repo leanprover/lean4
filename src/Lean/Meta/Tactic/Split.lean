@@ -152,8 +152,9 @@ end Split
 open Split
 
 partial def splitTarget? (mvarId : MVarId) (splitIte := true) : MetaM (Option (List MVarId)) := commitWhenSome? do
+  let target ← getMVarType' mvarId
   let rec go (badCases : ExprSet) : MetaM (Option (List MVarId)) := do
-    if let some e := findSplit? (← getEnv) (← instantiateMVars (← getMVarType mvarId)) splitIte badCases then
+    if let some e := findSplit? (← getEnv) target splitIte badCases then
       if e.isIte || e.isDIte then
         return (← splitIfTarget? mvarId).map fun (s₁, s₂) => [s₁.mvarId, s₂.mvarId]
       else

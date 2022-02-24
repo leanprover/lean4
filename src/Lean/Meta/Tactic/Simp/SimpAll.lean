@@ -56,12 +56,21 @@ private partial def loop : M Bool := do
     | none => return true -- closed the goal
     | some (proofNew, typeNew) =>
       unless typeNew == entry.type do
-        let id ← mkFreshUserName `h
-        let simpThmsNew ← (← getSimpTheorems).add #[] proofNew (name? := id)
+        /- The theorem for the simplified entry must use the same `id` of the theorem before simplification. Otherwise,
+           the previous versions can be used to self-simplify the new version. For example, suppose we have
+           ```
+            x : Nat
+            h : x ≠ 0
+            ⊢ Unit
+           ```
+           In the first round, `h : x ≠ 0` is simplified to `h : ¬ x = 0`. If we don't use the same `id`, in the next round
+           the first version would simplify it to `h : True`.
+        -/
+        let simpThmsNew ← (← getSimpTheorems).add #[] proofNew (name? := entry.id)
         modify fun s => { s with
           modified         := true
           ctx.simpTheorems := simpThmsNew
-          entries[i]       := { entry with type := typeNew, proof := proofNew, id := id }
+          entries[i]       := { entry with type := typeNew, proof := proofNew, id := entry.id }
         }
   -- simplify target
   let mvarId := (← get).mvarId

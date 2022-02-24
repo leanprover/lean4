@@ -43,6 +43,11 @@ theorem implies_congr_ctx {p₁ p₂ q₁ q₂ : Prop} (h₁ : p₁ = p₂) (h�
       have : q₂ := h hp₂
       h₂ hp₂ ▸ this)
 
+theorem implies_dep_congr_ctx {p₁ p₂ q₁ : Prop} (h₁ : p₁ = p₂) {q₂ : p₂ → Prop} (h₂ : (h : p₂) → q₁ = q₂ h) : (p₁ → q₁) = ((h : p₂) → q₂ h) :=
+  propext <| Iff.intro
+    (fun hl hp₂ => Eq.mp (h₂ hp₂) (hl (Eq.mpr h₁ hp₂)))
+    (fun hr hp₁ => Eq.mpr (h₂ (Eq.mp h₁ hp₁)) (hr (Eq.mp h₁ hp₁)))
+
 theorem forall_congr {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a = q a)) : (∀ a, p a) = (∀ a, q a) :=
   have : p = q := funext h
   this ▸ rfl

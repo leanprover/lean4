@@ -493,7 +493,10 @@ where
           | none    => mkImpCongr e rp rq
           | some hq =>
             let hq ← mkLambdaFVars #[h] hq
-            return { expr := e.updateForallE! rp.expr rq.expr, proof? := (← mkImpCongrCtx (← rp.getProof) hq) }
+            if rq.expr.containsFVar h.fvarId! then
+              return { expr := (← mkForallFVars #[h] rq.expr), proof? := (← mkImpDepCongrCtx (← rp.getProof) hq) }
+            else
+              return { expr := e.updateForallE! rp.expr rq.expr, proof? := (← mkImpCongrCtx (← rp.getProof) hq) }
     else
       mkImpCongr e rp (← simp q)
 

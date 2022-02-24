@@ -191,7 +191,7 @@ def deltaLHS (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
 
 def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := withMVarContext mvarId do
   let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) := target.eq? | throwTacticEx `deltaRHS mvarId "equality expected"
+  let some (_, lhs, rhs) := target.eq? | return none
   let some rhs ← delta? rhs.consumeMData (. == declName) | return none
   replaceTargetDefEq mvarId (← mkEq lhs rhs)
 
@@ -205,7 +205,7 @@ private partial def whnfAux (e : Expr) : MetaM Expr := do
 /-- Apply `whnfR` to lhs, return `none` if `lhs` was not modified -/
 def whnfReducibleLHS? (mvarId : MVarId) : MetaM (Option MVarId) := withMVarContext mvarId do
   let target ← getMVarType' mvarId
-  let some (_, lhs, rhs) := target.eq? | throwTacticEx `whnfReducibleLHS mvarId "equality expected"
+  let some (_, lhs, rhs) := target.eq? | return none
   let lhs' ← whnfAux lhs
   if lhs' != lhs then
     return some (← replaceTargetDefEq mvarId (← mkEq lhs' rhs))

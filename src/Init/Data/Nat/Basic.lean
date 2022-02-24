@@ -568,6 +568,23 @@ theorem le_sub_of_add_le {a b c : Nat} (h : a + b ≤ c) : a ≤ c - b := by
   | zero => rfl
   | succ n ih => simp [ih, Nat.sub_succ]
 
+protected theorem sub_self_add (n m : Nat) : n - (n + m) = 0 := by
+  show (n + 0) - (n + m) = 0
+  rw [Nat.add_sub_add_left, Nat.zero_sub]
+
+protected theorem sub_eq_zero_of_le {n m : Nat} (h : n ≤ m) : n - m = 0 := by
+  match le.dest h with
+  | ⟨k, hk⟩ => rw [← hk, Nat.sub_self_add]
+
+theorem sub.elim {motive : Nat → Prop}
+    (x y : Nat)
+    (h₁ : y ≤ x → (k : Nat) → x = y + k → motive k)
+    (h₂ : x < y → motive 0)
+    : motive (x - y) := by
+  cases Nat.lt_or_ge x y with
+  | inl hlt => rw [Nat.sub_eq_zero_of_le (Nat.le_of_lt hlt)]; exact h₂ hlt
+  | inr hle => exact h₁ hle (x - y) (Nat.add_sub_of_le hle).symm
+
 theorem mul_pred_left (n m : Nat) : pred n * m = n * m - m := by
   cases n with
   | zero   => simp

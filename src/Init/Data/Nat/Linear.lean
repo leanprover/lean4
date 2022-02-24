@@ -1,12 +1,24 @@
+/-
+Copyright (c) 2022 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Leonardo de Moura
+-/
+prelude
+import Init.Coe
+import Init.Classical
+import Init.SimpLemmas
+import Init.Data.Nat.Basic
+import Init.Data.List.Basic
+
+namespace Nat.Linear
+
+/--!
+  Helper definitions and theorems for constructing linear arithmetic proofs.
+-/
+
 abbrev Var := Nat
 
-structure Context where
-  vars : List Nat
-
-private def List.getIdx : List α → Nat → α → α
-  | [],    i,   u => u
-  | a::as, 0,   u => a
-  | a::as, i+1, u => getIdx as i u
+abbrev Context := List Nat
 
 /--
   When encoding polynomials. We use `fixedVar` for encoding numerals.
@@ -14,7 +26,12 @@ private def List.getIdx : List α → Nat → α → α
 def fixedVar := 100000000 -- Any big number should work here
 
 def Var.denote (ctx : Context) (v : Var) : Nat :=
-  if v = fixedVar then 1 else ctx.vars.getIdx v 0
+  if v = fixedVar then 1 else go ctx v
+where
+  go : List Nat → Nat → Nat
+   | [],    i   => 0
+   | a::as, 0   => a
+   | _::as, i+1 => go as i
 
 inductive Expr where
   | num  (v : Nat)
@@ -22,7 +39,7 @@ inductive Expr where
   | add  (a b : Expr)
   | mulL (k : Nat) (a : Expr)
   | mulR (a : Expr) (k : Nat)
-  deriving Inhabited, Repr
+  deriving Inhabited
 
 def Expr.denote (ctx : Context) : Expr → Nat
   | Expr.add a b  => Nat.add (denote ctx a) (denote ctx b)
@@ -99,7 +116,9 @@ def Poly.isNum? (p : Poly) : Option Nat :=
   | _ => none
 
 def Poly.isZero (p : Poly) : Bool :=
-  p = []
+  match p with
+  | [] => true
+  | _  => false
 
 def Poly.isNonZero (p : Poly) : Bool :=
   match p with
@@ -190,7 +209,6 @@ def Certificate.denote (ctx : Context) (c : Certificate) : Prop :=
   | (_, c)::hs => c.denote ctx → denote ctx hs
 
 attribute [local simp] Nat.add_comm Nat.add_assoc Nat.add_left_comm Nat.right_distrib Nat.left_distrib Nat.mul_assoc Nat.mul_comm
-
 attribute [local simp] Poly.denote Expr.denote Poly.insertSorted Poly.sort Poly.sort.go Poly.fuse Poly.cancelAux
 attribute [local simp] Poly.mul Poly.mul.go
 
@@ -302,7 +320,7 @@ theorem Poly.of_denote_eq_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁
   | succ fuel ih =>
     simp at h
     split at h <;> simp <;> try assumption
-    rename_i k₁ v₁ m₁ k₂ v₂ m₂
+    rename_i k₁ v₁ m₁ k₂ v₂ m₂ h
     by_cases hltv : v₁ < v₂ <;> simp [hltv] at h
     . have ih := ih (h := h); simp [denote_eq] at ih ⊢; assumption
     . by_cases hgtv : v₁ > v₂ <;> simp [hgtv] at h
@@ -381,7 +399,7 @@ theorem Poly.of_denote_le_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁
   | succ fuel ih =>
     simp at h
     split at h <;> simp <;> try assumption
-    rename_i k₁ v₁ m₁ k₂ v₂ m₂
+    rename_i k₁ v₁ m₁ k₂ v₂ m₂ h
     by_cases hltv : v₁ < v₂ <;> simp [hltv] at h
     . have ih := ih (h := h); simp [denote_le] at ih ⊢; assumption
     . by_cases hgtv : v₁ > v₂ <;> simp [hgtv] at h
@@ -504,7 +522,9 @@ theorem Poly.isNum?_eq_some (ctx : Context) {p : Poly} {k : Nat} : p.isNum? = so
 
 def Poly.of_isZero (ctx : Context) {p : Poly} (h : isZero p = true) : p.denote ctx = 0 := by
   simp [isZero] at h
-  simp [h]
+  split at h
+  . simp
+  . contradiction
 
 def Poly.of_isNonZero (ctx : Context) {p : Poly} (h : isNonZero p = true) : p.denote ctx > 0 := by
   match p with
@@ -572,49 +592,4 @@ theorem Certificate.of_combine_isUnsat (ctx : Context) (cs : Certificate) (h : c
   have h := PolyCnstr.eq_false_of_isUnsat ctx h
   of_combine ctx cs (fun h' => Eq.mp h h')
 
-example (x₁ x₂ x₃ : Nat) : (x₁ + x₂) + (x₂ + x₃) = x₃ + 2*x₂ + x₁ :=
-  Expr.eq_of_toNormPoly { vars := [x₁, x₂, x₃] }
-   (Expr.add (Expr.add (Expr.var 0) (Expr.var 1)) (Expr.add (Expr.var 1) (Expr.var 2)))
-   (Expr.add (Expr.add (Expr.var 2) (Expr.mulL 2 (Expr.var 1))) (Expr.var 0))
-   rfl
-
-example (x₁ x₂ x₃ : Nat) : ((x₁ + x₂) + (x₂ + x₃) = x₃ + x₂) = (x₁ + x₂ = 0) :=
-  Expr.of_cancel_eq { vars := [x₁, x₂, x₃] }
-    (Expr.add (Expr.add (Expr.var 0) (Expr.var 1)) (Expr.add (Expr.var 1) (Expr.var 2)))
-    (Expr.add (Expr.var 2) (Expr.var 1))
-    (Expr.add (Expr.var 0) (Expr.var 1))
-    (Expr.num 0)
-    rfl
-
-example (x₁ x₂ x₃ : Nat) : ((x₁ + x₂) + (x₂ + x₃) ≤ x₃ + x₂) = (x₁ + x₂ ≤ 0) :=
-  Expr.of_cancel_le { vars := [x₁, x₂, x₃] }
-    (Expr.add (Expr.add (Expr.var 0) (Expr.var 1)) (Expr.add (Expr.var 1) (Expr.var 2)))
-    (Expr.add (Expr.var 2) (Expr.var 1))
-    (Expr.add (Expr.var 0) (Expr.var 1))
-    (Expr.num 0)
-    rfl
-
-example (x₁ x₂ x₃ : Nat) : ((x₁ + x₂) + (x₂ + x₃) < x₃ + x₂) = (x₁ + x₂ < 0) :=
-  Expr.of_cancel_lt { vars := [x₁, x₂, x₃] }
-    (Expr.add (Expr.add (Expr.var 0) (Expr.var 1)) (Expr.add (Expr.var 1) (Expr.var 2)))
-    (Expr.add (Expr.var 2) (Expr.var 1))
-    (Expr.add (Expr.var 0) (Expr.var 1))
-    (Expr.num 0)
-    rfl
-
-example (x₁ x₂ : Nat) : x₁ + 2 ≤ 3*x₂ → 4*x₂ ≤ 3 + x₁ → 3 ≤ 2*x₂ → False :=
-  Certificate.of_combine_isUnsat { vars := [x₁, x₂] }
-    [ (1, { eq := false, lhs := Expr.add (Expr.var 0) (Expr.num 2), rhs := Expr.mulL 3 (Expr.var 1) }),
-      (1, { eq := false, lhs := Expr.mulL 4 (Expr.var 1), rhs := Expr.add (Expr.num 3) (Expr.var 0) }),
-      (0, { eq := false, lhs := Expr.num 3, rhs := Expr.mulL 2 (Expr.var 1) }) ]
-    rfl
-
-example (x : Nat) (xs : List Nat) : (sizeOf x < 1 + (1 + sizeOf x + sizeOf xs)) = True :=
-  ExprCnstr.eq_true_of_isValid { vars := [sizeOf x, sizeOf xs]  }
-    { eq := false, lhs := Expr.inc (Expr.var 0), rhs := Expr.add (Expr.num 1) (Expr.add (Expr.add (Expr.num 1) (Expr.var 0)) (Expr.var 1)) }
-    rfl
-
-example (x : Nat) (xs : List Nat) : (1 + (1 + sizeOf x + sizeOf xs) < sizeOf x) = False :=
-  ExprCnstr.eq_false_of_isUnsat { vars := [sizeOf x, sizeOf xs]  }
-    { eq := false, lhs := Expr.inc <| Expr.add (Expr.num 1) (Expr.add (Expr.add (Expr.num 1) (Expr.var 0)) (Expr.var 1)), rhs := Expr.var 0 }
-    rfl
+end Nat.Linear

@@ -119,7 +119,7 @@ where
     | d+1, fvarId :: fvarIds, mvarId => do
       let cont := do
         go (d+1) fvarIds mvarId
-      if let some (_, lhs, rhs) ← matchEq? (← getLocalDecl fvarId).type then
+      if let some (_, lhs, rhs) ← matchEqHEq? (← getLocalDecl fvarId).type then
         let lhs ← whnf lhs
         let rhs ← whnf rhs
         if lhs.isNatLit && rhs.isNatLit then cont

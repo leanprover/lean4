@@ -25,6 +25,19 @@ def matchEq? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) :=
 def matchHEq? (e : Expr) : MetaM (Option (Expr × Expr × Expr × Expr)) :=
   matchHelper? e fun e => return Expr.heq? e
 
+/--
+  Return `some (α, lhs, rhs)` if `e` is of the form `@Eq α lhs rhs` or `@HEq α lhs α rhs`
+-/
+def matchEqHEq? (e : Expr) : MetaM (Option (Expr × Expr × Expr)) := do
+  if let some r ← matchEq? e then
+    return some r
+  else if let some (α, lhs, β, rhs) ← matchHEq? e then
+    if (← isDefEq α β) then
+      return some (α, lhs, rhs)
+    return none
+  else
+    return none
+
 def matchFalse (e : Expr) : MetaM Bool := do
   testHelper e fun e => return e.isConstOf ``False
 

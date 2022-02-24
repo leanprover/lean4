@@ -148,3 +148,5 @@ theorem dite_congr {s : Decidable b} [Decidable c]
 
 @[simp] theorem Nat.beq_to_eq (a b : Nat) : ((a == b) = true) = (a = b) := by simp [BEq.beq]
 @[simp] theorem Nat.not_beq_to_not_eq (a b : Nat) : ((!(a == b)) = true) = ¬(a = b) := by simp [BEq.beq]
+
+@[simp] theorem heq_eq_eq {α : Sort u} (a b : α) : HEq a b = (a = b) := propext <| Iff.intro eq_of_heq heq_of_eq

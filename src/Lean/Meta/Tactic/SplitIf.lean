@@ -66,6 +66,7 @@ partial def findIfToSplit? (e : Expr) : Option Expr :=
     none
 
 def splitIfAt? (mvarId : MVarId) (e : Expr) (hName? : Option Name) : MetaM (Option (ByCasesSubgoal × ByCasesSubgoal)) := do
+  let e ← instantiateMVars e
   if let some cond := findIfToSplit? e then
     let hName ← match hName? with
       | none       => mkFreshUserName `h

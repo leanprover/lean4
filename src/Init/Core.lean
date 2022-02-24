@@ -409,28 +409,28 @@ instance {p q} [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
 
 /- if-then-else expression theorems -/
 
-theorem if_pos {c : Prop} [h : Decidable c] (hc : c) {α : Sort u} {t e : α} : (ite c t e) = t :=
+theorem if_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t e : α} : (ite c t e) = t :=
   match h with
   | isTrue  hc  => rfl
   | isFalse hnc => absurd hc hnc
 
-theorem if_neg {c : Prop} [h : Decidable c] (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
+theorem if_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
   match h with
   | isTrue hc   => absurd hc hnc
   | isFalse hnc => rfl
 
-theorem dif_pos {c : Prop} [h : Decidable c] (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = t hc :=
+theorem dif_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = t hc :=
   match h with
   | isTrue  hc  => rfl
   | isFalse hnc => absurd hc hnc
 
-theorem dif_neg {c : Prop} [h : Decidable c] (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = e hnc :=
+theorem dif_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = e hnc :=
   match h with
   | isTrue hc   => absurd hc hnc
   | isFalse hnc => rfl
 
 -- Remark: dite and ite are "defally equal" when we ignore the proofs.
-theorem dif_eq_if (c : Prop) [h : Decidable c] {α : Sort u} (t : α) (e : α) : dite c (fun h => t) (fun h => e) = ite c t e :=
+theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) : dite c (fun h => t) (fun h => e) = ite c t e :=
   match h with
   | isTrue hc   => rfl
   | isFalse hnc => rfl

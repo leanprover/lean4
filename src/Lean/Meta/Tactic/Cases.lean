@@ -340,11 +340,11 @@ def casesAnd (mvarId : MVarId) : MetaM MVarId := do
   let mvarIds ← casesRec mvarId fun localDecl => return (← instantiateMVars localDecl.type).isAppOfArity ``And 2
   exactlyOne mvarIds
 
-def substEqs (mvarId : MVarId) : MetaM MVarId := do
+def substEqs (mvarId : MVarId) : MetaM (Option MVarId) := do
   let mvarIds ← casesRec mvarId fun localDecl => do
     let type ← instantiateMVars localDecl.type
     return type.isEq || type.isHEq
-  exactlyOne mvarIds
+  ensureAtMostOne mvarIds
 
 structure ByCasesSubgoal where
   mvarId : MVarId

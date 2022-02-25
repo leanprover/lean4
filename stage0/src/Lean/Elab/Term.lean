@@ -67,6 +67,7 @@ structure SavedContext where
   openDecls  : List OpenDecl
   macroStack : MacroStack
   errToSorry : Bool
+  levelNames : List Name
 
 /-- We use synthetic metavariables as placeholders for pending elaboration steps. -/
 inductive SyntheticMVarKind where
@@ -911,12 +912,13 @@ def saveContext : TermElabM SavedContext :=
     options    := (← getOptions)
     openDecls  := (← getOpenDecls)
     errToSorry := (← read).errToSorry
+    levelNames := (← get).levelNames
   }
 
 def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α := do
   withReader (fun ctx => { ctx with declName? := savedCtx.declName?, macroStack := savedCtx.macroStack, errToSorry := savedCtx.errToSorry }) <|
-    withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls })
-      x
+    withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
+      withLevelNames savedCtx.levelNames x
 
 private def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   trace[Elab.postpone] "{stx} : {expectedType?}"

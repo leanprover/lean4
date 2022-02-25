@@ -262,7 +262,10 @@ expr type_checker::infer_proj(expr const & e, bool infer_only) {
     }
     r = whnf(r);
     if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
-    return binding_domain(r);
+    r = binding_domain(r);
+    if (is_prop(type) && !is_prop(r))
+        throw invalid_proj_exception(env(), m_lctx, e);
+    return r;
 }
 
 /** \brief Return type of expression \c e, if \c infer_only is false, then it also check whether \c e is type correct or not.

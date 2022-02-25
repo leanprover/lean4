@@ -1873,7 +1873,6 @@ uint8_t x_12; lean_object* x_13;
 x_12 = lean_unbox(x_3);
 lean_dec(x_3);
 x_13 = l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_resumePostponed___lambda__2(x_1, x_2, x_12, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_4);
 return x_13;
 }
 }
@@ -8783,7 +8782,6 @@ lean_inc(x_26);
 lean_dec(x_12);
 x_27 = l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizeSyntheticMVar___closed__1;
 x_28 = l_Lean_Elab_Term_withSavedContext___rarg(x_26, x_27, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_26);
 return x_28;
 }
 else
@@ -8801,7 +8799,6 @@ x_32 = lean_alloc_closure((void*)(l___private_Lean_Elab_SyntheticMVars_0__Lean_E
 lean_closure_set(x_32, 0, x_31);
 lean_closure_set(x_32, 1, x_29);
 x_33 = l_Lean_Elab_Term_withSavedContext___rarg(x_30, x_32, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_30);
 return x_33;
 }
 }
@@ -8896,7 +8893,6 @@ lean_inc(x_57);
 lean_dec(x_12);
 x_58 = l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_synthesizeSyntheticMVar___closed__1;
 x_59 = l_Lean_Elab_Term_withSavedContext___rarg(x_57, x_58, x_4, x_5, x_6, x_7, x_46, x_9, x_10);
-lean_dec(x_57);
 return x_59;
 }
 else
@@ -8914,7 +8910,6 @@ x_63 = lean_alloc_closure((void*)(l___private_Lean_Elab_SyntheticMVars_0__Lean_E
 lean_closure_set(x_63, 0, x_62);
 lean_closure_set(x_63, 1, x_60);
 x_64 = l_Lean_Elab_Term_withSavedContext___rarg(x_61, x_63, x_4, x_5, x_6, x_7, x_46, x_9, x_10);
-lean_dec(x_61);
 return x_64;
 }
 }

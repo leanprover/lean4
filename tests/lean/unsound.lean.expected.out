@@ -1,0 +1,4 @@
+unsound.lean:1:4-1:7: error: (kernel) invalid projection
+  h.1
+unsound.lean:3:28-3:31: error: unknown identifier 'foo'
+unsound.lean:3:47-3:50: error: unknown identifier 'foo'

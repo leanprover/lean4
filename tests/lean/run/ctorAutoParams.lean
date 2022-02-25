@@ -7,9 +7,9 @@ def eval : State → Expr → Bool :=
 
 inductive Command where
   | skip
-  | cond  : Expr → Command → Command → Command
-  | while : Expr → Command → Command
-  | seq   : Command → Command → Command
+  | cond    : Expr → Command → Command → Command
+  | «while» : Expr → Command → Command
+  | seq     : Command → Command → Command
 
 open Command
 

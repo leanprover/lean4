@@ -80,3 +80,5 @@ def sum (as : Array Nat) (i : Nat) (s : Nat) : Nat :=
     s
 termination_by' measure fun ⟨i, _⟩ => as.size - i
 ```
+
+* Add `while <cond> do <do-block>`, `repeat <do-block>`, and `repeat <do-block> until <cond>` macros for `do`-block. These macros are based on `partial` definitions, and consequently are useful only for writing programs we don't want to prove anything about.

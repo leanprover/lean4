@@ -5,7 +5,7 @@ inductive Vec (α : Type u) : Nat → Type u
 def Vec.repeat (a : α) (n : Nat) : Vec α n :=
   match n with
   | 0   => nil
-  | n+1 => cons a (repeat a n)
+  | n+1 => cons a («repeat» a n)
 
 instance [Inhabited α] : Inhabited (Vec α n) where
   default := Vec.repeat default n

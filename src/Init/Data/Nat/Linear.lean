@@ -9,6 +9,7 @@ import Init.Classical
 import Init.SimpLemmas
 import Init.Data.Nat.Basic
 import Init.Data.List.Basic
+import Init.Data.Prod
 
 namespace Nat.Linear
 
@@ -146,6 +147,17 @@ structure PolyCnstr  where
   eq  : Bool
   lhs : Poly
   rhs : Poly
+  deriving BEq
+
+-- TODO: implement LawfulBEq generator companion for BEq
+instance : LawfulBEq PolyCnstr where
+  eq_of_beq a b h := by
+    cases a; rename_i eq₁ lhs₁ rhs₁
+    cases b; rename_i eq₂ lhs₂ rhs₂
+    have h : eq₁ == eq₂ && lhs₁ == lhs₂ && rhs₁ == rhs₂ := h
+    simp at h
+    have ⟨⟨h₁, h₂⟩, h₃⟩ := h
+    rw [h₁, eq_of_beq h₂, eq_of_beq h₃]
 
 def PolyCnstr.mul (k : Nat) (c : PolyCnstr) : PolyCnstr :=
   { c with lhs := c.lhs.mul k, rhs := c.rhs.mul k }
@@ -639,5 +651,8 @@ theorem Poly.denote_toExpr (ctx : Context) (p : Poly) : p.toExpr.denote ctx = p.
   match p with
   | [] => simp [toExpr, Expr.denote, Poly.denote]
   | (k, v) :: p => simp [toExpr, Expr.denote, Poly.denote]
+
+theorem ExprCnstr.eq_of_toNormPoly_eq (ctx : Context) (e : ExprCnstr) (p : PolyCnstr) (h : e.toNormPoly == p) : e.denote ctx = p.denote ctx := by
+  simp [← eq_of_beq h]
 
 end Nat.Linear

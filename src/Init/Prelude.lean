@@ -204,7 +204,8 @@ class inductive Nonempty (α : Sort u) : Prop where
 axiom Classical.choice {α : Sort u} : Nonempty α → α
 
 protected def Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ : α → p) : p :=
-  h₂ h₁.1
+  match h₁ with
+  | intro a => h₂ a
 
 instance {α : Sort u} [Inhabited α] : Nonempty α :=
   ⟨default⟩

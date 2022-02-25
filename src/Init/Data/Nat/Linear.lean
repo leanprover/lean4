@@ -320,7 +320,7 @@ theorem Poly.of_denote_eq_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁
   | succ fuel ih =>
     simp at h
     split at h <;> simp <;> try assumption
-    rename_i k₁ v₁ m₁ k₂ v₂ m₂ h
+    rename_i k₁ v₁ m₁ k₂ v₂ m₂
     by_cases hltv : v₁ < v₂ <;> simp [hltv] at h
     . have ih := ih (h := h); simp [denote_eq] at ih ⊢; assumption
     . by_cases hgtv : v₁ > v₂ <;> simp [hgtv] at h
@@ -399,7 +399,7 @@ theorem Poly.of_denote_le_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁
   | succ fuel ih =>
     simp at h
     split at h <;> simp <;> try assumption
-    rename_i k₁ v₁ m₁ k₂ v₂ m₂ h
+    rename_i k₁ v₁ m₁ k₂ v₂ m₂
     by_cases hltv : v₁ < v₂ <;> simp [hltv] at h
     . have ih := ih (h := h); simp [denote_le] at ih ⊢; assumption
     . by_cases hgtv : v₁ > v₂ <;> simp [hgtv] at h

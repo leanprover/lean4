@@ -315,7 +315,8 @@ theorem Iff.comm : (a ↔ b) ↔ (b ↔ a) :=
 
 theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
    (h₁ : Exists (fun x => p x)) (h₂ : ∀ (a : α), p a → b) : b :=
-  h₂ h₁.1 h₁.2
+  match h₁ with
+  | intro a h => h₂ a h
 
 /- Decidable -/
 

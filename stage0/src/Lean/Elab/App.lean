@@ -36,6 +36,15 @@ private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermEl
   let argType ← inferType arg
   ensureHasTypeAux expectedType argType arg f
 
+private def mkProjAndCheck (structName : Name) (idx : Nat) (e : Expr) : MetaM Expr := do
+  let r := mkProj structName idx e
+  let eType ← inferType e
+  if (← isProp eType) then
+    let rType ← inferType r
+    if !(← isProp rType) then
+      throwError "invalid projection, the expression{indentExpr e}\nis a proposition and has type{indentExpr eType}\nbut the projected value is not, it has type{indentExpr rType}"
+  return r
+
 /-
   Relevant definitions:
   ```
@@ -703,7 +712,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
     let (f, lvalRes) ← resolveLVal f lval hasArgs
     match lvalRes with
     | LValResolution.projIdx structName idx =>
-      let f := mkProj structName idx f
+      let f ← mkProjAndCheck structName idx f
       addTermInfo lval.getRef f
       loop f lvals
     | LValResolution.projFn baseStructName structName fieldName =>

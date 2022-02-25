@@ -233,6 +233,15 @@ class csimp_fn {
         return tc.whnf(tc.infer(e));
     }
 
+    optional<expr> whnf_infer_type_guarded(expr const & e) {
+        try {
+            expr r = whnf_infer_type(e);
+            return optional<expr>(r);
+        } catch (kernel_exception &) {
+            return optional<expr>();
+        }
+    }
+
     name next_name() {
         /* Remark: we use `m_x.append_after(m_next_idx)` instead of `name(m_x, m_next_idx)`
            because the resulting name is confusing during debugging: it looks like a projection application.
@@ -1165,11 +1174,14 @@ class csimp_fn {
         /* When we simplify before erasure, we eta-expand all lambdas which are not join points. */
         buffer<expr> eta_args;
         if (m_before_erasure && !is_join_point_def) {
-            expr e_type = whnf_infer_type(e);
-            while (is_pi(e_type)) {
-                expr arg = m_lctx.mk_local_decl(ngen(), binding_name(e_type), binding_domain(e_type), binding_info(e_type));
-                eta_args.push_back(arg);
-                e_type = whnf(instantiate(binding_body(e_type), arg));
+            // HACK: infer_type may fail
+            if (auto e_type_opt = whnf_infer_type_guarded(e)) {
+                expr e_type = *e_type_opt;
+                while (is_pi(e_type)) {
+                    expr arg = m_lctx.mk_local_decl(ngen(), binding_name(e_type), binding_domain(e_type), binding_info(e_type));
+                    eta_args.push_back(arg);
+                    e_type = whnf(instantiate(binding_body(e_type), arg));
+                }
             }
         }
         unsigned saved_fvars_size = m_fvars.size();
@@ -1518,27 +1530,34 @@ class csimp_fn {
                 update_expr2ctor(major, c, args, cidx, zs);
                 new_minor = visit(minor, false);
             }
-            new_minor = mk_let(zs, saved_fvars_size, new_minor, false);
-            expr result_minor = mk_minor_lambda(zs, new_minor);
-            if (all_equal_opt) {
-                expr result_minor_body = result_minor;
-                for (unsigned i = 0; i < zs.size(); i++) {
-                    result_minor_body = binding_body(result_minor_body);
-                    if (has_loose_bvars(result_minor_body)) {
-                        /* Minor premise depends on constructor fields. */
-                        all_equal_opt = false;
-                        break;
-                    }
-                }
+            try {
+              new_minor = mk_let(zs, saved_fvars_size, new_minor, false);
+              expr result_minor = mk_minor_lambda(zs, new_minor);
+              if (all_equal_opt) {
+                  expr result_minor_body = result_minor;
+                  for (unsigned i = 0; i < zs.size(); i++) {
+                      result_minor_body = binding_body(result_minor_body);
+                      if (has_loose_bvars(result_minor_body)) {
+                          /* Minor premise depends on constructor fields. */
+                          all_equal_opt = false;
+                          break;
+                      }
+                  }
+              }
+              if (all_equal_opt) {
+                  if (!a_minor) {
+                      a_minor = new_minor;
+                  } else if (new_minor != *a_minor) {
+                      all_equal_opt = false;
+                  }
+              }
+              args[minor_idx] = result_minor;
+            } catch (kernel_exception &) {
+                // HACK: the code above depends on `infer_type`, and it may fail.
+                // The compiler performs transformations that do not preserve typability.
+                // When we rewrite the compiler in Lean, we must write a custom `infer_type` that returns an
+                // `Any` type in this kind of situation.
             }
-            if (all_equal_opt) {
-                if (!a_minor) {
-                    a_minor = new_minor;
-                } else if (new_minor != *a_minor) {
-                    all_equal_opt = false;
-                }
-            }
-            args[minor_idx] = result_minor;
         }
         if (all_equal_opt && a_minor && !is_join_point_app(*a_minor)) {
             /*

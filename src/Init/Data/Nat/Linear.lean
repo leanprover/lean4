@@ -181,6 +181,10 @@ def PolyCnstr.isValid (c : PolyCnstr) : Bool :=
   else
     c.lhs.isZero
 
+/-- Return true iff `c₁` has fewer monomials than `c₂`. -/
+def PolyCnstr.hasFewerMonomials (c₁ c₂ : PolyCnstr) : Bool :=
+  c₁.lhs.length + c₁.rhs.length < c₂.lhs.length + c₂.rhs.length
+
 def ExprCnstr.denote (ctx : Context) (c : ExprCnstr) : Prop :=
   if c.eq then
     c.lhs.denote ctx = c.rhs.denote ctx
@@ -188,6 +192,9 @@ def ExprCnstr.denote (ctx : Context) (c : ExprCnstr) : Prop :=
     c.lhs.denote ctx ≤ c.rhs.denote ctx
 
 def ExprCnstr.toPoly (c : ExprCnstr) : PolyCnstr :=
+  { c with lhs := c.lhs.toPoly, rhs := c.rhs.toPoly }
+
+def ExprCnstr.toNormPoly (c : ExprCnstr) : PolyCnstr :=
   let (lhs, rhs) := Poly.cancel c.lhs.toNormPoly c.rhs.toNormPoly
   { c with lhs, rhs }
 
@@ -196,17 +203,35 @@ abbrev Certificate := List (Nat × ExprCnstr)
 def Certificate.combineHyps (c : PolyCnstr) (hs : Certificate) : PolyCnstr :=
   match hs with
   | [] => c
-  | (k, c') :: hs => combineHyps (PolyCnstr.combine c (c'.toPoly.mul (k+1))) hs
+  | (k, c') :: hs => combineHyps (PolyCnstr.combine c (c'.toNormPoly.mul (k+1))) hs
 
 def Certificate.combine (hs : Certificate) : PolyCnstr :=
   match hs with
   | [] => { eq := true, lhs := [], rhs := [] }
-  | (k, c) :: hs => combineHyps (c.toPoly.mul (k+1)) hs
+  | (k, c) :: hs => combineHyps (c.toNormPoly.mul (k+1)) hs
 
 def Certificate.denote (ctx : Context) (c : Certificate) : Prop :=
   match c with
   | [] => False
   | (_, c)::hs => c.denote ctx → denote ctx hs
+
+def monomialToExpr (k : Nat) (v : Var) : Expr :=
+  if v = fixedVar then
+    Expr.num k
+  else if k = 1 then
+    Expr.var v
+  else
+    Expr.mulL k (Expr.var v)
+
+def Poly.toExpr (p : Poly) : Expr :=
+  match p with
+  | [] => Expr.num 0
+  | (k, v) :: p => go (monomialToExpr k v) p
+where
+  go (e : Expr) (p : Poly) : Expr :=
+    match p with
+    | [] => e
+    | (k, v) :: p => go (Expr.add e (monomialToExpr k v)) p
 
 attribute [local simp] Nat.add_comm Nat.add_assoc Nat.add_left_comm Nat.right_distrib Nat.left_distrib Nat.mul_assoc Nat.mul_comm
 attribute [local simp] Poly.denote Expr.denote Poly.insertSorted Poly.sort Poly.sort.go Poly.fuse Poly.cancelAux
@@ -468,14 +493,17 @@ theorem Expr.of_cancel_le (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.to
 theorem Expr.of_cancel_lt (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.inc.toNormPoly b.toNormPoly = (c.inc.toPoly, d.toPoly)) : (a.denote ctx < b.denote ctx) = (c.denote ctx < d.denote ctx) :=
   of_cancel_le ctx a.inc b c.inc d h
 
-theorem ExprCnstr.denote_toPoly (ctx : Context) (c : ExprCnstr) : c.toPoly.denote ctx = c.denote ctx := by
+theorem ExprCnstr.toPoly_norm_eq (c : ExprCnstr) : c.toPoly.norm = c.toNormPoly :=
+  rfl
+
+theorem ExprCnstr.denote_toNormPoly (ctx : Context) (c : ExprCnstr) : c.toNormPoly.denote ctx = c.denote ctx := by
   cases c; rename_i eq lhs rhs
-  simp [ExprCnstr.denote, PolyCnstr.denote, ExprCnstr.toPoly]
+  simp [ExprCnstr.denote, PolyCnstr.denote, ExprCnstr.toNormPoly]
   by_cases h : eq = true <;> simp [h]
   . rw [Poly.denote_eq_cancel_eq]; simp [Poly.denote_eq, Expr.toNormPoly]
   . rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_le, Expr.toNormPoly]
 
-attribute [local simp] ExprCnstr.denote_toPoly
+attribute [local simp] ExprCnstr.denote_toNormPoly
 
 theorem Poly.mul.go_denote (ctx : Context) (k : Nat) (p : Poly) : (Poly.mul.go k p).denote ctx = k * p.denote ctx := by
   match p with
@@ -558,12 +586,12 @@ def PolyCnstr.eq_true_of_isValid (ctx : Context) {c : PolyCnstr} : c.isValid →
     have := Nat.zero_le (Poly.denote ctx rhs)
     simp [this]
 
-def ExprCnstr.eq_false_of_isUnsat (ctx : Context) (c : ExprCnstr) (h : c.toPoly.isUnsat) : c.denote ctx = False := by
+def ExprCnstr.eq_false_of_isUnsat (ctx : Context) (c : ExprCnstr) (h : c.toNormPoly.isUnsat) : c.denote ctx = False := by
   have := PolyCnstr.eq_false_of_isUnsat ctx h
   simp at this
   assumption
 
-def ExprCnstr.eq_true_of_isValid (ctx : Context) (c : ExprCnstr) (h : c.toPoly.isValid) : c.denote ctx = True := by
+def ExprCnstr.eq_true_of_isValid (ctx : Context) (c : ExprCnstr) (h : c.toNormPoly.isValid) : c.denote ctx = True := by
   have := PolyCnstr.eq_true_of_isValid ctx h
   simp at this
   assumption
@@ -573,10 +601,10 @@ theorem Certificate.of_combineHyps (ctx : Context) (c : PolyCnstr) (cs : Certifi
   | [] => simp [combineHyps, denote] at *; exact h
   | (k, c')::cs =>
     intro h₁ h₂
-    have := PolyCnstr.denote_combine (ctx := ctx) (c₂ := PolyCnstr.mul (k + 1) (ExprCnstr.toPoly c')) h₁
+    have := PolyCnstr.denote_combine (ctx := ctx) (c₂ := PolyCnstr.mul (k + 1) (ExprCnstr.toNormPoly c')) h₁
     simp at this
     have := this h₂
-    have ih := of_combineHyps ctx (PolyCnstr.combine c (PolyCnstr.mul (k + 1) (ExprCnstr.toPoly c'))) cs
+    have ih := of_combineHyps ctx (PolyCnstr.combine c (PolyCnstr.mul (k + 1) (ExprCnstr.toNormPoly c'))) cs
     exact ih h this
 
 theorem Certificate.of_combine (ctx : Context) (cs : Certificate) (h : cs.combine.denote ctx → False) : cs.denote ctx := by
@@ -591,5 +619,25 @@ theorem Certificate.of_combine (ctx : Context) (cs : Certificate) (h : cs.combin
 theorem Certificate.of_combine_isUnsat (ctx : Context) (cs : Certificate) (h : cs.combine.isUnsat) : cs.denote ctx :=
   have h := PolyCnstr.eq_false_of_isUnsat ctx h
   of_combine ctx cs (fun h' => Eq.mp h h')
+
+theorem denote_monomialToExpr (ctx : Context) (k : Nat) (v : Var) : (monomialToExpr k v).denote ctx = k * v.denote ctx := by
+  simp [monomialToExpr]
+  by_cases h : v = fixedVar <;> simp [h, Expr.denote]
+  . simp [Var.denote]
+  . by_cases h : k = 1 <;> simp [h, Expr.denote]
+
+attribute [local simp] denote_monomialToExpr
+
+theorem Poly.denote_toExpr_go (ctx : Context) (e : Expr) (p : Poly) : (toExpr.go e p).denote ctx = e.denote ctx + p.denote ctx := by
+  induction p generalizing e with
+  | nil => simp [toExpr.go, Poly.denote]
+  | cons kv p ih => cases kv; simp [toExpr.go, ih, Expr.denote, Poly.denote]
+
+attribute [local simp] Poly.denote_toExpr_go
+
+theorem Poly.denote_toExpr (ctx : Context) (p : Poly) : p.toExpr.denote ctx = p.denote ctx := by
+  match p with
+  | [] => simp [toExpr, Expr.denote, Poly.denote]
+  | (k, v) :: p => simp [toExpr, Expr.denote, Poly.denote]
 
 end Nat.Linear

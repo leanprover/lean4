@@ -208,3 +208,37 @@ syntax (name := solve) "solve " withPosition((group(colGe "|" tacticSeq))+) : ta
 
 macro_rules
   | `(tactic| solve $[| $ts]* ) => `(tactic| focus first $[| ($ts); done]*)
+
+namespace Lean
+/- `repeat` and `while` notation -/
+
+inductive Loop where
+  | mk
+
+@[inline]
+partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (loop : Loop) (init : β) (f : Unit → β → m (ForInStep β)) : m β :=
+  let rec @[specialize] loop (b : β) : m β := do
+    match ← f () b with
+      | ForInStep.done b  => pure b
+      | ForInStep.yield b => loop b
+  loop init
+
+instance : ForIn m Loop Unit where
+  forIn := Loop.forIn
+
+syntax "repeat " doSeq : doElem
+
+macro_rules
+  | `(doElem| repeat $seq) => `(doElem| for _ in Loop.mk do $seq)
+
+syntax "while " termBeforeDo " do " doSeq : doElem
+
+macro_rules
+  | `(doElem| while $cond do $seq) => `(doElem| repeat if $cond then $seq else break)
+
+syntax "repeat " doSeq " until " term : doElem
+
+macro_rules
+  | `(doElem| repeat $seq until $cond) => `(doElem| repeat do $seq; if $cond then break)
+
+end Lean

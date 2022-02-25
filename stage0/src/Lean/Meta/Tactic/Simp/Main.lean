@@ -45,8 +45,8 @@ def mkCongr (r₁ r₂ : Result) : MetaM Result :=
   | none,    some h  => return { expr := e, proof? := (← Meta.mkCongrArg r₁.expr h) }
   | some h₁, some h₂ => return { expr := e, proof? := (← Meta.mkCongr h₁ h₂) }
 
-private def mkImpCongr (r₁ r₂ : Result) : MetaM Result := do
-  let e ← mkArrow r₁.expr r₂.expr
+private def mkImpCongr (src : Expr) (r₁ r₂ : Result) : MetaM Result := do
+  let e := src.updateForallE! r₁.expr r₂.expr
   match r₁.proof?, r₂.proof? with
   | none,     none   => return { expr := e, proof? := none }
   | _,        _      => return { expr := e, proof? := (← Meta.mkImpCongr (← r₁.getProof) (← r₂.getProof)) } -- TODO specialize if bootleneck
@@ -490,12 +490,15 @@ where
         withSimpTheorems s do
           let rq ← simp q
           match rq.proof? with
-          | none    => mkImpCongr rp rq
+          | none    => mkImpCongr e rp rq
           | some hq =>
             let hq ← mkLambdaFVars #[h] hq
-            return { expr := (← mkArrow rp.expr rq.expr), proof? := (← mkImpCongrCtx (← rp.getProof) hq) }
+            if rq.expr.containsFVar h.fvarId! then
+              return { expr := (← mkForallFVars #[h] rq.expr), proof? := (← mkImpDepCongrCtx (← rp.getProof) hq) }
+            else
+              return { expr := e.updateForallE! rp.expr rq.expr, proof? := (← mkImpCongrCtx (← rp.getProof) hq) }
     else
-      mkImpCongr rp (← simp q)
+      mkImpCongr e rp (← simp q)
 
   simpForall (e : Expr) : M Result := withParent e do
     trace[Debug.Meta.Tactic.simp] "forall {e}"

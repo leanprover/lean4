@@ -31,6 +31,15 @@ def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
   let env ← getEnv
   try x finally setEnv env
 
+/-- Similar to `withoutModifyingEnv`, but also returns the updated environment -/
+@[inline] def withoutModifyingEnv' [Monad m] [MonadEnv m] [MonadFinally m] {α : Type} (x : m α) : m (α × Environment) := do
+  let env ← getEnv
+  try
+    let a ← x
+    return (a, ← getEnv)
+  finally
+    setEnv env
+
 @[inline] def matchConst [Monad m] [MonadEnv m] (e : Expr) (failK : Unit → m α) (k : ConstantInfo → List Level → m α) : m α := do
   match e with
   | Expr.const constName us _ => do

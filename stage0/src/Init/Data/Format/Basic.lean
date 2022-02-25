@@ -28,6 +28,16 @@ inductive Format where
   deriving Inhabited
 
 namespace Format
+
+def isEmpty : Format → Bool
+  | nil          => true
+  | line         => false
+  | text msg     => msg == ""
+  | nest _ f     => f.isEmpty
+  | append f₁ f₂ => f₁.isEmpty && f₂.isEmpty
+  | group f _    => f.isEmpty
+  | tag _ f      => f.isEmpty
+
 def fill (f : Format) : Format :=
   group f (behavior := FlattenBehavior.fill)
 

@@ -33,10 +33,16 @@ def isAuxRecursor (env : Environment) (declName : Name) : Bool :=
   || declName == ``Eq.ndrec
   || declName == ``Eq.ndrecOn
 
-def isCasesOnRecursor (env : Environment) (declName : Name) : Bool :=
+def isAuxRecursorWithSuffix (env : Environment) (declName : Name) (suffix : Name) : Bool :=
   match declName with
-  | Name.str _ s _ => s == casesOnSuffix && isAuxRecursor env declName
+  | Name.str _ s _ => s == suffix && isAuxRecursor env declName
   | _ => false
+
+def isCasesOnRecursor (env : Environment) (declName : Name) : Bool :=
+  isAuxRecursorWithSuffix env declName casesOnSuffix
+
+def isBRecOnRecursor (env : Environment) (declName : Name) : Bool :=
+  isAuxRecursorWithSuffix env declName brecOnSuffix
 
 builtin_initialize noConfusionExt : TagDeclarationExtension ← mkTagDeclarationExtension `noConf
 

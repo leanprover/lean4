@@ -28,8 +28,11 @@ private def rwFixEq (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId d
   let target ← getMVarType' mvarId
   let some (_, lhs, rhs) := target.eq? | unreachable!
   let h := mkAppN (mkConst ``WellFounded.fix_eq lhs.getAppFn.constLevels!) lhs.getAppArgs
-  let r ← rewrite mvarId target h
-  replaceTargetEq mvarId r.eNew r.eqProof
+  let some (_, _, lhsNew) := (← inferType h).eq? | unreachable!
+  let targetNew ← mkEq lhsNew rhs
+  let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew
+  assignExprMVar mvarId (← mkEqTrans h mvarNew)
+  return mvarNew.mvarId!
 
 private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
   trace[Elab.definition.wf.eqns] "proving: {type}"

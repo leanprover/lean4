@@ -43,6 +43,11 @@ theorem implies_congr_ctx {p₁ p₂ q₁ q₂ : Prop} (h₁ : p₁ = p₂) (h�
       have : q₂ := h hp₂
       h₂ hp₂ ▸ this)
 
+theorem implies_dep_congr_ctx {p₁ p₂ q₁ : Prop} (h₁ : p₁ = p₂) {q₂ : p₂ → Prop} (h₂ : (h : p₂) → q₁ = q₂ h) : (p₁ → q₁) = ((h : p₂) → q₂ h) :=
+  propext <| Iff.intro
+    (fun hl hp₂ => Eq.mp (h₂ hp₂) (hl (Eq.mpr h₁ hp₂)))
+    (fun hr hp₁ => Eq.mpr (h₂ (Eq.mp h₁ hp₁)) (hr (Eq.mp h₁ hp₁)))
+
 theorem forall_congr {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a = q a)) : (∀ a, p a) = (∀ a, q a) :=
   have : p = q := funext h
   this ▸ rfl
@@ -126,4 +131,22 @@ theorem dite_congr {s : Decidable b} [Decidable c]
 @[simp] theorem Bool.and_self (b : Bool) : (b && b) = b          := by cases b <;> rfl
 @[simp] theorem Bool.and_eq_true (a b : Bool) : ((a && b) = true) = (a = true ∧ b = true) := by cases a <;> cases b <;> decide
 
+@[simp] theorem Bool.not_not (b : Bool) : (!!b) = b := by cases b <;> rfl
+@[simp] theorem Bool.not_true  : (!true) = false := by decide
+@[simp] theorem Bool.not_false : (!false) = true := by decide
+@[simp] theorem Bool.not_beq_true (b : Bool) : (!(b == true)) = (b == false) := by cases b <;> rfl
+@[simp] theorem Bool.not_beq_false (b : Bool) : (!(b == false)) = (b == true) := by cases b <;> rfl
+
+@[simp] theorem Bool.beq_to_eq (a b : Bool) : ((a == b) = true) = (a = b) := by cases a <;> cases b <;> decide
+@[simp] theorem Bool.not_beq_to_not_eq (a b : Bool) : ((!(a == b)) = true) = ¬(a = b) := by cases a <;> cases b <;> decide
+@[simp] theorem Bool.not_eq_true (b : Bool) : (¬ (b = true)) = (b = false) := by cases b <;> decide
+@[simp] theorem Bool.not_eq_false (b : Bool) : (¬ (b = false)) = (b = true) := by cases b <;> decide
+
 @[simp] theorem decide_eq_true_eq [Decidable p] : (decide p = true) = p := propext <| Iff.intro of_decide_eq_true decide_eq_true
+@[simp] theorem decide_not [h : Decidable p] : decide (¬ p) = !decide p := by cases h <;> rfl
+@[simp] theorem not_decide_eq_true [h : Decidable p] : ((!decide p) = true) = ¬ p := by cases h <;> simp [decide, *]
+
+@[simp] theorem Nat.beq_to_eq (a b : Nat) : ((a == b) = true) = (a = b) := by simp [BEq.beq]
+@[simp] theorem Nat.not_beq_to_not_eq (a b : Nat) : ((!(a == b)) = true) = ¬(a = b) := by simp [BEq.beq]
+
+@[simp] theorem heq_eq_eq {α : Sort u} (a b : α) : HEq a b = (a = b) := propext <| Iff.intro eq_of_heq heq_of_eq

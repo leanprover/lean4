@@ -493,6 +493,9 @@ def mkImpCongr (h₁ h₂ : Expr) : MetaM Expr :=
 def mkImpCongrCtx (h₁ h₂ : Expr) : MetaM Expr :=
   mkAppM ``implies_congr_ctx #[h₁, h₂]
 
+def mkImpDepCongrCtx (h₁ h₂ : Expr) : MetaM Expr :=
+  mkAppM ``implies_dep_congr_ctx #[h₁, h₂]
+
 def mkForallCongr (h : Expr) : MetaM Expr :=
   mkAppM ``forall_congr #[h]
 

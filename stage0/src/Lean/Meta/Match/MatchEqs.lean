@@ -166,20 +166,30 @@ private def substRHS (eq : FVarId) (rhs : FVarId) : M Unit := do
 private def isDone : M Bool :=
   return (← get).eqs.isEmpty
 
+/-- Customized `contradiction` tactic for `simpH?` -/
+private def contradiction (mvarId : MVarId) : MetaM Bool :=
+  contradictionCore mvarId { genDiseq := false, emptyType := false }
+
 /--
   Auxiliary tactic that tries to replace as many variables as possible and then apply `contradiction`.
   We use it to discard redundant hypotheses.
 -/
-private def trySubstVarsAndContradiction (mvarId : MVarId) : MetaM Bool :=
+partial def trySubstVarsAndContradiction (mvarId : MVarId) : MetaM Bool :=
   commitWhen do
     let mvarId ← substVars mvarId
-    contradictionCore mvarId {}
+    match (← injections mvarId) with
+    | none => return true -- closed goal
+    | some mvarId' =>
+      if mvarId' == mvarId then
+        contradiction mvarId
+      else
+        trySubstVarsAndContradiction mvarId'
 
 private def processNextEq : M Bool := do
   let s ← get
   withMVarContext s.mvarId do
     -- If the goal is contradictory, the hypothesis is redundant.
-    if (← contradictionCore s.mvarId {}) then
+    if (← contradiction s.mvarId) then
       return false
     if let eq :: eqs := s.eqs then
       modify fun s => { s with eqs }
@@ -221,7 +231,7 @@ end SimpH
 /--
   Auxiliary method for simplifying equational theorem hypotheses.
 
-  Recall that each equation contains additional hypotheses to ensure the associated case does not taken by previous cases.
+  Recall that each equation contains additional hypotheses to ensure the associated case was not taken by previous cases.
   We have one hypothesis for each previous case.
 -/
 private partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := withDefault do
@@ -304,10 +314,18 @@ inductive InjectionAnyResult where
   | failed
   | subgoal (mvarId : MVarId)
 
-private def injenctionAny (mvarId : MVarId) : MetaM InjectionAnyResult :=
+private def injectionAnyCandidate? (type : Expr) : MetaM (Option (Expr × Expr)) := do
+  if let some (_, lhs, rhs) ← matchEq? type then
+    return some (lhs, rhs)
+  else if let some (α, lhs, β, rhs) ← matchHEq? type then
+    if (← isDefEq α β) then
+      return some (lhs, rhs)
+  return none
+
+private def injectionAny (mvarId : MVarId) : MetaM InjectionAnyResult :=
   withMVarContext mvarId do
     for localDecl in (← getLCtx) do
-      if let some (_, lhs, rhs) ← matchEq? localDecl.type then
+      if let some (lhs, rhs) ← injectionAnyCandidate? localDecl.type then
         unless (← isDefEq lhs rhs) do
           let lhs ← whnf lhs
           let rhs ← whnf rhs
@@ -364,9 +382,14 @@ where
   proveSubgoalLoop (mvarId : MVarId) : MetaM Unit := do
     if (← contradictionCore mvarId {}) then
       return ()
-    match (← injenctionAny mvarId) with
+    match (← injectionAny mvarId) with
     | InjectionAnyResult.solved => return ()
-    | InjectionAnyResult.failed => throwError "failed to generate splitter for match auxiliary declaration '{matchDeclName}', unsolved subgoal:\n{MessageData.ofGoal mvarId}"
+    | InjectionAnyResult.failed =>
+      let mvarId' ← substVars mvarId
+      if mvarId' == mvarId then
+        throwError "failed to generate splitter for match auxiliary declaration '{matchDeclName}', unsolved subgoal:\n{MessageData.ofGoal mvarId}"
+      else
+        proveSubgoalLoop mvarId'
     | InjectionAnyResult.subgoal mvarId => proveSubgoalLoop mvarId
 
   proveSubgoal (mvarId : MVarId) : MetaM Unit := do

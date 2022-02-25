@@ -59,6 +59,17 @@ inductive MessageData where
 
 namespace MessageData
 
+partial def isEmpty : MessageData → Bool
+  | ofFormat f => f.isEmpty
+  | withContext _ m => m.isEmpty
+  | withNamingContext _ m => m.isEmpty
+  | nest _ m => m.isEmpty
+  | group m => m.isEmpty
+  | compose m₁ m₂ => m₁.isEmpty && m₂.isEmpty
+  | tagged _ m => m.isEmpty
+  | node ms => ms.all (·.isEmpty)
+  | _ => false
+
 /- Instantiate metavariables occurring in nexted `ofExpr` constructors.
    It uses the surrounding `MetavarContext` at `withContext` constructors.
 -/

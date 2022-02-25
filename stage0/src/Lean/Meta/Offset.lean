@@ -16,6 +16,11 @@ private abbrev withInstantiatedMVars (e : Expr) (k : Expr → OptionT MetaM α) 
   else
     k eNew
 
+def isNatProjInst (declName : Name) (numArgs : Nat) : Bool :=
+      (numArgs == 4 && (declName == ``Add.add || declName == ``Sub.sub || declName == ``Mul.mul))
+   || (numArgs == 6 && (declName == ``HAdd.hAdd || declName == ``HSub.hSub || declName == ``HMul.hMul))
+   || (numArgs == 3 && declName == ``OfNat.ofNat)
+
 /--
   Evaluate simple `Nat` expressions.
   Remark: this method assumes the given expression has type `Nat`. -/
@@ -27,11 +32,6 @@ partial def evalNat : Expr → OptionT MetaM Nat
   | e@(Expr.mvar ..)              => visit e
   | _                             => failure
 where
-  isNatProjInst (c : Name) (nargs : Nat) : Bool :=
-      (nargs == 4 && (c == ``Add.add || c == ``Sub.sub || c == ``Mul.mul))
-   || (nargs == 6 && (c == ``HAdd.hAdd || c == ``HSub.hSub || c == ``HMul.hMul))
-   || (nargs == 3 && c == ``OfNat.ofNat)
-
   visit e := do
     let f := e.getAppFn
     match f with

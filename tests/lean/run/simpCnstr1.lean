@@ -4,7 +4,7 @@ open Lean in open Lean.Meta in
 def test (declName : Name) : MetaM Unit := do
   let info ← getConstInfo declName
   forallTelescopeReducing info.type fun _ e => do
-    let some (e', p) ← Linear.Nat.simpCnstr? e | throwError "failed to simplify{indentExpr e}"
+    let some (e', p) ← Linear.simpCnstr? e | throwError "failed to simplify{indentExpr e}"
     check p
     unless (← isDefEq (← inferType p) (← mkEq e e')) do
       throwError "invalid proof"
@@ -18,6 +18,8 @@ axiom ex5 (a b : Nat) : 4 + ((a + a) + b) + (a + a) + (b + b) ≤ 3 + (4*a + b) 
 axiom ex6 (a b : Nat) : 4 = 8 + a
 axiom ex7 (a b : Nat) : a + a ≤ 8 + a + a + b
 axiom ex8 (a b c d : Nat) : b + a + c + d ≤ a + b + a + b
+axiom ex9 (a b : Nat) : a + b + 1 + a > b + 4 + a
+axiom ex10 (a b : Nat) : a + b + 1 + a ≥ b + 4 + a
 
 #eval test ``ex1
 #eval test ``ex2
@@ -27,3 +29,5 @@ axiom ex8 (a b c d : Nat) : b + a + c + d ≤ a + b + a + b
 #eval test ``ex6
 #eval test ``ex7
 #eval test ``ex8
+#eval test ``ex9
+#eval test ``ex10

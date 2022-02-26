@@ -123,7 +123,12 @@ partial def toLinearCnstr? (e : Expr) : M (Option LinearCnstr) := do
       return some { eq := false, lhs := (← toLinearExpr (e.getArg! 0)), rhs := (← toLinearExpr (e.getArg! 1)) }
     else if declName == ``Nat.lt && numArgs == 2 then
       return some { eq := false, lhs := (← toLinearExpr (e.getArg! 0)).inc, rhs := (← toLinearExpr (e.getArg! 1)) }
-    else if numArgs == 4 && (declName == ``LE.le || declName == ``GE.ge || declName == ``LT.lt || declName == ``GT.gt) then
+    else if numArgs == 4 && (declName == ``GE.ge || declName == ``GT.gt) then
+      if let some e ← unfoldDefinition? e then
+        toLinearCnstr? e
+      else
+        return none
+    else if numArgs == 4 && (declName == ``LE.le || declName == ``LT.lt) then
       if (← isDefEq (e.getArg! 0) (mkConst ``Nat)) then
         if let some e ← unfoldProjInst? e then
           toLinearCnstr? e

@@ -7,8 +7,25 @@ import Lean.Meta.Tactic.LinearArith.Nat
 
 namespace Lean.Meta.Linear
 
+/-- Quick filter simpCnstr? -/
+private partial def isSimpCnstrTarget (e : Expr) : Bool :=
+  let f := e.getAppFn
+  if !f.isConst then
+    false
+  else
+    let n := f.constName!
+    if n == ``Eq || n == ``LT.lt || n == ``LE.le || n == ``GT.gt || n == ``GE.ge then
+      true
+    else if n == ``Not && e.getAppNumArgs == 1 then
+      isSimpCnstrTarget e.appArg!
+    else
+      false
+
 def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
-  -- TODO: add support for `Int` and arbitrary ordered comm rings
-  Nat.simpCnstr? e
+  if isSimpCnstrTarget e then
+    -- TODO: add support for `Int` and arbitrary ordered comm rings
+    Nat.simpCnstr? e
+  else
+    return none
 
 end Lean.Meta.Linear

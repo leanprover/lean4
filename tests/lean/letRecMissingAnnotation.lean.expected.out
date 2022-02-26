@@ -1,4 +1,7 @@
-letRecMissingAnnotation.lean:4:6-4:34: error: unsolved goals
+letRecMissingAnnotation.lean:4:6-4:34: error: failed to show that recursive application is decreasing, possible solutions:
+  - Use `have`-expressions to prove the missing goals
+  - Use `termination_by` to specify a different well-founded relation
+  - Use `decreasing_by` to specity your own tactic for discharging this kind of goal
 as : Array Nat
 i s : Nat
 h : i < Array.size as

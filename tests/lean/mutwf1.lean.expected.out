@@ -3,7 +3,10 @@ case h.a
 n : Nat
 h : n ≠ 0
 ⊢ Nat.sub n 0 ≠ 0
-mutwf1.lean:37:22-37:28: error: unsolved goals
+mutwf1.lean:37:22-37:28: error: failed to show that recursive application is decreasing, possible solutions:
+  - Use `have`-expressions to prove the missing goals
+  - Use `termination_by` to specify a different well-founded relation
+  - Use `decreasing_by` to specity your own tactic for discharging this kind of goal
 case h
 n : Nat
-⊢ False
+⊢ n + 1 < n

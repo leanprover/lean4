@@ -10,6 +10,7 @@ import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Clear
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Simp.Rewrite
+import Lean.Meta.Tactic.LinearArith.Main
 
 namespace Lean.Meta
 namespace Simp

@@ -18,6 +18,7 @@ macro "decreasing_tactic" : tactic =>
     | apply Nat.pred_lt'; assumption           -- i-1 < i if j < i
     | apply Nat.sub_succ_lt_self; assumption   -- a - (i+1) < a - i if i < a
     | assumption
+    | simp (config := { arith := true })
     -- TODO: linearith
     -- TODO: improve
 ))

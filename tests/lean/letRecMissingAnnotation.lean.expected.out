@@ -1,4 +1,4 @@
-letRecMissingAnnotation.lean:4:6-4:34: error: tactic 'assumption' failed
+letRecMissingAnnotation.lean:4:6-4:34: error: unsolved goals
 as : Array Nat
 i s : Nat
 h : i < Array.size as

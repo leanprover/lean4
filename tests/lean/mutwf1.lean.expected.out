@@ -3,7 +3,7 @@ case h.a
 n : Nat
 h : n ≠ 0
 ⊢ Nat.sub n 0 ≠ 0
-mutwf1.lean:37:22-37:28: error: tactic 'assumption' failed
+mutwf1.lean:37:22-37:28: error: unsolved goals
 case h
 n : Nat
-⊢ n + 1 < n
+⊢ False

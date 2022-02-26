@@ -606,6 +606,20 @@ protected theorem mul_sub_right_distrib (n m k : Nat) : (n - m) * k = n * k - m 
 protected theorem mul_sub_left_distrib (n m k : Nat) : n * (m - k) = n * m - n * k := by
   rw [Nat.mul_comm, Nat.mul_sub_right_distrib, Nat.mul_comm m n, Nat.mul_comm n k]
 
+/- Helper normalization theorems -/
+
+theorem not_le_eq (a b : Nat) : (¬ (a ≤ b)) = (b + 1 ≤ a) :=
+  propext <| Iff.intro (fun h => Nat.gt_of_not_le h) (fun h => Nat.not_le_of_gt h)
+
+theorem not_ge_eq (a b : Nat) : (¬ (a ≥ b)) = (a + 1 ≤ b) :=
+  not_le_eq b a
+
+theorem not_lt_eq (a b : Nat) : (¬ (a < b)) = (b ≤ a) :=
+  propext <| Iff.intro (fun h => have h := Nat.succ_le_of_lt (Nat.gt_of_not_le h); Nat.le_of_succ_le_succ h) (fun h => Nat.not_le_of_gt (Nat.succ_le_succ h))
+
+theorem not_gt_eq (a b : Nat) : (¬ (a > b)) = (a ≤ b) :=
+  not_lt_eq b a
+
 end Nat
 
 namespace Prod

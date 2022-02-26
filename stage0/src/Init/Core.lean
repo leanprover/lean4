@@ -176,6 +176,24 @@ theorem optParam_eq (α : Sort u) (default : α) : optParam α default = α := r
 
 infix:50 " != " => bne
 
+class LawfulBEq (α : Type u) [BEq α] : Prop where
+  eq_of_beq : (a b : α) → (a == b) = true → a = b
+
+theorem eq_of_beq [BEq α] [LawfulBEq α] {a b : α} (h : (a == b) = true) : a = b :=
+  LawfulBEq.eq_of_beq a b h
+
+instance : LawfulBEq Bool where
+  eq_of_beq a b h := by cases a <;> cases b <;> first | rfl | contradiction
+
+instance : LawfulBEq Nat where
+  eq_of_beq _ _ h := of_decide_eq_true h
+
+instance : LawfulBEq Char where
+  eq_of_beq _ _  h := of_decide_eq_true h
+
+instance : LawfulBEq String where
+  eq_of_beq _ _  h := of_decide_eq_true h
+
 /- Logical connectives an equality -/
 
 def implies (a b : Prop) := a → b

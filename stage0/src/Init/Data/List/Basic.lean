@@ -472,4 +472,16 @@ def minimum? [LE α] [DecidableRel (@LE.le α _)] : List α → Option α
   | []    => none
   | a::as => some <| as.foldl min a
 
+instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
+  eq_of_beq as bs := by
+    induction as generalizing bs with
+    | nil => intro h; cases bs <;> first | rfl | contradiction
+    | cons a as ih =>
+      cases bs with
+      | nil => intro h; contradiction
+      | cons b bs =>
+        simp [BEq.beq, List.beq]
+        intro ⟨h₁, h₂⟩
+        exact ⟨eq_of_beq h₁, ih _ h₂⟩
+
 end List

@@ -25,3 +25,4 @@ import Init.Data.Hashable
 import Init.Data.OfScientific
 import Init.Data.Format
 import Init.Data.Stream
+import Init.Data.Prod

@@ -12,25 +12,48 @@ deriving instance Repr for Nat.Linear.Expr
 
 abbrev LinearExpr  := Nat.Linear.Expr
 abbrev LinearCnstr := Nat.Linear.ExprCnstr
+abbrev PolyExpr := Nat.Linear.Poly
 
-def LinearExpr.toExpr (ctx : Array Expr) (e : LinearExpr) : Expr :=
+def LinearExpr.toExpr (e : LinearExpr) : Expr :=
   open Nat.Linear.Expr in
   match e with
   | num v    => mkApp (mkConst ``num) (mkNatLit v)
-  | var i    => if h : i < ctx.size then ctx.get ⟨i, h⟩ else mkApp (mkConst ``var) (mkNatLit i)
-  | add a b  => mkApp2 (mkConst ``add) (toExpr ctx a) (toExpr ctx b)
-  | mulL k a => mkApp2 (mkConst ``mulL) (mkNatLit k) (toExpr ctx a)
-  | mulR a k => mkApp2 (mkConst ``mulL) (toExpr ctx a) (mkNatLit k)
+  | var i    => mkApp (mkConst ``var) (mkNatLit i)
+  | add a b  => mkApp2 (mkConst ``add) (toExpr a) (toExpr b)
+  | mulL k a => mkApp2 (mkConst ``mulL) (mkNatLit k) (toExpr a)
+  | mulR a k => mkApp2 (mkConst ``mulL) (toExpr a) (mkNatLit k)
 
 instance : ToExpr LinearExpr where
-  toExpr a := a.toExpr #[]
+  toExpr a := a.toExpr
   toTypeExpr := mkConst ``Nat.Linear.Expr
+
+protected def LinearCnstr.toExpr (c : LinearCnstr) : Expr :=
+   mkApp3 (mkConst ``Nat.Linear.ExprCnstr.mk) (toExpr c.eq) (LinearExpr.toExpr c.lhs) (LinearExpr.toExpr c.rhs)
+
+instance : ToExpr LinearCnstr where
+  toExpr a   := a.toExpr
+  toTypeExpr := mkConst ``Nat.Linear.ExprCnstr
+
+open Nat.Linear.Expr in
+def LinearExpr.toArith (ctx : Array Expr) (e : LinearExpr) : MetaM Expr := do
+  match e with
+  | num v    => return mkNatLit v
+  | var i    => return ctx[i]
+  | add a b  => mkAdd (← toArith ctx a) (← toArith ctx b)
+  | mulL k a => mkMul (mkNatLit k) (← toArith ctx a)
+  | mulR a k => mkMul (← toArith ctx a) (mkNatLit k)
+
+def LinearCnstr.toArith (ctx : Array Expr) (c : LinearCnstr) : MetaM Expr := do
+  if c.eq then
+    mkEq (← LinearExpr.toArith ctx c.lhs) (← LinearExpr.toArith ctx c.rhs)
+  else
+    return mkApp4 (mkConst ``LE.le [levelZero]) (mkConst ``Nat) (mkConst ``instLENat) (← LinearExpr.toArith ctx c.lhs) (← LinearExpr.toArith ctx c.rhs)
 
 namespace ToLinear
 
 structure State where
-  varMap : ExprMap Nat
-  vars   : Array Expr
+  varMap : ExprMap Nat := {}
+  vars   : Array Expr := #[]
 
 abbrev M := StateRefT State MetaM
 
@@ -101,14 +124,47 @@ partial def toLinearCnstr? (e : Expr) : M (Option LinearCnstr) := do
     else if declName == ``Nat.lt && numArgs == 2 then
       return some { eq := false, lhs := (← toLinearExpr (e.getArg! 0)).inc, rhs := (← toLinearExpr (e.getArg! 1)) }
     else if numArgs == 4 && (declName == ``LE.le || declName == ``GE.ge || declName == ``LT.lt || declName == ``GT.gt) then
-      if let some e ← unfoldProjInst? e then
-        toLinearCnstr? e
+      if (← isDefEq (e.getArg! 0) (mkConst ``Nat)) then
+        if let some e ← unfoldProjInst? e then
+          toLinearCnstr? e
+        else
+          return none
       else
         return none
     else
       return none
   | _ => return none
 
+def run (x : M α) : MetaM (α × Array Expr) := do
+  let (a, s) ← x.run {}
+  return (a, s.vars)
+
 end ToLinear
+
+open ToLinear (toLinearCnstr? toLinearExpr)
+
+def toContextExpr (ctx : Array Expr) : MetaM Expr := do
+  mkListLit (mkConst ``Nat) ctx.toList
+
+def reflTrue : Expr :=
+  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)
+
+def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
+  let (some c, ctx) ← ToLinear.run (ToLinear.toLinearCnstr? e) | return none
+  let c₁ := c.toPoly
+  let c₂ := c₁.norm
+  if c₂.isUnsat then
+    let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_false_of_isUnsat) (← toContextExpr ctx) (toExpr c) reflTrue
+    return some (mkConst ``False, p)
+  else if c₂.isValid then
+    let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_true_of_isValid) (← toContextExpr ctx) (toExpr c) reflTrue
+    return some (mkConst ``True, p)
+  else if c₂.hasFewerMonomials c₁ then
+    let c₂ : LinearCnstr := c₂.toExpr
+    let p := mkApp4 (mkConst ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq) (← toContextExpr ctx) (toExpr c) (toExpr c₂) reflTrue
+    let r ← c₂.toArith ctx
+    return some (r, p)
+  else
+    return none
 
 end Lean.Meta.Linear.Nat

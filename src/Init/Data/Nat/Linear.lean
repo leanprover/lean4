@@ -245,6 +245,9 @@ where
     | [] => e
     | (k, v) :: p => go (Expr.add e (monomialToExpr k v)) p
 
+def PolyCnstr.toExpr (c : PolyCnstr) : ExprCnstr :=
+  { c with lhs := c.lhs.toExpr, rhs := c.rhs.toExpr }
+
 attribute [local simp] Nat.add_comm Nat.add_assoc Nat.add_left_comm Nat.right_distrib Nat.left_distrib Nat.mul_assoc Nat.mul_comm
 attribute [local simp] Poly.denote Expr.denote Poly.insertSorted Poly.sort Poly.sort.go Poly.fuse Poly.cancelAux
 attribute [local simp] Poly.mul Poly.mul.go
@@ -476,13 +479,15 @@ theorem Poly.denote_le_cancel_eq (ctx : Context) (m₁ m₂ : Poly) : denote_le 
 
 attribute [local simp] Poly.denote_le_cancel_eq
 
-@[simp] theorem Expr.denote_toPoly (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.denote ctx := by
+theorem Expr.denote_toPoly (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.denote ctx := by
   induction e with
   | num k => by_cases h : k = 0 <;> simp [toPoly, h, Var.denote]
   | var i => simp [toPoly]
   | add a b iha ihb => simp [toPoly, iha, ihb]
   | mulL k a ih => simp [toPoly, ih, -Poly.mul]
   | mulR k a ih => simp [toPoly, ih, -Poly.mul]
+
+attribute [local simp] Expr.denote_toPoly
 
 theorem Expr.eq_of_toNormPoly (ctx : Context) (a b : Expr) (h : a.toNormPoly = b.toNormPoly) : a.denote ctx = b.denote ctx := by
   simp [toNormPoly] at h
@@ -507,6 +512,15 @@ theorem Expr.of_cancel_lt (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.in
 
 theorem ExprCnstr.toPoly_norm_eq (c : ExprCnstr) : c.toPoly.norm = c.toNormPoly :=
   rfl
+
+theorem ExprCnstr.denote_toPoly (ctx : Context) (c : ExprCnstr) : c.toPoly.denote ctx = c.denote ctx := by
+  cases c; rename_i eq lhs rhs
+  simp [ExprCnstr.denote, PolyCnstr.denote, ExprCnstr.toPoly];
+  by_cases h : eq = true <;> simp [h]
+  . simp [Poly.denote_eq, Expr.toPoly]
+  . simp [Poly.denote_le, Expr.toPoly]
+
+attribute [local simp] ExprCnstr.denote_toPoly
 
 theorem ExprCnstr.denote_toNormPoly (ctx : Context) (c : ExprCnstr) : c.toNormPoly.denote ctx = c.denote ctx := by
   cases c; rename_i eq lhs rhs
@@ -652,7 +666,9 @@ theorem Poly.denote_toExpr (ctx : Context) (p : Poly) : p.toExpr.denote ctx = p.
   | [] => simp [toExpr, Expr.denote, Poly.denote]
   | (k, v) :: p => simp [toExpr, Expr.denote, Poly.denote]
 
-theorem ExprCnstr.eq_of_toNormPoly_eq (ctx : Context) (e : ExprCnstr) (p : PolyCnstr) (h : e.toNormPoly == p) : e.denote ctx = p.denote ctx := by
-  simp [← eq_of_beq h]
+theorem ExprCnstr.eq_of_toNormPoly_eq (ctx : Context) (c d : ExprCnstr) (h : c.toNormPoly == d.toPoly) : c.denote ctx = d.denote ctx := by
+  have h := congrArg (PolyCnstr.denote ctx) (eq_of_beq h)
+  simp at h
+  assumption
 
 end Nat.Linear

@@ -23,7 +23,7 @@ axiom ex10 (a b : Nat) : a + b + 1 + a ≥ b + 4 + a
 axiom ex11 (a b : Nat) : ¬ (a + b + 1 + a < b + 4 + a)
 axiom ex12 (a b : Nat) : ¬ (a + b + 1 + a > b + 4 + a)
 axiom ex13 (a b : Nat) : ¬ (a + b + 1 + a ≤ b + 4 + a)
-axiom ex14 (a b : Nat) : ¬ (a + b + 1 + a ≥ b + 4 + a)
+axiom ex14 (a b c d : Nat) : ¬ (a + d + b + 1 + a + d ≥ b + 4 + a + c)
 
 #eval test ``ex1
 #eval test ``ex2

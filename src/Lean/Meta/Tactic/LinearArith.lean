@@ -6,3 +6,4 @@ Authors: Sebastian Ullrich
 import Lean.Meta.Tactic.LinearArith.Solver
 import Lean.Meta.Tactic.LinearArith.Nat
 import Lean.Meta.Tactic.LinearArith.Main
+import Lean.Meta.Tactic.LinearArith.Simp

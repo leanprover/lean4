@@ -164,7 +164,7 @@ def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   else if c₂.isValid then
     let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_true_of_isValid) (← toContextExpr ctx) (toExpr c) reflTrue
     return some (mkConst ``True, p)
-  else if c₂.hasFewerMonomials c₁ then
+  else if c₁ != c₂ then
     let c₂ : LinearCnstr := c₂.toExpr
     let p := mkApp4 (mkConst ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq) (← toContextExpr ctx) (toExpr c) (toExpr c₂) reflTrue
     let r ← c₂.toArith ctx

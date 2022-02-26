@@ -154,7 +154,7 @@ def toContextExpr (ctx : Array Expr) : MetaM Expr := do
 def reflTrue : Expr :=
   mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)
 
-def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
+def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   let (some c, ctx) ← ToLinear.run (ToLinear.toLinearCnstr? e) | return none
   let c₁ := c.toPoly
   let c₂ := c₁.norm
@@ -171,5 +171,33 @@ def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     return some (r, p)
   else
     return none
+
+def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
+  if let some arg := e.not? then
+    let mut eNew?   := none
+    let mut thmName := Name.anonymous
+    if arg.isAppOfArity ``LE.le 4 then
+      eNew?   := some (← mkLE (← mkAdd (arg.getArg! 3) (mkNatLit 1)) (arg.getArg! 2))
+      thmName := ``Nat.not_le_eq
+    else if arg.isAppOfArity ``GE.ge 4 then
+      eNew?   := some (← mkLE (← mkAdd (arg.getArg! 2) (mkNatLit 1)) (arg.getArg! 3))
+      thmName := ``Nat.not_ge_eq
+    else if arg.isAppOfArity ``LT.lt 4 then
+      eNew?   := some (← mkLE (arg.getArg! 3) (arg.getArg! 2))
+      thmName := ``Nat.not_lt_eq
+    else if arg.isAppOfArity ``GT.gt 4 then
+      eNew?   := some (← mkLE (arg.getArg! 2) (arg.getArg! 3))
+      thmName := ``Nat.not_gt_eq
+    if let some eNew := eNew? then
+      if let some (eNew', h₂) ← simpCnstrPos? eNew then
+        let h₁ := mkApp2 (mkConst thmName) (arg.getArg! 2) (arg.getArg! 3)
+        let h  := mkApp6 (mkConst ``Eq.trans [levelOne]) (mkSort levelZero) e eNew eNew' h₁ h₂
+        return some (eNew', h)
+      else
+        return none
+    else
+      return none
+  else
+    simpCnstrPos? e
 
 end Lean.Meta.Linear.Nat

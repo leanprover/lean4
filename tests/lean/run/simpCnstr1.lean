@@ -3,7 +3,7 @@ import Lean
 open Lean in open Lean.Meta in
 def test (declName : Name) : MetaM Unit := do
   let info ← getConstInfo declName
-  forallTelescopeReducing info.type fun _ e => do
+  forallTelescope info.type fun _ e => do
     let some (e', p) ← Linear.simpCnstr? e | throwError "failed to simplify{indentExpr e}"
     check p
     unless (← isDefEq (← inferType p) (← mkEq e e')) do
@@ -20,6 +20,10 @@ axiom ex7 (a b : Nat) : a + a ≤ 8 + a + a + b
 axiom ex8 (a b c d : Nat) : b + a + c + d ≤ a + b + a + b
 axiom ex9 (a b : Nat) : a + b + 1 + a > b + 4 + a
 axiom ex10 (a b : Nat) : a + b + 1 + a ≥ b + 4 + a
+axiom ex11 (a b : Nat) : ¬ (a + b + 1 + a < b + 4 + a)
+axiom ex12 (a b : Nat) : ¬ (a + b + 1 + a > b + 4 + a)
+axiom ex13 (a b : Nat) : ¬ (a + b + 1 + a ≤ b + 4 + a)
+axiom ex14 (a b : Nat) : ¬ (a + b + 1 + a ≥ b + 4 + a)
 
 #eval test ``ex1
 #eval test ``ex2
@@ -31,3 +35,7 @@ axiom ex10 (a b : Nat) : a + b + 1 + a ≥ b + 4 + a
 #eval test ``ex8
 #eval test ``ex9
 #eval test ``ex10
+#eval test ``ex11
+#eval test ``ex12
+#eval test ``ex13
+#eval test ``ex14

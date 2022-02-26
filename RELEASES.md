@@ -84,3 +84,5 @@ termination_by' measure fun ⟨i, _⟩ => as.size - i
 * Add `while <cond> do <do-block>`, `repeat <do-block>`, and `repeat <do-block> until <cond>` macros for `do`-block. These macros are based on `partial` definitions, and consequently are useful only for writing programs we don't want to prove anything about.
 
 * Add `arith` option to `Simp.Config`, the macro `simp_arith` expands to `simp (config := { arith := true })`. Only `Nat` and linear arithmetic is currently supported.
+
+* Add `fail msg?` tactic that always fail.

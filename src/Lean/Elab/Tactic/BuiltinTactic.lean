@@ -273,4 +273,14 @@ where
     else
       evalTactic tacs[i][1] <|> loop tacs (i+1)
 
+@[builtinTactic «fail»] def evalFail : Tactic := fun stx => do
+  let mvarId ← getMainGoal
+  match stx with
+  | `(tactic| fail)      => throwError "tactic 'fail' failed\n{mvarId}"
+  | `(tactic| fail $msg) =>
+    match msg.isStrLit? with
+    | none     => throwIllFormedSyntax
+    | some msg => throwError "{msg}\n{mvarId}"
+  | _ => throwUnsupportedSyntax
+
 end Lean.Elab.Tactic

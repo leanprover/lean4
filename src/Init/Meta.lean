@@ -1008,6 +1008,7 @@ structure Config where
   iota              : Bool := true
   proj              : Bool := true
   decide            : Bool := true
+  arith             : Bool := true
   deriving Inhabited, BEq, Repr
 
 -- Configuration object for `simp_all`
@@ -1020,7 +1021,8 @@ def neutralConfig : Simp.Config :=
     eta               := false
     iota              := false
     proj              := false
-    decide            := false }
+    decide            := false
+    arith             := false }
 
 end Simp
 

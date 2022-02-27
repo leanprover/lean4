@@ -8,6 +8,7 @@ import Lean.Meta.Tactic.Induction
 import Lean.Meta.Tactic.Injection
 import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Subst
+import Lean.Meta.Tactic.Acyclic
 
 namespace Lean.Meta
 
@@ -228,13 +229,14 @@ partial def unifyEqs (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) (caseN
           /- Remark: we use `let rec` here because otherwise the compiler would generate an insane amount of code.
             We can remove the `rec` after we fix the eagerly inlining issue in the compiler. -/
           let rec substEq (symm : Bool) := do
-            /- TODO: support for acyclicity (e.g., `xs ≠ x :: xs`) -/
             /- Remark: `substCore` fails if the equation is of the form `x = x` -/
             if let some (substNew, mvarId) ← observing? (substCore mvarId eqFVarId symm subst) then
               unifyEqs (numEqs - 1) mvarId substNew caseName?
             else if (← isDefEq a b) then
               /- Skip equality -/
               unifyEqs (numEqs - 1) (← clear mvarId eqFVarId) subst caseName?
+            else if (← acyclic mvarId (mkFVar eqFVarId)) then
+              pure none -- this alternative has been solved
             else
               throwError "dependent elimination failed, failed to solve equation{indentExpr eqDecl.type}"
           let rec injection (a b : Expr) := do

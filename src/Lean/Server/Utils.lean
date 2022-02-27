@@ -8,6 +8,7 @@ import Lean.Data.Position
 import Lean.Data.Lsp
 import Lean.Server.InfoUtils
 import Init.System.FilePath
+import Lean.Parser.Basic
 
 namespace IO
 
@@ -92,6 +93,11 @@ structure DocumentMeta where
   version : Nat
   text    : FileMap
   deriving Inhabited
+
+def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext where
+  input    := doc.text.source
+  fileName := doc.uri.toPath?.getD doc.uri |>.toString
+  fileMap  := doc.text
 
 def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMap :=
   let start := text.lspPosToUtf8Pos r.start

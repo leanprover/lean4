@@ -199,7 +199,7 @@ def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndIn
 
 def simpArith? (e : Expr) : SimpM (Option Step) := do
   if !(← read).config.arith then return none
-  let some (e', h) ← Linear.simpCnstr? e | return none
+  let some (e', h) ← Linear.simp? e (← read).parent? | return none
   return Step.visit { expr := e', proof? := h }
 
 def rewritePre (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do

@@ -16,3 +16,9 @@ theorem ex5 (h : a + d + b > b + 1 + (a + (c + c) + d)) : False := by
   simp_arith at h
 
 #print ex5
+
+theorem ex6 (p : Nat → Prop) (h : p (a + 1 + a + 2 + b)) : p (2*a + b + 3) := by
+  simp_arith at h
+  assumption
+
+#print ex6

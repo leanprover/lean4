@@ -200,4 +200,17 @@ def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   else
     simpCnstrPos? e
 
+def simpExpr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
+  let (e, ctx) ← ToLinear.run (ToLinear.toLinearExpr e)
+  let p  := e.toPoly
+  let p' := p.norm
+  if p'.length < p.length then
+    -- We only return some if monomials were fused
+    let e' : LinearExpr := p'.toExpr
+    let p := mkApp4 (mkConst ``Nat.Linear.Expr.eq_of_toNormPoly_eq) (← toContextExpr ctx) (toExpr e) (toExpr e') reflTrue
+    let r ← e'.toArith ctx
+    return some (r, p)
+  else
+    return none
+
 end Lean.Meta.Linear.Nat

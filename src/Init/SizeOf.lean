@@ -51,6 +51,9 @@ deriving instance SizeOf for Substring
 deriving instance SizeOf for Except
 deriving instance SizeOf for EStateM.Result
 
+@[simp] theorem Unit.sizeOf (u : Unit) : sizeOf u = 1 := rfl
+@[simp] theorem Bool.sizeOf_eq_one (b : Bool) : sizeOf b = 1 := by cases b <;> rfl
+
 /- We manually define `Lean.Name` instance because we use
    an opaque function for computing the hashcode field. -/
 protected noncomputable def Lean.Name.sizeOf : Name → Nat

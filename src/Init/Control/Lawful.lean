@@ -113,7 +113,7 @@ theorem ext [Monad m] {x y : ExceptT ε m α} (h : x.run = y.run) : x = y := by
 
 @[simp] theorem run_pure [Monad m] (x : α) : run (pure x : ExceptT ε m α) = pure (Except.ok x) := rfl
 
-@[simp] theorem run_lift {α β ε : Type u} [Monad m] (x : m α) : run (ExceptT.lift x : ExceptT ε m α) = (Except.ok <$> x : m (Except ε α)) := rfl
+@[simp] theorem run_lift  [Monad.{u, v} m] (x : m α) : run (ExceptT.lift x : ExceptT ε m α) = (Except.ok <$> x : m (Except ε α)) := rfl
 
 @[simp] theorem run_throw [Monad m] : run (throw e : ExceptT ε m β) = pure (Except.error e) := rfl
 

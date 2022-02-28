@@ -196,6 +196,9 @@ inductive Lex : α × β → α × β → Prop where
   | left  {a₁} (b₁) {a₂} (b₂) (h : ra a₁ a₂) : Lex (a₁, b₁) (a₂, b₂)
   | right (a) {b₁ b₂} (h : rb b₁ b₂)         : Lex (a, b₁)  (a, b₂)
 
+theorem Lex.right' {a₁ : α} {b₁ : β} (h₁ : a₁ = a₂) (h₂ : rb b₁ b₂) : Lex ra rb (a₁, b₁) (a₂, b₂) :=
+  h₁ ▸ Lex.right a₁ h₂
+
 -- relational product based on ra and rb
 inductive RProd : α × β → α × β → Prop where
   | intro {a₁ b₁ a₂ b₂} (h₁ : ra a₁ a₂) (h₂ : rb b₁ b₂) : RProd (a₁, b₁) (a₂, b₂)

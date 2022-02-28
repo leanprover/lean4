@@ -1,0 +1,224 @@
+/-
+Copyright (c) 2022 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Dany Fabian
+-/
+import Lean.Meta.Tactic.AC.Basic
+
+namespace Lean.Meta.AC.Theory
+open Lean.Meta.AC
+
+theorem List.two_step_induction
+  {motive : List Nat → Sort u}
+  (l : List Nat)
+  (empty : motive [])
+  (single : ∀ a, motive [a])
+  (step : ∀ a b l, motive (b :: l) → motive (a :: b :: l))
+  : motive l := by
+  induction l with
+  | nil => assumption
+  | cons a l => cases l; apply single; apply step; assumption
+
+theorem Context.mergeIdem_nonEmpty (e : List Nat) (h : e ≠ []) : mergeIdem e ≠ [] := by
+  induction e using List.two_step_induction with
+  | empty => simp_all
+  | single => simp [mergeIdem, mergeIdem.loop]
+  | step => simp [mergeIdem, mergeIdem.loop] at *; split <;> simp_all
+
+theorem Context.mergeIdem_head : mergeIdem (x :: x :: xs) = mergeIdem (x :: xs) := by
+  simp [mergeIdem, mergeIdem.loop]
+
+theorem Context.mergeIdem_head2 (h : x ≠ y) : mergeIdem (x :: y :: ys) = x :: mergeIdem (y :: ys) := by
+  simp [mergeIdem, mergeIdem.loop, h]
+
+theorem Context.evalList_mergeIdem (ctx : Context α) (h : ContextInformation.isIdem ctx) (e : List Nat) : evalList α ctx (mergeIdem e) = evalList α ctx e := by
+  have h : IsIdempotent ctx.op := by simp [ContextInformation.isIdem, Option.isSome] at h; cases h₂ : ctx.idem <;> simp [h₂] at h; assumption
+  induction e using List.two_step_induction with
+  | empty => rfl
+  | single => rfl
+  | step x y ys ih =>
+    cases ys with
+    | nil =>
+      simp [mergeIdem, mergeIdem.loop]
+      split
+      case inl h₂ => simp [evalList, h₂, h.1, EvalInformation.evalOp]
+      rfl
+    | cons z zs =>
+      by_cases h₂ : x = y
+      case inl =>
+        rw [h₂, mergeIdem_head, ih]
+        simp [evalList, ←ctx.assoc.1, h.1, EvalInformation.evalOp]
+      case inr =>
+        rw [mergeIdem_head2]
+        by_cases h₃ : y = z
+        case inl =>
+          simp [mergeIdem_head, h₃, evalList]
+          cases h₄ : mergeIdem (z :: zs) with
+          | nil => apply absurd h₄; apply mergeIdem_nonEmpty; simp
+          | cons u us => simp_all [mergeIdem, mergeIdem.loop, evalList]
+        case inr =>
+          simp [mergeIdem_head2, h₃, evalList] at *
+          rw [ih]
+        assumption
+
+theorem insert_nonEmpty : insert x xs ≠ [] := by
+  induction xs with
+  | nil => simp [insert]
+  | cons x xs ih => simp [insert]; split <;> simp
+
+theorem Context.sort_loop_nonEmpty (xs : List Nat) (h : xs ≠ []) : sort.loop xs ys ≠ [] := by
+  induction ys generalizing xs with
+  | nil => simp [sort.loop]; assumption
+  | cons y ys ih => simp [sort.loop]; apply ih; apply insert_nonEmpty
+
+theorem Context.evalList_insert
+  (ctx : Context α)
+  (h : IsCommutative ctx.op)
+  (x : Nat)
+  (xs : List Nat)
+  : evalList α ctx (insert x xs) = evalList α ctx (x::xs) := by
+  induction xs using List.two_step_induction with
+  | empty => rfl
+  | single =>
+    simp [insert]
+    split
+    . rfl
+    . simp [evalList, h.1, EvalInformation.evalOp]
+  | step y z zs ih =>
+    simp [insert] at *; split
+    case inl => rfl
+    case inr =>
+      split
+      case inl => simp [evalList, EvalInformation.evalOp]; rw [h.1, ctx.assoc.1, h.1 (evalList _ _ _)]
+      case inr => simp_all [ih, evalList, EvalInformation.evalOp]; rw [h.1, ctx.assoc.1, h.1 (evalList _ _ _)]
+
+theorem Context.evalList_sort_congr
+  (ctx : Context α)
+  (h : IsCommutative ctx.op)
+  (h₂ : evalList α ctx a = evalList α ctx b)
+  (h₃ : a ≠ [])
+  (h₄ : b ≠ [])
+  : evalList α ctx (sort.loop a c) = evalList α ctx (sort.loop b c) := by
+  induction c generalizing a b with
+  | nil => simp [sort.loop, h₂]
+  | cons c cs ih =>
+    simp [sort.loop]; apply ih; simp [evalList_insert ctx h, evalList]
+    cases a with
+    | nil => apply absurd h₃; simp
+    | cons a as =>
+      cases b with
+      | nil => apply absurd h₄; simp
+      | cons b bs => simp [evalList, h₂]
+    all_goals apply insert_nonEmpty
+
+theorem Context.evalList_sort_loop_swap
+  (ctx : Context α)
+  (h : IsCommutative ctx.op)
+  (xs ys : List Nat)
+  : evalList α ctx (sort.loop xs (y::ys)) = evalList α ctx (sort.loop (y::xs) ys) := by
+  induction ys generalizing y xs with
+  | nil => simp [sort.loop, evalList_insert ctx h]
+  | cons z zs ih =>
+    simp [sort.loop]; apply evalList_sort_congr ctx h
+    simp [evalList_insert ctx h]
+    cases h₂ : insert y xs
+    . apply absurd h₂; simp [insert_nonEmpty]
+    . simp [evalList, ←h₂, evalList_insert ctx h]
+    all_goals simp [insert_nonEmpty]
+
+theorem Context.evalList_sort_cons
+  (ctx : Context α)
+  (h : IsCommutative ctx.op)
+  (x : Nat)
+  (xs : List Nat)
+  : evalList α ctx (sort (x :: xs)) = evalList α ctx (x :: sort xs) := by
+  simp [sort, sort.loop]
+  generalize [] = ys
+  induction xs generalizing x ys with
+  | nil => simp [sort.loop, evalList_insert ctx h]
+  | cons z zs ih =>
+    rw [evalList_sort_loop_swap ctx h]; simp [sort.loop, ←ih]; apply evalList_sort_congr ctx h; rw [evalList_insert ctx h]
+    cases h₂ : insert x ys with
+    | nil => apply absurd h₂; simp [insert_nonEmpty]
+    | cons u us =>
+      cases h₃ : insert z ys with
+      | nil => apply absurd h₃; simp [insert_nonEmpty]
+      | cons v vs =>
+        simp [evalList, ←h₂, ←h₃, evalList_insert ctx h]
+        cases ys
+        . simp [evalList, h.1, EvalInformation.evalOp]
+        . simp [evalList, EvalInformation.evalOp]; rw [h.1, ctx.assoc.1, h.1 (evalList _ _ _)]
+    all_goals simp [insert_nonEmpty]
+
+theorem Context.evalList_sort (ctx : Context α) (h : ContextInformation.isComm ctx) (e : List Nat) : evalList α ctx (sort e) = evalList α ctx e := by
+  have h : IsCommutative ctx.op := by simp [ContextInformation.isComm, Option.isSome] at h; cases h₂ : ctx.comm <;> simp [h₂] at h; assumption
+  induction e using List.two_step_induction with
+  | empty => rfl
+  | single => rfl
+  | step x y ys ih =>
+    simp [evalList_sort_cons ctx h]
+    cases h₂ : sort (y :: ys) with
+    | nil => simp [sort, sort.loop] at *; apply absurd h₂; apply sort_loop_nonEmpty; apply insert_nonEmpty
+    | cons z zs => simp [evalList, ←h₂, ih]
+
+theorem Context.toList_nonEmpty (e : Expr) : e.toList ≠ [] := by
+  induction e with
+  | var => simp [Expr.toList]
+  | op l r ih₁ ih₂ =>
+    simp [Expr.toList]
+    cases h : l.toList with
+    | nil => contradiction
+    | cons => simp [List.append]
+
+theorem Context.removeNeutrals_nonEmpty (ctx : Context α) (e : List Nat) (h : e ≠ []) : removeNeutrals ctx e ≠ [] := by
+  induction e using List.two_step_induction with
+  | empty => simp_all
+  | single x => simp [removeNeutrals]
+  | step x y ys => simp [removeNeutrals] split <;> simp_all
+
+theorem Context.evalList_removeNeutrals (ctx : Context α) (e : List Nat) (h : e ≠ []) : evalList α ctx (removeNeutrals ctx e) = evalList α ctx e := by
+  induction e using List.two_step_induction with
+  | empty => simp_all
+  | single => simp [removeNeutrals]
+  | step x y ys ih =>
+    simp [removeNeutrals, ContextInformation.isNeutral, Option.isSome] at *
+    split
+    case h_1 h h₂ =>
+      split at h₂
+      case h_1 hn _ => simp [evalList, ih, hn.1, EvalInformation.evalOp, EvalInformation.evalVar]
+      case h_2 => cases h₂
+    case h_2 =>
+      cases h : removeNeutrals ctx (y :: ys) with
+      | nil => apply absurd h; simp [removeNeutrals_nonEmpty]
+      | cons z zs =>
+        simp_all [evalList]
+
+theorem Context.evalList_append
+  (ctx : Context α)
+  (l r : List Nat)
+  (h₁ : l ≠ [])
+  (h₂ : r ≠ [])
+  : evalList α ctx (l.append r) = ctx.op (evalList α ctx l) (evalList α ctx r) := by
+  induction l using List.two_step_induction with
+  | empty => simp_all
+  | single x => simp [List.append, evalList, EvalInformation.evalOp]
+  | step x y ys ih => simp [List.append, evalList, EvalInformation.evalOp] at *; rw [ih]; simp [ctx.assoc.1]
+
+theorem Context.eval_toList (ctx : Context α) (e : Expr) : evalList α ctx e.toList = eval α ctx e := by
+  induction e with
+  | var x => rfl
+  | op l r ih₁ ih₂ =>
+    simp [evalList, Expr.toList, eval, ←ih₁, ←ih₂]
+    apply evalList_append <;> apply toList_nonEmpty
+
+theorem Context.eval_norm (ctx : Context α) (e : Expr) : evalList α ctx (norm ctx e) = eval α ctx e := by
+  simp [norm]
+  cases h₁ : ContextInformation.isIdem ctx <;> cases h₂ : ContextInformation.isComm ctx <;>
+  simp_all [evalList_removeNeutrals, eval_toList, toList_nonEmpty, evalList_mergeIdem, evalList_sort]
+
+theorem Context.eq_of_norm (ctx : Context α) (a b : Expr) (h : norm ctx a = norm ctx b) : eval α ctx a = eval α ctx b := by
+  have h := congrArg (evalList α ctx) h
+  rw [eval_norm, eval_norm] at h
+  assumption
+
+end Lean.Meta.AC.Theory

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
+import Init.Data.Nat.Linear
 import Init.Data.List.Basic
 import Init.Util
 
@@ -89,5 +90,30 @@ def rotateRight (xs : List α) (n : Nat := 1) : List α :=
     let b := xs.take n
     let e := xs.drop n
     e ++ b
+
+theorem get_append_left (as bs : List α) (h : i < as.length) {h'} : (as ++ bs).get ⟨i, h'⟩ = as.get ⟨i, h⟩ := by
+  induction as generalizing i with
+  | nil => trivial
+  | cons a as ih =>
+    cases i with
+    | zero => rfl
+    | succ i => apply ih
+
+theorem get_append_right (as bs : List α) (h : ¬ i < as.length) {h' h''} : (as ++ bs).get ⟨i, h'⟩ = bs.get ⟨i - as.length, h''⟩ := by
+  induction as generalizing i with
+  | nil => trivial
+  | cons a as ih =>
+    cases i with simp [get, Nat.succ_sub_succ] <;> simp_arith [Nat.succ_sub_succ] at h
+    | succ i => apply ih; simp_arith [h]
+
+theorem get_last {as : List α} {i : Fin (length (as ++ [a]))} (h : ¬ i.1 < as.length) : (as ++ [a] : List _).get i = a := by
+  cases i; rename_i i h'
+  induction as generalizing i with
+  | nil => cases i with
+    | zero => simp [List.get]
+    | succ => simp_arith at h'
+  | cons a as ih =>
+    cases i with simp_arith at h
+    | succ i => apply ih; simp_arith [h]
 
 end List

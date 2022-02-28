@@ -7,8 +7,10 @@ prelude
 import Init.SizeOf
 import Init.WF
 
+macro "simp_wf" : tactic => `(simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel])
+
 macro "decreasing_tactic" : tactic =>
- `((simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel]
+ `((simp_wf
     repeat (first | apply Prod.Lex.right | apply Prod.Lex.left)
     repeat (first | apply PSigma.Lex.right | apply PSigma.Lex.left)
     first

@@ -1008,7 +1008,7 @@ structure Config where
   iota              : Bool := true
   proj              : Bool := true
   decide            : Bool := true
-  arith             : Bool := true
+  arith             : Bool := false
   deriving Inhabited, BEq, Repr
 
 -- Configuration object for `simp_all`
@@ -1040,6 +1040,18 @@ namespace Parser.Tactic
 
 macro "erw " s:rwRuleSeq loc:(location)? : tactic =>
   `(rw (config := { transparency := Lean.Meta.TransparencyMode.default }) $s:rwRuleSeq $[$(loc.getOptional?):location]?)
+
+/-- Similar to `simp` but with `arith := true` -/
+syntax (name := simpArith) "simp_arith " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
+
+@[macro simpArith] def expandSimpArith : Macro := fun s => do
+  let c ← match s[1][0] with
+    | `(config| (config := $c:term)) => `(config| (config := { ($c : Lean.Meta.Simp.Config) with arith := true }))
+    | _ => `(config| (config := { arith := true }))
+  let s := s.setKind ``simp
+  let s := s.setArg 0 (mkAtomFrom s[0] "simp")
+  let r := s.setArg 1 (mkNullNode #[c])
+  return r
 
 end Parser.Tactic
 

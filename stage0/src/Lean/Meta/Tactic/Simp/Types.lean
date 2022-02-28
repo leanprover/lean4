@@ -51,6 +51,10 @@ def Step.result : Step → Result
   | Step.visit r => r
   | Step.done r => r
 
+def Step.updateResult : Step → Result → Step
+  | Step.visit _, r => Step.visit r
+  | Step.done _, r  => Step.done r
+
 structure Methods where
   pre        : Expr → SimpM Step          := fun e => return Step.visit { expr := e }
   post       : Expr → SimpM Step          := fun e => return Step.done { expr := e }

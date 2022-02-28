@@ -537,6 +537,24 @@ def mkSub (a b : Expr) : MetaM Expr := mkBinaryOp ``HSub ``HSub.hSub a b
 /-- Return `a * b` using a heterogeneous `*`. This method assumes `a` and `b` have the same type. -/
 def mkMul (a b : Expr) : MetaM Expr := mkBinaryOp ``HMul ``HMul.hMul a b
 
+/--
+  Return `a r b`, where `r` has name `rName` and is implemented using the typeclass `className`.
+  This method assumes `a` and `b` have the same type.
+  Examples of supported clases: `LE` and `LT`.
+  We use heterogeneous operators to ensure we have a uniform representation.
+  -/
+private def mkBinaryRel (className : Name) (rName : Name) (a b : Expr) : MetaM Expr := do
+  let aType ← inferType a
+  let u ← getDecLevel aType
+  let inst ← synthInstance (mkApp (mkConst className [u]) aType)
+  return mkApp4 (mkConst rName [u]) aType inst a b
+
+/-- Return `a ≤ b`. This method assumes `a` and `b` have the same type. -/
+def mkLE (a b : Expr) : MetaM Expr := mkBinaryRel ``LE ``LE.le a b
+
+/-- Return `a < b`. This method assumes `a` and `b` have the same type. -/
+def mkLT (a b : Expr) : MetaM Expr := mkBinaryRel ``LT ``LT.lt a b
+
 builtin_initialize registerTraceClass `Meta.appBuilder
 
 end Lean.Meta

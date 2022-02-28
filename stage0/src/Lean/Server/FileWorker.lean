@@ -104,7 +104,7 @@ section Elab
       publishIleanInfoFinal m ctx.hOut <| s.snaps.insertAt 0 s.headerSnap
       return none
     publishProgressAtPos m lastSnap.endPos ctx.hOut
-    let snap ← compileNextCmd m.text lastSnap ctx.clientHasWidgets
+    let snap ← compileNextCmd m.mkInputContext lastSnap ctx.clientHasWidgets
     set { s with snaps := s.snaps.push snap }
     -- TODO(MH): check for interrupt with increased precision
     cancelTk.check
@@ -192,8 +192,7 @@ section Initialization
 
   def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) (hasWidgets : Bool)
       : IO (Snapshot × SearchPath) := do
-    let inputCtx := Parser.mkInputContext m.text.source "<input>"
-    let (headerStx, headerParserState, msgLog) ← Parser.parseHeader inputCtx
+    let (headerStx, headerParserState, msgLog) ← Parser.parseHeader m.mkInputContext
     let mut srcSearchPath ← initSrcSearchPath (← getBuildDir)
     let lakePath ← match (← IO.getEnv "LAKE") with
       | some path => pure <| System.FilePath.mk path
@@ -209,7 +208,7 @@ section Initialization
         if path.fileName != "lakefile.lean" && (← System.FilePath.pathExists lakePath) then
           let pkgSearchPath ← lakeSetupSearchPath lakePath m (Lean.Elab.headerToImports headerStx).toArray hOut
           srcSearchPath := pkgSearchPath ++ srcSearchPath
-      Elab.processHeader headerStx opts msgLog inputCtx
+      Elab.processHeader headerStx opts msgLog m.mkInputContext
     catch e =>  -- should be from `lake print-paths`
       let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
       pure (← mkEmptyEnvironment, msgs)
@@ -277,7 +276,7 @@ section Updates
     -- need to reparse the header so that the offsets are correct.
     let ctx ← read
     let oldDoc := (←get).doc
-    let newHeaderSnap ← reparseHeader newMeta.text.source oldDoc.headerSnap
+    let newHeaderSnap ← reparseHeader newMeta.mkInputContext oldDoc.headerSnap
     if newHeaderSnap.stx != oldDoc.headerSnap.stx then
       throwServerError "Internal server error: header changed but worker wasn't restarted."
     let ⟨cmdSnaps, e?⟩ ← oldDoc.cmdSnaps.updateFinishedPrefix
@@ -307,7 +306,7 @@ section Updates
         let preLastSnap := if validSnaps.length ≥ 2
           then validSnaps.get! (validSnaps.length - 2)
           else newHeaderSnap
-        let newLastStx ← parseNextCmd newMeta.text.source preLastSnap
+        let newLastStx ← parseNextCmd newMeta.mkInputContext preLastSnap
         if newLastStx != lastSnap.stx then
           validSnaps := validSnaps.dropLast
         let cancelTk ← CancelToken.new

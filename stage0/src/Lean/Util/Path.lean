@@ -83,7 +83,7 @@ def addSearchPathFromEnv (sp : SearchPath) : IO SearchPath := do
 /--
 Initialize Lean's search path given Lean's system root and an initial search path.
 The system root can be obtained via `getBuildDir` (for internal use) or
-`findSysroot?` (for external users). -/
+`findSysroot` (for external users). -/
 def initSearchPath (leanSysroot : FilePath) (sp : SearchPath := ∅) : IO Unit := do
   let sp := sp ++ (← addSearchPathFromEnv (← getBuiltinSearchPath leanSysroot))
   searchPathRef.set sp
@@ -146,7 +146,7 @@ def searchModuleNameOfFileName (fname : FilePath) (rootDirs : SearchPath) : IO (
   e.g. in the case of `elan`'s proxy binary.
   Users internal to Lean should use `Lean.getBuildDir` instead.
 -/
-def findSysroot? (lean := "lean") : IO FilePath := do
+def findSysroot (lean := "lean") : IO FilePath := do
   if let some root ← IO.getEnv "LEAN_SYSROOT" then
     return root
   let out ← IO.Process.run {

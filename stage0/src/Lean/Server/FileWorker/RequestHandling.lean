@@ -267,7 +267,7 @@ partial def handleDocumentSymbol (p : DocumentSymbolParams)
     | _ => pure ()
 
     let lastSnap := cmdSnaps.finishedPrefix.getLastD doc.headerSnap
-    stxs := stxs ++ (← parseAhead doc.meta.text.source lastSnap).toList
+    stxs := stxs ++ (← parseAhead doc.meta.mkInputContext lastSnap).toList
     let (syms, _) := toDocumentSymbols doc.meta.text stxs
     return { syms := syms.toArray }
   where

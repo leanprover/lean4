@@ -20,17 +20,22 @@ builtin_initialize congrHypothesisExceptionId : InternalExceptionId ←
 def throwCongrHypothesisFailed : MetaM α :=
   throw <| Exception.internal congrHypothesisExceptionId
 
+/--
+  Helper method for bootstrapping purposes. It disables `arith` if support theorems have not been defined yet.
+-/
+def Config.updateArith (c : Config) : CoreM Config := do
+  if c.arith then
+    if (← getEnv).contains ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq then
+      return c
+    else
+      return { c with arith := false }
+  else
+    return c
+
 def Result.getProof (r : Result) : MetaM Expr := do
   match r.proof? with
   | some p => return p
   | none   => mkEqRefl r.expr
-
-private def mkEqTrans (r₁ r₂ : Result) : MetaM Result := do
-  match r₁.proof? with
-  | none => return r₂
-  | some p₁ => match r₂.proof? with
-    | none    => return { r₂ with proof? := r₁.proof? }
-    | some p₂ => return { r₂ with proof? := (← Meta.mkEqTrans p₁ p₂) }
 
 def mkCongrFun (r : Result) (a : Expr) : MetaM Result :=
   match r.proof? with
@@ -552,7 +557,8 @@ where
       modify fun s => { s with cache := s.cache.insert e r }
     return r
 
-def main (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Result :=
+def main (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Result := do
+  let ctx := { ctx with config := (← ctx.config.updateArith) }
   withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible do
     try
       simp e methods ctx |>.run' {}

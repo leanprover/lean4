@@ -26,7 +26,7 @@ def admitGoal (mvarId : MVarId) : MetaM Unit :=
     assignExprMVar mvarId (← mkSorry mvarType (synthetic := true))
 
 def goalsToMessageData (goals : List MVarId) : MessageData :=
-  MessageData.joinSep (goals.map $ MessageData.ofGoal) m!"\n\n"
+  MessageData.joinSep (goals.map MessageData.ofGoal) m!"\n\n"
 
 def Term.reportUnsolvedGoals (goals : List MVarId) : TermElabM Unit :=
   withPPInaccessibleNames do

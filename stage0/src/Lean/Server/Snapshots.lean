@@ -61,15 +61,13 @@ def isAtEnd (s : Snapshot) : Bool :=
 end Snapshot
 
 /-- Reparses the header syntax but does not re-elaborate it. Used to ignore whitespace-only changes. -/
-def reparseHeader (contents : String) (header : Snapshot) (opts : Options := {}) : IO Snapshot := do
-  let inputCtx := Parser.mkInputContext contents "<input>"
+def reparseHeader (inputCtx : Parser.InputContext) (header : Snapshot) (opts : Options := {}) : IO Snapshot := do
   let (newStx, newMpState, _) ← Parser.parseHeader inputCtx
   pure { header with stx := newStx, mpState := newMpState }
 
 /-- Parses the next command occurring after the given snapshot
 without elaborating it. -/
-def parseNextCmd (contents : String) (snap : Snapshot) : IO Syntax := do
-  let inputCtx := Parser.mkInputContext contents "<input>"
+def parseNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) : IO Syntax := do
   let cmdState := snap.cmdState
   let scope := cmdState.scopes.head!
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
@@ -80,8 +78,7 @@ def parseNextCmd (contents : String) (snap : Snapshot) : IO Syntax := do
 /--
   Parse remaining file without elaboration. NOTE that doing so can lead to parse errors or even wrong syntax objects,
   so it should only be done for reporting preliminary results! -/
-partial def parseAhead (contents : String) (snap : Snapshot) : IO (Array Syntax) := do
-  let inputCtx := Parser.mkInputContext contents "<input>"
+partial def parseAhead (inputCtx : Parser.InputContext) (snap : Snapshot) : IO (Array Syntax) := do
   let cmdState := snap.cmdState
   let scope := cmdState.scopes.head!
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
@@ -99,8 +96,7 @@ partial def parseAhead (contents : String) (snap : Snapshot) : IO (Array Syntax)
 -- NOTE: This code is really very similar to Elab.Frontend. But generalizing it
 -- over "store snapshots"/"don't store snapshots" would likely result in confusing
 -- isServer? conditionals and not be worth it due to how short it is.
-def compileNextCmd (text : FileMap) (snap : Snapshot) (hasWidgets : Bool) : IO Snapshot := do
-  let inputCtx := Parser.mkInputContext text.source "<input>"
+def compileNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidgets : Bool) : IO Snapshot := do
   let cmdState := snap.cmdState
   let scope := cmdState.scopes.head!
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
@@ -156,7 +152,7 @@ where
     let mut ret := snap.interactiveDiags
     for i in List.iota newMsgCount do
       let newMsg := msgLog.msgs.get! (msgLog.msgs.size - i)
-      ret := ret.push (← Widget.msgToInteractiveDiagnostic text newMsg hasWidgets)
+      ret := ret.push (← Widget.msgToInteractiveDiagnostic inputCtx.fileMap newMsg hasWidgets)
     return ret
 
 end Lean.Server.Snapshots

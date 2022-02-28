@@ -137,8 +137,11 @@ def Expr.toPoly : Expr → Poly
   | Expr.mulL k a => a.toPoly.mul k
   | Expr.mulR a k => a.toPoly.mul k
 
+def Poly.norm (p : Poly) : Poly :=
+  p.sort.fuse
+
 def Expr.toNormPoly (e : Expr) : Poly :=
-  e.toPoly.sort.fuse
+  e.toPoly.norm
 
 def Expr.inc (e : Expr) : Expr :=
    Expr.add e (Expr.num 1)
@@ -490,7 +493,7 @@ theorem Expr.denote_toPoly (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.
 attribute [local simp] Expr.denote_toPoly
 
 theorem Expr.eq_of_toNormPoly (ctx : Context) (a b : Expr) (h : a.toNormPoly = b.toNormPoly) : a.denote ctx = b.denote ctx := by
-  simp [toNormPoly] at h
+  simp [toNormPoly, Poly.norm] at h
   have h := congrArg (Poly.denote ctx) h
   simp at h
   assumption
@@ -498,13 +501,13 @@ theorem Expr.eq_of_toNormPoly (ctx : Context) (a b : Expr) (h : a.toNormPoly = b
 theorem Expr.of_cancel_eq (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.toNormPoly b.toNormPoly = (c.toPoly, d.toPoly)) : (a.denote ctx = b.denote ctx) = (c.denote ctx = d.denote ctx) := by
   have := Poly.denote_eq_cancel_eq ctx a.toNormPoly b.toNormPoly
   rw [h] at this
-  simp [toNormPoly, Poly.denote_eq] at this
+  simp [toNormPoly, Poly.norm, Poly.denote_eq] at this
   exact this.symm
 
 theorem Expr.of_cancel_le (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.toNormPoly b.toNormPoly = (c.toPoly, d.toPoly)) : (a.denote ctx ≤ b.denote ctx) = (c.denote ctx ≤ d.denote ctx) := by
   have := Poly.denote_le_cancel_eq ctx a.toNormPoly b.toNormPoly
   rw [h] at this
-  simp [toNormPoly, Poly.denote_le] at this
+  simp [toNormPoly, Poly.norm,Poly.denote_le] at this
   exact this.symm
 
 theorem Expr.of_cancel_lt (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.inc.toNormPoly b.toNormPoly = (c.inc.toPoly, d.toPoly)) : (a.denote ctx < b.denote ctx) = (c.denote ctx < d.denote ctx) :=
@@ -526,8 +529,8 @@ theorem ExprCnstr.denote_toNormPoly (ctx : Context) (c : ExprCnstr) : c.toNormPo
   cases c; rename_i eq lhs rhs
   simp [ExprCnstr.denote, PolyCnstr.denote, ExprCnstr.toNormPoly]
   by_cases h : eq = true <;> simp [h]
-  . rw [Poly.denote_eq_cancel_eq]; simp [Poly.denote_eq, Expr.toNormPoly]
-  . rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_le, Expr.toNormPoly]
+  . rw [Poly.denote_eq_cancel_eq]; simp [Poly.denote_eq, Expr.toNormPoly, Poly.norm]
+  . rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_le, Expr.toNormPoly, Poly.norm]
 
 attribute [local simp] ExprCnstr.denote_toNormPoly
 
@@ -669,6 +672,11 @@ theorem Poly.denote_toExpr (ctx : Context) (p : Poly) : p.toExpr.denote ctx = p.
 theorem ExprCnstr.eq_of_toNormPoly_eq (ctx : Context) (c d : ExprCnstr) (h : c.toNormPoly == d.toPoly) : c.denote ctx = d.denote ctx := by
   have h := congrArg (PolyCnstr.denote ctx) (eq_of_beq h)
   simp at h
+  assumption
+
+theorem Expr.eq_of_toNormPoly_eq (ctx : Context) (e e' : Expr) (h : e.toNormPoly == e'.toPoly) : e.denote ctx = e'.denote ctx := by
+  have h := congrArg (Poly.denote ctx) (eq_of_beq h)
+  simp [Expr.toNormPoly, Poly.norm] at h
   assumption
 
 end Nat.Linear

@@ -94,6 +94,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_getSimpCongrTheorems___rarg___boxed(le
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Result_proof_x3f___default;
 static lean_object* l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__3;
 static lean_object* l_Lean_Meta_Simp_instInhabitedContext___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Step_updateResult(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Context_config___default___closed__1;
 static lean_object* l_Lean_Meta_Simp_Context_simpTheorems___default___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Context_simpTheorems___default;
@@ -179,7 +180,7 @@ lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 6, x_4);
 lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 7, x_4);
 lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 8, x_4);
 lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 9, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 10, x_4);
+lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 10, x_3);
 return x_5;
 }
 }
@@ -657,6 +658,53 @@ lean_object* x_2;
 x_2 = l_Lean_Meta_Simp_Step_result(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Step_updateResult(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+uint8_t x_3; 
+x_3 = !lean_is_exclusive(x_1);
+if (x_3 == 0)
+{
+lean_object* x_4; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_dec(x_4);
+lean_ctor_set(x_1, 0, x_2);
+return x_1;
+}
+else
+{
+lean_object* x_5; 
+lean_dec(x_1);
+x_5 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_5, 0, x_2);
+return x_5;
+}
+}
+else
+{
+uint8_t x_6; 
+x_6 = !lean_is_exclusive(x_1);
+if (x_6 == 0)
+{
+lean_object* x_7; 
+x_7 = lean_ctor_get(x_1, 0);
+lean_dec(x_7);
+lean_ctor_set(x_1, 0, x_2);
+return x_1;
+}
+else
+{
+lean_object* x_8; 
+lean_dec(x_1);
+x_8 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_8, 0, x_2);
+return x_8;
+}
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Methods_pre___default(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {

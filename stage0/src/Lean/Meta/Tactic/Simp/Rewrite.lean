@@ -7,8 +7,16 @@ import Lean.Meta.ACLt
 import Lean.Meta.AppBuilder
 import Lean.Meta.SynthInstance
 import Lean.Meta.Tactic.Simp.Types
+import Lean.Meta.Tactic.LinearArith.Simp
 
 namespace Lean.Meta.Simp
+
+def mkEqTrans (r₁ r₂ : Result) : MetaM Result := do
+  match r₁.proof? with
+  | none => return r₂
+  | some p₁ => match r₂.proof? with
+    | none    => return { r₂ with proof? := r₁.proof? }
+    | some p₂ => return { r₂ with proof? := (← Meta.mkEqTrans p₁ p₂) }
 
 def synthesizeArgs (thmName : Name) (xs : Array Expr) (bis : Array BinderInfo) (discharge? : Expr → SimpM (Option Expr)) : SimpM Bool := do
   for x in xs, bi in bis do
@@ -134,6 +142,15 @@ where
     | none => false
     | some name => erased.contains name
 
+@[inline] def andThen (s : Step) (f? : Expr → SimpM (Option Step)) : SimpM Step := do
+  match s with
+  | Step.done r  => return s
+  | Step.visit r =>
+    if let some s' ← f? r.expr then
+      return s'.updateResult (← mkEqTrans r s'.result)
+    else
+      return s
+
 def rewriteCtorEq? (e : Expr) : MetaM (Option Result) := withReducibleAndInstances do
   match e.eq? with
   | none => return none
@@ -150,10 +167,10 @@ def rewriteCtorEq? (e : Expr) : MetaM (Option Result) := withReducibleAndInstanc
         return none
     | _, _ => return none
 
-@[inline] def tryRewriteCtorEq (e : Expr) (x : SimpM Step) : SimpM Step := do
+@[inline] def tryRewriteCtorEq? (e : Expr) : SimpM (Option Step) := do
   match (← rewriteCtorEq? e) with
   | some r => return Step.done r
-  | none => x
+  | none  => return none
 
 def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndInstances do
   if e.hasFVar || e.hasMVar || e.isConstOf ``True || e.isConstOf ``False then
@@ -172,13 +189,18 @@ def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndIn
     catch _ =>
       return none
 
-@[inline] def tryRewriteUsingDecide (e : Expr) (x : SimpM Step) : SimpM Step := do
+@[inline] def tryRewriteUsingDecide? (e : Expr) : SimpM (Option Step) := do
   if (← read).config.decide then
     match (← rewriteUsingDecide? e) with
     | some r => return Step.done r
-    | none => x
+    | none => return none
   else
-    x
+    return none
+
+def simpArith? (e : Expr) : SimpM (Option Step) := do
+  if !(← read).config.arith then return none
+  let some (e', h) ← Linear.simp? e (← read).parent? | return none
+  return Step.visit { expr := e', proof? := h }
 
 def rewritePre (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let thms := (← read).simpTheorems
@@ -188,10 +210,14 @@ def rewritePost (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM S
   let thms := (← read).simpTheorems
   return Step.visit (← rewrite e thms.post thms.erased discharge? (tag := "post"))
 
-def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step :=
-  tryRewriteCtorEq e <| rewritePre e discharge?
+def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
+  let s ← rewritePre e discharge?
+  andThen s tryRewriteUsingDecide?
 
 def postDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
-  tryRewriteCtorEq e <| tryRewriteUsingDecide e <| rewritePost e discharge?
+  let s ← rewritePost e discharge?
+  let s ← andThen s simpArith?
+  let s ← andThen s tryRewriteUsingDecide?
+  andThen s tryRewriteCtorEq?
 
 end Lean.Meta.Simp

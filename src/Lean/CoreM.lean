@@ -17,7 +17,7 @@ namespace Lean
 namespace Core
 
 register_builtin_option maxHeartbeats : Nat := {
-  defValue := 50000
+  defValue := 200000
   descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
 }
 

@@ -191,12 +191,12 @@ def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
       eNew?   := some (← mkLE (arg.getArg! 2) (arg.getArg! 3))
       thmName := ``Nat.not_gt_eq
     if let some eNew := eNew? then
+      let h₁ := mkApp2 (mkConst thmName) (arg.getArg! 2) (arg.getArg! 3)
       if let some (eNew', h₂) ← simpCnstrPos? eNew then
-        let h₁ := mkApp2 (mkConst thmName) (arg.getArg! 2) (arg.getArg! 3)
         let h  := mkApp6 (mkConst ``Eq.trans [levelOne]) (mkSort levelZero) e eNew eNew' h₁ h₂
         return some (eNew', h)
       else
-        return none
+        return some (eNew, h₁)
     else
       return none
   else

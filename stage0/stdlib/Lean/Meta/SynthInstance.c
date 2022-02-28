@@ -87,7 +87,6 @@ lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp___rarg(le
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_getResult(lean_object*);
 lean_object* l_Lean_mkMVar(lean_object*);
 size_t lean_usize_sub(size_t, size_t);
-lean_object* l_Lean_addTrace_addTraceOptions(lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_SynthInstance_isNewAnswer___spec__1(lean_object*, lean_object*, size_t, size_t);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
 uint8_t l_Lean_Level_hasMVar(lean_object*);
@@ -340,6 +339,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_SynthInstance_
 lean_object* lean_expr_update_proj(lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_preprocessLevels___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceOptions(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_State_generatorStack___default;
 static lean_object* l_Lean_Meta_synthInstance_x3f___lambda__2___closed__4;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4314,7 +4314,7 @@ lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = l_Lean_addTrace_addTraceOptions(x_12);
+x_14 = l___private_Lean_Util_Trace_0__Lean_addTraceOptions(x_12);
 x_15 = lean_st_ref_take(x_8, x_13);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);

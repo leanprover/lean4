@@ -111,7 +111,6 @@ static lean_object* l_Lean_Elab_Term_toParserDescr_processAtom___lambda__1___clo
 static lean_object* l_Lean_Elab_Term_toParserDescr_processNullaryOrCat___closed__16;
 lean_object* lean_environment_find(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_toParserDescr_processSepBy1___lambda__1___closed__4;
-lean_object* l_Lean_addTrace_addTraceOptions(lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Elab_Term_toParserDescr_resolveParserName___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_checkRuleKind___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabSyntaxAbbrev_declRange___closed__2;
@@ -430,6 +429,7 @@ lean_object* l_Lean_Elab_logTrace___at_Lean_Elab_Command_elabCommand___spec__15(
 static lean_object* l_Lean_Elab_Term_toParserDescr_processParserCategory___lambda__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_toParserDescr_processNullaryOrCat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwUnknownConstant___at_Lean_Elab_Term_toParserDescr_resolveParserName___spec__7___closed__1;
+lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceOptions(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_checkSyntaxNodeKindAtNamespaces___at_Lean_Elab_Command_resolveSyntaxKind___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwUnknownConstant___at_Lean_Elab_Term_toParserDescr_resolveParserName___spec__7___closed__2;
 static lean_object* l_Lean_Elab_Term_toParserDescr_processSepBy1___lambda__1___closed__7;
@@ -1494,7 +1494,7 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec(x_13);
-x_16 = l_Lean_addTrace_addTraceOptions(x_14);
+x_16 = l___private_Lean_Util_Trace_0__Lean_addTraceOptions(x_14);
 x_17 = lean_st_ref_take(x_10, x_15);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);

@@ -109,7 +109,9 @@ instance : AddErrorMessageContext CommandElabM where
     return (ref, msg)
 
 def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severity : MessageSeverity) : Message :=
-  mkMessageCore ctx.fileName ctx.fileMap msgData severity (ref.getPos?.getD ctx.cmdPos)
+  let pos := ref.getPos?.getD ctx.cmdPos
+  let endPos := ref.getTailPos?.getD pos
+  mkMessageCore ctx.fileName ctx.fileMap msgData severity pos endPos
 
 private def mkCoreContext (ctx : Context) (s : State) (heartbeats : Nat) : Core.Context :=
   let scope        := s.scopes.head!
@@ -197,9 +199,10 @@ builtin_initialize commandElabAttribute : KeyedDeclsAttribute CommandElab ← mk
 
 private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog :=
   traceState.traces.foldl (init := log) fun (log : MessageLog) traceElem =>
-      let ref := replaceRef traceElem.ref ctx.ref;
-      let pos := ref.getPos?.getD 0;
-      log.add (mkMessageCore ctx.fileName ctx.fileMap traceElem.msg MessageSeverity.information pos)
+    let ref := replaceRef traceElem.ref ctx.ref
+    let pos := ref.getPos?.getD 0
+    let endPos := ref.getTailPos?.getD pos
+    log.add (mkMessageCore ctx.fileName ctx.fileMap traceElem.msg MessageSeverity.information pos endPos)
 
 private def addTraceAsMessages : CommandElabM Unit := do
   let ctx ← read

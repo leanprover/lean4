@@ -24,7 +24,6 @@ static lean_object* l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___clo
 static lean_object* l_Lean_addTrace___at___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___spec__1___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_addTrace___at___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___spec__1___closed__2;
-lean_object* l_Lean_addTrace_addTraceOptions(lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_decLevel___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -47,6 +46,7 @@ static lean_object* l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___clo
 static lean_object* l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___closed__9;
 lean_object* l_Lean_mkLevelMVar(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___spec__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceOptions(lean_object*);
 static lean_object* l_Lean_Meta_decLevel___closed__1;
 lean_object* l_Std_PersistentArray_push___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_DecLevel_0__Lean_Meta_decAux_x3f___closed__3;
@@ -155,7 +155,7 @@ lean_inc(x_11);
 x_12 = lean_ctor_get(x_10, 1);
 lean_inc(x_12);
 lean_dec(x_10);
-x_13 = l_Lean_addTrace_addTraceOptions(x_11);
+x_13 = l___private_Lean_Util_Trace_0__Lean_addTraceOptions(x_11);
 x_14 = lean_st_ref_take(x_7, x_12);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);

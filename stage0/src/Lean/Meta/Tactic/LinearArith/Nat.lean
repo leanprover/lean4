@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Check
 import Lean.Meta.Offset
+import Lean.Meta.KExprMap
 
 namespace Lean.Meta.Linear.Nat
 
@@ -52,7 +53,7 @@ def LinearCnstr.toArith (ctx : Array Expr) (c : LinearCnstr) : MetaM Expr := do
 namespace ToLinear
 
 structure State where
-  varMap : ExprMap Nat := {}
+  varMap : KExprMap Nat := {} -- It should be fine to use `KExprMap` here because the mapping should be small and few HeadIndex collisions.
   vars   : Array Expr := #[]
 
 abbrev M := StateRefT State MetaM
@@ -60,11 +61,12 @@ abbrev M := StateRefT State MetaM
 open Nat.Linear.Expr
 
 def addAsVar (e : Expr) : M LinearExpr := do
-  if let some x := (← get).varMap.find? e then
+  if let some x ← (← get).varMap.find? e then
     return var x
   else
     let x := (← get).vars.size
-    modify fun s => { varMap := s.varMap.insert e x, vars := s.vars.push e }
+    let s ← get
+    set { varMap := (← s.varMap.insert e x), vars := s.vars.push e : State }
     return var x
 
 partial def toLinearExpr (e : Expr) : M LinearExpr := do
@@ -189,12 +191,12 @@ def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
       eNew?   := some (← mkLE (arg.getArg! 2) (arg.getArg! 3))
       thmName := ``Nat.not_gt_eq
     if let some eNew := eNew? then
+      let h₁ := mkApp2 (mkConst thmName) (arg.getArg! 2) (arg.getArg! 3)
       if let some (eNew', h₂) ← simpCnstrPos? eNew then
-        let h₁ := mkApp2 (mkConst thmName) (arg.getArg! 2) (arg.getArg! 3)
         let h  := mkApp6 (mkConst ``Eq.trans [levelOne]) (mkSort levelZero) e eNew eNew' h₁ h₂
         return some (eNew', h)
       else
-        return none
+        return some (eNew, h₁)
     else
       return none
   else

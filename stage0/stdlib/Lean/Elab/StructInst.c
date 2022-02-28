@@ -117,7 +117,6 @@ LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___private_Lean_Elab_StructInst
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_StructInst_markDefaultMissing(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTRAux___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_groupFields___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructName___rarg___closed__5;
-lean_object* l_Lean_addTrace_addTraceOptions(lean_object*);
 static lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_mkDefaultValueAux_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_StructInst_initFn____x40_Lean_Elab_StructInst___hyg_9224_(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_StructInst_expandStructInstExpectedType___closed__2;
@@ -472,6 +471,7 @@ static lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructIns
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_findDefaultMissing_x3f___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_mkSourcesWithSyntax(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_StructInst_throwFailedToElabField___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceOptions(lean_object*);
 static lean_object* l_Lean_Elab_Term_StructInst_instToFormatFieldLHS___closed__1;
 static lean_object* l_List_mapM___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_expandParentFields___spec__3___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_StructInst_mkProjStx_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -21776,7 +21776,7 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec(x_13);
-x_16 = l_Lean_addTrace_addTraceOptions(x_14);
+x_16 = l___private_Lean_Util_Trace_0__Lean_addTraceOptions(x_14);
 x_17 = lean_st_ref_take(x_10, x_15);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);

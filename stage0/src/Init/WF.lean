@@ -196,6 +196,12 @@ inductive Lex : α × β → α × β → Prop where
   | left  {a₁} (b₁) {a₂} (b₂) (h : ra a₁ a₂) : Lex (a₁, b₁) (a₂, b₂)
   | right (a) {b₁ b₂} (h : rb b₁ b₂)         : Lex (a, b₁)  (a, b₂)
 
+-- TODO: generalize
+def Lex.right' {a₁ : Nat} {b₁ : β} (h₁ : a₁ ≤ a₂) (h₂ : rb b₁ b₂) : Prod.Lex Nat.lt rb (a₁, b₁) (a₂, b₂) :=
+  match Nat.eq_or_lt_of_le h₁ with
+  | Or.inl h => h ▸ Prod.Lex.right a₁ h₂
+  | Or.inr h => Prod.Lex.left b₁ _ h
+
 -- relational product based on ra and rb
 inductive RProd : α × β → α × β → Prop where
   | intro {a₁ b₁ a₂ b₂} (h₁ : ra a₁ a₂) (h₂ : rb b₁ b₂) : RProd (a₁, b₁) (a₂, b₂)

@@ -303,6 +303,7 @@ syntax (name := skip) "skip" : tactic
 /-- `done` succeeds iff there are no remaining goals. -/
 syntax (name := done) "done" : tactic
 syntax (name := traceState) "trace_state" : tactic
+syntax (name := traceMessage) "trace " str : tactic
 syntax (name := failIfSuccess) "fail_if_success " tacticSeq : tactic
 syntax (name := paren) "(" tacticSeq ")" : tactic
 syntax (name := withReducible) "with_reducible " tacticSeq : tactic

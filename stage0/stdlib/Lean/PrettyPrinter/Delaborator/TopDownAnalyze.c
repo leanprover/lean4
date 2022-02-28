@@ -124,7 +124,6 @@ static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBinOp___l
 static lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeMData___spec__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeAppStaged___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeLet___spec__29(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_addTrace_addTraceOptions(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeConst___closed__6;
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeMData___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBinOp___lambda__1___closed__35;
@@ -492,6 +491,7 @@ static lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___at_Lean_
 static lean_object* l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_TopDownAnalyze___hyg_121____closed__3;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze_analyzeApp___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_isCoe___closed__3;
+lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceOptions(lean_object*);
 lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isTrivialBottomUp___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyze___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11176,7 +11176,7 @@ lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = l_Lean_addTrace_addTraceOptions(x_12);
+x_14 = l___private_Lean_Util_Trace_0__Lean_addTraceOptions(x_12);
 x_15 = lean_st_ref_take(x_8, x_13);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);

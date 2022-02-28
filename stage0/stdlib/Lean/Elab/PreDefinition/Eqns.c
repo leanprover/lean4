@@ -78,7 +78,6 @@ lean_object* l_Lean_EnvExtensionInterfaceUnsafe_imp___elambda__2___rarg(lean_obj
 static lean_object* l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_findMatchToSplit_x3f___lambda__2___closed__3;
 size_t lean_usize_sub(size_t, size_t);
 static lean_object* l_Lean_Elab_Eqns_funext_x3f___lambda__1___closed__2;
-lean_object* l_Lean_addTrace_addTraceOptions(lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Eqns_simpEqnType___spec__1___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_Eqns_saveEqn___spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_checkTraceOption(lean_object*, lean_object*);
@@ -283,6 +282,7 @@ LEAN_EXPORT lean_object* l_Lean_commitWhenSome_x3f___at_Lean_Elab_Eqns_funext_x3
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOptionM___at_Lean_Elab_Eqns_mkEqnTypes_go___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 lean_object* l_Lean_LocalDecl_fvarId(lean_object*);
+lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceOptions(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Eqns_splitMatch_x3f_go___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Elab_Eqns_simpEqnType___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -13044,7 +13044,7 @@ lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = l_Lean_addTrace_addTraceOptions(x_12);
+x_14 = l___private_Lean_Util_Trace_0__Lean_addTraceOptions(x_12);
 x_15 = lean_st_ref_take(x_8, x_13);
 x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);

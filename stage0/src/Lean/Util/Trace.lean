@@ -101,15 +101,22 @@ private def getResetTraces : m (PersistentArray TraceElem) := do
 section
 variable [MonadRef m] [AddMessageContext m] [MonadOptions m]
 
+private def addTraceOptions (msg : MessageData) : MessageData :=
+  match msg with
+  | MessageData.withContext ctx msg => MessageData.withContext { ctx with opts := ctx.opts.setBool `pp.analyze false } msg
+  | msg => msg
+
+def addRawTrace (msg : MessageData) : m Unit := do
+  let ref ← getRef
+  let msg ← addMessageContext msg
+  let msg := addTraceOptions msg
+  modifyTraces fun traces => traces.push { ref, msg }
+
 def addTrace (cls : Name) (msg : MessageData) : m Unit := do
   let ref ← getRef
   let msg ← addMessageContext msg
   let msg := addTraceOptions msg
   modifyTraces fun traces => traces.push { ref := ref, msg := MessageData.tagged (cls ++ `_traceMsg) m!"[{cls}] {msg}" }
-where
-  addTraceOptions : MessageData → MessageData
-    | MessageData.withContext ctx msg => MessageData.withContext { ctx with opts := ctx.opts.setBool `pp.analyze false } msg
-    | msg => msg
 
 @[inline] def trace (cls : Name) (msg : Unit → MessageData) : m Unit := do
   if (← isTracingEnabledFor cls) then

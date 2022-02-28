@@ -88,3 +88,5 @@ termination_by' measure fun ⟨i, _⟩ => as.size - i
 * Add `fail msg?` tactic that always fail.
 
 * Add support for acyclicity at dependent elimination. See [issue #1022](https://github.com/leanprover/lean4/issues/1022).
+
+* Add `trace <string>` tactic for debugging purposes.

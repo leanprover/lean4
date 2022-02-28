@@ -129,7 +129,7 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 
 @[builtinTactic traceState] def evalTraceState : Tactic := fun stx => do
   let gs ← getUnsolvedGoals
-  logInfo (goalsToMessageData gs)
+  addRawTrace (goalsToMessageData gs)
 
 @[builtinTactic Lean.Parser.Tactic.assumption] def evalAssumption : Tactic := fun stx =>
   liftMetaTactic fun mvarId => do Meta.assumption mvarId; pure []

@@ -125,6 +125,19 @@ def foldNatDecEq := foldNatBinPred mkNatEq (fun a b => a = b)
 def foldNatDecLt := foldNatBinPred mkNatLt (fun a b => a < b)
 def foldNatDecLe := foldNatBinPred mkNatLe (fun a b => a ≤ b)
 
+def foldNatBinBoolPred (fn : Nat → Nat → Bool) (a₁ a₂ : Expr) : Option Expr :=
+  OptionM.run do
+    let n₁   ← getNumLit a₁
+    let n₂   ← getNumLit a₂
+    if fn n₁ n₂ then
+      return mkConst ``Bool.true
+    else
+      return mkConst ``Bool.false
+
+def foldNatBeq := fun _ : Bool => foldNatBinBoolPred (fun a b => a == b)
+def foldNatBle := fun _ : Bool => foldNatBinBoolPred (fun a b => a < b)
+def foldNatBlt := fun _ : Bool => foldNatBinBoolPred (fun a b => a ≤ b)
+
 def natFoldFns : List (Name × BinFoldFn) :=
   [(``Nat.add, foldNatAdd),
    (``Nat.mul, foldNatMul),
@@ -133,7 +146,11 @@ def natFoldFns : List (Name × BinFoldFn) :=
    (``Nat.pow, foldNatPow),
    (``Nat.decEq, foldNatDecEq),
    (``Nat.decLt, foldNatDecLt),
-   (``Nat.decLe, foldNatDecLe)]
+   (``Nat.decLe, foldNatDecLe),
+   (``Nat.beq,   foldNatBeq),
+   (``Nat.blt,   foldNatBlt),
+   (``Nat.ble,   foldNatBle)
+]
 
 def getBoolLit : Expr → Option Bool
   | Expr.const ``Bool.true _ _  => some true

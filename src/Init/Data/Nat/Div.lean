@@ -5,33 +5,27 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.WF
+import Init.WFTactics
 import Init.Data.Nat.Basic
 namespace Nat
 
 private def div_rec_lemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
   fun ⟨ypos, ylex⟩ => sub_lt (Nat.lt_of_lt_of_le ypos ylex) ypos
 
-private def div.F (x : Nat) (f : ∀ x₁, x₁ < x → Nat → Nat) (y : Nat) : Nat :=
-  if h : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma h) y + 1 else zero
-
 @[extern "lean_nat_div"]
-protected def div (a b : @& Nat) : Nat :=
-  WellFounded.fix (measure id).wf div.F a b
+protected def div (x y : @& Nat) : Nat :=
+  if h : 0 < y ∧ y ≤ x then
+    Nat.div (x - y) y + 1
+  else
+    0
+termination_by div x y => x
+decreasing_by apply div_rec_lemma; assumption
 
 instance : Div Nat := ⟨Nat.div⟩
 
-private theorem div_eq_aux (x y : Nat) : x / y = if h : 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 :=
-  congrFun (WellFounded.fix_eq (measure id).wf div.F x) y
-
-theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 :=
-  dif_eq_if (0 < y ∧ y ≤ x) ((x - y) / y + 1) 0 ▸ div_eq_aux x y
-
-private theorem div.induction.F.{u}
-        (C : Nat → Nat → Sort u)
-        (ind  : ∀ x y, 0 < y ∧ y ≤ x → C (x - y) y → C x y)
-        (base : ∀ x y, ¬(0 < y ∧ y ≤ x) → C x y)
-        (x : Nat) (f : ∀ (x₁ : Nat), x₁ < x → ∀ (y : Nat), C x₁ y) (y : Nat) : C x y :=
-  if h : 0 < y ∧ y ≤ x then ind x y h (f (x - y) (div_rec_lemma h) y) else base x y h
+theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 := by
+  simp [Nat.div] -- hack to force eq theorem to be generated. We don't have `conv` yet.
+  apply Nat.div._eq_1
 
 theorem div.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
@@ -39,22 +33,27 @@ theorem div.inductionOn.{u}
       (ind  : ∀ x y, 0 < y ∧ y ≤ x → motive (x - y) y → motive x y)
       (base : ∀ x y, ¬(0 < y ∧ y ≤ x) → motive x y)
       : motive x y :=
-  WellFounded.fix (measure id).wf (div.induction.F motive ind base) x y
-
-private def mod.F (x : Nat) (f : ∀ x₁, x₁ < x → Nat → Nat) (y : Nat) : Nat :=
-  if h : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma h) y else x
+  if h : 0 < y ∧ y ≤ x then
+    ind x y h (inductionOn (x - y) y ind base)
+  else
+    base x y h
+termination_by inductionOn x y _ _ => x
+decreasing_by apply div_rec_lemma; assumption
 
 @[extern "lean_nat_mod"]
-protected def mod (a b : @& Nat) : Nat :=
-  WellFounded.fix (measure id).wf mod.F a b
+protected def mod (x y : @& Nat) : Nat :=
+  if h : 0 < y ∧ y ≤ x then
+    Nat.mod (x - y) y
+  else
+    x
+termination_by mod x y => x
+decreasing_by apply div_rec_lemma; assumption
 
 instance : Mod Nat := ⟨Nat.mod⟩
 
-private theorem mod_eq_aux (x y : Nat) : x % y = if h : 0 < y ∧ y ≤ x then (x - y) % y else x :=
-  congrFun (WellFounded.fix_eq (measure id).wf mod.F x) y
-
-theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x :=
-  dif_eq_if (0 < y ∧ y ≤ x) ((x - y) % y) x ▸ mod_eq_aux x y
+theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
+  simp [Nat.mod] -- hack to force eq theorem to be generated. We don't have `conv` yet.
+  apply Nat.mod._eq_1
 
 theorem mod.inductionOn.{u}
       {motive : Nat → Nat → Sort u}

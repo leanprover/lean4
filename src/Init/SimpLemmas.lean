@@ -140,9 +140,6 @@ theorem dite_congr {s : Decidable b} [Decidable c]
 @[simp] theorem Bool.beq_to_eq (a b : Bool) : ((a == b) = true) = (a = b) := by cases a <;> cases b <;> decide
 @[simp] theorem Bool.not_beq_to_not_eq (a b : Bool) : ((!(a == b)) = true) = ¬(a = b) := by cases a <;> cases b <;> decide
 
-theorem Bool.of_not_eq_true {b : Bool} : ¬ (b = true) → b = false := by cases b <;> decide
-theorem Bool.of_not_eq_false {b : Bool} : ¬ (b = false) → b = true := by cases b <;> decide
-
 @[simp] theorem Bool.not_eq_true (b : Bool) : (¬ (b = true)) = (b = false) := by cases b <;> decide
 @[simp] theorem Bool.not_eq_false (b : Bool) : (¬ (b = false)) = (b = true) := by cases b <;> decide
 

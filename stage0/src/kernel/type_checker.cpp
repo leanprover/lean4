@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 namespace lean {
 static name * g_kernel_fresh = nullptr;
 static expr * g_dont_care    = nullptr;
+static name * g_bool_true    = nullptr;
 static expr * g_nat_zero     = nullptr;
 static expr * g_nat_succ     = nullptr;
 static expr * g_nat_add      = nullptr;
@@ -966,6 +967,14 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     check_system("is_definitionally_equal");
     bool use_hash = true;
     lbool r = quick_is_def_eq(t, s, use_hash);
+    // Very basic support for proofs by reflection. If `t` has no free variables and `s` is `Bool.true`,
+    // we fully reduce `t` and check whether result is `s`.
+    // TODO: add metadata to control whether this optimization is used or not.
+    if (!has_fvar(t) && is_constant(s, *g_bool_true)) {
+        if (is_constant(whnf(t), *g_bool_true)) {
+            return true;
+        }
+    }
     if (r != l_undef) return r == l_true;
 
     // apply whnf (without using delta-reduction or normalizer extensions)
@@ -1076,6 +1085,7 @@ void initialize_type_checker() {
     mark_persistent(g_dont_care->raw());
     g_kernel_fresh = new name("_kernel_fresh");
     mark_persistent(g_kernel_fresh->raw());
+    g_bool_true    = new name{"Bool", "true"};
     g_nat_zero     = new expr(mk_constant(name{"Nat", "zero"}));
     mark_persistent(g_nat_zero->raw());
     g_nat_succ     = new expr(mk_constant(name{"Nat", "succ"}));

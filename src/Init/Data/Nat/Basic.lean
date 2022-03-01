@@ -551,20 +551,25 @@ protected theorem eq_add_of_sub_eq {a b c : Nat} (hle : b ≤ a) (h : a - b = c)
 protected theorem sub_eq_of_eq_add {a b c : Nat} (h : a = c + b) : a - b = c := by
   rw [h, Nat.add_sub_cancel]
 
-theorem le_add_of_sub_le {a b c : Nat} (hle : b ≤ a) (h : a - b ≤ c) : a ≤ c + b := by
-  match le.dest h with
-  | ⟨d, hd⟩ =>
+theorem le_add_of_sub_le {a b c : Nat} (h : a - b ≤ c) : a ≤ c + b := by
+  match le.dest h, Nat.le_total a b with
+  | _, Or.inl hle =>
+    exact Nat.le_trans hle (Nat.le_add_left ..)
+  | ⟨d, hd⟩, Or.inr hge =>
     apply @le.intro _ _ d
-    rw [Nat.add_comm, ← Nat.add_sub_assoc hle] at hd
-    have hd := Nat.eq_add_of_sub_eq (Nat.le_trans hle (Nat.le_add_left ..)) hd
+    rw [Nat.add_comm, ← Nat.add_sub_assoc hge] at hd
+    have hd := Nat.eq_add_of_sub_eq (Nat.le_trans hge (Nat.le_add_left ..)) hd
     rw [Nat.add_comm, hd]
 
-theorem sub_le_of_le_add {a b c : Nat} (hle : b ≤ a) (h : a ≤ c + b) : a - b ≤ c := by
-  match le.dest h with
-  | ⟨d, hd⟩ =>
+theorem sub_le_of_le_add {a b c : Nat} (h : a ≤ c + b) : a - b ≤ c := by
+  match le.dest h, Nat.le_total a b with
+  | _, Or.inl hle =>
+    rw [Nat.sub_eq_zero_of_le hle]
+    apply Nat.zero_le
+  | ⟨d, hd⟩, Or.inr hge =>
     apply @le.intro _ _ d
     have hd := Nat.sub_eq_of_eq_add hd
-    rw [Nat.add_comm, ← Nat.add_sub_assoc hle, Nat.add_comm]
+    rw [Nat.add_comm, ← Nat.add_sub_assoc hge, Nat.add_comm]
     exact hd
 
 theorem add_le_of_le_sub {a b c : Nat} (hle : b ≤ c) (h : a ≤ c - b) : a + b ≤ c := by

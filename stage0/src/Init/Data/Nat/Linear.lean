@@ -130,6 +130,24 @@ def Poly.denote_eq (ctx : Context) (mp : Poly × Poly) : Prop := mp.1.denote ctx
 
 def Poly.denote_le (ctx : Context) (mp : Poly × Poly) : Prop := mp.1.denote ctx ≤ mp.2.denote ctx
 
+def Poly.combineAux (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
+  match fuel with
+  | 0 => p₁ ++ p₂
+  | fuel + 1 =>
+    match p₁, p₂ with
+    | p₁, [] => p₁
+    | [], p₂ => p₂
+    | (k₁, v₁) :: p₁, (k₂, v₂) :: p₂ =>
+      if v₁ < v₂ then
+        (k₁, v₁) :: combineAux fuel p₁ ((k₂, v₂) :: p₂)
+      else if v₁ > v₂ then
+        (k₂, v₂) :: combineAux fuel ((k₁, v₁) :: p₁) p₂
+      else
+        (k₁+k₂, v₁) :: combineAux fuel p₁ p₂
+
+def Poly.combine (p₁ p₂ : Poly) : Poly :=
+  combineAux (p₁.length + p₂.length) p₁ p₂
+
 def Expr.toPoly : Expr → Poly
   | Expr.num k    => if k = 0 then [] else [ (k, fixedVar) ]
   | Expr.var i    => [(1, i)]
@@ -166,7 +184,7 @@ def PolyCnstr.mul (k : Nat) (c : PolyCnstr) : PolyCnstr :=
   { c with lhs := c.lhs.mul k, rhs := c.rhs.mul k }
 
 def PolyCnstr.combine (c₁ c₂ : PolyCnstr) : PolyCnstr :=
-  let (lhs, rhs) := Poly.cancel (c₁.lhs ++ c₂.lhs).sort.fuse (c₁.rhs ++ c₂.rhs).sort.fuse
+  let (lhs, rhs) := Poly.cancel (c₁.lhs.combine c₂.lhs) (c₁.rhs.combine c₂.rhs)
   { eq := c₁.eq && c₂.eq, lhs, rhs }
 
 structure ExprCnstr where
@@ -481,6 +499,21 @@ theorem Poly.denote_le_cancel_eq (ctx : Context) (m₁ m₂ : Poly) : denote_le 
   propext <| Iff.intro (fun h => of_denote_le_cancel h) (fun h => denote_le_cancel h)
 
 attribute [local simp] Poly.denote_le_cancel_eq
+
+theorem Poly.denote_combineAux (ctx : Context) (fuel : Nat) (p₁ p₂ : Poly) : (p₁.combineAux fuel p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
+  induction fuel generalizing p₁ p₂ with simp [combineAux]
+  | succ fuel ih =>
+    split <;> simp
+    rename_i k₁ v₁ p₁ k₂ v₂ p₂
+    by_cases hltv : v₁ < v₂ <;> simp [hltv, ih]
+    by_cases hgtv : v₁ > v₂ <;> simp [hgtv, ih]
+    have heqv : v₁ = v₂ := Nat.le_antisymm (Nat.ge_of_not_lt hgtv) (Nat.ge_of_not_lt hltv)
+    simp [heqv]
+
+theorem Poly.denote_combine (ctx : Context) (p₁ p₂ : Poly) : (p₁.combine p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
+  simp [combine, denote_combineAux]
+
+attribute [local simp] Poly.denote_combine
 
 theorem Expr.denote_toPoly (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.denote ctx := by
   induction e with

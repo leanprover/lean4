@@ -283,7 +283,7 @@ static lean_object* _init_l_Lean_Core_initFn____x40_Lean_CoreM___hyg_7____closed
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_unsigned_to_nat(50000u);
+x_1 = lean_unsigned_to_nat(200000u);
 x_2 = l_Lean_Core_initFn____x40_Lean_CoreM___hyg_7____closed__3;
 x_3 = l_Lean_Core_initFn____x40_Lean_CoreM___hyg_7____closed__4;
 x_4 = lean_alloc_ctor(0, 3, 0);

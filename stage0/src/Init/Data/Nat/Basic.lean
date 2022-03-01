@@ -39,6 +39,9 @@ namespace Nat
     | succ n, a => loop n (f a)
   loop n a
 
+def blt (a b : Nat) : Bool :=
+  ble a.succ b
+
 /- Helper "packing" theorems -/
 
 @[simp] theorem zero_eq : Nat.zero = 0 := rfl
@@ -46,6 +49,16 @@ namespace Nat
 @[simp] theorem mul_eq : Nat.mul x y = x * y := rfl
 @[simp] theorem lt_eq : Nat.lt x y = (x < y) := rfl
 @[simp] theorem le_eq : Nat.le x y = (x ≤ y) := rfl
+
+/- Helper Bool relation theorems -/
+
+@[simp] theorem beq_refl (a : Nat) : Nat.beq a a = true := by
+  induction a with simp [Nat.beq]
+  | succ a ih => simp [ih]
+
+@[simp] theorem beq_eq : (Nat.beq x y = true) = (x = y) := propext <| Iff.intro Nat.eq_of_beq_eq_true (fun h => h ▸ (Nat.beq_refl x))
+@[simp] theorem ble_eq : (Nat.ble x y = true) = (x ≤ y) := propext <| Iff.intro Nat.le_of_ble_eq_true Nat.ble_eq_true_of_le
+@[simp] theorem blt_eq : (Nat.blt x y = true) = (x < y) := propext <| Iff.intro Nat.le_of_ble_eq_true Nat.ble_eq_true_of_le
 
 /- Nat.add theorems -/
 

@@ -154,6 +154,13 @@ macro_rules
 macro "if " "let " pat:term " := " d:term " then " t:term " else " e:term : term =>
   `(match $d:term with | $pat:term => $t | _ => $e)
 
+syntax (name := boolIfThenElse)
+  ppRealGroup(ppRealFill(ppIndent("bif " term " then") ppSpace term)
+    ppDedent(ppSpace) ppRealFill("else " term)) : term
+
+macro_rules
+  | `(bif $c then $t:term else $e:term) => `(cond $c $t $e)
+
 syntax:min term " <| " term:min : term
 
 macro_rules

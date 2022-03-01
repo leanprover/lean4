@@ -46,15 +46,15 @@ def Expr.denote (ctx : Context) : Expr → Nat
   | Expr.add a b  => Nat.add (denote ctx a) (denote ctx b)
   | Expr.num k    => k
   | Expr.var v    => v.denote ctx
-  | Expr.mulL k e => k * denote ctx e
-  | Expr.mulR e k => denote ctx e * k
+  | Expr.mulL k e => Nat.mul k (denote ctx e)
+  | Expr.mulR e k => Nat.mul (denote ctx e) k
 
 abbrev Poly := List (Nat × Var)
 
 def Poly.denote (ctx : Context) (p : Poly) : Nat :=
   match p with
   | [] => 0
-  | (k, v) :: p => k * v.denote ctx + denote ctx p
+  | (k, v) :: p => Nat.add (Nat.mul k (v.denote ctx)) (denote ctx p)
 
 def Poly.insertSorted (k : Nat) (v : Var) (p : Poly) : Poly :=
   match p with
@@ -74,7 +74,7 @@ def Poly.fuse (p : Poly) : Poly :=
   | (k, v) :: p =>
     match fuse p with
     | [] => [(k, v)]
-    | (k', v') :: p' => bif v == v' then (k+k', v)::p' else (k, v) :: (k', v') :: p'
+    | (k', v') :: p' => bif v == v' then (Nat.add k k', v)::p' else (k, v) :: (k', v') :: p'
 
 def Poly.mul (k : Nat) (p : Poly) : Poly :=
   bif k == 0 then
@@ -86,7 +86,7 @@ def Poly.mul (k : Nat) (p : Poly) : Poly :=
 where
   go : Poly → Poly
   | [] => []
-  | (k', v) :: p => (k*k', v) :: go p
+  | (k', v) :: p => (Nat.mul k k', v) :: go p
 
 def Poly.cancelAux (fuel : Nat) (m₁ m₂ r₁ r₂ : Poly) : Poly × Poly :=
   match fuel with
@@ -101,14 +101,16 @@ def Poly.cancelAux (fuel : Nat) (m₁ m₂ r₁ r₂ : Poly) : Poly × Poly :=
       else bif Nat.blt v₂ v₁ then
         cancelAux fuel ((k₁, v₁) :: m₁) m₂ r₁ ((k₂, v₂) :: r₂)
       else bif Nat.blt k₁ k₂ then
-        cancelAux fuel m₁ m₂ r₁ ((k₂ - k₁, v₁) :: r₂)
+        cancelAux fuel m₁ m₂ r₁ ((Nat.sub k₂ k₁, v₁) :: r₂)
       else bif Nat.blt k₂ k₁ then
-        cancelAux fuel m₁ m₂ ((k₁ - k₂, v₁) :: r₁) r₂
+        cancelAux fuel m₁ m₂ ((Nat.sub k₁ k₂, v₁) :: r₁) r₂
       else
         cancelAux fuel m₁ m₂ r₁ r₂
 
+def hugeFuel := 1000000 -- any big number should work
+
 def Poly.cancel (p₁ p₂ : Poly) : Poly × Poly :=
-  cancelAux (p₁.length + p₂.length) p₁ p₂ [] []
+  cancelAux hugeFuel p₁ p₂ [] []
 
 def Poly.isNum? (p : Poly) : Option Nat :=
   match p with
@@ -143,10 +145,10 @@ def Poly.combineAux (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
       else bif Nat.blt v₂ v₁ then
         (k₂, v₂) :: combineAux fuel ((k₁, v₁) :: p₁) p₂
       else
-        (k₁+k₂, v₁) :: combineAux fuel p₁ p₂
+        (Nat.add k₁ k₂, v₁) :: combineAux fuel p₁ p₂
 
 def Poly.combine (p₁ p₂ : Poly) : Poly :=
-  combineAux (p₁.length + p₂.length) p₁ p₂
+  combineAux hugeFuel p₁ p₂
 
 def Expr.toPoly : Expr → Poly
   | Expr.num k    => bif k == 0 then [] else [ (k, fixedVar) ]
@@ -218,10 +220,6 @@ def PolyCnstr.isValid (c : PolyCnstr) : Bool :=
   else
     c.lhs.isZero
 
-/-- Return true iff `c₁` has fewer monomials than `c₂`. -/
-def PolyCnstr.hasFewerMonomials (c₁ c₂ : PolyCnstr) : Bool :=
-  c₁.lhs.length + c₁.rhs.length < c₂.lhs.length + c₂.rhs.length
-
 def ExprCnstr.denote (ctx : Context) (c : ExprCnstr) : Prop :=
   bif c.eq then
     c.lhs.denote ctx = c.rhs.denote ctx
@@ -240,12 +238,12 @@ abbrev Certificate := List (Nat × ExprCnstr)
 def Certificate.combineHyps (c : PolyCnstr) (hs : Certificate) : PolyCnstr :=
   match hs with
   | [] => c
-  | (k, c') :: hs => combineHyps (PolyCnstr.combine c (c'.toNormPoly.mul (k+1))) hs
+  | (k, c') :: hs => combineHyps (PolyCnstr.combine c (c'.toNormPoly.mul (Nat.add k 1))) hs
 
 def Certificate.combine (hs : Certificate) : PolyCnstr :=
   match hs with
   | [] => { eq := true, lhs := [], rhs := [] }
-  | (k, c) :: hs => combineHyps (c.toNormPoly.mul (k+1)) hs
+  | (k, c) :: hs => combineHyps (c.toNormPoly.mul (Nat.add k 1)) hs
 
 def Certificate.denote (ctx : Context) (c : Certificate) : Prop :=
   match c with
@@ -623,13 +621,13 @@ theorem Poly.isNum?_eq_some (ctx : Context) {p : Poly} {k : Nat} : p.isNum? = so
   next k v => by_cases h : v == fixedVar <;> simp [h]; intros; simp [Var.denote, eq_of_beq h]; assumption
   next => intros; contradiction
 
-def Poly.of_isZero (ctx : Context) {p : Poly} (h : isZero p = true) : p.denote ctx = 0 := by
+theorem Poly.of_isZero (ctx : Context) {p : Poly} (h : isZero p = true) : p.denote ctx = 0 := by
   simp [isZero] at h
   split at h
   . simp
   . contradiction
 
-def Poly.of_isNonZero (ctx : Context) {p : Poly} (h : isNonZero p = true) : p.denote ctx > 0 := by
+theorem Poly.of_isNonZero (ctx : Context) {p : Poly} (h : isNonZero p = true) : p.denote ctx > 0 := by
   match p with
   | [] => contradiction
   | (k, v) :: p =>
@@ -638,7 +636,7 @@ def Poly.of_isNonZero (ctx : Context) {p : Poly} (h : isNonZero p = true) : p.de
     . have ih := of_isNonZero ctx h
       exact Nat.le_trans ih (Nat.le_add_right ..)
 
-def PolyCnstr.eq_false_of_isUnsat (ctx : Context) {c : PolyCnstr} : c.isUnsat → c.denote ctx = False := by
+theorem PolyCnstr.eq_false_of_isUnsat (ctx : Context) {c : PolyCnstr} : c.isUnsat → c.denote ctx = False := by
   cases c; rename_i eq lhs rhs
   simp [isUnsat]
   by_cases he : eq = true <;> simp [he, denote, Poly.denote_eq, Poly.denote_le]
@@ -650,7 +648,7 @@ def PolyCnstr.eq_false_of_isUnsat (ctx : Context) {c : PolyCnstr} : c.isUnsat �
     have := Nat.not_le_of_gt (Poly.of_isNonZero ctx h₁)
     simp [this]
 
-def PolyCnstr.eq_true_of_isValid (ctx : Context) {c : PolyCnstr} : c.isValid → c.denote ctx = True := by
+theorem PolyCnstr.eq_true_of_isValid (ctx : Context) {c : PolyCnstr} : c.isValid → c.denote ctx = True := by
   cases c; rename_i eq lhs rhs
   simp [isValid]
   by_cases he : eq = true <;> simp [he, denote, Poly.denote_eq, Poly.denote_le]
@@ -661,12 +659,12 @@ def PolyCnstr.eq_true_of_isValid (ctx : Context) {c : PolyCnstr} : c.isValid →
     have := Nat.zero_le (Poly.denote ctx rhs)
     simp [this]
 
-def ExprCnstr.eq_false_of_isUnsat (ctx : Context) (c : ExprCnstr) (h : c.toNormPoly.isUnsat) : c.denote ctx = False := by
+theorem ExprCnstr.eq_false_of_isUnsat (ctx : Context) (c : ExprCnstr) (h : c.toNormPoly.isUnsat) : c.denote ctx = False := by
   have := PolyCnstr.eq_false_of_isUnsat ctx h
   simp at this
   assumption
 
-def ExprCnstr.eq_true_of_isValid (ctx : Context) (c : ExprCnstr) (h : c.toNormPoly.isValid) : c.denote ctx = True := by
+theorem ExprCnstr.eq_true_of_isValid (ctx : Context) (c : ExprCnstr) (h : c.toNormPoly.isValid) : c.denote ctx = True := by
   have := PolyCnstr.eq_true_of_isValid ctx h
   simp at this
   assumption

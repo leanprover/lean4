@@ -153,12 +153,21 @@ where
   else if let some (_, lhs, rhs) := type.ne? then
     if inv then
       throwError "invalid '←' modifier in rewrite rule to 'False'"
+    if rhs.isConstOf ``Bool.true then
+      return [(← mkAppM ``Bool.of_not_eq_true #[e], ← mkEq lhs (mkConst ``Bool.false))]
+    else if rhs.isConstOf ``Bool.false then
+      return [(← mkAppM ``Bool.of_not_eq_false #[e], ← mkEq lhs (mkConst ``Bool.true))]
     let type ← mkEq (← mkEq lhs rhs) (mkConst ``False)
     let e    ← mkEqFalse e
     return [(e, type)]
   else if let some p := type.not? then
     if inv then
       throwError "invalid '←' modifier in rewrite rule to 'False'"
+    if let some (_, lhs, rhs) := p.eq? then
+      if rhs.isConstOf ``Bool.true then
+        return [(← mkAppM ``Bool.of_not_eq_true #[e], ← mkEq lhs (mkConst ``Bool.false))]
+      else if rhs.isConstOf ``Bool.false then
+        return [(← mkAppM ``Bool.of_not_eq_false #[e], ← mkEq lhs (mkConst ``Bool.true))]
     let type ← mkEq p (mkConst ``False)
     let e    ← mkEqFalse e
     return [(e, type)]

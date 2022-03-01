@@ -43,8 +43,11 @@ private def addDefault (alts : Array Alt) : Array Alt :=
       let alts := alts.filter fun alt => alt.body != max.body
       alts.push (Alt.default max.body)
 
+private def filterUnreachable (alts : Array Alt) : Array Alt :=
+  alts.filter fun alt => alt.body != FnBody.unreachable
+
 private def mkSimpCase (tid : Name) (x : VarId) (xType : IRType) (alts : Array Alt) : FnBody :=
-  let alts := alts.filter (fun alt => alt.body != FnBody.unreachable);
+  let alts := filterUnreachable alts
   let alts := addDefault alts;
   if alts.size == 0 then
     FnBody.unreachable

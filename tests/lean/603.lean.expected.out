@@ -2,7 +2,7 @@
 [result]
 def even (x_1 : obj) : obj :=
   let x_2 : obj := 0;
-  let x_3 : u8 := Nat.decEq x_1 x_2;
+  let x_3 : u8 := Nat.beq x_1 x_2;
   case x_3 : u8 of
   Bool.false →
     let x_4 : obj := 1;
@@ -16,7 +16,7 @@ def even (x_1 : obj) : obj :=
     ret x_7
 def odd (x_1 : obj) : obj :=
   let x_2 : obj := 0;
-  let x_3 : u8 := Nat.decEq x_1 x_2;
+  let x_3 : u8 := Nat.beq x_1 x_2;
   case x_3 : u8 of
   Bool.false →
     let x_4 : obj := 1;

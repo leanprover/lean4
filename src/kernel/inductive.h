@@ -67,6 +67,8 @@ inline expr to_cnstr_when_structure(environment const & env, name const & induct
     expr e_type = whnf(infer_type(e));
     if (!is_constant(get_app_fn(e_type), induct_name))
         return e;
+    if (whnf(infer_type(e_type)) == mk_Prop())
+        return e;
     return expand_eta_struct(env, e_type, e);
 }
 

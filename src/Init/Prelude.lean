@@ -300,6 +300,11 @@ theorem of_decide_eq_false [s : Decidable p] : Eq (decide p) false → Not p := 
   | isTrue  h₁ => absurd h (ne_false_of_eq_true (decide_eq_true h₁))
   | isFalse h₁ => h₁
 
+theorem of_decide_eq_self_eq_true [s : DecidableEq α] (a : α) : Eq (decide (Eq a a)) true :=
+  match (generalizing := false) s a a with
+  | isTrue  h₁ => rfl
+  | isFalse h₁ => absurd rfl h₁
+
 @[inline] instance : DecidableEq Bool :=
   fun a b => match a, b with
    | false, false => isTrue rfl

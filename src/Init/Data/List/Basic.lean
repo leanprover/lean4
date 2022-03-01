@@ -483,5 +483,9 @@ instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
         simp [BEq.beq, List.beq]
         intro ⟨h₁, h₂⟩
         exact ⟨eq_of_beq h₁, ih _ h₂⟩
+  rfl as := by
+    induction as with
+    | nil => rfl
+    | cons a as ih => simp [BEq.beq, List.beq, LawfulBEq.rfl]; exact ih
 
 end List

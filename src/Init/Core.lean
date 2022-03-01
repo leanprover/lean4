@@ -178,21 +178,22 @@ infix:50 " != " => bne
 
 class LawfulBEq (α : Type u) [BEq α] : Prop where
   eq_of_beq : (a b : α) → (a == b) = true → a = b
+  rfl : (a : α) → (a == a) = true
 
 theorem eq_of_beq [BEq α] [LawfulBEq α] {a b : α} (h : (a == b) = true) : a = b :=
   LawfulBEq.eq_of_beq a b h
 
 instance : LawfulBEq Bool where
   eq_of_beq a b h := by cases a <;> cases b <;> first | rfl | contradiction
-
-instance : LawfulBEq Nat where
-  eq_of_beq _ _ h := of_decide_eq_true h
+  rfl a := by cases a <;> decide
 
 instance : LawfulBEq Char where
   eq_of_beq _ _  h := of_decide_eq_true h
+  rfl a := of_decide_eq_self_eq_true a
 
 instance : LawfulBEq String where
   eq_of_beq _ _  h := of_decide_eq_true h
+  rfl a := of_decide_eq_self_eq_true a
 
 /- Logical connectives an equality -/
 

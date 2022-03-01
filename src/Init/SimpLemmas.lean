@@ -157,3 +157,5 @@ theorem Bool.of_not_eq_false {b : Bool} : ¬ (b = false) → b = true := by case
 
 @[simp] theorem cond_true (a b : α) : cond true a b = a := rfl
 @[simp] theorem cond_false (a b : α) : cond false a b = b := rfl
+
+@[simp] theorem beq_self_eq_true [BEq α] [LawfulBEq α] (a : α) : (a == a) = true := LawfulBEq.rfl a

@@ -179,6 +179,10 @@ instance : LawfulBEq PolyCnstr where
     simp at h
     have ⟨⟨h₁, h₂⟩, h₃⟩ := h
     rw [h₁, eq_of_beq h₂, eq_of_beq h₃]
+  rfl a := by
+    cases a; rename_i eq lhs rhs
+    show (eq == eq && lhs == lhs && rhs == rhs) = true
+    simp [LawfulBEq.rfl]
 
 def PolyCnstr.mul (k : Nat) (c : PolyCnstr) : PolyCnstr :=
   { c with lhs := c.lhs.mul k, rhs := c.rhs.mul k }

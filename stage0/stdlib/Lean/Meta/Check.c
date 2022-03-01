@@ -122,6 +122,7 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_addPPExplicitToEx
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___closed__3;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_addPPExplicitToExposeDiff_hasExplicitDiff_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_throwLetTypeMismatchMessage___rarg___closed__7;

@@ -62,6 +62,7 @@ LEAN_EXPORT uint8_t l_compareOfLessAndEq___rarg(lean_object*, lean_object*, lean
 LEAN_EXPORT uint8_t l_instOrdUInt32(uint32_t, uint32_t);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 uint8_t lean_uint16_dec_lt(uint16_t, uint16_t);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_instOrdUSize(size_t, size_t);
 LEAN_EXPORT lean_object* l_Ordering_noConfusion___rarg___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Ordering_toCtorIdx(uint8_t);

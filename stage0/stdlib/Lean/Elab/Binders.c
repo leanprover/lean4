@@ -539,6 +539,7 @@ lean_object* l_Lean_Elab_Term_elabType(lean_object*, lean_object*, lean_object*,
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_quoteAutoTactic___closed__41;
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabLetFunDecl_declRange___closed__2;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_elabLetDeclCore___closed__4;
 static lean_object* l___regBuiltin_Lean_Elab_Term_expandFun___closed__3;
 lean_object* l_Lean_mkForall(lean_object*, uint8_t, lean_object*, lean_object*);

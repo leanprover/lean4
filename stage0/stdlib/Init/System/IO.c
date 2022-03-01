@@ -206,7 +206,6 @@ LEAN_EXPORT lean_object* l_EIO_toIO___rarg(lean_object*, lean_object*, lean_obje
 static uint32_t l_IO_AccessRight_flags___closed__1;
 static uint32_t l_IO_AccessRight_flags___closed__9;
 LEAN_EXPORT lean_object* l_IO_FS_Handle_readBinToEnd(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_sleep___lambda__1(lean_object*, lean_object*);
 static uint32_t l_IO_AccessRight_flags___closed__2;
 LEAN_EXPORT lean_object* l_IO_FS_readBinFile___boxed(lean_object*, lean_object*);
@@ -474,6 +473,7 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_System_IO_0__IO_FS_reprSystemTime____x40_Init_System_IO___hyg_2117____closed__2;
 LEAN_EXPORT lean_object* l_IO_toEIO___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Handle_putStrLn(lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_createDirAll___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_termPrintln_x21_______closed__11;
 static lean_object* l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_1886____closed__2;

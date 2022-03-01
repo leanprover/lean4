@@ -87,7 +87,6 @@ static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatParam__
 static lean_object* l_Lean_IR_formatFnBody_loop___closed__6;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCtorInfo___closed__6;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__23;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___closed__14;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___closed__25;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_formatFnBody_loop___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -191,6 +190,7 @@ static lean_object* l_Lean_IR_formatFnBodyHead___closed__28;
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__14;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCtorInfo(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCtorInfo___lambda__2___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatParam(lean_object*);
 static lean_object* l_Lean_IR_formatDecl___closed__4;

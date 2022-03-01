@@ -453,6 +453,7 @@ LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Array_findSomeRev_x3
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Array_filterM___spec__1___rarg___lambda__2(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_popWhile(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Array_append___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_modifyMUnsafe___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_concatMapM___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapIdx___rarg___boxed(lean_object*, lean_object*);

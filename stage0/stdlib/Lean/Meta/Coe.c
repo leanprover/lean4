@@ -62,7 +62,6 @@ static lean_object* l_Lean_Meta_isCoeDecl___closed__31;
 lean_object* l_StateRefT_x27_lift___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Meta_expandCoe___spec__9___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit_visitLambda___at_Lean_Meta_expandCoe___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_isCoeDecl___closed__27;
 static lean_object* l_Lean_Meta_isCoeDecl___closed__4;
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Meta_expandCoe___spec__12___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -119,6 +118,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_transform___at_Lean_Meta_expandCoe___spec__
 static lean_object* l_Lean_Meta_isCoeDecl___closed__21;
 static lean_object* l_Lean_Meta_isCoeDecl___closed__19;
 static lean_object* l_Lean_Meta_isCoeDecl___closed__11;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_isCoeDecl___closed__33;
 static lean_object* l_Lean_Meta_transform_visit___at_Lean_Meta_expandCoe___spec__2___lambda__1___closed__2;
 lean_object* l_ST_Prim_Ref_modifyGetUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*);

@@ -45,7 +45,6 @@ uint8_t lean_is_eager_lambda_lifting_name(lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_30____closed__22;
 LEAN_EXPORT lean_object* l_Lean_Compiler_inlineAttrs;
 LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_noConfusion___rarg___lambda__1___boxed(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_30____closed__25;
 LEAN_EXPORT lean_object* l_Lean_Compiler_hasInlineAttribute___boxed(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isInternal(lean_object*);
@@ -68,6 +67,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_setInlineAttribute___boxed(lean_object*
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_30____closed__11;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_30____closed__19;
 lean_object* l_Lean_Name_getPrefix(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lean_has_inline_if_reduce_attribute(lean_object*, lean_object*);
 lean_object* l_Lean_EnumAttributes_getValue___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_30____closed__26;

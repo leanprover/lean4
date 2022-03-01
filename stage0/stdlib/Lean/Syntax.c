@@ -259,6 +259,7 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_topDown___boxed(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Syntax_hasMissing___spec__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Syntax_asNode___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Syntax_hasMissing___spec__1___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDownSyntax(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_isTokenAntiquot___closed__2;

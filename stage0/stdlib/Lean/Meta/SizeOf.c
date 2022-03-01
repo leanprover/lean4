@@ -332,6 +332,7 @@ lean_object* l_Lean_Meta_mkCongrArg(lean_object*, lean_object*, lean_object*, le
 static lean_object* l_Lean_getConstInfoInduct___at_Lean_Meta_mkSizeOfFns___spec__1___closed__2;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SizeOfSpecNested_throwUnexpected___rarg___closed__2;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoRec___at_Lean_Meta_mkSizeOfFn___spec__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

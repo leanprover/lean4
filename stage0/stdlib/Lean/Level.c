@@ -297,6 +297,7 @@ uint64_t lean_uint32_to_uint64(uint32_t);
 LEAN_EXPORT lean_object* l_Lean_Level_PP_Result_format(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* lean_level_mk_imax(lean_object*, lean_object*);
 static lean_object* l_Lean_instReprData___closed__2;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_Level___hyg_807____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_imax(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Level_PP_Result_quote___spec__2___boxed(lean_object*, lean_object*, lean_object*);

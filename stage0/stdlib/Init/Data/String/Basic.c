@@ -247,6 +247,7 @@ LEAN_EXPORT lean_object* l_Substring_dropRight(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_splitOn_loop___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_String_anyAux(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_toLower(lean_object*);
 LEAN_EXPORT lean_object* l_String_foldlAux(lean_object*);
 LEAN_EXPORT uint8_t l_String_startsWith(lean_object*, lean_object*);

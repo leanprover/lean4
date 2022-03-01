@@ -121,6 +121,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkPartialApp___boxed(lean_object*,
 lean_object* l_Lean_IR_LocalContext_addLocal(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_getUSizeSize(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Checker_checkFullApp___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_getMaxCtorFields(lean_object*);
 static lean_object* l_Lean_IR_Checker_checkJP___closed__2;

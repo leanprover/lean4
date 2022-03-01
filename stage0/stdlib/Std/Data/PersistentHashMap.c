@@ -158,6 +158,7 @@ LEAN_EXPORT lean_object* l_Std_PersistentHashMap_stats___boxed(lean_object*, lea
 lean_object* l_Array_eraseIdx_x27___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_findAux___rarg(lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_isUnaryNode(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_eraseAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_isEmpty___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_contains(lean_object*, lean_object*);

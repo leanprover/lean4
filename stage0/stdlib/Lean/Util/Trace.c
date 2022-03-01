@@ -270,6 +270,7 @@ LEAN_EXPORT lean_object* l_Lean_addRawTrace___rarg(lean_object*, lean_object*, l
 static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b_____x5d______1___closed__15;
 LEAN_EXPORT lean_object* l_Lean_printTraces(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_checkTraceOption___boxed(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_checkTraceOption___closed__1;
 LEAN_EXPORT lean_object* l_Lean_traceM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b_____x5d______1___closed__7;

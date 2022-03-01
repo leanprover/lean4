@@ -22,7 +22,6 @@ lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_head(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HeadIndex_HeadIndex_hash___boxed(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_HeadIndex_instHashableHeadIndex___closed__1;
 LEAN_EXPORT uint64_t l_Lean_HeadIndex_HeadIndex_hash(lean_object*);
 uint64_t l_Lean_Name_hash(lean_object*);
@@ -44,6 +43,7 @@ LEAN_EXPORT lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlow
 LEAN_EXPORT uint8_t l___private_Lean_HeadIndex_0__Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_66_(lean_object*, lean_object*);
 uint64_t l_Lean_Literal_hash(lean_object*);
 static lean_object* l_Lean_instBEqHeadIndex___closed__1;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexQuick_x3f___boxed(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);

@@ -97,6 +97,7 @@ static lean_object* l_ByteArray_toUInt64LE_x21___closed__2;
 uint64_t lean_uint64_shift_left(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_ByteArray_forIn_loop___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_lor(uint64_t, uint64_t);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_byte_array_copy_slice(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe_fold___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_forIn_loop(lean_object*, lean_object*);

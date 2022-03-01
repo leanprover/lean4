@@ -42,7 +42,6 @@ static lean_object* l_Lean_Elab_throwAbortCommand___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwAutoBoundImplicitLocal___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkMessageCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwAutoBoundImplicitLocal(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwAbortTerm___rarg(lean_object*);
 static lean_object* l_Lean_Elab_throwAutoBoundImplicitLocal___rarg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_mkMessageCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -81,6 +80,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_throwIllFormedSyntax(lean_object*, lean_obj
 static lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__2;
 lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg___closed__4;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_4____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Exception___hyg_18____closed__1;

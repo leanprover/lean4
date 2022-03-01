@@ -41,7 +41,6 @@ LEAN_EXPORT lean_object* l_Lean_Unhygienic_instMonadQuotationUnhygienic___lambda
 LEAN_EXPORT lean_object* l_ReaderT_pure___at_Lean_Unhygienic_instMonadQuotationUnhygienic___spec__3___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t l_Std_Format_getUnicode(lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Unhygienic_instMonadQuotationUnhygienic___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Unhygienic_instMonadQuotationUnhygienic___spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_Unhygienic_instMonadQuotationUnhygienic___closed__3;
@@ -80,6 +79,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserName
 static lean_object* l_Lean_getSanitizeNames___closed__1;
 static lean_object* l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNameAux___closed__2;
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Unhygienic_instMonadQuotationUnhygienic___closed__6;
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);

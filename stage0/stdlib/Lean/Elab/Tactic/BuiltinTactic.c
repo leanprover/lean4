@@ -713,6 +713,7 @@ static lean_object* l_Lean_Elab_Tactic_evalIntro___closed__30;
 LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_Tactic_elabSetOption___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalTraceMessage___closed__5;
 static lean_object* l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_Tactic_elabSetOption___spec__3___closed__1;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalParen___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalFailIfSuccess_declRange___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalIntros_declRange___closed__5;

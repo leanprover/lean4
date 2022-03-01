@@ -92,7 +92,6 @@ LEAN_EXPORT lean_object* l_Lean_KVMap_getSyntax___boxed(lean_object*, lean_objec
 static lean_object* l_Lean_KVMap_instValueNat___closed__3;
 static lean_object* l_Lean_instInhabitedDataValue___closed__2;
 static lean_object* l_Lean_instReprDataValue___closed__1;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_KVMap_instValueString___closed__3;
 LEAN_EXPORT lean_object* l_Lean_KVMap_getBool___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instCoeNameDataValue(lean_object*);
@@ -205,6 +204,7 @@ lean_object* lean_nat_abs(lean_object*);
 static lean_object* l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x40_Lean_Data_KVMap___hyg_255____closed__16;
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueSyntax;
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueName___lambda__1(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_KVMap_instValueInt___closed__1;
 LEAN_EXPORT uint8_t lean_data_value_beq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_Lean_Data_KVMap___hyg_844____closed__9;

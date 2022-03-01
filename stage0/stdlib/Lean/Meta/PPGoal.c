@@ -150,7 +150,6 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_6____closed
 LEAN_EXPORT lean_object* l_Std_RBNode_ins___at_Lean_Meta_ToHide_moveToHiddeProp___spec__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_ppGoal___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__41(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_34____closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasVisibleDep___spec__33(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitApp___at_Lean_Meta_ToHide_hasVisibleDep___spec__35___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -330,6 +329,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_ppGoal___spec_
 LEAN_EXPORT uint8_t l_Std_PersistentArray_anyMAux___at_Lean_Meta_ToHide_hasVisibleDep___spec__45(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withPPInaccessibleNames___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasVisibleDep___spec__41(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ToHide_moveToHiddeProp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashMap_insert___at_Lean_Meta_ToHide_visitVisibleExpr_visit___spec__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_34_(lean_object*);

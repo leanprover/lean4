@@ -1652,7 +1652,6 @@ static lean_object* l_Lean_Parser_Command_in_parenthesizer___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Parser_Command_attribute;
 static lean_object* l___regBuiltin_Lean_Parser_Command_open_parenthesizer___closed__1;
 static lean_object* l_Lean_Parser_Command_terminationHintMany___closed__20;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_structImplicitBinder___elambda__1___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Parser_Command_openScoped_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_mutual_formatter___closed__3;
@@ -3701,6 +3700,7 @@ static lean_object* l_Lean_Parser_Command_structExplicitBinder_formatter___close
 static lean_object* l_Lean_Parser_Command_declaration___elambda__1___closed__10;
 static lean_object* l_Lean_Parser_Command_resolve__name___elambda__1___closed__7;
 static lean_object* l_Lean_Parser_Command_openRenamingItem___elambda__1___closed__11;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_openHiding___closed__2;
 static lean_object* l_Lean_Parser_Command_constant___closed__4;
 static lean_object* l___regBuiltin_Lean_Parser_Command_variable_declRange___closed__5;

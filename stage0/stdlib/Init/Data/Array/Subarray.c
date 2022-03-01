@@ -87,7 +87,6 @@ LEAN_EXPORT lean_object* l_Subarray_popFront___rarg(lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Subarray______macroRules__Array__term_____x5b_x3a___x5d__1___closed__2;
 LEAN_EXPORT lean_object* l_Subarray_anyM(lean_object*, lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Subarray______macroRules__Array__term_____x5b___x3a___x5d__1___closed__6;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_all___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_toArray___rarg(lean_object*);
 LEAN_EXPORT uint8_t l_Subarray_any___rarg(lean_object*, lean_object*);
@@ -183,6 +182,7 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_foldr___spec__1
 static lean_object* l_instReprSubarray___rarg___closed__10;
 LEAN_EXPORT lean_object* l_Subarray_forM___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_ofSubarray___rarg(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_instReprSubarray___rarg___closed__8;
 LEAN_EXPORT uint8_t l_Subarray_all___rarg(lean_object*, lean_object*);
 static lean_object* l_instReprSubarray___rarg___closed__4;

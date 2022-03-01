@@ -693,6 +693,7 @@ static lean_object* l_List_foldr___at_Lean_Syntax_decodeNameLit___spec__1___clos
 LEAN_EXPORT lean_object* l_Lean_Syntax_decodeQuotedChar___boxed__const__1;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Meta______macroRules__Lean__Parser__Tactic__tacticErw______1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Syntax_getTailInfo_x3f(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instBEqConfig;
 static lean_object* l_Lean_termEval__prec_____closed__2;
 LEAN_EXPORT uint8_t l_Lean_Meta_Simp_Config_iota___default;

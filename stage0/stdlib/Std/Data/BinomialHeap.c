@@ -61,7 +61,6 @@ LEAN_EXPORT lean_object* l_Std_BinomialHeapImp_toList___rarg(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_BinomialHeapImp_toArray___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_BinomialHeap_isEmpty(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_BinomialHeap_empty___boxed(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_BinomialHeap_tail_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_BinomialHeap_deleteMin___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_BinomialHeapImp_toListUnordered___rarg(lean_object*);
@@ -110,6 +109,7 @@ LEAN_EXPORT lean_object* l_Std_BinomialHeapImp_head___rarg(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_List_mapTRAux___at_Std_BinomialHeapImp_toListUnordered___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_BinomialHeap_ofArray___spec__1___at_Std_BinomialHeap_ofArray___spec__2___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_BinomialHeapImp_tail(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_BinomialHeap_tail___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Std_BinomialHeap_ofArray___spec__1___at_Std_BinomialHeap_ofArray___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_BinomialHeapImp_hRank___rarg___boxed(lean_object*);

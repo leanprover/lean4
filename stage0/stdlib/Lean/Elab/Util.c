@@ -77,7 +77,6 @@ lean_object* l_Lean_ResolveName_resolveNamespace_x3f(lean_object*, lean_object*,
 static lean_object* l_Lean_Elab_mkElabAttribute___rarg___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_mkElabAttribute___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_mkElabAttribute___rarg___lambda__2___closed__13;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_checkSyntaxNodeKindAtNamespaces(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_expandMacroImpl_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_getBetterRef___lambda__1(lean_object*);
@@ -186,6 +185,7 @@ lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_getBetterRef___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_getBetterRef___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_findDeclarationRanges_x3f___at___private_Lean_Parser_Extension_0__Lean_Parser_BuiltinParserAttribute_add___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_List_foldl___at_Lean_MacroScopesView_review___spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 static lean_object* l_Lean_Elab_mkElabAttribute___rarg___lambda__3___closed__5;

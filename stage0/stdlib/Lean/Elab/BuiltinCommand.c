@@ -598,6 +598,7 @@ static lean_object* l_Lean_resolveGlobalConstNoOverloadCore___at_Lean_Elab_Comma
 lean_object* l_Lean_Elab_Command_getRef(lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabNonComputableSection_declRange___closed__1;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_elabNamespace___closed__2;
 static lean_object* l_Lean_Elab_Command_elabCheckCore___lambda__1___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabEval_declRange___closed__5;

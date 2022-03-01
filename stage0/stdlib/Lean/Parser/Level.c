@@ -153,7 +153,6 @@ static lean_object* l___regBuiltin_Lean_Parser_Level_paren_parenthesizer___close
 static lean_object* l_Lean_Parser_Level_ident___closed__3;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Level_addLit_declRange(lean_object*);
 static lean_object* l_Lean_Parser_Level_paren___elambda__1___lambda__2___closed__7;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Parser_Level_num_declRange___closed__1;
 lean_object* l_Lean_Parser_nonReservedSymbolFnAux(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Level_imax_declRange(lean_object*);
@@ -312,6 +311,7 @@ static lean_object* l_Lean_Parser_Level_imax___elambda__1___closed__10;
 static lean_object* l___regBuiltin_Lean_Parser_Level_max_declRange___closed__2;
 static lean_object* l___regBuiltin_Lean_Parser_Level_imax_declRange___closed__1;
 lean_object* l_Lean_Parser_ident_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Level_hole_parenthesizer___closed__1;
 static lean_object* l_Lean_Parser_Level_paren_formatter___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Parser_levelParser_formatter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

@@ -38,7 +38,6 @@ lean_object* l_Lean_Meta_Linear_Nat_simpExpr_x3f(lean_object*, lean_object*, lea
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_isSimpExprTarget___closed__2;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_isSimpExprTarget___closed__4;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_isSimpExprTarget___closed__9;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_isSimpCnstrTarget___closed__10;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_isSimpExprTarget___closed__13;
@@ -68,6 +67,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Linear_simp_x3f(lean_object*, lean_object*,
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_isSimpCnstrTarget___closed__2;
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_isSimpCnstrTarget___closed__7;
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__2;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_isSimpExprTarget___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_simp_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_parentIsTarget(lean_object*);

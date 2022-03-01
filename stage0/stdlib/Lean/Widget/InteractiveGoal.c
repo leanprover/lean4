@@ -274,7 +274,6 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_Lean_Widget_Int
 LEAN_EXPORT lean_object* l_Lean_Widget_Lean_Widget_InteractiveHypothesis_instRpcEncodingInteractiveHypothesisRpcEncodingPacket___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_Lean_Widget_InteractiveTermGoal_instRpcEncodingInteractiveTermGoalRpcEncodingPacket___spec__22___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Json_parseTagged(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_foldlM___at_Lean_Widget_goalToInteractive___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_Widget_Lean_Widget_InteractiveGoal_instRpcEncodingInteractiveGoalRpcEncodingPacket___spec__34(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_Lean_Widget_InteractiveHypothesis_instRpcEncodingInteractiveHypothesisRpcEncodingPacket___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -618,6 +617,7 @@ LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_mapM___at_Lean_Widget_Lean_Wid
 LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_Widget_Lean_Widget_InteractiveGoals_instRpcEncodingInteractiveGoalsRpcEncodingPacket___spec__17___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_Lean_Widget_InteractiveGoal_instRpcEncodingInteractiveGoalRpcEncodingPacket___spec__29(lean_object*);
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_Lean_Widget_InteractiveGoals_instRpcEncodingInteractiveGoalsRpcEncodingPacket___spec__9___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_Lean_Widget_InteractiveHypothesis_fromJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveGoal___hyg_113____closed__4;

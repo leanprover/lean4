@@ -69,6 +69,7 @@ LEAN_EXPORT lean_object* l_Nat_Linear_Poly_isNum_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_Linear_Certificate_combineHyps(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Nat_Linear_Poly_isNonZero(lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Nat_Linear_Certificate_combine___closed__1;
 LEAN_EXPORT lean_object* l_Nat_Linear_ExprCnstr_toPoly___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_Linear_Poly_norm(lean_object*);

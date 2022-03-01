@@ -90,7 +90,6 @@ LEAN_EXPORT lean_object* l_Lean_setEnv___rarg___lambda__1___boxed(lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_isEnumType___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isInductive(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingEnv_x27___rarg___lambda__3(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_withoutModifyingEnv___rarg___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_evalConstCheck___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__24;
@@ -169,6 +168,7 @@ lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingEnv___rarg___lambda__1(lean_object*);
 static lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__22;
 LEAN_EXPORT lean_object* l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_checkUnsupported___spec__2___rarg___lambda__1___boxed(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedName;
 static lean_object* l___private_Lean_MonadEnv_0__Lean_supportedRecursors___closed__8;
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);

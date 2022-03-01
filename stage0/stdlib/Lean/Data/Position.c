@@ -82,6 +82,7 @@ static lean_object* l_Lean_instInhabitedFileMap___closed__3;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instDecidableEqPosition___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedFileMap___closed__1;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Position_instToExprPosition___lambda__1___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Position_instToExprPosition___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Position_instToFormatPosition(lean_object*);

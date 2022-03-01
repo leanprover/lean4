@@ -62,6 +62,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_UniqueIds_checkId(lean_object*, lean_object*)
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_normJP(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_NormalizeIds_instMonadLiftMN___rarg(lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_IR_UniqueIds_checkFnBody___spec__1(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_IR_Decl_updateBody_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_NormalizeIds_normFnBody___spec__1(lean_object*, size_t, size_t, lean_object*);

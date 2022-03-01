@@ -248,7 +248,6 @@ LEAN_EXPORT lean_object* l_Std_PersistentArray_mapMAux___at_Lean_Elab_Command_li
 lean_object* l_Lean_MapDeclarationExtension_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_State_nextMacroScope___default___closed__1;
 static lean_object* l_Lean_addMessageContextPartial___at_Lean_Elab_Command_instAddMessageContextCommandElabM___spec__1___closed__1;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static size_t l_Lean_Elab_Command_instInhabitedState___closed__8;
 static lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_Command___hyg_2155____closed__1;
 LEAN_EXPORT lean_object* l_Lean_addDocString___at_Lean_Elab_Command_expandDeclId___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -534,6 +533,7 @@ static lean_object* l_Lean_addTrace___at_Lean_Elab_Command_elabCommand___spec__4
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_instMonadResolveNameCommandElabM___lambda__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_State_ngen___default___closed__1;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_forIn___at_Lean_Elab_Command_elabCommandTopLevel___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_liftCoreM(lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);

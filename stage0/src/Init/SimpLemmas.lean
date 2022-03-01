@@ -150,10 +150,9 @@ theorem Bool.of_not_eq_false {b : Bool} : ¬ (b = false) → b = true := by case
 @[simp] theorem decide_not [h : Decidable p] : decide (¬ p) = !decide p := by cases h <;> rfl
 @[simp] theorem not_decide_eq_true [h : Decidable p] : ((!decide p) = true) = ¬ p := by cases h <;> simp [decide, *]
 
-@[simp] theorem Nat.beq_to_eq (a b : Nat) : ((a == b) = true) = (a = b) := by simp [BEq.beq]
-@[simp] theorem Nat.not_beq_to_not_eq (a b : Nat) : ((!(a == b)) = true) = ¬(a = b) := by simp [BEq.beq]
-
 @[simp] theorem heq_eq_eq {α : Sort u} (a b : α) : HEq a b = (a = b) := propext <| Iff.intro eq_of_heq heq_of_eq
 
 @[simp] theorem cond_true (a b : α) : cond true a b = a := rfl
 @[simp] theorem cond_false (a b : α) : cond false a b = b := rfl
+
+@[simp] theorem beq_self_eq_true [BEq α] [LawfulBEq α] (a : α) : (a == a) = true := LawfulBEq.rfl a

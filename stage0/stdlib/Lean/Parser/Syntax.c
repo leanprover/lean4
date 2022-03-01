@@ -761,7 +761,6 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Command_macro(lean_object*);
 static lean_object* l_Lean_Parser_Term_stx_quot___elambda__1___closed__18;
 static lean_object* l_Lean_Parser_Command_macroTailCommand___closed__3;
 static lean_object* l_Lean_Parser_Command_elabTail___closed__1;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Parser_Command_catBehaviorSymbol_formatter___closed__2;
 static lean_object* l_Lean_Parser_Syntax_unary_formatter___closed__5;
 static lean_object* l_Lean_Parser_Command_macro__rules_formatter___closed__3;
@@ -1756,6 +1755,7 @@ static lean_object* l___regBuiltin_Lean_Parser_Syntax_binary_declRange___closed_
 static lean_object* l_Lean_Parser_Command_syntaxAbbrev___elambda__1___closed__3;
 lean_object* l_Lean_Parser_ident_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Command_namedName___closed__3;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Syntax_sepBy_parenthesizer___closed__9;
 static lean_object* l_Lean_Parser_Command_postfix_formatter___closed__1;
 static lean_object* l_Lean_Parser_Syntax_unary___elambda__1___closed__8;

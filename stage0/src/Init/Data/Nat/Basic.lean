@@ -60,6 +60,18 @@ def blt (a b : Nat) : Bool :=
 @[simp] theorem ble_eq : (Nat.ble x y = true) = (x ≤ y) := propext <| Iff.intro Nat.le_of_ble_eq_true Nat.ble_eq_true_of_le
 @[simp] theorem blt_eq : (Nat.blt x y = true) = (x < y) := propext <| Iff.intro Nat.le_of_ble_eq_true Nat.ble_eq_true_of_le
 
+instance : LawfulBEq Nat where
+  eq_of_beq _ _ h := Nat.eq_of_beq_eq_true h
+  rfl a := by simp [BEq.beq]
+
+@[simp] theorem beq_eq_true_eq (a b : Nat) : ((a == b) = true) = (a = b) := propext <| Iff.intro eq_of_beq (fun h => by subst h; apply LawfulBEq.rfl)
+@[simp] theorem not_beq_eq_true_eq (a b : Nat) : ((!(a == b)) = true) = ¬(a = b) :=
+  propext <| Iff.intro
+    (fun h₁ h₂ => by subst h₂; rw [LawfulBEq.rfl] at h₁; contradiction)
+    (fun h =>
+      have : ¬ ((a == b) = true) := fun h' => absurd (eq_of_beq h') h
+      by simp [this])
+
 /- Nat.add theorems -/
 
 @[simp] protected theorem zero_add : ∀ (n : Nat), 0 + n = n

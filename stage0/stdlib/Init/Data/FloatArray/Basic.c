@@ -80,6 +80,7 @@ lean_object* lean_float_array_set(lean_object*, lean_object*, double);
 LEAN_EXPORT lean_object* l_List_toString___at_instToStringFloatArray___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringFloatArray(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___at_FloatArray_foldl___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_float_array(lean_object*);

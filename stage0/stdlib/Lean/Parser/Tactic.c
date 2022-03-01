@@ -207,7 +207,6 @@ static lean_object* l_Lean_Parser_Tactic_nativeDecide___closed__4;
 static lean_object* l___regBuiltin_Lean_Parser_Tactic_eraseAuxDiscrs_formatter___closed__2;
 static lean_object* l_Lean_Parser_Tactic_match___elambda__1___closed__6;
 static lean_object* l_Lean_Parser_Tactic_initFn____x40_Lean_Parser_Tactic___hyg_6____closed__4;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_matchAlts_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Parser_Tactic_match_declRange___closed__1;
 static lean_object* l_Lean_Parser_Tactic_unknown___elambda__1___closed__6;
@@ -423,6 +422,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_eraseAuxDiscrs___elambda__1___lamb
 static lean_object* l_Lean_Parser_Tactic_decide_formatter___closed__3;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Tactic_decide_formatter(lean_object*);
 lean_object* l_Lean_Parser_ident_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Parser_Tactic_eraseAuxDiscrs_declRange___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_nestedTactic_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_sepBy1_formatter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

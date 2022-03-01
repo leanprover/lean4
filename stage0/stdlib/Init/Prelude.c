@@ -248,6 +248,7 @@ LEAN_EXPORT lean_object* l_inferInstance___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_instInhabitedMethods___lambda__3___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_getThe___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Prelude_0__Lean_extractMacroScopesAux(lean_object*, lean_object*);
+static lean_object* l_instBEqNat___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableEqChar(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_ReaderT_instMonadReaderT___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*);
@@ -728,6 +729,7 @@ LEAN_EXPORT lean_object* lean_simp_macro_scopes(lean_object*);
 LEAN_EXPORT lean_object* l_max___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__3;
 LEAN_EXPORT lean_object* l_EStateM_bind(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instBEqNat;
 LEAN_EXPORT lean_object* l_UInt32_val___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_dite___rarg(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_unsafeCast(lean_object*, lean_object*);
@@ -1981,6 +1983,22 @@ lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
+}
+}
+static lean_object* _init_l_instBEqNat___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Nat_beq___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_instBEqNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_instBEqNat___closed__1;
+return x_1;
 }
 }
 LEAN_EXPORT lean_object* l_Nat_decEq___boxed(lean_object* x_1, lean_object* x_2) {
@@ -10537,6 +10555,10 @@ l_instPowNat___closed__1 = _init_l_instPowNat___closed__1();
 lean_mark_persistent(l_instPowNat___closed__1);
 l_instPowNat = _init_l_instPowNat();
 lean_mark_persistent(l_instPowNat);
+l_instBEqNat___closed__1 = _init_l_instBEqNat___closed__1();
+lean_mark_persistent(l_instBEqNat___closed__1);
+l_instBEqNat = _init_l_instBEqNat();
+lean_mark_persistent(l_instBEqNat);
 l_instLENat = _init_l_instLENat();
 lean_mark_persistent(l_instLENat);
 l_instLTNat = _init_l_instLTNat();

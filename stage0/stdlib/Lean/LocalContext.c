@@ -411,6 +411,7 @@ static lean_object* l___private_Std_Data_PersistentArray_0__Std_PersistentArray_
 LEAN_EXPORT lean_object* l_Lean_LocalContext_findDeclRevM_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_anyM___spec__5___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_LocalContext_foldl___spec__6___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_mkForall(lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_foldl___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Nat_foldRev_loop___at_Lean_LocalContext_mkBinding___spec__1___closed__2;

@@ -138,6 +138,7 @@ LEAN_EXPORT lean_object* l_Lean_mkCasesOn___rarg___lambda__1___boxed(lean_object
 static lean_object* l_Lean_mkNoConfusionEnum_mkNoConfusionType___lambda__1___closed__2;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_foldlM___at_Lean_mkNoConfusionEnum_mkToCtorIdx___spec__9___closed__4;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkArrow(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__10;
 lean_object* lean_set_reducibility_status(lean_object*, lean_object*, uint8_t);

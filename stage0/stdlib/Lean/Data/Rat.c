@@ -74,6 +74,7 @@ LEAN_EXPORT lean_object* l_Lean_Rat_neg(lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 lean_object* lean_int_div(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_mkRat___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Rat_instCoeIntRat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Rat_instLERat;

@@ -309,6 +309,7 @@ lean_object* l_Lean_Elab_Command_getRef(lean_object*, lean_object*, lean_object*
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkMatch_mkSameCtorRhs___lambda__1___closed__28;
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_DecEq_mkDecEqEnum___closed__27;
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedName;

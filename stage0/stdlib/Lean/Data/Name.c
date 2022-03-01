@@ -168,6 +168,7 @@ LEAN_EXPORT lean_object* l_Std_HashMapImp_expand___at_Lean_NameSSet_insert___spe
 LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_NameMap_contains___spec__1___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_getPrefix(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_name_mk_numeral(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_ins___at_Lean_NameMap_insert___spec__3___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_ins___at_Lean_NameMap_insert___spec__3(lean_object*);

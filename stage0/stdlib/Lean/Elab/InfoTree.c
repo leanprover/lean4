@@ -148,7 +148,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_enableInfoTree___rarg(lean_object*, uint8_t
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_withSaveInfoContext___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Elab_assignInfoHoleId___rarg___lambda__2___closed__6;
 static lean_object* l_Lean_Elab_TacticInfo_format___closed__2;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_findSomeM_x3f___at_Lean_Elab_InfoTree_findInfo_x3f___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_findInfo_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Elab_resolveGlobalConstWithInfos___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*);
@@ -341,6 +340,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_withSaveInfoContext___rarg(lean_object*, le
 LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedContextInfo;
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_withSaveInfoContext___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static size_t l_Lean_Elab_instInhabitedTermInfo___closed__3;
 lean_object* l_Lean_ppTerm(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_InfoTree_0__Lean_Elab_formatStxRange_fmtPos___closed__9;

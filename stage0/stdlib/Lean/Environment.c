@@ -487,6 +487,7 @@ LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_4608_(lean_
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_2055_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedPersistentEnvExtensionState___rarg(lean_object*);
 static lean_object* l_Lean_instInhabitedEnvExtensionInterface___closed__5;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Environment_0__Lean_getEntriesFor___closed__1;
 LEAN_EXPORT lean_object* l_Lean_EnvExtension_modifyState___rarg___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedName;

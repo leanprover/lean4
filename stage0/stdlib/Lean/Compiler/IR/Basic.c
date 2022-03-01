@@ -245,6 +245,7 @@ LEAN_EXPORT uint8_t l_Lean_IR_CtorInfo_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_instToFormatJoinPointId(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_IRType_isStruct___boxed(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_Basic_0__Lean_IR_reprCtorInfo____x40_Lean_Compiler_IR_Basic___hyg_748____closed__2;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_IRType_instBEqIRType;
 LEAN_EXPORT lean_object* l_Lean_IR_Decl_updateBody_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_ir_mk_uset(lean_object*, lean_object*, lean_object*, lean_object*);

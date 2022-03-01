@@ -161,7 +161,6 @@ LEAN_EXPORT lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_getBuiltinAt
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_updateEnvAttributesImpl___spec__3(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_instToStringAttributeKind___closed__3;
 LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_registerEnumAttributes___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_128_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_foldlMAux___at_Lean_getBuiltinAttributeNames___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -371,6 +370,7 @@ static lean_object* l_Lean_registerBuiltinAttribute___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Std_RBNode_find___at_Lean_ParametricAttribute_getParam___spec__1(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_registerBuiltinAttribute___closed__2;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeApplicationTime____x40_Lean_Attributes___hyg_13_(uint8_t, uint8_t);
 extern lean_object* l_Lean_instInhabitedName;
 static lean_object* l_Lean_Attribute_Builtin_getIdent___closed__2;

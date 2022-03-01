@@ -172,6 +172,7 @@ static lean_object* l_Lean_JsonRpc_instToJsonMessage___closed__8;
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonRpc_instInhabitedRequest___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonRpc_instFromJsonNotification(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonRpc_instFromJsonMessage(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeNotification(lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___closed__1;

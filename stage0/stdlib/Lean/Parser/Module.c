@@ -162,7 +162,6 @@ static lean_object* l_Lean_Parser_Module_import___elambda__1___closed__11;
 static lean_object* l_Lean_Parser_Module_module_parenthesizer___closed__2;
 static lean_object* l_Lean_Parser_testParseModuleAux_parse___closed__2;
 static lean_object* l_Lean_Parser_Module_header___elambda__1___closed__2;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Parser_testParseModuleAux_parse___spec__5(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Parser_Module_header_parenthesizer___closed__2;
 static lean_object* l_Lean_Parser_Module_prelude___elambda__1___closed__13;
@@ -309,6 +308,7 @@ static lean_object* l___regBuiltin_Lean_Parser_Module_prelude_parenthesizer___cl
 LEAN_EXPORT lean_object* l_Lean_Parser_Module_module_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Module_header___elambda__1___closed__13;
 lean_object* l_Lean_Parser_ident_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Module_import_formatter___closed__2;
 static lean_object* l_Lean_Parser_Module_import___elambda__1___closed__7;
 static lean_object* l_Lean_Parser_Module_module___elambda__1___closed__5;

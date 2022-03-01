@@ -77,7 +77,6 @@ LEAN_EXPORT lean_object* l_Lean_RecursorVal_getMajorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_instantiateTypeLevelParams___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_269____closed__7;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedAxiomVal;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__3___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedConstructorVal;
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__4(lean_object*);
@@ -170,6 +169,7 @@ static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety___
 LEAN_EXPORT uint8_t lean_quot_val_kind(lean_object*);
 lean_object* l_Lean_Name_getPrefix(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__4___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedQuotVal;
 LEAN_EXPORT lean_object* l_Lean_mkInductiveDeclEs___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_269____closed__1;

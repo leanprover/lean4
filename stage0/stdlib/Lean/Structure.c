@@ -171,6 +171,7 @@ LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_initFn____x40_Lean_Structu
 LEAN_EXPORT lean_object* l_Array_binSearchAux___at_Lean_getStructureInfo_x3f___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getStructureCtor(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isStructure___boxed(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Structure_0__Lean_StructureState_map___default___closed__2;
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);

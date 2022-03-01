@@ -252,18 +252,22 @@ expr type_checker::infer_proj(expr const & e, bool infer_only) {
         if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
         r = instantiate(binding_body(r), args[i]);
     }
+    bool is_prop_type = is_prop(type);
     for (unsigned i = 0; i < idx; i++) {
         r = whnf(r);
         if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
-        if (has_loose_bvars(binding_body(r)))
+        if (has_loose_bvars(binding_body(r))) {
+            if (is_prop_type && !is_prop(binding_domain(r)))
+                throw invalid_proj_exception(env(), m_lctx, e);
             r = instantiate(binding_body(r), mk_proj(I_name, i, proj_expr(e)));
-        else
+        } else {
             r = binding_body(r);
+        }
     }
     r = whnf(r);
     if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
     r = binding_domain(r);
-    if (is_prop(type) && !is_prop(r))
+    if (is_prop_type && !is_prop(r))
         throw invalid_proj_exception(env(), m_lctx, e);
     return r;
 }

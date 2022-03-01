@@ -248,6 +248,7 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_470____l
 static lean_object* l_Lean_Meta_instInhabitedDefaultInstances___closed__1;
 lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Instances_erase___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at_Lean_Meta_addInstanceEntry___spec__9___closed__3;
 static lean_object* l_Lean_Meta_addDefaultInstance___lambda__2___closed__6;

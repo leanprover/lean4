@@ -492,6 +492,7 @@ LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___at___private_Lean_Pa
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_5182____closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_runParserAttributeHooks(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_5182____closed__1;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_ParserExtension_instInhabitedEntry___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Parser_Extension_0__Lean_Parser_ParserAttribute_add___spec__5(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_notFollowedByCommandToken;

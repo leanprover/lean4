@@ -112,6 +112,7 @@ lean_object* l_Lean_Json_getBool_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToJsonJsonNumber(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonUSize___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 extern lean_object* l_USize_size;
 LEAN_EXPORT lean_object* l_Lean_instFromJsonArray(lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);

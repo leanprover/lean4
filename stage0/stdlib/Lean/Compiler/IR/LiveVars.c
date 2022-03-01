@@ -79,6 +79,7 @@ uint8_t l_Lean_IR_HasIndex_visitArgs(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_LiveVars_collectFnBody___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_mkLiveVarSet(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindParams___spec__1(lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Lean_IR_LocalContext_getJPBody(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_fold___at___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_accumulate___spec__1___boxed(lean_object*, lean_object*, lean_object*);

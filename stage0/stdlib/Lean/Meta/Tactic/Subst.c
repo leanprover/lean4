@@ -183,6 +183,7 @@ static lean_object* l_Lean_Meta_substCore___lambda__21___closed__8;
 static lean_object* l_Lean_Meta_substCore___lambda__21___closed__17;
 static lean_object* l_Lean_Meta_substCore___lambda__21___closed__7;
 uint8_t l_Lean_Expr_isFVar(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_substCore___lambda__21___closed__5;
 static lean_object* l_Lean_Meta_substCore___lambda__17___closed__2;
 static lean_object* l_Lean_Meta_substCore___lambda__20___closed__2;

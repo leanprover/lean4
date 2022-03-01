@@ -42,7 +42,6 @@ size_t lean_uint64_to_usize(uint64_t);
 lean_object* l_Lean_IR_AltCore_body(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_get_init_fn_name_for(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_mkHashMap___at_Lean_IR_mkVarJPMaps___spec__2(lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_mkHashMapImp___rarg(lean_object*);
@@ -71,6 +70,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_CollectUsedDecls_collectInitDecl(lean_object*
 LEAN_EXPORT lean_object* l_Std_HashMapImp_moveEntries___at_Lean_IR_CollectMaps_collectJP___spec__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_contains___at_Lean_IR_CollectMaps_collectVar___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_AssocList_contains___at_Lean_IR_CollectMaps_collectJP___spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr___at_Lean_IR_usesModuleFrom___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Environment_allImportedModuleNames(lean_object*);

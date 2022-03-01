@@ -543,6 +543,7 @@ static lean_object* l_command__ClassAbbrev_____x3a___x3a_x3d_____x2c___closed__9
 static lean_object* l_calc___closed__5;
 static lean_object* l_solve___closed__14;
 static lean_object* l___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___closed__6;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___aux__Init__NotationExtra______macroRules__tacticFunext______1___closed__2;
 LEAN_EXPORT lean_object* l_unexpandUnit___boxed(lean_object*);
 static lean_object* l_solve___closed__5;

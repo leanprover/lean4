@@ -32,7 +32,6 @@ static lean_object* l_Lean_Meta_constructor___closed__2;
 lean_object* l_Lean_Meta_apply(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallMetaTelescopeReducingAux(lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_constructor___closed__1;
@@ -59,6 +58,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_existsIntro___lambda__1(lean_object*, lean_
 static lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_constructor___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_ofSubarray___rarg(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_existsIntro___lambda__1___closed__3;
 lean_object* lean_mk_array(lean_object*, lean_object*);

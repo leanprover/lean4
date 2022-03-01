@@ -101,6 +101,7 @@ lean_object* l_Char_toLower(uint32_t);
 LEAN_EXPORT uint8_t l_List_elem___at_System_FilePath_normalize___spec__1(uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_System_instHashableFilePath;
 LEAN_EXPORT uint32_t l_System_SearchPath_separator;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_System_FilePath_pathSeparators___closed__2;
 LEAN_EXPORT lean_object* l_System_SearchPath_parse(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);

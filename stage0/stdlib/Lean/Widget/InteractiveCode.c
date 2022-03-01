@@ -115,6 +115,7 @@ static lean_object* l_Lean_Widget_formatExplicitInfos___closed__3;
 lean_object* l_Lean_Json_mkObj(lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonRpcRef____x40_Lean_Data_Lsp_Extra___hyg_992_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_Lean_Widget_InfoWithCtx_encodeUnsafe____x40_Lean_Widget_InteractiveCode___hyg_5_(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_Widget_Lean_Widget_CodeToken_instRpcEncodingCodeTokenRpcEncodingPacket___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instInhabitedInfoWithCtx___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Widget_traverse_go___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

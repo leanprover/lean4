@@ -562,6 +562,19 @@ theorem le_add_of_sub_le {a b c : Nat} (h : a - b ≤ c) : a ≤ c + b := by
     have hd := Nat.eq_add_of_sub_eq (Nat.le_trans hge (Nat.le_add_left ..)) hd
     rw [Nat.add_comm, hd]
 
+@[simp] protected theorem zero_sub (n : Nat) : 0 - n = 0 := by
+  induction n with
+  | zero => rfl
+  | succ n ih => simp [ih, Nat.sub_succ]
+
+protected theorem sub_self_add (n m : Nat) : n - (n + m) = 0 := by
+  show (n + 0) - (n + m) = 0
+  rw [Nat.add_sub_add_left, Nat.zero_sub]
+
+protected theorem sub_eq_zero_of_le {n m : Nat} (h : n ≤ m) : n - m = 0 := by
+  match le.dest h with
+  | ⟨k, hk⟩ => rw [← hk, Nat.sub_self_add]
+
 theorem sub_le_of_le_add {a b c : Nat} (h : a ≤ c + b) : a - b ≤ c := by
   match le.dest h, Nat.le_total a b with
   | _, Or.inl hle =>
@@ -593,19 +606,6 @@ theorem le_sub_of_add_le {a b c : Nat} (h : a + b ≤ c) : a ≤ c - b := by
 
 @[simp] protected theorem pred_succ (n : Nat) : pred n.succ = n :=
   rfl
-
-@[simp] protected theorem zero_sub (n : Nat) : 0 - n = 0 := by
-  induction n with
-  | zero => rfl
-  | succ n ih => simp [ih, Nat.sub_succ]
-
-protected theorem sub_self_add (n m : Nat) : n - (n + m) = 0 := by
-  show (n + 0) - (n + m) = 0
-  rw [Nat.add_sub_add_left, Nat.zero_sub]
-
-protected theorem sub_eq_zero_of_le {n m : Nat} (h : n ≤ m) : n - m = 0 := by
-  match le.dest h with
-  | ⟨k, hk⟩ => rw [← hk, Nat.sub_self_add]
 
 theorem sub.elim {motive : Nat → Prop}
     (x y : Nat)

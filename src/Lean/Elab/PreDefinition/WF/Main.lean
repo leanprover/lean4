@@ -99,7 +99,7 @@ def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (de
     return { unaryPreDef with value }
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
-  addNonRec preDefNonRec
+  addNonRec preDefNonRec (applyAttrAfterCompilation := false)
   addNonRecPreDefs preDefs preDefNonRec fixedPrefixSize
   registerEqnsInfo preDefs preDefNonRec.declName
   for preDef in preDefs do

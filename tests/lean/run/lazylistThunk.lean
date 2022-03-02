@@ -13,19 +13,17 @@ namespace LazyList
 Length of a list is number of actual elements
 in the list, ignoring delays
 -/
-def length : LazyList α → Nat
+@[simp] def length : LazyList α → Nat
   | nil        => 0
   | cons _ as  => length as + 1
   | delayed as => length as.get
 termination_by _ as => as
 
-def toList : LazyList α → List α
+@[simp] def toList : LazyList α → List α
   | nil        => []
   | cons a as  => a :: toList as
   | delayed as => toList as.get
 termination_by _ as => as
-
-attribute [simp] toList length
 
 theorem length_toList (l : LazyList α) : l.toList.length = l.length := by
   match l with

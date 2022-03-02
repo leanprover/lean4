@@ -451,7 +451,7 @@ theorem Poly.denote_le_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r�
             simp [denote_le] at h |-
             have haux : k₂ * Var.denote ctx v₁ ≤ k₁ * Var.denote ctx v₁ := Nat.mul_le_mul_right _ (Nat.le_of_lt (Nat.blt_eq.mp hgtk))
             rw [Nat.mul_sub_right_distrib, ← Nat.add_assoc, ← Nat.add_sub_assoc haux]
-            apply Nat.sub_le_of_le_add (Nat.le_trans haux (Nat.le_add_left ..))
+            apply Nat.sub_le_of_le_add
             simp [h]
           . have heqk : k₁ = k₂ := eq_of_not_blt_eq_true hltk hgtk; subst heqk
             apply ih
@@ -484,7 +484,7 @@ theorem Poly.of_denote_le_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁
           . have ih := ih (h := h); simp [denote_le] at ih ⊢
             have haux : k₂ * Var.denote ctx v₁ ≤ k₁ * Var.denote ctx v₁ := Nat.mul_le_mul_right _ (Nat.le_of_lt (Nat.blt_eq.mp hgtk))
             rw [Nat.mul_sub_right_distrib, ← Nat.add_assoc, ← Nat.add_sub_assoc haux] at ih
-            have := Nat.le_add_of_sub_le (Nat.le_trans haux (Nat.le_add_left ..)) ih
+            have := Nat.le_add_of_sub_le ih
             simp at this
             exact this
           . have heqk : k₁ = k₂ := eq_of_not_blt_eq_true hltk hgtk; subst heqk

@@ -32,6 +32,12 @@ instance : SizeOf Nat where
 
 @[simp] theorem sizeOf_nat (n : Nat) : sizeOf n = n := rfl
 
+instance [SizeOf α] : SizeOf (Unit → α) where
+  sizeOf f := sizeOf (f ())
+
+@[simp] theorem sizeOf_thunk [SizeOf α] (f : Unit → α) : sizeOf f = sizeOf (f ()) :=
+  rfl
+
 deriving instance SizeOf for Prod
 deriving instance SizeOf for PUnit
 deriving instance SizeOf for Bool

@@ -16,9 +16,11 @@ extern "C" {
 LEAN_EXPORT lean_object* l_instSizeOf(lean_object*);
 LEAN_EXPORT lean_object* l_instSizeOfNat(lean_object*);
 static lean_object* l_instSizeOf___closed__1;
+LEAN_EXPORT lean_object* l_instSizeOfForAllUnit(lean_object*);
 LEAN_EXPORT lean_object* l_default_sizeOf___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSizeOfNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_default_sizeOf(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSizeOfForAllUnit___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_default_sizeOf(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -66,6 +68,24 @@ _start:
 lean_object* x_2; 
 x_2 = l_instSizeOfNat(x_1);
 lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_instSizeOfForAllUnit___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_box(0);
+x_4 = lean_apply_1(x_2, x_3);
+x_5 = lean_apply_1(x_1, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_instSizeOfForAllUnit(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instSizeOfForAllUnit___rarg), 2, 0);
 return x_2;
 }
 }

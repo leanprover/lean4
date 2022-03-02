@@ -42,6 +42,9 @@ attribute [extern "lean_mk_thunk"] Thunk.mk
 @[inline] protected def Thunk.bind (x : Thunk α) (f : α → Thunk β) : Thunk β :=
   ⟨fun _ => (f x.get).get⟩
 
+@[simp] theorem Thunk.sizeOf_eq [SizeOf α] (a : Thunk α) : sizeOf a = 1 + sizeOf a.get := by
+   cases a; rfl
+
 abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : a = b) (m : motive a) : motive b :=
   Eq.ndrec m h
 

@@ -58,12 +58,12 @@ def getNumCandidateArgs (fixedPrefixSize : Nat) (preDefs : Array PreDefinition) 
     lambdaTelescope preDef.value fun xs _ =>
       return xs.size - fixedPrefixSize
 
-def generateCombinations? (fixedArgs : Array (Array Nat)) (numArgs : Array Nat) (threshold : Nat := 32) : Option (Array (Array Nat)) :=
+def generateCombinations? (forbiddenArgs : Array (Array Nat)) (numArgs : Array Nat) (threshold : Nat := 32) : Option (Array (Array Nat)) :=
   go 0 #[] |>.run #[] |>.2
 where
-  isFixed (fidx : Nat) (argIdx : Nat) : Bool :=
-    if h : fidx < fixedArgs.size then
-       fixedArgs.get ⟨fidx, h⟩ |>.contains argIdx
+  isForbidden (fidx : Nat) (argIdx : Nat) : Bool :=
+    if h : fidx < forbiddenArgs.size then
+       forbiddenArgs.get ⟨fidx, h⟩ |>.contains argIdx
     else
       false
 
@@ -71,7 +71,7 @@ where
     if h : fidx < numArgs.size then
       let n := numArgs.get ⟨fidx, h⟩
       for argIdx in [:n] do
-        unless isFixed fidx argIdx do
+        unless isForbidden fidx argIdx do
           withReader (·.push argIdx) (go (fidx + 1))
     else
       modify (·.push (← read))
@@ -129,9 +129,12 @@ where
   guess (expectedType : Expr) : TermElabM α := do
     -- TODO: add support for lex
     let numArgs ← getNumCandidateArgs fixedPrefixSize preDefs
-    let fixedArgs : Array (Array Nat) := #[] -- TODO: arguments that are fixed but are not in the fixed prefix
+    -- TODO: populate `forbiddenArgs`. We should include
+    --   1- Arguments that are fixed but are not in the fixed prefix
+    --   2- Arguments that have a trivial `SizeOf` instance (i.e., return a constant value)
+    let forbiddenArgs : Array (Array Nat) := #[]
     -- TODO: add option to control the maximum number of cases to try
-    if let some combs := generateCombinations? fixedArgs numArgs then
+    if let some combs := generateCombinations? forbiddenArgs numArgs then
       for comb in combs do
         let elements ← generateElements numArgs comb
         if let some r ← observing? (go expectedType elements) then

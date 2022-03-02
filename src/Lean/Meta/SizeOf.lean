@@ -55,7 +55,7 @@ private def isRecField? (motiveFVars : Array Expr) (minorFVars : Array Expr) (fv
   let mut idx := 0
   for minorFVar in minorFVars do
     if let some fvar' ← isInductiveHypothesis? motiveFVars minorFVar then
-      if fvar == fvar' then
+      if fvar == fvar'.getAppFn then
         return some idx
     idx := idx + 1
   return none
@@ -73,6 +73,24 @@ where
     else
       k motives
 
+private partial def ignoreField (x : Expr) : MetaM Bool := do
+  let type ← whnf (← inferType x)
+  if type.isForall then
+    -- TODO: add support for finite domains
+    if type.isArrow && type.bindingDomain!.isConstOf ``Unit then
+      ignoreField type.bindingBody!
+    else
+      return true
+  else
+    return false
+
+/-- See `ignoreField`. We have support for functions of the form `Unit → ...` -/
+private partial def mkSizeOfRecFieldFormIH (ih : Expr) : MetaM Expr := do
+  if (← whnf (← inferType ih)).isForall then
+     mkSizeOfRecFieldFormIH (mkApp ih (mkConst ``Unit.unit))
+  else
+     return ih
+
 private partial def mkSizeOfMinors {α} (motiveFVars : Array Expr) (minorFVars : Array Expr) (minorFVars' : Array Expr) (k : Array Expr → MetaM α) : MetaM α :=
   assert! minorFVars.size == minorFVars'.size
   loop 0 #[]
@@ -84,9 +102,9 @@ where
         let mut minor ← mkNumeral (mkConst ``Nat) 1
         for x in xs, x' in xs' do
           unless (← isInductiveHypothesis motiveFVars x) do
-          unless (← whnf (← inferType x)).isForall do -- we suppress higher-order fields
+          unless (← ignoreField x) do -- we suppress higher-order fields
             match (← isRecField? motiveFVars xs x) with
-            | some idx => minor ← mkAdd minor xs'[idx]
+            | some idx => minor ← mkAdd minor (← mkSizeOfRecFieldFormIH xs'[idx])
             | none     => minor ← mkAdd minor (← mkAppM ``SizeOf.sizeOf #[x'])
         minor ← mkLambdaFVars xs' minor
         trace[Meta.sizeOf] "minor: {minor}"
@@ -402,9 +420,10 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
       let lhs ← mkAppM ``SizeOf.sizeOf #[ctorApp]
       let mut rhs ← mkNumeral (mkConst ``Nat) 1
       for field in fields do
-        unless (← whnf (← inferType field)).isForall do
+        unless (← ignoreField field) do
           rhs ← mkAdd rhs (← mkAppM ``SizeOf.sizeOf #[field])
       let target ← mkEq lhs rhs
+      trace[Meta.sizeOf] "ctor: {ctorInfo.name}, target: {target}"
       let thmName   := mkSizeOfSpecLemmaName ctorName
       let thmParams := params ++ localInsts ++ fields
       let thmType ← mkForallFVars thmParams target

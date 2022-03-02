@@ -111,6 +111,7 @@ where
   generateElements (numArgs : Array Nat) (argCombination : Array Nat) : TermElabM (Array TerminationByElement) := do
     let mut result := #[]
     let var ← `(x)
+    let body ← `(sizeOf x)
     let hole ← `(_)
     for preDef in preDefs, numArg in numArgs, argIdx in argCombination do
       let mut vars := #[var]
@@ -120,7 +121,7 @@ where
         ref := preDef.ref
         declName := preDef.declName
         vars := vars
-        body := var
+        body := body
         implicit := false
       }
     return result

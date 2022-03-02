@@ -4,7 +4,7 @@ terminationFailure.lean:7:2-7:3: error: fail to show termination for
 with errors
 structural recursion does not handle mutually recursive functions
 
-'termination_by' modifier missing
+failed to prove termination, use `termination_by` to specify a well-founded relation
 f : Nat → Nat
 f.g : Nat → Nat
 1
@@ -18,6 +18,6 @@ argument #1 was not used for structural recursion
 
 structural recursion cannot be used
 
-'termination_by' modifier missing
+failed to prove termination, use `termination_by` to specify a well-founded relation
 h : Nat → Foo
 Foo.a

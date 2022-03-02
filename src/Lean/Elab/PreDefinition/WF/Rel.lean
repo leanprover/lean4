@@ -53,6 +53,32 @@ private partial def unpackUnary (preDef : PreDefinition) (prefixSize : Nat) (mva
       rename mvarId fvarId varNames.back
   go 0 mvarId fvarId
 
+def getNumCandidateArgs (fixedPrefixSize : Nat) (preDefs : Array PreDefinition) : MetaM (Array Nat) := do
+  preDefs.mapM fun preDef =>
+    lambdaTelescope preDef.value fun xs _ =>
+      return xs.size - fixedPrefixSize
+
+def generateCombinations? (fixedArgs : Array (Array Nat)) (numArgs : Array Nat) (threshold : Nat := 32) : Option (Array (Array Nat)) :=
+  go 0 #[] |>.run #[] |>.2
+where
+  isFixed (fidx : Nat) (argIdx : Nat) : Bool :=
+    if h : fidx < fixedArgs.size then
+       fixedArgs.get ⟨fidx, h⟩ |>.contains argIdx
+    else
+      false
+
+  go (fidx : Nat) : OptionT (ReaderT (Array Nat) (StateM (Array (Array Nat)))) Unit := do
+    if h : fidx < numArgs.size then
+      let n := numArgs.get ⟨fidx, h⟩
+      for argIdx in [:n] do
+        unless isFixed fidx argIdx do
+          withReader (·.push argIdx) (go (fidx + 1))
+    else
+      modify (·.push (← read))
+      if (← get).size > threshold then
+        failure
+termination_by _ fidx => numArgs.size - fidx
+
 def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPrefixSize : Nat) (argType : Expr) (wf? : Option TerminationWF) (k : Expr → TermElabM α) : TermElabM α := do
   let α := argType
   let u ← getLevel α
@@ -64,22 +90,51 @@ def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPre
       let pendingMVarIds ← getMVars wfRel
       discard <| logUnassignedUsingErrorInfos pendingMVarIds
       k wfRel
-  | some (TerminationWF.ext elements) => withDeclName unaryPreDefName <| withRef (getRefFromElems elements) do
-    let mainMVarId := (← mkFreshExprSyntheticOpaqueMVar expectedType).mvarId!
-    let [fMVarId, wfRelMVarId, _] ← apply mainMVarId (← mkConstWithFreshMVarLevels ``invImage) | throwError "failed to apply 'invImage'"
-    let (d, fMVarId) ← intro1 fMVarId
-    let subgoals ← unpackMutual preDefs fMVarId d
-    for (d, mvarId) in subgoals, element in elements, preDef in preDefs do
-      let mvarId ← unpackUnary preDef fixedPrefixSize mvarId d element
-      withMVarContext mvarId do
-        let value ← Term.withSynthesize <| elabTermEnsuringType element.body (← getMVarType mvarId)
-        assignExprMVar mvarId value
-    let wfRelVal ← synthInstance (← inferType (mkMVar wfRelMVarId))
-    assignExprMVar wfRelMVarId wfRelVal
-    k (← instantiateMVars (mkMVar mainMVarId))
-  | none =>
-    -- TODO: try to synthesize some default relation
-    throwError "'termination_by' modifier missing"
+  | some (TerminationWF.ext elements) => go expectedType elements
+  | none => guess expectedType
+where
+  go (expectedType : Expr) (elements : Array TerminationByElement) : TermElabM α :=
+    withDeclName unaryPreDefName <| withRef (getRefFromElems elements) do
+      let mainMVarId := (← mkFreshExprSyntheticOpaqueMVar expectedType).mvarId!
+      let [fMVarId, wfRelMVarId, _] ← apply mainMVarId (← mkConstWithFreshMVarLevels ``invImage) | throwError "failed to apply 'invImage'"
+      let (d, fMVarId) ← intro1 fMVarId
+      let subgoals ← unpackMutual preDefs fMVarId d
+      for (d, mvarId) in subgoals, element in elements, preDef in preDefs do
+        let mvarId ← unpackUnary preDef fixedPrefixSize mvarId d element
+        withMVarContext mvarId do
+          let value ← Term.withSynthesize <| elabTermEnsuringType element.body (← getMVarType mvarId)
+          assignExprMVar mvarId value
+      let wfRelVal ← synthInstance (← inferType (mkMVar wfRelMVarId))
+      assignExprMVar wfRelMVarId wfRelVal
+      k (← instantiateMVars (mkMVar mainMVarId))
 
+  generateElements (numArgs : Array Nat) (argCombination : Array Nat) : TermElabM (Array TerminationByElement) := do
+    let mut result := #[]
+    let var ← `(x)
+    let hole ← `(_)
+    for preDef in preDefs, numArg in numArgs, argIdx in argCombination do
+      let mut vars := #[var]
+      for i in [:numArg - argIdx - 1] do
+        vars := vars.push hole
+      result := result.push {
+        ref := preDef.ref
+        declName := preDef.declName
+        vars := vars
+        body := var
+        implicit := false
+      }
+    return result
+
+  guess (expectedType : Expr) : TermElabM α := do
+    -- TODO: add support for lex
+    let numArgs ← getNumCandidateArgs fixedPrefixSize preDefs
+    let fixedArgs : Array (Array Nat) := #[] -- TODO: arguments that are fixed but are not in the fixed prefix
+    -- TODO: add option to control the maximum number of cases to try
+    if let some combs := generateCombinations? fixedArgs numArgs then
+      for comb in combs do
+        let elements ← generateElements numArgs comb
+        if let some r ← observing? (go expectedType elements) then
+          return r
+    throwError "failed to prove termination, use `termination_by` to specify a well-founded relation"
 
 end Lean.Elab.WF

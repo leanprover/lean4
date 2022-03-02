@@ -11,4 +11,4 @@ argument #2 was not used for structural recursion
 
 structural recursion cannot be used
 
-'termination_by' modifier missing
+failed to prove termination, use `termination_by` to specify a well-founded relation

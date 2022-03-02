@@ -99,3 +99,13 @@ inductive LazyList (α : Type u) where
   | delayed (t : Thunk (LazyList α))  : LazyList α
 ```
 we now have `sizeOf (LazyList.delayed t) = 1 + sizeOf t` instead of `sizeOf (LazyList.delayed t) = 2`.
+
+* Add support for guessing (very) simple well-founded relations when proving termination. For example, the following function does not require a `termination_by` annotation anymore.
+```
+def Array.insertAtAux (i : Nat) (as : Array α) (j : Nat) : Array α :=
+  if h : i < j then
+    let as := as.swap! (j-1) j;
+    insertAtAux i as (j-1)
+  else
+    as
+```

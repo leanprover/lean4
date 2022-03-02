@@ -13,4 +13,3 @@ def length (ΓE : ConE) : Nat :=
   match ΓE with
   | ConE.nilE => 0
   | ConE.extE ΓE AE => (length ΓE) + 1
-termination_by _ e => e

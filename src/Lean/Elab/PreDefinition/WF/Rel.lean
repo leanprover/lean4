@@ -53,7 +53,7 @@ private partial def unpackUnary (preDef : PreDefinition) (prefixSize : Nat) (mva
       rename mvarId fvarId varNames.back
   go 0 mvarId fvarId
 
-def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPrefixSize : Nat) (argType : Expr) (wf? : Option TerminationWF) : TermElabM Expr := do
+def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPrefixSize : Nat) (argType : Expr) (wf? : Option TerminationWF) (k : Expr → TermElabM α) : TermElabM α := do
   let α := argType
   let u ← getLevel α
   let expectedType := mkApp (mkConst ``WellFoundedRelation [u]) α
@@ -63,7 +63,7 @@ def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPre
       let wfRel ← instantiateMVars (← withSynthesize <| elabTermEnsuringType wfStx expectedType)
       let pendingMVarIds ← getMVars wfRel
       discard <| logUnassignedUsingErrorInfos pendingMVarIds
-      return wfRel
+      k wfRel
   | some (TerminationWF.ext elements) => withDeclName unaryPreDefName <| withRef (getRefFromElems elements) do
     let mainMVarId := (← mkFreshExprSyntheticOpaqueMVar expectedType).mvarId!
     let [fMVarId, wfRelMVarId, _] ← apply mainMVarId (← mkConstWithFreshMVarLevels ``invImage) | throwError "failed to apply 'invImage'"
@@ -76,9 +76,10 @@ def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPre
         assignExprMVar mvarId value
     let wfRelVal ← synthInstance (← inferType (mkMVar wfRelMVarId))
     assignExprMVar wfRelMVarId wfRelVal
-    instantiateMVars (mkMVar mainMVarId)
+    k (← instantiateMVars (mkMVar mainMVarId))
   | none =>
     -- TODO: try to synthesize some default relation
     throwError "'termination_by' modifier missing"
+
 
 end Lean.Elab.WF

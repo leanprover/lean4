@@ -85,7 +85,7 @@ termination_by' measure fun ⟨i, _⟩ => as.size - i
 
 * Add `arith` option to `Simp.Config`, the macro `simp_arith` expands to `simp (config := { arith := true })`. Only `Nat` and linear arithmetic is currently supported.
 
-* Add `fail msg?` tactic that always fail.
+* Add `fail <string>?` tactic that always fail.
 
 * Add support for acyclicity at dependent elimination. See [issue #1022](https://github.com/leanprover/lean4/issues/1022).
 

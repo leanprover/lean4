@@ -686,6 +686,14 @@ where
       | none   => withBindingBodyUnusedName fun h => do
         return (← delab, h.getId)
 
+@[builtinDelab app.cond]
+def delabCond : Delab := whenPPOption getPPNotation do
+  guard $ (← getExpr).getAppNumArgs == 4
+  let c ← withAppFn $ withAppFn $ withAppArg delab
+  let t ← withAppFn $ withAppArg delab
+  let e ← withAppArg delab
+  `(bif $c then $t else $e)
+
 @[builtinDelab app.namedPattern]
 def delabNamedPattern : Delab := do
   -- Note: we keep this as a delaborator because it accesses the DelabM context

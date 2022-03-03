@@ -94,10 +94,7 @@ bonus.
 `patternComplete` is necessary to know when we are behind the match in the
 word. -/
 private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Array CharRole) (patternComplete := true) : Option Int := Id.run <| do
-  let mut result : Array (Option Int) := Array.mkEmpty ((pattern.length + 1) * (word.length + 1) * 2)
-
-  for _ in [:(pattern.length + 1) * (word.length + 1) * 2] do
-    result := result.push none
+  let mut result : Array (Option Int) := Array.mkArray ((pattern.length + 1) * (word.length + 1) * 2) none
 
   result := set result 0 0 (some 0) none
 

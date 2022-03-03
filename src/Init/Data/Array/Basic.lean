@@ -696,7 +696,6 @@ def insertAtAux (i : Nat) (as : Array α) (j : Nat) : Array α :=
     insertAtAux i as (j-1)
   else
     as
-termination_by _ => j
 
 /--
   Insert element `a` at position `i`.

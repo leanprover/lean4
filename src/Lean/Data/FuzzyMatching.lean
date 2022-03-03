@@ -51,16 +51,9 @@ inductive CharRole where
     let mut result := Array.mkEmpty string.length
     result := result.push <| f (none, string.get 0, string.get 1)
 
-    let mut prev := string.get 0
-    let mut curr := string.get 1
-
     for i in [2:string.length] do
-      let next := string.get i
-      result := result.push <| f (prev, curr, some next)
-
-      prev := curr
-      curr := next
-    result.push <| f (prev, curr, none)
+      result := result.push <| f (string.get (i - 2), string.get (i - 1), string.get i)
+    result.push <| f (string.get (string.length - 2), string.get (string.length - 1), none)
 
 
 /- Add additional information to each character in a string and return the

@@ -88,18 +88,18 @@ def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (de
     return (← packMutual fixedPrefixSize unaryPreDefs, fixedPrefixSize)
   let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedPrefixSize fun prefixArgs type => do
     let packedArgType := type.bindingDomain!
-    let wfRel ← elabWFRel preDefs unaryPreDef.declName fixedPrefixSize packedArgType wf?
-    trace[Elab.definition.wf] "wfRel: {wfRel}"
-    let (value, envNew) ← withoutModifyingEnv' do
-      addAsAxiom unaryPreDef
-      let value ← mkFix unaryPreDef prefixArgs wfRel decrTactic?
-      eraseRecAppSyntaxExpr value
-    /- `mkFix` invokes `decreasing_tactic` which may add auxiliary theorems to the environment. -/
-    let value ← unfoldDeclsFrom envNew value
-    return { unaryPreDef with value }
+    elabWFRel preDefs unaryPreDef.declName fixedPrefixSize packedArgType wf? fun wfRel => do
+      trace[Elab.definition.wf] "wfRel: {wfRel}"
+      let (value, envNew) ← withoutModifyingEnv' do
+        addAsAxiom unaryPreDef
+        let value ← mkFix unaryPreDef prefixArgs wfRel decrTactic?
+        eraseRecAppSyntaxExpr value
+      /- `mkFix` invokes `decreasing_tactic` which may add auxiliary theorems to the environment. -/
+      let value ← unfoldDeclsFrom envNew value
+      return { unaryPreDef with value }
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
-  addNonRec preDefNonRec
+  addNonRec preDefNonRec (applyAttrAfterCompilation := false)
   addNonRecPreDefs preDefs preDefNonRec fixedPrefixSize
   registerEqnsInfo preDefs preDefNonRec.declName
   for preDef in preDefs do

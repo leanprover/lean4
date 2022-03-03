@@ -1678,7 +1678,7 @@ def checkNoImmediateColon : Parser := {
 
 def setExpectedFn (expected : List String) (p : ParserFn) : ParserFn := fun c s =>
   match p c s with
-    | s'@{ errorMsg := some msg, .. } => { s' with errorMsg := some { msg with expected := [] } }
+    | s'@{ errorMsg := some msg, .. } => { s' with errorMsg := some { msg with expected } }
     | s'                              => s'
 
 def setExpected (expected : List String) (p : Parser) : Parser :=

@@ -58,6 +58,25 @@ def getNumCandidateArgs (fixedPrefixSize : Nat) (preDefs : Array PreDefinition) 
     lambdaTelescope preDef.value fun xs _ =>
       return xs.size - fixedPrefixSize
 
+/--
+  Given a predefinition with value `fun (x_₁ ... xₙ) (y_₁ : α₁)... (yₘ : αₘ) => ...`,
+  where `n = fixedPrefixSize`, return an array `A` s.t. `i ∈ A` iff `sizeOf yᵢ` reduces to a literal.
+  This is the case for types such as `Prop`, `Type u`, etc.
+  This arguments should not be considered when guessing a well-founded relation.
+  See `generateCombinations?`
+-/
+def getForbiddenByTrivialSizeOf (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array Nat) :=
+  lambdaTelescope preDef.value fun xs _ => do
+    let mut result := #[]
+    for x in xs[fixedPrefixSize:], i in [:xs.size] do
+      try
+        let sizeOf ← whnfD (← mkAppM ``sizeOf #[x])
+        if sizeOf.isLit then
+         result := result.push i
+      catch _ =>
+        result := result.push i
+    return result
+
 def generateCombinations? (forbiddenArgs : Array (Array Nat)) (numArgs : Array Nat) (threshold : Nat := 32) : Option (Array (Array Nat)) :=
   go 0 #[] |>.run #[] |>.2
 where
@@ -129,10 +148,8 @@ where
   guess (expectedType : Expr) : TermElabM α := do
     -- TODO: add support for lex
     let numArgs ← getNumCandidateArgs fixedPrefixSize preDefs
-    -- TODO: populate `forbiddenArgs`. We should include
-    --   1- Arguments that are fixed but are not in the fixed prefix
-    --   2- Arguments that have a trivial `SizeOf` instance (i.e., return a constant value)
-    let forbiddenArgs : Array (Array Nat) := #[]
+    -- TODO: include in `forbiddenArgs` arguments that are fixed but are not in the fixed prefix
+    let forbiddenArgs ← preDefs.mapM fun preDef => getForbiddenByTrivialSizeOf fixedPrefixSize preDef
     -- TODO: add option to control the maximum number of cases to try
     if let some combs := generateCombinations? forbiddenArgs numArgs then
       for comb in combs do

@@ -42,7 +42,7 @@ def charRole (prev? : Option CharType) (curr : CharType) (next?: Option CharType
     CharRole.head
 
 
-private def iterateLookaround (f : (Option Char × Char × Option Char) → α) (string : String) : Array α :=
+@[specialize] private def iterateLookaround (f : (Option Char × Char × Option Char) → α) (string : String) : Array α :=
   if string.isEmpty then
     #[]
   else if string.length == 1 then

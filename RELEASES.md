@@ -83,7 +83,11 @@ termination_by' measure fun ⟨i, _⟩ => as.size - i
 
 * Add `while <cond> do <do-block>`, `repeat <do-block>`, and `repeat <do-block> until <cond>` macros for `do`-block. These macros are based on `partial` definitions, and consequently are useful only for writing programs we don't want to prove anything about.
 
-* Add `arith` option to `Simp.Config`, the macro `simp_arith` expands to `simp (config := { arith := true })`. Only `Nat` and linear arithmetic is currently supported.
+* Add `arith` option to `Simp.Config`, the macro `simp_arith` expands to `simp (config := { arith := true })`. Only `Nat` and linear arithmetic is currently supported. Example:
+```lean
+example : 0 < 1 + x ∧ x + y + 2 ≥ y + 1 := by
+  simp_arith
+```
 
 * Add `fail <string>?` tactic that always fail.
 
@@ -101,7 +105,7 @@ inductive LazyList (α : Type u) where
 we now have `sizeOf (LazyList.delayed t) = 1 + sizeOf t` instead of `sizeOf (LazyList.delayed t) = 2`.
 
 * Add support for guessing (very) simple well-founded relations when proving termination. For example, the following function does not require a `termination_by` annotation anymore.
-```
+```lean
 def Array.insertAtAux (i : Nat) (as : Array α) (j : Nat) : Array α :=
   if h : i < j then
     let as := as.swap! (j-1) j;

@@ -6,6 +6,7 @@ This is the repository for **Lean 4**, which is currently being released as mile
 - [Homepage](https://leanprover.github.io)
 - [Theorem Proving Tutorial](https://leanprover.github.io/theorem_proving_in_lean4/)
 - [Manual](https://leanprover.github.io/lean4/doc/)
+- [Release notes](RELEASES.md) starting at v4.0.0-m3
 - [FAQ](https://leanprover.github.io/lean4/doc/faq.html)
 
 # Installation

@@ -29,7 +29,7 @@ inductive CharRole where
   | head | tail | separator
   deriving Inhabited
 
-def charRole (prev? : Option CharType) (curr : CharType) (next?: Option CharType) : CharRole :=
+@[inline] def charRole (prev? : Option CharType) (curr : CharType) (next?: Option CharType) : CharRole :=
   if curr matches CharType.separator then
     CharRole.separator
   else if prev?.isNone || prev? matches some CharType.separator then
@@ -49,17 +49,18 @@ def charRole (prev? : Option CharType) (curr : CharType) (next?: Option CharType
     #[f (none, string.get 0, none)]
   else Id.run <| do
     let mut result := Array.mkEmpty string.length
+    result := result.push <| f (none, string.get 0, string.get 1)
 
-    let mut prev? := none
-    let mut curr := string.get 0
+    let mut prev := string.get 0
+    let mut curr := string.get 1
 
-    for i in [1:string.length] do
+    for i in [2:string.length] do
       let next := string.get i
-      result := result.push <| f (prev?, curr, some next)
+      result := result.push <| f (prev, curr, some next)
 
-      prev? := some curr
+      prev := curr
       curr := next
-    result.push <| f (prev?, curr, none)
+    result.push <| f (prev, curr, none)
 
 
 /- Add additional information to each character in a string and return the

@@ -154,3 +154,4 @@ theorem dite_congr {s : Decidable b} [Decidable c]
 @[simp] theorem cond_false (a b : α) : cond false a b = b := rfl
 
 @[simp] theorem beq_self_eq_true [BEq α] [LawfulBEq α] (a : α) : (a == a) = true := LawfulBEq.rfl a
+@[simp] theorem beq_self_eq_true' [DecidableEq α] (a : α) : (a == a) = true := by simp [BEq.beq]

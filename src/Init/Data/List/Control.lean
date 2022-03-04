@@ -173,7 +173,7 @@ instance : ForIn m (List α) α where
         loop as' b this
   loop as init ⟨[], rfl⟩
 
-instance : ForIn' m (List α) α where
+instance : ForIn' m (List α) α inferInstance where
   forIn' := List.forIn'
 
 instance : ForM m (List α) α where

@@ -614,6 +614,7 @@ static lean_object* l___aux__Init__NotationExtra______macroRules__command__Class
 LEAN_EXPORT lean_object* l___aux__Init__NotationExtra______macroRules__term___xd7____1__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_expandExplicitBindersAux_loop___closed__8;
 static lean_object* l_term_u03a3_x27___x2c_____closed__5;
+static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__18;
 static lean_object* l_Lean_binderIdent___closed__2;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Lean_binderIdent___closed__1;
@@ -14816,6 +14817,16 @@ return x_3;
 static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__17() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_unexpandExists___closed__5;
+x_2 = l_Lean___aux__Init__NotationExtra______macroRules__Lean__termMacro_x2etrace_x5b_____x5d____1___closed__28;
+x_3 = lean_array_push(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__18() {
+_start:
+{
 lean_object* x_1; 
 x_1 = lean_mk_string("do");
 return x_1;
@@ -14890,7 +14901,7 @@ lean_ctor_set(x_30, 0, x_12);
 lean_ctor_set(x_30, 1, x_28);
 lean_ctor_set(x_30, 2, x_27);
 lean_ctor_set(x_30, 3, x_29);
-x_31 = l_Lean___aux__Init__NotationExtra______macroRules__Lean__termMacro_x2etrace_x5b_____x5d____1___closed__30;
+x_31 = l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__17;
 x_32 = lean_array_push(x_31, x_23);
 x_33 = lean_array_push(x_32, x_25);
 x_34 = lean_array_push(x_33, x_30);
@@ -14905,7 +14916,7 @@ x_39 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_39, 0, x_21);
 lean_ctor_set(x_39, 1, x_38);
 lean_ctor_set(x_39, 2, x_37);
-x_40 = l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__17;
+x_40 = l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__18;
 x_41 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_41, 0, x_12);
 lean_ctor_set(x_41, 1, x_40);
@@ -14968,7 +14979,7 @@ lean_ctor_set(x_68, 0, x_49);
 lean_ctor_set(x_68, 1, x_66);
 lean_ctor_set(x_68, 2, x_65);
 lean_ctor_set(x_68, 3, x_67);
-x_69 = l_Lean___aux__Init__NotationExtra______macroRules__Lean__termMacro_x2etrace_x5b_____x5d____1___closed__30;
+x_69 = l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__17;
 x_70 = lean_array_push(x_69, x_61);
 x_71 = lean_array_push(x_70, x_63);
 x_72 = lean_array_push(x_71, x_68);
@@ -14983,7 +14994,7 @@ x_77 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_77, 0, x_59);
 lean_ctor_set(x_77, 1, x_76);
 lean_ctor_set(x_77, 2, x_75);
-x_78 = l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__17;
+x_78 = l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__18;
 x_79 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_79, 0, x_49);
 lean_ctor_set(x_79, 1, x_78);
@@ -15671,7 +15682,7 @@ lean_inc(x_14);
 x_16 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
-x_17 = l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__17;
+x_17 = l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__18;
 lean_inc(x_14);
 x_18 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_18, 0, x_14);
@@ -15801,7 +15812,7 @@ lean_inc(x_78);
 x_81 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_81, 0, x_78);
 lean_ctor_set(x_81, 1, x_80);
-x_82 = l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__17;
+x_82 = l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__18;
 lean_inc(x_78);
 x_83 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_83, 0, x_78);
@@ -16982,6 +16993,8 @@ l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___clo
 lean_mark_persistent(l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__16);
 l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__17 = _init_l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__17();
 lean_mark_persistent(l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__17);
+l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__18 = _init_l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__18();
+lean_mark_persistent(l_Lean___aux__Init__NotationExtra______macroRules__Lean__doElemRepeat____1___closed__18);
 l_Lean_doElemWhile__Do_____closed__1 = _init_l_Lean_doElemWhile__Do_____closed__1();
 lean_mark_persistent(l_Lean_doElemWhile__Do_____closed__1);
 l_Lean_doElemWhile__Do_____closed__2 = _init_l_Lean_doElemWhile__Do_____closed__2();

@@ -158,6 +158,24 @@ instance : ForIn m (List α) α where
     : forIn (a::as) b f = f a b >>= fun | ForInStep.done b => pure b | ForInStep.yield b => forIn as b f :=
   rfl
 
+@[inline] protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
+  let rec @[specialize] loop : (as' : List α) → (b : β) → Exists (fun bs => bs ++ as' = as) → m β
+    | [], b, _    => pure b
+    | a::as', b, h => do
+      have : a ∈ as := by
+        have ⟨bs, h⟩ := h
+        subst h
+        exact mem_append_of_mem_right _ (Mem.head ..)
+      match (← f a this b) with
+      | ForInStep.done b  => pure b
+      | ForInStep.yield b =>
+        have : Exists (fun bs => bs ++ as' = as) := have ⟨bs, h⟩ := h; ⟨bs ++ [a], by rw [← h, append_cons bs a as']⟩
+        loop as' b this
+  loop as init ⟨[], rfl⟩
+
+instance : ForIn' m (List α) α where
+  forIn' := List.forIn'
+
 instance : ForM m (List α) α where
   forM := List.forM
 

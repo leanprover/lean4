@@ -566,6 +566,9 @@ open HMul (hMul)
 open HPow (hPow)
 open HAppend (hAppend)
 
+class Membership (α : outParam (Type u)) (γ : Type v) where
+  mem : α → γ → Prop
+
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_nat_add"]
 protected def Nat.add : (@& Nat) → (@& Nat) → Nat

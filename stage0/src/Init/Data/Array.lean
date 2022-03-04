@@ -9,3 +9,4 @@ import Init.Data.Array.QSort
 import Init.Data.Array.BinSearch
 import Init.Data.Array.InsertionSort
 import Init.Data.Array.DecidableEq
+import Init.Data.Array.Mem

@@ -116,4 +116,7 @@ theorem get_last {as : List α} {i : Fin (length (as ++ [a]))} (h : ¬ i.1 < as.
     cases i with simp_arith at h
     | succ i => apply ih; simp_arith [h]
 
+theorem sizeOf_lt_of_mem {as : List α} (h : a ∈ as) : sizeOf a < sizeOf as := by
+  cases h <;> simp_arith
+
 end List

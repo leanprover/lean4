@@ -352,7 +352,7 @@ def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
   match type.eq? with
   | none           => throwAppBuilderException `noConfusion ("equality expected" ++ hasTypeMsg h type)
   | some (α, a, b) =>
-    let α ← whnf α
+    let α ← whnfD α
     matchConstInduct α.getAppFn (fun _ => throwAppBuilderException `noConfusion ("inductive type expected" ++ indentExpr α)) fun v us => do
       let u ← getLevel target
       return mkAppN (mkConst (Name.mkStr v.name "noConfusion") (u :: us)) (α.getAppArgs ++ #[target, a, b, h])

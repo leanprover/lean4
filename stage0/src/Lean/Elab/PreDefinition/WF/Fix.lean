@@ -50,10 +50,11 @@ private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (d
     | Expr.app _ _ _ =>
       let processApp (e : Expr) : TermElabM Expr :=
         e.withApp fun f args => do
-          if f.isConstOf recFnName && args.size == fixedPrefixSize + 1 then
-            let r := mkApp F (← loop F args.back)
+          if f.isConstOf recFnName && args.size >= fixedPrefixSize + 1 then
+            let r := mkApp F (← loop F args[fixedPrefixSize])
             let decreasingProp := (← whnf (← inferType r)).bindingDomain!
-            return mkApp r (← mkDecreasingProof decreasingProp decrTactic?)
+            let r := mkApp r (← mkDecreasingProof decreasingProp decrTactic?)
+            return mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
           else
             return mkAppN (← loop F f) (← args.mapM (loop F))
       let matcherApp? ← matchMatcherApp? e

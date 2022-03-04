@@ -418,13 +418,13 @@ end Decidable
 
 section
 variable {p q : Prop}
-@[inline] def  decidableOfDecidableOfIff (hp : Decidable p) (h : p ↔ q) : Decidable q :=
+@[inline] def  decidable_of_decidable_of_iff [hp : Decidable p] (h : p ↔ q) : Decidable q :=
   if hp : p then
     isTrue (Iff.mp h hp)
   else
     isFalse fun hq => absurd (Iff.mpr h hq) hp
 
-@[inline] def  decidableOfDecidableOfEq (hp : Decidable p) (h : p = q) : Decidable q :=
+@[inline] def  decidable_of_decidable_of_eq [hp : Decidable p] (h : p = q) : Decidable q :=
   h ▸ hp
 end
 

@@ -212,6 +212,30 @@ def notElem [BEq α] (a : α) (as : List α) : Bool :=
 abbrev contains [BEq α] (as : List α) (a : α) : Bool :=
   elem a as
 
+inductive Mem : α → List α → Prop
+  | head (a : α) (as : List α) : Mem a (a::as)
+  | tail (a : α) {b : α} {as : List α} : Mem b as → Mem b (a::as)
+
+instance : Membership α (List α) where
+  mem := Mem
+
+theorem mem_of_elem_eq_true [DecidableEq α] {a : α} {as : List α} : elem a as = true → a ∈ as := by
+  match as with
+  | [] => simp [elem]
+  | a'::as =>
+    simp [elem]
+    split
+    next h => intros; simp [BEq.beq] at h; subst h; apply Mem.head
+    next _ => intro h; exact Mem.tail _ (mem_of_elem_eq_true h)
+
+theorem elem_eq_true_of_mem [DecidableEq α] {a : α} {as : List α} (h : a ∈ as) : elem a as = true := by
+  induction h with
+  | head _ => simp [elem]
+  | tail _ h ih => simp [elem]; split; rfl; assumption
+
+instance [DecidableEq α] (a : α) (as : List α) : Decidable (a ∈ as) :=
+  decidable_of_decidable_of_iff (Iff.intro mem_of_elem_eq_true elem_eq_true_of_mem)
+
 def eraseDupsAux {α} [BEq α] : List α → List α → List α
   | [],    bs => bs.reverse
   | a::as, bs => match bs.elem a with

@@ -10759,7 +10759,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
-x_27 = lean_whnf(x_24, x_3, x_4, x_5, x_6, x_13);
+x_27 = l_Lean_Meta_whnfD(x_24, x_3, x_4, x_5, x_6, x_13);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; 

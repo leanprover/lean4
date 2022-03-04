@@ -98,6 +98,7 @@ theorem dite_congr {s : Decidable b} [Decidable c]
 @[simp] theorem ite_false (a b : α) : (if False then a else b) = b := rfl
 @[simp] theorem dite_true {α : Sort u} {t : True → α} {e : ¬ True → α} : (dite True t e) = t True.intro := rfl
 @[simp] theorem dite_false {α : Sort u} {t : False → α} {e : ¬ False → α} : (dite False t e) = e not_false := rfl
+@[simp] theorem ite_self {α : Sort u} {c : Prop} {d : Decidable c} (a : α) : ite c a a = a := by cases d  <;> rfl
 @[simp] theorem and_self (p : Prop) : (p ∧ p) = p := propext <| Iff.intro (fun h => h.1) (fun h => ⟨h, h⟩)
 @[simp] theorem and_true (p : Prop) : (p ∧ True) = p := propext <| Iff.intro (fun h => h.1) (fun h => ⟨h, trivial⟩)
 @[simp] theorem true_and (p : Prop) : (True ∧ p) = p := propext <| Iff.intro (fun h => h.2) (fun h => ⟨trivial, h⟩)
@@ -153,3 +154,4 @@ theorem dite_congr {s : Decidable b} [Decidable c]
 @[simp] theorem cond_false (a b : α) : cond false a b = b := rfl
 
 @[simp] theorem beq_self_eq_true [BEq α] [LawfulBEq α] (a : α) : (a == a) = true := LawfulBEq.rfl a
+@[simp] theorem beq_self_eq_true' [DecidableEq α] (a : α) : (a == a) = true := by simp [BEq.beq]

@@ -272,18 +272,24 @@ where
     | maybeNormalized _ l r => do mkAppM' op #[←convertType op l, ←convertType op r]
 
 inductive ProofStrategy
-  | rfl (lhs rhs : NormalizedExpr)
+  | ac_rfl (lhs rhs : NormalizedExpr)
+  | rfl (tgt : Expr)
   | norm (e : NormalizedExpr)
 
 def pickStrategy (e : Expr) : M ProofStrategy := do
   match e with
-  | eq lhs rhs =>
-    match ←findUnnormalizedOperator lhs with
+  | eq l r =>
+    match ←findUnnormalizedOperator l with
     | lhs@(unnormalized _ _) => return ProofStrategy.norm lhs
-    | lhs =>
-      match ←findUnnormalizedOperator rhs with
+    | lhs@(maybeNormalized _ _ _) =>
+      match ←findUnnormalizedOperator r with
       | rhs@(unnormalized _ _) => return ProofStrategy.norm rhs
-      | rhs => return ProofStrategy.rfl lhs rhs
+      | rhs => return ProofStrategy.ac_rfl lhs rhs
+    | lhs@(definitelyNormalized _) =>
+      match ←findUnnormalizedOperator r with
+      | rhs@(unnormalized _ _) => return ProofStrategy.norm rhs
+      | rhs@(maybeNormalized _ _ _) => return ProofStrategy.ac_rfl lhs rhs
+      | rhs@(definitelyNormalized _) => return ProofStrategy.rfl l
   | e => return ProofStrategy.norm $ ←findUnnormalizedOperator e
 
 def addAcEq (mvarId : MVarId) (e : NormalizedExpr) (target : Expr) : M MVarId := do
@@ -298,14 +304,17 @@ partial def rewriteUnnormalized (mvarId : MVarId) : M Unit :=
   withMVarContext mvarId do
   let target ← getMVarType mvarId
   match ←pickStrategy target with
-  | ProofStrategy.rfl lhs rhs =>
-    trace[Meta.AC] "picking rfl strategy {MessageData.ofGoal mvarId}"
+  | ProofStrategy.ac_rfl lhs rhs =>
+    trace[Meta.AC] "picking ac_rfl strategy {MessageData.ofGoal mvarId}"
     try
       let (proof, ty) ← buildProof lhs rhs
       if ←isDefEq target ty then
         assignExprMVar mvarId proof
       else throwError ""
     catch _ => throwError "cannot synthesize proof:\n{MessageData.ofGoal mvarId}"
+  | ProofStrategy.rfl tgt =>
+    trace[Meta.AC] "picking rfl strategy {MessageData.ofGoal mvarId}"
+    assignExprMVar mvarId (←mkAppM ``Eq.refl #[tgt])
   | ProofStrategy.norm (definitelyNormalized _) => throwError "no unnormalized operators found"
   | ProofStrategy.norm e =>
     trace[Meta.AC] "picking norm strategy {MessageData.ofGoal mvarId}"

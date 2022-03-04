@@ -125,6 +125,9 @@ infixl:35 " && " => and
 infixl:30 " || " => or
 notation:max "!" b:40 => not b
 
+infix:50 " ∈ " => Membership.mem
+notation:50 a:50 " ∉ " b:50 => ¬ (a ∈ b)
+
 infixr:67 " :: " => List.cons
 syntax:20 term:21 " <|> " term:20 : term
 syntax:60 term:61 " >> " term:60 : term

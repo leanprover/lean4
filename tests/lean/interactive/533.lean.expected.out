@@ -11,6 +11,10 @@
    "kind": 7,
    "detail":
    "(Type u₁ → Type u₂) → Type u → outParam (Type v) → Type (max (max (max u (u₁ + 1)) u₂) v)"},
+  {"label": "ForIn'",
+   "kind": 7,
+   "detail":
+   "(Type u₁ → Type u₂) →\n  (ρ : Type u) → (α : outParam (Type v)) → [d : outParam (Membership α ρ)] → Type (max (max (max u (u₁ + 1)) u₂) v)"},
   {"label": "ForInStep", "kind": 22, "detail": "Type u → Type u"},
   {"label": "ForM",
    "kind": 7,

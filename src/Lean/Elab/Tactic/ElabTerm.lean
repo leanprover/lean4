@@ -16,7 +16,7 @@ open Meta
 
 /- `elabTerm` for Tactics and basic tactics that use it. -/
 
-def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr := do
+def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TermElabM Expr := do
   /- We have disabled `Term.withoutErrToSorry` to improve error recovery.
      When we were using it, any tactic using `elabTerm` would be interrupted at elaboration errors.
      Tactics that do not want to proceed should check whether the result contains sythetic sorrys or
@@ -137,7 +137,40 @@ def elabTermForApply (stx : Syntax) (mayPostpone := true) : TacticM Expr := do
     match (← Term.resolveId? stx (withInfo := true)) with
     | some e => return e
     | _      => pure ()
-  elabTerm stx none mayPostpone
+  /-
+    By disabling the "error to sorry" feature, we make sure an `apply e` fails without logging an error message.
+    The motivation is that `apply` is frequently used when writing tactic such as
+    ```
+    cases h <;> intro h' <;> first | apply t[h'] | ....
+    ```
+    Here the type of `h'` may be different in each case, and the term `t[h']` containing `h'` may even fail to
+    be elaborated in some cases. When this happens we want the tactic to fail without reporting any error to the user,
+    and the next tactic is tried.
+
+    A drawback of disabling "error to sorry" is that there is no error recovery after the error is thrown, and features such
+    as auto-completion are affected.
+
+    By disabling "error to sorry", we also limit ourselves to at most one error at `t[h']`.
+
+    By disabling "error to sorry", we also miss the opportunity to catch mistakes is tactic code such as
+      `first | apply nonsensical-term | assumption`
+
+    This should not be a big problem for the `apply` tactic since we usually provide small terms there.
+
+    Note that we do not disable "error to sorry" at `exact` and `refine` since they are often used to elaborate big terms,
+    and we do want error recovery there, and we want to see the error messages.
+
+    We should probably provide options for allowing users to control this behavior.
+
+    see issue #1037
+
+    More complex solution:
+      - We do not disable "error to sorry"
+      - We elaborate term and check whether errors were produced
+      - If there are other tactic braches and there are errors, we remove the errors from the log, and throw a new error to force the tactic to backtrack.
+
+  -/
+  Term.withoutErrToSorry <| elabTerm stx none mayPostpone
 
 def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syntax) : TacticM Unit := do
   withMainContext do

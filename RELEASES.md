@@ -113,3 +113,5 @@ def Array.insertAtAux (i : Nat) (as : Array α) (j : Nat) : Array α :=
   else
     as
 ```
+
+* Add support for `for h : x in xs do ...` notation where `h : x ∈ xs`. This is mainly useful for showing termination.

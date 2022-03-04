@@ -30,7 +30,7 @@ theorem sizeOf_get_lt [SizeOf α] (as : Array α) (i : Fin as.size) : sizeOf (as
 
 theorem sizeOf_lt_of_mem [DecidableEq α] [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a < sizeOf as := by
   simp [Membership.mem, contains, any, Id.run, BEq.beq, anyM] at h
-  let rec aux (j : Nat) (h : anyM.loop (m := Id) (fun b => decide (a = b)) as as.size (Nat.le_refl ..) j = id true) : sizeOf a < sizeOf as := by -- check why we need id, why we need to move h before :
+  let rec aux (j : Nat) (h : anyM.loop (m := Id) (fun b => decide (a = b)) as as.size (Nat.le_refl ..) j = true) : sizeOf a < sizeOf as := by
     unfold anyM.loop at h
     split at h
     . simp [Bind.bind, pure] at h; split at h

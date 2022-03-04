@@ -325,22 +325,20 @@ unsafe def anyMUnsafe {α : Type u} {m : Type → Type w} [Monad m] (p : α → 
 @[implementedBy anyMUnsafe]
 def anyM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m Bool :=
   let any (stop : Nat) (h : stop ≤ as.size) :=
-    let rec loop (i : Nat) (j : Nat) : m Bool := do
+    let rec loop (j : Nat) : m Bool := do
       if hlt : j < stop then
-        match i with
-        | 0    => pure false
-        | i'+1 =>
-          if (← p (as.get ⟨j, Nat.lt_of_lt_of_le hlt h⟩)) then
-            pure true
-          else
-            loop i' (j+1)
+        if (← p (as.get ⟨j, Nat.lt_of_lt_of_le hlt h⟩)) then
+          pure true
+        else
+          loop (j+1)
       else
         pure false
-    loop (stop - start) start
+    loop start
   if h : stop ≤ as.size then
     any stop h
   else
     any as.size (Nat.le_refl _)
+termination_by loop i j => stop - j
 
 @[inline]
 def allM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m Bool :=

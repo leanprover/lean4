@@ -1415,8 +1415,7 @@ mutual
                    do $body)
         doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
     else withRef doFor do
-      unless doForDecls[0][0].isNone do
-        throwErrorAt doForDecls[0][0] "the proof annotation here has not been implemented yet"
+      let h?        := if doForDecls[0][0].isNone then none else some doForDecls[0][0][0]
       let x         := doForDecls[0][1]
       withRef x <| checkNotShadowingMutable (← getPatternVarsEx x)
       let xs        := doForDecls[0][3]
@@ -1426,7 +1425,11 @@ mutual
       let uvarsTuple ← liftMacroM do mkTuple (← uvars.mapM mkIdentFromRef)
       if hasReturn forInBodyCodeBlock.code then
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
-        let forInTerm ← `(for_in% $(xs) (MProd.mk none $uvarsTuple) fun $x r => let r := r.2; $forInBody)
+        let forInTerm ←
+          if let some h := h? then
+            `(for_in'% $(xs) (MProd.mk none $uvarsTuple) fun $x $h r => let r := r.2; $forInBody)
+          else
+            `(for_in% $(xs) (MProd.mk none $uvarsTuple) fun $x r => let r := r.2; $forInBody)
         let auxDo ← `(do let r ← $forInTerm:term;
                          $uvarsTuple:term := r.2;
                          match r.1 with
@@ -1435,7 +1438,11 @@ mutual
         doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
       else
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
-        let forInTerm ← `(for_in% $(xs) $uvarsTuple fun $x r => $forInBody)
+        let forInTerm ←
+          if let some h := h? then
+            `(for_in'% $(xs) $uvarsTuple fun $x $h r => $forInBody)
+          else
+            `(for_in% $(xs) $uvarsTuple fun $x r => $forInBody)
         if doElems.isEmpty then
           let auxDo ← `(do let r ← $forInTerm:term;
                            $uvarsTuple:term := r;

@@ -58,6 +58,17 @@ where
 
 @[builtinTermElab binrel_no_prop] def elabBinRelNoProp : TermElab := elabBinRelCore true
 
+private def getMonadForIn (expectedType? : Option Expr) : TermElabM Expr := do
+    match expectedType? with
+    | none => throwError "invalid 'for_in%' notation, expected type is not available"
+    | some expectedType =>
+      match (← isTypeApp? expectedType) with
+      | some (m, _) => return m
+      | none => throwError "invalid 'for_in%' notation, expected type is not of of the form `M α`{indentExpr expectedType}"
+
+private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
+  throwError "failed to synthesize instance for 'for_in%' notation{indentExpr forInInstance}"
+
 @[builtinTermElab forInMacro] def elabForIn : TermElab :=  fun stx expectedType? => do
   match stx with
   | `(for_in% $col $init $body) =>
@@ -65,7 +76,7 @@ where
       | none   => elabTerm (← `(let col := $col; for_in% col $init $body)) expectedType?
       | some colFVar =>
         tryPostponeIfNoneOrMVar expectedType?
-        let m ← getMonad expectedType?
+        let m ← getMonadForIn expectedType?
         let colType ← inferType colFVar
         let elemType ← mkFreshExprMVar (mkSort (mkLevelSucc (← mkFreshLevelMVar)))
         let forInInstance ←
@@ -78,19 +89,34 @@ where
           let ref ← getRef
           let forInFn ← mkConst ``forIn
           elabAppArgs forInFn #[] #[Arg.stx col, Arg.stx init, Arg.stx body] expectedType? (explicit := false) (ellipsis := false)
-        | LOption.undef    => tryPostpone; throwFailure forInInstance
-        | LOption.none     => throwFailure forInInstance
+        | LOption.undef    => tryPostpone; throwForInFailure forInInstance
+        | LOption.none     => throwForInFailure forInInstance
   | _ => throwUnsupportedSyntax
-where
-  getMonad (expectedType? : Option Expr) : TermElabM Expr := do
-    match expectedType? with
-    | none => throwError "invalid 'for_in%' notation, expected type is not available"
-    | some expectedType =>
-      match (← isTypeApp? expectedType) with
-      | some (m, _) => return m
-      | none => throwError "invalid 'for_in%' notation, expected type is not of of the form `M α`{indentExpr expectedType}"
-  throwFailure (forInInstance : Expr) : TermElabM Expr :=
-    throwError "failed to synthesize instance for 'for_in%' notation{indentExpr forInInstance}"
+
+@[builtinTermElab forInMacro'] def elabForIn' : TermElab :=  fun stx expectedType? => do
+  match stx with
+  | `(for_in'% $col $init $body) =>
+      match (← isLocalIdent? col) with
+      | none   => elabTerm (← `(let col := $col; for_in'% col $init $body)) expectedType?
+      | some colFVar =>
+        tryPostponeIfNoneOrMVar expectedType?
+        let m ← getMonadForIn expectedType?
+        let colType ← inferType colFVar
+        let elemType ← mkFreshExprMVar (mkSort (mkLevelSucc (← mkFreshLevelMVar)))
+        let memType ← mkFreshExprMVar (← mkAppM ``Membership #[elemType, colType])
+        let forInInstance ←
+          try
+            mkAppM ``ForIn' #[m, colType, elemType, memType]
+          catch
+            ex => tryPostpone; throwError "failed to construct `ForIn'` instance for collection{indentExpr colType}\nand monad{indentExpr m}"
+        match (← trySynthInstance forInInstance) with
+        | LOption.some val =>
+          let ref ← getRef
+          let forInFn ← mkConst ``forIn'
+          elabAppArgs forInFn #[] #[Arg.expr colFVar, Arg.stx init, Arg.stx body] expectedType? (explicit := false) (ellipsis := false)
+        | LOption.undef    => tryPostpone; throwForInFailure forInInstance
+        | LOption.none     => throwForInFailure forInInstance
+  | _ => throwUnsupportedSyntax
 
 namespace BinOp
 /-

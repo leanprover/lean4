@@ -6,7 +6,7 @@ theorem foo (x : Nat) (h : x > 0) : x ≠ 0 :=
 inductive Mem : α → List α → Prop where
  | head (a : α) (as : List α)   : Mem a (a::as)
  | tail (a b : α) (bs : List α) : Mem a bs → Mem a (b::bs)
-infix:50 "∈" => Mem
+infix:50 (priority := high) "∈" => Mem
 
 theorem mem_split {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :: t := by
   induction as with

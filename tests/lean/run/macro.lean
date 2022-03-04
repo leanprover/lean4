@@ -4,7 +4,7 @@ axiom mem {α : Type} : α → Set α → Prop
 axiom univ {α : Type} : Set α
 axiom Union {α : Type} : Set (Set α) → Set α
 
-syntax:100 term " ∈ " term:99 : term
+syntax:100 (priority := high) term " ∈ " term:99 : term
 
 macro_rules
 | `($x ∈ $s) => `(mem $x $s)

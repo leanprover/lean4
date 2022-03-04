@@ -2,7 +2,7 @@ inductive Mem (a : α) : List α → Prop where
   | head {as} : Mem a (a::as)
   | tail {as} : Mem a as → Mem a (a'::as)
 
-infix:50 " ∈ " => Mem
+infix:50 (priority := high) " ∈ " => Mem
 
 example (a b : Nat) (h : a ∈ [b]) : b = a :=
   match h with

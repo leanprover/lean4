@@ -179,6 +179,8 @@ protected theorem mul_left_comm (n m k : Nat) : n * (m * k) = m * (n * k) := by
 
 /- Inequalities -/
 
+attribute [simp] Nat.le_refl
+
 theorem succ_lt_succ {n m : Nat} : n < m → succ n < succ m :=
   succ_le_succ
 

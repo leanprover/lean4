@@ -246,7 +246,7 @@ inductive Mem : α → List α → Prop where
   | head (a : α) (as : List α)   : Mem a (a::as)
   | tail (a b : α) (bs : List α) : Mem a bs → Mem a (b::bs)
 
-infix:50 "∈" => Mem
+infix:50 (priority := high) "∈" => Mem
 
 theorem mem_split {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :: t :=
   match a, as, h with
@@ -263,7 +263,7 @@ Here is a similar proof using the tactic DSL.
 # inductive Mem : α → List α → Prop where
 #  | head (a : α) (as : List α)   : Mem a (a::as)
 #  | tail (a b : α) (bs : List α) : Mem a bs → Mem a (b::bs)
-# infix:50 "∈" => Mem
+# infix:50 (priority := high) "∈" => Mem
 theorem mem_split {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :: t := by
   match a, as, h with
   | _, _, Mem.head a bs     => exists []; exists bs; rfl
@@ -281,7 +281,7 @@ Here is a similar proof that uses the `induction` tactic instead of recursion.
 # inductive Mem : α → List α → Prop where
 #  | head (a : α) (as : List α)   : Mem a (a::as)
 #  | tail (a b : α) (bs : List α) : Mem a bs → Mem a (b::bs)
-# infix:50 "∈" => Mem
+# infix:50 (priority := high) "∈" => Mem
 theorem mem_split {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :: t := by
   induction as with
   | nil          => cases h
@@ -302,7 +302,7 @@ discriminant. Later, we show how to create more complex automation using macros.
 # inductive Mem : α → List α → Prop where
 #  | head (a : α) (as : List α)   : Mem a (a::as)
 #  | tail (a b : α) (bs : List α) : Mem a bs → Mem a (b::bs)
-# infix:50 "∈" => Mem
+# infix:50 (priority := high) "∈" => Mem
 macro "obtain " p:term " from " d:term : tactic =>
   `(tactic| match $d:term with | $p:term => ?_)
 

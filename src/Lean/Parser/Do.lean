@@ -92,7 +92,7 @@ def doIfCond    := withAntiquot (mkAntiquot "doIfCond" none (anonymous := false)
   >> many (checkColGe "'else if' in 'do' must be indented" >> group (elseIf >> doIfCond >> " then " >> doSeq))
   >> optional (checkColGe "'else' in 'do' must be indented" >> " else " >> doSeq)
 @[builtinDoElemParser] def doUnless := leading_parser "unless " >> withForbidden "do" termParser >> "do " >> doSeq
-def doForDecl := leading_parser termParser >> " in " >> withForbidden "do" termParser
+def doForDecl := leading_parser optional (atomic (ident >> " : ")) >> termParser >> " in " >> withForbidden "do" termParser
 @[builtinDoElemParser] def doFor    := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
 
 def doMatchAlts := ppDedent <| matchAlts (rhsParser := doSeq)

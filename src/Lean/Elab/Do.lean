@@ -1397,8 +1397,10 @@ mutual
       -/
       -- Extract second element
       let doForDecl := doForDecls[1]
-      let y  := doForDecl[0]
-      let ys := doForDecl[2]
+      unless doForDecl[0].isNone do
+        throwErrorAt doForDecl[0] "the proof annotation here has not been implemented yet"
+      let y  := doForDecl[1]
+      let ys := doForDecl[3]
       let doForDecls := doForDecls.eraseIdx 1
       let body := doFor[3]
       withFreshMacroScope do
@@ -1413,9 +1415,11 @@ mutual
                    do $body)
         doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
     else withRef doFor do
-      let x         := doForDecls[0][0]
+      unless doForDecls[0][0].isNone do
+        throwErrorAt doForDecls[0][0] "the proof annotation here has not been implemented yet"
+      let x         := doForDecls[0][1]
       withRef x <| checkNotShadowingMutable (← getPatternVarsEx x)
-      let xs        := doForDecls[0][2]
+      let xs        := doForDecls[0][3]
       let forElems  := getDoSeqElems doFor[3]
       let forInBodyCodeBlock ← withFor (doSeqToCode forElems)
       let ⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock

@@ -641,10 +641,10 @@ def applySimpResultToTarget (mvarId : MVarId) (target : Expr) (r : Simp.Result) 
       return mvarId
 
 /-- See `simpTarget`. This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
-def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM (Option MVarId) := do
+def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (mayCloseGoal := true) : MetaM (Option MVarId) := do
   let target ← instantiateMVars (← getMVarType mvarId)
   let r ← simp target ctx discharge?
-  if r.expr.isConstOf ``True then
+  if mayCloseGoal && r.expr.isConstOf ``True then
     match r.proof? with
     | some proof => assignExprMVar mvarId  (← mkOfEqTrue proof)
     | none => assignExprMVar mvarId (mkConst ``True.intro)
@@ -655,18 +655,18 @@ def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option S
 /--
   Simplify the given goal target (aka type). Return `none` if the goal was closed. Return `some mvarId'` otherwise,
   where `mvarId'` is the simplified new goal. -/
-def simpTarget (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM (Option MVarId) :=
+def simpTarget (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (mayCloseGoal := true) : MetaM (Option MVarId) :=
   withMVarContext mvarId do
     checkNotAssigned mvarId `simp
-    simpTargetCore mvarId ctx discharge?
+    simpTargetCore mvarId ctx discharge? mayCloseGoal
 
 /--
   Apply the result `r` for `prop` (which is inhabited by `proof`). Return `none` if the goal was closed. Return `some (proof', prop')`
   otherwise, where `proof' : prop'` and `prop'` is the simplified `prop`.
 
   This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
-def applySimpResultToProp (mvarId : MVarId) (proof : Expr) (prop : Expr) (r : Simp.Result) : MetaM (Option (Expr × Expr)) := do
-  if r.expr.isConstOf ``False then
+def applySimpResultToProp (mvarId : MVarId) (proof : Expr) (prop : Expr) (r : Simp.Result) (mayCloseGoal := true) : MetaM (Option (Expr × Expr)) := do
+  if mayCloseGoal && r.expr.isConstOf ``False then
     match r.proof? with
     | some eqProof => assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) (← mkEqMP eqProof proof))
     | none => assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) proof)
@@ -689,9 +689,9 @@ def applySimpResultToFVarId (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result
   otherwise, where `proof' : prop'` and `prop'` is the simplified `prop`.
 
   This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
-def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM (Option (Expr × Expr)) := do
+def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (mayCloseGoal := true) : MetaM (Option (Expr × Expr)) := do
   let r ← simp prop ctx discharge?
-  applySimpResultToProp mvarId proof prop r
+  applySimpResultToProp mvarId proof prop r (mayCloseGoal := mayCloseGoal)
 
 def applySimpResultToLocalDeclCore (mvarId : MVarId) (fvarId : FVarId) (r : Option (Expr × Expr)) : MetaM (Option (FVarId × MVarId)) := do
   match r with
@@ -712,12 +712,12 @@ def applySimpResultToLocalDeclCore (mvarId : MVarId) (fvarId : FVarId) (r : Opti
 def applySimpResultToLocalDecl (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result) : MetaM (Option (FVarId × MVarId)) := do
   applySimpResultToLocalDeclCore mvarId fvarId (← applySimpResultToFVarId mvarId fvarId r)
 
-def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM (Option (FVarId × MVarId)) := do
+def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (mayCloseGoal := true) : MetaM (Option (FVarId × MVarId)) := do
   withMVarContext mvarId do
     checkNotAssigned mvarId `simp
     let localDecl ← getLocalDecl fvarId
     let type ← instantiateMVars localDecl.type
-    applySimpResultToLocalDeclCore mvarId fvarId (← simpStep mvarId (mkFVar fvarId) type ctx discharge?)
+    applySimpResultToLocalDeclCore mvarId fvarId (← simpStep mvarId (mkFVar fvarId) type ctx discharge? mayCloseGoal)
 
 abbrev FVarIdToLemmaId := FVarIdMap Name
 

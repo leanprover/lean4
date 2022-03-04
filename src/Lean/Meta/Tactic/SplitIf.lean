@@ -82,14 +82,14 @@ open SplitIf
 
 def simpIfTarget (mvarId : MVarId) (useDecide := false) : MetaM MVarId := do
   let mut ctx ← getSimpContext
-  if let some mvarId' ← simpTarget mvarId ctx (discharge? useDecide) then
+  if let some mvarId' ← simpTarget mvarId ctx (discharge? useDecide) (mayCloseGoal := false) then
     return mvarId'
   else
     unreachable!
 
 def simpIfLocalDecl (mvarId : MVarId) (fvarId : FVarId) : MetaM MVarId := do
   let mut ctx ← getSimpContext
-  if let some (_, mvarId') ← simpLocalDecl mvarId fvarId ctx discharge? then
+  if let some (_, mvarId') ← simpLocalDecl mvarId fvarId ctx discharge? (mayCloseGoal := false) then
     return mvarId'
   else
     unreachable!

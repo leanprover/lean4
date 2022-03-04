@@ -81,6 +81,11 @@ theorem append_assoc (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) 
   | nil => rfl
   | cons a as ih => simp [ih]
 
+theorem append_cons (as : List α) (b : α) (bs : List α) : as ++ b :: bs = as ++ [b] ++ bs := by
+  induction as with
+  | nil => simp
+  | cons a as ih => simp [ih]
+
 instance : EmptyCollection (List α) := ⟨List.nil⟩
 
 protected def erase {α} [BEq α] : List α → α → List α
@@ -235,6 +240,18 @@ theorem elem_eq_true_of_mem [DecidableEq α] {a : α} {as : List α} (h : a ∈ 
 
 instance [DecidableEq α] (a : α) (as : List α) : Decidable (a ∈ as) :=
   decidable_of_decidable_of_iff (Iff.intro mem_of_elem_eq_true elem_eq_true_of_mem)
+
+theorem mem_append_of_mem_left {a : α} {as : List α} (bs : List α) : a ∈ as → a ∈ as ++ bs := by
+  intro h
+  induction h with
+  | head => apply Mem.head
+  | tail => apply Mem.tail; assumption
+
+theorem mem_append_of_mem_right {b : α} {bs : List α} (as : List α) : b ∈ bs → b ∈ as ++ bs := by
+  intro h
+  induction as with
+  | nil  => simp [h]
+  | cons => apply Mem.tail; assumption
 
 def eraseDupsAux {α} [BEq α] : List α → List α → List α
   | [],    bs => bs.reverse

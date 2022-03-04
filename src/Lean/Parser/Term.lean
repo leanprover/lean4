@@ -233,6 +233,7 @@ def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 @[builtinTermParser] def binop_lazy  := leading_parser "binop_lazy% " >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec
 
 @[builtinTermParser] def forInMacro := leading_parser "for_in% " >> termParser maxPrec >> termParser maxPrec >> termParser maxPrec
+@[builtinTermParser] def forInMacro' := leading_parser "for_in'% " >> termParser maxPrec >> termParser maxPrec >> termParser maxPrec
 
 @[builtinTermParser] def typeOf             := leading_parser "type_of% " >> termParser maxPrec
 @[builtinTermParser] def ensureTypeOf       := leading_parser "ensure_type_of% " >> termParser maxPrec >> strLit >> termParser

@@ -86,12 +86,17 @@ def mergeIdem (xs : List Nat) : List Nat :=
   | x :: xs => loop x xs
 
 def removeNeutrals [info : ContextInformation α] (ctx : α) : List Nat → List Nat
-  | [] => []
-  | [x] => [x]
   | x :: xs =>
-    match info.isNeutral ctx x with
-    | true => removeNeutrals ctx xs
-    | false => x :: removeNeutrals ctx xs
+    match loop (x :: xs) with
+    | [] => [x]
+    | ys => ys
+  | [] => []
+  where loop : List Nat → List Nat
+    | x :: xs =>
+      match info.isNeutral ctx x with
+      | true => loop xs
+      | false => x :: loop xs
+    | [] => []
 
 def norm [info : ContextInformation α] (ctx : α) (e : Expr) : List Nat :=
   let xs := e.toList
@@ -261,28 +266,33 @@ theorem Context.toList_nonEmpty (e : Expr) : e.toList ≠ [] := by
     | nil => contradiction
     | cons => simp [List.append]
 
-theorem Context.removeNeutrals_nonEmpty (ctx : Context α) (e : List Nat) (h : e ≠ []) : removeNeutrals ctx e ≠ [] := by
-  induction e using List.two_step_induction with
-  | empty => simp_all
-  | single x => simp [removeNeutrals]
-  | step x y ys => simp [removeNeutrals] split <;> simp_all
+theorem Context.unwrap_isNeutral
+  {ctx : Context α}
+  {x : Nat}
+  : ContextInformation.isNeutral ctx x = true → IsNeutral (EvalInformation.evalOp ctx) (EvalInformation.evalVar (β := α) ctx x) := by
+  simp [ContextInformation.isNeutral, Option.isSome, EvalInformation.evalOp, EvalInformation.evalVar]
+  match (var ctx x).neutral with
+  | some hn => intro; assumption
+  | none => intro; contradiction
 
-theorem Context.evalList_removeNeutrals (ctx : Context α) (e : List Nat) (h : e ≠ []) : evalList α ctx (removeNeutrals ctx e) = evalList α ctx e := by
+theorem Context.evalList_removeNeutrals (ctx : Context α) (e : List Nat) : evalList α ctx (removeNeutrals ctx e) = evalList α ctx e := by
   induction e using List.two_step_induction with
-  | empty => simp_all
-  | single => simp [removeNeutrals]
+  | empty => rfl
+  | single =>
+    simp [removeNeutrals, removeNeutrals.loop]; split
+    case h_1 => rfl
+    case h_2 h _ _ => split at h <;> simp_all
   | step x y ys ih =>
-    simp [removeNeutrals, ContextInformation.isNeutral, Option.isSome] at *
-    split
-    case h_1 h h₂ =>
-      split at h₂
-      case h_1 hn _ => simp [evalList, ih, hn.1, EvalInformation.evalOp, EvalInformation.evalVar]
-      case h_2 => cases h₂
-    case h_2 =>
-      cases h : removeNeutrals ctx (y :: ys) with
-      | nil => apply absurd h; simp [removeNeutrals_nonEmpty]
-      | cons z zs =>
-        simp_all [evalList]
+    match h₁ : ContextInformation.isNeutral ctx x, h₂ : ContextInformation.isNeutral ctx y, h₃ : removeNeutrals.loop ctx ys with
+    | true, true, [] => simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih, unwrap_isNeutral h₂ |>.2]
+    | true, true, z::zs => simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih, unwrap_isNeutral h₁ |>.1]
+    | false, true, [] => simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih, unwrap_isNeutral h₂ |>.2]
+    | false, true, z::zs => simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih, unwrap_isNeutral h₂ |>.2]
+    | true, false, [] => simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih, unwrap_isNeutral h₁ |>.1]
+    | true, false, z::zs => simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih, unwrap_isNeutral h₁ |>.1]
+    | false, false, [] => simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih]
+    | false, false, z::zs => simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih]
+
 
 theorem Context.evalList_append
   (ctx : Context α)

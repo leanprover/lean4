@@ -116,7 +116,9 @@ theorem get_last {as : List α} {i : Fin (length (as ++ [a]))} (h : ¬ i.1 < as.
     cases i with simp_arith at h
     | succ i => apply ih; simp_arith [h]
 
-theorem sizeOf_lt_of_mem {as : List α} (h : a ∈ as) : sizeOf a < sizeOf as := by
-  cases h <;> simp_arith
+theorem sizeOf_lt_of_mem [SizeOf α] {as : List α} (h : a ∈ as) : sizeOf a < sizeOf as := by
+  induction h with
+  | head => simp_arith
+  | tail _ _ ih => exact Nat.lt_trans ih (by simp_arith)
 
 end List

@@ -337,7 +337,6 @@ partial def rewriteUnnormalized (mvarId : MVarId) : M Unit :=
       else
         throwError "cannot synthesize proof:\n{MessageData.ofGoal mvarId}"
 
-syntax (name := ac_refl) "ac_refl " : tactic
 @[builtinTactic ac_refl] def ac_refl_tactic : Lean.Elab.Tactic.Tactic := fun stx => do
   let goal ← getMainGoal
   (rewriteUnnormalized goal).run' emptyACNormContext

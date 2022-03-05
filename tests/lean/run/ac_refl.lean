@@ -1,4 +1,3 @@
-import Lean
 open Lean
 
 instance : IsAssociative (α := Nat) HAdd.hAdd := ⟨Nat.add_assoc⟩

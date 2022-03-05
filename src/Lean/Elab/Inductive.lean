@@ -79,10 +79,13 @@ private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc :
         let params ← Term.addAutoBoundImplicits params
         pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params := params, type := type, view := view }
       | some typeStx =>
-        let type ← Term.elabType typeStx
-        unless (← isTypeFormerType type) do
-          throwErrorAt typeStx "invalid inductive type, resultant type is not a sort"
-        Term.synthesizeSyntheticMVarsNoPostponing
+        let type ← Term.withAutoBoundImplicit do
+          let type ← Term.elabType typeStx
+          unless (← isTypeFormerType type) do
+            throwErrorAt typeStx "invalid inductive type, resultant type is not a sort"
+          Term.synthesizeSyntheticMVarsNoPostponing
+          let indices ← Term.addAutoBoundImplicits #[]
+          mkForallFVars indices type
         let params ← Term.addAutoBoundImplicits params
         pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params := params, type := type, view := view }
     elabHeaderAux views (i+1) acc

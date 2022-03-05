@@ -115,3 +115,12 @@ def Array.insertAtAux (i : Nat) (as : Array α) (j : Nat) : Array α :=
 ```
 
 * Add support for `for h : x in xs do ...` notation where `h : x ∈ xs`. This is mainly useful for showing termination.
+
+* Auto implicit behavior changed for inductive families. An auto implicit argument occurring in inductive family index is also treated as an index. For example
+```lean
+inductive HasType : Index n → Vector Ty n → Ty → Type where
+```
+is now interpreted as
+```lean
+inductive HasType : {n : Nat} → Index n → Vector Ty n → Ty → Type where
+```

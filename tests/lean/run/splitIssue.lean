@@ -1,4 +1,4 @@
-inductive ListSplit : List α → Type _
+inductive ListSplit {α : Type u} : List α → Type u
   | split l₁ l₂ : ListSplit (l₁ ++ l₂)
 
 def splitList {α : Type _} : (l : List α) → ListSplit l

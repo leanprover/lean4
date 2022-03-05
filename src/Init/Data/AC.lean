@@ -283,16 +283,10 @@ theorem Context.evalList_removeNeutrals (ctx : Context α) (e : List Nat) : eval
     case h_1 => rfl
     case h_2 h _ _ => split at h <;> simp_all
   | step x y ys ih =>
-    match h₁ : ContextInformation.isNeutral ctx x, h₂ : ContextInformation.isNeutral ctx y, h₃ : removeNeutrals.loop ctx ys with
-    | true, true, [] => simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih, unwrap_isNeutral h₂ |>.2]
-    | true, true, z::zs => simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih, unwrap_isNeutral h₁ |>.1]
-    | false, true, [] => simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih, unwrap_isNeutral h₂ |>.2]
-    | false, true, z::zs => simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih, unwrap_isNeutral h₂ |>.2]
-    | true, false, [] => simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih, unwrap_isNeutral h₁ |>.1]
-    | true, false, z::zs => simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih, unwrap_isNeutral h₁ |>.1]
-    | false, false, [] => simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih]
-    | false, false, z::zs => simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih]
-
+    cases h₁ : ContextInformation.isNeutral ctx x <;> cases h₂ : ContextInformation.isNeutral ctx y <;> cases h₃ : removeNeutrals.loop ctx ys
+    <;> simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih]
+    <;> (try simp [unwrap_isNeutral h₂ |>.2])
+    <;> (try simp [unwrap_isNeutral h₁ |>.1])
 
 theorem Context.evalList_append
   (ctx : Context α)

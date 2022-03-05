@@ -808,9 +808,11 @@ private partial def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) 
         if overloaded then ensureHasType expectedType? e else pure e
       return acc.push s
 where
-  toName : List Syntax → Name
-    | []              => Name.anonymous
-    | field :: fields => Name.mkStr (toName fields) field.getId.toString
+  toName (fields : List Syntax) : Name :=
+    let rec go
+      | []              => Name.anonymous
+      | field :: fields => Name.mkStr (go fields) field.getId.toString
+    go fields.reverse
 
   toLVals : List Syntax → (first : Bool) → List LVal
     | [],            _     => []

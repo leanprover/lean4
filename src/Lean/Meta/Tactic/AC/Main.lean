@@ -273,7 +273,7 @@ where
 
 inductive ProofStrategy
   | ac_rfl (lhs rhs : NormalizedExpr)
-  | rfl (tgt : Expr)
+  | simp
   | norm (e : NormalizedExpr)
 
 def pickStrategy (e : Expr) : M ProofStrategy := do
@@ -289,7 +289,7 @@ def pickStrategy (e : Expr) : M ProofStrategy := do
       match ←findUnnormalizedOperator r with
       | rhs@(unnormalized _ _) => return ProofStrategy.norm rhs
       | rhs@(maybeNormalized _ _ _) => return ProofStrategy.ac_rfl lhs rhs
-      | rhs@(definitelyNormalized _) => return ProofStrategy.rfl l
+      | rhs@(definitelyNormalized _) => return ProofStrategy.simp
   | e => return ProofStrategy.norm $ ←findUnnormalizedOperator e
 
 def addAcEq (mvarId : MVarId) (e : NormalizedExpr) (target : Expr) : M MVarId := do
@@ -312,19 +312,30 @@ partial def rewriteUnnormalized (mvarId : MVarId) : M Unit :=
         assignExprMVar mvarId proof
       else throwError ""
     catch _ => throwError "cannot synthesize proof:\n{MessageData.ofGoal mvarId}"
-  | ProofStrategy.rfl tgt =>
-    trace[Meta.AC] "picking rfl strategy {MessageData.ofGoal mvarId}"
-    assignExprMVar mvarId (←mkAppM ``Eq.refl #[tgt])
+  | ProofStrategy.simp =>
+    trace[Meta.AC] "picking simp strategy {MessageData.ofGoal mvarId}"
+    let simpCtx ← Simp.Context.mkDefault
+    let newGoal ← simpTarget mvarId simpCtx
+    unless newGoal.isNone do
+      throwError "cannot synthesize proof:\n{MessageData.ofGoal mvarId}"
   | ProofStrategy.norm (definitelyNormalized _) => throwError "no unnormalized operators found"
   | ProofStrategy.norm e =>
     trace[Meta.AC] "picking norm strategy {MessageData.ofGoal mvarId}"
     let mvarId ← addAcEq mvarId e target
     let (h_ac, mvarId) ← intro mvarId `h_ac
-    let res ← rewrite mvarId (←getMVarType mvarId) (mkFVar h_ac)
-    let [] := res.mvarIds | throwError "no meta variables expected after rewrite"
-    let mvarId ← replaceTargetEq mvarId res.eNew res.eqProof
-    let mvarId ← clear mvarId h_ac
-    rewriteUnnormalized mvarId
+    let simpCtx ← Simp.Context.mkDefault
+    withMVarContext mvarId do
+    let simpCtx := { simpCtx with simpTheorems := ←simpCtx.simpTheorems.add #[] (mkFVar h_ac) }
+
+    trace[Meta.AC] "pre rewrite state:\n{MessageData.ofGoal mvarId}\n"
+    let mvarId ← simpTarget mvarId simpCtx
+    if let some mvarId := mvarId then
+      if not $ ←isDefEq target (←getMVarType mvarId) then
+        let mvarId ← clear mvarId h_ac
+        trace[Meta.AC] "post rewrite state:\n{MessageData.ofGoal mvarId}\n"
+        rewriteUnnormalized mvarId
+      else
+        throwError "cannot synthesize proof:\n{MessageData.ofGoal mvarId}"
 
 syntax (name := ac_refl) "ac_refl " : tactic
 @[builtinTactic ac_refl] def ac_refl_tactic : Lean.Elab.Tactic.Tactic := fun stx => do

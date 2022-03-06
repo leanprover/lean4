@@ -824,7 +824,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
   if f.getKind == choiceKind then
     -- Set `errToSorry` to `false` when processing choice nodes. See comment above about the interaction between `errToSorry` and `observing`.
     withReader (fun ctx => { ctx with errToSorry := false }) do
-      f.getArgs.foldlM (fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit ellipsis true acc) acc
+      f.getArgs.foldlM (init := acc) fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit ellipsis true acc
   else
     let elabFieldName (e field : Syntax) := do
       let newLVals := field.identComponents.map fun comp =>
@@ -860,11 +860,11 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
       if lvals.isEmpty && namedArgs.isEmpty && args.isEmpty then
         /- Recall that elabAppFn is used for elaborating atomics terms **and** choice nodes that may contain
           arbitrary terms. If they are not being used as a function, we should elaborate using the expectedType. -/
-        let s ←
+        let s ← observing do
           if overloaded then
-            observing <| elabTermEnsuringType f expectedType? catchPostpone
+            elabTermEnsuringType f expectedType? catchPostpone
           else
-            observing <| elabTerm f expectedType?
+            elabTerm f expectedType?
         return acc.push s
       else
         let s ← observing do
@@ -873,13 +873,31 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
           if overloaded then ensureHasType expectedType? e else pure e
         return acc.push s
 
-private def isSuccess (candidate : TermElabResult Expr) : Bool :=
-  match candidate with
-  | EStateM.Result.ok _ _ => true
-  | _ => false
-
-private def getSuccess (candidates : Array (TermElabResult Expr)) : Array (TermElabResult Expr) :=
-  candidates.filter isSuccess
+private def getSuccesses (candidates : Array (TermElabResult Expr)) : TermElabM (Array (TermElabResult Expr)) := do
+  let r₁ := candidates.filter fun | EStateM.Result.ok .. => true | _ => false
+  if r₁.size ≤ 1 then return r₁
+  let r₂ ← candidates.filterM fun
+    | EStateM.Result.ok e s => do
+      if e.isMVar then
+        /- Make sure `e` is not a delayed coercion.
+           Recall that coercion insertion may be delayed when the type and expected type contains
+           metavariables that block TC resolution.
+           When processing overloaded notation, we disallow delayed coercions at `e`. -/
+        try
+          s.restore
+          synthesizeSyntheticMVars -- Tries to process pending coercions (and elaboration tasks)
+          let e ← instantiateMVars e
+          if e.isMVar then
+          /- If `e` is still a metavariable, and its `SyntheticMVarDecl` is a coercion, we discard this solution -/
+            if let some synDecl ← getSyntheticMVarDecl? e.mvarId! then
+              if synDecl.kind matches SyntheticMVarKind.coe .. then
+                return false
+        catch _ =>
+          -- If `synthesizeSyntheticMVars` failed, we just eliminate the candidate.
+          return false
+      return true
+    | _ => return false
+  if r₂.size == 0 then return r₁ else return r₂
 
 private def toMessageData (ex : Exception) : TermElabM MessageData := do
   let pos ← getRefPos
@@ -907,7 +925,7 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
   if candidates.size == 1 then
     applyResult candidates[0]
   else
-    let successes := getSuccess candidates
+    let successes ← getSuccesses candidates
     if successes.size == 1 then
       applyResult successes[0]
     else if successes.size > 1 then

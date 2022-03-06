@@ -18,10 +18,13 @@ instance coeToNat {n} : Coe (Fin n) Nat :=
 def elim0.{u} {α : Sort u} : Fin 0 → α
   | ⟨_, h⟩ => absurd h (not_lt_zero _)
 
+def succ : Fin n → Fin n.succ
+  | ⟨i, h⟩ => ⟨i+1, Nat.succ_lt_succ h⟩
+
 variable {n : Nat}
 
-protected def ofNat {n : Nat} (a : Nat) : Fin (succ n) :=
-  ⟨a % succ n, Nat.mod_lt _ (Nat.zero_lt_succ _)⟩
+protected def ofNat {n : Nat} (a : Nat) : Fin n.succ :=
+  ⟨a % (n+1), Nat.mod_lt _ (Nat.zero_lt_succ _)⟩
 
 protected def ofNat' {n : Nat} (a : Nat) (h : n > 0) : Fin n :=
   ⟨a % n, Nat.mod_lt _ h⟩

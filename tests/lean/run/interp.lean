@@ -4,13 +4,6 @@ inductive Vector (α : Type u) : Nat → Type u
 
 infix:67 (priority := high) " :: " => Vector.cons
 
-inductive Index : Nat → Type
-  | zero : Index (n+1)
-  | succ : Index n → Index (n+1)
-
-instance : OfNat (Index (n+1)) (nat_lit 0) where
-  ofNat := Index.zero
-
 inductive Ty where
   | int
   | bool
@@ -21,7 +14,7 @@ inductive Ty where
   | bool   => Bool
   | fn a r => a.interp → r.interp
 
-inductive HasType : Index n → Vector Ty n → Ty → Type where
+inductive HasType : Fin n → Vector Ty n → Ty → Type where
   | stop : HasType 0 (ty :: ctx) ty
   | pop  : HasType k ctx ty → HasType k.succ (u :: ctx) ty
 

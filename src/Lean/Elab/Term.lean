@@ -1323,16 +1323,17 @@ def withoutAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
   withReader (fun ctx => { ctx with autoBoundImplicit := false, autoBoundImplicits := {} }) k
 
 /--
-  Return `autoBoundImplicits ++ xs.
+  Return `k (autoBoundImplicits ++ xs)`
   This methoid throws an error if a variable in `autoBoundImplicits` depends on some `x` in `xs` -/
-def addAutoBoundImplicits (xs : Array Expr) : TermElabM (Array Expr) := do
+def addAutoBoundImplicits (xs : Array Expr) (k : Array Expr → TermElabM α) : TermElabM α := do
   let autoBoundImplicits := (← read).autoBoundImplicits
   for auto in autoBoundImplicits do
     let localDecl ← getLocalDecl auto.fvarId!
+    trace[Meta.debug] "auto bound implicit: {localDecl.userName} : {localDecl.type}"
     for x in xs do
       if (← getMCtx).localDeclDependsOn localDecl x.fvarId! then
         throwError "invalid auto implicit argument '{auto}', it depends on explicitly provided argument '{x}'"
-  return autoBoundImplicits.toArray ++ xs
+  k (autoBoundImplicits.toArray ++ xs)
 
 def mkAuxName (suffix : Name) : TermElabM Name := do
   match (← read).declName? with

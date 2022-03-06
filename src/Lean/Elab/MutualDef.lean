@@ -124,25 +124,25 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
           let type ← mkForallFVars xs type
           let type ← mkForallFVars (← read).autoBoundImplicits.toArray type
           let type ← instantiateMVars type
-          let xs ← addAutoBoundImplicits xs
-          let levelNames ← getLevelNames
-          if view.type?.isSome then
-            let pendingMVarIds ← getMVars type
-            discard <| logUnassignedUsingErrorInfos pendingMVarIds <|
-              getPendindMVarErrorMessage views
-          let newHeader := {
-            ref           := view.ref,
-            modifiers     := view.modifiers,
-            kind          := view.kind,
-            shortDeclName := shortDeclName,
-            declName      := declName,
-            levelNames    := levelNames,
-            binderIds     := binderIds,
-            numParams     := xs.size,
-            type          := type,
-            valueStx      := view.value : DefViewElabHeader }
-          check headers newHeader
-          pure newHeader
+          addAutoBoundImplicits xs fun xs => do
+            let levelNames ← getLevelNames
+            if view.type?.isSome then
+              let pendingMVarIds ← getMVars type
+              discard <| logUnassignedUsingErrorInfos pendingMVarIds <|
+                getPendindMVarErrorMessage views
+            let newHeader := {
+              ref           := view.ref,
+              modifiers     := view.modifiers,
+              kind          := view.kind,
+              shortDeclName := shortDeclName,
+              declName      := declName,
+              levelNames    := levelNames,
+              binderIds     := binderIds,
+              numParams     := xs.size,
+              type          := type,
+              valueStx      := view.value : DefViewElabHeader }
+            check headers newHeader
+            return newHeader
     headers := headers.push newHeader
   pure headers
 

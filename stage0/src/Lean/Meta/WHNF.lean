@@ -580,7 +580,7 @@ mutual
             else
               return none
           if smartUnfolding.get (← getOptions) then
-            match (← getConstNoEx? (mkSmartUnfoldingNameFor fInfo.name)) with
+            match ((← getEnv).find? (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(ConstantInfo.defnInfo _) =>
               deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (fun _ => pure none) fun e₁ =>
                 smartUnfoldingReduce? e₁

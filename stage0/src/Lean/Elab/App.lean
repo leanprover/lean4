@@ -808,9 +808,11 @@ private partial def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) 
         if overloaded then ensureHasType expectedType? e else pure e
       return acc.push s
 where
-  toName : List Syntax → Name
-    | []              => Name.anonymous
-    | field :: fields => Name.mkStr (toName fields) field.getId.toString
+  toName (fields : List Syntax) : Name :=
+    let rec go
+      | []              => Name.anonymous
+      | field :: fields => Name.mkStr (go fields) field.getId.toString
+    go fields.reverse
 
   toLVals : List Syntax → (first : Bool) → List LVal
     | [],            _     => []
@@ -909,10 +911,9 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
     if successes.size == 1 then
       applyResult successes[0]
     else if successes.size > 1 then
-      let lctx ← getLCtx
-      let opts ← getOptions
-      let msgs : Array MessageData := successes.map fun success => match success with
-        | EStateM.Result.ok e s => MessageData.withContext { env := s.meta.core.env, mctx := s.meta.meta.mctx, lctx := lctx, opts := opts } e
+      let msgs : Array MessageData ← successes.mapM fun success => do
+        match success with
+        | EStateM.Result.ok e s => withMCtx s.meta.meta.mctx <| withEnv s.meta.core.env do addMessageContext m!"{e} : {← inferType e}"
         | _                     => unreachable!
       throwErrorAt f "ambiguous, possible interpretations {toMessageList msgs}"
     else

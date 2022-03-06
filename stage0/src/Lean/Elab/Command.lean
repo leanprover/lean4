@@ -395,8 +395,8 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
           -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
           -- So, we use `Term.resetMessageLog`.
           Term.resetMessageLog
-          let xs ← Term.addAutoBoundImplicits xs
-          Term.withoutAutoBoundImplicit <| elabFn xs
+          Term.addAutoBoundImplicits xs fun xs =>
+            Term.withoutAutoBoundImplicit <| elabFn xs
 
 @[inline] def catchExceptions (x : CommandElabM Unit) : CommandElabCoreM Empty Unit := fun ctx ref =>
   EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())

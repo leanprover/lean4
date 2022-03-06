@@ -20,12 +20,15 @@ LEAN_EXPORT lean_object* l_Fin_elim0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_land(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instDivFin(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_coeToNat(lean_object*);
+LEAN_EXPORT lean_object* l_Fin_succ___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Fin_succ(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instSubFin(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instShiftLeftFin(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instOfNatFinHAddNatInstHAddInstAddNatOfNat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_land___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_div(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_add___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_succ___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_lor___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_ofNat___boxed(lean_object*, lean_object*);
@@ -44,6 +47,7 @@ LEAN_EXPORT lean_object* l_Fin_instXorFin(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_shiftRight(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_xor___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_lor(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_succ___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instInhabitedFinHAddNatInstHAddInstAddNatOfNat(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instOfNatFinHAddNatInstHAddInstAddNatOfNat___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_sub___boxed(lean_object*, lean_object*, lean_object*);
@@ -116,6 +120,41 @@ lean_object* x_3;
 x_3 = l_Fin_elim0(x_1, x_2);
 lean_dec(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Fin_succ___rarg(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_unsigned_to_nat(1u);
+x_3 = lean_nat_add(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Fin_succ(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Fin_succ___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Fin_succ___rarg___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Fin_succ___rarg(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Fin_succ___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Fin_succ(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Fin_ofNat(lean_object* x_1, lean_object* x_2) {

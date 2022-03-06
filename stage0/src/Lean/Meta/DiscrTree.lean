@@ -7,6 +7,7 @@ import Lean.Meta.Basic
 import Lean.Meta.FunInfo
 import Lean.Meta.InferType
 import Lean.Meta.WHNF
+import Lean.Meta.Match.MatcherInfo
 
 namespace Lean.Meta.DiscrTree
 /-
@@ -369,6 +370,34 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
   match e.getAppFn with
   | Expr.lit v _       => return (Key.lit v, #[])
   | Expr.const c _ _   =>
+    if (← getConfig).isDefEqStuckEx && e.hasExprMVar then
+      if (← isReducible c) then
+        /- `e` is a term `c ...` s.t. `c` is reducible and `e` has metavariables, but it was not unfolded.
+           This can happen if the metavariables in `e` are "blocking" smart unfolding.
+           If `isDefEqStuckEx` is enabled, then we must throw the `isDefEqStuck` exception to postpone TC resolution.
+           Here is an example. Suppose we have
+           ```
+            inductive Ty where
+              | bool | fn (a ty : Ty)
+
+
+            @[reducible] def Ty.interp : Ty → Type
+              | bool   => Bool
+              | fn a b => a.interp → b.interp
+           ```
+           and we are trying to synthesize `BEq (Ty.interp ?m)`
+        -/
+        Meta.throwIsDefEqStuck
+      else if let some matcherInfo := isMatcherAppCore? (← getEnv) e then
+        -- A matcher application is stuck is one of the discriminants has a metavariable
+        let args := e.getAppArgs
+        for arg in args[matcherInfo.getFirstDiscrPos: matcherInfo.getFirstDiscrPos + matcherInfo.numDiscrs] do
+          if arg.hasExprMVar then
+            Meta.throwIsDefEqStuck
+      else if (← isRec c) then
+        /- Similar to the previous case, but for `match` and recursor applications. It may be stuck (i.e., did not reduce)
+           because of metavariables. -/
+        Meta.throwIsDefEqStuck
     let nargs := e.getAppNumArgs
     return (Key.const c nargs, e.getAppRevArgs)
   | Expr.fvar fvarId _ =>

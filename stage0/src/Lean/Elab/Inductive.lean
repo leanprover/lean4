@@ -76,15 +76,18 @@ private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc :
         let u ← mkFreshLevelMVar
         let type := mkSort u
         Term.synthesizeSyntheticMVarsNoPostponing
-        let params ← Term.addAutoBoundImplicits params
-        pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params := params, type := type, view := view }
+        Term.addAutoBoundImplicits params fun params => do
+          pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
       | some typeStx =>
-        let type ← Term.elabType typeStx
-        unless (← isTypeFormerType type) do
-          throwErrorAt typeStx "invalid inductive type, resultant type is not a sort"
-        Term.synthesizeSyntheticMVarsNoPostponing
-        let params ← Term.addAutoBoundImplicits params
-        pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params := params, type := type, view := view }
+        let type ← Term.withAutoBoundImplicit do
+          let type ← Term.elabType typeStx
+          unless (← isTypeFormerType type) do
+            throwErrorAt typeStx "invalid inductive type, resultant type is not a sort"
+          Term.synthesizeSyntheticMVarsNoPostponing
+          Term.addAutoBoundImplicits #[] fun indices =>
+            mkForallFVars indices type
+        Term.addAutoBoundImplicits params fun params => do
+          pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
     elabHeaderAux views (i+1) acc
   else
     pure acc
@@ -216,10 +219,10 @@ private def elabCtors (indFVars : Array Expr) (indFVar : Expr) (params : Array E
             k type
         elabCtorType fun type => do
           Term.synthesizeSyntheticMVarsNoPostponing
-          let ctorParams ← Term.addAutoBoundImplicits ctorParams
-          let type ← mkForallFVars ctorParams type
-          let type ← mkForallFVars params type
-          return { name := ctorView.declName, type := type }
+          Term.addAutoBoundImplicits ctorParams fun ctorParams => do
+            let type ← mkForallFVars ctorParams type
+            let type ← mkForallFVars params type
+            return { name := ctorView.declName, type }
 where
   checkParamOccs (ctorType : Expr) : MetaM Expr :=
     let visit (e : Expr) : MetaM TransformStep := do

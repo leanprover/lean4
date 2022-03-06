@@ -124,3 +124,16 @@ is now interpreted as
 ```lean
 inductive HasType : {n : Nat} → Index n → Vector Ty n → Ty → Type where
 ```
+
+* Added auto implicit "chaining". Unassigned metavariables occurring in the auto implicit types now become new auto implicit locals. Consider the following example:
+```lean
+inductive HasType : Fin n → Vector Ty n → Ty → Type where
+  | stop : HasType 0 (ty :: ctx) ty
+  | pop  : HasType k ctx ty → HasType k.succ (u :: ctx) ty
+```
+`ctx` is an auto implicit local in the two constructors, and it has type `ctx : Vector Ty ?m`. Without auto implicit "chaining", the metavariable `?m` will remain unassigned. The new feature creates yet another implicit local `n : Nat` and assigns `n` to `?m`. So, the declaration above is shorthand for
+```lean
+inductive HasType : {n : Nat} → Fin n → Vector Ty n → Ty → Type where
+  | stop : {ty : Ty} → {n : Nat} → {ctx : Vector Ty n} → HasType 0 (ty :: ctx) ty
+  | pop  : {n : Nat} → {k : Fin n} → {ctx : Vector Ty n} → {ty : Ty} → HasType k ctx ty → HasType k.succ (u :: ctx) ty
+```

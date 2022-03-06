@@ -21,12 +21,13 @@ inductive HasType : Fin n → Vector Ty n → Ty → Type where
 open HasType (stop pop)
 
 inductive Expr : Vector Ty n → Ty → Type where
-  | var : HasType i ctx ty → Expr ctx ty
-  | val : Int → Expr ctx Ty.int
-  | lam : Expr (a :: ctx) ty → Expr ctx (Ty.fn a ty)
-  | app : Expr ctx (Ty.fn a ty) → Expr ctx a → Expr ctx ty
-  | op  : (a.interp → b.interp → c.interp) → Expr ctx a → Expr ctx b → Expr ctx c
-  | ife : Expr ctx Ty.bool → (Unit → Expr ctx a) → (Unit → Expr ctx a) → Expr ctx a
+  | var   : HasType i ctx ty → Expr ctx ty
+  | val   : Int → Expr ctx Ty.int
+  | lam   : Expr (a :: ctx) ty → Expr ctx (Ty.fn a ty)
+  | app   : Expr ctx (Ty.fn a ty) → Expr ctx a → Expr ctx ty
+  | op    : (a.interp → b.interp → c.interp) → Expr ctx a → Expr ctx b → Expr ctx c
+  | ife   : Expr ctx Ty.bool → Expr ctx a → Expr ctx a → Expr ctx a
+  | delay : (Unit → Expr ctx a) → Expr ctx a
 
 inductive Env : Vector Ty n → Type where
   | nil  : Env Vector.nil
@@ -42,7 +43,8 @@ def Expr.interp (env : Env ctx) : Expr ctx ty → ty.interp
   | lam b     => fun x => b.interp (Env.cons x env)
   | app f a   => f.interp env (a.interp env)
   | op o x y  => o (x.interp env) (y.interp env)
-  | ife c t e => if c.interp env then (t ()).interp env else (e ()).interp env
+  | ife c t e => if c.interp env then t.interp env else e.interp env
+  | delay a   => (a ()).interp env
 
 open Expr
 
@@ -55,8 +57,8 @@ def add : Expr ctx (Ty.fn Ty.int (Ty.fn Ty.int Ty.int)) :=
 
 def fact : Expr ctx (Ty.fn Ty.int Ty.int) :=
   lam (ife (op (.==.) (var stop) (val 0))
-           (fun _ => val 1)
-           (fun _ => op (.*.) (app fact (op (.-.) (var stop) (val 1))) (var stop)))
+           (val 1)
+           (op (.*.) (delay fun _ => app fact (op (.-.) (var stop) (val 1))) (var stop)))
   decreasing_by sorry
 
 #eval fact.interp Env.nil 10

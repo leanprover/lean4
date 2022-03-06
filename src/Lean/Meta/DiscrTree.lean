@@ -370,7 +370,7 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
   match e.getAppFn with
   | Expr.lit v _       => return (Key.lit v, #[])
   | Expr.const c _ _   =>
-    if (← getConfig).isDefEqStuckEx && e.hasMVar then
+    if (← getConfig).isDefEqStuckEx && e.hasExprMVar then
       if (← isReducible c) then
         /- `e` is a term `c ...` s.t. `c` is reducible and `e` has metavariables, but it was not unfolded.
            This can happen if the metavariables in `e` are "blocking" smart unfolding.

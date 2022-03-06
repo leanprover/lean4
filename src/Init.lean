@@ -20,3 +20,4 @@ import Init.NotationExtra
 import Init.SimpLemmas
 import Init.Hints
 import Init.Conv
+import Init.SizeOfLemmas

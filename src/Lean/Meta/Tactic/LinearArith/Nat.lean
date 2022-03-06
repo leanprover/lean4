@@ -5,3 +5,4 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Tactic.LinearArith.Nat.Basic
 import Lean.Meta.Tactic.LinearArith.Nat.Simp
+import Lean.Meta.Tactic.LinearArith.Nat.Solver

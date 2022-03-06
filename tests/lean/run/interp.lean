@@ -9,7 +9,7 @@ inductive Ty where
   | bool
   | fn (a r : Ty)
 
-@[reducible] def Ty.interp : Ty → Type
+abbrev Ty.interp : Ty → Type
   | int    => Int
   | bool   => Bool
   | fn a r => a.interp → r.interp

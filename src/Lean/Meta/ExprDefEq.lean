@@ -1138,7 +1138,7 @@ private def unfoldBothDefEq (fn : Name) (t s : Expr) : MetaM LBool := do
       pure LBool.true
     else
       unfold t
-       (unfold s (pure LBool.false) (fun s => isDefEqRight fn t s))
+       (unfold s (pure LBool.undef) (fun s => isDefEqRight fn t s))
        (fun t => unfold s (isDefEqLeft fn t s) (fun s => isDefEqLeftRight fn t s))
   | _, _ => pure LBool.false
 

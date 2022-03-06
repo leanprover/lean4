@@ -388,7 +388,13 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
            and we are trying to synthesize `BEq (Ty.interp ?m)`
         -/
         Meta.throwIsDefEqStuck
-      if (← isMatcherApp e <||> isRec c) then
+      else if let some matcherInfo := isMatcherAppCore? (← getEnv) e then
+        -- A matcher application is stuck is one of the discriminants has a metavariable
+        let args := e.getAppArgs
+        for arg in args[matcherInfo.getFirstDiscrPos: matcherInfo.getFirstDiscrPos + matcherInfo.numDiscrs] do
+          if arg.hasExprMVar then
+            Meta.throwIsDefEqStuck
+      else if (← isRec c) then
         /- Similar to the previous case, but for `match` and recursor applications. It may be stuck (i.e., did not reduce)
            because of metavariables. -/
         Meta.throwIsDefEqStuck

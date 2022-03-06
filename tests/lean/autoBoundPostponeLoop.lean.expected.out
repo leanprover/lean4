@@ -3,4 +3,3 @@ autoBoundPostponeLoop.lean:5:12-5:18: error: invalid `▸` notation, argument
 has type
   ?m
 equality expected
-autoBoundPostponeLoop.lean:1:8-1:10: error: (kernel) declaration has metavariables 'ex'

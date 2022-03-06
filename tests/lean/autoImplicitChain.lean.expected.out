@@ -1,0 +1,2 @@
+def f : {a : A} → {a_1 : B a} → {c : @C a a_1} → @D a a_1 c → Bool :=
+fun {a} {a_1} {c} d => true

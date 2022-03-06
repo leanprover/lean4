@@ -2,3 +2,4 @@
   m
 term has type
   ?m
+302.lean:1:19-1:22: error: unknown free variable '_uniq.95'

@@ -14,6 +14,14 @@ namespace Lean
 def setEnv [MonadEnv m] (env : Environment) : m Unit :=
   modifyEnv fun _ => env
 
+def withEnv [Monad m] [MonadFinally m] [MonadEnv m] (env : Environment) (x : m α) : m α := do
+  let saved ← getEnv
+  try
+    setEnv env
+    x
+  finally
+    setEnv saved
+
 def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
   match (← getEnv).find? declName with
   | some (ConstantInfo.inductInfo ..) => return true

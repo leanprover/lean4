@@ -1,4 +1,4 @@
 emptyc.lean:19:0-19:2: error: ambiguous, possible interpretations 
-  ∅
+  ∅ : A
   
-  { x := 0 }
+  { x := 0 } : A

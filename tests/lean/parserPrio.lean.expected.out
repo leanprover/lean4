@@ -1,7 +1,7 @@
 [1, 2]
 6
 parserPrio.lean:28:7-28:10: error: ambiguous, possible interpretations 
-  2 * 1
+  2 * 1 : ?m
   
-  [1]
+  [1] : List ?m
 [1, 2, 3]

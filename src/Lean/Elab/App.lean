@@ -911,10 +911,9 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
     if successes.size == 1 then
       applyResult successes[0]
     else if successes.size > 1 then
-      let lctx ← getLCtx
-      let opts ← getOptions
-      let msgs : Array MessageData := successes.map fun success => match success with
-        | EStateM.Result.ok e s => MessageData.withContext { env := s.meta.core.env, mctx := s.meta.meta.mctx, lctx := lctx, opts := opts } e
+      let msgs : Array MessageData ← successes.mapM fun success => do
+        match success with
+        | EStateM.Result.ok e s => withMCtx s.meta.meta.mctx <| withEnv s.meta.core.env do addMessageContext m!"{e} : {← inferType e}"
         | _                     => unreachable!
       throwErrorAt f "ambiguous, possible interpretations {toMessageList msgs}"
     else

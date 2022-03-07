@@ -1,6 +1,8 @@
 v4.0.0-m4 (WIP)
 ---------
 
+* [Add code folding support to the language server](https://github.com/leanprover/lean4/pull/1014).
+
 * Support notation `let <pattern> := <expr> | <else-case>` in `do` blocks.
 
 * Remove support for "auto" `pure`. In the [Zulip thread](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/for.2C.20unexpected.20need.20for.20type.20ascription/near/269083574), the consensus seemed to be that "auto" `pure` is more confusing than it's worth.

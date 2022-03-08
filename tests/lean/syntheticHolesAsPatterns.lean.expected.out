@@ -11,7 +11,7 @@ context:
 α β : Type
 a✝ : α
 x : Fam2 α β
-a n : Nat
+n a : Nat
 ⊢ Nat
 syntheticHolesAsPatterns.lean:12:18-12:19: error: don't know how to synthesize placeholder
 context:

@@ -65,10 +65,12 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
   let arg  := stx[1]
   let userName := if arg.isIdent then arg.getId else Name.anonymous
   let mkNewHole : Unit → TermElabM Expr := fun _ => do
-    let mvar ← mkFreshExprMVar expectedType? MetavarKind.syntheticOpaque userName
+    let kind := if (← read).inPattern then MetavarKind.natural else MetavarKind.syntheticOpaque
+    let mvar ← mkFreshExprMVar expectedType? kind userName
+    if (← read).inPattern then trace[Elab.match] "userName: {userName}, kind: {repr kind}, mvar: {mvar}"
     registerMVarErrorHoleInfo mvar.mvarId! stx
     pure mvar
-  if userName.isAnonymous then
+  if userName.isAnonymous || (← read).inPattern then
     mkNewHole ()
   else
     let mctx ← getMCtx

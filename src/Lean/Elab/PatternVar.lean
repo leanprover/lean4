@@ -12,25 +12,10 @@ namespace Lean.Elab.Term
 open Meta
 
 inductive PatternVar where
-  | localVar     (userName : Name)
-  -- anonymous variables (`_`) are encoded using metavariables
-  | anonymousVar (mvarId   : MVarId) (userName : Name)
+  | localVar (userName : Name)
 
-instance : ToString PatternVar := ⟨fun
-  | PatternVar.localVar x            => toString x
-  | PatternVar.anonymousVar mvarId _ => s!"?m{mvarId.name}"⟩
-
-/--
-  Create an auxiliary Syntax node wrapping a fresh metavariable id.
-  We use this kind of Syntax for representing `_` occurring in patterns.
-  The metavariables are created before we elaborate the patterns into `Expr`s. -/
-private def mkMVarSyntax : TermElabM Syntax := do
-  let mvarId ← mkFreshId
-  return mkNode `MVarWithIdKind #[mkNode mvarId #[]]
-
-/-- Given a syntax node constructed using `mkMVarSyntax`, return its MVarId -/
-def getMVarSyntaxMVarId (stx : Syntax) : MVarId :=
-  { name := stx[0].getKind }
+instance : ToString PatternVar where
+  toString := fun ⟨x⟩ => toString x
 
 /-
   Patterns define new local variables.
@@ -171,14 +156,9 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
         pure <| field.setArg 0 field
     return stx.setArg 2 <| mkNullNode fields
   else if k == ``Lean.Parser.Term.hole then
-    let r ← mkMVarSyntax
-    modify fun s => { s with vars := s.vars.push <| PatternVar.anonymousVar (getMVarSyntaxMVarId r) Name.anonymous }
-    return r
+    `(.( $stx ))
   else if k == ``Lean.Parser.Term.syntheticHole then
-    let r ← mkMVarSyntax
-    let userName := if stx[1].isIdent then stx[1].getId else Name.anonymous
-    modify fun s => { s with vars := s.vars.push <| PatternVar.anonymousVar (getMVarSyntaxMVarId r) userName }
-    return r
+    `(.( $stx ))
   else if k == ``Lean.Parser.Term.paren then
     let arg := stx[1]
     if arg.isNone then
@@ -359,6 +339,5 @@ def getPatternsVars (patterns : Array Syntax) : TermElabM (Array PatternVar) := 
 def getPatternVarNames (pvars : Array PatternVar) : Array Name :=
   pvars.filterMap fun
     | PatternVar.localVar x => some x
-    | _ => none
 
 end Lean.Elab.Term

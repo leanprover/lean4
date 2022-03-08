@@ -394,6 +394,13 @@ private def patternDeclsToLocalDecls (patternVarDecls : Array PatternVarDecl) : 
 
 open Meta.Match (Pattern Pattern.var Pattern.inaccessible Pattern.ctor Pattern.as Pattern.val Pattern.arrayLit AltLHS MatcherResult)
 
+private def eraseInaccessibleAnnotations (e : Expr) : CoreM Expr :=
+  Core.transform e fun e =>
+    if let some e := inaccessible? e then
+      return TransformStep.visit e
+    else
+      return TransformStep.visit e
+
 namespace ToDepElimPattern
 
 structure State where
@@ -424,7 +431,7 @@ private partial def mkLocalDeclFor (mvar : Expr) : M Pattern := do
   let s ← get
   let fvarId ← mkFreshFVarId
   let mvarDecl ← getMVarDecl mvarId
-  let type := mvarDecl.type
+  let type ← eraseInaccessibleAnnotations (← instantiateMVars mvarDecl.type)
   /- HACK: `fvarId` is not in the scope of `mvarId`
      If this generates problems in the future, we should update the metavariable declarations. -/
   assignExprMVar mvarId (mkFVar fvarId)
@@ -480,7 +487,7 @@ partial def main (e : Expr) : M Pattern := do
         else
           mkLocalDeclFor e.getAppFn
       else
-        return Pattern.inaccessible (← instantiateMVars e)
+        return Pattern.inaccessible (← eraseInaccessibleAnnotations (← instantiateMVars e))
   match inaccessible? e with
   | some t => mkInaccessible t
   | none =>
@@ -522,7 +529,7 @@ partial def main (e : Expr) : M Pattern := do
                       | 1 => 45
                    ```
                 -/
-                return Pattern.inaccessible e
+                return Pattern.inaccessible (← eraseInaccessibleAnnotations (← instantiateMVars e))
               else
                 throwInvalidPattern e)
             (fun v us => do

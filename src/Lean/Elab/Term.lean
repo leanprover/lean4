@@ -1355,16 +1355,16 @@ where
 /--
    Helper function for converting metavariables occurring in `type` into new parameters.
 -/
-def mvarsToParams (type : Expr) (k : Array Expr → TermElabM α) (init : Array Expr := #[]) : TermElabM α :=
-  mvarsToParamsCore type init fun newParms => do
-    if newParms.isEmpty then
-      k newParms
+def mvarsToParams (type : Expr) (k : Array Expr → Expr → TermElabM α) (init : Array Expr := #[]) : TermElabM α :=
+  mvarsToParamsCore type init fun newParams => do
+    if newParams.isEmpty then
+      k newParams type
     else
       -- If new parameters were created for metavariables, we fully instantiate all metavariables in the current
       -- local context befor invoking `k`. See hack above.
       let (lctx, mctx) := (← getMCtx).instantiateLCtxMVars (← getLCtx)
       setMCtx mctx
-      withLCtx lctx (← getLocalInstances) (k newParms)
+      withLCtx lctx (← getLocalInstances) (k newParams (← instantiateMVars type))
 
 /--
   Return `k (autoBoundImplicits ++ xs)`

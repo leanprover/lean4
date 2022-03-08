@@ -79,13 +79,13 @@ private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc :
         Term.addAutoBoundImplicits params fun params => do
           pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
       | some typeStx =>
-        let type ← Term.withAutoBoundImplicit do
+        let (type, numImplicitIndices) ← Term.withAutoBoundImplicit do
           let type ← Term.elabType typeStx
           unless (← isTypeFormerType type) do
             throwErrorAt typeStx "invalid inductive type, resultant type is not a sort"
           Term.synthesizeSyntheticMVarsNoPostponing
           Term.addAutoBoundImplicits #[] fun indices =>
-            mkForallFVars indices type
+            return (← mkForallFVars indices type, indices.size)
         Term.addAutoBoundImplicits params fun params => do
           pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
     elabHeaderAux views (i+1) acc
@@ -221,8 +221,10 @@ private def elabCtors (indFVars : Array Expr) (indFVar : Expr) (params : Array E
           Term.synthesizeSyntheticMVarsNoPostponing
           Term.addAutoBoundImplicits ctorParams fun ctorParams => do
             let type ← mkForallFVars ctorParams type
-            let type ← mkForallFVars params type
-            return { name := ctorView.declName, type }
+            Term.mvarsToParams type fun extraCtorParams type => do
+              let type ← mkForallFVars extraCtorParams type
+              let type ← mkForallFVars params type
+              return { name := ctorView.declName, type }
 where
   checkParamOccs (ctorType : Expr) : MetaM Expr :=
     let visit (e : Expr) : MetaM TransformStep := do
@@ -480,6 +482,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         let ctors ← elabCtors indFVars indFVar params r
         indTypesArray := indTypesArray.push { name := r.view.declName, type := type, ctors := ctors : InductiveType }
       let indTypes := indTypesArray.toList
+      -- TODO: convert fixed indices to parameters
       Term.synthesizeSyntheticMVarsNoPostponing
       let u ← getResultingUniverse indTypes
       let inferLevel ← shouldInferResultUniverse u

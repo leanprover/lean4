@@ -67,9 +67,8 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
   let mkNewHole : Unit → TermElabM Expr := fun _ => do
     let kind := if (← read).inPattern then MetavarKind.natural else MetavarKind.syntheticOpaque
     let mvar ← mkFreshExprMVar expectedType? kind userName
-    if (← read).inPattern then trace[Elab.match] "userName: {userName}, kind: {repr kind}, mvar: {mvar}"
     registerMVarErrorHoleInfo mvar.mvarId! stx
-    pure mvar
+    return mvar
   if userName.isAnonymous || (← read).inPattern then
     mkNewHole ()
   else
@@ -81,12 +80,12 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
       let mvarDecl ← getMVarDecl mvarId
       let lctx ← getLCtx
       if mvarDecl.lctx.isSubPrefixOf lctx then
-        pure mvar
+        return mvar
       else match mctx.getExprAssignment? mvarId with
       | some val =>
         let val ← instantiateMVars val
         if mctx.isWellFormed lctx val then
-          pure val
+          return val
         else
           withLCtx mvarDecl.lctx mvarDecl.localInstances do
             throwError "synthetic hole has already been defined and assigned to value incompatible with the current context{indentExpr val}"
@@ -97,7 +96,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
         else if lctx.isSubPrefixOf mvarDecl.lctx then
           let mvarNew ← mkNewHole ()
           modifyMCtx fun mctx => mctx.assignExpr mvarId mvarNew
-          pure mvarNew
+          return mvarNew
         else
           throwError "synthetic hole has already been defined with an incompatible local context"
 

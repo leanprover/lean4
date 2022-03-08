@@ -409,7 +409,9 @@ structure State where
   newLocals  : FVarIdSet := {}
 
 structure Context where
-  /-- TODO: document -/
+  /--
+    When visiting an assigned metavariable, if it has an user-name. We save it here.
+    We want to preserve these user-names when generating new pattern variables. -/
   userName : Name := Name.anonymous
 
 abbrev M := ReaderT Context $ StateRefT State TermElabM

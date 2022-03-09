@@ -1112,16 +1112,16 @@ constant reduceNat (n : Nat) : Nat := n
 axiom ofReduceBool (a b : Bool) (h : reduceBool a = b) : a = b
 axiom ofReduceNat (a b : Nat) (h : reduceNat a = b)    : a = b
 
-class IsAssociative (op : α → α → α) where
+class IsAssociative {α : Sort u} (op : α → α → α) where
   assoc : (a b c : α) → op (op a b) c = op a (op b c)
 
-class IsCommutative (op : α → α → α) where
+class IsCommutative {α : Sort u} (op : α → α → α) where
   comm : (a b : α) → op a b = op b a
 
-class IsIdempotent (op : α → α → α) where
+class IsIdempotent {α : Sort u} (op : α → α → α) where
   idempotent : (x : α) → op x x = x
 
-class IsNeutral (op : α → α → α) (neutral : α) where
+class IsNeutral {α : Sort u} (op : α → α → α) (neutral : α) where
   left_neutral : (a : α) → op neutral a = a
   right_neutral : (a : α) → op a neutral = a
 

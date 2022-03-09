@@ -33,6 +33,22 @@ instance : IsCommutative (α := Nat) max := ⟨max_comm⟩
 instance : IsIdempotent (α := Nat) max := ⟨max_idem⟩
 instance : IsNeutral max 0 := ⟨Nat.zero_max, Nat.max_zero⟩
 
+instance : IsAssociative And := ⟨λ p q r => propext ⟨λ ⟨⟨hp, hq⟩, hr⟩ => ⟨hp, hq, hr⟩, λ ⟨hp, hq, hr⟩ => ⟨⟨hp, hq⟩, hr⟩⟩⟩
+instance : IsCommutative And := ⟨λ p q => propext ⟨λ ⟨hp, hq⟩ => ⟨hq, hp⟩, λ ⟨hq, hp⟩ => ⟨hp, hq⟩⟩⟩
+instance : IsIdempotent And := ⟨λ p => propext ⟨λ ⟨hp, _⟩ => hp, λ hp => ⟨hp, hp⟩⟩⟩
+instance : IsNeutral And True :=
+  ⟨λ p => propext ⟨λ ⟨_, hp⟩ => hp, λ hp => ⟨True.intro, hp⟩⟩, λ p => propext ⟨λ ⟨hp, _⟩ => hp, λ hp => ⟨hp, True.intro⟩⟩⟩
+
+theorem or_assoc (p q r : Prop) : ((p ∨ q) ∨ r) = (p ∨ q ∨ r) :=
+  propext ⟨λ hpqr => hpqr.elim (λ hpq => hpq.elim Or.inl $ λ hq => Or.inr $ Or.inl hq) $ λ hr => Or.inr $ Or.inr hr,
+    λ hpqr => hpqr.elim (λ hp => Or.inl $ Or.inl hp) $ λ hqr => hqr.elim (λ hq => Or.inl $ Or.inr hq) Or.inr⟩
+
+instance : IsAssociative Or := ⟨or_assoc⟩
+instance : IsCommutative Or := ⟨λ p q => propext ⟨λ hpq => hpq.elim Or.inr Or.inl, λ hqp => hqp.elim Or.inr Or.inl⟩⟩
+instance : IsIdempotent Or := ⟨λ p => propext ⟨λ hp => hp.elim id id, Or.inl⟩⟩
+instance : IsNeutral Or False :=
+  ⟨λ p => propext ⟨λ hfp => hfp.elim False.elim id, Or.inr⟩, λ p => propext ⟨λ hpf => hpf.elim id False.elim, Or.inl⟩⟩
+
 example (x y z : Nat) : x + y + 0 + z = z + (x + y) := by ac_refl
 
 example (x y z : Nat) : (x + y) * (0 + z) = (x + y) * z:= by ac_refl
@@ -64,5 +80,5 @@ theorem ex₃ (n : Nat) : (fun x => n + x) = (fun x => x + n) := by
 #print ex₃
 
 -- Repro: the Prop universe doesn't work
-example (p q : Prop) : p ∨ p ∨ q ∧ True = q ∨ p := by
+example (p q : Prop) : (p ∨ p ∨ q ∧ True) = (q ∨ p) := by
   ac_refl

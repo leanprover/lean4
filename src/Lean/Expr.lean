@@ -757,7 +757,7 @@ constant instantiateRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : @& Arra
 @[extern "lean_expr_instantiate_rev_range"]
 constant instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : @& Array Expr) : Expr
 
-/-- Replace free variables `xs` with loose bound variables. -/
+/-- Replace free (or meta) variables `xs` with loose bound variables. -/
 @[extern "lean_expr_abstract"]
 constant abstract (e : @& Expr) (xs : @& Array Expr) : Expr
 

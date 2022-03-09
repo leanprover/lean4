@@ -64,9 +64,9 @@ partial def foldMatchingM [Monad m] (t : PrefixTreeNode α β) (cmp : α → α 
       | some t => find ks t d
   find k t init
 
-inductive WellFormed {β} (cmp : α → α → Ordering) : PrefixTreeNode α β → Prop where
-  | emptyWff    : WellFormed cmp empty
-  | insertWff  {t : PrefixTreeNode α β} {k : List α} {val : β} : WellFormed cmp t → WellFormed cmp (insert t cmp k val)
+inductive WellFormed (cmp : α → α → Ordering) : PrefixTreeNode α β → Prop where
+  | emptyWff  : WellFormed cmp empty
+  | insertWff : WellFormed cmp t → WellFormed cmp (insert t cmp k val)
 
 end PrefixTreeNode
 

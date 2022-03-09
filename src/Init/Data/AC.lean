@@ -314,8 +314,8 @@ theorem Context.eval_norm (ctx : Context α) (e : Expr) : evalList α ctx (norm 
   cases h₁ : ContextInformation.isIdem ctx <;> cases h₂ : ContextInformation.isComm ctx <;>
   simp_all [evalList_removeNeutrals, eval_toList, toList_nonEmpty, evalList_mergeIdem, evalList_sort]
 
-theorem Context.eq_of_norm (ctx : Context α) (a b : Expr) (h : norm ctx a = norm ctx b) : eval α ctx a = eval α ctx b := by
-  have h := congrArg (evalList α ctx) h
+theorem Context.eq_of_norm (ctx : Context α) (a b : Expr) (h : norm ctx a == norm ctx b) : eval α ctx a = eval α ctx b := by
+  have h := congrArg (evalList α ctx) (eq_of_beq h)
   rw [eval_norm, eval_norm] at h
   assumption
 

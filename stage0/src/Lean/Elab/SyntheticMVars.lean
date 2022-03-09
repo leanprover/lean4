@@ -167,14 +167,8 @@ private def synthesizeUsingDefault : TermElabM Bool := do
       return true
   return false
 
-/--
-  Report an error for each synthetic metavariable that could not be resolved.
-  Remark: we set `ignoreStuckTC := true` when elaborating `simp` arguments.
--/
-private def reportStuckSyntheticMVars (ignoreStuckTC := false) : TermElabM Unit := do
-  let syntheticMVars ← modifyGet fun s => (s.syntheticMVars, { s with syntheticMVars := [] })
-  for mvarSyntheticDecl in syntheticMVars do
-    withRef mvarSyntheticDecl.stx do
+def reportStuckSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (ignoreStuckTC := false) : TermElabM Unit :=
+  withRef mvarSyntheticDecl.stx do
     match mvarSyntheticDecl.kind with
     | SyntheticMVarKind.typeClass =>
       unless ignoreStuckTC do
@@ -188,6 +182,15 @@ private def reportStuckSyntheticMVars (ignoreStuckTC := false) : TermElabM Unit 
         let mvarDecl ← getMVarDecl mvarId
         throwTypeMismatchError header expectedType eType e f? (some ("failed to create type class instance for " ++ indentExpr mvarDecl.type))
     | _ => unreachable! -- TODO handle other cases.
+
+/--
+  Report an error for each synthetic metavariable that could not be resolved.
+  Remark: we set `ignoreStuckTC := true` when elaborating `simp` arguments.
+-/
+private def reportStuckSyntheticMVars (ignoreStuckTC := false) : TermElabM Unit := do
+  let syntheticMVars ← modifyGet fun s => (s.syntheticMVars, { s with syntheticMVars := [] })
+  for mvarSyntheticDecl in syntheticMVars do
+    reportStuckSyntheticMVar mvarSyntheticDecl ignoreStuckTC
 
 private def getSomeSynthethicMVarsRef : TermElabM Syntax := do
   let s ← get

@@ -412,6 +412,72 @@ def handleSemanticTokensRange (p : SemanticTokensRangeParams)
   let endPos := text.lspPosToUtf8Pos p.range.end
   handleSemanticTokens beginPos endPos
 
+partial def handleFoldingRange (p : FoldingRangeParams)
+  : RequestM (RequestTask (Array FoldingRange)) := do
+  let doc ← readDoc
+  let t ← doc.allSnaps.waitAll
+  mapTask t fun (snaps, _) => do
+    let stxs := snaps.map (·.stx)
+    let (_, ranges) ← StateT.run (addRanges doc.meta.text [] stxs) #[]
+    return ranges
+  where
+    isImport stx := stx.isOfKind ``Lean.Parser.Module.header || stx.isOfKind ``Lean.Parser.Command.open
+
+    addRanges (text : FileMap) sections
+    | [] => return
+    | stx::stxs => match stx with
+      | `(namespace $id)  => addRanges text (stx.getPos?::sections) stxs
+      | `(section $(id)?) => addRanges text (stx.getPos?::sections) stxs
+      | `(end $(id)?) => do
+        if let start::rest := sections then
+          addRange text FoldingRangeKind.region start stx.getTailPos?
+          addRanges text rest stxs
+        else
+          addRanges text sections stxs
+      | `(mutual $body* end) => do
+        addRangeFromSyntax text FoldingRangeKind.region stx
+        addRanges text [] body.toList
+        addRanges text sections stxs
+      | _ => do
+        if isImport stx then
+          let (imports, stxs) := stxs.span isImport
+          let last := imports.getLastD stx
+          addRange text FoldingRangeKind.imports stx.getPos? last.getTailPos?
+          addRanges text sections stxs
+        else
+          addCommandRange text stx
+          addRanges text sections stxs
+
+    addCommandRange text stx :=
+      match stx.getKind with
+      | `Lean.Parser.Command.moduleDoc =>
+        addRangeFromSyntax text FoldingRangeKind.comment stx
+      | ``Lean.Parser.Command.declaration => do
+        -- When visiting a declaration, attempt to fold the doc comment
+        -- separately to the main definition.
+        -- We never fold other modifiers, such as annotations.
+        if let `($dm:declModifiers $decl) := stx then
+          if let some comment := dm[0].getOptional? then
+            addRangeFromSyntax text FoldingRangeKind.comment comment
+
+          addRangeFromSyntax text FoldingRangeKind.region decl
+        else
+          addRangeFromSyntax text FoldingRangeKind.region stx
+      | _ =>
+        addRangeFromSyntax text FoldingRangeKind.region stx
+
+    addRangeFromSyntax (text : FileMap) kind stx := addRange text kind stx.getPos? stx.getTailPos?
+
+    addRange (text : FileMap) kind start? stop? := do
+      if let (some startP, some endP) := (start?, stop?) then
+        let startP := text.utf8PosToLspPos startP
+        let endP := text.utf8PosToLspPos endP
+        if startP.line != endP.line then
+          modify fun st => st.push
+            { startLine := startP.line
+              endLine := endP.line
+              kind? := some kind }
+
 partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
     : RequestM (RequestTask WaitForDiagnostics) := do
   let rec waitLoop : RequestM EditableDocument := do
@@ -438,6 +504,7 @@ builtin_initialize
   registerLspRequestHandler "textDocument/documentSymbol"       DocumentSymbolParams       DocumentSymbolResult    handleDocumentSymbol
   registerLspRequestHandler "textDocument/semanticTokens/full"  SemanticTokensParams       SemanticTokens          handleSemanticTokensFull
   registerLspRequestHandler "textDocument/semanticTokens/range" SemanticTokensRangeParams  SemanticTokens          handleSemanticTokensRange
+  registerLspRequestHandler "textDocument/foldingRange"         FoldingRangeParams         (Array FoldingRange)    handleFoldingRange
   registerLspRequestHandler "$/lean/plainGoal"                  PlainGoalParams            (Option PlainGoal)      handlePlainGoal
   registerLspRequestHandler "$/lean/plainTermGoal"              PlainTermGoalParams        (Option PlainTermGoal)  handlePlainTermGoal
 

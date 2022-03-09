@@ -1322,67 +1322,77 @@ partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
 def withoutAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
   withReader (fun ctx => { ctx with autoBoundImplicit := false, autoBoundImplicits := {} }) k
 
+private def mvarsToParamsCore (type : Expr) (init : Array Expr) (k : Array Expr → TermElabM α) : TermElabM α := do
+  let mvarIds ← getMVars type
+  if mvarIds.isEmpty then
+    k init
+  else
+    let hugeFuel := 10000000
+    go hugeFuel mvarIds.toList init
+where
+  go (fuel : Nat) (mvarIds : List MVarId) (params : Array Expr) : TermElabM α :=
+    match fuel with
+    | 0 => throwError "too many parameters"
+    | fuel+1 =>
+      match mvarIds with
+      | [] => k params
+      | mvarId :: mvarIds => do
+        if (← isExprMVarAssigned mvarId) then
+          go fuel mvarIds params
+        else
+          let mvarType := (← getMVarDecl mvarId).type
+          let mvarIdsNew ← getMVars mvarType
+          if mvarIdsNew.isEmpty then
+            withLocalDecl (← mkFreshUserName `a) BinderInfo.implicit mvarType fun newParam => do
+              -- The following assingment is a bit hackish since `newParam` is not in the scope
+              -- of the metavariable. We claim this ok because we fully instantiate thes metavariables before executing the
+              -- continuation `k`.
+              assignExprMVar mvarId newParam
+              go fuel mvarIds (params.push newParam)
+          else
+            go fuel (mvarIdsNew.toList ++ mvarId :: mvarIds) params
+
+/--
+   Helper function for converting metavariables occurring in `type` into new parameters.
+-/
+def mvarsToParams (type : Expr) (k : Array Expr → Expr → TermElabM α) (init : Array Expr := #[]) : TermElabM α :=
+  mvarsToParamsCore type init fun newParams => do
+    if newParams.isEmpty then
+      k newParams type
+    else
+      -- If new parameters were created for metavariables, we fully instantiate all metavariables in the current
+      -- local context befor invoking `k`. See hack above.
+      let (lctx, mctx) := (← getMCtx).instantiateLCtxMVars (← getLCtx)
+      setMCtx mctx
+      withLCtx lctx (← getLocalInstances) (k newParams (← instantiateMVars type))
+
 /--
   Return `k (autoBoundImplicits ++ xs)`
   This methoid throws an error if a variable in `autoBoundImplicits` depends on some `x` in `xs`. -/
 def addAutoBoundImplicits (xs : Array Expr) (k : Array Expr → TermElabM α) : TermElabM α := do
-  let hugeFuel := 100000000
   let autos := (← read).autoBoundImplicits
-  go hugeFuel [] autos.toList #[]
+  go autos.toList #[]
 where
-  /--
-     Helper function for making sure metavariables occuring in the type of an auto implicit local
-     are transformed into auto implicit locals too.
-
-     - `mvarIds` is the pending metavariables that must be converted into new implicit auto bound variables.
-     - `todo` is the list of auto local variables that need to be processed.
-     - `autos` are the already processed auto implicit locals.
-   -/
-  go (fuel : Nat) (mvarIds : List MVarId) (todo : List Expr) (autos : Array Expr) : TermElabM α := do
-    match fuel with
-    | 0 => throwError "too many auto implicit locals"
-    | fuel+1 =>
-      match mvarIds with
-      | mvarId :: mvarIds =>
-        if (← isExprMVarAssigned mvarId) then
-          go fuel mvarIds todo autos
-        else
-          let mvarType ← instantiateMVars (← getMVarDecl mvarId).type
-          let mvarIdsNew ← getMVars mvarType
-          if mvarIdsNew.isEmpty then
-            withLocalDecl (← mkFreshUserName `a) BinderInfo.implicit mvarType fun auto => do
-              -- The following assingment is a bit hackish since `auto` is not in the scope
-              -- of the metavariable. We claim this ok because we fully instantiate thes metavariables before executing the
-              -- continuation `k`.
-              assignExprMVar mvarId auto
-              go fuel mvarIds todo (autos.push auto)
-          else
-            go fuel (mvarIdsNew.toList ++ mvarId :: mvarIds) todo autos
-      | [] =>
-        match todo with
-        | [] =>
-          for auto in autos do
-            let localDecl ← getLocalDecl auto.fvarId!
-            trace[Meta.debug] "auto bound implicit: {localDecl.userName} : {localDecl.type}"
-            for x in xs do
-              if (← getMCtx).localDeclDependsOn localDecl x.fvarId! then
-                throwError "invalid auto implicit argument '{auto}', it depends on explicitly provided argument '{x}'"
-          if autos.size != (← read).autoBoundImplicits.size then
-            -- If new auto locals were created for metavariables, we fully instantiate all metavariables in the current
-            -- local context befor invoking `k`. See hack above.
-            let (lctx, mctx) := (← getMCtx).instantiateLCtxMVars (← getLCtx)
-            setMCtx mctx
-            withLCtx lctx (← getLocalInstances) do
-              k (autos ++ xs)
-          else
-            k (autos ++ xs)
-        | auto :: todo =>
-          let autoType ← instantiateMVars (← inferType auto)
-          let mvarIds ← getMVars autoType
-          if mvarIds.isEmpty then
-            go fuel [] todo (autos.push auto)
-          else
-            go fuel mvarIds.toList (auto :: todo) autos
+  go (todo : List Expr) (autos : Array Expr) : TermElabM α := do
+    match todo with
+    | [] =>
+      for auto in autos do
+        let localDecl ← getLocalDecl auto.fvarId!
+        trace[Meta.debug] "auto bound implicit: {localDecl.userName} : {localDecl.type}"
+        for x in xs do
+          if (← getMCtx).localDeclDependsOn localDecl x.fvarId! then
+            throwError "invalid auto implicit argument '{auto}', it depends on explicitly provided argument '{x}'"
+      if autos.size != (← read).autoBoundImplicits.size then
+        -- If new auto locals were created for metavariables, we fully instantiate all metavariables in the current
+        -- local context befor invoking `k`. See hack above.
+        let (lctx, mctx) := (← getMCtx).instantiateLCtxMVars (← getLCtx)
+        setMCtx mctx
+        withLCtx lctx (← getLocalInstances) do
+          k (autos ++ xs)
+      else
+        k (autos ++ xs)
+    | auto :: todo =>
+      mvarsToParamsCore (← inferType auto) (init := autos) (fun autos => go todo (autos.push auto))
 
 def mkAuxName (suffix : Name) : TermElabM Name := do
   match (← read).declName? with

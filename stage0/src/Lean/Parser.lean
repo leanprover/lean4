@@ -26,6 +26,7 @@ builtin_initialize
   register_parser_alias "str" strLit
   register_parser_alias "char" charLit
   register_parser_alias "name" nameLit
+  register_parser_alias "scientific" scientificLit
   register_parser_alias ident
   register_parser_alias "colGt" checkColGt
   register_parser_alias "colGe" checkColGe

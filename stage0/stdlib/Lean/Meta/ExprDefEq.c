@@ -48220,7 +48220,7 @@ if (x_24 == 0)
 lean_object* x_25; uint8_t x_26; lean_object* x_27; 
 x_25 = lean_ctor_get(x_22, 0);
 lean_dec(x_25);
-x_26 = 0;
+x_26 = 2;
 x_27 = lean_box(x_26);
 lean_ctor_set(x_22, 0, x_27);
 return x_22;
@@ -48231,7 +48231,7 @@ lean_object* x_28; uint8_t x_29; lean_object* x_30; lean_object* x_31;
 x_28 = lean_ctor_get(x_22, 1);
 lean_inc(x_28);
 lean_dec(x_22);
-x_29 = 0;
+x_29 = 2;
 x_30 = lean_box(x_29);
 x_31 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_31, 0, x_30);

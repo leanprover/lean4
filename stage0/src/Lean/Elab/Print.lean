@@ -56,6 +56,7 @@ private def printQuot (kind : QuotKind) (id : Name) (levelParams : List Name) (t
 private def printInduct (id : Name) (levelParams : List Name) (numParams : Nat) (numIndices : Nat) (type : Expr)
     (ctors : List Name) (isUnsafe : Bool) : CommandElabM Unit := do
   let mut m ← mkHeader' "inductive" id levelParams type isUnsafe
+  m := m ++ Format.line ++ "number of parameters: " ++ toString numParams
   m := m ++ Format.line ++ "constructors:"
   for ctor in ctors do
     let cinfo ← getConstInfo ctor

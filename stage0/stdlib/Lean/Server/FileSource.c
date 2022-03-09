@@ -64,6 +64,8 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceTextDocumentEdit(lean_object*)
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceRpcConnectParams___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourcePlainTermGoalParams(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceTextDocumentPositionParams(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceFoldingRangeParams___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceFoldingRangeParams(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceHoverParams(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceLocation(lean_object* x_1) {
 _start:
@@ -416,6 +418,22 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Lsp_instFileSourceSemanticTokensRangeParams(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceFoldingRangeParams(lean_object* x_1) {
+_start:
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Lsp_instFileSourceFoldingRangeParams___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Lsp_instFileSourceFoldingRangeParams(x_1);
 lean_dec(x_1);
 return x_2;
 }

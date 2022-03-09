@@ -9,16 +9,16 @@ import Init.Data.Nat.Basic
 
 universe u v
 
-set_option codegen false
-
 inductive Acc {α : Sort u} (r : α → α → Prop) : α → Prop where
   | intro (x : α) (h : (y : α) → r y x → Acc r y) : Acc r x
 
+set_option codegen false in
 abbrev Acc.ndrec.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
     (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → (a : r y x) → C y) → C x)
     {a : α} (n : Acc r a) : C a :=
 Acc.rec (motive := fun α _ => C α) m n
 
+set_option codegen false in
 abbrev Acc.ndrecOn.{u1, u2} {α : Sort u2} {r : α → α → Prop} {C : α → Sort u1}
     {a : α} (n : Acc r a)
     (m : (x : α) → ((y : α) → r y x → Acc r y) → ((y : α) → (a : r y x) → C y) → C x)
@@ -59,6 +59,7 @@ theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, r y x → C y) 
 variable {C : α → Sort v}
 variable (F : ∀ x, (∀ y, r y x → C y) → C x)
 
+set_option codegen false in
 def fixF (x : α) (a : Acc r x) : C x := by
   induction a with
   | intro x₁ ac₁ ih => exact F x₁ ih
@@ -72,6 +73,7 @@ end
 variable {α : Sort u} {C : α → Sort v} {r : α → α → Prop}
 
 -- Well-founded fixpoint
+set_option codegen false in
 def fix (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) : C x :=
   fixF F x (apply hwf x)
 

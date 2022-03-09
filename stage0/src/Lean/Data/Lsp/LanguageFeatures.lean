@@ -301,5 +301,26 @@ structure SemanticTokens where
   data : Array Nat
   deriving FromJson, ToJson
 
+structure FoldingRangeParams where
+  textDocument : TextDocumentIdentifier
+  deriving FromJson, ToJson
+
+inductive FoldingRangeKind where
+  | comment
+  | imports
+  | region
+
+instance : ToJson FoldingRangeKind where
+  toJson
+    | FoldingRangeKind.comment => "comment"
+    | FoldingRangeKind.imports => "imports"
+    | FoldingRangeKind.region => "region"
+
+structure FoldingRange where
+  startLine : Nat
+  endLine : Nat
+  kind? : Option FoldingRangeKind := none
+  deriving ToJson
+
 end Lsp
 end Lean

@@ -793,12 +793,10 @@ private:
             return *o;
         }
 
-        if (get_regular_init_fn_name_for(m_env, fn)) {
-            // We don't know whether `[init]` decls can be re-executed, so let's not.
-            throw exception(sstream() << "cannot evaluate `[init]` declaration '" << fn << "' in the same module");
-        }
         symbol_cache_entry e = lookup_symbol(fn);
         if (e.m_addr) {
+            // we can assume that all native code has been initialized (see e.g. `evalConst`)
+
             // constants do not have boxed wrappers, but we'll survive
             switch (t) {
                 case type::Float: return value::from_float(*static_cast<double *>(e.m_addr));
@@ -812,16 +810,21 @@ private:
                 case type::Irrelevant:
                     return *static_cast<object **>(e.m_addr);
             }
-        } else {
-            push_frame(e.m_decl, m_arg_stack.size());
-            value r = eval_body(decl_fun_body(e.m_decl));
-            pop_frame(r, decl_type(e.m_decl));
-            if (!type_is_scalar(t)) {
-                inc(r.m_obj);
-            }
-            m_constant_cache.insert(fn, constant_cache_entry { type_is_scalar(t), r });
-            return r;
         }
+
+        // no native code, so might be part of the current module
+        if (get_regular_init_fn_name_for(m_env, fn)) {
+            // We don't know whether `[init]` decls can be re-executed, so let's not.
+            throw exception(sstream() << "cannot evaluate `[init]` declaration '" << fn << "' in the same module");
+        }
+        push_frame(e.m_decl, m_arg_stack.size());
+        value r = eval_body(decl_fun_body(e.m_decl));
+        pop_frame(r, decl_type(e.m_decl));
+        if (!type_is_scalar(t)) {
+            inc(r.m_obj);
+        }
+        m_constant_cache.insert(fn, constant_cache_entry { type_is_scalar(t), r });
+        return r;
     }
 
     value call(name const & fn, array_ref<arg> const & args) {

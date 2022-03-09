@@ -3,7 +3,7 @@
 set -euo pipefail
 
 function pebkac() {
-    echo 'This is just a simple Nix adapter for `lake print-paths|server`. Please use the `lean-all` attribute for the real thing.'
+    echo 'This is just a simple Nix adapter for `lake print-paths|serve`.'
     exit 1
 }
 

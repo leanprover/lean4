@@ -86,50 +86,56 @@ def toACExpr (op l r : Expr) : MetaM (Array Expr × ACExpr) := do
 def buildNormProof (preContext : PreContext) (l r : Expr) : MetaM (Lean.Expr × Lean.Expr) := do
   let (vars, acExpr) ← toACExpr preContext.op l r
 
-  let (isNeutrals, context) ← mkContext vars
-  let acExprNormed := Data.AC.evalList ACExpr preContext $ Data.AC.norm (preContext, isNeutrals) acExpr
-  let tgt ← convertTarget vars acExprNormed
-  let lhs ← convert acExpr
-  let rhs ← convert acExprNormed
   let α ← inferType vars[0]
   let u ← getLevel α
+  let (isNeutrals, context) ← mkContext α u vars
+  let acExprNormed := Data.AC.evalList ACExpr preContext $ Data.AC.norm (preContext, isNeutrals) acExpr
+  let tgt := convertTarget vars acExprNormed
+  let lhs := convert acExpr
+  let rhs := convert acExprNormed
   let proof := mkAppN (mkConst ``Context.eq_of_norm [u]) #[α, context, lhs, rhs, ←mkEqRefl (mkConst ``Bool.true)]
   return (proof, tgt)
 where
-  mkContext (vars : Array Expr) : MetaM (Array Bool × Expr) := do
+  mkContext (α : Expr) (u : Level) (vars : Array Expr) : MetaM (Array Bool × Expr) := do
     let arbitrary := vars[0]
+    let zero := mkLevelZeroEx ()
+    let noneE := mkApp (mkConst ``Option.none [zero])
+    let someE := mkApp2 (mkConst ``Option.some [zero])
 
     let vars ← vars.mapM fun x => do
-      let isNeutral ←
+      let isNeutral :=
+        let isNeutralClass := mkApp3 (mkConst ``IsNeutral [u]) α preContext.op x
         match ←getInstance ``IsNeutral #[preContext.op, x] with
-        | none => pure (false, ←mkAppOptM ``Option.none #[←mkAppM ``IsNeutral #[preContext.op, x]])
-        | some isNeutral => pure (true, ←mkAppM ``Option.some #[isNeutral])
+        | none => (false, noneE isNeutralClass)
+        | some isNeutral => (true, someE isNeutralClass isNeutral)
 
-      return (isNeutral.1, ←mkAppM ``Variable.mk #[x, isNeutral.2])
+      return (isNeutral.1, mkApp4 (mkConst ``Variable.mk [u]) α preContext.op x isNeutral.2)
 
     let (isNeutrals, vars) := vars.unzip
     let vars := vars.toList
-    let vars ← mkListLit (←mkAppM ``Variable #[preContext.op]) vars
+    let vars ← mkListLit (mkApp2 (mkConst ``Variable [u]) α preContext.op) vars
 
-    let comm ←
+    let comm :=
+      let commClass := mkApp2 (mkConst ``IsCommutative [u]) α preContext.op
       match preContext.comm with
-      | none => mkAppOptM ``Option.none #[←mkAppM ``IsCommutative #[preContext.op]]
-      | some comm => mkAppM ``Option.some #[comm]
+      | none => noneE commClass
+      | some comm => someE commClass comm
 
-    let idem ←
+    let idem :=
+      let idemClass := mkApp2 (mkConst ``IsIdempotent [u]) α preContext.op
       match preContext.idem with
-      | none => mkAppOptM ``Option.none #[←mkAppM ``IsIdempotent #[preContext.op]]
-      | some idem => mkAppM ``Option.some #[idem]
+      | none => noneE idemClass
+      | some idem => someE idemClass idem
 
-    return (isNeutrals, ←mkAppM ``Lean.Data.AC.Context.mk #[preContext.op, preContext.assoc, comm, idem, vars, arbitrary])
+    return (isNeutrals, mkApp7 (mkConst ``Lean.Data.AC.Context.mk [u]) α preContext.op preContext.assoc comm idem vars arbitrary)
 
-  convert : ACExpr → MetaM Expr
-    | Data.AC.Expr.op l r => do mkAppM ``Data.AC.Expr.op #[←convert l, ←convert r]
-    | Data.AC.Expr.var x => mkAppM ``Data.AC.Expr.var #[mkNatLit x]
+  convert : ACExpr → Expr
+    | Data.AC.Expr.op l r => mkApp2 (mkConst ``Data.AC.Expr.op) (convert l) (convert r)
+    | Data.AC.Expr.var x => mkApp (mkConst ``Data.AC.Expr.var) $ mkNatLit x
 
-  convertTarget (vars : Array Expr) : ACExpr → MetaM Expr
-    | Data.AC.Expr.op l r => do mkAppM' preContext.op #[←convertTarget vars l, ←convertTarget vars r]
-    | Data.AC.Expr.var x => return vars[x]
+  convertTarget (vars : Array Expr) : ACExpr → Expr
+    | Data.AC.Expr.op l r => mkApp2 preContext.op (convertTarget vars l) (convertTarget vars r)
+    | Data.AC.Expr.var x => vars[x]
 
 def rewriteUnnormalized (mvarId : MVarId) : MetaM Unit := do
   let simpCtx :=

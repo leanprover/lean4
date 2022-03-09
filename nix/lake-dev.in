@@ -1,6 +1,6 @@
 #!@bash@/bin/bash
 
-set -euxo pipefail
+set -euo pipefail
 
 function pebkac() {
     echo 'This is just a simple Nix adapter for `lake print-paths|server`. Please use the `lean-all` attribute for the real thing.'

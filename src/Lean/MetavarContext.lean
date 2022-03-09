@@ -791,7 +791,7 @@ private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) 
   Note that https://github.com/leanprover/lean/issues/1258 is not an issue in Lean4 because
   we have changed how we compile recursive definitions.
 -/
-def collectDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array Expr) (preserveOrder : Bool) : Except Exception (Array Expr) := do
+def collectForwardDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array Expr) (preserveOrder : Bool) : Except Exception (Array Expr) := do
   if toRevert.size == 0 then
     pure toRevert
   else
@@ -923,14 +923,14 @@ mutual
          ```
          ?n #[y_1, ..., y_m, x_1, ... x_n] := ?m x_1 ... x_n
          ```
-         where `#[y_1, ..., y_m]` is `toRevert` after `collectDeps`.
+         where `#[y_1, ..., y_m]` is `toRevert` after `collectForwardDeps`.
 
          Remark: `newMVarKind != MetavarKind.syntheticOpaque ==> nestedFVars == #[]`
       -/
       let rec cont (nestedFVars : Array Expr) (nestedLCtx : LocalContext) : M (Expr × Array Expr) := do
         let args ← args.mapM (visit xs)
         let preserve ← preserveOrder
-        match collectDeps mctx mvarLCtx toRevert preserve with
+        match collectForwardDeps mctx mvarLCtx toRevert preserve with
         | Except.error ex    => throw ex
         | Except.ok toRevert =>
           let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert

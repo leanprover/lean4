@@ -720,15 +720,15 @@ def localDeclDependsOn' (mctx : MetavarContext) (localDecl : LocalDecl) (x : Exp
 namespace MkBinding
 
 inductive Exception where
-  | revertFailure (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array Expr) (decl : LocalDecl)
+  | revertFailure (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array Expr) (varName : String)
 
 instance : ToString Exception where
   toString
-    | Exception.revertFailure _ lctx toRevert decl =>
+    | Exception.revertFailure _ lctx toRevert varName =>
       "failed to revert "
       ++ toString (toRevert.map (fun x => "'" ++ toString (lctx.getFVar! x).userName ++ "'"))
-      ++ ", '" ++ toString decl.userName ++ "' depends on them, and it is an auxiliary declaration created by the elaborator"
-      ++ " (possible solution: use tactic 'clear' to remove '" ++ toString decl.userName ++ "' from local context)"
+      ++ ", '" ++ toString varName ++ "' depends on them, and it is an auxiliary declaration created by the elaborator"
+      ++ " (possible solution: use tactic 'clear' to remove '" ++ toString varName ++ "' from local context)"
 
 /--
  `MkBinding` and `elimMVarDepsAux` are mutually recursive, but `cache` is only used at `elimMVarDepsAux`.
@@ -796,7 +796,6 @@ def collectDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array 
     pure toRevert
   else
     if preserveOrder then
-      -- Make sure none of `toRevert` is an AuxDecl
       -- Make sure toRevert[j] does not depend on toRevert[i] for j > i
       toRevert.size.forM fun i => do
         let fvar := toRevert[i]
@@ -805,7 +804,7 @@ def collectDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array 
           let prevFVar := toRevert[j]
           let prevDecl := lctx.getFVar! prevFVar
           if localDeclDependsOn mctx prevDecl fvar.fvarId! then
-            throw (Exception.revertFailure mctx lctx toRevert prevDecl)
+            throw (Exception.revertFailure mctx lctx toRevert prevDecl.userName.toString)
     let newToRevert      := if preserveOrder then toRevert else Array.mkEmpty toRevert.size
     let firstDeclToVisit := getLocalDeclWithSmallestIdx lctx toRevert
     let initSize         := newToRevert.size

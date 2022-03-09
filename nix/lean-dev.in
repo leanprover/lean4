@@ -1,6 +1,6 @@
 #!@bash@/bin/bash
 
-set -euxo pipefail
+set -euo pipefail
 
 root="."
 # find package root

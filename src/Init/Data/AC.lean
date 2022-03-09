@@ -14,11 +14,11 @@ inductive Expr
   | op (lhs rhs : Expr)
   deriving Inhabited, Repr, BEq
 
-structure Variable (op : α → α → α) where
+structure Variable {α : Sort u} (op : α → α → α) : Type u where
   value : α
   neutral : Option $ IsNeutral op value
 
-structure Context (α : Type u) where
+structure Context (α : Sort u) where
   op : α → α → α
   assoc : IsAssociative op
   comm : Option $ IsCommutative op
@@ -26,12 +26,12 @@ structure Context (α : Type u) where
   vars : List (Variable op)
   arbitrary : α
 
-class ContextInformation (α : Type u) where
+class ContextInformation (α : Sort u) where
   isNeutral : α → Nat → Bool
   isComm : α → Bool
   isIdem : α → Bool
 
-class EvalInformation (α : Type u) (β : Type v) where
+class EvalInformation (α : Sort u) (β : Sort v) where
   arbitrary : α → β
   evalOp : α → β → β → β
   evalVar : α → Nat → β
@@ -49,7 +49,7 @@ instance : EvalInformation (Context α) α where
   evalOp ctx := ctx.op
   evalVar ctx idx := ctx.var idx |>.value
 
-def eval (β : Type u) [EvalInformation α β] (ctx : α) : (ex : Expr) → β
+def eval (β : Sort u) [EvalInformation α β] (ctx : α) : (ex : Expr) → β
   | Expr.var idx => EvalInformation.evalVar ctx idx
   | Expr.op l r => EvalInformation.evalOp ctx (eval β ctx l) (eval β ctx r)
 
@@ -57,7 +57,7 @@ def Expr.toList : Expr → List Nat
   | Expr.var idx => [idx]
   | Expr.op l r => l.toList.append r.toList
 
-def evalList (β : Type u) [EvalInformation α β] (ctx : α) : List Nat → β
+def evalList (β : Sort u) [EvalInformation α β] (ctx : α) : List Nat → β
   | [] => EvalInformation.arbitrary ctx
   | [x] => EvalInformation.evalVar ctx x
   | x :: xs => EvalInformation.evalOp ctx (EvalInformation.evalVar ctx x) (evalList β ctx xs)

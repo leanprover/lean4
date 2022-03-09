@@ -93,7 +93,7 @@ def buildNormProof (preContext : PreContext) (l r : Expr) : MetaM (Lean.Expr × 
   let rhs ← convert acExprNormed
   let α ← inferType vars[0]
   let u ← getLevel α
-  let proof := mkAppN (mkConst ``Context.eq_of_norm [u.dec.get!]) #[α, context, lhs, rhs, ←mkEqRefl (mkConst ``Bool.true)]
+  let proof := mkAppN (mkConst ``Context.eq_of_norm [u]) #[α, context, lhs, rhs, ←mkEqRefl (mkConst ``Bool.true)]
   return (proof, tgt)
 where
   mkContext (vars : Array Expr) : MetaM (Array Bool × Expr) := do

@@ -154,7 +154,7 @@ where
         let (proof, newTgt) ← buildNormProof pc l r
         return Simp.Step.done { expr := newTgt, proof? := proof }
       | none => return Simp.Step.done { expr := e }
-    | bin op l r, none =>
+    | bin op l r, _ =>
       match ←preContext op with
       | some pc =>
         let (proof, newTgt) ← buildNormProof pc l r

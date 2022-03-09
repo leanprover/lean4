@@ -59,6 +59,10 @@ theorem ex₂ (n m : Nat) (xs : Vector α (n+m)) (ys : Vector α (m+n)) : (f (n+
   ac_refl
 
 -- Repro: Binders also trigger invalid proofs
---theorem ex₃ (n : Nat) : (fun x => n + x) = (fun x => x + n) := by
---  ac_refl
---#print ex₃
+theorem ex₃ (n : Nat) : (fun x => n + x) = (fun x => x + n) := by
+  ac_refl
+#print ex₃
+
+-- Repro: the Prop universe doesn't work
+example (p q : Prop) : p ∨ p ∨ q ∧ True = q ∨ p := by
+  ac_refl

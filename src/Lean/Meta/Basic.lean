@@ -1089,13 +1089,13 @@ def instantiateLambda (e : Expr) (ps : Array Expr) : MetaM Expr :=
 def dependsOn (e : Expr) (fvarId : FVarId) : MetaM Bool :=
   return (← getMCtx).exprDependsOn e fvarId
 
-/-- Return true iff `e` depends on a free variable `x` s.t. `p x` -/
-def dependsOnPred (e : Expr) (p : FVarId → Bool) : MetaM Bool :=
-  return (← getMCtx).findExprDependsOn e p
+/-- Return true iff `e` depends on a free variable `x` s.t. `pf x`, or an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
+def dependsOnPred (e : Expr) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : MetaM Bool :=
+  return (← getMCtx).findExprDependsOn e pf pm
 
-/-- Return true iff the local declaration `localDecl` depends on a free variable `x` s.t. `p x` -/
-def localDeclDependsOnPred (localDecl : LocalDecl) (p : FVarId → Bool) : MetaM Bool := do
-  return (← getMCtx).findLocalDeclDependsOn localDecl p
+/-- Return true iff the local declaration `localDecl` depends on a free variable `x` s.t. `pf x`, an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
+def localDeclDependsOnPred (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : MetaM Bool := do
+  return (← getMCtx).findLocalDeclDependsOn localDecl pf pm
 
 def ppExpr (e : Expr) : MetaM Format := do
   let ctxCore  ← readThe Core.Context

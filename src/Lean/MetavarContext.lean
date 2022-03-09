@@ -630,7 +630,7 @@ private def shouldVisit (e : Expr) : M Bool := do
     modify fun s => s.insert e
     return true
 
-@[specialize] private partial def dep (mctx : MetavarContext) (p : FVarId → Bool) (e : Expr) : M Bool :=
+@[specialize] private partial def dep (mctx : MetavarContext) (pf : FVarId → Bool) (pm : MVarId →  Bool) (e : Expr) : M Bool :=
   let rec
     visit (e : Expr) : M Bool := do
       if !(← shouldVisit e) then
@@ -652,6 +652,8 @@ private def shouldVisit (e : Expr) : M Bool := do
           let (e', _) := instantiateMVars mctx e
           if e'.getAppFn != f then
             visitMain e'
+          else if pm f.mvarId! then
+            return true
           else
             visitApp e
         else
@@ -660,39 +662,60 @@ private def shouldVisit (e : Expr) : M Bool := do
         match mctx.getExprAssignment? mvarId with
         | some a => visit a
         | none   =>
-          let lctx := (mctx.getDecl mvarId).lctx
-          return lctx.any fun decl => p decl.fvarId
-      | Expr.fvar fvarId _   => return p fvarId
+          if pm mvarId then
+            return true
+          else
+            let lctx := (mctx.getDecl mvarId).lctx
+            return lctx.any fun decl => pf decl.fvarId
+      | Expr.fvar fvarId _   => return pf fvarId
       | e                    => pure false
   visit e
 
-@[inline] partial def main (mctx : MetavarContext) (p : FVarId → Bool) (e : Expr) : M Bool :=
-  if !e.hasFVar && !e.hasMVar then pure false else dep mctx p e
+@[inline] partial def main (mctx : MetavarContext) (pf : FVarId → Bool) (pm : MVarId → Bool) (e : Expr) : M Bool :=
+  if !e.hasFVar && !e.hasMVar then pure false else dep mctx pf pm e
 
 end DependsOn
 
 /--
-  Return `true` iff `e` depends on a free variable `x` s.t. `p x` is `true`.
-  For each metavariable `?m` occurring in `x`
+  Return `true` iff `e` depends on a free variable `x` s.t. `pf x` is `true`, or an unassigned metavariable `?m` s.t. `pm ?m` is true.
+  For each metavariable `?m` (that does not satisfy `pm` occurring in `x`
   1- If `?m := t`, then we visit `t` looking for `x`
   2- If `?m` is unassigned, then we consider the worst case and check whether `x` is in the local context of `?m`.
      This case is a "may dependency". That is, we may assign a term `t` to `?m` s.t. `t` contains `x`. -/
-@[inline] def findExprDependsOn (mctx : MetavarContext) (e : Expr) (p : FVarId → Bool) : Bool :=
-  DependsOn.main mctx p e |>.run' {}
+@[inline] def findExprDependsOn (mctx : MetavarContext) (e : Expr) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : Bool :=
+  DependsOn.main mctx pf pm e |>.run' {}
 
 /--
   Similar to `findExprDependsOn`, but checks the expressions in the given local declaration
-  depends on a free variable `x` s.t. `p x` is `true`. -/
-@[inline] def findLocalDeclDependsOn (mctx : MetavarContext) (localDecl : LocalDecl) (p : FVarId → Bool) : Bool :=
+  depends on a free variable `x` s.t. `pf x` is `true` or an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
+@[inline] def findLocalDeclDependsOn (mctx : MetavarContext) (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : Bool :=
   match localDecl with
-  | LocalDecl.cdecl (type := t) ..  => findExprDependsOn mctx t p
-  | LocalDecl.ldecl (type := t) (value := v) .. => (DependsOn.main mctx p t <||> DependsOn.main mctx p v).run' {}
+  | LocalDecl.cdecl (type := t) ..  => findExprDependsOn mctx t pf pm
+  | LocalDecl.ldecl (type := t) (value := v) .. => (DependsOn.main mctx pf pm t <||> DependsOn.main mctx pf pm v).run' {}
 
 def exprDependsOn (mctx : MetavarContext) (e : Expr) (fvarId : FVarId) : Bool :=
-  findExprDependsOn mctx e fun fvarId' => fvarId == fvarId'
+  findExprDependsOn mctx e (fvarId == .)
 
 def localDeclDependsOn (mctx : MetavarContext) (localDecl : LocalDecl) (fvarId : FVarId) : Bool :=
-  findLocalDeclDependsOn mctx localDecl fun fvarId' => fvarId == fvarId'
+  findLocalDeclDependsOn mctx localDecl (fvarId == .)
+
+/-- Similar to `exprDependsOn`, but `x` can be a free variable or an unassigned metavariable. -/
+def exprDependsOn' (mctx : MetavarContext) (e : Expr) (x : Expr) : Bool :=
+  if x.isFVar then
+    findExprDependsOn mctx e (x.fvarId! == .)
+  else if x.isMVar then
+    findExprDependsOn mctx e (pm := (x.mvarId! == .))
+  else
+    false
+
+/-- Similar to `localDeclDependsOn`, but `x` can be a free variable or an unassigned metavariable. -/
+def localDeclDependsOn' (mctx : MetavarContext) (localDecl : LocalDecl) (x : Expr) : Bool :=
+  if x.isFVar then
+    findLocalDeclDependsOn mctx localDecl (x.fvarId! == .)
+  else if x.isMVar then
+    findLocalDeclDependsOn mctx localDecl (pm := (x.mvarId! == .))
+  else
+    false
 
 namespace MkBinding
 
@@ -790,7 +813,7 @@ def collectDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert : Array 
       if initSize.any fun i => decl.fvarId == (newToRevert.get! i).fvarId! then pure newToRevert
       else if toRevert.any fun x => decl.fvarId == x.fvarId! then
         pure (newToRevert.push decl.toExpr)
-      else if findLocalDeclDependsOn mctx decl (fun fvarId => newToRevert.any fun x => x.fvarId! == fvarId) then
+      else if findLocalDeclDependsOn mctx decl (newToRevert.any fun x => x.fvarId! == .) then
         pure (newToRevert.push decl.toExpr)
       else
         pure newToRevert

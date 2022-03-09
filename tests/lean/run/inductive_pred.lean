@@ -1,29 +1,13 @@
-import Lean 
+import Lean
 open Lean
-
-def checkGetBelowIndices (ctorName : Name) (indices : Array Nat) : MetaM Unit := do
-  let actualIndices ← Meta.IndPredBelow.getBelowIndices ctorName
-  if actualIndices != indices then
-    throwError "wrong indices for {ctorName}: {actualIndices} ≟ {indices}"
 
 namespace Ex
 inductive LE : Nat → Nat → Prop
   | refl : LE n n
   | succ : LE n m → LE n m.succ
-#eval checkGetBelowIndices ``LE.refl #[1]
-#eval checkGetBelowIndices ``LE.succ #[1, 2, 3]
+
 
 def typeOf {α : Sort u} (a : α) := α
-
-theorem LE_brecOn : typeOf @LE.brecOn =
-∀ {motive : (a a_1 : Nat) → LE a a_1 → Prop} {a a_1 : Nat} (x : LE a a_1),
-  (∀ (a a_2 : Nat) (x : LE a a_2), @LE.below motive a a_2 x → motive a a_2 x) → motive a a_1 x := rfl
-
-theorem LE.trans : LE m n → LE n o → LE m o := by
-  intro h1 h2
-  induction h2 with
-  | refl => assumption
-  | succ h2 ih => exact succ (ih h1)
 
 theorem LE.trans' : LE m n → LE n o → LE m o
   | h1, refl    => h1
@@ -32,8 +16,6 @@ theorem LE.trans' : LE m n → LE n o → LE m o
 inductive Even : Nat → Prop
   | zero : Even 0
   | ss   : Even n → Even n.succ.succ
-#eval checkGetBelowIndices ``Even.zero #[]
-#eval checkGetBelowIndices ``Even.ss #[1, 2]
 
 theorem Even_brecOn : typeOf @Even.brecOn = ∀ {motive : (a : Nat) → Even a → Prop} {a : Nat} (x : Even a),
   (∀ (a : Nat) (x : Even a), @Even.below motive a x → motive a x) → motive a x := rfl
@@ -54,8 +36,6 @@ theorem mul_left_comm (n m o : Nat) : n * (m * o) = m * (n * o) := by
 inductive Power2 : Nat → Prop
   | base : Power2 1
   | ind  : Power2 n → Power2 (2*n) -- Note that index here is not a constructor
-#eval checkGetBelowIndices ``Power2.base #[]
-#eval checkGetBelowIndices ``Power2.ind #[1, 2]
 
 theorem Power2_brecOn : typeOf @Power2.brecOn = ∀ {motive : (a : Nat) → Power2 a → Prop} {a : Nat} (x : Power2 a),
   (∀ (a : Nat) (x : Power2 a), @Power2.below motive a x → motive a x) → motive a x := rfl
@@ -92,9 +72,6 @@ inductive step : tm → tm → Prop :=
   | ST_Plus2 : ∀ n1 t2 t2',
       t2 ==> t2' →
       P (C n1) t2 ==> P (C n1) t2'
-#eval checkGetBelowIndices ``step.ST_PlusConstConst #[1, 2]
-#eval checkGetBelowIndices ``step.ST_Plus1 #[1, 2, 3, 4]
-#eval checkGetBelowIndices ``step.ST_Plus2 #[1, 2, 3, 4]
 
 def deterministic {X : Type} (R : X → X → Prop) :=
   ∀ x y1 y2 : X, R x y1 → R x y2 → y1 = y2
@@ -116,8 +93,6 @@ axiom f : Nat → Nat
 inductive is_nat : Nat -> Prop
 | Z : is_nat 0
 | S {n} : is_nat n → is_nat (f n)
-#eval checkGetBelowIndices ``is_nat.Z #[]
-#eval checkGetBelowIndices ``is_nat.S #[1, 2]
 
 axiom P : Nat → Prop
 axiom F0 : P 0

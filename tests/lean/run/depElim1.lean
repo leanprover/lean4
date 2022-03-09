@@ -284,27 +284,7 @@ elimTest8 _ (fun _ _ => Option (Nat × Nat)) n xs (fun a b => some (a, b)) (fun 
 inductive Op : Nat → Nat → Type
 | mk : ∀ n, Op n n
 
-structure Node : Type :=
-(id₁ id₂ : Nat)
-(o : Op id₁ id₂)
-
-def ex9 (xs : List Node) :
-  LHS (forall (h : Node) (t : List Node), Pat (h :: Node.mk 1 1 (Op.mk 1) :: t))
-× LHS (forall (ys : List Node), Pat ys) :=
-default
-
-#eval test `ex9 1 `elimTest9
-#print elimTest9
-
-def f (xs : List Node) : Bool :=
-elimTest9 (fun _ => Bool) xs
-  (fun _ _ => true)
-  (fun _   => false)
-
-#eval check (f [] == false)
-#eval check (f [⟨0, 0, Op.mk 0⟩] == false)
-#eval check (f [⟨0, 0, Op.mk 0⟩, ⟨1, 1, Op.mk 1⟩])
-#eval check (f [⟨0, 0, Op.mk 0⟩, ⟨2, 2, Op.mk 2⟩] == false)
+#print Op
 
 inductive Foo : Bool → Prop
 | bar : Foo false
@@ -317,12 +297,6 @@ default
 
 #eval test `ex10 2 `elimTest10 true
 
-def ex11 (xs : List Node) :
-  LHS (forall (h : Node) (t : List Node), Pat (h :: Node.mk 1 1 (Op.mk 1) :: t))
-× LHS (Pat ([] : List Node)) :=
-default
-
-#eval testFailure `ex11 1 `elimTest11 -- should produce error message
 
 def ex12 (x y z : Bool) :
   LHS (forall (x y : Bool), Pat x × Pat y    × Pat true)
@@ -331,14 +305,6 @@ def ex12 (x y z : Bool) :
 default
 
 #eval testFailure `ex12 3 `elimTest12 -- should produce error message
-
-def ex13 (xs : List Node) :
-  LHS (forall (h : Node) (t : List Node), Pat (h :: Node.mk 1 1 (Op.mk 1) :: t))
-× LHS (forall (ys : List Node), Pat ys)
-× LHS (forall (ys : List Node), Pat ys) :=
-default
-
-#eval testFailure `ex13 1 `elimTest13 -- should produce error message
 
 def ex14 (x y : Nat) :
   LHS (Pat (val 1) × Pat (val 2))

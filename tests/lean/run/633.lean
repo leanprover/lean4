@@ -3,8 +3,8 @@ abbrev semantics (α:Type) := StateM (List Nat) α
 inductive expression : Nat → Type
 | const : (n : Nat) → expression n
 
-def uext {w:Nat} (x: expression w) (o:Nat) : expression w := expression.const w
-def eval {n : Nat} (v:expression n) : semantics (expression n) := pure (expression.const n)
+def uext {w:Nat} (x: expression w) (o:Nat) : expression w := expression.const
+def eval {n : Nat} (v:expression n) : semantics (expression n) := pure expression.const
 def set_overflow {w : Nat} (e : expression w) : semantics Unit := pure ()
 
 structure instruction :=
@@ -13,7 +13,7 @@ structure instruction :=
 
 def definst (mnem:String) (body: expression 8 -> semantics Unit) : instruction :=
 { mnemonic := mnem
-, patterns := ((body (expression.const 8)).run []).snd.reverse
+, patterns := ((body expression.const).run []).snd.reverse
 }
 
 def mul : instruction := Id.run <| do -- this is a "pure" do block (as in it is the Id monad)

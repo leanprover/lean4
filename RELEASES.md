@@ -118,13 +118,27 @@ def Array.insertAtAux (i : Nat) (as : Array α) (j : Nat) : Array α :=
 
 * Add support for `for h : x in xs do ...` notation where `h : x ∈ xs`. This is mainly useful for showing termination.
 
-* Auto implicit behavior changed for inductive families. An auto implicit argument occurring in inductive family index is also treated as an index. For example
+* Auto implicit behavior changed for inductive families. An auto implicit argument occurring in inductive family index is also treated as an index (IF it is not fixed, see next item). For example
 ```lean
 inductive HasType : Index n → Vector Ty n → Ty → Type where
 ```
 is now interpreted as
 ```lean
 inductive HasType : {n : Nat} → Index n → Vector Ty n → Ty → Type where
+```
+
+* To make the previous feature more convenient to use, we promote a fixed prefix of inductive family indices to parameters. For example, the following declaration is now accepted by Lean
+```lean
+inductive Lst : Type u → Type u
+  | nil  : Lst α
+  | cons : α → Lst α → Lst α
+```
+and `α` in `Lst α` is a parameter. The actual number of parameters can be inspected using the command `#print Lst`. This feature also makes sure we still accept the declaration
+```lean
+inductive Sublist : List α → List α → Prop
+  | slnil : Sublist [] []
+  | cons l₁ l₂ a : Sublist l₁ l₂ → Sublist l₁ (a :: l₂)
+  | cons2 l₁ l₂ a : Sublist l₁ l₂ → Sublist (a :: l₁) (a :: l₂)
 ```
 
 * Added auto implicit "chaining". Unassigned metavariables occurring in the auto implicit types now become new auto implicit locals. Consider the following example:

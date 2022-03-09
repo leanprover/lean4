@@ -1,3 +1,4 @@
 inductive Semiring.{u} : Type u → Type u
+number of parameters: 1
 constructors:
 Semiring.mk : {R : Type u} → [toAddCommMonoid : AddCommMonoid R] → [toMonoid : Monoid R] → Semiring R

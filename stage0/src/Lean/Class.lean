@@ -50,10 +50,6 @@ def hasOutParams (env : Environment) (n : Name) : Bool :=
   | some b => b
   | none   => false
 
-@[export lean_is_out_param]
-def isOutParam (e : Expr) : Bool :=
-  e.isAppOfArity `outParam 1
-
 /--
   Auxiliary function for checking whether a class has `outParam`, and
   whether they are being correctly used.
@@ -68,7 +64,7 @@ def isOutParam (e : Expr) : Bool :=
 -/
 private partial def checkOutParam : Nat → Array FVarId → Expr → Except String Bool
   | i, outParams, Expr.forallE _ d b _ =>
-    if isOutParam d then
+    if d.isOutParam then
       let fvarId    := { name := Name.mkNum `_fvar outParams.size }
       let outParams := outParams.push fvarId
       let fvar      := mkFVar fvarId

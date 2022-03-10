@@ -465,14 +465,14 @@ def instantiateLocalDeclMVars (localDecl : LocalDecl) : MetaM LocalDecl :=
     return LocalDecl.ldecl idx id n (← instantiateMVars type) (← instantiateMVars val) nonDep
 
 @[inline] def liftMkBindingM (x : MetavarContext.MkBindingM α) : MetaM α := do
-  match x (← getLCtx) { mctx := (← getMCtx), ngen := (← getNGen) } with
-  | EStateM.Result.ok e newS => do
-    setNGen newS.ngen;
-    setMCtx newS.mctx;
+  match x { lctx := (← getLCtx), mainModule := (← getEnv).mainModule } { mctx := (← getMCtx), ngen := (← getNGen), nextMacroScope := (← getThe Core.State).nextMacroScope } with
+  | EStateM.Result.ok e sNew => do
+    setMCtx sNew.mctx
+    modifyThe Core.State fun s => { s with ngen := sNew.ngen, nextMacroScope := sNew.nextMacroScope }
     pure e
-  | EStateM.Result.error (MetavarContext.MkBinding.Exception.revertFailure mctx lctx toRevert decl) newS => do
-    setMCtx newS.mctx;
-    setNGen newS.ngen;
+  | EStateM.Result.error (MetavarContext.MkBinding.Exception.revertFailure mctx lctx toRevert decl) sNew => do
+    setMCtx sNew.mctx
+    modifyThe Core.State fun s => { s with ngen := sNew.ngen, nextMacroScope := sNew.nextMacroScope }
     throwError "failed to create binder due to failure when reverting variable dependencies"
 
 def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MetaM Expr :=
@@ -481,14 +481,14 @@ def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MetaM Expr :=
 def abstract (e : Expr) (xs : Array Expr) : MetaM Expr :=
   abstractRange e xs.size xs
 
-def mkForallFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) : MetaM Expr :=
-  if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkForall xs e usedOnly usedLetOnly
+def mkForallFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
+  if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkForall xs e usedOnly usedLetOnly binderInfoForMVars
 
-def mkLambdaFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) : MetaM Expr :=
-  if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkLambda xs e usedOnly usedLetOnly
+def mkLambdaFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
+  if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkLambda xs e usedOnly usedLetOnly binderInfoForMVars
 
-def mkLetFVars (xs : Array Expr) (e : Expr) (usedLetOnly := true) : MetaM Expr :=
-  mkLambdaFVars xs e (usedLetOnly := usedLetOnly)
+def mkLetFVars (xs : Array Expr) (e : Expr) (usedLetOnly := true) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
+  mkLambdaFVars xs e (usedLetOnly := usedLetOnly) (binderInfoForMVars := binderInfoForMVars)
 
 def mkArrow (d b : Expr) : MetaM Expr :=
   return Lean.mkForall (← mkFreshUserName `x) BinderInfo.default d b
@@ -1089,13 +1089,13 @@ def instantiateLambda (e : Expr) (ps : Array Expr) : MetaM Expr :=
 def dependsOn (e : Expr) (fvarId : FVarId) : MetaM Bool :=
   return (← getMCtx).exprDependsOn e fvarId
 
-/-- Return true iff `e` depends on a free variable `x` s.t. `p x` -/
-def dependsOnPred (e : Expr) (p : FVarId → Bool) : MetaM Bool :=
-  return (← getMCtx).findExprDependsOn e p
+/-- Return true iff `e` depends on a free variable `x` s.t. `pf x`, or an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
+def dependsOnPred (e : Expr) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : MetaM Bool :=
+  return (← getMCtx).findExprDependsOn e pf pm
 
-/-- Return true iff the local declaration `localDecl` depends on a free variable `x` s.t. `p x` -/
-def localDeclDependsOnPred (localDecl : LocalDecl) (p : FVarId → Bool) : MetaM Bool := do
-  return (← getMCtx).findLocalDeclDependsOn localDecl p
+/-- Return true iff the local declaration `localDecl` depends on a free variable `x` s.t. `pf x`, an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
+def localDeclDependsOnPred (localDecl : LocalDecl) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : MetaM Bool := do
+  return (← getMCtx).findLocalDeclDependsOn localDecl pf pm
 
 def ppExpr (e : Expr) : MetaM Format := do
   let ctxCore  ← readThe Core.Context

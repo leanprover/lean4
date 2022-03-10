@@ -64,8 +64,8 @@ partial def mkHCongrWithArity (f : Expr) (numArgs : Nat) : MetaM CongrTheorem :=
         let mut hs := #[]
         for x in xs, y in ys, eq in eqs do
           hs := hs.push x |>.push y |>.push eq
-        let xType := xType.consumeAutoOptParam
-        let yType := yType.consumeAutoOptParam
+        let xType := xType.consumeTypeAnnotations
+        let yType := yType.consumeTypeAnnotations
         let resultType ← if xType == yType then mkEq xType yType else mkHEq xType yType
         let congrType ← mkForallFVars hs resultType
         return {
@@ -79,8 +79,8 @@ where
       if  i < xs.size then
         let x := xs[i]
         let y := ys[i]
-        let xType := (← inferType x).consumeAutoOptParam
-        let yType := (← inferType y).consumeAutoOptParam
+        let xType := (← inferType x).consumeTypeAnnotations
+        let yType := (← inferType y).consumeTypeAnnotations
         if xType == yType then
           withLocalDeclD ((`e).appendIndexAfter (i+1)) (← mkEq x y) fun h =>
             loop (i+1) (eqs.push h) (kinds.push CongrArgKind.eq)

@@ -633,7 +633,7 @@ private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) :
     match type with
     | Expr.forallE _ d b _ => do
       let arg := args.get ⟨i, h⟩
-      let arg ← if isOutParam d then mkFreshExprMVar d else pure arg
+      let arg ← if d.isOutParam then mkFreshExprMVar d else pure arg
       let args := args.set ⟨i, h⟩ arg
       preprocessArgs (b.instantiate1 arg) (i+1) args
     | _ =>

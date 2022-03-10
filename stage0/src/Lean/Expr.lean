@@ -757,7 +757,7 @@ constant instantiateRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : @& Arra
 @[extern "lean_expr_instantiate_rev_range"]
 constant instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : @& Array Expr) : Expr
 
-/-- Replace free variables `xs` with loose bound variables. -/
+/-- Replace free (or meta) variables `xs` with loose bound variables. -/
 @[extern "lean_expr_abstract"]
 constant abstract (e : @& Expr) (xs : @& Array Expr) : Expr
 
@@ -931,15 +931,22 @@ def getAutoParamTactic? (e : Expr) : Option Expr :=
   else
     none
 
+@[export lean_is_out_param]
+def isOutParam (e : Expr) : Bool :=
+  e.isAppOfArity `outParam 1
+
 def isOptParam (e : Expr) : Bool :=
   e.isAppOfArity `optParam 2
 
 def isAutoParam (e : Expr) : Bool :=
   e.isAppOfArity `autoParam 2
 
-partial def consumeAutoOptParam (e : Expr) : Expr :=
+@[export lean_expr_consume_type_annotations]
+partial def consumeTypeAnnotations (e : Expr) : Expr :=
   if e.isOptParam || e.isAutoParam then
-    consumeAutoOptParam e.appFn!.appArg!
+    consumeTypeAnnotations e.appFn!.appArg!
+  else if e.isOutParam then
+    consumeTypeAnnotations e.appArg!
   else
     e
 

@@ -32,7 +32,6 @@ import Lean.Meta.Inductive
 import Lean.Meta.SizeOf
 import Lean.Meta.IndPredBelow
 import Lean.Meta.Coe
-import Lean.Meta.SortLocalDecls
 import Lean.Meta.CollectFVars
 import Lean.Meta.GeneralizeVars
 import Lean.Meta.Injective

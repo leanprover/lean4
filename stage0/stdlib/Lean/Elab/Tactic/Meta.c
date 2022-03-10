@@ -122,7 +122,7 @@ x_6 = l_Lean_firstFrontendMacroScope;
 x_7 = 1;
 x_8 = 0;
 x_9 = l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__6;
-x_10 = lean_alloc_ctor(0, 8, 6);
+x_10 = lean_alloc_ctor(0, 8, 7);
 lean_ctor_set(x_10, 0, x_4);
 lean_ctor_set(x_10, 1, x_5);
 lean_ctor_set(x_10, 2, x_1);
@@ -137,6 +137,7 @@ lean_ctor_set_uint8(x_10, sizeof(void*)*8 + 2, x_8);
 lean_ctor_set_uint8(x_10, sizeof(void*)*8 + 3, x_7);
 lean_ctor_set_uint8(x_10, sizeof(void*)*8 + 4, x_8);
 lean_ctor_set_uint8(x_10, sizeof(void*)*8 + 5, x_8);
+lean_ctor_set_uint8(x_10, sizeof(void*)*8 + 6, x_8);
 return x_10;
 }
 }

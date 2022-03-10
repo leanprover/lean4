@@ -16,7 +16,7 @@ def revert (mvarId : MVarId) (fvarIds : Array FVarId) (preserveOrder : Bool := f
       if (← getLocalDecl fvarId) |>.isAuxDecl then
         throwError "failed to revert {mkFVar fvarId}, it is an auxiliary declaration created to represent recursive definitions"
     let fvars := fvarIds.map mkFVar
-    match MetavarContext.MkBinding.collectDeps (← getMCtx) (← getLCtx) fvars preserveOrder with
+    match MetavarContext.MkBinding.collectForwardDeps (← getMCtx) (← getLCtx) fvars preserveOrder with
     | Except.error _     => throwError "failed to revert variables {fvars}"
     | Except.ok toRevert =>
       /- We should clear any `auxDecl` in `toRevert` -/

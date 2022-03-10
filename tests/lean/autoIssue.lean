@@ -13,3 +13,26 @@ example (z : A) : z.x = 1 := by
   have := z.2
   trace_state
   exact this
+
+#check @A.rec
+
+example (z : A) : z.x = 1 := by
+  cases z; rename_i x a'
+  trace_state
+  subst a'
+  rfl
+
+example (z : A) : z.x = 1 := by
+  induction z with
+  | mk x a' =>
+    trace_state
+    subst a'
+    rfl
+
+structure B :=
+  x : Nat
+  y : Nat := 2
+
+example (b : B) : b = { x := b.x, y := b.y } := by
+  cases b with
+  | mk x y => trace_state; rfl

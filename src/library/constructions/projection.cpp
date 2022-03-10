@@ -30,9 +30,6 @@ static bool is_prop(expr type) {
     return is_sort(type) && is_zero(sort_level(type));
 }
 
-extern "C" object * lean_expr_consume_type_annotations(obj_arg e);
-expr consume_type_annotations(expr const & e) { return expr(lean_expr_consume_type_annotations(e.to_obj_arg())); }
-
 environment mk_projections(environment const & env, name const & n, buffer<name> const & proj_names,
                            buffer<implicit_infer_kind> const & infer_kinds, bool inst_implicit) {
     lean_assert(proj_names.size() == infer_kinds.size());

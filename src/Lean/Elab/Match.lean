@@ -411,12 +411,21 @@ structure Context where
 
 abbrev M := ReaderT Context $ StateRefT State TermElabM
 
+/-- Return true iff `e` is an explicit pattern variable provided by the user. -/
 def isExplicitPatternVar (e : Expr) : M Bool := do
   if e.isFVar then
     return (← read).explicitPatternVars.any (. == e.fvarId!)
   else
     return false
 
+/--
+  Helper function for "saving" the user name associated with `mvarId` (if it is not "anonymous") before visiting `x`
+  The auto generalization feature will uses synthetic holes to preserve the name of the free variable included during generalization.
+  For example, if we are generalizing a free variable `bla`, we add the synthetic hole `?bla` for the pattern. We use synthetic hole
+  because we don't know whether `?bla` will become an inaccessible pattern or not.
+  The `withMVar` method makes sure we don't "lose" this name when `isDefEq` perform assignments of the form `?bla := ?m` where `?m` has no user name.
+  This can happen, for example, when the user provides a `_` pattern, or for implicit fields.
+-/
 private def withMVar (mvarId : MVarId) (x : M α) : M α := do
   let localDecl ← getMVarDecl mvarId
   if !localDecl.userName.isAnonymous && (← read).userName.isAnonymous then
@@ -424,6 +433,12 @@ private def withMVar (mvarId : MVarId) (x : M α) : M α := do
   else
     x
 
+/--
+  Normalize the pattern and collect all patterns variables (explicit and implicit).
+  This method is the one that decides where the inaccessible annotations must be inserted.
+  The pattern variables are both free variables (for explicit pattern variables) and metavariables (for implicit ones).
+  Recall that `mkLambdaFVars` now allows us to abstract both free variables and metavariables.
+-/
 partial def normalize (e : Expr) : M Expr := do
   match inaccessible? e with
   | some e => processInaccessible e
@@ -516,9 +531,13 @@ where
       else
         return mkInaccessible (← eraseInaccessibleAnnotations (← instantiateMVars e))
 
+/--
+  Auxiliary function for combining the `matchType` and all patterns into a single expression.
+  We use it before we abstract all patterns variables. -/
 private partial def packMatchTypePatterns (matchType : Expr) (ps : Array Expr) : MetaM Expr :=
   ps.foldlM (init := matchType) fun result p => mkAppM ``PProd.mk #[result, p]
 
+/-- The inverse of `packMatchTypePatterns`. -/
 private partial def unpackMatchTypePatterns (p : Expr) : Expr × Array Expr :=
   if p.isAppOf ``PProd.mk then
     let (matchType, ps) := unpackMatchTypePatterns (p.getArg! 2)
@@ -526,6 +545,11 @@ private partial def unpackMatchTypePatterns (p : Expr) : Expr × Array Expr :=
   else
     (p, #[])
 
+/--
+  Convert a (normalized) pattern encoded as an `Expr` into a `Pattern`.
+  This method assumes that `e` has been normalized and the explicit and implicit (i.e., metavariables) pattern variables have
+  already been abstracted and converted back into new free variables.
+ -/
 private partial def toPattern (e : Expr) : MetaM Pattern := do
   match inaccessible? e with
   | some e => return Pattern.inaccessible e
@@ -558,6 +582,11 @@ structure TopSort.State where
 
 abbrev TopSortM := StateRefT TopSort.State TermElabM
 
+/--
+  Topological sort. We need it because inaccessible patterns may contain pattern variables that are declared later.
+  That is, processing patterns from left to right to do not guarantee that the pattern variables are collected in the
+  "right" order. "Right" here means pattern `x` must occur befor pattern `y` if `y`s type depends on `x`.
+-/
 private partial def topSort (patternVars : Array Expr) : TermElabM (Array Expr) := do
   let (_, s) ← patternVars.mapM visit |>.run {}
   return s.result
@@ -589,23 +618,26 @@ where
           modify fun s => { s with result := s.result.push e }
     | _ => return ()
 
+/--
+  Main method for `withDepElimPatterns`.
+  - `PatternVarDecls`: are the explicit pattern variables provided by the user.
+  - `ps`: are the patterns provided by the user.
+  - `matchType`: the expected typ for this branch. It depends on the explicit pattern variables and the implicit ones that are still represented as metavariables,
+     and are found by this function.
+  - `k` is the continuation that is executed in an updated local context with the all pattern variables (explicit and implicit). Note that, `patternVarDecls` are all
+     replaced since they may depend on implicit pattern variables (i.e., metavariables) that are converted into new free variables by this method.
+ -/
 def main (patternVarDecls : Array PatternVarDecl) (ps : Array Expr) (matchType : Expr) (k : Array LocalDecl → Array Pattern → Expr → TermElabM α) : TermElabM α := do
-  trace[Meta.debug] "patternVarDecls: {patternVarDecls.map fun d => mkFVar d.fvarId}"
-  trace[Meta.debug] "ps: {ps}"
   let explicitPatternVars := patternVarDecls.map fun decl => decl.fvarId
   let (ps, s) ← ps.mapM normalize |>.run { explicitPatternVars } |>.run {}
-  trace[Meta.debug] "s.patternVars: {s.patternVars}"
   let patternVars ← topSort s.patternVars
   let packed ← mkLambdaFVars patternVars (← packMatchTypePatterns matchType ps) (binderInfoForMVars := BinderInfo.default)
-  trace[Meta.debug] "packed: {packed}"
   let lctx := explicitPatternVars.foldl (init := (← getLCtx)) fun lctx d => lctx.erase d
   withTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) do
-    trace[Meta.debug] "before check packed"
     check packed
     lambdaTelescope packed fun patternVars packed => do
       let localDecls ← patternVars.mapM fun x => getLocalDecl x.fvarId!
       let (matchType, patterns) := unpackMatchTypePatterns packed
-      trace[Meta.debug] "patterns: {patterns}"
       k localDecls (← patterns.mapM fun p => toPattern p) matchType
 
 end ToDepElimPattern

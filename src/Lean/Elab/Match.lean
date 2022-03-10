@@ -198,7 +198,7 @@ private partial def withPatternVars {α} (pVars : Array PatternVar) (k : Array P
   let rec loop (i : Nat) (decls : Array PatternVarDecl) (userNames : Array Name) := do
     if h : i < pVars.size then
       match pVars.get ⟨i, h⟩ with
-      | PatternVar.localVar userName   =>
+      | { userName }  =>
         let type ← mkFreshTypeMVar
         withLocalDecl userName BinderInfo.default type fun x =>
           loop (i+1) (decls.push { fvarId := x.fvarId! }) (userNames.push Name.anonymous)
@@ -729,7 +729,7 @@ private def generalize (discrs : Array Expr) (matchType : Expr) (altViews : Arra
             if ysUserNames.contains yUserName then
               yUserName ← mkFreshUserName yUserName
             -- Explicitly provided pattern variables shadow `y`
-            else if patternVars.any fun | PatternVar.localVar x => x == yUserName then
+            else if patternVars.any fun x => x.userName == yUserName then
               yUserName ← mkFreshUserName yUserName
             return ysUserNames.push yUserName
           let ysIds ← ysUserNames.reverse.mapM fun n => return mkIdentFrom (← getRef) n

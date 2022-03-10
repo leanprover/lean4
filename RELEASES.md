@@ -171,3 +171,20 @@ example (a : A) : a.x = 1 := by
     -- `h` has now type `x = 1` instead of `autoParam (x = 1) auto✝`
     assumption
 ```
+
+* We now accept overloaded notation in patterns, but we require the set of pattern variables in each alternative to be the same. Example:
+```lean
+inductive Vector (α : Type u) : Nat → Type u
+  | nil : Vector α 0
+  | cons : α → Vector α n → Vector α (n+1)
+
+infix:67 " :: " => Vector.cons -- Overloading the `::` notation
+
+def head1 (x : List α) (h : x ≠ []) : α :=
+  match x with
+  | a :: as => a -- `::` is `List.cons` here
+
+def head2 (x : Vector α (n+1)) : α :=
+  match x with
+  | a :: as => a -- `::` is `Vector.cons` here
+```

@@ -11,11 +11,12 @@ namespace Lean.Elab.Term
 
 open Meta
 
-inductive PatternVar where
-  | localVar (userName : Name)
+structure PatternVar where
+  userName : Name
+  deriving BEq
 
 instance : ToString PatternVar where
-  toString := fun ⟨x⟩ => toString x
+  toString x := toString x.userName
 
 /-
   Patterns define new local variables.
@@ -46,22 +47,6 @@ structure State where
   deriving Inhabited
 
 abbrev M := StateRefT State TermElabM
-
-structure SavedState where
-  term    : Term.SavedState
-  collect : State
-  deriving Inhabited
-
-protected def saveState : M SavedState :=
-  return { term := (← Term.saveState), collect := (← get) }
-
-def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : M Unit := do
-  s.term.restore restoreInfo
-  set s.collect
-
-instance : MonadBacktrack SavedState M where
-  saveState      := CollectPatternVars.saveState
-  restoreState b := b.restore
 
 private def throwCtorExpected {α} : M α :=
   throwError "invalid pattern, constructor or constant marked with '[matchPattern]' expected"
@@ -126,7 +111,7 @@ private def processVar (idStx : Syntax) : M Syntax := do
     throwError "invalid pattern variable, must be atomic"
   if (← get).found.contains id then
     throwError "invalid pattern, variable '{id}' occurred more than once"
-  modify fun s => { s with vars := s.vars.push (PatternVar.localVar id), found := s.found.insert id }
+  modify fun s => { s with vars := s.vars.push { userName := id }, found := s.found.insert id }
   return idStx
 
 private def nameToPattern : Name → TermElabM Syntax
@@ -141,6 +126,12 @@ private def quotedNameToPattern (stx : Syntax) : TermElabM Syntax :=
 
 private def doubleQuotedNameToPattern (stx : Syntax) : TermElabM Syntax := do
   nameToPattern (← resolveGlobalConstNoOverloadWithInfo stx[2])
+
+private def samePatternsVariables (startingAt : Nat) (s₁ s₂ : State) : Bool :=
+  if h : s₁.vars.size = s₂.vars.size then
+    Array.isEqvAux s₁.vars s₂.vars h (.==.) startingAt
+  else
+    false
 
 partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroScope do
   let k := stx.getKind
@@ -233,7 +224,18 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     /- Similar to previous case -/
     doubleQuotedNameToPattern stx
   else if k == choiceKind then
-    throwError "invalid pattern, notation is ambiguous"
+    let args := stx.getArgs
+    let stateSaved ← get
+    let arg0 ← collect args[0]
+    let stateNew ← get
+    let mut argsNew := #[arg0]
+    for arg in args[1:] do
+      set stateSaved
+      argsNew := argsNew.push (← collect arg)
+      unless samePatternsVariables stateSaved.vars.size stateNew (← get) do
+        throwError "invalid pattern, overloaded notation is only allowed when all alternative have the same set of pattern variables"
+    set stateNew
+    return mkNode choiceKind argsNew
   else
     throwInvalidPattern
 
@@ -354,7 +356,6 @@ def getPatternsVars (patterns : Array Syntax) : TermElabM (Array PatternVar) := 
   return s.vars
 
 def getPatternVarNames (pvars : Array PatternVar) : Array Name :=
-  pvars.filterMap fun
-    | PatternVar.localVar x => some x
+  pvars.map fun x => x.userName
 
 end Lean.Elab.Term

@@ -11,6 +11,36 @@ code's client side filtering algorithm.
 namespace Lean
 namespace FuzzyMatching
 
+
+section Utils
+
+@[specialize] private def iterateLookaround (f : (Option Char × Char × Option Char) → α) (string : String) : Array α :=
+  if string.isEmpty then
+    #[]
+  else if string.length == 1 then
+    #[f (none, string.get 0, none)]
+  else Id.run <| do
+    let mut result := Array.mkEmpty string.length
+    result := result.push <| f (none, string.get 0, string.get 1)
+
+    for i in [2:string.length] do
+      result := result.push <| f (string.get (i - 2), string.get (i - 1), string.get i)
+    result.push <| f (string.get (string.length - 2), string.get (string.length - 1), none)
+
+private def containsInOrderLower (a b : String) : Bool := Id.run <| do
+  if a.isEmpty then
+    return true
+  let mut aIt := a.mkIterator
+  for i in [:b.bsize] do
+    if aIt.curr.toLower == (b.get i).toLower then
+      aIt := aIt.next
+      if !aIt.hasNext then
+        return true
+  return false
+
+end Utils
+
+
 /- Represents the type of a single character. -/
 inductive CharType where
   | lower | upper | separator
@@ -41,38 +71,11 @@ inductive CharRole where
   else
     CharRole.head
 
-
-@[specialize] private def iterateLookaround (f : (Option Char × Char × Option Char) → α) (string : String) : Array α :=
-  if string.isEmpty then
-    #[]
-  else if string.length == 1 then
-    #[f (none, string.get 0, none)]
-  else Id.run <| do
-    let mut result := Array.mkEmpty string.length
-    result := result.push <| f (none, string.get 0, string.get 1)
-
-    for i in [2:string.length] do
-      result := result.push <| f (string.get (i - 2), string.get (i - 1), string.get i)
-    result.push <| f (string.get (string.length - 2), string.get (string.length - 1), none)
-
-
 /- Add additional information to each character in a string and return the
 resulting list in reverse order. -/
 private def stringInfo (s : String) : Array CharRole :=
   iterateLookaround (string := s) fun (prev?, curr, next?) =>
     charRole (prev?.map charType) (charType curr) (next?.map charType)
-
-
-private def containsInOrderLower (a b : String) : Bool := Id.run <| do
-  if a.isEmpty then
-    return true
-  let mut aIt := a.mkIterator
-  for i in [:b.bsize] do
-    if aIt.curr.toLower == (b.get i).toLower then
-      aIt := aIt.next
-      if !aIt.hasNext then
-        return true
-  return false
 
 
 private def selectBest (missScore? matchScore? : Option Int) : Option Int :=
@@ -217,8 +220,7 @@ def fuzzyMatchScore? (pattern word : String) : Option Float := Id.run <| do
   return some <| min 1 (max 0 normScore)
 
 def fuzzyMatchScoreWithThreshold? (pattern word : String) (threshold := 0.2) : Option Float :=
-  let score? := fuzzyMatchScore? pattern word
-  score?.bind fun score => if score > threshold then some score else none
+  fuzzyMatchScore? pattern word |>.filter (· > threshold)
 
 /- Match the given pattern with the given word using a fuzzy matching
 algorithm. Return `false` if no match was found or the found match received a

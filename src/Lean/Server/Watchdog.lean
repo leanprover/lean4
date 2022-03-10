@@ -11,6 +11,7 @@ import Std.Data.RBMap
 import Lean.Elab.Import
 import Lean.Util.Paths
 
+import Lean.Data.FuzzyMatching
 import Lean.Data.Json
 import Lean.Data.Lsp
 import Lean.Server.Utils
@@ -368,6 +369,8 @@ end ServerM
 
 section RequestHandling
 
+open FuzzyMatching
+
 def findDefinitions (p : TextDocumentPositionParams) : ServerM <| Array Location := do
   let mut definitions := #[]
   if let some path := p.textDocument.uri.toPath? then
@@ -390,41 +393,20 @@ def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
         result := result.append identRefs
   return result
 
--- TODO Better matching https://github.com/leanprover/lean4/issues/960
 def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInformation) := do
   let references ← (← read).references.get
   let srcSearchPath := (← read).srcSearchPath
   let symbols ← references.definitionsMatching srcSearchPath (maxAmount? := some 100)
     fun name =>
       let name := privateToUserName? name |>.getD name
-      if containsCaseInsensitive p.query name.toString then
-        some name.toString
+      if let some score := fuzzyMatchScoreWithThreshold? p.query name.toString then
+        some (name.toString, score)
       else
         none
-  -- TODO Sort symbols by some useful metric?
-  return symbols.map fun (name, location) =>
-    { name, kind := SymbolKind.constant, location }
-where
-  containsCaseInsensitive (value : String) : String → Bool :=
-    if value.any (·.isUpper) then
-      containsInOrder value
-    else
-      -- ignore case if query is all lower-case
-      let value := value.toLower
-      fun target => containsInOrder value target.toLower
-
-  containsInOrder (value : String) (target : String) : Bool := Id.run do
-    if value.length == 0 then
-      return true
-    let mut valueIt := value.mkIterator
-    let mut targetIt := target.mkIterator
-    for _ in [:target.bsize] do
-      if valueIt.curr == targetIt.curr then
-        valueIt := valueIt.next
-        if !valueIt.hasNext then
-          return true
-      targetIt := targetIt.next
-    return false
+  return symbols
+    |>.qsort (fun ((_, s1), _) ((_, s2), _) => s1 > s2)
+    |>.map fun ((name, score), location) =>
+      { name, kind := SymbolKind.constant, location }
 
 end RequestHandling
 

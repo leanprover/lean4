@@ -21,7 +21,11 @@
    "detail": "Environment → Name → Option Name"},
   {"label": "getRevAliases",
    "kind": 3,
-   "detail": "Environment → Name → List Name"}],
+   "detail": "Environment → Name → List Name"},
+  {"label": "getConstInfoRec",
+   "kind": 3,
+   "detail":
+   "[inst : Monad m] → [inst : MonadEnv m] → [inst : MonadError m] → Name → m RecursorVal"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://863.lean"},
  "position": {"line": 7, "character": 12}}
@@ -46,5 +50,9 @@
    "detail": "Environment → Name → Option Name"},
   {"label": "getRevAliases",
    "kind": 3,
-   "detail": "Environment → Name → List Name"}],
+   "detail": "Environment → Name → List Name"},
+  {"label": "getConstInfoRec",
+   "kind": 3,
+   "detail":
+   "[inst : Monad m] → [inst : MonadEnv m] → [inst : MonadError m] → Name → m RecursorVal"}],
  "isIncomplete": true}

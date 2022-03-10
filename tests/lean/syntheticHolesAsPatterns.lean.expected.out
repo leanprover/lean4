@@ -8,20 +8,20 @@ n : Nat
 ⊢ Nat
 syntheticHolesAsPatterns.lean:7:30-7:31: error: don't know how to synthesize placeholder
 context:
-α β✝ : Type
-a✝ : α
-x : Fam2 α β✝
-β : Type
-a : β
-⊢ β
+α✝ β : Type
+a✝ : α✝
+x : Fam2 α✝ β
+α : Type
+a : α
+⊢ α
 syntheticHolesAsPatterns.lean:12:18-12:19: error: don't know how to synthesize placeholder
 context:
-α β✝ : Type
-a✝ : α
-x : Fam2 α β✝
-β : Type
-a : β
-⊢ β
+α✝ β : Type
+a✝ : α✝
+x : Fam2 α✝ β
+α : Type
+a : α
+⊢ α
 syntheticHolesAsPatterns.lean:13:18-13:19: error: don't know how to synthesize placeholder
 context:
 α β : Type

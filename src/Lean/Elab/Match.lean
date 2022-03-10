@@ -504,11 +504,11 @@ where
       modify fun s => { s with patternVars := s.patternVars.push e }
 
   processVar (e : Expr) : M Expr := do
-    if e.isMVar then
-      setMVarTag e.mvarId! (← read).userName
     if (← get).patternVars.contains e then
       return mkInaccessible e
     else
+      if e.isMVar then
+        setMVarTag e.mvarId! (← read).userName
       modify fun s => { s with patternVars := s.patternVars.push e }
       return e
 

@@ -47,3 +47,26 @@ def tst : MetaM Unit :=
     IO.println (← Meta.ppExpr (← inferType e))
 
 #eval tst
+
+example (z : A) : z.x = 1 := by
+  match z with
+  | { a' := h } => trace_state; exact h
+
+example (z : A) : z.x = 1 := by
+  match z with
+  | A.mk x a' => trace_state; exact a'
+
+example : A :=
+  { x := 1, a' := _ }
+
+example : A :=
+  A.mk 1 _
+
+def f (x : Nat) (h : x = 1) : A := A.mk x h
+
+example : A :=
+  f 2 _
+
+example : A := by
+  apply f
+  done

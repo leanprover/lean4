@@ -1,3 +1,4 @@
+import Lean
 structure A :=
   x : Nat
   a' : x = 1 := by trivial
@@ -36,3 +37,13 @@ structure B :=
 example (b : B) : b = { x := b.x, y := b.y } := by
   cases b with
   | mk x y => trace_state; rfl
+
+open Lean
+open Lean.Meta
+
+def tst : MetaM Unit :=
+  withLocalDeclD `a (mkConst ``A) fun a => do
+    let e := mkProj ``A 1 a
+    IO.println (← Meta.ppExpr (← inferType e))
+
+#eval tst

@@ -153,3 +153,21 @@ inductive HasType : {n : Nat} → Fin n → Vector Ty n → Ty → Type where
   | stop : {ty : Ty} → {n : Nat} → {ctx : Vector Ty n} → HasType 0 (ty :: ctx) ty
   | pop  : {n : Nat} → {k : Fin n} → {ctx : Vector Ty n} → {ty : Ty} → HasType k ctx ty → HasType k.succ (u :: ctx) ty
 ```
+
+* Eliminate auxiliary type annotations (e.g, `autoParam` and `optParam`) from recursor minor premises and projection declarations. Consider the following example
+```
+structure A :=
+  x : Nat
+  h : x = 1 := by trivial
+
+example (a : A) : a.x = 1 := by
+  have aux := a.h
+  -- `aux` has now type `a.x = 1` instead of `autoParam (a.x = 1) auto✝`
+  exact aux
+
+example (a : A) : a.x = 1 := by
+  cases a with
+  | mk x h =>
+    -- `h` has now type `x = 1` instead of `autoParam (x = 1) auto✝`
+    assumption
+```

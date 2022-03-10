@@ -1,0 +1,7 @@
+A.a' : ∀ (self : A), self.x = 1
+z : A
+this : z.x = 1
+⊢ z.x = 1
+z : A
+this : z.x = 1
+⊢ z.x = 1

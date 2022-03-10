@@ -941,6 +941,7 @@ def isOptParam (e : Expr) : Bool :=
 def isAutoParam (e : Expr) : Bool :=
   e.isAppOfArity `autoParam 2
 
+@[export lean_expr_consume_type_annotations]
 partial def consumeTypeAnnotations (e : Expr) : Expr :=
   if e.isOptParam || e.isAutoParam then
     consumeTypeAnnotations e.appFn!.appArg!

@@ -43,8 +43,25 @@ namespace CollectPatternVars
 structure State where
   found     : NameSet := {}
   vars      : Array PatternVar := #[]
+  deriving Inhabited
 
 abbrev M := StateRefT State TermElabM
+
+structure SavedState where
+  term    : Term.SavedState
+  collect : State
+  deriving Inhabited
+
+protected def saveState : M SavedState :=
+  return { term := (← Term.saveState), collect := (← get) }
+
+def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : M Unit := do
+  s.term.restore restoreInfo
+  set s.collect
+
+instance : MonadBacktrack SavedState M where
+  saveState      := CollectPatternVars.saveState
+  restoreState b := b.restore
 
 private def throwCtorExpected {α} : M α :=
   throwError "invalid pattern, constructor or constant marked with '[matchPattern]' expected"

@@ -224,24 +224,26 @@ mutual
     | _             => return none
 
   /-- Return `some (Expr.mvar mvarId)` if metavariable `mvarId` is blocking reduction. -/
-  partial def getStuckMVar? : Expr → MetaM (Option MVarId)
+  partial def getStuckMVar? (e : Expr) : MetaM (Option MVarId) := do
+    match e with
     | Expr.mdata _ e _       => getStuckMVar? e
-    | Expr.proj _ _ e _      => do getStuckMVar? (← whnf e)
-    | e@(Expr.mvar ..) => do
+    | Expr.proj _ _ e _      => getStuckMVar? (← whnf e)
+    | Expr.mvar .. => do
       let e ← instantiateMVars e
       match e with
       | Expr.mvar mvarId _ => pure (some mvarId)
       | _ => getStuckMVar? e
-    | e@(Expr.app f _ _) =>
+    | Expr.app f .. =>
       let f := f.getAppFn
       match f with
       | Expr.mvar mvarId _       => return some mvarId
-      | Expr.const fName fLvls _ => do
+      | Expr.const fName fLvls _ =>
         let cinfo? ← getConstNoEx? fName
         match cinfo? with
         | some $ ConstantInfo.recInfo recVal  => isRecStuck? recVal fLvls e.getAppArgs
         | some $ ConstantInfo.quotInfo recVal => isQuotRecStuck? recVal fLvls e.getAppArgs
         | _                                => return none
+      | Expr.proj _ _ e _ => getStuckMVar? (← whnf e)
       | _ => return none
     | _ => return none
 end

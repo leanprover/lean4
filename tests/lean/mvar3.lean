@@ -4,7 +4,7 @@ open Lean
 
 def mkLambdaTest (mctx : MetavarContext) (ngen : NameGenerator) (lctx : LocalContext) (xs : Array Expr) (e : Expr)
     : Except MetavarContext.MkBinding.Exception (MetavarContext × NameGenerator × Expr) :=
-match MetavarContext.mkLambda xs e false true BinderInfo.default lctx { mctx := mctx, ngen := ngen } with
+match MetavarContext.mkLambda xs e false true BinderInfo.default { lctx, mainModule := `main } { mctx := mctx, ngen := ngen, nextMacroScope := firstFrontendMacroScope + 1 } with
 | EStateM.Result.ok e s    => Except.ok (s.mctx, s.ngen, e)
 | EStateM.Result.error e s => Except.error e
 

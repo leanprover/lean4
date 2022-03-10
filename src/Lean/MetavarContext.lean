@@ -736,11 +736,13 @@ instance : ToString Exception where
 
   We have a `NameGenerator` because we need to generate fresh auxiliary metavariables. -/
 structure State where
-  mctx  : MetavarContext
-  ngen  : NameGenerator
-  cache : HashMap ExprStructEq Expr := {}
+  mctx           : MetavarContext
+  nextMacroScope : MacroScope
+  ngen           : NameGenerator
+  cache          : HashMap ExprStructEq Expr := {}
 
 structure Context where
+  mainModule         : Name
   preserveOrder      : Bool
   /-- When creating binders for abstracted metavariables, we use the following `BinderInfo`. -/
   binderInfoForMVars : BinderInfo := BinderInfo.implicit
@@ -749,6 +751,10 @@ structure Context where
 
 abbrev MCore := EStateM Exception State
 abbrev M     := ReaderT Context MCore
+
+private def mkFreshBinderName (n : Name := `x) : M Name := do
+  let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
+  return addMacroScope (← read).mainModule n fresh
 
 def preserveOrder : M Bool :=
   return (← read).preserveOrder
@@ -907,7 +913,7 @@ mutual
         let mvarDecl := (← get).mctx.getDecl x.mvarId!
         let type := mvarDecl.type.headBeta
         let type ← abstractRangeAux xs i type
-        let id := if mvarDecl.userName.isAnonymous then x.mvarId!.name else mvarDecl.userName
+        let id ← if mvarDecl.userName.isAnonymous then mkFreshBinderName else pure mvarDecl.userName
         return Lean.mkForall id (← read).binderInfoForMVars type e
   where
     abstractRangeAux (xs : Array Expr) (i : Nat) (e : Expr) : M Expr := do
@@ -1048,7 +1054,7 @@ partial def revert (xs : Array Expr) (mvarId : MVarId) : M (Expr × Array Expr) 
         let mvarDecl := (← get).mctx.getDecl x.mvarId!
         let type := mvarDecl.type.headBeta
         let type ← abstractRange xs i type
-        let id := if mvarDecl.userName.isAnonymous then x.mvarId!.name else mvarDecl.userName
+        let id ← if mvarDecl.userName.isAnonymous then mkFreshBinderName else pure mvarDecl.userName
         if isLambda then
           return (Lean.mkLambda id (← read).binderInfoForMVars type e, num + 1)
         else
@@ -1056,17 +1062,21 @@ partial def revert (xs : Array Expr) (mvarId : MVarId) : M (Expr × Array Expr) 
 
 end MkBinding
 
-abbrev MkBindingM := ReaderT LocalContext MkBinding.MCore
+structure MkBindingM.Context where
+  mainModule : Name
+  lctx       : LocalContext
 
-def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool) : MkBindingM Expr := fun _ =>
-  MkBinding.elimMVarDeps xs e { preserveOrder }
+abbrev MkBindingM := ReaderT MkBindingM.Context MkBinding.MCore
 
-def revert (xs : Array Expr) (mvarId : MVarId) (preserveOrder : Bool) : MkBindingM (Expr × Array Expr) := fun _ =>
-  MkBinding.revert xs mvarId { preserveOrder }
+def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool) : MkBindingM Expr := fun ctx =>
+  MkBinding.elimMVarDeps xs e { preserveOrder, mainModule := ctx.mainModule }
 
-def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM (Expr × Nat) := fun lctx =>
+def revert (xs : Array Expr) (mvarId : MVarId) (preserveOrder : Bool) : MkBindingM (Expr × Array Expr) := fun ctx =>
+  MkBinding.revert xs mvarId { preserveOrder, mainModule := ctx.mainModule }
+
+def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM (Expr × Nat) := fun ctx =>
   let mvarIdsToAbstract := xs.foldl (init := {}) fun s x => if x.isMVar then s.insert x.mvarId! else s
-  MkBinding.mkBinding isLambda lctx xs e usedOnly usedLetOnly { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract }
+  MkBinding.mkBinding isLambda ctx.lctx xs e usedOnly usedLetOnly { preserveOrder := false, binderInfoForMVars, mvarIdsToAbstract, mainModule := ctx.mainModule }
 
 @[inline] def mkLambda (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
   return (← mkBinding (isLambda := true) xs e usedOnly usedLetOnly binderInfoForMVars).1
@@ -1074,8 +1084,8 @@ def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool :=
 @[inline] def mkForall (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (binderInfoForMVars := BinderInfo.implicit) : MkBindingM Expr :=
   return (← mkBinding (isLambda := false) xs e usedOnly usedLetOnly binderInfoForMVars).1
 
-@[inline] def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MkBindingM Expr := fun _ =>
-  MkBinding.abstractRange xs n e { preserveOrder := false }
+@[inline] def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MkBindingM Expr := fun ctx =>
+  MkBinding.abstractRange xs n e { preserveOrder := false, mainModule := ctx.mainModule }
 
 /--
   `isWellFormed mctx lctx e` return true if

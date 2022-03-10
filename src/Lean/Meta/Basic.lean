@@ -465,14 +465,14 @@ def instantiateLocalDeclMVars (localDecl : LocalDecl) : MetaM LocalDecl :=
     return LocalDecl.ldecl idx id n (← instantiateMVars type) (← instantiateMVars val) nonDep
 
 @[inline] def liftMkBindingM (x : MetavarContext.MkBindingM α) : MetaM α := do
-  match x (← getLCtx) { mctx := (← getMCtx), ngen := (← getNGen) } with
-  | EStateM.Result.ok e newS => do
-    setNGen newS.ngen;
-    setMCtx newS.mctx;
+  match x { lctx := (← getLCtx), mainModule := (← getEnv).mainModule } { mctx := (← getMCtx), ngen := (← getNGen), nextMacroScope := (← getThe Core.State).nextMacroScope } with
+  | EStateM.Result.ok e sNew => do
+    setMCtx sNew.mctx
+    modifyThe Core.State fun s => { s with ngen := sNew.ngen, nextMacroScope := sNew.nextMacroScope }
     pure e
-  | EStateM.Result.error (MetavarContext.MkBinding.Exception.revertFailure mctx lctx toRevert decl) newS => do
-    setMCtx newS.mctx;
-    setNGen newS.ngen;
+  | EStateM.Result.error (MetavarContext.MkBinding.Exception.revertFailure mctx lctx toRevert decl) sNew => do
+    setMCtx sNew.mctx
+    modifyThe Core.State fun s => { s with ngen := sNew.ngen, nextMacroScope := sNew.nextMacroScope }
     throwError "failed to create binder due to failure when reverting variable dependencies"
 
 def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MetaM Expr :=

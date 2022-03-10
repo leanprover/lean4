@@ -29,7 +29,6 @@ structure Context where
   fileMap         : FileMap
   declName?       : Option Name     := none
   macroStack      : MacroStack      := []
-  currMacroScope  : MacroScope      := firstFrontendMacroScope
   /- When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
      The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
      the list of pending synthetic metavariables, and returns `?m`. -/
@@ -250,18 +249,6 @@ instance : MonadLog TermElabM where
     let ctx ← readThe Core.Context
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
     modify fun s => { s with messages := s.messages.add msg }
-
-protected def getCurrMacroScope : TermElabM MacroScope := do pure (← read).currMacroScope
-protected def getMainModule     : TermElabM Name := do pure (← getEnv).mainModule
-
-protected def withFreshMacroScope (x : TermElabM α) : TermElabM α := do
-  let fresh ← modifyGetThe Core.State (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
-  withReader (fun ctx => { ctx with currMacroScope := fresh }) x
-
-instance : MonadQuotation TermElabM where
-  getCurrMacroScope   := Term.getCurrMacroScope
-  getMainModule       := Term.getMainModule
-  withFreshMacroScope := Term.withFreshMacroScope
 
 instance : MonadInfoTree TermElabM where
   getInfoState      := return (← get).infoState

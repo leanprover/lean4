@@ -29,3 +29,20 @@ theorem rotate_inv {F : LazyList τ} {R : List τ} : (h : F.length + 1 = R.lengt
   | LazyList.nil => intro h; unfold rotate; sorry
   | LazyList.cons Fh Ft => sorry
   | LazyList.delayed Ft => sorry
+
+theorem LazyList.ind {α : Type u} {motive : LazyList α → Sort v}
+        (nil : motive LazyList.nil)
+        (cons : (hd : α) → (tl : LazyList α) → motive tl → motive (LazyList.cons hd tl))
+        (delayed : (t : Thunk (LazyList α)) → motive t.get → motive (LazyList.delayed t))
+        (t : LazyList α) : motive t :=
+  match t with
+  | LazyList.nil => nil
+  | LazyList.cons h t => cons h t (ind nil cons delayed t)
+  | LazyList.delayed t => delayed t (ind nil cons delayed t.get)
+-- Remark: Lean used well-founded recursion behind the scenes to define LazyList.ind
+
+theorem rotate_inv' {F : LazyList τ} {R : List τ} : (h : F.length + 1 = R.length) → (rotate F R nil h).length = F.length + R.length := by
+  induction F using LazyList.ind with
+  | nil => intro h; unfold rotate; sorry
+  | cons h t ih => trace_state; sorry
+  | delayed t => trace_state; sorry

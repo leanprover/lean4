@@ -70,6 +70,7 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
     let name := baseName ++ (`_eq).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     let value ← mkProof info.declName type
+    let (type, value) ← removeUnusedEqnHypotheses type value
     addDecl <| Declaration.thmDecl {
       name, type, value
       levelParams := info.levelParams

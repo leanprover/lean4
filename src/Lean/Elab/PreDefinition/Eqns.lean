@@ -200,6 +200,24 @@ where
     else
       saveEqn mvarId
 
+/--
+  Some of the hypotheses added by `mkEqnTypes` may not be used by the actual proof (i.e., `value` argument).
+  This method eliminates them.
+
+  Alternative solution: improve `saveEqn` and make sure it never includes unnecessary hypotheses.
+  These hypotheses are leftovers from tactics such as `splitMatch?` used in `mkEqnTypes`.
+-/
+partial def removeUnusedEqnHypotheses (type value : Expr) : MetaM (Expr × Expr) := do
+  match value with
+  | .lam n d b i =>
+    withLocalDecl n i.binderInfo d fun x => do
+      let (type, value) ← removeUnusedEqnHypotheses (type.bindingBody!.instantiate1 x) (b.instantiate1 x)
+      if value.containsFVar x.fvarId! || type.containsFVar x.fvarId! then
+        return (← mkForallFVars #[x] type, ← mkLambdaFVars #[x] value)
+      else
+        return (type, value)
+  | _ => return (type, value)
+
 structure EqnsExtState where
   map : Std.PHashMap Name (Array Name) := {}
   deriving Inhabited

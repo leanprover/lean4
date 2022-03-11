@@ -820,7 +820,7 @@ where
     | field::fields, false => LVal.fieldName field field.getId.toString none fIdent :: toLVals fields false
 
 private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Array NamedArg) (args : Array Arg)
-    (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool) (acc : Array (TermElabResult Expr)) : TermElabM (Array (TermElabResult Expr)) :=
+    (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool) (acc : Array (TermElabResult Expr)) : TermElabM (Array (TermElabResult Expr)) := do
   if f.getKind == choiceKind then
     -- Set `errToSorry` to `false` when processing choice nodes. See comment above about the interaction between `errToSorry` and `observing`.
     withReader (fun ctx => { ctx with errToSorry := false }) do
@@ -853,6 +853,23 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
       elabAppFn (f.getArg 1) lvals namedArgs args expectedType? (explicit := true) ellipsis overloaded acc
     | `(@$t)     => throwUnsupportedSyntax -- invalid occurrence of `@`
     | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
+    | `(.$id:ident) =>
+       tryPostponeIfNoneOrMVar expectedType?
+       match expectedType? with
+       | none => throwError "invalid dotted identifier notation, expected type must be known"
+       | some expectedType =>
+         if let Expr.const declName .. := (← instantiateMVars expectedType).getAppFn then
+           let idNew := declName ++ id.getId.eraseMacroScopes
+           unless (← getEnv).contains idNew do
+             throwError "invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
+           let fConst ← mkConst idNew
+           addTermInfo f fConst
+           let s ← observing do
+             let e ← elabAppLVals fConst lvals namedArgs args expectedType? explicit ellipsis
+             if overloaded then ensureHasType expectedType? e else pure e
+           return acc.push s
+         else
+           throwError "invalid dotted identifier notation, expected type is not of the form (C ...) where C is a constant{indentExpr expectedType}"
     | _ => do
       let catchPostpone := !overloaded
       /- If we are processing a choice node, then we should use `catchPostpone == false` when elaborating terms.
@@ -954,6 +971,7 @@ private def elabAtom : TermElab := fun stx expectedType? =>
 @[builtinTermElab ident] def elabIdent : TermElab := elabAtom
 /-- `x@e` matches the pattern `e` and binds its value to the identifier `x`. -/
 @[builtinTermElab namedPattern] def elabNamedPattern : TermElab := elabAtom
+@[builtinTermElab dotIdent] def elabDotIdent : TermElab := elabAtom
 /-- `x.{u, ...}` explicitly specifies the universes `u, ...` of the constant `x`. -/
 @[builtinTermElab explicitUniv] def elabExplicitUniv : TermElab := elabAtom
 /-- `e |>.x` is a shorthand for `(e).x`. It is especially useful for avoiding parentheses with repeated applications. -/

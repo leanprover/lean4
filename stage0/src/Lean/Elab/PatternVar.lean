@@ -142,6 +142,8 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
   else if k == ``Lean.Parser.Term.anonymousCtor then
     let elems ← stx[1].getArgs.mapSepElemsM collect
     return stx.setArg 1 <| mkNullNode elems
+  else if k == ``Lean.Parser.Term.dotIdent then
+    return stx
   else if k == ``Lean.Parser.Term.structInst then
     /-
     ```
@@ -243,7 +245,15 @@ where
 
   processCtorApp (stx : Syntax) : M Syntax := do
     let (f, namedArgs, args, ellipsis) ← expandApp stx true
-    processCtorAppCore f namedArgs args ellipsis
+    if f.getKind == ``Parser.Term.dotIdent then
+      unless namedArgs.isEmpty do
+        throwError "invalid dotted notation in a pattern, named arguments are not supported yet"
+      let mut argsNew ← args.mapM fun | Arg.stx arg => collect arg | _ => unreachable!
+      if ellipsis then
+        argsNew := argsNew.push (mkNode ``Parser.Term.ellipsis #[mkAtomFrom stx ".."])
+      return Syntax.mkApp f argsNew
+    else
+      processCtorAppCore f namedArgs args ellipsis
 
   processCtor (stx : Syntax) : M Syntax := do
     processCtorAppCore stx #[] #[] false

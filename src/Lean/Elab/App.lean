@@ -858,7 +858,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
        match expectedType? with
        | none => throwError "invalid dotted identifier notation, expected type must be known"
        | some expectedType =>
-         if let Expr.const declName .. := (← instantiateMVars expectedType).getAppFn then
+         if let .const declName .. := (← instantiateMVars expectedType).getAppFn then
            let idNew := declName ++ id.getId.eraseMacroScopes
            unless (← getEnv).contains idNew do
              throwError "invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"

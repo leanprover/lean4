@@ -16,7 +16,7 @@ termination_by _ => a.size - i
   if h : x > 0 then
     fun z => f (x - 1) (y + 1) z + 1
   else
-    (. + y)
+    (· + y)
 termination_by
   f x y => x
 

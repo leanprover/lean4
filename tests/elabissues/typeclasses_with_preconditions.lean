@@ -11,7 +11,7 @@ class FooTrue (b : Bool) extends Foo b : Type :=
 (H : b = true)
 
 /- This requires the tactic framework and auto_param. -/
--- @[instance] axiom CoeFooFooTrue (b : Bool) (H : b = true . refl) : HasCoe (Foo b) (FooTrue b)
+-- @[instance] axiom CoeFooFooTrue (b : Bool) (H : b = true · refl) : HasCoe (Foo b) (FooTrue b)
 
 instance BoolToFoo (b : Bool) : Foo b := Foo.mk b
 
@@ -44,7 +44,7 @@ Here is a toy version of this problem:
 
 axiom mkType : Nat → Type
 
-@[instance] axiom PrimeField (n : Nat) (Hp : Prime n . provePrimality) : Field (mkType n)
+@[instance] axiom PrimeField (n : Nat) (Hp : Prime n · provePrimality) : Field (mkType n)
 @[instance] axiom NonPrimeRing (n : Nat) : Ring (mkType n)
 
 example (α β : mkType 4) : α * β = β * α

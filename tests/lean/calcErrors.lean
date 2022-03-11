@@ -19,7 +19,7 @@ theorem ex5 (p : Nat → Nat → Prop) (a b : Nat) (h₁ : p a b) (h₂ : p b c)
   calc  p a b := h₁
         p _ c := h₂
 infix:50 " ≅ "  => HEq
-instance {α β γ} : Trans (. ≅ . : α → β → Prop) (. ≅ . : β → γ → Prop) (. ≅ . : α → γ → Prop) where
+instance {α β γ} : Trans (· ≅ · : α → β → Prop) (· ≅ · : β → γ → Prop) (· ≅ · : α → γ → Prop) where
   trans h₁ h₂ := HEq.trans h₁ h₂
 
 theorem ex6 {a : α} {b : β} {c : γ} (h₁ : HEq a b) (h₂ : b ≅ c) : a ≅ c :=

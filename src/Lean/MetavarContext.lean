@@ -694,26 +694,26 @@ end DependsOn
   | LocalDecl.ldecl (type := t) (value := v) .. => (DependsOn.main mctx pf pm t <||> DependsOn.main mctx pf pm v).run' {}
 
 def exprDependsOn (mctx : MetavarContext) (e : Expr) (fvarId : FVarId) : Bool :=
-  findExprDependsOn mctx e (fvarId == .)
+  findExprDependsOn mctx e (fvarId == ·)
 
 def localDeclDependsOn (mctx : MetavarContext) (localDecl : LocalDecl) (fvarId : FVarId) : Bool :=
-  findLocalDeclDependsOn mctx localDecl (fvarId == .)
+  findLocalDeclDependsOn mctx localDecl (fvarId == ·)
 
 /-- Similar to `exprDependsOn`, but `x` can be a free variable or an unassigned metavariable. -/
 def exprDependsOn' (mctx : MetavarContext) (e : Expr) (x : Expr) : Bool :=
   if x.isFVar then
-    findExprDependsOn mctx e (x.fvarId! == .)
+    findExprDependsOn mctx e (x.fvarId! == ·)
   else if x.isMVar then
-    findExprDependsOn mctx e (pm := (x.mvarId! == .))
+    findExprDependsOn mctx e (pm := (x.mvarId! == ·))
   else
     false
 
 /-- Similar to `localDeclDependsOn`, but `x` can be a free variable or an unassigned metavariable. -/
 def localDeclDependsOn' (mctx : MetavarContext) (localDecl : LocalDecl) (x : Expr) : Bool :=
   if x.isFVar then
-    findLocalDeclDependsOn mctx localDecl (x.fvarId! == .)
+    findLocalDeclDependsOn mctx localDecl (x.fvarId! == ·)
   else if x.isMVar then
-    findLocalDeclDependsOn mctx localDecl (pm := (x.mvarId! == .))
+    findLocalDeclDependsOn mctx localDecl (pm := (x.mvarId! == ·))
   else
     false
 
@@ -828,7 +828,7 @@ def collectForwardDeps (mctx : MetavarContext) (lctx : LocalContext) (toRevert :
         return newToRevert
       else if toRevert.any fun x => decl.fvarId == x.fvarId! then
         return newToRevert.push decl.toExpr
-      else if findLocalDeclDependsOn mctx decl (newToRevert.any fun x => x.fvarId! == .) then
+      else if findLocalDeclDependsOn mctx decl (newToRevert.any fun x => x.fvarId! == ·) then
         return newToRevert.push decl.toExpr
       else
         return newToRevert

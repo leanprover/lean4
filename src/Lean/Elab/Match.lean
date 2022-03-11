@@ -414,7 +414,7 @@ abbrev M := ReaderT Context $ StateRefT State TermElabM
 /-- Return true iff `e` is an explicit pattern variable provided by the user. -/
 def isExplicitPatternVar (e : Expr) : M Bool := do
   if e.isFVar then
-    return (← read).explicitPatternVars.any (. == e.fvarId!)
+    return (← read).explicitPatternVars.any (· == e.fvarId!)
   else
     return false
 

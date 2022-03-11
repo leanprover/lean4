@@ -56,7 +56,7 @@ where
           throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 
 def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
-  withOptions (tactic.hygienic.set . false) do
+  withOptions (tactic.hygienic.set · false) do
   let eqnTypes ← withNewMCtxDepth <| lambdaTelescope info.value fun xs body => do
     let us := info.levelParams.map mkLevelParam
     let target ← mkEq (mkAppN (Lean.mkConst info.declName us) xs) body

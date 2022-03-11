@@ -11,7 +11,7 @@ namespace Vector
   | nil     => init
   | cons a l => f a (foldr f init l)
 
-  theorem foldr_max [LE β] [LT β] [DecidableRel (. < . : β → β → Prop)] {v: Vector α n} (f : α → β) (init : β)
+  theorem foldr_max [LE β] [LT β] [DecidableRel (· < · : β → β → Prop)] {v: Vector α n} (f : α → β) (init : β)
     (h: v.mem y):
     f y ≤ v.foldr (λ x acc => max (f x) acc) init := by
     induction v <;> simp only[foldr,max]

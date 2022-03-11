@@ -17,7 +17,7 @@ structure Foo (α : Type) extends Bar (α → α), Baz α
 
 def f (x : Nat) : Foo Nat :=
   { a := fun y => x + y
-    b := (. + .)
+    b := (· + ·)
     c := fun _ => x
     d := x }
 

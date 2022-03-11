@@ -31,5 +31,5 @@ def M := ReaderT String (StateT Nat IO)
 #print instMMonad
 
 def action : M Unit := do
-  modify (. + 1)
+  modify (· + 1)
   dbg_trace "{← read}"

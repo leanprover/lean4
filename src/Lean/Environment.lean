@@ -124,7 +124,7 @@ def isConstructor (env : Environment) (declName : Name) : Bool :=
   | _                       => false
 
 def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
-  env.header.moduleNames.findIdx? (. == moduleName)
+  env.header.moduleNames.findIdx? (· == moduleName)
 
 end Environment
 

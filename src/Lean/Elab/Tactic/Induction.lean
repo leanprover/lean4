@@ -365,7 +365,7 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
       return (fvarIds.map mkFVar, [mvarId])
 
 @[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focus do
-  let targets ← withMainContext <| stx[1].getSepArgs.mapM (elabTerm . none)
+  let targets ← withMainContext <| stx[1].getSepArgs.mapM (elabTerm · none)
   let targets ← generalizeTargets targets
   let (elimName, elimInfo) ← getElimNameInfo stx[2] targets (induction := true)
   let mvarId ← getMainGoal

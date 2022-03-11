@@ -210,7 +210,7 @@ builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
 
 /-- Try to close goal using `rfl` with smart unfolding turned off. -/
 def tryURefl (mvarId : MVarId) : MetaM Bool :=
-  withOptions (smartUnfolding.set . false) do
+  withOptions (smartUnfolding.set · false) do
     try applyRefl mvarId; return true catch _ => return false
 
 /-- Delta reduce the equation left-hand-side -/
@@ -223,7 +223,7 @@ def deltaLHS (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
 def deltaRHS? (mvarId : MVarId) (declName : Name) : MetaM (Option MVarId) := withMVarContext mvarId do
   let target ← getMVarType' mvarId
   let some (_, lhs, rhs) := target.eq? | return none
-  let some rhs ← delta? rhs.consumeMData (. == declName) | return none
+  let some rhs ← delta? rhs.consumeMData (· == declName) | return none
   replaceTargetDefEq mvarId (← mkEq lhs rhs)
 
 private partial def whnfAux (e : Expr) : MetaM Expr := do
@@ -289,7 +289,7 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
 /-- Generate the "unfold" lemma for `declName`. -/
 def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {} {} do
   let env ← getEnv
-  withOptions (tactic.hygienic.set . false) do
+  withOptions (tactic.hygienic.set · false) do
     let baseName := mkPrivateName env declName
     lambdaTelescope info.value fun xs body => do
       let us := info.levelParams.map mkLevelParam

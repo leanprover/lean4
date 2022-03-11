@@ -26,7 +26,7 @@ def isImplicit (bi : BinderInfo) : Bool :=
 end Lean.Elab
 
 def f2 (xs : List Nat) : List Nat :=
-  .map (. + 1) xs
+  .map (· + 1) xs
 
 def f3 : Nat :=
   .zero

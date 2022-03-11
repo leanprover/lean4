@@ -515,7 +515,7 @@ private def isDomainDefEq (arrowType : Expr) (type : Expr) : MetaM Bool := do
   TODO: we currently only convert a prefix of the indices, and we do not try to reorder binders.
 -/
 private partial def fixedIndicesToParams (numParams : Nat) (indTypes : Array InductiveType) (indFVars : Array Expr) : MetaM (Nat × List InductiveType) := do
-  let masks ← indTypes.mapM (computeFixedIndexBitMask numParams . indFVars)
+  let masks ← indTypes.mapM (computeFixedIndexBitMask numParams · indFVars)
   if masks.all fun mask => !mask.contains true then
     return (numParams, indTypes.toList)
   -- We process just a non-fixed prefix of the indices for now. Reason: we don't want to change the order.

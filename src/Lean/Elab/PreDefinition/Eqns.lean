@@ -282,8 +282,10 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
       go mvarId
     else if let some mvarIds ← splitTarget? mvarId (splitIte := false) then
       mvarIds.forM go
+    else if (← tryContradiction mvarId) then
+      return ()
     else
-     throwError "failed to generate unfold theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+      throwError "failed to generate unfold theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
   go mvarId
 
 /-- Generate the "unfold" lemma for `declName`. -/

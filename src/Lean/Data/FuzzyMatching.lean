@@ -71,8 +71,7 @@ inductive CharRole where
   else
     CharRole.head
 
-/- Add additional information to each character in a string and return the
-resulting list in reverse order. -/
+/- Add additional information to each character in a string. -/
 private def stringInfo (s : String) : Array CharRole :=
   iterateLookaround (string := s) fun (prev?, curr, next?) =>
     charRole (prev?.map charType) (charType curr) (next?.map charType)
@@ -86,17 +85,12 @@ private def selectBest (missScore? matchScore? : Option Int) : Option Int :=
     some <| max missScore matchScore
 
 /- Match the given pattern with the given word. The algorithm uses dynamic
-programming to find the best scores and requires the pattern and the word in
-reverse order.
+programming to find the best scores.
 
 In addition to the current characters in the pattern and the word, the
-algorithm can use different scores for the last operation using the two scores
-in match result. This is necessary to give consecutive character matches a
-bonus.
-
-`patternComplete` is necessary to know when we are behind the match in the
-word. -/
-private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Array CharRole) (patternComplete := true) : Option Int := Id.run <| do
+algorithm uses different scores for the last operation (miss/match). This is
+necessary to give consecutive character matches a bonus. -/
+private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Array CharRole) : Option Int := Id.run <| do
   let mut result : Array (Option Int) := Array.mkArray ((pattern.length + 1) * (word.length + 1) * 2) none
 
   result := set result 0 0 (some 0) none

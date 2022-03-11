@@ -188,3 +188,28 @@ def head2 (x : Vector α (n+1)) : α :=
   match x with
   | a :: as => a -- `::` is `Vector.cons` here
 ```
+
+* New notation `.<identifier>` based on Swift. The namespace is inferred from the expected type. Examples:
+```lean
+def f (x : Nat) : Except String Nat :=
+  if x > 0 then
+    .ok x
+  else
+    .error "x is zero"
+
+namespace Lean.Elab
+open Lsp
+
+def identOf : Info → Option (RefIdent × Bool)
+  | .ofTermInfo ti => match ti.expr with
+    | .const n .. => some (.const n, ti.isBinder)
+    | .fvar id .. => some (.fvar id, ti.isBinder)
+    | _ => none
+  | .ofFieldInfo fi => some (.const fi.projName, false)
+  | _ => none
+
+def isImplicit (bi : BinderInfo) : Bool :=
+  bi matches .implicit
+
+end Lean.Elab
+```

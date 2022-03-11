@@ -27,6 +27,12 @@ example (a : Nat) (h : n = 1) : [a].length = n := by
 * Extend dot-notation `x.field` for arrow types. If type of `x` is an arrow, we look up for `Function.field`.
 For example, given `f : Nat → Nat` and `g : Nat → Nat`, `f.comp g` is now notation for `Function.comp f g`.
 
+* The new `.<identifier>` notation is now also accepted where a function type is expected.
+```lean
+example (xs : List Nat) : List Nat := .map .succ xs
+example (xs : List α) : Std.RBTree α ord := xs.foldl .insert ∅
+```
+
 * [Add code folding support to the language server](https://github.com/leanprover/lean4/pull/1014).
 
 * Support notation `let <pattern> := <expr> | <else-case>` in `do` blocks.

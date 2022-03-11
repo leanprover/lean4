@@ -189,7 +189,7 @@ def head2 (x : Vector α (n+1)) : α :=
   | a :: as => a -- `::` is `Vector.cons` here
 ```
 
-* New notation `.<identifier>` based on Swift. The namespace is inferred from the expected type. Examples:
+* New notation `.<identifier>` based on Swift. The namespace is inferred from the expected type. See [issue #944](https://github.com/leanprover/lean4/issues/944). Examples:
 ```lean
 def f (x : Nat) : Except String Nat :=
   if x > 0 then

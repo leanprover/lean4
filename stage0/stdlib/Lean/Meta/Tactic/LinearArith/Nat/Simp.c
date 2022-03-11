@@ -76,7 +76,7 @@ lean_object* l_Lean_Meta_Linear_Nat_LinearExpr_toArith(lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___lambda__1___closed__2;
 lean_object* l_Lean_Meta_mkLE(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Init_Data_Nat_Linear_0__Nat_Linear_beqPolyCnstr____x40_Init_Data_Nat_Linear___hyg_1382_(lean_object*, lean_object*);
+uint8_t l___private_Init_Data_Nat_Linear_0__Nat_Linear_beqPolyCnstr____x40_Init_Data_Nat_Linear___hyg_1385_(lean_object*, lean_object*);
 lean_object* l_Nat_Linear_Poly_toExpr(lean_object*);
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___lambda__1___closed__4;
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___closed__22;
@@ -390,7 +390,7 @@ x_28 = l_Nat_Linear_PolyCnstr_isValid(x_26);
 if (x_28 == 0)
 {
 uint8_t x_29; 
-x_29 = l___private_Init_Data_Nat_Linear_0__Nat_Linear_beqPolyCnstr____x40_Init_Data_Nat_Linear___hyg_1382_(x_25, x_26);
+x_29 = l___private_Init_Data_Nat_Linear_0__Nat_Linear_beqPolyCnstr____x40_Init_Data_Nat_Linear___hyg_1385_(x_25, x_26);
 lean_dec(x_25);
 if (x_29 == 0)
 {
@@ -692,7 +692,7 @@ x_98 = l_Nat_Linear_PolyCnstr_isValid(x_96);
 if (x_98 == 0)
 {
 uint8_t x_99; 
-x_99 = l___private_Init_Data_Nat_Linear_0__Nat_Linear_beqPolyCnstr____x40_Init_Data_Nat_Linear___hyg_1382_(x_95, x_96);
+x_99 = l___private_Init_Data_Nat_Linear_0__Nat_Linear_beqPolyCnstr____x40_Init_Data_Nat_Linear___hyg_1385_(x_95, x_96);
 lean_dec(x_95);
 if (x_99 == 0)
 {
@@ -988,7 +988,7 @@ x_160 = l_Nat_Linear_PolyCnstr_isValid(x_158);
 if (x_160 == 0)
 {
 uint8_t x_161; 
-x_161 = l___private_Init_Data_Nat_Linear_0__Nat_Linear_beqPolyCnstr____x40_Init_Data_Nat_Linear___hyg_1382_(x_157, x_158);
+x_161 = l___private_Init_Data_Nat_Linear_0__Nat_Linear_beqPolyCnstr____x40_Init_Data_Nat_Linear___hyg_1385_(x_157, x_158);
 lean_dec(x_157);
 if (x_161 == 0)
 {
@@ -1309,7 +1309,7 @@ x_227 = l_Nat_Linear_PolyCnstr_isValid(x_225);
 if (x_227 == 0)
 {
 uint8_t x_228; 
-x_228 = l___private_Init_Data_Nat_Linear_0__Nat_Linear_beqPolyCnstr____x40_Init_Data_Nat_Linear___hyg_1382_(x_224, x_225);
+x_228 = l___private_Init_Data_Nat_Linear_0__Nat_Linear_beqPolyCnstr____x40_Init_Data_Nat_Linear___hyg_1385_(x_224, x_225);
 lean_dec(x_224);
 if (x_228 == 0)
 {

@@ -121,7 +121,8 @@ private def mkCoreContext (ctx : Context) (s : State) (heartbeats : Nat) : Core.
     ref            := ctx.ref
     currNamespace  := scope.currNamespace
     openDecls      := scope.openDecls
-    initHeartbeats := heartbeats }
+    initHeartbeats := heartbeats
+    currMacroScope := ctx.currMacroScope }
 
 def liftCoreM {α} (x : CoreM α) : CommandElabM α := do
   let s ← get
@@ -345,7 +346,6 @@ private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) 
   { macroStack             := ctx.macroStack
     fileName               := ctx.fileName
     fileMap                := ctx.fileMap
-    currMacroScope         := ctx.currMacroScope
     declName?              := declName?
     sectionVars            := sectionVars
     isNoncomputableSection := scope.isNoncomputable }

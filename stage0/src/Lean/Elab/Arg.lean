@@ -25,12 +25,12 @@ structure NamedArg where
 /--
   Add a new named argument to `namedArgs`, and throw an error if it already contains a named argument
   with the same name. -/
-def addNamedArg (namedArgs : Array NamedArg) (namedArg : NamedArg) : TermElabM (Array NamedArg) := do
+def addNamedArg (namedArgs : Array NamedArg) (namedArg : NamedArg) : MetaM (Array NamedArg) := do
   if namedArgs.any (namedArg.name == ·.name) then
     throwError "argument '{namedArg.name}' was already set"
   return namedArgs.push namedArg
 
-partial def expandArgs (args : Array Syntax) (pattern := false) : TermElabM (Array NamedArg × Array Arg × Bool) := do
+partial def expandArgs (args : Array Syntax) (pattern := false) : MetaM (Array NamedArg × Array Arg × Bool) := do
   let (args, ellipsis) :=
     if args.isEmpty then
       (args, false)
@@ -51,7 +51,7 @@ partial def expandArgs (args : Array Syntax) (pattern := false) : TermElabM (Arr
       return (namedArgs, args.push $ Arg.stx stx)
   return (namedArgs, args, ellipsis)
 
-def expandApp (stx : Syntax) (pattern := false) : TermElabM (Syntax × Array NamedArg × Array Arg × Bool) := do
+def expandApp (stx : Syntax) (pattern := false) : MetaM (Syntax × Array NamedArg × Array Arg × Bool) := do
   let (namedArgs, args, ellipsis) ← expandArgs stx[1].getArgs
   return (stx[0], namedArgs, args, ellipsis)
 

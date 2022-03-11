@@ -155,7 +155,7 @@ inductive HasType : {n : Nat} → Fin n → Vector Ty n → Ty → Type where
 ```
 
 * Eliminate auxiliary type annotations (e.g, `autoParam` and `optParam`) from recursor minor premises and projection declarations. Consider the following example
-```
+```lean
 structure A :=
   x : Nat
   h : x = 1 := by trivial

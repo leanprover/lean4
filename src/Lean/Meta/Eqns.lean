@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Basic
+import Lean.Meta.InferType
 
 namespace Lean.Meta
 
@@ -41,10 +42,17 @@ def registerGetEqnsFn (f : GetEqnsFn) : IO Unit := do
     throw (IO.userError "failed to register equation getter, this kind of extension can only be registered during initialization")
   getEqnsFnsRef.modify (f :: ·)
 
+private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
+  if let some (.defnInfo info) := (← getEnv).find? declName then
+    return !(← isProp info.type)
+  else
+    return false
+
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
-  for f in (← getEqnsFnsRef.get) do
-    if let some r ← f declName then
-      return some r
+  if (← shouldGenerateEqnThms declName) then
+    for f in (← getEqnsFnsRef.get) do
+      if let some r ← f declName then
+        return some r
   return none
 
 def GetUnfoldEqnFn := Name → MetaM (Option Name)
@@ -82,9 +90,10 @@ def registerGetUnfoldEqnFn (f : GetUnfoldEqnFn) : IO Unit := do
   getUnfoldEqnFnsRef.modify (f :: ·)
 
 def getUnfoldEqnFor? (declName : Name) : MetaM (Option Name) := do
-  for f in (← getUnfoldEqnFnsRef.get) do
-    if let some r ← f declName then
-      return some r
-  return none
+  if (← shouldGenerateEqnThms declName) then
+    for f in (← getUnfoldEqnFnsRef.get) do
+      if let some r ← f declName then
+        return some r
+   return none
 
 end Lean.Meta

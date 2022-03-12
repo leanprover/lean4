@@ -1,6 +1,8 @@
 v4.0.0-m4 (WIP)
 ---------
 
+* [Fuzzy matching for auto completion](https://github.com/leanprover/lean4/pull/1023)
+
 * Extend dot-notation `x.field` for arrow types. If type of `x` is an arrow, we look up for `Function.field`.
 For example, given `f : Nat → Nat` and `g : Nat → Nat`, `f.comp g` is now notation for `Function.comp f g`.
 

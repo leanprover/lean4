@@ -1,6 +1,16 @@
 v4.0.0-m4 (WIP)
 ---------
 
+* `rw` tactic can now apply auto-generated equation theorems for a given definition. Example:
+```lean
+example (a : Nat) (h : n = 1) : [a].length = n := by
+  rw [List.length]
+  trace_state -- .. |- [].length + 1 = n
+  rw [List.length]
+  trace_state -- .. |- 0 + 1 = n
+  rw [h]
+```
+
 * [Fuzzy matching for auto completion](https://github.com/leanprover/lean4/pull/1023)
 
 * Extend dot-notation `x.field` for arrow types. If type of `x` is an arrow, we look up for `Function.field`.

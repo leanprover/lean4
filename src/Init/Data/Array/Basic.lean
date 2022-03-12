@@ -659,7 +659,6 @@ def eraseIdxAux (i : Nat) (a : Array α) : Array α :=
     let idx  : Fin a.size := ⟨i, h⟩;
     let idx1 : Fin a.size := ⟨i - 1, by exact Nat.lt_of_le_of_lt (Nat.pred_le i) h⟩;
     let a' := a.swap idx idx1
-    have : a'.size - (i+1) < a.size - i := by rw [size_swap]; apply Nat.sub_succ_lt_self; assumption
     eraseIdxAux (i+1) a'
   else
     a.pop

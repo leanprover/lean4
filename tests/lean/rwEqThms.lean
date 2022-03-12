@@ -14,3 +14,12 @@ example {a : α} {as bs : List α} (h : as = bs) : (a::b::as).length = (b::bs).l
   conv => rhs; rw [List.length]
   trace_state -- rhs was unfolded
   rw [h]
+
+example {a : α} {as bs : List α} (h : as = bs) : id (id ((a::b::as).length)) = (b::bs).length + 1 := by
+  rw [id]
+  trace_state
+  rw [id]
+  trace_state
+  rw [List.length, List.length, List.length]
+  trace_state
+  rw [h]

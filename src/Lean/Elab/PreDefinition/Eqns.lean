@@ -218,14 +218,6 @@ partial def removeUnusedEqnHypotheses (type value : Expr) : MetaM (Expr × Expr)
         return (type, value)
   | _ => return (type, value)
 
-structure EqnsExtState where
-  map : Std.PHashMap Name (Array Name) := {}
-  deriving Inhabited
-
-/- We generate the equations on demand, and do not save them on .olean files. -/
-builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
-  registerEnvExtension (pure {})
-
 /-- Try to close goal using `rfl` with smart unfolding turned off. -/
 def tryURefl (mvarId : MVarId) : MetaM Bool :=
   withOptions (smartUnfolding.set · false) do

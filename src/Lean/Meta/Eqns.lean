@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Basic
-import Lean.Meta.InferType
+import Lean.Meta.AppBuilder
 
 namespace Lean.Meta
 
@@ -42,16 +42,31 @@ def registerGetEqnsFn (f : GetEqnsFn) : IO Unit := do
     throw (IO.userError "failed to register equation getter, this kind of extension can only be registered during initialization")
   getEqnsFnsRef.modify (f :: ·)
 
+/-- Return true iff `declName` is a definition and its type is not a proposition. -/
 private def shouldGenerateEqnThms (declName : Name) : MetaM Bool := do
   if let some (.defnInfo info) := (← getEnv).find? declName then
     return !(← isProp info.type)
   else
     return false
 
+structure EqnsExtState where
+  map : Std.PHashMap Name (Array Name) := {}
+  deriving Inhabited
+
+/- We generate the equations on demand, and do not save them on .olean files. -/
+builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
+  registerEnvExtension (pure {})
+
+/--
+  Return equation theorems for the given declaration.
+-/
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
-  if (← shouldGenerateEqnThms declName) then
+  if let some eqs := eqnsExt.getState (← getEnv) |>.map.find? declName then
+    return some eqs
+  else if (← shouldGenerateEqnThms declName) then
     for f in (← getEqnsFnsRef.get) do
       if let some r ← f declName then
+        modifyEnv fun env => eqnsExt.modifyState env fun s => { s with map := s.map.insert declName r }
         return some r
   return none
 

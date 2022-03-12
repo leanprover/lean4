@@ -64,7 +64,7 @@ def moveToHiddeProp (fvarId : FVarId) : M Unit := do
    Recall that hiddenInaccessibleProps are visible, only their names are hidden -/
 def hasVisibleDep (localDecl : LocalDecl) : M Bool := do
   let s ← get
-  return (← getMCtx).findLocalDeclDependsOn localDecl (!s.hiddenInaccessible.contains .)
+  return (← getMCtx).findLocalDeclDependsOn localDecl (!s.hiddenInaccessible.contains ·)
 
 /- Return true if the given local declaration has a "nonvisible dependency", that is, it contains
    a free variable that is `hiddenInaccessible` or `hiddenInaccessibleProp` -/

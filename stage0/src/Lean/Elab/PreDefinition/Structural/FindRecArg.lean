@@ -67,7 +67,7 @@ partial def findRecArg (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → M 
         if info.numIndices > 0 && info.numParams + info.numIndices == e.getAppNumArgs then
           for arg in e.getAppArgs[:info.numIndices] do
             forEachExpr arg fun e => do
-              if e.isFVar && xs.any (. == e) then
+              if e.isFVar && xs.any (· == e) then
                 indicesRef.modify fun indices => indices.insert e.fvarId!
   let indices ← indicesRef.get
   /- We perform two passes. See comment above. -/

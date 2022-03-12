@@ -60,7 +60,7 @@ def getFVarSetToGeneralize (targets : Array Expr) (forbidden : FVarIdSet) (ignor
   for localDecl in (← getLCtx) do
     unless forbidden.contains localDecl.fvarId do
       unless localDecl.isAuxDecl || localDecl.binderInfo.isInstImplicit || (ignoreLetDecls && localDecl.isLet) do
-      if (← getMCtx).findLocalDeclDependsOn localDecl (s.contains .) then
+      if (← getMCtx).findLocalDeclDependsOn localDecl (s.contains ·) then
         r := r.insert localDecl.fvarId
         s := s.insert localDecl.fvarId
   return r

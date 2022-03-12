@@ -85,17 +85,17 @@ def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name 
       let type ← instantiateMVars (← Term.elabType type)
       let ref ← IO.mkRef ""
       Meta.forEachExpr type fun e => do
-        if e.isForall then ref.modify (. ++ "ForAll")
-        else if e.isProp then ref.modify (. ++ "Prop")
-        else if e.isType then ref.modify (. ++ "Type")
-        else if e.isSort then ref.modify (. ++ "Sort")
+        if e.isForall then ref.modify (· ++ "ForAll")
+        else if e.isProp then ref.modify (· ++ "Prop")
+        else if e.isType then ref.modify (· ++ "Type")
+        else if e.isSort then ref.modify (· ++ "Sort")
         else if e.isConst then
           match e.constName!.eraseMacroScopes with
           | Name.str _ str _ =>
               if str[0].isLower then
-                ref.modify (. ++ str.capitalize)
+                ref.modify (· ++ str.capitalize)
               else
-                ref.modify (. ++ str)
+                ref.modify (· ++ str)
           | _ => pure ()
       ref.get
     set savedState

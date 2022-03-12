@@ -20,7 +20,7 @@ def unfold (e : Expr) (declName : Name) : MetaM Simp.Result := do
   if let some unfoldThm ← getUnfoldEqnFor? declName  then
     Simp.main e (← getSimpUnfoldContext) (methods := { pre := pre unfoldThm })
   else
-    return { expr  := (← deltaExpand e (. == declName)) }
+    return { expr  := (← deltaExpand e (· == declName)) }
 where
   pre (unfoldThm : Name) (e : Expr) : SimpM Simp.Step := do
     match (← withReducible <| Simp.tryTheorem? e { proof := mkConst unfoldThm, name? := some unfoldThm } (fun _ => return none)) with

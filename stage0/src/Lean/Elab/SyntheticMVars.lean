@@ -329,11 +329,11 @@ private partial def withSynthesizeImp {α} (k : TermElabM α) (mayPostpone : Boo
   If `mayPostpone == false`, then all of them must be synthesized.
   Remark: even if `mayPostpone == true`, the method still uses `synthesizeUsingDefault` -/
 @[inline] def withSynthesize [MonadFunctorT TermElabM m] [Monad m] (k : m α) (mayPostpone := false) : m α :=
-  monadMap (m := TermElabM) (withSynthesizeImp . mayPostpone (synthesizeDefault := true)) k
+  monadMap (m := TermElabM) (withSynthesizeImp · mayPostpone (synthesizeDefault := true)) k
 
 /-- Similar to `withSynthesize`, but sets `mayPostpone` to `true`, and do not use `synthesizeUsingDefault` -/
 @[inline] def withSynthesizeLight [MonadFunctorT TermElabM m] [Monad m] (k : m α) : m α :=
-  monadMap (m := TermElabM) (withSynthesizeImp . (mayPostpone := true) (synthesizeDefault := false)) k
+  monadMap (m := TermElabM) (withSynthesizeImp · (mayPostpone := true) (synthesizeDefault := false)) k
 
 /-- Elaborate `stx`, and make sure all pending synthetic metavariables created while elaborating `stx` are solved. -/
 def elabTermAndSynthesize (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=

@@ -13,7 +13,7 @@ open Meta
 def deltaLocalDecl (declName : Name) (fvarId : FVarId) : TacticM Unit := do
   let mvarId ← getMainGoal
   let localDecl ← getLocalDecl fvarId
-  let typeNew ← deltaExpand localDecl.type (. == declName)
+  let typeNew ← deltaExpand localDecl.type (· == declName)
   if typeNew == localDecl.type then
     throwTacticEx `delta mvarId m!"did not delta reduce '{declName}' at '{localDecl.userName}'"
   replaceMainGoal [← replaceLocalDeclDefEq mvarId fvarId typeNew]
@@ -21,7 +21,7 @@ def deltaLocalDecl (declName : Name) (fvarId : FVarId) : TacticM Unit := do
 def deltaTarget (declName : Name) : TacticM Unit := do
   let mvarId ← getMainGoal
   let target ← getMainTarget
-  let targetNew ← deltaExpand target (. == declName)
+  let targetNew ← deltaExpand target (· == declName)
   if targetNew == target then
     throwTacticEx `delta mvarId m!"did not delta reduce '{declName}'"
   replaceMainGoal [← replaceTargetDefEq mvarId targetNew]
@@ -32,6 +32,6 @@ def deltaTarget (declName : Name) : TacticM Unit := do
 @[builtinTactic Lean.Parser.Tactic.delta] def evalDelta : Tactic := fun stx => do
   let declName ← resolveGlobalConstNoOverload stx[1]
   let loc := expandOptLocation stx[2]
-  withLocation loc (deltaLocalDecl declName) (deltaTarget declName) (throwTacticEx `delta . m!"did not delta reduce '{declName}'")
+  withLocation loc (deltaLocalDecl declName) (deltaTarget declName) (throwTacticEx `delta · m!"did not delta reduce '{declName}'")
 
 end Lean.Elab.Tactic

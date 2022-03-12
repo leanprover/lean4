@@ -1,16 +1,16 @@
 /-
-Copyright (c) 2018 Microsoft Corporation. All rights reserved.
+Copyright (c) 2022 Lars König. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Lars König
 
 The string fuzzy matching algorithm in this file is based on the algorithm
 used in LLVM with some modifications. The LLVM algorithm itself is based on VS
-code's client side filtering algorithm.
+code's client side filtering algorithm. For the LLVM implementation see
+https://clang.llvm.org/extra//doxygen/FuzzyMatch_8cpp_source.html
 -/
 
 namespace Lean
 namespace FuzzyMatching
-
 
 section Utils
 

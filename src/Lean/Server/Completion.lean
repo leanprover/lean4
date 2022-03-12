@@ -64,7 +64,6 @@ private def isTypeApplicable (type : Expr) (expectedType? : Option Expr) : MetaM
     return false
 
 private def sortCompletionItems (items : Array (CompletionItem × Float)) : Array CompletionItem :=
-  -- TODO fix float eq comparison
   items.qsort (fun (i1, s1) (i2, s2) => if s1 == s2 then i1.label < i2.label else s1 > s2) |>.map (·.1)
 
 private def mkCompletionItem (label : Name) (type : Expr) (docString? : Option String) (kind : CompletionItemKind) : MetaM CompletionItem := do

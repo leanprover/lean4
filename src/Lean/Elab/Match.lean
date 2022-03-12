@@ -459,9 +459,10 @@ partial def normalize (e : Expr) : M Expr := do
       else if isMatchValue e then
         return e
       else if e.isFVar then
-        unless (← isExplicitPatternVar e) do
-          throwInvalidPattern e
-        processVar e
+        if (← isExplicitPatternVar e) then
+          processVar e
+        else
+          return mkInaccessible e
       else if e.getAppFn.isMVar then
         let eNew ← instantiateMVars e
         if eNew != e then

@@ -9,19 +9,19 @@ example (x y z : Nat) : x ≠ 5 → y ≠ 5 → z ≠ 5 → f x y z = 1 := by
   intros
   simp [f]
   split
-  . contradiction
-  . contradiction
-  . contradiction
-  . rfl
+  · contradiction
+  · contradiction
+  · contradiction
+  · rfl
 
 example (x y z : Nat) : f x y z = y ∨ f x y z = 1 := by
   intros
   simp [f]
   split
-  . exact Or.inl rfl
-  . exact Or.inl rfl
-  . exact Or.inl rfl
-  . exact Or.inr rfl
+  · exact Or.inl rfl
+  · exact Or.inl rfl
+  · exact Or.inl rfl
+  · exact Or.inr rfl
 
 example (x y z : Nat) : f x y z = y ∨ f x y z = 1 := by
   intros

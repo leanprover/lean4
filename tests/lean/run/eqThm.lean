@@ -37,9 +37,9 @@ def foo (xs : List Nat) : List Nat :=
 
 theorem foo_main_eq (xs : List Nat) : foo xs = foo.match_1 (fun _ => List Nat) xs (fun _ => []) (fun x xs => let y := 2*x; foo.match_1 (fun _ => List Nat) xs (fun _ => []) (fun x xs => (y + x)::foo xs)) := by
   split
-  . rfl
-  . split
-    . rfl
-    . rfl
+  · rfl
+  · split
+    · rfl
+    · rfl
 
 #check @foo_main_eq

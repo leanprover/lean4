@@ -6,11 +6,11 @@ private theorem pack_loop_terminates : (n : Nat) → n / 2 < n.succ
   | n+2 => by
     rw [Nat.div_eq]
     split
-    . rw [Nat.add_sub_self_right]
+    · rw [Nat.add_sub_self_right]
       have := pack_loop_terminates n
       calc n/2 + 1 < Nat.succ n + 1   := Nat.add_le_add_right this 1
              _     < Nat.succ (n + 2) := Nat.succ_lt_succ (Nat.succ_lt_succ (Nat.lt_succ_self _))
-    . apply Nat.zero_lt_succ
+    · apply Nat.zero_lt_succ
 
 def pack (n: Nat) : List Nat :=
   let rec loop (n : Nat) (acc : Nat) (accs: List Nat) : List Nat :=

@@ -15,6 +15,6 @@ namespace Vector
     (h: v.mem y):
     f y ≤ v.foldr (λ x acc => max (f x) acc) init := by
     induction v <;> simp only[foldr,max]
-    . admit
-    . split <;> admit
+    · admit
+    · split <;> admit
 end Vector

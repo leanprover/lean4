@@ -33,9 +33,11 @@ inductive Env : Vector Ty n → Type where
   | nil  : Env Vector.nil
   | cons : Ty.interp a → Env ctx → Env (a :: ctx)
 
+infix:67 " :: " => Env.cons
+
 def Env.lookup : HasType i ctx ty → Env ctx → ty.interp
-  | stop,  Env.cons x xs => x
-  | pop k, Env.cons x xs => lookup k xs
+  | stop,  x :: xs => x
+  | pop k, x :: xs => lookup k xs
 
 def Expr.interp (env : Env ctx) : Expr ctx ty → ty.interp
   | var i     => env.lookup i

@@ -55,7 +55,7 @@ partial def elim (mvarId : MVarId) (fvarId : FVarId) : M Bool := do
   if (← get) == 0 then
     trace[Meta.Tactic.contradiction] "elimEmptyInductive out-of-fuel"
     return false
-  modify (. - 1)
+  modify (· - 1)
   -- We only consider inductives with no constructors and indexed families
   commitWhen do
     let subgoals ← try cases mvarId fvarId catch ex => trace[Meta.Tactic.contradiction] "{ex.toMessageData}"; return false

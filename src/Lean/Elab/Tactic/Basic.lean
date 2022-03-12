@@ -103,7 +103,7 @@ def SavedState.restore (b : SavedState) : TacticM Unit := do
   b.term.restore
   set b.tactic
 
-protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Term.Context).currMacroScope
+protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Core.Context).currMacroScope
 protected def getMainModule     : TacticM Name       := do pure (← getEnv).mainModule
 
 unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=

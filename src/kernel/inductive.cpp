@@ -175,12 +175,12 @@ public:
     }
 
     expr mk_local_decl(name const & n, expr const & t, binder_info const & bi = binder_info()) {
-        return m_lctx.mk_local_decl(m_ngen, n, t, bi);
+        return m_lctx.mk_local_decl(m_ngen, n, consume_type_annotations(t), bi);
     }
 
     expr mk_local_decl_for(expr const & t) {
         lean_assert(is_pi(t));
-        return m_lctx.mk_local_decl(m_ngen, binding_name(t), binding_domain(t), binding_info(t));
+        return m_lctx.mk_local_decl(m_ngen, binding_name(t), consume_type_annotations(binding_domain(t)), binding_info(t));
     }
 
     expr whnf(expr const & t) { return tc().whnf(t); }

@@ -675,7 +675,7 @@ private partial def mkInst? (className : Name) (type : Expr) : MetaM (Option MkI
     unless instTypeType.isForall do
       return none
     let d := instTypeType.bindingDomain!
-    if isOutParam d then
+    if d.isOutParam then
       let mvar ← mkFreshExprMVar d
       go? (mkApp instType mvar) (instTypeType.bindingBody!.instantiate1 mvar) (outParams.push mvar)
     else

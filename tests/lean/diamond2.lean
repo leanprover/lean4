@@ -15,7 +15,7 @@ structure Foo1 (α : Type) extends Bar (α → α), Baz α
 
 def f1 (x : Nat) : Foo1 Nat :=
   { a := id
-    x := (. + .)
+    x := (· + ·)
     b := fun _ => "" }
 
 structure Boo1 (α : Type) extends Baz α where
@@ -30,7 +30,7 @@ structure Foo2 (α : Type) extends Bar (α → α), Boo2 α
 
 def f2 (v : Nat) : Foo2 Nat :=
   { a  := id
-    x  := (. + .)
+    x  := (· + ·)
     b  := fun _ => ""
     x1 := 1
     x2 := v }

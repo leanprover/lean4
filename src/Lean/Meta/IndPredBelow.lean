@@ -155,7 +155,7 @@ where
     let (_, cnt) ← run <| transform domain fun e => do
       if let some name := e.constName? then
         if let some idx := ctx.typeInfos.findIdx? fun indVal => indVal.name == name then
-          modify (. + 1)
+          modify (· + 1)
       return TransformStep.visit e
 
     if cnt > 1 then

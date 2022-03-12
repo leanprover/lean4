@@ -63,6 +63,7 @@ cd src
 # make `lean` etc. point to stage0 anywhere inside `src`
 elan override set lean4-stage0
 ```
+
 You can also use the `+toolchain` shorthand (e.g. `lean +lean4-debug`) to switch
 toolchains on the spot. `lean4-mode` will automatically use the `lean` executable
 associated with the directory of the current file as long as `lean4-rootdir` is

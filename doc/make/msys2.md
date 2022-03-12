@@ -74,6 +74,11 @@ The following linux command will do that:
 cp $(ldd lean.exe | cut -f3 -d' ' | grep mingw) .
 ```
 
+However, if you plan to use this build to compile lean programs
+to executable binaries using `lake build` in normal Windows command
+prompt outside of msys2 environment you will also need to add a windows
+version clang to your path.
+
 ## Trouble shooting
 
 **-bash: gcc: command not found**

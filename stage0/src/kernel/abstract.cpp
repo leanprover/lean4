@@ -39,19 +39,23 @@ expr abstract(expr const & e, name const & n) {
 static object * lean_expr_abstract_core(object * e0, size_t n, object * subst) {
     lean_assert(n <= lean_array_size(subst));
     expr const & e = reinterpret_cast<expr const &>(e0);
-    if (!has_fvar(e)) {
+    if (!has_fvar(e) && !has_mvar(e)) {
         lean_inc(e0);
         return e0;
     }
     expr r = replace(e, [=](expr const & m, unsigned offset) -> optional<expr> {
-            if (!has_fvar(m))
-                return some_expr(m); // expression m does not contain free variables
-            if (is_fvar(m)) {
+            if (!has_fvar(m) && !has_mvar(m))
+                return some_expr(m); // expression m does not contain free/meta variables
+            bool fv = is_fvar(m);
+            bool mv = is_mvar(m);
+            if (fv || mv) {
                 size_t i = n;
                 while (i > 0) {
                     --i;
                     object * v = lean_array_get_core(subst, i);
-                    if (is_fvar_core(v) && fvar_name_core(v) == fvar_name(m))
+                    if (fv && is_fvar_core(v) && fvar_name_core(v) == fvar_name(m))
+                        return some_expr(mk_bvar(offset + n - i - 1));
+                    if (mv && is_mvar_core(v) && mvar_name_core(v) == mvar_name(m))
                         return some_expr(mk_bvar(offset + n - i - 1));
                 }
                 return none_expr();

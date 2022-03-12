@@ -416,6 +416,10 @@ extern "C" LEAN_EXPORT object * lean_expr_update_let(obj_arg e, obj_arg new_type
     }
 }
 
+extern "C" object * lean_expr_consume_type_annotations(obj_arg e);
+
+expr consume_type_annotations(expr const & e) { return expr(lean_expr_consume_type_annotations(e.to_obj_arg())); }
+
 // =======================================
 // Loose bound variable management
 

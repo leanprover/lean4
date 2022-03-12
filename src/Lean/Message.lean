@@ -85,7 +85,7 @@ where
     | group msg                 => group <| visit msg mctx
     | compose msg₁ msg₂         => compose (visit msg₁ mctx) <| visit msg₂ mctx
     | tagged n msg              => tagged n <| visit msg mctx
-    | node msgs                 => node <| msgs.map (visit . mctx)
+    | node msgs                 => node <| msgs.map (visit · mctx)
     | _                         => msg
 
 variable (p : Name → Bool) in

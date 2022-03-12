@@ -193,7 +193,7 @@ def ContextInfo.ppGoals (ctx : ContextInfo) (goals : List MVarId) : IO Format :=
   if goals.isEmpty then
     return "no goals"
   else
-    ctx.runMetaM {} (return Std.Format.prefixJoin "\n" (← goals.mapM (Meta.ppGoal .)))
+    ctx.runMetaM {} (return Std.Format.prefixJoin "\n" (← goals.mapM (Meta.ppGoal ·)))
 
 def TacticInfo.format (ctx : ContextInfo) (info : TacticInfo) : IO Format := do
   let ctxB := { ctx with mctx := info.mctxBefore }

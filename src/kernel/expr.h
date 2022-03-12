@@ -274,6 +274,7 @@ unsigned get_app_num_args(expr const & e);
 /** \brief Return true iff \c e is a metavariable or an application of a metavariable */
 inline bool is_mvar_app(expr const & e) { return is_mvar(get_app_fn(e)); }
 
+expr consume_type_annotations(expr const & e);
 
 // =======================================
 // Loose bound variable management

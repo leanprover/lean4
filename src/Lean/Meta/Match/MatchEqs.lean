@@ -267,7 +267,7 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr) : MetaM Expr := 
   let type ← instantiateMVars type
   withLCtx {} {} <| forallTelescope type fun ys target => do
     let mvar0  ← mkFreshExprSyntheticOpaqueMVar target
-    let mvarId ← deltaTarget mvar0.mvarId! (. == matchDeclName)
+    let mvarId ← deltaTarget mvar0.mvarId! (· == matchDeclName)
     trace[Meta.Match.matchEqs] "{MessageData.ofGoal mvarId}"
     withDefault <| go mvarId 0
     mkLambdaFVars ys (← instantiateMVars mvar0)
@@ -295,7 +295,7 @@ where
       (substSomeVar mvarId)
       <|>
       (throwError "failed to generate equality theorems for `match` expression\n{MessageData.ofGoal mvarId}")
-    subgoals.forM (go . (depth+1))
+    subgoals.forM (go · (depth+1))
 
 
 /-- Construct new local declarations `xs` with types `altTypes`, and then execute `f xs`  -/
@@ -465,7 +465,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns :=
       let splitterType ← mkForallFVars splitterParams matchResultType
       trace[Meta.Match.matchEqs] "splitterType: {splitterType}"
       let template := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
-      let template ← deltaExpand template (. == constInfo.name)
+      let template ← deltaExpand template (· == constInfo.name)
       let splitterVal ← mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew altArgMasks)
       let splitterName := baseName ++ `splitter
       addDecl <| Declaration.thmDecl {

@@ -621,7 +621,7 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
           let field := { field with expr? := some val }
           pure (e, type, field::fields)
         match field.val with
-        | FieldVal.term stx => cont (← elabTermEnsuringType stx d) field
+        | FieldVal.term stx => cont (← elabTermEnsuringType stx d.consumeTypeAnnotations) field
         | FieldVal.nested s => do
           -- if all fields of `s` are marked as `default`, then try to synthesize instance
           match (← trySynthStructInstance? s d) with
@@ -634,7 +634,7 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
             | Except.error err       => throwError err
             | Except.ok tacticSyntax =>
               let stx ← `(by $tacticSyntax)
-              cont (← elabTermEnsuringType stx (d.getArg! 0)) field
+              cont (← elabTermEnsuringType stx (d.getArg! 0).consumeTypeAnnotations) field
           | _ =>
             let val ← withRef field.ref <| mkFreshExprMVar (some d)
             cont (markDefaultMissing val) field

@@ -40,6 +40,7 @@ structure Context where
   openDecls      : List OpenDecl := []
   initHeartbeats : Nat := 0
   maxHeartbeats  : Nat := getMaxHeartbeats options
+  currMacroScope : MacroScope := firstFrontendMacroScope
 
 abbrev CoreM := ReaderT Context <| StateRefT State (EIO Exception)
 
@@ -79,6 +80,15 @@ instance : MonadRecDepth CoreM where
 instance : MonadResolveName CoreM where
   getCurrNamespace := return (← read).currNamespace
   getOpenDecls := return (← read).openDecls
+
+protected def withFreshMacroScope (x : CoreM α) : CoreM α := do
+  let fresh ← modifyGetThe Core.State (fun st => (st.nextMacroScope, { st with nextMacroScope := st.nextMacroScope + 1 }))
+  withReader (fun ctx => { ctx with currMacroScope := fresh }) x
+
+instance : MonadQuotation CoreM where
+  getCurrMacroScope   := return (← read).currMacroScope
+  getMainModule       := return (← get).env.mainModule
+  withFreshMacroScope := Core.withFreshMacroScope
 
 @[inline] def liftIOCore (x : IO α) : CoreM α := do
   let ref ← getRef

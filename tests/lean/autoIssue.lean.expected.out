@@ -1,0 +1,43 @@
+A.a' : ∀ (self : A), self.x = 1
+z : A
+this : z.x = 1
+⊢ z.x = 1
+z : A
+this : z.x = 1
+⊢ z.x = 1
+@A.rec : {motive : A → Sort u_1} → ((x : Nat) → x = 1 → motive (A.mk x)) → (t : A) → motive t
+case mk
+x : Nat
+a' : x = 1
+⊢ (A.mk x).x = 1
+case mk
+x : Nat
+a' : x = 1
+⊢ (A.mk x).x = 1
+case mk
+x y : Nat
+⊢ { x := x, y := y } = { x := { x := x, y := y }.x, y := { x := x, y := y }.y }
+a.1 = 1
+z : A
+x✝ : Nat
+h : x✝ = 1
+⊢ (A.mk x✝).x = 1
+z : A
+x : Nat
+a' : x = 1
+⊢ (A.mk x).x = 1
+autoIssue.lean:60:18-60:19: error: don't know how to synthesize placeholder
+context:
+⊢ 1 = 1
+autoIssue.lean:63:9-63:10: error: don't know how to synthesize placeholder for argument 'a''
+context:
+⊢ 1 = 1
+autoIssue.lean:68:6-68:7: error: don't know how to synthesize placeholder for argument 'h'
+context:
+⊢ 2 = 1
+autoIssue.lean:72:2-72:6: error: unsolved goals
+case h
+⊢ ?x = 1
+
+case x
+⊢ Nat

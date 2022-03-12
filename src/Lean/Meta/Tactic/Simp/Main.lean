@@ -625,7 +625,7 @@ end Simp
 def simp (e : Expr) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM Simp.Result := do profileitM Exception "simp" (← getOptions) do
   match discharge? with
   | none   => Simp.main e ctx (methods := Simp.DefaultMethods.methods)
-  | some d => Simp.main e ctx (methods := { pre := (Simp.preDefault . d), post := (Simp.postDefault . d), discharge? := d })
+  | some d => Simp.main e ctx (methods := { pre := (Simp.preDefault · d), post := (Simp.postDefault · d), discharge? := d })
 
 /--
   Auxiliary method.

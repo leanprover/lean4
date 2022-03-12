@@ -349,12 +349,14 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
     let indVal ← getInductiveValFromMajor targets[0]
     if induction && indVal.all.length != 1 then
       throwError "'induction' tactic does not support mutually inductive types, the eliminator '{mkRecName indVal.name}' has multiple motives"
+    if induction && indVal.isNested then
+      throwError "'induction' tactic does not support nested inductive types, the eliminator '{mkRecName indVal.name}' has multiple motives"
     let elimName := if induction then mkRecName indVal.name else mkCasesOnName indVal.name
-    pure (elimName, ← getElimInfo elimName)
+    return (elimName, ← getElimInfo elimName)
   else
     let elimId := optElimId[1]
     let elimName ← withRef elimId do resolveGlobalConstNoOverloadWithInfo elimId
-    pure (elimName, ← withRef elimId do getElimInfo elimName)
+    return (elimName, ← withRef elimId do getElimInfo elimName)
 
 private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
   if exprs.all (·.isFVar) then
@@ -365,7 +367,7 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
       return (fvarIds.map mkFVar, [mvarId])
 
 @[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focus do
-  let targets ← withMainContext <| stx[1].getSepArgs.mapM (elabTerm . none)
+  let targets ← withMainContext <| stx[1].getSepArgs.mapM (elabTerm · none)
   let targets ← generalizeTargets targets
   let (elimName, elimInfo) ← getElimNameInfo stx[2] targets (induction := true)
   let mvarId ← getMainGoal

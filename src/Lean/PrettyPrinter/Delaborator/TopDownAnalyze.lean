@@ -295,7 +295,7 @@ where
     | Expr.forallE _ fd fb _, Expr.forallE _ md mb _ => do
       -- TODO: do I need to check (← okBottomUp? args[i] mvars[i] fuel).isSafe here?
       -- if so, I'll need to take a callback
-      if isOutParam fd then
+      if fd.isOutParam then
         tryUnify (args[i]) (mvars[i])
       inspectAux (fb.instantiate1 args[i]) (mb.instantiate1 mvars[i]) (i+1) args mvars
     | _, _ => return ()

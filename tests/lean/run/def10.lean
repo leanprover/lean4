@@ -19,8 +19,8 @@ theorem ex5 : g false true true = 3 := rfl
 theorem f_eq (h : a = true → b = true → False) : f a b = 3 := by
   simp [f]
   split
-  . contradiction
-  . rfl
+  · contradiction
+  · rfl
 
 theorem ex6 : g x y z > 0 := by
   simp [g]

@@ -116,7 +116,7 @@ private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Exp
         | _ => failed ()
       ctorType ← whnf ctorType
       match ctorType with
-      | Expr.forallE _ d _ _ => return d
+      | Expr.forallE _ d _ _ => return d.consumeTypeAnnotations
       | _                    => failed ()
 
 def throwTypeExcepted {α} (type : Expr) : MetaM α :=

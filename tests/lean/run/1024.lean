@@ -16,14 +16,14 @@ namespace Vector
     (v.snoc x).nth k = x := by
     cases k; rename_i k hk
     induction v generalizing k <;> subst h
-    . simp only [nth]
-    . simp_all[nth]
+    · simp only [nth]
+    · simp_all[nth]
 
   theorem nth_snoc_eq_works (k: Fin (n+1))(v : Vector α n)
     (h: k.val = n):
     (v.snoc x).nth k = x := by
     cases k; rename_i k hk
     induction v generalizing k <;> subst h
-    . simp only [nth]
-    . simp[*,nth]
+    · simp only [nth]
+    · simp[*,nth]
 end Vector

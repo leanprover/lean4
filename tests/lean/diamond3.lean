@@ -1,7 +1,7 @@
 structure A where
   x : Nat := 0
   y : Nat := 0
-  f : Nat → Nat := (. + 10)
+  f : Nat → Nat := (· + 10)
 
 structure B extends A where
   z : Nat

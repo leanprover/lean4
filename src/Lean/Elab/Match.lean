@@ -198,7 +198,7 @@ private partial def withPatternVars {α} (pVars : Array PatternVar) (k : Array P
   let rec loop (i : Nat) (decls : Array PatternVarDecl) (userNames : Array Name) := do
     if h : i < pVars.size then
       match pVars.get ⟨i, h⟩ with
-      | PatternVar.localVar userName   =>
+      | { userName }  =>
         let type ← mkFreshTypeMVar
         withLocalDecl userName BinderInfo.default type fun x =>
           loop (i+1) (decls.push { fvarId := x.fvarId! }) (userNames.push Name.anonymous)
@@ -414,7 +414,7 @@ abbrev M := ReaderT Context $ StateRefT State TermElabM
 /-- Return true iff `e` is an explicit pattern variable provided by the user. -/
 def isExplicitPatternVar (e : Expr) : M Bool := do
   if e.isFVar then
-    return (← read).explicitPatternVars.any (. == e.fvarId!)
+    return (← read).explicitPatternVars.any (· == e.fvarId!)
   else
     return false
 
@@ -459,9 +459,10 @@ partial def normalize (e : Expr) : M Expr := do
       else if isMatchValue e then
         return e
       else if e.isFVar then
-        unless (← isExplicitPatternVar e) do
-          throwInvalidPattern e
-        processVar e
+        if (← isExplicitPatternVar e) then
+          processVar e
+        else
+          return mkInaccessible e
       else if e.getAppFn.isMVar then
         let eNew ← instantiateMVars e
         if eNew != e then
@@ -504,11 +505,11 @@ where
       modify fun s => { s with patternVars := s.patternVars.push e }
 
   processVar (e : Expr) : M Expr := do
-    if e.isMVar then
-      setMVarTag e.mvarId! (← read).userName
     if (← get).patternVars.contains e then
       return mkInaccessible e
     else
+      if e.isMVar then
+        setMVarTag e.mvarId! (← read).userName
       modify fun s => { s with patternVars := s.patternVars.push e }
       return e
 
@@ -729,7 +730,7 @@ private def generalize (discrs : Array Expr) (matchType : Expr) (altViews : Arra
             if ysUserNames.contains yUserName then
               yUserName ← mkFreshUserName yUserName
             -- Explicitly provided pattern variables shadow `y`
-            else if patternVars.any fun | PatternVar.localVar x => x == yUserName then
+            else if patternVars.any fun x => x.userName == yUserName then
               yUserName ← mkFreshUserName yUserName
             return ysUserNames.push yUserName
           let ysIds ← ysUserNames.reverse.mapM fun n => return mkIdentFrom (← getRef) n

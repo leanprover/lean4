@@ -297,6 +297,8 @@ def macroLastArg   := macroDollarArg <|> macroArg
 
 @[builtinTermParser] def dynamicQuot := leading_parser "`(" >> ident >> "|" >> incQuotDepth (parserOfStack 1) >> ")"
 
+@[builtinTermParser] def dotIdent := leading_parser "." >> checkNoWsBefore >> ident
+
 end Term
 
 @[builtinTermParser default+1] def Tactic.quot    : Parser := leading_parser "`(tactic|" >> incQuotDepth tacticParser >> ")"

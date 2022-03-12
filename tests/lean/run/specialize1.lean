@@ -24,5 +24,5 @@ def ex (f : Nat → Nat → Nat) : Nat := by
   exact 10
   exact 2
 
-example : ex (. - .) = 8 :=
+example : ex (· - ·) = 8 :=
   rfl

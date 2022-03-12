@@ -477,19 +477,7 @@ partial def normalize (e : Expr) : M Expr := do
           normalize eNew
         else
           matchConstCtor e.getAppFn
-            (fun _ => do
-              if (← isProof e) then
-                /- We mark nested proofs as inaccessible. This is fine due to proof irrelevance.
-                   We need this feature to be able to elaborate definitions such as:
-                   ```
-                    def f : Fin 2 → Nat
-                      | 0 => 5
-                      | 1 => 45
-                   ```
-                -/
-                return mkInaccessible (← eraseInaccessibleAnnotations (← instantiateMVars e))
-              else
-                throwInvalidPattern e)
+            (fun _ => return mkInaccessible (← eraseInaccessibleAnnotations (← instantiateMVars e)))
             (fun v us => do
               let args := e.getAppArgs
               unless args.size == v.numParams + v.numFields do

@@ -1,6 +1,6 @@
 def f : Nat → Nat :=
-WellFounded.fix f.proof_1 fun x a =>
-  if h : x = 0 then 1
+WellFounded.fix f.proof_1 fun n a =>
+  if h : n = 0 then 1
   else
     let y := 42;
-    2 * a (x - 1) (_ : (measure id).1 (x - 1) x)
+    2 * a (n - 1) (_ : (measure id).1 (n - 1) n)

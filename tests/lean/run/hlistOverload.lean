@@ -34,3 +34,17 @@ example : [10, true, 20.1].nth #2 = 20.1     := rfl
 #eval [10, true, 20.1].nth #0
 #eval [10, true, 20.1].nth #1
 #eval [10, true, 20.1].nth #2
+
+def HListPatternMatch (l : HList [Nat, String]) :=
+  match l with
+  | [1, "2"] => true
+  | [2, "1"] => true
+  | _ => false
+
+#eval HListPatternMatch [1, "2"]
+#eval HListPatternMatch [2, "1"]
+#eval HListPatternMatch [3, "1"]
+
+example : HListPatternMatch [1, "2"] := rfl
+example : HListPatternMatch [2, "1"] := rfl
+example : !HListPatternMatch [3, "1"] := rfl

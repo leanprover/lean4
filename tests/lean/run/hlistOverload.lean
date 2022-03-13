@@ -3,7 +3,7 @@ inductive HList : List (Type u) → Type (u+1)
   | cons : α → HList αs → HList (α::αs)
 
 -- Overload `::` notation for HLists
-infix:67 " :: " => HList.cons
+infixr:67 " :: " => HList.cons
 
 -- Overload `[]` notation for HLists
 syntax (name := hlist) "[" term,* "]"  : term
@@ -48,3 +48,5 @@ def HListPatternMatch (l : HList [Nat, String]) :=
 example : HListPatternMatch [1, "2"] := rfl
 example : HListPatternMatch [2, "1"] := rfl
 example : !HListPatternMatch [3, "1"] := rfl
+
+example : HListPatternMatch (1 :: "2" :: []) := rfl

@@ -1,10 +1,4 @@
-defInst.lean:6:0-6:12: error: expression
-  test 4
-has type
-  Foo
-but instance
-  Lean.Eval Foo
-failed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `Lean.Eval` class
+[4, 5, 6]
 defInst.lean:8:26-8:32: error: failed to synthesize instance
   BEq Foo
 fun x y => sorryAx (?m x y) : (x y : Foo) → ?m x y

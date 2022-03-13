@@ -31,18 +31,6 @@ example : [10, true, 20.1].nth #0 = (10:Nat) := rfl
 example : [10, true, 20.1].nth #1 = true     := rfl
 example : [10, true, 20.1].nth #2 = 20.1     := rfl
 
-#eval id (α := Nat) ([10, true, 20.1].nth #0)
-
-def the (α : Type u) (a : α) := a
-
-#eval the Nat ([10, true, 20.1].nth #0)
-#eval the Bool ([10, true, 20.1].nth #1)
-#eval the Float ([10, true, 20.1].nth #2)
-
--- If we mark `List.nth` as `[reducible]`, typeclass resolution will reduce it,
--- when trying to synthesize a `Repr` instance in the following examples.
-attribute [reducible] List.nth
-
 #eval [10, true, 20.1].nth #0
 #eval [10, true, 20.1].nth #1
 #eval [10, true, 20.1].nth #2

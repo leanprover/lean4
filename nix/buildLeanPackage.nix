@@ -222,7 +222,7 @@ in rec {
   };
 
   lean-package = writeShellScriptBin "lean" ''
-    LEAN_PATH=${modRoot}:$LEAN_PATH LEAN_SRC_PATH=${src}:$LEAN_SRC_PATH ${lean-final}/bin/lean "$@"
+    LEAN_PATH=${modRoot}:$LEAN_PATH LEAN_SRC_PATH=$LEAN_SRC_PATH:${src} exec ${lean-final}/bin/lean "$@"
   '';
   emacs-package = makeEmacsWrapper "emacs-package" lean-package;
   vscode-package = makeVSCodeWrapper "vscode-package" lean-package;

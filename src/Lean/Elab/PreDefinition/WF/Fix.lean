@@ -30,7 +30,25 @@ private def mkDecreasingProof (decreasingProp : Expr) (decrTactic? : Option Synt
   instantiateMVars mvar
 
 private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (decrTactic? : Option Syntax) (F : Expr) (e : Expr) : TermElabM Expr :=
-  let rec loop (F : Expr) (e : Expr) : TermElabM Expr := do
+  loop F e
+where
+  processRec (F : Expr) (e : Expr) : TermElabM Expr := do
+    if e.getAppNumArgs < fixedPrefixSize + 1 then
+      loop F (← etaExpand e)
+    else
+      let args := e.getAppArgs
+      let r := mkApp F (← loop F args[fixedPrefixSize])
+      let decreasingProp := (← whnf (← inferType r)).bindingDomain!
+      let r := mkApp r (← mkDecreasingProof decreasingProp decrTactic?)
+      return mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
+
+  processApp (F : Expr) (e : Expr) : TermElabM Expr := do
+    if e.isAppOf recFnName then
+      processRec F e
+    else
+      e.withApp fun f args => return mkAppN (← loop F f) (← args.mapM (loop F))
+
+  loop (F : Expr) (e : Expr) : TermElabM Expr := do
     match e with
     | Expr.lam n d b c =>
       withLocalDecl n c.binderInfo (← loop F d) fun x => do
@@ -47,25 +65,17 @@ private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (d
       else
         return mkMData d (← loop F b)
     | Expr.proj n i e _  => return mkProj n i (← loop F e)
-    | Expr.app _ _ _ =>
-      let processApp (e : Expr) : TermElabM Expr :=
-        e.withApp fun f args => do
-          if f.isConstOf recFnName && args.size >= fixedPrefixSize + 1 then
-            let r := mkApp F (← loop F args[fixedPrefixSize])
-            let decreasingProp := (← whnf (← inferType r)).bindingDomain!
-            let r := mkApp r (← mkDecreasingProof decreasingProp decrTactic?)
-            return mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
-          else
-            return mkAppN (← loop F f) (← args.mapM (loop F))
+    | Expr.const .. => if e.isConstOf recFnName then processRec F e else return e
+    | Expr.app .. =>
       let matcherApp? ← matchMatcherApp? e
       match matcherApp? with
       | some matcherApp =>
         if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
-          processApp e
+          processApp F e
         else
           let matcherApp ← mapError (matcherApp.addArg F) (fun msg => "failed to add functional argument to 'matcher' application" ++ indentD msg)
           if !(← Structural.refinedArgType matcherApp F) then
-            processApp e
+            processApp F e
           else
             let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
               lambdaTelescope alt fun xs altBody => do
@@ -74,9 +84,8 @@ private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (d
                 let FAlt := xs[numParams - 1]
                 mkLambdaFVars xs (← loop FAlt altBody)
             return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
-      | none => processApp e
+      | none => processApp F e
     | e => ensureNoRecFn recFnName e
-  loop F e
 
 /-- Refine `F` over `PSum.casesOn` -/
 private partial def processSumCasesOn (x F val : Expr) (k : (x : Expr) → (F : Expr) → (val : Expr) → TermElabM Expr) : TermElabM Expr := do

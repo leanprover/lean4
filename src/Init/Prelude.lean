@@ -1113,11 +1113,8 @@ def List.concat {α : Type u} : List α → α → List α
   | cons a as, b => cons a (concat as b)
 
 def List.get {α : Type u} : (as : List α) → Fin as.length → α
-  | nil,       i      => absurd i.isLt (Nat.not_lt_zero _)
   | cons a as, ⟨0, _⟩ => a
-  | cons a as, ⟨Nat.succ i, h⟩ =>
-    have : LT.lt i.succ as.length.succ := length_cons .. ▸ h
-    get as ⟨i, Nat.le_of_succ_le_succ this⟩
+  | cons a as, ⟨Nat.succ i, h⟩ => get as ⟨i, Nat.le_of_succ_le_succ h⟩
 
 structure String where
   data : List Char

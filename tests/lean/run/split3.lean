@@ -17,8 +17,8 @@ example (a b : Bool) (x y z : Nat) (xs : List Nat) (h1 : (if a then x else y) = 
 
 example (a : Bool) (h1 : (if a then x else y) = 1) : x + y > 0 := by
   split at h1
-  . subst h1; rw [Nat.succ_add]; apply Nat.zero_lt_succ
-  . subst h1; apply Nat.zero_lt_succ
+  · subst h1; rw [Nat.succ_add]; apply Nat.zero_lt_succ
+  · subst h1; apply Nat.zero_lt_succ
 
 def f (x : Nat) : Nat :=
   match x with
@@ -29,9 +29,9 @@ def f (x : Nat) : Nat :=
 example (h1 : f x = 0) (h2 : x > 300) : False := by
   simp [f] at h1
   split at h1
-  . contradiction
-  . contradiction
-  . contradiction
+  · contradiction
+  · contradiction
+  · contradiction
 
 example (h1 : f x = 0) (h2 : x > 300) : False := by
   simp [f] at h1

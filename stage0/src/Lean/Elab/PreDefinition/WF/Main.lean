@@ -68,7 +68,7 @@ def getFixedPrefix (preDefs : Array PreDefinition) : TermElabM Nat :=
       forEachExpr' val fun e => do
         if preDefs.any fun preDef => e.isAppOf preDef.declName then
           let args := e.getAppArgs
-          resultRef.modify (min args.size .)
+          resultRef.modify (min args.size ·)
           for arg in args, x in xs do
             if !(← withoutProofIrrelevance <| withReducible <| isDefEq arg x) then
               -- We continue searching if e's arguments are not a prefix of `xs`

@@ -70,6 +70,7 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
     let name := baseName ++ (`_eq).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     let value ← mkProof info.declName type
+    let (type, value) ← removeUnusedEqnHypotheses type value
     addDecl <| Declaration.thmDecl {
       name, type, value
       levelParams := info.levelParams
@@ -82,13 +83,8 @@ def registerEqnsInfo (preDef : PreDefinition) (recArgPos : Nat) : CoreM Unit := 
   modifyEnv fun env => eqnInfoExt.insert env preDef.declName { preDef with recArgPos }
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
-  let env ← getEnv
-  if let some eqs := eqnsExt.getState env |>.map.find? declName then
-    return some eqs
-  else if let some info := eqnInfoExt.find? env declName then
-    let eqs ← mkEqns info
-    modifyEnv fun env => eqnsExt.modifyState env fun s => { s with map := s.map.insert declName eqs }
-    return some eqs
+  if let some info := eqnInfoExt.find? (← getEnv) declName then
+    mkEqns info
   else
     return none
 

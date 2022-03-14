@@ -61,9 +61,9 @@ example (x y z : Nat) (h₁ : x = y) (h₂ : z = y) : x = z := by
 
 example (x y z : Nat) (h₁ : x = y) (h₂ : z = y) : x = z := by
   apply Eq.trans
-  . sorry
-  . sorry
-  . sorry
+  · sorry
+  · sorry
+  · sorry
 
 example (x y z : Nat) (h₁ : x = y) (h₂ : z = y) : x = z := by
   apply Eq.trans <;> sorry

@@ -26,5 +26,5 @@ theorem pow_nonneg : ∀ m : Nat, 0 ^ m ≥ 0
   | 0 => by decide
   | m@(_+1) => by
     rw [zeropow]
-    . decide
-    . apply Nat.zero_lt_succ
+    · decide
+    · apply Nat.zero_lt_succ

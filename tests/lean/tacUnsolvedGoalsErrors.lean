@@ -23,7 +23,7 @@ theorem ex4 (p q r : Prop) (h1 : p ∨ q) (h2 : p → q) : q := by
 
 theorem ex5 (p q r : Prop) (h1 : p ∨ q) (h2 : p → q) : q := by
   cases h1
-  . skip  -- Error here
+  · skip  -- Error here
     skip
-  . skip  -- Error here
+  · skip  -- Error here
     skip

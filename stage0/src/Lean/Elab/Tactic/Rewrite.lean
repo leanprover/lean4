@@ -43,7 +43,19 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
       withRef rule do
         let symm := !rule[0].isNone
         let term := rule[1]
-        x symm term
+        let processId (id : Syntax) : TacticM Unit := do
+          -- Try to get equation theorems for `id` first
+          let declName ← try resolveGlobalConstNoOverload id catch _ => return (← x symm term)
+          let some eqThms ← getEqnsFor? declName (nonRec := true) | x symm term
+          let rec go : List Name →  TacticM Unit
+            | [] => throwError "failed to rewrite using equation theorems for '{declName}'"
+            | eqThm::eqThms => (x symm (mkIdentFrom id eqThm)) <|> go eqThms
+          go eqThms.toList
+        match term with
+        | `($id:ident)  => processId id
+        | `(@$id:ident) => processId id
+        | _ => x symm term
+
 
 declare_config_elab elabRewriteConfig Rewrite.Config
 
@@ -54,6 +66,6 @@ declare_config_elab elabRewriteConfig Rewrite.Config
     withLocation loc
       (rewriteLocalDecl term symm · cfg)
       (rewriteTarget term symm cfg)
-      (throwTacticEx `rewrite . "did not find instance of the pattern in the current goal")
+      (throwTacticEx `rewrite · "did not find instance of the pattern in the current goal")
 
 end Lean.Elab.Tactic

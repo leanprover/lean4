@@ -127,7 +127,7 @@ private partial def processPSigmaCasesOn (x F val : Expr) (k : (F : Expr) → (v
 
 def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (wfRel : Expr) (decrTactic? : Option Syntax) : TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
-  let wfFix ← forallBoundedTelescope type (some 1) fun x type => do
+  let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
     let x := x[0]
     let α ← inferType x
     let u ← getLevel α
@@ -135,14 +135,19 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (wfRel : Expr) (dec
     let motive ← mkLambdaFVars #[x] type
     let rel := mkProj ``WellFoundedRelation 0 wfRel
     let wf  := mkProj ``WellFoundedRelation 1 wfRel
-    return mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf
+    let varName := (← getLocalDecl x.fvarId!).userName -- See comment below.
+    return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)
   forallBoundedTelescope (← whnf (← inferType wfFix)).bindingDomain! (some 2) fun xs _ => do
     let x   := xs[0]
-    let F   := xs[1]
-    let val := preDef.value.beta (prefixArgs.push x)
-    trace[Elab.definition.wf] ">> val: {val}"
-    let val ← processSumCasesOn x F val fun x F val => do
-      processPSigmaCasesOn x F val (replaceRecApps preDef.declName prefixArgs.size decrTactic?)
-    mkLambdaFVars prefixArgs (mkApp wfFix (← mkLambdaFVars #[x, F] val))
+    -- Remark: we rename `x` here to make sure we preserve the variable name in the
+    -- decreasing goals when the function has only one non fixed argument.
+    -- This renaming is irrelevant if the function has multiple non fixed arguments. See `process*` functions above.
+    let lctx := (← getLCtx).setUserName x.fvarId! varName
+    withTheReader Meta.Context (fun ctx => { ctx with lctx }) do
+      let F   := xs[1]
+      let val := preDef.value.beta (prefixArgs.push x)
+      let val ← processSumCasesOn x F val fun x F val => do
+        processPSigmaCasesOn x F val (replaceRecApps preDef.declName prefixArgs.size decrTactic?)
+      mkLambdaFVars prefixArgs (mkApp wfFix (← mkLambdaFVars #[x, F] val))
 
 end Lean.Elab.WF

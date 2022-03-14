@@ -1435,15 +1435,58 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
       else if !tAssign? && sAssign? then
         toLBoolM <| processAssignment' s t
       else if !tAssign? && !sAssign? then
-        if tFn.isMVar || sFn.isMVar then
-          let ctx ← read
-          if ctx.config.isDefEqStuckEx then do
-            trace[Meta.isDefEq.stuck] "{t} =?= {s}"
-            Meta.throwIsDefEqStuck
+        /- Trying to unify `?m ... =?= ?n ...` where both `?m` and `?n` cannot be assigned.
+           This can happen when both of them are `syntheticOpaque` (e.g., metavars associated with tactics), or a metavariables
+           from previous levels.
+
+           If their types are propositions and are defeq, we can solve the constraint by proof irrelevance.
+           This test is important for fixing a performance problem exposed by test `isDefEqPerfIssue.lean`.
+           Without the proof irrelevance check, this example timeouts. Recall that:
+
+           1- The elaborator has a pending list of things to do: Tactics, TC, etc.
+           2- The elaborator only tries tactics after it tried to solve pending TC problems, delayed elaboratio, etc.
+              The motivation: avoid unassigned metavariables in goals.
+           3- Each pending tactic goal is represented as a metavariable. It is marked as `synthethicOpaque` to make it clear
+              that it should not be assigned by unification.
+           4- When we abstract a term containing metavariables, we often create new metavariables.
+              Example: when abstracting `x` at `f ?m`, we obtain `fun x => f (?m' x)`. If `x` is in the scope of `?m`.
+              If `?m` is `syntheticOpaque`, so is `?m'`, and we also have the delayed assignment `?m' x := ?m`
+           5- When checking a metavariable assignment, `?m := v` we check whether the type of `?m` is defeq to type of `v`
+              with default reducibility setting.
+
+           Now consider the following fragment
+           ```
+             let a' := g 100 a ⟨i, h⟩ ⟨i - Nat.zero.succ, by exact Nat.lt_of_le_of_lt (Nat.pred_le i) h⟩
+             have : a'.size - i >= 0 := sorry
+             f (i+1) a'
+           ```
+           The elaborator tries to synthesize the instance `OfNat Nat 1` before we generate the tactic proof for `by exact ...` (remark 2).
+           The solution `instOfNatNat 1` is synthesized. Let `m? a i h a' this` be the "hole" associated with the pending instance.
+           Then, `isDefEq` tries to assign `m? a i h a' this := instOfNatNat 1` which is reduced to
+           `m? := mkLambdaFVars #[a, i, h, a', this] (instOfNatNat 1)`. Note that, this is an abstraction step (remark 4), and the type
+           contains the `syntheticOpaque` metavariable for the pending tactic proof (remark 3). Thus, a new `syntheticOpaque`
+           opaque is created (remark 4). Then, `isDefEq` must check whether the type of `?m` is defeq to
+           `mkLambdaFVars #[a, i, h, a', this] (instOfNatNat 1)` (remark 5). The two types are almost identical, but they
+           contain different `syntheticOpaque` in the subterm corresponding to the `by exact ...` tactic proof. Without the following
+           proof irrelevance test, the check will fail, and `isDefEq` timeouts unfolding `g` and its dependencies.
+
+           Note that this test does not prevent a similar performance problem in a usecase where the tactic is used to synthesize a
+           term that is not a proof. TODO: add better support for checking the delayed assignments. This is not high priority because
+           tactics are usually only used for synthesizing proofs.
+        -/
+        match (← isDefEqProofIrrel t s) with
+        | LBool.true => return LBool.true
+        | LBool.false => return LBool.false
+        | _ =>
+          if tFn.isMVar || sFn.isMVar then
+            let ctx ← read
+            if ctx.config.isDefEqStuckEx then do
+              trace[Meta.isDefEq.stuck] "{t} =?= {s}"
+              Meta.throwIsDefEqStuck
+            else
+              return LBool.false
           else
-            return LBool.false
-        else
-          return LBool.undef
+            return LBool.undef
       else
         isDefEqQuickMVarMVar t s
 

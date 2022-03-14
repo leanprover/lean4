@@ -22,6 +22,6 @@ def unfoldTarget (declName : Name) : TacticM Unit := do
 @[builtinTactic Lean.Parser.Tactic.unfold] def evalUnfold : Tactic := fun stx => do
   let declName ← resolveGlobalConstNoOverload stx[1]
   let loc := expandOptLocation stx[2]
-  withLocation loc (unfoldLocalDecl declName) (unfoldTarget declName) (throwTacticEx `unfold . m!"did not unfold '{declName}'")
+  withLocation loc (unfoldLocalDecl declName) (unfoldTarget declName) (throwTacticEx `unfold · m!"did not unfold '{declName}'")
 
 end Lean.Elab.Tactic

@@ -200,13 +200,23 @@ where
     else
       saveEqn mvarId
 
-structure EqnsExtState where
-  map : Std.PHashMap Name (Array Name) := {}
-  deriving Inhabited
+/--
+  Some of the hypotheses added by `mkEqnTypes` may not be used by the actual proof (i.e., `value` argument).
+  This method eliminates them.
 
-/- We generate the equations on demand, and do not save them on .olean files. -/
-builtin_initialize eqnsExt : EnvExtension EqnsExtState ←
-  registerEnvExtension (pure {})
+  Alternative solution: improve `saveEqn` and make sure it never includes unnecessary hypotheses.
+  These hypotheses are leftovers from tactics such as `splitMatch?` used in `mkEqnTypes`.
+-/
+partial def removeUnusedEqnHypotheses (type value : Expr) : MetaM (Expr × Expr) := do
+  match value with
+  | .lam n d b i =>
+    withLocalDecl n i.binderInfo d fun x => do
+      let (type, value) ← removeUnusedEqnHypotheses (type.bindingBody!.instantiate1 x) (b.instantiate1 x)
+      if value.containsFVar x.fvarId! || type.containsFVar x.fvarId! then
+        return (← mkForallFVars #[x] type, ← mkLambdaFVars #[x] value)
+      else
+        return (type, value)
+  | _ => return (type, value)
 
 /-- Try to close goal using `rfl` with smart unfolding turned off. -/
 def tryURefl (mvarId : MVarId) : MetaM Bool :=
@@ -282,8 +292,10 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
       go mvarId
     else if let some mvarIds ← splitTarget? mvarId (splitIte := false) then
       mvarIds.forM go
+    else if (← tryContradiction mvarId) then
+      return ()
     else
-     throwError "failed to generate unfold theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+      throwError "failed to generate unfold theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
   go mvarId
 
 /-- Generate the "unfold" lemma for `declName`. -/

@@ -66,7 +66,7 @@ where
           throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 
 def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
-  withOptions (tactic.hygienic.set . false) do
+  withOptions (tactic.hygienic.set · false) do
   let baseName := mkPrivateName (← getEnv) declName
   let eqnTypes ← withNewMCtxDepth <| lambdaTelescope info.value fun xs body => do
     let us := info.levelParams.map mkLevelParam
@@ -80,6 +80,7 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
     let name := baseName ++ (`_eq).appendIndexAfter (i+1)
     thmNames := thmNames.push name
     let value ← mkProof declName type
+    let (type, value) ← removeUnusedEqnHypotheses type value
     addDecl <| Declaration.thmDecl {
       name, type, value
       levelParams := info.levelParams
@@ -95,13 +96,8 @@ def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) : C
       eqnInfoExt.insert env preDef.declName { preDef with declNames, declNameNonRec }
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
-  let env ← getEnv
-  if let some eqs := eqnsExt.getState env |>.map.find? declName then
-    return some eqs
-  else if let some info := eqnInfoExt.find? env declName then
-    let eqs ← mkEqns declName info
-    modifyEnv fun env => eqnsExt.modifyState env fun s => { s with map := s.map.insert declName eqs }
-    return some eqs
+  if let some info := eqnInfoExt.find? (← getEnv) declName then
+    mkEqns declName info
   else
     return none
 

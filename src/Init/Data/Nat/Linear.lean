@@ -656,8 +656,6 @@ theorem PolyCnstr.eq_true_of_isValid (ctx : Context) {c : PolyCnstr} : c.isValid
     simp [Poly.of_isZero, h₁, h₂]
   · intro h
     simp [Poly.of_isZero, h]
-    have := Nat.zero_le (Poly.denote ctx rhs)
-    simp [this]
 
 theorem ExprCnstr.eq_false_of_isUnsat (ctx : Context) (c : ExprCnstr) (h : c.toNormPoly.isUnsat) : c.denote ctx = False := by
   have := PolyCnstr.eq_false_of_isUnsat ctx h

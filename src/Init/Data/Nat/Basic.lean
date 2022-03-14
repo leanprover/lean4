@@ -42,6 +42,8 @@ namespace Nat
 def blt (a b : Nat) : Bool :=
   ble a.succ b
 
+attribute [simp] Nat.zero_le
+
 /- Helper "packing" theorems -/
 
 @[simp] theorem zero_eq : Nat.zero = 0 := rfl

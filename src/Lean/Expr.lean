@@ -215,7 +215,8 @@ inductive Expr where
 
 namespace Expr
 
-@[inline] def data : Expr → Data
+@[extern c inline "lean_ctor_get_uint64(#1, lean_ctor_num_objs(#1)*sizeof(void*))"]
+def data : (@& Expr) → Data
   | bvar _ d        => d
   | fvar _ d        => d
   | mvar _ d        => d

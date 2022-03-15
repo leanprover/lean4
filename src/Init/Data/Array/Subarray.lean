@@ -106,6 +106,7 @@ def ofSubarray (s : Subarray α) : Array α := Id.run <| do
     as := as.push a
   return as
 
+/-- Returns `as` sliced between `start` and `stop`. Sometimes written as `as[start:stop]`. -/
 def extract (as : Array α) (start stop : Nat) : Array α :=
   ofSubarray (as.toSubarray  start stop)
 

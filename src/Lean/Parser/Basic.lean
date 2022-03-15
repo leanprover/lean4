@@ -201,9 +201,11 @@ def pushSyntax (s : ParserState) (n : Syntax) : ParserState :=
 def popSyntax (s : ParserState) : ParserState :=
   { s with stxStack := s.stxStack.pop }
 
+/-- Pops from the syntax stack until it has length at most `iniStackSz`. -/
 def shrinkStack (s : ParserState) (iniStackSz : Nat) : ParserState :=
   { s with stxStack := s.stxStack.shrink iniStackSz }
 
+/-- Advance position by one character.-/
 def next (s : ParserState) (input : String) (pos : Nat) : ParserState :=
   { s with pos := input.next pos }
 
@@ -214,6 +216,10 @@ def toErrorMsg (ctx : ParserContext) (s : ParserState) : String :=
     let pos := ctx.fileMap.toPosition s.pos
     mkErrorStringWithPos ctx.fileName pos (toString msg)
 
+/-- Given a stack `xs ++ ys` where `xs.length = iniStackSz`,
+`mkNode` will return a state with a new stack `xs ++ [Syntax.node k ys]`.
+Errors are also forwarded properly.
+-/
 def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
   match s with
   | ⟨stack, lhsPrec, pos, cache, err⟩ =>

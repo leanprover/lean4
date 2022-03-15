@@ -94,11 +94,13 @@ def swapAt! (a : Array α) (i : Nat) (v : α) : α × Array α :=
     have : Inhabited α := ⟨v⟩
     panic! ("index " ++ toString i ++ " out of bounds")
 
+/-- Removes an element from the end of the array. -/
 @[extern "lean_array_pop"]
 def pop (a : Array α) : Array α := {
   data := a.data.dropLast
 }
 
+/-- Removes elements from `a` while `a.size > n`. -/
 def shrink (a : Array α) (n : Nat) : Array α :=
   let rec loop
     | 0,   a => a

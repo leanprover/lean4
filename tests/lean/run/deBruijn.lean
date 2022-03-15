@@ -1,4 +1,4 @@
-inductive HList {α : Type u} (β : α → Type u) : List α → Type u
+inductive HList {α : Type v} (β : α → Type u) : List α → Type (max u v)
   | nil  : HList β []
   | cons : β i → HList β is → HList β (i::is)
 

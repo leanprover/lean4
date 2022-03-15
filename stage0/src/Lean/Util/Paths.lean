@@ -26,6 +26,6 @@ def initSrcSearchPath (leanSysroot : FilePath) (sp : SearchPath := ∅) : IO Sea
     else []
   let srcPath := (← IO.appDir) / ".." / "src" / "lean"
   -- `lake/` should come first since on case-insensitive file systems, Lean thinks that `src/` also contains `Lake/`
-  return srcSearchPath ++ [srcPath / "lake", srcPath]
+  return srcSearchPath ++ sp ++ [srcPath / "lake", srcPath]
 
 end Lean

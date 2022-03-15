@@ -707,7 +707,7 @@ static lean_object* l_Lean_Meta_processPostponed_loop___closed__3;
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mapErrorImp(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_sortFVarIds(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_betaRev(lean_object*, lean_object*, uint8_t);
+lean_object* l_Lean_Expr_betaRev(lean_object*, lean_object*, uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_processPostponed_loop___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_PersistentArray_toArray___rarg(lean_object*);
 static lean_object* l_Lean_Meta_instInhabitedMetaM___rarg___closed__2;
@@ -9834,7 +9834,7 @@ else
 lean_object* x_48; uint8_t x_49; lean_object* x_50; lean_object* x_51; 
 x_48 = l_Array_reverse___rarg(x_3);
 x_49 = 0;
-x_50 = l_Lean_Expr_betaRev(x_34, x_48, x_49);
+x_50 = l_Lean_Expr_betaRev(x_34, x_48, x_49, x_49);
 lean_dec(x_48);
 x_51 = l_Lean_MetavarContext_instantiateExprMVars___at_Lean_Meta_instantiateMVars___spec__1(x_50, x_5, x_6, x_7, x_8, x_9, x_35);
 return x_51;
@@ -10095,7 +10095,7 @@ else
 lean_object* x_135; uint8_t x_136; lean_object* x_137; lean_object* x_138; 
 x_135 = l_Array_reverse___rarg(x_3);
 x_136 = 0;
-x_137 = l_Lean_Expr_betaRev(x_121, x_135, x_136);
+x_137 = l_Lean_Expr_betaRev(x_121, x_135, x_136, x_136);
 lean_dec(x_135);
 x_138 = l_Lean_MetavarContext_instantiateExprMVars___at_Lean_Meta_instantiateMVars___spec__1(x_137, x_5, x_6, x_7, x_8, x_9, x_122);
 return x_138;

@@ -104,9 +104,9 @@ theorem mod_le (x y : Nat) : x % y ≤ x := by
 
 @[simp] theorem zero_mod (b : Nat) : 0 % b = 0 := by
   rw [mod_eq]
-  have : ¬ (0 < b ∧ b ≤ 0) := by
+  have : ¬ (0 < b ∧ b = 0) := by
     intro ⟨h₁, h₂⟩
-    exact absurd (Nat.lt_of_lt_of_le h₁ h₂) (Nat.lt_irrefl 0)
+    simp_all
   simp [this]
 
 @[simp] theorem mod_self (n : Nat) : n % n = 0 := by

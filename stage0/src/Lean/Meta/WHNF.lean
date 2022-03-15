@@ -290,12 +290,12 @@ end
     successK val
 
 @[specialize] private def deltaBetaDefinition (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr)
-    (failK : Unit → α) (successK : Expr → α) : α :=
+    (failK : Unit → α) (successK : Expr → α) (preserveMData := false) : α :=
   if c.levelParams.length != lvls.length then
     failK ()
   else
     let val := c.instantiateValueLevelParams lvls
-    let val := val.betaRev revArgs
+    let val := val.betaRev revArgs (preserveMData := preserveMData)
     successK val
 
 inductive ReduceMatcherResult where
@@ -584,7 +584,8 @@ mutual
           if smartUnfolding.get (← getOptions) then
             match ((← getEnv).find? (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(ConstantInfo.defnInfo _) =>
-              deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (fun _ => pure none) fun e₁ =>
+              -- We use `preserveMData := true` to make sure the smart unfolding annotation are not erased in an over-application.
+              deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (preserveMData := true) (fun _ => pure none) fun e₁ =>
                 smartUnfoldingReduce? e₁
             | _ =>
               if (← getMatcherInfo? fInfo.name).isSome then

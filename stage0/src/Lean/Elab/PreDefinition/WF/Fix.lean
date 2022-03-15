@@ -30,7 +30,25 @@ private def mkDecreasingProof (decreasingProp : Expr) (decrTactic? : Option Synt
   instantiateMVars mvar
 
 private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (decrTactic? : Option Syntax) (F : Expr) (e : Expr) : TermElabM Expr :=
-  let rec loop (F : Expr) (e : Expr) : TermElabM Expr := do
+  loop F e
+where
+  processRec (F : Expr) (e : Expr) : TermElabM Expr := do
+    if e.getAppNumArgs < fixedPrefixSize + 1 then
+      loop F (← etaExpand e)
+    else
+      let args := e.getAppArgs
+      let r := mkApp F (← loop F args[fixedPrefixSize])
+      let decreasingProp := (← whnf (← inferType r)).bindingDomain!
+      let r := mkApp r (← mkDecreasingProof decreasingProp decrTactic?)
+      return mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
+
+  processApp (F : Expr) (e : Expr) : TermElabM Expr := do
+    if e.isAppOf recFnName then
+      processRec F e
+    else
+      e.withApp fun f args => return mkAppN (← loop F f) (← args.mapM (loop F))
+
+  loop (F : Expr) (e : Expr) : TermElabM Expr := do
     match e with
     | Expr.lam n d b c =>
       withLocalDecl n c.binderInfo (← loop F d) fun x => do
@@ -47,25 +65,17 @@ private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (d
       else
         return mkMData d (← loop F b)
     | Expr.proj n i e _  => return mkProj n i (← loop F e)
-    | Expr.app _ _ _ =>
-      let processApp (e : Expr) : TermElabM Expr :=
-        e.withApp fun f args => do
-          if f.isConstOf recFnName && args.size >= fixedPrefixSize + 1 then
-            let r := mkApp F (← loop F args[fixedPrefixSize])
-            let decreasingProp := (← whnf (← inferType r)).bindingDomain!
-            let r := mkApp r (← mkDecreasingProof decreasingProp decrTactic?)
-            return mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
-          else
-            return mkAppN (← loop F f) (← args.mapM (loop F))
+    | Expr.const .. => if e.isConstOf recFnName then processRec F e else return e
+    | Expr.app .. =>
       let matcherApp? ← matchMatcherApp? e
       match matcherApp? with
       | some matcherApp =>
         if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
-          processApp e
+          processApp F e
         else
           let matcherApp ← mapError (matcherApp.addArg F) (fun msg => "failed to add functional argument to 'matcher' application" ++ indentD msg)
           if !(← Structural.refinedArgType matcherApp F) then
-            processApp e
+            processApp F e
           else
             let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
               lambdaTelescope alt fun xs altBody => do
@@ -74,9 +84,8 @@ private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (d
                 let FAlt := xs[numParams - 1]
                 mkLambdaFVars xs (← loop FAlt altBody)
             return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
-      | none => processApp e
+      | none => processApp F e
     | e => ensureNoRecFn recFnName e
-  loop F e
 
 /-- Refine `F` over `PSum.casesOn` -/
 private partial def processSumCasesOn (x F val : Expr) (k : (x : Expr) → (F : Expr) → (val : Expr) → TermElabM Expr) : TermElabM Expr := do
@@ -127,7 +136,7 @@ private partial def processPSigmaCasesOn (x F val : Expr) (k : (F : Expr) → (v
 
 def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (wfRel : Expr) (decrTactic? : Option Syntax) : TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
-  let wfFix ← forallBoundedTelescope type (some 1) fun x type => do
+  let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
     let x := x[0]
     let α ← inferType x
     let u ← getLevel α
@@ -135,14 +144,19 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (wfRel : Expr) (dec
     let motive ← mkLambdaFVars #[x] type
     let rel := mkProj ``WellFoundedRelation 0 wfRel
     let wf  := mkProj ``WellFoundedRelation 1 wfRel
-    return mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf
+    let varName := (← getLocalDecl x.fvarId!).userName -- See comment below.
+    return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)
   forallBoundedTelescope (← whnf (← inferType wfFix)).bindingDomain! (some 2) fun xs _ => do
     let x   := xs[0]
-    let F   := xs[1]
-    let val := preDef.value.beta (prefixArgs.push x)
-    trace[Elab.definition.wf] ">> val: {val}"
-    let val ← processSumCasesOn x F val fun x F val => do
-      processPSigmaCasesOn x F val (replaceRecApps preDef.declName prefixArgs.size decrTactic?)
-    mkLambdaFVars prefixArgs (mkApp wfFix (← mkLambdaFVars #[x, F] val))
+    -- Remark: we rename `x` here to make sure we preserve the variable name in the
+    -- decreasing goals when the function has only one non fixed argument.
+    -- This renaming is irrelevant if the function has multiple non fixed arguments. See `process*` functions above.
+    let lctx := (← getLCtx).setUserName x.fvarId! varName
+    withTheReader Meta.Context (fun ctx => { ctx with lctx }) do
+      let F   := xs[1]
+      let val := preDef.value.beta (prefixArgs.push x)
+      let val ← processSumCasesOn x F val fun x F val => do
+        processPSigmaCasesOn x F val (replaceRecApps preDef.declName prefixArgs.size decrTactic?)
+      mkLambdaFVars prefixArgs (mkApp wfFix (← mkLambdaFVars #[x, F] val))
 
 end Lean.Elab.WF

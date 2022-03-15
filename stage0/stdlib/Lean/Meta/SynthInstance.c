@@ -408,7 +408,7 @@ lean_object* l_Lean_mkApp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Meta_synthInstance_x3f___spec__8___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_SynthInstance_newSubgoal___closed__2;
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
-lean_object* l_Lean_Expr_betaRev(lean_object*, lean_object*, uint8_t);
+lean_object* l_Lean_Expr_betaRev(lean_object*, lean_object*, uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Meta_synthInstance_x3f___spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___lambda__2___closed__3;
 lean_object* l_Std_PersistentArray_toArray___rarg(lean_object*);
@@ -11471,7 +11471,7 @@ lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_obje
 x_12 = l_Lean_Meta_SynthInstance_newSubgoal___lambda__3___closed__1;
 x_13 = lean_array_push(x_12, x_4);
 x_14 = 0;
-x_15 = l_Lean_Expr_betaRev(x_1, x_13, x_14);
+x_15 = l_Lean_Expr_betaRev(x_1, x_13, x_14, x_14);
 lean_dec(x_13);
 lean_inc(x_15);
 x_16 = lean_infer_type(x_15, x_7, x_8, x_9, x_10, x_11);

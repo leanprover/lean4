@@ -2744,7 +2744,7 @@ static lean_object* _init_l___aux__Init__WFTactics______macroRules__tacticDecrea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\"failed to prove termination, possible solutions:\\n  - Use `have`-expressions to prove the remaining goals\\n  - Use `termination_by` to specify a different well-founded relation\\n  - Use `decreasing_by` to specity your own tactic for discharging this kind of goal\"");
+x_1 = lean_mk_string("\"failed to prove termination, possible solutions:\\n  - Use `have`-expressions to prove the remaining goals\\n  - Use `termination_by` to specify a different well-founded relation\\n  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal\"");
 return x_1;
 }
 }

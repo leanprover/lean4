@@ -962,19 +962,21 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
     else
       withRef f <| mergeFailures candidates
 
+private def annotateIfRec (stx : Syntax) (e : Expr) : TermElabM Expr := do
+  let resultFn := e.getAppFn
+  if resultFn.isFVar then
+    let localDecl ← getLocalDecl resultFn.fvarId!
+    if localDecl.isAuxDecl then
+      return mkRecAppWithSyntax e stx
+  return e
+
 @[builtinTermElab app] def elabApp : TermElab := fun stx expectedType? =>
   withoutPostponingUniverseConstraints do
     let (f, namedArgs, args, ellipsis) ← expandApp stx
-    let result ← elabAppAux f namedArgs args (ellipsis := ellipsis) expectedType?
-    let resultFn := result.getAppFn
-    if resultFn.isFVar then
-      let localDecl ← getLocalDecl resultFn.fvarId!
-      if localDecl.isAuxDecl then
-        return mkRecAppWithSyntax result stx
-    return result
+    annotateIfRec stx (← elabAppAux f namedArgs args (ellipsis := ellipsis) expectedType?)
 
-private def elabAtom : TermElab := fun stx expectedType? =>
-  elabAppAux stx #[] #[] (ellipsis := false) expectedType?
+private def elabAtom : TermElab := fun stx expectedType? => do
+  annotateIfRec stx (← elabAppAux stx #[] #[] (ellipsis := false) expectedType?)
 
 @[builtinTermElab ident] def elabIdent : TermElab := elabAtom
 /-- `x@e` matches the pattern `e` and binds its value to the identifier `x`. -/

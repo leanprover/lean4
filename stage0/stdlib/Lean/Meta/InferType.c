@@ -184,7 +184,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_le(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_InferType_0__Lean_Meta_inferLambdaType___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
-lean_object* l_Lean_Expr_betaRev(lean_object*, lean_object*, uint8_t);
+lean_object* l_Lean_Expr_betaRev(lean_object*, lean_object*, uint8_t, uint8_t);
 lean_object* l_Lean_Meta_throwUnknownFVar___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkAppRev(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_throwIncorrectNumberOfLevels___rarg___closed__2;
@@ -951,7 +951,7 @@ else
 {
 uint8_t x_25; lean_object* x_26; 
 x_25 = 0;
-x_26 = l_Lean_Expr_betaRev(x_15, x_22, x_25);
+x_26 = l_Lean_Expr_betaRev(x_15, x_22, x_25, x_25);
 lean_dec(x_22);
 lean_ctor_set(x_20, 0, x_26);
 return x_20;
@@ -980,7 +980,7 @@ else
 {
 uint8_t x_32; lean_object* x_33; lean_object* x_34; 
 x_32 = 0;
-x_33 = l_Lean_Expr_betaRev(x_15, x_27, x_32);
+x_33 = l_Lean_Expr_betaRev(x_15, x_27, x_32, x_32);
 lean_dec(x_27);
 x_34 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_34, 0, x_33);

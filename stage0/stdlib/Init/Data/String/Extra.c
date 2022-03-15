@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Extra
-// Imports: Init.Control.Except Init.Data.ByteArray Init.Util
+// Imports: Init.Control.Except Init.Data.ByteArray Init.SimpLemmas Init.Data.Nat.Linear Init.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -91,7 +91,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_toNat_x21___closed__1;
 x_2 = l_String_toNat_x21___closed__2;
-x_3 = lean_unsigned_to_nat(17u);
+x_3 = lean_unsigned_to_nat(19u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_String_toNat_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -163,6 +163,8 @@ return x_2;
 }
 lean_object* initialize_Init_Control_Except(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ByteArray(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_SimpLemmas(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Util(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_Extra(uint8_t builtin, lean_object* w) {
@@ -173,6 +175,12 @@ res = initialize_Init_Control_Except(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ByteArray(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_SimpLemmas(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Nat_Linear(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Util(builtin, lean_io_mk_world());

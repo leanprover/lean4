@@ -42,6 +42,8 @@ namespace Nat
 def blt (a b : Nat) : Bool :=
   ble a.succ b
 
+attribute [simp] Nat.zero_le
+
 /- Helper "packing" theorems -/
 
 @[simp] theorem zero_eq : Nat.zero = 0 := rfl
@@ -293,6 +295,14 @@ theorem zero_lt_of_lt : {a b : Nat} → a < b → 0 < b
   | a+1, b, h =>
     have : a < b := Nat.lt_trans (Nat.lt_succ_self _) h
     zero_lt_of_lt this
+
+theorem zero_lt_of_ne_zero {a : Nat} (h : a ≠ 0) : 0 < a := by
+  match a with
+  | 0 => contradiction
+  | a+1 => apply Nat.zero_lt_succ
+
+theorem ne_of_lt {a b : Nat} (h : a < b) : a ≠ b :=
+  fun he => absurd (he ▸ h) (Nat.lt_irrefl a)
 
 theorem le_or_eq_or_le_succ {m n : Nat} (h : m ≤ succ n) : m ≤ n ∨ m = succ n :=
   Decidable.byCases

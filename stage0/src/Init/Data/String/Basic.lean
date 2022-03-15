@@ -134,17 +134,18 @@ partial def firstDiffPos (a b : String) : Pos :=
     else loop (a.next i)
   loop 0
 
-private def utf8ExtractAux₂ : List Char → Pos → Pos → List Char
-  | [],    _, _ => []
-  | c::cs, i, e => if i = e then [] else c :: utf8ExtractAux₂ cs (i + csize c) e
-
-private def utf8ExtractAux₁ : List Char → Pos → Pos → Pos → List Char
-  | [],        _, _, _ => []
-  | s@(c::cs), i, b, e => if i = b then utf8ExtractAux₂ s i e else utf8ExtractAux₁ cs (i + csize c) b e
-
 @[extern "lean_string_utf8_extract"]
 def extract : (@& String) → (@& Pos) → (@& Pos) → String
-  | ⟨s⟩, b, e => if b ≥ e then ⟨[]⟩ else ⟨utf8ExtractAux₁ s 0 b e⟩
+  | ⟨s⟩, b, e => if b ≥ e then ⟨[]⟩ else ⟨go₁ s 0 b e⟩
+where
+  go₁ : List Char → Pos → Pos → Pos → List Char
+    | [],        _, _, _ => []
+    | s@(c::cs), i, b, e => if i = b then go₂ s i e else go₁ cs (i + csize c) b e
+
+  go₂ : List Char → Pos → Pos → List Char
+    | [],    _, _ => []
+    | c::cs, i, e => if i = e then [] else c :: go₂ cs (i + csize c) e
+
 
 @[specialize] partial def splitAux (s : String) (p : Char → Bool) (b : Pos) (i : Pos) (r : List String) : List String :=
   if s.atEnd i then

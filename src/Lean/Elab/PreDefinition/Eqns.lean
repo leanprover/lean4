@@ -287,8 +287,9 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
   let rec go (mvarId : MVarId) : MetaM Unit := do
     if (← tryEqns mvarId) then
       return ()
-    else if let some mvarId ← funext? mvarId then
-      go mvarId
+    -- Remark: we removed funext? from `mkEqnTypes`
+    -- else if let some mvarId ← funext? mvarId then
+    --  go mvarId
     else if let some mvarId ← simpMatch? mvarId then
       go mvarId
     else if let some mvarIds ← splitTarget? mvarId (splitIte := false) then

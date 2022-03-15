@@ -383,13 +383,13 @@ where
       | _ => return TransformStep.visit e
 
   proveSubgoalLoop (mvarId : MVarId) : MetaM Unit := do
-    if (← contradictionCore mvarId {}) then
-      return ()
     match (← injectionAny mvarId) with
     | InjectionAnyResult.solved => return ()
     | InjectionAnyResult.failed =>
       let mvarId' ← substVars mvarId
       if mvarId' == mvarId then
+        if (← contradictionCore mvarId {}) then
+          return ()
         throwError "failed to generate splitter for match auxiliary declaration '{matchDeclName}', unsolved subgoal:\n{MessageData.ofGoal mvarId}"
       else
         proveSubgoalLoop mvarId'

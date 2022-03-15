@@ -23,3 +23,4 @@ import Lean.Util.FoldConsts
 import Lean.Util.SCC
 import Lean.Util.OccursCheck
 import Lean.Util.Paths
+import Lean.Util.HasConstCache

@@ -438,6 +438,9 @@ constant eqv (a : @& Expr) (b : @& Expr) : Bool
 instance : BEq Expr where
   beq := Expr.eqv
 
+protected unsafe def ptrEq (a b : Expr) : Bool :=
+  ptrAddrUnsafe a == ptrAddrUnsafe b
+
 /- Return true iff `a` and `b` are equal.
    Binder names and annotations are taking into account. -/
 @[extern "lean_expr_equal"]

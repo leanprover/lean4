@@ -30,7 +30,7 @@ structure State where
      As a side-effect, this creates matchers. Here we capture all these side-effects, because
      the construction rolls back any changes done to the environment and the side-effects
      need to be replayed. -/
-  addMatchers : Array $ MetaM Unit := #[]
+  addMatchers : Array (MetaM Unit) := #[]
 
 abbrev M := StateRefT State MetaM
 

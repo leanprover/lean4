@@ -58,6 +58,9 @@ structure MatchEqns where
   splitterAltNumParams : Array Nat
   deriving Inhabited, Repr
 
+def MatchEqns.size (e : MatchEqns) : Nat :=
+  e.eqnNames.size
+
 structure MatchEqnsExtState where
   map : Std.PHashMap Name MatchEqns := {}
   deriving Inhabited

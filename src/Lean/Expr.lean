@@ -133,9 +133,8 @@ def Expr.mkData
     (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) (bi : BinderInfo := BinderInfo.default) (nonDepLet : Bool := false)
     : Expr.Data :=
   let approxDepth : UInt8 := if approxDepth > 255 then 255 else approxDepth.toUInt8
-  if looseBVarRange > Nat.pow 2 16 - 1 then panic! "bound variable index is too big"
-  else
-    let r : UInt64 :=
+  assert! (looseBVarRange ≤ Nat.pow 2 16 - 1)
+  let r : UInt64 :=
       h.toUInt32.toUInt64 +
       hasFVar.toUInt64.shiftLeft 32 +
       hasExprMVar.toUInt64.shiftLeft 33 +
@@ -145,7 +144,11 @@ def Expr.mkData
       bi.toUInt64.shiftLeft 37 +
       approxDepth.toUInt64.shiftLeft 40 +
       looseBVarRange.toUInt64.shiftLeft 48
-    r
+  r
+
+/-- Optimized version of `Expr.mkData` for applications. -/
+@[extern c inline "(((uint64_t)#5) << 48) | (((uint64_t)#4) << 40) | ((((#1 | #2) << 28) >> 60) << 32) | ((uint64_t)((uint32_t)#3))"]
+constant Expr.mkAppData (fData : Data) (aData : Data) (hash : UInt64) (approxDepth : UInt8) (looseBVarRange : UInt16) : Data
 
 @[inline] def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.Data :=
   Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam bi false
@@ -317,14 +320,14 @@ def mkProj (s : Name) (i : Nat) (e : Expr) : Expr :=
       e.looseBVarRange d e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkApp (f a : Expr) : Expr :=
-  let d := (max f.approxDepth a.approxDepth) + 1
-  Expr.app f a <| mkData (mixHash d.toUInt64 <| mixHash (hash f) (hash a))
-    (max f.looseBVarRange a.looseBVarRange)
-    d
-    (f.hasFVar || a.hasFVar)
-    (f.hasExprMVar || a.hasExprMVar)
-    (f.hasLevelMVar || a.hasLevelMVar)
-    (f.hasLevelParam || a.hasLevelParam)
+  let fData := f.data
+  let aData := a.data
+  let depth := (max fData.approxDepth.toUInt16 aData.approxDepth.toUInt16) + 1
+  let depth := if depth > 255 then 255 else depth.toUInt8
+  let range := max fData.looseBVarRange aData.looseBVarRange
+  let hash  := mixHash fData aData
+  assert! (range ≤ (Nat.pow 2 16 - 1).toUInt32)
+  Expr.app f a (mkAppData fData aData hash depth range.toUInt16)
 
 def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
   let d := (max t.approxDepth b.approxDepth) + 1

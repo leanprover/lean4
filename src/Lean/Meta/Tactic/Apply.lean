@@ -96,9 +96,28 @@ def apply (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) :=
     result.forM headBetaMVarType
     return result
 
-def splitAnd (mvarId : MVarId) : MetaM (List MVarId) := do
-  saturate mvarId fun mvarId =>
-    observing? <| apply mvarId (mkConst ``And.intro)
+partial def splitAnd (mvarId : MVarId) : MetaM (List MVarId) :=
+  withMVarContext mvarId do
+    checkNotAssigned mvarId `splitAnd
+    let type ← getMVarType' mvarId
+    if !type.isAppOfArity ``And 2 then
+      return [mvarId]
+    else
+      let tag ← getMVarTag mvarId
+      let rec go (type : Expr) : StateRefT (Array MVarId) MetaM Expr := do
+        let type ← whnf type
+        if type.isAppOfArity ``And 2 then
+          let p₁ := type.appFn!.appArg!
+          let p₂ := type.appArg!
+          return mkApp4 (mkConst ``And.intro) p₁ p₂ (← go p₁) (← go p₂)
+        else
+          let idx := (← get).size + 1
+          let mvar ← mkFreshExprSyntheticOpaqueMVar type (tag ++ (`h).appendIndexAfter idx)
+          modify fun s => s.push mvar.mvarId!
+          return mvar
+      let (val, s) ← go type |>.run #[]
+      assignExprMVar mvarId val
+      return s.toList
 
 def applyRefl (mvarId : MVarId) (msg : MessageData := "refl failed") : MetaM Unit :=
   withMVarContext mvarId do

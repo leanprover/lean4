@@ -28,7 +28,7 @@ inductive Term : List Ty → Ty → Type
   | lam   : Term (dom :: ctx) ran → Term ctx (.fn dom ran)
   | «let» : Term ctx ty₁ → Term (ty₁ :: ctx) ty₂ → Term ctx ty₂
 
-def Term.denote : Term ctx ty → HList Ty.denote ctx → ty.denote
+@[simp] def Term.denote : Term ctx ty → HList Ty.denote ctx → ty.denote
   | var h,     env => env.get h
   | const n,   _   => n
   | plus a b,  env => a.denote env + b.denote env
@@ -36,7 +36,7 @@ def Term.denote : Term ctx ty → HList Ty.denote ctx → ty.denote
   | lam b,     env => fun x => b.denote (x :: env)
   | «let» a b, env => b.denote (a.denote env :: env)
 
-def Term.constFold : Term ctx ty → Term ctx ty
+@[simp] def Term.constFold : Term ctx ty → Term ctx ty
   | const n   => const n
   | var h     => var h
   | app f a   => app f.constFold a.constFold
@@ -48,14 +48,8 @@ def Term.constFold : Term ctx ty → Term ctx ty
     | a',      b'      => plus a' b'
 
 theorem Term.constFold_sound (e : Term ctx ty) : e.constFold.denote env = e.denote env := by
-  induction e with
-  | const => rfl
-  | var => rfl
-  | app f a ihf iha => simp [constFold]; rw [denote, denote, iha, ihf]
-  | lam b ih => simp [constFold]; rw [denote, denote]; simp [ih]
-  | «let» a b iha ihb => simp [constFold]; rw [denote, denote, iha, ihb]
+  induction e with simp [*]
   | plus a b iha ihb =>
-    simp [constFold]
     split
-    next he₁ he₂ => rw [denote, denote, ← iha, ← ihb, he₁, he₂, denote, denote]
-    next he₁ he₂ _ _ _ => rw [denote, denote, ← he₁, ← he₂, iha, ihb]
+    next he₁ he₂ => simp [← iha, ← ihb, he₁, he₂]
+    next he₁ he₂ _ _ _ => simp [← he₁, ← he₂, iha, ihb]

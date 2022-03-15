@@ -856,25 +856,31 @@ def mkAppRevRange (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : Ex
   If `useZeta` is true, the function also performs zeta-reduction to create further
   opportunities for beta reduction.
 -/
-partial def betaRev (f : Expr) (revArgs : Array Expr) (useZeta := false) : Expr :=
+partial def betaRev (f : Expr) (revArgs : Array Expr) (useZeta := false) (preserveMData := false) : Expr :=
   if revArgs.size == 0 then f
   else
     let sz := revArgs.size
-    let rec go : Expr → Nat → Expr
-      | Expr.lam _ _ b _, i =>
+    let rec go (e : Expr) (i : Nat) : Expr :=
+      match e with
+      | Expr.lam _ _ b _ =>
         if i + 1 < sz then
           go b (i+1)
         else
           let n := sz - (i + 1)
           mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
-      | e@(Expr.letE _ _ v b _), i =>
+      | Expr.letE _ _ v b _ =>
         if useZeta && i < sz then
           go (b.instantiate1 v) i
         else
           let n := sz - i
           mkAppRevRange (e.instantiateRange n sz revArgs) 0 n revArgs
-      | Expr.mdata _ b _, i => go b i
-      | b,                i =>
+      | Expr.mdata k b _=>
+        if preserveMData then
+          let n := sz - i
+          mkMData k (mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs)
+        else
+          go b i
+      | b =>
         let n := sz - i
         mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
     go f 0

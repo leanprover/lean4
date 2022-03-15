@@ -191,8 +191,9 @@ where
     trace[Elab.definition.structural.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
     if let some mvarId ← expandRHS? mvarId then
       go mvarId
-    else if let some mvarId ← funext? mvarId then
-      go mvarId
+--  The following `funext?` was producing an overapplied `lhs`. Possible refinement: only do it if we want to apply `splitMatch` on the body of the lambda
+/-    else if let some mvarId ← funext? mvarId then
+      go mvarId -/
     else if let some mvarId ← simpMatch? mvarId then
       go mvarId
     else if let some mvarIds ← splitMatch? mvarId declNames then

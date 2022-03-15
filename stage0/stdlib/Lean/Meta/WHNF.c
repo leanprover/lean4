@@ -9656,6 +9656,7 @@ x_31 = lean_unsigned_to_nat(1u);
 x_32 = lean_nat_sub(x_30, x_31);
 lean_dec(x_30);
 x_33 = l_Lean_Expr_getRevArg_x21(x_12, x_32);
+lean_dec(x_12);
 lean_ctor_set(x_19, 0, x_33);
 lean_ctor_set(x_15, 0, x_19);
 return x_15;
@@ -9712,6 +9713,7 @@ x_44 = lean_unsigned_to_nat(1u);
 x_45 = lean_nat_sub(x_43, x_44);
 lean_dec(x_43);
 x_46 = l_Lean_Expr_getRevArg_x21(x_12, x_45);
+lean_dec(x_12);
 x_47 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_47, 0, x_46);
 lean_ctor_set(x_15, 0, x_47);
@@ -9801,6 +9803,7 @@ x_66 = lean_unsigned_to_nat(1u);
 x_67 = lean_nat_sub(x_65, x_66);
 lean_dec(x_65);
 x_68 = l_Lean_Expr_getRevArg_x21(x_12, x_67);
+lean_dec(x_12);
 if (lean_is_scalar(x_56)) {
  x_69 = lean_alloc_ctor(1, 1, 0);
 } else {
@@ -9940,6 +9943,7 @@ x_98 = lean_unsigned_to_nat(1u);
 x_99 = lean_nat_sub(x_97, x_98);
 lean_dec(x_97);
 x_100 = l_Lean_Expr_getRevArg_x21(x_76, x_99);
+lean_dec(x_76);
 if (lean_is_scalar(x_88)) {
  x_101 = lean_alloc_ctor(1, 1, 0);
 } else {

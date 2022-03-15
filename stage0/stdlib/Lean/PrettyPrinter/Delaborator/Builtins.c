@@ -25283,7 +25283,6 @@ x_15 = lean_nat_sub(x_10, x_14);
 x_16 = lean_unsigned_to_nat(1u);
 x_17 = lean_nat_sub(x_15, x_16);
 lean_dec(x_15);
-lean_inc(x_1);
 x_18 = l_Lean_Expr_getRevArg_x21(x_1, x_17);
 if (lean_obj_tag(x_18) == 9)
 {
@@ -25301,7 +25300,6 @@ x_21 = lean_unsigned_to_nat(4u);
 x_22 = lean_nat_sub(x_10, x_21);
 x_23 = lean_nat_sub(x_22, x_16);
 lean_dec(x_22);
-lean_inc(x_1);
 x_24 = l_Lean_Expr_getRevArg_x21(x_1, x_23);
 if (lean_obj_tag(x_24) == 9)
 {
@@ -25321,6 +25319,7 @@ lean_dec(x_10);
 x_29 = lean_nat_sub(x_28, x_16);
 lean_dec(x_28);
 x_30 = l_Lean_Expr_getRevArg_x21(x_1, x_29);
+lean_dec(x_1);
 if (lean_obj_tag(x_30) == 4)
 {
 lean_object* x_31; 

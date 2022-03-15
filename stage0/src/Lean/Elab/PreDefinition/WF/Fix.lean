@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Util.HasConstCache
 import Lean.Meta.Match.Match
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Cleanup
@@ -30,9 +31,9 @@ private def mkDecreasingProof (decreasingProp : Expr) (decrTactic? : Option Synt
   instantiateMVars mvar
 
 private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (decrTactic? : Option Syntax) (F : Expr) (e : Expr) : TermElabM Expr :=
-  loop F e
+  loop F e |>.run' {}
 where
-  processRec (F : Expr) (e : Expr) : TermElabM Expr := do
+  processRec (F : Expr) (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Expr := do
     if e.getAppNumArgs < fixedPrefixSize + 1 then
       loop F (← etaExpand e)
     else
@@ -42,13 +43,18 @@ where
       let r := mkApp r (← mkDecreasingProof decreasingProp decrTactic?)
       return mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
 
-  processApp (F : Expr) (e : Expr) : TermElabM Expr := do
+  processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Expr := do
     if e.isAppOf recFnName then
       processRec F e
     else
       e.withApp fun f args => return mkAppN (← loop F f) (← args.mapM (loop F))
 
-  loop (F : Expr) (e : Expr) : TermElabM Expr := do
+  containsRecFn (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Bool := do
+    modifyGet (·.contains e)
+
+  loop (F : Expr) (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Expr := do
+    if !(← containsRecFn e) then
+      return e
     match e with
     | Expr.lam n d b c =>
       withLocalDecl n c.binderInfo (← loop F d) fun x => do

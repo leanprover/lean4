@@ -146,7 +146,8 @@ jobs:
         run: |
           # omit contents of Init/, ...
           tree --du -h lean-* | grep -E ' (Init|Std|Lean|Lake|LICENSE|[a-z])'
-      - name: Pack
+      - name: Pack on Linux and macOS
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
         run: |
           dir=$(echo lean-*)
           mkdir pack
@@ -157,6 +158,12 @@ jobs:
           else
             tar cf - $dir | zstd -T0 --no-progress -o pack/$dir.tar.zst
           fi
+      - name: Zip on Windows
+        if: matrix.os == 'windows-2022'
+        run: |
+          dir=$(echo lean-*)
+          mkdir pack
+          zip -rq pack/$dir.zip $dir
       - uses: actions/upload-artifact@v2
         if: matrix.release
         with:
@@ -194,7 +201,7 @@ jobs:
         if: matrix.name == 'Linux'
       - name: CCache stats
         run: ccache -s
-        
+
   release:
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
@@ -204,13 +211,13 @@ jobs:
         with:
           path: artifacts
       - name: Release
-        uses: softprops/action-gh-release@v1       
+        uses: softprops/action-gh-release@v1
         with:
           files: artifacts/*/*
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
   release-nightly:
     needs: [set-nightly, build]
     if: needs.set-nightly.outputs.nightly

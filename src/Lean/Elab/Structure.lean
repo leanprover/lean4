@@ -369,7 +369,7 @@ private partial def copyDefaultValue? (fieldMap : FieldMap) (expandedStructNames
   | some defaultFn =>
     let cinfo ← getConstInfo defaultFn
     let us ← mkFreshLevelMVarsFor cinfo
-    go? (cinfo.instantiateValueLevelParams us)
+    go? (← instantiateValueLevelParams cinfo us)
 where
   failed : TermElabM (Option Expr) := do
     logWarning s!"ignoring default value for field '{fieldName}' defined at '{structName}'"

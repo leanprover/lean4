@@ -129,13 +129,13 @@ abbrev WhnfCache      := PersistentExprStructMap Expr
 abbrev DefEqCache := PersistentHashMap (Expr × Expr) Unit
 
 structure Cache where
-  inferType     : InferTypeCache := {}
-  funInfo       : FunInfoCache   := {}
-  synthInstance : SynthInstanceCache := {}
-  whnfDefault   : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
-  whnfAll       : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
-  defEqDefault  : DefEqCache := {}
-  defEqAll      : DefEqCache := {}
+  inferType      : InferTypeCache := {}
+  funInfo        : FunInfoCache   := {}
+  synthInstance  : SynthInstanceCache := {}
+  whnfDefault    : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
+  whnfAll        : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
+  defEqDefault   : DefEqCache := {}
+  defEqAll       : DefEqCache := {}
   deriving Inhabited
 
 /--
@@ -241,6 +241,8 @@ protected def throwIsDefEqStuck : MetaM α :=
 builtin_initialize
   registerTraceClass `Meta
   registerTraceClass `Meta.debug
+
+export Core (instantiateTypeLevelParams instantiateValueLevelParams)
 
 @[inline] def liftMetaM [MonadLiftT MetaM m] (x : MetaM α) : m α :=
   liftM x

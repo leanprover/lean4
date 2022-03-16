@@ -283,18 +283,18 @@ end
     | none   => return e
 
 @[specialize] private def deltaDefinition (c : ConstantInfo) (lvls : List Level)
-    (failK : Unit → α) (successK : Expr → α) : α :=
-  if c.levelParams.length != lvls.length then failK ()
-  else
-    let val := c.instantiateValueLevelParams lvls
-    successK val
-
-@[specialize] private def deltaBetaDefinition (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr)
-    (failK : Unit → α) (successK : Expr → α) (preserveMData := false) : α :=
+    (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α := do
   if c.levelParams.length != lvls.length then
     failK ()
   else
-    let val := c.instantiateValueLevelParams lvls
+    successK (← instantiateValueLevelParams c lvls)
+
+@[specialize] private def deltaBetaDefinition (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr)
+    (failK : Unit → MetaM α) (successK : Expr → MetaM α) (preserveMData := false) : MetaM α := do
+  if c.levelParams.length != lvls.length then
+    failK ()
+  else
+    let val ← instantiateValueLevelParams c lvls
     let val := val.betaRev revArgs (preserveMData := preserveMData)
     successK val
 
@@ -379,7 +379,7 @@ partial def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
       return ReduceMatcherResult.partialApp
     else
       let constInfo ← getConstInfo declName
-      let f := constInfo.instantiateValueLevelParams declLevels
+      let f ← instantiateValueLevelParams constInfo declLevels
       let auxApp := mkAppN f args[0:prefixSz]
       let auxAppType ← inferType auxApp
       forallBoundedTelescope auxAppType info.numAlts fun hs _ => do

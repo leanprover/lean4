@@ -225,7 +225,7 @@ private def mkFun (constName : Name) : MetaM (Expr × Expr) := do
   let cinfo ← getConstInfo constName
   let us ← cinfo.levelParams.mapM fun _ => mkFreshLevelMVar
   let f := mkConst constName us
-  let fType := cinfo.instantiateTypeLevelParams us
+  let fType ← instantiateTypeLevelParams cinfo us
   return (f, fType)
 
 /--

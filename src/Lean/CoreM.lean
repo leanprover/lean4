@@ -24,11 +24,19 @@ register_builtin_option maxHeartbeats : Nat := {
 def getMaxHeartbeats (opts : Options) : Nat :=
   maxHeartbeats.get opts * 1000
 
+abbrev InstantiateLevelCache := Std.PersistentHashMap Name (List Level × Expr)
+
+structure Cache where
+  instLevelType  : InstantiateLevelCache := {}
+  instLevelValue : InstantiateLevelCache := {}
+  deriving Inhabited
+
 structure State where
   env             : Environment
   nextMacroScope  : MacroScope    := firstFrontendMacroScope + 1
   ngen            : NameGenerator := {}
   traceState      : TraceState    := {}
+  cache           : Cache         := {}
   deriving Inhabited
 
 structure Context where
@@ -89,6 +97,31 @@ instance : MonadQuotation CoreM where
   getCurrMacroScope   := return (← read).currMacroScope
   getMainModule       := return (← get).env.mainModule
   withFreshMacroScope := Core.withFreshMacroScope
+
+@[inline] def modifyCache (f : Cache → Cache) : CoreM Unit :=
+  modify fun ⟨env, next, ngen, trace, cache⟩ => ⟨env, next, ngen, trace, f cache⟩
+
+@[inline] def modifyInstLevelTypeCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
+  modifyCache fun ⟨c₁, c₂⟩ => ⟨f c₁, c₂⟩
+
+@[inline] def modifyInstLevelValueCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
+  modifyCache fun ⟨c₁, c₂⟩ => ⟨c₁, f c₂⟩
+
+def instantiateTypeLevelParams (c : ConstantInfo) (us : List Level) : CoreM Expr := do
+  if let some (us', r) := (← get).cache.instLevelType.find? c.name then
+    if us == us' then
+      return r
+  let r := c.instantiateTypeLevelParams us
+  modifyInstLevelTypeCache fun s => s.insert c.name (us, r)
+  return r
+
+def instantiateValueLevelParams (c : ConstantInfo) (us : List Level) : CoreM Expr := do
+  if let some (us', r) := (← get).cache.instLevelValue.find? c.name then
+    if us == us' then
+      return r
+  let r := c.instantiateValueLevelParams us
+  modifyInstLevelValueCache fun s => s.insert c.name (us, r)
+  return r
 
 @[inline] def liftIOCore (x : IO α) : CoreM α := do
   let ref ← getRef

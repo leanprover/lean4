@@ -134,7 +134,7 @@ def unfoldDeclsFrom (biggerEnv : Environment) (e : Expr) : CoreM Expr := do
           return TransformStep.done e
         else if let some info := biggerEnv.find? declName then
           if info.hasValue then
-            return TransformStep.visit (info.instantiateValueLevelParams us)
+            return TransformStep.visit (← instantiateValueLevelParams info us)
           else
             return TransformStep.done e
         else

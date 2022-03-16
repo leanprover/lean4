@@ -620,6 +620,10 @@ def main (patternVarDecls : Array PatternVarDecl) (ps : Array Expr) (matchType :
   let explicitPatternVars := patternVarDecls.map fun decl => decl.fvarId
   let (ps, s) ← ps.mapM normalize |>.run { explicitPatternVars } |>.run {}
   let patternVars ← topSort s.patternVars
+  for explicit in explicitPatternVars do
+    unless patternVars.any (· == mkFVar explicit) do
+      withInPattern do
+        throwError "invalid patterns, `{mkFVar explicit}` is an explicit pattern variable, but it only occurs in positions that are inaccessible to pattern matching{indentD (MessageData.joinSep (ps.toList.map (MessageData.ofExpr .)) m!"\n\n")}"
   let packed ← mkLambdaFVars patternVars (← packMatchTypePatterns matchType ps) (binderInfoForMVars := BinderInfo.default)
   let lctx := explicitPatternVars.foldl (init := (← getLCtx)) fun lctx d => lctx.erase d
   withTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) do

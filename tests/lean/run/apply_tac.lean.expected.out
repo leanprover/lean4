@@ -1,0 +1,24 @@
+a b c : Nat
+h₁ : a = b
+h₂ : b = c
+⊢ a = b
+case h
+a : Nat
+⊢ ?w = a
+
+case w
+a : Nat
+⊢ Nat
+case h
+a : Nat
+⊢ ?w = a
+case w
+a : Nat
+⊢ Nat
+
+case h
+a : Nat
+⊢ ?w = a
+case h
+a : Nat
+⊢ a = a

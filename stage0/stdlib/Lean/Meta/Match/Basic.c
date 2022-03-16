@@ -6688,6 +6688,7 @@ x_83 = lean_nat_sub(x_81, x_82);
 x_84 = lean_unsigned_to_nat(1u);
 x_85 = lean_nat_sub(x_83, x_84);
 lean_dec(x_83);
+lean_inc(x_1);
 x_86 = l_Lean_Expr_getRevArg_x21(x_1, x_85);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -6707,13 +6708,13 @@ x_91 = lean_unsigned_to_nat(3u);
 x_92 = lean_nat_sub(x_81, x_91);
 x_93 = lean_nat_sub(x_92, x_84);
 lean_dec(x_92);
+lean_inc(x_1);
 x_94 = l_Lean_Expr_getRevArg_x21(x_1, x_93);
 x_95 = lean_nat_sub(x_81, x_84);
 lean_dec(x_81);
 x_96 = lean_nat_sub(x_95, x_84);
 lean_dec(x_95);
 x_97 = l_Lean_Expr_getRevArg_x21(x_1, x_96);
-lean_dec(x_1);
 if (lean_obj_tag(x_97) == 1)
 {
 if (lean_obj_tag(x_94) == 1)
@@ -6780,13 +6781,13 @@ x_107 = lean_unsigned_to_nat(3u);
 x_108 = lean_nat_sub(x_81, x_107);
 x_109 = lean_nat_sub(x_108, x_84);
 lean_dec(x_108);
+lean_inc(x_1);
 x_110 = l_Lean_Expr_getRevArg_x21(x_1, x_109);
 x_111 = lean_nat_sub(x_81, x_84);
 lean_dec(x_81);
 x_112 = lean_nat_sub(x_111, x_84);
 lean_dec(x_111);
 x_113 = l_Lean_Expr_getRevArg_x21(x_1, x_112);
-lean_dec(x_1);
 if (lean_obj_tag(x_113) == 1)
 {
 if (lean_obj_tag(x_110) == 1)

@@ -89,7 +89,7 @@ def throwIncorrectNumberOfLevels {α} (constName : Name) (us : List Level) : Met
 private def inferConstType (c : Name) (us : List Level) : MetaM Expr := do
   let cinfo ← getConstInfo c
   if cinfo.levelParams.length == us.length then
-    return cinfo.instantiateTypeLevelParams us
+    instantiateTypeLevelParams cinfo us
   else
     throwIncorrectNumberOfLevels c us
 

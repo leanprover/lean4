@@ -147,8 +147,15 @@ def Expr.mkData
   r
 
 /-- Optimized version of `Expr.mkData` for applications. -/
-@[extern c inline "(((uint64_t)#5) << 48) | (((uint64_t)#4) << 40) | ((((#1 | #2) << 28) >> 60) << 32) | ((uint64_t)((uint32_t)#3))"]
-constant Expr.mkAppData (fData : Data) (aData : Data) (hash : UInt64) (approxDepth : UInt8) (looseBVarRange : UInt16) : Data
+@[inline] def Expr.mkAppData (fData : Data) (aData : Data) : Data :=
+  let depth          := (max fData.approxDepth.toUInt16 aData.approxDepth.toUInt16) + 1
+  let approxDepth    := if depth > 255 then 255 else depth.toUInt8
+  let looseBVarRange := max fData.looseBVarRange aData.looseBVarRange
+  let hash           := mixHash fData aData
+  let fData : UInt64 := fData
+  let aData : UInt64 := aData
+  assert! (looseBVarRange ≤ (Nat.pow 2 16 - 1).toUInt32)
+  ((fData ||| aData) &&& ((15 : UInt64) <<< (32 : UInt64))) ||| hash.toUInt32.toUInt64 ||| (approxDepth.toUInt64 <<< (40 : UInt64)) ||| (looseBVarRange.toUInt64 <<< (48 : UInt64))
 
 @[inline] def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.Data :=
   Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam bi false
@@ -320,14 +327,7 @@ def mkProj (s : Name) (i : Nat) (e : Expr) : Expr :=
       e.looseBVarRange d e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkApp (f a : Expr) : Expr :=
-  let fData := f.data
-  let aData := a.data
-  let depth := (max fData.approxDepth.toUInt16 aData.approxDepth.toUInt16) + 1
-  let depth := if depth > 255 then 255 else depth.toUInt8
-  let range := max fData.looseBVarRange aData.looseBVarRange
-  let hash  := mixHash fData aData
-  assert! (range ≤ (Nat.pow 2 16 - 1).toUInt32)
-  Expr.app f a (mkAppData fData aData hash depth range.toUInt16)
+  Expr.app f a (mkAppData f.data a.data)
 
 def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
   let d := (max t.approxDepth b.approxDepth) + 1

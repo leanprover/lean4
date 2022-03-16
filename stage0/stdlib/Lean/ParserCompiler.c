@@ -1288,7 +1288,6 @@ x_30 = lean_unsigned_to_nat(1u);
 x_31 = lean_nat_sub(x_29, x_30);
 lean_dec(x_29);
 x_32 = l_Lean_Expr_getRevArg_x21(x_8, x_31);
-lean_dec(x_8);
 x_33 = l_Lean_Meta_reduceEval___at_Lean_ParserCompiler_parserNodeKind_x3f___spec__1(x_32, x_2, x_3, x_4, x_5, x_9);
 if (lean_obj_tag(x_33) == 0)
 {
@@ -1360,7 +1359,6 @@ x_50 = lean_unsigned_to_nat(1u);
 x_51 = lean_nat_sub(x_49, x_50);
 lean_dec(x_49);
 x_52 = l_Lean_Expr_getRevArg_x21(x_8, x_51);
-lean_dec(x_8);
 x_53 = l_Lean_Meta_reduceEval___at_Lean_ParserCompiler_parserNodeKind_x3f___spec__1(x_52, x_2, x_3, x_4, x_5, x_9);
 if (lean_obj_tag(x_53) == 0)
 {
@@ -1432,7 +1430,6 @@ x_70 = lean_unsigned_to_nat(1u);
 x_71 = lean_nat_sub(x_69, x_70);
 lean_dec(x_69);
 x_72 = l_Lean_Expr_getRevArg_x21(x_8, x_71);
-lean_dec(x_8);
 x_73 = l_Lean_Meta_reduceEval___at_Lean_ParserCompiler_parserNodeKind_x3f___spec__1(x_72, x_2, x_3, x_4, x_5, x_9);
 if (lean_obj_tag(x_73) == 0)
 {
@@ -1504,7 +1501,6 @@ lean_dec(x_88);
 x_91 = lean_nat_sub(x_90, x_89);
 lean_dec(x_90);
 x_92 = l_Lean_Expr_getRevArg_x21(x_8, x_91);
-lean_dec(x_8);
 x_1 = x_92;
 x_6 = x_9;
 goto _start;
@@ -1522,7 +1518,6 @@ lean_dec(x_95);
 x_98 = lean_nat_sub(x_97, x_96);
 lean_dec(x_97);
 x_99 = l_Lean_Expr_getRevArg_x21(x_8, x_98);
-lean_dec(x_8);
 x_100 = l_Lean_Meta_reduceEval___at_Lean_ParserCompiler_parserNodeKind_x3f___spec__1(x_99, x_2, x_3, x_4, x_5, x_9);
 if (lean_obj_tag(x_100) == 0)
 {

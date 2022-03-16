@@ -743,7 +743,6 @@ lean_dec(x_25);
 x_229 = lean_nat_sub(x_228, x_225);
 lean_dec(x_228);
 x_230 = l_Lean_Expr_getRevArg_x21(x_1, x_229);
-lean_dec(x_1);
 x_231 = l_Lean_Meta_evalNat(x_230, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_231) == 0)
 {
@@ -1090,6 +1089,7 @@ x_67 = lean_nat_sub(x_25, x_24);
 x_68 = lean_unsigned_to_nat(1u);
 x_69 = lean_nat_sub(x_67, x_68);
 lean_dec(x_67);
+lean_inc(x_1);
 x_70 = l_Lean_Expr_getRevArg_x21(x_1, x_69);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -1147,7 +1147,6 @@ lean_dec(x_25);
 x_82 = lean_nat_sub(x_81, x_68);
 lean_dec(x_81);
 x_83 = l_Lean_Expr_getRevArg_x21(x_1, x_82);
-lean_dec(x_1);
 x_84 = l_Lean_Meta_evalNat(x_83, x_2, x_3, x_4, x_5, x_79);
 if (lean_obj_tag(x_84) == 0)
 {
@@ -1341,6 +1340,7 @@ x_124 = lean_nat_sub(x_25, x_24);
 x_125 = lean_unsigned_to_nat(1u);
 x_126 = lean_nat_sub(x_124, x_125);
 lean_dec(x_124);
+lean_inc(x_1);
 x_127 = l_Lean_Expr_getRevArg_x21(x_1, x_126);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -1398,7 +1398,6 @@ lean_dec(x_25);
 x_139 = lean_nat_sub(x_138, x_125);
 lean_dec(x_138);
 x_140 = l_Lean_Expr_getRevArg_x21(x_1, x_139);
-lean_dec(x_1);
 x_141 = l_Lean_Meta_evalNat(x_140, x_2, x_3, x_4, x_5, x_136);
 if (lean_obj_tag(x_141) == 0)
 {
@@ -1574,6 +1573,7 @@ x_174 = lean_nat_sub(x_25, x_24);
 x_175 = lean_unsigned_to_nat(1u);
 x_176 = lean_nat_sub(x_174, x_175);
 lean_dec(x_174);
+lean_inc(x_1);
 x_177 = l_Lean_Expr_getRevArg_x21(x_1, x_176);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -1631,7 +1631,6 @@ lean_dec(x_25);
 x_189 = lean_nat_sub(x_188, x_175);
 lean_dec(x_188);
 x_190 = l_Lean_Expr_getRevArg_x21(x_1, x_189);
-lean_dec(x_1);
 x_191 = l_Lean_Meta_evalNat(x_190, x_2, x_3, x_4, x_5, x_186);
 if (lean_obj_tag(x_191) == 0)
 {
@@ -2712,6 +2711,7 @@ x_109 = lean_unsigned_to_nat(1u);
 x_110 = lean_nat_sub(x_27, x_109);
 x_111 = lean_nat_sub(x_110, x_109);
 lean_dec(x_110);
+lean_inc(x_1);
 x_112 = l_Lean_Expr_getRevArg_x21(x_1, x_111);
 lean_inc(x_6);
 lean_inc(x_5);
@@ -2769,7 +2769,6 @@ lean_dec(x_27);
 x_124 = lean_nat_sub(x_123, x_109);
 lean_dec(x_123);
 x_125 = l_Lean_Expr_getRevArg_x21(x_1, x_124);
-lean_dec(x_1);
 x_126 = 0;
 x_127 = l___private_Lean_Meta_Offset_0__Lean_Meta_getOffsetAux(x_125, x_126, x_3, x_4, x_5, x_6, x_121);
 if (lean_obj_tag(x_127) == 0)

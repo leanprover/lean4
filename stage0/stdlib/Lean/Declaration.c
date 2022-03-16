@@ -38,7 +38,6 @@ LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__2(
 LEAN_EXPORT lean_object* lean_mk_reducibility_hints_regular(uint32_t);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__2___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___at_Lean_mkApp___spec__1(lean_object*);
 LEAN_EXPORT uint8_t lean_opaque_val_is_unsafe(lean_object*);
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_277____closed__6;
 LEAN_EXPORT uint8_t l_Lean_ConstantInfo_isInductive(lean_object*);
@@ -95,6 +94,7 @@ LEAN_EXPORT lean_object* l_Lean_DefinitionSafety_toCtorIdx___boxed(lean_object*)
 LEAN_EXPORT lean_object* l_Lean_DefinitionSafety_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__3(lean_object*);
 static lean_object* l_Lean_instInhabitedConstructor___closed__1;
+lean_object* l_panic___at_Lean_Expr_getRevArg_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_toConstantVal(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_ReducibilityHints_isRegular(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Declaration_forExprM___spec__2___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -2619,7 +2619,7 @@ default:
 {
 lean_object* x_6; lean_object* x_7; 
 x_6 = l_Lean_ConstantInfo_value_x21___closed__4;
-x_7 = l_panic___at_Lean_mkApp___spec__1(x_6);
+x_7 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_6);
 return x_7;
 }
 }

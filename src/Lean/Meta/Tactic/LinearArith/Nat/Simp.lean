@@ -22,7 +22,7 @@ def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     let r ← c₂.toArith ctx
     if r != e then
       let p := mkApp4 (mkConst ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq) (← toContextExpr ctx) (toExpr c) (toExpr c₂) reflTrue
-      return some (r, p)
+      return some (r, ← mkExpectedTypeHint p (← mkEq e r))
     else
       return none
 

@@ -507,26 +507,15 @@ partial def getMatch (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   Similar to `getMatch`, but returns solutions that are prefixes of `e`.
   We store the number of ignored arguments in the result.-/
 partial def getMatchWithExtra (d : DiscrTree α) (e : Expr) : MetaM (Array (α × Nat)) :=
-  withReducible do
-    let result := getStarResult d |>.map (., 0)
-    let (k, args) ← getMatchKeyArgs e (root := true)
-    match k with
-    | Key.star => return result
-    | _        => process k args.toSubarray 0 result
+  go e 0 #[]
 where
-  process (k : Key) (args : Subarray Expr) (numExtraArgs : Nat) (result : Array (α × Nat)) : MetaM (Array (α × Nat)) := do
-    -- Remark: the args are stored in reverse order
-    let result :=
-      if d.root.find? k |>.isSome then
-        result ++ ((← getMatchRoot d k args.toArray #[]).map (., numExtraArgs))
-      else
-        result
-    match k with
-    | Key.const f 0     => return result
-    | Key.const f (n+1) => process (Key.const f n) args.popFront (numExtraArgs + 1) result
-    | Key.fvar f 0      => return result
-    | Key.fvar f (n+1)  => process (Key.fvar f n) args.popFront (numExtraArgs + 1) result
-    | _                 => return result
+  /- TODO: better implementation, this is one is very naive. -/
+  go (e : Expr) (numExtra : Nat) (result : Array (α × Nat)) : MetaM (Array (α × Nat)) := do
+    let result := result ++ (← getMatch d e).map (., numExtra)
+    if e.isApp then
+      go e.appFn! (numExtra + 1) result
+    else
+      return result
 
 partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   withReducible do

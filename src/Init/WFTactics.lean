@@ -21,7 +21,7 @@ macro "decreasing_tactic" : tactic =>
     | apply Nat.sub_succ_lt_self; assumption   -- a - (i+1) < a - i if i < a
     | assumption
     | simp (config := { arith := true }); done
-    | fail "failed to prove termination, possible solutions:\n  - Use `have`-expressions to prove the remaining goals\n  - Use `termination_by` to specify a different well-founded relation\n  - Use `decreasing_by` to specity your own tactic for discharging this kind of goal"
+    | fail "failed to prove termination, possible solutions:\n  - Use `have`-expressions to prove the remaining goals\n  - Use `termination_by` to specify a different well-founded relation\n  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal"
     -- TODO: linearith
     -- TODO: improve
 ))

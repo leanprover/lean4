@@ -85,7 +85,7 @@ def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (de
     let fixedPrefixSize ← getFixedPrefix preDefs
     trace[Elab.definition.wf] "fixed prefix: {fixedPrefixSize}"
     let unaryPreDefs ← packDomain fixedPrefixSize preDefs
-    return (← packMutual fixedPrefixSize unaryPreDefs, fixedPrefixSize)
+    return (← packMutual fixedPrefixSize preDefs unaryPreDefs, fixedPrefixSize)
   let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedPrefixSize fun prefixArgs type => do
     let packedArgType := type.bindingDomain!
     elabWFRel preDefs unaryPreDef.declName fixedPrefixSize packedArgType wf? fun wfRel => do

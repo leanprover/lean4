@@ -581,7 +581,7 @@ private def propagateExpectedType (type : Expr) (numFields : Nat) (expectedType?
 private def mkCtorHeader (ctorVal : ConstructorVal) (expectedType? : Option Expr) : TermElabM CtorHeaderResult := do
   let us ← mkFreshLevelMVars ctorVal.levelParams.length
   let val  := Lean.mkConst ctorVal.name us
-  let type := (ConstantInfo.ctorInfo ctorVal).instantiateTypeLevelParams us
+  let type ← instantiateTypeLevelParams (ConstantInfo.ctorInfo ctorVal) us
   let r ← mkCtorHeaderAux ctorVal.numParams type val #[]
   propagateExpectedType r.ctorFnType ctorVal.numFields expectedType?
   synthesizeAppInstMVars r.instMVars r.ctorFn
@@ -743,7 +743,7 @@ partial def mkDefaultValueAux? (struct : Struct) : Expr → TermElabM (Option Ex
 def mkDefaultValue? (struct : Struct) (cinfo : ConstantInfo) : TermElabM (Option Expr) :=
   withRef struct.ref do
   let us ← mkFreshLevelMVarsFor cinfo
-  mkDefaultValueAux? struct (cinfo.instantiateValueLevelParams us)
+  mkDefaultValueAux? struct (← instantiateValueLevelParams cinfo us)
 
 /-- Reduce default value. It performs beta reduction and projections of the given structures. -/
 partial def reduce (structNames : Array Name) (e : Expr) : MetaM Expr := do

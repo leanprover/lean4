@@ -155,3 +155,6 @@ theorem dite_congr {s : Decidable b} [Decidable c]
 
 @[simp] theorem beq_self_eq_true [BEq α] [LawfulBEq α] (a : α) : (a == a) = true := LawfulBEq.rfl a
 @[simp] theorem beq_self_eq_true' [DecidableEq α] (a : α) : (a == a) = true := by simp [BEq.beq]
+
+@[simp] theorem Nat.le_zero_eq (a : Nat) : (a ≤ 0) = (a = 0) :=
+  propext <| Iff.intro (fun h => Nat.le_antisymm h (Nat.zero_le ..)) (fun h => by simp [h])

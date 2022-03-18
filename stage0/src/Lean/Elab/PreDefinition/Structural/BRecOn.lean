@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Util.HasConstCache
 import Lean.Meta.Match.Match
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
@@ -97,7 +98,11 @@ def refinedArgType (matcherApp : MatcherApp) (arg : Expr) : MetaM Bool := do
         return false
 
 private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) (below : Expr) (e : Expr) : M Expr :=
-  let rec loop (below : Expr) (e : Expr) : M Expr := do
+  let containsRecFn (e : Expr) : StateRefT (HasConstCache recFnName) M Bool :=
+    modifyGet (·.contains e)
+  let rec loop (below : Expr) (e : Expr) : StateRefT (HasConstCache recFnName) M Expr := do
+    if !(← containsRecFn e) then
+      return e
     match e with
     | Expr.lam n d b c =>
       withLocalDecl n c.binderInfo (← loop below d) fun x => do
@@ -115,7 +120,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
         return mkMData d (← loop below b)
     | Expr.proj n i e _  => return mkProj n i (← loop below e)
     | Expr.app _ _ _ =>
-      let processApp (e : Expr) : M Expr :=
+      let processApp (e : Expr) : StateRefT (HasConstCache recFnName) M Expr :=
         e.withApp fun f args => do
           if f.isConstOf recFnName then
             let numFixed  := recArgInfo.fixedParams.size
@@ -175,7 +180,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
             pure { matcherApp with alts := altsNew }.toExpr
       | none => processApp e
     | e => ensureNoRecFn recFnName e
-  loop below e
+  loop below e |>.run' {}
 
 def mkBRecOn (recFnName : Name) (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
   trace[Elab.definition.structural] "mkBRecOn: {value}"

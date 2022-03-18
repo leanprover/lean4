@@ -19,17 +19,17 @@ Lean.Expr.lam
               (Lean.Expr.app
                 (Lean.Expr.mvar `m4 (Expr.mkData 3167598817 (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
                 (Lean.Expr.bvar 2 (Expr.mkData 4281466863 (looseBVarRange := 3) (bi := Lean.BinderInfo.default)))
-                (Expr.mkData 3865815667 (looseBVarRange := 3) (approxDepth := 1) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
+                (Expr.mkData 621598011 (looseBVarRange := 3) (approxDepth := 1) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
               (Lean.Expr.bvar 1 (Expr.mkData 4280418285 (looseBVarRange := 2) (bi := Lean.BinderInfo.default)))
-              (Expr.mkData 2569666812 (looseBVarRange := 3) (approxDepth := 2) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
+              (Expr.mkData 1373601833 (looseBVarRange := 3) (approxDepth := 2) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
             (Lean.Expr.bvar 0 (Expr.mkData 4279369707 (looseBVarRange := 1) (bi := Lean.BinderInfo.default)))
-            (Expr.mkData 301857211 (looseBVarRange := 3) (approxDepth := 3) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
-          (Expr.mkData 2680907926 (looseBVarRange := 3) (approxDepth := 4) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
+            (Expr.mkData 237469531 (looseBVarRange := 3) (approxDepth := 3) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
+          (Expr.mkData 1344847761 (looseBVarRange := 3) (approxDepth := 4) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
         (Lean.Expr.bvar 1 (Expr.mkData 4280418285 (looseBVarRange := 2) (bi := Lean.BinderInfo.default)))
-        (Expr.mkData 664898593 (looseBVarRange := 3) (approxDepth := 5) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
-      (Expr.mkData 1849307364 (looseBVarRange := 2) (approxDepth := 6) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
-    (Expr.mkData 2223649209 (looseBVarRange := 1) (approxDepth := 7) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
-  (Expr.mkData 2139697862 (approxDepth := 8) (hasExprMVar := true) (bi := Lean.BinderInfo.default))
+        (Expr.mkData 569884967 (looseBVarRange := 3) (approxDepth := 5) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
+      (Expr.mkData 2023949564 (looseBVarRange := 2) (approxDepth := 6) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
+    (Expr.mkData 1948877337 (looseBVarRange := 1) (approxDepth := 7) (hasExprMVar := true) (bi := Lean.BinderInfo.default)))
+  (Expr.mkData 2017358918 (approxDepth := 8) (hasExprMVar := true) (bi := Lean.BinderInfo.default))
 
 "fun (α : Type) (x : Nat) (y : α) => f (?m4 α x y) x"
 "fun (α : Type) (x : Nat) (y : α) => f (?m4 α x y) x"

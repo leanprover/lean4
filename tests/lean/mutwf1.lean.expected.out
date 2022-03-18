@@ -6,7 +6,7 @@ h : n ≠ 0
 mutwf1.lean:37:22-37:28: error: failed to prove termination, possible solutions:
   - Use `have`-expressions to prove the remaining goals
   - Use `termination_by` to specify a different well-founded relation
-  - Use `decreasing_by` to specity your own tactic for discharging this kind of goal
+  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal
 case h
 n : Nat
 ⊢ n + 1 < n

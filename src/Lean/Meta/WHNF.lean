@@ -283,19 +283,19 @@ end
     | none   => return e
 
 @[specialize] private def deltaDefinition (c : ConstantInfo) (lvls : List Level)
-    (failK : Unit → α) (successK : Expr → α) : α :=
-  if c.levelParams.length != lvls.length then failK ()
-  else
-    let val := c.instantiateValueLevelParams lvls
-    successK val
-
-@[specialize] private def deltaBetaDefinition (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr)
-    (failK : Unit → α) (successK : Expr → α) : α :=
+    (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α := do
   if c.levelParams.length != lvls.length then
     failK ()
   else
-    let val := c.instantiateValueLevelParams lvls
-    let val := val.betaRev revArgs
+    successK (← instantiateValueLevelParams c lvls)
+
+@[specialize] private def deltaBetaDefinition (c : ConstantInfo) (lvls : List Level) (revArgs : Array Expr)
+    (failK : Unit → MetaM α) (successK : Expr → MetaM α) (preserveMData := false) : MetaM α := do
+  if c.levelParams.length != lvls.length then
+    failK ()
+  else
+    let val ← instantiateValueLevelParams c lvls
+    let val := val.betaRev revArgs (preserveMData := preserveMData)
     successK val
 
 inductive ReduceMatcherResult where
@@ -379,7 +379,7 @@ partial def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
       return ReduceMatcherResult.partialApp
     else
       let constInfo ← getConstInfo declName
-      let f := constInfo.instantiateValueLevelParams declLevels
+      let f ← instantiateValueLevelParams constInfo declLevels
       let auxApp := mkAppN f args[0:prefixSz]
       let auxAppType ← inferType auxApp
       forallBoundedTelescope auxAppType info.numAlts fun hs _ => do
@@ -584,7 +584,8 @@ mutual
           if smartUnfolding.get (← getOptions) then
             match ((← getEnv).find? (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(ConstantInfo.defnInfo _) =>
-              deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (fun _ => pure none) fun e₁ =>
+              -- We use `preserveMData := true` to make sure the smart unfolding annotation are not erased in an over-application.
+              deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (preserveMData := true) (fun _ => pure none) fun e₁ =>
                 smartUnfoldingReduce? e₁
             | _ =>
               if (← getMatcherInfo? fInfo.name).isSome then

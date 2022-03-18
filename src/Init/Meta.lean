@@ -1053,6 +1053,18 @@ syntax (name := simpArith) "simp_arith " (config)? (discharger)? (&"only ")? ("[
   let r := s.setArg 1 (mkNullNode #[c])
   return r
 
+/-- Similar to `simp_all` but with `arith := true` -/
+syntax (name := simpAllArith) "simp_all_arith " (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
+
+@[macro simpAllArith] def expandSimpAllArith : Macro := fun s => do
+  let c ← match s[1][0] with
+    | `(config| (config := $c:term)) => `(config| (config := { ($c : Lean.Meta.Simp.ConfigCtx) with arith := true }))
+    | _ => `(config| (config := { arith := true }))
+  let s := s.setKind ``simpAll
+  let s := s.setArg 0 (mkAtomFrom s[0] "simp_all")
+  let r := s.setArg 1 (mkNullNode #[c])
+  return r
+
 end Parser.Tactic
 
 end Lean

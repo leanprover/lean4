@@ -183,6 +183,20 @@ where
         (fvarIdSet, fvarIds) ← pushDecl fvarIdSet fvarIds (← getLocalDecl fvarId)
     return (fvarIdSet, fvarIds)
 
+/--
+  Quick filter for deciding whether to use `simpMatch?` at `mkEqnTypes`.
+  If the result is `false`, then it is not worth trying `simpMatch`.
+-/
+private def shouldUseSimpMatch (e : Expr) : MetaM Bool := do
+  let env ← getEnv
+  return Option.isSome <| e.find? fun e => Id.run do
+    if let some info := isMatcherAppCore? env e then
+      let args := e.getAppArgs
+      for discr in args[info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
+        if discr.isConstructorApp env then
+          return true
+    return false
+
 partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array Expr) := do
   let (_, eqnTypes) ← go mvarId |>.run { declNames } |>.run #[]
   return eqnTypes
@@ -190,15 +204,19 @@ where
   go (mvarId : MVarId) : ReaderT Context (StateRefT (Array Expr) MetaM) Unit := do
     trace[Elab.definition.structural.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
     if let some mvarId ← expandRHS? mvarId then
-      go mvarId
-    else if let some mvarId ← funext? mvarId then
-      go mvarId
-    else if let some mvarId ← simpMatch? mvarId then
-      go mvarId
-    else if let some mvarIds ← splitMatch? mvarId declNames then
-      mvarIds.forM go
-    else
-      saveEqn mvarId
+      return (← go mvarId)
+--  The following `funext?` was producing an overapplied `lhs`. Possible refinement: only do it if we want to apply `splitMatch` on the body of the lambda
+/-    if let some mvarId ← funext? mvarId then
+        return (← go mvarId) -/
+
+    if (← shouldUseSimpMatch (← getMVarType' mvarId)) then
+      if let some mvarId ← simpMatch? mvarId then
+        return (← go mvarId)
+
+    if let some mvarIds ← splitMatch? mvarId declNames then
+      return (← mvarIds.forM go)
+
+    saveEqn mvarId
 
 /--
   Some of the hypotheses added by `mkEqnTypes` may not be used by the actual proof (i.e., `value` argument).
@@ -207,16 +225,29 @@ where
   Alternative solution: improve `saveEqn` and make sure it never includes unnecessary hypotheses.
   These hypotheses are leftovers from tactics such as `splitMatch?` used in `mkEqnTypes`.
 -/
-partial def removeUnusedEqnHypotheses (type value : Expr) : MetaM (Expr × Expr) := do
-  match value with
-  | .lam n d b i =>
-    withLocalDecl n i.binderInfo d fun x => do
-      let (type, value) ← removeUnusedEqnHypotheses (type.bindingBody!.instantiate1 x) (b.instantiate1 x)
-      if value.containsFVar x.fvarId! || type.containsFVar x.fvarId! then
-        return (← mkForallFVars #[x] type, ← mkLambdaFVars #[x] value)
+def removeUnusedEqnHypotheses (declType declValue : Expr) : CoreM (Expr × Expr) := do
+  go declType declValue #[] {}
+where
+  go (type value : Expr) (xs : Array Expr) (lctx : LocalContext) : CoreM (Expr × Expr) := do
+    match value with
+    | .lam n d b i =>
+      let d := d.instantiateRev xs
+      let fvarId ← mkFreshFVarId
+      go (type.bindingBody!) b (xs.push (mkFVar fvarId)) (lctx.mkLocalDecl fvarId n d i.binderInfo)
+    | _ =>
+      let type  := type.instantiateRev xs
+      let value := value.instantiateRev xs
+      let mut s := collectFVars (collectFVars {} type) value
+      let mut xsNew := #[]
+      for x in xs.reverse do
+        if s.fvarSet.contains x.fvarId! then
+          s := collectFVars s (lctx.getFVar! x).type
+          xsNew := xsNew.push x
+      if xsNew.size == xs.size then
+        return (declType, declValue)
       else
-        return (type, value)
-  | _ => return (type, value)
+        xsNew := xsNew.reverse
+        return (lctx.mkForall xsNew type, lctx.mkLambda xsNew value)
 
 /-- Try to close goal using `rfl` with smart unfolding turned off. -/
 def tryURefl (mvarId : MVarId) : MetaM Bool :=
@@ -286,16 +317,21 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
   let rec go (mvarId : MVarId) : MetaM Unit := do
     if (← tryEqns mvarId) then
       return ()
-    else if let some mvarId ← funext? mvarId then
-      go mvarId
-    else if let some mvarId ← simpMatch? mvarId then
-      go mvarId
-    else if let some mvarIds ← splitTarget? mvarId (splitIte := false) then
-      mvarIds.forM go
-    else if (← tryContradiction mvarId) then
+    -- Remark: we removed funext? from `mkEqnTypes`
+    -- else if let some mvarId ← funext? mvarId then
+    --  go mvarId
+
+    if (← shouldUseSimpMatch (← getMVarType' mvarId)) then
+      if let some mvarId ← simpMatch? mvarId then
+        return (← go mvarId)
+
+    if let some mvarIds ← splitTarget? mvarId (splitIte := false) then
+      return (← mvarIds.forM go)
+
+    if (← tryContradiction mvarId) then
       return ()
-    else
-      throwError "failed to generate unfold theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+
+    throwError "failed to generate unfold theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
   go mvarId
 
 /-- Generate the "unfold" lemma for `declName`. -/

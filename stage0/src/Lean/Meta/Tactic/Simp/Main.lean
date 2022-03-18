@@ -317,7 +317,7 @@ where
     let args := e.getAppArgs
     for arg in args, kind in cgrThm.argKinds do
       match kind with
-      | CongrArgKind.fixed => argsNew := argsNew.push arg
+      | CongrArgKind.fixed => argsNew := argsNew.push (← dsimp arg)
       | CongrArgKind.cast  => hasCast := true; argsNew := argsNew.push arg
       | CongrArgKind.subsingletonInst => argsNew := argsNew.push arg
       | CongrArgKind.eq =>

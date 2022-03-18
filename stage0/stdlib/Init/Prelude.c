@@ -470,7 +470,6 @@ LEAN_EXPORT lean_object* l_UInt8_mk___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_toArrayAux(lean_object*);
 LEAN_EXPORT uint8_t l_Decidable_decide___rarg(uint8_t);
 LEAN_EXPORT lean_object* l_readThe(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Prelude_0__String_utf8ByteSizeAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_USize_toUInt64___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_decEq___boxed(lean_object*, lean_object*);
@@ -804,6 +803,7 @@ LEAN_EXPORT lean_object* l_Lean_Name_append___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_cast___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instMonadWithReaderOfReaderT(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_Context_maxRecDepth___default;
+LEAN_EXPORT lean_object* l_String_utf8ByteSize_go(lean_object*);
 LEAN_EXPORT lean_object* l_instHAdd(lean_object*);
 LEAN_EXPORT lean_object* l_min___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Prelude_0__Lean_extractMacroScopesAux___closed__1;
@@ -3645,30 +3645,31 @@ x_3 = l_String_csize(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Prelude_0__String_utf8ByteSizeAux(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_String_utf8ByteSize_go(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
 {
+lean_object* x_2; 
+x_2 = lean_unsigned_to_nat(0u);
 return x_2;
 }
 else
 {
-lean_object* x_3; lean_object* x_4; uint32_t x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint32_t x_6; lean_object* x_7; lean_object* x_8; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 x_4 = lean_ctor_get(x_1, 1);
 lean_inc(x_4);
 lean_dec(x_1);
-x_5 = lean_unbox_uint32(x_3);
+x_5 = l_String_utf8ByteSize_go(x_4);
+x_6 = lean_unbox_uint32(x_3);
 lean_dec(x_3);
-x_6 = l_String_csize(x_5);
-x_7 = lean_nat_add(x_2, x_6);
-lean_dec(x_6);
-lean_dec(x_2);
-x_1 = x_4;
-x_2 = x_7;
-goto _start;
+x_7 = l_String_csize(x_6);
+x_8 = lean_nat_add(x_5, x_7);
+lean_dec(x_7);
+lean_dec(x_5);
+return x_8;
 }
 }
 }

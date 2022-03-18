@@ -110,7 +110,7 @@ where
       trace[Meta.isDefEq.hint] "trying hint {candidate} at {t} =?= {s}"
       let cinfo ← getConstInfo candidate
       let us ← cinfo.levelParams.mapM fun _ => mkFreshLevelMVar
-      let val := cinfo.instantiateValueLevelParams us
+      let val ← instantiateValueLevelParams cinfo us
       let (xs, bis, body) ← lambdaMetaTelescope val
       let hint? ← withConfig (fun cfg => { cfg with unificationHints := false }) do
         match decodeUnificationHint body with

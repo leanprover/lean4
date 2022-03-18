@@ -1151,13 +1151,13 @@ instance : Inhabited Substring where
 def String.csize (c : Char) : Nat :=
   c.utf8Size.toNat
 
-private def String.utf8ByteSizeAux : List Char → Nat → Nat
-  | List.nil,       r => r
-  | List.cons c cs, r => utf8ByteSizeAux cs (hAdd r (csize c))
-
 @[extern "lean_string_utf8_byte_size"]
 def String.utf8ByteSize : (@& String) → Nat
-  | ⟨s⟩ => utf8ByteSizeAux s 0
+  | ⟨s⟩ => go s
+where
+  go : List Char → Nat
+   | .nil       => 0
+   | .cons c cs => hAdd (go cs) (csize c)
 
 @[inline] def String.bsize (s : String) : Nat :=
   utf8ByteSize s

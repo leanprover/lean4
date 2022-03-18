@@ -10,6 +10,8 @@ import Lean.Meta.KExprMap
 namespace Lean.Meta.Linear.Nat
 
 deriving instance Repr for Nat.Linear.Expr
+deriving instance Repr for Nat.Linear.ExprCnstr
+deriving instance Repr for Nat.Linear.PolyCnstr
 
 abbrev LinearExpr  := Nat.Linear.Expr
 abbrev LinearCnstr := Nat.Linear.ExprCnstr

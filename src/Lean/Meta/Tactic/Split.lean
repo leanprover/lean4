@@ -97,6 +97,8 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
     let splitter := mkAppN (mkApp splitter motive) discrsNew
     check splitter
     let mvarIds ← apply mvarId splitter
+    unless mvarIds.length == matchEqns.size do
+      throwError "'applyMatchSplitter' failed, unexpected number of goals created after applying splitter for '{matcherDeclName}'."
     let (_, mvarIds) ← mvarIds.foldlM (init := (0, [])) fun (i, mvarIds) mvarId => do
       let numParams := matchEqns.splitterAltNumParams[i]
       let (_, mvarId) ← introN mvarId numParams

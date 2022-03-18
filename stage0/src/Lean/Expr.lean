@@ -133,9 +133,8 @@ def Expr.mkData
     (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool := false) (bi : BinderInfo := BinderInfo.default) (nonDepLet : Bool := false)
     : Expr.Data :=
   let approxDepth : UInt8 := if approxDepth > 255 then 255 else approxDepth.toUInt8
-  if looseBVarRange > Nat.pow 2 16 - 1 then panic! "bound variable index is too big"
-  else
-    let r : UInt64 :=
+  assert! (looseBVarRange ≤ Nat.pow 2 16 - 1)
+  let r : UInt64 :=
       h.toUInt32.toUInt64 +
       hasFVar.toUInt64.shiftLeft 32 +
       hasExprMVar.toUInt64.shiftLeft 33 +
@@ -145,7 +144,18 @@ def Expr.mkData
       bi.toUInt64.shiftLeft 37 +
       approxDepth.toUInt64.shiftLeft 40 +
       looseBVarRange.toUInt64.shiftLeft 48
-    r
+  r
+
+/-- Optimized version of `Expr.mkData` for applications. -/
+@[inline] def Expr.mkAppData (fData : Data) (aData : Data) : Data :=
+  let depth          := (max fData.approxDepth.toUInt16 aData.approxDepth.toUInt16) + 1
+  let approxDepth    := if depth > 255 then 255 else depth.toUInt8
+  let looseBVarRange := max fData.looseBVarRange aData.looseBVarRange
+  let hash           := mixHash fData aData
+  let fData : UInt64 := fData
+  let aData : UInt64 := aData
+  assert! (looseBVarRange ≤ (Nat.pow 2 16 - 1).toUInt32)
+  ((fData ||| aData) &&& ((15 : UInt64) <<< (32 : UInt64))) ||| hash.toUInt32.toUInt64 ||| (approxDepth.toUInt64 <<< (40 : UInt64)) ||| (looseBVarRange.toUInt64 <<< (48 : UInt64))
 
 @[inline] def Expr.mkDataForBinder (h : UInt64) (looseBVarRange : Nat) (approxDepth : UInt32) (hasFVar hasExprMVar hasLevelMVar hasLevelParam : Bool) (bi : BinderInfo) : Expr.Data :=
   Expr.mkData h looseBVarRange approxDepth hasFVar hasExprMVar hasLevelMVar hasLevelParam bi false
@@ -215,7 +225,8 @@ inductive Expr where
 
 namespace Expr
 
-@[inline] def data : Expr → Data
+@[extern c inline "lean_ctor_get_uint64(#1, lean_ctor_num_objs(#1)*sizeof(void*))"]
+def data : (@& Expr) → Data
   | bvar _ d        => d
   | fvar _ d        => d
   | mvar _ d        => d
@@ -316,14 +327,7 @@ def mkProj (s : Name) (i : Nat) (e : Expr) : Expr :=
       e.looseBVarRange d e.hasFVar e.hasExprMVar e.hasLevelMVar e.hasLevelParam
 
 def mkApp (f a : Expr) : Expr :=
-  let d := (max f.approxDepth a.approxDepth) + 1
-  Expr.app f a <| mkData (mixHash d.toUInt64 <| mixHash (hash f) (hash a))
-    (max f.looseBVarRange a.looseBVarRange)
-    d
-    (f.hasFVar || a.hasFVar)
-    (f.hasExprMVar || a.hasExprMVar)
-    (f.hasLevelMVar || a.hasLevelMVar)
-    (f.hasLevelParam || a.hasLevelParam)
+  Expr.app f a (mkAppData f.data a.data)
 
 def mkLambda (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
   let d := (max t.approxDepth b.approxDepth) + 1
@@ -437,6 +441,9 @@ constant eqv (a : @& Expr) (b : @& Expr) : Bool
 
 instance : BEq Expr where
   beq := Expr.eqv
+
+protected unsafe def ptrEq (a b : Expr) : Bool :=
+  ptrAddrUnsafe a == ptrAddrUnsafe b
 
 /- Return true iff `a` and `b` are equal.
    Binder names and annotations are taking into account. -/
@@ -856,25 +863,31 @@ def mkAppRevRange (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : Ex
   If `useZeta` is true, the function also performs zeta-reduction to create further
   opportunities for beta reduction.
 -/
-partial def betaRev (f : Expr) (revArgs : Array Expr) (useZeta := false) : Expr :=
+partial def betaRev (f : Expr) (revArgs : Array Expr) (useZeta := false) (preserveMData := false) : Expr :=
   if revArgs.size == 0 then f
   else
     let sz := revArgs.size
-    let rec go : Expr → Nat → Expr
-      | Expr.lam _ _ b _, i =>
+    let rec go (e : Expr) (i : Nat) : Expr :=
+      match e with
+      | Expr.lam _ _ b _ =>
         if i + 1 < sz then
           go b (i+1)
         else
           let n := sz - (i + 1)
           mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
-      | e@(Expr.letE _ _ v b _), i =>
+      | Expr.letE _ _ v b _ =>
         if useZeta && i < sz then
           go (b.instantiate1 v) i
         else
           let n := sz - i
           mkAppRevRange (e.instantiateRange n sz revArgs) 0 n revArgs
-      | Expr.mdata _ b _, i => go b i
-      | b,                i =>
+      | Expr.mdata k b _=>
+        if preserveMData then
+          let n := sz - i
+          mkMData k (mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs)
+        else
+          go b i
+      | b =>
         let n := sz - i
         mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
     go f 0

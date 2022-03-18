@@ -70,7 +70,7 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
   let hoverPos := text.lspPosToUtf8Pos p.position
 
   let documentUriFromModule (modName : Name) : MetaM (Option DocumentUri) := do
-    let some modFname ← rc.srcSearchPath.findWithExt "lean" modName
+    let some modFname ← rc.srcSearchPath.findModuleWithExt "lean" modName
       | pure none
     -- resolve symlinks (such as `src` in the build dir) so that files are opened
     -- in the right folder

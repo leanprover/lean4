@@ -376,7 +376,7 @@ def addBuiltinTrailingParser (catName : Name) (declName : Name) (p : TrailingPar
   addBuiltinParser catName declName false p prio
 
 def mkCategoryAntiquotParser (kind : Name) : Parser :=
-  mkAntiquot kind.toString none
+  mkAntiquot kind.toString kind (isPseudoKind := true)
 
 -- helper decl to work around inlining issue https://github.com/leanprover/lean4/commit/3f6de2af06dd9a25f62294129f64bc05a29ea912#r41340377
 @[inline] private def mkCategoryAntiquotParserFn (kind : Name) : ParserFn :=

@@ -182,7 +182,7 @@ def withMaybeTag (pos? : Option String.Pos) (x : FormatterM Unit) : Formatter :=
 -- `categoryParser -> mkAntiquot -> termParser -> categoryParser`, so we need to introduce an indirection somewhere
 -- anyway.
 @[extern "lean_mk_antiquot_formatter"]
-opaque mkAntiquot.formatter' (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Formatter
+opaque mkAntiquot.formatter' (name : String) (kind : SyntaxNodeKind) (anonymous := true) (isPseudoKind := false) : Formatter
 
 -- break up big mutual recursion
 @[extern "lean_pretty_printer_formatter_interpret_parser_descr"]
@@ -242,7 +242,7 @@ def categoryFormatterCore (cat : Name) : Formatter := do
   else if cat == `rawStx then
     withAntiquot.formatter (mkAntiquot.formatter' cat.toString none) (push stx.formatStx *> goLeft)
   else
-    withAntiquot.formatter (mkAntiquot.formatter' cat.toString none) (formatterForKind stx.getKind)
+    withAntiquot.formatter (mkAntiquot.formatter' cat.toString cat (isPseudoKind := true)) (formatterForKind stx.getKind)
   modify fun st => { st with mustBeGrouped := true, isUngrouped := !st.mustBeGrouped }
 
 @[combinatorFormatter Lean.Parser.categoryParser]

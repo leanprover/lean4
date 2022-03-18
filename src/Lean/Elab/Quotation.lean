@@ -278,7 +278,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       unconditionally (`(let $(quoted.getAntiquotTerm) := discr; $(·)))
     else if isAntiquot quoted && !isEscapedAntiquot quoted then
       -- quotation contains a single antiquotation
-      let k := antiquotKind? quoted |>.get!
+      let (k, pseudoKind) := antiquotKind? quoted |>.get!
       let rhsFn := match getAntiquotTerm quoted with
         | `(_)         => pure
         | `($id:ident) => fun stx => `(let $id := discr; $(stx))
@@ -286,14 +286,14 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       -- Antiquotation kinds like `$id:ident` influence the parser, but also need to be considered by
       -- `match` (but not by quotation terms). For example, `($id:ident) and `($e) are not
       -- distinguishable without checking the kind of the node to be captured. Note that some
-      -- antiquotations like the latter one for terms do not correspond to any actual node kind
-      -- (signified by `k == Name.anonymous`), so we would only check for `ident` here.
+      -- antiquotations like the latter one for terms do not correspond to any actual node kind,
+      -- so we would only check for `ident` here.
       --
       -- if stx.isOfKind `ident then
       --   let id := stx; let e := stx; ...
       -- else
       --   let e := stx; ...
-      if k == Name.anonymous then unconditionally rhsFn else pure {
+      if pseudoKind then unconditionally rhsFn else pure {
         check   := shape k none,
         onMatch := fun
           | other _ => undecided

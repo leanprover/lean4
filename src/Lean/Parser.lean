@@ -53,8 +53,8 @@ namespace Parenthesizer
 
 -- Close the mutual recursion loop; see corresponding `[extern]` in the parenthesizer.
 @[export lean_mk_antiquot_parenthesizer]
-def mkAntiquot.parenthesizer (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parenthesizer :=
-  Parser.mkAntiquot.parenthesizer name kind anonymous
+def mkAntiquot.parenthesizer (name : String) (kind : SyntaxNodeKind) (anonymous := true) (isPseudoKind := true) : Parenthesizer :=
+  Parser.mkAntiquot.parenthesizer name kind anonymous isPseudoKind
 
 -- The parenthesizer auto-generated these instances correctly, but tagged them with the wrong kind, since the actual kind
 -- (e.g. `ident`) is not equal to the parser name `Lean.Parser.Term.ident`.
@@ -86,8 +86,8 @@ end Parenthesizer
 namespace Formatter
 
 @[export lean_mk_antiquot_formatter]
-def mkAntiquot.formatter (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Formatter :=
-  Parser.mkAntiquot.formatter name kind anonymous
+def mkAntiquot.formatter (name : String) (kind : SyntaxNodeKind) (anonymous := true) (isPseudoKind := true) : Formatter :=
+  Parser.mkAntiquot.formatter name kind anonymous isPseudoKind
 
 @[builtinFormatter ident] def ident.formatter : Formatter := Parser.Term.ident.formatter
 @[builtinFormatter num] def numLit.formatter : Formatter := Parser.Term.num.formatter

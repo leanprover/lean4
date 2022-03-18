@@ -499,6 +499,10 @@ def dropLast {α} : List α → List α
   | nil => simp
   | cons a as ih => simp [ih, Nat.succ_add]
 
+@[simp] theorem length_map (as : List α) (f : α → β) : (as.map f).length = as.length := by
+  induction as with
+  | nil => simp [List.map]
+  | cons a as ih => simp [List.map, ih]
 
 @[simp] theorem length_reverse (as : List α) : (as.reverse).length = as.length := by
   induction as with

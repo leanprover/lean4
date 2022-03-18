@@ -86,7 +86,7 @@ def doIfLetPure := leading_parser " := " >> termParser
 def doIfLetBind := leading_parser " ← " >> termParser
 def doIfLet     := leading_parser (withAnonymousAntiquot := false) "let " >> termParser >> (doIfLetPure <|> doIfLetBind)
 def doIfProp    := leading_parser (withAnonymousAntiquot := false) optIdent >> termParser
-def doIfCond    := withAntiquot (mkAntiquot "doIfCond" none (anonymous := false)) <| doIfLet <|> doIfProp
+def doIfCond    := withAntiquot (mkAntiquot "doIfCond" `Lean.Parser.Term.doIfCond (anonymous := false) (isPseudoKind := true)) <| doIfLet <|> doIfProp
 @[builtinDoElemParser] def doIf := leading_parser withPositionAfterLinebreak $
   "if " >> doIfCond >> " then " >> doSeq
   >> many (checkColGe "'else if' in 'do' must be indented" >> group (elseIf >> doIfCond >> " then " >> doSeq))

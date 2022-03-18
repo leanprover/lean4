@@ -382,7 +382,8 @@ def isAntiquot : Syntax → Bool
   | Syntax.node _ (Name.str _ "antiquot" _) _ => true
   | _                                         => false
 
-def mkAntiquotNode (term : Syntax) (nesting := 0) (name : Option String := none) (kind := Name.anonymous) : Syntax :=
+-- TODO: `kind` should not be optional for best `TSyntax` usage
+def mkAntiquotNode (term : Syntax) (nesting := 0) (name : Option String := none) (kind := `pseudo) (isPseudoKind := false) : Syntax :=
   let nesting := mkNullNode (mkArray nesting (mkAtom "$"))
   let term :=
     if term.isIdent then term
@@ -391,7 +392,7 @@ def mkAntiquotNode (term : Syntax) (nesting := 0) (name : Option String := none)
   let name := match name with
     | some name => mkNode `antiquotName #[mkAtom ":", mkAtom name]
     | none      => mkNullNode
-  mkNode (kind ++ `antiquot) #[mkAtom "$", nesting, term, name]
+  mkNode (kind ++ (if isPseudoKind then `pseudo else Name.anonymous) ++ `antiquot) #[mkAtom "$", nesting, term, name]
 
 -- Antiquotations can be escaped as in `$$x`, which is useful for nesting macros. Also works for antiquotation splices.
 def isEscapedAntiquot (stx : Syntax) : Bool :=
@@ -413,13 +414,11 @@ def getAntiquotTerm (stx : Syntax) : Syntax :=
     -- `e` is from `"(" >> termParser >> ")"`
     e[1]
 
-def antiquotKind? : Syntax → Option SyntaxNodeKind
-  | Syntax.node _ (Name.str k "antiquot" _) args =>
-    if args[3].isOfKind `antiquotName then some k
-    else
-      -- we treat all antiquotations where the kind was left implicit (`$e`) the same (see `elimAntiquotChoices`)
-      some Name.anonymous
-  | _                                          => none
+/-- Return kind of parser expected at this antiquotation, and whether it is a "pseudo" kind (see `mkAntiquot`). -/
+def antiquotKind? : Syntax → Option (SyntaxNodeKind × Bool)
+  | Syntax.node _ (Name.str (Name.str k "pseudo" _) "antiquot" _) args => (k, true)
+  | Syntax.node _ (Name.str k                       "antiquot" _) args => (k, false)
+  | _                                                                  => none
 
 -- An "antiquotation splice" is something like `$[...]?` or `$[...]*`.
 def antiquotSpliceKind? : Syntax → Option SyntaxNodeKind

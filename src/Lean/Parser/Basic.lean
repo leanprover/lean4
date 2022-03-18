@@ -1712,13 +1712,11 @@ instance : Coe String Parser := ⟨fun s => symbol s ⟩
   tokenWithAntiquot (unicodeSymbolNoAntiquot sym asciiSym)
 
 /--
-  Define parser for `$e` (if anonymous == true) and `$e:name`. Both
-  forms can also be used with an appended `*` to turn them into an
-  antiquotation "splice". If `kind` is given, it will additionally be checked
-  when evaluating `match_syntax`. Antiquotations can be escaped as in `$$e`, which
-  produces the syntax tree for `$e`. -/
-def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parser :=
-  let kind := (kind.getD Name.anonymous) ++ `antiquot
+  Define parser for `$e` (if anonymous == true) and `$e:name`.
+  `kind` is embedded in the antiquotation's kind, and checked at syntax `match` unless `isPseudoKind` is false.
+  Antiquotations can be escaped as in `$$e`, which produces the syntax tree for `$e`. -/
+def mkAntiquot (name : String) (kind : SyntaxNodeKind) (anonymous := true) (isPseudoKind := false) : Parser :=
+  let kind := kind ++ (if isPseudoKind then `pseudo else Name.anonymous) ++ `antiquot
   let nameP := node `antiquotName $ checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbol ":" >> nonReservedSymbol name
   -- if parsing the kind fails and `anonymous` is true, check that we're not ignoring a different
   -- antiquotation kind via `noImmediateColon`

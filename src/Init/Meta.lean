@@ -987,6 +987,13 @@ end Syntax
 
 namespace Meta
 
+/-- A parameter representing how aggressively definitions should be unfolded when trying to decide if two terms match, unify or are definitionally equal.
+By default, theorem declarations are never unfolded.
+- `all` will unfold everything, including irreducible definitions and theorems
+- `default` will unfold everything except theorems and definitions tagged as irreducible.
+- `instances` will unfold all class instance definitions and reducible definitions.
+- `reducible` will only unfold definitions tagged with the `reducible` attribute.
+ -/
 inductive TransparencyMode where
   | all | default | reducible | instances
   deriving Inhabited, BEq, Repr

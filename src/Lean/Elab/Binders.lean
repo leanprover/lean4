@@ -191,7 +191,11 @@ def elabBindersEx {α} (binders : Array Syntax) (k : Array (Syntax × Expr) → 
 /--
   Elaborate the given binders (i.e., `Syntax` objects for `simpleBinder <|> bracketedBinder`),
   update the local context, set of local instances, reset instance chache (if needed), and then
-  execute `x` with the updated context. -/
+  execute `k` with the updated context.
+
+  For example, suppose you have binders `[(a : α), (b : β a)]`, then the elaborator will
+  create two new free variables `a` and `b`, push these to the context and pass to `k #[a,b]`.
+  -/
 def elabBinders (binders : Array Syntax) (k : Array Expr → TermElabM α) : TermElabM α :=
   elabBindersEx binders (fun fvars => k (fvars.map (·.2)))
 

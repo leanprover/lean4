@@ -10,7 +10,9 @@ import Lean.Hygiene
 namespace Lean
 
 inductive LocalDecl where
+  /-- A local constant. -/
   | cdecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo)
+  /-- A let-bound variable. -/
   | ldecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool)
   deriving Inhabited
 

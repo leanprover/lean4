@@ -18,8 +18,7 @@ protected def div (x y : @& Nat) : Nat :=
     Nat.div (x - y) y + 1
   else
     0
-decreasing_by
-  decreasing_with apply div_rec_lemma; assumption
+decreasing_by apply div_rec_lemma; assumption
 
 instance : Div Nat := ⟨Nat.div⟩
 
@@ -37,8 +36,7 @@ theorem div.inductionOn.{u}
     ind x y h (inductionOn (x - y) y ind base)
   else
     base x y h
-decreasing_by
-  decreasing_with apply div_rec_lemma; assumption
+decreasing_by apply div_rec_lemma; assumption
 
 @[extern "lean_nat_mod"]
 protected def mod (x y : @& Nat) : Nat :=
@@ -46,8 +44,7 @@ protected def mod (x y : @& Nat) : Nat :=
     Nat.mod (x - y) y
   else
     x
-decreasing_by
-  decreasing_with apply div_rec_lemma; assumption
+decreasing_by apply div_rec_lemma; assumption
 
 instance : Mod Nat := ⟨Nat.mod⟩
 

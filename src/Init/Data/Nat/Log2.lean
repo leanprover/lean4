@@ -25,5 +25,4 @@ Computes `⌊max 0 (log₂ n)⌋`.
 @[extern "lean_nat_log2"]
 def log2 (n : @& Nat) : Nat :=
   if h : n ≥ 2 then log2 (n / 2) + 1 else 0
-termination_by _ n => n
 decreasing_by exact log2_terminates _ h

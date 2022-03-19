@@ -184,3 +184,39 @@ decreasing_by
 #eval lex (m := Except LexErr) (state := .top) "123".data
 #eval lex (m := Except LexErr) (state := .top) "1+23".data
 #eval lex (m := Except LexErr) (state := .top) "1+23()".data
+
+namespace Ex5
+
+mutual
+  def lex [Monad m] [MonadExceptOf LexErr m] (it : String.Iterator) : m (List Token) := do
+    if h : it.hasNext then
+      match it.curr with
+      | '(' => return { text := "(", tok := Tok.lpar } :: (← lex it.next)
+      | ')' => return { text := ")", tok := Tok.rpar } :: (← lex it.next)
+      | '+' => return { text := "+", tok := Tok.plus } :: (← lex it.next)
+      | other =>
+        match charDigit other with
+        | .error _ => throw <| LexErr.unexpected other
+        | .ok d    => lexnumber d [other] it.next
+    else
+      return []
+
+  def lexnumber [Monad m] [MonadExceptOf LexErr m] (soFar : Nat) (text : List Char) (it : String.Iterator) : m (List Token) :=
+    if h : it.hasNext then
+      let c := it.curr
+      match charDigit c with
+      | .error _ => return { text := text.reverse.asString, tok := Tok.num soFar } :: (← lex it)
+      | .ok d => lexnumber (soFar * 10 + d) (c :: text) it.next
+    else
+      return [{ text := text.reverse.asString, tok := Tok.num soFar }]
+end
+termination_by
+  lex input       => (input, 0)
+  lexnumber input => (input, 1)
+
+#eval lex (m := Except LexErr) "".iter
+#eval lex (m := Except LexErr) "123".iter
+#eval lex (m := Except LexErr) "1+23".iter
+#eval lex (m := Except LexErr) "1+23()".iter
+
+end Ex5

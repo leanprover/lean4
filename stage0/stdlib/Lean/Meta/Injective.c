@@ -77,6 +77,7 @@ lean_object* l_Lean_Meta_intro1Core(lean_object*, uint8_t, lean_object*, lean_ob
 static lean_object* l_Lean_Meta_mkInjectiveTheoremNameFor___closed__2;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withNewBinderInfosImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveEqTheoremValue___lambda__2___closed__4;
 lean_object* l_Lean_Meta_applyRefl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkInjectiveEqTheoremNameFor___closed__2;
@@ -93,7 +94,6 @@ lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f_mkArgs2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f_mkArgs2___closed__3;
-uint8_t l_Lean_Option_get___at_Lean_ppExpr___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Meta_Injective_0__Lean_Meta_throwInjectiveTheoremFailure___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Meta_Injective_0__Lean_Meta_mkInjectiveTheoremTypeCore_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_injTheoremFailureHeader___closed__2;
@@ -4722,7 +4722,7 @@ else
 {
 lean_object* x_19; uint8_t x_20; 
 x_19 = l_Lean_Meta_mkInjectiveTheorems___closed__1;
-x_20 = l_Lean_Option_get___at_Lean_ppExpr___spec__1(x_11, x_19);
+x_20 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_11, x_19);
 lean_dec(x_11);
 if (x_20 == 0)
 {
@@ -4915,7 +4915,7 @@ else
 {
 lean_object* x_55; uint8_t x_56; 
 x_55 = l_Lean_Meta_mkInjectiveTheorems___closed__1;
-x_56 = l_Lean_Option_get___at_Lean_ppExpr___spec__1(x_11, x_55);
+x_56 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_11, x_55);
 lean_dec(x_11);
 if (x_56 == 0)
 {

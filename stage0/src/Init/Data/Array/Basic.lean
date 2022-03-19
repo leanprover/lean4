@@ -342,7 +342,7 @@ termination_by loop i j => stop - j
 
 @[inline]
 def allM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m Bool :=
-  return !(← as.anyM fun v => return !(← p v))
+  return !(← as.anyM (start := start) (stop := stop) fun v => return !(← p v))
 
 @[inline]
 def findSomeRevM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : α → m (Option β)) : m (Option β) :=

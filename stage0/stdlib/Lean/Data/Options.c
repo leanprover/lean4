@@ -50,11 +50,14 @@ static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Le
 lean_object* l_Lean_KVMap_setString(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d_____closed__18;
 uint8_t lean_name_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_withInPattern___rarg___lambda__1(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_withInPattern___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_getOptionDeclsArray___closed__1;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option_____x3a___x3a_x3d____1___closed__44;
 static lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d_____closed__15;
 LEAN_EXPORT lean_object* l_Lean_Option_get___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at___aux__Init__Notation______macroRules__precMax__1___spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_withInPattern(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getOptionDefaulValue(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getOptionDecls(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_get_x3f(lean_object*);
@@ -106,11 +109,13 @@ LEAN_EXPORT lean_object* l_Lean_instMonadOptions(lean_object*, lean_object*);
 lean_object* l___private_Init_Meta_0__Lean_getEscapedNameParts_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getOptionDecl(lean_object*, lean_object*);
 static lean_object* l_Lean_Option_commandRegister__option_____x3a___x3a_x3d_____closed__4;
+static lean_object* l_Lean_withInPattern___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_OptionDecl_descr___default;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option_____x3a___x3a_x3d____1___closed__38;
 LEAN_EXPORT lean_object* l_Lean_instToStringOptions;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option_____x3a___x3a_x3d____1___closed__21;
 uint8_t l_Lean_KVMap_getBool(lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Options_getInPattern___boxed(lean_object*);
 static lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d_____closed__23;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option_____x3a___x3a_x3d____1___closed__31;
 static lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d_____closed__21;
@@ -179,6 +184,7 @@ LEAN_EXPORT lean_object* l_Lean_getNatOption___rarg(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_Option_get_x3f___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a_x3d_____closed__8;
+LEAN_EXPORT uint8_t l_Lean_Options_getInPattern(lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option_____x3a___x3a_x3d____1___closed__40;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option_____x3a___x3a_x3d____1___closed__9;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option_____x3a___x3a_x3d____1___closed__27;
@@ -207,10 +213,12 @@ static lean_object* l_Lean_Option_commandRegister__builtin__option_____x3a___x3a
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__option_____x3a___x3a_x3d____1___closed__2;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option_____x3a___x3a_x3d____1___closed__33;
+static lean_object* l_Lean_withInPattern___rarg___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option_____x3a___x3a_x3d____1(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_toNat_x3f(lean_object*);
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__commandRegister__builtin__option_____x3a___x3a_x3d____1___closed__22;
 LEAN_EXPORT lean_object* l_Lean_registerOption___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_withInPattern___rarg___lambda__1___closed__2;
 static lean_object* l_Lean_setOptionFromString___closed__7;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedOptionDecls;
 LEAN_EXPORT lean_object* l_Lean_getOptionDescr(lean_object*, lean_object*);
@@ -1697,6 +1705,79 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_Lean_instMonadWithOptions___rarg), 5, 0);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_withInPattern___rarg___lambda__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string("_inPattern");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_withInPattern___rarg___lambda__1___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_withInPattern___rarg___lambda__1___closed__1;
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_withInPattern___rarg___lambda__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint8_t x_3; lean_object* x_4; 
+x_2 = l_Lean_withInPattern___rarg___lambda__1___closed__2;
+x_3 = 1;
+x_4 = l_Lean_KVMap_setBool(x_1, x_2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_withInPattern___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_withInPattern___rarg___lambda__1), 1, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_withInPattern___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = l_Lean_withInPattern___rarg___closed__1;
+x_4 = lean_apply_3(x_1, lean_box(0), x_3, x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_withInPattern(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Lean_withInPattern___rarg), 2, 0);
+return x_3;
+}
+}
+LEAN_EXPORT uint8_t l_Lean_Options_getInPattern(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint8_t x_3; uint8_t x_4; 
+x_2 = l_Lean_withInPattern___rarg___lambda__1___closed__2;
+x_3 = 0;
+x_4 = l_Lean_KVMap_getBool(x_1, x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Options_getInPattern___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Options_getInPattern(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
 return x_3;
 }
 }
@@ -3791,6 +3872,12 @@ l_Lean_setOptionFromString___closed__11 = _init_l_Lean_setOptionFromString___clo
 lean_mark_persistent(l_Lean_setOptionFromString___closed__11);
 l_Lean_setOptionFromString___closed__12 = _init_l_Lean_setOptionFromString___closed__12();
 lean_mark_persistent(l_Lean_setOptionFromString___closed__12);
+l_Lean_withInPattern___rarg___lambda__1___closed__1 = _init_l_Lean_withInPattern___rarg___lambda__1___closed__1();
+lean_mark_persistent(l_Lean_withInPattern___rarg___lambda__1___closed__1);
+l_Lean_withInPattern___rarg___lambda__1___closed__2 = _init_l_Lean_withInPattern___rarg___lambda__1___closed__2();
+lean_mark_persistent(l_Lean_withInPattern___rarg___lambda__1___closed__2);
+l_Lean_withInPattern___rarg___closed__1 = _init_l_Lean_withInPattern___rarg___closed__1();
+lean_mark_persistent(l_Lean_withInPattern___rarg___closed__1);
 l_Lean_Option_Decl_group___default = _init_l_Lean_Option_Decl_group___default();
 lean_mark_persistent(l_Lean_Option_Decl_group___default);
 l_Lean_Option_Decl_descr___default = _init_l_Lean_Option_Decl_descr___default();

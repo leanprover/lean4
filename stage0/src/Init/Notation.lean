@@ -329,6 +329,9 @@ macro:1 x:tactic " <;> " y:tactic:0 : tactic => `(tactic| focus ($x:tactic; all_
 
 /-- `rfl` is a shorthand for `exact rfl`. -/
 macro "rfl" : tactic => `(exact rfl)
+
+syntax (name := ac_refl) "ac_refl " : tactic
+
 /-- `admit` is a shorthand for `exact sorry`. -/
 macro "admit" : tactic => `(exact sorry)
 /-- The `sorry` tactic is a shorthand for `exact sorry`. -/

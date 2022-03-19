@@ -56,6 +56,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM___lambda__
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Level_elabLevel___spec__2___closed__1;
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__6;
+uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_numLitKind;
@@ -72,7 +73,6 @@ lean_object* lean_level_mk_imax_simp(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_254_(lean_object*);
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__12;
 lean_object* l_Nat_repr(lean_object*);
-uint8_t l_Lean_Option_get___at_Lean_ppExpr___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* l_Lean_Level_addOffsetAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Level_elabLevel___spec__1(lean_object*, lean_object*, lean_object*);
@@ -1622,7 +1622,7 @@ else
 {
 lean_object* x_66; uint8_t x_67; uint8_t x_68; 
 x_66 = l_Lean_Elab_Level_elabLevel___closed__23;
-x_67 = l_Lean_Option_get___at_Lean_ppExpr___spec__1(x_8, x_66);
+x_67 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_8, x_66);
 lean_dec(x_8);
 lean_inc(x_51);
 x_68 = l_Lean_Elab_isValidAutoBoundLevelName(x_51, x_67);
@@ -2446,7 +2446,7 @@ else
 {
 lean_object* x_269; uint8_t x_270; uint8_t x_271; 
 x_269 = l_Lean_Elab_Level_elabLevel___closed__23;
-x_270 = l_Lean_Option_get___at_Lean_ppExpr___spec__1(x_212, x_269);
+x_270 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_212, x_269);
 lean_dec(x_212);
 lean_inc(x_254);
 x_271 = l_Lean_Elab_isValidAutoBoundLevelName(x_254, x_270);

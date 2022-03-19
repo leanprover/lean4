@@ -279,7 +279,8 @@ def delabCore (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) (opt
         optionsPerPos := optionsPerPos
         currNamespace := currNamespace
         openDecls := openDecls
-        subExpr := Delaborator.SubExpr.mkRoot e }
+        subExpr := Delaborator.SubExpr.mkRoot e
+        inPattern := opts.getInPattern }
       |>.run { : Delaborator.State })
     (fun _ => unreachable!)
   return (stx, infos)

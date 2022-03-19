@@ -22,7 +22,7 @@ inductive LexErr where
 
 def charDigit? (char : Char) : Option Nat :=
   if char.isDigit then
-    some char.toNat
+    some (char.toNat - '0'.toNat)
   else
     none
 
@@ -54,3 +54,35 @@ end
 #eval lex (m := Except LexErr) "123".iter
 #eval lex (m := Except LexErr) "1+23".iter
 #eval lex (m := Except LexErr) "1+23()".iter
+
+def Option.toList : Option α -> List α
+  | none   => []
+  | some x => [x]
+
+namespace NonMutual
+
+def lex [Monad m] [MonadExceptOf LexErr m] (current? : Option (List Char × Nat)) (it : String.Iterator) : m (List Token) := do
+  let currTok := fun
+    | (cs, n) => { text := {data := cs.reverse}, tok := Tok.num n }
+  if it.hasNext then
+    let emit (tok : Token) (xs : List Token) : List Token :=
+      match current? with
+      | none => tok :: xs
+      | some numInfo => currTok numInfo :: tok :: xs;
+    match it.curr with
+      | '(' => return emit { text := "(", tok := Tok.lpar } (← lex none it.next)
+      | ')' => return emit { text := ")", tok := Tok.rpar } (← lex none it.next)
+      | '+' => return emit { text := "+", tok := Tok.plus } (← lex none it.next)
+      | other =>
+        match charDigit? other with
+          | none => throw <| LexErr.unexpected other
+          | some d => match current? with
+            | none => lex (some ([other], d)) it.next
+            | some (tokTxt, soFar) => lex (other :: tokTxt, soFar * 10 + d) it.next
+  else
+    return current?.toList.map currTok
+
+#eval lex (m := Except LexErr) none "".iter
+#eval lex (m := Except LexErr) none "123".iter
+#eval lex (m := Except LexErr) none "1+23".iter
+#eval lex (m := Except LexErr) none "1+23()".iter

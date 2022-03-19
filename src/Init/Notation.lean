@@ -437,6 +437,8 @@ syntax "trivial" : tactic
 
 syntax (name := split) "split " (colGt term)? (location)? : tactic
 
+syntax (name := dbgTrace) "dbg_trace " str : tactic
+
 /--
 The tactic `specialize h a₁ ... aₙ` works on local hypothesis `h`.
 The premises of this hypothesis, either universal quantifications or non-dependent implications,

@@ -291,4 +291,9 @@ where
     | some msg => throwError "{msg}\n{goalsMsg}"
   | _ => throwUnsupportedSyntax
 
+@[tactic dbgTrace] def evalDbgTrace : Tactic := fun stx => do
+  match stx[1].isStrLit? with
+  | none     => throwIllFormedSyntax
+  | some msg => dbg_trace msg
+
 end Lean.Elab.Tactic

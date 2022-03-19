@@ -1,0 +1,8 @@
+some { range := { pos := { line := 150, column := 41 },
+    charUtf16 := 41,
+    endPos := { line := 156, column := 70 },
+    endCharUtf16 := 70 },
+  selectionRange := { pos := { line := 150, column := 45 },
+    charUtf16 := 45,
+    endPos := { line := 150, column := 57 },
+    endCharUtf16 := 57 } }

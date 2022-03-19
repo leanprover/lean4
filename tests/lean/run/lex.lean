@@ -20,7 +20,7 @@ inductive LexErr where
   | notDigit : Char → LexErr
   deriving Repr
 
-def charDigit (char : Char) : Option Nat :=
+def charDigit? (char : Char) : Option Nat :=
   if char.isDigit then
     some char.toNat
   else
@@ -34,7 +34,7 @@ mutual
       | ')' => return { text := ")", tok := Tok.rpar } :: (← lex it.next)
       | '+' => return { text := "+", tok := Tok.plus } :: (← lex it.next)
       | other =>
-        match charDigit other with
+        match charDigit? other with
         | none   => throw <| LexErr.unexpected other
         | some d => lexnumber d [other] it.next
     else
@@ -43,7 +43,7 @@ mutual
   def lexnumber [Monad m] [MonadExceptOf LexErr m] (soFar : Nat) (text : List Char) (it : String.Iterator) : m (List Token) :=
     if it.hasNext then
       let c := it.curr
-      match charDigit c with
+      match charDigit? c with
       | none   => return { text := text.reverse.asString, tok := Tok.num soFar } :: (← lex it)
       | some d => lexnumber (soFar * 10 + d) (c :: text) it.next
     else

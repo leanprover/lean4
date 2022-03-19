@@ -215,7 +215,7 @@ abbrev iter := mkIterator
 instance : SizeOf String.Iterator where
   sizeOf i := i.1.utf8ByteSize - i.2
 
-theorem String.Iterator.sizeOf_eq (i : String.Iterator) : sizeOf i = i.1.utf8ByteSize - i.2 :=
+theorem Iterator.sizeOf_eq (i : String.Iterator) : sizeOf i = i.1.utf8ByteSize - i.2 :=
   rfl
 
 namespace Iterator

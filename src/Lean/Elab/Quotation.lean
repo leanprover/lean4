@@ -100,7 +100,8 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
   -- if antiquotation, insert contents as-is, else recurse
   | stx@(Syntax.node _ k _) => do
     if isAntiquot stx && !isEscapedAntiquot stx then
-      return getAntiquotTerm stx
+      let (k, _) := antiquotKind? stx |>.get!
+      `(@TSyntax.raw $(quote k) $(getAntiquotTerm stx))
     else if isTokenAntiquot stx && !isEscapedAntiquot stx then
       match stx[0] with
       | Syntax.atom _ val => `(Syntax.atom (Option.getD (getHeadInfo? $(getAntiquotTerm stx)) info) $(quote val))
@@ -118,13 +119,15 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
       for arg in stx.getArgs do
         if k == nullKind && isAntiquotSuffixSplice arg then
           let antiquot := getAntiquotSuffixSpliceInner arg
+          let (k, _) := antiquotKind? antiquot |>.get!
+          let val := getAntiquotTerm antiquot
           args := args.append (appendName := appendName) <| ←
             match antiquotSuffixSplice? arg with
-            | `optional => `(match $(getAntiquotTerm antiquot):term with
+            | `optional => `(match Option.map (@TSyntax.raw $(quote k)) $val:term with
               | some x => Array.empty.push x
               | none   => Array.empty)
-            | `many     => return getAntiquotTerm antiquot
-            | `sepBy    => `(@SepArray.elemsAndSeps $(quote <| getSepFromSplice arg) $(getAntiquotTerm antiquot))
+            | `many     => `(@TSyntaxArray.raw $(quote k) $val)
+            | `sepBy    => `(@TSepArray.elemsAndSeps $(quote k) $(quote <| getSepFromSplice arg) $val)
             | k         => throwErrorAt arg "invalid antiquotation suffix splice kind '{k}'"
         else if k == nullKind && isAntiquotSplice arg then
           let k := antiquotSpliceKind? arg
@@ -154,17 +157,36 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
     `(Syntax.atom info $(quote val))
   | Syntax.missing => throwUnsupportedSyntax
 
+def getQuotKind (stx : Syntax) : TermElabM SyntaxNodeKind := do
+  match stx.getKind with
+  | ``Parser.Command.quot => pure `command
+  | ``Parser.Term.quot => pure `term
+  | ``Parser.Level.quot => pure `level
+  | ``Parser.Tactic.quot => pure `tactic
+  | ``Parser.Tactic.quotSeq => pure `tactic.seq
+  | ``Parser.Term.stx.quot => pure `stx
+  | ``Parser.Term.prec.quot => pure `prec
+  | ``Parser.Term.attr.quot => pure `attr
+  | ``Parser.Term.prio.quot => pure `prio
+  | ``Parser.Term.doElem.quot => pure `doElem
+  | Name.str kind "quot" _ => return kind
+  | ``dynamicQuot =>
+    match (← resolveGlobalConst stx[1]) with
+    | [parser] => pure parser
+    | _ => throwError "unknown parser {stx[1]}"
+  | k => throwError "unexpected quotation kind {k}"
+
 def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
   /- Syntax quotations are monadic values depending on the current macro scope. For efficiency, we bind
      the macro scope once for each quotation, then build the syntax tree in a completely pure computation
      depending on this binding. Note that regular function calls do not introduce a new macro scope (i.e.
      we preserve referential transparency), so we can refer to this same `scp` inside `quoteSyntax` by
      including it literally in a syntax quotation. -/
-  -- TODO: simplify to `(do scp ← getCurrMacroScope; pure $(quoteSyntax quoted))
-  let stx ← quoteSyntax stx.getQuotContent;
+  let kind ← getQuotKind stx
+  let stx ← quoteSyntax stx.getQuotContent
   `(Bind.bind MonadRef.mkInfoFromRefPos (fun info =>
       Bind.bind getCurrMacroScope (fun scp =>
-        Bind.bind getMainModule (fun mainModule => Pure.pure $stx))))
+        Bind.bind getMainModule (fun mainModule => Pure.pure (@TSyntax.mk $(quote kind) $stx)))))
   /- NOTE: It may seem like the newly introduced binding `scp` may accidentally
      capture identifiers in an antiquotation introduced by `quoteSyntax`. However,
      note that the syntax quotation above enjoys the same hygiene guarantees as
@@ -281,7 +303,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       let (k, pseudoKind) := antiquotKind? quoted |>.get!
       let rhsFn := match getAntiquotTerm quoted with
         | `(_)         => pure
-        | `($id:ident) => fun stx => `(let $id := discr; $(stx))
+        | `($id:ident) => fun stx => `(let $id := @TSyntax.mk $(quote k) discr; $(stx))
         | anti =>         fun _   => throwErrorAt anti "unsupported antiquotation kind in pattern"
       -- Antiquotation kinds like `$id:ident` influence the parser, but also need to be considered by
       -- `match` (but not by quotation terms). For example, `($id:ident) and `($e) are not
@@ -307,11 +329,13 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
     else if isAntiquotSuffixSplice quoted then throwErrorAt quoted "unexpected antiquotation splice"
     else if isAntiquotSplice quoted then throwErrorAt quoted "unexpected antiquotation splice"
     else if quoted.getArgs.size == 1 && isAntiquotSuffixSplice quoted[0] then
-      let anti := getAntiquotTerm (getAntiquotSuffixSpliceInner quoted[0])
+      let inner := getAntiquotSuffixSpliceInner quoted[0]
+      let anti := getAntiquotTerm inner
+      let (k, _) := antiquotKind? inner |>.get!
       unconditionally fun rhs => match antiquotSuffixSplice? quoted[0] with
-        | `optional => `(let $anti := Syntax.getOptional? discr; $rhs)
-        | `many     => `(let $anti := Syntax.getArgs discr; $rhs)
-        | `sepBy    => `(let $anti := @SepArray.mk $(quote <| getSepFromSplice quoted[0]) (Syntax.getArgs discr); $rhs)
+        | `optional => `(let $anti := Option.map (@TSyntax.mk $(quote k)) (Syntax.getOptional? discr); $rhs)
+        | `many     => `(let $anti := @TSyntaxArray.mk $(quote k) (Syntax.getArgs discr); $rhs)
+        | `sepBy    => `(let $anti := @TSepArray.mk $(quote k) $(quote <| getSepFromSplice quoted[0]) (Syntax.getArgs discr); $rhs)
         | k         => throwErrorAt quoted "invalid antiquotation suffix splice kind '{k}'"
     else if quoted.getArgs.size == 1 && isAntiquotSplice quoted[0] then pure {
       check   := other pat,
@@ -356,7 +380,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
     }
     else if let some idx := quoted.getArgs.findIdx? (fun arg => isAntiquotSuffixSplice arg || isAntiquotSplice arg) then do
       /-
-        pattern of the form `match discr, ... with | `(pat_0 ... pat_(idx-1) $[...]* pat_(idx+1) ...), ...`
+        patterns of the form `match discr, ... with | `(pat_0 ... pat_(idx-1) $[...]* pat_(idx+1) ...), ...`
         transform to
         ```
         if discr.getNumArgs >= $quoted.getNumArgs - 1 then

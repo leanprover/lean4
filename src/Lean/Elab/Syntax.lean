@@ -219,11 +219,9 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
   if let Name.str _ suffix _ := catName then
     let quotSymbol := "`(" ++ suffix ++ "|"
     let name := catName ++ `quot
-    -- TODO(Sebastian): this might confuse the pretty printer, but it lets us reuse the elaborator
-    let kind := ``Lean.Parser.Term.quot
     let cmd ← `(
       @[termParser] def $(mkIdent name) : Lean.ParserDescr :=
-        Lean.ParserDescr.node $(quote kind) $(quote Lean.Parser.maxPrec)
+        Lean.ParserDescr.node $(quote name) $(quote Lean.Parser.maxPrec)
           (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol $(quote quotSymbol))
             (Lean.ParserDescr.binary `andthen
               (Lean.ParserDescr.cat $(quote catName) 0)

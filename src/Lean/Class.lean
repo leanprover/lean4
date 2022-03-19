@@ -65,7 +65,7 @@ def hasOutParams (env : Environment) (n : Name) : Bool :=
 private partial def checkOutParam : Nat → Array FVarId → Expr → Except String Bool
   | i, outParams, Expr.forallE _ d b _ =>
     if d.isOutParam then
-      let fvarId    := { name := Name.mkNum `_fvar outParams.size }
+      let fvarId := { name := Name.mkNum `_fvar outParams.size }
       let outParams := outParams.push fvarId
       let fvar      := mkFVar fvarId
       let b         := b.instantiate1 fvar
@@ -76,15 +76,15 @@ private partial def checkOutParam : Nat → Array FVarId → Expr → Except Str
       checkOutParam (i+1) outParams b
   | i, outParams, e => pure (outParams.size > 0)
 
-def addClass (env : Environment) (clsName : Name) : Except String Environment :=
+def addClass (env : Environment) (clsName : Name) : Except String Environment := do
   if isClass env clsName then
-    Except.error s!"class has already been declared '{clsName}'"
-  else match env.find? clsName with
-    | none      => Except.error ("unknown declaration '" ++ toString clsName ++ "'")
-    | some decl@(ConstantInfo.inductInfo _) => do
-      let b ← checkOutParam 1 #[] decl.type
-      Except.ok (classExtension.addEntry env { name := clsName, hasOutParam := b })
-    | some _    => Except.error ("invalid 'class', declaration '" ++ toString clsName ++ "' must be inductive datatype or structure")
+    throw s!"class has already been declared '{clsName}'"
+  let some decl := env.find? clsName
+    | throw s!"unknown declaration '{clsName}'"
+  unless decl matches .inductInfo .. || decl matches .axiomInfo .. do
+    throw s!"invalid 'class', declaration '{clsName}' must be inductive datatype, structure, or constant"
+  let b ← checkOutParam 1 #[] decl.type
+  return classExtension.addEntry env { name := clsName, hasOutParam := b }
 
 private def consumeNLambdas : Nat → Expr → Option Expr
   | 0,   e                => some e

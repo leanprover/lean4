@@ -182,7 +182,7 @@ namespace Ex5
 
 mutual
   def lex [Monad m] [MonadExceptOf LexErr m] (it : String.Iterator) : m (List Token) := do
-    if h : it.hasNext then
+    if it.hasNext then
       match it.curr with
       | '(' => return { text := "(", tok := Tok.lpar } :: (← lex it.next)
       | ')' => return { text := ")", tok := Tok.rpar } :: (← lex it.next)
@@ -195,7 +195,7 @@ mutual
       return []
 
   def lexnumber [Monad m] [MonadExceptOf LexErr m] (soFar : Nat) (text : List Char) (it : String.Iterator) : m (List Token) :=
-    if h : it.hasNext then
+    if it.hasNext then
       let c := it.curr
       match charDigit c with
       | .error _ => return { text := text.reverse.asString, tok := Tok.num soFar } :: (← lex it)

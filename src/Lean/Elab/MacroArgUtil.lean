@@ -28,7 +28,12 @@ def expandMacroArg (stx : Syntax) : MacroM (Syntax × Syntax) := do
       pure <| mkSplicePat `sepBy id ((isStrLit? sep).get! ++ "*")
     | _ => match id? with
       -- if there is a binding, we assume the user knows what they are doing
-      | some id => pure <| mkAntiquotNode id
+      | some id =>
+        if stx.isOfKind ``Lean.Parser.Syntax.cat then
+          let parser := stx[0].getId.eraseMacroScopes
+          pure <| mkAntiquotNode id (kind := parser) (isPseudoKind := true)
+        else
+          pure <| mkAntiquotNode id
       -- otherwise `group` the syntax to enforce arity 1, e.g. for `noWs`
       | none    => return (← `(stx| group($stx)), mkAntiquotNode id)
   pure (stx, pat)

@@ -1841,6 +1841,9 @@ inductive Syntax where
   | atom   (info : SourceInfo) (val : String) : Syntax
   | ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Prod Name (List String))) : Syntax
 
+structure TSyntax (k : SyntaxNodeKind) where
+  raw : Syntax
+
 instance : Inhabited Syntax where
   default := Syntax.missing
 
@@ -1964,10 +1967,16 @@ partial def getTailPos? (stx : Syntax) (originalOnly := false) : Option String.P
     loop 0
   | _, _ => none
 
+structure TSyntaxArray (kind : SyntaxNodeKind) where
+  raw : Array Syntax
+
 /--
   An array of syntax elements interspersed with separators. Can be coerced to/from `Array Syntax` to automatically
   remove/insert the separators. -/
 structure SepArray (sep : String) where
+  elemsAndSeps : Array Syntax
+
+structure TSepArray (kind : SyntaxNodeKind) (sep : String) where
   elemsAndSeps : Array Syntax
 
 end Syntax

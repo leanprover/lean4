@@ -56,20 +56,20 @@ def postprocessAppMVars (tacticName : Name) (mvarId : MVarId) (newMVars : Array 
 private def dependsOnOthers (mvar : Expr) (otherMVars : Array Expr) : MetaM Bool :=
   otherMVars.anyM fun otherMVar => do
     if mvar == otherMVar then
-      pure false
+      return false
     else
       let otherMVarType ← inferType otherMVar
       return (otherMVarType.findMVar? fun mvarId => mvarId == mvar.mvarId!).isSome
 
 /-- Partitions the given mvars in to two arrays (non-deps, deps)
 according to whether the given mvar depends on other mvars in the array.-/
-private def partitionDependentMVars (mvars : Array Expr) : MetaM $ Prod (Array MVarId) (Array MVarId) :=
+private def partitionDependentMVars (mvars : Array Expr) : MetaM (Array MVarId × Array MVarId) :=
   mvars.foldlM (init := (#[], #[])) fun (nonDeps, deps) mvar => do
     let currMVarId := mvar.mvarId!
     if (← dependsOnOthers mvar mvars) then
-      pure (nonDeps, deps.push currMVarId)
+      return (nonDeps, deps.push currMVarId)
     else
-      pure (nonDeps.push currMVarId, deps)
+      return (nonDeps.push currMVarId, deps)
 
 /-- Controls which new mvars are turned in to goals by the `apply` tactic.
 - `nonDependentFirst`  mvars that don't depend on other goals appear first in the goal list.
@@ -86,11 +86,11 @@ private def reorderGoals (mvars : Array Expr) : ApplyNewGoals → MetaM (List MV
   | ApplyNewGoals.nonDependentOnly => do
       let (nonDeps, deps) ← partitionDependentMVars mvars
       return nonDeps.toList
-  | ApplyNewGoals.all => pure $ Array.toList $ mvars.map Lean.Expr.mvarId!
+  | ApplyNewGoals.all => return mvars.toList.map Lean.Expr.mvarId!
 
 /-- Configures the behaviour of the `apply` tactic. -/
-structure ApplyConfig :=
-  (newGoals := ApplyNewGoals.nonDependentFirst)
+structure ApplyConfig where
+  newGoals := ApplyNewGoals.nonDependentFirst
 
 def apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {}) : MetaM (List MVarId) :=
   withMVarContext mvarId do

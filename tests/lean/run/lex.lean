@@ -66,10 +66,6 @@ mutual
           | .error _ => return { text := { data := text.reverse }, tok := Tok.num soFar } :: (← lex2 (c::cs)) -- Use `c::cs` here instead of `input` because the default tactic doesn't know they are equal.
           | .ok d => lex2number (soFar * 10 + d) (c :: text) cs
 end
--- `termination_by` is used to specify a well-founded relation.
-termination_by
-  lex2 input       => (input, 0) -- Lean is proving a termination using the instance `WellFoundedRelation (List Char × Nat)` which is just a lex-order. In the future, we should be able to guess this too.
-  lex2number input => (input, 1)
 
 #eval lex2 (m := Except LexErr) "".data
 #eval lex2 (m := Except LexErr) "123".data
@@ -131,9 +127,6 @@ mutual
           | .error _ => return { text := { data := text.reverse }, tok := Tok.num soFar } :: (← lex4 input)
           | .ok d => lex4number (soFar * 10 + d) (c :: text) cs
 end
-termination_by
-  lex4 input       => (input, 0) -- Lean is proving a termination using the instance `WellFoundedRelation (List Char × Nat)` which is just a lex-order. In the future, we should be able to guess this too.
-  lex4number input => (input, 1)
 -- decreasing_by allows us to specify a tactic for showing the recursive applications are decreasing.
 decreasing_by
   solve | decreasing_tactic -- get easy cases with the builtin tactic `decreasing_tactic`
@@ -210,9 +203,6 @@ mutual
     else
       return [{ text := text.reverse.asString, tok := Tok.num soFar }]
 end
-termination_by
-  lex input       => (input, 0)
-  lexnumber input => (input, 1)
 
 #eval lex (m := Except LexErr) "".iter
 #eval lex (m := Except LexErr) "123".iter

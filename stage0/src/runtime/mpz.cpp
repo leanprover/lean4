@@ -298,7 +298,7 @@ void mpz::init_int(int v) {
     allocate(1);
     if (v < 0) {
         m_sign      = true;
-        m_digits[0] = -v;
+        m_digits[0] = -static_cast<unsigned>(v);
     } else {
         m_sign      = false;
         m_digits[0] = v;
@@ -311,6 +311,7 @@ void mpz::init_uint64(uint64 v) {
         allocate(1);
         m_digits[0] = v;
     } else {
+        static_assert(sizeof(uint64) == 2 * sizeof(unsigned));
         allocate(2);
         m_digits[0] = static_cast<mpn_digit>(v);
         m_digits[1] = static_cast<mpn_digit>(v >> 8*sizeof(mpn_digit));
@@ -321,11 +322,7 @@ void mpz::init_int64(int64 v) {
     if (v >= 0) {
         init_uint64(v);
     } else {
-        if (v == std::numeric_limits<int64>::min()) {
-            init_uint64(static_cast<uint64>(-(v+1)) + 1);
-        } else {
-            init_uint64(-v);
-        }
+        init_uint64(-static_cast<uint64>(v));
         m_sign = true;
     }
 }
@@ -384,19 +381,15 @@ void swap(mpz & a, mpz & b) {
 }
 
 int mpz::sgn() const {
-    if (m_size > 1) {
+    if (m_size == 1 && m_digits[0] == 0)
+        return 0;
+    else
         return m_sign ? -1 : 1;
-    } else {
-        if (m_digits[0] == 0)
-            return 0;
-        else
-            return m_sign ? -1 : 1;
-    }
 }
 
 bool mpz::is_int() const {
     if (m_sign) {
-        return m_size == 1 && m_digits[0] <= -static_cast<uint64_t>(std::numeric_limits<int>::min());
+        return m_size == 1 && m_digits[0] <= -static_cast<unsigned>(std::numeric_limits<int>::min());
     } else {
         return m_size == 1 && m_digits[0] <= std::numeric_limits<int>::max();
     }
@@ -497,7 +490,7 @@ int cmp(mpz const & a, unsigned b) {
 int cmp(mpz const & a, int b) {
     if (a.m_sign) {
         if (b < 0) {
-            unsigned b1 = -b;
+            unsigned b1 = -static_cast<unsigned>(b);
             return mpn_compare(&b1, 1, a.m_digits, a.m_size);
         } else {
             return -1;
@@ -572,8 +565,8 @@ mpz & mpz::mul(bool sign, size_t sz, mpn_digit const * digits) {
     mpn_mul(m_digits, m_size,
             digits, sz,
             tmp.begin());
-    m_sign = m_sign != sign;
     set(new_sz, tmp.begin());
+    m_sign = !is_zero() && m_sign != sign;
     return *this;
 }
 
@@ -596,8 +589,8 @@ mpz & mpz::div(bool sign, size_t sz, mpn_digit const * digits) {
     mpn_div(m_digits, m_size,
             digits, sz,
             q1.begin(), r1.begin());
-    m_sign = m_sign != sign;
     set(q_sz, q1.begin());
+    m_sign = !is_zero() && m_sign != sign;
     return *this;
 }
 
@@ -633,7 +626,7 @@ mpz & mpz::operator+=(unsigned u) {
 
 mpz & mpz::operator+=(int u) {
     if (u < 0) {
-        unsigned u1 = -static_cast<int64>(u);
+        unsigned u1 = -static_cast<unsigned>(u);
         return add(true, 1, &u1);
     } else {
         unsigned u1 = u;
@@ -651,7 +644,7 @@ mpz & mpz::operator-=(unsigned u) {
 
 mpz & mpz::operator-=(int u) {
     if (u < 0) {
-        unsigned u1 = -static_cast<int64>(u);
+        unsigned u1 = -static_cast<unsigned>(u);
         return add(false, 1, &u1);
     } else {
         unsigned u1 = u;
@@ -669,7 +662,7 @@ mpz & mpz::operator*=(unsigned u) {
 
 mpz & mpz::operator*=(int u) {
     if (u < 0) {
-        unsigned u1 = -static_cast<int64>(u);
+        unsigned u1 = -static_cast<unsigned>(u);
         return mul(true, 1, &u1);
     } else {
         unsigned u1 = u;

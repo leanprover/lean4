@@ -14,7 +14,7 @@ private def div_rec_lemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
 
 @[extern "lean_nat_div"]
 protected def div (x y : @& Nat) : Nat :=
-  if h : 0 < y ∧ y ≤ x then
+  if 0 < y ∧ y ≤ x then
     Nat.div (x - y) y + 1
   else
     0
@@ -23,8 +23,9 @@ decreasing_by apply div_rec_lemma; assumption
 instance : Div Nat := ⟨Nat.div⟩
 
 theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 := by
-  simp [Nat.div] -- hack to force eq theorem to be generated. We don't have `conv` yet.
-  apply Nat.div._eq_1
+  show Nat.div x y = _
+  rw [Nat.div]
+  rfl
 
 theorem div.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
@@ -40,7 +41,7 @@ decreasing_by apply div_rec_lemma; assumption
 
 @[extern "lean_nat_mod"]
 protected def mod (x y : @& Nat) : Nat :=
-  if h : 0 < y ∧ y ≤ x then
+  if 0 < y ∧ y ≤ x then
     Nat.mod (x - y) y
   else
     x
@@ -49,8 +50,9 @@ decreasing_by apply div_rec_lemma; assumption
 instance : Mod Nat := ⟨Nat.mod⟩
 
 theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
-  simp [Nat.mod] -- hack to force eq theorem to be generated. We don't have `conv` yet.
-  apply Nat.mod._eq_1
+  show Nat.mod x y = _
+  rw [Nat.mod]
+  rfl
 
 theorem mod.inductionOn.{u}
       {motive : Nat → Nat → Sort u}

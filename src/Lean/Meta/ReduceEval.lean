@@ -30,8 +30,8 @@ instance [ReduceEval α] : ReduceEval (Option α) where
     let e ← whnf e
     let Expr.const c .. ← pure e.getAppFn | throwFailedToEval e
     let nargs := e.getAppNumArgs
-    if      c == `Option.none && nargs == 0 then pure none
-    else if c == `Option.some && nargs == 1 then some <$> reduceEval e.appArg!
+    if      c == ``Option.none && nargs == 0 then pure none
+    else if c == ``Option.some && nargs == 1 then some <$> reduceEval e.appArg!
     else throwFailedToEval e
 
 instance : ReduceEval String where
@@ -43,12 +43,12 @@ private partial def evalName (e : Expr) : MetaM Name := do
   let e ← whnf e
   let Expr.const c _ _ ← pure e.getAppFn | throwFailedToEval e
   let nargs := e.getAppNumArgs
-  if      c == `Lean.Name.anonymous && nargs == 0 then pure Name.anonymous
-  else if c == `Lean.Name.str && nargs == 3 then do
+  if      c == ``Lean.Name.anonymous && nargs == 0 then pure Name.anonymous
+  else if c == ``Lean.Name.str && nargs == 3 then do
     let n ← evalName $ e.getArg! 0
     let s ← reduceEval $ e.getArg! 1
     pure $ Name.mkStr n s
-  else if c == `Lean.Name.num && nargs == 3 then do
+  else if c == ``Lean.Name.num && nargs == 3 then do
     let n ← evalName $ e.getArg! 0
     let u ← reduceEval $ e.getArg! 1
     pure $ Name.mkNum n u

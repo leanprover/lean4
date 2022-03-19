@@ -370,6 +370,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabQuot____x40_Lean
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___closed__29;
 static lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabQuot____x40_Lean_Elab_Quotation___hyg_3830__declRange___closed__4;
+uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___lambda__23___closed__25;
 static lean_object* l_Array_foldrMUnsafe_fold___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___spec__3___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabQuot____x40_Lean_Elab_Quotation___hyg_3806__declRange___closed__1;
@@ -489,7 +490,6 @@ lean_object* l_Nat_repr(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_elabQuot____x40_Lean_Elab_Quotation___hyg_3842____closed__5;
 static lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__15;
 static lean_object* l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_getHeadInfo___closed__4;
-uint8_t l_Lean_Option_get___at_Lean_ppExpr___spec__1(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___spec__6___lambda__2___closed__9;
 static lean_object* l_Lean_Elab_Term_Quotation_stxQuot_expand___closed__3;
 static lean_object* l_Lean_Elab_Term_Quotation___aux__Lean__Elab__Quotation______macroRules__Lean__Elab__Term__Quotation__commandElab__stx__quot______1___closed__20;
@@ -9856,7 +9856,7 @@ lean_dec(x_498);
 x_499 = lean_ctor_get(x_6, 0);
 lean_inc(x_499);
 x_500 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___closed__49;
-x_501 = l_Lean_Option_get___at_Lean_ppExpr___spec__1(x_499, x_500);
+x_501 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_499, x_500);
 lean_dec(x_499);
 if (x_501 == 0)
 {
@@ -10137,7 +10137,7 @@ lean_dec(x_1);
 x_624 = lean_ctor_get(x_6, 0);
 lean_inc(x_624);
 x_625 = l___private_Lean_Elab_Quotation_0__Lean_Elab_Term_Quotation_quoteSyntax___closed__49;
-x_626 = l_Lean_Option_get___at_Lean_ppExpr___spec__1(x_624, x_625);
+x_626 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_624, x_625);
 lean_dec(x_624);
 if (x_626 == 0)
 {

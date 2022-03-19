@@ -862,22 +862,23 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `(@$t)     => throwUnsupportedSyntax -- invalid occurrence of `@`
     | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
     | `(.$id:ident) =>
-       tryPostponeIfNoneOrMVar expectedType?
-       match expectedType? with
-       | none => throwError "invalid dotted identifier notation, expected type must be known"
-       | some expectedType =>
-         if let .const declName .. := (← instantiateMVars expectedType).getAppFn then
-           let idNew := declName ++ id.getId.eraseMacroScopes
-           unless (← getEnv).contains idNew do
-             throwError "invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
-           let fConst ← mkConst idNew
-           addTermInfo f fConst
-           let s ← observing do
-             let e ← elabAppLVals fConst lvals namedArgs args expectedType? explicit ellipsis
-             if overloaded then ensureHasType expectedType? e else pure e
-           return acc.push s
-         else
-           throwError "invalid dotted identifier notation, expected type is not of the form (C ...) where C is a constant{indentExpr expectedType}"
+      tryPostponeIfNoneOrMVar expectedType?
+      let some expectedType := expectedType?
+        | throwError "invalid dotted identifier notation, expected type must be known"
+      forallTelescopeReducing expectedType fun _ resultType => do
+        let resultTypeFn := (← instantiateMVars resultType).getAppFn
+        tryPostponeIfMVar resultTypeFn
+        let .const declName .. := resultTypeFn
+          | throwError "invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant{indentExpr expectedType}"
+        let idNew := declName ++ id.getId.eraseMacroScopes
+        unless (← getEnv).contains idNew do
+          throwError "invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
+        let fConst ← mkConst idNew
+        addTermInfo f fConst
+        let s ← observing do
+          let e ← elabAppLVals fConst lvals namedArgs args expectedType? explicit ellipsis
+          if overloaded then ensureHasType expectedType? e else pure e
+        return acc.push s
     | _ => do
       let catchPostpone := !overloaded
       /- If we are processing a choice node, then we should use `catchPostpone == false` when elaborating terms.

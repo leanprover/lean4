@@ -492,24 +492,44 @@ private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (resul
   | none   => return result
   | some c => getMatchLoop args c result
 
-/--
-  Find values that match `e` in `d`.
--/
-partial def getMatch (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
+private def getMatchCore (d : DiscrTree α) (e : Expr) : MetaM (Key × Array α) :=
   withReducible do
     let result := getStarResult d
     let (k, args) ← getMatchKeyArgs e (root := true)
     match k with
-    | Key.star => return result
-    | _        => getMatchRoot d k args result
+    | Key.star => return (k, result)
+    | _        => return (k, ← getMatchRoot d k args result)
+
+/--
+  Find values that match `e` in `d`.
+-/
+def getMatch (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
+  return (← getMatchCore d e).2
 
 /--
   Similar to `getMatch`, but returns solutions that are prefixes of `e`.
   We store the number of ignored arguments in the result.-/
-partial def getMatchWithExtra (d : DiscrTree α) (e : Expr) : MetaM (Array (α × Nat)) :=
-  go e 0 #[]
+partial def getMatchWithExtra (d : DiscrTree α) (e : Expr) : MetaM (Array (α × Nat)) := do
+  let (k, result) ← getMatchCore d e
+  let result := result.map (·, 0)
+  if !e.isApp then
+    return result
+  else if !(← mayMatchPrefix k) then
+    return result
+  else
+    go e.appFn! 1 result
 where
-  /- TODO: better implementation, this is one is very naive. -/
+  mayMatchPrefix (k : Key) : MetaM Bool :=
+    let cont (k : Key) : MetaM Bool :=
+      if d.root.find? k |>.isSome then
+        return true
+      else
+        mayMatchPrefix k
+    match k with
+    | Key.const f (n+1) => cont (Key.const f n)
+    | Key.fvar f (n+1)  => cont (Key.fvar f n)
+    | _                 => return false
+
   go (e : Expr) (numExtra : Nat) (result : Array (α × Nat)) : MetaM (Array (α × Nat)) := do
     let result := result ++ (← getMatch d e).map (., numExtra)
     if e.isApp then

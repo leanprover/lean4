@@ -210,6 +210,14 @@ structure Iterator where
 def mkIterator (s : String) : Iterator :=
   ⟨s, 0⟩
 
+abbrev iter := mkIterator
+
+instance : SizeOf String.Iterator where
+  sizeOf i := i.1.utf8ByteSize - i.2
+
+theorem Iterator.sizeOf_eq (i : String.Iterator) : sizeOf i = i.1.utf8ByteSize - i.2 :=
+  rfl
+
 namespace Iterator
 def toString : Iterator → String
   | ⟨s, _⟩ => s

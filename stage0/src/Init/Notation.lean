@@ -318,6 +318,7 @@ syntax (name := failIfSuccess) "fail_if_success " tacticSeq : tactic
 syntax (name := paren) "(" tacticSeq ")" : tactic
 syntax (name := withReducible) "with_reducible " tacticSeq : tactic
 syntax (name := withReducibleAndInstances) "with_reducible_and_instances " tacticSeq : tactic
+syntax (name := withUnfoldingAll) "with_unfolding_all " tacticSeq : tactic
 /-- `first | tac | ...` runs each `tac` until one succeeds, or else fails. -/
 syntax (name := first) "first " withPosition((group(colGe "|" tacticSeq))+) : tactic
 syntax (name := rotateLeft) "rotate_left" (num)? : tactic
@@ -329,6 +330,14 @@ macro:1 x:tactic " <;> " y:tactic:0 : tactic => `(tactic| focus ($x:tactic; all_
 
 /-- `rfl` is a shorthand for `exact rfl`. -/
 macro "rfl" : tactic => `(exact rfl)
+
+/--
+  Similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,
+  theorems included (relevant for declarations defined by well-founded recursion). -/
+macro "rfl'" : tactic => `(set_option smartUnfolding false in with_unfolding_all rfl)
+
+syntax (name := ac_refl) "ac_refl " : tactic
+
 /-- `admit` is a shorthand for `exact sorry`. -/
 macro "admit" : tactic => `(exact sorry)
 /-- The `sorry` tactic is a shorthand for `exact sorry`. -/
@@ -433,6 +442,8 @@ macro_rules
 syntax "trivial" : tactic
 
 syntax (name := split) "split " (colGt term)? (location)? : tactic
+
+syntax (name := dbgTrace) "dbg_trace " str : tactic
 
 /--
 The tactic `specialize h a₁ ... aₙ` works on local hypothesis `h`.

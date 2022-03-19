@@ -63,7 +63,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
       if ← hasAssignableMVar proof then
         trace[Meta.Tactic.simp.rewrite] "{thm}, has unassigned metavariables after unification"
         return none
-      let rhs   ← instantiateMVars type.appArg!
+      let rhs := (← instantiateMVars type).appArg!
       if e == rhs then
         return none
       if thm.perm then

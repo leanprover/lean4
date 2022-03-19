@@ -212,6 +212,9 @@ def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
 @[builtinTactic Lean.Parser.Tactic.withReducibleAndInstances] def evalWithReducibleAndInstances : Tactic := fun stx =>
   withReducibleAndInstances <| evalTactic stx[1]
 
+@[builtinTactic Lean.Parser.Tactic.withUnfoldingAll] def evalWithUnfoldingAll : Tactic := fun stx =>
+  withTransparency TransparencyMode.all <| evalTactic stx[1]
+
 /--
   Elaborate `stx`. If it a free variable, return it. Otherwise, assert it, and return the free variable.
   Note that, the main goal is updated when `Meta.assert` is used in the second case. -/

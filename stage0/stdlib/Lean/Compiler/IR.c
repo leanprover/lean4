@@ -45,6 +45,7 @@ static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda_
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__6;
 lean_object* l_Lean_IR_Decl_insertResetReuse(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda__1___closed__1;
+uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6____closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda__2___closed__19;
@@ -56,7 +57,6 @@ static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed_
 LEAN_EXPORT lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__3;
-uint8_t l_Lean_Option_get___at_Lean_ppExpr___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda__2___closed__2;
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -686,7 +686,7 @@ x_45 = lean_ctor_get(x_44, 1);
 lean_inc(x_45);
 lean_dec(x_44);
 x_46 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda__2___closed__16;
-x_47 = l_Lean_Option_get___at_Lean_ppExpr___spec__1(x_6, x_46);
+x_47 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_6, x_46);
 if (x_47 == 0)
 {
 lean_object* x_48; lean_object* x_49; 
@@ -874,7 +874,7 @@ x_24 = lean_ctor_get(x_23, 1);
 lean_inc(x_24);
 lean_dec(x_23);
 x_25 = l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda__2___closed__16;
-x_26 = l_Lean_Option_get___at_Lean_ppExpr___spec__1(x_2, x_25);
+x_26 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_2, x_25);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; 

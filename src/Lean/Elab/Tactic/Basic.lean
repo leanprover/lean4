@@ -156,7 +156,7 @@ private def evalTacticUsing (s : SavedState) (stx : Syntax) (tactics : List (Key
 
 mutual
 
-  partial def expandTacticMacroFns (stx : Syntax) (macros : List (KeyedDeclsAttribute.AttributeEntry Macro)) : TacticM Unit :=
+  partial def expandTacticMacroFns (s : SavedState) (stx : Syntax) (macros : List (KeyedDeclsAttribute.AttributeEntry Macro)) : TacticM Unit :=
     let rec loop
       | []    => throwErrorAt stx "tactic '{stx.getKind}' has not been implemented"
       | m::ms => do
@@ -168,11 +168,11 @@ mutual
               evalTactic stx'
         catch ex =>
           if ms.isEmpty then throw ex -- (*)
-          loop ms
+          s.restore; loop ms
     loop macros
 
-  partial def expandTacticMacro (stx : Syntax) : TacticM Unit := do
-    expandTacticMacroFns stx (macroAttribute.getEntries (← getEnv) stx.getKind)
+  partial def expandTacticMacro (s : SavedState) (stx : Syntax) : TacticM Unit := do
+    expandTacticMacroFns s stx (macroAttribute.getEntries (← getEnv) stx.getKind)
 
   partial def evalTacticAux (stx : Syntax) : TacticM Unit :=
     withRef stx <| withIncRecDepth <| withFreshMacroScope <| match stx with
@@ -184,7 +184,7 @@ mutual
           trace[Elab.step] "{stx}"
           let s ← Tactic.saveState
           match tacticElabAttribute.getEntries (← getEnv) stx.getKind with
-          | []      => expandTacticMacro stx
+          | []      => expandTacticMacro s stx
           | evalFns => evalTacticUsing s stx evalFns
       | Syntax.missing => pure ()
       | _ => throwError m!"unexpected tactic{indentD stx}"

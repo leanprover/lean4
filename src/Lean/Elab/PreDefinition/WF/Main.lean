@@ -10,6 +10,7 @@ import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Elab.PreDefinition.WF.Rel
 import Lean.Elab.PreDefinition.WF.Fix
 import Lean.Elab.PreDefinition.WF.Eqns
+import Lean.Elab.PreDefinition.WF.Ite
 
 namespace Lean.Elab
 open WF
@@ -84,7 +85,8 @@ def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (de
       addAsAxiom preDef
     let fixedPrefixSize ← getFixedPrefix preDefs
     trace[Elab.definition.wf] "fixed prefix: {fixedPrefixSize}"
-    let unaryPreDefs ← packDomain fixedPrefixSize preDefs
+    let preDefsDIte ← preDefs.mapM fun preDef => return { preDef with value := (← iteToDIte preDef.value) }
+    let unaryPreDefs ← packDomain fixedPrefixSize preDefsDIte
     return (← packMutual fixedPrefixSize preDefs unaryPreDefs, fixedPrefixSize)
   let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedPrefixSize fun prefixArgs type => do
     let packedArgType := type.bindingDomain!

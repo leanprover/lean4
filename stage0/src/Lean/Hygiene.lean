@@ -62,14 +62,13 @@ private def mkInaccessibleUserName (unicode : Bool) : Name → Name
       Name.mkNum (mkInaccessibleUserName unicode p) idx
   | n => n
 
-def sanitizeNamesDefault := true
-def getSanitizeNames (o : Options) : Bool:= o.get `pp.sanitizeNames sanitizeNamesDefault
-builtin_initialize
-  registerOption `pp.sanitizeNames {
-    defValue := sanitizeNamesDefault,
-    group := "pp",
-    descr := "add suffix '_{<idx>}' to shadowed/inaccessible variables when pretty printing"
-  }
+register_builtin_option pp.sanitizeNames : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "add suffix to shadowed/inaccessible variables when pretty printing"
+}
+
+def getSanitizeNames (o : Options) : Bool := pp.sanitizeNames.get o
 
 structure NameSanitizerState where
   options            : Options

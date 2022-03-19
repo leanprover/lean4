@@ -138,7 +138,7 @@ where
       -- TODO: improve this.
       -- The following trick allows a function `f` in a mutual block to invoke `g` appearing before it with the input argument.
       -- We should compute the "right" order (if there is one) in the future.
-      let body ← `((sizeOf x, $(quote i)))
+      let body ← if preDefs.size > 1 then `((sizeOf x, $(quote i))) else `(sizeOf x)
       result := result.push {
         ref := preDef.ref
         declName := preDef.declName

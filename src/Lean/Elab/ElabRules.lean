@@ -43,23 +43,23 @@ def elabElabRulesAux (doc? : Option Syntax) (attrKind : Syntax) (k : SyntaxNodeK
     | _, _        => throwError "invalid elab_rules command, specify category using `elab_rules : <cat> ...`"
   if let some expId := expty? then
     if catName == `term then
-      `($[$doc?:docComment]? @[termElab $(← mkIdentFromRef k):ident]
+      `($[$doc?:docComment]? @[$attrKind:attrKind termElab $(← mkIdentFromRef k):ident]
         aux_def elabRules $(mkIdent k) : Lean.Elab.Term.TermElab :=
         fun stx expectedType? => Lean.Elab.Command.withExpectedType expectedType? fun $expId => match stx with
           $alts:matchAlt* | _ => throwUnsupportedSyntax)
     else
       throwErrorAt expId "syntax category '{catName}' does not support expected type specification"
   else if catName == `term then
-    `($[$doc?:docComment]? @[termElab $(← mkIdentFromRef k):ident]
+    `($[$doc?:docComment]? @[$attrKind:attrKind termElab $(← mkIdentFromRef k):ident]
       aux_def elabRules $(mkIdent k) : Lean.Elab.Term.TermElab :=
       fun stx _ => match stx with
         $alts:matchAlt* | _ => throwUnsupportedSyntax)
   else if catName == `command then
-    `($[$doc?:docComment]? @[commandElab $(← mkIdentFromRef k):ident]
+    `($[$doc?:docComment]? @[$attrKind:attrKind commandElab $(← mkIdentFromRef k):ident]
       aux_def elabRules $(mkIdent k) : Lean.Elab.Command.CommandElab :=
       fun $alts:matchAlt* | _ => throwUnsupportedSyntax)
   else if catName == `tactic then
-    `($[$doc?:docComment]? @[tactic $(← mkIdentFromRef k):ident]
+    `($[$doc?:docComment]? @[$attrKind:attrKind tactic $(← mkIdentFromRef k):ident]
       aux_def elabRules $(mkIdent k) : Lean.Elab.Tactic.Tactic :=
       fun $alts:matchAlt* | _ => throwUnsupportedSyntax)
   else

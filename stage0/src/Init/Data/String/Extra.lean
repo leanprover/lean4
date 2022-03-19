@@ -53,6 +53,6 @@ theorem Iterator.sizeOf_next_lt (i : String.Iterator) (h : i.hasNext) : sizeOf i
     simp_all_arith
   . intro; apply Nat.zero_lt_sub_of_lt h
 
-macro_rules | `(tactic| decreasing_tactic_trivial) => `(tactic| apply String.Iterator.sizeOf_next_lt; assumption)
+macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply String.Iterator.sizeOf_next_lt; assumption)
 
 end String

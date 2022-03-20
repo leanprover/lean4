@@ -116,6 +116,7 @@ static lean_object* l_instToStringPUnit___closed__1;
 static lean_object* l_instToStringInt___closed__2;
 LEAN_EXPORT lean_object* l_instToStringPUnit___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringInt(lean_object*);
+LEAN_EXPORT lean_object* l_instToStringPos(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringUInt32___boxed(lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 static lean_object* l_instToStringSum___rarg___closed__2;
@@ -585,6 +586,14 @@ return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_instToStringNat(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Nat_repr(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_instToStringPos(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

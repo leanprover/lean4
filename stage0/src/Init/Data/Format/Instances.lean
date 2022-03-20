@@ -35,3 +35,6 @@ instance {α : Type u} {β : Type v} [ToFormat α] [ToFormat β] : ToFormat (Pro
 
 def String.toFormat (s : String) : Std.Format :=
   Std.Format.joinSep (s.splitOn "\n") Std.Format.line
+
+instance : ToFormat String.Pos where
+  format p := format p.byteIdx

@@ -13,6 +13,10 @@ def List.asString (s : List Char) : String :=
   ⟨s⟩
 
 namespace String
+
+instance : OfNat String.Pos (nat_lit 0) where
+  ofNat := {}
+
 instance : LT String :=
   ⟨fun s₁ s₂ => s₁.data < s₂.data⟩
 
@@ -42,7 +46,7 @@ def toList (s : String) : List Char :=
 
 private def utf8GetAux : List Char → Pos → Pos → Char
   | [],    i, p => default
-  | c::cs, i, p => if i = p then c else utf8GetAux cs (i + csize c) p
+  | c::cs, i, p => if i = p then c else utf8GetAux cs (i + c) p
 
 @[extern "lean_string_utf8_get"]
 def get : (@& String) → (@& Pos) → Char
@@ -54,7 +58,7 @@ def getOp (self : String) (idx : Pos) : Char :=
 private def utf8SetAux (c' : Char) : List Char → Pos → Pos → List Char
   | [],    i, p => []
   | c::cs, i, p =>
-    if i = p then (c'::cs) else c::(utf8SetAux c' cs (i + csize c) p)
+    if i = p then (c'::cs) else c::(utf8SetAux c' cs (i + c) p)
 
 @[extern "lean_string_utf8_set"]
 def set : String → (@& Pos) → Char → String
@@ -66,13 +70,12 @@ def modify (s : String) (i : Pos) (f : Char → Char) : String :=
 @[extern "lean_string_utf8_next"]
 def next (s : @& String) (p : @& Pos) : Pos :=
   let c := get s p
-  p + csize c
+  p + c
 
 private def utf8PrevAux : List Char → Pos → Pos → Pos
   | [],    i, p => 0
   | c::cs, i, p =>
-    let cz := csize c
-    let i' := i + cz
+    let i' := i + c
     if i' = p then i else utf8PrevAux cs i' p
 
 @[extern "lean_string_utf8_prev"]
@@ -83,11 +86,11 @@ def front (s : String) : Char :=
   get s 0
 
 def back (s : String) : Char :=
-  get s (prev s (bsize s))
+  get s (prev s s.endPos)
 
 @[extern "lean_string_utf8_at_end"]
 def atEnd : (@& String) → (@& Pos) → Bool
-  | s, p => p ≥ utf8ByteSize s
+  | s, p => p.byteIdx ≥ utf8ByteSize s
 
 /- TODO: remove `partial` keywords after we restore the tactic
   framework and wellfounded recursion support -/
@@ -98,7 +101,7 @@ partial def posOfAux (s : String) (c : Char) (stopPos : Pos) (pos : Pos) : Pos :
        else posOfAux s c stopPos (s.next pos)
 
 @[inline] def posOf (s : String) (c : Char) : Pos :=
-  posOfAux s c s.bsize 0
+  posOfAux s c s.endPos 0
 
 partial def revPosOfAux (s : String) (c : Char) (pos : Pos) : Option Pos :=
  if s.get pos == c then some pos
@@ -106,8 +109,8 @@ partial def revPosOfAux (s : String) (c : Char) (pos : Pos) : Option Pos :=
  else revPosOfAux s c (s.prev pos)
 
 def revPosOf (s : String) (c : Char) : Option Pos :=
-  if s.bsize == 0 then none
-  else revPosOfAux s c (s.prev s.bsize)
+  if s.endPos == 0 then none
+  else revPosOfAux s c (s.prev s.endPos)
 
 partial def findAux (s : String) (p : Char → Bool) (stopPos : Pos) (pos : Pos) : Pos :=
   if pos == stopPos then pos
@@ -115,7 +118,7 @@ partial def findAux (s : String) (p : Char → Bool) (stopPos : Pos) (pos : Pos)
        else findAux s p stopPos (s.next pos)
 
 @[inline] def find (s : String) (p : Char → Bool) : Pos :=
-  findAux s p s.bsize 0
+  findAux s p s.endPos 0
 
 partial def revFindAux (s : String) (p : Char → Bool) (pos : Pos) : Option Pos :=
  if p (s.get pos) then some pos
@@ -123,12 +126,15 @@ partial def revFindAux (s : String) (p : Char → Bool) (pos : Pos) : Option Pos
  else revFindAux s p (s.prev pos)
 
 def revFind (s : String) (p : Char → Bool) : Option Pos :=
-  if s.bsize == 0 then none
-  else revFindAux s p (s.prev s.bsize)
+  if s.endPos == 0 then none
+  else revFindAux s p (s.prev s.endPos)
+
+abbrev Pos.min (p₁ p₂ : Pos) : Pos :=
+  { byteIdx := p₁.byteIdx.min p₂.byteIdx }
 
 /-- Returns the first position where the two strings differ. -/
 partial def firstDiffPos (a b : String) : Pos :=
-  let stopPos := a.bsize.min b.bsize
+  let stopPos := a.endPos.min b.endPos
   let rec loop (i : Pos) : Pos :=
     if i == stopPos || a.get i != b.get i then i
     else loop (a.next i)
@@ -136,15 +142,15 @@ partial def firstDiffPos (a b : String) : Pos :=
 
 @[extern "lean_string_utf8_extract"]
 def extract : (@& String) → (@& Pos) → (@& Pos) → String
-  | ⟨s⟩, b, e => if b ≥ e then ⟨[]⟩ else ⟨go₁ s 0 b e⟩
+  | ⟨s⟩, b, e => if b.byteIdx ≥ e.byteIdx then ⟨[]⟩ else ⟨go₁ s 0 b e⟩
 where
   go₁ : List Char → Pos → Pos → Pos → List Char
     | [],        _, _, _ => []
-    | s@(c::cs), i, b, e => if i = b then go₂ s i e else go₁ cs (i + csize c) b e
+    | s@(c::cs), i, b, e => if i = b then go₂ s i e else go₁ cs (i + c) b e
 
   go₂ : List Char → Pos → Pos → List Char
     | [],    _, _ => []
-    | c::cs, i, e => if i = e then [] else c :: go₂ cs (i + csize c) e
+    | c::cs, i, e => if i = e then [] else c :: go₂ cs (i + c) e
 
 
 @[specialize] partial def splitAux (s : String) (p : Char → Bool) (b : Pos) (i : Pos) (r : List String) : List String :=
@@ -153,7 +159,7 @@ where
     r.reverse
   else if p (s.get i) then
     let i := s.next i
-    splitAux s p i i (s.extract b (i-1)::r)
+    splitAux s p i i (s.extract b { byteIdx := i.byteIdx - 1 } :: r)
   else
     splitAux s p b (s.next i) r
 
@@ -162,13 +168,13 @@ where
 
 partial def splitOnAux (s sep : String) (b : Pos) (i : Pos) (j : Pos) (r : List String) : List String :=
   if s.atEnd i then
-    let r := if sep.atEnd j then ""::(s.extract b (i-j))::r else (s.extract b i)::r
+    let r := if sep.atEnd j then ""::(s.extract b (i - j))::r else (s.extract b i)::r
     r.reverse
   else if s.get i == sep.get j then
     let i := s.next i
     let j := sep.next j
     if sep.atEnd j then
-      splitOnAux s sep i i 0 (s.extract b (i-j)::r)
+      splitOnAux s sep i i 0 (s.extract b (i - j)::r)
     else
       splitOnAux s sep b i j r
   else
@@ -187,7 +193,7 @@ def pushn (s : String) (c : Char) (n : Nat) : String :=
   n.repeat (fun s => s.push c) s
 
 def isEmpty (s : String) : Bool :=
-  s.bsize == 0
+  s.endPos == 0
 
 def join (l : List String) : String :=
   l.foldl (fun r s => r ++ s) ""
@@ -213,9 +219,9 @@ def mkIterator (s : String) : Iterator :=
 abbrev iter := mkIterator
 
 instance : SizeOf String.Iterator where
-  sizeOf i := i.1.utf8ByteSize - i.2
+  sizeOf i := i.1.utf8ByteSize - i.2.byteIdx
 
-theorem Iterator.sizeOf_eq (i : String.Iterator) : sizeOf i = i.1.utf8ByteSize - i.2 :=
+theorem Iterator.sizeOf_eq (i : String.Iterator) : sizeOf i = i.1.utf8ByteSize - i.2.byteIdx :=
   rfl
 
 namespace Iterator
@@ -223,7 +229,7 @@ def toString : Iterator → String
   | ⟨s, _⟩ => s
 
 def remainingBytes : Iterator → Nat
-  | ⟨s, i⟩ => s.bsize - i
+  | ⟨s, i⟩ => s.endPos.byteIdx - i.byteIdx
 
 def pos : Iterator → Pos
   | ⟨s, i⟩ => i
@@ -238,16 +244,16 @@ def prev : Iterator → Iterator
   | ⟨s, i⟩ => ⟨s, s.prev i⟩
 
 def hasNext : Iterator → Bool
-  | ⟨s, i⟩ => i < utf8ByteSize s
+  | ⟨s, i⟩ => i.byteIdx < s.endPos.byteIdx
 
 def hasPrev : Iterator → Bool
-  | ⟨s, i⟩ => i > 0
+  | ⟨s, i⟩ => i.byteIdx > 0
 
 def setCurr : Iterator → Char → Iterator
   | ⟨s, i⟩, c => ⟨s.set i c, i⟩
 
 def toEnd : Iterator → Iterator
-  | ⟨s, _⟩ => ⟨s, s.bsize⟩
+  | ⟨s, _⟩ => ⟨s, s.endPos⟩
 
 def extract : Iterator → Iterator → String
   | ⟨s₁, b⟩, ⟨s₂, e⟩ =>
@@ -259,7 +265,7 @@ def forward : Iterator → Nat → Iterator
   | it, n+1 => forward it.next n
 
 def remainingToString : Iterator → String
-  | ⟨s, i⟩ => s.extract i s.bsize
+  | ⟨s, i⟩ => s.extract i s.endPos
 
 def nextn : Iterator → Nat → Iterator
   | it, 0   => it
@@ -286,7 +292,7 @@ def offsetOfPos (s : String) (pos : Pos) : Nat :=
   loop i a
 
 @[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : String) : α :=
-  foldlAux f s s.bsize 0 init
+  foldlAux f s s.endPos 0 init
 
 @[specialize] partial def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (stopPos : Pos) (i : Pos) : α :=
   let rec loop (i : Pos) :=
@@ -295,7 +301,7 @@ def offsetOfPos (s : String) (pos : Pos) : Nat :=
   loop i
 
 @[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : String) : α :=
-  foldrAux f init s s.bsize 0
+  foldrAux f init s s.endPos 0
 
 @[specialize] partial def anyAux (s : String) (stopPos : Pos) (p : Char → Bool) (i : Pos) : Bool :=
   let rec loop (i : Pos) :=
@@ -305,7 +311,7 @@ def offsetOfPos (s : String) (pos : Pos) : Nat :=
   loop i
 
 @[inline] def any (s : String) (p : Char → Bool) : Bool :=
-anyAux s s.bsize p 0
+anyAux s s.endPos p 0
 
 @[inline] def all (s : String) (p : Char → Bool) : Bool :=
 !s.any (fun c => !p c)
@@ -333,31 +339,32 @@ def toNat? (s : String) : Option Nat :=
     none
 
 /--
-Return `true` iff the substring of length `sz` starting at position `off1` in `s1` is equal to that starting at `off2` in `s2.`.
-False if either substring of that length does not exist. -/
+Return `true` iff the substring of byte size `sz` starting at position `off1` in `s1` is equal to that starting at `off2` in `s2.`.
+False if either substring of that byte size does not exist. -/
 partial def substrEq (s1 : String) (off1 : String.Pos) (s2 : String) (off2 : String.Pos) (sz : Nat) : Bool :=
-  off1 + sz ≤ s1.bsize && off2 + sz ≤ s2.bsize && loop off1 off2 (off1 + sz)
+  off1.byteIdx + sz ≤ s1.endPos.byteIdx && off2.byteIdx + sz ≤ s2.endPos.byteIdx && loop off1 off2 { byteIdx := off1.byteIdx + sz }
 where
   loop (off1 off2 stop1 : Pos) :=
-    if off1 >= stop1 then true
+    if off1.byteIdx >= stop1.byteIdx then
+      true
     else
       let c₁ := s1.get off1
       let c₂ := s2.get off2
-      c₁ == c₂ && loop (off1 + csize c₁) (off2 + csize c₂) stop1
+      c₁ == c₂ && loop (off1 + c₁) (off2 + c₂) stop1
 
 /-- Return true iff `p` is a prefix of `s` -/
 def isPrefixOf (p : String) (s : String) : Bool :=
-  substrEq p 0 s 0 p.bsize
+  substrEq p 0 s 0 p.endPos.byteIdx
 
 /-- Replace all occurrences of `pattern` in `s` with `replacment`. -/
 partial def replace (s pattern replacement : String) : String :=
   loop "" 0 0
 where
   loop (acc : String) (accStop pos : String.Pos) :=
-    if pos + pattern.bsize > s.bsize then
-      acc ++ s.extract accStop s.bsize
-    else if s.substrEq pos pattern 0 pattern.bsize then
-      loop (acc ++ s.extract accStop pos ++ replacement) (pos + pattern.bsize) (pos + pattern.bsize)
+    if pos.byteIdx + pattern.endPos.byteIdx > s.endPos.byteIdx then
+      acc ++ s.extract accStop s.endPos
+    else if s.substrEq pos pattern 0 pattern.endPos.byteIdx then
+      loop (acc ++ s.extract accStop pos ++ replacement) (pos + pattern) (pos + pattern)
     else
       loop acc accStop (s.next pos)
 
@@ -383,20 +390,20 @@ return the offset there of the next codepoint. -/
 @[inline] def next : Substring → String.Pos → String.Pos
   | ⟨s, b, e⟩, p =>
     let absP := b+p
-    if absP = e then p else s.next absP - b
+    if absP = e then p else { byteIdx := (s.next absP).byteIdx - b.byteIdx }
 
 /-- Given an offset of a codepoint into the substring,
 return the offset there of the previous codepoint. -/
 @[inline] def prev : Substring → String.Pos → String.Pos
   | ⟨s, b, _⟩, p =>
     let absP := b+p
-    if absP = b then p else s.prev absP - b
+    if absP = b then p else { byteIdx := (s.prev absP).byteIdx - b.byteIdx }
 
 def nextn : Substring → Nat → String.Pos → String.Pos
   | ss, 0,   p => p
   | ss, i+1, p => ss.nextn i (ss.next p)
 
-def prevn : Substring → String.Pos → Nat → String.Pos
+def prevn : Substring → Nat → String.Pos → String.Pos
   | ss, 0,   p => p
   | ss, i+1, p => ss.prevn i (ss.prev p)
 
@@ -407,19 +414,19 @@ def prevn : Substring → String.Pos → Nat → String.Pos
 or `s.bsize` if `c` doesn't occur. -/
 @[inline] def posOf (s : Substring) (c : Char) : String.Pos :=
   match s with
-  | ⟨s, b, e⟩ => (String.posOfAux s c e b) - b
+  | ⟨s, b, e⟩ => { byteIdx := (String.posOfAux s c e b).byteIdx - b.byteIdx }
 
 @[inline] def drop : Substring → Nat → Substring
   | ss@⟨s, b, e⟩, n => ⟨s, b + ss.nextn n 0, e⟩
 
 @[inline] def dropRight : Substring → Nat → Substring
-  | ss@⟨s, b, e⟩, n => ⟨s, b, b + ss.prevn n ss.bsize⟩
+  | ss@⟨s, b, e⟩, n => ⟨s, b, b + ss.prevn n ⟨ss.bsize⟩⟩
 
 @[inline] def take : Substring → Nat → Substring
   | ss@⟨s, b, e⟩, n => ⟨s, b, b + ss.nextn n 0⟩
 
 @[inline] def takeRight : Substring → Nat → Substring
-  | ss@⟨s, b, e⟩, n => ⟨s, b + ss.prevn n ss.bsize, e⟩
+  | ss@⟨s, b, e⟩, n => ⟨s, b + ss.prevn n ⟨ss.bsize⟩, e⟩
 
 @[inline] def atEnd : Substring → String.Pos → Bool
   | ⟨s, b, e⟩, p => b + p == e
@@ -432,7 +439,7 @@ partial def splitOn (s : Substring) (sep : String := " ") : List Substring :=
     [s]
   else
     let rec loop (b i j : String.Pos) (r : List Substring) : List Substring :=
-      if i == s.bsize then
+      if i.byteIdx == s.bsize then
         let r := if sep.atEnd j then
           "".toSubstring :: s.extract b (i-j) :: r
         else
@@ -570,7 +577,7 @@ def trim (s : String) : String :=
   s.toSubstring.trim.toString
 
 @[inline] def nextWhile (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos :=
-  Substring.takeWhileAux s s.bsize p i
+  Substring.takeWhileAux s s.endPos p i
 
 @[inline] def nextUntil (s : String) (p : Char → Bool) (i : String.Pos) : String.Pos :=
   nextWhile s (fun c => !p c) i

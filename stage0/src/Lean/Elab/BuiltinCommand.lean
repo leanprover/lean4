@@ -14,7 +14,7 @@ namespace Lean.Elab.Command
 @[builtinCommandElab moduleDoc] def elabModuleDoc : CommandElab := fun stx => do
    match stx[1] with
    | Syntax.atom _ val =>
-     let doc := val.extract 0 (val.bsize - 2)
+     let doc := val.extract 0 (val.endPos - ⟨2⟩)
      let range ← Elab.getDeclarationRange stx
      modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
    | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"

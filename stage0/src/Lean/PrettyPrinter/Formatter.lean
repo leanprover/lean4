@@ -163,7 +163,7 @@ def group (x : Formatter) : Formatter := do
 def withMaybeTag (pos? : Option String.Pos) (x : FormatterM Unit) : Formatter := do
   if let some p := pos? then
     concat x
-    modify fun st => { st with stack := st.stack.modify (st.stack.size - 1) (Format.tag p) }
+    modify fun st => { st with stack := st.stack.modify (st.stack.size - 1) (Format.tag p.byteIdx) }
   else
     x
 
@@ -183,11 +183,11 @@ constant mkAntiquot.formatter' (name : String) (kind : Option SyntaxNodeKind) (a
 @[extern "lean_pretty_printer_formatter_interpret_parser_descr"]
 constant interpretParserDescr' : ParserDescr → CoreM Formatter
 
-private def SourceInfo.getExprPos? : SourceInfo → Option Nat
+private def SourceInfo.getExprPos? : SourceInfo → Option String.Pos
   | SourceInfo.synthetic pos _ => pos
   | _ => none
 
-private def getExprPos? : Syntax → Option Nat
+private def getExprPos? : Syntax → Option String.Pos
   | Syntax.node info _ _ => SourceInfo.getExprPos? info
   | Syntax.atom info _ => SourceInfo.getExprPos? info
   | Syntax.ident info _ _ _ => SourceInfo.getExprPos? info
@@ -327,7 +327,7 @@ def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
   if st.leadWord != "" && tk.trimRight == tk then
     let tk' := tk.trimLeft
     let t ← parseToken $ tk' ++ st.leadWord
-    if t.pos <= tk'.bsize then
+    if t.pos <= tk'.endPos then
       -- stopped within `tk` => use it as is, extend `leadWord` if not prefixed by whitespace
       push tk
       modify fun st => { st with leadWord := if tk.trimLeft == tk then tk ++ st.leadWord else "" }

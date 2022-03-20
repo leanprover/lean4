@@ -25,7 +25,9 @@ LEAN_EXPORT uint64_t l_instHashableBool(uint8_t);
 LEAN_EXPORT lean_object* l_instHashableOption(lean_object*);
 LEAN_EXPORT uint64_t l_instHashableInt(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instHashablePos___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instHashableFin___boxed(lean_object*);
+LEAN_EXPORT uint64_t l_instHashablePos(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_instHashableList___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_instHashableUInt64___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instHashableProd(lean_object*, lean_object*);
@@ -73,6 +75,24 @@ _start:
 {
 uint64_t x_2; lean_object* x_3; 
 x_2 = l_instHashableNat(x_1);
+lean_dec(x_1);
+x_3 = lean_box_uint64(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT uint64_t l_instHashablePos(lean_object* x_1) {
+_start:
+{
+uint64_t x_2; 
+x_2 = lean_uint64_of_nat(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_instHashablePos___boxed(lean_object* x_1) {
+_start:
+{
+uint64_t x_2; lean_object* x_3; 
+x_2 = l_instHashablePos(x_1);
 lean_dec(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;

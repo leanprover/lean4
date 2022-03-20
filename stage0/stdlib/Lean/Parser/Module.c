@@ -15,6 +15,7 @@ extern "C" {
 #endif
 static lean_object* l_Lean_Parser_parseHeader___closed__1;
 static lean_object* l___regBuiltin_Lean_Parser_Module_prelude_formatter___closed__2;
+lean_object* l_String_csize(uint32_t);
 static lean_object* l_Lean_Parser_Module_import___elambda__1___closed__5;
 static lean_object* l_Lean_Parser_Module_import___elambda__1___closed__15;
 static lean_object* l_Lean_Parser_Module_prelude___elambda__1___lambda__2___closed__3;
@@ -157,11 +158,13 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Parser_testParseMod
 static lean_object* l_Lean_Parser_Module_import_parenthesizer___closed__1;
 lean_object* l_Lean_Parser_initCacheForInput(lean_object*);
 static lean_object* l_Lean_Parser_Module_import___elambda__1___closed__4;
+static lean_object* l___private_Lean_Parser_Module_0__Lean_Parser_consumeInput___closed__2;
 static lean_object* l_Lean_Parser_testParseModuleAux_parse___closed__1;
 static lean_object* l_Lean_Parser_Module_import___elambda__1___closed__11;
 static lean_object* l_Lean_Parser_Module_module_parenthesizer___closed__2;
 static lean_object* l_Lean_Parser_testParseModuleAux_parse___closed__2;
 static lean_object* l_Lean_Parser_Module_header___elambda__1___closed__2;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Parser_testParseModuleAux_parse___spec__5(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Parser_Module_header_parenthesizer___closed__2;
 static lean_object* l_Lean_Parser_Module_prelude___elambda__1___closed__13;
@@ -3981,6 +3984,15 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l___private_Lean_Parser_Module_0__Lean_Parser_consumeInput___closed__2() {
+_start:
+{
+uint32_t x_1; lean_object* x_2; 
+x_1 = 32;
+x_2 = l_String_csize(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Module_0__Lean_Parser_consumeInput(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -4020,7 +4032,7 @@ else
 lean_object* x_14; lean_object* x_15; 
 lean_dec(x_12);
 lean_dec(x_11);
-x_14 = lean_unsigned_to_nat(1u);
+x_14 = l___private_Lean_Parser_Module_0__Lean_Parser_consumeInput___closed__2;
 x_15 = lean_nat_add(x_2, x_14);
 lean_dec(x_2);
 return x_15;
@@ -5934,6 +5946,8 @@ l_Lean_Parser_isExitCommand___closed__4 = _init_l_Lean_Parser_isExitCommand___cl
 lean_mark_persistent(l_Lean_Parser_isExitCommand___closed__4);
 l___private_Lean_Parser_Module_0__Lean_Parser_consumeInput___closed__1 = _init_l___private_Lean_Parser_Module_0__Lean_Parser_consumeInput___closed__1();
 lean_mark_persistent(l___private_Lean_Parser_Module_0__Lean_Parser_consumeInput___closed__1);
+l___private_Lean_Parser_Module_0__Lean_Parser_consumeInput___closed__2 = _init_l___private_Lean_Parser_Module_0__Lean_Parser_consumeInput___closed__2();
+lean_mark_persistent(l___private_Lean_Parser_Module_0__Lean_Parser_consumeInput___closed__2);
 l_Lean_Parser_testParseModuleAux_parse___closed__1 = _init_l_Lean_Parser_testParseModuleAux_parse___closed__1();
 lean_mark_persistent(l_Lean_Parser_testParseModuleAux_parse___closed__1);
 l_Lean_Parser_testParseModuleAux_parse___closed__2 = _init_l_Lean_Parser_testParseModuleAux_parse___closed__2();

@@ -15,7 +15,7 @@ open Snapshots
 open IO
 
 def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
-  IO.eprintln s!"[{s.beginPos}, {s.endPos}]: ```\n{text.source.extract s.beginPos (s.endPos-1)}\n```"
+  IO.eprintln s!"[{s.beginPos}, {s.endPos}]: ```\n{text.source.extract s.beginPos (s.endPos - ⟨1⟩)}\n```"
 
 inductive ElabTaskError where
   | aborted

@@ -225,7 +225,7 @@ namespace Json
 def parse (s : String) : Except String Lean.Json :=
   match Json.Parser.any s.mkIterator with
   | Parsec.ParseResult.success _ res => Except.ok res
-  | Parsec.ParseResult.error it err  => Except.error s!"offset {it.i.repr}: {err}"
+  | Parsec.ParseResult.error it err  => Except.error s!"offset {repr it.i.byteIdx}: {err}"
 
 end Json
 

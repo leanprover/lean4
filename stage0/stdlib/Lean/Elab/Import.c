@@ -32,7 +32,6 @@ lean_object* l_IO_print___at_IO_println___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Elab_printImports___spec__2(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_processHeader___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Elab_printImports___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_processHeader___closed__1;
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
@@ -897,8 +896,13 @@ else
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 lean_dec(x_2);
 x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
 x_6 = lean_ctor_get(x_1, 1);
+lean_inc(x_6);
+lean_dec(x_1);
 x_7 = lean_ctor_get(x_5, 0);
+lean_inc(x_7);
+lean_dec(x_5);
 x_8 = l_Lean_findOLean(x_7, x_3);
 if (lean_obj_tag(x_8) == 0)
 {
@@ -924,6 +928,7 @@ goto _start;
 else
 {
 uint8_t x_15; 
+lean_dec(x_6);
 x_15 = !lean_is_exclusive(x_11);
 if (x_15 == 0)
 {
@@ -947,6 +952,7 @@ return x_18;
 else
 {
 uint8_t x_19; 
+lean_dec(x_6);
 x_19 = !lean_is_exclusive(x_8);
 if (x_19 == 0)
 {
@@ -987,7 +993,6 @@ lean_inc(x_7);
 lean_dec(x_5);
 x_8 = lean_box(0);
 x_9 = l_List_forIn_loop___at_Lean_Elab_printImports___spec__2(x_7, x_8, x_6);
-lean_dec(x_7);
 if (lean_obj_tag(x_9) == 0)
 {
 uint8_t x_10; 
@@ -1057,15 +1062,6 @@ lean_ctor_set(x_21, 1, x_20);
 return x_21;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Elab_printImports___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_List_forIn_loop___at_Lean_Elab_printImports___spec__2(x_1, x_2, x_3);
-lean_dec(x_1);
-return x_4;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);

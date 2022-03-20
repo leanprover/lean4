@@ -7017,7 +7017,6 @@ lean_dec(x_12);
 x_15 = l_List_forIn_loop___at_Lean_Server_References_referringTo___spec__5___closed__1;
 lean_inc(x_2);
 x_16 = l_Lean_SearchPath_findModuleWithExt(x_2, x_15, x_10, x_6);
-lean_dec(x_10);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; 
@@ -7378,7 +7377,6 @@ x_18 = lean_ctor_get(x_15, 0);
 x_19 = l_List_forIn_loop___at_Lean_Server_References_referringTo___spec__5___closed__1;
 lean_inc(x_2);
 x_20 = l_Lean_SearchPath_findModuleWithExt(x_2, x_19, x_10, x_6);
-lean_dec(x_10);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; 
@@ -7599,7 +7597,6 @@ lean_dec(x_15);
 x_65 = l_List_forIn_loop___at_Lean_Server_References_referringTo___spec__5___closed__1;
 lean_inc(x_2);
 x_66 = l_Lean_SearchPath_findModuleWithExt(x_2, x_65, x_10, x_6);
-lean_dec(x_10);
 if (lean_obj_tag(x_66) == 0)
 {
 lean_object* x_67; 
@@ -8395,7 +8392,6 @@ lean_dec(x_15);
 x_16 = l_List_forIn_loop___at_Lean_Server_References_referringTo___spec__5___closed__1;
 lean_inc(x_1);
 x_17 = l_Lean_SearchPath_findModuleWithExt(x_1, x_16, x_11, x_7);
-lean_dec(x_11);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; 
@@ -8661,7 +8657,6 @@ lean_dec(x_6);
 x_67 = l_List_forIn_loop___at_Lean_Server_References_referringTo___spec__5___closed__1;
 lean_inc(x_1);
 x_68 = l_Lean_SearchPath_findModuleWithExt(x_1, x_67, x_11, x_7);
-lean_dec(x_11);
 if (lean_obj_tag(x_68) == 0)
 {
 lean_object* x_69; 

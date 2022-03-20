@@ -59,39 +59,40 @@ variable [Monad m] [MonadStateOf ArgList m]
 
 /-- Process a short option of the form `-x=arg`. -/
 @[inline] def shortOptionWithEq (handle : Char → m α) (opt : String) : m α := do
-  consArg (opt.drop 3); handle opt[1]
+  consArg (opt.drop 3); handle opt[⟨1⟩]
 
 /-- Process a short option of the form `"-x arg"`. -/
 @[inline] def shortOptionWithSpace (handle : Char → m α) (opt : String) : m α := do
-  consArg <| opt.drop 2 |>.trimLeft; handle opt[1]
+  consArg <| opt.drop 2 |>.trimLeft; handle opt[⟨1⟩]
 
 /-- Process a short option of the form `-xarg`. -/
 @[inline] def shortOptionWithArg (handle : Char → m α) (opt : String) : m α := do
-  consArg (opt.drop 2); handle opt[1]
+  consArg (opt.drop 2); handle opt[⟨1⟩]
 
 /-- Process a multiple short options grouped together (ex. `-xyz` as `x`, `y`, `z`). -/
 @[inline] def multiShortOption (handle : Char → m PUnit) (opt : String) : m PUnit := do
-  for i in [1:opt.length] do handle opt[i]
+  -- TODO: this code is assuming all characters are ASCII.
+  for i in [1:opt.length] do handle opt[⟨i⟩]
 
 /-- Splits a long option of the form `"--long foo bar"` into `--long` and `"foo bar"`. -/
 @[inline] def longOptionOrSpace (handle : String → m α) (opt : String) : m α :=
   let pos := opt.posOf ' '
-  let arg := opt.drop pos.succ
+  let arg := opt.drop pos.byteIdx.succ -- TODO: this code is only correct if all characters in `opt` have size 1
   if arg.isEmpty then
     handle opt
   else do
     consArg arg
-    handle <| opt.take pos |>.trimLeft
+    handle <| opt.take pos.byteIdx |>.trimLeft -- TODO: this code is only correct if all characters in `opt` have size 1
 
 /-- Splits a long option of the form `--long=arg` into `--long` and `arg`. -/
 @[inline] def longOptionOrEq (handle : String → m α) (opt : String) : m α :=
   let pos := opt.posOf '='
-  let arg := opt.drop pos.succ
+  let arg := opt.drop pos.byteIdx.succ -- TODO: this code is only correct if all characters in `opt` have size 1
   if arg.isEmpty then
     handle opt
   else do
     consArg arg
-    handle <| opt.take pos
+    handle <| opt.take pos.byteIdx -- TODO: this code is only correct if all characters in `opt` have size 1
 
 /-- Process a long option  of the form `--long`, `--long=arg`, `"--long arg"`. -/
 @[inline] def longOption (handle : String → m α) : String → m α :=
@@ -102,9 +103,9 @@ variable [Monad m] [MonadStateOf ArgList m]
 (shortHandle : Char → m α) (longHandle : String → m α)
 (opt : String) : m α :=
   if opt.length == 2 then -- `-x`
-    shortHandle opt[1]
+    shortHandle opt[⟨1⟩]
   else -- `-c(.+)`
-    match opt[2] with
+    match opt[⟨2⟩] with
     | '=' => -- `-x=arg`
       shortOptionWithEq shortHandle opt
     | ' ' => -- `"-x arg"`
@@ -118,7 +119,7 @@ An option is an argument of length > 1 starting with a dash (`-`).
 An option may consume additional elements of the argument list.
 -/
 @[inline] def option (handlers : OptionHandlers m α) (opt : String) : m α :=
-  if opt[1] == '-' then -- `--(.*)`
+  if opt[⟨1⟩] == '-' then -- `--(.*)`
     longOption handlers.long opt
   else
     shortOption handlers.short handlers.longShort opt

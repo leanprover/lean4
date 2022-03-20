@@ -1459,7 +1459,7 @@ mutual
     let optMotive := doMatch[2]
     let discrs    := doMatch[3]
     let matchAlts := doMatch[5][0].getArgs -- Array of `doMatchAlt`
-    -- TODO: expand `matchAlt`
+    let matchAlts ← matchAlts.foldlM (init := #[]) fun result matchAlt => return result ++ (← liftMacroM <| expandMatchAlt matchAlt)
     let alts ←  matchAlts.mapM fun matchAlt => do
       let patterns := matchAlt[1][0]
       let vars ← getPatternsVarsEx patterns.getSepArgs

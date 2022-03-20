@@ -3,6 +3,8 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Parser.Term
+
 namespace Lean.Elab.Term
 /-
   Recall that
@@ -16,5 +18,40 @@ def expandOptType (ref : Syntax) (optType : Syntax) : Syntax :=
     mkHole ref
   else
     optType[0][1]
+
+open Lean.Parser.Term
+
+/- Helper function for `expandEqnsIntoMatch` -/
+def getMatchAltsNumPatterns (matchAlts : Syntax) : Nat :=
+  let alt0 := matchAlts[0][0]
+  let pats := alt0[1][0].getSepArgs
+  pats.size
+
+/--
+  Expand a match alternative such as `| 0 | 1 => rhs` to an array containing `| 0 => rhs` and `| 1 => rhs`.
+-/
+def expandMatchAlt (stx : Syntax) : MacroM (Array Syntax) :=
+  match stx with
+  | `(matchAltExpr| | $[$patss]|* => $rhs) =>
+     if patss.size ≤ 1 then
+       return #[stx]
+     else
+       patss.mapM fun pats => let pats := #[pats]; `(matchAltExpr| | $[$pats]|* => $rhs)
+  | _ => return #[stx]
+
+def shouldExpandMatchAlt (matchAlt : Syntax) : Bool :=
+  match matchAlt with
+  | `(matchAltExpr| | $[$patss]|* => $rhs) => patss.size > 1
+  | _ => false
+
+def expandMatchAlts? (stx : Syntax) : MacroM (Option Syntax) := do
+  match stx with
+  | `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) =>
+    if alts.any shouldExpandMatchAlt then
+      let alts ← alts.foldlM (init := #[]) fun alts alt => return alts ++ (← expandMatchAlt alt)
+      `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)
+    else
+      return none
+  | _ => return none
 
 end Lean.Elab.Term

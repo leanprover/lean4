@@ -1,6 +1,24 @@
 v4.0.0-m4 (WIP)
 ---------
 
+* Extend `match` syntax: multiple left-hand-sides in a single alternative. Example:
+```lean
+def fib : Nat → Nat
+| 0 | 1 => 1
+| n+2 => fib n + fib (n+1)
+```
+This feature was discussed at [issue 371](https://github.com/leanprover/lean4/issues/371). It was implemented as a macro expansion. Thus, the following is accepted.
+```lean
+inductive StrOrNum where
+  | S (s : String)
+  | I (i : Int)
+
+def StrOrNum.asString (x : StrOrNum) :=
+  match x with
+  | I a | S a => toString a
+```
+
+
 * Improve `#eval` command. Now, when it fails to synthesize a `Lean.MetaEval` instance for the result type, it reduces the type and tries again. The following example now works without additional annotations
 ```lean
 def Foo := List Nat

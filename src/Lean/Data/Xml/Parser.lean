@@ -483,6 +483,6 @@ end Parser
 def parse (s : String) : Except String Element :=
   match Xml.Parser.document s.mkIterator with
   | Parsec.ParseResult.success _ res => Except.ok res
-  | Parsec.ParseResult.error it err  => Except.error s!"offset {it.i.repr}: {err}\n{(it.prevn 10).extract it}"
+  | Parsec.ParseResult.error it err  => Except.error s!"offset {it.i.byteIdx.repr}: {err}\n{(it.prevn 10).extract it}"
 
 end Xml

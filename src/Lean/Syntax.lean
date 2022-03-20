@@ -193,7 +193,7 @@ def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax
         let nPrefix := rawComps.length - nFields
         let prefixSz := rawComps.take nPrefix |>.foldl (init := 0) fun acc (ss : Substring) => acc + ss.bsize + 1
         let prefixSz := prefixSz - 1 -- The last component has no dot
-        rawStr.extract 0 prefixSz :: rawComps.drop nPrefix
+        rawStr.extract 0 ⟨prefixSz⟩ :: rawComps.drop nPrefix
       else
         rawComps
     assert! nameComps.length == rawComps.length
@@ -201,7 +201,7 @@ def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax
       let off := ss.startPos - rawStr.startPos
       let lead := if off == 0 then lead else "".toSubstring
       let trail := if ss.stopPos == rawStr.stopPos then trail else "".toSubstring
-      let info := original lead (pos + off) trail (pos + off + ss.bsize)
+      let info := original lead (pos + off) trail (pos + off + ⟨ss.bsize⟩)
       ident info ss id []
   | ident si _ val _ =>
     let val := val.eraseMacroScopes

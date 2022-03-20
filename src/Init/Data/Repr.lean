@@ -200,6 +200,9 @@ def String.quote (s : String) : String :=
 instance : Repr String where
   reprPrec s _ := s.quote
 
+instance : Repr String.Pos where
+  reprPrec p _ := "{ byteIdx := " ++ repr p.byteIdx ++ " }"
+
 instance : Repr Substring where
   reprPrec s _ := Format.text <| String.quote s.toString ++ ".toSubstring"
 

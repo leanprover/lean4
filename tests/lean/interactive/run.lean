@@ -42,9 +42,9 @@ partial def main (args : List String) : IO Unit := do
         let colon := directive.posOf ':'
         let method := directive.extract 0 colon |>.trim
         -- TODO: correctly compute in presence of Unicode
-        let column := ws.bsize + "--".length
-        let pos : Lsp.Position := { line := line, character := column }
-        let params := if colon < directive.bsize then directive.extract (colon + 1) directive.bsize |>.trim else "{}"
+        let column := ws.endPos + "--"
+        let pos : Lsp.Position := { line := line, character := column.byteIdx }
+        let params := if colon < directive.endPos then directive.extract (colon + ':') directive.endPos |>.trim else "{}"
         match method with
         | "insert" =>
           let params : DidChangeTextDocumentParams := {
@@ -54,7 +54,7 @@ partial def main (args : List String) : IO Unit := do
             }
             contentChanges := #[TextDocumentContentChangeEvent.rangeChange {
               start := pos
-              «end» := { pos with character := pos.character + params.bsize }
+              «end» := { pos with character := pos.character + params.endPos.byteIdx }
             } params]
           }
           let params := toJson params
@@ -74,7 +74,7 @@ partial def main (args : List String) : IO Unit := do
             | throw <| IO.userError s!"failed to parse {params}"
           let params := params.setObjVal! "textDocument" (toJson { uri := uri : TextDocumentIdentifier })
           -- TODO: correctly compute in presence of Unicode
-          let column := ws.bsize + "--".length
+          let column := ws.endPos + "--"
           let params := params.setObjVal! "position" (toJson pos)
           IO.eprintln params
           Ipc.writeRequest ⟨requestNo, method, params⟩

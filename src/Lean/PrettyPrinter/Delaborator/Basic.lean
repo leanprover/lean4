@@ -155,8 +155,8 @@ def whenNotPPOption (opt : Options → Bool) (d : Delab) : Delab := do
   let b ← getPPOption opt
   if b then failure else d
 
-def annotatePos (pos : Nat) (stx : Syntax) : Syntax :=
-  stx.setInfo (SourceInfo.synthetic pos pos)
+def annotatePos (pos : Pos) (stx : Syntax) : Syntax :=
+  stx.setInfo (SourceInfo.synthetic ⟨pos⟩ ⟨pos⟩)
 
 def annotateCurPos (stx : Syntax) : Delab :=
   return annotatePos (← getPos) stx

@@ -94,7 +94,7 @@ open Parser.Term
 #check (match · with | `([1, $ys,*, 2, $zs,*, 3]) => _)
 
 #eval run do
-  match Syntax.setHeadInfo (← `(fun x =>%$(Syntax.atom (SourceInfo.synthetic 2 2) "") x)) (SourceInfo.synthetic 1 1) with
+  match Syntax.setHeadInfo (← `(fun x =>%$(Syntax.atom (SourceInfo.synthetic ⟨2⟩ ⟨2⟩) "") x)) (SourceInfo.synthetic ⟨1⟩ ⟨1⟩) with
   | `(fun%$i1 $x =>%$i2 $y) => pure #[i1.getPos?, i2.getPos?]
   | _ => unreachable!
 

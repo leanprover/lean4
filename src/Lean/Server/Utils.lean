@@ -103,7 +103,7 @@ def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMa
   let start := text.lspPosToUtf8Pos r.start
   let «end» := text.lspPosToUtf8Pos r.«end»
   let pre := text.source.extract 0 start
-  let post := text.source.extract «end» text.source.bsize
+  let post := text.source.extract «end» text.source.endPos
   (pre ++ newText ++ post).toFileMap
 
 open IO
@@ -157,7 +157,7 @@ def publishProgress (m : DocumentMeta) (processing : Array LeanFileProgressProce
   }
 
 def publishProgressAtPos (m : DocumentMeta) (pos : String.Pos) (hOut : FS.Stream) (kind : LeanFileProgressKind := LeanFileProgressKind.processing) : IO Unit :=
-  publishProgress m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.bsize⟩, kind := kind }] hOut
+  publishProgress m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.endPos⟩, kind := kind }] hOut
 
 def publishProgressDone (m : DocumentMeta) (hOut : FS.Stream) : IO Unit :=
   publishProgress m #[] hOut

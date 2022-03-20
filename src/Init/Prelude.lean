@@ -1135,18 +1135,27 @@ Codepoint positions (counting the Unicode codepoints rather than bytes)
 are represented by plain `Nat`s instead.
 Indexing a `String` by a byte position is constant-time, while codepoint
 positions need to be translated internally to byte positions in linear-time. -/
-abbrev String.Pos := Nat
+structure String.Pos where
+  byteIdx : Nat := 0
+
+instance : Inhabited String.Pos where
+  default := {}
+
+instance : DecidableEq String.Pos :=
+  fun ⟨a⟩ ⟨b⟩ => match decEq a b with
+    | isTrue h => isTrue (h ▸ rfl)
+    | isFalse h => isFalse (fun he => String.Pos.noConfusion he fun he => absurd he h)
 
 structure Substring where
-  str : String
+  str      : String
   startPos : String.Pos
-  stopPos : String.Pos
+  stopPos  : String.Pos
 
 instance : Inhabited Substring where
-  default := ⟨"", 0, 0⟩
+  default := ⟨"", {}, {}⟩
 
 @[inline] def Substring.bsize : Substring → Nat
-  | ⟨_, b, e⟩ => e.sub b
+  | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
 
 def String.csize (c : Char) : Nat :=
   c.utf8Size.toNat
@@ -1159,13 +1168,37 @@ where
    | .nil       => 0
    | .cons c cs => hAdd (go cs) (csize c)
 
-@[inline] def String.bsize (s : String) : Nat :=
-  utf8ByteSize s
+instance : HAdd String.Pos String.Pos String.Pos where
+  hAdd p₁ p₂ := { byteIdx := hAdd p₁.byteIdx p₂.byteIdx }
+
+instance : HSub String.Pos String.Pos String.Pos where
+  hSub p₁ p₂ := { byteIdx := HSub.hSub p₁.byteIdx p₂.byteIdx }
+
+instance : HAdd String.Pos Char String.Pos where
+  hAdd p c := { byteIdx := hAdd p.byteIdx (String.csize c) }
+
+instance : HAdd String.Pos String String.Pos where
+  hAdd p s := { byteIdx := hAdd p.byteIdx s.utf8ByteSize }
+
+instance : LE String.Pos where
+  le p₁ p₂ := LE.le p₁.byteIdx p₂.byteIdx
+
+instance : LT String.Pos where
+  lt p₁ p₂ := LT.lt p₁.byteIdx p₂.byteIdx
+
+instance (p₁ p₂ : String.Pos) : Decidable (LE.le p₁ p₂) :=
+  inferInstanceAs (Decidable (LE.le p₁.byteIdx p₂.byteIdx))
+
+instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
+  inferInstanceAs (Decidable (LT.lt p₁.byteIdx p₂.byteIdx))
+
+@[inline] def String.endPos (s : String) : String.Pos :=
+  { byteIdx := utf8ByteSize s }
 
 @[inline] def String.toSubstring (s : String) : Substring := {
   str      := s
-  startPos := 0
-  stopPos  := s.bsize
+  startPos := {}
+  stopPos  := s.endPos
 }
 
 unsafe def unsafeCast {α : Type u} {β : Type v} (a : α) : β :=

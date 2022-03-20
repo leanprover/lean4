@@ -78,7 +78,7 @@ private def spaceUptoLine : Format → Bool → Nat → SpaceResult
   | text s,       flatten, w =>
     let p := s.posOf '\n';
     let off := s.offsetOfPos p;
-    { foundLine := p != s.bsize, foundFlattenedHardLine := flatten && p != s.bsize, space := off }
+    { foundLine := p != s.endPos, foundFlattenedHardLine := flatten && p != s.endPos, space := off }
   | append f₁ f₂, flatten, w => merge w (spaceUptoLine f₁ flatten w) (spaceUptoLine f₂ flatten)
   | nest _ f,     flatten, w => spaceUptoLine f flatten w
   | group f _,    _,       w => spaceUptoLine f true w
@@ -135,14 +135,14 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
     | nest n f => be w (gs' ({ i with f, indent := i.indent + n }::is))
     | text s =>
       let p := s.posOf '\n'
-      if p == s.bsize then
+      if p == s.endPos then
         pushOutput s
         endTags i.activeTags
         be w (gs' is)
       else
-        pushOutput (s.extract 0 p)
+        pushOutput (s.extract {} p)
         pushNewline i.indent.toNat
-        let is := { i with f := text (s.extract (s.next p) s.bsize) }::is
+        let is := { i with f := text (s.extract (s.next p) s.endPos) }::is
         -- after a hard line break, re-evaluate whether to flatten the remaining group
         pushGroup g.flb is gs w >>= be w
     | line =>

@@ -186,7 +186,7 @@ where
     !s.isEmpty &&
     s[0] != '\'' &&
     s[0] != '\"' &&
-    !(s[0] == '`' && (s.bsize == 1 || isIdFirst s[1] || isIdBeginEscape s[1])) &&
+    !(s[0] == '`' && (s.endPos == ⟨1⟩ || isIdFirst s[⟨1⟩] || isIdBeginEscape s[⟨1⟩])) &&
     !s[0].isDigit
 
   processAtom (stx : Syntax) := do

@@ -48,7 +48,7 @@ theorem eq_empty_of_bsize_eq_zero (h : s.endPos = {}) : s = "" := by
 theorem lt_next (s : String) (i : String.Pos) : i.1 < (s.next i).1 := by
   simp_arith [next]; apply one_le_csize
 
-theorem Iterator.sizeOf_next_lt (i : String.Iterator) (h : i.hasNext) : sizeOf i.next < sizeOf i := by
+theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext) : sizeOf i.next < sizeOf i := by
   cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h
   have := String.lt_next s pos
   apply Nat.sub.elim (motive := fun k => k < _) (utf8ByteSize s) (String.next s pos).1
@@ -58,6 +58,12 @@ theorem Iterator.sizeOf_next_lt (i : String.Iterator) (h : i.hasNext) : sizeOf i
     simp_all_arith
   . intro; apply Nat.zero_lt_sub_of_lt h
 
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply String.Iterator.sizeOf_next_lt; assumption)
+macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply String.Iterator.sizeOf_next_lt_of_hasNext; assumption)
+
+theorem Iterator.sizeOf_next_lt_of_atEnd (i : String.Iterator) (h : ¬ i.atEnd = true) : sizeOf i.next < sizeOf i :=
+  have h : i.hasNext = true := by simp_arith [atEnd] at h; simp_arith [hasNext, h]
+  sizeOf_next_lt_of_hasNext i h
+
+macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply String.Iterator.sizeOf_next_lt_of_atEnd; assumption)
 
 end String

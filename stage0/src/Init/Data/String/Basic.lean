@@ -243,6 +243,9 @@ def next : Iterator → Iterator
 def prev : Iterator → Iterator
   | ⟨s, i⟩ => ⟨s, s.prev i⟩
 
+def atEnd : Iterator → Bool
+  | ⟨s, i⟩ => i.byteIdx ≥ s.endPos.byteIdx
+
 def hasNext : Iterator → Bool
   | ⟨s, i⟩ => i.byteIdx < s.endPos.byteIdx
 

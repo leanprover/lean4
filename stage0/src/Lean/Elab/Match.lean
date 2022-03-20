@@ -1087,6 +1087,7 @@ enforce this. -/
   | _ => elabMatchDefault stx expectedType?
 where
   elabMatchDefault (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+    -- TODO: expand matchAlts
     match (← expandNonAtomicDiscrs? stx) with
     | some stxNew => withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
     | none =>

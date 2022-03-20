@@ -135,7 +135,7 @@ def «forall» := leading_parser:leadPrec unicodeSymbol "∀" "forall" >> many1 
 
 def matchAlt (rhsParser : Parser := termParser) : Parser :=
   nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
-    "| " >> ppIndent (sepBy1 termParser ", " >> darrow >> checkColGe "alternative right-hand-side to start in a column greater than or equal to the corresponding '|'" >> rhsParser)
+    "| " >> ppIndent (sepBy1 (sepBy1 termParser ", ") "|" >> darrow >> checkColGe "alternative right-hand-side to start in a column greater than or equal to the corresponding '|'" >> rhsParser)
 /--
   Useful for syntax quotations. Note that generic patterns such as `` `(matchAltExpr| | ... => $rhs) `` should also
   work with other `rhsParser`s (of arity 1). -/

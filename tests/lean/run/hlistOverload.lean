@@ -64,7 +64,9 @@ def xs : HList [Nat, String, Bool] := [0, "hello", true]
 #eval xs
 -- 0 :: "hello" :: true :: []
 
-def ys : HList [Nat, String, Bool] := 0 :: "hello" :: true :: []
+def ys : HList (([Nat] : List Type) ++ ([String, Bool] : List Type)) := 0 :: "hello" :: true :: []
+
+#eval ys
 
 example : xs = ys :=
   rfl

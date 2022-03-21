@@ -4,7 +4,7 @@ inductive T :=
   | int : Int -> T
   | tuple : List T -> T
 
-def T.eval (t : T) : Type :=
+@[reducible] def T.eval (t : T) : Type :=
   @T.rec
     (motive_1 := fun _ => Type)
     (motive_2 := fun _ => Type)
@@ -14,7 +14,7 @@ def T.eval (t : T) : Type :=
     (fun _ _ ih₁ ih₂ => ih₁ × ih₂)
     t
 
-def T.evalList (t : List T) : Type :=
+@[reducible] def T.evalList (t : List T) : Type :=
   @T.rec_1
     (motive_1 := fun _ => Type)
     (motive_2 := fun _ => Type)
@@ -27,7 +27,7 @@ def T.evalList (t : List T) : Type :=
 mutual
   def T.default (τ : T): τ.eval :=
     match τ with
-    | T.int v => (v:Int)
+    | T.int v => v
     | T.tuple τs => defaultList τs
 
   def T.defaultList (τs : List T) : T.evalList τs :=
@@ -48,7 +48,7 @@ inductive T :=
   | int : Int -> T
   | tuple : List T -> T
 
-def T.eval (t : T) : Type :=
+@[reducible] def T.eval (t : T) : Type :=
   @T.rec
     (motive_1 := fun _ => Type)
     (motive_2 := fun _ => Type)
@@ -61,7 +61,7 @@ def T.eval (t : T) : Type :=
       | _  => ih₁ × ih₂)
     t
 
-def T.evalList (t : List T) : Type :=
+@[reducible] def T.evalList (t : List T) : Type :=
   @T.rec_1
     (motive_1 := fun _ => Type)
     (motive_2 := fun _ => Type)
@@ -77,7 +77,7 @@ def T.evalList (t : List T) : Type :=
 mutual
   def T.default (τ : T): τ.eval :=
     match τ with
-    | T.int v => (v:Int)
+    | T.int v => v
     | T.tuple τs => defaultList τs
 
   def T.defaultList (τs : List T) : T.evalList τs :=

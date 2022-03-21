@@ -208,10 +208,10 @@ The `print-paths` command is used internally by Lean 4 server.
 def printPaths (imports : List String := []) : CliStateM PUnit := do
   let (lean, lake) ← getInstall
   let configFile := (← getRootDir) / (← getConfigFile)
-  if (← IO.getEnv invalidConfigEnvVar) matches some .. then
-    IO.eprintln s!"Error parsing '{configFile}'.  Please restart the lean server after fixing the Lake configuration file."
-    exit 1
-  else if (← configFile.pathExists) then
+  if (← configFile.pathExists) then
+    if (← IO.getEnv invalidConfigEnvVar) matches some .. then
+      IO.eprintln s!"Error parsing '{configFile}'.  Please restart the lean server after fixing the Lake configuration file."
+      exit 1
     let ws ← loadWorkspace (← getSubArgs)
     let ctx ← mkBuildContext ws lean lake
     ws.root.buildImportsAndDeps imports |>.run LogMethods.eio ctx

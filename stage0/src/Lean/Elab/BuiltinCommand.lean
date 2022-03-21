@@ -277,11 +277,17 @@ private def mkEvalInstCore (evalClassName : Name) (e : Expr) : MetaM Expr := do
   try
     synthInstance inst
   catch _ =>
-    -- Reduce `α` and try again
+    -- Put `α` in WHNF and try again
     try
-      synthInstance (mkApp (Lean.mkConst evalClassName [u]) (← whnf α))
+      let α ← whnf α
+      synthInstance (mkApp (Lean.mkConst evalClassName [u]) α)
     catch _ =>
-      throwError "expression{indentExpr e}\nhas type{indentExpr α}\nbut instance{indentExpr inst}\nfailed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `{evalClassName}` class"
+      -- Fully reduce `α` and try again
+      try
+        let α ← reduce (skipTypes := false) α
+        synthInstance (mkApp (Lean.mkConst evalClassName [u]) α)
+      catch _ =>
+        throwError "expression{indentExpr e}\nhas type{indentExpr α}\nbut instance{indentExpr inst}\nfailed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `{evalClassName}` class"
 
 private def mkRunMetaEval (e : Expr) : MetaM Expr :=
   withLocalDeclD `env (mkConst ``Lean.Environment) fun env =>

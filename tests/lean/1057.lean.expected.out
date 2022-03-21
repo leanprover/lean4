@@ -1,0 +1,4 @@
+1057.lean:8:2-9:28: error: dependent elimination failed, type mismatch when solving alternative with type
+  motive t Int
+but expected
+  motive t x✝

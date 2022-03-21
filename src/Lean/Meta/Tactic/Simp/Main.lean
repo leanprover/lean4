@@ -71,7 +71,7 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
     | none => return none
     | some projInfo =>
       if projInfo.fromClass then
-        if (← read).simpTheorems.isDeclToUnfold cinfo.name then
+        if (← read).isDeclToUnfold cinfo.name then
           -- We only unfold class projections when the user explicitly requested them to be unfolded.
           -- Recall that `unfoldDefinition?` has support for unfolding this kind of projection.
           withReducibleAndInstances <| unfoldDefinition? e
@@ -101,7 +101,7 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
   let fName := f.constName!
   if (← isProjectionFn fName) then
     return none -- should be reduced by `reduceProjFn?`
-  if (← read).simpTheorems.isDeclToUnfold e.getAppFn.constName! then
+  if (← read).isDeclToUnfold e.getAppFn.constName! then
     withDefault <| unfoldDefinition? e
   else
     return none
@@ -222,7 +222,7 @@ where
     | some n =>
       /- If `OfNat.ofNat` is marked to be unfolded, we do not pack orphan nat literals as `OfNat.ofNat` applications
          to avoid non-termination. See issue #788.  -/
-      if (← getSimpTheorems).isDeclToUnfold ``OfNat.ofNat then
+      if (← readThe Simp.Context).isDeclToUnfold ``OfNat.ofNat then
         return { expr := e }
       else
         return { expr := (← mkNumeral (mkConst ``Nat) n) }
@@ -461,7 +461,7 @@ where
       let mut updated := false
       for x in xs do
         if (← isProof x) then
-          s ← s.add #[] x
+          s ← s.addTheorem x
           updated := true
       if updated then
         withSimpTheorems s f
@@ -491,7 +491,7 @@ where
       trace[Debug.Meta.Tactic.simp] "ctx arrow {rp.expr} -> {q}"
       withLocalDeclD e.bindingName! rp.expr fun h => do
         let s ← getSimpTheorems
-        let s ← s.add #[] h
+        let s ← s.addTheorem h
         withSimpTheorems s do
           let rq ← simp q
           match rq.proof? with
@@ -731,7 +731,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
       let type ← instantiateMVars localDecl.type
       let ctx ← match fvarIdToLemmaId.find? localDecl.fvarId with
         | none => pure ctx
-        | some thmId => pure { ctx with simpTheorems := ctx.simpTheorems.eraseCore thmId }
+        | some thmId => pure { ctx with simpTheorems := ctx.simpTheorems.eraseTheorem thmId }
       match (← simpStep mvarId (mkFVar fvarId) type ctx discharge?) with
       | none => return none
       | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }
@@ -750,7 +750,7 @@ def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option S
     let localDecl ← getLocalDecl h
     let proof  := localDecl.toExpr
     trace[Meta.debug] "adding {localDecl.toExpr}"
-    let simpTheorems ← ctx.simpTheorems.add #[] proof
+    let simpTheorems ← ctx.simpTheorems.addTheorem proof
     ctx := { ctx with simpTheorems }
   match (← simpTarget mvarId ctx discharge?) with
   | none => return TacticResultCNM.closed

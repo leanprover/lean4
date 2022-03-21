@@ -51,7 +51,13 @@ where
         loop lhss alts minors
 
 def assignGoalOf (p : Problem) (e : Expr) : MetaM Unit :=
-  withGoalOf p (assignExprMVar p.mvarId e)
+  withGoalOf p do
+    let mvar := mkMVar p.mvarId
+    let mvarType ← inferType mvar
+    let eType ← inferType e
+    unless (← isDefEq mvarType eType) do
+      throwError "dependent elimination failed, type mismatch when solving alternative with type{indentExpr eType}\nbut expected{indentExpr mvarType}"
+    assignExprMVar p.mvarId e
 
 structure State where
   used            : Std.HashSet Nat := {} -- used alternatives

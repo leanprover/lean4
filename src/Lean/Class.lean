@@ -81,7 +81,7 @@ def addClass (env : Environment) (clsName : Name) : Except String Environment :=
     throw s!"class has already been declared '{clsName}'"
   let some decl := env.find? clsName
     | throw s!"unknown declaration '{clsName}'"
-  unless decl matches .inductInfo .. || decl matches .axiomInfo .. do
+  unless decl matches .inductInfo .. | .axiomInfo .. do
     throw s!"invalid 'class', declaration '{clsName}' must be inductive datatype, structure, or constant"
   let b ← checkOutParam 1 #[] decl.type
   return classExtension.addEntry env { name := clsName, hasOutParam := b }

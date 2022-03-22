@@ -1565,6 +1565,24 @@ private def throwStuckAtUniverseCnstr : TermElabM Unit := do
     logErrorAt uniqueEntries[i].ref (← mkLevelStuckErrorMessage uniqueEntries[i])
   throwErrorAt uniqueEntries[0].ref (← mkLevelStuckErrorMessage uniqueEntries[0])
 
+/--
+  Execute `x` and ensure there in no postponed universe constraint.
+
+  Remark: in previous versions, each `isDefEq u v` invocation would fail if there
+  were pending universe level constraints. With this old approach, we were not able
+  to process
+  ```
+  Functor.map Prod.fst (x s)
+  ```
+  because after elaborating `Prod.fst` and trying to ensure its type
+  match the expected one, we would be stuck at the universe constraint:
+  ```
+  u =?= max u ?v
+  ```
+  Another benefit of using `withoutPostponingUniverseConstraints` is better error messages. Instead
+  of getting a mysterious type mismatch constraint, we get a list of
+  universe contraints the system is stuck at.
+-/
 def withoutPostponingUniverseConstraints (x : TermElabM α) : TermElabM α := do
   let postponed ← getResetPostponed
   try

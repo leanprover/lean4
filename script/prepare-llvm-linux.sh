@@ -9,6 +9,11 @@ set -uo pipefail
 # use full LLVM release for compiling C++ code, but subset for compiling C code and distribution
 
 [[ -d llvm ]] || (mkdir llvm; tar xf $1 --strip-components 1 --directory llvm)
+[[ -d llvm-host ]] || if [[ "$#" -gt 1 ]]; then
+  (mkdir llvm-host; tar xf $2 --strip-components 1 --directory llvm-host)
+else
+  ln -s llvm llvm-host
+fi
 mkdir -p stage1/{bin,lib,lib/glibc,include/clang}
 CP="cp -d"  # preserve symlinks
 # a C compiler!
@@ -34,9 +39,14 @@ $CP $GLIBC/lib/libc_nonshared.a stage1/lib/glibc
 for f in $GLIBC/lib/lib{c,dl,m,rt,pthread}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done
 OPTIONS=()
 echo -n " -DLEAN_STANDALONE=ON"
-echo -n " -DCMAKE_CXX_COMPILER=$PWD/llvm/bin/clang++ -DLEAN_CXX_STDLIB='-Wl,-Bstatic -lc++ -lc++abi -Wl,-Bdynamic'"
-echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter $GLIBC_DEV/include'"
-echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang"
+echo -n " -DCMAKE_CXX_COMPILER=$PWD/llvm-host/bin/clang++ -DLEAN_CXX_STDLIB='-Wl,-Bstatic -lc++ -lc++abi -Wl,-Bdynamic'"
+echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter $GLIBC_DEV/include ${EXTRA_FLAGS:-}'"
+# use target compiler directly when not cross-compiling
+if [[ -L llvm-host ]]; then
+  echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang"
+else
+  echo -n " -DCMAKE_C_COMPILER=$PWD/llvm-host/bin/clang -DLEANC_OPTS='--sysroot $PWD/stage1 -resource-dir $PWD/stage1/lib/clang/14.0.0 ${EXTRA_FLAGS:-}'"
+fi
 # use `-nostdinc` to make sure headers are not visible by default (in particular, not to `#include_next` in the clang headers),
 # but do not change sysroot so users can still link against system libs
 echo -n " -DLEANC_INTERNAL_FLAGS='-nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang"

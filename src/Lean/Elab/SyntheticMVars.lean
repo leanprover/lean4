@@ -198,6 +198,48 @@ private def getSomeSynthethicMVarsRef : TermElabM Syntax := do
   | some mvarDecl => return mvarDecl.stx
   | none          => return Syntax.missing
 
+/--
+  Generate an nicer error message for stuck universe constraints.
+-/
+private def throwStuckAtUniverseCnstr : TermElabM Unit := do
+  -- This code assumes `entries` is not empty. Note that `processPostponed` uses `exceptionOnFailure` to guarantee this property
+  let entries ← getPostponed
+  let mut found : Std.HashSet (Level × Level) := {}
+  let mut uniqueEntries := #[]
+  for entry in entries do
+    let mut lhs := entry.lhs
+    let mut rhs := entry.rhs
+    if Level.normLt rhs lhs then
+      (lhs, rhs) := (rhs, lhs)
+    unless found.contains (lhs, rhs) do
+      found := found.insert (lhs, rhs)
+      uniqueEntries := uniqueEntries.push entry
+  for i in [1:uniqueEntries.size] do
+    logErrorAt uniqueEntries[i].ref (← mkLevelStuckErrorMessage uniqueEntries[i])
+  throwErrorAt uniqueEntries[0].ref (← mkLevelStuckErrorMessage uniqueEntries[0])
+
+/--
+  Try to solve postponed universe constraints, and throws an exception if there are stuck constraints.
+
+  Remark: in previous versions, each `isDefEq u v` invocation would fail if there
+  were pending universe level constraints. With this old approach, we were not able
+  to process
+  ```
+  Functor.map Prod.fst (x s)
+  ```
+  because after elaborating `Prod.fst` and trying to ensure its type
+  match the expected one, we would be stuck at the universe constraint:
+  ```
+  u =?= max u ?v
+  ```
+  Another benefit of using `withoutPostponingUniverseConstraints` is better error messages. Instead
+  of getting a mysterious type mismatch constraint, we get a list of
+  universe contraints the system is stuck at.
+-/
+private def processPostponedUniverseContraints : TermElabM Unit := do
+  unless (← processPostponed (mayPostpone := false) (exceptionOnFailure := true)) do
+    throwStuckAtUniverseCnstr
+
 mutual
 
   partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
@@ -263,7 +305,7 @@ mutual
     Remark: we set `ignoreStuckTC := true` when elaborating `simp` arguments. Then,
     pending TC problems become implicit parameters for the simp theorem.
   -/
-  partial def synthesizeSyntheticMVars (mayPostpone := true) (ignoreStuckTC := false) : TermElabM Unit :=
+  partial def synthesizeSyntheticMVars (mayPostpone := true) (ignoreStuckTC := false) : TermElabM Unit := do
     let rec loop (u : Unit) : TermElabM Unit := do
       withRef (← getSomeSynthethicMVarsRef) <| withIncRecDepth do
         unless (← get).syntheticMVars.isEmpty do
@@ -297,6 +339,8 @@ mutual
             else
               reportStuckSyntheticMVars ignoreStuckTC
     loop ()
+    unless mayPostpone do
+     processPostponedUniverseContraints
 end
 
 def synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := false) : TermElabM Unit :=

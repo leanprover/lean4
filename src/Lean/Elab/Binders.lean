@@ -182,7 +182,7 @@ private partial def elabBindersAux {α} (binders : Array Syntax) (k : Array (Syn
   might be necessary when later adding the same binders back to the local context so that info nodes can
   manually be added for the new fvars; see `MutualDef` for an example. -/
 def elabBindersEx {α} (binders : Array Syntax) (k : Array (Syntax × Expr) → TermElabM α) : TermElabM α :=
-  withoutPostponingUniverseConstraints do
+  universeConstraintsCheckpoint do
     if binders.isEmpty then
       k #[]
     else

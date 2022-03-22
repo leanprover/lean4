@@ -1548,52 +1548,14 @@ unsafe def evalExpr (α) (typeName : Name) (value : Expr) : TermElabM α :=
     addAndCompile decl
     evalConst α name
 
-private def throwStuckAtUniverseCnstr : TermElabM Unit := do
-  -- This code assumes `entries` is not empty. Note that `processPostponed` uses `exceptionOnFailure` to guarantee this property
-  let entries ← getPostponed
-  let mut found : Std.HashSet (Level × Level) := {}
-  let mut uniqueEntries := #[]
-  for entry in entries do
-    let mut lhs := entry.lhs
-    let mut rhs := entry.rhs
-    if Level.normLt rhs lhs then
-      (lhs, rhs) := (rhs, lhs)
-    unless found.contains (lhs, rhs) do
-      found := found.insert (lhs, rhs)
-      uniqueEntries := uniqueEntries.push entry
-  for i in [1:uniqueEntries.size] do
-    logErrorAt uniqueEntries[i].ref (← mkLevelStuckErrorMessage uniqueEntries[i])
-  throwErrorAt uniqueEntries[0].ref (← mkLevelStuckErrorMessage uniqueEntries[0])
-
 /--
-  Execute `x` and ensure there in no postponed universe constraint.
-
-  Remark: in previous versions, each `isDefEq u v` invocation would fail if there
-  were pending universe level constraints. With this old approach, we were not able
-  to process
-  ```
-  Functor.map Prod.fst (x s)
-  ```
-  because after elaborating `Prod.fst` and trying to ensure its type
-  match the expected one, we would be stuck at the universe constraint:
-  ```
-  u =?= max u ?v
-  ```
-  Another benefit of using `withoutPostponingUniverseConstraints` is better error messages. Instead
-  of getting a mysterious type mismatch constraint, we get a list of
-  universe contraints the system is stuck at.
+  Execute `x` and then tries to solve pending universe constraints.
+  Note that, stuck constraints will not be discarded.
 -/
-def withoutPostponingUniverseConstraints (x : TermElabM α) : TermElabM α := do
-  let postponed ← getResetPostponed
-  try
-    let a ← x
-    unless (← processPostponed (mayPostpone := false) (exceptionOnFailure := true)) do
-      throwStuckAtUniverseCnstr
-    setPostponed postponed
-    return a
-  catch ex =>
-    setPostponed postponed
-    throw ex
+def universeConstraintsCheckpoint (x : TermElabM α) : TermElabM α := do
+  let a ← x
+  discard <| processPostponed (mayPostpone := true) (exceptionOnFailure := true)
+  return a
 
 def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : TermElabM ExpandDeclIdResult := do
   let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers

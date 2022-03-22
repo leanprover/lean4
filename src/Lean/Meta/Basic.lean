@@ -1228,7 +1228,8 @@ private def processPostponedStep (exceptionOnFailure : Bool) : MetaM Bool :=
     for p in ps do
       unless (← withReader (fun ctx => { ctx with defEqCtx? := p.ctx? }) <| isLevelDefEqAux p.lhs p.rhs) do
         if exceptionOnFailure then
-          throwError (← mkLevelErrorMessage p)
+          withRef p.ref do
+            throwError (← mkLevelErrorMessage p)
         else
           return false
     return true

@@ -4,10 +4,8 @@
 - [Tour of Lean](./tour.md)
 - [Setting Up Lean](./setup.md)
   - [Quickstart](./quickstart.md)
-
-# [Theorem Proving in Lean](./tpil.md)
-
-# [Examples](./examples.md)
+- [Theorem Proving in Lean](./tpil.md)
+- [Examples](./examples.md)
 
 # Language Manual
 <!-- - [Using Lean](./using_lean.md) -->

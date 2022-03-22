@@ -5,7 +5,7 @@
 - [Setting Up Lean](./setup.md)
   - [Quickstart](./quickstart.md)
 
-# [Theorem Proving in Lean](https://leanprover.github.io/theorem_proving_in_lean4/title_page.html)
+# [Theorem Proving in Lean](./tpil.md)
 
 # [Examples](./examples.md)
 

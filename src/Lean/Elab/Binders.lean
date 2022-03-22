@@ -136,7 +136,7 @@ private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) := do
 private def registerFailedToInferBinderTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit :=
   registerCustomErrorIfMVar type ref "failed to infer binder type"
 
-private def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit := do
+def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit := do
   addTermInfo (isBinder := true) stx fvar
 
 private def ensureAtomicBinderName (binderView : BinderView) : TermElabM Unit :=

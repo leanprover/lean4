@@ -7,6 +7,8 @@
 
 # [Theorem Proving in Lean](https://leanprover.github.io/theorem_proving_in_lean4/title_page.html)
 
+# [Examples](./examples.md)
+
 # Language Manual
 <!-- - [Using Lean](./using_lean.md) -->
 <!-- - [Lexical Structure](./lexical_structure.md) -->

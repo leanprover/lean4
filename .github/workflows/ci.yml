@@ -95,6 +95,7 @@ jobs:
       # squelch error message about missing nixpkgs channel
       NIX_BUILD_SHELL: bash
       LSAN_OPTIONS: max_leaks=10
+      CXX: c++
     steps:
       - name: Checkout
         uses: actions/checkout@v2

@@ -59,7 +59,7 @@ where
       collectProps
 
   collectUsed : StateRefT (Bool × FVarIdSet) MetaM FVarIdSet := do
-    addUsedFVars (← getMVarType' mvarId)
+    addUsedFVars (← instantiateMVars (← getMVarType mvarId))
     collectProps
     return (← get).2
 

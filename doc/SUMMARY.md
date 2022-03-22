@@ -71,4 +71,4 @@
 - [Building This Manual](./dev/mdbook.md)
 - [Fixing Tests](./dev/fixing_tests.md)
 - [Debugging](./dev/debugging.md)
-- [C++ Coding Style](./dev/cpp_coding_style.md)
+<!-- - [C++ Coding Style](./dev/cpp_coding_style.md) -->

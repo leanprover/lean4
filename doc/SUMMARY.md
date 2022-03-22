@@ -5,23 +5,25 @@
 - [Setting Up Lean](./setup.md)
   - [Quickstart](./quickstart.md)
 
+# [Theorem Proving in Lean](https://leanprover.github.io/theorem_proving_in_lean4/title_page.html)
+
 # Language Manual
-- [Using Lean](./using_lean.md)
-- [Lexical Structure](./lexical_structure.md)
-- [Expressions](./expressions.md)
-- [Declarations](./declarations.md)
+<!-- - [Using Lean](./using_lean.md) -->
+<!-- - [Lexical Structure](./lexical_structure.md) -->
+<!-- - [Expressions](./expressions.md) -->
+<!-- - [Declarations](./declarations.md) -->
 - [Organizational features](./organization.md)
   - [Sections](./sections.md)
   - [Namespaces](./namespaces.md)
   - [Implicit Arguments](./implicit.md)
   - [Auto Bound Implicit Arguments](./autobound.md)
-- [Dependent Types](./deptypes.md)
-  - [Simple Type Theory](./simptypes.md)
-  - [Types as objects](./typeobjs.md)
-  - [Function Abstraction and Evaluation](./funabst.md)
-  - [Introducing Definitions](./introdef.md)
-  - [What makes dependent type theory dependent?](./dep.md)
-- [Tactics](./tactics.md)
+<!-- - [Dependent Types](./deptypes.md) -->
+<!--   - [Simple Type Theory](./simptypes.md) -->
+<!--   - [Types as objects](./typeobjs.md) -->
+<!--   - [Function Abstraction and Evaluation](./funabst.md) -->
+<!--   - [Introducing Definitions](./introdef.md) -->
+<!--   - [What makes dependent type theory dependent?](./dep.md) -->
+<!-- - [Tactics](./tactics.md) -->
 - [Syntax Extensions](./syntax.md)
   - [The `do` Notation](./do.md)
   - [User-defined notation](./notation.md)

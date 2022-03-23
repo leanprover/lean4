@@ -9,10 +9,16 @@ import Lean.Hygiene
 
 namespace Lean
 
+/-- A declaration for a LocalContext. This is used to register which free variables are in scope.
+Each declaration comes with
+- `index` the position of the decl in the
+- `fvarId` the unique id of the free variables
+- `userName` the pretty-printable name of the variable
+- `type` the type.
+A `cdecl` is a local constant, a `ldecl` is a let-bound free variable with a `value : Expr`.
+-/
 inductive LocalDecl where
-  /-- A local constant. -/
   | cdecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo)
-  /-- A let-bound variable. -/
   | ldecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool)
   deriving Inhabited
 

@@ -30,6 +30,31 @@ instance : LT Literal := ⟨fun a b => a.lt b⟩
 instance (a b : Literal) : Decidable (a < b) :=
   inferInstanceAs (Decidable (a.lt b))
 
+/--
+Arguments in forallE binders can be labelled as implicit or explicit.
+
+Each `lam` or `forallE` binder comes with a `binderInfo` argument (stored in ExprData).
+This can be set to
+- `default` -- `(x : α)`
+- `implicit` --  `{x : α}`
+- `strict_implicit` -- `⦃x : α⦄`
+- `inst_implicit` -- `[x : α]`.
+- `aux_decl` -- Auxillary definitions are helper methods that
+  Lean generates. `aux_decl` is used for `_match`, `_fun_match`,
+  `_let_match` and the self reference that appears in recursive pattern matching.
+
+The difference between implicit `{}` and strict-implicit `⦃⦄` is how
+implicit arguments are treated that are *not* followed by explicit arguments.
+`{}` arguments are applied eagerly, while `⦃⦄` arguments are left partially applied:
+```lean
+def foo {x : Nat} : Nat := x
+def bar ⦃x : Nat⦄ : Nat := x
+#check foo -- foo : Nat
+#check bar -- bar : ⦃x : Nat⦄ → Nat
+```
+
+See also the Lean manual: https://leanprover.github.io/lean4/doc/expressions.html#implicit-arguments
+-/
 inductive BinderInfo where
   | default | implicit | strictImplicit | instImplicit | auxDecl
   deriving Inhabited, BEq, Repr
@@ -65,20 +90,22 @@ def BinderInfo.isAuxDecl : BinderInfo → Bool
   | BinderInfo.auxDecl => true
   | _                  => false
 
+/-- Expression metadata. Used with the `Expr.mdata` constructor. -/
 abbrev MData := KVMap
 abbrev MData.empty : MData := {}
 
 /--
  Cached hash code, cached results, and other data for `Expr`.
    hash           : 32-bits
-   hasFVar        : 1-bit
-   hasExprMVar    : 1-bit
-   hasLevelMVar   : 1-bit
-   hasLevelParam  : 1-bit
+   hasFVar        : 1-bit -- does it contain free variables?
+   hasExprMVar    : 1-bit -- does it contain metavariables?
+   hasLevelMVar   : 1-bit -- does it contain level metavariables?
+   hasLevelParam  : 1-bit -- does it contain level parameters?
    nonDepLet      : 1-bit
-   binderInfo     : 3-bits
+   binderInfo     : 3-bits -- encoding of BinderInfo
    approxDepth    : 8-bits -- the approximate depth is used to minimize the number of hash collisions
-   looseBVarRange : 16-bits -/
+   looseBVarRange : 16-bits
+-/
 def Expr.Data := UInt64
 
 instance: Inhabited Expr.Data :=
@@ -268,6 +295,7 @@ def hasExprMVar (e : Expr) : Bool :=
 def hasLevelMVar (e : Expr) : Bool :=
   e.data.hasLevelMVar
 
+/-- Does the expression contain level or expression metavariables?-/
 def hasMVar (e : Expr) : Bool :=
   let d := e.data
   d.hasExprMVar || d.hasLevelMVar
@@ -278,6 +306,11 @@ def hasLevelParam (e : Expr) : Bool :=
 def approxDepth (e : Expr) : UInt32 :=
   e.data.approxDepth.toUInt32
 
+/-- The range of de-Bruijn variables that are loose.
+That is, bvars that are not bound by a binder.
+For example, `bvar i` has range `i + 1` and
+an expression with no loose bvars has range `0`.
+-/
 def looseBVarRange (e : Expr) : Nat :=
   e.data.looseBVarRange.toNat
 

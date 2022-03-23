@@ -92,7 +92,7 @@ def Info.range? (i : Info) : Option String.Range :=
 def Info.contains (i : Info) (pos : String.Pos) : Bool :=
   i.range?.any (·.contains pos)
 
-def Info.size? (i : Info) : Option Nat := OptionM.run do
+def Info.size? (i : Info) : Option String.Pos := OptionM.run do
   let pos ← i.pos?
   let tailPos ← i.tailPos?
   return tailPos - pos
@@ -104,12 +104,12 @@ def Info.isSmaller (i₁ i₂ : Info) : Bool :=
   | some _, none => true
   | _, _ => false
 
-def Info.occursBefore? (i : Info) (hoverPos : String.Pos) : Option Nat := OptionM.run do
+def Info.occursBefore? (i : Info) (hoverPos : String.Pos) : Option String.Pos := OptionM.run do
   let tailPos ← i.tailPos?
   guard (tailPos ≤ hoverPos)
   return hoverPos - tailPos
 
-def Info.occursInside? (i : Info) (hoverPos : String.Pos) : Option Nat := OptionM.run do
+def Info.occursInside? (i : Info) (hoverPos : String.Pos) : Option String.Pos := OptionM.run do
   let headPos ← i.pos?
   let tailPos ← i.tailPos?
   guard (headPos ≤ hoverPos && hoverPos < tailPos)
@@ -220,8 +220,8 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
       if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
         let trailSize := i.stx.getTrailingSize
         -- show info at EOF even if strictly outside token + trail
-        let atEOF := tailPos + trailSize == text.source.bsize
-        guard <| pos ≤ hoverPos ∧ (hoverPos < tailPos + trailSize || atEOF)
+        let atEOF := tailPos.byteIdx + trailSize == text.source.endPos.byteIdx
+        guard <| pos ≤ hoverPos ∧ (hoverPos.byteIdx < tailPos.byteIdx + trailSize || atEOF)
         return { ctxInfo := ctx, tacticInfo := ti, useAfter :=
           hoverPos > pos && (hoverPos >= tailPos || !cs.any (hasNestedTactic pos tailPos)) }
       else

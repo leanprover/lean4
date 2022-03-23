@@ -9209,6 +9209,7 @@ x_22 = lean_st_ref_set(x_2, x_16, x_17);
 x_23 = lean_ctor_get(x_22, 1);
 lean_inc(x_23);
 lean_dec(x_22);
+lean_inc(x_13);
 x_24 = l_Lean_findOLean(x_13, x_23);
 if (lean_obj_tag(x_24) == 0)
 {
@@ -9336,6 +9337,7 @@ x_67 = lean_st_ref_set(x_2, x_66, x_17);
 x_68 = lean_ctor_get(x_67, 1);
 lean_inc(x_68);
 lean_dec(x_67);
+lean_inc(x_13);
 x_69 = l_Lean_findOLean(x_13, x_68);
 if (lean_obj_tag(x_69) == 0)
 {

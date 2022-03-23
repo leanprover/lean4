@@ -269,12 +269,20 @@ def mkSimpExt (extName : Name) : IO SimpExtension :=
       | SimpEntry.toUnfoldThms n thms => d.registerDeclToUnfoldThms n thms
   }
 
+abbrev SimpExtensionMap := Std.HashMap Name SimpExtension
+
+builtin_initialize simpExtensionMapRef : IO.Ref SimpExtensionMap ← IO.mkRef {}
+
 def registerSimpAttr (attrName : Name) (attrDescr : String) (extName : Name := attrName.appendAfter "Ext") : IO SimpExtension := do
   let ext ← mkSimpExt extName
-  mkSimpAttr attrName attrDescr ext
+  mkSimpAttr attrName attrDescr ext -- Remark: it will fail if it is not performed during initialization
+  simpExtensionMapRef.modify fun map => map.insert attrName ext
   return ext
 
 builtin_initialize simpExtension : SimpExtension ← registerSimpAttr `simp "simplification theorem"
+
+def getSimpExtension? (attrName : Name) : IO (Option SimpExtension) :=
+  return (← simpExtensionMapRef.get).find? attrName
 
 def getSimpTheorems : CoreM SimpTheorems :=
   simpExtension.getTheorems
@@ -340,4 +348,26 @@ def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM Si
     else
       return d.addDeclToUnfoldCore declName
 
-end Lean.Meta
+abbrev SimpTheoremsArray := Array SimpTheorems
+
+def SimpTheoremsArray.addTheorem (thmsArray : SimpTheoremsArray) (h : Expr) (name? : Option Name := none) : MetaM SimpTheoremsArray :=
+  if thmsArray.isEmpty then
+    let thms : SimpTheorems := {}
+    return #[ (← thms.add #[] h (name? := name?)) ]
+  else
+    thmsArray.modifyM 0 fun thms => thms.add #[] h (name? := name?)
+
+def SimpTheoremsArray.eraseTheorem (thmsArray : SimpTheoremsArray) (thmId : Name) : SimpTheoremsArray :=
+  thmsArray.map fun thms => thms.eraseCore thmId
+
+def SimpTheoremsArray.isErased (thmsArray : SimpTheoremsArray) (thmId : Name) : Bool :=
+  thmsArray.any fun thms => thms.erased.contains thmId
+
+def SimpTheoremsArray.isDeclToUnfold (thmsArray : SimpTheoremsArray) (declName : Name) : Bool :=
+  thmsArray.any fun thms => thms.isDeclToUnfold declName
+
+macro "register_simp_attr" id:ident descr:str : command => `(initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr)
+
+end Meta
+
+end Lean

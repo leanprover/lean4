@@ -50,3 +50,23 @@ example : HListPatternMatch [2, "1"] := rfl
 example : !HListPatternMatch [3, "1"] := rfl
 
 example : HListPatternMatch (1 :: "2" :: []) := rfl
+
+instance : Repr (HList []) where
+  reprPrec xs _ := "[]"
+
+instance [Repr α] (αs : List Type) [Repr (HList αs)] : Repr (HList (α :: αs)) where
+  reprPrec xs _ :=
+    match xs with
+    | x :: xs => repr x ++ " :: " ++ repr xs
+
+def xs : HList [Nat, String, Bool] := [0, "hello", true]
+
+#eval xs
+-- 0 :: "hello" :: true :: []
+
+def ys : HList (([Nat] : List Type) ++ ([String, Bool] : List Type)) := 0 :: "hello" :: true :: []
+
+#eval ys
+
+example : xs = ys :=
+  rfl

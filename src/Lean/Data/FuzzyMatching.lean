@@ -21,18 +21,19 @@ section Utils
     #[f (none, string.get 0, none)]
   else Id.run <| do
     let mut result := Array.mkEmpty string.length
-    result := result.push <| f (none, string.get 0, string.get 1)
-
+    result := result.push <| f (none, string.get 0, string.get ⟨1⟩)
+    -- TODO: the following code is assuming all characters are ASCII
     for i in [2:string.length] do
-      result := result.push <| f (string.get (i - 2), string.get (i - 1), string.get i)
-    result.push <| f (string.get (string.length - 2), string.get (string.length - 1), none)
+      result := result.push <| f (string.get ⟨i - 2⟩, string.get ⟨i - 1⟩, string.get ⟨i⟩)
+    result.push <| f (string.get ⟨string.length - 2⟩, string.get ⟨string.length - 1⟩, none)
 
 private def containsInOrderLower (a b : String) : Bool := Id.run <| do
   if a.isEmpty then
     return true
   let mut aIt := a.mkIterator
-  for i in [:b.bsize] do
-    if aIt.curr.toLower == (b.get i).toLower then
+    -- TODO: the following code is assuming all characters are ASCII
+  for i in [:b.endPos.byteIdx] do
+    if aIt.curr.toLower == (b.get ⟨i⟩).toLower then
       aIt := aIt.next
       if !aIt.hasNext then
         return true
@@ -100,6 +101,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
     penalty := penalty - skipPenalty (wordRoles.get! wordIdx) false (wordIdx == 0)
     result := set result 0 (wordIdx+1) (some penalty) none
 
+  -- TODO: the following code is assuming all characters are ASCII
   for patternIdx in [:pattern.length] do
     let patternComplete := patternIdx == pattern.length - 1
 
@@ -110,16 +112,16 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
         |>.map (· - skipPenalty (wordRoles.get! wordIdx) patternComplete (wordIdx == 0))
 
       let matchScore? :=
-        if allowMatch (pattern.get patternIdx) (word.get wordIdx) (patternRoles.get! patternIdx) (wordRoles.get! wordIdx) then
+        if allowMatch (pattern.get ⟨patternIdx⟩) (word.get ⟨wordIdx⟩) (patternRoles.get! patternIdx) (wordRoles.get! wordIdx) then
           selectBest
             (getMiss result patternIdx wordIdx |>.map (· + matchResult
-              (pattern.get patternIdx) (word.get wordIdx)
+              (pattern.get ⟨patternIdx⟩) (word.get ⟨wordIdx⟩)
               (patternRoles.get! patternIdx) (wordRoles.get! wordIdx)
               false
               (wordIdx == 0)
             ))
             (getMatch result patternIdx wordIdx |>.map (· + matchResult
-              (pattern.get patternIdx) (word.get wordIdx)
+              (pattern.get ⟨patternIdx⟩) (word.get ⟨wordIdx⟩)
               (patternRoles.get! patternIdx) (wordRoles.get! wordIdx)
               true
               (wordIdx == 0)

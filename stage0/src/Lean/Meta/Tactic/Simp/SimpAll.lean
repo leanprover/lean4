@@ -29,18 +29,18 @@ abbrev M := StateRefT State MetaM
 
 private def initEntries : M Unit := do
   let hs ← getNondepPropHyps (← get).mvarId
-  let erased := (← get).ctx.simpTheorems.erased
+  let mut simpThms := (← get).ctx.simpTheorems
   for h in hs do
     let localDecl ← getLocalDecl h
-    unless erased.contains localDecl.userName do
+    unless simpThms.isErased localDecl.userName do
       let fvarId := localDecl.fvarId
       let proof  := localDecl.toExpr
       let id     ← mkFreshUserName `h
-      let simpThms ← (← get).ctx.simpTheorems.add #[] proof (name? := id)
+      simpThms ← simpThms.addTheorem proof (name? := id)
       let entry : Entry := { fvarId := fvarId, userName := localDecl.userName, id := id, type := (← instantiateMVars localDecl.type), proof := proof }
       modify fun s => { s with entries := s.entries.push entry, ctx.simpTheorems := simpThms }
 
-private abbrev getSimpTheorems : M SimpTheorems :=
+private abbrev getSimpTheorems : M SimpTheoremsArray :=
   return (← get).ctx.simpTheorems
 
 private partial def loop : M Bool := do
@@ -50,7 +50,7 @@ private partial def loop : M Bool := do
     let entry := (← get).entries[i]
     let ctx := (← get).ctx
     -- We disable the current entry to prevent it to be simplified to `True`
-    let simpThmsWithoutEntry := (← getSimpTheorems).eraseCore entry.id
+    let simpThmsWithoutEntry := (← getSimpTheorems).eraseTheorem entry.id
     let ctx := { ctx with simpTheorems := simpThmsWithoutEntry }
     match (← simpStep (← get).mvarId entry.proof entry.type ctx) with
     | none => return true -- closed the goal
@@ -66,7 +66,7 @@ private partial def loop : M Bool := do
            In the first round, `h : x ≠ 0` is simplified to `h : ¬ x = 0`. If we don't use the same `id`, in the next round
            the first version would simplify it to `h : True`.
         -/
-        let simpThmsNew ← (← getSimpTheorems).add #[] proofNew (name? := entry.id)
+        let simpThmsNew ← (← getSimpTheorems).addTheorem proofNew (name? := entry.id)
         modify fun s => { s with
           modified         := true
           ctx.simpTheorems := simpThmsNew

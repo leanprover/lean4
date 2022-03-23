@@ -1,5 +1,5 @@
 343.lean:27:11-27:16: warning: declaration uses 'sorry'
-343.lean:30:24-30:54: error: stuck at solving universe constraint
+343.lean:30:0-30:54: error: stuck at solving universe constraint
   max (?u+1) (?u+1) =?= max (?u+1) (?u+1)
 while trying to unify
   Catish.Obj Catish.Obj

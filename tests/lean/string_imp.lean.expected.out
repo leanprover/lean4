@@ -2,8 +2,8 @@
 "cd"
 ""
 2
-0
-2
-4
-String.Iterator.mk "αacc" 2
-6
+{ byteIdx := 0 }
+{ byteIdx := 2 }
+{ byteIdx := 4 }
+String.Iterator.mk "αacc" { byteIdx := 2 }
+{ byteIdx := 6 }

@@ -141,3 +141,17 @@ example : Type 0 := Nat
 def foo.bar : Nat := 1
   --^ textDocument/hover
       --^ textDocument/hover
+
+example : Nat → Nat → Nat :=
+  fun x y =>
+    --^ textDocument/hover
+  --v textDocument/definition
+    x
+  --^ textDocument/hover
+
+example : Nat → Nat → Nat := by
+  intro x y
+      --^ textDocument/hover
+      --v textDocument/definition
+  exact x
+      --^ textDocument/hover

@@ -94,7 +94,7 @@ jobs:
         run: |
           nix build $NIX_BUILD_ARGS .#mdbook .#doc-test -o push-doc
           nix build $NIX_BUILD_ARGS .#doc
-        if: matrix.name == 'Linux'
+        if: matrix.name == 'Nix Linux'
       - name: Push to Cachix
         run: |
           [ -z "$CACHIX_AUTH_TOKEN" ] || cachix push -j4 lean4 ./push-* || true
@@ -110,6 +110,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./result
           destination_dir: ./doc
-        if: matrix.name == 'Linux' && github.ref == 'refs/heads/master' && github.event_name == 'push'
+        if: matrix.name == 'Nix Linux' && github.ref == 'refs/heads/master' && github.event_name == 'push'
       - name: CCache stats
         run: CCACHE_DIR=/nix/var/cache/ccache nix run .#nixpkgs.ccache -- -s

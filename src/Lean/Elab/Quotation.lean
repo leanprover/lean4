@@ -140,7 +140,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
               `(mkSepArray $arr (mkAtom $(getSepFromSplice arg)))
             else pure arr
           let arr ← bindLets arr
-          args := args.append arr
+          args := args.append (appendName := appendName) arr
         else do
           let arg ← quoteSyntax arg
           args := args.push arg

@@ -1548,34 +1548,14 @@ unsafe def evalExpr (α) (typeName : Name) (value : Expr) : TermElabM α :=
     addAndCompile decl
     evalConst α name
 
-private def throwStuckAtUniverseCnstr : TermElabM Unit := do
-  -- This code assumes `entries` is not empty. Note that `processPostponed` uses `exceptionOnFailure` to guarantee this property
-  let entries ← getPostponed
-  let mut found : Std.HashSet (Level × Level) := {}
-  let mut uniqueEntries := #[]
-  for entry in entries do
-    let mut lhs := entry.lhs
-    let mut rhs := entry.rhs
-    if Level.normLt rhs lhs then
-      (lhs, rhs) := (rhs, lhs)
-    unless found.contains (lhs, rhs) do
-      found := found.insert (lhs, rhs)
-      uniqueEntries := uniqueEntries.push entry
-  for i in [1:uniqueEntries.size] do
-    logErrorAt uniqueEntries[i].ref (← mkLevelStuckErrorMessage uniqueEntries[i])
-  throwErrorAt uniqueEntries[0].ref (← mkLevelStuckErrorMessage uniqueEntries[0])
-
-def withoutPostponingUniverseConstraints (x : TermElabM α) : TermElabM α := do
-  let postponed ← getResetPostponed
-  try
-    let a ← x
-    unless (← processPostponed (mayPostpone := false) (exceptionOnFailure := true)) do
-      throwStuckAtUniverseCnstr
-    setPostponed postponed
-    return a
-  catch ex =>
-    setPostponed postponed
-    throw ex
+/--
+  Execute `x` and then tries to solve pending universe constraints.
+  Note that, stuck constraints will not be discarded.
+-/
+def universeConstraintsCheckpoint (x : TermElabM α) : TermElabM α := do
+  let a ← x
+  discard <| processPostponed (mayPostpone := true) (exceptionOnFailure := true)
+  return a
 
 def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : TermElabM ExpandDeclIdResult := do
   let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers

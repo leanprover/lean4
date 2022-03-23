@@ -185,7 +185,7 @@ private partial def truncate (id : Name) (newLen : Nat) : Name :=
          if len' ≤ newLen then
            (id, len')
          else
-           (Name.mkStr p (s.extract 0 (newLen - optDot - len)), newLen)
+           (Name.mkStr p (s.extract 0 ⟨newLen - optDot - len⟩), newLen)
   (go id).1
 
 inductive HoverInfo where
@@ -389,7 +389,7 @@ private def optionCompletion (ctx : ContextInfo) (stx : Syntax) (caps : ClientCa
           if !caps.textDocument?.any (·.completion?.any (·.completionItem?.any (·.insertReplaceSupport?.any (·)))) then
             none -- InsertReplaceEdit not supported by client
           else if let some ⟨start, stop⟩ := stx[1].getRange? then
-            let stop := if trailingDot then stop + 1 else stop
+            let stop := if trailingDot then stop + ' ' else stop
             let range := ⟨ctx.fileMap.utf8PosToLspPos start, ctx.fileMap.utf8PosToLspPos stop⟩
             some { newText := name.toString, insert := range, replace := range : InsertReplaceEdit }
           else
@@ -434,11 +434,11 @@ where
       if headPosLine != hoverLine || headPosLine != tailPosLine then
         best?
       else match best? with
-        | none                         => (HoverInfo.inside (hoverPos - headPos), ctx, info)
-        | some (HoverInfo.after, _, _) => (HoverInfo.inside (hoverPos - headPos), ctx, info)
+        | none                         => (HoverInfo.inside (hoverPos - headPos).byteIdx, ctx, info)
+        | some (HoverInfo.after, _, _) => (HoverInfo.inside (hoverPos - headPos).byteIdx, ctx, info)
         | some (_, _, best) =>
           if info.isSmaller best then
-            (HoverInfo.inside (hoverPos - headPos), ctx, info)
+            (HoverInfo.inside (hoverPos - headPos).byteIdx, ctx, info)
           else
             best?
     else if let some (HoverInfo.inside _, _, _) := best? then

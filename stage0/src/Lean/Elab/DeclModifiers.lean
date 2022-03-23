@@ -88,7 +88,7 @@ def expandOptDocComment? [Monad m] [MonadError m] (optDocComment : Syntax) : m (
   match optDocComment.getOptional? with
   | none   => pure none
   | some s => match s[1] with
-    | Syntax.atom _ val => pure (some (val.extract 0 (val.bsize - 2)))
+    | Syntax.atom _ val => pure (some (val.extract 0 (val.endPos - ⟨2⟩)))
     | _                 => throwErrorAt s "unexpected doc string{indentD s[1]}"
 
 section Methods
@@ -111,7 +111,7 @@ def elabModifiers (stx : Syntax) : m Modifiers := do
   let docString? ← match docCommentStx.getOptional? with
     | none   => pure none
     | some s => match s[1] with
-      | Syntax.atom _ val => pure (some (val.extract 0 (val.bsize - 2)))
+      | Syntax.atom _ val => pure (some (val.extract 0 (val.endPos - ⟨2⟩)))
       | _                 => throwErrorAt s "unexpected doc string{indentD s[1]}"
   let visibility ← match visibilityStx.getOptional? with
     | none   => pure Visibility.regular

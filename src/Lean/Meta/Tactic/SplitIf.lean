@@ -18,7 +18,7 @@ builtin_initialize ext : LazyInitExtension MetaM Simp.Context ←
     s ← s.addConst ``dif_pos
     s ← s.addConst ``dif_neg
     return {
-      simpTheorems  := s
+      simpTheorems  := #[s]
       congrTheorems := (← getSimpCongrTheorems)
       config        := Simp.neutralConfig
     }

@@ -136,7 +136,7 @@ private def matchBinder (stx : Syntax) : TermElabM (Array BinderView) := do
 private def registerFailedToInferBinderTypeInfo (type : Expr) (ref : Syntax) : TermElabM Unit :=
   registerCustomErrorIfMVar type ref "failed to infer binder type"
 
-private def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit := do
+def addLocalVarInfo (stx : Syntax) (fvar : Expr) : TermElabM Unit := do
   addTermInfo (isBinder := true) stx fvar
 
 private def ensureAtomicBinderName (binderView : BinderView) : TermElabM Unit :=
@@ -182,7 +182,7 @@ private partial def elabBindersAux {α} (binders : Array Syntax) (k : Array (Syn
   might be necessary when later adding the same binders back to the local context so that info nodes can
   manually be added for the new fvars; see `MutualDef` for an example. -/
 def elabBindersEx {α} (binders : Array Syntax) (k : Array (Syntax × Expr) → TermElabM α) : TermElabM α :=
-  withoutPostponingUniverseConstraints do
+  universeConstraintsCheckpoint do
     if binders.isEmpty then
       k #[]
     else
@@ -388,12 +388,6 @@ def elabFunBinders {α} (binders : Array Syntax) (expectedType? : Option Expr) (
     let s ← FunBinders.elabFunBindersAux binders 0 { lctx := lctx, localInsts := localInsts, expectedType? := expectedType? }
     resettingSynthInstanceCacheWhen (s.localInsts.size > localInsts.size) <| withLCtx s.lctx s.localInsts <|
       x s.fvars s.expectedType?
-
-/- Helper function for `expandEqnsIntoMatch` -/
-private def getMatchAltsNumPatterns (matchAlts : Syntax) : Nat :=
-  let alt0 := matchAlts[0][0]
-  let pats := alt0[1].getSepArgs
-  pats.size
 
 def expandWhereDecls (whereDecls : Syntax) (body : Syntax) : MacroM Syntax :=
   match whereDecls with

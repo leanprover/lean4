@@ -62,6 +62,7 @@ LEAN_EXPORT lean_object* l_Std_Format_joinSuffix___rarg(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_SpaceResult_space___default;
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_pushGroup___at_Std_Format_pretty___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instToFormatString(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_State_out___default;
 lean_object* lean_nat_sub(lean_object*, lean_object*);

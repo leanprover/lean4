@@ -1040,7 +1040,7 @@ partial def toTerm : Code → M Syntax
     let mut termAlts := #[]
     for alt in alts do
       let rhs ← toTerm alt.rhs
-      let termAlt := mkNode `Lean.Parser.Term.matchAlt #[mkAtomFrom alt.ref "|", alt.patterns, mkAtomFrom alt.ref "=>", rhs]
+      let termAlt := mkNode `Lean.Parser.Term.matchAlt #[mkAtomFrom alt.ref "|", mkNullNode #[alt.patterns], mkAtomFrom alt.ref "=>", rhs]
       termAlts := termAlts.push termAlt
     let termMatchAlts := mkNode `Lean.Parser.Term.matchAlts #[mkNullNode termAlts]
     return mkNode `Lean.Parser.Term.«match» #[mkAtomFrom ref "match", genParam, optMotive, discrs, mkAtomFrom ref "with", termMatchAlts]
@@ -1459,8 +1459,9 @@ mutual
     let optMotive := doMatch[2]
     let discrs    := doMatch[3]
     let matchAlts := doMatch[5][0].getArgs -- Array of `doMatchAlt`
+    let matchAlts ← matchAlts.foldlM (init := #[]) fun result matchAlt => return result ++ (← liftMacroM <| expandMatchAlt matchAlt)
     let alts ←  matchAlts.mapM fun matchAlt => do
-      let patterns := matchAlt[1]
+      let patterns := matchAlt[1][0]
       let vars ← getPatternsVarsEx patterns.getSepArgs
       withRef patterns <| checkNotShadowingMutable vars
       let rhs  := matchAlt[3]

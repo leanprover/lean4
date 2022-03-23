@@ -28,7 +28,9 @@ def Char.digit? (char : Char) : Option Nat :=
 
 mutual
   def lex [Monad m] [MonadExceptOf LexErr m] (it : String.Iterator) : m (List Token) := do
-    if it.hasNext then
+    if it.atEnd then
+      return []
+    else
       match it.curr with
       | '(' => return { text := "(", tok := Tok.lpar } :: (← lex it.next)
       | ')' => return { text := ")", tok := Tok.rpar } :: (← lex it.next)
@@ -37,17 +39,15 @@ mutual
         match other.digit? with
         | none   => throw <| LexErr.unexpected other
         | some d => lexnumber d [other] it.next
-    else
-      return []
 
   def lexnumber [Monad m] [MonadExceptOf LexErr m] (soFar : Nat) (text : List Char) (it : String.Iterator) : m (List Token) :=
-    if it.hasNext then
+    if it.atEnd then
+      return [{ text := text.reverse.asString, tok := Tok.num soFar }]
+    else
       let c := it.curr
       match c.digit? with
       | none   => return { text := text.reverse.asString, tok := Tok.num soFar } :: (← lex it)
       | some d => lexnumber (soFar * 10 + d) (c :: text) it.next
-    else
-      return [{ text := text.reverse.asString, tok := Tok.num soFar }]
 end
 
 #eval lex (m := Except LexErr) "".iter
@@ -64,7 +64,9 @@ namespace NonMutual
 def lex [Monad m] [MonadExceptOf LexErr m] (current? : Option (List Char × Nat)) (it : String.Iterator) : m (List Token) := do
   let currTok := fun
     | (cs, n) => { text := {data := cs.reverse}, tok := Tok.num n }
-  if it.hasNext then
+  if it.atEnd then
+    return current?.toList.map currTok
+  else
     let emit (tok : Token) (xs : List Token) : List Token :=
       match current? with
       | none => tok :: xs
@@ -79,8 +81,6 @@ def lex [Monad m] [MonadExceptOf LexErr m] (current? : Option (List Char × Nat)
           | some d => match current? with
             | none => lex (some ([other], d)) it.next
             | some (tokTxt, soFar) => lex (other :: tokTxt, soFar * 10 + d) it.next
-  else
-    return current?.toList.map currTok
 
 #eval lex (m := Except LexErr) none "".iter
 #eval lex (m := Except LexErr) none "123".iter

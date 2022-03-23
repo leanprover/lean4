@@ -1,5 +1,51 @@
-v4.0.0-m4 (WIP)
+v4.0.0-m4 (23 March 2022)
 ---------
+
+* `simp` now takes user-defined simp-attributes. You can define a new `simp` attribute by creating a file (e.g., `MySimp.lean`) containing
+```lean
+import Lean
+open Lean.Meta
+
+initialize my_ext : SimpExtension ← registerSimpAttr `my_simp "my own simp attribute"
+```
+If you don't neet to acces `my_ext`, you can also use the macro
+```lean
+import Lean
+
+register_simp_attr my_simp "my own simp attribute"
+```
+Recall that the new `simp` attribute is not active in the Lean file where it was defined.
+Here is a small example using the new feature.
+```lean
+import MySimp
+
+def f (x : Nat) := x + 2
+def g (x : Nat) := x + 1
+
+@[my_simp] theorem f_eq : f x = x + 2 := rfl
+@[my_simp] theorem g_eq : g x = x + 1 := rfl
+
+example : f x + g x = 2*x + 3 := by
+  simp_arith [my_simp]
+```
+
+* Extend `match` syntax: multiple left-hand-sides in a single alternative. Example:
+```lean
+def fib : Nat → Nat
+| 0 | 1 => 1
+| n+2 => fib n + fib (n+1)
+```
+This feature was discussed at [issue 371](https://github.com/leanprover/lean4/issues/371). It was implemented as a macro expansion. Thus, the following is accepted.
+```lean
+inductive StrOrNum where
+  | S (s : String)
+  | I (i : Int)
+
+def StrOrNum.asString (x : StrOrNum) :=
+  match x with
+  | I a | S a => toString a
+```
+
 
 * Improve `#eval` command. Now, when it fails to synthesize a `Lean.MetaEval` instance for the result type, it reduces the type and tries again. The following example now works without additional annotations
 ```lean

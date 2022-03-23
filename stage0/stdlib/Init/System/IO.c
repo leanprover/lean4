@@ -3599,7 +3599,6 @@ x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 lean_dec(x_1);
 x_4 = l_System_FilePath_join(x_2, x_3);
-lean_dec(x_3);
 return x_4;
 }
 }

@@ -75,7 +75,7 @@ abbrev mkIdent (info : SourceInfo) (rawVal : Substring) (val : Name) : Syntax :=
   Syntax.ident info rawVal val []
 
 /- Return character after position `pos` -/
-def getNext (input : String) (pos : Nat) : Char :=
+def getNext (input : String) (pos : String.Pos) : Char :=
   input.get (input.next pos)
 
 /- Maximal (and function application) precedence.
@@ -99,7 +99,7 @@ structure ParserCache where
   tokenCache : TokenCacheEntry
 
 def initCacheForInput (input : String) : ParserCache := {
-  tokenCache := { startPos := input.bsize + 1 /- make sure it is not a valid position -/}
+  tokenCache := { startPos := input.endPos + ' ' /- make sure it is not a valid position -/}
 }
 
 abbrev TokenTable := Trie Token
@@ -186,10 +186,10 @@ namespace ParserState
 @[inline] def stackSize (s : ParserState) : Nat :=
   s.stxStack.size
 
-def restore (s : ParserState) (iniStackSz : Nat) (iniPos : Nat) : ParserState :=
+def restore (s : ParserState) (iniStackSz : Nat) (iniPos : String.Pos) : ParserState :=
   { s with stxStack := s.stxStack.shrink iniStackSz, errorMsg := none, pos := iniPos }
 
-def setPos (s : ParserState) (pos : Nat) : ParserState :=
+def setPos (s : ParserState) (pos : String.Pos) : ParserState :=
   { s with pos := pos }
 
 def setCache (s : ParserState) (cache : ParserCache) : ParserState :=
@@ -204,7 +204,7 @@ def popSyntax (s : ParserState) : ParserState :=
 def shrinkStack (s : ParserState) (iniStackSz : Nat) : ParserState :=
   { s with stxStack := s.stxStack.shrink iniStackSz }
 
-def next (s : ParserState) (input : String) (pos : Nat) : ParserState :=
+def next (s : ParserState) (input : String) (pos : String.Pos) : ParserState :=
   { s with pos := input.next pos }
 
 def toErrorMsg (ctx : ParserContext) (s : ParserState) : String :=
@@ -494,7 +494,7 @@ def suppressInsideQuotFn (p : ParserFn) : ParserFn := fun c s =>
 @[inline] def trailingNode (n : SyntaxNodeKind) (prec lhsPrec : Nat) (p : Parser) : TrailingParser :=
   checkPrec prec >> checkLhsPrec lhsPrec >> trailingNodeAux n p >> setLhsPrec prec
 
-def mergeOrElseErrors (s : ParserState) (error1 : Error) (iniPos : Nat) (mergeErrors : Bool) : ParserState :=
+def mergeOrElseErrors (s : ParserState) (error1 : Error) (iniPos : String.Pos) (mergeErrors : Bool) : ParserState :=
   match s with
   | ⟨stack, lhsPrec, pos, cache, some error2⟩ =>
     if pos == iniPos then ⟨stack, lhsPrec, pos, cache, some (if mergeErrors then error1.merge error2 else error2)⟩
@@ -776,10 +776,10 @@ partial def whitespace : ParserFn := fun c s =>
       else s
     else s
 
-def mkEmptySubstringAt (s : String) (p : Nat) : Substring :=
+def mkEmptySubstringAt (s : String) (p : String.Pos) : Substring :=
   { str := s, startPos := p, stopPos := p }
 
-private def rawAux (startPos : Nat) (trailingWs : Bool) : ParserFn := fun c s =>
+private def rawAux (startPos : String.Pos) (trailingWs : Bool) : ParserFn := fun c s =>
   let input   := c.input
   let stopPos := s.pos
   let leading := mkEmptySubstringAt input startPos
@@ -788,11 +788,11 @@ private def rawAux (startPos : Nat) (trailingWs : Bool) : ParserFn := fun c s =>
     let s        := whitespace c s
     let stopPos' := s.pos
     let trailing := { str := input, startPos := stopPos, stopPos := stopPos' : Substring }
-    let atom     := mkAtom (SourceInfo.original leading startPos trailing (startPos + val.bsize)) val
+    let atom     := mkAtom (SourceInfo.original leading startPos trailing (startPos + val)) val
     s.pushSyntax atom
   else
     let trailing := mkEmptySubstringAt input stopPos
-    let atom     := mkAtom (SourceInfo.original leading startPos trailing (startPos + val.bsize)) val
+    let atom     := mkAtom (SourceInfo.original leading startPos trailing (startPos + val)) val
     s.pushSyntax atom
 
 /-- Match an arbitrary Parser and return the consumed String in a `Syntax.atom`. -/
@@ -839,7 +839,7 @@ def quotedCharFn : ParserFn :=
   quotedCharCoreFn isQuotableCharDefault
 
 /-- Push `(Syntax.node tk <new-atom>)` into syntax stack -/
-def mkNodeToken (n : SyntaxNodeKind) (startPos : Nat) : ParserFn := fun c s =>
+def mkNodeToken (n : SyntaxNodeKind) (startPos : String.Pos) : ParserFn := fun c s =>
   let input     := c.input
   let stopPos   := s.pos
   let leading   := mkEmptySubstringAt input startPos
@@ -850,7 +850,7 @@ def mkNodeToken (n : SyntaxNodeKind) (startPos : Nat) : ParserFn := fun c s =>
   let info      := SourceInfo.original leading startPos trailing stopPos
   s.pushSyntax (Syntax.mkLit n val info)
 
-def charLitFnAux (startPos : Nat) : ParserFn := fun c s =>
+def charLitFnAux (startPos : String.Pos) : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos
   if input.atEnd i then s.mkEOIError
@@ -866,7 +866,7 @@ def charLitFnAux (startPos : Nat) : ParserFn := fun c s =>
       if curr == '\'' then mkNodeToken charLitKind startPos c s
       else s.mkUnexpectedError "missing end of character literal"
 
-partial def strLitFnAux (startPos : Nat) : ParserFn := fun c s =>
+partial def strLitFnAux (startPos : String.Pos) : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos
   if input.atEnd i then s.mkUnexpectedErrorAt "unterminated string literal" startPos
@@ -878,7 +878,7 @@ partial def strLitFnAux (startPos : Nat) : ParserFn := fun c s =>
     else if curr == '\\' then andthenFn quotedCharFn (strLitFnAux startPos) c s
     else strLitFnAux startPos c s
 
-def decimalNumberFn (startPos : Nat) (c : ParserContext) : ParserState → ParserState := fun s =>
+def decimalNumberFn (startPos : String.Pos) (c : ParserContext) : ParserState → ParserState := fun s =>
   let s     := takeWhileFn (fun c => c.isDigit) c s
   let input := c.input
   let i     := s.pos
@@ -919,15 +919,15 @@ where
     else
       s
 
-def binNumberFn (startPos : Nat) : ParserFn := fun c s =>
+def binNumberFn (startPos : String.Pos) : ParserFn := fun c s =>
   let s := takeWhile1Fn (fun c => c == '0' || c == '1') "binary number" c s
   mkNodeToken numLitKind startPos c s
 
-def octalNumberFn (startPos : Nat) : ParserFn := fun c s =>
+def octalNumberFn (startPos : String.Pos) : ParserFn := fun c s =>
   let s := takeWhile1Fn (fun c => '0' ≤ c && c ≤ '7') "octal number" c s
   mkNodeToken numLitKind startPos c s
 
-def hexNumberFn (startPos : Nat) : ParserFn := fun c s =>
+def hexNumberFn (startPos : String.Pos) : ParserFn := fun c s =>
   let s := takeWhile1Fn (fun c => ('0' ≤ c && c ≤ '9') || ('a' ≤ c && c ≤ 'f') || ('A' ≤ c && c ≤ 'F')) "hexadecimal number" c s
   mkNodeToken numLitKind startPos c s
 
@@ -966,16 +966,16 @@ def isIdCont : String → ParserState → Bool := fun input s =>
   else
     false
 
-private def isToken (idStartPos idStopPos : Nat) (tk : Option Token) : Bool :=
+private def isToken (idStartPos idStopPos : String.Pos) (tk : Option Token) : Bool :=
   match tk with
   | none    => false
   | some tk =>
      -- if a token is both a symbol and a valid identifier (i.e. a keyword),
      -- we want it to be recognized as a symbol
-    tk.bsize ≥ idStopPos - idStartPos
+    tk.endPos ≥ idStopPos - idStartPos
 
 
-def mkTokenAndFixPos (startPos : Nat) (tk : Option Token) : ParserFn := fun c s =>
+def mkTokenAndFixPos (startPos : String.Pos) (tk : Option Token) : ParserFn := fun c s =>
   match tk with
   | none    => s.mkErrorAt "token" startPos
   | some tk =>
@@ -984,7 +984,7 @@ def mkTokenAndFixPos (startPos : Nat) (tk : Option Token) : ParserFn := fun c s 
     else
       let input     := c.input
       let leading   := mkEmptySubstringAt input startPos
-      let stopPos   := startPos + tk.bsize
+      let stopPos   := startPos + tk
       let s         := s.setPos stopPos
       let s         := whitespace c s
       let wsStopPos := s.pos
@@ -992,7 +992,7 @@ def mkTokenAndFixPos (startPos : Nat) (tk : Option Token) : ParserFn := fun c s 
       let atom      := mkAtom (SourceInfo.original leading startPos trailing stopPos) tk
       s.pushSyntax atom
 
-def mkIdResult (startPos : Nat) (tk : Option Token) (val : Name) : ParserFn := fun c s =>
+def mkIdResult (startPos : String.Pos) (tk : Option Token) (val : Name) : ParserFn := fun c s =>
   let stopPos           := s.pos
   if isToken startPos stopPos tk then
     mkTokenAndFixPos startPos tk c s
@@ -1007,7 +1007,7 @@ def mkIdResult (startPos : Nat) (tk : Option Token) (val : Name) : ParserFn := f
     let atom            := mkIdent info rawVal val
     s.pushSyntax atom
 
-partial def identFnAux (startPos : Nat) (tk : Option Token) (r : Name) : ParserFn :=
+partial def identFnAux (startPos : String.Pos) (tk : Option Token) (r : Name) : ParserFn :=
   let rec parse (r : Name) (c s) := Id.run <| do
     let input := c.input
     let i     := s.pos
@@ -1044,7 +1044,7 @@ partial def identFnAux (startPos : Nat) (tk : Option Token) (r : Name) : ParserF
 private def isIdFirstOrBeginEscape (c : Char) : Bool :=
   isIdFirst c || isIdBeginEscape c
 
-private def nameLitAux (startPos : Nat) : ParserFn := fun c s =>
+private def nameLitAux (startPos : String.Pos) : ParserFn := fun c s =>
   let input := c.input
   let s     := identFnAux startPos none Name.anonymous c (s.next input startPos)
   if s.hasError then
@@ -1073,7 +1073,7 @@ private def tokenFnAux : ParserFn := fun c s =>
     let (_, tk) := c.tokens.matchPrefix input i
     identFnAux i tk Name.anonymous c s
 
-private def updateCache (startPos : Nat) (s : ParserState) : ParserState :=
+private def updateCache (startPos : String.Pos) (s : ParserState) : ParserState :=
   -- do not cache token parsing errors, which are rare and usually fatal and thus not worth an extra field in `TokenCache`
   match s with
   | ⟨stack, lhsPrec, pos, cache, none⟩ =>
@@ -1191,7 +1191,7 @@ def nonReservedSymbolInfo (sym : String) (includeIdent : Bool) : ParserInfo := {
   { info := nonReservedSymbolInfo sym includeIdent,
     fn   := nonReservedSymbolFn sym }
 
-partial def strAux (sym : String) (errorMsg : String) (j : Nat) :ParserFn :=
+partial def strAux (sym : String) (errorMsg : String) (j : String.Pos) :ParserFn :=
   let rec parse (j c s) :=
     if sym.atEnd j then s
     else

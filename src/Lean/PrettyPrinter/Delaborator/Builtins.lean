@@ -629,8 +629,8 @@ def delabOfScientific : Delab := whenPPOption getPPCoercions do
   if s && e == str.length then
     return Syntax.mkScientificLit ("0." ++ str)
   else if s && e < str.length then
-    let mStr := str.extract 0 (str.length - e)
-    let eStr := str.extract (str.length - e) str.length
+    let mStr := str.extract 0 ⟨str.length - e⟩
+    let eStr := str.extract ⟨str.length - e⟩ ⟨str.length⟩
     return Syntax.mkScientificLit (mStr ++ "." ++ eStr)
   else
     return Syntax.mkScientificLit (str ++ "e" ++ (if s then "-" else "") ++ toString e)

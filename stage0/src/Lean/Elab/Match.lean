@@ -4,13 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.CollectFVars
+import Lean.Parser.Term
 import Lean.Meta.Match.MatchPatternAttr
 import Lean.Meta.Match.Match
 import Lean.Meta.GeneralizeVars
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.Arg
-import Lean.Parser.Term
 import Lean.Elab.PatternVar
+import Lean.Elab.BindersUtil
 
 namespace Lean.Elab.Term
 open Meta
@@ -1070,7 +1071,6 @@ where
   isAtomicIdent (stx : Syntax) : Bool :=
     stx.isIdent && stx.getId.eraseMacroScopes.isAtomic
 
--- leading_parser "match " >> optional generalizingParam >> optional motive >> sepBy1 matchDiscr ", " >> " with " >> ppDedent matchAlts
 /--
 Pattern matching. `match e, ... with | p, ... => f | ...` matches each given
 term `e` against each pattern `p` of a match alternative. When all patterns
@@ -1087,6 +1087,9 @@ enforce this. -/
   | _ => elabMatchDefault stx expectedType?
 where
   elabMatchDefault (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
+    match (← liftMacroM <| expandMatchAlts? stx) with
+    | some stxNew => withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
+    | none =>
     match (← expandNonAtomicDiscrs? stx) with
     | some stxNew => withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
     | none =>

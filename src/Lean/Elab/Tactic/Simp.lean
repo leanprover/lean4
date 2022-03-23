@@ -109,6 +109,11 @@ structure ElabSimpArgsResult where
   ctx     : Simp.Context
   starArg : Bool := false
 
+inductive ResolveSimpIdResult where
+  | none
+  | expr (e : Expr)
+  | ext  (ext : SimpExtension)
+
 /--
   Elaborate extra simp theorems provided to `simp`. `stx` is of the `simpTheorem,*`
   If `eraseLocal == true`, then we consider local declarations when resolving names for erased theorems (`- id`),
@@ -126,8 +131,9 @@ private def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool)
     syntax simpErase := "-" ident
     -/
     withMainContext do
-      let mut thms    := ctx.simpTheorems
-      let mut starArg := false
+      let mut thmsArray := ctx.simpTheorems
+      let mut thms      := thmsArray[0]
+      let mut starArg   := false
       for arg in stx[1].getSepArgs do
         if arg.getKind == ``Lean.Parser.Tactic.simpErase then
           if eraseLocal && (← Term.isLocalIdent? arg[1]).isSome then
@@ -144,23 +150,35 @@ private def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool)
               arg[0][0].getKind == ``Parser.Tactic.simpPost
           let inv  := !arg[1].isNone
           let term := arg[2]
+
           match (← resolveSimpIdTheorem? term) with
-          | some e => thms ← addDeclToUnfoldOrTheorem thms e post inv
-          | _      => thms ← addSimpTheorem thms term post inv
+          | .expr e  => thms ← addDeclToUnfoldOrTheorem thms e post inv
+          | .ext ext => thmsArray := thmsArray.push (← ext.getTheorems)
+          | .none    => thms ← addSimpTheorem thms term post inv
         else if arg.getKind == ``Lean.Parser.Tactic.simpStar then
           starArg := true
         else
           throwUnsupportedSyntax
-      return { ctx := { ctx with simpTheorems := thms }, starArg }
+      return { ctx := { ctx with simpTheorems := thmsArray.set! 0 thms }, starArg }
 where
-  resolveSimpIdTheorem? (simpArgTerm : Syntax) : TacticM (Option Expr) := do
+  resolveSimpIdTheorem? (simpArgTerm : Syntax) : TacticM ResolveSimpIdResult := do
+    let resolveExt (n : Name) : TacticM ResolveSimpIdResult := do
+      if let some ext ← getSimpExtension? n then
+        return .ext ext
+      else
+        return .none
     if simpArgTerm.isIdent then
       try
-        Term.resolveId? simpArgTerm (withInfo := true)
+        if let some e ← Term.resolveId? simpArgTerm (withInfo := true) then
+          return .expr e
+        else
+          resolveExt simpArgTerm.getId
       catch _ =>
-        return none
+        resolveExt simpArgTerm.getId
+    else if let some e ← Term.elabCDotFunctionAlias? simpArgTerm then
+      return .expr e
     else
-      Term.elabCDotFunctionAlias? simpArgTerm
+      return .none
 
 structure MkSimpContextResult where
   ctx              : Simp.Context
@@ -183,25 +201,24 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (ctx := false) (ignoreStarA
   let congrTheorems ← getSimpCongrTheorems
   let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) {
     config      := (← elabSimpConfig stx[1] (ctx := ctx))
-    simpTheorems, congrTheorems
+    simpTheorems := #[simpTheorems], congrTheorems
   }
   if !r.starArg || ignoreStarArg then
     return { r with fvarIdToLemmaId := {}, dischargeWrapper }
   else
     let ctx := r.ctx
-    let erased := ctx.simpTheorems.erased
+    let mut simpTheorems := ctx.simpTheorems
     let hs ← getPropHyps
-    let mut ctx := ctx
     let mut fvarIdToLemmaId := {}
     for h in hs do
       let localDecl ← getLocalDecl h
-      unless erased.contains localDecl.userName do
+      unless simpTheorems.isErased localDecl.userName do
         let fvarId := localDecl.fvarId
         let proof  := localDecl.toExpr
         let id     ← mkFreshUserName `h
         fvarIdToLemmaId := fvarIdToLemmaId.insert fvarId id
-        let simpTheorems ← ctx.simpTheorems.add #[] proof (name? := id)
-        ctx := { ctx with simpTheorems }
+        simpTheorems ← simpTheorems.addTheorem proof (name? := id)
+    let ctx := { ctx with simpTheorems }
     return { ctx, fvarIdToLemmaId, dischargeWrapper }
 
 /--

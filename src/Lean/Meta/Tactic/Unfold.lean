@@ -29,7 +29,7 @@ where
     return Simp.Step.visit { expr := e }
 
 def unfoldTarget (mvarId : MVarId) (declName : Name) : MetaM MVarId := withMVarContext mvarId do
-  let target ← getMVarType' mvarId
+  let target ← instantiateMVars (← getMVarType mvarId)
   let r ← unfold target declName
   applySimpResultToTarget mvarId target r
 

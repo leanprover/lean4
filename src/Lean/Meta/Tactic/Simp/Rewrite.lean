@@ -203,12 +203,18 @@ def simpArith? (e : Expr) : SimpM (Option Step) := do
   return Step.visit { expr := e', proof? := h }
 
 def rewritePre (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
-  let thms := (← read).simpTheorems
-  return Step.visit (← rewrite e thms.pre thms.erased discharge? (tag := "pre"))
+  for thms in (← read).simpTheorems do
+    let r ← rewrite e thms.pre thms.erased discharge? (tag := "pre")
+    if r.proof?.isSome then
+      return Step.visit r
+  return Step.visit { expr := e }
 
 def rewritePost (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
-  let thms := (← read).simpTheorems
-  return Step.visit (← rewrite e thms.post thms.erased discharge? (tag := "post"))
+  for thms in (← read).simpTheorems do
+    let r ← rewrite e thms.post thms.erased discharge? (tag := "post")
+    if r.proof?.isSome then
+      return Step.visit r
+  return Step.visit { expr := e }
 
 def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let s ← rewritePre e discharge?

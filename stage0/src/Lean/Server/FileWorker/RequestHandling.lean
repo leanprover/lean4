@@ -31,7 +31,7 @@ partial def handleCompletion (p : CompletionParams)
   -- NOTE: use `+ 1` since we sometimes want to consider invalid input technically after the command,
   -- such as a trailing dot after an option name. This shouldn't be a problem since any subsequent
   -- command starts with a keyword that (currently?) does not participate in completion.
-  withWaitFindSnap doc (·.endPos + 1 >= pos)
+  withWaitFindSnap doc (·.endPos + ' ' >= pos)
     (notFoundX := pure { items := #[], isIncomplete := true }) fun snap => do
       if let some r ← Completion.find? doc.meta.text pos snap.infoTree caps then
         return r
@@ -382,7 +382,7 @@ where
     if let Syntax.atom info val := stx then
       if (val.length > 0 && val[0].isAlpha) ||
          -- Support for keywords of the form `#<alpha>...`
-         (val.length > 1 && val[0] == '#' && val[1].isAlpha) then
+         (val.length > 1 && val[0] == '#' && val[⟨1⟩].isAlpha) then
         addToken stx SemanticTokenType.keyword
   addToken stx type := do
     let ⟨beginPos, endPos, text, _⟩ ← read
@@ -402,7 +402,7 @@ where
 
 def handleSemanticTokensFull (p : SemanticTokensParams)
     : RequestM (RequestTask SemanticTokens) := do
-  handleSemanticTokens 0 (1 <<< 16)
+  handleSemanticTokens 0 ⟨1 <<< 16⟩
 
 def handleSemanticTokensRange (p : SemanticTokensRangeParams)
     : RequestM (RequestTask SemanticTokens) := do

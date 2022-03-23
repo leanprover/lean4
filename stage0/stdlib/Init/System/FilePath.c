@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
+lean_object* l_String_csize(uint32_t);
 lean_object* lean_string_push(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_System_instDecidableEqFilePath___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_instReprFilePath(lean_object*, lean_object*);
@@ -38,6 +39,7 @@ static lean_object* l_System_FilePath_fileName___closed__1;
 LEAN_EXPORT lean_object* l_System_FilePath_components(lean_object*);
 LEAN_EXPORT lean_object* l_System_instReprFilePath___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_System_FilePath_isAbsolute(lean_object*);
+static lean_object* l_System_FilePath_fileName___closed__3;
 LEAN_EXPORT uint8_t l_List_contains___at___private_Init_System_FilePath_0__System_FilePath_posOfLastSep___spec__1(lean_object*, uint32_t);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_string_utf8_set(lean_object*, lean_object*, uint32_t);
@@ -75,27 +77,28 @@ uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static uint8_t l_System_FilePath_isCaseInsensitive___closed__1;
 lean_object* l_String_revFind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_System_FilePath_0__System_FilePath_posOfLastSep___boxed(lean_object*);
+lean_object* l_String_Iterator_next(lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_withFileName___boxed(lean_object*, lean_object*);
 static lean_object* l_System_FilePath_instDivFilePath___closed__1;
 LEAN_EXPORT uint32_t l_System_FilePath_extSeparator;
 LEAN_EXPORT lean_object* l_System_FilePath_exeExtension;
 LEAN_EXPORT lean_object* l_System_FilePath_parent___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_System_instCoeStringFilePath(lean_object*);
-LEAN_EXPORT lean_object* l_System_FilePath_join___boxed(lean_object*, lean_object*);
 static lean_object* l_System_FilePath_exeExtension___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_System_FilePath_0__System_FilePath_posOfLastSep(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_System_FilePath_0__System_decEqFilePath____x40_Init_System_FilePath___hyg_24____boxed(lean_object*, lean_object*);
+static lean_object* l_System_FilePath_extension___closed__1;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 uint8_t l_String_isEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_String_mapAux___at_System_FilePath_normalize___spec__2(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_instDivFilePath;
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_fileName(lean_object*);
 lean_object* l_String_quote(lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_withExtension___boxed(lean_object*, lean_object*);
 static lean_object* l_System_FilePath_exeExtension___closed__2;
 static lean_object* l_System_FilePath_pathSeparators___closed__3;
+uint32_t l_String_Iterator_curr(lean_object*);
 LEAN_EXPORT lean_object* l_System_SearchPath_toString(lean_object*);
 lean_object* l_Char_toLower(uint32_t);
 LEAN_EXPORT uint8_t l_List_elem___at_System_FilePath_normalize___spec__1(uint32_t, lean_object*);
@@ -107,6 +110,7 @@ LEAN_EXPORT lean_object* l_System_SearchPath_parse(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 static lean_object* l_System_FilePath_pathSeparators___closed__1;
 LEAN_EXPORT lean_object* l_System_FilePath_extension(lean_object*);
+lean_object* lean_string_length(lean_object*);
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_System_instDecidableEqFilePath(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_parent(lean_object*);
@@ -117,9 +121,9 @@ LEAN_EXPORT lean_object* l_System_instToStringFilePath___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_pathSeparators___closed__1___boxed__const__1;
 static lean_object* l_System_FilePath_join___closed__1;
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_System_FilePath_instHDivFilePathString___boxed(lean_object*, lean_object*);
 uint64_t lean_string_hash(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* _init_l_System_instInhabitedFilePath___closed__1() {
 _start:
@@ -621,37 +625,45 @@ x_6 = l_System_Platform_isWindows;
 if (x_6 == 0)
 {
 uint8_t x_7; 
+lean_dec(x_1);
 x_7 = 0;
 return x_7;
 }
 else
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_8 = lean_string_utf8_byte_size(x_1);
+x_8 = lean_string_length(x_1);
 x_9 = lean_unsigned_to_nat(1u);
-x_10 = lean_nat_dec_le(x_9, x_8);
+x_10 = lean_nat_dec_lt(x_9, x_8);
 lean_dec(x_8);
 if (x_10 == 0)
 {
 uint8_t x_11; 
+lean_dec(x_1);
 x_11 = 0;
 return x_11;
 }
 else
 {
-uint32_t x_12; uint32_t x_13; uint8_t x_14; 
-x_12 = lean_string_utf8_get(x_1, x_9);
-x_13 = 58;
-x_14 = lean_uint32_dec_eq(x_12, x_13);
-return x_14;
+lean_object* x_12; lean_object* x_13; uint32_t x_14; uint32_t x_15; uint8_t x_16; 
+x_12 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_12, 0, x_1);
+lean_ctor_set(x_12, 1, x_2);
+x_13 = l_String_Iterator_next(x_12);
+x_14 = l_String_Iterator_curr(x_13);
+lean_dec(x_13);
+x_15 = 58;
+x_16 = lean_uint32_dec_eq(x_14, x_15);
+return x_16;
 }
 }
 }
 else
 {
-uint8_t x_15; 
-x_15 = 1;
-return x_15;
+uint8_t x_17; 
+lean_dec(x_1);
+x_17 = 1;
+return x_17;
 }
 }
 }
@@ -660,7 +672,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_System_FilePath_isAbsolute(x_1);
-lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -689,7 +700,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = l_System_FilePath_isRelative(x_1);
-lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
 }
@@ -708,6 +718,7 @@ LEAN_EXPORT lean_object* l_System_FilePath_join(lean_object* x_1, lean_object* x
 _start:
 {
 uint8_t x_3; 
+lean_inc(x_2);
 x_3 = l_System_FilePath_isAbsolute(x_2);
 if (x_3 == 0)
 {
@@ -715,30 +726,21 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6;
 x_4 = l_System_FilePath_join___closed__1;
 x_5 = lean_string_append(x_1, x_4);
 x_6 = lean_string_append(x_5, x_2);
+lean_dec(x_2);
 return x_6;
 }
 else
 {
 lean_dec(x_1);
-lean_inc(x_2);
 return x_2;
 }
-}
-}
-LEAN_EXPORT lean_object* l_System_FilePath_join___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_System_FilePath_join(x_1, x_2);
-lean_dec(x_2);
-return x_3;
 }
 }
 static lean_object* _init_l_System_FilePath_instDivFilePath___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_System_FilePath_join___boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l_System_FilePath_join), 2, 0);
 return x_1;
 }
 }
@@ -755,15 +757,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_System_FilePath_join(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_System_FilePath_instHDivFilePathString___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_System_FilePath_instHDivFilePathString(x_1, x_2);
-lean_dec(x_2);
 return x_3;
 }
 }
@@ -872,6 +865,15 @@ x_1 = lean_mk_string("..");
 return x_1;
 }
 }
+static lean_object* _init_l_System_FilePath_fileName___closed__3() {
+_start:
+{
+uint32_t x_1; lean_object* x_2; 
+x_1 = 47;
+x_2 = l_String_csize(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_System_FilePath_fileName(lean_object* x_1) {
 _start:
 {
@@ -930,7 +932,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 x_13 = lean_ctor_get(x_2, 0);
-x_14 = lean_unsigned_to_nat(1u);
+x_14 = l_System_FilePath_fileName___closed__3;
 x_15 = lean_nat_add(x_13, x_14);
 lean_dec(x_13);
 x_16 = lean_string_utf8_byte_size(x_1);
@@ -987,7 +989,7 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean
 x_26 = lean_ctor_get(x_2, 0);
 lean_inc(x_26);
 lean_dec(x_2);
-x_27 = lean_unsigned_to_nat(1u);
+x_27 = l_System_FilePath_fileName___closed__3;
 x_28 = lean_nat_add(x_26, x_27);
 lean_dec(x_26);
 x_29 = lean_string_utf8_byte_size(x_1);
@@ -1181,6 +1183,15 @@ return x_29;
 }
 }
 }
+static lean_object* _init_l_System_FilePath_extension___closed__1() {
+_start:
+{
+uint32_t x_1; lean_object* x_2; 
+x_1 = 46;
+x_2 = l_String_csize(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_System_FilePath_extension(lean_object* x_1) {
 _start:
 {
@@ -1220,7 +1231,7 @@ x_11 = lean_nat_dec_eq(x_9, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_12 = lean_unsigned_to_nat(1u);
+x_12 = l_System_FilePath_extension___closed__1;
 x_13 = lean_nat_add(x_9, x_12);
 lean_dec(x_9);
 x_14 = lean_string_utf8_byte_size(x_4);
@@ -1252,7 +1263,7 @@ x_19 = lean_nat_dec_eq(x_17, x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_20 = lean_unsigned_to_nat(1u);
+x_20 = l_System_FilePath_extension___closed__1;
 x_21 = lean_nat_add(x_17, x_20);
 lean_dec(x_17);
 x_22 = lean_string_utf8_byte_size(x_4);
@@ -1284,7 +1295,6 @@ lean_object* x_3;
 x_3 = l_System_FilePath_parent(x_1);
 if (lean_obj_tag(x_3) == 0)
 {
-lean_inc(x_2);
 return x_2;
 }
 else
@@ -1303,7 +1313,6 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_System_FilePath_withFileName(x_1, x_2);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -1332,7 +1341,6 @@ x_6 = l_System_FilePath_fileName___closed__1;
 x_7 = lean_string_append(x_4, x_6);
 x_8 = lean_string_append(x_7, x_2);
 x_9 = l_System_FilePath_withFileName(x_1, x_8);
-lean_dec(x_8);
 lean_dec(x_1);
 return x_9;
 }
@@ -1340,7 +1348,6 @@ else
 {
 lean_object* x_10; 
 x_10 = l_System_FilePath_withFileName(x_1, x_4);
-lean_dec(x_4);
 lean_dec(x_1);
 return x_10;
 }
@@ -1689,6 +1696,10 @@ l_System_FilePath_fileName___closed__1 = _init_l_System_FilePath_fileName___clos
 lean_mark_persistent(l_System_FilePath_fileName___closed__1);
 l_System_FilePath_fileName___closed__2 = _init_l_System_FilePath_fileName___closed__2();
 lean_mark_persistent(l_System_FilePath_fileName___closed__2);
+l_System_FilePath_fileName___closed__3 = _init_l_System_FilePath_fileName___closed__3();
+lean_mark_persistent(l_System_FilePath_fileName___closed__3);
+l_System_FilePath_extension___closed__1 = _init_l_System_FilePath_extension___closed__1();
+lean_mark_persistent(l_System_FilePath_extension___closed__1);
 l_System_SearchPath_separator___closed__1 = _init_l_System_SearchPath_separator___closed__1();
 l_System_SearchPath_separator = _init_l_System_SearchPath_separator();
 l_System_SearchPath_toString___closed__1 = _init_l_System_SearchPath_toString___closed__1();

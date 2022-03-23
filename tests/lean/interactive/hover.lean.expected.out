@@ -179,3 +179,47 @@ null
  {"start": {"line": 140, "character": 4},
   "end": {"line": 140, "character": 11}},
  "contents": {"value": "```lean\nBar.foo.bar : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 145, "character": 6}}
+{"range":
+ {"start": {"line": 145, "character": 6}, "end": {"line": 145, "character": 7}},
+ "contents": {"value": "```lean\nx : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 148, "character": 4}}
+[{"targetUri": "file://hover.lean",
+  "targetSelectionRange":
+  {"start": {"line": 145, "character": 6},
+   "end": {"line": 145, "character": 7}},
+  "targetRange":
+  {"start": {"line": 145, "character": 6},
+   "end": {"line": 145, "character": 7}},
+  "originSelectionRange":
+  {"start": {"line": 148, "character": 4},
+   "end": {"line": 148, "character": 5}}}]
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 148, "character": 4}}
+{"range":
+ {"start": {"line": 148, "character": 4}, "end": {"line": 148, "character": 5}},
+ "contents": {"value": "```lean\nx : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 152, "character": 8}}
+{"range":
+ {"start": {"line": 152, "character": 8}, "end": {"line": 152, "character": 9}},
+ "contents": {"value": "```lean\nx : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 155, "character": 8}}
+[{"targetUri": "file://hover.lean",
+  "targetSelectionRange":
+  {"start": {"line": 152, "character": 8},
+   "end": {"line": 152, "character": 9}},
+  "targetRange":
+  {"start": {"line": 152, "character": 8},
+   "end": {"line": 152, "character": 9}},
+  "originSelectionRange":
+  {"start": {"line": 155, "character": 8},
+   "end": {"line": 155, "character": 9}}}]
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 155, "character": 8}}
+{"range":
+ {"start": {"line": 155, "character": 8}, "end": {"line": 155, "character": 9}},
+ "contents": {"value": "```lean\nx : Nat\n```", "kind": "markdown"}}

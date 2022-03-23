@@ -385,12 +385,6 @@ def elabFunBinders {α} (binders : Array Syntax) (expectedType? : Option Expr) (
     resettingSynthInstanceCacheWhen (s.localInsts.size > localInsts.size) <| withLCtx s.lctx s.localInsts <|
       x s.fvars s.expectedType?
 
-/- Helper function for `expandEqnsIntoMatch` -/
-private def getMatchAltsNumPatterns (matchAlts : Syntax) : Nat :=
-  let alt0 := matchAlts[0][0]
-  let pats := alt0[1].getSepArgs
-  pats.size
-
 def expandWhereDecls (whereDecls : Syntax) (body : Syntax) : MacroM Syntax :=
   match whereDecls with
   | `(whereDecls|where $[$decls:letRecDecl $[;]?]*) => `(let rec $decls:letRecDecl,*; $body)

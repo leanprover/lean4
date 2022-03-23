@@ -17,7 +17,6 @@ LEAN_EXPORT lean_object* l_String_utf16PosToCodepointPos___boxed(lean_object*, l
 LEAN_EXPORT lean_object* l_String_codepointPosToUtf16PosFrom___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_String_utf16Length___closed__1;
 LEAN_EXPORT lean_object* l_String_utf16PosToCodepointPosFrom___boxed(lean_object*, lean_object*, lean_object*);
-extern lean_object* l_instInhabitedNat;
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
@@ -45,6 +44,7 @@ lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
+extern lean_object* l_instInhabitedPos;
 LEAN_EXPORT lean_object* l_Lean_FileMap_utf8PosToLspPos___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_utf16PosToCodepointPos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_codepointPosToUtf8PosFrom___boxed(lean_object*, lean_object*, lean_object*);
@@ -369,7 +369,7 @@ x_9 = l_Array_isEmpty___rarg(x_4);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_10 = l_instInhabitedNat;
+x_10 = l_instInhabitedPos;
 x_11 = l_Array_back___rarg(x_10, x_4);
 x_12 = lean_unsigned_to_nat(0u);
 lean_inc(x_11);
@@ -426,7 +426,7 @@ x_6 = lean_nat_sub(x_3, x_5);
 lean_dec(x_3);
 x_7 = lean_ctor_get(x_1, 0);
 x_8 = lean_ctor_get(x_1, 1);
-x_9 = l_instInhabitedNat;
+x_9 = l_instInhabitedPos;
 x_10 = lean_array_get(x_9, x_8, x_6);
 x_11 = lean_unsigned_to_nat(0u);
 x_12 = l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux(x_7, x_4, x_10, x_11);

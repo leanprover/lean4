@@ -4,24 +4,26 @@
 - [Tour of Lean](./tour.md)
 - [Setting Up Lean](./setup.md)
   - [Quickstart](./quickstart.md)
+- [Theorem Proving in Lean](./tpil.md)
+- [Examples](./examples.md)
 
 # Language Manual
-- [Using Lean](./using_lean.md)
-- [Lexical Structure](./lexical_structure.md)
-- [Expressions](./expressions.md)
-- [Declarations](./declarations.md)
+<!-- - [Using Lean](./using_lean.md) -->
+<!-- - [Lexical Structure](./lexical_structure.md) -->
+<!-- - [Expressions](./expressions.md) -->
+<!-- - [Declarations](./declarations.md) -->
 - [Organizational features](./organization.md)
   - [Sections](./sections.md)
   - [Namespaces](./namespaces.md)
   - [Implicit Arguments](./implicit.md)
   - [Auto Bound Implicit Arguments](./autobound.md)
-- [Dependent Types](./deptypes.md)
-  - [Simple Type Theory](./simptypes.md)
-  - [Types as objects](./typeobjs.md)
-  - [Function Abstraction and Evaluation](./funabst.md)
-  - [Introducing Definitions](./introdef.md)
-  - [What makes dependent type theory dependent?](./dep.md)
-- [Tactics](./tactics.md)
+<!-- - [Dependent Types](./deptypes.md) -->
+<!--   - [Simple Type Theory](./simptypes.md) -->
+<!--   - [Types as objects](./typeobjs.md) -->
+<!--   - [Function Abstraction and Evaluation](./funabst.md) -->
+<!--   - [Introducing Definitions](./introdef.md) -->
+<!--   - [What makes dependent type theory dependent?](./dep.md) -->
+<!-- - [Tactics](./tactics.md) -->
 - [Syntax Extensions](./syntax.md)
   - [The `do` Notation](./do.md)
   - [User-defined notation](./notation.md)
@@ -69,4 +71,4 @@
 - [Building This Manual](./dev/mdbook.md)
 - [Fixing Tests](./dev/fixing_tests.md)
 - [Debugging](./dev/debugging.md)
-- [C++ Coding Style](./dev/cpp_coding_style.md)
+<!-- - [C++ Coding Style](./dev/cpp_coding_style.md) -->

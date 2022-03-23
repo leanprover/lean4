@@ -69,6 +69,9 @@ instance : ToString Unit :=
 instance : ToString Nat :=
   ⟨fun n => Nat.repr n⟩
 
+instance : ToString String.Pos :=
+  ⟨fun p => Nat.repr p.byteIdx⟩
+
 instance : ToString Int where
   toString
     | Int.ofNat m   => toString m

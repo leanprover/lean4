@@ -515,10 +515,10 @@ def decodeNatLitVal? (s : String) : Option Nat :=
     if c == '0' then
       if len == 1 then some 0
       else
-        let c := s.get 1
-        if c == 'x' || c == 'X' then decodeHexLitAux s 2 0
-        else if c == 'b' || c == 'B' then decodeBinLitAux s 2 0
-        else if c == 'o' || c == 'O' then decodeOctalLitAux s 2 0
+        let c := s.get ⟨1⟩
+        if c == 'x' || c == 'X' then decodeHexLitAux s ⟨2⟩ 0
+        else if c == 'b' || c == 'B' then decodeBinLitAux s ⟨2⟩ 0
+        else if c == 'o' || c == 'O' then decodeOctalLitAux s ⟨2⟩ 0
         else if c.isDigit then decodeDecimalLitAux s 0 0
         else none
     else if c.isDigit then decodeDecimalLitAux s 0 0
@@ -656,7 +656,7 @@ partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Optio
       decodeStrLitAux s i (acc.push c)
 
 def decodeStrLit (s : String) : Option String :=
-  decodeStrLitAux s 1 ""
+  decodeStrLitAux s ⟨1⟩ ""
 
 def isStrLit? (stx : Syntax) : Option String :=
   match isLit? strLitKind stx with
@@ -665,9 +665,9 @@ def isStrLit? (stx : Syntax) : Option String :=
 
 def decodeCharLit (s : String) : Option Char :=
   OptionM.run do
-    let c := s.get 1
+    let c := s.get ⟨1⟩
     if c == '\\' then do
-      let (c, _) ← decodeQuotedChar s 2
+      let (c, _) ← decodeQuotedChar s ⟨2⟩
       pure c
     else
       pure c
@@ -691,14 +691,14 @@ private partial def splitNameLitAux (ss : Substring) (acc : List Substring) : Li
     if isIdBeginEscape curr then
       let escapedPart := ss.takeWhile (!isIdEndEscape ·)
       let escapedPart := { escapedPart with stopPos := ss.stopPos.min (escapedPart.str.next escapedPart.stopPos) }
-      if !isIdEndEscape (escapedPart.get <| escapedPart.prev escapedPart.bsize) then []
-      else splitRest (ss.extract escapedPart.bsize ss.bsize) (escapedPart :: acc)
+      if !isIdEndEscape (escapedPart.get <| escapedPart.prev ⟨escapedPart.bsize⟩) then []
+      else splitRest (ss.extract ⟨escapedPart.bsize⟩ ⟨ss.bsize⟩) (escapedPart :: acc)
     else if isIdFirst curr then
       let idPart := ss.takeWhile isIdRest
-      splitRest (ss.extract idPart.bsize ss.bsize) (idPart :: acc)
+      splitRest (ss.extract ⟨idPart.bsize⟩ ⟨ss.bsize⟩) (idPart :: acc)
     else if curr.isDigit then
       let idPart := ss.takeWhile Char.isDigit
-      splitRest (ss.extract idPart.bsize ss.bsize) (idPart :: acc)
+      splitRest (ss.extract ⟨idPart.bsize⟩ ⟨ss.bsize⟩) (idPart :: acc)
     else
       []
 
@@ -954,7 +954,7 @@ private partial def decodeInterpStrLit (s : String) : Option String :=
       loop i (acc.push c)
     else
       loop i (acc.push c)
-  loop 1 ""
+  loop ⟨1⟩ ""
 
 partial def isInterpolatedStrLit? (stx : Syntax) : Option String :=
   match isLit? interpolatedStrLitKind stx with

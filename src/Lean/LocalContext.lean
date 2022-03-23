@@ -11,7 +11,7 @@ namespace Lean
 
 /-- A declaration for a LocalContext. This is used to register which free variables are in scope.
 Each declaration comes with
-- `index` the position of the decl in the
+- `index` the position of the decl in the local context
 - `fvarId` the unique id of the free variables
 - `userName` the pretty-printable name of the variable
 - `type` the type.

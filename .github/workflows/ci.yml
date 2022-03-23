@@ -49,7 +49,7 @@ jobs:
             os: ubuntu-latest
             release: true
             shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{}}" --run "bash -euxo pipefail {0}"
-            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-linux-gnu.tar.zst
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-x86_64-linux-gnu.tar.zst
             prepare-llvm: script/prepare-llvm-linux.sh lean-llvm*
             binary-check: ldd -v
           - name: Linux
@@ -70,7 +70,7 @@ jobs:
             release: true
             shell: bash -euxo pipefail {0}
             CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15
-            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-apple-darwin.tar.zst
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-x86_64-apple-darwin.tar.zst
             prepare-llvm: script/prepare-llvm-macos.sh lean-llvm*
             binary-check: otool -L
           - name: Windows
@@ -80,7 +80,7 @@ jobs:
             CMAKE_OPTIONS: -G "Unix Makefiles"
             # for reasons unknown, interactivetests are flaky on Windows
             CTEST_OPTIONS: --repeat until-pass:2
-            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/13.0.0/lean-llvm-x86_64-w64-windows-gnu.tar.zst
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-x86_64-w64-windows-gnu.tar.zst
             prepare-llvm: script/prepare-llvm-mingw.sh lean-llvm*
             binary-check: ldd
       # complete all jobs

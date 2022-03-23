@@ -5,7 +5,7 @@ let
     ${nix.defaultPackage.${system}}/bin/nix --experimental-features 'nix-command flakes' --extra-substituters https://lean4.cachix.org/ --option warn-dirty false "$@"
   '';
   # https://github.com/NixOS/nixpkgs/issues/130963
-  llvmPackages = if stdenv.isDarwin then llvmPackages_11 else llvmPackages_13;
+  llvmPackages = if stdenv.isDarwin then llvmPackages_11 else llvmPackages_14;
   cc = (ccacheWrapper.override rec {
     cc = llvmPackages.clang;
     extraConfig = ''

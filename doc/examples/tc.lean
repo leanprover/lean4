@@ -3,10 +3,10 @@
 A Certified Type Checker
 ==========================================
 
-In this tutorial, we build a certified type checker for a simple expression
+In this example, we build a certified type checker for a simple expression
 language.
 
-Remark: this tutorial is based on an example in the book [Certified Programming with Dependent Types](http://adam.chlipala.net/cpdt/) by Adam Chlipala.
+Remark: this example is based on an example in the book [Certified Programming with Dependent Types](http://adam.chlipala.net/cpdt/) by Adam Chlipala.
 -/
 inductive Expr where
   | nat  : Nat → Expr

@@ -3,11 +3,11 @@
 The Well-Typed Interpreter
 ==========================================
 
-In this tutorial, we build an interpreter for a simple functional programming language,
+In this example, we build an interpreter for a simple functional programming language,
 with variables, function application, binary operators and an `if...then...else` construct.
 We will use the dependent type system to ensure that any programs which can be represented are well-typed.
 
-Remark: this tutorial is based on an example found in the Idris manual.
+Remark: this example is based on an example found in the Idris manual.
 -/
 
 /-|

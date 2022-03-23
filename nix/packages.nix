@@ -71,7 +71,7 @@ let
     src = mdBook;
     cargoDeps = drv.cargoDeps.overrideAttrs (_: {
       inherit src;
-      outputHash = "sha256-fowNVGhul0jniLmEAt5O/ZrvabuEe02uOAM4S/CB9ss=";
+      outputHash = "sha256-cPDIcTtUyqwR2ym3JBoHUqStq0TB2YWb9kllv896cFU=";
     });
     doCheck = false;
   });

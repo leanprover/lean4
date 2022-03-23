@@ -24,6 +24,7 @@
     inputs.temci.follows = "temci";
     inputs.nix.follows = "nix";
     inputs.mdBook.follows = "mdBook";
+    inputs.lean4-mode.follows = "lean4-mode";
   };
 
   outputs = { self, nixpkgs, flake-utils, temci, nix, mdBook, lean4-mode, lean-stage0 }: flake-utils.lib.eachDefaultSystem (system:

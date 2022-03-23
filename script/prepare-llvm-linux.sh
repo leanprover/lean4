@@ -34,12 +34,11 @@ $CP $GLIBC/lib/libc_nonshared.a stage1/lib/glibc
 for f in $GLIBC/lib/lib{c,dl,m,rt,pthread}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done
 OPTIONS=()
 echo -n " -DLEAN_STANDALONE=ON"
-echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang -DCMAKE_CXX_COMPILER=$PWD/llvm/bin/clang++ -DLEAN_CXX_STDLIB='-Wl,-Bstatic -lc++ -lc++abi -Wl,-Bdynamic'"
-# allow C++ code to include /usr since it needs quite a few more headers
-# set sysroot for clang to make sure we have all necessary runtime files
-echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -isystem /usr/include -isystem /usr/include/x86_64-linux-gnu'"
-# ... but don't embed in `leanc` so users can still link to system libs, while using `-nostdinc` to make sure headers are not visible by default
-# (in particular, not to `#include_next` in the clang headers)
+echo -n " -DCMAKE_CXX_COMPILER=$PWD/llvm/bin/clang++ -DLEAN_CXX_STDLIB='-Wl,-Bstatic -lc++ -lc++abi -Wl,-Bdynamic'"
+echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -isystem $GLIBC_DEV/include'"
+echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang"
+# use `-nostdinc` to make sure headers are not visible by default (in particular, not to `#include_next` in the clang headers),
+# but do not change sysroot so users can still link against system libs
 echo -n " -DLEANC_INTERNAL_FLAGS='-nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang"
 echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/glibc ROOT/lib/glibc/libc_nonshared.a -Wl,--as-needed -static-libgcc -Wl,-Bstatic -lgmp -lunwind -Wl,-Bdynamic -fuse-ld=lld'"
 # do not set `LEAN_CC` for tests

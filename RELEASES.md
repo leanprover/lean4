@@ -1,4 +1,4 @@
-v4.0.0-m4 (WIP)
+v4.0.0-m4 (23 March 2022)
 ---------
 
 * `simp` now takes user-defined simp-attributes. You can define a new `simp` attribute by creating a file (e.g., `MySimp.lean`) containing

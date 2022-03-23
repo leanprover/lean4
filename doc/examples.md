@@ -1,4 +1,4 @@
 Examples
 ========
 
-- [The Well-Typed Interpreter](./doc/examples/interp.lean)
+- [The Well-Typed Interpreter](./examples/interp.lean)

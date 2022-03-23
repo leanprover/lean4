@@ -15,7 +15,7 @@ Each declaration comes with
 - `fvarId` the unique id of the free variables
 - `userName` the pretty-printable name of the variable
 - `type` the type.
-A `cdecl` is a local constant, a `ldecl` is a let-bound free variable with a `value : Expr`.
+A `cdecl` is a local variable, a `ldecl` is a let-bound free variable with a `value : Expr`.
 -/
 inductive LocalDecl where
   | cdecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo)

@@ -31,7 +31,7 @@
         });
         doCheck = false;
       });
-      doc = stdenv.mkDerivation {
+      book = stdenv.mkDerivation {
         name ="lean-doc";
         src = doc-src;
         buildInputs = [ lean-mdbook ];
@@ -69,6 +69,17 @@
           (with python3Packages; [ pygments dominate beautifulsoup4 docutils ]);
         doCheck = false;
       };
+      examples = let
+        renderLean = name: file: runCommandNoCC "${name}.html" { buildInputs = [ alectryon ]; } ''
+          mkdir -p $out/examples
+          alectryon --frontend lean4+rst ${file} -o $out/examples/${name}.html
+        '';
+        ents = builtins.readDir ./examples;
+        inputs = lib.filterAttrs (n: t: t == "regular") ents;
+        outputs = lib.mapAttrs (n: _: renderLean n ./examples/${n}) inputs;
+      in
+        outputs // symlinkJoin { name = "examples"; paths = lib.attrValues outputs; };
+      doc = symlinkJoin { name = "doc"; paths = [ book examples ]; };
     };
     defaultPackage = self.packages.${system}.doc;
   });

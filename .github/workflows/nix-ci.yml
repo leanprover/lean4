@@ -92,7 +92,7 @@ jobs:
           nix build $NIX_BUILD_ARGS .#test -o push-test
       - name: Build manual
         run: |
-          nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc#lean-mdbook ./doc#test -o push-doc
+          nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc#{lean-mdbook,leanInk,alectryon,test} -o push-doc
           nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc
         if: matrix.name == 'Nix Linux'
       - name: Push to Cachix

@@ -129,8 +129,8 @@ def isEmpty (lctx : LocalContext) : Bool :=
 
 /-- Low level API for creating local declarations.
 It is used to implement actions in the monads `Elab` and `Tactic`.
-It should not be used directly since the argument `(name : Name)` is
-assumed to be "unique". -/
+It should not be used directly since the argument `(fvarId : FVarId)` is
+assumed to be unique. You can create a unique fvarId with `mkFreshFVarId`. -/
 @[export lean_local_ctx_mk_local_decl]
 def mkLocalDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) : LocalContext :=
   match lctx with

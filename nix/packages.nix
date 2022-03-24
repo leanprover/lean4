@@ -1,4 +1,4 @@
-{ pkgs, nix, temci, mdBook, ... } @ args:
+{ pkgs, nix, temci, ... } @ args:
 with pkgs;
 let
   nix-pinned = writeShellScriptBin "nix" ''
@@ -66,39 +66,6 @@ let
   lean-vscode = vscode-with-extensions.override {
     vscodeExtensions = [ vscode-lean4 ];
   };
-  lean-mdbook = mdbook.overrideAttrs (drv: rec {
-    name = "lean-${mdbook.name}";
-    src = mdBook;
-    cargoDeps = drv.cargoDeps.overrideAttrs (_: {
-      inherit src;
-      outputHash = "sha256-cPDIcTtUyqwR2ym3JBoHUqStq0TB2YWb9kllv896cFU=";
-    });
-    doCheck = false;
-  });
-  doc-src = lib.sourceByRegex ../. ["doc.*" "tests(/lean(/beginEndAsMacro.lean)?)?"];
-  doc = stdenv.mkDerivation {
-    name ="lean-doc";
-    src = doc-src;
-    buildInputs = [ lean-mdbook ];
-    buildCommand = ''
-      mdbook build -d $out $src/doc
-    '';
-  };
-  # We use a separate derivation instead of `checkPhase` so we can push it but not `doc` to the binary cache
-  doc-test = stdenv.mkDerivation {
-    name ="lean-doc-test";
-    src = doc-src;
-    buildInputs = [ lean-mdbook lean.stage1.Lean.lean-package strace ];
-    patchPhase = ''
-      cd doc
-      patchShebangs test
-    '';
-    buildPhase = ''
-      mdbook test
-      touch $out
-    '';
-    dontInstall = true;
-  };
 in {
   inherit cc lean4-mode buildLeanPackage llvmPackages vscode-lean4;
   lean = lean.stage1;
@@ -114,7 +81,5 @@ in {
     # prefix lines with cumulative and individual execution time
     "$@" |& ts -i "(%.S)]" | ts -s "[%M:%S"
   '';
-  mdbook = lean-mdbook;
   vscode = lean-vscode;
-  inherit doc doc-test;
 } // lean.stage1.Lean // lean.stage1 // lean

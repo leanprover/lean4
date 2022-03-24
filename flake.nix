@@ -8,10 +8,6 @@
     flake = false;
   };
   inputs.nix.url = github:NixOS/nix;
-  inputs.mdBook = {
-    url = github:leanprover/mdBook;
-    flake = false;
-  };
   inputs.lean4-mode = {
     url = github:leanprover/lean4-mode;
     flake = false;
@@ -23,18 +19,17 @@
     inputs.flake-utils.follows = "flake-utils";
     inputs.temci.follows = "temci";
     inputs.nix.follows = "nix";
-    inputs.mdBook.follows = "mdBook";
     inputs.lean4-mode.follows = "lean4-mode";
   };
 
-  outputs = { self, nixpkgs, flake-utils, temci, nix, mdBook, lean4-mode, lean-stage0 }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, flake-utils, temci, nix, lean4-mode, lean-stage0 }: flake-utils.lib.eachDefaultSystem (system:
     let
       pkgs = import nixpkgs {
         inherit system;
         # for `vscode-with-extensions`
         config.allowUnfree = true;
       };
-      lean-packages = pkgs.callPackage (./nix/packages.nix) { inherit nix temci mdBook lean4-mode; };
+      lean-packages = pkgs.callPackage (./nix/packages.nix) { inherit nix temci lean4-mode; };
     in {
       packages = lean-packages // rec {
         debug = lean-packages.override { debug = true; };

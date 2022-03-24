@@ -71,6 +71,17 @@ FOREACH(T ${LEANRUNTESTS})
   endif()
 ENDFOREACH(T)
 
+# LEAN RUN doc/examples
+file(GLOB LEANDOCEXS "${LEAN_SOURCE_DIR}/../doc/examples/*.lean")
+FOREACH(T ${LEANDOCEXS})
+  if(NOT T MATCHES "\\.#")
+    GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+    add_test(NAME "leandocex_${T_NAME}"
+             WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../doc/examples"
+             COMMAND bash -c "${TEST_VARS} ./test_single.sh ${T_NAME}")
+  endif()
+ENDFOREACH(T)
+
 # LEAN COMPILER TESTS
 file(GLOB LEANCOMPTESTS "${LEAN_SOURCE_DIR}/../tests/compiler/*.lean")
 FOREACH(T ${LEANCOMPTESTS})

@@ -32,6 +32,9 @@ heterogeneous lists.
 -/
 infix:67 " :: " => HList.cons
 
+/-| We similarly overload the `List` notation `[]` for the empty heterogeneous list. -/
+notation "[" "]" => HList.nil
+
 /-|
 Variables are represented in a way isomorphic to the natural numbers, where
 number 0 represents the first element in the context, number 1 the second element, and so
@@ -64,10 +67,29 @@ inductive Ty where
   | nat
   | fn : Ty → Ty → Ty
 
-abbrev Ty.denote : Ty → Type
+/-|
+We can write a function to translate `Ty` values to a Lean type
+— remember that types are first class, so can be calculated just like any other value.
+We mark `Ty.denote` as `[reducible]` to make sure the typeclass resolution procedure can
+unfold/reduce it. For example, suppose Lean is trying to synthesize a value for the instance
+`Add (Ty.denote Ty.nat)`. Since `Ty.denote` is marked as `[reducible],
+the typeclass resolution procedure can reduce `Ty.denote Ty.nat` to `Nat`, and use
+the builtin instance for `Add Nat` as the solution.
+
+Recall that the term `a.denote` is sugar for `denote a` where `denote` is the function being defined.
+We call it the "dot notation".
+-/
+@[reducible] def Ty.denote : Ty → Type
   | nat    => Nat
   | fn a b => a.denote → b.denote
 
+/-|
+Here is the definition of the `Term` type, including variables, constants, addition,
+function application and abstraction, and let binding of local variables.
+Since `let` is a keyword in Lean, we use the "escaped identifier" `«let»`.
+You can input the unicode (French double quotes) using `\f<<` (for `«`) and `\f>>` (for `»`).
+The term `Term ctx .nat` is sugar for `Term ctx Ty.nat`, Lean infers the namespace using the expected type.
+-/
 inductive Term : List Ty → Ty → Type
   | var   : Member ty ctx → Term ctx ty
   | const : Nat → Term ctx .nat
@@ -76,6 +98,27 @@ inductive Term : List Ty → Ty → Type
   | lam   : Term (dom :: ctx) ran → Term ctx (.fn dom ran)
   | «let» : Term ctx ty₁ → Term (ty₁ :: ctx) ty₂ → Term ctx ty₂
 
+/-|
+Here are two example terms encoding, the first addition packaged as a two-argument
+curried function, and the second of a sample application of addition to constants.
+
+The command `open Ty Term Member` opens the namespaces `Ty`, `Term`, and `Member`. Thus,
+you can write `lam` instead of `Term.lam`.
+-/
+open Ty Term Member
+def add : Term [] (fn nat (fn nat nat)) :=
+  lam (lam (plus (var (tail head)) (var head)))
+
+def three_the_hard_way : Term [] nat :=
+  app (app add (const 1)) (const 2)
+
+/-|
+Since dependent typing ensures that any term is well-formed in its context and has a particular type,
+it is easy to translate syntactic terms into Lean values.
+
+The attribute `[simp]` instructs Lean to always try to unfold `Term.denote` applications when one applies
+the `simp` tactic. We also say this is a hint for the Lean term simplifier.
+-/
 @[simp] def Term.denote : Term ctx ty → HList Ty.denote ctx → ty.denote
   | var h,     env => env.get h
   | const n,   _   => n
@@ -84,6 +127,16 @@ inductive Term : List Ty → Ty → Type
   | lam b,     env => fun x => b.denote (x :: env)
   | «let» a b, env => b.denote (a.denote env :: env)
 
+/-|
+You can show that the denotation of `three_the_hard_way` is indeed `3` using reflexivity.
+-/
+example : three_the_hard_way.denote [] = 3 :=
+  rfl
+
+/-|
+We now define the constant folding optimization that traverses a term if replaces subterms such as
+`plus (const m) (const n)` with `const (n+m)`.
+-/
 @[simp] def Term.constFold : Term ctx ty → Term ctx ty
   | const n   => const n
   | var h     => var h
@@ -95,6 +148,15 @@ inductive Term : List Ty → Ty → Type
     | const n, const m => const (n+m)
     | a',      b'      => plus a' b'
 
+/-|
+The correctness of the `Term.constFold` is proved using induction, case-analysis, and the term simplifier.
+We prove all cases but the one for `plus` using `simp [*]`. This tactic instructs the term simplifier to
+use hypotheses such as `a = b` as rewriting/simplications rules.
+We use the `split` to break the nested `match` expression in the `plus` case into two cases.
+The local variables `iha` and `ihb` are the induction hypotheses for `a` and `b`.
+The modifier `←` in a term simplifier argument instructs the term simplier to use the equation as a rewriting rule in
+the "reverse direction. That is, given `h : a = b`, `← h` instructs the term simplifier to rewrite `b` subterms to `a`.
+-/
 theorem Term.constFold_sound (e : Term ctx ty) : e.constFold.denote env = e.denote env := by
   induction e with simp [*]
   | plus a b iha ihb =>

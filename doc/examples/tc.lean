@@ -91,17 +91,17 @@ theorem Expr.typeCheck_complete {e : Expr} : e.typeCheck = .unknown → ¬ HasTy
     cases typeCheck a <;> cases typeCheck b <;> simp <;> intros <;> intro h <;> cases h <;> try contradiction
     rename_i ty₁ _ ty₂ _ h _ _
     cases ty₁ <;> cases ty₂ <;> simp at h
-    . have := HasType.det ‹HasType b Ty.bool› ‹HasType b Ty.nat›; contradiction
-    . have := HasType.det ‹HasType a Ty.bool› ‹HasType a Ty.nat›; contradiction
-    . have := HasType.det ‹HasType a Ty.bool› ‹HasType a Ty.nat›; contradiction
+    · have := HasType.det ‹HasType b Ty.bool› ‹HasType b Ty.nat›; contradiction
+    · have := HasType.det ‹HasType a Ty.bool› ‹HasType a Ty.nat›; contradiction
+    · have := HasType.det ‹HasType a Ty.bool› ‹HasType a Ty.nat›; contradiction
   | and a b iha ihb =>
     revert iha ihb
     cases typeCheck a <;> cases typeCheck b <;> simp <;> intros <;> intro h <;> cases h <;> try contradiction
     rename_i ty₁ _ ty₂ _ h _ _
     cases ty₁ <;> cases ty₂ <;> simp at h
-    . have := HasType.det ‹HasType b Ty.bool› ‹HasType b Ty.nat›; contradiction
-    . have := HasType.det ‹HasType a Ty.bool› ‹HasType a Ty.nat›; contradiction
-    . have := HasType.det ‹HasType b Ty.bool› ‹HasType b Ty.nat›; contradiction
+    · have := HasType.det ‹HasType b Ty.bool› ‹HasType b Ty.nat›; contradiction
+    · have := HasType.det ‹HasType a Ty.bool› ‹HasType a Ty.nat›; contradiction
+    · have := HasType.det ‹HasType b Ty.bool› ‹HasType b Ty.nat›; contradiction
 
 /-|
 Finally, we show that type checking for `e` can be decided using `Expr.typeCheck`.

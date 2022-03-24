@@ -14,7 +14,7 @@ to separate the elements of a list, and in the lambda expression itself. We now 
 as an example, `fun x => x` is the identity function. One may still use the symbol `λ` as a shorthand for `fun`.
 The lambda expression notation has many new features that are not supported in Lean 3.
 
-* Pattern matching
+## Pattern matching
 
 In Lean 4, one can easily create new notation that abbreviates commonly used idioms. One of them is a
 `fun` followed by a `match`. In the following examples, we define a few functions using `fun`+`match` notation.
@@ -39,7 +39,7 @@ def Sum.str : Option Nat → String :=
 # end ex1
 ```
 
-* Implicit lambdas
+## Implicit lambdas
 
 In Lean 3 stdlib, we find many [instances](https://github.com/leanprover/lean/blob/master/library/init/category/reader.lean#L39) of the dreadful `@`+`_` idiom.
 It is often used when we the expected type is a function type with implicit arguments,
@@ -83,7 +83,7 @@ def id5 : {α : Type} → α → α :=
 # end ex2
 ```
 
-* Sugar for simple functions
+## Sugar for simple functions
 
 In Lean 3, we can create simple functions from infix operators by using parentheses. For example, `(+1)` is sugar for `fun x, x + 1`. In Lean 4, we generalize this notation using `·` As a placeholder. Here are a few examples:
 
@@ -336,3 +336,34 @@ partial def f (x : Nat) : IO Unit := do
 #eval f 98
 # end partial1
 ```
+
+## Library changes
+
+These are changes to the library which may trip up Lean 3 users:
+
+- `Option` and `List` are no longer monads. Instead there is `OptionM`. This was done to avoid some performance traps. For example `o₁ <|> o₂` where `o₁ o₂ : Option α` will evaluate both `o₁` and `o₂` even if `o₁` evaluates to `some x`. This can be a problem if `o₂` requires a lot of compute to evaluate. A zulip discussion on this design choice is [here](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/Option.20do.20notation.20regression.3F).
+
+
+## Style changes
+
+Coding style changes have also been made:
+
+- Term constants and variables are now `lowerCamelCase` rather than `snake_case`
+- Type constants are now `UpperCamelCase`, eg `Nat`, `List`. Type variables are still lower case greek letters. Functors are still lower case latin `(m : Type → Type) [Monad m]`.
+- When defining typeclasses, prefer not to use "has". Eg `ToString` or `Add` instead of `HasToString` or `HasAdd`.
+- Prefer `return` to `pure` in monad expressions.
+- Pipes `<|` are preferred to dollars `$` for function application.
+- Declaration bodies should always be indented:
+  ```lean
+  inductive Hello where
+    | foo
+    | bar
+
+  structure Point where
+    x : Nat
+    y : Nat
+
+  def Point.addX : Point → Point → Nat :=
+    fun { x := a, .. } { x := b, .. } => a + b
+  ```
+- In structures and typeclass definitions, prefer `where` to `:=` and don't surround fields with parentheses. (Shown in `Point` above)

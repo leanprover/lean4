@@ -1,7 +1,7 @@
 Examples
 ========
 
-- [A Certified Type Checker](https://github.com/leanprover/lean4/blob/master/doc/examples/tc.lean)
-- [The Well-Typed Interpreter](https://github.com/leanprover/lean4/blob/master/doc/examples/interp.lean)
-- [Dependent de Bruijn Indices](https://github.com/leanprover/lean4/blob/master/doc/examples/deBruijn.lean)
-- [Parametric Higher-Order Abstract Syntax](https://github.com/leanprover/lean4/blob/master/doc/examples/phoas.lean)
+- [A Certified Type Checker](examples/tc.lean.html)
+- [The Well-Typed Interpreter](examples/interp.lean.html)
+- [Dependent de Bruijn Indices](examples/deBruijn.lean.html)
+- [Parametric Higher-Order Abstract Syntax](examples/phoas.lean.html)

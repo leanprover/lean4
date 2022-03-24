@@ -3,7 +3,7 @@ Unreleased
 
 * Add cross-compiled [aarch64 Linux](https://github.com/leanprover/lean4/pull/1066) and [aarch64 macOS](https://github.com/leanprover/lean4/pull/1076) releases.
 
-* [Added tutorial-like examples to our documentation](https://github.com/leanprover/lean4/tree/master/doc/examples). They will be soon rendered using LeanInk+Alectryon.
+* [Add tutorial-like examples to our documentation](https://github.com/leanprover/lean4/tree/master/doc/examples), rendered using LeanInk+Alectryon.
 
 v4.0.0-m4 (23 March 2022)
 ---------

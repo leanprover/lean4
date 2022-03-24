@@ -46,6 +46,25 @@ partial def g (x : Nat) (p : Nat -> Bool) : Nat :=
 In the previous example, `g x p` only terminates if there is a `y >= x` such that `p y` returns `true`.
 Of course, `g 0 (fun x => false)` never terminates.
 
+However, the use of `partial` is restricted to functions whose return type is not empty so the soundness
+of the system is not compromised.
+
+```lean,ignore
+partial def loop? : α := -- failed to compile partial definition 'loop?', failed to
+  loop?                  -- show that type is inhabited and non empty
+
+partial def loop [Inhabited α] : α := -- compiles
+  loop
+
+example : True := -- accepted
+  loop
+
+example : False :=
+  loop -- failed to synthesize instance Inhabited False
+```
+
+If we were able to partially define `loop?`, we could prove `False` with it.
+
 # Lambda expressions
 
 A lambda expression is an unnamed function.

@@ -15,6 +15,26 @@
         "type": "github"
       }
     },
+    "lean": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "lean-stage0": "lean-stage0",
+        "lean4-mode": "lean4-mode",
+        "nix": "nix",
+        "nixpkgs": "nixpkgs_2",
+        "temci": "temci"
+      },
+      "locked": {
+        "lastModified": 0,
+        "narHash": "sha256-zrFCATQSmNX0u+2R2wnizOigxGOiaRzfplhKu9c1MgA=",
+        "path": "../.",
+        "type": "path"
+      },
+      "original": {
+        "path": "../.",
+        "type": "path"
+      }
+    },
     "lean-stage0": {
       "locked": {
         "lastModified": 0,
@@ -59,6 +79,22 @@
       "original": {
         "owner": "kristapsdz",
         "repo": "lowdown",
+        "type": "github"
+      }
+    },
+    "mdBook": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1644567966,
+        "narHash": "sha256-fqdb2AUAMmi54vfa2qOF7VMFvN3rNku8/kUh1YEW86g=",
+        "owner": "leanprover",
+        "repo": "mdBook",
+        "rev": "b7a9bc48e9881087cac684d0c6c2c0a3583417e8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "leanprover",
+        "repo": "mdBook",
         "type": "github"
       }
     },
@@ -130,12 +166,12 @@
     },
     "root": {
       "inputs": {
-        "flake-utils": "flake-utils",
-        "lean-stage0": "lean-stage0",
-        "lean4-mode": "lean4-mode",
-        "nix": "nix",
-        "nixpkgs": "nixpkgs_2",
-        "temci": "temci"
+        "flake-utils": [
+          "lean",
+          "flake-utils"
+        ],
+        "lean": "lean",
+        "mdBook": "mdBook"
       }
     },
     "temci": {

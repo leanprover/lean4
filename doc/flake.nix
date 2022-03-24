@@ -7,8 +7,16 @@
     url = github:leanprover/mdBook;
     flake = false;
   };
+  inputs.alectryon-src = {
+    url = github:insightmind/alectryon/typeid;
+    flake = false;
+  };
+  inputs.leanInk-src = {
+    url = github:leanprover/LeanInk;
+    flake = false;
+  };
 
-  outputs = { self, lean, flake-utils, mdBook }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, lean, flake-utils, mdBook, alectryon-src, leanInk-src }: flake-utils.lib.eachDefaultSystem (system:
     with lean.packages.${system}; with nixpkgs;
     let
       doc-src = lib.sourceByRegex ../. ["doc.*" "tests(/lean(/beginEndAsMacro.lean)?)?"];
@@ -45,6 +53,21 @@
           touch $out
         '';
         dontInstall = true;
+      };
+      leanInk = (buildLeanPackage {
+        name = "LeanInk";
+        src = leanInk-src;
+        executableName = "leanInk";
+        linkFlags = ["-rdynamic"];
+      }).executable;
+      alectryon = python3Packages.buildPythonApplication {
+        name = "alectryon";
+        src = alectryon-src;
+        propagatedBuildInputs =
+          [ leanInk lean-all ] ++
+          # https://github.com/cpitclaudel/alectryon/blob/master/setup.cfg
+          (with python3Packages; [ pygments dominate beautifulsoup4 docutils ]);
+        doCheck = false;
       };
     };
     defaultPackage = self.packages.${system}.doc;

@@ -28,16 +28,11 @@ private def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) 
   let doc ← readDoc
   let text := doc.meta.text
   let callPos := text.lspPosToUtf8Pos p.position
-  let findTask ← doc.allSnaps.waitFind? (fun s => s.endPos >= callPos)
-  bindTask findTask fun
-    | Except.error FileWorker.ElabTaskError.aborted =>
-      throwThe RequestError RequestError.fileChanged
-    | Except.error (FileWorker.ElabTaskError.ioError e) =>
-      throw (e : RequestError)
-    | Except.ok none =>
-      throwThe RequestError { code := JsonRpc.ErrorCode.invalidParams
-                              message := s!"Incorrect position '{p.toTextDocumentPositionParams}' in RPC call" }
-    | Except.ok (some snap) => do
+  bindWaitFindSnap doc (fun s => s.endPos >= callPos)
+    (notFoundX := throwThe RequestError
+      { code := JsonRpc.ErrorCode.invalidParams
+        message := s!"Incorrect position '{p.toTextDocumentPositionParams}' in RPC call" })
+    fun snap => do
       if let some proc := (← builtinRpcProcedures.get).find? p.method then
         proc.wrapper p.sessionId p.params
       else if let some proc := userRpcProcedures.getState snap.env |>.find? p.method then

@@ -1,7 +1,7 @@
 # Quickstart
 
 These instructions will walk you through setting up Lean using the "basic" setup and VS Code as the editor.
-See [Setup](./setup.md) for other ways and more details on setting up Lean.
+See [Setup](./setup.md) for other ways, supported platforms, and more details on setting up Lean.
 
 1. Install [VS Code](https://code.visualstudio.com/).
 

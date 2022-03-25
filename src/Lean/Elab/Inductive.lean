@@ -76,7 +76,7 @@ private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc :
         let u ← mkFreshLevelMVar
         let type := mkSort u
         Term.synthesizeSyntheticMVarsNoPostponing
-        Term.addAutoBoundImplicits params fun params => do
+        Term.addAutoBoundImplicitsOld params fun params => do
           pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
       | some typeStx =>
         let (type, numImplicitIndices) ← Term.withAutoBoundImplicit do
@@ -84,9 +84,9 @@ private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc :
           unless (← isTypeFormerType type) do
             throwErrorAt typeStx "invalid inductive type, resultant type is not a sort"
           Term.synthesizeSyntheticMVarsNoPostponing
-          Term.addAutoBoundImplicits #[] fun indices =>
+          Term.addAutoBoundImplicitsOld #[] fun indices =>
             return (← mkForallFVars indices type, indices.size)
-        Term.addAutoBoundImplicits params fun params => do
+        Term.addAutoBoundImplicitsOld params fun params => do
           pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
     elabHeaderAux views (i+1) acc
   else
@@ -219,7 +219,7 @@ private def elabCtors (indFVars : Array Expr) (indFVar : Expr) (params : Array E
             k type
         elabCtorType fun type => do
           Term.synthesizeSyntheticMVarsNoPostponing
-          Term.addAutoBoundImplicits ctorParams fun ctorParams => do
+          Term.addAutoBoundImplicitsOld ctorParams fun ctorParams => do
             let type ← mkForallFVars ctorParams type
             Term.mvarsToParams type fun extraCtorParams type => do
               let type ← mkForallFVars extraCtorParams type

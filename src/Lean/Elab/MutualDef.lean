@@ -121,7 +121,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
               pure type
           Term.synthesizeSyntheticMVarsNoPostponing
           let (binderIds, xs) := xs.unzip
-          addAutoBoundImplicits xs fun xs => do
+          addAutoBoundImplicitsOld xs fun xs => do
             let type ← mkForallFVars xs type
             let type ← instantiateMVars type
             let levelNames ← getLevelNames

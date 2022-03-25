@@ -1333,9 +1333,13 @@ where
           let mvarIdsNew ← getMVars mvarType
           if mvarIdsNew.isEmpty then
             withLocalDecl (← mkFreshUserName `a) BinderInfo.implicit mvarType fun newParam => do
-              -- The following assingment is a bit hackish since `newParam` is not in the scope
-              -- of the metavariable. We claim this ok because we fully instantiate thes metavariables before executing the
-              -- continuation `k`.
+              /-
+                HACK: The following assingment is a bit hackish since `newParam` is not in the scope
+                of the metavariable. We claim this ok because we fully instantiate thes metavariables before executing the
+                continuation `k`.
+                Remark: yes, the resulting term is correct, but the `InfoTree` remains littered with invalid terms.
+                This must be fixed in the future. Otherwise, users will fin `_uniq.????` unknown free variables in the `InfoView`.
+               -/
               assignExprMVar mvarId newParam
               go fuel mvarIds (params.push newParam)
           else
@@ -1357,8 +1361,12 @@ def mvarsToParams (type : Expr) (k : Array Expr → Expr → TermElabM α) (init
 
 /--
   Return `k (autoBoundImplicits ++ xs)`
-  This methoid throws an error if a variable in `autoBoundImplicits` depends on some `x` in `xs`. -/
-def addAutoBoundImplicits (xs : Array Expr) (k : Array Expr → TermElabM α) : TermElabM α := do
+  This methoid throws an error if a variable in `autoBoundImplicits` depends on some `x` in `xs`.
+
+  Remark: this method corrupts the `InfoTree` when metavariables are converted into fresh free variables.
+  See "HACK" comment `mvarsToParamsCore.go`.
+-/
+def addAutoBoundImplicitsOld (xs : Array Expr) (k : Array Expr → TermElabM α) : TermElabM α := do
   let autos := (← read).autoBoundImplicits
   go autos.toList #[]
 where

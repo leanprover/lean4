@@ -505,14 +505,14 @@ private def elabFieldTypeValue (view : StructFieldView) : TermElabM (Option Expr
       | none        => return (none, none)
       | some valStx =>
         Term.synthesizeSyntheticMVarsNoPostponing
-        Term.addAutoBoundImplicits params fun params => do
+        Term.addAutoBoundImplicitsOld params fun params => do
           let value ← Term.elabTerm valStx none
           let value ← mkLambdaFVars params value
           return (none, value)
     | some typeStx =>
       let type ← Term.elabType typeStx
       Term.synthesizeSyntheticMVarsNoPostponing
-      Term.addAutoBoundImplicits params fun params => do
+      Term.addAutoBoundImplicitsOld params fun params => do
         match view.value? with
         | none        =>
           let type  ← mkForallFVars params type
@@ -882,7 +882,7 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
         Term.withLevelNames allUserLevelNames <| Term.withAutoBoundImplicit <|
           Term.elabBinders params fun params => do
             Term.synthesizeSyntheticMVarsNoPostponing
-            Term.addAutoBoundImplicits params fun params => do
+            Term.addAutoBoundImplicitsOld params fun params => do
               let allUserLevelNames ← Term.getLevelNames
               elabStructureView {
                 ref := stx

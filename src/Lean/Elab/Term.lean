@@ -1407,15 +1407,14 @@ where
     | mvarId :: mvarIds => do
       if (← isExprMVarAssigned mvarId) then
         go mvarIds result
+      else if result.contains (mkMVar mvarId) then
+        go mvarIds result
       else
         let mvarType := (← getMVarDecl mvarId).type
         let mvarIdsNew ← getMVars mvarType
+        let mvarIdsNew := mvarIdsNew.filter fun mvarId => !result.contains (mkMVar mvarId)
         if mvarIdsNew.isEmpty then
-          let mvar := mkMVar mvarId
-          if result.contains mvar then
-            go mvarIds result
-          else
-            go  mvarIds (result.push (mkMVar mvarId))
+          go  mvarIds (result.push (mkMVar mvarId))
         else
           go (mvarIdsNew.toList ++ mvarId :: mvarIds) result
 

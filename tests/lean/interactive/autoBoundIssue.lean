@@ -16,3 +16,13 @@ inductive HasType : Fin n → Vector Ty n → Ty → Type where
 
 inductive Foo : HasType k ctx ty → Prop
                         --^ $/lean/plainTermGoal
+
+def foo : HasType k ctx ty → Prop
+                  --^ $/lean/plainTermGoal
+  | _ => True
+
+structure Ex where
+  aux : HasType k ctx ty
+                --^ $/lean/plainTermGoal
+  boo : HasType k ctx ty → Prop := fun _ => True
+                --^ $/lean/plainTermGoal

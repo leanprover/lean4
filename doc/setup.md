@@ -1,3 +1,28 @@
+# Supported Platforms
+
+### Tier 1
+
+Platforms built & tested by our CI, available as nightly & stable releases via elan (see above)
+
+* x86-64 Linux with glibc 2.27+
+* x86-64 macOS 10.15+
+* x86-64 Windows 10+
+
+### Tier 2
+
+Platforms cross-compiled but not tested by our CI, available as nightly & stable releases
+
+Releases may be silently broken due to the lack of automated testing.
+Issue reports and fixes are welcome.
+
+* aarch64 Linux with glibc 2.27+
+
+### Tier 3
+
+Platforms that are known to work from manual testing, but do not come with CI or official releases
+
+* aarch64 (M1) macOS - may also [use x86-64 releases via Rosetta](https://github.com/leanprover/elan#manual-installation)
+
 # Setting Up Lean
 
 There are currently two ways to set up a Lean 4 development environment:

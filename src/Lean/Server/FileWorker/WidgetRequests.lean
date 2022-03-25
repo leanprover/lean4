@@ -22,7 +22,7 @@ structure MsgToInteractive where
   deriving Inhabited, RpcEncoding
 
 builtin_initialize
-  registerRpcCallHandler
+  registerBuiltinRpcProcedure
     `Lean.Widget.InteractiveDiagnostics.msgToInteractive
     MsgToInteractive
     (TaggedText MsgEmbed)
@@ -35,7 +35,7 @@ structure InfoPopup where
   deriving Inhabited, RpcEncoding
 
 builtin_initialize
-  registerRpcCallHandler
+  registerBuiltinRpcProcedure
     `Lean.Widget.InteractiveDiagnostics.infoToInteractive
     (WithRpcRef InfoWithCtx)
     InfoPopup
@@ -55,13 +55,14 @@ builtin_initialize
         }
 
 builtin_initialize
-  registerRpcCallHandler
+  registerBuiltinRpcProcedure
     `Lean.Widget.getInteractiveGoals
     Lsp.PlainGoalParams
     (Option InteractiveGoals)
     FileWorker.getInteractiveGoals
 
-  registerRpcCallHandler
+builtin_initialize
+  registerBuiltinRpcProcedure
     `Lean.Widget.getInteractiveTermGoal
     Lsp.PlainTermGoalParams
     (Option InteractiveTermGoal)
@@ -89,7 +90,7 @@ def getInteractiveDiagnostics (params : GetInteractiveDiagnosticsParams) : Reque
     pure <| diags?.getD #[]
 
 builtin_initialize
-  registerRpcCallHandler
+  registerBuiltinRpcProcedure
     `Lean.Widget.getInteractiveDiagnostics
     GetInteractiveDiagnosticsParams
     (Array InteractiveDiagnostic)

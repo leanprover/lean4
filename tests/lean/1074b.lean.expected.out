@@ -1,0 +1,13 @@
+1074b.lean:10:30-10:31: error: unknown identifier 'z'
+1074b.lean:11:43-11:53: error: tactic 'assumption' failed
+a : Term
+H : Brx a
+n : Term
+⊢ Brx (sorryAx Term)
+1074b.lean:11:9-11:55: error: unsolved goals
+case id
+a : Term
+H : Brx a
+n z✝ : Term
+a✝ : Brx z✝
+⊢ True ∧ Brx (sorryAx Term)

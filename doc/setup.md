@@ -16,12 +16,13 @@ Releases may be silently broken due to the lack of automated testing.
 Issue reports and fixes are welcome.
 
 * aarch64 Linux with glibc 2.27+
+* aarch64 (M1) macOS
 
+<!--
 ### Tier 3
 
 Platforms that are known to work from manual testing, but do not come with CI or official releases
-
-* aarch64 (M1) macOS - may also [use x86-64 releases via Rosetta](https://github.com/leanprover/elan#manual-installation)
+-->
 
 # Setting Up Lean
 

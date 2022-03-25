@@ -40,13 +40,15 @@ where
           ctorArgs := ctorArgs.push (← `(_))
         for i in [:ctorInfo.numFields] do
           let x := xs[indVal.numParams + i]
-          let xTy ← inferType x
-          let typeName := xTy.getAppFn.constName!
           let a := mkIdent (← mkFreshUserName `a)
           ctorArgs := ctorArgs.push a
-          match allIndVals.findIdx? (· == typeName) with
-          | some x => rhs ← `(mixHash $rhs ($(mkIdent ctx.auxFunNames[x]) $a:ident))
-          | none => rhs ← `(mixHash $rhs (hash $a:ident))
+          let xTy ← whnf (← inferType x)
+          match xTy.getAppFn with
+          | .const declName .. =>
+            match allIndVals.findIdx? (· == declName) with
+            | some x => rhs ← `(mixHash $rhs ($(mkIdent ctx.auxFunNames[x]) $a:ident))
+            | none => rhs ← `(mixHash $rhs (hash $a:ident))
+          | _ => rhs ← `(mixHash $rhs (hash $a:ident))
         patterns := patterns.push (← `(@$(mkIdent ctorName):ident $ctorArgs:term*))
         `(matchAltExpr| | $[$patterns:term],* => $rhs:term)
       alts := alts.push alt
@@ -59,6 +61,7 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
   let header     ← mkHashableHeader ctx indVal
   let body       ← mkMatch ctx header indVal i
   let binders    := header.binders
+  trace[Meta.debug] "body: {body}"
   if ctx.usePartial then
     -- TODO(Dany): Get rid of this code branch altogether once we have well-founded recursion
     `(private partial def $(mkIdent auxFunName):ident $binders:explicitBinder* : UInt64 := $body:term)

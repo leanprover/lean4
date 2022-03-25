@@ -1,15 +1,15 @@
 inductive sublist.{u_1} : {α : Type u_1} → List α → List α → Prop
 number of parameters: 1
 constructors:
-sublist.slnil : ∀ {a : Type u_1}, sublist [] []
-sublist.cons : ∀ {a : Type u_1} (l₁ l₂ : List a) (a_1 : a), sublist l₁ l₂ → sublist l₁ (a_1 :: l₂)
-sublist.cons2 : ∀ {a : Type u_1} (l₁ l₂ : List a) (a_1 : a), sublist l₁ l₂ → sublist (a_1 :: l₁) (a_1 :: l₂)
+sublist.slnil : ∀ {x : Type u_1}, sublist [] []
+sublist.cons : ∀ {x : Type u_1} (l₁ l₂ : List x) (a : x), sublist l₁ l₂ → sublist l₁ (a :: l₂)
+sublist.cons2 : ∀ {x : Type u_1} (l₁ l₂ : List x) (a : x), sublist l₁ l₂ → sublist (a :: l₁) (a :: l₂)
 inductive Foo.{u_1} : {α : Type u_1} → List α → Type u_1
 number of parameters: 1
 constructors:
-Foo.mk₁ : {a : Type u_1} → Foo []
+Foo.mk₁ : {x : Type u_1} → Foo []
 Foo.mk₂ : {α : Type u_1} → {as : List α} → (a : α) → Foo as → Foo (a :: as)
-inductive Bla.{u_1} : {a : Type u_1} → {as : List a} → Foo as → Type
+inductive Bla.{u_1} : {x : Type u_1} → {as : List x} → Foo as → Type
 number of parameters: 1
 constructors:
-Bla.mk₁ : {a : Type u_1} → Bla Foo.mk₁
+Bla.mk₁ : {x : Type u_1} → Bla Foo.mk₁

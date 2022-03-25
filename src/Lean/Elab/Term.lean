@@ -1391,6 +1391,74 @@ where
     | auto :: todo =>
       mvarsToParamsCore (← inferType auto) (init := autos) (fun autos => go todo (autos.push auto))
 
+/--
+  Collect unassigned metavariables in `type` that are not already in `init`.
+-/
+partial def collectUnassignedMVars (type : Expr) (init : Array Expr := #[]) : TermElabM (Array Expr) := do
+  let mvarIds ← getMVars type
+  if mvarIds.isEmpty then
+    return init
+  else
+    go mvarIds.toList init
+where
+  go (mvarIds : List MVarId) (result : Array Expr) : TermElabM (Array Expr) := do
+    match mvarIds with
+    | [] => return result
+    | mvarId :: mvarIds => do
+      if (← isExprMVarAssigned mvarId) then
+        go mvarIds result
+      else
+        let mvarType := (← getMVarDecl mvarId).type
+        let mvarIdsNew ← getMVars mvarType
+        if mvarIdsNew.isEmpty then
+          let mvar := mkMVar mvarId
+          if result.contains mvar then
+            go mvarIds result
+          else
+            go  mvarIds (result.push (mkMVar mvarId))
+        else
+          go (mvarIdsNew.toList ++ mvarId :: mvarIds) result
+
+/--
+  Return `autoBoundImplicits ++ xs`
+  This methoid throws an error if a variable in `autoBoundImplicits` depends on some `x` in `xs`.
+  The `autoBoundImplicits` may contain free variables created by the auto-implicit feature, and unassigned free variables.
+  It avoids the hack used at `autoBoundImplicitsOld`.
+
+  Remark: we cannot simply replace every occurrence of `addAutoBoundImplicitsOld` with this one because a particular
+  use-case may not be able to handle the metavariables in the array being given to `k`.
+-/
+def addAutoBoundImplicits (xs : Array Expr) : TermElabM (Array Expr) := do
+  let autos := (← read).autoBoundImplicits
+  go autos.toList #[]
+where
+  go (todo : List Expr) (autos : Array Expr) : TermElabM (Array Expr) := do
+    match todo with
+    | [] =>
+      for auto in autos do
+        if auto.isFVar then
+          let localDecl ← getLocalDecl auto.fvarId!
+          for x in xs do
+            if (← getMCtx).localDeclDependsOn localDecl x.fvarId! then
+              throwError "invalid auto implicit argument '{auto}', it depends on explicitly provided argument '{x}'"
+      return autos ++ xs
+    | auto :: todo =>
+      let autos ← collectUnassignedMVars (← inferType auto) autos
+      go todo (autos.push auto)
+
+/--
+  Similar to `autoBoundImplicits`, but immediately if the resulting array of expressions contains metavariables,
+  it immediately use `mkForallFVars` + `forallBoundedTelescope` to convert them into free variables.
+  The type `type` is modified during the process if type depends on `xs`.
+  We use this method to simplify the conversion of code using `autoBoundImplicitsOld` to `autoBoundImplicits`
+-/
+def addAutoBoundImplicits' (xs : Array Expr) (type : Expr) (k : Array Expr → Expr → TermElabM α) : TermElabM α := do
+  let xs ← addAutoBoundImplicits xs
+  if xs.all (·.isFVar) then
+    k xs type
+  else
+    forallBoundedTelescope (← mkForallFVars xs type) xs.size fun xs type => k xs type
+
 def mkAuxName (suffix : Name) : TermElabM Name := do
   match (← read).declName? with
   | none          => throwError "auxiliary declaration cannot be created when declaration name is not available"

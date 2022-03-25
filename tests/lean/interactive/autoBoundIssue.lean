@@ -26,3 +26,8 @@ structure Ex where
                 --^ $/lean/plainTermGoal
   boo : HasType k ctx ty → Prop := fun _ => True
                 --^ $/lean/plainTermGoal
+
+variable (x : HasType k ctx ty)
+                      --^ $/lean/plainTermGoal
+
+#check x

@@ -28,3 +28,9 @@
  {"start": {"line": 26, "character": 18}, "end": {"line": 26, "character": 21}},
  "goal":
  "aux : {x : Nat} → {k : Fin x} → {ctx : Vector Ty x} → {ty : Ty} → HasType k ctx ty\nk : Fin ?m\nctx : Vector Ty ?m\nty : Ty\n⊢ Vector Ty ?m"}
+{"textDocument": {"uri": "file://autoBoundIssue.lean"},
+ "position": {"line": 29, "character": 24}}
+{"range":
+ {"start": {"line": 29, "character": 24}, "end": {"line": 29, "character": 27}},
+ "goal":
+ "k : Fin ?m\nctx : Vector Ty ?m\nty : Ty\n⊢ Vector Ty ?m"}

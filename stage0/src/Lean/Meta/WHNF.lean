@@ -129,12 +129,15 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
       return major
     match majorType.getAppFn with
     | Expr.const d us _ =>
-      let some ctorName ← getFirstCtor d | pure major
-      let ctorInfo ← getConstInfoCtor ctorName
-      let mut result := mkAppN (mkConst ctorName us) (majorType.getAppArgs.shrink ctorInfo.numParams)
-      for i in [:ctorInfo.numFields] do
-        result := mkApp result (mkProj inductName i major)
-      return result
+      if (← whnfD (← inferType majorType)) == mkSort levelZero then
+        return major -- We do not perform eta for propositions, see implementation in the kernel
+      else
+        let some ctorName ← getFirstCtor d | pure major
+        let ctorInfo ← getConstInfoCtor ctorName
+        let mut result := mkAppN (mkConst ctorName us) (majorType.getAppArgs.shrink ctorInfo.numParams)
+        for i in [:ctorInfo.numFields] do
+          result := mkApp result (mkProj inductName i major)
+        return result
     | _ => return major
 
 /-- Auxiliary function for reducing recursor applications. -/

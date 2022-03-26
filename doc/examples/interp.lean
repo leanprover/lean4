@@ -22,7 +22,7 @@ inductive Vector (α : Type u) : Nat → Type u
   | cons : α → Vector α n → Vector α (n+1)
 
 /-|
-We can overload the `List.cons` notation `::` and use it to create `Vector`s.
+We can overload the `List.cons` notation `::` and use it to create `Vector`\ s.
 -/
 infix:67 " :: " => Vector.cons
 

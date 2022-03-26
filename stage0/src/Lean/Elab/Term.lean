@@ -1311,77 +1311,72 @@ partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
 def withoutAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
   withReader (fun ctx => { ctx with autoBoundImplicit := false, autoBoundImplicits := {} }) k
 
-private def mvarsToParamsCore (type : Expr) (init : Array Expr) (k : Array Expr → TermElabM α) : TermElabM α := do
+/--
+  Collect unassigned metavariables in `type` that are not already in `init`.
+-/
+partial def collectUnassignedMVars (type : Expr) (init : Array Expr := #[]) : TermElabM (Array Expr) := do
   let mvarIds ← getMVars type
   if mvarIds.isEmpty then
-    k init
+    return init
   else
-    let hugeFuel := 10000000
-    go hugeFuel mvarIds.toList init
+    go mvarIds.toList init
 where
-  go (fuel : Nat) (mvarIds : List MVarId) (params : Array Expr) : TermElabM α :=
-    match fuel with
-    | 0 => throwError "too many parameters"
-    | fuel+1 =>
-      match mvarIds with
-      | [] => k params
-      | mvarId :: mvarIds => do
-        if (← isExprMVarAssigned mvarId) then
-          go fuel mvarIds params
+  go (mvarIds : List MVarId) (result : Array Expr) : TermElabM (Array Expr) := do
+    match mvarIds with
+    | [] => return result
+    | mvarId :: mvarIds => do
+      if (← isExprMVarAssigned mvarId) then
+        go mvarIds result
+      else if result.contains (mkMVar mvarId) then
+        go mvarIds result
+      else
+        let mvarType := (← getMVarDecl mvarId).type
+        let mvarIdsNew ← getMVars mvarType
+        let mvarIdsNew := mvarIdsNew.filter fun mvarId => !result.contains (mkMVar mvarId)
+        if mvarIdsNew.isEmpty then
+          go  mvarIds (result.push (mkMVar mvarId))
         else
-          let mvarType := (← getMVarDecl mvarId).type
-          let mvarIdsNew ← getMVars mvarType
-          if mvarIdsNew.isEmpty then
-            withLocalDecl (← mkFreshUserName `a) BinderInfo.implicit mvarType fun newParam => do
-              -- The following assingment is a bit hackish since `newParam` is not in the scope
-              -- of the metavariable. We claim this ok because we fully instantiate thes metavariables before executing the
-              -- continuation `k`.
-              assignExprMVar mvarId newParam
-              go fuel mvarIds (params.push newParam)
-          else
-            go fuel (mvarIdsNew.toList ++ mvarId :: mvarIds) params
+          go (mvarIdsNew.toList ++ mvarId :: mvarIds) result
 
 /--
-   Helper function for converting metavariables occurring in `type` into new parameters.
+  Return `autoBoundImplicits ++ xs`
+  This methoid throws an error if a variable in `autoBoundImplicits` depends on some `x` in `xs`.
+  The `autoBoundImplicits` may contain free variables created by the auto-implicit feature, and unassigned free variables.
+  It avoids the hack used at `autoBoundImplicitsOld`.
+
+  Remark: we cannot simply replace every occurrence of `addAutoBoundImplicitsOld` with this one because a particular
+  use-case may not be able to handle the metavariables in the array being given to `k`.
 -/
-def mvarsToParams (type : Expr) (k : Array Expr → Expr → TermElabM α) (init : Array Expr := #[]) : TermElabM α :=
-  mvarsToParamsCore type init fun newParams => do
-    if newParams.isEmpty then
-      k newParams type
-    else
-      -- If new parameters were created for metavariables, we fully instantiate all metavariables in the current
-      -- local context befor invoking `k`. See hack above.
-      let (lctx, mctx) := (← getMCtx).instantiateLCtxMVars (← getLCtx)
-      setMCtx mctx
-      withLCtx lctx (← getLocalInstances) (k newParams (← instantiateMVars type))
-
-/--
-  Return `k (autoBoundImplicits ++ xs)`
-  This methoid throws an error if a variable in `autoBoundImplicits` depends on some `x` in `xs`. -/
-def addAutoBoundImplicits (xs : Array Expr) (k : Array Expr → TermElabM α) : TermElabM α := do
+def addAutoBoundImplicits (xs : Array Expr) : TermElabM (Array Expr) := do
   let autos := (← read).autoBoundImplicits
   go autos.toList #[]
 where
-  go (todo : List Expr) (autos : Array Expr) : TermElabM α := do
+  go (todo : List Expr) (autos : Array Expr) : TermElabM (Array Expr) := do
     match todo with
     | [] =>
       for auto in autos do
-        let localDecl ← getLocalDecl auto.fvarId!
-        trace[Meta.debug] "auto bound implicit: {localDecl.userName} : {localDecl.type}"
-        for x in xs do
-          if (← getMCtx).localDeclDependsOn localDecl x.fvarId! then
-            throwError "invalid auto implicit argument '{auto}', it depends on explicitly provided argument '{x}'"
-      if autos.size != (← read).autoBoundImplicits.size then
-        -- If new auto locals were created for metavariables, we fully instantiate all metavariables in the current
-        -- local context befor invoking `k`. See hack above.
-        let (lctx, mctx) := (← getMCtx).instantiateLCtxMVars (← getLCtx)
-        setMCtx mctx
-        withLCtx lctx (← getLocalInstances) do
-          k (autos ++ xs)
-      else
-        k (autos ++ xs)
+        if auto.isFVar then
+          let localDecl ← getLocalDecl auto.fvarId!
+          for x in xs do
+            if (← getMCtx).localDeclDependsOn localDecl x.fvarId! then
+              throwError "invalid auto implicit argument '{auto}', it depends on explicitly provided argument '{x}'"
+      return autos ++ xs
     | auto :: todo =>
-      mvarsToParamsCore (← inferType auto) (init := autos) (fun autos => go todo (autos.push auto))
+      let autos ← collectUnassignedMVars (← inferType auto) autos
+      go todo (autos.push auto)
+
+/--
+  Similar to `autoBoundImplicits`, but immediately if the resulting array of expressions contains metavariables,
+  it immediately use `mkForallFVars` + `forallBoundedTelescope` to convert them into free variables.
+  The type `type` is modified during the process if type depends on `xs`.
+  We use this method to simplify the conversion of code using `autoBoundImplicitsOld` to `autoBoundImplicits`
+-/
+def addAutoBoundImplicits' (xs : Array Expr) (type : Expr) (k : Array Expr → Expr → TermElabM α) : TermElabM α := do
+  let xs ← addAutoBoundImplicits xs
+  if xs.all (·.isFVar) then
+    k xs type
+  else
+    forallBoundedTelescope (← mkForallFVars xs type) xs.size fun xs type => k xs type
 
 def mkAuxName (suffix : Name) : TermElabM Name := do
   match (← read).declName? with
@@ -1548,34 +1543,14 @@ unsafe def evalExpr (α) (typeName : Name) (value : Expr) : TermElabM α :=
     addAndCompile decl
     evalConst α name
 
-private def throwStuckAtUniverseCnstr : TermElabM Unit := do
-  -- This code assumes `entries` is not empty. Note that `processPostponed` uses `exceptionOnFailure` to guarantee this property
-  let entries ← getPostponed
-  let mut found : Std.HashSet (Level × Level) := {}
-  let mut uniqueEntries := #[]
-  for entry in entries do
-    let mut lhs := entry.lhs
-    let mut rhs := entry.rhs
-    if Level.normLt rhs lhs then
-      (lhs, rhs) := (rhs, lhs)
-    unless found.contains (lhs, rhs) do
-      found := found.insert (lhs, rhs)
-      uniqueEntries := uniqueEntries.push entry
-  for i in [1:uniqueEntries.size] do
-    logErrorAt uniqueEntries[i].ref (← mkLevelStuckErrorMessage uniqueEntries[i])
-  throwErrorAt uniqueEntries[0].ref (← mkLevelStuckErrorMessage uniqueEntries[0])
-
-def withoutPostponingUniverseConstraints (x : TermElabM α) : TermElabM α := do
-  let postponed ← getResetPostponed
-  try
-    let a ← x
-    unless (← processPostponed (mayPostpone := false) (exceptionOnFailure := true)) do
-      throwStuckAtUniverseCnstr
-    setPostponed postponed
-    return a
-  catch ex =>
-    setPostponed postponed
-    throw ex
+/--
+  Execute `x` and then tries to solve pending universe constraints.
+  Note that, stuck constraints will not be discarded.
+-/
+def universeConstraintsCheckpoint (x : TermElabM α) : TermElabM α := do
+  let a ← x
+  discard <| processPostponed (mayPostpone := true) (exceptionOnFailure := true)
+  return a
 
 def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : TermElabM ExpandDeclIdResult := do
   let r ← Elab.expandDeclId currNamespace currLevelNames declId modifiers

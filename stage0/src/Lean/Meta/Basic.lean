@@ -297,7 +297,12 @@ def setPostponed (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
    They are defined later using the `export` attribute. This is hackish because we
    have to hard-code the true arity of these definitions here, and make sure the C names match.
    We have used another hack based on `IO.Ref`s in the past, it was safer but less efficient. -/
+
+/-- Reduces an expression to its Weak Head Normal Form.
+This is when the topmost expression has been fully reduced,
+but may contain subexpressions which have not been reduced. -/
 @[extern 6 "lean_whnf"] constant whnf : Expr → MetaM Expr
+/-- Returns the inferred type of the given expression, or fails if it is not type-correct. -/
 @[extern 6 "lean_infer_type"] constant inferType : Expr → MetaM Expr
 @[extern 7 "lean_is_expr_def_eq"] constant isExprDefEqAux : Expr → Expr → MetaM Bool
 @[extern 7 "lean_is_level_def_eq"] constant isLevelDefEqAux : Level → Level → MetaM Bool
@@ -487,15 +492,24 @@ def abstractRange (e : Expr) (n : Nat) (xs : Array Expr) : MetaM Expr :=
 def abstract (e : Expr) (xs : Array Expr) : MetaM Expr :=
   abstractRange e xs.size xs
 
+/-- Takes an array `xs` of free variables or metavariables and a term `e` that may contain those variables, and abstracts and binds them as universal quantifiers.
+
+- if `usedOnly = true` then only variables that the expression body depends on will appear.
+- if `usedLetOnly = true` same as `usedOnly` except for let-bound variables. (That is, local constants which have been assigned a value.)
+ -/
 def mkForallFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
   if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkForall xs e usedOnly usedLetOnly binderInfoForMVars
 
+/-- Takes an array `xs` of free variables and metavariables and a
+body term `e` and creates `fun ..xs => e`, suitably
+abstracting `e` and the types in `xs`. -/
 def mkLambdaFVars (xs : Array Expr) (e : Expr) (usedOnly : Bool := false) (usedLetOnly : Bool := true) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
   if xs.isEmpty then pure e else liftMkBindingM <| MetavarContext.mkLambda xs e usedOnly usedLetOnly binderInfoForMVars
 
 def mkLetFVars (xs : Array Expr) (e : Expr) (usedLetOnly := true) (binderInfoForMVars := BinderInfo.implicit) : MetaM Expr :=
   mkLambdaFVars xs e (usedLetOnly := usedLetOnly) (binderInfoForMVars := binderInfoForMVars)
 
+/-- Creates the expression `d → b` -/
 def mkArrow (d b : Expr) : MetaM Expr :=
   return Lean.mkForall (← mkFreshUserName `x) BinderInfo.default d b
 
@@ -820,15 +834,18 @@ where
         withNewLocalInstancesImp fvars j do
           k fvars e
 
-/-- Similar to `forallTelescope` but for lambda and let expressions. -/
-def lambdaLetTelescope (type : Expr) (k : Array Expr → Expr → n α) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp type true k) k
+/-- Similar to `lambdaTelescope` but for lambda and let expressions. -/
+def lambdaLetTelescope (e : Expr) (k : Array Expr → Expr → n α) : n α :=
+  map2MetaM (fun k => lambdaTelescopeImp e true k) k
 
-/-- Similar to `forallTelescope` but for lambda expressions. -/
-def lambdaTelescope (type : Expr) (k : Array Expr → Expr → n α) : n α :=
-  map2MetaM (fun k => lambdaTelescopeImp type false k) k
+/--
+  Given `e` of the form `fun ..xs => A`, execute `k xs A`.
+  This combinator will declare local declarations, create free variables for them,
+  execute `k` with updated local context, and make sure the cache is restored after executing `k`. -/
+def lambdaTelescope (e : Expr) (k : Array Expr → Expr → n α) : n α :=
+  map2MetaM (fun k => lambdaTelescopeImp e false k) k
 
-/-- Return the parameter names for the givel global declaration. -/
+/-- Return the parameter names for the given global declaration. -/
 def getParamNames (declName : Name) : MetaM (Array Name) := do
   forallTelescopeReducing (← getConstInfo declName).type fun xs _ => do
     xs.mapM fun x => do
@@ -864,15 +881,23 @@ where
         else
           return (mvars, bis, type)
 
-/-- Similar to `forallTelescope`, but creates metavariables instead of free variables. -/
+/-- Given `e` of the form `forall ..xs, A`, this combinator will create a new
+  metavariable for each `x` in `xs` and instantiate `A` with these.
+  Returns a product containing
+  - the new metavariables
+  - the binder info for the `xs`
+  - the instantiated `A`
+  -/
 def forallMetaTelescope (e : Expr) (kind := MetavarKind.natural) : MetaM (Array Expr × Array BinderInfo × Expr) :=
   forallMetaTelescopeReducingAux e (reducing := false) (maxMVars? := none) kind
 
-/-- Similar to `forallTelescopeReducing`, but creates metavariables instead of free variables. -/
+/-- Similar to `forallMetaTelescope`, but if `e = forall ..xs, A`
+it will reduce `A` to construct further mvars.  -/
 def forallMetaTelescopeReducing (e : Expr) (maxMVars? : Option Nat := none) (kind := MetavarKind.natural) : MetaM (Array Expr × Array BinderInfo × Expr) :=
   forallMetaTelescopeReducingAux e (reducing := true) maxMVars? kind
 
-/-- Similar to `forallMetaTelescopeReducing`, stops constructing the telescope when it reaches size `maxMVars`. -/
+/-- Similar to `forallMetaTelescopeReducing`, stops
+constructing the telescope when it reaches size `maxMVars`. -/
 def forallMetaBoundedTelescope (e : Expr) (maxMVars : Nat) (kind : MetavarKind := MetavarKind.natural) : MetaM (Array Expr × Array BinderInfo × Expr) :=
   forallMetaTelescopeReducingAux e (reducing := true) (maxMVars? := some maxMVars) (kind := kind)
 
@@ -909,12 +934,21 @@ private def withLocalDeclImp (n : Name) (bi : BinderInfo) (type : Expr) (k : Exp
   withReader (fun ctx => { ctx with lctx := lctx }) do
     withNewFVar fvar type k
 
+/-- Create a free variable `x` with name, binderInfo and type, add it to the context and run in `k`.
+Then revert the context. -/
 def withLocalDecl (name : Name) (bi : BinderInfo) (type : Expr) (k : Expr → n α) : n α :=
   map1MetaM (fun k => withLocalDeclImp name bi type k) k
 
 def withLocalDeclD (name : Name) (type : Expr) (k : Expr → n α) : n α :=
   withLocalDecl name BinderInfo.default type k
 
+/-- Append an array of free variables `xs` to the local context and execute `k xs`.
+declInfos takes the form of an array consisting of:
+- the name of the variable
+- the binder info of the variable
+- a type constructor for the variable, where the array consists of all of the free variables
+  defined prior to this one. This is needed because the type of the variable may depend on prior variables.
+-/
 partial def withLocalDecls
     [Inhabited α]
     (declInfos : Array (Name × BinderInfo × (Array Expr → n Expr)))
@@ -1049,12 +1083,15 @@ def normalizeLevel (u : Level) : MetaM Level := do
 def assignLevelMVar (mvarId : MVarId) (u : Level) : MetaM Unit := do
   modifyMCtx fun mctx => mctx.assignLevel mvarId u
 
+/-- `whnf` with reducible transparency.-/
 def whnfR (e : Expr) : MetaM Expr :=
   withTransparency TransparencyMode.reducible <| whnf e
 
+/-- `whnf` with default transparency.-/
 def whnfD (e : Expr) : MetaM Expr :=
   withTransparency TransparencyMode.default <| whnf e
 
+/-- `whnf` with instances transparency.-/
 def whnfI (e : Expr) : MetaM Expr :=
   withTransparency TransparencyMode.instances <| whnf e
 
@@ -1228,7 +1265,8 @@ private def processPostponedStep (exceptionOnFailure : Bool) : MetaM Bool :=
     for p in ps do
       unless (← withReader (fun ctx => { ctx with defEqCtx? := p.ctx? }) <| isLevelDefEqAux p.lhs p.rhs) do
         if exceptionOnFailure then
-          throwError (← mkLevelErrorMessage p)
+          withRef p.ref do
+            throwError (← mkLevelErrorMessage p)
         else
           return false
     return true
@@ -1296,6 +1334,7 @@ def isExprDefEq (t s : Expr) : MetaM Bool :=
     trace[Meta.isDefEq] "{t} =?= {s} ... {if b then "success" else "failure"}"
     return b
 
+/-- Determines whether two expressions are definitionally equal to each other. -/
 abbrev isDefEq (t s : Expr) : MetaM Bool :=
   isExprDefEq t s
 

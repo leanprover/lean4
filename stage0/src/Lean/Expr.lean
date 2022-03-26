@@ -30,6 +30,31 @@ instance : LT Literal := ⟨fun a b => a.lt b⟩
 instance (a b : Literal) : Decidable (a < b) :=
   inferInstanceAs (Decidable (a.lt b))
 
+/--
+Arguments in forallE binders can be labelled as implicit or explicit.
+
+Each `lam` or `forallE` binder comes with a `binderInfo` argument (stored in ExprData).
+This can be set to
+- `default` -- `(x : α)`
+- `implicit` --  `{x : α}`
+- `strict_implicit` -- `⦃x : α⦄`
+- `inst_implicit` -- `[x : α]`.
+- `aux_decl` -- Auxillary definitions are helper methods that
+  Lean generates. `aux_decl` is used for `_match`, `_fun_match`,
+  `_let_match` and the self reference that appears in recursive pattern matching.
+
+The difference between implicit `{}` and strict-implicit `⦃⦄` is how
+implicit arguments are treated that are *not* followed by explicit arguments.
+`{}` arguments are applied eagerly, while `⦃⦄` arguments are left partially applied:
+```lean
+def foo {x : Nat} : Nat := x
+def bar ⦃x : Nat⦄ : Nat := x
+#check foo -- foo : Nat
+#check bar -- bar : ⦃x : Nat⦄ → Nat
+```
+
+See also the Lean manual: https://leanprover.github.io/lean4/doc/expressions.html#implicit-arguments
+-/
 inductive BinderInfo where
   | default | implicit | strictImplicit | instImplicit | auxDecl
   deriving Inhabited, BEq, Repr
@@ -65,20 +90,22 @@ def BinderInfo.isAuxDecl : BinderInfo → Bool
   | BinderInfo.auxDecl => true
   | _                  => false
 
+/-- Expression metadata. Used with the `Expr.mdata` constructor. -/
 abbrev MData := KVMap
 abbrev MData.empty : MData := {}
 
 /--
  Cached hash code, cached results, and other data for `Expr`.
    hash           : 32-bits
-   hasFVar        : 1-bit
-   hasExprMVar    : 1-bit
-   hasLevelMVar   : 1-bit
-   hasLevelParam  : 1-bit
-   nonDepLet      : 1-bit
-   binderInfo     : 3-bits
+   hasFVar        : 1-bit -- does it contain free variables?
+   hasExprMVar    : 1-bit -- does it contain metavariables?
+   hasLevelMVar   : 1-bit -- does it contain level metavariables?
+   hasLevelParam  : 1-bit -- does it contain level parameters?
+   nonDepLet      : 1-bit -- internal flag, for tracking whether let x := v; b is equivalent to (fun x => b) v
+   binderInfo     : 3-bits -- encoding of BinderInfo
    approxDepth    : 8-bits -- the approximate depth is used to minimize the number of hash collisions
-   looseBVarRange : 16-bits -/
+   looseBVarRange : 16-bits
+-/
 def Expr.Data := UInt64
 
 instance: Inhabited Expr.Data :=
@@ -268,6 +295,7 @@ def hasExprMVar (e : Expr) : Bool :=
 def hasLevelMVar (e : Expr) : Bool :=
   e.data.hasLevelMVar
 
+/-- Does the expression contain level or expression metavariables?-/
 def hasMVar (e : Expr) : Bool :=
   let d := e.data
   d.hasExprMVar || d.hasLevelMVar
@@ -278,6 +306,11 @@ def hasLevelParam (e : Expr) : Bool :=
 def approxDepth (e : Expr) : UInt32 :=
   e.data.approxDepth.toUInt32
 
+/-- The range of de-Bruijn variables that are loose.
+That is, bvars that are not bound by a binder.
+For example, `bvar i` has range `i + 1` and
+an expression with no loose bvars has range `0`.
+-/
 def looseBVarRange (e : Expr) : Nat :=
   e.data.looseBVarRange.toNat
 
@@ -353,11 +386,11 @@ def mkForall (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
     (t.hasLevelParam || b.hasLevelParam)
     bi
 
-/- Return `Unit -> type`. Do not confuse with `Thunk type` -/
+/-- Return `Unit -> type`. Do not confuse with `Thunk type` -/
 def mkSimpleThunkType (type : Expr) : Expr :=
   mkForall Name.anonymous BinderInfo.default (Lean.mkConst `Unit) type
 
-/- Return `fun (_ : Unit), e` -/
+/-- Return `fun (_ : Unit), e` -/
 def mkSimpleThunk (type : Expr) : Expr :=
   mkLambda `_ BinderInfo.default (Lean.mkConst `Unit) type
 
@@ -410,6 +443,7 @@ def mkStrLit (s : String) : Expr :=
 @[export lean_expr_mk_mdata] def mkMDataEx : MData → Expr → Expr := mkMData
 @[export lean_expr_mk_proj] def mkProjEx : Name → Nat → Expr → Expr := mkProj
 
+/-- `mkAppN f #[a₀, ..., aₙ]` ==> `f a₀ a₁ .. aₙ`-/
 def mkAppN (f : Expr) (args : Array Expr) : Expr :=
   args.foldl mkApp f
 
@@ -420,6 +454,7 @@ private partial def mkAppRangeAux (n : Nat) (args : Array Expr) (i : Nat) (e : E
 def mkAppRange (f : Expr) (i j : Nat) (args : Array Expr) : Expr :=
   mkAppRangeAux j args i f
 
+/-- Same as `mkApp f args` but reversing `args`. -/
 def mkAppRev (fn : Expr) (revArgs : Array Expr) : Expr :=
   revArgs.foldr (fun a r => mkApp r a) fn
 
@@ -434,7 +469,7 @@ constant quickLt (a : @& Expr) (b : @& Expr) : Bool
 @[extern "lean_expr_lt"]
 constant lt (a : @& Expr) (b : @& Expr) : Bool
 
-/- Return true iff `a` and `b` are alpha equivalent.
+/-- Return true iff `a` and `b` are alpha equivalent.
    Binder annotations are ignored. -/
 @[extern "lean_expr_eqv"]
 constant eqv (a : @& Expr) (b : @& Expr) : Bool
@@ -519,6 +554,9 @@ def getForallBody : Expr → Expr
   | forallE _ _ b .. => getForallBody b
   | e                => e
 
+/-- If the given expression is a sequence of
+function applications `f a₁ .. aₙ`, return `f`.
+Otherwise return the input expression. -/
 def getAppFn : Expr → Expr
   | app f a _ => getAppFn f
   | e         => e
@@ -527,6 +565,7 @@ def getAppNumArgsAux : Expr → Nat → Nat
   | app f a _, n => getAppNumArgsAux f (n+1)
   | e,         n => n
 
+/-- Counts the number `n` of arguments for an expression `f a₁ .. aₙ`. -/
 def getAppNumArgs (e : Expr) : Nat :=
   getAppNumArgsAux e 0
 
@@ -534,6 +573,7 @@ private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
   | app f a _, as, i => getAppArgsAux f (as.set! i a) (i-1)
   | _,         as, _ => as
 
+/-- Given `f a₁ a₂ ... aₙ`, returns `#[a₁, ..., aₙ]` -/
 @[inline] def getAppArgs (e : Expr) : Array Expr :=
   let dummy := mkSort levelZero
   let nargs := e.getAppNumArgs
@@ -543,6 +583,7 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
   | app f a _, as => getAppRevArgsAux f (as.push a)
   | _,         as => as
 
+/-- Same as `getAppArgs` but reverse the output array. -/
 @[inline] def getAppRevArgs (e : Expr) : Array Expr :=
   getAppRevArgsAux e (Array.mkEmpty e.getAppNumArgs)
 
@@ -550,6 +591,7 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
   | app f a _, as, i => withAppAux k f (as.set! i a) (i-1)
   | f,         as, i => k f as
 
+/-- Given `e = f a₁ a₂ ... aₙ`, returns `k f #[a₁, ..., aₙ]`. -/
 @[inline] def withApp (e : Expr) (k : Expr → Array Expr → α) : α :=
   let dummy := mkSort levelZero
   let nargs := e.getAppNumArgs
@@ -559,6 +601,7 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
   | app f a _, as => withAppRevAux k f (as.push a)
   | f,         as => k f as
 
+/-- Same as `withApp` but with arguments reversed. -/
 @[inline] def withAppRev (e : Expr) (k : Expr → Array Expr → α) : α :=
   withAppRevAux k e (Array.mkEmpty e.getAppNumArgs)
 
@@ -572,17 +615,22 @@ def getRevArg! : Expr → Nat → Expr
   | app f _ _, i+1 => getRevArg! f i
   | _,         _   => panic! "invalid index"
 
+/-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or panics if out of bounds. -/
 @[inline] def getArg! (e : Expr) (i : Nat) (n := e.getAppNumArgs) : Expr :=
   getRevArg! e (n - i - 1)
 
+/-- Given `f a₀ a₁ ... aₙ`, returns the `i`th argument or returns `v₀` if out of bounds. -/
 @[inline] def getArgD (e : Expr) (i : Nat) (v₀ : Expr) (n := e.getAppNumArgs) : Expr :=
   getRevArgD e (n - i - 1) v₀
 
+/-- Given `f a₀ a₁ ... aₙ`, returns true if `f` is a constant with name `n`. -/
 def isAppOf (e : Expr) (n : Name) : Bool :=
   match e.getAppFn with
   | const c _ _ => c == n
   | _           => false
 
+/-- Given `f a₁ ... aᵢ`, returns true if `f` is a constant
+with name `n` and has the correct number of arguments. -/
 def isAppOfArity : Expr → Name → Nat → Bool
   | const c _ _, n, 0   => c == n
   | app f _ _,   n, a+1 => isAppOfArity f n a
@@ -787,6 +835,7 @@ def replaceFVars (e : Expr) (fvars : Array Expr) (vs : Array Expr) : Expr :=
 instance : ToString Expr where
   toString := Expr.dbgToString
 
+/-- Returns true when the expression does not have any sub-expressions. -/
 def isAtomic : Expr → Bool
   | Expr.const _ _ _ => true
   | Expr.sort _ _    => true
@@ -854,13 +903,13 @@ def mkAppRevRange (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : Ex
   Examples:
   - `betaRev (fun x y => t x y) #[]` ==> `fun x y => t x y`
   - `betaRev (fun x y => t x y) #[a]` ==> `fun y => t a y`
-  - `betaRev (fun x y => t x y) #[a, b]` ==> t b a`
-  - `betaRev (fun x y => t x y) #[a, b, c, d]` ==> t d c b a`
+  - `betaRev (fun x y => t x y) #[a, b]` ==> `t b a`
+  - `betaRev (fun x y => t x y) #[a, b, c, d]` ==> `t d c b a`
   Suppose `t` is `(fun x y => t x y) a b c d`, then
   `args := t.getAppRev` is `#[d, c, b, a]`,
   and `betaRev (fun x y => t x y) #[d, c, b, a]` is `t a b c d`.
 
-  If `useZeta` is true, the function also performs zeta-reduction to create further
+  If `useZeta` is true, the function also performs zeta-reduction (reduction of let binders) to create further
   opportunities for beta reduction.
 -/
 partial def betaRev (f : Expr) (revArgs : Array Expr) (useZeta := false) (preserveMData := false) : Expr :=
@@ -892,6 +941,8 @@ partial def betaRev (f : Expr) (revArgs : Array Expr) (useZeta := false) (preser
         mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
     go f 0
 
+/-- Apply the given arguments to `f`, beta-reducing if `f` is a
+lambda expression. See docstring for `betaRev` for examples. -/
 def beta (f : Expr) (args : Array Expr) : Expr :=
   betaRev f args.reverse
 
@@ -901,6 +952,7 @@ def isHeadBetaTargetFn (useZeta : Bool) : Expr → Bool
   | Expr.mdata _ b _    => isHeadBetaTargetFn useZeta b
   | _                   => false
 
+/-- `(fun x => e) a` ==> `e[x/a]`. -/
 def headBeta (e : Expr) : Expr :=
   let f := e.getAppFn
   if f.isHeadBetaTargetFn false then betaRev f e.getAppRevArgs else e
@@ -1128,11 +1180,11 @@ private partial def getParamSubstArray (ps : Array Name) (us : Array Level) (p' 
 def instantiateLevelParamsArray (e : Expr) (paramNames : Array Name) (lvls : Array Level) : Expr :=
   instantiateLevelParamsCore (fun p => getParamSubstArray paramNames lvls p 0) e
 
-/- Annotate `e` with the given option. -/
+/-- Annotate `e` with the given option. -/
 def setOption (e : Expr) (optionName : Name) [KVMap.Value α] (val : α) : Expr :=
   mkMData (MData.empty.set optionName val) e
 
-/- Annotate `e` with `pp.explicit := true`
+/-- Annotate `e` with `pp.explicit := true`
    The delaborator uses `pp` options. -/
 def setPPExplicit (e : Expr) (flag : Bool) :=
   e.setOption `pp.explicit flag
@@ -1140,7 +1192,7 @@ def setPPExplicit (e : Expr) (flag : Bool) :=
 def setPPUniverses (e : Expr) (flag : Bool) :=
   e.setOption `pp.universes flag
 
-/- If `e` is an application `f a_1 ... a_n` annotate `f`, `a_1` ... `a_n` with `pp.explicit := false`,
+/-- If `e` is an application `f a_1 ... a_n` annotate `f`, `a_1` ... `a_n` with `pp.explicit := false`,
    and annotate `e` with `pp.explicit := true`. -/
 def setAppPPExplicit (e : Expr) : Expr :=
   match e with
@@ -1150,7 +1202,7 @@ def setAppPPExplicit (e : Expr) : Expr :=
     mkAppN f args |>.setPPExplicit true
   | _      => e
 
-/- Similar for `setAppPPExplicit`, but only annotate children with `pp.explicit := false` if
+/-- Similar for `setAppPPExplicit`, but only annotate children with `pp.explicit := false` if
    `e` does not contain metavariables. -/
 def setAppPPExplicitForExposingMVars (e : Expr) : Expr :=
   match e with

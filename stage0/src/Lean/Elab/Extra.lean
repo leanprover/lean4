@@ -103,9 +103,9 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
         let m ← getMonadForIn expectedType?
         let colType ← inferType colFVar
         let elemType ← mkFreshExprMVar (mkSort (mkLevelSucc (← mkFreshLevelMVar)))
-        let memType ← mkFreshExprMVar (← mkAppM ``Membership #[elemType, colType])
         let forInInstance ←
           try
+            let memType ← mkFreshExprMVar (← mkAppM ``Membership #[elemType, colType])
             mkAppM ``ForIn' #[m, colType, elemType, memType]
           catch
             ex => tryPostpone; throwError "failed to construct `ForIn'` instance for collection{indentExpr colType}\nand monad{indentExpr m}"

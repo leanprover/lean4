@@ -146,17 +146,20 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 
 @[builtinTactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx => do
   match stx with
-  | `(tactic| intro)                   => introStep `_
-  | `(tactic| intro $h:ident)          => introStep h.getId
-  | `(tactic| intro _)                 => introStep `_
+  | `(tactic| intro)                   => introStep none `_
+  | `(tactic| intro $h:ident)          => introStep h h.getId
+  | `(tactic| intro _%$tk)             => introStep tk `_
   | `(tactic| intro $pat:term)         => evalTactic (← `(tactic| intro h; match h with | $pat:term => ?_; try clear h))
   | `(tactic| intro $h:term $hs:term*) => evalTactic (← `(tactic| intro $h:term; intro $hs:term*))
   | _ => throwUnsupportedSyntax
 where
-  introStep (n : Name) : TacticM Unit :=
-    liftMetaTactic fun mvarId => do
-      let (_, mvarId) ← Meta.intro mvarId n
-      pure [mvarId]
+  introStep (ref : Option Syntax) (n : Name) : TacticM Unit := do
+    let fvar ← liftMetaTacticAux fun mvarId => do
+      let (fvar, mvarId) ← Meta.intro mvarId n
+      pure (fvar, [mvarId])
+    if let some stx := ref then
+      withMainContext do
+        Term.addLocalVarInfo stx (mkFVar fvar)
 
 @[builtinTactic Lean.Parser.Tactic.introMatch] def evalIntroMatch : Tactic := fun stx => do
   let matchAlts := stx[1]
@@ -168,9 +171,13 @@ where
   | `(tactic| intros) => liftMetaTactic fun mvarId => do
     let (_, mvarId) ← Meta.intros mvarId
     return [mvarId]
-  | `(tactic| intros $ids*) => liftMetaTactic fun mvarId => do
-    let (_, mvarId) ← Meta.introN mvarId ids.size (ids.map getNameOfIdent').toList
-    return [mvarId]
+  | `(tactic| intros $ids*) => do
+    let fvars ← liftMetaTacticAux fun mvarId => do
+      let (fvars, mvarId) ← Meta.introN mvarId ids.size (ids.map getNameOfIdent').toList
+      return (fvars, [mvarId])
+    withMainContext do
+      for stx in ids, fvar in fvars do
+        Term.addLocalVarInfo stx (mkFVar fvar)
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.revert] def evalRevert : Tactic := fun stx =>

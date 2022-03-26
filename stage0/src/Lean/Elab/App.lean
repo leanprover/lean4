@@ -972,7 +972,7 @@ private def annotateIfRec (stx : Syntax) (e : Expr) : TermElabM Expr := do
   return e
 
 @[builtinTermElab app] def elabApp : TermElab := fun stx expectedType? =>
-  withoutPostponingUniverseConstraints do
+  universeConstraintsCheckpoint do
     let (f, namedArgs, args, ellipsis) ← expandApp stx
     annotateIfRec stx (← elabAppAux f namedArgs args (ellipsis := ellipsis) expectedType?)
 
@@ -988,7 +988,7 @@ private def elabAtom : TermElab := fun stx expectedType? => do
 /-- `e |>.x` is a shorthand for `(e).x`. It is especially useful for avoiding parentheses with repeated applications. -/
 @[builtinTermElab pipeProj] def elabPipeProj : TermElab
   | `($e |>.$f $args*), expectedType? =>
-    withoutPostponingUniverseConstraints do
+    universeConstraintsCheckpoint do
       let (namedArgs, args, ellipsis) ← expandArgs args
       elabAppAux (← `($e |>.$f)) namedArgs args (ellipsis := ellipsis) expectedType?
   | _, _ => throwUnsupportedSyntax

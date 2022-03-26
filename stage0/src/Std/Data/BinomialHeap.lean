@@ -51,7 +51,7 @@ def singleton (a : α) : Heap α :=
 
 -- Merge two forests of binomial trees. The forests are assumed to be ordered
 -- by rank and `mergeNodes` maintains this invariant.
-@[specialize] partial def mergeNodes (le : α → α → Bool) : List (HeapNode α) → List (HeapNode α) → List (HeapNode α)
+@[specialize] def mergeNodes (le : α → α → Bool) : List (HeapNode α) → List (HeapNode α) → List (HeapNode α)
   | [], h  => h
   | h,  [] => h
   | f@(h₁ :: t₁), s@(h₂ :: t₂) =>
@@ -64,6 +64,8 @@ def singleton (a : α) : Heap α :=
         if r != hRank t₂ then merged :: mergeNodes le t₁ t₂ else mergeNodes le (merged :: t₁) t₂
       else
         if r != hRank t₂ then mergeNodes le t₁ (merged :: t₂) else merged :: mergeNodes le t₁ t₂
+termination_by _ h₁ h₂ => h₁.length + h₂.length
+decreasing_by simp_wf; simp_arith [*]
 
 @[specialize] def merge (le : α → α → Bool) : Heap α → Heap α → Heap α
   | heap h₁, heap h₂ => heap (mergeNodes le h₁ h₂)

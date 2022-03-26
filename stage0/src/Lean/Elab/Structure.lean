@@ -505,24 +505,24 @@ private def elabFieldTypeValue (view : StructFieldView) : TermElabM (Option Expr
       | none        => return (none, none)
       | some valStx =>
         Term.synthesizeSyntheticMVarsNoPostponing
-        Term.addAutoBoundImplicits params fun params => do
-          let value ← Term.elabTerm valStx none
-          let value ← mkLambdaFVars params value
-          return (none, value)
+        let params ← Term.addAutoBoundImplicits params
+        let value ← Term.elabTerm valStx none
+        let value ← mkLambdaFVars params value
+        return (none, value)
     | some typeStx =>
       let type ← Term.elabType typeStx
       Term.synthesizeSyntheticMVarsNoPostponing
-      Term.addAutoBoundImplicits params fun params => do
-        match view.value? with
-        | none        =>
-          let type  ← mkForallFVars params type
-          return (type, none)
-        | some valStx =>
-          let value ← Term.elabTermEnsuringType valStx type
-          Term.synthesizeSyntheticMVarsNoPostponing
-          let type  ← mkForallFVars params type
-          let value ← mkLambdaFVars params value
-          return (type, value)
+      let params ← Term.addAutoBoundImplicits params
+      match view.value? with
+      | none        =>
+        let type  ← mkForallFVars params type
+        return (type, none)
+      | some valStx =>
+        let value ← Term.elabTermEnsuringType valStx type
+        Term.synthesizeSyntheticMVarsNoPostponing
+        let type  ← mkForallFVars params type
+        let value ← mkLambdaFVars params value
+        return (type, value)
 
 private partial def withFields (views : Array StructFieldView) (infos : Array StructFieldInfo) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
   go 0 {} infos
@@ -882,26 +882,26 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
         Term.withLevelNames allUserLevelNames <| Term.withAutoBoundImplicit <|
           Term.elabBinders params fun params => do
             Term.synthesizeSyntheticMVarsNoPostponing
-            Term.addAutoBoundImplicits params fun params => do
-              let allUserLevelNames ← Term.getLevelNames
-              elabStructureView {
-                ref := stx
-                modifiers
-                scopeLevelNames
-                allUserLevelNames
-                declName
-                isClass
-                scopeVars
-                params
-                parents
-                type
-                ctor
-                fields
-              }
-              unless isClass do
-                mkSizeOfInstances declName
-                mkInjectiveTheorems declName
-              return declName
+            let params ← Term.addAutoBoundImplicits params
+            let allUserLevelNames ← Term.getLevelNames
+            elabStructureView {
+              ref := stx
+              modifiers
+              scopeLevelNames
+              allUserLevelNames
+              declName
+              isClass
+              scopeVars
+              params
+              parents
+              type
+              ctor
+              fields
+            }
+            unless isClass do
+              mkSizeOfInstances declName
+              mkInjectiveTheorems declName
+            return declName
   derivingClassViews.forM fun view => view.applyHandlers #[declName]
 
 builtin_initialize registerTraceClass `Elab.structure

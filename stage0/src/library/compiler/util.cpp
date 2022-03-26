@@ -448,7 +448,7 @@ optional<unsigned> has_trivial_structure(environment const & env, name const & I
     inductive_val I_val = env.get(I_name).to_inductive_val();
     if (I_val.is_unsafe())
         return optional<unsigned>();
-    if (I_val.get_ncnstrs() != 1)
+    if (I_val.get_ncnstrs() != 1 || I_val.is_rec())
         return optional<unsigned>();
     buffer<bool> rel_fields;
     get_constructor_relevant_fields(env, head(I_val.get_cnstrs()), rel_fields);

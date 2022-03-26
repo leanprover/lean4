@@ -76,7 +76,7 @@ private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc :
         let u ← mkFreshLevelMVar
         let type := mkSort u
         Term.synthesizeSyntheticMVarsNoPostponing
-        Term.addAutoBoundImplicits params fun params => do
+        Term.addAutoBoundImplicits' params type fun params type => do
           pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
       | some typeStx =>
         let (type, numImplicitIndices) ← Term.withAutoBoundImplicit do
@@ -84,9 +84,9 @@ private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc :
           unless (← isTypeFormerType type) do
             throwErrorAt typeStx "invalid inductive type, resultant type is not a sort"
           Term.synthesizeSyntheticMVarsNoPostponing
-          Term.addAutoBoundImplicits #[] fun indices =>
-            return (← mkForallFVars indices type, indices.size)
-        Term.addAutoBoundImplicits params fun params => do
+          let indices ← Term.addAutoBoundImplicits #[]
+          return (← mkForallFVars indices type, indices.size)
+        Term.addAutoBoundImplicits' params type fun params type => do
           pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
     elabHeaderAux views (i+1) acc
   else
@@ -219,12 +219,12 @@ private def elabCtors (indFVars : Array Expr) (indFVar : Expr) (params : Array E
             k type
         elabCtorType fun type => do
           Term.synthesizeSyntheticMVarsNoPostponing
-          Term.addAutoBoundImplicits ctorParams fun ctorParams => do
-            let type ← mkForallFVars ctorParams type
-            Term.mvarsToParams type fun extraCtorParams type => do
-              let type ← mkForallFVars extraCtorParams type
-              let type ← mkForallFVars params type
-              return { name := ctorView.declName, type }
+          let ctorParams ← Term.addAutoBoundImplicits ctorParams
+          let type  ← mkForallFVars ctorParams type
+          let extraCtorParams ← Term.collectUnassignedMVars type
+          let type ← mkForallFVars extraCtorParams type
+          let type ← mkForallFVars params type
+          return { name := ctorView.declName, type }
 where
   checkParamOccs (ctorType : Expr) : MetaM Expr :=
     let visit (e : Expr) : MetaM TransformStep := do

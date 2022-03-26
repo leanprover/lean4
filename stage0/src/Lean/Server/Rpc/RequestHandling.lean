@@ -33,7 +33,7 @@ def registerRpcCallHandler (method : Name)
     {paramLspType} [RpcEncoding paramType paramLspType] [FromJson paramLspType]
     {respLspType} [RpcEncoding respType respLspType] [ToJson respLspType]
     (handler : paramType → RequestM (RequestTask respType)) : IO Unit := do
-  if !(← IO.initializing) then
+  unless (← Lean.initializing) do
     throw <| IO.userError s!"Failed to register RPC call handler for '{method}': only possible during initialization"
   if (←rpcProcedures.get).contains method then
     throw <| IO.userError s!"Failed to register RPC call handler for '{method}': already registered"

@@ -150,8 +150,11 @@ jobs:
           mkdir build
           cd build
           OPTIONS=()
-          [[ -z '${{ matrix.llvm-url }}' ]] || wget -q ${{ matrix.llvm-url }}
-          [[ -z '${{ matrix.prepare-llvm }}' ]] || eval "OPTIONS+=($(${{ matrix.prepare-llvm }}))"
+          if [[ -n '${{ matrix.prepare-llvm }}' ]]; then
+            wget -q ${{ matrix.llvm-url }}
+            PREPARE="$(${{ matrix.prepare-llvm }})"
+            eval "OPTIONS+=($PREPARE)"
+          fi
           if [[ -n '${{ matrix.release }}' && -n '${{ needs.set-nightly.outputs.nightly }}' ]]; then
             OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=${{ needs.set-nightly.outputs.nightly }})
           fi

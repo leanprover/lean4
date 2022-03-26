@@ -25,10 +25,10 @@ rec {
   lean-bin-tools-unwrapped = buildCMake {
     name = "lean-bin-tools";
     outputs = [ "out" "leanc_src" ];
-    realSrc = lib.sourceByRegex ../src [ "CMakeLists\.txt" "bin.*" "include.*" ".*\.in" "Leanc\.lean" ];
+    realSrc = lib.sourceByRegex ../src [ "CMakeLists\.txt" "cmake.*" "bin.*" "include.*" ".*\.in" "Leanc\.lean" ];
     preConfigure = ''
       touch empty.cpp
-      sed -i 's/find_package.*//;s/add_subdirectory.*//;s/set(LEAN_OBJS.*/set(LEAN_OBJS empty.cpp)/' CMakeLists.txt
+      sed -i 's/add_subdirectory.*//;s/set(LEAN_OBJS.*/set(LEAN_OBJS empty.cpp)/' CMakeLists.txt
     '';
     dontBuild = true;
     installPhase = ''
@@ -105,8 +105,8 @@ rec {
       stdlib = [ Init Std Lean ];
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       extlib = stdlib;  # TODO: add Lake
-      Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; linkFlags = ["-L${gmp}/lib -L${leanshared}"]; };
-      stdlibLinkFlags = "-L${gmp}/lib -L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
+      Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; linkFlags = ["-L${leanshared}"]; };
+      stdlibLinkFlags = "-L${Init.staticLib} -L${Std.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
       leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
         mkdir $out
         LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} \

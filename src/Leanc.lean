@@ -12,9 +12,7 @@ as-is to the wrapped compiler.
 
 Interesting options:
 * `--print-cflags`: print C compiler flags necessary for building against the Lean runtime and exit
-* `--print-ldlags`: print C compiler flags necessary for statically linking against the Lean library and exit
-* Set the `LEANC_GMP` environment variable to a path to `libgmp.a` (or `-l:libgmp.a` on Linux) to link GMP statically.
-Beware of the licensing consequences since GMP is LGPL."
+* `--print-ldlags`: print C compiler flags necessary for statically linking against the Lean library and exit"
     return 1
 
   let root ← match (← IO.getEnv "LEAN_SYSROOT") with
@@ -29,7 +27,7 @@ Beware of the licensing consequences since GMP is LGPL."
   let cflags := getCFlags root
   let mut cflagsInternal := "@LEANC_INTERNAL_FLAGS@".trim.splitOn
   let mut ldflagsInternal := "@LEANC_INTERNAL_LINKER_FLAGS@".trim.splitOn
-  let ldflags := getLinkerFlags root linkStatic ((← IO.getEnv "LEANC_GMP").getD "-lgmp")
+  let ldflags := getLinkerFlags root linkStatic
 
   for arg in args do
     match arg with

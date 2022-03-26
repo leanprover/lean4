@@ -89,6 +89,11 @@ private def lhsDependsOn (type : Expr) (fvarId : FVarId) : MetaM Bool :=
     else
       dependsOn type fvarId
 
+/-- Try to close goal using `rfl` with smart unfolding turned off. -/
+def tryURefl (mvarId : MVarId) : MetaM Bool :=
+  withOptions (smartUnfolding.set · false) do
+    try applyRefl mvarId; return true catch _ => return false
+
 /--
   Eliminate `namedPatterns` from equation, and trivial hypotheses.
 -/
@@ -203,6 +208,10 @@ partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array
 where
   go (mvarId : MVarId) : ReaderT Context (StateRefT (Array Expr) MetaM) Unit := do
     trace[Elab.definition.structural.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
+    if (← tryURefl mvarId) then
+      saveEqn mvarId
+      return ()
+
     if let some mvarId ← expandRHS? mvarId then
       return (← go mvarId)
 --  The following `funext?` was producing an overapplied `lhs`. Possible refinement: only do it if we want to apply `splitMatch` on the body of the lambda
@@ -248,11 +257,6 @@ where
       else
         xsNew := xsNew.reverse
         return (lctx.mkForall xsNew type, lctx.mkLambda xsNew value)
-
-/-- Try to close goal using `rfl` with smart unfolding turned off. -/
-def tryURefl (mvarId : MVarId) : MetaM Bool :=
-  withOptions (smartUnfolding.set · false) do
-    try applyRefl mvarId; return true catch _ => return false
 
 /-- Delta reduce the equation left-hand-side -/
 def deltaLHS (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do

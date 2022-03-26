@@ -1,0 +1,5 @@
+Brx.interp._eq_1 : ∀ (n z : Term) (H_2 : Brx (Term.id2 n z)),
+  Brx.interp H_2 =
+    let x := (_ : True ∧ Brx z);
+    match x with
+    | (_ : True ∧ Brx z) => Brx.interp Hz

@@ -48,7 +48,6 @@ else
   echo -n " -DCMAKE_C_COMPILER=$PWD/llvm-host/bin/clang -DLEANC_OPTS='--sysroot $PWD/stage1 -resource-dir $PWD/stage1/lib/clang/14.0.0 ${EXTRA_FLAGS:-}'"
   echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/libc -fuse-ld=lld'"
 fi
-echo -n " -DGMP_LIBRARIES=lib/libgmp.a -DGMP_INCLUDE_DIR=$GMP/include"
 echo -n " -DLEANC_INTERNAL_FLAGS='-nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang"
 # do not set `LEAN_CC` for tests
 echo -n " -DLEAN_TEST_VARS=''"

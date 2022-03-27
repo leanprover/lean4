@@ -414,82 +414,82 @@ local notation "⊥" => []
     | (s₁', σ₁), (s₂', σ₂) => (ite (c.constProp σ) s₁' s₂', σ₁.join σ₂)
   | «while» c b => («while» (c.constProp ⊥) (b.constProp ⊥).1, ⊥)
 
-def Substate (σ₁ σ₂ : State) : Prop :=
+def State.le (σ₁ σ₂ : State) : Prop :=
   ∀ ⦃x : Var⦄ ⦃v : Val⦄, σ₁.find? x = some v → σ₂.find? x = some v
 
-infix:50 " ≼ " => Substate
+infix:50 " ≼ " => State.le
 
-theorem Substate.refl (σ : State) : σ ≼ σ :=
+theorem State.le_refl (σ : State) : σ ≼ σ :=
   fun _ _ h => h
 
-theorem Substate.trans : σ₁ ≼ σ₂ → σ₂ ≼ σ₃ → σ₁ ≼ σ₃ :=
+theorem State.le_trans : σ₁ ≼ σ₂ → σ₂ ≼ σ₃ → σ₁ ≼ σ₃ :=
   fun h₁ h₂ x v h => h₂ (h₁ h)
 
-theorem Substate.bot (σ : State) : ⊥ ≼ σ :=
+theorem State.bot_le (σ : State) : ⊥ ≼ σ :=
   fun _ _ h => by contradiction
 
-theorem Substate.erase_cons (h : σ' ≼ σ) : σ'.erase x ≼ ((x, v) :: σ) := by
+theorem State.erase_le_cons (h : σ' ≼ σ) : σ'.erase x ≼ ((x, v) :: σ) := by
   intro y w hf'
   by_cases hyx : y = x <;> simp [*] at hf' |-
   exact h hf'
 
-theorem Substate.cons_of_right (h : σ' ≼ σ) : (x, v) :: σ' ≼ (x, v) :: σ := by
+theorem State.cons_le_cons (h : σ' ≼ σ) : (x, v) :: σ' ≼ (x, v) :: σ := by
   intro y w hf'
   by_cases hyx : y = x <;> simp [*] at hf' |-
   next => assumption
   next => exact h hf'
 
-theorem Substate.cons_of_left (h₁ : σ' ≼ σ) (h₂ : σ.find? x = some v) : (x, v) :: σ' ≼ σ := by
+theorem State.cons_le_of_eq (h₁ : σ' ≼ σ) (h₂ : σ.find? x = some v) : (x, v) :: σ' ≼ σ := by
   intro y w hf'
   by_cases hyx : y = x <;> simp [*] at hf' |-
   next => assumption
   next => exact h₁ hf'
 
-theorem Substate.erase_self (σ : State) : σ.erase x ≼ σ := by
+theorem State.erase_le (σ : State) : σ.erase x ≼ σ := by
   match σ with
-  | [] => simp; apply Substate.refl
+  | [] => simp; apply le_refl
   | (y, v) :: σ =>
     simp
     split <;> simp [*]
-    next => apply erase_cons; apply Substate.refl
-    next => apply Substate.cons_of_right; apply erase_self
+    next => apply erase_le_cons; apply le_refl
+    next => apply cons_le_cons; apply erase_le
 
-theorem Substate.join_left (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₁ := by
+theorem State.join_le_left (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₁ := by
   match σ₁ with
-  | [] => simp; apply Substate.refl
+  | [] => simp; apply le_refl
   | (x, v) :: σ₁ =>
     simp
-    have : (State.erase σ₁ x).length < σ₁.length.succ := State.length_erase_lt ..
-    have ih := join_left (State.erase σ₁ x) σ₂
+    have : (erase σ₁ x).length < σ₁.length.succ := length_erase_lt ..
+    have ih := join_le_left (State.erase σ₁ x) σ₂
     split
     next y w h =>
       split
-      next => apply Substate.cons_of_right; apply ih.trans (erase_self _)
-      next => apply Substate.trans ih (Substate.erase_cons (Substate.refl _))
-    next h => apply Substate.trans ih (Substate.erase_cons (Substate.refl _))
+      next => apply cons_le_cons; apply le_trans ih (erase_le _)
+      next => apply le_trans ih (erase_le_cons (le_refl _))
+    next h => apply le_trans ih (erase_le_cons (le_refl _))
 termination_by _ σ₁ _ => σ₁.length
 
-theorem Substate.join_left_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₁.join σ₃ ≼ σ₂ :=
-  (join_left σ₁ σ₃).trans h
+theorem State.join_le_left_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₁.join σ₃ ≼ σ₂ :=
+  le_trans (join_le_left σ₁ σ₃) h
 
-theorem Substate.join_right (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ := by
+theorem State.join_le_right (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ := by
   match σ₁ with
-  | [] => simp; apply Substate.bot
+  | [] => simp; apply bot_le
   | (x, v) :: σ₁ =>
     simp
-    have : (State.erase σ₁ x).length < σ₁.length.succ := State.length_erase_lt ..
-    have ih := join_right (State.erase σ₁ x) σ₂
+    have : (erase σ₁ x).length < σ₁.length.succ := length_erase_lt ..
+    have ih := join_le_right (erase σ₁ x) σ₂
     split
     next y w h =>
       split <;> simp [*]
-      next => apply Substate.cons_of_left ih h
+      next => apply cons_le_of_eq ih h
     next h => assumption
 termination_by _ σ₁ _ => σ₁.length
 
-theorem Substate.join_right_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₃.join σ₁ ≼ σ₂ :=
-  (join_right σ₃ σ₁).trans h
+theorem State.join_le_right_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₃.join σ₁ ≼ σ₂ :=
+  le_trans (join_le_right σ₃ σ₁) h
 
-theorem Substate.eq_bot (h : σ ≼ ⊥) : σ = ⊥ := by
+theorem State.eq_bot (h : σ ≼ ⊥) : σ = ⊥ := by
   match σ with
   | [] => simp
   | (y, v) :: σ =>
@@ -497,25 +497,25 @@ theorem Substate.eq_bot (h : σ ≼ ⊥) : σ = ⊥ := by
     have := h this
     contradiction
 
-theorem Substate.erase_of_cons (h : σ' ≼ (x, v) :: σ) : σ'.erase x ≼ σ := by
+theorem State.erase_le_of_le_cons (h : σ' ≼ (x, v) :: σ) : σ'.erase x ≼ σ := by
   intro y w hf'
   by_cases hxy : x = y <;> simp [*] at hf'
   have hf := h hf'
   simp [hxy, Ne.symm hxy] at hf
   assumption
 
-theorem Substate.erase_update (h : σ' ≼ σ) : σ'.erase x ≼ σ.update x v := by
+theorem State.erase_le_update (h : σ' ≼ σ) : σ'.erase x ≼ σ.update x v := by
   intro y w hf'
   by_cases hxy : x = y <;> simp [*] at hf' |-
   exact h hf'
 
-theorem Substate.update_of (h : σ' ≼ σ) : σ'.update x v ≼ σ.update x v := by
+theorem State.update_le_update (h : σ' ≼ σ) : σ'.update x v ≼ σ.update x v := by
   intro y w hf
   induction σ generalizing σ' hf with
-  | nil  => rw [h.eq_bot] at hf; assumption
+  | nil  => rw [eq_bot h] at hf; assumption
   | cons zw' σ ih =>
     cases zw'; rename_i z w'; simp
-    have : σ'.erase z ≼ σ := h.erase_of_cons
+    have : σ'.erase z ≼ σ := erase_le_of_le_cons h
     have ih := ih this
     revert ih hf
     split <;> simp [*] <;> by_cases hyz : y = z <;> simp (config := { contextual := true }) [*]
@@ -552,21 +552,21 @@ theorem Stmt.constProp_sub (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ�
       rw [← Expr.eval_simplify, h] at heq'
       simp at heq'
       rw [heq']
-      apply Substate.update_of h₂
+      apply State.update_le_update h₂
     next h _ _ =>
-      exact h₂.erase_update
+      exact State.erase_le_update h₂
   | whileTrue heq h₃ h₄ ih₃ ih₄ =>
     have ih₃ := ih₃ h₂
     have ih₄ := ih₄ ih₃
     simp [heq] at ih₄
     exact ih₄
-  | whileFalse heq => apply Substate.bot
+  | whileFalse heq => apply State.bot_le
   | ifTrue heq h ih =>
     have ih := ih h₂
-    apply ih.join_left_of
+    apply State.join_le_left_of ih
   | ifFalse heq h ih =>
     have ih := ih h₂
-    apply ih.join_right_of
+    apply State.join_le_right_of ih
   | seq h₃ h₄ ih₃ ih₄ => exact ih₄ (ih₃ h₂)
 
 theorem Stmt.constProp_correct (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ₁) : (σ₁, (s.constProp σ₁').1) ⇓ σ₂ := by
@@ -586,8 +586,8 @@ theorem Stmt.constProp_correct (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ 
   | seq h₁ h₂ ih₁ ih₂ =>
     apply Bigstep.seq (ih₁ h₂) (ih₂ (constProp_sub h₁ h₂))
   | whileTrue heq h₁ h₂ ih₁ ih₂ =>
-    have ih₁ := ih₁ (Substate.bot _)
-    have ih₂ := ih₂ (Substate.bot _)
+    have ih₁ := ih₁ (State.bot_le _)
+    have ih₂ := ih₂ (State.bot_le _)
     exact Bigstep.whileTrue heq ih₁ ih₂
   | whileFalse heq =>
     exact Bigstep.whileFalse heq
@@ -600,7 +600,7 @@ def Stmt.constPropagation (s : Stmt) : Stmt :=
   (s.constProp ⊥).1
 
 theorem Stmt.constPropagation_correct (h : (σ, s) ⇓ σ') : (σ, s.constPropagation) ⇓ σ' :=
-  constProp_correct h (Substate.bot _)
+  constProp_correct h (State.bot_le _)
 
 def example4 := `[Stmt|
   x := 2;

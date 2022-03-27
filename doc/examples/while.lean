@@ -122,35 +122,75 @@ def example2 := `[Stmt|
 
 abbrev State := List (Var × Val)
 
-@[simp] def State.update (s : State) (x : Var) (v : Val) : State :=
-  match s with
+@[simp] def State.update (σ : State) (x : Var) (v : Val) : State :=
+  match σ with
   | [] => [(x, v)]
-  | (y, w)::s => if x = y then (x, v)::s else (y, w) :: update s x v
+  | (y, w)::σ => if x = y then (x, v)::σ else (y, w) :: update σ x v
 
-@[simp] def State.get (s : State) (x : Var) : Val :=
-  match s with
-  | [] => .int 0
-  | (y, v) :: s => if x = y then v else get s x
+@[simp] def State.find? (σ : State) (x : Var) : Option Val :=
+  match σ with
+  | [] => none
+  | (y, v) :: σ => if x = y then some v else find? σ x
 
-theorem State.get_update_self (s : State) (x : Var) (v : Val) : (s.update x v).get x = v := by
-  match s with -- TODO: automate this proof
+def State.get (σ : State) (x : Var) : Val :=
+  σ.find? x |>.getD (.int 0)
+
+@[simp] def State.erase (σ : State) (x : Var) : State :=
+  match σ with
+  | [] => []
+  | (y, v) :: σ => if x = y then erase σ x else (y, v) :: erase σ x
+
+@[simp] theorem State.find?_update_self (σ : State) (x : Var) (v : Val) : (σ.update x v).find? x = some v := by
+  match σ with -- TODO: automate this proof
   | [] => simp
   | (y, w) :: s =>
     simp
     split <;> simp [*]
-    apply get_update_self
+    apply find?_update_self
 
-theorem State.get_update (s : State) (x y : Var) (v : Val) (h : z ≠ x) : (s.update x v).get z = s.get z := by
-  match s with -- TODO: automate this proof
-  | [] => simp [h]; done
-  | (y, w) :: s =>
+@[simp] theorem State.find?_update (σ : State) (v : Val) (h : x ≠ z) : (σ.update x v).find? z = σ.find? z := by
+  match σ with -- TODO: automate this proof
+  | [] => simp [h.symm]
+  | (y, w) :: σ =>
     simp
     split <;> simp [*]
     next hc => split <;> simp_all
     next =>
       split
       next => rfl
-      next => exact get_update s x y v h
+      next => exact find?_update σ v h
+
+-- TODO: remove after we add better automation
+@[simp] theorem State.find?_update' (σ : State) (v : Val) (h : z ≠ x) : (σ.update x v).find? z = σ.find? z :=
+  State.find?_update σ v h.symm
+
+theorem State.get_of_find? {σ : State} (h : σ.find? x = some v) : σ.get x = v := by
+  simp [State.get, h, Option.getD]
+
+@[simp] theorem State.find?_erase_self (σ : State) (x : Var) : (σ.erase x).find? x = none := by
+  match σ with
+  | [] => simp
+  | (y, w) :: σ =>
+    simp
+    split <;> simp [*]
+    next => exact find?_erase_self σ y
+    next => exact find?_erase_self σ x
+
+@[simp] theorem State.find?_erase (σ : State) (h : x ≠ z) : (σ.erase x).find? z = σ.find? z := by
+  match σ with
+  | [] => simp
+  | (y, w) :: σ =>
+    simp
+    split <;> simp [*]
+    next hxy => rw [hxy] at h; simp [h.symm]; exact find?_erase σ h
+    next =>
+      split
+      next => rfl
+      next => exact find?_erase σ h
+
+-- TODO: remove after we add better automation
+@[simp] theorem State.find?_erase' (σ : State) (h : z ≠ x) : (σ.erase x).find? z = σ.find? z :=
+  State.find?_erase σ h.symm
 
 syntax ident " ↦ " term : term
 
@@ -323,6 +363,263 @@ theorem Stmt.simplify_correct (h : (σ, s) ⇓ σ') : (σ, s.simplify) ⇓ σ' :
     rw [← Expr.eval_simplify] at heq
     split <;> simp_all
     apply Bigstep.ifTrue heq ih
+
+@[simp] def Expr.constProp (e : Expr) (σ : State) : Expr :=
+  match e with
+  | val v => v
+  | var x => match σ.find? x with
+    | some v => val v
+    | none   => var x
+  | bin lhs op rhs => bin (lhs.constProp σ) op (rhs.constProp σ)
+  | una op arg => una op (arg.constProp σ)
+
+@[simp] theorem Expr.constProp_nil (e : Expr) : e.constProp [] = e := by
+  induction e <;> simp [*]
+
+@[simp] theorem Expr.eval_constProp (e : Expr) (σ : State) : (e.constProp σ).eval σ = e.eval σ := by
+  induction e with simp [*]
+  | var x =>
+    split
+    next h => simp [State.get_of_find? h]
+    next   => rfl
+
+def State.length_erase_le (σ : State) (x : Var) : (σ.erase x).length ≤ σ.length := by
+  match σ with
+  | [] => simp
+  | (y, v) :: σ =>
+    by_cases hxy : x = y <;> simp [hxy]
+    next => exact Nat.le_trans (length_erase_le σ y) (by simp_arith)
+    next => simp_arith [length_erase_le σ x]
+
+def State.length_erase_lt (σ : State) (x : Var) : (σ.erase x).length < σ.length.succ :=
+  Nat.lt_of_le_of_lt (length_erase_le ..) (by simp_arith)
+
+@[simp] def State.join (σ₁ σ₂ : State) : State :=
+  match σ₁ with
+  | [] => []
+  | (x, v) :: σ₁ =>
+    let σ₁' := erase σ₁ x -- Must remove duplicates. Alternative design: carry invariant that input state at constProp has no duplicates
+    have : (erase σ₁ x).length < σ₁.length.succ := length_erase_lt ..
+    match σ₂.find? x with
+    | some w => if v = w then (x, v) :: join σ₁' σ₂ else join σ₁' σ₂
+    | none => join σ₁' σ₂
+termination_by _ σ₁ _ => σ₁.length
+
+local notation "⊥" => []
+
+@[simp] def Stmt.constProp (s : Stmt) (σ : State) : Stmt × State :=
+  match s with
+  | skip => (skip, σ)
+  | assign x e => match (e.constProp σ).simplify with
+    | (.val v) => (assign x (.val v), σ.update x v)
+    | e'       => (assign x e', σ.erase x)
+  | seq s₁ s₂ => match s₁.constProp σ with
+    | (s₁', σ₁) => match s₂.constProp σ₁ with
+      | (s₂', σ₂) => (seq s₁' s₂', σ₂)
+  | ite c s₁ s₂ =>
+    match s₁.constProp σ, s₂.constProp σ with
+    | (s₁', σ₁), (s₂', σ₂) => (ite (c.constProp σ) s₁' s₂', σ₁.join σ₂)
+  | «while» c b => («while» (c.constProp ⊥) (b.constProp ⊥).1, ⊥)
+
+def Substate (σ₁ σ₂ : State) : Prop :=
+  ∀ ⦃x : Var⦄ ⦃v : Val⦄, σ₁.find? x = some v → σ₂.find? x = some v
+
+infix:50 " ≼ " => Substate
+
+theorem Substate.refl (σ : State) : σ ≼ σ :=
+  fun _ _ h => h
+
+theorem Substate.trans : σ₁ ≼ σ₂ → σ₂ ≼ σ₃ → σ₁ ≼ σ₃ :=
+  fun h₁ h₂ x v h => h₂ (h₁ h)
+
+theorem Substate.bot (σ : State) : ⊥ ≼ σ :=
+  fun _ _ h => by contradiction
+
+theorem Substate.erase_cons (h : σ' ≼ σ) : σ'.erase x ≼ ((x, v) :: σ) := by
+  intro y w hf'
+  by_cases hyx : y = x <;> simp [*] at hf' |-
+  exact h hf'
+
+theorem Substate.cons_of_right (h : σ' ≼ σ) : (x, v) :: σ' ≼ (x, v) :: σ := by
+  intro y w hf'
+  by_cases hyx : y = x <;> simp [*] at hf' |-
+  next => assumption
+  next => exact h hf'
+
+theorem Substate.cons_of_left (h₁ : σ' ≼ σ) (h₂ : σ.find? x = some v) : (x, v) :: σ' ≼ σ := by
+  intro y w hf'
+  by_cases hyx : y = x <;> simp [*] at hf' |-
+  next => assumption
+  next => exact h₁ hf'
+
+theorem Substate.erase_self (σ : State) : σ.erase x ≼ σ := by
+  match σ with
+  | [] => simp; apply Substate.refl
+  | (y, v) :: σ =>
+    simp
+    split <;> simp [*]
+    next => apply erase_cons; apply Substate.refl
+    next => apply Substate.cons_of_right; apply erase_self
+
+theorem Substate.join_left (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₁ := by
+  match σ₁ with
+  | [] => simp; apply Substate.refl
+  | (x, v) :: σ₁ =>
+    simp
+    have : (State.erase σ₁ x).length < σ₁.length.succ := State.length_erase_lt ..
+    have ih := join_left (State.erase σ₁ x) σ₂
+    split
+    next y w h =>
+      split
+      next => apply Substate.cons_of_right; apply ih.trans (erase_self _)
+      next => apply Substate.trans ih (Substate.erase_cons (Substate.refl _))
+    next h => apply Substate.trans ih (Substate.erase_cons (Substate.refl _))
+termination_by _ σ₁ _ => σ₁.length
+
+theorem Substate.join_left_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₁.join σ₃ ≼ σ₂ :=
+  (join_left σ₁ σ₃).trans h
+
+theorem Substate.join_right (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ := by
+  match σ₁ with
+  | [] => simp; apply Substate.bot
+  | (x, v) :: σ₁ =>
+    simp
+    have : (State.erase σ₁ x).length < σ₁.length.succ := State.length_erase_lt ..
+    have ih := join_right (State.erase σ₁ x) σ₂
+    split
+    next y w h =>
+      split <;> simp [*]
+      next => apply Substate.cons_of_left ih h
+    next h => assumption
+termination_by _ σ₁ _ => σ₁.length
+
+theorem Substate.join_right_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₃.join σ₁ ≼ σ₂ :=
+  (join_right σ₃ σ₁).trans h
+
+theorem Substate.eq_bot (h : σ ≼ ⊥) : σ = ⊥ := by
+  match σ with
+  | [] => simp
+  | (y, v) :: σ =>
+    have : State.find? ((y, v) :: σ) y = some v := by simp
+    have := h this
+    contradiction
+
+theorem Substate.erase_of_cons (h : σ' ≼ (x, v) :: σ) : σ'.erase x ≼ σ := by
+  intro y w hf'
+  by_cases hxy : x = y <;> simp [*] at hf'
+  have hf := h hf'
+  simp [hxy, Ne.symm hxy] at hf
+  assumption
+
+theorem Substate.erase_update (h : σ' ≼ σ) : σ'.erase x ≼ σ.update x v := by
+  intro y w hf'
+  by_cases hxy : x = y <;> simp [*] at hf' |-
+  exact h hf'
+
+theorem Substate.update_of (h : σ' ≼ σ) : σ'.update x v ≼ σ.update x v := by
+  intro y w hf
+  induction σ generalizing σ' hf with
+  | nil  => rw [h.eq_bot] at hf; assumption
+  | cons zw' σ ih =>
+    cases zw'; rename_i z w'; simp
+    have : σ'.erase z ≼ σ := h.erase_of_cons
+    have ih := ih this
+    revert ih hf
+    split <;> simp [*] <;> by_cases hyz : y = z <;> simp (config := { contextual := true }) [*]
+    next =>
+      intro he'
+      have he := h he'
+      simp [*] at he
+      assumption
+    next =>
+      by_cases hxy : x = y <;> simp [*]
+      next => intros; assumption
+      next =>
+        intro he' ih
+        exact ih he'
+
+theorem Expr.eval_constProp_of_sub (e : Expr) (h : σ' ≼ σ) : (e.constProp σ').eval σ = e.eval σ := by
+  induction e with simp [*]
+  | var x =>
+    split <;> simp
+    next he => rw [State.get_of_find? (h he)]
+
+theorem Expr.eval_constProp' {e : Expr} (h₁ : e.eval σ = v) (h₂ : σ' ≼ σ) : (e.constProp σ').eval σ = v := by
+  have := eval_constProp_of_sub e h₂
+  simp [h₁] at this
+  assumption
+
+theorem Stmt.constProp_sub (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ₁) : (s.constProp σ₁').2 ≼ σ₂ := by
+  induction h₁ generalizing σ₁' with simp
+  | skip => assumption
+  | assign heq =>
+    split <;> simp
+    next h =>
+      have heq' := Expr.eval_constProp' heq h₂
+      rw [← Expr.eval_simplify, h] at heq'
+      simp at heq'
+      rw [heq']
+      apply Substate.update_of h₂
+    next h _ _ =>
+      exact h₂.erase_update
+  | whileTrue heq h₃ h₄ ih₃ ih₄ =>
+    have ih₃ := ih₃ h₂
+    have ih₄ := ih₄ ih₃
+    simp [heq] at ih₄
+    exact ih₄
+  | whileFalse heq => apply Substate.bot
+  | ifTrue heq h ih =>
+    have ih := ih h₂
+    apply ih.join_left_of
+  | ifFalse heq h ih =>
+    have ih := ih h₂
+    apply ih.join_right_of
+  | seq h₃ h₄ ih₃ ih₄ => exact ih₄ (ih₃ h₂)
+
+theorem Stmt.constProp_correct (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ₁) : (σ₁, (s.constProp σ₁').1) ⇓ σ₂ := by
+  induction h₁ generalizing σ₁' with simp_all
+  | skip => exact Bigstep.skip
+  | assign heq =>
+    split <;> simp
+    next h =>
+      have heq' := Expr.eval_constProp' heq h₂
+      rw [← Expr.eval_simplify, h] at heq'
+      simp at heq'
+      apply Bigstep.assign; simp [*]
+    next h _ _ =>
+      have heq' := Expr.eval_constProp' heq h₂
+      rw [← Expr.eval_simplify, h] at heq'
+      apply Bigstep.assign heq'
+  | seq h₁ h₂ ih₁ ih₂ =>
+    apply Bigstep.seq (ih₁ h₂) (ih₂ (constProp_sub h₁ h₂))
+  | whileTrue heq h₁ h₂ ih₁ ih₂ =>
+    have ih₁ := ih₁ (Substate.bot _)
+    have ih₂ := ih₂ (Substate.bot _)
+    exact Bigstep.whileTrue heq ih₁ ih₂
+  | whileFalse heq =>
+    apply Bigstep.whileFalse heq
+  | ifTrue heq h ih =>
+    apply Bigstep.ifTrue (Expr.eval_constProp' heq h₂) (ih h₂)
+  | ifFalse heq h ih =>
+    apply Bigstep.ifFalse (Expr.eval_constProp' heq h₂) (ih h₂)
+
+def Stmt.constPropagation (s : Stmt) : Stmt :=
+  (s.constProp ⊥).1
+
+theorem Stmt.constPropagation_correct (h : (σ, s) ⇓ σ') : (σ, s.constPropagation) ⇓ σ' :=
+  constProp_correct h (Substate.bot _)
+
+def example4 := `[Stmt|
+  x := 2;
+  if (x < 3) {
+    x := x + 1;
+    y := y + x;
+  } else {
+    y := y + 3;
+  }
+]
+
+#eval example4.constPropagation.simplify
 
 #exit
 -- TODO: add simp theorems for monadic code

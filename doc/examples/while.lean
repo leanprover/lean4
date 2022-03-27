@@ -133,7 +133,7 @@ abbrev State := List (Var × Val)
   | (y, v) :: s => if x = y then v else get s x
 
 theorem State.get_update_self (s : State) (x : Var) (v : Val) : (s.update x v).get x = v := by
-  match s with
+  match s with -- TODO: automate this proof
   | [] => simp
   | (y, w) :: s =>
     simp
@@ -141,7 +141,7 @@ theorem State.get_update_self (s : State) (x : Var) (v : Val) : (s.update x v).g
     apply get_update_self
 
 theorem State.get_update (s : State) (x y : Var) (v : Val) (h : z ≠ x) : (s.update x v).get z = s.get z := by
-  match s with
+  match s with -- TODO: automate this proof
   | [] => simp [h]; done
   | (y, w) :: s =>
     simp
@@ -156,8 +156,6 @@ syntax ident " ↦ " term : term
 
 macro_rules
   | `($id:ident ↦ $v:term) => `(($(Lean.quote id.getId.toString), $v:term))
-
-syntax "⟪" (ident " ↦ " term),* "⟫" : term
 
 example : State.get [x ↦ .int 10, y ↦ .int 20] "x" = .int 10 := rfl
 
@@ -198,6 +196,7 @@ notation:60 "(" σ ", " s ")"  " ⇓ " σ':60 => Bigstep σ s σ'
 /- This proof can be automated using forward reasoning. -/
 theorem Bigstem.det (h₁ : (σ, s) ⇓ σ₁) (h₂ : (σ, s) ⇓ σ₂) : σ₁ = σ₂ := by
   induction h₁ generalizing σ₂ <;> cases h₂ <;> simp_all
+  -- The rest of this proof should be automatic with congruence closure and a bit of forward reasoning
   case seq ih₁ ih₂ h₁ h₂ =>
     simp [ih₁ h₁] at ih₂
     simp [ih₂ h₂]

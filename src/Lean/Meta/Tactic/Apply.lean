@@ -144,8 +144,11 @@ def applyRefl (mvarId : MVarId) (msg : MessageData := "refl failed") : MetaM Uni
 
 def exfalso (mvarId : MVarId) (msg : MessageData := "exfalso failed") : MetaM MVarId :=
   withMVarContext mvarId do
-    let some [mvarId] ← observing? do apply mvarId (mkConst ``False.elim [← mkFreshLevelMVar])
-      | throwTacticEx `exfalso mvarId msg
-    return mvarId
+    checkNotAssigned mvarId `exfalso
+    let target ← instantiateMVars (← getMVarType mvarId)
+    let u ← getLevel target
+    let mvarIdNew ← mkFreshExprSyntheticOpaqueMVar (mkConst ``False) (tag := (← getMVarTag mvarId))
+    assignExprMVar mvarId (mkApp2 (mkConst ``False.elim [u]) target mvarIdNew)
+    return mvarIdNew.mvarId!
 
 end Lean.Meta

@@ -376,13 +376,6 @@ theorem Stmt.simplify_correct (h : (σ, s) ⇓ σ') : (σ, s.simplify) ⇓ σ' :
 @[simp] theorem Expr.constProp_nil (e : Expr) : e.constProp [] = e := by
   induction e <;> simp [*]
 
-@[simp] theorem Expr.eval_constProp (e : Expr) (σ : State) : (e.constProp σ).eval σ = e.eval σ := by
-  induction e with simp [*]
-  | var x =>
-    split
-    next h => simp [State.get_of_find? h]
-    next   => rfl
-
 def State.length_erase_le (σ : State) (x : Var) : (σ.erase x).length ≤ σ.length := by
   match σ with
   | [] => simp
@@ -544,7 +537,7 @@ theorem Expr.eval_constProp_of_sub (e : Expr) (h : σ' ≼ σ) : (e.constProp σ
     split <;> simp
     next he => rw [State.get_of_find? (h he)]
 
-theorem Expr.eval_constProp' {e : Expr} (h₁ : e.eval σ = v) (h₂ : σ' ≼ σ) : (e.constProp σ').eval σ = v := by
+theorem Expr.eval_constProp_of_eq_of_sub {e : Expr} (h₁ : e.eval σ = v) (h₂ : σ' ≼ σ) : (e.constProp σ').eval σ = v := by
   have := eval_constProp_of_sub e h₂
   simp [h₁] at this
   assumption
@@ -555,7 +548,7 @@ theorem Stmt.constProp_sub (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ�
   | assign heq =>
     split <;> simp
     next h =>
-      have heq' := Expr.eval_constProp' heq h₂
+      have heq' := Expr.eval_constProp_of_eq_of_sub heq h₂
       rw [← Expr.eval_simplify, h] at heq'
       simp at heq'
       rw [heq']
@@ -582,12 +575,12 @@ theorem Stmt.constProp_correct (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ 
   | assign heq =>
     split <;> simp
     next h =>
-      have heq' := Expr.eval_constProp' heq h₂
+      have heq' := Expr.eval_constProp_of_eq_of_sub heq h₂
       rw [← Expr.eval_simplify, h] at heq'
       simp at heq'
       apply Bigstep.assign; simp [*]
     next h _ _ =>
-      have heq' := Expr.eval_constProp' heq h₂
+      have heq' := Expr.eval_constProp_of_eq_of_sub heq h₂
       rw [← Expr.eval_simplify, h] at heq'
       apply Bigstep.assign heq'
   | seq h₁ h₂ ih₁ ih₂ =>
@@ -597,11 +590,11 @@ theorem Stmt.constProp_correct (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ 
     have ih₂ := ih₂ (Substate.bot _)
     exact Bigstep.whileTrue heq ih₁ ih₂
   | whileFalse heq =>
-    apply Bigstep.whileFalse heq
+    exact Bigstep.whileFalse heq
   | ifTrue heq h ih =>
-    apply Bigstep.ifTrue (Expr.eval_constProp' heq h₂) (ih h₂)
+    exact Bigstep.ifTrue (Expr.eval_constProp_of_eq_of_sub heq h₂) (ih h₂)
   | ifFalse heq h ih =>
-    apply Bigstep.ifFalse (Expr.eval_constProp' heq h₂) (ih h₂)
+    exact Bigstep.ifFalse (Expr.eval_constProp_of_eq_of_sub heq h₂) (ih h₂)
 
 def Stmt.constPropagation (s : Stmt) : Stmt :=
   (s.constProp ⊥).1

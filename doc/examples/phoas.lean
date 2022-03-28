@@ -239,4 +239,4 @@ theorem constFold_sound (e : Term' Ty.denote ty) : denote (constFold e) = denote
   | plus a b iha ihb =>
     split
     next he₁ he₂ => simp [← iha, ← ihb, he₁, he₂]
-    next he₁ he₂ _ _ _ => simp [← he₁, ← he₂, iha, ihb]
+    next => simp [iha, ihb]

@@ -350,18 +350,20 @@ theorem Stmt.simplify_correct (h : (σ, s) ⇓ σ') : (σ, s.simplify) ⇓ σ' :
     revert ih₂ -- This is a hack to make sure the next split simplify the two match expressions: TODO: make sure `simp` can do it
     split <;> intro ih₂
     next h => rw [h] at heq; simp at heq
-    next h _ _ => rw [h] at heq; apply Bigstep.whileTrue heq ih₁ ih₂
+    next => apply Bigstep.whileTrue heq ih₁ ih₂
   | whileFalse heq =>
     split
     next => exact Bigstep.skip
-    next h _ _ => apply Bigstep.whileFalse; rw [← h]; simp [heq]
+    next => apply Bigstep.whileFalse; simp [heq]
   | ifFalse heq h ih =>
     rw [← Expr.eval_simplify] at heq
     split <;> simp_all
+    rw [← Expr.eval_simplify] at heq
     apply Bigstep.ifFalse heq ih
   | ifTrue heq h ih =>
     rw [← Expr.eval_simplify] at heq
     split <;> simp_all
+    rw [← Expr.eval_simplify] at heq
     apply Bigstep.ifTrue heq ih
 
 @[simp] def Expr.constProp (e : Expr) (σ : State) : Expr :=
@@ -579,9 +581,9 @@ theorem Stmt.constProp_correct (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ 
       rw [← Expr.eval_simplify, h] at heq'
       simp at heq'
       apply Bigstep.assign; simp [*]
-    next h _ _ =>
+    next =>
       have heq' := Expr.eval_constProp_of_eq_of_sub heq h₂
-      rw [← Expr.eval_simplify, h] at heq'
+      rw [← Expr.eval_simplify] at heq'
       apply Bigstep.assign heq'
   | seq h₁ h₂ ih₁ ih₂ =>
     apply Bigstep.seq (ih₁ h₂) (ih₂ (constProp_sub h₁ h₂))

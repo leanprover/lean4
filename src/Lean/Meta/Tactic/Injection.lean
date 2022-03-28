@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.AppBuilder
 import Lean.Meta.MatchUtil
 import Lean.Meta.Tactic.Clear
+import Lean.Meta.Tactic.Subst
 import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Intro
 
@@ -71,23 +72,6 @@ inductive InjectionResult where
   | solved
   | subgoal (mvarId : MVarId) (newEqs : Array FVarId) (remainingNames : List Name)
 
-def heqToEq (mvarId : MVarId) (fvarId : FVarId) (tryToClear : Bool) : MetaM (FVarId × MVarId) :=
-  withMVarContext mvarId do
-   let decl ← getLocalDecl fvarId
-   let type ← whnf decl.type
-   match type.heq? with
-   | none              => pure (fvarId, mvarId)
-   | some (α, a, β, b) =>
-     if (← isDefEq α β) then
-       let pr ← mkEqOfHEq (mkFVar fvarId)
-       let eq ← mkEq a b
-       let mut mvarId ← assert mvarId decl.userName eq pr
-       if tryToClear then
-         mvarId ← tryClear mvarId fvarId
-       let (fvarId, mvarId') ← intro1P mvarId
-       return (fvarId, mvarId')
-     else
-       return (fvarId, mvarId)
 
 def injectionIntro (mvarId : MVarId) (numEqs : Nat) (newNames : List Name) (tryToClear := true) : MetaM InjectionResult :=
   let rec go : Nat → MVarId → Array FVarId → List Name → MetaM InjectionResult

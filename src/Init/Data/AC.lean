@@ -281,7 +281,7 @@ theorem Context.evalList_removeNeutrals (ctx : Context α) (e : List Nat) : eval
   | single =>
     simp [removeNeutrals, removeNeutrals.loop]; split
     case h_1 => rfl
-    case h_2 h _ _ => split at h <;> simp_all
+    case h_2 h => split at h <;> simp_all
   | step x y ys ih =>
     cases h₁ : ContextInformation.isNeutral ctx x <;> cases h₂ : ContextInformation.isNeutral ctx y <;> cases h₃ : removeNeutrals.loop ctx ys
     <;> simp [removeNeutrals, removeNeutrals.loop, h₁, h₂, h₃, evalList, ←ih]

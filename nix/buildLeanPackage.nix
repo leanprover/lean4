@@ -3,7 +3,7 @@
   runCommand, gmp, darwin, ... }:
 let lean-final' = lean-final; in
 lib.makeOverridable (
-{ name, src,  fullSrc ? src, 
+{ name, src, fullSrc ? src,
   # Lean dependencies. Each entry should be an output of buildLeanPackage.
   deps ? [ lean.Lean ],
   # Static library dependencies. Each derivation `static` should contain a static library in the directory `${static}`.
@@ -14,6 +14,10 @@ lib.makeOverridable (
   # shared library at the path `${shared}/${shared.libName or shared.name}` and a name to link to like `-l${shared.linkName or shared.name}`.
   # These libs are also linked to in packages that depend on this one.
   nativeSharedLibs ? [],
+  # Lean modules to include.
+  # A set of Lean modules names as strings (`"Foo.Bar"`) or attrsets (`{ name = "Foo.Bar"; glob = "one" | "submodules" | "andSubmodules"; }`);
+  # see Lake README for glob meanings. Dependencies of selected modules are always included.
+  roots ? [ name ],
   # Whether to compile each module into a native shared library that is loaded whenever the module is imported in order to accelerate evaluation
   precompileModules ? false,
   # Whether to compile the package into a native shared library that is loaded whenever *any* of the package's modules is imported into another package.
@@ -21,12 +25,13 @@ lib.makeOverridable (
   precompilePackage ? precompileModules,
   # Lean plugin dependencies. Each derivation `plugin` should contain a plugin library at path `${plugin}/${plugin.name}`.
   pluginDeps ? [],
-  debug ? false, leanFlags ? [], leancFlags ? [], linkFlags ? [], executableName ? lib.toLower name,
+  debug ? false, leanFlags ? [], leancFlags ? [], linkFlags ? [], executableName ? lib.toLower name, libName ? name,
   srcTarget ? "..#stage0", srcArgs ? "(\${args[*]})", lean-final ? lean-final' }:
 with builtins; let
   # "Init.Core" ~> "Init/Core"
   modToPath = mod: replaceStrings ["."] ["/"] mod;
-  modToLean = mod: modToPath mod + ".lean";
+  modToAbsPath = mod: "${src}/${modToPath mod}";
+  modToLean = mod: "${modToAbsPath mod}.lean";
   mkBareDerivation = args@{ buildCommand, ... }: derivation (args // {
     inherit (stdenv) system;
     buildInputs = (args.buildInputs or []) ++ [ coreutils ];
@@ -88,7 +93,7 @@ with builtins; let
   fakeDepRoot = runBareCommandLocal "${name}-dep-root" {} ''
     mkdir $out
     cd $out
-    mkdir ${lib.concatStringsSep " " ([name] ++ (map (d: d.name) allExternalDeps))}
+    mkdir ${lib.concatStringsSep " " (map (r: head (split "\\." (r.mod or r))) roots ++ (map (d: d.name) allExternalDeps))}
   '';
   print-lean-deps = writeShellScriptBin "print-lean-deps" ''
     export LEAN_PATH=${fakeDepRoot}
@@ -97,7 +102,7 @@ with builtins; let
   # build a file containing the module names of all immediate dependencies of `mod`
   leanDeps = mod: mkBareDerivation {
     name ="${mod}-deps";
-    src = src + ("/" + modToLean mod);
+    src = modToLean mod;
     buildInputs = [ print-lean-deps ];
     buildCommand = ''
       print-lean-deps < $src > $out
@@ -177,20 +182,33 @@ with builtins; let
     }}'
   '';
   makePrintPathsFor = deps: mods: printPaths deps // mapAttrs (_: mod: makePrintPathsFor (deps ++ [mod]) mods) mods;
-  mods' = buildModAndDeps name {};
+  submodules = mod: let
+    dir = readDir (modToAbsPath mod);
+    f = p: t:
+      if t == "directory" then
+        submodules "${mod}.${p}"
+      else
+        let m = builtins.match "(.*)\.lean";
+        in lib.optional (m != null) ["${mod}.${m[0]}"];
+  in mapConcat (lib.mapAttrsToList f) dir;
+  expandGlob = g:
+    if typeOf g == "string" then [g]
+    else if g.glob == "one" then [g.mod]
+    else if g.glob == "submodules" then submodules g.mod
+    else if g.glob == "andSubmodules" then [g] ++ submodules g.mod
+    else throw "unknown glob kind '${g}'";
+  mods' = lib.foldr buildModAndDeps {} (concatMap expandGlob roots);
   allLinkFlags = lib.foldr (shared: acc: acc ++ [ "-L${shared}" "-l${shared.linkName or shared.name}" ]) linkFlags allNativeSharedLibs;
 
   objects   = mapAttrs (_: m: m.obj) mods';
   staticLib = runCommand "${name}-lib" { buildInputs = [ stdenv.cc.bintools.bintools ]; } ''
     mkdir -p $out
-    ar Trcs $out/lib${name}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))};
+    ar Trcs $out/lib${libName}.a ${lib.concatStringsSep " " (map (drv: "${drv}/${drv.oPath}") (attrValues objects))};
   '';
 
-  # Static lib inputs
   staticLibLinkWrapper = libs: if groupStaticLibs && !stdenv.isDarwin
     then "-Wl,--start-group ${libs} -Wl,--end-group"
     else "${libs}";
-  staticLibArguments = staticLibLinkWrapper ("${staticLib}/* ${lib.concatStringsSep " " (map (d: "${d}/*.a") allStaticLibDeps)}");
 in rec {
   inherit name lean deps staticLibDeps allNativeSharedLibs allLinkFlags allExternalDeps print-lean-deps src objects staticLib;
   mods = mapAttrs (_: m:
@@ -199,26 +217,21 @@ in rec {
       lib.optionalAttrs (precompilePackage || !precompileModules) { inherit sharedLib; } //
       lib.optionalAttrs precompilePackage { propagatedLoadDynlibs = [sharedLib]; })
     mods';
-  modRoot   = depRoot name [ mods.${name} ];
+  modRoot   = depRoot name (attrValues mods);
   cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
   oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };
   iTree     = symlinkJoin { name = "${name}-iTree"; paths = map (mod: mod.ilean) (attrValues mods); };
-  sharedLib = mkSharedLib name ''
-    ${if stdenv.isDarwin then "-Wl,-force_load,${staticLib}/lib${name}.a" else "-Wl,--whole-archive ${staticLib}/lib${name}.a -Wl,--no-whole-archive"} \
+  sharedLib = mkSharedLib "lib${libName}" ''
+    ${if stdenv.isDarwin then "-Wl,-force_load,${staticLib}/lib${libName}.a" else "-Wl,--whole-archive ${staticLib}/lib${libName}.a -Wl,--no-whole-archive"} \
     ${lib.concatStringsSep " " (map (d: "${d.sharedLib}/*") deps)}'';
-  executable = runCommand executableName { buildInputs = [ stdenv.cc leanc ]; } ''
-    mkdir -p $out/bin
-    leanc ${staticLibArguments} \
-      -o $out/bin/${executableName} \
-      ${lib.concatStringsSep " " allLinkFlags}
-  '' // {
-    withSharedStdlib = runCommand executableName { buildInputs = [ stdenv.cc leanc ]; } ''
+  executable = lib.makeOverridable ({ withSharedStdlib ? false }: let
+      objPaths = map (drv: "${drv}/${drv.oPath}") (attrValues objects) ++ lib.optional withSharedStdlib "${lean-final.leanshared}/*";
+    in runCommand executableName { buildInputs = [ stdenv.cc leanc ]; } ''
       mkdir -p $out/bin
-      leanc ${staticLib}/* -lleanshared \
+      leanc ${staticLibLinkWrapper (lib.concatStringsSep " " (objPaths ++ map (d: "${d}/*.a") allStaticLibDeps))} \
         -o $out/bin/${executableName} \
         ${lib.concatStringsSep " " allLinkFlags}
-    '';
-  };
+    '') {};
 
   lean-package = writeShellScriptBin "lean" ''
     LEAN_PATH=${modRoot}:$LEAN_PATH LEAN_SRC_PATH=$LEAN_SRC_PATH:${src} exec ${lean-final}/bin/lean "$@"

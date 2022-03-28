@@ -105,7 +105,6 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__60;
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__47;
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__64;
-lean_object* l_Std_RBNode_find___at_Lean_Server_registerRpcCallHandler___spec__1(lean_object*, uint64_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_compileHeader___spec__11(uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleRpcConnect___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_RBNode_foldM___at_Lean_Server_FileWorker_mainLoop___spec__1___closed__7;
@@ -344,6 +343,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_comp
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__49;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspResponse___at_Lean_Server_FileWorker_handleRequest___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__7;
+lean_object* l_Std_RBNode_find___at_Lean_Server_wrapRpcProcedure___elambda__1___spec__1(lean_object*, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_parseParams___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_mainLoop___closed__2;
 lean_object* l_Lean_Json_mkObj(lean_object*);
@@ -7248,7 +7248,7 @@ x_9 = lean_ctor_get(x_7, 2);
 lean_inc(x_9);
 lean_dec(x_7);
 x_10 = lean_ctor_get_uint64(x_1, sizeof(void*)*2);
-x_11 = l_Std_RBNode_find___at_Lean_Server_registerRpcCallHandler___spec__1(x_9, x_10);
+x_11 = l_Std_RBNode_find___at_Lean_Server_wrapRpcProcedure___elambda__1___spec__1(x_9, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; 
@@ -7317,7 +7317,7 @@ x_33 = lean_ctor_get(x_31, 2);
 lean_inc(x_33);
 lean_dec(x_31);
 x_34 = lean_ctor_get_uint64(x_1, sizeof(void*)*2);
-x_35 = l_Std_RBNode_find___at_Lean_Server_registerRpcCallHandler___spec__1(x_33, x_34);
+x_35 = l_Std_RBNode_find___at_Lean_Server_wrapRpcProcedure___elambda__1___spec__1(x_33, x_34);
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; lean_object* x_37; 
@@ -7418,7 +7418,7 @@ x_9 = lean_ctor_get(x_7, 2);
 lean_inc(x_9);
 lean_dec(x_7);
 x_10 = lean_ctor_get_uint64(x_1, sizeof(void*)*1);
-x_11 = l_Std_RBNode_find___at_Lean_Server_registerRpcCallHandler___spec__1(x_9, x_10);
+x_11 = l_Std_RBNode_find___at_Lean_Server_wrapRpcProcedure___elambda__1___spec__1(x_9, x_10);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; 
@@ -7481,7 +7481,7 @@ x_28 = lean_ctor_get(x_26, 2);
 lean_inc(x_28);
 lean_dec(x_26);
 x_29 = lean_ctor_get_uint64(x_1, sizeof(void*)*1);
-x_30 = l_Std_RBNode_find___at_Lean_Server_registerRpcCallHandler___spec__1(x_28, x_29);
+x_30 = l_Std_RBNode_find___at_Lean_Server_wrapRpcProcedure___elambda__1___spec__1(x_28, x_29);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; lean_object* x_32; 

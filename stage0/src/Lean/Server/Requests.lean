@@ -89,6 +89,18 @@ def mapTask (t : Task α) (f : α → RequestM β) : RequestM (RequestTask β) :
 def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := fun rc => do
   EIO.bindTask t (f · rc)
 
+def waitFindSnapAux (notFoundX : RequestM α) (x : Snapshot → RequestM α)
+    : Except ElabTaskError (Option Snapshot) → RequestM α
+  /- The elaboration task that we're waiting for may be aborted if the file contents change.
+  In that case, we reply with the `fileChanged` error. Thanks to this, the server doesn't
+  get bogged down in requests for an old state of the document. -/
+  | Except.error FileWorker.ElabTaskError.aborted =>
+    throwThe RequestError RequestError.fileChanged
+  | Except.error (FileWorker.ElabTaskError.ioError e) =>
+    throw (e : RequestError)
+  | Except.ok none => notFoundX
+  | Except.ok (some snap) => x snap
+
 /-- Create a task which waits for the first snapshot matching `p`, handles various errors,
 and if a matching snapshot was found executes `x` with it. If not found, the task executes
 `notFoundX`. -/
@@ -97,16 +109,15 @@ def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
   (x : Snapshot → RequestM β)
     : RequestM (RequestTask β) := do
   let findTask ← doc.allSnaps.waitFind? p
-  mapTask findTask fun
-    /- The elaboration task that we're waiting for may be aborted if the file contents change.
-    In that case, we reply with the `fileChanged` error. Thanks to this, the server doesn't
-    get bogged down in requests for an old state of the document. -/
-    | Except.error FileWorker.ElabTaskError.aborted =>
-      throwThe RequestError RequestError.fileChanged
-    | Except.error (FileWorker.ElabTaskError.ioError e) =>
-      throw (e : RequestError)
-    | Except.ok none => notFoundX
-    | Except.ok (some snap) => x snap
+  mapTask findTask <| waitFindSnapAux notFoundX x
+
+/-- See `withWaitFindSnap`. -/
+def bindWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
+  (notFoundX : RequestM (RequestTask β))
+  (x : Snapshot → RequestM (RequestTask β))
+    : RequestM (RequestTask β) := do
+  let findTask ← doc.allSnaps.waitFind? p
+  bindTask findTask <| waitFindSnapAux notFoundX x
 
 end RequestM
 

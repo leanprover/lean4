@@ -347,10 +347,9 @@ theorem Stmt.simplify_correct (h : (σ, s) ⇓ σ') : (σ, s.simplify) ⇓ σ' :
   | assign => apply Bigstep.assign; simp [*]
   | whileTrue heq h₁ h₂ ih₁ ih₂ =>
     rw [← Expr.eval_simplify] at heq
-    revert ih₂ -- This is a hack to make sure the next split simplify the two match expressions: TODO: make sure `simp` can do it
-    split <;> intro ih₂
+    split
     next h => rw [h] at heq; simp at heq
-    next => apply Bigstep.whileTrue heq ih₁ ih₂
+    next hnp => simp [hnp] at ih₂; apply Bigstep.whileTrue heq ih₁ ih₂
   | whileFalse heq =>
     split
     next => exact Bigstep.skip

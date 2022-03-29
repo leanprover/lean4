@@ -1,0 +1,12 @@
+1081.lean:7:2-7:5: error: type mismatch
+  rfl
+has type
+  f 0 y = f 0 y : Prop
+but is expected to have type
+  f 0 y = y : Prop
+1081.lean:23:4-23:7: error: type mismatch
+  rfl
+has type
+  insert a { val := 0, isLt := (_ : 0 < Nat.succ n) } v = insert a { val := 0, isLt := (_ : 0 < Nat.succ n) } v : Prop
+but is expected to have type
+  insert a { val := 0, isLt := (_ : 0 < Nat.succ n) } v = cons a v : Prop

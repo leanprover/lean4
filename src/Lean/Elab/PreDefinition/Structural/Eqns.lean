@@ -92,6 +92,11 @@ def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
   let env ← getEnv
   Eqns.getUnfoldFor? declName fun _ => eqnInfoExt.find? env declName |>.map (·.toEqnInfoCore)
 
+@[export lean_get_structural_rec_arg_pos]
+def getStructuralRecArgPosImp? (declName : Name) : CoreM (Option Nat) := do
+  let some info := eqnInfoExt.find? (← getEnv) declName | return none
+  return some info.recArgPos
+
 builtin_initialize
   registerGetEqnsFn getEqnsFor?
   registerGetUnfoldEqnFn getUnfoldFor?

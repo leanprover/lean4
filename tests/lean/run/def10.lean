@@ -17,7 +17,7 @@ theorem ex4 : g false false false = 2 := rfl
 theorem ex5 : g false true true = 3 := rfl
 
 theorem f_eq (h : a = true → b = true → False) : f a b = 3 := by
-  simp [f]
+  simp (config := { iota := false }) [f]
   split
   · contradiction
   · rfl

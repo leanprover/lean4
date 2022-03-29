@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.ACLt
+import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.AppBuilder
 import Lean.Meta.SynthInstance
 import Lean.Meta.Tactic.Simp.Types
@@ -202,6 +203,21 @@ def simpArith? (e : Expr) : SimpM (Option Step) := do
   let some (e', h) ← Linear.simp? e (← read).parent? | return none
   return Step.visit { expr := e', proof? := h }
 
+def simpMatchCore? (app : MatcherApp) (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Step) := do
+  for matchEq in (← Match.getEquationsFor app.matcherName).eqnNames do
+    -- Try lemma
+    match (← withReducible <| Simp.tryTheorem? e { proof := mkConst matchEq, name? := some matchEq } discharge?) with
+    | none   => pure ()
+    | some r => return some (Simp.Step.done r)
+  return none
+
+def simpMatch? (discharge? : Expr → SimpM (Option Expr)) (e : Expr) : SimpM (Option Step) := do
+  if (← read).config.iota then
+    let some app ← matchMatcherApp? e | return none
+    simpMatchCore? app e discharge?
+  else
+    return none
+
 def rewritePre (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   for thms in (← read).simpTheorems do
     let r ← rewrite e thms.pre thms.erased discharge? (tag := "pre")
@@ -222,6 +238,7 @@ def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM St
 
 def postDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let s ← rewritePost e discharge?
+  let s ← andThen s (simpMatch? discharge?)
   let s ← andThen s simpArith?
   let s ← andThen s tryRewriteUsingDecide?
   andThen s tryRewriteCtorEq?

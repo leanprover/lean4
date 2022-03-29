@@ -281,7 +281,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Stru
 LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_expandNonAtomicExplicitSources___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_StructInst_formatStruct___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_Term_StructInst_expandStructInstExpectedType___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_StructInst_FieldVal_toSyntax___boxed(lean_object*);
 static lean_object* l_Lean_Elab_Term_StructInst_expandStructInstExpectedType___closed__9;
 lean_object* lean_expr_consume_type_annotations(lean_object*);
 static lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructName_throwUnexpectedExpectedType___closed__3;
@@ -664,7 +663,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Stru
 LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructName(lean_object*);
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 lean_object* l_Lean_findField_x3f(lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___at_Lean_Elab_Term_elabLetDeclCore___spec__1(lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_StructInst_expandStructInstFieldAbbrev___spec__2___closed__4;
 static lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_isModifyOp_x3f___spec__3___closed__5;
 lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
@@ -731,6 +729,7 @@ lean_object* l_Lean_indentExpr(lean_object*);
 static lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabModifyOp___lambda__2___closed__18;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_expandCompositeFields(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_StructInst_DefaultFields_getFieldValue_x3f___lambda__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_panic___at_Lean_Elab_Term_StructInst_FieldVal_toSyntax___spec__1(lean_object*);
 static lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_elabModifyOp___lambda__2___closed__15;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_groupFields___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_StructInst_getStructName___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7102,6 +7101,15 @@ x_4 = l_Lean_Elab_Term_StructInst_FieldLHS_toSyntax(x_3, x_2);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_panic___at_Lean_Elab_Term_StructInst_FieldVal_toSyntax___spec__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_instInhabitedSyntax;
+x_3 = lean_panic_fn(x_2, x_1);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Elab_Term_StructInst_FieldVal_toSyntax___closed__1() {
 _start:
 {
@@ -7131,24 +7139,17 @@ if (lean_obj_tag(x_1) == 0)
 lean_object* x_2; 
 x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
+lean_dec(x_1);
 return x_2;
 }
 else
 {
 lean_object* x_3; lean_object* x_4; 
+lean_dec(x_1);
 x_3 = l_Lean_Elab_Term_StructInst_FieldVal_toSyntax___closed__2;
-x_4 = l_panic___at_Lean_Elab_Term_elabLetDeclCore___spec__1(x_3);
+x_4 = l_panic___at_Lean_Elab_Term_StructInst_FieldVal_toSyntax___spec__1(x_3);
 return x_4;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_StructInst_FieldVal_toSyntax___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Elab_Term_StructInst_FieldVal_toSyntax(x_1);
-lean_dec(x_1);
-return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_StructInst_Field_toSyntax___spec__1(size_t x_1, size_t x_2, lean_object* x_3) {
@@ -7209,7 +7210,7 @@ if (lean_obj_tag(x_2) == 0)
 lean_object* x_3; lean_object* x_4; 
 lean_dec(x_1);
 x_3 = l_Lean_Elab_Term_StructInst_Field_toSyntax___closed__2;
-x_4 = l_panic___at_Lean_Elab_Term_elabLetDeclCore___spec__1(x_3);
+x_4 = l_panic___at_Lean_Elab_Term_StructInst_FieldVal_toSyntax___spec__1(x_3);
 return x_4;
 }
 else
@@ -7226,7 +7227,6 @@ x_8 = lean_ctor_get(x_1, 2);
 lean_inc(x_8);
 lean_dec(x_1);
 x_9 = l_Lean_Elab_Term_StructInst_FieldVal_toSyntax(x_8);
-lean_dec(x_8);
 x_10 = lean_unsigned_to_nat(2u);
 x_11 = l_Lean_Syntax_setArg(x_7, x_10, x_9);
 x_12 = 1;

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Match.Match
+import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.SplitIf
@@ -52,25 +53,6 @@ def casesOnStuckLHS? (mvarId : MVarId) : MetaM (Option (Array MVarId)) := do
 
 namespace Match
 
-structure MatchEqns where
-  eqnNames             : Array Name
-  splitterName         : Name
-  splitterAltNumParams : Array Nat
-  deriving Inhabited, Repr
-
-def MatchEqns.size (e : MatchEqns) : Nat :=
-  e.eqnNames.size
-
-structure MatchEqnsExtState where
-  map : Std.PHashMap Name MatchEqns := {}
-  deriving Inhabited
-
-/- We generate the equations and splitter on demand, and do not save them on .olean files. -/
-builtin_initialize matchEqnsExt : EnvExtension MatchEqnsExtState ←
-  registerEnvExtension (pure {})
-
-private def registerMatchEqns (matchDeclName : Name) (matchEqns : MatchEqns) : CoreM Unit :=
-  modifyEnv fun env => matchEqnsExt.modifyState env fun s => { s with map := s.map.insert matchDeclName matchEqns }
 
 def unfoldNamedPattern (e : Expr) : MetaM Expr := do
   let visit (e : Expr) : MetaM TransformStep := do
@@ -491,7 +473,9 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns :=
       registerMatchEqns matchDeclName result
       return result
 
-def getEquationsFor (matchDeclName : Name) : MetaM MatchEqns := do
+/- See header at `MatchEqsExt.lean` -/
+@[export lean_get_match_equations_for]
+def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
   match matchEqnsExt.getState (← getEnv) |>.map.find? matchDeclName with
   | some matchEqns => return matchEqns
   | none => mkEquationsFor matchDeclName

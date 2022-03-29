@@ -128,6 +128,14 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
     es.getElems.forM precheck
   | _ => throwUnsupportedSyntax
 
+@[builtinQuotPrecheck choice] def precheckChoice : Precheck := fun stx => do
+  let checks ← stx.getArgs.mapM (_root_.observing ∘ precheck)
+  let fails := checks.zip stx.getArgs |>.filterMap fun
+    | (.error e, stx) => some m!"{stx}\n{e.toMessageData}"
+    | _               => none
+  unless fails.isEmpty do
+    throwErrorAt stx "ambiguous notation with at least one interpretation that failed quotation precheck, possible interpretations {indentD (MessageData.joinSep fails.toList m!"\n\n")}"
+
 @[builtinTermElab precheckedQuot] def elabPrecheckedQuot : TermElab := fun stx expectedType? => do
   let singleQuot := stx[1]
   runPrecheck singleQuot.getQuotContent

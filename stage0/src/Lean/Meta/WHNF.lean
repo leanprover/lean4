@@ -18,6 +18,14 @@ namespace Lean.Meta
    Smart unfolding support
    =========================== -/
 
+/-
+Forward declaration. It is defined in the module `src/Lean/Elab/PreDefinition/Structural/Eqns.lean`.
+It is possible to avoid this hack if we move `Structural.EqnInfo` and `Structural.eqnInfoExt`
+to this module.
+-/
+@[extern "lean_get_structural_rec_arg_pos"]
+constant getStructuralRecArgPos? (declName : Name) : CoreM (Option Nat)
+
 def smartUnfoldingSuffix := "_sunfold"
 
 @[inline] def mkSmartUnfoldingNameFor (declName : Name) : Name :=
@@ -588,8 +596,52 @@ mutual
             match ((← getEnv).find? (mkSmartUnfoldingNameFor fInfo.name)) with
             | some fAuxInfo@(ConstantInfo.defnInfo _) =>
               -- We use `preserveMData := true` to make sure the smart unfolding annotation are not erased in an over-application.
-              deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (preserveMData := true) (fun _ => pure none) fun e₁ =>
-                smartUnfoldingReduce? e₁
+              deltaBetaDefinition fAuxInfo fLvls e.getAppRevArgs (preserveMData := true) (fun _ => pure none) fun e₁ => do
+                let some r ← smartUnfoldingReduce? e₁ | return none
+                /-
+                  If `smartUnfoldingReduce?` succeeds, we should still check whether the argument the
+                  structural recursion is recursing on reduces to a constructor.
+                  This extra check is necessary in definitions (see issue #1081) such as
+                  ```
+                  inductive Vector (α : Type u) : Nat → Type u where
+                    | nil  : Vector α 0
+                    | cons : α → Vector α n → Vector α (n+1)
+
+                  def Vector.insert (a: α) (i : Fin (n+1)) (xs : Vector α n) : Vector α (n+1) :=
+                    match i, xs with
+                    | ⟨0,   _⟩,        xs => cons a xs
+                    | ⟨i+1, h⟩, cons x xs => cons x (xs.insert a ⟨i, Nat.lt_of_succ_lt_succ h⟩)
+                  ```
+                  The structural recursion is being performed using the vector `xs`. That is, we used `Vector.brecOn` to define
+                  `Vector.insert`. Thus, an application `xs.insert a ⟨0, h⟩` is **not** definitionally equal to
+                  `Vector.cons a xs` because `xs` is not a constructor application (the `Vector.brecOn` application is blocked).
+
+                  Remark 1: performing structural recursion on `Fin (n+1)` is not an option here because it is a `Subtype` and
+                  and the repacking in recursive applications confuses the structural recursion module.
+
+                  Remark 2: the match expression reduces reduces to `cons a xs` when the discriminants are `⟨0, h⟩` and `xs`.
+
+                  Remark 3: this check is unnecessary in most cases, but we don't need dependent elimination to trigger the issue                        fixed by this extra check. Here is another example that triggers the issue fixed by this check.
+                  ```
+                  def f : Nat → Nat → Nat
+                    | 0,   y   => y
+                    | x+1, y+1 => f (x-2) y
+                    | x+1, 0   => 0
+
+                  theorem ex : f 0 y = y := rfl
+                  ```
+
+                  Remark 4: the `return some r` in the following `let` is not a typo. Binport generated .olean files do not
+                  store the position of recursive arguments for definitions using structural recursion.
+                  Thus, we should keep `return some r` until Mathlib has been ported to Lean 3.
+                  Note that the `Vector` example above does not even work in Lean 3.
+                -/
+                let some recArgPos ← getStructuralRecArgPos? fInfo.name | return some r
+                let numArgs := e.getAppNumArgs
+                if recArgPos >= numArgs then return none
+                let recArg := e.getArg! recArgPos numArgs
+                if !(← whnf recArg).isConstructorApp (← getEnv) then return none
+                return some r
             | _ =>
               if (← getMatcherInfo? fInfo.name).isSome then
                 -- Recall that `whnfCore` tries to reduce "matcher" applications.

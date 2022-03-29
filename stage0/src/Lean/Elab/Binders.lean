@@ -623,16 +623,18 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
     elabLetDeclAux id binders type val body expectedType? useLetExpr elabBodyFirst usedLetOnly
   else if letDecl.getKind == `Lean.Parser.Term.letPatDecl then
     -- node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushNone >> optType >> " := ") >> termParser
+    if elabBodyFirst then
+      throwError "'let_delayed' with patterns is not allowed"
     let pat     := letDecl[0]
     let optType := letDecl[2]
-    let type    := expandOptType pat optType
     let val     := letDecl[4]
-    let stxNew ← `(let x : $type := $val; match x with | $pat => $body)
-    let stxNew := match useLetExpr, elabBodyFirst with
-      | true,  false => stxNew
-      | true,  true  => stxNew.setKind `Lean.Parser.Term.«let_delayed»
-      | false, false => stxNew.setKind `Lean.Parser.Term.«let_fun»
-      | false, true  => unreachable!
+    -- We are currently treating `let_fun` and `let` the same way when patterns are used.
+    let stxNew ←
+      if optType.isNone then
+        `(match $val:term with | $pat => $body)
+      else
+        let type := optType[0][1]
+        `(match ($val:term : $type) with | $pat => $body)
     withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   else if letDecl.getKind == `Lean.Parser.Term.letEqnsDecl then
     let letDeclIdNew ← liftMacroM <| expandLetEqnsDecl letDecl

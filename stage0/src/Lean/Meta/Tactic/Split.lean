@@ -25,12 +25,9 @@ where
     match (← reduceRecMatcher? e) with
     | some e' => return Simp.Step.done { expr := e' }
     | none    =>
-      for matchEq in (← Match.getEquationsFor app.matcherName).eqnNames do
-        -- Try lemma
-        match (← withReducible <| Simp.tryTheorem? e { proof := mkConst matchEq, name? := some matchEq } SplitIf.discharge?) with
-        | none   => pure ()
-        | some r => return Simp.Step.done r
-      return Simp.Step.visit { expr := e }
+      match (← Simp.simpMatchCore? app e SplitIf.discharge?) with
+      | some r => return r
+      | none => return Simp.Step.visit { expr := e }
 
 def simpMatchTarget (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
   let target ← instantiateMVars (← getMVarType mvarId)

@@ -128,8 +128,8 @@
         [.] `Nat : some Sort.{?_uniq.586} @ ⟨21, 36⟩-⟨21, 39⟩
         Nat : Type @ ⟨21, 36⟩-⟨21, 39⟩
   fun x y b =>
-    let x := (x + y, x - y);
-    match x with
+    let _discr := (x + y, x - y);
+    match (x + y, x - y) with
     | (z, w) =>
       let z1 := z + w;
       z + z1 : Nat → Nat → Bool → Nat @ ⟨22, 2⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabFun
@@ -139,8 +139,8 @@
     y (isBinder := true) : Nat @ ⟨22, 8⟩-⟨22, 9⟩
     Bool : Type @ ⟨22, 10⟩†-⟨22, 11⟩† @ Lean.Elab.Term.elabHole
     b (isBinder := true) : Bool @ ⟨22, 10⟩-⟨22, 11⟩
-    let x := (x + y, x - y);
-    match x with
+    let _discr := (x + y, x - y);
+    match (x + y, x - y) with
     | (z, w) =>
       let z1 := z + w;
       z + z1 : Nat @ ⟨23, 4⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabLetDecl
@@ -149,85 +149,99 @@
       let z1 := z + w
       z + z1
       ===>
-      let x✝ : _ := (x + y, x - y);
-      match x✝ with
+      match (x + y, x - y) with
       | (z, w) =>
         let z1 := z + w
         z + z1
-        let x := (x + y, x - y);
-        match x with
+        let _discr := (x + y, x - y);
+        match (x + y, x - y) with
         | (z, w) =>
           let z1 := z + w;
-          z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.elabLetDecl
-          Nat × Nat : Type @ ⟨23, 8⟩†-⟨23, 14⟩† @ Lean.Elab.Term.elabHole
-          (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩-⟨23, 32⟩ @ Lean.Elab.Term.expandParen
-            Macro expansion
-            (x + y, x - y)
-            ===>
-            Prod.mk✝ (x + y) (x - y)
-              (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩†-⟨23, 31⟩ @ Lean.Elab.Term.elabApp
-                @Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 18⟩†-⟨23, 32⟩†
-                x + y : Nat @ ⟨23, 19⟩-⟨23, 24⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
-                  Macro expansion
-                  x + y
-                  ===>
-                  binop% HAdd.hAdd✝ x y
-                    x + y : Nat @ ⟨23, 19⟩†-⟨23, 24⟩ @ Lean.Elab.Term.BinOp.elabBinOp
-                      x : Nat @ ⟨23, 19⟩-⟨23, 20⟩ @ Lean.Elab.Term.elabIdent
-                        x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
-                      y : Nat @ ⟨23, 23⟩-⟨23, 24⟩ @ Lean.Elab.Term.elabIdent
-                        y : Nat @ ⟨23, 23⟩-⟨23, 24⟩
-                x - y : Nat @ ⟨23, 26⟩-⟨23, 31⟩ @ «_aux_Init_Notation___macroRules_term_-__2»
-                  Macro expansion
-                  x - y
-                  ===>
-                  binop% HSub.hSub✝ x y
-                    x - y : Nat @ ⟨23, 26⟩†-⟨23, 31⟩ @ Lean.Elab.Term.BinOp.elabBinOp
-                      x : Nat @ ⟨23, 26⟩-⟨23, 27⟩ @ Lean.Elab.Term.elabIdent
-                        x : Nat @ ⟨23, 26⟩-⟨23, 27⟩
-                      y : Nat @ ⟨23, 30⟩-⟨23, 31⟩ @ Lean.Elab.Term.elabIdent
-                        y : Nat @ ⟨23, 30⟩-⟨23, 31⟩
-          x✝ (isBinder := true) : Nat × Nat @ ⟨23, 4⟩†-⟨25, 10⟩†
-          match x✝ with
+          z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.elabMatch
+          Macro expansion
+          match (x + y, x - y) with
           | (z, w) =>
-            let z1 := z + w;
-            z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.elabMatch
-            x✝ : Nat × Nat @ ⟨23, 4⟩†-⟨25, 10⟩†
-            @Prod.mk : {α : Type ?u} → {β : Type ?u} → α → β → α × β @ ⟨23, 4⟩†-⟨25, 10⟩†
-            [.] `z : none @ ⟨23, 9⟩-⟨23, 10⟩
-            [.] `w : none @ ⟨23, 12⟩-⟨23, 13⟩
-            (z, w) : Nat × Nat @ ⟨23, 4⟩†-⟨23, 13⟩ @ Lean.Elab.Term.elabApp
-              @Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 4⟩†-⟨25, 10⟩†
-              Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩† @ Lean.Elab.Term.elabHole
-              Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩† @ Lean.Elab.Term.elabHole
-              z : Nat @ ⟨23, 9⟩-⟨23, 10⟩ @ Lean.Elab.Term.elabIdent
-                z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
-              w : Nat @ ⟨23, 12⟩-⟨23, 13⟩ @ Lean.Elab.Term.elabIdent
-                w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
-            let z1 := z + w;
-            z + z1 : Nat @ ⟨24, 4⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabLetDecl
-              Nat : Type @ ⟨24, 8⟩†-⟨24, 10⟩† @ Lean.Elab.Term.elabHole
-              z + w : Nat @ ⟨24, 14⟩-⟨24, 19⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
+            let z1 := z + w
+            z + z1
+          ===>
+          let _discr✝ := (x + y, x - y);
+          match _discr✝ with
+          | (z, w) =>
+            let z1 := z + w
+            z + z1
+            let _discr := (x + y, x - y);
+            match (x + y, x - y) with
+            | (z, w) =>
+              let z1 := z + w;
+              z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.elabLetDecl
+              Nat × Nat : Type @ ⟨23, 4⟩†-⟨25, 10⟩† @ Lean.Elab.Term.elabHole
+              (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩-⟨23, 32⟩ @ Lean.Elab.Term.expandParen
                 Macro expansion
-                z + w
+                (x + y, x - y)
                 ===>
-                binop% HAdd.hAdd✝ z w
-                  z + w : Nat @ ⟨24, 14⟩†-⟨24, 19⟩ @ Lean.Elab.Term.BinOp.elabBinOp
-                    z : Nat @ ⟨24, 14⟩-⟨24, 15⟩ @ Lean.Elab.Term.elabIdent
-                      z : Nat @ ⟨24, 14⟩-⟨24, 15⟩
-                    w : Nat @ ⟨24, 18⟩-⟨24, 19⟩ @ Lean.Elab.Term.elabIdent
-                      w : Nat @ ⟨24, 18⟩-⟨24, 19⟩
-              z1 (isBinder := true) : Nat @ ⟨24, 8⟩-⟨24, 10⟩
-              z + z1 : Nat @ ⟨25, 4⟩-⟨25, 10⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
-                Macro expansion
-                z + z1
-                ===>
-                binop% HAdd.hAdd✝ z z1
-                  z + z1 : Nat @ ⟨25, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.BinOp.elabBinOp
-                    z : Nat @ ⟨25, 4⟩-⟨25, 5⟩ @ Lean.Elab.Term.elabIdent
-                      z : Nat @ ⟨25, 4⟩-⟨25, 5⟩
-                    z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabIdent
-                      z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩
+                Prod.mk✝ (x + y) (x - y)
+                  (x + y, x - y) : Nat × Nat @ ⟨23, 18⟩†-⟨23, 31⟩ @ Lean.Elab.Term.elabApp
+                    @Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 18⟩†-⟨23, 32⟩†
+                    x + y : Nat @ ⟨23, 19⟩-⟨23, 24⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
+                      Macro expansion
+                      x + y
+                      ===>
+                      binop% HAdd.hAdd✝ x y
+                        x + y : Nat @ ⟨23, 19⟩†-⟨23, 24⟩ @ Lean.Elab.Term.BinOp.elabBinOp
+                          x : Nat @ ⟨23, 19⟩-⟨23, 20⟩ @ Lean.Elab.Term.elabIdent
+                            x : Nat @ ⟨23, 19⟩-⟨23, 20⟩
+                          y : Nat @ ⟨23, 23⟩-⟨23, 24⟩ @ Lean.Elab.Term.elabIdent
+                            y : Nat @ ⟨23, 23⟩-⟨23, 24⟩
+                    x - y : Nat @ ⟨23, 26⟩-⟨23, 31⟩ @ «_aux_Init_Notation___macroRules_term_-__2»
+                      Macro expansion
+                      x - y
+                      ===>
+                      binop% HSub.hSub✝ x y
+                        x - y : Nat @ ⟨23, 26⟩†-⟨23, 31⟩ @ Lean.Elab.Term.BinOp.elabBinOp
+                          x : Nat @ ⟨23, 26⟩-⟨23, 27⟩ @ Lean.Elab.Term.elabIdent
+                            x : Nat @ ⟨23, 26⟩-⟨23, 27⟩
+                          y : Nat @ ⟨23, 30⟩-⟨23, 31⟩ @ Lean.Elab.Term.elabIdent
+                            y : Nat @ ⟨23, 30⟩-⟨23, 31⟩
+              _discr✝ (isBinder := true) : Nat × Nat @ ⟨23, 4⟩†-⟨25, 10⟩†
+              match (x + y, x - y) with
+              | (z, w) =>
+                let z1 := z + w;
+                z + z1 : Nat @ ⟨23, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.elabMatch
+                @Prod.mk : {α : Type ?u} → {β : Type ?u} → α → β → α × β @ ⟨23, 4⟩†-⟨25, 10⟩†
+                [.] `z : none @ ⟨23, 9⟩-⟨23, 10⟩
+                [.] `w : none @ ⟨23, 12⟩-⟨23, 13⟩
+                (z, w) : Nat × Nat @ ⟨23, 4⟩†-⟨23, 13⟩ @ Lean.Elab.Term.elabApp
+                  @Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 4⟩†-⟨25, 10⟩†
+                  Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩† @ Lean.Elab.Term.elabHole
+                  Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩† @ Lean.Elab.Term.elabHole
+                  z : Nat @ ⟨23, 9⟩-⟨23, 10⟩ @ Lean.Elab.Term.elabIdent
+                    z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
+                  w : Nat @ ⟨23, 12⟩-⟨23, 13⟩ @ Lean.Elab.Term.elabIdent
+                    w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
+                let z1 := z + w;
+                z + z1 : Nat @ ⟨24, 4⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabLetDecl
+                  Nat : Type @ ⟨24, 8⟩†-⟨24, 10⟩† @ Lean.Elab.Term.elabHole
+                  z + w : Nat @ ⟨24, 14⟩-⟨24, 19⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
+                    Macro expansion
+                    z + w
+                    ===>
+                    binop% HAdd.hAdd✝ z w
+                      z + w : Nat @ ⟨24, 14⟩†-⟨24, 19⟩ @ Lean.Elab.Term.BinOp.elabBinOp
+                        z : Nat @ ⟨24, 14⟩-⟨24, 15⟩ @ Lean.Elab.Term.elabIdent
+                          z : Nat @ ⟨24, 14⟩-⟨24, 15⟩
+                        w : Nat @ ⟨24, 18⟩-⟨24, 19⟩ @ Lean.Elab.Term.elabIdent
+                          w : Nat @ ⟨24, 18⟩-⟨24, 19⟩
+                  z1 (isBinder := true) : Nat @ ⟨24, 8⟩-⟨24, 10⟩
+                  z + z1 : Nat @ ⟨25, 4⟩-⟨25, 10⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
+                    Macro expansion
+                    z + z1
+                    ===>
+                    binop% HAdd.hAdd✝ z z1
+                      z + z1 : Nat @ ⟨25, 4⟩†-⟨25, 10⟩ @ Lean.Elab.Term.BinOp.elabBinOp
+                        z : Nat @ ⟨25, 4⟩-⟨25, 5⟩ @ Lean.Elab.Term.elabIdent
+                          z : Nat @ ⟨25, 4⟩-⟨25, 5⟩
+                        z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabIdent
+                          z1 : Nat @ ⟨25, 8⟩-⟨25, 10⟩
   f2 (isBinder := true) : Nat → Nat → Bool → Nat @ ⟨21, 4⟩-⟨21, 6⟩
 [Elab.info] command @ ⟨27, 0⟩-⟨28, 17⟩ @ Lean.Elab.Command.elabDeclaration
   Nat × Array (Array Nat) : Type @ ⟨27, 12⟩-⟨27, 35⟩ @ «_aux_Init_Notation___macroRules_term_×__1»
@@ -238,10 +252,10 @@
       Nat × Array (Array Nat) : Type @ ⟨27, 12⟩†-⟨27, 35⟩ @ Lean.Elab.Term.elabApp
         Prod : Type → Type → Type @ ⟨27, 12⟩†-⟨27, 35⟩†
         Nat : Type @ ⟨27, 12⟩-⟨27, 15⟩ @ Lean.Elab.Term.elabIdent
-          [.] `Nat : some Type.{?_uniq.800} @ ⟨27, 12⟩-⟨27, 15⟩
+          [.] `Nat : some Type.{?_uniq.797} @ ⟨27, 12⟩-⟨27, 15⟩
           Nat : Type @ ⟨27, 12⟩-⟨27, 15⟩
         Array (Array Nat) : Type @ ⟨27, 18⟩-⟨27, 35⟩ @ Lean.Elab.Term.elabApp
-          [.] `Array : some Type.{?_uniq.799} @ ⟨27, 18⟩-⟨27, 23⟩
+          [.] `Array : some Type.{?_uniq.796} @ ⟨27, 18⟩-⟨27, 23⟩
           Array : Type → Type @ ⟨27, 18⟩-⟨27, 23⟩
           Array Nat : Type @ ⟨27, 24⟩-⟨27, 35⟩ @ Lean.Elab.Term.expandParen
             Macro expansion
@@ -249,17 +263,17 @@
             ===>
             Array Nat
               Array Nat : Type @ ⟨27, 25⟩-⟨27, 34⟩ @ Lean.Elab.Term.elabApp
-                [.] `Array : some Type.{?_uniq.801} @ ⟨27, 25⟩-⟨27, 30⟩
+                [.] `Array : some Type.{?_uniq.798} @ ⟨27, 25⟩-⟨27, 30⟩
                 Array : Type → Type @ ⟨27, 25⟩-⟨27, 30⟩
                 Nat : Type @ ⟨27, 31⟩-⟨27, 34⟩ @ Lean.Elab.Term.elabIdent
-                  [.] `Nat : some Type.{?_uniq.802} @ ⟨27, 31⟩-⟨27, 34⟩
+                  [.] `Nat : some Type.{?_uniq.799} @ ⟨27, 31⟩-⟨27, 34⟩
                   Nat : Type @ ⟨27, 31⟩-⟨27, 34⟩
   s (isBinder := true) : Nat × Array (Array Nat) @ ⟨27, 8⟩-⟨27, 9⟩
   Array Nat : Type @ ⟨27, 39⟩-⟨27, 48⟩ @ Lean.Elab.Term.elabApp
-    [.] `Array : some Sort.{?_uniq.804} @ ⟨27, 39⟩-⟨27, 44⟩
+    [.] `Array : some Sort.{?_uniq.801} @ ⟨27, 39⟩-⟨27, 44⟩
     Array : Type → Type @ ⟨27, 39⟩-⟨27, 44⟩
     Nat : Type @ ⟨27, 45⟩-⟨27, 48⟩ @ Lean.Elab.Term.elabIdent
-      [.] `Nat : some Type.{?_uniq.805} @ ⟨27, 45⟩-⟨27, 48⟩
+      [.] `Nat : some Type.{?_uniq.802} @ ⟨27, 45⟩-⟨27, 48⟩
       Nat : Type @ ⟨27, 45⟩-⟨27, 48⟩
   s (isBinder := true) : Nat × Array (Array Nat) @ ⟨27, 8⟩-⟨27, 9⟩
   Array.push (Array.getOp s.snd 1) s.fst : Array Nat @ ⟨28, 2⟩-⟨28, 17⟩ @ Lean.Elab.Term.elabApp
@@ -275,11 +289,11 @@
   f3 (isBinder := true) : Nat × Array (Array Nat) → Array Nat @ ⟨27, 4⟩-⟨27, 6⟩
 [Elab.info] command @ ⟨30, 0⟩-⟨31, 20⟩ @ Lean.Elab.Command.elabDeclaration
   B : Type @ ⟨30, 14⟩-⟨30, 15⟩ @ Lean.Elab.Term.elabIdent
-    [.] `B : some Sort.{?_uniq.847} @ ⟨30, 14⟩-⟨30, 15⟩
+    [.] `B : some Sort.{?_uniq.844} @ ⟨30, 14⟩-⟨30, 15⟩
     B : Type @ ⟨30, 14⟩-⟨30, 15⟩
   arg (isBinder := true) : B @ ⟨30, 8⟩-⟨30, 11⟩
   Nat : Type @ ⟨30, 19⟩-⟨30, 22⟩ @ Lean.Elab.Term.elabIdent
-    [.] `Nat : some Sort.{?_uniq.849} @ ⟨30, 19⟩-⟨30, 22⟩
+    [.] `Nat : some Sort.{?_uniq.846} @ ⟨30, 19⟩-⟨30, 22⟩
     Nat : Type @ ⟨30, 19⟩-⟨30, 22⟩
   arg (isBinder := true) : B @ ⟨30, 8⟩-⟨30, 11⟩
   A.val arg.pair.fst 0 : Nat @ ⟨31, 2⟩-⟨31, 20⟩ @ Lean.Elab.Term.elabApp
@@ -294,11 +308,11 @@
   f4 (isBinder := true) : B → Nat @ ⟨30, 4⟩-⟨30, 6⟩
 [Elab.info] command @ ⟨33, 0⟩-⟨35, 1⟩ @ Lean.Elab.Command.elabDeclaration
   Nat : Type @ ⟨33, 12⟩-⟨33, 15⟩ @ Lean.Elab.Term.elabIdent
-    [.] `Nat : some Sort.{?_uniq.870} @ ⟨33, 12⟩-⟨33, 15⟩
+    [.] `Nat : some Sort.{?_uniq.867} @ ⟨33, 12⟩-⟨33, 15⟩
     Nat : Type @ ⟨33, 12⟩-⟨33, 15⟩
   x (isBinder := true) : Nat @ ⟨33, 8⟩-⟨33, 9⟩
   B : Type @ ⟨33, 19⟩-⟨33, 20⟩ @ Lean.Elab.Term.elabIdent
-    [.] `B : some Sort.{?_uniq.872} @ ⟨33, 19⟩-⟨33, 20⟩
+    [.] `B : some Sort.{?_uniq.869} @ ⟨33, 19⟩-⟨33, 20⟩
     B : Type @ ⟨33, 19⟩-⟨33, 20⟩
   x (isBinder := true) : Nat @ ⟨33, 8⟩-⟨33, 9⟩
   { pair := ({ val := id }, { val := id }) } : B @ ⟨33, 24⟩-⟨35, 1⟩ @ Lean.Elab.Term.StructInst.elabStructInst
@@ -338,73 +352,73 @@ infoTree.lean:44:0: error: expected stx
   [.] (Command.set_option "set_option" `pp.raw) @ ⟨44, 0⟩-⟨44, 17⟩
 [Elab.info] command @ ⟨45, 0⟩-⟨47, 8⟩ @ Lean.Elab.Command.elabDeclaration
   Nat : Type @ ⟨45, 14⟩-⟨45, 17⟩ @ Lean.Elab.Term.elabIdent
-    [.] `Nat : some Sort.{?_uniq.894} @ ⟨45, 14⟩-⟨45, 17⟩
+    [.] `Nat : some Sort.{?_uniq.891} @ ⟨45, 14⟩-⟨45, 17⟩
     Nat : Type @ ⟨45, 14⟩-⟨45, 17⟩
-  _uniq.895 (isBinder := true) : Nat @ ⟨45, 8⟩-⟨45, 9⟩
+  _uniq.892 (isBinder := true) : Nat @ ⟨45, 8⟩-⟨45, 9⟩
   Nat : Type @ ⟨45, 14⟩-⟨45, 17⟩ @ Lean.Elab.Term.elabIdent
-    [.] `Nat : some Sort.{?_uniq.896} @ ⟨45, 14⟩-⟨45, 17⟩
+    [.] `Nat : some Sort.{?_uniq.893} @ ⟨45, 14⟩-⟨45, 17⟩
     Nat : Type @ ⟨45, 14⟩-⟨45, 17⟩
-  _uniq.897 (isBinder := true) : Nat @ ⟨45, 10⟩-⟨45, 11⟩
-  Eq.{1} Nat _uniq.895 _uniq.895 : Prop @ ⟨45, 21⟩-⟨45, 26⟩ @ «_aux_Init_Notation___macroRules_term_=__2»
+  _uniq.894 (isBinder := true) : Nat @ ⟨45, 10⟩-⟨45, 11⟩
+  Eq.{1} Nat _uniq.892 _uniq.892 : Prop @ ⟨45, 21⟩-⟨45, 26⟩ @ «_aux_Init_Notation___macroRules_term_=__2»
     Macro expansion
     («term_=_» `x "=" `x)
     ===>
-    (Term.binrel "binrel%" `Eq._@.infoTree._hyg.177 `x `x)
-      Eq.{1} Nat _uniq.895 _uniq.895 : Prop @ ⟨45, 21⟩†-⟨45, 26⟩ @ Lean.Elab.Term.elabBinRel
-        _uniq.895 : Nat @ ⟨45, 21⟩-⟨45, 22⟩ @ Lean.Elab.Term.elabIdent
-          _uniq.895 : Nat @ ⟨45, 21⟩-⟨45, 22⟩
-        _uniq.895 : Nat @ ⟨45, 25⟩-⟨45, 26⟩ @ Lean.Elab.Term.elabIdent
-          _uniq.895 : Nat @ ⟨45, 25⟩-⟨45, 26⟩
-  _uniq.904 (isBinder := true) : Nat @ ⟨45, 8⟩-⟨45, 9⟩
-  _uniq.905 (isBinder := true) : Nat @ ⟨45, 10⟩-⟨45, 11⟩
-  (fun (f7 : forall (x : Nat), Nat -> (Eq.{1} Nat x x)) => [mdata _recApp: f7 _uniq.904 _uniq.905]) f6.f7 : Eq.{1} Nat _uniq.904 _uniq.904 @ ⟨46, 2⟩-⟨47, 8⟩ @ Lean.Elab.Term.elabLetRec
+    (Term.binrel "binrel%" `Eq._@.infoTree._hyg.179 `x `x)
+      Eq.{1} Nat _uniq.892 _uniq.892 : Prop @ ⟨45, 21⟩†-⟨45, 26⟩ @ Lean.Elab.Term.elabBinRel
+        _uniq.892 : Nat @ ⟨45, 21⟩-⟨45, 22⟩ @ Lean.Elab.Term.elabIdent
+          _uniq.892 : Nat @ ⟨45, 21⟩-⟨45, 22⟩
+        _uniq.892 : Nat @ ⟨45, 25⟩-⟨45, 26⟩ @ Lean.Elab.Term.elabIdent
+          _uniq.892 : Nat @ ⟨45, 25⟩-⟨45, 26⟩
+  _uniq.901 (isBinder := true) : Nat @ ⟨45, 8⟩-⟨45, 9⟩
+  _uniq.902 (isBinder := true) : Nat @ ⟨45, 10⟩-⟨45, 11⟩
+  (fun (f7 : forall (x : Nat), Nat -> (Eq.{1} Nat x x)) => [mdata _recApp: f7 _uniq.901 _uniq.902]) f6.f7 : Eq.{1} Nat _uniq.901 _uniq.901 @ ⟨46, 2⟩-⟨47, 8⟩ @ Lean.Elab.Term.elabLetRec
     Nat : Type @ ⟨46, 20⟩-⟨46, 23⟩ @ Lean.Elab.Term.elabIdent
-      [.] `Nat : some Sort.{?_uniq.906} @ ⟨46, 20⟩-⟨46, 23⟩
+      [.] `Nat : some Sort.{?_uniq.903} @ ⟨46, 20⟩-⟨46, 23⟩
       Nat : Type @ ⟨46, 20⟩-⟨46, 23⟩
-    _uniq.907 (isBinder := true) : Nat @ ⟨46, 14⟩-⟨46, 15⟩
+    _uniq.904 (isBinder := true) : Nat @ ⟨46, 14⟩-⟨46, 15⟩
     Nat : Type @ ⟨46, 20⟩-⟨46, 23⟩ @ Lean.Elab.Term.elabIdent
-      [.] `Nat : some Sort.{?_uniq.908} @ ⟨46, 20⟩-⟨46, 23⟩
+      [.] `Nat : some Sort.{?_uniq.905} @ ⟨46, 20⟩-⟨46, 23⟩
       Nat : Type @ ⟨46, 20⟩-⟨46, 23⟩
-    _uniq.909 (isBinder := true) : Nat @ ⟨46, 16⟩-⟨46, 17⟩
-    Eq.{1} Nat _uniq.907 _uniq.907 : Prop @ ⟨46, 27⟩-⟨46, 32⟩ @ «_aux_Init_Notation___macroRules_term_=__2»
+    _uniq.906 (isBinder := true) : Nat @ ⟨46, 16⟩-⟨46, 17⟩
+    Eq.{1} Nat _uniq.904 _uniq.904 : Prop @ ⟨46, 27⟩-⟨46, 32⟩ @ «_aux_Init_Notation___macroRules_term_=__2»
       Macro expansion
       («term_=_» `x "=" `x)
       ===>
-      (Term.binrel "binrel%" `Eq._@.infoTree._hyg.185 `x `x)
-        Eq.{1} Nat _uniq.907 _uniq.907 : Prop @ ⟨46, 27⟩†-⟨46, 32⟩ @ Lean.Elab.Term.elabBinRel
-          _uniq.907 : Nat @ ⟨46, 27⟩-⟨46, 28⟩ @ Lean.Elab.Term.elabIdent
-            _uniq.907 : Nat @ ⟨46, 27⟩-⟨46, 28⟩
-          _uniq.907 : Nat @ ⟨46, 31⟩-⟨46, 32⟩ @ Lean.Elab.Term.elabIdent
-            _uniq.907 : Nat @ ⟨46, 31⟩-⟨46, 32⟩
-    _uniq.914 (isBinder := true) : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨46, 10⟩-⟨46, 12⟩
-    _uniq.917 (isBinder := true) : Nat @ ⟨46, 14⟩-⟨46, 15⟩
-    _uniq.918 (isBinder := true) : Nat @ ⟨46, 16⟩-⟨46, 17⟩
-    Eq.refl.{1} Nat _uniq.917 : Eq.{1} Nat _uniq.917 _uniq.917 @ ⟨46, 36⟩-⟨46, 45⟩ @ Lean.Elab.Term.elabApp
-      [.] `Eq.refl : some Eq.{?_uniq.911} Nat _uniq.917 _uniq.917 @ ⟨46, 36⟩-⟨46, 43⟩
+      (Term.binrel "binrel%" `Eq._@.infoTree._hyg.187 `x `x)
+        Eq.{1} Nat _uniq.904 _uniq.904 : Prop @ ⟨46, 27⟩†-⟨46, 32⟩ @ Lean.Elab.Term.elabBinRel
+          _uniq.904 : Nat @ ⟨46, 27⟩-⟨46, 28⟩ @ Lean.Elab.Term.elabIdent
+            _uniq.904 : Nat @ ⟨46, 27⟩-⟨46, 28⟩
+          _uniq.904 : Nat @ ⟨46, 31⟩-⟨46, 32⟩ @ Lean.Elab.Term.elabIdent
+            _uniq.904 : Nat @ ⟨46, 31⟩-⟨46, 32⟩
+    _uniq.911 (isBinder := true) : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨46, 10⟩-⟨46, 12⟩
+    _uniq.914 (isBinder := true) : Nat @ ⟨46, 14⟩-⟨46, 15⟩
+    _uniq.915 (isBinder := true) : Nat @ ⟨46, 16⟩-⟨46, 17⟩
+    Eq.refl.{1} Nat _uniq.914 : Eq.{1} Nat _uniq.914 _uniq.914 @ ⟨46, 36⟩-⟨46, 45⟩ @ Lean.Elab.Term.elabApp
+      [.] `Eq.refl : some Eq.{?_uniq.908} Nat _uniq.914 _uniq.914 @ ⟨46, 36⟩-⟨46, 43⟩
       Eq.refl.{1} : forall {α : Type} (a : α), Eq.{1} α a a @ ⟨46, 36⟩-⟨46, 43⟩
-      _uniq.917 : Nat @ ⟨46, 44⟩-⟨46, 45⟩ @ Lean.Elab.Term.elabIdent
-        _uniq.917 : Nat @ ⟨46, 44⟩-⟨46, 45⟩
-    [mdata _recApp: _uniq.914 _uniq.904 _uniq.905] : Eq.{1} Nat _uniq.904 _uniq.904 @ ⟨47, 2⟩-⟨47, 8⟩ @ Lean.Elab.Term.elabApp
-      _uniq.914 : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨47, 2⟩-⟨47, 4⟩
-      _uniq.904 : Nat @ ⟨47, 5⟩-⟨47, 6⟩ @ Lean.Elab.Term.elabIdent
-        _uniq.904 : Nat @ ⟨47, 5⟩-⟨47, 6⟩
-      _uniq.905 : Nat @ ⟨47, 7⟩-⟨47, 8⟩ @ Lean.Elab.Term.elabIdent
-        _uniq.905 : Nat @ ⟨47, 7⟩-⟨47, 8⟩
+      _uniq.914 : Nat @ ⟨46, 44⟩-⟨46, 45⟩ @ Lean.Elab.Term.elabIdent
+        _uniq.914 : Nat @ ⟨46, 44⟩-⟨46, 45⟩
+    [mdata _recApp: _uniq.911 _uniq.901 _uniq.902] : Eq.{1} Nat _uniq.901 _uniq.901 @ ⟨47, 2⟩-⟨47, 8⟩ @ Lean.Elab.Term.elabApp
+      _uniq.911 : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨47, 2⟩-⟨47, 4⟩
+      _uniq.901 : Nat @ ⟨47, 5⟩-⟨47, 6⟩ @ Lean.Elab.Term.elabIdent
+        _uniq.901 : Nat @ ⟨47, 5⟩-⟨47, 6⟩
+      _uniq.902 : Nat @ ⟨47, 7⟩-⟨47, 8⟩ @ Lean.Elab.Term.elabIdent
+        _uniq.902 : Nat @ ⟨47, 7⟩-⟨47, 8⟩
   f6.f7 (isBinder := true) : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨46, 10⟩-⟨46, 12⟩
   f6 (isBinder := true) : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨45, 4⟩-⟨45, 6⟩
 [Elab.info] command @ ⟨50, 0⟩-⟨50, 32⟩ @ Lean.Elab.Command.elabDeclaration
   B : Type @ ⟨50, 12⟩-⟨50, 13⟩ @ Lean.Elab.Term.elabIdent
-    [.] `B : some Sort.{?_uniq.942} @ ⟨50, 12⟩-⟨50, 13⟩
+    [.] `B : some Sort.{?_uniq.939} @ ⟨50, 12⟩-⟨50, 13⟩
     B : Type @ ⟨50, 12⟩-⟨50, 13⟩
-  _uniq.943 (isBinder := true) : B @ ⟨50, 8⟩-⟨50, 9⟩
+  _uniq.940 (isBinder := true) : B @ ⟨50, 8⟩-⟨50, 9⟩
   B : Type @ ⟨50, 17⟩-⟨50, 18⟩ @ Lean.Elab.Term.elabIdent
-    [.] `B : some Sort.{?_uniq.944} @ ⟨50, 17⟩-⟨50, 18⟩
+    [.] `B : some Sort.{?_uniq.941} @ ⟨50, 17⟩-⟨50, 18⟩
     B : Type @ ⟨50, 17⟩-⟨50, 18⟩
-  _uniq.947 (isBinder := true) : B @ ⟨50, 8⟩-⟨50, 9⟩
-  B.mk (B.pair _uniq.947) : B @ ⟨50, 22⟩-⟨50, 32⟩ @ Lean.Elab.Term.StructInst.elabStructInst
-    B.pair _uniq.947 : Prod.{0 0} A A @ ⟨50, 24⟩-⟨50, 25⟩† @ Lean.Elab.Term.elabProj
-      _uniq.947 : B @ ⟨50, 24⟩-⟨50, 25⟩
-      [.] _uniq.947 : B @ ⟨50, 24⟩-⟨50, 25⟩ : some Prod.{0 0} A A
+  _uniq.944 (isBinder := true) : B @ ⟨50, 8⟩-⟨50, 9⟩
+  B.mk (B.pair _uniq.944) : B @ ⟨50, 22⟩-⟨50, 32⟩ @ Lean.Elab.Term.StructInst.elabStructInst
+    B.pair _uniq.944 : Prod.{0 0} A A @ ⟨50, 24⟩-⟨50, 25⟩† @ Lean.Elab.Term.elabProj
+      _uniq.944 : B @ ⟨50, 24⟩-⟨50, 25⟩
+      [.] _uniq.944 : B @ ⟨50, 24⟩-⟨50, 25⟩ : some Prod.{0 0} A A
       B.pair : B -> (Prod.{0 0} A A) @ ⟨50, 24⟩†-⟨50, 25⟩†
-    pair : Prod.{0 0} A A := B.pair _uniq.947 @ ⟨50, 22⟩†-⟨50, 32⟩
+    pair : Prod.{0 0} A A := B.pair _uniq.944 @ ⟨50, 22⟩†-⟨50, 32⟩
   f7 (isBinder := true) : B -> B @ ⟨50, 4⟩-⟨50, 6⟩

@@ -6,7 +6,7 @@ z : A
 this : z.x = 1
 ⊢ z.x = 1
 @A.rec : {motive : A → Sort u_1} → ((x : Nat) → x = 1 → motive (A.mk x)) → (t : A) → motive t
-case mk
+z : A
 x : Nat
 a' : x = 1
 ⊢ (A.mk x).x = 1

@@ -18,7 +18,7 @@ example (z : A) : z.x = 1 := by
 #check @A.rec
 
 example (z : A) : z.x = 1 := by
-  cases z; rename_i x a'
+  have ⟨x, a'⟩ := z
   trace_state
   subst a'
   rfl

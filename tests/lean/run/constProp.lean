@@ -515,7 +515,7 @@ theorem State.update_le_update (h : σ' ≼ σ) : σ'.update x v ≼ σ.update x
   induction σ generalizing σ' hf with
   | nil  => rw [eq_bot h] at hf; assumption
   | cons zw' σ ih =>
-    cases zw'; rename_i z w'; simp
+    have (z, w') := zw'; simp
     have : σ'.erase z ≼ σ := erase_le_of_le_cons h
     have ih := ih this
     revert ih hf

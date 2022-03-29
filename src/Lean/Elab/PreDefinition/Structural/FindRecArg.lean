@@ -65,7 +65,7 @@ partial def findRecArg (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → M 
       /- If `e` is an inductive family, we store in `indicesRef` all variables in `xs` that occur in "index positions". -/
       matchConstInduct e.getAppFn (fun _ => pure ()) fun info _ => do
         if info.numIndices > 0 && info.numParams + info.numIndices == e.getAppNumArgs then
-          for arg in e.getAppArgs[:info.numIndices] do
+          for arg in e.getAppArgs[info.numParams:] do
             forEachExpr arg fun e => do
               if e.isFVar && xs.any (· == e) then
                 indicesRef.modify fun indices => indices.insert e.fvarId!
@@ -74,6 +74,7 @@ partial def findRecArg (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → M 
   let rec go (i : Nat) (firstPass : Bool) : M α := do
     if h : i < xs.size then
       let x := xs.get ⟨i, h⟩
+      trace[Elab.definition.structural] "findRecArg x: {x}, firstPass: {firstPass}"
       let localDecl ← getFVarLocalDecl x
       if localDecl.isLet then
         throwStructuralFailed

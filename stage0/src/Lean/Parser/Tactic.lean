@@ -15,9 +15,6 @@ builtin_initialize
 @[builtinTacticParser] def «unknown»    := leading_parser withPosition (ident >> errorAtSavedPos "unknown tactic" true)
 @[builtinTacticParser] def nestedTactic := tacticSeqBracketed
 
-/- Auxiliary parser for expanding `match` tactic -/
-@[builtinTacticParser] def eraseAuxDiscrs := leading_parser:maxPrec "eraseAuxDiscrs!"
-
 def matchRhs  := Term.hole <|> Term.syntheticHole <|> tacticSeq
 def matchAlts := Term.matchAlts (rhsParser := matchRhs)
 @[builtinTacticParser] def «match» := leading_parser:leadPrec "match " >> optional Term.generalizingParam >> optional Term.motive >> sepBy1 Term.matchDiscr ", " >> " with " >> ppDedent matchAlts

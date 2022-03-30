@@ -1132,6 +1132,10 @@ def instantiateLambda (e : Expr) (ps : Array Expr) : MetaM Expr :=
 def dependsOn (e : Expr) (fvarId : FVarId) : MetaM Bool :=
   return (← getMCtx).exprDependsOn e fvarId
 
+/-- Return true iff `e` depends on the free variable `fvarId` -/
+def localDeclDependsOn (localDecl : LocalDecl) (fvarId : FVarId) : MetaM Bool :=
+  return (← getMCtx).localDeclDependsOn localDecl fvarId
+
 /-- Return true iff `e` depends on a free variable `x` s.t. `pf x`, or an unassigned metavariable `?m` s.t. `pm ?m` is true. -/
 def dependsOnPred (e : Expr) (pf : FVarId → Bool := fun _ => false) (pm : MVarId → Bool := fun _ => false) : MetaM Bool :=
   return (← getMCtx).findExprDependsOn e pf pm

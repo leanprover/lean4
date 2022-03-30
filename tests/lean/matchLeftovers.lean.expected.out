@@ -1,0 +1,19 @@
+matchLeftovers.lean:5:17-5:21: error: unsolved goals
+a b : Nat
+⊢ Nat
+matchLeftovers.lean:9:14-9:18: error: unsolved goals
+x : Nat × Nat
+a b : Nat
+h : (a, b).fst > 0
+⊢ f (a, b) > 0
+matchLeftovers.lean:16:17-16:21: error: unsolved goals
+x a b : Nat
+⊢ Nat
+matchLeftovers.lean:25:32-25:36: error: unsolved goals
+α : Type ?u
+a : α
+i x✝ : Nat
+h : i + 1 < x✝ + 1 + 1
+x : α
+xs : Vector α x✝
+⊢ Vector α (x✝ + 1 + 1)

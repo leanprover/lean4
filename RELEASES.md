@@ -1,6 +1,17 @@
 Unreleased
 ---------
 
+* "Cleanup" local context before elaborating a `match` alternative right-hand-side. Examples:
+```lean
+example (x : Nat) : Nat :=
+  match g x with
+  | (a, b) => _ -- Local context does not contain the auxiliary `_discr := g x` anymore
+
+example (x : Nat × Nat) (h : x.1 > 0) : f x > 0 := by
+  match x with
+  | (a, b) => _ -- Local context does not contain the `h✝ : x.fst > 0` anymore
+```
+
 * Improve `let`-pattern (and `have`-pattern) macro expansion. In the following example,
 ```lean
 example (x : Nat × Nat) : f x > 0 := by

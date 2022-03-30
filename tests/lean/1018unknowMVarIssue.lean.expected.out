@@ -1,7 +1,6 @@
 1018unknowMVarIssue.lean:9:18-9:19: error: don't know how to synthesize placeholder
 context:
 α✝ β : Type
-a✝ : α✝
 x : Fam2 α✝ β
 α : Type
 a : α
@@ -25,7 +24,7 @@ a : α
     β : Type @ ⟨7, 33⟩-⟨7, 34⟩
   a (isBinder := true) : α @ ⟨7, 9⟩-⟨7, 10⟩
   x (isBinder := true) : Fam2 α β @ ⟨7, 17⟩-⟨7, 18⟩
-  _example.match_1 (fun α β x a => β) α β x a (fun α_1 a_1 => ?m a x α_1 a_1) fun n a =>
+  _example.match_1 (fun α β x a => β) α β x a (fun α_1 a => ?m x α_1 a) fun n a =>
     n : <failed-to-infer-type> @ ⟨8, 2⟩-⟨10, 19⟩ @ Lean.Elab.Term.elabMatch
     x : Fam2 α β @ ⟨8, 8⟩-⟨8, 9⟩
     [.] `Fam2.any : none @ ⟨9, 4⟩-⟨9, 12⟩
@@ -51,7 +50,7 @@ a : α
         ?α : Type @ ⟨9, 4⟩†-⟨9, 12⟩† @ Lean.Elab.Term.elabHole
     a : ?α @ ⟨8, 2⟩†-⟨10, 19⟩† @ Lean.Elab.Term.elabIdent
       a : ?α @ ⟨8, 2⟩†-⟨10, 19⟩†
-    ?m a✝ x α a : α @ ⟨9, 18⟩-⟨9, 19⟩ @ Lean.Elab.Term.elabHole
+    ?m x α a : α @ ⟨9, 18⟩-⟨9, 19⟩ @ Lean.Elab.Term.elabHole
     [.] `Fam2.nat : none @ ⟨10, 4⟩-⟨10, 12⟩
     Fam2.nat : Nat → Fam2 Nat Nat @ ⟨10, 4⟩-⟨10, 12⟩
     [.] `n : none @ ⟨10, 13⟩-⟨10, 14⟩

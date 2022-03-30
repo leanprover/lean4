@@ -18,7 +18,7 @@ theorem ex1 : h true [1] = h false [1] := rfl
 #eval h false [1]
 
 theorem ex2 : (h true [1] == h false [1]) = true :=
-  by nativeDecide
+  by native_decide
 
 @[noinline] def f2 (a : String) := a
 @[noinline] def g2 (a : String) (x : Bool) := a

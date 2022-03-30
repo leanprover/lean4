@@ -21,7 +21,7 @@ def matchAlts := Term.matchAlts (rhsParser := matchRhs)
 @[builtinTacticParser] def introMatch := leading_parser nonReservedSymbol "intro " >> matchAlts
 
 @[builtinTacticParser] def decide := leading_parser nonReservedSymbol "decide"
-@[builtinTacticParser] def nativeDecide := leading_parser nonReservedSymbol "nativeDecide"
+@[builtinTacticParser] def nativeDecide := leading_parser nonReservedSymbol "native_decide"
 
 end Tactic
 end Parser

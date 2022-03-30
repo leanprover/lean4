@@ -20,7 +20,7 @@ match b with
 | true  =>
   /- The following `nativeDecide` is going to use `g` to evaluate `f`
      because of the `implementedBy` directive. -/
-  have : (f true) = false := by nativeDecide
+  have : (f true) = false := by native_decide
   this
 | false => rfl
 

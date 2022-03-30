@@ -62,7 +62,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_add
 static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams___closed__8;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_LocalContext_getFVars___spec__1(size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams___closed__4;
-LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_3245_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_3221_(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop___lambda__3___closed__3;
 extern lean_object* l_Lean_levelZero;
@@ -5971,7 +5971,7 @@ x_18 = l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__8(x_1, x_2, x_3, 
 return x_18;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_3245_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_3221_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -6144,7 +6144,7 @@ l_Lean_Meta_induction___closed__4 = _init_l_Lean_Meta_induction___closed__4();
 lean_mark_persistent(l_Lean_Meta_induction___closed__4);
 l_Lean_Meta_induction___closed__5 = _init_l_Lean_Meta_induction___closed__5();
 lean_mark_persistent(l_Lean_Meta_induction___closed__5);
-res = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_3245_(lean_io_mk_world());
+res = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_3221_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

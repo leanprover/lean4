@@ -253,7 +253,7 @@ static lean_object* l_Lean_Elab_Term_elabBinRelCore_toBoolIfNecessary___closed__
 extern lean_object* l_Lean_instInhabitedSyntax;
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Term_BinOp_elabBinCalc___spec__3___closed__7;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Extra_0__Lean_Elab_Term_BinOp_toExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_BinOp_initFn____x40_Lean_Elab_Extra___hyg_5561_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_BinOp_initFn____x40_Lean_Elab_Extra___hyg_5553_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabBinRel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabForIn_x27___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_elabBinRelCore___lambda__2___closed__5;
@@ -17008,7 +17008,7 @@ x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3, x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Term_BinOp_initFn____x40_Lean_Elab_Extra___hyg_5561_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_BinOp_initFn____x40_Lean_Elab_Extra___hyg_5553_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -17582,7 +17582,7 @@ lean_mark_persistent(l___regBuiltin_Lean_Elab_Term_BinOp_elabDefaultOrNonempty_d
 res = l___regBuiltin_Lean_Elab_Term_BinOp_elabDefaultOrNonempty_declRange(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l_Lean_Elab_Term_BinOp_initFn____x40_Lean_Elab_Extra___hyg_5561_(lean_io_mk_world());
+res = l_Lean_Elab_Term_BinOp_initFn____x40_Lean_Elab_Extra___hyg_5553_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

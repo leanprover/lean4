@@ -17,10 +17,10 @@ def toList : StarsAndBars s b → { bs : List Bool // bs.count false = s ∧ bs.
   | bar  h => ⟨true :: toList h, by simp [(toList h).2]⟩
 
 theorem toList_star (h : StarsAndBars s b) (h') : toList (star h) = ⟨false :: toList h, h'⟩ := by
-  simp [toList]
+  rfl
 
 theorem toList_bar (h : StarsAndBars s b) (h') : toList (bar h) = ⟨true :: toList h, h'⟩ := by
-  simp [toList]
+  rfl
 
 end Ex1
 
@@ -39,10 +39,10 @@ def toList : StarsAndBars s b → { bs : List Bool // bs.count false = s ∧ bs.
   | bar  h => ⟨true :: toList h,  toList_bar_proof (toList h).property⟩
 
 theorem toList_star (h : StarsAndBars s b) : toList (star h) = ⟨false :: toList h, toList_star_proof (toList h).property⟩ := by
-  simp [toList]
+  rfl
 
 theorem toList_bar (h : StarsAndBars s b) : toList (bar h) = ⟨true :: toList h, toList_bar_proof (toList h).property⟩ := by
-  simp [toList]
+  rfl
 
 end Ex2
 

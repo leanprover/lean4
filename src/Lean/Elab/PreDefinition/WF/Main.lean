@@ -103,7 +103,7 @@ def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (de
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
   addNonRec preDefNonRec (applyAttrAfterCompilation := false)
   addNonRecPreDefs preDefs preDefNonRec fixedPrefixSize
-  registerEqnsInfo preDefs preDefNonRec.declName
+  registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize
   for preDef in preDefs do
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
   addAndCompilePartialRec preDefs

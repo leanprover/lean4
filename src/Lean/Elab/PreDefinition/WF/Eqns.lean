@@ -12,8 +12,9 @@ open Meta
 open Eqns
 
 structure EqnInfo extends EqnInfoCore where
-  declNames      : Array Name
-  declNameNonRec : Name
+  declNames       : Array Name
+  declNameNonRec  : Name
+  fixedPrefixSize : Nat
   deriving Inhabited
 
 private partial def deltaLHSUntilFix (mvarId : MVarId) : MetaM MVarId := withMVarContext mvarId do
@@ -89,11 +90,11 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension `wfEqInfo
 
-def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) : CoreM Unit := do
+def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat) : CoreM Unit := do
   let declNames := preDefs.map (·.declName)
   modifyEnv fun env =>
     preDefs.foldl (init := env) fun env preDef =>
-      eqnInfoExt.insert env preDef.declName { preDef with declNames, declNameNonRec }
+      eqnInfoExt.insert env preDef.declName { preDef with declNames, declNameNonRec, fixedPrefixSize }
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then

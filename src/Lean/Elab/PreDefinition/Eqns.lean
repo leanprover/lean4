@@ -207,7 +207,7 @@ partial def mkEqnTypes (declNames : Array Name) (mvarId : MVarId) : MetaM (Array
   return eqnTypes
 where
   go (mvarId : MVarId) : ReaderT Context (StateRefT (Array Expr) MetaM) Unit := do
-    trace[Elab.definition.structural.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
+    trace[Elab.definition.eqns] "mkEqnTypes step\n{MessageData.ofGoal mvarId}"
     if (← tryURefl mvarId) then
       saveEqn mvarId
       return ()
@@ -370,5 +370,6 @@ def getUnfoldFor? (declName : Name) (getInfo? : Unit → Option EqnInfoCore) : M
 
 builtin_initialize
   registerTraceClass `Elab.definition.unfoldEqn
+  registerTraceClass `Elab.definition.eqns
 
 end Lean.Elab.Eqns

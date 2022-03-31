@@ -164,7 +164,8 @@ def basicFun : Parser := nodeWithAntiquot "basicFun" `Lean.Parser.Term.basicFun 
 @[builtinTermParser] def «fun» := leading_parser:maxPrec ppAllowUngrouped >> unicodeSymbol "λ" "fun" >> (basicFun <|> matchAlts)
 
 def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
-@[builtinTermParser] def «leading_parser»  := leading_parser:leadPrec "leading_parser " >> optExprPrecedence >> termParser
+def withAnonymousAntiquot := leading_parser atomic ("(" >> nonReservedSymbol "withAnonymousAntiquot" >> " := ") >> (trueVal <|> falseVal) >> ")" >> ppSpace
+@[builtinTermParser] def «leading_parser»  := leading_parser:leadPrec "leading_parser " >> optExprPrecedence >> optional withAnonymousAntiquot >> termParser
 @[builtinTermParser] def «trailing_parser» := leading_parser:leadPrec "trailing_parser " >> optExprPrecedence >> optExprPrecedence >> termParser
 
 @[builtinTermParser] def borrowed   := leading_parser "@& " >> termParser leadPrec

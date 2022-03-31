@@ -105,6 +105,9 @@ ihr : BST right → Tree.find? (Tree.insert right k v) k = some v
 * (Experimental) New `checkpoint <tactic-seq>` tactic for big interactive proofs.
 
 * Rename tactic `nativeDecide` => `native_decide`.
+* Antiquotations are now accepted in any syntax. The `incQuotDepth` `syntax` parser is therefore obsolete and has been removed.
+
+* Renamed tactic `nativeDecide` => `native_decide`.
 
 * "Cleanup" local context before elaborating a `match` alternative right-hand-side. Examples:
 ```lean

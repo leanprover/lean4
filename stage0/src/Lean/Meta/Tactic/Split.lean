@@ -9,7 +9,7 @@ import Lean.Meta.Tactic.Generalize
 namespace Lean.Meta
 namespace Split
 
-private def getSimpMatchContext : MetaM Simp.Context :=
+def getSimpMatchContext : MetaM Simp.Context :=
    return {
       simpTheorems   := {}
       congrTheorems := (← getSimpCongrTheorems)

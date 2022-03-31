@@ -464,6 +464,7 @@ static lean_object* l_Lean_Parser_Tactic_introMatch___elambda__1___closed__6;
 static lean_object* l_Lean_Parser_Tactic_match___elambda__1___closed__11;
 static lean_object* l___regBuiltin_Lean_Parser_Tactic_unknown_declRange___closed__1;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Tactic_nestedTactic_declRange(lean_object*);
+static lean_object* l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__13;
 static lean_object* l_Lean_Parser_Tactic_match_parenthesizer___closed__11;
 lean_object* l_Lean_PrettyPrinter_Formatter_andthen_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_matchAlts_formatter___closed__1;
@@ -4849,10 +4850,9 @@ return x_4;
 static lean_object* _init_l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__1;
-x_2 = l_String_trim(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string("native_decide");
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__6() {
@@ -4860,8 +4860,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__5;
-x_2 = lean_alloc_closure((void*)(l_Lean_Parser_nonReservedSymbolFn), 3, 1);
-lean_closure_set(x_2, 0, x_1);
+x_2 = l_String_trim(x_1);
 return x_2;
 }
 }
@@ -4870,7 +4869,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__6;
-x_2 = lean_alloc_closure((void*)(l_Lean_Parser_tokenWithAntiquotFn), 3, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_Parser_nonReservedSymbolFn), 3, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -4878,22 +4877,20 @@ return x_2;
 static lean_object* _init_l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__8() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__2;
-x_2 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__7;
-x_3 = lean_alloc_closure((void*)(l_Lean_Parser_nodeFn), 4, 2);
-lean_closure_set(x_3, 0, x_1);
-lean_closure_set(x_3, 1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__7;
+x_2 = lean_alloc_closure((void*)(l_Lean_Parser_tokenWithAntiquotFn), 3, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__8;
-x_2 = l_Lean_Parser_Tactic_unknown___elambda__1___closed__14;
-x_3 = lean_alloc_closure((void*)(l_Lean_Parser_andthenFn), 4, 2);
+x_1 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__2;
+x_2 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__8;
+x_3 = lean_alloc_closure((void*)(l_Lean_Parser_nodeFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
 return x_3;
@@ -4903,8 +4900,8 @@ static lean_object* _init_l_Lean_Parser_Tactic_nativeDecide___elambda__1___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_unknown___elambda__1___closed__11;
-x_2 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__9;
+x_1 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__9;
+x_2 = l_Lean_Parser_Tactic_unknown___elambda__1___closed__14;
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_andthenFn), 4, 2);
 lean_closure_set(x_3, 0, x_1);
 lean_closure_set(x_3, 1, x_2);
@@ -4915,9 +4912,11 @@ static lean_object* _init_l_Lean_Parser_Tactic_nativeDecide___elambda__1___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_match___elambda__1___lambda__2___closed__6;
-x_2 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__5;
-x_3 = lean_string_append(x_1, x_2);
+x_1 = l_Lean_Parser_Tactic_unknown___elambda__1___closed__11;
+x_2 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__10;
+x_3 = lean_alloc_closure((void*)(l_Lean_Parser_andthenFn), 4, 2);
+lean_closure_set(x_3, 0, x_1);
+lean_closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -4925,7 +4924,17 @@ static lean_object* _init_l_Lean_Parser_Tactic_nativeDecide___elambda__1___close
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__11;
+x_1 = l_Lean_Parser_Tactic_match___elambda__1___lambda__2___closed__6;
+x_2 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__6;
+x_3 = lean_string_append(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__13() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__12;
 x_2 = l_Lean_Parser_Tactic_match___elambda__1___lambda__2___closed__6;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
@@ -4964,8 +4973,8 @@ x_11 = lean_ctor_get(x_7, 0);
 lean_inc(x_11);
 x_12 = lean_array_get_size(x_11);
 lean_dec(x_11);
-x_13 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__5;
-x_14 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__12;
+x_13 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__6;
+x_14 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__13;
 lean_inc(x_1);
 x_15 = l_Lean_Parser_nonReservedSymbolFnAux(x_13, x_14, x_1, x_7);
 x_16 = lean_ctor_get(x_15, 4);
@@ -5055,7 +5064,7 @@ return x_37;
 else
 {
 lean_object* x_38; uint8_t x_39; lean_object* x_40; 
-x_38 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__10;
+x_38 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__11;
 x_39 = 1;
 x_40 = l_Lean_Parser_orelseFnCore(x_4, x_38, x_39, x_1, x_2);
 return x_40;
@@ -5066,7 +5075,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_nativeDecide___closed__1() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__5;
+x_1 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__6;
 x_2 = 0;
 x_3 = l_Lean_Parser_nonReservedSymbolInfo(x_1, x_2);
 return x_3;
@@ -5172,7 +5181,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(24u);
-x_2 = lean_unsigned_to_nat(90u);
+x_2 = lean_unsigned_to_nat(91u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -5186,7 +5195,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___regBuiltin_Lean_Parser_Tactic_nativeDecide_declRange___closed__1;
 x_2 = lean_unsigned_to_nat(23u);
 x_3 = l___regBuiltin_Lean_Parser_Tactic_nativeDecide_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(90u);
+x_4 = lean_unsigned_to_nat(91u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -5276,7 +5285,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_nativeDecide_formatter___closed__
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__1;
+x_1 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__5;
 x_2 = 0;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_nonReservedSymbol_formatter___boxed), 7, 2);
@@ -5358,7 +5367,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_nativeDecide_parenthesizer___clos
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__1;
+x_1 = l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__5;
 x_2 = 0;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_closure((void*)(l_Lean_Parser_nonReservedSymbol_parenthesizer___boxed), 7, 2);
@@ -6081,6 +6090,8 @@ l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__11 = _init_l_Lean_Parse
 lean_mark_persistent(l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__11);
 l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__12 = _init_l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__12();
 lean_mark_persistent(l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__12);
+l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__13 = _init_l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__13();
+lean_mark_persistent(l_Lean_Parser_Tactic_nativeDecide___elambda__1___closed__13);
 l_Lean_Parser_Tactic_nativeDecide___closed__1 = _init_l_Lean_Parser_Tactic_nativeDecide___closed__1();
 lean_mark_persistent(l_Lean_Parser_Tactic_nativeDecide___closed__1);
 l_Lean_Parser_Tactic_nativeDecide___closed__2 = _init_l_Lean_Parser_Tactic_nativeDecide___closed__2();

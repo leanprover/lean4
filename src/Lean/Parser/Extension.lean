@@ -547,31 +547,6 @@ builtin_initialize registerBuiltinDynamicParserAttribute `commandParser `command
 @[inline] def commandParser (rbp : Nat := 0) : Parser :=
   categoryParser `command rbp
 
-def notFollowedByCategoryTokenFn (catName : Name) : ParserFn := fun ctx s =>
-  let categories := (parserExtension.getState ctx.env).categories
-  match getCategory categories catName with
-  | none => s.mkUnexpectedError s!"unknown parser category '{catName}'"
-  | some cat =>
-    let (s, stx) := peekToken ctx s
-    match stx with
-    | Except.ok (Syntax.atom _ sym) =>
-      if ctx.quotDepth > 0 && sym == "$" then s
-      else match cat.tables.leadingTable.find? (Name.mkSimple sym) with
-      | some _ => s.mkUnexpectedError (toString catName)
-      | _      => s
-    | Except.ok _    => s
-    | Except.error _ => s
-
-@[inline] def notFollowedByCategoryToken (catName : Name) : Parser := {
-  fn := notFollowedByCategoryTokenFn catName
-}
-
-abbrev notFollowedByCommandToken : Parser :=
-  notFollowedByCategoryToken `command
-
-abbrev notFollowedByTermToken : Parser :=
-  notFollowedByCategoryToken `term
-
 private def withNamespaces (ids : Array Name) (p : ParserFn) (addOpenSimple : Bool) : ParserFn := fun c s =>
   let c := ids.foldl (init := c) fun c id =>
     match ResolveName.resolveNamespace? c.env c.currNamespace c.openDecls id with

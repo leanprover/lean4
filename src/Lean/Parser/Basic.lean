@@ -129,6 +129,7 @@ structure ParserModuleContext where
 structure ParserContext extends InputContext, ParserModuleContext where
   prec               : Nat
   tokens             : TokenTable
+  -- used for bootstrapping only
   quotDepth          : Nat := 0
   suppressInsideQuot : Bool := false
   savedPos?          : Option String.Pos := none
@@ -444,25 +445,7 @@ def setLhsPrecFn (prec : Nat) : ParserFn := fun c s =>
   fn   := setLhsPrecFn prec
 }
 
-def checkInsideQuotFn : ParserFn := fun c s =>
-  if c.quotDepth > 0 && !c.suppressInsideQuot then s
-  else s.mkUnexpectedError "unexpected syntax outside syntax quotation"
-
-@[inline] def checkInsideQuot : Parser := {
-  info := epsilonInfo,
-  fn   := checkInsideQuotFn
-}
-
-def checkOutsideQuotFn : ParserFn := fun c s =>
-  if !c.quotDepth == 0 || c.suppressInsideQuot then s
-  else s.mkUnexpectedError "unexpected syntax inside syntax quotation"
-
-@[inline] def checkOutsideQuot : Parser := {
-  info := epsilonInfo,
-  fn   := checkOutsideQuotFn
-}
-
-def addQuotDepthFn (i : Int) (p : ParserFn) : ParserFn := fun c s =>
+private def addQuotDepthFn (i : Int) (p : ParserFn) : ParserFn := fun c s =>
   p { c with quotDepth := c.quotDepth + i |>.toNat } s
 
 @[inline] def incQuotDepth (p : Parser) : Parser := {
@@ -1691,9 +1674,8 @@ def pushNone : Parser :=
 def antiquotNestedExpr : Parser := node `antiquotNestedExpr (symbolNoAntiquot "(" >> decQuotDepth termParser >> symbolNoAntiquot ")")
 def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
 
-@[inline] def tokenWithAntiquotFn (p : ParserFn) : ParserFn := fun c s => Id.run <| do
-  let s := p c s
-  if s.hasError || c.quotDepth == 0 then
+def tokenAntiquotFn : ParserFn := fun c s => Id.run do
+  if s.hasError then
     return s
   let iniSz  := s.stackSize
   let iniPos := s.pos
@@ -1703,7 +1685,13 @@ def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
   s.mkNode (`token_antiquot) (iniSz - 1)
 
 @[inline] def tokenWithAntiquot (p : Parser) : Parser where
-  fn   := tokenWithAntiquotFn p.fn
+  fn c s :=
+    let s := p.fn c s
+    -- fast check that is false in most cases
+    if c.input.get s.pos == '%' then
+      tokenAntiquotFn c s
+    else
+      s
   info := p.info
 
 @[inline] def symbol (sym : String) : Parser :=
@@ -1736,16 +1724,12 @@ def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true
     checkNoWsBefore "no space before spliced term" >> antiquotExpr >>
     nameP
 
-def tryAnti (c : ParserContext) (s : ParserState) : Bool := Id.run <| do
-  if c.quotDepth == 0 then
-    return false
-  let (s, stx) := peekToken c s
-  match stx with
-  | Except.ok stx@(Syntax.atom _ sym) => sym == "$"
-  | _                                 => false
-
 @[inline] def withAntiquotFn (antiquotP p : ParserFn) : ParserFn := fun c s =>
-  if tryAnti c s then orelseFn antiquotP p c s else p c s
+  -- fast check that is false in most cases
+  if c.input.get s.pos == '$' then
+    orelseFn antiquotP p c s
+  else
+    p c s
 
 /-- Optimized version of `mkAntiquot ... <|> p`. -/
 @[inline] def withAntiquot (antiquotP p : Parser) : Parser := {
@@ -1765,10 +1749,7 @@ def mkAntiquotSplice (kind : SyntaxNodeKind) (p suffix : Parser) : Parser :=
     checkNoWsBefore "no space before spliced term" >> symbol "[" >> node nullKind p >> symbol "]" >>
     suffix
 
-@[inline] def withAntiquotSuffixSpliceFn (kind : SyntaxNodeKind) (p suffix : ParserFn) : ParserFn := fun c s => Id.run <| do
-  let s := p c s
-  if s.hasError || c.quotDepth == 0 || !s.stxStack.back.isAntiquot then
-    return s
+private def withAntiquotSuffixSpliceFn (kind : SyntaxNodeKind) (suffix : ParserFn) : ParserFn := fun c s => Id.run do
   let iniSz  := s.stackSize
   let iniPos := s.pos
   let s      := suffix c s
@@ -1777,10 +1758,15 @@ def mkAntiquotSplice (kind : SyntaxNodeKind) (p suffix : Parser) : Parser :=
   s.mkNode (kind ++ `antiquot_suffix_splice) (s.stxStack.size - 2)
 
 /-- Parse `suffix` after an antiquotation, e.g. `$x,*`, and put both into a new node. -/
-@[inline] def withAntiquotSuffixSplice (kind : SyntaxNodeKind) (p suffix : Parser) : Parser := {
-  info := andthenInfo p.info suffix.info,
-  fn   := withAntiquotSuffixSpliceFn kind p.fn suffix.fn
-}
+@[inline] def withAntiquotSuffixSplice (kind : SyntaxNodeKind) (p suffix : Parser) : Parser where
+  info := andthenInfo p.info suffix.info
+  fn c s :=
+    let s := p.fn c s
+    -- fast check that is false in most cases
+    if !s.hasError && s.stxStack.back.isAntiquot then
+      withAntiquotSuffixSpliceFn kind suffix.fn c s
+    else
+      s
 
 def withAntiquotSpliceAndSuffix (kind : SyntaxNodeKind) (p suffix : Parser) :=
   -- prevent `p`'s info from being collected twice

@@ -478,10 +478,7 @@ def setExpected.formatter (expected : List String) (p : Formatter) : Formatter :
 @[combinatorFormatter Lean.Parser.checkLineEq] def checkLineEq.formatter : Formatter := pure ()
 
 @[combinatorFormatter Lean.Parser.eoi] def eoi.formatter : Formatter := pure ()
-@[combinatorFormatter Lean.Parser.notFollowedByCategoryToken] def notFollowedByCategoryToken.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.checkNoImmediateColon] def checkNoImmediateColon.formatter : Formatter := pure ()
-@[combinatorFormatter Lean.Parser.checkInsideQuot] def checkInsideQuot.formatter : Formatter := pure ()
-@[combinatorFormatter Lean.Parser.checkOutsideQuot] def checkOutsideQuot.formatter : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.skip] def skip.formatter : Formatter := pure ()
 
 @[combinatorFormatter Lean.Parser.pushNone] def pushNone.formatter : Formatter := goLeft

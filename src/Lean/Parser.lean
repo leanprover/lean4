@@ -41,7 +41,6 @@ builtin_initialize
   register_parser_alias interpolatedStr
   register_parser_alias orelse
   register_parser_alias andthen
-  register_parser_alias incQuotDepth
 
   registerAlias "notFollowedBy" (notFollowedBy · "element")
   Parenthesizer.registerAlias "notFollowedBy" notFollowedBy.parenthesizer

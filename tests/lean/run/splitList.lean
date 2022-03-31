@@ -40,7 +40,7 @@ theorem len_nil : len ([] : List α) = 0 := by
 -- The `simp [len]` above generated the following equation theorems for len
 #check @len._eq_1
 #check @len._eq_2
-#check @len._eq_3 -- It is conditional, and may be tricky to use.
+#check @len._eq_3
 
 theorem len_1 (a : α) : len [a] = 1 := by
   simp [len]
@@ -88,7 +88,7 @@ theorem len_nil : len ([] : List α) = 0 := by
 -- The `simp [len]` above generated the following equation theorems for len
 #check @len._eq_1
 #check @len._eq_2
-#check @len._eq_3 -- It is conditional, and may be tricky to use.
+#check @len._eq_3
 
 theorem len_1 (a : α) : len [a] = 1 := by
   simp [len]

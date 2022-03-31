@@ -146,15 +146,15 @@ Here `stM β = σ × β` is the 'packaged result state', but we can generalise:
 if we have a tower `StateT σ₁ <| StateT σ₂ <| IO`, then the
 composite packaged state is going to be `stM₁₂ β := σ₁ × σ₂ × β` or `stM₁₂ := stM₁ ∘ stM₂`.
 
-Now we can define `MonadControl m n`. Call `m` the 'base monad', in the above example it was `IO`.
-`MonadControl m n` means that we can lift a monad function `foo : m α → m α` in the base monad
-to a function `foo' : n α → n α` in the `n` monad, without having to manually handle the state of `n`.
-Futhermore, `MonadControl` is transitive, which is what `MonadControlT` is, it's the transitive closure of `MonadControl`.
-
+`MonadControl m n` means that when programming in the monad `n`,
+we can switch to a base monad `m` using `control`, just like with `liftM`.
+In contrast to `liftM`, however, we also get a function `runInBase` that
+allows us to "lower" actions in `n` into `m`.
 This is really useful when we have large towers of monad transformers, as we do in the metaprogramming library.
 
 For example there is a function `withNewMCtxDepthImp : MetaM α → MetaM α` that runs the input monad instance
-in a new nested metavariable context. We can lift this to `withNewMctxDepth : n α → n α` using `MonadControlT MetaM n`.
+in a new nested metavariable context. We can lift this to `withNewMctxDepth : n α → n α` using `MonadControlT MetaM n`
+(`MonadControlT` is the transitive closure of `MonadControl`).
 Which means that we can also run `withNewMctxDepth` in the `Tactic` monad without needing to
 faff around with lifts and all the other boilerplate needed in `mapped_foo`.
 
@@ -165,18 +165,15 @@ A stricter form of `MonadControl` is `MonadFunctor`, which defines
 However there are some mappings which can't be derived using `MonadFunctor`. For example:
 
 ```lean,ignore
- @[inline] def map1MetaM [MonadControlT MetaM m] [Monad m] (f : forall {α}, (β → MetaM α) → MetaM α) {α} (k : β → m α) : m α :=
+ @[inline] def map1MetaM [MonadControlT MetaM n] [Monad n] (f : forall {α}, (β → MetaM α) → MetaM α) {α} (k : β → n α) : n α :=
    control fun runInBase => f fun b => runInBase <| k b
 
- @[inline] def map2MetaM [MonadControlT MetaM m] [Monad m] (f : forall {α}, (β → γ → MetaM α) → MetaM α) {α} (k : β → γ → m α) : m α :=
+ @[inline] def map2MetaM [MonadControlT MetaM n] [Monad n] (f : forall {α}, (β → γ → MetaM α) → MetaM α) {α} (k : β → γ → n α) : n α :=
    control fun runInBase => f fun b c => runInBase <| k b c
 ```
 
-In these examples, `MonadControl` is needed because the lifted function
-needs to be all-quantified over the monadic return value,
-as that is where the surrounding monad's (`n`) state is stored.
-In the Lean monad-transformer stacks, there are no `MonadFunctor`s that
-are not also `MonadControl`s and so `MonadFunctor` is not used.
+In `monadMap`, we can only 'run in base' a single computation in `n` into the base monad `m`.
+Using `control` means that `runInBase` can be used multiple times.
 
 -/
 

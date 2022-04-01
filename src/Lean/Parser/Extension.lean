@@ -230,7 +230,7 @@ unsafe def mkParserOfConstantUnsafe (constName : Name) (compileParserDescr : Par
   let env  := (← read).env
   let opts := (← read).opts
   match env.find? constName with
-  | none      => throw ↑s!"unknow constant '{constName}'"
+  | none      => throw ↑s!"unknown constant '{constName}'"
   | some info =>
     match info.type with
     | Expr.const `Lean.Parser.TrailingParser _ _ =>
@@ -247,7 +247,7 @@ unsafe def mkParserOfConstantUnsafe (constName : Name) (compileParserDescr : Par
       let d ← IO.ofExcept $ env.evalConst TrailingParserDescr opts constName
       let p ← compileParserDescr d
       pure ⟨false, p⟩
-    | _ => throw ↑s!"unexpected parser type at '{constName}' (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected"
+    | _ => throw ↑s!"unexpected parser type at '{constName}' (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected)"
 
 @[implementedBy mkParserOfConstantUnsafe]
 constant mkParserOfConstantAux (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser)

@@ -1,9 +1,20 @@
 Unreleased
 ---------
 
+* [Fix inconsistency between `syntax` and kind names](https://github.com/leanprover/lean4/issues/1090).
+  The node kinds `numLit`, `charLit`, `nameLit`, `strLit`, and `scientificLit` are now called
+  `num`, `char`, `name`, `str`, and `scientific` respectively. Example: we now write
+  ```lean
+  macro_rules | `($n:num) => `("hello")
+  ```
+  instead of
+  ```lean
+  macro_rules | `($n:numLit) => `("hello")
+  ```
+
 * (Experimental) New `checkpoint <tactic-seq>` tactic for big interactive proofs.
 
-* Renamed tactic `nativeDecide` => `native_decide`.
+* Rename tactic `nativeDecide` => `native_decide`.
 
 * "Cleanup" local context before elaborating a `match` alternative right-hand-side. Examples:
 ```lean

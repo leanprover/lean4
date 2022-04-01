@@ -120,7 +120,7 @@ x_5 = l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___
 x_6 = 1;
 x_7 = 0;
 x_8 = l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__6;
-x_9 = lean_alloc_ctor(0, 7, 7);
+x_9 = lean_alloc_ctor(0, 8, 7);
 lean_ctor_set(x_9, 0, x_4);
 lean_ctor_set(x_9, 1, x_5);
 lean_ctor_set(x_9, 2, x_1);
@@ -128,13 +128,14 @@ lean_ctor_set(x_9, 3, x_2);
 lean_ctor_set(x_9, 4, x_8);
 lean_ctor_set(x_9, 5, x_3);
 lean_ctor_set(x_9, 6, x_3);
-lean_ctor_set_uint8(x_9, sizeof(void*)*7, x_6);
-lean_ctor_set_uint8(x_9, sizeof(void*)*7 + 1, x_6);
-lean_ctor_set_uint8(x_9, sizeof(void*)*7 + 2, x_7);
-lean_ctor_set_uint8(x_9, sizeof(void*)*7 + 3, x_6);
-lean_ctor_set_uint8(x_9, sizeof(void*)*7 + 4, x_7);
-lean_ctor_set_uint8(x_9, sizeof(void*)*7 + 5, x_7);
-lean_ctor_set_uint8(x_9, sizeof(void*)*7 + 6, x_7);
+lean_ctor_set(x_9, 7, x_1);
+lean_ctor_set_uint8(x_9, sizeof(void*)*8, x_6);
+lean_ctor_set_uint8(x_9, sizeof(void*)*8 + 1, x_6);
+lean_ctor_set_uint8(x_9, sizeof(void*)*8 + 2, x_7);
+lean_ctor_set_uint8(x_9, sizeof(void*)*8 + 3, x_6);
+lean_ctor_set_uint8(x_9, sizeof(void*)*8 + 4, x_7);
+lean_ctor_set_uint8(x_9, sizeof(void*)*8 + 5, x_7);
+lean_ctor_set_uint8(x_9, sizeof(void*)*8 + 6, x_7);
 return x_9;
 }
 }

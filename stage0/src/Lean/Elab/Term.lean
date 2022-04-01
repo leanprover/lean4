@@ -23,43 +23,9 @@ import Lean.Elab.Open
 import Lean.Elab.SetOption
 import Lean.Elab.DeclModifiers
 
-namespace Lean.Elab.Term
-structure Context where
-  fileName        : String
-  fileMap         : FileMap
-  declName?       : Option Name     := none
-  macroStack      : MacroStack      := []
-  /- When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
-     The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
-     the list of pending synthetic metavariables, and returns `?m`. -/
-  mayPostpone     : Bool            := true
-  /- When `errToSorry` is set to true, the method `elabTerm` catches
-     exceptions and converts them into synthetic `sorry`s.
-     The implementation of choice nodes and overloaded symbols rely on the fact
-     that when `errToSorry` is set to false for an elaboration function `F`, then
-     `errToSorry` remains `false` for all elaboration functions invoked by `F`.
-     That is, it is safe to transition `errToSorry` from `true` to `false`, but
-     we must not set `errToSorry` to `true` when it is currently set to `false`. -/
-  errToSorry      : Bool            := true
-  /- When `autoBoundImplicit` is set to true, instead of producing
-     an "unknown identifier" error for unbound variables, we generate an
-     internal exception. This exception is caught at `elabBinders` and
-     `elabTypeWithUnboldImplicit`. Both methods add implicit declarations
-     for the unbound variable and try again. -/
-  autoBoundImplicit  : Bool            := false
-  autoBoundImplicits : Std.PArray Expr := {}
-  /-- Map from user name to internal unique name -/
-  sectionVars        : NameMap Name    := {}
-  /-- Map from internal name to fvar -/
-  sectionFVars       : NameMap Expr    := {}
-  /-- Enable/disable implicit lambdas feature. -/
-  implicitLambda     : Bool            := true
-  /-- Noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for  -/
-  isNoncomputableSection : Bool        := false
-  /-- When `true` we skip TC failures. We use this option when processing patterns -/
-  ignoreTCFailures : Bool := false
-  /-- True when elaborating patterns. It affects how we elaborate named holes. -/
-  inPattern        : Bool := false
+namespace Lean.Elab
+
+namespace Term
 
 /-- Saved context for postponed terms and tactics to be executed. -/
 structure SavedContext where
@@ -137,6 +103,69 @@ structure State where
   infoState         : InfoState := {}
   deriving Inhabited
 
+end Term
+
+namespace Tactic
+
+structure State where
+  goals : List MVarId
+  deriving Inhabited
+
+structure Snapshot where
+  core   : Core.State
+  meta   : Meta.State
+  term   : Term.State
+  tactic : Tactic.State
+  stx    : Syntax
+  deriving Inhabited
+
+structure Cache where
+   pre  : Std.HashMap MVarId Snapshot := {}
+   post : Std.HashMap MVarId Snapshot := {}
+   deriving Inhabited
+
+end Tactic
+
+namespace Term
+
+structure Context where
+  fileName        : String
+  fileMap         : FileMap
+  declName?       : Option Name     := none
+  macroStack      : MacroStack      := []
+  /- When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
+     The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
+     the list of pending synthetic metavariables, and returns `?m`. -/
+  mayPostpone     : Bool            := true
+  /- When `errToSorry` is set to true, the method `elabTerm` catches
+     exceptions and converts them into synthetic `sorry`s.
+     The implementation of choice nodes and overloaded symbols rely on the fact
+     that when `errToSorry` is set to false for an elaboration function `F`, then
+     `errToSorry` remains `false` for all elaboration functions invoked by `F`.
+     That is, it is safe to transition `errToSorry` from `true` to `false`, but
+     we must not set `errToSorry` to `true` when it is currently set to `false`. -/
+  errToSorry      : Bool            := true
+  /- When `autoBoundImplicit` is set to true, instead of producing
+     an "unknown identifier" error for unbound variables, we generate an
+     internal exception. This exception is caught at `elabBinders` and
+     `elabTypeWithUnboldImplicit`. Both methods add implicit declarations
+     for the unbound variable and try again. -/
+  autoBoundImplicit  : Bool            := false
+  autoBoundImplicits : Std.PArray Expr := {}
+  /-- Map from user name to internal unique name -/
+  sectionVars        : NameMap Name    := {}
+  /-- Map from internal name to fvar -/
+  sectionFVars       : NameMap Expr    := {}
+  /-- Enable/disable implicit lambdas feature. -/
+  implicitLambda     : Bool            := true
+  /-- Noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for  -/
+  isNoncomputableSection : Bool        := false
+  /-- When `true` we skip TC failures. We use this option when processing patterns -/
+  ignoreTCFailures : Bool := false
+  /-- True when elaborating patterns. It affects how we elaborate named holes. -/
+  inPattern        : Bool := false
+  tacticCache?     : Option (IO.Ref Tactic.Cache) := none
+
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 
@@ -154,8 +183,8 @@ structure SavedState where
   «elab» : State
   deriving Inhabited
 
-protected def saveState : TermElabM SavedState := do
-  pure { meta := (← Meta.saveState), «elab» := (← get) }
+protected def saveState : TermElabM SavedState :=
+  return { meta := (← Meta.saveState), «elab» := (← get) }
 
 def SavedState.restore (s : SavedState) (restoreInfo : Bool := false) : TermElabM Unit := do
   let traceState ← getTraceState -- We never backtrack trace message
@@ -197,12 +226,12 @@ def observing (x : TermElabM α) : TermElabM (TermElabResult α) := do
     let e ← x
     let sNew ← saveState
     s.restore (restoreInfo := true)
-    pure (EStateM.Result.ok e sNew)
+    return EStateM.Result.ok e sNew
   catch
     | ex@(Exception.error _ _) =>
       let sNew ← saveState
       s.restore (restoreInfo := true)
-      pure (EStateM.Result.error ex sNew)
+      return EStateM.Result.error ex sNew
     | ex@(Exception.internal id _) =>
       if id == postponeExceptionId then
         s.restore (restoreInfo := true)
@@ -211,10 +240,10 @@ def observing (x : TermElabM α) : TermElabM (TermElabResult α) := do
 /--
   Apply the result/exception and state captured with `observing`.
   We use this method to implement overloaded notation and symbols. -/
-def applyResult (result : TermElabResult α) : TermElabM α :=
+def applyResult (result : TermElabResult α) : TermElabM α := do
   match result with
-  | EStateM.Result.ok a r     => do r.restore (restoreInfo := true); pure a
-  | EStateM.Result.error ex r => do r.restore (restoreInfo := true); throw ex
+  | EStateM.Result.ok a r     => r.restore (restoreInfo := true); return a
+  | EStateM.Result.error ex r => r.restore (restoreInfo := true); throw ex
 
 /--
   Execute `x`, but keep state modifications only if `x` did not postpone.
@@ -344,7 +373,7 @@ def throwErrorIfErrors : TermElabM Unit := do
     throwError "Error(s)"
 
 def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
-  withRef Syntax.missing $ trace cls msg
+  withRef Syntax.missing <| trace cls msg
 
 def ppGoal (mvarId : MVarId) : TermElabM Format :=
   Meta.ppGoal mvarId
@@ -361,7 +390,7 @@ def liftLevelM (x : LevelElabM α) : TermElabM α := do
   | EStateM.Result.error ex _ => throw ex
 
 def elabLevel (stx : Syntax) : TermElabM Level :=
-  liftLevelM $ Level.elabLevel stx
+  liftLevelM <| Level.elabLevel stx
 
 /- Elaborate `x` with `stx` on the macro stack -/
 def withMacroExpansion (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
@@ -488,24 +517,23 @@ def mkExplicitBinder (ident : Syntax) (type : Syntax) : Syntax :=
 
   Remark: we make sure the generated parameter names do not clash with the universe at `ctx.levelNames`. -/
 def levelMVarToParam (e : Expr) (nextParamIdx : Nat := 1) : TermElabM (Expr × Nat) := do
-  let mctx ← getMCtx
   let levelNames ← getLevelNames
-  let r := mctx.levelMVarToParam (fun n => levelNames.elem n) e `u nextParamIdx
+  let r := (← getMCtx).levelMVarToParam (fun n => levelNames.elem n) e `u nextParamIdx
   setMCtx r.mctx
-  pure (r.expr, r.nextParamIdx)
+  return (r.expr, r.nextParamIdx)
 
 /-- Variant of `levelMVarToParam` where `nextParamIdx` is stored in a state monad. -/
 def levelMVarToParam' (e : Expr) : StateRefT Nat TermElabM Expr := do
   let nextParamIdx ← get
   let (e, nextParamIdx) ← levelMVarToParam e nextParamIdx
   set nextParamIdx
-  pure e
+  return e
 
 /--
   Auxiliary method for creating fresh binder names.
   Do not confuse with the method for creating fresh free/meta variable ids. -/
 def mkFreshBinderName [Monad m] [MonadQuotation m] : m Name :=
-  withFreshMacroScope $ MonadQuotation.addMacroScope `x
+  withFreshMacroScope <| MonadQuotation.addMacroScope `x
 
 /--
   Auxiliary method for creating a `Syntax.ident` containing
@@ -645,7 +673,7 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
     else
       unless (← isDefEq (mkMVar instMVar) val) do
         throwError "failed to assign synthesized type class instance{indentExpr val}"
-    pure true
+    return true
   | LOption.undef    => return false -- we will try later
   | LOption.none     =>
     if (← read).ignoreTCFailures then
@@ -673,11 +701,11 @@ def tryCoeThunk? (expectedType : Expr) (eType : Expr) (e : Expr) : TermElabM (Op
   match expectedType with
   | Expr.app (Expr.const ``Thunk u _) arg _ =>
     if (← isDefEq eType arg) then
-      pure (some (mkApp2 (mkConst ``Thunk.mk u) arg (mkSimpleThunk e)))
+      return some (mkApp2 (mkConst ``Thunk.mk u) arg (mkSimpleThunk e))
     else
-      pure none
+      return none
   | _ =>
-    pure none
+    return none
 
 def mkCoe (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
   let u ← getLevel eType
@@ -716,21 +744,21 @@ private def tryCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eTyp
     | none   => mkCoe expectedType eType e f? errorMsgHeader?
 
 def isTypeApp? (type : Expr) : TermElabM (Option (Expr × Expr)) := do
-  let type ← withReducible $ whnf type
+  let type ← withReducible <| whnf type
   match type with
-  | Expr.app m α _ => pure (some ((← instantiateMVars m), (← instantiateMVars α)))
-  | _              => pure none
+  | Expr.app m α _ => return some ((← instantiateMVars m), (← instantiateMVars α))
+  | _              => return none
 
 def synthesizeInst (type : Expr) : TermElabM Expr := do
   let type ← instantiateMVars type
   match (← trySynthInstance type) with
-  | LOption.some val => pure val
+  | LOption.some val => return val
   -- Note that `ignoreTCFailures` is not checked here since it must return a result.
   | LOption.undef    => throwError "failed to synthesize instance{indentExpr type}"
   | LOption.none     => throwError "failed to synthesize instance{indentExpr type}"
 
 def isMonadApp (type : Expr) : TermElabM Bool := do
-  let some (m, _) ← isTypeApp? type | pure false
+  let some (m, _) ← isTypeApp? type | return false
   return (← isMonad? m) |>.isSome
 
 /-
@@ -820,7 +848,7 @@ private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr
         let some monadInst ← isMonad? n | tryCoeSimple
         let u ← getLevel α
         let v ← getLevel β
-        let coeTInstType := Lean.mkForall `a BinderInfo.default α $ mkAppN (mkConst ``CoeT [u, v]) #[α, mkBVar 0, β]
+        let coeTInstType := Lean.mkForall `a BinderInfo.default α <| mkAppN (mkConst ``CoeT [u, v]) #[α, mkBVar 0, β]
         let coeTInstVal ← synthesizeInst coeTInstType
         let eNew ← expandCoe (mkAppN (Lean.mkConst ``Lean.Internal.liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e])
         let eNewType ← inferType eNew
@@ -840,10 +868,10 @@ private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr
 def ensureHasTypeAux (expectedType? : Option Expr) (eType : Expr) (e : Expr)
     (f? : Option Expr := none) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
   match expectedType? with
-  | none              => pure e
+  | none              => return e
   | some expectedType =>
     if (← isDefEq eType expectedType) then
-      pure e
+      return e
     else
       tryLiftAndCoe errorMsgHeader? expectedType eType e f?
 
@@ -852,7 +880,7 @@ def ensureHasTypeAux (expectedType? : Option Expr) (eType : Expr) (e : Expr)
   If they are not, then try coercions. -/
 def ensureHasType (expectedType? : Option Expr) (e : Expr) (errorMsgHeader? : Option String := none) : TermElabM Expr :=
   match expectedType? with
-  | none => pure e
+  | none => return e
   | _    => do
     let eType ← inferType e
     ensureHasTypeAux expectedType? eType e none errorMsgHeader?
@@ -892,7 +920,7 @@ def tryPostponeIfHasMVars (expectedType? : Option Expr) (msg : String) : TermEla
   if expectedType.hasExprMVar then
     tryPostpone
     throwError "{msg}, expected type contains metavariables{indentExpr expectedType}"
-  pure expectedType
+  return expectedType
 
 def saveContext : TermElabM SavedContext :=
   return {
@@ -1132,7 +1160,7 @@ private def elabImplicitLambdaAux (stx : Syntax) (catchExPostpone : Bool) (expec
     let body ← ensureHasType expectedType body
     let r ← mkLambdaFVars impFVars body
     trace[Elab.implicitForall] r
-    pure r
+    return r
   catch ex =>
     throw (← decorateErrorMessageWithLambdaImplicitVars ex impFVars)
 
@@ -1230,14 +1258,14 @@ def commitIfNoErrors? (x : TermElabM α) : TermElabM (Option α) := do
 /-- Adapt a syntax transformation to a regular, term-producing elaborator. -/
 def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab := fun stx expectedType? => do
   let stx' ← exp stx
-  withMacroExpansion stx stx' $ elabTerm stx' expectedType?
+  withMacroExpansion stx stx' <| elabTerm stx' expectedType?
 
 def mkInstMVar (type : Expr) : TermElabM Expr := do
   let mvar ← mkFreshExprMVar type MetavarKind.synthetic
   let mvarId := mvar.mvarId!
   unless (← synthesizeInstMVarCore mvarId) do
     registerSyntheticMVarWithCurrRef mvarId SyntheticMVarKind.typeClass
-  pure mvar
+  return mvar
 
 /-
   Relevant definitions:
@@ -1270,12 +1298,12 @@ private def tryCoeSort (α : Expr) (a : Expr) : TermElabM Expr := do
   or is unifiable with `Expr.sort`, or can be coerced into one. -/
 def ensureType (e : Expr) : TermElabM Expr := do
   if (← isType e) then
-    pure e
+    return e
   else
     let eType ← inferType e
     let u ← mkFreshLevelMVar
     if (← isDefEq eType (mkSort u)) then
-      pure e
+      return e
     else
       tryCoeSort eType e
 
@@ -1283,7 +1311,7 @@ def ensureType (e : Expr) : TermElabM Expr := do
 def elabType (stx : Syntax) : TermElabM Expr := do
   let u ← mkFreshLevelMVar
   let type ← elabTerm stx (mkSort u)
-  withRef stx $ ensureType type
+  withRef stx <| ensureType type
 
 /--
   Enable auto-bound implicits, and execute `k` while catching auto bound implicit exceptions. When an exception is caught,
@@ -1422,9 +1450,9 @@ def isLocalIdent? (stx : Syntax) : TermElabM (Option Expr) :=
   | Syntax.ident _ _ val _ => do
     let r? ← resolveLocalName val
     match r? with
-    | some (fvar, []) => pure (some fvar)
-    | _               => pure none
-  | _ => pure none
+    | some (fvar, []) => return some fvar
+    | _               => return none
+  | _ => return none
 
 /--
   Create an `Expr.const` using the given name and explicit levels.
@@ -1493,11 +1521,11 @@ def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (
     let rs := rs.filter fun ⟨f, projs⟩ => projs.isEmpty
     let fs := rs.map fun (f, _) => f
     match fs with
-    | []  => pure none
+    | []  => return none
     | [f] =>
       if withInfo then
         addTermInfo stx f
-      pure (some f)
+      return some f
     | _   => throwError "ambiguous {kind}, use fully qualified name, possible interpretations {fs}"
   | _ => throwError "identifier expected"
 
@@ -1517,15 +1545,15 @@ def TermElabM.toIO (x : TermElabM α)
     (ctxMeta : Meta.Context) (sMeta : Meta.State)
     (ctx : Context) (s : State) : IO (α × Core.State × Meta.State × State) := do
   let ((a, s), sCore, sMeta) ← (x.run ctx s).toIO ctxCore sCore ctxMeta sMeta
-  pure (a, sCore, sMeta, s)
+  return (a, sCore, sMeta, s)
 
 instance [MetaEval α] : MetaEval (TermElabM α) where
-  eval env opts x _ :=
+  eval env opts x _ := do
     let x : TermElabM α := do
       try x finally
         let s ← get
         s.messages.forM fun msg => do IO.println (← msg.toString)
-    MetaEval.eval env opts (hideUnit := true) $ x.run' mkSomeContext
+    MetaEval.eval env opts (hideUnit := true) <| x.run' mkSomeContext
 
 unsafe def evalExpr (α) (typeName : Name) (value : Expr) : TermElabM α :=
   withoutModifyingEnv do

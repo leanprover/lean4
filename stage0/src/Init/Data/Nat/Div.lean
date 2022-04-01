@@ -9,7 +9,7 @@ import Init.WFTactics
 import Init.Data.Nat.Basic
 namespace Nat
 
-private def div_rec_lemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
+theorem div_rec_lemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
   fun ⟨ypos, ylex⟩ => sub_lt (Nat.lt_of_lt_of_le ypos ylex) ypos
 
 @[extern "lean_nat_div"]
@@ -122,5 +122,16 @@ theorem mod_one (x : Nat) : x % 1 = 0 := by
     | zero   => intro h; rfl
     | succ y => intro h; apply absurd (Nat.lt_of_succ_lt_succ h) (Nat.not_lt_zero y)
   exact this _ h
+
+theorem div_add_mod (m n : Nat) : n * (m / n) + m % n = m := by
+  rw [div_eq, mod_eq]
+  have h : Decidable (0 < n ∧ n ≤ m) := inferInstance
+  cases h with
+  | isFalse h => simp [h]
+  | isTrue h =>
+    simp [h]
+    have ih := div_add_mod (m - n) n
+    rw [Nat.left_distrib, Nat.mul_one, Nat.add_assoc, Nat.add_left_comm, ih, Nat.add_comm, Nat.sub_add_cancel h.2]
+decreasing_by apply div_rec_lemma; assumption
 
 end Nat

@@ -8,6 +8,7 @@ import Lean.ResolveName
 import Lean.Meta.Reduce
 import Lean.Elab.Log
 import Lean.Elab.Term
+import Lean.Elab.Tactic.Cache
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.DeclModifiers
@@ -50,6 +51,7 @@ structure Context where
   macroStack     : MacroStack := []
   currMacroScope : MacroScope := firstFrontendMacroScope
   ref            : Syntax := Syntax.missing
+  tacticCache?   : Option (IO.Ref Tactic.Cache)
 
 abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
 abbrev CommandElabM := CommandElabCoreM Exception
@@ -348,7 +350,8 @@ private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) 
     fileMap                := ctx.fileMap
     declName?              := declName?
     sectionVars            := sectionVars
-    isNoncomputableSection := scope.isNoncomputable }
+    isNoncomputableSection := scope.isNoncomputable
+    tacticCache?           := ctx.tacticCache? }
 
 private def mkTermState (scope : Scope) (s : State) : Term.State := {
   messages          := {}

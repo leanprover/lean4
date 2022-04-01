@@ -86,7 +86,12 @@ def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : 
 def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : TacticM Unit := do
   withMainContext do
     let (val, mvarIds') ← elabTermWithHoles stx (← getMainTarget) tagSuffix allowNaturalHoles
-    assignExprMVar (← getMainGoal) val
+    let mvarId ← getMainGoal
+    let val ← instantiateMVars val
+    unless val == mkMVar mvarId do
+      if val.findMVar? (· == mvarId) matches some _ then
+        throwError "'refine' tactic failed, value{indentExpr val}\ndepends on the main goal metavariable '{mkMVar mvarId}'"
+      assignExprMVar mvarId val
     replaceMainGoal mvarIds'
 
 @[builtinTactic «refine»] def evalRefine : Tactic := fun stx =>

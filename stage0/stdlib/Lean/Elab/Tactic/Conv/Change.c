@@ -35,6 +35,7 @@ lean_object* l_Lean_Elab_Tactic_filterOldMVars(lean_object*, lean_object*, lean_
 static lean_object* l_Lean_Elab_Tactic_Conv_evalChange___closed__12;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange_declRange___closed__3;
 lean_object* l_Lean_Meta_isExprDefEqGuarded(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_refineCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange_declRange___closed__5;
 static lean_object* l_Lean_Elab_Tactic_Conv_evalChange___closed__1;
@@ -62,7 +63,6 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange_declRan
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange___closed__7;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange_declRange___closed__6;
-lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_evalDecide___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalChange___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalChange_declRange___closed__1;
 lean_object* l_Lean_Elab_Tactic_logUnassignedAndAbort(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -373,7 +373,7 @@ x_53 = l_Lean_Elab_Tactic_Conv_evalChange___closed__16;
 x_54 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_54, 0, x_52);
 lean_ctor_set(x_54, 1, x_53);
-x_55 = l_Lean_throwError___at_Lean_Elab_Tactic_evalDecide___spec__1(x_54, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_45);
+x_55 = l_Lean_throwError___at_Lean_Elab_Tactic_refineCore___spec__1(x_54, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_45);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);

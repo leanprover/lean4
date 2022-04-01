@@ -25,6 +25,8 @@ def unreachIsNodeIdent {β info rawVal val preresolved} (h : IsNode (Syntax.iden
 
 def isLitKind (k : SyntaxNodeKind) : Bool :=
   k == strLitKind || k == numLitKind || k == charLitKind || k == nameLitKind || k == scientificLitKind
+  -- TODO remove staging hack
+  || k == `str || k == `num || k == `char || k == `name || k == `scientific
 
 namespace SyntaxNode
 

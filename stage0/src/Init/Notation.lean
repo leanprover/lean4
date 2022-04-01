@@ -461,6 +461,8 @@ macro "unhygienic " t:tacticSeq : tactic => `(set_option tactic.hygienic false i
 
 syntax (name := fail) "fail " (str)? : tactic
 
+syntax (name := checkpoint) "checkpoint " tacticSeq : tactic
+
 end Tactic
 
 namespace Attr

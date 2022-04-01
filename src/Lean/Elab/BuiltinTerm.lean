@@ -162,12 +162,10 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
 @[builtinTermElab cdot] def elabBadCDot : TermElab := fun stx _ =>
   throwError "invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)"
 
-@[builtinTermElab strLit] def elabStrLit : TermElab := fun stx _ => do
+@[builtinTermElab str] def elabStrLit : TermElab := fun stx _ => do
   match stx.isStrLit? with
   | some val => pure $ mkStrLit val
   | none     => throwIllFormedSyntax
-
-@[builtinTermElab str] def elabStrLit' : TermElab := elabStrLit -- TODO remove staging hack
 
 private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr := do
   let typeMVar ← mkFreshTypeMVar MetavarKind.synthetic
@@ -176,7 +174,7 @@ private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr :=
   | _                 => pure ()
   return typeMVar
 
-@[builtinTermElab numLit] def elabNumLit : TermElab := fun stx expectedType? => do
+@[builtinTermElab num] def elabNumLit : TermElab := fun stx expectedType? => do
   let val ← match stx.isNatLit? with
     | some val => pure val
     | none     => throwIllFormedSyntax
@@ -187,14 +185,12 @@ private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr :=
   registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
   return r
 
-@[builtinTermElab num] def elabNumLit' : TermElab := elabNumLit -- TODO remove staging hack
-
 @[builtinTermElab rawNatLit] def elabRawNatLit : TermElab :=  fun stx expectedType? => do
   match stx[1].isNatLit? with
   | some val => return mkRawNatLit val
   | none     => throwIllFormedSyntax
 
-@[builtinTermElab scientificLit]
+@[builtinTermElab scientific]
 def elabScientificLit : TermElab := fun stx expectedType? => do
   match stx.isScientificLit? with
   | none        => throwIllFormedSyntax
@@ -206,22 +202,16 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
     registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
     return r
 
-@[builtinTermElab scientific] def elabScientificLit' : TermElab := elabScientificLit -- TODO remove staging hack
-
-@[builtinTermElab charLit] def elabCharLit : TermElab := fun stx _ => do
+@[builtinTermElab char] def elabCharLit : TermElab := fun stx _ => do
   match stx.isCharLit? with
   | some val => return mkApp (Lean.mkConst ``Char.ofNat) (mkRawNatLit val.toNat)
   | none     => throwIllFormedSyntax
-
-@[builtinTermElab char] def elabCharLit' : TermElab := elabCharLit -- TODO remove staging hack
 
 /- A literal of type `Name`. -/
 @[builtinTermElab quotedName] def elabQuotedName : TermElab := fun stx _ =>
   match stx[0].isNameLit? with
   | some val => pure $ toExpr val
   | none     => throwIllFormedSyntax
-
-@[builtinTermElab name] def elabQuotedName' : TermElab := elabQuotedName -- TODO remove staging hack
 
 /--
 A resolved name literal. Evaluates to the full name of the given constant if

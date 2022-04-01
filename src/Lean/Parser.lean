@@ -60,10 +60,10 @@ def mkAntiquot.parenthesizer (name : String) (kind : Option SyntaxNodeKind) (ano
 -- The parenthesizer auto-generated these instances correctly, but tagged them with the wrong kind, since the actual kind
 -- (e.g. `ident`) is not equal to the parser name `Lean.Parser.Term.ident`.
 @[builtinParenthesizer ident] def ident.parenthesizer : Parenthesizer := Parser.Term.ident.parenthesizer
-@[builtinParenthesizer numLit] def numLit.parenthesizer : Parenthesizer := Parser.Term.num.parenthesizer
-@[builtinParenthesizer scientificLit] def scientificLit.parenthesizer : Parenthesizer := Parser.Term.scientific.parenthesizer
-@[builtinParenthesizer charLit] def charLit.parenthesizer : Parenthesizer := Parser.Term.char.parenthesizer
-@[builtinParenthesizer strLit] def strLit.parenthesizer : Parenthesizer := Parser.Term.str.parenthesizer
+@[builtinParenthesizer num] def numLit.parenthesizer : Parenthesizer := Parser.Term.num.parenthesizer
+@[builtinParenthesizer scientific] def scientificLit.parenthesizer : Parenthesizer := Parser.Term.scientific.parenthesizer
+@[builtinParenthesizer char] def charLit.parenthesizer : Parenthesizer := Parser.Term.char.parenthesizer
+@[builtinParenthesizer str] def strLit.parenthesizer : Parenthesizer := Parser.Term.str.parenthesizer
 
 open Lean.Parser
 
@@ -91,10 +91,10 @@ def mkAntiquot.formatter (name : String) (kind : Option SyntaxNodeKind) (anonymo
   Parser.mkAntiquot.formatter name kind anonymous
 
 @[builtinFormatter ident] def ident.formatter : Formatter := Parser.Term.ident.formatter
-@[builtinFormatter numLit] def numLit.formatter : Formatter := Parser.Term.num.formatter
-@[builtinFormatter scientificLit] def scientificLit.formatter : Formatter := Parser.Term.scientific.formatter
-@[builtinFormatter charLit] def charLit.formatter : Formatter := Parser.Term.char.formatter
-@[builtinFormatter strLit] def strLit.formatter : Formatter := Parser.Term.str.formatter
+@[builtinFormatter num] def numLit.formatter : Formatter := Parser.Term.num.formatter
+@[builtinFormatter scientific] def scientificLit.formatter : Formatter := Parser.Term.scientific.formatter
+@[builtinFormatter char] def charLit.formatter : Formatter := Parser.Term.char.formatter
+@[builtinFormatter str] def strLit.formatter : Formatter := Parser.Term.str.formatter
 
 open Lean.Parser
 

@@ -446,9 +446,9 @@ protected partial def Result.quote (r : Result) (prec : Nat) : Syntax :=
     if prec > 0 then Unhygienic.run `(level| ( $s )) else s
   match r with
   | Result.leaf n         => Unhygienic.run `(level| $(mkIdent n):ident)
-  | Result.num  k         => Unhygienic.run `(level| $(quote k):numLit)
+  | Result.num  k         => Unhygienic.run `(level| $(quote k):num)
   | Result.offset r 0     => Result.quote r prec
-  | Result.offset r (k+1) => addParen <| Unhygienic.run `(level| $(Result.quote r 65) + $(quote (k+1)):numLit)
+  | Result.offset r (k+1) => addParen <| Unhygienic.run `(level| $(Result.quote r 65) + $(quote (k+1)):num)
   | Result.maxNode rs     => addParen <| Unhygienic.run `(level| max $(rs.toArray.map (Result.quote · max_prec))*)
   | Result.imaxNode rs    => addParen <| Unhygienic.run `(level| imax $(rs.toArray.map (Result.quote · max_prec))*)
 

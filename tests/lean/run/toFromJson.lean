@@ -12,8 +12,8 @@ syntax "json " json : term
 
 /- declare a micro json parser, so we can write our tests in a more legible way. -/
 open Json in macro_rules
-  | `(json $s:strLit) => pure s
-  | `(json $n:numLit) => pure n
+  | `(json $s:str) => pure s
+  | `(json $n:num) => pure n
   | `(json { $[$ns : $js],* }) => do
     let mut fields := #[]
     for n in ns, j in js do

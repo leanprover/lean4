@@ -102,8 +102,8 @@ macro_rules | `(Σ $idx => $F) => `(Prod ($idx) $F)
 -- Now, we create command for automating the generation of big operators.
 syntax "def_bigop" str term:max term:max : command
 macro_rules
-| `(def_bigop $head:strLit $op $unit) =>
-   `(macro $head:strLit "(" idx:index ")" F:term : term => `(_big [$op, $unit] ($$idx) $$F))
+| `(def_bigop $head:str $op $unit) =>
+   `(macro $head:str "(" idx:index ")" F:term : term => `(_big [$op, $unit] ($$idx) $$F))
 
 def_bigop "SUM" Nat.add 0
 #check SUM (i <- [0, 1, 2]) i+1

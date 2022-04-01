@@ -70,7 +70,7 @@ syntax "`[Expr|" term "]" : term
 macro_rules
   | `(`[Expr|true])      => `((true : Expr))
   | `(`[Expr|false])     => `((false : Expr))
-  | `(`[Expr|$n:numLit]) => `(($n : Expr))
+  | `(`[Expr|$n:num])    => `(($n : Expr))
   | `(`[Expr|$x:ident])  => `(($(Lean.quote x.getId.toString) : Expr))
   | `(`[Expr|$x = $y])   => `(Expr.bin `[Expr|$x] BinOp.eq `[Expr|$y])
   | `(`[Expr|$x && $y])  => `(Expr.bin `[Expr|$x] BinOp.and `[Expr|$y])

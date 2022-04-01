@@ -1,6 +1,6 @@
 macro "mk_m " id:ident v:str n:num c:char : command =>
   let tk : Lean.Syntax := Lean.Syntax.mkStrLit id.getId.toString
-  `(macro $tk:strLit : term => `(fun (x : String) => x ++ $v ++ toString $n ++ toString $c))
+  `(macro $tk:str : term => `(fun (x : String) => x ++ $v ++ toString $n ++ toString $c))
 
 #print " ---- "
 

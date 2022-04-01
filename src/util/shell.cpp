@@ -51,7 +51,6 @@ Author: Leonardo de Moura
 
 #ifdef LEAN_WINDOWS
 #include <windows.h>
-#undef ERROR // thanks, wingdi.h
 #else
 #include <dlfcn.h>
 #endif

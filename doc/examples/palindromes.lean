@@ -81,12 +81,10 @@ theorem List.palindrome_ind (motive : List α → Prop)
   | []  => h₁
   | [a] => h₂ a
   | a₁::a₂::as' =>
-    have : [a₁] ++ (a₂::as').dropLast ++ [(a₂::as').last (by simp)] = a₁::a₂::as' := by simp
     have ih := palindrome_ind motive h₁ h₂ h₃ (a₂::as').dropLast
+    have : [a₁] ++ (a₂::as').dropLast ++ [(a₂::as').last (by simp)] = a₁::a₂::as' := by simp
     this ▸ h₃ _ _ _ ih
 termination_by _ as => as.length
--- TODO: remove the following tactic after we add `linarith`
-decreasing_by simp_wf; rw [Nat.succ_sub_succ, Nat.sub_zero]; simp_arith
 
 /-|
 We use our new induction principle to prove that if `as.reverse = as`, then `Palindrome as` holds.

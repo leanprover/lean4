@@ -1873,8 +1873,16 @@ def setKind (stx : Syntax) (k : SyntaxNodeKind) : Syntax :=
   | Syntax.node info _ args => Syntax.node info k args
   | _                       => stx
 
-def isOfKind (stx : Syntax) (k : SyntaxNodeKind) : Bool :=
-  beq stx.getKind k
+def isOfKind (stx : Syntax) (k : SyntaxNodeKind) : Bool := -- TODO remove staging hack
+  cond (or (beq k `num) (beq k `numLit))
+    (or (beq stx.getKind `num) (beq stx.getKind `numLit))
+  (cond (or (beq k `str) (beq k `strLit))
+    (or (beq stx.getKind `str) (beq stx.getKind `strLit))
+  (cond (or (beq k `char) (beq k `charLit))
+    (or (beq stx.getKind `char) (beq stx.getKind `charLit))
+  (cond (or (beq k `name) (beq k `nameLit))
+    (or (beq stx.getKind `name) (beq stx.getKind `nameLit))
+    (beq stx.getKind k))))
 
 def getArg (stx : Syntax) (i : Nat) : Syntax :=
   match stx with
@@ -1916,12 +1924,23 @@ def matchesNull (stx : Syntax) (n : Nat) : Bool :=
 def matchesIdent (stx : Syntax) (id : Name) : Bool :=
   and stx.isIdent (beq stx.getId id)
 
-def matchesLit (stx : Syntax) (k : SyntaxNodeKind) (val : String) : Bool :=
+def matchesLitCore (stx : Syntax) (k : SyntaxNodeKind) (val : String) : Bool :=
   match stx with
   | Syntax.node _ k' args => and (beq k k') (match args.getD 0 Syntax.missing with
     | Syntax.atom _ val' => beq val val'
     | _                  => false)
   | _                     => false
+
+def matchesLit (stx : Syntax) (k : SyntaxNodeKind) (val : String) : Bool := -- TODO remove staging hack
+  cond (or (beq k `num) (beq k `numLit))
+    (or (matchesLitCore stx `num val) (matchesLitCore stx `numLit val))
+  (cond (or (beq k `str) (beq k `strLit))
+    (or (matchesLitCore stx `str val) (matchesLitCore stx `strLit val))
+  (cond (or (beq k `char) (beq k `charLit))
+    (or (matchesLitCore stx `char val) (matchesLitCore stx `charLit val))
+  (cond (or (beq k `name) (beq k `nameLit))
+    (or (matchesLitCore stx `name val) (matchesLitCore stx `nameLit val))
+    (matchesLitCore stx k val))))
 
 def setArgs (stx : Syntax) (args : Array Syntax) : Syntax :=
   match stx with

@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* (Experimental) New `checkpoint <tactic-seq>` tactic for big interactive proofs.
+
 * Renamed tactic `nativeDecide` => `native_decide`.
 
 * "Cleanup" local context before elaborating a `match` alternative right-hand-side. Examples:

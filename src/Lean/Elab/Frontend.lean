@@ -27,7 +27,12 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
 @[inline] def runCommandElabM (x : Command.CommandElabM α) : FrontendM α := do
   let ctx ← read
   let s ← get
-  let cmdCtx : Command.Context := { cmdPos := s.cmdPos, fileName := ctx.inputCtx.fileName, fileMap := ctx.inputCtx.fileMap }
+  let cmdCtx : Command.Context := {
+    cmdPos       := s.cmdPos
+    fileName     := ctx.inputCtx.fileName
+    fileMap      := ctx.inputCtx.fileMap
+    tacticCache? := none
+  }
   match (← liftM <| EIO.toIO' <| (x cmdCtx).run s.commandState) with
   | Except.error e      => throw <| IO.Error.userError s!"unexpected internal error: {← e.toMessageData.toString}"
   | Except.ok (a, sNew) => setCommandState sNew; return a

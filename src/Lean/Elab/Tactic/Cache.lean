@@ -19,18 +19,8 @@ private def equivMVarDecl (d₁ d₂ : MetavarDecl) : Bool :=
        | _, _ => return false
      return true
 
-structure Snapshot where
-  core   : Core.State
-  meta   : Meta.State
-  term   : Term.State
-  tactic : Tactic.State
-  stx    : Syntax
-  deriving Inhabited
-
-abbrev Cache := Std.HashMap MVarId Snapshot
-
-def Cache.find? (c : Cache) (mvarId : MVarId) (stx : Syntax) : TacticM (Option Snapshot) := do
-  let some s := Std.HashMap.find? c mvarId | return none
+private def findCache? (cacheRef : IO.Ref Cache) (mvarId : MVarId) (stx : Syntax) : TacticM (Option Snapshot) := do
+  let some s := (← cacheRef.get).pre.find? mvarId | return none
   let mvarDecl ← getMVarDecl mvarId
   let some mvarDeclOld := s.meta.mctx.findDecl? mvarId | return none
   if equivMVarDecl mvarDecl mvarDeclOld && stx == s.stx then
@@ -38,15 +28,11 @@ def Cache.find? (c : Cache) (mvarId : MVarId) (stx : Syntax) : TacticM (Option S
   else
     return none
 
-/-
-  Very naive cache for tactic state. TODO: move it to a LSP snapshot
--/
-builtin_initialize cacheRef : IO.Ref Cache ← IO.mkRef {}
-
 @[builtinTactic checkpoint] def evalCheckpoint : Tactic := fun stx =>
   focus do
+    let some cacheRef := (← readThe Term.Context).tacticCache? | evalTactic stx[1]
     let mvarId ← getMainGoal
-    match (← (← cacheRef.get).find? mvarId stx[1]) with
+    match (← findCache? cacheRef mvarId stx[1]) with
     | some s =>
       set s.core
       set s.meta
@@ -61,6 +47,6 @@ builtin_initialize cacheRef : IO.Ref Cache ← IO.mkRef {}
         term   := (← getThe Term.State)
         tactic := (← get)
       }
-      cacheRef.modify (·.insert mvarId s)
+      cacheRef.modify fun { pre, post } => { pre, post := post.insert mvarId s }
 
 end Lean.Elab.Tactic

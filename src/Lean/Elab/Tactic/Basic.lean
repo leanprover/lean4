@@ -40,10 +40,6 @@ structure Context where
   -- declaration name of the executing elaborator, used by `mkTacticInfo` to persist it in the info tree
   elaborator : Name
 
-structure State where
-  goals : List MVarId
-  deriving Inhabited
-
 structure SavedState where
   term   : Term.SavedState
   tactic : State

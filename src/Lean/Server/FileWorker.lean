@@ -239,6 +239,7 @@ section Initialization
       mpState := headerParserState
       cmdState := cmdState
       interactiveDiags := ← cmdState.messages.msgs.mapM (Widget.msgToInteractiveDiagnostic m.text · hasWidgets)
+      tacticCache := (← IO.mkRef {})
     }
     publishDiagnostics m headerSnap.diagnostics.toArray hOut
     return (headerSnap, srcSearchPath)

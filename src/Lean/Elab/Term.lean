@@ -23,43 +23,9 @@ import Lean.Elab.Open
 import Lean.Elab.SetOption
 import Lean.Elab.DeclModifiers
 
-namespace Lean.Elab.Term
-structure Context where
-  fileName        : String
-  fileMap         : FileMap
-  declName?       : Option Name     := none
-  macroStack      : MacroStack      := []
-  /- When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
-     The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
-     the list of pending synthetic metavariables, and returns `?m`. -/
-  mayPostpone     : Bool            := true
-  /- When `errToSorry` is set to true, the method `elabTerm` catches
-     exceptions and converts them into synthetic `sorry`s.
-     The implementation of choice nodes and overloaded symbols rely on the fact
-     that when `errToSorry` is set to false for an elaboration function `F`, then
-     `errToSorry` remains `false` for all elaboration functions invoked by `F`.
-     That is, it is safe to transition `errToSorry` from `true` to `false`, but
-     we must not set `errToSorry` to `true` when it is currently set to `false`. -/
-  errToSorry      : Bool            := true
-  /- When `autoBoundImplicit` is set to true, instead of producing
-     an "unknown identifier" error for unbound variables, we generate an
-     internal exception. This exception is caught at `elabBinders` and
-     `elabTypeWithUnboldImplicit`. Both methods add implicit declarations
-     for the unbound variable and try again. -/
-  autoBoundImplicit  : Bool            := false
-  autoBoundImplicits : Std.PArray Expr := {}
-  /-- Map from user name to internal unique name -/
-  sectionVars        : NameMap Name    := {}
-  /-- Map from internal name to fvar -/
-  sectionFVars       : NameMap Expr    := {}
-  /-- Enable/disable implicit lambdas feature. -/
-  implicitLambda     : Bool            := true
-  /-- Noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for  -/
-  isNoncomputableSection : Bool        := false
-  /-- When `true` we skip TC failures. We use this option when processing patterns -/
-  ignoreTCFailures : Bool := false
-  /-- True when elaborating patterns. It affects how we elaborate named holes. -/
-  inPattern        : Bool := false
+namespace Lean.Elab
+
+namespace Term
 
 /-- Saved context for postponed terms and tactics to be executed. -/
 structure SavedContext where
@@ -136,6 +102,69 @@ structure State where
   letRecsToLift     : List LetRecToLift := []
   infoState         : InfoState := {}
   deriving Inhabited
+
+end Term
+
+namespace Tactic
+
+structure State where
+  goals : List MVarId
+  deriving Inhabited
+
+structure Snapshot where
+  core   : Core.State
+  meta   : Meta.State
+  term   : Term.State
+  tactic : Tactic.State
+  stx    : Syntax
+  deriving Inhabited
+
+structure Cache where
+   pre  : Std.HashMap MVarId Snapshot := {}
+   post : Std.HashMap MVarId Snapshot := {}
+   deriving Inhabited
+
+end Tactic
+
+namespace Term
+
+structure Context where
+  fileName        : String
+  fileMap         : FileMap
+  declName?       : Option Name     := none
+  macroStack      : MacroStack      := []
+  /- When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
+     The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
+     the list of pending synthetic metavariables, and returns `?m`. -/
+  mayPostpone     : Bool            := true
+  /- When `errToSorry` is set to true, the method `elabTerm` catches
+     exceptions and converts them into synthetic `sorry`s.
+     The implementation of choice nodes and overloaded symbols rely on the fact
+     that when `errToSorry` is set to false for an elaboration function `F`, then
+     `errToSorry` remains `false` for all elaboration functions invoked by `F`.
+     That is, it is safe to transition `errToSorry` from `true` to `false`, but
+     we must not set `errToSorry` to `true` when it is currently set to `false`. -/
+  errToSorry      : Bool            := true
+  /- When `autoBoundImplicit` is set to true, instead of producing
+     an "unknown identifier" error for unbound variables, we generate an
+     internal exception. This exception is caught at `elabBinders` and
+     `elabTypeWithUnboldImplicit`. Both methods add implicit declarations
+     for the unbound variable and try again. -/
+  autoBoundImplicit  : Bool            := false
+  autoBoundImplicits : Std.PArray Expr := {}
+  /-- Map from user name to internal unique name -/
+  sectionVars        : NameMap Name    := {}
+  /-- Map from internal name to fvar -/
+  sectionFVars       : NameMap Expr    := {}
+  /-- Enable/disable implicit lambdas feature. -/
+  implicitLambda     : Bool            := true
+  /-- Noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for  -/
+  isNoncomputableSection : Bool        := false
+  /-- When `true` we skip TC failures. We use this option when processing patterns -/
+  ignoreTCFailures : Bool := false
+  /-- True when elaborating patterns. It affects how we elaborate named holes. -/
+  inPattern        : Bool := false
+  tacticCache?     : Option (IO.Ref Tactic.Cache) := none
 
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
@@ -1519,7 +1548,7 @@ def TermElabM.toIO (x : TermElabM α)
   return (a, sCore, sMeta, s)
 
 instance [MetaEval α] : MetaEval (TermElabM α) where
-  eval env opts x _ :=
+  eval env opts x _ := do
     let x : TermElabM α := do
       try x finally
         let s ← get

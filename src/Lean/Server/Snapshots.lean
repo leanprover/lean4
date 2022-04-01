@@ -20,6 +20,9 @@ namespace Lean.Server.Snapshots
 
 open Elab
 
+/- For `Inhabited Snapshot` -/
+builtin_initialize dummyTacticCache : IO.Ref Tactic.Cache ← IO.mkRef {}
+
 /-- What Lean knows about the world after the header and each command. -/
 structure Snapshot where
   /-- Where the command which produced this snapshot begins. Note that
@@ -34,7 +37,17 @@ structure Snapshot where
   from previous snapshots when publishing diagnostics for every new snapshot (this is quadratic),
   as well as not to invoke it once again when handling `$/lean/interactiveDiagnostics`. -/
   interactiveDiags : Std.PersistentArray Widget.InteractiveDiagnostic
-  deriving Inhabited
+  tacticCache : IO.Ref Tactic.Cache
+
+instance : Inhabited Snapshot where
+  default := {
+    beginPos         := default
+    stx              := default
+    mpState          := default
+    cmdState         := default
+    interactiveDiags := default
+    tacticCache      := dummyTacticCache
+  }
 
 namespace Snapshot
 
@@ -110,19 +123,22 @@ def compileNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidget
       mpState := cmdParserState
       cmdState := snap.cmdState
       interactiveDiags := ← withNewInteractiveDiags msgLog
+      tacticCache := snap.tacticCache
     }
     return endSnap
   else
     let cmdStateRef ← IO.mkRef { snap.cmdState with messages := msgLog }
     let cmdCtx : Elab.Command.Context := {
-      cmdPos   := snap.endPos
-      fileName := inputCtx.fileName
-      fileMap  := inputCtx.fileMap
+      cmdPos       := snap.endPos
+      fileName     := inputCtx.fileName
+      fileMap      := inputCtx.fileMap
+      tacticCache? := some snap.tacticCache
     }
     let (output, _) ← IO.FS.withIsolatedStreams <| liftM (m := BaseIO) do
       Elab.Command.catchExceptions
         (getResetInfoTrees *> Elab.Command.elabCommandTopLevel cmdStx)
         cmdCtx cmdStateRef
+    snap.tacticCache.modify fun { pre, post } => { pre := post, post := {} }
     let mut postCmdState ← cmdStateRef.get
     if !output.isEmpty then
       postCmdState := {
@@ -140,6 +156,7 @@ def compileNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidget
       mpState := cmdParserState
       cmdState := postCmdState
       interactiveDiags := ← withNewInteractiveDiags postCmdState.messages
+      tacticCache := (← IO.mkRef {})
     }
     return postCmdSnap
 

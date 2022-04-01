@@ -34,6 +34,7 @@ private def findCache? (cacheRef : IO.Ref Cache) (mvarId : MVarId) (stx : Syntax
     let mvarId ← getMainGoal
     match (← findCache? cacheRef mvarId stx[1]) with
     | some s =>
+      cacheRef.modify fun { pre, post } => { pre, post := post.insert mvarId s }
       set s.core
       set s.meta
       set s.term

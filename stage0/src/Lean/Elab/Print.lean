@@ -83,7 +83,7 @@ private def printId (id : Syntax) : CommandElabM Unit := do
 
 @[builtinCommandElab «print»] def elabPrint : CommandElab
   | `(#print%$tk $id:ident) => withRef tk <| printId id
-  | `(#print%$tk $s:strLit) => logInfoAt tk s.isStrLit?.get!
+  | `(#print%$tk $s:str) => logInfoAt tk s.isStrLit?.get!
   | _                       => throwError "invalid #print command"
 
 namespace CollectAxioms

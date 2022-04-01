@@ -34,19 +34,19 @@ attribute [runBuiltinParserAttributeHooks]
   withAntiquot (mkAntiquot "ident" identKind) rawIdentNoAntiquot
 
 @[runBuiltinParserAttributeHooks] def numLit : Parser :=
-  withAntiquot (mkAntiquot "numLit" numLitKind) numLitNoAntiquot
+  withAntiquot (mkAntiquot "num" numLitKind) numLitNoAntiquot
 
 @[runBuiltinParserAttributeHooks] def scientificLit : Parser :=
-  withAntiquot (mkAntiquot "scientificLit" scientificLitKind) scientificLitNoAntiquot
+  withAntiquot (mkAntiquot "scientific" scientificLitKind) scientificLitNoAntiquot
 
 @[runBuiltinParserAttributeHooks] def strLit : Parser :=
-  withAntiquot (mkAntiquot "strLit" strLitKind) strLitNoAntiquot
+  withAntiquot (mkAntiquot "str" strLitKind) strLitNoAntiquot
 
 @[runBuiltinParserAttributeHooks] def charLit : Parser :=
-  withAntiquot (mkAntiquot "charLit" charLitKind) charLitNoAntiquot
+  withAntiquot (mkAntiquot "char" charLitKind) charLitNoAntiquot
 
 @[runBuiltinParserAttributeHooks] def nameLit : Parser :=
-  withAntiquot (mkAntiquot "nameLit" nameLitKind) nameLitNoAntiquot
+  withAntiquot (mkAntiquot "name" nameLitKind) nameLitNoAntiquot
 
 @[runBuiltinParserAttributeHooks, inline] def group (p : Parser) : Parser :=
   node groupKind p

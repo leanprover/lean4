@@ -90,7 +90,7 @@ private def expandNotationAux (ref : Syntax)
      So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
   let fullName := currNamespace ++ name
   let pat := mkNode fullName patArgs
-  let stxDecl ← `($attrKind:attrKind syntax $[: $prec?]? (name := $(mkIdent name)) (priority := $(quote prio):numLit) $[$syntaxParts]* : $cat)
+  let stxDecl ← `($attrKind:attrKind syntax $[: $prec?]? (name := $(mkIdent name)) (priority := $(quote prio):num) $[$syntaxParts]* : $cat)
   let mut macroDecl ← `(macro_rules | `($pat) => ``($qrhs))
   if isLocalAttrKind attrKind then
     -- Make sure the quotation pre-checker takes section variables into account for local notation.

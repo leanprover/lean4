@@ -12,17 +12,17 @@ namespace Lean.Elab.Command
     match stx with
     | `(infixl:$prec $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
       let prec1 := quote <| (← evalPrec prec) + 1
-      `(notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec $op:strLit rhs:$prec1 => $f lhs rhs)
+      `(notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec $op:str rhs:$prec1 => $f lhs rhs)
     | `(infix:$prec $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
       let prec1 := quote <| (← evalPrec prec) + 1
-      `(notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec1 $op:strLit rhs:$prec1 => $f lhs rhs)
+      `(notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec1 $op:str rhs:$prec1 => $f lhs rhs)
     | `(infixr:$prec $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
       let prec1 := quote <| (← evalPrec prec) + 1
-      `(notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec1 $op:strLit rhs:$prec => $f lhs rhs)
+      `(notation:$prec $[(name := $name)]? $[(priority := $prio)]? lhs:$prec1 $op:str rhs:$prec => $f lhs rhs)
     | `(prefix:$prec $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
-      `(notation:$prec $[(name := $name)]? $[(priority := $prio)]? $op:strLit arg:$prec => $f arg)
+      `(notation:$prec $[(name := $name)]? $[(priority := $prio)]? $op:str arg:$prec => $f arg)
     | `(postfix:$prec $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>
-      `(notation:$prec $[(name := $name)]? $[(priority := $prio)]? arg:$prec $op:strLit => $f arg)
+      `(notation:$prec $[(name := $name)]? $[(priority := $prio)]? arg:$prec $op:str => $f arg)
     | _ => Macro.throwUnsupported
 where
   -- set "global" `attrKind`, apply `f`, and restore `attrKind` to result

@@ -3516,7 +3516,7 @@ static lean_object* _init_l_Lean_Parser_numLit_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__15;
+x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__27;
 x_2 = l_Lean_Parser_numLit_formatter___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -3549,7 +3549,7 @@ static lean_object* _init_l_Lean_Parser_numLit_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__15;
+x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__27;
 x_2 = l_Lean_Parser_numLit_formatter___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -3582,7 +3582,7 @@ static lean_object* _init_l_Lean_Parser_numLit___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__15;
+x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__27;
 x_2 = l_Lean_Parser_numLit_formatter___closed__1;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -3628,7 +3628,7 @@ static lean_object* _init_l_Lean_Parser_numLit___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__15;
+x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__27;
 x_2 = l_Lean_Parser_mkAtomicInfo(x_1);
 return x_2;
 }
@@ -3687,7 +3687,7 @@ static lean_object* _init_l_Lean_Parser_scientificLit_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("scientificLit");
+x_1 = lean_mk_string("scientific");
 return x_1;
 }
 }
@@ -3866,7 +3866,7 @@ static lean_object* _init_l_Lean_Parser_strLit_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__14;
+x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__31;
 x_2 = l_Lean_Parser_strLit_formatter___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -3899,7 +3899,7 @@ static lean_object* _init_l_Lean_Parser_strLit_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__14;
+x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__31;
 x_2 = l_Lean_Parser_strLit_formatter___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -3932,7 +3932,7 @@ static lean_object* _init_l_Lean_Parser_strLit___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__14;
+x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__31;
 x_2 = l_Lean_Parser_strLit_formatter___closed__1;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -3978,7 +3978,7 @@ static lean_object* _init_l_Lean_Parser_strLit___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__14;
+x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__31;
 x_2 = l_Lean_Parser_mkAtomicInfo(x_1);
 return x_2;
 }
@@ -4037,7 +4037,7 @@ static lean_object* _init_l_Lean_Parser_charLit_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__17;
+x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__19;
 x_2 = l_Lean_Parser_charLit_formatter___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -4070,7 +4070,7 @@ static lean_object* _init_l_Lean_Parser_charLit_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__17;
+x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__19;
 x_2 = l_Lean_Parser_charLit_formatter___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -4103,7 +4103,7 @@ static lean_object* _init_l_Lean_Parser_charLit___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__17;
+x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__19;
 x_2 = l_Lean_Parser_charLit_formatter___closed__1;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -4149,7 +4149,7 @@ static lean_object* _init_l_Lean_Parser_charLit___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__17;
+x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__19;
 x_2 = l_Lean_Parser_mkAtomicInfo(x_1);
 return x_2;
 }
@@ -4208,7 +4208,7 @@ static lean_object* _init_l_Lean_Parser_nameLit_formatter___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__16;
+x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__23;
 x_2 = l_Lean_Parser_nameLit_formatter___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -4241,7 +4241,7 @@ static lean_object* _init_l_Lean_Parser_nameLit_parenthesizer___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__16;
+x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__23;
 x_2 = l_Lean_Parser_nameLit_formatter___closed__1;
 x_3 = 1;
 x_4 = lean_box(x_3);
@@ -4274,7 +4274,7 @@ static lean_object* _init_l_Lean_Parser_nameLit___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; uint8_t x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__16;
+x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__23;
 x_2 = l_Lean_Parser_nameLit_formatter___closed__1;
 x_3 = 1;
 x_4 = l_Lean_Parser_mkAntiquot(x_1, x_2, x_3);
@@ -4320,7 +4320,7 @@ static lean_object* _init_l_Lean_Parser_nameLit___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__16;
+x_1 = l_Lean_Parser_mkAntiquot_formatter___closed__23;
 x_2 = l_Lean_Parser_mkAtomicInfo(x_1);
 return x_2;
 }

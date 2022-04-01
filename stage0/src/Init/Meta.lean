@@ -837,14 +837,14 @@ def evalPrec (stx : Syntax) : MacroM Nat :=
   Macro.withIncRecDepth stx do
     let stx ← expandMacros stx
     match stx with
-    | `(prec| $num:numLit) => return num.isNatLit?.getD 0
+    | `(prec| $num:num) => return num.isNatLit?.getD 0
     | _ => Macro.throwErrorAt stx "unexpected precedence"
 
 macro_rules
-  | `(prec| $a + $b) => do `(prec| $(quote <| (← evalPrec a) + (← evalPrec b)):numLit)
+  | `(prec| $a + $b) => do `(prec| $(quote <| (← evalPrec a) + (← evalPrec b)):num)
 
 macro_rules
-  | `(prec| $a - $b) => do `(prec| $(quote <| (← evalPrec a) - (← evalPrec b)):numLit)
+  | `(prec| $a - $b) => do `(prec| $(quote <| (← evalPrec a) - (← evalPrec b)):num)
 
 macro "eval_prec " p:prec:max : term => return quote (← evalPrec p)
 
@@ -853,20 +853,20 @@ def evalPrio (stx : Syntax) : MacroM Nat :=
   Macro.withIncRecDepth stx do
     let stx ← expandMacros stx
     match stx with
-    | `(prio| $num:numLit) => return num.isNatLit?.getD 0
+    | `(prio| $num:num) => return num.isNatLit?.getD 0
     | _ => Macro.throwErrorAt stx "unexpected priority"
 
 macro_rules
-  | `(prio| $a + $b) => do `(prio| $(quote <| (← evalPrio a) + (← evalPrio b)):numLit)
+  | `(prio| $a + $b) => do `(prio| $(quote <| (← evalPrio a) + (← evalPrio b)):num)
 
 macro_rules
-  | `(prio| $a - $b) => do `(prio| $(quote <| (← evalPrio a) - (← evalPrio b)):numLit)
+  | `(prio| $a - $b) => do `(prio| $(quote <| (← evalPrio a) - (← evalPrio b)):num)
 
 macro "eval_prio " p:prio:max : term => return quote (← evalPrio p)
 
 def evalOptPrio : Option Syntax → MacroM Nat
   | some prio => evalPrio prio
-  | none      => return eval_prio default
+  | none      => return 1000 -- TODO: FIX back eval_prio default
 
 end Lean
 

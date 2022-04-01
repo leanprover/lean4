@@ -70,7 +70,38 @@ private def generalizeMatchDiscrs (mvarId : MVarId) (discrs : Array Expr) : Meta
   else
     let discrsToGeneralize := discrs.filter fun d => !d.isFVar
     let args ← discrsToGeneralize.mapM fun d => return { expr := d, hName? := (← mkFreshUserName `h) : GeneralizeArg }
-    let (fvarIdsNew, mvarId) ← generalize mvarId args
+    /-
+      We should only generalize `discrs` occurrences as `match`-expression discriminants.
+      For example, given the following goal.
+      ```
+      x : Nat
+      ⊢ (match g x with
+          | 0 => 1
+          | Nat.succ y => g x) =
+          2 * x + 1
+      ```
+      we should not generalize the `g x` in the rhs of the second alternative, and the two resulting goals
+      for the `split` tactic  should be
+      ```
+      case h_1
+      x x✝ : Nat
+      h✝ : g x = 0
+      ⊢ 1 = 2 * x + 1
+
+      case h_2
+      x x✝ y✝ : Nat
+      h✝ : g x = Nat.succ y✝
+      ⊢ g x = 2 * x + 1
+      ```
+     -/
+    let isDiscr (parent? : Option Expr) (e : Expr) : MetaM Bool := do
+      let some parent := parent? | return false
+      let some info := isMatcherAppCore? (← getEnv) parent | return false
+      let args := parent.getAppArgs
+      for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
+        if i < args.size && args[i] == e then return true
+      return false
+    let (fvarIdsNew, mvarId) ← generalize mvarId args isDiscr
     let mut result := #[]
     let mut j := 0
     for discr in discrs do

@@ -1725,14 +1725,7 @@ instance : Coe String Parser := ⟨fun s => symbol s ⟩
   produces the syntax tree for `$e`. -/
 def mkAntiquot (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parser :=
   let kind := (kind.getD Name.anonymous) ++ `antiquot
-  -- TODO remove staging hack
-  let kindP :=
-    if name == "strLit" then nonReservedSymbol "strLit" <|> nonReservedSymbol "str"
-    else if name == "numLit" then nonReservedSymbol "numLit" <|> nonReservedSymbol "num"
-    else if name == "nameLit" then nonReservedSymbol "nameLit" <|> nonReservedSymbol "name"
-    else if name == "charLit" then nonReservedSymbol "charLit" <|> nonReservedSymbol "char"
-    else nonReservedSymbol name
-  let nameP := node `antiquotName $ checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbol ":" >> kindP
+  let nameP := node `antiquotName $ checkNoWsBefore ("no space before ':" ++ name ++ "'") >> symbol ":" >> nonReservedSymbol name
   -- if parsing the kind fails and `anonymous` is true, check that we're not ignoring a different
   -- antiquotation kind via `noImmediateColon`
   let nameP := if anonymous then nameP <|> checkNoImmediateColon >> pushNone else nameP

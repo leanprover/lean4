@@ -9780,7 +9780,7 @@ static lean_object* _init_l_Lean_Elab_Term_expandUnreachable___rarg___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("strLit");
+x_1 = lean_mk_string("str");
 return x_1;
 }
 }

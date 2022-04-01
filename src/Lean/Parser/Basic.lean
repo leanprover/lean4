@@ -1272,7 +1272,7 @@ def numLitFn : ParserFn :=
 
 @[inline] def numLitNoAntiquot : Parser := {
   fn   := numLitFn,
-  info := mkAtomicInfo "numLit"
+  info := mkAtomicInfo "num"
 }
 
 def scientificLitFn : ParserFn :=
@@ -1284,7 +1284,7 @@ def scientificLitFn : ParserFn :=
 
 @[inline] def scientificLitNoAntiquot : Parser := {
   fn   := scientificLitFn,
-  info := mkAtomicInfo "scientificLit"
+  info := mkAtomicInfo "scientific"
 }
 
 def strLitFn : ParserFn := fun c s =>
@@ -1295,7 +1295,7 @@ def strLitFn : ParserFn := fun c s =>
 
 @[inline] def strLitNoAntiquot : Parser := {
   fn   := strLitFn,
-  info := mkAtomicInfo "strLit"
+  info := mkAtomicInfo "str"
 }
 
 def charLitFn : ParserFn := fun c s =>
@@ -1306,7 +1306,7 @@ def charLitFn : ParserFn := fun c s =>
 
 @[inline] def charLitNoAntiquot : Parser := {
   fn   := charLitFn,
-  info := mkAtomicInfo "charLit"
+  info := mkAtomicInfo "char"
 }
 
 def nameLitFn : ParserFn := fun c s =>
@@ -1317,7 +1317,7 @@ def nameLitFn : ParserFn := fun c s =>
 
 @[inline] def nameLitNoAntiquot : Parser := {
   fn   := nameLitFn,
-  info := mkAtomicInfo "nameLit"
+  info := mkAtomicInfo "name"
 }
 
 def identFn : ParserFn := fun c s =>

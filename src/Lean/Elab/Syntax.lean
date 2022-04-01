@@ -323,10 +323,10 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   let declName := mkIdentFrom stx name
   let d ←
     if let some lhsPrec := lhsPrec? then
-      `($[$doc?:docComment]? @[$attrKind:attrKind $catParserId:ident $(quote prio):numLit] def $declName:ident : Lean.TrailingParserDescr :=
+      `($[$doc?:docComment]? @[$attrKind:attrKind $catParserId:ident $(quote prio):num] def $declName:ident : Lean.TrailingParserDescr :=
         ParserDescr.trailingNode $(quote stxNodeKind) $(quote prec) $(quote lhsPrec) $val)
     else
-      `($[$doc?:docComment]? @[$attrKind:attrKind $catParserId:ident $(quote prio):numLit] def $declName:ident : Lean.ParserDescr :=
+      `($[$doc?:docComment]? @[$attrKind:attrKind $catParserId:ident $(quote prio):num] def $declName:ident : Lean.ParserDescr :=
         ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)
   trace `Elab fun _ => d
   withMacroExpansion stx d <| elabCommand d

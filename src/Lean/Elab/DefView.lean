@@ -108,7 +108,7 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   -- leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal
   let attrKind        ← liftMacroM <| toAttributeKind stx[0]
   let prio            ← liftMacroM <| expandOptNamedPrio stx[2]
-  let attrStx         ← `(attr| instance $(quote prio):numLit)
+  let attrStx         ← `(attr| instance $(quote prio):num)
   let (binders, type) := expandDeclSig stx[4]
   let modifiers       := modifiers.addAttribute { kind := attrKind, name := `instance, stx := attrStx }
   let declId ← match stx[3].getOptional? with

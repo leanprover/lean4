@@ -55,7 +55,7 @@ macro "intro " xs:(colGt ident)* : conv => `(ext $(xs.getArgs)*)
 syntax enterArg := ident <|> num
 syntax "enter " "[" (colGt enterArg),+ "]": conv
 macro_rules
-  | `(conv| enter [$i:numLit]) => `(conv| arg $i)
+  | `(conv| enter [$i:num]) => `(conv| arg $i)
   | `(conv| enter [$id:ident]) => `(conv| ext $id)
   | `(conv| enter [$arg:enterArg, $args,*]) => `(conv| (enter [$arg]; enter [$args,*]))
 

@@ -32,6 +32,12 @@ builtin_initialize
   registerBuiltinNodeKind scientificLitKind
   registerBuiltinNodeKind charLitKind
   registerBuiltinNodeKind nameLitKind
+  -- TODO remove staging hack
+  registerBuiltinNodeKind `str
+  registerBuiltinNodeKind `num
+  registerBuiltinNodeKind `scientific
+  registerBuiltinNodeKind `char
+  registerBuiltinNodeKind `name
 
 builtin_initialize builtinParserCategoriesRef : IO.Ref ParserCategories ← IO.mkRef {}
 

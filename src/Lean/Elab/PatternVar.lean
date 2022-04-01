@@ -209,13 +209,13 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     return stx.setArg 2 lhs |>.setArg 3 rhs
   else if k == ``Lean.Parser.Term.inaccessible then
     return stx
-  else if k == strLitKind then
+  else if k == strLitKind || k == `str then -- TODO remove staging hack
     return stx
-  else if k == numLitKind then
+  else if k == numLitKind || k == `num then -- TODO remove staging hack
     return stx
   else if k == scientificLitKind then
     return stx
-  else if k == charLitKind then
+  else if k == charLitKind || k == `char then -- TODO remove staging hack
     return stx
   else if k == ``Lean.Parser.Term.quotedName then
     /- Quoted names have an elaboration function associated with them, and they will not be macro expanded.

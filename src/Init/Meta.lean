@@ -524,7 +524,7 @@ def decodeNatLitVal? (s : String) : Option Nat :=
     else if c.isDigit then decodeDecimalLitAux s 0 0
     else none
 
-def isLitCore? (litKind : SyntaxNodeKind) (stx : Syntax) : Option String :=
+def isLit? (litKind : SyntaxNodeKind) (stx : Syntax) : Option String :=
   match stx with
   | Syntax.node _ k args =>
     if k == litKind && args.size == 1 then
@@ -534,18 +534,6 @@ def isLitCore? (litKind : SyntaxNodeKind) (stx : Syntax) : Option String :=
     else
       none
   | _ => none
-
-def isLit? (litKind : SyntaxNodeKind) (stx : Syntax) : Option String :=  -- TODO remove staging hack
-  if litKind == `num || litKind == `numLit then
-    isLitCore? `num stx <|> isLitCore? `numLit stx
-  else if litKind == `str || litKind == `strLit then
-    isLitCore? `str stx <|> isLitCore? `strLit stx
-  else if litKind == `char || litKind == `charLit then
-    isLitCore? `char stx <|> isLitCore? `charLit stx
-  else if litKind == `name || litKind == `nameLit then
-    isLitCore? `name stx <|> isLitCore? `nameLit stx
-  else
-    isLitCore? litKind stx
 
 private def isNatLitAux (litKind : SyntaxNodeKind) (stx : Syntax) : Option Nat :=
   match isLit? litKind stx with

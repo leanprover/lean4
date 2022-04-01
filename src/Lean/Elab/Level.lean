@@ -65,7 +65,7 @@ partial def elabLevel (stx : Syntax) : LevelElabM Level := withRef stx do
       return mkLevelIMax' (← elabLevel stx) lvl
   else if kind == ``Lean.Parser.Level.hole then
     mkFreshLevelMVar
-  else if kind == numLitKind || kind == `num || kind == `numLit then -- TODO remove staging hack
+  else if kind == numLitKind then
     match stx.isNatLit? with
     | some val => checkUniverseOffset val; return Level.ofNat val
     | none     => throwIllFormedSyntax

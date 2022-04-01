@@ -339,22 +339,8 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   let stx' ← `($[$doc?:docComment]? def $declName:ident : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
   withMacroExpansion stx stx' <| elabCommand stx'
 
--- TODO remove staging hack
-def normKindCore (k : SyntaxNodeKind) : SyntaxNodeKind :=
-  if k == `num || k == `numLit then numLitKind
-  else if k == `char || k == `charLit then charLitKind
-  else if k == `str || k == `strLit then strLitKind
-  else if k == `name || k == `nameLit then nameLitKind
-  else k
-
--- TODO remove staging hack
-def normKind (k : SyntaxNodeKind) : SyntaxNodeKind :=
-  match k with
-  | Name.str s "antiquot" .. => normKindCore s ++ `antiquot
-  | _ => k
-
 def checkRuleKind (given expected : SyntaxNodeKind) : Bool :=
-  normKind given == normKind expected || normKind given == normKind (expected ++ `antiquot)
+  given == expected || given == expected ++ `antiquot
 
 def inferMacroRulesAltKind : Syntax → CommandElabM SyntaxNodeKind
   | `(matchAltExpr| | $pat:term => $rhs) => do

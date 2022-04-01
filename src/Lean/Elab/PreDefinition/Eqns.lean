@@ -315,7 +315,11 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
     eqs.anyM fun eq => commitWhen do
       try
         let subgoals ← apply mvarId (← mkConstWithFreshMVarLevels eq)
-        subgoals.allM assumptionCore
+        subgoals.allM fun subgoal => do
+          if (← isExprMVarAssigned subgoal) then
+            return true -- Subgoal was already solved. This can happen when there are dependencies between the subgoals
+          else
+            assumptionCore subgoal
       catch _ =>
         return false
   let rec go (mvarId : MVarId) : MetaM Unit := do

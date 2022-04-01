@@ -192,13 +192,23 @@ def Declaration.isUnsafeInductiveDeclEx : Declaration → Bool
     A series of checks are performed by the kernel to check whether a `inductiveDecls`
     is valid or not. -/
 structure InductiveVal extends ConstantVal where
-  numParams : Nat     -- Number of parameters
-  numIndices : Nat    -- Number of indices
-  all : List Name     -- List of all (including this one) inductive datatypes in the mutual declaration containing this one
-  ctors : List Name   -- List of all constructors for this inductive datatype
-  isRec : Bool        -- `true` Iff it is recursive
+  /-- Number of parameters. A parameter is an argument to the defined type that is fixed over constructors.  -/
+  numParams : Nat
+  /-- Number of indices. An index is an argument that varies over constructors.
+
+  An example of this is the `n : Nat` argument in the vector constructor `cons : α → Vector α n → Vector α (n+1)` -/
+  numIndices : Nat
+  /-- List of all (including this one) inductive datatypes in the mutual declaration containing this one -/
+  all : List Name
+  /-- List of the names of the constructors for this inductive datatype. -/
+  ctors : List Name
+  /-- `true` when recursive (that is, the inductive type appears as an argument in a constructor). -/
+  isRec : Bool
+  /-- Whether the definition is flagged as unsafe. -/
   isUnsafe : Bool
   isReflexive : Bool
+  /-- An inductive definition `T` is nested when there is a constructor with an argument `x : F T`,
+   where `F : Type → Type` is some suitably behaved (ie strictly positive) function (Eg `Array T`, `List T`, `T × T`, ...). -/
   isNested : Bool
   deriving Inhabited
 
@@ -226,10 +236,14 @@ def mkInductiveValEx (name : Name) (levelParams : List Name) (type : Expr) (numP
 def InductiveVal.numCtors (v : InductiveVal) : Nat := v.ctors.length
 
 structure ConstructorVal extends ConstantVal where
-  induct  : Name    -- Inductive Type this Constructor is a member of
-  cidx    : Nat     -- Constructor index (i.e., Position in the inductive declaration)
-  numParams : Nat   -- Number of parameters in inductive datatype `induct`
-  numFields : Nat   -- Number of fields (i.e., arity - nparams)
+  /-- Inductive type this constructor is a member of -/
+  induct  : Name
+  /-- Constructor index (i.e., Position in the inductive declaration) -/
+  cidx    : Nat
+  /-- Number of parameters in inductive datatype. -/
+  numParams : Nat
+  /-- Number of fields (i.e., arity - nparams) -/
+  numFields : Nat
   isUnsafe : Bool
   deriving Inhabited
 
@@ -249,19 +263,29 @@ def mkConstructorValEx (name : Name) (levelParams : List Name) (type : Expr) (in
 
 /-- Information for reducing a recursor -/
 structure RecursorRule where
-  ctor : Name   -- Reduction rule for this Constructor
-  nfields : Nat -- Number of fields (i.e., without counting inductive datatype parameters)
-  rhs : Expr    -- Right hand side of the reduction rule
+  /-- Reduction rule for this Constructor -/
+  ctor : Name
+  /-- Number of fields (i.e., without counting inductive datatype parameters) -/
+  nfields : Nat
+  /-- Right hand side of the reduction rule -/
+  rhs : Expr
   deriving Inhabited
 
 structure RecursorVal extends ConstantVal where
-  all : List Name              -- List of all inductive datatypes in the mutual declaration that generated this recursor
-  numParams : Nat              -- Number of parameters
-  numIndices : Nat             -- Number of indices
-  numMotives : Nat             -- Number of motives
-  numMinors : Nat              -- Number of minor premises
-  rules : List RecursorRule    -- A reduction for each Constructor
-  k : Bool                     -- It supports K-like reduction
+  /-- List of all inductive datatypes in the mutual declaration that generated this recursor -/
+  all : List Name
+  /-- Number of parameters -/
+  numParams : Nat
+  /-- Number of indices -/
+  numIndices : Nat
+  /-- Number of motives -/
+  numMotives : Nat
+  /-- Number of minor premises -/
+  numMinors : Nat
+  /-- A reduction for each Constructor -/
+  rules : List RecursorRule
+  /-- It supports K-like reduction -/
+  k : Bool
   isUnsafe : Bool
   deriving Inhabited
 

@@ -141,7 +141,7 @@ def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDec
   | OpenDecl.simple ns [] :: ds =>  if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingOpenDecls env n ds
   | _ :: ds                     => resolveNamespaceUsingOpenDecls env n ds
 
-/-
+/--
 Given a name `id` try to find namespace it refers to. The resolution procedure works as follows
 1- If `id` is in the scope of `namespace` commands the namespace `s_1. ... . s_n`,
    then return `s_1 . ... . s_i ++ n` if it is the name of an existing namespace. We search "backwards".
@@ -170,7 +170,7 @@ instance (m n) [MonadLift m n] [MonadResolveName m] : MonadResolveName n where
   getCurrNamespace := liftM (m:=m) getCurrNamespace
   getOpenDecls     := liftM (m:=m) getOpenDecls
 
-/-
+/--
   Given a name `n`, return a list of possible interpretations.
   Each interpretation is a pair `(declName, fieldList)`, where `declName`
   is the name of a declaration in the current environment, and `fieldList` are
@@ -187,6 +187,7 @@ instance (m n) [MonadLift m n] [MonadResolveName m] : MonadResolveName n where
   - `resolveGlobalName x`     => `[(Foo.x, [])]`
   - `resolveGlobalName x.y`   => `[(Foo.x.y, [])]`
   - `resolveGlobalName x.z.w` => `[(Foo.x, [z, w])]`
+
   After `open Foo open Boo`, we have
   - `resolveGlobalName x`     => `[(Foo.x, []), (Boo.x, [])]`
   - `resolveGlobalName x.y`   => `[(Foo.x.y, [])]`
@@ -195,12 +196,14 @@ instance (m n) [MonadLift m n] [MonadResolveName m] : MonadResolveName n where
 def resolveGlobalName [Monad m] [MonadResolveName m] [MonadEnv m] (id : Name) : m (List (Name × List String)) := do
   return ResolveName.resolveGlobalName (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
 
+
 def resolveNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Name) : m Name := do
   match ResolveName.resolveNamespace? (← getEnv) (← getCurrNamespace) (← getOpenDecls) id with
   | some ns => return ns
   | none    => throwError s!"unknown namespace '{id}'"
 
-/--
+/-- Given a name `n`, return a list of possible interpretations for global constants.
+
 Similar to `resolveGlobalName`, but discard any candidate whose `fieldList` is not empty.
 For identifiers taken from syntax, use `resolveGlobalConst` instead, which respects preresolved names. -/
 def resolveGlobalConstCore [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (n : Name) : m (List Name) := do
@@ -216,6 +219,27 @@ def resolveGlobalConstNoOverloadCore [Monad m] [MonadResolveName m] [MonadEnv m]
   | [c] => pure c
   | _   => throwError s!"ambiguous identifier '{mkConst n}', possible interpretations: {cs.map mkConst}"
 
+/-- Interpret the syntax `n` as an identifier for a global constant, and return a list of resolved
+constant names that it could be refering to based on the currently open namespaces.
+This should be used instead of `resolveGlobalConstCore` for identifiers taken from syntax
+because `Syntax` objects may have names that have already been resolved.
+
+## Example:
+```
+def Boo.x   := 1
+def Foo.x   := 2
+def Foo.x.y := 3
+```
+After `open Foo`, we have
+- `resolveGlobalConst x`     => `[Foo.x]`
+- `resolveGlobalConst x.y`   => `[Foo.x.y]`
+- `resolveGlobalConst x.z.w` => error: unknown constant
+
+After `open Foo open Boo`, we have
+- `resolveGlobalConst x`     => `[Foo.x, Boo.x]`
+- `resolveGlobalConst x.y`   => `[Foo.x.y]`
+- `resolveGlobalConst x.z.w` => error: unknown constant
+-/
 def resolveGlobalConst [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] : Syntax → m (List Name)
   | stx@(Syntax.ident _ _ n pre) => do
     let pre := pre.filterMap fun (n, fields) => if fields.isEmpty then some n else none
@@ -225,6 +249,25 @@ def resolveGlobalConst [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m
       return pre
   | stx => throwErrorAt stx s!"expected identifier"
 
+/-- Interpret the syntax `n` as an identifier for a global constant, and return a resolved
+constant name. If there are multiple possible interpretations it will throw.
+
+## Example:
+```
+def Boo.x   := 1
+def Foo.x   := 2
+def Foo.x.y := 3
+```
+After `open Foo`, we have
+- `resolveGlobalConstNoOverload x`     => `Foo.x`
+- `resolveGlobalConstNoOverload x.y`   => `Foo.x.y`
+- `resolveGlobalConstNoOverload x.z.w` => error: unknown constant
+
+After `open Foo open Boo`, we have
+- `resolveGlobalConstNoOverload x`     => error: ambiguous identifier
+- `resolveGlobalConstNoOverload x.y`   => `Foo.x.y`
+- `resolveGlobalConstNoOverload x.z.w` => error: unknown constant
+-/
 def resolveGlobalConstNoOverload [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Syntax) : m Name := do
   let cs ← resolveGlobalConst id
   match cs with

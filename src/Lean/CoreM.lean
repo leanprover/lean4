@@ -31,6 +31,7 @@ structure Cache where
   instLevelValue : InstantiateLevelCache := {}
   deriving Inhabited
 
+/-- State for the CoreM monad. -/
 structure State where
   env             : Environment
   nextMacroScope  : MacroScope    := firstFrontendMacroScope + 1
@@ -39,6 +40,7 @@ structure State where
   cache           : Cache         := {}
   deriving Inhabited
 
+/-- Context for the CoreM monad. -/
 structure Context where
   options        : Options := {}
   currRecDepth   : Nat := 0
@@ -50,6 +52,14 @@ structure Context where
   maxHeartbeats  : Nat := getMaxHeartbeats options
   currMacroScope : MacroScope := firstFrontendMacroScope
 
+/-- CoreM is a monad for manipulating the Lean environment.
+It is the base monad for `MetaM`.
+The main features it provides are:
+- name generator state
+- environment state
+- Lean options context
+- the current open namespace
+-/
 abbrev CoreM := ReaderT Context <| StateRefT State (EIO Exception)
 
 -- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the

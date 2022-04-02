@@ -93,7 +93,26 @@ where
 /-|
 We now prove that `t.toList` and `t.toListTR` return the same list.
 The proof is on induction, and as we used the auxiliary function `go`
-to define `Tree.toListTR`, we use an auxiliary theorem here too.
+to define `Tree.toListTR`, we use the auxiliary theorem `go` to prove the theorem.
+
+The proof of the auxiliary theorem is by induction on `t`\ .
+The `generalizing acc` modifier instructs Lean to revert `acc`\ , apply the
+induction theorem for `Tree`\ s, and then reintroduce `acc` in each case.
+By using `generalizing`\ , we obtain the more general induction hypotheses
+```lean
+left_ih : ∀ acc, toListTR.go left acc = toList left ++ acc
+right_ih : ∀ acc, toListTR.go right acc = toList right ++ acc
+```
+Recall that the combinator `tac <;> tac'` runs `tac` on the main goal and `tac'` on each produced goal,
+concatenating all goals produced by `tac'`\ . In this theorem, we use it to apply
+`simp` and close each subgoal produced by the `induction` tactic.
+
+The `simp` parameters `toListTR.go` and `toList` instruct the simplifier to try to reduce
+and/or apply auto generated equation theorems for these two functions.
+The parameter `*` intructs the simplifier to use any equation in a goal as rewriting rules.
+In this particular case, `simp` uses the induction hypotheses as rewriting rules.
+Finally, the parameter `List.append_assoc` intructs the simplifier to use the
+`List.append_assoc` theorem as a rewriting rule.
 -/
 theorem Tree.toList_eq_toListTR (t : Tree β) : t.toList = t.toListTR := by
   simp [toListTR, go t []]
@@ -141,17 +160,34 @@ inductive BST : Tree β → Prop
      BST left → BST right →
      BST (.node left key value right)
 
+/-|
+We can use the `macro` command to create helper tactics for organizing our proofs.
+The macro `have_eq x y` tries to prove `x = y` using linear arithmetic, and then
+immediately uses the new equality to substitute `x` with `y` everywhere in the goal.
+-/
 local macro "have_eq " lhs:term:max rhs:term:max : tactic =>
   `((have h : $lhs:term = $rhs:term :=
        -- TODO: replace with linarith
        by simp_arith at *; apply Nat.le_antisymm <;> assumption
      try subst $lhs:term))
 
+/-|
+The `by_cases' e` is just the regular `by_cases` followed by `simp` using all
+hypotheses in the current goal as rewriting rules.
+Recall that the `by_cases` tactic creates two goals. One where we have `h : e` and
+another one containing `h : ¬ e`. The simplier uses the `h` to rewrite `e` to `True`
+in the first subgoal, and `e` to `False` in the second. This is particularly
+useful if `e` is the condition of an `if`-statement.
+-/
 local macro "by_cases' " e:term :  tactic =>
   `(by_cases $e:term <;> simp [*])
 
 /-|
 We now prove that `Tree.insert` preserves the BST invariant using induction and case analysis.
+Recall that the tactic `. tac` focuses on the main goal and tries to solve it using `tac`, or else fails.
+It is used to structure proofs in Lean.
+The notation `‹e›` is just syntax sugar for `(by assumption : e)`. That is, it tries to find a hypothesis `h : e`.
+It is useful to access hypothesis that have auto generated names (aka "inaccessible") names.
 -/
 
 theorem Tree.forall_insert_of_forall (h₁ : ForallTree p t) (h₂ : p key value) : ForallTree p (t.insert key value) := by
@@ -161,10 +197,10 @@ theorem Tree.forall_insert_of_forall (h₁ : ForallTree p t) (h₂ : p key value
     rename Nat => k
     simp [insert]
     by_cases' key < k
-    · exact .node ihl hp hr
-    · by_cases' k < key
-      · exact .node hl hp ihr
-      · have_eq key k
+    . exact .node ihl hp hr
+    . by_cases' k < key
+      . exact .node hl hp ihr
+      . have_eq key k
         exact .node hl h₂ hr
 
 theorem Tree.bst_insert_of_bst {t : Tree β} (h : BST t) (key : Nat) (value : β) : BST (t.insert key value) := by
@@ -174,10 +210,10 @@ theorem Tree.bst_insert_of_bst {t : Tree β} (h : BST t) (key : Nat) (value : β
     rename Nat => k
     simp [insert]
     by_cases' key < k
-    · exact .node (forall_insert_of_forall h₁ ‹key < k›) h₂ ih₁ b₂
-    · by_cases' k < key
-      · exact .node h₁ (forall_insert_of_forall h₂ ‹k < key›) b₁ ih₂
-      · have_eq key k
+    . exact .node (forall_insert_of_forall h₁ ‹key < k›) h₂ ih₁ b₂
+    . by_cases' k < key
+      . exact .node h₁ (forall_insert_of_forall h₂ ‹k < key›) b₁ ih₂
+      . have_eq key k
         exact .node h₁ h₂ b₁ b₂
 
 /-|
@@ -213,8 +249,8 @@ theorem BinTree.find_insert (b : BinTree β) (k : Nat) (v : β)
   induction t with simp
   | node left key value right ihl ihr =>
     by_cases' k < key
-    · cases h; apply ihl; assumption
-    · by_cases' key < k
+    . cases h; apply ihl; assumption
+    . by_cases' key < k
       cases h; apply ihr; assumption
 
 theorem BinTree.find_insert_of_ne (b : BinTree β) (h : k ≠ k') (v : β)

@@ -187,6 +187,35 @@ private def isInductiveFamily (numParams : Nat) (indFVar : Expr) : TermElabM Boo
   forallTelescopeReducing indFVarType fun xs _ =>
     return xs.size > numParams
 
+/--
+  Reorder contructor arguments to improve the effectiveness of the `fixedIndicesToParams` method.
+
+  The idea is quite simple. Given a constructor type of the form
+  ```
+  (a₁ : A₁) → ... → (aₙ : Aₙ) → C b₁ ... bₘ
+  ```
+  We try to find the longest prefix `b₁ ... bᵢ`, `i ≤ m` s.t.
+  - each `bₖ` is in `{a₁, ..., aₙ}`
+  - each `bₖ` only depends on variables in `{b₁, ..., bₖ₋₁}`
+
+  Then, it moves this prefix `b₁ ... bᵢ` to the front.
+-/
+private def reorderCtorArgs (ctorType : Expr) : MetaM Expr := do
+  forallTelescopeReducing ctorType fun as type => do
+    /- `type` is of the form `C ...` where `C` is the inductive datatype being defined. -/
+    let bs := type.getAppArgs
+    let mut as  := as
+    let mut bsPrefix := #[]
+    for b in bs do
+      unless b.isFVar && as.contains b do
+        break
+      let localDecl ← getFVarLocalDecl b
+      if (← localDeclDependsOnPred localDecl fun fvarId => as.any fun p => p.fvarId! == fvarId) then
+        break
+      bsPrefix := bsPrefix.push b
+      as := as.erase b
+    mkForallFVars (bsPrefix ++ as) type
+
 /-
   Elaborate constructor types.
 
@@ -223,6 +252,7 @@ private def elabCtors (indFVars : Array Expr) (indFVar : Expr) (params : Array E
           let type  ← mkForallFVars ctorParams type
           let extraCtorParams ← Term.collectUnassignedMVars type
           let type ← mkForallFVars extraCtorParams type
+          let type ← reorderCtorArgs type
           let type ← mkForallFVars params type
           return { name := ctorView.declName, type }
 where
@@ -512,7 +542,6 @@ private def isDomainDefEq (arrowType : Expr) (type : Expr) : MetaM Bool := do
 
 /--
   Convert fixed indices to parameters.
-  TODO: we currently only convert a prefix of the indices, and we do not try to reorder binders.
 -/
 private partial def fixedIndicesToParams (numParams : Nat) (indTypes : Array InductiveType) (indFVars : Array Expr) : MetaM (Nat × List InductiveType) := do
   let masks ← indTypes.mapM (computeFixedIndexBitMask numParams · indFVars)

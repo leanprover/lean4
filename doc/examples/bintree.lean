@@ -163,7 +163,6 @@ A non-empty tree is a BST if all its left nodes have a lesser key, its right nod
 inductive BST : Tree β → Prop
   | leaf : BST .leaf
   | node :
-     {value : β} →
      ForallTree (fun k v => k < key) left →
      ForallTree (fun k v => key < k) right →
      BST left → BST right →

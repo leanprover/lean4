@@ -164,6 +164,8 @@ inductive BST : Tree β → Prop
 We can use the `macro` command to create helper tactics for organizing our proofs.
 The macro `have_eq x y` tries to prove `x = y` using linear arithmetic, and then
 immediately uses the new equality to substitute `x` with `y` everywhere in the goal.
+
+The modifier `local` specifies the scope of the macro.
 -/
 local macro "have_eq " lhs:term:max rhs:term:max : tactic =>
   `((have h : $lhs:term = $rhs:term :=
@@ -182,6 +184,13 @@ useful if `e` is the condition of an `if`-statement.
 local macro "by_cases' " e:term :  tactic =>
   `(by_cases $e:term <;> simp [*])
 
+
+/-|
+We can use the attribute `[simp]` to instruct the simplifier to reduce given definitions or
+apply rewrite theorems. The `local` modifier limits the scope of this modification to this file.
+-/
+attribute [local simp] Tree.insert
+
 /-|
 We now prove that `Tree.insert` preserves the BST invariant using induction and case analysis.
 Recall that the tactic `. tac` focuses on the main goal and tries to solve it using `tac`, or else fails.
@@ -195,7 +204,6 @@ theorem Tree.forall_insert_of_forall (h₁ : ForallTree p t) (h₂ : p key value
   | leaf => exact .node .leaf h₂ .leaf
   | node hl hp hr ihl ihr =>
     rename Nat => k
-    simp [insert]
     by_cases' key < k
     . exact .node ihl hp hr
     . by_cases' k < key
@@ -208,7 +216,7 @@ theorem Tree.bst_insert_of_bst {t : Tree β} (h : BST t) (key : Nat) (value : β
   | leaf => exact .node .leaf .leaf .leaf .leaf
   | node h₁ h₂ b₁ b₂ ih₁ ih₂ =>
     rename Nat => k
-    simp [insert]
+    simp
     by_cases' key < k
     . exact .node (forall_insert_of_forall h₁ ‹key < k›) h₂ ih₁ b₂
     . by_cases' k < key
@@ -233,11 +241,11 @@ def BinTree.find? (b : BinTree β) (k : Nat) : Option β :=
 def BinTree.insert (b : BinTree β) (k : Nat) (v : β) : BinTree β :=
   ⟨b.val.insert k v, b.val.bst_insert_of_bst b.property k v⟩
 
-attribute [local simp] BinTree.mk BinTree.contains BinTree.find? BinTree.insert Tree.find? Tree.contains Tree.insert
-
 /-|
 Finally, we prove that `BinTree.find?` and `BinTree.insert` satisfy the map properties.
 -/
+
+attribute [local simp] BinTree.mk BinTree.contains BinTree.find? BinTree.insert Tree.find? Tree.contains Tree.insert
 
 theorem BinTree.find_mk (k : Nat)
         : BinTree.mk.find? k = (none : Option β) := by
@@ -265,10 +273,8 @@ theorem BinTree.find_insert_of_ne (b : BinTree β) (h : k ≠ k') (v : β)
     let .node hl hr bl br := h
     have ihl := ihl bl
     have ihr := ihr br
-    by_cases' k < key
-    by_cases' key < k
+    by_cases' k < key; by_cases' key < k
     have_eq key k
-    by_cases' k' < k
-    by_cases' k  < k'
+    by_cases' k' < k; by_cases' k  < k'
     have_eq k k'
     contradiction

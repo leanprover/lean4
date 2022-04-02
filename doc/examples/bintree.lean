@@ -169,7 +169,7 @@ theorem Tree.bst_insert_of_bst {t : Tree β} (h : BST t) (key : Nat) (value : β
         exact .node h₁ h₂ b₁ b₂
 
 /-|
-Now, we define the type `BinTree` using a `Subtype` that states that only trees satisfying the BST invariant are `BinTree`s.
+Now, we define the type `BinTree` using a `Subtype` that states that only trees satisfying the BST invariant are `BinTree`\ s.
 -/
 def BinTree (β : Type u) := { t : Tree β // BST t }
 

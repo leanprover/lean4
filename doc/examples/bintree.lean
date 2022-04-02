@@ -105,10 +105,11 @@ The proof of the auxiliary theorem is by induction on `t`\ .
 The `generalizing acc` modifier instructs Lean to revert `acc`\ , apply the
 induction theorem for `Tree`\ s, and then reintroduce `acc` in each case.
 By using `generalizing`\ , we obtain the more general induction hypotheses
-```lean
-left_ih : ∀ acc, toListTR.go left acc = toList left ++ acc
-right_ih : ∀ acc, toListTR.go right acc = toList right ++ acc
-```
+
+- `left_ih : ∀ acc, toListTR.go left acc = toList left ++ acc`
+
+- `right_ih : ∀ acc, toListTR.go right acc = toList right ++ acc`
+
 Recall that the combinator `tac <;> tac'` runs `tac` on the main goal and `tac'` on each produced goal,
 concatenating all goals produced by `tac'`\ . In this theorem, we use it to apply
 `simp` and close each subgoal produced by the `induction` tactic.

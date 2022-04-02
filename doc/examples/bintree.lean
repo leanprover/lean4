@@ -73,8 +73,14 @@ def Tree.toList (t : Tree β) : List (Nat × β) :=
   | leaf => []
   | node l k v r => l.toList ++ [(k, v)] ++ r.toList
 
-#eval Tree.leaf.insert 2 "two" |>.insert 3 "three" |>.insert 1 "one"
-#eval Tree.leaf.insert 2 "two" |>.insert 3 "three" |>.insert 1 "one" |>.toList
+#eval Tree.leaf.insert 2 "two"
+      |>.insert 3 "three"
+      |>.insert 1 "one"
+
+#eval Tree.leaf.insert 2 "two"
+      |>.insert 3 "three"
+      |>.insert 1 "one"
+      |>.toList
 
 /-|
 The implemention of `Tree.toList` is inefficient because of how it uses the `++` operator.
@@ -199,7 +205,9 @@ The notation `‹e›` is just syntax sugar for `(by assumption : e)`. That is, 
 It is useful to access hypothesis that have auto generated names (aka "inaccessible") names.
 -/
 
-theorem Tree.forall_insert_of_forall (h₁ : ForallTree p t) (h₂ : p key value) : ForallTree p (t.insert key value) := by
+theorem Tree.forall_insert_of_forall
+        (h₁ : ForallTree p t) (h₂ : p key value)
+        : ForallTree p (t.insert key value) := by
   induction h₁ with
   | leaf => exact .node .leaf h₂ .leaf
   | node hl hp hr ihl ihr =>
@@ -211,7 +219,9 @@ theorem Tree.forall_insert_of_forall (h₁ : ForallTree p t) (h₂ : p key value
       . have_eq key k
         exact .node hl h₂ hr
 
-theorem Tree.bst_insert_of_bst {t : Tree β} (h : BST t) (key : Nat) (value : β) : BST (t.insert key value) := by
+theorem Tree.bst_insert_of_bst
+        {t : Tree β} (h : BST t) (key : Nat) (value : β)
+        : BST (t.insert key value) := by
   induction h with
   | leaf => exact .node .leaf .leaf .leaf .leaf
   | node h₁ h₂ b₁ b₂ ih₁ ih₂ =>
@@ -245,7 +255,9 @@ def BinTree.insert (b : BinTree β) (k : Nat) (v : β) : BinTree β :=
 Finally, we prove that `BinTree.find?` and `BinTree.insert` satisfy the map properties.
 -/
 
-attribute [local simp] BinTree.mk BinTree.contains BinTree.find? BinTree.insert Tree.find? Tree.contains Tree.insert
+attribute [local simp]
+  BinTree.mk BinTree.contains BinTree.find?
+  BinTree.insert Tree.find? Tree.contains Tree.insert
 
 theorem BinTree.find_mk (k : Nat)
         : BinTree.mk.find? k = (none : Option β) := by

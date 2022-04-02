@@ -1,6 +1,12 @@
 Unreleased
 ---------
 
+* Add tactic macro
+```lean
+macro "stop" s:tacticSeq : tactic => `(repeat sorry)
+```
+See discussion on [Zulip](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/Partial.20evaluation.20of.20a.20file).
+
 * When displaying goals, we do not display inaccessible proposition names
 if they do not have forward dependencies. We still display their types.
 For example, the goal

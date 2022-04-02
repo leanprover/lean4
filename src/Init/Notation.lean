@@ -443,6 +443,10 @@ syntax (name := split) "split " (colGt term)? (location)? : tactic
 
 syntax (name := dbgTrace) "dbg_trace " str : tactic
 
+/-- Helper tactic for "discarding" the rest of a proof. It is useful when working on the middle of a complex proofs,
+    and less messy than commenting the remainder of the proof. -/
+macro "stop" s:tacticSeq : tactic => `(repeat sorry)
+
 /--
 The tactic `specialize h a₁ ... aₙ` works on local hypothesis `h`.
 The premises of this hypothesis, either universal quantifications or non-dependent implications,

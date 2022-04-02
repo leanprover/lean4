@@ -125,9 +125,18 @@ theorem byCases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=
 theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
   Decidable.byContradiction (dec := propDecidable _) h
 
-macro "by_cases" h:ident ":" e:term : tactic =>
-  `(cases em $e:term with
-    | inl $h:ident => _
-    | inr $h:ident => _)
+syntax "by_cases" (atomic(ident ":"))? term : tactic
+
+macro_rules
+  | `(tactic| by_cases $h:ident : $e:term) =>
+    `(tactic|
+      cases em $e:term with
+      | inl $h:ident => _
+      | inr $h:ident => _)
+  | `(tactic| by_cases $e:term) =>
+    `(tactic|
+      cases em $e:term with
+      | inl h => _
+      | inr h => _)
 
 end Classical

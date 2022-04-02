@@ -146,9 +146,9 @@ theorem Tree.forall_insert_of_forall (h₁ : ForallTree p t) (h₂ : p key value
   | node hl hp hr ihl ihr =>
     rename Nat => k
     simp [insert]
-    by_cases hlt : key < k <;> simp [hlt]
+    by_cases key < k <;> simp [*]
     · exact .node ihl hp hr
-    · by_cases hgt : k < key <;> simp [hgt]
+    · by_cases k < key <;> simp [*]
       · exact .node hl hp ihr
       · have heq : key = k := by simp_arith at *; apply Nat.le_antisymm <;> assumption -- TODO: improve with linarith
         subst key
@@ -198,9 +198,9 @@ theorem BinTree.find_insert (b : BinTree β) (k : Nat) (v : β) : (b.insert k v)
   let ⟨t, h⟩ := b; simp
   induction t with simp
   | node left key value right ihl ihr =>
-    by_cases hlt : k < key <;> simp [*]
+    by_cases k < key <;> simp [*]
     · cases h; apply ihl; assumption
-    · by_cases hgt : key < k <;> simp [*]
+    · by_cases key < k <;> simp [*]
       cases h; apply ihr; assumption
 
 theorem BinTree.find_insert_of_ne (b : BinTree β) (h : k ≠ k') (v : β) : (b.insert k v).find? k' = b.find? k' := by
@@ -214,11 +214,11 @@ theorem BinTree.find_insert_of_ne (b : BinTree β) (h : k ≠ k') (v : β) : (b.
     let .node hl hr bl br := h
     have ihl := ihl bl
     have ihr := ihr br
-    by_cases hlt : k < key <;> simp [*]
-    by_cases hlt : key < k <;> simp [*]
+    by_cases k < key <;> simp [*]
+    by_cases key < k <;> simp [*]
     have heq : key = k := by simp_arith at *; apply Nat.le_antisymm <;> assumption -- TODO: improve with linarith
     subst key
-    by_cases hlt : k' < k <;> simp [*]
-    by_cases hlt : k  < k' <;> simp [*]
+    by_cases k' < k <;> simp [*]
+    by_cases k  < k' <;> simp [*]
     have heq : k = k' := by simp_arith at *; apply Nat.le_antisymm <;> assumption -- TODO: improve with linarith
     contradiction

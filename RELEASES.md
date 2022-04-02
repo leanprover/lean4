@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* The hypothesis name is now optional in the `by_cases` tactic.
+
 * [Fix inconsistency between `syntax` and kind names](https://github.com/leanprover/lean4/issues/1090).
   The node kinds `numLit`, `charLit`, `nameLit`, `strLit`, and `scientificLit` are now called
   `num`, `char`, `name`, `str`, and `scientific` respectively. Example: we now write

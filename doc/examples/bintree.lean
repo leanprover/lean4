@@ -121,7 +121,8 @@ In this particular case, `simp` uses the induction hypotheses as rewriting rules
 Finally, the parameter `List.append_assoc` intructs the simplifier to use the
 `List.append_assoc` theorem as a rewriting rule.
 -/
-theorem Tree.toList_eq_toListTR (t : Tree β) : t.toList = t.toListTR := by
+theorem Tree.toList_eq_toListTR (t : Tree β)
+        : t.toList = t.toListTR := by
   simp [toListTR, go t []]
 where
   go (t : Tree β) (acc : List (Nat × β))
@@ -133,7 +134,8 @@ where
 The `[csimp]` annotation instructs the Lean code generator to replace
 any `Tree.toList` with `Tree.toListTR` when generating code.
 -/
-@[csimp] theorem Tree.toList_eq_toListTR_csimp : @Tree.toList = @Tree.toListTR := by
+@[csimp] theorem Tree.toList_eq_toListTR_csimp
+                 : @Tree.toList = @Tree.toListTR := by
   funext β t
   apply toList_eq_toListTR
 

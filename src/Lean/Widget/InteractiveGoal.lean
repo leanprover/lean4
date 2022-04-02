@@ -87,15 +87,15 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
   withLCtx lctx mvarDecl.localInstances do
     let (hidden, hiddenProp) ← ToHide.collect mvarDecl.type
     -- The following two `let rec`s are being used to control the generated code size.
-    -- Then should be remove after we rewrite the compiler in Lean
+    -- They should be removed after we rewrite the compiler in Lean
     let rec pushPending (ids : Array Name) (type? : Option Expr) (hyps : Array InteractiveHypothesis)
         : MetaM (Array InteractiveHypothesis) :=
       if ids.isEmpty then
         pure hyps
       else
-        match ids, type? with
-        | _,  none      => pure hyps
-        | _,  some type => addInteractiveHypothesis hyps ids type
+        match type? with
+        | none      => pure hyps
+        | some type => addInteractiveHypothesis hyps ids type
     let rec ppVars (varNames : Array Name) (prevType? : Option Expr) (hyps : Array InteractiveHypothesis) (localDecl : LocalDecl)
        : MetaM (Array Name × Option Expr × Array InteractiveHypothesis) := do
       if hiddenProp.contains localDecl.fvarId then

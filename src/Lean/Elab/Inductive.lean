@@ -187,6 +187,34 @@ private def isInductiveFamily (numParams : Nat) (indFVar : Expr) : TermElabM Boo
   forallTelescopeReducing indFVarType fun xs _ =>
     return xs.size > numParams
 
+private def getArrowBinderNames (type : Expr) : Array Name :=
+  go type #[]
+where
+  go (type : Expr) (acc : Array Name) : Array Name :=
+    match type with
+    | .forallE n _ b _ => go b (acc.push n)
+    | .mdata _ b _     => go b acc
+    | _ => acc
+
+/--
+  Replace binder names in `type` with `newNames`.
+  Remark: we only replace the names for binder containing macroscopes.
+-/
+private def replaceArrowBinderNames (type : Expr) (newNames : Array Name) : Expr :=
+  go type 0
+where
+  go (type : Expr) (i : Nat) : Expr :=
+    if i < newNames.size then
+      match type with
+      | .forallE n d b data =>
+        if n.hasMacroScopes then
+          mkForall newNames[i] data.binderInfo d (go b (i+1))
+        else
+          mkForall n data.binderInfo d (go b (i+1))
+      | _ => type
+    else
+      type
+
 /--
   Reorder contructor arguments to improve the effectiveness of the `fixedIndicesToParams` method.
 
@@ -214,7 +242,30 @@ private def reorderCtorArgs (ctorType : Expr) : MetaM Expr := do
         break
       bsPrefix := bsPrefix.push b
       as := as.erase b
-    mkForallFVars (bsPrefix ++ as) type
+    if bsPrefix.isEmpty then
+      return ctorType
+    else
+      let r ← mkForallFVars (bsPrefix ++ as) type
+      /- `r` already contains the resulting type.
+         To be able to produce more better error messages, we copy the first `bsPrefix.size` binder names from `C` to `r`.
+         This is important when some of contructor parameters were inferred using the auto-bound implicit feature.
+         For example, in the following declaration.
+         ```
+          inductive Member : α → List α → Type u
+            | head : Member a (a::as)
+            | tail : Member a bs → Member a (b::bs)
+         ```
+         if we do not copy the binder names
+         ```
+         #check @Member.head
+         ```
+         produces `@Member.head : {x : Type u_1} → {a : x} → {as : List x} → Member a (a :: as)`
+         which is correct, but a bit confusing. By copying the binder names, we obtain
+         `@Member.head : {α : Type u_1} → {a : α} → {as : List α} → Member a (a :: as)`
+       -/
+      let C := type.getAppFn
+      let binderNames := getArrowBinderNames (← instantiateMVars (← inferType C))
+      return replaceArrowBinderNames r binderNames[:bsPrefix.size]
 
 /-
   Elaborate constructor types.

@@ -1,7 +1,7 @@
 inductive BST.{u_1} : {β : Type u_1} → Tree β → Prop
 number of parameters: 1
 constructors:
-BST.leaf : ∀ {x : Type u_1}, BST Tree.leaf
-BST.node : ∀ {x : Type u_1} {key : Nat} {left right : Tree x} {value : x},
+BST.leaf : ∀ {β : Type u_1}, BST Tree.leaf
+BST.node : ∀ {β : Type u_1} {key : Nat} {left right : Tree β} {value : β},
   ForallTree (fun k v => k < key) left →
     ForallTree (fun k v => key < k) right → BST left → BST right → BST (Tree.node left key value right)

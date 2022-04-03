@@ -1,6 +1,23 @@
 Unreleased
 ---------
 
+* Improve binder names for constructor auto implicit parameters. Example, given the inductive datatype
+```lean
+inductive Member : α → List α → Type u
+  | head : Member a (a::as)
+  | tail : Member a bs → Member a (b::bs)
+```
+Before:
+```lean
+#check @Member.head
+-- @Member.head : {x : Type u_1} → {a : x} → {as : List x} → Member a (a :: as)
+```
+Now:
+```lean
+#check @Member.head
+-- @Member.head : {α : Type u_1} → {a : α} → {as : List α} → Member a (a :: as)
+```
+
 * Improve error message when constructor parameter universe level is too big.
 
 * Add support for `for h : i in [start:stop] do .. ` where `h : i ∈ [start:stop]`. This feature is useful for proving

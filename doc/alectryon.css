@@ -68,7 +68,8 @@ SOFTWARE.
 .alectryon-mref,
 .alectryon-block, .alectryon-io,
 .alectryon-toggle-label, .alectryon-banner {
-    font-family: 'Iosevka Slab Web', 'Iosevka Web', 'Iosevka Slab', 'Iosevka', 'Fira Code', monospace;
+    font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace !important;
+    font-size: 0.875em;
     font-feature-settings: "COQX" 1 /* Coq ligatures */, "XV00" 1 /* Legacy */, "calt" 1 /* Fallback */;
     line-height: initial;
 }
@@ -271,6 +272,7 @@ In any case, make an exception for comments:
 .alectryon-io .alectryon-type-info-wrapper {
     position: absolute;
     display: inline-block;
+    width: 100%;
 }
 
 .alectryon-io .alectryon-type-info-wrapper.full-width {
@@ -288,11 +290,11 @@ In any case, make an exception for comments:
     box-sizing: border-box;
     bottom: 100%;
     position: absolute;
-    padding: 0.25em 0;
+    /*padding: 0.25em 0;*/
     visibility: hidden;
     overflow: visible; /* Let box-shadows overflow */
     z-index: 1; /* Default to an index lower than that used by :hover */
-    white-space: pre !important;
+    white-space: pre-wrap !important;
 }
 
 .alectryon-io .alectryon-type-info-wrapper .alectryon-type-info .alectryon-goal.alectryon-docstring {
@@ -310,12 +312,13 @@ In any case, make an exception for comments:
 
     .alectryon-io.type-info-hidden .alectryon-token:hover .alectryon-type-info-wrapper .alectryon-type-info,
     .alectryon-io.type-info-hidden .alectryon-token:hover .alectryon-type-info-wrapper .alectryon-type-info {
-        visibility: hidden !important;
+        /*visibility: hidden !important;*/
     }
 
     .alectryon-io .alectryon-token:hover .alectryon-type-info-wrapper .alectryon-type-info,
     .alectryon-io .alectryon-token:hover .alectryon-type-info-wrapper .alectryon-type-info {
         visibility: visible;
+        transition-delay: 0.5s;
     }
 }
 
@@ -327,8 +330,9 @@ In any case, make an exception for comments:
 .alectryon-io .alectryon-sentence:hover .alectryon-output:not(:hover) .alectryon-messages,
 .alectryon-io .alectryon-sentence.alectryon-target .alectryon-output  .alectryon-messages,
 .alectryon-io .alectryon-sentence:hover .alectryon-output:not(:hover) .alectryon-goals,
-.alectryon-io .alectryon-sentence.alectryon-target .alectryon-output  .alectryon-goals {
-    box-shadow: 0 0 3px gray;
+.alectryon-io .alectryon-sentence.alectryon-target .alectryon-output  .alectryon-goals,
+.alectryon-io .alectryon-token:hover .alectryon-type-info-wrapper .alectryon-type-info {
+    box-shadow: 2px 2px 2px gray;
 }
 
 .alectryon-io .alectryon-extra-goals .alectryon-goal .goal-hyps {
@@ -353,8 +357,8 @@ In any case, make an exception for comments:
 
 .alectryon-io .alectryon-goals,
 .alectryon-io .alectryon-messages {
-    background: #eeeeec;
-	border: thin solid #d3d7cf; /* Convenient when pre's background is already #EEE */
+    background: #f6f7f6;
+	/*border: thin solid #d3d7cf; /* Convenient when pre's background is already #EEE */
     display: block;
     padding: 0.25em;
 }
@@ -420,7 +424,8 @@ In any case, make an exception for comments:
 .alectryon-io .alectryon-goal,
 .alectryon-io .alectryon-message {
     align-items: center;
-    background: #d3d7cf;
+    background: #f6f7f6;
+    border: 0em;
     display: block;
     flex-direction: column;
     margin: 0.25em;
@@ -445,7 +450,7 @@ In any case, make an exception for comments:
 
 .alectryon-io .goal-hyps > span,
 .alectryon-io .goal-conclusion {
-    background: #eeeeec;
+    /*background: #eeeeec;*/
     display: inline-block;
     padding: 0.15em 0.35em;
 }

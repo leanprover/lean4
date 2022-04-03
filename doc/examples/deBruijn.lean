@@ -45,7 +45,7 @@ an element of the list `as`. The constructor `Member.head` says that `a`
 is in the list if the list begins with it. The constructor `Member.tail`
 says that if `a` is in the list `bs`, it is also in the list `b::bs`.
 -/
-inductive Member : α → List α → Type _
+inductive Member : α → List α → Type
   | head : Member a (a::as)
   | tail : Member a bs → Member a (b::bs)
 

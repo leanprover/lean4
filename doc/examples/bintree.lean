@@ -285,8 +285,8 @@ theorem BinTree.find_insert_of_ne (b : BinTree β) (h : k ≠ k') (v : β)
     contradiction
   | node left key value right ihl ihr =>
     let .node hl hr bl br := h
-    have ihl := ihl bl
-    have ihr := ihr br
+    specialize ihl bl
+    specialize ihr br
     by_cases' k < key; by_cases' key < k
     have_eq key k
     by_cases' k' < k; by_cases' k  < k'

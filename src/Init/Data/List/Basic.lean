@@ -217,6 +217,18 @@ def notElem [BEq α] (a : α) (as : List α) : Bool :=
 abbrev contains [BEq α] (as : List α) (a : α) : Bool :=
   elem a as
 
+theorem exist_idx_of_elem [BEq α] (as : List α) (v : α) : (elem v as = true) → Exists (λ idx => (v == as.get idx) = true) := by
+  induction as with simp [elem]
+  | cons a as ih => cases E: (v == a) with simp [get]
+    | true  => exact ⟨⟨0, Nat.zero_lt_succ as.length⟩, E⟩
+    | false =>
+      intro h
+      cases (ih h) with
+      | intro idx pw =>
+        let newidx : Fin (a::as).length := ⟨idx.val+1, Nat.add_lt_add_right idx.isLt 1⟩
+        have    e2 : (v == get (a::as) newidx) = true := by simp [get, <-pw]
+        exact ⟨newidx, e2⟩
+
 inductive Mem : α → List α → Prop
   | head (a : α) (as : List α) : Mem a (a::as)
   | tail (a : α) {b : α} {as : List α} : Mem b as → Mem b (a::as)

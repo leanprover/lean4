@@ -121,6 +121,15 @@ theorem sizeOf_lt_of_mem [SizeOf α] {as : List α} (h : a ∈ as) : sizeOf a < 
   | head => simp_arith
   | tail _ _ ih => exact Nat.lt_trans ih (by simp_arith)
 
+macro "sizeOf_list_dec" : tactic =>
+  `(first
+    | apply sizeOf_lt_of_mem; assumption; done
+    | apply Nat.lt_trans (sizeOf_lt_of_mem ?h)
+      case' h => assumption
+      simp_arith)
+
+macro_rules | `(tactic| decreasing_trivial) => `(tactic| sizeOf_list_dec)
+
 theorem append_cancel_left {as bs cs : List α} (h : as ++ bs = as ++ cs) : bs = cs := by
   induction as with
   | nil => assumption

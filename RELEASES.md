@@ -1,6 +1,10 @@
 Unreleased
 ---------
 
+* Add tactic `case'`. It is similar to `case`, but does not admit the goal on failure.
+  For example, the new tactic is useful when writing tactic scripts where we need to use `case'`
+  at `first | ... | ...`, and we want to take the next alternative when `case'` fails.
+
 * Add tactic macro
 ```lean
 macro "stop" s:tacticSeq : tactic => `(repeat sorry)

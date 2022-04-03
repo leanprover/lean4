@@ -49,6 +49,7 @@
   - [Thunk](./thunk.md)
   - [Task and Thread](./task.md)
 - [Functions](./functions.md)
+- [Metaprogramming](./metaprogramming.md)
 
 # Other
 

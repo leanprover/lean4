@@ -1,14 +1,12 @@
 /-|
-==========================================
-Palindromes
-==========================================
+# Palindromes
 
 Palindromes are lists that read the same from left to right and from right to left.
 For example, `[a, b, b, a]` and `[a, h, a]` are palindromes.
 
 We use an inductive predicate to specify whether a list is a palindrome or not.
 Recall that inductive predicates, or inductively defined propositions, are a convenient
-way to specify functions of type `... → Prop`\ .
+way to specify functions of type `... → Prop`.
 
 This example is a based on an example from the book "The Hitchhiker's Guide to Logical Verification".
 -/
@@ -25,7 +23,7 @@ The definition distinguishes three cases: (1) `[]` is a palindrome; (2) for any 
 -/
 
 /-|
-We now prove that the reverse of a palindrome is a palindrome using induction on the inductive predicate `h : Palindrome as`\ .
+We now prove that the reverse of a palindrome is a palindrome using induction on the inductive predicate `h : Palindrome as`.
 -/
 theorem palindrome_reverse (h : Palindrome as) : Palindrome as.reverse := by
   induction h with
@@ -66,8 +64,8 @@ We use the attribute `@[simp]` to instruct the `simp` tactic to use this theorem
     exact dropLast_append_last (as := a₂ :: as) (by simp)
 
 /-|
-We now define the following auxiliary induction principle for lists using well-founded recursion on `as.length`\ .
-We can read it as follows, to prove `motive as`, it suffices to show that: (1) `motive []`\ ; (2) `motive [a]` for any `a`;
+We now define the following auxiliary induction principle for lists using well-founded recursion on `as.length`.
+We can read it as follows, to prove `motive as`, it suffices to show that: (1) `motive []`; (2) `motive [a]` for any `a`;
 (3) if `motive as` holds, then `motive ([a] ++ as ++ [b])` also holds for any `a`, `b`, and `as`.
 Note that the structure of this induction principle is very similar to the `Palindrome` inductive predicate.
 -/

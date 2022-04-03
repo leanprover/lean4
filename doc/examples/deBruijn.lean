@@ -1,7 +1,5 @@
 /-|
-==========================================
-Dependent de Bruijn Indices
-==========================================
+# Dependent de Bruijn Indices
 
 In this example, we represent program syntax terms in a type family parameterized by a list of types,
 representing the typing context, or information on which free variables are in scope and what

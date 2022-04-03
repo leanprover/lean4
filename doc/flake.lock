@@ -3,15 +3,15 @@
     "alectryon-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1646696858,
-        "narHash": "sha256-XdqpyXFv2KVGwgn9KGtOBUocobrnnXXZeiDIGSpo/IE=",
-        "owner": "insightmind",
+        "lastModified": 1648983871,
+        "narHash": "sha256-Xenmtxe/wZBq4xI+jd45IezINWVvY3aoBLuwrzV5ZEQ=",
+        "owner": "Kha",
         "repo": "alectryon",
-        "rev": "0c99a16df8ac2c500a21371629f63d011da7ef19",
+        "rev": "6ec91785a9076c45695c8efcc92225a05832242d",
         "type": "github"
       },
       "original": {
-        "owner": "insightmind",
+        "owner": "Kha",
         "ref": "typeid",
         "repo": "alectryon",
         "type": "github"

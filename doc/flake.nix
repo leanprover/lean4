@@ -8,7 +8,7 @@
     flake = false;
   };
   inputs.alectryon-src = {
-    url = github:insightmind/alectryon/typeid;
+    url = github:Kha/alectryon/typeid;
     flake = false;
   };
   inputs.leanInk-src = {
@@ -36,7 +36,12 @@
         src = doc-src;
         buildInputs = [ lean-mdbook ];
         buildCommand = ''
-          mdbook build -d $out $src/doc
+          mkdir $out
+          # necessary for `additional-css`...?
+          cp -r --no-preserve=mode $src/doc/* .
+          # overwrite stub .lean.md files
+          cp -r ${examples}/* .
+          mdbook build -d $out
         '';
       };
       # We use a separate derivation instead of `checkPhase` so we can push it but not `doc` to the binary cache
@@ -70,16 +75,16 @@
         doCheck = false;
       };
       examples = let
-        renderLean = name: file: runCommandNoCC "${name}.html" { buildInputs = [ alectryon ]; } ''
+        renderLean = name: file: runCommandNoCC "${name}.md" { buildInputs = [ alectryon ]; } ''
           mkdir -p $out/examples
-          alectryon --frontend lean4+rst ${file} -o $out/examples/${name}.html
+          alectryon --frontend lean4+markup ${file} --backend webpage -o $out/examples/${name}.md
         '';
         ents = builtins.readDir ./examples;
-        inputs = lib.filterAttrs (n: t: t == "regular") ents;
+        inputs = lib.filterAttrs (n: t: builtins.match ".*\.lean" n != null && t == "regular") ents;
         outputs = lib.mapAttrs (n: _: renderLean n ./examples/${n}) inputs;
       in
         outputs // symlinkJoin { name = "examples"; paths = lib.attrValues outputs; };
-      doc = symlinkJoin { name = "doc"; paths = [ book examples ]; };
+      doc = book;
     };
     defaultPackage = self.packages.${system}.doc;
   });

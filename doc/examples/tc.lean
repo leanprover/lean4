@@ -1,7 +1,5 @@
 /-|
-==========================================
-A Certified Type Checker
-==========================================
+# A Certified Type Checker
 
 In this example, we build a certified type checker for a simple expression
 language.

@@ -1,7 +1,5 @@
 /-|
-==========================================
-Binary Search Trees
-==========================================
+# Binary Search Trees
 
 If the type of keys can be totally ordered -- that is, it supports a well-behaved `≤` comparison --
 then maps can be implemented with binary search trees (BSTs). Insert and lookup operations on BSTs take time
@@ -101,17 +99,17 @@ We now prove that `t.toList` and `t.toListTR` return the same list.
 The proof is on induction, and as we used the auxiliary function `go`
 to define `Tree.toListTR`, we use the auxiliary theorem `go` to prove the theorem.
 
-The proof of the auxiliary theorem is by induction on `t`\ .
-The `generalizing acc` modifier instructs Lean to revert `acc`\ , apply the
-induction theorem for `Tree`\ s, and then reintroduce `acc` in each case.
-By using `generalizing`\ , we obtain the more general induction hypotheses
+The proof of the auxiliary theorem is by induction on `t`.
+The `generalizing acc` modifier instructs Lean to revert `acc`, apply the
+induction theorem for `Tree`s, and then reintroduce `acc` in each case.
+By using `generalizing`, we obtain the more general induction hypotheses
 
 - `left_ih : ∀ acc, toListTR.go left acc = toList left ++ acc`
 
 - `right_ih : ∀ acc, toListTR.go right acc = toList right ++ acc`
 
 Recall that the combinator `tac <;> tac'` runs `tac` on the main goal and `tac'` on each produced goal,
-concatenating all goals produced by `tac'`\ . In this theorem, we use it to apply
+concatenating all goals produced by `tac'`. In this theorem, we use it to apply
 `simp` and close each subgoal produced by the `induction` tactic.
 
 The `simp` parameters `toListTR.go` and `toList` instruct the simplifier to try to reduce
@@ -237,7 +235,7 @@ theorem Tree.bst_insert_of_bst
         exact .node h₁ h₂ b₁ b₂
 
 /-|
-Now, we define the type `BinTree` using a `Subtype` that states that only trees satisfying the BST invariant are `BinTree`\ s.
+Now, we define the type `BinTree` using a `Subtype` that states that only trees satisfying the BST invariant are `BinTree`s.
 -/
 def BinTree (β : Type u) := { t : Tree β // BST t }
 

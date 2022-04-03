@@ -1,7 +1,5 @@
 /-|
-==========================================
-Parametric Higher-Order Abstract Syntax
-==========================================
+# Parametric Higher-Order Abstract Syntax
 
 In contrast to first-order encodings, higher-order encodings avoid explicit modeling of variable identity.
 Instead, the binding constructs of an object language (the language being

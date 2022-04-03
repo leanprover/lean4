@@ -1,9 +1,9 @@
 Examples
 ========
 
-- [Palindromes](examples/palindromes.lean.html)
-- [Binary Search Trees](examples/bintree.lean.html)
-- [A Certified Type Checker](examples/tc.lean.html)
-- [The Well-Typed Interpreter](examples/interp.lean.html)
-- [Dependent de Bruijn Indices](examples/deBruijn.lean.html)
-- [Parametric Higher-Order Abstract Syntax](examples/phoas.lean.html)
+- [Palindromes](examples/palindromes.lean.md)
+- [Binary Search Trees](examples/bintree.lean.md)
+- [A Certified Type Checker](examples/tc.lean.md)
+- [The Well-Typed Interpreter](examples/interp.lean.md)
+- [Dependent de Bruijn Indices](examples/deBruijn.lean.md)
+- [Parametric Higher-Order Abstract Syntax](examples/phoas.lean.md)

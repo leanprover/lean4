@@ -1,6 +1,22 @@
 Unreleased
 ---------
 
+* Add support for `for h : i in [start:stop] do .. ` where `h : i ∈ [start:stop]`. This feature is useful for proving
+  termination of functions such as:
+```lean
+inductive Expr where
+  | app (f : String) (args : Array Expr)
+
+def Expr.size (e : Expr) : Nat := Id.run do
+  match e with
+  | app f args =>
+    let mut sz := 1
+    for h : i in [: args.size] do
+      -- h.upper : i < args.size
+      sz := sz + size (args.get ⟨i, h.upper⟩)
+    return sz
+```
+
 * Add tactic `case'`. It is similar to `case`, but does not admit the goal on failure.
   For example, the new tactic is useful when writing tactic scripts where we need to use `case'`
   at `first | ... | ...`, and we want to take the next alternative when `case'` fails.

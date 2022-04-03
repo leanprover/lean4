@@ -47,4 +47,11 @@ termination_by aux j _ => as.size - j
   apply Nat.lt_trans (List.sizeOf_get ..)
   simp_arith
 
+macro "array_get_dec" : tactic =>
+  `(first
+    | apply sizeOf_get
+    | apply Nat.lt_trans (sizeOf_get ..); simp_arith)
+
+macro_rules | `(tactic| decreasing_trivial) => `(tactic| array_get_dec)
+
 end Array

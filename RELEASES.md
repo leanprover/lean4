@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* Improve error message when constructor parameter universe level is too big.
+
 * Add support for `for h : i in [start:stop] do .. ` where `h : i ∈ [start:stop]`. This feature is useful for proving
   termination of functions such as:
 ```lean

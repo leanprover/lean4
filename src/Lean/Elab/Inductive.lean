@@ -392,17 +392,37 @@ def checkResultingUniverse (u : Level) : TermElabM Unit := do
     if !u.isZero && !u.isNeverZero then
       throwError "invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u'{indentD u}"
 
-private def checkResultingUniverses (numParams : Nat) (indTypes : List InductiveType) : TermElabM Unit := do
-  let u ← getResultingUniverse indTypes
+/--
+  Execute `k` using the `Syntax` reference associated with constructor `ctorName`.
+-/
+def withCtorRef (views : Array InductiveView) (ctorName : Name) (k : TermElabM α) : TermElabM α := do
+  for view in views do
+    for ctorView in view.ctors do
+      if ctorView.declName == ctorName then
+        return (← withRef ctorView.ref k)
+  k
+
+private def checkResultingUniverses (views : Array InductiveView) (numParams : Nat) (indTypes : List InductiveType) : TermElabM Unit := do
+  let u ← instantiateLevelMVars (← getResultingUniverse indTypes)
   checkResultingUniverse u
   unless u.isZero do
     indTypes.forM fun indType => indType.ctors.forM fun ctor =>
       forallTelescopeReducing ctor.type fun ctorArgs type =>
         for ctorArg in ctorArgs[numParams:] do
-          let v ← getLevel (← inferType ctorArg)
-          -- TODO
-          trace[Meta.debug] "checkCtorArgLevel, {v} <= {u}"
-          return ()
+          let type ← inferType ctorArg
+          let v ← instantiateLevelMVars (← getLevel type)
+          if v.hasMVar then
+            -- TODO
+            trace[Meta.debug] "checkCtorArgLevel, {v} <= {u}"
+          else unless u.geq v do
+            let mut msg := m!"invalid universe level in constructor '{ctor.name}', parameter"
+            let localDecl ← getFVarLocalDecl ctorArg
+            unless localDecl.userName.hasMacroScopes do
+              msg := msg ++ m!" '{ctorArg}'"
+            msg := msg ++ m!" has type{indentExpr type}"
+            msg := msg ++ m!"\nat universe level{indentD v}"
+            msg := msg ++ m!"\nit must be smaller than or equal to the inductive datatype universe level{indentD u}"
+            withCtorRef views ctor.name <| throwError msg
 
 private def collectUsed (indTypes : List InductiveType) : StateRefT CollectFVars.State MetaM Unit := do
   indTypes.forM fun indType => do
@@ -602,7 +622,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
           if inferLevel then
             updateResultingUniverse numParams (← levelMVarToParam indTypes)
           else
-            checkResultingUniverses numParams indTypes
+            checkResultingUniverses views numParams indTypes
             levelMVarToParam indTypes
         let usedLevelNames := collectLevelParamsInInductive indTypes
         match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with

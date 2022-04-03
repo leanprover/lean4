@@ -13,6 +13,24 @@ it must be smaller than or equal to the inductive datatype universe level
 ctorUnivTooBig.lean:12:2-12:34: error: invalid universe level in constructor 'Foo'.mk', parameter has type
   Sort (max u v)
 at universe level
-  (max u v)+1
+  max (u+1) (v+1)
 it must be smaller than or equal to the inductive datatype universe level
   u+1
+ctorUnivTooBig.lean:33:2-33:27: error: invalid universe level in constructor 'Ex3.Member.head', parameter 'a' has type
+  x✝
+at universe level
+  ?u+1
+it must be smaller than or equal to the inductive datatype universe level
+  max (u+1) (v+1)
+ctorUnivTooBig.lean:39:2-39:27: error: invalid universe level in constructor 'Ex4.Member.head', parameter 'a' has type
+  x✝
+at universe level
+  ?u+1
+it must be smaller than or equal to the inductive datatype universe level
+  u+2
+ctorUnivTooBig.lean:45:2-45:27: error: invalid universe level in constructor 'Ex5.Member.head', parameter 'a' has type
+  x✝
+at universe level
+  ?u+1
+it must be smaller than or equal to the inductive datatype universe level
+  2

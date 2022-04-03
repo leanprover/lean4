@@ -403,26 +403,45 @@ def withCtorRef (views : Array InductiveView) (ctorName : Name) (k : TermElabM �
   k
 
 private def checkResultingUniverses (views : Array InductiveView) (numParams : Nat) (indTypes : List InductiveType) : TermElabM Unit := do
-  let u ← instantiateLevelMVars (← getResultingUniverse indTypes)
+  let u := (← instantiateLevelMVars (← getResultingUniverse indTypes)).normalize
   checkResultingUniverse u
   unless u.isZero do
     indTypes.forM fun indType => indType.ctors.forM fun ctor =>
-      forallTelescopeReducing ctor.type fun ctorArgs type =>
+      forallTelescopeReducing ctor.type fun ctorArgs type => do
         for ctorArg in ctorArgs[numParams:] do
           let type ← inferType ctorArg
-          let v ← instantiateLevelMVars (← getLevel type)
-          if v.hasMVar then
-            -- TODO
-            trace[Meta.debug] "checkCtorArgLevel, {v} <= {u}"
-          else unless u.geq v do
-            let mut msg := m!"invalid universe level in constructor '{ctor.name}', parameter"
-            let localDecl ← getFVarLocalDecl ctorArg
-            unless localDecl.userName.hasMacroScopes do
-              msg := msg ++ m!" '{ctorArg}'"
-            msg := msg ++ m!" has type{indentExpr type}"
-            msg := msg ++ m!"\nat universe level{indentD v}"
-            msg := msg ++ m!"\nit must be smaller than or equal to the inductive datatype universe level{indentD u}"
-            withCtorRef views ctor.name <| throwError msg
+          let v := (← instantiateLevelMVars (← getLevel type)).normalize
+          let rec check (v' : Level) (u' : Level) : TermElabM Unit :=
+            match v', u' with
+            | .succ v' _, .succ u' _ => check v' u'
+            | .mvar id _, .param ..  =>
+              /- Special case:
+                 The constructor parameter `v` is at unverse level `?v+k` and
+                 the resulting inductive universe level is `u'+k`, where `u'` is a parameter (or zero).
+                 Thus, `?v := u'` is the only choice for satisfying the universe contraint `?v+k <= u'+k`.
+                 Note that, we still generate an error for cases where there is more than one of satisfying the constraint.
+                 Examples:
+                 -----------------------------------------------------------
+                 | ctor universe level | inductive datatype universe level |
+                 -----------------------------------------------------------
+                 |   ?v                | max u w                           |
+                 -----------------------------------------------------------
+                 |   ?v                | u + 1                             |
+                 -----------------------------------------------------------
+              -/
+              assignLevelMVar id u'
+            | .mvar id _, .zero _    => assignLevelMVar id u' -- TODO: merge with previous case
+            | _, _ =>
+              unless u.geq v do
+                let mut msg := m!"invalid universe level in constructor '{ctor.name}', parameter"
+                let localDecl ← getFVarLocalDecl ctorArg
+                unless localDecl.userName.hasMacroScopes do
+                  msg := msg ++ m!" '{ctorArg}'"
+                msg := msg ++ m!" has type{indentExpr type}"
+                msg := msg ++ m!"\nat universe level{indentD v}"
+                msg := msg ++ m!"\nit must be smaller than or equal to the inductive datatype universe level{indentD u}"
+                withCtorRef views ctor.name <| throwError msg
+          check v u
 
 private def collectUsed (indTypes : List InductiveType) : StateRefT CollectFVars.State MetaM Unit := do
   indTypes.forM fun indType => do

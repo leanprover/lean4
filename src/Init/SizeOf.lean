@@ -60,14 +60,25 @@ deriving instance SizeOf for EStateM.Result
 @[simp] theorem Unit.sizeOf (u : Unit) : sizeOf u = 1 := rfl
 @[simp] theorem Bool.sizeOf_eq_one (b : Bool) : sizeOf b = 1 := by cases b <;> rfl
 
+namespace Lean
+
 /- We manually define `Lean.Name` instance because we use
    an opaque function for computing the hashcode field. -/
-protected noncomputable def Lean.Name.sizeOf : Name → Nat
+protected noncomputable def Name.sizeOf : Name → Nat
   | anonymous => 1
   | str p s _ => 1 + Name.sizeOf p + sizeOf s
   | num p n _ => 1 + Name.sizeOf p + sizeOf n
 
-noncomputable instance : SizeOf Lean.Name where
+noncomputable instance : SizeOf Name where
   sizeOf n := n.sizeOf
 
-deriving instance SizeOf for Lean.Syntax
+@[simp] theorem Name.anonymous.sizeOf_spec : sizeOf anonymous = 1 :=
+  rfl
+@[simp] theorem Name.str.sizeOf_spec (p : Name) (s : String) (h : UInt64) : sizeOf (str p s h) = 1 + sizeOf p + sizeOf s :=
+  rfl
+@[simp] theorem Name.num.sizeOf_spec (p : Name) (n : Nat) (h : UInt64) : sizeOf (num p n h) = 1 + sizeOf p + sizeOf n :=
+  rfl
+
+deriving instance SizeOf for Syntax
+
+end Lean

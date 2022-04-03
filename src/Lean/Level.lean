@@ -553,6 +553,24 @@ def mkNaryMax : List Level → Level
     | none    => u
   | u           => u
 
+def geq (u v : Level) : Bool :=
+  go u.normalize v.normalize
+where
+  go (u v : Level) : Bool :=
+    u == v ||
+    match u, v with
+    | u,            zero _       => true
+    | u,            max v₁ v₂ _  => go u v₁ && go u v₂
+    | max u₁ u₂ _,  v            => go u₁ v || go u₂ v
+    | u,            imax v₁ v₂ _ => go u v₁ && go u v₂
+    | imax u₁ u₂ _, v            => go u₂ v
+    | succ u _,     succ v _     => go u v
+    | _, _ =>
+      let v' := v.getLevelOffset
+      (u.getLevelOffset == v' || v'.isZero)
+      && u.getOffset ≥ v.getOffset
+termination_by _ u v => (u, v)
+
 end Level
 
 open Std (HashMap HashSet PHashMap PHashSet)

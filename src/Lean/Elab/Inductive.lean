@@ -359,22 +359,11 @@ private partial def collectUniverses (r : Level) (rOffset : Nat) (numParams : Na
 where
   go : StateRefT (Array Level) TermElabM Unit :=
     indTypes.forM fun indType => indType.ctors.forM fun ctor =>
-      collectUniversesFromCtorType numParams ctor.type
-
-  collectUniversesFromCtorType (i : Nat) (type : Expr) : StateRefT (Array Level) TermElabM Unit := do
-    match i, type with
-    | 0,   Expr.forallE n d b c =>
-      let u ← getLevel d
-      let u ← instantiateLevelMVars u
-      let us ← accLevelAtCtor u r rOffset
-      withLocalDecl n c.binderInfo d fun x =>
-        let e := b.instantiate1 x
-        collectUniversesFromCtorType 0 e
-    | i+1, Expr.forallE n d b c =>
-      withLocalDecl n c.binderInfo d fun x =>
-        let e := b.instantiate1 x
-        collectUniversesFromCtorType i e
-    | _, _ => return ()
+      forallTelescopeReducing ctor.type fun ctorParams _ =>
+        for ctorParam in ctorParams[numParams:] do
+          let type ← inferType ctorParam
+          let u ← instantiateLevelMVars (← getLevel type)
+          accLevelAtCtor u r rOffset
 
 private def updateResultingUniverse (numParams : Nat) (indTypes : List InductiveType) : TermElabM (List InductiveType) := do
   let r ← getResultingUniverse indTypes
@@ -403,8 +392,17 @@ def checkResultingUniverse (u : Level) : TermElabM Unit := do
     if !u.isZero && !u.isNeverZero then
       throwError "invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u'{indentD u}"
 
-private def checkResultingUniverses (indTypes : List InductiveType) : TermElabM Unit := do
-  checkResultingUniverse (← getResultingUniverse indTypes)
+private def checkResultingUniverses (numParams : Nat) (indTypes : List InductiveType) : TermElabM Unit := do
+  let u ← getResultingUniverse indTypes
+  checkResultingUniverse u
+  unless u.isZero do
+    indTypes.forM fun indType => indType.ctors.forM fun ctor =>
+      forallTelescopeReducing ctor.type fun ctorArgs type =>
+        for ctorArg in ctorArgs[numParams:] do
+          let v ← getLevel (← inferType ctorArg)
+          -- TODO
+          trace[Meta.debug] "checkCtorArgLevel, {v} <= {u}"
+          return ()
 
 private def collectUsed (indTypes : List InductiveType) : StateRefT CollectFVars.State MetaM Unit := do
   indTypes.forM fun indType => do
@@ -600,13 +598,12 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         let numVars   := vars.size
         let numParams := numVars + numExplicitParams
         let indTypes ← updateParams vars indTypes
-        let indTypes ← levelMVarToParam indTypes
         let indTypes ←
           if inferLevel then
-            updateResultingUniverse numParams indTypes
+            updateResultingUniverse numParams (← levelMVarToParam indTypes)
           else
-            checkResultingUniverses indTypes
-            pure indTypes
+            checkResultingUniverses numParams indTypes
+            levelMVarToParam indTypes
         let usedLevelNames := collectLevelParamsInInductive indTypes
         match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
         | Except.error msg      => throwError msg

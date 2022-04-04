@@ -60,6 +60,7 @@
 # Development
 
 - [Development Guide](./dev/index.md)
+- [Bootstrapping](./dev/bootstrap.md)
 - [Commit Convention](./dev/commit_convention.md)
 - [Building Lean](./make/index.md)
   - [Ubuntu Setup](./make/ubuntu.md)

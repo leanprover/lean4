@@ -1,4 +1,3 @@
-
 # Lean Build Bootstrapping
 
 Since version 4, Lean is a partially bootstrapped program: most parts of the

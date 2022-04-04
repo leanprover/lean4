@@ -361,8 +361,18 @@ syntax (name := changeWith) "change " term " with " term (location)? : tactic
 syntax rwRule    := ("← " <|> "<- ")? term
 syntax rwRuleSeq := "[" rwRule,*,? "]"
 
+/--
+`rewrite [e]` applies identity `e` as a rewrite rule to the target of the main goal.
+If `e` is preceded by left arrow (`←` or `<-`), the rewrite is applied in the reverse direction.
+If `e` is a defined constant, then the equational theorems associated with `e` are used. This provides a convenient way to unfold `e`.
+- `rewrite [e₁, ..., eₙ]` applies the given rules sequentially.
+- `rewrite [e] at l` rewrites `e` at location(s) `l`, where `l` is either `*` or a list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-` can also be used, to signify the target of the goal.
+-/
 syntax (name := rewriteSeq) "rewrite " (config)? rwRuleSeq (location)? : tactic
 
+/--
+An abbreviation for `rewrite`.
+-/
 syntax (name := rwSeq) "rw " (config)? rwRuleSeq (location)? : tactic
 
 def rwWithRfl (kind : SyntaxNodeKind) (atom : String) (stx : Syntax) : MacroM Syntax := do
@@ -377,6 +387,15 @@ def rwWithRfl (kind : SyntaxNodeKind) (atom : String) (stx : Syntax) : MacroM Sy
 @[macro rwSeq] def expandRwSeq : Macro :=
   rwWithRfl ``Lean.Parser.Tactic.rewriteSeq "rewrite"
 
+/--
+The `injection` tactic is based on the fact that constructors of inductive data types are injections.
+That means that if `c` is a constructor of an inductive datatype, and if `(c t₁)` and `(c t₂)` are two terms that are equal then  `t₁` and `t₂` are equal too.
+If `q` is a proof of a statement of conclusion `t₁ = t₂`, then injection applies injectivity to derive the equality of all arguments of `t₁` and `t₂`
+placed in the same positions. For example, from `(a::b) = (c::d)` we derive `a=c` and `b=d`. To use this tactic `t₁` and `t₂`
+should be constructor applications of the same constructor.
+Given `h : a::b = c::d`, the tactic `injection h` adds two new hypothesis with types `a = c` and `b = d` to the main goal.
+The tactic `injection h with h₁ h₂` uses the names `h₁` and `h₂` to name the new hypotheses.
+-/
 syntax (name := injection) "injection " term (" with " (colGt (ident <|> "_"))+)? : tactic
 
 syntax (name := injections) "injections" : tactic
@@ -388,6 +407,17 @@ syntax simpPost  := "↑"
 syntax simpLemma := (simpPre <|> simpPost)? ("← " <|> "<- ")? term
 syntax simpErase := "-" term:max
 syntax simpStar  := "*"
+/--
+The `simp` tactic uses lemmas and hypotheses to simplify the main goal target or non-dependent hypotheses. It has many variants.
+- `simp` simplifies the main goal target using lemmas tagged with the attribute `[simp]`.
+- `simp [h₁, h₂, ..., hₙ]` simplifies the main goal target using the lemmas tagged with the attribute `[simp]` and the given `hᵢ`'s, where the `hᵢ`'s are expressions. If an `hᵢ` is a defined constant `f`, then the equational lemmas associated with `f` are used. This provides a convenient way to unfold `f`.
+- `simp [*]` simplifies the main goal target using the lemmas tagged with the attribute `[simp]` and all hypotheses.
+- `simp only [h₁, h₂, ..., hₙ]` is like `simp [h₁, h₂, ..., hₙ]` but does not use `[simp]` lemmas
+- `simp [-id₁, ..., -idₙ]` simplifies the main goal target using the lemmas tagged with the attribute `[simp]`, but removes the ones named `idᵢ`.
+- `simp at h₁ h₂ ... hₙ` simplifies the hypotheses `h₁ : T₁` ... `hₙ : Tₙ`. If the target or another hypothesis depends on `hᵢ`, a new simplified hypothesis `hᵢ` is introduced, but the old one remains in the local context.
+- `simp at *` simplifies all the hypotheses and the target.
+- `simp [*] at *` simplifies target and all (propositional) hypotheses using the other hypotheses.
+-/
 syntax (name := simp) "simp " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 syntax (name := simpAll) "simp_all " (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
 
@@ -410,7 +440,11 @@ macro "have " d:haveDecl : tactic => `(refine_lift have $d:haveDecl; ?_)
 macro (priority := high) "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
 macro "suffices " d:sufficesDecl : tactic => `(refine_lift suffices $d:sufficesDecl; ?_)
 macro "let " d:letDecl : tactic => `(refine_lift let $d:letDecl; ?_)
-macro "show " e:term : tactic => `(refine_lift show $e:term from ?_)
+/--
+`show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
+ performs the unification, and replaces the target with the unified version of `t`.
+-/
+macro "show " e:term : tactic => `(refine_lift show $e:term from ?_) -- TODO: fix, see comment
 syntax (name := letrec) withPosition(atomic(group("let " &"rec ")) letRecDecls) : tactic
 macro_rules
   | `(tactic| let rec $d:letRecDecls) => `(tactic| refine_lift let rec $d:letRecDecls; ?_)
@@ -423,6 +457,20 @@ macro "let' " d:letDecl : tactic => `(refine_lift' let $d:letDecl; ?_)
 
 syntax inductionAlt  := ppDedent(ppLine) "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
+/--
+Assuming `x` is a variable in the local context with an inductive type, `induction x` applies induction on `x` to the main goal,
+producing one goal for each constructor of the inductive type, in which the target is replaced by a general instance of that constructor
+and an inductive hypothesis is added for each recursive argument to the constructor.
+If the type of an element in the local context depends on `x`, that element is reverted and reintroduced afterward,
+so that the inductive hypothesis incorporates that hypothesis as well.
+For example, given `n : Nat` and a goal with a hypothesis `h : P n` and target `Q n`, `induction n` produces one goal
+with hypothesis `h : P 0` and target `Q 0`, and one goal with hypotheses `h : P (Nat.succ a)` and `ih₁ : P a → Q a` and target `Q (Nat.succ a)`.
+Here the names `a` and `ih₁` are chosen automatically and are not accessible. You can use `with` to provide the variables names for each constructor.
+- `induction e`, where `e` is an expression instead of a variable, generalizes `e` in the goal, and then performs induction on the resulting variable.
+- `induction e using r` allows the user to specify the principle of induction that should be used. Here `r` should be a theorem whose result type must be of the form `C t`, where `C` is a bound variable and `t` is a (possibly empty) sequence of bound variables
+- `induction e generalizing z₁ ... zₙ`, where `z₁ ... zₙ` are variables in the local context, generalizes over `z₁ ... zₙ` before applying the induction but then introduces them in each goal. In other words, the net effect is that each inductive hypothesis is generalized.
+- Given `x : Nat`, `induction x with | zero => tac₁ | succ x' ih => tac₂` uses tactic `tac₁` for the `zero` case, and `tac₂` for the `succ` case.
+-/
 syntax (name := induction) "induction " term,+ (" using " ident)?  ("generalizing " (colGt term:max)+)? (inductionAlts)? : tactic
 
 syntax generalizeArg := atomic(ident " : ")? term:51 " = " ident
@@ -432,6 +480,17 @@ If `h` is given, `h : e = x` is introduced as well. -/
 syntax (name := generalize) "generalize " generalizeArg,+ : tactic
 
 syntax casesTarget := atomic(ident " : ")? term
+/--
+Assuming `x` is a variable in the local context with an inductive type, `cases x` splits the main goal,
+producing one goal for each constructor of the inductive type, in which the target is replaced by a general instance of that constructor.
+If the type of an element in the local context depends on `x`, that element is reverted and reintroduced afterward,
+so that the case split affects that hypothesis as well. `cases` detects unreachable cases and closes them automatically.
+For example, given `n : Nat` and a goal with a hypothesis `h : P n` and target `Q n`, `cases n` produces one goal with hypothesis `h : P 0` and target `Q 0`,
+and one goal with hypothesis `h : P (Nat.succ a)` and target `Q (Nat.succ a)`. Here the name `a` is chosen automatically and are not accessible. You can use `with` to provide the variables names for each constructor.
+- `cases e`, where `e` is an expression instead of a variable, generalizes `e` in the goal, and then cases on the resulting variable.
+- Given `as : List α`, `cases as with | nil => tac₁ | cons a as' => tac₂`, uses tactic `tac₁` for the `nil` case, and `tac₂` for the `cons` case, and `a` and `as'` are used as names for the new variables introduced.
+- `cases h : e`, where `e` is a variable or an expression, performs cases on `e` as above, but also adds a hypothesis `h : e = ...` to each hypothesis, where `...` is the constructor instance for that particular case.
+-/
 syntax (name := cases) "cases " casesTarget,+ (" using " ident)? (inductionAlts)? : tactic
 
 syntax (name := existsIntro) "exists " term : tactic

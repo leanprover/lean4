@@ -316,8 +316,11 @@ syntax (name := focus) "focus " tacticSeq : tactic
 syntax (name := skip) "skip" : tactic
 /-- `done` succeeds iff there are no remaining goals. -/
 syntax (name := done) "done" : tactic
+/-- This tactic displays the current state in the info view. -/
 syntax (name := traceState) "trace_state" : tactic
+/-- `trace msg` displays `msg` in the info view. -/
 syntax (name := traceMessage) "trace " str : tactic
+/-- Fails if the given tactic succeeds. -/
 syntax (name := failIfSuccess) "fail_if_success " tacticSeq : tactic
 syntax (name := paren) "(" tacticSeq ")" : tactic
 syntax (name := withReducible) "with_reducible " tacticSeq : tactic
@@ -346,6 +349,7 @@ syntax (name := ac_refl) "ac_refl " : tactic
 macro "admit" : tactic => `(exact sorry)
 /-- The `sorry` tactic is a shorthand for `exact sorry`. -/
 macro "sorry" : tactic => `(exact sorry)
+/-- `infer_instance` is an abbreviation for `exact inferInstance` -/
 macro "infer_instance" : tactic => `(exact inferInstance)
 
 /-- Optional configuration option for tactics -/
@@ -397,7 +401,7 @@ Given `h : a::b = c::d`, the tactic `injection h` adds two new hypothesis with t
 The tactic `injection h with h₁ h₂` uses the names `h₁` and `h₂` to name the new hypotheses.
 -/
 syntax (name := injection) "injection " term (" with " (colGt (ident <|> "_"))+)? : tactic
-
+-- TODO: add with
 syntax (name := injections) "injections" : tactic
 
 syntax discharger := atomic("(" (&"discharger" <|> &"disch")) " := " tacticSeq ")"
@@ -419,6 +423,11 @@ The `simp` tactic uses lemmas and hypotheses to simplify the main goal target or
 - `simp [*] at *` simplifies target and all (propositional) hypotheses using the other hypotheses.
 -/
 syntax (name := simp) "simp " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
+/--
+A stronger version of `simp [*] at *` where the hypotheses and target are simplified
+multiple times until no simplication is applicable.
+Only non-dependent propositional hypotheses are considered.
+-/
 syntax (name := simpAll) "simp_all " (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
 
 /--
@@ -435,10 +444,32 @@ syntax (name := unfold) "unfold " ident (location)? : tactic
 -- It makes sure the "continuation" `?_` is the main goal after refining
 macro "refine_lift " e:term : tactic => `(focus (refine no_implicit_lambda% $e; rotate_right))
 
+/--
+`have h : t := e` adds the hypothesis `h : t` to the current goal if `e` a term of type `t`. If `t` is omitted, it will be inferred.
+If `h` is omitted, the name `this` is used.
+The variant `have pattern := e` is equivalent to `match e with | pattern => _`, and it is convenient for types that have only applicable constructor.
+Example: given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
+-/
 macro "have " d:haveDecl : tactic => `(refine_lift have $d:haveDecl; ?_)
-/- We use a priority > default, to avoid ambiguity with previous `have` notation -/
+
+/--
+`have h := e` adds the hypothesis `h : t` if `e : t`.
+-/
 macro (priority := high) "have" x:ident " := " p:term : tactic => `(have $x:ident : _ := $p)
+/--
+Given a main goal `ctx |- t`, `suffices h : t' from e` replaces the main goal with `ctx |- t'`,
+`e` must have type `t` in the context `ctx, h : t'`.
+
+The variant `suffices h : t' by tac` is a shorthand for `suffices h : t' from by tac`.
+If `h :` is omitted, the name `this` is used.
+ -/
 macro "suffices " d:sufficesDecl : tactic => `(refine_lift suffices $d:sufficesDecl; ?_)
+/--
+`let h : t := e` adds the hypothesis `h : t := e` to the current goal if `e` a term of type `t`.
+If `t` is omitted, it will be inferred.
+The variant `let pattern := e` is equivalent to `match e with | pattern => _`, and it is convenient for types that have only applicable constructor.
+Example: given `h : p ∧ q ∧ r`, `let ⟨h₁, h₂, h₃⟩ := h` produces the hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
+-/
 macro "let " d:letDecl : tactic => `(refine_lift let $d:letDecl; ?_)
 /--
 `show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
@@ -498,12 +529,27 @@ syntax (name := existsIntro) "exists " term : tactic
 /-- `rename_i x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
 syntax (name := renameI) "rename_i " (colGt (ident <|> "_"))+ : tactic
 
+/--
+`repeat tac` applies `tac` to main goal. If the application succeeds,
+the tactic is applied recursively to the generated subgoals until it eventually fails.
+-/
 syntax "repeat " tacticSeq : tactic
 macro_rules
   | `(tactic| repeat $seq) => `(tactic| first | ($seq); repeat $seq | skip)
 
+/--
+Tries different simple tactics (e.g., `rfl`, `contradiction`, ...) to close the current goal.
+You can use the command `macro_rules` to extend the set of tactics used. Example:
+```
+macro_rules | `(tactic| trivial) => `(tactic| simp)
+```
+-/
 syntax "trivial" : tactic
 
+/--
+The `split` tactic is useful for breaking nested if-then-else and match expressions in cases.
+For a `match` expression with `n` cases, the `split` tactic generates at most `n` subgoals
+-/
 syntax (name := split) "split " (colGt term)? (location)? : tactic
 
 syntax (name := dbgTrace) "dbg_trace " str : tactic
@@ -528,6 +574,7 @@ macro_rules | `(tactic| trivial) => `(tactic| apply And.intro <;> trivial)
 
 macro "unhygienic " t:tacticSeq : tactic => `(set_option tactic.hygienic false in $t:tacticSeq)
 
+/-- `fail msg` is a tactic that always fail and produces an error using the given message. -/
 syntax (name := fail) "fail " (str)? : tactic
 
 syntax (name := checkpoint) "checkpoint " tacticSeq : tactic

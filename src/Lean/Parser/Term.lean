@@ -36,7 +36,7 @@ def tacticSeq1Indented : Parser :=
 def tacticSeqBracketed : Parser :=
   leading_parser "{" >> many (group (ppLine >> tacticParser >> optional ";")) >> ppDedent (ppLine >> "}")
 def tacticSeq :=
-  leading_parser (withAnonymousAntiquot := false) tacticSeqBracketed <|> tacticSeq1Indented
+  leading_parser tacticSeqBracketed <|> tacticSeq1Indented
 
 /- Raw sequence for quotation and grouping -/
 def seq1 :=

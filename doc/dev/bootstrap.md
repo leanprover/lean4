@@ -15,17 +15,18 @@ stage0/
   bin/lean
 stage1/
   include/
-    config.h  # config variables used to build `lean` such as use allocator
-    runtime/lean.h  # runtime headers, used by extracted C code, uses `config.h`
+    config.h  # config variables used to build `lean` such as used allocator
+    runtime/lean.h  # runtime header, used by extracted C code, uses `config.h`
   share/lean/
-    Makefile  # used by `leanmake`
+    lean.mk  # used by `leanmake`
   lib/
     lean/**/*.olean  # the Lean library (incl. the compiler) compiled by the previous stage's `lean`
     temp/**/*.{c,o}  # the library extracted to C and compiled by `leanc`
     libInit.a libStd.a libLean.a  # static libraries of the Lean library
     libleancpp.a  # a static library of the C++ sources of Lean
+    libleanshared.so  # a dynamic library including the static libraries above
   bin/
-    lean  # the Lean compiler & server linked together from the above libraries
+    lean  # the Lean compiler & server, a small executable that calls directly into libleanshared.so
     leanc  # a wrapper around a C compiler supplying search paths etc
     leanmake  # a wrapper around `make` supplying the Makefile above
 stage2/...
@@ -54,7 +55,7 @@ We are not aware of any "meta-meta" parts that influence more than two stages of
 compilation, so stage 3 should always be identical to stage 2 and only exists as
 a sanity check.
 
-In summary, doing a standard build via `make` involves these steps:
+In summary, doing a standard build via `make` internally involves these steps:
 
 1. compile the `stage0/src` archived sources into `stage0/bin/lean`
 1. use it to compile the current library (*including* your changes) into `stage1/lib`

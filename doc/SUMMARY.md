@@ -60,17 +60,15 @@
 # Development
 
 - [Development Guide](./dev/index.md)
-- [Bootstrapping](./dev/bootstrap.md)
-- [Commit Convention](./dev/commit_convention.md)
 - [Building Lean](./make/index.md)
   - [Ubuntu Setup](./make/ubuntu.md)
   - [macOS Setup](./make/osx-10.9.md)
   - [Windows MSYS2 Setup](./make/msys2.md)
   - [Windows with WSL](./make/wsl.md)
   - [Nix Setup (*Experimental*)](./make/nix.md)
-- [Foreign Function Interface](./dev/ffi.md)
-- [Unit Testing](./dev/testing.md)
-- [Building This Manual](./dev/mdbook.md)
-- [Fixing Tests](./dev/fixing_tests.md)
+- [Bootstrapping](./dev/bootstrap.md)
+- [Testing](./dev/testing.md)
 - [Debugging](./dev/debugging.md)
-<!-- - [C++ Coding Style](./dev/cpp_coding_style.md) -->
+- [Commit Convention](./dev/commit_convention.md)
+- [Building This Manual](./dev/mdbook.md)
+- [Foreign Function Interface](./dev/ffi.md)

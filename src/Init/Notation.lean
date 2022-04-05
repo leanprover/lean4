@@ -7,6 +7,7 @@ Notation for operators defined at Prelude.lean
 -/
 prelude
 import Init.Prelude
+import Init.Coe
 
 -- DSL for specifying parser precedences and priorities
 
@@ -19,6 +20,11 @@ syntax:65 (name := addPrio) prio " + " prio:66 : prio
 syntax:65 (name := subPrio) prio " - " prio:66 : prio
 
 end Lean.Parser.Syntax
+
+namespace Lean
+instance : Coe (TSyntax k) Syntax where
+  coe stx := stx.raw
+end Lean
 
 macro "max"  : prec => `(1024) -- maximum precedence used in term parsers, in particular for terms in function position (`ident`, `paren`, ...)
 macro "arg"  : prec => `(1023) -- precedence used for application arguments (`do`, `by`, ...)

@@ -252,8 +252,8 @@ def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 
 @[builtinTermParser] def defaultOrOfNonempty   := leading_parser "default_or_ofNonempty% " >> optional "unsafe"
 
-def namedArgument  := leading_parser atomic ("(" >> ident >> " := ") >> termParser >> ")"
-def ellipsis       := leading_parser ".."
+def namedArgument  := leading_parser (withAnonymousAntiquot := false) atomic ("(" >> ident >> " := ") >> termParser >> ")"
+def ellipsis       := leading_parser (withAnonymousAntiquot := false) ".."
 def argument       :=
   checkWsBefore "expected space" >>
   checkColGt "expected to be indented" >>

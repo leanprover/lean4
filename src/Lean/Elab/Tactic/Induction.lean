@@ -29,8 +29,10 @@ private def getAltName (alt : Syntax) : Name :=
   if alt[1].hasArgs then alt[1][1].getId.eraseMacroScopes else `_
 private def altHasExplicitModifier (alt : Syntax) : Bool :=
   alt[1].hasArgs && !alt[1][0].isNone
+private def getAltVars (alt : Syntax) : Array Syntax :=
+  alt[2].getArgs
 private def getAltVarNames (alt : Syntax) : Array Name :=
-  alt[2].getArgs.map getNameOfIdent'
+  getAltVars  alt |>.map getNameOfIdent'
 private def getAltRHS (alt : Syntax) : Syntax :=
   alt[4]
 private def getAltDArrow (alt : Syntax) : Syntax :=
@@ -187,6 +189,17 @@ private def getNumExplicitFields (altMVarId : MVarId) (numFields : Nat) : MetaM 
     trace[Meta.debug] "bis: {repr bis}"
     return bis.foldl (init := 0) fun r bi => if bi.isExplicit then r + 1 else r
 
+private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Array FVarId) : TacticM Unit :=
+  withSaveInfoContext <| withMVarContext altMVarId do
+    let useNamesForExplicitOnly := !altHasExplicitModifier altStx
+    let mut i := 0
+    let altVars := getAltVars altStx
+    for fvarId in fvarIds do
+      if !useNamesForExplicitOnly || (← getLocalDecl fvarId).binderInfo.isExplicit then
+        if i < altVars.size then
+          Term.addLocalVarInfo altVars[i] (mkFVar fvarId)
+          i := i + 1
+
 def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (optPreTac : Syntax) (altsSyntax : Array Syntax)
     (initialInfo : Info)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[]) : TacticM Unit := do
@@ -247,7 +260,8 @@ where
           trace[Meta.debug] "numFields: {numFields}, numFieldsToName: {numFieldsToName}, altNames: {altVarNames.size}"
           if altVarNames.size > numFieldsToName then
             logError m!"too many variable names provided at alternative '{altName}', #{altVarNames.size} provided, but #{numFieldsToName} expected"
-          let mut (_, altMVarId) ← introN altMVarId numFields altVarNames.toList (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
+          let mut (fvarIds, altMVarId) ← introN altMVarId numFields altVarNames.toList (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
+          saveAltVarsInfo altMVarId altStx fvarIds
           match (← Cases.unifyEqs numEqs altMVarId {}) with
           | none => unusedAlt
           | some (altMVarId', _) =>

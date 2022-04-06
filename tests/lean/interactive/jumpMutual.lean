@@ -3,8 +3,9 @@ mutual
 def h (x : Nat) : Nat :=
   match x with
   | 0 => 1
+                     --v textDocument/definition
                --v textDocument/definition
-  | x+1 => f x + r x
+  | x+1 => f x + r x + h x
          --^ textDocument/definition
 where
   r : Nat → Nat

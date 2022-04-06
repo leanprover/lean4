@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Array.Basic
 import Init.Data.Nat.Linear
+import Init.Data.List.BasicAux
 
 theorem List.sizeOf_get_lt [SizeOf α] (as : List α) (i : Fin as.length) : sizeOf (as.get i) < sizeOf as := by
   match as, i with
@@ -39,5 +40,18 @@ theorem sizeOf_lt_of_mem [DecidableEq α] [SizeOf α] {as : Array α} (h : a ∈
     · contradiction
   apply aux 0 h
 termination_by aux j _ => as.size - j
+
+@[simp] theorem sizeOf_get [SizeOf α] (as : Array α) (i : Fin as.size) : sizeOf (as.get i) < sizeOf as := by
+  cases as
+  simp [get]
+  apply Nat.lt_trans (List.sizeOf_get ..)
+  simp_arith
+
+macro "array_get_dec" : tactic =>
+  `(first
+    | apply sizeOf_get
+    | apply Nat.lt_trans (sizeOf_get ..); simp_arith)
+
+macro_rules | `(tactic| decreasing_trivial) => `(tactic| array_get_dec)
 
 end Array

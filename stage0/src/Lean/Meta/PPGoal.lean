@@ -34,7 +34,12 @@ structure State where
   modified               : Bool := false
 
 structure Context where
-  goalTarget : Expr
+  /--
+   If true we make a declaration "visible" if it has visible backward dependencies.
+   Remark: recall that for the `Prop` case, the declaration is moved to `hiddenInaccessibleProp`
+   -/
+  backwardDeps : Bool
+  goalTarget   : Expr
 
 abbrev M := ReaderT Context $ StateRefT State MetaM
 
@@ -95,23 +100,33 @@ def fixpointStep : M Unit := do
   (← getLCtx).forM fun localDecl => do
     let fvarId := localDecl.fvarId
     if (← get).hiddenInaccessible.contains fvarId then
-      if (← hasVisibleDep localDecl) then
-        /- localDecl is marked to be hidden, but it has a (backward) visible dependency. -/
-        unmark fvarId
-      if (← isProp localDecl.type) then
-        unless (← hasInaccessibleNameDep localDecl) do
-          moveToHiddeProp fvarId
+      if (← read).backwardDeps then
+        if (← hasVisibleDep localDecl) then
+          /- localDecl is marked to be hidden, but it has a (backward) visible dependency. -/
+          unmark fvarId
+        if (← isProp localDecl.type) then
+          unless (← hasInaccessibleNameDep localDecl) do
+            moveToHiddeProp fvarId
     else
       visitVisibleExpr localDecl.type
-      match localDecl.value? with
-      | some value => visitVisibleExpr value
-      | _ => pure ()
+      let some value := localDecl.value? | return ()
+      visitVisibleExpr value
 
 partial def fixpoint : M Unit := do
   modify fun s => { s with modified := false }
   fixpointStep
   if (← get).modified then
     fixpoint
+
+/--
+  Construct initial `FVarIdSet` containting free variables ids that have inaccessible user names.
+-/
+private def getInitialHiddenInaccessible (propOnly : Bool) : MetaM FVarIdSet := do
+  (← getLCtx).foldlM (init := {}) fun r localDecl => do
+    if localDecl.userName.isInaccessibleUserName then
+      if (← pure !propOnly <||> isProp localDecl.type) then
+        return r.insert localDecl.fvarId
+    return r
 
 /-
 If pp.inaccessibleNames == false, then collect two sets of `FVarId`s : `hiddenInaccessible` and `hiddenInaccessibleProp`
@@ -123,19 +138,23 @@ Both sets do not contain `FVarId`s that contain visible backward or forward depe
 The `goalTarget` counts as a forward dependency.
 
 We say a name is visible if it is a free variable with FVarId not in `hiddenInaccessible` nor `hiddenInaccessibleProp`
+
+For propositions in `hiddenInaccessibleProp`, we show only their types when displaying a goal.
+
+Remark: when `pp.inaccessibleNames == true`, we still compute `hiddenInaccessibleProp` to prevent the
+goal from being littered with irrelevant names.
+
 -/
 def collect (goalTarget : Expr) : MetaM (FVarIdSet × FVarIdSet) := do
+  let lctx ← getLCtx
   if pp.inaccessibleNames.get (← getOptions) then
-    /- Don't hide inaccessible names when `pp.inaccessibleNames` is set to true. -/
-    return ({}, {})
+    -- If `pp.inaccessibleNames == true`, we still must compute `hiddenInaccessibleProp`.
+    let hiddenInaccessible ← getInitialHiddenInaccessible (propOnly := true)
+    let (_, s) ← fixpoint.run { backwardDeps := false, goalTarget } |>.run { hiddenInaccessible }
+    return ({}, s.hiddenInaccessible)
   else
-    let lctx ← getLCtx
-    let hiddenInaccessible := lctx.foldl (init := {}) fun hiddenInaccessible localDecl => Id.run <| do
-      if localDecl.userName.isInaccessibleUserName then
-        hiddenInaccessible.insert localDecl.fvarId
-      else
-        hiddenInaccessible
-    let (_, s) ← fixpoint.run { goalTarget := goalTarget } |>.run { hiddenInaccessible := hiddenInaccessible }
+    let hiddenInaccessible ← getInitialHiddenInaccessible (propOnly := false)
+    let (_, s) ← fixpoint.run { backwardDeps := true, goalTarget } |>.run { hiddenInaccessible }
     return (s.hiddenInaccessible, s.hiddenInaccessibleProp)
 
 end ToHide

@@ -154,6 +154,19 @@ macro "calc " steps:withPosition(calcStep+) : tactic => `(exact calc $(steps.get
   | `($(_) fun $x:ident => $p)            => `({ $x // $p })
   | _                                     => throw ()
 
+/--
+Apply function extensionality and introduce new hypotheses.
+The tactic `funext` will keep applying new the `funext` lemma until the goal target is not reducible to
+```
+  |-  ((fun x => ...) = (fun x => ...))
+```
+The variant `funext h₁ ... hₙ` applies `funext` `n` times, and uses the given identifiers to name the new hypotheses.
+Patterns can be used like in the `intro` tactic. Example, given a goal
+```
+  |-  ((fun x : Nat × Bool => ...) = (fun x => ...))
+```
+`funext (a, b)` applies `funext` once and performs pattern matching on the newly introduced pair.
+-/
 syntax "funext " (colGt term:max)+ : tactic
 
 macro_rules

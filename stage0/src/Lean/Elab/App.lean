@@ -866,9 +866,9 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
       let some expectedType := expectedType?
         | throwError "invalid dotted identifier notation, expected type must be known"
       forallTelescopeReducing expectedType fun _ resultType => do
-        let resultTypeFn := (← instantiateMVars resultType).getAppFn
+        let resultTypeFn := (← instantiateMVars resultType).consumeMData.getAppFn
         tryPostponeIfMVar resultTypeFn
-        let .const declName .. := resultTypeFn
+        let .const declName .. := resultTypeFn.consumeMData
           | throwError "invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant{indentExpr expectedType}"
         let idNew := declName ++ id.getId.eraseMacroScopes
         unless (← getEnv).contains idNew do

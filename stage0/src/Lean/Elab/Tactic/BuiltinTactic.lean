@@ -248,28 +248,38 @@ def renameInaccessibles (mvarId : MVarId) (hs : Array Syntax) : TacticM MVarId :
     assignExprMVar mvarId mvarNew
     return mvarNew.mvarId!
 
-@[builtinTactic «case»] def evalCase : Tactic
-  | stx@`(tactic| case $tag $hs* =>%$arr $tac:tacticSeq) => do
-    let gs ← getUnsolvedGoals
-    let g ←
-      if tag.isIdent then
-        let tag := tag.getId
-        let some g ← findTag? gs tag | throwError "tag not found"
-        pure g
-      else
-        getMainGoal
-    let gs := gs.erase g
-    let g ← renameInaccessibles g hs
-    setGoals [g]
-    let savedTag ← getMVarTag g
-    setMVarTag g Name.anonymous
-    try
+private def evalCaseCore (stx : Syntax) (tag : Syntax) (hs : Array Syntax) (arr : Syntax) (tac : Syntax)
+    (closeOnFailure : Bool) : TacticM Unit := do
+  let gs ← getUnsolvedGoals
+  let g ←
+    if tag.isIdent then
+      let tag := tag.getId
+      let some g ← findTag? gs tag | throwError "tag not found"
+      pure g
+    else
+      getMainGoal
+  let gs := gs.erase g
+  let g ← renameInaccessibles g hs
+  setGoals [g]
+  let savedTag ← getMVarTag g
+  setMVarTag g Name.anonymous
+  try
+    if closeOnFailure then
       withCaseRef arr tac do
         closeUsingOrAdmit (withTacticInfoContext stx (evalTactic tac))
-    finally
-      setMVarTag g savedTag
-    done
-    setGoals gs
+    else
+      evalTactic tac
+  finally
+    setMVarTag g savedTag
+  done
+  setGoals gs
+
+@[builtinTactic «case»] def evalCase : Tactic
+  | stx@`(tactic| case $tag $hs* =>%$arr $tac:tacticSeq) => evalCaseCore stx tag hs arr tac (closeOnFailure := true)
+  | _ => throwUnsupportedSyntax
+
+@[builtinTactic «case'»] def evalCase' : Tactic
+  | stx@`(tactic| case' $tag $hs* =>%$arr $tac:tacticSeq) => evalCaseCore stx tag hs arr tac (closeOnFailure := false)
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic «renameI»] def evalRenameInaccessibles : Tactic

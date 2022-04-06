@@ -127,7 +127,7 @@ def mkDefViewOfConstant (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
   let val ← match stx[3].getOptional? with
     | some val => pure val
     | none     =>
-      let val ← `(default_or_ofNonempty%)
+      let val ← if modifiers.isUnsafe then `(default_or_ofNonempty% unsafe) else `(default_or_ofNonempty%)
       pure <| mkNode ``Parser.Command.declValSimple #[ mkAtomFrom stx ":=", val ]
   return {
     ref := stx, kind := DefKind.opaque, modifiers := modifiers,

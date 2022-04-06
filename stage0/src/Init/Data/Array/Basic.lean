@@ -628,8 +628,10 @@ def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
   show ((a.set i (a.get j)).set (size_set a i _ ▸ j) (a.get i)).size = a.size
   rw [size_set, size_set]
 
-@[simp] theorem size_pop (a : Array α) : a.pop.size = a.size - 1 :=
-  List.length_dropLast ..
+@[simp] theorem size_pop (a : Array α) : a.pop.size = a.size - 1 := by
+  match a with
+  | ⟨[]⟩ => rfl
+  | ⟨a::as⟩ => simp [pop, Nat.succ_sub_succ_eq_sub]
 
 def popWhile (p : α → Bool) (as : Array α) : Array α :=
   if h : as.size > 0 then

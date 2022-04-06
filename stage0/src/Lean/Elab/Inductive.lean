@@ -145,8 +145,8 @@ private def checkHeader (r : ElabHeaderResult) (numParams : Nat) (firstType? : O
   match firstType? with
   | none           => pure type
   | some firstType =>
-    withRef r.view.ref $ checkParamsAndResultType type firstType numParams
-    pure firstType
+    withRef r.view.ref <| checkParamsAndResultType type firstType numParams
+    return firstType
 
 -- Auxiliary function for checking whether the types in mutually inductive declaration are compatible.
 private partial def checkHeaders (rs : Array ElabHeaderResult) (numParams : Nat) (i : Nat) (firstType? : Option Expr) : TermElabM Unit := do
@@ -173,7 +173,7 @@ private partial def withInductiveLocalDecls {α} (rs : Array ElabHeaderResult) (
     pure (r.view.shortDeclName, type)
   let r0     := rs[0]
   let params := r0.params
-  withLCtx r0.lctx r0.localInsts $ withRef r0.view.ref do
+  withLCtx r0.lctx r0.localInsts <| withRef r0.view.ref do
     let rec loop (i : Nat) (indFVars : Array Expr) := do
       if h : i < namesAndTypes.size then
         let (id, type) := namesAndTypes.get ⟨i, h⟩
@@ -186,6 +186,86 @@ private def isInductiveFamily (numParams : Nat) (indFVar : Expr) : TermElabM Boo
   let indFVarType ← inferType indFVar
   forallTelescopeReducing indFVarType fun xs _ =>
     return xs.size > numParams
+
+private def getArrowBinderNames (type : Expr) : Array Name :=
+  go type #[]
+where
+  go (type : Expr) (acc : Array Name) : Array Name :=
+    match type with
+    | .forallE n _ b _ => go b (acc.push n)
+    | .mdata _ b _     => go b acc
+    | _ => acc
+
+/--
+  Replace binder names in `type` with `newNames`.
+  Remark: we only replace the names for binder containing macroscopes.
+-/
+private def replaceArrowBinderNames (type : Expr) (newNames : Array Name) : Expr :=
+  go type 0
+where
+  go (type : Expr) (i : Nat) : Expr :=
+    if i < newNames.size then
+      match type with
+      | .forallE n d b data =>
+        if n.hasMacroScopes then
+          mkForall newNames[i] data.binderInfo d (go b (i+1))
+        else
+          mkForall n data.binderInfo d (go b (i+1))
+      | _ => type
+    else
+      type
+
+/--
+  Reorder contructor arguments to improve the effectiveness of the `fixedIndicesToParams` method.
+
+  The idea is quite simple. Given a constructor type of the form
+  ```
+  (a₁ : A₁) → ... → (aₙ : Aₙ) → C b₁ ... bₘ
+  ```
+  We try to find the longest prefix `b₁ ... bᵢ`, `i ≤ m` s.t.
+  - each `bₖ` is in `{a₁, ..., aₙ}`
+  - each `bₖ` only depends on variables in `{b₁, ..., bₖ₋₁}`
+
+  Then, it moves this prefix `b₁ ... bᵢ` to the front.
+-/
+private def reorderCtorArgs (ctorType : Expr) : MetaM Expr := do
+  forallTelescopeReducing ctorType fun as type => do
+    /- `type` is of the form `C ...` where `C` is the inductive datatype being defined. -/
+    let bs := type.getAppArgs
+    let mut as  := as
+    let mut bsPrefix := #[]
+    for b in bs do
+      unless b.isFVar && as.contains b do
+        break
+      let localDecl ← getFVarLocalDecl b
+      if (← localDeclDependsOnPred localDecl fun fvarId => as.any fun p => p.fvarId! == fvarId) then
+        break
+      bsPrefix := bsPrefix.push b
+      as := as.erase b
+    if bsPrefix.isEmpty then
+      return ctorType
+    else
+      let r ← mkForallFVars (bsPrefix ++ as) type
+      /- `r` already contains the resulting type.
+         To be able to produce more better error messages, we copy the first `bsPrefix.size` binder names from `C` to `r`.
+         This is important when some of contructor parameters were inferred using the auto-bound implicit feature.
+         For example, in the following declaration.
+         ```
+          inductive Member : α → List α → Type u
+            | head : Member a (a::as)
+            | tail : Member a bs → Member a (b::bs)
+         ```
+         if we do not copy the binder names
+         ```
+         #check @Member.head
+         ```
+         produces `@Member.head : {x : Type u_1} → {a : x} → {as : List x} → Member a (a :: as)`
+         which is correct, but a bit confusing. By copying the binder names, we obtain
+         `@Member.head : {α : Type u_1} → {a : α} → {as : List α} → Member a (a :: as)`
+       -/
+      let C := type.getAppFn
+      let binderNames := getArrowBinderNames (← instantiateMVars (← inferType C))
+      return replaceArrowBinderNames r binderNames[:bsPrefix.size]
 
 /-
   Elaborate constructor types.
@@ -223,6 +303,7 @@ private def elabCtors (indFVars : Array Expr) (indFVar : Expr) (params : Array E
           let type  ← mkForallFVars ctorParams type
           let extraCtorParams ← Term.collectUnassignedMVars type
           let type ← mkForallFVars extraCtorParams type
+          let type ← reorderCtorArgs type
           let type ← mkForallFVars params type
           return { name := ctorView.declName, type }
 where
@@ -278,58 +359,11 @@ def shouldInferResultUniverse (u : Level) : TermElabM Bool := do
     match u.getLevelOffset with
     | Level.mvar mvarId _ => do
       Term.assignLevelMVar mvarId tmpIndParam
-      pure true
+      return true
     | _ =>
       throwError "cannot infer resulting universe level of inductive datatype, given level contains metavariables {mkSort u}, provide universe explicitly"
   else
-    pure false
-
-/-
-  Auxiliary function for `updateResultingUniverse`
-  `accLevelAtCtor u r rOffset us` add `u` components to `us` if they are not already there and it is different from the resulting universe level `r+rOffset`.
-  If `u` is a `max`, then its components are recursively processed.
-  If `u` is a `succ` and `rOffset > 0`, we process the `u`s child using `rOffset-1`.
-
-  This method is used to infer the resulting universe level of an inductive datatype. -/
-def accLevelAtCtor : Level → Level → Nat → Array Level → TermElabM (Array Level)
-  | Level.max u v _,  r, rOffset,   us => do let us ← accLevelAtCtor u r rOffset us; accLevelAtCtor v r rOffset us
-  | Level.imax u v _, r, rOffset,   us => do let us ← accLevelAtCtor u r rOffset us; accLevelAtCtor v r rOffset us
-  | Level.zero _,     _, _,         us => pure us
-  | Level.succ u _,   r, rOffset+1, us => accLevelAtCtor u r rOffset us
-  | u,                r, rOffset,   us =>
-    if rOffset == 0 && u == r then pure us
-    else if r.occurs u  then throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly"
-    else if rOffset > 0 then throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly"
-    else if us.contains u then pure us
-    else pure (us.push u)
-
-/- Auxiliary function for `updateResultingUniverse` -/
-private partial def collectUniversesFromCtorTypeAux (r : Level) (rOffset : Nat) : Nat → Expr → Array Level → TermElabM (Array Level)
-  | 0,   Expr.forallE n d b c, us => do
-    let u ← getLevel d
-    let u ← instantiateLevelMVars u
-    let us ← accLevelAtCtor u r rOffset us
-    withLocalDecl n c.binderInfo d fun x =>
-      let e := b.instantiate1 x
-      collectUniversesFromCtorTypeAux r rOffset 0 e us
-  | i+1, Expr.forallE n d b c, us => do
-    withLocalDecl n c.binderInfo d fun x =>
-      let e := b.instantiate1 x
-      collectUniversesFromCtorTypeAux r rOffset i e us
-  | _, _, us => pure us
-
-/- Auxiliary function for `updateResultingUniverse` -/
-private partial def collectUniversesFromCtorType
-    (r : Level) (rOffset : Nat) (ctorType : Expr) (numParams : Nat) (us : Array Level) : TermElabM (Array Level) :=
-  collectUniversesFromCtorTypeAux r rOffset numParams ctorType us
-
-/- Auxiliary function for `updateResultingUniverse` -/
-private partial def collectUniverses (r : Level) (rOffset : Nat) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (Array Level) := do
-  let mut us := #[]
-  for indType in indTypes do
-    for ctor in indType.ctors do
-      us ← collectUniversesFromCtorType r rOffset ctor.type numParams us
-  return us
+    return false
 
 def mkResultUniverse (us : Array Level) (rOffset : Nat) : Level :=
   if us.isEmpty && rOffset == 0 then
@@ -337,9 +371,50 @@ def mkResultUniverse (us : Array Level) (rOffset : Nat) : Level :=
   else
     let r := Level.mkNaryMax us.toList
     if rOffset == 0 && !r.isZero && !r.isNeverZero then
-      (mkLevelMax r levelOne).normalize
+      mkLevelMax r levelOne |>.normalize
     else
       r.normalize
+
+/--
+  Auxiliary function for `updateResultingUniverse`
+  `accLevelAtCtor u r rOffset` add `u` to state if it is not already there and
+  it is different from the resulting universe level `r+rOffset`.
+
+  If `u` is a `max`, then its components are recursively processed.
+  If `u` is a `succ` and `rOffset > 0`, we process the `u`s child using `rOffset-1`.
+
+  This method is used to infer the resulting universe level of an inductive datatype.
+-/
+def accLevelAtCtor (u : Level) (r : Level) (rOffset : Nat) : StateRefT (Array Level) TermElabM Unit := do
+  match u, rOffset with
+  | Level.max u v _,  rOffset   => accLevelAtCtor u r rOffset; accLevelAtCtor v r rOffset
+  | Level.imax u v _, rOffset   => accLevelAtCtor u r rOffset; accLevelAtCtor v r rOffset
+  | Level.zero _,     _         => return ()
+  | Level.succ u _,   rOffset+1 => accLevelAtCtor u r rOffset
+  | u,                rOffset   =>
+    if rOffset == 0 && u == r then
+      return ()
+    else if r.occurs u  then
+      throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly"
+    else if rOffset > 0 then
+      throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly"
+    else if (← get).contains u then
+      return ()
+    else
+      modify fun us => us.push u
+
+/-- Auxiliary function for `updateResultingUniverse` -/
+private partial def collectUniverses (r : Level) (rOffset : Nat) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (Array Level) := do
+  let (_, us) ← go |>.run #[]
+  return us
+where
+  go : StateRefT (Array Level) TermElabM Unit :=
+    indTypes.forM fun indType => indType.ctors.forM fun ctor =>
+      forallTelescopeReducing ctor.type fun ctorParams _ =>
+        for ctorParam in ctorParams[numParams:] do
+          let type ← inferType ctorParam
+          let u ← instantiateLevelMVars (← getLevel type)
+          accLevelAtCtor u r rOffset
 
 private def updateResultingUniverse (numParams : Nat) (indTypes : List InductiveType) : TermElabM (List InductiveType) := do
   let r ← getResultingUniverse indTypes
@@ -368,8 +443,56 @@ def checkResultingUniverse (u : Level) : TermElabM Unit := do
     if !u.isZero && !u.isNeverZero then
       throwError "invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u'{indentD u}"
 
-private def checkResultingUniverses (indTypes : List InductiveType) : TermElabM Unit := do
-  checkResultingUniverse (← getResultingUniverse indTypes)
+/--
+  Execute `k` using the `Syntax` reference associated with constructor `ctorName`.
+-/
+def withCtorRef (views : Array InductiveView) (ctorName : Name) (k : TermElabM α) : TermElabM α := do
+  for view in views do
+    for ctorView in view.ctors do
+      if ctorView.declName == ctorName then
+        return (← withRef ctorView.ref k)
+  k
+
+private def checkResultingUniverses (views : Array InductiveView) (numParams : Nat) (indTypes : List InductiveType) : TermElabM Unit := do
+  let u := (← instantiateLevelMVars (← getResultingUniverse indTypes)).normalize
+  checkResultingUniverse u
+  unless u.isZero do
+    indTypes.forM fun indType => indType.ctors.forM fun ctor =>
+      forallTelescopeReducing ctor.type fun ctorArgs type => do
+        for ctorArg in ctorArgs[numParams:] do
+          let type ← inferType ctorArg
+          let v := (← instantiateLevelMVars (← getLevel type)).normalize
+          let rec check (v' : Level) (u' : Level) : TermElabM Unit :=
+            match v', u' with
+            | .succ v' _, .succ u' _ => check v' u'
+            | .mvar id _, .param ..  =>
+              /- Special case:
+                 The constructor parameter `v` is at unverse level `?v+k` and
+                 the resulting inductive universe level is `u'+k`, where `u'` is a parameter (or zero).
+                 Thus, `?v := u'` is the only choice for satisfying the universe contraint `?v+k <= u'+k`.
+                 Note that, we still generate an error for cases where there is more than one of satisfying the constraint.
+                 Examples:
+                 -----------------------------------------------------------
+                 | ctor universe level | inductive datatype universe level |
+                 -----------------------------------------------------------
+                 |   ?v                | max u w                           |
+                 -----------------------------------------------------------
+                 |   ?v                | u + 1                             |
+                 -----------------------------------------------------------
+              -/
+              assignLevelMVar id u'
+            | .mvar id _, .zero _    => assignLevelMVar id u' -- TODO: merge with previous case
+            | _, _ =>
+              unless u.geq v do
+                let mut msg := m!"invalid universe level in constructor '{ctor.name}', parameter"
+                let localDecl ← getFVarLocalDecl ctorArg
+                unless localDecl.userName.hasMacroScopes do
+                  msg := msg ++ m!" '{ctorArg}'"
+                msg := msg ++ m!" has type{indentExpr type}"
+                msg := msg ++ m!"\nat universe level{indentD v}"
+                msg := msg ++ m!"\nit must be smaller than or equal to the inductive datatype universe level{indentD u}"
+                withCtorRef views ctor.name <| throwError msg
+          check v u
 
 private def collectUsed (indTypes : List InductiveType) : StateRefT CollectFVars.State MetaM Unit := do
   indTypes.forM fun indType => do
@@ -383,15 +506,15 @@ private def removeUnused (vars : Array Expr) (indTypes : List InductiveType) : T
 
 private def withUsed {α} (vars : Array Expr) (indTypes : List InductiveType) (k : Array Expr → TermElabM α) : TermElabM α := do
   let (lctx, localInsts, vars) ← removeUnused vars indTypes
-  withLCtx lctx localInsts $ k vars
+  withLCtx lctx localInsts <| k vars
 
 private def updateParams (vars : Array Expr) (indTypes : List InductiveType) : TermElabM (List InductiveType) :=
   indTypes.mapM fun indType => do
     let type ← mkForallFVars vars indType.type
     let ctors ← indType.ctors.mapM fun ctor => do
       let ctorType ← mkForallFVars vars ctor.type
-      pure { ctor with type := ctorType }
-    pure { indType with type := type, ctors := ctors }
+      return { ctor with type := ctorType }
+    return { indType with type := type, ctors := ctors }
 
 private def collectLevelParamsInInductive (indTypes : List InductiveType) : Array Name := Id.run <| do
   let mut usedParams : CollectLevelParams.State := {}
@@ -425,8 +548,8 @@ private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : 
             | none   => none
             | some c => mkAppN c (params.extract 0 numVars)
         mkForallFVars params type
-      pure { ctor with type := type }
-    pure { indType with ctors := ctors }
+      return { ctor with type := type }
+    return { indType with ctors := ctors }
 
 abbrev Ctor2InferMod := Std.HashMap Name Bool
 
@@ -512,7 +635,6 @@ private def isDomainDefEq (arrowType : Expr) (type : Expr) : MetaM Bool := do
 
 /--
   Convert fixed indices to parameters.
-  TODO: we currently only convert a prefix of the indices, and we do not try to reorder binders.
 -/
 private partial def fixedIndicesToParams (numParams : Nat) (indTypes : Array InductiveType) (indFVars : Array Expr) : MetaM (Nat × List InductiveType) := do
   let masks ← indTypes.mapM (computeFixedIndexBitMask numParams · indFVars)
@@ -560,15 +682,18 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         indTypesArray := indTypesArray.push { name := r.view.declName, type := type, ctors := ctors : InductiveType }
       Term.synthesizeSyntheticMVarsNoPostponing
       let (numExplicitParams, indTypes) ← fixedIndicesToParams params.size indTypesArray indFVars
-      trace[Meta.debug] "numExplicitParams: {numExplicitParams}"
       let u ← getResultingUniverse indTypes
       let inferLevel ← shouldInferResultUniverse u
       withUsed vars indTypes fun vars => do
         let numVars   := vars.size
         let numParams := numVars + numExplicitParams
         let indTypes ← updateParams vars indTypes
-        let indTypes ← levelMVarToParam indTypes
-        let indTypes ← if inferLevel then updateResultingUniverse numParams indTypes else checkResultingUniverses indTypes; pure indTypes
+        let indTypes ←
+          if inferLevel then
+            updateResultingUniverse numParams (← levelMVarToParam indTypes)
+          else
+            checkResultingUniverses views numParams indTypes
+            levelMVarToParam indTypes
         let usedLevelNames := collectLevelParamsInInductive indTypes
         match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
         | Except.error msg      => throwError msg

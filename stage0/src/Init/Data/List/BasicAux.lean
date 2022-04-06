@@ -121,6 +121,15 @@ theorem sizeOf_lt_of_mem [SizeOf α] {as : List α} (h : a ∈ as) : sizeOf a < 
   | head => simp_arith
   | tail _ _ ih => exact Nat.lt_trans ih (by simp_arith)
 
+macro "sizeOf_list_dec" : tactic =>
+  `(first
+    | apply sizeOf_lt_of_mem; assumption; done
+    | apply Nat.lt_trans (sizeOf_lt_of_mem ?h)
+      case' h => assumption
+      simp_arith)
+
+macro_rules | `(tactic| decreasing_trivial) => `(tactic| sizeOf_list_dec)
+
 theorem append_cancel_left {as bs cs : List α} (h : as ++ bs = as ++ cs) : bs = cs := by
   induction as with
   | nil => assumption
@@ -144,5 +153,13 @@ theorem append_cancel_right {as bs cs : List α} (h : as ++ bs = cs ++ bs) : as 
   apply propext; apply Iff.intro
   next => apply append_cancel_right
   next => intro h; simp [h]
+
+@[simp] theorem sizeOf_get [SizeOf α] (as : List α) (i : Fin as.length) : sizeOf (as.get i) < sizeOf as := by
+  match as, i with
+  | a::as, ⟨0, _⟩  => simp_arith [get]
+  | a::as, ⟨i+1, h⟩ =>
+    have ih := sizeOf_get as ⟨i, Nat.le_of_succ_le_succ h⟩
+    apply Nat.lt_trans ih
+    simp_arith
 
 end List

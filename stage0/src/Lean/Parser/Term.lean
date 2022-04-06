@@ -245,7 +245,7 @@ def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 @[builtinTermParser] def waitIfTypeContainsMVar := leading_parser "wait_if_type_contains_mvar% " >> "?" >> ident >> "; " >> termParser
 @[builtinTermParser] def waitIfContainsMVar     := leading_parser "wait_if_contains_mvar% " >> "?" >> ident >> "; " >> termParser
 
-@[builtinTermParser] def defaultOrOfNonempty   := leading_parser "default_or_ofNonempty%"
+@[builtinTermParser] def defaultOrOfNonempty   := leading_parser "default_or_ofNonempty% " >> optional "unsafe"
 
 def namedArgument  := leading_parser atomic ("(" >> ident >> " := ") >> termParser >> ")"
 def ellipsis       := leading_parser ".."

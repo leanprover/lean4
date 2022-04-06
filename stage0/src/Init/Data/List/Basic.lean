@@ -485,14 +485,12 @@ def dropLast {α} : List α → List α
     | zero => rfl
     | succ i => simp [set, ih]
 
-@[simp] theorem length_dropLast (as : List α) : as.dropLast.length = as.length - 1 := by
+@[simp] theorem length_dropLast_cons (a : α) (as : List α) : (a :: as).dropLast.length = as.length := by
   match as with
   | []       => rfl
-  | [a]      => rfl
-  | a::b::as =>
-    have ih := length_dropLast (b::as)
+  | b::bs =>
+    have ih := length_dropLast_cons b bs
     simp[dropLast, ih]
-    rfl
 
 @[simp] theorem length_append (as bs : List α) : (as ++ bs).length = as.length + bs.length := by
   induction as with

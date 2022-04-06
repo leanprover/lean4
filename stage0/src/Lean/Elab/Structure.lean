@@ -623,11 +623,15 @@ private def levelMVarToParam (scopeVars : Array Expr) (params : Array Expr) (fie
   (levelMVarToParamAux scopeVars params fieldInfos).run' 1
 
 private partial def collectUniversesFromFields (r : Level) (rOffset : Nat) (fieldInfos : Array StructFieldInfo) : TermElabM (Array Level) := do
-  fieldInfos.foldlM (init := #[]) fun (us : Array Level) (info : StructFieldInfo) => do
-    let type ← inferType info.fvar
-    let u ← getLevel type
-    let u ← instantiateLevelMVars u
-    accLevelAtCtor u r rOffset us
+  let (_, us) ← go |>.run #[]
+  return us
+where
+  go : StateRefT (Array Level) TermElabM Unit :=
+    for info in fieldInfos do
+      let type ← inferType info.fvar
+      let u ← getLevel type
+      let u ← instantiateLevelMVars u
+      accLevelAtCtor u r rOffset
 
 private def updateResultingUniverse (fieldInfos : Array StructFieldInfo) (type : Expr) : TermElabM Expr := do
   let r ← getResultUniverse type

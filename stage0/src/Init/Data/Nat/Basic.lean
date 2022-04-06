@@ -301,6 +301,8 @@ theorem zero_lt_of_ne_zero {a : Nat} (h : a ≠ 0) : 0 < a := by
   | 0 => contradiction
   | a+1 => apply Nat.zero_lt_succ
 
+attribute [simp] Nat.lt_irrefl
+
 theorem ne_of_lt {a b : Nat} (h : a < b) : a ≠ b :=
   fun he => absurd (he ▸ h) (Nat.lt_irrefl a)
 

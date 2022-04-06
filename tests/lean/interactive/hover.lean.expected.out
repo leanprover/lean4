@@ -138,7 +138,7 @@ null
 {"range":
  {"start": {"line": 127, "character": 10},
   "end": {"line": 127, "character": 13}},
- "contents": {"value": "```lean\nBar.Bar : Type\n```", "kind": "markdown"}}
+ "contents": {"value": "```lean\nBar : Type\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 129, "character": 4}}
 {"range":

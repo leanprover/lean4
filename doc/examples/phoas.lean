@@ -140,7 +140,6 @@ def pretty (e : Term' (fun _ => String) ty) (i : Nat := 1) : String :=
     s!"(let {x} := {pretty a i}; => {pretty (b x) (i+1)}"
 
 #eval pretty three_the_hard_way
--- "(((fun x_1 => (fun x_2 => (x_1 + x_2))) 1) 2)"
 
 /-|
 It is not necessary to convert to a different representation to support many common

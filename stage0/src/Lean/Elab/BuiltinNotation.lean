@@ -96,23 +96,21 @@ are turned into a new anonymous constructor application. For example,
   | _                                                           => Macro.throwUnsupported
 
 open Lean.Parser in
-private def elabParserMacroAux (prec : Syntax) (e : Syntax) : TermElabM Syntax := do
+private def elabParserMacroAux (prec : Syntax) (e : Syntax) (withAnonymousAntiquot : Bool) : TermElabM Syntax := do
   let (some declName) ← getDeclName?
     | throwError "invalid `leading_parser` macro, it must be used in definitions"
   match extractMacroScopes declName with
-  | { name := Name.str _ s _, scopes :=  scps, .. } =>
+  | { name := Name.str _ s _, .. } =>
     let kind := quote declName
     let s    := quote s
-    -- if the parser decl is hidden by hygiene, it doesn't make sense to provide an antiquotation kind
-    let antiquotKind ← if scps == [] then `(some $kind) else `(none)
-    ``(withAntiquot (mkAntiquot $s $antiquotKind) (leadingNode $kind $prec $e))
+    ``(withAntiquot (mkAntiquot $s $kind $(quote withAnonymousAntiquot)) (leadingNode $kind $prec $e))
   | _  => throwError "invalid `leading_parser` macro, unexpected declaration name"
 
 @[builtinTermElab «leading_parser»] def elabLeadingParserMacro : TermElab :=
   adaptExpander fun stx => match stx with
-  | `(leading_parser $e)         => elabParserMacroAux (quote Parser.maxPrec) e
-  | `(leading_parser : $prec $e) => elabParserMacroAux prec e
-  | _                            => throwUnsupportedSyntax
+  | `(leading_parser $[: $prec?]? $[(withAnonymousAntiquot := $anon?)]? $e) =>
+    elabParserMacroAux (prec?.getD (quote Parser.maxPrec)) e (anon?.all (·.isOfKind ``Parser.Term.trueVal))
+  | _ => throwUnsupportedSyntax
 
 private def elabTParserMacroAux (prec lhsPrec : Syntax) (e : Syntax) : TermElabM Syntax := do
   let declName? ← getDeclName?

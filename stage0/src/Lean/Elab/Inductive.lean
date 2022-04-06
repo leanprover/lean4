@@ -705,13 +705,13 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
           Term.ensureNoUnassignedMVars decl
           addDecl decl
           mkAuxConstructions views
-          withSaveInfoContext do  -- save new env
-            for view in views do
-              Term.addTermInfo view.ref[1] (← mkConstWithLevelParams view.declName) (isBinder := true)
-              for ctor in view.ctors do
-                Term.addTermInfo ctor.ref[2] (← mkConstWithLevelParams ctor.declName) (isBinder := true)
-              -- We need to invoke `applyAttributes` because `class` is implemented as an attribute.
-              Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
+    withSaveInfoContext do  -- save new env
+      for view in views do
+        Term.addTermInfo view.ref[1] (← mkConstWithLevelParams view.declName) (isBinder := true)
+        for ctor in view.ctors do
+          Term.addTermInfo ctor.ref[2] (← mkConstWithLevelParams ctor.declName) (isBinder := true)
+        -- We need to invoke `applyAttributes` because `class` is implemented as an attribute.
+        Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
 
 private def applyDerivingHandlers (views : Array InductiveView) : CommandElabM Unit := do
   let mut processed : NameSet := {}

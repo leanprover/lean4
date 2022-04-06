@@ -143,8 +143,7 @@ null
  "position": {"line": 129, "character": 4}}
 {"range":
  {"start": {"line": 129, "character": 4}, "end": {"line": 129, "character": 6}},
- "contents":
- {"value": "```lean\nBar.Bar.mk : Bar.Bar\n```", "kind": "markdown"}}
+ "contents": {"value": "```lean\nBar.Bar.mk : Bar\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 132, "character": 2}}
 {"range":

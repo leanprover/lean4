@@ -358,13 +358,19 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
     let elimName ← withRef elimId do resolveGlobalConstNoOverloadWithInfo elimId
     return (elimName, ← withRef elimId do getElimInfo elimName)
 
-private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
-  if exprs.all (·.isFVar) then
-    return exprs
+private def shouldGeneralizeTarget (e : Expr) : MetaM Bool := do
+  if let .fvar fvarId .. := e then
+    return (← getLocalDecl fvarId).hasValue -- must generalize let-decls
   else
+    return true
+
+private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
+  if (← withMainContext <| exprs.anyM (shouldGeneralizeTarget ·)) then
     liftMetaTacticAux fun mvarId => do
       let (fvarIds, mvarId) ← generalize mvarId (exprs.map fun expr => { expr })
       return (fvarIds.map mkFVar, [mvarId])
+  else
+    return exprs
 
 @[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focus do
   let targets ← withMainContext <| stx[1].getSepArgs.mapM (elabTerm · none)
@@ -406,21 +412,21 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr) :=
       let hName? := if target[0].isNone then none else some target[0][0].getId
       let expr ← elabTerm target[1] none
       return { expr, hName? : GeneralizeArg }
-    if args.all fun arg => arg.expr.isFVar && arg.hName?.isNone then
-      return args.map (·.expr)
-    else
+    if (← withMainContext <| args.anyM fun arg => shouldGeneralizeTarget arg.expr <||> pure arg.hName?.isSome) then
       liftMetaTacticAux fun mvarId => do
-        let argsToGeneralize := args.filter fun arg => !(arg.expr.isFVar && arg.hName?.isNone)
+        let argsToGeneralize ← args.filterM fun arg => shouldGeneralizeTarget arg.expr <||> pure arg.hName?.isSome
         let (fvarIdsNew, mvarId) ← generalize mvarId argsToGeneralize
         let mut result := #[]
         let mut j := 0
         for arg in args do
-          if arg.expr.isFVar && arg.hName?.isNone then
-            result := result.push arg.expr
-          else
+          if (← shouldGeneralizeTarget arg.expr) || arg.hName?.isSome then
             result := result.push (mkFVar fvarIdsNew[j])
             j := j+1
+          else
+            result := result.push arg.expr
         return (result, [mvarId])
+    else
+      return args.map (·.expr)
 
 builtin_initialize registerTraceClass `Elab.cases
 

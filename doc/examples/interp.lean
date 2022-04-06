@@ -131,7 +131,7 @@ We can make some simple test functions. Firstly, adding two inputs `fun x y => y
 -/
 
 def add : Expr ctx (Ty.fn Ty.int (Ty.fn Ty.int Ty.int)) :=
-  lam (lam (op (.+.) (var stop) (var (pop stop))))
+  lam (lam (op (·+·) (var stop) (var (pop stop))))
 
 #eval add.interp Env.nil 10 20
 
@@ -144,9 +144,9 @@ definition itself is non-terminating. We use two tricks to make sure Lean accept
 -/
 
 def fact : Expr ctx (Ty.fn Ty.int Ty.int) :=
-  lam (ife (op (.==.) (var stop) (val 0))
+  lam (ife (op (·==·) (var stop) (val 0))
            (val 1)
-           (op (.*.) (delay fun _ => app fact (op (.-.) (var stop) (val 1))) (var stop)))
+           (op (·*·) (delay fun _ => app fact (op (·-·) (var stop) (val 1))) (var stop)))
   decreasing_by sorry
 
 #eval fact.interp Env.nil 10

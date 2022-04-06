@@ -30,7 +30,6 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #include <vector>
 #ifdef LEAN_WINDOWS
 #include <windows.h>
-#undef ERROR // thanks, wingdi.h
 #include <psapi.h>
 #else
 #include <dlfcn.h>

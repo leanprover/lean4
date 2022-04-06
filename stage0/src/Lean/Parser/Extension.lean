@@ -230,7 +230,7 @@ unsafe def mkParserOfConstantUnsafe (constName : Name) (compileParserDescr : Par
   let env  := (← read).env
   let opts := (← read).opts
   match env.find? constName with
-  | none      => throw ↑s!"unknow constant '{constName}'"
+  | none      => throw ↑s!"unknown constant '{constName}'"
   | some info =>
     match info.type with
     | Expr.const `Lean.Parser.TrailingParser _ _ =>
@@ -247,7 +247,7 @@ unsafe def mkParserOfConstantUnsafe (constName : Name) (compileParserDescr : Par
       let d ← IO.ofExcept $ env.evalConst TrailingParserDescr opts constName
       let p ← compileParserDescr d
       pure ⟨false, p⟩
-    | _ => throw ↑s!"unexpected parser type at '{constName}' (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected"
+    | _ => throw ↑s!"unexpected parser type at '{constName}' (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected)"
 
 @[implementedBy mkParserOfConstantUnsafe]
 constant mkParserOfConstantAux (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser)
@@ -546,31 +546,6 @@ builtin_initialize registerBuiltinDynamicParserAttribute `commandParser `command
 
 @[inline] def commandParser (rbp : Nat := 0) : Parser :=
   categoryParser `command rbp
-
-def notFollowedByCategoryTokenFn (catName : Name) : ParserFn := fun ctx s =>
-  let categories := (parserExtension.getState ctx.env).categories
-  match getCategory categories catName with
-  | none => s.mkUnexpectedError s!"unknown parser category '{catName}'"
-  | some cat =>
-    let (s, stx) := peekToken ctx s
-    match stx with
-    | Except.ok (Syntax.atom _ sym) =>
-      if ctx.quotDepth > 0 && sym == "$" then s
-      else match cat.tables.leadingTable.find? (Name.mkSimple sym) with
-      | some _ => s.mkUnexpectedError (toString catName)
-      | _      => s
-    | Except.ok _    => s
-    | Except.error _ => s
-
-@[inline] def notFollowedByCategoryToken (catName : Name) : Parser := {
-  fn := notFollowedByCategoryTokenFn catName
-}
-
-abbrev notFollowedByCommandToken : Parser :=
-  notFollowedByCategoryToken `command
-
-abbrev notFollowedByTermToken : Parser :=
-  notFollowedByCategoryToken `term
 
 private def withNamespaces (ids : Array Name) (p : ParserFn) (addOpenSimple : Bool) : ParserFn := fun c s =>
   let c := ids.foldl (init := c) fun c id =>

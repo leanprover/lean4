@@ -226,7 +226,7 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
         Lean.ParserDescr.node $(quote kind) $(quote Lean.Parser.maxPrec)
           (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol $(quote quotSymbol))
             (Lean.ParserDescr.binary `andthen
-              (Lean.ParserDescr.unary `incQuotDepth (Lean.ParserDescr.cat $(quote catName) 0))
+              (Lean.ParserDescr.cat $(quote catName) 0)
               (Lean.ParserDescr.symbol ")"))))
     elabCommand cmd
 

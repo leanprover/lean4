@@ -620,10 +620,10 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
   let ref     := stx
   let letDecl := stx[1][0]
   let body    := stx[3]
-  if letDecl.getKind == `Lean.Parser.Term.letIdDecl then
+  if letDecl.getKind == ``Lean.Parser.Term.letIdDecl then
     let { id := id, binders := binders, type := type, value := val } := mkLetIdDeclView letDecl
     elabLetDeclAux id binders type val body expectedType? useLetExpr elabBodyFirst usedLetOnly
-  else if letDecl.getKind == `Lean.Parser.Term.letPatDecl then
+  else if letDecl.getKind == ``Lean.Parser.Term.letPatDecl then
     -- node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushNone >> optType >> " := ") >> termParser
     if elabBodyFirst then
       throwError "'let_delayed' with patterns is not allowed"
@@ -638,7 +638,7 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
         let type := optType[0][1]
         `(match ($val:term : $type) with | $pat => $body)
     withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
-  else if letDecl.getKind == `Lean.Parser.Term.letEqnsDecl then
+  else if letDecl.getKind == ``Lean.Parser.Term.letEqnsDecl then
     let letDeclIdNew ← liftMacroM <| expandLetEqnsDecl letDecl
     let declNew := stx[1].setArg 0 letDeclIdNew
     let stxNew  := stx.setArg 1 declNew

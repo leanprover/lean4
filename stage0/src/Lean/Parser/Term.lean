@@ -36,7 +36,7 @@ def tacticSeq1Indented : Parser :=
 def tacticSeqBracketed : Parser :=
   leading_parser "{" >> many (group (ppLine >> tacticParser >> optional ";")) >> ppDedent (ppLine >> "}")
 def tacticSeq :=
-  nodeWithAntiquot "tacticSeq" `Lean.Parser.Tactic.tacticSeq (tacticSeqBracketed <|> tacticSeq1Indented)
+  leading_parser (withAnonymousAntiquot := false) tacticSeqBracketed <|> tacticSeq1Indented
 
 /- Raw sequence for quotation and grouping -/
 def seq1 :=
@@ -134,7 +134,7 @@ def simpleBinder := leading_parser many1 binderIdent >> optType
 def «forall» := leading_parser:leadPrec unicodeSymbol "∀" "forall" >> many1 (ppSpace >> (simpleBinder <|> bracketedBinder)) >> ", " >> termParser
 
 def matchAlt (rhsParser : Parser := termParser) : Parser :=
-  nodeWithAntiquot "matchAlt" `Lean.Parser.Term.matchAlt $
+  leading_parser (withAnonymousAntiquot := false)
     "| " >> ppIndent (sepBy1 (sepBy1 termParser ", ") "|" >> darrow >> checkColGe "alternative right-hand-side to start in a column greater than or equal to the corresponding '|'" >> rhsParser)
 /--
   Useful for syntax quotations. Note that generic patterns such as `` `(matchAltExpr| | ... => $rhs) `` should also
@@ -159,8 +159,8 @@ def funImplicitBinder := atomic (lookahead ("{" >> many1 binderIdent >> (symbol 
 def funStrictImplicitBinder := atomic (lookahead (strictImplicitLeftBracket >> many1 binderIdent >> (symbol " : " <|> strictImplicitRightBracket))) >> strictImplicitBinder
 def funSimpleBinder   := atomic (lookahead (many1 binderIdent >> " : ")) >> simpleBinder
 def funBinder : Parser := funStrictImplicitBinder <|> funImplicitBinder <|> instBinder <|> funSimpleBinder <|> termParser maxPrec
--- NOTE: we use `nodeWithAntiquot` to ensure that `fun $b => ...` remains a `term` antiquotation
-def basicFun : Parser := nodeWithAntiquot "basicFun" `Lean.Parser.Term.basicFun (ppGroup (many1 (ppSpace >> funBinder) >> " =>") >> ppSpace >> termParser)
+-- NOTE: we disable anonymous antiquotations to ensure that `fun $b => ...` remains a `term` antiquotation
+def basicFun : Parser := leading_parser (withAnonymousAntiquot := false) ppGroup (many1 (ppSpace >> funBinder) >> " =>") >> ppSpace >> termParser
 @[builtinTermParser] def «fun» := leading_parser:maxPrec ppAllowUngrouped >> unicodeSymbol "λ" "fun" >> (basicFun <|> matchAlts)
 
 def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
@@ -174,13 +174,14 @@ def withAnonymousAntiquot := leading_parser atomic ("(" >> nonReservedSymbol "wi
 -- note that we cannot use ```"``"``` as a new token either because it would break `precheckedQuot`
 @[builtinTermParser] def doubleQuotedName := leading_parser "`" >> checkNoWsBefore >> rawCh '`' (trailingWs := false) >> ident
 
-def simpleBinderWithoutType := nodeWithAntiquot "simpleBinder" `Lean.Parser.Term.simpleBinder (anonymous := true)
+-- same shape and (antiquotation) kind as `simpleBinder`
+def simpleBinderWithoutType := nodeWithAntiquot "simpleBinder" ``simpleBinder (anonymous := true)
   (many1 binderIdent >> pushNone)
 
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
 def letIdLhs    : Parser := ident >> notFollowedBy (checkNoWsBefore "" >> "[") "space is required before instance '[...]' binders to distinguish them from array updates `let x[i] := e; ...`" >> many (ppSpace >> (simpleBinderWithoutType <|> bracketedBinder)) >> optType
-def letIdDecl   := nodeWithAntiquot "letIdDecl"   `Lean.Parser.Term.letIdDecl   $ atomic (letIdLhs >> " := ") >> termParser
-def letPatDecl  := nodeWithAntiquot "letPatDecl"  `Lean.Parser.Term.letPatDecl  $ atomic (termParser >> pushNone >> optType >> " := ") >> termParser
+def letIdDecl   := leading_parser (withAnonymousAntiquot := false) atomic (letIdLhs >> " := ") >> termParser
+def letPatDecl  := leading_parser (withAnonymousAntiquot := false) atomic (termParser >> pushNone >> optType >> " := ") >> termParser
 /-
   Remark: the following `(" := " <|> matchAlts)` is a hack we use to produce a better error message at `letDecl`.
   Consider this following example
@@ -193,9 +194,9 @@ def letPatDecl  := nodeWithAntiquot "letPatDecl"  `Lean.Parser.Term.letPatDecl  
   `letIdDecl` and `letEqnsDecl` have the same prefix `letIdLhs`, but `letIdDecl` uses `atomic`.
   Note that the hack relies on the fact that the parser `":="` never succeeds at `(" := " <|> matchAlts)`. It is there just to make sure we produce the error `expected ':=' or '|'`
 -/
-def letEqnsDecl := nodeWithAntiquot "letEqnsDecl" `Lean.Parser.Term.letEqnsDecl $ letIdLhs >> (" := " <|> matchAlts)
--- Remark: we use `nodeWithAntiquot` here to make sure anonymous antiquotations (e.g., `$x`) are not `letDecl`
-def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFollowedBy (nonReservedSymbol "rec") "rec" >> (letIdDecl <|> letPatDecl <|> letEqnsDecl))
+def letEqnsDecl := leading_parser (withAnonymousAntiquot := false) letIdLhs >> (" := " <|> matchAlts)
+-- Remark: we disable anonymous antiquotations here to make sure anonymous antiquotations (e.g., `$x`) are not `letDecl`
+def letDecl     := leading_parser (withAnonymousAntiquot := false) notFollowedBy (nonReservedSymbol "rec") "rec" >> (letIdDecl <|> letPatDecl <|> letEqnsDecl)
 @[builtinTermParser] def «let» := leading_parser:leadPrec  withPosition ("let " >> letDecl) >> optSemicolon termParser
 @[builtinTermParser] def «let_fun»     := leading_parser:leadPrec withPosition ((symbol "let_fun " <|> "let_λ") >> letDecl) >> optSemicolon termParser
 @[builtinTermParser] def «let_delayed» := leading_parser:leadPrec withPosition ("let_delayed " >> letDecl) >> optSemicolon termParser
@@ -204,9 +205,9 @@ def letDecl     := nodeWithAntiquot "letDecl" `Lean.Parser.Term.letDecl (notFoll
 
 -- like `let_fun` but with optional name
 def haveIdLhs    := optional (ident >> many (ppSpace >> (simpleBinderWithoutType <|> bracketedBinder))) >> optType
-def haveIdDecl   := nodeWithAntiquot "haveIdDecl"   `Lean.Parser.Term.haveIdDecl   $ atomic (haveIdLhs >> " := ") >> termParser
-def haveEqnsDecl := nodeWithAntiquot "haveEqnsDecl" `Lean.Parser.Term.haveEqnsDecl $ haveIdLhs >> matchAlts
-def haveDecl     := nodeWithAntiquot "haveDecl" `Lean.Parser.Term.haveDecl (haveIdDecl <|> letPatDecl <|> haveEqnsDecl)
+def haveIdDecl   := leading_parser (withAnonymousAntiquot := false) atomic (haveIdLhs >> " := ") >> termParser
+def haveEqnsDecl := leading_parser (withAnonymousAntiquot := false) haveIdLhs >> matchAlts
+def haveDecl     := leading_parser (withAnonymousAntiquot := false) haveIdDecl <|> letPatDecl <|> haveEqnsDecl
 @[builtinTermParser] def «have» := leading_parser:leadPrec withPosition ("have " >> haveDecl) >> optSemicolon termParser
 
 def «scoped» := leading_parser "scoped "

@@ -49,6 +49,7 @@ structure CtorView where
 
 structure InductiveView where
   ref             : Syntax
+  declId          : Syntax
   modifiers       : Modifiers
   shortDeclName   : Name
   declName        : Name
@@ -676,6 +677,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
       let mut indTypesArray := #[]
       for i in [:views.size] do
         let indFVar := indFVars[i]
+        Term.addTermInfo (isBinder := true) views[i].declId indFVar
         let r       := rs[i]
         let type  ← mkForallFVars params r.type
         let ctors ← elabCtors indFVars indFVar params r

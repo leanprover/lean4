@@ -650,14 +650,10 @@ private def withElaboratedLHS {α} (ref : Syntax) (patternVarDecls : Array Patte
   If `type` or another local variables depends on a free variable in `toClear`, then it is not cleared.
 -/
 private def withToClear (toClear : Array FVarId) (type : Expr) (k : TermElabM α) : TermElabM α := do
-  let mut toClear := toClear
-  for localDecl in (← getLCtx) do
-    if isAuxDiscrName localDecl.userName || isAuxFunDiscrName localDecl.userName then
-      toClear := toClear.push localDecl.fvarId
   if toClear.isEmpty then
     k
   else
-    toClear ← sortFVarIds toClear
+    let toClear ← sortFVarIds toClear
     trace[Elab.match] ">> toClear {toClear.map mkFVar}"
     let mut lctx ← getLCtx
     let mut localInsts ← getLocalInstances
@@ -668,31 +664,40 @@ private def withToClear (toClear : Array FVarId) (type : Expr) (k : TermElabM α
           localInsts := localInsts.filter fun localInst => localInst.fvar.fvarId! != fvarId
     withLCtx lctx localInsts k
 
+
+private def withoutAuxDiscrs (matchType : Expr) (k : TermElabM α) : TermElabM α := do
+  let mut toClear := #[]
+  for localDecl in (← getLCtx) do
+    if isAuxDiscrName localDecl.userName || isAuxFunDiscrName localDecl.userName then
+      toClear := toClear.push localDecl.fvarId
+  withToClear toClear matchType k
+
 /--
   Elaborate the `match` alternative `alt` using the given `matchType`.
   The array `toClear` contains variables that must be cleared before elaborating the `rhs` because
   they have been generalized/refined.
 -/
 private def elabMatchAltView (alt : MatchAltView) (matchType : Expr) (toClear : Array FVarId) : ExceptT PatternElabException TermElabM (AltLHS × Expr) := withRef alt.ref do
-  let (patternVars, alt) ← collectPatternVars alt
-  trace[Elab.match] "patternVars: {patternVars}"
-  withPatternVars patternVars fun patternVarDecls => do
-    withElaboratedLHS alt.ref patternVarDecls alt.patterns matchType fun altLHS matchType => do
-      withLocalInstances altLHS.fvarDecls do
-        trace[Elab.match] "elabMatchAltView: {matchType}"
-        let matchType ← instantiateMVars matchType
-        -- If `matchType` is of the form `@m ...`, we create a new metavariable with the current scope.
-        -- This improves the effectiveness of the `isDefEq` default approximations
-        let matchType' ← if matchType.getAppFn.isMVar then mkFreshTypeMVar else pure matchType
-        withToClear toClear matchType' do
-          let rhs ← elabTermEnsuringType alt.rhs matchType'
-          -- We use all approximations to ensure the auxiliary type is defeq to the original one.
-          unless (← fullApproxDefEq <| isDefEq matchType' matchType) do
-            throwError "type mistmatch, alternative {← mkHasTypeButIsExpectedMsg matchType' matchType}"
-          let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr
-          let rhs ← if xs.isEmpty then pure <| mkSimpleThunk rhs else mkLambdaFVars xs rhs
-          trace[Elab.match] "rhs: {rhs}"
-          return (altLHS, rhs)
+  withoutAuxDiscrs matchType do
+    let (patternVars, alt) ← collectPatternVars alt
+    trace[Elab.match] "patternVars: {patternVars}"
+    withPatternVars patternVars fun patternVarDecls => do
+      withElaboratedLHS alt.ref patternVarDecls alt.patterns matchType fun altLHS matchType => do
+        withLocalInstances altLHS.fvarDecls do
+          trace[Elab.match] "elabMatchAltView: {matchType}"
+          let matchType ← instantiateMVars matchType
+          -- If `matchType` is of the form `@m ...`, we create a new metavariable with the current scope.
+          -- This improves the effectiveness of the `isDefEq` default approximations
+          let matchType' ← if matchType.getAppFn.isMVar then mkFreshTypeMVar else pure matchType
+          withToClear toClear matchType' do
+            let rhs ← elabTermEnsuringType alt.rhs matchType'
+            -- We use all approximations to ensure the auxiliary type is defeq to the original one.
+            unless (← fullApproxDefEq <| isDefEq matchType' matchType) do
+              throwError "type mistmatch, alternative {← mkHasTypeButIsExpectedMsg matchType' matchType}"
+            let xs := altLHS.fvarDecls.toArray.map LocalDecl.toExpr
+            let rhs ← if xs.isEmpty then pure <| mkSimpleThunk rhs else mkLambdaFVars xs rhs
+            trace[Elab.match] "rhs: {rhs}"
+            return (altLHS, rhs)
 
 /--
   Collect problematic index for the "discriminant refinement feature". This method is invoked

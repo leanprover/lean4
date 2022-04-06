@@ -1115,6 +1115,7 @@ namespace LevelMVarToParam
 structure Context where
   paramNamePrefix : Name
   alreadyUsedPred : Name → Bool
+  except          : MVarId → Bool
 
 structure State where
   mctx         : MetavarContext
@@ -1144,17 +1145,20 @@ partial def visitLevel (u : Level) : M Level := do
   | Level.succ v _      => return u.updateSucc! (← visitLevel v)
   | Level.max v₁ v₂ _   => return u.updateMax! (← visitLevel v₁) (← visitLevel v₂)
   | Level.imax v₁ v₂ _  => return u.updateIMax! (← visitLevel v₁) (← visitLevel v₂)
-  | Level.zero _        => pure u
-  | Level.param ..      => pure u
+  | Level.zero _        => return u
+  | Level.param ..      => return u
   | Level.mvar mvarId _ =>
     let s ← get
     match s.mctx.getLevelAssignment? mvarId with
     | some v => visitLevel v
     | none   =>
-      let p ← mkParamName
-      let p := mkLevelParam p
-      modify fun s => { s with mctx := s.mctx.assignLevel mvarId p }
-      pure p
+      if (← read).except mvarId then
+        return u
+      else
+        let p ← mkParamName
+        let p := mkLevelParam p
+        modify fun s => { s with mctx := s.mctx.assignLevel mvarId p }
+        return p
 
 partial def main (e : Expr) : M Expr :=
   if !e.hasMVar then
@@ -1189,9 +1193,9 @@ structure UnivMVarParamResult where
   nextParamIdx  : Nat
   expr          : Expr
 
-def levelMVarToParam (mctx : MetavarContext) (alreadyUsedPred : Name → Bool) (e : Expr) (paramNamePrefix : Name := `u) (nextParamIdx : Nat := 1)
+def levelMVarToParam (mctx : MetavarContext) (alreadyUsedPred : Name → Bool) (except : MVarId → Bool) (e : Expr) (paramNamePrefix : Name := `u) (nextParamIdx : Nat := 1)
     : UnivMVarParamResult :=
-  let (e, s) := LevelMVarToParam.main e { paramNamePrefix := paramNamePrefix, alreadyUsedPred := alreadyUsedPred } { mctx := mctx, nextParamIdx := nextParamIdx }
+  let (e, s) := LevelMVarToParam.main e { except, paramNamePrefix, alreadyUsedPred } { mctx, nextParamIdx }
   { mctx          := s.mctx,
     newParamNames := s.paramNames,
     nextParamIdx  := s.nextParamIdx,

@@ -600,27 +600,30 @@ private def withUsed {α} (scopeVars : Array Expr) (params : Array Expr) (fieldI
   let (lctx, localInsts, vars) ← removeUnused scopeVars params fieldInfos
   withLCtx lctx localInsts <| k vars
 
-private def levelMVarToParamFVar (fvar : Expr) : StateRefT Nat TermElabM Unit := do
-  let type ← inferType fvar
-  discard <| Term.levelMVarToParam' type
+private def levelMVarToParam (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) (univToInfer? : Option MVarId) : TermElabM (Array StructFieldInfo) :=
+  go |>.run' 1
+where
+  levelMVarToParam' (type : Expr) : StateRefT Nat TermElabM Expr := do
+    Term.levelMVarToParam' type (except := fun mvarId => univToInfer? == some mvarId)
 
-private def levelMVarToParamFVars (fvars : Array Expr) : StateRefT Nat TermElabM Unit :=
-  fvars.forM levelMVarToParamFVar
+  go : StateRefT Nat TermElabM (Array StructFieldInfo) := do
+    levelMVarToParamFVars scopeVars
+    levelMVarToParamFVars params
+    fieldInfos.mapM fun info => do
+      levelMVarToParamFVar info.fvar
+      match info.value? with
+      | none       => pure info
+      | some value =>
+        let value ← levelMVarToParam' value
+        pure { info with value? := value }
 
-private def levelMVarToParamAux (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo)
-    : StateRefT Nat TermElabM (Array StructFieldInfo) := do
-  levelMVarToParamFVars scopeVars
-  levelMVarToParamFVars params
-  fieldInfos.mapM fun info => do
-    levelMVarToParamFVar info.fvar
-    match info.value? with
-    | none       => pure info
-    | some value =>
-      let value ← Term.levelMVarToParam' value
-      pure { info with value? := value }
+  levelMVarToParamFVars (fvars : Array Expr) : StateRefT Nat TermElabM Unit :=
+    fvars.forM levelMVarToParamFVar
 
-private def levelMVarToParam (scopeVars : Array Expr) (params : Array Expr) (fieldInfos : Array StructFieldInfo) : TermElabM (Array StructFieldInfo) :=
-  (levelMVarToParamAux scopeVars params fieldInfos).run' 1
+  levelMVarToParamFVar (fvar : Expr) : StateRefT Nat TermElabM Unit := do
+    let type ← inferType fvar
+    discard <| levelMVarToParam' type
+
 
 private partial def collectUniversesFromFields (r : Level) (rOffset : Nat) (fieldInfos : Array StructFieldInfo) : TermElabM (Array Level) := do
   let (_, us) ← go |>.run #[]
@@ -793,12 +796,12 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
   withFields view.fields fieldInfos fun fieldInfos => do
     Term.synthesizeSyntheticMVarsNoPostponing
     let u ← getResultUniverse type
-    let inferLevel ← shouldInferResultUniverse u
+    let univToInfer? ← shouldInferResultUniverse u
     withUsed view.scopeVars view.params fieldInfos fun scopeVars => do
       let numParams := scopeVars.size + numExplicitParams
-      let fieldInfos ← levelMVarToParam scopeVars view.params fieldInfos
+      let fieldInfos ← levelMVarToParam scopeVars view.params fieldInfos univToInfer?
       let type ← withRef view.ref do
-        if inferLevel then
+        if univToInfer?.isSome then
           updateResultingUniverse fieldInfos type
         else
           checkResultingUniverse (← getResultUniverse type)

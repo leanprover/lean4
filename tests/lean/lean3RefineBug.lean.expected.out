@@ -1,0 +1,16 @@
+case hp
+p q : Prop
+a : p ∧ q
+⊢ p
+case hp
+p q : Prop
+ : p ∧ q
+a : p
+b : q
+⊢ p
+case hp
+p q : Prop
+ : p ∧ q
+a : p
+b : q
+⊢ p

@@ -1,0 +1,70 @@
+{"textDocument": {"uri": "file://jumpMutual.lean"},
+ "position": {"line": 6, "character": 17}}
+[{"targetUri": "file://jumpMutual.lean",
+  "targetSelectionRange":
+  {"start": {"line": 9, "character": 2}, "end": {"line": 9, "character": 3}},
+  "targetRange":
+  {"start": {"line": 9, "character": 2}, "end": {"line": 9, "character": 3}},
+  "originSelectionRange":
+  {"start": {"line": 6, "character": 17}, "end": {"line": 6, "character": 18}}}]
+{"textDocument": {"uri": "file://jumpMutual.lean"},
+ "position": {"line": 6, "character": 11}}
+[{"targetUri": "file://jumpMutual.lean",
+  "targetSelectionRange":
+  {"start": {"line": 15, "character": 0}, "end": {"line": 21, "character": 11}},
+  "targetRange":
+  {"start": {"line": 15, "character": 0}, "end": {"line": 21, "character": 11}},
+  "originSelectionRange":
+  {"start": {"line": 6, "character": 11}, "end": {"line": 6, "character": 12}}}]
+{"textDocument": {"uri": "file://jumpMutual.lean"},
+ "position": {"line": 12, "character": 13}}
+[{"targetUri": "file://jumpMutual.lean",
+  "targetSelectionRange":
+  {"start": {"line": 9, "character": 2}, "end": {"line": 9, "character": 3}},
+  "targetRange":
+  {"start": {"line": 9, "character": 2}, "end": {"line": 9, "character": 3}},
+  "originSelectionRange":
+  {"start": {"line": 12, "character": 13},
+   "end": {"line": 12, "character": 14}}}]
+{"textDocument": {"uri": "file://jumpMutual.lean"},
+ "position": {"line": 12, "character": 19}}
+[{"targetUri": "file://jumpMutual.lean",
+  "targetSelectionRange":
+  {"start": {"line": 2, "character": 0}, "end": {"line": 12, "character": 22}},
+  "targetRange":
+  {"start": {"line": 2, "character": 0}, "end": {"line": 12, "character": 22}},
+  "originSelectionRange":
+  {"start": {"line": 12, "character": 19},
+   "end": {"line": 12, "character": 20}}}]
+{"textDocument": {"uri": "file://jumpMutual.lean"},
+ "position": {"line": 19, "character": 17}}
+[{"targetUri": "file://jumpMutual.lean",
+  "targetSelectionRange":
+  {"start": {"line": 16, "character": 10},
+   "end": {"line": 16, "character": 11}},
+  "targetRange":
+  {"start": {"line": 16, "character": 10},
+   "end": {"line": 16, "character": 11}},
+  "originSelectionRange":
+  {"start": {"line": 19, "character": 17},
+   "end": {"line": 19, "character": 18}}}]
+{"textDocument": {"uri": "file://jumpMutual.lean"},
+ "position": {"line": 21, "character": 2}}
+[{"targetUri": "file://jumpMutual.lean",
+  "targetSelectionRange":
+  {"start": {"line": 16, "character": 10},
+   "end": {"line": 16, "character": 11}},
+  "targetRange":
+  {"start": {"line": 16, "character": 10},
+   "end": {"line": 16, "character": 11}},
+  "originSelectionRange":
+  {"start": {"line": 21, "character": 2}, "end": {"line": 21, "character": 3}}}]
+{"textDocument": {"uri": "file://jumpMutual.lean"},
+ "position": {"line": 21, "character": 8}}
+[{"targetUri": "file://jumpMutual.lean",
+  "targetSelectionRange":
+  {"start": {"line": 2, "character": 0}, "end": {"line": 12, "character": 22}},
+  "targetRange":
+  {"start": {"line": 2, "character": 0}, "end": {"line": 12, "character": 22}},
+  "originSelectionRange":
+  {"start": {"line": 21, "character": 8}, "end": {"line": 21, "character": 9}}}]

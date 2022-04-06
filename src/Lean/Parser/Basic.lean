@@ -1620,9 +1620,13 @@ def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState
       | none    => find identKind
     | LeadingIdentBehavior.both =>
       match map.find? val with
-      | some as => match map.find? identKind with
-        | some as' => (s, as ++ as')
-        | _        => (s, as)
+      | some as =>
+        if val == identKind then
+          (s, as)  -- avoid running the same parsers twice
+        else
+          match map.find? identKind with
+          | some as' => (s, as ++ as')
+          | _        => (s, as)
       | none    => find identKind
   | Except.ok (Syntax.node _ k _)      => find k
   | Except.ok _                        => (s, [])

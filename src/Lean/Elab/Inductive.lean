@@ -325,20 +325,6 @@ where
         return TransformStep.visit e
     transform ctorType (pre := visit)
 
-/- Convert universe metavariables occurring in the `indTypes` into new parameters.
-   Remark: if the resulting inductive datatype has universe metavariables, we will fix it later using
-   `inferResultingUniverse`. -/
-private def levelMVarToParamAux (indTypes : List InductiveType) : StateRefT Nat TermElabM (List InductiveType) :=
-  indTypes.mapM fun indType => do
-    let type  ← Term.levelMVarToParam' indType.type
-    let ctors ← indType.ctors.mapM fun ctor => do
-      let ctorType ← Term.levelMVarToParam' ctor.type
-      pure { ctor with type := ctorType }
-    pure { indType with ctors := ctors, type := type }
-
-private def levelMVarToParam (indTypes : List InductiveType) : TermElabM (List InductiveType) :=
-  (levelMVarToParamAux indTypes).run' 1
-
 private def getResultingUniverse : List InductiveType → TermElabM Level
   | []           => throwError "unexpected empty inductive declaration"
   | indType :: _ => forallTelescopeReducing indType.type fun _ r => do
@@ -347,23 +333,37 @@ private def getResultingUniverse : List InductiveType → TermElabM Level
     | Expr.sort u _ => pure u
     | _             => throwError "unexpected inductive type resulting type{indentExpr r}"
 
-def tmpIndParam := mkLevelParam `_tmp_ind_univ_param
-
 /--
-  Return true if `u` is of the form `?m + k`.
-  Return false if `u` does not contain universe metavariables.
+  Return `some ?m` if `u` is of the form `?m + k`.
+  Return none if `u` does not contain universe metavariables.
   Throw exception otherwise. -/
-def shouldInferResultUniverse (u : Level) : TermElabM Bool := do
+def shouldInferResultUniverse (u : Level) : TermElabM (Option MVarId) := do
   let u ← instantiateLevelMVars u
   if u.hasMVar then
     match u.getLevelOffset with
-    | Level.mvar mvarId _ => do
-      Term.assignLevelMVar mvarId tmpIndParam
-      return true
+    | Level.mvar mvarId _ => return some mvarId
     | _ =>
       throwError "cannot infer resulting universe level of inductive datatype, given level contains metavariables {mkSort u}, provide universe explicitly"
   else
-    return false
+    return none
+
+/--
+  Convert universe metavariables into new parameters. It skips `univToInfer?` (the inductive datatype resulting universe) because
+  it should be inferred later using `inferResultingUniverse`.
+-/
+private def levelMVarToParam (indTypes : List InductiveType) (univToInfer? : Option MVarId) : TermElabM (List InductiveType) :=
+  go |>.run' 1
+where
+  levelMVarToParam' (type : Expr) : StateRefT Nat TermElabM Expr := do
+    Term.levelMVarToParam' type (except := fun mvarId => univToInfer? == some mvarId)
+
+  go : StateRefT Nat TermElabM (List InductiveType) := do
+    indTypes.mapM fun indType => do
+      let type  ← levelMVarToParam' indType.type
+      let ctors ← indType.ctors.mapM fun ctor => do
+        let ctorType ← levelMVarToParam' ctor.type
+        pure { ctor with type := ctorType }
+      pure { indType with ctors := ctors, type := type }
 
 def mkResultUniverse (us : Array Level) (rOffset : Nat) : Level :=
   if us.isEmpty && rOffset == 0 then
@@ -420,16 +420,16 @@ private def updateResultingUniverse (numParams : Nat) (indTypes : List Inductive
   let r ← getResultingUniverse indTypes
   let rOffset : Nat   := r.getOffset
   let r       : Level := r.getLevelOffset
-  unless r.isParam do
-    throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly"
+  unless r.isMVar do
+    throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly: {r}"
   let us ← collectUniverses r rOffset numParams indTypes
   trace[Elab.inductive] "updateResultingUniverse us: {us}, r: {r}, rOffset: {rOffset}"
   let rNew := mkResultUniverse us rOffset
-  let updateLevel (e : Expr) : Expr := e.replaceLevel fun u => if u == tmpIndParam then some rNew else none
-  return indTypes.map fun indType =>
-    let type := updateLevel indType.type;
-    let ctors := indType.ctors.map fun ctor => { ctor with type := updateLevel ctor.type };
-    { indType with type := type, ctors := ctors }
+  assignLevelMVar r.mvarId! rNew
+  indTypes.mapM fun indType => do
+    let type ← instantiateMVars indType.type
+    let ctors ← indType.ctors.mapM fun ctor => return { ctor with type := (← instantiateMVars ctor.type) }
+    return { indType with type := type, ctors := ctors }
 
 register_builtin_option bootstrap.inductiveCheckResultingUniverse : Bool := {
     defValue := true,
@@ -683,17 +683,17 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
       Term.synthesizeSyntheticMVarsNoPostponing
       let (numExplicitParams, indTypes) ← fixedIndicesToParams params.size indTypesArray indFVars
       let u ← getResultingUniverse indTypes
-      let inferLevel ← shouldInferResultUniverse u
+      let univToInfer? ← shouldInferResultUniverse u
       withUsed vars indTypes fun vars => do
         let numVars   := vars.size
         let numParams := numVars + numExplicitParams
         let indTypes ← updateParams vars indTypes
         let indTypes ←
-          if inferLevel then
-            updateResultingUniverse numParams (← levelMVarToParam indTypes)
+          if let some univToInfer := univToInfer? then
+            updateResultingUniverse numParams (← levelMVarToParam indTypes univToInfer)
           else
             checkResultingUniverses views numParams indTypes
-            levelMVarToParam indTypes
+            levelMVarToParam indTypes none
         let usedLevelNames := collectLevelParamsInInductive indTypes
         match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
         | Except.error msg      => throwError msg

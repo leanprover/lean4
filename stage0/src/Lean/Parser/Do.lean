@@ -84,8 +84,8 @@ def elseIf := atomic (group (withPosition (" else " >> checkLineEq >> " if ")))
 -- ensure `if $e then ...` still binds to `e:term`
 def doIfLetPure := leading_parser " := " >> termParser
 def doIfLetBind := leading_parser " ← " >> termParser
-def doIfLet     := nodeWithAntiquot "doIfLet"     `Lean.Parser.Term.doIfLet       <| "let " >> termParser >> (doIfLetPure <|> doIfLetBind)
-def doIfProp    := nodeWithAntiquot "doIfProp"    `Lean.Parser.Term.doIfProp      <| optIdent >> termParser
+def doIfLet     := leading_parser (withAnonymousAntiquot := false) "let " >> termParser >> (doIfLetPure <|> doIfLetBind)
+def doIfProp    := leading_parser (withAnonymousAntiquot := false) optIdent >> termParser
 def doIfCond    := withAntiquot (mkAntiquot "doIfCond" none (anonymous := false)) <| doIfLet <|> doIfProp
 @[builtinDoElemParser] def doIf := leading_parser withPosition $
   "if " >> doIfCond >> " then " >> doSeq

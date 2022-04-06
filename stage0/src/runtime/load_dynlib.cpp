@@ -12,7 +12,6 @@ Author: Leonardo de Moura, Mac Malone
 
 #ifdef LEAN_WINDOWS
 #include <windows.h>
-#undef ERROR // thanks, wingdi.h
 #else
 #include <dlfcn.h>
 #endif

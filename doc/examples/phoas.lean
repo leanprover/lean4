@@ -61,7 +61,8 @@ We write the final type of a closed term using polymorphic quantification over a
 choices of `rep` type family
 -/
 
-open Ty Term'
+open Ty (nat fn)
+open Term'
 
 namespace FirstTry
 

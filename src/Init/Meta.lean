@@ -1039,7 +1039,7 @@ end Meta
 namespace Parser.Tactic
 
 macro "erw " s:rwRuleSeq loc:(location)? : tactic =>
-  `(rw (config := { transparency := Lean.Meta.TransparencyMode.default }) $s:rwRuleSeq $[$(loc.getOptional?):location]?)
+  `(rw (config := { transparency := Lean.Meta.TransparencyMode.default }) $s:rwRuleSeq $[$loc:location]?)
 
 /-- Similar to `simp` but with `arith := true` -/
 syntax (name := simpArith) "simp_arith " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic

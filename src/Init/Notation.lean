@@ -315,7 +315,7 @@ syntax (name := case') "case' " (ident <|> "_") (ident <|> "_")* " => " tacticSe
 /--
 `next => tac` focuses on the next goal solves it using `tac`, or else fails.
 `next x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with inaccessible names to the given names. -/
-macro "next " args:(ident <|> "_")* " => " tac:tacticSeq : tactic => `(tactic| case _ $(args.getArgs)* => $tac)
+macro "next " args:(ident <|> "_")* " => " tac:tacticSeq : tactic => `(tactic| case _ $args* => $tac)
 
 /-- `allGoals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
 syntax (name := allGoals) "all_goals " tacticSeq : tactic

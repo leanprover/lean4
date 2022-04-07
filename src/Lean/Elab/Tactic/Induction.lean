@@ -402,6 +402,7 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
     withMVarContext mvarId do
       let result ← withRef stx[1] do -- use target position as reference
         ElimApp.mkElimApp elimName elimInfo targets tag
+      trace[Elab.induction] "elimApp: {result.elimApp}"
       let elimArgs := result.elimApp.getAppArgs
       let motiveType ← inferType elimArgs[elimInfo.motivePos]
       ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetFVarIds
@@ -442,8 +443,6 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr) :=
     else
       return args.map (·.expr)
 
-builtin_initialize registerTraceClass `Elab.cases
-
 @[builtinTactic Lean.Parser.Tactic.cases] def evalCases : Tactic := fun stx => focus do
   -- leading_parser nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> optInductionAlts
   let targets ← elabCasesTargets stx[1].getSepArgs
@@ -468,5 +467,10 @@ builtin_initialize registerTraceClass `Elab.cases
       ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetsNew
       assignExprMVar mvarId result.elimApp
       ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo (numEqs := targets.size) (toClear := targetsNew)
+
+builtin_initialize
+  registerTraceClass `Elab.cases
+  registerTraceClass `Elab.induction
+
 
 end Lean.Elab.Tactic

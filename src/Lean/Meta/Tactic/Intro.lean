@@ -12,8 +12,9 @@ namespace Lean.Meta
   checkNotAssigned mvarId `introN
   let mvarType ← getMVarType mvarId
   let lctx ← getLCtx
-  let rec @[specialize] loop : Nat → LocalContext → Array Expr → Nat → σ → Expr → MetaM (Array Expr × MVarId)
-    | 0, lctx, fvars, j, _, type =>
+  let rec @[specialize] loop (i : Nat) (lctx : LocalContext) (fvars : Array Expr) (j : Nat) (s : σ) (type : Expr) : MetaM (Array Expr × MVarId) := do
+    match i, type with
+    | 0, type =>
       let type := type.instantiateRevRange j fvars.size fvars
       withReader (fun ctx => { ctx with lctx := lctx }) do
         withNewLocalInstances fvars j do
@@ -23,8 +24,8 @@ namespace Lean.Meta
           let lctx    ← getLCtx
           let newVal  ← mkLambdaFVars fvars newMVar
           assignExprMVar mvarId newVal
-          pure $ (fvars, newMVar.mvarId!)
-    | (i+1), lctx, fvars, j, s, Expr.letE n type val body _ => do
+          return (fvars, newMVar.mvarId!)
+    | i+1, Expr.letE n type val body _ =>
       let type   := type.instantiateRevRange j fvars.size fvars
       let type   := type.headBeta
       let val    := val.instantiateRevRange j fvars.size fvars
@@ -34,7 +35,7 @@ namespace Lean.Meta
       let fvar   := mkFVar fvarId
       let fvars  := fvars.push fvar
       loop i lctx fvars j s body
-    | (i+1), lctx, fvars, j, s, Expr.forallE n type body c => do
+    | i+1, Expr.forallE n type body c =>
       let type   := type.instantiateRevRange j fvars.size fvars
       let type   := type.headBeta
       let fvarId ← mkFreshFVarId
@@ -43,7 +44,7 @@ namespace Lean.Meta
       let fvar   := mkFVar fvarId
       let fvars  := fvars.push fvar
       loop i lctx fvars j s body
-    | (i+1), lctx, fvars, j, s, type =>
+    | i+1, type =>
       let type := type.instantiateRevRange j fvars.size fvars
       withReader (fun ctx => { ctx with lctx := lctx }) do
         withNewLocalInstances fvars j do
@@ -53,16 +54,13 @@ namespace Lean.Meta
           else
             throwTacticEx `introN mvarId "insufficient number of binders"
   let (fvars, mvarId) ← loop n lctx #[] 0 s mvarType
-  pure (fvars.map Expr.fvarId!, mvarId)
+  return (fvars.map Expr.fvarId!, mvarId)
 
 register_builtin_option tactic.hygienic : Bool := {
   defValue := true
   group    := "tactic"
   descr    := "make sure tactics are hygienic"
 }
-
-def getHygienicIntro : MetaM Bool := do
-  return tactic.hygienic.get (← getOptions)
 
 private def mkAuxNameImp (preserveBinderNames : Bool) (hygienic : Bool) (useNamesForExplicitOnly : Bool)
     (lctx : LocalContext) (binderName : Name) (isExplicit : Bool) : List Name → MetaM (Name × List Name)
@@ -71,24 +69,24 @@ private def mkAuxNameImp (preserveBinderNames : Bool) (hygienic : Bool) (useName
     if useNamesForExplicitOnly && !isExplicit then
       mkAuxNameWithoutGivenName (n :: rest)
     else if n != Name.mkSimple "_" then
-      pure (n, rest)
+      return (n, rest)
     else
       mkAuxNameWithoutGivenName rest
 where
   mkAuxNameWithoutGivenName (rest : List Name) : MetaM (Name × List Name) := do
     if preserveBinderNames then
-      pure (binderName, rest)
+      return (binderName, rest)
     else if hygienic then
       let binderName ← mkFreshUserName binderName
-      pure (binderName, rest)
+      return (binderName, rest)
     else
-      pure (lctx.getUnusedName binderName, rest)
+      return (lctx.getUnusedName binderName, rest)
 
 def introNCore (mvarId : MVarId) (n : Nat) (givenNames : List Name) (useNamesForExplicitOnly : Bool) (preserveBinderNames : Bool)
     : MetaM (Array FVarId × MVarId) := do
-  let hygienic ← getHygienicIntro
+  let hygienic := tactic.hygienic.get (← getOptions)
   if n == 0 then
-    pure (#[], mvarId)
+    return (#[], mvarId)
   else
     introNImp mvarId n (mkAuxNameImp preserveBinderNames hygienic useNamesForExplicitOnly) givenNames
 
@@ -100,11 +98,11 @@ abbrev introNP (mvarId : MVarId) (n : Nat) : MetaM (Array FVarId × MVarId) :=
 
 def intro (mvarId : MVarId) (name : Name) : MetaM (FVarId × MVarId) := do
   let (fvarIds, mvarId) ← introN mvarId 1 [name]
-  pure (fvarIds.get! 0, mvarId)
+  return (fvarIds[0], mvarId)
 
 def intro1Core (mvarId : MVarId) (preserveBinderNames : Bool) : MetaM (FVarId × MVarId) := do
   let (fvarIds, mvarId) ← introNCore mvarId 1 [] (useNamesForExplicitOnly := false) preserveBinderNames
-  pure (fvarIds.get! 0, mvarId)
+  return (fvarIds[0], mvarId)
 
 abbrev intro1 (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
   intro1Core mvarId false

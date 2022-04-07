@@ -1910,19 +1910,6 @@ def getId : Syntax → Name
   | ident _ _ val _ => val
   | _               => Name.anonymous
 
-def matchesNull (stx : Syntax) (n : Nat) : Bool :=
-  isNodeOf stx nullKind n
-
-def matchesIdent (stx : Syntax) (id : Name) : Bool :=
-  and stx.isIdent (beq stx.getId id)
-
-def matchesLit (stx : Syntax) (k : SyntaxNodeKind) (val : String) : Bool :=
-  match stx with
-  | Syntax.node _ k' args => and (beq k k') (match args.getD 0 Syntax.missing with
-    | Syntax.atom _ val' => beq val val'
-    | _                  => false)
-  | _                     => false
-
 def setArgs (stx : Syntax) (args : Array Syntax) : Syntax :=
   match stx with
   | node info k _ => node info k args
@@ -2208,6 +2195,31 @@ def defaultMaxRecDepth := 512
 
 def maxRecDepthErrorMessage : String :=
   "maximum recursion depth has been reached (use `set_option maxRecDepth <num>` to increase limit)"
+
+namespace Syntax
+
+def matchesNull (stx : Syntax) (n : Nat) : Bool :=
+  stx.isNodeOf nullKind n
+
+/--
+  Function used for determining whether a syntax pattern `` `(id) `` is matched.
+  There are various conceivable notions of when two syntactic identifiers should be regarded as identical,
+  but semantic definitions like whether they refer to the same global name cannot be implemented without
+  context information (i.e. `MonadResolveName`). Thus in patterns we default to the structural solution
+  of comparing the identifiers' `Name` values, though we at least do so modulo macro scopes so that
+  identifiers that "look" the same match. This is particularly useful when dealing with identifiers that
+  do not actually refer to Lean bindings, e.g. in the `stx` pattern `` `(many($p)) ``. -/
+def matchesIdent (stx : Syntax) (id : Name) : Bool :=
+  and stx.isIdent (beq stx.getId.eraseMacroScopes id.eraseMacroScopes)
+
+def matchesLit (stx : Syntax) (k : SyntaxNodeKind) (val : String) : Bool :=
+  match stx with
+  | Syntax.node _ k' args => and (beq k k') (match args.getD 0 Syntax.missing with
+    | Syntax.atom _ val' => beq val val'
+    | _                  => false)
+  | _                     => false
+
+end Syntax
 
 namespace Macro
 

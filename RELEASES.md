@@ -1,6 +1,10 @@
 Unreleased
 ---------
 
+* In `macro ... xs:p* ...` and similar macro bindings of combinators, `xs` now has the correct type `Array Syntax`
+
+* Identifiers in syntax patterns now ignore macro scopes during matching.
+
 * Improve binder names for constructor auto implicit parameters. Example, given the inductive datatype
 ```lean
 inductive Member : α → List α → Type u

@@ -349,7 +349,7 @@ def setMVarKind (mctx : MetavarContext) (mvarId : MVarId) (kind : MetavarKind) :
   let decl := mctx.getDecl mvarId
   { mctx with decls := mctx.decls.insert mvarId { decl with kind := kind } }
 
-def renameMVar (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) : MetavarContext :=
+def setMVarUserName (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) : MetavarContext :=
   let decl := mctx.getDecl mvarId
   { mctx with
     decls := mctx.decls.insert mvarId { decl with userName := userName }

@@ -377,9 +377,9 @@ def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVar
     for g in newGoals do
       if mctx.isAnonymousMVar g then
         if numAnonymous == 1 then
-          mctx := mctx.renameMVar g parentTag
+          mctx := mctx.setMVarUserName g parentTag
         else
-          mctx := mctx.renameMVar g (parentTag ++ newSuffix.appendIndexAfter idx)
+          mctx := mctx.setMVarUserName g (parentTag ++ newSuffix.appendIndexAfter idx)
         idx := idx + 1
     pure mctx
 

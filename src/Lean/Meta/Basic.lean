@@ -418,8 +418,8 @@ def isReadOnlyLevelMVar (mvarId : MVarId) : MetaM Bool := do
   else
     return (← getLevelMVarDepth mvarId) != (← getMCtx).depth
 
-def renameMVar (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
-  modifyMCtx fun mctx => mctx.renameMVar mvarId newUserName
+def setMVarUserName (mvarId : MVarId) (newUserName : Name) : MetaM Unit :=
+  modifyMCtx fun mctx => mctx.setMVarUserName mvarId newUserName
 
 def isExprMVarAssigned (mvarId : MVarId) : MetaM Bool :=
   return (← getMCtx).isExprAssigned mvarId

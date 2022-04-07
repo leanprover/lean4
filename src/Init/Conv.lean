@@ -44,13 +44,13 @@ syntax (name := convConvSeq) "conv " " => " convSeq : conv
 
 /-- `· conv` focuses on the main conv goal and tries to solve it using `s` -/
 macro dot:("·" <|> ".") s:convSeq : conv => `({%$dot ($s:convSeq) })
-macro "rw " c:(config)? s:rwRuleSeq : conv => `(rewrite $[$(c.getOptional?):config]? $s:rwRuleSeq)
+macro "rw " c:(config)? s:rwRuleSeq : conv => `(rewrite $[$c:config]? $s:rwRuleSeq)
 macro "erw " s:rwRuleSeq : conv => `(rw (config := { transparency := Meta.TransparencyMode.default }) $s:rwRuleSeq)
 
 macro "args" : conv => `(congr)
 macro "left" : conv => `(lhs)
 macro "right" : conv => `(rhs)
-macro "intro " xs:(colGt ident)* : conv => `(ext $(xs.getArgs)*)
+macro "intro " xs:(colGt ident)* : conv => `(ext $xs*)
 
 syntax enterArg := ident <|> num
 syntax "enter " "[" (colGt enterArg),+ "]": conv

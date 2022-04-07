@@ -1,7 +1,7 @@
 autoBoundErrorMsg.lean:1:43-1:44: error: don't know how to synthesize placeholder
 context:
 α : Sort u_1
-x✝ : Sort u_2
-a b : x✝
+α✝ : Sort u_2
+a b : α✝
 h : ∀ {a b : α}, a = b
 ⊢ a = b

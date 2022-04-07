@@ -4,42 +4,42 @@ context:
 hidingInaccessibleNames.lean:3:19-3:20: error: don't know how to synthesize placeholder
 context:
 a b : Nat
- : [a, b] ≠ []
+: [a, b] ≠ []
 ⊢ Nat
 hidingInaccessibleNames.lean:2:16-2:17: error: don't know how to synthesize placeholder
 context:
- : [] ≠ []
+: [] ≠ []
 ⊢ Nat
 hidingInaccessibleNames.lean:9:19-9:20: error: don't know how to synthesize placeholder
 context:
 a b x✝¹ : Nat
- : [a, b] ≠ []
+: [a, b] ≠ []
 ⊢ Nat
 hidingInaccessibleNames.lean:8:16-8:17: error: don't know how to synthesize placeholder
 context:
 x✝¹ : Nat
- : [] ≠ []
+: [] ≠ []
 ⊢ Nat
 hidingInaccessibleNames.lean:10:16-10:17: error: don't know how to synthesize placeholder
 context:
 x✝² : List Nat
 x✝¹ : Nat
- : x✝² ≠ []
+: x✝² ≠ []
 ⊢ Nat
 case inl
 p q : Prop
- : p
+: p
 ⊢ q ∨ p
 
 case inr
 p q : Prop
- : q
+: q
 ⊢ q ∨ p
 hidingInaccessibleNames.lean:23:25-23:26: error: don't know how to synthesize placeholder
 context:
 x✝² : Prop
 x✝¹ : x✝²
- : x✝²
+: x✝²
 ⊢ decide x✝² = true
 hidingInaccessibleNames.lean:27:17-27:18: error: don't know how to synthesize placeholder
 context:

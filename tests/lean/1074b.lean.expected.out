@@ -5,5 +5,5 @@ a n : Term
 1074b.lean:11:9-11:55: error: unsolved goals
 case id
 a n z✝ : Term
- : Brx z✝
+: Brx z✝
 ⊢ True ∧ Brx (sorryAx Term)

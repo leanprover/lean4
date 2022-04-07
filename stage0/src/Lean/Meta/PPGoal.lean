@@ -164,8 +164,8 @@ private def addLine (fmt : Format) : Format :=
 
 def ppGoal (mvarId : MVarId) : MetaM Format := do
   match (← getMCtx).findDecl? mvarId with
-  | none          => pure "unknown goal"
-  | some mvarDecl => do
+  | none          => return "unknown goal"
+  | some mvarDecl =>
     let indent         := 2 -- Use option
     let ppAuxDecls     := pp.auxDecls.get (← getOptions)
     let lctx           := mvarDecl.lctx
@@ -174,34 +174,34 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
       let (hidden, hiddenProp) ← ToHide.collect mvarDecl.type
       -- The followint two `let rec`s are being used to control the generated code size.
       -- Then should be remove after we rewrite the compiler in Lean
-      let rec pushPending (ids : List Name) (type? : Option Expr) (fmt : Format) : MetaM Format :=
+      let rec pushPending (ids : List Name) (type? : Option Expr) (fmt : Format) : MetaM Format := do
         if ids.isEmpty then
-          pure fmt
+          return fmt
         else
           let fmt := addLine fmt
           match type? with
-          | none      => pure fmt
-          | some type => do
+          | none      => return fmt
+          | some type =>
             let typeFmt ← ppExpr type
-            pure $ fmt ++ (Format.joinSep ids.reverse (format " ") ++ " :" ++ Format.nest indent (Format.line ++ typeFmt)).group
+            return fmt ++ (Format.joinSep ids.reverse (format " ") ++ " :" ++ Format.nest indent (Format.line ++ typeFmt)).group
       let rec ppVars (varNames : List Name) (prevType? : Option Expr) (fmt : Format) (localDecl : LocalDecl) : MetaM (List Name × Option Expr × Format) := do
         if hiddenProp.contains localDecl.fvarId then
           let fmt ← pushPending varNames prevType? fmt
           let fmt  := addLine fmt
           let type ← instantiateMVars localDecl.type
           let typeFmt ← ppExpr type
-          let fmt  := fmt ++ " : " ++ typeFmt
-          pure ([], none, fmt)
+          let fmt  := fmt ++ ": " ++ typeFmt
+          return ([], none, fmt)
         else
           match localDecl with
           | LocalDecl.cdecl _ _ varName type _   =>
             let varName := varName.simpMacroScopes
             let type ← instantiateMVars type
             if prevType? == none || prevType? == some type then
-              pure (varName :: varNames, some type, fmt)
+              return (varName :: varNames, some type, fmt)
             else do
               let fmt ← pushPending varNames prevType? fmt
-              pure ([varName], some type, fmt)
+              return ([varName], some type, fmt)
           | LocalDecl.ldecl _ _ varName type val _ => do
             let varName := varName.simpMacroScopes
             let fmt ← pushPending varNames prevType? fmt
@@ -211,10 +211,10 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
             let typeFmt ← ppExpr type
             let valFmt ← ppExpr val
             let fmt  := fmt ++ (format varName ++ " : " ++ typeFmt ++ " :=" ++ Format.nest indent (Format.line ++ valFmt)).group
-            pure ([], none, fmt)
+            return ([], none, fmt)
       let (varNames, type?, fmt) ← lctx.foldlM (init := ([], none, Format.nil)) fun (varNames, prevType?, fmt) (localDecl : LocalDecl) =>
          if !ppAuxDecls && localDecl.isAuxDecl || hidden.contains localDecl.fvarId then
-           pure (varNames, prevType?, fmt)
+           return (varNames, prevType?, fmt)
          else
            ppVars varNames prevType? fmt localDecl
       let fmt ← pushPending varNames type? fmt
@@ -222,7 +222,7 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
       let typeFmt ← ppExpr (← instantiateMVars mvarDecl.type)
       let fmt := fmt ++ "⊢ " ++ Format.nest indent typeFmt
       match mvarDecl.userName with
-      | Name.anonymous => pure fmt
+      | Name.anonymous => return fmt
       | name           => return "case " ++ format name.eraseMacroScopes ++ Format.line ++ fmt
 
 end Lean.Meta

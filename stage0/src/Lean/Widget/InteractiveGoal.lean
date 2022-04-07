@@ -38,12 +38,16 @@ def pretty (g : InteractiveGoal) : Format := Id.run <| do
     | none          => Format.nil
   for hyp in g.hyps do
     ret := addLine ret
-    let names := " ".intercalate hyp.names.toList
-    match hyp.val? with
-    | some val =>
-      ret := ret ++ Format.group f!"{names} : {hyp.type.stripTags} :={Format.nest indent (Format.line ++ val.stripTags)}"
-    | none =>
-      ret := ret ++ Format.group f!"{names} :{Format.nest indent (Format.line ++ hyp.type.stripTags)}"
+    match hyp.names.toList with
+    | [] =>
+      ret := ret ++ Format.group f!":{Format.nest indent (Format.line ++ hyp.type.stripTags)}"
+    | _ =>
+      let names := " ".intercalate hyp.names.toList
+      match hyp.val? with
+      | some val =>
+        ret := ret ++ Format.group f!"{names} : {hyp.type.stripTags} :={Format.nest indent (Format.line ++ val.stripTags)}"
+      | none =>
+        ret := ret ++ Format.group f!"{names} :{Format.nest indent (Format.line ++ hyp.type.stripTags)}"
   ret := addLine ret
   ret ++ f!"⊢ {Format.nest indent g.type.stripTags}"
 

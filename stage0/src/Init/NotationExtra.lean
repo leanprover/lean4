@@ -214,7 +214,7 @@ syntax ("·" <|> ".") ppHardSpace many1Indent(group(tactic ";"? ppLine)) : tacti
 macro_rules
   | `(tactic| ·%$dot $[$tacs:tactic $[;]?]*) => `(tactic| {%$dot $[$tacs:tactic]*})
 
-/-
+/--
   Similar to `first`, but succeeds only if one the given tactics solves the current goal.
 -/
 syntax (name := solve) "solve " withPosition((group(colGe "|" tacticSeq))+) : tactic

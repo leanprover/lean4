@@ -729,6 +729,8 @@ where
     let headers ← levelMVarToParamHeaders views headers
     let allUserLevelNames := getAllUserLevelNames headers
     withFunLocalDecls headers fun funFVars => do
+      for view in views, funFVar in funFVars do
+        addTermInfo (isBinder := true) view.declId funFVar
       let values ← elabFunValues headers
       Term.synthesizeSyntheticMVarsNoPostponing
       let values ← values.mapM (instantiateMVars ·)

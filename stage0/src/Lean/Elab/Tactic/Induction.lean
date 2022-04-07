@@ -29,8 +29,10 @@ private def getAltName (alt : Syntax) : Name :=
   if alt[1].hasArgs then alt[1][1].getId.eraseMacroScopes else `_
 private def altHasExplicitModifier (alt : Syntax) : Bool :=
   alt[1].hasArgs && !alt[1][0].isNone
+private def getAltVars (alt : Syntax) : Array Syntax :=
+  alt[2].getArgs
 private def getAltVarNames (alt : Syntax) : Array Name :=
-  alt[2].getArgs.map getNameOfIdent'
+  getAltVars  alt |>.map getNameOfIdent'
 private def getAltRHS (alt : Syntax) : Syntax :=
   alt[4]
 private def getAltDArrow (alt : Syntax) : Syntax :=
@@ -187,6 +189,17 @@ private def getNumExplicitFields (altMVarId : MVarId) (numFields : Nat) : MetaM 
     trace[Meta.debug] "bis: {repr bis}"
     return bis.foldl (init := 0) fun r bi => if bi.isExplicit then r + 1 else r
 
+private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Array FVarId) : TacticM Unit :=
+  withSaveInfoContext <| withMVarContext altMVarId do
+    let useNamesForExplicitOnly := !altHasExplicitModifier altStx
+    let mut i := 0
+    let altVars := getAltVars altStx
+    for fvarId in fvarIds do
+      if !useNamesForExplicitOnly || (← getLocalDecl fvarId).binderInfo.isExplicit then
+        if i < altVars.size then
+          Term.addLocalVarInfo altVars[i] (mkFVar fvarId)
+          i := i + 1
+
 def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (optPreTac : Syntax) (altsSyntax : Array Syntax)
     (initialInfo : Info)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[]) : TacticM Unit := do
@@ -247,7 +260,8 @@ where
           trace[Meta.debug] "numFields: {numFields}, numFieldsToName: {numFieldsToName}, altNames: {altVarNames.size}"
           if altVarNames.size > numFieldsToName then
             logError m!"too many variable names provided at alternative '{altName}', #{altVarNames.size} provided, but #{numFieldsToName} expected"
-          let mut (_, altMVarId) ← introN altMVarId numFields altVarNames.toList (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
+          let mut (fvarIds, altMVarId) ← introN altMVarId numFields altVarNames.toList (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
+          saveAltVarsInfo altMVarId altStx fvarIds
           match (← Cases.unifyEqs numEqs altMVarId {}) with
           | none => unusedAlt
           | some (altMVarId', _) =>
@@ -358,13 +372,19 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
     let elimName ← withRef elimId do resolveGlobalConstNoOverloadWithInfo elimId
     return (elimName, ← withRef elimId do getElimInfo elimName)
 
-private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
-  if exprs.all (·.isFVar) then
-    return exprs
+private def shouldGeneralizeTarget (e : Expr) : MetaM Bool := do
+  if let .fvar fvarId .. := e then
+    return (← getLocalDecl fvarId).hasValue -- must generalize let-decls
   else
+    return true
+
+private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
+  if (← withMainContext <| exprs.anyM (shouldGeneralizeTarget ·)) then
     liftMetaTacticAux fun mvarId => do
       let (fvarIds, mvarId) ← generalize mvarId (exprs.map fun expr => { expr })
       return (fvarIds.map mkFVar, [mvarId])
+  else
+    return exprs
 
 @[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focus do
   let targets ← withMainContext <| stx[1].getSepArgs.mapM (elabTerm · none)
@@ -406,21 +426,21 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr) :=
       let hName? := if target[0].isNone then none else some target[0][0].getId
       let expr ← elabTerm target[1] none
       return { expr, hName? : GeneralizeArg }
-    if args.all fun arg => arg.expr.isFVar && arg.hName?.isNone then
-      return args.map (·.expr)
-    else
+    if (← withMainContext <| args.anyM fun arg => shouldGeneralizeTarget arg.expr <||> pure arg.hName?.isSome) then
       liftMetaTacticAux fun mvarId => do
-        let argsToGeneralize := args.filter fun arg => !(arg.expr.isFVar && arg.hName?.isNone)
+        let argsToGeneralize ← args.filterM fun arg => shouldGeneralizeTarget arg.expr <||> pure arg.hName?.isSome
         let (fvarIdsNew, mvarId) ← generalize mvarId argsToGeneralize
         let mut result := #[]
         let mut j := 0
         for arg in args do
-          if arg.expr.isFVar && arg.hName?.isNone then
-            result := result.push arg.expr
-          else
+          if (← shouldGeneralizeTarget arg.expr) || arg.hName?.isSome then
             result := result.push (mkFVar fvarIdsNew[j])
             j := j+1
+          else
+            result := result.push arg.expr
         return (result, [mvarId])
+    else
+      return args.map (·.expr)
 
 builtin_initialize registerTraceClass `Elab.cases
 

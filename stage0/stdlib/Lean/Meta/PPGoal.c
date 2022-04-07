@@ -161,6 +161,7 @@ LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_34____closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_ToHide_hasVisibleDep___spec__33(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitApp___at_Lean_Meta_ToHide_hasVisibleDep___spec__35___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_ppGoal_ppVars___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitApp___at_Lean_Meta_ToHide_hasVisibleDep___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__12(lean_object*, lean_object*);
@@ -271,6 +272,7 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisible
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__32___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_PersistentArray_anyM___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__44(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasVisibleDep___spec__47___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_ppGoal_ppVars___closed__6;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_ToHide_hasInaccessibleNameDep___spec__24___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ppGoal_ppVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_type(lean_object*);
@@ -19752,6 +19754,24 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Lean_Meta_ppGoal_ppVars___closed__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string(": ");
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Meta_ppGoal_ppVars___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_ppGoal_ppVars___closed__5;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_ppGoal_ppVars(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
@@ -20298,7 +20318,7 @@ if (x_160 == 0)
 {
 lean_object* x_161; lean_object* x_162; lean_object* x_163; lean_object* x_164; lean_object* x_165; lean_object* x_166; lean_object* x_167; lean_object* x_168; 
 x_161 = lean_ctor_get(x_159, 0);
-x_162 = l_Lean_Meta_ppGoal_ppVars___closed__2;
+x_162 = l_Lean_Meta_ppGoal_ppVars___closed__6;
 x_163 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_163, 0, x_154);
 lean_ctor_set(x_163, 1, x_162);
@@ -20324,7 +20344,7 @@ x_170 = lean_ctor_get(x_159, 1);
 lean_inc(x_170);
 lean_inc(x_169);
 lean_dec(x_159);
-x_171 = l_Lean_Meta_ppGoal_ppVars___closed__2;
+x_171 = l_Lean_Meta_ppGoal_ppVars___closed__6;
 x_172 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_172, 0, x_154);
 lean_ctor_set(x_172, 1, x_171);
@@ -25914,6 +25934,10 @@ l_Lean_Meta_ppGoal_ppVars___closed__3 = _init_l_Lean_Meta_ppGoal_ppVars___closed
 lean_mark_persistent(l_Lean_Meta_ppGoal_ppVars___closed__3);
 l_Lean_Meta_ppGoal_ppVars___closed__4 = _init_l_Lean_Meta_ppGoal_ppVars___closed__4();
 lean_mark_persistent(l_Lean_Meta_ppGoal_ppVars___closed__4);
+l_Lean_Meta_ppGoal_ppVars___closed__5 = _init_l_Lean_Meta_ppGoal_ppVars___closed__5();
+lean_mark_persistent(l_Lean_Meta_ppGoal_ppVars___closed__5);
+l_Lean_Meta_ppGoal_ppVars___closed__6 = _init_l_Lean_Meta_ppGoal_ppVars___closed__6();
+lean_mark_persistent(l_Lean_Meta_ppGoal_ppVars___closed__6);
 l_Lean_Meta_ppGoal___lambda__1___closed__1 = _init_l_Lean_Meta_ppGoal___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Meta_ppGoal___lambda__1___closed__1);
 l_Lean_Meta_ppGoal___lambda__1___closed__2 = _init_l_Lean_Meta_ppGoal___lambda__1___closed__2();

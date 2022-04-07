@@ -297,6 +297,12 @@ private def withLocalIdentFor (stx : Syntax) (e : Expr) (k : Syntax → TermElab
     let aux ← withLocalDeclD id (← inferType e) fun x => do mkLambdaFVars #[x] (← k (mkIdentFrom stx id))
     return mkApp aux e
 
+/--
+`h ▸ e` is a macro built on top of `Eq.subst` and `Eq.symm` definitions.
+Given `h : a = b` and `e : p a`, the term `h ▸ e` has type `p b`.
+You can also view `h ▸ e` as a "type casting" operation where you change the type of `e` by using `h`.
+See the Chapter "Quantifiers and Equality" in the manual "Theorem Proving in Lean" for additional information.
+-/
 @[builtinTermElab subst] def elabSubst : TermElab := fun stx expectedType? => do
   let expectedType ← tryPostponeIfHasMVars expectedType? "invalid `▸` notation"
   match stx with

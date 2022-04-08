@@ -622,8 +622,8 @@ def delabOfScientific : Delab := whenPPOption getPPCoercions do
   let Expr.lit (Literal.natVal m) _ ← pure (expr.getArg! 2) | failure
   let Expr.lit (Literal.natVal e) _ ← pure (expr.getArg! 4) | failure
   let s ← match expr.getArg! 3 with
-    | Expr.const `Bool.true _ _  => pure true
-    | Expr.const `Bool.false _ _ => pure false
+    | Expr.const ``Bool.true _ _  => pure true
+    | Expr.const ``Bool.false _ _ => pure false
     | _ => failure
   let str  := toString m
   if s && e == str.length then
@@ -728,7 +728,7 @@ def delabPSigma : Delab := delabSigmaCore (sigma := false)
 
 partial def delabDoElems : DelabM (List Syntax) := do
   let e ← getExpr
-  if e.isAppOfArity `Bind.bind 6 then
+  if e.isAppOfArity ``Bind.bind 6 then
     -- Bind.bind.{u, v} : {m : Type u → Type v} → [self : Bind m] → {α β : Type u} → m α → (α → m β) → m β
     let α := e.getAppArgs[2]
     let ma ← withAppFn $ withAppArg delab
@@ -738,7 +738,7 @@ partial def delabDoElems : DelabM (List Syntax) := do
         withBindingBodyUnusedName fun n => do
           if body.hasLooseBVars then
             prependAndRec `(doElem|let $n:term ← $ma:term)
-          else if α.isConstOf `Unit || α.isConstOf `PUnit then
+          else if α.isConstOf ``Unit || α.isConstOf ``PUnit then
             prependAndRec `(doElem|$ma:term)
           else
             prependAndRec `(doElem|let _ ← $ma:term)
@@ -754,13 +754,13 @@ partial def delabDoElems : DelabM (List Syntax) := do
         prependAndRec `(doElem|let $(mkIdent n) : $stxT := $stxV)
   else
     let stx ← delab
-    return [←`(doElem|$stx:term)]
+    return [← `(doElem|$stx:term)]
   where
     prependAndRec x : DelabM _ := List.cons <$> x <*> delabDoElems
 
 @[builtinDelab app.Bind.bind]
 def delabDo : Delab := whenPPOption getPPNotation do
-  guard <| (← getExpr).isAppOfArity `Bind.bind 6
+  guard <| (← getExpr).isAppOfArity ``Bind.bind 6
   let elems ← delabDoElems
   let items ← elems.toArray.mapM (`(doSeqItem|$(·):doElem))
   `(do $items:doSeqItem*)

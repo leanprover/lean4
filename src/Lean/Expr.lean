@@ -665,7 +665,7 @@ def isStringLit : Expr → Bool
   | _                        => false
 
 def isCharLit (e : Expr) : Bool :=
-  e.isAppOfArity `Char.ofNat 1 && e.appArg!.isNatLit
+  e.isAppOfArity ``Char.ofNat 1 && e.appArg!.isNatLit
 
 def constName! : Expr → Name
   | const n _ _ => n
@@ -985,26 +985,26 @@ def etaExpandedStrict? : Expr → Option Expr
   | _           => none
 
 def getOptParamDefault? (e : Expr) : Option Expr :=
-  if e.isAppOfArity `optParam 2 then
+  if e.isAppOfArity ``optParam 2 then
     some e.appArg!
   else
     none
 
 def getAutoParamTactic? (e : Expr) : Option Expr :=
-  if e.isAppOfArity `autoParam 2 then
+  if e.isAppOfArity ``autoParam 2 then
     some e.appArg!
   else
     none
 
 @[export lean_is_out_param]
 def isOutParam (e : Expr) : Bool :=
-  e.isAppOfArity `outParam 1
+  e.isAppOfArity ``outParam 1
 
 def isOptParam (e : Expr) : Bool :=
-  e.isAppOfArity `optParam 2
+  e.isAppOfArity ``optParam 2
 
 def isAutoParam (e : Expr) : Bool :=
-  e.isAppOfArity `autoParam 2
+  e.isAppOfArity ``autoParam 2
 
 @[export lean_expr_consume_type_annotations]
 partial def consumeTypeAnnotations (e : Expr) : Expr :=

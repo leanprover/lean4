@@ -109,7 +109,7 @@ def isDefEqNat (s t : Expr) : MetaM LBool := do
 /-- Support for constraints of the form `("..." =?= String.mk cs)` -/
 def isDefEqStringLit (s t : Expr) : MetaM LBool := do
   let isDefEq (s t) : MetaM LBool := toLBoolM <| Meta.isExprDefEqAux s t
-  if s.isStringLit && t.isAppOf `String.mk then
+  if s.isStringLit && t.isAppOf ``String.mk then
     isDefEq (toCtorIfLit s) t
   else if s.isAppOf `String.mk && t.isStringLit then
     isDefEq s (toCtorIfLit t)

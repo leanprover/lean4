@@ -323,7 +323,6 @@ private partial def mkLambdaFVarsWithLetDeps (xs : Array Expr) (v : Expr) : Meta
     mkLambdaFVars xs v
   else
     let ys ← addLetDeps
-    trace[Meta.debug] "ys: {ys}, v: {v}"
     mkLambdaFVars ys v
 
 where

@@ -744,18 +744,15 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
     return (fvarIdsNew, mvarIdNew)
 
 def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM TacticResultCNM := withMVarContext mvarId do
-  trace[Meta.debug] "simpTargetStar:\n{mvarId}"
   let mut ctx := ctx
   for h in (← getPropHyps) do
     let localDecl ← getLocalDecl h
     let proof  := localDecl.toExpr
-    trace[Meta.debug] "adding {localDecl.toExpr}"
     let simpTheorems ← ctx.simpTheorems.addTheorem proof
     ctx := { ctx with simpTheorems }
   match (← simpTarget mvarId ctx discharge?) with
   | none => return TacticResultCNM.closed
   | some mvarId' =>
-    trace[Meta.debug] "simpTargetStar result:\n{mvarId'}"
     if (← getMVarType mvarId) == (← getMVarType mvarId') then
       return TacticResultCNM.noChange
     else

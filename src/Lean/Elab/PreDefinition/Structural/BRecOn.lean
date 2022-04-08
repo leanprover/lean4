@@ -92,7 +92,6 @@ def refinedArgType (matcherApp : MatcherApp) (arg : Expr) : MetaM Bool := do
     lambdaTelescope alt fun xs altBody => do
       if xs.size >= numParams then
         let refinedArg := xs[numParams - 1]
-        trace[Meta.debug] "refinedArgType {argType} =?= {← inferType refinedArg}"
         return !(← isDefEq (← inferType refinedArg) argType)
       else
         return false

@@ -61,7 +61,6 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
   let header     ← mkHashableHeader ctx indVal
   let body       ← mkMatch ctx header indVal i
   let binders    := header.binders
-  trace[Meta.debug] "body: {body}"
   if ctx.usePartial then
     -- TODO(Dany): Get rid of this code branch altogether once we have well-founded recursion
     `(private partial def $(mkIdent auxFunName):ident $binders:explicitBinder* : UInt64 := $body:term)

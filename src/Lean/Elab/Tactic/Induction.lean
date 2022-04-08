@@ -186,7 +186,6 @@ private def getNumExplicitFields (altMVarId : MVarId) (numFields : Nat) : MetaM 
   let target ← getMVarType altMVarId
   withoutModifyingState do
     let (_, bis, _) ← forallMetaBoundedTelescope target numFields
-    trace[Meta.debug] "bis: {repr bis}"
     return bis.foldl (init := 0) fun r bi => if bi.isExplicit then r + 1 else r
 
 private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Array FVarId) : TacticM Unit :=
@@ -257,7 +256,6 @@ where
               throwError "alternative '{altName}' is not needed"
           let altVarNames := getAltVarNames altStx
           let numFieldsToName ← if altHasExplicitModifier altStx then pure numFields else getNumExplicitFields altMVarId numFields
-          trace[Meta.debug] "numFields: {numFields}, numFieldsToName: {numFieldsToName}, altNames: {altVarNames.size}"
           if altVarNames.size > numFieldsToName then
             logError m!"too many variable names provided at alternative '{altName}', #{altVarNames.size} provided, but #{numFieldsToName} expected"
           let mut (fvarIds, altMVarId) ← introN altMVarId numFields altVarNames.toList (useNamesForExplicitOnly := !altHasExplicitModifier altStx)

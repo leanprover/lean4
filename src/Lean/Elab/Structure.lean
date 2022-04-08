@@ -429,7 +429,6 @@ where
               let expandedStructNames := expandedStructNames.insert fieldParentStructName
               copyFields infos expandedStructNames fieldType fun infos nestedFieldMap expandedStructNames => do
                 let fieldVal ← mkCompositeField fieldType nestedFieldMap
-                trace[Meta.debug] "composite, {fieldName} := {fieldVal}"
                 copy (i+1) infos (fieldMap.insert fieldName fieldVal) expandedStructNames
             else
               let subfieldNames := getStructureFieldsFlattened (← getEnv) fieldParentStructName
@@ -685,7 +684,6 @@ private def mkCtor (view : StructView) (levelParams : List Name) (params : Array
   let type ← mkForallFVars params type
   let type ← instantiateMVars type
   let type := type.inferImplicit params.size !view.ctor.inferMod
-  -- trace[Meta.debug] "ctor type {type}"
   pure { name := view.ctor.declName, type }
 
 @[extern "lean_mk_projections"]

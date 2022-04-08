@@ -702,7 +702,6 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         | Except.ok levelParams => do
           let indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numVars numParams indTypes
           let indTypes := applyInferMod views numParams indTypes
-          trace[Meta.debug] "levelParams: {levelParams}"
           let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe
           Term.ensureNoUnassignedMVars decl
           addDecl decl

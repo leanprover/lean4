@@ -293,7 +293,6 @@ where
 
   -- Visitor for inductive types
   goType (t d : Expr) : OptionT MetaM (List Nat) := do
-    trace[Meta.debug] "type {t} =?= {d}"
     let t ← whnf t
     let d ← whnf d
     checkCompatibleApps t d
@@ -319,7 +318,6 @@ where
     if t.isFVar || d.isFVar then
       return [] -- Found refinement path
     else
-      trace[Meta.debug] "index {t} =?= {d}"
       checkCompatibleApps t d
       matchConstCtor t.getAppFn (fun _ => failure) fun info _ => do
         let tArgs := t.getAppArgs
@@ -368,7 +366,6 @@ private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : Excep
             | some pattern =>
               match (← findDiscrRefinementPath pattern d |>.run) with
               | some path =>
-                trace[Meta.debug] "refinement path: {path}"
                 restoreState s
                 -- Wrap the type mismatch exception for the "discriminant refinement" feature.
                 throwThe PatternElabException { ex := ex, patternIdx := idx, pathToIndex := path }
@@ -743,13 +740,11 @@ private def generalize (discrs : Array Expr) (matchType : Expr) (altViews : Arra
       return { discrs, matchType, altViews }
     else
       let ys := ysFVarIds.map mkFVar
-      -- trace[Meta.debug] "ys: {ys}, discrs: {discrs}"
       let matchType' ← forallBoundedTelescope matchType discrs.size fun ds type => do
         let type ← mkForallFVars ys type
         let (discrs', ds') := Array.unzip <| Array.zip discrs ds |>.filter fun (di, d) => di.isFVar
         let type := type.replaceFVars discrs' ds'
         mkForallFVars ds type
-      -- trace[Meta.debug] "matchType': {matchType'}"
       if (← isTypeCorrect matchType') then
         let discrs := discrs ++ ys
         let altViews ← altViews.mapM fun altView => do
@@ -786,7 +781,6 @@ where
     match (← altViews'.mapM (fun altView => elabMatchAltView altView matchType' (toClear ++ toClear')) |>.run) with
     | Except.ok alts => return (discrs', matchType', alts, first?.isSome || refined)
     | Except.error { patternIdx := patternIdx, pathToIndex := pathToIndex, ex := ex } =>
-      trace[Meta.debug] "pathToIndex: {toString pathToIndex}"
       let some index ← getIndexToInclude? discrs[patternIdx] pathToIndex
         | throwEx (← updateFirst first? ex)
       trace[Elab.match] "index to include: {index}"

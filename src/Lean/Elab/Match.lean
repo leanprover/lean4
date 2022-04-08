@@ -8,6 +8,7 @@ import Lean.Parser.Term
 import Lean.Meta.Match.MatchPatternAttr
 import Lean.Meta.Match.Match
 import Lean.Meta.GeneralizeVars
+import Lean.Meta.ForEachExpr
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.Arg
 import Lean.Elab.PatternVar
@@ -620,7 +621,7 @@ def main (patternVarDecls : Array PatternVarDecl) (ps : Array Expr) (matchType :
     unless patternVars.any (· == mkFVar explicit) do
       withInPattern do
         throwError "invalid patterns, `{mkFVar explicit}` is an explicit pattern variable, but it only occurs in positions that are inaccessible to pattern matching{indentD (MessageData.joinSep (ps.toList.map (MessageData.ofExpr .)) m!"\n\n")}"
-  let packed ← mkLambdaFVars patternVars (← packMatchTypePatterns matchType ps) (binderInfoForMVars := BinderInfo.default)
+  let packed ← pack patternVars ps matchType
   let lctx := explicitPatternVars.foldl (init := (← getLCtx)) fun lctx d => lctx.erase d
   withTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) do
     check packed
@@ -628,6 +629,30 @@ def main (patternVarDecls : Array PatternVarDecl) (ps : Array Expr) (matchType :
       let localDecls ← patternVars.mapM fun x => getLocalDecl x.fvarId!
       let (matchType, patterns) := unpackMatchTypePatterns packed
       k localDecls (← patterns.mapM fun p => toPattern p) matchType
+where
+  pack (patternVars : Array Expr) (ps : Array Expr) (matchType : Expr) : MetaM Expr := do
+    /-
+     Recall that some of the `patternVars` are metavariables without a user facing name.
+     Thus, this method tries to infer names for them using `ps` before performing the `mkLambdaFVars` abstraction.
+     Let `?m` be a metavariable in `patternVars` without a user facing name.
+     The heuristic uses the patterns `ps`. We traverse the patterns from right to left searching for applications
+     `f ... ?m`. The name for the corresponding `f`-parameter is used to name `?m`.
+     We search from right to left to make sure we visit a pattern before visiting its indices. Example:
+     ```
+     #[@List.cons α i ?m, @HList.cons α β i ?m a as, @Member.head α i ?m]
+     ```
+    -/
+    let setMVarsAt (e : Expr) : StateRefT (Array MVarId) MetaM Unit := do
+      let mvarIds ← setMVarUserNamesAt e patternVars
+      modify (· ++ mvarIds)
+    let go : StateRefT (Array MVarId) MetaM Expr := do
+      try
+        for p in ps.reverse do
+          setMVarsAt p
+        mkLambdaFVars patternVars (← packMatchTypePatterns matchType ps) (binderInfoForMVars := BinderInfo.default)
+      finally
+        resetMVarUserNames (← get)
+    go |>.run' #[]
 
 end ToDepElimPattern
 

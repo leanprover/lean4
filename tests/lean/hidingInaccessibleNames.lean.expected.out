@@ -37,11 +37,11 @@ p q : Prop
 ⊢ q ∨ p
 hidingInaccessibleNames.lean:23:25-23:26: error: don't know how to synthesize placeholder
 context:
-x✝² : Prop
-x✝¹ : x✝²
-: x✝²
-⊢ decide x✝² = true
+p✝ : Prop
+h✝ : p✝
+: p✝
+⊢ decide p✝ = true
 hidingInaccessibleNames.lean:27:17-27:18: error: don't know how to synthesize placeholder
 context:
-x✝ : Char
-⊢ x✝.val = x✝.val
+a✝ : Char
+⊢ a✝.val = a✝.val

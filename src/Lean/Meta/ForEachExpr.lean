@@ -60,6 +60,45 @@ def forEachExpr (e : Expr) (f : Expr → MetaM Unit) : MetaM Unit :=
     f e
     pure true
 
+/-- Return true iff `x` is a metavariable with an anonymous user facing name. -/
+private def shouldInferBinderName (x : Expr) : MetaM Bool := do
+  match x with
+  | .mvar mvarId _ => return (← Meta.getMVarDecl mvarId).userName.isAnonymous
+  | _ => return false
+
+/--
+  Auxiliary method for (temporarily) setting the user facing name of metavariables.
+  Let `?m` be a metavariable in `isTarget.contains ?m`, and `?m` does not have a user facing name.
+  Then, we try to find an application `f ... ?m` in `e`, and (temporarily) use the
+  corresponding parameter name (with a fresh macro scope) as the user facing name for `?m`.
+  This method returns all metavariables whose user facing name has been updated.
+-/
+def setMVarUserNamesAt (e : Expr) (isTarget : Array Expr) : MetaM (Array MVarId) := do
+  let toReset ← IO.mkRef #[]
+  forEachExpr (← instantiateMVars e) fun e => do
+    if e.isApp then
+      let args := e.getAppArgs
+      for i in [:args.size] do
+        let arg := args[i]
+        if arg.isMVar && isTarget.contains arg then
+          let mvarId := arg.mvarId!
+          if (← Meta.getMVarDecl mvarId).userName.isAnonymous then
+            forallBoundedTelescope (← inferType e.getAppFn) (some (i+1)) fun xs _ => do
+              if i < xs.size then
+                let mvarId := arg.mvarId!
+                let userName ← mkFreshUserName (← getFVarLocalDecl xs[i]).userName
+                toReset.modify (·.push mvarId)
+                modifyMCtx fun mctx => mctx.setMVarUserNameTemporarily mvarId userName
+  toReset.get
+
+/--
+  Remove user facing name for metavariables in `toReset`.
+  This a low-level method for "undoing" the effect of `setMVarUserNamesAt`
+-/
+def resetMVarUserNames (toReset : Array MVarId) : MetaM Unit := do
+  for mvarId in toReset do
+    modifyMCtx fun mctx => mctx.setMVarUserNameTemporarily mvarId Name.anonymous
+
 /--
   Similar to `mkForallFVars`, but tries to infer better binder names when `xs` contains metavariables.
   Let `?m` be a metavariable in `xs` s.t. `?m` does not have a user facing name.
@@ -69,37 +108,19 @@ def forEachExpr (e : Expr) (f : Expr → MetaM Unit) : MetaM Unit :=
 -/
 def mkForallFVars' (xs : Array Expr) (type : Expr) : MetaM Expr := do
   if (← xs.anyM shouldInferBinderName) then
-    let toReset ← IO.mkRef #[]
-    try
-      for x in xs do
-        visit (← inferType x) toReset
-      visit type toReset
-      mkForallFVars xs type
-    finally
-      for mvarId in (← toReset.get) do
-        modifyMCtx fun mctx => mctx.setMVarUserNameTemporarily mvarId Name.anonymous
+    let setMVarsAt (e : Expr) : StateRefT (Array MVarId) MetaM Unit := do
+      let mvarIds ← setMVarUserNamesAt e xs
+      modify (· ++ mvarIds)
+    let go : StateRefT (Array MVarId) MetaM Expr := do
+      try
+        for x in xs do
+          setMVarsAt (← inferType x)
+        setMVarsAt type
+        mkForallFVars xs type
+      finally
+        resetMVarUserNames (← get)
+    go |>.run' #[]
   else
     mkForallFVars xs type
-where
-  shouldInferBinderName (x : Expr) : MetaM Bool := do
-    match x with
-    | .mvar mvarId _ => return (← Meta.getMVarDecl mvarId).userName.isAnonymous
-    | _ => return false
-
-  visit (e : Expr) (toReset : IO.Ref (Array MVarId)) : MetaM Unit := do
-    forEachExpr (← instantiateMVars e) fun e => do
-      if e.isApp then
-        let args := e.getAppArgs
-        for i in [:args.size] do
-          let arg := args[i]
-          if arg.isMVar && xs.contains arg then
-            let mvarId := arg.mvarId!
-            if (← Meta.getMVarDecl mvarId).userName.isAnonymous then
-              forallBoundedTelescope (← inferType e.getAppFn) (some (i+1)) fun xs _ => do
-                if i < xs.size then
-                  let mvarId := arg.mvarId!
-                  let userName ← mkFreshUserName (← getFVarLocalDecl xs[i]).userName
-                  toReset.modify (·.push mvarId)
-                  modifyMCtx fun mctx => mctx.setMVarUserNameTemporarily mvarId userName
 
 end Lean.Meta

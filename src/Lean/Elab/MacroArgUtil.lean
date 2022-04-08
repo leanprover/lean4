@@ -16,7 +16,10 @@ partial def expandMacroArg (stx : Syntax) : CommandElabM (Syntax × Syntax) := d
     | `(macroArg| $id:ident:$stx) => pure (some id, id, stx)
     | `(macroArg| $stx:stx)       => pure (none, (← `(x)), stx)
     | _                           => throwUnsupportedSyntax
-  let pat ← match stx with
+  mkSyntaxAndPat id? id stx
+where
+  mkSyntaxAndPat id? id stx := do
+    let pat ← match stx with
     | `(stx| $s:str)         => pure <| mkNode `token_antiquot #[← liftMacroM <| strLitToPattern s, mkAtom "%", mkAtom "$", id]
     | `(stx| &$s:str)        => pure <| mkNode `token_antiquot #[← liftMacroM <| strLitToPattern s, mkAtom "%", mkAtom "$", id]
     | `(stx| optional($stx)) => mkSplicePat `optional stx id "?"
@@ -28,13 +31,15 @@ partial def expandMacroArg (stx : Syntax) : CommandElabM (Syntax × Syntax) := d
       mkSplicePat `sepBy stx id ((isStrLit? sep).get! ++ "*")
     -- NOTE: all `interpolatedStr(·)` reuse the same node kind
     | `(stx| interpolatedStr(term)) => pure <| Syntax.mkAntiquotNode interpolatedStrKind id
+    -- bind through withPosition
+    | `(stx| withPosition($stx)) =>
+      return (← mkSyntaxAndPat id? id stx)
     | _ => match id? with
       -- if there is a binding, we assume the user knows what they are doing
       | some id => mkAntiquotNode stx id
       -- otherwise `group` the syntax to enforce arity 1, e.g. for `noWs`
       | none    => return (← `(stx| group($stx)), (← mkAntiquotNode stx id))
-  pure (stx, pat)
-where
+    pure (stx, pat)
   mkSplicePat kind stx id suffix :=
     return mkNullNode #[mkAntiquotSuffixSpliceNode kind (← mkAntiquotNode stx id) suffix]
   mkAntiquotNode

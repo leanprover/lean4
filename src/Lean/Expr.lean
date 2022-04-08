@@ -636,6 +636,13 @@ def isAppOfArity : Expr → Name → Nat → Bool
   | app f _ _,   n, a+1 => isAppOfArity f n a
   | _,           _, _   => false
 
+/-- Similar to `isAppOfArity` but skips `Expr.mdata`. -/
+def isAppOfArity' : Expr → Name → Nat → Bool
+  | mdata _ b _ , n, a   => isAppOfArity' b n a
+  | const c _ _,  n, 0   => c == n
+  | app f _ _,    n, a+1 => isAppOfArity' f n a
+  | _,           _,  _   => false
+
 def appFn! : Expr → Expr
   | app f _ _ => f
   | _         => panic! "application expected"
@@ -643,6 +650,16 @@ def appFn! : Expr → Expr
 def appArg! : Expr → Expr
   | app _ a _ => a
   | _         => panic! "application expected"
+
+def appFn!' : Expr → Expr
+  | mdata _ b _ => appFn!' b
+  | app f _ _   => f
+  | _           => panic! "application expected"
+
+def appArg!' : Expr → Expr
+  | mdata _ b _ => appArg!' b
+  | app _ a _   => a
+  | _           => panic! "application expected"
 
 def sortLevel! : Expr → Level
   | sort u .. => u

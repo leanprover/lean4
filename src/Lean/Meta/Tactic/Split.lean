@@ -182,7 +182,7 @@ where
     else
       none
 
-  isCandidate (e : Expr) : Bool := Id.run <| do
+  isCandidate (e : Expr) : Bool := Id.run do
     if exceptionSet.contains e then
       false
     else if splitIte && (e.isIte || e.isDIte) then

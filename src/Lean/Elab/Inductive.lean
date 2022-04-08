@@ -517,7 +517,7 @@ private def updateParams (vars : Array Expr) (indTypes : List InductiveType) : T
       return { ctor with type := ctorType }
     return { indType with type := type, ctors := ctors }
 
-private def collectLevelParamsInInductive (indTypes : List InductiveType) : Array Name := Id.run <| do
+private def collectLevelParamsInInductive (indTypes : List InductiveType) : Array Name := Id.run do
   let mut usedParams : CollectLevelParams.State := {}
   for indType in indTypes do
     usedParams := collectLevelParams usedParams indType.type
@@ -525,7 +525,7 @@ private def collectLevelParamsInInductive (indTypes : List InductiveType) : Arra
       usedParams := collectLevelParams usedParams ctor.type
   return usedParams.params
 
-private def mkIndFVar2Const (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name) : ExprMap Expr := Id.run <| do
+private def mkIndFVar2Const (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name) : ExprMap Expr := Id.run do
   let levelParams := levelNames.map mkLevelParam;
   let mut m : ExprMap Expr := {}
   for i in [:views.size] do
@@ -554,7 +554,7 @@ private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : 
 
 abbrev Ctor2InferMod := Std.HashMap Name Bool
 
-private def mkCtor2InferMod (views : Array InductiveView) : Ctor2InferMod := Id.run <| do
+private def mkCtor2InferMod (views : Array InductiveView) : Ctor2InferMod := Id.run do
   let mut m := {}
   for view in views do
     for ctorView in view.ctors do

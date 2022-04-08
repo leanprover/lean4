@@ -161,7 +161,7 @@ def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (gi
       let (indices', mvarId) ← introNP mvarId indices.size
       let (majorFVarId', mvarId) ← intro1P mvarId
       -- Create FVarSubst with indices
-      let baseSubst := Id.run <| do
+      let baseSubst := Id.run do
         let mut subst : FVarSubst := {}
         let mut i := 0
         for index in indices do

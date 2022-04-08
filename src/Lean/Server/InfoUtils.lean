@@ -125,8 +125,8 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
 
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
-partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) := Id.run <| do
-  let res := t.smallestInfo? fun i => Id.run <| do
+partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) := Id.run do
+  let res := t.smallestInfo? fun i => Id.run do
     if i matches Info.ofFieldInfo _ || i.toElabInfo?.isSome then
       return i.contains hoverPos
     return false
@@ -214,7 +214,7 @@ structure GoalsAtResult where
   there is no nested tactic info (i.e. it is a leaf tactic; tactic combinators should decide for themselves
   where to show intermediate/final states)
 -/
-partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult := Id.run <| do
+partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult := Id.run do
   t.deepestNodes fun
     | ctx, i@(Info.ofTacticInfo ti), cs => OptionM.run do
       if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
@@ -229,7 +229,7 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
     | _, _, _ => none
 where
   hasNestedTactic (pos tailPos) : InfoTree → Bool
-    | InfoTree.node i@(Info.ofTacticInfo _) cs => Id.run <| do
+    | InfoTree.node i@(Info.ofTacticInfo _) cs => Id.run do
       if let `(by $t) := i.stx then
         return false  -- ignore term-nested proofs such as in `simp [show p by ...]`
       if let (some pos', some tailPos') := (i.pos?, i.tailPos?) then
@@ -259,7 +259,7 @@ partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option
       headFns.insert pos
     else
       headFns
-  t.smallestInfo? fun i => Id.run <| do
+  t.smallestInfo? fun i => Id.run do
     if i.contains hoverPos then
       if let Info.ofTermInfo ti := i then
         return !ti.stx.isIdent || !headFns.contains i.pos?.get!

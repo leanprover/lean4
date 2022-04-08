@@ -100,7 +100,7 @@ def toSubarray (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : Suba
      else
        { as := as, start := as.size, stop := as.size, h₁ := Nat.le_refl _, h₂ := Nat.le_refl _ }
 
-def ofSubarray (s : Subarray α) : Array α := Id.run <| do
+def ofSubarray (s : Subarray α) : Array α := Id.run do
   let mut as := mkEmpty (s.stop - s.start)
   for a in s do
     as := as.push a

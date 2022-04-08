@@ -330,7 +330,7 @@ where
   /- Return true if there are let-declarions between `xs[0]` and `xs[xs.size-1]`.
      We use it a quick-check to avoid the more expensive collection procedure. -/
   hasLetDeclsInBetween : MetaM Bool := do
-    let check (lctx : LocalContext) : Bool := Id.run <| do
+    let check (lctx : LocalContext) : Bool := Id.run do
       let start := lctx.getFVar! xs[0] |>.index
       let stop  := lctx.getFVar! xs.back |>.index
       for i in [start+1:stop] do

@@ -191,7 +191,7 @@ private def valUnknown (e : Expr) : MetaM Bool := do
 private def typeUnknown (e : Expr) : MetaM Bool := do
   valUnknown (← inferType e)
 
-def isHBinOp (e : Expr) : Bool := Id.run <| do
+def isHBinOp (e : Expr) : Bool := Id.run do
   -- TODO: instead of tracking these explicitly,
   -- consider a more general solution that checks for defaultInstances
   if e.getAppNumArgs != 6 then return false

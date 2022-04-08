@@ -14,7 +14,7 @@ private def throwUnknownId (id : Name) : CommandElabM Unit :=
 private def levelParamsToMessageData (levelParams : List Name) : MessageData :=
   match levelParams with
   | []    => ""
-  | u::us => Id.run <| do
+  | u::us => Id.run do
     let mut m := m!".\{{u}"
     for u in us do
       m := m ++ ", " ++ toMessageData u

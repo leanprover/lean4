@@ -24,7 +24,7 @@ private def formatLitVal : LitVal → Format
 instance : ToFormat LitVal := ⟨formatLitVal⟩
 
 private def formatCtorInfo : CtorInfo → Format
-  | { name := name, cidx := cidx, usize := usize, ssize := ssize, .. } => Id.run <| do
+  | { name := name, cidx := cidx, usize := usize, ssize := ssize, .. } => Id.run do
     let mut r := f!"ctor_{cidx}"
     if usize > 0 || ssize > 0 then
       r := f!"{r}.{usize}.{ssize}"

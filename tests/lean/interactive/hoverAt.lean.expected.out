@@ -1,0 +1,8 @@
+{"textDocument": {"uri": "file://hoverAt.lean"},
+ "position": {"line": 8, "character": 18}}
+{"range":
+ {"start": {"line": 8, "character": 17}, "end": {"line": 8, "character": 34}},
+ "contents":
+ {"value":
+  "```lean\nPalindrome.single.{u_1} : ∀ {α : Type u_1} (a : α), Palindrome [a]\n```",
+  "kind": "markdown"}}

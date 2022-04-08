@@ -6,7 +6,7 @@ Authors: Wojciech Nawrocki
 -/
 import Lean.DocString
 import Lean.Elab.InfoTree
-import Lean.PrettyPrinter.Delaborator.Options
+import Lean.PrettyPrinter
 import Lean.Util.Sorry
 
 protected structure String.Range where
@@ -171,16 +171,23 @@ where
   fmtTerm? : MetaM (Option Format) := do
     match i with
     | Info.ofTermInfo ti =>
-      if ti.expr.isSort then
-        -- types of sorts are funny to look at in widgets, but ultimately not very helpful
+      let e ← Meta.instantiateMVars ti.expr
+      if e.isSort then
+        -- Types of sorts are funny to look at in widgets, but ultimately not very helpful
         return none
-      let tp ← Meta.inferType ti.expr
-      let eFmt ← Lean.withOptions (Lean.pp.fullNames.set · true |> (Lean.pp.universes.set · true)) do
-        Meta.ppExpr ti.expr
+      let tp ← Meta.inferType e
       let tpFmt ← Meta.ppExpr tp
-      -- try not to show too scary internals
-      let fmt := if ti.expr.isConst || isAtomicFormat eFmt then f!"{eFmt} : {tpFmt}" else f!"{tpFmt}"
-      return some f!"```lean
+      if e.isConst then
+        -- Recall that `ppExpr` adds a `@` if the constant has implicit arguments, and it is quite distracting
+        let eFmt ← withOptions (pp.fullNames.set · true |> (pp.universes.set · true)) <| PrettyPrinter.ppConst e
+        return some f!"```lean
+{eFmt} : {tpFmt}
+```"
+      else
+        let eFmt ← Meta.ppExpr e
+        -- Try not to show too scary internals
+        let fmt := if isAtomicFormat eFmt then f!"{eFmt} : {tpFmt}" else f!"{tpFmt}"
+        return some f!"```lean
 {fmt}
 ```"
     | Info.ofFieldInfo fi =>

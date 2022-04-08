@@ -80,7 +80,7 @@ null
 {"range":
  {"start": {"line": 93, "character": 8}, "end": {"line": 93, "character": 10}},
  "contents":
- {"value": "```lean\n@id.{0} : ∀ {α : Prop}, α → α\n```", "kind": "markdown"}}
+ {"value": "```lean\nid.{0} : ∀ {α : Prop}, α → α\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 93, "character": 10}}
 {"range":

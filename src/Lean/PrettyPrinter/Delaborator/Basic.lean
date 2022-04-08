@@ -263,9 +263,9 @@ end Delaborator
 
 open Delaborator (OptionsPerPos topDownAnalyze Pos)
 
-def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM (Syntax × Std.RBMap Pos Elab.Info compare) := do
+def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delaborator.delab) : MetaM (Syntax × Std.RBMap Pos Elab.Info compare) := do
   trace[PrettyPrinter.delab.input] "{Std.format e}"
-  let mut opts ← MonadOptions.getOptions
+  let mut opts ← getOptions
   -- default `pp.proofs` to `true` if `e` is a proof
   if pp.proofs.get? opts == none then
     try if ← Meta.isProof e then opts := pp.proofs.set opts true
@@ -276,7 +276,7 @@ def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM (Syntax �
       withTheReader Core.Context (fun ctx => { ctx with options := opts }) do topDownAnalyze e
     else pure optionsPerPos
   let (stx, {infos := infos, ..}) ← catchInternalId Delaborator.delabFailureId
-    (Delaborator.delab
+    (delab
       { defaultOptions := opts
         optionsPerPos := optionsPerPos
         currNamespace := (← getCurrNamespace)

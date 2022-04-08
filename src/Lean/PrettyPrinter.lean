@@ -25,10 +25,16 @@ def ppTerm (stx : Syntax) : CoreM Format := do
   let stx := (sanitizeSyntax stx).run' { options := opts }
   parenthesizeTerm stx >>= formatTerm
 
-def ppExpr (e : Expr) : MetaM Format := do
+def ppUsing (e : Expr) (delab : Expr → MetaM Syntax) : MetaM Format := do
   let lctx := (← getLCtx).sanitizeNames.run' { options := (← getOptions) }
   Meta.withLCtx lctx #[] do
     ppTerm (← delab e)
+
+def ppExpr (e : Expr) : MetaM Format := do
+  ppUsing e delab
+
+def ppConst (e : Expr) : MetaM Format := do
+  ppUsing e fun e => return (← delabCore e (delab := Delaborator.delabConst)).1
 
 @[export lean_pp_expr]
 def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=

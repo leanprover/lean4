@@ -12,7 +12,7 @@ open Lean.PrettyPrinter
 def checkDelab (e : Expr) (tgt? : Option Syntax) (name? : Option Name := none) : TermElabM Unit := do
   let pfix := "[checkDelab" ++ (match name? with | some n => ("." ++ toString n) | none => "") ++ "]"
   if e.hasMVar then throwError "{pfix} original term has mvars, {e}"
-  let stx ← delab (← getCurrNamespace) (← getOpenDecls) e
+  let stx ← delab e
   match tgt? with
   | some tgt =>
     if toString (← PrettyPrinter.ppTerm stx) != toString (← PrettyPrinter.ppTerm tgt?.get!) then

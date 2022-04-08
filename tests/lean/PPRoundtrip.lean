@@ -14,7 +14,7 @@ def checkM (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : Term
 let opts ← getOptions
 let stx ← stx
 let e ← elabTermAndSynthesize stx none <* throwErrorIfErrors
-let stx' ← delab Name.anonymous [] e optionsPerPos
+let stx' ← delab e optionsPerPos
 let f' ← PrettyPrinter.ppTerm stx'
 let s := f'.pretty' opts
 IO.println s

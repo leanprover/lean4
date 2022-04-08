@@ -6,7 +6,7 @@ import Lean
 open Lean
 
 def test (e : Expr) : MetaM Unit := do
-  IO.println (← PrettyPrinter.ppExpr Name.anonymous [] e)
+  IO.println (← PrettyPrinter.ppExpr e)
 
 -- loose bound variable
 #eval test (mkBVar 0)

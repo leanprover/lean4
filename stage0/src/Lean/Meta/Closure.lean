@@ -347,7 +347,6 @@ end Closure
   returned where `u_i`s are universe parameters and metavariables `type` and `value` depend on,
   and `t_j`s are free and meta variables `type` and `value` depend on. -/
 def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zeta : Bool := false) (compile : Bool := true) : MetaM Expr := do
-  trace[Meta.debug] "{name} : {type} := {value}"
   let result ← Closure.mkValueTypeClosure type value zeta
   let env ← getEnv
   let decl := Declaration.defnDecl {
@@ -358,7 +357,6 @@ def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zeta : Bool := f
     hints       := ReducibilityHints.regular (getMaxHeight env result.value + 1),
     safety      := if env.hasUnsafe result.type || env.hasUnsafe result.value then DefinitionSafety.unsafe else DefinitionSafety.safe
   }
-  trace[Meta.debug] "{name} : {result.type} := {result.value}"
   addDecl decl
   if compile then
     compileDecl decl

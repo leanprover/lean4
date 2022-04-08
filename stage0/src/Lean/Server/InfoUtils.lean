@@ -6,7 +6,7 @@ Authors: Wojciech Nawrocki
 -/
 import Lean.DocString
 import Lean.Elab.InfoTree
-import Lean.PrettyPrinter.Delaborator.Options
+import Lean.PrettyPrinter
 import Lean.Util.Sorry
 
 protected structure String.Range where
@@ -125,8 +125,8 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
 
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
-partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) := Id.run <| do
-  let res := t.smallestInfo? fun i => Id.run <| do
+partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) := Id.run do
+  let res := t.smallestInfo? fun i => Id.run do
     if i matches Info.ofFieldInfo _ || i.toElabInfo?.isSome then
       return i.contains hoverPos
     return false
@@ -171,16 +171,23 @@ where
   fmtTerm? : MetaM (Option Format) := do
     match i with
     | Info.ofTermInfo ti =>
-      if ti.expr.isSort then
-        -- types of sorts are funny to look at in widgets, but ultimately not very helpful
+      let e ← Meta.instantiateMVars ti.expr
+      if e.isSort then
+        -- Types of sorts are funny to look at in widgets, but ultimately not very helpful
         return none
-      let tp ← Meta.inferType ti.expr
-      let eFmt ← Lean.withOptions (Lean.pp.fullNames.set · true |> (Lean.pp.universes.set · true)) do
-        Meta.ppExpr ti.expr
+      let tp ← Meta.instantiateMVars (← Meta.inferType e)
       let tpFmt ← Meta.ppExpr tp
-      -- try not to show too scary internals
-      let fmt := if ti.expr.isConst || isAtomicFormat eFmt then f!"{eFmt} : {tpFmt}" else f!"{tpFmt}"
-      return some f!"```lean
+      if e.isConst then
+        -- Recall that `ppExpr` adds a `@` if the constant has implicit arguments, and it is quite distracting
+        let eFmt ← withOptions (pp.fullNames.set · true |> (pp.universes.set · true)) <| PrettyPrinter.ppConst e
+        return some f!"```lean
+{eFmt} : {tpFmt}
+```"
+      else
+        let eFmt ← Meta.ppExpr e
+        -- Try not to show too scary internals
+        let fmt := if isAtomicFormat eFmt then f!"{eFmt} : {tpFmt}" else f!"{tpFmt}"
+        return some f!"```lean
 {fmt}
 ```"
     | Info.ofFieldInfo fi =>
@@ -214,7 +221,7 @@ structure GoalsAtResult where
   there is no nested tactic info (i.e. it is a leaf tactic; tactic combinators should decide for themselves
   where to show intermediate/final states)
 -/
-partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult := Id.run <| do
+partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult := Id.run do
   t.deepestNodes fun
     | ctx, i@(Info.ofTacticInfo ti), cs => OptionM.run do
       if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
@@ -229,7 +236,7 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
     | _, _, _ => none
 where
   hasNestedTactic (pos tailPos) : InfoTree → Bool
-    | InfoTree.node i@(Info.ofTacticInfo _) cs => Id.run <| do
+    | InfoTree.node i@(Info.ofTacticInfo _) cs => Id.run do
       if let `(by $t) := i.stx then
         return false  -- ignore term-nested proofs such as in `simp [show p by ...]`
       if let (some pos', some tailPos') := (i.pos?, i.tailPos?) then
@@ -259,7 +266,7 @@ partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option
       headFns.insert pos
     else
       headFns
-  t.smallestInfo? fun i => Id.run <| do
+  t.smallestInfo? fun i => Id.run do
     if i.contains hoverPos then
       if let Info.ofTermInfo ti := i then
         return !ti.stx.isIdent || !headFns.contains i.pos?.get!

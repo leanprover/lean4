@@ -31,7 +31,7 @@ namespace InteractiveGoal
 private def addLine (fmt : Format) : Format :=
   if fmt.isNil then fmt else fmt ++ Format.line
 
-def pretty (g : InteractiveGoal) : Format := Id.run <| do
+def pretty (g : InteractiveGoal) : Format := Id.run do
   let indent := 2 -- Use option
   let mut ret := match g.userName? with
     | some userName => f!"case {userName}"

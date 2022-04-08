@@ -37,14 +37,14 @@ structure CongrTheorem where
   proof    : Expr
   argKinds : Array CongrArgKind
 
-private def addPrimeToFVarUserNames (ys : Array Expr) (lctx : LocalContext) : LocalContext := Id.run <| do
+private def addPrimeToFVarUserNames (ys : Array Expr) (lctx : LocalContext) : LocalContext := Id.run do
   let mut lctx := lctx
   for y in ys do
     let decl := lctx.getFVar! y
     lctx := lctx.setUserName decl.fvarId (decl.userName.appendAfter "'")
   return lctx
 
-private def setBinderInfosD (ys : Array Expr) (lctx : LocalContext) : LocalContext := Id.run <| do
+private def setBinderInfosD (ys : Array Expr) (lctx : LocalContext) : LocalContext := Id.run do
   let mut lctx := lctx
   for y in ys do
     let decl := lctx.getFVar! y

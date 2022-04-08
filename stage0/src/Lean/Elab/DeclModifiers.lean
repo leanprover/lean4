@@ -26,6 +26,7 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] (declName 
     if env.contains declName then
       throwError "a non-private declaration '{declName}' has already been declared"
 
+/-- Declaration visibility modifier. That is, whether a declaration is regular, protected or private. -/
 inductive Visibility where
   | regular | «protected» | «private»
   deriving Inhabited
@@ -35,10 +36,12 @@ instance : ToString Visibility := ⟨fun
   | Visibility.«private»   => "private"
   | Visibility.«protected» => "protected"⟩
 
+/-- Whether a declaration is default, partial or nonrec. -/
 inductive RecKind where
   | «partial» | «nonrec» | default
   deriving Inhabited
 
+/-- Flags and data added to declarations (eg docstrings, attributes, `private`, `unsafe`, `partial`, ...). -/
 structure Modifiers where
   docString?      : Option String := none
   visibility      : Visibility := Visibility.regular

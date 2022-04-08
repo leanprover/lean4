@@ -207,6 +207,7 @@ static lean_object* l_Std_PersistentHashMap_empty___at_Lean_Meta_Instances_insta
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_1133____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedInstances;
 LEAN_EXPORT lean_object* l_Lean_Meta_getGlobalInstancesIndex___boxed(lean_object*);
+lean_object* l_Array_indexOfAux___at_Lean_MetavarContext_setMVarUserName___spec__3(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_globalInstanceExtension;
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_806____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -267,7 +268,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withNewMCtxDepth___at___private_Lean_Meta_I
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_find_x3f___at_Lean_Meta_addInstanceEntry___spec__2(lean_object*, lean_object*);
 lean_object* l_instHashableProd___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_indexOfAux___at_Lean_MetavarContext_renameMVar___spec__3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_PersistentHashMap_insertAux___at_Lean_Meta_addInstanceEntry___spec__6___closed__1;
 LEAN_EXPORT lean_object* l_Std_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Meta_addInstanceEntry___spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_instBEqExpr;
@@ -2541,7 +2541,7 @@ lean_inc(x_132);
 x_133 = lean_ctor_get(x_1, 1);
 lean_inc(x_133);
 x_134 = lean_unsigned_to_nat(0u);
-x_135 = l_Array_indexOfAux___at_Lean_MetavarContext_renameMVar___spec__3(x_132, x_3, x_134);
+x_135 = l_Array_indexOfAux___at_Lean_MetavarContext_setMVarUserName___spec__3(x_132, x_3, x_134);
 if (lean_obj_tag(x_135) == 0)
 {
 uint8_t x_136; lean_object* x_137; lean_object* x_138; 

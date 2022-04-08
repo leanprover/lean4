@@ -19,7 +19,7 @@ section Utils
     #[]
   else if string.length == 1 then
     #[f (none, string.get 0, none)]
-  else Id.run <| do
+  else Id.run do
     let mut result := Array.mkEmpty string.length
     result := result.push <| f (none, string.get 0, string.get ⟨1⟩)
     -- TODO: the following code is assuming all characters are ASCII
@@ -27,7 +27,7 @@ section Utils
       result := result.push <| f (string.get ⟨i - 2⟩, string.get ⟨i - 1⟩, string.get ⟨i⟩)
     result.push <| f (string.get ⟨string.length - 2⟩, string.get ⟨string.length - 1⟩, none)
 
-private def containsInOrderLower (a b : String) : Bool := Id.run <| do
+private def containsInOrderLower (a b : String) : Bool := Id.run do
   if a.isEmpty then
     return true
   let mut aIt := a.mkIterator
@@ -91,7 +91,7 @@ programming to find the best scores.
 In addition to the current characters in the pattern and the word, the
 algorithm uses different scores for the last operation (miss/match). This is
 necessary to give consecutive character matches a bonus. -/
-private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Array CharRole) : Option Int := Id.run <| do
+private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Array CharRole) : Option Int := Id.run do
   let mut result : Array (Option Int) := Array.mkArray ((pattern.length + 1) * (word.length + 1) * 2) none
 
   result := set result 0 0 (some 0) none
@@ -146,7 +146,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
       result |>.set! idx missValue |>.set! (idx + 1) matchValue
 
     /- Heuristic to penalize skipping characters in the word. -/
-    skipPenalty (wordRole : CharRole) (patternComplete : Bool) (wordStart : Bool) : Int := Id.run <| do
+    skipPenalty (wordRole : CharRole) (patternComplete : Bool) (wordStart : Bool) : Int := Id.run do
       /- Skipping characters if the match is already completed is free. -/
       if patternComplete then
         return 0
@@ -160,7 +160,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
       return 0
 
     /- Whether characters from the pattern and the word match. -/
-    allowMatch (patternChar wordChar : Char) (patternRole wordRole : CharRole) : Bool := Id.run <| do
+    allowMatch (patternChar wordChar : Char) (patternRole wordRole : CharRole) : Bool := Id.run do
       /- Different characters do not match. -/
       if patternChar.toLower != wordChar.toLower then
         return false
@@ -171,7 +171,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
       return true
 
     /- Heuristic to rate a match. -/
-    matchResult (patternChar wordChar : Char) (patternRole wordRole : CharRole) (consecutive : Bool) (wordStart : Bool) : Int := Id.run <| do
+    matchResult (patternChar wordChar : Char) (patternRole wordRole : CharRole) (consecutive : Bool) (wordStart : Bool) : Int := Id.run do
       let mut score := 1
       /- Case-sensitive equality or beginning of a segment in pattern and word. -/
       if patternChar == wordChar || (patternRole matches CharRole.head && wordRole matches CharRole.head) then
@@ -192,7 +192,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
 /- Match the given pattern with the given word using a fuzzy matching
 algorithm. The resulting scores are in the interval `[0, 1]` or `none` if no
 match was found. -/
-def fuzzyMatchScore? (pattern word : String) : Option Float := Id.run <| do
+def fuzzyMatchScore? (pattern word : String) : Option Float := Id.run do
   /- Some fast and simple checks. -/
   if pattern.isEmpty then
     return some 1

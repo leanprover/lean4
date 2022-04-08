@@ -81,7 +81,7 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
         let fieldT ← inferType x
         let some fieldEncT ← hasRpcEncoding? fieldT
           | throwError "cannot synthesize 'RpcEncoding {fieldT} ?_'"
-        let fieldEncTStx ← PrettyPrinter.delab (← getCurrNamespace) (← getOpenDecls) fieldEncT
+        let fieldEncTStx ← PrettyPrinter.delab fieldEncT
         fieldEncTs := fieldEncTs.push fieldEncTStx
 
       let typeId := mkIdent typeName

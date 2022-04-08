@@ -406,7 +406,7 @@ def mkIdent (val : Name) : Syntax :=
 @[inline] def mkGroupNode (args : Array Syntax := #[]) : Syntax :=
   mkNode groupKind args
 
-def mkSepArray (as : Array Syntax) (sep : Syntax) : Array Syntax := Id.run <| do
+def mkSepArray (as : Array Syntax) (sep : Syntax) : Array Syntax := Id.run do
   let mut i := 0
   let mut r := #[]
   for a in as do
@@ -1039,7 +1039,7 @@ end Meta
 namespace Parser.Tactic
 
 macro "erw " s:rwRuleSeq loc:(location)? : tactic =>
-  `(rw (config := { transparency := Lean.Meta.TransparencyMode.default }) $s:rwRuleSeq $[$(loc.getOptional?):location]?)
+  `(rw (config := { transparency := Lean.Meta.TransparencyMode.default }) $s:rwRuleSeq $[$loc:location]?)
 
 /-- Similar to `simp` but with `arith := true` -/
 syntax (name := simpArith) "simp_arith " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic

@@ -35,6 +35,7 @@ instance : ToString AttributeKind where
     | AttributeKind.scoped => "scoped"
 
 structure AttributeImpl extends AttributeImplCore where
+  /-- This is run when the attribute is applied to a declaration `decl`. `stx` is the syntax of the attribute including arguments. -/
   add (decl : Name) (stx : Syntax) (kind : AttributeKind) : AttrM Unit
   erase (decl : Name) : AttrM Unit := throwError "attribute cannot be erased"
   deriving Inhabited

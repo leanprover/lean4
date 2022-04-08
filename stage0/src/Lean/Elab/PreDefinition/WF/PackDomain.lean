@@ -13,7 +13,7 @@ open Meta
   Return an array containing its "elements".
   Example: `mkTupleElems a 4` returns `#[a.1, a.2.1, a.2.2.1, a.2.2.2]`.
   -/
-private def mkTupleElems (t : Expr) (arity : Nat) : Array Expr := Id.run <| do
+private def mkTupleElems (t : Expr) (arity : Nat) : Array Expr := Id.run do
   let mut result := #[]
   let mut t := t
   for i in [:arity - 1] do

@@ -115,7 +115,7 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (applyAttrAft
           safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
     addDecl decl
     withSaveInfoContext do  -- save new env
-      addTermInfo preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
+      addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     if preDef.modifiers.isNoncomputable then
       modifyEnv fun env => addNoncomputable env preDef.declName
@@ -154,7 +154,7 @@ def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSaf
     addDecl decl
     withSaveInfoContext do  -- save new env
       for preDef in preDefs do
-        addTermInfo preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
+        addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf preDefs AttributeApplicationTime.afterTypeChecking
     unless (← compileDecl decl) do
       return ()

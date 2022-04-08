@@ -8,7 +8,7 @@ import Lean.Elab.PreDefinition.Structural.Basic
 namespace Lean.Elab.Structural
 open Meta
 
-private def getIndexMinPos (xs : Array Expr) (indices : Array Expr) : Nat := Id.run <| do
+private def getIndexMinPos (xs : Array Expr) (indices : Array Expr) : Nat := Id.run do
   let mut minPos := xs.size
   for index in indices do
     match xs.indexOf? index with

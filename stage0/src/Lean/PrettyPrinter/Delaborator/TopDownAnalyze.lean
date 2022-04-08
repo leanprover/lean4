@@ -191,7 +191,7 @@ private def valUnknown (e : Expr) : MetaM Bool := do
 private def typeUnknown (e : Expr) : MetaM Bool := do
   valUnknown (← inferType e)
 
-def isHBinOp (e : Expr) : Bool := Id.run <| do
+def isHBinOp (e : Expr) : Bool := Id.run do
   -- TODO: instead of tracking these explicitly,
   -- consider a more general solution that checks for defaultInstances
   if e.getAppNumArgs != 6 then return false
@@ -231,7 +231,7 @@ def isFunLike (e : Expr) : MetaM Bool := do
   forallTelescopeReducing (← inferType e) fun xs b => return xs.size > 0
 
 def isSubstLike (e : Expr) : Bool :=
-  e.isAppOfArity `Eq.ndrec 6 || e.isAppOfArity `Eq.rec 6
+  e.isAppOfArity ``Eq.ndrec 6 || e.isAppOfArity ``Eq.rec 6
 
 def nameNotRoundtrippable (n : Name) : Bool :=
   n.hasMacroScopes || isPrivateName n || containsNum n
@@ -304,8 +304,8 @@ partial def isTrivialBottomUp (e : Expr) : AnalyzeM Bool := do
   let opts ← getOptions
   return e.isFVar
          || e.isConst || e.isMVar || e.isNatLit || e.isStringLit || e.isSort
-         || (getPPAnalyzeTrustOfNat opts && e.isAppOfArity `OfNat.ofNat 3)
-         || (getPPAnalyzeTrustOfScientific opts && e.isAppOfArity `OfScientific.ofScientific 5)
+         || (getPPAnalyzeTrustOfNat opts && e.isAppOfArity ``OfNat.ofNat 3)
+         || (getPPAnalyzeTrustOfScientific opts && e.isAppOfArity ``OfScientific.ofScientific 5)
 
 partial def canBottomUp (e : Expr) (mvar? : Option Expr := none) (fuel : Nat := 10) : AnalyzeM Bool := do
   -- Here we check if `e` can be safely elaborated without its expected type.
@@ -418,7 +418,7 @@ mutual
       let forceRegularApp : Bool :=
         (getPPAnalyzeTrustSubst (← getOptions) && isSubstLike (← getExpr))
         || (getPPAnalyzeTrustCoe (← getOptions) && isCoe (← getExpr))
-        || (getPPAnalyzeTrustSubtypeMk (← getOptions) && (← getExpr).isAppOfArity `Subtype.mk 4)
+        || (getPPAnalyzeTrustSubtypeMk (← getOptions) && (← getExpr).isAppOfArity ``Subtype.mk 4)
 
       analyzeAppStagedCore { f, fType, args, mvars, bInfos, forceRegularApp } |>.run' {
         bottomUps    := mkArray args.size false,

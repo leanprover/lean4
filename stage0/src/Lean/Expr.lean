@@ -636,6 +636,13 @@ def isAppOfArity : Expr → Name → Nat → Bool
   | app f _ _,   n, a+1 => isAppOfArity f n a
   | _,           _, _   => false
 
+/-- Similar to `isAppOfArity` but skips `Expr.mdata`. -/
+def isAppOfArity' : Expr → Name → Nat → Bool
+  | mdata _ b _ , n, a   => isAppOfArity' b n a
+  | const c _ _,  n, 0   => c == n
+  | app f _ _,    n, a+1 => isAppOfArity' f n a
+  | _,           _,  _   => false
+
 def appFn! : Expr → Expr
   | app f _ _ => f
   | _         => panic! "application expected"
@@ -643,6 +650,16 @@ def appFn! : Expr → Expr
 def appArg! : Expr → Expr
   | app _ a _ => a
   | _         => panic! "application expected"
+
+def appFn!' : Expr → Expr
+  | mdata _ b _ => appFn!' b
+  | app f _ _   => f
+  | _           => panic! "application expected"
+
+def appArg!' : Expr → Expr
+  | mdata _ b _ => appArg!' b
+  | app _ a _   => a
+  | _           => panic! "application expected"
 
 def sortLevel! : Expr → Level
   | sort u .. => u
@@ -665,7 +682,7 @@ def isStringLit : Expr → Bool
   | _                        => false
 
 def isCharLit (e : Expr) : Bool :=
-  e.isAppOfArity `Char.ofNat 1 && e.appArg!.isNatLit
+  e.isAppOfArity ``Char.ofNat 1 && e.appArg!.isNatLit
 
 def constName! : Expr → Name
   | const n _ _ => n
@@ -985,26 +1002,26 @@ def etaExpandedStrict? : Expr → Option Expr
   | _           => none
 
 def getOptParamDefault? (e : Expr) : Option Expr :=
-  if e.isAppOfArity `optParam 2 then
+  if e.isAppOfArity ``optParam 2 then
     some e.appArg!
   else
     none
 
 def getAutoParamTactic? (e : Expr) : Option Expr :=
-  if e.isAppOfArity `autoParam 2 then
+  if e.isAppOfArity ``autoParam 2 then
     some e.appArg!
   else
     none
 
 @[export lean_is_out_param]
 def isOutParam (e : Expr) : Bool :=
-  e.isAppOfArity `outParam 1
+  e.isAppOfArity ``outParam 1
 
 def isOptParam (e : Expr) : Bool :=
-  e.isAppOfArity `optParam 2
+  e.isAppOfArity ``optParam 2
 
 def isAutoParam (e : Expr) : Bool :=
-  e.isAppOfArity `autoParam 2
+  e.isAppOfArity ``autoParam 2
 
 @[export lean_expr_consume_type_annotations]
 partial def consumeTypeAnnotations (e : Expr) : Expr :=
@@ -1241,6 +1258,40 @@ def mkInaccessible (e : Expr) : Expr :=
 
 def inaccessible? (e : Expr) : Option Expr :=
   annotation? `_inaccessible e
+
+private def patternRefAnnotationKey := `_patWithRef
+
+/--
+  During elaboration expressions corresponding to pattern matching terms
+  are annotated with `Syntax` objects. This function returns `some (stx, p')` if
+  `p` is the pattern `p'` annotated with `stx`
+-/
+def patternWithRef? (p : Expr) : Option (Syntax × Expr) :=
+  match p with
+  | Expr.mdata d b _ =>
+    match d.find patternRefAnnotationKey with
+    | some (DataValue.ofSyntax stx) => some (stx, p.mdataExpr!)
+    | _ => none
+  | _                => none
+
+/--
+  Annotate the pattern `p` with `stx`. This is an auxiliary annotation
+  for producing better hover information.
+-/
+def mkPatternWithRef (p : Expr) (stx : Syntax) : Expr :=
+  if patternWithRef? p |>.isSome then
+    p
+  else
+    mkMData (KVMap.empty.insert patternRefAnnotationKey (DataValue.ofSyntax stx)) p
+
+/-- Return `some p` if `e` is an annotated pattern (`inaccessible?` or `patternWithRef?`) -/
+def patternAnnotation? (e : Expr) : Option Expr :=
+  if let some e := inaccessible? e then
+    some e
+  else if let some (_, e) := patternWithRef? e then
+    some e
+  else
+    none
 
 /--
   Annotate `e` with the LHS annotation. The delaborator displays

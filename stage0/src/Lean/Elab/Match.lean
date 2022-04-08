@@ -8,6 +8,7 @@ import Lean.Parser.Term
 import Lean.Meta.Match.MatchPatternAttr
 import Lean.Meta.Match.Match
 import Lean.Meta.GeneralizeVars
+import Lean.Meta.ForEachExpr
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.Arg
 import Lean.Elab.PatternVar
@@ -61,8 +62,7 @@ private def elabAtomicDiscr (discr : Syntax) : TermElabM Expr := do
   | some e@(Expr.fvar fvarId _) =>
     let localDecl ← getLocalDecl fvarId
     if !isAuxDiscrName localDecl.userName then
-      addTermInfo discr e
-      return e -- it is not an auxiliary local created by `expandNonAtomicDiscrs?`
+      addTermInfo discr e -- it is not an auxiliary local created by `expandNonAtomicDiscrs?`
     else
       instantiateMVars localDecl.value
   | _ => throwErrorAt discr "unexpected discriminant"
@@ -293,7 +293,6 @@ where
 
   -- Visitor for inductive types
   goType (t d : Expr) : OptionT MetaM (List Nat) := do
-    trace[Meta.debug] "type {t} =?= {d}"
     let t ← whnf t
     let d ← whnf d
     checkCompatibleApps t d
@@ -319,7 +318,6 @@ where
     if t.isFVar || d.isFVar then
       return [] -- Found refinement path
     else
-      trace[Meta.debug] "index {t} =?= {d}"
       checkCompatibleApps t d
       matchConstCtor t.getAppFn (fun _ => failure) fun info _ => do
         let tArgs := t.getAppArgs
@@ -368,7 +366,6 @@ private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : Excep
             | some pattern =>
               match (← findDiscrRefinementPath pattern d |>.run) with
               | some path =>
-                trace[Meta.debug] "refinement path: {path}"
                 restoreState s
                 -- Wrap the type mismatch exception for the "discriminant refinement" feature.
                 throwThe PatternElabException { ex := ex, patternIdx := idx, pathToIndex := path }
@@ -380,13 +377,6 @@ private def elabPatterns (patternStxs : Array Syntax) (matchType : Expr) : Excep
     return (patterns, matchType)
 
 open Meta.Match (Pattern Pattern.var Pattern.inaccessible Pattern.ctor Pattern.as Pattern.val Pattern.arrayLit AltLHS MatcherResult)
-
-private def eraseInaccessibleAnnotations (e : Expr) : CoreM Expr :=
-  Core.transform e fun e =>
-    if let some e := inaccessible? e then
-      return TransformStep.visit e
-    else
-      return TransformStep.visit e
 
 namespace ToDepElimPattern
 
@@ -442,14 +432,17 @@ partial def normalize (e : Expr) : M Expr := do
   match inaccessible? e with
   | some e => processInaccessible e
   | none =>
+  match patternWithRef? e with
+  | some (ref, e) => return mkPatternWithRef (← normalize e) ref
+  | none =>
     match e.arrayLit? with
     | some (α, lits) => mkArrayLit α (← lits.mapM normalize)
     | none =>
-      if e.isAppOfArity ``_root_.namedPattern 4 then
+      if let some e := Match.isNamedPattern? e then
         let x := e.getArg! 1
         let p := e.getArg! 2
         let h := e.getArg! 3
-        unless x.isFVar && h.isFVar do
+        unless x.consumeMData.isFVar && h.consumeMData.isFVar do
           throwError "unexpected occurrence of auxiliary declaration 'namedPattern'"
         addVar x
         let p ← normalize p
@@ -488,32 +481,35 @@ partial def normalize (e : Expr) : M Expr := do
               return mkAppN e.getAppFn (params ++ fields))
 where
   addVar (e : Expr) : M Unit := do
+    let e ← erasePatternRefAnnotations e
     unless (← get).patternVars.contains e do
       modify fun s => { s with patternVars := s.patternVars.push e }
 
   processVar (e : Expr) : M Expr := do
-    if (← get).patternVars.contains e then
-      return mkInaccessible e
+    let e' ← erasePatternRefAnnotations e
+    if (← get).patternVars.contains e' then
+      return mkInaccessible (← eraseInaccessibleAnnotations e)
     else
-      if e.isMVar then
-        setMVarTag e.mvarId! (← read).userName
-      modify fun s => { s with patternVars := s.patternVars.push e }
+      if e'.isMVar then
+        setMVarTag e'.mvarId! (← read).userName
+      modify fun s => { s with patternVars := s.patternVars.push e' }
       return e
 
   processInaccessible (e : Expr) : M Expr := do
-    match e with
+    let e' ← erasePatternRefAnnotations e
+    match e' with
     | Expr.fvar fvarId _ =>
-      if (← isExplicitPatternVar e) then
+      if (← isExplicitPatternVar e') then
         processVar e
       else
         return mkInaccessible e
     | _ =>
-      if e.getAppFn.isMVar then
-        let eNew ← instantiateMVars e
-        if eNew != e then
-          withMVar e.getAppFn.mvarId! <| processInaccessible eNew
-        else if e.isMVar then
-          withMVar e.mvarId! <| processVar e
+      if e'.getAppFn.isMVar then
+        let eNew ← instantiateMVars e'
+        if eNew != e' then
+          withMVar e'.getAppFn.mvarId! <| processInaccessible eNew
+        else if e'.isMVar then
+          withMVar e'.mvarId! <| processVar e'
         else
           throwInvalidPattern e
       else
@@ -545,7 +541,7 @@ private partial def toPattern (e : Expr) : MetaM Pattern := do
     match e.arrayLit? with
     | some (α, lits) => return Pattern.arrayLit α (← lits.mapM toPattern)
     | none =>
-      if e.isAppOfArity ``_root_.namedPattern 4 then
+      if let some e := Match.isNamedPattern? e then
         let p ← toPattern <| e.getArg! 2
         match e.getArg! 1, e.getArg! 3 with
         | Expr.fvar x _, Expr.fvar h _ => return Pattern.as x p h
@@ -607,6 +603,20 @@ where
     | _ => return ()
 
 /--
+  Save pattern information in the info tree, and remove `patternWithRef?` annotations.
+-/
+def savePatternInfo (p : Expr) : TermElabM Expr :=
+  withReader (fun ctx => { ctx with inPattern := false }) do
+    let post (e : Expr) : TermElabM TransformStep := do
+      if let some (stx, e) := patternWithRef? e then
+        -- TODO: track whether we are inside of an inaccessible, and set `isBinder`
+        addTermInfo' stx e
+        return .done e
+      else
+        return .done e
+    transform p (post := post)
+
+/--
   Main method for `withDepElimPatterns`.
   - `PatternVarDecls`: are the explicit pattern variables provided by the user.
   - `ps`: are the patterns provided by the user.
@@ -615,22 +625,61 @@ where
   - `k` is the continuation that is executed in an updated local context with the all pattern variables (explicit and implicit). Note that, `patternVarDecls` are all
      replaced since they may depend on implicit pattern variables (i.e., metavariables) that are converted into new free variables by this method.
  -/
-def main (patternVarDecls : Array PatternVarDecl) (ps : Array Expr) (matchType : Expr) (k : Array LocalDecl → Array Pattern → Expr → TermElabM α) : TermElabM α := do
+partial def main (patternVarDecls : Array PatternVarDecl) (ps : Array Expr) (matchType : Expr) (k : Array LocalDecl → Array Pattern → Expr → TermElabM α) : TermElabM α := do
   let explicitPatternVars := patternVarDecls.map fun decl => decl.fvarId
   let (ps, s) ← ps.mapM normalize |>.run { explicitPatternVars } |>.run {}
   let patternVars ← topSort s.patternVars
+  trace[Elab.match] "patternVars after topSort: {patternVars}"
   for explicit in explicitPatternVars do
     unless patternVars.any (· == mkFVar explicit) do
       withInPattern do
         throwError "invalid patterns, `{mkFVar explicit}` is an explicit pattern variable, but it only occurs in positions that are inaccessible to pattern matching{indentD (MessageData.joinSep (ps.toList.map (MessageData.ofExpr .)) m!"\n\n")}"
-  let packed ← mkLambdaFVars patternVars (← packMatchTypePatterns matchType ps) (binderInfoForMVars := BinderInfo.default)
+  let packed ← pack patternVars ps matchType
+  trace[Elab.match] "packed: {packed}"
   let lctx := explicitPatternVars.foldl (init := (← getLCtx)) fun lctx d => lctx.erase d
   withTheReader Meta.Context (fun ctx => { ctx with lctx := lctx }) do
     check packed
-    lambdaTelescope packed fun patternVars packed => do
+    unpack packed fun patternVars patterns matchType => do
       let localDecls ← patternVars.mapM fun x => getLocalDecl x.fvarId!
-      let (matchType, patterns) := unpackMatchTypePatterns packed
+      trace[Elab.match] "patternVars: {patternVars}, matchType: {matchType}"
       k localDecls (← patterns.mapM fun p => toPattern p) matchType
+where
+  pack (patternVars : Array Expr) (ps : Array Expr) (matchType : Expr) : MetaM Expr := do
+    /-
+     Recall that some of the `patternVars` are metavariables without a user facing name.
+     Thus, this method tries to infer names for them using `ps` before performing the `mkLambdaFVars` abstraction.
+     Let `?m` be a metavariable in `patternVars` without a user facing name.
+     The heuristic uses the patterns `ps`. We traverse the patterns from right to left searching for applications
+     `f ... ?m`. The name for the corresponding `f`-parameter is used to name `?m`.
+     We search from right to left to make sure we visit a pattern before visiting its indices. Example:
+     ```
+     #[@List.cons α i ?m, @HList.cons α β i ?m a as, @Member.head α i ?m]
+     ```
+    -/
+    let setMVarsAt (e : Expr) : StateRefT (Array MVarId) MetaM Unit := do
+      let mvarIds ← setMVarUserNamesAt (← erasePatternRefAnnotations e) patternVars
+      modify (· ++ mvarIds)
+    let go : StateRefT (Array MVarId) MetaM Expr := do
+      try
+        for p in ps.reverse do
+          setMVarsAt p
+        mkLambdaFVars patternVars (← packMatchTypePatterns matchType ps) (binderInfoForMVars := BinderInfo.default)
+      finally
+        resetMVarUserNames (← get)
+    go |>.run' #[]
+
+  unpack (packed : Expr) (k : (patternVars : Array Expr) → (patterns : Array Expr) → (matchType : Expr) → TermElabM α) : TermElabM α :=
+    let rec go (packed : Expr) (patternVars : Array Expr) : TermElabM α := do
+      match packed with
+      | .lam n d b _ =>
+        withLocalDeclD n (← erasePatternRefAnnotations (← eraseInaccessibleAnnotations d)) fun patternVar =>
+          go (b.instantiate1 patternVar) (patternVars.push patternVar)
+      | _ =>
+        let (matchType, patterns) := unpackMatchTypePatterns packed
+        let matchType ← erasePatternRefAnnotations (← eraseInaccessibleAnnotations matchType)
+        let patterns ← patterns.mapM (savePatternInfo ·)
+        k patternVars patterns matchType
+    go packed #[]
 
 end ToDepElimPattern
 
@@ -743,13 +792,11 @@ private def generalize (discrs : Array Expr) (matchType : Expr) (altViews : Arra
       return { discrs, matchType, altViews }
     else
       let ys := ysFVarIds.map mkFVar
-      -- trace[Meta.debug] "ys: {ys}, discrs: {discrs}"
       let matchType' ← forallBoundedTelescope matchType discrs.size fun ds type => do
         let type ← mkForallFVars ys type
         let (discrs', ds') := Array.unzip <| Array.zip discrs ds |>.filter fun (di, d) => di.isFVar
         let type := type.replaceFVars discrs' ds'
         mkForallFVars ds type
-      -- trace[Meta.debug] "matchType': {matchType'}"
       if (← isTypeCorrect matchType') then
         let discrs := discrs ++ ys
         let altViews ← altViews.mapM fun altView => do
@@ -786,7 +833,6 @@ where
     match (← altViews'.mapM (fun altView => elabMatchAltView altView matchType' (toClear ++ toClear')) |>.run) with
     | Except.ok alts => return (discrs', matchType', alts, first?.isSome || refined)
     | Except.error { patternIdx := patternIdx, pathToIndex := pathToIndex, ex := ex } =>
-      trace[Meta.debug] "pathToIndex: {toString pathToIndex}"
       let some index ← getIndexToInclude? discrs[patternIdx] pathToIndex
         | throwEx (← updateFirst first? ex)
       trace[Elab.match] "index to include: {index}"

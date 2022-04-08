@@ -53,10 +53,9 @@ def casesOnStuckLHS? (mvarId : MVarId) : MetaM (Option (Array MVarId)) := do
 
 namespace Match
 
-
 def unfoldNamedPattern (e : Expr) : MetaM Expr := do
   let visit (e : Expr) : MetaM TransformStep := do
-    if e.isAppOfArity ``namedPattern 4 then
+    if let some e := isNamedPattern? e then
       if let some eNew ← unfoldDefinition? e then
         return TransformStep.visit eNew
     return TransformStep.visit e
@@ -103,7 +102,10 @@ where
 
   isNamedPatternProof (type : Expr) (h : Expr) : Bool :=
     Option.isSome <| type.find? fun e =>
-      e.isAppOfArity ``namedPattern 4 && e.appArg! == h
+      if let some e := isNamedPattern? e then
+        e.appArg! == h
+      else
+        false
 
 namespace SimpH
 
@@ -348,7 +350,7 @@ private partial def mkSplitterProof (matchDeclName : Name) (template : Expr) (al
     proveSubgoal mvarId
   instantiateMVars proof
 where
-  mkMap : FVarIdMap (Expr × Array Bool) := Id.run <| do
+  mkMap : FVarIdMap (Expr × Array Bool) := Id.run do
     let mut m := {}
     for alt in alts, altNew in altsNew, argMask in altArgMasks do
       m := m.insert alt.fvarId! (altNew, argMask)

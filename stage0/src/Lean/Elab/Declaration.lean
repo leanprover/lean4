@@ -96,7 +96,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
       Term.ensureNoUnassignedMVars decl
       addDecl decl
       withSaveInfoContext do  -- save new env
-        Term.addTermInfo declId (← mkConstWithLevelParams declName) (isBinder := true)
+        Term.addTermInfo' declId (← mkConstWithLevelParams declName) (isBinder := true)
       Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterTypeChecking
       if isExtern (← getEnv) declName then
         compileDecl decl

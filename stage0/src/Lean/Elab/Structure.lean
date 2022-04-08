@@ -429,7 +429,6 @@ where
               let expandedStructNames := expandedStructNames.insert fieldParentStructName
               copyFields infos expandedStructNames fieldType fun infos nestedFieldMap expandedStructNames => do
                 let fieldVal ← mkCompositeField fieldType nestedFieldMap
-                trace[Meta.debug] "composite, {fieldName} := {fieldVal}"
                 copy (i+1) infos (fieldMap.insert fieldName fieldVal) expandedStructNames
             else
               let subfieldNames := getStructureFieldsFlattened (← getEnv) fieldParentStructName
@@ -462,7 +461,7 @@ where
       | none => throwError "failed to copy fields from parent structure{indentExpr parentType}" -- TODO improve error message
     return result
 
-private partial def mkToParentName (parentStructName : Name) (p : Name → Bool) : Name := Id.run <| do
+private partial def mkToParentName (parentStructName : Name) (p : Name → Bool) : Name := Id.run do
   let base := Name.mkSimple $ "to" ++ parentStructName.eraseMacroScopes.getString!
   if p base then
     base
@@ -685,7 +684,6 @@ private def mkCtor (view : StructView) (levelParams : List Name) (params : Array
   let type ← mkForallFVars params type
   let type ← instantiateMVars type
   let type := type.inferImplicit params.size !view.ctor.inferMod
-  -- trace[Meta.debug] "ctor type {type}"
   pure { name := view.ctor.declName, type }
 
 @[extern "lean_mk_projections"]
@@ -828,13 +826,13 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
           let decl ← Term.getFVarLocalDecl! info.fvar
           pure (info.isSubobject && decl.binderInfo.isInstImplicit)
         withSaveInfoContext do  -- save new env
-          Term.addTermInfo view.ref[1] (← mkConstWithLevelParams view.declName) (isBinder := true)
+          Term.addLocalVarInfo view.ref[1] (← mkConstWithLevelParams view.declName)
           if let some _ := view.ctor.ref[1].getPos? (originalOnly := true) then
-            Term.addTermInfo view.ctor.ref[1] (← mkConstWithLevelParams view.ctor.declName) (isBinder := true)
+            Term.addTermInfo' view.ctor.ref[1] (← mkConstWithLevelParams view.ctor.declName) (isBinder := true)
           for field in view.fields do
             -- may not exist if overriding inherited field
             if (← getEnv).contains field.declName then
-              Term.addTermInfo field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
+              Term.addTermInfo' field.ref (← mkConstWithLevelParams field.declName) (isBinder := true)
         Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
         let projInstances := instParents.toList.map fun info => info.declName
         projInstances.forM fun declName => addInstance declName AttributeKind.global (eval_prio default)

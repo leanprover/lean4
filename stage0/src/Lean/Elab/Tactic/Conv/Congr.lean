@@ -52,7 +52,6 @@ def congr (mvarId : MVarId) : MetaM (List MVarId) :=
   withMVarContext mvarId do
     let (lhs, rhs) ← getLhsRhsCore mvarId
     let lhs ← instantiateMVars lhs
-    trace[Meta.debug] "{lhs} = {rhs}"
     if (← isImplies lhs) then
       congrImplies mvarId
     else if lhs.isApp then

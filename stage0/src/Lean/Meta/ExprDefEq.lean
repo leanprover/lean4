@@ -109,7 +109,7 @@ def isDefEqNat (s t : Expr) : MetaM LBool := do
 /-- Support for constraints of the form `("..." =?= String.mk cs)` -/
 def isDefEqStringLit (s t : Expr) : MetaM LBool := do
   let isDefEq (s t) : MetaM LBool := toLBoolM <| Meta.isExprDefEqAux s t
-  if s.isStringLit && t.isAppOf `String.mk then
+  if s.isStringLit && t.isAppOf ``String.mk then
     isDefEq (toCtorIfLit s) t
   else if s.isAppOf `String.mk && t.isStringLit then
     isDefEq s (toCtorIfLit t)
@@ -323,14 +323,13 @@ private partial def mkLambdaFVarsWithLetDeps (xs : Array Expr) (v : Expr) : Meta
     mkLambdaFVars xs v
   else
     let ys ← addLetDeps
-    trace[Meta.debug] "ys: {ys}, v: {v}"
     mkLambdaFVars ys v
 
 where
   /- Return true if there are let-declarions between `xs[0]` and `xs[xs.size-1]`.
      We use it a quick-check to avoid the more expensive collection procedure. -/
   hasLetDeclsInBetween : MetaM Bool := do
-    let check (lctx : LocalContext) : Bool := Id.run <| do
+    let check (lctx : LocalContext) : Bool := Id.run do
       let start := lctx.getFVar! xs[0] |>.index
       let stop  := lctx.getFVar! xs.back |>.index
       for i in [start+1:stop] do
@@ -1382,16 +1381,16 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
       -- ⊢ q ((fun x => x + 1) 0)
       sorry
     ```
-    However, the inaccessible pattern annotation must be consumed.
+    However, pattern annotations (`inaccessible?` and `patternWithRef?`) must be consumed.
     The frontend relies on the fact that is must not be propagated by `isDefEq`.
     Thus, we consume it here. This is a bit hackish since it is very adhoc.
     We might other annotations in the future that we should not preserve.
     Perhaps, we should mark the annotation we do want to preserve ones
     (e.g., hints for the pretty printer), and consume all other
   -/
-  if let some t := inaccessible? t then
+  if let some t := patternAnnotation? t then
     isDefEqQuick t s
-  else if let some s := inaccessible? s then
+  else if let some s := patternAnnotation? s then
     isDefEqQuick t s
   else if t == s then
     return LBool.true

@@ -32,7 +32,7 @@ private partial def countDigits (n : Nat) : Nat :=
 
 -- convert mantissa * 10^-exponent to 0.mantissa * 10^exponent
 protected def normalize : JsonNumber → Int × Nat × Int
-  | ⟨m, e⟩ => Id.run <| do
+  | ⟨m, e⟩ => Id.run do
     if m = 0 then (0, 0, 0)
     else
       let sign : Int := if m > 0 then 1 else -1
@@ -166,7 +166,7 @@ instance : BEq Json where
 
 -- HACK(Marc): temporary ugliness until we can use RBMap for JSON objects
 def mkObj (o : List (String × Json)) : Json :=
-  obj <| Id.run <| do
+  obj <| Id.run do
     let mut kvPairs := RBNode.leaf
     for ⟨k, v⟩ in o do
       kvPairs := kvPairs.insert compare k v

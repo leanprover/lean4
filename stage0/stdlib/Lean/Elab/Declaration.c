@@ -35,6 +35,7 @@ LEAN_EXPORT lean_object* l_Lean_addDeclarationRanges___at_Lean_Elab_Command_elab
 lean_object* l_Lean_Elab_expandOptDeclSig(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_elabAttr___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_expandDeclNamespace_x3f___closed__1;
+lean_object* l_Lean_Elab_Term_addTermInfo_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_erase_macro_scopes(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_expandInitialize___closed__3;
 lean_object* l_Lean_stringToMessageData(lean_object*);
@@ -391,7 +392,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualNamespace_declR
 static lean_object* l_Lean_Elab_Command_expandInitCmd___lambda__1___closed__34;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_elabAttr___spec__1___closed__5;
 lean_object* l_Lean_Elab_Term_applyAttributes(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Term_addTermInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Declaration_0__Lean_Elab_Command_expandDeclNamespace_x3f___closed__26;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Command_elabDeclaration_declRange(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_expandMutualElement_declRange___closed__6;
@@ -3525,7 +3525,7 @@ lean_dec(x_10);
 x_13 = lean_box(0);
 x_14 = lean_box(0);
 x_15 = 1;
-x_16 = l_Lean_Elab_Term_addTermInfo(x_2, x_11, x_13, x_13, x_14, x_15, x_3, x_4, x_5, x_6, x_7, x_8, x_12);
+x_16 = l_Lean_Elab_Term_addTermInfo_x27(x_2, x_11, x_13, x_13, x_14, x_15, x_3, x_4, x_5, x_6, x_7, x_8, x_12);
 return x_16;
 }
 else

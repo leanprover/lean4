@@ -222,7 +222,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
   let pos := text.lspPosToUtf8Pos p.position
 
   let rec highlightReturn? (doRange? : Option Range) : Syntax → Option DocumentHighlight
-    | stx@`(doElem|return%$i $e) => Id.run <| do
+    | stx@`(doElem|return%$i $e) => Id.run do
       if let some range := i.getRange? then
         if range.contains pos then
           return some { range := doRange?.getD (range.toLspRange text), kind? := DocumentHighlightKind.text }
@@ -277,7 +277,7 @@ partial def handleDocumentSymbol (p : DocumentSymbolParams)
       | `(namespace $id)  => sectionLikeToDocumentSymbols text stx stxs (id.getId.toString) SymbolKind.namespace id
       | `(section $(id)?) => sectionLikeToDocumentSymbols text stx stxs ((·.getId.toString) <$> id |>.getD "<section>") SymbolKind.namespace (id.getD stx)
       | `(end $(id)?) => ([], stx::stxs)
-      | _ => Id.run <| do
+      | _ => Id.run do
         let (syms, stxs') := toDocumentSymbols text stxs
         unless stx.isOfKind ``Lean.Parser.Command.declaration do
           return (syms, stxs')

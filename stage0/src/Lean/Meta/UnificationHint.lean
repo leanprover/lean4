@@ -78,7 +78,6 @@ def addUnificationHint (declName : Name) (kind : AttributeKind) : MetaM Unit :=
         let keys ← DiscrTree.mkPath hint.pattern.lhs
         validateHint declName hint
         unificationHintExtension.add { keys := keys, val := declName } kind
-        trace[Meta.debug] "addUnificationHint: {unificationHintExtension.getState (← getEnv)}"
 
 builtin_initialize
   registerBuiltinAttribute {

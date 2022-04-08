@@ -349,13 +349,26 @@ def setMVarKind (mctx : MetavarContext) (mvarId : MVarId) (kind : MetavarKind) :
   let decl := mctx.getDecl mvarId
   { mctx with decls := mctx.decls.insert mvarId { decl with kind := kind } }
 
-def renameMVar (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) : MetavarContext :=
+/--
+  Set the metavariable user facing name.
+-/
+def setMVarUserName (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) : MetavarContext :=
   let decl := mctx.getDecl mvarId
   { mctx with
     decls := mctx.decls.insert mvarId { decl with userName := userName }
     userNames :=
       let userNames := mctx.userNames.erase decl.userName
       if userName.isAnonymous then userNames else userNames.insert userName mvarId }
+
+/--
+  Low-level version of `setMVarUserName`.
+  It does not update the table `userNames`. Thus, `findUserName?` cannot see the modification.
+  It is meant for `mkForallFVars'` where we temporarily set the user facing name of metavariables to get more
+  meaningful binder names.
+-/
+def setMVarUserNameTemporarily (mctx : MetavarContext) (mvarId : MVarId) (userName : Name) : MetavarContext :=
+  let decl := mctx.getDecl mvarId
+  { mctx with decls := mctx.decls.insert mvarId { decl with userName := userName } }
 
 /- Update the type of the given metavariable. This function assumes the new type is
    definitionally equal to the current one -/

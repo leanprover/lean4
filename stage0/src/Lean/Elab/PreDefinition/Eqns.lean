@@ -129,8 +129,10 @@ where
     let go (e : Expr) (ω) : ST ω FVarIdSet := do
       let ref ← ST.mkRef {}
       e.forEach fun e => do
-        if e.isAppOfArity ``namedPattern 4 && e.appArg!.isFVar then
-          ST.Prim.Ref.modify ref (·.insert e.appArg!.fvarId!)
+        if let some e := Match.isNamedPattern? e then
+          let arg := e.appArg!.consumeMData
+          if arg.isFVar then
+            ST.Prim.Ref.modify ref (·.insert arg.fvarId!)
       ST.Prim.Ref.get ref
     runST (go e)
 

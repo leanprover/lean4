@@ -25,17 +25,20 @@ def ppTerm (stx : Syntax) : CoreM Format := do
   let stx := (sanitizeSyntax stx).run' { options := opts }
   parenthesizeTerm stx >>= formatTerm
 
-def ppExpr (currNamespace : Name) (openDecls : List OpenDecl) (e : Expr) : MetaM Format := do
-  let lctx ← getLCtx
-  let opts ← getOptions
-  let lctx := lctx.sanitizeNames.run' { options := opts }
+def ppUsing (e : Expr) (delab : Expr → MetaM Syntax) : MetaM Format := do
+  let lctx := (← getLCtx).sanitizeNames.run' { options := (← getOptions) }
   Meta.withLCtx lctx #[] do
-    let stx ← delab currNamespace openDecls e
-    ppTerm stx
+    ppTerm (← delab e)
+
+def ppExpr (e : Expr) : MetaM Format := do
+  ppUsing e delab
+
+def ppConst (e : Expr) : MetaM Format := do
+  ppUsing e fun e => return (← delabCore e (delab := Delaborator.delabConst)).1
 
 @[export lean_pp_expr]
 def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContext) (opts : Options) (e : Expr) : IO Format :=
-  Prod.fst <$> ((ppExpr Name.anonymous [] e).run' { lctx := lctx } { mctx := mctx }).toIO { options := opts } { env := env }
+  Prod.fst <$> ((ppExpr e).run' { lctx := lctx } { mctx := mctx }).toIO { options := opts } { env := env }
 
 def ppCommand (stx : Syntax) : CoreM Format :=
   parenthesizeCommand stx >>= formatCommand
@@ -61,7 +64,7 @@ private def withoutContext {m} [MonadExcept Exception m] (x : m Format) : m Form
 
 builtin_initialize
   ppFnsRef.set {
-    ppExpr := fun ctx e      => ctx.runMetaM <| withoutContext <| ppExpr ctx.currNamespace ctx.openDecls e,
+    ppExpr := fun ctx e      => ctx.runMetaM <| withoutContext <| ppExpr e,
     ppTerm := fun ctx stx    => ctx.runCoreM <| withoutContext <| ppTerm stx,
     ppGoal := fun ctx mvarId => ctx.runMetaM <| withoutContext <| Meta.ppGoal mvarId
   }

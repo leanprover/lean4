@@ -16,7 +16,7 @@ def ensureHasDefault (alts : Array Alt) : Array Alt :=
     let alts := alts.pop;
     alts.push (Alt.default last.body)
 
-private def getOccsOf (alts : Array Alt) (i : Nat) : Nat := Id.run <| do
+private def getOccsOf (alts : Array Alt) (i : Nat) : Nat := Id.run do
   let aBody := (alts.get! i).body
   let mut n := 1
   for j in [i+1:alts.size] do
@@ -24,7 +24,7 @@ private def getOccsOf (alts : Array Alt) (i : Nat) : Nat := Id.run <| do
       n := n+1
   return n
 
-private def maxOccs (alts : Array Alt) : Alt × Nat := Id.run <| do
+private def maxOccs (alts : Array Alt) : Alt × Nat := Id.run do
   let mut maxAlt := alts[0]
   let mut max    := getOccsOf alts 0
   for i in [1:alts.size] do

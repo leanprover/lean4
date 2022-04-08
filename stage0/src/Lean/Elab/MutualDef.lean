@@ -122,7 +122,7 @@ private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHe
           Term.synthesizeSyntheticMVarsNoPostponing
           let (binderIds, xs) := xs.unzip
           let xs ← addAutoBoundImplicits xs
-          let type ← mkForallFVars xs type
+          let type ← mkForallFVars' xs type
           let type ← instantiateMVars type
           let levelNames ← getLevelNames
           if view.type?.isSome then
@@ -202,7 +202,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
       -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
       for i in [0:header.binderIds.size] do
         -- skip auto-bound prefix in `xs`
-        addTermInfo (isBinder := true) header.binderIds[i] xs[header.numParams - header.binderIds.size + i]
+        addLocalVarInfo header.binderIds[i] xs[header.numParams - header.binderIds.size + i]
       let val ← elabTermEnsuringType valStx type
       mkLambdaFVars xs val
 
@@ -320,7 +320,7 @@ Note that `g` is not a free variable at `(let g : B := ?m₂; body)`. We recover
 `f` depends on `g` because it contains `m₂`
 -/
 private def mkInitialUsedFVarsMap (mctx : MetavarContext) (sectionVars : Array Expr) (mainFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift)
-    : UsedFVarsMap := Id.run <| do
+    : UsedFVarsMap := Id.run do
   let mut sectionVarSet := {}
   for var in sectionVars do
     sectionVarSet := sectionVarSet.insert var.fvarId!
@@ -418,7 +418,7 @@ abbrev FreeVarMap := FVarIdMap (Array FVarId)
 
 private def mkFreeVarMap
     (mctx : MetavarContext) (sectionVars : Array Expr) (mainFVarIds : Array FVarId)
-    (recFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift) : FreeVarMap := Id.run <| do
+    (recFVarIds : Array FVarId) (letRecsToLift : Array LetRecToLift) : FreeVarMap := Id.run do
   let usedFVarsMap  := mkInitialUsedFVarsMap mctx sectionVars mainFVarIds letRecsToLift
   let letRecFVarIds := letRecsToLift.map fun toLift => toLift.fvarId
   let usedFVarsMap  := FixPoint.run letRecFVarIds usedFVarsMap
@@ -730,7 +730,7 @@ where
     let allUserLevelNames := getAllUserLevelNames headers
     withFunLocalDecls headers fun funFVars => do
       for view in views, funFVar in funFVars do
-        addTermInfo (isBinder := true) view.declId funFVar
+        addLocalVarInfo view.declId funFVar
       let values ← elabFunValues headers
       Term.synthesizeSyntheticMVarsNoPostponing
       let values ← values.mapM (instantiateMVars ·)

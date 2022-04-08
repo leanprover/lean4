@@ -517,7 +517,7 @@ private def updateParams (vars : Array Expr) (indTypes : List InductiveType) : T
       return { ctor with type := ctorType }
     return { indType with type := type, ctors := ctors }
 
-private def collectLevelParamsInInductive (indTypes : List InductiveType) : Array Name := Id.run <| do
+private def collectLevelParamsInInductive (indTypes : List InductiveType) : Array Name := Id.run do
   let mut usedParams : CollectLevelParams.State := {}
   for indType in indTypes do
     usedParams := collectLevelParams usedParams indType.type
@@ -525,7 +525,7 @@ private def collectLevelParamsInInductive (indTypes : List InductiveType) : Arra
       usedParams := collectLevelParams usedParams ctor.type
   return usedParams.params
 
-private def mkIndFVar2Const (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name) : ExprMap Expr := Id.run <| do
+private def mkIndFVar2Const (views : Array InductiveView) (indFVars : Array Expr) (levelNames : List Name) : ExprMap Expr := Id.run do
   let levelParams := levelNames.map mkLevelParam;
   let mut m : ExprMap Expr := {}
   for i in [:views.size] do
@@ -554,7 +554,7 @@ private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : 
 
 abbrev Ctor2InferMod := Std.HashMap Name Bool
 
-private def mkCtor2InferMod (views : Array InductiveView) : Ctor2InferMod := Id.run <| do
+private def mkCtor2InferMod (views : Array InductiveView) : Ctor2InferMod := Id.run do
   let mut m := {}
   for view in views do
     for ctorView in view.ctors do
@@ -677,7 +677,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
       let mut indTypesArray := #[]
       for i in [:views.size] do
         let indFVar := indFVars[i]
-        Term.addTermInfo (isBinder := true) views[i].declId indFVar
+        Term.addLocalVarInfo views[i].declId indFVar
         let r       := rs[i]
         let type  ← mkForallFVars params r.type
         let ctors ← elabCtors indFVars indFVar params r
@@ -702,16 +702,15 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         | Except.ok levelParams => do
           let indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numVars numParams indTypes
           let indTypes := applyInferMod views numParams indTypes
-          trace[Meta.debug] "levelParams: {levelParams}"
           let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe
           Term.ensureNoUnassignedMVars decl
           addDecl decl
           mkAuxConstructions views
     withSaveInfoContext do  -- save new env
       for view in views do
-        Term.addTermInfo view.ref[1] (← mkConstWithLevelParams view.declName) (isBinder := true)
+        Term.addTermInfo' view.ref[1] (← mkConstWithLevelParams view.declName) (isBinder := true)
         for ctor in view.ctors do
-          Term.addTermInfo ctor.ref[2] (← mkConstWithLevelParams ctor.declName) (isBinder := true)
+          Term.addTermInfo' ctor.ref[2] (← mkConstWithLevelParams ctor.declName) (isBinder := true)
         -- We need to invoke `applyAttributes` because `class` is implemented as an attribute.
         Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
 

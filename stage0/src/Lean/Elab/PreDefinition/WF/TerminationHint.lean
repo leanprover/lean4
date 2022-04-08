@@ -50,7 +50,7 @@ def TerminationHint.markAsUsed (t : TerminationHint) (clique : Array Name) : Ter
   match t with
   | TerminationHint.none   => TerminationHint.none
   | TerminationHint.one .. => TerminationHint.none
-  | TerminationHint.many m => Id.run <| do
+  | TerminationHint.many m => Id.run do
     for declName in clique do
       if m.contains declName then
         let m := m.erase declName

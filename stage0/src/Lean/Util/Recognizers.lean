@@ -81,18 +81,19 @@ def isDIte (e : Expr) :=
 
 partial def listLit? (e : Expr) : Option (Expr × List Expr) :=
   let rec loop (e : Expr) (acc : List Expr) :=
-    if e.isAppOfArity ``List.nil 1 then
-      some (e.appArg!, acc.reverse)
-    else if e.isAppOfArity ``List.cons 3 then
-      loop e.appArg! (e.appFn!.appArg! :: acc)
+    if e.isAppOfArity' ``List.nil 1 then
+      some (e.appArg!', acc.reverse)
+    else if e.isAppOfArity' ``List.cons 3 then
+      loop e.appArg!' (e.appFn!'.appArg!' :: acc)
     else
       none
   loop e []
 
 def arrayLit? (e : Expr) : Option (Expr × List Expr) :=
-  match e.app2? ``List.toArray with
-  | some (_, e) => e.listLit?
-  | none        => none
+  if e.isAppOfArity' ``List.toArray 2 then
+    listLit? e.appArg!'
+  else
+    none
 
 /-- Recognize `α × β` -/
 def prod? (e : Expr) : Option (Expr × Expr) :=

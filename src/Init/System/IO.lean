@@ -165,6 +165,9 @@ def lazyPure (fn : Unit → α) : IO α :=
 /-- Monotonically increasing time since an unspecified past point in milliseconds. No relation to wall clock time. -/
 @[extern "lean_io_mono_ms_now"] constant monoMsNow : BaseIO Nat
 
+/-- Monotonically increasing time since an unspecified past point in nanoseconds. No relation to wall clock time. -/
+@[extern "lean_io_mono_nanos_now"] constant monoNanosNow : BaseIO Nat
+
 /-- Read bytes from a system entropy source. Not guaranteed to be cryptographically secure.
 If `nBytes = 0`, return immediately with an empty buffer. -/
 @[extern "lean_io_get_random_bytes"] constant getRandomBytes (nBytes : USize) : IO ByteArray

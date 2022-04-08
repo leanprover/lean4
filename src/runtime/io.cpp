@@ -366,6 +366,14 @@ extern "C" LEAN_EXPORT obj_res lean_io_mono_ms_now(obj_arg /* w */) {
     return io_result_mk_ok(uint64_to_nat(tm.count()));
 }
 
+/* monoNanosNow : BaseIO Nat */
+extern "C" LEAN_EXPORT obj_res lean_io_mono_nanos_now(obj_arg /* w */) {
+    static_assert(sizeof(std::chrono::nanoseconds::rep) <= sizeof(uint64));
+    auto now = std::chrono::steady_clock::now();
+    auto tm = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch());
+    return io_result_mk_ok(uint64_to_nat(tm.count()));
+}
+
 /* getRandomBytes (nBytes : USize) : IO ByteArray */
 extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes, obj_arg /* w */) {
     // Adapted from https://github.com/rust-random/getrandom/blob/30308ae845b0bf3839e5a92120559eaf56048c28/src/

@@ -62,8 +62,7 @@ private def elabAtomicDiscr (discr : Syntax) : TermElabM Expr := do
   | some e@(Expr.fvar fvarId _) =>
     let localDecl ← getLocalDecl fvarId
     if !isAuxDiscrName localDecl.userName then
-      addTermInfo discr e
-      return e -- it is not an auxiliary local created by `expandNonAtomicDiscrs?`
+      addTermInfo discr e -- it is not an auxiliary local created by `expandNonAtomicDiscrs?`
     else
       instantiateMVars localDecl.value
   | _ => throwErrorAt discr "unexpected discriminant"

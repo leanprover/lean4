@@ -721,7 +721,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
     match lvalRes with
     | LValResolution.projIdx structName idx =>
       let f ← mkProjAndCheck structName idx f
-      addTermInfo lval.getRef f
+      let f ← addTermInfo lval.getRef f
       loop f lvals
     | LValResolution.projFn baseStructName structName fieldName =>
       let f ← mkBaseProjections baseStructName structName f
@@ -729,7 +729,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         if isPrivateNameFromImportedModule (← getEnv) info.projFn then
           throwError "field '{fieldName}' from structure '{structName}' is private"
         let projFn ← mkConst info.projFn
-        addTermInfo lval.getRef projFn
+        let projFn ← addTermInfo lval.getRef projFn
         if lvals.isEmpty then
           let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f }
           elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
@@ -741,7 +741,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
     | LValResolution.const baseStructName structName constName =>
       let f ← if baseStructName != structName then mkBaseProjections baseStructName structName f else pure f
       let projFn ← mkConst constName
-      addTermInfo lval.getRef projFn
+      let projFn ← addTermInfo lval.getRef projFn
       if lvals.isEmpty then
         let projFnType ← inferType projFn
         let (args, namedArgs) ← addLValArg baseStructName constName f args namedArgs projFnType
@@ -750,7 +750,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         let f ← elabAppArgs projFn #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)
         loop f lvals
     | LValResolution.localRec baseName fullName fvar =>
-      addTermInfo lval.getRef fvar
+      let fvar ← addTermInfo lval.getRef fvar
       if lvals.isEmpty then
         let fvarType ← inferType fvar
         let (args, namedArgs) ← addLValArg baseName fullName f args namedArgs fvarType
@@ -760,7 +760,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
         loop f lvals
     | LValResolution.getOp fullName idx =>
       let getOpFn ← mkConst fullName
-      addTermInfo lval.getRef getOpFn
+      let getOpFn ← addTermInfo lval.getRef getOpFn
       if lvals.isEmpty then
         let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f }
         let namedArgs ← addNamedArg namedArgs { name := `idx,  val := Arg.stx idx }
@@ -811,7 +811,7 @@ private partial def elabAppFnId (fIdent : Syntax) (fExplicitUnivs : List Level) 
     funLVals.foldlM (init := acc) fun acc (f, fIdent, fields) => do
       let lvals' := toLVals fields (first := true)
       let s ← observing do
-        addTermInfo fIdent f expectedType?
+        let f ← addTermInfo fIdent f expectedType?
         let e ← elabAppLVals f (lvals' ++ lvals) namedArgs args expectedType? explicit ellipsis
         if overloaded then ensureHasType expectedType? e else pure e
       return acc.push s
@@ -874,7 +874,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
         unless (← getEnv).contains idNew do
           throwError "invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
         let fConst ← mkConst idNew
-        addTermInfo f fConst
+        let fConst ← addTermInfo f fConst
         let s ← observing do
           let e ← elabAppLVals fConst lvals namedArgs args expectedType? explicit ellipsis
           if overloaded then ensureHasType expectedType? e else pure e

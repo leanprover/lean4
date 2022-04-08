@@ -88,7 +88,7 @@ private def addAsAxioms (preDefs : Array PreDefinition) : TermElabM Unit := do
     }
     addDecl decl
     withSaveInfoContext do  -- save new env
-      addTermInfo preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
+      addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 

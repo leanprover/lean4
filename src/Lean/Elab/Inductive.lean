@@ -677,7 +677,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
       let mut indTypesArray := #[]
       for i in [:views.size] do
         let indFVar := indFVars[i]
-        Term.addTermInfo (isBinder := true) views[i].declId indFVar
+        Term.addLocalVarInfo views[i].declId indFVar
         let r       := rs[i]
         let type  ← mkForallFVars params r.type
         let ctors ← elabCtors indFVars indFVar params r
@@ -708,9 +708,9 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
           mkAuxConstructions views
     withSaveInfoContext do  -- save new env
       for view in views do
-        Term.addTermInfo view.ref[1] (← mkConstWithLevelParams view.declName) (isBinder := true)
+        Term.addTermInfo' view.ref[1] (← mkConstWithLevelParams view.declName) (isBinder := true)
         for ctor in view.ctors do
-          Term.addTermInfo ctor.ref[2] (← mkConstWithLevelParams ctor.declName) (isBinder := true)
+          Term.addTermInfo' ctor.ref[2] (← mkConstWithLevelParams ctor.declName) (isBinder := true)
         -- We need to invoke `applyAttributes` because `class` is implemented as an attribute.
         Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
 

@@ -202,7 +202,7 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
       -- Add new info nodes for new fvars. The server will detect all fvars of a binder by the binder's source location.
       for i in [0:header.binderIds.size] do
         -- skip auto-bound prefix in `xs`
-        addTermInfo (isBinder := true) header.binderIds[i] xs[header.numParams - header.binderIds.size + i]
+        addLocalVarInfo header.binderIds[i] xs[header.numParams - header.binderIds.size + i]
       let val ← elabTermEnsuringType valStx type
       mkLambdaFVars xs val
 
@@ -730,7 +730,7 @@ where
     let allUserLevelNames := getAllUserLevelNames headers
     withFunLocalDecls headers fun funFVars => do
       for view in views, funFVar in funFVars do
-        addTermInfo (isBinder := true) view.declId funFVar
+        addLocalVarInfo view.declId funFVar
       let values ← elabFunValues headers
       Term.synthesizeSyntheticMVarsNoPostponing
       let values ← values.mapM (instantiateMVars ·)

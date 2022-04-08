@@ -9,6 +9,16 @@ import Lean.Meta.Match.CaseArraySizes
 
 namespace Lean.Meta.Match
 
+def mkNamedPattern (x h p : Expr) : MetaM Expr :=
+  mkAppM ``namedPattern #[x, p, h]
+
+def isNamedPattern? (e : Expr) : Option Expr :=
+  let e := e.consumeMData
+  if e.getAppNumArgs == 4 && e.getAppFn.consumeMData.isConstOf ``namedPattern then
+    some e
+  else
+    none
+
 inductive Pattern : Type where
   | inaccessible (e : Expr) : Pattern
   | var          (fvarId : FVarId) : Pattern
@@ -44,7 +54,7 @@ where
     | as fvarId p hId                =>
       -- TODO
       if annotate then
-        mkAppM ``namedPattern #[mkFVar fvarId, (← visit p), mkFVar hId]
+        mkNamedPattern (mkFVar fvarId) (mkFVar hId) (← visit p)
       else
         visit p
     | arrayLit type xs               =>
@@ -276,7 +286,7 @@ partial def toPattern (e : Expr) : MetaM Pattern := do
     | some (α, lits) =>
       return Pattern.arrayLit α (← lits.mapM toPattern)
     | none =>
-      if e.isAppOfArity ``namedPattern 4 then
+      if let some e := isNamedPattern? e then
         let p ← toPattern <| e.getArg! 2
         match e.getArg! 1, e.getArg! 3 with
         | Expr.fvar x _, Expr.fvar h _ => return Pattern.as x p h

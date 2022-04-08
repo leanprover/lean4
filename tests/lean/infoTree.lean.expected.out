@@ -213,14 +213,10 @@
                 @Prod.mk : {α : Type ?u} → {β : Type ?u} → α → β → α × β @ ⟨23, 4⟩†-⟨25, 10⟩†
                 [.] `z : none @ ⟨23, 9⟩-⟨23, 10⟩
                 [.] `w : none @ ⟨23, 12⟩-⟨23, 13⟩
-                (z, w) : Nat × Nat @ ⟨23, 4⟩†-⟨23, 13⟩ @ Lean.Elab.Term.elabApp
-                  @Prod.mk : {α β : Type} → α → β → α × β @ ⟨23, 4⟩†-⟨25, 10⟩†
-                  Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩† @ Lean.Elab.Term.elabHole
-                  Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩† @ Lean.Elab.Term.elabHole
-                  z : Nat @ ⟨23, 9⟩-⟨23, 10⟩ @ Lean.Elab.Term.elabIdent
-                    z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
-                  w : Nat @ ⟨23, 12⟩-⟨23, 13⟩ @ Lean.Elab.Term.elabIdent
-                    w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
+                Nat : Type @ ⟨23, 4⟩†-⟨23, 13⟩†
+                z : Nat @ ⟨23, 9⟩-⟨23, 10⟩
+                w : Nat @ ⟨23, 12⟩-⟨23, 13⟩
+                (z, w) : Nat × Nat @ ⟨23, 4⟩†-⟨23, 13⟩
                 let z1 := z + w;
                 z + z1 : Nat @ ⟨24, 4⟩-⟨25, 10⟩ @ Lean.Elab.Term.elabLetDecl
                   Nat : Type @ ⟨24, 8⟩†-⟨24, 10⟩† @ Lean.Elab.Term.elabHole

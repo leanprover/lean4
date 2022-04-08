@@ -6,6 +6,7 @@ Authors: Sebastian Ullrich
 import Lean.KeyedDeclsAttribute
 import Lean.ProjFns
 import Lean.Syntax
+import Lean.Meta.Transform
 import Lean.Meta.Match.Match
 import Lean.Elab.Term
 import Lean.Elab.AuxDiscr
@@ -264,6 +265,9 @@ end Delaborator
 open Delaborator (OptionsPerPos topDownAnalyze Pos)
 
 def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delaborator.delab) : MetaM (Syntax × Std.RBMap Pos Elab.Info compare) := do
+  /- Using `erasePatternAnnotations` here is a bit hackish, but we do it
+     `Expr.mdata` affects the delaborator. TODO: should we fix that? -/
+  let e ← Meta.erasePatternRefAnnotations e
   trace[PrettyPrinter.delab.input] "{Std.format e}"
   let mut opts ← getOptions
   -- default `pp.proofs` to `true` if `e` is a proof

@@ -1381,16 +1381,16 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
       -- ⊢ q ((fun x => x + 1) 0)
       sorry
     ```
-    However, the inaccessible pattern annotation must be consumed.
+    However, pattern annotations (`inaccessible?` and `patternWithRef?`) must be consumed.
     The frontend relies on the fact that is must not be propagated by `isDefEq`.
     Thus, we consume it here. This is a bit hackish since it is very adhoc.
     We might other annotations in the future that we should not preserve.
     Perhaps, we should mark the annotation we do want to preserve ones
     (e.g., hints for the pretty printer), and consume all other
   -/
-  if let some t := inaccessible? t then
+  if let some t := patternAnnotation? t then
     isDefEqQuick t s
-  else if let some s := inaccessible? s then
+  else if let some s := patternAnnotation? s then
     isDefEqQuick t s
   else if t == s then
     return LBool.true

@@ -96,7 +96,8 @@ def Vec.mapHead1 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β
 def Vec.mapHead2 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β → δ) → Option δ
 | _, nil,            nil,         f => none
 | _, @cons _ n a as, cons b bs,   f => some (f a b)
-#eval checkWithMkMatcherInput ``Vec.mapHead2.match_1
+set_option pp.match false in
+#print Vec.mapHead2 -- reused Vec.mapHead1.match_1
 
 def Vec.mapHead3 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β → δ) → Option δ
 | _, nil,            nil,         f => none

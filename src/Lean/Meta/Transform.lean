@@ -142,5 +142,11 @@ def unfoldDeclsFrom (biggerEnv : Environment) (e : Expr) : CoreM Expr := do
       | _ => return TransformStep.visit e
     Core.transform e (pre := pre)
 
+def eraseInaccessibleAnnotations (e : Expr) : CoreM Expr :=
+  Core.transform e (post := fun e => return TransformStep.done <| if let some e := inaccessible? e then e else e)
+
+def erasePatternRefAnnotations (e : Expr) : CoreM Expr :=
+  Core.transform e (post := fun e => return TransformStep.done <| if let some (_, e) := patternWithRef? e then e else e)
+
 end Meta
 end Lean

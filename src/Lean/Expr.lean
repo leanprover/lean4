@@ -1259,6 +1259,40 @@ def mkInaccessible (e : Expr) : Expr :=
 def inaccessible? (e : Expr) : Option Expr :=
   annotation? `_inaccessible e
 
+private def patternRefAnnotationKey := `_patWithRef
+
+/--
+  During elaboration expressions corresponding to pattern matching terms
+  are annotated with `Syntax` objects. This function returns `some (stx, p')` if
+  `p` is the pattern `p'` annotated with `stx`
+-/
+def patternWithRef? (p : Expr) : Option (Syntax × Expr) :=
+  match p with
+  | Expr.mdata d b _ =>
+    match d.find patternRefAnnotationKey with
+    | some (DataValue.ofSyntax stx) => some (stx, p.mdataExpr!)
+    | _ => none
+  | _                => none
+
+/--
+  Annotate the pattern `p` with `stx`. This is an auxiliary annotation
+  for producing better hover information.
+-/
+def mkPatternWithRef (p : Expr) (stx : Syntax) : Expr :=
+  if patternWithRef? p |>.isSome then
+    p
+  else
+    mkMData (KVMap.empty.insert patternRefAnnotationKey (DataValue.ofSyntax stx)) p
+
+/-- Return `some p` if `e` is an annotated pattern (`inaccessible?` or `patternWithRef?`) -/
+def patternAnnotation? (e : Expr) : Option Expr :=
+  if let some e := inaccessible? e then
+    some e
+  else if let some (_, e) := patternWithRef? e then
+    some e
+  else
+    none
+
 /--
   Annotate `e` with the LHS annotation. The delaborator displays
   expressions of the form `lhs = rhs` as `lhs` when they have this annotation.

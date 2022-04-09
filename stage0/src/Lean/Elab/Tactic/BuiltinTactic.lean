@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Meta.Tactic.Refl
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.ElabTerm
 
@@ -143,6 +144,9 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 
 @[builtinTactic Lean.Parser.Tactic.contradiction] def evalContradiction : Tactic := fun stx =>
   liftMetaTactic fun mvarId => do Meta.contradiction mvarId; pure []
+
+@[builtinTactic Lean.Parser.Tactic.refl] def evalRefl : Tactic := fun stx =>
+  liftMetaTactic fun mvarId => do Meta.refl mvarId; pure []
 
 @[builtinTactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx => do
   match stx with

@@ -593,8 +593,8 @@ private def isClassQuickConst? (constName : Name) : MetaM (LOption Name) := do
     pure (LOption.some constName)
   else
     match (← getConstTemp? constName) with
-    | some _ => pure LOption.undef
-    | none   => pure LOption.none
+    | some (ConstantInfo.defnInfo ..) => pure LOption.undef -- We may be able to unfold the definition
+    | _ => pure LOption.none
 
 private partial def isClassQuick? : Expr → MetaM (LOption Name)
   | Expr.bvar ..         => pure LOption.none
@@ -750,8 +750,8 @@ mutual
       else
         k #[] type
 
-  private partial def isClassExpensive? : Expr → MetaM (Option Name)
-    | type => withReducible <| -- when testing whether a type is a type class, we only unfold reducible constants.
+  private partial def isClassExpensive? (type : Expr) : MetaM (Option Name) :=
+    withReducible do -- when testing whether a type is a type class, we only unfold reducible constants.
       forallTelescopeReducingAux type none fun xs type => do
         let env ← getEnv
         match type.getAppFn with

@@ -471,28 +471,31 @@ where
 
   Remark: We only log the "unfilled holes" as new errors if no error has been logged so far. -/
 def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Option MessageData := none) : TermElabM Bool := do
-  let s ← get
-  let hasOtherErrors := s.messages.hasErrors
-  let mut hasNewErrors := false
-  let mut alreadyVisited : MVarIdSet := {}
-  let mut errors : Array MVarErrorInfo := #[]
-  for (_, mvarErrorInfo) in s.mvarErrorInfos do
-    let mvarId := mvarErrorInfo.mvarId
-    unless alreadyVisited.contains mvarId do
-      alreadyVisited := alreadyVisited.insert mvarId
-      /- The metavariable `mvarErrorInfo.mvarId` may have been assigned or
-         delayed assigned to another metavariable that is unassigned. -/
-      let mvarDeps ← getMVars (mkMVar mvarId)
-      if mvarDeps.any pendingMVarIds.contains then do
-        unless hasOtherErrors do
-          errors := errors.push mvarErrorInfo
-        hasNewErrors := true
-  -- To sort the errors by position use
-  -- let sortedErrors := errors.qsort fun e₁ e₂ => e₁.ref.getPos?.getD 0 < e₂.ref.getPos?.getD 0
-  for error in errors do
-    withMVarContext error.mvarId do
-      error.logError extraMsg?
-  return hasNewErrors
+  if pendingMVarIds.isEmpty then
+    return false
+  else
+    let s ← get
+    let hasOtherErrors := s.messages.hasErrors
+    let mut hasNewErrors := false
+    let mut alreadyVisited : MVarIdSet := {}
+    let mut errors : Array MVarErrorInfo := #[]
+    for (_, mvarErrorInfo) in s.mvarErrorInfos do
+      let mvarId := mvarErrorInfo.mvarId
+      unless alreadyVisited.contains mvarId do
+        alreadyVisited := alreadyVisited.insert mvarId
+        /- The metavariable `mvarErrorInfo.mvarId` may have been assigned or
+           delayed assigned to another metavariable that is unassigned. -/
+        let mvarDeps ← getMVars (mkMVar mvarId)
+        if mvarDeps.any pendingMVarIds.contains then do
+          unless hasOtherErrors do
+            errors := errors.push mvarErrorInfo
+          hasNewErrors := true
+    -- To sort the errors by position use
+    -- let sortedErrors := errors.qsort fun e₁ e₂ => e₁.ref.getPos?.getD 0 < e₂.ref.getPos?.getD 0
+    for error in errors do
+      withMVarContext error.mvarId do
+        error.logError extraMsg?
+    return hasNewErrors
 
 /-- Ensure metavariables registered using `registerMVarErrorInfos` (and used in the given declaration) have been assigned. -/
 def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do
@@ -1354,9 +1357,10 @@ def withoutAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
   withReader (fun ctx => { ctx with autoBoundImplicit := false, autoBoundImplicits := {} }) k
 
 /--
-  Collect unassigned metavariables in `type` that are not already in `init`.
+  Collect unassigned metavariables in `type` that are not already in `init` and not satisfying `except`.
 -/
-partial def collectUnassignedMVars (type : Expr) (init : Array Expr := #[]) : TermElabM (Array Expr) := do
+partial def collectUnassignedMVars (type : Expr) (init : Array Expr := #[]) (except : MVarId → Bool := fun _ => false)
+    : TermElabM (Array Expr) := do
   let mvarIds ← getMVars type
   if mvarIds.isEmpty then
     return init
@@ -1369,7 +1373,7 @@ where
     | mvarId :: mvarIds => do
       if (← isExprMVarAssigned mvarId) then
         go mvarIds result
-      else if result.contains (mkMVar mvarId) then
+      else if result.contains (mkMVar mvarId) || except mvarId then
         go mvarIds result
       else
         let mvarType := (← getMVarDecl mvarId).type
@@ -1490,6 +1494,15 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
 def resolveName (stx : Syntax) (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
   try
     if let some (e, projs) ← resolveLocalName n then
+      if (← read).autoBoundImplicit then
+        /- We used to generate completion info nodes only for names that could not be resolved.
+           However, this is very unsatisfactory for when elaborating headers when `autoBoundImplicit` is turned on.
+           The problem is that new local declarations are introduced by `autoBoundImplicit` and we eventually can always resolve the name.
+           Thus, we add the completion info in this case.
+           TODO: revisit this design decision. Alternative design: always create a completion info node.
+           Note that in the current design if a constant name is a prefix of another one, we will not have a completion info node.
+        -/
+        addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
       unless explicitLevels.isEmpty do
         throwError "invalid use of explicit universe parameters, '{e}' is a local"
       return [(e, projs)]

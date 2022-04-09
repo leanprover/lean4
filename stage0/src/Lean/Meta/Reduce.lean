@@ -41,4 +41,7 @@ partial def reduce (e : Expr) (explicitOnly skipTypes skipProofs := true) : Meta
         | _                  => return e
   visit e |>.run
 
+def reduceAll (e : Expr) : MetaM Expr :=
+  reduce e false false false
+
 end Lean.Meta

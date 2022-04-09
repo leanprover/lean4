@@ -471,28 +471,31 @@ where
 
   Remark: We only log the "unfilled holes" as new errors if no error has been logged so far. -/
 def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Option MessageData := none) : TermElabM Bool := do
-  let s ← get
-  let hasOtherErrors := s.messages.hasErrors
-  let mut hasNewErrors := false
-  let mut alreadyVisited : MVarIdSet := {}
-  let mut errors : Array MVarErrorInfo := #[]
-  for (_, mvarErrorInfo) in s.mvarErrorInfos do
-    let mvarId := mvarErrorInfo.mvarId
-    unless alreadyVisited.contains mvarId do
-      alreadyVisited := alreadyVisited.insert mvarId
-      /- The metavariable `mvarErrorInfo.mvarId` may have been assigned or
-         delayed assigned to another metavariable that is unassigned. -/
-      let mvarDeps ← getMVars (mkMVar mvarId)
-      if mvarDeps.any pendingMVarIds.contains then do
-        unless hasOtherErrors do
-          errors := errors.push mvarErrorInfo
-        hasNewErrors := true
-  -- To sort the errors by position use
-  -- let sortedErrors := errors.qsort fun e₁ e₂ => e₁.ref.getPos?.getD 0 < e₂.ref.getPos?.getD 0
-  for error in errors do
-    withMVarContext error.mvarId do
-      error.logError extraMsg?
-  return hasNewErrors
+  if pendingMVarIds.isEmpty then
+    return false
+  else
+    let s ← get
+    let hasOtherErrors := s.messages.hasErrors
+    let mut hasNewErrors := false
+    let mut alreadyVisited : MVarIdSet := {}
+    let mut errors : Array MVarErrorInfo := #[]
+    for (_, mvarErrorInfo) in s.mvarErrorInfos do
+      let mvarId := mvarErrorInfo.mvarId
+      unless alreadyVisited.contains mvarId do
+        alreadyVisited := alreadyVisited.insert mvarId
+        /- The metavariable `mvarErrorInfo.mvarId` may have been assigned or
+           delayed assigned to another metavariable that is unassigned. -/
+        let mvarDeps ← getMVars (mkMVar mvarId)
+        if mvarDeps.any pendingMVarIds.contains then do
+          unless hasOtherErrors do
+            errors := errors.push mvarErrorInfo
+          hasNewErrors := true
+    -- To sort the errors by position use
+    -- let sortedErrors := errors.qsort fun e₁ e₂ => e₁.ref.getPos?.getD 0 < e₂.ref.getPos?.getD 0
+    for error in errors do
+      withMVarContext error.mvarId do
+        error.logError extraMsg?
+    return hasNewErrors
 
 /-- Ensure metavariables registered using `registerMVarErrorInfos` (and used in the given declaration) have been assigned. -/
 def ensureNoUnassignedMVars (decl : Declaration) : TermElabM Unit := do

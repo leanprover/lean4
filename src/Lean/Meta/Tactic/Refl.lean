@@ -8,7 +8,7 @@ import Lean.Meta.Tactic.Util
 
 namespace Lean.Meta
 
-def refl (mvarId : MVarId) (reduceIfGround := true) : MetaM Unit := do
+def refl (mvarId : MVarId) : MetaM Unit := do
   withMVarContext mvarId do
     checkNotAssigned mvarId `apply
     let targetType ← getMVarType' mvarId
@@ -17,14 +17,8 @@ def refl (mvarId : MVarId) (reduceIfGround := true) : MetaM Unit := do
     let lhs ← instantiateMVars targetType.appFn!.appArg!
     let rhs ← instantiateMVars targetType.appArg!
     let success ←
-      if (← useReduceAll lhs rhs) then
-        let lhs' ← reduceAll lhs
-        let rhs' ← reduceAll rhs
-        if lhs' == rhs' then
-          pure true
-        else
-          -- Catch corner cases such as `Nat.zero` and the `0` literal
-          isDefEq lhs' rhs'
+      if (← useKernel lhs rhs) then
+        pure (Kernel.isDefEq (← getEnv) {} lhs rhs)
       else
         isDefEq lhs rhs
     unless success do
@@ -33,9 +27,10 @@ def refl (mvarId : MVarId) (reduceIfGround := true) : MetaM Unit := do
     let α := targetType.appFn!.appFn!.appArg!
     assignExprMVar mvarId (mkApp2 (mkConst ``Eq.refl  us) α lhs)
 where
-  useReduceAll (lhs rhs : Expr) : MetaM Bool := do
-    if !reduceIfGround then return false
-    else if lhs.hasFVar || lhs.hasMVar || lhs.hasFVar || lhs.hasMVar then return false
-    else return (← getTransparency) matches TransparencyMode.default | TransparencyMode.all
+  useKernel (lhs rhs : Expr) : MetaM Bool := do
+    if lhs.hasFVar || lhs.hasMVar || rhs.hasFVar || rhs.hasMVar then
+      return false
+    else
+      return (← getTransparency) matches TransparencyMode.default | TransparencyMode.all
 
 end Lean.Meta

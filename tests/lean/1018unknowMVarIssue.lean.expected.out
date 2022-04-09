@@ -7,20 +7,25 @@ a : α
 ⊢ α
 [Elab.info] command @ ⟨7, 0⟩-⟨10, 19⟩ @ Lean.Elab.Command.elabDeclaration
   α : Type @ ⟨7, 13⟩-⟨7, 14⟩ @ Lean.Elab.Term.elabIdent
+    [.] `α : some Sort.{?_uniq.313} @ ⟨7, 13⟩-⟨7, 14⟩
     α : Type @ ⟨7, 13⟩-⟨7, 14⟩
   a (isBinder := true) : α @ ⟨7, 9⟩-⟨7, 10⟩
   α : Type @ ⟨7, 13⟩-⟨7, 14⟩ @ Lean.Elab.Term.elabIdent
+    [.] `α : some Sort.{?_uniq.319} @ ⟨7, 13⟩-⟨7, 14⟩
     α : Type @ ⟨7, 13⟩-⟨7, 14⟩
   a (isBinder := true) : α @ ⟨7, 9⟩-⟨7, 10⟩
   Fam2 α β : Type 1 @ ⟨7, 21⟩-⟨7, 29⟩ @ Lean.Elab.Term.elabApp
     [.] `Fam2 : some Sort.{?_uniq.321} @ ⟨7, 21⟩-⟨7, 25⟩
     Fam2 : Type → Type → Type 1 @ ⟨7, 21⟩-⟨7, 25⟩
     α : Type @ ⟨7, 26⟩-⟨7, 27⟩ @ Lean.Elab.Term.elabIdent
+      [.] `α : some Type @ ⟨7, 26⟩-⟨7, 27⟩
       α : Type @ ⟨7, 26⟩-⟨7, 27⟩
     β : Type @ ⟨7, 28⟩-⟨7, 29⟩ @ Lean.Elab.Term.elabIdent
+      [.] `β : some Type @ ⟨7, 28⟩-⟨7, 29⟩
       β : Type @ ⟨7, 28⟩-⟨7, 29⟩
   x (isBinder := true) : Fam2 α β @ ⟨7, 17⟩-⟨7, 18⟩
   β : Type @ ⟨7, 33⟩-⟨7, 34⟩ @ Lean.Elab.Term.elabIdent
+    [.] `β : some Sort.{?_uniq.323} @ ⟨7, 33⟩-⟨7, 34⟩
     β : Type @ ⟨7, 33⟩-⟨7, 34⟩
   _example (isBinder := true) : {α β : Type} → α → Fam2 α β → β @ ⟨7, 0⟩†-⟨10, 19⟩†
   a (isBinder := true) : α @ ⟨7, 9⟩-⟨7, 10⟩

@@ -1491,6 +1491,15 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
 def resolveName (stx : Syntax) (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
   try
     if let some (e, projs) ← resolveLocalName n then
+      if (← read).autoBoundImplicit then
+        /- We used to generate completion info nodes only for names that could not be resolved.
+           However, this is very unsatisfactory for when elaborating headers when `autoBoundImplicit` is turned on.
+           The problem is that new local declarations are introduced by `autoBoundImplicit` and we eventually can always resolve the name.
+           Thus, we add the completion info in this case.
+           TODO: revisit this design decision. Alternative design: always create a completion info node.
+           Note that in the current design if a constant name is a prefix of another one, we will not have a completion info node.
+        -/
+        addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
       unless explicitLevels.isEmpty do
         throwError "invalid use of explicit universe parameters, '{e}' is a local"
       return [(e, projs)]

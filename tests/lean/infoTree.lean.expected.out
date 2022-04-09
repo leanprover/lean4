@@ -67,9 +67,11 @@
               binop% HAdd.hAdd✝ x 0
                 x + 0 : Nat @ ⟨17, 35⟩†-⟨17, 40⟩ @ Lean.Elab.Term.BinOp.elabBinOp
                   x : Nat @ ⟨17, 35⟩-⟨17, 36⟩ @ Lean.Elab.Term.elabIdent
+                    [.] `x : none @ ⟨17, 35⟩-⟨17, 36⟩
                     x : Nat @ ⟨17, 35⟩-⟨17, 36⟩
                   0 : Nat @ ⟨17, 39⟩-⟨17, 40⟩ @ Lean.Elab.Term.elabNumLit
             x : Nat @ ⟨17, 43⟩-⟨17, 44⟩ @ Lean.Elab.Term.elabIdent
+              [.] `x : none @ ⟨17, 43⟩-⟨17, 44⟩
               x : Nat @ ⟨17, 43⟩-⟨17, 44⟩
   h (isBinder := true) : ∀ (x y : Nat), Bool → x + 0 = x @ ⟨17, 4⟩-⟨17, 5⟩
   fun x y b =>
@@ -368,8 +370,10 @@ infoTree.lean:44:0: error: expected stx
     (Term.binrel "binrel%" `Eq._@.infoTree._hyg.179 `x `x)
       Eq.{1} Nat _uniq.892 _uniq.892 : Prop @ ⟨45, 21⟩†-⟨45, 26⟩ @ Lean.Elab.Term.elabBinRel
         _uniq.892 : Nat @ ⟨45, 21⟩-⟨45, 22⟩ @ Lean.Elab.Term.elabIdent
+          [.] `x : none @ ⟨45, 21⟩-⟨45, 22⟩
           _uniq.892 : Nat @ ⟨45, 21⟩-⟨45, 22⟩
         _uniq.892 : Nat @ ⟨45, 25⟩-⟨45, 26⟩ @ Lean.Elab.Term.elabIdent
+          [.] `x : none @ ⟨45, 25⟩-⟨45, 26⟩
           _uniq.892 : Nat @ ⟨45, 25⟩-⟨45, 26⟩
   _uniq.898 (isBinder := true) : forall (x : Nat), Nat -> (Eq.{1} Nat x x) @ ⟨45, 4⟩-⟨45, 6⟩
   _uniq.901 (isBinder := true) : Nat @ ⟨45, 8⟩-⟨45, 9⟩

@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* Several improvements to LSP server. Examples: "jump to definition" in mutually recursive sections, fixed incorrect hover information in "match"-expression patterns, "jump to definition" for pattern variables, fixed auto-completion in function headers, etc.
+
 * In `macro ... xs:p* ...` and similar macro bindings of combinators, `xs` now has the correct type `Array Syntax`
 
 * Identifiers in syntax patterns now ignore macro scopes during matching.

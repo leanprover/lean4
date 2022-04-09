@@ -2,5 +2,4 @@
  "position": {"line": 32, "character": 18}}
 {"range":
  {"start": {"line": 32, "character": 18}, "end": {"line": 32, "character": 20}},
- "goal":
- "e a b : Expr\nh₁ : HasType a Ty.nat\nh₂ : HasType b Ty.nat\n⊢ HasType a Ty.nat"}
+ "goal": "e a b : Expr\nh₁ : HasType a Ty.nat\n⊢ HasType a Ty.nat"}

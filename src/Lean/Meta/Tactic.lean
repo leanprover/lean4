@@ -27,3 +27,4 @@ import Lean.Meta.Tactic.Unfold
 import Lean.Meta.Tactic.Rename
 import Lean.Meta.Tactic.LinearArith
 import Lean.Meta.Tactic.AC
+import Lean.Meta.Tactic.Refl

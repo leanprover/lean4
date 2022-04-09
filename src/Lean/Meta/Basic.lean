@@ -750,8 +750,8 @@ mutual
       else
         k #[] type
 
-  private partial def isClassExpensive? : Expr → MetaM (Option Name)
-    | type => withReducible <| -- when testing whether a type is a type class, we only unfold reducible constants.
+  private partial def isClassExpensive? (type : Expr) : MetaM (Option Name) :=
+    withReducible do -- when testing whether a type is a type class, we only unfold reducible constants.
       forallTelescopeReducingAux type none fun xs type => do
         let env ← getEnv
         match type.getAppFn with

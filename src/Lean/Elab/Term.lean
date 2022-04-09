@@ -1354,9 +1354,10 @@ def withoutAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
   withReader (fun ctx => { ctx with autoBoundImplicit := false, autoBoundImplicits := {} }) k
 
 /--
-  Collect unassigned metavariables in `type` that are not already in `init`.
+  Collect unassigned metavariables in `type` that are not already in `init` and not satisfying `except`.
 -/
-partial def collectUnassignedMVars (type : Expr) (init : Array Expr := #[]) : TermElabM (Array Expr) := do
+partial def collectUnassignedMVars (type : Expr) (init : Array Expr := #[]) (except : MVarId → Bool := fun _ => false)
+    : TermElabM (Array Expr) := do
   let mvarIds ← getMVars type
   if mvarIds.isEmpty then
     return init
@@ -1369,7 +1370,7 @@ where
     | mvarId :: mvarIds => do
       if (← isExprMVarAssigned mvarId) then
         go mvarIds result
-      else if result.contains (mkMVar mvarId) then
+      else if result.contains (mkMVar mvarId) || except mvarId then
         go mvarIds result
       else
         let mvarType := (← getMVarDecl mvarId).type

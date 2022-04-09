@@ -18,11 +18,17 @@ def refl (mvarId : MVarId) (reduceIfGround := true) : MetaM Unit := do
     let rhs ← instantiateMVars targetType.appArg!
     let success ←
       if (← useReduceAll lhs rhs) then
-        pure ((← reduceAll lhs) == (← reduceAll rhs))
+        let lhs' ← reduceAll lhs
+        let rhs' ← reduceAll rhs
+        if lhs' == rhs' then
+          pure true
+        else
+          -- Catch corner cases such as `Nat.zero` and the `0` literal
+          isDefEq lhs' rhs'
       else
         isDefEq lhs rhs
     unless success do
-      throwTacticEx `rfl mvarId "equality left-hand-side{indentExpr lhs}\nis not definitionally equal right-hand-side{indentExpr rhs}"
+      throwTacticEx `rfl mvarId m!"equality lhs{indentExpr lhs}\nis not definitionally equal to rhs{indentExpr rhs}"
     let us := targetType.getAppFn.constLevels!
     let α := targetType.appFn!.appFn!.appArg!
     assignExprMVar mvarId (mkApp2 (mkConst ``Eq.refl  us) α lhs)

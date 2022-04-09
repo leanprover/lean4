@@ -38,7 +38,7 @@ theorem one_le_csize (c : Char) : 1 ≤ csize c := by
 
 theorem eq_empty_of_bsize_eq_zero (h : s.endPos = {}) : s = "" := by
   match s with
-  | ⟨[]⟩   => rfl
+  | ⟨[]⟩   => exact rfl -- TODO: remove exact
   | ⟨c::cs⟩ =>
     injection h with h
     simp [endPos, utf8ByteSize, utf8ByteSize.go] at h

@@ -593,8 +593,8 @@ private def isClassQuickConst? (constName : Name) : MetaM (LOption Name) := do
     pure (LOption.some constName)
   else
     match (← getConstTemp? constName) with
-    | some _ => pure LOption.undef
-    | none   => pure LOption.none
+    | some (ConstantInfo.defnInfo ..) => pure LOption.undef -- We may be able to unfold the definition
+    | _ => pure LOption.none
 
 private partial def isClassQuick? : Expr → MetaM (LOption Name)
   | Expr.bvar ..         => pure LOption.none

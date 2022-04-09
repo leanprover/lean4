@@ -14,7 +14,7 @@ This example is a based on an example from the book "The Hitchhiker's Guide to L
 inductive Palindrome : List α → Prop where
   | nil      : Palindrome []
   | single   : (a : α) → Palindrome [a]
-  | sandwish : (a : α) → Palindrome as → Palindrome ([a] ++ as ++ [a])
+  | sandwich : (a : α) → Palindrome as → Palindrome ([a] ++ as ++ [a])
 
 /-|
 The definition distinguishes three cases: (1) `[]` is a palindrome; (2) for any element
@@ -29,14 +29,14 @@ theorem palindrome_reverse (h : Palindrome as) : Palindrome as.reverse := by
   induction h with
   | nil => exact Palindrome.nil
   | single a => exact Palindrome.single a
-  | sandwish a h ih => simp; exact Palindrome.sandwish _ ih
+  | sandwich a h ih => simp; exact Palindrome.sandwich _ ih
 
 /-| If a list `as` is a palindrome, then the reverse of `as` is equal to itself. -/
 theorem reverse_eq_of_palindrome (h : Palindrome as) : as.reverse = as := by
   induction h with
   | nil => rfl
   | single a => rfl
-  | sandwish a h ih => simp [ih]
+  | sandwich a h ih => simp [ih]
 
 /-| Note that you can also easily prove `palindrome_reverse` using `reverse_eq_of_palindrome`. -/
 example (h : Palindrome as) : Palindrome as.reverse := by
@@ -97,7 +97,7 @@ theorem List.palindrome_of_eq_reverse (h : as.reverse = as) : Palindrome as := b
     have : a = b := by simp_all
     subst this
     have : as.reverse = as := by simp_all
-    exact Palindrome.sandwish a (ih this)
+    exact Palindrome.sandwich a (ih this)
 
 /-|
 We now define a function that returns `true` iff `as` is a palindrome.

@@ -44,8 +44,10 @@ a : α
     @Fam2.any : {α : Type} → Fam2 α α @ ⟨9, 4⟩-⟨9, 12⟩
     [.] `Fam2.any : none @ ⟨9, 4⟩-⟨9, 12⟩
     @Fam2.any : {α : Type} → Fam2 α α @ ⟨9, 4⟩-⟨9, 12⟩
+    [.] `a : none @ ⟨8, 2⟩†-⟨10, 19⟩†
     a : α @ ⟨8, 2⟩†-⟨10, 19⟩†
     [.] `Fam2.any : some Fam2 ([mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.652]]]) ([mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.653]]]) @ ⟨9, 4⟩-⟨9, 12⟩
+    [.] `a : some [mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.652]]] @ ⟨8, 2⟩†-⟨10, 19⟩†
     α (isBinder := true) : Type @ ⟨8, 2⟩†-⟨10, 19⟩†
     α : Type @ ⟨8, 2⟩†-⟨10, 19⟩†
     α : Type @ ⟨9, 4⟩†-⟨9, 12⟩†
@@ -55,13 +57,17 @@ a : α
     [.] `Fam2.nat : none @ ⟨10, 4⟩-⟨10, 12⟩
     Fam2.nat : Nat → Fam2 Nat Nat @ ⟨10, 4⟩-⟨10, 12⟩
     [.] `n : none @ ⟨10, 13⟩-⟨10, 14⟩
+    [.] `a : none @ ⟨8, 2⟩†-⟨10, 19⟩†
     a : α @ ⟨8, 2⟩†-⟨10, 19⟩†
     [.] `Fam2.nat : some Fam2 ([mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.684]]]) ([mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.685]]]) @ ⟨10, 4⟩-⟨10, 12⟩
+    [.] `n : some Nat @ ⟨10, 13⟩-⟨10, 14⟩
+    [.] `a : some [mdata _patWithRef: [mdata _inaccessible:1 [mdata _patWithRef: ?_uniq.684]]] @ ⟨8, 2⟩†-⟨10, 19⟩†
     Nat : Type @ ⟨8, 2⟩†-⟨10, 19⟩†
     Nat : Type @ ⟨8, 2⟩†-⟨10, 19⟩†
     n (isBinder := true) : Nat @ ⟨10, 13⟩-⟨10, 14⟩
     Fam2.nat n : Fam2 Nat Nat @ ⟨10, 4⟩†-⟨10, 14⟩
     a (isBinder := true) : Nat @ ⟨8, 2⟩†-⟨10, 19⟩†
     n : Nat @ ⟨10, 18⟩-⟨10, 19⟩ @ Lean.Elab.Term.elabIdent
+      [.] `n : some Nat @ ⟨10, 18⟩-⟨10, 19⟩
       n : Nat @ ⟨10, 18⟩-⟨10, 19⟩
   @_example (isBinder := true) : {α β : Type} → α → Fam2 α β → β @ ⟨7, 0⟩-⟨7, 7⟩

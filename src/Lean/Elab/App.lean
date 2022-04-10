@@ -827,6 +827,33 @@ where
     | field::fields, true  => LVal.fieldName field field.getId.toString (toName (field::fields)) fIdent :: toLVals fields false
     | field::fields, false => LVal.fieldName field field.getId.toString none fIdent :: toLVals fields false
 
+/-- Resolve `(.$id:ident)` using the expected type to infer namespace. -/
+private partial def resolveDotName (id : Syntax) (expectedType? : Option Expr) : TermElabM Name := do
+  tryPostponeIfNoneOrMVar expectedType?
+  let some expectedType := expectedType?
+    | throwError "invalid dotted identifier notation, expected type must be known"
+  forallTelescopeReducing expectedType fun _ resultType => do
+    go resultType expectedType #[]
+where
+  go (resultType : Expr) (expectedType : Expr) (previousExceptions : Array Exception) : TermElabM Name := do
+    let resultTypeFn := (← instantiateMVars resultType).consumeMData.getAppFn
+    try
+      tryPostponeIfMVar resultTypeFn
+      let .const declName .. := resultTypeFn.consumeMData
+        | throwError "invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant{indentExpr expectedType}"
+      let idNew := declName ++ id.getId.eraseMacroScopes
+      unless (← getEnv).contains idNew do
+        throwError "invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
+      return idNew
+    catch
+      | ex@(.error _ _) =>
+        match (← unfoldDefinition? resultType) with
+        | some resultType => go (← whnfCore resultType) expectedType (previousExceptions.push ex)
+        | none       =>
+          previousExceptions.forM fun ex => logException ex
+          throw ex
+      | ex@(.internal _ _) => throw ex
+
 private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit ellipsis overloaded : Bool) (acc : Array (TermElabResult Expr)) : TermElabM (Array (TermElabResult Expr)) := do
   if f.getKind == choiceKind then
@@ -862,18 +889,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `(@$t)     => throwUnsupportedSyntax -- invalid occurrence of `@`
     | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
     | `(.$id:ident) =>
-      tryPostponeIfNoneOrMVar expectedType?
-      let some expectedType := expectedType?
-        | throwError "invalid dotted identifier notation, expected type must be known"
-      forallTelescopeReducing expectedType fun _ resultType => do
-        let resultTypeFn := (← instantiateMVars resultType).consumeMData.getAppFn
-        tryPostponeIfMVar resultTypeFn
-        let .const declName .. := resultTypeFn.consumeMData
-          | throwError "invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant{indentExpr expectedType}"
-        let idNew := declName ++ id.getId.eraseMacroScopes
-        unless (← getEnv).contains idNew do
-          throwError "invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
-        let fConst ← mkConst idNew
+        let fConst ← mkConst (← resolveDotName id expectedType?)
         let fConst ← addTermInfo f fConst
         let s ← observing do
           let e ← elabAppLVals fConst lvals namedArgs args expectedType? explicit ellipsis

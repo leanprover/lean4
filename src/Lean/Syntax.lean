@@ -372,6 +372,7 @@ def isQuot : Syntax → Bool
   | _                                             => false
 
 def getQuotContent (stx : Syntax) : Syntax :=
+  let stx := if stx.getNumArgs == 1 then stx[0] else stx
   if stx.isOfKind `Lean.Parser.Term.dynamicQuot then
     stx[3]
   else

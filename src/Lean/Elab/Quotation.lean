@@ -177,6 +177,7 @@ def getQuotKind (stx : Syntax) : TermElabM SyntaxNodeKind := do
   | k => throwError "unexpected quotation kind {k}"
 
 def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
+  let stx := if stx.getNumArgs == 1 then stx[0] else stx
   /- Syntax quotations are monadic values depending on the current macro scope. For efficiency, we bind
      the macro scope once for each quotation, then build the syntax tree in a completely pure computation
      depending on this binding. Note that regular function calls do not introduce a new macro scope (i.e.

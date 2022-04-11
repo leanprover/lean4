@@ -41,10 +41,13 @@ private unsafe def handleRpcCallUnsafe (p : Lsp.RpcCallParams) : RequestM (Reque
         let proc : Except _ _ := Lean.Environment.evalConstCheck RpcProcedure snap.env options ``RpcProcedure procName
         match proc with
         | Except.ok x => x.wrapper p.sessionId p.params
-        | Except.error e => throwThe RequestError { code := JsonRpc.ErrorCode.methodNotFound, message := "asdf" }
+        | Except.error e => throwThe RequestError {
+          code := JsonRpc.ErrorCode.internalError
+          message := s!"Failed to evaluate RPC constant '{procName}': {e}" }
       else
-        throwThe RequestError { code := JsonRpc.ErrorCode.methodNotFound
-                                message := s!"No RPC method '{p.method}' bound" }
+        throwThe RequestError {
+          code := JsonRpc.ErrorCode.methodNotFound
+          message := s!"No RPC method '{p.method}' bound" }
 
 @[implementedBy handleRpcCallUnsafe]
 private constant handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json)

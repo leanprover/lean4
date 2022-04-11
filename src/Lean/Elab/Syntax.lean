@@ -221,11 +221,12 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
     let name := catName ++ `quot
     let cmd ← `(
       @[termParser] def $(mkIdent name) : Lean.ParserDescr :=
-        Lean.ParserDescr.node $(quote name) $(quote Lean.Parser.maxPrec)
-          (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol $(quote quotSymbol))
-            (Lean.ParserDescr.binary `andthen
-              (Lean.ParserDescr.cat $(quote catName) 0)
-              (Lean.ParserDescr.symbol ")"))))
+        Lean.ParserDescr.node `Lean.Parser.Term.quot $(quote Lean.Parser.maxPrec)
+          (Lean.ParserDescr.node $(quote name) $(quote Lean.Parser.maxPrec)
+            (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol $(quote quotSymbol))
+              (Lean.ParserDescr.binary `andthen
+                (Lean.ParserDescr.cat $(quote catName) 0)
+                (Lean.ParserDescr.symbol ")")))))
     elabCommand cmd
 
 @[builtinCommandElab syntaxCat] def elabDeclareSyntaxCat : CommandElab := fun stx => do

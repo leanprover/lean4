@@ -1,5 +1,14 @@
-unfoldDefEq.lean:9:2-9:6: error: unsolved goals
+unfoldDefEq.lean:12:2-12:7: warning: declaration uses 'sorry'
 n : Nat
 x : (Fin n, Fin n).fst
+h : some_property x
+⊢ True
+n : Nat
+x : Fin n
+h : some_property x
+⊢ True
+unfoldDefEq.lean:17:2-17:7: warning: declaration uses 'sorry'
+n : Nat
+x : Fin n
 h : some_property x
 ⊢ True

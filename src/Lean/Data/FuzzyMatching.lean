@@ -182,10 +182,6 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
       /- Match starts in the middle of a segment. -/
       if wordRole matches CharRole.tail && !consecutive then
         score := score - 3
-      /- Beginning of a segment in the pattern is not aligned with the
-      beginning of a segment in the word. -/
-      if patternRole matches CharRole.head && wordRole matches CharRole.tail then
-        score := score - 1
 
       return score
 

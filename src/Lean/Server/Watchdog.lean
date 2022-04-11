@@ -394,9 +394,11 @@ def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
   return result
 
 def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInformation) := do
+  if p.query.isEmpty then
+    return #[]
   let references ← (← read).references.get
   let srcSearchPath := (← read).srcSearchPath
-  let symbols ← references.definitionsMatching srcSearchPath (maxAmount? := some 100)
+  let symbols ← references.definitionsMatching srcSearchPath (maxAmount? := none)
     fun name =>
       let name := privateToUserName? name |>.getD name
       if let some score := fuzzyMatchScoreWithThreshold? p.query name.toString then
@@ -405,6 +407,7 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInf
         none
   return symbols
     |>.qsort (fun ((_, s1), _) ((_, s2), _) => s1 > s2)
+    |>.extract 0 100 -- max amount
     |>.map fun ((name, score), location) =>
       { name, kind := SymbolKind.constant, location }
 

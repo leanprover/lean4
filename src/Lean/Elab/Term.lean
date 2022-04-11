@@ -305,7 +305,7 @@ def withoutModifyingElabMetaStateWithInfo (x : TermElabM α) : TermElabM α := d
 private def withoutModifyingStateWithInfoAndMessagesImpl (x : TermElabM α) : TermElabM α := do
   let saved ← saveState
   try
-    x
+    withSaveInfoContext x
   finally
     let s ← get
     let saved := { saved with elab.infoState := s.infoState, elab.messages := s.messages }

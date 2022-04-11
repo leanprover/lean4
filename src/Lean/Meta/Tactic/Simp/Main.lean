@@ -680,9 +680,9 @@ def applySimpResultToProp (mvarId : MVarId) (proof : Expr) (prop : Expr) (r : Si
       else
         return some (proof, r.expr)
 
-def applySimpResultToFVarId (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result) : MetaM (Option (Expr × Expr)) := do
+def applySimpResultToFVarId (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result) (mayCloseGoal : Bool) : MetaM (Option (Expr × Expr)) := do
   let localDecl ← getLocalDecl fvarId
-  applySimpResultToProp mvarId (mkFVar fvarId) localDecl.type r
+  applySimpResultToProp mvarId (mkFVar fvarId) localDecl.type r mayCloseGoal
 
 /--
   Simplify `prop` (which is inhabited by `proof`). Return `none` if the goal was closed. Return `some (proof', prop')`
@@ -709,8 +709,17 @@ def applySimpResultToLocalDeclCore (mvarId : MVarId) (fvarId : FVarId) (r : Opti
 /--
   Simplify `simp` result to the given local declaration. Return `none` if the goal was closed.
   This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
-def applySimpResultToLocalDecl (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result) : MetaM (Option (FVarId × MVarId)) := do
-  applySimpResultToLocalDeclCore mvarId fvarId (← applySimpResultToFVarId mvarId fvarId r)
+def applySimpResultToLocalDecl (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result) (mayCloseGoal : Bool) : MetaM (Option (FVarId × MVarId)) := do
+  if r.proof?.isNone then
+    -- New result is definitionally equal to input. Thus, we can avoid creating a new variable if there are dependencies
+    let mvarId ← replaceLocalDeclDefEq mvarId fvarId r.expr
+    if mayCloseGoal && r.expr.isConstOf ``False then
+      assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) (mkFVar fvarId))
+      return none
+    else
+      return some (fvarId, mvarId)
+  else
+    applySimpResultToLocalDeclCore mvarId fvarId (← applySimpResultToFVarId mvarId fvarId r mayCloseGoal)
 
 def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (mayCloseGoal := true) : MetaM (Option (FVarId × MVarId)) := do
   withMVarContext mvarId do

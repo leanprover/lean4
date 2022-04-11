@@ -1,0 +1,5 @@
+unfoldDefEq.lean:9:2-9:6: error: unsolved goals
+n : Nat
+x : (Fin n, Fin n).fst
+h : some_property x
+⊢ True

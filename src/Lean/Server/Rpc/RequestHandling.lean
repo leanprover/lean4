@@ -98,8 +98,8 @@ def registerBuiltinRpcProcedure (method : Name) paramType respType
   let proc := wrapRpcProcedure method paramType respType handler
   builtinRpcProcedures.modify fun ps => ps.insert method proc
 
-open Lean.Elab.Command in
-def registerRpcProcedure (method : Name) : CommandElabM Unit := do
+open Lean Elab Command Term Meta in
+def registerRpcProcedure (method : Name) : CoreM Unit := do
   let env ← getEnv
   let errMsg := "Failed to register RPC call handler for '{method}'"
   if (←builtinRpcProcedures.get).contains method then
@@ -107,8 +107,18 @@ def registerRpcProcedure (method : Name) : CommandElabM Unit := do
   if userRpcProcedures.contains env method then
     throwError s!"{errMsg}: already registered"
   let wrappedName := method ++ `_rpc_wrapped
-  let d ← `(def $(mkIdent wrappedName) : RpcProcedure := wrapRpcProcedure $(quote method) _ _ $(mkIdent method))
-  elabCommand d
+  let procT := mkConst ``RpcProcedure
+  let proc ← MetaM.run' <| TermElabM.run' <| do
+     let c ← Lean.Elab.Term.elabTerm (← `(wrapRpcProcedure $(quote method) _ _ $(mkIdent method))) procT
+     return ← instantiateMVars c
+  addAndCompile <| Declaration.defnDecl {
+        name        := wrappedName
+        type        := procT
+        value       := proc
+        safety      := DefinitionSafety.safe
+        levelParams := []
+        hints := ReducibilityHints.opaque
+      }
   setEnv <| userRpcProcedures.insert (← getEnv) method wrappedName
 
 end Lean.Server

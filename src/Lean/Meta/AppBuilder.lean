@@ -363,33 +363,32 @@ def mkPure (monad : Expr) (e : Expr) : MetaM Expr :=
 /--
   `mkProjection s fieldName` return an expression for accessing field `fieldName` of the structure `s`.
   Remark: `fieldName` may be a subfield of `s`. -/
-partial def mkProjection : Expr → Name → MetaM Expr
-  | s, fieldName => do
-    let type ← inferType s
-    let type ← whnf type
-    match type.getAppFn with
-    | Expr.const structName us _ =>
-      let env ← getEnv
-      unless isStructure env structName do
-        throwAppBuilderException `mkProjection ("structure expected" ++ hasTypeMsg s type)
-      match getProjFnForField? env structName fieldName with
-      | some projFn =>
-        let params := type.getAppArgs
-        return mkApp (mkAppN (mkConst projFn us) params) s
-      | none =>
-        let fields := getStructureFields env structName
-        let r? ← fields.findSomeM? fun fieldName' => do
-          match isSubobjectField? env structName fieldName' with
-          | none   => pure none
-          | some _ =>
-            let parent ← mkProjection s fieldName'
-            (do let r ← mkProjection parent fieldName; return some r)
-            <|>
-            pure none
-        match r? with
-        | some r => pure r
-        | none   => throwAppBuilderException `mkProjectionn ("invalid field name '" ++ toString fieldName ++ "' for" ++ hasTypeMsg s type)
-    | _ => throwAppBuilderException `mkProjectionn ("structure expected" ++ hasTypeMsg s type)
+partial def mkProjection (s : Expr) (fieldName : Name) : MetaM Expr := do
+  let type ← inferType s
+  let type ← whnf type
+  match type.getAppFn with
+  | Expr.const structName us _ =>
+    let env ← getEnv
+    unless isStructure env structName do
+      throwAppBuilderException `mkProjection ("structure expected" ++ hasTypeMsg s type)
+    match getProjFnForField? env structName fieldName with
+    | some projFn =>
+      let params := type.getAppArgs
+      return mkApp (mkAppN (mkConst projFn us) params) s
+    | none =>
+      let fields := getStructureFields env structName
+      let r? ← fields.findSomeM? fun fieldName' => do
+        match isSubobjectField? env structName fieldName' with
+        | none   => pure none
+        | some _ =>
+          let parent ← mkProjection s fieldName'
+          (do let r ← mkProjection parent fieldName; return some r)
+          <|>
+          pure none
+      match r? with
+      | some r => pure r
+      | none   => throwAppBuilderException `mkProjectionn ("invalid field name '" ++ toString fieldName ++ "' for" ++ hasTypeMsg s type)
+  | _ => throwAppBuilderException `mkProjectionn ("structure expected" ++ hasTypeMsg s type)
 
 private def mkListLitAux (nil : Expr) (cons : Expr) : List Expr → Expr
   | []    => nil

@@ -30,6 +30,13 @@ structure StructureInfo where
 def StructureInfo.lt (i₁ i₂ : StructureInfo) : Bool :=
   Name.quickLt i₁.structName i₂.structName
 
+def StructureInfo.getProjFn? (info : StructureInfo) (i : Nat) : Option Name :=
+  if h : i < info.fieldNames.size then
+    let fieldName := info.fieldNames.get ⟨i, h⟩
+    info.fieldInfo.binSearch { fieldName := fieldName, projFn := default, subobject? := none, binderInfo := default, inferMod := false } StructureFieldInfo.lt |>.map (·.projFn)
+  else
+    none
+
 /-- Auxiliary state for structures defined in the current module. -/
 private structure StructureState where
   map : Std.PersistentHashMap Name StructureInfo := {}

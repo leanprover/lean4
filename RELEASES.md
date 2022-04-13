@@ -8,7 +8,7 @@ inductive LE' (n : Nat) : Nat → Prop where
   | succ  : LE' n m → LE' n (m+1)
 ```
 can now be written as
-```
+```lean
 inductive LE' : Nat → Nat → Prop where
   | refl (n : Nat) : LE' n n
   | succ : LE' n m → LE' n (m+1)

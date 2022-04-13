@@ -74,18 +74,17 @@ def «instance»       := leading_parser Term.attrKind >> "instance" >> optNamed
 def «axiom»          := leading_parser "axiom " >> declId >> ppIndent declSig
 /- As `declSig` starts with a space, "example" does not need a trailing space. -/
 def «example»        := leading_parser "example" >> ppIndent declSig >> declVal
-def inferMod         := leading_parser ppSpace >> atomic (symbol "{" >> "}")
 def ctor             := leading_parser "\n| " >> ppIndent (declModifiers true >> ident >> optDeclSig)
 def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> Term.structInst))) ", "
 def optDeriving      := leading_parser optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def «inductive»      := leading_parser "inductive " >> declId >> optDeclSig >> optional (symbol " :=" <|> " where") >> many ctor >> optDeriving
 def classInductive   := leading_parser atomic (group (symbol "class " >> "inductive ")) >> declId >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >> many ctor >> optDeriving
-def structExplicitBinder := leading_parser atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> ppIndent optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault) >> ")"
-def structImplicitBinder := leading_parser atomic (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
-def structInstBinder     := leading_parser atomic (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
-def structSimpleBinder   := leading_parser atomic (declModifiers true >> ident) >> optional inferMod >> optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault)
+def structExplicitBinder := leading_parser atomic (declModifiers true >> "(") >> many1 ident >> ppIndent optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault) >> ")"
+def structImplicitBinder := leading_parser atomic (declModifiers true >> "{") >> many1 ident >> declSig >> "}"
+def structInstBinder     := leading_parser atomic (declModifiers true >> "[") >> many1 ident >> declSig >> "]"
+def structSimpleBinder   := leading_parser atomic (declModifiers true >> ident) >> optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault)
 def structFields         := leading_parser manyIndent (ppLine >> checkColGe >> ppGroup (structExplicitBinder <|> structImplicitBinder <|> structInstBinder <|> structSimpleBinder))
-def structCtor           := leading_parser atomic (declModifiers true >> ident >> optional inferMod >> " :: ")
+def structCtor           := leading_parser atomic (declModifiers true >> ident >> " :: ")
 def structureTk          := leading_parser "structure "
 def classTk              := leading_parser "class "
 def «extends»            := leading_parser " extends " >> sepBy1 termParser ", "

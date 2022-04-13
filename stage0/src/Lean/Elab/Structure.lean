@@ -29,7 +29,6 @@ leading_parser (structureTk <|> classTk) >> declId >> many Term.bracketedBinder 
 structure StructCtorView where
   ref       : Syntax
   modifiers : Modifiers
-  inferMod  : Bool  -- true if `{}` is used in the constructor declaration
   name      : Name
   declName  : Name
 
@@ -37,7 +36,6 @@ structure StructFieldView where
   ref        : Syntax
   modifiers  : Modifiers
   binderInfo : BinderInfo
-  inferMod   : Bool
   declName   : Name
   name       : Name -- The field name as it is going to be registered in the kernel. It does not include macroscopes.
   rawName    : Name -- Same as `name` but including macroscopes.
@@ -68,7 +66,6 @@ structure StructFieldInfo where
   declName : Name -- Remark: for `fromParent` fields, `declName` is only relevant in the generation of auxiliary "default value" functions.
   fvar     : Expr
   kind     : StructFieldKind
-  inferMod : Bool := false
   value?   : Option Expr := none
   deriving Inhabited, Repr
 
@@ -81,11 +78,6 @@ def StructFieldInfo.isSubobject (info : StructFieldInfo) : Bool :=
   match info.kind with
   | StructFieldKind.subobject => true
   | _                         => false
-
-/- Auxiliary declaration for `mkProjections` -/
-structure ProjectionInfo where
-  declName : Name
-  inferMod : Bool
 
 structure ElabStructResult where
   decl            : Declaration
@@ -101,14 +93,14 @@ private def defaultCtorName := `mk
 /-
 The structure constructor syntax is
 ```
-leading_parser try (declModifiers >> ident >> optional inferMod >> " :: ")
+leading_parser try (declModifiers >> ident >> " :: ")
 ```
 -/
 private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM StructCtorView := do
   let useDefault := do
     let declName := structDeclName ++ defaultCtorName
     addAuxDeclarationRanges declName structStx[2] structStx[2]
-    pure { ref := structStx, modifiers := {}, inferMod := false, name := defaultCtorName, declName }
+    pure { ref := structStx, modifiers := {}, name := defaultCtorName, declName }
   if structStx[5].isNone then
     useDefault
   else
@@ -124,13 +116,12 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
         throwError "invalid 'private' constructor in a 'private' structure"
       if ctorModifiers.isProtected && structModifiers.isPrivate then
         throwError "invalid 'protected' constructor in a 'private' structure"
-      let inferMod := !ctor[2].isNone
       let name := ctor[1].getId
       let declName := structDeclName ++ name
       let declName ← applyVisibility ctorModifiers.visibility declName
       addDocString' declName ctorModifiers.docString?
       addAuxDeclarationRanges declName ctor[1] ctor[1]
-      pure { ref := ctor, name, modifiers := ctorModifiers, inferMod, declName }
+      pure { ref := ctor, name, modifiers := ctorModifiers, declName }
 
 def checkValidFieldModifier (modifiers : Modifiers) : TermElabM Unit := do
   if modifiers.isNoncomputable then
@@ -144,10 +135,10 @@ def checkValidFieldModifier (modifiers : Modifiers) : TermElabM Unit := do
 
 /-
 ```
-def structExplicitBinder := leading_parser atomic (declModifiers true >> "(") >> many1 ident >> optional inferMod >> optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault) >> ")"
-def structImplicitBinder := leading_parser atomic (declModifiers true >> "{") >> many1 ident >> optional inferMod >> declSig >> "}"
-def structInstBinder     := leading_parser atomic (declModifiers true >> "[") >> many1 ident >> optional inferMod >> declSig >> "]"
-def structSimpleBinder   := leading_parser atomic (declModifiers true >> ident) >> optional inferMod >> optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault)
+def structExplicitBinder := leading_parser atomic (declModifiers true >> "(") >> many1 ident >> optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault) >> ")"
+def structImplicitBinder := leading_parser atomic (declModifiers true >> "{") >> many1 ident >> declSig >> "}"
+def structInstBinder     := leading_parser atomic (declModifiers true >> "[") >> many1 ident >> declSig >> "]"
+def structSimpleBinder   := leading_parser atomic (declModifiers true >> ident) >> optDeclSig >> optional (Term.binderTactic <|> Term.binderDefault)
 def structFields         := leading_parser many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
 ```
 -/
@@ -170,11 +161,10 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
       throwError "invalid 'private' field in a 'private' structure"
     if fieldModifiers.isProtected && structModifiers.isPrivate then
       throwError "invalid 'protected' field in a 'private' structure"
-    let inferMod         := !fieldBinder[3].isNone
     let (binders, type?) ←
       if binfo == BinderInfo.default then
-        let (binders, type?) := expandOptDeclSig fieldBinder[4]
-        let optBinderTacticDefault := fieldBinder[5]
+        let (binders, type?) := expandOptDeclSig fieldBinder[3]
+        let optBinderTacticDefault := fieldBinder[4]
         if optBinderTacticDefault.isNone then
           pure (binders, type?)
         else if optBinderTacticDefault[0].getKind != ``Parser.Term.binderTactic then
@@ -192,13 +182,13 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
             let type ← `(autoParam $type $(mkIdentFrom tac name))
             pure (mkNullNode, some type)
       else
-        let (binders, type) := expandDeclSig fieldBinder[4]
+        let (binders, type) := expandDeclSig fieldBinder[3]
         pure (binders, some type)
     let value? ←
       if binfo != BinderInfo.default then
         pure none
       else
-        let optBinderTacticDefault := fieldBinder[5]
+        let optBinderTacticDefault := fieldBinder[4]
         -- trace[Elab.struct] ">>> {optBinderTacticDefault}"
         if optBinderTacticDefault.isNone then
           pure none
@@ -220,7 +210,6 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
         ref        := ident
         modifiers  := fieldModifiers
         binderInfo := binfo
-        inferMod
         declName
         name
         rawName
@@ -420,7 +409,7 @@ where
               let fieldDeclName := structDeclName ++ fieldName
               let fieldDeclName ← applyVisibility (← toVisibility fieldInfo) fieldDeclName
               let infos := infos.push { name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value?,
-                                        kind := StructFieldKind.copiedField, inferMod := fieldInfo.inferMod }
+                                        kind := StructFieldKind.copiedField }
               copy (i+1) infos (fieldMap.insert fieldName fieldFVar) expandedStructNames
           if fieldInfo.subobject?.isSome then
             let fieldParentStructName ← getStructureName fieldType
@@ -538,13 +527,13 @@ where
         | some type, _    =>
           withLocalDecl view.rawName view.binderInfo type fun fieldFVar =>
             let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
-                                      kind := StructFieldKind.newField, inferMod := view.inferMod }
+                                      kind := StructFieldKind.newField }
             go (i+1) defaultValsOverridden infos
         | none, some value =>
           let type ← inferType value
           withLocalDecl view.rawName view.binderInfo type fun fieldFVar =>
             let infos := infos.push { name := view.name, declName := view.declName, fvar := fieldFVar, value? := value,
-                                      kind := StructFieldKind.newField, inferMod := view.inferMod }
+                                      kind := StructFieldKind.newField }
             go (i+1) defaultValsOverridden infos
       | some info =>
         let updateDefaultValue (fromParent : Bool) : TermElabM α := do
@@ -683,13 +672,13 @@ private def mkCtor (view : StructView) (levelParams : List Name) (params : Array
   let type ← addCtorFields fieldInfos fieldInfos.size type
   let type ← mkForallFVars params type
   let type ← instantiateMVars type
-  let type := type.inferImplicit params.size !view.ctor.inferMod
+  let type := type.inferImplicit params.size true
   pure { name := view.ctor.declName, type }
 
 @[extern "lean_mk_projections"]
-private constant mkProjections (env : Environment) (structName : Name) (projs : List ProjectionInfo) (isClass : Bool) : Except KernelException Environment
+private constant mkProjections (env : Environment) (structName : Name) (projs : List Name) (isClass : Bool) : Except KernelException Environment
 
-private def addProjections (structName : Name) (projs : List ProjectionInfo) (isClass : Bool) : TermElabM Unit := do
+private def addProjections (structName : Name) (projs : List Name) (isClass : Bool) : TermElabM Unit := do
   let env ← getEnv
   match mkProjections env structName projs isClass with
   | Except.ok env   => setEnv env
@@ -703,7 +692,6 @@ private def registerStructure (structName : Name) (infos : Array StructFieldInfo
         return some {
           fieldName  := info.name
           projFn     := info.declName
-          inferMod   := info.inferMod
           binderInfo := (← getFVarLocalDecl info.fvar).binderInfo
           subobject? :=
             if info.kind == StructFieldKind.subobject then
@@ -817,9 +805,8 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         let decl    := Declaration.inductDecl levelParams params.size [indType] view.modifiers.isUnsafe
         Term.ensureNoUnassignedMVars decl
         addDecl decl
-        let projInfos := (fieldInfos.filter fun (info : StructFieldInfo) => !info.isFromParent).toList.map fun (info : StructFieldInfo) =>
-          { declName := info.declName, inferMod := info.inferMod : ProjectionInfo }
-        addProjections view.declName projInfos view.isClass
+        let projNames := (fieldInfos.filter fun (info : StructFieldInfo) => !info.isFromParent).toList.map fun (info : StructFieldInfo) => info.declName
+        addProjections view.declName projNames view.isClass
         registerStructure view.declName fieldInfos
         mkAuxConstructions view.declName
         let instParents ← fieldInfos.filterM fun info => do
@@ -862,7 +849,7 @@ def typeSpec := leading_parser " : " >> termParser
 def optType : Parser := optional typeSpec
 
 def structFields         := leading_parser many (structExplicitBinder <|> structImplicitBinder <|> structInstBinder)
-def structCtor           := leading_parser try (declModifiers >> ident >> optional inferMod >> " :: ")
+def structCtor           := leading_parser try (declModifiers >> ident >> " :: ")
 
 -/
 def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do

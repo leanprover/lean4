@@ -194,7 +194,7 @@ theorem ne_true_of_eq_false : {b : Bool} → Eq b false → Not (Eq b true)
   | false, _ => fun h => Bool.noConfusion h
 
 class Inhabited (α : Sort u) where
-  mk {} :: (default : α)
+  default : α
 
 export Inhabited (default)
 

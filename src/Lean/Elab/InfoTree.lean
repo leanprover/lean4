@@ -156,7 +156,7 @@ During elaboration, some parts of the info tree may be `holes` which need to be 
 The `assignments` field is used to assign these holes.
 The `trees` field is a list of pending child trees. For the current infotree node that is being built.
 
-You should not need to use InfoState directly, instead infotrees should be built with the help of the methods here
+You should not need to use `InfoState` directly, instead infotrees should be built with the help of the methods here
 such as `pushInfoLeaf` to create leaf nodes and `withInfoContext` to create a nested child node.
 
 To see how `trees` is used, look at the function body of `withInfoContext'`.
@@ -400,12 +400,12 @@ def withSaveInfoContext [MonadFinally m] [MonadEnv m] [MonadOptions m] [MonadMCt
       let trees ← st.trees.mapM fun tree => do
         let tree := tree.substitute st.assignment
         pure <| InfoTree.context {
-          env := (← getEnv),
-          fileMap := (← getFileMap),
-          mctx := (← getMCtx),
-          currNamespace := (← getCurrNamespace),
-          openDecls := (← getOpenDecls),
-          options := (← getOptions)
+          env           := (← getEnv)
+          fileMap       := (← getFileMap)
+          mctx          := (← getMCtx)
+          currNamespace := (← getCurrNamespace)
+          openDecls     := (← getOpenDecls)
+          options       := (← getOptions)
         } tree
       modifyInfoTrees fun _ => treesSaved ++ trees
   else

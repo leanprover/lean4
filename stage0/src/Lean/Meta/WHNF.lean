@@ -116,6 +116,17 @@ private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
       return major
 
 /--
+  Create the `i`th projection `major`. It tries to use the auto-generated projection functions if available. Otherwise falls back
+  to `Expr.proj`.
+-/
+def mkProjFn (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) (i : Nat) (major : Expr) : CoreM Expr := do
+  match getStructureInfo? (← getEnv) ctorVal.induct with
+  | none => return mkProj ctorVal.induct i major
+  | some info => match info.getProjFn? i with
+    | none => return mkProj ctorVal.induct i major
+    | some projFn => return mkApp (mkAppN (mkConst projFn us) params) major
+
+/--
   If `major` is not a constructor application, and its type is a structure `C ...`, then return `C.mk major.1 ... major.n`
 
   \pre `inductName` is `C`.
@@ -142,9 +153,10 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
       else
         let some ctorName ← getFirstCtor d | pure major
         let ctorInfo ← getConstInfoCtor ctorName
-        let mut result := mkAppN (mkConst ctorName us) (majorType.getAppArgs.shrink ctorInfo.numParams)
+        let params := majorType.getAppArgs.shrink ctorInfo.numParams
+        let mut result := mkAppN (mkConst ctorName us) params
         for i in [:ctorInfo.numFields] do
-          result := mkApp result (mkProj inductName i major)
+          result := mkApp result (← mkProjFn ctorInfo us params i major)
         return result
     | _ => return major
 

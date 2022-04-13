@@ -36,7 +36,7 @@ def unfoldTarget (mvarId : MVarId) (declName : Name) : MetaM MVarId := withMVarC
 def unfoldLocalDecl (mvarId : MVarId) (fvarId : FVarId) (declName : Name) : MetaM MVarId := withMVarContext mvarId do
   let localDecl ← getLocalDecl fvarId
   let r ← unfold (← instantiateMVars localDecl.type) declName
-  let some (_, mvarId) ← applySimpResultToLocalDecl mvarId fvarId r | unreachable!
+  let some (_, mvarId) ← applySimpResultToLocalDecl mvarId fvarId r (mayCloseGoal := false) | unreachable!
   return mvarId
 
 end Lean.Meta

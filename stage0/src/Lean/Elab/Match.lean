@@ -605,16 +605,30 @@ where
 /--
   Save pattern information in the info tree, and remove `patternWithRef?` annotations.
 -/
-def savePatternInfo (p : Expr) : TermElabM Expr :=
-  withReader (fun ctx => { ctx with inPattern := false }) do
-    let post (e : Expr) : TermElabM TransformStep := do
-      if let some (stx, e) := patternWithRef? e then
-        -- TODO: track whether we are inside of an inaccessible, and set `isBinder`
-        addTermInfo' stx e
-        return .done e
+partial def savePatternInfo (p : Expr) : TermElabM Expr :=
+  go p |>.run false
+where
+  /- The `Bool` context is true iff we are inside of an "inaccessible" pattern. -/
+  go (p : Expr) : ReaderT Bool TermElabM Expr := do
+    match p with
+    | .forallE n d b bi => withLocalDecl n b.binderInfo (← go d) fun x => do mkForallFVars #[x] (← go (b.instantiate1 x))
+    | .lam n d b bi     => withLocalDecl n b.binderInfo (← go d) fun x => do mkLambdaFVars #[x] (← go (b.instantiate1 x))
+    | .letE n t v b ..  => withLetDecl n (← go t) (← go v) fun x => do mkLetFVars #[x] (← go (b.instantiate1 x))
+    | .app f a _        => return mkApp (← go f) (← go a)
+    | .proj _ _ b _     => return p.updateProj! (← go b)
+    | .mdata k b _      =>
+      if inaccessible? p |>.isSome then
+        return mkMData k (← withReader (fun _ => false) (go b))
+      else if let some (stx, p) := patternWithRef? p then
+        let p ← go p
+        if p.isFVar && !(← read) then
+          /- If `p` is a free variable and we are not inside of an "inaccessible" pattern, this `p` is a binder. -/
+          addTermInfo stx p (isBinder := true)
+        else
+          addTermInfo stx p
       else
-        return .done e
-    transform p (post := post)
+        return mkMData k (← go b)
+    | _ => return p
 
 /--
   Main method for `withDepElimPatterns`.

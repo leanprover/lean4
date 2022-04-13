@@ -680,9 +680,9 @@ def applySimpResultToProp (mvarId : MVarId) (proof : Expr) (prop : Expr) (r : Si
       else
         return some (proof, r.expr)
 
-def applySimpResultToFVarId (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result) : MetaM (Option (Expr × Expr)) := do
+def applySimpResultToFVarId (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result) (mayCloseGoal : Bool) : MetaM (Option (Expr × Expr)) := do
   let localDecl ← getLocalDecl fvarId
-  applySimpResultToProp mvarId (mkFVar fvarId) localDecl.type r
+  applySimpResultToProp mvarId (mkFVar fvarId) localDecl.type r mayCloseGoal
 
 /--
   Simplify `prop` (which is inhabited by `proof`). Return `none` if the goal was closed. Return `some (proof', prop')`
@@ -709,8 +709,17 @@ def applySimpResultToLocalDeclCore (mvarId : MVarId) (fvarId : FVarId) (r : Opti
 /--
   Simplify `simp` result to the given local declaration. Return `none` if the goal was closed.
   This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
-def applySimpResultToLocalDecl (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result) : MetaM (Option (FVarId × MVarId)) := do
-  applySimpResultToLocalDeclCore mvarId fvarId (← applySimpResultToFVarId mvarId fvarId r)
+def applySimpResultToLocalDecl (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result) (mayCloseGoal : Bool) : MetaM (Option (FVarId × MVarId)) := do
+  if r.proof?.isNone then
+    -- New result is definitionally equal to input. Thus, we can avoid creating a new variable if there are dependencies
+    let mvarId ← replaceLocalDeclDefEq mvarId fvarId r.expr
+    if mayCloseGoal && r.expr.isConstOf ``False then
+      assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) (mkFVar fvarId))
+      return none
+    else
+      return some (fvarId, mvarId)
+  else
+    applySimpResultToLocalDeclCore mvarId fvarId (← applySimpResultToFVarId mvarId fvarId r mayCloseGoal)
 
 def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) (mayCloseGoal := true) : MetaM (Option (FVarId × MVarId)) := do
   withMVarContext mvarId do
@@ -725,22 +734,34 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
   withMVarContext mvarId do
     checkNotAssigned mvarId `simp
     let mut mvarId := mvarId
-    let mut toAssert : Array Hypothesis := #[]
+    let mut toAssert := #[]
+    let mut replaced := #[]
     for fvarId in fvarIdsToSimp do
       let localDecl ← getLocalDecl fvarId
       let type ← instantiateMVars localDecl.type
       let ctx ← match fvarIdToLemmaId.find? localDecl.fvarId with
         | none => pure ctx
         | some thmId => pure { ctx with simpTheorems := ctx.simpTheorems.eraseTheorem thmId }
-      match (← simpStep mvarId (mkFVar fvarId) type ctx discharge?) with
-      | none => return none
-      | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }
-    if simplifyTarget then
+      let r ← simp type ctx discharge?
+      match r.proof? with
+      | some proof => match (← applySimpResultToProp mvarId (mkFVar fvarId) type r) with
+        | none => return none
+        | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }
+      | none =>
+        if r.expr.isConstOf ``False then
+          assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) (mkFVar fvarId))
+          return none
+        -- TODO: if there are no forwards dependencies we may consider using the same approach we used when `r.proof?` is a `some ...`
+        -- Reason: it introduces a `mkExpectedTypeHint`
+        mvarId ← replaceLocalDeclDefEq mvarId fvarId r.expr
+        replaced := replaced.push fvarId
+     if simplifyTarget then
       match (← simpTarget mvarId ctx discharge?) with
       | none => return none
       | some mvarIdNew => mvarId := mvarIdNew
     let (fvarIdsNew, mvarIdNew) ← assertHypotheses mvarId toAssert
-    let mvarIdNew ← tryClearMany mvarIdNew fvarIdsToSimp
+    let toClear := fvarIdsToSimp.filter fun fvarId => !replaced.contains fvarId
+    let mvarIdNew ← tryClearMany mvarIdNew toClear
     return (fvarIdsNew, mvarIdNew)
 
 def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none) : MetaM TacticResultCNM := withMVarContext mvarId do

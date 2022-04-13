@@ -305,7 +305,7 @@ def withoutModifyingElabMetaStateWithInfo (x : TermElabM α) : TermElabM α := d
 private def withoutModifyingStateWithInfoAndMessagesImpl (x : TermElabM α) : TermElabM α := do
   let saved ← saveState
   try
-    x
+    withSaveInfoContext x
   finally
     let s ← get
     let saved := { saved with elab.infoState := s.infoState, elab.messages := s.messages }
@@ -1492,40 +1492,25 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
    return (const, projs) :: result
 
 def resolveName (stx : Syntax) (n : Name) (preresolved : List (Name × List String)) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
-  try
-    if let some (e, projs) ← resolveLocalName n then
-      if (← read).autoBoundImplicit then
-        /- We used to generate completion info nodes only for names that could not be resolved.
-           However, this is very unsatisfactory for when elaborating headers when `autoBoundImplicit` is turned on.
-           The problem is that new local declarations are introduced by `autoBoundImplicit` and we eventually can always resolve the name.
-           Thus, we add the completion info in this case.
-           TODO: revisit this design decision. Alternative design: always create a completion info node.
-           Note that in the current design if a constant name is a prefix of another one, we will not have a completion info node.
-        -/
-        addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
-      unless explicitLevels.isEmpty do
-        throwError "invalid use of explicit universe parameters, '{e}' is a local"
-      return [(e, projs)]
-    -- check for section variable capture by a quotation
-    let ctx ← read
-    if let some (e, projs) := preresolved.findSome? fun (n, projs) => ctx.sectionFVars.find? n |>.map (·, projs) then
-      return [(e, projs)]  -- section variables should shadow global decls
-    if preresolved.isEmpty then
-      process (← resolveGlobalName n)
-    else
-      process preresolved
-  catch ex =>
-    if preresolved.isEmpty && explicitLevels.isEmpty then
-      addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
-    throw ex
+  addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
+  if let some (e, projs) ← resolveLocalName n then
+    unless explicitLevels.isEmpty do
+      throwError "invalid use of explicit universe parameters, '{e}' is a local"
+    return [(e, projs)]
+  -- check for section variable capture by a quotation
+  let ctx ← read
+  if let some (e, projs) := preresolved.findSome? fun (n, projs) => ctx.sectionFVars.find? n |>.map (·, projs) then
+    return [(e, projs)]  -- section variables should shadow global decls
+  if preresolved.isEmpty then
+    process (← resolveGlobalName n)
+  else
+    process preresolved
 where process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
   if candidates.isEmpty then
     if (← read).autoBoundImplicit && isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
       throwAutoBoundImplicitLocal n
     else
       throwError "unknown identifier '{Lean.mkConst n}'"
-  if preresolved.isEmpty && explicitLevels.isEmpty then
-    addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
   mkConsts candidates explicitLevels
 
 /--

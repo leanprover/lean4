@@ -36,10 +36,10 @@ namespace Lean.Meta
 private def isDefEqEtaStruct (a b : Expr) : MetaM Bool := do
   if !(← getConfig).etaStruct then return false
   else
-    matchConstCtor b.getAppFn (fun _ => return false) fun ctorVal _ =>
-    matchConstCtor a.getAppFn (fun _ => go ctorVal) fun _ _ => return false
+    matchConstCtor b.getAppFn (fun _ => return false) fun ctorVal us =>
+    matchConstCtor a.getAppFn (fun _ => go ctorVal us) fun _ _ => return false
 where
-  go ctorVal := do
+  go ctorVal us := do
     if ctorVal.numParams + ctorVal.numFields != b.getAppNumArgs then
       trace[Meta.isDefEq.eta.struct] "failed, insufficient number of arguments at{indentExpr b}"
       return false
@@ -50,9 +50,12 @@ where
       else if (← isDefEq (← inferType a) (← inferType b)) then
         checkpointDefEq do
           let args := b.getAppArgs
+          let params := args[:ctorVal.numParams].toArray
+          let info? := getStructureInfo? (← getEnv) ctorVal.induct
           for i in [ctorVal.numParams : args.size] do
-            let proj := mkProj ctorVal.induct (i - ctorVal.numParams) a
-            trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{i - ctorVal.numParams}], {proj} =?= {args[i]}"
+            let j := i - ctorVal.numParams
+            let proj ← mkProjFn ctorVal us params j a
+            trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]}"
             unless (← isDefEq proj args[i]) do
               trace[Meta.isDefEq.eta.struct] "failed, unexpect arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]}"
               return false

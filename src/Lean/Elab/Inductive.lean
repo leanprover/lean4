@@ -640,8 +640,17 @@ private def isDomainDefEq (arrowType : Expr) (type : Expr) : MetaM Bool := do
   if !arrowType.isForall then
     return false
   else
-    withNewMCtxDepth do -- Make sure we do not assign univers metavariables
-      isDefEq arrowType.bindingDomain! type
+    /-
+      We used to use `withNewMCtxDepth` to make sure we do not assign universe metavariables,
+      but it was not satisfactory. For example, in declarations such as
+      ```
+      inductive Eq : α → α → Prop where
+      | refl (a : α) : Eq a a
+      ```
+      We want the first two indices to be promoted to parameters, and this will only
+      happen if we can assign universe metavariables.
+    -/
+    isDefEq arrowType.bindingDomain! type
 
 /--
   Convert fixed indices to parameters.

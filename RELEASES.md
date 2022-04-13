@@ -16,6 +16,8 @@ inductive LE' : Nat → Nat → Prop where
 In both cases, the inductive family has one parameter and one index.
 Recall that the actual number of parameters can be retrieved using the command `#print`.
 
+* Remove support for `{}` annotation in the `structure` command.
+
 * Several improvements to LSP server. Examples: "jump to definition" in mutually recursive sections, fixed incorrect hover information in "match"-expression patterns, "jump to definition" for pattern variables, fixed auto-completion in function headers, etc.
 
 * In `macro ... xs:p* ...` and similar macro bindings of combinators, `xs` now has the correct type `Array Syntax`

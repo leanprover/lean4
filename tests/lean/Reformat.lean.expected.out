@@ -209,7 +209,7 @@ theorem neTrueOfEqFalse : {b : Bool} → Eq b false → Not (Eq b true)
   | true, h => Bool.noConfusion h
   | false, _ => fun h => Bool.noConfusion h
 
-class Inhabited (α : Sort u) := mk {} ::
+class Inhabited (α : Sort u) :=
   (default : α)
 
 constant arbitrary (α : Sort u) [s : Inhabited α] : α :=

@@ -15,11 +15,11 @@ universe u v
 variable (α : Type u)
 
 inductive A (β : Type v)
-| nil {}
+| nil
 | protected cons : α → β → A β → A β
 
 #check @A.cons
-#check A.nil Nat Bool
+#check A.nil (α := Nat) (β := Bool)
 
 mutual
   inductive isEven : Nat → Prop

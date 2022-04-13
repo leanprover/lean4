@@ -269,6 +269,16 @@ private def reorderCtorArgs (ctorType : Expr) : MetaM Expr := do
       let binderNames := getArrowBinderNames (← instantiateMVars (← inferType C))
       return replaceArrowBinderNames r binderNames[:bsPrefix.size]
 
+/--
+  Execute `k` with updated binder information for `xs`. Any `x` that is explicit becomes implicit.
+-/
+private def withExplicitToImplicit (xs : Array Expr) (k : TermElabM α) : TermElabM α := do
+  let mut toImplicit := #[]
+  for x in xs do
+    if (← getFVarLocalDecl x).binderInfo.isExplicit then
+      toImplicit := toImplicit.push (x.fvarId!, BinderInfo.implicit)
+  withNewBinderInfos toImplicit k
+
 /-
   Elaborate constructor types.
 
@@ -522,7 +532,7 @@ private def updateParams (vars : Array Expr) (indTypes : List InductiveType) : T
   indTypes.mapM fun indType => do
     let type ← mkForallFVars vars indType.type
     let ctors ← indType.ctors.mapM fun ctor => do
-      let ctorType ← mkForallFVars vars ctor.type
+      let ctorType ← withExplicitToImplicit vars (mkForallFVars vars ctor.type)
       return { ctor with type := ctorType }
     return { indType with type := type, ctors := ctors }
 
@@ -560,24 +570,6 @@ private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : 
         mkForallFVars params type
       return { ctor with type := type }
     return { indType with ctors := ctors }
-
-abbrev Ctor2InferMod := Std.HashMap Name Bool
-
-private def mkCtor2InferMod (views : Array InductiveView) : Ctor2InferMod := Id.run do
-  let mut m := {}
-  for view in views do
-    for ctorView in view.ctors do
-      m := m.insert ctorView.declName ctorView.inferMod
-  return m
-
-private def applyInferMod (views : Array InductiveView) (numParams : Nat) (indTypes : List InductiveType) : List InductiveType :=
-  let ctor2InferMod := mkCtor2InferMod views
-  indTypes.map fun indType =>
-    let ctors := indType.ctors.map fun ctor =>
-      let inferMod := ctor2InferMod.find! ctor.name -- true if `{}` was used
-      let ctorType := ctor.type.inferImplicit numParams !inferMod
-      { ctor with type := ctorType }
-    { indType with ctors := ctors }
 
 private def mkAuxConstructions (views : Array InductiveView) : TermElabM Unit := do
   let env ← getEnv
@@ -700,7 +692,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         Term.addLocalVarInfo views[i].declId indFVar
         let r       := rs[i]
         let type  ← mkForallFVars params r.type
-        let ctors ← elabCtors indFVars indFVar params r
+        let ctors ← withExplicitToImplicit params (elabCtors indFVars indFVar params r)
         indTypesArray := indTypesArray.push { name := r.view.declName, type := type, ctors := ctors : InductiveType }
       Term.synthesizeSyntheticMVarsNoPostponing
       let numExplicitParams ← fixedIndicesToParams params.size indTypesArray indFVars
@@ -723,7 +715,6 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         | Except.error msg      => throwError msg
         | Except.ok levelParams => do
           let indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numVars numParams indTypes
-          let indTypes := applyInferMod views numParams indTypes
           let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe
           Term.ensureNoUnassignedMVars decl
           addDecl decl

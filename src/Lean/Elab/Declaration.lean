@@ -113,7 +113,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
   let ⟨name, declName, levelNames⟩ ← expandDeclId declId modifiers
   addDeclarationRanges declName decl
   let ctors      ← decl[4].getArgs.mapM fun ctor => withRef ctor do
-    -- def ctor := leading_parser " | " >> declModifiers >> ident >> optional inferMod >> optDeclSig
+    -- def ctor := leading_parser " | " >> declModifiers >> ident >> optDeclSig
     let ctorModifiers ← elabModifiers ctor[1]
     if ctorModifiers.isPrivate && modifiers.isPrivate then
       throwError "invalid 'private' constructor in a 'private' inductive datatype"
@@ -123,11 +123,10 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
     let ctorName := ctor.getIdAt 2
     let ctorName := declName ++ ctorName
     let ctorName ← withRef ctor[2] $ applyVisibility ctorModifiers.visibility ctorName
-    let inferMod := !ctor[3].isNone
-    let (binders, type?) := expandOptDeclSig ctor[4]
+    let (binders, type?) := expandOptDeclSig ctor[3]
     addDocString' ctorName ctorModifiers.docString?
     addAuxDeclarationRanges ctorName ctor ctor[2]
-    return { ref := ctor, modifiers := ctorModifiers, declName := ctorName, inferMod := inferMod, binders := binders, type? := type? : CtorView }
+    return { ref := ctor, modifiers := ctorModifiers, declName := ctorName, binders := binders, type? := type? : CtorView }
   let classes ← getOptDerivingClasses decl[5]
   return {
     ref             := decl

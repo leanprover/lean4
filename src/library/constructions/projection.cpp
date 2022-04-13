@@ -30,8 +30,7 @@ static bool is_prop(expr type) {
     return is_sort(type) && is_zero(sort_level(type));
 }
 
-environment mk_projections(environment const & env, name const & n, buffer<name> const & proj_names,
-                           buffer<implicit_infer_kind> const & infer_kinds, bool inst_implicit) {
+environment mk_projections(environment const & env, name const & n, buffer<name> const & proj_names, bool inst_implicit) {
     lean_assert(proj_names.size() == infer_kinds.size());
     local_ctx lctx;
     name_generator ngen = mk_constructions_name_generator();
@@ -94,7 +93,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         proj_args.append(params);
         proj_args.push_back(c);
         expr proj_type = lctx.mk_pi(proj_args, result_type);
-        proj_type      = infer_implicit_params(proj_type, nparams, infer_kinds[i]);
+        proj_type      = infer_implicit_params(proj_type, nparams, implicit_infer_kind::RelaxedImplicit);
         expr proj_val  = mk_proj(n, i, c);
         proj_val = lctx.mk_lambda(proj_args, proj_val);
         declaration new_d = mk_definition_inferring_unsafe(env, proj_name, lvl_params, proj_type, proj_val,
@@ -114,15 +113,12 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
 extern "C" LEAN_EXPORT object * lean_mk_projections(object * env, object * struct_name, object * proj_infos, uint8 inst_implicit) {
     environment new_env(env);
     name n(struct_name);
-    list_ref<object_ref> ps(proj_infos);
+    list_ref<name> ps(proj_infos);
     buffer<name> proj_names;
-    buffer<implicit_infer_kind> infer_kinds;
     for (auto p : ps) {
-        proj_names.push_back(cnstr_get_ref_t<name>(p, 0));
-        bool infer_mod = cnstr_get_uint8(p.raw(), sizeof(object*));
-        infer_kinds.push_back(infer_mod ? implicit_infer_kind::Implicit : implicit_infer_kind::RelaxedImplicit);
+        proj_names.push_back(p);
     }
-    return catch_kernel_exceptions<environment>([&]() { return mk_projections(new_env, n, proj_names, infer_kinds, inst_implicit != 0); });
+    return catch_kernel_exceptions<environment>([&]() { return mk_projections(new_env, n, proj_names, inst_implicit != 0); });
 }
 
 void initialize_def_projection() {

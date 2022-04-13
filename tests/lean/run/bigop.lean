@@ -3,42 +3,42 @@ def Sequence (α : Type) := List α
 def BigBody (β α) :=  α × (β → β → β) × Bool × β
 
 def applyBig {α β : Type} (body : BigBody β α) (x : β) : β :=
-let (_, op, b, v) := body;
-if b then op v x else x
+  let (_, op, b, v) := body;
+  if b then op v x else x
 
 def reducebig {α β : Type} (idx : β) (r : Sequence α) (body : α → BigBody β α) : β :=
-r.foldr (applyBig ∘ body) idx
+  r.foldr (applyBig ∘ body) idx
 
 def bigop := @reducebig
 
 partial def iota : Nat → Nat → List Nat
-| m, 0   => []
-| m, n+1 => m :: iota (m+1) n
+  | m, 0   => []
+  | m, n+1 => m :: iota (m+1) n
 
 def index_iota (m n : Nat) := iota m (n - m)
 
-class Enumerable (α : Type) :=
-(elems {} : List α)
+class Enumerable (α : Type) where
+  elems : List α
 
-instance : Enumerable Bool :=
-{ elems := [false, true] }
+instance : Enumerable Bool where
+  elems := [false, true]
 
 -- instance {α β} [Enumerable α] [Enumerable β]: Enumerable (α × β) :=
 -- { elems := do let a ← Enumerable.elems α; let b ← Enumerable.elems β; pure (a, b) }
 
 partial def finElemsAux (n : Nat) : (i : Nat) → i < n → List (Fin n)
-| 0,   h => [⟨0, h⟩]
-| i+1, h => ⟨i+1, h⟩ :: finElemsAux n i (Nat.lt_of_succ_lt h)
+  | 0,   h => [⟨0, h⟩]
+  | i+1, h => ⟨i+1, h⟩ :: finElemsAux n i (Nat.lt_of_succ_lt h)
 
 partial def finElems : (n : Nat) → List (Fin n)
-| 0     => []
-| (n+1) => finElemsAux (n+1) n (Nat.lt_succ_self n)
+  | 0     => []
+  | (n+1) => finElemsAux (n+1) n (Nat.lt_succ_self n)
 
-instance {n} : Enumerable (Fin n) :=
-{ elems := (finElems n).reverse }
+instance {n} : Enumerable (Fin n) where
+  elems := (finElems n).reverse
 
 instance : OfNat (Fin (Nat.succ n)) m :=
-⟨Fin.ofNat m⟩
+  ⟨Fin.ofNat m⟩
 
 -- Declare a new syntax category for "indexing" big operators
 declare_syntax_cat index
@@ -80,9 +80,9 @@ syntax ident ":" term : index
 syntax ident ":" term "|" term : index
 -- And new rules
 macro_rules
-| `(_big [$op, $idx] ($i:ident : $type) $F) => `(bigop $idx (Enumerable.elems $type) (fun $i:ident => ($i:ident, $op, true, $F)))
-| `(_big [$op, $idx] ($i:ident : $type | $p) $F) => `(bigop $idx (Enumerable.elems $type) (fun $i:ident => ($i:ident, $op, $p, $F)))
-| `(_big [$op, $idx] ($i:ident | $p) $F) => `(bigop $idx (Enumerable.elems _) (fun $i:ident => ($i:ident, $op, $p, $F)))
+| `(_big [$op, $idx] ($i:ident : $type) $F) => `(bigop $idx (Enumerable.elems (α := $type)) (fun $i:ident => ($i:ident, $op, true, $F)))
+| `(_big [$op, $idx] ($i:ident : $type | $p) $F) => `(bigop $idx (Enumerable.elems (α := $type)) (fun $i:ident => ($i:ident, $op, $p, $F)))
+| `(_big [$op, $idx] ($i:ident | $p) $F) => `(bigop $idx (Enumerable.elems) (fun $i:ident => ($i:ident, $op, $p, $F)))
 
 -- The new syntax is immediately available for all big operators that we have defined
 def myPred (x : Fin 10) : Bool := true

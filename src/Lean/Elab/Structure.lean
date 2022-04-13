@@ -82,11 +82,6 @@ def StructFieldInfo.isSubobject (info : StructFieldInfo) : Bool :=
   | StructFieldKind.subobject => true
   | _                         => false
 
-/- Auxiliary declaration for `mkProjections` -/
-structure ProjectionInfo where
-  declName : Name
-  inferMod : Bool
-
 structure ElabStructResult where
   decl            : Declaration
   projInfos       : List ProjectionInfo
@@ -687,9 +682,9 @@ private def mkCtor (view : StructView) (levelParams : List Name) (params : Array
   pure { name := view.ctor.declName, type }
 
 @[extern "lean_mk_projections"]
-private constant mkProjections (env : Environment) (structName : Name) (projs : List ProjectionInfo) (isClass : Bool) : Except KernelException Environment
+private constant mkProjections (env : Environment) (structName : Name) (projs : List Name) (isClass : Bool) : Except KernelException Environment
 
-private def addProjections (structName : Name) (projs : List ProjectionInfo) (isClass : Bool) : TermElabM Unit := do
+private def addProjections (structName : Name) (projs : List Name) (isClass : Bool) : TermElabM Unit := do
   let env ← getEnv
   match mkProjections env structName projs isClass with
   | Except.ok env   => setEnv env
@@ -817,9 +812,8 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
         let decl    := Declaration.inductDecl levelParams params.size [indType] view.modifiers.isUnsafe
         Term.ensureNoUnassignedMVars decl
         addDecl decl
-        let projInfos := (fieldInfos.filter fun (info : StructFieldInfo) => !info.isFromParent).toList.map fun (info : StructFieldInfo) =>
-          { declName := info.declName, inferMod := info.inferMod : ProjectionInfo }
-        addProjections view.declName projInfos view.isClass
+        let projNames := (fieldInfos.filter fun (info : StructFieldInfo) => !info.isFromParent).toList.map fun (info : StructFieldInfo) => info.declName
+        addProjections view.declName projNames view.isClass
         registerStructure view.declName fieldInfos
         mkAuxConstructions view.declName
         let instParents ← fieldInfos.filterM fun info => do

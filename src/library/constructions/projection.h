@@ -12,15 +12,11 @@ namespace lean {
 /** \brief Create projections operators for the structure named \c n.
     The procedure assumes \c n is a structure.
 
-    The argument \c infer_kinds specifies the implicit argument inference strategies used for the
-    structure parameters.
-
     If \c inst_implicit == true, then the structure argument of the projection is decorated as
     "instance implicit"
              [s : n]
 */
-environment mk_projections(environment const & env, name const & n, buffer <name> const & proj_names,
-                           buffer<implicit_infer_kind> const & infer_kinds, bool inst_implicit = false);
+environment mk_projections(environment const & env, name const & n, buffer <name> const & proj_names, bool inst_implicit = false);
 
 void initialize_def_projection();
 void finalize_def_projection();

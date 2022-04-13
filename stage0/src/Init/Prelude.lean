@@ -55,8 +55,8 @@ def Not (a : Prop) : Prop := a → False
 @[macroInline] def absurd {a : Prop} {b : Sort v} (h₁ : a) (h₂ : Not a) : b :=
   False.elim (h₂ h₁)
 
-inductive Eq {α : Sort u} (a : α) : α → Prop where
-  | refl {} : Eq a a
+inductive Eq : α → α → Prop where
+  | refl (a : α) : Eq a a
 
 @[simp] abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
   Eq.rec (motive := fun α _ => motive α) m h
@@ -101,8 +101,8 @@ constant Quot.ind {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} 
 -/
 init_quot
 
-inductive HEq {α : Sort u} (a : α) : {β : Sort u} → β → Prop where
-  | refl {} : HEq a a
+inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
+  | refl (a : α) : HEq a a
 
 @[matchPattern] protected def HEq.rfl {α : Sort u} {a : α} : HEq a a :=
   HEq.refl a

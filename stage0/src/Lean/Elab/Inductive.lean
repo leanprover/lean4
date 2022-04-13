@@ -41,7 +41,6 @@ def checkValidCtorModifier [Monad m] [MonadError m] (modifiers : Modifiers) : m 
 structure CtorView where
   ref       : Syntax
   modifiers : Modifiers
-  inferMod  : Bool  -- true if `{}` is used in the constructor declaration
   declName  : Name
   binders   : Syntax
   type?     : Option Syntax

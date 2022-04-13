@@ -1,6 +1,21 @@
 Unreleased
 ---------
 
+* Remove support for `{}` annotation from inductive datatype contructors. This annotation was barely used, and we can control the binder information for parameter bindings using the new inductive family indices to parameter promotion. Example: the following declaration using `{}`
+```lean
+inductive LE' (n : Nat) : Nat → Prop where
+  | refl {} : LE' n n -- Want `n` to be explicit
+  | succ  : LE' n m → LE' n (m+1)
+```
+can now be written as
+```
+inductive LE' : Nat → Nat → Prop where
+  | refl (n : Nat) : LE' n n
+  | succ : LE' n m → LE' n (m+1)
+```
+In both cases, the inductive family has one parameter and one index.
+Recall that the actual number of parameters can be retrieved using the command `#print`.
+
 * Several improvements to LSP server. Examples: "jump to definition" in mutually recursive sections, fixed incorrect hover information in "match"-expression patterns, "jump to definition" for pattern variables, fixed auto-completion in function headers, etc.
 
 * In `macro ... xs:p* ...` and similar macro bindings of combinators, `xs` now has the correct type `Array Syntax`
@@ -111,6 +126,7 @@ ihr : BST right → Tree.find? (Tree.insert right k v) k = some v
 * (Experimental) New `checkpoint <tactic-seq>` tactic for big interactive proofs.
 
 * Rename tactic `nativeDecide` => `native_decide`.
+
 * Antiquotations are now accepted in any syntax. The `incQuotDepth` `syntax` parser is therefore obsolete and has been removed.
 
 * Renamed tactic `nativeDecide` => `native_decide`.

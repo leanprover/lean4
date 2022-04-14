@@ -73,8 +73,8 @@ structure FieldInfo where
 /-- The information needed to render the tactic state in the infoview.
 
     We store the list of goals before and after the execution of a tactic.
-    We also store the metavariable context at each time since, we want to unassigned metavariables
-    at tactic execution time to be displayed as `?m...`. -/
+    We also store the metavariable context at each time since we want metavariables
+    unassigned at tactic execution time to be displayed as `?m...`. -/
 structure TacticInfo extends ElabInfo where
   mctxBefore  : MetavarContext
   goalsBefore : List MVarId
@@ -98,7 +98,7 @@ inductive Info where
   | ofCompletionInfo (i : CompletionInfo)
   deriving Inhabited
 
-/-- The InfoTree is a structure that is generated during elaboration that is used
+/-- The InfoTree is a structure that is generated during elaboration and used
     by the language server to look up information about objects at particular points
     in the Lean document. For example, tactic information and expected type information in
     the infoview and information about completions.
@@ -111,9 +111,9 @@ inductive Info where
     An example of a function that extracts information from an infotree for a given
     position is `InfoTree.goalsAt?` which finds `TacticInfo`.
 
-    Information concerning expressions requires that a context also be saved,
-    `context` nodes store a local context that are used to properly the expressions
-    in lower nodes.
+    Information concerning expressions requires that a context also be saved.
+    `context` nodes store a local context that is used to process expressions
+    in nodes below.
 
     Because the info tree is generated during elaboration, some parts of the infotree
     for a particular piece of syntax may not be ready yet. Hence InfoTree supports metavariable-like
@@ -122,7 +122,7 @@ inductive Info where
 inductive InfoTree where
   | /-- The context object is created by `liftTermElabM` at `Command.lean` -/
     context (i : ContextInfo) (t : InfoTree)
-  | /-- The children contains information for nested term elaboration and tactic evaluation -/
+  | /-- The children contain information for nested term elaboration and tactic evaluation -/
     node (i : Info) (children : PersistentArray InfoTree)
   | /-- For user data. -/
     ofJson (j : Json)
@@ -143,7 +143,7 @@ partial def InfoTree.findInfo? (p : Info → Bool) (t : InfoTree) : Option Info 
 /-- This structure is the state that is being used to build an InfoTree object.
 During elaboration, some parts of the info tree may be `holes` which need to be filled later.
 The `assignments` field is used to assign these holes.
-The `trees` field is a list of pending child trees. For the current infotree node that is being built.
+The `trees` field is a list of pending child trees for the infotree node currently being built.
 
 You should not need to use `InfoState` directly, instead infotrees should be built with the help of the methods here
 such as `pushInfoLeaf` to create leaf nodes and `withInfoContext` to create a nested child node.
@@ -324,7 +324,7 @@ def addCompletionInfo (info : CompletionInfo) : m Unit := do
 
 /-- This does the same job as resolveGlobalConstNoOverload; resolving an identifier
 syntax to a unique fully resolved name or throwing if there are ambiguities.
-But also adds this reolved name to the infotree, this means that when you hover
+But also adds this resolved name to the infotree. This means that when you hover
 over a name in the sourcefile you will see the fully resolved name in the hover info.-/
 def resolveGlobalConstNoOverloadWithInfo [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Syntax) (expectedType? : Option Expr := none) : m Name := do
   let n ← resolveGlobalConstNoOverload id

@@ -46,6 +46,9 @@ where
     | `(stx| ($stx)), term => mkAntiquotNode stx term
     | `(stx| $id:ident$[:$p:prec]?), term => do
       let kind ← match (← Elab.Term.resolveParserName id) with
+        | [(`Lean.Parser.ident, _)] => pure identKind
+        | [(`Lean.Parser.Term.ident, _)] => pure identKind
+        | [(`Lean.Parser.strLit, _)] => pure strLitKind
         -- a syntax abbrev, assume kind == decl name
         | [(c, _)]      => pure c
         | cs@(_ :: _ :: _) => throwError "ambiguous parser declaration {cs.map (·.1)}"

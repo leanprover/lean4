@@ -1,4 +1,4 @@
-StxQuot.lean:8:12: error: expected command, identifier or term
+StxQuot.lean:8:12: error: expected identifier or term
 "`Nat.one._@.UnhygienicMain._hyg.1"
 "<missing>"
 "<missing>"

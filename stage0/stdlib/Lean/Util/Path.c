@@ -77,8 +77,8 @@ extern lean_object* l_System_instInhabitedFilePath;
 LEAN_EXPORT lean_object* l_Lean_SearchPath_findModuleWithExt___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_addSearchPathFromEnv___closed__1;
 static lean_object* l_Lean_modToFilePath_go___closed__3;
+uint8_t l_Lean_Internal_isStage0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_810____at_Lean_SearchPath_findAllWithExt___spec__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Util_Path_0__Lean_isStage0___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_moduleNameOfFileName___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findOLean___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -119,7 +119,6 @@ lean_object* l_System_FilePath_isDir(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_modToFilePath(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_SearchPath_findAllWithExt___closed__1;
-LEAN_EXPORT uint8_t l___private_Lean_Util_Path_0__Lean_isStage0(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_String_trim(lean_object*);
 static lean_object* l_Lean_moduleNameOfFileName___lambda__2___closed__2;
@@ -1038,15 +1037,6 @@ lean_ctor_set(x_7, 0, x_5);
 lean_ctor_set(x_7, 1, x_6);
 return x_7;
 }
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Util_Path_0__Lean_isStage0___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = LEAN_IS_STAGE0;
-x_3 = lean_box(x_2);
-return x_3;
 }
 }
 static lean_object* _init_l_Lean_getBuildDir___closed__1() {

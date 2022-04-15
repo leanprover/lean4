@@ -56,9 +56,6 @@ end SearchPath
 
 builtin_initialize searchPathRef : IO.Ref SearchPath ← IO.mkRef {}
 
-@[extern c inline "LEAN_IS_STAGE0"]
-private constant isStage0 (u : Unit) : Bool
-
 @[export lean_get_prefix]
 def getBuildDir : IO FilePath := do
   return (← IO.appDir).parent |>.get!
@@ -67,7 +64,7 @@ def getBuildDir : IO FilePath := do
 def getLibDir (leanSysroot : FilePath) : IO FilePath := do
   let mut buildDir := leanSysroot
   -- use stage1 stdlib with stage0 executable (which should never be distributed outside of the build directory)
-  if isStage0 () then
+  if Internal.isStage0 () then
     buildDir := buildDir / ".." / "stage1"
   return buildDir / "lib" / "lean"
 

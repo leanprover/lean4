@@ -282,7 +282,10 @@ end EnvExtension
 /- Environment extensions can only be registered during initialization.
    Reasons:
    1- Our implementation assumes the number of extensions does not change after an environment object is created.
-   2- We do not use any synchronization primitive to access `envExtensionsRef`. -/
+   2- We do not use any synchronization primitive to access `envExtensionsRef`.
+
+   Note that by default, extension state is *not* stored in .olean files and will not propagate across `import`s.
+   For that, you need to register a persistent environment extension. -/
 def registerEnvExtension {σ : Type} (mkInitial : IO σ) : IO (EnvExtension σ) := EnvExtensionInterfaceImp.registerExt mkInitial
 private def mkInitialExtensionStates : IO (Array EnvExtensionState) := EnvExtensionInterfaceImp.mkInitialExtStates
 

@@ -88,6 +88,16 @@ structure MacroExpansionInfo where
   output : Syntax
   deriving Inhabited
 
+structure CustomInfo where
+  stx : Syntax
+  json : Json
+  deriving Inhabited
+
+def CustomInfo.format : CustomInfo → Format
+  | i => Std.ToFormat.format i.json
+
+instance : ToFormat CustomInfo := ⟨CustomInfo.format⟩
+
 /-- Header information for a node in `InfoTree`. -/
 inductive Info where
   | ofTacticInfo (i : TacticInfo)
@@ -96,6 +106,7 @@ inductive Info where
   | ofMacroExpansionInfo (i : MacroExpansionInfo)
   | ofFieldInfo (i : FieldInfo)
   | ofCompletionInfo (i : CompletionInfo)
+  | ofCustomInfo (i : CustomInfo)
   deriving Inhabited
 
 /-- The InfoTree is a structure that is generated during elaboration and used
@@ -175,7 +186,6 @@ partial def InfoTree.substitute (tree : InfoTree) (assignment : PersistentHashMa
   match tree with
   | node i c => node i <| c.map (substitute · assignment)
   | context i t => context i (substitute t assignment)
-  | ofJson j => ofJson j
   | hole id  => match assignment.find? id with
     | none      => hole id
     | some tree => substitute tree assignment
@@ -257,6 +267,7 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofMacroExpansionInfo i => i.format ctx
   | ofFieldInfo i          => i.format ctx
   | ofCompletionInfo i     => i.format ctx
+  | ofCustomInfo i         => pure <| Std.ToFormat.format i
 
 def Info.toElabInfo? : Info → Option ElabInfo
   | ofTacticInfo i         => some i.toElabInfo
@@ -265,6 +276,7 @@ def Info.toElabInfo? : Info → Option ElabInfo
   | ofMacroExpansionInfo i => none
   | ofFieldInfo i          => none
   | ofCompletionInfo i     => none
+  | ofCustomInfo i         => none
 
 /--
   Helper function for propagating the tactic metavariable context to its children nodes.
@@ -286,7 +298,6 @@ def Info.updateContext? : Option ContextInfo → Info → Option ContextInfo
 
 partial def InfoTree.format (tree : InfoTree) (ctx? : Option ContextInfo := none) : IO Format := do
   match tree with
-  | ofJson j    => return toString j
   | hole id     => return toString id.name
   | context i t => format t i
   | node i cs   => match ctx? with

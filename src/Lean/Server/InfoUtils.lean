@@ -74,6 +74,7 @@ def Info.stx : Info → Syntax
   | ofMacroExpansionInfo i => i.stx
   | ofFieldInfo i          => i.stx
   | ofCompletionInfo i     => i.stx
+  | ofCustomInfo i         => i.stx
 
 def Info.lctx : Info → LocalContext
   | Info.ofTermInfo i  => i.lctx

@@ -39,7 +39,6 @@ LEAN_EXPORT lean_object* l_Lean_isCasesOnRecursor___boxed(lean_object*, lean_obj
 static lean_object* l_Lean_casesOnSuffix___closed__1;
 static lean_object* l_Lean_isCasesOnRecursor___closed__1;
 LEAN_EXPORT uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_markNoConfusion___closed__1;
 static lean_object* l_Lean_brecOnSuffix___closed__1;
 static lean_object* l_Lean_binductionOnSuffix___closed__1;
@@ -59,6 +58,7 @@ LEAN_EXPORT lean_object* l_Lean_brecOnSuffix;
 static lean_object* l_Lean_isAuxRecursor___closed__1;
 LEAN_EXPORT lean_object* l_Lean_isAuxRecursorWithSuffix___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_isAuxRecursor___closed__6;
+lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_recOnSuffix___closed__1;
 LEAN_EXPORT lean_object* l_Lean_casesOnSuffix;
 LEAN_EXPORT lean_object* l_Lean_mkBInductionOnName(lean_object*);
@@ -228,7 +228,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_markAuxRecursor___closed__1;
-x_4 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_3, x_1, x_2);
+x_4 = l_Lean_TagDeclarationExtension_tag(x_3, x_1, x_2);
 return x_4;
 }
 }
@@ -475,7 +475,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_markNoConfusion___closed__1;
-x_4 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_3, x_1, x_2);
+x_4 = l_Lean_TagDeclarationExtension_tag(x_3, x_1, x_2);
 return x_4;
 }
 }

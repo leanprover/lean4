@@ -152,7 +152,6 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_checkIfShadowin
 LEAN_EXPORT lean_object* l_Lean_Elab_expandDeclIdCore(lean_object*);
 static lean_object* l_Lean_Elab_instToStringModifiers___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_expandDeclId___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instToFormatModifiers___closed__19;
 lean_object* l_Lean_Elab_elabDeclAttrs___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_instToStringModifiers;
@@ -231,6 +230,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_expandDeclId(lean_object*);
 static lean_object* l_Lean_Elab_instToFormatModifiers___closed__15;
 static lean_object* l_Lean_Elab_Modifiers_attrs___default___closed__1;
 uint8_t l_Lean_Elab_isFreshInstanceName(lean_object*);
+lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_mapTRAux___at_Lean_Elab_instToFormatModifiers___spec__1___closed__5;
 static lean_object* l_Lean_Elab_instToFormatModifiers___closed__29;
 lean_object* l_Lean_Elab_throwAlreadyDeclaredUniverseLevel___rarg(lean_object*, lean_object*, lean_object*);
@@ -2735,7 +2735,7 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 x_6 = l_Lean_Elab_applyVisibility___rarg___lambda__2___closed__1;
 lean_inc(x_1);
-x_7 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_6, x_5, x_1);
+x_7 = l_Lean_TagDeclarationExtension_tag(x_6, x_5, x_1);
 x_8 = l_Lean_setEnv___rarg(x_2, x_7);
 x_9 = lean_alloc_closure((void*)(l_Lean_Elab_applyVisibility___rarg___lambda__1___boxed), 3, 2);
 lean_closure_set(x_9, 0, x_3);

@@ -19,12 +19,12 @@ LEAN_EXPORT uint8_t l_Lean_isNoncomputable(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_NoncomputableAttr___hyg_4_(lean_object*);
 static lean_object* l_Lean_addNoncomputable___closed__1;
 LEAN_EXPORT lean_object* l_Lean_addNoncomputable(lean_object*, lean_object*);
-lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isNoncomputable___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_NoncomputableAttr___hyg_4____closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_NoncomputableAttr___hyg_4____closed__1;
+lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_NoncomputableAttr___hyg_4____closed__1() {
 _start:
 {
@@ -65,7 +65,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_addNoncomputable___closed__1;
-x_4 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_3, x_1, x_2);
+x_4 = l_Lean_TagDeclarationExtension_tag(x_3, x_1, x_2);
 return x_4;
 }
 }

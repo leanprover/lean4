@@ -463,17 +463,19 @@ namespace TagDeclarationExtension
 instance : Inhabited TagDeclarationExtension :=
   inferInstanceAs (Inhabited (SimplePersistentEnvExtension Name NameSet))
 
-def tag (ext : TagDeclarationExtension) (env : Environment) (n : Name) : Environment :=
-  ext.addEntry env n
+def tag (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Environment :=
+  assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `TagDeclarationExtension`
+  ext.addEntry env declName
 
-def isTagged (ext : TagDeclarationExtension) (env : Environment) (n : Name) : Bool :=
-  match env.getModuleIdxFor? n with
-  | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains n Name.quickLt
-  | none        => (ext.getState env).contains n
+def isTagged (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Bool :=
+  match env.getModuleIdxFor? declName with
+  | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains declName Name.quickLt
+  | none        => (ext.getState env).contains declName
 
 end TagDeclarationExtension
 
-/-- Environment extension for mapping declarations to values. -/
+/-- Environment extension for mapping declarations to values.
+    Declarations must only be inserted into the mapping in the module where they were declared. -/
 
 def MapDeclarationExtension (α : Type) := SimplePersistentEnvExtension (Name × α) (NameMap α)
 
@@ -491,6 +493,7 @@ instance : Inhabited (MapDeclarationExtension α) :=
   inferInstanceAs (Inhabited (SimplePersistentEnvExtension ..))
 
 def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) (val : α) : Environment :=
+  assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `MapDeclarationExtension`
   ext.addEntry env (declName, val)
 
 def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Option α :=

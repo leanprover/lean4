@@ -348,8 +348,15 @@ macro "try " t:tacticSeq : tactic => `(first | $t | skip)
 /-- `tac <;> tac'` runs `tac` on the main goal and `tac'` on each produced goal, concatenating all goals produced by `tac'`. -/
 macro:1 x:tactic " <;> " y:tactic:0 : tactic => `(tactic| focus ($x:tactic; all_goals $y:tactic))
 
-/-- `rfl` is equivalent to `exact rfl`, but has a few optimizatons. -/
-syntax (name := refl) "rfl" : tactic
+/-- `eq_refl` is equivalent to `exact rfl`, but has a few optimizatons. -/
+syntax (name := refl) "eq_refl" : tactic
+
+/--
+This tactic tries to close the current goal using reflexivity.
+This is supposed to be an extensible tactic and users can add their own support
+to new reflexive relations.
+-/
+macro "rfl" : tactic => `(eq_refl)
 
 /--
   Similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,

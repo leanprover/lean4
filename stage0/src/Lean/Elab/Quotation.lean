@@ -194,6 +194,7 @@ elab_stx_quot Parser.Term.attr.quot
 elab_stx_quot Parser.Term.prio.quot
 elab_stx_quot Parser.Term.doElem.quot
 elab_stx_quot Parser.Term.dynamicQuot
+elab_stx_quot Parser.Command.quot
 
 /- match -/
 

@@ -21,8 +21,7 @@ def leftArrow : Parser := unicodeSymbol "← " "<- "
 def doSeqItem      := leading_parser ppLine >> doElemParser >> optional "; "
 def doSeqIndent    := leading_parser many1Indent doSeqItem
 def doSeqBracketed := leading_parser "{" >> withoutPosition (many1 doSeqItem) >> ppLine >> "}"
-def doSeq          := doSeqBracketed <|> doSeqIndent
-
+def doSeq          := withAntiquot (mkAntiquot "doSeq" `Lean.Parser.Term.doSeq (isPseudoKind := true)) <| doSeqBracketed <|> doSeqIndent
 def termBeforeDo := withForbidden "do" termParser
 
 attribute [runBuiltinParserAttributeHooks] doSeq termBeforeDo

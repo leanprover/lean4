@@ -31,7 +31,6 @@ static bool is_prop(expr type) {
 }
 
 environment mk_projections(environment const & env, name const & n, buffer<name> const & proj_names, bool inst_implicit) {
-    lean_assert(proj_names.size() == infer_kinds.size());
     local_ctx lctx;
     name_generator ngen = mk_constructions_name_generator();
     constant_info ind_info       = env.get(n);

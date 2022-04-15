@@ -13,6 +13,7 @@ namespace Lean.Server
 
 private structure RpcProcedure where
   wrapper : (sessionId : UInt64) → Json → RequestM (RequestTask Json)
+  deriving Inhabited
 
 /- We store the builtin RPC handlers in a Ref and users' handlers in an extension. This ensures
 that users don't need to import core Lean modules to make builtin handlers work, but also that
@@ -20,11 +21,11 @@ they *can* easily create custom handlers and use them in the same file. -/
 builtin_initialize builtinRpcProcedures : IO.Ref (Std.PHashMap Name RpcProcedure) ←
   IO.mkRef {}
 
-builtin_initialize userRpcProcedures : EnvExtension (Std.PHashMap Name RpcProcedure) ←
-  registerEnvExtension <| pure {}
+builtin_initialize userRpcProcedures : MapDeclarationExtension Name ←
+  mkMapDeclarationExtension `userRpcProcedures
 
 open RequestM in
-private def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
+private unsafe def handleRpcCallUnsafe (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
   let doc ← readDoc
   let text := doc.meta.text
   let callPos := text.lspPosToUtf8Pos p.position
@@ -35,11 +36,21 @@ private def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) 
     fun snap => do
       if let some proc := (← builtinRpcProcedures.get).find? p.method then
         proc.wrapper p.sessionId p.params
-      else if let some proc := userRpcProcedures.getState snap.env |>.find? p.method then
-        proc.wrapper p.sessionId p.params
+      else if let some procName := userRpcProcedures.find? snap.env p.method then
+        let options := snap.cmdState.scopes.head!.opts
+        let proc : Except _ _ := Lean.Environment.evalConstCheck RpcProcedure snap.env options ``RpcProcedure procName
+        match proc with
+        | Except.ok x => x.wrapper p.sessionId p.params
+        | Except.error e => throwThe RequestError {
+          code := JsonRpc.ErrorCode.internalError
+          message := s!"Failed to evaluate RPC constant '{procName}': {e}" }
       else
-        throwThe RequestError { code := JsonRpc.ErrorCode.methodNotFound
-                                message := s!"No RPC method '{p.method}' bound" }
+        throwThe RequestError {
+          code := JsonRpc.ErrorCode.methodNotFound
+          message := s!"No RPC method '{p.method}' bound" }
+
+@[implementedBy handleRpcCallUnsafe]
+private constant handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json)
 
 builtin_initialize
   registerLspRequestHandler "$/lean/rpc/call" Lsp.RpcCallParams Json handleRpcCall
@@ -87,21 +98,27 @@ def registerBuiltinRpcProcedure (method : Name) paramType respType
   let proc := wrapRpcProcedure method paramType respType handler
   builtinRpcProcedures.modify fun ps => ps.insert method proc
 
-def registerRpcProcedure (method : Name) paramType respType
-    {paramLspType} [RpcEncoding paramType paramLspType] [FromJson paramLspType]
-    {respLspType} [RpcEncoding respType respLspType] [ToJson respLspType]
-    (handler : paramType → RequestM (RequestTask respType)) : CoreM Unit := do
+open Lean Elab Command Term Meta in
+def registerRpcProcedure (method : Name) : CoreM Unit := do
   let env ← getEnv
-
   let errMsg := "Failed to register RPC call handler for '{method}'"
   if (←builtinRpcProcedures.get).contains method then
     throwError s!"{errMsg}: already registered (builtin)"
-  if userRpcProcedures.getState env |>.contains method then
+  if userRpcProcedures.contains env method then
     throwError s!"{errMsg}: already registered"
-
-  let proc := wrapRpcProcedure method paramType respType handler
-  let env' := userRpcProcedures.modifyState env fun procs =>
-    procs.insert method proc
-  setEnv env'
+  let wrappedName := method ++ `_rpc_wrapped
+  let procT := mkConst ``RpcProcedure
+  let proc ← MetaM.run' <| TermElabM.run' <| do
+     let c ← Lean.Elab.Term.elabTerm (← `(wrapRpcProcedure $(quote method) _ _ $(mkIdent method))) procT
+     return ← instantiateMVars c
+  addAndCompile <| Declaration.defnDecl {
+        name        := wrappedName
+        type        := procT
+        value       := proc
+        safety      := DefinitionSafety.safe
+        levelParams := []
+        hints := ReducibilityHints.opaque
+      }
+  setEnv <| userRpcProcedures.insert (← getEnv) method wrappedName
 
 end Lean.Server

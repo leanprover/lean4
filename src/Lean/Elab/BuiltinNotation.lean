@@ -131,7 +131,7 @@ At runtime, `msg` and the file position are printed to stderr unless the C
 function `lean_set_panic_messages(false)` has been executed before. If the C
 function `lean_set_exit_on_panic(true)` has been executed before, the process is
 then aborted. -/
-@[builtinTermElab panic] def elabPanic : TermElab := fun stx expectedType? => do
+@[builtinTermElab Lean.Parser.Term.panic] def elabPanic : TermElab := fun stx expectedType? => do
   let arg := stx[1]
   let pos ← getRefPosition
   let env ← getEnv

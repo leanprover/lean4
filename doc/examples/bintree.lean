@@ -173,6 +173,8 @@ immediately uses the new equality to substitute `x` with `y` everywhere in the g
 
 The modifier `local` specifies the scope of the macro.
 -/
+/-- The `have_eq lhs rhs` tactic (tries to) prove that `lhs = rhs`,
+    and then replaces `lhs` with `rhs`. -/
 local macro "have_eq " lhs:term:max rhs:term:max : tactic =>
   `((have h : $lhs:term = $rhs:term :=
        -- TODO: replace with linarith
@@ -187,6 +189,7 @@ another one containing `h : ¬ e`. The simplier uses the `h` to rewrite `e` to `
 in the first subgoal, and `e` to `False` in the second. This is particularly
 useful if `e` is the condition of an `if`-statement.
 -/
+/-- `by_cases' e` is a shorthand form `by_cases e <;> simp[*]` -/
 local macro "by_cases' " e:term :  tactic =>
   `(by_cases $e:term <;> simp [*])
 

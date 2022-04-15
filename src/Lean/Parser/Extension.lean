@@ -404,7 +404,9 @@ def addSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Environment :=
 
 def isValidSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Bool :=
   let kinds := (parserExtension.getState env).kinds
-  kinds.contains k
+  -- accept any constant in stage 1 (i.e. when compiled by stage 0) so that
+  -- we can add a built-in parser and its elaborator in the same stage
+  kinds.contains k || (Internal.isStage0 () && env.contains k)
 
 def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind :=
   let kinds := (parserExtension.getState env).kinds

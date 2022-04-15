@@ -60,6 +60,9 @@ def toolchain :=
   else
     ""
 
+@[extern c inline "LEAN_IS_STAGE0"]
+constant Internal.isStage0 (u : Unit) : Bool
+
 /- Valid identifier names -/
 def isGreek (c : Char) : Bool :=
   0x391 ≤ c.val && c.val ≤ 0x3dd

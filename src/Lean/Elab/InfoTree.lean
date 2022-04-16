@@ -25,6 +25,7 @@ structure ContextInfo where
   options       : Options        := {}
   currNamespace : Name           := Name.anonymous
   openDecls     : List OpenDecl  := []
+  ngen          : NameGenerator -- We must save the name generator to implement `ContextInfo.runMetaM` and making we not create `MVarId`s used in `mctx`.
   deriving Inhabited
 
 /-- An elaboration step -/
@@ -193,7 +194,13 @@ partial def InfoTree.substitute (tree : InfoTree) (assignment : PersistentHashMa
 
 def ContextInfo.runMetaM (info : ContextInfo) (lctx : LocalContext) (x : MetaM α) : IO α := do
   let x := x.run { lctx := lctx } { mctx := info.mctx }
-  let ((a, _), _) ← x.toIO { options := info.options, currNamespace := info.currNamespace, openDecls := info.openDecls } { env := info.env }
+  /-
+    We must execute `x` using the `ngen` stored in `info`. Otherwise, we may create `MVarId`s and `FVarId`s that
+    have been used in `lctx` and `info.mctx`.
+  -/
+  let ((a, _), _) ←
+    x.toIO { options := info.options, currNamespace := info.currNamespace, openDecls := info.openDecls }
+           { env := info.env, ngen := info.ngen }
   return a
 
 def ContextInfo.toPPContext (info : ContextInfo) (lctx : LocalContext) : PPContext :=
@@ -394,7 +401,7 @@ def withInfoTreeContext [MonadFinally m] (x : m α) (mkInfoTree : PersistentArra
 /-- Resets the trees state `t₀`, runs `x` to produce a new trees
 state `t₁` and sets the state to be `t₀ ++ (InfoTree.context Γ <$> t₁)`
 where `Γ` is the context derived from the monad state. -/
-def withSaveInfoContext [MonadFinally m] [MonadEnv m] [MonadOptions m] [MonadMCtx m] [MonadResolveName m] [MonadFileMap m] (x : m α) : m α := do
+def withSaveInfoContext [MonadNameGenerator m] [MonadFinally m] [MonadEnv m] [MonadOptions m] [MonadMCtx m] [MonadResolveName m] [MonadFileMap m] (x : m α) : m α := do
   if (← getInfoState).enabled then
     let treesSaved ← getResetInfoTrees
     Prod.fst <$> MonadFinally.tryFinally' x fun _ => do
@@ -408,6 +415,7 @@ def withSaveInfoContext [MonadFinally m] [MonadEnv m] [MonadOptions m] [MonadMCt
           currNamespace := (← getCurrNamespace)
           openDecls     := (← getOpenDecls)
           options       := (← getOptions)
+          ngen          := (← getNGen)
         } tree
       modifyInfoTrees fun _ => treesSaved ++ trees
   else

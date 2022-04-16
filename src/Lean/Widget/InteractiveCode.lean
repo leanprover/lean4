@@ -107,12 +107,13 @@ def exprToInteractive (e : Expr) : MetaM CodeWithInfos := do
   let (fmt, infos) ← formatInfos e
   let tt := TaggedText.prettyTagged fmt
   let ctx := {
-    env := ← getEnv
-    mctx := ← getMCtx
-    options := ← getOptions
-    currNamespace := ← getCurrNamespace
-    openDecls := ← getOpenDecls
-    fileMap := default
+    env           := (← getEnv)
+    mctx          := (← getMCtx)
+    options       := (← getOptions)
+    currNamespace := (← getCurrNamespace)
+    openDecls     := (← getOpenDecls)
+    fileMap       := default
+    ngen          := (← getNGen)
   }
   return tagExprInfos ctx infos tt
 
@@ -120,12 +121,13 @@ def exprToInteractiveExplicit (e : Expr) : MetaM CodeWithInfos := do
   let (fmt, infos) ← formatExplicitInfos e
   let tt := TaggedText.prettyTagged fmt
   let ctx := {
-    env := ← getEnv
-    mctx := ← getMCtx
-    options := ← getOptions
-    currNamespace := ← getCurrNamespace
-    openDecls := ← getOpenDecls
-    fileMap := default
+    env           := (← getEnv)
+    mctx          := (← getMCtx)
+    options       := (← getOptions)
+    currNamespace := (← getCurrNamespace)
+    openDecls     := (← getOpenDecls)
+    fileMap       := default
+    ngen          := (← getNGen)
   }
   let infos := infos.erase 1 -- remove highlight for entire expression in popups
   return tagExprInfos ctx infos tt

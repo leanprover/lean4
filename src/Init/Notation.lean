@@ -599,6 +599,8 @@ syntax (name := fail) "fail " (str)? : tactic
 
 syntax (name := checkpoint) "checkpoint " tacticSeq : tactic
 
+macro (name := save) "save" : tactic => `(skip)
+
 end Tactic
 
 namespace Attr

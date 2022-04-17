@@ -24,9 +24,43 @@ open Meta
 @[builtinTactic paren] def evalParen : Tactic := fun stx =>
   evalTactic stx[1]
 
+def isCheckpointableTactic (arg : Syntax) : TacticM Bool := do
+  -- TODO: make it parametric
+  let kind := arg.getKind
+  return kind == ``Lean.Parser.Tactic.save
+
+partial def addCheckpoints (args : Array Syntax) : TacticM (Array Syntax) := do
+  -- if (← readThe Term.Context).tacticCache? |>.isSome then
+  if (← args.anyM fun arg => isCheckpointableTactic arg[0]) then
+    let argsNew ← go 0 #[] #[]
+    return argsNew
+  return args
+where
+  push (acc : Array Syntax) (result : Array Syntax) : Array Syntax :=
+    if acc.isEmpty then
+      result
+    else
+      let ref := acc.back
+      let accSeq := mkNode ``Lean.Parser.Tactic.tacticSeq1Indented #[mkNullNode acc]
+      let checkpoint := mkNode ``Lean.Parser.Tactic.checkpoint #[mkAtomFrom ref "checkpoint", accSeq]
+      result.push (mkNode groupKind #[checkpoint, mkNullNode])
+
+  go (i : Nat) (acc : Array Syntax) (result : Array Syntax) : TacticM (Array Syntax) := do
+    if h : i < args.size then
+      let arg := args.get ⟨i, h⟩
+      if (← isCheckpointableTactic arg[0]) then
+        -- `argNew` is `arg` as singleton sequence. The idea is to make sure it does not satisfy `isCheckpointableTactic` anymore
+        let argNew := arg.setArg 0 (mkNullNode #[arg[0]])
+        let acc := acc.push argNew
+        go (i+1) #[] (push acc result)
+      else
+        go (i+1) (acc.push arg) result
+    else
+      return result ++ acc
+
 /- Evaluate `many (group (tactic >> optional ";")) -/
 def evalManyTacticOptSemi (stx : Syntax) : TacticM Unit := do
-  stx.forArgsM fun seqElem => do
+  for seqElem in (← addCheckpoints stx.getArgs) do
     evalTactic seqElem[0]
     saveTacticInfoForToken seqElem[1] -- add TacticInfo node for `;`
 

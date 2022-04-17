@@ -1119,11 +1119,14 @@ private def isTypeAscription (stx : Syntax) : Bool :=
   | `(($e : $type)) => true
   | _               => false
 
-def mkNoImplicitLambdaAnnotation (type : Expr) : Expr :=
-  mkAnnotation `noImplicitLambda type
-
 def hasNoImplicitLambdaAnnotation (type : Expr) : Bool :=
   annotation? `noImplicitLambda type |>.isSome
+
+def mkNoImplicitLambdaAnnotation (type : Expr) : Expr :=
+  if hasNoImplicitLambdaAnnotation type then
+    type
+  else
+    mkAnnotation `noImplicitLambda type
 
 /-- Block usage of implicit lambdas if `stx` is `@f` or `@f arg1 ...` or `fun` with an implicit binder annotation. -/
 def blockImplicitLambda (stx : Syntax) : Bool :=

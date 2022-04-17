@@ -125,8 +125,8 @@ structure CacheKey where
   deriving BEq, Hashable, Inhabited
 
 structure Cache where
-   pre  : Std.HashMap CacheKey Snapshot := {}
-   post : Std.HashMap CacheKey Snapshot := {}
+   pre  : Std.PHashMap CacheKey Snapshot := {}
+   post : Std.PHashMap CacheKey Snapshot := {}
    deriving Inhabited
 
 end Tactic

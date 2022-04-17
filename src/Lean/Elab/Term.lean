@@ -119,9 +119,14 @@ structure Snapshot where
   stx    : Syntax
   deriving Inhabited
 
+structure CacheKey where
+  mvarId : MVarId -- TODO: should include all goals
+  pos    : String.Pos
+  deriving BEq, Hashable, Inhabited
+
 structure Cache where
-   pre  : Std.HashMap MVarId Snapshot := {}
-   post : Std.HashMap MVarId Snapshot := {}
+   pre  : Std.HashMap CacheKey Snapshot := {}
+   post : Std.HashMap CacheKey Snapshot := {}
    deriving Inhabited
 
 end Tactic

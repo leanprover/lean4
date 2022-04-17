@@ -1,6 +1,25 @@
 Unreleased
 ---------
 
+* Add `save` tactic for creating checkpoints more conveniently. Example:
+```lean
+example : <some-proposition> := by
+  tac_1
+  tac_2
+  save
+  tac_3
+  ...
+```
+is equivalent to
+```lean
+example : <some-proposition> := by
+  checkpoint
+    tac_1
+    tac_2
+  tac_3
+  ...
+```
+
 * Remove support for `{}` annotation from inductive datatype contructors. This annotation was barely used, and we can control the binder information for parameter bindings using the new inductive family indices to parameter promotion. Example: the following declaration using `{}`
 ```lean
 inductive LE' (n : Nat) : Nat → Prop where

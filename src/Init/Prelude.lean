@@ -1841,7 +1841,9 @@ inductive Syntax where
   | atom   (info : SourceInfo) (val : String) : Syntax
   | ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List (Prod Name (List String))) : Syntax
 
-structure TSyntax (k : SyntaxNodeKind) where
+def SyntaxNodeKinds := List SyntaxNodeKind
+
+structure TSyntax (ks : SyntaxNodeKinds) where
   raw : Syntax
 
 instance : Inhabited Syntax where
@@ -1967,19 +1969,28 @@ partial def getTailPos? (stx : Syntax) (originalOnly := false) : Option String.P
     loop 0
   | _, _ => none
 
-structure TSyntaxArray (kind : SyntaxNodeKind) where
-  raw : Array Syntax
-
 /--
   An array of syntax elements interspersed with separators. Can be coerced to/from `Array Syntax` to automatically
   remove/insert the separators. -/
 structure SepArray (sep : String) where
   elemsAndSeps : Array Syntax
 
-structure TSepArray (kind : SyntaxNodeKind) (sep : String) where
+structure TSepArray (ks : SyntaxNodeKinds) (sep : String) where
   elemsAndSeps : Array Syntax
 
 end Syntax
+
+abbrev TSyntaxArray (ks : SyntaxNodeKinds) := Array (TSyntax ks)
+
+unsafe def TSyntaxArray.rawImpl : TSyntaxArray ks → Array Syntax := unsafeCast
+
+@[implementedBy TSyntaxArray.rawImpl]
+opaque TSyntaxArray.raw (as : TSyntaxArray ks) : Array Syntax := Array.empty
+
+unsafe def TSyntaxArray.mkImpl : Array Syntax → TSyntaxArray ks := unsafeCast
+
+@[implementedBy TSyntaxArray.mkImpl]
+opaque TSyntaxArray.mk (as : Array Syntax) : TSyntaxArray ks := Array.empty
 
 def SourceInfo.fromRef (ref : Syntax) : SourceInfo :=
   match ref.getPos?, ref.getTailPos? with

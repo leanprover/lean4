@@ -15,7 +15,7 @@ register_builtin_option hygiene : Bool := {
 
 def getAntiquotationIds (stx : Syntax) : TermElabM (Array Syntax) := do
   let mut ids := #[]
-  for stx in stx.topDown do
+  for stx in stx.topDown (firstChoiceOnly := true) do
     if (isAntiquot stx || isTokenAntiquot stx) && !isEscapedAntiquot stx then
       let anti := getAntiquotTerm stx
       if anti.isIdent then ids := ids.push anti

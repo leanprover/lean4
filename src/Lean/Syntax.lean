@@ -383,6 +383,15 @@ def isAntiquot : Syntax → Bool
   | Syntax.node _ (Name.str _ "antiquot" _) _ => true
   | _                                         => false
 
+def isAntiquots (stx : Syntax) : Bool :=
+  stx.isAntiquot || (stx.isOfKind choiceKind && stx.getNumArgs > 0 && stx.getArgs.all isAntiquot)
+
+def getCanonicalAntiquot (stx : Syntax) : Syntax :=
+  if stx.isOfKind choiceKind then
+    stx[0]
+  else
+    stx
+
 def mkAntiquotNode (kind : Name) (term : Syntax) (nesting := 0) (name : Option String := none) (isPseudoKind := false) : Syntax :=
   let nesting := mkNullNode (mkArray nesting (mkAtom "$"))
   let term :=
@@ -419,6 +428,14 @@ def antiquotKind? : Syntax → Option (SyntaxNodeKind × Bool)
   | Syntax.node _ (Name.str (Name.str k "pseudo" _) "antiquot" _) args => (k, true)
   | Syntax.node _ (Name.str k                       "antiquot" _) args => (k, false)
   | _                                                                  => none
+
+def antiquotKinds (stx : Syntax) : List (SyntaxNodeKind × Bool) :=
+  if stx.isOfKind choiceKind then
+    stx.getArgs.filterMap antiquotKind? |>.toList
+  else
+    match antiquotKind? stx with
+    | some stx => [stx]
+    | none     => []
 
 -- An "antiquotation splice" is something like `$[...]?` or `$[...]*`.
 def antiquotSpliceKind? : Syntax → Option SyntaxNodeKind

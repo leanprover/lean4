@@ -601,6 +601,9 @@ syntax (name := checkpoint) "checkpoint " tacticSeq : tactic
 
 macro (name := save) "save" : tactic => `(skip)
 
+/-- The tactic `sleep ms` sleeps for `ms` milliseconds and does nothing. It is used for debugging purposes only. -/
+syntax (name := sleep) "sleep" num : tactic
+
 end Tactic
 
 namespace Attr

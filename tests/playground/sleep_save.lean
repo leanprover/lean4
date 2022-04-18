@@ -29,4 +29,9 @@ example (h₁ : p ∨ q) (h₂ : p → x = 0) (h₃ : q → y = 0) : x * y = 0 :
     save
     have : y = 0 := h₃ h
     simp [*]
-  | inl h => stop done
+  | inl h => stop
+    expensive_tactic
+    save
+    have : x = 0 := h₂ h
+    simp [*]
+    done

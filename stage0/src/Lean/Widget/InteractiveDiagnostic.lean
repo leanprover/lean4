@@ -123,12 +123,13 @@ where
   | _,    none,      ofExpr e                 => return format (toString e)
   | nCtx, some ctx,  ofExpr e                 => do
     let ci : Elab.ContextInfo := {
-      env := ctx.env
-      mctx := ctx.mctx
-      fileMap := default
-      options := ctx.opts
+      env           := ctx.env
+      mctx          := ctx.mctx
+      fileMap       := default
+      options       := ctx.opts
       currNamespace := nCtx.currNamespace
-      openDecls := nCtx.openDecls
+      openDecls     := nCtx.openDecls
+      ngen          := { namePrefix := `_diag } -- Hack: to make sure unique ids created at `formatInfos` do not collide with ones in `ctx.mctx`
     }
     let (fmt, infos) ← ci.runMetaM ctx.lctx (formatInfos e)
     let t ← pushEmbed <| EmbedFmt.expr ci infos

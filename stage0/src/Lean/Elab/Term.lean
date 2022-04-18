@@ -119,9 +119,14 @@ structure Snapshot where
   stx    : Syntax
   deriving Inhabited
 
+structure CacheKey where
+  mvarId : MVarId -- TODO: should include all goals
+  pos    : String.Pos
+  deriving BEq, Hashable, Inhabited
+
 structure Cache where
-   pre  : Std.HashMap MVarId Snapshot := {}
-   post : Std.HashMap MVarId Snapshot := {}
+   pre  : Std.PHashMap CacheKey Snapshot := {}
+   post : Std.PHashMap CacheKey Snapshot := {}
    deriving Inhabited
 
 end Tactic
@@ -1119,11 +1124,14 @@ private def isTypeAscription (stx : Syntax) : Bool :=
   | `(($e : $type)) => true
   | _               => false
 
-def mkNoImplicitLambdaAnnotation (type : Expr) : Expr :=
-  mkAnnotation `noImplicitLambda type
-
 def hasNoImplicitLambdaAnnotation (type : Expr) : Bool :=
   annotation? `noImplicitLambda type |>.isSome
+
+def mkNoImplicitLambdaAnnotation (type : Expr) : Expr :=
+  if hasNoImplicitLambdaAnnotation type then
+    type
+  else
+    mkAnnotation `noImplicitLambda type
 
 /-- Block usage of implicit lambdas if `stx` is `@f` or `@f arg1 ...` or `fun` with an implicit binder annotation. -/
 def blockImplicitLambda (stx : Syntax) : Bool :=

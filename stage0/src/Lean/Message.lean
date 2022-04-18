@@ -25,7 +25,7 @@ inductive MessageSeverity where
   deriving Inhabited, BEq
 
 structure MessageDataContext where
-  env : Environment
+  env  : Environment
   mctx : MetavarContext
   lctx : LocalContext
   opts : Options

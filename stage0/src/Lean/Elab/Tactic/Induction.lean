@@ -173,7 +173,10 @@ private def getAltNumFields (elimInfo : ElimInfo) (altName : Name) : TermElabM N
   throwError "unknown alternative name '{altName}'"
 
 private def checkAltNames (alts : Array (Name × MVarId)) (altsSyntax : Array Syntax) : TacticM Unit :=
-  for altStx in altsSyntax do
+  for i in [:altsSyntax.size] do
+    let altStx := altsSyntax[i]
+    if getAltName altStx == `_ && i != altsSyntax.size - 1 then
+      withRef altStx <| throwError "invalid occurrence of wildcard alternative, it must be the last alternative"
     let altName := getAltName altStx
     if altName != `_ then
       unless alts.any fun (n, _) => n == altName do
@@ -199,6 +202,39 @@ private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Ar
           Term.addLocalVarInfo altVars[i] (mkFVar fvarId)
           i := i + 1
 
+/--
+  If `altsSyntax` is not empty we reorder `alts` using the order the alternatives have been provided
+  in `altsSyntax`. Motivations:
+
+  1- It improves the effectiveness of the `checkpoint` and `save` tactics. Consider the following example:
+  ```lean
+  example (h₁ : p ∨ q) (h₂ : p → x = 0) (h₃ : q → y = 0) : x * y = 0 := by
+    cases h₁ with
+    | inr h =>
+      sleep 5000 -- sleeps for 5 seconds
+      save
+      have : y = 0 := h₃ h
+      -- We can confortably work here
+    | inl h => stop ...
+  ```
+  If we do reorder, the `inl` alternative will be executed first. Moreover, as we type in the `inr` alternative,
+  type errors will "swallow" the `inl` alternative and affect the tactic state at `save` making it ineffective.
+
+  2- The errors are produced in the same order the appear in the code above. This is not super important when using IDEs.
+-/
+def reorderAlts (alts : Array (Name × MVarId)) (altsSyntax : Array Syntax) : Array (Name × MVarId) := Id.run do
+  if altsSyntax.isEmpty then
+    return alts
+  else
+    let mut alts := alts
+    let mut result := #[]
+    for altStx in altsSyntax do
+      let altName := getAltName altStx
+      let some i := alts.findIdx? (·.1 == altName) | return result ++ alts
+      result := result.push alts[i]
+      alts := alts.eraseIdx i
+    return result ++ alts
+
 def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (optPreTac : Syntax) (altsSyntax : Array Syntax)
     (initialInfo : Info)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[]) : TacticM Unit := do
@@ -210,6 +246,7 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array (Name × MVarId)) (optPreTac : 
   else go
 where
   go := do
+    let alts := reorderAlts alts altsSyntax
     let hasAlts := altsSyntax.size > 0
     let mut usedWildcard := false
     let mut subgoals := #[] -- when alternatives are not provided, we accumulate subgoals here
@@ -385,6 +422,8 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
     return exprs
 
 @[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focus do
+  let optInductionAlts := stx[4]
+  let alts := getAltsOfOptInductionAlts optInductionAlts
   let targets ← withMainContext <| stx[1].getSepArgs.mapM (elabTerm · none)
   let targets ← generalizeTargets targets
   let (elimName, elimInfo) ← getElimNameInfo stx[2] targets (induction := true)
@@ -404,9 +443,7 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
       let elimArgs := result.elimApp.getAppArgs
       let motiveType ← inferType elimArgs[elimInfo.motivePos]
       ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetFVarIds
-      let optInductionAlts := stx[4]
       let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
-      let alts := getAltsOfOptInductionAlts optInductionAlts
       assignExprMVar mvarId result.elimApp
       ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo (numGeneralized := n) (toClear := targetFVarIds)
       appendGoals result.others.toList

@@ -128,17 +128,22 @@ def compileNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidget
     return endSnap
   else
     let cmdStateRef ← IO.mkRef { snap.cmdState with messages := msgLog }
+    /- The same snapshot may be executed by different tasks. So, to make sure `elabCommandTopLevel` has exclusive
+       access to the cache, we create a fresh reference here. Before this change, the
+       following `snap.tacticCache.modify` would reset the tactic post cache while another snapshot was still using it. -/
+    let tacticCacheNew ← IO.mkRef (← snap.tacticCache.get)
     let cmdCtx : Elab.Command.Context := {
       cmdPos       := snap.endPos
       fileName     := inputCtx.fileName
       fileMap      := inputCtx.fileMap
-      tacticCache? := some snap.tacticCache
+      tacticCache? := some tacticCacheNew
     }
     let (output, _) ← IO.FS.withIsolatedStreams <| liftM (m := BaseIO) do
       Elab.Command.catchExceptions
         (getResetInfoTrees *> Elab.Command.elabCommandTopLevel cmdStx)
         cmdCtx cmdStateRef
-    snap.tacticCache.modify fun { pre, post } => { pre := post, post := {} }
+    let postNew := (← tacticCacheNew.get).post
+    snap.tacticCache.modify fun { pre, post } => { pre := postNew, post := {} }
     let mut postCmdState ← cmdStateRef.get
     if !output.isEmpty then
       postCmdState := {

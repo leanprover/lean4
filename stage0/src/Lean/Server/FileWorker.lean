@@ -221,8 +221,9 @@ section Initialization
     let cmdState := { cmdState with infoState := {
       enabled := true
       trees := #[Elab.InfoTree.context ({
-        env := headerEnv
+        env     := headerEnv
         fileMap := m.text
+        ngen    := { namePrefix := `_worker }
       }) (Elab.InfoTree.node
           (Elab.Info.ofCommandInfo { elaborator := `header, stx := headerStx })
           (headerStx[1].getArgs.toList.map (fun importStx =>

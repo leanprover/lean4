@@ -1012,20 +1012,23 @@ structure Config where
   proj              : Bool := true
   decide            : Bool := true
   arith             : Bool := false
+  autoUnfold        : Bool := false
   deriving Inhabited, BEq, Repr
 
 -- Configuration object for `simp_all`
 structure ConfigCtx extends Config where
   contextual := true
 
-def neutralConfig : Simp.Config :=
-  { zeta              := false
-    beta              := false
-    eta               := false
-    iota              := false
-    proj              := false
-    decide            := false
-    arith             := false }
+def neutralConfig : Simp.Config := {
+  zeta              := false
+  beta              := false
+  eta               := false
+  iota              := false
+  proj              := false
+  decide            := false
+  arith             := false
+  autoUnfold        := false
+}
 
 end Simp
 
@@ -1044,29 +1047,29 @@ namespace Parser.Tactic
 macro "erw " s:rwRuleSeq loc:(location)? : tactic =>
   `(rw (config := { transparency := Lean.Meta.TransparencyMode.default }) $s:rwRuleSeq $[$loc:location]?)
 
-/-- Similar to `simp` but with `arith := true` -/
-syntax (name := simpArith) "simp_arith " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
+macro "declare_simp_like_tactic" opt:(("(" &"all " " := " &"true" ")")?) tacName:ident tacToken:str updateCfg:term : command => do
+  let (kind, tkn, stx) ←
+    if opt.isNone then
+      pure (← `(``simp), ← `("simp "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic))
+    else
+      pure (← `(``simpAll), ← `("simp_all "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic))
+  `($stx:command
+    @[macro $tacName:ident] def expandSimp : Macro := fun s => do
+      let c ← match s[1][0] with
+        | `(config| (config := $$c:term)) => `(config| (config := $updateCfg:term $$c))
+        | _ => `(config| (config := $updateCfg:term {}))
+      let s := s.setKind $kind:term
+      let s := s.setArg 0 (mkAtomFrom s[0] $tkn:term)
+      let r := s.setArg 1 (mkNullNode #[c])
+      return r)
 
-@[macro simpArith] def expandSimpArith : Macro := fun s => do
-  let c ← match s[1][0] with
-    | `(config| (config := $c:term)) => `(config| (config := { ($c : Lean.Meta.Simp.Config) with arith := true }))
-    | _ => `(config| (config := { arith := true }))
-  let s := s.setKind ``simp
-  let s := s.setArg 0 (mkAtomFrom s[0] "simp")
-  let r := s.setArg 1 (mkNullNode #[c])
-  return r
+declare_simp_like_tactic simpAutoUnfold "simp! " fun (c : Lean.Meta.Simp.Config) => { c with autoUnfold := true }
+declare_simp_like_tactic simpArith "simp_arith " fun (c : Lean.Meta.Simp.Config) => { c with arith := true }
+declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " fun (c : Lean.Meta.Simp.Config) => { c with arith := true, autoUnfold := true }
 
-/-- Similar to `simp_all` but with `arith := true` -/
-syntax (name := simpAllArith) "simp_all_arith " (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
-
-@[macro simpAllArith] def expandSimpAllArith : Macro := fun s => do
-  let c ← match s[1][0] with
-    | `(config| (config := $c:term)) => `(config| (config := { ($c : Lean.Meta.Simp.ConfigCtx) with arith := true }))
-    | _ => `(config| (config := { arith := true }))
-  let s := s.setKind ``simpAll
-  let s := s.setArg 0 (mkAtomFrom s[0] "simp_all")
-  let r := s.setArg 1 (mkNullNode #[c])
-  return r
+declare_simp_like_tactic (all := true) simpAllAutoUnfold "simp_all! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with autoUnfold := true }
+declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true }
+declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true, autoUnfold := true }
 
 end Parser.Tactic
 

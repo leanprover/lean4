@@ -16,9 +16,11 @@ macro "declare_config_elab" elabName:ident type:ident : command =>
      if optConfig.isNone then
        return { : $type }
      else
-       withoutModifyingState <| withLCtx {} {} <| withSaveInfoContext <| Term.withSynthesize do
+       let c ← withoutModifyingState <| withLCtx {} {} <| withSaveInfoContext <| Term.withSynthesize do
          let c ← Term.elabTermEnsuringType optConfig[0][3] (Lean.mkConst ``$type)
-         eval (← instantiateMVars c)
+         Term.synthesizeSyntheticMVarsNoPostponing
+         instantiateMVars c
+       eval c
   )
 
 end Lean.Elab.Tactic

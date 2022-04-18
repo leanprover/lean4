@@ -1,15 +1,15 @@
-690.lean:4:12-4:17: warning: declaration uses 'sorry'
 690.lean:3:2-3:29: error: too many variable names provided at alternative 'step', #3 provided, but #2 expected
 690.lean:3:24-3:29: warning: declaration uses 'sorry'
-690.lean:9:12-9:17: warning: declaration uses 'sorry'
+690.lean:4:12-4:17: warning: declaration uses 'sorry'
 690.lean:8:34-8:39: warning: declaration uses 'sorry'
+690.lean:9:12-9:17: warning: declaration uses 'sorry'
 case step
 a b m✝ : Nat
 hStep : Nat.le a m✝
 ih : Nat.le a (m✝ + 1)
 ⊢ Nat.le a (Nat.succ m✝ + 1)
-690.lean:14:12-14:17: warning: declaration uses 'sorry'
 690.lean:13:37-13:42: warning: declaration uses 'sorry'
+690.lean:14:12-14:17: warning: declaration uses 'sorry'
 case step
 a b x : Nat
 hStep : Nat.le a x

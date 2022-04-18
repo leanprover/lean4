@@ -173,7 +173,10 @@ private def getAltNumFields (elimInfo : ElimInfo) (altName : Name) : TermElabM N
   throwError "unknown alternative name '{altName}'"
 
 private def checkAltNames (alts : Array (Name × MVarId)) (altsSyntax : Array Syntax) : TacticM Unit :=
-  for altStx in altsSyntax do
+  for i in [:altsSyntax.size] do
+    let altStx := altsSyntax[i]
+    if getAltName altStx == `_ && i != altsSyntax.size - 1 then
+      withRef altStx <| throwError "invalid occurrence of wildcard alternative, it must be the last alternative"
     let altName := getAltName altStx
     if altName != `_ then
       unless alts.any fun (n, _) => n == altName do
@@ -385,6 +388,8 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
     return exprs
 
 @[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focus do
+  let optInductionAlts := stx[4]
+  let alts := getAltsOfOptInductionAlts optInductionAlts
   let targets ← withMainContext <| stx[1].getSepArgs.mapM (elabTerm · none)
   let targets ← generalizeTargets targets
   let (elimName, elimInfo) ← getElimNameInfo stx[2] targets (induction := true)
@@ -404,9 +409,7 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
       let elimArgs := result.elimApp.getAppArgs
       let motiveType ← inferType elimArgs[elimInfo.motivePos]
       ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetFVarIds
-      let optInductionAlts := stx[4]
       let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
-      let alts := getAltsOfOptInductionAlts optInductionAlts
       assignExprMVar mvarId result.elimApp
       ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo (numGeneralized := n) (toClear := targetFVarIds)
       appendGoals result.others.toList

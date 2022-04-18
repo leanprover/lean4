@@ -141,7 +141,10 @@ private def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool)
             thms := thms.eraseCore arg[1].getId
           else
             let declName ← resolveGlobalConstNoOverloadWithInfo arg[1]
-            thms ← thms.erase declName
+            if ctx.config.autoUnfold then
+              thms := thms.eraseCore declName
+            else
+              thms ← thms.erase declName
         else if arg.getKind == ``Lean.Parser.Tactic.simpLemma then
           let post :=
             if arg[0].isNone then

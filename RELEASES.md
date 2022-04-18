@@ -1,6 +1,29 @@
 Unreleased
 ---------
 
+* Add `autoUnfold` option to `Lean.Meta.Simp.Config`, and the following macros
+  - `simp!` for `simp (config := { autoUnfold := true })`
+  - `simp_arith!` for `simp (config := { autoUnfold := true, arith := true })`
+  - `simp_all!` for `simp_all (config := { autoUnfold := true })`
+  - `simp_all_arith!` for `simp_all (config := { autoUnfold := true, arith := true })`
+  When the `autoUnfold` is set to true, `simp` tries to unfold the following kinds of definition
+  - Recursive definitions defined by structural recursion.
+  - Non-recursive definitions where the body is a `match`-expression. This
+    kind of definition is only unfolded if the `match` can be reduced.
+  Example:
+  ```lean
+  def append (as bs : List α) : List α :=
+    match as with
+    | [] => bs
+    | a :: as => a :: append as bs
+
+  theorem append_nil (as : List α) : append as [] = as := by
+    induction as <;> simp_all!
+
+  theorem append_assoc (as bs cs : List α) : append (append as bs) cs = append as (append bs cs) := by
+    induction as <;> simp_all!
+  ```
+
 * Add `save` tactic for creating checkpoints more conveniently. Example:
 ```lean
 example : <some-proposition> := by

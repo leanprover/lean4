@@ -591,6 +591,12 @@ private def mkAuxConstructions (views : Array InductiveView) : TermElabM Unit :=
 private def getArity (indType : InductiveType) : MetaM Nat :=
   forallTelescopeReducing indType.type fun xs _ => return xs.size
 
+private def resetMaskAt (mask : Array Bool) (i : Nat) : Array Bool :=
+  if h : i < mask.size then
+    mask.set ⟨i, h⟩ false
+  else
+    mask
+
 /--
   Compute a bit-mask that for `indType`. The size of the resulting array `result` is the arity of `indType`.
   The first `numParams` elements are `false` since they are parameters.
@@ -619,10 +625,10 @@ private def computeFixedIndexBitMask (numParams : Nat) (indType : InductiveType)
                 let eArgs := e.getAppArgs
                 for i in [numParams:eArgs.size] do
                   if i >= typeArgs.size then
-                    maskRef.modify fun mask => mask.set! i false
+                    maskRef.modify (resetMaskAt · i)
                   else
                     unless eArgs[i] == typeArgs[i] do
-                      maskRef.modify fun mask => mask.set! i false
+                      maskRef.modify (resetMaskAt · i)
         go ctors
     go indType.ctors
 

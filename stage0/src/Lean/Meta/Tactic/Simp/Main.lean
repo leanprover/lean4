@@ -94,6 +94,25 @@ private def reduceFVar (cfg : Config) (e : Expr) : MetaM Expr := do
   else
     return e
 
+/--
+  Return true if `declName` is the name of a definition of the form
+  ```
+  def declName ... :=
+    match ... with
+    | ...
+  ```
+-/
+private partial def isMatchDef (declName : Name) : CoreM Bool := do
+  let .defnInfo info ← getConstInfo declName | return false
+  return go (← getEnv) info.value
+where
+  go (env : Environment) (e : Expr) : Bool :=
+    if e.isLambda then
+      go env e.bindingBody!
+    else
+      let f := e.getAppFn
+      f.isConst && isMatcherCore env f.constName!
+
 private def unfold? (e : Expr) : SimpM (Option Expr) := do
   let f := e.getAppFn
   if !f.isConst then
@@ -101,7 +120,19 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
   let fName := f.constName!
   if (← isProjectionFn fName) then
     return none -- should be reduced by `reduceProjFn?`
-  if (← read).isDeclToUnfold e.getAppFn.constName! then
+  let ctx ← read
+  if ctx.config.autoUnfold then
+    if ctx.simpTheorems.isErased fName then
+      return none
+    else if hasSmartUnfoldingDecl (← getEnv) fName then
+      withDefault <| unfoldDefinition? e
+    else if (← isMatchDef fName) then
+      let some value ← withDefault <| unfoldDefinition? e | return none
+      let .reduced value ← reduceMatcher? value | return none
+      return some value
+    else
+      return none
+  else if ctx.isDeclToUnfold fName then
     withDefault <| unfoldDefinition? e
   else
     return none

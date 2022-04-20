@@ -289,7 +289,7 @@ where
       <|>
       (substSomeVar mvarId)
       <|>
-      (throwError "failed to generate equality theorems for `match` expression\n{MessageData.ofGoal mvarId}")
+      (throwError "failed to generate equality theorems for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go · (depth+1))
 
 

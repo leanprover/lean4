@@ -1,4 +1,4 @@
-## Arithmetic as an embedded domain-specific language
+# Arithmetic as an embedded domain-specific language
 
 Let's parse another classic grammar, the grammar of arithmetic expressions with
 addition, multiplication, integers, and variables.  In the process, we'll learn

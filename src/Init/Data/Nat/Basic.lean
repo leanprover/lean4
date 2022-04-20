@@ -351,6 +351,12 @@ theorem ge_of_not_lt {n m : Nat} (h : ¬ n < m) : n ≥ m :=
   | Or.inl h₁ => absurd h₁ h
   | Or.inr h₁ => h₁
 
+instance : Antisymm ( . ≤ . : Nat → Nat → Prop) where
+  antisymm h₁ h₂ := Nat.le_antisymm h₁ h₂
+
+instance : Antisymm (¬ . < . : Nat → Nat → Prop) where
+  antisymm h₁ h₂ := Nat.le_antisymm (Nat.ge_of_not_lt h₂) (Nat.ge_of_not_lt h₁)
+
 protected theorem add_le_add_left {n m : Nat} (h : n ≤ m) (k : Nat) : k + n ≤ k + m :=
   match le.dest h with
   | ⟨w, hw⟩ =>

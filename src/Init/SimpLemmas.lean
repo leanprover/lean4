@@ -158,3 +158,6 @@ theorem dite_congr {s : Decidable b} [Decidable c]
 
 @[simp] theorem Nat.le_zero_eq (a : Nat) : (a ≤ 0) = (a = 0) :=
   propext <| Iff.intro (fun h => Nat.le_antisymm h (Nat.zero_le ..)) (fun h => by simp [h])
+
+@[simp] theorem decide_False : decide False = false := rfl
+@[simp] theorem decide_True : decide True = true := rfl

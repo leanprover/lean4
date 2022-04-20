@@ -37,7 +37,7 @@
   - [Macro Overview](./macro_overview.md)
   - [Examples](./syntax_examples.md)
     - [Parenthesized Terms](./syntax_example.md)
-    - [Arithmetic DSL](./tutorial/metaprogramming-arith.md)
+    - [Arithmetic DSL](./metaprogramming-arith.md)
 - [Declaring New Types](./decltypes.md)
   - [Enumerated Types](./enum.md)
   - [Inductive Types](./inductive.md)

@@ -139,17 +139,18 @@ Let's test and see that we can now write expressions such as `x * y` directly in
 ```lean,ignore
 #check `[Arith| x ] -- Arith.symbol "x"
 
-#check `[Arith| x + y] -- Arith.add (Arith.symbol "x") (Arith.symbol "y")
+def xPlusY := `[Arith| x + y]
+#check xPlusY -- Arith.add (Arith.symbol "x") (Arith.symbol "y")
 ```
 
-We now show an unfortunate consequence of the above definitions. Suppose we want to build `(x + y) + z)`.
-Since we already have defined `x_plus_y` as `x + y`, perhaps we should reuse it! Let's try:
+We now show an unfortunate consequence of the above definitions. Suppose we want to build `(x + y) + z`.
+Since we already have defined `xPlusY` as `x + y`, perhaps we should reuse it! Let's try:
 
 ```lean,ignore
-#check `[Arith| x_plus_y + z] --Arith.add (Arith.symbol "x_plus_y") (Arith.symbol "z")
+#check `[Arith| xPlusY + z] -- Arith.add (Arith.symbol "xPlusY") (Arith.symbol "z")
 ```
 
-Whoops, that didn't work! What happened? Lean treats `x_plus_y` _itself_ as an identifier! So we need to add some syntax
+Whoops, that didn't work! What happened? Lean treats `xPlusY` _itself_ as an identifier! So we need to add some syntax
 to be able to "escape" the `Arith|` context. Let's use the syntax `<[ $e:term ]>` to mean: evaluate `$e` as a real term,
 not an identifier. The macro looks like follows:
 
@@ -163,7 +164,7 @@ macro_rules
 Let's try our previous example:
 
 ```lean,ignore
-#check `[Arith| <[ x_plus_y ]>] -- x_plus_y
+#check `[Arith| <[ xPlusY ]> + z] -- Arith.add xPlusY (Arith.symbol "z")
 ```
 
 Perfect!
@@ -175,71 +176,6 @@ within a macro, and how to provide an escape from within the macro context.
 #### Full code listing
 
 ```lean
--- example on parsing arith language via macros
-inductive Arith: Type
-  | add : Arith → Arith → Arith -- e + f
-  | mul : Arith → Arith → Arith -- e * f
-  | int : Int → Arith -- constant
-  | symbol : String → Arith -- variable
-
-declare_syntax_cat arith
-
-syntax num : arith -- int for Arith.int
-syntax str : arith -- strings for Arith.symbol
-syntax:60  arith:60 "+" arith:61 : arith -- Arith.add
-syntax:70 arith:70 "*" arith:71 : arith -- Arith.mul
-syntax "(" arith ")" : arith -- bracketed expressions
-
--- auxiliary notation for translating `arith` into `term`
-syntax "`[Arith| " arith "]" : term
-
-macro_rules
-  | `(`[Arith| $s:strLit ]) => `(Arith.symbol $s )
-  | `(`[Arith| $num:numLit ]) => `(Arith.int $num )
-  | `(`[Arith| $x:arith + $y:arith ]) => `(Arith.add `[Arith| $x] `[Arith| $y] )
-  | `(`[Arith| $x:arith * $y:arith ]) => `(Arith.mul `[Arith| $x] `[Arith| $y] )
-  | `(`[Arith| ($x:arith) ]) => `(`[Arith| $x ])
-
-def foo := 
-#check `[Arith| "x" * "y" ] -- mul
--- Arith.mul (Arith.symbol "x") (Arith.symbol "y")
-
-def bar := 
-#check `[Arith| "x" + "y"] -- add
--- Arith.add (Arith.symbol "x") (Arith.symbol "y")
-
-def baz := 
-#check `[Arith| "x" + 20] -- symbol + int
--- Arith.add (Arith.symbol "x") (Arith.int 20)
-
-def quux_left := 
-#check `[Arith| "x" + "y" * "z" ] -- precedence
--- Arith.add (Arith.symbol "x") (Arith.mul (Arith.symbol "y") (Arith.symbol "z"))
-
-def quux_right := 
-#check `[Arith| "x" * "y" + "z"] -- precedence
--- Arith.add (Arith.mul (Arith.symbol "x") (Arith.symbol "y")) (Arith.symbol "z")
-
-
-def quuz := 
-#check `[Arith| ("x" + "y") * "z"] -- brackets
--- Arith.mul (Arith.add (Arith.symbol "x") (Arith.symbol "y")) (Arith.symbol "z")
-
-syntax ident : arith
-
-macro_rules
-  | `(`[Arith| $x:ident]) => `(Arith.symbol $(Lean.quote (toString x.getId)))
-
-#check `[Arith| x ] -- Arith.symbol "x"
-#check `[Arith| x + y] -- Arith.add (Arith.symbol "x") (Arith.symbol "y")
-#check `[Arith| x_plus_y + z] -- Arith.add (Arith.symbol "x_plus_y") (Arith.symbol "z")
-
-syntax "<[" term "]>" : arith -- escape for embedding terms into `Arith`
- 
-macro_rules
-  | `(`[Arith| <[ $e:term ]> ]) => e
-  
-
-#check `[Arith| <[ x_plus_y ]>] -- x_plus_y
+{{#include metaprogramming-arith.lean}}
 ```
 

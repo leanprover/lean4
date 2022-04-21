@@ -4,6 +4,7 @@ structure Env (α : Type u) where
   ofInt : Int → α
   add : α → α → α
   mul : α → α → α
+  sub : α → α → α
   add_comm  : ∀ a b, add a b = add b a
   add_assoc : ∀ a b c, add (add a b) c = add a (add b c)
   add_zero  : ∀ a, add a (ofInt 0) = a
@@ -11,6 +12,7 @@ structure Env (α : Type u) where
   mul_assoc : ∀ a b c, mul (mul a b) c = mul a (mul b c)
   mul_one   : ∀ a, mul a (ofInt 1) = a
   mul_zero  : ∀ a, mul a (ofInt 0) = ofInt 0
+  sub_def   : ∀ a b, sub a b = add a (mul (ofInt (-1)) b)
   left_dist : ∀ a b c, mul a (add b c) = add (mul a b) (mul a c)
   ofInt_add : ∀ k₁ k₂, ofInt (k₁ + k₂) = add (ofInt k₁) (ofInt k₂)
   ofInt_mul : ∀ k₁ k₂, ofInt (k₁ * k₂) = mul (ofInt k₁) (ofInt k₂)
@@ -51,6 +53,7 @@ inductive Expr where
   | var (v : Var)
   | add (a b : Expr)
   | mul (a b : Expr)
+  | sub (a b : Expr)
   deriving Inhabited
 
 def Expr.denote (ctx : Context α) : Expr → α
@@ -58,6 +61,7 @@ def Expr.denote (ctx : Context α) : Expr → α
   | var v   => v.denote ctx
   | add a b => ctx.add (a.denote ctx) (b.denote ctx)
   | mul a b => ctx.mul (a.denote ctx) (b.denote ctx)
+  | sub a b => ctx.sub (a.denote ctx) (b.denote ctx)
 
 abbrev Mon := List Var
 
@@ -122,12 +126,17 @@ where
     | [] => acc
     | (k, m) :: p₁ => go p₁ (acc.add (p₂.mulMon k m))
 
-def Expr.toPoly : Expr → Poly
-  | Expr.num k   => bif k == 0 then [] else [(k, [])]
-  | Expr.var v   => [(1, [v])]
-  | Expr.add a b => a.toPoly.add b.toPoly
-  | Expr.mul a b => a.toPoly.mul b.toPoly
+def Poly.neg (p : Poly) : Poly :=
+  match p with
+  | [] => []
+  | (k, v) :: p => ((-1)*k, v) :: neg p
 
+def Expr.toPoly : Expr → Poly
+  | num k   => bif k == 0 then [] else [(k, [])]
+  | var v   => [(1, [v])]
+  | add a b => a.toPoly.add b.toPoly
+  | mul a b => a.toPoly.mul b.toPoly
+  | sub a b => a.toPoly.add b.toPoly.neg
 open Env
 
 theorem Mon.append_denote (ctx : Context α) (m₁ m₂ : Mon) : (m₁ ++ m₂).denote ctx = ctx.mul (m₁.denote ctx) (m₂.denote ctx) := by
@@ -192,6 +201,11 @@ where
              add_assoc, add_comm, add_left_comm,
              mul_assoc, mul_comm, mul_left_comm]
 
+theorem Poly.neg_denote (ctx : Context α) (p : Poly) : p.neg.denote ctx = ctx.mul (ctx.ofInt (-1)) (p.denote ctx) := by
+  match p with
+  | [] => simp! [mul_zero]
+  | (k, m) :: p => simp! [left_dist, ofInt_mul, neg_denote ctx p, mul_assoc, mul_comm, mul_left_comm]
+
 theorem Expr.toPoly_denote (ctx : Context α) (e : Expr) : e.toPoly.denote ctx = e.denote ctx := by
   induction e with
   | num k =>
@@ -201,3 +215,4 @@ theorem Expr.toPoly_denote (ctx : Context α) (e : Expr) : e.toPoly.denote ctx =
   | var v => simp! [mul_one, one_mul, add_zero]
   | add a b => simp! [Poly.add_denote, *]
   | mul a b => simp! [Poly.mul_denote, *]
+  | sub a b => simp! [Poly.add_denote, *, sub_def, Poly.neg_denote, mul_one, mul_comm]

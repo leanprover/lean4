@@ -162,4 +162,23 @@ theorem append_cancel_right {as bs cs : List α} (h : as ++ bs = cs ++ bs) : as 
     apply Nat.lt_trans ih
     simp_arith
 
+theorem le_antisymm [LT α] [s : Antisymm (¬ · < · : α → α → Prop)] {as bs : List α} (h₁ : as ≤ bs) (h₂ : bs ≤ as) : as = bs :=
+  match as, bs with
+  | [],    []    => rfl
+  | [],    b::bs => False.elim <| h₂ (List.lt.nil ..)
+  | a::as, []    => False.elim <| h₁ (List.lt.nil ..)
+  | a::as, b::bs => by
+    by_cases hab : a < b
+    · exact False.elim <| h₂ (List.lt.head _ _ hab)
+    · by_cases hba : b < a
+      · exact False.elim <| h₁ (List.lt.head _ _ hba)
+      · have h₁ : as ≤ bs := fun h => h₁ (List.lt.tail hba hab h)
+        have h₂ : bs ≤ as := fun h => h₂ (List.lt.tail hab hba h)
+        have ih : as = bs := le_antisymm h₁ h₂
+        have : a = b := s.antisymm hab hba
+        simp [this, ih]
+
+instance [LT α] [s : Antisymm (¬ · < · : α → α → Prop)] : Antisymm (· ≤ · : List α → List α → Prop) where
+  antisymm h₁ h₂ := le_antisymm h₁ h₂
+
 end List

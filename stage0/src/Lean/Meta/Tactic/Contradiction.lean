@@ -91,6 +91,20 @@ private def isGenDiseq (e : Expr) : Bool :=
   | _ => e.isConstOf ``False
 
 /--
+  Given `e` s.t. `isGenDiseq e`, generate a bit-mask `mask` s.t. `mask[i] = true` iff
+  the `i`-th binder is an equality without forward dependencies.
+
+  See `processGenDiseq`
+-/
+private def mkGenDiseqMask (e : Expr) : Array Bool :=
+  go e #[]
+where
+  go (e : Expr) (acc : Array Bool) : Array Bool :=
+    match e with
+    | Expr.forallE _ d b _ => go b (acc.push (!b.hasLooseBVar 0 && d.isEq))
+    | _ => acc
+
+/--
   Close goal if `localDecl` is a "generalized disequality". Example:
   ```
   h : (x y : Nat) (ys : List Nat) → x = 0 → y::ys = [a, b, c] → False
@@ -101,13 +115,24 @@ private def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bo
   assert! isGenDiseq localDecl.type
   let val? ← withNewMCtxDepth do
     let (args, _, _) ← forallMetaTelescope localDecl.type
-    for arg in args do
-      let argType ← inferType arg
-      if let some (_, lhs, rhs) ← matchEq? argType then
-        unless (← isDefEq lhs rhs) do
-          return none
-        unless (← isDefEq arg (← mkEqRefl lhs)) do
-          return none
+    let mask  := mkGenDiseqMask localDecl.type
+    for arg in args, useRefl in mask do
+      if useRefl then
+        /- Remark: we should not try to use `refl` for equalities that have forward dependencies because
+           they correspond to constructor fields. We did not use to have this extra test, and this method failed
+           to close the following goal.
+           ```
+            ...
+            ns' : NEList String
+            h' : NEList.notUno ns' = true
+            : ∀ (ns : NEList String) (h : NEList.notUno ns = true), Value.lam (Lambda.mk ns' h') = Value.lam (Lambda.mk ns h) → False
+            ⊢ h_1 l a = h_2 v
+
+           ```
+         -/
+        if let some (_, lhs, _) ← matchEq? (← inferType arg) then
+          unless (← isDefEq arg (← mkEqRefl lhs)) do
+            return none
     let falseProof ← instantiateMVars (mkAppN localDecl.toExpr args)
     if (← hasAssignableMVar falseProof) then
       return none

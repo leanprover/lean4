@@ -289,7 +289,7 @@ where
       <|>
       (substSomeVar mvarId)
       <|>
-      (throwError "failed to generate equality theorems for `match` expression\n{MessageData.ofGoal mvarId}")
+      (throwError "failed to generate equality theorems for `match` expression `{matchDeclName}`\n{MessageData.ofGoal mvarId}")
     subgoals.forM (go · (depth+1))
 
 
@@ -397,7 +397,8 @@ where
 
 /--
   Create conditional equations and splitter for the given match auxiliary declaration. -/
-private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns :=
+private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := do
+  trace[Meta.Match.matchEqs] "mkEquationsFor '{matchDeclName}'"
   withConfig (fun c => { c with etaStruct := false }) do
   let baseName := mkPrivateName (← getEnv) matchDeclName
   let constInfo ← getConstInfo matchDeclName

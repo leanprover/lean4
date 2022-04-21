@@ -104,6 +104,12 @@ partial def parseAhead (inputCtx : Parser.InputContext) (snap : Snapshot) : IO (
       else
         go inputCtx pmctx cmdParserState (stxs.push cmdStx)
 
+register_builtin_option server.stderrAsMessages : Bool := {
+  defValue := true
+  group    := "server"
+  descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
+}
+
 /-- Compiles the next command occurring after the given snapshot. If there is no next command
 (file ended), `Snapshot.isAtEnd` will hold of the return value. -/
 -- NOTE: This code is really very similar to Elab.Frontend. But generalizing it
@@ -138,7 +144,7 @@ def compileNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidget
       fileMap      := inputCtx.fileMap
       tacticCache? := some tacticCacheNew
     }
-    let (output, _) ← IO.FS.withIsolatedStreams <| liftM (m := BaseIO) do
+    let (output, _) ← IO.FS.withIsolatedStreams (isolateStderr := server.stderrAsMessages.get scope.opts) <| liftM (m := BaseIO) do
       Elab.Command.catchExceptions
         (getResetInfoTrees *> Elab.Command.elabCommandTopLevel cmdStx)
         cmdCtx cmdStateRef

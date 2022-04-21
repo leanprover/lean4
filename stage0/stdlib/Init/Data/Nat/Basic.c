@@ -24,6 +24,7 @@ LEAN_EXPORT lean_object* l_Nat_instTransNatLeInstLENatLtInstLTNat;
 LEAN_EXPORT lean_object* l_Nat_foldRev(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_repeat_loop(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_max(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_instAntisymmNatNotLtInstLTNat;
 LEAN_EXPORT lean_object* l_Prod_foldI(lean_object*);
 LEAN_EXPORT lean_object* l_Prod_foldI___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_repeat(lean_object*);
@@ -52,6 +53,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_any___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_repeat___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Nat_anyAux___at_Nat_all___spec__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_instAntisymmNatLeInstLENat;
 LEAN_EXPORT uint8_t l_Nat_blt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Nat_anyAux(lean_object*, lean_object*, lean_object*);
@@ -432,6 +434,22 @@ x_1 = lean_box(0);
 return x_1;
 }
 }
+static lean_object* _init_l_Nat_instAntisymmNatLeInstLENat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
+static lean_object* _init_l_Nat_instAntisymmNatNotLtInstLTNat() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_box(0);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Nat_min(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -630,6 +648,10 @@ l_Nat_instTransNatLtInstLTNatLeInstLENat = _init_l_Nat_instTransNatLtInstLTNatLe
 lean_mark_persistent(l_Nat_instTransNatLtInstLTNatLeInstLENat);
 l_Nat_instTransNatLeInstLENatLtInstLTNat = _init_l_Nat_instTransNatLeInstLENatLtInstLTNat();
 lean_mark_persistent(l_Nat_instTransNatLeInstLENatLtInstLTNat);
+l_Nat_instAntisymmNatLeInstLENat = _init_l_Nat_instAntisymmNatLeInstLENat();
+lean_mark_persistent(l_Nat_instAntisymmNatLeInstLENat);
+l_Nat_instAntisymmNatNotLtInstLTNat = _init_l_Nat_instAntisymmNatNotLtInstLTNat();
+lean_mark_persistent(l_Nat_instAntisymmNatNotLtInstLTNat);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

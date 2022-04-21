@@ -178,7 +178,7 @@ private partial def withInductiveLocalDecls {α} (rs : Array ElabHeaderResult) (
     let rec loop (i : Nat) (indFVars : Array Expr) := do
       if h : i < namesAndTypes.size then
         let (id, type) := namesAndTypes.get ⟨i, h⟩
-        withLocalDeclD id type fun indFVar => loop (i+1) (indFVars.push indFVar)
+        withLocalDecl id BinderInfo.auxDecl type fun indFVar => loop (i+1) (indFVars.push indFVar)
       else
         x params indFVars
     loop 0 #[]
@@ -591,6 +591,12 @@ private def mkAuxConstructions (views : Array InductiveView) : TermElabM Unit :=
 private def getArity (indType : InductiveType) : MetaM Nat :=
   forallTelescopeReducing indType.type fun xs _ => return xs.size
 
+private def resetMaskAt (mask : Array Bool) (i : Nat) : Array Bool :=
+  if h : i < mask.size then
+    mask.set ⟨i, h⟩ false
+  else
+    mask
+
 /--
   Compute a bit-mask that for `indType`. The size of the resulting array `result` is the arity of `indType`.
   The first `numParams` elements are `false` since they are parameters.
@@ -619,10 +625,10 @@ private def computeFixedIndexBitMask (numParams : Nat) (indType : InductiveType)
                 let eArgs := e.getAppArgs
                 for i in [numParams:eArgs.size] do
                   if i >= typeArgs.size then
-                    maskRef.modify fun mask => mask.set! i false
+                    maskRef.modify (resetMaskAt · i)
                   else
                     unless eArgs[i] == typeArgs[i] do
-                      maskRef.modify fun mask => mask.set! i false
+                      maskRef.modify (resetMaskAt · i)
         go ctors
     go indType.ctors
 
@@ -676,7 +682,7 @@ private partial def fixedIndicesToParams (numParams : Nat) (indTypes : Array Ind
         return i
     go numParams type typesToCheck
 
-private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : TermElabM Unit := do
+private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : TermElabM Unit := Term.withoutSavingRecAppSyntax do
   let view0 := views[0]
   let scopeLevelNames ← Term.getLevelNames
   checkLevelNames views
@@ -685,6 +691,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
   withRef view0.ref <| Term.withLevelNames allUserLevelNames do
     let rs ← elabHeader views
     withInductiveLocalDecls rs fun params indFVars => do
+      trace[Elab.inductive] "indFVars: {indFVars}"
       let mut indTypesArray := #[]
       for i in [:views.size] do
         let indFVar := indFVars[i]

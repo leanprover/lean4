@@ -1077,6 +1077,11 @@ instance : Subsingleton (Squash α) where
     apply Quot.sound
     trivial
 
+/- Relations -/
+
+class Antisymm {α : Sort u} (r : α → α → Prop) where
+  antisymm {a b : α} : r a b → r b a → a = b
+
 namespace Lean
 /- Kernel reduction hints -/
 

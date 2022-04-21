@@ -646,12 +646,13 @@ def ofBuffer (r : Ref Buffer) : Stream := {
 end Stream
 
 /-- Run action with `stdin` emptied and `stdout+stderr` captured into a `String`. -/
-def withIsolatedStreams [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (x : m α) : m (String × α) := do
+def withIsolatedStreams [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (x : m α)
+    (isolateStderr := true) : m (String × α) := do
   let bIn ← mkRef { : Stream.Buffer }
   let bOut ← mkRef { : Stream.Buffer }
   let r ← withStdin (Stream.ofBuffer bIn) <|
     withStdout (Stream.ofBuffer bOut) <|
-      withStderr (Stream.ofBuffer bOut) <|
+      (if isolateStderr then withStderr (Stream.ofBuffer bOut) else id) <|
         x
   let bOut ← liftM (m := BaseIO) bOut.get
   let out := String.fromUTF8Unchecked bOut.data

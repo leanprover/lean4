@@ -980,11 +980,12 @@ private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array A
       withRef f <| mergeFailures candidates
 
 private def annotateIfRec (stx : Syntax) (e : Expr) : TermElabM Expr := do
-  let resultFn := e.getAppFn
-  if resultFn.isFVar then
-    let localDecl ← getLocalDecl resultFn.fvarId!
-    if localDecl.isAuxDecl then
-      return mkRecAppWithSyntax e stx
+  if (← read).saveRecAppSyntax then
+    let resultFn := e.getAppFn
+    if resultFn.isFVar then
+      let localDecl ← getLocalDecl resultFn.fvarId!
+      if localDecl.isAuxDecl then
+        return mkRecAppWithSyntax e stx
   return e
 
 @[builtinTermElab app] def elabApp : TermElab := fun stx expectedType? =>

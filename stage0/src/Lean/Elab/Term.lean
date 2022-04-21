@@ -167,9 +167,13 @@ structure Context where
   isNoncomputableSection : Bool        := false
   /-- When `true` we skip TC failures. We use this option when processing patterns -/
   ignoreTCFailures : Bool := false
-  /-- True when elaborating patterns. It affects how we elaborate named holes. -/
+  /-- `true` when elaborating patterns. It affects how we elaborate named holes. -/
   inPattern        : Bool := false
   tacticCache?     : Option (IO.Ref Tactic.Cache) := none
+  /-- If `true`, we store in the `Expr` the `Syntax` for recursive applications (i.e., applications
+      of free variables tagged with `isAuxDecl`). We store the `Syntax` using `mkRecAppWithSyntax`.
+      We use the `Syntax` object to produce better error messages at `Structural.lean` and `WF.lean`. -/
+  saveRecAppSyntax : Bool := true
 
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
@@ -315,6 +319,12 @@ private def withoutModifyingStateWithInfoAndMessagesImpl (x : TermElabM α) : Te
     let s ← get
     let saved := { saved with elab.infoState := s.infoState, elab.messages := s.messages }
     restoreState saved
+
+/--
+  Execute `x` without storing `Syntax` for recursive applications. See `saveRecAppSyntax` field at `Context`.
+-/
+def withoutSavingRecAppSyntax (x : TermElabM α) : TermElabM α :=
+  withReader (fun ctx => { ctx with saveRecAppSyntax := false }) x
 
 unsafe def mkTermElabAttributeUnsafe : IO (KeyedDeclsAttribute TermElab) :=
   mkElabAttribute TermElab `Lean.Elab.Term.termElabAttribute `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term"

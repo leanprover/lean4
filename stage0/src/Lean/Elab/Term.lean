@@ -138,11 +138,13 @@ structure Context where
   fileMap         : FileMap
   declName?       : Option Name     := none
   macroStack      : MacroStack      := []
-  /- When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
+  /--
+     When `mayPostpone == true`, an elaboration function may interrupt its execution by throwing `Exception.postpone`.
      The function `elabTerm` catches this exception and creates fresh synthetic metavariable `?m`, stores `?m` in
      the list of pending synthetic metavariables, and returns `?m`. -/
   mayPostpone     : Bool            := true
-  /- When `errToSorry` is set to true, the method `elabTerm` catches
+  /--
+     When `errToSorry` is set to true, the method `elabTerm` catches
      exceptions and converts them into synthetic `sorry`s.
      The implementation of choice nodes and overloaded symbols rely on the fact
      that when `errToSorry` is set to false for an elaboration function `F`, then
@@ -150,13 +152,23 @@ structure Context where
      That is, it is safe to transition `errToSorry` from `true` to `false`, but
      we must not set `errToSorry` to `true` when it is currently set to `false`. -/
   errToSorry      : Bool            := true
-  /- When `autoBoundImplicit` is set to true, instead of producing
+  /--
+     When `autoBoundImplicit` is set to true, instead of producing
      an "unknown identifier" error for unbound variables, we generate an
      internal exception. This exception is caught at `elabBinders` and
      `elabTypeWithUnboldImplicit`. Both methods add implicit declarations
      for the unbound variable and try again. -/
   autoBoundImplicit  : Bool            := false
   autoBoundImplicits : Std.PArray Expr := {}
+  /--
+    A name `n` is only eligible to be an auto implicit name if `autoBoundImplicitForbidden n = false`.
+    We use this predicate to disallow `f` to be considered an auto implicit name in a definition such
+    as
+    ```
+    def f : f → Bool := fun _ => true
+    ```
+  -/
+  autoBoundImplicitForbidden : Name → Bool := fun _ => false
   /-- Map from user name to internal unique name -/
   sectionVars        : NameMap Name    := {}
   /-- Map from internal name to fvar -/
@@ -1374,6 +1386,9 @@ partial def withAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
 def withoutAutoBoundImplicit (k : TermElabM α) : TermElabM α := do
   withReader (fun ctx => { ctx with autoBoundImplicit := false, autoBoundImplicits := {} }) k
 
+partial def withAutoBoundImplicitForbiddenPred (p : Name → Bool) (x : TermElabM α) : TermElabM α := do
+  withReader (fun ctx => { ctx with autoBoundImplicitForbidden := fun n => p n || ctx.autoBoundImplicitForbidden n }) x
+
 /--
   Collect unassigned metavariables in `type` that are not already in `init` and not satisfying `except`.
 -/
@@ -1525,7 +1540,9 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List (Name × List Stri
     process preresolved
 where process (candidates : List (Name × List String)) : TermElabM (List (Expr × List String)) := do
   if candidates.isEmpty then
-    if (← read).autoBoundImplicit && isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
+    if (← read).autoBoundImplicit &&
+         !(← read).autoBoundImplicitForbidden n &&
+         isValidAutoBoundImplicitName n (relaxedAutoImplicit.get (← getOptions)) then
       throwAutoBoundImplicitLocal n
     else
       throwError "unknown identifier '{Lean.mkConst n}'"

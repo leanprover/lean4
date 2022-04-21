@@ -44,7 +44,7 @@ where
       | some e' => return Simp.Step.done { expr := e' }
       | none    =>
       -- Try lemma
-      match (← withReducible <| Simp.tryTheorem? e { proof := mkConst matchEqDeclName, name? := matchEqDeclName } SplitIf.discharge?) with
+      match (← withReducible <| Simp.tryTheorem? e { proof := mkConst matchEqDeclName, name? := matchEqDeclName, rfl := (← isRflTheorem matchEqDeclName) } SplitIf.discharge?) with
       | none => return Simp.Step.visit { expr := e }
       | some r => return Simp.Step.done r
     else

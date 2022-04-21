@@ -2637,7 +2637,7 @@ x_14 = l_Lean_Name_isAnonymous(x_13);
 if (x_14 == 0)
 {
 uint8_t x_15; 
-x_15 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 6);
+x_15 = lean_ctor_get_uint8(x_3, sizeof(void*)*9 + 6);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
@@ -3290,7 +3290,7 @@ return x_167;
 else
 {
 uint8_t x_168; 
-x_168 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 6);
+x_168 = lean_ctor_get_uint8(x_3, sizeof(void*)*9 + 6);
 if (x_168 == 0)
 {
 uint8_t x_169; lean_object* x_170; lean_object* x_171; lean_object* x_172; lean_object* x_173; lean_object* x_174; uint8_t x_175; 

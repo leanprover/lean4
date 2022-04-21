@@ -22,18 +22,52 @@ namespace Lean.Meta
 -/
 structure SimpTheorem where
   keys        : Array DiscrTree.Key := #[]
-  levelParams : Array Name := #[] -- non empty for local universe polymorphic proofs.
+  /--
+    It stores universe parameter names for universe polymorphic proofs.
+    Recall that it is non-empty only when we elaborate an expression provided by the user.
+    When `proof` is just a constant, we can use the universe parameter names stored in the declaration.
+   -/
+  levelParams : Array Name := #[]
   proof       : Expr
   priority    : Nat  := eval_prio default
   post        : Bool := true
-  perm        : Bool := false -- true is lhs and rhs are identical modulo permutation of variables
-  name?       : Option Name := none -- for debugging and tracing purposes
+  /-- `perm` is true if lhs and rhs are identical modulo permutation of variables. -/
+  perm        : Bool := false
+  /--
+    `name?` is mainly relevant for producing trace messages.
+    It is also viewed an `id` used to "erase" `simp` theorems from `SimpTheorems`.
+  -/
+  name?       : Option Name := none
+  /-- `rfl` is true if `proof` is by `Eq.refl` or `rfl`. -/
+  rfl         : Bool
   deriving Inhabited
 
 def SimpTheorem.getName (s : SimpTheorem) : Name :=
   match s.name? with
   | some n => n
   | none   => "<unknown>"
+
+def isRflProofCore (type : Expr) (proof : Expr) : Bool :=
+  match type with
+  | .forallE _ _ type _ =>
+    if let .lam _ _ proof _ := proof then
+      isRflProofCore type proof
+    else
+      false
+  | _ =>
+    type.isAppOfArity ``Eq 3
+    &&
+    (proof.isAppOfArity ``Eq.refl 2 || proof.isAppOfArity ``rfl 2)
+
+def isRflTheorem (declName : Name) : CoreM Bool := do
+  let .thmInfo info ← getConstInfo declName | return false
+  return isRflProofCore info.type info.value
+
+def isRflProof (proof : Expr) : CoreM Bool := do
+  if let .const declName .. := proof then
+    isRflTheorem declName
+  else
+    return false
 
 instance : ToFormat SimpTheorem where
   format s :=
@@ -195,7 +229,7 @@ private def mkSimpTheoremCore (e : Expr) (levelParams : Array Name) (proof : Exp
       match type.eq? with
       | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs)
       | none => throwError "unexpected kind of 'simp' theorem{indentExpr type}"
-    return { keys := keys, perm := perm, post := post, levelParams := levelParams, proof := proof, name? := name?, priority := prio }
+    return { keys, perm, post, levelParams, proof, name?, priority := prio, rfl := (← isRflProof proof) }
 
 private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool) (prio : Nat) : MetaM (Array SimpTheorem) := do
   let cinfo ← getConstInfo declName

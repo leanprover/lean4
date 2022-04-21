@@ -1674,7 +1674,7 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-x_14 = lean_ctor_get_uint8(x_2, sizeof(void*)*8 + 4);
+x_14 = lean_ctor_get_uint8(x_2, sizeof(void*)*9 + 4);
 lean_dec(x_2);
 if (x_14 == 0)
 {

@@ -7821,7 +7821,7 @@ lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
-x_15 = lean_ctor_get(x_5, 5);
+x_15 = lean_ctor_get(x_5, 6);
 lean_inc(x_1);
 x_16 = l_Lean_Elab_Term_Quotation_resolveSectionVariable(x_15, x_1);
 x_17 = l_List_appendTR___rarg(x_13, x_16);

@@ -60,10 +60,15 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
     if (← isDefEq lhs e) then
       unless (← synthesizeArgs thm.getName xs bis discharge?) do
         return none
-      let proof ← instantiateMVars (mkAppN val xs)
-      if ← hasAssignableMVar proof then
-        trace[Meta.Tactic.simp.rewrite] "{thm}, has unassigned metavariables after unification"
-        return none
+      let proof? ←
+        if thm.rfl then
+          pure none
+        else
+          let proof ← instantiateMVars (mkAppN val xs)
+          if (← hasAssignableMVar proof) then
+            trace[Meta.Tactic.simp.rewrite] "{thm}, has unassigned metavariables after unification"
+            return none
+          pure <| some proof
       let rhs := (← instantiateMVars type).appArg!
       if e == rhs then
         return none
@@ -72,7 +77,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
           trace[Meta.Tactic.simp.rewrite] "{thm}, perm rejected {e} ==> {rhs}"
           return none
       trace[Meta.Tactic.simp.rewrite] "{thm}, {e} ==> {rhs}"
-      return some { expr := rhs, proof? := proof }
+      return some { expr := rhs, proof? }
     else
       unless lhs.isMVar do
         -- We do not report unification failures when `lhs` is a metavariable
@@ -125,18 +130,19 @@ def tryTheorem? (e : Expr) (thm : SimpTheorem) (discharge? : Expr → SimpM (Opt
 /-
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
 -/
-def rewrite (e : Expr) (s : DiscrTree SimpTheorem) (erased : Std.PHashSet Name) (discharge? : Expr → SimpM (Option Expr)) (tag : String) : SimpM Result := do
+def rewrite? (e : Expr) (s : DiscrTree SimpTheorem) (erased : Std.PHashSet Name) (discharge? : Expr → SimpM (Option Expr)) (tag : String) : SimpM (Option Result) := do
   let candidates ← s.getMatchWithExtra e
   if candidates.isEmpty then
     trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
-    return { expr := e }
+    return none
   else
     let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
     for (thm, numExtraArgs) in candidates do
       unless inErasedSet thm do
         if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs discharge? then
-          return result
-    return { expr := e }
+          trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
+          return some result
+    return none
 where
   inErasedSet (thm : SimpTheorem) : Bool :=
     match thm.name? with
@@ -206,7 +212,7 @@ def simpArith? (e : Expr) : SimpM (Option Step) := do
 def simpMatchCore? (app : MatcherApp) (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Step) := do
   for matchEq in (← Match.getEquationsFor app.matcherName).eqnNames do
     -- Try lemma
-    match (← withReducible <| Simp.tryTheorem? e { proof := mkConst matchEq, name? := some matchEq } discharge?) with
+    match (← withReducible <| Simp.tryTheorem? e { proof := mkConst matchEq, name? := some matchEq, rfl := (← isRflTheorem matchEq) } discharge?) with
     | none   => pure ()
     | some r => return some (Simp.Step.done r)
   return none
@@ -220,15 +226,13 @@ def simpMatch? (discharge? : Expr → SimpM (Option Expr)) (e : Expr) : SimpM (O
 
 def rewritePre (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   for thms in (← read).simpTheorems do
-    let r ← rewrite e thms.pre thms.erased discharge? (tag := "pre")
-    if r.proof?.isSome then
+    if let some r ← rewrite? e thms.pre thms.erased discharge? (tag := "pre") then
       return Step.visit r
   return Step.visit { expr := e }
 
 def rewritePost (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   for thms in (← read).simpTheorems do
-    let r ← rewrite e thms.post thms.erased discharge? (tag := "post")
-    if r.proof?.isSome then
+    if let some r ← rewrite? e thms.post thms.erased discharge? (tag := "post") then
       return Step.visit r
   return Step.visit { expr := e }
 

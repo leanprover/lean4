@@ -1,6 +1,16 @@
 Unreleased
 ---------
 
+* Fix syntax hightlighting for recursive declarations. Example
+  ```lean
+  inductive List (α : Type u) where
+    | nil : List α  -- `List` is not highlighted as a variable anymore
+    | cons (head : α) (tail : List α) : List α
+
+  def List.map (f : α → β) : List α → List β
+    | []    => []
+    | a::as => f a :: map f as -- `map` is not highlighted as a variable anymore
+  ```
 * Add `autoUnfold` option to `Lean.Meta.Simp.Config`, and the following macros
   - `simp!` for `simp (config := { autoUnfold := true })`
   - `simp_arith!` for `simp (config := { autoUnfold := true, arith := true })`

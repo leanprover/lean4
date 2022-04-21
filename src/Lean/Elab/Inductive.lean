@@ -178,7 +178,7 @@ private partial def withInductiveLocalDecls {α} (rs : Array ElabHeaderResult) (
     let rec loop (i : Nat) (indFVars : Array Expr) := do
       if h : i < namesAndTypes.size then
         let (id, type) := namesAndTypes.get ⟨i, h⟩
-        withLocalDeclD id type fun indFVar => loop (i+1) (indFVars.push indFVar)
+        withLocalDecl id BinderInfo.auxDecl type fun indFVar => loop (i+1) (indFVars.push indFVar)
       else
         x params indFVars
     loop 0 #[]
@@ -682,7 +682,7 @@ private partial def fixedIndicesToParams (numParams : Nat) (indTypes : Array Ind
         return i
     go numParams type typesToCheck
 
-private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : TermElabM Unit := do
+private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : TermElabM Unit := Term.withoutSavingRecAppSyntax do
   let view0 := views[0]
   let scopeLevelNames ← Term.getLevelNames
   checkLevelNames views
@@ -691,6 +691,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
   withRef view0.ref <| Term.withLevelNames allUserLevelNames do
     let rs ← elabHeader views
     withInductiveLocalDecls rs fun params indFVars => do
+      trace[Elab.inductive] "indFVars: {indFVars}"
       let mut indTypesArray := #[]
       for i in [:views.size] do
         let indFVar := indFVars[i]

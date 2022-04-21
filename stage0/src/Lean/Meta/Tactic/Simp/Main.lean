@@ -157,7 +157,18 @@ private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
   | none => return e
 
 private partial def dsimp (e : Expr) : M Expr := do
-  transform e (post := fun e => return TransformStep.done (← reduce e))
+  let pre (e : Expr) : M TransformStep := do
+    if let Step.visit r ← rewritePre e (fun _ => pure none) (rflOnly := true) then
+      if r.expr != e then
+        return .visit r.expr
+    return .visit e
+  let post (e : Expr) : M TransformStep := do
+    if let Step.visit r ← rewritePost e (fun _ => pure none) (rflOnly := true) then
+      if r.expr != e then
+        return .visit r.expr
+    let eNew ← reduce e
+    if eNew != e then return .visit eNew else return .done e
+  transform e (pre := pre) (post := post)
 
 inductive SimpLetCase where
   | dep -- `let x := v; b` is not equivalent to `(fun x => b) v`
@@ -529,10 +540,21 @@ where
           | none    => mkImpCongr e rp rq
           | some hq =>
             let hq ← mkLambdaFVars #[h] hq
+            /-
+              We use the default reducibility setting at `mkImpDepCongrCtx` and `mkImpCongrCtx` because they use the theorems
+              ```lean
+              @implies_dep_congr_ctx : ∀ {p₁ p₂ q₁ : Prop}, p₁ = p₂ → ∀ {q₂ : p₂ → Prop}, (∀ (h : p₂), q₁ = q₂ h) → (p₁ → q₁) = ∀ (h : p₂), q₂ h
+              @implies_congr_ctx : ∀ {p₁ p₂ q₁ q₂ : Prop}, p₁ = p₂ → (p₂ → q₁ = q₂) → (p₁ → q₁) = (p₂ → q₂)
+              ```
+              And the proofs may be from `rfl` theorems which are now omitted. Moreover, we cannot establish that the two
+              terms are definitionally equal using `withReducible`.
+              TODO (better solution): provide the problematic implicit arguments explicitly. It is more efficient and avoids this
+              problem.
+             -/
             if rq.expr.containsFVar h.fvarId! then
-              return { expr := (← mkForallFVars #[h] rq.expr), proof? := (← mkImpDepCongrCtx (← rp.getProof) hq) }
+              return { expr := (← mkForallFVars #[h] rq.expr), proof? := (← withDefault <| mkImpDepCongrCtx (← rp.getProof) hq) }
             else
-              return { expr := e.updateForallE! rp.expr rq.expr, proof? := (← mkImpCongrCtx (← rp.getProof) hq) }
+              return { expr := e.updateForallE! rp.expr rq.expr, proof? := (← withDefault <| mkImpCongrCtx (← rp.getProof) hq) }
     else
       mkImpCongr e rp (← simp q)
 

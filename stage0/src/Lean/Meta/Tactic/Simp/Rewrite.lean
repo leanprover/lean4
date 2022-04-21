@@ -130,7 +130,7 @@ def tryTheorem? (e : Expr) (thm : SimpTheorem) (discharge? : Expr → SimpM (Opt
 /-
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
 -/
-def rewrite? (e : Expr) (s : DiscrTree SimpTheorem) (erased : Std.PHashSet Name) (discharge? : Expr → SimpM (Option Expr)) (tag : String) : SimpM (Option Result) := do
+def rewrite? (e : Expr) (s : DiscrTree SimpTheorem) (erased : Std.PHashSet Name) (discharge? : Expr → SimpM (Option Expr)) (tag : String) (rflOnly : Bool) : SimpM (Option Result) := do
   let candidates ← s.getMatchWithExtra e
   if candidates.isEmpty then
     trace[Debug.Meta.Tactic.simp] "no theorems found for {tag}-rewriting {e}"
@@ -138,7 +138,7 @@ def rewrite? (e : Expr) (s : DiscrTree SimpTheorem) (erased : Std.PHashSet Name)
   else
     let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
     for (thm, numExtraArgs) in candidates do
-      unless inErasedSet thm do
+      unless inErasedSet thm || (rflOnly && !thm.rfl) do
         if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs discharge? then
           trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
           return some result
@@ -224,15 +224,15 @@ def simpMatch? (discharge? : Expr → SimpM (Option Expr)) (e : Expr) : SimpM (O
   else
     return none
 
-def rewritePre (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
+def rewritePre (e : Expr) (discharge? : Expr → SimpM (Option Expr)) (rflOnly := false) : SimpM Step := do
   for thms in (← read).simpTheorems do
-    if let some r ← rewrite? e thms.pre thms.erased discharge? (tag := "pre") then
+    if let some r ← rewrite? e thms.pre thms.erased discharge? (tag := "pre") (rflOnly := rflOnly) then
       return Step.visit r
   return Step.visit { expr := e }
 
-def rewritePost (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
+def rewritePost (e : Expr) (discharge? : Expr → SimpM (Option Expr)) (rflOnly := false) : SimpM Step := do
   for thms in (← read).simpTheorems do
-    if let some r ← rewrite? e thms.post thms.erased discharge? (tag := "post") then
+    if let some r ← rewrite? e thms.post thms.erased discharge? (tag := "post") (rflOnly := rflOnly) then
       return Step.visit r
   return Step.visit { expr := e }
 

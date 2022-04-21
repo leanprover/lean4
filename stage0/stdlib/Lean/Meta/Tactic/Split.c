@@ -869,6 +869,8 @@ lean_object* x_18; lean_object* x_19;
 x_18 = lean_ctor_get(x_16, 1);
 lean_inc(x_18);
 lean_dec(x_16);
+lean_inc(x_9);
+lean_inc(x_8);
 lean_inc(x_2);
 x_19 = l_Lean_Meta_isRflTheorem(x_2, x_8, x_9, x_18);
 if (lean_obj_tag(x_19) == 0)

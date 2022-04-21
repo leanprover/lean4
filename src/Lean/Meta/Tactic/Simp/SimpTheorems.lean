@@ -47,27 +47,40 @@ def SimpTheorem.getName (s : SimpTheorem) : Name :=
   | some n => n
   | none   => "<unknown>"
 
-def isRflProofCore (type : Expr) (proof : Expr) : Bool :=
-  match type with
-  | .forallE _ _ type _ =>
-    if let .lam _ _ proof _ := proof then
-      isRflProofCore type proof
-    else
-      false
-  | _ =>
-    type.isAppOfArity ``Eq 3
-    &&
-    (proof.isAppOfArity ``Eq.refl 2 || proof.isAppOfArity ``rfl 2)
+mutual
+  partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := do
+    match type with
+    | .forallE _ _ type _ =>
+      if let .lam _ _ proof _ := proof then
+        isRflProofCore type proof
+      else
+        return false
+    | _ =>
+      if type.isAppOfArity ``Eq 3 then
+        if proof.isAppOfArity ``Eq.refl 2 || proof.isAppOfArity ``rfl 2 then
+          return true
+        else if proof.isAppOfArity ``Eq.symm 4 then
+          -- `Eq.symm` of rfl theorem is a rfl theorem
+          isRflProofCore type proof.appArg! -- small hack: we don't need to set the exact type
+        else if proof.isApp && proof.getAppFn.isConst then
+          -- The application of a `rfl` theorem is a `rfl` theorem
+          isRflTheorem proof.getAppFn.constName!
+        else
+          return false
+      else
+        return false
 
-def isRflTheorem (declName : Name) : CoreM Bool := do
-  let .thmInfo info ← getConstInfo declName | return false
-  return isRflProofCore info.type info.value
+  partial def isRflTheorem (declName : Name) : CoreM Bool := do
+    let .thmInfo info ← getConstInfo declName | return false
+    isRflProofCore info.type info.value
+end
 
-def isRflProof (proof : Expr) : CoreM Bool := do
+def isRflProof (proof : Expr) : MetaM Bool := do
+  trace[Meta.debug] "isRflProof: {proof}"
   if let .const declName .. := proof then
     isRflTheorem declName
   else
-    return false
+    isRflProofCore (← inferType proof) proof
 
 instance : ToFormat SimpTheorem where
   format s :=

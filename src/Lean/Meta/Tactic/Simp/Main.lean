@@ -529,10 +529,21 @@ where
           | none    => mkImpCongr e rp rq
           | some hq =>
             let hq ← mkLambdaFVars #[h] hq
+            /-
+              We use the default reducibility setting at `mkImpDepCongrCtx` and `mkImpCongrCtx` because they use the theorems
+              ```lean
+              @implies_dep_congr_ctx : ∀ {p₁ p₂ q₁ : Prop}, p₁ = p₂ → ∀ {q₂ : p₂ → Prop}, (∀ (h : p₂), q₁ = q₂ h) → (p₁ → q₁) = ∀ (h : p₂), q₂ h
+              @implies_congr_ctx : ∀ {p₁ p₂ q₁ q₂ : Prop}, p₁ = p₂ → (p₂ → q₁ = q₂) → (p₁ → q₁) = (p₂ → q₂)
+              ```
+              And the proofs may be from `rfl` theorems which are now omitted. Moreover, we cannot establish that the two
+              terms are definitionally equal using `withReducible`.
+              TODO (better solution): provide the problematic implicit arguments explicitly. It is more efficient and avoids this
+              problem.
+             -/
             if rq.expr.containsFVar h.fvarId! then
-              return { expr := (← mkForallFVars #[h] rq.expr), proof? := (← mkImpDepCongrCtx (← rp.getProof) hq) }
+              return { expr := (← mkForallFVars #[h] rq.expr), proof? := (← withDefault <| mkImpDepCongrCtx (← rp.getProof) hq) }
             else
-              return { expr := e.updateForallE! rp.expr rq.expr, proof? := (← mkImpCongrCtx (← rp.getProof) hq) }
+              return { expr := e.updateForallE! rp.expr rq.expr, proof? := (← withDefault <| mkImpCongrCtx (← rp.getProof) hq) }
     else
       mkImpCongr e rp (← simp q)
 

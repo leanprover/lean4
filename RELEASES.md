@@ -1,6 +1,21 @@
 Unreleased
 ---------
 
+* Refine auto bound implicit feature. It does not consider anymore unbound variables that have the same
+  name of a declaration being defined. Example:
+  ```lean
+  def f : f → Bool := -- Error at second `f`
+    fun _ => true
+
+  inductive Foo : List Foo → Type -- Error at second `Foo`
+    | x : Foo []
+  ```
+  Before this refinement, the declarations above would be accepted and the
+  second `f` and `Foo` would be treated as auto implicit variables. That is,
+  `f : {f : Sort u} → f → Bool`, and
+  `Foo : {Foo : Type u} → List Foo → Type`.
+
+
 * Fix syntax hightlighting for recursive declarations. Example
   ```lean
   inductive List (α : Type u) where

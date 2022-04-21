@@ -485,14 +485,15 @@ where
     else
       k infos copiedParents
 
-private def elabFieldTypeValue (view : StructFieldView) : TermElabM (Option Expr × Option Expr) := do
-  Term.withAutoBoundImplicit <| Term.elabBinders view.binders.getArgs fun params => do
+private def elabFieldTypeValue (view : StructFieldView) : TermElabM (Option Expr × Option Expr) :=
+  Term.withAutoBoundImplicit <| Term.withAutoBoundImplicitForbiddenPred (fun n => view.name == n) <| Term.elabBinders view.binders.getArgs fun params => do
     match view.type? with
     | none         =>
       match view.value? with
       | none        => return (none, none)
       | some valStx =>
         Term.synthesizeSyntheticMVarsNoPostponing
+        -- TODO: add forbidden predicate using `shortDeclName` from `view`
         let params ← Term.addAutoBoundImplicits params
         let value ← Term.elabTerm valStx none
         let value ← mkLambdaFVars params value
@@ -867,33 +868,34 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
     runTermElabM none fun scopeVars => do
       let scopeLevelNames ← Term.getLevelNames
       let ⟨name, declName, allUserLevelNames⟩ ← Elab.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
-      addDeclarationRanges declName stx
-      Term.withDeclName declName do
-        let ctor ← expandCtor stx modifiers declName
-        let fields ← expandFields stx modifiers declName
-        Term.withLevelNames allUserLevelNames <| Term.withAutoBoundImplicit <|
-          Term.elabBinders params fun params => do
-            Term.synthesizeSyntheticMVarsNoPostponing
-            let params ← Term.addAutoBoundImplicits params
-            let allUserLevelNames ← Term.getLevelNames
-            elabStructureView {
-              ref := stx
-              modifiers
-              scopeLevelNames
-              allUserLevelNames
-              declName
-              isClass
-              scopeVars
-              params
-              parents
-              type
-              ctor
-              fields
-            }
-            unless isClass do
-              mkSizeOfInstances declName
-              mkInjectiveTheorems declName
-            return declName
+      Term.withAutoBoundImplicitForbiddenPred (fun n => name == n) do
+        addDeclarationRanges declName stx
+        Term.withDeclName declName do
+          let ctor ← expandCtor stx modifiers declName
+          let fields ← expandFields stx modifiers declName
+          Term.withLevelNames allUserLevelNames <| Term.withAutoBoundImplicit <|
+            Term.elabBinders params fun params => do
+              Term.synthesizeSyntheticMVarsNoPostponing
+              let params ← Term.addAutoBoundImplicits params
+              let allUserLevelNames ← Term.getLevelNames
+              elabStructureView {
+                ref := stx
+                modifiers
+                scopeLevelNames
+                allUserLevelNames
+                declName
+                isClass
+                scopeVars
+                params
+                parents
+                type
+                ctor
+                fields
+              }
+              unless isClass do
+                mkSizeOfInstances declName
+                mkInjectiveTheorems declName
+              return declName
   derivingClassViews.forM fun view => view.applyHandlers #[declName]
 
 builtin_initialize registerTraceClass `Elab.structure

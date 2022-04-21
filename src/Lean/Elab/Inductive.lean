@@ -67,31 +67,32 @@ structure ElabHeaderResult where
   type       : Expr
   deriving Inhabited
 
-private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc : Array ElabHeaderResult) : TermElabM (Array ElabHeaderResult) := do
-  if h : i < views.size then
-    let view := views.get ⟨i, h⟩
-    let acc ← Term.withAutoBoundImplicit <| Term.elabBinders view.binders.getArgs fun params => do
-      match view.type? with
-      | none         =>
-        let u ← mkFreshLevelMVar
-        let type := mkSort u
-        Term.synthesizeSyntheticMVarsNoPostponing
-        Term.addAutoBoundImplicits' params type fun params type => do
-          pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
-      | some typeStx =>
-        let (type, numImplicitIndices) ← Term.withAutoBoundImplicit do
-          let type ← Term.elabType typeStx
-          unless (← isTypeFormerType type) do
-            throwErrorAt typeStx "invalid inductive type, resultant type is not a sort"
+private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc : Array ElabHeaderResult) : TermElabM (Array ElabHeaderResult) :=
+  Term.withAutoBoundImplicitForbiddenPred (fun n => views.any (·.shortDeclName == n)) do
+    if h : i < views.size then
+      let view := views.get ⟨i, h⟩
+      let acc ← Term.withAutoBoundImplicit <| Term.elabBinders view.binders.getArgs fun params => do
+        match view.type? with
+        | none         =>
+          let u ← mkFreshLevelMVar
+          let type := mkSort u
           Term.synthesizeSyntheticMVarsNoPostponing
-          let indices ← Term.addAutoBoundImplicits #[]
-          return (← mkForallFVars indices type, indices.size)
-        Term.addAutoBoundImplicits' params type fun params type => do
-          trace[Elab.inductive] "header params: {params}, type: {type}"
-          pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
-    elabHeaderAux views (i+1) acc
-  else
-    pure acc
+          Term.addAutoBoundImplicits' params type fun params type => do
+            pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
+        | some typeStx =>
+          let (type, numImplicitIndices) ← Term.withAutoBoundImplicit do
+            let type ← Term.elabType typeStx
+            unless (← isTypeFormerType type) do
+              throwErrorAt typeStx "invalid inductive type, resultant type is not a sort"
+            Term.synthesizeSyntheticMVarsNoPostponing
+            let indices ← Term.addAutoBoundImplicits #[]
+            return (← mkForallFVars indices type, indices.size)
+          Term.addAutoBoundImplicits' params type fun params type => do
+            trace[Elab.inductive] "header params: {params}, type: {type}"
+            pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
+      elabHeaderAux views (i+1) acc
+    else
+      pure acc
 
 private def checkNumParams (rs : Array ElabHeaderResult) : TermElabM Nat := do
   let numParams := rs[0].params.size

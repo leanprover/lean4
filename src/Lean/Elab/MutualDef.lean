@@ -99,51 +99,54 @@ private def getPendindMVarErrorMessage (views : Array DefView) : String :=
     "\nwhen the resulting type of a declaration is explicitly provided, all holes (e.g., `_`) in the header are resolved before the declaration body is processed"
 
 private def elabHeaders (views : Array DefView) : TermElabM (Array DefViewElabHeader) := do
-  let mut headers := #[]
-  for view in views do
-    let newHeader ← withRef view.ref do
-      let ⟨shortDeclName, declName, levelNames⟩ ← Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
-      addDeclarationRanges declName view.ref
-      applyAttributesAt declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration
-      withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
-        elabBindersEx view.binders.getArgs fun xs => do
-          let refForElabFunType := view.value
-          let type ← match view.type? with
-            | some typeStx =>
-              let type ← elabType typeStx
-              registerFailedToInferDefTypeInfo type typeStx
-              pure type
-            | none =>
-              let hole := mkHole refForElabFunType
-              let type ← elabType hole
-              trace[Elab.definition] ">> type: {type}\n{type.mvarId!}"
-              registerFailedToInferDefTypeInfo type refForElabFunType
-              pure type
-          Term.synthesizeSyntheticMVarsNoPostponing
-          let (binderIds, xs) := xs.unzip
-          let xs ← addAutoBoundImplicits xs
-          let type ← mkForallFVars' xs type
-          let type ← instantiateMVars type
-          let levelNames ← getLevelNames
-          if view.type?.isSome then
-            let pendingMVarIds ← getMVars type
-            discard <| logUnassignedUsingErrorInfos pendingMVarIds <|
-              getPendindMVarErrorMessage views
-          let newHeader := {
-            ref           := view.ref,
-            modifiers     := view.modifiers,
-            kind          := view.kind,
-            shortDeclName := shortDeclName,
-            declName      := declName,
-            levelNames    := levelNames,
-            binderIds     := binderIds,
-            numParams     := xs.size,
-            type          := type,
-            valueStx      := view.value : DefViewElabHeader }
-          check headers newHeader
-          return newHeader
-    headers := headers.push newHeader
-  pure headers
+  let expandedDeclIds ← views.mapM fun view => withRef view.ref do
+    Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+  withAutoBoundImplicitForbiddenPred (fun n => expandedDeclIds.any (·.shortName == n)) do
+    let mut headers := #[]
+    for view in views, ⟨shortDeclName, declName, levelNames⟩ in expandedDeclIds do
+      let newHeader ← withRef view.ref do
+        addDeclarationRanges declName view.ref
+        applyAttributesAt declName view.modifiers.attrs AttributeApplicationTime.beforeElaboration
+        withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
+          elabBindersEx view.binders.getArgs fun xs => do
+            let refForElabFunType := view.value
+            let type ← match view.type? with
+              | some typeStx =>
+                let type ← elabType typeStx
+                registerFailedToInferDefTypeInfo type typeStx
+                pure type
+              | none =>
+                let hole := mkHole refForElabFunType
+                let type ← elabType hole
+                trace[Elab.definition] ">> type: {type}\n{type.mvarId!}"
+                registerFailedToInferDefTypeInfo type refForElabFunType
+                pure type
+            Term.synthesizeSyntheticMVarsNoPostponing
+            let (binderIds, xs) := xs.unzip
+            -- TODO: add forbidden predicate using `shortDeclName` from `views`
+            let xs ← addAutoBoundImplicits xs
+            let type ← mkForallFVars' xs type
+            let type ← instantiateMVars type
+            let levelNames ← getLevelNames
+            if view.type?.isSome then
+              let pendingMVarIds ← getMVars type
+              discard <| logUnassignedUsingErrorInfos pendingMVarIds <|
+                getPendindMVarErrorMessage views
+            let newHeader := {
+              ref           := view.ref,
+              modifiers     := view.modifiers,
+              kind          := view.kind,
+              shortDeclName := shortDeclName,
+              declName      := declName,
+              levelNames    := levelNames,
+              binderIds     := binderIds,
+              numParams     := xs.size,
+              type          := type,
+              valueStx      := view.value : DefViewElabHeader }
+            check headers newHeader
+            return newHeader
+      headers := headers.push newHeader
+    return headers
 
 private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (k : Array Expr → TermElabM α) : TermElabM α :=
   let rec loop (i : Nat) (fvars : Array Expr) := do

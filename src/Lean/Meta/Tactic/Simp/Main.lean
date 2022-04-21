@@ -157,7 +157,18 @@ private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
   | none => return e
 
 private partial def dsimp (e : Expr) : M Expr := do
-  transform e (post := fun e => return TransformStep.done (← reduce e))
+  let pre (e : Expr) : M TransformStep := do
+    if let Step.visit r ← rewritePre e (fun _ => pure none) (rflOnly := true) then
+      if r.expr != e then
+        return .visit r.expr
+    return .visit e
+  let post (e : Expr) : M TransformStep := do
+    if let Step.visit r ← rewritePost e (fun _ => pure none) (rflOnly := true) then
+      if r.expr != e then
+        return .visit r.expr
+    let eNew ← reduce e
+    if eNew != e then return .visit eNew else return .done e
+  transform e (pre := pre) (post := post)
 
 inductive SimpLetCase where
   | dep -- `let x := v; b` is not equivalent to `(fun x => b) v`

@@ -1,6 +1,9 @@
 Unreleased
 ---------
 
+* Apply `rfl` theorems at the `dsimp` auxiliary method used by `simp`. `dsimp` can be used anywhere in an expression
+  because it preserves definitional equality.
+
 * Refine auto bound implicit feature. It does not consider anymore unbound variables that have the same
   name of a declaration being defined. Example:
   ```lean

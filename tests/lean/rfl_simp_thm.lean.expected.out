@@ -1,0 +1,5 @@
+n : Nat
+a : Fin (n + 1)
+b : Fin (inc n)
+h : a = b
+⊢ b = a

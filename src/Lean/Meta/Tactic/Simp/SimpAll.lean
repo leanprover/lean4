@@ -65,8 +65,11 @@ private partial def loop : M Bool := do
            ```
            In the first round, `h : x ≠ 0` is simplified to `h : ¬ x = 0`. If we don't use the same `id`, in the next round
            the first version would simplify it to `h : True`.
+
+           We must use `mkExpectedTypeHint` because `inferType proofNew` may not be equal to `typeNew` when
+           we have theorems marked with `rfl`.
         -/
-        let simpThmsNew ← (← getSimpTheorems).addTheorem proofNew (name? := entry.id)
+        let simpThmsNew ← (← getSimpTheorems).addTheorem (← mkExpectedTypeHint proofNew typeNew) (name? := entry.id)
         modify fun s => { s with
           modified         := true
           ctx.simpTheorems := simpThmsNew

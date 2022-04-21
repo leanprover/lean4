@@ -186,7 +186,7 @@ theorem Context.evalList_insert
     case inr =>
       split
       case inl => simp [evalList, EvalInformation.evalOp]; rw [h.1, ctx.assoc.1, h.1 (evalList _ _ _)]
-      case inr => simp_all [ih, evalList, EvalInformation.evalOp]; rw [h.1, ctx.assoc.1, h.1 (evalList _ _ _)]
+      case inr => simp_all [evalList, EvalInformation.evalOp]; simp [ih]; rw [h.1, ctx.assoc.1, h.1 (evalList _ _ _)] -- TODO: remove `simp [ih]` after `update stage0`
 
 theorem Context.evalList_sort_congr
   (ctx : Context α)

@@ -37,6 +37,21 @@ def Result.getProof (r : Result) : MetaM Expr := do
   | some p => return p
   | none   => mkEqRefl r.expr
 
+/--
+  Similar to `Result.getProof`, but adds a `mkExpectedTypeHint` if `proof?` is `none`
+  (i.e., result is definitionally equal to input), but we cannot establish that
+  `source` and `r.expr` are definitionally when using `TransparencyMode.reducible`. -/
+def Result.getProof' (source : Expr) (r : Result) : MetaM Expr := do
+  match r.proof? with
+  | some p => return p
+  | none   =>
+    if (← isDefEq source r.expr) then
+      mkEqRefl r.expr
+    else
+      /- `source` and `r.expr` must be definitionally equal, but
+         are not definitionally equal at `TransparencyMode.reducible` -/
+      mkExpectedTypeHint (← mkEqRefl r.expr) (← mkEq source r.expr)
+
 def mkCongrFun (r : Result) (a : Expr) : MetaM Result :=
   match r.proof? with
   | none   => return { expr := mkApp r.expr a, proof? := none }
@@ -370,7 +385,31 @@ where
         if arg != argResult.expr then simplified := true
       | _ => unreachable!
     if !simplified then return some { expr := e }
-    if !hasProof then return some { expr := mkAppN f argsNew }
+    /-
+      If `hasProof` is false, we used to return `mkAppN f argsNew` with `proof? := none`.
+      However, this created a regression when we started using `proof? := none` for `rfl` theorems.
+      Consider the following goal
+      ```
+      m n : Nat
+      a : Fin n
+      h₁ : m < n
+      h₂ : Nat.pred (Nat.succ m) < n
+      ⊢ Fin.succ (Fin.mk m h₁) = Fin.succ (Fin.mk m.succ.pred h₂)
+      ```
+      The term `m.succ.pred` is simplified to `m` using a `Nat.pred_succ` which is a `rfl` theorem.
+      The auto generated theorem for `Fin.mk` has casts and if used here at `Fin.mk m.succ.pred h₂`,
+      it produces the term `Fin.mk m (id (Eq.refl m) ▸ h₂)`. The key property here is that the
+      proof `(id (Eq.refl m) ▸ h₂)` has type `m < n`. If we had just returned `mkAppN f argsNew`,
+      the resulting term would be `Fin.mk m h₂` which is type correct, but later we would not be
+      able to apply `eq_self` to
+      ```lean
+      Fin.succ (Fin.mk m h₁) = Fin.succ (Fin.mk m h₂)
+      ```
+      because we would not be able to establish that `m < n` and `Nat.pred (Nat.succ m) < n` are definitionally
+      equal using `TransparencyMode.reducible` (`Nat.pred` is not reducible).
+      Thus, we decided to return here only if the auto generated congruence theorem does not introduce casts.
+    -/
+    if !hasProof && !hasCast then return some { expr := mkAppN f argsNew }
     let mut proof := cgrThm.proof
     let mut type  := cgrThm.type
     let mut j := 0 -- index at argResults
@@ -398,7 +437,7 @@ where
         type := type.bindingBody!
       | CongrArgKind.eq =>
         let argResult := argResults[j]
-        let argProof ← argResult.getProof
+        let argProof ← argResult.getProof' arg
         j := j + 1
         proof := mkApp2 proof argResult.expr argProof
         subst := subst.push argResult.expr |>.push argProof
@@ -406,7 +445,11 @@ where
       | _ => unreachable!
     let some (_, _, rhs) := type.instantiateRev subst |>.eq? | unreachable!
     let rhs ← if hasCast then removeUnnecessaryCasts rhs else pure rhs
-    return some { expr := rhs, proof? := proof }
+    if hasProof then
+      return some { expr := rhs, proof? := proof }
+    else
+      /- See comment above. This is reachable if `hasCast == true`. The `rhs` is not structurally equal to `mkAppN f argsNew` -/
+      return some { expr := rhs }
 
   congrDefault (e : Expr) : M Result := do
     if let some result ← tryAutoCongrTheorem? e then

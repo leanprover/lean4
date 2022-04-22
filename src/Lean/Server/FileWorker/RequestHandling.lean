@@ -374,8 +374,11 @@ where
           continue
         if let Expr.fvar fvarId .. := ti.expr then
           if let some localDecl := ti.lctx.find? fvarId then
-            unless localDecl.isAuxDecl do
-              -- Recall that `isAuxDecl` is an auxiliary declaration used to elaborate a recursive definition.
+            -- Recall that `isAuxDecl` is an auxiliary declaration used to elaborate a recursive definition.
+            if localDecl.isAuxDecl then
+              if ti.isBinder then
+                addToken ti.stx SemanticTokenType.function
+            else
               addToken ti.stx SemanticTokenType.variable
         else if ti.stx.getPos?.get! > lastPos then
           -- any info after the start position: must be projection notation

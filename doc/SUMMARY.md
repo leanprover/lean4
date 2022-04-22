@@ -2,8 +2,8 @@
 
 - [What is Lean](./whatIsLean.md)
 - [Tour of Lean](./tour.md)
-- [Setting Up Lean](./setup.md)
-  - [Quickstart](./quickstart.md)
+- [Setting Up Lean](./quickstart.md)
+  - [Extended Setup Notes](./setup.md)
 - [Theorem Proving in Lean](./tpil.md)
 - [Examples](./examples.md)
   - [Palindromes](examples/palindromes.lean.md)

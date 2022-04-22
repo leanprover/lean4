@@ -10,6 +10,7 @@ Save [`lstlean.tex`](https://raw.githubusercontent.com/leanprover/lean4/master/d
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{listings}
+\usepackage{amssymb}
 
 \usepackage{color}
 \definecolor{keywordcolor}{rgb}{0.7, 0.1, 0.1}   % red

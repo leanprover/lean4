@@ -185,6 +185,17 @@ private partial def dsimp (e : Expr) : M Expr := do
     if eNew != e then return .visit eNew else return .done e
   transform e (pre := pre) (post := post)
 
+instance : Inhabited (M α) where
+  default := fun _ _ _ => default
+
+partial def lambdaTelescopeDSimp (e : Expr) (k : Array Expr → Expr → M α) : M α := do
+  go #[] e
+where
+  go (xs : Array Expr) (e : Expr) : M α := do
+    match e with
+    | .lam n d b c => withLocalDecl n c.binderInfo (← dsimp d) fun x => go (xs.push x) (b.instantiate1 x)
+    | e => k xs e
+
 inductive SimpLetCase where
   | dep -- `let x := v; b` is not equivalent to `(fun x => b) v`
   | nondepDepVar -- `let x := v; b` is equivalent to `(fun x => b) v`, but result type depends on `x`
@@ -556,7 +567,7 @@ where
       f
 
   simpLambda (e : Expr) : M Result :=
-    withParent e <| lambdaTelescope e fun xs e => withNewLemmas xs do
+    withParent e <| lambdaTelescopeDSimp e fun xs e => withNewLemmas xs do
       let r ← simp e
       let eNew ← mkLambdaFVars xs r.expr
       match r.proof? with

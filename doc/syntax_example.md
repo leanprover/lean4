@@ -4,19 +4,19 @@ Let's look at how to use macros to extend the Lean 4 parser and embed a language
 This language accepts strings given by the [BNF grammar](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form)
 
 ```
-Dyck :=
+Dyck ::=
   "(" Dyck ")"
-  | "{" Dyck '}'
-  | "End"
+  | "{" Dyck "}"
+  | end
 ```
 
 We begin by defining an inductive data type of the grammar we wish to parse:
 
 ```lean,ignore
-inductive Dyck: Type :=
-   | Round : Dyck -> Dyck -- ( <inner> )
-   | Flower : Dyck -> Dyck -- { <inner> }
-   | End : Dyck
+inductive Dyck : Type where
+  | round : Dyck → Dyck  -- ( <inner> )
+  | curly : Dyck → Dyck  -- { <inner> }
+  | leaf : Dyck
 ```
 
 We begin by declaring a _syntax category_ using the `declare_syntax_cat <category>` command.
@@ -29,10 +29,10 @@ declare_syntax_cat brack
 Next, we specify the grammar using the `syntax <parse rule>` command:
 
 ```lean,ignore
-syntax "End" : brack
+syntax "end" : brack
 ```
 
-The above means that the string "End" lives in syntax category `brack`.
+The above means that the token "end" lives in syntax category `brack`.
 
 Similarly, we declare the rules `"(" Dyck ")"` and `"{" Dyck "}"` using the rules:
 
@@ -42,43 +42,31 @@ syntax "{" brack "}" : brack
 ```
 
 Finally, we need a way to build _Lean 4 terms_ from this grammar -- that is, we must translate out of this
-grammar into a `Dyck` value, which is a Lean 4 term. For this, we create a piece of syntax,
-called `fromBrack% brack : term`, which receives a `brack` and produces a `term`.
+grammar into a `Dyck` value, which is a Lean 4 term. For this, we create a new kind of "quotation" that
+consumes syntax in `brack` and produces a `term`.
 
 ```lean,ignore
--- auxiliary notation for translating `brack` into `term`
-syntax "fromBrack% " brack : term
+syntax "`[Dyck| " brack "]" : term
 ```
 
-To specify the transformation rules, we use `macro_rules` to declare how the syntax `fromBrack% <brack>`
+To specify the transformation rules, we use `macro_rules` to declare how the syntax `` `[Dyck| <brack>] ``
 produces terms. This is written using a pattern-matching style syntax, where the left-hand side
-declares the pattern to be matched, and the right-hand side declares the production. Syntax placeholders (antiquotations)
+declares the syntax pattern to be matched, and the right-hand side declares the production. Syntax placeholders (antiquotations)
 are introduced via the `$<var-name>` syntax. The right-hand side is
 an arbitrary Lean term that we are producing.
 
 ```lean,ignore
 macro_rules
-  | `(fromBrack% End) => `(Dyck.End)
-  | `(fromBrack% ( $b )) => `(Dyck.Round (fromBrack% $b)) -- recurse
-  | `(fromBrack% { $b }) => `(Dyck.Flower (fromBrack% $b)) -- recurse
+  | `(`[Dyck| end])    => `(Dyck.leaf)
+  | `(`[Dyck| ($b)]) => `(Dyck.round `[Dyck| $b])  -- recurse
+  | `(`[Dyck| {$b}]) => `(Dyck.curly `[Dyck| $b])  -- recurse
 ```
 
 
 ```lean,ignore
-def bar : Dyck := fromBrack% End
-#print bar
-/-
-def bar : Dyck :=
-Dyck.End
--/
-
-def foo : Dyck := fromBrack% {(End)}
-#print foo
-/-
-Dyck.Flower (Dyck.Round (Dyck.End))
--/
+#check `[Dyck| end]      -- Dyck.leaf
+#check `[Dyck| {(end)}]  -- Dyck.curl (Dyck.round Dyck.leaf)
 ```
-
 
 In summary, we've seen:
 - How to declare a syntax category for the Dyck grammar.
@@ -87,41 +75,6 @@ In summary, we've seen:
 
 The full program listing is given below:
 
-
 ```lean
-inductive Dyck: Type :=
-   | Round : Dyck -> Dyck -- ( <inner> )
-   | Flower : Dyck -> Dyck -- { <inner> }
-   | End : Dyck
-
-
--- | declare Dyck grammar parse trees
-declare_syntax_cat brack
-syntax "End" : brack
-syntax "(" brack ")" : brack
-syntax "{" brack "}" : brack
-
-
--- auxiliary notation for translating `brack` into `term`
-syntax "fromBrack% " brack : term
-
--- | rules to translate dyck grammar into inductive value of type Dyck.
-macro_rules
-  | `(fromBrack% End) => `(Dyck.End)
-  | `(fromBrack% ( $b )) => `(Dyck.Round (fromBrack% $b)) -- recurse
-  | `(fromBrack% { $b }) => `(Dyck.Flower (fromBrack% $b)) -- recurse
-
--- | tests
-def bar : Dyck := fromBrack% End
-#print bar
-/-
-def bar : Dyck :=
-Dyck.End
--/
-
-def foo : Dyck := fromBrack% {(End)}
-#print foo
-/-
-Dyck.Flower (Dyck.Round Dyck.End)
--/
+{{#include syntax_example.lean}}
 ```

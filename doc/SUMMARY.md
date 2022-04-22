@@ -36,7 +36,7 @@
   - [String Interpolation](./stringinterp.md)
   - [Macro Overview](./macro_overview.md)
   - [Examples](./syntax_examples.md)
-    - [Parenthesized Terms](./syntax_example.md)
+    - [Balanced Parentheses](./syntax_example.md)
     - [Arithmetic DSL](./metaprogramming-arith.md)
 - [Declaring New Types](./decltypes.md)
   - [Enumerated Types](./enum.md)

@@ -648,7 +648,7 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
         `(match $val:term with | $pat => $body)
       else
         let type := optType[0][1]
-        `(match ($val:term : $type) with | $pat => $body)
+        `(let a : $type := $val:term; match a with | $pat => $body)
     withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   else if letDecl.getKind == ``Lean.Parser.Term.letEqnsDecl then
     let letDeclIdNew ← liftMacroM <| expandLetEqnsDecl letDecl

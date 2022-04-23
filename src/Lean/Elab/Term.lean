@@ -942,14 +942,18 @@ def tryPostponeIfNoneOrMVar (e? : Option Expr) : TermElabM Unit :=
   | some e => tryPostponeIfMVar e
   | none   => tryPostpone
 
-def tryPostponeIfHasMVars (expectedType? : Option Expr) (msg : String) : TermElabM Expr := do
+def tryPostponeIfHasMVars? (expectedType? : Option Expr) : TermElabM (Option Expr) := do
   tryPostponeIfNoneOrMVar expectedType?
-  let some expectedType ← pure expectedType? |
-    throwError "{msg}, expected type must be known"
+  let some expectedType := expectedType? | return none
   let expectedType ← instantiateMVars expectedType
   if expectedType.hasExprMVar then
     tryPostpone
-    throwError "{msg}, expected type contains metavariables{indentExpr expectedType}"
+    return none
+  return some expectedType
+
+def tryPostponeIfHasMVars (expectedType? : Option Expr) (msg : String) : TermElabM Expr := do
+  let some expectedType ← tryPostponeIfHasMVars? expectedType? |
+    throwError "{msg}, expected type contains metavariables{indentD expectedType?}"
   return expectedType
 
 def saveContext : TermElabM SavedContext :=

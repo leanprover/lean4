@@ -189,7 +189,7 @@ end Z1.Z2
 
 set_option pp.analyze.trustSubst false in
 #testDelab (fun (x y z : Nat) (hxy : x = y) (hyz : x = z) => hxy ▸ hyz : ∀ (x y z : Nat), x = y → x = z → y = z)
-  expecting fun x y z hxy hyz => Eq.ndrec (a := x) (motive := fun x => x = z) hyz hxy
+  expecting fun x y z hxy hyz => Eq.rec (motive := fun x_1 h => x_1 = z) hyz hxy
 
 set_option pp.analyze.trustSubst true in
 #testDelab (fun (x y z : Nat) (hxy : x = y) (hyz : x = z) => hxy ▸ hyz : ∀ (x y z : Nat), x = y → x = z → y = z)

@@ -16,30 +16,29 @@ namespace Lean.Server.RpcEncoding
 open Meta Elab Command Term
 
 private def deriveWithRefInstance (typeNm : Name) : CommandElabM Bool := do
-  let env ← getEnv
   -- TODO(WN): check that `typeNm` is not a scalar type
   let typeId := mkIdent typeNm
   let cmds ← `(
-    namespace $typeId:ident
+    section
     variable {m : Type → Type}
-    private unsafe def encodeUnsafe [Monad m] [MonadRpcSession m] (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef :=
+    protected unsafe def encodeUnsafe [Monad m] [MonadRpcSession m] (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef :=
       WithRpcRef.encodeUnsafe $(quote typeNm) r
 
     @[implementedBy encodeUnsafe]
-    private constant encode [Monad m] [MonadRpcSession m] (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef :=
+    protected constant encode [Monad m] [MonadRpcSession m] (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef :=
       pure ⟨0⟩
 
-    private unsafe def decodeUnsafe [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
+    protected unsafe def decodeUnsafe [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
       WithRpcRef.decodeUnsafeAs $typeId:ident $(quote typeNm) r
 
     @[implementedBy decodeUnsafe]
-    private constant decode [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
+    protected constant decode [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
       throw "unreachable"
 
     instance : RpcEncoding (WithRpcRef $typeId:ident) Lsp.RpcRef :=
       { rpcEncode := encode
         rpcDecode := decode }
-    end $typeId:ident
+    end
   )
   elabCommand cmds
   return true
@@ -93,8 +92,6 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
       let encFields ← fieldInsts ``rpcEncode
       let decFields ← fieldInsts ``rpcDecode
       `(
-        namespace $typeId:ident
-
         protected structure RpcEncodingPacket where
           $[($fieldIds : $fieldEncTs)]*
           deriving $(mkIdent ``Lean.FromJson), $(mkIdent ``Lean.ToJson)
@@ -109,7 +106,6 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
               $[$decFields]*
             }
         }
-        end $typeId:ident
       )
 
   elabCommand cmds
@@ -124,21 +120,7 @@ private unsafe def dispatchDeriveInstanceUnsafe (declNames : Array Name) (args? 
       liftTermElabM (some n) do
         let argsT := mkConst ``DerivingParams
         let args ← elabTerm args argsT
-        let decl := Declaration.defnDecl {
-          name        := n
-          levelParams := []
-          type        := argsT
-          value       := args
-          hints       := ReducibilityHints.opaque
-          safety      := DefinitionSafety.safe
-        }
-        let env ← getEnv
-        try
-          addAndCompile decl
-          evalConstCheck DerivingParams ``DerivingParams n
-        finally
-          -- Reset the environment to one without the auxiliary config constant
-          setEnv env
+        evalExpr DerivingParams ``DerivingParams args
     else pure {}
   if args.withRef then
     deriveWithRefInstance declNames[0]

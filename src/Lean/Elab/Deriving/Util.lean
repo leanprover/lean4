@@ -13,6 +13,9 @@ def implicitBinderF := Parser.Term.implicitBinder
 def instBinderF     := Parser.Term.instBinder
 def explicitBinderF := Parser.Term.explicitBinder
 
+/-- Make fresh, hygienic names for every parameter and index of an inductive
+declaration. For example, `inductive Foo {α : Type} : Nat → Type` will give
+something like `#[α✝, a✝]`. -/
 def mkInductArgNames (indVal : InductiveVal) : TermElabM (Array Name) := do
   forallTelescopeReducing indVal.type fun xs _ => do
     let mut argNames := #[]

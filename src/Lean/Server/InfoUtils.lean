@@ -221,9 +221,12 @@ structure GoalsAtResult where
   Moreover, we instruct the LSP server to use the state after tactic execution if
   - the hover position is after the info's start position *and*
   - there is no nested tactic info after the hover position (tactic combinators should decide for themselves
-    where to show intermediate states by calling `withTacticInfoContext`) -/
+    where to show intermediate states by calling `withTacticInfoContext`)
+
+  Finally, if the hover position is over the infos' trailing whitespace, we only show the last such info
+  (so that we only show the single final state after combinators such as `repeat`). -/
 partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult := Id.run do
-  t.deepestNodes fun
+  let goals := t.deepestNodes fun
     | ctx, i@(Info.ofTacticInfo ti), cs => OptionM.run do
       if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
         let trailSize := i.stx.getTrailingSize
@@ -235,6 +238,11 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
       else
         failure
     | _, _, _ => none
+  if let (last :: _ :: _) := goals.reverse then
+    -- should be the same for any element in `goals`
+    if last.tacticInfo.stx.getTailPos?.get! <= hoverPos then
+      return [last]
+  goals
 where
   hasNestedTactic (pos tailPos) : InfoTree → Bool
     | InfoTree.node i@(Info.ofTacticInfo _) cs => Id.run do

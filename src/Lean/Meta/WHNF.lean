@@ -109,8 +109,12 @@ private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
     let newType ← inferType newCtorApp
     /- TODO: check whether changing reducibility to default hurts performance here.
        We do that to make sure auxiliary `Eq.rec` introduced by the `match`-compiler
-       are reduced even when `TransparencyMode.reducible` (like in `simp`) -/
-    if (← withAtLeastTransparency TransparencyMode.default <| isDefEq majorType newType) then
+       are reduced even when `TransparencyMode.reducible` (like in `simp`).
+
+       We use `withNewMCtxDepth` to make sure metavariables at `majorType` are not assigned.
+       For example, given `major : Eq ?x y`, we don't want to apply K by assigning `?x := y`.
+    -/
+    if (← withAtLeastTransparency TransparencyMode.default <| withNewMCtxDepth <| isDefEq majorType newType) then
       return newCtorApp
     else
       return major

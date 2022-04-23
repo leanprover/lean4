@@ -1,6 +1,15 @@
 Unreleased
 ---------
 
+* Fix binder information for `match` patterns that use definitions tagged with `[matchPattern]` (e.g., `Nat.add`).
+  We now have proper binder information for the variable `y` in the following example.
+  ```lean
+  def f (x : Nat) : Nat :=
+    match x with
+    | 0 => 1
+    | y + 1 => y
+  ```
+
 * (Fix) the default value for structure fields may now depend on the structure parameters. Example:
   ```lean
   structure Something (i: Nat) where

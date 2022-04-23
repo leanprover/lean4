@@ -125,6 +125,15 @@ private partial def getStructureFieldsFlattenedAux (env : Environment) (structNa
       getStructureFieldsFlattenedAux env parentStructName fullNames includeSubobjectFields
     | none                  => fullNames.push fieldName
 
+/-- Return field names for the given structure, including "flattened" fields from parent
+structures. To omit `toParent` projections, set `includeSubobjectFields := false`.
+
+For example, given `Bar` such that
+```lean
+structure Foo where a : Nat
+structure Bar extends Foo where b : Nat
+```
+return `#[toFoo,a,b]` or `#[a,b]` with subobject fields omitted. -/
 def getStructureFieldsFlattened (env : Environment) (structName : Name) (includeSubobjectFields := true) : Array Name :=
   getStructureFieldsFlattenedAux env structName #[] includeSubobjectFields
 

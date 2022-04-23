@@ -11,3 +11,4 @@ import Init.Data.Nat.Bitwise
 import Init.Data.Nat.Control
 import Init.Data.Nat.Log2
 import Init.Data.Nat.Linear
+import Init.Data.Nat.SOM

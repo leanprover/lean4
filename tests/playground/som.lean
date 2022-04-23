@@ -113,10 +113,18 @@ where
         else
           (k₁ + k₂, m₁) :: go fuel p₁ p₂
 
-def Poly.mulMon (p : Poly) (k : Int) (m : Mon) : Poly :=
+def Poly.insertSorted (k : Int) (m : Mon) (p : Poly) : Poly :=
   match p with
-  | [] => []
-  | (k', m') :: p => (k*k', m.mul m') :: mulMon p k m
+  | [] => [(k, m)]
+  | (k', m') :: p => bif m < m' then (k, m) :: (k', m') :: p else (k', m') :: insertSorted k m p
+
+def Poly.mulMon (p : Poly) (k : Int) (m : Mon) : Poly :=
+  go p []
+where
+  go (p : Poly) (acc : Poly) : Poly :=
+    match p with
+    | [] => acc
+    | (k', m') :: p => go p (acc.insertSorted (k*k') (m.mul m'))
 
 def Poly.mul (p₁ : Poly) (p₂ : Poly) : Poly :=
   go p₁ []
@@ -184,11 +192,20 @@ where
         · rw [← add_assoc, ← right_dist, ← ofInt_add, eq_of_beq heq, zero_mul, zero_add]
         · simp [right_dist, left_dist, add_assoc, add_comm, add_left_comm, ofInt_add]
 
-theorem Poly.mulMon_denote (ctx : Context α) (p : Poly) (k : Int) (m : Mon) : (p.mulMon k m).denote ctx = ctx.mul (p.denote ctx) (ctx.mul (ctx.ofInt k) (m.denote ctx)) := by
+theorem Poly.denote_insertSorted (ctx : Context α) (k : Int) (m : Mon) (p : Poly) : (p.insertSorted k m).denote ctx = ctx.add (p.denote ctx) (ctx.mul (ctx.ofInt k) (m.denote ctx)) := by
   match p with
-  | [] => simp! [zero_mul]
+  | [] => simp! [add_zero, zero_add]
   | (k', m') :: p =>
-    simp! [Mon.mul_denote, right_dist, mulMon_denote ctx p, mul_assoc, mul_comm, mul_left_comm, ofInt_mul]
+    by_cases h : m < m' <;> simp! [h, denote_insertSorted ctx k m p, add_assoc, add_comm, add_left_comm]
+
+theorem Poly.mulMon_denote (ctx : Context α) (p : Poly) (k : Int) (m : Mon) : (p.mulMon k m).denote ctx = ctx.mul (p.denote ctx) (ctx.mul (ctx.ofInt k) (m.denote ctx)) := by
+  simp [mulMon, go]; simp! [zero_add]
+where
+  go (p : Poly) (acc : Poly) : (mulMon.go k m p acc).denote ctx = ctx.add (acc.denote ctx) (ctx.mul (p.denote ctx) (ctx.mul (ctx.ofInt k) (m.denote ctx))) := by
+   match p with
+   | [] => simp! [zero_mul, add_zero]
+   | (k', m') :: p =>
+     simp! [go p, ofInt_mul, left_dist, denote_insertSorted, Mon.mul_denote, mul_assoc, mul_comm, mul_left_comm, add_assoc]
 
 theorem Poly.mul_denote (ctx : Context α) (p₁ p₂ : Poly) : (p₁.mul p₂).denote ctx = ctx.mul (p₁.denote ctx) (p₂.denote ctx) := by
   simp [mul, go]; simp! [zero_add]
@@ -221,3 +238,10 @@ theorem Expr.eq_of_toPoly_eq (ctx : Context α) (a b : Expr) (h : a.toPoly == b.
   have h := congrArg (Poly.denote ctx) (eq_of_beq h)
   simp [toPoly_denote] at h
   assumption
+
+def ex1 : Expr := .mul (.add (.var 0) (.var 1)) (.add (.add (.var 0) (.var 1)) (.num 1))
+def ex2 : Expr := .add (.mul (.var 0) (.add (.add (.num 1) (.var 1)) (.var 0)))
+                       (.mul (.add (.add (.var 1) (.num 1)) (.var 0)) (.var 1))
+
+#eval Expr.toPoly ex1
+#eval Expr.toPoly ex2

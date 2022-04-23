@@ -469,7 +469,7 @@ where
       withParent e <| e.withApp fun f args => do
         congrArgs (← simp f) args
 
-  /- Return true iff processing the given congruence theorem hypothesis produced a non-refl proof. -/
+  /-- Process the given congruence theorem hypothesis. Return true if it made "progress". -/
   processCongrHypothesis (h : Expr) : M Bool := do
     forallTelescopeReducing (← inferType h) fun xs hType => withNewLemmas xs do
       let lhs ← instantiateMVars hType.appFn!.appArg!
@@ -481,9 +481,25 @@ where
           throwCongrHypothesisFailed
         unless (← isDefEq h (← mkLambdaFVars xs (← r.getProof))) do
           throwCongrHypothesisFailed
-        return r.proof?.isSome
+        /- We used to return `false` if `r.proof? = none` (i.e., an implicit `rfl` proof) because we
+           assumed `dsimp` would also be able to simplify the term, but this is not true
+           for non-trivial user-provided theorems.
+           Example:
+           ```
+           @[congr] theorem image_congr {f g : α → β} {s : Set α} (h : ∀ a, mem a s → f a = g a) : image f s = image g s :=
+           ...
 
-  /- Try to rewrite `e` children using the given congruence theorem -/
+           example {Γ: Set Nat}: (image (Nat.succ ∘ Nat.succ) Γ) = (image (fun a => a.succ.succ) Γ) := by
+             simp only [Function.comp_apply]
+           ```
+           `Function.comp_apply` is a `rfl` theorem, but `dsimp` will not apply it because the composition
+           is not fully applied. See comment at issue #1113
+
+           Thus, we have an extra check now if `xs.size > 0`. TODO: refine this test.
+        -/
+        return r.proof?.isSome || (xs.size > 0 && lhs != r.expr)
+
+  /-- Try to rewrite `e` children using the given congruence theorem -/
   trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : M (Option Result) := withNewMCtxDepth do
     trace[Debug.Meta.Tactic.simp.congr] "{c.theoremName}, {e}"
     let thm ← mkConstWithFreshMVarLevels c.theoremName

@@ -68,3 +68,11 @@ example : True ∧ False := by
  --^ $/lean/plainGoal
   ·
  --^ $/lean/plainGoal
+
+theorem left_distrib (t a b : Nat) : t * (a + b) = t * a + t * b := by
+  induction b
+  next => simp
+  next =>
+    rw [Nat.add_succ]
+    repeat (rw [Nat.mul_succ])
+                           --^ $/lean/plainGoal

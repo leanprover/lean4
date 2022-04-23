@@ -215,13 +215,13 @@ structure GoalsAtResult where
   Try to retrieve `TacticInfo` for `hoverPos`.
   We retrieve the `TacticInfo` `info`, if there is a node of the form `node (ofTacticInfo info) children` s.t.
   - `hoverPos` is sufficiently inside `info`'s range (see code), and
-  - None of the `children` satisfy the condition above. That is, for composite tactics such as
+  - none of the `children` satisfy the condition above. That is, for composite tactics such as
     `induction`, we always give preference for information stored in nested (children) tactics.
 
-  Moreover, we instruct the LSP server to use the state after the tactic execution if the hover is inside the info *and*
-  there is no nested tactic info (i.e. it is a leaf tactic; tactic combinators should decide for themselves
-  where to show intermediate/final states)
--/
+  Moreover, we instruct the LSP server to use the state after tactic execution if
+  - the hover position is after the info's start position *and*
+  - there is no nested tactic info after the hover position (tactic combinators should decide for themselves
+    where to show intermediate states by calling `withTacticInfoContext`) -/
 partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult := Id.run do
   t.deepestNodes fun
     | ctx, i@(Info.ofTacticInfo ti), cs => OptionM.run do
@@ -231,7 +231,7 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
         let atEOF := tailPos.byteIdx + trailSize == text.source.endPos.byteIdx
         guard <| pos ≤ hoverPos ∧ (hoverPos.byteIdx < tailPos.byteIdx + trailSize || atEOF)
         return { ctxInfo := ctx, tacticInfo := ti, useAfter :=
-          hoverPos > pos && (hoverPos >= tailPos || !cs.any (hasNestedTactic pos tailPos)) }
+          hoverPos > pos && !cs.any (hasNestedTactic pos tailPos) }
       else
         failure
     | _, _, _ => none
@@ -241,8 +241,9 @@ where
       if let `(by $t) := i.stx then
         return false  -- ignore term-nested proofs such as in `simp [show p by ...]`
       if let (some pos', some tailPos') := (i.pos?, i.tailPos?) then
+        -- ignore preceding nested infos
         -- ignore nested infos of the same tactic, e.g. from expansion
-        if (pos', tailPos') != (pos, tailPos) then
+        if tailPos' > hoverPos && (pos', tailPos') != (pos, tailPos) then
           return true
       cs.any (hasNestedTactic pos tailPos)
     | InfoTree.node (Info.ofMacroExpansionInfo _) cs =>

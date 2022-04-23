@@ -14,6 +14,11 @@ def DerivingHandlerNoArgs := (typeNames : Array Name) → CommandElabM Bool
 
 builtin_initialize derivingHandlersRef : IO.Ref (NameMap DerivingHandler) ← IO.mkRef {}
 
+/-- A `DerivingHandler` is called on the fully qualified names of all types it is running for
+as well as the syntax of a `with` argument, if present.
+
+For example, `deriving instance Foo with fooArgs for Bar, Baz` invokes
+``fooHandler #[`Bar, `Baz] `(fooArgs)``. -/
 def registerBuiltinDerivingHandlerWithArgs (className : Name) (handler : DerivingHandler) : IO Unit := do
   unless (← initializing) do
     throw (IO.userError "failed to register deriving handler, it can only be registered during initialization")
@@ -21,6 +26,7 @@ def registerBuiltinDerivingHandlerWithArgs (className : Name) (handler : Derivin
     throw (IO.userError s!"failed to register deriving handler, a handler has already been registered for '{className}'")
   derivingHandlersRef.modify fun m => m.insert className handler
 
+/-- Like `registerBuiltinDerivingHandlerWithArgs` but ignoring any `with` argument. -/
 def registerBuiltinDerivingHandler (className : Name) (handler : DerivingHandlerNoArgs) : IO Unit := do
   registerBuiltinDerivingHandlerWithArgs className fun typeNames _ => handler typeNames
 

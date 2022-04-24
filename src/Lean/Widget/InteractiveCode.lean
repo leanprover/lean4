@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
-import Lean.PrettyPrinter.Delaborator.Basic
+import Lean.PrettyPrinter
 import Lean.Server.Rpc.Basic
 import Lean.Widget.TaggedText
 
@@ -71,27 +71,6 @@ where
         | 0, proj _ _ e₁ _ => go' e₁
         | _, _             => return (lctx, e) -- panic! s!"cannot descend {a} into {e.expr}"
 
--- TODO(WN): should the two fns below go in `Lean.PrettyPrinter` ?
-open PrettyPrinter in
-private def formatWithOpts (e : Expr) (optsPerPos : Delaborator.OptionsPerPos)
-    : MetaM (Format × Std.RBMap Nat Elab.Info compare) := do
-    let opts ← getOptions
-    let e ← Meta.instantiateMVars e
-    let (stx, infos) ← PrettyPrinter.delabCore e optsPerPos
-    let stx := sanitizeSyntax stx |>.run' { options := opts }
-    let stx ← PrettyPrinter.parenthesizeTerm stx
-    let fmt ← PrettyPrinter.formatTerm stx
-    return (fmt, infos)
-
-/-- Pretty-print the expression and its subexpression information. When `explicit := true`,
-we set `pp.all` at the top-level expression. -/
-def formatInfos (e : Expr) (explicit : Bool) : MetaM (Format × Std.RBMap Nat Elab.Info compare) :=
-  let optsPerPos := if explicit then
-    Std.RBMap.ofList [(1, KVMap.empty.setBool `pp.all true)]
-  else
-    {}
-  formatWithOpts e optsPerPos
-
 /-- Tags a pretty-printed `Expr` with infos from the delaborator. -/
 partial def tagExprInfos (ctx : Elab.ContextInfo) (infos : Std.RBMap Nat Elab.Info compare) (tt : TaggedText (Nat × Nat))
     : CodeWithInfos :=
@@ -104,7 +83,11 @@ where
       | some i => TaggedText.tag ⟨WithRpcRef.mk { ctx, info := i }⟩ (go subTt)
 
 def exprToInteractive (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
-  let (fmt, infos) ← formatInfos e explicit
+  let optsPerPos := if explicit then
+    Std.RBMap.ofList [(1, KVMap.empty.setBool `pp.all true)]
+  else
+    {}
+  let (fmt, infos) ← PrettyPrinter.ppExprWithInfos e optsPerPos
   let tt := TaggedText.prettyTagged fmt
   let ctx := {
     env           := (← getEnv)

@@ -129,9 +129,10 @@ where
       options       := ctx.opts
       currNamespace := nCtx.currNamespace
       openDecls     := nCtx.openDecls
-      ngen          := { namePrefix := `_diag } -- Hack: to make sure unique ids created at `formatInfos` do not collide with ones in `ctx.mctx`
+      -- Hack: to make sure unique ids created at `ppExprWithInfos` do not collide with ones in `ctx.mctx`
+      ngen          := { namePrefix := `_diag }
     }
-    let (fmt, infos) ← ci.runMetaM ctx.lctx <| formatInfos e (explicit := false)
+    let (fmt, infos) ← ci.runMetaM ctx.lctx <| PrettyPrinter.ppExprWithInfos e
     let t ← pushEmbed <| EmbedFmt.expr ci infos
     return Format.tag t fmt
   | _,    none,      ofGoal mvarId            => pure $ "goal " ++ format (mkMVar mvarId)

@@ -21,13 +21,17 @@ lib.makeOverridable (
   precompilePackage ? precompileModules,
   # Lean plugin dependencies. Each derivation `plugin` should contain a plugin library at path `${plugin}/${plugin.name}`.
   pluginDeps ? [],
+  # Extra args sent to every derivation.
+  extraDrvArgs ? {},
+  # Extra args sent to every derivation.
+  extraModArgs ? {},
   debug ? false, leanFlags ? [], leancFlags ? [], linkFlags ? [], executableName ? lib.toLower name,
   srcTarget ? "..#stage0", srcArgs ? "(\${args[*]})", lean-final ? lean-final' }:
 with builtins; let
   # "Init.Core" ~> "Init/Core"
   modToPath = mod: replaceStrings ["."] ["/"] mod;
   modToLean = mod: modToPath mod + ".lean";
-  mkBareDerivation = args@{ buildCommand, ... }: derivation (args // {
+  mkBareDerivation = args@{ buildCommand, ... }: derivation (extraDrvArgs // args // {
     inherit stdenv;
     inherit (stdenv) system;
     buildInputs = (args.buildInputs or []) ++ [ coreutils ];
@@ -107,7 +111,7 @@ with builtins; let
     allowSubstitutes = false;
   };
   # build module (.olean and .c) given derivations of all (immediate) dependencies
-  buildMod = mod: deps: mkBareDerivation rec {
+  buildMod = mod: deps: mkBareDerivation (extraModArgs // rec {
     name = "${mod}";
     LEAN_PATH = depRoot mod deps;
     relpath = modToPath mod;
@@ -129,7 +133,7 @@ with builtins; let
   } // {
     inherit deps;
     propagatedLoadDynlibs = loadDynlibsOfDeps deps;
-  };
+  });
   compileMod = mod: drv: mkBareDerivation {
     name = "${mod}-cc";
     buildInputs = [ leanc stdenv.cc ];

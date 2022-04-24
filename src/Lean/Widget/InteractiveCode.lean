@@ -33,44 +33,6 @@ abbrev CodeWithInfos := TaggedText CodeToken
 def CodeWithInfos.pretty (tt : CodeWithInfos) :=
   tt.stripTags
 
-open Expr in
-/-- Find a subexpression of `e` using the pretty-printer address scheme. -/
--- NOTE(WN): not currently in use
-partial def traverse (e : Expr) (addr : Nat) : MetaM (LocalContext × Expr):= do
-  let e ← Meta.instantiateMVars e
-  go (tritsLE [] addr |>.drop 1) (← getLCtx) e
-where
-  tritsLE (acc : List Nat) (n : Nat) : List Nat :=
-    if n == 0 then acc
-    else tritsLE (n % 3 :: acc) (n / 3)
-
-  go (addr : List Nat) (lctx : LocalContext) (e : Expr) : MetaM (LocalContext × Expr) := do
-    match addr with
-    | [] => return (lctx, e)
-    | a::as => do
-      let go' (e' : Expr) := do
-        go as (← getLCtx) e'
-
-      let eExpr ← match a, e with
-        | 0, app e₁ e₂ _      => go' e₁
-        | 1, app e₁ e₂ _      => go' e₂
-        | 0, lam _ e₁ e₂ _    => go' e₁
-        | 1, lam n e₁ e₂ data =>
-          Meta.withLocalDecl n data.binderInfo e₁ fun fvar =>
-            go' (e₂.instantiate1 fvar)
-        | 0, forallE _ e₁ e₂ _    => go' e₁
-        | 1, forallE n e₁ e₂ data =>
-          Meta.withLocalDecl n data.binderInfo e₁ fun fvar =>
-            go' (e₂.instantiate1 fvar)
-        | 0, letE _ e₁ e₂ e₃ _ => go' e₁
-        | 1, letE _ e₁ e₂ e₃ _ => go' e₂
-        | 2, letE n e₁ e₂ e₃ _ =>
-          Meta.withLetDecl n e₁ e₂ fun fvar => do
-            go' (e₃.instantiate1 fvar)
-        | 0, mdata _ e₁ _  => go' e₁
-        | 0, proj _ _ e₁ _ => go' e₁
-        | _, _             => return (lctx, e) -- panic! s!"cannot descend {a} into {e.expr}"
-
 /-- Tags a pretty-printed `Expr` with infos from the delaborator. -/
 partial def tagExprInfos (ctx : Elab.ContextInfo) (infos : Std.RBMap Nat Elab.Info compare) (tt : TaggedText (Nat × Nat))
     : CodeWithInfos :=

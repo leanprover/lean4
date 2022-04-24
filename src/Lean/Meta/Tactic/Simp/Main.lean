@@ -688,6 +688,13 @@ def main (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Result := 
     catch ex =>
       if ex.isMaxHeartbeat then throwNestedTacticEx `simp ex else throw ex
 
+def dsimpMain (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Expr := do
+  withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible do
+    try
+      dsimp e methods ctx |>.run' {}
+    catch ex =>
+      if ex.isMaxHeartbeat then throwNestedTacticEx `dsimp ex else throw ex
+
 partial def isEqnThmHypothesis (e : Expr) : Bool :=
   e.isForall && go e
 where
@@ -749,6 +756,9 @@ def simp (e : Expr) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := 
   match discharge? with
   | none   => Simp.main e ctx (methods := Simp.DefaultMethods.methods)
   | some d => Simp.main e ctx (methods := { pre := (Simp.preDefault · d), post := (Simp.postDefault · d), discharge? := d })
+
+def dsimp (e : Expr) (ctx : Simp.Context) : MetaM Expr := do profileitM Exception "dsimp" (← getOptions) do
+  Simp.dsimpMain e ctx (methods := Simp.DefaultMethods.methods)
 
 /--
   Auxiliary method.
@@ -878,7 +888,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
         -- Reason: it introduces a `mkExpectedTypeHint`
         mvarId ← replaceLocalDeclDefEq mvarId fvarId r.expr
         replaced := replaced.push fvarId
-     if simplifyTarget then
+    if simplifyTarget then
       match (← simpTarget mvarId ctx discharge?) with
       | none => return none
       | some mvarIdNew => mvarId := mvarIdNew
@@ -901,5 +911,32 @@ def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option S
       return TacticResultCNM.noChange
     else
       return TacticResultCNM.modified mvarId'
+
+def dsimpGoal (mvarId : MVarId) (ctx : Simp.Context) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[]) : MetaM (Option MVarId) := do
+  withMVarContext mvarId do
+    checkNotAssigned mvarId `simp
+    let mut mvarId := mvarId
+    for fvarId in fvarIdsToSimp do
+      let localDecl ← getLocalDecl fvarId
+      let type ← instantiateMVars localDecl.type
+      let typeNew ← dsimp type ctx
+      if typeNew.isConstOf ``False then
+        assignExprMVar mvarId (← mkFalseElim (← getMVarType mvarId) (mkFVar fvarId))
+        return none
+      if typeNew != type then
+        mvarId ← replaceLocalDeclDefEq mvarId fvarId typeNew
+    if simplifyTarget then
+      let target ← getMVarType mvarId
+      let targetNew ← dsimp target ctx
+      if targetNew.isConstOf ``True then
+        assignExprMVar mvarId (mkConst ``True.intro)
+        return none
+      if let some (_, lhs, rhs) := targetNew.eq? then
+        if (← isDefEq lhs rhs) then
+          assignExprMVar mvarId (← mkEqRefl lhs)
+          return none
+      if target != targetNew then
+        mvarId ← replaceTargetDefEq mvarId targetNew
+    return some mvarId
 
 end Lean.Meta

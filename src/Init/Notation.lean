@@ -451,6 +451,12 @@ Only non-dependent propositional hypotheses are considered.
 syntax (name := simpAll) "simp_all " (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic
 
 /--
+The `dsimp` tactic is the definitional simplifier. It is similar to `simp` but only applies theorems that hold by
+reflexivity. Thus, the result is guaranteed to be definitionally equal to the input.
+-/
+syntax (name := dsimp) "dsimp " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
+
+/--
   Delta expand the given definition.
   This is a low-level tactic, it will expose how recursive definitions have been compiled by Lean. -/
 syntax (name := delta) "delta " ident (location)? : tactic

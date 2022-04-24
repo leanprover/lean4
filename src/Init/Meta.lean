@@ -994,6 +994,21 @@ inductive TransparencyMode where
   | all | default | reducible | instances
   deriving Inhabited, BEq, Repr
 
+namespace DSimp
+
+structure Config where
+  zeta              : Bool := true
+  beta              : Bool := true
+  eta               : Bool := true
+  etaStruct         : Bool := true
+  iota              : Bool := true
+  proj              : Bool := true
+  decide            : Bool := true
+  autoUnfold        : Bool := false
+  deriving Inhabited, BEq, Repr
+
+end DSimp
+
 namespace Simp
 
 def defaultMaxSteps := 100000

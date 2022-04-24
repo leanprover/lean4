@@ -136,8 +136,6 @@ inductive InfoTree where
     context (i : ContextInfo) (t : InfoTree)
   | /-- The children contain information for nested term elaboration and tactic evaluation -/
     node (i : Info) (children : PersistentArray InfoTree)
-  | /-- For user data. -/
-    ofJson (j : Json)
   | /-- The elaborator creates holes (aka metavariables) for tactics and postponed terms -/
     hole (mvarId : MVarId)
   deriving Inhabited
@@ -187,7 +185,6 @@ partial def InfoTree.substitute (tree : InfoTree) (assignment : PersistentHashMa
   match tree with
   | node i c => node i <| c.map (substitute · assignment)
   | context i t => context i (substitute t assignment)
-  | ofJson j => ofJson j
   | hole id  => match assignment.find? id with
     | none      => hole id
     | some tree => substitute tree assignment
@@ -306,7 +303,6 @@ def Info.updateContext? : Option ContextInfo → Info → Option ContextInfo
 
 partial def InfoTree.format (tree : InfoTree) (ctx? : Option ContextInfo := none) : IO Format := do
   match tree with
-  | ofJson j    => return toString j
   | hole id     => return toString id.name
   | context i t => format t i
   | node i cs   => match ctx? with

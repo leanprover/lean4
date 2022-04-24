@@ -660,9 +660,17 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
   let inputConfig ← getConfig
+  /-
+    We disable eta for structures during TC resolution because it allows us to find unintended solutions.
+    See discussion at
+      https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/.60constructor.60.20and.20.60Applicative.60/near/279984801
+    TODO: users may still want eta for structures that are not classes. If we find compelling examples, we can implement
+    the solution: disable "eta for classes" during TC resolution. We would need a new flag "etaClasses".
+  -/
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
                                           foApprox := true, ctxApprox := true, constApprox := false,
-                                          ignoreLevelMVarDepth := true }) do
+                                          ignoreLevelMVarDepth := true,
+                                          etaStruct := false }) do
     let type ← instantiateMVars type
     let type ← preprocess type
     let s ← get

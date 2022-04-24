@@ -83,13 +83,13 @@ private def formatWithOpts (e : Expr) (optsPerPos : Delaborator.OptionsPerPos)
     let fmt ← PrettyPrinter.formatTerm stx
     return (fmt, infos)
 
-/-- Pretty-print the expression and its subexpression information. -/
-def formatInfos (e : Expr) : MetaM (Format × Std.RBMap Nat Elab.Info compare) :=
-  formatWithOpts e {}
-
-/-- Like `formatInfos` but with `pp.all` set at the top-level expression. -/
-def formatExplicitInfos (e : Expr) : MetaM (Format × Std.RBMap Nat Elab.Info compare) :=
-  let optsPerPos := Std.RBMap.ofList [(1, KVMap.empty.setBool `pp.all true)]
+/-- Pretty-print the expression and its subexpression information. When `explicit := true`,
+we set `pp.all` at the top-level expression. -/
+def formatInfos (e : Expr) (explicit : Bool) : MetaM (Format × Std.RBMap Nat Elab.Info compare) :=
+  let optsPerPos := if explicit then
+    Std.RBMap.ofList [(1, KVMap.empty.setBool `pp.all true)]
+  else
+    {}
   formatWithOpts e optsPerPos
 
 /-- Tags a pretty-printed `Expr` with infos from the delaborator. -/
@@ -103,8 +103,8 @@ where
       | none   => go subTt
       | some i => TaggedText.tag ⟨WithRpcRef.mk { ctx, info := i }⟩ (go subTt)
 
-def exprToInteractive (e : Expr) : MetaM CodeWithInfos := do
-  let (fmt, infos) ← formatInfos e
+def exprToInteractive (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
+  let (fmt, infos) ← formatInfos e explicit
   let tt := TaggedText.prettyTagged fmt
   let ctx := {
     env           := (← getEnv)
@@ -115,21 +115,6 @@ def exprToInteractive (e : Expr) : MetaM CodeWithInfos := do
     fileMap       := default
     ngen          := (← getNGen)
   }
-  return tagExprInfos ctx infos tt
-
-def exprToInteractiveExplicit (e : Expr) : MetaM CodeWithInfos := do
-  let (fmt, infos) ← formatExplicitInfos e
-  let tt := TaggedText.prettyTagged fmt
-  let ctx := {
-    env           := (← getEnv)
-    mctx          := (← getMCtx)
-    options       := (← getOptions)
-    currNamespace := (← getCurrNamespace)
-    openDecls     := (← getOpenDecls)
-    fileMap       := default
-    ngen          := (← getNGen)
-  }
-  let infos := infos.erase 1 -- remove highlight for entire expression in popups
   return tagExprInfos ctx infos tt
 
 end Lean.Widget

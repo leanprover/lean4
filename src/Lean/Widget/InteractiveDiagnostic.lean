@@ -131,8 +131,7 @@ where
       openDecls     := nCtx.openDecls
       ngen          := { namePrefix := `_diag } -- Hack: to make sure unique ids created at `formatInfos` do not collide with ones in `ctx.mctx`
     }
-    let lctx := ctx.lctx.sanitizeNames.run' { options := ctx.opts }
-    let (fmt, infos) ← ci.runMetaM lctx (formatInfos e)
+    let (fmt, infos) ← ci.runMetaM ctx.lctx <| formatInfos e (explicit := false)
     let t ← pushEmbed <| EmbedFmt.expr ci infos
     return Format.tag t fmt
   | _,    none,      ofGoal mvarId            => pure $ "goal " ++ format (mkMVar mvarId)

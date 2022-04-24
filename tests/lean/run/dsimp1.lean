@@ -9,10 +9,16 @@ example (x : Nat) : (1 + id x.succ.pred).isZero = false := by
   simp [Nat.succ_add]
   dsimp [Nat.isZero]
 
+#check Nat.pred_succ
+
+example (x : Nat) : (id x.succ.succ).isZero = false := by
+  dsimp [Nat.isZero]
+
+example (x : Nat) : (id x.succ.succ).isZero = false := by
+  dsimp!
+
 @[simp] theorem isZero_succ (x : Nat) : (x + 1).isZero = false :=
   rfl
 
 theorem ex1 (x : Nat) : (id x.succ.succ.pred).isZero = false := by
   dsimp
-
-#print ex1

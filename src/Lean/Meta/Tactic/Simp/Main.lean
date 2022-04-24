@@ -932,7 +932,7 @@ def dsimpGoal (mvarId : MVarId) (ctx : Simp.Context) (simplifyTarget : Bool := t
         assignExprMVar mvarId (mkConst ``True.intro)
         return none
       if let some (_, lhs, rhs) := targetNew.eq? then
-        if (← isDefEq lhs rhs) then
+        if (← withReducible <| isDefEq lhs rhs) then
           assignExprMVar mvarId (← mkEqRefl lhs)
           return none
       if target != targetNew then

@@ -550,8 +550,6 @@ and one goal with hypothesis `h : P (Nat.succ a)` and target `Q (Nat.succ a)`. H
 -/
 syntax (name := cases) "cases " casesTarget,+ (" using " ident)? (inductionAlts)? : tactic
 
-syntax (name := existsIntro) "exists " term : tactic
-
 /-- `rename_i x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
 syntax (name := renameI) "rename_i " (colGt (ident <|> "_"))+ : tactic
 
@@ -595,6 +593,7 @@ syntax (name := specialize) "specialize " term : tactic
 macro_rules | `(tactic| trivial) => `(tactic| assumption)
 macro_rules | `(tactic| trivial) => `(tactic| rfl)
 macro_rules | `(tactic| trivial) => `(tactic| contradiction)
+macro_rules | `(tactic| trivial) => `(tactic| decide)
 macro_rules | `(tactic| trivial) => `(tactic| apply True.intro)
 macro_rules | `(tactic| trivial) => `(tactic| apply And.intro <;> trivial)
 
@@ -609,6 +608,10 @@ macro (name := save) "save" : tactic => `(skip)
 
 /-- The tactic `sleep ms` sleeps for `ms` milliseconds and does nothing. It is used for debugging purposes only. -/
 syntax (name := sleep) "sleep" num : tactic
+
+/-- `exists e₁, e₂, ...` is shorthand for `refine ⟨e₁, e₂, ...⟩; try trivial`. It is useful for existential goals. -/
+macro "exists " es:term,+ : tactic =>
+  `(tactic| (refine ⟨$es,*, ?_⟩; try trivial))
 
 end Tactic
 

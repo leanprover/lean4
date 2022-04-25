@@ -16,5 +16,4 @@ theorem mem_split {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a 
     | tail b bs h =>
       match bs, ih h with
       | _, ⟨s, t, rfl⟩ =>
-        exists b::s; exists t
-        rw [List.cons_append]
+        exists b::s, t

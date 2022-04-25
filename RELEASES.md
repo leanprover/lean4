@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* `exists` tactic is now takes a comma separated list of terms.
+
 * Add `dsimp` and `dsimp!` tactics. They guarantee the result term is definitionally equal, and only apply
   `rfl`-theorems.
 

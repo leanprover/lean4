@@ -4,7 +4,7 @@ has type
   Nat : Type
 but is expected to have type
   T : Sort u
-423.lean:5:33-5:38: error: application type mismatch
+423.lean:5:37-5:38: error: application type mismatch
   Add T
 argument
   T
@@ -12,7 +12,7 @@ has type
   Sort u : Type u
 but is expected to have type
   Type ?u : Type (?u + 1)
-423.lean:5:41-5:50: error: application type mismatch
+423.lean:5:47-5:48: error: application type mismatch
   OfNat T
 argument
   T

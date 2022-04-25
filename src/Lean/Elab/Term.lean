@@ -921,7 +921,7 @@ private def mkSyntheticSorryFor (expectedType? : Option Expr) : TermElabM Expr :
     | some expectedType => pure expectedType
   mkSyntheticSorry expectedType
 
-private def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : TermElabM Expr := do
+def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : TermElabM Expr := do
   let syntheticSorry ← mkSyntheticSorryFor expectedType?
   logException ex
   pure syntheticSorry

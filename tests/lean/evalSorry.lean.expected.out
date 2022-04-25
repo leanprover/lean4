@@ -1,5 +1,5 @@
 1
-evalSorry.lean:5:31-5:34: error: application type mismatch
+evalSorry.lean:5:33-5:34: error: application type mismatch
   f x
 argument
   x

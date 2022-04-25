@@ -9,7 +9,7 @@ term has type
   Bar.fn ?m
 Fn.imp fn : Bar.fn p
 Fn.imp fn' Bp : Bar.fn p
-439.lean:41:7-41:12: error: application type mismatch
+439.lean:41:11-41:12: error: application type mismatch
   Fn.imp fn' p
 argument
   p

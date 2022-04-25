@@ -1,4 +1,4 @@
-283.lean:1:22-1:25: error: application type mismatch
+283.lean:1:24-1:25: error: application type mismatch
   f (f ?m)
 argument
   f ?m

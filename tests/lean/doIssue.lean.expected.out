@@ -10,7 +10,7 @@ has type
   Array Nat : Type
 but is expected to have type
   IO PUnit : Type
-doIssue.lean:18:2-18:20: error: application type mismatch
+doIssue.lean:18:7-18:20: error: application type mismatch
   pure (Array.set! xs 0 1)
 argument
   Array.set! xs 0 1

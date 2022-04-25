@@ -24,7 +24,7 @@ the following variables have been introduced by the implicit lamda feature
   a✝ : Bool
   b✝ : Bool
 you can disable implict lambdas using `@` or writing a lambda expression with `{}` or `[]` binder annotations.
-mulcommErrorMessage.lean:16:12-17:47: error: application type mismatch
+mulcommErrorMessage.lean:17:27-17:47: error: application type mismatch
   Bool.casesOn a ?m (Bool.casesOn b ?m ?m)
 argument
   Bool.casesOn b ?m ?m

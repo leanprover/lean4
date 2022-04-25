@@ -1,4 +1,4 @@
-namedHoles.lean:9:7-9:14: error: application type mismatch
+namedHoles.lean:9:12-9:14: error: application type mismatch
   f ?x ?x
 argument
   ?x
@@ -6,6 +6,7 @@ has type
   Nat : Type
 but is expected to have type
   Bool : Type
+f ?x (sorryAx Bool) : Nat
 g ?x ?x : Nat
 20
 foo (fun x => ?m x) ?hole : Nat

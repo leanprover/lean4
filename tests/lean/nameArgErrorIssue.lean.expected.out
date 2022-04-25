@@ -1,0 +1,20 @@
+bla 5 2 : Nat
+nameArgErrorIssue.lean:5:20-5:24: error: application type mismatch
+  bla "hi"
+argument
+  "hi"
+has type
+  String : Type
+but is expected to have type
+  Nat : Type
+bla (sorryAx Nat) 5 : Nat
+nameArgErrorIssue.lean:6:20-6:24: error: application type mismatch
+  bla "hi"
+argument
+  "hi"
+has type
+  String : Type
+but is expected to have type
+  Nat : Type
+nameArgErrorIssue.lean:6:11-6:19: error: invalid argument name 'z' for function 'bla'
+nameArgErrorIssue.lean:7:11-7:19: error: invalid argument name 'z' for function 'bla'

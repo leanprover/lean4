@@ -423,6 +423,54 @@ private def withMVar (mvarId : MVarId) (x : M α) : M α := do
     x
 
 /--
+  Creating a mapping containing `b ↦ e'` where `patternWithRef e' = some (stx, b)`,
+  and `e'` is a subterm of `e`.
+
+  This is a helper function for `whnfPreservingPatternRef`. -/
+private def mkPatternRefMap (e : Expr) : ExprMap Expr :=
+  runST go
+where
+  go (σ) : ST σ (ExprMap Expr) := do
+   let map : ST.Ref σ (ExprMap Expr) ← ST.mkRef {}
+   e.forEach fun e => do
+     match patternWithRef? e with
+     | some (ref, b) => map.modify (·.insert b e)
+     | none => return ()
+   map.get
+
+/--
+  Try to restore `Syntax` ref information stored in `map` after
+  applying `whnf` at `whnfPreservingPatternRef`.
+  It assumes `map` has been constructed using `mkPatternRefMap`.
+-/
+private def applyRefMap (e : Expr) (map : ExprMap Expr) : Expr :=
+  e.replace fun e =>
+    match patternWithRef? e with
+    | some _ => some e -- stop `e` already has annotation
+    | none => match map.find? e with
+      | some eWithRef => some eWithRef -- stop `e` found annotation
+      | none => none -- continue
+
+/--
+  Applies `whnf` but tries to preserve `PatternWithRef` information.
+  This is a bit hackish, but it is necessary for providing proper
+  jump-to-definition information in examples such as
+  ```
+  def f (x : Nat) : Nat :=
+    match x with
+    | 0 => 1
+    | y + 1 => y
+  ```
+  Without this trick, the `PatternWithRef` is lost for the `y` at the pattern `y+1`.
+-/
+private def whnfPreservingPatternRef (e : Expr) : MetaM Expr := do
+  let eNew ← whnf e
+  if eNew.isConstructorApp (← getEnv) then
+    return eNew
+  else
+    return applyRefMap eNew (mkPatternRefMap e)
+
+/--
   Normalize the pattern and collect all patterns variables (explicit and implicit).
   This method is the one that decides where the inaccessible annotations must be inserted.
   The pattern variables are both free variables (for explicit pattern variables) and metavariables (for implicit ones).
@@ -464,7 +512,7 @@ partial def normalize (e : Expr) : M Expr := do
         else
           throwInvalidPattern e
       else
-        let eNew ← whnf e
+        let eNew ← whnfPreservingPatternRef e
         if eNew != e then
           normalize eNew
         else

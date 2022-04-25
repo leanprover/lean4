@@ -152,12 +152,8 @@ protected theorem left_distrib (n m k : Nat) : n * (m + k) = n * m + n * k := by
   | zero      => repeat rw [Nat.zero_mul]
   | succ n ih => simp [succ_mul, ih]; rw [Nat.add_assoc, Nat.add_assoc (n*m)]; apply congrArg; apply Nat.add_left_comm
 
-protected theorem right_distrib (n m k : Nat) : (n + m) * k = n * k + m * k :=
-  have h₁ : (n + m) * k = k * (n + m)     := Nat.mul_comm ..
-  have h₂ : k * (n + m) = k * n + k * m   := Nat.left_distrib ..
-  have h₃ : k * n + k * m = n * k + k * m := Nat.mul_comm n k ▸ rfl
-  have h₄ : n * k + k * m = n * k + m * k := Nat.mul_comm m k ▸ rfl
-  ((h₁.trans h₂).trans h₃).trans h₄
+protected theorem right_distrib (n m k : Nat) : (n + m) * k = n * k + m * k := by
+  rw [Nat.mul_comm, Nat.left_distrib]; simp [Nat.mul_comm]
 
 protected theorem mul_add (n m k : Nat) : n * (m + k) = n * m + n * k :=
   Nat.left_distrib n m k
@@ -167,14 +163,7 @@ protected theorem add_mul (n m k : Nat) : (n + m) * k = n * k + m * k :=
 
 protected theorem mul_assoc : ∀ (n m k : Nat), (n * m) * k = n * (m * k)
   | n, m, 0      => rfl
-  | n, m, succ k =>
-    have h₁ : n * m * succ k = n * m * (k + 1)              := rfl
-    have h₂ : n * m * (k + 1) = (n * m * k) + n * m * 1     := Nat.left_distrib ..
-    have h₃ : (n * m * k) + n * m * 1 = (n * m * k) + n * m := by rw [Nat.mul_one (n*m)]
-    have h₄ : (n * m * k) + n * m = (n * (m * k)) + n * m   := by rw [Nat.mul_assoc n m k]
-    have h₅ : (n * (m * k)) + n * m = n * (m * k + m)       := (Nat.left_distrib n (m*k) m).symm
-    have h₆ : n * (m * k + m) = n * (m * succ k)            := Nat.mul_succ m k ▸ rfl
-    ((((h₁.trans h₂).trans h₃).trans h₄).trans h₅).trans h₆
+  | n, m, succ k => by simp [mul_succ, Nat.mul_assoc n m k, Nat.left_distrib]
 
 protected theorem mul_left_comm (n m k : Nat) : n * (m * k) = m * (n * k) := by
   rw [← Nat.mul_assoc, Nat.mul_comm n m, Nat.mul_assoc]

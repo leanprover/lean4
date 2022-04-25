@@ -994,6 +994,21 @@ inductive TransparencyMode where
   | all | default | reducible | instances
   deriving Inhabited, BEq, Repr
 
+namespace DSimp
+
+structure Config where
+  zeta              : Bool := true
+  beta              : Bool := true
+  eta               : Bool := true
+  etaStruct         : Bool := true
+  iota              : Bool := true
+  proj              : Bool := true
+  decide            : Bool := true
+  autoUnfold        : Bool := false
+  deriving Inhabited, BEq, Repr
+
+end DSimp
+
 namespace Simp
 
 def defaultMaxSteps := 100000
@@ -1047,12 +1062,17 @@ namespace Parser.Tactic
 macro "erw " s:rwRuleSeq loc:(location)? : tactic =>
   `(rw (config := { transparency := Lean.Meta.TransparencyMode.default }) $s:rwRuleSeq $[$loc:location]?)
 
-macro "declare_simp_like_tactic" opt:(("(" &"all " " := " &"true" ")")?) tacName:ident tacToken:str updateCfg:term : command => do
+syntax simpAllKind := atomic("(" &"all") " := " &"true" ")"
+syntax dsimpKind   := atomic("(" &"dsimp") " := " &"true" ")"
+
+macro "declare_simp_like_tactic" opt:((simpAllKind <|> dsimpKind)?) tacName:ident tacToken:str updateCfg:term : command => do
   let (kind, tkn, stx) ←
     if opt.isNone then
       pure (← `(``simp), ← `("simp "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic))
-    else
+    else if opt[0].getKind == ``simpAllKind then
       pure (← `(``simpAll), ← `("simp_all "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic))
+    else
+      pure (← `(``dsimp), ← `("dsimp "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic))
   `($stx:command
     @[macro $tacName:ident] def expandSimp : Macro := fun s => do
       let c ← match s[1][0] with
@@ -1070,6 +1090,8 @@ declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " fun (c : Lean.Meta.S
 declare_simp_like_tactic (all := true) simpAllAutoUnfold "simp_all! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with autoUnfold := true }
 declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true }
 declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true, autoUnfold := true }
+
+declare_simp_like_tactic (dsimp := true) dsimpAutoUnfold "dsimp! " fun (c : Lean.Meta.DSimp.Config) => { c with autoUnfold := true }
 
 end Parser.Tactic
 

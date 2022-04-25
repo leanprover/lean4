@@ -34,7 +34,15 @@ def throwInvalidNamedArg {α} (namedArg : NamedArg) (fn? : Option Name) : TermEl
 
 private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
   let argType ← inferType arg
-  ensureHasTypeAux expectedType argType arg f
+  try
+    ensureHasTypeAux expectedType argType arg f
+  catch
+    | ex@(Exception.error ..) =>
+      if (← read).errToSorry then
+        exceptionToSorry ex expectedType
+      else
+        throw ex
+    | ex => throw ex
 
 private def mkProjAndCheck (structName : Name) (idx : Nat) (e : Expr) : MetaM Expr := do
   let r := mkProj structName idx e
@@ -168,9 +176,9 @@ private def elabAndAddNewArg (argName : Name) (arg : Arg) : M Unit := do
   | Arg.expr val =>
     let arg ← ensureArgType s.f val expectedType
     addNewArg argName arg
-  | Arg.stx val  =>
-    let val ← elabTerm val expectedType
-    let arg ← ensureArgType s.f val expectedType
+  | Arg.stx stx  =>
+    let val ← elabTerm stx expectedType
+    let arg ← withRef stx <| ensureArgType s.f val expectedType
     addNewArg argName arg
 
 /- Return true if the given type contains `OptParam` or `AutoParams` -/

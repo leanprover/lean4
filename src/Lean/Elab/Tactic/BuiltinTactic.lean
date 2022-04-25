@@ -9,6 +9,12 @@ import Lean.Elab.Tactic.ElabTerm
 
 namespace Lean.Elab.Tactic
 open Meta
+open Parser.Tactic
+
+@[builtinTactic withAnnotateState] def evalWithAnnotateState : Tactic
+  | `(tactic| with_annotate_state $stx $t) =>
+    withTacticInfoContext stx (evalTactic t)
+  | _ => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.«done»] def evalDone : Tactic := fun _ =>
   done

@@ -51,7 +51,7 @@ def isImplies (e : Expr) : MetaM Bool :=
 def congr (mvarId : MVarId) : MetaM (List MVarId) :=
   withMVarContext mvarId do
     let (lhs, rhs) ← getLhsRhsCore mvarId
-    let lhs ← instantiateMVars lhs
+    let lhs := (← instantiateMVars lhs).consumeMData
     if (← isImplies lhs) then
       congrImplies mvarId
     else if lhs.isApp then

@@ -32,9 +32,10 @@
 <!-- - [Tactics](./tactics.md) -->
 - [Syntax Extensions](./syntax.md)
   - [The `do` Notation](./do.md)
-  - [User-defined notation](./notation.md)
   - [String Interpolation](./stringinterp.md)
+  - [User-Defined Notation](./notation.md)
   - [Macro Overview](./macro_overview.md)
+  - [Elaborators](./elaborators.md)
   - [Examples](./syntax_examples.md)
     - [Balanced Parentheses](./syntax_example.md)
     - [Arithmetic DSL](./metaprogramming-arith.md)
@@ -57,7 +58,6 @@
   - [Thunk](./thunk.md)
   - [Task and Thread](./task.md)
 - [Functions](./functions.md)
-- [Metaprogramming](./metaprogramming.md)
 
 # Other
 

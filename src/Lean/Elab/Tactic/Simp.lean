@@ -185,9 +185,9 @@ where
         if let some e ← Term.resolveId? simpArgTerm (withInfo := true) then
           return .expr e
         else
-          resolveExt simpArgTerm.getId
+          resolveExt simpArgTerm.getId.eraseMacroScopes
       catch _ =>
-        resolveExt simpArgTerm.getId
+        resolveExt simpArgTerm.getId.eraseMacroScopes
     else if let some e ← Term.elabCDotFunctionAlias? simpArgTerm then
       return .expr e
     else

@@ -994,13 +994,22 @@ inductive TransparencyMode where
   | all | default | reducible | instances
   deriving Inhabited, BEq, Repr
 
+inductive EtaStructMode where
+  | /-- Enable eta for structure and classes. -/
+    all
+  | /-- Enable eta only for structures that are not classes. -/
+    notClasses
+  | /-- Disable eta for structures and classes. -/
+    none
+  deriving Inhabited, BEq, Repr
+
 namespace DSimp
 
 structure Config where
   zeta              : Bool := true
   beta              : Bool := true
   eta               : Bool := true
-  etaStruct         : Bool := true
+  etaStruct         : EtaStructMode := .all
   iota              : Bool := true
   proj              : Bool := true
   decide            : Bool := true
@@ -1022,7 +1031,7 @@ structure Config where
   zeta              : Bool := true
   beta              : Bool := true
   eta               : Bool := true
-  etaStruct         : Bool := true
+  etaStruct         : EtaStructMode := .all
   iota              : Bool := true
   proj              : Bool := true
   decide            : Bool := true

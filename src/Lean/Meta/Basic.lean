@@ -78,8 +78,8 @@ structure Config where
   ignoreLevelMVarDepth  : Bool := true
   /-- Enable/Disable support for offset constraints such as `?x + 1 =?= e` -/
   offsetCnstrs          : Bool := true
-  /-- Enable/Disable support for eta-structures. -/
-  etaStruct             : Bool := true
+  /-- Eta for structures configuration mode. -/
+  etaStruct             : EtaStructMode := .all
 
 structure ParamInfo where
   binderInfo     : BinderInfo := BinderInfo.default
@@ -292,6 +292,12 @@ def setPostponed (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
 
 @[inline] def modifyPostponed (f : PersistentArray PostponedEntry → PersistentArray PostponedEntry) : MetaM Unit :=
   modify fun s => { s with postponed := f s.postponed }
+
+def useEtaStruct (inductName : Name) : MetaM Bool := do
+  match (← getConfig).etaStruct with
+  | .none => return false
+  | .all  => return true
+  | .notClasses => return !isClass (← getEnv) inductName
 
 /- WARNING: The following 4 constants are a hack for simulating forward declarations.
    They are defined later using the `export` attribute. This is hackish because we

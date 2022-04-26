@@ -137,7 +137,7 @@ def mkProjFn (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) 
 
   If `Meta.Config.etaStruct` is `false` or the condition above does not hold, this method just returns `major`. -/
 private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr := do
-  unless (← getConfig).etaStruct do
+  unless (← useEtaStruct inductName) do
     return major
   let env ← getEnv
   if !isStructureLike env inductName then

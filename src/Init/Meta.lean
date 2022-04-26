@@ -1081,7 +1081,7 @@ macro "declare_simp_like_tactic" opt:((simpAllKind <|> dsimpKind)?) tacName:iden
     else if opt[0].getKind == ``simpAllKind then
       pure (← `(``simpAll), ← `("simp_all "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic))
     else
-      pure (← `(``dsimp), ← `("dsimp "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic))
+      pure (← `(``dsimp), ← `("dsimp "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? (location)? : tactic))
   `($stx:command
     @[macro $tacName:ident] def expandSimp : Macro := fun s => do
       let c ← match s[1][0] with

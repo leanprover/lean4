@@ -454,7 +454,7 @@ syntax (name := simpAll) "simp_all " (config)? (discharger)? (&"only ")? ("[" (s
 The `dsimp` tactic is the definitional simplifier. It is similar to `simp` but only applies theorems that hold by
 reflexivity. Thus, the result is guaranteed to be definitionally equal to the input.
 -/
-syntax (name := dsimp) "dsimp " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
+syntax (name := dsimp) "dsimp " (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? (location)? : tactic
 
 /--
   Delta expand the given definition.

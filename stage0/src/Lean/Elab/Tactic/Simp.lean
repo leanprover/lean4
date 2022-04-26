@@ -86,7 +86,7 @@ def elabSimpConfig (optConfig : Syntax) (kind : SimpKind) : TermElabM Meta.Simp.
   | .simpAll => return (← elabSimpConfigCtxCore optConfig).toConfig
   | .dsimp   => return { (← elabDSimpConfigCore optConfig) with }
 
-private def addDeclToUnfoldOrTheorem (thms : Meta.SimpTheorems) (e : Expr) (post : Bool) (inv : Bool) : MetaM Meta.SimpTheorems := do
+private def addDeclToUnfoldOrTheorem (thms : Meta.SimpTheorems) (e : Expr) (post : Bool) (inv : Bool) (kind : SimpKind) : MetaM Meta.SimpTheorems := do
   if e.isConst then
     let declName := e.constName!
     let info ← getConstInfo declName
@@ -95,7 +95,10 @@ private def addDeclToUnfoldOrTheorem (thms : Meta.SimpTheorems) (e : Expr) (post
     else
       if inv then
         throwError "invalid '←' modifier, '{declName}' is a declaration name to be unfolded"
-      thms.addDeclToUnfold declName
+      if kind == .dsimp then
+        return thms.addDeclToUnfoldCore declName
+      else
+        thms.addDeclToUnfold declName
   else
     thms.add #[] e (post := post) (inv := inv)
 
@@ -126,7 +129,7 @@ inductive ResolveSimpIdResult where
   If `eraseLocal == true`, then we consider local declarations when resolving names for erased theorems (`- id`),
   this option only makes sense for `simp_all`.
 -/
-private def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool) : TacticM ElabSimpArgsResult := do
+private def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool) (kind : SimpKind) : TacticM ElabSimpArgsResult := do
   if stx.isNone then
     return { ctx }
   else
@@ -162,7 +165,7 @@ private def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool)
           let term := arg[2]
 
           match (← resolveSimpIdTheorem? term) with
-          | .expr e  => thms ← addDeclToUnfoldOrTheorem thms e post inv
+          | .expr e  => thms ← addDeclToUnfoldOrTheorem thms e post inv kind
           | .ext ext => thmsArray := thmsArray.push (← ext.getTheorems)
           | .none    => thms ← addSimpTheorem thms term post inv
         else if arg.getKind == ``Lean.Parser.Tactic.simpStar then
@@ -182,9 +185,9 @@ where
         if let some e ← Term.resolveId? simpArgTerm (withInfo := true) then
           return .expr e
         else
-          resolveExt simpArgTerm.getId
+          resolveExt simpArgTerm.getId.eraseMacroScopes
       catch _ =>
-        resolveExt simpArgTerm.getId
+        resolveExt simpArgTerm.getId.eraseMacroScopes
     else if let some e ← Term.elabCDotFunctionAlias? simpArgTerm then
       return .expr e
     else
@@ -215,7 +218,7 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp) (ig
     else
       getSimpTheorems
   let congrTheorems ← getSimpCongrTheorems
-  let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) {
+  let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) {
     config      := (← elabSimpConfig stx[1] (kind := kind))
     simpTheorems := #[simpTheorems], congrTheorems
   }

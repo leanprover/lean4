@@ -122,7 +122,7 @@ where
 theorem Poly.append_denote (ctx : Context) (p₁ p₂ : Poly) : (p₁ ++ p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
   match p₁ with
   | [] => simp!
-  | v :: p₁ => simp! [append_denote _ p₁ p₂, Nat.add_assoc]
+  | v :: p₁ => sorry -- TODO(0) simp! [append_denote _ p₁ p₂, Nat.add_assoc]
 
 theorem Poly.add_denote (ctx : Context) (p₁ p₂ : Poly) : (p₁.add p₂).denote ctx = p₁.denote ctx + p₂.denote ctx :=
   go hugeFuel p₁ p₂

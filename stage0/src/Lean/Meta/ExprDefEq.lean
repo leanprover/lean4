@@ -34,10 +34,11 @@ namespace Lean.Meta
   That is, proof irrelevance may prevent us from performing desired mvar assignments.
 -/
 private def isDefEqEtaStruct (a b : Expr) : MetaM Bool := do
-  if !(← getConfig).etaStruct then return false
-  else
-    matchConstCtor b.getAppFn (fun _ => return false) fun ctorVal us =>
-    matchConstCtor a.getAppFn (fun _ => go ctorVal us) fun _ _ => return false
+  matchConstCtor b.getAppFn (fun _ => return false) fun ctorVal us => do
+    if (← useEtaStruct ctorVal.induct) then
+      matchConstCtor a.getAppFn (fun _ => go ctorVal us) fun _ _ => return false
+    else
+      return false
 where
   go ctorVal us := do
     if ctorVal.numParams + ctorVal.numFields != b.getAppNumArgs then
@@ -1582,14 +1583,14 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
 
 /-- Return `true` if the types of the given expressions is an inductive datatype with an inductive datatype with a single constructor with no fields. -/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
-  if !(← getConfig).etaStruct then return false
-  else
-    let tType ← whnf (← inferType t)
-    matchConstStruct tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
-      if ctorVal.numFields != 0 then
-        return false
-      else
-        Meta.isExprDefEqAux tType (← inferType s)
+  let tType ← whnf (← inferType t)
+  matchConstStruct tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
+    if ctorVal.numFields != 0 then
+      return false
+    else if (← useEtaStruct ctorVal.induct) then
+      Meta.isExprDefEqAux tType (← inferType s)
+    else
+      return false
 
 private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   if (← (isDefEqEta t s <||> isDefEqEta s t)) then pure true else

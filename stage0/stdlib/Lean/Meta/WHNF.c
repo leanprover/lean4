@@ -218,6 +218,7 @@ lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reduceBinNatOp___closed__10;
 static lean_object* l_Lean_Meta_reduceNat_x3f___closed__10;
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_useEtaStruct(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_cached_x3f___closed__2;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reduceNat_x3f___closed__11;
@@ -4741,10 +4742,11 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_WHNF_0__Lean_Meta_toCtorWhenStruc
 _start:
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_8 = l_Lean_Meta_getConfig(x_3, x_4, x_5, x_6, x_7);
+lean_inc(x_1);
+x_8 = l_Lean_Meta_useEtaStruct(x_1, x_3, x_4, x_5, x_6, x_7);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
-x_10 = lean_ctor_get_uint8(x_9, 13);
+x_10 = lean_unbox(x_9);
 lean_dec(x_9);
 if (x_10 == 0)
 {

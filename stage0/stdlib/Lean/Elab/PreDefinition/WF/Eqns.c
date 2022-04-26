@@ -4940,27 +4940,28 @@ return x_26;
 static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_Elab_WF_mkProof_go___lambda__1___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint8_t x_3; uint8_t x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Simp_defaultMaxSteps;
 x_2 = lean_unsigned_to_nat(2u);
 x_3 = 0;
 x_4 = 1;
-x_5 = lean_alloc_ctor(0, 2, 12);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2, x_3);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 1, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 2, x_3);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 3, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 4, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 5, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 6, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 7, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 8, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 9, x_4);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 10, x_3);
-lean_ctor_set_uint8(x_5, sizeof(void*)*2 + 11, x_3);
-return x_5;
+x_5 = 0;
+x_6 = lean_alloc_ctor(0, 2, 12);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2, x_3);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 1, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 2, x_3);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 3, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 4, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 5, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 6, x_5);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 7, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 8, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 9, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 10, x_3);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 11, x_3);
+return x_6;
 }
 }
 static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_Elab_WF_mkProof_go___lambda__1___closed__2() {

@@ -17,10 +17,9 @@ import Lean.Meta.Match.CaseValues
 
 namespace Lean.Meta.Match
 
-/- The number of patterns in each AltLHS must be equal to majors.length -/
-private def checkNumPatterns (majors : Array Expr) (lhss : List AltLHS) : MetaM Unit := do
-  let num := majors.size
-  if lhss.any fun lhs => lhs.patterns.length != num then
+/- The number of patterns in each AltLHS must be equal to the number of discriminants. -/
+private def checkNumPatterns (numDiscrs : Nat) (lhss : List AltLHS) : MetaM Unit := do
+  if lhss.any fun lhs => lhs.patterns.length != numDiscrs then
     throwError "incorrect number of patterns"
 
 /- Given a list of `AltLHS`, create a minor premise for each one, convert them into `Alt`, and then execute `k` -/
@@ -741,13 +740,21 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
         compileDecl decl
     return (mkMatcherConst name, some addMatcher)
 
+structure DiscrInfo where
+  /-- `some h` if the discriminant is annotated with `h:` -/
+  hName? : Option Name := none
+  deriving Inhabited
+
 structure MkMatcherInput where
   matcherName : Name
-  matchType : Expr
-  numDiscrs : Nat
-  lhss : List Match.AltLHS
+  matchType   : Expr
+  discrInfos  : Array DiscrInfo
+  lhss        : List Match.AltLHS
 
-/-
+def MkMatcherInput.numDiscrs (m : MkMatcherInput) :=
+  m.discrInfos.size
+
+/--
 Create a dependent matcher for `matchType` where `matchType` is of the form
 `(a_1 : A_1) -> (a_2 : A_2[a_1]) -> ... -> (a_n : A_n[a_1, a_2, ... a_{n-1}]) -> B[a_1, ..., a_n]`
 where `n = numDiscrs`, and the `lhss` are the left-hand-sides of the `match`-expression alternatives.
@@ -756,26 +763,29 @@ The number of patterns must be the same in each `AltLHS`.
 The generated matcher has the structure described at `MatcherInfo`. The motive argument is of the form
 `(motive : (a_1 : A_1) -> (a_2 : A_2[a_1]) -> ... -> (a_n : A_n[a_1, a_2, ... a_{n-1}]) -> Sort v)`
 where `v` is a universe parameter or 0 if `B[a_1, ..., a_n]` is a proposition. -/
-def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult :=
-  let ⟨matcherName, matchType, numDiscrs, lhss⟩ := input
-  forallBoundedTelescope matchType numDiscrs fun majors matchTypeBody => do
-  checkNumPatterns majors lhss
+def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := do
+  let ⟨matcherName, matchType, discrInfos, lhss⟩ := input
+  let numDiscrs := discrInfos.size
+  checkNumPatterns numDiscrs lhss
+  forallBoundedTelescope matchType numDiscrs fun discrs matchTypeBody => do
   /- We generate an matcher that can eliminate using different motives with different universe levels.
      `uElim` is the universe level the caller wants to eliminate to.
      If it is not levelZero, we create a matcher that can eliminate in any universe level.
      This is useful for implementing `MatcherApp.addArg` because it may have to change the universe level. -/
   let uElim ← getLevel matchTypeBody
   let uElimGen ← if uElim == levelZero then pure levelZero else mkFreshLevelMVar
-  let motiveType ← mkForallFVars majors (mkSort uElimGen)
+
+
+  let motiveType ← mkForallFVars discrs (mkSort uElimGen)
   withLocalDeclD `motive motiveType fun motive => do
   trace[Meta.Match.debug] "motiveType: {motiveType}"
-  let mvarType  := mkAppN motive majors
+  let mvarType  := mkAppN motive discrs
   trace[Meta.Match.debug] "target: {mvarType}"
   withAlts motive lhss fun alts minors => do
     let mvar ← mkFreshExprMVar mvarType
-    let examples := majors.toList.map fun major => Example.var major.fvarId!
-    let (_, s) ← (process { mvarId := mvar.mvarId!, vars := majors.toList, alts := alts, examples := examples }).run {}
-    let args := #[motive] ++ majors ++ minors.map Prod.fst
+    let examples := discrs.toList.map fun major => Example.var major.fvarId!
+    let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs.toList, alts := alts, examples := examples }).run {}
+    let args := #[motive] ++ discrs ++ minors.map Prod.fst
     let type ← mkForallFVars args mvarType
     let val  ← mkLambdaFVars args mvar
     trace[Meta.Match.debug] "matcher value: {val}\ntype: {type}"
@@ -808,7 +818,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult :=
     trace[Meta.Match.debug] "matcher: {matcher}"
     let unusedAltIdxs := lhss.length.fold (init := []) fun i r =>
       if s.used.contains i then r else i::r
-    pure {
+    return {
       matcher,
       counterExamples := s.counterExamples,
       unusedAltIdxs := unusedAltIdxs.reverse,
@@ -843,7 +853,7 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
       fvarDecls := localDecls.toList
       patterns := patterns.toList : Match.AltLHS }
 
-  return { matcherName, matchType, numDiscrs := matcherApp.discrs.size, lhss }
+  return { matcherName, matchType, discrInfos := mkArray matcherApp.discrs.size {}, lhss }
 
 
 def withMkMatcherInput

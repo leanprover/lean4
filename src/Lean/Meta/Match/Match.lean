@@ -17,11 +17,6 @@ import Lean.Meta.Match.CaseValues
 
 namespace Lean.Meta.Match
 
-structure DiscrInfo where
-  /-- `some h` if the discriminant is annotated with `h:` -/
-  hName? : Option Name := none
-  deriving Inhabited
-
 /-- The number of patterns in each AltLHS must be equal to the number of discriminants. -/
 private def checkNumPatterns (numDiscrs : Nat) (lhss : List AltLHS) : MetaM Unit := do
   if lhss.any fun lhs => lhs.patterns.length != numDiscrs then
@@ -784,6 +779,7 @@ where `v` is a universe parameter or 0 if `B[a_1, ..., a_n]` is a proposition. -
 def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := do
   let ⟨matcherName, matchType, discrInfos, lhss⟩ := input
   let numDiscrs := discrInfos.size
+  let numEqs := (discrInfos.filter fun info => info.hName?.isSome).size
   checkNumPatterns numDiscrs lhss
   forallBoundedTelescope matchType numDiscrs fun discrs matchTypeBody => do
   /- We generate an matcher that can eliminate using different motives with different universe levels.
@@ -794,6 +790,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := do
   let uElimGen ← if uElim == levelZero then pure levelZero else mkFreshLevelMVar
   let mkMatcher (type val : Expr) (minors : Array (Expr × Nat)) (s : State) : MetaM MatcherResult := do
     trace[Meta.Match.debug] "matcher value: {val}\ntype: {type}"
+    trace[Meta.Match.debug] "minors num params: {minors.map (·.2)}"
     /- The option `bootstrap.gen_matcher_code` is a helper hack. It is useful, for example,
        for compiling `src/Init/Data/Int`. It is needed because the compiler uses `Int.decLt`
        for generating code for `Int.casesOn` applications, but `Int.casesOn` is used to
@@ -812,12 +809,13 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := do
     discard <| isLevelDefEq uElimGen uElim
     let addMatcher :=
       match addMatcher with
-      | some addMatcher =>
+      | some addMatcher => addMatcher <|
         { numParams := matcher.getAppNumArgs
-          numDiscrs,
-          altNumParams := minors.map Prod.snd,
-          uElimPos? }
-        |> addMatcher
+          altNumParams := minors.map fun minor => minor.2 + numEqs
+          discrInfos
+          numDiscrs
+          uElimPos?
+          }
       | none => pure ()
 
     trace[Meta.Match.debug] "matcher: {matcher}"

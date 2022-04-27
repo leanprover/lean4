@@ -735,7 +735,7 @@ builtin_initialize matcherExt : EnvExtension (Std.PHashMap (Expr × Bool) Name) 
 
 /- Similar to `mkAuxDefinition`, but uses the cache `matcherExt`.
    It also returns an Boolean that indicates whether a new matcher function was added to the environment or not. -/
-def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (Expr × (Option $ MatcherInfo → MetaM Unit)) := do
+def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (Expr × Option (MatcherInfo → MetaM Unit)) := do
   trace[Meta.Match.debug] "{name} : {type} := {value}"
   let compile := bootstrap.genMatcherCode.get (← getOptions)
   let result ← Closure.mkValueTypeClosure type value (zeta := false)

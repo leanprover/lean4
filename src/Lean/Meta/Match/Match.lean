@@ -17,20 +17,42 @@ import Lean.Meta.Match.CaseValues
 
 namespace Lean.Meta.Match
 
-/- The number of patterns in each AltLHS must be equal to the number of discriminants. -/
+structure DiscrInfo where
+  /-- `some h` if the discriminant is annotated with `h:` -/
+  hName? : Option Name := none
+  deriving Inhabited
+
+/-- The number of patterns in each AltLHS must be equal to the number of discriminants. -/
 private def checkNumPatterns (numDiscrs : Nat) (lhss : List AltLHS) : MetaM Unit := do
   if lhss.any fun lhs => lhs.patterns.length != numDiscrs then
     throwError "incorrect number of patterns"
 
-/- Given a list of `AltLHS`, create a minor premise for each one, convert them into `Alt`, and then execute `k` -/
-private def withAlts {α} (motive : Expr) (lhss : List AltLHS) (k : List Alt → Array (Expr × Nat) → MetaM α) : MetaM α :=
+/--
+  Execute `k hs` where `hs` contains new equalities `h : lhs[i] = rhs[i]` for each `discrInfos[i] = some h`.
+  Assume `lhs.size == rhs.size == discrInfos.size`
+-/
+private partial def withEqs (lhs rhs : Array Expr) (discrInfos : Array DiscrInfo) (k : Array Expr → MetaM α) : MetaM α := do
+  go 0 #[]
+where
+  go (i : Nat) (hs : Array Expr) : MetaM α := do
+    if h : i < lhs.size then
+      if let some hName := discrInfos[i].hName? then
+        withLocalDeclD hName (← mkEq lhs[i] rhs[i]) fun h =>
+          go (i+1) (hs.push h)
+      else
+        go (i+1) hs
+    else
+      k hs
+/-- Given a list of `AltLHS`, create a minor premise for each one, convert them into `Alt`, and then execute `k` -/
+private def withAlts {α} (motive : Expr) (discrs : Array Expr) (discrInfos : Array DiscrInfo) (lhss : List AltLHS) (k : List Alt → Array (Expr × Nat) → MetaM α) : MetaM α :=
   loop lhss [] #[]
 where
   mkMinorType (xs : Array Expr) (lhs : AltLHS) : MetaM Expr :=
     withExistingLocalDecls lhs.fvarDecls do
       let args ← lhs.patterns.toArray.mapM (Pattern.toExpr · (annotate := true))
       let minorType := mkAppN motive args
-      mkForallFVars xs minorType
+      withEqs discrs args discrInfos fun eqs => do
+        mkForallFVars (xs ++ eqs) minorType
 
   loop (lhss : List AltLHS) (alts : List Alt) (minors : Array (Expr × Nat)) : MetaM α := do
     match lhss with
@@ -38,12 +60,13 @@ where
     | lhs::lhss =>
       let xs := lhs.fvarDecls.toArray.map LocalDecl.toExpr
       let minorType ← mkMinorType xs lhs
-      let (minorType, minorNumParams) := if !xs.isEmpty then (minorType, xs.size) else (mkSimpleThunkType minorType, 1)
+      let hasParams := !xs.isEmpty || discrInfos.any fun info => info.hName?.isSome
+      let (minorType, minorNumParams) := if hasParams then (minorType, xs.size) else (mkSimpleThunkType minorType, 1)
       let idx       := alts.length
       let minorName := (`h).appendIndexAfter (idx+1)
       trace[Meta.Match.debug] "minor premise {minorName} : {minorType}"
       withLocalDeclD minorName minorType fun minor => do
-        let rhs    := if xs.isEmpty then mkApp minor (mkConst `Unit.unit) else mkAppN minor xs
+        let rhs    := if hasParams then mkAppN minor xs else mkApp minor (mkConst `Unit.unit)
         let minors := minors.push (minor, minorNumParams)
         let fvarDecls ← lhs.fvarDecls.mapM instantiateLocalDeclMVars
         let alts   := { ref := lhs.ref, idx := idx, rhs := rhs, fvarDecls := fvarDecls, patterns := lhs.patterns : Alt } :: alts
@@ -740,11 +763,6 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
         compileDecl decl
     return (mkMatcherConst name, some addMatcher)
 
-structure DiscrInfo where
-  /-- `some h` if the discriminant is annotated with `h:` -/
-  hName? : Option Name := none
-  deriving Inhabited
-
 structure MkMatcherInput where
   matcherName : Name
   matchType   : Expr
@@ -774,20 +792,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := do
      This is useful for implementing `MatcherApp.addArg` because it may have to change the universe level. -/
   let uElim ← getLevel matchTypeBody
   let uElimGen ← if uElim == levelZero then pure levelZero else mkFreshLevelMVar
-
-
-  let motiveType ← mkForallFVars discrs (mkSort uElimGen)
-  withLocalDeclD `motive motiveType fun motive => do
-  trace[Meta.Match.debug] "motiveType: {motiveType}"
-  let mvarType  := mkAppN motive discrs
-  trace[Meta.Match.debug] "target: {mvarType}"
-  withAlts motive lhss fun alts minors => do
-    let mvar ← mkFreshExprMVar mvarType
-    let examples := discrs.toList.map fun major => Example.var major.fvarId!
-    let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs.toList, alts := alts, examples := examples }).run {}
-    let args := #[motive] ++ discrs ++ minors.map Prod.fst
-    let type ← mkForallFVars args mvarType
-    let val  ← mkLambdaFVars args mvar
+  let mkMatcher (type val : Expr) (minors : Array (Expr × Nat)) (s : State) : MetaM MatcherResult := do
     trace[Meta.Match.debug] "matcher value: {val}\ntype: {type}"
     /- The option `bootstrap.gen_matcher_code` is a helper hack. It is useful, for example,
        for compiling `src/Init/Data/Int`. It is needed because the compiler uses `Int.decLt`
@@ -822,7 +827,41 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := do
       matcher,
       counterExamples := s.counterExamples,
       unusedAltIdxs := unusedAltIdxs.reverse,
-      addMatcher }
+      addMatcher
+    }
+
+  let motiveType ← mkForallFVars discrs (mkSort uElimGen)
+  trace[Meta.Match.debug] "motiveType: {motiveType}"
+  withLocalDeclD `motive motiveType fun motive => do
+  if discrInfos.any fun info => info.hName?.isSome then
+    forallBoundedTelescope matchType numDiscrs fun discrs' matchTypeBody => do
+    let mvarType ← withEqs discrs discrs' discrInfos fun eqs => mkForallFVars eqs (mkAppN motive discrs')
+    trace[Meta.Match.debug] "target: {mvarType}"
+    withAlts motive discrs discrInfos lhss fun alts minors => do
+      let mvar ← mkFreshExprMVar mvarType
+      trace[Meta.Match.debug] "goal\n{mvar.mvarId!}"
+      let examples := discrs.toList.map fun discr => Example.var discr.fvarId!
+      let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs'.toList, alts := alts, examples := examples }).run {}
+      let val ← mkLambdaFVars discrs' mvar
+      trace[Meta.Match.debug] "matcher\nvalue: {val}\ntype: {← inferType val}"
+      let rfls ← (discrs.zip discrInfos).filterMapM fun (discr, info) =>
+        if info.hName?.isNone then return none else return some (← mkEqRefl discr)
+      let val := mkAppN (mkAppN val discrs) rfls
+      let args := #[motive] ++ discrs ++ minors.map Prod.fst
+      let val ← mkLambdaFVars args val
+      let type ← mkForallFVars args (mkAppN motive discrs)
+      mkMatcher type val minors s
+  else
+    let mvarType  := mkAppN motive discrs
+    trace[Meta.Match.debug] "target: {mvarType}"
+    withAlts motive discrs discrInfos lhss fun alts minors => do
+      let mvar ← mkFreshExprMVar mvarType
+      let examples := discrs.toList.map fun discr => Example.var discr.fvarId!
+      let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs.toList, alts := alts, examples := examples }).run {}
+      let args := #[motive] ++ discrs ++ minors.map Prod.fst
+      let type ← mkForallFVars args mvarType
+      let val  ← mkLambdaFVars args mvar
+      mkMatcher type val minors s
 
 def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput := do
   let matcherName := matcherApp.matcherName

@@ -87,6 +87,9 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
     let s := whitespace c s
     let s := topLevelCommandParserFn c s
     pos := s.pos
+    if recovering && !s.stxStack.isEmpty && s.stxStack.back.isAntiquot then
+      -- top-level antiquotation during recovery is most likely remnant from unfinished quotation, ignore
+      continue
     match s.errorMsg with
     | none =>
       stx := s.stxStack.back

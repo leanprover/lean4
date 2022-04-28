@@ -9,4 +9,5 @@
 {"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
 {"textDocument": {"uri": "file://haveInfo.lean"},
  "position": {"line": 23, "character": 2}}
-{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"rendered": "```lean\nthis : True\n⊢ False\n```",
+ "goals": ["this : True\n⊢ False"]}

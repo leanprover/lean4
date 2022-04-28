@@ -226,6 +226,9 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
   t.deepestNodes fun
     | ctx, i@(Info.ofTacticInfo ti), cs => OptionM.run do
       if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
+        -- Ignore tactics that are more indented than the cursor position.
+        -- This ensures we get the right state after e.g. deindenting after completing a `have` proof.
+        guard <| (text.toPosition pos).column <= (text.toPosition hoverPos).column
         let trailSize := i.stx.getTrailingSize
         -- show info at EOF even if strictly outside token + trail
         let atEOF := tailPos.byteIdx + trailSize == text.source.endPos.byteIdx

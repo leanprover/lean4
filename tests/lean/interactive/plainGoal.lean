@@ -76,4 +76,3 @@ theorem left_distrib (t a b : Nat) : t * (a + b) = t * a + t * b := by
     rw [Nat.add_succ]
     repeat (rw [Nat.mul_succ])
                            --^ $/lean/plainGoal
-                            --^ $/lean/plainGoal

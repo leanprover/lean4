@@ -101,3 +101,6 @@
  "```lean\ncase nil\nα : Type ?u\nbs cs : List α\n⊢ [] ++ bs ++ cs = [] ++ (bs ++ cs)\n```",
  "goals":
  ["case nil\nα : Type ?u\nbs cs : List α\n⊢ [] ++ bs ++ cs = [] ++ (bs ++ cs)"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 84, "character": 2}}
+{"rendered": "```lean\n⊢ False\n```", "goals": ["⊢ False"]}

@@ -323,7 +323,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       --   let id := stx; let e := stx; ...
       -- else
       --   let e := stx; ...
-      if pseudoKinds.all id then unconditionally rhsFn else pure {
+      if (getCanonicalAntiquot quoted)[3].isNone || pseudoKinds.all id then unconditionally rhsFn else pure {
         check   := shape ks none,
         onMatch := fun
           | other _ => undecided

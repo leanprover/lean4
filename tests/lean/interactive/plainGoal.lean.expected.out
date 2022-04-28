@@ -95,3 +95,9 @@
  ["t a n✝ : Nat\n: t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + t * Nat.succ n✝",
   "t a n✝ : Nat\n: t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + (t * n✝ + t)",
   "t a n✝ : Nat\n: t * (a + n✝) = t * a + t * n✝\n⊢ t * (a + n✝) + t = t * a + (t * n✝ + t)"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 80, "character": 53}}
+{"rendered":
+ "```lean\ncase nil\nα : Type ?u\nbs cs : List α\n⊢ [] ++ bs ++ cs = [] ++ (bs ++ cs)\n```",
+ "goals":
+ ["case nil\nα : Type ?u\nbs cs : List α\n⊢ [] ++ bs ++ cs = [] ++ (bs ++ cs)"]}

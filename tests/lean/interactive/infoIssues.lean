@@ -25,6 +25,6 @@ example (x : Nat) : x = 0 + (0 + (0 + x)) ∧ p := by
                                  --v $/lean/plainGoal
   | y+1 => repeat rw [Nat.zero_add]
        --^ $/lean/plainGoal
-       -- Bad: get the `match` tactic initial state here.
+       -- Good: we get the succ state here
 --^ $/lean/plainGoal
 -- Good:  ... |- p

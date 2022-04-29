@@ -23,19 +23,20 @@ def len : List α → Nat
   | l@h₁:(a :: b :: as) =>
     -- Remark: we didn't use `_` because we currently don't have a way for getting a hypothesis stating that the previous two case were not taken here.
     -- h₁ : l = a :: b :: as
-    match h₂ : splitList l with
-    | ListSplit.split fst snd =>
+    match h₂ : l, h₃ : splitList l with
+    | _, ListSplit.split fst snd =>
       -- Remark: `match` refined `h₁`s type to `h₁ : fst ++ snd = a :: b :: as`
-      -- h₂ : splitList (fst ++ snd) = ListSplit.split fst snd
+      -- h₂ : l = fst ++ snd
+      -- h₃ : splitList l = ListSplit.split fst snd
       have := splitList_length (fst ++ snd) (by simp_arith [h₁]) h₁
       -- The following two proofs ase used to justify the recursive applications `len fst` and `len snd`
-      have dec₁ : fst.length < as.length + 2 := by simp_arith [h₂] at this |- ; simp [this]
-      have dec₂ : snd.length < as.length + 2 := by simp_arith [h₂] at this |- ; simp [this]
+      have dec₁ : fst.length < as.length + 2 := by subst h₂; simp_arith [eq_of_heq h₃] at this |- ; simp [this]
+      have dec₂ : snd.length < as.length + 2 := by subst h₂; simp_arith [eq_of_heq h₃] at this |- ; simp [this]
       len fst + len snd
 termination_by _ xs => xs.length
 
 theorem len_nil : len ([] : List α) = 0 := by
-  simp [len]
+ simp [len]
 
 -- The `simp [len]` above generated the following equation theorems for len
 #check @len._eq_1
@@ -73,14 +74,15 @@ def len : List α → Nat
   | []      => 0
   | a :: [] => 1
   | l@h₁:(a :: b :: as) =>
-    match h₂ : splitList l with
-    | ListSplit.split fst snd =>
+    match h₂ : l, h₃ : splitList l with
+    | _, ListSplit.split fst snd =>
       len fst + len snd
 termination_by _ xs => xs.length
 decreasing_by
   simp_wf
   have := splitList_length (fst ++ snd) (by simp_arith [h₁]) h₁
-  simp_arith [h₂] at this |- ; simp [this]
+  subst h₂
+  simp_arith [eq_of_heq h₃] at this |- ; simp [this]
 
 theorem len_nil : len ([] : List α) = 0 := by
   simp [len]

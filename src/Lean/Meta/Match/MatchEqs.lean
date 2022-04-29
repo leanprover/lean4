@@ -260,7 +260,7 @@ private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := withMVarCon
   the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem. -/
 partial def proveCondEqThm (matchDeclName : Name) (type : Expr) : MetaM Expr := do
   let type ← instantiateMVars type
-  withLCtx {} {} <| forallTelescope type fun ys target => do
+  forallTelescope type fun ys target => do
     let mvar0  ← mkFreshExprSyntheticOpaqueMVar target
     let mvarId ← deltaTarget mvar0.mvarId! (· == matchDeclName)
     trace[Meta.Match.matchEqs] "{MessageData.ofGoal mvarId}"
@@ -397,7 +397,7 @@ where
 
 /--
   Create conditional equations and splitter for the given match auxiliary declaration. -/
-private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := do
+private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := withLCtx {} {} do
   trace[Meta.Match.matchEqs] "mkEquationsFor '{matchDeclName}'"
   withConfig (fun c => { c with etaStruct := .none }) do
   let baseName := mkPrivateName (← getEnv) matchDeclName

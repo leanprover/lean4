@@ -72,16 +72,19 @@ def unfoldNamedPattern (e : Expr) : MetaM Expr := do
 
   The continuation `k` takes four arguments `ys args mask type`.
   - `ys` are variables for the hypotheses that have not been eliminated.
+  - `eqs` are variables for equality hypotheses associated with discriminants annotated with `h : discr`.
   - `args` are the arguments for the alternative `alt` that has type `altType`. `ys.size <= args.size`
   - `mask[i]` is true if the hypotheses has not been eliminated. `mask.size == args.size`.
   - `type` is the resulting type for `altType`.
 
   We use the `mask` to build the splitter proof. See `mkSplitterProof`.
 -/
-partial def forallAltTelescope (altType : Expr) (numNonEqParams : Nat) (k : Array Expr → Array Expr → Array Bool → Expr → MetaM α) : MetaM α := do
-  go #[] #[] #[] 0 altType
+partial def forallAltTelescope (altType : Expr) (numNonEqParams : Nat)
+    (k : (ys : Array Expr) → (eqs : Array Expr) → (args : Array Expr) → (mask : Array Bool) → (type : Expr) → MetaM α)
+    : MetaM α := do
+  go #[] #[] #[] #[] 0 altType
 where
-  go (ys : Array Expr) (args : Array Expr) (mask : Array Bool) (i : Nat) (type : Expr) : MetaM α := do
+  go (ys : Array Expr) (eqs : Array Expr) (args : Array Expr) (mask : Array Bool) (i : Nat) (type : Expr) : MetaM α := do
     let type ← whnfForall type
     match type with
     | Expr.forallE n d b .. =>
@@ -97,20 +100,22 @@ where
                let args    := args.map fun arg => if arg == lhs then rhs else arg
                let args    := args.push (← mkEqRefl rhs)
                let typeNew := typeNew.replaceFVar lhs rhs
-               return (← go ys args (mask.push false) (i+1) typeNew)
-          go (ys.push y) (args.push y) (mask.push true) (i+1) typeNew
+               return (← go ys eqs args (mask.push false) (i+1) typeNew)
+          go (ys.push y) eqs (args.push y) (mask.push true) (i+1) typeNew
       else
         let some (_, _, rhs) ← matchEq? d | throwError "unexpected match alternative type{indentExpr altType}"
         let arg ← mkEqRefl rhs
-        go ys (args.push arg) (mask.push false) (i+1) (b.instantiate1 arg)
+        withLocalDeclD n d fun eq => do
+          let typeNew := b.instantiate1 eq
+          go ys (eqs.push eq) (args.push arg) (mask.push false) (i+1) typeNew
     | _ =>
       let type ← unfoldNamedPattern type
       /- Recall that alternatives that do not have variables have a `Unit` parameter to ensure
          they are not eagerly evaluated. -/
       if ys.size == 1 then
         if (← inferType ys[0]).isConstOf ``Unit && !(← dependsOn type ys[0].fvarId!) then
-          return (← k #[] #[mkConst ``Unit.unit] #[false] type)
-      k ys args mask type
+          return (← k #[] #[] #[mkConst ``Unit.unit] #[false] type)
+      k ys eqs args mask type
 
   isNamedPatternProof (type : Expr) (h : Expr) : Bool :=
     Option.isSome <| type.find? fun e =>
@@ -354,6 +359,7 @@ private def injectionAny (mvarId : MVarId) : MetaM InjectionAnyResult :=
   - `altNews` are the new free variables which contains aditional hypotheses that ensure they are only used
      when the previous overlapping alternatives are not applicable. -/
 private partial def mkSplitterProof (matchDeclName : Name) (template : Expr) (alts altsNew : Array Expr)
+    (altsNewNumParams : Array Nat)
     (altArgMasks : Array (Array Bool)) : MetaM Expr := do
   trace[Meta.Match.matchEqs] "proof template: {template}"
   let map := mkMap
@@ -363,25 +369,26 @@ private partial def mkSplitterProof (matchDeclName : Name) (template : Expr) (al
     proveSubgoal mvarId
   instantiateMVars proof
 where
-  mkMap : FVarIdMap (Expr × Array Bool) := Id.run do
+  mkMap : FVarIdMap (Expr × Nat × Array Bool) := Id.run do
     let mut m := {}
-    for alt in alts, altNew in altsNew, argMask in altArgMasks do
-      m := m.insert alt.fvarId! (altNew, argMask)
+    for alt in alts, altNew in altsNew, numParams in altsNewNumParams, argMask in altArgMasks do
+      m := m.insert alt.fvarId! (altNew, numParams, argMask)
     return m
 
-  convertTemplate (m : FVarIdMap (Expr × Array Bool)) : StateRefT (Array MVarId) MetaM Expr :=
+  convertTemplate (m : FVarIdMap (Expr × Nat × Array Bool)) : StateRefT (Array MVarId) MetaM Expr :=
     transform template fun e => do
       match e.getAppFn with
       | Expr.fvar fvarId .. =>
         match m.find? fvarId with
-        | some (altNew, argMask) =>
+        | some (altNew, numParams, argMask) =>
           trace[Meta.Match.matchEqs] ">> {e}, {altNew}"
           let mut newArgs := #[]
           for arg in e.getAppArgs, includeArg in argMask do
             if includeArg then
               newArgs := newArgs.push arg
           let eNew := mkAppN altNew newArgs
-          let (mvars, _, _) ← forallMetaTelescopeReducing (← inferType eNew) (kind := MetavarKind.syntheticOpaque)
+          /- Recall that `numParams` does not include the equalities associated with discriminants of the form `h : discr`. -/
+          let (mvars, _, _) ← forallMetaBoundedTelescope (← inferType eNew) (numParams - newArgs.size) (kind := MetavarKind.syntheticOpaque)
           modify fun s => s ++ (mvars.map (·.mvarId!))
           let eNew := mkAppN eNew mvars
           return TransformStep.done eNew
@@ -456,7 +463,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
       let altNonEqNumParams := altNumParams - numDiscrEqs
       let thmName := baseName ++ ((`eq).appendIndexAfter idx)
       eqnNames := eqnNames.push thmName
-      let (notAlt, splitterAltType, splitterAltNumParam, argMask) ← forallAltTelescope (← inferType alts[i]) altNonEqNumParams fun ys rhsArgs argMask altResultType => do
+      let (notAlt, splitterAltType, splitterAltNumParam, argMask) ← forallAltTelescope (← inferType alts[i]) altNonEqNumParams fun ys eqs rhsArgs argMask altResultType => do
         let patterns := altResultType.getAppArgs
         let mut hs := #[]
         for notAlt in notAlts do
@@ -464,7 +471,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
           if let some h ← simpH? h patterns.size then
             hs := hs.push h
         trace[Meta.Match.matchEqs] "hs: {hs}"
-        let splitterAltType ← mkForallFVars ys (← hs.foldrM (init := altResultType) mkArrow)
+        let splitterAltType ← mkForallFVars ys (← hs.foldrM (init := (← mkForallFVars eqs altResultType)) mkArrow)
         let splitterAltNumParam := hs.size + ys.size
         -- Create a proposition for representing terms that do not match `patterns`
         let mut notAlt := mkConst ``False
@@ -505,7 +512,8 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
       trace[Meta.Match.matchEqs] "splitterType: {splitterType}"
       let template := mkAppN (mkConst constInfo.name us) (params ++ #[motive] ++ discrs ++ alts)
       let template ← deltaExpand template (· == constInfo.name)
-      let splitterVal ← mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew altArgMasks)
+      let template := template.headBeta
+      let splitterVal ← mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltNumParams altArgMasks)
       let splitterName := baseName ++ `splitter
       addDecl <| Declaration.thmDecl {
         name        := splitterName

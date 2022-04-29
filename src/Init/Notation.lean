@@ -218,9 +218,13 @@ macro_rules
 /-- Special identifier introduced by "anonymous" `have : ...`, `suffices p ...` etc. -/
 macro tk:"this" : term => return Syntax.ident tk.getHeadInfo "this".toSubstring `this []
 
-namespace Parser.Tactic
+/-
+  Category for carrying raw syntax trees between macros; any content is printed as is by the pretty printer.
+  The only accepted parser for this category is an antiquotation. -/
 declare_syntax_cat rawStx
-/-- `withAnnotateState stx t` annotates the lexical range of `stx : Syntax` with the initial and final state of running tactic `t`. -/
+
+namespace Parser.Tactic
+/-- `with_annotate_state stx t` annotates the lexical range of `stx : Syntax` with the initial and final state of running tactic `t`. -/
 scoped syntax (name := withAnnotateState) "with_annotate_state " rawStx ppSpace tactic : tactic
 
 /--

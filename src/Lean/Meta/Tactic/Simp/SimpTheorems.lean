@@ -76,7 +76,6 @@ mutual
 end
 
 def isRflProof (proof : Expr) : MetaM Bool := do
-  trace[Meta.debug] "isRflProof: {proof}"
   if let .const declName .. := proof then
     isRflTheorem declName
   else

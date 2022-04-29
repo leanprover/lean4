@@ -9,6 +9,12 @@ import Lean.Elab.Tactic.ElabTerm
 
 namespace Lean.Elab.Tactic
 open Meta
+open Parser.Tactic
+
+@[builtinTactic withAnnotateState] def evalWithAnnotateState : Tactic
+  | `(tactic| with_annotate_state $stx $t) =>
+    withTacticInfoContext stx (evalTactic t)
+  | _ => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.«done»] def evalDone : Tactic := fun _ =>
   done
@@ -116,8 +122,11 @@ private def getOptRotation (stx : Syntax) : Nat :=
         evalTactic stx[1]
         mvarIdsNew := mvarIdsNew ++ (← getUnsolvedGoals)
       catch ex =>
-        logException ex
-        mvarIdsNew := mvarIdsNew.push mvarId
+        if (← read).recover then
+          logException ex
+          mvarIdsNew := mvarIdsNew.push mvarId
+        else
+          throw ex
   setGoals mvarIdsNew.toList
 
 @[builtinTactic Parser.Tactic.anyGoals] def evalAnyGoals : Tactic := fun stx => do

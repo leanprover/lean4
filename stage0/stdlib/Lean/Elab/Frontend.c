@@ -72,7 +72,6 @@ static lean_object* l_Lean_Elab_Frontend_runCommandElabM___rarg___closed__2;
 lean_object* l___private_Lean_Server_References_0__Lean_Server_toJsonIlean____x40_Lean_Server_References___hyg_754_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_updateCmdPos___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Elab_Frontend_processCommand___spec__1(lean_object*);
-lean_object* l_Lean_Parser_parseCommand_parse(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_906____closed__2;
 LEAN_EXPORT lean_object* l_Lean_profileitM___at_Lean_Elab_Frontend_processCommand___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_findModuleRefs(lean_object*, lean_object*, uint8_t);
@@ -120,6 +119,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_getParserState___boxed(lean_object
 LEAN_EXPORT lean_object* l_Lean_Elab_process(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_updateCmdPos___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_runFrontend___closed__2;
+lean_object* l_Lean_Parser_parseCommand(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_runFrontend___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_processCommands(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_runFrontend___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1546,7 +1546,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_processCommand___lambda__1(lean_ob
 _start:
 {
 lean_object* x_6; 
-x_6 = l_Lean_Parser_parseCommand_parse(x_1, x_2, x_3, x_4);
+x_6 = l_Lean_Parser_parseCommand(x_1, x_2, x_3, x_4);
 return x_6;
 }
 }

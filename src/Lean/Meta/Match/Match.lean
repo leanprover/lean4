@@ -32,7 +32,7 @@ where
   go (i : Nat) (hs : Array Expr) : MetaM α := do
     if h : i < lhs.size then
       if let some hName := discrInfos[i].hName? then
-        withLocalDeclD hName (← mkEq lhs[i] rhs[i]) fun h =>
+        withLocalDeclD hName (← mkEqHEq lhs[i] rhs[i]) fun h =>
           go (i+1) (hs.push h)
       else
         go (i+1) hs
@@ -833,7 +833,10 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := do
   withLocalDeclD `motive motiveType fun motive => do
   if discrInfos.any fun info => info.hName?.isSome then
     forallBoundedTelescope matchType numDiscrs fun discrs' matchTypeBody => do
-    let mvarType ← withEqs discrs discrs' discrInfos fun eqs => mkForallFVars eqs (mkAppN motive discrs')
+    let (mvarType, isEqMask) ← withEqs discrs discrs' discrInfos fun eqs => do
+      let mvarType ← mkForallFVars eqs (mkAppN motive discrs')
+      let isEqMask ← eqs.mapM fun eq => return (← inferType eq).isEq
+      return (mvarType, isEqMask)
     trace[Meta.Match.debug] "target: {mvarType}"
     withAlts motive discrs discrInfos lhss fun alts minors => do
       let mvar ← mkFreshExprMVar mvarType
@@ -842,8 +845,15 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := do
       let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs'.toList, alts := alts, examples := examples }).run {}
       let val ← mkLambdaFVars discrs' mvar
       trace[Meta.Match.debug] "matcher\nvalue: {val}\ntype: {← inferType val}"
-      let rfls ← (discrs.zip discrInfos).filterMapM fun (discr, info) =>
-        if info.hName?.isNone then return none else return some (← mkEqRefl discr)
+      let mut rfls := #[]
+      let mut isEqMaskIdx := 0
+      for discr in discrs, info in discrInfos do
+        if info.hName?.isSome then
+          if isEqMask[isEqMaskIdx] then
+            rfls := rfls.push (← mkEqRefl discr)
+          else
+            rfls := rfls.push (← mkHEqRefl discr)
+          isEqMaskIdx := isEqMaskIdx + 1
       let val := mkAppN (mkAppN val discrs) rfls
       let args := #[motive] ++ discrs ++ minors.map Prod.fst
       let val ← mkLambdaFVars args val

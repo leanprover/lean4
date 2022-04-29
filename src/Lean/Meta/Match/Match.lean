@@ -890,7 +890,7 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
       fvarDecls := localDecls.toList
       patterns := patterns.toList : Match.AltLHS }
 
-  return { matcherName, matchType, discrInfos := mkArray matcherApp.discrs.size {}, lhss }
+  return { matcherName, matchType, discrInfos := matcherInfo.discrInfos, lhss }
 
 
 def withMkMatcherInput

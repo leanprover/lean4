@@ -25,22 +25,31 @@ def Lean.Syntax.getRange? (stx : Syntax) (originalOnly := false) : Option String
 namespace Lean.Elab
 
 /--
-  For every branch, find the deepest node in that branch matching `p`
-  with a surrounding context (the innermost one) and return all of them. -/
-partial def InfoTree.deepestNodes (p : ContextInfo → Info → Std.PersistentArray InfoTree → Option α) : InfoTree → List α :=
+  Visit nodes bottom-up, passing in a surrounding context (the innermost one) and the union of nested results (empty at leaves). -/
+partial def InfoTree.collectNodesBottomUp (p : ContextInfo → Info → Std.PersistentArray InfoTree → List α → List α) : InfoTree → List α :=
   go none
 where go ctx?
   | context ctx t => go ctx t
   | n@(node i cs) =>
     let ccs := cs.toList.map (go <| i.updateContext? ctx?)
     let cs' := ccs.join
-    if !cs'.isEmpty then cs'
-    else match ctx? with
-      | some ctx => match p ctx i cs with
-        | some a => [a]
-        | _      => []
+    match ctx? with
+      | some ctx => p ctx i cs cs'
       | _        => []
   | _ => []
+
+/--
+  For every branch of the `InfoTree`, find the deepest node in that branch for which `p` returns
+  `some _`  and return the union of all such nodes. The visitor `p` is given a node together with
+  its innermost surrounding `ContextInfo`. -/
+partial def InfoTree.deepestNodes (p : ContextInfo → Info → Std.PersistentArray InfoTree → Option α) (infoTree : InfoTree) : List α :=
+  infoTree.collectNodesBottomUp fun ctx i cs rs =>
+    if rs.isEmpty then
+      match p ctx i cs with
+      | some r => [r]
+      | none   => []
+    else
+      rs
 
 partial def InfoTree.foldInfo (f : ContextInfo → Info → α → α) (init : α) : InfoTree → α :=
   go none init
@@ -210,39 +219,41 @@ structure GoalsAtResult where
   ctxInfo    : ContextInfo
   tacticInfo : TacticInfo
   useAfter   : Bool
+  /-- Whether the tactic info is further indented than the hover position. -/
+  indented   : Bool
 
 /-
   Try to retrieve `TacticInfo` for `hoverPos`.
-  We retrieve the `TacticInfo` `info`, if there is a node of the form `node (ofTacticInfo info) children` s.t.
-  - `hoverPos` is sufficiently inside `info`'s range (see code), and
-  - none of the `children` satisfy the condition above. That is, for composite tactics such as
-    `induction`, we always give preference for information stored in nested (children) tactics.
+  We retrieve all `TacticInfo` nodes s.t. `hoverPos` is inside the node's range plus trailing whitespace.
+  We usually prefer the innermost such nodes so that for composite tactics such as `induction`, we show the nested proofs' states.
+  However, if `hoverPos` is after the tactic, we prefer nodes that are not indented relative to it, meaning that e.g. at `|` in
+  ```lean
+  have := by
+    exact foo
+  |
+  ```
+  we show the (final, see below) state of `have`, not `exact`.
 
   Moreover, we instruct the LSP server to use the state after tactic execution if
   - the hover position is after the info's start position *and*
   - there is no nested tactic info after the hover position (tactic combinators should decide for themselves
-    where to show intermediate states by calling `withTacticInfoContext`)
-
-  Finally, if the hover position is over the infos' trailing whitespace, we only show the last such info
-  (so that we only show the single final state after combinators such as `repeat`). -/
+    where to show intermediate states by calling `withTacticInfoContext`) -/
 partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult := Id.run do
-  let goals := t.deepestNodes fun
-    | ctx, i@(Info.ofTacticInfo ti), cs => OptionM.run do
+  t.collectNodesBottomUp fun ctx i cs gs => Id.run do
+    if let Info.ofTacticInfo ti := i then
       if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
         let trailSize := i.stx.getTrailingSize
         -- show info at EOF even if strictly outside token + trail
         let atEOF := tailPos.byteIdx + trailSize == text.source.endPos.byteIdx
-        guard <| pos ≤ hoverPos ∧ (hoverPos.byteIdx < tailPos.byteIdx + trailSize || atEOF)
-        return { ctxInfo := ctx, tacticInfo := ti, useAfter :=
-          hoverPos > pos && !cs.any (hasNestedTactic pos tailPos) }
-      else
-        failure
-    | _, _, _ => none
-  if let (last :: _ :: _) := goals.reverse then
-    -- should be the same for any element in `goals`
-    if last.tacticInfo.stx.getTailPos?.get! <= hoverPos then
-      return [last]
-  goals
+        if pos ≤ hoverPos ∧ (hoverPos.byteIdx < tailPos.byteIdx + trailSize || atEOF) then
+          -- overwrite bottom-up results according to "innermost" heuristics documented above
+          if gs.isEmpty || hoverPos ≥ tailPos && gs.all (·.indented) then
+            return [{
+              ctxInfo := ctx
+              tacticInfo := ti
+              useAfter := hoverPos > pos && !cs.any (hasNestedTactic pos tailPos)
+              indented := (text.toPosition pos).column > (text.toPosition hoverPos).column }]
+    return gs
 where
   hasNestedTactic (pos tailPos) : InfoTree → Bool
     | InfoTree.node i@(Info.ofTacticInfo _) cs => Id.run do

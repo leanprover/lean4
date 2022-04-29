@@ -37,8 +37,14 @@ namespace Tactic
 
 structure Context where
   main       : MVarId
-  -- declaration name of the executing elaborator, used by `mkTacticInfo` to persist it in the info tree
+  /-- Declaration name of the executing elaborator, used by `mkTacticInfo` to persist it in the info tree -/
   elaborator : Name
+  /--
+    If `true`, enable "error recovery" in some tactics. For example, `cases` tactic
+    admits unsolved alternatives when `recover == true`. The combinator `withoutRecover <tac>` disables
+    "error recovery" while executing `<tac>`. This is useful for tactics such as `first | ... | ...`.
+  -/
+  recover    : Bool := true
 
 structure SavedState where
   term   : Term.SavedState
@@ -221,9 +227,12 @@ def closeUsingOrAdmit (tac : TacticM Unit) : TacticM Unit := do
   try
     focusAndDone tac
   catch ex =>
-    logException ex
-    admitGoal mvarId
-    setGoals mvarIds
+    if (← read).recover then
+      logException ex
+      admitGoal mvarId
+      setGoals mvarIds
+    else
+      throw ex
 
 instance : MonadBacktrack SavedState TacticM where
   saveState := Tactic.saveState
@@ -237,8 +246,12 @@ instance : MonadExcept Exception TacticM where
   throw    := throw
   tryCatch := Tactic.tryCatch
 
+/-- Execute `x` with error recovery disabled -/
+def withoutRecover (x : TacticM α) : TacticM α :=
+  withReader (fun ctx => { ctx with recover := false }) x
+
 @[inline] protected def orElse {α} (x : TacticM α) (y : Unit → TacticM α) : TacticM α := do
-  try x catch _ => y ()
+  try withoutRecover x catch _ => y ()
 
 instance {α} : OrElse (TacticM α) where
   orElse := Tactic.orElse

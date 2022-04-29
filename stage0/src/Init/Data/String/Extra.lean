@@ -61,7 +61,7 @@ theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext)
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply String.Iterator.sizeOf_next_lt_of_hasNext; assumption)
 
 theorem Iterator.sizeOf_next_lt_of_atEnd (i : String.Iterator) (h : ¬ i.atEnd = true) : sizeOf i.next < sizeOf i :=
-  have h : i.hasNext = true := by sorry -- TODO(0) simp_arith [atEnd] at h; simp_arith [hasNext, h]
+  have h : i.hasNext = true := by simp_arith [atEnd] at h; simp_arith [hasNext, h]
   sizeOf_next_lt_of_hasNext i h
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply String.Iterator.sizeOf_next_lt_of_atEnd; assumption)

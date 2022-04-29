@@ -131,7 +131,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
           let arr ← match k with
             | `optional => `(match $[$ids:ident],* with
                 | $[some $ids:ident],* => $(quote inner)
-                | none                 => Array.empty)
+                | $[_%$ids],*          => Array.empty)
             | _ =>
               let arr ← ids[:ids.size-1].foldrM (fun id arr => `(Array.zip $id $arr)) ids.back
               `(Array.map (fun $(← mkTuple ids) => $(inner[0])) $arr)

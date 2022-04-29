@@ -72,32 +72,46 @@ private def consumeInput (c : ParserContext) (pos : String.Pos) : String.Pos :=
 def topLevelCommandParserFn : ParserFn :=
   commandParser.fn
 
-partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext) (s : ModuleParserState) (messages : MessageLog) : Syntax × ModuleParserState × MessageLog :=
-  let rec parse (s : ModuleParserState) (messages : MessageLog) :=
-    let { pos := pos, recovering := recovering } := s
+partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext) (mps : ModuleParserState) (messages : MessageLog) : Syntax × ModuleParserState × MessageLog := Id.run do
+  let mut pos := mps.pos
+  let mut recovering := mps.recovering
+  let mut messages := messages
+  let mut stx := Syntax.missing  -- will always be assigned below
+  repeat
     if inputCtx.input.atEnd pos then
-      (mkEOI pos, s, messages)
-    else
-      let c   := mkParserContext inputCtx pmctx
-      let s   := { cache := initCacheForInput c.input, pos := pos : ParserState }
-      let s   := whitespace c s
-      let s   := topLevelCommandParserFn c s
-      match s.errorMsg with
-      | none =>
-         (s.stxStack.back, { pos := s.pos }, messages)
-      | some errorMsg =>
-        -- advance at least one token to prevent infinite loops
-        let pos := if s.pos == pos then consumeInput c s.pos else s.pos
-        /- We ignore commands where `getPos?` is none. This happens only on commands that have a prefix comprised of optional elements.
-           For example, unification hints start with `optional («scoped» <|> «local»)`.
-           We claim a syntactically incorrect command containing no token or identifier is irrelevant for intellisense and should be ignored. -/
-        let ignore := s.stxStack.isEmpty || s.stxStack.back.getPos?.isNone
-        let messages := if recovering && ignore then messages else messages.add <| mkErrorMessage c s.pos (toString errorMsg)
-        if ignore then
-          parse { pos := pos, recovering := true } messages
-        else
-          (s.stxStack.back, { pos := pos, recovering := true }, messages)
-  parse s messages
+      stx := mkEOI pos
+      break
+    let pos' := pos
+    let c := mkParserContext inputCtx pmctx
+    let s := { cache := initCacheForInput c.input, pos := pos : ParserState }
+    let s := whitespace c s
+    let s := topLevelCommandParserFn c s
+    pos := s.pos
+    if recovering && !s.stxStack.isEmpty && s.stxStack.back.isAntiquot then
+      -- top-level antiquotation during recovery is most likely remnant from unfinished quotation, ignore
+      continue
+    match s.errorMsg with
+    | none =>
+      stx := s.stxStack.back
+      recovering := false
+      break
+    | some errorMsg =>
+      -- advance at least one token to prevent infinite loops
+      if pos == pos' then
+        pos := consumeInput c pos
+      /- We ignore commands where `getPos?` is none. This happens only on commands that have a prefix comprised of optional elements.
+          For example, unification hints start with `optional («scoped» <|> «local»)`.
+          We claim a syntactically incorrect command containing no token or identifier is irrelevant for intellisense and should be ignored. -/
+      let ignore := s.stxStack.isEmpty || s.stxStack.back.getPos?.isNone
+      unless recovering && ignore do
+        messages := messages.add <| mkErrorMessage c s.pos (toString errorMsg)
+      recovering := true
+      if ignore then
+        continue
+      else
+        stx := s.stxStack.back
+        break
+  return (stx, { pos, recovering }, messages)
 
 -- only useful for testing since most Lean files cannot be parsed without elaboration
 

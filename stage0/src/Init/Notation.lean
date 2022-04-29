@@ -219,6 +219,10 @@ macro_rules
 macro tk:"this" : term => return Syntax.ident tk.getHeadInfo "this".toSubstring `this []
 
 namespace Parser.Tactic
+declare_syntax_cat rawStx
+/-- `withAnnotateState stx t` annotates the lexical range of `stx : Syntax` with the initial and final state of running tactic `t`. -/
+scoped syntax (name := withAnnotateState) "with_annotate_state " rawStx ppSpace tactic : tactic
+
 /--
 Introduce one or more hypotheses, optionally naming and/or pattern-matching them.
 For each hypothesis to be introduced, the remaining main goal's target type must be a `let` or function type.
@@ -454,7 +458,7 @@ syntax (name := simpAll) "simp_all " (config)? (discharger)? (&"only ")? ("[" (s
 The `dsimp` tactic is the definitional simplifier. It is similar to `simp` but only applies theorems that hold by
 reflexivity. Thus, the result is guaranteed to be definitionally equal to the input.
 -/
-syntax (name := dsimp) "dsimp " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
+syntax (name := dsimp) "dsimp " (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? (location)? : tactic
 
 /--
   Delta expand the given definition.

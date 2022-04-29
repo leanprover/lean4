@@ -2,7 +2,7 @@
 a : α
 as bs : List α
 h : bs = a :: as
-⊢ List.length (?a_1 :: as) = List.length bs
+⊢ List.length (?a :: as) = List.length bs
 
 case a
 α : Type ?u

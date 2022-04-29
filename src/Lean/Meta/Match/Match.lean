@@ -838,7 +838,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := do
     withAlts motive discrs discrInfos lhss fun alts minors => do
       let mvar ← mkFreshExprMVar mvarType
       trace[Meta.Match.debug] "goal\n{mvar.mvarId!}"
-      let examples := discrs.toList.map fun discr => Example.var discr.fvarId!
+      let examples := discrs'.toList.map fun discr => Example.var discr.fvarId!
       let (_, s) ← (process { mvarId := mvar.mvarId!, vars := discrs'.toList, alts := alts, examples := examples }).run {}
       let val ← mkLambdaFVars discrs' mvar
       trace[Meta.Match.debug] "matcher\nvalue: {val}\ntype: {← inferType val}"

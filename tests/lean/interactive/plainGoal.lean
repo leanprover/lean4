@@ -80,6 +80,7 @@ theorem left_distrib (t a b : Nat) : t * (a + b) = t * a + t * b := by
 example (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) := by
   induction as <;> skip <;> (try rename_i h; simp[h]) <;> rfl
                                                    --^ $/lean/plainGoal
+                                                    --^ $/lean/plainGoal
 
 example : False := by
 --

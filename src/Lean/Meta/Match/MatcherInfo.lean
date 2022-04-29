@@ -47,6 +47,16 @@ def MatcherInfo.getFirstAltPos (info : MatcherInfo) : Nat :=
 def MatcherInfo.getMotivePos (info : MatcherInfo) : Nat :=
   info.numParams
 
+def getNumEqsFromDiscrInfos (infos : Array DiscrInfo) : Nat := Id.run do
+  let mut r := 0
+  for info in infos do
+    if info.hName?.isSome then
+      r := r + 1
+  return r
+
+def MatcherInfo.getNumDiscrEqs (info : MatcherInfo) : Nat :=
+  getNumEqsFromDiscrInfos info.discrInfos
+
 namespace Extension
 
 structure Entry where

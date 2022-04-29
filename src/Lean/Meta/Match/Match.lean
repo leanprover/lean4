@@ -779,7 +779,7 @@ where `v` is a universe parameter or 0 if `B[a_1, ..., a_n]` is a proposition. -
 def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := do
   let ⟨matcherName, matchType, discrInfos, lhss⟩ := input
   let numDiscrs := discrInfos.size
-  let numEqs := (discrInfos.filter fun info => info.hName?.isSome).size
+  let numEqs := getNumEqsFromDiscrInfos discrInfos
   checkNumPatterns numDiscrs lhss
   forallBoundedTelescope matchType numDiscrs fun discrs matchTypeBody => do
   /- We generate an matcher that can eliminate using different motives with different universe levels.

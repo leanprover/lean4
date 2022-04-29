@@ -17,6 +17,27 @@ structure Subarray (α : Type u)  where
 
 namespace Subarray
 
+def size (s : Subarray α) : Nat :=
+  s.stop - s.start
+
+def get (s : Subarray α) (i : Fin s.size) : α :=
+  have : s.start + i.val < s.as.size := by
+   apply Nat.lt_of_lt_of_le _ s.h₂
+   have := i.isLt
+   simp [size] at this
+   rw [Nat.add_comm]
+   exact Nat.add_lt_of_lt_sub s.h₁ this
+  s.as.get ⟨s.start + i.val, this⟩
+
+@[inline] def getD (s : Subarray α) (i : Nat) (v₀ : α) : α :=
+  if h : i < s.size then s.get ⟨i, h⟩ else v₀
+
+def get! [Inhabited α] (s : Subarray α) (i : Nat) : α :=
+  getD s i default
+
+def getOp [Inhabited α] (self : Subarray α) (idx : Nat) : α :=
+  self.get! idx
+
 def popFront (s : Subarray α) : Subarray α :=
   if h : s.start < s.stop then
     { s with start := s.start + 1, h₁ := Nat.le_of_lt_succ (Nat.add_lt_add_right h 1) }

@@ -15,6 +15,7 @@ structure AuxMatchTermState where
   nextIdx : Nat := 1
   «cases» : Array Syntax := #[]
 
+open Parser.Tactic in
 private def mkAuxiliaryMatchTermAux (parentTag : Name) (matchTac : Syntax) : StateT AuxMatchTermState MacroM Syntax := do
   let matchAlts := matchTac[5]
   let alts      := matchAlts[0].getArgs
@@ -33,7 +34,11 @@ private def mkAuxiliaryMatchTermAux (parentTag : Name) (matchTac : Syntax) : Sta
     else withFreshMacroScope do
       let newHole ← `(?rhs)
       let newHoleId := newHole[1]
-      let newCase ← `(tactic| case $newHoleId =>%$(alt[2]) ($holeOrTacticSeq:tacticSeq) )
+      let newCase ← `(tactic|
+        case $newHoleId =>%$(alt[2])
+          -- annotate `| ... =>` with state after `case`
+          with_annotate_state $(mkNullNode #[alt[0], alt[2]]) skip
+          $holeOrTacticSeq)
       modify fun s => { s with cases := s.cases.push newCase }
       pure <| alt.setArg 3 newHole
   let result  := matchTac.setKind ``Parser.Term.«match»

@@ -218,9 +218,13 @@ macro_rules
 /-- Special identifier introduced by "anonymous" `have : ...`, `suffices p ...` etc. -/
 macro tk:"this" : term => return Syntax.ident tk.getHeadInfo "this".toSubstring `this []
 
-namespace Parser.Tactic
+/-
+  Category for carrying raw syntax trees between macros; any content is printed as is by the pretty printer.
+  The only accepted parser for this category is an antiquotation. -/
 declare_syntax_cat rawStx
-/-- `withAnnotateState stx t` annotates the lexical range of `stx : Syntax` with the initial and final state of running tactic `t`. -/
+
+namespace Parser.Tactic
+/-- `with_annotate_state stx t` annotates the lexical range of `stx : Syntax` with the initial and final state of running tactic `t`. -/
 scoped syntax (name := withAnnotateState) "with_annotate_state " rawStx ppSpace tactic : tactic
 
 /--
@@ -350,7 +354,12 @@ syntax (name := rotateRight) "rotate_right" (num)? : tactic
 /-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
 macro "try " t:tacticSeq : tactic => `(first | $t | skip)
 /-- `tac <;> tac'` runs `tac` on the main goal and `tac'` on each produced goal, concatenating all goals produced by `tac'`. -/
-macro:1 x:tactic " <;> " y:tactic:0 : tactic => `(tactic| focus ($x:tactic; all_goals $y:tactic))
+macro:1 x:tactic tk:" <;> " y:tactic:0 : tactic => `(tactic|
+  focus
+    $x:tactic
+    -- annotate token with state after executing `x`
+    with_annotate_state $tk skip
+    all_goals $y:tactic)
 
 /-- `eq_refl` is equivalent to `exact rfl`, but has a few optimizatons. -/
 syntax (name := refl) "eq_refl" : tactic

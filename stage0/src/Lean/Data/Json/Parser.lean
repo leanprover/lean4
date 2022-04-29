@@ -50,17 +50,15 @@ partial def strCore (acc : String) : Parsec String := do
     return acc
   else
     let c ← anyChar
-    let ec ←
-      if c = '\\' then
-        escapedChar
-      -- as to whether c.val > 0xffff should be split up and encoded with multiple \u,
-      -- the JSON standard is not definite: both directly printing the character
-      -- and encoding it with multiple \u is allowed. we choose the former.
-      else if 0x0020 ≤ c.val ∧ c.val ≤ 0x10ffff then
-        pure c
-      else
-        fail "unexpected character in string"
-    strCore (acc.push ec)
+    if c = '\\' then
+      strCore (acc.push (← escapedChar))
+    -- as to whether c.val > 0xffff should be split up and encoded with multiple \u,
+    -- the JSON standard is not definite: both directly printing the character
+    -- and encoding it with multiple \u is allowed. we choose the former.
+    else if 0x0020 ≤ c.val ∧ c.val ≤ 0x10ffff then
+      strCore (acc.push c)
+    else
+      fail "unexpected character in string"
 
 def str : Parsec String := strCore ""
 

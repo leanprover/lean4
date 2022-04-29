@@ -73,7 +73,8 @@ bool is_within_stack_guard(void * addr) {
 
 extern "C" LEAN_EXPORT void segv_handler(int signum, siginfo_t * info, void *) {
     if (is_within_stack_guard(info->si_addr)) {
-        fprintf(stderr, "\nStack overflow detected. Aborting.\n");
+        char const msg[] = "\nStack overflow detected. Aborting.\n";
+        write(STDERR_FILENO, msg, sizeof(msg) - 1);
         abort();
     } else {
         // reset signal handler and return; see comments in Rust code

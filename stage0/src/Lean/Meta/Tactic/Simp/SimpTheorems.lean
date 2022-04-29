@@ -76,7 +76,6 @@ mutual
 end
 
 def isRflProof (proof : Expr) : MetaM Bool := do
-  trace[Meta.debug] "isRflProof: {proof}"
   if let .const declName .. := proof then
     isRflTheorem declName
   else
@@ -383,17 +382,16 @@ where
       else
         return none
 
-def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM SimpTheorems :=
-  withLCtx {} {} do
-    if let some eqns ← getEqnsFor? declName then
-      let mut d := d
-      for eqn in eqns do
-        d ← SimpTheorems.addConst d eqn
-      if hasSmartUnfoldingDecl (← getEnv) declName then
-        d := d.addDeclToUnfoldCore declName
-      return d
-    else
-      return d.addDeclToUnfoldCore declName
+def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do
+  if let some eqns ← getEqnsFor? declName then
+    let mut d := d
+    for eqn in eqns do
+      d ← SimpTheorems.addConst d eqn
+    if hasSmartUnfoldingDecl (← getEnv) declName then
+      d := d.addDeclToUnfoldCore declName
+    return d
+  else
+    return d.addDeclToUnfoldCore declName
 
 abbrev SimpTheoremsArray := Array SimpTheorems
 

@@ -8,6 +8,11 @@ import Lean.Meta.Basic
 namespace Lean.Meta
 namespace Match
 
+structure DiscrInfo where
+  /-- `some h` if the discriminant is annotated with `h:` -/
+  hName? : Option Name := none
+  deriving Inhabited
+
 /--
 A "matcher" auxiliary declaration has the following structure:
 - `numParams` parameters
@@ -18,10 +23,14 @@ A "matcher" auxiliary declaration has the following structure:
    `pos` is the position of the universe level parameter that specifies the elimination universe.
    It is `none` if the matcher only eliminates into `Prop`. -/
 structure MatcherInfo where
-  numParams : Nat
-  numDiscrs : Nat
+  numParams    : Nat
+  numDiscrs    : Nat
   altNumParams : Array Nat
-  uElimPos? : Option Nat
+  uElimPos?    : Option Nat
+  /--
+    `discrInfos[i] = { hName? := some h }` if the i-th discriminant was annotated with `h :`.
+  -/
+  discrInfos   : Array DiscrInfo
 
 def MatcherInfo.numAlts (info : MatcherInfo) : Nat :=
   info.altNumParams.size
@@ -37,6 +46,16 @@ def MatcherInfo.getFirstAltPos (info : MatcherInfo) : Nat :=
 
 def MatcherInfo.getMotivePos (info : MatcherInfo) : Nat :=
   info.numParams
+
+def getNumEqsFromDiscrInfos (infos : Array DiscrInfo) : Nat := Id.run do
+  let mut r := 0
+  for info in infos do
+    if info.hName?.isSome then
+      r := r + 1
+  return r
+
+def MatcherInfo.getNumDiscrEqs (info : MatcherInfo) : Nat :=
+  getNumEqsFromDiscrInfos info.discrInfos
 
 namespace Extension
 

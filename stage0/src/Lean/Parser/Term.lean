@@ -144,7 +144,7 @@ def matchAltExpr := matchAlt
 def matchAlts (rhsParser : Parser := termParser) : Parser :=
   leading_parser withPosition $ many1Indent (ppLine >> matchAlt rhsParser)
 
-def matchDiscr := leading_parser optional (atomic (ident >> ":")) >> termParser
+def matchDiscr := leading_parser optional (atomic (ident >> " : ")) >> termParser
 
 def trueVal  := leading_parser nonReservedSymbol "true"
 def falseVal := leading_parser nonReservedSymbol "false"

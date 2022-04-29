@@ -437,7 +437,7 @@ partial def mkBelowMatcher
   withExistingLocalDecls (lhss.foldl (init := []) fun s v => s ++ v.fvarDecls) do
     for lhs in lhss do
       trace[Meta.IndPredBelow.match] "{lhs.patterns.map (·.toMessageData)}"
-  let res ← Match.mkMatcher { matcherName, matchType, numDiscrs := (mkMatcherInput.numDiscrs + 1), lhss }
+  let res ← Match.mkMatcher { matcherName, matchType, discrInfos := mkArray (mkMatcherInput.numDiscrs + 1) {}, lhss }
   res.addMatcher
   -- if a wrong index is picked, the resulting matcher can be type-incorrect.
   -- we check here, so that errors can propagate higher up the call stack.

@@ -35,6 +35,18 @@ def mkHEq (a b : Expr) : MetaM Expr := do
   let u ← getLevel aType
   return mkApp4 (mkConst ``HEq [u]) aType a bType b
 
+/--
+  If `a` and `b` have definitionally equal types, return `Eq a b`, otherwise return `HEq a b`.
+-/
+def mkEqHEq (a b : Expr) : MetaM Expr := do
+  let aType ← inferType a
+  let bType ← inferType b
+  let u ← getLevel aType
+  if (← isDefEq aType bType) then
+    return mkApp3 (mkConst ``Eq [u]) aType a b
+  else
+    return mkApp4 (mkConst ``HEq [u]) aType a bType b
+
 def mkEqRefl (a : Expr) : MetaM Expr := do
   let aType ← inferType a
   let u ← getLevel aType

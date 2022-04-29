@@ -796,6 +796,7 @@ lean_object* l_Lean_Meta_instantiateMVars(lean_object*, lean_object*, lean_objec
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAux___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAltViews_updateMatchType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkEqHEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwAbortTerm___at_Lean_Elab_Term_isAtomicDiscr_x3f___spec__1___rarg___closed__1;
 static lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_ToDepElimPattern_mkPatternRefMap_go___closed__1;
 uint8_t l_Lean_Expr_binderInfo(lean_object*);
@@ -880,7 +881,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_reportMatcherResultErrors(lean_object*
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Match_0__Lean_Elab_Term_ToDepElimPattern_packMatchTypePatterns___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Term_elabNoMatch_declRange___closed__4;
 LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_810____at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAux___spec__12(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchTypeAndDiscrs_elabDiscrsWitMatchType___spec__1___closed__9;
 static lean_object* l_Lean_Elab_Term_reportMatcherResultErrors___closed__2;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_ToDepElimPattern_main___spec__4___closed__6;
@@ -26031,7 +26031,7 @@ lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
-x_30 = l_Lean_Meta_mkEq(x_29, x_27, x_8, x_9, x_10, x_11, x_28);
+x_30 = l_Lean_Meta_mkEqHEq(x_29, x_27, x_8, x_9, x_10, x_11, x_28);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; lean_object* x_36; 

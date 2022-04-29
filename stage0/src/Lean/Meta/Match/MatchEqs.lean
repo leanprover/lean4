@@ -103,8 +103,13 @@ where
                return (← go ys eqs args (mask.push false) (i+1) typeNew)
           go (ys.push y) eqs (args.push y) (mask.push true) (i+1) typeNew
       else
-        let some (_, _, rhs) ← matchEq? d | throwError "unexpected match alternative type{indentExpr altType}"
-        let arg ← mkEqRefl rhs
+        let arg ←
+           if let some (_, _, rhs) ← matchEq? d then
+             mkEqRefl rhs
+           else if let some (_, _, _, rhs) ← matchHEq? d then
+             mkHEqRefl rhs
+           else
+             throwError "unexpected match alternative type{indentExpr altType}"
         withLocalDeclD n d fun eq => do
           let typeNew := b.instantiate1 eq
           go ys (eqs.push eq) (args.push arg) (mask.push false) (i+1) typeNew
@@ -476,10 +481,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
         -- Create a proposition for representing terms that do not match `patterns`
         let mut notAlt := mkConst ``False
         for discr in discrs.toArray.reverse, pattern in patterns.reverse do
-          if (← isDefEq (← inferType discr) (← inferType pattern)) then
-            notAlt ← mkArrow (← mkEq discr pattern) notAlt
-          else
-            notAlt ← mkArrow (← mkHEq discr pattern) notAlt
+          notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
         notAlt ← mkForallFVars (discrs ++ ys) notAlt
         /- Recall that when we use the `h : discr`, the alternative type depends on the discriminant.
            Thus, we need to create new `alts`. -/

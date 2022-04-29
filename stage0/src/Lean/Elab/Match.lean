@@ -783,7 +783,7 @@ where
       if h : i < discrs.size then
         let discr := discrs.get ⟨i, h⟩
         if let some h := discr.h? then
-          withLocalDeclD h.getId (← mkEq discr.expr (← p.toExpr)) fun eq => do
+          withLocalDeclD h.getId (← mkEqHEq discr.expr (← p.toExpr)) fun eq => do
             addTermInfo' h eq (isBinder := true)
             go (i+1) ps (eqs.push eq)
         else

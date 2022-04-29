@@ -476,10 +476,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
         -- Create a proposition for representing terms that do not match `patterns`
         let mut notAlt := mkConst ``False
         for discr in discrs.toArray.reverse, pattern in patterns.reverse do
-          if (← isDefEq (← inferType discr) (← inferType pattern)) then
-            notAlt ← mkArrow (← mkEq discr pattern) notAlt
-          else
-            notAlt ← mkArrow (← mkHEq discr pattern) notAlt
+          notAlt ← mkArrow (← mkEqHEq discr pattern) notAlt
         notAlt ← mkForallFVars (discrs ++ ys) notAlt
         /- Recall that when we use the `h : discr`, the alternative type depends on the discriminant.
            Thus, we need to create new `alts`. -/

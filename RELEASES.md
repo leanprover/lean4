@@ -1,6 +1,19 @@
 Unreleased
 ---------
 
+* New encoding for `match`-expressions that use the `h :` notation for discriminants. The information is not lost during delaboration,
+  and it is the foundation for a better `split` tactic. at delaboration time. Example:
+  ```lean
+  #print Nat.decEq
+  /-
+  protected def Nat.decEq : (n m : Nat) → Decidable (n = m) :=
+  fun n m =>
+    match h : Nat.beq n m with
+    | true => isTrue (_ : n = m)
+    | false => isFalse (_ : ¬n = m)
+  -/
+```
+
 * `exists` tactic is now takes a comma separated list of terms.
 
 * Add `dsimp` and `dsimp!` tactics. They guarantee the result term is definitionally equal, and only apply

@@ -65,8 +65,6 @@ def withFields (structName : Name) (k : Array Expr → Array (Name × Expr) → 
   let env ← liftMetaM <| getEnv
   withFieldsAux structName k <| fun _ => getStructureFields env structName
 
-end
-
 /-
   Execute `k` with the structure `params` and `(fieldName, fieldType)` pairs.  `k` is executed
   in an updated local context which contains local declarations for the `structName` `params`.
@@ -74,6 +72,21 @@ end
 def withFieldsFlattened (structName : Name) (k : Array Expr → Array (Name × Expr) → n α) (includeSubobjectFields := true) : n α := do
   let env ← liftMetaM <| getEnv
   withFieldsAux structName k <| fun _ => getStructureFieldsFlattened env structName includeSubobjectFields
+
+end
+
+-- TODO(WN): Remove if not needed.
+/-- Return the `β`, if any, in `RpcEncoding tp β`. -/
+private def getRpcEncoding? (tp : Expr) : TermElabM (Option Expr) := do
+  let β ← mkFreshExprMVar (mkSort levelOne)
+  let clTp ←
+    try
+      mkAppM ``RpcEncoding #[tp, β]
+    catch ex =>
+      throwError "failed to construct 'RpcEncoding ({tp}) {β}':\n{ex.toMessageData}"
+  match (← trySynthInstance clTp) with
+  | LOption.some _ => instantiateMVars β
+  | _ => pure none
 
 private def deriveStructureInstance (typeName : Name) : CommandElabM Bool := do
   let cmd ← liftTermElabM none do

@@ -53,7 +53,7 @@ def withFieldsAux (structName : Name) (k : Array Expr → Array (Name × Expr) �
     let .inductInfo info ← getConstInfo structName | throwError "'{structName}' is not a structure"
     return info
   let us := info.levelParams.map mkLevelParam
-  forallTelescopeReducing (n := n) info.type fun params _ =>
+  forallTelescopeReducing info.type fun params _ =>
   withLocalDeclD `s (mkAppN (mkConst structName us) params) fun s => do
     let mut info := #[]
     for fieldName in fieldNames () do
@@ -98,7 +98,7 @@ private def deriveStructureInstance (typeName : Name) : CommandElabM Bool := do
       for param in params do
         let fvar := (←getFVarLocalDecl param)
         let nm := fvar.userName
-        binders := binders.push <| ← `(Deriving.implicitBinderF| { $(mkIdent nm) })
+        binders := binders.push <| ← `(Deriving.explicitBinderF| ( $(mkIdent nm) ))
         -- only look for encodings for type parameters
         if !(← inferType param).isType then continue
         paramIds := paramIds.push <| mkIdent nm
@@ -106,19 +106,28 @@ private def deriveStructureInstance (typeName : Name) : CommandElabM Bool := do
         binders := binders.push <|
           ← `(Deriving.instBinderF| [ $(mkIdent ``Lean.Server.RpcEncoding) $(mkIdent nm) _ ])
 
+      -- Postulate that every field have a rpc encoding, storing the encoding type ident
+      -- in `fieldEncIds`. When multiple fields have the same type, we reuse the encoding type
+      -- as otherwise typeclass synthesis fails.
       let mut fieldIds := #[]
-      let mut fieldEncIds := #[]
-
-      -- postulate that every field have a rpc encoding in `fieldEncIds`
+      let mut fieldEncIds : Array Syntax := #[]
+      let mut uniqFieldEncIds : Array Syntax := #[]
+      let mut fieldEncIds' : DiscrTree Syntax := {}
       for (fieldName, fieldTp) in fields do
         -- postulate that the field has an encoding and remember the encoding's binder name
         fieldIds := fieldIds.push <| mkIdent fieldName
-        let fieldEncTp ← mkIdent <$> mkFreshUserName fieldName
-        fieldEncIds := fieldEncIds.push fieldEncTp
-        binders := binders.push <| ← `(Deriving.implicitBinderF| { $fieldEncTp:ident })
-        let stx ← PrettyPrinter.delab fieldTp
-        binders := binders.push <|
-          ← `(Deriving.instBinderF| [ $(mkIdent ``Lean.Server.RpcEncoding) $stx $fieldEncTp:ident ])
+        match (← fieldEncIds'.getMatch fieldTp).back? with
+        | none =>
+          let fieldEncId ← mkIdent <$> mkFreshUserName fieldName
+          binders := binders.push <| ← `(Deriving.explicitBinderF| ( $fieldEncId:ident ))
+          let stx ← PrettyPrinter.delab fieldTp
+          binders := binders.push <|
+            ← `(Deriving.instBinderF| [ $(mkIdent ``Lean.Server.RpcEncoding) $stx $fieldEncId:ident ])
+          fieldEncIds' ← fieldEncIds'.insert fieldTp fieldEncId
+          uniqFieldEncIds := uniqFieldEncIds.push fieldEncId
+          fieldEncIds := fieldEncIds.push fieldEncId
+        | some fid =>
+          fieldEncIds := fieldEncIds.push fid
 
       -- helpers for field initialization syntax
       let fieldInits (func : Name) := fieldIds.mapM fun fid =>
@@ -130,23 +139,22 @@ private def deriveStructureInstance (typeName : Name) : CommandElabM Bool := do
       let mkExplicit stx := mkNode ``Lean.Parser.Term.explicit #[mkAtom "@", stx]
       let typeId := Syntax.mkApp (mkExplicit <| mkIdent typeName) paramIds
       let packetId ← mkIdent <$> mkFreshUserName `RpcEncodingPacket
-      let packetExplicitId := Syntax.mkApp (mkExplicit packetId) fieldEncIds
+      let packetAppliedId := Syntax.mkApp packetId uniqFieldEncIds
 
       `(section
         variable $binders*
 
         structure $packetId:ident where
           $[($fieldIds : $fieldEncIds)]*
-          deriving $(mkIdent ``Lean.FromJson), $(mkIdent ``Lean.ToJson)
+          deriving $(mkIdent ``FromJson), $(mkIdent ``ToJson)
 
-        instance : $(mkIdent ``RpcEncoding) $typeId $packetExplicitId:ident where
+        instance : $(mkIdent ``RpcEncoding) $typeId $packetAppliedId:ident where
           rpcEncode a := return {
             $[$encInits]*
           }
           rpcDecode a := return {
             $[$decInits]*
           }
-
         end)
 
   elabCommand cmd

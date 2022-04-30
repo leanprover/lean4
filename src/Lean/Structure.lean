@@ -152,6 +152,12 @@ def getProjFnForField? (env : Environment) (structName : Name) (fieldName : Name
   else
     none
 
+def getProjFnInfoForField? (env : Environment) (structName : Name) (fieldName : Name) : Option (Name × ProjectionFunctionInfo) :=
+  if let some projFn := getProjFnForField? env structName fieldName then
+    (projFn, ·) <$> env.getProjectionFnInfo? projFn
+  else
+    none
+
 def mkDefaultFnOfProjFn (projFn : Name) : Name :=
   projFn ++ `_default
 

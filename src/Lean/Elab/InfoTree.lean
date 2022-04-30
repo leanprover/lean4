@@ -28,6 +28,26 @@ structure ContextInfo where
   ngen          : NameGenerator -- We must save the name generator to implement `ContextInfo.runMetaM` and making we not create `MVarId`s used in `mctx`.
   deriving Inhabited
 
+namespace ContextInfo
+
+variable [Monad m] [MonadEnv m] [MonadMCtx m] [MonadOptions m] [MonadResolveName m] [MonadNameGenerator m]
+
+def saveNoFileMap : m ContextInfo := return {
+    env           := (← getEnv)
+    fileMap       := default
+    mctx          := (← getMCtx)
+    options       := (← getOptions)
+    currNamespace := (← getCurrNamespace)
+    openDecls     := (← getOpenDecls)
+    ngen          := (← getNGen)
+  }
+
+def save [MonadFileMap m] : m ContextInfo := do
+  let ctx ← saveNoFileMap
+  return { ctx with fileMap := (← getFileMap) }
+
+end ContextInfo
+
 /-- An elaboration step -/
 structure ElabInfo where
   elaborator : Name
@@ -404,15 +424,7 @@ def withSaveInfoContext [MonadNameGenerator m] [MonadFinally m] [MonadEnv m] [Mo
       let st    ← getInfoState
       let trees ← st.trees.mapM fun tree => do
         let tree := tree.substitute st.assignment
-        pure <| InfoTree.context {
-          env           := (← getEnv)
-          fileMap       := (← getFileMap)
-          mctx          := (← getMCtx)
-          currNamespace := (← getCurrNamespace)
-          openDecls     := (← getOpenDecls)
-          options       := (← getOptions)
-          ngen          := (← getNGen)
-        } tree
+        pure <| InfoTree.context (← ContextInfo.save) tree
       modifyInfoTrees fun _ => treesSaved ++ trees
   else
     x

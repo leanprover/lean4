@@ -11,14 +11,13 @@ import Lean.Elab.InfoTree
 import Lean.Server.Utils
 import Lean.Server.Rpc.Basic
 
+import Lean.Widget.Basic
 import Lean.Widget.TaggedText
 import Lean.Widget.InteractiveCode
 import Lean.Widget.InteractiveGoal
 
 namespace Lean.Widget
 open Lsp Server
-
-deriving instance RpcEncoding with { withRef := true } for MessageData
 
 inductive MsgEmbed where
   | expr : CodeWithInfos → MsgEmbed

@@ -87,6 +87,7 @@ end
 
 private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr) : TermElabM Syntax :=
   withFields indVal params fun fields => do
+    trace[Elab.Deriving.RpcEncoding] "for structure {indVal.name} with params {params}"
     -- Postulate that every field have a rpc encoding, storing the encoding type ident
     -- in `fieldEncIds`. When multiple fields have the same type, we reuse the encoding type
     -- as otherwise typeclass synthesis fails.
@@ -261,10 +262,10 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
       return #[
         ← `(section),
         ← `(variable $binders*),
-        if isStructure (← getEnv) typeName then
-          ← deriveStructureInstance indVal params
+        ← if isStructure (← getEnv) typeName then
+          deriveStructureInstance indVal params
         else
-          ← deriveInductiveInstance indVal params,
+          deriveInductiveInstance indVal params,
         ← `(end)
       ]
 

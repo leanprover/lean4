@@ -258,13 +258,16 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
   | _                     => throwUnsupportedSyntax
 
 /--
-  First method searches for a metavariable `g` s.t. `tag` is a suffix of its name.
-  If none is found, then it searches for a metavariable `g` s.t. `tag` is a prefix of its name. -/
+  Searches for a metavariable `g` s.t. `tag` is its exact name.
+  If none then searches for a metavariable `g` s.t. `tag` is a suffix of its name.
+  If none, then it searches for a metavariable `g` s.t. `tag` is a prefix of its name. -/
 private def findTag? (mvarIds : List MVarId) (tag : Name) : TacticM (Option MVarId) := do
-  let mvarId? ← mvarIds.findM? fun mvarId => return tag.isSuffixOf (← getMVarDecl mvarId).userName
-  match mvarId? with
+  match (← mvarIds.findM? fun mvarId => return tag == (← getMVarDecl mvarId).userName) with
   | some mvarId => return mvarId
-  | none        => mvarIds.findM? fun mvarId => return tag.isPrefixOf (← getMVarDecl mvarId).userName
+  | none =>
+  match (← mvarIds.findM? fun mvarId => return tag.isSuffixOf (← getMVarDecl mvarId).userName) with
+  | some mvarId => return mvarId
+  | none => mvarIds.findM? fun mvarId => return tag.isPrefixOf (← getMVarDecl mvarId).userName
 
 def renameInaccessibles (mvarId : MVarId) (hs : Array Syntax) : TacticM MVarId := do
   if hs.isEmpty then

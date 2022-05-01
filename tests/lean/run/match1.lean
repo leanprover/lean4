@@ -77,8 +77,8 @@ rfl
 
 def head3 {α : Type} (xs : List α) : Option α :=
 let rec aux : {α : Type} → List α → Option α
-  | _, a::as => some a
-  | _, _     => none;
+  | a::as => some a
+  | _     => none;
 aux xs
 
 theorem ex6 : head3 [1, 2] = some 1 :=

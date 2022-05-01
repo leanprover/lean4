@@ -429,7 +429,27 @@ private def expandMatchAltsIntoMatchAux (matchAlts : Syntax) (matchTactic : Bool
     if matchTactic then
       `(tactic| intro $x:term; $body:tactic)
     else
-      `(@fun $x => $body)
+      /-
+        We used to use a `@` before `fun`. It was added before we had support for discriminant refinement in Lean.
+        Consider the following example, without `@` and discriminant refinement, we would not be able to elaborate it.
+        ```
+        def Vec.reverse (v : Vec α n) : Vec α n :=
+          let rec loop : {n m : Nat} → Vec α n → Vec α m → Vec α (n + m)
+            | _, _, nil,       w => Nat.zero_add .. ▸ w
+            | _, _, cons a as, w => Nat.add_assoc .. ▸ loop as (Nat.add_comm .. ▸ cons a w)
+          loop v nil
+        ```
+        We now have discriminant refinement, by removing the `@` we can write the less verbose.
+        ```
+        def Vec.reverse (v : Vec α n) : Vec α n :=
+          let rec loop : {n m : Nat} → Vec α n → Vec α m → Vec α (n + m)
+            | nil,       w => Nat.zero_add .. ▸ w
+            | cons a as, w => Nat.add_assoc .. ▸ loop as (Nat.add_comm .. ▸ cons a w)
+          loop v nil
+        ```
+        Moreover, we address issue #1132. https://github.com/leanprover/lean4/issues/1132
+      -/
+      `(fun $x => $body)
 
 /--
   Expand `matchAlts` syntax into a full `match`-expression.

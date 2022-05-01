@@ -24,3 +24,9 @@ def foo4 (bar : Nat) : Baz :=
   { bar := bar, bar' := bar }
    --^ textDocument/documentHighlight
           --^ textDocument/documentHighlight
+
+example : Nat := Id.run do
+  let mut x := 1
+  x := 2
+  x
+--^ textDocument/documentHighlight

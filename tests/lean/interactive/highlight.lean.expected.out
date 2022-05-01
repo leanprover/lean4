@@ -22,6 +22,10 @@
  {"range":
   {"start": {"line": 22, "character": 16},
    "end": {"line": 22, "character": 19}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 27, "character": 10},
+   "end": {"line": 27, "character": 13}},
   "kind": 1}]
 {"textDocument": {"uri": "file://highlight.lean"},
  "position": {"line": 5, "character": 7}}
@@ -86,4 +90,16 @@
  {"range":
   {"start": {"line": 23, "character": 24},
    "end": {"line": 23, "character": 27}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://highlight.lean"},
+ "position": {"line": 30, "character": 2}}
+[{"range":
+  {"start": {"line": 28, "character": 10},
+   "end": {"line": 28, "character": 11}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 29, "character": 2}, "end": {"line": 29, "character": 3}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 30, "character": 2}, "end": {"line": 30, "character": 3}},
   "kind": 1}]

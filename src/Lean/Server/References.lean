@@ -119,38 +119,51 @@ def findReferences (text : FileMap) (trees : Array InfoTree) : Array Reference :
 /--
 The `FVarId`s of a function parameter in the function's signature and body
 differ. However, they have `TermInfo` nodes with `binder := true` in the exact
-same position.
+same position. Moreover, macros such as do-reassignment `x := e` may create
+chains of variable definitions where a helper definition overlaps with a use
+of a variable.
 
-This function changes every such group to use a single `FVarId` and gets rid of
-duplicate definitions.
+This function changes every such group to use a single `FVarId` (the head of the
+chain/DAG) and gets rid of duplicate definitions.
 -/
-def combineFvars (refs : Array Reference) : Array Reference := Id.run do
+partial def combineFvars (refs : Array Reference) : Array Reference := Id.run do
   -- Deduplicate definitions based on their exact range
   let mut posMap : HashMap Lsp.Range FVarId := HashMap.empty
-  -- Map all `FVarId`s of a group to the first definition's id
-  let mut idMap : HashMap FVarId FVarId := HashMap.empty
   for ref in refs do
     if let { ident := RefIdent.fvar id, range, isBinder := true } := ref then
-      if let some baseId := posMap.find? range then
-        idMap := idMap.insert id baseId
-      else
+      if !posMap.contains range then
         posMap := posMap.insert range id
-        idMap := idMap.insert id id
 
-  refs.foldl (init := #[]) fun refs ref => match ref with
-    | { ident := RefIdent.fvar id, range, isBinder := true } => Id.run do
+  -- Map fvar defs to overlapping fvar defs/uses
+  -- NOTE: poor man's union-find; see also `findCanonicalBinder?`
+  let mut idMap : HashMap FVarId FVarId := HashMap.empty
+  for ref in refs do
+    if let { ident := RefIdent.fvar baseId, range, .. } := ref then
+      if let some id := posMap.find? range then
+        if baseId != id then
+          idMap := idMap.insert id (idMap.findD baseId baseId)
+
+  let mut refs' := #[]
+  for ref in refs do
+    match ref with
+    | { ident := RefIdent.fvar id, range, isBinder := true } =>
       -- Since deduplication works via definitions, we know that a definition
       -- for the base id exists.
-      if let some baseId := idMap.find? id then
-        if id == baseId then -- Only keep the base definition
-          return refs.push ref
-      return refs
-    | { ident := ident@(RefIdent.fvar _), range, isBinder := false } =>
-      refs.push { ident := applyIdMap idMap ident, range, isBinder := false }
-    | _ => refs.push ref
+      if findCanonicalBinder idMap id == id then -- Only keep the base definition
+        refs' := refs'.push ref
+    | { ident := ident@(RefIdent.fvar fv), range, isBinder := false } =>
+      refs' := refs'.push { ident := applyIdMap idMap ident, range, isBinder := false }
+    | _ =>
+      refs' := refs'.push ref
+  refs'
 where
+  findCanonicalBinder (idMap : HashMap FVarId FVarId) (id : FVarId) : FVarId :=
+    match idMap.find? id with
+    | some id' => findCanonicalBinder idMap id'  -- recursion depth is expected to be very low
+    | none     => id
+
   applyIdMap : HashMap FVarId FVarId → RefIdent → RefIdent
-    | m, RefIdent.fvar id => RefIdent.fvar <| m.findD id id
+    | m, RefIdent.fvar id => RefIdent.fvar <| findCanonicalBinder m id
     | _, ident => ident
 
 def dedupReferences (refs : Array Reference) : Array Reference := Id.run do

@@ -15,11 +15,11 @@ Much like Lean 3 [`sf`](https://github.com/leanprover-community/mathlib/blob/bfa
 but with indentation already stringified. -/
 inductive TaggedText (α : Type u) where
   | text   : String → TaggedText α
-  /- Invariants:
-     - non-empty
-     - no adjacent `text` elements (they should be collapsed)
-     - never directly nested (`append #[tag _ (append ..)]` is okay) -/
-  | append : Array (TaggedText α) → TaggedText α
+  | /-- Invariants:
+  - non-empty
+  - no adjacent `text` elements (they should be collapsed)
+  - no directly nested `append`s (but `append #[tag _ (append ..)]` is okay) -/
+   append : Array (TaggedText α) → TaggedText α
   | tag    : α → TaggedText α → TaggedText α
   deriving Inhabited, BEq, Repr, FromJson, ToJson
 

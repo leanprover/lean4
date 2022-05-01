@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+import Lean.Widget.Basic
 import Lean.Widget.InteractiveCode
 import Lean.Widget.InteractiveGoal
 import Lean.Widget.InteractiveDiagnostic
@@ -16,17 +17,12 @@ import Lean.Server.FileWorker.RequestHandling
 namespace Lean.Widget
 open Server
 
-structure MsgToInteractive where
-  msg : WithRpcRef MessageData
-  indent : Nat
-  deriving Inhabited, RpcEncoding
-
 builtin_initialize
   registerBuiltinRpcProcedure
     `Lean.Widget.InteractiveDiagnostics.msgToInteractive
-    MsgToInteractive
+    (WithRpcRef MessageData × Nat)
     (TaggedText MsgEmbed)
-    fun ⟨⟨m⟩, i⟩ => RequestM.asTask do msgToInteractive m i (hasWidgets := true)
+    fun (⟨msg⟩, indent) => RequestM.asTask do msgToInteractive msg indent (hasWidgets := true)
 
 structure InfoPopup where
   type : Option CodeWithInfos

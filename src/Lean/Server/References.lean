@@ -21,7 +21,7 @@ open Lsp
 structure Reference where
   ident : RefIdent
   range : Lsp.Range
-  isDeclaration : Bool
+  isBinder : Bool
   deriving BEq, Inhabited
 
 end Lean.Server
@@ -38,9 +38,9 @@ def merge (a : RefInfo) (b : RefInfo) : RefInfo :=
   }
 
 def addRef : RefInfo → Reference → RefInfo
-  | i@{ definition := none, .. }, { range, isDeclaration := true, .. } =>
+  | i@{ definition := none, .. }, { range, isBinder := true, .. } =>
     { i with definition := range }
-  | i@{ usages, .. }, { range, isDeclaration := false, .. } =>
+  | i@{ usages, .. }, { range, isBinder := false, .. } =>
     { i with usages := usages.push range }
   | i, _ => i
 
@@ -110,9 +110,9 @@ def findReferences (text : FileMap) (trees : Array InfoTree) : Array Reference :
   let mut refs := #[]
   for tree in trees do
     refs := refs.appendList <| tree.deepestNodes fun _ info _ => Id.run do
-      if let some (ident, isDeclaration) := identOf info then
+      if let some (ident, isBinder) := identOf info then
         if let some range := info.range? then
-          return some { ident, range := range.toLspRange text, isDeclaration }
+          return some { ident, range := range.toLspRange text, isBinder }
       return none
   refs
 
@@ -130,7 +130,7 @@ def combineFvars (refs : Array Reference) : Array Reference := Id.run do
   -- Map all `FVarId`s of a group to the first definition's id
   let mut idMap : HashMap FVarId FVarId := HashMap.empty
   for ref in refs do
-    if let { ident := RefIdent.fvar id, range, isDeclaration := true } := ref then
+    if let { ident := RefIdent.fvar id, range, isBinder := true } := ref then
       if let some baseId := posMap.find? range then
         idMap := idMap.insert id baseId
       else
@@ -138,15 +138,15 @@ def combineFvars (refs : Array Reference) : Array Reference := Id.run do
         idMap := idMap.insert id id
 
   refs.foldl (init := #[]) fun refs ref => match ref with
-    | { ident := RefIdent.fvar id, range, isDeclaration := true } => Id.run do
+    | { ident := RefIdent.fvar id, range, isBinder := true } => Id.run do
       -- Since deduplication works via definitions, we know that a definition
       -- for the base id exists.
       if let some baseId := idMap.find? id then
         if id == baseId then -- Only keep the base definition
           return refs.push ref
       return refs
-    | { ident := ident@(RefIdent.fvar _), range, isDeclaration := false } =>
-      refs.push { ident := applyIdMap idMap ident, range, isDeclaration := false }
+    | { ident := ident@(RefIdent.fvar _), range, isBinder := false } =>
+      refs.push { ident := applyIdMap idMap ident, range, isBinder := false }
     | _ => refs.push ref
 where
   applyIdMap : HashMap FVarId FVarId → RefIdent → RefIdent
@@ -156,7 +156,7 @@ where
 def dedupReferences (refs : Array Reference) : Array Reference := Id.run do
   let mut refsByIdAndRange : HashMap (RefIdent × Lsp.Range) Reference := HashMap.empty
   for ref in refs do
-    if ref.isDeclaration || !(refsByIdAndRange.contains (ref.ident, ref.range)) then
+    if ref.isBinder || !(refsByIdAndRange.contains (ref.ident, ref.range)) then
       refsByIdAndRange := refsByIdAndRange.insert (ref.ident, ref.range) ref
 
   let dedupedRefs := refsByIdAndRange.fold (init := #[]) fun refs _ ref => refs.push ref

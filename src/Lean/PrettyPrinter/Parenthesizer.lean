@@ -336,12 +336,8 @@ def parserOfStack.parenthesizer (offset : Nat) (prec : Nat := 0) : Parenthesizer
 @[builtinCategoryParenthesizer term]
 def term.parenthesizer : CategoryParenthesizer | prec => do
   let stx ← getCur
-  -- this can happen at `termParser <|> many1 commandParser` in `Term.stxQuot`
-  if stx.getKind == nullKind then
-    throwBacktrack
-  else do
-    maybeParenthesize `term true (fun stx => Unhygienic.run `(($stx))) prec $
-      parenthesizeCategoryCore `term prec
+  maybeParenthesize `term true (fun stx => Unhygienic.run `(($stx))) prec $
+    parenthesizeCategoryCore `term prec
 
 @[builtinCategoryParenthesizer tactic]
 def tactic.parenthesizer : CategoryParenthesizer | prec => do

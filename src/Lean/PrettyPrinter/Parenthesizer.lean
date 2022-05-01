@@ -279,10 +279,13 @@ unsafe def parenthesizerForKindUnsafe (k : SyntaxNodeKind) : Parenthesizer := do
 constant parenthesizerForKind (k : SyntaxNodeKind) : Parenthesizer
 
 @[combinatorParenthesizer Lean.Parser.withAntiquot]
-def withAntiquot.parenthesizer (antiP p : Parenthesizer) : Parenthesizer :=
-  -- TODO: could be optimized using `isAntiquot` (which would have to be moved), but I'd rather
-  -- fix the backtracking hack outright.
-  orelse.parenthesizer antiP p
+def withAntiquot.parenthesizer (antiP p : Parenthesizer) : Parenthesizer := do
+  let stx ← getCur
+  -- early check as minor optimization that also cleans up the backtrack traces
+  if stx.isAntiquot || stx.isAntiquotSplice then
+    orelse.parenthesizer antiP p
+  else
+    p
 
 @[combinatorParenthesizer Lean.Parser.withAntiquotSuffixSplice]
 def withAntiquotSuffixSplice.parenthesizer (k : SyntaxNodeKind) (p suffix : Parenthesizer) : Parenthesizer := do

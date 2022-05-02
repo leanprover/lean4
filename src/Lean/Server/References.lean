@@ -140,8 +140,9 @@ partial def combineFvars (refs : Array Reference) : Array Reference := Id.run do
   for ref in refs do
     if let { ident := RefIdent.fvar baseId, range, .. } := ref then
       if let some id := posMap.find? range then
+        let baseId := idMap.findD baseId baseId
         if baseId != id then
-          idMap := idMap.insert id (idMap.findD baseId baseId)
+          idMap := idMap.insert id baseId
 
   let mut refs' := #[]
   for ref in refs do
@@ -149,7 +150,7 @@ partial def combineFvars (refs : Array Reference) : Array Reference := Id.run do
     | { ident := RefIdent.fvar id, range, isBinder := true } =>
       -- Since deduplication works via definitions, we know that a definition
       -- for the base id exists.
-      if findCanonicalBinder idMap id == id then -- Only keep the base definition
+      unless idMap.contains id do  -- Only keep the base definition
         refs' := refs'.push ref
     | { ident := ident@(RefIdent.fvar fv), range, isBinder := false } =>
       refs' := refs'.push { ident := applyIdMap idMap ident, range, isBinder := false }

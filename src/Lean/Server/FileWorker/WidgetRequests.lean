@@ -17,12 +17,17 @@ import Lean.Server.FileWorker.RequestHandling
 namespace Lean.Widget
 open Server
 
+structure MsgToInteractive where
+  msg : WithRpcRef MessageData
+  indent : Nat
+  deriving Inhabited, RpcEncoding
+
 builtin_initialize
   registerBuiltinRpcProcedure
     `Lean.Widget.InteractiveDiagnostics.msgToInteractive
-    (WithRpcRef MessageData × Nat)
+    MsgToInteractive
     (TaggedText MsgEmbed)
-    fun (⟨msg⟩, indent) => RequestM.asTask do msgToInteractive msg indent (hasWidgets := true)
+    fun ⟨⟨m⟩, i⟩ => RequestM.asTask do msgToInteractive m i (hasWidgets := true)
 
 structure InfoPopup where
   type : Option CodeWithInfos

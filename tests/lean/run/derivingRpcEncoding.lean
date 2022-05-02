@@ -22,3 +22,12 @@ structure BarTrans where
 structure Baz where
   arr : Array String -- non-constant field
   deriving RpcEncoding
+
+structure FooGeneric (α : Type) where
+  a : α
+  deriving RpcEncoding
+
+inductive FooInductive (α : Type) where
+  | a : α → Bar → FooInductive α
+  | b : (n : Nat) → (a : α) → Nat → FooInductive α
+  deriving RpcEncoding

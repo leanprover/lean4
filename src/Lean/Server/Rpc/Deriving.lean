@@ -22,18 +22,18 @@ private def deriveWithRefInstance (typeNm : Name) : CommandElabM Bool := do
   let cmds ← `(
     section
     variable {m : Type → Type}
-    protected unsafe def encodeUnsafe [Monad m] [MonadRpcSession m] (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef :=
+    unsafe def encodeUnsafe [Monad m] [MonadRpcSession m] (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef :=
       WithRpcRef.encodeUnsafe $(quote typeNm) r
 
     @[implementedBy encodeUnsafe]
-    protected constant encode [Monad m] [MonadRpcSession m] (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef :=
+    constant encode [Monad m] [MonadRpcSession m] (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef :=
       pure ⟨0⟩
 
-    protected unsafe def decodeUnsafe [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
+    unsafe def decodeUnsafe [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
       WithRpcRef.decodeUnsafeAs $typeId:ident $(quote typeNm) r
 
     @[implementedBy decodeUnsafe]
-    protected constant decode [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
+    constant decode [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
       throw "unreachable"
 
     instance : RpcEncoding (WithRpcRef $typeId:ident) Lsp.RpcRef :=

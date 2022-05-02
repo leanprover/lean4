@@ -119,7 +119,62 @@ private def substDiscrEqs (mvarId : MVarId) (discrEqs : Array FVarId) : MetaM MV
     mvarId ← trySubst mvarId fvarId
   return mvarId
 
-def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Level) (params : Array Expr) (discrs : Array Expr) : MetaM (List MVarId) := do
+/- TODO: convert the following trick into a generalization step. -/
+
+partial def mkSplitterMotive (target : Expr) (matcherDeclName : Name) (matcherInfo : MatcherInfo) (motiveType : Expr) (discrs : Array Expr) : MetaM Expr :=
+  forallTelescope motiveType fun discrVars _ => do
+    unless discrVars.size == discrs.size do
+      throwError "'applyMatchSplitter' failed, unexpected motive type"
+    Match.withEqs discrs discrVars matcherInfo.discrInfos fun eqs => do
+      let mut targetNew := target
+      /- Replace occurrences of discrs with discrVars -/
+      for discr in discrs, discrVar in discrVars do
+        targetNew := (← kabstract targetNew discr).instantiate1 discrVar
+      let numEqs := matcherInfo.getNumDiscrEqs
+      if numEqs > 0 then
+        /- The alternatives take equalities of the form `h : discr = pattern`,
+           we must fix the alternatives because their types are now `h : discrVar = pattern`.
+           The idea is to use transitivity with eqs which are of the form `eq : discr = discrVar`. -/
+        targetNew ← fixAlts eqs discrVars targetNew
+      mkLambdaFVars discrVars (← mkForallFVars eqs targetNew)
+where
+  fixAlts (eqs : Array Expr) (discrVars : Array Expr) (e : Expr) : MetaM Expr := do
+    let numEqs := eqs.size
+    let pre (e : Expr) : MetaM TransformStep := do
+      if !e.isAppOf matcherDeclName || e.getAppNumArgs != matcherInfo.arity then
+        return .visit e
+      let some matcherApp ← matchMatcherApp? e | return .visit e
+      for matcherDiscr in matcherApp.discrs, discrVar in discrVars do
+        unless matcherDiscr == discrVar do
+          return .visit e
+      let mut altsNew := #[]
+      for i in [:matcherApp.alts.size] do
+        let alt := matcherApp.alts[i]
+        let altNew ← lambdaTelescope alt fun xs body => do
+          let body ← fixAlts eqs discrVars body
+          let num := matcherApp.altNumParams[i]
+          if xs.size < num || xs.size < numEqs then
+            throwError "'applyMatchSplitter' failed, unexpected `match` alternative"
+          let ys  := xs[:num - numEqs]
+          let altEqs := xs[num - numEqs:num]
+          let zs  := xs[num:]
+          let mut subst := #[]
+          for eq in eqs, altEq in altEqs do
+            if (← inferType eq).isEq then
+              subst := subst.push (← mkEqTrans eq altEq)
+            else
+              subst := subst.push (← mkHEqTrans eq altEq)
+          let altNew ← mkLambdaFVars zs body
+          let altNew := altNew.replaceFVars altEqs subst
+          mkLambdaFVars (ys++altEqs) altNew
+        altsNew := altsNew.push altNew
+      let matcherApp := { matcherApp with alts := altsNew }
+      return .done matcherApp.toExpr
+    transform e pre
+
+#check @generalizeTargetsEq
+
+def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Level) (params : Array Expr) (discrs : Array Expr) : MetaM (List MVarId) := withMVarContext mvarId do
   let some info ← getMatcherInfo? matcherDeclName | throwError "'applyMatchSplitter' failed, '{matcherDeclName}' is not a 'match' auxiliary declaration."
   let matchEqns ← Match.getEquationsFor matcherDeclName
   let mut us := us
@@ -128,7 +183,34 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
     us := us.set! uElimPos levelZero
   let splitter := mkAppN (mkConst matchEqns.splitterName us.toList) params
   let motiveType := (← whnfForall (← inferType splitter)).bindingDomain!
-  trace[Meta.Tactic.split] "applyMatchSplitter\n{mvarId}"
+  trace[Meta.Tactic.split] "motiveType: {motiveType}"
+  let motive ← mkSplitterMotive (← getMVarType mvarId) matcherDeclName info motiveType discrs
+  trace[Meta.Tactic.split] "motive: {motive}"
+  unless (← isTypeCorrect motive) do
+    throwError "'applyMatchSplitter' failed, motive is not type correct."
+  trace[Meta.Tactic.split] "motive is type correct"
+  let mut splitter := mkAppN (mkApp splitter motive) discrs
+  let mvarIds ← apply mvarId splitter
+  let numDiscrEqs := info.getNumDiscrEqs
+  unless mvarIds.length == info.numAlts + numDiscrEqs do
+    throwError "'applyMatchSplitter' failed, unexpected number of goals."
+  let mut result := #[]
+  for mvarId in mvarIds, i in [:mvarIds.length] do
+    if i < info.numAlts then
+      let numParams := matchEqns.splitterAltNumParams[i]
+      let (fvarIds, mvarId) ← introN mvarId (numParams + numDiscrEqs + numDiscrEqs)
+      let toClear := fvarIds[numParams:numParams+numDiscrEqs]
+      let mvarId ← tryClearMany mvarId toClear
+      result := result.push mvarId
+    else if (← getMVarType mvarId).isEq then
+      applyRefl mvarId
+    else
+      applyHRefl mvarId
+  return result.toList
+
+
+
+/-
   let (discrFVarIds, discrEqs, mvarId) ← generalizeMatchDiscrs mvarId discrs
   trace[Meta.Tactic.split] "after generalizeMatchDiscrs\n{mvarId}"
   let mvarId ← generalizeTargetsEq mvarId motiveType (discrFVarIds.map mkFVar)
@@ -154,6 +236,7 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
         let mvarId ← substDiscrEqs mvarId discrEqs
         return (i+1, mvarId::mvarIds)
     return mvarIds.reverse
+-/
 
 def splitMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := do
   try

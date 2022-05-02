@@ -142,6 +142,11 @@ def applyRefl (mvarId : MVarId) (msg : MessageData := "refl failed") : MetaM Uni
     let some [] ← observing? do apply mvarId (mkConst ``Eq.refl [← mkFreshLevelMVar])
       | throwTacticEx `refl mvarId msg
 
+def applyHRefl (mvarId : MVarId) (msg : MessageData := "refl failed") : MetaM Unit :=
+  withMVarContext mvarId do
+    let some [] ← observing? do apply mvarId (mkConst ``HEq.refl [← mkFreshLevelMVar])
+      | throwTacticEx `refl mvarId msg
+
 def exfalso (mvarId : MVarId) (msg : MessageData := "exfalso failed") : MetaM MVarId :=
   withMVarContext mvarId do
     checkNotAssigned mvarId `exfalso

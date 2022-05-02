@@ -26,7 +26,7 @@ private def checkNumPatterns (numDiscrs : Nat) (lhss : List AltLHS) : MetaM Unit
   Execute `k hs` where `hs` contains new equalities `h : lhs[i] = rhs[i]` for each `discrInfos[i] = some h`.
   Assume `lhs.size == rhs.size == discrInfos.size`
 -/
-private partial def withEqs (lhs rhs : Array Expr) (discrInfos : Array DiscrInfo) (k : Array Expr → MetaM α) : MetaM α := do
+partial def withEqs (lhs rhs : Array Expr) (discrInfos : Array DiscrInfo) (k : Array Expr → MetaM α) : MetaM α := do
   go 0 #[]
 where
   go (i : Nat) (hs : Array Expr) : MetaM α := do
@@ -38,6 +38,7 @@ where
         go (i+1) hs
     else
       k hs
+
 /-- Given a list of `AltLHS`, create a minor premise for each one, convert them into `Alt`, and then execute `k` -/
 private def withAlts {α} (motive : Expr) (discrs : Array Expr) (discrInfos : Array DiscrInfo) (lhss : List AltLHS) (k : List Alt → Array (Expr × Nat) → MetaM α) : MetaM α :=
   loop lhss [] #[]

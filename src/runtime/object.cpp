@@ -28,8 +28,7 @@ namespace lean {
 static void abort_on_panic() {
 #ifndef LEAN_EMSCRIPTEN
     if (std::getenv("LEAN_ABORT_ON_PANIC")) {
-        int * v = nullptr;
-        *v = 0;
+        abort();
     }
 #endif
 }

@@ -4,7 +4,7 @@ has type
   (a : ?m) → (b : ?m a) → ?m a b : Sort (imax ?u ?u ?u)
 but is expected to have type
   a✝ * b✝ = b✝ * a✝ : Prop
-the following variables have been introduced by the implicit lamda feature
+the following variables have been introduced by the implicit lambda feature
   a✝ : Bool
   b✝ : Bool
 you can disable implict lambdas using `@` or writing a lambda expression with `{}` or `[]` binder annotations.
@@ -20,7 +20,7 @@ has type
   (a b : Bool) → ?m a b a : Sort (imax 1 1 ?u)
 but is expected to have type
   a✝ * b✝ = b✝ * a✝ : Prop
-the following variables have been introduced by the implicit lamda feature
+the following variables have been introduced by the implicit lambda feature
   a✝ : Bool
   b✝ : Bool
 you can disable implict lambdas using `@` or writing a lambda expression with `{}` or `[]` binder annotations.

@@ -1196,7 +1196,7 @@ private def decorateErrorMessageWithLambdaImplicitVars (ex : Exception) (impFVar
     if impFVars.isEmpty then
       return Exception.error ref msg
     else
-      let mut msg := m!"{msg}\nthe following variables have been introduced by the implicit lamda feature"
+      let mut msg := m!"{msg}\nthe following variables have been introduced by the implicit lambda feature"
       for impFVar in impFVars do
         let auxMsg := m!"{impFVar} : {← inferType impFVar}"
         let auxMsg ← addMessageContext auxMsg

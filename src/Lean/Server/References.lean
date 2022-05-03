@@ -235,10 +235,15 @@ def findAt (self : References) (module : Name) (pos : Lsp.Position) : Array RefI
     return refs.findAt pos
   #[]
 
-def referringTo (self : References) (ident : RefIdent) (srcSearchPath : SearchPath)
+def referringTo (self : References) (identModule : Name) (ident : RefIdent) (srcSearchPath : SearchPath)
     (includeDefinition : Bool := true) : IO (Array Location) := do
+  let refsToCheck := match ident with
+    | RefIdent.const _ => self.allRefs.toList
+    | RefIdent.fvar _ => match self.allRefs.find? identModule with
+      | none => []
+      | some refs => [(identModule, refs)]
   let mut result := #[]
-  for (module, refs) in self.allRefs.toList do
+  for (module, refs) in refsToCheck do
     if let some info := refs.find? ident then
       if let some path ← srcSearchPath.findModuleWithExt "lean" module then
         -- Resolve symlinks (such as `src` in the build dir) so that files are

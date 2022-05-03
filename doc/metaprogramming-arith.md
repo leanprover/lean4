@@ -89,8 +89,8 @@ Our macro rules perform the "obvious" translation:
 
 ```lean,ignore
 macro_rules
-  | `(`[Arith| $s:strLit ]) => `(Arith.symbol $s)
-  | `(`[Arith| $num:numLit ]) => `(Arith.int $num)
+  | `(`[Arith| $s:str ]) => `(Arith.symbol $s)
+  | `(`[Arith| $num:num ]) => `(Arith.int $num)
   | `(`[Arith| $x:arith + $y:arith ]) => `(Arith.add `[Arith| $x] `[Arith| $y])
   | `(`[Arith| $x:arith * $y:arith ]) => `(Arith.mul `[Arith| $x] `[Arith| $y])
   | `(`[Arith| ($x:arith) ]) => `(`[Arith| $x ])

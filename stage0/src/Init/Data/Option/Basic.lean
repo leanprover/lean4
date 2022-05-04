@@ -86,3 +86,27 @@ deriving instance BEq for Option
 
 instance [LT α] : LT (Option α) where
   lt := Option.lt (· < ·)
+
+instance : Functor Option where
+  map := Option.map
+
+instance : Monad Option where
+  pure := Option.some
+  bind := Option.bind
+
+instance : Alternative Option where
+  failure := Option.none
+  orElse  := Option.orElse
+
+def liftOption [Alternative m] : Option α → m α
+  | some a => pure a
+  | none   => failure
+
+@[inline] protected def Option.tryCatch (x : Option α) (handle : Unit → Option α) : Option α :=
+  match x with
+  | some _ => x
+  | none => handle ()
+
+instance : MonadExceptOf Unit Option where
+  throw    := fun _ => Option.none
+  tryCatch := Option.tryCatch

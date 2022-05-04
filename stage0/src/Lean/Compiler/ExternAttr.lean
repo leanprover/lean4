@@ -130,7 +130,7 @@ def isExternC (env : Environment) (fn : Name) : Bool :=
   | some { entries := [ ExternEntry.standard `all _ ], .. } => true
   | _ => false
 
-def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option String := OptionM.run do
+def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option String := do
   let data ← getExternAttrData env fn
   let entry ← getExternEntryFor data backend
   match entry with

@@ -343,7 +343,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
           let contents := if contents.size == 1
             then contents[0]
             else mkNullNode contents
-          `(match OptionM.run ($(discrs).sequenceMap fun
+          `(match ($(discrs).sequenceMap fun
                 | `($contents) => some $tuple
                 | _            => none) with
               | some $resId => $yes

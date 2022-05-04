@@ -102,7 +102,7 @@ def Info.range? (i : Info) : Option String.Range :=
 def Info.contains (i : Info) (pos : String.Pos) : Bool :=
   i.range?.any (·.contains pos)
 
-def Info.size? (i : Info) : Option String.Pos := OptionM.run do
+def Info.size? (i : Info) : Option String.Pos := do
   let pos ← i.pos?
   let tailPos ← i.tailPos?
   return tailPos - pos
@@ -114,12 +114,12 @@ def Info.isSmaller (i₁ i₂ : Info) : Bool :=
   | some _, none => true
   | _, _ => false
 
-def Info.occursBefore? (i : Info) (hoverPos : String.Pos) : Option String.Pos := OptionM.run do
+def Info.occursBefore? (i : Info) (hoverPos : String.Pos) : Option String.Pos := do
   let tailPos ← i.tailPos?
   guard (tailPos ≤ hoverPos)
   return hoverPos - tailPos
 
-def Info.occursInside? (i : Info) (hoverPos : String.Pos) : Option String.Pos := OptionM.run do
+def Info.occursInside? (i : Info) (hoverPos : String.Pos) : Option String.Pos := do
   let headPos ← i.pos?
   let tailPos ← i.tailPos?
   guard (headPos ≤ hoverPos && hoverPos < tailPos)

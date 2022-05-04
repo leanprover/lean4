@@ -93,7 +93,7 @@ private def consumeNLambdas : Nat → Expr → Option Expr
 
 partial def getClassName (env : Environment) : Expr → Option Name
   | Expr.forallE _ _ b _ => getClassName env b
-  | e                    => OptionM.run do
+  | e                    => do
     let Expr.const c _ _ ← pure e.getAppFn | none
     let info ← env.find? c
     match info.value? with

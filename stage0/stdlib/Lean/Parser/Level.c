@@ -35,6 +35,7 @@ static lean_object* l_Lean_Parser_Level_addLit___closed__2;
 static lean_object* l_Lean_Parser_Level_num_parenthesizer___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_Level_max_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Level_addLit(lean_object*);
+lean_object* l_Lean_PrettyPrinter_Parenthesizer_withAntiquot_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Level_paren___closed__2;
 static lean_object* l_Lean_Parser_Level_num___closed__2;
 static lean_object* l_Lean_Parser_Level_hole___elambda__1___closed__10;
@@ -52,7 +53,6 @@ lean_object* l_Lean_Parser_symbol_formatter(lean_object*, lean_object*, lean_obj
 static lean_object* l_Lean_Parser_Level_hole___closed__5;
 static lean_object* l___regBuiltin_Lean_Parser_Level_imax_declRange___closed__3;
 static lean_object* l_Lean_Parser_Level_hole___closed__3;
-lean_object* l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Level_paren(lean_object*);
 static lean_object* l___regBuiltin_Lean_Parser_Level_ident_declRange___closed__7;
 static lean_object* l___regBuiltin_Lean_Parser_Level_addLit_declRange___closed__4;
@@ -1416,7 +1416,7 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = l_Lean_Parser_Level_paren_parenthesizer___closed__1;
 x_7 = l_Lean_Parser_Level_paren_parenthesizer___closed__7;
-x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
+x_8 = l_Lean_PrettyPrinter_Parenthesizer_withAntiquot_parenthesizer(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
 return x_8;
 }
 }
@@ -2288,7 +2288,7 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = l_Lean_Parser_Level_max_parenthesizer___closed__1;
 x_7 = l_Lean_Parser_Level_max_parenthesizer___closed__8;
-x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
+x_8 = l_Lean_PrettyPrinter_Parenthesizer_withAntiquot_parenthesizer(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
 return x_8;
 }
 }
@@ -2994,7 +2994,7 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = l_Lean_Parser_Level_imax_parenthesizer___closed__1;
 x_7 = l_Lean_Parser_Level_imax_parenthesizer___closed__4;
-x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
+x_8 = l_Lean_PrettyPrinter_Parenthesizer_withAntiquot_parenthesizer(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
 return x_8;
 }
 }
@@ -3579,7 +3579,7 @@ _start:
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_6 = l_Lean_Parser_Level_hole_parenthesizer___closed__1;
 x_7 = l_Lean_Parser_Level_hole_parenthesizer___closed__3;
-x_8 = l_Lean_PrettyPrinter_Parenthesizer_orelse_parenthesizer(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
+x_8 = l_Lean_PrettyPrinter_Parenthesizer_withAntiquot_parenthesizer(x_6, x_7, x_1, x_2, x_3, x_4, x_5);
 return x_8;
 }
 }

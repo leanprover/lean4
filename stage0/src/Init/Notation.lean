@@ -315,8 +315,9 @@ syntax (name := constructor) "constructor" : tactic
 `case tag x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with inaccessible names to the given names. -/
 syntax (name := case) "case " (ident <|> "_") (ident <|> "_")* " => " tacticSeq : tactic
 /--
-Similar to the `case tag => tac` tactic but for writing macros. Recall that `case` closes the goal using `sorry` when it fails,
-and the tactic execution is not interrupted.
+Similar to the `case tag => tac` tactic, but `cases'` does not ensures the goal has been solved after applying `tac`, nor
+admits the goal if `tac` failed. Recall that `case` closes the goal using `sorry` when `tac` fails, and
+the tactic execution is not interrupted.
 -/
 syntax (name := case') "case' " (ident <|> "_") (ident <|> "_")* " => " tacticSeq : tactic
 

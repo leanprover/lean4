@@ -32622,7 +32622,7 @@ static lean_object* _init_l___private_Lean_Elab_Term_0__Lean_Elab_Term_decorateE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nthe following variables have been introduced by the implicit lamda feature");
+x_1 = lean_mk_string("\nthe following variables have been introduced by the implicit lambda feature");
 return x_1;
 }
 }

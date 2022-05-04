@@ -113,7 +113,7 @@ partial def packDomain (fixedPrefix : Nat) (preDefs : Array PreDefinition) : Met
   return preDefsNew
 where
   /-- Return `some i` if `e` is a `preDefs[i]` application -/
-  isAppOfPreDef? (e : Expr) : OptionM Nat := do
+  isAppOfPreDef? (e : Expr) : Option Nat := do
     let f := e.getAppFn
     guard f.isConst
     preDefs.findIdx? (·.declName == f.constName!)

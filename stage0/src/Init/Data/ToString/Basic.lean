@@ -123,13 +123,12 @@ instance {α : Type u} {β : α → Type v} [ToString α] [s : ∀ x, ToString (
 instance {α : Type u} {p : α → Prop} [ToString α] : ToString (Subtype p) := ⟨fun s =>
   toString (val s)⟩
 
-def String.toInt? (s : String) : Option Int :=
-  OptionM.run do
-    if s.get 0 = '-' then do
-      let v ← (s.toSubstring.drop 1).toNat?;
-      pure <| - Int.ofNat v
-    else
-     Int.ofNat <$> s.toNat?
+def String.toInt? (s : String) : Option Int := do
+  if s.get 0 = '-' then do
+    let v ← (s.toSubstring.drop 1).toNat?;
+    pure <| - Int.ofNat v
+  else
+   Int.ofNat <$> s.toNat?
 
 def String.isInt (s : String) : Bool :=
   if s.get 0 = '-' then

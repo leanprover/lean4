@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Attributes
+import Lean.Declaration
 import Lean.MonadEnv
 
 namespace Lean.Compiler
@@ -16,8 +17,12 @@ builtin_initialize implementedByAttr : ParametricAttribute Name ← registerPara
     let fnName ← Attribute.Builtin.getIdent stx
     let fnName ← resolveGlobalConstNoOverload fnName
     let fnDecl ← getConstInfo fnName
-    unless decl.type == fnDecl.type do
-      throwError "invalid function '{fnName}' type mismatch"
+    unless decl.levelParams.length == fnDecl.levelParams.length do
+      throwError "invalid 'implementedBy' argument '{fnName}', '{fnName}' has {fnDecl.levelParams.length} universe level parameter(s), but '{declName}' has {decl.levelParams.length}"
+    let declType := decl.type
+    let fnType := fnDecl.instantiateTypeLevelParams (decl.levelParams.map mkLevelParam)
+    unless declType == fnType do
+      throwError "invalid 'implementedBy' argument '{fnName}', '{fnName}' has type{indentExpr fnType}\nbut '{declName}' has type{indentExpr declType}"
     if decl.name == fnDecl.name then
       throwError "invalid 'implementedBy' argument '{fnName}', function cannot be implemented by itself"
     return fnName

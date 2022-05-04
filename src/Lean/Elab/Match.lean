@@ -905,7 +905,8 @@ where
     match (← altViews'.mapM (fun altView => elabMatchAltView discrs' altView matchType' (toClear ++ toClear')) |>.run) with
     | Except.ok alts => return (discrs', matchType', alts, first?.isSome || refined)
     | Except.error { patternIdx := patternIdx, pathToIndex := pathToIndex, ex := ex } =>
-      let some index ← getIndexToInclude? discrs[patternIdx].expr pathToIndex
+      let discr := discrs[patternIdx]
+      let some index ← getIndexToInclude? discr.expr pathToIndex
         | throwEx (← updateFirst first? ex)
       trace[Elab.match] "index to include: {index}"
       if (← discrs.anyM fun discr => isDefEq discr.expr index) then
@@ -931,7 +932,14 @@ where
         else
           return mkHole ref
       let altViews  := altViews.map fun altView => { altView with patterns := wildcards ++ altView.patterns }
-      let discrs    := (indices.map fun i => { expr := i : Discr }) ++ discrs
+      let indDiscrs ← indices.mapM fun i => do
+        match discr.h? with
+        | none => return { expr := i : Discr }
+        | some h =>
+          -- If the discriminant that introduced this index is annotated with `h : discr`, then we should annotate the new discriminant too.
+          let h := mkIdentFrom h (← mkFreshUserName `h)
+          return { expr := i, h? := h : Discr }
+      let discrs    := indDiscrs ++ discrs
       let indexFVarIds := indices.filterMap fun | .fvar fvarId .. => some fvarId | _  => none
       loop discrs (toClear ++ indexFVarIds) matchType altViews first
 

@@ -23,15 +23,14 @@ def len : List α → Nat
   | l@h₁:(a :: b :: as) =>
     -- Remark: we didn't use `_` because we currently don't have a way for getting a hypothesis stating that the previous two case were not taken here.
     -- h₁ : l = a :: b :: as
-    match h₂ : l, h₃ : splitList l with
-    | _, ListSplit.split fst snd =>
+    match h₂ : splitList l with
+    | ListSplit.split fst snd =>
       -- Remark: `match` refined `h₁`s type to `h₁ : fst ++ snd = a :: b :: as`
-      -- h₂ : l = fst ++ snd
-      -- h₃ : splitList l = ListSplit.split fst snd
+      -- h₂ : HEq (splitList l) (ListSplit.split fst snd)
       have := splitList_length (fst ++ snd) (by simp_arith [h₁]) h₁
       -- The following two proofs ase used to justify the recursive applications `len fst` and `len snd`
-      have dec₁ : fst.length < as.length + 2 := by subst h₂; simp_arith [eq_of_heq h₃] at this |- ; simp [this]
-      have dec₂ : snd.length < as.length + 2 := by subst h₂; simp_arith [eq_of_heq h₃] at this |- ; simp [this]
+      have dec₁ : fst.length < as.length + 2 := by subst l; simp_arith [eq_of_heq h₂] at this |- ; simp [this]
+      have dec₂ : snd.length < as.length + 2 := by subst l; simp_arith [eq_of_heq h₂] at this |- ; simp [this]
       len fst + len snd
 termination_by _ xs => xs.length
 

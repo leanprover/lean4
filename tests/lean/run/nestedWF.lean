@@ -27,13 +27,10 @@ attribute [simp] f
 
 #check g._eq_1
 #check g._eq_2
-#check g._eq_3
-#check g._eq_4
 
 #check h._eq_1
 
 #check f._eq_1
-#check f._eq_2
 
 end Ex1
 
@@ -54,7 +51,6 @@ theorem ex1 : g 0 = 0 := by
 
 #check g._eq_1
 #check g._eq_2
-#check g._eq_3
 
 theorem ex2 : g 0 = 0 := by
   unfold g

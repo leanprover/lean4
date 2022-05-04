@@ -58,65 +58,143 @@ private def simpMatchTargetCore (mvarId : MVarId) (matchDeclName : Name) (matchE
     | some proof => replaceTargetEq mvarId r.expr proof
     | none => replaceTargetDefEq mvarId r.expr
 
+private partial def withEqs (lhs rhs : Array Expr) (k : Array Expr → Array Expr → MetaM α) : MetaM α := do
+  go 0 #[] #[]
+where
+  go (i : Nat) (hs : Array Expr) (rfls : Array Expr) : MetaM α := do
+    if h : i < lhs.size then
+      withLocalDeclD (← mkFreshUserName `heq) (← mkEqHEq lhs[i] rhs[i]) fun h => do
+        let rfl ← if (← inferType h).isEq then mkEqRefl lhs[i] else mkHEqRefl lhs[i]
+        go (i+1) (hs.push h) (rfls.push rfl)
+    else
+      k hs rfls
+
 /--
-  Use `generalize` to make sure each discriminant is a free variable.
+  This method makes sure each discriminant is a free variable.
   Return the tuple `(discrsNew, discrEqs, mvarId)`. `discrsNew` in an array representing the new discriminants, `discrEqs` is an array of auxiliary equality hypotheses
   that connect the new discriminants to the original terms they represent.
   Remark: `discrEqs.size ≤ discrsNew.size`
+
+  Remark:
+    We should only generalize `discrs` occurrences as `match`-expression discriminants.
+    For example, given the following goal.
+    ```
+    x : Nat
+    ⊢ (match g x with
+        | 0 => 1
+        | Nat.succ y => g x) =
+        2 * x + 1
+    ```
+    we should not generalize the `g x` in the rhs of the second alternative, and the two resulting goals
+    for the `split` tactic  should be
+    ```
+    case h_1
+    x x✝ : Nat
+    h✝ : g x = 0
+    ⊢ 1 = 2 * x + 1
+
+    case h_2
+    x x✝ y✝ : Nat
+    h✝ : g x = Nat.succ y✝
+    ⊢ g x = 2 * x + 1
+    ```
 -/
-private def generalizeMatchDiscrs (mvarId : MVarId) (discrs : Array Expr) : MetaM (Array FVarId × Array FVarId × MVarId) := do
+private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : Name) (motiveType : Expr) (discrs : Array Expr) : MetaM (Array FVarId × Array FVarId × MVarId) := withMVarContext mvarId do
   if discrs.all (·.isFVar) then
     return (discrs.map (·.fvarId!), #[], mvarId)
-  else
-    let discrsToGeneralize := discrs.filter fun d => !d.isFVar
-    let args ← discrsToGeneralize.mapM fun d => return { expr := d, hName? := (← mkFreshUserName `h) : GeneralizeArg }
-    /-
-      We should only generalize `discrs` occurrences as `match`-expression discriminants.
-      For example, given the following goal.
-      ```
-      x : Nat
-      ⊢ (match g x with
-          | 0 => 1
-          | Nat.succ y => g x) =
-          2 * x + 1
-      ```
-      we should not generalize the `g x` in the rhs of the second alternative, and the two resulting goals
-      for the `split` tactic  should be
-      ```
-      case h_1
-      x x✝ : Nat
-      h✝ : g x = 0
-      ⊢ 1 = 2 * x + 1
-
-      case h_2
-      x x✝ y✝ : Nat
-      h✝ : g x = Nat.succ y✝
-      ⊢ g x = 2 * x + 1
-      ```
-     -/
-    let isDiscr (parent? : Option Expr) (e : Expr) : MetaM Bool := do
-      let some parent := parent? | return false
-      let some info := isMatcherAppCore? (← getEnv) parent | return false
-      let args := parent.getAppArgs
-      for i in [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs] do
-        if i < args.size && args[i] == e then return true
-      return false
-    let (fvarIdsNew, mvarId) ← generalize mvarId args isDiscr
-    let mut result := #[]
-    let mut j := 0
-    for discr in discrs do
-      if discr.isFVar then
-        result := result.push discr.fvarId!
+  let some matcherInfo ← getMatcherInfo? matcherDeclName | unreachable!
+  let numDiscrEqs := matcherInfo.getNumDiscrEqs -- Number of `h : discr = pattern` equations
+  let (targetNew, rfls) ←
+    forallTelescope motiveType fun discrVars _ =>
+    withEqs discrs discrVars fun eqs rfls => do
+      let foundRef ← IO.mkRef false
+      let rec mkNewTarget (e : Expr) : MetaM Expr := do
+        let pre (e : Expr) : MetaM TransformStep := do
+          if !e.isAppOf matcherDeclName || e.getAppNumArgs != matcherInfo.arity then
+            return .visit e
+          let some matcherApp ← matchMatcherApp? e | return .visit e
+          for matcherDiscr in matcherApp.discrs, discr in discrs do
+            unless matcherDiscr == discr do
+              trace[Meta.Tactic.split] "discr mismatch {matcherDiscr} != {discr}"
+              return .visit e
+          let matcherApp := { matcherApp with discrs := discrVars }
+          foundRef.set true
+          let mut altsNew := #[]
+          for i in [:matcherApp.alts.size] do
+            let alt := matcherApp.alts[i]
+            let altNumParams := matcherApp.altNumParams[i]
+            let altNew ← lambdaTelescope alt fun xs body => do
+              if xs.size < altNumParams || xs.size < numDiscrEqs then
+                throwError "'applyMatchSplitter' failed, unexpected `match` alternative"
+              let body ← mkLambdaFVars xs[altNumParams:] (← mkNewTarget body)
+              let ys  := xs[:altNumParams - numDiscrEqs]
+              if numDiscrEqs == 0 then
+                mkLambdaFVars ys body
+              else
+                let altEqs := xs[altNumParams - numDiscrEqs : altNumParams]
+                withNewAltEqs matcherInfo eqs altEqs fun altEqsNew subst => do
+                  let body := body.replaceFVars altEqs subst
+                  mkLambdaFVars (ys++altEqsNew) body
+            altsNew := altsNew.push altNew
+          return .done { matcherApp with alts := altsNew }.toExpr
+        transform e pre
+      let targetNew ← mkNewTarget (← getMVarType mvarId)
+      unless (← foundRef.get) do
+        throwError "'applyMatchSplitter' failed, did not find discriminants"
+      let targetNew ← mkForallFVars (discrVars ++ eqs) targetNew
+      unless (← isTypeCorrect targetNew) do
+        throwError "'applyMatchSplitter' failed, failed to generalize target"
+      return (targetNew, rfls)
+    let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew (← getMVarTag mvarId)
+    trace[Meta.Tactic.split] "targetNew:\n{mvarNew.mvarId!}"
+    assignExprMVar mvarId (mkAppN (mkAppN mvarNew discrs) rfls)
+    let (discrs', mvarId') ← introNP mvarNew.mvarId! discrs.size
+    let (discrEqs, mvarId') ← introNP mvarId' discrs.size
+    return (discrs', discrEqs, mvarId')
+where
+  /-
+    - `eqs` are free variables `h_eq : discr = discrVar`. `eqs.size == discrs.size`
+    - `altEqs` are free variables of the form `h_altEq : discr = pattern`. `altEqs.size = numDiscrEqs ≤ discrs.size`
+    This method executes `k altEqsNew subst` where
+    - `altEqsNew` are fresh free variables of the form `h_altEqNew : discrVar = pattern`
+    - `subst` are terms of the form `h_eq.trans h_altEqNew : discr = pattern`. We use `subst` later to replace occurences of `h_altEq` with `h_eq.trans h_altEqNew`.
+   -/
+  withNewAltEqs (matcherInfo : MatcherInfo) (eqs : Array Expr) (altEqs : Array Expr) (k : Array Expr → Array Expr → MetaM Expr) : MetaM Expr := do
+    let eqs' := (eqs.zip matcherInfo.discrInfos).filterMap fun (eq, info) => if info.hName?.isNone then none else some eq
+    -- `eqs'.size == altEqs.size ≤ eqs.size`
+    let rec go (i : Nat) (altEqsNew : Array Expr) (subst : Array Expr) : MetaM Expr := do
+      if i < altEqs.size then
+        let altEqDecl ← getFVarLocalDecl altEqs[i]
+        let eq := eqs'[i]
+        let eqType ← inferType eq
+        let altEqType := altEqDecl.type
+        match eqType.eq?, altEqType.eq? with
+        | some (_, discr, discrVar), some (_, _ /- discr -/, pattern) =>
+          withLocalDeclD altEqDecl.userName (← mkEq discrVar pattern) fun altEqNew => do
+            go (i+1) (altEqsNew.push altEqNew) (subst.push (← mkEqTrans eq altEqNew))
+        | _, _ =>
+        match eqType.heq?, altEqType.heq? with
+        | some (_, discr, _, discrVar), some (_, _ /- discr -/, _, pattern) =>
+          withLocalDeclD altEqDecl.userName (← mkHEq discrVar pattern) fun altEqNew => do
+            go (i+1) (altEqsNew.push altEqNew) (subst.push (← mkHEqTrans eq altEqNew))
+        | _, _ =>
+          throwError "'applyMatchSplitter' failed, unexpected discriminant equalities"
       else
-        result := result.push fvarIdsNew[j]
-        j := j + 1
-    return (result, fvarIdsNew[j:], mvarId)
+        k altEqsNew subst
+    go 0 #[] #[]
 
-private def substDiscrEqs (mvarId : MVarId) (discrEqs : Array FVarId) : MetaM MVarId := do
+private def substDiscrEqs (mvarId : MVarId) (fvarSubst : FVarSubst) (discrEqs : Array FVarId) : MetaM MVarId := withMVarContext mvarId do
   let mut mvarId := mvarId
-  for fvarId in discrEqs.reverse do
-    trace[Meta.Tactic.split] "subst auxiliary eq {mkFVar fvarId} : {← inferType (mkFVar fvarId)}"
-    mvarId ← trySubst mvarId fvarId
+  let mut fvarSubst := fvarSubst
+  for fvarId in discrEqs do
+    if let .fvar fvarId _ := fvarSubst.apply (mkFVar fvarId) then
+      let (fvarId, mvarId') ← heqToEq mvarId fvarId
+      match (← substCore? mvarId' fvarId (symm := false) fvarSubst) with
+      | some (fvarSubst', mvarId') => mvarId := mvarId'; fvarSubst := fvarSubst'
+      | none =>
+      match (← substCore? mvarId' fvarId (symm := true) fvarSubst) with
+      | some (fvarSubst', mvarId') => mvarId := mvarId'; fvarSubst := fvarSubst'
+      | none => mvarId := mvarId'
   return mvarId
 
 def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Level) (params : Array Expr) (discrs : Array Expr) : MetaM (List MVarId) := do
@@ -129,9 +207,10 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
   let splitter := mkAppN (mkConst matchEqns.splitterName us.toList) params
   let motiveType := (← whnfForall (← inferType splitter)).bindingDomain!
   trace[Meta.Tactic.split] "applyMatchSplitter\n{mvarId}"
-  let (discrFVarIds, discrEqs, mvarId) ← generalizeMatchDiscrs mvarId discrs
+  let (discrFVarIds, discrEqs, mvarId) ← generalizeMatchDiscrs mvarId matcherDeclName motiveType discrs
   trace[Meta.Tactic.split] "after generalizeMatchDiscrs\n{mvarId}"
   let mvarId ← generalizeTargetsEq mvarId motiveType (discrFVarIds.map mkFVar)
+  withMVarContext mvarId do trace[Meta.Tactic.split] "discrEqs after generalizeTargetsEq: {discrEqs.map mkFVar}"
   trace[Meta.Tactic.split] "after generalize\n{mvarId}"
   let numEqs := discrs.size
   let (discrFVarIdsNew, mvarId) ← introN mvarId discrs.size
@@ -150,8 +229,9 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
       trace[Meta.Tactic.split] "before unifyEqs\n{mvarId}"
       match (← Cases.unifyEqs (numEqs + info.getNumDiscrEqs) mvarId {}) with
       | none   => return (i+1, mvarIds) -- case was solved
-      | some (mvarId, _) =>
-        let mvarId ← substDiscrEqs mvarId discrEqs
+      | some (mvarId, fvarSubst) =>
+        trace[Meta.Tactic.split] "after unifyEqs\n{mvarId}"
+        let mvarId ← substDiscrEqs mvarId fvarSubst discrEqs
         return (i+1, mvarId::mvarIds)
     return mvarIds.reverse
 

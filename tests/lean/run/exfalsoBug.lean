@@ -83,7 +83,7 @@ theorem f_eq (n : Nat) :
        split <;> simp
        next r hrn h₁ =>
          split <;> simp
-         next => intro he; subst he; simp
+         next => intro he; subst he; simp [*]
   next h_eq_none =>
     have hne := f'_ne_none n
     contradiction

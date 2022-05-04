@@ -1,6 +1,10 @@
 Unreleased
 ---------
 
+* Improve `split` tactic. It used to fail on `match` expressions of the form `match h : e with ...` where `e` is not a free variable.
+  The failure used to occur during generalization.
+
+
 * New encoding for `match`-expressions that use the `h :` notation for discriminants. The information is not lost during delaboration,
   and it is the foundation for a better `split` tactic. at delaboration time. Example:
   ```lean

@@ -12,7 +12,6 @@ attribute [simp] g
 
 #check g._eq_1
 #check g._eq_2
-#check g._eq_3
 
 theorem ex3 : g (n + 1) = match g n with
     | 0 => 0

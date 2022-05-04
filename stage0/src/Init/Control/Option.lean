@@ -69,11 +69,6 @@ instance (ε : Type u) [Monad m] [MonadExceptOf ε m] : MonadExceptOf ε (Option
 
 end OptionT
 
-abbrev OptionM (α : Type u) := OptionT Id α
-
-abbrev OptionM.run (x : OptionM α) : Option α :=
-  x
-
 instance [Monad m] : MonadControl m (OptionT m) where
   stM        := Option
   liftWith f := liftM <| f fun x => x.run

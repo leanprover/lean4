@@ -566,7 +566,7 @@ def addParamRename (ρ : IndexRenaming) (p₁ p₂ : Param) : Option IndexRenami
   else
     none
 
-def addParamsRename (ρ : IndexRenaming) (ps₁ ps₂ : Array Param) : Option IndexRenaming := OptionM.run do
+def addParamsRename (ρ : IndexRenaming) (ps₁ ps₂ : Array Param) : Option IndexRenaming := do
   if ps₁.size != ps₂.size then
     failure
   else

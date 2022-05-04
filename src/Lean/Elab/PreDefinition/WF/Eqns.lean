@@ -43,14 +43,14 @@ private def hasWellFoundedFix (e : Expr) : Bool :=
   Helper function for decoding the packed argument for a `WellFounded.fix` application.
   Recall that we use `PSum` and `PSigma` for packing the arguments of mutually recursive nary functions.
 -/
-private partial def decodePackedArg? (info : EqnInfo) (e : Expr) : Option (Name × Array Expr) := OptionM.run do
+private partial def decodePackedArg? (info : EqnInfo) (e : Expr) : Option (Name × Array Expr) := do
   if info.declNames.size == 1 then
     let args := decodePSigma e #[]
     return (info.declNames[0], args)
   else
     decodePSum? e 0
 where
-  decodePSum? (e : Expr) (i : Nat) : Option (Name × Array Expr) := OptionM.run do
+  decodePSum? (e : Expr) (i : Nat) : Option (Name × Array Expr) := do
     if e.isAppOfArity ``PSum.inl 3 then
       decodePSum? e.appArg! i
     else if e.isAppOfArity ``PSum.inr 3 then

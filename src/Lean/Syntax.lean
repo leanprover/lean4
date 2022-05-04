@@ -250,23 +250,22 @@ partial instance : ForIn m TopDown Syntax where
     | ForInStep.yield b => return b
     | ForInStep.done b  => return b
 
-partial def reprint (stx : Syntax) : Option String :=
-  OptionM.run do
-    let mut s := ""
-    for stx in stx.topDown (firstChoiceOnly := true) do
-      match stx with
-      | atom info val           => s := s ++ reprintLeaf info val
-      | ident info rawVal _ _   => s := s ++ reprintLeaf info rawVal.toString
-      | node info kind args     =>
-        if kind == choiceKind then
-          -- this visit the first arg twice, but that should hardly be a problem
-          -- given that choice nodes are quite rare and small
-          let s0 ← reprint args[0]
-          for arg in args[1:] do
-            let s' ← reprint arg
-            guard (s0 == s')
-      | _ => pure ()
-    return s
+partial def reprint (stx : Syntax) : Option String := do
+  let mut s := ""
+  for stx in stx.topDown (firstChoiceOnly := true) do
+    match stx with
+    | atom info val           => s := s ++ reprintLeaf info val
+    | ident info rawVal _ _   => s := s ++ reprintLeaf info rawVal.toString
+    | node info kind args     =>
+      if kind == choiceKind then
+        -- this visit the first arg twice, but that should hardly be a problem
+        -- given that choice nodes are quite rare and small
+        let s0 ← reprint args[0]
+        for arg in args[1:] do
+          let s' ← reprint arg
+          guard (s0 == s')
+    | _ => pure ()
+  return s
 where
   reprintLeaf (info : SourceInfo) (val : String) : String :=
     match info with

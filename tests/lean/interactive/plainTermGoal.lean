@@ -7,7 +7,7 @@ example : 0 < 2 :=
                              --^ $/lean/plainTermGoal
                                               --^ $/lean/plainTermGoal
 
-example : OptionM Unit := do
+example : Option Unit := do
   let y : Int ← none
   let x := Nat.zero
         --^ $/lean/plainTermGoal

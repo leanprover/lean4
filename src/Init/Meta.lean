@@ -621,42 +621,40 @@ def toNat (stx : Syntax) : Nat :=
   | some val => val
   | none     => 0
 
-def decodeQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) :=
-  OptionM.run do
-    let c := s.get i
-    let i := s.next i
-    if c == '\\' then pure ('\\', i)
-    else if c = '\"' then pure ('\"', i)
-    else if c = '\'' then pure ('\'', i)
-    else if c = 'r'  then pure ('\r', i)
-    else if c = 'n'  then pure ('\n', i)
-    else if c = 't'  then pure ('\t', i)
-    else if c = 'x'  then
-      let (d₁, i) ← decodeHexDigit s i
-      let (d₂, i) ← decodeHexDigit s i
-      pure (Char.ofNat (16*d₁ + d₂), i)
-    else if c = 'u'  then do
-      let (d₁, i) ← decodeHexDigit s i
-      let (d₂, i) ← decodeHexDigit s i
-      let (d₃, i) ← decodeHexDigit s i
-      let (d₄, i) ← decodeHexDigit s i
-      pure (Char.ofNat (16*(16*(16*d₁ + d₂) + d₃) + d₄), i)
-    else
-      none
+def decodeQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) := do
+  let c := s.get i
+  let i := s.next i
+  if c == '\\' then pure ('\\', i)
+  else if c = '\"' then pure ('\"', i)
+  else if c = '\'' then pure ('\'', i)
+  else if c = 'r'  then pure ('\r', i)
+  else if c = 'n'  then pure ('\n', i)
+  else if c = 't'  then pure ('\t', i)
+  else if c = 'x'  then
+    let (d₁, i) ← decodeHexDigit s i
+    let (d₂, i) ← decodeHexDigit s i
+    pure (Char.ofNat (16*d₁ + d₂), i)
+  else if c = 'u'  then do
+    let (d₁, i) ← decodeHexDigit s i
+    let (d₂, i) ← decodeHexDigit s i
+    let (d₃, i) ← decodeHexDigit s i
+    let (d₄, i) ← decodeHexDigit s i
+    pure (Char.ofNat (16*(16*(16*d₁ + d₂) + d₃) + d₄), i)
+  else
+    none
 
-partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Option String :=
-  OptionM.run do
-    let c := s.get i
-    let i := s.next i
-    if c == '\"' then
-      pure acc
-    else if s.atEnd i then
-      none
-    else if c == '\\' then do
-      let (c, i) ← decodeQuotedChar s i
-      decodeStrLitAux s i (acc.push c)
-    else
-      decodeStrLitAux s i (acc.push c)
+partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Option String := do
+  let c := s.get i
+  let i := s.next i
+  if c == '\"' then
+    pure acc
+  else if s.atEnd i then
+    none
+  else if c == '\\' then do
+    let (c, i) ← decodeQuotedChar s i
+    decodeStrLitAux s i (acc.push c)
+  else
+    decodeStrLitAux s i (acc.push c)
 
 def decodeStrLit (s : String) : Option String :=
   decodeStrLitAux s ⟨1⟩ ""
@@ -666,14 +664,13 @@ def isStrLit? (stx : Syntax) : Option String :=
   | some val => decodeStrLit val
   | _        => none
 
-def decodeCharLit (s : String) : Option Char :=
-  OptionM.run do
-    let c := s.get ⟨1⟩
-    if c == '\\' then do
-      let (c, _) ← decodeQuotedChar s ⟨2⟩
-      pure c
-    else
-      pure c
+def decodeCharLit (s : String) : Option Char := do
+  let c := s.get ⟨1⟩
+  if c == '\\' then do
+    let (c, _) ← decodeQuotedChar s ⟨2⟩
+    pure c
+  else
+    pure c
 
 def isCharLit? (stx : Syntax) : Option Char :=
   match isLit? charLitKind stx with
@@ -785,7 +782,7 @@ instance : Quote Nat := ⟨fun n => Syntax.mkNumLit <| toString n⟩
 instance : Quote Substring := ⟨fun s => Syntax.mkCApp `String.toSubstring #[quote s.toString]⟩
 
 -- in contrast to `Name.toString`, we can, and want to be, precise here
-private def getEscapedNameParts? (acc : List String) : Name → OptionM (List String)
+private def getEscapedNameParts? (acc : List String) : Name → Option (List String)
   | Name.anonymous => return acc
   | Name.str n s _ => do
     let s ← Name.escapePart s
@@ -934,18 +931,17 @@ abbrev autoParam.{u} (α : Sort u) (tactic : Lean.Syntax) : Sort u := α
 /- Helper functions for manipulating interpolated strings -/
 namespace Lean.Syntax
 
-private def decodeInterpStrQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) :=
-  OptionM.run do
-    match decodeQuotedChar s i with
-    | some r => some r
-    | none   =>
-      let c := s.get i
-      let i := s.next i
-      if c == '{' then pure ('{', i)
-      else none
+private def decodeInterpStrQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos) := do
+  match decodeQuotedChar s i with
+  | some r => some r
+  | none   =>
+    let c := s.get i
+    let i := s.next i
+    if c == '{' then pure ('{', i)
+    else none
 
 private partial def decodeInterpStrLit (s : String) : Option String :=
-  let rec loop (i : String.Pos) (acc : String) : OptionM String :=
+  let rec loop (i : String.Pos) (acc : String) : Option String :=
     let c := s.get i
     let i := s.next i
     if c == '\"' || c == '{' then

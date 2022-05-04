@@ -26,8 +26,8 @@
 {"textDocument": {"uri": "file://plainTermGoal.lean"},
  "position": {"line": 11, "character": 10}}
 {"range":
- {"start": {"line": 9, "character": 26}, "end": {"line": 13, "character": 11}},
- "goal": "⊢ OptionM Unit"}
+ {"start": {"line": 9, "character": 25}, "end": {"line": 13, "character": 11}},
+ "goal": "⊢ Option Unit"}
 {"textDocument": {"uri": "file://plainTermGoal.lean"},
  "position": {"line": 16, "character": 17}}
 {"range":

@@ -78,7 +78,3 @@ instance [Monad m] : MonadControl m (OptionT m) where
   stM        := Option
   liftWith f := liftM <| f fun x => x.run
   restoreM x := x
-
-def liftOption [Alternative m] : Option α → m α
-  | some a => pure a
-  | none   => failure

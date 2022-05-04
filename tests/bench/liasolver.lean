@@ -203,7 +203,7 @@ structure Problem where
   deriving Inhabited
 
 def preprocess? (eqs : HashMap Nat Equation) : Option (HashMap Nat Equation) :=
-  OptionM.run <| eqs.mapValsM (·.preprocess?)
+  eqs.mapValsM (·.preprocess?)
 
 def eliminateSingleton (p : Problem) (singletonEq : Equation) (varIdx : Nat) : Problem := Id.run <| do
   let mut eqsWithVarIdx : Array Nat := #[]

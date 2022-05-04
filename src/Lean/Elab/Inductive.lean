@@ -314,10 +314,30 @@ private def elabCtors (indFVars : Array Expr) (indFVar : Expr) (params : Array E
           Term.synthesizeSyntheticMVarsNoPostponing
           let ctorParams ← Term.addAutoBoundImplicits ctorParams
           let except (mvarId : MVarId) := ctorParams.any fun ctorParam => ctorParam.isMVar && ctorParam.mvarId! == mvarId
-          let mut extraCtorParams := #[]
-          for ctorParam in ctorParams do
-            extraCtorParams ← Term.collectUnassignedMVars (← instantiateMVars (← inferType ctorParam)) extraCtorParams except
-          extraCtorParams ← Term.collectUnassignedMVars (← instantiateMVars type) extraCtorParams except
+          /-
+            We convert metavariables in the resulting type info extra parameters. Otherwise, we would not be able to elaborate
+            declarations such as
+            ```
+            inductive Palindrome : List α → Prop where
+              | nil      : Palindrome [] -- We would get an error here saying "failed to synthesize implicit argument" at `@List.nil ?m`
+              | single   : (a : α) → Palindrome [a]
+              | sandwich : (a : α) → Palindrome as → Palindrome ([a] ++ as ++ [a])
+            ```
+            We used to also collect unassigned metavariables on `ctorParams`, but it produced counterintuitive behavior.
+            For example, the following declaration used to be accepted.
+            ```
+            inductive Foo
+            | bar (x)
+
+            #check Foo.bar
+            -- @Foo.bar : {x : Sort u_1} → x → Foo
+            ```
+            which is also inconsistent with the behavior of auto implicits in definitions. For example, the following example was never accepted.
+            ```
+            def bar (x) := 1
+            ```
+          -/
+          let extraCtorParams ← Term.collectUnassignedMVars (← instantiateMVars type) #[] except
           trace[Elab.inductive] "extraCtorParams: {extraCtorParams}"
           /- We must abstract `extraCtorParams` and `ctorParams` simultaneously to make
              sure we do not create auxiliary metavariables. -/

@@ -63,7 +63,7 @@ structure InteractiveTermGoal where
 namespace InteractiveTermGoal
 
 def toInteractiveGoal (g : InteractiveTermGoal) : InteractiveGoal :=
-  { g with userName? := none, goalPrefix := "⊢" }
+  { g with userName? := none, goalPrefix := "⊢ " }
 
 end InteractiveTermGoal
 
@@ -137,8 +137,8 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
     let userName? := match mvarDecl.userName with
       | Name.anonymous => none
       | name           => some <| toString name.eraseMacroScopes
-    let mut pref := "⊢"
-    if isLHSGoal? mvarDecl.type |>.isSome then pref := "|"
-    return { hyps, type := goalFmt, userName?, goalPrefix := pref}
+    let mut pref := "⊢ "
+    if isLHSGoal? mvarDecl.type |>.isSome then pref := "| "
+    return { hyps, type := goalFmt, userName?, goalPrefix := pref }
 
 end Lean.Widget

@@ -138,6 +138,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
       | Name.anonymous => none
       | name           => some <| toString name.eraseMacroScopes
     let mut pref := "⊢ "
+    -- use special prefix for `conv` goals
     if isLHSGoal? mvarDecl.type |>.isSome then pref := "| "
     return { hyps, type := goalFmt, userName?, goalPrefix := pref }
 

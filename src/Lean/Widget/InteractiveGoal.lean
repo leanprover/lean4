@@ -24,6 +24,7 @@ structure InteractiveGoal where
   hyps      : Array InteractiveHypothesis
   type      : CodeWithInfos
   userName? : Option String
+  goalPrefix : String
   deriving Inhabited, RpcEncoding
 
 namespace InteractiveGoal
@@ -62,7 +63,7 @@ structure InteractiveTermGoal where
 namespace InteractiveTermGoal
 
 def toInteractiveGoal (g : InteractiveTermGoal) : InteractiveGoal :=
-  { g with userName? := none }
+  { g with userName? := none, goalPrefix := "⊢ " }
 
 end InteractiveTermGoal
 
@@ -136,6 +137,9 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
     let userName? := match mvarDecl.userName with
       | Name.anonymous => none
       | name           => some <| toString name.eraseMacroScopes
-    return { hyps, type := goalFmt, userName? }
+    let mut pref := "⊢ "
+    -- use special prefix for `conv` goals
+    if isLHSGoal? mvarDecl.type |>.isSome then pref := "| "
+    return { hyps, type := goalFmt, userName?, goalPrefix := pref }
 
 end Lean.Widget

@@ -1032,6 +1032,10 @@ partial def consumeTypeAnnotations (e : Expr) : Expr :=
   else
     e
 
+partial def consumeMDataAndTypeAnnotations (e : Expr) : Expr :=
+  let e' := e.consumeMData.consumeTypeAnnotations
+  if e' == e then e else consumeMDataAndTypeAnnotations e'
+
 /-- Return true iff `e` contains a free variable which statisfies `p`. -/
 @[inline] def hasAnyFVar (e : Expr) (p : FVarId → Bool) : Bool :=
   let rec @[specialize] visit (e : Expr) := if !e.hasFVar then false else

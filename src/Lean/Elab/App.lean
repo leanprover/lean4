@@ -844,10 +844,10 @@ private partial def resolveDotName (id : Syntax) (expectedType? : Option Expr) :
     go resultType expectedType #[]
 where
   go (resultType : Expr) (expectedType : Expr) (previousExceptions : Array Exception) : TermElabM Name := do
-    let resultTypeFn := (← instantiateMVars resultType).consumeMData.getAppFn
+    let resultTypeFn := (← instantiateMVars resultType).consumeMDataAndTypeAnnotations.getAppFn
     try
       tryPostponeIfMVar resultTypeFn
-      let .const declName .. := resultTypeFn.consumeMData
+      let .const declName .. := resultTypeFn.consumeMDataAndTypeAnnotations
         | throwError "invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant{indentExpr expectedType}"
       let idNew := declName ++ id.getId.eraseMacroScopes
       unless (← getEnv).contains idNew do

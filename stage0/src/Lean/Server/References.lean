@@ -131,8 +131,7 @@ partial def combineFvars (refs : Array Reference) : Array Reference := Id.run do
   let mut posMap : HashMap Lsp.Range FVarId := HashMap.empty
   for ref in refs do
     if let { ident := RefIdent.fvar id, range, isBinder := true } := ref then
-      if !posMap.contains range then
-        posMap := posMap.insert range id
+      posMap := posMap.insert range id
 
   -- Map fvar defs to overlapping fvar defs/uses
   -- NOTE: poor man's union-find; see also `findCanonicalBinder?`
@@ -140,7 +139,8 @@ partial def combineFvars (refs : Array Reference) : Array Reference := Id.run do
   for ref in refs do
     if let { ident := RefIdent.fvar baseId, range, .. } := ref then
       if let some id := posMap.find? range then
-        let baseId := idMap.findD baseId baseId
+        let id := findCanonicalBinder idMap id
+        let baseId := findCanonicalBinder idMap baseId
         if baseId != id then
           idMap := idMap.insert id baseId
 
@@ -152,7 +152,7 @@ partial def combineFvars (refs : Array Reference) : Array Reference := Id.run do
       -- for the base id exists.
       unless idMap.contains id do  -- Only keep the base definition
         refs' := refs'.push ref
-    | { ident := ident@(RefIdent.fvar fv), range, isBinder := false } =>
+    | { ident, range, isBinder := false } =>
       refs' := refs'.push { ident := applyIdMap idMap ident, range, isBinder := false }
     | _ =>
       refs' := refs'.push ref

@@ -393,8 +393,10 @@ def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
 -- `optElimId` is of the form `("using" ident)?`
 private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (induction : Bool): TacticM ElimInfo := do
   if optElimId.isNone then
+    if let some elimInfo ← getCustomEliminator? targets then
+      return elimInfo
     unless targets.size == 1 do
-      throwError "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>')"
+      throwError "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>'), and no default eliminator has been registered using attribute `[eliminator]`"
     let indVal ← getInductiveValFromMajor targets[0]
     if induction && indVal.all.length != 1 then
       throwError "'induction' tactic does not support mutually inductive types, the eliminator '{mkRecName indVal.name}' has multiple motives"
@@ -426,7 +428,7 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
   let alts := getAltsOfOptInductionAlts optInductionAlts
   let targets ← withMainContext <| stx[1].getSepArgs.mapM (elabTerm · none)
   let targets ← generalizeTargets targets
-  let elimInfo ← getElimNameInfo stx[2] targets (induction := true)
+  let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)
   let mvarId ← getMainGoal
   -- save initial info before main goal is reassigned
   let initInfo ← mkTacticInfo (← getMCtx) (← getUnsolvedGoals) (← getRef)
@@ -438,7 +440,7 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
     let (n, mvarId) ← generalizeVars mvarId stx targets
     withMVarContext mvarId do
       let result ← withRef stx[1] do -- use target position as reference
-        ElimApp.mkElimApp elimName elimInfo targets tag
+        ElimApp.mkElimApp elimInfo targets tag
       trace[Elab.induction] "elimApp: {result.elimApp}"
       let elimArgs := result.elimApp.getAppArgs
       let motiveType ← inferType elimArgs[elimInfo.motivePos]
@@ -485,7 +487,7 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr) :=
   let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
   let alts :=  getAltsOfOptInductionAlts optInductionAlts
   let targetRef := stx[1]
-  let elimInfo ← getElimNameInfo stx[2] targets (induction := false)
+  let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := false)
   let mvarId ← getMainGoal
   -- save initial info before main goal is reassigned
   let initInfo ← mkTacticInfo (← getMCtx) (← getUnsolvedGoals) (← getRef)

@@ -13,12 +13,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+size_t lean_usize_add(size_t, size_t);
 uint64_t lean_uint8_to_uint64(uint8_t);
+uint8_t lean_usize_dec_eq(size_t, size_t);
+lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT uint64_t l_instHashableProd___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_instHashableUSize(size_t);
 LEAN_EXPORT lean_object* l_instHashableList(lean_object*);
 LEAN_EXPORT lean_object* l_instHashableUSize___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_instHashableList___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
 uint64_t lean_uint16_to_uint64(uint16_t);
 LEAN_EXPORT lean_object* l_instHashable___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_instHashableBool(uint8_t);
@@ -33,27 +37,35 @@ LEAN_EXPORT lean_object* l_instHashableUInt64___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instHashableProd(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableUInt16___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_instHashableArray___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_instHashableUInt16(uint16_t);
 uint64_t lean_uint64_of_nat(lean_object*);
+LEAN_EXPORT uint64_t l_instHashableArray___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t l_instHashableUInt64(uint64_t);
 LEAN_EXPORT lean_object* l_instHashableList___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableUInt32___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instHashableFin(lean_object*);
+size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT uint64_t l_instHashableNat(lean_object*);
 LEAN_EXPORT lean_object* l_instHashableFin___rarg___boxed(lean_object*);
 LEAN_EXPORT uint64_t l_instHashableList___rarg(lean_object*, lean_object*);
+LEAN_EXPORT uint64_t l_Array_foldlMUnsafe_fold___at_instHashableArray___spec__1___rarg(lean_object*, lean_object*, size_t, size_t, uint64_t);
 LEAN_EXPORT uint64_t l_instHashableFin___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instHashableOption___rarg___boxed(lean_object*, lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint64_t lean_usize_to_uint64(size_t);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 uint64_t lean_uint32_to_uint64(uint32_t);
+LEAN_EXPORT lean_object* l_instHashableArray(lean_object*);
 LEAN_EXPORT lean_object* l_instHashableProd___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableNat___boxed(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 LEAN_EXPORT uint64_t l_instHashable(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_instHashableArray___spec__1(lean_object*);
 LEAN_EXPORT uint64_t l_instHashableOption___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instHashableArray___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableBool___boxed(lean_object*);
 LEAN_EXPORT uint64_t l_instHashableUInt32(uint32_t);
 LEAN_EXPORT uint64_t l_List_foldl___at_instHashableList___spec__1___rarg(lean_object*, uint64_t, lean_object*);
@@ -61,6 +73,7 @@ static lean_object* l_instHashableInt___closed__1;
 LEAN_EXPORT lean_object* l_instHashableUInt8___boxed(lean_object*);
 LEAN_EXPORT uint64_t l_instHashableUInt8(uint8_t);
 lean_object* lean_nat_to_int(lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableInt___boxed(lean_object*);
 LEAN_EXPORT uint64_t l_instHashableNat(lean_object* x_1) {
 _start:
@@ -272,6 +285,111 @@ _start:
 {
 uint64_t x_3; lean_object* x_4; 
 x_3 = l_instHashableList___rarg(x_1, x_2);
+x_4 = lean_box_uint64(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT uint64_t l_Array_foldlMUnsafe_fold___at_instHashableArray___spec__1___rarg(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, uint64_t x_5) {
+_start:
+{
+uint8_t x_6; 
+x_6 = lean_usize_dec_eq(x_3, x_4);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; uint64_t x_9; uint64_t x_10; size_t x_11; size_t x_12; 
+x_7 = lean_array_uget(x_2, x_3);
+lean_inc(x_1);
+x_8 = lean_apply_1(x_1, x_7);
+x_9 = lean_unbox_uint64(x_8);
+lean_dec(x_8);
+x_10 = lean_uint64_mix_hash(x_5, x_9);
+x_11 = 1;
+x_12 = lean_usize_add(x_3, x_11);
+x_3 = x_12;
+x_5 = x_10;
+goto _start;
+}
+else
+{
+lean_dec(x_1);
+return x_5;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_instHashableArray___spec__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Array_foldlMUnsafe_fold___at_instHashableArray___spec__1___rarg___boxed), 5, 0);
+return x_2;
+}
+}
+LEAN_EXPORT uint64_t l_instHashableArray___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint64_t x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_3 = 7;
+x_4 = lean_array_get_size(x_2);
+x_5 = lean_unsigned_to_nat(0u);
+x_6 = lean_nat_dec_lt(x_5, x_4);
+if (x_6 == 0)
+{
+lean_dec(x_4);
+lean_dec(x_1);
+return x_3;
+}
+else
+{
+uint8_t x_7; 
+x_7 = lean_nat_dec_le(x_4, x_4);
+if (x_7 == 0)
+{
+lean_dec(x_4);
+lean_dec(x_1);
+return x_3;
+}
+else
+{
+size_t x_8; size_t x_9; uint64_t x_10; 
+x_8 = 0;
+x_9 = lean_usize_of_nat(x_4);
+lean_dec(x_4);
+x_10 = l_Array_foldlMUnsafe_fold___at_instHashableArray___spec__1___rarg(x_1, x_2, x_8, x_9, x_3);
+return x_10;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_instHashableArray(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instHashableArray___rarg___boxed), 2, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_instHashableArray___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+size_t x_6; size_t x_7; uint64_t x_8; uint64_t x_9; lean_object* x_10; 
+x_6 = lean_unbox_usize(x_3);
+lean_dec(x_3);
+x_7 = lean_unbox_usize(x_4);
+lean_dec(x_4);
+x_8 = lean_unbox_uint64(x_5);
+lean_dec(x_5);
+x_9 = l_Array_foldlMUnsafe_fold___at_instHashableArray___spec__1___rarg(x_1, x_2, x_6, x_7, x_8);
+lean_dec(x_2);
+x_10 = lean_box_uint64(x_9);
+return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_instHashableArray___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint64_t x_3; lean_object* x_4; 
+x_3 = l_instHashableArray___rarg(x_1, x_2);
+lean_dec(x_2);
 x_4 = lean_box_uint64(x_3);
 return x_4;
 }

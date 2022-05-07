@@ -30,6 +30,9 @@ instance [Hashable α] : Hashable (Option α) where
 instance [Hashable α] : Hashable (List α) where
   hash as := as.foldl (fun r a => mixHash r (hash a)) 7
 
+instance [Hashable α] : Hashable (Array α) where
+  hash as := as.foldl (fun r a => mixHash r (hash a)) 7
+
 instance : Hashable UInt8 where
   hash n := n.toUInt64
 

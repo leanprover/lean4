@@ -5,20 +5,21 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Basic
 import Lean.Meta.Check
+import Lean.ScopedEnvExtension
 
 namespace Lean.Meta
 
 structure ElimAltInfo where
   name      : Name
   numFields : Nat
-  deriving Repr
+  deriving Repr, Inhabited
 
 structure ElimInfo where
   name       : Name
   motivePos  : Nat
   targetsPos : Array Nat := #[]
   altsInfo   : Array ElimAltInfo := #[]
-  deriving Repr
+  deriving Repr, Inhabited
 
 def getElimInfo (declName : Name) : MetaM ElimInfo := do
   let declInfo ← getConstInfo declName
@@ -83,5 +84,61 @@ where
         collect (b.instantiate1 (← mkFreshExprMVar d)) (argIdx+1) targetIdx targets'
     | _ =>
       return targets'
+
+structure CustomEliminator where
+  typeNames : Array Name
+  elimInfo  : ElimInfo
+  deriving Inhabited, Repr
+
+structure CustomEliminators where
+  map : SMap (Array Name) ElimInfo := {}
+  deriving Inhabited, Repr
+
+def addCustomEliminatorEntry (es : CustomEliminators) (e : CustomEliminator) : CustomEliminators :=
+  match es with
+  | { map := map } => { map := map.insert e.typeNames e.elimInfo }
+
+builtin_initialize customEliminatorExt : SimpleScopedEnvExtension CustomEliminator CustomEliminators ←
+  registerSimpleScopedEnvExtension {
+    name           := `elimExt
+    initial        := {}
+    addEntry       := addCustomEliminatorEntry
+    finalizeImport := fun { map := map } => { map := map.switch }
+  }
+
+def mkCustorEliminator (declName : Name) : MetaM CustomEliminator := do
+  let info ← getConstInfo declName
+  let elimInfo ← getElimInfo declName
+  forallTelescopeReducing info.type fun xs _ => do
+    let mut typeNames := #[]
+    for targetPos in elimInfo.targetsPos do
+      let x := xs[targetPos]
+      let xType ← inferType x
+      let .const typeName .. := xType.getAppFn | throwError "unexpected eliminator target type{indentExpr xType}"
+      typeNames := typeNames.push typeName
+    return { typeNames, elimInfo }
+
+def addCustomEliminator (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
+  let e ← mkCustorEliminator declName
+  customEliminatorExt.add e attrKind
+
+builtin_initialize
+  registerBuiltinAttribute {
+    name  := `eliminator
+    descr := "custom eliminator for `cases` and `induction` tactics"
+    add   := fun declName stx attrKind => do
+      discard <| addCustomEliminator declName attrKind |>.run {} {}
+  }
+
+def getCustomEliminators : CoreM CustomEliminators := do
+  return customEliminatorExt.getState (← getEnv)
+
+def getCustomEliminator? (targets : Array Expr) : MetaM (Option ElimInfo) := do
+  let mut key := #[]
+  for target in targets do
+    let targetType := (← instantiateMVars (← inferType target)).headBeta
+    let .const declName .. := targetType.getAppFn | return none
+    key := key.push declName
+  return customEliminatorExt.getState (← getEnv) |>.map.find? key
 
 end Lean.Meta

@@ -96,60 +96,100 @@ private def synthesizePendingCoeInstMVar
       | _                     => unreachable!
 
 /--
-  Try to synthesize a value for `mvarId` using the given default instance.
-  Return `some (val, mvarDecls)` if successful, where `val` is the value assigned to `mvarId`, and `mvarDecls` is a list of new type class instances that need to be synthesized.
--/
-private def tryToSynthesizeUsingDefaultInstance (mvarId : MVarId) (defaultInstance : Name) : TermElabM (Option (Expr × List SyntheticMVarDecl)) :=
-  commitWhenSome? do
-    let candidate ← mkConstWithFreshMVarLevels defaultInstance
-    let (mvars, bis, _) ← forallMetaTelescopeReducing (← inferType candidate)
-    let candidate := mkAppN candidate mvars
-    trace[Elab.resume] "trying default instance for {mkMVar mvarId} := {candidate}"
-    if (← isDefEqGuarded (mkMVar mvarId) candidate) then
-      -- Succeeded. Collect new TC problems
-      let mut result := []
-      for i in [:bis.size] do
-        if bis[i] == BinderInfo.instImplicit then
-           result := { mvarId := mvars[i].mvarId!, stx := (← getRef), kind := SyntheticMVarKind.typeClass } :: result
-      trace[Elab.resume] "worked"
-      return some (candidate, result)
-    else
-      return none
+  Try to synthesize `mvarId` by starting using a default instance with the give privority.
+  This method succeeds only if the metavariable of fully synthesized.
 
-private def tryToSynthesizeUsingDefaultInstances (mvarId : MVarId) (prio : Nat) : TermElabM (Option (Expr × List SyntheticMVarDecl)) :=
+  Remark: In the past, we would return a list of pending TC problems, but this was problematic since
+  a default instance may create subproblems that cannot be solved.
+-/
+private partial def synthesizeUsingDefaultPrio (mvarId : MVarId) (prio : Nat) : TermElabM Bool :=
   withMVarContext mvarId do
     let mvarType := (← Meta.getMVarDecl mvarId).type
     match (← isClass? mvarType) with
-    | none => return none
+    | none => return false
     | some className =>
       match (← getDefaultInstances className) with
-      | [] => return none
+      | [] => return false
       | defaultInstances =>
         for (defaultInstance, instPrio) in defaultInstances do
           if instPrio == prio then
-            match (← tryToSynthesizeUsingDefaultInstance mvarId defaultInstance) with
-            | some result => return some result
-            | none => continue
+            if (← synthesizeUsingDefaultInstance mvarId defaultInstance) then
+              return true
+        return false
+where
+  synthesizeUsingDefault (mvarId : MVarId) : TermElabM Bool := do
+    for prio in (← getDefaultInstancesPriorities) do
+      if (← synthesizeUsingDefaultPrio mvarId prio) then
+        return true
+    return false
+
+  synthesizePendingInstMVar' (mvarId : MVarId) : TermElabM Bool :=
+    commitWhen <| withMVarContext mvarId do
+      try
+        synthesizeInstMVarCore mvarId
+      catch _ =>
+        return false
+
+  synthesizeUsingInstancesStep (mvarIds : List MVarId) : TermElabM (List MVarId) :=
+    mvarIds.filterM fun mvarId => do
+      if (← synthesizePendingInstMVar' mvarId) then
+        return false
+      else
+        return true
+
+  synthesizeUsingInstances (mvarIds : List MVarId) : TermElabM (List MVarId) := do
+    let mvarIds' ← synthesizeUsingInstancesStep mvarIds
+    if mvarIds'.length < mvarIds.length then
+      synthesizeUsingInstances mvarIds'
+    else
+      return mvarIds'
+
+  synthesizeUsingDefaultInstance (mvarId : MVarId) (defaultInstance : Name) : TermElabM Bool :=
+    commitWhen do
+      let candidate ← mkConstWithFreshMVarLevels defaultInstance
+      let (mvars, bis, _) ← forallMetaTelescopeReducing (← inferType candidate)
+      let candidate := mkAppN candidate mvars
+      if (← isDefEqGuarded (mkMVar mvarId) candidate) then
+        -- Succeeded. Collect new TC problems
+        let mut pending := []
+        for i in [:bis.size] do
+          if bis[i] == BinderInfo.instImplicit then
+            pending := mvars[i].mvarId! :: pending
+        synthesizePending pending
+      else
+        return false
+
+  synthesizeSomeUsingDefault? (mvarIds : List MVarId) : TermElabM (Option (List MVarId)) := do
+    match mvarIds with
+    | [] => return none
+    | mvarId :: mvarIds =>
+      if (← synthesizeUsingDefault mvarId) then
+        return mvarIds
+      else if let some mvarIds' ← synthesizeSomeUsingDefault? mvarIds then
+        return mvarId :: mvarIds'
+      else
         return none
 
+  synthesizePending (mvarIds : List MVarId) : TermElabM Bool := do
+    let mvarIds ← synthesizeUsingInstances mvarIds
+    if mvarIds.isEmpty then return true
+    let some mvarIds ← synthesizeSomeUsingDefault? mvarIds | return false
+    synthesizePending mvarIds
+
 /- Used to implement `synthesizeUsingDefault`. This method only consider default instances with the given priority. -/
-private def synthesizeUsingDefaultPrio (prio : Nat) : TermElabM Bool := do
+private def synthesizeSomeUsingDefaultPrio (prio : Nat) : TermElabM Bool := do
   let rec visit (syntheticMVars : List SyntheticMVarDecl) (syntheticMVarsNew : List SyntheticMVarDecl) : TermElabM Bool := do
     match syntheticMVars with
     | [] => return false
     | mvarDecl :: mvarDecls =>
       match mvarDecl.kind with
       | SyntheticMVarKind.typeClass =>
-        match (← withRef mvarDecl.stx <| tryToSynthesizeUsingDefaultInstances mvarDecl.mvarId prio) with
-        | none => visit mvarDecls (mvarDecl :: syntheticMVarsNew)
-        | some (val, newMVarDecls) =>
-          for newMVarDecl in newMVarDecls do
-            -- Register that `newMVarDecl.mvarId`s are implicit arguments of the value assigned to `mvarDecl.mvarId`
-            registerMVarErrorImplicitArgInfo newMVarDecl.mvarId (← getRef) val
-          let syntheticMVarsNew := newMVarDecls ++ syntheticMVarsNew
+        if (← withRef mvarDecl.stx <| synthesizeUsingDefaultPrio mvarDecl.mvarId prio) then
           let syntheticMVarsNew := mvarDecls.reverse ++ syntheticMVarsNew
           modify fun s => { s with syntheticMVars := syntheticMVarsNew }
           return true
+        else
+          visit mvarDecls (mvarDecl :: syntheticMVarsNew)
       | _ => visit mvarDecls (mvarDecl :: syntheticMVarsNew)
   /- Recall that s.syntheticMVars is essentially a stack. The first metavariable was the last one created.
      We want to apply the default instance in reverse creation order. Otherwise,
@@ -163,7 +203,7 @@ private def synthesizeUsingDefault : TermElabM Bool := do
   let prioSet ← getDefaultInstancesPriorities
   /- Recall that `prioSet` is stored in descending order -/
   for prio in prioSet do
-    if (← synthesizeUsingDefaultPrio prio) then
+    if (← synthesizeSomeUsingDefaultPrio prio) then
       return true
   return false
 

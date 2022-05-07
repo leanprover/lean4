@@ -251,15 +251,82 @@ private def toExpr (t : Tree) : TermElabM Expr := do
   | Tree.op ref true f lhs rhs  => withRef ref <| mkOp f (← toExpr lhs) (← mkFunUnit (← toExpr rhs))
   | Tree.op ref false f lhs rhs => withRef ref <| mkOp f (← toExpr lhs) (← toExpr rhs)
 
+private def getResultingType : Expr → Expr
+  | .forallE _ _ b _ => getResultingType b
+  | e => e
+
+/--
+  Auxiliary function to decide whether we should coerce `f`'s argument to `maxType` or not.
+  - `f` is a binary operator.
+  - `lhs == true` (`lhs == false`) if are trying to coerce the left-argument (right-argument).
+  This function assumes `f` is a heterogeneous operator (e.g., `HAdd.hAdd`, `HMul.hMul`, etc).
+  It returns true IF
+  - `f` is a constant of the form `Cls.op` where `Cls` is a class name, and
+  - `maxType` is of the form `C ...` where `C` is a constant, and
+  - There are more than one default instance. That is, it assumes the class `Cls` for the heterogeneous operator `f`, and
+    always has the monomorphic instance. (e.g., for `HAdd`, we have `instance [Add α] : HAdd α α α`), and
+  - If `lhs == true`, then there is a default instance of the form `Cls _ (C ..) _`, and
+  - If `lhs == false`, then there is a default instance of the form `Cls (C ..) _ _`.
+
+  The motivation is to support default instances such as
+  ```
+  @[defaultInstance high]
+  instance [Mul α] : HMul α (Array α) (Array α) where
+    hMul a as := as.map (a * ·)
+
+  #eval 2 * #[3, 4, 5]
+  ```
+  If the type of an argument is unknown we should not coerce it to `maxType` because it would prevent
+  the default instance above from being even tried.
+-/
+private def hasHeterogeneousDefaultInstances (f : Expr) (maxType : Expr) (lhs : Bool) : MetaM Bool := do
+  let .const fName .. := f | return false
+  let .const typeName .. := maxType.getAppFn | return false
+  let className := fName.getPrefix
+  let defInstances ← getDefaultInstances className
+  if defInstances.length ≤ 1 then return false
+  for (instName, _) in (← getDefaultInstances className) do
+    let instInfo ← getConstInfo instName
+    let type := getResultingType instInfo.type
+    if type.getAppNumArgs >= 3 then
+      if lhs then
+        return type.appFn!.appArg!.isAppOf typeName
+      else
+        return type.appFn!.appArg!.appArg!.isAppOf typeName
+  return false
+
+/--
+  Try to coerce elements in the `t` to `maxType` when needed.
+  If the type of an element in `t` is unknown we only coerce it to `maxType` if `maxType` does not have heterogeneous
+  default instances. This extra check is approximated by `hasHeterogeneousDefaultInstances`.
+
+  Remark: If `maxType` does not implement heterogeneous default instances, we do want to assign unknown types `?m` to
+  `maxType` because it produces better type information propagation. Our test suite has many tests that would break if
+  we don't do this. For example, consider the term
+  ```
+  eq_of_isEqvAux a b hsz (i+1) (Nat.succ_le_of_lt h) heqv.2
+  ```
+  `Nat.succ_le_of_lt h` type depends on `i+1`, but `i+1` only reduces to `Nat.succ i` if we know that `1` is a `Nat`.
+  There are several other examples like that in our test suite, and one can find them by just replacing the
+  `← hasHeterogeneousDefaultInstances f maxType lhs` test with `true`
+
+
+  Remark: if `hasHeterogeneousDefaultInstances` implementation is not good enough we should refine it in the future.
+-/
 private def applyCoe (t : Tree) (maxType : Expr) : TermElabM Tree := do
-  go t
+  go t none false
 where
-  go (t : Tree) : TermElabM Tree := do
+  go (t : Tree) (f? : Option Expr) (lhs : Bool) : TermElabM Tree := do
     match t with
-    | Tree.op ref lazy f lhs rhs => return Tree.op ref lazy f (← go lhs) (← go rhs)
+    | Tree.op ref lazy f lhs rhs => return Tree.op ref lazy f (← go lhs f true) (← go rhs f false)
     | Tree.term ref e       =>
-      let type ← inferType e
+      let type ← instantiateMVars (← inferType e)
       trace[Elab.binop] "visiting {e} : {type} =?= {maxType}"
+      if isUnknow type then
+        if let some f := f? then
+          if (← hasHeterogeneousDefaultInstances f maxType lhs) then
+            -- See comment at `hasHeterogeneousDefaultInstances`
+            return t
       if (← isDefEqGuarded maxType type) then
         return t
       else

@@ -182,11 +182,10 @@ structure PatternVarDecl where
 private partial def withPatternVars {α} (pVars : Array PatternVar) (k : Array PatternVarDecl → TermElabM α) : TermElabM α :=
   let rec loop (i : Nat) (decls : Array PatternVarDecl) (userNames : Array Name) := do
     if h : i < pVars.size then
-      match pVars.get ⟨i, h⟩ with
-      | { userName }  =>
-        let type ← mkFreshTypeMVar
-        withLocalDecl userName BinderInfo.default type fun x =>
-          loop (i+1) (decls.push { fvarId := x.fvarId! }) (userNames.push Name.anonymous)
+      let var := pVars.get ⟨i, h⟩
+      let type ← mkFreshTypeMVar
+      withLocalDecl var.getId BinderInfo.default type fun x =>
+        loop (i+1) (decls.push { fvarId := x.fvarId! }) (userNames.push Name.anonymous)
     else
       k decls
   loop 0 #[] #[]
@@ -882,7 +881,7 @@ private def generalize (discrs : Array Discr) (matchType : Expr) (altViews : Arr
             if ysUserNames.contains yUserName then
               yUserName ← mkFreshUserName yUserName
             -- Explicitly provided pattern variables shadow `y`
-            else if patternVars.any fun x => x.userName == yUserName then
+            else if patternVars.any fun x => x.getId == yUserName then
               yUserName ← mkFreshUserName yUserName
             return ysUserNames.push yUserName
           let ysIds ← ysUserNames.reverse.mapM fun n => return mkIdentFrom (← getRef) n

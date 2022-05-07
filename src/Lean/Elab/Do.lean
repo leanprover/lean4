@@ -1245,10 +1245,6 @@ def tryCatchPred (tryCode : CodeBlock) (catches : Array Catch) (finallyCode? : O
   | none => false
   | some finallyCode => p finallyCode.code
 
-def mutVarNamesToDefStx (mutVars : Array Syntax) : M (Array Syntax) := do
-  let ctx ← read
-  return mutVars.map fun v => ctx.mutableVars.findD v.getId v
-
 mutual
   /- "Concatenate" `c` with `doSeqToCode doElems` -/
   partial def concatWith (c : CodeBlock) (doElems : List Syntax) : M CodeBlock :=
@@ -1423,6 +1419,11 @@ mutual
       let forElems  := getDoSeqElems doFor[3]
       let forInBodyCodeBlock ← withFor (doSeqToCode forElems)
       let ⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock
+      let ctx ← read
+      -- semantic no-op that replaces the `uvars`' position information (which all point inside the loop)
+      -- with that of the respective mutable declarations outside the loop, which allows the language
+      -- server to identify them as conceptually identical variables
+      let uvars := uvars.map fun v => ctx.mutableVars.findD v.getId v
       let uvarsTuple ← liftMacroM do mkTuple uvars
       if hasReturn forInBodyCodeBlock.code then
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody

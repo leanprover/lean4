@@ -583,16 +583,17 @@ open Lean.Elab.Term.Quotation in
    If `elabBodyFirst == true`, then we use the order `binders`, `typeStx`, `body`, and `valStx`. -/
 def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (valStx : Syntax) (body : Syntax)
     (expectedType? : Option Expr) (useLetExpr : Bool) (elabBodyFirst : Bool) (usedLetOnly : Bool) : TermElabM Expr := do
-  let (type, val, arity) ← elabBinders binders fun xs => do
+  let (type, val, binders) ← elabBindersEx binders fun xs => do
+    let (binders, fvars) := xs.unzip
     let type ← elabType typeStx
     registerCustomErrorIfMVar type typeStx "failed to infer 'let' declaration type"
     if elabBodyFirst then
-      let type ← mkForallFVars xs type
+      let type ← mkForallFVars fvars type
       let val  ← mkFreshExprMVar type
-      pure (type, val, xs.size)
+      pure (type, val, binders)
     else
       let val  ← elabTermEnsuringType valStx type
-      let type ← mkForallFVars xs type
+      let type ← mkForallFVars fvars type
       /- By default `mkLambdaFVars` and `mkLetFVars` create binders only for let-declarations that are actually used
          in the body. This generates counterintuitive behavior in the elaborator since users will not be notified
          about holes such as
@@ -602,8 +603,8 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
             42
          ```
        -/
-      let val  ← mkLambdaFVars xs val (usedLetOnly := false)
-      pure (type, val, xs.size)
+      let val  ← mkLambdaFVars fvars val (usedLetOnly := false)
+      pure (type, val, binders)
   trace[Elab.let.decl] "{id.getId} : {type} := {val}"
   let result ←
     if useLetExpr then
@@ -620,7 +621,10 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
         mkLambdaFVars #[x] body (usedLetOnly := false)
       pure <| mkLetFunAnnotation (mkApp f val)
   if elabBodyFirst then
-    forallBoundedTelescope type arity fun xs type => do
+    forallBoundedTelescope type binders.size fun xs type => do
+      -- the original `fvars` from above are gone, so add back info manually
+      for b in binders, x in xs do
+        addLocalVarInfo b x
       let valResult ← elabTermEnsuringType valStx type
       let valResult ← mkLambdaFVars xs valResult (usedLetOnly := false)
       unless (← isDefEq val valResult) do

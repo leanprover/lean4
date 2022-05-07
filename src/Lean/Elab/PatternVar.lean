@@ -11,12 +11,7 @@ namespace Lean.Elab.Term
 
 open Meta
 
-structure PatternVar where
-  userName : Name
-  deriving BEq
-
-instance : ToString PatternVar where
-  toString x := toString x.userName
+abbrev PatternVar := Syntax  -- TODO: should be `TSyntax identKind`
 
 /-
   Patterns define new local variables.
@@ -111,7 +106,7 @@ private def processVar (idStx : Syntax) : M Syntax := do
     throwError "invalid pattern variable, must be atomic"
   if (← get).found.contains id then
     throwError "invalid pattern, variable '{id}' occurred more than once"
-  modify fun s => { s with vars := s.vars.push { userName := id }, found := s.found.insert id }
+  modify fun s => { s with vars := s.vars.push idStx, found := s.found.insert id }
   return idStx
 
 private def nameToPattern : Name → TermElabM Syntax
@@ -366,6 +361,6 @@ def getPatternsVars (patterns : Array Syntax) : TermElabM (Array PatternVar) := 
   return s.vars
 
 def getPatternVarNames (pvars : Array PatternVar) : Array Name :=
-  pvars.map fun x => x.userName
+  pvars.map fun x => x.getId
 
 end Lean.Elab.Term

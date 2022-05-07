@@ -612,7 +612,7 @@ theorem le_sub_of_add_le {a b c : Nat} (h : a + b ≤ c) : a ≤ c - b := by
 
 theorem add_lt_of_lt_sub {a b c : Nat} (h : a < c - b) : a + b < c := by
   have hle : b ≤ c := by
-    apply Nat.le_of_not_gt
+    apply Nat.ge_of_not_lt
     intro hgt
     apply Nat.not_lt_zero a
     rw [Nat.sub_eq_zero_of_le (Nat.le_of_lt hgt)] at h

@@ -1,3 +1,5 @@
+[Elab.info] command @ ⟨11, 0⟩-⟨11, 31⟩ @ Lean.Elab.Command.elabSetOption
+  [.] (Command.set_option "set_option" `trace.Elab.info) @ ⟨11, 0⟩-⟨11, 26⟩
 [Elab.info] command @ ⟨13, 0⟩-⟨15, 6⟩ @ Lean.Elab.Command.elabDeclaration
   Nat : Type @ ⟨13, 11⟩-⟨13, 14⟩ @ Lean.Elab.Term.elabIdent
     [.] `Nat : some Sort.{?_uniq.395} @ ⟨13, 11⟩-⟨13, 14⟩

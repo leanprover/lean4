@@ -21,7 +21,7 @@ inductive Tree (β : Type v) where
   deriving Repr
 
 /-|
-The function `contains` returns `true` iff the given gree contains the key `k`.
+The function `contains` returns `true` iff the given tree contains the key `k`.
 -/
 def Tree.contains (t : Tree β) (k : Nat) : Bool :=
   match t with

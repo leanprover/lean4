@@ -1,3 +1,5 @@
+[Elab.info] command @ ⟨6, 0⟩-⟨6, 31⟩ @ Lean.Elab.Command.elabSetOption
+  [.] (Command.set_option "set_option" `trace.Elab.info) @ ⟨6, 0⟩-⟨6, 26⟩
 1018unknowMVarIssue.lean:9:18-9:19: error: don't know how to synthesize placeholder
 context:
 α✝ β : Type

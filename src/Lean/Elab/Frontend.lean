@@ -39,11 +39,7 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
 
 def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit := do
   runCommandElabM do
-    let infoTreeEnabled := (← getInfoState).enabled
-    if checkTraceOption (← getOptions) `Elab.info then
-      enableInfoTree
     Command.elabCommandTopLevel stx
-    enableInfoTree infoTreeEnabled
 
 def updateCmdPos : FrontendM Unit := do
   modify fun s => { s with cmdPos := s.parserState.pos }

@@ -260,10 +260,10 @@ syntax (name := dsimp) "dsimp " (config)? (discharger)? (&"only ")? ("[" (simpEr
   This is a low-level tactic, it will expose how recursive definitions have been compiled by Lean. -/
 syntax (name := delta) "delta " ident (location)? : tactic
 /--
-  `unfold id` unfolds definition `id`. For non-recursive definitions, this tactic is identical to `delta`.
+  `unfold id,+` unfolds definition `id`. For non-recursive definitions, this tactic is identical to `delta`.
   For recursive definitions, it hides the encoding tricks used by the Lean frontend to convince the
   kernel that the definition terminates. -/
-syntax (name := unfold) "unfold " ident (location)? : tactic
+syntax (name := unfold) "unfold " ident,+ (location)? : tactic
 
 -- Auxiliary macro for lifting have/suffices/let/...
 -- It makes sure the "continuation" `?_` is the main goal after refining

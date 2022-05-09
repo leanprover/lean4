@@ -21,11 +21,8 @@ def unfoldTarget (declName : Name) : TacticM Unit := do
 -/
 @[builtinTactic Lean.Parser.Tactic.unfold] def evalUnfold : Tactic := fun stx => do
   let loc := expandOptLocation stx[2]
-  if stx[1].isIdent then
-    go stx[1] loc
-  else
-    for declNameId in stx[1].getSepArgs do
-      go declNameId loc
+  for declNameId in stx[1].getSepArgs do
+    go declNameId loc
 where
   go (declNameId : Syntax) (loc : Location) : TacticM Unit := do
     let declName ← resolveGlobalConstNoOverload declNameId

@@ -1,2 +1,2 @@
-⊢ Function.comp id
-⊢ fun g x => g x
+| Function.comp id
+| fun g x => g x

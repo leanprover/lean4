@@ -7,38 +7,38 @@ x y : Nat
 x y : Nat
 ⊢ f x (Nat.add x y) y = y + x
 x y : Nat
-⊢ x + y
+| x + y
 case h.h
 a b : Nat
-⊢ 0 + a + b
+| 0 + a + b
 a b : Nat
-⊢ a + b
+| a + b
 case h.h
 a b : Nat
-⊢ 0 + a + b
+| 0 + a + b
 case h
 p : Nat → Prop
 h : ∀ (a : Nat), p a
 x : Nat
-⊢ p (id (0 + x))
+| p (id (0 + x))
 p : Nat → Prop
 h : ∀ (a : Nat), p a
 x : Nat
-⊢ id (0 + x)
+| id (0 + x)
 p : Nat → Prop
 h : ∀ (a : Nat), p a
 x : Nat
-⊢ 0 + x
+| 0 + x
 case h₁
 p : Prop
 x : Nat
-⊢ x = x → p
+| x = x → p
 p : Prop
 x : Nat
 ⊢ (True → p) → p
 case h
 x : Nat
-⊢ 0 + x
+| 0 + x
 p : Prop
 x : Nat
 ⊢ (True → p) → p
@@ -56,7 +56,7 @@ h₂ : ∀ (x y : Nat), f (g x) (g y) = y
 ⊢ f (g y) (f (g x) (g x)) = x
 x y : Nat
 h : y = 0
-⊢ y + x
+| y + x
 conv1.lean:139:10-139:13: error: invalid 'lhs' conv tactic, application has only 1 (nondependent) argument(s)
 conv1.lean:142:10-142:15: error: invalid 'arg' conv tactic, application has only 1 (nondependent) argument(s)
 conv1.lean:145:10-145:13: error: invalid 'congr' conv tactic, application or implication expected
@@ -65,4 +65,4 @@ p : Nat → Prop
 x y : Nat
 h1 : y = 0
 h2 : p x
-⊢ y + x
+| y + x

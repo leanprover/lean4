@@ -162,6 +162,13 @@ end ToHide
 private def addLine (fmt : Format) : Format :=
   if fmt.isNil then fmt else fmt ++ Format.line
 
+def getGoalPrefix (mvarDecl : MetavarDecl) : String :=
+  if isLHSGoal? mvarDecl.type |>.isSome then
+    -- use special prefix for `conv` goals
+    "| "
+  else
+    "⊢ "
+
 def ppGoal (mvarId : MVarId) : MetaM Format := do
   match (← getMCtx).findDecl? mvarId with
   | none          => return "unknown goal"
@@ -220,7 +227,7 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
       let fmt ← pushPending varNames type? fmt
       let fmt := addLine fmt
       let typeFmt ← ppExpr (← instantiateMVars mvarDecl.type)
-      let fmt := fmt ++ "⊢ " ++ Format.nest indent typeFmt
+      let fmt := fmt ++ getGoalPrefix mvarDecl ++ Format.nest indent typeFmt
       match mvarDecl.userName with
       | Name.anonymous => return fmt
       | name           => return "case " ++ format name.eraseMacroScopes ++ Format.line ++ fmt

@@ -315,7 +315,7 @@ syntax (name := constructor) "constructor" : tactic
 `case tag x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with inaccessible names to the given names. -/
 syntax (name := case) "case " (ident <|> "_") (ident <|> "_")* " => " tacticSeq : tactic
 /--
-Similar to the `case tag => tac` tactic, but `cases'` does not ensures the goal has been solved after applying `tac`, nor
+`case'` is similar to the `case tag => tac` tactic, but does not ensure the goal has been solved after applying `tac`, nor
 admits the goal if `tac` failed. Recall that `case` closes the goal using `sorry` when `tac` fails, and
 the tactic execution is not interrupted.
 -/
@@ -326,9 +326,9 @@ syntax (name := case') "case' " (ident <|> "_") (ident <|> "_")* " => " tacticSe
 `next x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with inaccessible names to the given names. -/
 macro "next " args:(ident <|> "_")* " => " tac:tacticSeq : tactic => `(tactic| case _ $args* => $tac)
 
-/-- `allGoals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
+/-- `all_goals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
 syntax (name := allGoals) "all_goals " tacticSeq : tactic
-/-- `anyGoals tac` applies the tactic `tac` to every goal, and succeeds if at least one application succeeds.  -/
+/-- `any_goals tac` applies the tactic `tac` to every goal, and succeeds if at least one application succeeds.  -/
 syntax (name := anyGoals) "any_goals " tacticSeq : tactic
 /--
 `focus tac` focuses on the main goal, suppressing all other goals, and runs `tac` on it.
@@ -338,11 +338,11 @@ syntax (name := focus) "focus " tacticSeq : tactic
 syntax (name := skip) "skip" : tactic
 /-- `done` succeeds iff there are no remaining goals. -/
 syntax (name := done) "done" : tactic
-/-- This tactic displays the current state in the info view. -/
+/-- `trace_state` displays the current state in the info view. -/
 syntax (name := traceState) "trace_state" : tactic
 /-- `trace msg` displays `msg` in the info view. -/
 syntax (name := traceMessage) "trace " str : tactic
-/-- Fails if the given tactic succeeds. -/
+/-- `fail_if_success t` fails if the tactic `t` succeeds. -/
 syntax (name := failIfSuccess) "fail_if_success " tacticSeq : tactic
 syntax (name := paren) "(" tacticSeq ")" : tactic
 syntax (name := withReducible) "with_reducible " tacticSeq : tactic
@@ -362,18 +362,18 @@ macro:1 x:tactic tk:" <;> " y:tactic:0 : tactic => `(tactic|
     with_annotate_state $tk skip
     all_goals $y:tactic)
 
-/-- `eq_refl` is equivalent to `exact rfl`, but has a few optimizatons. -/
+/-- `eq_refl` is equivalent to `exact rfl`, but has a few optimizations. -/
 syntax (name := refl) "eq_refl" : tactic
 
 /--
-This tactic tries to close the current goal using reflexivity.
+`rfl` tries to close the current goal using reflexivity.
 This is supposed to be an extensible tactic and users can add their own support
-to new reflexive relations.
+for new reflexive relations.
 -/
 macro "rfl" : tactic => `(eq_refl)
 
 /--
-  Similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,
+  `rfl'` is similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,
   theorems included (relevant for declarations defined by well-founded recursion). -/
 macro "rfl'" : tactic => `(set_option smartUnfolding false in with_unfolding_all rfl)
 
@@ -409,7 +409,7 @@ If `e` is a defined constant, then the equational theorems associated with `e` a
 syntax (name := rewriteSeq) "rewrite " (config)? rwRuleSeq (location)? : tactic
 
 /--
-An abbreviation for `rewrite`.
+`rw` is like `rewrite`, but also tries to close the goal by "cheap" (reducible) `rfl` afterwards.
 -/
 syntax (name := rwSeq) "rw " (config)? rwRuleSeq (location)? : tactic
 
@@ -458,7 +458,7 @@ The `simp` tactic uses lemmas and hypotheses to simplify the main goal target or
 -/
 syntax (name := simp) "simp " (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 /--
-A stronger version of `simp [*] at *` where the hypotheses and target are simplified
+`simp_all` is a stronger version of `simp [*] at *` where the hypotheses and target are simplified
 multiple times until no simplication is applicable.
 Only non-dependent propositional hypotheses are considered.
 -/
@@ -471,11 +471,11 @@ reflexivity. Thus, the result is guaranteed to be definitionally equal to the in
 syntax (name := dsimp) "dsimp " (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? (location)? : tactic
 
 /--
-  Delta expand the given definition.
+  `delta id` delta-expands the definition `id`.
   This is a low-level tactic, it will expose how recursive definitions have been compiled by Lean. -/
 syntax (name := delta) "delta " ident (location)? : tactic
 /--
-  Unfold definition. For non-recursive definitions, this tactic is identical to `delta`.
+  `unfold id` unfolds definition `id`. For non-recursive definitions, this tactic is identical to `delta`.
   For recursive definitions, it hides the encoding tricks used by the Lean frontend to convince the
   kernel that the definition terminates. -/
 syntax (name := unfold) "unfold " ident (location)? : tactic
@@ -576,7 +576,7 @@ macro_rules
   | `(tactic| repeat $seq) => `(tactic| first | ($seq); repeat $seq | skip)
 
 /--
-Tries different simple tactics (e.g., `rfl`, `contradiction`, ...) to close the current goal.
+`trivial` tries different simple tactics (e.g., `rfl`, `contradiction`, ...) to close the current goal.
 You can use the command `macro_rules` to extend the set of tactics used. Example:
 ```
 macro_rules | `(tactic| trivial) => `(tactic| simp)
@@ -592,7 +592,7 @@ syntax (name := split) "split " (colGt term)? (location)? : tactic
 
 syntax (name := dbgTrace) "dbg_trace " str : tactic
 
-/-- Helper tactic for "discarding" the rest of a proof. It is useful when working on the middle of a complex proofs,
+/-- `stop` is a helper tactic for "discarding" the rest of a proof. It is useful when working on the middle of a complex proofs,
     and less messy than commenting the remainder of the proof. -/
 macro "stop" s:tacticSeq : tactic => `(repeat sorry)
 

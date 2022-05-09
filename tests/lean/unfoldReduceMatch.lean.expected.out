@@ -1,0 +1,3 @@
+unfoldReduceMatch.lean:5:2-5:7: warning: declaration uses 'sorry'
+n : Nat
+⊢ Nat.succ (Nat.add Nat.zero n) = Nat.succ n

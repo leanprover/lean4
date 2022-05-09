@@ -659,7 +659,6 @@ private def preprocessOutParam (type : Expr) : MetaM Expr :=
 def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) do
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
-  let inputConfig ← getConfig
   /-
     We disable eta for structures that are not classes during TC resolution because it allows us to find unintended solutions.
     See discussion at
@@ -686,7 +685,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
           let (_, _, result) ← openAbstractMVarsResult result
           trace[Meta.synthInstance] "result {result}"
           let resultType ← inferType result
-          if (← withConfig (fun _ => inputConfig) <| isDefEq type resultType) then
+          if (← withDefault <| isDefEq type resultType) then
             let result ← instantiateMVars result
             /- We use `check` to propogate universe constraints implied by the `result`.
                Recall that we use `ignoreLevelMVarDepth := true` which allows universe metavariables in the current depth to be assigned,

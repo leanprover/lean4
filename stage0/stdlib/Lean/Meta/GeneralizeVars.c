@@ -7955,8 +7955,8 @@ else
 {
 lean_object* x_70; lean_object* x_71; lean_object* x_72; uint8_t x_73; 
 x_70 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
-lean_inc(x_50);
-x_71 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__1___at_Lean_Meta_getFVarSetToGeneralize___spec__9(x_50, x_54, x_64, x_70);
+lean_inc(x_51);
+x_71 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__1___at_Lean_Meta_getFVarSetToGeneralize___spec__9(x_51, x_54, x_64, x_70);
 x_72 = lean_ctor_get(x_71, 0);
 lean_inc(x_72);
 lean_dec(x_71);
@@ -7991,8 +7991,8 @@ else
 {
 lean_object* x_78; lean_object* x_79; lean_object* x_80; uint8_t x_81; 
 x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
-lean_inc(x_50);
-x_79 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__12___at_Lean_Meta_getFVarSetToGeneralize___spec__20(x_50, x_54, x_64, x_78);
+lean_inc(x_51);
+x_79 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__12___at_Lean_Meta_getFVarSetToGeneralize___spec__20(x_51, x_54, x_64, x_78);
 x_80 = lean_ctor_get(x_79, 0);
 lean_inc(x_80);
 lean_dec(x_79);
@@ -8051,8 +8051,8 @@ else
 lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; uint8_t x_119; 
 x_115 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
 lean_inc(x_54);
-lean_inc(x_50);
-x_116 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__39___at_Lean_Meta_getFVarSetToGeneralize___spec__47(x_50, x_54, x_86, x_115);
+lean_inc(x_51);
+x_116 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__39___at_Lean_Meta_getFVarSetToGeneralize___spec__47(x_51, x_54, x_86, x_115);
 x_117 = lean_ctor_get(x_116, 0);
 lean_inc(x_117);
 x_118 = lean_ctor_get(x_116, 1);
@@ -8070,8 +8070,8 @@ else
 lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; uint8_t x_124; 
 x_120 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
 lean_inc(x_54);
-lean_inc(x_50);
-x_121 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__50___at_Lean_Meta_getFVarSetToGeneralize___spec__58(x_50, x_54, x_86, x_120);
+lean_inc(x_51);
+x_121 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__50___at_Lean_Meta_getFVarSetToGeneralize___spec__58(x_51, x_54, x_86, x_120);
 x_122 = lean_ctor_get(x_121, 0);
 lean_inc(x_122);
 x_123 = lean_ctor_get(x_121, 1);
@@ -8115,9 +8115,9 @@ goto block_46;
 else
 {
 lean_object* x_95; lean_object* x_96; uint8_t x_97; 
-lean_inc(x_50);
+lean_inc(x_51);
 lean_inc(x_3);
-x_95 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__23(x_3, x_50, x_54, x_87, x_89);
+x_95 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__23(x_3, x_51, x_54, x_87, x_89);
 x_96 = lean_ctor_get(x_95, 0);
 lean_inc(x_96);
 lean_dec(x_95);
@@ -8151,9 +8151,9 @@ goto block_63;
 else
 {
 lean_object* x_102; lean_object* x_103; uint8_t x_104; 
-lean_inc(x_50);
+lean_inc(x_51);
 lean_inc(x_3);
-x_102 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__31(x_3, x_50, x_54, x_87, x_89);
+x_102 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__31(x_3, x_51, x_54, x_87, x_89);
 x_103 = lean_ctor_get(x_102, 0);
 lean_inc(x_103);
 lean_dec(x_102);
@@ -8202,15 +8202,15 @@ lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean
 lean_dec(x_56);
 x_57 = lean_box(0);
 lean_inc(x_53);
-x_58 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_51, x_53, x_57);
-x_59 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_50, x_53, x_57);
+x_58 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_50, x_53, x_57);
+x_59 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_51, x_53, x_57);
 if (lean_is_scalar(x_52)) {
  x_60 = lean_alloc_ctor(0, 2, 0);
 } else {
  x_60 = x_52;
 }
-lean_ctor_set(x_60, 0, x_59);
-lean_ctor_set(x_60, 1, x_58);
+lean_ctor_set(x_60, 0, x_58);
+lean_ctor_set(x_60, 1, x_59);
 x_61 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_61, 0, x_60);
 x_62 = lean_alloc_ctor(0, 2, 0);
@@ -8707,8 +8707,8 @@ else
 {
 lean_object* x_70; lean_object* x_71; lean_object* x_72; uint8_t x_73; 
 x_70 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
-lean_inc(x_50);
-x_71 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__1___at_Lean_Meta_getFVarSetToGeneralize___spec__9(x_50, x_54, x_64, x_70);
+lean_inc(x_51);
+x_71 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__1___at_Lean_Meta_getFVarSetToGeneralize___spec__9(x_51, x_54, x_64, x_70);
 x_72 = lean_ctor_get(x_71, 0);
 lean_inc(x_72);
 lean_dec(x_71);
@@ -8743,8 +8743,8 @@ else
 {
 lean_object* x_78; lean_object* x_79; lean_object* x_80; uint8_t x_81; 
 x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
-lean_inc(x_50);
-x_79 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__12___at_Lean_Meta_getFVarSetToGeneralize___spec__20(x_50, x_54, x_64, x_78);
+lean_inc(x_51);
+x_79 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__12___at_Lean_Meta_getFVarSetToGeneralize___spec__20(x_51, x_54, x_64, x_78);
 x_80 = lean_ctor_get(x_79, 0);
 lean_inc(x_80);
 lean_dec(x_79);
@@ -8803,8 +8803,8 @@ else
 lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; uint8_t x_119; 
 x_115 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
 lean_inc(x_54);
-lean_inc(x_50);
-x_116 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__39___at_Lean_Meta_getFVarSetToGeneralize___spec__47(x_50, x_54, x_86, x_115);
+lean_inc(x_51);
+x_116 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__39___at_Lean_Meta_getFVarSetToGeneralize___spec__47(x_51, x_54, x_86, x_115);
 x_117 = lean_ctor_get(x_116, 0);
 lean_inc(x_117);
 x_118 = lean_ctor_get(x_116, 1);
@@ -8822,8 +8822,8 @@ else
 lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; uint8_t x_124; 
 x_120 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
 lean_inc(x_54);
-lean_inc(x_50);
-x_121 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__50___at_Lean_Meta_getFVarSetToGeneralize___spec__58(x_50, x_54, x_86, x_120);
+lean_inc(x_51);
+x_121 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__50___at_Lean_Meta_getFVarSetToGeneralize___spec__58(x_51, x_54, x_86, x_120);
 x_122 = lean_ctor_get(x_121, 0);
 lean_inc(x_122);
 x_123 = lean_ctor_get(x_121, 1);
@@ -8867,9 +8867,9 @@ goto block_46;
 else
 {
 lean_object* x_95; lean_object* x_96; uint8_t x_97; 
-lean_inc(x_50);
+lean_inc(x_51);
 lean_inc(x_3);
-x_95 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__23(x_3, x_50, x_54, x_87, x_89);
+x_95 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__23(x_3, x_51, x_54, x_87, x_89);
 x_96 = lean_ctor_get(x_95, 0);
 lean_inc(x_96);
 lean_dec(x_95);
@@ -8903,9 +8903,9 @@ goto block_63;
 else
 {
 lean_object* x_102; lean_object* x_103; uint8_t x_104; 
-lean_inc(x_50);
+lean_inc(x_51);
 lean_inc(x_3);
-x_102 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__31(x_3, x_50, x_54, x_87, x_89);
+x_102 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__31(x_3, x_51, x_54, x_87, x_89);
 x_103 = lean_ctor_get(x_102, 0);
 lean_inc(x_103);
 lean_dec(x_102);
@@ -8954,15 +8954,15 @@ lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean
 lean_dec(x_56);
 x_57 = lean_box(0);
 lean_inc(x_53);
-x_58 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_51, x_53, x_57);
-x_59 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_50, x_53, x_57);
+x_58 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_50, x_53, x_57);
+x_59 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_51, x_53, x_57);
 if (lean_is_scalar(x_52)) {
  x_60 = lean_alloc_ctor(0, 2, 0);
 } else {
  x_60 = x_52;
 }
-lean_ctor_set(x_60, 0, x_59);
-lean_ctor_set(x_60, 1, x_58);
+lean_ctor_set(x_60, 0, x_58);
+lean_ctor_set(x_60, 1, x_59);
 x_61 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_61, 0, x_60);
 x_62 = lean_alloc_ctor(0, 2, 0);
@@ -9617,8 +9617,8 @@ else
 {
 lean_object* x_70; lean_object* x_71; lean_object* x_72; uint8_t x_73; 
 x_70 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
-lean_inc(x_50);
-x_71 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__1___at_Lean_Meta_getFVarSetToGeneralize___spec__9(x_50, x_54, x_64, x_70);
+lean_inc(x_51);
+x_71 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__1___at_Lean_Meta_getFVarSetToGeneralize___spec__9(x_51, x_54, x_64, x_70);
 x_72 = lean_ctor_get(x_71, 0);
 lean_inc(x_72);
 lean_dec(x_71);
@@ -9653,8 +9653,8 @@ else
 {
 lean_object* x_78; lean_object* x_79; lean_object* x_80; uint8_t x_81; 
 x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
-lean_inc(x_50);
-x_79 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__12___at_Lean_Meta_getFVarSetToGeneralize___spec__20(x_50, x_54, x_64, x_78);
+lean_inc(x_51);
+x_79 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__12___at_Lean_Meta_getFVarSetToGeneralize___spec__20(x_51, x_54, x_64, x_78);
 x_80 = lean_ctor_get(x_79, 0);
 lean_inc(x_80);
 lean_dec(x_79);
@@ -9713,8 +9713,8 @@ else
 lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; uint8_t x_119; 
 x_115 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
 lean_inc(x_54);
-lean_inc(x_50);
-x_116 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__39___at_Lean_Meta_getFVarSetToGeneralize___spec__47(x_50, x_54, x_86, x_115);
+lean_inc(x_51);
+x_116 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__39___at_Lean_Meta_getFVarSetToGeneralize___spec__47(x_51, x_54, x_86, x_115);
 x_117 = lean_ctor_get(x_116, 0);
 lean_inc(x_117);
 x_118 = lean_ctor_get(x_116, 1);
@@ -9732,8 +9732,8 @@ else
 lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; uint8_t x_124; 
 x_120 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
 lean_inc(x_54);
-lean_inc(x_50);
-x_121 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__50___at_Lean_Meta_getFVarSetToGeneralize___spec__58(x_50, x_54, x_86, x_120);
+lean_inc(x_51);
+x_121 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__50___at_Lean_Meta_getFVarSetToGeneralize___spec__58(x_51, x_54, x_86, x_120);
 x_122 = lean_ctor_get(x_121, 0);
 lean_inc(x_122);
 x_123 = lean_ctor_get(x_121, 1);
@@ -9777,9 +9777,9 @@ goto block_46;
 else
 {
 lean_object* x_95; lean_object* x_96; uint8_t x_97; 
-lean_inc(x_50);
+lean_inc(x_51);
 lean_inc(x_3);
-x_95 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__23(x_3, x_50, x_54, x_87, x_89);
+x_95 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__23(x_3, x_51, x_54, x_87, x_89);
 x_96 = lean_ctor_get(x_95, 0);
 lean_inc(x_96);
 lean_dec(x_95);
@@ -9813,9 +9813,9 @@ goto block_63;
 else
 {
 lean_object* x_102; lean_object* x_103; uint8_t x_104; 
-lean_inc(x_50);
+lean_inc(x_51);
 lean_inc(x_3);
-x_102 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__31(x_3, x_50, x_54, x_87, x_89);
+x_102 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__31(x_3, x_51, x_54, x_87, x_89);
 x_103 = lean_ctor_get(x_102, 0);
 lean_inc(x_103);
 lean_dec(x_102);
@@ -9864,15 +9864,15 @@ lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean
 lean_dec(x_56);
 x_57 = lean_box(0);
 lean_inc(x_53);
-x_58 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_51, x_53, x_57);
-x_59 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_50, x_53, x_57);
+x_58 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_50, x_53, x_57);
+x_59 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_51, x_53, x_57);
 if (lean_is_scalar(x_52)) {
  x_60 = lean_alloc_ctor(0, 2, 0);
 } else {
  x_60 = x_52;
 }
-lean_ctor_set(x_60, 0, x_59);
-lean_ctor_set(x_60, 1, x_58);
+lean_ctor_set(x_60, 0, x_58);
+lean_ctor_set(x_60, 1, x_59);
 x_61 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_61, 0, x_60);
 x_62 = lean_alloc_ctor(0, 2, 0);
@@ -10357,8 +10357,8 @@ else
 {
 lean_object* x_70; lean_object* x_71; lean_object* x_72; uint8_t x_73; 
 x_70 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
-lean_inc(x_50);
-x_71 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__1___at_Lean_Meta_getFVarSetToGeneralize___spec__9(x_50, x_54, x_64, x_70);
+lean_inc(x_51);
+x_71 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__1___at_Lean_Meta_getFVarSetToGeneralize___spec__9(x_51, x_54, x_64, x_70);
 x_72 = lean_ctor_get(x_71, 0);
 lean_inc(x_72);
 lean_dec(x_71);
@@ -10393,8 +10393,8 @@ else
 {
 lean_object* x_78; lean_object* x_79; lean_object* x_80; uint8_t x_81; 
 x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
-lean_inc(x_50);
-x_79 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__12___at_Lean_Meta_getFVarSetToGeneralize___spec__20(x_50, x_54, x_64, x_78);
+lean_inc(x_51);
+x_79 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__12___at_Lean_Meta_getFVarSetToGeneralize___spec__20(x_51, x_54, x_64, x_78);
 x_80 = lean_ctor_get(x_79, 0);
 lean_inc(x_80);
 lean_dec(x_79);
@@ -10453,8 +10453,8 @@ else
 lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; uint8_t x_119; 
 x_115 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
 lean_inc(x_54);
-lean_inc(x_50);
-x_116 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__39___at_Lean_Meta_getFVarSetToGeneralize___spec__47(x_50, x_54, x_86, x_115);
+lean_inc(x_51);
+x_116 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__39___at_Lean_Meta_getFVarSetToGeneralize___spec__47(x_51, x_54, x_86, x_115);
 x_117 = lean_ctor_get(x_116, 0);
 lean_inc(x_117);
 x_118 = lean_ctor_get(x_116, 1);
@@ -10472,8 +10472,8 @@ else
 lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; uint8_t x_124; 
 x_120 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
 lean_inc(x_54);
-lean_inc(x_50);
-x_121 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__50___at_Lean_Meta_getFVarSetToGeneralize___spec__58(x_50, x_54, x_86, x_120);
+lean_inc(x_51);
+x_121 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__50___at_Lean_Meta_getFVarSetToGeneralize___spec__58(x_51, x_54, x_86, x_120);
 x_122 = lean_ctor_get(x_121, 0);
 lean_inc(x_122);
 x_123 = lean_ctor_get(x_121, 1);
@@ -10517,9 +10517,9 @@ goto block_46;
 else
 {
 lean_object* x_95; lean_object* x_96; uint8_t x_97; 
-lean_inc(x_50);
+lean_inc(x_51);
 lean_inc(x_3);
-x_95 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__23(x_3, x_50, x_54, x_87, x_89);
+x_95 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__23(x_3, x_51, x_54, x_87, x_89);
 x_96 = lean_ctor_get(x_95, 0);
 lean_inc(x_96);
 lean_dec(x_95);
@@ -10553,9 +10553,9 @@ goto block_63;
 else
 {
 lean_object* x_102; lean_object* x_103; uint8_t x_104; 
-lean_inc(x_50);
+lean_inc(x_51);
 lean_inc(x_3);
-x_102 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__31(x_3, x_50, x_54, x_87, x_89);
+x_102 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__31(x_3, x_51, x_54, x_87, x_89);
 x_103 = lean_ctor_get(x_102, 0);
 lean_inc(x_103);
 lean_dec(x_102);
@@ -10604,15 +10604,15 @@ lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean
 lean_dec(x_56);
 x_57 = lean_box(0);
 lean_inc(x_53);
-x_58 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_51, x_53, x_57);
-x_59 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_50, x_53, x_57);
+x_58 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_50, x_53, x_57);
+x_59 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_51, x_53, x_57);
 if (lean_is_scalar(x_52)) {
  x_60 = lean_alloc_ctor(0, 2, 0);
 } else {
  x_60 = x_52;
 }
-lean_ctor_set(x_60, 0, x_59);
-lean_ctor_set(x_60, 1, x_58);
+lean_ctor_set(x_60, 0, x_58);
+lean_ctor_set(x_60, 1, x_59);
 x_61 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_61, 0, x_60);
 x_62 = lean_alloc_ctor(0, 2, 0);
@@ -11292,8 +11292,8 @@ else
 {
 lean_object* x_70; lean_object* x_71; lean_object* x_72; uint8_t x_73; 
 x_70 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
-lean_inc(x_50);
-x_71 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__1___at_Lean_Meta_getFVarSetToGeneralize___spec__9(x_50, x_54, x_64, x_70);
+lean_inc(x_51);
+x_71 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__1___at_Lean_Meta_getFVarSetToGeneralize___spec__9(x_51, x_54, x_64, x_70);
 x_72 = lean_ctor_get(x_71, 0);
 lean_inc(x_72);
 lean_dec(x_71);
@@ -11328,8 +11328,8 @@ else
 {
 lean_object* x_78; lean_object* x_79; lean_object* x_80; uint8_t x_81; 
 x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
-lean_inc(x_50);
-x_79 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__12___at_Lean_Meta_getFVarSetToGeneralize___spec__20(x_50, x_54, x_64, x_78);
+lean_inc(x_51);
+x_79 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__12___at_Lean_Meta_getFVarSetToGeneralize___spec__20(x_51, x_54, x_64, x_78);
 x_80 = lean_ctor_get(x_79, 0);
 lean_inc(x_80);
 lean_dec(x_79);
@@ -11388,8 +11388,8 @@ else
 lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; uint8_t x_119; 
 x_115 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
 lean_inc(x_54);
-lean_inc(x_50);
-x_116 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__39___at_Lean_Meta_getFVarSetToGeneralize___spec__47(x_50, x_54, x_86, x_115);
+lean_inc(x_51);
+x_116 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__39___at_Lean_Meta_getFVarSetToGeneralize___spec__47(x_51, x_54, x_86, x_115);
 x_117 = lean_ctor_get(x_116, 0);
 lean_inc(x_117);
 x_118 = lean_ctor_get(x_116, 1);
@@ -11407,8 +11407,8 @@ else
 lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; uint8_t x_124; 
 x_120 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
 lean_inc(x_54);
-lean_inc(x_50);
-x_121 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__50___at_Lean_Meta_getFVarSetToGeneralize___spec__58(x_50, x_54, x_86, x_120);
+lean_inc(x_51);
+x_121 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__50___at_Lean_Meta_getFVarSetToGeneralize___spec__58(x_51, x_54, x_86, x_120);
 x_122 = lean_ctor_get(x_121, 0);
 lean_inc(x_122);
 x_123 = lean_ctor_get(x_121, 1);
@@ -11452,9 +11452,9 @@ goto block_46;
 else
 {
 lean_object* x_95; lean_object* x_96; uint8_t x_97; 
-lean_inc(x_50);
+lean_inc(x_51);
 lean_inc(x_3);
-x_95 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__23(x_3, x_50, x_54, x_87, x_89);
+x_95 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__23(x_3, x_51, x_54, x_87, x_89);
 x_96 = lean_ctor_get(x_95, 0);
 lean_inc(x_96);
 lean_dec(x_95);
@@ -11488,9 +11488,9 @@ goto block_63;
 else
 {
 lean_object* x_102; lean_object* x_103; uint8_t x_104; 
-lean_inc(x_50);
+lean_inc(x_51);
 lean_inc(x_3);
-x_102 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__31(x_3, x_50, x_54, x_87, x_89);
+x_102 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__31(x_3, x_51, x_54, x_87, x_89);
 x_103 = lean_ctor_get(x_102, 0);
 lean_inc(x_103);
 lean_dec(x_102);
@@ -11539,15 +11539,15 @@ lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean
 lean_dec(x_56);
 x_57 = lean_box(0);
 lean_inc(x_53);
-x_58 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_51, x_53, x_57);
-x_59 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_50, x_53, x_57);
+x_58 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_50, x_53, x_57);
+x_59 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_51, x_53, x_57);
 if (lean_is_scalar(x_52)) {
  x_60 = lean_alloc_ctor(0, 2, 0);
 } else {
  x_60 = x_52;
 }
-lean_ctor_set(x_60, 0, x_59);
-lean_ctor_set(x_60, 1, x_58);
+lean_ctor_set(x_60, 0, x_58);
+lean_ctor_set(x_60, 1, x_59);
 x_61 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_61, 0, x_60);
 x_62 = lean_alloc_ctor(0, 2, 0);
@@ -12032,8 +12032,8 @@ else
 {
 lean_object* x_70; lean_object* x_71; lean_object* x_72; uint8_t x_73; 
 x_70 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
-lean_inc(x_50);
-x_71 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__1___at_Lean_Meta_getFVarSetToGeneralize___spec__9(x_50, x_54, x_64, x_70);
+lean_inc(x_51);
+x_71 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__1___at_Lean_Meta_getFVarSetToGeneralize___spec__9(x_51, x_54, x_64, x_70);
 x_72 = lean_ctor_get(x_71, 0);
 lean_inc(x_72);
 lean_dec(x_71);
@@ -12068,8 +12068,8 @@ else
 {
 lean_object* x_78; lean_object* x_79; lean_object* x_80; uint8_t x_81; 
 x_78 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
-lean_inc(x_50);
-x_79 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__12___at_Lean_Meta_getFVarSetToGeneralize___spec__20(x_50, x_54, x_64, x_78);
+lean_inc(x_51);
+x_79 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__12___at_Lean_Meta_getFVarSetToGeneralize___spec__20(x_51, x_54, x_64, x_78);
 x_80 = lean_ctor_get(x_79, 0);
 lean_inc(x_80);
 lean_dec(x_79);
@@ -12128,8 +12128,8 @@ else
 lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; uint8_t x_119; 
 x_115 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
 lean_inc(x_54);
-lean_inc(x_50);
-x_116 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__39___at_Lean_Meta_getFVarSetToGeneralize___spec__47(x_50, x_54, x_86, x_115);
+lean_inc(x_51);
+x_116 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__39___at_Lean_Meta_getFVarSetToGeneralize___spec__47(x_51, x_54, x_86, x_115);
 x_117 = lean_ctor_get(x_116, 0);
 lean_inc(x_117);
 x_118 = lean_ctor_get(x_116, 1);
@@ -12147,8 +12147,8 @@ else
 lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; uint8_t x_124; 
 x_120 = l_Lean_Meta_mkGeneralizationForbiddenSet_visit___closed__1;
 lean_inc(x_54);
-lean_inc(x_50);
-x_121 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__50___at_Lean_Meta_getFVarSetToGeneralize___spec__58(x_50, x_54, x_86, x_120);
+lean_inc(x_51);
+x_121 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__50___at_Lean_Meta_getFVarSetToGeneralize___spec__58(x_51, x_54, x_86, x_120);
 x_122 = lean_ctor_get(x_121, 0);
 lean_inc(x_122);
 x_123 = lean_ctor_get(x_121, 1);
@@ -12192,9 +12192,9 @@ goto block_46;
 else
 {
 lean_object* x_95; lean_object* x_96; uint8_t x_97; 
-lean_inc(x_50);
+lean_inc(x_51);
 lean_inc(x_3);
-x_95 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__23(x_3, x_50, x_54, x_87, x_89);
+x_95 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__23(x_3, x_51, x_54, x_87, x_89);
 x_96 = lean_ctor_get(x_95, 0);
 lean_inc(x_96);
 lean_dec(x_95);
@@ -12228,9 +12228,9 @@ goto block_63;
 else
 {
 lean_object* x_102; lean_object* x_103; uint8_t x_104; 
-lean_inc(x_50);
+lean_inc(x_51);
 lean_inc(x_3);
-x_102 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__31(x_3, x_50, x_54, x_87, x_89);
+x_102 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visit___at_Lean_Meta_getFVarSetToGeneralize___spec__31(x_3, x_51, x_54, x_87, x_89);
 x_103 = lean_ctor_get(x_102, 0);
 lean_inc(x_103);
 lean_dec(x_102);
@@ -12279,15 +12279,15 @@ lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean
 lean_dec(x_56);
 x_57 = lean_box(0);
 lean_inc(x_53);
-x_58 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_51, x_53, x_57);
-x_59 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_50, x_53, x_57);
+x_58 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_50, x_53, x_57);
+x_59 = l_Std_RBNode_insert___at_Lean_CollectFVars_main___spec__1(x_51, x_53, x_57);
 if (lean_is_scalar(x_52)) {
  x_60 = lean_alloc_ctor(0, 2, 0);
 } else {
  x_60 = x_52;
 }
-lean_ctor_set(x_60, 0, x_59);
-lean_ctor_set(x_60, 1, x_58);
+lean_ctor_set(x_60, 0, x_58);
+lean_ctor_set(x_60, 1, x_59);
 x_61 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_61, 0, x_60);
 x_62 = lean_alloc_ctor(0, 2, 0);
@@ -12582,7 +12582,7 @@ if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; 
 x_19 = lean_ctor_get(x_17, 0);
-x_20 = lean_ctor_get(x_19, 1);
+x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);
 lean_dec(x_19);
 lean_ctor_set(x_17, 0, x_20);
@@ -12596,7 +12596,7 @@ x_22 = lean_ctor_get(x_17, 1);
 lean_inc(x_22);
 lean_inc(x_21);
 lean_dec(x_17);
-x_23 = lean_ctor_get(x_21, 1);
+x_23 = lean_ctor_get(x_21, 0);
 lean_inc(x_23);
 lean_dec(x_21);
 x_24 = lean_alloc_ctor(0, 2, 0);
@@ -12627,7 +12627,7 @@ if (x_31 == 0)
 {
 lean_object* x_32; lean_object* x_33; 
 x_32 = lean_ctor_get(x_30, 0);
-x_33 = lean_ctor_get(x_32, 1);
+x_33 = lean_ctor_get(x_32, 0);
 lean_inc(x_33);
 lean_dec(x_32);
 lean_ctor_set(x_30, 0, x_33);
@@ -12641,7 +12641,7 @@ x_35 = lean_ctor_get(x_30, 1);
 lean_inc(x_35);
 lean_inc(x_34);
 lean_dec(x_30);
-x_36 = lean_ctor_get(x_34, 1);
+x_36 = lean_ctor_get(x_34, 0);
 lean_inc(x_36);
 lean_dec(x_34);
 x_37 = lean_alloc_ctor(0, 2, 0);
@@ -12658,8 +12658,8 @@ x_39 = lean_usize_of_nat(x_10);
 lean_dec(x_10);
 x_40 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_getFVarSetToGeneralize___spec__71(x_1, x_38, x_39, x_9);
 x_41 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_41, 0, x_40);
-lean_ctor_set(x_41, 1, x_9);
+lean_ctor_set(x_41, 0, x_9);
+lean_ctor_set(x_41, 1, x_40);
 x_42 = l___private_Lean_MetavarContext_0__Lean_MetavarContext_DependsOn_dep_visitMain___at_Lean_Meta_getFVarSetToGeneralize___spec__2___at_Lean_Meta_getFVarSetToGeneralize___spec__10___closed__1;
 x_43 = l_Std_PersistentArray_forIn___at_Lean_Meta_getFVarSetToGeneralize___spec__72(x_2, x_3, x_42, x_26, x_41, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_26);
@@ -12668,7 +12668,7 @@ if (x_44 == 0)
 {
 lean_object* x_45; lean_object* x_46; 
 x_45 = lean_ctor_get(x_43, 0);
-x_46 = lean_ctor_get(x_45, 1);
+x_46 = lean_ctor_get(x_45, 0);
 lean_inc(x_46);
 lean_dec(x_45);
 lean_ctor_set(x_43, 0, x_46);
@@ -12682,7 +12682,7 @@ x_48 = lean_ctor_get(x_43, 1);
 lean_inc(x_48);
 lean_inc(x_47);
 lean_dec(x_43);
-x_49 = lean_ctor_get(x_47, 1);
+x_49 = lean_ctor_get(x_47, 0);
 lean_inc(x_49);
 lean_dec(x_47);
 x_50 = lean_alloc_ctor(0, 2, 0);

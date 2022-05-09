@@ -44,6 +44,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_De
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___spec__4___closed__16;
+static lean_object* l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2188____closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___spec__5___lambda__1___closed__5;
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -61,7 +62,6 @@ static lean_object* l_Lean_Elab_Deriving_Hashable_mkAuxFunction___closed__28;
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___spec__5___lambda__1___closed__2;
 static lean_object* l_Lean_Elab_Deriving_Hashable_mkMatch___closed__3;
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___spec__5___lambda__1___closed__1;
-static lean_object* l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2189____closed__1;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l_Lean_Elab_Deriving_Hashable_mkAuxFunction___closed__19;
 static lean_object* l_Lean_Elab_Deriving_Hashable_mkMatch___closed__5;
@@ -164,7 +164,7 @@ static lean_object* l_Lean_Elab_Deriving_Hashable_mkAuxFunction___closed__11;
 static lean_object* l_Lean_Elab_Deriving_Hashable_mkAuxFunction___closed__7;
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___spec__3___closed__1;
 static lean_object* l_Lean_Elab_Deriving_Hashable_mkAuxFunction___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2189_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2188_(lean_object*);
 static lean_object* l_Lean_Elab_Deriving_Hashable_mkHashFuncs___closed__4;
 static lean_object* l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___spec__1___closed__2;
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___spec__5___lambda__1___closed__10;
@@ -2181,13 +2181,13 @@ lean_inc(x_23);
 lean_dec(x_22);
 lean_inc(x_4);
 lean_inc(x_1);
-lean_inc(x_17);
+lean_inc(x_18);
 lean_inc(x_3);
 lean_inc(x_2);
 x_24 = lean_alloc_closure((void*)(l_List_forIn_loop___at_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___spec__5___lambda__1___boxed), 16, 7);
 lean_closure_set(x_24, 0, x_2);
 lean_closure_set(x_24, 1, x_3);
-lean_closure_set(x_24, 2, x_17);
+lean_closure_set(x_24, 2, x_18);
 lean_closure_set(x_24, 3, x_20);
 lean_closure_set(x_24, 4, x_1);
 lean_closure_set(x_24, 5, x_4);
@@ -2207,13 +2207,13 @@ lean_inc(x_26);
 x_27 = lean_ctor_get(x_25, 1);
 lean_inc(x_27);
 lean_dec(x_25);
-x_28 = lean_array_push(x_18, x_26);
+x_28 = lean_array_push(x_17, x_26);
 x_29 = lean_unsigned_to_nat(1u);
-x_30 = lean_nat_add(x_17, x_29);
-lean_dec(x_17);
+x_30 = lean_nat_add(x_18, x_29);
+lean_dec(x_18);
 x_31 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_31, 0, x_30);
-lean_ctor_set(x_31, 1, x_28);
+lean_ctor_set(x_31, 0, x_28);
+lean_ctor_set(x_31, 1, x_30);
 x_5 = x_16;
 x_6 = x_31;
 x_13 = x_27;
@@ -2307,8 +2307,8 @@ static lean_object* _init_l_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___closed_
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___closed__1;
+x_1 = l_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___closed__1;
+x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2338,7 +2338,7 @@ if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; 
 x_19 = lean_ctor_get(x_17, 0);
-x_20 = lean_ctor_get(x_19, 1);
+x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);
 lean_dec(x_19);
 lean_ctor_set(x_17, 0, x_20);
@@ -2352,7 +2352,7 @@ x_22 = lean_ctor_get(x_17, 1);
 lean_inc(x_22);
 lean_inc(x_21);
 lean_dec(x_17);
-x_23 = lean_ctor_get(x_21, 1);
+x_23 = lean_ctor_get(x_21, 0);
 lean_inc(x_23);
 lean_dec(x_21);
 x_24 = lean_alloc_ctor(0, 2, 0);
@@ -5017,7 +5017,7 @@ lean_dec(x_1);
 return x_9;
 }
 }
-static lean_object* _init_l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2189____closed__1() {
+static lean_object* _init_l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2188____closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -5025,12 +5025,12 @@ x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Deriving_Hashable_mkHashableHandler
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2189_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2188_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_Elab_Deriving_Hashable_mkHashableHeader___rarg___closed__2;
-x_3 = l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2189____closed__1;
+x_3 = l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2188____closed__1;
 x_4 = l_Lean_Elab_registerBuiltinDerivingHandler(x_2, x_3, x_1);
 if (lean_obj_tag(x_4) == 0)
 {
@@ -5303,9 +5303,9 @@ l___private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkHashabl
 lean_mark_persistent(l___private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkHashableInstanceCmds___closed__9);
 l___private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkHashableInstanceCmds___closed__10 = _init_l___private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkHashableInstanceCmds___closed__10();
 lean_mark_persistent(l___private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkHashableInstanceCmds___closed__10);
-l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2189____closed__1 = _init_l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2189____closed__1();
-lean_mark_persistent(l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2189____closed__1);
-res = l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2189_(lean_io_mk_world());
+l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2188____closed__1 = _init_l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2188____closed__1();
+lean_mark_persistent(l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2188____closed__1);
+res = l_Lean_Elab_Deriving_Hashable_initFn____x40_Lean_Elab_Deriving_Hashable___hyg_2188_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

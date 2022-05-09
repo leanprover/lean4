@@ -62,7 +62,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_add
 static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams___closed__8;
 lean_object* l_Array_mapMUnsafe_map___at_Lean_LocalContext_getFVars___spec__1(size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams___closed__4;
-LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_3219_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_3207_(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_finalize_loop___lambda__3___closed__3;
 extern lean_object* l_Lean_levelZero;
@@ -3715,15 +3715,15 @@ lean_inc(x_9);
 lean_dec(x_5);
 x_10 = l_Lean_Expr_fvarId_x21(x_7);
 x_11 = l_Lean_instInhabitedFVarId;
-x_12 = lean_array_get(x_11, x_1, x_9);
+x_12 = lean_array_get(x_11, x_1, x_8);
 x_13 = l_Lean_mkFVar(x_12);
-x_14 = l_Lean_Meta_FVarSubst_insert(x_8, x_10, x_13);
+x_14 = l_Lean_Meta_FVarSubst_insert(x_9, x_10, x_13);
 x_15 = lean_unsigned_to_nat(1u);
-x_16 = lean_nat_add(x_9, x_15);
-lean_dec(x_9);
+x_16 = lean_nat_add(x_8, x_15);
+lean_dec(x_8);
 x_17 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_17, 0, x_14);
-lean_ctor_set(x_17, 1, x_16);
+lean_ctor_set(x_17, 0, x_16);
+lean_ctor_set(x_17, 1, x_14);
 x_18 = 1;
 x_19 = lean_usize_add(x_4, x_18);
 x_4 = x_19;
@@ -4715,8 +4715,8 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3;
 x_1 = lean_box(0);
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
@@ -4807,7 +4807,7 @@ lean_dec(x_36);
 x_40 = l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__8___lambda__3___closed__1;
 x_41 = l_Array_forInUnsafe_loop___at_Lean_Meta_induction___spec__5(x_33, x_1, x_19, x_2, x_40);
 lean_dec(x_1);
-x_42 = lean_ctor_get(x_41, 0);
+x_42 = lean_ctor_get(x_41, 1);
 lean_inc(x_42);
 lean_dec(x_41);
 x_57 = lean_st_ref_get(x_16, x_37);
@@ -5971,7 +5971,7 @@ x_18 = l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec__8(x_1, x_2, x_3, 
 return x_18;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_3219_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_3207_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -6144,7 +6144,7 @@ l_Lean_Meta_induction___closed__4 = _init_l_Lean_Meta_induction___closed__4();
 lean_mark_persistent(l_Lean_Meta_induction___closed__4);
 l_Lean_Meta_induction___closed__5 = _init_l_Lean_Meta_induction___closed__5();
 lean_mark_persistent(l_Lean_Meta_induction___closed__5);
-res = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_3219_(lean_io_mk_world());
+res = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Induction___hyg_3207_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

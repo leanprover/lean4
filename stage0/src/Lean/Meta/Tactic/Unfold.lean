@@ -25,17 +25,21 @@ where
   pre (unfoldThm : Name) (e : Expr) : SimpM Simp.Step := do
     match (← withReducible <| Simp.tryTheorem? e { proof := mkConst unfoldThm, name? := some unfoldThm, rfl := (← isRflTheorem unfoldThm) } (fun _ => return none)) with
     | none   => pure ()
-    | some r => return Simp.Step.done r
+    | some r => match (← reduceMatcher? r.expr) with
+      | .reduced e' => return Simp.Step.done { r with expr := e' }
+      | _ => return Simp.Step.done r
     return Simp.Step.visit { expr := e }
 
 def unfoldTarget (mvarId : MVarId) (declName : Name) : MetaM MVarId := withMVarContext mvarId do
   let target ← instantiateMVars (← getMVarType mvarId)
   let r ← unfold target declName
+  if r.expr == target then throwError "tactic 'unfold' failed to unfold '{declName}' at{indentExpr target}"
   applySimpResultToTarget mvarId target r
 
 def unfoldLocalDecl (mvarId : MVarId) (fvarId : FVarId) (declName : Name) : MetaM MVarId := withMVarContext mvarId do
   let localDecl ← getLocalDecl fvarId
   let r ← unfold (← instantiateMVars localDecl.type) declName
+  if r.expr == localDecl.type then throwError "tactic 'unfold' failed to unfold '{declName}' at{indentExpr localDecl.type}"
   let some (_, mvarId) ← applySimpResultToLocalDecl mvarId fvarId r (mayCloseGoal := false) | unreachable!
   return mvarId
 

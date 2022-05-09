@@ -39,7 +39,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_Meta_AC_getInstance___closed__6;
 uint64_t lean_uint64_of_nat(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_AC_initFn____x40_Lean_Meta_Tactic_AC_Main___hyg_2114_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_AC_initFn____x40_Lean_Meta_Tactic_AC_Main___hyg_2109_(lean_object*);
 LEAN_EXPORT lean_object* l_Std_HashSet_toArray___at_Lean_Meta_AC_toACExpr___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_toACExpr_toPreExpr___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Meta_AC_ac__refl__tactic___closed__10;
@@ -6208,7 +6208,7 @@ x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3, x_1);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_AC_initFn____x40_Lean_Meta_Tactic_AC_Main___hyg_2114_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_AC_initFn____x40_Lean_Meta_Tactic_AC_Main___hyg_2109_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -6451,7 +6451,7 @@ lean_mark_persistent(l___regBuiltin_Lean_Meta_AC_ac__refl__tactic_declRange___cl
 res = l___regBuiltin_Lean_Meta_AC_ac__refl__tactic_declRange(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l_Lean_Meta_AC_initFn____x40_Lean_Meta_Tactic_AC_Main___hyg_2114_(lean_io_mk_world());
+res = l_Lean_Meta_AC_initFn____x40_Lean_Meta_Tactic_AC_Main___hyg_2109_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

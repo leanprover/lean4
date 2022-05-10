@@ -101,6 +101,25 @@ private def synthesizePendingCoeInstMVar
 
   Remark: In the past, we would return a list of pending TC problems, but this was problematic since
   a default instance may create subproblems that cannot be solved.
+
+  Remark: The new approach also has limitations because other pending metavariables are not taken into account
+  while backtraking. That is, we fail to synthesize `mvarId` because we reach subproblems that are stuck,
+  but we could "unstuck" them if we tried to solve other pending metavariables. Considering all pending metavariables
+  into a single backtracking search seems to be too expensive, and potentially generate incomprehensible error messages.
+  This is particularly true if we consider pending metavariables for "postponed" elaboration steps.
+  Here is an example that demonstrate this issue. The example considers we are using the old `binrel%` elaborator which was
+  disconnected from `binop%`.
+  ```
+  example (a : Int) (b c : Nat) : a = ↑b - ↑c := sorry
+  ```
+  We have two pending coercions for the `↑` and `HSub ?m.220 ?m.221 ?m.222`.
+  When we did not use a backtracking search here, then the homogenous default instance for `HSub`.
+  ```
+  instance [Sub α] : HSub α α α where
+  ```
+  would be applied first, and would propagate the expected type `Int` to the pending coercions which would now be unblocked.
+
+  Instead of performing a backtracking search that considers all pending metavariables, we improved the `binrel%` elaborator.
 -/
 private partial def synthesizeUsingDefaultPrio (mvarId : MVarId) (prio : Nat) : TermElabM Bool :=
   withMVarContext mvarId do

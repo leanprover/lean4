@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_810____at_Lean_Parser_ParserState_hasError___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_mkError(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_quotedCharCoreFn(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Parser_isQuotableCharDefault(uint32_t);
@@ -37,6 +36,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_interpolatedStrNoAntiquot(lean_object*);
 static lean_object* l_Lean_Parser_interpolatedStrFn_parse___closed__3;
 lean_object* l_Lean_Parser_orelseInfo(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Parser_isQuotableCharForStrInterpolant(uint32_t);
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_812____at_Lean_Parser_ParserState_hasError___spec__1(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_interpolatedStr(lean_object*);
 static lean_object* l_Lean_Parser_interpolatedStrFn___closed__2;
@@ -150,7 +150,7 @@ x_21 = lean_apply_2(x_1, x_5, x_20);
 x_22 = lean_ctor_get(x_21, 4);
 lean_inc(x_22);
 x_23 = lean_box(0);
-x_24 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_810____at_Lean_Parser_ParserState_hasError___spec__1(x_22, x_23);
+x_24 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_812____at_Lean_Parser_ParserState_hasError___spec__1(x_22, x_23);
 lean_dec(x_22);
 if (x_24 == 0)
 {
@@ -201,7 +201,7 @@ x_39 = l_Lean_Parser_quotedCharCoreFn(x_38, x_5, x_11);
 x_40 = lean_ctor_get(x_39, 4);
 lean_inc(x_40);
 x_41 = lean_box(0);
-x_42 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_810____at_Lean_Parser_ParserState_hasError___spec__1(x_40, x_41);
+x_42 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_812____at_Lean_Parser_ParserState_hasError___spec__1(x_40, x_41);
 lean_dec(x_40);
 if (x_42 == 0)
 {

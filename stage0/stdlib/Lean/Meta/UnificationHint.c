@@ -268,7 +268,7 @@ lean_object* l_instHashableProd___rarg___boxed(lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l_Array_binInsertM___at_Lean_Meta_UnificationHints_add___spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_UnificationHints_add___spec__13(lean_object*);
 static lean_object* l_List_format___at_Lean_Meta_instToFormatUnificationHints___spec__4___closed__1;
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_362_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_360_(uint8_t, uint8_t);
 lean_object* l_Lean_Meta_DiscrTree_getMatch___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_instBEqExpr;
 static lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addUnificationHint___spec__1___closed__6;
@@ -5234,7 +5234,7 @@ x_39 = lean_nat_add(x_28, x_38);
 lean_dec(x_28);
 lean_ctor_set(x_25, 1, x_39);
 x_40 = 3;
-x_41 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_362_(x_37, x_40);
+x_41 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_360_(x_37, x_40);
 if (x_41 == 0)
 {
 lean_object* x_42; 
@@ -5453,7 +5453,7 @@ lean_ctor_set(x_77, 0, x_27);
 lean_ctor_set(x_77, 1, x_76);
 lean_ctor_set(x_77, 2, x_29);
 x_78 = 3;
-x_79 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_362_(x_74, x_78);
+x_79 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_360_(x_74, x_78);
 if (x_79 == 0)
 {
 lean_object* x_80; 
@@ -5726,7 +5726,7 @@ lean_ctor_set(x_123, 0, x_112);
 lean_ctor_set(x_123, 1, x_122);
 lean_ctor_set(x_123, 2, x_114);
 x_124 = 3;
-x_125 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_362_(x_120, x_124);
+x_125 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_360_(x_120, x_124);
 if (x_125 == 0)
 {
 lean_object* x_126; lean_object* x_127; 

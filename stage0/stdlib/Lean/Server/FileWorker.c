@@ -160,6 +160,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_mainLoop___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleCancelRequest___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_instDecidableNot___rarg(uint8_t);
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_812____at_Lean_SearchPath_findAllWithExt___spec__1(lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__17;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleRequest___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_compress(lean_object*);
@@ -395,7 +396,6 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_FileWorker_ha
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleDidChange(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__48;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_updatePendingRequests(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_810____at_Lean_SearchPath_findAllWithExt___spec__1(lean_object*, lean_object*);
 lean_object* l_List_getLast_x21___rarg(lean_object*, lean_object*);
 lean_object* lean_get_stderr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_unfoldCmdSnaps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5110,7 +5110,7 @@ lean_inc(x_51);
 lean_dec(x_49);
 x_52 = l_System_FilePath_fileName(x_48);
 x_53 = l_Lean_Server_FileWorker_compileHeader___lambda__3___closed__4;
-x_54 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_810____at_Lean_SearchPath_findAllWithExt___spec__1(x_52, x_53);
+x_54 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_812____at_Lean_SearchPath_findAllWithExt___spec__1(x_52, x_53);
 lean_dec(x_52);
 if (x_54 == 0)
 {

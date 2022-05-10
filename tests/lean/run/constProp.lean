@@ -226,8 +226,8 @@ inductive Bigstep : State → Stmt → State → Prop where
   | seq        : (σ₁, s₁) ⇓ σ₂ → (σ₂, s₂) ⇓ σ₃ → (σ₁, s₁ ;; s₂) ⇓ σ₃
   | ifTrue     : evalTrue c σ₁ → (σ₁, t) ⇓ σ₂ → (σ₁, .ite c t e) ⇓ σ₂
   | ifFalse    : evalFalse c σ₁ → (σ₁, e) ⇓ σ₂ → (σ₁, .ite c t e) ⇓ σ₂
-  | whileTrue  : evalTrue c σ₁ → (σ₁, b) ⇓ σ₂ → (σ₂, .«while» c b) ⇓ σ₃ → (σ₁, .«while» c b) ⇓ σ₃
-  | whileFalse : evalFalse c σ → (σ, .«while» c b) ⇓ σ
+  | whileTrue  : evalTrue c σ₁ → (σ₁, b) ⇓ σ₂ → (σ₂, .while c b) ⇓ σ₃ → (σ₁, .while c b) ⇓ σ₃
+  | whileFalse : evalFalse c σ → (σ, .while c b) ⇓ σ
 
 end
 
@@ -268,7 +268,7 @@ def evalExpr (e : Expr) : EvalM Val := do
       | .bool true  => e.eval fuel
       | .bool false => t.eval fuel
       | _ => throw "Boolean expected"
-    | «while» c b =>
+    | .while c b =>
       match (← evalExpr c) with
       | .bool true  => b.eval fuel; stmt.eval fuel
       | .bool false => return ()
@@ -324,10 +324,10 @@ instance : Repr State where
     | .val (.bool true) => e.simplify
     | .val (.bool false) => t.simplify
     | c' => ite c' e.simplify t.simplify
-  | «while» c b =>
+  | .while c b =>
     match c.simplify with
     | .val (.bool false) => skip
-    | c' => «while» c' b.simplify
+    | c' => .while c' b.simplify
 
 def example3 := `[Stmt|
   if (1 < 2 + 3) {
@@ -413,7 +413,7 @@ local notation "⊥" => []
   | ite c s₁ s₂ =>
     match s₁.constProp σ, s₂.constProp σ with
     | (s₁', σ₁), (s₂', σ₂) => (ite (c.constProp σ) s₁' s₂', σ₁.join σ₂)
-  | «while» c b => («while» (c.constProp ⊥) (b.constProp ⊥).1, ⊥)
+  | .while c b => (.while (c.constProp ⊥) (b.constProp ⊥).1, ⊥)
 
 def State.le (σ₁ σ₂ : State) : Prop :=
   ∀ ⦃x : Var⦄ ⦃v : Val⦄, σ₁.find? x = some v → σ₂.find? x = some v

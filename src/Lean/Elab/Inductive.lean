@@ -443,26 +443,37 @@ def accLevelAtCtor (u : Level) (r : Level) (rOffset : Nat) : StateRefT (Array Le
     else
       modify fun us => us.push u
 
+/--
+  Execute `k` using the `Syntax` reference associated with constructor `ctorName`.
+-/
+def withCtorRef [Monad m] [MonadRef m] (views : Array InductiveView) (ctorName : Name) (k : m α) : m α := do
+  for view in views do
+    for ctorView in view.ctors do
+      if ctorView.declName == ctorName then
+        return (← withRef ctorView.ref k)
+  k
+
 /-- Auxiliary function for `updateResultingUniverse` -/
-private partial def collectUniverses (r : Level) (rOffset : Nat) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (Array Level) := do
+private partial def collectUniverses (views : Array InductiveView) (r : Level) (rOffset : Nat) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (Array Level) := do
   let (_, us) ← go |>.run #[]
   return us
 where
   go : StateRefT (Array Level) TermElabM Unit :=
     indTypes.forM fun indType => indType.ctors.forM fun ctor =>
-      forallTelescopeReducing ctor.type fun ctorParams _ =>
-        for ctorParam in ctorParams[numParams:] do
-          let type ← inferType ctorParam
-          let u ← instantiateLevelMVars (← getLevel type)
-          accLevelAtCtor u r rOffset
+      withCtorRef views ctor.name do
+        forallTelescopeReducing ctor.type fun ctorParams _ =>
+          for ctorParam in ctorParams[numParams:] do
+            let type ← inferType ctorParam
+            let u ← instantiateLevelMVars (← getLevel type)
+            accLevelAtCtor u r rOffset
 
-private def updateResultingUniverse (numParams : Nat) (indTypes : List InductiveType) : TermElabM (List InductiveType) := do
+private def updateResultingUniverse (views : Array InductiveView) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (List InductiveType) := do
   let r ← getResultingUniverse indTypes
   let rOffset : Nat   := r.getOffset
   let r       : Level := r.getLevelOffset
   unless r.isMVar do
     throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly: {r}"
-  let us ← collectUniverses r rOffset numParams indTypes
+  let us ← collectUniverses views r rOffset numParams indTypes
   trace[Elab.inductive] "updateResultingUniverse us: {us}, r: {r}, rOffset: {rOffset}"
   let rNew := mkResultUniverse us rOffset
   assignLevelMVar r.mvarId! rNew
@@ -482,16 +493,6 @@ def checkResultingUniverse (u : Level) : TermElabM Unit := do
     let u ← instantiateLevelMVars u
     if !u.isZero && !u.isNeverZero then
       throwError "invalid universe polymorphic type, the resultant universe is not Prop (i.e., 0), but it may be Prop for some parameter values (solution: use 'u+1' or 'max 1 u'{indentD u}"
-
-/--
-  Execute `k` using the `Syntax` reference associated with constructor `ctorName`.
--/
-def withCtorRef (views : Array InductiveView) (ctorName : Name) (k : TermElabM α) : TermElabM α := do
-  for view in views do
-    for ctorView in view.ctors do
-      if ctorView.declName == ctorName then
-        return (← withRef ctorView.ref k)
-  k
 
 private def checkResultingUniverses (views : Array InductiveView) (numParams : Nat) (indTypes : List InductiveType) : TermElabM Unit := do
   let u := (← instantiateLevelMVars (← getResultingUniverse indTypes)).normalize
@@ -733,7 +734,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         let indTypes ← updateParams vars indTypes
         let indTypes ←
           if let some univToInfer := univToInfer? then
-            updateResultingUniverse numParams (← levelMVarToParam indTypes univToInfer)
+            updateResultingUniverse views numParams (← levelMVarToParam indTypes univToInfer)
           else
             checkResultingUniverses views numParams indTypes
             levelMVarToParam indTypes none

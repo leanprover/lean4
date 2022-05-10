@@ -29,7 +29,7 @@ notation:max "#" a:max  => (Fin.mk a (by decide))
 
 example : [10, true, 20.1].nth #0 = (10:Nat) := rfl
 example : [10, true, 20.1].nth #1 = true     := rfl
-example : [10, true, 20.1].nth #2 = 20.1     := rfl
+example : [10, true, 20.1].nth #2 = (20.1:Float) := rfl
 
 #eval [10, true, 20.1].nth #0
 #eval [10, true, 20.1].nth #1

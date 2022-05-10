@@ -164,7 +164,7 @@ To see how `trees` is used, look at the function body of `withInfoContext'`.
 -/
 structure InfoState where
   /-- Whether info trees should be recorded. -/
-  enabled    : Bool := false
+  enabled    : Bool := true
   /-- Map from holes in the infotree to child infotrees. -/
   assignment : PersistentHashMap MVarId InfoTree := {}
   /-- Pending child trees of a node. -/

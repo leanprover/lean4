@@ -666,14 +666,20 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
     let pat     := letDecl[0]
     let optType := letDecl[2]
     let val     := letDecl[4]
-    -- We are currently treating `let_fun` and `let` the same way when patterns are used.
-    let stxNew ←
-      if optType.isNone then
-        `(match $val:term with | $pat => $body)
-      else
-        let type := optType[0][1]
-        `(match ($val:term : $type) with | $pat => $body)
-    withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
+    if pat.getKind == ``Parser.Term.hole then
+      -- `let _ := ...` should not be treated at a `letIdDecl`
+      let id   := mkIdentFrom pat `_
+      let type := expandOptType id optType
+      elabLetDeclAux id #[] type val body expectedType? useLetExpr elabBodyFirst usedLetOnly
+    else
+      -- We are currently treating `let_fun` and `let` the same way when patterns are used.
+      let stxNew ←
+        if optType.isNone then
+          `(match $val:term with | $pat => $body)
+        else
+          let type := optType[0][1]
+          `(match ($val:term : $type) with | $pat => $body)
+      withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   else if letDecl.getKind == ``Lean.Parser.Term.letEqnsDecl then
     let letDeclIdNew ← liftMacroM <| expandLetEqnsDecl letDecl
     let declNew := stx[1].setArg 0 letDeclIdNew

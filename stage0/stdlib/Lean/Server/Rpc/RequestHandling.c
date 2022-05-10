@@ -5209,7 +5209,7 @@ static lean_object* _init_l_Lean_Server_registerRpcProcedure___lambda__2___close
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = 0;
+x_1 = 1;
 x_2 = l_Lean_Server_registerRpcProcedure___lambda__2___closed__7;
 x_3 = l_Lean_Server_registerRpcProcedure___lambda__2___closed__6;
 x_4 = lean_alloc_ctor(0, 2, 1);

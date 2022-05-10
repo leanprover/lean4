@@ -1512,7 +1512,7 @@ static uint8_t _init_l_Lean_Elab_InfoState_enabled___default() {
 _start:
 {
 uint8_t x_1; 
-x_1 = 0;
+x_1 = 1;
 return x_1;
 }
 }

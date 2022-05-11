@@ -41,3 +41,10 @@ example : Nat := Id.run do
     return y
   pure y
      --^ textDocument/documentHighlight
+
+example : Nat := Id.run do
+  let mut y := 0
+  if true then
+    y := 1
+  return y  -- TODO: definition should be first `y`
+       --^ textDocument/documentHighlight

@@ -415,33 +415,60 @@ def mkResultUniverse (us : Array Level) (rOffset : Nat) : Level :=
     else
       r.normalize
 
+ /--
+   Auxiliary function for `updateResultingUniverse`
+   `accLevel u r rOffset` add `u` to state if it is not already there and
+   it is different from the resulting universe level `r+rOffset`.
+
+
+   If `u` is a `max`, then its components are recursively processed.
+   If `u` is a `succ` and `rOffset > 0`, we process the `u`s child using `rOffset-1`.
+
+   This method is used to infer the resulting universe level of an inductive datatype.
+ -/
+def accLevel (u : Level) (r : Level) (rOffset : Nat) : OptionT (StateT (Array Level) Id) Unit := do
+  go u rOffset
+where
+  go (u : Level) (rOffset : Nat) : OptionT (StateT (Array Level) Id) Unit := do
+    match u, rOffset with
+    | Level.max u v _,  rOffset   => go u rOffset; go v rOffset
+    | Level.imax u v _, rOffset   => go u rOffset; go v rOffset
+    | Level.zero _,     _         => return ()
+    | Level.succ u _,   rOffset+1 => go u rOffset
+    | u,                rOffset   =>
+      if rOffset == 0 && u == r then
+        return ()
+      else if r.occurs u  then
+        failure
+      else if rOffset > 0 then
+        failure
+      else if (← get).contains u then
+        return ()
+      else
+        modify fun us => us.push u
+
 /--
   Auxiliary function for `updateResultingUniverse`
-  `accLevelAtCtor u r rOffset` add `u` to state if it is not already there and
+  `accLevelAtCtor ctor ctorParam r rOffset` add `u` (`ctorParam`'s universe) to state if it is not already there and
   it is different from the resulting universe level `r+rOffset`.
 
-  If `u` is a `max`, then its components are recursively processed.
-  If `u` is a `succ` and `rOffset > 0`, we process the `u`s child using `rOffset-1`.
-
-  This method is used to infer the resulting universe level of an inductive datatype.
+  See `accLevel`.
 -/
-def accLevelAtCtor (u : Level) (r : Level) (rOffset : Nat) : StateRefT (Array Level) TermElabM Unit := do
-  match u, rOffset with
-  | Level.max u v _,  rOffset   => accLevelAtCtor u r rOffset; accLevelAtCtor v r rOffset
-  | Level.imax u v _, rOffset   => accLevelAtCtor u r rOffset; accLevelAtCtor v r rOffset
-  | Level.zero _,     _         => return ()
-  | Level.succ u _,   rOffset+1 => accLevelAtCtor u r rOffset
-  | u,                rOffset   =>
-    if rOffset == 0 && u == r then
-      return ()
-    else if r.occurs u  then
-      throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly"
-    else if rOffset > 0 then
-      throwError "failed to compute resulting universe level of inductive datatype, provide universe explicitly"
-    else if (← get).contains u then
-      return ()
-    else
-      modify fun us => us.push u
+def accLevelAtCtor (ctor : Constructor) (ctorParam : Expr) (r : Level) (rOffset : Nat) : StateRefT (Array Level) TermElabM Unit := do
+  let type ← inferType ctorParam
+  let u ← instantiateLevelMVars (← getLevel type)
+  match (← modifyGet fun s => accLevel u r rOffset |>.run |>.run s) with
+  | some _ => pure ()
+  | none =>
+    let typeType ← inferType type
+    let mut msg := m!"failed to compute resulting universe level of inductive datatype, constructor '{ctor.name}' has type{indentExpr ctor.type}\nparameter"
+    let localDecl ← getFVarLocalDecl ctorParam
+    unless localDecl.userName.hasMacroScopes do
+       msg := msg ++ m!" '{ctorParam}'"
+    msg := msg ++ m!" has type{indentD m!"{type} : {typeType}"}\ninductive type resulting type{indentExpr (mkSort (r.addOffset rOffset))}"
+    if r.isMVar then
+      msg := msg ++ "\nrecall that Lean only infers the resulting universe level automatically when there is a unique solution for the universe level constraints, consider explicitly providing the inductive type resulting universe level"
+    throwError msg
 
 /--
   Execute `k` using the `Syntax` reference associated with constructor `ctorName`.
@@ -463,9 +490,7 @@ where
       withCtorRef views ctor.name do
         forallTelescopeReducing ctor.type fun ctorParams _ =>
           for ctorParam in ctorParams[numParams:] do
-            let type ← inferType ctorParam
-            let u ← instantiateLevelMVars (← getLevel type)
-            accLevelAtCtor u r rOffset
+            accLevelAtCtor ctor ctorParam r rOffset
 
 private def updateResultingUniverse (views : Array InductiveView) (numParams : Nat) (indTypes : List InductiveType) : TermElabM (List InductiveType) := do
   let r ← getResultingUniverse indTypes

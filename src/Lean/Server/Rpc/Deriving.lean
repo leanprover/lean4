@@ -119,9 +119,8 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
     let decInits ← fieldInits ``rpcDecode
 
     -- helpers for type name syntax
-    let mkExplicit stx := mkNode ``Lean.Parser.Term.explicit #[mkAtom "@", stx]
     let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
-    let typeId := Syntax.mkApp (mkExplicit <| mkIdent indVal.name) paramIds
+    let typeId := Syntax.mkApp (← `(@$(mkIdent indVal.name))) paramIds
     let packetId ← mkIdent <$> mkFreshUserName `RpcEncodingPacket
     let packetAppliedId := Syntax.mkApp packetId uniqFieldEncIds
 
@@ -202,9 +201,8 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
         -- create encoder and decoder match arms
         let nms ← argVars.mapM fun _ => mkIdent <$> mkFreshBinderName
         let mkPattern (src : Name) := Syntax.mkApp (mkIdent <| Name.mkStr src ctor.getString!) nms
-        let mkBody (tgt : Name) (func : Name) : TermElabM Syntax :=
-          let items := nms.map fun nm =>
-            mkNode ``Parser.Term.liftMethod #[mkAtom "←", Syntax.mkApp (mkIdent func) #[nm]]
+        let mkBody (tgt : Name) (func : Name) : TermElabM Syntax := do
+          let items ← nms.mapM fun nm => `(← $(mkIdent func) $nm)
           let tm := Syntax.mkApp (mkIdent <| Name.mkStr tgt ctor.getString!) items
           `(Parser.Term.termReturn| return $tm:term)
 
@@ -216,9 +214,8 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
                           decodes := acc.decodes.push decArm }
 
       -- helpers for type name syntax
-      let mkExplicit stx := mkNode ``Lean.Parser.Term.explicit #[mkAtom "@", stx]
       let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
-      let typeId := Syntax.mkApp (mkExplicit <| mkIdent indVal.name) paramIds
+      let typeId := Syntax.mkApp (← `(@$(mkIdent indVal.name))) paramIds
       let packetAppliedId := Syntax.mkApp (mkIdent packetNm) (st.uniqEncArgTypes.map mkIdent)
 
       `(variable $st.binders*

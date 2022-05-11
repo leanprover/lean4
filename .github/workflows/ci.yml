@@ -136,10 +136,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .ccache
-          key: ${{ matrix.name }}-build-${{ github.sha }}
+          key: ${{ matrix.name }}-build-v2-${{ github.sha }}
           # fall back to (latest) previous cache
           restore-keys: |
-            ${{ matrix.name }}-build
+            ${{ matrix.name }}-build-v2
       - name: Setup
         run: |
           # open nix-shell once for initial setup

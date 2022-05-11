@@ -204,7 +204,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
         let mkBody (tgt : Name) (func : Name) : TermElabM Syntax := do
           let items ← nms.mapM fun nm => `(← $(mkIdent func) $nm)
           let tm := Syntax.mkApp (mkIdent <| Name.mkStr tgt ctor.getString!) items
-          `(Parser.Term.termReturn| return $tm:term)
+          `(return $tm:term)
 
         let encArm ← `(matchF| | $(mkPattern indVal.name):term => $(← mkBody packetNm ``rpcEncode))
         let decArm ← `(matchF| | $(mkPattern packetNm):term => $(← mkBody indVal.name ``rpcDecode))

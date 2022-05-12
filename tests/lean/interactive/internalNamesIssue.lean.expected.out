@@ -1,14 +1,6 @@
 {"textDocument": {"uri": "file://internalNamesIssue.lean"},
  "position": {"line": 9, "character": 11}}
 {"items":
- [{"textEdit": null,
-   "label": "bla",
-   "kind": 3,
-   "documentation": null,
-   "detail": "Nat → Nat"},
-  {"textEdit": null,
-   "label": "foo",
-   "kind": 3,
-   "documentation": null,
-   "detail": "Nat → Nat"}],
+ [{"label": "bla", "kind": 3, "detail": "Nat → Nat"},
+  {"label": "foo", "kind": 3, "detail": "Nat → Nat"}],
  "isIncomplete": true}

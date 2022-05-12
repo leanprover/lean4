@@ -260,7 +260,7 @@ def argument       :=
 -- argument precedence is `arg` (i.e. does not accept `lead` precedence)
 @[builtinTermParser] def app      := trailing_parser:leadPrec:maxPrec many1 argument
 
-@[builtinTermParser] def proj     := trailing_parser checkNoWsBefore >> "." >> checkNoWsBefore >> (fieldIdx <|> ident)
+@[builtinTermParser] def proj     := trailing_parser checkNoWsBefore >> "." >> checkNoWsBefore >> (fieldIdx <|> rawIdent)
 @[builtinTermParser] def completion := trailing_parser checkNoWsBefore >> "."
 @[builtinTermParser] def arrayRef := trailing_parser checkNoWsBefore >> "[" >> termParser >>"]"
 @[builtinTermParser] def arrow    := trailing_parser checkPrec 25 >> unicodeSymbol " → " " -> " >> termParser 25
@@ -272,7 +272,7 @@ def isIdent (stx : Syntax) : Bool :=
 @[builtinTermParser] def explicitUniv : TrailingParser := trailing_parser checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '.{'" >> ".{" >> sepBy1 levelParser ", " >> "}"
 @[builtinTermParser] def namedPattern : TrailingParser := trailing_parser checkStackTop isIdent "expected preceding identifier" >> checkNoWsBefore "no space before '@'" >> "@" >> optional (atomic (ident >> ":")) >> termParser maxPrec
 
-@[builtinTermParser] def pipeProj   := trailing_parser:minPrec " |>." >> checkNoWsBefore >> (fieldIdx <|> ident) >> many argument
+@[builtinTermParser] def pipeProj   := trailing_parser:minPrec " |>." >> checkNoWsBefore >> (fieldIdx <|> rawIdent) >> many argument
 @[builtinTermParser] def pipeCompletion := trailing_parser:minPrec " |>."
 
 @[builtinTermParser] def subst := trailing_parser:75 " ▸ " >> sepBy1 (termParser 75) " ▸ "
@@ -299,7 +299,7 @@ def macroLastArg   := macroDollarArg <|> macroArg
 
 @[builtinTermParser] def dynamicQuot := leading_parser "`(" >> ident >> "|" >> incQuotDepth (parserOfStack 1) >> ")"
 
-@[builtinTermParser] def dotIdent := leading_parser "." >> checkNoWsBefore >> ident
+@[builtinTermParser] def dotIdent := leading_parser "." >> checkNoWsBefore >> rawIdent
 
 end Term
 

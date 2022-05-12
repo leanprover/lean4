@@ -11,14 +11,13 @@ import Lean.Elab.InfoTree
 import Lean.Server.Utils
 import Lean.Server.Rpc.Basic
 
+import Lean.Widget.Basic
 import Lean.Widget.TaggedText
 import Lean.Widget.InteractiveCode
 import Lean.Widget.InteractiveGoal
 
 namespace Lean.Widget
 open Lsp Server
-
-deriving instance RpcEncoding with { withRef := true } for MessageData
 
 inductive MsgEmbed where
   | expr : CodeWithInfos → MsgEmbed
@@ -129,10 +128,10 @@ where
       options       := ctx.opts
       currNamespace := nCtx.currNamespace
       openDecls     := nCtx.openDecls
-      ngen          := { namePrefix := `_diag } -- Hack: to make sure unique ids created at `formatInfos` do not collide with ones in `ctx.mctx`
+      -- Hack: to make sure unique ids created at `ppExprWithInfos` do not collide with ones in `ctx.mctx`
+      ngen          := { namePrefix := `_diag }
     }
-    let lctx := ctx.lctx.sanitizeNames.run' { options := ctx.opts }
-    let (fmt, infos) ← ci.runMetaM lctx (formatInfos e)
+    let (fmt, infos) ← ci.runMetaM ctx.lctx <| PrettyPrinter.ppExprWithInfos e
     let t ← pushEmbed <| EmbedFmt.expr ci infos
     return Format.tag t fmt
   | _,    none,      ofGoal mvarId            => pure $ "goal " ++ format (mkMVar mvarId)

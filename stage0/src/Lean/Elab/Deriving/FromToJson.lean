@@ -28,8 +28,8 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         let fields := getStructureFieldsFlattened (← getEnv) declNames[0] (includeSubobjectFields := false)
         let fields : Array Syntax ← fields.mapM fun field => do
           let (isOptField, nm) := mkJsonField field
-          if isOptField then `(opt $nm $(mkIdent <| header.targetNames[0] ++ field))
-          else `([($nm, toJson $(mkIdent <| header.targetNames[0] ++ field))])
+          if isOptField then ``(opt $nm (some $(mkIdent <| header.targetNames[0] ++ field)))
+          else ``([($nm, toJson $(mkIdent <| header.targetNames[0] ++ field))])
         let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:explicitBinder* :=
           mkObj <| List.join [$fields,*])
         return #[cmd] ++ (← mkInstanceCmds ctx ``ToJson declNames)
@@ -44,20 +44,20 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         -- if `id`'s type is the type we're deriving for.
         let mkToJson (id : Syntax) (type : Expr) : TermElabM Syntax := do
           if type.isAppOf indVal.name then `($toJsonFuncId:ident $id:ident)
-          else `(toJson $id:ident)
+          else ``(toJson $id:ident)
         let header ← mkHeader ctx ``ToJson 1 ctx.typeInfos[0]
         let discrs ← mkDiscrs header indVal
         let alts ← mkAlts indVal fun ctor args userNames => do
           match args, userNames with
-          | #[], _ => `(toJson $(quote ctor.name.getString!))
-          | #[(x, t)], none => `(mkObj [($(quote ctor.name.getString!), $(← mkToJson x t))])
+          | #[], _ => ``(toJson $(quote ctor.name.getString!))
+          | #[(x, t)], none => ``(mkObj [($(quote ctor.name.getString!), $(← mkToJson x t))])
           | xs, none =>
             let xs ← xs.mapM fun (x, t) => mkToJson x t
-            `(mkObj [($(quote ctor.name.getString!), Json.arr #[$[$xs:term],*])])
+            ``(mkObj [($(quote ctor.name.getString!), Json.arr #[$[$xs:term],*])])
           | xs, some userNames =>
             let xs ← xs.mapIdxM fun idx (x, t) => do
               `(($(quote userNames[idx].getString!), $(← mkToJson x t)))
-            `(mkObj [($(quote ctor.name.getString!), mkObj [$[$xs:term],*])])
+            ``(mkObj [($(quote ctor.name.getString!), mkObj [$[$xs:term],*])])
         let mut auxCmd ← `(match $[$discrs],* with $alts:matchAlt*)
         if ctx.usePartial then
           let letDecls ← mkLocalInstanceLetDecls ctx ``ToJson header.argNames
@@ -124,7 +124,7 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         let fromJsonFuncId := mkIdent ctx.auxFunNames[0]
         let discrs ← mkDiscrs header indVal
         let alts ← mkAlts indVal fromJsonFuncId
-        let mut auxCmd ← alts.foldrM (fun xs x => `(Except.orElseLazy $xs (fun _ => $x))) (←`(Except.error "no inductive constructor matched"))
+        let mut auxCmd ← alts.foldrM (fun xs x => `(Except.orElseLazy $xs (fun _ => $x))) (← `(Except.error "no inductive constructor matched"))
         if ctx.usePartial then
           let letDecls ← mkLocalInstanceLetDecls ctx ``FromJson header.argNames
           auxCmd ← mkLet letDecls auxCmd
@@ -171,8 +171,8 @@ where
 
         let userNamesOpt ←
           if binders.size == userNames.size then
-            `(some #[$[$(userNames.map quote):ident],*])
-          else `(none)
+            ``(some #[$[$(userNames.map quote):ident],*])
+          else ``(none)
         let stx ←
           `((Json.parseTagged json $(quote ctor.getString!) $(quote ctorInfo.numFields) $(quote userNamesOpt)).bind
             (fun jsons => do

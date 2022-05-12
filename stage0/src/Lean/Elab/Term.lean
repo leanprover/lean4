@@ -1012,16 +1012,22 @@ partial def removeSaveInfoAnnotation (e : Expr) : Expr :=
   | some e => removeSaveInfoAnnotation e
   | _ => e
 
+/--
+  Return `some mvarId` if `e` corresponds to a hole that is going to be filled "later" by executing a tactic or resuming elaboration.
+
+  We do not save `ofTermInfo` for this kind of node in the `InfoTree`.
+-/
+def isTacticOrPostponedHole? (e : Expr) : TermElabM (Option MVarId) := do
+  match e with
+  | Expr.mvar mvarId _ =>
+    match (← getSyntheticMVarDecl? mvarId) with
+    | some { kind := SyntheticMVarKind.tactic .., .. }    => return mvarId
+    | some { kind := SyntheticMVarKind.postponed .., .. } => return mvarId
+    | _                                                   => return none
+  | _ => pure none
+
 def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (isBinder := false) : TermElabM (Sum Info MVarId) := do
-  let isHole? : TermElabM (Option MVarId) := do
-    match e with
-    | Expr.mvar mvarId _ =>
-      match (← getSyntheticMVarDecl? mvarId) with
-      | some { kind := SyntheticMVarKind.tactic .., .. }    => return mvarId
-      | some { kind := SyntheticMVarKind.postponed .., .. } => return mvarId
-      | _                                                   => return none
-    | _ => pure none
-  match (← isHole?) with
+  match (← isTacticOrPostponedHole? e) with
   | some mvarId => return Sum.inr mvarId
   | none =>
     let e := removeSaveInfoAnnotation e

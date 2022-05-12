@@ -222,13 +222,42 @@ existent in the current context, or else fails. -/
 @[builtinTermElab typeOf] def elabTypeOf : TermElab := fun stx _ => do
   inferType (← elabTerm stx[1] none)
 
+/--
+  Recall that `mkTermInfo` does not create an `ofTermInfo` node in the info tree
+  if `e` corresponds to a hole that is going to be filled "later" by executing a tactic or resuming elaboration.
+  This behavior is problematic for auxiliary elaboration steps that are "almost" no-ops.
+  For example, consider the elaborator for
+  ```
+  ensure_type_of% s msg e
+  ```
+  It elaborates `s`, infers its type `t`, and then elaborates `e` ensuring the resulting type is `t`.
+  If the elaboration of `e` is postponed, then the result is just a metavariable, and an `ofTermInfo` would not be created.
+  This happens because `ensure_type_of%` is almost a no-op. The elaboration of `s` does not directly contribute to the
+  final result, just its type.
+  To make sure, we don't miss any information in the `InfoTree`, we can just create a "silent" annotation to force
+  `mTermInfo` to create a node for the `ensure_type_of% s msg e` even if `e` has been postponed.
+
+  Another possible solution is to elaborate `ensure_type_of% s msg e` as `ensureType s e` where `ensureType` has type
+  ```
+  ensureType (s e : α) := e
+  ```
+  We decided to use the silent notation because `ensure_type_of%` is heavily used in the `Do` elaborator, and the extra
+  overhead could be significant.
+-/
+private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
+  if (← isTacticOrPostponedHole? e).isSome then
+    return mkAnnotation `_silent e
+  else
+    return e
+
 @[builtinTermElab ensureTypeOf] def elabEnsureTypeOf : TermElab := fun stx expectedType? =>
   match stx[2].isStrLit? with
   | none     => throwIllFormedSyntax
   | some msg => do
     let refTerm ← elabTerm stx[1] none
     let refTermType ← inferType refTerm
-    elabTermEnsuringType stx[3] refTermType (errorMsgHeader? := msg)
+    -- See comment at `mkSilentAnnotationIfHole`
+    mkSilentAnnotationIfHole (← elabTermEnsuringType stx[3] refTermType (errorMsgHeader? := msg))
 
 @[builtinTermElab ensureExpectedType] def elabEnsureExpectedType : TermElab := fun stx expectedType? =>
   match stx[1].isStrLit? with

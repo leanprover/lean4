@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki
 -/
+import Lean.Widget.Basic
 import Lean.Widget.InteractiveCode
 import Lean.Widget.InteractiveGoal
 import Lean.Widget.InteractiveDiagnostic
@@ -45,8 +46,13 @@ builtin_initialize
           | some type => some <$> exprToInteractive type
           | none => pure none
         let exprExplicit? ← match i.info with
-          | Elab.Info.ofTermInfo ti => some <$> exprToInteractiveExplicit ti.expr
-          | Elab.Info.ofFieldInfo fi => pure <| some (TaggedText.text fi.fieldName.toString)
+          | Elab.Info.ofTermInfo ti =>
+            let ti ← exprToInteractive ti.expr (explicit := true)
+            -- remove top-level expression highlight
+            pure <| some <| match ti with
+              | .tag _ tt => tt
+              | tt => tt
+          | Elab.Info.ofFieldInfo fi => pure <| some <| TaggedText.text fi.fieldName.toString
           | _ => pure none
         return {
           type := type?

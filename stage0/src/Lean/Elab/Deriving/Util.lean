@@ -13,6 +13,9 @@ def implicitBinderF := Parser.Term.implicitBinder
 def instBinderF     := Parser.Term.instBinder
 def explicitBinderF := Parser.Term.explicitBinder
 
+/-- Make fresh, hygienic names for every parameter and index of an inductive declaration.
+
+For example, `inductive Foo {α : Type} : Nat → Type` will give something like ``#[`α✝, `a✝]``. -/
 def mkInductArgNames (indVal : InductiveVal) : TermElabM (Array Name) := do
   forallTelescopeReducing indVal.type fun xs _ => do
     let mut argNames := #[]
@@ -22,15 +25,25 @@ def mkInductArgNames (indVal : InductiveVal) : TermElabM (Array Name) := do
       argNames := argNames.push paramName
     pure argNames
 
+/-- Return the inductive declaration's type applied to the arguments in `argNames`. -/
 def mkInductiveApp (indVal : InductiveVal) (argNames : Array Name) : TermElabM Syntax :=
   let f    := mkIdent indVal.name
   let args := argNames.map mkIdent
   `(@$f $args*)
 
+/-- Return implicit binder syntaxes for the given `argNames`. The output matches `implicitBinder*`.
+
+For example, ``#[`foo,`bar]`` gives `` `({foo} {bar})``. -/
 def mkImplicitBinders (argNames : Array Name) : TermElabM (Array Syntax) :=
   argNames.mapM fun argName =>
     `(implicitBinderF| { $(mkIdent argName) })
 
+/-- Return instance binder syntaxes binding `className α` for every generic parameter `α`
+of the inductive `indVal` for which such a binding is type-correct. `argNames` is expected
+to provide names for the parameters (see `mkInductArgNames`). The output matches `instBinder*`.
+
+For example, given `inductive Foo {α : Type} (n : Nat) : (β : Type) → Type`, where `β` is an index,
+invoking ``mkInstImplicitBinders `BarClass foo #[`α, `n, `β]`` gives `` `([BarClass α])``. -/
 def mkInstImplicitBinders (className : Name) (indVal : InductiveVal) (argNames : Array Name) : TermElabM (Array Syntax) :=
   forallBoundedTelescope indVal.type indVal.numParams fun xs _ => do
     let mut binders := #[]

@@ -623,7 +623,14 @@ where
       let type ← inferType info.fvar
       let u ← getLevel type
       let u ← instantiateLevelMVars u
-      accLevelAtCtor u r rOffset
+      match (← modifyGet fun s => accLevel u r rOffset |>.run |>.run s) with
+      | some _ => pure ()
+      | none =>
+        let typeType ← inferType type
+        let mut msg := m!"failed to compute resulting universe level of structure, field '{info.declName}' has type{indentD m!"{type} : {typeType}"}\nstructure resulting type{indentExpr (mkSort (r.addOffset rOffset))}"
+        if r.isMVar then
+          msg := msg ++ "\nrecall that Lean only infers the resulting universe level automatically when there is a unique solution for the universe level constraints, consider explicitly providing the structure resulting universe level"
+        throwError msg
 
 private def updateResultingUniverse (fieldInfos : Array StructFieldInfo) (type : Expr) : TermElabM Expr := do
   let r ← getResultUniverse type

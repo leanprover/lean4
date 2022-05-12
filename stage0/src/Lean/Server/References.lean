@@ -147,13 +147,11 @@ partial def combineFvars (refs : Array Reference) : Array Reference := Id.run do
   let mut refs' := #[]
   for ref in refs do
     match ref with
-    | { ident := RefIdent.fvar id, range, isBinder := true } =>
-      -- Since deduplication works via definitions, we know that a definition
-      -- for the base id exists.
-      unless idMap.contains id do  -- Only keep the base definition
-        refs' := refs'.push ref
-    | { ident, range, isBinder := false } =>
-      refs' := refs'.push { ident := applyIdMap idMap ident, range, isBinder := false }
+    | { ident := ident@(RefIdent.fvar id), range, isBinder } =>
+      -- downgrade chained definitions to usages
+      -- (we shouldn't completely remove them in case they do not have usages)
+      let isBinder := isBinder && !idMap.contains id
+      refs' := refs'.push { ident := applyIdMap idMap ident, range, isBinder }
     | _ =>
       refs' := refs'.push ref
   refs'

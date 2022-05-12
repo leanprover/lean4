@@ -1,13 +1,10 @@
 {"textDocument": {"uri": "file://completionAtPrint.lean"},
  "position": {"line": 2, "character": 25}}
 {"items":
- [{"textEdit": null,
-   "label": "find?",
+ [{"label": "find?",
    "kind": 3,
-   "documentation": null,
    "detail": "Lean.Environment → Lean.Name → Option Lean.ConstantInfo"},
-  {"textEdit": null,
-   "label": "freeRegions",
+  {"label": "freeRegions",
    "kind": 3,
    "documentation":
    {"value":

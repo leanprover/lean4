@@ -1,9 +1,4 @@
 {"textDocument": {"uri": "file://completionEOF.lean"},
  "position": {"line": 8, "character": 9}}
-{"items":
- [{"textEdit": null,
-   "label": "And",
-   "kind": 21,
-   "documentation": null,
-   "detail": "Type"}],
+{"items": [{"label": "And", "kind": 21, "detail": "Type"}],
  "isIncomplete": true}

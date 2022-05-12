@@ -1,14 +1,8 @@
 {"textDocument": {"uri": "file://completionPrefixIssue.lean"},
  "position": {"line": 1, "character": 64}}
 {"items":
- [{"textEdit": null,
-   "label": "veryLongDefinitionName",
-   "kind": 6,
-   "documentation": null,
-   "detail": "Nat"},
-  {"textEdit": null,
-   "label": "veryLongDefinitionNameVeryLongDefinitionName",
+ [{"label": "veryLongDefinitionName", "kind": 6, "detail": "Nat"},
+  {"label": "veryLongDefinitionNameVeryLongDefinitionName",
    "kind": 21,
-   "documentation": null,
    "detail": "Nat"}],
  "isIncomplete": true}

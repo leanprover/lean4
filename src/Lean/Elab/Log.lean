@@ -22,7 +22,7 @@ instance (m n) [MonadLift m n] [MonadLog m] : MonadLog n where
   getFileName := liftM (getFileName : m _)
   logMessage  := fun msg => liftM (logMessage msg : m _ )
 
-variable {m : Type → Type} [Monad m] [MonadLog m] [AddMessageContext m]
+variable [Monad m] [MonadLog m] [AddMessageContext m]
 
 def getRefPos : m String.Pos := do
   let ref ← MonadLog.getRef

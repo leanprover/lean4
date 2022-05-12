@@ -85,6 +85,9 @@ def withFieldsFlattened (indVal : InductiveVal) (params : Array Expr)
 
 end
 
+def isOptField (n : Name) : Bool :=
+  n.toString.endsWith "?"
+
 private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr) : TermElabM Syntax :=
   withFields indVal params fun fields => do
     trace[Elab.Deriving.RpcEncoding] "for structure {indVal.name} with params {params}"
@@ -97,20 +100,30 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
     let mut uniqFieldEncIds : Array Syntax := #[]
     let mut fieldEncIds' : DiscrTree Syntax := {}
     for (fieldName, fieldTp) in fields do
+      let mut fieldTp := fieldTp
+      if isOptField fieldName then
+        if !fieldTp.isAppOf ``Option then
+          throwError "optional field '{fieldName}' has type{indentD m!"{fieldTp}"}\nbut is expected to have type{indentD "Option _"}"
+        fieldTp := fieldTp.getArg! 0
+
       -- postulate that the field has an encoding and remember the encoding's binder name
       fieldIds := fieldIds.push <| mkIdent fieldName
+      let mut fieldEncId := Syntax.missing
       match (← fieldEncIds'.getMatch fieldTp).back? with
       | none =>
-        let fieldEncId ← mkIdent <$> mkFreshUserName fieldName
+        fieldEncId ← mkIdent <$> mkFreshUserName fieldName
         binders := binders.push <| ← `(Deriving.explicitBinderF| ( $fieldEncId:ident ))
         let stx ← PrettyPrinter.delab fieldTp
         binders := binders.push <|
           ← `(Deriving.instBinderF| [ $(mkIdent ``Lean.Server.RpcEncoding) $stx $fieldEncId:ident ])
         fieldEncIds' ← fieldEncIds'.insert fieldTp fieldEncId
         uniqFieldEncIds := uniqFieldEncIds.push fieldEncId
+      | some fid => fieldEncId := fid
+
+      if isOptField fieldName then
+        fieldEncIds := fieldEncIds.push <| ← ``(Option $fieldEncId:ident)
+      else
         fieldEncIds := fieldEncIds.push fieldEncId
-      | some fid =>
-        fieldEncIds := fieldEncIds.push fid
 
     -- helpers for field initialization syntax
     let fieldInits (func : Name) := fieldIds.mapM fun fid =>
@@ -222,6 +235,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
 
         inductive $(mkIdent packetNm) where
           $[$(st.ctors):ctor]*
+          deriving $(mkIdent ``FromJson), $(mkIdent ``ToJson)
 
         instance : $(mkIdent ``RpcEncoding) $typeId:ident $packetAppliedId:ident where
           rpcEncode := fun x => match x with

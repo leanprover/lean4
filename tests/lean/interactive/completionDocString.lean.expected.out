@@ -1,13 +1,16 @@
 {"textDocument": {"uri": "file://completionDocString.lean"},
  "position": {"line": 0, "character": 20}}
 {"items":
- [{"label": "insertAt",
+ [{"textEdit": null,
+   "label": "insertAt",
    "kind": 3,
    "documentation":
    {"value": "Insert element `a` at position `i`.\n  Pre: `i < as.size` ",
     "kind": "markdown"},
    "detail": "Array α → Nat → α → Array α"},
-  {"label": "insertAtAux",
+  {"textEdit": null,
+   "label": "insertAtAux",
    "kind": 3,
+   "documentation": null,
    "detail": "Nat → Array α → Nat → Array α"}],
  "isIncomplete": true}

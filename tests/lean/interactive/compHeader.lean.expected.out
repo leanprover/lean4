@@ -1,6 +1,14 @@
 {"textDocument": {"uri": "file://compHeader.lean"},
  "position": {"line": 2, "character": 22}}
 {"items":
- [{"label": "veryLongNam", "kind": 6, "detail": "Sort u_1"},
-  {"label": "veryLongNameForCompletion", "kind": 21, "detail": "Type"}],
+ [{"textEdit": null,
+   "label": "veryLongNam",
+   "kind": 6,
+   "documentation": null,
+   "detail": "Sort u_1"},
+  {"textEdit": null,
+   "label": "veryLongNameForCompletion",
+   "kind": 21,
+   "documentation": null,
+   "detail": "Type"}],
  "isIncomplete": true}

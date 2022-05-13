@@ -59,10 +59,11 @@ def parseModule (input : String) (fileName : String) (opts : Options := {}) (tru
       pure {env, currNamespace, openDecls, stx}
     | _ =>
       failWith "unknown info tree"
-  #[{ env := env0, stx := header : CommandSyntax }] ++ topLevelCmds
+  return #[{ env := env0, stx := header : CommandSyntax }] ++ topLevelCmds
 
 unsafe def main (args : List String) : IO Unit := do
-  let [fileName] ← args | failWith "Usage: reformat file"
+  let [fileName] := args | failWith "Usage: reformat file"
+  initSearchPath (← findSysroot)
   let input ← IO.FS.readFile fileName
   let moduleStx ← parseModule input fileName
   let leadingUpdated := mkNullNode (moduleStx.map (·.stx)) |>.updateLeading |>.getArgs

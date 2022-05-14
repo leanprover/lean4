@@ -10,6 +10,9 @@ namespace Lake.Git
 def upstreamBranch :=
   "master"
 
+def isFullObjectName (rev : String) : Bool :=
+  rev.length == 40 && rev.all fun c => c.isDigit || ('a' <= c && c <= 'f')
+
 def defaultRevision : Option String → String
   | none => upstreamBranch
   | some branch => branch
@@ -51,7 +54,8 @@ def parseRevision (rev : String) (repo : Option FilePath := none) : IO String :=
 def headRevision (repo : Option FilePath := none) : IO String :=
   parseRevision "HEAD" repo
 
-def parseOriginRevision (rev : String) (repo : Option FilePath := none) : IO String :=
+def parseOriginRevision (rev : String) (repo : Option FilePath := none) : IO String := do
+  if isFullObjectName rev then return rev
   (parseRevision ("origin/" ++ rev) repo) <|> parseRevision rev repo
     <|> throw (IO.userError s!"cannot find revision {rev} in repository {repo}")
 

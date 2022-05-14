@@ -21,8 +21,9 @@ cloning and/or updating it as necessary.
 def materializeGit
 (name : String) (dir : FilePath) (url rev : String) : (LogT IO) PUnit := do
   if ← dir.isDir then
-    logInfo s!"{name}: trying to update {dir} to revision {rev}"
     let hash ← parseOriginRevision rev dir
+    if (← headRevision dir) == hash then return
+    logInfo s!"{name}: trying to update {dir} to revision {rev}"
     unless ← revisionExists hash dir do fetch dir
     checkoutDetach hash dir
   else

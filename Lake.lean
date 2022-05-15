@@ -6,5 +6,4 @@ Authors: Mac Malone
 import Lake.Build
 import Lake.Config
 import Lake.DSL
-import Lake.CLI
 import Lake.Version

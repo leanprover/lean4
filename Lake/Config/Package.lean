@@ -3,8 +3,6 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
-import Lean.Data.Name
-import Lean.Elab.Import
 import Std.Data.HashMap
 import Lake.Build.TargetTypes
 import Lake.Config.Glob

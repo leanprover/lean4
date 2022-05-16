@@ -48,3 +48,9 @@ example : Nat := Id.run do
     y := 1
   return y  -- TODO: definition should be first `y`
        --^ textDocument/documentHighlight
+
+example (x : Option Nat) : Nat :=
+  match x with
+  | some x => 1
+       --^ textDocument/documentHighlight
+  | none   => 0

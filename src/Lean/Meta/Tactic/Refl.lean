@@ -13,7 +13,7 @@ def refl (mvarId : MVarId) : MetaM Unit := do
     checkNotAssigned mvarId `apply
     let targetType ← getMVarType' mvarId
     unless targetType.isAppOfArity ``Eq 3 do
-      throwTacticEx `rfl mvarId "equality expected{indentExpr targetType}"
+      throwTacticEx `rfl mvarId m!"equality expected{indentExpr targetType}"
     let lhs ← instantiateMVars targetType.appFn!.appArg!
     let rhs ← instantiateMVars targetType.appArg!
     let success ←

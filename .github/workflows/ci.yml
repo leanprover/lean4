@@ -36,7 +36,7 @@ jobs:
 
   build:
     needs: set-nightly
-    if: always()
+    if: github.event_name != 'schedule' || github.repository == 'leanprover/lean4'
     runs-on: ${{ matrix.os }}
     defaults:
       run:

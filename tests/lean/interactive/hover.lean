@@ -155,3 +155,8 @@ example : Nat → Nat → Nat := by
       --v textDocument/definition
   exact x
       --^ textDocument/hover
+
+def g (n : Nat) : Nat := g 0
+termination_by g n => n
+decreasing_by have n' := n; admit
+                       --^ textDocument/hover

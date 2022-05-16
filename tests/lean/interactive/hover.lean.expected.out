@@ -221,3 +221,9 @@ null
 {"range":
  {"start": {"line": 155, "character": 8}, "end": {"line": 155, "character": 9}},
  "contents": {"value": "```lean\nx : Nat\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 160, "character": 25}}
+{"range":
+ {"start": {"line": 160, "character": 25},
+  "end": {"line": 160, "character": 26}},
+ "contents": {"value": "```lean\nn : Nat\n```", "kind": "markdown"}}

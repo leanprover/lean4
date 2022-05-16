@@ -25,4 +25,5 @@ IO.println ("".isPrefixOf "") *>
 IO.println ("ab".isPrefixOf "cb") *>
 IO.println ("ab".isPrefixOf "a") *>
 IO.println ("αb".isPrefixOf "αbc") *>
+IO.println ("\x00a").length *>
 pure 0

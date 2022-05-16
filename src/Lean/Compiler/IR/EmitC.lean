@@ -501,7 +501,7 @@ def emitLit (z : VarId) (t : IRType) (v : LitVal) : M Unit := do
   emitLhs z;
   match v with
   | LitVal.num v => emitNumLit t v; emitLn ";"
-  | LitVal.str v => emit "lean_mk_string("; emit (quoteString v); emitLn ");"
+  | LitVal.str v => emit "lean_mk_string_from_bytes("; emit (quoteString v); emit ", "; emit v.utf8ByteSize; emitLn ");"
 
 def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
   match v with

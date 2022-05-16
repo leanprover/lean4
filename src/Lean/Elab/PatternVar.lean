@@ -255,7 +255,7 @@ where
 
   /- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[matchPattern]` attribute) -/
   processId (stx : Syntax) : M Syntax := do
-    match (← resolveId? stx "pattern" (withInfo := true)) with
+    match (← resolveId? stx "pattern") with
     | none   => processVar stx
     | some f => match f with
       | Expr.const fName _ _ =>

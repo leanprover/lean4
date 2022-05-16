@@ -1570,23 +1570,24 @@ static object * string_ensure_capacity(object * o, size_t extra) {
     }
 }
 
-extern "C" LEAN_EXPORT object * lean_mk_string(char const * s) {
-    size_t sz  = strlen(s);
-    size_t len = utf8_strlen(s);
+extern "C" LEAN_EXPORT object * lean_mk_string_core(char const * s, size_t sz, size_t len) {
     size_t rsz = sz + 1;
     object * r = lean_alloc_string(rsz, rsz, len);
-    memcpy(w_string_cstr(r), s, sz+1);
+    memcpy(w_string_cstr(r), s, sz);
+    w_string_cstr(r)[sz] = 0;
     return r;
 }
 
+extern "C" LEAN_EXPORT object * lean_mk_string_from_bytes(char const * s, size_t sz) {
+    return lean_mk_string_core(s, sz, utf8_strlen(s, sz));
+}
+
+extern "C" LEAN_EXPORT object * lean_mk_string(char const * s) {
+    return lean_mk_string_from_bytes(s, strlen(s));
+}
+
 extern "C" LEAN_EXPORT obj_res lean_string_from_utf8_unchecked(b_obj_arg a) {
-    size_t sz  = lean_sarray_size(a);
-    size_t len = utf8_strlen(reinterpret_cast<char *>(lean_sarray_cptr(a)), sz);
-    size_t rsz = sz + 1;
-    obj_res r  = lean_alloc_string(rsz, rsz, len);
-    memcpy(w_string_cstr(r), lean_sarray_cptr(a), sz);
-    w_string_cstr(r)[sz] = 0;
-    return r;
+    return lean_mk_string_from_bytes(reinterpret_cast<char *>(lean_sarray_cptr(a)), lean_sarray_size(a));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(b_obj_arg s) {
@@ -1597,13 +1598,7 @@ extern "C" LEAN_EXPORT obj_res lean_string_to_utf8(b_obj_arg s) {
 }
 
 object * mk_string(std::string const & s) {
-    size_t sz  = s.size();
-    size_t len = utf8_strlen(s);
-    size_t rsz = sz + 1;
-    object * r = lean_alloc_string(rsz, rsz, len);
-    memcpy(w_string_cstr(r), s.data(), sz);
-    w_string_cstr(r)[sz] = 0;
-    return r;
+    return lean_mk_string_from_bytes(s.data(), s.size());
 }
 
 std::string string_to_std(b_obj_arg o) {
@@ -1828,11 +1823,7 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_extract(b_obj_arg s, b_obj_arg b
     if (e < sz && !is_utf8_first_byte(str[e])) e = sz;
     usize new_sz = e - b;
     lean_assert(new_sz > 0);
-    obj_res r = lean_alloc_string(new_sz+1, new_sz+1, 0);
-    memcpy(w_string_cstr(r), lean_string_cstr(s) + b, new_sz);
-    w_string_cstr(r)[new_sz] = 0;
-    lean_to_string(r)->m_length = utf8_strlen(w_string_cstr(r), new_sz);
-    return r;
+    return lean_mk_string_from_bytes(lean_string_cstr(s) + b, new_sz);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_string_utf8_prev(b_obj_arg s, b_obj_arg i0) {

@@ -36,6 +36,7 @@ jobs:
 
   build:
     needs: set-nightly
+    # `always` *must* be used to continue even after a dependency has been skipped
     if: always() && (github.event_name != 'schedule' || github.repository == 'leanprover/lean4')
     runs-on: ${{ matrix.os }}
     defaults:

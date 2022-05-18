@@ -105,13 +105,9 @@ builtin_initialize
 builtin_initialize
   registerBuiltinRpcProcedure
     `Lean.Widget.getGoToLocation
-    (WithRpcRef InfoWithCtx × FileWorker.GoToKind)
-    (Option Lsp.Location)
-    fun (⟨i⟩, kind) => RequestM.asTask do
-      let ls ← FileWorker.locationLinksOfInfo kind i.ctx i.info
-      return ls.back?.map fun lnk => {
-        uri := lnk.targetUri
-        range := lnk.targetSelectionRange
-      }
+    (FileWorker.GoToKind × WithRpcRef InfoWithCtx)
+    (Array Lsp.LocationLink)
+    fun (kind, ⟨i⟩) => RequestM.asTask <|
+      FileWorker.locationLinksOfInfo kind i.ctx i.info
 
 end Lean.Widget

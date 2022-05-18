@@ -102,12 +102,17 @@ builtin_initialize
     (Array InteractiveDiagnostic)
     getInteractiveDiagnostics
 
+structure GetGoToLocationParams where
+  kind : FileWorker.GoToKind
+  info : WithRpcRef InfoWithCtx
+  deriving RpcEncoding
+
 builtin_initialize
   registerBuiltinRpcProcedure
     `Lean.Widget.getGoToLocation
-    (FileWorker.GoToKind × WithRpcRef InfoWithCtx)
+    GetGoToLocationParams
     (Array Lsp.LocationLink)
-    fun (kind, ⟨i⟩) => RequestM.asTask <|
+    fun ⟨kind, ⟨i⟩⟩ => RequestM.asTask <|
       FileWorker.locationLinksOfInfo kind i.ctx i.info
 
 end Lean.Widget

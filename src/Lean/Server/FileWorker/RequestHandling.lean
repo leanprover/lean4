@@ -116,7 +116,7 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
     if let some modUri ← documentUriFromModule name then
       let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
       let ll : LocationLink := {
-        originSelectionRange? := (·.toLspRange text) <$> i.stx[2].getRange?
+        originSelectionRange? := (·.toLspRange text) <$> i.stx[2].getRange? (originalOnly := true)
         targetUri := modUri
         targetRange := range
         targetSelectionRange := range

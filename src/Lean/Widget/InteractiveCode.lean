@@ -21,7 +21,8 @@ structure InfoWithCtx where
   info : Elab.Info
   deriving Inhabited, RpcEncoding with { withRef := true }
 
-structure CodeToken where
+/-- Information about a subexpression within delaborated code. -/
+structure SubexprInfo where
   /-- The `Elab.Info` node with the semantics of this part of the output. -/
   info : WithRpcRef InfoWithCtx
   /-- The position of this subexpression within the top-level expression.
@@ -32,7 +33,7 @@ structure CodeToken where
   deriving Inhabited, RpcEncoding
 
 /-- Pretty-printed syntax (usually but not necessarily an `Expr`) with embedded `Info`s. -/
-abbrev CodeWithInfos := TaggedText CodeToken
+abbrev CodeWithInfos := TaggedText SubexprInfo
 
 def CodeWithInfos.pretty (tt : CodeWithInfos) :=
   tt.stripTags

@@ -29,8 +29,17 @@ structure TextDocumentClientCapabilities where
   completion? : Option CompletionClientCapabilities
   deriving ToJson, FromJson
 
+structure ShowDocumentClientCapabilities where
+  support : Bool
+  deriving ToJson, FromJson
+
+structure WindowClientCapabilities where
+  showDocument? : Option ShowDocumentClientCapabilities
+  deriving ToJson, FromJson
+
 structure ClientCapabilities where
   textDocument? : Option TextDocumentClientCapabilities
+  window? : Option WindowClientCapabilities
   deriving ToJson, FromJson
 
 -- TODO largely unimplemented

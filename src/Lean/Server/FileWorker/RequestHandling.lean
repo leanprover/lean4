@@ -21,7 +21,7 @@ open Lsp
 open RequestM
 open Snapshots
 
-partial def handleCompletion (p : CompletionParams)
+def handleCompletion (p : CompletionParams)
     : RequestM (RequestTask CompletionList) := do
   let doc ← readDoc
   let text := doc.meta.text
@@ -38,7 +38,7 @@ partial def handleCompletion (p : CompletionParams)
       return { items := #[ ], isIncomplete := true }
 
 open Elab in
-partial def handleHover (p : HoverParams)
+def handleHover (p : HoverParams)
     : RequestM (RequestTask (Option Hover)) := do
   let doc ← readDoc
   let text := doc.meta.text
@@ -174,7 +174,7 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
         return none
 
 open Elab in
-partial def handlePlainGoal (p : PlainGoalParams)
+def handlePlainGoal (p : PlainGoalParams)
     : RequestM (RequestTask (Option PlainGoal)) := do
   let t ← getInteractiveGoals p
   return t.map <| Except.map <| Option.map <| fun ⟨goals⟩ =>
@@ -188,7 +188,7 @@ partial def handlePlainGoal (p : PlainGoalParams)
       let md := String.intercalate "\n---\n" goalBlocks.toList
       { goals := goalStrs, rendered := md }
 
-partial def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
+def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
     : RequestM (RequestTask (Option Widget.InteractiveTermGoal)) := do
   let doc ← readDoc
   let text := doc.meta.text

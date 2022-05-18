@@ -22,7 +22,11 @@ structure InfoWithCtx where
   deriving Inhabited, RpcEncoding with { withRef := true }
 
 structure CodeToken where
+  /-- The `Elab.Info` node with the semantics of this part of the output. -/
   info : WithRpcRef InfoWithCtx
+  /-- The position of this subexpression within the top-level expression.
+  See `Lean.PrettyPrinter.Delaborator.SubExpr`. -/
+  subexprPos : Nat
   -- TODO(WN): add fields for semantic highlighting
   -- kind : Lsp.SymbolKind
   deriving Inhabited, RpcEncoding
@@ -42,7 +46,7 @@ where
     tt.rewrite fun (n, _) subTt =>
       match infos.find? n with
       | none   => go subTt
-      | some i => TaggedText.tag ⟨WithRpcRef.mk { ctx, info := i }⟩ (go subTt)
+      | some i => TaggedText.tag ⟨WithRpcRef.mk { ctx, info := i }, n⟩ (go subTt)
 
 def exprToInteractive (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
   let optsPerPos := if explicit then

@@ -102,4 +102,16 @@ builtin_initialize
     (Array InteractiveDiagnostic)
     getInteractiveDiagnostics
 
+builtin_initialize
+  registerBuiltinRpcProcedure
+    `Lean.Widget.getGoToLocation
+    (WithRpcRef InfoWithCtx × FileWorker.GoToKind)
+    (Option Lsp.Location)
+    fun (⟨i⟩, kind) => RequestM.asTask do
+      let ls ← FileWorker.locationLinksOfInfo kind i.ctx i.info
+      return ls.back?.map fun lnk => {
+        uri := lnk.targetUri
+        range := lnk.targetSelectionRange
+      }
+
 end Lean.Widget

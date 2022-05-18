@@ -122,7 +122,7 @@ def registerRpcProcedure (method : Name) : CoreM Unit := do
   setEnv <| userRpcProcedures.insert (← getEnv) method wrappedName
 
 builtin_initialize registerBuiltinAttribute {
-  name := `rpc
+  name := `serverRpcMethod
   descr := "Marks a function as a Lean server RPC method.
     Shorthand for `registerRpcProcedure`.
     The function must have type `α → RequestM (RequestTask β)` with

@@ -16,13 +16,16 @@ import Lean.Server.Snapshots
 /- Representing collected and deduplicated definitions and usages -/
 
 namespace Lean.Server
-open Lsp
+open Lsp Lean.Elab
 
 structure Reference where
   ident : RefIdent
   range : Lsp.Range
+  stx : Syntax
+  ci : ContextInfo
+  info : Info
   isBinder : Bool
-  deriving BEq, Inhabited
+  deriving Inhabited
 
 end Lean.Server
 
@@ -109,10 +112,10 @@ def identOf : Info → Option (RefIdent × Bool)
 def findReferences (text : FileMap) (trees : Array InfoTree) : Array Reference := Id.run do
   let mut refs := #[]
   for tree in trees do
-    refs := refs.appendList <| tree.deepestNodes fun _ info _ => Id.run do
+    refs := refs.appendList <| tree.deepestNodes fun ci info _ => Id.run do
       if let some (ident, isBinder) := identOf info then
         if let some range := info.range? then
-          return some { ident, range := range.toLspRange text, isBinder }
+          return some { ident, range := range.toLspRange text, stx := info.stx, ci, info, isBinder }
       return none
   refs
 
@@ -130,7 +133,7 @@ partial def combineFvars (refs : Array Reference) : Array Reference := Id.run do
   -- Deduplicate definitions based on their exact range
   let mut posMap : HashMap Lsp.Range FVarId := HashMap.empty
   for ref in refs do
-    if let { ident := RefIdent.fvar id, range, isBinder := true } := ref then
+    if let { ident := RefIdent.fvar id, range, isBinder := true, .. } := ref then
       posMap := posMap.insert range id
 
   -- Map fvar defs to overlapping fvar defs/uses
@@ -147,11 +150,11 @@ partial def combineFvars (refs : Array Reference) : Array Reference := Id.run do
   let mut refs' := #[]
   for ref in refs do
     match ref with
-    | { ident := ident@(RefIdent.fvar id), range, isBinder } =>
+    | { ident := ident@(RefIdent.fvar id), isBinder, .. } =>
       -- downgrade chained definitions to usages
       -- (we shouldn't completely remove them in case they do not have usages)
       let isBinder := isBinder && !idMap.contains id
-      refs' := refs'.push { ident := applyIdMap idMap ident, range, isBinder }
+      refs' := refs'.push { ref with ident := applyIdMap idMap ident, isBinder }
     | _ =>
       refs' := refs'.push ref
   refs'

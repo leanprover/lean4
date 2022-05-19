@@ -124,10 +124,10 @@ def OleanAndCTarget.activate (self : OleanAndCTarget) : SchedulerM ActiveOleanAn
 def moduleTarget
 [CheckExists i] [GetMTime i] [ComputeHash i m] [MonadLiftT m BuildM] (info : i)
 (leanFile traceFile : FilePath) (contents : String) (depTarget : BuildTarget x)
-(build : BuildM PUnit) : BuildTarget i :=
+(argTrace : BuildTrace) (build : BuildM PUnit) : BuildTarget i :=
   Target.mk info <| depTarget.bindOpaqueSync fun depTrace => do
     let srcTrace : BuildTrace := ⟨Hash.ofString contents, ← getMTime leanFile⟩
-    let fullTrace := (← getLeanTrace).mix <| srcTrace.mix depTrace
+    let fullTrace := (← getLeanTrace).mix <| argTrace.mix <| srcTrace.mix depTrace
     let upToDate ← fullTrace.checkAgainstFile info traceFile
     unless upToDate do
       build
@@ -138,8 +138,9 @@ def moduleOleanAndCTarget
 (leanFile cFile oleanFile traceFile : FilePath)
 (contents : String)  (depTarget : BuildTarget x)
 (rootDir : FilePath := ".") (leanArgs : Array String := #[]) : OleanAndCTarget :=
+  let info := OleanAndC.mk oleanFile cFile
   let ileanFile := oleanFile.withExtension "ilean"
-  moduleTarget (OleanAndC.mk oleanFile cFile) leanFile traceFile contents depTarget do
+  moduleTarget info leanFile traceFile contents depTarget (pureHash leanArgs) do
     compileLeanModule leanFile oleanFile ileanFile cFile (← getOleanPath) rootDir leanArgs (← getLean)
 
 def moduleOleanTarget
@@ -147,7 +148,7 @@ def moduleOleanTarget
 (contents : String) (depTarget : BuildTarget x)
 (rootDir : FilePath := ".") (leanArgs : Array String := #[]) : FileTarget :=
   let ileanFile := oleanFile.withExtension "ilean"
-  let target := moduleTarget oleanFile leanFile traceFile contents depTarget do
+  let target := moduleTarget oleanFile leanFile traceFile contents depTarget (pureHash leanArgs) do
     compileLeanModule leanFile oleanFile ileanFile none (← getOleanPath) rootDir leanArgs (← getLean)
   target.withTask do target.bindSync fun oleanFile depTrace => do
     return mixTrace (← computeTrace oleanFile) depTrace

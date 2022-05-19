@@ -6,5 +6,5 @@ source ../../common.sh
 export ASAN_OPTIONS=detect_leaks=0
 
 # these tests don't have to succeed
-exec_capture lean --run run.lean "$f" || true
+exec_capture lean -Dlinter.nolint=true --run run.lean "$f" || true
 diff_produced

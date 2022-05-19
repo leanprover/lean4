@@ -12,7 +12,7 @@ import Lean.Util.Sorry
 protected structure String.Range where
   start : String.Pos
   stop  : String.Pos
-  deriving Inhabited, Repr
+  deriving Inhabited, Repr, BEq, Hashable
 
 def String.Range.contains (r : String.Range) (pos : String.Pos) (includeStop := false) : Bool :=
   r.start <= pos && (if includeStop then pos <= r.stop else pos < r.stop)

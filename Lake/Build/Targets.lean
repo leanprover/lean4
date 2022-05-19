@@ -30,28 +30,28 @@ def buildFileUnlessUpToDate (file : FilePath)
   computeTrace file
 
 def fileTargetWithDep (file : FilePath) (depTarget : BuildTarget i)
-(build : i → BuildM PUnit) (extraDepTrace := BuildTrace.nil) : FileTarget :=
-  Target.mk file <| depTarget.bindSync fun depInfo depTrace =>
-    buildFileUnlessUpToDate file (depTrace.mix extraDepTrace) <| build depInfo
+(build : i → BuildM PUnit) (extraDepTrace : BuildM _ := pure BuildTrace.nil) : FileTarget :=
+  Target.mk file <| depTarget.bindSync fun depInfo depTrace => do
+    buildFileUnlessUpToDate file (depTrace.mix (← extraDepTrace)) <| build depInfo
 
 def fileTargetWithDepList (file : FilePath) (depTargets : List (BuildTarget i))
-(build : List i → BuildM PUnit) (extraDepTrace := BuildTrace.nil) : FileTarget :=
+(build : List i → BuildM PUnit) (extraDepTrace : BuildM _ := pure BuildTrace.nil) : FileTarget :=
   fileTargetWithDep file (Target.collectList depTargets) build extraDepTrace
 
 def fileTargetWithDepArray (file : FilePath) (depTargets : Array (BuildTarget i))
-(build : Array i → BuildM PUnit) (extraDepTrace := BuildTrace.nil) : FileTarget :=
+(build : Array i → BuildM PUnit) (extraDepTrace : BuildM _ := pure BuildTrace.nil) : FileTarget :=
   fileTargetWithDep file (Target.collectArray depTargets) build extraDepTrace
 
 -- # Specific Targets
 
 def oFileTarget (oFile : FilePath) (srcTarget : FileTarget)
 (args : Array String := #[]) (compiler : FilePath := "c++") : FileTarget :=
-  fileTargetWithDep oFile srcTarget (extraDepTrace := pureHash args) fun srcFile => do
+  fileTargetWithDep oFile srcTarget (extraDepTrace := computeHash args) fun srcFile => do
     compileO oFile srcFile args compiler
 
 def leanOFileTarget (oFile : FilePath)
 (srcTarget : FileTarget) (args : Array String := #[]) : FileTarget :=
-  fileTargetWithDep oFile srcTarget (extraDepTrace := pureHash args) fun srcFile => do
+  fileTargetWithDep oFile srcTarget (extraDepTrace := computeHash args) fun srcFile => do
     compileO oFile srcFile args (← getLeanc)
 
 def staticLibTarget (libFile : FilePath)
@@ -66,10 +66,11 @@ def leanSharedLibTarget (binFile : FilePath)
 
 def binTarget (binFile : FilePath) (linkTargets : Array FileTarget)
 (linkArgs : Array String := #[]) (linker : FilePath := "cc") : FileTarget :=
-   fileTargetWithDepArray binFile linkTargets (extraDepTrace := pureHash linkArgs) fun links => do
+   fileTargetWithDepArray binFile linkTargets (extraDepTrace := computeHash linkArgs) fun links => do
     compileBin binFile links linkArgs linker
 
 def leanBinTarget (binFile : FilePath)
 (linkTargets : Array FileTarget) (linkArgs : Array String := #[]) : FileTarget :=
-  fileTargetWithDepArray binFile linkTargets (extraDepTrace := pureHash linkArgs) fun links => do
+  fileTargetWithDepArray binFile linkTargets
+  (extraDepTrace := getLeanTrace <&> (·.mix <| pureHash linkArgs)) fun links => do
     compileBin binFile links linkArgs (← getLeanc)

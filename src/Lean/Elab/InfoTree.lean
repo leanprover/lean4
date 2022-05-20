@@ -97,6 +97,7 @@ structure FieldInfo where
     We also store the metavariable context at each time since we want metavariables
     unassigned at tactic execution time to be displayed as `?m...`. -/
 structure TacticInfo extends ElabInfo where
+  main : MVarId
   mctxBefore  : MetavarContext
   goalsBefore : List MVarId
   mctxAfter   : MetavarContext

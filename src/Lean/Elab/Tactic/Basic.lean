@@ -115,6 +115,7 @@ unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
 
 def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx : Syntax) : TacticM Info :=
   return Info.ofTacticInfo {
+    main          := (← read).main
     elaborator    := (← read).elaborator
     mctxBefore    := mctxBefore
     goalsBefore   := goalsBefore

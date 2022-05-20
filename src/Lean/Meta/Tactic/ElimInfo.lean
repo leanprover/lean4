@@ -106,7 +106,7 @@ builtin_initialize customEliminatorExt : SimpleScopedEnvExtension CustomEliminat
     finalizeImport := fun { map := map } => { map := map.switch }
   }
 
-def mkCustorEliminator (declName : Name) : MetaM CustomEliminator := do
+def mkCustomEliminator (declName : Name) : MetaM CustomEliminator := do
   let info ← getConstInfo declName
   let elimInfo ← getElimInfo declName
   forallTelescopeReducing info.type fun xs _ => do
@@ -119,7 +119,7 @@ def mkCustorEliminator (declName : Name) : MetaM CustomEliminator := do
     return { typeNames, elimInfo }
 
 def addCustomEliminator (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
-  let e ← mkCustorEliminator declName
+  let e ← mkCustomEliminator declName
   customEliminatorExt.add e attrKind
 
 builtin_initialize

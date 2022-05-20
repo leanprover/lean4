@@ -38,6 +38,8 @@ option(LLVM               "LLVM"               OFF)
 
 # When ON we include githash in the version string
 option(USE_GITHASH        "GIT_HASH"           ON)
+# When ON we install LICENSE files to CMAKE_INSTALL_PREFIX
+option(INSTALL_LICENSE "INSTALL_LICENSE" ON)
 # When ON thread storage is automatically finalized, it assumes platform support pthreads.
 # This option is important when using Lean as library that is invoked from a different programming language (e.g., Haskell).
 option(AUTO_THREAD_FINALIZATION "AUTO_THREAD_FINALIZATION" ON)
@@ -531,7 +533,7 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/" DESTINATION src/lean
         PATTERN "*.md"
         PATTERN examples EXCLUDE)
 
-if(${STAGE} GREATER 0)
+if(${STAGE} GREATER 0 AND INSTALL_LICENSE)
   install(FILES "${CMAKE_SOURCE_DIR}/../LICENSE" "${CMAKE_SOURCE_DIR}/../LICENSES" DESTINATION ".")
 endif()
 

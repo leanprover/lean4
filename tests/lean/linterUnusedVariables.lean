@@ -1,6 +1,6 @@
 import Lean.Util.Trace
 
-set_option linter.nolint false
+set_option linter.all true
 
 def explicitelyUsedVariable (x : Nat) : Nat :=
   x
@@ -62,8 +62,19 @@ def unusedVariablesPattern (_x : Nat) : Nat :=
   let _y := 5
   3
 
-set_option linter.unusedVariables.nolint true in
-def nolint (x : Nat) : Nat :=
+set_option linter.unusedVariables false in
+def nolintUnusedVariables (x : Nat) : Nat :=
+  let y := 5
+  3
+
+set_option linter.all false in
+def nolintAll (x : Nat) : Nat :=
+  let y := 5
+  3
+
+set_option linter.all false in
+set_option linter.unusedVariables true in
+def lintUnusedVariables (x : Nat) : Nat :=
   let y := 5
   3
 

@@ -8,10 +8,12 @@ import Std.Data.HashMap
 namespace Lean.Linter
 open Lean.Server Std
 
-register_builtin_option linter.unusedVariables.nolint : Bool := {
-  defValue := false,
-  descr := "disable the 'unused variables' linter"
+register_builtin_option linter.unusedVariables : Bool := {
+  defValue := true,
+  descr := "enable the 'unused variables' linter"
 }
+
+def getLinterUnusedVariables (o : Options) : Bool := o.get linter.unusedVariables.name (getLinterAll o)
 
 def unusedVariables : Linter := fun stx => do
   let some stxRange := stx.getRange?
@@ -40,33 +42,35 @@ def unusedVariables : Linter := fun stx => do
   for (id, (decl?, uses)) in vars.toList do
     let some decl := decl?
       | continue
-    let some range := decl.stx.getRange?
+    let declStx := skipDeclIdIfPresent decl.stx
+    let some range := declStx.getRange?
       | continue
     let some localDecl := decl.info.lctx.find? id
       | continue
     if !stxRange.contains range.start then
       continue
 
-    let opts := decl.ci.options
-    if linter.nolint.get opts || linter.unusedVariables.nolint.get opts then
+    if !getLinterUnusedVariables decl.ci.options then
       continue
 
-    if anyWithStack (stx := stx) (fun stx stack =>
-      stx.getRange?.isEqSome range &&
-      stx.isOfKind decl.stx.getKind && (
-        matchesUnusedPattern stx stack ||
-        isTopLevelDecl constDecls stx stack ||
-        isVariable stx stack ||
-        isInCtor stx stack ||
-        isInStructBinder stx stack ||
-        isInConstantWithoutDef stx stack ||
-        isInAxiom stx stack ||
-        isInDefWithForeignDefinition stx stack
-    )) then continue
+    let some stack := findSyntaxStack? stx declStx
+      | continue
+    let ignoredPatternFns := [
+      isTopLevelDecl constDecls,
+      matchesUnusedPattern,
+      isVariable,
+      isInCtor,
+      isInStructBinder,
+      isInConstantWithoutDef,
+      isInAxiom,
+      isInDefWithForeignDefinition,
+      isInDepArrow
+    ]
+    if ignoredPatternFns.any (· declStx stack) then
+      continue
 
     if uses.isEmpty then
-      let pos := fileMap.toPosition range.start
-      publishMessage s!"unused variable `{localDecl.userName}` at {pos.line}:{pos.column + 1}" range
+      publishMessage s!"unused variable `{localDecl.userName}`" range
 
   return ()
 where
@@ -76,14 +80,13 @@ where
     else
       stx
 
-  matchesUnusedPattern (stx : Syntax) (_ : SyntaxStack) :=
-    stx.getId.toString.startsWith "_"
   isTopLevelDecl (constDecls : HashSet String.Range) (stx : Syntax) (stack : SyntaxStack) := Id.run <| do
-    let stx := skipDeclIdIfPresent stx
     let some declRange := stx.getRange?
       | false
     constDecls.contains declRange &&
     !stackMatches stack [`Lean.Parser.Term.letIdDecl]
+  matchesUnusedPattern (stx : Syntax) (_ : SyntaxStack) :=
+    stx.getId.toString.startsWith "_"
   isVariable (_ : Syntax) (stack : SyntaxStack) :=
     stackMatches stack [`null, none, `null, `Lean.Parser.Command.variable]
   isInCtor (_ : Syntax) (stack : SyntaxStack) :=
@@ -118,6 +121,8 @@ where
         return attr[0].getId == `implementedBy
       else
         return false)
+  isInDepArrow (_ : Syntax) (stack : SyntaxStack) :=
+    stackMatches stack [`null, `Lean.Parser.Term.explicitBinder, `Lean.Parser.Term.depArrow]
 
 builtin_initialize addLinter unusedVariables
 

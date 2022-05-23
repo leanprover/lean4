@@ -20,26 +20,21 @@ def unusedVariables : Linter := fun stx => do
     | pure ()
 
   let fileMap := (← read).fileMap
-  let refs := dedupReferences <| combineFvars <| findReferences fileMap (← get).infoState.trees.toArray
+  let refs := findModuleRefs fileMap (← get).infoState.trees.toArray
 
-  let mut vars : HashMap FVarId (Option Reference × Array Reference) := .empty
+  let mut vars : HashMap FVarId RefInfo := .empty
   let mut constDecls : HashSet String.Range := .empty
 
-  for ref in refs do
-    match ref.ident with
+  for (ident, info) in refs.toList do
+    match ident with
     | .fvar id =>
-      let var := vars.findD id (none, #[])
-      let var := match (var, ref.isBinder) with
-      | ((none , usages), true ) => (some ref, usages)
-      | ((decl?, usages), false) => (decl?, usages.push ref)
-      | _ => var
-      vars := vars.insert id var
+      vars := vars.insert id info
     | .const _ =>
-      if ref.isBinder then
-        if let some range := ref.stx.getRange? then
+      if let some definition := info.definition then
+        if let some range := definition.stx.getRange? then
           constDecls := constDecls.insert range
 
-  for (id, (decl?, uses)) in vars.toList do
+  for (id, ⟨decl?, uses⟩) in vars.toList do
     let some decl := decl?
       | continue
     let declStx := skipDeclIdIfPresent decl.stx

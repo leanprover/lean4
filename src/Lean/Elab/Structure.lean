@@ -904,6 +904,8 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
                 mkInjectiveTheorems declName
               return declName
   derivingClassViews.forM fun view => view.applyHandlers #[declName]
+  runTermElabM declName fun _ =>
+    Term.applyAttributesAt declName modifiers.attrs .afterCompilation
 
 builtin_initialize registerTraceClass `Elab.structure
 

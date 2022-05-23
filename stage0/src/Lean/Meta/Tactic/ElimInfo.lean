@@ -106,20 +106,32 @@ builtin_initialize customEliminatorExt : SimpleScopedEnvExtension CustomEliminat
     finalizeImport := fun { map := map } => { map := map.switch }
   }
 
-def mkCustorEliminator (declName : Name) : MetaM CustomEliminator := do
+def mkCustomEliminator (declName : Name) : MetaM CustomEliminator := do
   let info ← getConstInfo declName
   let elimInfo ← getElimInfo declName
   forallTelescopeReducing info.type fun xs _ => do
     let mut typeNames := #[]
-    for targetPos in elimInfo.targetsPos do
+    for i in [:elimInfo.targetsPos.size] do
+      let targetPos := elimInfo.targetsPos[i]
       let x := xs[targetPos]
-      let xType ← inferType x
-      let .const typeName .. := xType.getAppFn | throwError "unexpected eliminator target type{indentExpr xType}"
-      typeNames := typeNames.push typeName
+      /- Return true if there is another target that depends on `x`. -/
+      let isImplicitTarget : MetaM Bool := do
+        for j in [i+1:elimInfo.targetsPos.size] do
+          let y := xs[elimInfo.targetsPos[j]]
+          let yType ← inferType y
+          if (← dependsOn yType x.fvarId!) then
+            return true
+        return false
+      /- We should only use explicit targets when creating the key for the `CustomEliminators` map.
+         See test `tests/lean/run/eliminatorImplicitTargets.lean`. -/
+      unless (← isImplicitTarget) do
+        let xType ← inferType x
+        let .const typeName .. := xType.getAppFn | throwError "unexpected eliminator target type{indentExpr xType}"
+        typeNames := typeNames.push typeName
     return { typeNames, elimInfo }
 
 def addCustomEliminator (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
-  let e ← mkCustorEliminator declName
+  let e ← mkCustomEliminator declName
   customEliminatorExt.add e attrKind
 
 builtin_initialize

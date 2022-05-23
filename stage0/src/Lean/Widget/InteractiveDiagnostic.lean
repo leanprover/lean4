@@ -23,48 +23,14 @@ inductive MsgEmbed where
   | expr : CodeWithInfos → MsgEmbed
   | goal : InteractiveGoal → MsgEmbed
   | lazyTrace : Nat → Name → WithRpcRef MessageData → MsgEmbed
-  deriving Inhabited
-
-namespace MsgEmbed
-
--- TODO(WN): `deriving RpcEncoding` for `inductive` to replace the following hack
-@[reducible]
-def rpcPacketFor {β : outParam Type} (α : Type) [RpcEncoding α β] := β
-
-private inductive RpcEncodingPacket where
-  | expr : TaggedText (rpcPacketFor CodeToken) → RpcEncodingPacket
-  | goal : rpcPacketFor InteractiveGoal → RpcEncodingPacket
-  | lazyTrace : Nat → Name → Lsp.RpcRef → RpcEncodingPacket
-  deriving Inhabited, FromJson, ToJson
-
-instance : RpcEncoding MsgEmbed RpcEncodingPacket where
-  rpcEncode a := match a with
-    | expr t            => return RpcEncodingPacket.expr (← rpcEncode t)
-    | goal g            => return RpcEncodingPacket.goal (← rpcEncode g)
-    | lazyTrace col n t => return RpcEncodingPacket.lazyTrace col n (← rpcEncode t)
-
-  rpcDecode a := match a with
-    | RpcEncodingPacket.expr t            => return expr (← rpcDecode t)
-    | RpcEncodingPacket.goal g            => return goal (← rpcDecode g)
-    | RpcEncodingPacket.lazyTrace col n t => return lazyTrace col n (← rpcDecode t)
-
-end MsgEmbed
+  deriving Inhabited, RpcEncoding
 
 /-- We embed objects in LSP diagnostics by storing them in the tag of an empty subtree (`text ""`).
 In other words, we terminate the `MsgEmbed`-tagged tree at embedded objects and instead store
 the pretty-printed embed (which can itself be a `TaggedText`) in the tag. -/
 abbrev InteractiveDiagnostic := Lsp.DiagnosticWith (TaggedText MsgEmbed)
 
-namespace InteractiveDiagnostic
-open Lsp
-
-private abbrev RpcEncodingPacket := Lsp.DiagnosticWith (TaggedText MsgEmbed.RpcEncodingPacket)
-
-instance : RpcEncoding InteractiveDiagnostic RpcEncodingPacket where
-  rpcEncode a := return { a with message := ← rpcEncode a.message }
-  rpcDecode a := return { a with message := ← rpcDecode a.message }
-
-end InteractiveDiagnostic
+deriving instance RpcEncoding for Lsp.DiagnosticWith
 
 namespace InteractiveDiagnostic
 open MsgEmbed

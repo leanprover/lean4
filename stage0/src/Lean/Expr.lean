@@ -268,18 +268,18 @@ def data : (@& Expr) → Data
   | proj _ _ _ d    => d
 
 def ctorName : Expr → String
-  | bvar _ _        => "bvar"
-  | fvar _ _        => "fvar"
-  | mvar _ _        => "mvar"
-  | sort _ _        => "sort"
-  | const _ _ _     => "const"
-  | app _ _ _       => "app"
-  | lam _ _ _ _     => "lam"
-  | forallE _ _ _ _ => "forallE"
-  | letE _ _ _ _ _  => "letE"
-  | lit _ _         => "lit"
-  | mdata _ _ _     => "mdata"
-  | proj _ _ _ _    => "proj"
+  | bvar ..    => "bvar"
+  | fvar ..    => "fvar"
+  | mvar ..    => "mvar"
+  | sort ..    => "sort"
+  | const ..   => "const"
+  | app ..     => "app"
+  | lam ..     => "lam"
+  | forallE .. => "forallE"
+  | letE ..    => "letE"
+  | lit ..     => "lit"
+  | mdata ..   => "mdata"
+  | proj ..    => "proj"
 
 protected def hash (e : Expr) : UInt64 :=
   e.data.hash
@@ -486,8 +486,8 @@ protected unsafe def ptrEq (a b : Expr) : Bool :=
 constant equal (a : @& Expr) (b : @& Expr) : Bool
 
 def isSort : Expr → Bool
-  | sort _ _ => true
-  | _        => false
+  | sort .. => true
+  | _       => false
 
 def isType : Expr → Bool
   | sort (Level.succ ..) _ => true
@@ -498,16 +498,16 @@ def isProp : Expr → Bool
   | _ => false
 
 def isBVar : Expr → Bool
-  | bvar _ _ => true
-  | _        => false
+  | bvar .. => true
+  | _       => false
 
 def isMVar : Expr → Bool
-  | mvar _ _ => true
-  | _        => false
+  | mvar .. => true
+  | _       => false
 
 def isFVar : Expr → Bool
-  | fvar _ _ => true
-  | _        => false
+  | fvar .. => true
+  | _       => false
 
 def isApp : Expr → Bool
   | app .. => true
@@ -522,8 +522,8 @@ def isConst : Expr → Bool
   | _        => false
 
 def isConstOf : Expr → Name → Bool
-  | const n _ _, m => n == m
-  | _,           _ => false
+  | const n .., m => n == m
+  | _,          _ => false
 
 def isForall : Expr → Bool
   | forallE .. => true
@@ -854,13 +854,13 @@ instance : ToString Expr where
 
 /-- Returns true when the expression does not have any sub-expressions. -/
 def isAtomic : Expr → Bool
-  | Expr.const _ _ _ => true
-  | Expr.sort _ _    => true
-  | Expr.bvar _ _    => true
-  | Expr.lit _ _     => true
-  | Expr.mvar _ _    => true
-  | Expr.fvar _ _    => true
-  | _                => false
+  | Expr.const .. => true
+  | Expr.sort ..  => true
+  | Expr.bvar ..  => true
+  | Expr.lit ..   => true
+  | Expr.mvar ..  => true
+  | Expr.fvar ..  => true
+  | _             => false
 
 end Expr
 

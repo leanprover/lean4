@@ -396,7 +396,7 @@ def assignExpr (m : MetavarContext) (mvarId : MVarId) (val : Expr) : MetavarCont
   { m with eAssignment := m.eAssignment.insert mvarId val }
 
 def assignDelayed (m : MetavarContext) (mvarId : MVarId) (lctx : LocalContext) (fvars : Array Expr) (val : Expr) : MetavarContext :=
-  { m with dAssignment := m.dAssignment.insert mvarId { lctx := lctx, fvars := fvars, val := val } }
+  { m with dAssignment := m.dAssignment.insert mvarId { lctx, fvars, val } }
 
 def getLevelAssignment? (m : MetavarContext) (mvarId : MVarId) : Option Level :=
   m.lAssignment.find? mvarId
@@ -557,7 +557,7 @@ partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLi
         let mctx ← getMCtx
         match mctx.getDelayedAssignment? mvarId with
         | none => instApp
-        | some { fvars := fvars, val := val, .. } =>
+        | some { fvars, val, .. } =>
           /-
              Apply "delayed substitution" (i.e., delayed assignment + application).
              That is, `f` is some metavariable `?m`, that is delayed assigned to `val`.
@@ -628,7 +628,7 @@ def instantiateMVarDeclMVars (mctx : MetavarContext) (mvarId : MVarId) : Metavar
   let mvarDecl     := mctx.getDecl mvarId
   let (lctx, mctx) := mctx.instantiateLCtxMVars mvarDecl.lctx
   let (type, mctx) := mctx.instantiateMVars mvarDecl.type
-  { mctx with decls := mctx.decls.insert mvarId { mvarDecl with lctx := lctx, type := type } }
+  { mctx with decls := mctx.decls.insert mvarId { mvarDecl with lctx, type } }
 
 namespace DependsOn
 
@@ -897,7 +897,7 @@ mutual
     | Expr.lam _ d b _     => return e.updateLambdaE! (← visit xs d) (← visit xs b)
     | Expr.letE _ t v b _  => return e.updateLet! (← visit xs t) (← visit xs v) (← visit xs b)
     | Expr.mdata _ b _     => return e.updateMData! (← visit xs b)
-    | Expr.app _ _ _       => e.withApp fun f args => elimApp xs f args
+    | Expr.app ..          => e.withApp fun f args => elimApp xs f args
     | Expr.mvar mvarId _   => elimApp xs e #[]
     | e                    => return e
 
@@ -993,7 +993,7 @@ mutual
         cont #[] mvarLCtx
       else match mctx.getDelayedAssignment? mvarId with
       | none => cont #[] mvarLCtx
-      | some { fvars := fvars, lctx := nestedLCtx, .. } => cont fvars nestedLCtx -- Remark: nestedLCtx is bigger than mvarLCtx
+      | some { fvars, lctx := nestedLCtx, .. } => cont fvars nestedLCtx -- Remark: nestedLCtx is bigger than mvarLCtx
 
   private partial def elimApp (xs : Array Expr) (f : Expr) (args : Array Expr) : M Expr := do
     match f with
@@ -1209,9 +1209,9 @@ structure UnivMVarParamResult where
 def levelMVarToParam (mctx : MetavarContext) (alreadyUsedPred : Name → Bool) (except : MVarId → Bool) (e : Expr) (paramNamePrefix : Name := `u) (nextParamIdx : Nat := 1)
     : UnivMVarParamResult :=
   let (e, s) := LevelMVarToParam.main e { except, paramNamePrefix, alreadyUsedPred } { mctx, nextParamIdx }
-  { mctx          := s.mctx,
-    newParamNames := s.paramNames,
-    nextParamIdx  := s.nextParamIdx,
+  { mctx          := s.mctx
+    newParamNames := s.paramNames
+    nextParamIdx  := s.nextParamIdx
     expr          := e }
 
 def getExprAssignmentDomain (mctx : MetavarContext) : Array MVarId :=

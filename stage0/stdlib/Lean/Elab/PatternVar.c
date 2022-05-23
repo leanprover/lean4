@@ -8683,7 +8683,7 @@ _start:
 {
 lean_object* x_10; uint8_t x_11; lean_object* x_12; 
 x_10 = l_Lean_Elab_Term_CollectPatternVars_collect_processCtorAppCore___lambda__2___closed__1;
-x_11 = 1;
+x_11 = 0;
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);

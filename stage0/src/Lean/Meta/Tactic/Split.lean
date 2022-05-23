@@ -200,12 +200,10 @@ private def substDiscrEqs (mvarId : MVarId) (fvarSubst : FVarSubst) (discrEqs : 
 def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Level) (params : Array Expr) (discrs : Array Expr) : MetaM (List MVarId) := do
   let some info ← getMatcherInfo? matcherDeclName | throwError "'applyMatchSplitter' failed, '{matcherDeclName}' is not a 'match' auxiliary declaration."
   let matchEqns ← Match.getEquationsFor matcherDeclName
-  let mut us := us
-  if let some uElimPos := info.uElimPos? then
-    -- Set universe elimination level to zero (Prop).
-    us := us.set! uElimPos levelZero
-  let splitter := mkAppN (mkConst matchEqns.splitterName us.toList) params
-  let motiveType := (← whnfForall (← inferType splitter)).bindingDomain!
+  -- splitterPre does not have the correct universe elimination level, but this is fine, we only use it to compute the `motiveType`,
+  -- and we only care about the `motiveType` arguments, and not the resulting `Sort u`.
+  let splitterPre := mkAppN (mkConst matchEqns.splitterName us.toList) params
+  let motiveType := (← whnfForall (← inferType splitterPre)).bindingDomain!
   trace[Meta.Tactic.split] "applyMatchSplitter\n{mvarId}"
   let (discrFVarIds, discrEqs, mvarId) ← generalizeMatchDiscrs mvarId matcherDeclName motiveType discrs
   trace[Meta.Tactic.split] "after generalizeMatchDiscrs\n{mvarId}"
@@ -216,10 +214,21 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
   let (discrFVarIdsNew, mvarId) ← introN mvarId discrs.size
   trace[Meta.Tactic.split] "after introN\n{mvarId}"
   let discrsNew := discrFVarIdsNew.map mkFVar
+  let mvarType ← getMVarType mvarId
+  let elimUniv ← getLevel mvarType
+  let us ←
+    if let some uElimPos := info.uElimPos? then
+      pure <| us.set! uElimPos elimUniv
+    else
+      unless elimUniv.isZero do
+        throwError "match-splitter can only eliminate into `Prop`"
+      pure us
+  let splitter := mkAppN (mkConst matchEqns.splitterName us.toList) params
   withMVarContext mvarId do
-    let motive ← mkLambdaFVars discrsNew (← getMVarType mvarId)
+    let motive ← mkLambdaFVars discrsNew mvarType
     let splitter := mkAppN (mkApp splitter motive) discrsNew
     check splitter
+    trace[Meta.Tactic.split] "after check splitter"
     let mvarIds ← apply mvarId splitter
     unless mvarIds.length == matchEqns.size do
       throwError "'applyMatchSplitter' failed, unexpected number of goals created after applying splitter for '{matcherDeclName}'."

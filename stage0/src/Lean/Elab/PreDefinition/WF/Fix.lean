@@ -28,7 +28,10 @@ private def mkDecreasingProof (decreasingProp : Expr) (decrTactic? : Option Synt
   let mvarId ← cleanup mvarId
   match decrTactic? with
   | none => applyDefaultDecrTactic mvarId
-  | some decrTactic => Term.runTactic mvarId decrTactic
+  | some decrTactic =>
+    -- make info from `runTactic` available
+    pushInfoTree (.hole mvarId)
+    Term.runTactic mvarId decrTactic
   instantiateMVars mvar
 
 private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (decrTactic? : Option Syntax) (F : Expr) (e : Expr) : TermElabM Expr := do

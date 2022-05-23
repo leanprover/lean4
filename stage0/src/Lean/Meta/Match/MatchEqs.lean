@@ -517,12 +517,15 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
       let template := template.headBeta
       let splitterVal ← mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltNumParams altArgMasks)
       let splitterName := baseName ++ `splitter
-      addDecl <| Declaration.thmDecl {
+      addAndCompile <| Declaration.defnDecl {
         name        := splitterName
         levelParams := constInfo.levelParams
         type        := splitterType
         value       := splitterVal
+        hints       := .abbrev
+        safety      := .safe
       }
+      setInlineAttribute splitterName
       let result := { eqnNames, splitterName, splitterAltNumParams }
       registerMatchEqns matchDeclName result
       return result

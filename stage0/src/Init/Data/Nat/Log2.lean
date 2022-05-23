@@ -17,6 +17,7 @@ private theorem log2_terminates : ∀ n, n ≥ 2 → n / 2 < n
     refine succ_lt_succ (Nat.lt_trans ?_ (lt_succ_self _))
     exact log2_terminates (n+2) (by simp_arith)
     simp_arith
+
 /--
 Computes `⌊max 0 (log₂ n)⌋`.
 
@@ -24,5 +25,5 @@ Computes `⌊max 0 (log₂ n)⌋`.
 -/
 @[extern "lean_nat_log2"]
 def log2 (n : @& Nat) : Nat :=
-  if h : n ≥ 2 then log2 (n / 2) + 1 else 0
-decreasing_by exact log2_terminates _ h
+  if n ≥ 2 then log2 (n / 2) + 1 else 0
+decreasing_by exact log2_terminates _ ‹_›

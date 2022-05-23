@@ -422,4 +422,7 @@ end Attr
 end Parser
 end Lean
 
+/--
+`‹t›` resolves to an (arbitrary) hypothesis of type `t`. It is useful for referring to hypotheses without accessible names.
+`t` may contain holes that are solved by unification with the expected type; in particular, `‹_›` is a shortcut for `by assumption`. -/
 macro "‹" type:term "›" : term => `((by assumption : $type))

@@ -13,6 +13,9 @@ open Lean (Name NameMap LeanPaths)
 
 namespace Lake
 
+/-- The file name of a workspace's package manifest (i.e., `manifest.json`). -/
+def manifestFileName := "manifest.json"
+
 /-- A Lake workspace -- the top-level package directory. -/
 structure Workspace where
   /-- The root package of the workspace. -/
@@ -59,6 +62,10 @@ def config (self : Workspace) : WorkspaceConfig :=
 /-- The workspace's `dir` joined with its `packagesDir` configuration. -/
 def packagesDir (self : Workspace) : FilePath :=
   self.dir / self.config.packagesDir
+
+/-- The workspace's JSON manifest of packages. -/
+def manifestFile (self : Workspace) : FilePath :=
+  self.packagesDir / manifestFileName
 
 /-- The `List` of packages to the workspace. -/
 def packageList (self : Workspace) : List Package :=

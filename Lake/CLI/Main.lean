@@ -7,6 +7,7 @@ Authors: Mac Malone
 import Lake.Config.Load
 import Lake.Config.SearchPath
 import Lake.Config.InstallPath
+import Lake.Config.Manifest
 import Lake.Config.Resolve
 import Lake.Config.Util
 import Lake.Util.Error
@@ -17,7 +18,7 @@ import Lake.CLI.Help
 import Lake.CLI.Build
 
 open System
-open Lean (Name Json toJson)
+open Lean (Name Json toJson fromJson?)
 
 namespace Lake
 
@@ -38,10 +39,14 @@ namespace Cli
 
 -- ## Basic Actions
 
-/-- Print out a line wih the given message and then exit with an error code. -/
+/-- Print out a error line with the given message and then exit with an error code. -/
 protected def error (msg : String) (rc : UInt32 := 1) : MainM α := do
   IO.eprintln s!"error: {msg}" |>.catchExceptions fun _ => pure ()
   exit rc
+
+/-- Print out a warning line wih the given message. -/
+def warning (msg : String) : MainM PUnit := do
+  IO.eprintln s!"warning: {msg}" |>.catchExceptions fun _ => pure ()
 
 instance : MonadError MainM := ⟨Cli.error⟩
 instance : MonadLift IO MainM := ⟨MonadError.runIO⟩
@@ -89,10 +94,27 @@ def loadPkg (args : List String := []) : CliStateM Package := do
   setupLeanSearchPath (← getLeanInstall?) (← getLakeInstall?)
   Package.load dir args (dir / file)
 
-def loadWorkspace (args : List String := []) : CliStateM Workspace := do
+def loadWorkspace (args : List String := []) (updateDeps := true) : CliStateM Workspace := do
   let pkg ← loadPkg args
   let ws := Workspace.ofPackage pkg
-  let packageMap ← resolveDeps ws pkg |>.run LogMethods.eio (m := IO)
+  let manifest ← do
+    if let Except.ok contents ← IO.FS.readFile ws.manifestFile |>.toBaseIO then
+      match Json.parse contents with
+        | Except.ok json =>
+          match fromJson? json with
+          | Except.ok (manifest : Manifest) =>
+            pure manifest.toMap
+          | Except.error e =>
+            warning s!"improperly formatted package manifest: {e}"
+            pure {}
+        | Except.error e =>
+          warning s!"invalid JSON in package manifest: {e}"
+          pure {}
+    else
+      pure {}
+  let (packageMap, resolveMap) ←
+    resolveDeps ws pkg updateDeps |>.run manifest |>.run LogMethods.eio (m := IO)
+  IO.FS.writeFile ws.manifestFile <| Json.pretty <| toJson <| Manifest.fromMap resolveMap
   let packageMap := packageMap.insert pkg.name pkg
   return {ws with packageMap}
 

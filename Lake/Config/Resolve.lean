@@ -5,6 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Util.Git
 import Lake.Config.Load
+import Lake.Config.Manifest
 import Lake.Config.Workspace
 import Lake.Build.Recursive
 
@@ -13,44 +14,92 @@ open Lean (Name NameMap)
 
 namespace Lake
 
-open Git in
+section
+open Git
+
+/-- Update the Git package in `dir` if necessary. -/
+def updateGitPkg (name : String)
+(dir : FilePath) (url rev : String) : (LogT IO) PUnit := do
+  if (← headRevision dir) == rev then return
+  logInfo s!"{name}: updating {dir} to revision {rev}"
+  unless ← revisionExists rev dir do fetch dir
+  checkoutDetach rev dir
+
+/-- Clone the Git package as `dir`. -/
+def cloneGitPkg (name : String)
+(dir : FilePath) (url rev : String) : (LogT IO) PUnit := do
+  logInfo s!"{name}: cloning {url} to {dir}"
+  clone url dir
+  let hash ← parseOriginRevision rev dir
+  checkoutDetach hash dir
+
+abbrev ResolveM := StateT (NameMap PackageEntry) <| LogT IO
+
 /--
-Materializes a Git package in the given `dir`,
-cloning and/or updating it as necessary.
+Materializes a Git package in `dir`, cloning and/or updating it as necessary.
+
+Attempts to reproduce the `PackageEntry` in the manifest (if one exists) unless
+`shouldUpdate` is true. Otherwise, produces the package based on `url` and `rev`
+and saves the result to the manifest.
 -/
-def materializeGit
-(name : String) (dir : FilePath) (url rev : String) : (LogT IO) PUnit := do
-  if ← dir.isDir then
-    let hash ← parseOriginRevision rev dir
-    if (← headRevision dir) == hash then return
-    logInfo s!"{name}: trying to update {dir} to revision {rev}"
-    unless ← revisionExists hash dir do fetch dir
-    checkoutDetach hash dir
+def materializeGitPkg (name : String)
+(dir : FilePath) (url rev : String) (shouldUpdate := true) : ResolveM PUnit := do
+  if let some entry := (← get).find? name then
+    if (← dir.isDir) then
+      if url = entry.url then
+        if shouldUpdate then
+          let rev ← parseOriginRevision rev dir
+          updateGitPkg name dir url rev
+          modify (·.insert name {entry with rev})
+        else
+          updateGitPkg name dir url entry.rev
+      else if shouldUpdate then
+        logInfo s!"{name}: URL changed, deleting {dir} and cloning again"
+        IO.FS.removeDirAll dir
+        cloneGitPkg name dir url rev
+        let rev ← parseOriginRevision rev dir
+        modify (·.insert name {entry with url, rev})
+    else
+      if shouldUpdate then
+        cloneGitPkg name dir url rev
+        let rev ← parseOriginRevision rev dir
+        modify (·.insert name {entry with url, rev})
+      else
+        cloneGitPkg name dir entry.url entry.rev
   else
-    logInfo s!"{name}: cloning {url} to {dir}"
-    clone url dir
-    let hash ← parseOriginRevision rev dir
-    checkoutDetach hash dir
+    if (← dir.isDir) then
+      let rev ← parseOriginRevision rev dir
+      modify (·.insert name {name, url, rev})
+      if (← headRevision dir) == rev then return
+      updateGitPkg name dir url rev
+    else
+      cloneGitPkg name dir url rev
+      let rev ← parseOriginRevision rev dir
+      modify (·.insert name {name, url, rev})
+
+end
 
 /--
 Materializes a `Dependency` relative to the given `Package`,
 downloading and/or updating it as necessary.
 -/
-def materializeDep (ws : Workspace) (pkg : Package) (dep : Dependency) : (LogT IO) FilePath :=
+def materializeDep (ws : Workspace)
+(pkg : Package) (dep : Dependency) (shouldUpdate := true) : ResolveM FilePath :=
   match dep.src with
   | Source.path dir => return pkg.dir / dir
   | Source.git url rev => do
     let name := dep.name.toString (escape := false)
     let depDir := ws.packagesDir / name
-    materializeGit name depDir url rev
+    materializeGitPkg name depDir url rev shouldUpdate
     return depDir
 
 /--
 Resolves a `Dependency` relative to the given `Package`
 in the same `Workspace`, downloading and/or updating it as necessary.
 -/
-def resolveDep (ws : Workspace) (pkg : Package) (dep : Dependency) : (LogT IO) Package := do
-  let dir ← materializeDep ws pkg dep
+def resolveDep (ws : Workspace)
+(pkg : Package) (dep : Dependency) (shouldUpdate := true) : ResolveM Package := do
+  let dir ← materializeDep ws pkg dep shouldUpdate
   let depPkg ← Package.load (dir / dep.dir) dep.args
   unless depPkg.name == dep.name do
     throw <| IO.userError <|
@@ -62,9 +111,10 @@ def resolveDep (ws : Workspace) (pkg : Package) (dep : Dependency) : (LogT IO) P
 Resolves the package's dependencies,
 downloading and/or updating them as necessary.
 -/
-def resolveDeps (ws : Workspace) (pkg : Package) : (LogT IO) (NameMap Package) := do
+def resolveDeps (ws : Workspace) (pkg : Package)
+(shouldUpdate := true) : ResolveM (NameMap Package) := do
   let resolve dep resolve := do
-    let pkg ← resolveDep ws pkg dep
+    let pkg ← resolveDep ws pkg dep shouldUpdate
     pkg.dependencies.forM fun dep => discard <| resolve dep
     return pkg
   let (res, map) ← RBTopT.run <| pkg.dependencies.forM fun dep =>

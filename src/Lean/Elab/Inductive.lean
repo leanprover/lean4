@@ -778,7 +778,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         for ctor in view.ctors do
           Term.addTermInfo' ctor.ref[2] (← mkConstWithLevelParams ctor.declName) (isBinder := true)
         -- We need to invoke `applyAttributes` because `class` is implemented as an attribute.
-        Term.applyAttributesAt view.declName view.modifiers.attrs AttributeApplicationTime.afterTypeChecking
+        Term.applyAttributesAt view.declName view.modifiers.attrs .afterTypeChecking
 
 private def applyDerivingHandlers (views : Array InductiveView) : CommandElabM Unit := do
   let mut processed : NameSet := {}
@@ -803,5 +803,8 @@ def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
     for view in views do
       mkInjectiveTheorems view.declName
   applyDerivingHandlers views
+  runTermElabM view0.declName fun vars => withRef ref do
+    for view in views do
+      Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
 
 end Lean.Elab.Command

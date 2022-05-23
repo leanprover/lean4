@@ -10,8 +10,8 @@ linterUnusedVariables.lean:77:25-77:26: warning: unused variable `x`
 linterUnusedVariables.lean:78:6-78:7: warning: unused variable `y`
 linterUnusedVariables.lean:85:15-85:16: warning: unused variable `α`
 linterUnusedVariables.lean:92:8-92:9: warning: unused variable `y`
-linterUnusedVariables.lean:95:20-95:21: warning: unused variable `β`
 linterUnusedVariables.lean:96:7-96:8: warning: unused variable `x`
+linterUnusedVariables.lean:95:20-95:21: warning: unused variable `β`
 linterUnusedVariables.lean:106:6-106:7: warning: unused variable `s`
 linterUnusedVariables.lean:113:13-113:14: warning: unused variable `s`
 linterUnusedVariables.lean:130:6-130:7: warning: unused variable `y`

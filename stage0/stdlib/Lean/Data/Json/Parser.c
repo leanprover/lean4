@@ -127,7 +127,7 @@ static lean_object* _init_l_Lean_Json_Parser_hexChar___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid hex character");
+x_1 = lean_mk_string_from_bytes("invalid hex character", 21);
 return x_1;
 }
 }
@@ -275,7 +275,7 @@ static lean_object* _init_l_Lean_Json_Parser_escapedChar___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("illegal \\u escape");
+x_1 = lean_mk_string_from_bytes("illegal \\u escape", 17);
 return x_1;
 }
 }
@@ -1098,7 +1098,7 @@ static lean_object* _init_l_Lean_Json_Parser_strCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected character in string");
+x_1 = lean_mk_string_from_bytes("unexpected character in string", 30);
 return x_1;
 }
 }
@@ -1229,7 +1229,7 @@ static lean_object* _init_l_Lean_Json_Parser_str___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1351,7 +1351,7 @@ static lean_object* _init_l_Lean_Json_Parser_lookahead___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected ");
+x_1 = lean_mk_string_from_bytes("expected ", 9);
 return x_1;
 }
 }
@@ -1421,7 +1421,7 @@ static lean_object* _init_l_Lean_Json_Parser_natNonZero___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("1-9");
+x_1 = lean_mk_string_from_bytes("1-9", 3);
 return x_1;
 }
 }
@@ -1519,7 +1519,7 @@ static lean_object* _init_l_Lean_Json_Parser_natNumDigits___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("digit");
+x_1 = lean_mk_string_from_bytes("digit", 5);
 return x_1;
 }
 }
@@ -1682,7 +1682,7 @@ static lean_object* _init_l_Lean_Json_Parser_num___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("exp too large");
+x_1 = lean_mk_string_from_bytes("exp too large", 13);
 return x_1;
 }
 }
@@ -2122,7 +2122,7 @@ static lean_object* _init_l_Lean_Json_Parser_num___lambda__5___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("too many decimals");
+x_1 = lean_mk_string_from_bytes("too many decimals", 17);
 return x_1;
 }
 }
@@ -2475,7 +2475,7 @@ static lean_object* _init_l_Lean_Json_Parser_arrayCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected character in array");
+x_1 = lean_mk_string_from_bytes("unexpected character in array", 29);
 return x_1;
 }
 }
@@ -2651,7 +2651,7 @@ static lean_object* _init_l_Lean_Json_Parser_objectCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\"");
+x_1 = lean_mk_string_from_bytes("\"", 1);
 return x_1;
 }
 }
@@ -2669,7 +2669,7 @@ static lean_object* _init_l_Lean_Json_Parser_objectCore___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -2687,7 +2687,7 @@ static lean_object* _init_l_Lean_Json_Parser_objectCore___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected character in object");
+x_1 = lean_mk_string_from_bytes("unexpected character in object", 30);
 return x_1;
 }
 }
@@ -3287,7 +3287,7 @@ static lean_object* _init_l_Lean_Json_Parser_anyCore___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected input");
+x_1 = lean_mk_string_from_bytes("unexpected input", 16);
 return x_1;
 }
 }
@@ -3295,7 +3295,7 @@ static lean_object* _init_l_Lean_Json_Parser_anyCore___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -3303,7 +3303,7 @@ static lean_object* _init_l_Lean_Json_Parser_anyCore___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("true");
+x_1 = lean_mk_string_from_bytes("true", 4);
 return x_1;
 }
 }
@@ -3321,7 +3321,7 @@ static lean_object* _init_l_Lean_Json_Parser_anyCore___rarg___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("false");
+x_1 = lean_mk_string_from_bytes("false", 5);
 return x_1;
 }
 }
@@ -4068,7 +4068,7 @@ static lean_object* _init_l_Lean_Json_parse___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("offset ");
+x_1 = lean_mk_string_from_bytes("offset ", 7);
 return x_1;
 }
 }
@@ -4076,7 +4076,7 @@ static lean_object* _init_l_Lean_Json_parse___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(": ");
+x_1 = lean_mk_string_from_bytes(": ", 2);
 return x_1;
 }
 }

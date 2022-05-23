@@ -962,7 +962,7 @@ static lean_object* _init_l_Lean_LocalDecl_value___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.LocalContext");
+x_1 = lean_mk_string_from_bytes("Lean.LocalContext", 17);
 return x_1;
 }
 }
@@ -970,7 +970,7 @@ static lean_object* _init_l_Lean_LocalDecl_value___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.LocalDecl.value");
+x_1 = lean_mk_string_from_bytes("Lean.LocalDecl.value", 20);
 return x_1;
 }
 }
@@ -978,7 +978,7 @@ static lean_object* _init_l_Lean_LocalDecl_value___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("let declaration expected");
+x_1 = lean_mk_string_from_bytes("let declaration expected", 24);
 return x_1;
 }
 }
@@ -1180,7 +1180,7 @@ static lean_object* _init_l_Lean_LocalDecl_setBinderInfo___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.LocalDecl.setBinderInfo");
+x_1 = lean_mk_string_from_bytes("Lean.LocalDecl.setBinderInfo", 28);
 return x_1;
 }
 }
@@ -1188,7 +1188,7 @@ static lean_object* _init_l_Lean_LocalDecl_setBinderInfo___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected let declaration");
+x_1 = lean_mk_string_from_bytes("unexpected let declaration", 26);
 return x_1;
 }
 }
@@ -2483,7 +2483,7 @@ static lean_object* _init_l_Lean_LocalContext_get_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.LocalContext.get!");
+x_1 = lean_mk_string_from_bytes("Lean.LocalContext.get!", 22);
 return x_1;
 }
 }
@@ -2491,7 +2491,7 @@ static lean_object* _init_l_Lean_LocalContext_get_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown free variable");
+x_1 = lean_mk_string_from_bytes("unknown free variable", 21);
 return x_1;
 }
 }
@@ -9617,7 +9617,7 @@ static lean_object* _init_l_Nat_foldRev_loop___at_Lean_LocalContext_mkBinding___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.LocalContext.mkBinding");
+x_1 = lean_mk_string_from_bytes("Lean.LocalContext.mkBinding", 27);
 return x_1;
 }
 }

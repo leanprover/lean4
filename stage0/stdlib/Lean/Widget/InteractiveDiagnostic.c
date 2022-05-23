@@ -265,7 +265,7 @@ static lean_object* _init_l_Lean_Widget_instInhabitedMsgEmbed___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -301,7 +301,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("no inductive constructor matched");
+x_1 = lean_mk_string_from_bytes("no inductive constructor matched", 32);
 return x_1;
 }
 }
@@ -327,7 +327,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lazyTrace");
+x_1 = lean_mk_string_from_bytes("lazyTrace", 9);
 return x_1;
 }
 }
@@ -525,7 +525,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expr");
+x_1 = lean_mk_string_from_bytes("expr", 4);
 return x_1;
 }
 }
@@ -633,7 +633,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("goal");
+x_1 = lean_mk_string_from_bytes("goal", 4);
 return x_1;
 }
 }
@@ -1997,7 +1997,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("range");
+x_1 = lean_mk_string_from_bytes("range", 5);
 return x_1;
 }
 }
@@ -2005,7 +2005,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fullRange");
+x_1 = lean_mk_string_from_bytes("fullRange", 9);
 return x_1;
 }
 }
@@ -2013,7 +2013,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("severity");
+x_1 = lean_mk_string_from_bytes("severity", 8);
 return x_1;
 }
 }
@@ -2021,7 +2021,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("code");
+x_1 = lean_mk_string_from_bytes("code", 4);
 return x_1;
 }
 }
@@ -2029,7 +2029,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("source");
+x_1 = lean_mk_string_from_bytes("source", 6);
 return x_1;
 }
 }
@@ -2037,7 +2037,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("message");
+x_1 = lean_mk_string_from_bytes("message", 7);
 return x_1;
 }
 }
@@ -2045,7 +2045,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tags");
+x_1 = lean_mk_string_from_bytes("tags", 4);
 return x_1;
 }
 }
@@ -2053,7 +2053,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("relatedInformation");
+x_1 = lean_mk_string_from_bytes("relatedInformation", 18);
 return x_1;
 }
 }
@@ -4918,7 +4918,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("goal ");
+x_1 = lean_mk_string_from_bytes("goal ", 5);
 return x_1;
 }
 }
@@ -4936,7 +4936,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_traceCtx");
+x_1 = lean_mk_string_from_bytes("_traceCtx", 9);
 return x_1;
 }
 }
@@ -4944,7 +4944,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -4952,7 +4952,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] (trace hidden)");
+x_1 = lean_mk_string_from_bytes("] (trace hidden)", 16);
 return x_1;
 }
 }
@@ -4981,7 +4981,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_diag");
+x_1 = lean_mk_string_from_bytes("_diag", 5);
 return x_1;
 }
 }
@@ -7114,7 +7114,7 @@ static lean_object* _init_l_Lean_Widget_msgToInteractive___lambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Widget.InteractiveDiagnostic");
+x_1 = lean_mk_string_from_bytes("Lean.Widget.InteractiveDiagnostic", 33);
 return x_1;
 }
 }
@@ -7122,7 +7122,7 @@ static lean_object* _init_l_Lean_Widget_msgToInteractive___lambda__1___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Widget.msgToInteractive");
+x_1 = lean_mk_string_from_bytes("Lean.Widget.msgToInteractive", 28);
 return x_1;
 }
 }
@@ -7130,7 +7130,7 @@ static lean_object* _init_l_Lean_Widget_msgToInteractive___lambda__1___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -7344,7 +7344,7 @@ static lean_object* _init_l_Lean_Widget_msgToInteractiveDiagnostic___lambda__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean 4");
+x_1 = lean_mk_string_from_bytes("Lean 4", 6);
 return x_1;
 }
 }
@@ -7383,7 +7383,7 @@ static lean_object* _init_l_Lean_Widget_msgToInteractiveDiagnostic___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[error when printing message: ");
+x_1 = lean_mk_string_from_bytes("[error when printing message: ", 30);
 return x_1;
 }
 }
@@ -7391,7 +7391,7 @@ static lean_object* _init_l_Lean_Widget_msgToInteractiveDiagnostic___closed__2()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }

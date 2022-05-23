@@ -277,7 +277,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inlineAttrs");
+x_1 = lean_mk_string_from_bytes("inlineAttrs", 11);
 return x_1;
 }
 }
@@ -295,7 +295,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inline");
+x_1 = lean_mk_string_from_bytes("inline", 6);
 return x_1;
 }
 }
@@ -313,7 +313,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mark definition to always be inlined");
+x_1 = lean_mk_string_from_bytes("mark definition to always be inlined", 36);
 return x_1;
 }
 }
@@ -346,7 +346,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inlineIfReduce");
+x_1 = lean_mk_string_from_bytes("inlineIfReduce", 14);
 return x_1;
 }
 }
@@ -364,7 +364,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mark definition to be inlined when resultant term after reduction is not a `cases_on` application");
+x_1 = lean_mk_string_from_bytes("mark definition to be inlined when resultant term after reduction is not a `cases_on` application", 97);
 return x_1;
 }
 }
@@ -397,7 +397,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("noinline");
+x_1 = lean_mk_string_from_bytes("noinline", 8);
 return x_1;
 }
 }
@@ -415,7 +415,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mark definition to never be inlined");
+x_1 = lean_mk_string_from_bytes("mark definition to never be inlined", 35);
 return x_1;
 }
 }
@@ -448,7 +448,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("macroInline");
+x_1 = lean_mk_string_from_bytes("macroInline", 11);
 return x_1;
 }
 }
@@ -466,7 +466,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mark definition to always be inlined before ANF conversion");
+x_1 = lean_mk_string_from_bytes("mark definition to always be inlined before ANF conversion", 58);
 return x_1;
 }
 }

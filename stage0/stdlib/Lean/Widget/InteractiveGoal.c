@@ -295,7 +295,7 @@ static lean_object* _init_l_Lean_Widget_instInhabitedInteractiveHypothesis___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -420,7 +420,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("names");
+x_1 = lean_mk_string_from_bytes("names", 5);
 return x_1;
 }
 }
@@ -428,7 +428,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("type");
+x_1 = lean_mk_string_from_bytes("type", 4);
 return x_1;
 }
 }
@@ -436,7 +436,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("val");
+x_1 = lean_mk_string_from_bytes("val", 3);
 return x_1;
 }
 }
@@ -444,7 +444,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("isInstance");
+x_1 = lean_mk_string_from_bytes("isInstance", 10);
 return x_1;
 }
 }
@@ -452,7 +452,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("isType");
+x_1 = lean_mk_string_from_bytes("isType", 6);
 return x_1;
 }
 }
@@ -1711,7 +1711,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hyps");
+x_1 = lean_mk_string_from_bytes("hyps", 4);
 return x_1;
 }
 }
@@ -1719,7 +1719,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("userName");
+x_1 = lean_mk_string_from_bytes("userName", 8);
 return x_1;
 }
 }
@@ -1727,7 +1727,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("goalPrefix");
+x_1 = lean_mk_string_from_bytes("goalPrefix", 10);
 return x_1;
 }
 }
@@ -2620,7 +2620,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Widget_InteractiveG
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -2648,7 +2648,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Widget_InteractiveG
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ");
+x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }
@@ -2656,7 +2656,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Widget_InteractiveG
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" :");
+x_1 = lean_mk_string_from_bytes(" :", 2);
 return x_1;
 }
 }
@@ -2674,7 +2674,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Widget_InteractiveG
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" : ");
+x_1 = lean_mk_string_from_bytes(" : ", 3);
 return x_1;
 }
 }
@@ -2692,7 +2692,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Widget_InteractiveG
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" :=");
+x_1 = lean_mk_string_from_bytes(" :=", 3);
 return x_1;
 }
 }
@@ -2891,7 +2891,7 @@ static lean_object* _init_l_Lean_Widget_InteractiveGoal_pretty___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("⊢ ");
+x_1 = lean_mk_string_from_bytes("⊢ ", 4);
 return x_1;
 }
 }
@@ -2909,7 +2909,7 @@ static lean_object* _init_l_Lean_Widget_InteractiveGoal_pretty___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("case ");
+x_1 = lean_mk_string_from_bytes("case ", 5);
 return x_1;
 }
 }
@@ -3051,7 +3051,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("range");
+x_1 = lean_mk_string_from_bytes("range", 5);
 return x_1;
 }
 }
@@ -3717,7 +3717,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("goals");
+x_1 = lean_mk_string_from_bytes("goals", 5);
 return x_1;
 }
 }
@@ -10036,7 +10036,7 @@ static lean_object* _init_l_Lean_Widget_goalToInteractive___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown goal ");
+x_1 = lean_mk_string_from_bytes("unknown goal ", 13);
 return x_1;
 }
 }

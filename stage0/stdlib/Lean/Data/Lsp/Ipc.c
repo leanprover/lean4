@@ -214,7 +214,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("textDocument/publishDiagnostics");
+x_1 = lean_mk_string_from_bytes("textDocument/publishDiagnostics", 31);
 return x_1;
 }
 }
@@ -222,7 +222,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Cannot decode publishDiagnostics parameters\n");
+x_1 = lean_mk_string_from_bytes("Cannot decode publishDiagnostics parameters\n", 44);
 return x_1;
 }
 }
@@ -230,7 +230,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -238,7 +238,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_collectDiagnostics_loop___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Waiting for diagnostics failed: ");
+x_1 = lean_mk_string_from_bytes("Waiting for diagnostics failed: ", 32);
 return x_1;
 }
 }
@@ -896,7 +896,7 @@ static lean_object* _init_l_Lean_Json_toStructured_x3f___at_Lean_Lsp_Ipc_collect
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected structured object, got '");
+x_1 = lean_mk_string_from_bytes("expected structured object, got '", 33);
 return x_1;
 }
 }
@@ -904,7 +904,7 @@ static lean_object* _init_l_Lean_Json_toStructured_x3f___at_Lean_Lsp_Ipc_collect
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -967,7 +967,7 @@ static lean_object* _init_l_Lean_Lsp_Ipc_collectDiagnostics___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("textDocument/waitForDiagnostics");
+x_1 = lean_mk_string_from_bytes("textDocument/waitForDiagnostics", 31);
 return x_1;
 }
 }

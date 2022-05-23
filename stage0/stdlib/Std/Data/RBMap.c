@@ -18327,7 +18327,7 @@ static lean_object* _init_l_repr___at_Std_RBMap_instReprRBMap___spec__1___rarg__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -18357,7 +18357,7 @@ static lean_object* _init_l_repr___at_Std_RBMap_instReprRBMap___spec__1___rarg__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -18393,7 +18393,7 @@ static lean_object* _init_l_repr___at_Std_RBMap_instReprRBMap___spec__1___rarg__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -18518,7 +18518,7 @@ static lean_object* _init_l_Std_RBMap_instReprRBMap___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Std.rbmapOf ");
+x_1 = lean_mk_string_from_bytes("Std.rbmapOf ", 12);
 return x_1;
 }
 }
@@ -18536,7 +18536,7 @@ static lean_object* _init_l_Std_RBMap_instReprRBMap___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[]");
+x_1 = lean_mk_string_from_bytes("[]", 2);
 return x_1;
 }
 }
@@ -18566,7 +18566,7 @@ static lean_object* _init_l_Std_RBMap_instReprRBMap___rarg___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -18602,7 +18602,7 @@ static lean_object* _init_l_Std_RBMap_instReprRBMap___rarg___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -19133,7 +19133,7 @@ static lean_object* _init_l_Std_RBMap_min_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Std.Data.RBMap");
+x_1 = lean_mk_string_from_bytes("Std.Data.RBMap", 14);
 return x_1;
 }
 }
@@ -19141,7 +19141,7 @@ static lean_object* _init_l_Std_RBMap_min_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Std.RBMap.min!");
+x_1 = lean_mk_string_from_bytes("Std.RBMap.min!", 14);
 return x_1;
 }
 }
@@ -19149,7 +19149,7 @@ static lean_object* _init_l_Std_RBMap_min_x21___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("map is empty");
+x_1 = lean_mk_string_from_bytes("map is empty", 12);
 return x_1;
 }
 }
@@ -19239,7 +19239,7 @@ static lean_object* _init_l_Std_RBMap_max_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Std.RBMap.max!");
+x_1 = lean_mk_string_from_bytes("Std.RBMap.max!", 14);
 return x_1;
 }
 }
@@ -19310,7 +19310,7 @@ static lean_object* _init_l_Std_RBMap_find_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Std.RBMap.find!");
+x_1 = lean_mk_string_from_bytes("Std.RBMap.find!", 15);
 return x_1;
 }
 }
@@ -19318,7 +19318,7 @@ static lean_object* _init_l_Std_RBMap_find_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("key is not in the map");
+x_1 = lean_mk_string_from_bytes("key is not in the map", 21);
 return x_1;
 }
 }

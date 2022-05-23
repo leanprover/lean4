@@ -2436,7 +2436,7 @@ static lean_object* _init_l_Lean_Parser_initFn____x40_Lean_Parser_Do___hyg_5____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("builtinDoElemParser");
+x_1 = lean_mk_string_from_bytes("builtinDoElemParser", 19);
 return x_1;
 }
 }
@@ -2454,7 +2454,7 @@ static lean_object* _init_l_Lean_Parser_initFn____x40_Lean_Parser_Do___hyg_5____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doElem");
+x_1 = lean_mk_string_from_bytes("doElem", 6);
 return x_1;
 }
 }
@@ -2483,7 +2483,7 @@ static lean_object* _init_l_Lean_Parser_initFn____x40_Lean_Parser_Do___hyg_16___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doElemParser");
+x_1 = lean_mk_string_from_bytes("doElemParser", 12);
 return x_1;
 }
 }
@@ -2520,7 +2520,7 @@ static lean_object* _init_l_Lean_Parser_Term_leftArrow___elambda__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("← ");
+x_1 = lean_mk_string_from_bytes("← ", 4);
 return x_1;
 }
 }
@@ -2537,7 +2537,7 @@ static lean_object* _init_l_Lean_Parser_Term_leftArrow___elambda__1___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<- ");
+x_1 = lean_mk_string_from_bytes("<- ", 3);
 return x_1;
 }
 }
@@ -2554,7 +2554,7 @@ static lean_object* _init_l_Lean_Parser_Term_leftArrow___elambda__1___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -2572,7 +2572,7 @@ static lean_object* _init_l_Lean_Parser_Term_leftArrow___elambda__1___closed__7(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', '");
+x_1 = lean_mk_string_from_bytes("', '", 4);
 return x_1;
 }
 }
@@ -2694,7 +2694,7 @@ static lean_object* _init_l_Lean_Parser_Term_liftMethod___elambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -2712,7 +2712,7 @@ static lean_object* _init_l_Lean_Parser_Term_liftMethod___elambda__1___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -2730,7 +2730,7 @@ static lean_object* _init_l_Lean_Parser_Term_liftMethod___elambda__1___closed__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -2748,7 +2748,7 @@ static lean_object* _init_l_Lean_Parser_Term_liftMethod___elambda__1___closed__7
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("liftMethod");
+x_1 = lean_mk_string_from_bytes("liftMethod", 10);
 return x_1;
 }
 }
@@ -2787,7 +2787,7 @@ static lean_object* _init_l_Lean_Parser_Term_liftMethod___elambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term");
+x_1 = lean_mk_string_from_bytes("term", 4);
 return x_1;
 }
 }
@@ -3279,7 +3279,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_liftMethod_formatter__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("formatter");
+x_1 = lean_mk_string_from_bytes("formatter", 9);
 return x_1;
 }
 }
@@ -3404,7 +3404,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_liftMethod_parenthesiz
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("parenthesizer");
+x_1 = lean_mk_string_from_bytes("parenthesizer", 13);
 return x_1;
 }
 }
@@ -3491,7 +3491,7 @@ static lean_object* _init_l_Lean_Parser_Term_doSeqItem___elambda__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doSeqItem");
+x_1 = lean_mk_string_from_bytes("doSeqItem", 9);
 return x_1;
 }
 }
@@ -3530,7 +3530,7 @@ static lean_object* _init_l_Lean_Parser_Term_doSeqItem___elambda__1___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("; ");
+x_1 = lean_mk_string_from_bytes("; ", 2);
 return x_1;
 }
 }
@@ -3866,7 +3866,7 @@ static lean_object* _init_l_Lean_Parser_Term_doSeqIndent___elambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doSeqIndent");
+x_1 = lean_mk_string_from_bytes("doSeqIndent", 11);
 return x_1;
 }
 }
@@ -3926,7 +3926,7 @@ static lean_object* _init_l_Lean_Parser_Term_doSeqIndent___elambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("irrelevant");
+x_1 = lean_mk_string_from_bytes("irrelevant", 10);
 return x_1;
 }
 }
@@ -4238,7 +4238,7 @@ static lean_object* _init_l_Lean_Parser_Term_doSeqBracketed___elambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doSeqBracketed");
+x_1 = lean_mk_string_from_bytes("doSeqBracketed", 14);
 return x_1;
 }
 }
@@ -4277,7 +4277,7 @@ static lean_object* _init_l_Lean_Parser_Term_doSeqBracketed___elambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{");
+x_1 = lean_mk_string_from_bytes("{", 1);
 return x_1;
 }
 }
@@ -4313,7 +4313,7 @@ static lean_object* _init_l_Lean_Parser_Term_doSeqBracketed___elambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("}");
+x_1 = lean_mk_string_from_bytes("}", 1);
 return x_1;
 }
 }
@@ -4782,7 +4782,7 @@ static lean_object* _init_l_Lean_Parser_Term_termBeforeDo___elambda__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("do");
+x_1 = lean_mk_string_from_bytes("do", 2);
 return x_1;
 }
 }
@@ -5676,7 +5676,7 @@ static lean_object* _init_l_Lean_Parser_Term_initFn____x40_Lean_Parser_Do___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doSeq");
+x_1 = lean_mk_string_from_bytes("doSeq", 5);
 return x_1;
 }
 }
@@ -5764,7 +5764,7 @@ static lean_object* _init_l_Lean_Parser_Term_initFn____x40_Lean_Parser_Do___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("termBeforeDo");
+x_1 = lean_mk_string_from_bytes("termBeforeDo", 12);
 return x_1;
 }
 }
@@ -5997,7 +5997,7 @@ static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("set_option");
+x_1 = lean_mk_string_from_bytes("set_option", 10);
 return x_1;
 }
 }
@@ -6024,7 +6024,7 @@ static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("open");
+x_1 = lean_mk_string_from_bytes("open", 4);
 return x_1;
 }
 }
@@ -6051,7 +6051,7 @@ static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("if");
+x_1 = lean_mk_string_from_bytes("if", 2);
 return x_1;
 }
 }
@@ -6078,7 +6078,7 @@ static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("match");
+x_1 = lean_mk_string_from_bytes("match", 5);
 return x_1;
 }
 }
@@ -6105,7 +6105,7 @@ static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("let");
+x_1 = lean_mk_string_from_bytes("let", 3);
 return x_1;
 }
 }
@@ -6132,7 +6132,7 @@ static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("have");
+x_1 = lean_mk_string_from_bytes("have", 4);
 return x_1;
 }
 }
@@ -6178,7 +6178,7 @@ static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("dbg_trace");
+x_1 = lean_mk_string_from_bytes("dbg_trace", 9);
 return x_1;
 }
 }
@@ -6205,7 +6205,7 @@ static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assert!");
+x_1 = lean_mk_string_from_bytes("assert!", 7);
 return x_1;
 }
 }
@@ -6232,7 +6232,7 @@ static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("for");
+x_1 = lean_mk_string_from_bytes("for", 3);
 return x_1;
 }
 }
@@ -6259,7 +6259,7 @@ static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unless");
+x_1 = lean_mk_string_from_bytes("unless", 6);
 return x_1;
 }
 }
@@ -6286,7 +6286,7 @@ static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("return");
+x_1 = lean_mk_string_from_bytes("return", 6);
 return x_1;
 }
 }
@@ -6313,7 +6313,7 @@ static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("try");
+x_1 = lean_mk_string_from_bytes("try", 3);
 return x_1;
 }
 }
@@ -6484,7 +6484,7 @@ static lean_object* _init_l_Lean_Parser_Term_notFollowedByRedefinedTermToken___e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("token at 'do' element");
+x_1 = lean_mk_string_from_bytes("token at 'do' element", 21);
 return x_1;
 }
 }
@@ -6530,7 +6530,7 @@ static lean_object* _init_l_Lean_Parser_Term_doLet___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doLet");
+x_1 = lean_mk_string_from_bytes("doLet", 5);
 return x_1;
 }
 }
@@ -6569,7 +6569,7 @@ static lean_object* _init_l_Lean_Parser_Term_doLet___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("let ");
+x_1 = lean_mk_string_from_bytes("let ", 4);
 return x_1;
 }
 }
@@ -6596,7 +6596,7 @@ static lean_object* _init_l_Lean_Parser_Term_doLet___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mut ");
+x_1 = lean_mk_string_from_bytes("mut ", 4);
 return x_1;
 }
 }
@@ -7394,7 +7394,7 @@ static lean_object* _init_l_Lean_Parser_Term_doLetElse___elambda__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doLetElse");
+x_1 = lean_mk_string_from_bytes("doLetElse", 9);
 return x_1;
 }
 }
@@ -7433,7 +7433,7 @@ static lean_object* _init_l_Lean_Parser_Term_doLetElse___elambda__1___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" := ");
+x_1 = lean_mk_string_from_bytes(" := ", 4);
 return x_1;
 }
 }
@@ -7460,7 +7460,7 @@ static lean_object* _init_l_Lean_Parser_Term_doLetElse___elambda__1___closed__8(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("checkColGt");
+x_1 = lean_mk_string_from_bytes("checkColGt", 10);
 return x_1;
 }
 }
@@ -7478,7 +7478,7 @@ static lean_object* _init_l_Lean_Parser_Term_doLetElse___elambda__1___closed__10
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" | ");
+x_1 = lean_mk_string_from_bytes(" | ", 3);
 return x_1;
 }
 }
@@ -8646,7 +8646,7 @@ static lean_object* _init_l_Lean_Parser_Term_doLetRec___elambda__1___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doLetRec");
+x_1 = lean_mk_string_from_bytes("doLetRec", 8);
 return x_1;
 }
 }
@@ -8685,7 +8685,7 @@ static lean_object* _init_l_Lean_Parser_Term_doLetRec___elambda__1___closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("rec ");
+x_1 = lean_mk_string_from_bytes("rec ", 4);
 return x_1;
 }
 }
@@ -9433,7 +9433,7 @@ static lean_object* _init_l_Lean_Parser_Term_doIdDecl___elambda__1___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doIdDecl");
+x_1 = lean_mk_string_from_bytes("doIdDecl", 8);
 return x_1;
 }
 }
@@ -9803,7 +9803,7 @@ static lean_object* _init_l_Lean_Parser_Term_doPatDecl___elambda__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doPatDecl");
+x_1 = lean_mk_string_from_bytes("doPatDecl", 9);
 return x_1;
 }
 }
@@ -10463,7 +10463,7 @@ static lean_object* _init_l_Lean_Parser_Term_doLetArrow___elambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doLetArrow");
+x_1 = lean_mk_string_from_bytes("doLetArrow", 10);
 return x_1;
 }
 }
@@ -11765,7 +11765,7 @@ static lean_object* _init_l_Lean_Parser_Term_letIdDeclNoBinders___elambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("letIdDecl");
+x_1 = lean_mk_string_from_bytes("letIdDecl", 9);
 return x_1;
 }
 }
@@ -11951,7 +11951,7 @@ static lean_object* _init_l_Lean_Parser_Term_doReassign___elambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doReassign");
+x_1 = lean_mk_string_from_bytes("doReassign", 10);
 return x_1;
 }
 }
@@ -12485,7 +12485,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_letIdDeclNoBinders_for
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("letIdDeclNoBinders");
+x_1 = lean_mk_string_from_bytes("letIdDeclNoBinders", 18);
 return x_1;
 }
 }
@@ -12947,7 +12947,7 @@ static lean_object* _init_l_Lean_Parser_Term_doReassignArrow___elambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doReassignArrow");
+x_1 = lean_mk_string_from_bytes("doReassignArrow", 15);
 return x_1;
 }
 }
@@ -13570,7 +13570,7 @@ static lean_object* _init_l_Lean_Parser_Term_doHave___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doHave");
+x_1 = lean_mk_string_from_bytes("doHave", 6);
 return x_1;
 }
 }
@@ -13609,7 +13609,7 @@ static lean_object* _init_l_Lean_Parser_Term_doHave___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("have ");
+x_1 = lean_mk_string_from_bytes("have ", 5);
 return x_1;
 }
 }
@@ -14292,7 +14292,7 @@ static lean_object* _init_l_Lean_Parser_Term_elseIf___elambda__1___lambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("checkLineEq");
+x_1 = lean_mk_string_from_bytes("checkLineEq", 11);
 return x_1;
 }
 }
@@ -14618,7 +14618,7 @@ static lean_object* _init_l_Lean_Parser_Term_elseIf___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" else ");
+x_1 = lean_mk_string_from_bytes(" else ", 6);
 return x_1;
 }
 }
@@ -14635,7 +14635,7 @@ static lean_object* _init_l_Lean_Parser_Term_elseIf___elambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" if ");
+x_1 = lean_mk_string_from_bytes(" if ", 4);
 return x_1;
 }
 }
@@ -14755,7 +14755,7 @@ static lean_object* _init_l_Lean_Parser_Term_doIfLetPure___elambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doIfLetPure");
+x_1 = lean_mk_string_from_bytes("doIfLetPure", 11);
 return x_1;
 }
 }
@@ -15104,7 +15104,7 @@ static lean_object* _init_l_Lean_Parser_Term_doIfLetBind___elambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doIfLetBind");
+x_1 = lean_mk_string_from_bytes("doIfLetBind", 11);
 return x_1;
 }
 }
@@ -15143,7 +15143,7 @@ static lean_object* _init_l_Lean_Parser_Term_doIfLetBind___elambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ← ");
+x_1 = lean_mk_string_from_bytes(" ← ", 5);
 return x_1;
 }
 }
@@ -15509,7 +15509,7 @@ static lean_object* _init_l_Lean_Parser_Term_doIfLet___elambda__1___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doIfLet");
+x_1 = lean_mk_string_from_bytes("doIfLet", 7);
 return x_1;
 }
 }
@@ -15896,7 +15896,7 @@ static lean_object* _init_l_Lean_Parser_Term_doIfProp___elambda__1___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doIfProp");
+x_1 = lean_mk_string_from_bytes("doIfProp", 8);
 return x_1;
 }
 }
@@ -16182,7 +16182,7 @@ static lean_object* _init_l_Lean_Parser_Term_doIfCond___elambda__1___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doIfCond");
+x_1 = lean_mk_string_from_bytes("doIfCond", 8);
 return x_1;
 }
 }
@@ -16742,7 +16742,7 @@ static lean_object* _init_l_Lean_Parser_Term_doIf___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doIf");
+x_1 = lean_mk_string_from_bytes("doIf", 4);
 return x_1;
 }
 }
@@ -16781,7 +16781,7 @@ static lean_object* _init_l_Lean_Parser_Term_doIf___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("if ");
+x_1 = lean_mk_string_from_bytes("if ", 3);
 return x_1;
 }
 }
@@ -16798,7 +16798,7 @@ static lean_object* _init_l_Lean_Parser_Term_doIf___elambda__1___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" then ");
+x_1 = lean_mk_string_from_bytes(" then ", 6);
 return x_1;
 }
 }
@@ -16834,7 +16834,7 @@ static lean_object* _init_l_Lean_Parser_Term_doIf___elambda__1___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'else if' in 'do' must be indented");
+x_1 = lean_mk_string_from_bytes("'else if' in 'do' must be indented", 34);
 return x_1;
 }
 }
@@ -16989,7 +16989,7 @@ static lean_object* _init_l_Lean_Parser_Term_doIf___elambda__1___closed__25() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'else' in 'do' must be indented");
+x_1 = lean_mk_string_from_bytes("'else' in 'do' must be indented", 31);
 return x_1;
 }
 }
@@ -19292,7 +19292,7 @@ static lean_object* _init_l_Lean_Parser_Term_doUnless___elambda__1___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doUnless");
+x_1 = lean_mk_string_from_bytes("doUnless", 8);
 return x_1;
 }
 }
@@ -19331,7 +19331,7 @@ static lean_object* _init_l_Lean_Parser_Term_doUnless___elambda__1___closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unless ");
+x_1 = lean_mk_string_from_bytes("unless ", 7);
 return x_1;
 }
 }
@@ -19358,7 +19358,7 @@ static lean_object* _init_l_Lean_Parser_Term_doUnless___elambda__1___closed__8()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("do ");
+x_1 = lean_mk_string_from_bytes("do ", 3);
 return x_1;
 }
 }
@@ -20198,7 +20198,7 @@ static lean_object* _init_l_Lean_Parser_Term_doForDecl___elambda__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doForDecl");
+x_1 = lean_mk_string_from_bytes("doForDecl", 9);
 return x_1;
 }
 }
@@ -20237,7 +20237,7 @@ static lean_object* _init_l_Lean_Parser_Term_doForDecl___elambda__1___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" : ");
+x_1 = lean_mk_string_from_bytes(" : ", 3);
 return x_1;
 }
 }
@@ -20328,7 +20328,7 @@ static lean_object* _init_l_Lean_Parser_Term_doForDecl___elambda__1___closed__14
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" in ");
+x_1 = lean_mk_string_from_bytes(" in ", 4);
 return x_1;
 }
 }
@@ -20809,7 +20809,7 @@ static lean_object* _init_l_Lean_Parser_Term_doFor___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doFor");
+x_1 = lean_mk_string_from_bytes("doFor", 5);
 return x_1;
 }
 }
@@ -20848,7 +20848,7 @@ static lean_object* _init_l_Lean_Parser_Term_doFor___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("for ");
+x_1 = lean_mk_string_from_bytes("for ", 4);
 return x_1;
 }
 }
@@ -20875,7 +20875,7 @@ static lean_object* _init_l_Lean_Parser_Term_doFor___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -22024,7 +22024,7 @@ static lean_object* _init_l_Lean_Parser_Term_doMatch___elambda__1___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doMatch");
+x_1 = lean_mk_string_from_bytes("doMatch", 7);
 return x_1;
 }
 }
@@ -22063,7 +22063,7 @@ static lean_object* _init_l_Lean_Parser_Term_doMatch___elambda__1___closed__5() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("match ");
+x_1 = lean_mk_string_from_bytes("match ", 6);
 return x_1;
 }
 }
@@ -22120,7 +22120,7 @@ static lean_object* _init_l_Lean_Parser_Term_doMatch___elambda__1___closed__11()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" with ");
+x_1 = lean_mk_string_from_bytes(" with ", 6);
 return x_1;
 }
 }
@@ -23288,7 +23288,7 @@ static lean_object* _init_l_Lean_Parser_Term_doCatch___elambda__1___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doCatch");
+x_1 = lean_mk_string_from_bytes("doCatch", 7);
 return x_1;
 }
 }
@@ -23327,7 +23327,7 @@ static lean_object* _init_l_Lean_Parser_Term_doCatch___elambda__1___closed__5() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("catch ");
+x_1 = lean_mk_string_from_bytes("catch ", 6);
 return x_1;
 }
 }
@@ -23818,7 +23818,7 @@ static lean_object* _init_l_Lean_Parser_Term_doCatchMatch___elambda__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doCatchMatch");
+x_1 = lean_mk_string_from_bytes("doCatchMatch", 12);
 return x_1;
 }
 }
@@ -24192,7 +24192,7 @@ static lean_object* _init_l_Lean_Parser_Term_doFinally___elambda__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doFinally");
+x_1 = lean_mk_string_from_bytes("doFinally", 9);
 return x_1;
 }
 }
@@ -24231,7 +24231,7 @@ static lean_object* _init_l_Lean_Parser_Term_doFinally___elambda__1___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("finally ");
+x_1 = lean_mk_string_from_bytes("finally ", 8);
 return x_1;
 }
 }
@@ -24599,7 +24599,7 @@ static lean_object* _init_l_Lean_Parser_Term_doTry___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doTry");
+x_1 = lean_mk_string_from_bytes("doTry", 5);
 return x_1;
 }
 }
@@ -24638,7 +24638,7 @@ static lean_object* _init_l_Lean_Parser_Term_doTry___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("try ");
+x_1 = lean_mk_string_from_bytes("try ", 4);
 return x_1;
 }
 }
@@ -26250,7 +26250,7 @@ static lean_object* _init_l_Lean_Parser_Term_doBreak___elambda__1___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doBreak");
+x_1 = lean_mk_string_from_bytes("doBreak", 7);
 return x_1;
 }
 }
@@ -26289,7 +26289,7 @@ static lean_object* _init_l_Lean_Parser_Term_doBreak___elambda__1___closed__5() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("break");
+x_1 = lean_mk_string_from_bytes("break", 5);
 return x_1;
 }
 }
@@ -26836,7 +26836,7 @@ static lean_object* _init_l_Lean_Parser_Term_doContinue___elambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doContinue");
+x_1 = lean_mk_string_from_bytes("doContinue", 10);
 return x_1;
 }
 }
@@ -26875,7 +26875,7 @@ static lean_object* _init_l_Lean_Parser_Term_doContinue___elambda__1___closed__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("continue");
+x_1 = lean_mk_string_from_bytes("continue", 8);
 return x_1;
 }
 }
@@ -27590,7 +27590,7 @@ static lean_object* _init_l_Lean_Parser_Term_doReturn___elambda__1___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doReturn");
+x_1 = lean_mk_string_from_bytes("doReturn", 8);
 return x_1;
 }
 }
@@ -27629,7 +27629,7 @@ static lean_object* _init_l_Lean_Parser_Term_doReturn___elambda__1___closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("return ");
+x_1 = lean_mk_string_from_bytes("return ", 7);
 return x_1;
 }
 }
@@ -28412,7 +28412,7 @@ static lean_object* _init_l_Lean_Parser_Term_doDbgTrace___elambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doDbgTrace");
+x_1 = lean_mk_string_from_bytes("doDbgTrace", 10);
 return x_1;
 }
 }
@@ -28451,7 +28451,7 @@ static lean_object* _init_l_Lean_Parser_Term_doDbgTrace___elambda__1___closed__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("dbg_trace ");
+x_1 = lean_mk_string_from_bytes("dbg_trace ", 10);
 return x_1;
 }
 }
@@ -29200,7 +29200,7 @@ static lean_object* _init_l_Lean_Parser_Term_doAssert___elambda__1___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doAssert");
+x_1 = lean_mk_string_from_bytes("doAssert", 8);
 return x_1;
 }
 }
@@ -29239,7 +29239,7 @@ static lean_object* _init_l_Lean_Parser_Term_doAssert___elambda__1___closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assert! ");
+x_1 = lean_mk_string_from_bytes("assert! ", 8);
 return x_1;
 }
 }
@@ -29902,7 +29902,7 @@ static lean_object* _init_l_Lean_Parser_Term_doExpr___elambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doExpr");
+x_1 = lean_mk_string_from_bytes("doExpr", 6);
 return x_1;
 }
 }
@@ -29941,7 +29941,7 @@ static lean_object* _init_l_Lean_Parser_Term_doExpr___elambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":=");
+x_1 = lean_mk_string_from_bytes(":=", 2);
 return x_1;
 }
 }
@@ -29968,7 +29968,7 @@ static lean_object* _init_l_Lean_Parser_Term_doExpr___elambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("←");
+x_1 = lean_mk_string_from_bytes("←", 3);
 return x_1;
 }
 }
@@ -29995,7 +29995,7 @@ static lean_object* _init_l_Lean_Parser_Term_doExpr___elambda__1___closed__11() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<-");
+x_1 = lean_mk_string_from_bytes("<-", 2);
 return x_1;
 }
 }
@@ -30046,7 +30046,7 @@ static lean_object* _init_l_Lean_Parser_Term_doExpr___elambda__1___closed__16() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected token after 'expr' in 'do' block");
+x_1 = lean_mk_string_from_bytes("unexpected token after 'expr' in 'do' block", 43);
 return x_1;
 }
 }
@@ -30791,7 +30791,7 @@ static lean_object* _init_l_Lean_Parser_Term_doNested___elambda__1___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doNested");
+x_1 = lean_mk_string_from_bytes("doNested", 8);
 return x_1;
 }
 }
@@ -31991,7 +31991,7 @@ static lean_object* _init_l_Lean_Parser_Term_doElem_quot___elambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("quot");
+x_1 = lean_mk_string_from_bytes("quot", 4);
 return x_1;
 }
 }
@@ -32030,7 +32030,7 @@ static lean_object* _init_l_Lean_Parser_Term_doElem_quot___elambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("`(doElem|");
+x_1 = lean_mk_string_from_bytes("`(doElem|", 9);
 return x_1;
 }
 }
@@ -32078,7 +32078,7 @@ static lean_object* _init_l_Lean_Parser_Term_doElem_quot___elambda__1___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -32880,7 +32880,7 @@ static lean_object* _init_l_Lean_Parser_Term_termUnless___elambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("termUnless");
+x_1 = lean_mk_string_from_bytes("termUnless", 10);
 return x_1;
 }
 }
@@ -33535,7 +33535,7 @@ static lean_object* _init_l_Lean_Parser_Term_termFor___elambda__1___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("termFor");
+x_1 = lean_mk_string_from_bytes("termFor", 7);
 return x_1;
 }
 }
@@ -34133,7 +34133,7 @@ static lean_object* _init_l_Lean_Parser_Term_termTry___elambda__1___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("termTry");
+x_1 = lean_mk_string_from_bytes("termTry", 7);
 return x_1;
 }
 }
@@ -34746,7 +34746,7 @@ static lean_object* _init_l_Lean_Parser_Term_termReturn___elambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("termReturn");
+x_1 = lean_mk_string_from_bytes("termReturn", 10);
 return x_1;
 }
 }

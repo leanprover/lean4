@@ -263,7 +263,7 @@ static lean_object* _init_l_Lean_Unhygienic_instMonadQuotationUnhygienic___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("UnhygienicMain");
+x_1 = lean_mk_string_from_bytes("UnhygienicMain", 14);
 return x_1;
 }
 }
@@ -390,7 +390,7 @@ static lean_object* _init_l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_inaccessible");
+x_1 = lean_mk_string_from_bytes("_inaccessible", 13);
 return x_1;
 }
 }
@@ -408,7 +408,7 @@ static lean_object* _init_l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("✝");
+x_1 = lean_mk_string_from_bytes("✝", 3);
 return x_1;
 }
 }
@@ -464,7 +464,7 @@ static lean_object* _init_l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNam
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("⁻");
+x_1 = lean_mk_string_from_bytes("⁻", 3);
 return x_1;
 }
 }
@@ -545,7 +545,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_332____closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("pp");
+x_1 = lean_mk_string_from_bytes("pp", 2);
 return x_1;
 }
 }
@@ -563,7 +563,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_332____closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sanitizeNames");
+x_1 = lean_mk_string_from_bytes("sanitizeNames", 13);
 return x_1;
 }
 }
@@ -581,7 +581,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Hygiene___hyg_332____closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("add suffix to shadowed/inaccessible variables when pretty printing");
+x_1 = lean_mk_string_from_bytes("add suffix to shadowed/inaccessible variables when pretty printing", 66);
 return x_1;
 }
 }

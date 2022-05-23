@@ -282,7 +282,7 @@ static lean_object* _init_l_Lean_OptionDecl_group___default___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -406,7 +406,7 @@ static lean_object* _init_l_Lean_registerOption___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid option declaration '");
+x_1 = lean_mk_string_from_bytes("invalid option declaration '", 28);
 return x_1;
 }
 }
@@ -414,7 +414,7 @@ static lean_object* _init_l_Lean_registerOption___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', option already exists");
+x_1 = lean_mk_string_from_bytes("', option already exists", 24);
 return x_1;
 }
 }
@@ -501,7 +501,7 @@ static lean_object* _init_l_Lean_registerOption___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to register option, options can only be registered during initialization");
+x_1 = lean_mk_string_from_bytes("failed to register option, options can only be registered during initialization", 79);
 return x_1;
 }
 }
@@ -723,7 +723,7 @@ static lean_object* _init_l_Lean_getOptionDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown option '");
+x_1 = lean_mk_string_from_bytes("unknown option '", 16);
 return x_1;
 }
 }
@@ -731,7 +731,7 @@ static lean_object* _init_l_Lean_getOptionDecl___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -1000,7 +1000,7 @@ static lean_object* _init_l_Lean_setOptionFromString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("=");
+x_1 = lean_mk_string_from_bytes("=", 1);
 return x_1;
 }
 }
@@ -1008,7 +1008,7 @@ static lean_object* _init_l_Lean_setOptionFromString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid configuration option entry, it must be of the form '<key> = <value>'");
+x_1 = lean_mk_string_from_bytes("invalid configuration option entry, it must be of the form '<key> = <value>'", 76);
 return x_1;
 }
 }
@@ -1026,7 +1026,7 @@ static lean_object* _init_l_Lean_setOptionFromString___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("true");
+x_1 = lean_mk_string_from_bytes("true", 4);
 return x_1;
 }
 }
@@ -1044,7 +1044,7 @@ static lean_object* _init_l_Lean_setOptionFromString___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("false");
+x_1 = lean_mk_string_from_bytes("false", 5);
 return x_1;
 }
 }
@@ -1062,7 +1062,7 @@ static lean_object* _init_l_Lean_setOptionFromString___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid Bool option value '");
+x_1 = lean_mk_string_from_bytes("invalid Bool option value '", 27);
 return x_1;
 }
 }
@@ -1070,7 +1070,7 @@ static lean_object* _init_l_Lean_setOptionFromString___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid Nat option value '");
+x_1 = lean_mk_string_from_bytes("invalid Nat option value '", 26);
 return x_1;
 }
 }
@@ -1078,7 +1078,7 @@ static lean_object* _init_l_Lean_setOptionFromString___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid Int option value '");
+x_1 = lean_mk_string_from_bytes("invalid Int option value '", 26);
 return x_1;
 }
 }
@@ -1086,7 +1086,7 @@ static lean_object* _init_l_Lean_setOptionFromString___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid Syntax option value");
+x_1 = lean_mk_string_from_bytes("invalid Syntax option value", 27);
 return x_1;
 }
 }
@@ -1712,7 +1712,7 @@ static lean_object* _init_l_Lean_withInPattern___rarg___lambda__1___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_inPattern");
+x_1 = lean_mk_string_from_bytes("_inPattern", 10);
 return x_1;
 }
 }
@@ -2062,7 +2062,7 @@ static lean_object* _init_l_Lean_Option_commandRegister__builtin__option_____x3a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -2080,7 +2080,7 @@ static lean_object* _init_l_Lean_Option_commandRegister__builtin__option_____x3a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Option");
+x_1 = lean_mk_string_from_bytes("Option", 6);
 return x_1;
 }
 }
@@ -2098,7 +2098,7 @@ static lean_object* _init_l_Lean_Option_commandRegister__builtin__option_____x3a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("commandRegister_builtin_option__:_:=_");
+x_1 = lean_mk_string_from_bytes("commandRegister_builtin_option__:_:=_", 37);
 return x_1;
 }
 }
@@ -2116,7 +2116,7 @@ static lean_object* _init_l_Lean_Option_commandRegister__builtin__option_____x3a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("andthen");
+x_1 = lean_mk_string_from_bytes("andthen", 7);
 return x_1;
 }
 }
@@ -2134,7 +2134,7 @@ static lean_object* _init_l_Lean_Option_commandRegister__builtin__option_____x3a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("register_builtin_option");
+x_1 = lean_mk_string_from_bytes("register_builtin_option", 23);
 return x_1;
 }
 }
@@ -2152,7 +2152,7 @@ static lean_object* _init_l_Lean_Option_commandRegister__builtin__option_____x3a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ident");
+x_1 = lean_mk_string_from_bytes("ident", 5);
 return x_1;
 }
 }
@@ -2194,7 +2194,7 @@ static lean_object* _init_l_Lean_Option_commandRegister__builtin__option_____x3a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" : ");
+x_1 = lean_mk_string_from_bytes(" : ", 3);
 return x_1;
 }
 }
@@ -2226,7 +2226,7 @@ static lean_object* _init_l_Lean_Option_commandRegister__builtin__option_____x3a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term");
+x_1 = lean_mk_string_from_bytes("term", 4);
 return x_1;
 }
 }
@@ -2270,7 +2270,7 @@ static lean_object* _init_l_Lean_Option_commandRegister__builtin__option_____x3a
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" := ");
+x_1 = lean_mk_string_from_bytes(" := ", 4);
 return x_1;
 }
 }
@@ -2338,7 +2338,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -2356,7 +2356,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Command");
+x_1 = lean_mk_string_from_bytes("Command", 7);
 return x_1;
 }
 }
@@ -2374,7 +2374,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("builtin_initialize");
+x_1 = lean_mk_string_from_bytes("builtin_initialize", 18);
 return x_1;
 }
 }
@@ -2392,7 +2392,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -2424,7 +2424,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -2442,7 +2442,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("typeSpec");
+x_1 = lean_mk_string_from_bytes("typeSpec", 8);
 return x_1;
 }
 }
@@ -2460,7 +2460,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -2468,7 +2468,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("app");
+x_1 = lean_mk_string_from_bytes("app", 3);
 return x_1;
 }
 }
@@ -2486,7 +2486,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Option");
+x_1 = lean_mk_string_from_bytes("Lean.Option", 11);
 return x_1;
 }
 }
@@ -2559,7 +2559,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("←");
+x_1 = lean_mk_string_from_bytes("←", 3);
 return x_1;
 }
 }
@@ -2576,7 +2576,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doSeqIndent");
+x_1 = lean_mk_string_from_bytes("doSeqIndent", 11);
 return x_1;
 }
 }
@@ -2594,7 +2594,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doSeqItem");
+x_1 = lean_mk_string_from_bytes("doSeqItem", 9);
 return x_1;
 }
 }
@@ -2612,7 +2612,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doExpr");
+x_1 = lean_mk_string_from_bytes("doExpr", 6);
 return x_1;
 }
 }
@@ -2630,7 +2630,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Option.register");
+x_1 = lean_mk_string_from_bytes("Lean.Option.register", 20);
 return x_1;
 }
 }
@@ -2661,7 +2661,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("register");
+x_1 = lean_mk_string_from_bytes("register", 8);
 return x_1;
 }
 }
@@ -2722,7 +2722,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("quotedName");
+x_1 = lean_mk_string_from_bytes("quotedName", 10);
 return x_1;
 }
 }
@@ -2740,7 +2740,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(".");
+x_1 = lean_mk_string_from_bytes(".", 1);
 return x_1;
 }
 }
@@ -2748,7 +2748,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("`");
+x_1 = lean_mk_string_from_bytes("`", 1);
 return x_1;
 }
 }
@@ -3200,7 +3200,7 @@ static lean_object* _init_l_Lean_Option_commandRegister__option_____x3a___x3a_x3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("commandRegister_option__:_:=_");
+x_1 = lean_mk_string_from_bytes("commandRegister_option__:_:=_", 29);
 return x_1;
 }
 }
@@ -3218,7 +3218,7 @@ static lean_object* _init_l_Lean_Option_commandRegister__option_____x3a___x3a_x3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("register_option");
+x_1 = lean_mk_string_from_bytes("register_option", 15);
 return x_1;
 }
 }
@@ -3328,7 +3328,7 @@ static lean_object* _init_l_Lean_Option___aux__Lean__Data__Options______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("initialize");
+x_1 = lean_mk_string_from_bytes("initialize", 10);
 return x_1;
 }
 }

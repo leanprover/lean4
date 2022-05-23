@@ -210,7 +210,7 @@ static lean_object* _init_l_Lean_Meta_acyclic_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -228,7 +228,7 @@ static lean_object* _init_l_Lean_Meta_acyclic_go___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -246,7 +246,7 @@ static lean_object* _init_l_Lean_Meta_acyclic_go___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("acyclic");
+x_1 = lean_mk_string_from_bytes("acyclic", 7);
 return x_1;
 }
 }
@@ -272,7 +272,7 @@ static lean_object* _init_l_Lean_Meta_acyclic_go___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed with\n");
+x_1 = lean_mk_string_from_bytes("failed with\n", 12);
 return x_1;
 }
 }
@@ -289,7 +289,7 @@ static lean_object* _init_l_Lean_Meta_acyclic_go___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -306,7 +306,7 @@ static lean_object* _init_l_Lean_Meta_acyclic_go___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("SizeOf");
+x_1 = lean_mk_string_from_bytes("SizeOf", 6);
 return x_1;
 }
 }
@@ -324,7 +324,7 @@ static lean_object* _init_l_Lean_Meta_acyclic_go___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sizeOf");
+x_1 = lean_mk_string_from_bytes("sizeOf", 6);
 return x_1;
 }
 }
@@ -439,7 +439,7 @@ static lean_object* _init_l_Lean_Meta_acyclic_go___closed__24() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat");
+x_1 = lean_mk_string_from_bytes("Nat", 3);
 return x_1;
 }
 }
@@ -457,7 +457,7 @@ static lean_object* _init_l_Lean_Meta_acyclic_go___closed__26() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lt_of_lt_of_eq");
+x_1 = lean_mk_string_from_bytes("lt_of_lt_of_eq", 14);
 return x_1;
 }
 }
@@ -484,7 +484,7 @@ static lean_object* _init_l_Lean_Meta_acyclic_go___closed__29() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lt_irrefl");
+x_1 = lean_mk_string_from_bytes("lt_irrefl", 9);
 return x_1;
 }
 }
@@ -510,7 +510,7 @@ static lean_object* _init_l_Lean_Meta_acyclic_go___closed__32() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("succeeded");
+x_1 = lean_mk_string_from_bytes("succeeded", 9);
 return x_1;
 }
 }
@@ -1184,7 +1184,7 @@ static lean_object* _init_l_Lean_Meta_acyclic___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -1353,7 +1353,7 @@ static lean_object* _init_l_Lean_Meta_acyclic___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("type: ");
+x_1 = lean_mk_string_from_bytes("type: ", 6);
 return x_1;
 }
 }

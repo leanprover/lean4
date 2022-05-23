@@ -230,7 +230,7 @@ static lean_object* _init_l_Lean_Elab_Frontend_runCommandElabM___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected internal error: ");
+x_1 = lean_mk_string_from_bytes("unexpected internal error: ", 27);
 return x_1;
 }
 }
@@ -238,7 +238,7 @@ static lean_object* _init_l_Lean_Elab_Frontend_runCommandElabM___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1210,7 +1210,7 @@ static lean_object* _init_l_Lean_Elab_Frontend_processCommand___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("parsing");
+x_1 = lean_mk_string_from_bytes("parsing", 7);
 return x_1;
 }
 }
@@ -1218,7 +1218,7 @@ static lean_object* _init_l_Lean_Elab_Frontend_processCommand___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elaboration");
+x_1 = lean_mk_string_from_bytes("elaboration", 11);
 return x_1;
 }
 }
@@ -1871,7 +1871,7 @@ static lean_object* _init_l_Lean_Elab_process___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<input>");
+x_1 = lean_mk_string_from_bytes("<input>", 7);
 return x_1;
 }
 }
@@ -2039,7 +2039,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_801
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("printMessageEndPos");
+x_1 = lean_mk_string_from_bytes("printMessageEndPos", 18);
 return x_1;
 }
 }
@@ -2067,7 +2067,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_801
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("print end position of each message in addition to start position");
+x_1 = lean_mk_string_from_bytes("print end position of each message in addition to start position", 64);
 return x_1;
 }
 }
@@ -2089,7 +2089,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_801
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -2107,7 +2107,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_801
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("info");
+x_1 = lean_mk_string_from_bytes("info", 4);
 return x_1;
 }
 }

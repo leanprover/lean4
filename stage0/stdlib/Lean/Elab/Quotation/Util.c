@@ -95,7 +95,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hygiene");
+x_1 = lean_mk_string_from_bytes("hygiene", 7);
 return x_1;
 }
 }
@@ -113,7 +113,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -121,7 +121,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Annotate identifiers in quotations such that they are resolved relative to the scope at their declaration, not that at their eventual use/expansion, to avoid accidental capturing. Note that quotations/notations already defined are unaffected.");
+x_1 = lean_mk_string_from_bytes("Annotate identifiers in quotations such that they are resolved relative to the scope at their declaration, not that at their eventual use/expansion, to avoid accidental capturing. Note that quotations/notations already defined are unaffected.", 242);
 return x_1;
 }
 }
@@ -523,7 +523,7 @@ static lean_object* _init_l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("complex antiquotation not allowed here");
+x_1 = lean_mk_string_from_bytes("complex antiquotation not allowed here", 38);
 return x_1;
 }
 }
@@ -1117,7 +1117,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_getPatternVars___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -1135,7 +1135,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_getPatternVars___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -1153,7 +1153,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_getPatternVars___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -1171,7 +1171,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_getPatternVars___closed__7(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hole");
+x_1 = lean_mk_string_from_bytes("hole", 4);
 return x_1;
 }
 }
@@ -1189,7 +1189,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_getPatternVars___closed__9(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ident");
+x_1 = lean_mk_string_from_bytes("ident", 5);
 return x_1;
 }
 }
@@ -1207,7 +1207,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_getPatternVars___closed__11
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("namedPattern");
+x_1 = lean_mk_string_from_bytes("namedPattern", 12);
 return x_1;
 }
 }
@@ -1225,7 +1225,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_getPatternVars___closed__13
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unsupported pattern in syntax match");
+x_1 = lean_mk_string_from_bytes("unsupported pattern in syntax match", 35);
 return x_1;
 }
 }

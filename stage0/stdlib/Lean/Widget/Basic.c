@@ -104,7 +104,7 @@ static lean_object* _init_l_Lean_Widget_encodeUnsafe____x40_Lean_Widget_Basic___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -122,7 +122,7 @@ static lean_object* _init_l_Lean_Widget_encodeUnsafe____x40_Lean_Widget_Basic___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Expr");
+x_1 = lean_mk_string_from_bytes("Expr", 4);
 return x_1;
 }
 }
@@ -264,7 +264,7 @@ static lean_object* _init_l_Lean_Widget_encodeUnsafe____x40_Lean_Widget_Basic___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("LocalContext");
+x_1 = lean_mk_string_from_bytes("LocalContext", 12);
 return x_1;
 }
 }
@@ -406,7 +406,7 @@ static lean_object* _init_l_Lean_Widget_encodeUnsafe____x40_Lean_Widget_Basic___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -424,7 +424,7 @@ static lean_object* _init_l_Lean_Widget_encodeUnsafe____x40_Lean_Widget_Basic___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ContextInfo");
+x_1 = lean_mk_string_from_bytes("ContextInfo", 11);
 return x_1;
 }
 }
@@ -566,7 +566,7 @@ static lean_object* _init_l_Lean_Widget_encodeUnsafe____x40_Lean_Widget_Basic___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Info");
+x_1 = lean_mk_string_from_bytes("Info", 4);
 return x_1;
 }
 }
@@ -708,7 +708,7 @@ static lean_object* _init_l_Lean_Widget_encodeUnsafe____x40_Lean_Widget_Basic___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("MessageData");
+x_1 = lean_mk_string_from_bytes("MessageData", 11);
 return x_1;
 }
 }

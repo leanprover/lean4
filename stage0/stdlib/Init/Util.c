@@ -119,7 +119,7 @@ static lean_object* _init_l___private_Init_Util_0__mkPanicMessage___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("PANIC at ");
+x_1 = lean_mk_string_from_bytes("PANIC at ", 9);
 return x_1;
 }
 }
@@ -127,7 +127,7 @@ static lean_object* _init_l___private_Init_Util_0__mkPanicMessage___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -135,7 +135,7 @@ static lean_object* _init_l___private_Init_Util_0__mkPanicMessage___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(": ");
+x_1 = lean_mk_string_from_bytes(": ", 2);
 return x_1;
 }
 }
@@ -201,7 +201,7 @@ static lean_object* _init_l___private_Init_Util_0__mkPanicMessageWithDecl___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ");
+x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }

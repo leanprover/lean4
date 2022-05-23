@@ -199,7 +199,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_reprReducib
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.ReducibilityStatus.reducible");
+x_1 = lean_mk_string_from_bytes("Lean.ReducibilityStatus.reducible", 33);
 return x_1;
 }
 }
@@ -283,7 +283,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_reprReducib
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.ReducibilityStatus.semireducible");
+x_1 = lean_mk_string_from_bytes("Lean.ReducibilityStatus.semireducible", 37);
 return x_1;
 }
 }
@@ -349,7 +349,7 @@ static lean_object* _init_l___private_Lean_ReducibilityAttrs_0__Lean_reprReducib
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.ReducibilityStatus.irreducible");
+x_1 = lean_mk_string_from_bytes("Lean.ReducibilityStatus.irreducible", 35);
 return x_1;
 }
 }
@@ -520,7 +520,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_121_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("reducibility");
+x_1 = lean_mk_string_from_bytes("reducibility", 12);
 return x_1;
 }
 }
@@ -538,7 +538,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_121_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("reducible");
+x_1 = lean_mk_string_from_bytes("reducible", 9);
 return x_1;
 }
 }
@@ -581,7 +581,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_121_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("semireducible");
+x_1 = lean_mk_string_from_bytes("semireducible", 13);
 return x_1;
 }
 }
@@ -624,7 +624,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_121_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("irreducible");
+x_1 = lean_mk_string_from_bytes("irreducible", 11);
 return x_1;
 }
 }

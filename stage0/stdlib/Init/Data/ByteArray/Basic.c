@@ -1155,7 +1155,7 @@ static lean_object* _init_l_List_toStringAux___at_instToStringByteArray___spec__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1163,7 +1163,7 @@ static lean_object* _init_l_List_toStringAux___at_instToStringByteArray___spec__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -1233,7 +1233,7 @@ static lean_object* _init_l_List_toString___at_instToStringByteArray___spec__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[]");
+x_1 = lean_mk_string_from_bytes("[]", 2);
 return x_1;
 }
 }
@@ -1241,7 +1241,7 @@ static lean_object* _init_l_List_toString___at_instToStringByteArray___spec__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -1249,7 +1249,7 @@ static lean_object* _init_l_List_toString___at_instToStringByteArray___spec__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -1343,7 +1343,7 @@ static lean_object* _init_l_ByteArray_toUInt64LE_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assertion violation: ");
+x_1 = lean_mk_string_from_bytes("assertion violation: ", 21);
 return x_1;
 }
 }
@@ -1351,7 +1351,7 @@ static lean_object* _init_l_ByteArray_toUInt64LE_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("bs.size == 8\n  ");
+x_1 = lean_mk_string_from_bytes("bs.size == 8\n  ", 15);
 return x_1;
 }
 }
@@ -1369,7 +1369,7 @@ static lean_object* _init_l_ByteArray_toUInt64LE_x21___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Init.Data.ByteArray.Basic");
+x_1 = lean_mk_string_from_bytes("Init.Data.ByteArray.Basic", 25);
 return x_1;
 }
 }
@@ -1377,7 +1377,7 @@ static lean_object* _init_l_ByteArray_toUInt64LE_x21___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ByteArray.toUInt64LE!");
+x_1 = lean_mk_string_from_bytes("ByteArray.toUInt64LE!", 21);
 return x_1;
 }
 }
@@ -1468,7 +1468,7 @@ static lean_object* _init_l_ByteArray_toUInt64BE_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ByteArray.toUInt64BE!");
+x_1 = lean_mk_string_from_bytes("ByteArray.toUInt64BE!", 21);
 return x_1;
 }
 }

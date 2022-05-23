@@ -272,7 +272,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_throw
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown identifier '");
+x_1 = lean_mk_string_from_bytes("unknown identifier '", 20);
 return x_1;
 }
 }
@@ -289,7 +289,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_throw
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -335,7 +335,7 @@ static lean_object* _init_l_List_forIn_loop___at___private_Lean_Elab_Print_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -391,7 +391,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_level
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -419,7 +419,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_level
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(".{");
+x_1 = lean_mk_string_from_bytes(".{", 2);
 return x_1;
 }
 }
@@ -445,7 +445,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_level
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("}");
+x_1 = lean_mk_string_from_bytes("}", 1);
 return x_1;
 }
 }
@@ -571,7 +571,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ");
+x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }
@@ -599,7 +599,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" : ");
+x_1 = lean_mk_string_from_bytes(" : ", 3);
 return x_1;
 }
 }
@@ -627,7 +627,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("private ");
+x_1 = lean_mk_string_from_bytes("private ", 8);
 return x_1;
 }
 }
@@ -655,7 +655,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("protected ");
+x_1 = lean_mk_string_from_bytes("protected ", 10);
 return x_1;
 }
 }
@@ -683,7 +683,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unsafe ");
+x_1 = lean_mk_string_from_bytes("unsafe ", 7);
 return x_1;
 }
 }
@@ -711,7 +711,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("partial ");
+x_1 = lean_mk_string_from_bytes("partial ", 8);
 return x_1;
 }
 }
@@ -739,7 +739,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("@[reducible] ");
+x_1 = lean_mk_string_from_bytes("@[reducible] ", 13);
 return x_1;
 }
 }
@@ -767,7 +767,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_mkHea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("@[irreducible] ");
+x_1 = lean_mk_string_from_bytes("@[irreducible] ", 15);
 return x_1;
 }
 }
@@ -1299,7 +1299,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_print
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" :=");
+x_1 = lean_mk_string_from_bytes(" :=", 3);
 return x_1;
 }
 }
@@ -1402,7 +1402,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_print
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Quotient primitive");
+x_1 = lean_mk_string_from_bytes("Quotient primitive", 18);
 return x_1;
 }
 }
@@ -1501,7 +1501,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___private_Lean_Elab_Print_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown constant '");
+x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
 return x_1;
 }
 }
@@ -1699,7 +1699,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_print
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inductive");
+x_1 = lean_mk_string_from_bytes("inductive", 9);
 return x_1;
 }
 }
@@ -1707,7 +1707,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_print
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("number of parameters: ");
+x_1 = lean_mk_string_from_bytes("number of parameters: ", 22);
 return x_1;
 }
 }
@@ -1735,7 +1735,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_print
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("constructors:");
+x_1 = lean_mk_string_from_bytes("constructors:", 13);
 return x_1;
 }
 }
@@ -1876,7 +1876,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_print
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("axiom");
+x_1 = lean_mk_string_from_bytes("axiom", 5);
 return x_1;
 }
 }
@@ -1884,7 +1884,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_print
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("def");
+x_1 = lean_mk_string_from_bytes("def", 3);
 return x_1;
 }
 }
@@ -1892,7 +1892,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_print
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("theorem");
+x_1 = lean_mk_string_from_bytes("theorem", 7);
 return x_1;
 }
 }
@@ -1900,7 +1900,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_print
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("constant");
+x_1 = lean_mk_string_from_bytes("constant", 8);
 return x_1;
 }
 }
@@ -1908,7 +1908,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_print
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("constructor");
+x_1 = lean_mk_string_from_bytes("constructor", 11);
 return x_1;
 }
 }
@@ -1916,7 +1916,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_print
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("recursor");
+x_1 = lean_mk_string_from_bytes("recursor", 8);
 return x_1;
 }
 }
@@ -2620,7 +2620,7 @@ static lean_object* _init_l_Lean_resolveGlobalConst___at___private_Lean_Elab_Pri
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected identifier");
+x_1 = lean_mk_string_from_bytes("expected identifier", 19);
 return x_1;
 }
 }
@@ -3304,7 +3304,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -3322,7 +3322,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -3340,7 +3340,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Command");
+x_1 = lean_mk_string_from_bytes("Command", 7);
 return x_1;
 }
 }
@@ -3358,7 +3358,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("print");
+x_1 = lean_mk_string_from_bytes("print", 5);
 return x_1;
 }
 }
@@ -3376,7 +3376,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid #print command");
+x_1 = lean_mk_string_from_bytes("invalid #print command", 22);
 return x_1;
 }
 }
@@ -3393,7 +3393,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ident");
+x_1 = lean_mk_string_from_bytes("ident", 5);
 return x_1;
 }
 }
@@ -3411,7 +3411,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("str");
+x_1 = lean_mk_string_from_bytes("str", 3);
 return x_1;
 }
 }
@@ -3429,7 +3429,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Init.Data.Option.BasicAux");
+x_1 = lean_mk_string_from_bytes("Init.Data.Option.BasicAux", 25);
 return x_1;
 }
 }
@@ -3437,7 +3437,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Option.get!");
+x_1 = lean_mk_string_from_bytes("Option.get!", 11);
 return x_1;
 }
 }
@@ -3445,7 +3445,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabPrint___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("value is none");
+x_1 = lean_mk_string_from_bytes("value is none", 13);
 return x_1;
 }
 }
@@ -3605,7 +3605,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabPrint___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -3633,7 +3633,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabPrint___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elabPrint");
+x_1 = lean_mk_string_from_bytes("elabPrint", 9);
 return x_1;
 }
 }
@@ -4900,7 +4900,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_print
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' depends on axioms: ");
+x_1 = lean_mk_string_from_bytes("' depends on axioms: ", 21);
 return x_1;
 }
 }
@@ -4917,7 +4917,7 @@ static lean_object* _init_l___private_Lean_Elab_Print_0__Lean_Elab_Command_print
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' does not depend on any axioms");
+x_1 = lean_mk_string_from_bytes("' does not depend on any axioms", 31);
 return x_1;
 }
 }
@@ -5079,7 +5079,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabPrintAxioms___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("printAxioms");
+x_1 = lean_mk_string_from_bytes("printAxioms", 11);
 return x_1;
 }
 }
@@ -5258,7 +5258,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabPrintAxioms___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elabPrintAxioms");
+x_1 = lean_mk_string_from_bytes("elabPrintAxioms", 15);
 return x_1;
 }
 }

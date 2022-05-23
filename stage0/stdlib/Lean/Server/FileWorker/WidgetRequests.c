@@ -332,7 +332,7 @@ static lean_object* _init_l___private_Lean_Server_FileWorker_WidgetRequests_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("msg");
+x_1 = lean_mk_string_from_bytes("msg", 3);
 return x_1;
 }
 }
@@ -340,7 +340,7 @@ static lean_object* _init_l___private_Lean_Server_FileWorker_WidgetRequests_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("indent");
+x_1 = lean_mk_string_from_bytes("indent", 6);
 return x_1;
 }
 }
@@ -1131,7 +1131,7 @@ static lean_object* _init_l_Lean_Server_registerBuiltinRpcProcedure___at_Lean_Wi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1139,7 +1139,7 @@ static lean_object* _init_l_Lean_Server_registerBuiltinRpcProcedure___at_Lean_Wi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(": already registered");
+x_1 = lean_mk_string_from_bytes(": already registered", 20);
 return x_1;
 }
 }
@@ -1226,7 +1226,7 @@ static lean_object* _init_l_Lean_Server_registerBuiltinRpcProcedure___at_Lean_Wi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Failed to register builtin RPC call handler for '");
+x_1 = lean_mk_string_from_bytes("Failed to register builtin RPC call handler for '", 49);
 return x_1;
 }
 }
@@ -1234,7 +1234,7 @@ static lean_object* _init_l_Lean_Server_registerBuiltinRpcProcedure___at_Lean_Wi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -1242,7 +1242,7 @@ static lean_object* _init_l_Lean_Server_registerBuiltinRpcProcedure___at_Lean_Wi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(": only possible during initialization");
+x_1 = lean_mk_string_from_bytes(": only possible during initialization", 37);
 return x_1;
 }
 }
@@ -1401,7 +1401,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_Wid
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -1419,7 +1419,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_Wid
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Widget");
+x_1 = lean_mk_string_from_bytes("Widget", 6);
 return x_1;
 }
 }
@@ -1437,7 +1437,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_Wid
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("InteractiveDiagnostics");
+x_1 = lean_mk_string_from_bytes("InteractiveDiagnostics", 22);
 return x_1;
 }
 }
@@ -1455,7 +1455,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_Wid
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("msgToInteractive");
+x_1 = lean_mk_string_from_bytes("msgToInteractive", 16);
 return x_1;
 }
 }
@@ -1529,7 +1529,7 @@ static lean_object* _init_l___private_Lean_Server_FileWorker_WidgetRequests_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("type");
+x_1 = lean_mk_string_from_bytes("type", 4);
 return x_1;
 }
 }
@@ -1537,7 +1537,7 @@ static lean_object* _init_l___private_Lean_Server_FileWorker_WidgetRequests_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("exprExplicit");
+x_1 = lean_mk_string_from_bytes("exprExplicit", 12);
 return x_1;
 }
 }
@@ -1545,7 +1545,7 @@ static lean_object* _init_l___private_Lean_Server_FileWorker_WidgetRequests_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doc");
+x_1 = lean_mk_string_from_bytes("doc", 3);
 return x_1;
 }
 }
@@ -2865,7 +2865,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_Wid
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("infoToInteractive");
+x_1 = lean_mk_string_from_bytes("infoToInteractive", 17);
 return x_1;
 }
 }
@@ -3252,7 +3252,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_Wid
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("getInteractiveGoals");
+x_1 = lean_mk_string_from_bytes("getInteractiveGoals", 19);
 return x_1;
 }
 }
@@ -3547,7 +3547,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_Wid
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("getInteractiveTermGoal");
+x_1 = lean_mk_string_from_bytes("getInteractiveTermGoal", 22);
 return x_1;
 }
 }
@@ -3674,7 +3674,7 @@ static lean_object* _init_l___private_Lean_Server_FileWorker_WidgetRequests_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lineRange");
+x_1 = lean_mk_string_from_bytes("lineRange", 9);
 return x_1;
 }
 }
@@ -4505,7 +4505,7 @@ static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_Wid
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("getInteractiveDiagnostics");
+x_1 = lean_mk_string_from_bytes("getInteractiveDiagnostics", 25);
 return x_1;
 }
 }

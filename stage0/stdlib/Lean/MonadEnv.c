@@ -1111,7 +1111,7 @@ static lean_object* _init_l_Lean_getConstInfo___rarg___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown constant '");
+x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
 return x_1;
 }
 }
@@ -1128,7 +1128,7 @@ static lean_object* _init_l_Lean_getConstInfo___rarg___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -1312,7 +1312,7 @@ static lean_object* _init_l_Lean_getConstInfoInduct___rarg___lambda__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is not a inductive type");
+x_1 = lean_mk_string_from_bytes("' is not a inductive type", 25);
 return x_1;
 }
 }
@@ -1396,7 +1396,7 @@ static lean_object* _init_l_Lean_getConstInfoCtor___rarg___lambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is not a constructor");
+x_1 = lean_mk_string_from_bytes("' is not a constructor", 22);
 return x_1;
 }
 }
@@ -1480,7 +1480,7 @@ static lean_object* _init_l_Lean_getConstInfoRec___rarg___lambda__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is not a recursor");
+x_1 = lean_mk_string_from_bytes("' is not a recursor", 19);
 return x_1;
 }
 }
@@ -1847,7 +1847,7 @@ static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Empty");
+x_1 = lean_mk_string_from_bytes("Empty", 5);
 return x_1;
 }
 }
@@ -1865,7 +1865,7 @@ static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("rec");
+x_1 = lean_mk_string_from_bytes("rec", 3);
 return x_1;
 }
 }
@@ -1883,7 +1883,7 @@ static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("False");
+x_1 = lean_mk_string_from_bytes("False", 5);
 return x_1;
 }
 }
@@ -1911,7 +1911,7 @@ static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -1929,7 +1929,7 @@ static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ndrec");
+x_1 = lean_mk_string_from_bytes("ndrec", 5);
 return x_1;
 }
 }
@@ -1957,7 +1957,7 @@ static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("recOn");
+x_1 = lean_mk_string_from_bytes("recOn", 5);
 return x_1;
 }
 }
@@ -1975,7 +1975,7 @@ static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("casesOn");
+x_1 = lean_mk_string_from_bytes("casesOn", 7);
 return x_1;
 }
 }
@@ -2013,7 +2013,7 @@ static lean_object* _init_l___private_Lean_MonadEnv_0__Lean_supportedRecursors__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("And");
+x_1 = lean_mk_string_from_bytes("And", 3);
 return x_1;
 }
 }
@@ -2282,7 +2282,7 @@ static lean_object* _init_l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_che
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("code generator does not support recursor '");
+x_1 = lean_mk_string_from_bytes("code generator does not support recursor '", 42);
 return x_1;
 }
 }
@@ -2299,7 +2299,7 @@ static lean_object* _init_l_List_foldlM___at___private_Lean_MonadEnv_0__Lean_che
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' yet, consider using 'match ... with' and/or structural recursion");
+x_1 = lean_mk_string_from_bytes("' yet, consider using 'match ... with' and/or structural recursion", 66);
 return x_1;
 }
 }

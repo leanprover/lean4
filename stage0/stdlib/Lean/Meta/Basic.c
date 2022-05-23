@@ -1036,7 +1036,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_4____c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("isDefEqStuck");
+x_1 = lean_mk_string_from_bytes("isDefEqStuck", 12);
 return x_1;
 }
 }
@@ -3426,7 +3426,7 @@ static lean_object* _init_l_Lean_Meta_MetaM_toIO___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("internal exception #");
+x_1 = lean_mk_string_from_bytes("internal exception #", 20);
 return x_1;
 }
 }
@@ -4061,7 +4061,7 @@ static lean_object* _init_l_Lean_Meta_instMetaEvalMetaM___rarg___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_uniq");
+x_1 = lean_mk_string_from_bytes("_uniq", 5);
 return x_1;
 }
 }
@@ -4408,7 +4408,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1438__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -4426,7 +4426,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Basic___hyg_1438__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("debug");
+x_1 = lean_mk_string_from_bytes("debug", 5);
 return x_1;
 }
 }
@@ -6781,7 +6781,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown constant '");
+x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
 return x_1;
 }
 }
@@ -6798,7 +6798,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -7184,7 +7184,7 @@ static lean_object* _init_l_Lean_Meta_getMVarDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown metavariable '?");
+x_1 = lean_mk_string_from_bytes("unknown metavariable '?", 23);
 return x_1;
 }
 }
@@ -7889,7 +7889,7 @@ static lean_object* _init_l_Lean_Meta_getLevelMVarDepth___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown universe metavariable '?");
+x_1 = lean_mk_string_from_bytes("unknown universe metavariable '?", 32);
 return x_1;
 }
 }
@@ -8754,7 +8754,7 @@ static lean_object* _init_l_Lean_Meta_throwUnknownFVar___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown free variable '");
+x_1 = lean_mk_string_from_bytes("unknown free variable '", 23);
 return x_1;
 }
 }
@@ -8946,7 +8946,7 @@ static lean_object* _init_l_Lean_Meta_getLocalDeclFromUserName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown local declaration '");
+x_1 = lean_mk_string_from_bytes("unknown local declaration '", 27);
 return x_1;
 }
 }
@@ -12460,7 +12460,7 @@ static lean_object* _init_l_Lean_Meta_liftMkBindingM___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to create binder due to failure when reverting variable dependencies");
+x_1 = lean_mk_string_from_bytes("failed to create binder due to failure when reverting variable dependencies", 75);
 return x_1;
 }
 }
@@ -13577,7 +13577,7 @@ static lean_object* _init_l_Lean_Meta_mkArrow___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("x");
+x_1 = lean_mk_string_from_bytes("x", 1);
 return x_1;
 }
 }
@@ -13640,7 +13640,7 @@ static lean_object* _init_l_Lean_Meta_mkFunUnit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Unit");
+x_1 = lean_mk_string_from_bytes("Unit", 4);
 return x_1;
 }
 }
@@ -26139,7 +26139,7 @@ static lean_object* _init_l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateFo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid instantiateForall, too many parameters");
+x_1 = lean_mk_string_from_bytes("invalid instantiateForall, too many parameters", 46);
 return x_1;
 }
 }
@@ -26286,7 +26286,7 @@ static lean_object* _init_l___private_Lean_Meta_Basic_0__Lean_Meta_instantiateLa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid instantiateLambda, too many parameters");
+x_1 = lean_mk_string_from_bytes("invalid instantiateLambda, too many parameters", 46);
 return x_1;
 }
 }
@@ -27228,7 +27228,7 @@ static lean_object* _init_l_Lean_Meta_instAlternativeMetaM___lambda__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed");
+x_1 = lean_mk_string_from_bytes("failed", 6);
 return x_1;
 }
 }
@@ -29299,7 +29299,7 @@ static lean_object* _init_l___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -29316,7 +29316,7 @@ static lean_object* _init_l___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" =?= ");
+x_1 = lean_mk_string_from_bytes(" =?= ", 5);
 return x_1;
 }
 }
@@ -29333,7 +29333,7 @@ static lean_object* _init_l___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nwhile trying to unify");
+x_1 = lean_mk_string_from_bytes("\nwhile trying to unify", 22);
 return x_1;
 }
 }
@@ -29350,7 +29350,7 @@ static lean_object* _init_l___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nwith");
+x_1 = lean_mk_string_from_bytes("\nwith", 5);
 return x_1;
 }
 }
@@ -29367,7 +29367,7 @@ static lean_object* _init_l___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" : ");
+x_1 = lean_mk_string_from_bytes(" : ", 3);
 return x_1;
 }
 }
@@ -29729,7 +29729,7 @@ static lean_object* _init_l_Lean_Meta_mkLevelStuckErrorMessage___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("stuck at solving universe constraint");
+x_1 = lean_mk_string_from_bytes("stuck at solving universe constraint", 36);
 return x_1;
 }
 }
@@ -29746,7 +29746,7 @@ static lean_object* _init_l_Lean_Meta_mkLevelErrorMessage___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to solve universe constraint");
+x_1 = lean_mk_string_from_bytes("failed to solve universe constraint", 35);
 return x_1;
 }
 }
@@ -32835,7 +32835,7 @@ static lean_object* _init_l___private_Lean_Util_Trace_0__Lean_addNode___at___pri
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_traceCtx");
+x_1 = lean_mk_string_from_bytes("_traceCtx", 9);
 return x_1;
 }
 }
@@ -33182,7 +33182,7 @@ static lean_object* _init_l___private_Lean_Meta_Basic_0__Lean_Meta_processPostpo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("isLevelDefEq");
+x_1 = lean_mk_string_from_bytes("isLevelDefEq", 12);
 return x_1;
 }
 }
@@ -33200,7 +33200,7 @@ static lean_object* _init_l___private_Lean_Meta_Basic_0__Lean_Meta_processPostpo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("postponed");
+x_1 = lean_mk_string_from_bytes("postponed", 9);
 return x_1;
 }
 }
@@ -33218,7 +33218,7 @@ static lean_object* _init_l___private_Lean_Meta_Basic_0__Lean_Meta_processPostpo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("step");
+x_1 = lean_mk_string_from_bytes("step", 4);
 return x_1;
 }
 }
@@ -34708,7 +34708,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Meta_processPostponed_loop__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_traceMsg");
+x_1 = lean_mk_string_from_bytes("_traceMsg", 9);
 return x_1;
 }
 }
@@ -34726,7 +34726,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Meta_processPostponed_loop__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -34743,7 +34743,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Meta_processPostponed_loop__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] ");
+x_1 = lean_mk_string_from_bytes("] ", 2);
 return x_1;
 }
 }
@@ -34999,7 +34999,7 @@ static lean_object* _init_l_Lean_Meta_processPostponed_loop___lambda__2___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("no progress solving pending is-def-eq level constraints");
+x_1 = lean_mk_string_from_bytes("no progress solving pending is-def-eq level constraints", 55);
 return x_1;
 }
 }
@@ -35252,7 +35252,7 @@ static lean_object* _init_l_Lean_Meta_processPostponed_loop___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("processing #");
+x_1 = lean_mk_string_from_bytes("processing #", 12);
 return x_1;
 }
 }
@@ -35269,7 +35269,7 @@ static lean_object* _init_l_Lean_Meta_processPostponed_loop___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" postponed is-def-eq level constraints");
+x_1 = lean_mk_string_from_bytes(" postponed is-def-eq level constraints", 38);
 return x_1;
 }
 }
@@ -37554,7 +37554,7 @@ static lean_object* _init_l_Lean_Meta_isLevelDefEq___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ... ");
+x_1 = lean_mk_string_from_bytes(" ... ", 5);
 return x_1;
 }
 }
@@ -37571,7 +37571,7 @@ static lean_object* _init_l_Lean_Meta_isLevelDefEq___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failure");
+x_1 = lean_mk_string_from_bytes("failure", 7);
 return x_1;
 }
 }
@@ -37588,7 +37588,7 @@ static lean_object* _init_l_Lean_Meta_isLevelDefEq___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("success");
+x_1 = lean_mk_string_from_bytes("success", 7);
 return x_1;
 }
 }
@@ -39610,7 +39610,7 @@ static lean_object* _init_l_Lean_Meta_isExprDefEq___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("isDefEq");
+x_1 = lean_mk_string_from_bytes("isDefEq", 7);
 return x_1;
 }
 }

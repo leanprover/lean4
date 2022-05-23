@@ -432,7 +432,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Rel_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Elab.PreDefinition.WF.Rel");
+x_1 = lean_mk_string_from_bytes("Lean.Elab.PreDefinition.WF.Rel", 30);
 return x_1;
 }
 }
@@ -440,7 +440,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Rel_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Elab.PreDefinition.WF.Rel.0.Lean.Elab.WF.unpackMutual.go");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Elab.PreDefinition.WF.Rel.0.Lean.Elab.WF.unpackMutual.go", 70);
 return x_1;
 }
 }
@@ -448,7 +448,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Rel_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -638,7 +638,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Rel_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Elab.PreDefinition.WF.Rel.0.Lean.Elab.WF.unpackUnary.go");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Elab.PreDefinition.WF.Rel.0.Lean.Elab.WF.unpackUnary.go", 69);
 return x_1;
 }
 }
@@ -786,7 +786,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Rel_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -804,7 +804,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Rel_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("definition");
+x_1 = lean_mk_string_from_bytes("definition", 10);
 return x_1;
 }
 }
@@ -822,7 +822,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Rel_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("wf");
+x_1 = lean_mk_string_from_bytes("wf", 2);
 return x_1;
 }
 }
@@ -840,7 +840,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Rel_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("i: ");
+x_1 = lean_mk_string_from_bytes("i: ", 3);
 return x_1;
 }
 }
@@ -857,7 +857,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Rel_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", varNames: ");
+x_1 = lean_mk_string_from_bytes(", varNames: ", 12);
 return x_1;
 }
 }
@@ -874,7 +874,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Rel_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", goal: ");
+x_1 = lean_mk_string_from_bytes(", goal: ", 8);
 return x_1;
 }
 }
@@ -891,7 +891,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Rel_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -2590,7 +2590,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Rel_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("too many variable names");
+x_1 = lean_mk_string_from_bytes("too many variable names", 23);
 return x_1;
 }
 }
@@ -3103,7 +3103,7 @@ static lean_object* _init_l_Subarray_forInUnsafe_loop___at_Lean_Elab_WF_getForbi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("SizeOf");
+x_1 = lean_mk_string_from_bytes("SizeOf", 6);
 return x_1;
 }
 }
@@ -3121,7 +3121,7 @@ static lean_object* _init_l_Subarray_forInUnsafe_loop___at_Lean_Elab_WF_getForbi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sizeOf");
+x_1 = lean_mk_string_from_bytes("sizeOf", 6);
 return x_1;
 }
 }
@@ -5052,7 +5052,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabWFRel_go___rarg___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invImage");
+x_1 = lean_mk_string_from_bytes("invImage", 8);
 return x_1;
 }
 }
@@ -5070,7 +5070,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabWFRel_go___rarg___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to apply 'invImage'");
+x_1 = lean_mk_string_from_bytes("failed to apply 'invImage'", 26);
 return x_1;
 }
 }
@@ -6309,7 +6309,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_elabWFRel_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("app");
+x_1 = lean_mk_string_from_bytes("app", 3);
 return x_1;
 }
 }
@@ -6348,7 +6348,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_elabWFRel_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -6375,7 +6375,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_elabWFRel_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("paren");
+x_1 = lean_mk_string_from_bytes("paren", 5);
 return x_1;
 }
 }
@@ -6383,7 +6383,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_elabWFRel_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -6391,7 +6391,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_elabWFRel_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tupleTail");
+x_1 = lean_mk_string_from_bytes("tupleTail", 9);
 return x_1;
 }
 }
@@ -6399,7 +6399,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_elabWFRel_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -6407,7 +6407,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_elabWFRel_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -9060,7 +9060,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabWFRel_generateElements___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("x");
+x_1 = lean_mk_string_from_bytes("x", 1);
 return x_1;
 }
 }
@@ -9101,7 +9101,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabWFRel_generateElements___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -9119,7 +9119,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabWFRel_generateElements___closed__7(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -9137,7 +9137,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabWFRel_generateElements___closed__9(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -9155,7 +9155,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabWFRel_generateElements___closed__11
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hole");
+x_1 = lean_mk_string_from_bytes("hole", 4);
 return x_1;
 }
 }
@@ -9173,7 +9173,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabWFRel_generateElements___closed__13
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_");
+x_1 = lean_mk_string_from_bytes("_", 1);
 return x_1;
 }
 }
@@ -9881,7 +9881,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabWFRel_guess___rarg___lambda__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to prove termination, use `termination_by` to specify a well-founded relation");
+x_1 = lean_mk_string_from_bytes("failed to prove termination, use `termination_by` to specify a well-founded relation", 84);
 return x_1;
 }
 }
@@ -10390,7 +10390,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabWFRel___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("WellFoundedRelation");
+x_1 = lean_mk_string_from_bytes("WellFoundedRelation", 19);
 return x_1;
 }
 }
@@ -10408,7 +10408,7 @@ static lean_object* _init_l_Lean_Elab_WF_elabWFRel___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elabWFRel start: ");
+x_1 = lean_mk_string_from_bytes("elabWFRel start: ", 17);
 return x_1;
 }
 }

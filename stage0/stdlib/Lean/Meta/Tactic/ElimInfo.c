@@ -442,7 +442,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("name");
+x_1 = lean_mk_string_from_bytes("name", 4);
 return x_1;
 }
 }
@@ -472,7 +472,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" := ");
+x_1 = lean_mk_string_from_bytes(" := ", 4);
 return x_1;
 }
 }
@@ -502,7 +502,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -520,7 +520,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("numFields");
+x_1 = lean_mk_string_from_bytes("numFields", 9);
 return x_1;
 }
 }
@@ -538,7 +538,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{ ");
+x_1 = lean_mk_string_from_bytes("{ ", 2);
 return x_1;
 }
 }
@@ -574,7 +574,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" }");
+x_1 = lean_mk_string_from_bytes(" }", 2);
 return x_1;
 }
 }
@@ -829,7 +829,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("motivePos");
+x_1 = lean_mk_string_from_bytes("motivePos", 9);
 return x_1;
 }
 }
@@ -847,7 +847,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("targetsPos");
+x_1 = lean_mk_string_from_bytes("targetsPos", 10);
 return x_1;
 }
 }
@@ -865,7 +865,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("altsInfo");
+x_1 = lean_mk_string_from_bytes("altsInfo", 8);
 return x_1;
 }
 }
@@ -895,7 +895,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#[");
+x_1 = lean_mk_string_from_bytes("#[", 2);
 return x_1;
 }
 }
@@ -931,7 +931,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -949,7 +949,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#[]");
+x_1 = lean_mk_string_from_bytes("#[]", 3);
 return x_1;
 }
 }
@@ -1276,7 +1276,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Meta_getElimInfo___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected eliminator type");
+x_1 = lean_mk_string_from_bytes("unexpected eliminator type", 26);
 return x_1;
 }
 }
@@ -1293,7 +1293,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Meta_getElimInfo___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1702,7 +1702,7 @@ static lean_object* _init_l_Lean_Meta_getElimInfo___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("motive result type must be a sort");
+x_1 = lean_mk_string_from_bytes("motive result type must be a sort", 33);
 return x_1;
 }
 }
@@ -1751,7 +1751,7 @@ static lean_object* _init_l_Lean_Meta_getElimInfo___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected number of arguments at motive type");
+x_1 = lean_mk_string_from_bytes("unexpected number of arguments at motive type", 45);
 return x_1;
 }
 }
@@ -2087,7 +2087,7 @@ static lean_object* _init_l_Lean_Meta_getElimInfo___lambda__4___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected eliminator resulting type");
+x_1 = lean_mk_string_from_bytes("unexpected eliminator resulting type", 36);
 return x_1;
 }
 }
@@ -2542,7 +2542,7 @@ static lean_object* _init_l_Lean_Meta_addImplicitTargets_collect___lambda__2___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("target");
+x_1 = lean_mk_string_from_bytes("target", 6);
 return x_1;
 }
 }
@@ -2559,7 +2559,7 @@ static lean_object* _init_l_Lean_Meta_addImplicitTargets_collect___lambda__2___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n");
+x_1 = lean_mk_string_from_bytes("\n", 1);
 return x_1;
 }
 }
@@ -2758,7 +2758,7 @@ static lean_object* _init_l_Lean_Meta_addImplicitTargets_collect___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("insufficient number of targets for '");
+x_1 = lean_mk_string_from_bytes("insufficient number of targets for '", 36);
 return x_1;
 }
 }
@@ -2775,7 +2775,7 @@ static lean_object* _init_l_Lean_Meta_addImplicitTargets_collect___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -3073,7 +3073,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_addImplicitTar
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to infer implicit target, it contains unresolved metavariables");
+x_1 = lean_mk_string_from_bytes("failed to infer implicit target, it contains unresolved metavariables", 69);
 return x_1;
 }
 }
@@ -3547,7 +3547,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("typeNames");
+x_1 = lean_mk_string_from_bytes("typeNames", 9);
 return x_1;
 }
 }
@@ -3589,7 +3589,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elimInfo");
+x_1 = lean_mk_string_from_bytes("elimInfo", 8);
 return x_1;
 }
 }
@@ -4500,7 +4500,7 @@ static lean_object* _init_l_repr___at___private_Lean_Meta_Tactic_ElimInfo_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -4536,7 +4536,7 @@ static lean_object* _init_l_repr___at___private_Lean_Meta_Tactic_ElimInfo_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -4707,7 +4707,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("map");
+x_1 = lean_mk_string_from_bytes("map", 3);
 return x_1;
 }
 }
@@ -4749,7 +4749,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(".toSMap");
+x_1 = lean_mk_string_from_bytes(".toSMap", 7);
 return x_1;
 }
 }
@@ -4767,7 +4767,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[]");
+x_1 = lean_mk_string_from_bytes("[]", 2);
 return x_1;
 }
 }
@@ -4867,7 +4867,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -6757,7 +6757,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_ElimInfo___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elimExt");
+x_1 = lean_mk_string_from_bytes("elimExt", 7);
 return x_1;
 }
 }
@@ -7036,7 +7036,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_mkCustomEliminat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected eliminator target type");
+x_1 = lean_mk_string_from_bytes("unexpected eliminator target type", 33);
 return x_1;
 }
 }
@@ -8687,7 +8687,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_ElimInfo___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("attribute cannot be erased");
+x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
 return x_1;
 }
 }
@@ -8713,7 +8713,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_ElimInfo___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("eliminator");
+x_1 = lean_mk_string_from_bytes("eliminator", 10);
 return x_1;
 }
 }
@@ -8731,7 +8731,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_ElimInfo___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("custom eliminator for `cases` and `induction` tactics");
+x_1 = lean_mk_string_from_bytes("custom eliminator for `cases` and `induction` tactics", 53);
 return x_1;
 }
 }

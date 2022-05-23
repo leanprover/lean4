@@ -317,7 +317,7 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Check");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Check", 15);
 return x_1;
 }
 }
@@ -325,7 +325,7 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.throwLetTypeMismatchMessage");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.throwLetTypeMismatchMessage", 37);
 return x_1;
 }
 }
@@ -333,7 +333,7 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -354,7 +354,7 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid let declaration, term");
+x_1 = lean_mk_string_from_bytes("invalid let declaration, term", 29);
 return x_1;
 }
 }
@@ -371,7 +371,7 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nhas type");
+x_1 = lean_mk_string_from_bytes("\nhas type", 9);
 return x_1;
 }
 }
@@ -388,7 +388,7 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nbut is expected to have type");
+x_1 = lean_mk_string_from_bytes("\nbut is expected to have type", 29);
 return x_1;
 }
 }
@@ -405,7 +405,7 @@ static lean_object* _init_l_Lean_Meta_throwLetTypeMismatchMessage___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -2155,7 +2155,7 @@ static lean_object* _init_l_Lean_Meta_addPPExplicitToExposeDiff___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("pp");
+x_1 = lean_mk_string_from_bytes("pp", 2);
 return x_1;
 }
 }
@@ -2173,7 +2173,7 @@ static lean_object* _init_l_Lean_Meta_addPPExplicitToExposeDiff___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("all");
+x_1 = lean_mk_string_from_bytes("all", 3);
 return x_1;
 }
 }
@@ -2191,7 +2191,7 @@ static lean_object* _init_l_Lean_Meta_addPPExplicitToExposeDiff___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("explicit");
+x_1 = lean_mk_string_from_bytes("explicit", 8);
 return x_1;
 }
 }
@@ -2278,7 +2278,7 @@ static lean_object* _init_l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("has type");
+x_1 = lean_mk_string_from_bytes("has type", 8);
 return x_1;
 }
 }
@@ -2295,7 +2295,7 @@ static lean_object* _init_l_Lean_Meta_mkHasTypeButIsExpectedMsg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" : ");
+x_1 = lean_mk_string_from_bytes(" : ", 3);
 return x_1;
 }
 }
@@ -2630,7 +2630,7 @@ static lean_object* _init_l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("application type mismatch");
+x_1 = lean_mk_string_from_bytes("application type mismatch", 25);
 return x_1;
 }
 }
@@ -2647,7 +2647,7 @@ static lean_object* _init_l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nargument");
+x_1 = lean_mk_string_from_bytes("\nargument", 9);
 return x_1;
 }
 }
@@ -2664,7 +2664,7 @@ static lean_object* _init_l_Lean_Meta_throwAppTypeMismatch___rarg___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n");
+x_1 = lean_mk_string_from_bytes("\n", 1);
 return x_1;
 }
 }
@@ -4267,7 +4267,7 @@ static lean_object* _init_l_Lean_Meta_check___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -4285,7 +4285,7 @@ static lean_object* _init_l_Lean_Meta_check___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("check");
+x_1 = lean_mk_string_from_bytes("check", 5);
 return x_1;
 }
 }
@@ -5933,7 +5933,7 @@ static lean_object* _init_l_Lean_Meta_isTypeCorrect___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("typeError");
+x_1 = lean_mk_string_from_bytes("typeError", 9);
 return x_1;
 }
 }

@@ -90,7 +90,7 @@ static lean_object* _init_l_Lean_Meta_Linear_simp_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -108,7 +108,7 @@ static lean_object* _init_l_Lean_Meta_Linear_simp_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -126,7 +126,7 @@ static lean_object* _init_l_Lean_Meta_Linear_simp_x3f___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simp");
+x_1 = lean_mk_string_from_bytes("simp", 4);
 return x_1;
 }
 }
@@ -144,7 +144,7 @@ static lean_object* _init_l_Lean_Meta_Linear_simp_x3f___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("arith expr: ");
+x_1 = lean_mk_string_from_bytes("arith expr: ", 12);
 return x_1;
 }
 }
@@ -161,7 +161,7 @@ static lean_object* _init_l_Lean_Meta_Linear_simp_x3f___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }

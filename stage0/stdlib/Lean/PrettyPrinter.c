@@ -159,7 +159,7 @@ static lean_object* _init_l_Lean_PPContext_runCoreM___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_pp_uniq");
+x_1 = lean_mk_string_from_bytes("_pp_uniq", 8);
 return x_1;
 }
 }
@@ -278,7 +278,7 @@ static lean_object* _init_l_Lean_PPContext_runCoreM___rarg___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("internal exception #");
+x_1 = lean_mk_string_from_bytes("internal exception #", 20);
 return x_1;
 }
 }
@@ -1117,7 +1117,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_ppExprLegacy___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_uniq");
+x_1 = lean_mk_string_from_bytes("_uniq", 5);
 return x_1;
 }
 }
@@ -2196,7 +2196,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("PrettyPrinter");
+x_1 = lean_mk_string_from_bytes("PrettyPrinter", 13);
 return x_1;
 }
 }
@@ -2223,7 +2223,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_registerParserCompilers___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("parenthesizer");
+x_1 = lean_mk_string_from_bytes("parenthesizer", 13);
 return x_1;
 }
 }
@@ -2271,7 +2271,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_registerParserCompilers___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("formatter");
+x_1 = lean_mk_string_from_bytes("formatter", 9);
 return x_1;
 }
 }

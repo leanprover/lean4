@@ -547,7 +547,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_throwA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("apply");
+x_1 = lean_mk_string_from_bytes("apply", 5);
 return x_1;
 }
 }
@@ -565,7 +565,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_throwA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to unify");
+x_1 = lean_mk_string_from_bytes("failed to unify", 15);
 return x_1;
 }
 }
@@ -582,7 +582,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_throwA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nwith");
+x_1 = lean_mk_string_from_bytes("\nwith", 5);
 return x_1;
 }
 }
@@ -599,7 +599,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Apply_0__Lean_Meta_throwA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -662,7 +662,7 @@ static lean_object* _init_l_Nat_forM_loop___at_Lean_Meta_synthAppInstances___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to assign synthesized instance");
+x_1 = lean_mk_string_from_bytes("failed to assign synthesized instance", 37);
 return x_1;
 }
 }
@@ -3210,7 +3210,7 @@ static lean_object* _init_l_Lean_Meta_splitAnd_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("And");
+x_1 = lean_mk_string_from_bytes("And", 3);
 return x_1;
 }
 }
@@ -3228,7 +3228,7 @@ static lean_object* _init_l_Lean_Meta_splitAnd_go___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("h");
+x_1 = lean_mk_string_from_bytes("h", 1);
 return x_1;
 }
 }
@@ -3246,7 +3246,7 @@ static lean_object* _init_l_Lean_Meta_splitAnd_go___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("intro");
+x_1 = lean_mk_string_from_bytes("intro", 5);
 return x_1;
 }
 }
@@ -3911,7 +3911,7 @@ static lean_object* _init_l_Lean_Meta_splitAnd___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("splitAnd");
+x_1 = lean_mk_string_from_bytes("splitAnd", 8);
 return x_1;
 }
 }
@@ -4028,7 +4028,7 @@ static lean_object* _init_l_Lean_observing_x3f___at_Lean_Meta_applyRefl___spec__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -4046,7 +4046,7 @@ static lean_object* _init_l_Lean_observing_x3f___at_Lean_Meta_applyRefl___spec__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("refl");
+x_1 = lean_mk_string_from_bytes("refl", 4);
 return x_1;
 }
 }
@@ -4267,7 +4267,7 @@ static lean_object* _init_l_Lean_Meta_exfalso___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("False");
+x_1 = lean_mk_string_from_bytes("False", 5);
 return x_1;
 }
 }
@@ -4295,7 +4295,7 @@ static lean_object* _init_l_Lean_Meta_exfalso___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elim");
+x_1 = lean_mk_string_from_bytes("elim", 4);
 return x_1;
 }
 }
@@ -4529,7 +4529,7 @@ static lean_object* _init_l_Lean_Meta_exfalso___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("exfalso");
+x_1 = lean_mk_string_from_bytes("exfalso", 7);
 return x_1;
 }
 }

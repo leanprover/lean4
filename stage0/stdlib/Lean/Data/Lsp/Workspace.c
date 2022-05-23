@@ -128,7 +128,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("uri");
+x_1 = lean_mk_string_from_bytes("uri", 3);
 return x_1;
 }
 }
@@ -136,7 +136,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_toJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("name");
+x_1 = lean_mk_string_from_bytes("name", 4);
 return x_1;
 }
 }
@@ -324,7 +324,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("globPattern");
+x_1 = lean_mk_string_from_bytes("globPattern", 11);
 return x_1;
 }
 }
@@ -332,7 +332,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("kind");
+x_1 = lean_mk_string_from_bytes("kind", 4);
 return x_1;
 }
 }
@@ -639,7 +639,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected JSON array, got '");
+x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
 return x_1;
 }
 }
@@ -647,7 +647,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -691,7 +691,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("watchers");
+x_1 = lean_mk_string_from_bytes("watchers", 8);
 return x_1;
 }
 }
@@ -940,7 +940,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonFileChangeType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected 1, 2, or 3, got ");
+x_1 = lean_mk_string_from_bytes("expected 1, 2, or 3, got ", 25);
 return x_1;
 }
 }
@@ -948,7 +948,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonFileChangeType___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1384,7 +1384,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("type");
+x_1 = lean_mk_string_from_bytes("type", 4);
 return x_1;
 }
 }
@@ -1794,7 +1794,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Workspace_0__Lean_Lsp_fromJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("changes");
+x_1 = lean_mk_string_from_bytes("changes", 7);
 return x_1;
 }
 }

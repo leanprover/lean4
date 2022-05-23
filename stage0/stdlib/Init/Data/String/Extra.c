@@ -17,6 +17,7 @@ static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__t
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__26;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__12;
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Extra_0__String_utf8ByteSize_go_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__2___closed__2;
@@ -79,6 +80,8 @@ static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__t
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__11;
 static lean_object* l_String_toNat_x21___closed__3;
 lean_object* lean_uint32_to_nat(uint32_t);
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Extra_0__String_utf8ByteSize_go_match__1_splitter(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Extra_0__String_utf8ByteSize_go_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__2___closed__7;
 static lean_object* l_String_toNat_x21___closed__5;
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__19;
@@ -111,7 +114,7 @@ static lean_object* _init_l_String_toNat_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Init.Data.String.Extra");
+x_1 = lean_mk_string_from_bytes("Init.Data.String.Extra", 22);
 return x_1;
 }
 }
@@ -119,7 +122,7 @@ static lean_object* _init_l_String_toNat_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("String.toNat!");
+x_1 = lean_mk_string_from_bytes("String.toNat!", 13);
 return x_1;
 }
 }
@@ -127,7 +130,7 @@ static lean_object* _init_l_String_toNat_x21___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat expected");
+x_1 = lean_mk_string_from_bytes("Nat expected", 12);
 return x_1;
 }
 }
@@ -207,11 +210,50 @@ lean_dec(x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Extra_0__String_utf8ByteSize_go_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_dec(x_3);
+lean_inc(x_2);
+return x_2;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_1, 1);
+lean_inc(x_5);
+lean_dec(x_1);
+x_6 = lean_apply_2(x_3, x_4, x_5);
+return x_6;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Extra_0__String_utf8ByteSize_go_match__1_splitter(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l___private_Init_Data_String_Extra_0__String_utf8ByteSize_go_match__1_splitter___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Extra_0__String_utf8ByteSize_go_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Init_Data_String_Extra_0__String_utf8ByteSize_go_match__1_splitter___rarg(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
 static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticDecreasing_trivial");
+x_1 = lean_mk_string_from_bytes("tacticDecreasing_trivial", 24);
 return x_1;
 }
 }
@@ -229,7 +271,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -247,7 +289,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -265,7 +307,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -283,7 +325,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("seq1");
+x_1 = lean_mk_string_from_bytes("seq1", 4);
 return x_1;
 }
 }
@@ -301,7 +343,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -319,7 +361,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("apply");
+x_1 = lean_mk_string_from_bytes("apply", 5);
 return x_1;
 }
 }
@@ -337,7 +379,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("String.Iterator.sizeOf_next_lt_of_hasNext");
+x_1 = lean_mk_string_from_bytes("String.Iterator.sizeOf_next_lt_of_hasNext", 41);
 return x_1;
 }
 }
@@ -368,7 +410,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("String");
+x_1 = lean_mk_string_from_bytes("String", 6);
 return x_1;
 }
 }
@@ -386,7 +428,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Iterator");
+x_1 = lean_mk_string_from_bytes("Iterator", 8);
 return x_1;
 }
 }
@@ -404,7 +446,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sizeOf_next_lt_of_hasNext");
+x_1 = lean_mk_string_from_bytes("sizeOf_next_lt_of_hasNext", 25);
 return x_1;
 }
 }
@@ -455,7 +497,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(";");
+x_1 = lean_mk_string_from_bytes(";", 1);
 return x_1;
 }
 }
@@ -463,7 +505,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assumption");
+x_1 = lean_mk_string_from_bytes("assumption", 10);
 return x_1;
 }
 }
@@ -664,7 +706,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("String.Iterator.sizeOf_next_lt_of_atEnd");
+x_1 = lean_mk_string_from_bytes("String.Iterator.sizeOf_next_lt_of_atEnd", 39);
 return x_1;
 }
 }
@@ -695,7 +737,7 @@ static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sizeOf_next_lt_of_atEnd");
+x_1 = lean_mk_string_from_bytes("sizeOf_next_lt_of_atEnd", 23);
 return x_1;
 }
 }

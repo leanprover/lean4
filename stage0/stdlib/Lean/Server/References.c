@@ -1104,7 +1104,7 @@ static lean_object* _init_l___private_Lean_Server_References_0__Lean_Server_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("version");
+x_1 = lean_mk_string_from_bytes("version", 7);
 return x_1;
 }
 }
@@ -1112,7 +1112,7 @@ static lean_object* _init_l___private_Lean_Server_References_0__Lean_Server_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("module");
+x_1 = lean_mk_string_from_bytes("module", 6);
 return x_1;
 }
 }
@@ -1120,7 +1120,7 @@ static lean_object* _init_l___private_Lean_Server_References_0__Lean_Server_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("references");
+x_1 = lean_mk_string_from_bytes("references", 10);
 return x_1;
 }
 }
@@ -1342,7 +1342,7 @@ static lean_object* _init_l_Lean_Server_Ilean_load___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Failed to load ilean at ");
+x_1 = lean_mk_string_from_bytes("Failed to load ilean at ", 24);
 return x_1;
 }
 }
@@ -1350,7 +1350,7 @@ static lean_object* _init_l_Lean_Server_Ilean_load___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(": ");
+x_1 = lean_mk_string_from_bytes(": ", 2);
 return x_1;
 }
 }
@@ -1358,7 +1358,7 @@ static lean_object* _init_l_Lean_Server_Ilean_load___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -6981,7 +6981,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Server_References_referrin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lean");
+x_1 = lean_mk_string_from_bytes("lean", 4);
 return x_1;
 }
 }

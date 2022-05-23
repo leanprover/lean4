@@ -245,7 +245,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat.Linear.Expr.num");
+x_1 = lean_mk_string_from_bytes("Nat.Linear.Expr.num", 19);
 return x_1;
 }
 }
@@ -293,7 +293,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat.Linear.Expr.var");
+x_1 = lean_mk_string_from_bytes("Nat.Linear.Expr.var", 19);
 return x_1;
 }
 }
@@ -323,7 +323,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat.Linear.Expr.add");
+x_1 = lean_mk_string_from_bytes("Nat.Linear.Expr.add", 19);
 return x_1;
 }
 }
@@ -353,7 +353,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat.Linear.Expr.mulL");
+x_1 = lean_mk_string_from_bytes("Nat.Linear.Expr.mulL", 20);
 return x_1;
 }
 }
@@ -383,7 +383,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat.Linear.Expr.mulR");
+x_1 = lean_mk_string_from_bytes("Nat.Linear.Expr.mulR", 20);
 return x_1;
 }
 }
@@ -693,7 +693,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("eq");
+x_1 = lean_mk_string_from_bytes("eq", 2);
 return x_1;
 }
 }
@@ -723,7 +723,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" := ");
+x_1 = lean_mk_string_from_bytes(" := ", 4);
 return x_1;
 }
 }
@@ -753,7 +753,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -771,7 +771,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lhs");
+x_1 = lean_mk_string_from_bytes("lhs", 3);
 return x_1;
 }
 }
@@ -789,7 +789,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("rhs");
+x_1 = lean_mk_string_from_bytes("rhs", 3);
 return x_1;
 }
 }
@@ -807,7 +807,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{ ");
+x_1 = lean_mk_string_from_bytes("{ ", 2);
 return x_1;
 }
 }
@@ -843,7 +843,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" }");
+x_1 = lean_mk_string_from_bytes(" }", 2);
 return x_1;
 }
 }
@@ -861,7 +861,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("false");
+x_1 = lean_mk_string_from_bytes("false", 5);
 return x_1;
 }
 }
@@ -939,7 +939,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("true");
+x_1 = lean_mk_string_from_bytes("true", 4);
 return x_1;
 }
 }
@@ -1157,7 +1157,7 @@ static lean_object* _init_l_repr___at___private_Lean_Meta_Tactic_LinearArith_Nat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -1193,7 +1193,7 @@ static lean_object* _init_l_repr___at___private_Lean_Meta_Tactic_LinearArith_Nat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -1301,7 +1301,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[]");
+x_1 = lean_mk_string_from_bytes("[]", 2);
 return x_1;
 }
 }
@@ -1319,7 +1319,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -1355,7 +1355,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Nat_Basic_0__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -1565,7 +1565,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_LinearExpr_toExpr___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat");
+x_1 = lean_mk_string_from_bytes("Nat", 3);
 return x_1;
 }
 }
@@ -1583,7 +1583,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_LinearExpr_toExpr___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Linear");
+x_1 = lean_mk_string_from_bytes("Linear", 6);
 return x_1;
 }
 }
@@ -1601,7 +1601,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_LinearExpr_toExpr___closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Expr");
+x_1 = lean_mk_string_from_bytes("Expr", 4);
 return x_1;
 }
 }
@@ -1619,7 +1619,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_LinearExpr_toExpr___closed__7()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("num");
+x_1 = lean_mk_string_from_bytes("num", 3);
 return x_1;
 }
 }
@@ -1647,7 +1647,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_LinearExpr_toExpr___closed__10(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("var");
+x_1 = lean_mk_string_from_bytes("var", 3);
 return x_1;
 }
 }
@@ -1675,7 +1675,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_LinearExpr_toExpr___closed__13(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("add");
+x_1 = lean_mk_string_from_bytes("add", 3);
 return x_1;
 }
 }
@@ -1703,7 +1703,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_LinearExpr_toExpr___closed__16(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mulL");
+x_1 = lean_mk_string_from_bytes("mulL", 4);
 return x_1;
 }
 }
@@ -1840,7 +1840,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_LinearCnstr_toExpr___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ExprCnstr");
+x_1 = lean_mk_string_from_bytes("ExprCnstr", 9);
 return x_1;
 }
 }
@@ -1858,7 +1858,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_LinearCnstr_toExpr___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mk");
+x_1 = lean_mk_string_from_bytes("mk", 2);
 return x_1;
 }
 }
@@ -1886,7 +1886,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_LinearCnstr_toExpr___closed__6(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Bool");
+x_1 = lean_mk_string_from_bytes("Bool", 4);
 return x_1;
 }
 }
@@ -2261,7 +2261,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_LinearCnstr_toArith___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("LE");
+x_1 = lean_mk_string_from_bytes("LE", 2);
 return x_1;
 }
 }
@@ -2279,7 +2279,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_LinearCnstr_toArith___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("le");
+x_1 = lean_mk_string_from_bytes("le", 2);
 return x_1;
 }
 }
@@ -2329,7 +2329,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_LinearCnstr_toArith___closed__8
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("instLENat");
+x_1 = lean_mk_string_from_bytes("instLENat", 9);
 return x_1;
 }
 }
@@ -2844,7 +2844,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr_visit___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mul");
+x_1 = lean_mk_string_from_bytes("mul", 3);
 return x_1;
 }
 }
@@ -2862,7 +2862,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr_visit___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("succ");
+x_1 = lean_mk_string_from_bytes("succ", 4);
 return x_1;
 }
 }
@@ -3706,7 +3706,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_ToLinear_toLinearExpr___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("zero");
+x_1 = lean_mk_string_from_bytes("zero", 4);
 return x_1;
 }
 }
@@ -3906,7 +3906,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_ToLinear_toLinearCnstr_x3f___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("LT");
+x_1 = lean_mk_string_from_bytes("LT", 2);
 return x_1;
 }
 }
@@ -3924,7 +3924,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_ToLinear_toLinearCnstr_x3f___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lt");
+x_1 = lean_mk_string_from_bytes("lt", 2);
 return x_1;
 }
 }
@@ -3942,7 +3942,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_ToLinear_toLinearCnstr_x3f___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("GE");
+x_1 = lean_mk_string_from_bytes("GE", 2);
 return x_1;
 }
 }
@@ -3960,7 +3960,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_ToLinear_toLinearCnstr_x3f___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ge");
+x_1 = lean_mk_string_from_bytes("ge", 2);
 return x_1;
 }
 }
@@ -3978,7 +3978,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_ToLinear_toLinearCnstr_x3f___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("GT");
+x_1 = lean_mk_string_from_bytes("GT", 2);
 return x_1;
 }
 }
@@ -3996,7 +3996,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_ToLinear_toLinearCnstr_x3f___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("gt");
+x_1 = lean_mk_string_from_bytes("gt", 2);
 return x_1;
 }
 }
@@ -4034,7 +4034,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_ToLinear_toLinearCnstr_x3f___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -5165,7 +5165,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Nat_reflTrue___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("refl");
+x_1 = lean_mk_string_from_bytes("refl", 4);
 return x_1;
 }
 }

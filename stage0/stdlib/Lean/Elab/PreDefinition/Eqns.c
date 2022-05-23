@@ -732,7 +732,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_expandRHS_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -1372,7 +1372,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_funext_x3f___lambda__1___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("funext");
+x_1 = lean_mk_string_from_bytes("funext", 6);
 return x_1;
 }
 }
@@ -2026,7 +2026,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("WellFounded");
+x_1 = lean_mk_string_from_bytes("WellFounded", 11);
 return x_1;
 }
 }
@@ -2044,7 +2044,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Eqns_0__Lean_Elab_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fix");
+x_1 = lean_mk_string_from_bytes("fix", 3);
 return x_1;
 }
 }
@@ -2306,7 +2306,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_splitMatch_x3f_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -2324,7 +2324,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_splitMatch_x3f_go___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -2342,7 +2342,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_splitMatch_x3f_go___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("split");
+x_1 = lean_mk_string_from_bytes("split", 5);
 return x_1;
 }
 }
@@ -2368,7 +2368,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_splitMatch_x3f_go___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("did not find term to split\n");
+x_1 = lean_mk_string_from_bytes("did not find term to split\n", 27);
 return x_1;
 }
 }
@@ -2385,7 +2385,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_splitMatch_x3f_go___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -2812,7 +2812,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_tryURefl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("refl failed");
+x_1 = lean_mk_string_from_bytes("refl failed", 11);
 return x_1;
 }
 }
@@ -4639,7 +4639,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Eqns_simpEqnTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected hypothesis in altenative");
+x_1 = lean_mk_string_from_bytes("unexpected hypothesis in altenative", 35);
 return x_1;
 }
 }
@@ -5425,7 +5425,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Eqns_simpEqnTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(">> simpEqnType: ");
+x_1 = lean_mk_string_from_bytes(">> simpEqnType: ", 16);
 return x_1;
 }
 }
@@ -5442,7 +5442,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Eqns_simpEqnTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -6163,7 +6163,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_simpEqnType___lambda__2___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -6181,7 +6181,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_simpEqnType___lambda__2___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("definition");
+x_1 = lean_mk_string_from_bytes("definition", 10);
 return x_1;
 }
 }
@@ -6199,7 +6199,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_simpEqnType___lambda__2___closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simpEqnType type: ");
+x_1 = lean_mk_string_from_bytes("simpEqnType type: ", 18);
 return x_1;
 }
 }
@@ -13656,7 +13656,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Elab_Eqns_mkEqnTypes_go___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_traceMsg");
+x_1 = lean_mk_string_from_bytes("_traceMsg", 9);
 return x_1;
 }
 }
@@ -13674,7 +13674,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Elab_Eqns_mkEqnTypes_go___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -13691,7 +13691,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Elab_Eqns_mkEqnTypes_go___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] ");
+x_1 = lean_mk_string_from_bytes("] ", 2);
 return x_1;
 }
 }
@@ -14455,7 +14455,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_mkEqnTypes_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("eqns");
+x_1 = lean_mk_string_from_bytes("eqns", 4);
 return x_1;
 }
 }
@@ -14473,7 +14473,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_mkEqnTypes_go___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mkEqnTypes step\n");
+x_1 = lean_mk_string_from_bytes("mkEqnTypes step\n", 16);
 return x_1;
 }
 }
@@ -19198,7 +19198,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_deltaLHS___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("deltaLHS");
+x_1 = lean_mk_string_from_bytes("deltaLHS", 8);
 return x_1;
 }
 }
@@ -19216,7 +19216,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_deltaLHS___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("equality expected");
+x_1 = lean_mk_string_from_bytes("equality expected", 17);
 return x_1;
 }
 }
@@ -19252,7 +19252,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_deltaLHS___lambda__2___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to delta reduce lhs");
+x_1 = lean_mk_string_from_bytes("failed to delta reduce lhs", 26);
 return x_1;
 }
 }
@@ -21058,7 +21058,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_mkUnfoldProof_go___lambda__1___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to generate unfold theorem for '");
+x_1 = lean_mk_string_from_bytes("failed to generate unfold theorem for '", 39);
 return x_1;
 }
 }
@@ -21075,7 +21075,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_mkUnfoldProof_go___lambda__1___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'\n");
+x_1 = lean_mk_string_from_bytes("'\n", 2);
 return x_1;
 }
 }
@@ -22047,7 +22047,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_mkUnfoldProof___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to generate equations for '");
+x_1 = lean_mk_string_from_bytes("failed to generate equations for '", 34);
 return x_1;
 }
 }
@@ -22064,7 +22064,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_mkUnfoldProof___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -22179,7 +22179,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_mkUnfoldEq___lambda__1___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_unfold");
+x_1 = lean_mk_string_from_bytes("_unfold", 7);
 return x_1;
 }
 }
@@ -24121,7 +24121,7 @@ static lean_object* _init_l_Lean_Elab_Eqns_initFn____x40_Lean_Elab_PreDefinition
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unfoldEqn");
+x_1 = lean_mk_string_from_bytes("unfoldEqn", 9);
 return x_1;
 }
 }

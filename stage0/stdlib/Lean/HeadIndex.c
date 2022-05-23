@@ -298,7 +298,7 @@ static lean_object* _init_l___private_Lean_HeadIndex_0__Lean_reprHeadIndex____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.HeadIndex.fvar");
+x_1 = lean_mk_string_from_bytes("Lean.HeadIndex.fvar", 19);
 return x_1;
 }
 }
@@ -346,7 +346,7 @@ static lean_object* _init_l___private_Lean_HeadIndex_0__Lean_reprHeadIndex____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.HeadIndex.mvar");
+x_1 = lean_mk_string_from_bytes("Lean.HeadIndex.mvar", 19);
 return x_1;
 }
 }
@@ -376,7 +376,7 @@ static lean_object* _init_l___private_Lean_HeadIndex_0__Lean_reprHeadIndex____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.HeadIndex.const");
+x_1 = lean_mk_string_from_bytes("Lean.HeadIndex.const", 20);
 return x_1;
 }
 }
@@ -406,7 +406,7 @@ static lean_object* _init_l___private_Lean_HeadIndex_0__Lean_reprHeadIndex____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.HeadIndex.proj");
+x_1 = lean_mk_string_from_bytes("Lean.HeadIndex.proj", 19);
 return x_1;
 }
 }
@@ -436,7 +436,7 @@ static lean_object* _init_l___private_Lean_HeadIndex_0__Lean_reprHeadIndex____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.HeadIndex.lit");
+x_1 = lean_mk_string_from_bytes("Lean.HeadIndex.lit", 18);
 return x_1;
 }
 }
@@ -466,7 +466,7 @@ static lean_object* _init_l___private_Lean_HeadIndex_0__Lean_reprHeadIndex____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.HeadIndex.sort");
+x_1 = lean_mk_string_from_bytes("Lean.HeadIndex.sort", 19);
 return x_1;
 }
 }
@@ -532,7 +532,7 @@ static lean_object* _init_l___private_Lean_HeadIndex_0__Lean_reprHeadIndex____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.HeadIndex.lam");
+x_1 = lean_mk_string_from_bytes("Lean.HeadIndex.lam", 18);
 return x_1;
 }
 }
@@ -598,7 +598,7 @@ static lean_object* _init_l___private_Lean_HeadIndex_0__Lean_reprHeadIndex____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.HeadIndex.forallE");
+x_1 = lean_mk_string_from_bytes("Lean.HeadIndex.forallE", 22);
 return x_1;
 }
 }
@@ -1340,7 +1340,7 @@ static lean_object* _init_l___private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.HeadIndex");
+x_1 = lean_mk_string_from_bytes("Lean.HeadIndex", 14);
 return x_1;
 }
 }
@@ -1348,7 +1348,7 @@ static lean_object* _init_l___private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.HeadIndex.0.Lean.Expr.toHeadIndexSlow");
+x_1 = lean_mk_string_from_bytes("_private.Lean.HeadIndex.0.Lean.Expr.toHeadIndexSlow", 51);
 return x_1;
 }
 }
@@ -1356,7 +1356,7 @@ static lean_object* _init_l___private_Lean_HeadIndex_0__Lean_Expr_toHeadIndexSlo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected expression kind");
+x_1 = lean_mk_string_from_bytes("unexpected expression kind", 26);
 return x_1;
 }
 }

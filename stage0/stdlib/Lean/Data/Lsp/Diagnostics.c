@@ -383,7 +383,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonDiagnosticSeverity___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown DiagnosticSeverity '");
+x_1 = lean_mk_string_from_bytes("unknown DiagnosticSeverity '", 28);
 return x_1;
 }
 }
@@ -391,7 +391,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonDiagnosticSeverity___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -848,7 +848,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonDiagnosticCode___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected string or integer diagnostic code, got '");
+x_1 = lean_mk_string_from_bytes("expected string or integer diagnostic code, got '", 49);
 return x_1;
 }
 }
@@ -1068,7 +1068,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonDiagnosticTag___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown DiagnosticTag");
+x_1 = lean_mk_string_from_bytes("unknown DiagnosticTag", 21);
 return x_1;
 }
 }
@@ -1215,7 +1215,7 @@ static lean_object* _init_l_Lean_Lsp_instInhabitedDiagnosticRelatedInformation__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1305,7 +1305,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("location");
+x_1 = lean_mk_string_from_bytes("location", 8);
 return x_1;
 }
 }
@@ -1313,7 +1313,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("message");
+x_1 = lean_mk_string_from_bytes("message", 7);
 return x_1;
 }
 }
@@ -2418,7 +2418,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("range");
+x_1 = lean_mk_string_from_bytes("range", 5);
 return x_1;
 }
 }
@@ -2426,7 +2426,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fullRange");
+x_1 = lean_mk_string_from_bytes("fullRange", 9);
 return x_1;
 }
 }
@@ -2434,7 +2434,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("severity");
+x_1 = lean_mk_string_from_bytes("severity", 8);
 return x_1;
 }
 }
@@ -2442,7 +2442,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("code");
+x_1 = lean_mk_string_from_bytes("code", 4);
 return x_1;
 }
 }
@@ -2450,7 +2450,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("source");
+x_1 = lean_mk_string_from_bytes("source", 6);
 return x_1;
 }
 }
@@ -2458,7 +2458,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tags");
+x_1 = lean_mk_string_from_bytes("tags", 4);
 return x_1;
 }
 }
@@ -2466,7 +2466,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("relatedInformation");
+x_1 = lean_mk_string_from_bytes("relatedInformation", 18);
 return x_1;
 }
 }
@@ -3092,7 +3092,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected JSON array, got '");
+x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
 return x_1;
 }
 }
@@ -4303,7 +4303,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("uri");
+x_1 = lean_mk_string_from_bytes("uri", 3);
 return x_1;
 }
 }
@@ -4311,7 +4311,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("version");
+x_1 = lean_mk_string_from_bytes("version", 7);
 return x_1;
 }
 }
@@ -4319,7 +4319,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("diagnostics");
+x_1 = lean_mk_string_from_bytes("diagnostics", 11);
 return x_1;
 }
 }

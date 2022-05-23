@@ -737,7 +737,7 @@ static lean_object* _init_l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_M
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("congrHypothesisFailed");
+x_1 = lean_mk_string_from_bytes("congrHypothesisFailed", 21);
 return x_1;
 }
 }
@@ -815,7 +815,7 @@ static lean_object* _init_l_Lean_Meta_Simp_Config_updateArith___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat");
+x_1 = lean_mk_string_from_bytes("Nat", 3);
 return x_1;
 }
 }
@@ -833,7 +833,7 @@ static lean_object* _init_l_Lean_Meta_Simp_Config_updateArith___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Linear");
+x_1 = lean_mk_string_from_bytes("Linear", 6);
 return x_1;
 }
 }
@@ -851,7 +851,7 @@ static lean_object* _init_l_Lean_Meta_Simp_Config_updateArith___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ExprCnstr");
+x_1 = lean_mk_string_from_bytes("ExprCnstr", 9);
 return x_1;
 }
 }
@@ -869,7 +869,7 @@ static lean_object* _init_l_Lean_Meta_Simp_Config_updateArith___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("eq_of_toNormPoly_eq");
+x_1 = lean_mk_string_from_bytes("eq_of_toNormPoly_eq", 19);
 return x_1;
 }
 }
@@ -1878,7 +1878,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Si
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Expr");
+x_1 = lean_mk_string_from_bytes("Lean.Expr", 9);
 return x_1;
 }
 }
@@ -1886,7 +1886,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Si
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Expr.updateForallE!");
+x_1 = lean_mk_string_from_bytes("Lean.Expr.updateForallE!", 24);
 return x_1;
 }
 }
@@ -1894,7 +1894,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Si
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("forall expected");
+x_1 = lean_mk_string_from_bytes("forall expected", 15);
 return x_1;
 }
 }
@@ -2606,7 +2606,7 @@ static lean_object* _init_l_Lean_Meta_Simp_isOfNatNatLit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("OfNat");
+x_1 = lean_mk_string_from_bytes("OfNat", 5);
 return x_1;
 }
 }
@@ -2624,7 +2624,7 @@ static lean_object* _init_l_Lean_Meta_Simp_isOfNatNatLit___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ofNat");
+x_1 = lean_mk_string_from_bytes("ofNat", 5);
 return x_1;
 }
 }
@@ -9982,7 +9982,7 @@ static lean_object* _init_l_Lean_Meta_Simp_removeUnnecessaryCasts_isDummyEqRec__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -10000,7 +10000,7 @@ static lean_object* _init_l_Lean_Meta_Simp_removeUnnecessaryCasts_isDummyEqRec__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("rec");
+x_1 = lean_mk_string_from_bytes("rec", 3);
 return x_1;
 }
 }
@@ -10018,7 +10018,7 @@ static lean_object* _init_l_Lean_Meta_Simp_removeUnnecessaryCasts_isDummyEqRec__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ndrec");
+x_1 = lean_mk_string_from_bytes("ndrec", 5);
 return x_1;
 }
 }
@@ -10036,7 +10036,7 @@ static lean_object* _init_l_Lean_Meta_Simp_removeUnnecessaryCasts_isDummyEqRec__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("refl");
+x_1 = lean_mk_string_from_bytes("refl", 4);
 return x_1;
 }
 }
@@ -13073,7 +13073,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpLoop___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simp failed, maximum number of steps exceeded");
+x_1 = lean_mk_string_from_bytes("simp failed, maximum number of steps exceeded", 45);
 return x_1;
 }
 }
@@ -14204,7 +14204,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpStep___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Tactic.Simp.Main");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Tactic.Simp.Main", 26);
 return x_1;
 }
 }
@@ -14212,7 +14212,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpStep___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Simp.simp.simpStep");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Simp.simp.simpStep", 28);
 return x_1;
 }
 }
@@ -14220,7 +14220,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpStep___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -16371,7 +16371,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpLet___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Simp.simp.simpLet");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Simp.simp.simpLet", 27);
 return x_1;
 }
 }
@@ -16916,7 +16916,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simp");
+x_1 = lean_mk_string_from_bytes("simp", 4);
 return x_1;
 }
 }
@@ -17361,7 +17361,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Meta_Simp_simp_simpForall___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_traceMsg");
+x_1 = lean_mk_string_from_bytes("_traceMsg", 9);
 return x_1;
 }
 }
@@ -17379,7 +17379,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Meta_Simp_simp_simpForall___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -17396,7 +17396,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Meta_Simp_simp_simpForall___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] ");
+x_1 = lean_mk_string_from_bytes("] ", 2);
 return x_1;
 }
 }
@@ -17413,7 +17413,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Meta_Simp_simp_simpForall___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -18137,7 +18137,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpForall___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Debug");
+x_1 = lean_mk_string_from_bytes("Debug", 5);
 return x_1;
 }
 }
@@ -18155,7 +18155,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpForall___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -18173,7 +18173,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpForall___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -18201,7 +18201,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpForall___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("forall ");
+x_1 = lean_mk_string_from_bytes("forall ", 7);
 return x_1;
 }
 }
@@ -20964,7 +20964,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpArrow___lambda__3___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ctx arrow ");
+x_1 = lean_mk_string_from_bytes("ctx arrow ", 10);
 return x_1;
 }
 }
@@ -20981,7 +20981,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpArrow___lambda__3___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" -> ");
+x_1 = lean_mk_string_from_bytes(" -> ", 4);
 return x_1;
 }
 }
@@ -21282,7 +21282,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpArrow___lambda__4___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("arrow [");
+x_1 = lean_mk_string_from_bytes("arrow [", 7);
 return x_1;
 }
 }
@@ -21299,7 +21299,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpArrow___lambda__4___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" [");
+x_1 = lean_mk_string_from_bytes(" [", 2);
 return x_1;
 }
 }
@@ -21316,7 +21316,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpArrow___lambda__4___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] -> ");
+x_1 = lean_mk_string_from_bytes("] -> ", 5);
 return x_1;
 }
 }
@@ -21333,7 +21333,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpArrow___lambda__4___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -21350,7 +21350,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpArrow___lambda__4___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("false");
+x_1 = lean_mk_string_from_bytes("false", 5);
 return x_1;
 }
 }
@@ -21378,7 +21378,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpArrow___lambda__4___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("true");
+x_1 = lean_mk_string_from_bytes("true", 4);
 return x_1;
 }
 }
@@ -21751,7 +21751,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpArrow___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("arrow ");
+x_1 = lean_mk_string_from_bytes("arrow ", 6);
 return x_1;
 }
 }
@@ -23566,7 +23566,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simp_cong
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("app [");
+x_1 = lean_mk_string_from_bytes("app [", 5);
 return x_1;
 }
 }
@@ -23583,7 +23583,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simp_cong
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ");
+x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }
@@ -23600,7 +23600,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simp_cong
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" hasFwdDeps: ");
+x_1 = lean_mk_string_from_bytes(" hasFwdDeps: ", 13);
 return x_1;
 }
 }
@@ -24565,7 +24565,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simp_tryA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Simp.simp.tryAutoCongrTheorem?");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Simp.simp.tryAutoCongrTheorem?", 40);
 return x_1;
 }
 }
@@ -27660,7 +27660,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simp_tryA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("congr");
+x_1 = lean_mk_string_from_bytes("congr", 5);
 return x_1;
 }
 }
@@ -27678,7 +27678,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simp_tryA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to synthesize instance");
+x_1 = lean_mk_string_from_bytes("failed to synthesize instance", 29);
 return x_1;
 }
 }
@@ -33104,7 +33104,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simp_tryS
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("processCongrHypothesis ");
+x_1 = lean_mk_string_from_bytes("processCongrHypothesis ", 23);
 return x_1;
 }
 }
@@ -33121,7 +33121,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simp_tryS
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" failed ");
+x_1 = lean_mk_string_from_bytes(" failed ", 8);
 return x_1;
 }
 }
@@ -33764,7 +33764,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_trySimpCongrTheorem_x3f___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" synthesizeArgs failed");
+x_1 = lean_mk_string_from_bytes(" synthesizeArgs failed", 22);
 return x_1;
 }
 }
@@ -33976,7 +33976,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_trySimpCongrTheorem_x3f___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" not modified");
+x_1 = lean_mk_string_from_bytes(" not modified", 13);
 return x_1;
 }
 }
@@ -34701,7 +34701,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_trySimpCongrTheorem_x3f___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -35471,7 +35471,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpProj___lambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Expr.updateProj!");
+x_1 = lean_mk_string_from_bytes("Lean.Expr.updateProj!", 21);
 return x_1;
 }
 }
@@ -35479,7 +35479,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpProj___lambda__1___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("proj expected");
+x_1 = lean_mk_string_from_bytes("proj expected", 13);
 return x_1;
 }
 }
@@ -35800,7 +35800,7 @@ static lean_object* _init_l_Lean_Meta_Simp_simp_simpProj___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("s");
+x_1 = lean_mk_string_from_bytes("s", 1);
 return x_1;
 }
 }
@@ -37804,7 +37804,7 @@ static lean_object* _init_l_Lean_Meta_Simp_dsimpMain___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("dsimp");
+x_1 = lean_mk_string_from_bytes("dsimp", 5);
 return x_1;
 }
 }
@@ -38336,7 +38336,7 @@ static lean_object* _init_l_Lean_Meta_Simp_isEqnThmHypothesis_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("False");
+x_1 = lean_mk_string_from_bytes("False", 5);
 return x_1;
 }
 }
@@ -39326,7 +39326,7 @@ static lean_object* _init_l_Lean_Meta_Simp_DefaultMethods_discharge_x3f___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("True");
+x_1 = lean_mk_string_from_bytes("True", 4);
 return x_1;
 }
 }
@@ -39344,7 +39344,7 @@ static lean_object* _init_l_Lean_Meta_Simp_DefaultMethods_discharge_x3f___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("maximum discharge depth has been reached");
+x_1 = lean_mk_string_from_bytes("maximum discharge depth has been reached", 40);
 return x_1;
 }
 }
@@ -39942,7 +39942,7 @@ static lean_object* _init_l_Lean_Meta_Simp_DefaultMethods_discharge_x3f___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("discharge");
+x_1 = lean_mk_string_from_bytes("discharge", 9);
 return x_1;
 }
 }
@@ -39960,7 +39960,7 @@ static lean_object* _init_l_Lean_Meta_Simp_DefaultMethods_discharge_x3f___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(">> discharge?: ");
+x_1 = lean_mk_string_from_bytes(">> discharge?: ", 15);
 return x_1;
 }
 }
@@ -40353,7 +40353,7 @@ static lean_object* _init_l_Lean_Meta_simpTargetCore___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("intro");
+x_1 = lean_mk_string_from_bytes("intro", 5);
 return x_1;
 }
 }

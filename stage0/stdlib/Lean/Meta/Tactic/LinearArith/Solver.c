@@ -422,7 +422,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("id");
+x_1 = lean_mk_string_from_bytes("id", 2);
 return x_1;
 }
 }
@@ -452,7 +452,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" := ");
+x_1 = lean_mk_string_from_bytes(" := ", 4);
 return x_1;
 }
 }
@@ -482,7 +482,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{ ");
+x_1 = lean_mk_string_from_bytes("{ ", 2);
 return x_1;
 }
 }
@@ -518,7 +518,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" }");
+x_1 = lean_mk_string_from_bytes(" }", 2);
 return x_1;
 }
 }
@@ -726,7 +726,7 @@ static lean_object* _init_l_repr___at___private_Lean_Meta_Tactic_LinearArith_Sol
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -756,7 +756,7 @@ static lean_object* _init_l_repr___at___private_Lean_Meta_Tactic_LinearArith_Sol
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -792,7 +792,7 @@ static lean_object* _init_l_repr___at___private_Lean_Meta_Tactic_LinearArith_Sol
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -900,7 +900,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("val");
+x_1 = lean_mk_string_from_bytes("val", 3);
 return x_1;
 }
 }
@@ -942,7 +942,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#[");
+x_1 = lean_mk_string_from_bytes("#[", 2);
 return x_1;
 }
 }
@@ -978,7 +978,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -996,7 +996,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#[]");
+x_1 = lean_mk_string_from_bytes("#[]", 3);
 return x_1;
 }
 }
@@ -2705,7 +2705,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Linear.Justification.combine");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Linear.Justification.combine", 38);
 return x_1;
 }
 }
@@ -2753,7 +2753,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Linear.Justification.assumption");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Linear.Justification.assumption", 41);
 return x_1;
 }
 }
@@ -3151,7 +3151,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Linear.CnstrKind.eq");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Linear.CnstrKind.eq", 29);
 return x_1;
 }
 }
@@ -3217,7 +3217,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Linear.CnstrKind.div");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Linear.CnstrKind.div", 30);
 return x_1;
 }
 }
@@ -3283,7 +3283,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Linear.CnstrKind.lt");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Linear.CnstrKind.lt", 29);
 return x_1;
 }
 }
@@ -3349,7 +3349,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Linear.CnstrKind.le");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Linear.CnstrKind.le", 29);
 return x_1;
 }
 }
@@ -3710,7 +3710,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("kind");
+x_1 = lean_mk_string_from_bytes("kind", 4);
 return x_1;
 }
 }
@@ -3752,7 +3752,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lhs");
+x_1 = lean_mk_string_from_bytes("lhs", 3);
 return x_1;
 }
 }
@@ -3770,7 +3770,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("rhs");
+x_1 = lean_mk_string_from_bytes("rhs", 3);
 return x_1;
 }
 }
@@ -3788,7 +3788,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_LinearArith_Solver_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("jst");
+x_1 = lean_mk_string_from_bytes("jst", 3);
 return x_1;
 }
 }
@@ -4088,7 +4088,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Tactic.LinearArith.Solver");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Tactic.LinearArith.Solver", 35);
 return x_1;
 }
 }
@@ -4096,7 +4096,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Linear.Cnstr.isUnsat");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Linear.Cnstr.isUnsat", 30);
 return x_1;
 }
 }
@@ -4104,7 +4104,7 @@ static lean_object* _init_l_Lean_Meta_Linear_Cnstr_isUnsat___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }

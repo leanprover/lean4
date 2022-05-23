@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__10;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Mem_0__List_get_match__1_splitter(lean_object*, lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__32;
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__20;
 LEAN_EXPORT lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1(lean_object*, lean_object*, lean_object*);
@@ -28,10 +29,13 @@ static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__26;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__58;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Mem_0__List_get_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__31;
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__35;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__51;
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__19;
+lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__11;
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__40;
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__27;
@@ -68,6 +72,7 @@ static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__5;
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__33;
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__22;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Mem_0__List_get_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__52;
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__29;
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__55;
@@ -92,6 +97,52 @@ static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__Array__tacticArray__get__dec__1___closed__24;
 static lean_object* l_Array_tacticArray__get__dec___closed__1;
 static lean_object* l_Array___aux__Init__Data__Array__Mem______macroRules__tacticDecreasing__trivial__1___closed__1;
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Mem_0__List_get_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_1, 1);
+lean_inc(x_6);
+lean_dec(x_1);
+x_7 = lean_unsigned_to_nat(0u);
+x_8 = lean_nat_dec_eq(x_2, x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_dec(x_3);
+x_9 = lean_unsigned_to_nat(1u);
+x_10 = lean_nat_sub(x_2, x_9);
+x_11 = lean_apply_4(x_4, x_5, x_6, x_10, lean_box(0));
+return x_11;
+}
+else
+{
+lean_object* x_12; 
+lean_dec(x_4);
+x_12 = lean_apply_3(x_3, x_5, x_6, lean_box(0));
+return x_12;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Mem_0__List_get_match__1_splitter(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l___private_Init_Data_Array_Mem_0__List_get_match__1_splitter___rarg___boxed), 4, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Array_Mem_0__List_get_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Init_Data_Array_Mem_0__List_get_match__1_splitter___rarg(x_1, x_2, x_3, x_4);
+lean_dec(x_2);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l_Array_instMembershipArray(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -113,7 +164,7 @@ static lean_object* _init_l_Array_tacticArray__get__dec___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Array");
+x_1 = lean_mk_string_from_bytes("Array", 5);
 return x_1;
 }
 }
@@ -131,7 +182,7 @@ static lean_object* _init_l_Array_tacticArray__get__dec___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticArray_get_dec");
+x_1 = lean_mk_string_from_bytes("tacticArray_get_dec", 19);
 return x_1;
 }
 }
@@ -149,7 +200,7 @@ static lean_object* _init_l_Array_tacticArray__get__dec___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("array_get_dec");
+x_1 = lean_mk_string_from_bytes("array_get_dec", 13);
 return x_1;
 }
 }
@@ -191,7 +242,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -209,7 +260,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -227,7 +278,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -245,7 +296,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("seq1");
+x_1 = lean_mk_string_from_bytes("seq1", 4);
 return x_1;
 }
 }
@@ -263,7 +314,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -281,7 +332,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("first");
+x_1 = lean_mk_string_from_bytes("first", 5);
 return x_1;
 }
 }
@@ -299,7 +350,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("group");
+x_1 = lean_mk_string_from_bytes("group", 5);
 return x_1;
 }
 }
@@ -317,7 +368,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("|");
+x_1 = lean_mk_string_from_bytes("|", 1);
 return x_1;
 }
 }
@@ -325,7 +376,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticSeq");
+x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
 return x_1;
 }
 }
@@ -343,7 +394,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticSeq1Indented");
+x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
 return x_1;
 }
 }
@@ -361,7 +412,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("apply");
+x_1 = lean_mk_string_from_bytes("apply", 5);
 return x_1;
 }
 }
@@ -379,7 +430,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sizeOf_get");
+x_1 = lean_mk_string_from_bytes("sizeOf_get", 10);
 return x_1;
 }
 }
@@ -495,7 +546,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -513,7 +564,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("app");
+x_1 = lean_mk_string_from_bytes("app", 3);
 return x_1;
 }
 }
@@ -531,7 +582,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat.lt_trans");
+x_1 = lean_mk_string_from_bytes("Nat.lt_trans", 12);
 return x_1;
 }
 }
@@ -562,7 +613,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat");
+x_1 = lean_mk_string_from_bytes("Nat", 3);
 return x_1;
 }
 }
@@ -580,7 +631,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lt_trans");
+x_1 = lean_mk_string_from_bytes("lt_trans", 8);
 return x_1;
 }
 }
@@ -622,7 +673,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("paren");
+x_1 = lean_mk_string_from_bytes("paren", 5);
 return x_1;
 }
 }
@@ -640,7 +691,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -648,7 +699,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ellipsis");
+x_1 = lean_mk_string_from_bytes("ellipsis", 8);
 return x_1;
 }
 }
@@ -666,7 +717,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("..");
+x_1 = lean_mk_string_from_bytes("..", 2);
 return x_1;
 }
 }
@@ -674,7 +725,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -691,7 +742,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(";");
+x_1 = lean_mk_string_from_bytes(";", 1);
 return x_1;
 }
 }
@@ -699,7 +750,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simpArith");
+x_1 = lean_mk_string_from_bytes("simpArith", 9);
 return x_1;
 }
 }
@@ -717,7 +768,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simp_arith");
+x_1 = lean_mk_string_from_bytes("simp_arith", 10);
 return x_1;
 }
 }
@@ -1247,7 +1298,7 @@ static lean_object* _init_l_Array___aux__Init__Data__Array__Mem______macroRules_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticDecreasing_trivial");
+x_1 = lean_mk_string_from_bytes("tacticDecreasing_trivial", 24);
 return x_1;
 }
 }

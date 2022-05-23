@@ -1148,7 +1148,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalWithAnnotateState___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -1166,7 +1166,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalWithAnnotateState___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -1184,7 +1184,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalWithAnnotateState___closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -1202,7 +1202,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalWithAnnotateState___closed__7()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("withAnnotateState");
+x_1 = lean_mk_string_from_bytes("withAnnotateState", 17);
 return x_1;
 }
 }
@@ -1265,7 +1265,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalWithAnnotateState_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -1293,7 +1293,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalWithAnnotateState_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalWithAnnotateState");
+x_1 = lean_mk_string_from_bytes("evalWithAnnotateState", 21);
 return x_1;
 }
 }
@@ -1475,7 +1475,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalDone___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("done");
+x_1 = lean_mk_string_from_bytes("done", 4);
 return x_1;
 }
 }
@@ -1493,7 +1493,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalDone___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalDone");
+x_1 = lean_mk_string_from_bytes("evalDone", 8);
 return x_1;
 }
 }
@@ -1901,7 +1901,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalSeq1___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("seq1");
+x_1 = lean_mk_string_from_bytes("seq1", 4);
 return x_1;
 }
 }
@@ -1919,7 +1919,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalSeq1___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalSeq1");
+x_1 = lean_mk_string_from_bytes("evalSeq1", 8);
 return x_1;
 }
 }
@@ -2077,7 +2077,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalParen___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("paren");
+x_1 = lean_mk_string_from_bytes("paren", 5);
 return x_1;
 }
 }
@@ -2095,7 +2095,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalParen___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalParen");
+x_1 = lean_mk_string_from_bytes("evalParen", 9);
 return x_1;
 }
 }
@@ -2235,7 +2235,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_isCheckpointableTactic___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("save");
+x_1 = lean_mk_string_from_bytes("save", 4);
 return x_1;
 }
 }
@@ -2284,7 +2284,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_addCheckpoints_push___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticSeq1Indented");
+x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
 return x_1;
 }
 }
@@ -2311,7 +2311,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_addCheckpoints_push___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("checkpoint");
+x_1 = lean_mk_string_from_bytes("checkpoint", 10);
 return x_1;
 }
 }
@@ -2976,7 +2976,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalTacticSeq1Indented
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalTacticSeq1Indented");
+x_1 = lean_mk_string_from_bytes("evalTacticSeq1Indented", 22);
 return x_1;
 }
 }
@@ -3265,7 +3265,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalTacticSeqBracketed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticSeqBracketed");
+x_1 = lean_mk_string_from_bytes("tacticSeqBracketed", 18);
 return x_1;
 }
 }
@@ -3283,7 +3283,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalTacticSeqBracketed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalTacticSeqBracketed");
+x_1 = lean_mk_string_from_bytes("evalTacticSeqBracketed", 22);
 return x_1;
 }
 }
@@ -3511,7 +3511,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalFocus___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("focus");
+x_1 = lean_mk_string_from_bytes("focus", 5);
 return x_1;
 }
 }
@@ -3529,7 +3529,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalFocus___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalFocus");
+x_1 = lean_mk_string_from_bytes("evalFocus", 9);
 return x_1;
 }
 }
@@ -3737,7 +3737,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRotateLeft___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("rotateLeft");
+x_1 = lean_mk_string_from_bytes("rotateLeft", 10);
 return x_1;
 }
 }
@@ -3755,7 +3755,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRotateLeft___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalRotateLeft");
+x_1 = lean_mk_string_from_bytes("evalRotateLeft", 14);
 return x_1;
 }
 }
@@ -3932,7 +3932,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRotateRight___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("rotateRight");
+x_1 = lean_mk_string_from_bytes("rotateRight", 11);
 return x_1;
 }
 }
@@ -3950,7 +3950,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRotateRight___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalRotateRight");
+x_1 = lean_mk_string_from_bytes("evalRotateRight", 15);
 return x_1;
 }
 }
@@ -4493,7 +4493,7 @@ static lean_object* _init_l_Lean_resolveNamespace___at_Lean_Elab_Tactic_evalOpen
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown namespace '");
+x_1 = lean_mk_string_from_bytes("unknown namespace '", 19);
 return x_1;
 }
 }
@@ -4501,7 +4501,7 @@ static lean_object* _init_l_Lean_resolveNamespace___at_Lean_Elab_Tactic_evalOpen
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -4729,7 +4729,7 @@ static lean_object* _init_l_Lean_throwUnknownConstant___at_Lean_Elab_Tactic_eval
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown constant '");
+x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
 return x_1;
 }
 }
@@ -4852,7 +4852,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverloadCore___at_Lean_Elab
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ambiguous identifier '");
+x_1 = lean_mk_string_from_bytes("ambiguous identifier '", 22);
 return x_1;
 }
 }
@@ -4860,7 +4860,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverloadCore___at_Lean_Elab
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', possible interpretations: ");
+x_1 = lean_mk_string_from_bytes("', possible interpretations: ", 29);
 return x_1;
 }
 }
@@ -4868,7 +4868,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverloadCore___at_Lean_Elab
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -6494,7 +6494,7 @@ static lean_object* _init_l_Lean_Elab_OpenDecl_elabOpenDecl___at_Lean_Elab_Tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Command");
+x_1 = lean_mk_string_from_bytes("Command", 7);
 return x_1;
 }
 }
@@ -6512,7 +6512,7 @@ static lean_object* _init_l_Lean_Elab_OpenDecl_elabOpenDecl___at_Lean_Elab_Tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("openSimple");
+x_1 = lean_mk_string_from_bytes("openSimple", 10);
 return x_1;
 }
 }
@@ -6530,7 +6530,7 @@ static lean_object* _init_l_Lean_Elab_OpenDecl_elabOpenDecl___at_Lean_Elab_Tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("openScoped");
+x_1 = lean_mk_string_from_bytes("openScoped", 10);
 return x_1;
 }
 }
@@ -6548,7 +6548,7 @@ static lean_object* _init_l_Lean_Elab_OpenDecl_elabOpenDecl___at_Lean_Elab_Tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("openOnly");
+x_1 = lean_mk_string_from_bytes("openOnly", 8);
 return x_1;
 }
 }
@@ -6566,7 +6566,7 @@ static lean_object* _init_l_Lean_Elab_OpenDecl_elabOpenDecl___at_Lean_Elab_Tacti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("openHiding");
+x_1 = lean_mk_string_from_bytes("openHiding", 10);
 return x_1;
 }
 }
@@ -8147,7 +8147,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalOpen___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("open");
+x_1 = lean_mk_string_from_bytes("open", 4);
 return x_1;
 }
 }
@@ -8165,7 +8165,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalOpen___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalOpen");
+x_1 = lean_mk_string_from_bytes("evalOpen", 8);
 return x_1;
 }
 }
@@ -8663,7 +8663,7 @@ static lean_object* _init_l_Lean_Elab_elabSetOption_setOption___at_Lean_Elab_Tac
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("type mismatch at set_option");
+x_1 = lean_mk_string_from_bytes("type mismatch at set_option", 27);
 return x_1;
 }
 }
@@ -8804,7 +8804,7 @@ static lean_object* _init_l_Lean_Elab_elabSetOption___at_Lean_Elab_Tactic_elabSe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected set_option value ");
+x_1 = lean_mk_string_from_bytes("unexpected set_option value ", 28);
 return x_1;
 }
 }
@@ -8830,7 +8830,7 @@ static lean_object* _init_l_Lean_Elab_elabSetOption___at_Lean_Elab_Tactic_elabSe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("true");
+x_1 = lean_mk_string_from_bytes("true", 4);
 return x_1;
 }
 }
@@ -8838,7 +8838,7 @@ static lean_object* _init_l_Lean_Elab_elabSetOption___at_Lean_Elab_Tactic_elabSe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("false");
+x_1 = lean_mk_string_from_bytes("false", 5);
 return x_1;
 }
 }
@@ -9210,7 +9210,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_elabSetOption___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("set_option");
+x_1 = lean_mk_string_from_bytes("set_option", 10);
 return x_1;
 }
 }
@@ -9228,7 +9228,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_elabSetOption___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elabSetOption");
+x_1 = lean_mk_string_from_bytes("elabSetOption", 13);
 return x_1;
 }
 }
@@ -9874,7 +9874,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalAllGoals___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("allGoals");
+x_1 = lean_mk_string_from_bytes("allGoals", 8);
 return x_1;
 }
 }
@@ -9892,7 +9892,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalAllGoals___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalAllGoals");
+x_1 = lean_mk_string_from_bytes("evalAllGoals", 12);
 return x_1;
 }
 }
@@ -10503,7 +10503,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalAnyGoals___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed on all goals");
+x_1 = lean_mk_string_from_bytes("failed on all goals", 19);
 return x_1;
 }
 }
@@ -10633,7 +10633,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalAnyGoals___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("anyGoals");
+x_1 = lean_mk_string_from_bytes("anyGoals", 8);
 return x_1;
 }
 }
@@ -10651,7 +10651,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalAnyGoals___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalAnyGoals");
+x_1 = lean_mk_string_from_bytes("evalAnyGoals", 12);
 return x_1;
 }
 }
@@ -10810,7 +10810,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalTacticSeq___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticSeq");
+x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
 return x_1;
 }
 }
@@ -10828,7 +10828,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalTacticSeq___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalTacticSeq");
+x_1 = lean_mk_string_from_bytes("evalTacticSeq", 13);
 return x_1;
 }
 }
@@ -11191,7 +11191,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalChoice___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("choice");
+x_1 = lean_mk_string_from_bytes("choice", 6);
 return x_1;
 }
 }
@@ -11209,7 +11209,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalChoice___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalChoice");
+x_1 = lean_mk_string_from_bytes("evalChoice", 10);
 return x_1;
 }
 }
@@ -11385,7 +11385,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalSkip___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("skip");
+x_1 = lean_mk_string_from_bytes("skip", 4);
 return x_1;
 }
 }
@@ -11403,7 +11403,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalSkip___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalSkip");
+x_1 = lean_mk_string_from_bytes("evalSkip", 8);
 return x_1;
 }
 }
@@ -11576,7 +11576,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalUnknown___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown");
+x_1 = lean_mk_string_from_bytes("unknown", 7);
 return x_1;
 }
 }
@@ -11594,7 +11594,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalUnknown___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalUnknown");
+x_1 = lean_mk_string_from_bytes("evalUnknown", 11);
 return x_1;
 }
 }
@@ -11734,7 +11734,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalFailIfSuccess___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tactic succeeded");
+x_1 = lean_mk_string_from_bytes("tactic succeeded", 16);
 return x_1;
 }
 }
@@ -11845,7 +11845,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalFailIfSuccess___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failIfSuccess");
+x_1 = lean_mk_string_from_bytes("failIfSuccess", 13);
 return x_1;
 }
 }
@@ -11863,7 +11863,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalFailIfSuccess___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalFailIfSuccess");
+x_1 = lean_mk_string_from_bytes("evalFailIfSuccess", 17);
 return x_1;
 }
 }
@@ -12221,7 +12221,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalTraceState___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("traceState");
+x_1 = lean_mk_string_from_bytes("traceState", 10);
 return x_1;
 }
 }
@@ -12239,7 +12239,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalTraceState___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalTraceState");
+x_1 = lean_mk_string_from_bytes("evalTraceState", 14);
 return x_1;
 }
 }
@@ -12379,7 +12379,7 @@ static lean_object* _init_l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ill-formed syntax");
+x_1 = lean_mk_string_from_bytes("ill-formed syntax", 17);
 return x_1;
 }
 }
@@ -12530,7 +12530,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalTraceMessage___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("traceMessage");
+x_1 = lean_mk_string_from_bytes("traceMessage", 12);
 return x_1;
 }
 }
@@ -12548,7 +12548,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalTraceMessage___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalTraceMessage");
+x_1 = lean_mk_string_from_bytes("evalTraceMessage", 16);
 return x_1;
 }
 }
@@ -12868,7 +12868,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalAssumption___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assumption");
+x_1 = lean_mk_string_from_bytes("assumption", 10);
 return x_1;
 }
 }
@@ -12886,7 +12886,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalAssumption___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalAssumption");
+x_1 = lean_mk_string_from_bytes("evalAssumption", 14);
 return x_1;
 }
 }
@@ -13222,7 +13222,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalContradiction___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("contradiction");
+x_1 = lean_mk_string_from_bytes("contradiction", 13);
 return x_1;
 }
 }
@@ -13240,7 +13240,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalContradiction___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalContradiction");
+x_1 = lean_mk_string_from_bytes("evalContradiction", 17);
 return x_1;
 }
 }
@@ -13560,7 +13560,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRefl___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("refl");
+x_1 = lean_mk_string_from_bytes("refl", 4);
 return x_1;
 }
 }
@@ -13578,7 +13578,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRefl___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalRefl");
+x_1 = lean_mk_string_from_bytes("evalRefl", 8);
 return x_1;
 }
 }
@@ -14017,7 +14017,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("intro");
+x_1 = lean_mk_string_from_bytes("intro", 5);
 return x_1;
 }
 }
@@ -14035,7 +14035,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -14053,7 +14053,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(";");
+x_1 = lean_mk_string_from_bytes(";", 1);
 return x_1;
 }
 }
@@ -14070,7 +14070,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ident");
+x_1 = lean_mk_string_from_bytes("ident", 5);
 return x_1;
 }
 }
@@ -14088,7 +14088,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -14106,7 +14106,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hole");
+x_1 = lean_mk_string_from_bytes("hole", 4);
 return x_1;
 }
 }
@@ -14124,7 +14124,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("h");
+x_1 = lean_mk_string_from_bytes("h", 1);
 return x_1;
 }
 }
@@ -14165,7 +14165,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("match");
+x_1 = lean_mk_string_from_bytes("match", 5);
 return x_1;
 }
 }
@@ -14197,7 +14197,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__20() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("matchDiscr");
+x_1 = lean_mk_string_from_bytes("matchDiscr", 10);
 return x_1;
 }
 }
@@ -14225,7 +14225,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__23() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("with");
+x_1 = lean_mk_string_from_bytes("with", 4);
 return x_1;
 }
 }
@@ -14233,7 +14233,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__24() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("matchAlts");
+x_1 = lean_mk_string_from_bytes("matchAlts", 9);
 return x_1;
 }
 }
@@ -14251,7 +14251,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__26() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("matchAlt");
+x_1 = lean_mk_string_from_bytes("matchAlt", 8);
 return x_1;
 }
 }
@@ -14269,7 +14269,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__28() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("|");
+x_1 = lean_mk_string_from_bytes("|", 1);
 return x_1;
 }
 }
@@ -14277,7 +14277,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__29() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("=>");
+x_1 = lean_mk_string_from_bytes("=>", 2);
 return x_1;
 }
 }
@@ -14285,7 +14285,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__30() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("syntheticHole");
+x_1 = lean_mk_string_from_bytes("syntheticHole", 13);
 return x_1;
 }
 }
@@ -14303,7 +14303,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__32() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("?");
+x_1 = lean_mk_string_from_bytes("?", 1);
 return x_1;
 }
 }
@@ -14311,7 +14311,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__33() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_");
+x_1 = lean_mk_string_from_bytes("_", 1);
 return x_1;
 }
 }
@@ -14337,7 +14337,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__36() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticTry_");
+x_1 = lean_mk_string_from_bytes("tacticTry_", 10);
 return x_1;
 }
 }
@@ -14355,7 +14355,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__38() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("try");
+x_1 = lean_mk_string_from_bytes("try", 3);
 return x_1;
 }
 }
@@ -14363,7 +14363,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__39() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("group");
+x_1 = lean_mk_string_from_bytes("group", 5);
 return x_1;
 }
 }
@@ -14381,7 +14381,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntro___closed__41() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("clear");
+x_1 = lean_mk_string_from_bytes("clear", 5);
 return x_1;
 }
 }
@@ -14854,7 +14854,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalIntro___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalIntro");
+x_1 = lean_mk_string_from_bytes("evalIntro", 9);
 return x_1;
 }
 }
@@ -15142,7 +15142,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalIntroMatch___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("introMatch");
+x_1 = lean_mk_string_from_bytes("introMatch", 10);
 return x_1;
 }
 }
@@ -15160,7 +15160,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalIntroMatch___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalIntroMatch");
+x_1 = lean_mk_string_from_bytes("evalIntroMatch", 14);
 return x_1;
 }
 }
@@ -15882,7 +15882,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalIntros___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("intros");
+x_1 = lean_mk_string_from_bytes("intros", 6);
 return x_1;
 }
 }
@@ -16074,7 +16074,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalIntros___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalIntros");
+x_1 = lean_mk_string_from_bytes("evalIntros", 10);
 return x_1;
 }
 }
@@ -16214,7 +16214,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalRevert___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("revert");
+x_1 = lean_mk_string_from_bytes("revert", 6);
 return x_1;
 }
 }
@@ -16417,7 +16417,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRevert___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalRevert");
+x_1 = lean_mk_string_from_bytes("evalRevert", 10);
 return x_1;
 }
 }
@@ -16967,7 +16967,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalClear___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalClear");
+x_1 = lean_mk_string_from_bytes("evalClear", 9);
 return x_1;
 }
 }
@@ -17430,7 +17430,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalSubst___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("subst");
+x_1 = lean_mk_string_from_bytes("subst", 5);
 return x_1;
 }
 }
@@ -17493,7 +17493,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalSubst___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalSubst");
+x_1 = lean_mk_string_from_bytes("evalSubst", 9);
 return x_1;
 }
 }
@@ -22174,7 +22174,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_renameInaccessibles___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("too many variable names provided");
+x_1 = lean_mk_string_from_bytes("too many variable names provided", 32);
 return x_1;
 }
 }
@@ -22798,7 +22798,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_BuiltinTactic_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tag not found");
+x_1 = lean_mk_string_from_bytes("tag not found", 13);
 return x_1;
 }
 }
@@ -23099,7 +23099,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalCase___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("case");
+x_1 = lean_mk_string_from_bytes("case", 4);
 return x_1;
 }
 }
@@ -23369,7 +23369,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalCase___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalCase");
+x_1 = lean_mk_string_from_bytes("evalCase", 8);
 return x_1;
 }
 }
@@ -23518,7 +23518,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalCase_x27___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("case'");
+x_1 = lean_mk_string_from_bytes("case'", 5);
 return x_1;
 }
 }
@@ -23902,7 +23902,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalCase_x27___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalCase'");
+x_1 = lean_mk_string_from_bytes("evalCase'", 9);
 return x_1;
 }
 }
@@ -24042,7 +24042,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalRenameInaccessibles___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("renameI");
+x_1 = lean_mk_string_from_bytes("renameI", 7);
 return x_1;
 }
 }
@@ -24196,7 +24196,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalRenameInaccessible
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalRenameInaccessibles");
+x_1 = lean_mk_string_from_bytes("evalRenameInaccessibles", 23);
 return x_1;
 }
 }
@@ -24549,7 +24549,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalFirst___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("first");
+x_1 = lean_mk_string_from_bytes("first", 5);
 return x_1;
 }
 }
@@ -24567,7 +24567,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalFirst___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalFirst");
+x_1 = lean_mk_string_from_bytes("evalFirst", 9);
 return x_1;
 }
 }
@@ -24707,7 +24707,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalFail___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n\n");
+x_1 = lean_mk_string_from_bytes("\n\n", 2);
 return x_1;
 }
 }
@@ -24724,7 +24724,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalFail___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fail");
+x_1 = lean_mk_string_from_bytes("fail", 4);
 return x_1;
 }
 }
@@ -24742,7 +24742,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalFail___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n");
+x_1 = lean_mk_string_from_bytes("\n", 1);
 return x_1;
 }
 }
@@ -24759,7 +24759,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalFail___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tactic 'fail' failed\n");
+x_1 = lean_mk_string_from_bytes("tactic 'fail' failed\n", 21);
 return x_1;
 }
 }
@@ -24900,7 +24900,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalFail___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalFail");
+x_1 = lean_mk_string_from_bytes("evalFail", 8);
 return x_1;
 }
 }
@@ -25120,7 +25120,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalDbgTrace___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("dbgTrace");
+x_1 = lean_mk_string_from_bytes("dbgTrace", 8);
 return x_1;
 }
 }
@@ -25138,7 +25138,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalDbgTrace___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalDbgTrace");
+x_1 = lean_mk_string_from_bytes("evalDbgTrace", 12);
 return x_1;
 }
 }
@@ -25392,7 +25392,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalSleep___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sleep");
+x_1 = lean_mk_string_from_bytes("sleep", 5);
 return x_1;
 }
 }
@@ -25410,7 +25410,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalSleep___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalSleep");
+x_1 = lean_mk_string_from_bytes("evalSleep", 9);
 return x_1;
 }
 }

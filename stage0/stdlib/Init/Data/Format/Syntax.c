@@ -92,7 +92,7 @@ static lean_object* _init_l___private_Init_Data_Format_Syntax_0__Lean_Syntax_for
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -110,7 +110,7 @@ static lean_object* _init_l___private_Init_Data_Format_Syntax_0__Lean_Syntax_for
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -559,7 +559,7 @@ static lean_object* _init_l_Lean_Syntax_formatStxAux___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<missing>");
+x_1 = lean_mk_string_from_bytes("<missing>", 9);
 return x_1;
 }
 }
@@ -577,7 +577,7 @@ static lean_object* _init_l_Lean_Syntax_formatStxAux___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -595,7 +595,7 @@ static lean_object* _init_l_Lean_Syntax_formatStxAux___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -613,7 +613,7 @@ static lean_object* _init_l_Lean_Syntax_formatStxAux___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -649,7 +649,7 @@ static lean_object* _init_l_Lean_Syntax_formatStxAux___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -667,7 +667,7 @@ static lean_object* _init_l_Lean_Syntax_formatStxAux___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("..");
+x_1 = lean_mk_string_from_bytes("..", 2);
 return x_1;
 }
 }
@@ -697,7 +697,7 @@ static lean_object* _init_l_Lean_Syntax_formatStxAux___closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -733,7 +733,7 @@ static lean_object* _init_l_Lean_Syntax_formatStxAux___closed__20() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -799,7 +799,7 @@ static lean_object* _init_l_Lean_Syntax_formatStxAux___closed__26() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("`");
+x_1 = lean_mk_string_from_bytes("`", 1);
 return x_1;
 }
 }

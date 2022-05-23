@@ -310,7 +310,7 @@ static lean_object* _init_l_Std_Format_isEmpty___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1449,7 +1449,7 @@ static lean_object* _init_l___private_Init_Data_Format_Basic_0__Std_Format_be___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable");
+x_1 = lean_mk_string_from_bytes("unreachable", 11);
 return x_1;
 }
 }
@@ -1457,7 +1457,7 @@ static lean_object* _init_l___private_Init_Data_Format_Basic_0__Std_Format_be___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ");
+x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }
@@ -3165,7 +3165,7 @@ static lean_object* _init_l_Std_Format_paren___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -3201,7 +3201,7 @@ static lean_object* _init_l_Std_Format_paren___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -3242,7 +3242,7 @@ static lean_object* _init_l_Std_Format_sbracket___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -3278,7 +3278,7 @@ static lean_object* _init_l_Std_Format_sbracket___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -3497,7 +3497,7 @@ static lean_object* _init_l_Std_Format_instMonadPrettyFormatStateMState___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n");
+x_1 = lean_mk_string_from_bytes("\n", 1);
 return x_1;
 }
 }

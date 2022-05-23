@@ -484,7 +484,7 @@ static lean_object* _init_l_Lean_throwUnknownConstant___at_Lean_Elab_Tactic_eval
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown constant '");
+x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
 return x_1;
 }
 }
@@ -501,7 +501,7 @@ static lean_object* _init_l_Lean_throwUnknownConstant___at_Lean_Elab_Tactic_eval
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -614,7 +614,7 @@ static lean_object* _init_l_Lean_resolveGlobalConst___at_Lean_Elab_Tactic_evalUn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected identifier");
+x_1 = lean_mk_string_from_bytes("expected identifier", 19);
 return x_1;
 }
 }
@@ -847,7 +847,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Tac
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ambiguous identifier '");
+x_1 = lean_mk_string_from_bytes("ambiguous identifier '", 22);
 return x_1;
 }
 }
@@ -855,7 +855,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Tac
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', possible interpretations: ");
+x_1 = lean_mk_string_from_bytes("', possible interpretations: ", 29);
 return x_1;
 }
 }
@@ -863,7 +863,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Tac
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1034,7 +1034,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalUnfold_go___lambda__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unfold");
+x_1 = lean_mk_string_from_bytes("unfold", 6);
 return x_1;
 }
 }
@@ -1052,7 +1052,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalUnfold_go___lambda__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("did not unfold '");
+x_1 = lean_mk_string_from_bytes("did not unfold '", 16);
 return x_1;
 }
 }
@@ -1430,7 +1430,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalUnfold___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -1448,7 +1448,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalUnfold___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -1466,7 +1466,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalUnfold___closed__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -1494,7 +1494,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalUnfold___closed__8
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -1522,7 +1522,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalUnfold___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalUnfold");
+x_1 = lean_mk_string_from_bytes("evalUnfold", 10);
 return x_1;
 }
 }
@@ -1568,7 +1568,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalUnfold_docString__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\"unfold \" ident (location)?\n");
+x_1 = lean_mk_string_from_bytes("\"unfold \" ident (location)?\n", 28);
 return x_1;
 }
 }

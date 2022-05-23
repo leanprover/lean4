@@ -426,7 +426,7 @@ static lean_object* _init_l_Lean_Xml_Parser_endl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -444,7 +444,7 @@ static lean_object* _init_l_Lean_Xml_Parser_endl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected: '");
+x_1 = lean_mk_string_from_bytes("expected: '", 11);
 return x_1;
 }
 }
@@ -462,7 +462,7 @@ static lean_object* _init_l_Lean_Xml_Parser_endl___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -480,7 +480,7 @@ static lean_object* _init_l_Lean_Xml_Parser_endl___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\r\n");
+x_1 = lean_mk_string_from_bytes("\r\n", 2);
 return x_1;
 }
 }
@@ -1171,7 +1171,7 @@ static lean_object* _init_l_Lean_Xml_Parser_Char___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected xml char");
+x_1 = lean_mk_string_from_bytes("expected xml char", 17);
 return x_1;
 }
 }
@@ -2274,7 +2274,7 @@ static lean_object* _init_l_Lean_Xml_Parser_NameStartChar___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected a name character");
+x_1 = lean_mk_string_from_bytes("expected a name character", 25);
 return x_1;
 }
 }
@@ -2521,7 +2521,7 @@ static lean_object* _init_l_Lean_Xml_Parser_NameChar___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("condition not satisfied");
+x_1 = lean_mk_string_from_bytes("condition not satisfied", 23);
 return x_1;
 }
 }
@@ -2619,7 +2619,7 @@ static lean_object* _init_l_Lean_Xml_Parser_NameChar___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("digit expected");
+x_1 = lean_mk_string_from_bytes("digit expected", 14);
 return x_1;
 }
 }
@@ -3200,7 +3200,7 @@ static lean_object* _init_l_Lean_Xml_Parser_VersionNum___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("1.");
+x_1 = lean_mk_string_from_bytes("1.", 2);
 return x_1;
 }
 }
@@ -3304,7 +3304,7 @@ static lean_object* _init_l_Lean_Xml_Parser_VersionInfo___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("version");
+x_1 = lean_mk_string_from_bytes("version", 7);
 return x_1;
 }
 }
@@ -3450,7 +3450,7 @@ static lean_object* _init_l_Lean_Xml_Parser_EncName___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ASCII letter expected");
+x_1 = lean_mk_string_from_bytes("ASCII letter expected", 21);
 return x_1;
 }
 }
@@ -3995,7 +3995,7 @@ static lean_object* _init_l_Lean_Xml_Parser_EncodingDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("encoding");
+x_1 = lean_mk_string_from_bytes("encoding", 8);
 return x_1;
 }
 }
@@ -4111,7 +4111,7 @@ static lean_object* _init_l_Lean_Xml_Parser_SDDecl___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("yes");
+x_1 = lean_mk_string_from_bytes("yes", 3);
 return x_1;
 }
 }
@@ -4119,7 +4119,7 @@ static lean_object* _init_l_Lean_Xml_Parser_SDDecl___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("no");
+x_1 = lean_mk_string_from_bytes("no", 2);
 return x_1;
 }
 }
@@ -4214,7 +4214,7 @@ static lean_object* _init_l_Lean_Xml_Parser_SDDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("standalone");
+x_1 = lean_mk_string_from_bytes("standalone", 10);
 return x_1;
 }
 }
@@ -4330,7 +4330,7 @@ static lean_object* _init_l_Lean_Xml_Parser_XMLdecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("?>");
+x_1 = lean_mk_string_from_bytes("?>", 2);
 return x_1;
 }
 }
@@ -4338,7 +4338,7 @@ static lean_object* _init_l_Lean_Xml_Parser_XMLdecl___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<?xml");
+x_1 = lean_mk_string_from_bytes("<?xml", 5);
 return x_1;
 }
 }
@@ -5027,7 +5027,7 @@ static lean_object* _init_l_Lean_Xml_Parser_Comment___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<!--");
+x_1 = lean_mk_string_from_bytes("<!--", 4);
 return x_1;
 }
 }
@@ -5043,7 +5043,7 @@ static lean_object* _init_l_Lean_Xml_Parser_Comment___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("-->");
+x_1 = lean_mk_string_from_bytes("-->", 3);
 return x_1;
 }
 }
@@ -5897,7 +5897,7 @@ static lean_object* _init_l_Lean_Xml_Parser_PI___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<?");
+x_1 = lean_mk_string_from_bytes("<?", 2);
 return x_1;
 }
 }
@@ -7008,7 +7008,7 @@ static lean_object* _init_l_Lean_Xml_Parser_PubidChar___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("-'()+,./:=?;!*#@$_%");
+x_1 = lean_mk_string_from_bytes("-'()+,./:=?;!*#@$_%", 19);
 return x_1;
 }
 }
@@ -7016,7 +7016,7 @@ static lean_object* _init_l_Lean_Xml_Parser_PubidChar___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("PublidChar expected");
+x_1 = lean_mk_string_from_bytes("PublidChar expected", 19);
 return x_1;
 }
 }
@@ -7393,7 +7393,7 @@ static lean_object* _init_l_Lean_Xml_Parser_PubidLiteral___lambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'\\'' not expected");
+x_1 = lean_mk_string_from_bytes("'\\'' not expected", 17);
 return x_1;
 }
 }
@@ -7834,7 +7834,7 @@ static lean_object* _init_l_Lean_Xml_Parser_ExternalID___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("SYSTEM");
+x_1 = lean_mk_string_from_bytes("SYSTEM", 6);
 return x_1;
 }
 }
@@ -7842,7 +7842,7 @@ static lean_object* _init_l_Lean_Xml_Parser_ExternalID___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("PUBLIC");
+x_1 = lean_mk_string_from_bytes("PUBLIC", 6);
 return x_1;
 }
 }
@@ -9322,7 +9322,7 @@ static lean_object* _init_l_Lean_Xml_Parser_Mixed___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#PCDATA");
+x_1 = lean_mk_string_from_bytes("#PCDATA", 7);
 return x_1;
 }
 }
@@ -9368,7 +9368,7 @@ static lean_object* _init_l_Lean_Xml_Parser_Mixed___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")*");
+x_1 = lean_mk_string_from_bytes(")*", 2);
 return x_1;
 }
 }
@@ -11743,7 +11743,7 @@ static lean_object* _init_l_Lean_Xml_Parser_contentspec___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("EMPTY");
+x_1 = lean_mk_string_from_bytes("EMPTY", 5);
 return x_1;
 }
 }
@@ -11751,7 +11751,7 @@ static lean_object* _init_l_Lean_Xml_Parser_contentspec___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ANY");
+x_1 = lean_mk_string_from_bytes("ANY", 3);
 return x_1;
 }
 }
@@ -12227,7 +12227,7 @@ static lean_object* _init_l_Lean_Xml_Parser_elementDecl___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<!ELEMENT");
+x_1 = lean_mk_string_from_bytes("<!ELEMENT", 9);
 return x_1;
 }
 }
@@ -12468,7 +12468,7 @@ static lean_object* _init_l_Lean_Xml_Parser_StringType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("CDATA");
+x_1 = lean_mk_string_from_bytes("CDATA", 5);
 return x_1;
 }
 }
@@ -12532,7 +12532,7 @@ static lean_object* _init_l_Lean_Xml_Parser_TokenizedType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ID");
+x_1 = lean_mk_string_from_bytes("ID", 2);
 return x_1;
 }
 }
@@ -12540,7 +12540,7 @@ static lean_object* _init_l_Lean_Xml_Parser_TokenizedType___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("IDREF");
+x_1 = lean_mk_string_from_bytes("IDREF", 5);
 return x_1;
 }
 }
@@ -12548,7 +12548,7 @@ static lean_object* _init_l_Lean_Xml_Parser_TokenizedType___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("IDREFS");
+x_1 = lean_mk_string_from_bytes("IDREFS", 6);
 return x_1;
 }
 }
@@ -12556,7 +12556,7 @@ static lean_object* _init_l_Lean_Xml_Parser_TokenizedType___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ENTITY");
+x_1 = lean_mk_string_from_bytes("ENTITY", 6);
 return x_1;
 }
 }
@@ -12564,7 +12564,7 @@ static lean_object* _init_l_Lean_Xml_Parser_TokenizedType___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ENTITIES");
+x_1 = lean_mk_string_from_bytes("ENTITIES", 8);
 return x_1;
 }
 }
@@ -12572,7 +12572,7 @@ static lean_object* _init_l_Lean_Xml_Parser_TokenizedType___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("NMTOKEN");
+x_1 = lean_mk_string_from_bytes("NMTOKEN", 7);
 return x_1;
 }
 }
@@ -12580,7 +12580,7 @@ static lean_object* _init_l_Lean_Xml_Parser_TokenizedType___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("NMTOKENS");
+x_1 = lean_mk_string_from_bytes("NMTOKENS", 8);
 return x_1;
 }
 }
@@ -14372,7 +14372,7 @@ static lean_object* _init_l_Lean_Xml_Parser_NotationType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("NOTATION");
+x_1 = lean_mk_string_from_bytes("NOTATION", 8);
 return x_1;
 }
 }
@@ -15583,7 +15583,7 @@ static lean_object* _init_l_Lean_Xml_Parser_predefinedEntityToChar___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lt");
+x_1 = lean_mk_string_from_bytes("lt", 2);
 return x_1;
 }
 }
@@ -15591,7 +15591,7 @@ static lean_object* _init_l_Lean_Xml_Parser_predefinedEntityToChar___closed__2()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("gt");
+x_1 = lean_mk_string_from_bytes("gt", 2);
 return x_1;
 }
 }
@@ -15599,7 +15599,7 @@ static lean_object* _init_l_Lean_Xml_Parser_predefinedEntityToChar___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("amp");
+x_1 = lean_mk_string_from_bytes("amp", 3);
 return x_1;
 }
 }
@@ -15607,7 +15607,7 @@ static lean_object* _init_l_Lean_Xml_Parser_predefinedEntityToChar___closed__4()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("apos");
+x_1 = lean_mk_string_from_bytes("apos", 4);
 return x_1;
 }
 }
@@ -15615,7 +15615,7 @@ static lean_object* _init_l_Lean_Xml_Parser_predefinedEntityToChar___closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("quot");
+x_1 = lean_mk_string_from_bytes("quot", 4);
 return x_1;
 }
 }
@@ -16272,7 +16272,7 @@ static lean_object* _init_l_Lean_Xml_Parser_CharRef___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hex digit expected");
+x_1 = lean_mk_string_from_bytes("hex digit expected", 18);
 return x_1;
 }
 }
@@ -16523,7 +16523,7 @@ static lean_object* _init_l_Lean_Xml_Parser_CharRef___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("&#");
+x_1 = lean_mk_string_from_bytes("&#", 2);
 return x_1;
 }
 }
@@ -17558,7 +17558,7 @@ static lean_object* _init_l_Lean_Xml_Parser_DefaultDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#REQUIRED");
+x_1 = lean_mk_string_from_bytes("#REQUIRED", 9);
 return x_1;
 }
 }
@@ -17566,7 +17566,7 @@ static lean_object* _init_l_Lean_Xml_Parser_DefaultDecl___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#IMPLIED");
+x_1 = lean_mk_string_from_bytes("#IMPLIED", 8);
 return x_1;
 }
 }
@@ -17574,7 +17574,7 @@ static lean_object* _init_l_Lean_Xml_Parser_DefaultDecl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#FIXED");
+x_1 = lean_mk_string_from_bytes("#FIXED", 6);
 return x_1;
 }
 }
@@ -18802,7 +18802,7 @@ static lean_object* _init_l_Lean_Xml_Parser_AttlistDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<!ATTLIST");
+x_1 = lean_mk_string_from_bytes("<!ATTLIST", 9);
 return x_1;
 }
 }
@@ -19774,7 +19774,7 @@ static lean_object* _init_l_Lean_Xml_Parser_NDataDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("NDATA");
+x_1 = lean_mk_string_from_bytes("NDATA", 5);
 return x_1;
 }
 }
@@ -20233,7 +20233,7 @@ static lean_object* _init_l_Lean_Xml_Parser_GEDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<!ENTITY");
+x_1 = lean_mk_string_from_bytes("<!ENTITY", 8);
 return x_1;
 }
 }
@@ -21280,7 +21280,7 @@ static lean_object* _init_l_Lean_Xml_Parser_NotationDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<!NOTATION");
+x_1 = lean_mk_string_from_bytes("<!NOTATION", 10);
 return x_1;
 }
 }
@@ -23313,7 +23313,7 @@ static lean_object* _init_l_Lean_Xml_Parser_doctypedecl___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<!DOCTYPE");
+x_1 = lean_mk_string_from_bytes("<!DOCTYPE", 9);
 return x_1;
 }
 }
@@ -27286,7 +27286,7 @@ static lean_object* _init_l_Lean_Xml_Parser_EmptyElemTag___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("/>");
+x_1 = lean_mk_string_from_bytes("/>", 2);
 return x_1;
 }
 }
@@ -27408,7 +27408,7 @@ static lean_object* _init_l_Lean_Xml_Parser_ETag___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("</");
+x_1 = lean_mk_string_from_bytes("</", 2);
 return x_1;
 }
 }
@@ -27589,7 +27589,7 @@ static lean_object* _init_l_Lean_Xml_Parser_CDStart___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<![CDATA[");
+x_1 = lean_mk_string_from_bytes("<![CDATA[", 9);
 return x_1;
 }
 }
@@ -27653,7 +27653,7 @@ static lean_object* _init_l_Lean_Xml_Parser_CDEnd___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]]>");
+x_1 = lean_mk_string_from_bytes("]]>", 3);
 return x_1;
 }
 }
@@ -30055,7 +30055,7 @@ static lean_object* _init_l_Lean_Xml_parse___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("offset ");
+x_1 = lean_mk_string_from_bytes("offset ", 7);
 return x_1;
 }
 }
@@ -30063,7 +30063,7 @@ static lean_object* _init_l_Lean_Xml_parse___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(": ");
+x_1 = lean_mk_string_from_bytes(": ", 2);
 return x_1;
 }
 }
@@ -30071,7 +30071,7 @@ static lean_object* _init_l_Lean_Xml_parse___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n");
+x_1 = lean_mk_string_from_bytes("\n", 1);
 return x_1;
 }
 }

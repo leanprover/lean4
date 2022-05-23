@@ -260,7 +260,7 @@ static lean_object* _init_l_Lean_instInhabitedDataValue___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -483,7 +483,7 @@ static lean_object* _init_l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.DataValue.ofString");
+x_1 = lean_mk_string_from_bytes("Lean.DataValue.ofString", 23);
 return x_1;
 }
 }
@@ -531,7 +531,7 @@ static lean_object* _init_l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.DataValue.ofBool");
+x_1 = lean_mk_string_from_bytes("Lean.DataValue.ofBool", 21);
 return x_1;
 }
 }
@@ -561,7 +561,7 @@ static lean_object* _init_l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("false");
+x_1 = lean_mk_string_from_bytes("false", 5);
 return x_1;
 }
 }
@@ -615,7 +615,7 @@ static lean_object* _init_l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("true");
+x_1 = lean_mk_string_from_bytes("true", 4);
 return x_1;
 }
 }
@@ -717,7 +717,7 @@ static lean_object* _init_l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.DataValue.ofName");
+x_1 = lean_mk_string_from_bytes("Lean.DataValue.ofName", 21);
 return x_1;
 }
 }
@@ -747,7 +747,7 @@ static lean_object* _init_l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.DataValue.ofNat");
+x_1 = lean_mk_string_from_bytes("Lean.DataValue.ofNat", 20);
 return x_1;
 }
 }
@@ -777,7 +777,7 @@ static lean_object* _init_l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.DataValue.ofInt");
+x_1 = lean_mk_string_from_bytes("Lean.DataValue.ofInt", 20);
 return x_1;
 }
 }
@@ -807,7 +807,7 @@ static lean_object* _init_l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.DataValue.ofSyntax");
+x_1 = lean_mk_string_from_bytes("Lean.DataValue.ofSyntax", 23);
 return x_1;
 }
 }
@@ -1310,7 +1310,7 @@ static lean_object* _init_l_Lean_DataValue_str___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("-");
+x_1 = lean_mk_string_from_bytes("-", 1);
 return x_1;
 }
 }
@@ -1513,7 +1513,7 @@ static lean_object* _init_l_repr___at___private_Lean_Data_KVMap_0__Lean_reprKVMa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -1543,7 +1543,7 @@ static lean_object* _init_l_repr___at___private_Lean_Data_KVMap_0__Lean_reprKVMa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -1579,7 +1579,7 @@ static lean_object* _init_l_repr___at___private_Lean_Data_KVMap_0__Lean_reprKVMa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -1684,7 +1684,7 @@ static lean_object* _init_l___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("entries");
+x_1 = lean_mk_string_from_bytes("entries", 7);
 return x_1;
 }
 }
@@ -1714,7 +1714,7 @@ static lean_object* _init_l___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" := ");
+x_1 = lean_mk_string_from_bytes(" := ", 4);
 return x_1;
 }
 }
@@ -1744,7 +1744,7 @@ static lean_object* _init_l___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{ ");
+x_1 = lean_mk_string_from_bytes("{ ", 2);
 return x_1;
 }
 }
@@ -1780,7 +1780,7 @@ static lean_object* _init_l___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" }");
+x_1 = lean_mk_string_from_bytes(" }", 2);
 return x_1;
 }
 }
@@ -1798,7 +1798,7 @@ static lean_object* _init_l___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[]");
+x_1 = lean_mk_string_from_bytes("[]", 2);
 return x_1;
 }
 }
@@ -1876,7 +1876,7 @@ static lean_object* _init_l___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -1912,7 +1912,7 @@ static lean_object* _init_l___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -2008,7 +2008,7 @@ static lean_object* _init_l_List_toStringAux___at_Lean_KVMap_instToStringKVMap__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }

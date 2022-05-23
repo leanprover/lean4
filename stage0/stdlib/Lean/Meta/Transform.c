@@ -665,7 +665,7 @@ static lean_object* _init_l_Lean_Core_transform_visit___rarg___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Expr");
+x_1 = lean_mk_string_from_bytes("Lean.Expr", 9);
 return x_1;
 }
 }
@@ -673,7 +673,7 @@ static lean_object* _init_l_Lean_Core_transform_visit___rarg___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Expr.updateLambdaE!");
+x_1 = lean_mk_string_from_bytes("Lean.Expr.updateLambdaE!", 24);
 return x_1;
 }
 }
@@ -681,7 +681,7 @@ static lean_object* _init_l_Lean_Core_transform_visit___rarg___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lambda expected");
+x_1 = lean_mk_string_from_bytes("lambda expected", 15);
 return x_1;
 }
 }
@@ -779,7 +779,7 @@ static lean_object* _init_l_Lean_Core_transform_visit___rarg___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Expr.updateForallE!");
+x_1 = lean_mk_string_from_bytes("Lean.Expr.updateForallE!", 24);
 return x_1;
 }
 }
@@ -787,7 +787,7 @@ static lean_object* _init_l_Lean_Core_transform_visit___rarg___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("forall expected");
+x_1 = lean_mk_string_from_bytes("forall expected", 15);
 return x_1;
 }
 }
@@ -885,7 +885,7 @@ static lean_object* _init_l_Lean_Core_transform_visit___rarg___lambda__6___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Expr.updateLet!");
+x_1 = lean_mk_string_from_bytes("Lean.Expr.updateLet!", 20);
 return x_1;
 }
 }
@@ -893,7 +893,7 @@ static lean_object* _init_l_Lean_Core_transform_visit___rarg___lambda__6___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("let expression expected");
+x_1 = lean_mk_string_from_bytes("let expression expected", 23);
 return x_1;
 }
 }
@@ -1022,7 +1022,7 @@ static lean_object* _init_l_Lean_Core_transform_visit___rarg___lambda__9___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Expr.updateMData!");
+x_1 = lean_mk_string_from_bytes("Lean.Expr.updateMData!", 22);
 return x_1;
 }
 }
@@ -1030,7 +1030,7 @@ static lean_object* _init_l_Lean_Core_transform_visit___rarg___lambda__9___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mdata expected");
+x_1 = lean_mk_string_from_bytes("mdata expected", 14);
 return x_1;
 }
 }
@@ -1095,7 +1095,7 @@ static lean_object* _init_l_Lean_Core_transform_visit___rarg___lambda__10___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Expr.updateProj!");
+x_1 = lean_mk_string_from_bytes("Lean.Expr.updateProj!", 21);
 return x_1;
 }
 }
@@ -1103,7 +1103,7 @@ static lean_object* _init_l_Lean_Core_transform_visit___rarg___lambda__10___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("proj expected");
+x_1 = lean_mk_string_from_bytes("proj expected", 13);
 return x_1;
 }
 }

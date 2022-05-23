@@ -244,7 +244,7 @@ static lean_object* _init_l_Lean_Meta_refl___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -262,7 +262,7 @@ static lean_object* _init_l_Lean_Meta_refl___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("refl");
+x_1 = lean_mk_string_from_bytes("refl", 4);
 return x_1;
 }
 }
@@ -296,7 +296,7 @@ static lean_object* _init_l_Lean_Meta_refl___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("rfl");
+x_1 = lean_mk_string_from_bytes("rfl", 3);
 return x_1;
 }
 }
@@ -314,7 +314,7 @@ static lean_object* _init_l_Lean_Meta_refl___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("equality lhs");
+x_1 = lean_mk_string_from_bytes("equality lhs", 12);
 return x_1;
 }
 }
@@ -331,7 +331,7 @@ static lean_object* _init_l_Lean_Meta_refl___lambda__2___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nis not definitionally equal to rhs");
+x_1 = lean_mk_string_from_bytes("\nis not definitionally equal to rhs", 35);
 return x_1;
 }
 }
@@ -348,7 +348,7 @@ static lean_object* _init_l_Lean_Meta_refl___lambda__2___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -615,7 +615,7 @@ static lean_object* _init_l_Lean_Meta_refl___lambda__4___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("equality expected");
+x_1 = lean_mk_string_from_bytes("equality expected", 17);
 return x_1;
 }
 }
@@ -765,7 +765,7 @@ static lean_object* _init_l_Lean_Meta_refl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("apply");
+x_1 = lean_mk_string_from_bytes("apply", 5);
 return x_1;
 }
 }

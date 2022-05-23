@@ -289,7 +289,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assertion violation: ");
+x_1 = lean_mk_string_from_bytes("assertion violation: ", 21);
 return x_1;
 }
 }
@@ -297,7 +297,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("args.size == 2\n            ");
+x_1 = lean_mk_string_from_bytes("args.size == 2\n            ", 27);
 return x_1;
 }
 }
@@ -315,7 +315,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Elab.PreDefinition.WF.Main");
+x_1 = lean_mk_string_from_bytes("Lean.Elab.PreDefinition.WF.Main", 31);
 return x_1;
 }
 }
@@ -323,7 +323,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Elab.PreDefinition.WF.Main.0.Lean.Elab.addNonRecPreDefs.mkSum");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Elab.PreDefinition.WF.Main.0.Lean.Elab.addNonRecPreDefs.mkSum", 75);
 return x_1;
 }
 }
@@ -344,7 +344,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("PSum");
+x_1 = lean_mk_string_from_bytes("PSum", 4);
 return x_1;
 }
 }
@@ -362,7 +362,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inr");
+x_1 = lean_mk_string_from_bytes("inr", 3);
 return x_1;
 }
 }
@@ -380,7 +380,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inl");
+x_1 = lean_mk_string_from_bytes("inl", 3);
 return x_1;
 }
 }
@@ -695,7 +695,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Elab.PreDefinition.WF.Main.0.Lean.Elab.addNonRecPreDefs");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Elab.PreDefinition.WF.Main.0.Lean.Elab.addNonRecPreDefs", 69);
 return x_1;
 }
 }
@@ -703,7 +703,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -949,7 +949,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -967,7 +967,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("definition");
+x_1 = lean_mk_string_from_bytes("definition", 10);
 return x_1;
 }
 }
@@ -985,7 +985,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("wf");
+x_1 = lean_mk_string_from_bytes("wf", 2);
 return x_1;
 }
 }
@@ -1003,7 +1003,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1020,7 +1020,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" := ");
+x_1 = lean_mk_string_from_bytes(" := ", 4);
 return x_1;
 }
 }
@@ -4492,7 +4492,7 @@ static lean_object* _init_l_Lean_Elab_wfRecursion___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("wfRel: ");
+x_1 = lean_mk_string_from_bytes("wfRel: ", 7);
 return x_1;
 }
 }
@@ -4950,7 +4950,7 @@ static lean_object* _init_l_Lean_Elab_wfRecursion___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(">> ");
+x_1 = lean_mk_string_from_bytes(">> ", 3);
 return x_1;
 }
 }
@@ -4967,7 +4967,7 @@ static lean_object* _init_l_Lean_Elab_wfRecursion___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" :=\n");
+x_1 = lean_mk_string_from_bytes(" :=\n", 4);
 return x_1;
 }
 }
@@ -4984,7 +4984,7 @@ static lean_object* _init_l_Lean_Elab_wfRecursion___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fixed prefix: ");
+x_1 = lean_mk_string_from_bytes("fixed prefix: ", 14);
 return x_1;
 }
 }

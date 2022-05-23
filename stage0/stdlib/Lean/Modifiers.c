@@ -48,7 +48,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Modifiers___hyg_4____closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("protected");
+x_1 = lean_mk_string_from_bytes("protected", 9);
 return x_1;
 }
 }
@@ -110,7 +110,7 @@ static lean_object* _init_l_Lean_privateHeader___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private");
+x_1 = lean_mk_string_from_bytes("_private", 8);
 return x_1;
 }
 }

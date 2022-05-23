@@ -243,7 +243,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("|");
+x_1 = lean_mk_string_from_bytes("|", 1);
 return x_1;
 }
 }
@@ -251,7 +251,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -278,7 +278,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -295,7 +295,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("=>");
+x_1 = lean_mk_string_from_bytes("=>", 2);
 return x_1;
 }
 }
@@ -312,7 +312,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid macro_rules alternative, unexpected syntax node kind '");
+x_1 = lean_mk_string_from_bytes("invalid macro_rules alternative, unexpected syntax node kind '", 62);
 return x_1;
 }
 }
@@ -329,7 +329,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -358,7 +358,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid macro_rules alternative, expected syntax node kind '");
+x_1 = lean_mk_string_from_bytes("invalid macro_rules alternative, expected syntax node kind '", 60);
 return x_1;
 }
 }
@@ -584,7 +584,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -602,7 +602,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -620,7 +620,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -638,7 +638,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Command_elabMacr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("matchAlt");
+x_1 = lean_mk_string_from_bytes("matchAlt", 8);
 return x_1;
 }
 }
@@ -845,7 +845,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -863,7 +863,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Command");
+x_1 = lean_mk_string_from_bytes("Command", 7);
 return x_1;
 }
 }
@@ -881,7 +881,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("aux_def");
+x_1 = lean_mk_string_from_bytes("aux_def", 7);
 return x_1;
 }
 }
@@ -899,7 +899,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("attributes");
+x_1 = lean_mk_string_from_bytes("attributes", 10);
 return x_1;
 }
 }
@@ -917,7 +917,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("@[");
+x_1 = lean_mk_string_from_bytes("@[", 2);
 return x_1;
 }
 }
@@ -925,7 +925,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("attrInstance");
+x_1 = lean_mk_string_from_bytes("attrInstance", 12);
 return x_1;
 }
 }
@@ -943,7 +943,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Attr");
+x_1 = lean_mk_string_from_bytes("Attr", 4);
 return x_1;
 }
 }
@@ -961,7 +961,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("macro");
+x_1 = lean_mk_string_from_bytes("macro", 5);
 return x_1;
 }
 }
@@ -988,7 +988,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -1005,7 +1005,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__19() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("macroRules");
+x_1 = lean_mk_string_from_bytes("macroRules", 10);
 return x_1;
 }
 }
@@ -1046,7 +1046,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__23() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -1054,7 +1054,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__24() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Macro");
+x_1 = lean_mk_string_from_bytes("Macro", 5);
 return x_1;
 }
 }
@@ -1129,7 +1129,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__31() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":=");
+x_1 = lean_mk_string_from_bytes(":=", 2);
 return x_1;
 }
 }
@@ -1137,7 +1137,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__32() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fun");
+x_1 = lean_mk_string_from_bytes("fun", 3);
 return x_1;
 }
 }
@@ -1155,7 +1155,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__34() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("matchAlts");
+x_1 = lean_mk_string_from_bytes("matchAlts", 9);
 return x_1;
 }
 }
@@ -1173,7 +1173,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__36() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hole");
+x_1 = lean_mk_string_from_bytes("hole", 4);
 return x_1;
 }
 }
@@ -1191,7 +1191,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__38() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_");
+x_1 = lean_mk_string_from_bytes("_", 1);
 return x_1;
 }
 }
@@ -1199,7 +1199,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__39() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("app");
+x_1 = lean_mk_string_from_bytes("app", 3);
 return x_1;
 }
 }
@@ -1217,7 +1217,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__41() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("throw");
+x_1 = lean_mk_string_from_bytes("throw", 5);
 return x_1;
 }
 }
@@ -1258,7 +1258,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__45() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("MonadExcept");
+x_1 = lean_mk_string_from_bytes("MonadExcept", 11);
 return x_1;
 }
 }
@@ -1310,7 +1310,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__50() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Macro.Exception.unsupportedSyntax");
+x_1 = lean_mk_string_from_bytes("Lean.Macro.Exception.unsupportedSyntax", 38);
 return x_1;
 }
 }
@@ -1341,7 +1341,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__53() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Exception");
+x_1 = lean_mk_string_from_bytes("Exception", 9);
 return x_1;
 }
 }
@@ -1359,7 +1359,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRulesAux___closed__55() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unsupportedSyntax");
+x_1 = lean_mk_string_from_bytes("unsupportedSyntax", 17);
 return x_1;
 }
 }
@@ -2078,7 +2078,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRules___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("macro_rules");
+x_1 = lean_mk_string_from_bytes("macro_rules", 11);
 return x_1;
 }
 }
@@ -2086,7 +2086,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRules___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -2094,7 +2094,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRules___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("kind");
+x_1 = lean_mk_string_from_bytes("kind", 4);
 return x_1;
 }
 }
@@ -2102,7 +2102,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRules___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -2309,7 +2309,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRules___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("attrKind");
+x_1 = lean_mk_string_from_bytes("attrKind", 8);
 return x_1;
 }
 }
@@ -2317,7 +2317,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRules___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ident");
+x_1 = lean_mk_string_from_bytes("ident", 5);
 return x_1;
 }
 }
@@ -2335,7 +2335,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRules___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("basicFun");
+x_1 = lean_mk_string_from_bytes("basicFun", 8);
 return x_1;
 }
 }
@@ -3228,7 +3228,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMacroRules___lambda__3___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("docComment");
+x_1 = lean_mk_string_from_bytes("docComment", 10);
 return x_1;
 }
 }
@@ -3370,7 +3370,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabMacroRules___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elabMacroRules");
+x_1 = lean_mk_string_from_bytes("elabMacroRules", 14);
 return x_1;
 }
 }

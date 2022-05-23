@@ -285,7 +285,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_ad
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("induction");
+x_1 = lean_mk_string_from_bytes("induction", 9);
 return x_1;
 }
 }
@@ -303,7 +303,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_ad
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ill-formed recursor");
+x_1 = lean_mk_string_from_bytes("ill-formed recursor", 19);
 return x_1;
 }
 }
@@ -331,7 +331,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_ad
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to generate type class instance parameter");
+x_1 = lean_mk_string_from_bytes("failed to generate type class instance parameter", 48);
 return x_1;
 }
 }
@@ -1385,7 +1385,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_fi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Tactic.Induction");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Tactic.Induction", 26);
 return x_1;
 }
 }
@@ -1393,7 +1393,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_fi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Meta.Tactic.Induction.0.Lean.Meta.finalize.loop");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.Tactic.Induction.0.Lean.Meta.finalize.loop", 61);
 return x_1;
 }
 }
@@ -1401,7 +1401,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_fi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -2619,7 +2619,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_th
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected major premise type");
+x_1 = lean_mk_string_from_bytes("unexpected major premise type", 29);
 return x_1;
 }
 }
@@ -2636,7 +2636,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_th
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -2691,7 +2691,7 @@ static lean_object* _init_l_List_forM___at_Lean_Meta_induction___spec__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("major premise type is ill-formed");
+x_1 = lean_mk_string_from_bytes("major premise type is ill-formed", 32);
 return x_1;
 }
 }
@@ -2814,7 +2814,7 @@ static lean_object* _init_l_Nat_forM_loop___at_Lean_Meta_induction___spec__3___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -2831,7 +2831,7 @@ static lean_object* _init_l_Nat_forM_loop___at_Lean_Meta_induction___spec__3___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is an index in major premise, but it depends on index occurring at position #");
+x_1 = lean_mk_string_from_bytes("' is an index in major premise, but it depends on index occurring at position #", 79);
 return x_1;
 }
 }
@@ -3072,7 +3072,7 @@ static lean_object* _init_l_Nat_forM_loop___at_Lean_Meta_induction___spec__3___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is an index in major premise, but it occurs in previous arguments");
+x_1 = lean_mk_string_from_bytes("' is an index in major premise, but it occurs in previous arguments", 67);
 return x_1;
 }
 }
@@ -3176,7 +3176,7 @@ static lean_object* _init_l_Nat_forM_loop___at_Lean_Meta_induction___spec__3___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is an index in major premise, but it occurs more than once");
+x_1 = lean_mk_string_from_bytes("' is an index in major premise, but it occurs more than once", 60);
 return x_1;
 }
 }
@@ -3461,7 +3461,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Meta_induction___spec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("major premise type index ");
+x_1 = lean_mk_string_from_bytes("major premise type index ", 25);
 return x_1;
 }
 }
@@ -3478,7 +3478,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Meta_induction___spec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" is not a variable");
+x_1 = lean_mk_string_from_bytes(" is not a variable", 18);
 return x_1;
 }
 }
@@ -3939,7 +3939,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("x");
+x_1 = lean_mk_string_from_bytes("x", 1);
 return x_1;
 }
 }
@@ -4136,7 +4136,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("major premise is not of the form (C ...)");
+x_1 = lean_mk_string_from_bytes("major premise is not of the form (C ...)", 40);
 return x_1;
 }
 }
@@ -4177,7 +4177,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("recursor '");
+x_1 = lean_mk_string_from_bytes("recursor '", 10);
 return x_1;
 }
 }
@@ -4194,7 +4194,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' can only eliminate into Prop");
+x_1 = lean_mk_string_from_bytes("' can only eliminate into Prop", 30);
 return x_1;
 }
 }
@@ -4724,7 +4724,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("after revert&intro\n");
+x_1 = lean_mk_string_from_bytes("after revert&intro\n", 19);
 return x_1;
 }
 }
@@ -4997,7 +4997,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Meta_induction___spec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' does not support dependent elimination, but conclusion depends on major premise");
+x_1 = lean_mk_string_from_bytes("' does not support dependent elimination, but conclusion depends on major premise", 81);
 return x_1;
 }
 }
@@ -5519,7 +5519,7 @@ static lean_object* _init_l_Lean_Meta_induction___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("initial\n");
+x_1 = lean_mk_string_from_bytes("initial\n", 8);
 return x_1;
 }
 }
@@ -5614,7 +5614,7 @@ static lean_object* _init_l_Lean_Meta_induction___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -5632,7 +5632,7 @@ static lean_object* _init_l_Lean_Meta_induction___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }

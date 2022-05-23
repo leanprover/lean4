@@ -171,7 +171,7 @@ static lean_object* _init_l_Lean_Meta_isNatProjInst___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("OfNat");
+x_1 = lean_mk_string_from_bytes("OfNat", 5);
 return x_1;
 }
 }
@@ -189,7 +189,7 @@ static lean_object* _init_l_Lean_Meta_isNatProjInst___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ofNat");
+x_1 = lean_mk_string_from_bytes("ofNat", 5);
 return x_1;
 }
 }
@@ -207,7 +207,7 @@ static lean_object* _init_l_Lean_Meta_isNatProjInst___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HAdd");
+x_1 = lean_mk_string_from_bytes("HAdd", 4);
 return x_1;
 }
 }
@@ -225,7 +225,7 @@ static lean_object* _init_l_Lean_Meta_isNatProjInst___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hAdd");
+x_1 = lean_mk_string_from_bytes("hAdd", 4);
 return x_1;
 }
 }
@@ -243,7 +243,7 @@ static lean_object* _init_l_Lean_Meta_isNatProjInst___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HSub");
+x_1 = lean_mk_string_from_bytes("HSub", 4);
 return x_1;
 }
 }
@@ -261,7 +261,7 @@ static lean_object* _init_l_Lean_Meta_isNatProjInst___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hSub");
+x_1 = lean_mk_string_from_bytes("hSub", 4);
 return x_1;
 }
 }
@@ -279,7 +279,7 @@ static lean_object* _init_l_Lean_Meta_isNatProjInst___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HMul");
+x_1 = lean_mk_string_from_bytes("HMul", 4);
 return x_1;
 }
 }
@@ -297,7 +297,7 @@ static lean_object* _init_l_Lean_Meta_isNatProjInst___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hMul");
+x_1 = lean_mk_string_from_bytes("hMul", 4);
 return x_1;
 }
 }
@@ -315,7 +315,7 @@ static lean_object* _init_l_Lean_Meta_isNatProjInst___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Add");
+x_1 = lean_mk_string_from_bytes("Add", 3);
 return x_1;
 }
 }
@@ -333,7 +333,7 @@ static lean_object* _init_l_Lean_Meta_isNatProjInst___closed__19() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("add");
+x_1 = lean_mk_string_from_bytes("add", 3);
 return x_1;
 }
 }
@@ -351,7 +351,7 @@ static lean_object* _init_l_Lean_Meta_isNatProjInst___closed__21() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Sub");
+x_1 = lean_mk_string_from_bytes("Sub", 3);
 return x_1;
 }
 }
@@ -369,7 +369,7 @@ static lean_object* _init_l_Lean_Meta_isNatProjInst___closed__23() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sub");
+x_1 = lean_mk_string_from_bytes("sub", 3);
 return x_1;
 }
 }
@@ -387,7 +387,7 @@ static lean_object* _init_l_Lean_Meta_isNatProjInst___closed__25() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Mul");
+x_1 = lean_mk_string_from_bytes("Mul", 3);
 return x_1;
 }
 }
@@ -405,7 +405,7 @@ static lean_object* _init_l_Lean_Meta_isNatProjInst___closed__27() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mul");
+x_1 = lean_mk_string_from_bytes("mul", 3);
 return x_1;
 }
 }
@@ -569,7 +569,7 @@ static lean_object* _init_l_Lean_Meta_evalNat_visit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat");
+x_1 = lean_mk_string_from_bytes("Nat", 3);
 return x_1;
 }
 }
@@ -617,7 +617,7 @@ static lean_object* _init_l_Lean_Meta_evalNat_visit___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("succ");
+x_1 = lean_mk_string_from_bytes("succ", 4);
 return x_1;
 }
 }
@@ -1809,7 +1809,7 @@ static lean_object* _init_l_Lean_Meta_evalNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("zero");
+x_1 = lean_mk_string_from_bytes("zero", 4);
 return x_1;
 }
 }

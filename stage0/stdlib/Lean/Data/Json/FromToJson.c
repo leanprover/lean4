@@ -449,7 +449,7 @@ static lean_object* _init_l_Lean_instFromJsonArray___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected JSON array, got '");
+x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
 return x_1;
 }
 }
@@ -457,7 +457,7 @@ static lean_object* _init_l_Lean_instFromJsonArray___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -930,7 +930,7 @@ static lean_object* _init_l_Lean_instFromJsonProd___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected pair, got '");
+x_1 = lean_mk_string_from_bytes("expected pair, got '", 20);
 return x_1;
 }
 }
@@ -1118,7 +1118,7 @@ static lean_object* _init_l_Lean_instFromJsonName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[anonymous]");
+x_1 = lean_mk_string_from_bytes("[anonymous]", 11);
 return x_1;
 }
 }
@@ -1126,7 +1126,7 @@ static lean_object* _init_l_Lean_instFromJsonName___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("`");
+x_1 = lean_mk_string_from_bytes("`", 1);
 return x_1;
 }
 }
@@ -1134,7 +1134,7 @@ static lean_object* _init_l_Lean_instFromJsonName___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected a `Name`, got '");
+x_1 = lean_mk_string_from_bytes("expected a `Name`, got '", 24);
 return x_1;
 }
 }
@@ -1293,7 +1293,7 @@ static lean_object* _init_l_Lean_bignumFromJson_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected a string-encoded number, got '");
+x_1 = lean_mk_string_from_bytes("expected a string-encoded number, got '", 39);
 return x_1;
 }
 }
@@ -1419,7 +1419,7 @@ static lean_object* _init_l_Lean_instFromJsonUSize___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("value '{j}' is too large for `USize`");
+x_1 = lean_mk_string_from_bytes("value '{j}' is too large for `USize`", 36);
 return x_1;
 }
 }
@@ -1527,7 +1527,7 @@ static lean_object* _init_l_Lean_instFromJsonUInt64___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("value '{j}' is too large for `UInt64`");
+x_1 = lean_mk_string_from_bytes("value '{j}' is too large for `UInt64`", 37);
 return x_1;
 }
 }
@@ -1624,7 +1624,7 @@ static lean_object* _init_l_Lean_Json_instFromJsonStructured___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected structured object, got '");
+x_1 = lean_mk_string_from_bytes("expected structured object, got '", 33);
 return x_1;
 }
 }
@@ -1875,7 +1875,7 @@ static lean_object* _init_l_Lean_Json_parseTagged___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("incorrect number of fields: ");
+x_1 = lean_mk_string_from_bytes("incorrect number of fields: ", 28);
 return x_1;
 }
 }
@@ -1883,7 +1883,7 @@ static lean_object* _init_l_Lean_Json_parseTagged___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ≟ ");
+x_1 = lean_mk_string_from_bytes(" ≟ ", 5);
 return x_1;
 }
 }
@@ -1891,7 +1891,7 @@ static lean_object* _init_l_Lean_Json_parseTagged___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1917,7 +1917,7 @@ static lean_object* _init_l_Lean_Json_parseTagged___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("incorrect tag: ");
+x_1 = lean_mk_string_from_bytes("incorrect tag: ", 15);
 return x_1;
 }
 }

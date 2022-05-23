@@ -156,7 +156,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sepBy");
+x_1 = lean_mk_string_from_bytes("sepBy", 5);
 return x_1;
 }
 }
@@ -174,7 +174,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Init.Data.Option.BasicAux");
+x_1 = lean_mk_string_from_bytes("Init.Data.Option.BasicAux", 25);
 return x_1;
 }
 }
@@ -182,7 +182,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Option.get!");
+x_1 = lean_mk_string_from_bytes("Option.get!", 11);
 return x_1;
 }
 }
@@ -190,7 +190,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("value is none");
+x_1 = lean_mk_string_from_bytes("value is none", 13);
 return x_1;
 }
 }
@@ -211,7 +211,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("*");
+x_1 = lean_mk_string_from_bytes("*", 1);
 return x_1;
 }
 }
@@ -251,7 +251,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__3___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("group");
+x_1 = lean_mk_string_from_bytes("group", 5);
 return x_1;
 }
 }
@@ -292,7 +292,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__3___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -300,7 +300,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__3___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -318,7 +318,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__3___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -519,7 +519,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -537,7 +537,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -555,7 +555,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Syntax");
+x_1 = lean_mk_string_from_bytes("Syntax", 6);
 return x_1;
 }
 }
@@ -573,7 +573,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("atom");
+x_1 = lean_mk_string_from_bytes("atom", 4);
 return x_1;
 }
 }
@@ -591,7 +591,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("nonReserved");
+x_1 = lean_mk_string_from_bytes("nonReserved", 11);
 return x_1;
 }
 }
@@ -609,7 +609,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unary");
+x_1 = lean_mk_string_from_bytes("unary", 5);
 return x_1;
 }
 }
@@ -637,7 +637,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sepBy1");
+x_1 = lean_mk_string_from_bytes("sepBy1", 6);
 return x_1;
 }
 }
@@ -655,7 +655,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("str");
+x_1 = lean_mk_string_from_bytes("str", 3);
 return x_1;
 }
 }
@@ -673,7 +673,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("optional");
+x_1 = lean_mk_string_from_bytes("optional", 8);
 return x_1;
 }
 }
@@ -691,7 +691,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("many");
+x_1 = lean_mk_string_from_bytes("many", 4);
 return x_1;
 }
 }
@@ -709,7 +709,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("many1");
+x_1 = lean_mk_string_from_bytes("many1", 5);
 return x_1;
 }
 }
@@ -727,7 +727,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("?");
+x_1 = lean_mk_string_from_bytes("?", 1);
 return x_1;
 }
 }
@@ -735,7 +735,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("token_antiquot");
+x_1 = lean_mk_string_from_bytes("token_antiquot", 14);
 return x_1;
 }
 }
@@ -753,7 +753,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("%");
+x_1 = lean_mk_string_from_bytes("%", 1);
 return x_1;
 }
 }
@@ -773,7 +773,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___lambda__4___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("$");
+x_1 = lean_mk_string_from_bytes("$", 1);
 return x_1;
 }
 }
@@ -5090,7 +5090,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Command");
+x_1 = lean_mk_string_from_bytes("Command", 7);
 return x_1;
 }
 }
@@ -5108,7 +5108,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("macroArg");
+x_1 = lean_mk_string_from_bytes("macroArg", 8);
 return x_1;
 }
 }
@@ -5126,7 +5126,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("x");
+x_1 = lean_mk_string_from_bytes("x", 1);
 return x_1;
 }
 }
@@ -5167,7 +5167,7 @@ static lean_object* _init_l_Lean_Elab_Command_expandMacroArg___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ident");
+x_1 = lean_mk_string_from_bytes("ident", 5);
 return x_1;
 }
 }

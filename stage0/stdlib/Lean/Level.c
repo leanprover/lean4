@@ -576,7 +576,7 @@ static lean_object* _init_l_Lean_Level_mkData___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Level");
+x_1 = lean_mk_string_from_bytes("Lean.Level", 10);
 return x_1;
 }
 }
@@ -584,7 +584,7 @@ static lean_object* _init_l_Lean_Level_mkData___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Level.mkData");
+x_1 = lean_mk_string_from_bytes("Lean.Level.mkData", 17);
 return x_1;
 }
 }
@@ -592,7 +592,7 @@ static lean_object* _init_l_Lean_Level_mkData___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("universe level depth is too big");
+x_1 = lean_mk_string_from_bytes("universe level depth is too big", 31);
 return x_1;
 }
 }
@@ -673,7 +673,7 @@ static lean_object* _init_l_Lean_instReprData___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" (hasParam := ");
+x_1 = lean_mk_string_from_bytes(" (hasParam := ", 14);
 return x_1;
 }
 }
@@ -681,7 +681,7 @@ static lean_object* _init_l_Lean_instReprData___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("true");
+x_1 = lean_mk_string_from_bytes("true", 4);
 return x_1;
 }
 }
@@ -689,7 +689,7 @@ static lean_object* _init_l_Lean_instReprData___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -724,7 +724,7 @@ static lean_object* _init_l_Lean_instReprData___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" (hasMVar := ");
+x_1 = lean_mk_string_from_bytes(" (hasMVar := ", 13);
 return x_1;
 }
 }
@@ -760,7 +760,7 @@ static lean_object* _init_l_Lean_instReprData___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Level.mkData ");
+x_1 = lean_mk_string_from_bytes("Level.mkData ", 13);
 return x_1;
 }
 }
@@ -768,7 +768,7 @@ static lean_object* _init_l_Lean_instReprData___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" (depth := ");
+x_1 = lean_mk_string_from_bytes(" (depth := ", 11);
 return x_1;
 }
 }
@@ -937,7 +937,7 @@ static lean_object* _init_l___private_Lean_Level_0__Lean_reprMVarId____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("name");
+x_1 = lean_mk_string_from_bytes("name", 4);
 return x_1;
 }
 }
@@ -967,7 +967,7 @@ static lean_object* _init_l___private_Lean_Level_0__Lean_reprMVarId____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" := ");
+x_1 = lean_mk_string_from_bytes(" := ", 4);
 return x_1;
 }
 }
@@ -997,7 +997,7 @@ static lean_object* _init_l___private_Lean_Level_0__Lean_reprMVarId____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{ ");
+x_1 = lean_mk_string_from_bytes("{ ", 2);
 return x_1;
 }
 }
@@ -1033,7 +1033,7 @@ static lean_object* _init_l___private_Lean_Level_0__Lean_reprMVarId____x40_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" }");
+x_1 = lean_mk_string_from_bytes(" }", 2);
 return x_1;
 }
 }
@@ -1305,7 +1305,7 @@ static lean_object* _init_l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Level.zero");
+x_1 = lean_mk_string_from_bytes("Lean.Level.zero", 15);
 return x_1;
 }
 }
@@ -1353,7 +1353,7 @@ static lean_object* _init_l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Level.succ");
+x_1 = lean_mk_string_from_bytes("Lean.Level.succ", 15);
 return x_1;
 }
 }
@@ -1383,7 +1383,7 @@ static lean_object* _init_l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Level.max");
+x_1 = lean_mk_string_from_bytes("Lean.Level.max", 14);
 return x_1;
 }
 }
@@ -1413,7 +1413,7 @@ static lean_object* _init_l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Level.imax");
+x_1 = lean_mk_string_from_bytes("Lean.Level.imax", 15);
 return x_1;
 }
 }
@@ -1443,7 +1443,7 @@ static lean_object* _init_l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Level.param");
+x_1 = lean_mk_string_from_bytes("Lean.Level.param", 16);
 return x_1;
 }
 }
@@ -1473,7 +1473,7 @@ static lean_object* _init_l___private_Lean_Level_0__Lean_reprLevel____x40_Lean_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Level.mvar");
+x_1 = lean_mk_string_from_bytes("Lean.Level.mvar", 15);
 return x_1;
 }
 }
@@ -3210,7 +3210,7 @@ static lean_object* _init_l_Lean_Level_mvarId_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Level.mvarId!");
+x_1 = lean_mk_string_from_bytes("Lean.Level.mvarId!", 18);
 return x_1;
 }
 }
@@ -3218,7 +3218,7 @@ static lean_object* _init_l_Lean_Level_mvarId_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("metavariable expected");
+x_1 = lean_mk_string_from_bytes("metavariable expected", 21);
 return x_1;
 }
 }
@@ -4660,7 +4660,7 @@ static lean_object* _init_l_Lean_Level_normalize___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Level.normalize");
+x_1 = lean_mk_string_from_bytes("Lean.Level.normalize", 20);
 return x_1;
 }
 }
@@ -4668,7 +4668,7 @@ static lean_object* _init_l_Lean_Level_normalize___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -5177,7 +5177,7 @@ static lean_object* _init_l_Lean_Level_PP_toResult___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_uniq");
+x_1 = lean_mk_string_from_bytes("_uniq", 5);
 return x_1;
 }
 }
@@ -5195,7 +5195,7 @@ static lean_object* _init_l_Lean_Level_PP_toResult___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("?u");
+x_1 = lean_mk_string_from_bytes("?u", 2);
 return x_1;
 }
 }
@@ -5286,7 +5286,7 @@ static lean_object* _init_l___private_Lean_Level_0__Lean_Level_PP_parenIfFalse__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -5403,7 +5403,7 @@ static lean_object* _init_l_Lean_Level_PP_Result_format___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("+");
+x_1 = lean_mk_string_from_bytes("+", 1);
 return x_1;
 }
 }
@@ -5421,7 +5421,7 @@ static lean_object* _init_l_Lean_Level_PP_Result_format___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("max");
+x_1 = lean_mk_string_from_bytes("max", 3);
 return x_1;
 }
 }
@@ -5439,7 +5439,7 @@ static lean_object* _init_l_Lean_Level_PP_Result_format___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("imax");
+x_1 = lean_mk_string_from_bytes("imax", 4);
 return x_1;
 }
 }
@@ -5638,7 +5638,7 @@ static lean_object* _init_l_Lean_Level_PP_Result_quote___lambda__3___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -5656,7 +5656,7 @@ static lean_object* _init_l_Lean_Level_PP_Result_quote___lambda__3___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -5674,7 +5674,7 @@ static lean_object* _init_l_Lean_Level_PP_Result_quote___lambda__3___closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Level");
+x_1 = lean_mk_string_from_bytes("Level", 5);
 return x_1;
 }
 }
@@ -5692,7 +5692,7 @@ static lean_object* _init_l_Lean_Level_PP_Result_quote___lambda__3___closed__7()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("addLit");
+x_1 = lean_mk_string_from_bytes("addLit", 6);
 return x_1;
 }
 }
@@ -5750,7 +5750,7 @@ static lean_object* _init_l_Lean_Level_PP_Result_quote___lambda__4___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("paren");
+x_1 = lean_mk_string_from_bytes("paren", 5);
 return x_1;
 }
 }
@@ -5807,7 +5807,7 @@ static lean_object* _init_l_Lean_Level_PP_Result_quote___lambda__5___closed__2()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -6552,7 +6552,7 @@ static lean_object* _init_l_Lean_Level_updateSucc_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Level.updateSucc!");
+x_1 = lean_mk_string_from_bytes("Lean.Level.updateSucc!", 22);
 return x_1;
 }
 }
@@ -6560,7 +6560,7 @@ static lean_object* _init_l_Lean_Level_updateSucc_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("succ level expected");
+x_1 = lean_mk_string_from_bytes("succ level expected", 19);
 return x_1;
 }
 }
@@ -6627,7 +6627,7 @@ static lean_object* _init_l_Lean_Level_updateMax_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Level.updateMax!");
+x_1 = lean_mk_string_from_bytes("Lean.Level.updateMax!", 21);
 return x_1;
 }
 }
@@ -6635,7 +6635,7 @@ static lean_object* _init_l_Lean_Level_updateMax_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("max level expected");
+x_1 = lean_mk_string_from_bytes("max level expected", 18);
 return x_1;
 }
 }
@@ -6706,7 +6706,7 @@ static lean_object* _init_l_Lean_Level_updateIMax_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Level.updateIMax!");
+x_1 = lean_mk_string_from_bytes("Lean.Level.updateIMax!", 22);
 return x_1;
 }
 }
@@ -6714,7 +6714,7 @@ static lean_object* _init_l_Lean_Level_updateIMax_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("imax level expected");
+x_1 = lean_mk_string_from_bytes("imax level expected", 19);
 return x_1;
 }
 }

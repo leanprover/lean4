@@ -809,7 +809,7 @@ static lean_object* _init_l_Lean_Elab_mkInhabitantFor___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to compile partial definition '");
+x_1 = lean_mk_string_from_bytes("failed to compile partial definition '", 38);
 return x_1;
 }
 }
@@ -826,7 +826,7 @@ static lean_object* _init_l_Lean_Elab_mkInhabitantFor___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', failed to show that type is inhabited and non empty");
+x_1 = lean_mk_string_from_bytes("', failed to show that type is inhabited and non empty", 54);
 return x_1;
 }
 }

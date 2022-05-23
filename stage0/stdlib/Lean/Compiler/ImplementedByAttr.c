@@ -162,7 +162,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_Compiler_initFn____x40_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown constant '");
+x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
 return x_1;
 }
 }
@@ -179,7 +179,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_Compiler_initFn____x40_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -516,7 +516,7 @@ static lean_object* _init_l_Lean_resolveGlobalConst___at_Lean_Compiler_initFn___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected identifier");
+x_1 = lean_mk_string_from_bytes("expected identifier", 19);
 return x_1;
 }
 }
@@ -731,7 +731,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at_Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ambiguous identifier '");
+x_1 = lean_mk_string_from_bytes("ambiguous identifier '", 22);
 return x_1;
 }
 }
@@ -739,7 +739,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at_Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', possible interpretations: ");
+x_1 = lean_mk_string_from_bytes("', possible interpretations: ", 29);
 return x_1;
 }
 }
@@ -747,7 +747,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at_Lean_Compiler
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -910,7 +910,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid 'implementedBy' argument '");
+x_1 = lean_mk_string_from_bytes("invalid 'implementedBy' argument '", 34);
 return x_1;
 }
 }
@@ -927,7 +927,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', function cannot be implemented by itself");
+x_1 = lean_mk_string_from_bytes("', function cannot be implemented by itself", 43);
 return x_1;
 }
 }
@@ -996,7 +996,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', '");
+x_1 = lean_mk_string_from_bytes("', '", 4);
 return x_1;
 }
 }
@@ -1013,7 +1013,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' has type");
+x_1 = lean_mk_string_from_bytes("' has type", 10);
 return x_1;
 }
 }
@@ -1030,7 +1030,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nbut '");
+x_1 = lean_mk_string_from_bytes("\nbut '", 6);
 return x_1;
 }
 }
@@ -1153,7 +1153,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' has ");
+x_1 = lean_mk_string_from_bytes("' has ", 6);
 return x_1;
 }
 }
@@ -1170,7 +1170,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" universe level parameter(s), but '");
+x_1 = lean_mk_string_from_bytes(" universe level parameter(s), but '", 35);
 return x_1;
 }
 }
@@ -1460,7 +1460,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("implementedBy");
+x_1 = lean_mk_string_from_bytes("implementedBy", 13);
 return x_1;
 }
 }
@@ -1478,7 +1478,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("name of the Lean (probably unsafe) function that implements opaque constant");
+x_1 = lean_mk_string_from_bytes("name of the Lean (probably unsafe) function that implements opaque constant", 75);
 return x_1;
 }
 }

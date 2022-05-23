@@ -262,7 +262,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("a non-private declaration '");
+x_1 = lean_mk_string_from_bytes("a non-private declaration '", 27);
 return x_1;
 }
 }
@@ -279,7 +279,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' has already been declared");
+x_1 = lean_mk_string_from_bytes("' has already been declared", 27);
 return x_1;
 }
 }
@@ -358,7 +358,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("a private declaration '");
+x_1 = lean_mk_string_from_bytes("a private declaration '", 23);
 return x_1;
 }
 }
@@ -427,7 +427,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -444,7 +444,7 @@ static lean_object* _init_l_Lean_Elab_checkNotAlreadyDeclared___rarg___lambda__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("private declaration '");
+x_1 = lean_mk_string_from_bytes("private declaration '", 21);
 return x_1;
 }
 }
@@ -680,7 +680,7 @@ static lean_object* _init_l_Lean_Elab_instToStringVisibility___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("regular");
+x_1 = lean_mk_string_from_bytes("regular", 7);
 return x_1;
 }
 }
@@ -688,7 +688,7 @@ static lean_object* _init_l_Lean_Elab_instToStringVisibility___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("protected");
+x_1 = lean_mk_string_from_bytes("protected", 9);
 return x_1;
 }
 }
@@ -696,7 +696,7 @@ static lean_object* _init_l_Lean_Elab_instToStringVisibility___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("private");
+x_1 = lean_mk_string_from_bytes("private", 7);
 return x_1;
 }
 }
@@ -1055,7 +1055,7 @@ static lean_object* _init_l_List_mapTRAux___at_Lean_Elab_instToFormatModifiers__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1073,7 +1073,7 @@ static lean_object* _init_l_List_mapTRAux___at_Lean_Elab_instToFormatModifiers__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("@[");
+x_1 = lean_mk_string_from_bytes("@[", 2);
 return x_1;
 }
 }
@@ -1109,7 +1109,7 @@ static lean_object* _init_l_List_mapTRAux___at_Lean_Elab_instToFormatModifiers__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -1127,7 +1127,7 @@ static lean_object* _init_l_List_mapTRAux___at_Lean_Elab_instToFormatModifiers__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("local ");
+x_1 = lean_mk_string_from_bytes("local ", 6);
 return x_1;
 }
 }
@@ -1135,7 +1135,7 @@ static lean_object* _init_l_List_mapTRAux___at_Lean_Elab_instToFormatModifiers__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("scoped ");
+x_1 = lean_mk_string_from_bytes("scoped ", 7);
 return x_1;
 }
 }
@@ -1262,7 +1262,7 @@ static lean_object* _init_l_Lean_Elab_instToFormatModifiers___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -1292,7 +1292,7 @@ static lean_object* _init_l_Lean_Elab_instToFormatModifiers___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{");
+x_1 = lean_mk_string_from_bytes("{", 1);
 return x_1;
 }
 }
@@ -1328,7 +1328,7 @@ static lean_object* _init_l_Lean_Elab_instToFormatModifiers___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("}");
+x_1 = lean_mk_string_from_bytes("}", 1);
 return x_1;
 }
 }
@@ -1346,7 +1346,7 @@ static lean_object* _init_l_Lean_Elab_instToFormatModifiers___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unsafe");
+x_1 = lean_mk_string_from_bytes("unsafe", 6);
 return x_1;
 }
 }
@@ -1376,7 +1376,7 @@ static lean_object* _init_l_Lean_Elab_instToFormatModifiers___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("partial");
+x_1 = lean_mk_string_from_bytes("partial", 7);
 return x_1;
 }
 }
@@ -1406,7 +1406,7 @@ static lean_object* _init_l_Lean_Elab_instToFormatModifiers___closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("nonrec");
+x_1 = lean_mk_string_from_bytes("nonrec", 6);
 return x_1;
 }
 }
@@ -1436,7 +1436,7 @@ static lean_object* _init_l_Lean_Elab_instToFormatModifiers___closed__19() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("noncomputable");
+x_1 = lean_mk_string_from_bytes("noncomputable", 13);
 return x_1;
 }
 }
@@ -1510,7 +1510,7 @@ static lean_object* _init_l_Lean_Elab_instToFormatModifiers___closed__26() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("/--");
+x_1 = lean_mk_string_from_bytes("/--", 3);
 return x_1;
 }
 }
@@ -1528,7 +1528,7 @@ static lean_object* _init_l_Lean_Elab_instToFormatModifiers___closed__28() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("-/");
+x_1 = lean_mk_string_from_bytes("-/", 2);
 return x_1;
 }
 }
@@ -1933,7 +1933,7 @@ static lean_object* _init_l_Lean_Elab_expandOptDocComment_x3f___rarg___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected doc string");
+x_1 = lean_mk_string_from_bytes("unexpected doc string", 21);
 return x_1;
 }
 }
@@ -2238,7 +2238,7 @@ static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -2256,7 +2256,7 @@ static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -2274,7 +2274,7 @@ static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Command");
+x_1 = lean_mk_string_from_bytes("Command", 7);
 return x_1;
 }
 }
@@ -2312,7 +2312,7 @@ static lean_object* _init_l_Lean_Elab_elabModifiers___rarg___lambda__3___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected visibility modifier");
+x_1 = lean_mk_string_from_bytes("unexpected visibility modifier", 30);
 return x_1;
 }
 }
@@ -2941,7 +2941,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_checkIfShadowi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid declaration name '");
+x_1 = lean_mk_string_from_bytes("invalid declaration name '", 26);
 return x_1;
 }
 }
@@ -2958,7 +2958,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_checkIfShadowi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', structure '");
+x_1 = lean_mk_string_from_bytes("', structure '", 14);
 return x_1;
 }
 }
@@ -2975,7 +2975,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_checkIfShadowi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' has field '");
+x_1 = lean_mk_string_from_bytes("' has field '", 13);
 return x_1;
 }
 }
@@ -3290,7 +3290,7 @@ static lean_object* _init_l_Lean_Elab_mkDeclName___rarg___lambda__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("protected declarations must be in a namespace");
+x_1 = lean_mk_string_from_bytes("protected declarations must be in a namespace", 45);
 return x_1;
 }
 }
@@ -3414,7 +3414,7 @@ static lean_object* _init_l_Lean_Elab_mkDeclName___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("atomic identifier expected '");
+x_1 = lean_mk_string_from_bytes("atomic identifier expected '", 28);
 return x_1;
 }
 }

@@ -130,7 +130,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("autoImplicit");
+x_1 = lean_mk_string_from_bytes("autoImplicit", 12);
 return x_1;
 }
 }
@@ -148,7 +148,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -156,7 +156,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_6_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Unbound local variables in declaration headers become implicit arguments. In \"relaxed\" mode (default), any atomic identifier is eligible, otherwise only a lower case or greek letter followed by numeric digits are eligible. For example, `def f (x : Vector α n) : Vector α n :=` automatically introduces the implicit variables {α n}.");
+x_1 = lean_mk_string_from_bytes("Unbound local variables in declaration headers become implicit arguments. In \"relaxed\" mode (default), any atomic identifier is eligible, otherwise only a lower case or greek letter followed by numeric digits are eligible. For example, `def f (x : Vector α n) : Vector α n :=` automatically introduces the implicit variables {α n}.", 334);
 return x_1;
 }
 }
@@ -198,7 +198,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_29
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("relaxedAutoImplicit");
+x_1 = lean_mk_string_from_bytes("relaxedAutoImplicit", 19);
 return x_1;
 }
 }
@@ -216,7 +216,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___hyg_29
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("When \"relaxed\" mode is enabled, any atomic nonempty identifier is eligible for auto bound implicit locals (see optin `autoBoundImplicitLocal`.");
+x_1 = lean_mk_string_from_bytes("When \"relaxed\" mode is enabled, any atomic nonempty identifier is eligible for auto bound implicit locals (see optin `autoBoundImplicitLocal`.", 142);
 return x_1;
 }
 }

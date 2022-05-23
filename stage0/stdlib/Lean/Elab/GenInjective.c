@@ -206,7 +206,7 @@ static lean_object* _init_l_Lean_throwUnknownConstant___at_Lean_Elab_Command_ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown constant '");
+x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
 return x_1;
 }
 }
@@ -223,7 +223,7 @@ static lean_object* _init_l_Lean_throwUnknownConstant___at_Lean_Elab_Command_ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -322,7 +322,7 @@ static lean_object* _init_l_Lean_resolveGlobalConst___at_Lean_Elab_Command_elabG
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected identifier");
+x_1 = lean_mk_string_from_bytes("expected identifier", 19);
 return x_1;
 }
 }
@@ -551,7 +551,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ambiguous identifier '");
+x_1 = lean_mk_string_from_bytes("ambiguous identifier '", 22);
 return x_1;
 }
 }
@@ -559,7 +559,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', possible interpretations: ");
+x_1 = lean_mk_string_from_bytes("', possible interpretations: ", 29);
 return x_1;
 }
 }
@@ -567,7 +567,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -846,7 +846,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -864,7 +864,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -882,7 +882,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Command");
+x_1 = lean_mk_string_from_bytes("Command", 7);
 return x_1;
 }
 }
@@ -900,7 +900,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("genInjectiveTheorems");
+x_1 = lean_mk_string_from_bytes("genInjectiveTheorems", 20);
 return x_1;
 }
 }
@@ -918,7 +918,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -946,7 +946,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elabGenInjectiveTheorems");
+x_1 = lean_mk_string_from_bytes("elabGenInjectiveTheorems", 24);
 return x_1;
 }
 }

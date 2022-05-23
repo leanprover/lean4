@@ -888,7 +888,7 @@ static lean_object* _init_l_Array_swapAt_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("index ");
+x_1 = lean_mk_string_from_bytes("index ", 6);
 return x_1;
 }
 }
@@ -896,7 +896,7 @@ static lean_object* _init_l_Array_swapAt_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" out of bounds");
+x_1 = lean_mk_string_from_bytes(" out of bounds", 14);
 return x_1;
 }
 }
@@ -904,7 +904,7 @@ static lean_object* _init_l_Array_swapAt_x21___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Init.Data.Array.Basic");
+x_1 = lean_mk_string_from_bytes("Init.Data.Array.Basic", 21);
 return x_1;
 }
 }
@@ -912,7 +912,7 @@ static lean_object* _init_l_Array_swapAt_x21___rarg___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Array.swapAt!");
+x_1 = lean_mk_string_from_bytes("Array.swapAt!", 13);
 return x_1;
 }
 }
@@ -4948,7 +4948,7 @@ static lean_object* _init_l_Array_findSome_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Array.findSome!");
+x_1 = lean_mk_string_from_bytes("Array.findSome!", 15);
 return x_1;
 }
 }
@@ -4956,7 +4956,7 @@ static lean_object* _init_l_Array_findSome_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to find element");
+x_1 = lean_mk_string_from_bytes("failed to find element", 22);
 return x_1;
 }
 }
@@ -6170,7 +6170,7 @@ static lean_object* _init_l_Array_instReprArray___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -6200,7 +6200,7 @@ static lean_object* _init_l_Array_instReprArray___rarg___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#[");
+x_1 = lean_mk_string_from_bytes("#[", 2);
 return x_1;
 }
 }
@@ -6236,7 +6236,7 @@ static lean_object* _init_l_Array_instReprArray___rarg___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -6254,7 +6254,7 @@ static lean_object* _init_l_Array_instReprArray___rarg___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#[]");
+x_1 = lean_mk_string_from_bytes("#[]", 3);
 return x_1;
 }
 }
@@ -6331,7 +6331,7 @@ static lean_object* _init_l_Array_instToStringArray___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#");
+x_1 = lean_mk_string_from_bytes("#", 1);
 return x_1;
 }
 }
@@ -6794,7 +6794,7 @@ static lean_object* _init_l_term_x23_x5b___x2c_x5d___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term#[_,]");
+x_1 = lean_mk_string_from_bytes("term#[_,]", 9);
 return x_1;
 }
 }
@@ -6812,7 +6812,7 @@ static lean_object* _init_l_term_x23_x5b___x2c_x5d___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("andthen");
+x_1 = lean_mk_string_from_bytes("andthen", 7);
 return x_1;
 }
 }
@@ -6840,7 +6840,7 @@ static lean_object* _init_l_term_x23_x5b___x2c_x5d___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term");
+x_1 = lean_mk_string_from_bytes("term", 4);
 return x_1;
 }
 }
@@ -6870,7 +6870,7 @@ static lean_object* _init_l_term_x23_x5b___x2c_x5d___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -6964,7 +6964,7 @@ static lean_object* _init_l___aux__Init__Data__Array__Basic______macroRules__ter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -6982,7 +6982,7 @@ static lean_object* _init_l___aux__Init__Data__Array__Basic______macroRules__ter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -7000,7 +7000,7 @@ static lean_object* _init_l___aux__Init__Data__Array__Basic______macroRules__ter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -7018,7 +7018,7 @@ static lean_object* _init_l___aux__Init__Data__Array__Basic______macroRules__ter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("app");
+x_1 = lean_mk_string_from_bytes("app", 3);
 return x_1;
 }
 }
@@ -7036,7 +7036,7 @@ static lean_object* _init_l___aux__Init__Data__Array__Basic______macroRules__ter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("List.toArray");
+x_1 = lean_mk_string_from_bytes("List.toArray", 12);
 return x_1;
 }
 }
@@ -7067,7 +7067,7 @@ static lean_object* _init_l___aux__Init__Data__Array__Basic______macroRules__ter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("List");
+x_1 = lean_mk_string_from_bytes("List", 4);
 return x_1;
 }
 }
@@ -7085,7 +7085,7 @@ static lean_object* _init_l___aux__Init__Data__Array__Basic______macroRules__ter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("toArray");
+x_1 = lean_mk_string_from_bytes("toArray", 7);
 return x_1;
 }
 }
@@ -7127,7 +7127,7 @@ static lean_object* _init_l___aux__Init__Data__Array__Basic______macroRules__ter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -7145,7 +7145,7 @@ static lean_object* _init_l___aux__Init__Data__Array__Basic______macroRules__ter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term[_]");
+x_1 = lean_mk_string_from_bytes("term[_]", 7);
 return x_1;
 }
 }
@@ -7163,7 +7163,7 @@ static lean_object* _init_l___aux__Init__Data__Array__Basic______macroRules__ter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -8835,7 +8835,7 @@ static lean_object* _init_l_Array_insertAt___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Array.insertAt");
+x_1 = lean_mk_string_from_bytes("Array.insertAt", 14);
 return x_1;
 }
 }
@@ -8843,7 +8843,7 @@ static lean_object* _init_l_Array_insertAt___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid index");
+x_1 = lean_mk_string_from_bytes("invalid index", 13);
 return x_1;
 }
 }

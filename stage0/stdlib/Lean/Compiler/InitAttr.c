@@ -178,7 +178,7 @@ static lean_object* _init_l___private_Lean_Compiler_InitAttr_0__Lean_getIOTypeAr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("IO");
+x_1 = lean_mk_string_from_bytes("IO", 2);
 return x_1;
 }
 }
@@ -261,7 +261,7 @@ static lean_object* _init_l___private_Lean_Compiler_InitAttr_0__Lean_isUnitType_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Unit");
+x_1 = lean_mk_string_from_bytes("Unit", 4);
 return x_1;
 }
 }
@@ -411,7 +411,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_registerInitAttrUnsafe__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown constant '");
+x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
 return x_1;
 }
 }
@@ -428,7 +428,7 @@ static lean_object* _init_l_Lean_getConstInfo___at_Lean_registerInitAttrUnsafe__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -803,7 +803,7 @@ static lean_object* _init_l_Lean_resolveGlobalConst___at_Lean_registerInitAttrUn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected identifier");
+x_1 = lean_mk_string_from_bytes("expected identifier", 19);
 return x_1;
 }
 }
@@ -980,7 +980,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at_Lean_register
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ambiguous identifier '");
+x_1 = lean_mk_string_from_bytes("ambiguous identifier '", 22);
 return x_1;
 }
 }
@@ -988,7 +988,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at_Lean_register
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', possible interpretations: ");
+x_1 = lean_mk_string_from_bytes("', possible interpretations: ", 29);
 return x_1;
 }
 }
@@ -996,7 +996,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at_Lean_register
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1593,7 +1593,7 @@ static lean_object* _init_l_Lean_registerInitAttrUnsafe___lambda__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("initialization function must have type `IO Unit`");
+x_1 = lean_mk_string_from_bytes("initialization function must have type `IO Unit`", 48);
 return x_1;
 }
 }
@@ -1610,7 +1610,7 @@ static lean_object* _init_l_Lean_registerInitAttrUnsafe___lambda__1___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("initialization function '");
+x_1 = lean_mk_string_from_bytes("initialization function '", 25);
 return x_1;
 }
 }
@@ -1627,7 +1627,7 @@ static lean_object* _init_l_Lean_registerInitAttrUnsafe___lambda__1___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' must have type of the form `IO <type>`");
+x_1 = lean_mk_string_from_bytes("' must have type of the form `IO <type>`", 40);
 return x_1;
 }
 }
@@ -1644,7 +1644,7 @@ static lean_object* _init_l_Lean_registerInitAttrUnsafe___lambda__1___closed__7(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' type mismatch");
+x_1 = lean_mk_string_from_bytes("' type mismatch", 15);
 return x_1;
 }
 }
@@ -2168,7 +2168,7 @@ static lean_object* _init_l_Lean_registerInitAttrUnsafe___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("initialization procedure for global references");
+x_1 = lean_mk_string_from_bytes("initialization procedure for global references", 46);
 return x_1;
 }
 }
@@ -2361,7 +2361,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_785_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("init");
+x_1 = lean_mk_string_from_bytes("init", 4);
 return x_1;
 }
 }
@@ -2389,7 +2389,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_802_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("builtinInit");
+x_1 = lean_mk_string_from_bytes("builtinInit", 11);
 return x_1;
 }
 }
@@ -2886,7 +2886,7 @@ static lean_object* _init_l_Lean_declareBuiltin___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_regBuiltin");
+x_1 = lean_mk_string_from_bytes("_regBuiltin", 11);
 return x_1;
 }
 }
@@ -2954,7 +2954,7 @@ static lean_object* _init_l_Lean_declareBuiltin___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to emit registration code for builtin '");
+x_1 = lean_mk_string_from_bytes("failed to emit registration code for builtin '", 46);
 return x_1;
 }
 }
@@ -2971,7 +2971,7 @@ static lean_object* _init_l_Lean_declareBuiltin___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("': ");
+x_1 = lean_mk_string_from_bytes("': ", 3);
 return x_1;
 }
 }

@@ -453,7 +453,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_6____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("pp");
+x_1 = lean_mk_string_from_bytes("pp", 2);
 return x_1;
 }
 }
@@ -471,7 +471,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_6____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("auxDecls");
+x_1 = lean_mk_string_from_bytes("auxDecls", 8);
 return x_1;
 }
 }
@@ -489,7 +489,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_6____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("display auxiliary declarations used to compile recursive functions");
+x_1 = lean_mk_string_from_bytes("display auxiliary declarations used to compile recursive functions", 66);
 return x_1;
 }
 }
@@ -522,7 +522,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_34___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inaccessibleNames");
+x_1 = lean_mk_string_from_bytes("inaccessibleNames", 17);
 return x_1;
 }
 }
@@ -540,7 +540,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_PPGoal___hyg_34___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("display inaccessible declarations in the local context");
+x_1 = lean_mk_string_from_bytes("display inaccessible declarations in the local context", 54);
 return x_1;
 }
 }
@@ -19450,7 +19450,7 @@ static lean_object* _init_l_Lean_Meta_getGoalPrefix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("⊢ ");
+x_1 = lean_mk_string_from_bytes("⊢ ", 4);
 return x_1;
 }
 }
@@ -19458,7 +19458,7 @@ static lean_object* _init_l_Lean_Meta_getGoalPrefix___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("| ");
+x_1 = lean_mk_string_from_bytes("| ", 2);
 return x_1;
 }
 }
@@ -19547,7 +19547,7 @@ static lean_object* _init_l_Lean_Meta_ppGoal_pushPending___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ");
+x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }
@@ -19565,7 +19565,7 @@ static lean_object* _init_l_Lean_Meta_ppGoal_pushPending___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" :");
+x_1 = lean_mk_string_from_bytes(" :", 2);
 return x_1;
 }
 }
@@ -19771,7 +19771,7 @@ static lean_object* _init_l_Lean_Meta_ppGoal_ppVars___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" : ");
+x_1 = lean_mk_string_from_bytes(" : ", 3);
 return x_1;
 }
 }
@@ -19789,7 +19789,7 @@ static lean_object* _init_l_Lean_Meta_ppGoal_ppVars___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" :=");
+x_1 = lean_mk_string_from_bytes(" :=", 3);
 return x_1;
 }
 }
@@ -19807,7 +19807,7 @@ static lean_object* _init_l_Lean_Meta_ppGoal_ppVars___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(": ");
+x_1 = lean_mk_string_from_bytes(": ", 2);
 return x_1;
 }
 }
@@ -25166,7 +25166,7 @@ static lean_object* _init_l_Lean_Meta_ppGoal___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("case ");
+x_1 = lean_mk_string_from_bytes("case ", 5);
 return x_1;
 }
 }
@@ -25484,7 +25484,7 @@ static lean_object* _init_l_Lean_Meta_ppGoal___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown goal");
+x_1 = lean_mk_string_from_bytes("unknown goal", 12);
 return x_1;
 }
 }

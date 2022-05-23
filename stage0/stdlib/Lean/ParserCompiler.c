@@ -483,7 +483,7 @@ static lean_object* _init_l_Lean_ParserCompiler_replaceParserTy___rarg___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -501,7 +501,7 @@ static lean_object* _init_l_Lean_ParserCompiler_replaceParserTy___rarg___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -1096,7 +1096,7 @@ static lean_object* _init_l_Lean_ParserCompiler_parserNodeKind_x3f___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("nodeWithAntiquot");
+x_1 = lean_mk_string_from_bytes("nodeWithAntiquot", 16);
 return x_1;
 }
 }
@@ -1114,7 +1114,7 @@ static lean_object* _init_l_Lean_ParserCompiler_parserNodeKind_x3f___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("withAntiquot");
+x_1 = lean_mk_string_from_bytes("withAntiquot", 12);
 return x_1;
 }
 }
@@ -1132,7 +1132,7 @@ static lean_object* _init_l_Lean_ParserCompiler_parserNodeKind_x3f___closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("leadingNode");
+x_1 = lean_mk_string_from_bytes("leadingNode", 11);
 return x_1;
 }
 }
@@ -1150,7 +1150,7 @@ static lean_object* _init_l_Lean_ParserCompiler_parserNodeKind_x3f___closed__7()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("trailingNode");
+x_1 = lean_mk_string_from_bytes("trailingNode", 12);
 return x_1;
 }
 }
@@ -1168,7 +1168,7 @@ static lean_object* _init_l_Lean_ParserCompiler_parserNodeKind_x3f___closed__9()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("node");
+x_1 = lean_mk_string_from_bytes("node", 4);
 return x_1;
 }
 }
@@ -1610,7 +1610,7 @@ static lean_object* _init_l_Array_foldrMUnsafe_fold___at_Lean_ParserCompiler_com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_");
+x_1 = lean_mk_string_from_bytes("_", 1);
 return x_1;
 }
 }
@@ -15646,7 +15646,7 @@ static lean_object* _init_l_Lean_ParserCompiler_compileParserExpr___rarg___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Attr");
+x_1 = lean_mk_string_from_bytes("Attr", 4);
 return x_1;
 }
 }
@@ -15654,7 +15654,7 @@ static lean_object* _init_l_Lean_ParserCompiler_compileParserExpr___rarg___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simple");
+x_1 = lean_mk_string_from_bytes("simple", 6);
 return x_1;
 }
 }
@@ -22995,7 +22995,7 @@ static lean_object* _init_l_Lean_ParserCompiler_compileParserExpr___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("call of unknown parser at '");
+x_1 = lean_mk_string_from_bytes("call of unknown parser at '", 27);
 return x_1;
 }
 }
@@ -23012,7 +23012,7 @@ static lean_object* _init_l_Lean_ParserCompiler_compileParserExpr___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -23038,7 +23038,7 @@ static lean_object* _init_l_Lean_ParserCompiler_compileParserExpr___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("don't know how to generate ");
+x_1 = lean_mk_string_from_bytes("don't know how to generate ", 27);
 return x_1;
 }
 }
@@ -23055,7 +23055,7 @@ static lean_object* _init_l_Lean_ParserCompiler_compileParserExpr___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" for non-definition '");
+x_1 = lean_mk_string_from_bytes(" for non-definition '", 21);
 return x_1;
 }
 }
@@ -23072,7 +23072,7 @@ static lean_object* _init_l_Lean_ParserCompiler_compileParserExpr___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("refusing to generate code for imported parser declaration '");
+x_1 = lean_mk_string_from_bytes("refusing to generate code for imported parser declaration '", 59);
 return x_1;
 }
 }
@@ -23089,7 +23089,7 @@ static lean_object* _init_l_Lean_ParserCompiler_compileParserExpr___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'; use `@[runParserAttributeHooks]` on its definition instead.");
+x_1 = lean_mk_string_from_bytes("'; use `@[runParserAttributeHooks]` on its definition instead.", 62);
 return x_1;
 }
 }
@@ -23106,7 +23106,7 @@ static lean_object* _init_l_Lean_ParserCompiler_compileParserExpr___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("TrailingParser");
+x_1 = lean_mk_string_from_bytes("TrailingParser", 14);
 return x_1;
 }
 }
@@ -23124,7 +23124,7 @@ static lean_object* _init_l_Lean_ParserCompiler_compileParserExpr___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" for non-parser combinator '");
+x_1 = lean_mk_string_from_bytes(" for non-parser combinator '", 28);
 return x_1;
 }
 }
@@ -30283,7 +30283,7 @@ static lean_object* _init_l_Lean_ParserCompiler_registerParserCompiler___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ParserDescr");
+x_1 = lean_mk_string_from_bytes("ParserDescr", 11);
 return x_1;
 }
 }
@@ -30589,7 +30589,7 @@ static lean_object* _init_l_Lean_ParserCompiler_registerParserCompiler___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("TrailingParserDescr");
+x_1 = lean_mk_string_from_bytes("TrailingParserDescr", 19);
 return x_1;
 }
 }

@@ -144,7 +144,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Strea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -152,7 +152,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Strea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\r\n");
+x_1 = lean_mk_string_from_bytes("\r\n", 2);
 return x_1;
 }
 }
@@ -160,7 +160,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Strea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(": ");
+x_1 = lean_mk_string_from_bytes(": ", 2);
 return x_1;
 }
 }
@@ -265,7 +265,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Strea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Invalid header field: ");
+x_1 = lean_mk_string_from_bytes("Invalid header field: ", 22);
 return x_1;
 }
 }
@@ -383,7 +383,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Strea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Stream was closed");
+x_1 = lean_mk_string_from_bytes("Stream was closed", 17);
 return x_1;
 }
 }
@@ -558,7 +558,7 @@ static lean_object* _init_l_List_toStringAux___at___private_Lean_Data_Lsp_Commun
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -566,7 +566,7 @@ static lean_object* _init_l_List_toStringAux___at___private_Lean_Data_Lsp_Commun
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -574,7 +574,7 @@ static lean_object* _init_l_List_toStringAux___at___private_Lean_Data_Lsp_Commun
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -647,7 +647,7 @@ static lean_object* _init_l_List_toString___at___private_Lean_Data_Lsp_Communica
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[]");
+x_1 = lean_mk_string_from_bytes("[]", 2);
 return x_1;
 }
 }
@@ -655,7 +655,7 @@ static lean_object* _init_l_List_toString___at___private_Lean_Data_Lsp_Communica
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -663,7 +663,7 @@ static lean_object* _init_l_List_toString___at___private_Lean_Data_Lsp_Communica
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -721,7 +721,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Strea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Content-Length");
+x_1 = lean_mk_string_from_bytes("Content-Length", 14);
 return x_1;
 }
 }
@@ -729,7 +729,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Strea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("No Content-Length field in header: ");
+x_1 = lean_mk_string_from_bytes("No Content-Length field in header: ", 35);
 return x_1;
 }
 }
@@ -737,7 +737,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Strea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Content-Length header field value '");
+x_1 = lean_mk_string_from_bytes("Content-Length header field value '", 35);
 return x_1;
 }
 }
@@ -745,7 +745,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Communication_0__IO_FS_Strea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is not a Nat");
+x_1 = lean_mk_string_from_bytes("' is not a Nat", 14);
 return x_1;
 }
 }
@@ -926,7 +926,7 @@ static lean_object* _init_l_IO_FS_Stream_readLspMessage___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Cannot read LSP message: ");
+x_1 = lean_mk_string_from_bytes("Cannot read LSP message: ", 25);
 return x_1;
 }
 }
@@ -1039,7 +1039,7 @@ static lean_object* _init_l_IO_FS_Stream_readLspRequestAs___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Cannot read LSP request: ");
+x_1 = lean_mk_string_from_bytes("Cannot read LSP request: ", 25);
 return x_1;
 }
 }
@@ -1154,7 +1154,7 @@ static lean_object* _init_l_IO_FS_Stream_readLspNotificationAs___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Cannot read LSP notification: ");
+x_1 = lean_mk_string_from_bytes("Cannot read LSP notification: ", 30);
 return x_1;
 }
 }
@@ -1269,7 +1269,7 @@ static lean_object* _init_l_IO_FS_Stream_readLspResponseAs___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Cannot read LSP response: ");
+x_1 = lean_mk_string_from_bytes("Cannot read LSP response: ", 26);
 return x_1;
 }
 }
@@ -1384,7 +1384,7 @@ static lean_object* _init_l_IO_FS_Stream_writeLspMessage___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("2.0");
+x_1 = lean_mk_string_from_bytes("2.0", 3);
 return x_1;
 }
 }
@@ -1402,7 +1402,7 @@ static lean_object* _init_l_IO_FS_Stream_writeLspMessage___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("jsonrpc");
+x_1 = lean_mk_string_from_bytes("jsonrpc", 7);
 return x_1;
 }
 }
@@ -1422,7 +1422,7 @@ static lean_object* _init_l_IO_FS_Stream_writeLspMessage___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Content-Length: ");
+x_1 = lean_mk_string_from_bytes("Content-Length: ", 16);
 return x_1;
 }
 }
@@ -1430,7 +1430,7 @@ static lean_object* _init_l_IO_FS_Stream_writeLspMessage___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\r\n\r\n");
+x_1 = lean_mk_string_from_bytes("\r\n\r\n", 4);
 return x_1;
 }
 }
@@ -1438,7 +1438,7 @@ static lean_object* _init_l_IO_FS_Stream_writeLspMessage___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("method");
+x_1 = lean_mk_string_from_bytes("method", 6);
 return x_1;
 }
 }
@@ -1446,7 +1446,7 @@ static lean_object* _init_l_IO_FS_Stream_writeLspMessage___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("params");
+x_1 = lean_mk_string_from_bytes("params", 6);
 return x_1;
 }
 }
@@ -1454,7 +1454,7 @@ static lean_object* _init_l_IO_FS_Stream_writeLspMessage___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("id");
+x_1 = lean_mk_string_from_bytes("id", 2);
 return x_1;
 }
 }
@@ -1474,7 +1474,7 @@ static lean_object* _init_l_IO_FS_Stream_writeLspMessage___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("result");
+x_1 = lean_mk_string_from_bytes("result", 6);
 return x_1;
 }
 }
@@ -1482,7 +1482,7 @@ static lean_object* _init_l_IO_FS_Stream_writeLspMessage___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("message");
+x_1 = lean_mk_string_from_bytes("message", 7);
 return x_1;
 }
 }
@@ -1490,7 +1490,7 @@ static lean_object* _init_l_IO_FS_Stream_writeLspMessage___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("data");
+x_1 = lean_mk_string_from_bytes("data", 4);
 return x_1;
 }
 }
@@ -1498,7 +1498,7 @@ static lean_object* _init_l_IO_FS_Stream_writeLspMessage___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("code");
+x_1 = lean_mk_string_from_bytes("code", 4);
 return x_1;
 }
 }
@@ -1506,7 +1506,7 @@ static lean_object* _init_l_IO_FS_Stream_writeLspMessage___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("error");
+x_1 = lean_mk_string_from_bytes("error", 5);
 return x_1;
 }
 }

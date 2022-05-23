@@ -44,7 +44,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_4____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -62,7 +62,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_4____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -80,7 +80,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_4____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simp");
+x_1 = lean_mk_string_from_bytes("simp", 4);
 return x_1;
 }
 }
@@ -107,7 +107,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_14___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("congr");
+x_1 = lean_mk_string_from_bytes("congr", 5);
 return x_1;
 }
 }
@@ -134,7 +134,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_24___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("discharge");
+x_1 = lean_mk_string_from_bytes("discharge", 9);
 return x_1;
 }
 }
@@ -161,7 +161,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_34___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("rewrite");
+x_1 = lean_mk_string_from_bytes("rewrite", 7);
 return x_1;
 }
 }
@@ -188,7 +188,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_44___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unify");
+x_1 = lean_mk_string_from_bytes("unify", 5);
 return x_1;
 }
 }
@@ -215,7 +215,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Tactic_Simp___hyg_54___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Debug");
+x_1 = lean_mk_string_from_bytes("Debug", 5);
 return x_1;
 }
 }

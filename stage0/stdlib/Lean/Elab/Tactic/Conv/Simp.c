@@ -349,7 +349,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimp___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -367,7 +367,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimp___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -385,7 +385,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimp___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -403,7 +403,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimp___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Conv");
+x_1 = lean_mk_string_from_bytes("Conv", 4);
 return x_1;
 }
 }
@@ -421,7 +421,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimp___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simp");
+x_1 = lean_mk_string_from_bytes("simp", 4);
 return x_1;
 }
 }
@@ -439,7 +439,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimp___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -477,7 +477,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimp___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalSimp");
+x_1 = lean_mk_string_from_bytes("evalSimp", 8);
 return x_1;
 }
 }
@@ -759,7 +759,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimpMatch___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simpMatch");
+x_1 = lean_mk_string_from_bytes("simpMatch", 9);
 return x_1;
 }
 }
@@ -777,7 +777,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalSimpMatch___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalSimpMatch");
+x_1 = lean_mk_string_from_bytes("evalSimpMatch", 13);
 return x_1;
 }
 }

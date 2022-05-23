@@ -231,7 +231,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonTextDocumentSyncKind___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown TextDocumentSyncKind");
+x_1 = lean_mk_string_from_bytes("unknown TextDocumentSyncKind", 28);
 return x_1;
 }
 }
@@ -445,7 +445,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_toJsonD
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("textDocument");
+x_1 = lean_mk_string_from_bytes("textDocument", 12);
 return x_1;
 }
 }
@@ -653,7 +653,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("documentSelector");
+x_1 = lean_mk_string_from_bytes("documentSelector", 16);
 return x_1;
 }
 }
@@ -661,7 +661,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("syncKind");
+x_1 = lean_mk_string_from_bytes("syncKind", 8);
 return x_1;
 }
 }
@@ -792,7 +792,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("range");
+x_1 = lean_mk_string_from_bytes("range", 5);
 return x_1;
 }
 }
@@ -800,7 +800,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonTextDocumentContentChangeEvent_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("text");
+x_1 = lean_mk_string_from_bytes("text", 4);
 return x_1;
 }
 }
@@ -1062,7 +1062,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_toJsonD
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("contentChanges");
+x_1 = lean_mk_string_from_bytes("contentChanges", 14);
 return x_1;
 }
 }
@@ -1254,7 +1254,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected JSON array, got '");
+x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
 return x_1;
 }
 }
@@ -1262,7 +1262,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -1419,7 +1419,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_toJsonS
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("includeText");
+x_1 = lean_mk_string_from_bytes("includeText", 11);
 return x_1;
 }
 }
@@ -1712,7 +1712,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_toJsonT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("openClose");
+x_1 = lean_mk_string_from_bytes("openClose", 9);
 return x_1;
 }
 }
@@ -1720,7 +1720,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_toJsonT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("willSave");
+x_1 = lean_mk_string_from_bytes("willSave", 8);
 return x_1;
 }
 }
@@ -1728,7 +1728,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_toJsonT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("willSaveWaitUntil");
+x_1 = lean_mk_string_from_bytes("willSaveWaitUntil", 17);
 return x_1;
 }
 }
@@ -1736,7 +1736,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_toJsonT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("save");
+x_1 = lean_mk_string_from_bytes("save", 4);
 return x_1;
 }
 }
@@ -1744,7 +1744,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_toJsonT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("change");
+x_1 = lean_mk_string_from_bytes("change", 6);
 return x_1;
 }
 }

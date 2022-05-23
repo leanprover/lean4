@@ -663,7 +663,7 @@ static lean_object* _init_l_Lean_instToStringImport___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -671,7 +671,7 @@ static lean_object* _init_l_Lean_instToStringImport___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" (runtime)");
+x_1 = lean_mk_string_from_bytes(" (runtime)", 10);
 return x_1;
 }
 }
@@ -3479,7 +3479,7 @@ static lean_object* _init_l___private_Lean_Environment_0__Lean_EnvExtensionInter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid environment extension has been accessed");
+x_1 = lean_mk_string_from_bytes("invalid environment extension has been accessed", 47);
 return x_1;
 }
 }
@@ -3504,7 +3504,7 @@ static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_setState___rarg___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Environment");
+x_1 = lean_mk_string_from_bytes("Lean.Environment", 16);
 return x_1;
 }
 }
@@ -3512,7 +3512,7 @@ static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_setState___rarg___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.EnvExtensionInterfaceUnsafe.setState");
+x_1 = lean_mk_string_from_bytes("Lean.EnvExtensionInterfaceUnsafe.setState", 41);
 return x_1;
 }
 }
@@ -3625,7 +3625,7 @@ static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_modifyState___rarg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.EnvExtensionInterfaceUnsafe.modifyState");
+x_1 = lean_mk_string_from_bytes("Lean.EnvExtensionInterfaceUnsafe.modifyState", 44);
 return x_1;
 }
 }
@@ -3750,7 +3750,7 @@ static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.EnvExtensionInterfaceUnsafe.getState");
+x_1 = lean_mk_string_from_bytes("Lean.EnvExtensionInterfaceUnsafe.getState", 41);
 return x_1;
 }
 }
@@ -3861,7 +3861,7 @@ static lean_object* _init_l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to register environment, extensions can only be registered during initialization");
+x_1 = lean_mk_string_from_bytes("failed to register environment, extensions can only be registered during initialization", 87);
 return x_1;
 }
 }
@@ -4535,7 +4535,7 @@ static lean_object* _init_l_Lean_mkEmptyEnvironment___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("environment objects cannot be created during initialization");
+x_1 = lean_mk_string_from_bytes("environment objects cannot be created during initialization", 59);
 return x_1;
 }
 }
@@ -5229,7 +5229,7 @@ static lean_object* _init_l_Lean_registerPersistentEnvExtensionUnsafe___rarg___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid environment extension, '");
+x_1 = lean_mk_string_from_bytes("invalid environment extension, '", 32);
 return x_1;
 }
 }
@@ -5237,7 +5237,7 @@ static lean_object* _init_l_Lean_registerPersistentEnvExtensionUnsafe___rarg___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' has already been used");
+x_1 = lean_mk_string_from_bytes("' has already been used", 23);
 return x_1;
 }
 }
@@ -5615,7 +5615,7 @@ static lean_object* _init_l_Lean_registerSimplePersistentEnvExtension___rarg___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("number of local entries: ");
+x_1 = lean_mk_string_from_bytes("number of local entries: ", 25);
 return x_1;
 }
 }
@@ -6196,7 +6196,7 @@ static lean_object* _init_l_Lean_TagDeclarationExtension_tag___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assertion violation: ");
+x_1 = lean_mk_string_from_bytes("assertion violation: ", 21);
 return x_1;
 }
 }
@@ -6204,7 +6204,7 @@ static lean_object* _init_l_Lean_TagDeclarationExtension_tag___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("env.getModuleIdxFor? declName |>.isNone -- See comment at `TagDeclarationExtension`\n  ");
+x_1 = lean_mk_string_from_bytes("env.getModuleIdxFor? declName |>.isNone -- See comment at `TagDeclarationExtension`\n  ", 86);
 return x_1;
 }
 }
@@ -6222,7 +6222,7 @@ static lean_object* _init_l_Lean_TagDeclarationExtension_tag___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.TagDeclarationExtension.tag");
+x_1 = lean_mk_string_from_bytes("Lean.TagDeclarationExtension.tag", 32);
 return x_1;
 }
 }
@@ -6768,7 +6768,7 @@ static lean_object* _init_l_Lean_MapDeclarationExtension_insert___rarg___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("env.getModuleIdxFor? declName |>.isNone -- See comment at `MapDeclarationExtension`\n  ");
+x_1 = lean_mk_string_from_bytes("env.getModuleIdxFor? declName |>.isNone -- See comment at `MapDeclarationExtension`\n  ", 86);
 return x_1;
 }
 }
@@ -6786,7 +6786,7 @@ static lean_object* _init_l_Lean_MapDeclarationExtension_insert___rarg___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.MapDeclarationExtension.insert");
+x_1 = lean_mk_string_from_bytes("Lean.MapDeclarationExtension.insert", 35);
 return x_1;
 }
 }
@@ -9260,7 +9260,7 @@ static lean_object* _init_l_Lean_importModules_importMods___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("object file '");
+x_1 = lean_mk_string_from_bytes("object file '", 13);
 return x_1;
 }
 }
@@ -9268,7 +9268,7 @@ static lean_object* _init_l_Lean_importModules_importMods___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' of module ");
+x_1 = lean_mk_string_from_bytes("' of module ", 12);
 return x_1;
 }
 }
@@ -9276,7 +9276,7 @@ static lean_object* _init_l_Lean_importModules_importMods___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" does not exist");
+x_1 = lean_mk_string_from_bytes(" does not exist", 15);
 return x_1;
 }
 }
@@ -10093,7 +10093,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_importModules___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("import failed, environment already contains '");
+x_1 = lean_mk_string_from_bytes("import failed, environment already contains '", 45);
 return x_1;
 }
 }
@@ -10101,7 +10101,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_importModules___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -10773,7 +10773,7 @@ static lean_object* _init_l_Lean_importModules___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("import");
+x_1 = lean_mk_string_from_bytes("import", 6);
 return x_1;
 }
 }
@@ -11225,7 +11225,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Environment___hyg_4630____cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("namespaces");
+x_1 = lean_mk_string_from_bytes("namespaces", 10);
 return x_1;
 }
 }
@@ -11468,7 +11468,7 @@ static lean_object* _init_l_List_toStringAux___at_Lean_Environment_displayStats_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -11575,7 +11575,7 @@ static lean_object* _init_l_List_toString___at_Lean_Environment_displayStats___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[]");
+x_1 = lean_mk_string_from_bytes("[]", 2);
 return x_1;
 }
 }
@@ -11583,7 +11583,7 @@ static lean_object* _init_l_List_toString___at_Lean_Environment_displayStats___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -11591,7 +11591,7 @@ static lean_object* _init_l_List_toString___at_Lean_Environment_displayStats___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -11728,7 +11728,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Environment_displa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("  number of imported entries: ");
+x_1 = lean_mk_string_from_bytes("  number of imported entries: ", 30);
 return x_1;
 }
 }
@@ -11791,7 +11791,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Environment_displa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("extension '");
+x_1 = lean_mk_string_from_bytes("extension '", 11);
 return x_1;
 }
 }
@@ -11808,7 +11808,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Environment_displa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("  ");
+x_1 = lean_mk_string_from_bytes("  ", 2);
 return x_1;
 }
 }
@@ -12055,7 +12055,7 @@ static lean_object* _init_l_Lean_Environment_displayStats___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#");
+x_1 = lean_mk_string_from_bytes("#", 1);
 return x_1;
 }
 }
@@ -12063,7 +12063,7 @@ static lean_object* _init_l_Lean_Environment_displayStats___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("direct imports:                        ");
+x_1 = lean_mk_string_from_bytes("direct imports:                        ", 39);
 return x_1;
 }
 }
@@ -12071,7 +12071,7 @@ static lean_object* _init_l_Lean_Environment_displayStats___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("number of imported modules:            ");
+x_1 = lean_mk_string_from_bytes("number of imported modules:            ", 39);
 return x_1;
 }
 }
@@ -12079,7 +12079,7 @@ static lean_object* _init_l_Lean_Environment_displayStats___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("number of memory-mapped modules:       ");
+x_1 = lean_mk_string_from_bytes("number of memory-mapped modules:       ", 39);
 return x_1;
 }
 }
@@ -12087,7 +12087,7 @@ static lean_object* _init_l_Lean_Environment_displayStats___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("number of consts:                      ");
+x_1 = lean_mk_string_from_bytes("number of consts:                      ", 39);
 return x_1;
 }
 }
@@ -12095,7 +12095,7 @@ static lean_object* _init_l_Lean_Environment_displayStats___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("number of imported consts:             ");
+x_1 = lean_mk_string_from_bytes("number of imported consts:             ", 39);
 return x_1;
 }
 }
@@ -12103,7 +12103,7 @@ static lean_object* _init_l_Lean_Environment_displayStats___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("number of local consts:                ");
+x_1 = lean_mk_string_from_bytes("number of local consts:                ", 39);
 return x_1;
 }
 }
@@ -12111,7 +12111,7 @@ static lean_object* _init_l_Lean_Environment_displayStats___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("number of buckets for imported consts: ");
+x_1 = lean_mk_string_from_bytes("number of buckets for imported consts: ", 39);
 return x_1;
 }
 }
@@ -12119,7 +12119,7 @@ static lean_object* _init_l_Lean_Environment_displayStats___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("trust level:                           ");
+x_1 = lean_mk_string_from_bytes("trust level:                           ", 39);
 return x_1;
 }
 }
@@ -12127,7 +12127,7 @@ static lean_object* _init_l_Lean_Environment_displayStats___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("number of extensions:                  ");
+x_1 = lean_mk_string_from_bytes("number of extensions:                  ", 39);
 return x_1;
 }
 }
@@ -12762,7 +12762,7 @@ static lean_object* _init_l___private_Lean_Environment_0__Lean_Environment_throw
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected type at '");
+x_1 = lean_mk_string_from_bytes("unexpected type at '", 20);
 return x_1;
 }
 }
@@ -12770,7 +12770,7 @@ static lean_object* _init_l___private_Lean_Environment_0__Lean_Environment_throw
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', `");
+x_1 = lean_mk_string_from_bytes("', `", 4);
 return x_1;
 }
 }
@@ -12778,7 +12778,7 @@ static lean_object* _init_l___private_Lean_Environment_0__Lean_Environment_throw
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("` expected");
+x_1 = lean_mk_string_from_bytes("` expected", 10);
 return x_1;
 }
 }
@@ -12815,7 +12815,7 @@ static lean_object* _init_l_Lean_Environment_evalConstCheck___rarg___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown constant '");
+x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
 return x_1;
 }
 }

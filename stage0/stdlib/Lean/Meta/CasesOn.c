@@ -169,7 +169,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_toCasesOnApp_x3f___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.CasesOn");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.CasesOn", 17);
 return x_1;
 }
 }
@@ -177,7 +177,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_toCasesOnApp_x3f___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.toCasesOnApp?");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.toCasesOnApp?", 23);
 return x_1;
 }
 }
@@ -185,7 +185,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_toCasesOnApp_x3f___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -1212,7 +1212,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_CasesOnApp_add
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected type at `casesOnAddArg`");
+x_1 = lean_mk_string_from_bytes("unexpected type at `casesOnAddArg`", 34);
 return x_1;
 }
 }
@@ -2608,7 +2608,7 @@ static lean_object* _init_l_Lean_Meta_CasesOnApp_addArg_updateAlts___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to add argument to `casesOn` application, argument type was not refined by `casesOn`");
+x_1 = lean_mk_string_from_bytes("failed to add argument to `casesOn` application, argument type was not refined by `casesOn`", 91);
 return x_1;
 }
 }
@@ -3360,7 +3360,7 @@ static lean_object* _init_l_Lean_Meta_CasesOnApp_addArg___lambda__2___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to add argument to `casesOn` application, type error when constructing the new motive");
+x_1 = lean_mk_string_from_bytes("failed to add argument to `casesOn` application, type error when constructing the new motive", 92);
 return x_1;
 }
 }
@@ -3377,7 +3377,7 @@ static lean_object* _init_l_Lean_Meta_CasesOnApp_addArg___lambda__2___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -3558,7 +3558,7 @@ static lean_object* _init_l_Lean_Meta_CasesOnApp_addArg___lambda__3___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -3576,7 +3576,7 @@ static lean_object* _init_l_Lean_Meta_CasesOnApp_addArg___lambda__3___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("debug");
+x_1 = lean_mk_string_from_bytes("debug", 5);
 return x_1;
 }
 }
@@ -3594,7 +3594,7 @@ static lean_object* _init_l_Lean_Meta_CasesOnApp_addArg___lambda__3___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("params: ");
+x_1 = lean_mk_string_from_bytes("params: ", 8);
 return x_1;
 }
 }
@@ -3611,7 +3611,7 @@ static lean_object* _init_l_Lean_Meta_CasesOnApp_addArg___lambda__3___closed__7(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nmotive: ");
+x_1 = lean_mk_string_from_bytes("\nmotive: ", 9);
 return x_1;
 }
 }
@@ -3628,7 +3628,7 @@ static lean_object* _init_l_Lean_Meta_CasesOnApp_addArg___lambda__3___closed__9(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\ndiscrs: ");
+x_1 = lean_mk_string_from_bytes("\ndiscrs: ", 9);
 return x_1;
 }
 }
@@ -3645,7 +3645,7 @@ static lean_object* _init_l_Lean_Meta_CasesOnApp_addArg___lambda__3___closed__11
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nindices:");
+x_1 = lean_mk_string_from_bytes("\nindices:", 9);
 return x_1;
 }
 }
@@ -3662,7 +3662,7 @@ static lean_object* _init_l_Lean_Meta_CasesOnApp_addArg___lambda__3___closed__13
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nmajor:");
+x_1 = lean_mk_string_from_bytes("\nmajor:", 7);
 return x_1;
 }
 }
@@ -4084,7 +4084,7 @@ static lean_object* _init_l_Lean_Meta_CasesOnApp_addArg___lambda__5___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to add argument to `casesOn` application, motive must be lambda expression with #");
+x_1 = lean_mk_string_from_bytes("failed to add argument to `casesOn` application, motive must be lambda expression with #", 88);
 return x_1;
 }
 }
@@ -4101,7 +4101,7 @@ static lean_object* _init_l_Lean_Meta_CasesOnApp_addArg___lambda__5___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" binders");
+x_1 = lean_mk_string_from_bytes(" binders", 8);
 return x_1;
 }
 }

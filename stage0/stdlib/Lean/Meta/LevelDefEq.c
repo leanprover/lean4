@@ -261,7 +261,7 @@ static lean_object* _init_l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solveSel
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assertion violation: ");
+x_1 = lean_mk_string_from_bytes("assertion violation: ", 21);
 return x_1;
 }
 }
@@ -269,7 +269,7 @@ static lean_object* _init_l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solveSel
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("v.isMax\n  ");
+x_1 = lean_mk_string_from_bytes("v.isMax\n  ", 10);
 return x_1;
 }
 }
@@ -287,7 +287,7 @@ static lean_object* _init_l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solveSel
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.LevelDefEq");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.LevelDefEq", 20);
 return x_1;
 }
 }
@@ -295,7 +295,7 @@ static lean_object* _init_l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solveSel
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Meta.LevelDefEq.0.Lean.Meta.solveSelfMax");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.LevelDefEq.0.Lean.Meta.solveSelfMax", 54);
 return x_1;
 }
 }
@@ -449,7 +449,7 @@ static lean_object* _init_l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postpone
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -467,7 +467,7 @@ static lean_object* _init_l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postpone
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("isLevelDefEq");
+x_1 = lean_mk_string_from_bytes("isLevelDefEq", 12);
 return x_1;
 }
 }
@@ -485,7 +485,7 @@ static lean_object* _init_l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postpone
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("stuck");
+x_1 = lean_mk_string_from_bytes("stuck", 5);
 return x_1;
 }
 }
@@ -503,7 +503,7 @@ static lean_object* _init_l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postpone
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -520,7 +520,7 @@ static lean_object* _init_l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postpone
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" =?= ");
+x_1 = lean_mk_string_from_bytes(" =?= ", 5);
 return x_1;
 }
 }
@@ -3488,7 +3488,7 @@ static lean_object* _init_l_Lean_Meta_isLevelDefEqAuxImpl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("step");
+x_1 = lean_mk_string_from_bytes("step", 4);
 return x_1;
 }
 }

@@ -408,7 +408,7 @@ static lean_object* _init_l_List_mapTRAux___at_Lean_Meta_instToFormatUnification
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" => ");
+x_1 = lean_mk_string_from_bytes(" => ", 4);
 return x_1;
 }
 }
@@ -426,7 +426,7 @@ static lean_object* _init_l_List_mapTRAux___at_Lean_Meta_instToFormatUnification
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -462,7 +462,7 @@ static lean_object* _init_l_List_mapTRAux___at_Lean_Meta_instToFormatUnification
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -645,7 +645,7 @@ static lean_object* _init_l_List_format___at_Lean_Meta_instToFormatUnificationHi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[]");
+x_1 = lean_mk_string_from_bytes("[]", 2);
 return x_1;
 }
 }
@@ -663,7 +663,7 @@ static lean_object* _init_l_List_format___at_Lean_Meta_instToFormatUnificationHi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -693,7 +693,7 @@ static lean_object* _init_l_List_format___at_Lean_Meta_instToFormatUnificationHi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -729,7 +729,7 @@ static lean_object* _init_l_List_format___at_Lean_Meta_instToFormatUnificationHi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -781,7 +781,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_Trie_format___at_Lean_Meta_instT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("node");
+x_1 = lean_mk_string_from_bytes("node", 4);
 return x_1;
 }
 }
@@ -799,7 +799,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_Trie_format___at_Lean_Meta_instT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ");
+x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }
@@ -817,7 +817,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_Trie_format___at_Lean_Meta_instT
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#");
+x_1 = lean_mk_string_from_bytes("#", 1);
 return x_1;
 }
 }
@@ -2412,7 +2412,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Unific
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.DiscrTree");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree", 19);
 return x_1;
 }
 }
@@ -2420,7 +2420,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Unific
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.DiscrTree.insertCore");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree.insertCore", 30);
 return x_1;
 }
 }
@@ -2428,7 +2428,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Unific
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid key sequence");
+x_1 = lean_mk_string_from_bytes("invalid key sequence", 20);
 return x_1;
 }
 }
@@ -2588,7 +2588,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unifHints");
+x_1 = lean_mk_string_from_bytes("unifHints", 9);
 return x_1;
 }
 }
@@ -2647,7 +2647,7 @@ static lean_object* _init_l___private_Lean_Meta_UnificationHint_0__Lean_Meta_dec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -2665,7 +2665,7 @@ static lean_object* _init_l___private_Lean_Meta_UnificationHint_0__Lean_Meta_dec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid unification hint constraint, unexpected term");
+x_1 = lean_mk_string_from_bytes("invalid unification hint constraint, unexpected term", 52);
 return x_1;
 }
 }
@@ -2682,7 +2682,7 @@ static lean_object* _init_l___private_Lean_Meta_UnificationHint_0__Lean_Meta_dec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -2748,7 +2748,7 @@ static lean_object* _init_l___private_Lean_Meta_UnificationHint_0__Lean_Meta_dec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid unification hint constraint, unexpected dependency");
+x_1 = lean_mk_string_from_bytes("invalid unification hint constraint, unexpected dependency", 58);
 return x_1;
 }
 }
@@ -2948,7 +2948,7 @@ static lean_object* _init_l_List_forM___at___private_Lean_Meta_UnificationHint_0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid unification hint, failed to unify constraint left-hand-side");
+x_1 = lean_mk_string_from_bytes("invalid unification hint, failed to unify constraint left-hand-side", 67);
 return x_1;
 }
 }
@@ -2965,7 +2965,7 @@ static lean_object* _init_l_List_forM___at___private_Lean_Meta_UnificationHint_0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nwith right-hand-side");
+x_1 = lean_mk_string_from_bytes("\nwith right-hand-side", 21);
 return x_1;
 }
 }
@@ -3118,7 +3118,7 @@ static lean_object* _init_l___private_Lean_Meta_UnificationHint_0__Lean_Meta_val
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid unification hint, failed to unify pattern left-hand-side");
+x_1 = lean_mk_string_from_bytes("invalid unification hint, failed to unify pattern left-hand-side", 64);
 return x_1;
 }
 }
@@ -4002,7 +4002,7 @@ static lean_object* _init_l_Lean_Meta_addUnificationHint___lambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid unification hint, it must be a definition");
+x_1 = lean_mk_string_from_bytes("invalid unification hint, it must be a definition", 49);
 return x_1;
 }
 }
@@ -4538,7 +4538,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("attribute cannot be erased");
+x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
 return x_1;
 }
 }
@@ -4564,7 +4564,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unificationHint");
+x_1 = lean_mk_string_from_bytes("unificationHint", 15);
 return x_1;
 }
 }
@@ -4582,7 +4582,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unification hint");
+x_1 = lean_mk_string_from_bytes("unification hint", 16);
 return x_1;
 }
 }
@@ -6211,7 +6211,7 @@ static lean_object* _init_l_Lean_Meta_checkpointDefEq___at_Lean_Meta_tryUnificat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" succeeded, applying constraints");
+x_1 = lean_mk_string_from_bytes(" succeeded, applying constraints", 32);
 return x_1;
 }
 }
@@ -6797,7 +6797,7 @@ static lean_object* _init_l_Lean_Meta_checkpointDefEq___at_Lean_Meta_tryUnificat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("trying hint ");
+x_1 = lean_mk_string_from_bytes("trying hint ", 12);
 return x_1;
 }
 }
@@ -6814,7 +6814,7 @@ static lean_object* _init_l_Lean_Meta_checkpointDefEq___at_Lean_Meta_tryUnificat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" at ");
+x_1 = lean_mk_string_from_bytes(" at ", 4);
 return x_1;
 }
 }
@@ -6831,7 +6831,7 @@ static lean_object* _init_l_Lean_Meta_checkpointDefEq___at_Lean_Meta_tryUnificat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" =?= ");
+x_1 = lean_mk_string_from_bytes(" =?= ", 5);
 return x_1;
 }
 }
@@ -7548,7 +7548,7 @@ static lean_object* _init_l_Lean_Meta_tryUnificationHints_tryCandidate___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -7566,7 +7566,7 @@ static lean_object* _init_l_Lean_Meta_tryUnificationHints_tryCandidate___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("isDefEq");
+x_1 = lean_mk_string_from_bytes("isDefEq", 7);
 return x_1;
 }
 }
@@ -7584,7 +7584,7 @@ static lean_object* _init_l_Lean_Meta_tryUnificationHints_tryCandidate___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hint");
+x_1 = lean_mk_string_from_bytes("hint", 4);
 return x_1;
 }
 }

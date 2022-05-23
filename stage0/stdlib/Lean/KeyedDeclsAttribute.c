@@ -459,7 +459,7 @@ static lean_object* _init_l_Lean_KeyedDeclsAttribute_instInhabitedDef___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -4845,7 +4845,7 @@ static lean_object* _init_l_Lean_KeyedDeclsAttribute_ExtensionState_erase___rarg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -4862,7 +4862,7 @@ static lean_object* _init_l_Lean_KeyedDeclsAttribute_ExtensionState_erase___rarg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' does not have [");
+x_1 = lean_mk_string_from_bytes("' does not have [", 17);
 return x_1;
 }
 }
@@ -4879,7 +4879,7 @@ static lean_object* _init_l_Lean_KeyedDeclsAttribute_ExtensionState_erase___rarg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] attribute");
+x_1 = lean_mk_string_from_bytes("] attribute", 11);
 return x_1;
 }
 }
@@ -5979,7 +5979,7 @@ static lean_object* _init_l_Lean_KeyedDeclsAttribute_init___rarg___lambda__9___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected type at '");
+x_1 = lean_mk_string_from_bytes("unexpected type at '", 20);
 return x_1;
 }
 }
@@ -5996,7 +5996,7 @@ static lean_object* _init_l_Lean_KeyedDeclsAttribute_init___rarg___lambda__9___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', '");
+x_1 = lean_mk_string_from_bytes("', '", 4);
 return x_1;
 }
 }
@@ -6013,7 +6013,7 @@ static lean_object* _init_l_Lean_KeyedDeclsAttribute_init___rarg___lambda__9___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' expected");
+x_1 = lean_mk_string_from_bytes("' expected", 10);
 return x_1;
 }
 }
@@ -6030,7 +6030,7 @@ static lean_object* _init_l_Lean_KeyedDeclsAttribute_init___rarg___lambda__9___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -6048,7 +6048,7 @@ static lean_object* _init_l_Lean_KeyedDeclsAttribute_init___rarg___lambda__9___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("KeyedDeclsAttribute");
+x_1 = lean_mk_string_from_bytes("KeyedDeclsAttribute", 19);
 return x_1;
 }
 }
@@ -6066,7 +6066,7 @@ static lean_object* _init_l_Lean_KeyedDeclsAttribute_init___rarg___lambda__9___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("addBuiltin");
+x_1 = lean_mk_string_from_bytes("addBuiltin", 10);
 return x_1;
 }
 }
@@ -6327,7 +6327,7 @@ static lean_object* _init_l_Lean_KeyedDeclsAttribute_init___rarg___lambda__10___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid attribute '");
+x_1 = lean_mk_string_from_bytes("invalid attribute '", 19);
 return x_1;
 }
 }
@@ -6344,7 +6344,7 @@ static lean_object* _init_l_Lean_KeyedDeclsAttribute_init___rarg___lambda__10___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', must be global");
+x_1 = lean_mk_string_from_bytes("', must be global", 17);
 return x_1;
 }
 }
@@ -6418,7 +6418,7 @@ static lean_object* _init_l_Lean_KeyedDeclsAttribute_init___rarg___lambda__11___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("attribute cannot be erased");
+x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
 return x_1;
 }
 }
@@ -6476,7 +6476,7 @@ static lean_object* _init_l_Lean_KeyedDeclsAttribute_init___rarg___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(builtin) ");
+x_1 = lean_mk_string_from_bytes("(builtin) ", 10);
 return x_1;
 }
 }

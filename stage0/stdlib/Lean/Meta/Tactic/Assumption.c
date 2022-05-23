@@ -1075,7 +1075,7 @@ static lean_object* _init_l_Lean_Meta_assumptionCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assumption");
+x_1 = lean_mk_string_from_bytes("assumption", 10);
 return x_1;
 }
 }
@@ -1106,7 +1106,7 @@ static lean_object* _init_l_Lean_Meta_assumption___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }

@@ -1563,7 +1563,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalPattern___lambda__3___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'pattern' conv tactic failed, pattern was not found");
+x_1 = lean_mk_string_from_bytes("'pattern' conv tactic failed, pattern was not found", 51);
 return x_1;
 }
 }
@@ -1580,7 +1580,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalPattern___lambda__3___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1597,7 +1597,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalPattern___lambda__3___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("refl failed");
+x_1 = lean_mk_string_from_bytes("refl failed", 11);
 return x_1;
 }
 }
@@ -2053,7 +2053,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalPattern___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -2071,7 +2071,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalPattern___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -2089,7 +2089,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalPattern___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -2107,7 +2107,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalPattern___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Conv");
+x_1 = lean_mk_string_from_bytes("Conv", 4);
 return x_1;
 }
 }
@@ -2125,7 +2125,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_Conv_evalPattern___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("pattern");
+x_1 = lean_mk_string_from_bytes("pattern", 7);
 return x_1;
 }
 }
@@ -2196,7 +2196,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalPattern___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -2234,7 +2234,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalPattern___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalPattern");
+x_1 = lean_mk_string_from_bytes("evalPattern", 11);
 return x_1;
 }
 }

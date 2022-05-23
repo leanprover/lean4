@@ -677,7 +677,7 @@ static lean_object* _init_l_Std_Range_term_x5b_x3a___x5d___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Std");
+x_1 = lean_mk_string_from_bytes("Std", 3);
 return x_1;
 }
 }
@@ -695,7 +695,7 @@ static lean_object* _init_l_Std_Range_term_x5b_x3a___x5d___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Range");
+x_1 = lean_mk_string_from_bytes("Range", 5);
 return x_1;
 }
 }
@@ -713,7 +713,7 @@ static lean_object* _init_l_Std_Range_term_x5b_x3a___x5d___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term[:_]");
+x_1 = lean_mk_string_from_bytes("term[:_]", 8);
 return x_1;
 }
 }
@@ -731,7 +731,7 @@ static lean_object* _init_l_Std_Range_term_x5b_x3a___x5d___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("andthen");
+x_1 = lean_mk_string_from_bytes("andthen", 7);
 return x_1;
 }
 }
@@ -749,7 +749,7 @@ static lean_object* _init_l_Std_Range_term_x5b_x3a___x5d___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -767,7 +767,7 @@ static lean_object* _init_l_Std_Range_term_x5b_x3a___x5d___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -799,7 +799,7 @@ static lean_object* _init_l_Std_Range_term_x5b_x3a___x5d___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term");
+x_1 = lean_mk_string_from_bytes("term", 4);
 return x_1;
 }
 }
@@ -843,7 +843,7 @@ static lean_object* _init_l_Std_Range_term_x5b_x3a___x5d___closed__18() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -897,7 +897,7 @@ static lean_object* _init_l_Std_Range_term_x5b___x3a___x5d___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term[_:_]");
+x_1 = lean_mk_string_from_bytes("term[_:_]", 9);
 return x_1;
 }
 }
@@ -993,7 +993,7 @@ static lean_object* _init_l_Std_Range_term_x5b_x3a___x3a___x5d___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term[:_:_]");
+x_1 = lean_mk_string_from_bytes("term[:_:_]", 10);
 return x_1;
 }
 }
@@ -1075,7 +1075,7 @@ static lean_object* _init_l_Std_Range_term_x5b___x3a___x3a___x5d___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term[_:_:_]");
+x_1 = lean_mk_string_from_bytes("term[_:_:_]", 11);
 return x_1;
 }
 }
@@ -1157,7 +1157,7 @@ static lean_object* _init_l_Std_Range___aux__Init__Data__Range______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -1175,7 +1175,7 @@ static lean_object* _init_l_Std_Range___aux__Init__Data__Range______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -1193,7 +1193,7 @@ static lean_object* _init_l_Std_Range___aux__Init__Data__Range______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -1211,7 +1211,7 @@ static lean_object* _init_l_Std_Range___aux__Init__Data__Range______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structInst");
+x_1 = lean_mk_string_from_bytes("structInst", 10);
 return x_1;
 }
 }
@@ -1229,7 +1229,7 @@ static lean_object* _init_l_Std_Range___aux__Init__Data__Range______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{");
+x_1 = lean_mk_string_from_bytes("{", 1);
 return x_1;
 }
 }
@@ -1237,7 +1237,7 @@ static lean_object* _init_l_Std_Range___aux__Init__Data__Range______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -1278,7 +1278,7 @@ static lean_object* _init_l_Std_Range___aux__Init__Data__Range______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("group");
+x_1 = lean_mk_string_from_bytes("group", 5);
 return x_1;
 }
 }
@@ -1296,7 +1296,7 @@ static lean_object* _init_l_Std_Range___aux__Init__Data__Range______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structInstField");
+x_1 = lean_mk_string_from_bytes("structInstField", 15);
 return x_1;
 }
 }
@@ -1314,7 +1314,7 @@ static lean_object* _init_l_Std_Range___aux__Init__Data__Range______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structInstLVal");
+x_1 = lean_mk_string_from_bytes("structInstLVal", 14);
 return x_1;
 }
 }
@@ -1332,7 +1332,7 @@ static lean_object* _init_l_Std_Range___aux__Init__Data__Range______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("stop");
+x_1 = lean_mk_string_from_bytes("stop", 4);
 return x_1;
 }
 }
@@ -1416,7 +1416,7 @@ static lean_object* _init_l_Std_Range___aux__Init__Data__Range______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":=");
+x_1 = lean_mk_string_from_bytes(":=", 2);
 return x_1;
 }
 }
@@ -1442,7 +1442,7 @@ static lean_object* _init_l_Std_Range___aux__Init__Data__Range______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("optEllipsis");
+x_1 = lean_mk_string_from_bytes("optEllipsis", 11);
 return x_1;
 }
 }
@@ -1541,7 +1541,7 @@ static lean_object* _init_l_Std_Range___aux__Init__Data__Range______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("}");
+x_1 = lean_mk_string_from_bytes("}", 1);
 return x_1;
 }
 }
@@ -1804,7 +1804,7 @@ static lean_object* _init_l_Std_Range___aux__Init__Data__Range______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("start");
+x_1 = lean_mk_string_from_bytes("start", 5);
 return x_1;
 }
 }
@@ -1879,7 +1879,7 @@ static lean_object* _init_l_Std_Range___aux__Init__Data__Range______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -2245,7 +2245,7 @@ static lean_object* _init_l_Std_Range___aux__Init__Data__Range______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("step");
+x_1 = lean_mk_string_from_bytes("step", 4);
 return x_1;
 }
 }

@@ -423,7 +423,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTermi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid termination hint element, '");
+x_1 = lean_mk_string_from_bytes("invalid termination hint element, '", 35);
 return x_1;
 }
 }
@@ -431,7 +431,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTermi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' and '");
+x_1 = lean_mk_string_from_bytes("' and '", 7);
 return x_1;
 }
 }
@@ -439,7 +439,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_expandTermi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' are in the same clique");
+x_1 = lean_mk_string_from_bytes("' are in the same clique", 24);
 return x_1;
 }
 }
@@ -627,7 +627,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerm
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("function '");
+x_1 = lean_mk_string_from_bytes("function '", 10);
 return x_1;
 }
 }
@@ -635,7 +635,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_WF_expandTerm
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' not found in current declaration");
+x_1 = lean_mk_string_from_bytes("' not found in current declaration", 34);
 return x_1;
 }
 }
@@ -895,7 +895,7 @@ static lean_object* _init_l_Lean_Elab_WF_expandTerminationHint___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -913,7 +913,7 @@ static lean_object* _init_l_Lean_Elab_WF_expandTerminationHint___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -931,7 +931,7 @@ static lean_object* _init_l_Lean_Elab_WF_expandTerminationHint___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Command");
+x_1 = lean_mk_string_from_bytes("Command", 7);
 return x_1;
 }
 }
@@ -949,7 +949,7 @@ static lean_object* _init_l_Lean_Elab_WF_expandTerminationHint___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("terminationHint1");
+x_1 = lean_mk_string_from_bytes("terminationHint1", 16);
 return x_1;
 }
 }
@@ -967,7 +967,7 @@ static lean_object* _init_l_Lean_Elab_WF_expandTerminationHint___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("terminationHintMany");
+x_1 = lean_mk_string_from_bytes("terminationHintMany", 19);
 return x_1;
 }
 }
@@ -1910,7 +1910,7 @@ static lean_object* _init_l_Std_RBNode_foldM___at_Lean_Elab_WF_TerminationHint_e
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unused termination hint element");
+x_1 = lean_mk_string_from_bytes("unused termination hint element", 31);
 return x_1;
 }
 }
@@ -2357,7 +2357,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreD
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid `termination_by` syntax, the else-case (i.e., `_ ... => ...`) has already been specified");
+x_1 = lean_mk_string_from_bytes("invalid `termination_by` syntax, the else-case (i.e., `_ ... => ...`) has already been specified", 96);
 return x_1;
 }
 }
@@ -2365,7 +2365,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreD
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid `termination_by` syntax, `");
+x_1 = lean_mk_string_from_bytes("invalid `termination_by` syntax, `", 34);
 return x_1;
 }
 }
@@ -2373,7 +2373,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreD
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("` case has already been provided");
+x_1 = lean_mk_string_from_bytes("` case has already been provided", 32);
 return x_1;
 }
 }
@@ -3535,7 +3535,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreD
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid `termination_by` syntax, missing case for function '");
+x_1 = lean_mk_string_from_bytes("invalid `termination_by` syntax, missing case for function '", 60);
 return x_1;
 }
 }
@@ -3543,7 +3543,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreD
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -4098,7 +4098,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_TerminationHint
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid `termination_by` syntax, unnecessary else-case");
+x_1 = lean_mk_string_from_bytes("invalid `termination_by` syntax, unnecessary else-case", 54);
 return x_1;
 }
 }
@@ -4494,7 +4494,7 @@ static lean_object* _init_l_Lean_Elab_WF_expandTerminationBy___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("terminationByCore");
+x_1 = lean_mk_string_from_bytes("terminationByCore", 17);
 return x_1;
 }
 }
@@ -4512,7 +4512,7 @@ static lean_object* _init_l_Lean_Elab_WF_expandTerminationBy___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("terminationBy");
+x_1 = lean_mk_string_from_bytes("terminationBy", 13);
 return x_1;
 }
 }

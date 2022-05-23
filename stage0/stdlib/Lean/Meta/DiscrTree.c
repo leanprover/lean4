@@ -750,7 +750,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_Key_format___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("*");
+x_1 = lean_mk_string_from_bytes("*", 1);
 return x_1;
 }
 }
@@ -768,7 +768,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_Key_format___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("◾");
+x_1 = lean_mk_string_from_bytes("◾", 3);
 return x_1;
 }
 }
@@ -786,7 +786,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_Key_format___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("→");
+x_1 = lean_mk_string_from_bytes("→", 3);
 return x_1;
 }
 }
@@ -804,7 +804,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_Key_format___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(".");
+x_1 = lean_mk_string_from_bytes(".", 1);
 return x_1;
 }
 }
@@ -1043,7 +1043,7 @@ static lean_object* _init_l_List_mapTRAux___at_Lean_Meta_DiscrTree_Trie_format__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" => ");
+x_1 = lean_mk_string_from_bytes(" => ", 4);
 return x_1;
 }
 }
@@ -1061,7 +1061,7 @@ static lean_object* _init_l_List_mapTRAux___at_Lean_Meta_DiscrTree_Trie_format__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -1097,7 +1097,7 @@ static lean_object* _init_l_List_mapTRAux___at_Lean_Meta_DiscrTree_Trie_format__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -1240,7 +1240,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("node");
+x_1 = lean_mk_string_from_bytes("node", 4);
 return x_1;
 }
 }
@@ -1258,7 +1258,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ");
+x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }
@@ -1276,7 +1276,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_Trie_format___rarg___closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#");
+x_1 = lean_mk_string_from_bytes("#", 1);
 return x_1;
 }
 }
@@ -1778,7 +1778,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_discr_tree_tmp");
+x_1 = lean_mk_string_from_bytes("_discr_tree_tmp", 15);
 return x_1;
 }
 }
@@ -2191,7 +2191,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat");
+x_1 = lean_mk_string_from_bytes("Nat", 3);
 return x_1;
 }
 }
@@ -2209,7 +2209,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("OfNat");
+x_1 = lean_mk_string_from_bytes("OfNat", 5);
 return x_1;
 }
 }
@@ -2227,7 +2227,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ofNat");
+x_1 = lean_mk_string_from_bytes("ofNat", 5);
 return x_1;
 }
 }
@@ -2245,7 +2245,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("zero");
+x_1 = lean_mk_string_from_bytes("zero", 4);
 return x_1;
 }
 }
@@ -2263,7 +2263,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("succ");
+x_1 = lean_mk_string_from_bytes("succ", 4);
 return x_1;
 }
 }
@@ -2494,7 +2494,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HAdd");
+x_1 = lean_mk_string_from_bytes("HAdd", 4);
 return x_1;
 }
 }
@@ -2512,7 +2512,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hAdd");
+x_1 = lean_mk_string_from_bytes("hAdd", 4);
 return x_1;
 }
 }
@@ -2530,7 +2530,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Add");
+x_1 = lean_mk_string_from_bytes("Add", 3);
 return x_1;
 }
 }
@@ -2548,7 +2548,7 @@ static lean_object* _init_l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("add");
+x_1 = lean_mk_string_from_bytes("add", 3);
 return x_1;
 }
 }
@@ -2993,7 +2993,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_mkNoindexAnnotation___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("noindex");
+x_1 = lean_mk_string_from_bytes("noindex", 7);
 return x_1;
 }
 }
@@ -6952,7 +6952,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.DiscrTree");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree", 19);
 return x_1;
 }
 }
@@ -6960,7 +6960,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.DiscrTree.insertCore");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.DiscrTree.insertCore", 30);
 return x_1;
 }
 }
@@ -6968,7 +6968,7 @@ static lean_object* _init_l_Lean_Meta_DiscrTree_insertCore___rarg___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid key sequence");
+x_1 = lean_mk_string_from_bytes("invalid key sequence", 20);
 return x_1;
 }
 }

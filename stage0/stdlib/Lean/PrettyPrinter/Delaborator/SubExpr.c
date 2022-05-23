@@ -1029,7 +1029,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___ra
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Delaborator.SubExpr");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Delaborator.SubExpr", 38);
 return x_1;
 }
 }
@@ -1037,7 +1037,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___ra
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Delaborator.SubExpr.withProj");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Delaborator.SubExpr.withProj", 47);
 return x_1;
 }
 }
@@ -1045,7 +1045,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___ra
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -1433,7 +1433,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Delaborator.SubExpr.withMDataExpr");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Delaborator.SubExpr.withMDataExpr", 52);
 return x_1;
 }
 }
@@ -1796,7 +1796,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetVarTyp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Delaborator.SubExpr.withLetVarType");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Delaborator.SubExpr.withLetVarType", 53);
 return x_1;
 }
 }
@@ -2158,7 +2158,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetValue_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Delaborator.SubExpr.withLetValue");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Delaborator.SubExpr.withLetValue", 51);
 return x_1;
 }
 }
@@ -2572,7 +2572,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Delaborator.SubExpr.withLetBody");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Delaborator.SubExpr.withLetBody", 50);
 return x_1;
 }
 }

@@ -593,7 +593,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_");
+x_1 = lean_mk_string_from_bytes("_", 1);
 return x_1;
 }
 }
@@ -801,7 +801,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_isHoleRHS___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -819,7 +819,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_isHoleRHS___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -837,7 +837,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_isHoleRHS___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -855,7 +855,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_isHoleRHS___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("syntheticHole");
+x_1 = lean_mk_string_from_bytes("syntheticHole", 13);
 return x_1;
 }
 }
@@ -873,7 +873,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_isHoleRHS___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hole");
+x_1 = lean_mk_string_from_bytes("hole", 4);
 return x_1;
 }
 }
@@ -1060,7 +1060,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalAlt___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("induction");
+x_1 = lean_mk_string_from_bytes("induction", 9);
 return x_1;
 }
 }
@@ -2378,7 +2378,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_ElimApp_mkElimApp_loop___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("insufficient number of targets for '");
+x_1 = lean_mk_string_from_bytes("insufficient number of targets for '", 36);
 return x_1;
 }
 }
@@ -2395,7 +2395,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_ElimApp_mkElimApp_loop___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -3480,7 +3480,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_ElimApp_setMotiveArg___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("type mismatch when assigning motive");
+x_1 = lean_mk_string_from_bytes("type mismatch when assigning motive", 35);
 return x_1;
 }
 }
@@ -3497,7 +3497,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_ElimApp_setMotiveArg___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n");
+x_1 = lean_mk_string_from_bytes("\n", 1);
 return x_1;
 }
 }
@@ -3514,7 +3514,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_ElimApp_setMotiveArg___closed__5() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -3916,7 +3916,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown alternative name '");
+x_1 = lean_mk_string_from_bytes("unknown alternative name '", 26);
 return x_1;
 }
 }
@@ -4163,7 +4163,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid alternative name '");
+x_1 = lean_mk_string_from_bytes("invalid alternative name '", 26);
 return x_1;
 }
 }
@@ -4298,7 +4298,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid occurrence of wildcard alternative, it must be the last alternative");
+x_1 = lean_mk_string_from_bytes("invalid occurrence of wildcard alternative, it must be the last alternative", 75);
 return x_1;
 }
 }
@@ -7652,7 +7652,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_ElimApp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("alternative '");
+x_1 = lean_mk_string_from_bytes("alternative '", 13);
 return x_1;
 }
 }
@@ -7669,7 +7669,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_ElimApp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is not needed");
+x_1 = lean_mk_string_from_bytes("' is not needed", 15);
 return x_1;
 }
 }
@@ -9238,7 +9238,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_ElimApp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("too many variable names provided at alternative '");
+x_1 = lean_mk_string_from_bytes("too many variable names provided at alternative '", 49);
 return x_1;
 }
 }
@@ -9255,7 +9255,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_ElimApp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', #");
+x_1 = lean_mk_string_from_bytes("', #", 4);
 return x_1;
 }
 }
@@ -9272,7 +9272,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_ElimApp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" provided, but #");
+x_1 = lean_mk_string_from_bytes(" provided, but #", 16);
 return x_1;
 }
 }
@@ -9289,7 +9289,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_ElimApp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" expected");
+x_1 = lean_mk_string_from_bytes(" expected", 9);
 return x_1;
 }
 }
@@ -9380,7 +9380,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_ElimApp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' has not been provided");
+x_1 = lean_mk_string_from_bytes("' has not been provided", 23);
 return x_1;
 }
 }
@@ -11363,7 +11363,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_ElimApp_evalAlts_go___lambda__2___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unused alternative");
+x_1 = lean_mk_string_from_bytes("unused alternative", 18);
 return x_1;
 }
 }
@@ -11997,7 +11997,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -12273,7 +12273,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unnecessary 'generalizing' argument, variable '");
+x_1 = lean_mk_string_from_bytes("unnecessary 'generalizing' argument, variable '", 47);
 return x_1;
 }
 }
@@ -12290,7 +12290,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is generalized automatically");
+x_1 = lean_mk_string_from_bytes("' is generalized automatically", 30);
 return x_1;
 }
 }
@@ -12358,7 +12358,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("variable cannot be generalized because target depends on it");
+x_1 = lean_mk_string_from_bytes("variable cannot be generalized because target depends on it", 59);
 return x_1;
 }
 }
@@ -13065,7 +13065,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("more than one wildcard alternative '| _ => ...' used");
+x_1 = lean_mk_string_from_bytes("more than one wildcard alternative '| _ => ...' used", 52);
 return x_1;
 }
 }
@@ -13128,7 +13128,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("wildcard alternative must not specify variable names");
+x_1 = lean_mk_string_from_bytes("wildcard alternative must not specify variable names", 52);
 return x_1;
 }
 }
@@ -13476,7 +13476,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_getInductiveValFromMajor___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("major premise type is not an inductive type ");
+x_1 = lean_mk_string_from_bytes("major premise type is not an inductive type ", 44);
 return x_1;
 }
 }
@@ -13972,7 +13972,7 @@ static lean_object* _init_l_Lean_throwUnknownConstant___at___private_Lean_Elab_T
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown constant '");
+x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
 return x_1;
 }
 }
@@ -14085,7 +14085,7 @@ static lean_object* _init_l_Lean_resolveGlobalConst___at___private_Lean_Elab_Tac
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected identifier");
+x_1 = lean_mk_string_from_bytes("expected identifier", 19);
 return x_1;
 }
 }
@@ -14318,7 +14318,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at___private_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ambiguous identifier '");
+x_1 = lean_mk_string_from_bytes("ambiguous identifier '", 22);
 return x_1;
 }
 }
@@ -14326,7 +14326,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at___private_Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', possible interpretations: ");
+x_1 = lean_mk_string_from_bytes("', possible interpretations: ", 29);
 return x_1;
 }
 }
@@ -15196,7 +15196,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("rec");
+x_1 = lean_mk_string_from_bytes("rec", 3);
 return x_1;
 }
 }
@@ -15237,7 +15237,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'induction' tactic does not support nested inductive types, the eliminator '");
+x_1 = lean_mk_string_from_bytes("'induction' tactic does not support nested inductive types, the eliminator '", 76);
 return x_1;
 }
 }
@@ -15254,7 +15254,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' has multiple motives");
+x_1 = lean_mk_string_from_bytes("' has multiple motives", 22);
 return x_1;
 }
 }
@@ -15341,7 +15341,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'induction' tactic does not support mutually inductive types, the eliminator '");
+x_1 = lean_mk_string_from_bytes("'induction' tactic does not support mutually inductive types, the eliminator '", 78);
 return x_1;
 }
 }
@@ -15503,7 +15503,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Ta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("eliminator must be provided when multiple targets are used (use 'using <eliminator-name>'), and no default eliminator has been registered using attribute `[eliminator]`");
+x_1 = lean_mk_string_from_bytes("eliminator must be provided when multiple targets are used (use 'using <eliminator-name>'), and no default eliminator has been registered using attribute `[eliminator]`", 168);
 return x_1;
 }
 }
@@ -16682,7 +16682,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_evalInd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("target (or one of its indices) occurs more than once");
+x_1 = lean_mk_string_from_bytes("target (or one of its indices) occurs more than once", 52);
 return x_1;
 }
 }
@@ -16752,7 +16752,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_evalInd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("index in target's type is not a variable (consider using the `cases` tactic instead)");
+x_1 = lean_mk_string_from_bytes("index in target's type is not a variable (consider using the `cases` tactic instead)", 84);
 return x_1;
 }
 }
@@ -17287,7 +17287,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalInduction___lambda__2___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elimApp: ");
+x_1 = lean_mk_string_from_bytes("elimApp: ", 9);
 return x_1;
 }
 }
@@ -18133,7 +18133,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalInduction___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -18181,7 +18181,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalInduction___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalInduction");
+x_1 = lean_mk_string_from_bytes("evalInduction", 13);
 return x_1;
 }
 }
@@ -20413,7 +20413,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalCases___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("cases");
+x_1 = lean_mk_string_from_bytes("cases", 5);
 return x_1;
 }
 }
@@ -20431,7 +20431,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalCases___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalCases");
+x_1 = lean_mk_string_from_bytes("evalCases", 9);
 return x_1;
 }
 }

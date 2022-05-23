@@ -466,7 +466,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInsta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("SizeOf");
+x_1 = lean_mk_string_from_bytes("SizeOf", 6);
 return x_1;
 }
 }
@@ -626,7 +626,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInsta
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inst");
+x_1 = lean_mk_string_from_bytes("inst", 4);
 return x_1;
 }
 }
@@ -1767,7 +1767,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMoti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat");
+x_1 = lean_mk_string_from_bytes("Nat", 3);
 return x_1;
 }
 }
@@ -1828,7 +1828,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMoti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -1846,7 +1846,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMoti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sizeOf");
+x_1 = lean_mk_string_from_bytes("sizeOf", 6);
 return x_1;
 }
 }
@@ -1864,7 +1864,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMoti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("motive: ");
+x_1 = lean_mk_string_from_bytes("motive: ", 8);
 return x_1;
 }
 }
@@ -1881,7 +1881,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMoti
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -2120,7 +2120,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_ignoreField_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Unit");
+x_1 = lean_mk_string_from_bytes("Unit", 4);
 return x_1;
 }
 }
@@ -2366,7 +2366,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfRecF
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unit");
+x_1 = lean_mk_string_from_bytes("unit", 4);
 return x_1;
 }
 }
@@ -3937,7 +3937,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMino
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("minor: ");
+x_1 = lean_mk_string_from_bytes("minor: ", 7);
 return x_1;
 }
 }
@@ -4398,7 +4398,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMino
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assertion violation: ");
+x_1 = lean_mk_string_from_bytes("assertion violation: ", 21);
 return x_1;
 }
 }
@@ -4406,7 +4406,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMino
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("minorFVars.size == minorFVars'.size\n  ");
+x_1 = lean_mk_string_from_bytes("minorFVars.size == minorFVars'.size\n  ", 38);
 return x_1;
 }
 }
@@ -4424,7 +4424,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMino
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.SizeOf");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.SizeOf", 16);
 return x_1;
 }
 }
@@ -4432,7 +4432,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMino
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Meta.SizeOf.0.Lean.Meta.mkSizeOfMinors");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.SizeOf.0.Lean.Meta.mkSizeOfMinors", 52);
 return x_1;
 }
 }
@@ -4529,7 +4529,7 @@ static lean_object* _init_l_Lean_getConstInfoRec___at_Lean_Meta_mkSizeOfFn___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -4546,7 +4546,7 @@ static lean_object* _init_l_Lean_getConstInfoRec___at_Lean_Meta_mkSizeOfFn___spe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is not a recursor");
+x_1 = lean_mk_string_from_bytes("' is not a recursor", 19);
 return x_1;
 }
 }
@@ -4762,7 +4762,7 @@ static lean_object* _init_l_Lean_Meta_mkSizeOfFn___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("val: ");
+x_1 = lean_mk_string_from_bytes("val: ", 5);
 return x_1;
 }
 }
@@ -5161,7 +5161,7 @@ static lean_object* _init_l_Lean_Meta_mkSizeOfFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("recName: ");
+x_1 = lean_mk_string_from_bytes("recName: ", 9);
 return x_1;
 }
 }
@@ -5459,7 +5459,7 @@ static lean_object* _init_l_Lean_getConstInfoInduct___at_Lean_Meta_mkSizeOfFns__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is not a inductive type");
+x_1 = lean_mk_string_from_bytes("' is not a inductive type", 25);
 return x_1;
 }
 }
@@ -5566,7 +5566,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_mkSizeOfFns___spec__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("rec");
+x_1 = lean_mk_string_from_bytes("rec", 3);
 return x_1;
 }
 }
@@ -5816,7 +5816,7 @@ static lean_object* _init_l_Lean_Meta_mkSizeOfFns___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_sizeOf");
+x_1 = lean_mk_string_from_bytes("_sizeOf", 7);
 return x_1;
 }
 }
@@ -6288,7 +6288,7 @@ static lean_object* _init_l_Lean_Meta_mkSizeOfSpecLemmaName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sizeOf_spec");
+x_1 = lean_mk_string_from_bytes("sizeOf_spec", 11);
 return x_1;
 }
 }
@@ -6361,7 +6361,7 @@ static lean_object* _init_l_Lean_Meta_mkSizeOfSpecLemmaInstance___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to apply 'sizeOf' spec, constructor expected");
+x_1 = lean_mk_string_from_bytes("failed to apply 'sizeOf' spec, constructor expected", 51);
 return x_1;
 }
 }
@@ -6688,7 +6688,7 @@ static lean_object* _init_l_Lean_Meta_SizeOfSpecNested_throwUnexpected___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to generate sizeOf theorem for ");
+x_1 = lean_mk_string_from_bytes("failed to generate sizeOf theorem for ", 38);
 return x_1;
 }
 }
@@ -6705,7 +6705,7 @@ static lean_object* _init_l_Lean_Meta_SizeOfSpecNested_throwUnexpected___rarg___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" (use `set_option genSizeOfSpec false` to disable theorem generation), ");
+x_1 = lean_mk_string_from_bytes(" (use `set_option genSizeOfSpec false` to disable theorem generation), ", 71);
 return x_1;
 }
 }
@@ -6829,7 +6829,7 @@ static lean_object* _init_l_Lean_Meta_SizeOfSpecNested_throwFailed___rarg___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", (use `set_option genSizeOfSpec false` to disable theorem generation)");
+x_1 = lean_mk_string_from_bytes(", (use `set_option genSizeOfSpec false` to disable theorem generation)", 70);
 return x_1;
 }
 }
@@ -6892,7 +6892,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected recursor application ");
+x_1 = lean_mk_string_from_bytes("expected recursor application ", 30);
 return x_1;
 }
 }
@@ -7484,7 +7484,7 @@ static lean_object* _init_l_Lean_addTrace___at___private_Lean_Meta_SizeOf_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_traceMsg");
+x_1 = lean_mk_string_from_bytes("_traceMsg", 9);
 return x_1;
 }
 }
@@ -7502,7 +7502,7 @@ static lean_object* _init_l_Lean_addTrace___at___private_Lean_Meta_SizeOf_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -7519,7 +7519,7 @@ static lean_object* _init_l_Lean_addTrace___at___private_Lean_Meta_SizeOf_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] ");
+x_1 = lean_mk_string_from_bytes("] ", 2);
 return x_1;
 }
 }
@@ -7777,7 +7777,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected 'Nat.add' application, lhs is ");
+x_1 = lean_mk_string_from_bytes("expected 'Nat.add' application, lhs is ", 39);
 return x_1;
 }
 }
@@ -7794,7 +7794,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nrhs is");
+x_1 = lean_mk_string_from_bytes("\nrhs is", 7);
 return x_1;
 }
 }
@@ -7811,7 +7811,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("add");
+x_1 = lean_mk_string_from_bytes("add", 3);
 return x_1;
 }
 }
@@ -8221,7 +8221,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("minor");
+x_1 = lean_mk_string_from_bytes("minor", 5);
 return x_1;
 }
 }
@@ -8239,7 +8239,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" =?= ");
+x_1 = lean_mk_string_from_bytes(" =?= ", 5);
 return x_1;
 }
 }
@@ -8676,7 +8676,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("step");
+x_1 = lean_mk_string_from_bytes("step", 4);
 return x_1;
 }
 }
@@ -9646,7 +9646,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("thmValue: ");
+x_1 = lean_mk_string_from_bytes("thmValue: ", 10);
 return x_1;
 }
 }
@@ -10018,7 +10018,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("x");
+x_1 = lean_mk_string_from_bytes("x", 1);
 return x_1;
 }
 }
@@ -10058,7 +10058,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_eq");
+x_1 = lean_mk_string_from_bytes("_eq", 3);
 return x_1;
 }
 }
@@ -10725,7 +10725,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("aux");
+x_1 = lean_mk_string_from_bytes("aux", 3);
 return x_1;
 }
 }
@@ -10869,7 +10869,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___private_Lean_Meta_SizeOf_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown constant '");
+x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
 return x_1;
 }
 }
@@ -11379,7 +11379,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Meta_Size
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -13285,7 +13285,7 @@ static lean_object* _init_l_Lean_Meta_SizeOfSpecNested_main_loop___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("loop");
+x_1 = lean_mk_string_from_bytes("loop", 4);
 return x_1;
 }
 }
@@ -13864,7 +13864,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sizeOf spec theorem: ");
+x_1 = lean_mk_string_from_bytes("sizeOf spec theorem: ", 21);
 return x_1;
 }
 }
@@ -14196,7 +14196,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ctor: ");
+x_1 = lean_mk_string_from_bytes("ctor: ", 6);
 return x_1;
 }
 }
@@ -14213,7 +14213,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", target: ");
+x_1 = lean_mk_string_from_bytes(", target: ", 10);
 return x_1;
 }
 }
@@ -14574,7 +14574,7 @@ static lean_object* _init_l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simp");
+x_1 = lean_mk_string_from_bytes("simp", 4);
 return x_1;
 }
 }
@@ -15124,7 +15124,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_6084_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("genSizeOf");
+x_1 = lean_mk_string_from_bytes("genSizeOf", 9);
 return x_1;
 }
 }
@@ -15142,7 +15142,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_6084_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("generate `SizeOf` instance for inductive types and structures");
+x_1 = lean_mk_string_from_bytes("generate `SizeOf` instance for inductive types and structures", 61);
 return x_1;
 }
 }
@@ -15175,7 +15175,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_6107_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("genSizeOfSpec");
+x_1 = lean_mk_string_from_bytes("genSizeOfSpec", 13);
 return x_1;
 }
 }
@@ -15193,7 +15193,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_6107_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("generate `SizeOf` specificiation theorems for automatically generated instances");
+x_1 = lean_mk_string_from_bytes("generate `SizeOf` specificiation theorems for automatically generated instances", 79);
 return x_1;
 }
 }
@@ -15226,7 +15226,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_mkSizeOfInstances___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mk");
+x_1 = lean_mk_string_from_bytes("mk", 2);
 return x_1;
 }
 }
@@ -15234,7 +15234,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_mkSizeOfInstances___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_sizeOf_inst");
+x_1 = lean_mk_string_from_bytes("_sizeOf_inst", 12);
 return x_1;
 }
 }
@@ -15497,7 +15497,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Meta_mkSizeOfInstances___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("m");
+x_1 = lean_mk_string_from_bytes("m", 1);
 return x_1;
 }
 }

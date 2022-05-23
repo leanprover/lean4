@@ -114,7 +114,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introN
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("introN");
+x_1 = lean_mk_string_from_bytes("introN", 6);
 return x_1;
 }
 }
@@ -132,7 +132,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introN
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("insufficient number of binders");
+x_1 = lean_mk_string_from_bytes("insufficient number of binders", 30);
 return x_1;
 }
 }
@@ -1120,7 +1120,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Intro___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tactic");
+x_1 = lean_mk_string_from_bytes("tactic", 6);
 return x_1;
 }
 }
@@ -1138,7 +1138,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Intro___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hygienic");
+x_1 = lean_mk_string_from_bytes("hygienic", 8);
 return x_1;
 }
 }
@@ -1156,7 +1156,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Intro___hyg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("make sure tactics are hygienic");
+x_1 = lean_mk_string_from_bytes("make sure tactics are hygienic", 30);
 return x_1;
 }
 }
@@ -1270,7 +1270,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_mkAuxN
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_");
+x_1 = lean_mk_string_from_bytes("_", 1);
 return x_1;
 }
 }

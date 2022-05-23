@@ -334,7 +334,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("specializeAttrs");
+x_1 = lean_mk_string_from_bytes("specializeAttrs", 15);
 return x_1;
 }
 }
@@ -352,7 +352,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("specialize");
+x_1 = lean_mk_string_from_bytes("specialize", 10);
 return x_1;
 }
 }
@@ -370,7 +370,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mark definition to always be specialized");
+x_1 = lean_mk_string_from_bytes("mark definition to always be specialized", 40);
 return x_1;
 }
 }
@@ -403,7 +403,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("nospecialize");
+x_1 = lean_mk_string_from_bytes("nospecialize", 12);
 return x_1;
 }
 }
@@ -421,7 +421,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Specialize
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mark definition to never be specialized");
+x_1 = lean_mk_string_from_bytes("mark definition to never be specialized", 39);
 return x_1;
 }
 }

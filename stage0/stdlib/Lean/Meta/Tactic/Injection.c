@@ -360,7 +360,7 @@ static lean_object* _init_l_Lean_Meta_injectionCore___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HEq");
+x_1 = lean_mk_string_from_bytes("HEq", 3);
 return x_1;
 }
 }
@@ -378,7 +378,7 @@ static lean_object* _init_l_Lean_Meta_injectionCore___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -396,7 +396,7 @@ static lean_object* _init_l_Lean_Meta_injectionCore___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("equality expected");
+x_1 = lean_mk_string_from_bytes("equality expected", 17);
 return x_1;
 }
 }
@@ -424,7 +424,7 @@ static lean_object* _init_l_Lean_Meta_injectionCore___lambda__1___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("equality of constructor applications expected");
+x_1 = lean_mk_string_from_bytes("equality of constructor applications expected", 45);
 return x_1;
 }
 }
@@ -452,7 +452,7 @@ static lean_object* _init_l_Lean_Meta_injectionCore___lambda__1___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ill-formed noConfusion auxiliary construction");
+x_1 = lean_mk_string_from_bytes("ill-formed noConfusion auxiliary construction", 45);
 return x_1;
 }
 }
@@ -2579,7 +2579,7 @@ static lean_object* _init_l_Lean_Meta_injectionCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("injection");
+x_1 = lean_mk_string_from_bytes("injection", 9);
 return x_1;
 }
 }
@@ -2990,7 +2990,7 @@ static lean_object* _init_l_Lean_Meta_injections_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("injections");
+x_1 = lean_mk_string_from_bytes("injections", 10);
 return x_1;
 }
 }
@@ -3008,7 +3008,7 @@ static lean_object* _init_l_Lean_Meta_injections_go___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("recursion depth exceeded");
+x_1 = lean_mk_string_from_bytes("recursion depth exceeded", 24);
 return x_1;
 }
 }

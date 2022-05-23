@@ -140,7 +140,7 @@ static lean_object* _init_l_Lean_instToExprNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat");
+x_1 = lean_mk_string_from_bytes("Nat", 3);
 return x_1;
 }
 }
@@ -196,7 +196,7 @@ static lean_object* _init_l_Lean_instToExprBool___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Bool");
+x_1 = lean_mk_string_from_bytes("Bool", 4);
 return x_1;
 }
 }
@@ -214,7 +214,7 @@ static lean_object* _init_l_Lean_instToExprBool___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("false");
+x_1 = lean_mk_string_from_bytes("false", 5);
 return x_1;
 }
 }
@@ -242,7 +242,7 @@ static lean_object* _init_l_Lean_instToExprBool___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("true");
+x_1 = lean_mk_string_from_bytes("true", 4);
 return x_1;
 }
 }
@@ -335,7 +335,7 @@ static lean_object* _init_l_Lean_instToExprChar___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Char");
+x_1 = lean_mk_string_from_bytes("Char", 4);
 return x_1;
 }
 }
@@ -353,7 +353,7 @@ static lean_object* _init_l_Lean_instToExprChar___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ofNat");
+x_1 = lean_mk_string_from_bytes("ofNat", 5);
 return x_1;
 }
 }
@@ -440,7 +440,7 @@ static lean_object* _init_l_Lean_instToExprString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("String");
+x_1 = lean_mk_string_from_bytes("String", 6);
 return x_1;
 }
 }
@@ -496,7 +496,7 @@ static lean_object* _init_l_Lean_instToExprUnit___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Unit");
+x_1 = lean_mk_string_from_bytes("Unit", 4);
 return x_1;
 }
 }
@@ -514,7 +514,7 @@ static lean_object* _init_l_Lean_instToExprUnit___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unit");
+x_1 = lean_mk_string_from_bytes("unit", 4);
 return x_1;
 }
 }
@@ -597,7 +597,7 @@ static lean_object* _init_l_Lean_Name_toExprAux___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -615,7 +615,7 @@ static lean_object* _init_l_Lean_Name_toExprAux___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Name");
+x_1 = lean_mk_string_from_bytes("Name", 4);
 return x_1;
 }
 }
@@ -633,7 +633,7 @@ static lean_object* _init_l_Lean_Name_toExprAux___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("anonymous");
+x_1 = lean_mk_string_from_bytes("anonymous", 9);
 return x_1;
 }
 }
@@ -661,7 +661,7 @@ static lean_object* _init_l_Lean_Name_toExprAux___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mkStr");
+x_1 = lean_mk_string_from_bytes("mkStr", 5);
 return x_1;
 }
 }
@@ -689,7 +689,7 @@ static lean_object* _init_l_Lean_Name_toExprAux___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mkNum");
+x_1 = lean_mk_string_from_bytes("mkNum", 5);
 return x_1;
 }
 }
@@ -796,7 +796,7 @@ static lean_object* _init_l_Lean_instToExprOption___rarg___lambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Option");
+x_1 = lean_mk_string_from_bytes("Option", 6);
 return x_1;
 }
 }
@@ -814,7 +814,7 @@ static lean_object* _init_l_Lean_instToExprOption___rarg___lambda__1___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("none");
+x_1 = lean_mk_string_from_bytes("none", 4);
 return x_1;
 }
 }
@@ -854,7 +854,7 @@ static lean_object* _init_l_Lean_instToExprOption___rarg___lambda__1___closed__7
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("some");
+x_1 = lean_mk_string_from_bytes("some", 4);
 return x_1;
 }
 }
@@ -990,7 +990,7 @@ static lean_object* _init_l_Lean_instToExprList___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("List");
+x_1 = lean_mk_string_from_bytes("List", 4);
 return x_1;
 }
 }
@@ -1008,7 +1008,7 @@ static lean_object* _init_l_Lean_instToExprList___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("nil");
+x_1 = lean_mk_string_from_bytes("nil", 3);
 return x_1;
 }
 }
@@ -1036,7 +1036,7 @@ static lean_object* _init_l_Lean_instToExprList___rarg___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("cons");
+x_1 = lean_mk_string_from_bytes("cons", 4);
 return x_1;
 }
 }
@@ -1106,7 +1106,7 @@ static lean_object* _init_l_Lean_instToExprArray___rarg___lambda__1___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("toArray");
+x_1 = lean_mk_string_from_bytes("toArray", 7);
 return x_1;
 }
 }
@@ -1162,7 +1162,7 @@ static lean_object* _init_l_Lean_instToExprArray___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Array");
+x_1 = lean_mk_string_from_bytes("Array", 5);
 return x_1;
 }
 }
@@ -1216,7 +1216,7 @@ static lean_object* _init_l_Lean_instToExprProd___rarg___lambda__1___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Prod");
+x_1 = lean_mk_string_from_bytes("Prod", 4);
 return x_1;
 }
 }
@@ -1234,7 +1234,7 @@ static lean_object* _init_l_Lean_instToExprProd___rarg___lambda__1___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mk");
+x_1 = lean_mk_string_from_bytes("mk", 2);
 return x_1;
 }
 }

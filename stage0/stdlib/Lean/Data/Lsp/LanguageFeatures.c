@@ -689,7 +689,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected JSON array, got '");
+x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
 return x_1;
 }
 }
@@ -697,7 +697,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -801,7 +801,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("triggerCharacters");
+x_1 = lean_mk_string_from_bytes("triggerCharacters", 17);
 return x_1;
 }
 }
@@ -809,7 +809,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("allCommitCharacters");
+x_1 = lean_mk_string_from_bytes("allCommitCharacters", 19);
 return x_1;
 }
 }
@@ -817,7 +817,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("resolveProvider");
+x_1 = lean_mk_string_from_bytes("resolveProvider", 15);
 return x_1;
 }
 }
@@ -1677,7 +1677,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.text");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.text", 32);
 return x_1;
 }
 }
@@ -1761,7 +1761,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.method");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.method", 34);
 return x_1;
 }
 }
@@ -1827,7 +1827,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.function");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.function", 36);
 return x_1;
 }
 }
@@ -1893,7 +1893,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.constructor");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.constructor", 39);
 return x_1;
 }
 }
@@ -1959,7 +1959,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.field");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.field", 33);
 return x_1;
 }
 }
@@ -2025,7 +2025,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.variable");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.variable", 36);
 return x_1;
 }
 }
@@ -2091,7 +2091,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.class");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.class", 33);
 return x_1;
 }
 }
@@ -2157,7 +2157,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.interface");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.interface", 37);
 return x_1;
 }
 }
@@ -2223,7 +2223,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.module");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.module", 34);
 return x_1;
 }
 }
@@ -2289,7 +2289,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.property");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.property", 36);
 return x_1;
 }
 }
@@ -2355,7 +2355,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.unit");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.unit", 32);
 return x_1;
 }
 }
@@ -2421,7 +2421,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.value");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.value", 33);
 return x_1;
 }
 }
@@ -2487,7 +2487,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.enum");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.enum", 32);
 return x_1;
 }
 }
@@ -2553,7 +2553,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.keyword");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.keyword", 35);
 return x_1;
 }
 }
@@ -2619,7 +2619,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.snippet");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.snippet", 35);
 return x_1;
 }
 }
@@ -2685,7 +2685,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.color");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.color", 33);
 return x_1;
 }
 }
@@ -2751,7 +2751,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.file");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.file", 32);
 return x_1;
 }
 }
@@ -2817,7 +2817,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.reference");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.reference", 37);
 return x_1;
 }
 }
@@ -2883,7 +2883,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.folder");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.folder", 34);
 return x_1;
 }
 }
@@ -2949,7 +2949,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.enumMember");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.enumMember", 38);
 return x_1;
 }
 }
@@ -3015,7 +3015,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.constant");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.constant", 36);
 return x_1;
 }
 }
@@ -3081,7 +3081,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.struct");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.struct", 34);
 return x_1;
 }
 }
@@ -3147,7 +3147,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.event");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.event", 33);
 return x_1;
 }
 }
@@ -3213,7 +3213,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.operator");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.operator", 36);
 return x_1;
 }
 }
@@ -3279,7 +3279,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Lsp.CompletionItemKind.typeParameter");
+x_1 = lean_mk_string_from_bytes("Lean.Lsp.CompletionItemKind.typeParameter", 41);
 return x_1;
 }
 }
@@ -3972,7 +3972,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("newText");
+x_1 = lean_mk_string_from_bytes("newText", 7);
 return x_1;
 }
 }
@@ -3980,7 +3980,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("insert");
+x_1 = lean_mk_string_from_bytes("insert", 6);
 return x_1;
 }
 }
@@ -3988,7 +3988,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("replace");
+x_1 = lean_mk_string_from_bytes("replace", 7);
 return x_1;
 }
 }
@@ -4416,7 +4416,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("label");
+x_1 = lean_mk_string_from_bytes("label", 5);
 return x_1;
 }
 }
@@ -4424,7 +4424,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("detail");
+x_1 = lean_mk_string_from_bytes("detail", 6);
 return x_1;
 }
 }
@@ -4432,7 +4432,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("documentation");
+x_1 = lean_mk_string_from_bytes("documentation", 13);
 return x_1;
 }
 }
@@ -4440,7 +4440,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("kind");
+x_1 = lean_mk_string_from_bytes("kind", 4);
 return x_1;
 }
 }
@@ -4448,7 +4448,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("textEdit");
+x_1 = lean_mk_string_from_bytes("textEdit", 8);
 return x_1;
 }
 }
@@ -4864,7 +4864,7 @@ static lean_object* _init_l_Lean_Lsp_instInhabitedCompletionItem___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -4987,7 +4987,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("isIncomplete");
+x_1 = lean_mk_string_from_bytes("isIncomplete", 12);
 return x_1;
 }
 }
@@ -4995,7 +4995,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("items");
+x_1 = lean_mk_string_from_bytes("items", 5);
 return x_1;
 }
 }
@@ -5216,7 +5216,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("textDocument");
+x_1 = lean_mk_string_from_bytes("textDocument", 12);
 return x_1;
 }
 }
@@ -5224,7 +5224,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("position");
+x_1 = lean_mk_string_from_bytes("position", 8);
 return x_1;
 }
 }
@@ -5402,7 +5402,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("contents");
+x_1 = lean_mk_string_from_bytes("contents", 8);
 return x_1;
 }
 }
@@ -5410,7 +5410,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("range");
+x_1 = lean_mk_string_from_bytes("range", 5);
 return x_1;
 }
 }
@@ -6243,7 +6243,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("includeDeclaration");
+x_1 = lean_mk_string_from_bytes("includeDeclaration", 18);
 return x_1;
 }
 }
@@ -6380,7 +6380,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("context");
+x_1 = lean_mk_string_from_bytes("context", 7);
 return x_1;
 }
 }
@@ -6614,7 +6614,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("query");
+x_1 = lean_mk_string_from_bytes("query", 5);
 return x_1;
 }
 }
@@ -8183,7 +8183,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("name");
+x_1 = lean_mk_string_from_bytes("name", 4);
 return x_1;
 }
 }
@@ -8191,7 +8191,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("selectionRange");
+x_1 = lean_mk_string_from_bytes("selectionRange", 14);
 return x_1;
 }
 }
@@ -8199,7 +8199,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("children");
+x_1 = lean_mk_string_from_bytes("children", 8);
 return x_1;
 }
 }
@@ -9003,7 +9003,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tags");
+x_1 = lean_mk_string_from_bytes("tags", 4);
 return x_1;
 }
 }
@@ -9011,7 +9011,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("location");
+x_1 = lean_mk_string_from_bytes("location", 8);
 return x_1;
 }
 }
@@ -9019,7 +9019,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("containerName");
+x_1 = lean_mk_string_from_bytes("containerName", 13);
 return x_1;
 }
 }
@@ -9397,7 +9397,7 @@ static lean_object* _init_l_Lean_Lsp_SemanticTokenType_names___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("keyword");
+x_1 = lean_mk_string_from_bytes("keyword", 7);
 return x_1;
 }
 }
@@ -9415,7 +9415,7 @@ static lean_object* _init_l_Lean_Lsp_SemanticTokenType_names___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("variable");
+x_1 = lean_mk_string_from_bytes("variable", 8);
 return x_1;
 }
 }
@@ -9433,7 +9433,7 @@ static lean_object* _init_l_Lean_Lsp_SemanticTokenType_names___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("property");
+x_1 = lean_mk_string_from_bytes("property", 8);
 return x_1;
 }
 }
@@ -9451,7 +9451,7 @@ static lean_object* _init_l_Lean_Lsp_SemanticTokenType_names___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("function");
+x_1 = lean_mk_string_from_bytes("function", 8);
 return x_1;
 }
 }
@@ -9552,7 +9552,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tokenTypes");
+x_1 = lean_mk_string_from_bytes("tokenTypes", 10);
 return x_1;
 }
 }
@@ -9560,7 +9560,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tokenModifiers");
+x_1 = lean_mk_string_from_bytes("tokenModifiers", 14);
 return x_1;
 }
 }
@@ -9761,7 +9761,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("legend");
+x_1 = lean_mk_string_from_bytes("legend", 6);
 return x_1;
 }
 }
@@ -9769,7 +9769,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("full");
+x_1 = lean_mk_string_from_bytes("full", 4);
 return x_1;
 }
 }
@@ -10364,7 +10364,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("data");
+x_1 = lean_mk_string_from_bytes("data", 4);
 return x_1;
 }
 }
@@ -10699,7 +10699,7 @@ static lean_object* _init_l_Lean_Lsp_instToJsonFoldingRangeKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("comment");
+x_1 = lean_mk_string_from_bytes("comment", 7);
 return x_1;
 }
 }
@@ -10717,7 +10717,7 @@ static lean_object* _init_l_Lean_Lsp_instToJsonFoldingRangeKind___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("imports");
+x_1 = lean_mk_string_from_bytes("imports", 7);
 return x_1;
 }
 }
@@ -10735,7 +10735,7 @@ static lean_object* _init_l_Lean_Lsp_instToJsonFoldingRangeKind___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("region");
+x_1 = lean_mk_string_from_bytes("region", 6);
 return x_1;
 }
 }
@@ -10853,7 +10853,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("startLine");
+x_1 = lean_mk_string_from_bytes("startLine", 9);
 return x_1;
 }
 }
@@ -10861,7 +10861,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("endLine");
+x_1 = lean_mk_string_from_bytes("endLine", 7);
 return x_1;
 }
 }

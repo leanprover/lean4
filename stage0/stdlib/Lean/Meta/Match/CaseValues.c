@@ -191,7 +191,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_ca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("found decl");
+x_1 = lean_mk_string_from_bytes("found decl", 10);
 return x_1;
 }
 }
@@ -335,7 +335,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_ca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("searching for decl");
+x_1 = lean_mk_string_from_bytes("searching for decl", 18);
 return x_1;
 }
 }
@@ -431,7 +431,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_ca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("subst domain: ");
+x_1 = lean_mk_string_from_bytes("subst domain: ", 14);
 return x_1;
 }
 }
@@ -448,7 +448,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_ca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -548,7 +548,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_ca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("caseValue");
+x_1 = lean_mk_string_from_bytes("caseValue", 9);
 return x_1;
 }
 }
@@ -566,7 +566,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_ca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Not");
+x_1 = lean_mk_string_from_bytes("Not", 3);
 return x_1;
 }
 }
@@ -594,7 +594,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_ca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("dite");
+x_1 = lean_mk_string_from_bytes("dite", 4);
 return x_1;
 }
 }
@@ -631,7 +631,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseValues_0__Lean_Meta_ca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -1261,7 +1261,7 @@ static lean_object* _init_l_Lean_Meta_caseValue___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("h");
+x_1 = lean_mk_string_from_bytes("h", 1);
 return x_1;
 }
 }
@@ -1279,7 +1279,7 @@ static lean_object* _init_l_Lean_Meta_caseValue___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("thenBranch");
+x_1 = lean_mk_string_from_bytes("thenBranch", 10);
 return x_1;
 }
 }
@@ -1297,7 +1297,7 @@ static lean_object* _init_l_Lean_Meta_caseValue___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elseBranch");
+x_1 = lean_mk_string_from_bytes("elseBranch", 10);
 return x_1;
 }
 }
@@ -1708,7 +1708,7 @@ static lean_object* _init_l_Lean_Meta_caseValues_loop___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("caseValues");
+x_1 = lean_mk_string_from_bytes("caseValues", 10);
 return x_1;
 }
 }
@@ -1726,7 +1726,7 @@ static lean_object* _init_l_Lean_Meta_caseValues_loop___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("list of values must not be empty");
+x_1 = lean_mk_string_from_bytes("list of values must not be empty", 32);
 return x_1;
 }
 }
@@ -1754,7 +1754,7 @@ static lean_object* _init_l_Lean_Meta_caseValues_loop___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("case");
+x_1 = lean_mk_string_from_bytes("case", 4);
 return x_1;
 }
 }

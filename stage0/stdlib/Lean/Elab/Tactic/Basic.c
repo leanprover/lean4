@@ -560,7 +560,7 @@ static lean_object* _init_l_Lean_Elab_goalsToMessageData___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n\n");
+x_1 = lean_mk_string_from_bytes("\n\n", 2);
 return x_1;
 }
 }
@@ -731,7 +731,7 @@ static lean_object* _init_l_Lean_Elab_Term_reportUnsolvedGoals___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -749,7 +749,7 @@ static lean_object* _init_l_Lean_Elab_Term_reportUnsolvedGoals___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unsolvedGoals");
+x_1 = lean_mk_string_from_bytes("unsolvedGoals", 13);
 return x_1;
 }
 }
@@ -767,7 +767,7 @@ static lean_object* _init_l_Lean_Elab_Term_reportUnsolvedGoals___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unsolved goals\n");
+x_1 = lean_mk_string_from_bytes("unsolved goals\n", 15);
 return x_1;
 }
 }
@@ -784,7 +784,7 @@ static lean_object* _init_l_Lean_Elab_Term_reportUnsolvedGoals___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -2391,7 +2391,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_mkTacticAttribute___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -2409,7 +2409,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_mkTacticAttribute___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -2437,7 +2437,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_mkTacticAttribute___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticElabAttribute");
+x_1 = lean_mk_string_from_bytes("tacticElabAttribute", 19);
 return x_1;
 }
 }
@@ -2455,7 +2455,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_mkTacticAttribute___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("builtinTactic");
+x_1 = lean_mk_string_from_bytes("builtinTactic", 13);
 return x_1;
 }
 }
@@ -2473,7 +2473,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_mkTacticAttribute___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tactic");
+x_1 = lean_mk_string_from_bytes("tactic", 6);
 return x_1;
 }
 }
@@ -2491,7 +2491,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_mkTacticAttribute___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -4097,7 +4097,7 @@ static lean_object* _init_l___private_Lean_Elab_Tactic_Basic_0__Lean_Elab_Tactic
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected syntax ");
+x_1 = lean_mk_string_from_bytes("unexpected syntax ", 18);
 return x_1;
 }
 }
@@ -4389,7 +4389,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Elab_Tactic_expandTacticMacr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_traceMsg");
+x_1 = lean_mk_string_from_bytes("_traceMsg", 9);
 return x_1;
 }
 }
@@ -4407,7 +4407,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Elab_Tactic_expandTacticMacr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -4424,7 +4424,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Elab_Tactic_expandTacticMacr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] ");
+x_1 = lean_mk_string_from_bytes("] ", 2);
 return x_1;
 }
 }
@@ -5456,7 +5456,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_expandTacticMacroFns_loop___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tactic '");
+x_1 = lean_mk_string_from_bytes("tactic '", 8);
 return x_1;
 }
 }
@@ -5473,7 +5473,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_expandTacticMacroFns_loop___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' has not been implemented");
+x_1 = lean_mk_string_from_bytes("' has not been implemented", 26);
 return x_1;
 }
 }
@@ -5904,7 +5904,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalTacticAux___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("step");
+x_1 = lean_mk_string_from_bytes("step", 4);
 return x_1;
 }
 }
@@ -5922,7 +5922,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalTacticAux___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected tactic");
+x_1 = lean_mk_string_from_bytes("unexpected tactic", 17);
 return x_1;
 }
 }
@@ -6626,7 +6626,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_throwNoGoalsToBeSolved___rarg___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("no goals to be solved");
+x_1 = lean_mk_string_from_bytes("no goals to be solved", 21);
 return x_1;
 }
 }
@@ -8131,7 +8131,7 @@ static lean_object* _init_l_Lean_Elab_logException___at_Lean_Elab_Tactic_closeUs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("internal exception: ");
+x_1 = lean_mk_string_from_bytes("internal exception: ", 20);
 return x_1;
 }
 }
@@ -8986,7 +8986,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_instAlternativeTacticM___lambda__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed");
+x_1 = lean_mk_string_from_bytes("failed", 6);
 return x_1;
 }
 }
@@ -10716,7 +10716,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_ensureHasNoMVars___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tactic failed, resulting expression contains metavariables");
+x_1 = lean_mk_string_from_bytes("tactic failed, resulting expression contains metavariables", 58);
 return x_1;
 }
 }
@@ -12214,7 +12214,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_getNameOfIdent_x27___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_");
+x_1 = lean_mk_string_from_bytes("_", 1);
 return x_1;
 }
 }

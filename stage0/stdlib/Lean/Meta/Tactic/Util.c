@@ -601,7 +601,7 @@ static lean_object* _init_l_Lean_Meta_throwTacticEx___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tactic '");
+x_1 = lean_mk_string_from_bytes("tactic '", 8);
 return x_1;
 }
 }
@@ -618,7 +618,7 @@ static lean_object* _init_l_Lean_Meta_throwTacticEx___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' failed, ");
+x_1 = lean_mk_string_from_bytes("' failed, ", 10);
 return x_1;
 }
 }
@@ -635,7 +635,7 @@ static lean_object* _init_l_Lean_Meta_throwTacticEx___rarg___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n");
+x_1 = lean_mk_string_from_bytes("\n", 1);
 return x_1;
 }
 }
@@ -652,7 +652,7 @@ static lean_object* _init_l_Lean_Meta_throwTacticEx___rarg___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -669,7 +669,7 @@ static lean_object* _init_l_Lean_Meta_throwTacticEx___rarg___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' failed\n");
+x_1 = lean_mk_string_from_bytes("' failed\n", 9);
 return x_1;
 }
 }
@@ -843,7 +843,7 @@ static lean_object* _init_l_Lean_Meta_throwNestedTacticEx___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' failed, nested error:\n");
+x_1 = lean_mk_string_from_bytes("' failed, nested error:\n", 24);
 return x_1;
 }
 }
@@ -910,7 +910,7 @@ static lean_object* _init_l_Lean_Meta_checkNotAssigned___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("metavariable has already been assigned");
+x_1 = lean_mk_string_from_bytes("metavariable has already been assigned", 38);
 return x_1;
 }
 }
@@ -1127,7 +1127,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -1145,7 +1145,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -1300,7 +1300,7 @@ static lean_object* _init_l_Lean_Meta_admit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("admit");
+x_1 = lean_mk_string_from_bytes("admit", 5);
 return x_1;
 }
 }

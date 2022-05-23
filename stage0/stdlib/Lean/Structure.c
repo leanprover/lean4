@@ -246,7 +246,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fieldName");
+x_1 = lean_mk_string_from_bytes("fieldName", 9);
 return x_1;
 }
 }
@@ -276,7 +276,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" := ");
+x_1 = lean_mk_string_from_bytes(" := ", 4);
 return x_1;
 }
 }
@@ -306,7 +306,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -324,7 +324,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("projFn");
+x_1 = lean_mk_string_from_bytes("projFn", 6);
 return x_1;
 }
 }
@@ -342,7 +342,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("subobject?");
+x_1 = lean_mk_string_from_bytes("subobject?", 10);
 return x_1;
 }
 }
@@ -360,7 +360,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("binderInfo");
+x_1 = lean_mk_string_from_bytes("binderInfo", 10);
 return x_1;
 }
 }
@@ -378,7 +378,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{ ");
+x_1 = lean_mk_string_from_bytes("{ ", 2);
 return x_1;
 }
 }
@@ -414,7 +414,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" }");
+x_1 = lean_mk_string_from_bytes(" }", 2);
 return x_1;
 }
 }
@@ -432,7 +432,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("none");
+x_1 = lean_mk_string_from_bytes("none", 4);
 return x_1;
 }
 }
@@ -450,7 +450,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("some ");
+x_1 = lean_mk_string_from_bytes("some ", 5);
 return x_1;
 }
 }
@@ -1715,7 +1715,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Structure___hyg_276____close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structExt");
+x_1 = lean_mk_string_from_bytes("structExt", 9);
 return x_1;
 }
 }
@@ -2417,7 +2417,7 @@ static lean_object* _init_l_Lean_getStructureCtor___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Structure");
+x_1 = lean_mk_string_from_bytes("Lean.Structure", 14);
 return x_1;
 }
 }
@@ -2425,7 +2425,7 @@ static lean_object* _init_l_Lean_getStructureCtor___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.getStructureCtor");
+x_1 = lean_mk_string_from_bytes("Lean.getStructureCtor", 21);
 return x_1;
 }
 }
@@ -2433,7 +2433,7 @@ static lean_object* _init_l_Lean_getStructureCtor___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structure expected");
+x_1 = lean_mk_string_from_bytes("structure expected", 18);
 return x_1;
 }
 }
@@ -2454,7 +2454,7 @@ static lean_object* _init_l_Lean_getStructureCtor___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ill-formed environment");
+x_1 = lean_mk_string_from_bytes("ill-formed environment", 22);
 return x_1;
 }
 }
@@ -2604,7 +2604,7 @@ static lean_object* _init_l_Lean_getStructureFields___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.getStructureFields");
+x_1 = lean_mk_string_from_bytes("Lean.getStructureFields", 23);
 return x_1;
 }
 }
@@ -3485,7 +3485,7 @@ static lean_object* _init_l_Lean_mkDefaultFnOfProjFn___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_default");
+x_1 = lean_mk_string_from_bytes("_default", 8);
 return x_1;
 }
 }

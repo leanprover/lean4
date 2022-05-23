@@ -487,7 +487,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalRewrite___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -505,7 +505,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalRewrite___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -523,7 +523,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalRewrite___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -541,7 +541,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalRewrite___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Conv");
+x_1 = lean_mk_string_from_bytes("Conv", 4);
 return x_1;
 }
 }
@@ -559,7 +559,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalRewrite___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("rewrite");
+x_1 = lean_mk_string_from_bytes("rewrite", 7);
 return x_1;
 }
 }
@@ -577,7 +577,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalRewrite___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -615,7 +615,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_Conv_evalRewrite___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalRewrite");
+x_1 = lean_mk_string_from_bytes("evalRewrite", 11);
 return x_1;
 }
 }

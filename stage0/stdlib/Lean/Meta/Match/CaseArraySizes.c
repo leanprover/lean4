@@ -183,7 +183,7 @@ static lean_object* _init_l_Lean_Meta_getArrayArgType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Array");
+x_1 = lean_mk_string_from_bytes("Array", 5);
 return x_1;
 }
 }
@@ -201,7 +201,7 @@ static lean_object* _init_l_Lean_Meta_getArrayArgType___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("array expected");
+x_1 = lean_mk_string_from_bytes("array expected", 14);
 return x_1;
 }
 }
@@ -218,7 +218,7 @@ static lean_object* _init_l_Lean_Meta_getArrayArgType___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -391,7 +391,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("getLit");
+x_1 = lean_mk_string_from_bytes("getLit", 6);
 return x_1;
 }
 }
@@ -687,7 +687,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("toArrayLit_eq");
+x_1 = lean_mk_string_from_bytes("toArrayLit_eq", 13);
 return x_1;
 }
 }
@@ -714,7 +714,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_CaseArraySizes_0__Lean_Met
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hEqALit");
+x_1 = lean_mk_string_from_bytes("hEqALit", 7);
 return x_1;
 }
 }
@@ -1781,7 +1781,7 @@ static lean_object* _init_l_Lean_Meta_caseArraySizes___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("size");
+x_1 = lean_mk_string_from_bytes("size", 4);
 return x_1;
 }
 }
@@ -1808,7 +1808,7 @@ static lean_object* _init_l_Lean_Meta_caseArraySizes___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("aSize");
+x_1 = lean_mk_string_from_bytes("aSize", 5);
 return x_1;
 }
 }
@@ -1826,7 +1826,7 @@ static lean_object* _init_l_Lean_Meta_caseArraySizes___lambda__1___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat");
+x_1 = lean_mk_string_from_bytes("Nat", 3);
 return x_1;
 }
 }
@@ -1854,7 +1854,7 @@ static lean_object* _init_l_Lean_Meta_caseArraySizes___lambda__1___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("h");
+x_1 = lean_mk_string_from_bytes("h", 1);
 return x_1;
 }
 }

@@ -732,7 +732,7 @@ static lean_object* _init_l_Lean_instInhabitedAttributeImplCore___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -874,7 +874,7 @@ static lean_object* _init_l_Lean_instToStringAttributeKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("global");
+x_1 = lean_mk_string_from_bytes("global", 6);
 return x_1;
 }
 }
@@ -882,7 +882,7 @@ static lean_object* _init_l_Lean_instToStringAttributeKind___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("local");
+x_1 = lean_mk_string_from_bytes("local", 5);
 return x_1;
 }
 }
@@ -890,7 +890,7 @@ static lean_object* _init_l_Lean_instToStringAttributeKind___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("scoped");
+x_1 = lean_mk_string_from_bytes("scoped", 6);
 return x_1;
 }
 }
@@ -971,7 +971,7 @@ static lean_object* _init_l_Lean_AttributeImpl_erase___default___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("attribute cannot be erased");
+x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
 return x_1;
 }
 }
@@ -1914,7 +1914,7 @@ static lean_object* _init_l_Lean_registerBuiltinAttribute___lambda__2___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to register attribute, attributes can only be registered during initialization");
+x_1 = lean_mk_string_from_bytes("failed to register attribute, attributes can only be registered during initialization", 85);
 return x_1;
 }
 }
@@ -1982,7 +1982,7 @@ static lean_object* _init_l_Lean_registerBuiltinAttribute___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid builtin attribute declaration, '");
+x_1 = lean_mk_string_from_bytes("invalid builtin attribute declaration, '", 40);
 return x_1;
 }
 }
@@ -1990,7 +1990,7 @@ static lean_object* _init_l_Lean_registerBuiltinAttribute___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' has already been used");
+x_1 = lean_mk_string_from_bytes("' has already been used", 23);
 return x_1;
 }
 }
@@ -2210,7 +2210,7 @@ static lean_object* _init_l_Lean_Attribute_Builtin_ensureNoArgs___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected attribute argument");
+x_1 = lean_mk_string_from_bytes("unexpected attribute argument", 29);
 return x_1;
 }
 }
@@ -2227,7 +2227,7 @@ static lean_object* _init_l_Lean_Attribute_Builtin_ensureNoArgs___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -2245,7 +2245,7 @@ static lean_object* _init_l_Lean_Attribute_Builtin_ensureNoArgs___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -2263,7 +2263,7 @@ static lean_object* _init_l_Lean_Attribute_Builtin_ensureNoArgs___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Attr");
+x_1 = lean_mk_string_from_bytes("Attr", 4);
 return x_1;
 }
 }
@@ -2281,7 +2281,7 @@ static lean_object* _init_l_Lean_Attribute_Builtin_ensureNoArgs___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simple");
+x_1 = lean_mk_string_from_bytes("simple", 6);
 return x_1;
 }
 }
@@ -2299,7 +2299,7 @@ static lean_object* _init_l_Lean_Attribute_Builtin_ensureNoArgs___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("class");
+x_1 = lean_mk_string_from_bytes("class", 5);
 return x_1;
 }
 }
@@ -2566,7 +2566,7 @@ static lean_object* _init_l_Lean_Attribute_Builtin_getIdent_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("macro");
+x_1 = lean_mk_string_from_bytes("macro", 5);
 return x_1;
 }
 }
@@ -2584,7 +2584,7 @@ static lean_object* _init_l_Lean_Attribute_Builtin_getIdent_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("export");
+x_1 = lean_mk_string_from_bytes("export", 6);
 return x_1;
 }
 }
@@ -2820,7 +2820,7 @@ static lean_object* _init_l_Lean_Attribute_Builtin_getIdent___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected attribute argument, identifier expected");
+x_1 = lean_mk_string_from_bytes("unexpected attribute argument, identifier expected", 50);
 return x_1;
 }
 }
@@ -3210,7 +3210,7 @@ static lean_object* _init_l_Lean_getAttrParamOptPrio___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("priority expected");
+x_1 = lean_mk_string_from_bytes("priority expected", 17);
 return x_1;
 }
 }
@@ -3286,7 +3286,7 @@ static lean_object* _init_l_Lean_Attribute_Builtin_getPrio___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected attribute argument, optional priority expected");
+x_1 = lean_mk_string_from_bytes("unexpected attribute argument, optional priority expected", 57);
 return x_1;
 }
 }
@@ -3722,7 +3722,7 @@ static lean_object* _init_l_Lean_registerTagAttribute___lambda__4___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tag attribute");
+x_1 = lean_mk_string_from_bytes("tag attribute", 13);
 return x_1;
 }
 }
@@ -3752,7 +3752,7 @@ static lean_object* _init_l_Lean_registerTagAttribute___lambda__4___closed__4() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("number of local entries: ");
+x_1 = lean_mk_string_from_bytes("number of local entries: ", 25);
 return x_1;
 }
 }
@@ -3856,7 +3856,7 @@ static lean_object* _init_l_Lean_registerTagAttribute___lambda__6___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid attribute '");
+x_1 = lean_mk_string_from_bytes("invalid attribute '", 19);
 return x_1;
 }
 }
@@ -3873,7 +3873,7 @@ static lean_object* _init_l_Lean_registerTagAttribute___lambda__6___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', declaration is in an imported module");
+x_1 = lean_mk_string_from_bytes("', declaration is in an imported module", 39);
 return x_1;
 }
 }
@@ -3955,7 +3955,7 @@ static lean_object* _init_l_Lean_registerTagAttribute___lambda__7___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', must be global");
+x_1 = lean_mk_string_from_bytes("', must be global", 17);
 return x_1;
 }
 }
@@ -4781,7 +4781,7 @@ static lean_object* _init_l_Lean_registerParametricAttribute___rarg___lambda__4_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("parametric attribute");
+x_1 = lean_mk_string_from_bytes("parametric attribute", 20);
 return x_1;
 }
 }
@@ -5730,7 +5730,7 @@ static lean_object* _init_l_Lean_ParametricAttribute_setParam___rarg___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid '");
+x_1 = lean_mk_string_from_bytes("invalid '", 9);
 return x_1;
 }
 }
@@ -5738,7 +5738,7 @@ static lean_object* _init_l_Lean_ParametricAttribute_setParam___rarg___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'.setParam, attribute has already been set");
+x_1 = lean_mk_string_from_bytes("'.setParam, attribute has already been set", 42);
 return x_1;
 }
 }
@@ -5746,7 +5746,7 @@ static lean_object* _init_l_Lean_ParametricAttribute_setParam___rarg___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'.setParam, declaration is in an imported module");
+x_1 = lean_mk_string_from_bytes("'.setParam, declaration is in an imported module", 48);
 return x_1;
 }
 }
@@ -6506,7 +6506,7 @@ static lean_object* _init_l_Lean_registerEnumAttributes___rarg___lambda__3___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("enumeration attribute extension");
+x_1 = lean_mk_string_from_bytes("enumeration attribute extension", 31);
 return x_1;
 }
 }
@@ -7093,7 +7093,7 @@ static lean_object* _init_l_Lean_EnumAttributes_setValue___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'.setValue, attribute has already been set");
+x_1 = lean_mk_string_from_bytes("'.setValue, attribute has already been set", 42);
 return x_1;
 }
 }
@@ -7101,7 +7101,7 @@ static lean_object* _init_l_Lean_EnumAttributes_setValue___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'.setValue, declaration is in an imported module");
+x_1 = lean_mk_string_from_bytes("'.setValue, declaration is in an imported module", 48);
 return x_1;
 }
 }
@@ -7628,7 +7628,7 @@ static lean_object* _init_l_Lean_registerAttributeImplBuilder___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("attribute implementation builder '");
+x_1 = lean_mk_string_from_bytes("attribute implementation builder '", 34);
 return x_1;
 }
 }
@@ -7636,7 +7636,7 @@ static lean_object* _init_l_Lean_registerAttributeImplBuilder___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' has already been declared");
+x_1 = lean_mk_string_from_bytes("' has already been declared", 27);
 return x_1;
 }
 }
@@ -7830,7 +7830,7 @@ static lean_object* _init_l_Lean_mkAttributeImplOfBuilder___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown attribute implementation builder '");
+x_1 = lean_mk_string_from_bytes("unknown attribute implementation builder '", 42);
 return x_1;
 }
 }
@@ -7838,7 +7838,7 @@ static lean_object* _init_l_Lean_mkAttributeImplOfBuilder___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -8018,7 +8018,7 @@ static lean_object* _init_l_Lean_mkAttributeImplOfConstantUnsafe___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknow constant '");
+x_1 = lean_mk_string_from_bytes("unknow constant '", 17);
 return x_1;
 }
 }
@@ -8026,7 +8026,7 @@ static lean_object* _init_l_Lean_mkAttributeImplOfConstantUnsafe___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected attribute implementation type at '");
+x_1 = lean_mk_string_from_bytes("unexpected attribute implementation type at '", 45);
 return x_1;
 }
 }
@@ -8034,7 +8034,7 @@ static lean_object* _init_l_Lean_mkAttributeImplOfConstantUnsafe___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' (`AttributeImpl` expected");
+x_1 = lean_mk_string_from_bytes("' (`AttributeImpl` expected", 27);
 return x_1;
 }
 }
@@ -8042,7 +8042,7 @@ static lean_object* _init_l_Lean_mkAttributeImplOfConstantUnsafe___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("AttributeImpl");
+x_1 = lean_mk_string_from_bytes("AttributeImpl", 13);
 return x_1;
 }
 }
@@ -8761,7 +8761,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Attributes___hyg_3214____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("attrExt");
+x_1 = lean_mk_string_from_bytes("attrExt", 7);
 return x_1;
 }
 }
@@ -9214,7 +9214,7 @@ static lean_object* _init_l_Lean_getBuiltinAttributeImpl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown attribute '");
+x_1 = lean_mk_string_from_bytes("unknown attribute '", 19);
 return x_1;
 }
 }

@@ -84,7 +84,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to revert ");
+x_1 = lean_mk_string_from_bytes("failed to revert ", 17);
 return x_1;
 }
 }
@@ -101,7 +101,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Meta_revert___spec_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", it is an auxiliary declaration created to represent recursive definitions");
+x_1 = lean_mk_string_from_bytes(", it is an auxiliary declaration created to represent recursive definitions", 75);
 return x_1;
 }
 }
@@ -689,7 +689,7 @@ static lean_object* _init_l_Lean_Meta_revert___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to revert variables ");
+x_1 = lean_mk_string_from_bytes("failed to revert variables ", 27);
 return x_1;
 }
 }
@@ -706,7 +706,7 @@ static lean_object* _init_l_Lean_Meta_revert___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -741,7 +741,7 @@ static lean_object* _init_l_Lean_Meta_revert___lambda__2___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to create binder due to failure when reverting variable dependencies");
+x_1 = lean_mk_string_from_bytes("failed to create binder due to failure when reverting variable dependencies", 75);
 return x_1;
 }
 }
@@ -1340,7 +1340,7 @@ static lean_object* _init_l_Lean_Meta_revert___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("revert");
+x_1 = lean_mk_string_from_bytes("revert", 6);
 return x_1;
 }
 }

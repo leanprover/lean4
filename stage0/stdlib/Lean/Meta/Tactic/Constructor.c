@@ -174,7 +174,7 @@ static lean_object* _init_l_Lean_Meta_constructor___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("no applicable constructor found");
+x_1 = lean_mk_string_from_bytes("no applicable constructor found", 31);
 return x_1;
 }
 }
@@ -212,7 +212,7 @@ static lean_object* _init_l_Lean_Meta_constructor___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("target is not an inductive datatype");
+x_1 = lean_mk_string_from_bytes("target is not an inductive datatype", 35);
 return x_1;
 }
 }
@@ -476,7 +476,7 @@ static lean_object* _init_l_Lean_Meta_constructor___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("constructor");
+x_1 = lean_mk_string_from_bytes("constructor", 11);
 return x_1;
 }
 }
@@ -528,7 +528,7 @@ static lean_object* _init_l_Lean_Meta_existsIntro___lambda__1___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected number of subgoals");
+x_1 = lean_mk_string_from_bytes("unexpected number of subgoals", 29);
 return x_1;
 }
 }
@@ -845,7 +845,7 @@ static lean_object* _init_l_Lean_Meta_existsIntro___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("target is not an inductive datatype with one constructor");
+x_1 = lean_mk_string_from_bytes("target is not an inductive datatype with one constructor", 56);
 return x_1;
 }
 }
@@ -873,7 +873,7 @@ static lean_object* _init_l_Lean_Meta_existsIntro___lambda__2___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("constructor must have at least two fields");
+x_1 = lean_mk_string_from_bytes("constructor must have at least two fields", 41);
 return x_1;
 }
 }
@@ -1268,7 +1268,7 @@ static lean_object* _init_l_Lean_Meta_existsIntro___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("exists");
+x_1 = lean_mk_string_from_bytes("exists", 6);
 return x_1;
 }
 }

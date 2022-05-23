@@ -1554,7 +1554,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_74____closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("classExt");
+x_1 = lean_mk_string_from_bytes("classExt", 8);
 return x_1;
 }
 }
@@ -2417,7 +2417,7 @@ static lean_object* _init_l___private_Lean_Class_0__Lean_checkOutParam___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid class, parameter #");
+x_1 = lean_mk_string_from_bytes("invalid class, parameter #", 26);
 return x_1;
 }
 }
@@ -2425,7 +2425,7 @@ static lean_object* _init_l___private_Lean_Class_0__Lean_checkOutParam___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" depends on `outParam`, but it is not an `outParam`");
+x_1 = lean_mk_string_from_bytes(" depends on `outParam`, but it is not an `outParam`", 51);
 return x_1;
 }
 }
@@ -2433,7 +2433,7 @@ static lean_object* _init_l___private_Lean_Class_0__Lean_checkOutParam___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_fvar");
+x_1 = lean_mk_string_from_bytes("_fvar", 5);
 return x_1;
 }
 }
@@ -2647,7 +2647,7 @@ static lean_object* _init_l_Lean_addClass___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid 'class', declaration '");
+x_1 = lean_mk_string_from_bytes("invalid 'class', declaration '", 30);
 return x_1;
 }
 }
@@ -2655,7 +2655,7 @@ static lean_object* _init_l_Lean_addClass___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' must be inductive datatype, structure, or constant");
+x_1 = lean_mk_string_from_bytes("' must be inductive datatype, structure, or constant", 52);
 return x_1;
 }
 }
@@ -2663,7 +2663,7 @@ static lean_object* _init_l_Lean_addClass___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown declaration '");
+x_1 = lean_mk_string_from_bytes("unknown declaration '", 21);
 return x_1;
 }
 }
@@ -2671,7 +2671,7 @@ static lean_object* _init_l_Lean_addClass___lambda__2___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -2753,7 +2753,7 @@ static lean_object* _init_l_Lean_addClass___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("class has already been declared '");
+x_1 = lean_mk_string_from_bytes("class has already been declared '", 33);
 return x_1;
 }
 }
@@ -3116,7 +3116,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_872____lambda__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid attribute 'class', must be global");
+x_1 = lean_mk_string_from_bytes("invalid attribute 'class', must be global", 41);
 return x_1;
 }
 }
@@ -3223,7 +3223,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_872____lambda__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("attribute cannot be erased");
+x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
 return x_1;
 }
 }
@@ -3249,7 +3249,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_872____closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("class");
+x_1 = lean_mk_string_from_bytes("class", 5);
 return x_1;
 }
 }
@@ -3267,7 +3267,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_872____closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("type class");
+x_1 = lean_mk_string_from_bytes("type class", 10);
 return x_1;
 }
 }

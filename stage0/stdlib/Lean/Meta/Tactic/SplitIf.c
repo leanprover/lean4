@@ -189,7 +189,7 @@ static lean_object* _init_l_Lean_Meta_SplitIf_initFn____x40_Lean_Meta_Tactic_Spl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("if_neg");
+x_1 = lean_mk_string_from_bytes("if_neg", 6);
 return x_1;
 }
 }
@@ -207,7 +207,7 @@ static lean_object* _init_l_Lean_Meta_SplitIf_initFn____x40_Lean_Meta_Tactic_Spl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("dif_pos");
+x_1 = lean_mk_string_from_bytes("dif_pos", 7);
 return x_1;
 }
 }
@@ -225,7 +225,7 @@ static lean_object* _init_l_Lean_Meta_SplitIf_initFn____x40_Lean_Meta_Tactic_Spl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("dif_neg");
+x_1 = lean_mk_string_from_bytes("dif_neg", 7);
 return x_1;
 }
 }
@@ -518,7 +518,7 @@ static lean_object* _init_l_Lean_Meta_SplitIf_initFn____x40_Lean_Meta_Tactic_Spl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("if_pos");
+x_1 = lean_mk_string_from_bytes("if_pos", 6);
 return x_1;
 }
 }
@@ -1126,7 +1126,7 @@ static lean_object* _init_l_Array_findSomeRevM_x3f_find___at_Lean_Meta_SplitIf_d
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Not");
+x_1 = lean_mk_string_from_bytes("Not", 3);
 return x_1;
 }
 }
@@ -1144,7 +1144,7 @@ static lean_object* _init_l_Array_findSomeRevM_x3f_find___at_Lean_Meta_SplitIf_d
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("not_not_intro");
+x_1 = lean_mk_string_from_bytes("not_not_intro", 13);
 return x_1;
 }
 }
@@ -2396,7 +2396,7 @@ static lean_object* _init_l_Lean_Meta_SplitIf_discharge_x3f___lambda__2___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Bool");
+x_1 = lean_mk_string_from_bytes("Bool", 4);
 return x_1;
 }
 }
@@ -2414,7 +2414,7 @@ static lean_object* _init_l_Lean_Meta_SplitIf_discharge_x3f___lambda__2___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("true");
+x_1 = lean_mk_string_from_bytes("true", 4);
 return x_1;
 }
 }
@@ -2442,7 +2442,7 @@ static lean_object* _init_l_Lean_Meta_SplitIf_discharge_x3f___lambda__2___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("of_decide_eq_true");
+x_1 = lean_mk_string_from_bytes("of_decide_eq_true", 17);
 return x_1;
 }
 }
@@ -2889,7 +2889,7 @@ static lean_object* _init_l_Lean_Meta_SplitIf_discharge_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -2907,7 +2907,7 @@ static lean_object* _init_l_Lean_Meta_SplitIf_discharge_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -2925,7 +2925,7 @@ static lean_object* _init_l_Lean_Meta_SplitIf_discharge_x3f___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("splitIf");
+x_1 = lean_mk_string_from_bytes("splitIf", 7);
 return x_1;
 }
 }
@@ -2943,7 +2943,7 @@ static lean_object* _init_l_Lean_Meta_SplitIf_discharge_x3f___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("discharge? ");
+x_1 = lean_mk_string_from_bytes("discharge? ", 11);
 return x_1;
 }
 }
@@ -2960,7 +2960,7 @@ static lean_object* _init_l_Lean_Meta_SplitIf_discharge_x3f___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -2977,7 +2977,7 @@ static lean_object* _init_l_Lean_Meta_SplitIf_discharge_x3f___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -2994,7 +2994,7 @@ static lean_object* _init_l_Lean_Meta_SplitIf_discharge_x3f___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<not-available>");
+x_1 = lean_mk_string_from_bytes("<not-available>", 15);
 return x_1;
 }
 }
@@ -3506,7 +3506,7 @@ static lean_object* _init_l_Lean_Meta_SplitIf_splitIfAt_x3f___lambda__2___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("splitting on ");
+x_1 = lean_mk_string_from_bytes("splitting on ", 13);
 return x_1;
 }
 }
@@ -3601,7 +3601,7 @@ static lean_object* _init_l_Lean_Meta_SplitIf_splitIfAt_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("h");
+x_1 = lean_mk_string_from_bytes("h", 1);
 return x_1;
 }
 }
@@ -3745,7 +3745,7 @@ static lean_object* _init_l_Lean_Meta_simpIfTarget___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Tactic.SplitIf");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Tactic.SplitIf", 24);
 return x_1;
 }
 }
@@ -3753,7 +3753,7 @@ static lean_object* _init_l_Lean_Meta_simpIfTarget___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.simpIfTarget");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.simpIfTarget", 22);
 return x_1;
 }
 }
@@ -3761,7 +3761,7 @@ static lean_object* _init_l_Lean_Meta_simpIfTarget___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -3948,7 +3948,7 @@ static lean_object* _init_l_Lean_Meta_simpIfLocalDecl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.simpIfLocalDecl");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.simpIfLocalDecl", 25);
 return x_1;
 }
 }

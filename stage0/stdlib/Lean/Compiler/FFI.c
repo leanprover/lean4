@@ -50,7 +50,7 @@ static lean_object* _init_l_Lean_Compiler_FFI_getCFlags___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("include");
+x_1 = lean_mk_string_from_bytes("include", 7);
 return x_1;
 }
 }
@@ -67,7 +67,7 @@ static lean_object* _init_l_Lean_Compiler_FFI_getCFlags___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("-I");
+x_1 = lean_mk_string_from_bytes("-I", 2);
 return x_1;
 }
 }
@@ -103,7 +103,7 @@ static lean_object* _init_l_Lean_Compiler_FFI_getCFlags___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ");
+x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }
@@ -144,7 +144,7 @@ static lean_object* _init_l_Lean_Compiler_FFI_getLinkerFlags___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lib");
+x_1 = lean_mk_string_from_bytes("lib", 3);
 return x_1;
 }
 }
@@ -152,7 +152,7 @@ static lean_object* _init_l_Lean_Compiler_FFI_getLinkerFlags___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lean");
+x_1 = lean_mk_string_from_bytes("lean", 4);
 return x_1;
 }
 }
@@ -160,7 +160,7 @@ static lean_object* _init_l_Lean_Compiler_FFI_getLinkerFlags___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("-L");
+x_1 = lean_mk_string_from_bytes("-L", 2);
 return x_1;
 }
 }

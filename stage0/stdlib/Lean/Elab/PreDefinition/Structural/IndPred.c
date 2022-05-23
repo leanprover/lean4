@@ -611,7 +611,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("not a matcherApp: ");
+x_1 = lean_mk_string_from_bytes("not a matcherApp: ", 18);
 return x_1;
 }
 }
@@ -628,7 +628,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -975,7 +975,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("could not solve using backwards chaining ");
+x_1 = lean_mk_string_from_bytes("could not solve using backwards chaining ", 41);
 return x_1;
 }
 }
@@ -2061,7 +2061,7 @@ static lean_object* _init_l_Lean_addTrace___at___private_Lean_Elab_PreDefinition
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_traceMsg");
+x_1 = lean_mk_string_from_bytes("_traceMsg", 9);
 return x_1;
 }
 }
@@ -2079,7 +2079,7 @@ static lean_object* _init_l_Lean_addTrace___at___private_Lean_Elab_PreDefinition
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -2096,7 +2096,7 @@ static lean_object* _init_l_Lean_addTrace___at___private_Lean_Elab_PreDefinition
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] ");
+x_1 = lean_mk_string_from_bytes("] ", 2);
 return x_1;
 }
 }
@@ -2504,7 +2504,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("modified matcher:\n");
+x_1 = lean_mk_string_from_bytes("modified matcher:\n", 18);
 return x_1;
 }
 }
@@ -2521,7 +2521,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("could not add below discriminant");
+x_1 = lean_mk_string_from_bytes("could not add below discriminant", 32);
 return x_1;
 }
 }
@@ -2819,7 +2819,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -2837,7 +2837,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("definition");
+x_1 = lean_mk_string_from_bytes("definition", 10);
 return x_1;
 }
 }
@@ -2855,7 +2855,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structural");
+x_1 = lean_mk_string_from_bytes("structural", 10);
 return x_1;
 }
 }
@@ -2873,7 +2873,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_Structural_IndPred
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("matcherApp before adding below transformation:\n");
+x_1 = lean_mk_string_from_bytes("matcherApp before adding below transformation:\n", 47);
 return x_1;
 }
 }
@@ -3715,7 +3715,7 @@ static lean_object* _init_l_Lean_Elab_Structural_mkIndPredBRecOn___lambda__2___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("FType: ");
+x_1 = lean_mk_string_from_bytes("FType: ", 7);
 return x_1;
 }
 }
@@ -4083,7 +4083,7 @@ static lean_object* _init_l_Lean_Elab_Structural_mkIndPredBRecOn___lambda__5___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("brecOnType ");
+x_1 = lean_mk_string_from_bytes("brecOnType ", 11);
 return x_1;
 }
 }
@@ -4180,7 +4180,7 @@ static lean_object* _init_l_Lean_Elab_Structural_mkIndPredBRecOn___lambda__6___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("brecOn     ");
+x_1 = lean_mk_string_from_bytes("brecOn     ", 11);
 return x_1;
 }
 }
@@ -4392,7 +4392,7 @@ static lean_object* _init_l_Lean_Elab_Structural_mkIndPredBRecOn___lambda__7___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("brecOn motive: ");
+x_1 = lean_mk_string_from_bytes("brecOn motive: ", 15);
 return x_1;
 }
 }
@@ -4592,7 +4592,7 @@ static lean_object* _init_l_Lean_Elab_Structural_mkIndPredBRecOn___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fixedParams: ");
+x_1 = lean_mk_string_from_bytes("fixedParams: ", 13);
 return x_1;
 }
 }
@@ -4609,7 +4609,7 @@ static lean_object* _init_l_Lean_Elab_Structural_mkIndPredBRecOn___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", otherArgs: ");
+x_1 = lean_mk_string_from_bytes(", otherArgs: ", 13);
 return x_1;
 }
 }

@@ -144,7 +144,7 @@ static lean_object* _init_l_Lean_Meta_isCoeDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Coe");
+x_1 = lean_mk_string_from_bytes("Coe", 3);
 return x_1;
 }
 }
@@ -162,7 +162,7 @@ static lean_object* _init_l_Lean_Meta_isCoeDecl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("coe");
+x_1 = lean_mk_string_from_bytes("coe", 3);
 return x_1;
 }
 }
@@ -180,7 +180,7 @@ static lean_object* _init_l_Lean_Meta_isCoeDecl___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("CoeTC");
+x_1 = lean_mk_string_from_bytes("CoeTC", 5);
 return x_1;
 }
 }
@@ -208,7 +208,7 @@ static lean_object* _init_l_Lean_Meta_isCoeDecl___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("CoeHead");
+x_1 = lean_mk_string_from_bytes("CoeHead", 7);
 return x_1;
 }
 }
@@ -236,7 +236,7 @@ static lean_object* _init_l_Lean_Meta_isCoeDecl___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("CoeTail");
+x_1 = lean_mk_string_from_bytes("CoeTail", 7);
 return x_1;
 }
 }
@@ -264,7 +264,7 @@ static lean_object* _init_l_Lean_Meta_isCoeDecl___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("CoeHTCT");
+x_1 = lean_mk_string_from_bytes("CoeHTCT", 7);
 return x_1;
 }
 }
@@ -292,7 +292,7 @@ static lean_object* _init_l_Lean_Meta_isCoeDecl___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("CoeDep");
+x_1 = lean_mk_string_from_bytes("CoeDep", 6);
 return x_1;
 }
 }
@@ -320,7 +320,7 @@ static lean_object* _init_l_Lean_Meta_isCoeDecl___closed__20() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("CoeT");
+x_1 = lean_mk_string_from_bytes("CoeT", 4);
 return x_1;
 }
 }
@@ -348,7 +348,7 @@ static lean_object* _init_l_Lean_Meta_isCoeDecl___closed__23() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("CoeFun");
+x_1 = lean_mk_string_from_bytes("CoeFun", 6);
 return x_1;
 }
 }
@@ -376,7 +376,7 @@ static lean_object* _init_l_Lean_Meta_isCoeDecl___closed__26() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("CoeSort");
+x_1 = lean_mk_string_from_bytes("CoeSort", 7);
 return x_1;
 }
 }
@@ -404,7 +404,7 @@ static lean_object* _init_l_Lean_Meta_isCoeDecl___closed__29() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -422,7 +422,7 @@ static lean_object* _init_l_Lean_Meta_isCoeDecl___closed__31() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Internal");
+x_1 = lean_mk_string_from_bytes("Internal", 8);
 return x_1;
 }
 }
@@ -440,7 +440,7 @@ static lean_object* _init_l_Lean_Meta_isCoeDecl___closed__33() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("liftCoeM");
+x_1 = lean_mk_string_from_bytes("liftCoeM", 8);
 return x_1;
 }
 }
@@ -458,7 +458,7 @@ static lean_object* _init_l_Lean_Meta_isCoeDecl___closed__35() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("coeM");
+x_1 = lean_mk_string_from_bytes("coeM", 4);
 return x_1;
 }
 }

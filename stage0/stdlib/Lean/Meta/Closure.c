@@ -1638,7 +1638,7 @@ static lean_object* _init_l_Lean_Meta_Closure_mkNewLevelParam___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("u");
+x_1 = lean_mk_string_from_bytes("u", 1);
 return x_1;
 }
 }
@@ -1810,7 +1810,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectLevelAux___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Level");
+x_1 = lean_mk_string_from_bytes("Lean.Level", 10);
 return x_1;
 }
 }
@@ -1818,7 +1818,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectLevelAux___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Level.updateSucc!");
+x_1 = lean_mk_string_from_bytes("Lean.Level.updateSucc!", 22);
 return x_1;
 }
 }
@@ -1826,7 +1826,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectLevelAux___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("succ level expected");
+x_1 = lean_mk_string_from_bytes("succ level expected", 19);
 return x_1;
 }
 }
@@ -1847,7 +1847,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectLevelAux___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Level.updateMax!");
+x_1 = lean_mk_string_from_bytes("Lean.Level.updateMax!", 21);
 return x_1;
 }
 }
@@ -1855,7 +1855,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectLevelAux___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("max level expected");
+x_1 = lean_mk_string_from_bytes("max level expected", 18);
 return x_1;
 }
 }
@@ -1876,7 +1876,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectLevelAux___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Level.updateIMax!");
+x_1 = lean_mk_string_from_bytes("Lean.Level.updateIMax!", 22);
 return x_1;
 }
 }
@@ -1884,7 +1884,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectLevelAux___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("imax level expected");
+x_1 = lean_mk_string_from_bytes("imax level expected", 19);
 return x_1;
 }
 }
@@ -3292,7 +3292,7 @@ static lean_object* _init_l_Lean_Meta_Closure_mkNextUserName___rarg___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_x");
+x_1 = lean_mk_string_from_bytes("_x", 2);
 return x_1;
 }
 }
@@ -3895,7 +3895,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectExprAux___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Expr");
+x_1 = lean_mk_string_from_bytes("Lean.Expr", 9);
 return x_1;
 }
 }
@@ -3903,7 +3903,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectExprAux___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Expr.updateMData!");
+x_1 = lean_mk_string_from_bytes("Lean.Expr.updateMData!", 22);
 return x_1;
 }
 }
@@ -3911,7 +3911,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectExprAux___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mdata expected");
+x_1 = lean_mk_string_from_bytes("mdata expected", 14);
 return x_1;
 }
 }
@@ -3932,7 +3932,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectExprAux___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Expr.updateProj!");
+x_1 = lean_mk_string_from_bytes("Lean.Expr.updateProj!", 21);
 return x_1;
 }
 }
@@ -3940,7 +3940,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectExprAux___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("proj expected");
+x_1 = lean_mk_string_from_bytes("proj expected", 13);
 return x_1;
 }
 }
@@ -3961,7 +3961,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectExprAux___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Expr.updateApp!");
+x_1 = lean_mk_string_from_bytes("Lean.Expr.updateApp!", 20);
 return x_1;
 }
 }
@@ -3969,7 +3969,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectExprAux___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("application expected");
+x_1 = lean_mk_string_from_bytes("application expected", 20);
 return x_1;
 }
 }
@@ -3990,7 +3990,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectExprAux___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Expr.updateLambdaE!");
+x_1 = lean_mk_string_from_bytes("Lean.Expr.updateLambdaE!", 24);
 return x_1;
 }
 }
@@ -3998,7 +3998,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectExprAux___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lambda expected");
+x_1 = lean_mk_string_from_bytes("lambda expected", 15);
 return x_1;
 }
 }
@@ -4019,7 +4019,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectExprAux___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Expr.updateForallE!");
+x_1 = lean_mk_string_from_bytes("Lean.Expr.updateForallE!", 24);
 return x_1;
 }
 }
@@ -4027,7 +4027,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectExprAux___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("forall expected");
+x_1 = lean_mk_string_from_bytes("forall expected", 15);
 return x_1;
 }
 }
@@ -4048,7 +4048,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectExprAux___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Expr.updateLet!");
+x_1 = lean_mk_string_from_bytes("Lean.Expr.updateLet!", 20);
 return x_1;
 }
 }
@@ -4056,7 +4056,7 @@ static lean_object* _init_l_Lean_Meta_Closure_collectExprAux___closed__18() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("let expression expected");
+x_1 = lean_mk_string_from_bytes("let expression expected", 23);
 return x_1;
 }
 }
@@ -11723,7 +11723,7 @@ static lean_object* _init_l_List_foldlM___at_Lean_Meta_mkAuxDefinition___spec__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("code generator does not support recursor '");
+x_1 = lean_mk_string_from_bytes("code generator does not support recursor '", 42);
 return x_1;
 }
 }
@@ -11740,7 +11740,7 @@ static lean_object* _init_l_List_foldlM___at_Lean_Meta_mkAuxDefinition___spec__6
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' yet, consider using 'match ... with' and/or structural recursion");
+x_1 = lean_mk_string_from_bytes("' yet, consider using 'match ... with' and/or structural recursion", 66);
 return x_1;
 }
 }

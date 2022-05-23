@@ -67,7 +67,7 @@ static lean_object* _init_l_Lean_casesOnSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("casesOn");
+x_1 = lean_mk_string_from_bytes("casesOn", 7);
 return x_1;
 }
 }
@@ -83,7 +83,7 @@ static lean_object* _init_l_Lean_recOnSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("recOn");
+x_1 = lean_mk_string_from_bytes("recOn", 5);
 return x_1;
 }
 }
@@ -99,7 +99,7 @@ static lean_object* _init_l_Lean_brecOnSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("brecOn");
+x_1 = lean_mk_string_from_bytes("brecOn", 6);
 return x_1;
 }
 }
@@ -115,7 +115,7 @@ static lean_object* _init_l_Lean_binductionOnSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("binductionOn");
+x_1 = lean_mk_string_from_bytes("binductionOn", 12);
 return x_1;
 }
 }
@@ -131,7 +131,7 @@ static lean_object* _init_l_Lean_belowSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("below");
+x_1 = lean_mk_string_from_bytes("below", 5);
 return x_1;
 }
 }
@@ -192,7 +192,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_49____clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("auxRec");
+x_1 = lean_mk_string_from_bytes("auxRec", 6);
 return x_1;
 }
 }
@@ -236,7 +236,7 @@ static lean_object* _init_l_Lean_isAuxRecursor___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -254,7 +254,7 @@ static lean_object* _init_l_Lean_isAuxRecursor___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ndrec");
+x_1 = lean_mk_string_from_bytes("ndrec", 5);
 return x_1;
 }
 }
@@ -272,7 +272,7 @@ static lean_object* _init_l_Lean_isAuxRecursor___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ndrecOn");
+x_1 = lean_mk_string_from_bytes("ndrecOn", 7);
 return x_1;
 }
 }
@@ -439,7 +439,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_150____clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("noConf");
+x_1 = lean_mk_string_from_bytes("noConf", 6);
 return x_1;
 }
 }

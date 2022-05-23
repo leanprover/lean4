@@ -249,7 +249,7 @@ static lean_object* _init_l_Lean_IR_LogEntry_fmt___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -285,7 +285,7 @@ static lean_object* _init_l_Lean_IR_LogEntry_fmt___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -418,7 +418,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_IR_Log_format___sp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -612,7 +612,7 @@ static lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("trace");
+x_1 = lean_mk_string_from_bytes("trace", 5);
 return x_1;
 }
 }
@@ -630,7 +630,7 @@ static lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("compiler");
+x_1 = lean_mk_string_from_bytes("compiler", 8);
 return x_1;
 }
 }
@@ -648,7 +648,7 @@ static lean_object* _init_l_Lean_IR_tracePrefixOptionName___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ir");
+x_1 = lean_mk_string_from_bytes("ir", 2);
 return x_1;
 }
 }
@@ -2253,7 +2253,7 @@ static lean_object* _init_l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("IRDecls");
+x_1 = lean_mk_string_from_bytes("IRDecls", 7);
 return x_1;
 }
 }
@@ -2950,7 +2950,7 @@ static lean_object* _init_l_Lean_IR_getDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown declaration '");
+x_1 = lean_mk_string_from_bytes("unknown declaration '", 21);
 return x_1;
 }
 }
@@ -2958,7 +2958,7 @@ static lean_object* _init_l_Lean_IR_getDecl___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }

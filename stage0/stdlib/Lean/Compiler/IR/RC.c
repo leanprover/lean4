@@ -229,7 +229,7 @@ static lean_object* _init_l_Lean_IR_ExplicitRC_getDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Compiler.IR.RC");
+x_1 = lean_mk_string_from_bytes("Lean.Compiler.IR.RC", 19);
 return x_1;
 }
 }
@@ -237,7 +237,7 @@ static lean_object* _init_l_Lean_IR_ExplicitRC_getDecl___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.IR.ExplicitRC.getDecl");
+x_1 = lean_mk_string_from_bytes("Lean.IR.ExplicitRC.getDecl", 26);
 return x_1;
 }
 }
@@ -245,7 +245,7 @@ static lean_object* _init_l_Lean_IR_ExplicitRC_getDecl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -351,7 +351,7 @@ static lean_object* _init_l_Lean_IR_ExplicitRC_getVarInfo___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.IR.ExplicitRC.getVarInfo");
+x_1 = lean_mk_string_from_bytes("Lean.IR.ExplicitRC.getVarInfo", 29);
 return x_1;
 }
 }
@@ -435,7 +435,7 @@ static lean_object* _init_l_Lean_IR_ExplicitRC_getJPParams___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.IR.ExplicitRC.getJPParams");
+x_1 = lean_mk_string_from_bytes("Lean.IR.ExplicitRC.getJPParams", 30);
 return x_1;
 }
 }

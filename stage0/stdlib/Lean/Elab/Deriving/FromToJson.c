@@ -546,7 +546,7 @@ static lean_object* _init_l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_FromTo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -563,7 +563,7 @@ static lean_object* _init_l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_FromTo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is not a constructor");
+x_1 = lean_mk_string_from_bytes("' is not a constructor", 22);
 return x_1;
 }
 }
@@ -673,7 +673,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -691,7 +691,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -709,7 +709,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -727,7 +727,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hole");
+x_1 = lean_mk_string_from_bytes("hole", 4);
 return x_1;
 }
 }
@@ -745,7 +745,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_");
+x_1 = lean_mk_string_from_bytes("_", 1);
 return x_1;
 }
 }
@@ -835,7 +835,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("a");
+x_1 = lean_mk_string_from_bytes("a", 1);
 return x_1;
 }
 }
@@ -1067,7 +1067,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("app");
+x_1 = lean_mk_string_from_bytes("app", 3);
 return x_1;
 }
 }
@@ -1085,7 +1085,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("explicit");
+x_1 = lean_mk_string_from_bytes("explicit", 8);
 return x_1;
 }
 }
@@ -1103,7 +1103,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("@");
+x_1 = lean_mk_string_from_bytes("@", 1);
 return x_1;
 }
 }
@@ -1120,7 +1120,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -1138,7 +1138,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("matchAlt");
+x_1 = lean_mk_string_from_bytes("matchAlt", 8);
 return x_1;
 }
 }
@@ -1156,7 +1156,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("|");
+x_1 = lean_mk_string_from_bytes("|", 1);
 return x_1;
 }
 }
@@ -1164,7 +1164,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -1184,7 +1184,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("=>");
+x_1 = lean_mk_string_from_bytes("=>", 2);
 return x_1;
 }
 }
@@ -1809,7 +1809,7 @@ static lean_object* _init_l_Lean_getConstInfoInduct___at_Lean_Elab_Deriving_From
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is not a inductive type");
+x_1 = lean_mk_string_from_bytes("' is not a inductive type", 25);
 return x_1;
 }
 }
@@ -1919,7 +1919,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("toJson");
+x_1 = lean_mk_string_from_bytes("toJson", 6);
 return x_1;
 }
 }
@@ -2236,7 +2236,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("paren");
+x_1 = lean_mk_string_from_bytes("paren", 5);
 return x_1;
 }
 }
@@ -2244,7 +2244,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -2252,7 +2252,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tupleTail");
+x_1 = lean_mk_string_from_bytes("tupleTail", 9);
 return x_1;
 }
 }
@@ -2260,7 +2260,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -2797,7 +2797,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term[_]");
+x_1 = lean_mk_string_from_bytes("term[_]", 7);
 return x_1;
 }
 }
@@ -2815,7 +2815,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -2823,7 +2823,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -2831,7 +2831,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("opt");
+x_1 = lean_mk_string_from_bytes("opt", 3);
 return x_1;
 }
 }
@@ -2872,7 +2872,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Json");
+x_1 = lean_mk_string_from_bytes("Json", 4);
 return x_1;
 }
 }
@@ -3387,7 +3387,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mkObj");
+x_1 = lean_mk_string_from_bytes("mkObj", 5);
 return x_1;
 }
 }
@@ -3428,7 +3428,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Json.arr");
+x_1 = lean_mk_string_from_bytes("Json.arr", 8);
 return x_1;
 }
 }
@@ -3469,7 +3469,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("arr");
+x_1 = lean_mk_string_from_bytes("arr", 3);
 return x_1;
 }
 }
@@ -3487,7 +3487,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term#[_,]");
+x_1 = lean_mk_string_from_bytes("term#[_,]", 9);
 return x_1;
 }
 }
@@ -3505,7 +3505,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#[");
+x_1 = lean_mk_string_from_bytes("#[", 2);
 return x_1;
 }
 }
@@ -5563,7 +5563,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ToJson");
+x_1 = lean_mk_string_from_bytes("ToJson", 6);
 return x_1;
 }
 }
@@ -5581,7 +5581,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("match");
+x_1 = lean_mk_string_from_bytes("match", 5);
 return x_1;
 }
 }
@@ -5613,7 +5613,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("with");
+x_1 = lean_mk_string_from_bytes("with", 4);
 return x_1;
 }
 }
@@ -5621,7 +5621,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("matchAlts");
+x_1 = lean_mk_string_from_bytes("matchAlts", 9);
 return x_1;
 }
 }
@@ -5648,7 +5648,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Command");
+x_1 = lean_mk_string_from_bytes("Command", 7);
 return x_1;
 }
 }
@@ -5666,7 +5666,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("declaration");
+x_1 = lean_mk_string_from_bytes("declaration", 11);
 return x_1;
 }
 }
@@ -5684,7 +5684,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("declModifiers");
+x_1 = lean_mk_string_from_bytes("declModifiers", 13);
 return x_1;
 }
 }
@@ -5702,7 +5702,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("private");
+x_1 = lean_mk_string_from_bytes("private", 7);
 return x_1;
 }
 }
@@ -5740,7 +5740,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("def");
+x_1 = lean_mk_string_from_bytes("def", 3);
 return x_1;
 }
 }
@@ -5758,7 +5758,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("declId");
+x_1 = lean_mk_string_from_bytes("declId", 6);
 return x_1;
 }
 }
@@ -5776,7 +5776,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("optDeclSig");
+x_1 = lean_mk_string_from_bytes("optDeclSig", 10);
 return x_1;
 }
 }
@@ -5794,7 +5794,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("declValSimple");
+x_1 = lean_mk_string_from_bytes("declValSimple", 13);
 return x_1;
 }
 }
@@ -5812,7 +5812,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":=");
+x_1 = lean_mk_string_from_bytes(":=", 2);
 return x_1;
 }
 }
@@ -5829,7 +5829,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("partial");
+x_1 = lean_mk_string_from_bytes("partial", 7);
 return x_1;
 }
 }
@@ -6378,7 +6378,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term_<|_");
+x_1 = lean_mk_string_from_bytes("term_<|_", 8);
 return x_1;
 }
 }
@@ -6440,7 +6440,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<|");
+x_1 = lean_mk_string_from_bytes("<|", 2);
 return x_1;
 }
 }
@@ -6448,7 +6448,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("List.join");
+x_1 = lean_mk_string_from_bytes("List.join", 9);
 return x_1;
 }
 }
@@ -6479,7 +6479,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("List");
+x_1 = lean_mk_string_from_bytes("List", 4);
 return x_1;
 }
 }
@@ -6497,7 +6497,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkToJsonInstanceHandle
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("join");
+x_1 = lean_mk_string_from_bytes("join", 4);
 return x_1;
 }
 }
@@ -7857,7 +7857,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doExpr");
+x_1 = lean_mk_string_from_bytes("doExpr", 6);
 return x_1;
 }
 }
@@ -7875,7 +7875,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fromJson?");
+x_1 = lean_mk_string_from_bytes("fromJson?", 9);
 return x_1;
 }
 }
@@ -7916,7 +7916,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("FromJson");
+x_1 = lean_mk_string_from_bytes("FromJson", 8);
 return x_1;
 }
 }
@@ -7968,7 +7968,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("arrayRef");
+x_1 = lean_mk_string_from_bytes("arrayRef", 8);
 return x_1;
 }
 }
@@ -7986,7 +7986,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("jsons");
+x_1 = lean_mk_string_from_bytes("jsons", 5);
 return x_1;
 }
 }
@@ -8249,7 +8249,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doSeqItem");
+x_1 = lean_mk_string_from_bytes("doSeqItem", 9);
 return x_1;
 }
 }
@@ -8257,7 +8257,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doLetArrow");
+x_1 = lean_mk_string_from_bytes("doLetArrow", 10);
 return x_1;
 }
 }
@@ -8265,7 +8265,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("let");
+x_1 = lean_mk_string_from_bytes("let", 3);
 return x_1;
 }
 }
@@ -8273,7 +8273,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doIdDecl");
+x_1 = lean_mk_string_from_bytes("doIdDecl", 8);
 return x_1;
 }
 }
@@ -8281,7 +8281,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("←");
+x_1 = lean_mk_string_from_bytes("←", 3);
 return x_1;
 }
 }
@@ -8371,7 +8371,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("quotedName");
+x_1 = lean_mk_string_from_bytes("quotedName", 10);
 return x_1;
 }
 }
@@ -8379,7 +8379,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(".");
+x_1 = lean_mk_string_from_bytes(".", 1);
 return x_1;
 }
 }
@@ -8387,7 +8387,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("`");
+x_1 = lean_mk_string_from_bytes("`", 1);
 return x_1;
 }
 }
@@ -8458,7 +8458,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("proj");
+x_1 = lean_mk_string_from_bytes("proj", 4);
 return x_1;
 }
 }
@@ -8486,7 +8486,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Json.parseTagged");
+x_1 = lean_mk_string_from_bytes("Json.parseTagged", 16);
 return x_1;
 }
 }
@@ -8517,7 +8517,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("parseTagged");
+x_1 = lean_mk_string_from_bytes("parseTagged", 11);
 return x_1;
 }
 }
@@ -8569,7 +8569,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("json");
+x_1 = lean_mk_string_from_bytes("json", 4);
 return x_1;
 }
 }
@@ -8610,7 +8610,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("bind");
+x_1 = lean_mk_string_from_bytes("bind", 4);
 return x_1;
 }
 }
@@ -8651,7 +8651,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Bind");
+x_1 = lean_mk_string_from_bytes("Bind", 4);
 return x_1;
 }
 }
@@ -8703,7 +8703,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fun");
+x_1 = lean_mk_string_from_bytes("fun", 3);
 return x_1;
 }
 }
@@ -8721,7 +8721,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("basicFun");
+x_1 = lean_mk_string_from_bytes("basicFun", 8);
 return x_1;
 }
 }
@@ -8739,7 +8739,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("do");
+x_1 = lean_mk_string_from_bytes("do", 2);
 return x_1;
 }
 }
@@ -8757,7 +8757,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doSeqIndent");
+x_1 = lean_mk_string_from_bytes("doSeqIndent", 11);
 return x_1;
 }
 }
@@ -8785,7 +8785,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doReturn");
+x_1 = lean_mk_string_from_bytes("doReturn", 8);
 return x_1;
 }
 }
@@ -8803,7 +8803,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("return");
+x_1 = lean_mk_string_from_bytes("return", 6);
 return x_1;
 }
 }
@@ -9356,7 +9356,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("none");
+x_1 = lean_mk_string_from_bytes("none", 4);
 return x_1;
 }
 }
@@ -9397,7 +9397,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Option");
+x_1 = lean_mk_string_from_bytes("Option", 6);
 return x_1;
 }
 }
@@ -9449,7 +9449,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("some");
+x_1 = lean_mk_string_from_bytes("some", 4);
 return x_1;
 }
 }
@@ -10345,7 +10345,7 @@ static lean_object* _init_l_Array_foldrMUnsafe_fold___at_Lean_Elab_Deriving_From
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Except.orElseLazy");
+x_1 = lean_mk_string_from_bytes("Except.orElseLazy", 17);
 return x_1;
 }
 }
@@ -10362,7 +10362,7 @@ static lean_object* _init_l_Array_foldrMUnsafe_fold___at_Lean_Elab_Deriving_From
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("orElseLazy");
+x_1 = lean_mk_string_from_bytes("orElseLazy", 10);
 return x_1;
 }
 }
@@ -10790,7 +10790,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("getObjValAs?");
+x_1 = lean_mk_string_from_bytes("getObjValAs?", 12);
 return x_1;
 }
 }
@@ -11102,7 +11102,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("group");
+x_1 = lean_mk_string_from_bytes("group", 5);
 return x_1;
 }
 }
@@ -11120,7 +11120,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structInstField");
+x_1 = lean_mk_string_from_bytes("structInstField", 15);
 return x_1;
 }
 }
@@ -11128,7 +11128,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structInstLVal");
+x_1 = lean_mk_string_from_bytes("structInstLVal", 14);
 return x_1;
 }
 }
@@ -11202,7 +11202,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHand
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("explicitBinder");
+x_1 = lean_mk_string_from_bytes("explicitBinder", 14);
 return x_1;
 }
 }
@@ -11210,7 +11210,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHand
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -11250,7 +11250,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHand
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("typeSpec");
+x_1 = lean_mk_string_from_bytes("typeSpec", 8);
 return x_1;
 }
 }
@@ -11258,7 +11258,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHand
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Except");
+x_1 = lean_mk_string_from_bytes("Except", 6);
 return x_1;
 }
 }
@@ -11289,7 +11289,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHand
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("String");
+x_1 = lean_mk_string_from_bytes("String", 6);
 return x_1;
 }
 }
@@ -11976,7 +11976,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHand
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fromJson");
+x_1 = lean_mk_string_from_bytes("fromJson", 8);
 return x_1;
 }
 }
@@ -11984,7 +11984,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHand
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Except.error");
+x_1 = lean_mk_string_from_bytes("Except.error", 12);
 return x_1;
 }
 }
@@ -12025,7 +12025,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHand
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("error");
+x_1 = lean_mk_string_from_bytes("error", 5);
 return x_1;
 }
 }
@@ -12067,7 +12067,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHand
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("str");
+x_1 = lean_mk_string_from_bytes("str", 3);
 return x_1;
 }
 }
@@ -12085,7 +12085,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHand
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\"no inductive constructor matched\"");
+x_1 = lean_mk_string_from_bytes("\"no inductive constructor matched\"", 34);
 return x_1;
 }
 }
@@ -12494,7 +12494,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHand
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("j");
+x_1 = lean_mk_string_from_bytes("j", 1);
 return x_1;
 }
 }
@@ -12617,7 +12617,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHand
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structInst");
+x_1 = lean_mk_string_from_bytes("structInst", 10);
 return x_1;
 }
 }
@@ -12635,7 +12635,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHand
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{");
+x_1 = lean_mk_string_from_bytes("{", 1);
 return x_1;
 }
 }
@@ -12643,7 +12643,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHand
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("optEllipsis");
+x_1 = lean_mk_string_from_bytes("optEllipsis", 11);
 return x_1;
 }
 }
@@ -12685,7 +12685,7 @@ static lean_object* _init_l_Lean_Elab_Deriving_FromToJson_mkFromJsonInstanceHand
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("}");
+x_1 = lean_mk_string_from_bytes("}", 1);
 return x_1;
 }
 }

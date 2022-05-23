@@ -176,7 +176,7 @@ static lean_object* _init_l_Lean_Elab_Term_addNamedArg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("argument '");
+x_1 = lean_mk_string_from_bytes("argument '", 10);
 return x_1;
 }
 }
@@ -193,7 +193,7 @@ static lean_object* _init_l_Lean_Elab_Term_addNamedArg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' was already set");
+x_1 = lean_mk_string_from_bytes("' was already set", 17);
 return x_1;
 }
 }
@@ -438,7 +438,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandAr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -456,7 +456,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandAr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -474,7 +474,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandAr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -492,7 +492,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandAr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("namedArgument");
+x_1 = lean_mk_string_from_bytes("namedArgument", 13);
 return x_1;
 }
 }
@@ -510,7 +510,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandAr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ellipsis");
+x_1 = lean_mk_string_from_bytes("ellipsis", 8);
 return x_1;
 }
 }
@@ -528,7 +528,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_expandAr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected '..'");
+x_1 = lean_mk_string_from_bytes("unexpected '..'", 15);
 return x_1;
 }
 }

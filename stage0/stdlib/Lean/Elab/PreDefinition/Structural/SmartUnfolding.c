@@ -1021,7 +1021,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Structural_add
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected matcher application alternative");
+x_1 = lean_mk_string_from_bytes("unexpected matcher application alternative", 42);
 return x_1;
 }
 }
@@ -1038,7 +1038,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Structural_add
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nat application");
+x_1 = lean_mk_string_from_bytes("\nat application", 15);
 return x_1;
 }
 }
@@ -1055,7 +1055,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Structural_add
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }

@@ -137,7 +137,7 @@ static lean_object* _init_l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Parsec.ParseResult.success");
+x_1 = lean_mk_string_from_bytes("Lean.Parsec.ParseResult.success", 31);
 return x_1;
 }
 }
@@ -167,7 +167,7 @@ static lean_object* _init_l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("String.Iterator.mk ");
+x_1 = lean_mk_string_from_bytes("String.Iterator.mk ", 19);
 return x_1;
 }
 }
@@ -185,7 +185,7 @@ static lean_object* _init_l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ");
+x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }
@@ -203,7 +203,7 @@ static lean_object* _init_l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{ byteIdx := ");
+x_1 = lean_mk_string_from_bytes("{ byteIdx := ", 13);
 return x_1;
 }
 }
@@ -221,7 +221,7 @@ static lean_object* _init_l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" }");
+x_1 = lean_mk_string_from_bytes(" }", 2);
 return x_1;
 }
 }
@@ -257,7 +257,7 @@ static lean_object* _init_l___private_Lean_Data_Parsec_0__Lean_Parsec_reprParseR
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Parsec.ParseResult.error");
+x_1 = lean_mk_string_from_bytes("Lean.Parsec.ParseResult.error", 29);
 return x_1;
 }
 }
@@ -512,7 +512,7 @@ static lean_object* _init_l_Lean_Parsec_instInhabitedParsec___rarg___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1411,7 +1411,7 @@ static lean_object* _init_l_Lean_Parsec_expectedEndOfInput___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected end of input");
+x_1 = lean_mk_string_from_bytes("expected end of input", 21);
 return x_1;
 }
 }
@@ -1927,7 +1927,7 @@ static lean_object* _init_l_Lean_Parsec_pstring___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected: ");
+x_1 = lean_mk_string_from_bytes("expected: ", 10);
 return x_1;
 }
 }
@@ -2042,7 +2042,7 @@ static lean_object* _init_l_Lean_Parsec_unexpectedEndOfInput___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected end of input");
+x_1 = lean_mk_string_from_bytes("unexpected end of input", 23);
 return x_1;
 }
 }
@@ -2087,7 +2087,7 @@ static lean_object* _init_l_Lean_Parsec_pchar___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected: '");
+x_1 = lean_mk_string_from_bytes("expected: '", 11);
 return x_1;
 }
 }
@@ -2095,7 +2095,7 @@ static lean_object* _init_l_Lean_Parsec_pchar___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -2223,7 +2223,7 @@ static lean_object* _init_l_Lean_Parsec_digit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("digit expected");
+x_1 = lean_mk_string_from_bytes("digit expected", 14);
 return x_1;
 }
 }
@@ -2292,7 +2292,7 @@ static lean_object* _init_l_Lean_Parsec_hexDigit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hex digit expected");
+x_1 = lean_mk_string_from_bytes("hex digit expected", 18);
 return x_1;
 }
 }
@@ -2459,7 +2459,7 @@ static lean_object* _init_l_Lean_Parsec_asciiLetter___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ASCII letter expected");
+x_1 = lean_mk_string_from_bytes("ASCII letter expected", 21);
 return x_1;
 }
 }
@@ -2592,7 +2592,7 @@ static lean_object* _init_l_Lean_Parsec_satisfy___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("condition not satisfied");
+x_1 = lean_mk_string_from_bytes("condition not satisfied", 23);
 return x_1;
 }
 }

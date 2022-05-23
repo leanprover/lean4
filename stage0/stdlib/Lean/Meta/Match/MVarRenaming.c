@@ -147,7 +147,7 @@ static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Init.Data.Option.BasicAux");
+x_1 = lean_mk_string_from_bytes("Init.Data.Option.BasicAux", 25);
 return x_1;
 }
 }
@@ -155,7 +155,7 @@ static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Option.get!");
+x_1 = lean_mk_string_from_bytes("Option.get!", 11);
 return x_1;
 }
 }
@@ -163,7 +163,7 @@ static lean_object* _init_l_Lean_Meta_MVarRenaming_find_x21___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("value is none");
+x_1 = lean_mk_string_from_bytes("value is none", 13);
 return x_1;
 }
 }

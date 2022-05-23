@@ -71,7 +71,7 @@ static lean_object* _init_l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -88,7 +88,7 @@ static lean_object* _init_l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is not a constructor");
+x_1 = lean_mk_string_from_bytes("' is not a constructor", 22);
 return x_1;
 }
 }

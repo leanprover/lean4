@@ -297,7 +297,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("pp");
+x_1 = lean_mk_string_from_bytes("pp", 2);
 return x_1;
 }
 }
@@ -315,7 +315,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("all");
+x_1 = lean_mk_string_from_bytes("all", 3);
 return x_1;
 }
 }
@@ -333,7 +333,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) display coercions, implicit parameters, proof terms, fully qualified names, universe, ");
+x_1 = lean_mk_string_from_bytes("(pretty printer) display coercions, implicit parameters, proof terms, fully qualified names, universe, ", 103);
 return x_1;
 }
 }
@@ -341,7 +341,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("and disable beta reduction and notations during pretty printing");
+x_1 = lean_mk_string_from_bytes("and disable beta reduction and notations during pretty printing", 63);
 return x_1;
 }
 }
@@ -393,7 +393,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("notation");
+x_1 = lean_mk_string_from_bytes("notation", 8);
 return x_1;
 }
 }
@@ -411,7 +411,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) disable/enable notation (infix, mixfix, postfix operators and unicode characters)");
+x_1 = lean_mk_string_from_bytes("(pretty printer) disable/enable notation (infix, mixfix, postfix operators and unicode characters)", 98);
 return x_1;
 }
 }
@@ -444,7 +444,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("match");
+x_1 = lean_mk_string_from_bytes("match", 5);
 return x_1;
 }
 }
@@ -462,7 +462,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) disable/enable 'match' notation");
+x_1 = lean_mk_string_from_bytes("(pretty printer) disable/enable 'match' notation", 48);
 return x_1;
 }
 }
@@ -495,7 +495,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("coercions");
+x_1 = lean_mk_string_from_bytes("coercions", 9);
 return x_1;
 }
 }
@@ -513,7 +513,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) hide coercion applications");
+x_1 = lean_mk_string_from_bytes("(pretty printer) hide coercion applications", 43);
 return x_1;
 }
 }
@@ -546,7 +546,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("universes");
+x_1 = lean_mk_string_from_bytes("universes", 9);
 return x_1;
 }
 }
@@ -564,7 +564,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) display universe");
+x_1 = lean_mk_string_from_bytes("(pretty printer) display universe", 33);
 return x_1;
 }
 }
@@ -597,7 +597,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fullNames");
+x_1 = lean_mk_string_from_bytes("fullNames", 9);
 return x_1;
 }
 }
@@ -615,7 +615,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) display fully qualified names");
+x_1 = lean_mk_string_from_bytes("(pretty printer) display fully qualified names", 46);
 return x_1;
 }
 }
@@ -648,7 +648,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("privateNames");
+x_1 = lean_mk_string_from_bytes("privateNames", 12);
 return x_1;
 }
 }
@@ -666,7 +666,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) display internal names assigned to private declarations");
+x_1 = lean_mk_string_from_bytes("(pretty printer) display internal names assigned to private declarations", 72);
 return x_1;
 }
 }
@@ -699,7 +699,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("funBinderTypes");
+x_1 = lean_mk_string_from_bytes("funBinderTypes", 14);
 return x_1;
 }
 }
@@ -717,7 +717,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) display types of lambda parameters");
+x_1 = lean_mk_string_from_bytes("(pretty printer) display types of lambda parameters", 51);
 return x_1;
 }
 }
@@ -750,7 +750,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("piBinderTypes");
+x_1 = lean_mk_string_from_bytes("piBinderTypes", 13);
 return x_1;
 }
 }
@@ -768,7 +768,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) display types of pi parameters");
+x_1 = lean_mk_string_from_bytes("(pretty printer) display types of pi parameters", 47);
 return x_1;
 }
 }
@@ -801,7 +801,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("letVarTypes");
+x_1 = lean_mk_string_from_bytes("letVarTypes", 11);
 return x_1;
 }
 }
@@ -819,7 +819,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) display types of let-bound variables");
+x_1 = lean_mk_string_from_bytes("(pretty printer) display types of let-bound variables", 53);
 return x_1;
 }
 }
@@ -852,7 +852,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("instantiateMVars");
+x_1 = lean_mk_string_from_bytes("instantiateMVars", 16);
 return x_1;
 }
 }
@@ -870,7 +870,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) instantiate mvars before delaborating");
+x_1 = lean_mk_string_from_bytes("(pretty printer) instantiate mvars before delaborating", 54);
 return x_1;
 }
 }
@@ -903,7 +903,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structureInstances");
+x_1 = lean_mk_string_from_bytes("structureInstances", 18);
 return x_1;
 }
 }
@@ -921,7 +921,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) display structure instances using the '{ fieldName := fieldValue, ... }' notation ");
+x_1 = lean_mk_string_from_bytes("(pretty printer) display structure instances using the '{ fieldName := fieldValue, ... }' notation ", 99);
 return x_1;
 }
 }
@@ -929,7 +929,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("or '⟨fieldValue, ... ⟩' if structure is tagged with [pp_using_anonymous_constructor] attribute");
+x_1 = lean_mk_string_from_bytes("or '⟨fieldValue, ... ⟩' if structure is tagged with [pp_using_anonymous_constructor] attribute", 98);
 return x_1;
 }
 }
@@ -972,7 +972,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structureProjections");
+x_1 = lean_mk_string_from_bytes("structureProjections", 20);
 return x_1;
 }
 }
@@ -990,7 +990,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) display structure projections using field notation");
+x_1 = lean_mk_string_from_bytes("(pretty printer) display structure projections using field notation", 67);
 return x_1;
 }
 }
@@ -1023,7 +1023,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("explicit");
+x_1 = lean_mk_string_from_bytes("explicit", 8);
 return x_1;
 }
 }
@@ -1041,7 +1041,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) display implicit arguments");
+x_1 = lean_mk_string_from_bytes("(pretty printer) display implicit arguments", 43);
 return x_1;
 }
 }
@@ -1074,7 +1074,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structureInstanceTypes");
+x_1 = lean_mk_string_from_bytes("structureInstanceTypes", 22);
 return x_1;
 }
 }
@@ -1092,7 +1092,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) display type of structure instances");
+x_1 = lean_mk_string_from_bytes("(pretty printer) display type of structure instances", 52);
 return x_1;
 }
 }
@@ -1125,7 +1125,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("safeShadowing");
+x_1 = lean_mk_string_from_bytes("safeShadowing", 13);
 return x_1;
 }
 }
@@ -1143,7 +1143,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) allow variable shadowing if there is no collision");
+x_1 = lean_mk_string_from_bytes("(pretty printer) allow variable shadowing if there is no collision", 66);
 return x_1;
 }
 }
@@ -1176,7 +1176,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tagAppFns");
+x_1 = lean_mk_string_from_bytes("tagAppFns", 9);
 return x_1;
 }
 }
@@ -1194,7 +1194,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) tag all constants that are the function in a function application");
+x_1 = lean_mk_string_from_bytes("(pretty printer) tag all constants that are the function in a function application", 82);
 return x_1;
 }
 }
@@ -1227,7 +1227,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("proofs");
+x_1 = lean_mk_string_from_bytes("proofs", 6);
 return x_1;
 }
 }
@@ -1245,7 +1245,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) if set to false, replace proofs appearing as an argument to a function with a placeholder");
+x_1 = lean_mk_string_from_bytes("(pretty printer) if set to false, replace proofs appearing as an argument to a function with a placeholder", 106);
 return x_1;
 }
 }
@@ -1278,7 +1278,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("withType");
+x_1 = lean_mk_string_from_bytes("withType", 8);
 return x_1;
 }
 }
@@ -1296,7 +1296,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) when eliding a proof (see `pp.proofs`), show its type instead");
+x_1 = lean_mk_string_from_bytes("(pretty printer) when eliding a proof (see `pp.proofs`), show its type instead", 78);
 return x_1;
 }
 }
@@ -1329,7 +1329,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("instances");
+x_1 = lean_mk_string_from_bytes("instances", 9);
 return x_1;
 }
 }
@@ -1347,7 +1347,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) if set to false, replace inst-implicit arguments to explicit applications with placeholders");
+x_1 = lean_mk_string_from_bytes("(pretty printer) if set to false, replace inst-implicit arguments to explicit applications with placeholders", 108);
 return x_1;
 }
 }
@@ -1380,7 +1380,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("instanceTypes");
+x_1 = lean_mk_string_from_bytes("instanceTypes", 13);
 return x_1;
 }
 }
@@ -1398,7 +1398,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) when printing explicit applications, show the types of inst-implicit arguments");
+x_1 = lean_mk_string_from_bytes("(pretty printer) when printing explicit applications, show the types of inst-implicit arguments", 95);
 return x_1;
 }
 }
@@ -1431,7 +1431,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("motives");
+x_1 = lean_mk_string_from_bytes("motives", 7);
 return x_1;
 }
 }
@@ -1449,7 +1449,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("pi");
+x_1 = lean_mk_string_from_bytes("pi", 2);
 return x_1;
 }
 }
@@ -1467,7 +1467,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) print all motives that return pi types");
+x_1 = lean_mk_string_from_bytes("(pretty printer) print all motives that return pi types", 55);
 return x_1;
 }
 }
@@ -1500,7 +1500,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("nonConst");
+x_1 = lean_mk_string_from_bytes("nonConst", 8);
 return x_1;
 }
 }
@@ -1518,7 +1518,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) print all motives that are not constant functions");
+x_1 = lean_mk_string_from_bytes("(pretty printer) print all motives that are not constant functions", 66);
 return x_1;
 }
 }
@@ -1561,7 +1561,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_Op
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer) print all motives");
+x_1 = lean_mk_string_from_bytes("(pretty printer) print all motives", 34);
 return x_1;
 }
 }

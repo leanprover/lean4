@@ -360,7 +360,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -378,7 +378,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("deltaLHSUntilFix");
+x_1 = lean_mk_string_from_bytes("deltaLHSUntilFix", 16);
 return x_1;
 }
 }
@@ -396,7 +396,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("equality expected");
+x_1 = lean_mk_string_from_bytes("equality expected", 17);
 return x_1;
 }
 }
@@ -424,7 +424,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("WellFounded");
+x_1 = lean_mk_string_from_bytes("WellFounded", 11);
 return x_1;
 }
 }
@@ -442,7 +442,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fix");
+x_1 = lean_mk_string_from_bytes("fix", 3);
 return x_1;
 }
 }
@@ -701,7 +701,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Elab.PreDefinition.WF.Eqns");
+x_1 = lean_mk_string_from_bytes("Lean.Elab.PreDefinition.WF.Eqns", 31);
 return x_1;
 }
 }
@@ -709,7 +709,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Elab.PreDefinition.WF.Eqns.0.Lean.Elab.WF.rwFixEq");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Elab.PreDefinition.WF.Eqns.0.Lean.Elab.WF.rwFixEq", 63);
 return x_1;
 }
 }
@@ -717,7 +717,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -738,7 +738,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fix_eq");
+x_1 = lean_mk_string_from_bytes("fix_eq", 6);
 return x_1;
 }
 }
@@ -2003,7 +2003,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("PSigma");
+x_1 = lean_mk_string_from_bytes("PSigma", 6);
 return x_1;
 }
 }
@@ -2021,7 +2021,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mk");
+x_1 = lean_mk_string_from_bytes("mk", 2);
 return x_1;
 }
 }
@@ -2067,7 +2067,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("PSum");
+x_1 = lean_mk_string_from_bytes("PSum", 4);
 return x_1;
 }
 }
@@ -2085,7 +2085,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inl");
+x_1 = lean_mk_string_from_bytes("inl", 3);
 return x_1;
 }
 }
@@ -2103,7 +2103,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inr");
+x_1 = lean_mk_string_from_bytes("inr", 3);
 return x_1;
 }
 }
@@ -2491,7 +2491,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -2509,7 +2509,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("definition");
+x_1 = lean_mk_string_from_bytes("definition", 10);
 return x_1;
 }
 }
@@ -2527,7 +2527,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("wf");
+x_1 = lean_mk_string_from_bytes("wf", 2);
 return x_1;
 }
 }
@@ -2545,7 +2545,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("found nested WF at discr ");
+x_1 = lean_mk_string_from_bytes("found nested WF at discr ", 25);
 return x_1;
 }
 }
@@ -2562,7 +2562,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -3232,7 +3232,7 @@ static lean_object* _init_l_Lean_Elab_WF_simpMatchWF_x3f_pre___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("folded discriminants ");
+x_1 = lean_mk_string_from_bytes("folded discriminants ", 21);
 return x_1;
 }
 }
@@ -4067,7 +4067,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Elab.PreDefinition.WF.Eqns.0.Lean.Elab.WF.tryToFoldLHS?");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Elab.PreDefinition.WF.Eqns.0.Lean.Elab.WF.tryToFoldLHS?", 69);
 return x_1;
 }
 }
@@ -4354,7 +4354,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("eqns");
+x_1 = lean_mk_string_from_bytes("eqns", 4);
 return x_1;
 }
 }
@@ -4372,7 +4372,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fixedPrefix: ");
+x_1 = lean_mk_string_from_bytes("fixedPrefix: ", 13);
 return x_1;
 }
 }
@@ -4487,7 +4487,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Elab.PreDefinition.WF.Eqns.0.Lean.Elab.WF.getFixedPrefix");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Elab.PreDefinition.WF.Eqns.0.Lean.Elab.WF.getFixedPrefix", 70);
 return x_1;
 }
 }
@@ -4508,7 +4508,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to generate equational theorem for '");
+x_1 = lean_mk_string_from_bytes("failed to generate equational theorem for '", 43);
 return x_1;
 }
 }
@@ -4525,7 +4525,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', unexpected number of arguments in the equation left-hand-side\n");
+x_1 = lean_mk_string_from_bytes("', unexpected number of arguments in the equation left-hand-side\n", 65);
 return x_1;
 }
 }
@@ -5039,7 +5039,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'\n");
+x_1 = lean_mk_string_from_bytes("'\n", 2);
 return x_1;
 }
 }
@@ -5771,7 +5771,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("step\n");
+x_1 = lean_mk_string_from_bytes("step\n", 5);
 return x_1;
 }
 }
@@ -6137,7 +6137,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("proving: ");
+x_1 = lean_mk_string_from_bytes("proving: ", 9);
 return x_1;
 }
 }
@@ -6241,7 +6241,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_WF_mkEqns___spec
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_eq");
+x_1 = lean_mk_string_from_bytes("_eq", 3);
 return x_1;
 }
 }
@@ -7116,7 +7116,7 @@ static lean_object* _init_l_Lean_Elab_WF_initFn____x40_Lean_Elab_PreDefinition_W
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("wfEqInfo");
+x_1 = lean_mk_string_from_bytes("wfEqInfo", 8);
 return x_1;
 }
 }

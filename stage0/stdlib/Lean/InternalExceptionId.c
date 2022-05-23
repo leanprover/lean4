@@ -263,7 +263,7 @@ static lean_object* _init_l_Lean_registerInternalExceptionId___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid internal exception id, '");
+x_1 = lean_mk_string_from_bytes("invalid internal exception id, '", 32);
 return x_1;
 }
 }
@@ -271,7 +271,7 @@ static lean_object* _init_l_Lean_registerInternalExceptionId___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' has already been used");
+x_1 = lean_mk_string_from_bytes("' has already been used", 23);
 return x_1;
 }
 }
@@ -393,7 +393,7 @@ static lean_object* _init_l_Lean_InternalExceptionId_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("internal exception #");
+x_1 = lean_mk_string_from_bytes("internal exception #", 20);
 return x_1;
 }
 }
@@ -401,7 +401,7 @@ static lean_object* _init_l_Lean_InternalExceptionId_toString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -422,7 +422,7 @@ static lean_object* _init_l_Lean_InternalExceptionId_getName___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid internal exception id");
+x_1 = lean_mk_string_from_bytes("invalid internal exception id", 29);
 return x_1;
 }
 }

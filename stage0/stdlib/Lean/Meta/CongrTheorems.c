@@ -330,7 +330,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Meta_Cong
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -488,7 +488,7 @@ static lean_object* _init_l_Lean_Meta_mkHCongrWithArity_withNewEqs_loop___rarg__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("e");
+x_1 = lean_mk_string_from_bytes("e", 1);
 return x_1;
 }
 }
@@ -1173,7 +1173,7 @@ static lean_object* _init_l_Lean_Meta_mkHCongrWithArity_mkProof___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -1191,7 +1191,7 @@ static lean_object* _init_l_Lean_Meta_mkHCongrWithArity_mkProof___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HEq");
+x_1 = lean_mk_string_from_bytes("HEq", 3);
 return x_1;
 }
 }
@@ -2043,7 +2043,7 @@ static lean_object* _init_l_Lean_Meta_mkHCongrWithArity___lambda__3___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to generate hcongr theorem, insufficient number of arguments");
+x_1 = lean_mk_string_from_bytes("failed to generate hcongr theorem, insufficient number of arguments", 67);
 return x_1;
 }
 }
@@ -2450,7 +2450,7 @@ static lean_object* _init_l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCas
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.CongrTheorems");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.CongrTheorems", 23);
 return x_1;
 }
 }
@@ -2458,7 +2458,7 @@ static lean_object* _init_l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCas
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Meta.CongrTheorems.0.Lean.Meta.mkCast.go");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.CongrTheorems.0.Lean.Meta.mkCast.go", 54);
 return x_1;
 }
 }
@@ -2466,7 +2466,7 @@ static lean_object* _init_l___private_Lean_Meta_CongrTheorems_0__Lean_Meta_mkCas
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -4021,7 +4021,7 @@ static lean_object* _init_l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Subsingleton");
+x_1 = lean_mk_string_from_bytes("Subsingleton", 12);
 return x_1;
 }
 }
@@ -4039,7 +4039,7 @@ static lean_object* _init_l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elim");
+x_1 = lean_mk_string_from_bytes("elim", 4);
 return x_1;
 }
 }
@@ -4248,7 +4248,7 @@ static lean_object* _init_l_Lean_Meta_mkCongrSimpCore_x3f_mkProof_go___lambda__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.mkCongrSimpCore?.mkProof.go");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.mkCongrSimpCore?.mkProof.go", 37);
 return x_1;
 }
 }
@@ -4678,7 +4678,7 @@ static lean_object* _init_l_Lean_Meta_mkCongrSimpCore_x3f_mk_x3f_go___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.mkCongrSimpCore?.mk?.go");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.mkCongrSimpCore?.mk?.go", 33);
 return x_1;
 }
 }

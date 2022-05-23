@@ -186,7 +186,7 @@ static lean_object* _init_l___private_Lean_Data_Position_0__Lean_reprPosition___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("line");
+x_1 = lean_mk_string_from_bytes("line", 4);
 return x_1;
 }
 }
@@ -216,7 +216,7 @@ static lean_object* _init_l___private_Lean_Data_Position_0__Lean_reprPosition___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" := ");
+x_1 = lean_mk_string_from_bytes(" := ", 4);
 return x_1;
 }
 }
@@ -246,7 +246,7 @@ static lean_object* _init_l___private_Lean_Data_Position_0__Lean_reprPosition___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -264,7 +264,7 @@ static lean_object* _init_l___private_Lean_Data_Position_0__Lean_reprPosition___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("column");
+x_1 = lean_mk_string_from_bytes("column", 6);
 return x_1;
 }
 }
@@ -282,7 +282,7 @@ static lean_object* _init_l___private_Lean_Data_Position_0__Lean_reprPosition___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{ ");
+x_1 = lean_mk_string_from_bytes("{ ", 2);
 return x_1;
 }
 }
@@ -318,7 +318,7 @@ static lean_object* _init_l___private_Lean_Data_Position_0__Lean_reprPosition___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" }");
+x_1 = lean_mk_string_from_bytes(" }", 2);
 return x_1;
 }
 }
@@ -468,7 +468,7 @@ static lean_object* _init_l_Lean_Position_instToFormatPosition___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("⟨");
+x_1 = lean_mk_string_from_bytes("⟨", 3);
 return x_1;
 }
 }
@@ -486,7 +486,7 @@ static lean_object* _init_l_Lean_Position_instToFormatPosition___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -504,7 +504,7 @@ static lean_object* _init_l_Lean_Position_instToFormatPosition___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("⟩");
+x_1 = lean_mk_string_from_bytes("⟩", 3);
 return x_1;
 }
 }
@@ -578,7 +578,7 @@ static lean_object* _init_l_Lean_Position_instToExprPosition___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -596,7 +596,7 @@ static lean_object* _init_l_Lean_Position_instToExprPosition___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Position");
+x_1 = lean_mk_string_from_bytes("Position", 8);
 return x_1;
 }
 }
@@ -614,7 +614,7 @@ static lean_object* _init_l_Lean_Position_instToExprPosition___lambda__1___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mk");
+x_1 = lean_mk_string_from_bytes("mk", 2);
 return x_1;
 }
 }
@@ -717,7 +717,7 @@ static lean_object* _init_l_Lean_instInhabitedFileMap___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }

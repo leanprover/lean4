@@ -1066,7 +1066,7 @@ static lean_object* _init_l_List_foldlM___at_Lean_mkNoConfusionEnum_mkToCtorIdx_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("code generator does not support recursor '");
+x_1 = lean_mk_string_from_bytes("code generator does not support recursor '", 42);
 return x_1;
 }
 }
@@ -1083,7 +1083,7 @@ static lean_object* _init_l_List_foldlM___at_Lean_mkNoConfusionEnum_mkToCtorIdx_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' yet, consider using 'match ... with' and/or structural recursion");
+x_1 = lean_mk_string_from_bytes("' yet, consider using 'match ... with' and/or structural recursion", 66);
 return x_1;
 }
 }
@@ -2652,7 +2652,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Constructions");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Constructions", 23);
 return x_1;
 }
 }
@@ -2660,7 +2660,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.mkNoConfusionEnum.mkToCtorIdx");
+x_1 = lean_mk_string_from_bytes("Lean.mkNoConfusionEnum.mkToCtorIdx", 34);
 return x_1;
 }
 }
@@ -2668,7 +2668,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -2689,7 +2689,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("toCtorIdx");
+x_1 = lean_mk_string_from_bytes("toCtorIdx", 9);
 return x_1;
 }
 }
@@ -2697,7 +2697,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat");
+x_1 = lean_mk_string_from_bytes("Nat", 3);
 return x_1;
 }
 }
@@ -2734,7 +2734,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkToCtorIdx___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("x");
+x_1 = lean_mk_string_from_bytes("x", 1);
 return x_1;
 }
 }
@@ -2972,7 +2972,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusionType___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("noConfusionTypeEnum");
+x_1 = lean_mk_string_from_bytes("noConfusionTypeEnum", 19);
 return x_1;
 }
 }
@@ -2999,7 +2999,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusionType___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("noConfusionType");
+x_1 = lean_mk_string_from_bytes("noConfusionType", 15);
 return x_1;
 }
 }
@@ -3224,7 +3224,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusionType___lambda__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("y");
+x_1 = lean_mk_string_from_bytes("y", 1);
 return x_1;
 }
 }
@@ -3279,7 +3279,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("u");
+x_1 = lean_mk_string_from_bytes("u", 1);
 return x_1;
 }
 }
@@ -3315,7 +3315,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusionType___closed__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("P");
+x_1 = lean_mk_string_from_bytes("P", 1);
 return x_1;
 }
 }
@@ -3359,7 +3359,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusion___lambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("noConfusionEnum");
+x_1 = lean_mk_string_from_bytes("noConfusionEnum", 15);
 return x_1;
 }
 }
@@ -3416,7 +3416,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusion___lambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("noConfusion");
+x_1 = lean_mk_string_from_bytes("noConfusion", 11);
 return x_1;
 }
 }
@@ -3659,7 +3659,7 @@ static lean_object* _init_l_Lean_mkNoConfusionEnum_mkNoConfusion___lambda__2___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("h");
+x_1 = lean_mk_string_from_bytes("h", 1);
 return x_1;
 }
 }

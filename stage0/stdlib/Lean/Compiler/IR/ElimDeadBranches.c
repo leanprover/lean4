@@ -439,7 +439,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.IR.UnreachableBranches.Value.bot");
+x_1 = lean_mk_string_from_bytes("Lean.IR.UnreachableBranches.Value.bot", 37);
 return x_1;
 }
 }
@@ -523,7 +523,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.IR.UnreachableBranches.Value.top");
+x_1 = lean_mk_string_from_bytes("Lean.IR.UnreachableBranches.Value.top", 37);
 return x_1;
 }
 }
@@ -589,7 +589,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.IR.UnreachableBranches.Value.ctor");
+x_1 = lean_mk_string_from_bytes("Lean.IR.UnreachableBranches.Value.ctor", 38);
 return x_1;
 }
 }
@@ -619,7 +619,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -649,7 +649,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#[");
+x_1 = lean_mk_string_from_bytes("#[", 2);
 return x_1;
 }
 }
@@ -685,7 +685,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -703,7 +703,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#[]");
+x_1 = lean_mk_string_from_bytes("#[]", 3);
 return x_1;
 }
 }
@@ -721,7 +721,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.IR.UnreachableBranches.Value.choice");
+x_1 = lean_mk_string_from_bytes("Lean.IR.UnreachableBranches.Value.choice", 40);
 return x_1;
 }
 }
@@ -751,7 +751,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[]");
+x_1 = lean_mk_string_from_bytes("[]", 2);
 return x_1;
 }
 }
@@ -805,7 +805,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -1176,7 +1176,7 @@ static lean_object* _init_l_List_mapTRAux___at_Lean_IR_UnreachableBranches_Value
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ");
+x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }
@@ -1298,7 +1298,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_toFormat___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("⊥");
+x_1 = lean_mk_string_from_bytes("⊥", 3);
 return x_1;
 }
 }
@@ -1316,7 +1316,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_toFormat___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("⊤");
+x_1 = lean_mk_string_from_bytes("⊤", 3);
 return x_1;
 }
 }
@@ -1334,7 +1334,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_toFormat___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -1370,7 +1370,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_toFormat___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -1388,7 +1388,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_toFormat___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" | ");
+x_1 = lean_mk_string_from_bytes(" | ", 3);
 return x_1;
 }
 }
@@ -1922,7 +1922,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_addChoice___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Compiler.IR.ElimDeadBranches");
+x_1 = lean_mk_string_from_bytes("Lean.Compiler.IR.ElimDeadBranches", 33);
 return x_1;
 }
 }
@@ -1930,7 +1930,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_addChoice___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.IR.UnreachableBranches.Value.addChoice");
+x_1 = lean_mk_string_from_bytes("Lean.IR.UnreachableBranches.Value.addChoice", 43);
 return x_1;
 }
 }
@@ -1938,7 +1938,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_addChoice___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid addChoice");
+x_1 = lean_mk_string_from_bytes("invalid addChoice", 17);
 return x_1;
 }
 }
@@ -2506,7 +2506,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_format___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("bot");
+x_1 = lean_mk_string_from_bytes("bot", 3);
 return x_1;
 }
 }
@@ -2524,7 +2524,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_format___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("top");
+x_1 = lean_mk_string_from_bytes("top", 3);
 return x_1;
 }
 }
@@ -2542,7 +2542,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_format___closed__5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#");
+x_1 = lean_mk_string_from_bytes("#", 1);
 return x_1;
 }
 }
@@ -2560,7 +2560,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_Value_format___closed__7
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("@");
+x_1 = lean_mk_string_from_bytes("@", 1);
 return x_1;
 }
 }
@@ -4973,7 +4973,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachBranchesFunSummary");
+x_1 = lean_mk_string_from_bytes("unreachBranchesFunSummary", 25);
 return x_1;
 }
 }
@@ -7535,7 +7535,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_interpFnBody___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Init.Data.Option.BasicAux");
+x_1 = lean_mk_string_from_bytes("Init.Data.Option.BasicAux", 25);
 return x_1;
 }
 }
@@ -7543,7 +7543,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_interpFnBody___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Option.get!");
+x_1 = lean_mk_string_from_bytes("Option.get!", 11);
 return x_1;
 }
 }
@@ -7551,7 +7551,7 @@ static lean_object* _init_l_Lean_IR_UnreachableBranches_interpFnBody___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("value is none");
+x_1 = lean_mk_string_from_bytes("value is none", 13);
 return x_1;
 }
 }

@@ -504,7 +504,7 @@ static lean_object* _init_l_Lean_Json_toStructured_x3f___at___private_Lean_Serve
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected structured object, got '");
+x_1 = lean_mk_string_from_bytes("expected structured object, got '", 33);
 return x_1;
 }
 }
@@ -512,7 +512,7 @@ static lean_object* _init_l_Lean_Json_toStructured_x3f___at___private_Lean_Serve
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -585,7 +585,7 @@ static lean_object* _init_l___private_Lean_Server_FileWorker_0__Lean_Server_File
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("$/lean/ileanInfoUpdate");
+x_1 = lean_mk_string_from_bytes("$/lean/ileanInfoUpdate", 22);
 return x_1;
 }
 }
@@ -602,7 +602,7 @@ static lean_object* _init_l___private_Lean_Server_FileWorker_0__Lean_Server_File
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("$/lean/ileanInfoFinal");
+x_1 = lean_mk_string_from_bytes("$/lean/ileanInfoFinal", 21);
 return x_1;
 }
 }
@@ -1920,7 +1920,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_lakeSetupSearchPath_processSt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -2470,7 +2470,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_lakeSetupSearchPath___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("print-paths");
+x_1 = lean_mk_string_from_bytes("print-paths", 11);
 return x_1;
 }
 }
@@ -2488,7 +2488,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_lakeSetupSearchPath___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ");
+x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }
@@ -2518,7 +2518,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_lakeSetupSearchPath___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("`");
+x_1 = lean_mk_string_from_bytes("`", 1);
 return x_1;
 }
 }
@@ -2526,7 +2526,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_lakeSetupSearchPath___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("` failed:\n");
+x_1 = lean_mk_string_from_bytes("` failed:\n", 10);
 return x_1;
 }
 }
@@ -2534,7 +2534,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_lakeSetupSearchPath___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nstderr:\n");
+x_1 = lean_mk_string_from_bytes("\nstderr:\n", 9);
 return x_1;
 }
 }
@@ -2542,7 +2542,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_lakeSetupSearchPath___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid output from `");
+x_1 = lean_mk_string_from_bytes("invalid output from `", 21);
 return x_1;
 }
 }
@@ -2550,7 +2550,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_lakeSetupSearchPath___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("`:\n");
+x_1 = lean_mk_string_from_bytes("`:\n", 3);
 return x_1;
 }
 }
@@ -3291,7 +3291,7 @@ static lean_object* _init_l_List_mapTRAux___at_Lean_Server_FileWorker_compileHea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("import");
+x_1 = lean_mk_string_from_bytes("import", 6);
 return x_1;
 }
 }
@@ -4187,7 +4187,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_compileHeader___lambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_worker");
+x_1 = lean_mk_string_from_bytes("_worker", 7);
 return x_1;
 }
 }
@@ -4217,7 +4217,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_compileHeader___lambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("header");
+x_1 = lean_mk_string_from_bytes("header", 6);
 return x_1;
 }
 }
@@ -5028,7 +5028,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_compileHeader___lambda__3___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<ignored>");
+x_1 = lean_mk_string_from_bytes("<ignored>", 9);
 return x_1;
 }
 }
@@ -5036,7 +5036,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_compileHeader___lambda__3___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lakefile.lean");
+x_1 = lean_mk_string_from_bytes("lakefile.lean", 13);
 return x_1;
 }
 }
@@ -5398,7 +5398,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_compileHeader___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("LAKE");
+x_1 = lean_mk_string_from_bytes("LAKE", 4);
 return x_1;
 }
 }
@@ -5406,7 +5406,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_compileHeader___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("LEAN_SYSROOT");
+x_1 = lean_mk_string_from_bytes("LEAN_SYSROOT", 12);
 return x_1;
 }
 }
@@ -5414,7 +5414,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_compileHeader___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lake");
+x_1 = lean_mk_string_from_bytes("lake", 4);
 return x_1;
 }
 }
@@ -5422,7 +5422,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_compileHeader___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("bin");
+x_1 = lean_mk_string_from_bytes("bin", 3);
 return x_1;
 }
 }
@@ -6339,7 +6339,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_updateDocument___lambda__3___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Internal server error: elab task was aborted while still in use.");
+x_1 = lean_mk_string_from_bytes("Internal server error: elab task was aborted while still in use.", 64);
 return x_1;
 }
 }
@@ -6670,7 +6670,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_updateDocument___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Internal server error: header changed but worker wasn't restarted.");
+x_1 = lean_mk_string_from_bytes("Internal server error: header changed but worker wasn't restarted.", 66);
 return x_1;
 }
 }
@@ -6804,7 +6804,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleDidChange___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Expected version number");
+x_1 = lean_mk_string_from_bytes("Expected version number", 23);
 return x_1;
 }
 }
@@ -6830,7 +6830,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleDidChange___closed__4()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Got outdated version number: ");
+x_1 = lean_mk_string_from_bytes("Got outdated version number: ", 29);
 return x_1;
 }
 }
@@ -6838,7 +6838,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleDidChange___closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ≤ ");
+x_1 = lean_mk_string_from_bytes(" ≤ ", 5);
 return x_1;
 }
 }
@@ -10314,7 +10314,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_parseParams___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Got param with wrong structure: ");
+x_1 = lean_mk_string_from_bytes("Got param with wrong structure: ", 32);
 return x_1;
 }
 }
@@ -10322,7 +10322,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_parseParams___rarg___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n");
+x_1 = lean_mk_string_from_bytes("\n", 1);
 return x_1;
 }
 }
@@ -10542,7 +10542,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleNotification___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("textDocument/didChange");
+x_1 = lean_mk_string_from_bytes("textDocument/didChange", 22);
 return x_1;
 }
 }
@@ -10550,7 +10550,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleNotification___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("$/cancelRequest");
+x_1 = lean_mk_string_from_bytes("$/cancelRequest", 15);
 return x_1;
 }
 }
@@ -10558,7 +10558,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleNotification___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("$/lean/rpc/release");
+x_1 = lean_mk_string_from_bytes("$/lean/rpc/release", 18);
 return x_1;
 }
 }
@@ -10566,7 +10566,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleNotification___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("$/lean/rpc/keepAlive");
+x_1 = lean_mk_string_from_bytes("$/lean/rpc/keepAlive", 20);
 return x_1;
 }
 }
@@ -10574,7 +10574,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleNotification___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Got unsupported notification method: ");
+x_1 = lean_mk_string_from_bytes("Got unsupported notification method: ", 37);
 return x_1;
 }
 }
@@ -13809,7 +13809,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_handleRequest___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("$/lean/rpc/connect");
+x_1 = lean_mk_string_from_bytes("$/lean/rpc/connect", 18);
 return x_1;
 }
 }
@@ -14154,7 +14154,7 @@ static lean_object* _init_l_Std_RBNode_foldM___at_Lean_Server_FileWorker_mainLoo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Failed responding to request ");
+x_1 = lean_mk_string_from_bytes("Failed responding to request ", 29);
 return x_1;
 }
 }
@@ -14162,7 +14162,7 @@ static lean_object* _init_l_Std_RBNode_foldM___at_Lean_Server_FileWorker_mainLoo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\"s\"");
+x_1 = lean_mk_string_from_bytes("\"s\"", 3);
 return x_1;
 }
 }
@@ -14180,7 +14180,7 @@ static lean_object* _init_l_Std_RBNode_foldM___at_Lean_Server_FileWorker_mainLoo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(": ");
+x_1 = lean_mk_string_from_bytes(": ", 2);
 return x_1;
 }
 }
@@ -14198,7 +14198,7 @@ static lean_object* _init_l_Std_RBNode_foldM___at_Lean_Server_FileWorker_mainLoo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -14817,7 +14817,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_mainLoop___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Got invalid JSON-RPC message");
+x_1 = lean_mk_string_from_bytes("Got invalid JSON-RPC message", 28);
 return x_1;
 }
 }
@@ -14825,7 +14825,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_mainLoop___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("exit");
+x_1 = lean_mk_string_from_bytes("exit", 4);
 return x_1;
 }
 }
@@ -15481,7 +15481,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Expected method '");
+x_1 = lean_mk_string_from_bytes("Expected method '", 17);
 return x_1;
 }
 }
@@ -15489,7 +15489,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', got method '");
+x_1 = lean_mk_string_from_bytes("', got method '", 15);
 return x_1;
 }
 }
@@ -15497,7 +15497,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("processId");
+x_1 = lean_mk_string_from_bytes("processId", 9);
 return x_1;
 }
 }
@@ -15505,7 +15505,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("clientInfo");
+x_1 = lean_mk_string_from_bytes("clientInfo", 10);
 return x_1;
 }
 }
@@ -15513,7 +15513,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("rootUri");
+x_1 = lean_mk_string_from_bytes("rootUri", 7);
 return x_1;
 }
 }
@@ -15521,7 +15521,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("initializationOptions");
+x_1 = lean_mk_string_from_bytes("initializationOptions", 21);
 return x_1;
 }
 }
@@ -15529,7 +15529,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("capabilities");
+x_1 = lean_mk_string_from_bytes("capabilities", 12);
 return x_1;
 }
 }
@@ -15537,7 +15537,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Unexpected param '");
+x_1 = lean_mk_string_from_bytes("Unexpected param '", 18);
 return x_1;
 }
 }
@@ -15545,7 +15545,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' for method '");
+x_1 = lean_mk_string_from_bytes("' for method '", 14);
 return x_1;
 }
 }
@@ -15553,7 +15553,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'\n");
+x_1 = lean_mk_string_from_bytes("'\n", 2);
 return x_1;
 }
 }
@@ -15561,7 +15561,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("trace");
+x_1 = lean_mk_string_from_bytes("trace", 5);
 return x_1;
 }
 }
@@ -15569,7 +15569,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("workspaceFolders");
+x_1 = lean_mk_string_from_bytes("workspaceFolders", 16);
 return x_1;
 }
 }
@@ -15577,7 +15577,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("2.0");
+x_1 = lean_mk_string_from_bytes("2.0", 3);
 return x_1;
 }
 }
@@ -15595,7 +15595,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("jsonrpc");
+x_1 = lean_mk_string_from_bytes("jsonrpc", 7);
 return x_1;
 }
 }
@@ -15615,7 +15615,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("method");
+x_1 = lean_mk_string_from_bytes("method", 6);
 return x_1;
 }
 }
@@ -15623,7 +15623,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("params");
+x_1 = lean_mk_string_from_bytes("params", 6);
 return x_1;
 }
 }
@@ -15631,7 +15631,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Expected JSON-RPC request, got: '");
+x_1 = lean_mk_string_from_bytes("Expected JSON-RPC request, got: '", 33);
 return x_1;
 }
 }
@@ -15639,7 +15639,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("result");
+x_1 = lean_mk_string_from_bytes("result", 6);
 return x_1;
 }
 }
@@ -15647,7 +15647,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("id");
+x_1 = lean_mk_string_from_bytes("id", 2);
 return x_1;
 }
 }
@@ -15667,7 +15667,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("message");
+x_1 = lean_mk_string_from_bytes("message", 7);
 return x_1;
 }
 }
@@ -15675,7 +15675,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("data");
+x_1 = lean_mk_string_from_bytes("data", 4);
 return x_1;
 }
 }
@@ -15683,7 +15683,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("code");
+x_1 = lean_mk_string_from_bytes("code", 4);
 return x_1;
 }
 }
@@ -15691,7 +15691,7 @@ static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("error");
+x_1 = lean_mk_string_from_bytes("error", 5);
 return x_1;
 }
 }
@@ -17884,7 +17884,7 @@ static lean_object* _init_l_IO_FS_Stream_readLspRequestAs___at_Lean_Server_FileW
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Cannot read LSP request: ");
+x_1 = lean_mk_string_from_bytes("Cannot read LSP request: ", 25);
 return x_1;
 }
 }
@@ -17998,7 +17998,7 @@ static lean_object* _init_l_IO_FS_Stream_readNotificationAs___at_Lean_Server_Fil
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Expected JSON-RPC notification, got: '");
+x_1 = lean_mk_string_from_bytes("Expected JSON-RPC notification, got: '", 38);
 return x_1;
 }
 }
@@ -18854,7 +18854,7 @@ static lean_object* _init_l_IO_FS_Stream_readLspNotificationAs___at_Lean_Server_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Cannot read LSP notification: ");
+x_1 = lean_mk_string_from_bytes("Cannot read LSP notification: ", 30);
 return x_1;
 }
 }
@@ -18979,7 +18979,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initAndRunWorker___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fwIn.txt");
+x_1 = lean_mk_string_from_bytes("fwIn.txt", 8);
 return x_1;
 }
 }
@@ -18987,7 +18987,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initAndRunWorker___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fwOut.txt");
+x_1 = lean_mk_string_from_bytes("fwOut.txt", 9);
 return x_1;
 }
 }
@@ -18995,7 +18995,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initAndRunWorker___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("initialize");
+x_1 = lean_mk_string_from_bytes("initialize", 10);
 return x_1;
 }
 }
@@ -19003,7 +19003,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initAndRunWorker___closed__4(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("textDocument/didOpen");
+x_1 = lean_mk_string_from_bytes("textDocument/didOpen", 20);
 return x_1;
 }
 }
@@ -19022,7 +19022,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initAndRunWorker___closed__6(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -19030,7 +19030,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_initAndRunWorker___closed__7(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] ");
+x_1 = lean_mk_string_from_bytes("] ", 2);
 return x_1;
 }
 }
@@ -19428,7 +19428,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_workerMain___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("worker initialization error: ");
+x_1 = lean_mk_string_from_bytes("worker initialization error: ", 29);
 return x_1;
 }
 }

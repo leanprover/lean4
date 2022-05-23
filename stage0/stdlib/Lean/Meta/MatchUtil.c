@@ -317,7 +317,7 @@ static lean_object* _init_l_Lean_Meta_matchEq_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -484,7 +484,7 @@ static lean_object* _init_l_Lean_Meta_matchHEq_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HEq");
+x_1 = lean_mk_string_from_bytes("HEq", 3);
 return x_1;
 }
 }
@@ -1377,7 +1377,7 @@ static lean_object* _init_l_Lean_Meta_matchFalse___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("False");
+x_1 = lean_mk_string_from_bytes("False", 5);
 return x_1;
 }
 }
@@ -1476,7 +1476,7 @@ static lean_object* _init_l_Lean_Meta_matchNot_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Not");
+x_1 = lean_mk_string_from_bytes("Not", 3);
 return x_1;
 }
 }
@@ -1977,7 +1977,7 @@ static lean_object* _init_l_Lean_Meta_matchNe_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Ne");
+x_1 = lean_mk_string_from_bytes("Ne", 2);
 return x_1;
 }
 }

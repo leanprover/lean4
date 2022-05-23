@@ -768,7 +768,7 @@ static lean_object* _init_l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("maxUniverseOffset");
+x_1 = lean_mk_string_from_bytes("maxUniverseOffset", 17);
 return x_1;
 }
 }
@@ -786,7 +786,7 @@ static lean_object* _init_l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -794,7 +794,7 @@ static lean_object* _init_l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("maximum universe level offset");
+x_1 = lean_mk_string_from_bytes("maximum universe level offset", 29);
 return x_1;
 }
 }
@@ -834,7 +834,7 @@ static lean_object* _init_l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("maximum universe level offset threshold (");
+x_1 = lean_mk_string_from_bytes("maximum universe level offset threshold (", 41);
 return x_1;
 }
 }
@@ -851,7 +851,7 @@ static lean_object* _init_l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(") has been reached, you can increase the limit using option `set_option maxUniverseOffset <limit>`, but you are probably misusing universe levels since offsets are usually small natural numbers");
+x_1 = lean_mk_string_from_bytes(") has been reached, you can increase the limit using option `set_option maxUniverseOffset <limit>`, but you are probably misusing universe levels since offsets are usually small natural numbers", 193);
 return x_1;
 }
 }
@@ -958,7 +958,7 @@ static lean_object* _init_l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Level_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ill-formed syntax");
+x_1 = lean_mk_string_from_bytes("ill-formed syntax", 17);
 return x_1;
 }
 }
@@ -1192,7 +1192,7 @@ static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -1210,7 +1210,7 @@ static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -1228,7 +1228,7 @@ static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Level");
+x_1 = lean_mk_string_from_bytes("Level", 5);
 return x_1;
 }
 }
@@ -1246,7 +1246,7 @@ static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("paren");
+x_1 = lean_mk_string_from_bytes("paren", 5);
 return x_1;
 }
 }
@@ -1264,7 +1264,7 @@ static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("max");
+x_1 = lean_mk_string_from_bytes("max", 3);
 return x_1;
 }
 }
@@ -1282,7 +1282,7 @@ static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("imax");
+x_1 = lean_mk_string_from_bytes("imax", 4);
 return x_1;
 }
 }
@@ -1300,7 +1300,7 @@ static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hole");
+x_1 = lean_mk_string_from_bytes("hole", 4);
 return x_1;
 }
 }
@@ -1318,7 +1318,7 @@ static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("addLit");
+x_1 = lean_mk_string_from_bytes("addLit", 6);
 return x_1;
 }
 }
@@ -1336,7 +1336,7 @@ static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected universe level syntax kind");
+x_1 = lean_mk_string_from_bytes("unexpected universe level syntax kind", 37);
 return x_1;
 }
 }
@@ -1353,7 +1353,7 @@ static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__19() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown universe level '");
+x_1 = lean_mk_string_from_bytes("unknown universe level '", 24);
 return x_1;
 }
 }
@@ -1370,7 +1370,7 @@ static lean_object* _init_l_Lean_Elab_Level_elabLevel___closed__21() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }

@@ -837,7 +837,7 @@ static lean_object* _init_l_Std_AssocList_foldlM___at_Lean_IR_Borrow_ParamMap_fm
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" -> ");
+x_1 = lean_mk_string_from_bytes(" -> ", 4);
 return x_1;
 }
 }
@@ -855,7 +855,7 @@ static lean_object* _init_l_Std_AssocList_foldlM___at_Lean_IR_Borrow_ParamMap_fm
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -873,7 +873,7 @@ static lean_object* _init_l_Std_AssocList_foldlM___at_Lean_IR_Borrow_ParamMap_fm
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("block_");
+x_1 = lean_mk_string_from_bytes("block_", 6);
 return x_1;
 }
 }
@@ -992,7 +992,7 @@ static lean_object* _init_l_Lean_IR_Borrow_ParamMap_fmt___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{");
+x_1 = lean_mk_string_from_bytes("{", 1);
 return x_1;
 }
 }
@@ -1019,7 +1019,7 @@ static lean_object* _init_l_Lean_IR_Borrow_ParamMap_fmt___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("}");
+x_1 = lean_mk_string_from_bytes("}", 1);
 return x_1;
 }
 }
@@ -2096,7 +2096,7 @@ static lean_object* _init_l_Lean_IR_Borrow_ApplyParamMap_visitFnBody___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Compiler.IR.Borrow");
+x_1 = lean_mk_string_from_bytes("Lean.Compiler.IR.Borrow", 23);
 return x_1;
 }
 }
@@ -2104,7 +2104,7 @@ static lean_object* _init_l_Lean_IR_Borrow_ApplyParamMap_visitFnBody___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.IR.Borrow.ApplyParamMap.visitFnBody");
+x_1 = lean_mk_string_from_bytes("Lean.IR.Borrow.ApplyParamMap.visitFnBody", 40);
 return x_1;
 }
 }
@@ -2112,7 +2112,7 @@ static lean_object* _init_l_Lean_IR_Borrow_ApplyParamMap_visitFnBody___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -2316,7 +2316,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_IR_Borrow_ApplyParamM
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.IR.Borrow.ApplyParamMap.visitDecls");
+x_1 = lean_mk_string_from_bytes("Lean.IR.Borrow.ApplyParamMap.visitDecls", 39);
 return x_1;
 }
 }
@@ -3326,7 +3326,7 @@ static lean_object* _init_l_Lean_IR_Borrow_getParamInfo___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.IR.Borrow.getParamInfo");
+x_1 = lean_mk_string_from_bytes("Lean.IR.Borrow.getParamInfo", 27);
 return x_1;
 }
 }

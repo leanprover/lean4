@@ -171,7 +171,7 @@ static lean_object* _init_l_term___x3c_x26_x3e_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term_<&>_");
+x_1 = lean_mk_string_from_bytes("term_<&>_", 9);
 return x_1;
 }
 }
@@ -189,7 +189,7 @@ static lean_object* _init_l_term___x3c_x26_x3e_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("andthen");
+x_1 = lean_mk_string_from_bytes("andthen", 7);
 return x_1;
 }
 }
@@ -207,7 +207,7 @@ static lean_object* _init_l_term___x3c_x26_x3e_____closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" <&> ");
+x_1 = lean_mk_string_from_bytes(" <&> ", 5);
 return x_1;
 }
 }
@@ -225,7 +225,7 @@ static lean_object* _init_l_term___x3c_x26_x3e_____closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term");
+x_1 = lean_mk_string_from_bytes("term", 4);
 return x_1;
 }
 }
@@ -293,7 +293,7 @@ static lean_object* _init_l___aux__Init__Control__Basic______macroRules__term___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -311,7 +311,7 @@ static lean_object* _init_l___aux__Init__Control__Basic______macroRules__term___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -329,7 +329,7 @@ static lean_object* _init_l___aux__Init__Control__Basic______macroRules__term___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -347,7 +347,7 @@ static lean_object* _init_l___aux__Init__Control__Basic______macroRules__term___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("app");
+x_1 = lean_mk_string_from_bytes("app", 3);
 return x_1;
 }
 }
@@ -365,7 +365,7 @@ static lean_object* _init_l___aux__Init__Control__Basic______macroRules__term___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Functor.mapRev");
+x_1 = lean_mk_string_from_bytes("Functor.mapRev", 14);
 return x_1;
 }
 }
@@ -396,7 +396,7 @@ static lean_object* _init_l___aux__Init__Control__Basic______macroRules__term___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Functor");
+x_1 = lean_mk_string_from_bytes("Functor", 7);
 return x_1;
 }
 }
@@ -414,7 +414,7 @@ static lean_object* _init_l___aux__Init__Control__Basic______macroRules__term___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mapRev");
+x_1 = lean_mk_string_from_bytes("mapRev", 6);
 return x_1;
 }
 }
@@ -456,7 +456,7 @@ static lean_object* _init_l___aux__Init__Control__Basic______macroRules__term___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -595,7 +595,7 @@ static lean_object* _init_l___aux__Init__Control__Basic______unexpand__Functor__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ident");
+x_1 = lean_mk_string_from_bytes("ident", 5);
 return x_1;
 }
 }
@@ -1017,7 +1017,7 @@ static lean_object* _init_l_term___x3c_x7c_x7c_x3e_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term_<||>_");
+x_1 = lean_mk_string_from_bytes("term_<||>_", 10);
 return x_1;
 }
 }
@@ -1035,7 +1035,7 @@ static lean_object* _init_l_term___x3c_x7c_x7c_x3e_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" <||> ");
+x_1 = lean_mk_string_from_bytes(" <||> ", 6);
 return x_1;
 }
 }
@@ -1103,7 +1103,7 @@ static lean_object* _init_l___aux__Init__Control__Basic______macroRules__term___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("orM");
+x_1 = lean_mk_string_from_bytes("orM", 3);
 return x_1;
 }
 }
@@ -1469,7 +1469,7 @@ static lean_object* _init_l_term___x3c_x26_x26_x3e_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term_<&&>_");
+x_1 = lean_mk_string_from_bytes("term_<&&>_", 10);
 return x_1;
 }
 }
@@ -1487,7 +1487,7 @@ static lean_object* _init_l_term___x3c_x26_x26_x3e_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" <&&> ");
+x_1 = lean_mk_string_from_bytes(" <&&> ", 6);
 return x_1;
 }
 }
@@ -1555,7 +1555,7 @@ static lean_object* _init_l___aux__Init__Control__Basic______macroRules__term___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("andM");
+x_1 = lean_mk_string_from_bytes("andM", 4);
 return x_1;
 }
 }

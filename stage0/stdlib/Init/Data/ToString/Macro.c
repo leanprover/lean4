@@ -55,7 +55,7 @@ static lean_object* _init_l_termS_x21_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("termS!_");
+x_1 = lean_mk_string_from_bytes("termS!_", 7);
 return x_1;
 }
 }
@@ -73,7 +73,7 @@ static lean_object* _init_l_termS_x21_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("andthen");
+x_1 = lean_mk_string_from_bytes("andthen", 7);
 return x_1;
 }
 }
@@ -91,7 +91,7 @@ static lean_object* _init_l_termS_x21_____closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("s!");
+x_1 = lean_mk_string_from_bytes("s!", 2);
 return x_1;
 }
 }
@@ -109,7 +109,7 @@ static lean_object* _init_l_termS_x21_____closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("interpolatedStr");
+x_1 = lean_mk_string_from_bytes("interpolatedStr", 15);
 return x_1;
 }
 }
@@ -127,7 +127,7 @@ static lean_object* _init_l_termS_x21_____closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term");
+x_1 = lean_mk_string_from_bytes("term", 4);
 return x_1;
 }
 }
@@ -205,7 +205,7 @@ static lean_object* _init_l___aux__Init__Data__ToString__Macro______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("String");
+x_1 = lean_mk_string_from_bytes("String", 6);
 return x_1;
 }
 }
@@ -270,7 +270,7 @@ static lean_object* _init_l___aux__Init__Data__ToString__Macro______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("toString");
+x_1 = lean_mk_string_from_bytes("toString", 8);
 return x_1;
 }
 }
@@ -311,7 +311,7 @@ static lean_object* _init_l___aux__Init__Data__ToString__Macro______macroRules__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ToString");
+x_1 = lean_mk_string_from_bytes("ToString", 8);
 return x_1;
 }
 }

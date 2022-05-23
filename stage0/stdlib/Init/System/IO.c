@@ -1949,7 +1949,7 @@ static lean_object* _init_l_IO_FS_instInhabitedStream___lambda__1___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -2209,7 +2209,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_Handle_fopenFlags_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("r");
+x_1 = lean_mk_string_from_bytes("r", 1);
 return x_1;
 }
 }
@@ -2217,7 +2217,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_Handle_fopenFlags_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("t");
+x_1 = lean_mk_string_from_bytes("t", 1);
 return x_1;
 }
 }
@@ -2235,7 +2235,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_Handle_fopenFlags_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("b");
+x_1 = lean_mk_string_from_bytes("b", 1);
 return x_1;
 }
 }
@@ -2253,7 +2253,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_Handle_fopenFlags_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("w");
+x_1 = lean_mk_string_from_bytes("w", 1);
 return x_1;
 }
 }
@@ -2281,7 +2281,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_Handle_fopenFlags_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("r+");
+x_1 = lean_mk_string_from_bytes("r+", 2);
 return x_1;
 }
 }
@@ -2309,7 +2309,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_Handle_fopenFlags_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("a");
+x_1 = lean_mk_string_from_bytes("a", 1);
 return x_1;
 }
 }
@@ -3353,7 +3353,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("root");
+x_1 = lean_mk_string_from_bytes("root", 4);
 return x_1;
 }
 }
@@ -3383,7 +3383,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" := ");
+x_1 = lean_mk_string_from_bytes(" := ", 4);
 return x_1;
 }
 }
@@ -3413,7 +3413,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("FilePath.mk ");
+x_1 = lean_mk_string_from_bytes("FilePath.mk ", 12);
 return x_1;
 }
 }
@@ -3431,7 +3431,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -3449,7 +3449,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fileName");
+x_1 = lean_mk_string_from_bytes("fileName", 8);
 return x_1;
 }
 }
@@ -3467,7 +3467,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{ ");
+x_1 = lean_mk_string_from_bytes("{ ", 2);
 return x_1;
 }
 }
@@ -3503,7 +3503,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprDirEntry____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" }");
+x_1 = lean_mk_string_from_bytes(" }", 2);
 return x_1;
 }
 }
@@ -3689,7 +3689,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("IO.FS.FileType.dir");
+x_1 = lean_mk_string_from_bytes("IO.FS.FileType.dir", 18);
 return x_1;
 }
 }
@@ -3773,7 +3773,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("IO.FS.FileType.file");
+x_1 = lean_mk_string_from_bytes("IO.FS.FileType.file", 19);
 return x_1;
 }
 }
@@ -3839,7 +3839,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("IO.FS.FileType.symlink");
+x_1 = lean_mk_string_from_bytes("IO.FS.FileType.symlink", 22);
 return x_1;
 }
 }
@@ -3905,7 +3905,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprFileType____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("IO.FS.FileType.other");
+x_1 = lean_mk_string_from_bytes("IO.FS.FileType.other", 20);
 return x_1;
 }
 }
@@ -4126,7 +4126,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sec");
+x_1 = lean_mk_string_from_bytes("sec", 3);
 return x_1;
 }
 }
@@ -4168,7 +4168,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprSystemTime____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("nsec");
+x_1 = lean_mk_string_from_bytes("nsec", 4);
 return x_1;
 }
 }
@@ -4445,7 +4445,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("accessed");
+x_1 = lean_mk_string_from_bytes("accessed", 8);
 return x_1;
 }
 }
@@ -4487,7 +4487,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("modified");
+x_1 = lean_mk_string_from_bytes("modified", 8);
 return x_1;
 }
 }
@@ -4505,7 +4505,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("byteSize");
+x_1 = lean_mk_string_from_bytes("byteSize", 8);
 return x_1;
 }
 }
@@ -4523,7 +4523,7 @@ static lean_object* _init_l___private_Init_System_IO_0__IO_FS_reprMetadata____x4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("type");
+x_1 = lean_mk_string_from_bytes("type", 4);
 return x_1;
 }
 }
@@ -5855,7 +5855,7 @@ static lean_object* _init_l_IO_appDir___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("System.IO.appDir: unexpected filename '");
+x_1 = lean_mk_string_from_bytes("System.IO.appDir: unexpected filename '", 39);
 return x_1;
 }
 }
@@ -5863,7 +5863,7 @@ static lean_object* _init_l_IO_appDir___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -7203,7 +7203,7 @@ static lean_object* _init_l_IO_Process_run___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("process '");
+x_1 = lean_mk_string_from_bytes("process '", 9);
 return x_1;
 }
 }
@@ -7211,7 +7211,7 @@ static lean_object* _init_l_IO_Process_run___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' exited with code ");
+x_1 = lean_mk_string_from_bytes("' exited with code ", 19);
 return x_1;
 }
 }
@@ -8861,7 +8861,7 @@ static lean_object* _init_l_Lean_instEvalUnit___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("()");
+x_1 = lean_mk_string_from_bytes("()", 2);
 return x_1;
 }
 }
@@ -9495,7 +9495,7 @@ static lean_object* _init_l_termPrintln_x21_______closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("termPrintln!__");
+x_1 = lean_mk_string_from_bytes("termPrintln!__", 14);
 return x_1;
 }
 }
@@ -9513,7 +9513,7 @@ static lean_object* _init_l_termPrintln_x21_______closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("andthen");
+x_1 = lean_mk_string_from_bytes("andthen", 7);
 return x_1;
 }
 }
@@ -9531,7 +9531,7 @@ static lean_object* _init_l_termPrintln_x21_______closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("println! ");
+x_1 = lean_mk_string_from_bytes("println! ", 9);
 return x_1;
 }
 }
@@ -9549,7 +9549,7 @@ static lean_object* _init_l_termPrintln_x21_______closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("orelse");
+x_1 = lean_mk_string_from_bytes("orelse", 6);
 return x_1;
 }
 }
@@ -9567,7 +9567,7 @@ static lean_object* _init_l_termPrintln_x21_______closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("interpolatedStr");
+x_1 = lean_mk_string_from_bytes("interpolatedStr", 15);
 return x_1;
 }
 }
@@ -9585,7 +9585,7 @@ static lean_object* _init_l_termPrintln_x21_______closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term");
+x_1 = lean_mk_string_from_bytes("term", 4);
 return x_1;
 }
 }
@@ -9677,7 +9677,7 @@ static lean_object* _init_l___aux__Init__System__IO______macroRules__termPrintln
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -9695,7 +9695,7 @@ static lean_object* _init_l___aux__Init__System__IO______macroRules__termPrintln
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -9713,7 +9713,7 @@ static lean_object* _init_l___aux__Init__System__IO______macroRules__termPrintln
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -9731,7 +9731,7 @@ static lean_object* _init_l___aux__Init__System__IO______macroRules__termPrintln
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("paren");
+x_1 = lean_mk_string_from_bytes("paren", 5);
 return x_1;
 }
 }
@@ -9749,7 +9749,7 @@ static lean_object* _init_l___aux__Init__System__IO______macroRules__termPrintln
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -9757,7 +9757,7 @@ static lean_object* _init_l___aux__Init__System__IO______macroRules__termPrintln
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -9775,7 +9775,7 @@ static lean_object* _init_l___aux__Init__System__IO______macroRules__termPrintln
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("app");
+x_1 = lean_mk_string_from_bytes("app", 3);
 return x_1;
 }
 }
@@ -9793,7 +9793,7 @@ static lean_object* _init_l___aux__Init__System__IO______macroRules__termPrintln
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("IO.println");
+x_1 = lean_mk_string_from_bytes("IO.println", 10);
 return x_1;
 }
 }
@@ -9824,7 +9824,7 @@ static lean_object* _init_l___aux__Init__System__IO______macroRules__termPrintln
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("IO");
+x_1 = lean_mk_string_from_bytes("IO", 2);
 return x_1;
 }
 }
@@ -9842,7 +9842,7 @@ static lean_object* _init_l___aux__Init__System__IO______macroRules__termPrintln
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("println");
+x_1 = lean_mk_string_from_bytes("println", 7);
 return x_1;
 }
 }
@@ -9902,7 +9902,7 @@ static lean_object* _init_l___aux__Init__System__IO______macroRules__termPrintln
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("typeAscription");
+x_1 = lean_mk_string_from_bytes("typeAscription", 14);
 return x_1;
 }
 }
@@ -9920,7 +9920,7 @@ static lean_object* _init_l___aux__Init__System__IO______macroRules__termPrintln
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -9975,7 +9975,7 @@ static lean_object* _init_l___aux__Init__System__IO______macroRules__termPrintln
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Unit");
+x_1 = lean_mk_string_from_bytes("Unit", 4);
 return x_1;
 }
 }
@@ -10040,7 +10040,7 @@ static lean_object* _init_l___aux__Init__System__IO______macroRules__termPrintln
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -10057,7 +10057,7 @@ static lean_object* _init_l___aux__Init__System__IO______macroRules__termPrintln
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("termS!_");
+x_1 = lean_mk_string_from_bytes("termS!_", 7);
 return x_1;
 }
 }
@@ -10075,7 +10075,7 @@ static lean_object* _init_l___aux__Init__System__IO______macroRules__termPrintln
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("s!");
+x_1 = lean_mk_string_from_bytes("s!", 2);
 return x_1;
 }
 }

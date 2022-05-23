@@ -405,7 +405,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_initFn____x40_Lean_Pr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("delabFailure");
+x_1 = lean_mk_string_from_bytes("delabFailure", 12);
 return x_1;
 }
 }
@@ -1680,7 +1680,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_mkDelabAttribute___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("builtinDelab");
+x_1 = lean_mk_string_from_bytes("builtinDelab", 12);
 return x_1;
 }
 }
@@ -1698,7 +1698,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_mkDelabAttribute___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("delab");
+x_1 = lean_mk_string_from_bytes("delab", 5);
 return x_1;
 }
 }
@@ -1716,7 +1716,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_mkDelabAttribute___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -1734,7 +1734,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_mkDelabAttribute___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("PrettyPrinter");
+x_1 = lean_mk_string_from_bytes("PrettyPrinter", 13);
 return x_1;
 }
 }
@@ -1752,7 +1752,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_mkDelabAttribute___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Delaborator");
+x_1 = lean_mk_string_from_bytes("Delaborator", 11);
 return x_1;
 }
 }
@@ -1770,7 +1770,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_mkDelabAttribute___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Delab");
+x_1 = lean_mk_string_from_bytes("Delab", 5);
 return x_1;
 }
 }
@@ -1788,7 +1788,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_mkDelabAttribute___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Register a delaborator.\n\n  [delab k] registers a declaration of type `Lean.PrettyPrinter.Delaborator.Delab` for the `Lean.Expr`\n  constructor `k`. Multiple delaborators for a single constructor are tried in turn until\n  the first success. If the term to be delaborated is an application of a constant `c`,\n  elaborators for `app.c` are tried first; this is also done for `Expr.const`s (\"nullary applications\")\n  to reduce special casing. If the term is an `Expr.mdata` with a single key `k`, `mdata.k`\n  is tried first.");
+x_1 = lean_mk_string_from_bytes("Register a delaborator.\n\n  [delab k] registers a declaration of type `Lean.PrettyPrinter.Delaborator.Delab` for the `Lean.Expr`\n  constructor `k`. Multiple delaborators for a single constructor are tried in turn until\n  the first success. If the term to be delaborated is an application of a constant `c`,\n  elaborators for `app.c` are tried first; this is also done for `Expr.const`s (\"nullary applications\")\n  to reduce special casing. If the term is an `Expr.mdata` with a single key `k`, `mdata.k`\n  is tried first.", 519);
 return x_1;
 }
 }
@@ -1832,7 +1832,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_mkDelabAttribute___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("delabAttribute");
+x_1 = lean_mk_string_from_bytes("delabAttribute", 14);
 return x_1;
 }
 }
@@ -1896,7 +1896,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_getExprKind___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("bvar");
+x_1 = lean_mk_string_from_bytes("bvar", 4);
 return x_1;
 }
 }
@@ -1914,7 +1914,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_getExprKind___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fvar");
+x_1 = lean_mk_string_from_bytes("fvar", 4);
 return x_1;
 }
 }
@@ -1932,7 +1932,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_getExprKind___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mvar");
+x_1 = lean_mk_string_from_bytes("mvar", 4);
 return x_1;
 }
 }
@@ -1950,7 +1950,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_getExprKind___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sort");
+x_1 = lean_mk_string_from_bytes("sort", 4);
 return x_1;
 }
 }
@@ -1968,7 +1968,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_getExprKind___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("app");
+x_1 = lean_mk_string_from_bytes("app", 3);
 return x_1;
 }
 }
@@ -1986,7 +1986,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_getExprKind___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lam");
+x_1 = lean_mk_string_from_bytes("lam", 3);
 return x_1;
 }
 }
@@ -2004,7 +2004,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_getExprKind___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("forallE");
+x_1 = lean_mk_string_from_bytes("forallE", 7);
 return x_1;
 }
 }
@@ -2022,7 +2022,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_getExprKind___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("letE");
+x_1 = lean_mk_string_from_bytes("letE", 4);
 return x_1;
 }
 }
@@ -2040,7 +2040,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_getExprKind___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lit");
+x_1 = lean_mk_string_from_bytes("lit", 3);
 return x_1;
 }
 }
@@ -2058,7 +2058,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_getExprKind___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mdata");
+x_1 = lean_mk_string_from_bytes("mdata", 5);
 return x_1;
 }
 }
@@ -2076,7 +2076,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_getExprKind___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("proj");
+x_1 = lean_mk_string_from_bytes("proj", 4);
 return x_1;
 }
 }
@@ -3090,7 +3090,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_getUnusedName___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("x");
+x_1 = lean_mk_string_from_bytes("x", 1);
 return x_1;
 }
 }
@@ -3108,7 +3108,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_getUnusedName___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("a");
+x_1 = lean_mk_string_from_bytes("a", 1);
 return x_1;
 }
 }
@@ -7059,7 +7059,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_delab___lambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -7077,7 +7077,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_delab___lambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -7095,7 +7095,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_delab___lambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("paren");
+x_1 = lean_mk_string_from_bytes("paren", 5);
 return x_1;
 }
 }
@@ -7113,7 +7113,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_delab___lambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -7121,7 +7121,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_delab___lambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -7139,7 +7139,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_delab___lambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("typeAscription");
+x_1 = lean_mk_string_from_bytes("typeAscription", 14);
 return x_1;
 }
 }
@@ -7157,7 +7157,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_delab___lambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -7183,7 +7183,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_delab___lambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -7216,7 +7216,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_delab___lambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("don't know how to delaborate '");
+x_1 = lean_mk_string_from_bytes("don't know how to delaborate '", 30);
 return x_1;
 }
 }
@@ -7233,7 +7233,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_delab___lambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -7756,7 +7756,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_delab___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hole");
+x_1 = lean_mk_string_from_bytes("hole", 4);
 return x_1;
 }
 }
@@ -7774,7 +7774,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_delab___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_");
+x_1 = lean_mk_string_from_bytes("_", 1);
 return x_1;
 }
 }
@@ -8285,7 +8285,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverloadCore___at_Lean_Pret
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ambiguous identifier '");
+x_1 = lean_mk_string_from_bytes("ambiguous identifier '", 22);
 return x_1;
 }
 }
@@ -8293,7 +8293,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverloadCore___at_Lean_Pret
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', possible interpretations: ");
+x_1 = lean_mk_string_from_bytes("', possible interpretations: ", 29);
 return x_1;
 }
 }
@@ -8301,7 +8301,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverloadCore___at_Lean_Pret
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -8494,7 +8494,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_mkAppUnexpanderAttrib
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("appUnexpander");
+x_1 = lean_mk_string_from_bytes("appUnexpander", 13);
 return x_1;
 }
 }
@@ -8512,7 +8512,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_mkAppUnexpanderAttrib
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Unexpander");
+x_1 = lean_mk_string_from_bytes("Unexpander", 10);
 return x_1;
 }
 }
@@ -8530,7 +8530,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_mkAppUnexpanderAttrib
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Register an unexpander for applications of a given constant.\n\n[appUnexpander c] registers a `Lean.PrettyPrinter.Unexpander` for applications of the constant `c`. The unexpander is\npassed the result of pre-pretty printing the application *without* implicitly passed arguments. If `pp.explicit` is set\nto true or `pp.notation` is set to false, it will not be called at all.");
+x_1 = lean_mk_string_from_bytes("Register an unexpander for applications of a given constant.\n\n[appUnexpander c] registers a `Lean.PrettyPrinter.Unexpander` for applications of the constant `c`. The unexpander is\npassed the result of pre-pretty printing the application *without* implicitly passed arguments. If `pp.explicit` is set\nto true or `pp.notation` is set to false, it will not be called at all.", 371);
 return x_1;
 }
 }
@@ -8566,7 +8566,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_mkAppUnexpanderAttrib
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("appUnexpanderAttribute");
+x_1 = lean_mk_string_from_bytes("appUnexpanderAttribute", 22);
 return x_1;
 }
 }
@@ -8760,7 +8760,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_delabCore___lambda__1___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Delaborator.Basic");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Delaborator.Basic", 36);
 return x_1;
 }
 }
@@ -8768,7 +8768,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_delabCore___lambda__1___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.delabCore");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.delabCore", 28);
 return x_1;
 }
 }
@@ -8776,7 +8776,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_delabCore___lambda__1___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -9289,7 +9289,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_delabCore___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("input");
+x_1 = lean_mk_string_from_bytes("input", 5);
 return x_1;
 }
 }

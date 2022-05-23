@@ -400,7 +400,7 @@ static lean_object* _init_l_Lean_mkErrorStringWithPos___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -408,7 +408,7 @@ static lean_object* _init_l_Lean_mkErrorStringWithPos___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -416,7 +416,7 @@ static lean_object* _init_l_Lean_mkErrorStringWithPos___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(": ");
+x_1 = lean_mk_string_from_bytes(": ", 2);
 return x_1;
 }
 }
@@ -424,7 +424,7 @@ static lean_object* _init_l_Lean_mkErrorStringWithPos___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("-");
+x_1 = lean_mk_string_from_bytes("-", 1);
 return x_1;
 }
 }
@@ -1645,7 +1645,7 @@ static lean_object* _init_l_Lean_MessageData_formatAux___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("goal ");
+x_1 = lean_mk_string_from_bytes("goal ", 5);
 return x_1;
 }
 }
@@ -1663,7 +1663,7 @@ static lean_object* _init_l_Lean_MessageData_formatAux___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_traceCtx");
+x_1 = lean_mk_string_from_bytes("_traceCtx", 9);
 return x_1;
 }
 }
@@ -1671,7 +1671,7 @@ static lean_object* _init_l_Lean_MessageData_formatAux___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -1689,7 +1689,7 @@ static lean_object* _init_l_Lean_MessageData_formatAux___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] ");
+x_1 = lean_mk_string_from_bytes("] ", 2);
 return x_1;
 }
 }
@@ -3158,7 +3158,7 @@ static lean_object* _init_l_Lean_MessageData_instCoeOptionExprMessageData___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("none");
+x_1 = lean_mk_string_from_bytes("none", 4);
 return x_1;
 }
 }
@@ -3215,7 +3215,7 @@ static lean_object* _init_l_Lean_MessageData_arrayExpr_toMessageData___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -3243,7 +3243,7 @@ static lean_object* _init_l_Lean_MessageData_arrayExpr_toMessageData___closed__4
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -3337,7 +3337,7 @@ static lean_object* _init_l_Lean_MessageData_instCoeArrayExprMessageData___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#[");
+x_1 = lean_mk_string_from_bytes("#[", 2);
 return x_1;
 }
 }
@@ -3411,7 +3411,7 @@ static lean_object* _init_l_Lean_MessageData_paren___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -3419,7 +3419,7 @@ static lean_object* _init_l_Lean_MessageData_paren___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -3496,7 +3496,7 @@ static lean_object* _init_l_Lean_MessageData_ofList___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[]");
+x_1 = lean_mk_string_from_bytes("[]", 2);
 return x_1;
 }
 }
@@ -3524,7 +3524,7 @@ static lean_object* _init_l_Lean_MessageData_ofList___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -3771,7 +3771,7 @@ static lean_object* _init_l_Lean_Message_toString___lambda__2___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n");
+x_1 = lean_mk_string_from_bytes("\n", 1);
 return x_1;
 }
 }
@@ -3827,7 +3827,7 @@ static lean_object* _init_l_Lean_Message_toString___lambda__3___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("warning: ");
+x_1 = lean_mk_string_from_bytes("warning: ", 9);
 return x_1;
 }
 }
@@ -3835,7 +3835,7 @@ static lean_object* _init_l_Lean_Message_toString___lambda__3___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("error: ");
+x_1 = lean_mk_string_from_bytes("error: ", 7);
 return x_1;
 }
 }
@@ -3896,7 +3896,7 @@ static lean_object* _init_l_Lean_Message_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":\n");
+x_1 = lean_mk_string_from_bytes(":\n", 2);
 return x_1;
 }
 }
@@ -6177,7 +6177,7 @@ static lean_object* _init_l_Lean_instToMessageDataOption___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("some (");
+x_1 = lean_mk_string_from_bytes("some (", 6);
 return x_1;
 }
 }
@@ -6262,7 +6262,7 @@ static lean_object* _init_l_Lean_instToMessageDataOptionExpr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<not-available>");
+x_1 = lean_mk_string_from_bytes("<not-available>", 15);
 return x_1;
 }
 }
@@ -6319,7 +6319,7 @@ static lean_object* _init_l_Lean_termM_x21_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -6337,7 +6337,7 @@ static lean_object* _init_l_Lean_termM_x21_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("termM!_");
+x_1 = lean_mk_string_from_bytes("termM!_", 7);
 return x_1;
 }
 }
@@ -6355,7 +6355,7 @@ static lean_object* _init_l_Lean_termM_x21_____closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("andthen");
+x_1 = lean_mk_string_from_bytes("andthen", 7);
 return x_1;
 }
 }
@@ -6373,7 +6373,7 @@ static lean_object* _init_l_Lean_termM_x21_____closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("m!");
+x_1 = lean_mk_string_from_bytes("m!", 2);
 return x_1;
 }
 }
@@ -6391,7 +6391,7 @@ static lean_object* _init_l_Lean_termM_x21_____closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("interpolatedStr");
+x_1 = lean_mk_string_from_bytes("interpolatedStr", 15);
 return x_1;
 }
 }
@@ -6409,7 +6409,7 @@ static lean_object* _init_l_Lean_termM_x21_____closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term");
+x_1 = lean_mk_string_from_bytes("term", 4);
 return x_1;
 }
 }
@@ -6487,7 +6487,7 @@ static lean_object* _init_l_Lean___aux__Lean__Message______macroRules__Lean__ter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("MessageData");
+x_1 = lean_mk_string_from_bytes("MessageData", 11);
 return x_1;
 }
 }
@@ -6562,7 +6562,7 @@ static lean_object* _init_l_Lean___aux__Lean__Message______macroRules__Lean__ter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("toMessageData");
+x_1 = lean_mk_string_from_bytes("toMessageData", 13);
 return x_1;
 }
 }
@@ -6603,7 +6603,7 @@ static lean_object* _init_l_Lean___aux__Lean__Message______macroRules__Lean__ter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ToMessageData");
+x_1 = lean_mk_string_from_bytes("ToMessageData", 13);
 return x_1;
 }
 }
@@ -6739,7 +6739,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(kernel) unknown constant '");
+x_1 = lean_mk_string_from_bytes("(kernel) unknown constant '", 27);
 return x_1;
 }
 }
@@ -6756,7 +6756,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -6773,7 +6773,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(kernel) constant has already been declared '");
+x_1 = lean_mk_string_from_bytes("(kernel) constant has already been declared '", 45);
 return x_1;
 }
 }
@@ -6790,7 +6790,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(kernel) declaration type mismatch");
+x_1 = lean_mk_string_from_bytes("(kernel) declaration type mismatch", 34);
 return x_1;
 }
 }
@@ -6818,7 +6818,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(kernel) declaration type mismatch, '");
+x_1 = lean_mk_string_from_bytes("(kernel) declaration type mismatch, '", 37);
 return x_1;
 }
 }
@@ -6835,7 +6835,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' has type");
+x_1 = lean_mk_string_from_bytes("' has type", 10);
 return x_1;
 }
 }
@@ -6852,7 +6852,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nbut it is expected to have type");
+x_1 = lean_mk_string_from_bytes("\nbut it is expected to have type", 32);
 return x_1;
 }
 }
@@ -6878,7 +6878,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(kernel) declaration has metavariables '");
+x_1 = lean_mk_string_from_bytes("(kernel) declaration has metavariables '", 40);
 return x_1;
 }
 }
@@ -6895,7 +6895,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__19() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(kernel) declaration has free variables '");
+x_1 = lean_mk_string_from_bytes("(kernel) declaration has free variables '", 41);
 return x_1;
 }
 }
@@ -6912,7 +6912,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__21() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(kernel) function expected");
+x_1 = lean_mk_string_from_bytes("(kernel) function expected", 26);
 return x_1;
 }
 }
@@ -6929,7 +6929,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__23() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(kernel) type expected");
+x_1 = lean_mk_string_from_bytes("(kernel) type expected", 22);
 return x_1;
 }
 }
@@ -6946,7 +6946,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__25() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(kernel) let-declaration type mismatch '");
+x_1 = lean_mk_string_from_bytes("(kernel) let-declaration type mismatch '", 40);
 return x_1;
 }
 }
@@ -6963,7 +6963,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__27() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(kernel) type mismatch at");
+x_1 = lean_mk_string_from_bytes("(kernel) type mismatch at", 25);
 return x_1;
 }
 }
@@ -6980,7 +6980,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__29() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("application type mismatch");
+x_1 = lean_mk_string_from_bytes("application type mismatch", 25);
 return x_1;
 }
 }
@@ -6997,7 +6997,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__31() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nargument has type");
+x_1 = lean_mk_string_from_bytes("\nargument has type", 18);
 return x_1;
 }
 }
@@ -7014,7 +7014,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__33() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nbut function has type");
+x_1 = lean_mk_string_from_bytes("\nbut function has type", 22);
 return x_1;
 }
 }
@@ -7031,7 +7031,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__35() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(kernel) invalid projection");
+x_1 = lean_mk_string_from_bytes("(kernel) invalid projection", 27);
 return x_1;
 }
 }
@@ -7048,7 +7048,7 @@ static lean_object* _init_l_Lean_KernelException_toMessageData___closed__37() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(kernel) ");
+x_1 = lean_mk_string_from_bytes("(kernel) ", 9);
 return x_1;
 }
 }

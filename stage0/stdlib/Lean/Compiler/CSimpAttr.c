@@ -1365,7 +1365,7 @@ static lean_object* _init_l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSim
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("csimp");
+x_1 = lean_mk_string_from_bytes("csimp", 5);
 return x_1;
 }
 }
@@ -1497,7 +1497,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___private_Lean_Compiler_CSimp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown constant '");
+x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
 return x_1;
 }
 }
@@ -1514,7 +1514,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___private_Lean_Compiler_CSimp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -1623,7 +1623,7 @@ static lean_object* _init_l___private_Lean_Compiler_CSimpAttr_0__Lean_Compiler_C
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -2224,7 +2224,7 @@ static lean_object* _init_l_Lean_Compiler_CSimp_add___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid 'csimp' theorem, only constant replacement theorems (e.g., `@f = @g`) are currently supported.");
+x_1 = lean_mk_string_from_bytes("invalid 'csimp' theorem, only constant replacement theorems (e.g., `@f = @g`) are currently supported.", 102);
 return x_1;
 }
 }
@@ -2433,7 +2433,7 @@ static lean_object* _init_l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSim
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("attribute cannot be erased");
+x_1 = lean_mk_string_from_bytes("attribute cannot be erased", 26);
 return x_1;
 }
 }
@@ -2459,7 +2459,7 @@ static lean_object* _init_l_Lean_Compiler_CSimp_initFn____x40_Lean_Compiler_CSim
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simplification theorem for the compiler");
+x_1 = lean_mk_string_from_bytes("simplification theorem for the compiler", 39);
 return x_1;
 }
 }

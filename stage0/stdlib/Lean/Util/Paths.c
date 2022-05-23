@@ -109,7 +109,7 @@ static lean_object* _init_l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("oleanPath");
+x_1 = lean_mk_string_from_bytes("oleanPath", 9);
 return x_1;
 }
 }
@@ -117,7 +117,7 @@ static lean_object* _init_l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("srcPath");
+x_1 = lean_mk_string_from_bytes("srcPath", 7);
 return x_1;
 }
 }
@@ -125,7 +125,7 @@ static lean_object* _init_l___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("loadDynlibPaths");
+x_1 = lean_mk_string_from_bytes("loadDynlibPaths", 15);
 return x_1;
 }
 }
@@ -291,7 +291,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Util_P
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected JSON array, got '");
+x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
 return x_1;
 }
 }
@@ -299,7 +299,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Util_P
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -575,7 +575,7 @@ static lean_object* _init_l_Lean_initSrcSearchPath___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("LEAN_SRC_PATH");
+x_1 = lean_mk_string_from_bytes("LEAN_SRC_PATH", 13);
 return x_1;
 }
 }
@@ -583,7 +583,7 @@ static lean_object* _init_l_Lean_initSrcSearchPath___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("..");
+x_1 = lean_mk_string_from_bytes("..", 2);
 return x_1;
 }
 }
@@ -591,7 +591,7 @@ static lean_object* _init_l_Lean_initSrcSearchPath___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("src");
+x_1 = lean_mk_string_from_bytes("src", 3);
 return x_1;
 }
 }
@@ -599,7 +599,7 @@ static lean_object* _init_l_Lean_initSrcSearchPath___rarg___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lean");
+x_1 = lean_mk_string_from_bytes("lean", 4);
 return x_1;
 }
 }
@@ -607,7 +607,7 @@ static lean_object* _init_l_Lean_initSrcSearchPath___rarg___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lake");
+x_1 = lean_mk_string_from_bytes("lake", 4);
 return x_1;
 }
 }

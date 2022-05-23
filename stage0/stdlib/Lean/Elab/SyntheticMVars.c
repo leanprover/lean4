@@ -2000,7 +2000,7 @@ static lean_object* _init_l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Elab.SyntheticMVars");
+x_1 = lean_mk_string_from_bytes("Lean.Elab.SyntheticMVars", 24);
 return x_1;
 }
 }
@@ -2008,7 +2008,7 @@ static lean_object* _init_l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Elab.SyntheticMVars.0.Lean.Elab.Term.synthesizePendingInstMVar");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Elab.SyntheticMVars.0.Lean.Elab.Term.synthesizePendingInstMVar", 76);
 return x_1;
 }
 }
@@ -2016,7 +2016,7 @@ static lean_object* _init_l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -2220,7 +2220,7 @@ static lean_object* _init_l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Elab.SyntheticMVars.0.Lean.Elab.Term.synthesizePendingCoeInstMVar");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Elab.SyntheticMVars.0.Lean.Elab.Term.synthesizePendingCoeInstMVar", 79);
 return x_1;
 }
 }
@@ -6346,7 +6346,7 @@ static lean_object* _init_l_Lean_Elab_Term_reportStuckSyntheticMVar___lambda__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("typeclass instance problem is stuck, it is often due to metavariables");
+x_1 = lean_mk_string_from_bytes("typeclass instance problem is stuck, it is often due to metavariables", 69);
 return x_1;
 }
 }
@@ -6363,7 +6363,7 @@ static lean_object* _init_l_Lean_Elab_Term_reportStuckSyntheticMVar___lambda__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -6478,7 +6478,7 @@ static lean_object* _init_l_Lean_Elab_Term_reportStuckSyntheticMVar___lambda__2_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to create type class instance for ");
+x_1 = lean_mk_string_from_bytes("failed to create type class instance for ", 41);
 return x_1;
 }
 }
@@ -6530,7 +6530,7 @@ static lean_object* _init_l_Lean_Elab_Term_reportStuckSyntheticMVar___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Elab.Term.reportStuckSyntheticMVar");
+x_1 = lean_mk_string_from_bytes("Lean.Elab.Term.reportStuckSyntheticMVar", 39);
 return x_1;
 }
 }
@@ -8614,7 +8614,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_Synthe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("stuck at solving universe constraint");
+x_1 = lean_mk_string_from_bytes("stuck at solving universe constraint", 36);
 return x_1;
 }
 }
@@ -10631,7 +10631,7 @@ static lean_object* _init_l_List_filterAuxM___at___private_Lean_Elab_SyntheticMV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("postpone");
+x_1 = lean_mk_string_from_bytes("postpone", 8);
 return x_1;
 }
 }
@@ -10639,7 +10639,7 @@ static lean_object* _init_l_List_filterAuxM___at___private_Lean_Elab_SyntheticMV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("not ready yet");
+x_1 = lean_mk_string_from_bytes("not ready yet", 13);
 return x_1;
 }
 }
@@ -10667,7 +10667,7 @@ static lean_object* _init_l_List_filterAuxM___at___private_Lean_Elab_SyntheticMV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("succeeded");
+x_1 = lean_mk_string_from_bytes("succeeded", 9);
 return x_1;
 }
 }
@@ -10695,7 +10695,7 @@ static lean_object* _init_l_List_filterAuxM___at___private_Lean_Elab_SyntheticMV
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("resuming ");
+x_1 = lean_mk_string_from_bytes("resuming ", 9);
 return x_1;
 }
 }
@@ -11070,7 +11070,7 @@ static lean_object* _init_l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("resuming synthetic metavariables, mayPostpone: ");
+x_1 = lean_mk_string_from_bytes("resuming synthetic metavariables, mayPostpone: ", 47);
 return x_1;
 }
 }
@@ -11087,7 +11087,7 @@ static lean_object* _init_l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", postponeOnError: ");
+x_1 = lean_mk_string_from_bytes(", postponeOnError: ", 19);
 return x_1;
 }
 }
@@ -11104,7 +11104,7 @@ static lean_object* _init_l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("false");
+x_1 = lean_mk_string_from_bytes("false", 5);
 return x_1;
 }
 }
@@ -11180,7 +11180,7 @@ static lean_object* _init_l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("true");
+x_1 = lean_mk_string_from_bytes("true", 4);
 return x_1;
 }
 }
@@ -11341,7 +11341,7 @@ static lean_object* _init_l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -11359,7 +11359,7 @@ static lean_object* _init_l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("resuming");
+x_1 = lean_mk_string_from_bytes("resuming", 8);
 return x_1;
 }
 }
@@ -15510,7 +15510,7 @@ static lean_object* _init_l_Lean_Elab_Term_initFn____x40_Lean_Elab_SyntheticMVar
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("resume");
+x_1 = lean_mk_string_from_bytes("resume", 6);
 return x_1;
 }
 }

@@ -28,6 +28,7 @@ static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__Li
 LEAN_EXPORT lean_object* l_List_tacticSizeOf__list__dec;
 static lean_object* l_List_tail_x21___rarg___closed__2;
 lean_object* lean_name_mk_string(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_get_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__11;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__68;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__51;
@@ -102,6 +103,7 @@ static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__Li
 LEAN_EXPORT lean_object* l_List_get_x21(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__18;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__30;
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_get_match__1_splitter(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__5;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__14;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__34;
@@ -171,12 +173,13 @@ LEAN_EXPORT lean_object* l_List_getLast___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_getLastD___rarg(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__tacticDecreasing__trivial__1___closed__1;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__17;
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_get_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__36;
 static lean_object* _init_l_List_get_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Init.Data.List.BasicAux");
+x_1 = lean_mk_string_from_bytes("Init.Data.List.BasicAux", 23);
 return x_1;
 }
 }
@@ -184,7 +187,7 @@ static lean_object* _init_l_List_get_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("List.get!");
+x_1 = lean_mk_string_from_bytes("List.get!", 9);
 return x_1;
 }
 }
@@ -192,7 +195,7 @@ static lean_object* _init_l_List_get_x21___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid index");
+x_1 = lean_mk_string_from_bytes("invalid index", 13);
 return x_1;
 }
 }
@@ -362,7 +365,7 @@ static lean_object* _init_l_List_head_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("List.head!");
+x_1 = lean_mk_string_from_bytes("List.head!", 10);
 return x_1;
 }
 }
@@ -370,7 +373,7 @@ static lean_object* _init_l_List_head_x21___rarg___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("empty list");
+x_1 = lean_mk_string_from_bytes("empty list", 10);
 return x_1;
 }
 }
@@ -543,7 +546,7 @@ static lean_object* _init_l_List_tail_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("List.tail!");
+x_1 = lean_mk_string_from_bytes("List.tail!", 10);
 return x_1;
 }
 }
@@ -715,7 +718,7 @@ static lean_object* _init_l_List_getLast_x21___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("List.getLast!");
+x_1 = lean_mk_string_from_bytes("List.getLast!", 13);
 return x_1;
 }
 }
@@ -968,11 +971,57 @@ lean_dec(x_2);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_get_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; 
+x_5 = lean_ctor_get(x_1, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_1, 1);
+lean_inc(x_6);
+lean_dec(x_1);
+x_7 = lean_unsigned_to_nat(0u);
+x_8 = lean_nat_dec_eq(x_2, x_7);
+if (x_8 == 0)
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_dec(x_3);
+x_9 = lean_unsigned_to_nat(1u);
+x_10 = lean_nat_sub(x_2, x_9);
+x_11 = lean_apply_4(x_4, x_5, x_6, x_10, lean_box(0));
+return x_11;
+}
+else
+{
+lean_object* x_12; 
+lean_dec(x_4);
+x_12 = lean_apply_3(x_3, x_5, x_6, lean_box(0));
+return x_12;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_get_match__1_splitter(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l___private_Init_Data_List_BasicAux_0__List_get_match__1_splitter___rarg___boxed), 4, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_get_match__1_splitter___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l___private_Init_Data_List_BasicAux_0__List_get_match__1_splitter___rarg(x_1, x_2, x_3, x_4);
+lean_dec(x_2);
+return x_5;
+}
+}
 static lean_object* _init_l_List_tacticSizeOf__list__dec___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("List");
+x_1 = lean_mk_string_from_bytes("List", 4);
 return x_1;
 }
 }
@@ -990,7 +1039,7 @@ static lean_object* _init_l_List_tacticSizeOf__list__dec___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticSizeOf_list_dec");
+x_1 = lean_mk_string_from_bytes("tacticSizeOf_list_dec", 21);
 return x_1;
 }
 }
@@ -1008,7 +1057,7 @@ static lean_object* _init_l_List_tacticSizeOf__list__dec___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sizeOf_list_dec");
+x_1 = lean_mk_string_from_bytes("sizeOf_list_dec", 15);
 return x_1;
 }
 }
@@ -1050,7 +1099,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -1068,7 +1117,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -1086,7 +1135,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -1104,7 +1153,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("seq1");
+x_1 = lean_mk_string_from_bytes("seq1", 4);
 return x_1;
 }
 }
@@ -1122,7 +1171,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -1140,7 +1189,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("first");
+x_1 = lean_mk_string_from_bytes("first", 5);
 return x_1;
 }
 }
@@ -1158,7 +1207,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("group");
+x_1 = lean_mk_string_from_bytes("group", 5);
 return x_1;
 }
 }
@@ -1176,7 +1225,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("|");
+x_1 = lean_mk_string_from_bytes("|", 1);
 return x_1;
 }
 }
@@ -1184,7 +1233,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticSeq");
+x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
 return x_1;
 }
 }
@@ -1202,7 +1251,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticSeq1Indented");
+x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
 return x_1;
 }
 }
@@ -1220,7 +1269,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("apply");
+x_1 = lean_mk_string_from_bytes("apply", 5);
 return x_1;
 }
 }
@@ -1238,7 +1287,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sizeOf_lt_of_mem");
+x_1 = lean_mk_string_from_bytes("sizeOf_lt_of_mem", 16);
 return x_1;
 }
 }
@@ -1322,7 +1371,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(";");
+x_1 = lean_mk_string_from_bytes(";", 1);
 return x_1;
 }
 }
@@ -1339,7 +1388,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assumption");
+x_1 = lean_mk_string_from_bytes("assumption", 10);
 return x_1;
 }
 }
@@ -1357,7 +1406,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("done");
+x_1 = lean_mk_string_from_bytes("done", 4);
 return x_1;
 }
 }
@@ -1407,7 +1456,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -1425,7 +1474,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("app");
+x_1 = lean_mk_string_from_bytes("app", 3);
 return x_1;
 }
 }
@@ -1443,7 +1492,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat.lt_trans");
+x_1 = lean_mk_string_from_bytes("Nat.lt_trans", 12);
 return x_1;
 }
 }
@@ -1474,7 +1523,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat");
+x_1 = lean_mk_string_from_bytes("Nat", 3);
 return x_1;
 }
 }
@@ -1492,7 +1541,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lt_trans");
+x_1 = lean_mk_string_from_bytes("lt_trans", 8);
 return x_1;
 }
 }
@@ -1534,7 +1583,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("paren");
+x_1 = lean_mk_string_from_bytes("paren", 5);
 return x_1;
 }
 }
@@ -1552,7 +1601,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -1560,7 +1609,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("syntheticHole");
+x_1 = lean_mk_string_from_bytes("syntheticHole", 13);
 return x_1;
 }
 }
@@ -1578,7 +1627,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("?");
+x_1 = lean_mk_string_from_bytes("?", 1);
 return x_1;
 }
 }
@@ -1586,7 +1635,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("h");
+x_1 = lean_mk_string_from_bytes("h", 1);
 return x_1;
 }
 }
@@ -1627,7 +1676,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -1635,7 +1684,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("case'");
+x_1 = lean_mk_string_from_bytes("case'", 5);
 return x_1;
 }
 }
@@ -1653,7 +1702,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("=>");
+x_1 = lean_mk_string_from_bytes("=>", 2);
 return x_1;
 }
 }
@@ -1670,7 +1719,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simpArith");
+x_1 = lean_mk_string_from_bytes("simpArith", 9);
 return x_1;
 }
 }
@@ -1688,7 +1737,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simp_arith");
+x_1 = lean_mk_string_from_bytes("simp_arith", 10);
 return x_1;
 }
 }
@@ -2418,7 +2467,7 @@ static lean_object* _init_l_List___aux__Init__Data__List__BasicAux______macroRul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticDecreasing_trivial");
+x_1 = lean_mk_string_from_bytes("tacticDecreasing_trivial", 24);
 return x_1;
 }
 }

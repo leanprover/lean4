@@ -217,7 +217,7 @@ static lean_object* _init_l_Lean_Elab_instToFormatAttribute___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -235,7 +235,7 @@ static lean_object* _init_l_Lean_Elab_instToFormatAttribute___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("@[");
+x_1 = lean_mk_string_from_bytes("@[", 2);
 return x_1;
 }
 }
@@ -271,7 +271,7 @@ static lean_object* _init_l_Lean_Elab_instToFormatAttribute___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -289,7 +289,7 @@ static lean_object* _init_l_Lean_Elab_instToFormatAttribute___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("local ");
+x_1 = lean_mk_string_from_bytes("local ", 6);
 return x_1;
 }
 }
@@ -297,7 +297,7 @@ static lean_object* _init_l_Lean_Elab_instToFormatAttribute___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("scoped ");
+x_1 = lean_mk_string_from_bytes("scoped ", 7);
 return x_1;
 }
 }
@@ -406,7 +406,7 @@ static lean_object* _init_l_Lean_Elab_toAttributeKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -424,7 +424,7 @@ static lean_object* _init_l_Lean_Elab_toAttributeKind___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -442,7 +442,7 @@ static lean_object* _init_l_Lean_Elab_toAttributeKind___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -460,7 +460,7 @@ static lean_object* _init_l_Lean_Elab_toAttributeKind___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("scoped");
+x_1 = lean_mk_string_from_bytes("scoped", 6);
 return x_1;
 }
 }
@@ -486,7 +486,7 @@ static lean_object* _init_l_Lean_Elab_toAttributeKind___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("scoped attributes must be used inside namespaces");
+x_1 = lean_mk_string_from_bytes("scoped attributes must be used inside namespaces", 48);
 return x_1;
 }
 }
@@ -654,7 +654,7 @@ static lean_object* _init_l_Lean_Elab_mkAttrKindGlobal___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("attrKind");
+x_1 = lean_mk_string_from_bytes("attrKind", 8);
 return x_1;
 }
 }
@@ -1936,7 +1936,7 @@ static lean_object* _init_l_Lean_Elab_elabAttr___rarg___lambda__2___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown attribute [");
+x_1 = lean_mk_string_from_bytes("unknown attribute [", 19);
 return x_1;
 }
 }
@@ -2031,7 +2031,7 @@ static lean_object* _init_l_Lean_Elab_elabAttr___rarg___lambda__4___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Attr");
+x_1 = lean_mk_string_from_bytes("Attr", 4);
 return x_1;
 }
 }
@@ -2049,7 +2049,7 @@ static lean_object* _init_l_Lean_Elab_elabAttr___rarg___lambda__4___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simple");
+x_1 = lean_mk_string_from_bytes("simple", 6);
 return x_1;
 }
 }
@@ -2067,7 +2067,7 @@ static lean_object* _init_l_Lean_Elab_elabAttr___rarg___lambda__4___closed__5() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown attribute");
+x_1 = lean_mk_string_from_bytes("unknown attribute", 17);
 return x_1;
 }
 }

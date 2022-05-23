@@ -349,7 +349,7 @@ static lean_object* _init_l_Lean_Lsp_instInhabitedCancelParams___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -410,7 +410,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonCanc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("id");
+x_1 = lean_mk_string_from_bytes("id", 2);
 return x_1;
 }
 }
@@ -817,7 +817,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonPosi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("line");
+x_1 = lean_mk_string_from_bytes("line", 4);
 return x_1;
 }
 }
@@ -825,7 +825,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonPosi
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("character");
+x_1 = lean_mk_string_from_bytes("character", 9);
 return x_1;
 }
 }
@@ -1019,7 +1019,7 @@ static lean_object* _init_l_Lean_Lsp_instToStringPosition___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -1027,7 +1027,7 @@ static lean_object* _init_l_Lean_Lsp_instToStringPosition___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -1035,7 +1035,7 @@ static lean_object* _init_l_Lean_Lsp_instToStringPosition___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -1191,7 +1191,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonRang
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("start");
+x_1 = lean_mk_string_from_bytes("start", 5);
 return x_1;
 }
 }
@@ -1199,7 +1199,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonRang
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("end");
+x_1 = lean_mk_string_from_bytes("end", 3);
 return x_1;
 }
 }
@@ -1552,7 +1552,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonLoca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("uri");
+x_1 = lean_mk_string_from_bytes("uri", 3);
 return x_1;
 }
 }
@@ -1560,7 +1560,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonLoca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("range");
+x_1 = lean_mk_string_from_bytes("range", 5);
 return x_1;
 }
 }
@@ -1799,7 +1799,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonLoca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("originSelectionRange");
+x_1 = lean_mk_string_from_bytes("originSelectionRange", 20);
 return x_1;
 }
 }
@@ -1807,7 +1807,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonLoca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("targetUri");
+x_1 = lean_mk_string_from_bytes("targetUri", 9);
 return x_1;
 }
 }
@@ -1815,7 +1815,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonLoca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("targetRange");
+x_1 = lean_mk_string_from_bytes("targetRange", 11);
 return x_1;
 }
 }
@@ -1823,7 +1823,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonLoca
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("targetSelectionRange");
+x_1 = lean_mk_string_from_bytes("targetSelectionRange", 20);
 return x_1;
 }
 }
@@ -2229,7 +2229,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonComm
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("title");
+x_1 = lean_mk_string_from_bytes("title", 5);
 return x_1;
 }
 }
@@ -2237,7 +2237,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonComm
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("command");
+x_1 = lean_mk_string_from_bytes("command", 7);
 return x_1;
 }
 }
@@ -2245,7 +2245,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonComm
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("arguments");
+x_1 = lean_mk_string_from_bytes("arguments", 9);
 return x_1;
 }
 }
@@ -2354,7 +2354,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected JSON array, got '");
+x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
 return x_1;
 }
 }
@@ -2362,7 +2362,7 @@ static lean_object* _init_l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -2596,7 +2596,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonText
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("newText");
+x_1 = lean_mk_string_from_bytes("newText", 7);
 return x_1;
 }
 }
@@ -3065,7 +3065,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonVers
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("version");
+x_1 = lean_mk_string_from_bytes("version", 7);
 return x_1;
 }
 }
@@ -3304,7 +3304,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonText
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("textDocument");
+x_1 = lean_mk_string_from_bytes("textDocument", 12);
 return x_1;
 }
 }
@@ -3312,7 +3312,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonText
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("edits");
+x_1 = lean_mk_string_from_bytes("edits", 5);
 return x_1;
 }
 }
@@ -3552,7 +3552,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonText
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("languageId");
+x_1 = lean_mk_string_from_bytes("languageId", 10);
 return x_1;
 }
 }
@@ -3560,7 +3560,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonText
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("text");
+x_1 = lean_mk_string_from_bytes("text", 4);
 return x_1;
 }
 }
@@ -3826,7 +3826,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonText
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("position");
+x_1 = lean_mk_string_from_bytes("position", 8);
 return x_1;
 }
 }
@@ -4016,7 +4016,7 @@ static lean_object* _init_l_Lean_Lsp_instToStringTextDocumentPositionParams___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -4106,7 +4106,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonDocu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("language");
+x_1 = lean_mk_string_from_bytes("language", 8);
 return x_1;
 }
 }
@@ -4114,7 +4114,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonDocu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("scheme");
+x_1 = lean_mk_string_from_bytes("scheme", 6);
 return x_1;
 }
 }
@@ -4122,7 +4122,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonDocu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("pattern");
+x_1 = lean_mk_string_from_bytes("pattern", 7);
 return x_1;
 }
 }
@@ -4720,7 +4720,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonText
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("documentSelector");
+x_1 = lean_mk_string_from_bytes("documentSelector", 16);
 return x_1;
 }
 }
@@ -5005,7 +5005,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonMarkupKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown MarkupKind");
+x_1 = lean_mk_string_from_bytes("unknown MarkupKind", 18);
 return x_1;
 }
 }
@@ -5023,7 +5023,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonMarkupKind___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("plaintext");
+x_1 = lean_mk_string_from_bytes("plaintext", 9);
 return x_1;
 }
 }
@@ -5031,7 +5031,7 @@ static lean_object* _init_l_Lean_Lsp_instFromJsonMarkupKind___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("markdown");
+x_1 = lean_mk_string_from_bytes("markdown", 8);
 return x_1;
 }
 }
@@ -5159,7 +5159,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonMark
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("value");
+x_1 = lean_mk_string_from_bytes("value", 5);
 return x_1;
 }
 }
@@ -5167,7 +5167,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonMark
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("kind");
+x_1 = lean_mk_string_from_bytes("kind", 4);
 return x_1;
 }
 }
@@ -5464,7 +5464,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonProg
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("token");
+x_1 = lean_mk_string_from_bytes("token", 5);
 return x_1;
 }
 }
@@ -5535,7 +5535,7 @@ static lean_object* _init_l_Lean_Lsp_WorkDoneProgressReport_kind___default___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("report");
+x_1 = lean_mk_string_from_bytes("report", 6);
 return x_1;
 }
 }
@@ -5575,7 +5575,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("message");
+x_1 = lean_mk_string_from_bytes("message", 7);
 return x_1;
 }
 }
@@ -5583,7 +5583,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("cancellable");
+x_1 = lean_mk_string_from_bytes("cancellable", 11);
 return x_1;
 }
 }
@@ -5591,7 +5591,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonWork
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("percentage");
+x_1 = lean_mk_string_from_bytes("percentage", 10);
 return x_1;
 }
 }
@@ -5668,7 +5668,7 @@ static lean_object* _init_l_Lean_Lsp_WorkDoneProgressBegin_kind___default___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("begin");
+x_1 = lean_mk_string_from_bytes("begin", 5);
 return x_1;
 }
 }

@@ -742,7 +742,7 @@ static lean_object* _init_l_Lean_Meta_rewrite___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_a");
+x_1 = lean_mk_string_from_bytes("_a", 2);
 return x_1;
 }
 }
@@ -760,7 +760,7 @@ static lean_object* _init_l_Lean_Meta_rewrite___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("motive is not type correct");
+x_1 = lean_mk_string_from_bytes("motive is not type correct", 26);
 return x_1;
 }
 }
@@ -955,7 +955,7 @@ static lean_object* _init_l_Lean_Meta_rewrite___lambda__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("did not find instance of the pattern in the target expression");
+x_1 = lean_mk_string_from_bytes("did not find instance of the pattern in the target expression", 61);
 return x_1;
 }
 }
@@ -972,7 +972,7 @@ static lean_object* _init_l_Lean_Meta_rewrite___lambda__3___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -3645,7 +3645,7 @@ static lean_object* _init_l_Lean_Meta_rewrite___lambda__13___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Iff");
+x_1 = lean_mk_string_from_bytes("Iff", 3);
 return x_1;
 }
 }
@@ -3663,7 +3663,7 @@ static lean_object* _init_l_Lean_Meta_rewrite___lambda__13___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("equality or iff proof expected");
+x_1 = lean_mk_string_from_bytes("equality or iff proof expected", 30);
 return x_1;
 }
 }
@@ -3680,7 +3680,7 @@ static lean_object* _init_l_Lean_Meta_rewrite___lambda__13___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("pattern is a metavariable");
+x_1 = lean_mk_string_from_bytes("pattern is a metavariable", 25);
 return x_1;
 }
 }
@@ -3697,7 +3697,7 @@ static lean_object* _init_l_Lean_Meta_rewrite___lambda__13___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nfrom equation");
+x_1 = lean_mk_string_from_bytes("\nfrom equation", 14);
 return x_1;
 }
 }
@@ -3714,7 +3714,7 @@ static lean_object* _init_l_Lean_Meta_rewrite___lambda__13___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("propext");
+x_1 = lean_mk_string_from_bytes("propext", 7);
 return x_1;
 }
 }
@@ -4664,7 +4664,7 @@ static lean_object* _init_l_Lean_Meta_rewrite___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("rewrite");
+x_1 = lean_mk_string_from_bytes("rewrite", 7);
 return x_1;
 }
 }

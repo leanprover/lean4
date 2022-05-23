@@ -237,7 +237,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("PSigma");
+x_1 = lean_mk_string_from_bytes("PSigma", 6);
 return x_1;
 }
 }
@@ -357,7 +357,7 @@ static lean_object* _init_l_Lean_Elab_WF_mkUnaryArg_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assertion violation: ");
+x_1 = lean_mk_string_from_bytes("assertion violation: ", 21);
 return x_1;
 }
 }
@@ -365,7 +365,7 @@ static lean_object* _init_l_Lean_Elab_WF_mkUnaryArg_go___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("type.isAppOfArity ``PSigma 2\n      ");
+x_1 = lean_mk_string_from_bytes("type.isAppOfArity ``PSigma 2\n      ", 35);
 return x_1;
 }
 }
@@ -383,7 +383,7 @@ static lean_object* _init_l_Lean_Elab_WF_mkUnaryArg_go___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Elab.PreDefinition.WF.PackDomain");
+x_1 = lean_mk_string_from_bytes("Lean.Elab.PreDefinition.WF.PackDomain", 37);
 return x_1;
 }
 }
@@ -391,7 +391,7 @@ static lean_object* _init_l_Lean_Elab_WF_mkUnaryArg_go___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Elab.WF.mkUnaryArg.go");
+x_1 = lean_mk_string_from_bytes("Lean.Elab.WF.mkUnaryArg.go", 26);
 return x_1;
 }
 }
@@ -412,7 +412,7 @@ static lean_object* _init_l_Lean_Elab_WF_mkUnaryArg_go___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("β.isLambda\n      ");
+x_1 = lean_mk_string_from_bytes("β.isLambda\n      ", 18);
 return x_1;
 }
 }
@@ -443,7 +443,7 @@ static lean_object* _init_l_Lean_Elab_WF_mkUnaryArg_go___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mk");
+x_1 = lean_mk_string_from_bytes("mk", 2);
 return x_1;
 }
 }
@@ -652,7 +652,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_PackDomain_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Elab.PreDefinition.WF.PackDomain.0.Lean.Elab.WF.mkPSigmaCasesOn.go");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Elab.PreDefinition.WF.PackDomain.0.Lean.Elab.WF.mkPSigmaCasesOn.go", 80);
 return x_1;
 }
 }
@@ -660,7 +660,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_PackDomain_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -3433,7 +3433,7 @@ static lean_object* _init_l_Lean_Expr_withAppAux___at_Lean_Elab_WF_packDomain_pa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("aux");
+x_1 = lean_mk_string_from_bytes("aux", 3);
 return x_1;
 }
 }
@@ -5066,7 +5066,7 @@ static lean_object* _init_l_Lean_Elab_WF_packDomain_packApplications___lambda__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Elab.WF.packDomain.packApplications");
+x_1 = lean_mk_string_from_bytes("Lean.Elab.WF.packDomain.packApplications", 40);
 return x_1;
 }
 }
@@ -5510,7 +5510,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_packDomain_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_unary");
+x_1 = lean_mk_string_from_bytes("_unary", 6);
 return x_1;
 }
 }
@@ -5660,7 +5660,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_packDomain_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_x");
+x_1 = lean_mk_string_from_bytes("_x", 2);
 return x_1;
 }
 }
@@ -5890,7 +5890,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_packDomain_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("well-founded recursion cannot be used, '");
+x_1 = lean_mk_string_from_bytes("well-founded recursion cannot be used, '", 40);
 return x_1;
 }
 }
@@ -5907,7 +5907,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_WF_packDomain_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' does not take any (non-fixed) arguments");
+x_1 = lean_mk_string_from_bytes("' does not take any (non-fixed) arguments", 41);
 return x_1;
 }
 }
@@ -6485,7 +6485,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_WF_packDomain___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("well-founded recursion cannot be used, function '");
+x_1 = lean_mk_string_from_bytes("well-founded recursion cannot be used, function '", 49);
 return x_1;
 }
 }
@@ -6502,7 +6502,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_WF_packDomain___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' contains application of function '");
+x_1 = lean_mk_string_from_bytes("' contains application of function '", 36);
 return x_1;
 }
 }
@@ -6519,7 +6519,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_WF_packDomain___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' with #");
+x_1 = lean_mk_string_from_bytes("' with #", 8);
 return x_1;
 }
 }
@@ -6536,7 +6536,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_WF_packDomain___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" argument(s), but function has arity ");
+x_1 = lean_mk_string_from_bytes(" argument(s), but function has arity ", 37);
 return x_1;
 }
 }
@@ -6553,7 +6553,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Elab_WF_packDomain___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }

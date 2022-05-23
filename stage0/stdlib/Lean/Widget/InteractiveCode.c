@@ -222,7 +222,7 @@ static lean_object* _init_l_Lean_Widget_instInhabitedInfoWithCtx___closed__10() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -365,7 +365,7 @@ static lean_object* _init_l_Lean_Widget_encodeUnsafe____x40_Lean_Widget_Interact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -383,7 +383,7 @@ static lean_object* _init_l_Lean_Widget_encodeUnsafe____x40_Lean_Widget_Interact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Widget");
+x_1 = lean_mk_string_from_bytes("Widget", 6);
 return x_1;
 }
 }
@@ -401,7 +401,7 @@ static lean_object* _init_l_Lean_Widget_encodeUnsafe____x40_Lean_Widget_Interact
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("InfoWithCtx");
+x_1 = lean_mk_string_from_bytes("InfoWithCtx", 11);
 return x_1;
 }
 }
@@ -551,7 +551,7 @@ static lean_object* _init_l___private_Lean_Widget_InteractiveCode_0__Lean_Widget
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("info");
+x_1 = lean_mk_string_from_bytes("info", 4);
 return x_1;
 }
 }
@@ -3459,7 +3459,7 @@ static lean_object* _init_l_Lean_Widget_exprToInteractive___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("pp");
+x_1 = lean_mk_string_from_bytes("pp", 2);
 return x_1;
 }
 }
@@ -3477,7 +3477,7 @@ static lean_object* _init_l_Lean_Widget_exprToInteractive___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("all");
+x_1 = lean_mk_string_from_bytes("all", 3);
 return x_1;
 }
 }

@@ -59,7 +59,7 @@ static lean_object* _init_l_Std_termF_x21_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Std");
+x_1 = lean_mk_string_from_bytes("Std", 3);
 return x_1;
 }
 }
@@ -77,7 +77,7 @@ static lean_object* _init_l_Std_termF_x21_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("termF!_");
+x_1 = lean_mk_string_from_bytes("termF!_", 7);
 return x_1;
 }
 }
@@ -95,7 +95,7 @@ static lean_object* _init_l_Std_termF_x21_____closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("andthen");
+x_1 = lean_mk_string_from_bytes("andthen", 7);
 return x_1;
 }
 }
@@ -113,7 +113,7 @@ static lean_object* _init_l_Std_termF_x21_____closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("f!");
+x_1 = lean_mk_string_from_bytes("f!", 2);
 return x_1;
 }
 }
@@ -131,7 +131,7 @@ static lean_object* _init_l_Std_termF_x21_____closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("interpolatedStr");
+x_1 = lean_mk_string_from_bytes("interpolatedStr", 15);
 return x_1;
 }
 }
@@ -149,7 +149,7 @@ static lean_object* _init_l_Std_termF_x21_____closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term");
+x_1 = lean_mk_string_from_bytes("term", 4);
 return x_1;
 }
 }
@@ -227,7 +227,7 @@ static lean_object* _init_l_Std___aux__Init__Data__Format__Macro______macroRules
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Format");
+x_1 = lean_mk_string_from_bytes("Format", 6);
 return x_1;
 }
 }
@@ -302,7 +302,7 @@ static lean_object* _init_l_Std___aux__Init__Data__Format__Macro______macroRules
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Std.format");
+x_1 = lean_mk_string_from_bytes("Std.format", 10);
 return x_1;
 }
 }
@@ -333,7 +333,7 @@ static lean_object* _init_l_Std___aux__Init__Data__Format__Macro______macroRules
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("format");
+x_1 = lean_mk_string_from_bytes("format", 6);
 return x_1;
 }
 }
@@ -351,7 +351,7 @@ static lean_object* _init_l_Std___aux__Init__Data__Format__Macro______macroRules
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ToFormat");
+x_1 = lean_mk_string_from_bytes("ToFormat", 8);
 return x_1;
 }
 }

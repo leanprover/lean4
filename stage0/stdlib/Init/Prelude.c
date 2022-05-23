@@ -3635,7 +3635,7 @@ static lean_object* _init_l_instInhabitedSubstring___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -7205,7 +7205,7 @@ static lean_object* _init_l_Lean_choiceKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("choice");
+x_1 = lean_mk_string_from_bytes("choice", 6);
 return x_1;
 }
 }
@@ -7231,7 +7231,7 @@ static lean_object* _init_l_Lean_nullKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -7257,7 +7257,7 @@ static lean_object* _init_l_Lean_groupKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("group");
+x_1 = lean_mk_string_from_bytes("group", 5);
 return x_1;
 }
 }
@@ -7283,7 +7283,7 @@ static lean_object* _init_l_Lean_identKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ident");
+x_1 = lean_mk_string_from_bytes("ident", 5);
 return x_1;
 }
 }
@@ -7309,7 +7309,7 @@ static lean_object* _init_l_Lean_strLitKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("str");
+x_1 = lean_mk_string_from_bytes("str", 3);
 return x_1;
 }
 }
@@ -7335,7 +7335,7 @@ static lean_object* _init_l_Lean_charLitKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("char");
+x_1 = lean_mk_string_from_bytes("char", 4);
 return x_1;
 }
 }
@@ -7361,7 +7361,7 @@ static lean_object* _init_l_Lean_numLitKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("num");
+x_1 = lean_mk_string_from_bytes("num", 3);
 return x_1;
 }
 }
@@ -7387,7 +7387,7 @@ static lean_object* _init_l_Lean_scientificLitKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("scientific");
+x_1 = lean_mk_string_from_bytes("scientific", 10);
 return x_1;
 }
 }
@@ -7413,7 +7413,7 @@ static lean_object* _init_l_Lean_nameLitKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("name");
+x_1 = lean_mk_string_from_bytes("name", 4);
 return x_1;
 }
 }
@@ -7439,7 +7439,7 @@ static lean_object* _init_l_Lean_fieldIdxKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fieldIdx");
+x_1 = lean_mk_string_from_bytes("fieldIdx", 8);
 return x_1;
 }
 }
@@ -7465,7 +7465,7 @@ static lean_object* _init_l_Lean_interpolatedStrLitKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("interpolatedStrLitKind");
+x_1 = lean_mk_string_from_bytes("interpolatedStrLitKind", 22);
 return x_1;
 }
 }
@@ -7491,7 +7491,7 @@ static lean_object* _init_l_Lean_interpolatedStrKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("interpolatedStrKind");
+x_1 = lean_mk_string_from_bytes("interpolatedStrKind", 19);
 return x_1;
 }
 }
@@ -7517,7 +7517,7 @@ static lean_object* _init_l_Lean_Syntax_getKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("missing");
+x_1 = lean_mk_string_from_bytes("missing", 7);
 return x_1;
 }
 }
@@ -8655,7 +8655,7 @@ static lean_object* _init_l_Lean_Name_hasMacroScopes___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_hyg");
+x_1 = lean_mk_string_from_bytes("_hyg", 4);
 return x_1;
 }
 }
@@ -8701,7 +8701,7 @@ static lean_object* _init_l___private_Init_Prelude_0__Lean_eraseMacroScopesAux__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_@");
+x_1 = lean_mk_string_from_bytes("_@", 2);
 return x_1;
 }
 }
@@ -8905,7 +8905,7 @@ static lean_object* _init_l___private_Init_Prelude_0__Lean_assembleParts___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Error: unreachable @ assembleParts");
+x_1 = lean_mk_string_from_bytes("Error: unreachable @ assembleParts", 34);
 return x_1;
 }
 }
@@ -8976,7 +8976,7 @@ static lean_object* _init_l___private_Init_Prelude_0__Lean_extractImported___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Error: unreachable @ extractImported");
+x_1 = lean_mk_string_from_bytes("Error: unreachable @ extractImported", 36);
 return x_1;
 }
 }
@@ -9047,7 +9047,7 @@ static lean_object* _init_l___private_Init_Prelude_0__Lean_extractMainModule___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Error: unreachable @ extractMainModule");
+x_1 = lean_mk_string_from_bytes("Error: unreachable @ extractMainModule", 38);
 return x_1;
 }
 }
@@ -9114,7 +9114,7 @@ static lean_object* _init_l___private_Init_Prelude_0__Lean_extractMacroScopesAux
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Error: unreachable @ extractMacroScopesAux");
+x_1 = lean_mk_string_from_bytes("Error: unreachable @ extractMacroScopesAux", 42);
 return x_1;
 }
 }
@@ -9360,7 +9360,7 @@ static lean_object* _init_l_Lean_maxRecDepthErrorMessage___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("maximum recursion depth has been reached (use `set_option maxRecDepth <num>` to increase limit)");
+x_1 = lean_mk_string_from_bytes("maximum recursion depth has been reached (use `set_option maxRecDepth <num>` to increase limit)", 95);
 return x_1;
 }
 }
@@ -10659,7 +10659,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_fakeMod");
+x_1 = lean_mk_string_from_bytes("_fakeMod", 8);
 return x_1;
 }
 }

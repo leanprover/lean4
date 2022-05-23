@@ -293,7 +293,7 @@ static lean_object* _init_l_Lean_Elab_registerBuiltinDerivingHandlerWithArgs___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to register deriving handler, a handler has already been registered for '");
+x_1 = lean_mk_string_from_bytes("failed to register deriving handler, a handler has already been registered for '", 80);
 return x_1;
 }
 }
@@ -301,7 +301,7 @@ static lean_object* _init_l_Lean_Elab_registerBuiltinDerivingHandlerWithArgs___l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -388,7 +388,7 @@ static lean_object* _init_l_Lean_Elab_registerBuiltinDerivingHandlerWithArgs___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to register deriving handler, it can only be registered during initialization");
+x_1 = lean_mk_string_from_bytes("failed to register deriving handler, it can only be registered during initialization", 84);
 return x_1;
 }
 }
@@ -492,7 +492,7 @@ static lean_object* _init_l_Lean_Elab_defaultHandler___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("default handlers have not been implemented yet, class: '");
+x_1 = lean_mk_string_from_bytes("default handlers have not been implemented yet, class: '", 56);
 return x_1;
 }
 }
@@ -509,7 +509,7 @@ static lean_object* _init_l_Lean_Elab_defaultHandler___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' types: ");
+x_1 = lean_mk_string_from_bytes("' types: ", 9);
 return x_1;
 }
 }
@@ -526,7 +526,7 @@ static lean_object* _init_l_Lean_Elab_defaultHandler___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1051,7 +1051,7 @@ static lean_object* _init_l_Lean_throwUnknownConstant___at_Lean_Elab_elabDerivin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown constant '");
+x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
 return x_1;
 }
 }
@@ -1159,7 +1159,7 @@ static lean_object* _init_l_Lean_resolveGlobalConst___at_Lean_Elab_elabDeriving_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected identifier");
+x_1 = lean_mk_string_from_bytes("expected identifier", 19);
 return x_1;
 }
 }
@@ -1277,7 +1277,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ambiguous identifier '");
+x_1 = lean_mk_string_from_bytes("ambiguous identifier '", 22);
 return x_1;
 }
 }
@@ -1285,7 +1285,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', possible interpretations: ");
+x_1 = lean_mk_string_from_bytes("', possible interpretations: ", 29);
 return x_1;
 }
 }
@@ -3045,7 +3045,7 @@ static lean_object* _init_l_Lean_Elab_elabDeriving___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("group");
+x_1 = lean_mk_string_from_bytes("group", 5);
 return x_1;
 }
 }
@@ -3134,7 +3134,7 @@ static lean_object* _init_l_Lean_Elab_elabDeriving___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -3152,7 +3152,7 @@ static lean_object* _init_l_Lean_Elab_elabDeriving___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -3170,7 +3170,7 @@ static lean_object* _init_l_Lean_Elab_elabDeriving___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Command");
+x_1 = lean_mk_string_from_bytes("Command", 7);
 return x_1;
 }
 }
@@ -3188,7 +3188,7 @@ static lean_object* _init_l_Lean_Elab_elabDeriving___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("deriving");
+x_1 = lean_mk_string_from_bytes("deriving", 8);
 return x_1;
 }
 }
@@ -3689,7 +3689,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_elabDeriving___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -3707,7 +3707,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_elabDeriving___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elabDeriving");
+x_1 = lean_mk_string_from_bytes("elabDeriving", 12);
 return x_1;
 }
 }
@@ -4210,7 +4210,7 @@ static lean_object* _init_l_Lean_Elab_getOptDerivingClasses___rarg___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("optDeriving");
+x_1 = lean_mk_string_from_bytes("optDeriving", 11);
 return x_1;
 }
 }
@@ -4502,7 +4502,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___h
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Deriving");
+x_1 = lean_mk_string_from_bytes("Deriving", 8);
 return x_1;
 }
 }

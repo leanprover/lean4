@@ -927,7 +927,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("incorrect number of patterns");
+x_1 = lean_mk_string_from_bytes("incorrect number of patterns", 28);
 return x_1;
 }
 }
@@ -1395,7 +1395,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_w
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Unit");
+x_1 = lean_mk_string_from_bytes("Unit", 4);
 return x_1;
 }
 }
@@ -1413,7 +1413,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_w
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unit");
+x_1 = lean_mk_string_from_bytes("unit", 4);
 return x_1;
 }
 }
@@ -1523,7 +1523,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_w
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("h");
+x_1 = lean_mk_string_from_bytes("h", 1);
 return x_1;
 }
 }
@@ -1541,7 +1541,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_w
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -1559,7 +1559,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_w
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Match");
+x_1 = lean_mk_string_from_bytes("Match", 5);
 return x_1;
 }
 }
@@ -1577,7 +1577,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_w
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("debug");
+x_1 = lean_mk_string_from_bytes("debug", 5);
 return x_1;
 }
 }
@@ -1595,7 +1595,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_w
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("minor premise ");
+x_1 = lean_mk_string_from_bytes("minor premise ", 14);
 return x_1;
 }
 }
@@ -1612,7 +1612,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_w
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" : ");
+x_1 = lean_mk_string_from_bytes(" : ", 3);
 return x_1;
 }
 }
@@ -1629,7 +1629,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_w
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -2028,7 +2028,7 @@ static lean_object* _init_l_Lean_Meta_Match_assignGoalOf___lambda__2___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("dependent elimination failed, type mismatch when solving alternative with type");
+x_1 = lean_mk_string_from_bytes("dependent elimination failed, type mismatch when solving alternative with type", 78);
 return x_1;
 }
 }
@@ -2045,7 +2045,7 @@ static lean_object* _init_l_Lean_Meta_Match_assignGoalOf___lambda__2___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nbut expected");
+x_1 = lean_mk_string_from_bytes("\nbut expected", 13);
 return x_1;
 }
 }
@@ -3328,7 +3328,7 @@ static lean_object* _init_l_List_mapTRAux___at___private_Lean_Meta_Match_Match_0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Match.Match");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Match.Match", 21);
 return x_1;
 }
 }
@@ -3336,7 +3336,7 @@ static lean_object* _init_l_List_mapTRAux___at___private_Lean_Meta_Match_Match_0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.processSkipInaccessible");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.processSkipInaccessible", 72);
 return x_1;
 }
 }
@@ -3344,7 +3344,7 @@ static lean_object* _init_l_List_mapTRAux___at___private_Lean_Meta_Match_Match_0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -3623,7 +3623,7 @@ static lean_object* _init_l_Lean_addTrace___at___private_Lean_Meta_Match_Match_0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_traceMsg");
+x_1 = lean_mk_string_from_bytes("_traceMsg", 9);
 return x_1;
 }
 }
@@ -3641,7 +3641,7 @@ static lean_object* _init_l_Lean_addTrace___at___private_Lean_Meta_Match_Match_0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -3658,7 +3658,7 @@ static lean_object* _init_l_Lean_addTrace___at___private_Lean_Meta_Match_Match_0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] ");
+x_1 = lean_mk_string_from_bytes("] ", 2);
 return x_1;
 }
 }
@@ -4392,7 +4392,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_p
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("match");
+x_1 = lean_mk_string_from_bytes("match", 5);
 return x_1;
 }
 }
@@ -4410,7 +4410,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_p
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("missing alternative");
+x_1 = lean_mk_string_from_bytes("missing alternative", 19);
 return x_1;
 }
 }
@@ -5248,7 +5248,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_p
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.processAsPattern");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.processAsPattern", 65);
 return x_1;
 }
 }
@@ -5315,7 +5315,7 @@ static lean_object* _init_l_List_mapM___at___private_Lean_Meta_Match_Match_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.processVariable");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.processVariable", 64);
 return x_1;
 }
 }
@@ -5903,7 +5903,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to compile pattern matching, inductive type expected");
+x_1 = lean_mk_string_from_bytes("failed to compile pattern matching, inductive type expected", 59);
 return x_1;
 }
 }
@@ -5920,7 +5920,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nhas type");
+x_1 = lean_mk_string_from_bytes("\nhas type", 9);
 return x_1;
 }
 }
@@ -6540,7 +6540,7 @@ static lean_object* _init_l_Lean_Meta_Match_Unify_assign___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unify");
+x_1 = lean_mk_string_from_bytes("unify", 5);
 return x_1;
 }
 }
@@ -6566,7 +6566,7 @@ static lean_object* _init_l_Lean_Meta_Match_Unify_assign___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assign failed variable is not local, ");
+x_1 = lean_mk_string_from_bytes("assign failed variable is not local, ", 37);
 return x_1;
 }
 }
@@ -6583,7 +6583,7 @@ static lean_object* _init_l_Lean_Meta_Match_Unify_assign___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" := ");
+x_1 = lean_mk_string_from_bytes(" := ", 4);
 return x_1;
 }
 }
@@ -6600,7 +6600,7 @@ static lean_object* _init_l_Lean_Meta_Match_Unify_assign___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assign occurs check failed, ");
+x_1 = lean_mk_string_from_bytes("assign occurs check failed, ", 28);
 return x_1;
 }
 }
@@ -7776,7 +7776,7 @@ static lean_object* _init_l_Lean_Meta_Match_Unify_unify___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" =?= ");
+x_1 = lean_mk_string_from_bytes(" =?= ", 5);
 return x_1;
 }
 }
@@ -7898,7 +7898,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_u
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to unify");
+x_1 = lean_mk_string_from_bytes("failed to unify", 15);
 return x_1;
 }
 }
@@ -7915,7 +7915,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_u
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nwith");
+x_1 = lean_mk_string_from_bytes("\nwith", 5);
 return x_1;
 }
 }
@@ -9665,7 +9665,7 @@ static lean_object* _init_l_Lean_Meta_Match_processInaccessibleAsCtor___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("dependent match elimination failed, inaccessible pattern found");
+x_1 = lean_mk_string_from_bytes("dependent match elimination failed, inaccessible pattern found", 62);
 return x_1;
 }
 }
@@ -9682,7 +9682,7 @@ static lean_object* _init_l_Lean_Meta_Match_processInaccessibleAsCtor___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nconstructor expected");
+x_1 = lean_mk_string_from_bytes("\nconstructor expected", 21);
 return x_1;
 }
 }
@@ -10027,7 +10027,7 @@ static lean_object* _init_l_Lean_Meta_Match_processInaccessibleAsCtor___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Match.processInaccessibleAsCtor");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Match.processInaccessibleAsCtor", 41);
 return x_1;
 }
 }
@@ -10048,7 +10048,7 @@ static lean_object* _init_l_Lean_Meta_Match_processInaccessibleAsCtor___closed__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inaccessible in ctor step ");
+x_1 = lean_mk_string_from_bytes("inaccessible in ctor step ", 26);
 return x_1;
 }
 }
@@ -10286,7 +10286,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n");
+x_1 = lean_mk_string_from_bytes("\n", 1);
 return x_1;
 }
 }
@@ -10303,7 +10303,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("the dependent pattern matcher can solve the following kinds of equations\n");
+x_1 = lean_mk_string_from_bytes("the dependent pattern matcher can solve the following kinds of equations\n", 73);
 return x_1;
 }
 }
@@ -10331,7 +10331,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("- <var> = <term> and <term> = <var>\n");
+x_1 = lean_mk_string_from_bytes("- <var> = <term> and <term> = <var>\n", 36);
 return x_1;
 }
 }
@@ -10359,7 +10359,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("- <term> = <term> where the terms are definitionally equal\n");
+x_1 = lean_mk_string_from_bytes("- <term> = <term> where the terms are definitionally equal\n", 59);
 return x_1;
 }
 }
@@ -10387,7 +10387,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil");
+x_1 = lean_mk_string_from_bytes("- <constructor> = <constructor>, examples: List.cons x xs = List.cons y ys, and List.cons x xs = List.nil", 105);
 return x_1;
 }
 }
@@ -10435,7 +10435,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" after processing");
+x_1 = lean_mk_string_from_bytes(" after processing", 17);
 return x_1;
 }
 }
@@ -11550,7 +11550,7 @@ static lean_object* _init_l_List_filterMapM_loop___at___private_Lean_Meta_Match_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.processConstructor");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.processConstructor", 67);
 return x_1;
 }
 }
@@ -12549,7 +12549,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_p
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("constructor step");
+x_1 = lean_mk_string_from_bytes("constructor step", 16);
 return x_1;
 }
 }
@@ -12683,7 +12683,7 @@ static lean_object* _init_l_List_filterMapM_loop___at___private_Lean_Meta_Match_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.processNonVariable");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.processNonVariable", 67);
 return x_1;
 }
 }
@@ -12704,7 +12704,7 @@ static lean_object* _init_l_List_filterMapM_loop___at___private_Lean_Meta_Match_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to compile pattern matching, unexpected pattern");
+x_1 = lean_mk_string_from_bytes("failed to compile pattern matching, unexpected pattern", 54);
 return x_1;
 }
 }
@@ -12721,7 +12721,7 @@ static lean_object* _init_l_List_filterMapM_loop___at___private_Lean_Meta_Match_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\ndiscriminant");
+x_1 = lean_mk_string_from_bytes("\ndiscriminant", 13);
 return x_1;
 }
 }
@@ -13129,7 +13129,7 @@ static lean_object* _init_l_List_filterMapM_loop___at___private_Lean_Meta_Match_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to compile pattern matching, inaccessible pattern or constructor expected");
+x_1 = lean_mk_string_from_bytes("failed to compile pattern matching, inaccessible pattern or constructor expected", 80);
 return x_1;
 }
 }
@@ -14256,7 +14256,7 @@ static lean_object* _init_l_List_mapTRAux___at___private_Lean_Meta_Match_Match_0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.processValue");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.processValue", 61);
 return x_1;
 }
 }
@@ -14793,7 +14793,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at___private_Lean_Meta_Match_Mat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("processValue subst: ");
+x_1 = lean_mk_string_from_bytes("processValue subst: ", 20);
 return x_1;
 }
 }
@@ -14810,7 +14810,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at___private_Lean_Meta_Match_Mat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -15017,7 +15017,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at___private_Lean_Meta_Match_Mat
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("processValue subgoal\n");
+x_1 = lean_mk_string_from_bytes("processValue subgoal\n", 21);
 return x_1;
 }
 }
@@ -15297,7 +15297,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_p
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("value step");
+x_1 = lean_mk_string_from_bytes("value step", 10);
 return x_1;
 }
 }
@@ -16655,7 +16655,7 @@ static lean_object* _init_l_List_mapM___at___private_Lean_Meta_Match_Match_0__Le
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.processArrayLit");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.processArrayLit", 64);
 return x_1;
 }
 }
@@ -17388,7 +17388,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_p
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("x");
+x_1 = lean_mk_string_from_bytes("x", 1);
 return x_1;
 }
 }
@@ -17495,7 +17495,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_p
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("array literal step");
+x_1 = lean_mk_string_from_bytes("array literal step", 18);
 return x_1;
 }
 }
@@ -17644,7 +17644,7 @@ static lean_object* _init_l_List_mapTRAux___at___private_Lean_Meta_Match_Match_0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat");
+x_1 = lean_mk_string_from_bytes("Nat", 3);
 return x_1;
 }
 }
@@ -17662,7 +17662,7 @@ static lean_object* _init_l_List_mapTRAux___at___private_Lean_Meta_Match_Match_0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("succ");
+x_1 = lean_mk_string_from_bytes("succ", 4);
 return x_1;
 }
 }
@@ -17680,7 +17680,7 @@ static lean_object* _init_l_List_mapTRAux___at___private_Lean_Meta_Match_Match_0
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("zero");
+x_1 = lean_mk_string_from_bytes("zero", 4);
 return x_1;
 }
 }
@@ -18468,7 +18468,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" step");
+x_1 = lean_mk_string_from_bytes(" step", 5);
 return x_1;
 }
 }
@@ -18728,7 +18728,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_t
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to compile pattern matching, stuck at");
+x_1 = lean_mk_string_from_bytes("failed to compile pattern matching, stuck at", 44);
 return x_1;
 }
 }
@@ -18953,7 +18953,7 @@ static lean_object* _init_l_List_forIn_loop___at___private_Lean_Meta_Match_Match
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("pattern");
+x_1 = lean_mk_string_from_bytes("pattern", 7);
 return x_1;
 }
 }
@@ -19437,7 +19437,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.List.moveToFront.loop");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.List.moveToFront.loop", 70);
 return x_1;
 }
 }
@@ -19846,7 +19846,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_p
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.process.checkVarDeps");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.Match.Match.0.Lean.Meta.Match.process.checkVarDeps", 69);
 return x_1;
 }
 }
@@ -20256,7 +20256,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_p
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("nat value to constructor");
+x_1 = lean_mk_string_from_bytes("nat value to constructor", 24);
 return x_1;
 }
 }
@@ -20264,7 +20264,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_p
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("variable");
+x_1 = lean_mk_string_from_bytes("variable", 8);
 return x_1;
 }
 }
@@ -20272,7 +20272,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_p
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("non variable");
+x_1 = lean_mk_string_from_bytes("non variable", 12);
 return x_1;
 }
 }
@@ -20280,7 +20280,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_p
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("as-pattern");
+x_1 = lean_mk_string_from_bytes("as-pattern", 10);
 return x_1;
 }
 }
@@ -22025,7 +22025,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_p
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed with #");
+x_1 = lean_mk_string_from_bytes("failed with #", 13);
 return x_1;
 }
 }
@@ -22042,7 +22042,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_p
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", trying #");
+x_1 = lean_mk_string_from_bytes(", trying #", 10);
 return x_1;
 }
 }
@@ -22408,7 +22408,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_Match_g
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("dependent match elimination failed, universe level not found");
+x_1 = lean_mk_string_from_bytes("dependent match elimination failed, universe level not found", 60);
 return x_1;
 }
 }
@@ -22523,7 +22523,7 @@ static lean_object* _init_l_Lean_Meta_Match_initFn____x40_Lean_Meta_Match_Match_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("bootstrap");
+x_1 = lean_mk_string_from_bytes("bootstrap", 9);
 return x_1;
 }
 }
@@ -22541,7 +22541,7 @@ static lean_object* _init_l_Lean_Meta_Match_initFn____x40_Lean_Meta_Match_Match_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("genMatcherCode");
+x_1 = lean_mk_string_from_bytes("genMatcherCode", 14);
 return x_1;
 }
 }
@@ -22559,7 +22559,7 @@ static lean_object* _init_l_Lean_Meta_Match_initFn____x40_Lean_Meta_Match_Match_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("disable code generation for auxiliary matcher function");
+x_1 = lean_mk_string_from_bytes("disable code generation for auxiliary matcher function", 54);
 return x_1;
 }
 }
@@ -26784,7 +26784,7 @@ static lean_object* _init_l_Lean_Meta_Match_mkMatcher___lambda__3___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("matcher: ");
+x_1 = lean_mk_string_from_bytes("matcher: ", 9);
 return x_1;
 }
 }
@@ -27040,7 +27040,7 @@ static lean_object* _init_l_Lean_Meta_Match_mkMatcher___lambda__4___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("matcher levels: ");
+x_1 = lean_mk_string_from_bytes("matcher levels: ", 16);
 return x_1;
 }
 }
@@ -27057,7 +27057,7 @@ static lean_object* _init_l_Lean_Meta_Match_mkMatcher___lambda__4___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", uElim: ");
+x_1 = lean_mk_string_from_bytes(", uElim: ", 9);
 return x_1;
 }
 }
@@ -27222,7 +27222,7 @@ static lean_object* _init_l_Lean_Meta_Match_mkMatcher___lambda__5___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("minors num params: ");
+x_1 = lean_mk_string_from_bytes("minors num params: ", 19);
 return x_1;
 }
 }
@@ -27343,7 +27343,7 @@ static lean_object* _init_l_Lean_Meta_Match_mkMatcher___lambda__6___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("matcher value: ");
+x_1 = lean_mk_string_from_bytes("matcher value: ", 15);
 return x_1;
 }
 }
@@ -27360,7 +27360,7 @@ static lean_object* _init_l_Lean_Meta_Match_mkMatcher___lambda__6___closed__5() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\ntype: ");
+x_1 = lean_mk_string_from_bytes("\ntype: ", 7);
 return x_1;
 }
 }
@@ -28576,7 +28576,7 @@ static lean_object* _init_l_Lean_Meta_Match_mkMatcher___lambda__14___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("matcher\nvalue: ");
+x_1 = lean_mk_string_from_bytes("matcher\nvalue: ", 15);
 return x_1;
 }
 }
@@ -28875,7 +28875,7 @@ static lean_object* _init_l_Lean_Meta_Match_mkMatcher___lambda__15___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("goal\n");
+x_1 = lean_mk_string_from_bytes("goal\n", 5);
 return x_1;
 }
 }
@@ -29009,7 +29009,7 @@ static lean_object* _init_l_Lean_Meta_Match_mkMatcher___lambda__17___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("target: ");
+x_1 = lean_mk_string_from_bytes("target: ", 8);
 return x_1;
 }
 }
@@ -29328,7 +29328,7 @@ static lean_object* _init_l_Lean_Meta_Match_mkMatcher___lambda__19___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("motive");
+x_1 = lean_mk_string_from_bytes("motive", 6);
 return x_1;
 }
 }
@@ -29368,7 +29368,7 @@ static lean_object* _init_l_Lean_Meta_Match_mkMatcher___lambda__20___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("motiveType: ");
+x_1 = lean_mk_string_from_bytes("motiveType: ", 12);
 return x_1;
 }
 }
@@ -30851,7 +30851,7 @@ static lean_object* _init_l_Lean_Meta_Match_getMkMatcherInputInContext___lambda_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("PUnit");
+x_1 = lean_mk_string_from_bytes("PUnit", 5);
 return x_1;
 }
 }
@@ -30920,7 +30920,7 @@ static lean_object* _init_l_Lean_Meta_Match_getMkMatcherInputInContext___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("not a matcher: ");
+x_1 = lean_mk_string_from_bytes("not a matcher: ", 15);
 return x_1;
 }
 }
@@ -32002,7 +32002,7 @@ static lean_object* _init_l_Lean_Meta_Match_withMkMatcherInput___rarg___lambda__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("not a matcher app: ");
+x_1 = lean_mk_string_from_bytes("not a matcher app: ", 19);
 return x_1;
 }
 }
@@ -32449,7 +32449,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_updateA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected matcher application, insufficient number of parameters in alternative");
+x_1 = lean_mk_string_from_bytes("unexpected matcher application, insufficient number of parameters in alternative", 80);
 return x_1;
 }
 }
@@ -32522,7 +32522,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_Match_0__Lean_Meta_updateA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected type at MatcherApp.addArg");
+x_1 = lean_mk_string_from_bytes("unexpected type at MatcherApp.addArg", 36);
 return x_1;
 }
 }
@@ -32977,7 +32977,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_addArg___lambda__2___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to add argument to matcher application, type error when constructing the new motive");
+x_1 = lean_mk_string_from_bytes("failed to add argument to matcher application, type error when constructing the new motive", 90);
 return x_1;
 }
 }
@@ -33335,7 +33335,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_addArg___lambda__4___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected matcher application, motive must be lambda expression with #");
+x_1 = lean_mk_string_from_bytes("unexpected matcher application, motive must be lambda expression with #", 71);
 return x_1;
 }
 }
@@ -33352,7 +33352,7 @@ static lean_object* _init_l_Lean_Meta_MatcherApp_addArg___lambda__4___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" arguments");
+x_1 = lean_mk_string_from_bytes(" arguments", 10);
 return x_1;
 }
 }

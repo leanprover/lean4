@@ -444,7 +444,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticDecreasing_tactic");
+x_1 = lean_mk_string_from_bytes("tacticDecreasing_tactic", 23);
 return x_1;
 }
 }
@@ -462,7 +462,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("decreasing_tactic");
+x_1 = lean_mk_string_from_bytes("decreasing_tactic", 17);
 return x_1;
 }
 }
@@ -1862,7 +1862,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected `casesOn` application alternative");
+x_1 = lean_mk_string_from_bytes("unexpected `casesOn` application alternative", 44);
 return x_1;
 }
 }
@@ -1879,7 +1879,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nat application");
+x_1 = lean_mk_string_from_bytes("\nat application", 15);
 return x_1;
 }
 }
@@ -1896,7 +1896,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -2360,7 +2360,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDef
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected matcher application alternative");
+x_1 = lean_mk_string_from_bytes("unexpected matcher application alternative", 42);
 return x_1;
 }
 }
@@ -2850,7 +2850,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to add functional argument to 'matcher' application");
+x_1 = lean_mk_string_from_bytes("failed to add functional argument to 'matcher' application", 58);
 return x_1;
 }
 }
@@ -5177,7 +5177,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" : ");
+x_1 = lean_mk_string_from_bytes(" : ", 3);
 return x_1;
 }
 }
@@ -5331,7 +5331,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -5349,7 +5349,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("definition");
+x_1 = lean_mk_string_from_bytes("definition", 10);
 return x_1;
 }
 }
@@ -5367,7 +5367,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("wf");
+x_1 = lean_mk_string_from_bytes("wf", 2);
 return x_1;
 }
 }
@@ -5385,7 +5385,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("replaceRecApps:");
+x_1 = lean_mk_string_from_bytes("replaceRecApps:", 15);
 return x_1;
 }
 }
@@ -5883,7 +5883,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("PSum");
+x_1 = lean_mk_string_from_bytes("PSum", 4);
 return x_1;
 }
 }
@@ -5901,7 +5901,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("casesOn");
+x_1 = lean_mk_string_from_bytes("casesOn", 7);
 return x_1;
 }
 }
@@ -5919,7 +5919,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inl");
+x_1 = lean_mk_string_from_bytes("inl", 3);
 return x_1;
 }
 }
@@ -5937,7 +5937,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inr");
+x_1 = lean_mk_string_from_bytes("inr", 3);
 return x_1;
 }
 }
@@ -6549,7 +6549,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mk");
+x_1 = lean_mk_string_from_bytes("mk", 2);
 return x_1;
 }
 }
@@ -6706,7 +6706,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("PSigma");
+x_1 = lean_mk_string_from_bytes("PSigma", 6);
 return x_1;
 }
 }
@@ -6734,7 +6734,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Elab.PreDefinition.WF.Fix");
+x_1 = lean_mk_string_from_bytes("Lean.Elab.PreDefinition.WF.Fix", 30);
 return x_1;
 }
 }
@@ -6742,7 +6742,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Elab.PreDefinition.WF.Fix.0.Lean.Elab.WF.processPSigmaCasesOn");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Elab.PreDefinition.WF.Fix.0.Lean.Elab.WF.processPSigmaCasesOn", 75);
 return x_1;
 }
 }
@@ -6750,7 +6750,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Fix_0__Lean_Ela
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -7963,7 +7963,7 @@ static lean_object* _init_l_Lean_Elab_WF_mkFix___lambda__1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("WellFoundedRelation");
+x_1 = lean_mk_string_from_bytes("WellFoundedRelation", 19);
 return x_1;
 }
 }
@@ -7981,7 +7981,7 @@ static lean_object* _init_l_Lean_Elab_WF_mkFix___lambda__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("WellFounded");
+x_1 = lean_mk_string_from_bytes("WellFounded", 11);
 return x_1;
 }
 }
@@ -7999,7 +7999,7 @@ static lean_object* _init_l_Lean_Elab_WF_mkFix___lambda__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fix");
+x_1 = lean_mk_string_from_bytes("fix", 3);
 return x_1;
 }
 }

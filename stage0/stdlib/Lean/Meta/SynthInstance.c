@@ -571,7 +571,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("synthInstance");
+x_1 = lean_mk_string_from_bytes("synthInstance", 13);
 return x_1;
 }
 }
@@ -589,7 +589,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("maxHeartbeats");
+x_1 = lean_mk_string_from_bytes("maxHeartbeats", 13);
 return x_1;
 }
 }
@@ -607,7 +607,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -615,7 +615,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("maximum amount of heartbeats per typeclass resolution problem. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit");
+x_1 = lean_mk_string_from_bytes("maximum amount of heartbeats per typeclass resolution problem. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit", 147);
 return x_1;
 }
 }
@@ -647,7 +647,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("maxSize");
+x_1 = lean_mk_string_from_bytes("maxSize", 7);
 return x_1;
 }
 }
@@ -665,7 +665,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("maximum number of instances used to construct a solution in the type class instance synthesis procedure");
+x_1 = lean_mk_string_from_bytes("maximum number of instances used to construct a solution in the type class instance synthesis procedure", 103);
 return x_1;
 }
 }
@@ -737,7 +737,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_initFn____x40_Lean_Meta_Synt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inferTCGoalsRL");
+x_1 = lean_mk_string_from_bytes("inferTCGoalsRL", 14);
 return x_1;
 }
 }
@@ -755,7 +755,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_initFn____x40_Lean_Meta_Synt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("instruct type class resolution procedure to solve goals from right to left for this instance");
+x_1 = lean_mk_string_from_bytes("instruct type class resolution procedure to solve goals from right to left for this instance", 92);
 return x_1;
 }
 }
@@ -1020,7 +1020,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_MkTableKey_normLevel___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_tc");
+x_1 = lean_mk_string_from_bytes("_tc", 3);
 return x_1;
 }
 }
@@ -2442,7 +2442,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_checkMaxHeartbeats___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("typeclass");
+x_1 = lean_mk_string_from_bytes("typeclass", 9);
 return x_1;
 }
 }
@@ -2760,7 +2760,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Meta_SynthInstance
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.SynthInstance");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.SynthInstance", 23);
 return x_1;
 }
 }
@@ -2768,7 +2768,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Meta_SynthInstance
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.SynthInstance.getInstances");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.SynthInstance.getInstances", 36);
 return x_1;
 }
 }
@@ -2776,7 +2776,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Meta_SynthInstance
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("global instance is not a constant");
+x_1 = lean_mk_string_from_bytes("global instance is not a constant", 33);
 return x_1;
 }
 }
@@ -3165,7 +3165,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_getInstances___lambda__2___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("type class instance expected");
+x_1 = lean_mk_string_from_bytes("type class instance expected", 28);
 return x_1;
 }
 }
@@ -3191,7 +3191,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_getInstances___lambda__2___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -3219,7 +3219,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_getInstances___lambda__2___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("globalInstances");
+x_1 = lean_mk_string_from_bytes("globalInstances", 15);
 return x_1;
 }
 }
@@ -3237,7 +3237,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_getInstances___lambda__2___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -4252,7 +4252,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Meta_SynthInstance_newSubgoa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_traceMsg");
+x_1 = lean_mk_string_from_bytes("_traceMsg", 9);
 return x_1;
 }
 }
@@ -4270,7 +4270,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Meta_SynthInstance_newSubgoa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -4287,7 +4287,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Meta_SynthInstance_newSubgoa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] ");
+x_1 = lean_mk_string_from_bytes("] ", 2);
 return x_1;
 }
 }
@@ -4875,7 +4875,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_newSubgoal___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("newSubgoal");
+x_1 = lean_mk_string_from_bytes("newSubgoal", 10);
 return x_1;
 }
 }
@@ -5133,7 +5133,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_getEntry___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.SynthInstance.getEntry");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.SynthInstance.getEntry", 32);
 return x_1;
 }
 }
@@ -5141,7 +5141,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_getEntry___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid key at synthInstance");
+x_1 = lean_mk_string_from_bytes("invalid key at synthInstance", 28);
 return x_1;
 }
 }
@@ -5899,7 +5899,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_tryResolveCore___lambda__3__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failure");
+x_1 = lean_mk_string_from_bytes("failure", 7);
 return x_1;
 }
 }
@@ -5916,7 +5916,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_tryResolveCore___lambda__3__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failure assigning");
+x_1 = lean_mk_string_from_bytes("failure assigning", 17);
 return x_1;
 }
 }
@@ -5933,7 +5933,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_tryResolveCore___lambda__3__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("success");
+x_1 = lean_mk_string_from_bytes("success", 7);
 return x_1;
 }
 }
@@ -6313,7 +6313,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_tryResolveCore___lambda__4__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tryResolve");
+x_1 = lean_mk_string_from_bytes("tryResolve", 10);
 return x_1;
 }
 }
@@ -6331,7 +6331,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_tryResolveCore___lambda__4__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" =?= ");
+x_1 = lean_mk_string_from_bytes(" =?= ", 5);
 return x_1;
 }
 }
@@ -6871,7 +6871,7 @@ static lean_object* _init_l___private_Lean_Util_Trace_0__Lean_addNode___at_Lean_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_traceCtx");
+x_1 = lean_mk_string_from_bytes("_traceCtx", 9);
 return x_1;
 }
 }
@@ -8297,7 +8297,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_wakeUp___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("skip answer containing metavariables ");
+x_1 = lean_mk_string_from_bytes("skip answer containing metavariables ", 37);
 return x_1;
 }
 }
@@ -8870,7 +8870,7 @@ static lean_object* _init_l___private_Lean_Meta_SynthInstance_0__Lean_Meta_Synth
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("val: ");
+x_1 = lean_mk_string_from_bytes("val: ", 5);
 return x_1;
 }
 }
@@ -8887,7 +8887,7 @@ static lean_object* _init_l___private_Lean_Meta_SynthInstance_0__Lean_Meta_Synth
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("size: ");
+x_1 = lean_mk_string_from_bytes("size: ", 6);
 return x_1;
 }
 }
@@ -9121,7 +9121,7 @@ static lean_object* _init_l___private_Lean_Meta_SynthInstance_0__Lean_Meta_Synth
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("newAnswer");
+x_1 = lean_mk_string_from_bytes("newAnswer", 9);
 return x_1;
 }
 }
@@ -9214,7 +9214,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_addAnswer___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ≥ ");
+x_1 = lean_mk_string_from_bytes(" ≥ ", 5);
 return x_1;
 }
 }
@@ -9364,7 +9364,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_addAnswer___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("discarded");
+x_1 = lean_mk_string_from_bytes("discarded", 9);
 return x_1;
 }
 }
@@ -10804,7 +10804,7 @@ static lean_object* _init_l___private_Lean_Meta_SynthInstance_0__Lean_Meta_Synth
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unusedArgs");
+x_1 = lean_mk_string_from_bytes("unusedArgs", 10);
 return x_1;
 }
 }
@@ -10822,7 +10822,7 @@ static lean_object* _init_l___private_Lean_Meta_SynthInstance_0__Lean_Meta_Synth
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nhas unused arguments, reduced type");
+x_1 = lean_mk_string_from_bytes("\nhas unused arguments, reduced type", 35);
 return x_1;
 }
 }
@@ -10839,7 +10839,7 @@ static lean_object* _init_l___private_Lean_Meta_SynthInstance_0__Lean_Meta_Synth
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nTransformer");
+x_1 = lean_mk_string_from_bytes("\nTransformer", 12);
 return x_1;
 }
 }
@@ -11034,7 +11034,7 @@ static lean_object* _init_l___private_Lean_Meta_SynthInstance_0__Lean_Meta_Synth
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("redf");
+x_1 = lean_mk_string_from_bytes("redf", 4);
 return x_1;
 }
 }
@@ -13987,7 +13987,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_generate___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("generate");
+x_1 = lean_mk_string_from_bytes("generate", 8);
 return x_1;
 }
 }
@@ -14005,7 +14005,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_generate___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("instance ");
+x_1 = lean_mk_string_from_bytes("instance ", 9);
 return x_1;
 }
 }
@@ -14385,7 +14385,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_resume___lambda__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" <== ");
+x_1 = lean_mk_string_from_bytes(" <== ", 5);
 return x_1;
 }
 }
@@ -14550,7 +14550,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_resume___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.SynthInstance.resume");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.SynthInstance.resume", 30);
 return x_1;
 }
 }
@@ -14558,7 +14558,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_resume___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("resume found no remaining subgoals");
+x_1 = lean_mk_string_from_bytes("resume found no remaining subgoals", 34);
 return x_1;
 }
 }
@@ -14579,7 +14579,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_resume___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("resume");
+x_1 = lean_mk_string_from_bytes("resume", 6);
 return x_1;
 }
 }
@@ -15477,7 +15477,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_synth___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed");
+x_1 = lean_mk_string_from_bytes("failed", 6);
 return x_1;
 }
 }
@@ -15796,7 +15796,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_main___lambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to synthesize");
+x_1 = lean_mk_string_from_bytes("failed to synthesize", 20);
 return x_1;
 }
 }
@@ -15813,7 +15813,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_main___lambda__1___closed__3
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n");
+x_1 = lean_mk_string_from_bytes("\n", 1);
 return x_1;
 }
 }
@@ -16045,7 +16045,7 @@ static lean_object* _init_l_Lean_Meta_SynthInstance_main___lambda__2___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("main goal ");
+x_1 = lean_mk_string_from_bytes("main goal ", 10);
 return x_1;
 }
 }
@@ -17897,7 +17897,7 @@ static lean_object* _init_l___private_Lean_Meta_SynthInstance_0__Lean_Meta_prepr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("type class resolution failed, insufficient number of arguments");
+x_1 = lean_mk_string_from_bytes("type class resolution failed, insufficient number of arguments", 62);
 return x_1;
 }
 }
@@ -19083,7 +19083,7 @@ static lean_object* _init_l_Lean_Meta_synthInstance_x3f___lambda__2___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("preprocess: ");
+x_1 = lean_mk_string_from_bytes("preprocess: ", 12);
 return x_1;
 }
 }
@@ -19100,7 +19100,7 @@ static lean_object* _init_l_Lean_Meta_synthInstance_x3f___lambda__2___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ==> ");
+x_1 = lean_mk_string_from_bytes(" ==> ", 5);
 return x_1;
 }
 }
@@ -19450,7 +19450,7 @@ static lean_object* _init_l_Lean_Meta_synthInstance_x3f___lambda__4___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("result type");
+x_1 = lean_mk_string_from_bytes("result type", 11);
 return x_1;
 }
 }
@@ -19467,7 +19467,7 @@ static lean_object* _init_l_Lean_Meta_synthInstance_x3f___lambda__4___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nis not definitionally equal to");
+x_1 = lean_mk_string_from_bytes("\nis not definitionally equal to", 31);
 return x_1;
 }
 }
@@ -20002,7 +20002,7 @@ static lean_object* _init_l_Lean_Meta_synthInstance_x3f___lambda__5___closed__2(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("result ");
+x_1 = lean_mk_string_from_bytes("result ", 7);
 return x_1;
 }
 }
@@ -21734,7 +21734,7 @@ static lean_object* _init_l_Lean_Meta_synthInstance_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("typeclass inference");
+x_1 = lean_mk_string_from_bytes("typeclass inference", 19);
 return x_1;
 }
 }
@@ -22444,7 +22444,7 @@ static lean_object* _init_l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synth
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("synthPending");
+x_1 = lean_mk_string_from_bytes("synthPending", 12);
 return x_1;
 }
 }
@@ -22462,7 +22462,7 @@ static lean_object* _init_l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synth
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("synthPending ");
+x_1 = lean_mk_string_from_bytes("synthPending ", 13);
 return x_1;
 }
 }
@@ -22479,7 +22479,7 @@ static lean_object* _init_l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synth
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("too many nested synthPending invocations");
+x_1 = lean_mk_string_from_bytes("too many nested synthPending invocations", 40);
 return x_1;
 }
 }

@@ -814,7 +814,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_expandStructInstExpectedTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -832,7 +832,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_expandStructInstExpectedTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -850,7 +850,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_expandStructInstExpectedTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -868,7 +868,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_expandStructInstExpectedTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("paren");
+x_1 = lean_mk_string_from_bytes("paren", 5);
 return x_1;
 }
 }
@@ -886,7 +886,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_expandStructInstExpectedTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -894,7 +894,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_expandStructInstExpectedTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -912,7 +912,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_expandStructInstExpectedTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("typeAscription");
+x_1 = lean_mk_string_from_bytes("typeAscription", 14);
 return x_1;
 }
 }
@@ -930,7 +930,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_expandStructInstExpectedTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -956,7 +956,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_expandStructInstExpectedTy
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -1115,7 +1115,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_StructInst_expandStructI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structInst");
+x_1 = lean_mk_string_from_bytes("structInst", 10);
 return x_1;
 }
 }
@@ -1133,7 +1133,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_StructInst_expandStructI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -1161,7 +1161,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_StructInst_expandStructI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("StructInst");
+x_1 = lean_mk_string_from_bytes("StructInst", 10);
 return x_1;
 }
 }
@@ -1179,7 +1179,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_StructInst_expandStructI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expandStructInstExpectedType");
+x_1 = lean_mk_string_from_bytes("expandStructInstExpectedType", 28);
 return x_1;
 }
 }
@@ -1225,7 +1225,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_StructInst_expandStructI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Structure instances are of the form:\n\n      \"{\" >> optional (atomic (sepBy1 termParser \", \" >> \" with \"))\n          >> manyIndent (group ((structInstFieldAbbrev <|> structInstField) >> optional \", \"))\n          >> optEllipsis\n          >> optional (\" : \" >> termParser)\n          >> \" }\"\n");
+x_1 = lean_mk_string_from_bytes("Structure instances are of the form:\n\n      \"{\" >> optional (atomic (sepBy1 termParser \", \" >> \" with \"))\n          >> manyIndent (group ((structInstFieldAbbrev <|> structInstField) >> optional \", \"))\n          >> optEllipsis\n          >> optional (\" : \" >> termParser)\n          >> \" }\"\n", 288);
 return x_1;
 }
 }
@@ -1345,7 +1345,7 @@ static lean_object* _init_l_Array_anyMUnsafe_any___at_Lean_Elab_Term_StructInst_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structInstFieldAbbrev");
+x_1 = lean_mk_string_from_bytes("structInstFieldAbbrev", 21);
 return x_1;
 }
 }
@@ -1402,7 +1402,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Term_StructInst_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structInstField");
+x_1 = lean_mk_string_from_bytes("structInstField", 15);
 return x_1;
 }
 }
@@ -1420,7 +1420,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Term_StructInst_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structInstLVal");
+x_1 = lean_mk_string_from_bytes("structInstLVal", 14);
 return x_1;
 }
 }
@@ -1452,7 +1452,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Term_StructInst_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":=");
+x_1 = lean_mk_string_from_bytes(":=", 2);
 return x_1;
 }
 }
@@ -1675,7 +1675,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_StructInst_expandStructI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expandStructInstFieldAbbrev");
+x_1 = lean_mk_string_from_bytes("expandStructInstFieldAbbrev", 27);
 return x_1;
 }
 }
@@ -1713,7 +1713,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_StructInst_expandStructI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Expand field abbreviations. Example: `{ x, y := 0 }` expands to `{ x := x, y := 0 }` ");
+x_1 = lean_mk_string_from_bytes("Expand field abbreviations. Example: `{ x, y := 0 }` expands to `{ x := x, y := 0 }` ", 85);
 return x_1;
 }
 }
@@ -1833,7 +1833,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("src");
+x_1 = lean_mk_string_from_bytes("src", 3);
 return x_1;
 }
 }
@@ -1874,7 +1874,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("let");
+x_1 = lean_mk_string_from_bytes("let", 3);
 return x_1;
 }
 }
@@ -1892,7 +1892,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("letDecl");
+x_1 = lean_mk_string_from_bytes("letDecl", 7);
 return x_1;
 }
 }
@@ -1910,7 +1910,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("letIdDecl");
+x_1 = lean_mk_string_from_bytes("letIdDecl", 9);
 return x_1;
 }
 }
@@ -1937,7 +1937,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(";");
+x_1 = lean_mk_string_from_bytes(";", 1);
 return x_1;
 }
 }
@@ -2179,7 +2179,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -2823,7 +2823,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("with ");
+x_1 = lean_mk_string_from_bytes("with ", 5);
 return x_1;
 }
 }
@@ -2931,7 +2931,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at___private_Lean_Elab_Struct
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Elab.StructInst");
+x_1 = lean_mk_string_from_bytes("Lean.Elab.StructInst", 20);
 return x_1;
 }
 }
@@ -2939,7 +2939,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at___private_Lean_Elab_Struct
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Elab.StructInst.0.Lean.Elab.Term.StructInst.getStructSource");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Elab.StructInst.0.Lean.Elab.Term.StructInst.getStructSource", 73);
 return x_1;
 }
 }
@@ -2947,7 +2947,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at___private_Lean_Elab_Struct
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -3258,7 +3258,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid structure instance `with` and `..` cannot be used together");
+x_1 = lean_mk_string_from_bytes("invalid structure instance `with` and `..` cannot be used together", 66);
 return x_1;
 }
 }
@@ -3674,7 +3674,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structInstArrayRef");
+x_1 = lean_mk_string_from_bytes("structInstArrayRef", 18);
 return x_1;
 }
 }
@@ -3692,7 +3692,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid {...} notation, can't mix field and `[..]` at a given level");
+x_1 = lean_mk_string_from_bytes("invalid {...} notation, can't mix field and `[..]` at a given level", 67);
 return x_1;
 }
 }
@@ -3709,7 +3709,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid {...} notation, at most one `[..]` at a given level");
+x_1 = lean_mk_string_from_bytes("invalid {...} notation, at most one `[..]` at a given level", 59);
 return x_1;
 }
 }
@@ -4094,7 +4094,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("app");
+x_1 = lean_mk_string_from_bytes("app", 3);
 return x_1;
 }
 }
@@ -4102,7 +4102,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("proj");
+x_1 = lean_mk_string_from_bytes("proj", 4);
 return x_1;
 }
 }
@@ -4110,7 +4110,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(".");
+x_1 = lean_mk_string_from_bytes(".", 1);
 return x_1;
 }
 }
@@ -4118,7 +4118,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("modifyOp");
+x_1 = lean_mk_string_from_bytes("modifyOp", 8);
 return x_1;
 }
 }
@@ -4159,7 +4159,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("namedArgument");
+x_1 = lean_mk_string_from_bytes("namedArgument", 13);
 return x_1;
 }
 }
@@ -4167,7 +4167,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("idx");
+x_1 = lean_mk_string_from_bytes("idx", 3);
 return x_1;
 }
 }
@@ -4208,7 +4208,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fun");
+x_1 = lean_mk_string_from_bytes("fun", 3);
 return x_1;
 }
 }
@@ -4216,7 +4216,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("basicFun");
+x_1 = lean_mk_string_from_bytes("basicFun", 8);
 return x_1;
 }
 }
@@ -4224,7 +4224,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("=>");
+x_1 = lean_mk_string_from_bytes("=>", 2);
 return x_1;
 }
 }
@@ -4232,7 +4232,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -4249,7 +4249,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n===>\n");
+x_1 = lean_mk_string_from_bytes("\n===>\n", 6);
 return x_1;
 }
 }
@@ -4533,7 +4533,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("s");
+x_1 = lean_mk_string_from_bytes("s", 1);
 return x_1;
 }
 }
@@ -4584,7 +4584,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("struct");
+x_1 = lean_mk_string_from_bytes("struct", 6);
 return x_1;
 }
 }
@@ -4612,7 +4612,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nval: ");
+x_1 = lean_mk_string_from_bytes("\nval: ", 6);
 return x_1;
 }
 }
@@ -5124,7 +5124,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid {...} notation, multiple sources and array update is not supported.");
+x_1 = lean_mk_string_from_bytes("invalid {...} notation, multiple sources and array update is not supported.", 75);
 return x_1;
 }
 }
@@ -5230,7 +5230,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid {...} notation, expected type is not known");
+x_1 = lean_mk_string_from_bytes("invalid {...} notation, expected type is not known", 50);
 return x_1;
 }
 }
@@ -5269,7 +5269,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid {...} notation, ");
+x_1 = lean_mk_string_from_bytes("invalid {...} notation, ", 24);
 return x_1;
 }
 }
@@ -5286,7 +5286,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" type is not of the form (C ...)");
+x_1 = lean_mk_string_from_bytes(" type is not of the form (C ...)", 32);
 return x_1;
 }
 }
@@ -5390,7 +5390,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid {...} notation, expected type is not known, using the type of the first source, extra sources are not needed");
+x_1 = lean_mk_string_from_bytes("invalid {...} notation, expected type is not known, using the type of the first source, extra sources are not needed", 116);
 return x_1;
 }
 }
@@ -5407,7 +5407,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected");
+x_1 = lean_mk_string_from_bytes("expected", 8);
 return x_1;
 }
 }
@@ -5415,7 +5415,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid {...} notation, structure type expected");
+x_1 = lean_mk_string_from_bytes("invalid {...} notation, structure type expected", 47);
 return x_1;
 }
 }
@@ -5900,7 +5900,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_instToFormatFieldLHS___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -5918,7 +5918,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_instToFormatFieldLHS___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -6418,7 +6418,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_formatField___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" . ");
+x_1 = lean_mk_string_from_bytes(" . ", 3);
 return x_1;
 }
 }
@@ -6436,7 +6436,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_formatField___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" := ");
+x_1 = lean_mk_string_from_bytes(" := ", 4);
 return x_1;
 }
 }
@@ -6454,7 +6454,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_formatField___closed__5() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<default>");
+x_1 = lean_mk_string_from_bytes("<default>", 9);
 return x_1;
 }
 }
@@ -6662,7 +6662,7 @@ static lean_object* _init_l_List_format___at_Lean_Elab_Term_StructInst_formatStr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[]");
+x_1 = lean_mk_string_from_bytes("[]", 2);
 return x_1;
 }
 }
@@ -6680,7 +6680,7 @@ static lean_object* _init_l_List_format___at_Lean_Elab_Term_StructInst_formatStr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -6772,7 +6772,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_formatStruct___closed__2()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{");
+x_1 = lean_mk_string_from_bytes("{", 1);
 return x_1;
 }
 }
@@ -6790,7 +6790,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_formatStruct___closed__4()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("}");
+x_1 = lean_mk_string_from_bytes("}", 1);
 return x_1;
 }
 }
@@ -6808,7 +6808,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_formatStruct___closed__6()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" .. }");
+x_1 = lean_mk_string_from_bytes(" .. }", 5);
 return x_1;
 }
 }
@@ -6826,7 +6826,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_formatStruct___closed__8()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#");
+x_1 = lean_mk_string_from_bytes("#", 1);
 return x_1;
 }
 }
@@ -6844,7 +6844,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_formatStruct___closed__10(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" with ");
+x_1 = lean_mk_string_from_bytes(" with ", 6);
 return x_1;
 }
 }
@@ -7138,7 +7138,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_FieldVal_toSyntax___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Elab.Term.StructInst.FieldVal.toSyntax");
+x_1 = lean_mk_string_from_bytes("Lean.Elab.Term.StructInst.FieldVal.toSyntax", 43);
 return x_1;
 }
 }
@@ -7206,7 +7206,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_Field_toSyntax___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Elab.Term.StructInst.Field.toSyntax");
+x_1 = lean_mk_string_from_bytes("Lean.Elab.Term.StructInst.Field.toSyntax", 40);
 return x_1;
 }
 }
@@ -7299,7 +7299,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected structure syntax");
+x_1 = lean_mk_string_from_bytes("unexpected structure syntax", 27);
 return x_1;
 }
 }
@@ -8890,7 +8890,7 @@ static lean_object* _init_l_List_mapM___at___private_Lean_Elab_StructInst_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid field index, structure has only #");
+x_1 = lean_mk_string_from_bytes("invalid field index, structure has only #", 41);
 return x_1;
 }
 }
@@ -8907,7 +8907,7 @@ static lean_object* _init_l_List_mapM___at___private_Lean_Elab_StructInst_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" fields");
+x_1 = lean_mk_string_from_bytes(" fields", 7);
 return x_1;
 }
 }
@@ -8924,7 +8924,7 @@ static lean_object* _init_l_List_mapM___at___private_Lean_Elab_StructInst_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid field index, index must be greater than 0");
+x_1 = lean_mk_string_from_bytes("invalid field index, index must be greater than 0", 49);
 return x_1;
 }
 }
@@ -9817,7 +9817,7 @@ static lean_object* _init_l_List_mapTRAux___at___private_Lean_Elab_StructInst_0_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Elab.StructInst.0.Lean.Elab.Term.StructInst.expandParentFields");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Elab.StructInst.0.Lean.Elab.Term.StructInst.expandParentFields", 76);
 return x_1;
 }
 }
@@ -9947,7 +9947,7 @@ static lean_object* _init_l_List_mapM___at___private_Lean_Elab_StructInst_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -9964,7 +9964,7 @@ static lean_object* _init_l_List_mapM___at___private_Lean_Elab_StructInst_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is not a field of structure '");
+x_1 = lean_mk_string_from_bytes("' is not a field of structure '", 31);
 return x_1;
 }
 }
@@ -9981,7 +9981,7 @@ static lean_object* _init_l_List_mapM___at___private_Lean_Elab_StructInst_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to access field '");
+x_1 = lean_mk_string_from_bytes("failed to access field '", 24);
 return x_1;
 }
 }
@@ -9998,7 +9998,7 @@ static lean_object* _init_l_List_mapM___at___private_Lean_Elab_StructInst_0__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' in parent structure");
+x_1 = lean_mk_string_from_bytes("' in parent structure", 21);
 return x_1;
 }
 }
@@ -10911,7 +10911,7 @@ static lean_object* _init_l_List_foldlM___at___private_Lean_Elab_StructInst_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Elab.StructInst.0.Lean.Elab.Term.StructInst.mkFieldMap");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Elab.StructInst.0.Lean.Elab.Term.StructInst.mkFieldMap", 68);
 return x_1;
 }
 }
@@ -10932,7 +10932,7 @@ static lean_object* _init_l_List_foldlM___at___private_Lean_Elab_StructInst_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("field '");
+x_1 = lean_mk_string_from_bytes("field '", 7);
 return x_1;
 }
 }
@@ -10949,7 +10949,7 @@ static lean_object* _init_l_List_foldlM___at___private_Lean_Elab_StructInst_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' has already beed specified");
+x_1 = lean_mk_string_from_bytes("' has already beed specified", 28);
 return x_1;
 }
 }
@@ -11685,7 +11685,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is not a valid field of '");
+x_1 = lean_mk_string_from_bytes("' is not a valid field of '", 27);
 return x_1;
 }
 }
@@ -14409,7 +14409,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected constructor type");
+x_1 = lean_mk_string_from_bytes("unexpected constructor type", 27);
 return x_1;
 }
 }
@@ -14972,7 +14972,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_markDefaultMissing___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structInstDefault");
+x_1 = lean_mk_string_from_bytes("structInstDefault", 17);
 return x_1;
 }
 }
@@ -15073,7 +15073,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_throwFailedToElabField___r
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to elaborate field '");
+x_1 = lean_mk_string_from_bytes("failed to elaborate field '", 27);
 return x_1;
 }
 }
@@ -15090,7 +15090,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_throwFailedToElabField___r
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' of '");
+x_1 = lean_mk_string_from_bytes("' of '", 6);
 return x_1;
 }
 }
@@ -15400,7 +15400,7 @@ static lean_object* _init_l_List_foldlM___at___private_Lean_Elab_StructInst_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("byTactic");
+x_1 = lean_mk_string_from_bytes("byTactic", 8);
 return x_1;
 }
 }
@@ -15418,7 +15418,7 @@ static lean_object* _init_l_List_foldlM___at___private_Lean_Elab_StructInst_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("by");
+x_1 = lean_mk_string_from_bytes("by", 2);
 return x_1;
 }
 }
@@ -15426,7 +15426,7 @@ static lean_object* _init_l_List_foldlM___at___private_Lean_Elab_StructInst_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -15444,7 +15444,7 @@ static lean_object* _init_l_List_foldlM___at___private_Lean_Elab_StructInst_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticSeq");
+x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
 return x_1;
 }
 }
@@ -17474,7 +17474,7 @@ static lean_object* _init_l_List_foldlM___at___private_Lean_Elab_StructInst_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected unexpanded structure field");
+x_1 = lean_mk_string_from_bytes("unexpected unexpanded structure field", 37);
 return x_1;
 }
 }
@@ -17491,7 +17491,7 @@ static lean_object* _init_l_List_foldlM___at___private_Lean_Elab_StructInst_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elabStruct ");
+x_1 = lean_mk_string_from_bytes("elabStruct ", 11);
 return x_1;
 }
 }
@@ -18414,7 +18414,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_DefaultFields_findDefaultM
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Elab.Term.StructInst.DefaultFields.findDefaultMissing?");
+x_1 = lean_mk_string_from_bytes("Lean.Elab.Term.StructInst.DefaultFields.findDefaultMissing?", 59);
 return x_1;
 }
 }
@@ -18586,7 +18586,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_DefaultFields_getFieldName
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Elab.Term.StructInst.DefaultFields.getFieldName");
+x_1 = lean_mk_string_from_bytes("Lean.Elab.Term.StructInst.DefaultFields.getFieldName", 52);
 return x_1;
 }
 }
@@ -18850,7 +18850,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_DefaultFields_mkDefaultVal
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("id");
+x_1 = lean_mk_string_from_bytes("id", 2);
 return x_1;
 }
 }
@@ -21477,7 +21477,7 @@ static lean_object* _init_l_List_forIn_loop___at_Lean_Elab_Term_StructInst_Defau
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Elab.Term.StructInst.DefaultFields.step");
+x_1 = lean_mk_string_from_bytes("Lean.Elab.Term.StructInst.DefaultFields.step", 44);
 return x_1;
 }
 }
@@ -22152,7 +22152,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Elab_Term_StructInst_Default
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_traceMsg");
+x_1 = lean_mk_string_from_bytes("_traceMsg", 9);
 return x_1;
 }
 }
@@ -22179,7 +22179,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Elab_Term_StructInst_Default
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] ");
+x_1 = lean_mk_string_from_bytes("] ", 2);
 return x_1;
 }
 }
@@ -22437,7 +22437,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_DefaultFields_propagateLoo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is missing");
+x_1 = lean_mk_string_from_bytes("' is missing", 12);
 return x_1;
 }
 }
@@ -22707,7 +22707,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_DefaultFields_propagateLoo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("propagate [");
+x_1 = lean_mk_string_from_bytes("propagate [", 11);
 return x_1;
 }
 }
@@ -22724,7 +22724,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_DefaultFields_propagateLoo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] [field := ");
+x_1 = lean_mk_string_from_bytes("] [field := ", 12);
 return x_1;
 }
 }
@@ -22741,7 +22741,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_DefaultFields_propagateLoo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]: ");
+x_1 = lean_mk_string_from_bytes("]: ", 3);
 return x_1;
 }
 }
@@ -23863,7 +23863,7 @@ static lean_object* _init_l___private_Lean_Elab_StructInst_0__Lean_Elab_Term_Str
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("before propagate ");
+x_1 = lean_mk_string_from_bytes("before propagate ", 17);
 return x_1;
 }
 }
@@ -24321,7 +24321,7 @@ static lean_object* _init_l_Lean_Elab_Term_StructInst_elabStructInst___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid {...} notation, explicit source is required when using '[<index>] := <value>'");
+x_1 = lean_mk_string_from_bytes("invalid {...} notation, explicit source is required when using '[<index>] := <value>'", 85);
 return x_1;
 }
 }
@@ -24553,7 +24553,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_StructInst_elabStructIns
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elabStructInst");
+x_1 = lean_mk_string_from_bytes("elabStructInst", 14);
 return x_1;
 }
 }
@@ -24599,7 +24599,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_StructInst_elabStructIns
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Structure instance. `{ x := e, ... }` assigns `e` to field `x`, which may be\ninherited. If `e` is itself a variable called `x`, it can be elided:\n`fun y => { x := 1, y }`.\nA *structure update* of an existing value can be given via `with`:\n`{ point with x := 1 }`.\nThe structure type can be specified if not inferable:\n`{ x := 1, y := 2 : Point }`. ");
+x_1 = lean_mk_string_from_bytes("Structure instance. `{ x := e, ... }` assigns `e` to field `x`, which may be\ninherited. If `e` is itself a variable called `x`, it can be elided:\n`fun y => { x := 1, y }`.\nA *structure update* of an existing value can be given via `with`:\n`{ point with x := 1 }`.\nThe structure type can be specified if not inferable:\n`{ x := 1, y := 2 : Point }`. ", 348);
 return x_1;
 }
 }

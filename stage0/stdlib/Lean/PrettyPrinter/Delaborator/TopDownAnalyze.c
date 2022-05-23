@@ -806,7 +806,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("pp");
+x_1 = lean_mk_string_from_bytes("pp", 2);
 return x_1;
 }
 }
@@ -824,7 +824,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("analyze");
+x_1 = lean_mk_string_from_bytes("analyze", 7);
 return x_1;
 }
 }
@@ -842,7 +842,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("pp.analyze");
+x_1 = lean_mk_string_from_bytes("pp.analyze", 10);
 return x_1;
 }
 }
@@ -850,7 +850,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer analyzer) determine annotations sufficient to ensure round-tripping");
+x_1 = lean_mk_string_from_bytes("(pretty printer analyzer) determine annotations sufficient to ensure round-tripping", 83);
 return x_1;
 }
 }
@@ -883,7 +883,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("checkInstances");
+x_1 = lean_mk_string_from_bytes("checkInstances", 14);
 return x_1;
 }
 }
@@ -901,7 +901,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer analyzer) confirm that instances can be re-synthesized");
+x_1 = lean_mk_string_from_bytes("(pretty printer analyzer) confirm that instances can be re-synthesized", 70);
 return x_1;
 }
 }
@@ -934,7 +934,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("typeAscriptions");
+x_1 = lean_mk_string_from_bytes("typeAscriptions", 15);
 return x_1;
 }
 }
@@ -952,7 +952,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer analyzer) add type ascriptions when deemed necessary");
+x_1 = lean_mk_string_from_bytes("(pretty printer analyzer) add type ascriptions when deemed necessary", 68);
 return x_1;
 }
 }
@@ -985,7 +985,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("trustSubst");
+x_1 = lean_mk_string_from_bytes("trustSubst", 10);
 return x_1;
 }
 }
@@ -1003,7 +1003,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer analyzer) always 'pretend' applications that can delab to ▸ are 'regular'");
+x_1 = lean_mk_string_from_bytes("(pretty printer analyzer) always 'pretend' applications that can delab to ▸ are 'regular'", 91);
 return x_1;
 }
 }
@@ -1036,7 +1036,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("trustOfNat");
+x_1 = lean_mk_string_from_bytes("trustOfNat", 10);
 return x_1;
 }
 }
@@ -1054,7 +1054,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer analyzer) always 'pretend' `OfNat.ofNat` applications can elab bottom-up");
+x_1 = lean_mk_string_from_bytes("(pretty printer analyzer) always 'pretend' `OfNat.ofNat` applications can elab bottom-up", 88);
 return x_1;
 }
 }
@@ -1087,7 +1087,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("trustOfScientific");
+x_1 = lean_mk_string_from_bytes("trustOfScientific", 17);
 return x_1;
 }
 }
@@ -1105,7 +1105,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer analyzer) always 'pretend' `OfScientific.ofScientific` applications can elab bottom-up");
+x_1 = lean_mk_string_from_bytes("(pretty printer analyzer) always 'pretend' `OfScientific.ofScientific` applications can elab bottom-up", 102);
 return x_1;
 }
 }
@@ -1138,7 +1138,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("trustCoe");
+x_1 = lean_mk_string_from_bytes("trustCoe", 8);
 return x_1;
 }
 }
@@ -1156,7 +1156,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer analyzer) always assume a coercion can be correctly inserted");
+x_1 = lean_mk_string_from_bytes("(pretty printer analyzer) always assume a coercion can be correctly inserted", 76);
 return x_1;
 }
 }
@@ -1189,7 +1189,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("trustSubtypeMk");
+x_1 = lean_mk_string_from_bytes("trustSubtypeMk", 14);
 return x_1;
 }
 }
@@ -1207,7 +1207,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer analyzer) assume the implicit arguments of Subtype.mk can be inferred");
+x_1 = lean_mk_string_from_bytes("(pretty printer analyzer) assume the implicit arguments of Subtype.mk can be inferred", 85);
 return x_1;
 }
 }
@@ -1240,7 +1240,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("trustId");
+x_1 = lean_mk_string_from_bytes("trustId", 7);
 return x_1;
 }
 }
@@ -1258,7 +1258,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer analyzer) always assume an implicit `fun x => x` can be inferred");
+x_1 = lean_mk_string_from_bytes("(pretty printer analyzer) always assume an implicit `fun x => x` can be inferred", 80);
 return x_1;
 }
 }
@@ -1291,7 +1291,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("trustKnownFOType2TypeHOFuns");
+x_1 = lean_mk_string_from_bytes("trustKnownFOType2TypeHOFuns", 27);
 return x_1;
 }
 }
@@ -1309,7 +1309,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer analyzer) omit higher-order functions whose values seem to be knownType2Type");
+x_1 = lean_mk_string_from_bytes("(pretty printer analyzer) omit higher-order functions whose values seem to be knownType2Type", 92);
 return x_1;
 }
 }
@@ -1342,7 +1342,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("omitMax");
+x_1 = lean_mk_string_from_bytes("omitMax", 7);
 return x_1;
 }
 }
@@ -1360,7 +1360,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer analyzer) omit universe `max` annotations (these constraints can actually hurt)");
+x_1 = lean_mk_string_from_bytes("(pretty printer analyzer) omit universe `max` annotations (these constraints can actually hurt)", 95);
 return x_1;
 }
 }
@@ -1393,7 +1393,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("knowsType");
+x_1 = lean_mk_string_from_bytes("knowsType", 9);
 return x_1;
 }
 }
@@ -1411,7 +1411,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer analyzer) assume the type of the original expression is known");
+x_1 = lean_mk_string_from_bytes("(pretty printer analyzer) assume the type of the original expression is known", 77);
 return x_1;
 }
 }
@@ -1444,7 +1444,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("explicitHoles");
+x_1 = lean_mk_string_from_bytes("explicitHoles", 13);
 return x_1;
 }
 }
@@ -1462,7 +1462,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(pretty printer analyzer) use `_` for explicit arguments that can be inferred");
+x_1 = lean_mk_string_from_bytes("(pretty printer analyzer) use `_` for explicit arguments that can be inferred", 77);
 return x_1;
 }
 }
@@ -2184,7 +2184,7 @@ static lean_object* _init_l_Lean_getPPAnalysisSkip___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("analysis");
+x_1 = lean_mk_string_from_bytes("analysis", 8);
 return x_1;
 }
 }
@@ -2202,7 +2202,7 @@ static lean_object* _init_l_Lean_getPPAnalysisSkip___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("skip");
+x_1 = lean_mk_string_from_bytes("skip", 4);
 return x_1;
 }
 }
@@ -2265,7 +2265,7 @@ static lean_object* _init_l_Lean_getPPAnalysisHole___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hole");
+x_1 = lean_mk_string_from_bytes("hole", 4);
 return x_1;
 }
 }
@@ -2328,7 +2328,7 @@ static lean_object* _init_l_Lean_getPPAnalysisNamedArg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("namedArg");
+x_1 = lean_mk_string_from_bytes("namedArg", 8);
 return x_1;
 }
 }
@@ -2391,7 +2391,7 @@ static lean_object* _init_l_Lean_getPPAnalysisLetVarType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("letVarType");
+x_1 = lean_mk_string_from_bytes("letVarType", 10);
 return x_1;
 }
 }
@@ -2454,7 +2454,7 @@ static lean_object* _init_l_Lean_getPPAnalysisNeedsType___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("needsType");
+x_1 = lean_mk_string_from_bytes("needsType", 9);
 return x_1;
 }
 }
@@ -2517,7 +2517,7 @@ static lean_object* _init_l_Lean_getPPAnalysisBlockImplicit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("blockImplicit");
+x_1 = lean_mk_string_from_bytes("blockImplicit", 13);
 return x_1;
 }
 }
@@ -3114,7 +3114,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_isCoe___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("CoeT");
+x_1 = lean_mk_string_from_bytes("CoeT", 4);
 return x_1;
 }
 }
@@ -3132,7 +3132,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_isCoe___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("coe");
+x_1 = lean_mk_string_from_bytes("coe", 3);
 return x_1;
 }
 }
@@ -3150,7 +3150,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_isCoe___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("CoeFun");
+x_1 = lean_mk_string_from_bytes("CoeFun", 6);
 return x_1;
 }
 }
@@ -3178,7 +3178,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_isCoe___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("CoeSort");
+x_1 = lean_mk_string_from_bytes("CoeSort", 7);
 return x_1;
 }
 }
@@ -3770,7 +3770,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HOr");
+x_1 = lean_mk_string_from_bytes("HOr", 3);
 return x_1;
 }
 }
@@ -3788,7 +3788,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hOr");
+x_1 = lean_mk_string_from_bytes("hOr", 3);
 return x_1;
 }
 }
@@ -3806,7 +3806,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HXor");
+x_1 = lean_mk_string_from_bytes("HXor", 4);
 return x_1;
 }
 }
@@ -3824,7 +3824,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hXor");
+x_1 = lean_mk_string_from_bytes("hXor", 4);
 return x_1;
 }
 }
@@ -3842,7 +3842,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HAnd");
+x_1 = lean_mk_string_from_bytes("HAnd", 4);
 return x_1;
 }
 }
@@ -3860,7 +3860,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hAnd");
+x_1 = lean_mk_string_from_bytes("hAnd", 4);
 return x_1;
 }
 }
@@ -3878,7 +3878,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HAppend");
+x_1 = lean_mk_string_from_bytes("HAppend", 7);
 return x_1;
 }
 }
@@ -3896,7 +3896,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hAppend");
+x_1 = lean_mk_string_from_bytes("hAppend", 7);
 return x_1;
 }
 }
@@ -3914,7 +3914,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HOrElse");
+x_1 = lean_mk_string_from_bytes("HOrElse", 7);
 return x_1;
 }
 }
@@ -3932,7 +3932,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hOrElse");
+x_1 = lean_mk_string_from_bytes("hOrElse", 7);
 return x_1;
 }
 }
@@ -3950,7 +3950,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HAndThen");
+x_1 = lean_mk_string_from_bytes("HAndThen", 8);
 return x_1;
 }
 }
@@ -3968,7 +3968,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hAndThen");
+x_1 = lean_mk_string_from_bytes("hAndThen", 8);
 return x_1;
 }
 }
@@ -3986,7 +3986,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HAdd");
+x_1 = lean_mk_string_from_bytes("HAdd", 4);
 return x_1;
 }
 }
@@ -4004,7 +4004,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hAdd");
+x_1 = lean_mk_string_from_bytes("hAdd", 4);
 return x_1;
 }
 }
@@ -4022,7 +4022,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HSub");
+x_1 = lean_mk_string_from_bytes("HSub", 4);
 return x_1;
 }
 }
@@ -4040,7 +4040,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hSub");
+x_1 = lean_mk_string_from_bytes("hSub", 4);
 return x_1;
 }
 }
@@ -4058,7 +4058,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HMul");
+x_1 = lean_mk_string_from_bytes("HMul", 4);
 return x_1;
 }
 }
@@ -4076,7 +4076,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hMul");
+x_1 = lean_mk_string_from_bytes("hMul", 4);
 return x_1;
 }
 }
@@ -4094,7 +4094,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HDiv");
+x_1 = lean_mk_string_from_bytes("HDiv", 4);
 return x_1;
 }
 }
@@ -4112,7 +4112,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hDiv");
+x_1 = lean_mk_string_from_bytes("hDiv", 4);
 return x_1;
 }
 }
@@ -4130,7 +4130,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HMod");
+x_1 = lean_mk_string_from_bytes("HMod", 4);
 return x_1;
 }
 }
@@ -4148,7 +4148,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hMod");
+x_1 = lean_mk_string_from_bytes("hMod", 4);
 return x_1;
 }
 }
@@ -4166,7 +4166,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HShiftLeft");
+x_1 = lean_mk_string_from_bytes("HShiftLeft", 10);
 return x_1;
 }
 }
@@ -4184,7 +4184,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hShiftLeft");
+x_1 = lean_mk_string_from_bytes("hShiftLeft", 10);
 return x_1;
 }
 }
@@ -4202,7 +4202,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isHBin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HShiftRight");
+x_1 = lean_mk_string_from_bytes("HShiftRight", 11);
 return x_1;
 }
 }
@@ -4936,7 +4936,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_replac
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Std.Data.HashMap");
+x_1 = lean_mk_string_from_bytes("Std.Data.HashMap", 16);
 return x_1;
 }
 }
@@ -4944,7 +4944,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_replac
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Std.HashMap.find!");
+x_1 = lean_mk_string_from_bytes("Std.HashMap.find!", 17);
 return x_1;
 }
 }
@@ -4952,7 +4952,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_replac
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("key is not in the map");
+x_1 = lean_mk_string_from_bytes("key is not in the map", 21);
 return x_1;
 }
 }
@@ -5718,7 +5718,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isSubs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -5736,7 +5736,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isSubs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ndrec");
+x_1 = lean_mk_string_from_bytes("ndrec", 5);
 return x_1;
 }
 }
@@ -5754,7 +5754,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isSubs
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("rec");
+x_1 = lean_mk_string_from_bytes("rec", 3);
 return x_1;
 }
 }
@@ -7154,7 +7154,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isTriv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("OfScientific");
+x_1 = lean_mk_string_from_bytes("OfScientific", 12);
 return x_1;
 }
 }
@@ -7172,7 +7172,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isTriv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ofScientific");
+x_1 = lean_mk_string_from_bytes("ofScientific", 12);
 return x_1;
 }
 }
@@ -7190,7 +7190,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isTriv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("OfNat");
+x_1 = lean_mk_string_from_bytes("OfNat", 5);
 return x_1;
 }
 }
@@ -7208,7 +7208,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_isTriv
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ofNat");
+x_1 = lean_mk_string_from_bytes("ofNat", 5);
 return x_1;
 }
 }
@@ -8533,7 +8533,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_initFn
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("analyzeFailure");
+x_1 = lean_mk_string_from_bytes("analyzeFailure", 14);
 return x_1;
 }
 }
@@ -11101,7 +11101,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_traceMsg");
+x_1 = lean_mk_string_from_bytes("_traceMsg", 9);
 return x_1;
 }
 }
@@ -11119,7 +11119,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -11136,7 +11136,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] ");
+x_1 = lean_mk_string_from_bytes("] ", 2);
 return x_1;
 }
 }
@@ -11153,7 +11153,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -11534,7 +11534,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_annota
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("annotate");
+x_1 = lean_mk_string_from_bytes("annotate", 8);
 return x_1;
 }
 }
@@ -11552,7 +11552,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_annota
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ");
+x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }
@@ -15206,7 +15206,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_PrettyPrinter_Delabor
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("funBinderTypes");
+x_1 = lean_mk_string_from_bytes("funBinderTypes", 14);
 return x_1;
 }
 }
@@ -17316,7 +17316,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyz
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Delaborator.TopDownAnalyze");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Delaborator.TopDownAnalyze", 45);
 return x_1;
 }
 }
@@ -17324,7 +17324,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyz
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Delaborator.TopDownAnalyze.analyze.analyzeConst");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Delaborator.TopDownAnalyze.analyze.analyzeConst", 66);
 return x_1;
 }
 }
@@ -17332,7 +17332,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyz
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -17361,7 +17361,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyz
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("universes");
+x_1 = lean_mk_string_from_bytes("universes", 9);
 return x_1;
 }
 }
@@ -18491,7 +18491,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyz
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Delaborator.topDownAnalyze");
+x_1 = lean_mk_string_from_bytes("Delaborator.topDownAnalyze", 26);
 return x_1;
 }
 }
@@ -18499,7 +18499,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyz
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(".");
+x_1 = lean_mk_string_from_bytes(".", 1);
 return x_1;
 }
 }
@@ -18516,7 +18516,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyz
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("false");
+x_1 = lean_mk_string_from_bytes("false", 5);
 return x_1;
 }
 }
@@ -18544,7 +18544,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyz
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("true");
+x_1 = lean_mk_string_from_bytes("true", 4);
 return x_1;
 }
 }
@@ -18950,7 +18950,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Delaborator.SubExpr");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Delaborator.SubExpr", 38);
 return x_1;
 }
 }
@@ -18958,7 +18958,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Delaborator.SubExpr.withLetBody");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Delaborator.SubExpr.withLetBody", 50);
 return x_1;
 }
 }
@@ -19321,7 +19321,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetVarTyp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Delaborator.SubExpr.withLetVarType");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Delaborator.SubExpr.withLetVarType", 53);
 return x_1;
 }
 }
@@ -19620,7 +19620,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetValue_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Delaborator.SubExpr.withLetValue");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Delaborator.SubExpr.withLetValue", 51);
 return x_1;
 }
 }
@@ -19812,7 +19812,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyz
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Delaborator.TopDownAnalyze.analyze.analyzeLet");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Delaborator.TopDownAnalyze.analyze.analyzeLet", 64);
 return x_1;
 }
 }
@@ -20236,7 +20236,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Delaborator.SubExpr.withMDataExpr");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Delaborator.SubExpr.withMDataExpr", 52);
 return x_1;
 }
 }
@@ -20611,7 +20611,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___at
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Delaborator.SubExpr.withProj");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Delaborator.SubExpr.withProj", 47);
 return x_1;
 }
 }
@@ -21261,7 +21261,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyz
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structureInstanceTypes");
+x_1 = lean_mk_string_from_bytes("structureInstanceTypes", 22);
 return x_1;
 }
 }
@@ -21572,7 +21572,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyz
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Subtype");
+x_1 = lean_mk_string_from_bytes("Subtype", 7);
 return x_1;
 }
 }
@@ -21590,7 +21590,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyz
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mk");
+x_1 = lean_mk_string_from_bytes("mk", 2);
 return x_1;
 }
 }
@@ -23714,7 +23714,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_analyz
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("explicit");
+x_1 = lean_mk_string_from_bytes("explicit", 8);
 return x_1;
 }
 }
@@ -25900,7 +25900,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_topDownAnalyze___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("error");
+x_1 = lean_mk_string_from_bytes("error", 5);
 return x_1;
 }
 }
@@ -25918,7 +25918,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_topDownAnalyze___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed");
+x_1 = lean_mk_string_from_bytes("failed", 6);
 return x_1;
 }
 }
@@ -27871,7 +27871,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_initFn____x40_Lean_Pr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tryUnify");
+x_1 = lean_mk_string_from_bytes("tryUnify", 8);
 return x_1;
 }
 }

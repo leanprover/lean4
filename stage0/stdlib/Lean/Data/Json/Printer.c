@@ -94,7 +94,7 @@ static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escape
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\\u");
+x_1 = lean_mk_string_from_bytes("\\u", 2);
 return x_1;
 }
 }
@@ -102,7 +102,7 @@ static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escape
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -110,7 +110,7 @@ static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escape
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\\r");
+x_1 = lean_mk_string_from_bytes("\\r", 2);
 return x_1;
 }
 }
@@ -118,7 +118,7 @@ static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escape
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\\n");
+x_1 = lean_mk_string_from_bytes("\\n", 2);
 return x_1;
 }
 }
@@ -126,7 +126,7 @@ static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escape
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\\\\");
+x_1 = lean_mk_string_from_bytes("\\\\", 2);
 return x_1;
 }
 }
@@ -134,7 +134,7 @@ static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escape
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\\\"");
+x_1 = lean_mk_string_from_bytes("\\\"", 2);
 return x_1;
 }
 }
@@ -320,7 +320,7 @@ static lean_object* _init_l_Lean_Json_renderString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\"");
+x_1 = lean_mk_string_from_bytes("\"", 1);
 return x_1;
 }
 }
@@ -374,7 +374,7 @@ static lean_object* _init_l_Std_RBNode_fold___at_Lean_Json_render___spec__2___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -441,7 +441,7 @@ static lean_object* _init_l_Lean_Json_render___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -459,7 +459,7 @@ static lean_object* _init_l_Lean_Json_render___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("false");
+x_1 = lean_mk_string_from_bytes("false", 5);
 return x_1;
 }
 }
@@ -477,7 +477,7 @@ static lean_object* _init_l_Lean_Json_render___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("true");
+x_1 = lean_mk_string_from_bytes("true", 4);
 return x_1;
 }
 }
@@ -495,7 +495,7 @@ static lean_object* _init_l_Lean_Json_render___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -525,7 +525,7 @@ static lean_object* _init_l_Lean_Json_render___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -561,7 +561,7 @@ static lean_object* _init_l_Lean_Json_render___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -579,7 +579,7 @@ static lean_object* _init_l_Lean_Json_render___closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{");
+x_1 = lean_mk_string_from_bytes("{", 1);
 return x_1;
 }
 }
@@ -615,7 +615,7 @@ static lean_object* _init_l_Lean_Json_render___closed__20() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("}");
+x_1 = lean_mk_string_from_bytes("}", 1);
 return x_1;
 }
 }

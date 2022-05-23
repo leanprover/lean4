@@ -306,7 +306,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalSplit___lambda__1___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("split");
+x_1 = lean_mk_string_from_bytes("split", 5);
 return x_1;
 }
 }
@@ -324,7 +324,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalSplit___lambda__1___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1246,7 +1246,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalSplit___lambda__6___closed__2()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'split' tactic failed, select a single target to split");
+x_1 = lean_mk_string_from_bytes("'split' tactic failed, select a single target to split", 54);
 return x_1;
 }
 }
@@ -1386,7 +1386,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalSplit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'split' tactic, term to split is not supported yet");
+x_1 = lean_mk_string_from_bytes("'split' tactic, term to split is not supported yet", 50);
 return x_1;
 }
 }
@@ -1503,7 +1503,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -1521,7 +1521,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -1539,7 +1539,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -1567,7 +1567,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__8(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -1595,7 +1595,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__11
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalSplit");
+x_1 = lean_mk_string_from_bytes("evalSplit", 9);
 return x_1;
 }
 }

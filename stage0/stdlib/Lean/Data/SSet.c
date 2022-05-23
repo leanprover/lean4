@@ -2353,7 +2353,7 @@ static lean_object* _init_l_instReprSSet___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(".toSSet");
+x_1 = lean_mk_string_from_bytes(".toSSet", 7);
 return x_1;
 }
 }
@@ -2371,7 +2371,7 @@ static lean_object* _init_l_instReprSSet___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[]");
+x_1 = lean_mk_string_from_bytes("[]", 2);
 return x_1;
 }
 }
@@ -2401,7 +2401,7 @@ static lean_object* _init_l_instReprSSet___rarg___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -2431,7 +2431,7 @@ static lean_object* _init_l_instReprSSet___rarg___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -2467,7 +2467,7 @@ static lean_object* _init_l_instReprSSet___rarg___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }

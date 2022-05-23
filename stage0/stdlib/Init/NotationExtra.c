@@ -760,7 +760,7 @@ static lean_object* _init_l_Lean_termMacro_x2etrace_x5b_____x5d_____closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -778,7 +778,7 @@ static lean_object* _init_l_Lean_termMacro_x2etrace_x5b_____x5d_____closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("termMacro.trace[__]_");
+x_1 = lean_mk_string_from_bytes("termMacro.trace[__]_", 20);
 return x_1;
 }
 }
@@ -796,7 +796,7 @@ static lean_object* _init_l_Lean_termMacro_x2etrace_x5b_____x5d_____closed__5() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("andthen");
+x_1 = lean_mk_string_from_bytes("andthen", 7);
 return x_1;
 }
 }
@@ -814,7 +814,7 @@ static lean_object* _init_l_Lean_termMacro_x2etrace_x5b_____x5d_____closed__7() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Macro.trace[");
+x_1 = lean_mk_string_from_bytes("Macro.trace[", 12);
 return x_1;
 }
 }
@@ -832,7 +832,7 @@ static lean_object* _init_l_Lean_termMacro_x2etrace_x5b_____x5d_____closed__9() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ident");
+x_1 = lean_mk_string_from_bytes("ident", 5);
 return x_1;
 }
 }
@@ -874,7 +874,7 @@ static lean_object* _init_l_Lean_termMacro_x2etrace_x5b_____x5d_____closed__13()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -906,7 +906,7 @@ static lean_object* _init_l_Lean_termMacro_x2etrace_x5b_____x5d_____closed__16()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("interpolatedStr");
+x_1 = lean_mk_string_from_bytes("interpolatedStr", 15);
 return x_1;
 }
 }
@@ -924,7 +924,7 @@ static lean_object* _init_l_Lean_termMacro_x2etrace_x5b_____x5d_____closed__18()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term");
+x_1 = lean_mk_string_from_bytes("term", 4);
 return x_1;
 }
 }
@@ -1002,7 +1002,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -1020,7 +1020,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -1038,7 +1038,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("app");
+x_1 = lean_mk_string_from_bytes("app", 3);
 return x_1;
 }
 }
@@ -1056,7 +1056,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Macro.trace");
+x_1 = lean_mk_string_from_bytes("Macro.trace", 11);
 return x_1;
 }
 }
@@ -1087,7 +1087,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Macro");
+x_1 = lean_mk_string_from_bytes("Macro", 5);
 return x_1;
 }
 }
@@ -1105,7 +1105,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("trace");
+x_1 = lean_mk_string_from_bytes("trace", 5);
 return x_1;
 }
 }
@@ -1167,7 +1167,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -1185,7 +1185,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("paren");
+x_1 = lean_mk_string_from_bytes("paren", 5);
 return x_1;
 }
 }
@@ -1203,7 +1203,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -1211,7 +1211,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("termS!_");
+x_1 = lean_mk_string_from_bytes("termS!_", 7);
 return x_1;
 }
 }
@@ -1229,7 +1229,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("s!");
+x_1 = lean_mk_string_from_bytes("s!", 2);
 return x_1;
 }
 }
@@ -1269,7 +1269,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -1286,7 +1286,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("quotedName");
+x_1 = lean_mk_string_from_bytes("quotedName", 10);
 return x_1;
 }
 }
@@ -1304,7 +1304,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(".");
+x_1 = lean_mk_string_from_bytes(".", 1);
 return x_1;
 }
 }
@@ -1312,7 +1312,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("`");
+x_1 = lean_mk_string_from_bytes("`", 1);
 return x_1;
 }
 }
@@ -1613,7 +1613,7 @@ static lean_object* _init_l_Lean_binderIdent___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("binderIdent");
+x_1 = lean_mk_string_from_bytes("binderIdent", 11);
 return x_1;
 }
 }
@@ -1631,7 +1631,7 @@ static lean_object* _init_l_Lean_binderIdent___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("orelse");
+x_1 = lean_mk_string_from_bytes("orelse", 6);
 return x_1;
 }
 }
@@ -1649,7 +1649,7 @@ static lean_object* _init_l_Lean_binderIdent___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_");
+x_1 = lean_mk_string_from_bytes("_", 1);
 return x_1;
 }
 }
@@ -1703,7 +1703,7 @@ static lean_object* _init_l_Lean_unbracketedExplicitBinders___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unbracketedExplicitBinders");
+x_1 = lean_mk_string_from_bytes("unbracketedExplicitBinders", 26);
 return x_1;
 }
 }
@@ -1721,7 +1721,7 @@ static lean_object* _init_l_Lean_unbracketedExplicitBinders___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("many1");
+x_1 = lean_mk_string_from_bytes("many1", 5);
 return x_1;
 }
 }
@@ -1751,7 +1751,7 @@ static lean_object* _init_l_Lean_unbracketedExplicitBinders___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("optional");
+x_1 = lean_mk_string_from_bytes("optional", 8);
 return x_1;
 }
 }
@@ -1769,7 +1769,7 @@ static lean_object* _init_l_Lean_unbracketedExplicitBinders___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" : ");
+x_1 = lean_mk_string_from_bytes(" : ", 3);
 return x_1;
 }
 }
@@ -1849,7 +1849,7 @@ static lean_object* _init_l_Lean_bracketedExplicitBinders___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("bracketedExplicitBinders");
+x_1 = lean_mk_string_from_bytes("bracketedExplicitBinders", 24);
 return x_1;
 }
 }
@@ -1965,7 +1965,7 @@ static lean_object* _init_l_Lean_explicitBinders___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("explicitBinders");
+x_1 = lean_mk_string_from_bytes("explicitBinders", 15);
 return x_1;
 }
 }
@@ -2031,7 +2031,7 @@ static lean_object* _init_l_Lean_expandExplicitBindersAux_loop___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("fun");
+x_1 = lean_mk_string_from_bytes("fun", 3);
 return x_1;
 }
 }
@@ -2049,7 +2049,7 @@ static lean_object* _init_l_Lean_expandExplicitBindersAux_loop___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("basicFun");
+x_1 = lean_mk_string_from_bytes("basicFun", 8);
 return x_1;
 }
 }
@@ -2067,7 +2067,7 @@ static lean_object* _init_l_Lean_expandExplicitBindersAux_loop___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hole");
+x_1 = lean_mk_string_from_bytes("hole", 4);
 return x_1;
 }
 }
@@ -2085,7 +2085,7 @@ static lean_object* _init_l_Lean_expandExplicitBindersAux_loop___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("=>");
+x_1 = lean_mk_string_from_bytes("=>", 2);
 return x_1;
 }
 }
@@ -2093,7 +2093,7 @@ static lean_object* _init_l_Lean_expandExplicitBindersAux_loop___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simpleBinder");
+x_1 = lean_mk_string_from_bytes("simpleBinder", 12);
 return x_1;
 }
 }
@@ -2111,7 +2111,7 @@ static lean_object* _init_l_Lean_expandExplicitBindersAux_loop___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("typeSpec");
+x_1 = lean_mk_string_from_bytes("typeSpec", 8);
 return x_1;
 }
 }
@@ -2129,7 +2129,7 @@ static lean_object* _init_l_Lean_expandExplicitBindersAux_loop___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -2652,7 +2652,7 @@ static lean_object* _init_l_Lean_expandExplicitBinders___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected explicit binder");
+x_1 = lean_mk_string_from_bytes("unexpected explicit binder", 26);
 return x_1;
 }
 }
@@ -2800,7 +2800,7 @@ static lean_object* _init_l_Lean_unifConstraint___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unifConstraint");
+x_1 = lean_mk_string_from_bytes("unifConstraint", 14);
 return x_1;
 }
 }
@@ -2818,7 +2818,7 @@ static lean_object* _init_l_Lean_unifConstraint___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" =?= ");
+x_1 = lean_mk_string_from_bytes(" =?= ", 5);
 return x_1;
 }
 }
@@ -2836,7 +2836,7 @@ static lean_object* _init_l_Lean_unifConstraint___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ≟ ");
+x_1 = lean_mk_string_from_bytes(" ≟ ", 5);
 return x_1;
 }
 }
@@ -2918,7 +2918,7 @@ static lean_object* _init_l_Lean_unifConstraintElem___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unifConstraintElem");
+x_1 = lean_mk_string_from_bytes("unifConstraintElem", 18);
 return x_1;
 }
 }
@@ -2936,7 +2936,7 @@ static lean_object* _init_l_Lean_unifConstraintElem___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("colGe");
+x_1 = lean_mk_string_from_bytes("colGe", 5);
 return x_1;
 }
 }
@@ -2978,7 +2978,7 @@ static lean_object* _init_l_Lean_unifConstraintElem___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -3044,7 +3044,7 @@ static lean_object* _init_l_Lean_command__Unif__hint______Where___x7c_x2d_u22a2_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("command_Unif_hint___Where_|-⊢_");
+x_1 = lean_mk_string_from_bytes("command_Unif_hint___Where_|-⊢_", 32);
 return x_1;
 }
 }
@@ -3062,7 +3062,7 @@ static lean_object* _init_l_Lean_command__Unif__hint______Where___x7c_x2d_u22a2_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("attrKind");
+x_1 = lean_mk_string_from_bytes("attrKind", 8);
 return x_1;
 }
 }
@@ -3090,7 +3090,7 @@ static lean_object* _init_l_Lean_command__Unif__hint______Where___x7c_x2d_u22a2_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unif_hint ");
+x_1 = lean_mk_string_from_bytes("unif_hint ", 10);
 return x_1;
 }
 }
@@ -3148,7 +3148,7 @@ static lean_object* _init_l_Lean_command__Unif__hint______Where___x7c_x2d_u22a2_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("many");
+x_1 = lean_mk_string_from_bytes("many", 4);
 return x_1;
 }
 }
@@ -3166,7 +3166,7 @@ static lean_object* _init_l_Lean_command__Unif__hint______Where___x7c_x2d_u22a2_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("bracketedBinder");
+x_1 = lean_mk_string_from_bytes("bracketedBinder", 15);
 return x_1;
 }
 }
@@ -3220,7 +3220,7 @@ static lean_object* _init_l_Lean_command__Unif__hint______Where___x7c_x2d_u22a2_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" where ");
+x_1 = lean_mk_string_from_bytes(" where ", 7);
 return x_1;
 }
 }
@@ -3252,7 +3252,7 @@ static lean_object* _init_l_Lean_command__Unif__hint______Where___x7c_x2d_u22a2_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("withPosition");
+x_1 = lean_mk_string_from_bytes("withPosition", 12);
 return x_1;
 }
 }
@@ -3308,7 +3308,7 @@ static lean_object* _init_l_Lean_command__Unif__hint______Where___x7c_x2d_u22a2_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("|-");
+x_1 = lean_mk_string_from_bytes("|-", 2);
 return x_1;
 }
 }
@@ -3326,7 +3326,7 @@ static lean_object* _init_l_Lean_command__Unif__hint______Where___x7c_x2d_u22a2_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("⊢ ");
+x_1 = lean_mk_string_from_bytes("⊢ ", 4);
 return x_1;
 }
 }
@@ -3408,7 +3408,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Init_NotationE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("arrow");
+x_1 = lean_mk_string_from_bytes("arrow", 5);
 return x_1;
 }
 }
@@ -3426,7 +3426,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Init_NotationE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("=");
+x_1 = lean_mk_string_from_bytes("=", 1);
 return x_1;
 }
 }
@@ -3434,7 +3434,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Init_NotationE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("→");
+x_1 = lean_mk_string_from_bytes("→", 3);
 return x_1;
 }
 }
@@ -3513,7 +3513,7 @@ static lean_object* _init_l___private_Init_NotationExtra_0__Lean_mkHintBody___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term_=_");
+x_1 = lean_mk_string_from_bytes("term_=_", 7);
 return x_1;
 }
 }
@@ -3619,7 +3619,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Command");
+x_1 = lean_mk_string_from_bytes("Command", 7);
 return x_1;
 }
 }
@@ -3637,7 +3637,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("declaration");
+x_1 = lean_mk_string_from_bytes("declaration", 11);
 return x_1;
 }
 }
@@ -3655,7 +3655,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("declModifiers");
+x_1 = lean_mk_string_from_bytes("declModifiers", 13);
 return x_1;
 }
 }
@@ -3673,7 +3673,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("attributes");
+x_1 = lean_mk_string_from_bytes("attributes", 10);
 return x_1;
 }
 }
@@ -3691,7 +3691,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("@[");
+x_1 = lean_mk_string_from_bytes("@[", 2);
 return x_1;
 }
 }
@@ -3699,7 +3699,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("attrInstance");
+x_1 = lean_mk_string_from_bytes("attrInstance", 12);
 return x_1;
 }
 }
@@ -3717,7 +3717,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Attr");
+x_1 = lean_mk_string_from_bytes("Attr", 4);
 return x_1;
 }
 }
@@ -3735,7 +3735,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simple");
+x_1 = lean_mk_string_from_bytes("simple", 6);
 return x_1;
 }
 }
@@ -3753,7 +3753,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unificationHint");
+x_1 = lean_mk_string_from_bytes("unificationHint", 15);
 return x_1;
 }
 }
@@ -3813,7 +3813,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("def");
+x_1 = lean_mk_string_from_bytes("def", 3);
 return x_1;
 }
 }
@@ -3831,7 +3831,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("declId");
+x_1 = lean_mk_string_from_bytes("declId", 6);
 return x_1;
 }
 }
@@ -3849,7 +3849,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("optDeclSig");
+x_1 = lean_mk_string_from_bytes("optDeclSig", 10);
 return x_1;
 }
 }
@@ -3867,7 +3867,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sort");
+x_1 = lean_mk_string_from_bytes("sort", 4);
 return x_1;
 }
 }
@@ -3885,7 +3885,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Sort");
+x_1 = lean_mk_string_from_bytes("Sort", 4);
 return x_1;
 }
 }
@@ -3893,7 +3893,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Level");
+x_1 = lean_mk_string_from_bytes("Level", 5);
 return x_1;
 }
 }
@@ -3921,7 +3921,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("declValSimple");
+x_1 = lean_mk_string_from_bytes("declValSimple", 13);
 return x_1;
 }
 }
@@ -3939,7 +3939,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":=");
+x_1 = lean_mk_string_from_bytes(":=", 2);
 return x_1;
 }
 }
@@ -3956,7 +3956,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hint");
+x_1 = lean_mk_string_from_bytes("hint", 4);
 return x_1;
 }
 }
@@ -4908,7 +4908,7 @@ static lean_object* _init_l_term_u2203___x2c_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term∃_,_");
+x_1 = lean_mk_string_from_bytes("term∃_,_", 10);
 return x_1;
 }
 }
@@ -4926,7 +4926,7 @@ static lean_object* _init_l_term_u2203___x2c_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("∃ ");
+x_1 = lean_mk_string_from_bytes("∃ ", 4);
 return x_1;
 }
 }
@@ -5008,7 +5008,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__term_u22
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Exists");
+x_1 = lean_mk_string_from_bytes("Exists", 6);
 return x_1;
 }
 }
@@ -5059,7 +5059,7 @@ static lean_object* _init_l_termExists___x2c_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("termExists_,_");
+x_1 = lean_mk_string_from_bytes("termExists_,_", 13);
 return x_1;
 }
 }
@@ -5077,7 +5077,7 @@ static lean_object* _init_l_termExists___x2c_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("exists");
+x_1 = lean_mk_string_from_bytes("exists", 6);
 return x_1;
 }
 }
@@ -5192,7 +5192,7 @@ static lean_object* _init_l_term_u03a3___x2c_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("termΣ_,_");
+x_1 = lean_mk_string_from_bytes("termΣ_,_", 9);
 return x_1;
 }
 }
@@ -5210,7 +5210,7 @@ static lean_object* _init_l_term_u03a3___x2c_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Σ");
+x_1 = lean_mk_string_from_bytes("Σ", 2);
 return x_1;
 }
 }
@@ -5292,7 +5292,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__term_u03
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Sigma");
+x_1 = lean_mk_string_from_bytes("Sigma", 5);
 return x_1;
 }
 }
@@ -5343,7 +5343,7 @@ static lean_object* _init_l_term_u03a3_x27___x2c_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("termΣ'_,_");
+x_1 = lean_mk_string_from_bytes("termΣ'_,_", 10);
 return x_1;
 }
 }
@@ -5361,7 +5361,7 @@ static lean_object* _init_l_term_u03a3_x27___x2c_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Σ'");
+x_1 = lean_mk_string_from_bytes("Σ'", 3);
 return x_1;
 }
 }
@@ -5443,7 +5443,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__term_u03
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("PSigma");
+x_1 = lean_mk_string_from_bytes("PSigma", 6);
 return x_1;
 }
 }
@@ -5494,7 +5494,7 @@ static lean_object* _init_l_term___xd7____1___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term_×__1");
+x_1 = lean_mk_string_from_bytes("term_×__1", 10);
 return x_1;
 }
 }
@@ -5512,7 +5512,7 @@ static lean_object* _init_l_term___xd7____1___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" × ");
+x_1 = lean_mk_string_from_bytes(" × ", 4);
 return x_1;
 }
 }
@@ -5624,7 +5624,7 @@ static lean_object* _init_l_term___xd7_x27_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term_×'_");
+x_1 = lean_mk_string_from_bytes("term_×'_", 9);
 return x_1;
 }
 }
@@ -5642,7 +5642,7 @@ static lean_object* _init_l_term___xd7_x27_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ×' ");
+x_1 = lean_mk_string_from_bytes(" ×' ", 5);
 return x_1;
 }
 }
@@ -5742,7 +5742,7 @@ static lean_object* _init_l_calcStep___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("calcStep");
+x_1 = lean_mk_string_from_bytes("calcStep", 8);
 return x_1;
 }
 }
@@ -5760,7 +5760,7 @@ static lean_object* _init_l_calcStep___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ppIndent");
+x_1 = lean_mk_string_from_bytes("ppIndent", 8);
 return x_1;
 }
 }
@@ -5792,7 +5792,7 @@ static lean_object* _init_l_calcStep___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" := ");
+x_1 = lean_mk_string_from_bytes(" := ", 4);
 return x_1;
 }
 }
@@ -5884,7 +5884,7 @@ static lean_object* _init_l_calc___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("calc");
+x_1 = lean_mk_string_from_bytes("calc", 4);
 return x_1;
 }
 }
@@ -5912,7 +5912,7 @@ static lean_object* _init_l_calc___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ppLine");
+x_1 = lean_mk_string_from_bytes("ppLine", 6);
 return x_1;
 }
 }
@@ -6028,7 +6028,7 @@ static lean_object* _init_l_tacticCalc_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticCalc_");
+x_1 = lean_mk_string_from_bytes("tacticCalc_", 11);
 return x_1;
 }
 }
@@ -6046,7 +6046,7 @@ static lean_object* _init_l_tacticCalc_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("calc ");
+x_1 = lean_mk_string_from_bytes("calc ", 5);
 return x_1;
 }
 }
@@ -6126,7 +6126,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__tacticCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -6144,7 +6144,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__tacticCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("seq1");
+x_1 = lean_mk_string_from_bytes("seq1", 4);
 return x_1;
 }
 }
@@ -6162,7 +6162,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__tacticCa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("exact");
+x_1 = lean_mk_string_from_bytes("exact", 5);
 return x_1;
 }
 }
@@ -6406,7 +6406,7 @@ static lean_object* _init_l_unexpandListNil___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term[_]");
+x_1 = lean_mk_string_from_bytes("term[_]", 7);
 return x_1;
 }
 }
@@ -6424,7 +6424,7 @@ static lean_object* _init_l_unexpandListNil___rarg___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -6517,7 +6517,7 @@ static lean_object* _init_l_unexpandListCons___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -6767,7 +6767,7 @@ static lean_object* _init_l_unexpandListToArray___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term#[_,]");
+x_1 = lean_mk_string_from_bytes("term#[_,]", 9);
 return x_1;
 }
 }
@@ -6785,7 +6785,7 @@ static lean_object* _init_l_unexpandListToArray___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#[");
+x_1 = lean_mk_string_from_bytes("#[", 2);
 return x_1;
 }
 }
@@ -6937,7 +6937,7 @@ static lean_object* _init_l_unexpandProdMk___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tupleTail");
+x_1 = lean_mk_string_from_bytes("tupleTail", 9);
 return x_1;
 }
 }
@@ -7665,7 +7665,7 @@ static lean_object* _init_l_unexpandIte___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("termIfThenElse");
+x_1 = lean_mk_string_from_bytes("termIfThenElse", 14);
 return x_1;
 }
 }
@@ -7683,7 +7683,7 @@ static lean_object* _init_l_unexpandIte___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("if");
+x_1 = lean_mk_string_from_bytes("if", 2);
 return x_1;
 }
 }
@@ -7691,7 +7691,7 @@ static lean_object* _init_l_unexpandIte___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("then");
+x_1 = lean_mk_string_from_bytes("then", 4);
 return x_1;
 }
 }
@@ -7699,7 +7699,7 @@ static lean_object* _init_l_unexpandIte___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("else");
+x_1 = lean_mk_string_from_bytes("else", 4);
 return x_1;
 }
 }
@@ -7835,7 +7835,7 @@ static lean_object* _init_l_unexpandSorryAx___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sorry");
+x_1 = lean_mk_string_from_bytes("sorry", 5);
 return x_1;
 }
 }
@@ -8056,7 +8056,7 @@ static lean_object* _init_l_unexpandEqNDRec___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("subst");
+x_1 = lean_mk_string_from_bytes("subst", 5);
 return x_1;
 }
 }
@@ -8074,7 +8074,7 @@ static lean_object* _init_l_unexpandEqNDRec___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("▸");
+x_1 = lean_mk_string_from_bytes("▸", 3);
 return x_1;
 }
 }
@@ -8310,7 +8310,7 @@ static lean_object* _init_l_unexpandExists___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("typeAscription");
+x_1 = lean_mk_string_from_bytes("typeAscription", 14);
 return x_1;
 }
 }
@@ -8328,7 +8328,7 @@ static lean_object* _init_l_unexpandExists___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("∃");
+x_1 = lean_mk_string_from_bytes("∃", 3);
 return x_1;
 }
 }
@@ -9368,7 +9368,7 @@ static lean_object* _init_l_unexpandSigma___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("×");
+x_1 = lean_mk_string_from_bytes("×", 2);
 return x_1;
 }
 }
@@ -9719,7 +9719,7 @@ static lean_object* _init_l_unexpandPSigma___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("×'");
+x_1 = lean_mk_string_from_bytes("×'", 3);
 return x_1;
 }
 }
@@ -10070,7 +10070,7 @@ static lean_object* _init_l_unexpandSubtype___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term{__:_//_}");
+x_1 = lean_mk_string_from_bytes("term{__:_//_}", 13);
 return x_1;
 }
 }
@@ -10088,7 +10088,7 @@ static lean_object* _init_l_unexpandSubtype___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{");
+x_1 = lean_mk_string_from_bytes("{", 1);
 return x_1;
 }
 }
@@ -10096,7 +10096,7 @@ static lean_object* _init_l_unexpandSubtype___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("//");
+x_1 = lean_mk_string_from_bytes("//", 2);
 return x_1;
 }
 }
@@ -10104,7 +10104,7 @@ static lean_object* _init_l_unexpandSubtype___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("}");
+x_1 = lean_mk_string_from_bytes("}", 1);
 return x_1;
 }
 }
@@ -10521,7 +10521,7 @@ static lean_object* _init_l_tacticFunext_______closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticFunext__");
+x_1 = lean_mk_string_from_bytes("tacticFunext__", 14);
 return x_1;
 }
 }
@@ -10539,7 +10539,7 @@ static lean_object* _init_l_tacticFunext_______closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("funext ");
+x_1 = lean_mk_string_from_bytes("funext ", 7);
 return x_1;
 }
 }
@@ -10559,7 +10559,7 @@ static lean_object* _init_l_tacticFunext_______closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("colGt");
+x_1 = lean_mk_string_from_bytes("colGt", 5);
 return x_1;
 }
 }
@@ -10661,7 +10661,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__tacticFu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("apply");
+x_1 = lean_mk_string_from_bytes("apply", 5);
 return x_1;
 }
 }
@@ -10679,7 +10679,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__tacticFu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("funext");
+x_1 = lean_mk_string_from_bytes("funext", 6);
 return x_1;
 }
 }
@@ -10744,7 +10744,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__tacticFu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(";");
+x_1 = lean_mk_string_from_bytes(";", 1);
 return x_1;
 }
 }
@@ -10752,7 +10752,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__tacticFu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("intro");
+x_1 = lean_mk_string_from_bytes("intro", 5);
 return x_1;
 }
 }
@@ -11284,7 +11284,7 @@ static lean_object* _init_l_Array_foldrMUnsafe_fold___at___aux__Init__NotationEx
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("List.cons");
+x_1 = lean_mk_string_from_bytes("List.cons", 9);
 return x_1;
 }
 }
@@ -11315,7 +11315,7 @@ static lean_object* _init_l_Array_foldrMUnsafe_fold___at___aux__Init__NotationEx
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("List");
+x_1 = lean_mk_string_from_bytes("List", 4);
 return x_1;
 }
 }
@@ -11333,7 +11333,7 @@ static lean_object* _init_l_Array_foldrMUnsafe_fold___at___aux__Init__NotationEx
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("cons");
+x_1 = lean_mk_string_from_bytes("cons", 4);
 return x_1;
 }
 }
@@ -11447,7 +11447,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__term_x25
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term%[_|_]");
+x_1 = lean_mk_string_from_bytes("term%[_|_]", 10);
 return x_1;
 }
 }
@@ -11486,7 +11486,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__term_x25
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("let");
+x_1 = lean_mk_string_from_bytes("let", 3);
 return x_1;
 }
 }
@@ -11504,7 +11504,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__term_x25
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("letDecl");
+x_1 = lean_mk_string_from_bytes("letDecl", 7);
 return x_1;
 }
 }
@@ -11522,7 +11522,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__term_x25
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("letIdDecl");
+x_1 = lean_mk_string_from_bytes("letIdDecl", 9);
 return x_1;
 }
 }
@@ -11540,7 +11540,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__term_x25
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("y");
+x_1 = lean_mk_string_from_bytes("y", 1);
 return x_1;
 }
 }
@@ -11595,7 +11595,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__term_x25
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("%[");
+x_1 = lean_mk_string_from_bytes("%[", 2);
 return x_1;
 }
 }
@@ -11615,7 +11615,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__term_x25
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("|");
+x_1 = lean_mk_string_from_bytes("|", 1);
 return x_1;
 }
 }
@@ -12063,7 +12063,7 @@ static lean_object* _init_l_command__ClassAbbrev_____x3a___x3a_x3d_____x2c___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("command_ClassAbbrev__:_:=__,");
+x_1 = lean_mk_string_from_bytes("command_ClassAbbrev__:_:=__,", 28);
 return x_1;
 }
 }
@@ -12101,7 +12101,7 @@ static lean_object* _init_l_command__ClassAbbrev_____x3a___x3a_x3d_____x2c___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("class ");
+x_1 = lean_mk_string_from_bytes("class ", 6);
 return x_1;
 }
 }
@@ -12133,7 +12133,7 @@ static lean_object* _init_l_command__ClassAbbrev_____x3a___x3a_x3d_____x2c___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("abbrev ");
+x_1 = lean_mk_string_from_bytes("abbrev ", 7);
 return x_1;
 }
 }
@@ -12287,7 +12287,7 @@ static lean_object* _init_l_command__ClassAbbrev_____x3a___x3a_x3d_____x2c___clo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("group");
+x_1 = lean_mk_string_from_bytes("group", 5);
 return x_1;
 }
 }
@@ -12498,7 +12498,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__command_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("structure");
+x_1 = lean_mk_string_from_bytes("structure", 9);
 return x_1;
 }
 }
@@ -12506,7 +12506,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__command_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("classTk");
+x_1 = lean_mk_string_from_bytes("classTk", 7);
 return x_1;
 }
 }
@@ -12514,7 +12514,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__command_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("class");
+x_1 = lean_mk_string_from_bytes("class", 5);
 return x_1;
 }
 }
@@ -12522,7 +12522,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__command_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("extends");
+x_1 = lean_mk_string_from_bytes("extends", 7);
 return x_1;
 }
 }
@@ -12530,7 +12530,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__command_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("optDeriving");
+x_1 = lean_mk_string_from_bytes("optDeriving", 11);
 return x_1;
 }
 }
@@ -12548,7 +12548,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__command_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("attribute");
+x_1 = lean_mk_string_from_bytes("attribute", 9);
 return x_1;
 }
 }
@@ -12556,7 +12556,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__command_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("instance");
+x_1 = lean_mk_string_from_bytes("instance", 8);
 return x_1;
 }
 }
@@ -12587,7 +12587,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__command_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mk");
+x_1 = lean_mk_string_from_bytes("mk", 2);
 return x_1;
 }
 }
@@ -13277,7 +13277,7 @@ static lean_object* _init_l_tactic_xb7_x2e_____x3b_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tactic·.__;_");
+x_1 = lean_mk_string_from_bytes("tactic·.__;_", 13);
 return x_1;
 }
 }
@@ -13295,7 +13295,7 @@ static lean_object* _init_l_tactic_xb7_x2e_____x3b_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("·");
+x_1 = lean_mk_string_from_bytes("·", 2);
 return x_1;
 }
 }
@@ -13337,7 +13337,7 @@ static lean_object* _init_l_tactic_xb7_x2e_____x3b_____closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ppHardSpace");
+x_1 = lean_mk_string_from_bytes("ppHardSpace", 11);
 return x_1;
 }
 }
@@ -13379,7 +13379,7 @@ static lean_object* _init_l_tactic_xb7_x2e_____x3b_____closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("many1Indent");
+x_1 = lean_mk_string_from_bytes("many1Indent", 11);
 return x_1;
 }
 }
@@ -13397,7 +13397,7 @@ static lean_object* _init_l_tactic_xb7_x2e_____x3b_____closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tactic");
+x_1 = lean_mk_string_from_bytes("tactic", 6);
 return x_1;
 }
 }
@@ -13578,7 +13578,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__tactic_x
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticSeqBracketed");
+x_1 = lean_mk_string_from_bytes("tacticSeqBracketed", 18);
 return x_1;
 }
 }
@@ -13804,7 +13804,7 @@ static lean_object* _init_l_solve___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("solve");
+x_1 = lean_mk_string_from_bytes("solve", 5);
 return x_1;
 }
 }
@@ -13822,7 +13822,7 @@ static lean_object* _init_l_solve___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("solve ");
+x_1 = lean_mk_string_from_bytes("solve ", 6);
 return x_1;
 }
 }
@@ -13866,7 +13866,7 @@ static lean_object* _init_l_solve___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticSeq");
+x_1 = lean_mk_string_from_bytes("tacticSeq", 9);
 return x_1;
 }
 }
@@ -13980,7 +13980,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at___aux__Init__NotationExtra
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("done");
+x_1 = lean_mk_string_from_bytes("done", 4);
 return x_1;
 }
 }
@@ -14184,7 +14184,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__solve__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("focus");
+x_1 = lean_mk_string_from_bytes("focus", 5);
 return x_1;
 }
 }
@@ -14202,7 +14202,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__solve__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticSeq1Indented");
+x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
 return x_1;
 }
 }
@@ -14220,7 +14220,7 @@ static lean_object* _init_l___aux__Init__NotationExtra______macroRules__solve__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("first");
+x_1 = lean_mk_string_from_bytes("first", 5);
 return x_1;
 }
 }
@@ -14606,7 +14606,7 @@ static lean_object* _init_l_Lean_doElemRepeat_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doElemRepeat_");
+x_1 = lean_mk_string_from_bytes("doElemRepeat_", 13);
 return x_1;
 }
 }
@@ -14624,7 +14624,7 @@ static lean_object* _init_l_Lean_doElemRepeat_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("repeat ");
+x_1 = lean_mk_string_from_bytes("repeat ", 7);
 return x_1;
 }
 }
@@ -14642,7 +14642,7 @@ static lean_object* _init_l_Lean_doElemRepeat_____closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doSeq");
+x_1 = lean_mk_string_from_bytes("doSeq", 5);
 return x_1;
 }
 }
@@ -14706,7 +14706,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doFor");
+x_1 = lean_mk_string_from_bytes("doFor", 5);
 return x_1;
 }
 }
@@ -14724,7 +14724,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("for");
+x_1 = lean_mk_string_from_bytes("for", 3);
 return x_1;
 }
 }
@@ -14732,7 +14732,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doForDecl");
+x_1 = lean_mk_string_from_bytes("doForDecl", 9);
 return x_1;
 }
 }
@@ -14750,7 +14750,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("in");
+x_1 = lean_mk_string_from_bytes("in", 2);
 return x_1;
 }
 }
@@ -14758,7 +14758,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Loop.mk");
+x_1 = lean_mk_string_from_bytes("Loop.mk", 7);
 return x_1;
 }
 }
@@ -14789,7 +14789,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Loop");
+x_1 = lean_mk_string_from_bytes("Loop", 4);
 return x_1;
 }
 }
@@ -14871,7 +14871,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("do");
+x_1 = lean_mk_string_from_bytes("do", 2);
 return x_1;
 }
 }
@@ -15063,7 +15063,7 @@ static lean_object* _init_l_Lean_doElemWhile__Do_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doElemWhile_Do_");
+x_1 = lean_mk_string_from_bytes("doElemWhile_Do_", 15);
 return x_1;
 }
 }
@@ -15081,7 +15081,7 @@ static lean_object* _init_l_Lean_doElemWhile__Do_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("while ");
+x_1 = lean_mk_string_from_bytes("while ", 6);
 return x_1;
 }
 }
@@ -15099,7 +15099,7 @@ static lean_object* _init_l_Lean_doElemWhile__Do_____closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("termBeforeDo");
+x_1 = lean_mk_string_from_bytes("termBeforeDo", 12);
 return x_1;
 }
 }
@@ -15141,7 +15141,7 @@ static lean_object* _init_l_Lean_doElemWhile__Do_____closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" do ");
+x_1 = lean_mk_string_from_bytes(" do ", 4);
 return x_1;
 }
 }
@@ -15209,7 +15209,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("repeat");
+x_1 = lean_mk_string_from_bytes("repeat", 6);
 return x_1;
 }
 }
@@ -15217,7 +15217,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doSeqIndent");
+x_1 = lean_mk_string_from_bytes("doSeqIndent", 11);
 return x_1;
 }
 }
@@ -15235,7 +15235,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doSeqItem");
+x_1 = lean_mk_string_from_bytes("doSeqItem", 9);
 return x_1;
 }
 }
@@ -15253,7 +15253,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doIf");
+x_1 = lean_mk_string_from_bytes("doIf", 4);
 return x_1;
 }
 }
@@ -15271,7 +15271,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doIfProp");
+x_1 = lean_mk_string_from_bytes("doIfProp", 8);
 return x_1;
 }
 }
@@ -15299,7 +15299,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doBreak");
+x_1 = lean_mk_string_from_bytes("doBreak", 7);
 return x_1;
 }
 }
@@ -15317,7 +15317,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("break");
+x_1 = lean_mk_string_from_bytes("break", 5);
 return x_1;
 }
 }
@@ -15578,7 +15578,7 @@ static lean_object* _init_l_Lean_doElemRepeat__Until_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doElemRepeat_Until_");
+x_1 = lean_mk_string_from_bytes("doElemRepeat_Until_", 19);
 return x_1;
 }
 }
@@ -15596,7 +15596,7 @@ static lean_object* _init_l_Lean_doElemRepeat__Until_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" until ");
+x_1 = lean_mk_string_from_bytes(" until ", 7);
 return x_1;
 }
 }
@@ -15664,7 +15664,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("doNested");
+x_1 = lean_mk_string_from_bytes("doNested", 8);
 return x_1;
 }
 }
@@ -15981,7 +15981,7 @@ static lean_object* _init_l_Lean_term__Matches___x7c___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term_Matches_|");
+x_1 = lean_mk_string_from_bytes("term_Matches_|", 14);
 return x_1;
 }
 }
@@ -15999,7 +15999,7 @@ static lean_object* _init_l_Lean_term__Matches___x7c___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" matches ");
+x_1 = lean_mk_string_from_bytes(" matches ", 9);
 return x_1;
 }
 }
@@ -16117,7 +16117,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("match");
+x_1 = lean_mk_string_from_bytes("match", 5);
 return x_1;
 }
 }
@@ -16135,7 +16135,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("matchDiscr");
+x_1 = lean_mk_string_from_bytes("matchDiscr", 10);
 return x_1;
 }
 }
@@ -16153,7 +16153,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("with");
+x_1 = lean_mk_string_from_bytes("with", 4);
 return x_1;
 }
 }
@@ -16161,7 +16161,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("matchAlts");
+x_1 = lean_mk_string_from_bytes("matchAlts", 9);
 return x_1;
 }
 }
@@ -16179,7 +16179,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("matchAlt");
+x_1 = lean_mk_string_from_bytes("matchAlt", 8);
 return x_1;
 }
 }
@@ -16209,7 +16209,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("true");
+x_1 = lean_mk_string_from_bytes("true", 4);
 return x_1;
 }
 }
@@ -16250,7 +16250,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Bool");
+x_1 = lean_mk_string_from_bytes("Bool", 4);
 return x_1;
 }
 }
@@ -16302,7 +16302,7 @@ static lean_object* _init_l_Lean___aux__Init__NotationExtra______macroRules__Lea
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("false");
+x_1 = lean_mk_string_from_bytes("false", 5);
 return x_1;
 }
 }

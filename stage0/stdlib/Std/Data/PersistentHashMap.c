@@ -1483,7 +1483,7 @@ static lean_object* _init_l_Std_PersistentHashMap_find_x21___rarg___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Std.Data.PersistentHashMap");
+x_1 = lean_mk_string_from_bytes("Std.Data.PersistentHashMap", 26);
 return x_1;
 }
 }
@@ -1491,7 +1491,7 @@ static lean_object* _init_l_Std_PersistentHashMap_find_x21___rarg___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Std.PersistentHashMap.find!");
+x_1 = lean_mk_string_from_bytes("Std.PersistentHashMap.find!", 27);
 return x_1;
 }
 }
@@ -1499,7 +1499,7 @@ static lean_object* _init_l_Std_PersistentHashMap_find_x21___rarg___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("key is not in the map");
+x_1 = lean_mk_string_from_bytes("key is not in the map", 21);
 return x_1;
 }
 }
@@ -3646,7 +3646,7 @@ static lean_object* _init_l_Std_PersistentHashMap_Stats_toString___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{ nodes := ");
+x_1 = lean_mk_string_from_bytes("{ nodes := ", 11);
 return x_1;
 }
 }
@@ -3654,7 +3654,7 @@ static lean_object* _init_l_Std_PersistentHashMap_Stats_toString___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", null := ");
+x_1 = lean_mk_string_from_bytes(", null := ", 10);
 return x_1;
 }
 }
@@ -3662,7 +3662,7 @@ static lean_object* _init_l_Std_PersistentHashMap_Stats_toString___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", collisions := ");
+x_1 = lean_mk_string_from_bytes(", collisions := ", 16);
 return x_1;
 }
 }
@@ -3670,7 +3670,7 @@ static lean_object* _init_l_Std_PersistentHashMap_Stats_toString___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", depth := ");
+x_1 = lean_mk_string_from_bytes(", depth := ", 11);
 return x_1;
 }
 }
@@ -3678,7 +3678,7 @@ static lean_object* _init_l_Std_PersistentHashMap_Stats_toString___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("}");
+x_1 = lean_mk_string_from_bytes("}", 1);
 return x_1;
 }
 }

@@ -67,7 +67,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearTerm___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HAdd");
+x_1 = lean_mk_string_from_bytes("HAdd", 4);
 return x_1;
 }
 }
@@ -85,7 +85,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearTerm___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hAdd");
+x_1 = lean_mk_string_from_bytes("hAdd", 4);
 return x_1;
 }
 }
@@ -103,7 +103,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearTerm___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HMul");
+x_1 = lean_mk_string_from_bytes("HMul", 4);
 return x_1;
 }
 }
@@ -121,7 +121,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearTerm___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hMul");
+x_1 = lean_mk_string_from_bytes("hMul", 4);
 return x_1;
 }
 }
@@ -139,7 +139,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearTerm___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("HSub");
+x_1 = lean_mk_string_from_bytes("HSub", 4);
 return x_1;
 }
 }
@@ -157,7 +157,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearTerm___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hSub");
+x_1 = lean_mk_string_from_bytes("hSub", 4);
 return x_1;
 }
 }
@@ -175,7 +175,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearTerm___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Nat");
+x_1 = lean_mk_string_from_bytes("Nat", 3);
 return x_1;
 }
 }
@@ -193,7 +193,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearTerm___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("succ");
+x_1 = lean_mk_string_from_bytes("succ", 4);
 return x_1;
 }
 }
@@ -285,7 +285,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearCnstr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Eq");
+x_1 = lean_mk_string_from_bytes("Eq", 2);
 return x_1;
 }
 }
@@ -303,7 +303,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearCnstr___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("LT");
+x_1 = lean_mk_string_from_bytes("LT", 2);
 return x_1;
 }
 }
@@ -321,7 +321,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearCnstr___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("lt");
+x_1 = lean_mk_string_from_bytes("lt", 2);
 return x_1;
 }
 }
@@ -339,7 +339,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearCnstr___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("LE");
+x_1 = lean_mk_string_from_bytes("LE", 2);
 return x_1;
 }
 }
@@ -357,7 +357,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearCnstr___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("le");
+x_1 = lean_mk_string_from_bytes("le", 2);
 return x_1;
 }
 }
@@ -375,7 +375,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearCnstr___closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("GT");
+x_1 = lean_mk_string_from_bytes("GT", 2);
 return x_1;
 }
 }
@@ -393,7 +393,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearCnstr___closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("gt");
+x_1 = lean_mk_string_from_bytes("gt", 2);
 return x_1;
 }
 }
@@ -411,7 +411,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearCnstr___closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("GE");
+x_1 = lean_mk_string_from_bytes("GE", 2);
 return x_1;
 }
 }
@@ -429,7 +429,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearCnstr___closed__17() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ge");
+x_1 = lean_mk_string_from_bytes("ge", 2);
 return x_1;
 }
 }
@@ -447,7 +447,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearCnstr___closed__19() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Ne");
+x_1 = lean_mk_string_from_bytes("Ne", 2);
 return x_1;
 }
 }
@@ -465,7 +465,7 @@ static lean_object* _init_l_Lean_Meta_Linear_isLinearCnstr___closed__21() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Not");
+x_1 = lean_mk_string_from_bytes("Not", 3);
 return x_1;
 }
 }

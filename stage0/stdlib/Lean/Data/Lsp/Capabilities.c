@@ -149,7 +149,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_toJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("insertReplaceSupport");
+x_1 = lean_mk_string_from_bytes("insertReplaceSupport", 20);
 return x_1;
 }
 }
@@ -387,7 +387,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_toJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("completionItem");
+x_1 = lean_mk_string_from_bytes("completionItem", 14);
 return x_1;
 }
 }
@@ -615,7 +615,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_toJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("completion");
+x_1 = lean_mk_string_from_bytes("completion", 10);
 return x_1;
 }
 }
@@ -843,7 +843,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_toJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("textDocument");
+x_1 = lean_mk_string_from_bytes("textDocument", 12);
 return x_1;
 }
 }
@@ -1225,7 +1225,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_toJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("textDocumentSync");
+x_1 = lean_mk_string_from_bytes("textDocumentSync", 16);
 return x_1;
 }
 }
@@ -1233,7 +1233,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_toJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("completionProvider");
+x_1 = lean_mk_string_from_bytes("completionProvider", 18);
 return x_1;
 }
 }
@@ -1241,7 +1241,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_toJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hoverProvider");
+x_1 = lean_mk_string_from_bytes("hoverProvider", 13);
 return x_1;
 }
 }
@@ -1249,7 +1249,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_toJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("documentHighlightProvider");
+x_1 = lean_mk_string_from_bytes("documentHighlightProvider", 25);
 return x_1;
 }
 }
@@ -1257,7 +1257,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_toJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("documentSymbolProvider");
+x_1 = lean_mk_string_from_bytes("documentSymbolProvider", 22);
 return x_1;
 }
 }
@@ -1265,7 +1265,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_toJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("definitionProvider");
+x_1 = lean_mk_string_from_bytes("definitionProvider", 18);
 return x_1;
 }
 }
@@ -1273,7 +1273,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_toJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("declarationProvider");
+x_1 = lean_mk_string_from_bytes("declarationProvider", 19);
 return x_1;
 }
 }
@@ -1281,7 +1281,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_toJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("typeDefinitionProvider");
+x_1 = lean_mk_string_from_bytes("typeDefinitionProvider", 22);
 return x_1;
 }
 }
@@ -1289,7 +1289,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_toJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("referencesProvider");
+x_1 = lean_mk_string_from_bytes("referencesProvider", 18);
 return x_1;
 }
 }
@@ -1297,7 +1297,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_toJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("workspaceSymbolProvider");
+x_1 = lean_mk_string_from_bytes("workspaceSymbolProvider", 23);
 return x_1;
 }
 }
@@ -1305,7 +1305,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_toJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("foldingRangeProvider");
+x_1 = lean_mk_string_from_bytes("foldingRangeProvider", 20);
 return x_1;
 }
 }
@@ -1313,7 +1313,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_toJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("semanticTokensProvider");
+x_1 = lean_mk_string_from_bytes("semanticTokensProvider", 22);
 return x_1;
 }
 }

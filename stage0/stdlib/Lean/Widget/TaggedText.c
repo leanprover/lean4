@@ -238,7 +238,7 @@ static lean_object* _init_l_Lean_Widget_instInhabitedTaggedText___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -616,7 +616,7 @@ static lean_object* _init_l___private_Lean_Widget_TaggedText_0__Lean_Widget_repr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Widget.TaggedText.text");
+x_1 = lean_mk_string_from_bytes("Lean.Widget.TaggedText.text", 27);
 return x_1;
 }
 }
@@ -664,7 +664,7 @@ static lean_object* _init_l___private_Lean_Widget_TaggedText_0__Lean_Widget_repr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Widget.TaggedText.append");
+x_1 = lean_mk_string_from_bytes("Lean.Widget.TaggedText.append", 29);
 return x_1;
 }
 }
@@ -694,7 +694,7 @@ static lean_object* _init_l___private_Lean_Widget_TaggedText_0__Lean_Widget_repr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(",");
+x_1 = lean_mk_string_from_bytes(",", 1);
 return x_1;
 }
 }
@@ -724,7 +724,7 @@ static lean_object* _init_l___private_Lean_Widget_TaggedText_0__Lean_Widget_repr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#[");
+x_1 = lean_mk_string_from_bytes("#[", 2);
 return x_1;
 }
 }
@@ -760,7 +760,7 @@ static lean_object* _init_l___private_Lean_Widget_TaggedText_0__Lean_Widget_repr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -778,7 +778,7 @@ static lean_object* _init_l___private_Lean_Widget_TaggedText_0__Lean_Widget_repr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("#[]");
+x_1 = lean_mk_string_from_bytes("#[]", 3);
 return x_1;
 }
 }
@@ -856,7 +856,7 @@ static lean_object* _init_l___private_Lean_Widget_TaggedText_0__Lean_Widget_repr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Widget.TaggedText.tag");
+x_1 = lean_mk_string_from_bytes("Lean.Widget.TaggedText.tag", 26);
 return x_1;
 }
 }
@@ -1203,7 +1203,7 @@ static lean_object* _init_l___private_Lean_Widget_TaggedText_0__Lean_Widget_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("no inductive constructor matched");
+x_1 = lean_mk_string_from_bytes("no inductive constructor matched", 32);
 return x_1;
 }
 }
@@ -1229,7 +1229,7 @@ static lean_object* _init_l___private_Lean_Widget_TaggedText_0__Lean_Widget_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tag");
+x_1 = lean_mk_string_from_bytes("tag", 3);
 return x_1;
 }
 }
@@ -1385,7 +1385,7 @@ static lean_object* _init_l___private_Lean_Widget_TaggedText_0__Lean_Widget_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("text");
+x_1 = lean_mk_string_from_bytes("text", 4);
 return x_1;
 }
 }
@@ -1491,7 +1491,7 @@ static lean_object* _init_l___private_Lean_Widget_TaggedText_0__Lean_Widget_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("append");
+x_1 = lean_mk_string_from_bytes("append", 6);
 return x_1;
 }
 }
@@ -1499,7 +1499,7 @@ static lean_object* _init_l___private_Lean_Widget_TaggedText_0__Lean_Widget_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected JSON array, got '");
+x_1 = lean_mk_string_from_bytes("expected JSON array, got '", 26);
 return x_1;
 }
 }
@@ -1507,7 +1507,7 @@ static lean_object* _init_l___private_Lean_Widget_TaggedText_0__Lean_Widget_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -3658,7 +3658,7 @@ static lean_object* _init_l_Lean_Widget_TaggedText_instMonadPrettyFormatStateMTa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n");
+x_1 = lean_mk_string_from_bytes("\n", 1);
 return x_1;
 }
 }
@@ -4114,7 +4114,7 @@ static lean_object* _init_l___private_Init_Data_Format_Basic_0__Std_Format_be___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ");
+x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }
@@ -4131,7 +4131,7 @@ static lean_object* _init_l___private_Init_Data_Format_Basic_0__Std_Format_be___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable");
+x_1 = lean_mk_string_from_bytes("unreachable", 11);
 return x_1;
 }
 }

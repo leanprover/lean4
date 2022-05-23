@@ -496,7 +496,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_State_leadWord___defaul
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -767,7 +767,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkFormatterAttribute___lambda__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid [formatter] argument, unknown syntax kind '");
+x_1 = lean_mk_string_from_bytes("invalid [formatter] argument, unknown syntax kind '", 51);
 return x_1;
 }
 }
@@ -784,7 +784,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkFormatterAttribute___lambda__1_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -1080,7 +1080,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkFormatterAttribute___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("builtinFormatter");
+x_1 = lean_mk_string_from_bytes("builtinFormatter", 16);
 return x_1;
 }
 }
@@ -1098,7 +1098,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkFormatterAttribute___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("formatter");
+x_1 = lean_mk_string_from_bytes("formatter", 9);
 return x_1;
 }
 }
@@ -1116,7 +1116,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkFormatterAttribute___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -1134,7 +1134,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkFormatterAttribute___closed__7(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("PrettyPrinter");
+x_1 = lean_mk_string_from_bytes("PrettyPrinter", 13);
 return x_1;
 }
 }
@@ -1152,7 +1152,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkFormatterAttribute___closed__9(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Formatter");
+x_1 = lean_mk_string_from_bytes("Formatter", 9);
 return x_1;
 }
 }
@@ -1170,7 +1170,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkFormatterAttribute___closed__11
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Register a formatter for a parser.\n\n  [formatter k] registers a declaration of type `Lean.PrettyPrinter.Formatter` for the `SyntaxNodeKind` `k`.");
+x_1 = lean_mk_string_from_bytes("Register a formatter for a parser.\n\n  [formatter k] registers a declaration of type `Lean.PrettyPrinter.Formatter` for the `SyntaxNodeKind` `k`.", 144);
 return x_1;
 }
 }
@@ -1214,7 +1214,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkFormatterAttribute___closed__15
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("formatterAttribute");
+x_1 = lean_mk_string_from_bytes("formatterAttribute", 18);
 return x_1;
 }
 }
@@ -1275,7 +1275,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCombinatorFormatterAttribute___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("combinatorFormatter");
+x_1 = lean_mk_string_from_bytes("combinatorFormatter", 19);
 return x_1;
 }
 }
@@ -1293,7 +1293,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCombinatorFormatterAttribute___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Register a formatter for a parser combinator.\n\n  [combinatorFormatter c] registers a declaration of type `Lean.PrettyPrinter.Formatter` for the `Parser` declaration `c`.\n  Note that, unlike with [formatter], this is not a node kind since combinators usually do not introduce their own node kinds.\n  The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced\n  with `Formatter` in the parameter types.");
+x_1 = lean_mk_string_from_bytes("Register a formatter for a parser combinator.\n\n  [combinatorFormatter c] registers a declaration of type `Lean.PrettyPrinter.Formatter` for the `Parser` declaration `c`.\n  Note that, unlike with [formatter], this is not a node kind since combinators usually do not introduce their own node kinds.\n  The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced\n  with `Formatter` in the parameter types.", 469);
 return x_1;
 }
 }
@@ -4031,7 +4031,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_formatterForKindUnsafe_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("missing");
+x_1 = lean_mk_string_from_bytes("missing", 7);
 return x_1;
 }
 }
@@ -4065,7 +4065,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_formatterForKindUnsafe_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("<missing>");
+x_1 = lean_mk_string_from_bytes("<missing>", 9);
 return x_1;
 }
 }
@@ -4347,7 +4347,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_PrettyPrinter_Formatter_cate
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_traceMsg");
+x_1 = lean_mk_string_from_bytes("_traceMsg", 9);
 return x_1;
 }
 }
@@ -4365,7 +4365,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_PrettyPrinter_Formatter_cate
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -4382,7 +4382,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_PrettyPrinter_Formatter_cate
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] ");
+x_1 = lean_mk_string_from_bytes("] ", 2);
 return x_1;
 }
 }
@@ -4846,7 +4846,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_categoryFormatterCore__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("choice");
+x_1 = lean_mk_string_from_bytes("choice", 6);
 return x_1;
 }
 }
@@ -4864,7 +4864,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_categoryFormatterCore__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("rawStx");
+x_1 = lean_mk_string_from_bytes("rawStx", 6);
 return x_1;
 }
 }
@@ -5096,7 +5096,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_categoryFormatterCore__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("format");
+x_1 = lean_mk_string_from_bytes("format", 6);
 return x_1;
 }
 }
@@ -5114,7 +5114,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_categoryFormatterCore__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("formatting ");
+x_1 = lean_mk_string_from_bytes("formatting ", 11);
 return x_1;
 }
 }
@@ -5987,7 +5987,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_checkKind___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("backtrack");
+x_1 = lean_mk_string_from_bytes("backtrack", 9);
 return x_1;
 }
 }
@@ -6013,7 +6013,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_checkKind___closed__4()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected node kind '");
+x_1 = lean_mk_string_from_bytes("unexpected node kind '", 22);
 return x_1;
 }
 }
@@ -6030,7 +6030,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_checkKind___closed__6()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', expected '");
+x_1 = lean_mk_string_from_bytes("', expected '", 13);
 return x_1;
 }
 }
@@ -6337,7 +6337,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_trailingNode_formatter_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("foo");
+x_1 = lean_mk_string_from_bytes("foo", 3);
 return x_1;
 }
 }
@@ -6699,7 +6699,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_pushToken___lambda__2__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n");
+x_1 = lean_mk_string_from_bytes("\n", 1);
 return x_1;
 }
 }
@@ -7112,7 +7112,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_pushToken___lambda__4__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ");
+x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }
@@ -7542,7 +7542,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_pushToken___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("  ");
+x_1 = lean_mk_string_from_bytes("  ", 2);
 return x_1;
 }
 }
@@ -7831,7 +7831,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_format
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected syntax '");
+x_1 = lean_mk_string_from_bytes("unexpected syntax '", 19);
 return x_1;
 }
 }
@@ -7848,7 +7848,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_format
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', expected symbol '");
+x_1 = lean_mk_string_from_bytes("', expected symbol '", 20);
 return x_1;
 }
 }
@@ -7865,7 +7865,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_format
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Formatter");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Formatter", 28);
 return x_1;
 }
 }
@@ -7873,7 +7873,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_format
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.PrettyPrinter.Formatter.symbolNoAntiquot.formatter");
+x_1 = lean_mk_string_from_bytes("Lean.PrettyPrinter.Formatter.symbolNoAntiquot.formatter", 55);
 return x_1;
 }
 }
@@ -7881,7 +7881,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_format
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -8148,7 +8148,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_unicodeSymbolNoAntiquot
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("not an atom: ");
+x_1 = lean_mk_string_from_bytes("not an atom: ", 13);
 return x_1;
 }
 }
@@ -8351,7 +8351,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Formatter_identNoAntiquot_formatt
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("not an ident: ");
+x_1 = lean_mk_string_from_bytes("not an ident: ", 14);
 return x_1;
 }
 }
@@ -10683,7 +10683,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_format___lambda__1___closed__2() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("format: uncaught backtrack exception");
+x_1 = lean_mk_string_from_bytes("format: uncaught backtrack exception", 36);
 return x_1;
 }
 }
@@ -10905,7 +10905,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_format___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("input");
+x_1 = lean_mk_string_from_bytes("input", 5);
 return x_1;
 }
 }
@@ -11043,7 +11043,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_formatTerm___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term");
+x_1 = lean_mk_string_from_bytes("term", 4);
 return x_1;
 }
 }
@@ -11070,7 +11070,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_formatTactic___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tactic");
+x_1 = lean_mk_string_from_bytes("tactic", 6);
 return x_1;
 }
 }
@@ -11097,7 +11097,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_formatCommand___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("command");
+x_1 = lean_mk_string_from_bytes("command", 7);
 return x_1;
 }
 }

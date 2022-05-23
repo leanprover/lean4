@@ -110,7 +110,7 @@ static lean_object* _init_l_Classical_tacticBy__cases_____x3a_____closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Classical");
+x_1 = lean_mk_string_from_bytes("Classical", 9);
 return x_1;
 }
 }
@@ -128,7 +128,7 @@ static lean_object* _init_l_Classical_tacticBy__cases_____x3a_____closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tacticBy_cases__:_");
+x_1 = lean_mk_string_from_bytes("tacticBy_cases__:_", 18);
 return x_1;
 }
 }
@@ -146,7 +146,7 @@ static lean_object* _init_l_Classical_tacticBy__cases_____x3a_____closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("andthen");
+x_1 = lean_mk_string_from_bytes("andthen", 7);
 return x_1;
 }
 }
@@ -164,7 +164,7 @@ static lean_object* _init_l_Classical_tacticBy__cases_____x3a_____closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("by_cases");
+x_1 = lean_mk_string_from_bytes("by_cases", 8);
 return x_1;
 }
 }
@@ -184,7 +184,7 @@ static lean_object* _init_l_Classical_tacticBy__cases_____x3a_____closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("optional");
+x_1 = lean_mk_string_from_bytes("optional", 8);
 return x_1;
 }
 }
@@ -202,7 +202,7 @@ static lean_object* _init_l_Classical_tacticBy__cases_____x3a_____closed__11() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("atomic");
+x_1 = lean_mk_string_from_bytes("atomic", 6);
 return x_1;
 }
 }
@@ -220,7 +220,7 @@ static lean_object* _init_l_Classical_tacticBy__cases_____x3a_____closed__13() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ident");
+x_1 = lean_mk_string_from_bytes("ident", 5);
 return x_1;
 }
 }
@@ -248,7 +248,7 @@ static lean_object* _init_l_Classical_tacticBy__cases_____x3a_____closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(":");
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -318,7 +318,7 @@ static lean_object* _init_l_Classical_tacticBy__cases_____x3a_____closed__22() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("term");
+x_1 = lean_mk_string_from_bytes("term", 4);
 return x_1;
 }
 }
@@ -384,7 +384,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -402,7 +402,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -420,7 +420,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -438,7 +438,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("cases");
+x_1 = lean_mk_string_from_bytes("cases", 5);
 return x_1;
 }
 }
@@ -456,7 +456,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("null");
+x_1 = lean_mk_string_from_bytes("null", 4);
 return x_1;
 }
 }
@@ -474,7 +474,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("casesTarget");
+x_1 = lean_mk_string_from_bytes("casesTarget", 11);
 return x_1;
 }
 }
@@ -515,7 +515,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -533,7 +533,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("app");
+x_1 = lean_mk_string_from_bytes("app", 3);
 return x_1;
 }
 }
@@ -551,7 +551,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("em");
+x_1 = lean_mk_string_from_bytes("em", 2);
 return x_1;
 }
 }
@@ -654,7 +654,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inductionAlts");
+x_1 = lean_mk_string_from_bytes("inductionAlts", 13);
 return x_1;
 }
 }
@@ -672,7 +672,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("with");
+x_1 = lean_mk_string_from_bytes("with", 4);
 return x_1;
 }
 }
@@ -680,7 +680,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inductionAlt");
+x_1 = lean_mk_string_from_bytes("inductionAlt", 12);
 return x_1;
 }
 }
@@ -698,7 +698,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("|");
+x_1 = lean_mk_string_from_bytes("|", 1);
 return x_1;
 }
 }
@@ -706,7 +706,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("group");
+x_1 = lean_mk_string_from_bytes("group", 5);
 return x_1;
 }
 }
@@ -724,7 +724,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inl");
+x_1 = lean_mk_string_from_bytes("inl", 3);
 return x_1;
 }
 }
@@ -765,7 +765,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("h");
+x_1 = lean_mk_string_from_bytes("h", 1);
 return x_1;
 }
 }
@@ -806,7 +806,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("=>");
+x_1 = lean_mk_string_from_bytes("=>", 2);
 return x_1;
 }
 }
@@ -814,7 +814,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hole");
+x_1 = lean_mk_string_from_bytes("hole", 4);
 return x_1;
 }
 }
@@ -832,7 +832,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_");
+x_1 = lean_mk_string_from_bytes("_", 1);
 return x_1;
 }
 }
@@ -849,7 +849,7 @@ static lean_object* _init_l_Classical___aux__Init__Classical______macroRules__Cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inr");
+x_1 = lean_mk_string_from_bytes("inr", 3);
 return x_1;
 }
 }

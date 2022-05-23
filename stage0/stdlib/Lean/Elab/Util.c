@@ -346,7 +346,7 @@ static lean_object* _init_l_Lean_Elab_expandOptNamedPrio___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -364,7 +364,7 @@ static lean_object* _init_l_Lean_Elab_expandOptNamedPrio___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -382,7 +382,7 @@ static lean_object* _init_l_Lean_Elab_expandOptNamedPrio___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Command");
+x_1 = lean_mk_string_from_bytes("Command", 7);
 return x_1;
 }
 }
@@ -400,7 +400,7 @@ static lean_object* _init_l_Lean_Elab_expandOptNamedPrio___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("namedPrio");
+x_1 = lean_mk_string_from_bytes("namedPrio", 9);
 return x_1;
 }
 }
@@ -609,7 +609,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_236____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("pp");
+x_1 = lean_mk_string_from_bytes("pp", 2);
 return x_1;
 }
 }
@@ -627,7 +627,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_236____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("macroStack");
+x_1 = lean_mk_string_from_bytes("macroStack", 10);
 return x_1;
 }
 }
@@ -645,7 +645,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_236____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("dispaly macro expansion stack");
+x_1 = lean_mk_string_from_bytes("dispaly macro expansion stack", 29);
 return x_1;
 }
 }
@@ -678,7 +678,7 @@ static lean_object* _init_l_List_foldl___at_Lean_Elab_addMacroStack___spec__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("while expanding");
+x_1 = lean_mk_string_from_bytes("while expanding", 15);
 return x_1;
 }
 }
@@ -759,7 +759,7 @@ static lean_object* _init_l_Lean_Elab_addMacroStack___rarg___lambda__1___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("with resulting expansion");
+x_1 = lean_mk_string_from_bytes("with resulting expansion", 24);
 return x_1;
 }
 }
@@ -893,7 +893,7 @@ static lean_object* _init_l_Lean_Elab_checkSyntaxNodeKind___rarg___lambda__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed");
+x_1 = lean_mk_string_from_bytes("failed", 6);
 return x_1;
 }
 }
@@ -1213,7 +1213,7 @@ static lean_object* _init_l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("invalid syntax node kind '");
+x_1 = lean_mk_string_from_bytes("invalid syntax node kind '", 26);
 return x_1;
 }
 }
@@ -1230,7 +1230,7 @@ static lean_object* _init_l_Lean_Elab_syntaxNodeKindOfAttrParam___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -1351,7 +1351,7 @@ static lean_object* _init_l___private_Lean_Elab_Util_0__Lean_Elab_evalSyntaxCons
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Syntax");
+x_1 = lean_mk_string_from_bytes("Syntax", 6);
 return x_1;
 }
 }
@@ -1395,7 +1395,7 @@ static lean_object* _init_l_Lean_Elab_mkElabAttribute___rarg___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("declRange");
+x_1 = lean_mk_string_from_bytes("declRange", 9);
 return x_1;
 }
 }
@@ -1413,7 +1413,7 @@ static lean_object* _init_l_Lean_Elab_mkElabAttribute___rarg___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("addBuiltinDeclarationRanges");
+x_1 = lean_mk_string_from_bytes("addBuiltinDeclarationRanges", 27);
 return x_1;
 }
 }
@@ -1441,7 +1441,7 @@ static lean_object* _init_l_Lean_Elab_mkElabAttribute___rarg___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("DeclarationRanges");
+x_1 = lean_mk_string_from_bytes("DeclarationRanges", 17);
 return x_1;
 }
 }
@@ -1459,7 +1459,7 @@ static lean_object* _init_l_Lean_Elab_mkElabAttribute___rarg___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mk");
+x_1 = lean_mk_string_from_bytes("mk", 2);
 return x_1;
 }
 }
@@ -1487,7 +1487,7 @@ static lean_object* _init_l_Lean_Elab_mkElabAttribute___rarg___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("DeclarationRange");
+x_1 = lean_mk_string_from_bytes("DeclarationRange", 16);
 return x_1;
 }
 }
@@ -1525,7 +1525,7 @@ static lean_object* _init_l_Lean_Elab_mkElabAttribute___rarg___lambda__2___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Position");
+x_1 = lean_mk_string_from_bytes("Position", 8);
 return x_1;
 }
 }
@@ -1726,7 +1726,7 @@ static lean_object* _init_l_Lean_Elab_mkElabAttribute___rarg___lambda__3___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("docString");
+x_1 = lean_mk_string_from_bytes("docString", 9);
 return x_1;
 }
 }
@@ -1744,7 +1744,7 @@ static lean_object* _init_l_Lean_Elab_mkElabAttribute___rarg___lambda__3___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("addBuiltinDocString");
+x_1 = lean_mk_string_from_bytes("addBuiltinDocString", 19);
 return x_1;
 }
 }
@@ -1880,7 +1880,7 @@ static lean_object* _init_l_Lean_Elab_mkElabAttribute___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" elaborator");
+x_1 = lean_mk_string_from_bytes(" elaborator", 11);
 return x_1;
 }
 }
@@ -1953,7 +1953,7 @@ static lean_object* _init_l_Lean_Elab_mkMacroAttributeUnsafe___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -1971,7 +1971,7 @@ static lean_object* _init_l_Lean_Elab_mkMacroAttributeUnsafe___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("macroAttribute");
+x_1 = lean_mk_string_from_bytes("macroAttribute", 14);
 return x_1;
 }
 }
@@ -1989,7 +1989,7 @@ static lean_object* _init_l_Lean_Elab_mkMacroAttributeUnsafe___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("builtinMacro");
+x_1 = lean_mk_string_from_bytes("builtinMacro", 12);
 return x_1;
 }
 }
@@ -2007,7 +2007,7 @@ static lean_object* _init_l_Lean_Elab_mkMacroAttributeUnsafe___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("macro");
+x_1 = lean_mk_string_from_bytes("macro", 5);
 return x_1;
 }
 }
@@ -2025,7 +2025,7 @@ static lean_object* _init_l_Lean_Elab_mkMacroAttributeUnsafe___closed__9() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Macro");
+x_1 = lean_mk_string_from_bytes("Macro", 5);
 return x_1;
 }
 }
@@ -3668,7 +3668,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_1959___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("step");
+x_1 = lean_mk_string_from_bytes("step", 4);
 return x_1;
 }
 }

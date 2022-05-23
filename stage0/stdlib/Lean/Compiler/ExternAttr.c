@@ -354,7 +354,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("string literal expected");
+x_1 = lean_mk_string_from_bytes("string literal expected", 23);
 return x_1;
 }
 }
@@ -371,7 +371,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Compiler_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("all");
+x_1 = lean_mk_string_from_bytes("all", 3);
 return x_1;
 }
 }
@@ -1026,7 +1026,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_39
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("extern");
+x_1 = lean_mk_string_from_bytes("extern", 6);
 return x_1;
 }
 }
@@ -1044,7 +1044,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_39
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("builtin and foreign functions");
+x_1 = lean_mk_string_from_bytes("builtin and foreign functions", 29);
 return x_1;
 }
 }
@@ -1257,7 +1257,7 @@ static lean_object* _init_l_Lean_expandExternPatternAux___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1430,7 +1430,7 @@ static lean_object* _init_l_Lean_mkSimpleFnCall___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -1438,7 +1438,7 @@ static lean_object* _init_l_Lean_mkSimpleFnCall___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -1446,7 +1446,7 @@ static lean_object* _init_l_Lean_mkSimpleFnCall___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -1869,7 +1869,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___private_Lean_Compiler_Exter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown constant '");
+x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
 return x_1;
 }
 }
@@ -1886,7 +1886,7 @@ static lean_object* _init_l_Lean_getConstInfo___at___private_Lean_Compiler_Exter
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -2899,7 +2899,7 @@ static lean_object* _init_l_Lean_getExternConstArityExport___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_uniq");
+x_1 = lean_mk_string_from_bytes("_uniq", 5);
 return x_1;
 }
 }

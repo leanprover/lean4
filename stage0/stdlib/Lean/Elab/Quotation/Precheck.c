@@ -392,7 +392,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("quotPrecheck");
+x_1 = lean_mk_string_from_bytes("quotPrecheck", 12);
 return x_1;
 }
 }
@@ -410,7 +410,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -418,7 +418,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Enable eager name analysis on notations in order to find unbound identifiers early.\nNote that type-sensitive syntax (\"elaborators\") needs special support for this kind of check, so it might need to be turned off when using such syntax.");
+x_1 = lean_mk_string_from_bytes("Enable eager name analysis on notations in order to find unbound identifiers early.\nNote that type-sensitive syntax (\"elaborators\") needs special support for this kind of check, so it might need to be turned off when using such syntax.", 235);
 return x_1;
 }
 }
@@ -451,7 +451,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("allowSectionVars");
+x_1 = lean_mk_string_from_bytes("allowSectionVars", 16);
 return x_1;
 }
 }
@@ -469,7 +469,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_initFn____x40_Lean_Elab_Quo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Allow occurrences of section variables in checked quotations, it is useful when declaring local notation.");
+x_1 = lean_mk_string_from_bytes("Allow occurrences of section variables in checked quotations, it is useful when declaring local notation.", 105);
 return x_1;
 }
 }
@@ -521,7 +521,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_mkPrecheckAttribute___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("builtinQuotPrecheck");
+x_1 = lean_mk_string_from_bytes("builtinQuotPrecheck", 19);
 return x_1;
 }
 }
@@ -539,7 +539,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_mkPrecheckAttribute___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -557,7 +557,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_mkPrecheckAttribute___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -575,7 +575,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_mkPrecheckAttribute___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Term");
+x_1 = lean_mk_string_from_bytes("Term", 4);
 return x_1;
 }
 }
@@ -593,7 +593,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_mkPrecheckAttribute___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Quotation");
+x_1 = lean_mk_string_from_bytes("Quotation", 9);
 return x_1;
 }
 }
@@ -611,7 +611,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_mkPrecheckAttribute___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Precheck");
+x_1 = lean_mk_string_from_bytes("Precheck", 8);
 return x_1;
 }
 }
@@ -629,7 +629,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_mkPrecheckAttribute___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Register a double backtick syntax quotation pre-check.\n\n[quotPrecheck k] registers a declaration of type `Lean.Elab.Term.Quotation.Precheck` for the `SyntaxNodeKind` `k`.\nIt should implement eager name analysis on the passed syntax by throwing an exception on unbound identifiers,\nand calling `precheck` recursively on nested terms, potentially with an extended local context (`withNewLocal`).\nMacros without registered precheck hook are unfolded, and identifier-less syntax is ultimately assumed to be well-formed.");
+x_1 = lean_mk_string_from_bytes("Register a double backtick syntax quotation pre-check.\n\n[quotPrecheck k] registers a declaration of type `Lean.Elab.Term.Quotation.Precheck` for the `SyntaxNodeKind` `k`.\nIt should implement eager name analysis on the passed syntax by throwing an exception on unbound identifiers,\nand calling `precheck` recursively on nested terms, potentially with an extended local context (`withNewLocal`).\nMacros without registered precheck hook are unfolded, and identifier-less syntax is ultimately assumed to be well-formed.", 515);
 return x_1;
 }
 }
@@ -673,7 +673,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_mkPrecheckAttribute___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("precheckAttribute");
+x_1 = lean_mk_string_from_bytes("precheckAttribute", 17);
 return x_1;
 }
 }
@@ -858,7 +858,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Elab_Term_Quotation_precheck
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_traceMsg");
+x_1 = lean_mk_string_from_bytes("_traceMsg", 9);
 return x_1;
 }
 }
@@ -876,7 +876,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Elab_Term_Quotation_precheck
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -893,7 +893,7 @@ static lean_object* _init_l_Lean_addTrace___at_Lean_Elab_Term_Quotation_precheck
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] ");
+x_1 = lean_mk_string_from_bytes("] ", 2);
 return x_1;
 }
 }
@@ -1974,7 +1974,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_precheck___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("no macro or `[quotPrecheck]` instance for syntax kind '");
+x_1 = lean_mk_string_from_bytes("no macro or `[quotPrecheck]` instance for syntax kind '", 55);
 return x_1;
 }
 }
@@ -1991,7 +1991,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_precheck___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' found");
+x_1 = lean_mk_string_from_bytes("' found", 7);
 return x_1;
 }
 }
@@ -2008,7 +2008,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_precheck___lambda__1___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\nThis means we cannot eagerly check your notation/quotation for unbound identifiers; you can use `set_option quotPrecheck false` to disable this check.");
+x_1 = lean_mk_string_from_bytes("\nThis means we cannot eagerly check your notation/quotation for unbound identifiers; you can use `set_option quotPrecheck false` to disable this check.", 151);
 return x_1;
 }
 }
@@ -2978,7 +2978,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_precheckIdent___lambda__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown identifier '");
+x_1 = lean_mk_string_from_bytes("unknown identifier '", 20);
 return x_1;
 }
 }
@@ -2995,7 +2995,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_precheckIdent___lambda__1__
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check.");
+x_1 = lean_mk_string_from_bytes("' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check.", 91);
 return x_1;
 }
 }
@@ -3369,7 +3369,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Quotation_precheckIdent_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ident");
+x_1 = lean_mk_string_from_bytes("ident", 5);
 return x_1;
 }
 }
@@ -3387,7 +3387,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Quotation_precheckIdent_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("precheckIdent");
+x_1 = lean_mk_string_from_bytes("precheckIdent", 13);
 return x_1;
 }
 }
@@ -3425,7 +3425,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_Quotation
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("namedArgument");
+x_1 = lean_mk_string_from_bytes("namedArgument", 13);
 return x_1;
 }
 }
@@ -3583,7 +3583,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_precheckApp___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -3611,7 +3611,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_precheckApp___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("app");
+x_1 = lean_mk_string_from_bytes("app", 3);
 return x_1;
 }
 }
@@ -3775,7 +3775,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Quotation_precheckApp___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("precheckApp");
+x_1 = lean_mk_string_from_bytes("precheckApp", 11);
 return x_1;
 }
 }
@@ -3893,7 +3893,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_precheckParen___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("paren");
+x_1 = lean_mk_string_from_bytes("paren", 5);
 return x_1;
 }
 }
@@ -3911,7 +3911,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_precheckParen___closed__3()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("typeAscription");
+x_1 = lean_mk_string_from_bytes("typeAscription", 14);
 return x_1;
 }
 }
@@ -3929,7 +3929,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_precheckParen___closed__5()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tupleTail");
+x_1 = lean_mk_string_from_bytes("tupleTail", 9);
 return x_1;
 }
 }
@@ -4324,7 +4324,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Quotation_precheckParen_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("precheckParen");
+x_1 = lean_mk_string_from_bytes("precheckParen", 13);
 return x_1;
 }
 }
@@ -4567,7 +4567,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_Elab_Term_Quotatio
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n");
+x_1 = lean_mk_string_from_bytes("\n", 1);
 return x_1;
 }
 }
@@ -4692,7 +4692,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_precheckChoice___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ambiguous notation with at least one interpretation that failed quotation precheck, possible interpretations ");
+x_1 = lean_mk_string_from_bytes("ambiguous notation with at least one interpretation that failed quotation precheck, possible interpretations ", 109);
 return x_1;
 }
 }
@@ -4709,7 +4709,7 @@ static lean_object* _init_l_Lean_Elab_Term_Quotation_precheckChoice___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n\n");
+x_1 = lean_mk_string_from_bytes("\n\n", 2);
 return x_1;
 }
 }
@@ -4897,7 +4897,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Quotation_precheckChoice
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("choice");
+x_1 = lean_mk_string_from_bytes("choice", 6);
 return x_1;
 }
 }
@@ -4915,7 +4915,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Quotation_precheckChoice
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("precheckChoice");
+x_1 = lean_mk_string_from_bytes("precheckChoice", 14);
 return x_1;
 }
 }
@@ -5037,7 +5037,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Quotation_elabPrechecked
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("precheckedQuot");
+x_1 = lean_mk_string_from_bytes("precheckedQuot", 14);
 return x_1;
 }
 }
@@ -5055,7 +5055,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_Quotation_elabPrechecked
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("elabPrecheckedQuot");
+x_1 = lean_mk_string_from_bytes("elabPrecheckedQuot", 18);
 return x_1;
 }
 }

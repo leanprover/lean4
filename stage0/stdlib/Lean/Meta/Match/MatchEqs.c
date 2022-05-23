@@ -1235,7 +1235,7 @@ static lean_object* _init_l_Lean_Meta_casesOnStuckLHS___lambda__1___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'casesOnStuckLHS' failed");
+x_1 = lean_mk_string_from_bytes("'casesOnStuckLHS' failed", 24);
 return x_1;
 }
 }
@@ -4351,7 +4351,7 @@ static lean_object* _init_l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Match.MatchEqs");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Match.MatchEqs", 24);
 return x_1;
 }
 }
@@ -4359,7 +4359,7 @@ static lean_object* _init_l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.Meta.Match.forallAltTelescope.go");
+x_1 = lean_mk_string_from_bytes("Lean.Meta.Match.forallAltTelescope.go", 37);
 return x_1;
 }
 }
@@ -4367,7 +4367,7 @@ static lean_object* _init_l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -4715,7 +4715,7 @@ static lean_object* _init_l_Lean_Meta_Match_forallAltTelescope_go___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Unit");
+x_1 = lean_mk_string_from_bytes("Unit", 4);
 return x_1;
 }
 }
@@ -4733,7 +4733,7 @@ static lean_object* _init_l_Lean_Meta_Match_forallAltTelescope_go___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unit");
+x_1 = lean_mk_string_from_bytes("unit", 4);
 return x_1;
 }
 }
@@ -4791,7 +4791,7 @@ static lean_object* _init_l_Lean_Meta_Match_forallAltTelescope_go___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unexpected match alternative type");
+x_1 = lean_mk_string_from_bytes("unexpected match alternative type", 33);
 return x_1;
 }
 }
@@ -4808,7 +4808,7 @@ static lean_object* _init_l_Lean_Meta_Match_forallAltTelescope_go___rarg___close
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -5663,7 +5663,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("assertion violation: ");
+x_1 = lean_mk_string_from_bytes("assertion violation: ", 21);
 return x_1;
 }
 }
@@ -5671,7 +5671,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("( a ).xs.contains rhs\n  ");
+x_1 = lean_mk_string_from_bytes("( a ).xs.contains rhs\n  ", 24);
 return x_1;
 }
 }
@@ -5689,7 +5689,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_private.Lean.Meta.Match.MatchEqs.0.Lean.Meta.Match.SimpH.substRHS");
+x_1 = lean_mk_string_from_bytes("_private.Lean.Meta.Match.MatchEqs.0.Lean.Meta.Match.SimpH.substRHS", 66);
 return x_1;
 }
 }
@@ -8146,7 +8146,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Meta");
+x_1 = lean_mk_string_from_bytes("Meta", 4);
 return x_1;
 }
 }
@@ -8164,7 +8164,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Match");
+x_1 = lean_mk_string_from_bytes("Match", 5);
 return x_1;
 }
 }
@@ -8182,7 +8182,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("matchEqs");
+x_1 = lean_mk_string_from_bytes("matchEqs", 8);
 return x_1;
 }
 }
@@ -8200,7 +8200,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simplified hypothesis");
+x_1 = lean_mk_string_from_bytes("simplified hypothesis", 21);
 return x_1;
 }
 }
@@ -8332,7 +8332,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("False");
+x_1 = lean_mk_string_from_bytes("False", 5);
 return x_1;
 }
 }
@@ -10756,7 +10756,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("substSomeVar failed");
+x_1 = lean_mk_string_from_bytes("substSomeVar failed", 19);
 return x_1;
 }
 }
@@ -11098,7 +11098,7 @@ static lean_object* _init_l_Lean_Meta_Match_proveCondEqThm_go___lambda__2___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("refl failed");
+x_1 = lean_mk_string_from_bytes("refl failed", 11);
 return x_1;
 }
 }
@@ -11140,7 +11140,7 @@ static lean_object* _init_l_Lean_Meta_Match_proveCondEqThm_go___lambda__2___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to generate equality theorems for `match` expression `");
+x_1 = lean_mk_string_from_bytes("failed to generate equality theorems for `match` expression `", 61);
 return x_1;
 }
 }
@@ -11157,7 +11157,7 @@ static lean_object* _init_l_Lean_Meta_Match_proveCondEqThm_go___lambda__2___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("`\n");
+x_1 = lean_mk_string_from_bytes("`\n", 2);
 return x_1;
 }
 }
@@ -11174,7 +11174,7 @@ static lean_object* _init_l_Lean_Meta_Match_proveCondEqThm_go___lambda__2___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("spliIf failed");
+x_1 = lean_mk_string_from_bytes("spliIf failed", 13);
 return x_1;
 }
 }
@@ -11200,7 +11200,7 @@ static lean_object* _init_l_Lean_Meta_Match_proveCondEqThm_go___lambda__2___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("simpIf failed");
+x_1 = lean_mk_string_from_bytes("simpIf failed", 13);
 return x_1;
 }
 }
@@ -11739,7 +11739,7 @@ static lean_object* _init_l_Lean_Meta_Match_proveCondEqThm_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("proveCondEqThm.go ");
+x_1 = lean_mk_string_from_bytes("proveCondEqThm.go ", 18);
 return x_1;
 }
 }
@@ -12273,7 +12273,7 @@ static lean_object* _init_l_Lean_Meta_Match_proveCondEqThm___lambda__3___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("proveCondEqThm ");
+x_1 = lean_mk_string_from_bytes("proveCondEqThm ", 15);
 return x_1;
 }
 }
@@ -12514,7 +12514,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("h");
+x_1 = lean_mk_string_from_bytes("h", 1);
 return x_1;
 }
 }
@@ -13474,7 +13474,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("injectionAnyFailed at ");
+x_1 = lean_mk_string_from_bytes("injectionAnyFailed at ", 22);
 return x_1;
 }
 }
@@ -13491,7 +13491,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", error\n");
+x_1 = lean_mk_string_from_bytes(", error\n", 8);
 return x_1;
 }
 }
@@ -20288,7 +20288,7 @@ static lean_object* _init_l_Lean_addTrace___at___private_Lean_Meta_Match_MatchEq
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("_traceMsg");
+x_1 = lean_mk_string_from_bytes("_traceMsg", 9);
 return x_1;
 }
 }
@@ -20306,7 +20306,7 @@ static lean_object* _init_l_Lean_addTrace___at___private_Lean_Meta_Match_MatchEq
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -20323,7 +20323,7 @@ static lean_object* _init_l_Lean_addTrace___at___private_Lean_Meta_Match_MatchEq
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] ");
+x_1 = lean_mk_string_from_bytes("] ", 2);
 return x_1;
 }
 }
@@ -23073,7 +23073,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(">> ");
+x_1 = lean_mk_string_from_bytes(">> ", 3);
 return x_1;
 }
 }
@@ -23090,7 +23090,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -23482,7 +23482,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("failed to generate splitter for match auxiliary declaration '");
+x_1 = lean_mk_string_from_bytes("failed to generate splitter for match auxiliary declaration '", 61);
 return x_1;
 }
 }
@@ -23499,7 +23499,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', unsolved subgoal:\n");
+x_1 = lean_mk_string_from_bytes("', unsolved subgoal:\n", 21);
 return x_1;
 }
 }
@@ -23804,7 +23804,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("proveSubgoalLoop\n");
+x_1 = lean_mk_string_from_bytes("proveSubgoalLoop\n", 17);
 return x_1;
 }
 }
@@ -24035,7 +24035,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("subgoal ");
+x_1 = lean_mk_string_from_bytes("subgoal ", 8);
 return x_1;
 }
 }
@@ -24052,7 +24052,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\n");
+x_1 = lean_mk_string_from_bytes("\n", 1);
 return x_1;
 }
 }
@@ -24069,7 +24069,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("false");
+x_1 = lean_mk_string_from_bytes("false", 5);
 return x_1;
 }
 }
@@ -24097,7 +24097,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("true");
+x_1 = lean_mk_string_from_bytes("true", 4);
 return x_1;
 }
 }
@@ -24467,7 +24467,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("splitter proof: ");
+x_1 = lean_mk_string_from_bytes("splitter proof: ", 16);
 return x_1;
 }
 }
@@ -24634,7 +24634,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("proof template: ");
+x_1 = lean_mk_string_from_bytes("proof template: ", 16);
 return x_1;
 }
 }
@@ -26042,7 +26042,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Meta_Match_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("hs: ");
+x_1 = lean_mk_string_from_bytes("hs: ", 4);
 return x_1;
 }
 }
@@ -26246,7 +26246,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Meta_Match_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("eq");
+x_1 = lean_mk_string_from_bytes("eq", 2);
 return x_1;
 }
 }
@@ -26264,7 +26264,7 @@ static lean_object* _init_l_Std_Range_forIn_loop___at___private_Lean_Meta_Match_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("splitterAltType: ");
+x_1 = lean_mk_string_from_bytes("splitterAltType: ", 17);
 return x_1;
 }
 }
@@ -26711,7 +26711,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("splitter");
+x_1 = lean_mk_string_from_bytes("splitter", 8);
 return x_1;
 }
 }
@@ -27010,7 +27010,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("splitterType: ");
+x_1 = lean_mk_string_from_bytes("splitterType: ", 14);
 return x_1;
 }
 }
@@ -27322,7 +27322,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -27339,7 +27339,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' is not a matcher function");
+x_1 = lean_mk_string_from_bytes("' is not a matcher function", 27);
 return x_1;
 }
 }
@@ -28020,7 +28020,7 @@ static lean_object* _init_l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Matc
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mkEquationsFor '");
+x_1 = lean_mk_string_from_bytes("mkEquationsFor '", 16);
 return x_1;
 }
 }

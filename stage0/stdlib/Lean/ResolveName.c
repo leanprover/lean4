@@ -1760,7 +1760,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_ResolveName___hyg_66____clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("aliasesExt");
+x_1 = lean_mk_string_from_bytes("aliasesExt", 10);
 return x_1;
 }
 }
@@ -3610,7 +3610,7 @@ static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.ResolveName");
+x_1 = lean_mk_string_from_bytes("Lean.ResolveName", 16);
 return x_1;
 }
 }
@@ -3618,7 +3618,7 @@ static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean.ResolveName.resolveNamespaceUsingScope");
+x_1 = lean_mk_string_from_bytes("Lean.ResolveName.resolveNamespaceUsingScope", 43);
 return x_1;
 }
 }
@@ -3626,7 +3626,7 @@ static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unreachable code has been reached");
+x_1 = lean_mk_string_from_bytes("unreachable code has been reached", 33);
 return x_1;
 }
 }
@@ -3959,7 +3959,7 @@ static lean_object* _init_l_Lean_resolveNamespace___rarg___lambda__1___closed__1
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown namespace '");
+x_1 = lean_mk_string_from_bytes("unknown namespace '", 19);
 return x_1;
 }
 }
@@ -3967,7 +3967,7 @@ static lean_object* _init_l_Lean_resolveNamespace___rarg___lambda__1___closed__2
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -4356,7 +4356,7 @@ static lean_object* _init_l_List_toStringAux___at_Lean_resolveGlobalConstNoOverl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -4364,7 +4364,7 @@ static lean_object* _init_l_List_toStringAux___at_Lean_resolveGlobalConstNoOverl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -4422,7 +4422,7 @@ static lean_object* _init_l_List_toString___at_Lean_resolveGlobalConstNoOverload
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[]");
+x_1 = lean_mk_string_from_bytes("[]", 2);
 return x_1;
 }
 }
@@ -4430,7 +4430,7 @@ static lean_object* _init_l_List_toString___at_Lean_resolveGlobalConstNoOverload
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -4438,7 +4438,7 @@ static lean_object* _init_l_List_toString___at_Lean_resolveGlobalConstNoOverload
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -4496,7 +4496,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverloadCore___rarg___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ambiguous identifier '");
+x_1 = lean_mk_string_from_bytes("ambiguous identifier '", 22);
 return x_1;
 }
 }
@@ -4504,7 +4504,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverloadCore___rarg___lambd
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', possible interpretations: ");
+x_1 = lean_mk_string_from_bytes("', possible interpretations: ", 29);
 return x_1;
 }
 }
@@ -4715,7 +4715,7 @@ static lean_object* _init_l_Lean_resolveGlobalConst___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected identifier");
+x_1 = lean_mk_string_from_bytes("expected identifier", 19);
 return x_1;
 }
 }

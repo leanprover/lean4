@@ -236,7 +236,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("x_");
+x_1 = lean_mk_string_from_bytes("x_", 2);
 return x_1;
 }
 }
@@ -244,7 +244,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatA
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("◾");
+x_1 = lean_mk_string_from_bytes("◾", 3);
 return x_1;
 }
 }
@@ -303,7 +303,7 @@ static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_IR_formatArray___s
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" ");
+x_1 = lean_mk_string_from_bytes(" ", 1);
 return x_1;
 }
 }
@@ -489,7 +489,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("[");
+x_1 = lean_mk_string_from_bytes("[", 1);
 return x_1;
 }
 }
@@ -507,7 +507,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("]");
+x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
@@ -568,7 +568,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ctor_");
+x_1 = lean_mk_string_from_bytes("ctor_", 5);
 return x_1;
 }
 }
@@ -586,7 +586,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -604,7 +604,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatC
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(".");
+x_1 = lean_mk_string_from_bytes(".", 1);
 return x_1;
 }
 }
@@ -830,7 +830,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("reset[");
+x_1 = lean_mk_string_from_bytes("reset[", 6);
 return x_1;
 }
 }
@@ -848,7 +848,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] ");
+x_1 = lean_mk_string_from_bytes("] ", 2);
 return x_1;
 }
 }
@@ -866,7 +866,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("reuse");
+x_1 = lean_mk_string_from_bytes("reuse", 5);
 return x_1;
 }
 }
@@ -884,7 +884,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" in ");
+x_1 = lean_mk_string_from_bytes(" in ", 4);
 return x_1;
 }
 }
@@ -926,7 +926,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("!");
+x_1 = lean_mk_string_from_bytes("!", 1);
 return x_1;
 }
 }
@@ -968,7 +968,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("proj[");
+x_1 = lean_mk_string_from_bytes("proj[", 5);
 return x_1;
 }
 }
@@ -986,7 +986,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("uproj[");
+x_1 = lean_mk_string_from_bytes("uproj[", 6);
 return x_1;
 }
 }
@@ -1004,7 +1004,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sproj[");
+x_1 = lean_mk_string_from_bytes("sproj[", 6);
 return x_1;
 }
 }
@@ -1022,7 +1022,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(", ");
+x_1 = lean_mk_string_from_bytes(", ", 2);
 return x_1;
 }
 }
@@ -1040,7 +1040,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("pap ");
+x_1 = lean_mk_string_from_bytes("pap ", 4);
 return x_1;
 }
 }
@@ -1058,7 +1058,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("app ");
+x_1 = lean_mk_string_from_bytes("app ", 4);
 return x_1;
 }
 }
@@ -1076,7 +1076,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("box ");
+x_1 = lean_mk_string_from_bytes("box ", 4);
 return x_1;
 }
 }
@@ -1094,7 +1094,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unbox ");
+x_1 = lean_mk_string_from_bytes("unbox ", 6);
 return x_1;
 }
 }
@@ -1112,7 +1112,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("isShared ");
+x_1 = lean_mk_string_from_bytes("isShared ", 9);
 return x_1;
 }
 }
@@ -1130,7 +1130,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatE
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("isTaggedPtr ");
+x_1 = lean_mk_string_from_bytes("isTaggedPtr ", 12);
 return x_1;
 }
 }
@@ -1603,7 +1603,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("float");
+x_1 = lean_mk_string_from_bytes("float", 5);
 return x_1;
 }
 }
@@ -1621,7 +1621,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("u8");
+x_1 = lean_mk_string_from_bytes("u8", 2);
 return x_1;
 }
 }
@@ -1639,7 +1639,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("u16");
+x_1 = lean_mk_string_from_bytes("u16", 3);
 return x_1;
 }
 }
@@ -1657,7 +1657,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("u32");
+x_1 = lean_mk_string_from_bytes("u32", 3);
 return x_1;
 }
 }
@@ -1675,7 +1675,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("u64");
+x_1 = lean_mk_string_from_bytes("u64", 3);
 return x_1;
 }
 }
@@ -1693,7 +1693,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("usize");
+x_1 = lean_mk_string_from_bytes("usize", 5);
 return x_1;
 }
 }
@@ -1711,7 +1711,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("obj");
+x_1 = lean_mk_string_from_bytes("obj", 3);
 return x_1;
 }
 }
@@ -1729,7 +1729,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("tobj");
+x_1 = lean_mk_string_from_bytes("tobj", 4);
 return x_1;
 }
 }
@@ -1747,7 +1747,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("struct ");
+x_1 = lean_mk_string_from_bytes("struct ", 7);
 return x_1;
 }
 }
@@ -1765,7 +1765,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("{");
+x_1 = lean_mk_string_from_bytes("{", 1);
 return x_1;
 }
 }
@@ -1801,7 +1801,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("}");
+x_1 = lean_mk_string_from_bytes("}", 1);
 return x_1;
 }
 }
@@ -1819,7 +1819,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("union ");
+x_1 = lean_mk_string_from_bytes("union ", 6);
 return x_1;
 }
 }
@@ -2013,7 +2013,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatP
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("(");
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -2031,7 +2031,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatP
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" : ");
+x_1 = lean_mk_string_from_bytes(" : ", 3);
 return x_1;
 }
 }
@@ -2049,7 +2049,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatP
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(")");
+x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
@@ -2067,7 +2067,7 @@ static lean_object* _init_l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatP
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("@& ");
+x_1 = lean_mk_string_from_bytes("@& ", 3);
 return x_1;
 }
 }
@@ -2160,7 +2160,7 @@ static lean_object* _init_l_Lean_IR_formatAlt___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" →");
+x_1 = lean_mk_string_from_bytes(" →", 4);
 return x_1;
 }
 }
@@ -2178,7 +2178,7 @@ static lean_object* _init_l_Lean_IR_formatAlt___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("default →");
+x_1 = lean_mk_string_from_bytes("default →", 11);
 return x_1;
 }
 }
@@ -2361,7 +2361,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("let ");
+x_1 = lean_mk_string_from_bytes("let ", 4);
 return x_1;
 }
 }
@@ -2379,7 +2379,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" := ");
+x_1 = lean_mk_string_from_bytes(" := ", 4);
 return x_1;
 }
 }
@@ -2397,7 +2397,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("block_");
+x_1 = lean_mk_string_from_bytes("block_", 6);
 return x_1;
 }
 }
@@ -2405,7 +2405,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" := ...");
+x_1 = lean_mk_string_from_bytes(" := ...", 7);
 return x_1;
 }
 }
@@ -2423,7 +2423,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("set ");
+x_1 = lean_mk_string_from_bytes("set ", 4);
 return x_1;
 }
 }
@@ -2441,7 +2441,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] := ");
+x_1 = lean_mk_string_from_bytes("] := ", 5);
 return x_1;
 }
 }
@@ -2459,7 +2459,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__12() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("setTag ");
+x_1 = lean_mk_string_from_bytes("setTag ", 7);
 return x_1;
 }
 }
@@ -2477,7 +2477,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("uset ");
+x_1 = lean_mk_string_from_bytes("uset ", 5);
 return x_1;
 }
 }
@@ -2495,7 +2495,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("sset ");
+x_1 = lean_mk_string_from_bytes("sset ", 5);
 return x_1;
 }
 }
@@ -2513,7 +2513,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__18() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("] : ");
+x_1 = lean_mk_string_from_bytes("] : ", 4);
 return x_1;
 }
 }
@@ -2531,7 +2531,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__20() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("inc");
+x_1 = lean_mk_string_from_bytes("inc", 3);
 return x_1;
 }
 }
@@ -2591,7 +2591,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__26() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("dec");
+x_1 = lean_mk_string_from_bytes("dec", 3);
 return x_1;
 }
 }
@@ -2633,7 +2633,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__30() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("del ");
+x_1 = lean_mk_string_from_bytes("del ", 4);
 return x_1;
 }
 }
@@ -2651,7 +2651,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__32() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("mdata ");
+x_1 = lean_mk_string_from_bytes("mdata ", 6);
 return x_1;
 }
 }
@@ -2669,7 +2669,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__34() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("case ");
+x_1 = lean_mk_string_from_bytes("case ", 5);
 return x_1;
 }
 }
@@ -2687,7 +2687,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__36() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" of ...");
+x_1 = lean_mk_string_from_bytes(" of ...", 7);
 return x_1;
 }
 }
@@ -2705,7 +2705,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__38() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ret ");
+x_1 = lean_mk_string_from_bytes("ret ", 4);
 return x_1;
 }
 }
@@ -2723,7 +2723,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__40() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("jmp ");
+x_1 = lean_mk_string_from_bytes("jmp ", 4);
 return x_1;
 }
 }
@@ -2741,7 +2741,7 @@ static lean_object* _init_l_Lean_IR_formatFnBodyHead___closed__42() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("⊥");
+x_1 = lean_mk_string_from_bytes("⊥", 3);
 return x_1;
 }
 }
@@ -3264,7 +3264,7 @@ static lean_object* _init_l_Lean_IR_formatFnBody_loop___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(";");
+x_1 = lean_mk_string_from_bytes(";", 1);
 return x_1;
 }
 }
@@ -3282,7 +3282,7 @@ static lean_object* _init_l_Lean_IR_formatFnBody_loop___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" :=");
+x_1 = lean_mk_string_from_bytes(" :=", 3);
 return x_1;
 }
 }
@@ -3300,7 +3300,7 @@ static lean_object* _init_l_Lean_IR_formatFnBody_loop___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string(" of");
+x_1 = lean_mk_string_from_bytes(" of", 3);
 return x_1;
 }
 }
@@ -4076,7 +4076,7 @@ static lean_object* _init_l_Lean_IR_formatDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("def ");
+x_1 = lean_mk_string_from_bytes("def ", 4);
 return x_1;
 }
 }
@@ -4094,7 +4094,7 @@ static lean_object* _init_l_Lean_IR_formatDecl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("extern ");
+x_1 = lean_mk_string_from_bytes("extern ", 7);
 return x_1;
 }
 }

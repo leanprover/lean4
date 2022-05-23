@@ -598,7 +598,7 @@ static lean_object* _init_l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFai
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("reduceEval: failed to evaluate argument");
+x_1 = lean_mk_string_from_bytes("reduceEval: failed to evaluate argument", 39);
 return x_1;
 }
 }
@@ -615,7 +615,7 @@ static lean_object* _init_l___private_Lean_Meta_ReduceEval_0__Lean_Meta_throwFai
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -814,7 +814,7 @@ static lean_object* _init_l_Lean_Meta_instReduceEvalOption___rarg___closed__1() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Option");
+x_1 = lean_mk_string_from_bytes("Option", 6);
 return x_1;
 }
 }
@@ -832,7 +832,7 @@ static lean_object* _init_l_Lean_Meta_instReduceEvalOption___rarg___closed__3() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("none");
+x_1 = lean_mk_string_from_bytes("none", 4);
 return x_1;
 }
 }
@@ -850,7 +850,7 @@ static lean_object* _init_l_Lean_Meta_instReduceEvalOption___rarg___closed__5() 
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("some");
+x_1 = lean_mk_string_from_bytes("some", 4);
 return x_1;
 }
 }
@@ -3483,7 +3483,7 @@ static lean_object* _init_l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -3501,7 +3501,7 @@ static lean_object* _init_l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Name");
+x_1 = lean_mk_string_from_bytes("Name", 4);
 return x_1;
 }
 }
@@ -3519,7 +3519,7 @@ static lean_object* _init_l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("num");
+x_1 = lean_mk_string_from_bytes("num", 3);
 return x_1;
 }
 }
@@ -3537,7 +3537,7 @@ static lean_object* _init_l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("str");
+x_1 = lean_mk_string_from_bytes("str", 3);
 return x_1;
 }
 }
@@ -3555,7 +3555,7 @@ static lean_object* _init_l___private_Lean_Meta_ReduceEval_0__Lean_Meta_evalName
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("anonymous");
+x_1 = lean_mk_string_from_bytes("anonymous", 9);
 return x_1;
 }
 }

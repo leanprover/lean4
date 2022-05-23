@@ -186,7 +186,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_deltaLocalDecl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("delta");
+x_1 = lean_mk_string_from_bytes("delta", 5);
 return x_1;
 }
 }
@@ -204,7 +204,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_deltaLocalDecl___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("did not delta reduce '");
+x_1 = lean_mk_string_from_bytes("did not delta reduce '", 22);
 return x_1;
 }
 }
@@ -221,7 +221,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_deltaLocalDecl___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("' at '");
+x_1 = lean_mk_string_from_bytes("' at '", 6);
 return x_1;
 }
 }
@@ -238,7 +238,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_deltaLocalDecl___closed__7() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("'");
+x_1 = lean_mk_string_from_bytes("'", 1);
 return x_1;
 }
 }
@@ -922,7 +922,7 @@ static lean_object* _init_l_Lean_throwUnknownConstant___at_Lean_Elab_Tactic_eval
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("unknown constant '");
+x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
 return x_1;
 }
 }
@@ -1035,7 +1035,7 @@ static lean_object* _init_l_Lean_resolveGlobalConst___at_Lean_Elab_Tactic_evalDe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("expected identifier");
+x_1 = lean_mk_string_from_bytes("expected identifier", 19);
 return x_1;
 }
 }
@@ -1268,7 +1268,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Tac
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("ambiguous identifier '");
+x_1 = lean_mk_string_from_bytes("ambiguous identifier '", 22);
 return x_1;
 }
 }
@@ -1276,7 +1276,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Tac
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("', possible interpretations: ");
+x_1 = lean_mk_string_from_bytes("', possible interpretations: ", 29);
 return x_1;
 }
 }
@@ -1284,7 +1284,7 @@ static lean_object* _init_l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Tac
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("");
+x_1 = lean_mk_string_from_bytes("", 0);
 return x_1;
 }
 }
@@ -1650,7 +1650,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalDelta___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Lean");
+x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
@@ -1668,7 +1668,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalDelta___closed__3(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Parser");
+x_1 = lean_mk_string_from_bytes("Parser", 6);
 return x_1;
 }
 }
@@ -1686,7 +1686,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalDelta___closed__5(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Tactic");
+x_1 = lean_mk_string_from_bytes("Tactic", 6);
 return x_1;
 }
 }
@@ -1714,7 +1714,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalDelta___closed__8(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("Elab");
+x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
@@ -1742,7 +1742,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalDelta___closed__11
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("evalDelta");
+x_1 = lean_mk_string_from_bytes("evalDelta", 9);
 return x_1;
 }
 }
@@ -1788,7 +1788,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Tactic_evalDelta_docString___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("\"delta \" ident (location)?\n");
+x_1 = lean_mk_string_from_bytes("\"delta \" ident (location)?\n", 27);
 return x_1;
 }
 }

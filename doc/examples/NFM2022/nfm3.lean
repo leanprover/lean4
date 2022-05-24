@@ -1,3 +1,5 @@
+/- Enumerated types -/
+
 inductive Weekday where
   | sunday | monday | tuesday | wednesday
   | thursday | friday | saturday
@@ -36,6 +38,8 @@ def Weekday.previous : Weekday → Weekday
   | thursday  => wednesday
   | friday    => thursday
   | saturday  => friday
+
+/- Proving theorems using tactics -/
 
 theorem Weekday.next_previous (d : Weekday) : d.next.previous = d :=
   match d with

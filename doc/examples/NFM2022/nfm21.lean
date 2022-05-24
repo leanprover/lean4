@@ -1,3 +1,5 @@
+/- Simplifier -/
+
 example (p : Nat → Prop) : (x + 0) * (0 + y * 1 + z * 0) = x * y := by
   simp
 

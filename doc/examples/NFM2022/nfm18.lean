@@ -1,3 +1,5 @@
+/- Structuring proofs (cont.) -/
+
 example : p ∧ (q ∨ r) → (p ∧ q) ∨ (p ∧ r) := by
   intro h
   have hp : p := h.left

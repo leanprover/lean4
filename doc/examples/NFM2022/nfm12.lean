@@ -1,3 +1,4 @@
+/- Type classes -/
 namespace Example
 
 class ToString (α : Type u) where

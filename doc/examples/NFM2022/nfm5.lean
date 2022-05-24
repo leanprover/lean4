@@ -1,3 +1,5 @@
+/- Implicit arguments and universe polymorphism -/
+
 def f (α β : Sort u) (a : α) (b : β) : α := a
 
 #eval f Nat String 1 "hello"

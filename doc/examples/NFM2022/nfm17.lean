@@ -1,3 +1,5 @@
+/- More tactics -/
+
 example (p q : Nat → Prop) : (∃ x, p x ∧ q x) → ∃ x, q x ∧ p x := by
   intro h
   cases h with

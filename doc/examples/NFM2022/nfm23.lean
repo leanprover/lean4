@@ -1,3 +1,5 @@
+/- split tactic -/
+
 def f (x y z : Nat) : Nat :=
   match x, y, z with
   | 5, _, _ => y

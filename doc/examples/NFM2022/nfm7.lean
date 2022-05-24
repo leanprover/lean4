@@ -1,3 +1,5 @@
+/- Recursive functions -/
+
 #print Nat -- Nat is an inductive datatype
 
 def fib (n : Nat) : Nat :=

@@ -1,3 +1,5 @@
+/- First-class functions -/
+
 def twice (f : Nat → Nat) (a : Nat) :=
   f (f a)
 

@@ -1,3 +1,5 @@
+/- Tactic combinators -/
+
 example : p → q → r → p ∧ ((p ∧ q) ∧ r) ∧ (q ∧ r ∧ p) := by
   intros
   repeat (any_goals constructor)

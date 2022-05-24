@@ -1,3 +1,4 @@
+/- Type classes are heavily used in Lean -/
 namespace Example
 
 class Mul (α : Type u) where
@@ -26,3 +27,18 @@ class LawfulFunctor (f : Type u → Type v) [Functor f] : Prop where
   comp_map (g : α → β) (h : β → γ) (x : f α) :(h ∘ g) <$> x = h <$> g <$> x
 
 end Example
+
+/-
+`Deriving instances automatically`
+
+We have seen `deriving Repr` in a few examples.
+It is an instance generator.
+Lean comes equipped with generators for the following classes.
+`Repr`, `Inhabited`, `BEq`, `DecidableEq`,
+`Hashable`, `Ord`, `FromToJson`, `SizeOf`
+-/
+
+inductive Tree (α : Type u) where
+  | leaf (val : α)
+  | node (left right : Tree α)
+  deriving DecidableEq, Ord, Inhabited, Repr

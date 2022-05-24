@@ -1,3 +1,4 @@
+/- Inductive Types -/
 
 inductive Tree (β : Type v) where
   | leaf

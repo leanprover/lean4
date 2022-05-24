@@ -1,3 +1,5 @@
+/- Structures -/
+
 structure Point where
   x : Int := 0
   y : Int := 0

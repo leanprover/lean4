@@ -1,3 +1,5 @@
+/- Inaccessible names -/
+
 example : ∀ x y : Nat, x = y → y = x := by
   intros
   apply Eq.symm

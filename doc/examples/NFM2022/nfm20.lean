@@ -1,3 +1,5 @@
+/- Rewriting -/
+
 example (f : Nat → Nat) (k : Nat) (h₁ : f 0 = 0) (h₂ : k = 0) : f k = 0 := by
   rw [h₂] -- replace k with 0
   rw [h₁] -- replace f 0 with 0

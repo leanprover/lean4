@@ -1,3 +1,4 @@
+/- What is the type of Nat? -/
 
 #check 0
 -- Nat

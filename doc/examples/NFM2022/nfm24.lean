@@ -1,4 +1,4 @@
-
+/- induction tactic -/
 
 example (as : List α) (a : α) : (as.concat a).length = as.length + 1 := by
   induction as with

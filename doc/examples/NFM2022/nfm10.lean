@@ -1,3 +1,5 @@
+/- Dependent pattern matching -/
+
 inductive Vector (α : Type u) : Nat → Type u
   | nil : Vector α 0
   | cons : α → Vector α n → Vector α (n+1)

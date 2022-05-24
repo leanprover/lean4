@@ -1,3 +1,4 @@
+/- intro tactic variants -/
 
 example (p q : α → Prop) : (∃ x, p x ∧ q x) → ∃ x, q x ∧ p x := by
   intro h

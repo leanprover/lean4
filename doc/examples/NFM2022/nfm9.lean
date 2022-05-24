@@ -1,3 +1,5 @@
+/- Mutual recursion -/
+
 inductive Term where
  | const : String → Term
  | app   : String → List Term → Term
@@ -7,6 +9,7 @@ mutual
  def numConsts : Term → Nat
    | const _ => 1
    | app _ cs => numConstsLst cs
+
  def numConstsLst : List Term → Nat
    | [] => 0
    | c :: cs => numConsts c + numConstsLst cs
@@ -21,6 +24,8 @@ mutual
    | [] => []
    | c :: cs => replaceConst a b c :: replaceConstLst a b cs
 end
+
+/- Mutual recursion in theorems -/
 
 mutual
   theorem numConsts_replaceConst (a b : String) (e : Term)

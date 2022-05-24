@@ -94,7 +94,7 @@ def loadPkg (args : List String := []) : CliStateM Package := do
   setupLeanSearchPath (← getLeanInstall?) (← getLakeInstall?)
   Package.load dir args (dir / file)
 
-def loadWorkspace (args : List String := []) (updateDeps := true) : CliStateM Workspace := do
+def loadWorkspace (args : List String := []) (updateDeps := false) : CliStateM Workspace := do
   let pkg ← loadPkg args
   let ws := Workspace.ofPackage pkg
   let manifest ← do
@@ -305,7 +305,7 @@ def command : (cmd : String) → CliM PUnit
   runBuildM ws <| build (← takeArgs)
 | "configure" => do
   processOptions lakeOption
-  let ws ← loadWorkspace (← getSubArgs)
+  let ws ← loadWorkspace (← getSubArgs) (updateDeps := true)
   noArgsRem <| runBuildM ws ws.root.buildDepOleans
 | "print-paths" => do
   processOptions lakeOption

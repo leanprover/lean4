@@ -47,7 +47,7 @@ The `src` of a `Dependency`.
 In Lake, dependency sources currently come into flavors:
 * Local `path`s relative to the package's directory.
 * Remote `git` repositories that are download from a given `url`
-  into the packages's `depsDir`.
+  into the workspace's `packagesDir`.
 -/
 inductive Source where
 | path (dir : FilePath)

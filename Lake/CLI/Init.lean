@@ -5,6 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Util.Git
 import Lake.Config.Package
+import Lake.Config.Workspace
 import Lake.Config.Load
 
 namespace Lake
@@ -16,7 +17,10 @@ def toolchainFileName : FilePath :=
 "lean-toolchain"
 
 def gitignoreContents :=
-s!"/{defaultBuildDir}\n/{defaultPackagesDir}\n"
+s!"/{defaultBuildDir}
+/{defaultPackagesDir}/*
+!/{defaultPackagesDir}/{manifestFileName}
+"
 
 def libFileContents :=
   s!"def hello := \"world\""

@@ -24,7 +24,7 @@ COMMANDS:
   new <name>            create a Lean package in a new directory
   init <name>           create a Lean package in the current directory
   build [<targets>...]  configure and build targets
-  configure             download and build dependencies
+  configure             update and build dependencies
   clean                 remove build outputs
   script                manage and run workspace scripts
   serve                 start the Lean language server
@@ -79,10 +79,11 @@ TARGET EXAMPLES:
   :bin                  build the root package's binary
 
 A bare `build` command will build the default facet of the root package.
-Arguments to the `Packager` itself can be specified with `args`."
+Arguments to the `Packager` itself can be specified with `args`.
+Package dependencies are not updated during a build."
 
 def helpConfigure :=
-"Download and build dependencies
+"Update and build dependencies
 
 USAGE:
   lake configure [-- <args>...]
@@ -92,8 +93,12 @@ This command sets up the directory with the package's dependencies
 if specified.
 
 For each (transitive) git dependency, the specified commit is checked out
-into a sub-directory of `depsDir`. If there are dependencies on multiple
-versions of the same package, the version materialized is undefined.
+into a sub-directory of `packagesDir`. Already checked out dependencies are
+updated to the latest version compatible with the package's configuration.
+If there are dependencies on multiple versions of the same package, the
+version materialized is undefined. The specific revision of the resolved
+packages are cached in the `manifest.json` file of the `packagesDir`.
+
 No copy is made of local dependencies."
 
 def helpClean :=

@@ -78,7 +78,7 @@ package hello {
 }
 ```
 
-The next run of `lake build` (or refreshing dependencies in an editor like VSCode) will clone the mathlib repository and build it.
+The next run of `lake build` (or refreshing dependencies in an editor like VSCode) will clone the mathlib repository and build it. Information on the specific revision cloned will then be saved to `manifest.json` in `lean_packages` to enable reproducibility. To update `mathlib` after this, you will need to run `lake configure` -- other commands do not update resolved dependencies.
 
 Further examples of different package configurations can be found in the [`examples`](examples) folder of this repository.
 

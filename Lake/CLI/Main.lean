@@ -303,10 +303,9 @@ def command : (cmd : String) → CliM PUnit
   processOptions lakeOption
   let ws ← loadWorkspace (← getSubArgs)
   runBuildM ws <| build (← takeArgs)
-| "configure" => do
+| "update" => do
   processOptions lakeOption
-  let ws ← loadWorkspace (← getSubArgs) (updateDeps := true)
-  noArgsRem <| runBuildM ws ws.root.buildDepOleans
+  noArgsRem <| discard <| loadWorkspace (← getSubArgs) (updateDeps := true)
 | "print-paths" => do
   processOptions lakeOption
   printPaths (← takeArgs)

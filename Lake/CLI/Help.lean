@@ -23,8 +23,8 @@ OPTIONS:
 COMMANDS:
   new <name>            create a Lean package in a new directory
   init <name>           create a Lean package in the current directory
-  build [<targets>...]  configure and build targets
-  configure             update and build dependencies
+  build [<targets>...]  build targets
+  update                update dependencies
   clean                 remove build outputs
   script                manage and run workspace scripts
   serve                 start the Lean language server
@@ -82,15 +82,15 @@ A bare `build` command will build the default facet of the root package.
 Arguments to the `Packager` itself can be specified with `args`.
 Package dependencies are not updated during a build."
 
-def helpConfigure :=
-"Update and build dependencies
+def helpUpdate :=
+"Update dependencies
 
 USAGE:
-  lake configure [-- <args>...]
+  lake update [-- <args>...]
 
 This command sets up the directory with the package's dependencies
-(i.e., by default, `lean_packages`). Passes `args` to the `Packager`
-if specified.
+(i.e., `packagesDir` which is, by default, `lean_packages`).
+Passes `args` to the `Packager` if specified.
 
 For each (transitive) git dependency, the specified commit is checked out
 into a sub-directory of `packagesDir`. Already checked out dependencies are
@@ -178,7 +178,7 @@ def help : (cmd : String) → String
 | "new"       => helpNew
 | "init"      => helpInit
 | "build"     => helpBuild
-| "configure" => helpConfigure
+| "update"    => helpUpdate
 | "clean"     => helpClean
 | "script"    => helpScriptCli
 | "serve"     => helpServe

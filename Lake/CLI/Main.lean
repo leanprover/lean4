@@ -114,7 +114,8 @@ def loadWorkspace (args : List String := []) (updateDeps := true) : CliStateM Wo
       pure {}
   let (packageMap, resolveMap) ←
     resolveDeps ws pkg updateDeps |>.run manifest |>.run LogMethods.eio (m := IO)
-  IO.FS.writeFile ws.manifestFile <| Json.pretty <| toJson <| Manifest.fromMap resolveMap
+  unless resolveMap.isEmpty do
+    IO.FS.writeFile ws.manifestFile <| Json.pretty <| toJson <| Manifest.fromMap resolveMap
   let packageMap := packageMap.insert pkg.name pkg
   return {ws with packageMap}
 

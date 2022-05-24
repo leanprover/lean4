@@ -5,8 +5,16 @@ class Mul (α : Type u) where
 
 infixl:70 " * " => Mul.mul
 
+def double [Mul α] (a : α) := a * a
+
 class Semigroup (α : Type u) extends Mul α where
   mul_assoc : ∀ a b c : α, (a * b) * c = a * (b * c)
+
+instance : Semigroup Nat where
+  mul := Nat.mul
+  mul_assoc := Nat.mul_assoc
+
+#eval double 5
 
 class Functor (f : Type u → Type v) : Type (max (u+1) v) where
   map : (α → β) → f α → f β

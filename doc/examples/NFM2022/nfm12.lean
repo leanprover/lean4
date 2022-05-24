@@ -16,7 +16,7 @@ instance : ToString Bool where
 export ToString (toString)
 #eval toString true
 -- "true"
-#eval toString (true, "hello") -- Error
+-- #eval toString (true, "hello") -- Error
 
 instance [ToString α] [ToString β] : ToString (α × β) where
   toString p := "(" ++ toString p.1 ++ ", " ++ toString p.2 ++ ")"

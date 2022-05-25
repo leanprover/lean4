@@ -21,8 +21,5 @@ in { pkgs ? flakePkgs.nixpkgs, pkgsDist ? pkgs }:
     GLIBC_DEV = pkgsDist.glibc.dev;
     ZLIB = pkgsDist.zlib;
   });
-  with-temci = shell.overrideAttrs (old: {
-    buildInputs = old.buildInputs ++ [ flakePkgs.temci ];
-  });
   nix = flake.devShell.${builtins.currentSystem};
 }

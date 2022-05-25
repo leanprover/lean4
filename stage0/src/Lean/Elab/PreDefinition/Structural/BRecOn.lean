@@ -17,31 +17,31 @@ private def throwToBelowFailed : MetaM α :=
   throwError "toBelow failed"
 
 /- See toBelow -/
-private partial def toBelowAux (C : Expr) : Expr → Expr → Expr → MetaM Expr
-  | belowDict, arg, F => do
-    let belowDict ← whnf belowDict
-    trace[Elab.definition.structural] "belowDict: {belowDict}, arg: {arg}"
+private partial def toBelowAux (C : Expr) (belowDict : Expr) (arg : Expr) (F : Expr) : MetaM Expr := do
+  let belowDict ← whnf belowDict
+  trace[Elab.definition.structural] "belowDict: {belowDict}, arg: {arg}"
+  match belowDict with
+  | Expr.app (Expr.app (Expr.const `PProd _ _) d1 _) d2 _ =>
+    (do toBelowAux C d1 arg (← mkAppM `PProd.fst #[F]))
+    <|>
+    (do toBelowAux C d2 arg (← mkAppM `PProd.snd #[F]))
+  | Expr.app (Expr.app (Expr.const `And _ _) d1 _) d2 _ =>
+    (do toBelowAux C d1 arg (← mkAppM `And.left #[F]))
+    <|>
+    (do toBelowAux C d2 arg (← mkAppM `And.right #[F]))
+  | _ => forallTelescopeReducing belowDict fun xs belowDict => do
+    let arg ← zetaReduce arg
+    let argArgs := arg.getAppArgs
+    unless argArgs.size >= xs.size do throwToBelowFailed
+    let n := argArgs.size
+    let argTailArgs := argArgs.extract (n - xs.size) n
+    let belowDict := belowDict.replaceFVars xs argTailArgs
     match belowDict with
-    | Expr.app (Expr.app (Expr.const `PProd _ _) d1 _) d2 _ =>
-      (do toBelowAux C d1 arg (← mkAppM `PProd.fst #[F]))
-      <|>
-      (do toBelowAux C d2 arg (← mkAppM `PProd.snd #[F]))
-    | Expr.app (Expr.app (Expr.const `And _ _) d1 _) d2 _ =>
-      (do toBelowAux C d1 arg (← mkAppM `And.left #[F]))
-      <|>
-      (do toBelowAux C d2 arg (← mkAppM `And.right #[F]))
-    | _ => forallTelescopeReducing belowDict fun xs belowDict => do
-      let argArgs := arg.getAppArgs
-      unless argArgs.size >= xs.size do throwToBelowFailed
-      let n := argArgs.size
-      let argTailArgs := argArgs.extract (n - xs.size) n
-      let belowDict := belowDict.replaceFVars xs argTailArgs
-      match belowDict with
-      | Expr.app belowDictFun belowDictArg _ =>
-        unless belowDictFun.getAppFn == C do throwToBelowFailed
-        unless ← isDefEq belowDictArg arg do throwToBelowFailed
-        pure (mkAppN F argTailArgs)
-      | _ => throwToBelowFailed
+    | Expr.app belowDictFun belowDictArg _ =>
+      unless belowDictFun.getAppFn == C do throwToBelowFailed
+      unless ← isDefEq belowDictArg arg do throwToBelowFailed
+      pure (mkAppN F argTailArgs)
+    | _ => throwToBelowFailed
 
 /- See toBelow -/
 private def withBelowDict (below : Expr) (numIndParams : Nat) (k : Expr → Expr → MetaM α) : MetaM α := do

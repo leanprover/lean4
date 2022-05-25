@@ -604,24 +604,27 @@ def withOpenDeclFn (p : ParserFn) : ParserFn := fun c s =>
   fn   := withOpenDeclFn  p.fn
 }
 
-def parserOfStackFn (offset : Nat) : ParserFn := fun ctx s =>
+def parserOfStackFn (offset : Nat) : ParserFn := fun ctx s => Id.run do
   let stack := s.stxStack
   if stack.size < offset + 1 then
-    s.mkUnexpectedError ("failed to determine parser using syntax stack, stack is too small")
-  else
-    match stack.get! (stack.size - offset - 1) with
-    | Syntax.ident (val := parserName) .. =>
-      match ctx.resolveName parserName with
-      | [(parserName, [])] =>
-        let iniSz := s.stackSize
-        let s := evalParserConst parserName ctx s
-        if !s.hasError && s.stackSize != iniSz + 1 then
-          s.mkUnexpectedError "expected parser to return exactly one syntax object"
-        else
-          s
-      | _::_::_ => s.mkUnexpectedError s!"ambiguous parser name {parserName}"
-      | _ => s.mkUnexpectedError s!"unknown parser {parserName}"
-    | _ => s.mkUnexpectedError ("failed to determine parser using syntax stack, the specified element on the stack is not an identifier")
+    return s.mkUnexpectedError ("failed to determine parser using syntax stack, stack is too small")
+  let Syntax.ident (val := parserName) .. := stack.get! (stack.size - offset - 1)
+    | s.mkUnexpectedError ("failed to determine parser using syntax stack, the specified element on the stack is not an identifier")
+  match ctx.resolveName parserName with
+  | [(parserName, [])] =>
+    let iniSz := s.stackSize
+    let mut ctx' := ctx
+    if !internal.parseQuotWithCurrentStage.get ctx'.options then
+      -- static quotations such as `(e) do not use the interpreter unless the above option is set,
+      -- so for consistency neither should dynamic quotations using this function
+      ctx' := { ctx' with options := ctx'.options.setBool `interpreter.prefer_native true }
+    let s := evalParserConst parserName ctx' s
+    if !s.hasError && s.stackSize != iniSz + 1 then
+      s.mkUnexpectedError "expected parser to return exactly one syntax object"
+    else
+      s
+  | _::_::_ => s.mkUnexpectedError s!"ambiguous parser name {parserName}"
+  | _ => s.mkUnexpectedError s!"unknown parser {parserName}"
 
 def parserOfStack (offset : Nat) (prec : Nat := 0) : Parser :=
   { fn := fun c s => parserOfStackFn offset { c with prec := prec } s }

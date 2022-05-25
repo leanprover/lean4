@@ -47,39 +47,43 @@ deriving instance BEq, Hashable for Import
 initialize importEnvCache : IO.Ref (Std.HashMap (List Import) Environment) ← IO.mkRef {}
 
 /-- Like `Lean.Elab.processHeader`, but using `importEnvCache`. -/
-def processHeader (header : Syntax) (messages : MessageLog) (inputCtx : Parser.InputContext) (trustLevel : UInt32)
-: IO (Environment × MessageLog) := do
+def processHeader (header : Syntax) (opts : Options) (trustLevel : UInt32)
+(inputCtx : Parser.InputContext) : StateT MessageLog IO Environment := do
   try
     let imports := Elab.headerToImports header
-    if let some env := (← importEnvCache.get).find? imports then return (env, messages)
-    let env ← importModules imports {} trustLevel
+    if let some env := (← importEnvCache.get).find? imports then
+      return env
+    let env ← importModules imports opts trustLevel
     importEnvCache.modify (·.insert imports env)
-    return (env, messages)
+    return env
   catch e =>
-    let env ← mkEmptyEnvironment
-    let spos := header.getPos?.getD 0
-    let pos  := inputCtx.fileMap.toPosition spos
-    return (env, messages.add { fileName := inputCtx.fileName, data := toString e, pos })
+    let pos := inputCtx.fileMap.toPosition <| header.getPos?.getD 0
+    modify (·.add { fileName := inputCtx.fileName, data := toString e, pos })
+    mkEmptyEnvironment
 
 /-- Like `Lean.Elab.runFrontend`, but using `importEnvCache`. -/
-def runFrontend (input : String) (opts : Options) (fileName : String) (mainModuleName : Name) (trustLevel : UInt32 := 1024)
-: IO (Environment × Bool) := do
+def runFrontend (input : String) (opts : Options)
+(fileName : String) (mainModuleName : Name) (trustLevel : UInt32 := 1024)
+: LogT IO (Environment × Bool) := do
   let inputCtx := Parser.mkInputContext input fileName
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
-  let (env, messages) ← processHeader header messages inputCtx trustLevel
+  let (env, messages) ← processHeader header opts trustLevel inputCtx messages
   let env := env.setMainModule mainModuleName
 
-  let mut commandState := Elab.Command.mkState env {} opts
+  let mut commandState := Elab.Command.mkState env messages opts
   let s ← Elab.IO.processCommands inputCtx parserState commandState
   for msg in s.commandState.messages.toList do
-    IO.eprint (← msg.toString)
+    match msg.severity with
+    | MessageSeverity.information => logInfo (← msg.toString)
+    | MessageSeverity.warning     => logWarning (← msg.toString)
+    | MessageSeverity.error       => logError (← msg.toString)
 
-  pure (s.commandState.env, !s.commandState.messages.hasErrors)
+  return (s.commandState.env, !s.commandState.messages.hasErrors)
 
 /-- Unsafe implementation of `load`. -/
 unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
 (configFile := dir / defaultConfigFile) (leanOpts := Options.empty)
-: IO Package := do
+: LogT IO Package := do
   let input ← IO.FS.readFile configFile
   let (env, ok) ← runFrontend input leanOpts configFile.toString configModName
   if ok then
@@ -100,4 +104,4 @@ the given directory with the given configuration file.
 -/
 @[implementedBy loadUnsafe]
 constant load (dir : FilePath) (args : List String := [])
-(configFile := dir / defaultConfigFile) (leanOpts := Options.empty) : IO Package
+(configFile := dir / defaultConfigFile) (leanOpts := Options.empty) : LogT IO Package

@@ -92,7 +92,7 @@ def getLakeInstall? : CliStateM (Option LakeInstall) :=
 def loadPkg (args : List String := []) : CliStateM Package := do
   let dir ← getRootDir; let file ← getConfigFile
   setupLeanSearchPath (← getLeanInstall?) (← getLakeInstall?)
-  Package.load dir args (dir / file)
+  Package.load dir args (dir / file) |>.run LogMethods.eio (m := IO)
 
 def loadWorkspace (args : List String := []) (updateDeps := false) : CliStateM Workspace := do
   let pkg ← loadPkg args

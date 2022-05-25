@@ -36,7 +36,6 @@ def Term.reportUnsolvedGoals (goals : List MVarId) : TermElabM Unit :=
 namespace Tactic
 
 structure Context where
-  main       : MVarId
   /-- Declaration name of the executing elaborator, used by `mkTacticInfo` to persist it in the info tree -/
   elaborator : Name
   /--
@@ -94,7 +93,7 @@ def run (mvarId : MVarId) (x : TacticM Unit) : TermElabM (List MVarId) :=
        else
          throw ex
    try
-     aux.runCore' { main := mvarId, elaborator := Name.anonymous } { goals := [mvarId] }
+     aux.runCore' { elaborator := Name.anonymous } { goals := [mvarId] }
    finally
      modify fun s => { s with syntheticMVars := savedSyntheticMVars }
 

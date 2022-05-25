@@ -38,12 +38,11 @@
         "lean-stage0": "lean-stage0",
         "lean4-mode": "lean4-mode",
         "nix": "nix",
-        "nixpkgs": "nixpkgs_2",
-        "temci": "temci"
+        "nixpkgs": "nixpkgs_2"
       },
       "locked": {
         "lastModified": 0,
-        "narHash": "sha256-zrFCATQSmNX0u+2R2wnizOigxGOiaRzfplhKu9c1MgA=",
+        "narHash": "sha256-AfBkKX6Ahb9YbZke+eWLmsUk1Z9BwdJ1CpIoPY8Msx8=",
         "path": "../.",
         "type": "path"
       },
@@ -183,11 +182,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1647350163,
-        "narHash": "sha256-OcMI+PFEHTONthXuEQNddt16Ml7qGvanL3x8QOl2Aao=",
+        "lastModified": 1648219316,
+        "narHash": "sha256-Ctij+dOi0ZZIfX5eMhgwugfvB+WZSrvVNAyAuANOsnQ=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "3eb07eeafb52bcbf02ce800f032f18d666a9498d",
+        "rev": "30d3d79b7d3607d56546dd2a6b49e156ba0ec634",
         "type": "github"
       },
       "original": {
@@ -207,22 +206,6 @@
         "lean": "lean",
         "leanInk-src": "leanInk-src",
         "mdBook": "mdBook"
-      }
-    },
-    "temci": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1638195132,
-        "narHash": "sha256-1DSg4Qr5h54wLrKpZfpkArhFXDFLdO57PiYUMk+7FSc=",
-        "owner": "parttimenerd",
-        "repo": "temci",
-        "rev": "a8d78cb52c248f1ae3f2469bbd0916b14ac9ea84",
-        "type": "github"
-      },
-      "original": {
-        "owner": "parttimenerd",
-        "repo": "temci",
-        "type": "github"
       }
     }
   },

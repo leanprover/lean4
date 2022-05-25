@@ -211,7 +211,8 @@ jobs:
         run: |
           echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid
           export BUILD=$PWD/build PATH=$PWD/build/stage1/bin:$PATH
-          nix-shell -A with-temci --run "cd tests/bench; temci exec --config speedcenter.yaml --included_blocks fast --runs 1"
+          cd tests/bench
+          nix shell .#temci -c temci exec --config speedcenter.yaml --included_blocks fast --runs 1
         if: matrix.test-speedcenter
       - name: Check rebootstrap
         run: |

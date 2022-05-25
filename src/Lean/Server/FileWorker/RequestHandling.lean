@@ -127,7 +127,7 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
 
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure #[]) fun snap => do
-      if let some (ci, i) := snap.infoTree.hoverableInfoAt? hoverPos then
+      if let some (ci, i) := snap.infoTree.hoverableInfoAt? (includeStop := true /- #767 -/) hoverPos then
         if let Info.ofTermInfo ti := i then
           let mut expr := ti.expr
           if kind == type then

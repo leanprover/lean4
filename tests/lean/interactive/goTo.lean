@@ -10,11 +10,15 @@ structure Foo where
 def mkFoo₁ : Foo := {
 --v textDocument/definition
   foo₁ := 1
+    --^ textDocument/definition
 --v textDocument/declaration
   foo₂ := 2
 --v textDocument/typeDefinition
   bar := ⟨⟩
 }
+
+         --v textDocument/definition
+#check (Bar)
 
 structure HandWrittenStruct where
   n : Nat

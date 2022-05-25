@@ -41,6 +41,8 @@ On Linux/macOS, you first have to follow the instructions printed by the Lean in
 Note: Packages **have** to be opened using "File > Open Folder..." for imports to work.
 Saved changes are visible in other files after running "Lean 4: Refresh File Dependencies" (`Ctrl+Shift+X`).
 
+Note: If you're not using VSCode as your editor, this corresponds to running `lake serve -- /path/to/your/package` for the package you are creating, and all the packages you want to `import`
+
 ## Troubleshooting
 
 **The InfoView says "Waiting for Lean server to start..." forever.**

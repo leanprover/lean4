@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* [Fix `autoParam` in structure fields lost in multiple inheritance.](https://github.com/leanprover/lean4/issues/1158).
+
 * Add `[eliminator]` attribute. It allows users to specify default recursor/eliminators for the `induction` and `cases` tactics.
   It is an alternative for the `using` notation. Example:
   ```lean

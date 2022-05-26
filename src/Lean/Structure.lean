@@ -15,6 +15,7 @@ structure StructureFieldInfo where
   projFn     : Name
   subobject? : Option Name -- It is `some parentStructName` if it is a subobject, and `parentStructName` is the name of the parent structure
   binderInfo : BinderInfo
+  autoParam? : Option Expr := none
   deriving Inhabited, Repr
 
 def StructureFieldInfo.lt (i₁ i₂ : StructureFieldInfo) : Bool :=

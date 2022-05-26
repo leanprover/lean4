@@ -30,25 +30,25 @@ def getMatchAltsNumPatterns (matchAlts : Syntax) : Nat :=
 /--
   Expand a match alternative such as `| 0 | 1 => rhs` to an array containing `| 0 => rhs` and `| 1 => rhs`.
 -/
-def expandMatchAlt (stx : Syntax) : MacroM (Array Syntax) :=
-  match stx with
-  | `(matchAltExpr| | $[$patss]|* => $rhs) =>
-     if patss.size ≤ 1 then
-       return #[stx]
-     else
-       patss.mapM fun pats => let pats := #[pats]; `(matchAltExpr| | $[$pats]|* => $rhs)
-  | _ => return #[stx]
+def expandMatchAlt (matchAlt : Syntax) : Array Syntax :=
+  let patss := matchAlt[1]
+  let rhs   := matchAlt[3]
+  if patss.getArgs.size ≤ 1 then
+    #[matchAlt]
+  else
+    patss.getSepArgs.map fun pats =>
+      let patss := mkNullNode #[pats]
+      matchAlt.setArg 1 patss
 
 def shouldExpandMatchAlt (matchAlt : Syntax) : Bool :=
-  match matchAlt with
-  | `(matchAltExpr| | $[$patss]|* => $rhs) => patss.size > 1
-  | _ => false
+  let patss := matchAlt[1]
+  patss.getArgs.size > 1
 
 def expandMatchAlts? (stx : Syntax) : MacroM (Option Syntax) := do
   match stx with
   | `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) =>
     if alts.any shouldExpandMatchAlt then
-      let alts ← alts.foldlM (init := #[]) fun alts alt => return alts ++ (← expandMatchAlt alt)
+      let alts := alts.foldl (init := #[]) fun alts alt => alts ++ expandMatchAlt alt
       `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)
     else
       return none

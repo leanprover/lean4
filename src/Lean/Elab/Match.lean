@@ -1256,7 +1256,7 @@ enforce this. -/
 where
   elabMatchDefault (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
     match (← liftMacroM <| expandMatchAlts? stx) with
-    | some stxNew => withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
+    | some stxNew => trace[Meta.debug] "expanded  alts"; withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
     | none =>
     match (← expandNonAtomicDiscrs? stx) with
     | some stxNew => withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?

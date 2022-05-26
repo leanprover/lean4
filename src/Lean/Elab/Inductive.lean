@@ -229,6 +229,9 @@ where
   - each `bₖ` only depends on variables in `{b₁, ..., bₖ₋₁}`
 
   Then, it moves this prefix `b₁ ... bᵢ` to the front.
+
+  Remark: We only reorder implicit arguments that have macroscopes. See issue #1156.
+  The macroscope test is an approximation, we could have restricted ourselves to auto-implicit arguments.
 -/
 private def reorderCtorArgs (ctorType : Expr) : MetaM Expr := do
   forallTelescopeReducing ctorType fun as type => do
@@ -240,6 +243,10 @@ private def reorderCtorArgs (ctorType : Expr) : MetaM Expr := do
       unless b.isFVar && as.contains b do
         break
       let localDecl ← getFVarLocalDecl b
+      if localDecl.binderInfo.isExplicit then
+        break
+      unless localDecl.userName.hasMacroScopes do
+        break
       if (← localDeclDependsOnPred localDecl fun fvarId => as.any fun p => p.fvarId! == fvarId) then
         break
       bsPrefix := bsPrefix.push b

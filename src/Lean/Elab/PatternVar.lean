@@ -221,7 +221,16 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     /- Similar to previous case -/
     doubleQuotedNameToPattern stx
   else if k == choiceKind then
-    let args := stx.getArgs
+    /- Remark: If there are `Term.structInst` alternatives, we keep only them. This is a hack to get rid of
+       Set-like notation in patterns. Recall that in Mathlib `{a, b}` can be a set with two elements or the
+       structure instance `{ a := a, b := b }`. Possible alternative solution: add a `pattern` category, or at least register
+       the `Syntax` node kinds that are allowed in patterns. -/
+    let args :=
+      let args := stx.getArgs
+      if args.any (·.isOfKind ``Parser.Term.structInst) then
+        args.filter (·.isOfKind ``Parser.Term.structInst)
+      else
+        args
     let stateSaved ← get
     let arg0 ← collect args[0]
     let stateNew ← get

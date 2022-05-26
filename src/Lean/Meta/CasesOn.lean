@@ -74,7 +74,6 @@ def CasesOnApp.addArg (c : CasesOnApp) (arg : Expr) (checkIfRefined : Bool := fa
     let aux := mkAppN (mkConst c.declName us) c.params
     let aux := mkApp aux motive
     let aux := mkAppN aux discrs
-    trace[Meta.debug] "params: {c.params}\nmotive: {motive}\ndiscrs: {discrs}\nindices:{c.indices}\nmajor:{c.major}"
     check aux
     unless (← isTypeCorrect aux) do
       throwError "failed to add argument to `casesOn` application, type error when constructing the new motive{indentExpr aux}"

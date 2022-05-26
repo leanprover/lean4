@@ -277,10 +277,13 @@ private partial def getNestedProjectionArg (e : Expr) : MetaM Expr := do
         return ← getNestedProjectionArg e.appArg!
   return e
 
-/-- Get field type of `fieldName` in `parentStructName`, but replace references
+/--
+  Get field type of `fieldName` in `parentType`, but replace references
   to other fields of that structure by existing field fvars.
-  Auxiliary method for `copyNewFieldsFrom`. -/
-private def getFieldType (infos : Array StructFieldInfo) (parentStructName : Name) (parentType : Expr) (fieldName : Name) : MetaM Expr := do
+  Auxiliary method for `copyNewFieldsFrom`.
+
+-/
+private def getFieldType (infos : Array StructFieldInfo) (parentType : Expr) (fieldName : Name) : MetaM Expr := do
   withLocalDeclD (← mkFreshId) parentType fun parent => do
     let proj ← mkProjection parent fieldName
     let projType ← inferType proj
@@ -393,7 +396,7 @@ where
     let rec copy (i : Nat) (infos : Array StructFieldInfo) (fieldMap : FieldMap) (expandedStructNames : NameSet) : TermElabM α := do
       if h : i < fieldNames.size then
         let fieldName := fieldNames.get ⟨i, h⟩
-        let fieldType ← getFieldType infos parentStructName parentType fieldName
+        let fieldType ← getFieldType infos parentType fieldName
         match findFieldInfo? infos fieldName with
         | some existingFieldInfo =>
           let existingFieldType ← inferType existingFieldInfo.fvar
@@ -904,6 +907,8 @@ def elabStructure (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := 
                 mkInjectiveTheorems declName
               return declName
   derivingClassViews.forM fun view => view.applyHandlers #[declName]
+  runTermElabM declName fun _ =>
+    Term.applyAttributesAt declName modifiers.attrs .afterCompilation
 
 builtin_initialize registerTraceClass `Elab.structure
 

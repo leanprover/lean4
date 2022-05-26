@@ -129,7 +129,6 @@ private inductive Tree where
 
 private partial def toTree (s : Syntax) : TermElabM Tree := do
   let s ← liftMacroM <| expandMacros s
-  trace[Meta.debug] "toTree: {s}"
   let result ← go s
   synthesizeSyntheticMVars (mayPostpone := true)
   return result

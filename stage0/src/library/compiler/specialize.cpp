@@ -919,7 +919,17 @@ class specialize_fn {
         buffer<expr> new_let_decls;
         name y("_y");
         for (unsigned i = 0; i < fvars.size(); i++) {
-            expr type     = tc.infer(fvar_vals[i]);
+            expr type;
+            try {
+                type = tc.infer(fvar_vals[i]);
+            } catch (exception &) {
+                /* We may fail to infer the type of fvar_vals, since it may be recursive
+                   This is a workaround. When we re-implement the compiler in Lean,
+                   we should write code to infer type that tolerates undefined constants,
+                   *AnyType*, etc.
+                   We just do not specialize when we cannot infer the type. */
+                return optional<comp_decl>();
+            }
             if (is_irrelevant_type(m_st, m_lctx, type)) {
                 /* In LCNF, the type `ty` at `let x : ty := v in t` must not be irrelevant. */
                 code = replace_fvar(code, fvars[i], fvar_vals[i]);

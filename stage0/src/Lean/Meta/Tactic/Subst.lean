@@ -156,7 +156,7 @@ partial def subst (mvarId : MVarId) (h : FVarId) : MetaM MVarId :=
       | none => findEq mvarId h
 where
   /-- Give `h : Eq α a b`, try to apply `substCore` -/
-  substEq (mvarId : MVarId) (h : FVarId) : MetaM MVarId :=   withMVarContext mvarId do
+  substEq (mvarId : MVarId) (h : FVarId) : MetaM MVarId := withMVarContext mvarId do
     let localDecl ← getLocalDecl h
     let some (_, lhs, rhs) ← matchEq? localDecl.type | unreachable!
     let substReduced (newType : Expr) (symm : Bool) : MetaM MVarId := do
@@ -181,7 +181,7 @@ where
         throwTacticEx `subst mvarId m!"invalid equality proof, it is not of the form (x = t) or (t = x){indentExpr localDecl.type}"
 
   /-- Try to find an equation of the form `heq : h = rhs` or `heq : lhs = h` -/
-  findEq (mvarId : MVarId) (h : FVarId) : MetaM MVarId := do
+  findEq (mvarId : MVarId) (h : FVarId) : MetaM MVarId := withMVarContext mvarId do
     let localDecl ← getLocalDecl h
     if localDecl.isLet then
       throwTacticEx `subst mvarId m!"variable '{mkFVar h}' is a let-declaration"
@@ -193,6 +193,8 @@ where
        else
          match (← matchEq? localDecl.type) with
          | some (α, lhs, rhs) =>
+           let lhs ← instantiateMVars lhs
+           let rhs ← instantiateMVars rhs
            if rhs.isFVar && rhs.fvarId! == h && !mctx.exprDependsOn lhs h then
              return some (localDecl.fvarId, true)
            else if lhs.isFVar && lhs.fvarId! == h && !mctx.exprDependsOn rhs h then

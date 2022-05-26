@@ -9465,7 +9465,7 @@ block_46:
 {
 lean_object* x_31; uint8_t x_32; 
 x_31 = l_Lean_Elab_Tactic_SavedState_restore(x_27, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_30);
-x_32 = lean_ctor_get_uint8(x_5, sizeof(void*)*2);
+x_32 = lean_ctor_get_uint8(x_5, sizeof(void*)*1);
 if (x_32 == 0)
 {
 uint8_t x_33; 
@@ -9662,7 +9662,7 @@ block_88:
 {
 lean_object* x_74; uint8_t x_75; 
 x_74 = l_Lean_Elab_Tactic_SavedState_restore(x_70, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_73);
-x_75 = lean_ctor_get_uint8(x_5, sizeof(void*)*2);
+x_75 = lean_ctor_get_uint8(x_5, sizeof(void*)*1);
 if (x_75 == 0)
 {
 lean_object* x_76; lean_object* x_77; lean_object* x_78; 

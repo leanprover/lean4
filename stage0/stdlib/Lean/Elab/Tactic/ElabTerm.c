@@ -700,7 +700,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_elabTerm(lean_object* x_1, lean_obje
 _start:
 {
 uint8_t x_13; 
-x_13 = lean_ctor_get_uint8(x_4, sizeof(void*)*2);
+x_13 = lean_ctor_get_uint8(x_4, sizeof(void*)*1);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; 

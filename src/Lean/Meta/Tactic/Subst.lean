@@ -193,6 +193,8 @@ where
        else
          match (← matchEq? localDecl.type) with
          | some (α, lhs, rhs) =>
+           let lhs ← instantiateMVars lhs
+           let rhs ← instantiateMVars rhs
            if rhs.isFVar && rhs.fvarId! == h && !mctx.exprDependsOn lhs h then
              return some (localDecl.fvarId, true)
            else if lhs.isFVar && lhs.fvarId! == h && !mctx.exprDependsOn rhs h then

@@ -54,11 +54,10 @@ def unusedVariables : Linter := fun stx => do
       isTopLevelDecl constDecls,
       matchesUnusedPattern,
       isVariable,
-      isInCtor,
-      isInStructBinder,
-      isInConstantWithoutDef,
-      isInAxiom,
-      isInDefWithForeignDefinition,
+      isInStructure,
+      isInLetDeclaration,
+      isInDeclarationSignature,
+      isInFun,
       isInDepArrow
     ]
     if ignoredPatternFns.any (· declStx stack) then
@@ -84,38 +83,19 @@ where
     stx.getId.toString.startsWith "_"
   isVariable (_ : Syntax) (stack : SyntaxStack) :=
     stackMatches stack [`null, none, `null, `Lean.Parser.Command.variable]
-  isInCtor (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, none, `null, `Lean.Parser.Command.optDeclSig, `Lean.Parser.Command.ctor]
-  isInStructBinder (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, none, `null, `Lean.Parser.Command.optDeclSig, `Lean.Parser.Command.structSimpleBinder]
-  isInConstantWithoutDef (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, none, `null, `Lean.Parser.Command.declSig, `Lean.Parser.Command.constant] &&
-    (stack.get? 4 |>.any fun (stx, _) => stx[3].getNumArgs == 0)
-  isInAxiom (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, none, `null, `Lean.Parser.Command.declSig, `Lean.Parser.Command.axiom]
-  isInDefWithForeignDefinition (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, none, `null, none, none, `Lean.Parser.Command.declaration] &&
-    (stack.get? 3 |>.any fun (stx, _) =>
-      stx.isOfKind `Lean.Parser.Command.optDeclSig ||
-      stx.isOfKind `Lean.Parser.Command.declSig) &&
-    (stack.get? 5 |>.any fun (stx, _) => Id.run <| do
-      let declModifiers := stx[0]
-      if !declModifiers.isOfKind `Lean.Parser.Command.declModifiers then
-        return false
-      let termAttributes := declModifiers[1][0]
-      if !termAttributes.isOfKind `Lean.Parser.Term.attributes then
-        return false
-      let termAttrInstance := termAttributes[1][0]
-      if !termAttrInstance.isOfKind `Lean.Parser.Term.attrInstance then
-        return false
-
-      let attr := termAttrInstance[1]
-      if attr.isOfKind `Lean.Parser.Attr.extern then
-        return true
-      else if attr.isOfKind `Lean.Parser.Attr.simple then
-        return attr[0].getId == `implementedBy
-      else
-        return false)
+  isInStructure (_ : Syntax) (stack : SyntaxStack) :=
+    stackMatches stack [`null, none, `null, `Lean.Parser.Command.structure]
+  isInLetDeclaration (_ : Syntax) (stack : SyntaxStack) :=
+    stackMatches stack [`null, none, `null, `Lean.Parser.Term.letIdDecl, none] &&
+    (stack.get? 3 |>.any fun (_, pos) => pos == 1) &&
+    (stack.get? 5 |>.any fun (stx, _) => !stx.isOfKind `Lean.Parser.Command.whereStructField)
+  isInDeclarationSignature (_ : Syntax) (stack : SyntaxStack) :=
+    stackMatches stack [`null, none, `null, none] &&
+    (stack.get? 3 |>.any fun (stx, pos) =>
+      pos == 0 &&
+      [`Lean.Parser.Command.optDeclSig, `Lean.Parser.Command.declSig].any (stx.isOfKind ·))
+  isInFun (_ : Syntax) (stack : SyntaxStack) :=
+    stackMatches stack [`null, `Lean.Parser.Term.basicFun]
   isInDepArrow (_ : Syntax) (stack : SyntaxStack) :=
     stackMatches stack [`null, `Lean.Parser.Term.explicitBinder, `Lean.Parser.Term.depArrow]
 

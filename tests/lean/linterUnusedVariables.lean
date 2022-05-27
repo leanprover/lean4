@@ -16,7 +16,7 @@ def unusedVariables (x : Nat) : Nat :=
   let y := 5
   3
 
-def usedAndUnusedVariable : Nat :=
+def usedAndUnusedVariables : Nat :=
   let x : Nat :=
     let x := 5
     3
@@ -27,6 +27,19 @@ def unusedWhereVariable : Nat :=
 where
   x := 5
 
+def unusedWhereArgument : Nat :=
+  f 2
+where
+  f (x : Nat) := 3
+
+def unusedWhereFunction : Nat :=
+  2
+where
+  f (x : Nat) := 3
+
+def unusedFunctionArgument : Nat :=
+  (fun x => 3) (x := 2)
+
 def pattern (x y : Option Nat) : Nat :=
   match x with
   | some z =>
@@ -36,6 +49,8 @@ def pattern (x y : Option Nat) : Nat :=
   | none => 0
 
 def implicitVariables {α : Type} [inst : ToString α] : Nat := 4
+
+def autoImplicitVariable [Inhabited α] := 5
 
 def unusedArrow : (x : Nat) → Nat := fun x => x
 
@@ -79,7 +94,7 @@ def lintUnusedVariables (x : Nat) : Nat :=
   3
 
 
-inductive Foo
+inductive Foo (α : Type)
   | foo (x : Nat) (y : Nat)
 
 structure Bar (α : Type) where
@@ -132,22 +147,3 @@ constant foo' (x : Nat) : Nat :=
 variable (bar)
 variable (bar' : (x : Nat) → Nat)
 variable {α β} [inst : ToString α]
-
-
-@[specialize]
-def specialDef (x : Nat) : Nat := 3
-
-@[implementedBy specialDef]
-def implementedByDef (x : Nat) : Nat :=
-  let y := 3
-  5
-
-@[extern "test"]
-def externDef (x : Nat) : Nat :=
-  let y := 3
-  5
-
-@[extern "test"]
-constant externConst (x : Nat) : Nat :=
-  let y := 3
-  5

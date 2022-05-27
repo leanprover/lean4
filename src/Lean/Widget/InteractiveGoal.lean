@@ -14,10 +14,15 @@ open Server
 
 structure InteractiveHypothesis where
   names : Array String
+  ids : Array String
   type : CodeWithInfos
   val? : Option CodeWithInfos := none
   isInstance : Bool
   isType : Bool
+  /-- Identifies the group of hypotheses.
+  Used as a React key and to unambiguously
+  address the hypothesis group in callbacks.-/
+  key : String
   deriving Inhabited, RpcEncoding
 
 structure InteractiveGoal where
@@ -25,6 +30,10 @@ structure InteractiveGoal where
   type      : CodeWithInfos
   userName? : Option String
   goalPrefix : String
+  /-- Identifies the goal (ie with the unique
+  name of the MVar that it is a goal for.)
+  [todo] what should the key be for a term goal?-/
+  key? : Option String := none
   deriving Inhabited, RpcEncoding
 
 namespace InteractiveGoal
@@ -72,13 +81,18 @@ structure InteractiveGoals where
   deriving RpcEncoding
 
 open Meta in
-def addInteractiveHypothesis (hyps : Array InteractiveHypothesis) (ids : Array Name) (type : Expr) (value? : Option Expr := none) : MetaM (Array InteractiveHypothesis) := do
+def addInteractiveHypothesis (hyps : Array InteractiveHypothesis) (ids : Array (Name × FVarId)) (type : Expr) (value? : Option Expr := none) : MetaM (Array InteractiveHypothesis) := do
+  if ids.size == 0 then
+    throwError "Can only add a nonzero number of ids as an InteractiveHypothesis."
+  let fvarIds := ids.map (toString ∘ FVarId.name ∘ Prod.snd)
   return hyps.push {
-    names      := ids.map toString
+    names      := ids.map (toString ∘ Prod.fst)
+    ids        := fvarIds
     type       := (← ppExprTagged type)
     val?       := (← value?.mapM ppExprTagged)
     isInstance := (← isClass? type).isSome
     isType     := (← instantiateMVars type).isSort
+    key := fvarIds[0]
   }
 
 open Meta in
@@ -88,12 +102,12 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
     | throwError "unknown goal {mvarId.name}"
   let ppAuxDecls := pp.auxDecls.get (← getOptions)
   let lctx := mvarDecl.lctx
-  let lctx := lctx.sanitizeNames.run' { options := (← getOptions) }
+  let lctx : LocalContext := lctx.sanitizeNames.run' { options := (← getOptions) }
   withLCtx lctx mvarDecl.localInstances do
     let (hidden, hiddenProp) ← ToHide.collect mvarDecl.type
     -- The following two `let rec`s are being used to control the generated code size.
     -- They should be removed after we rewrite the compiler in Lean
-    let rec pushPending (ids : Array Name) (type? : Option Expr) (hyps : Array InteractiveHypothesis)
+    let pushPending (ids : Array (Name × FVarId)) (type? : Option Expr) (hyps : Array InteractiveHypothesis)
         : MetaM (Array InteractiveHypothesis) :=
       if ids.isEmpty then
         pure hyps
@@ -101,42 +115,52 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
         match type? with
         | none      => pure hyps
         | some type => addInteractiveHypothesis hyps ids type
-    let rec ppVars (varNames : Array Name) (prevType? : Option Expr) (hyps : Array InteractiveHypothesis) (localDecl : LocalDecl)
-       : MetaM (Array Name × Option Expr × Array InteractiveHypothesis) := do
-      if hiddenProp.contains localDecl.fvarId then
-        let hyps ← pushPending varNames prevType? hyps
-        let type ← instantiateMVars localDecl.type
-        let hyps ← addInteractiveHypothesis hyps #[] type
-        pure (#[], none, hyps)
+    let mut varNames : Array (Name × FVarId) := #[]
+    let mut prevType? : Option Expr := none
+    let mut hyps : Array InteractiveHypothesis := #[]
+    for localDecl in lctx do
+      if !ppAuxDecls && localDecl.isAuxDecl || hidden.contains localDecl.fvarId then
+        pure ()
       else
-        match localDecl with
-        | LocalDecl.cdecl _ _ varName type _   =>
-          let varName := varName.simpMacroScopes
-          let type ← instantiateMVars type
-          if prevType? == none || prevType? == some type then
-            pure (varNames.push varName, some type, hyps)
-          else do
-            let hyps ← pushPending varNames prevType? hyps
-            pure (#[varName], some type, hyps)
-        | LocalDecl.ldecl _ _ varName type val _ => do
-          let varName := varName.simpMacroScopes
-          let hyps ← pushPending varNames prevType? hyps
-          let type ← instantiateMVars type
-          let val ← instantiateMVars val
-          let hyps ← addInteractiveHypothesis hyps #[varName] type val
-          pure (#[], none, hyps)
-    let (varNames, type?, hyps) ← lctx.foldlM (init := (#[], none, #[]))
-      fun (varNames, prevType?, hyps) (localDecl : LocalDecl) =>
-        if !ppAuxDecls && localDecl.isAuxDecl || hidden.contains localDecl.fvarId then
-          pure (varNames, prevType?, hyps)
+        if hiddenProp.contains localDecl.fvarId then
+          -- localDecl has an inaccessible name and
+          -- is a proposition containing "visible" names.
+          let type ← instantiateMVars localDecl.type
+          hyps ← pushPending varNames prevType? hyps
+          hyps ← addInteractiveHypothesis hyps #[(Name.anonymous, localDecl.fvarId)] type
+          varNames := #[]
+          prevType? := none
         else
-          ppVars varNames prevType? hyps localDecl
-    let hyps ← pushPending varNames type? hyps
+          match localDecl with
+          | LocalDecl.cdecl index fvarId varName type _   =>
+            let varName := varName.simpMacroScopes
+            let type ← instantiateMVars type
+            prevType? := some type
+            if prevType? == none || prevType? == some type then
+              varNames := varNames.push (varName, fvarId)
+            else
+              hyps ← pushPending varNames prevType? hyps
+              varNames := #[(varName, fvarId)]
+          | LocalDecl.ldecl index fvarId varName type val _ => do
+            let varName := varName.simpMacroScopes
+            hyps ← pushPending varNames prevType? hyps
+            let type ← instantiateMVars type
+            let val ← instantiateMVars val
+            hyps ← addInteractiveHypothesis hyps #[(varName, fvarId)] type val
+            varNames := #[]
+            prevType? := none
+    hyps ← pushPending varNames prevType? hyps
     let goalTp ← instantiateMVars mvarDecl.type
     let goalFmt ← ppExprTagged goalTp
     let userName? := match mvarDecl.userName with
       | Name.anonymous => none
       | name           => some <| toString name.eraseMacroScopes
-    return { hyps, type := goalFmt, userName?, goalPrefix := getGoalPrefix mvarDecl }
+    return {
+      hyps,
+      type := goalFmt,
+      userName?,
+      goalPrefix := getGoalPrefix mvarDecl,
+      key? := some mvarId.name.toString
+    }
 
 end Lean.Widget

@@ -261,8 +261,12 @@ private partial def simpH? (h : Expr) (numEqs : Nat) : MetaM (Option Expr) := wi
   let (r, s) ← SimpH.go |>.run { mvarId, xs := xs.toList, eqs := eqs.toList }
   if r then
     withMVarContext s.mvarId do
-      let vars := (s.xs ++ s.eqsNew.reverse).toArray.map mkFVar
-      let r ← mkForallFVars vars (mkConst ``False)
+      let eqs := s.eqsNew.reverse.toArray.map mkFVar
+      let mut r ← mkForallFVars eqs (mkConst ``False)
+      /- We only include variables in `xs` if there is a dependency. -/
+      for x in s.xs.reverse do
+        if (← dependsOn r x) then
+          r ← mkForallFVars #[mkFVar x] r
       trace[Meta.Match.matchEqs] "simplified hypothesis{indentExpr r}"
       check r
       return some r

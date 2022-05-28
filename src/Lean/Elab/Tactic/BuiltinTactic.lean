@@ -257,6 +257,9 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
   | `(tactic| subst $hs*) => forEachVar hs Meta.subst
   | _                     => throwUnsupportedSyntax
 
+@[builtinTactic Lean.Parser.Tactic.substVars] def evalSubstVars : Tactic := fun stx =>
+  liftMetaTactic fun mvarId => return [← substVars mvarId]
+
 /--
   Searches for a metavariable `g` s.t. `tag` is its exact name.
   If none then searches for a metavariable `g` s.t. `tag` is a suffix of its name.

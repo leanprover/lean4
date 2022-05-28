@@ -29,5 +29,3 @@ attribute [simp] Lineage.container'
   | nested l@h:(nested ..) _ => l.container
   | @nested rtr' i' .. => (i', rtr')
   | _ => (none, rtr)
-termination_by _ r => sizeOf r
-decreasing_by simp_wf; subst h; simp_arith

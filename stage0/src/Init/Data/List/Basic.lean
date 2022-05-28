@@ -531,4 +531,13 @@ instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
     | nil => rfl
     | cons a as ih => simp [BEq.beq, List.beq, LawfulBEq.rfl]; exact ih
 
+theorem of_concat_eq_concat {as bs : List α} {a b : α} (h : as.concat a = bs.concat b) : as = bs ∧ a = b := by
+  match as, bs with
+  | [], [] => simp [concat] at h; simp [h]
+  | [_], [] => simp [concat] at h
+  | _::_::_, [] => simp [concat] at h
+  | [], [_] => simp [concat] at h
+  | [], _::_::_ => simp [concat] at h
+  | _::_, _::_ => simp [concat] at h; simp [h]; apply of_concat_eq_concat h.2
+
 end List

@@ -58,12 +58,11 @@ variable {α} (ctx : Context α) (builtin : Bool) (force : Bool) in
 partial def compileParserExpr (e : Expr) : MetaM Expr := do
   let e ← whnfCore e
   match e with
-  | e@(Expr.lam _ _ _ _)     => lambdaLetTelescope e fun xs b => compileParserExpr b >>= mkLambdaFVars xs
-  | e@(Expr.fvar _ _)        => pure e
+  | .lam ..  => lambdaLetTelescope e fun xs b => compileParserExpr b >>= mkLambdaFVars xs
+  | .fvar .. => return e
   | _ => do
     let fn := e.getAppFn
-    let Expr.const c _ _ ← pure fn
-      | throwError "call of unknown parser at '{e}'"
+    let .const c .. := fn | throwError "call of unknown parser at '{e}'"
     let args := e.getAppArgs
     -- call the translated `p` with (a prefix of) the arguments of `e`, recursing for arguments
     -- of type `ty` (i.e. formerly `Parser`)
@@ -79,7 +78,7 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
           let resultTy ← forallTelescope paramTy fun _ b => pure b
           let arg ← if resultTy.isConstOf ctx.tyName then compileParserExpr arg else pure arg
           p := mkApp p arg
-        pure p
+        return p
     let env ← getEnv
     match ctx.combinatorAttr.getDeclFor? env c with
     | some p => mkCall p

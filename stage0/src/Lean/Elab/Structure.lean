@@ -305,6 +305,9 @@ private def getFieldType (infos : Array StructFieldInfo) (parentType : Expr) (fi
     let projType ← Meta.transform projType (post := visit)
     if projType.containsFVar parent.fvarId! then
       throwError "unsupported dependent field in {fieldName} : {projType}"
+    if let some info := getFieldInfo? (← getEnv) (← getStructureName parentType) fieldName then
+      if let some autoParamExpr := info.autoParam? then
+        return (← mkAppM ``autoParam #[projType, autoParamExpr])
     return projType
 
 private def toVisibility (fieldInfo : StructureFieldInfo) : CoreM Visibility := do
@@ -704,6 +707,7 @@ private def registerStructure (structName : Name) (infos : Array StructFieldInfo
           fieldName  := info.name
           projFn     := info.declName
           binderInfo := (← getFVarLocalDecl info.fvar).binderInfo
+          autoParam? := (← inferType info.fvar).getAutoParamTactic?
           subobject? :=
             if info.kind == StructFieldKind.subobject then
               match (← getEnv).find? info.declName with

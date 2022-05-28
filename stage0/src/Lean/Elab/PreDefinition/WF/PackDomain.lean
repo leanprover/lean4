@@ -131,14 +131,20 @@ where
       visit (e : Expr) : MonadCacheT ExprStructEq Expr MetaM Expr := do
         checkCache { val := e : ExprStructEq } fun _ => Meta.withIncRecDepth do
           match e with
-          | Expr.lam ..          => lambdaTelescope e fun xs b => do mkLambdaFVars (usedLetOnly := false) xs (← visit b)
-          | Expr.letE n t v b _  => withLetDecl n t (← visit v) fun x => do mkLambdaFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
-          | Expr.forallE ..      => forallTelescope e fun xs b => do mkForallFVars (usedLetOnly := false) xs (← visit b)
-          | Expr.proj n i s ..   => return mkProj n i (← visit s)
-          | Expr.mdata d b _     => return mkMData d (← visit b)
-          | Expr.app ..          => visitApp e
-          | Expr.const ..        => visitApp e
-          | e                    => return e,
+          | Expr.lam n d b c =>
+            withLocalDecl n c.binderInfo (← visit d) fun x => do
+              mkLambdaFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
+          | Expr.forallE n d b c =>
+            withLocalDecl n c.binderInfo (← visit d) fun x => do
+              mkForallFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
+          | Expr.letE n t v b c  =>
+            withLetDecl n (← visit t) (← visit v) fun x => do
+              mkLambdaFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
+          | Expr.proj n i s .. => return mkProj n i (← visit s)
+          | Expr.mdata d b _   => return mkMData d (← visit b)
+          | Expr.app ..        => visitApp e
+          | Expr.const ..      => visitApp e
+          | e                  => return e,
       visitApp (e : Expr) : MonadCacheT ExprStructEq Expr MetaM Expr := e.withApp fun f args => do
         let args ← args.mapM visit
         if let some funIdx := isAppOfPreDef? f then

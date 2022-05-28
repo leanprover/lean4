@@ -46,6 +46,11 @@ syntax (name := clear) "clear " (colGt term:max)+ : tactic
 If `x` is itself a hypothesis of type `y = e` or `e = y`, `y` is substituted instead. -/
 syntax (name := subst) "subst " (colGt term:max)+ : tactic
 /--
+Apply `subst` to all hypotheses of the form `h : x = t` or `h : t = x`.
+-/
+syntax (name := substVars) "subst_vars" : tactic
+
+/--
 `assumption` tries to solve the main goal using a hypothesis of compatible type, or else fails.
 Note also the `‹t›` term notation, which is a shorthand for `show t by assumption`. -/
 syntax (name := assumption) "assumption" : tactic

@@ -411,7 +411,11 @@ def SimpTheoremsArray.isErased (thmsArray : SimpTheoremsArray) (thmId : Name) : 
 def SimpTheoremsArray.isDeclToUnfold (thmsArray : SimpTheoremsArray) (declName : Name) : Bool :=
   thmsArray.any fun thms => thms.isDeclToUnfold declName
 
-macro "register_simp_attr" id:ident descr:str : command => `(initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr)
+macro "register_simp_attr" id:ident descr:str : command => do
+  let str := id.getId.toString
+  let idParser := mkIdentFrom id (`Parser.Attr ++ id.getId)
+  `(initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr
+    syntax (name := $idParser:ident) $(quote str):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? (prio)? : attr)
 
 end Meta
 

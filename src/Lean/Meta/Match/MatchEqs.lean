@@ -205,6 +205,8 @@ private def processNextEq : M Bool := do
       let eqType ← inferType (mkFVar eq)
       -- See `substRHS`. Recall that if `rhs` is a variable then if must be in `s.xs`
       if let some (_, lhs, rhs) ← matchEq? eqType then
+        if (← isDefEq lhs rhs) then
+          return true
         if rhs.isFVar then
           substRHS eq rhs.fvarId!
           return true

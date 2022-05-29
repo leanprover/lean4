@@ -20,14 +20,18 @@ def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunNam
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
 where
-  mkSameCtorRhs : List (Syntax × Syntax × Bool) → TermElabM Syntax
+  mkSameCtorRhs : List (Syntax × Syntax × Bool × Bool) → TermElabM Syntax
     | [] => ``(isTrue rfl)
-    | (a, b, recField) :: todo => withFreshMacroScope do
+    | (a, b, recField, isProof) :: todo => withFreshMacroScope do
       let rhs ←
-        `(if h : $a = $b then
-           by subst h; exact $(← mkSameCtorRhs todo):term
-          else
-           isFalse (by intro n; injection n; apply h _; assumption))
+        if isProof
+        then
+          `(have h : $a = $b := rfl; by subst h; exact $(← mkSameCtorRhs todo):term)
+        else
+          `(if h : $a = $b then
+             by subst h; exact $(← mkSameCtorRhs todo):term
+            else
+             isFalse (by intro n; injection n; apply h _; assumption))
       if recField then
         -- add local instance for `a = b` using the function being defined `auxFunName`
         `(let inst := $(mkIdent auxFunName) $a $b; $rhs)
@@ -66,7 +70,8 @@ where
                 ctorArgs1 := ctorArgs1.push a
                 ctorArgs2 := ctorArgs2.push b
                 let recField  := (← inferType x).isAppOf indVal.name
-                todo := todo.push (a, b, recField)
+                let isProof := (← inferType (← inferType x)).isProp
+                todo := todo.push (a, b, recField, isProof)
             patterns := patterns.push (← `(@$(mkIdent ctorName₁):ident $ctorArgs1:term*))
             patterns := patterns.push (← `(@$(mkIdent ctorName₁):ident $ctorArgs2:term*))
             let rhs ← mkSameCtorRhs todo.toList

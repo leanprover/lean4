@@ -153,8 +153,8 @@ def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEn
     -- TODO: record recursive expansions in info tree?
     expandMacro?     := fun stx => do
       match (← expandMacroImpl? env stx) with
-      | some (_, Except.ok stx) => return some stx
-      | _                       => return none
+      | some (_, stx?) => liftExcept stx?
+      | none           => return none
     hasDecl          := fun declName => return env.contains declName
     getCurrNamespace := return currNamespace
     resolveNamespace? := fun n => return ResolveName.resolveNamespace? env currNamespace openDecls n

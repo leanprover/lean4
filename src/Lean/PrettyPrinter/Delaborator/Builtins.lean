@@ -163,9 +163,10 @@ where
 @[builtinDelab app]
 def delabAppExplicit : Delab := do
   let paramKinds ← getParamKinds
+  let tagAppFn ← getPPOption getPPTagAppFns
   let (fnStx, _, argStxs) ← withAppFnArgs
     (do
-      let stx ← delabAppFn
+      let stx ← withOptionAtCurrPos `pp.tagAppFns tagAppFn delabAppFn
       let needsExplicit := stx.getKind != ``Lean.Parser.Term.explicit
       let stx ← if needsExplicit then `(@$stx) else pure stx
       pure (stx, paramKinds.toList, #[]))
@@ -260,8 +261,10 @@ def delabAppImplicit : Delab := do
     catch _ => pure false
   if isImplicitApp then failure
 
+  let tagAppFn ← getPPOption getPPTagAppFns
   let (fnStx, _, argStxs) ← withAppFnArgs
-    (return (← delabAppFn, paramKinds.toList, #[]))
+    (withOptionAtCurrPos `pp.tagAppFns tagAppFn <|
+      return (← delabAppFn, paramKinds.toList, #[]))
     (fun (fnStx, paramKinds, argStxs) => do
       let arg ← getExpr
       let opts ← getOptions

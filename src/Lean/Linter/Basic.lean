@@ -19,8 +19,11 @@ def unusedVariables : Linter := fun stx => do
   let some stxRange := stx.getRange?
     | pure ()
 
+  let infoTrees := (← get).infoState.trees.toArray
   let fileMap := (← read).fileMap
-  let refs := findModuleRefs fileMap (← get).infoState.trees.toArray
+
+  -- collect references
+  let refs := findModuleRefs fileMap infoTrees
 
   let mut vars : HashMap FVarId RefInfo := .empty
   let mut constDecls : HashSet String.Range := .empty
@@ -34,6 +37,29 @@ def unusedVariables : Linter := fun stx => do
         if let some range := definition.stx.getRange? then
           constDecls := constDecls.insert range
 
+  -- collect uses from tactic infos
+  let tacticMVarAssignments : HashMap MVarId Expr :=
+    infoTrees.foldr (init := .empty) fun tree assignments =>
+      tree.foldInfo (init := assignments) (fun _ i assignments => match i with
+        | .ofTacticInfo ti =>
+          ti.mctxAfter.eAssignment.foldl (init := assignments) fun assignments mvar expr =>
+            if assignments.contains mvar then
+              assignments
+            else
+              assignments.insert mvar expr
+        | _ =>
+          assignments)
+
+  let tacticFVarUses : HashSet FVarId ←
+    tacticMVarAssignments.foldM (init := .empty) fun uses _ expr => do
+      let (_, s) ← StateT.run (s := uses) <| expr.forEach' (fun expr => do
+        match expr with
+        | .fvar id _ => modify (·.insert id)
+        | _          => pure ()
+        return false)
+      return s
+
+  -- determine unused variables
   for (id, ⟨decl?, uses⟩) in vars.toList do
     let some decl := decl?
       | continue
@@ -63,7 +89,7 @@ def unusedVariables : Linter := fun stx => do
     if ignoredPatternFns.any (· declStx stack) then
       continue
 
-    if uses.isEmpty then
+    if uses.isEmpty && !tacticFVarUses.contains id then
       publishMessage s!"unused variable `{localDecl.userName}`" range
 
   return ()

@@ -111,5 +111,8 @@
  "position": {"line": 84, "character": 38}}
 {"rendered": "no goals", "goals": []}
 {"textDocument": {"uri": "file://plainGoal.lean"},
- "position": {"line": 88, "character": 2}}
+ "position": {"line": 87, "character": 39}}
+null
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 91, "character": 2}}
 {"rendered": "```lean\n⊢ False\n```", "goals": ["⊢ False"]}

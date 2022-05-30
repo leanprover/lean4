@@ -51,7 +51,10 @@ where
 
 def exprToInteractive (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
   let optsPerPos := if explicit then
-    Std.RBMap.ofList [(1, KVMap.empty.setBool `pp.all true)]
+    Std.RBMap.ofList [
+      (1, KVMap.empty.setBool `pp.all true),
+      (1, KVMap.empty.setBool `pp.tagAppFns true)
+    ]
   else
     {}
   let (fmt, infos) ← PrettyPrinter.ppExprWithInfos e optsPerPos

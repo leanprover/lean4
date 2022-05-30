@@ -13,6 +13,7 @@ import Lean.Server.FileWorker.Utils
 import Lean.Server.Requests
 import Lean.Server.Completion
 import Lean.Server.References
+import Lean.Server.GoTo
 
 import Lean.Widget.InteractiveGoal
 
@@ -57,10 +58,6 @@ def handleHover (p : HoverParams)
 
       return none
 
-inductive GoToKind
-  | declaration | definition | type
-  deriving BEq, ToJson, FromJson
-
 open Elab GoToKind in
 def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info)
     (infoTree? : Option InfoTree := none) : RequestM (Array LocationLink) := do
@@ -68,33 +65,8 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
   let doc ← readDoc
   let text := doc.meta.text
 
-  let documentUriFromModule (modName : Name) : MetaM (Option DocumentUri) := do
-    let some modFname ← rc.srcSearchPath.findModuleWithExt "lean" modName
-      | pure none
-    -- resolve symlinks (such as `src` in the build dir) so that files are opened
-    -- in the right folder
-    let modFname ← IO.FS.realPath modFname
-    pure <| some <| Lsp.DocumentUri.ofPath modFname
-
-  let locationLinksFromDecl (i : Elab.Info) (n : Name) := do
-    let mod? ← findModuleOf? n
-    let modUri? ← match mod? with
-      | some modName => documentUriFromModule modName
-      | none         => pure <| some doc.meta.uri
-
-    let ranges? ← findDeclarationRanges? n
-    if let (some ranges, some modUri) := (ranges?, modUri?) then
-      let declRangeToLspRange (r : DeclarationRange) : Lsp.Range :=
-        { start := ⟨r.pos.line - 1, r.charUtf16⟩
-          «end» := ⟨r.endPos.line - 1, r.endCharUtf16⟩ }
-      let ll : LocationLink := {
-        originSelectionRange? := (·.toLspRange text) <$> i.range?
-        targetUri := modUri
-        targetRange := declRangeToLspRange ranges.range
-        targetSelectionRange := declRangeToLspRange ranges.selectionRange
-      }
-      return #[ll]
-    return #[]
+  let locationLinksFromDecl (i : Elab.Info) (n : Name) :=
+    locationLinksFromDecl rc.srcSearchPath doc.meta.uri n <| (·.toLspRange text) <$> i.range?
 
   let locationLinksFromBinder (i : Elab.Info) (id : FVarId) := do
     if let some i' := infoTree? >>= InfoTree.findInfo? fun
@@ -113,7 +85,7 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
 
   let locationLinksFromImport (i : Elab.Info) := do
     let name := i.stx[2].getId
-    if let some modUri ← documentUriFromModule name then
+    if let some modUri ← documentUriFromModule rc.srcSearchPath name then
       let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
       let ll : LocationLink := {
         originSelectionRange? := (·.toLspRange text) <$> i.stx[2].getRange? (originalOnly := true)

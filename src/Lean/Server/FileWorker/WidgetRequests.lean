@@ -17,6 +17,15 @@ import Lean.Server.FileWorker.RequestHandling
 namespace Lean.Widget
 open Server
 
+builtin_initialize
+  registerBuiltinRpcProcedure
+    `Lean.Widget.ppExprTagged
+    (WithRpcRef ExprWithCtx × Bool)
+    CodeWithInfos
+    fun (⟨ctx, lctx, expr⟩, explicit) => RequestM.asTask do
+      ctx.runMetaM lctx do
+        ppExprTagged expr explicit
+
 structure MsgToInteractive where
   msg : WithRpcRef MessageData
   indent : Nat
@@ -43,11 +52,11 @@ builtin_initialize
     fun ⟨i⟩ => RequestM.asTask do
       i.ctx.runMetaM i.info.lctx do
         let type? ← match (← i.info.type?) with
-          | some type => some <$> exprToInteractive type
+          | some type => some <$> ppExprTagged type
           | none => pure none
         let exprExplicit? ← match i.info with
           | Elab.Info.ofTermInfo ti =>
-            let ti ← exprToInteractive ti.expr (explicit := true)
+            let ti ← ppExprTagged ti.expr (explicit := true)
             -- remove top-level expression highlight
             pure <| some <| match ti with
               | .tag _ tt => tt

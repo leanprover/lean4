@@ -27,8 +27,8 @@ namespace Lean.Elab
 /-- Visit nodes, passing in a surrounding context (the innermost one) and accumulating results on the way back up. -/
 partial def InfoTree.visitM [Monad m] [Inhabited α]
     (preNode  : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
-    (postNode : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → List α → m α)
-    : InfoTree → m α :=
+    (postNode : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → List (Option α) → m α)
+    : InfoTree → m (Option α) :=
   go none
 where go
   | _, context ctx t => go ctx t
@@ -37,12 +37,12 @@ where go
     let as ← cs.toList.mapM (go <| i.updateContext? ctx)
     postNode ctx i cs as
   | none, node .. => panic! "unexpected context-free info tree node"
-  | _, hole .. => panic! "unexpected info tree hole"
+  | _, hole .. => pure none
 
 /--
   Visit nodes bottom-up, passing in a surrounding context (the innermost one) and the union of nested results (empty at leaves). -/
 def InfoTree.collectNodesBottomUp (p : ContextInfo → Info → Std.PersistentArray InfoTree → List α → List α) (i : InfoTree) : List α :=
-  i.visitM (m := Id) (postNode := fun ci i cs as => p ci i cs as.join)
+  i.visitM (m := Id) (postNode := fun ci i cs as => p ci i cs (as.filterMap id).join) |>.getD []
 
 /--
   For every branch of the `InfoTree`, find the deepest node in that branch for which `p` returns

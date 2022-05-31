@@ -3,11 +3,9 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Elab.Util
 import Lean.Util.Sorry
-import Lean.Elab.Exception
 
-namespace Lean.Elab
+namespace Lean
 
 class MonadLog (m : Type → Type) extends MonadFileMap m where
   getRef       : m Syntax
@@ -63,25 +61,10 @@ def logWarning (msgData : MessageData) : m Unit :=
 def logInfo (msgData : MessageData) : m Unit :=
   log msgData MessageSeverity.information
 
-def logException [MonadLiftT IO m] (ex : Exception) : m Unit := do
-  match ex with
-  | Exception.error ref msg => logErrorAt ref msg
-  | Exception.internal id _ =>
-    unless isAbortExceptionId id do
-      let name ← id.getName
-      logError m!"internal exception: {name}"
-
 def logTrace (cls : Name) (msgData : MessageData) : m Unit := do
   logInfo (MessageData.tagged cls m!"[{cls}] {msgData}")
-
-@[inline] def trace [MonadOptions m] (cls : Name) (msg : Unit → MessageData) : m Unit := do
-  if checkTraceOption (← getOptions) cls then
-    logTrace cls (msg ())
-
-def logDbgTrace [MonadOptions m] (msg : MessageData) : m Unit := do
-  trace `Elab.debug fun _ => msg
 
 def logUnknownDecl (declName : Name) : m Unit :=
   logError m!"unknown declaration '{declName}'"
 
-end Lean.Elab
+end Lean

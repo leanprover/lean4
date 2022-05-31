@@ -11,6 +11,7 @@ import Lean.Elab.Exception
 import Lean.DocString
 import Lean.DeclarationRange
 import Lean.Compiler.InitAttr
+import Lean.Log
 
 namespace Lean
 
@@ -194,6 +195,21 @@ partial def mkUnusedBaseName (baseName : Name) : MacroM Name := do
     loop 1
   else
     return baseName
+
+def logException [Monad m] [MonadLog m] [AddMessageContext m] [MonadLiftT IO m] (ex : Exception) : m Unit := do
+  match ex with
+  | Exception.error ref msg => logErrorAt ref msg
+  | Exception.internal id _ =>
+    unless isAbortExceptionId id do
+      let name ← id.getName
+      logError m!"internal exception: {name}"
+
+@[inline] def trace [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (cls : Name) (msg : Unit → MessageData) : m Unit := do
+  if checkTraceOption (← getOptions) cls then
+    logTrace cls (msg ())
+
+def logDbgTrace [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (msg : MessageData) : m Unit := do
+  trace `Elab.debug fun _ => msg
 
 builtin_initialize
   registerTraceClass `Elab

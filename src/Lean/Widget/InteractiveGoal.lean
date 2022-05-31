@@ -14,15 +14,11 @@ open Server
 
 structure InteractiveHypothesis where
   names : Array String
-  ids : Array String
+  fvarIds : Array FVarId
   type : CodeWithInfos
   val? : Option CodeWithInfos := none
   isInstance : Bool
   isType : Bool
-  /-- Identifies the group of hypotheses.
-  Used as a React key and to unambiguously
-  address the hypothesis group in callbacks.-/
-  key : String
   deriving Inhabited, RpcEncoding
 
 structure InteractiveGoal where
@@ -33,7 +29,7 @@ structure InteractiveGoal where
   /-- Identifies the goal (ie with the unique
   name of the MVar that it is a goal for.)
   [todo] what should the key be for a term goal?-/
-  key? : Option String := none
+  mvarId? : Option MVarId := none
   deriving Inhabited, RpcEncoding
 
 namespace InteractiveGoal
@@ -84,15 +80,14 @@ open Meta in
 def addInteractiveHypothesis (hyps : Array InteractiveHypothesis) (ids : Array (Name × FVarId)) (type : Expr) (value? : Option Expr := none) : MetaM (Array InteractiveHypothesis) := do
   if ids.size == 0 then
     throwError "Can only add a nonzero number of ids as an InteractiveHypothesis."
-  let fvarIds := ids.map (toString ∘ FVarId.name ∘ Prod.snd)
+  let fvarIds := ids.map Prod.snd
   return hyps.push {
     names      := ids.map (toString ∘ Prod.fst)
-    ids        := fvarIds
+    fvarIds        := fvarIds
     type       := (← ppExprTagged type)
     val?       := (← value?.mapM ppExprTagged)
     isInstance := (← isClass? type).isSome
     isType     := (← instantiateMVars type).isSort
-    key := fvarIds[0]
   }
 
 open Meta in
@@ -160,7 +155,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
       type := goalFmt,
       userName?,
       goalPrefix := getGoalPrefix mvarDecl,
-      key? := some mvarId.name.toString
+      mvarId? := some mvarId
     }
 
 end Lean.Widget

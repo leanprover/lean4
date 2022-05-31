@@ -109,19 +109,18 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
   visit input |>.run
 
 def zetaReduce (e : Expr) : MetaM Expr := do
-  let lctx ← getLCtx
-  let pre (e : Expr) : CoreM TransformStep := do
+  let pre (e : Expr) : MetaM TransformStep := do
     match e with
     | Expr.fvar fvarId _ =>
-      match lctx.find? fvarId with
+      match (← getLCtx).find? fvarId with
       | none => return TransformStep.done e
       | some localDecl =>
         if let some value := localDecl.value? then
           return TransformStep.visit value
         else
           return TransformStep.done e
-    | e => if e.hasFVar then return TransformStep.visit e else return TransformStep.done e
-  liftM (m := CoreM) <| Core.transform e (pre := pre)
+    | e => return TransformStep.visit e
+  transform e (pre := pre) (usedLetOnly := true)
 
 /-- Unfold definitions and theorems in `e` that are not in the current environment, but are in `biggerEnv`. -/
 def unfoldDeclsFrom (biggerEnv : Environment) (e : Expr) : CoreM Expr := do

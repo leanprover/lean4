@@ -63,4 +63,7 @@ def Exception.hasSyntheticSorry : Exception → Bool
   | Exception.error _ msg => msg.hasSyntheticSorry
   | _                     => false
 
+def Declaration.hasSorry (d : Declaration) : Bool := Id.run do
+  d.foldExprM (fun r e => r || e.hasSorry) false
+
 end Lean

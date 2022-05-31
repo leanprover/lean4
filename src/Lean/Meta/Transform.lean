@@ -61,11 +61,12 @@ namespace Meta
 /--
   Similar to `Core.transform`, but terms provided to `pre` and `post` do not contain loose bound variables.
   So, it is safe to use any `MetaM` method at `pre` and `post`. -/
-partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
+partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m] [MonadTrace m] [MonadRef m] [MonadOptions m] [AddMessageContext m]
     (input : Expr)
     (pre   : Expr → m TransformStep := fun e => return TransformStep.visit e)
     (post  : Expr → m TransformStep := fun e => return TransformStep.done e)
-    : m Expr :=
+    (usedLetOnly := false)
+    : m Expr := do
   let inst : STWorld IO.RealWorld m := ⟨⟩
   let inst : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := MetaM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
@@ -79,19 +80,19 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
         | Expr.lam n d b c =>
           withLocalDecl n c.binderInfo (← visit (d.instantiateRev fvars)) fun x =>
             visitLambda (fvars.push x) b
-        | e => visitPost (← mkLambdaFVars (usedLetOnly := false) fvars (← visit (e.instantiateRev fvars)))
+        | e => visitPost (← mkLambdaFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
       let rec visitForall (fvars : Array Expr) (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match e with
         | Expr.forallE n d b c =>
           withLocalDecl n c.binderInfo (← visit (d.instantiateRev fvars)) fun x =>
             visitForall (fvars.push x) b
-        | e => visitPost (← mkForallFVars (usedLetOnly := false) fvars (← visit (e.instantiateRev fvars)))
+        | e => visitPost (← mkForallFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
       let rec visitLet (fvars : Array Expr) (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match e with
         | Expr.letE n t v b _ =>
           withLetDecl n (← visit (t.instantiateRev fvars)) (← visit (v.instantiateRev fvars)) fun x =>
             visitLet (fvars.push x) b
-        | e => visitPost (← mkLetFVars (usedLetOnly := false) fvars (← visit (e.instantiateRev fvars)))
+        | e => visitPost (← mkLetFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
       let visitApp (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
         e.withApp fun f args => do
           visitPost (mkAppN (← visit f) (← args.mapM visit))

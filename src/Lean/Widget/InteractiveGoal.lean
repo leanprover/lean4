@@ -75,8 +75,8 @@ open Meta in
 def addInteractiveHypothesis (hyps : Array InteractiveHypothesis) (ids : Array Name) (type : Expr) (value? : Option Expr := none) : MetaM (Array InteractiveHypothesis) := do
   return hyps.push {
     names      := ids.map toString
-    type       := (← exprToInteractive type)
-    val?       := (← value?.mapM exprToInteractive)
+    type       := (← ppExprTagged type)
+    val?       := (← value?.mapM ppExprTagged)
     isInstance := (← isClass? type).isSome
     isType     := (← instantiateMVars type).isSort
   }
@@ -133,7 +133,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
           ppVars varNames prevType? hyps localDecl
     let hyps ← pushPending varNames type? hyps
     let goalTp ← instantiateMVars mvarDecl.type
-    let goalFmt ← exprToInteractive goalTp
+    let goalFmt ← ppExprTagged goalTp
     let userName? := match mvarDecl.userName with
       | Name.anonymous => none
       | name           => some <| toString name.eraseMacroScopes

@@ -123,8 +123,6 @@ where
       let discrStx := discrStxs.get ⟨i, h⟩
       let discr     ← elabAtomicDiscr discrStx
       let discr     ← instantiateMVars discr
-      let discrType ← inferType discr
-      let discrType ← instantiateMVars discrType
       let userName ← mkUserNameFor discr
       let h? := if discrStx[0].isNone then none else some discrStx[0][0]
       let discrs := discrs.push { expr := discr, h? }
@@ -132,7 +130,17 @@ where
       let matchTypeBody ← kabstract result.matchType discr
       if matchTypeBody.hasLooseBVars then
         result := markIsDep result
-      return { result with matchType := Lean.mkForall userName BinderInfo.default discrType matchTypeBody }
+      /-
+        We use `transform (usedLetOnly := true)` to eliminate unnecessary let-expressions.
+        This transformation was added to address issue #1155, and avoid an unnecessary dependency.
+        In issue #1155, `discrType` was of the form `let _discr := OfNat.ofNat ... 0 ?m; ...`, and not removing
+        the unnecessary `let-expr` was introducing an artificial dependency to `?m`.
+        TODO: make sure that even when this kind of artificial dependecy occurs we catch it before sending
+        the term to the kernel.
+      -/
+      let discrType ← transform (usedLetOnly := true) (← instantiateMVars (← inferType discr))
+      let matchType := Lean.mkForall userName BinderInfo.default discrType matchTypeBody
+      return { result with matchType }
     else
       return { discrs, alts := matchAltViews, isDep := false, matchType := expectedType }
 

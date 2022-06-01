@@ -17,4 +17,3 @@ ihr : BST right → Tree.find? (Tree.insert right k v) k = some v
 : BST right
 : ForallTree (fun k v => key < k) right
 ⊢ BST left
-bintreeGoal.lean:60:8-60:27: warning: declaration uses 'sorry'

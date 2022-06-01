@@ -1,2 +1,3 @@
+matchMissingCasesAsStuckError.lean:2:2-3:24: warning: declaration uses 'sorry'
 matchMissingCasesAsStuckError.lean:2:2-2:7: error: missing cases:
 none

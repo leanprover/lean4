@@ -1,5 +1,4 @@
 690.lean:3:2-3:29: error: too many variable names provided at alternative 'step', #3 provided, but #2 expected
-690.lean:1:0-1:7: warning: declaration uses 'sorry'
 690.lean:6:0-6:7: warning: declaration uses 'sorry'
 case step
 a b m✝ : Nat

@@ -1,3 +1,4 @@
+matchUnknownFVarBug.lean:2:2-3:19: warning: declaration uses 'sorry'
 matchUnknownFVarBug.lean:2:2-2:7: error: missing cases:
 (some (Nat.succ _)), (some _)
 (some (Nat.succ _)), none

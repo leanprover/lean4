@@ -44,7 +44,7 @@ StxQuot.lean:18:15: error: expected term
 "#[(num \"1\"), [(num \"2\") (num \"3\")], (num \"4\")]"
 "#[(num \"2\")]"
 StxQuot.lean:94:39-94:44: error: unexpected antiquotation splice
-fun a => sorryAx (?m a) : (a : ?m) → ?m a
+fun a => sorryAx (?m a) true : (a : ?m) → ?m a
 "#[(some 1), (some 2)]"
 StxQuot.lean:101:13-101:14: error: unknown identifier 'x' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check.
 "`id._@.UnhygienicMain._hyg.1"

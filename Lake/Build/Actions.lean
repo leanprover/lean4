@@ -19,11 +19,15 @@ def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
     | some cwd => s!"{cmdStr}    # in directory {cwd}"
     | none     => cmdStr
   let out ← IO.Process.output args
-  unless out.stdout.isEmpty do
-    logInfo out.stdout
-  unless out.stderr.isEmpty do
-    logError out.stderr
-  if out.exitCode != 0 then
+  let logOutputWith (log : String → BuildM PUnit) := do
+    unless out.stdout.isEmpty do
+      log s!"stdout:\n{out.stdout}"
+    unless out.stderr.isEmpty do
+      log s!"stderr:\n{out.stderr}"
+  if out.exitCode = 0 then
+    logOutputWith logInfo
+  else
+    logOutputWith logError
     logError s!"external command {args.cmd} exited with status {out.exitCode}"
     failure
 

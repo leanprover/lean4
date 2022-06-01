@@ -13,7 +13,9 @@ namespace Lean.Widget
 open Server
 
 structure InteractiveHypothesis where
-  names : Array String
+  /-- The user-friendly name for each hypothesis.
+  If anonymous then the name is inaccessible. -/
+  names : Array Name
   fvarIds? : Option (Array FVarId)
   type : CodeWithInfos
   val? : Option CodeWithInfos := none
@@ -44,11 +46,15 @@ def pretty (g : InteractiveGoal) : Format := Id.run do
     | none          => Format.nil
   for hyp in g.hyps do
     ret := addLine ret
-    match hyp.names.toList with
-    | [] =>
+    let names := hyp.names
+        |>.toList
+        |>.filter (not ∘ Name.isAnonymous)
+        |>.map toString
+        |> " ".intercalate
+    match names with
+    | "" =>
       ret := ret ++ Format.group f!":{Format.nest indent (Format.line ++ hyp.type.stripTags)}"
     | _ =>
-      let names := " ".intercalate hyp.names.toList
       match hyp.val? with
       | some val =>
         ret := ret ++ Format.group f!"{names} : {hyp.type.stripTags} :={Format.nest indent (Format.line ++ val.stripTags)}"
@@ -81,9 +87,10 @@ def addInteractiveHypothesis (hyps : Array InteractiveHypothesis) (ids : Array (
   if ids.size == 0 then
     throwError "Can only add a nonzero number of ids as an InteractiveHypothesis."
   let fvarIds := ids.map Prod.snd
+  let names := ids.map Prod.fst
   return hyps.push {
-    names      := ids.map (toString ∘ Prod.fst)
-    fvarIds        := fvarIds
+    names      := names
+    fvarIds?   := fvarIds
     type       := (← ppExprTagged type)
     val?       := (← value?.mapM ppExprTagged)
     isInstance := (← isClass? type).isSome

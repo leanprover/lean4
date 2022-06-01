@@ -107,8 +107,6 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
   let lctx : LocalContext := lctx.sanitizeNames.run' { options := (← getOptions) }
   withLCtx lctx mvarDecl.localInstances do
     let (hidden, hiddenProp) ← ToHide.collect mvarDecl.type
-    -- The following two `let rec`s are being used to control the generated code size.
-    -- They should be removed after we rewrite the compiler in Lean
     let pushPending (ids : Array (Name × FVarId)) (type? : Option Expr) (hyps : Array InteractiveHypothesis)
         : MetaM (Array InteractiveHypothesis) :=
       if ids.isEmpty then
@@ -122,7 +120,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
     let mut hyps : Array InteractiveHypothesis := #[]
     for localDecl in lctx do
       if !ppAuxDecls && localDecl.isAuxDecl || hidden.contains localDecl.fvarId then
-        pure ()
+        continue
       else
         if hiddenProp.contains localDecl.fvarId then
           -- localDecl has an inaccessible name and
@@ -137,12 +135,12 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
           | LocalDecl.cdecl index fvarId varName type _   =>
             let varName := varName.simpMacroScopes
             let type ← instantiateMVars type
-            prevType? := some type
             if prevType? == none || prevType? == some type then
               varNames := varNames.push (varName, fvarId)
             else
               hyps ← pushPending varNames prevType? hyps
               varNames := #[(varName, fvarId)]
+            prevType? := some type
           | LocalDecl.ldecl index fvarId varName type val _ => do
             let varName := varName.simpMacroScopes
             hyps ← pushPending varNames prevType? hyps

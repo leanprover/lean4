@@ -175,7 +175,7 @@ structure Subtype {α : Sort u} (p : α → Prop) where
 
 /- Auxiliary axiom used to implement `sorry`. -/
 @[extern "lean_sorry", neverExtract]
-axiom sorryAx (α : Sort u) (synthetic := true) : α
+axiom sorryAx (α : Sort u) (synthetic := false) : α
 
 theorem eq_false_of_ne_true : {b : Bool} → Not (Eq b true) → Eq b false
   | true, h => False.elim (h rfl)

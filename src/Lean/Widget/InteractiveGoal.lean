@@ -14,7 +14,7 @@ open Server
 
 structure InteractiveHypothesis where
   names : Array String
-  fvarIds : Array FVarId
+  fvarIds? : Option (Array FVarId)
   type : CodeWithInfos
   val? : Option CodeWithInfos := none
   isInstance : Bool

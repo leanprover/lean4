@@ -1112,9 +1112,9 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
     let numDiscrs := discrs.size
     let matcherName ← mkAuxName `match
     let matcherResult ← mkMatcher { matcherName, matchType, discrInfos := discrs.map fun discr => { hName? := discr.h?.map (·.getId) }, lhss := altLHSS }
+    reportMatcherResultErrors altLHSS matcherResult
     matcherResult.addMatcher
     let motive ← forallBoundedTelescope matchType numDiscrs fun xs matchType => mkLambdaFVars xs matchType
-    reportMatcherResultErrors altLHSS matcherResult
     let r := mkApp matcherResult.matcher motive
     let r := mkAppN r (discrs.map (·.expr))
     let r := mkAppN r rhss

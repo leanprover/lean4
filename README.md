@@ -70,12 +70,10 @@ Lake packages can also have dependencies. Dependencies are other Lake packages t
 For example, one can depend on the Lean 4 port of [mathlib](https://github.com/leanprover-community/mathlib4) like so:
 
 ```lean
-package hello {
-  dependencies := #[{
-    name := `mathlib
-    src := Source.git "https://github.com/leanprover-community/mathlib4.git" "master"
-  }]
-}
+require mathlib from git
+  "https://github.com/leanprover-community/mathlib4.git"@"master"
+
+package hello
 ```
 
 The next run of `lake build` (or refreshing dependencies in an editor like VSCode) will clone the mathlib repository and build it. Information on the specific revision cloned will then be saved to `manifest.json` in `lean_packages` to enable reproducibility. To update `mathlib` after this, you will need to run `lake update` -- other commands do not update resolved dependencies.

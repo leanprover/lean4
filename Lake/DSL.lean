@@ -5,3 +5,4 @@ Authors: Mac Malone
 -/
 import Lake.DSL.Attributes
 import Lake.DSL.Commands
+import Lake.DSL.Require

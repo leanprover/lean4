@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lean.Elab.Frontend
 import Lake.DSL.Attributes
+import Lake.DSL.Extensions
 import Lake.Config.Package
 
 namespace Lake
@@ -91,6 +92,7 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
     | [] => error s!"configuration file is missing a `package` declaration"
     | [pkgDeclName] =>
       let config ← evalPackageDecl env pkgDeclName dir args leanOpts
+      let config := {config with dependencies := depsExt.getState env ++ config.dependencies}
       let scripts ← scriptAttr.ext.getState env |>.foldM (init := {})
         fun m d => return m.insert d <| ← evalScriptDecl env d leanOpts
       return {dir, config, scripts}

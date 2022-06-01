@@ -374,7 +374,7 @@ def withoutErrToSorry (x : TermElabM α) : TermElabM α :=
 
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do
-  if (← Core.hasErrors) then
+  if (← MonadLog.hasErrors) then
     throwError "Error(s)"
 
 def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
@@ -437,7 +437,7 @@ def registerCustomErrorIfMVar (e : Expr) (ref : Syntax) (msgData : MessageData) 
   cannot continue if there are metavariables in patterns.
   We only want to log it if we haven't logged any error so far. -/
 def throwMVarError (m : MessageData) : TermElabM α := do
-  if (← Core.hasErrors) then
+  if (← MonadLog.hasErrors) then
     throwAbortTerm
   else
     throwError m
@@ -479,7 +479,7 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Op
   if pendingMVarIds.isEmpty then
     return false
   else
-    let hasOtherErrors ← Core.hasErrors
+    let hasOtherErrors ← MonadLog.hasErrors
     let mut hasNewErrors := false
     let mut alreadyVisited : MVarIdSet := {}
     let mut errors : Array MVarErrorInfo := #[]
@@ -1279,7 +1279,7 @@ def commitIfNoErrors? (x : TermElabM α) : TermElabM (Option α) := do
   Core.resetMessageLog
   try
     let a ← x
-    if (← Core.hasErrors) then
+    if (← MonadLog.hasErrors) then
       restoreState saved
       return none
     else

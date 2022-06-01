@@ -183,6 +183,7 @@ instance : MonadLog CommandElabM where
   getRef      := getRef
   getFileMap  := return (← read).fileMap
   getFileName := return (← read).fileName
+  hasErrors   := return (← get).messages.hasErrors
   logMessage msg := do
     let currNamespace ← getCurrNamespace
     let openDecls ← getOpenDecls

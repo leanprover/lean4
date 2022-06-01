@@ -4495,7 +4495,7 @@ LEAN_EXPORT lean_object* l_Lean_ppDedent_formatter(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_7 = lean_ctor_get(x_4, 0);
+x_7 = lean_ctor_get(x_4, 2);
 lean_inc(x_7);
 x_8 = l_Std_Format_getIndent(x_7);
 lean_dec(x_7);
@@ -4645,7 +4645,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_
 x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 lean_dec(x_8);
-x_10 = lean_ctor_get(x_4, 0);
+x_10 = lean_ctor_get(x_4, 2);
 lean_inc(x_10);
 lean_dec(x_4);
 x_11 = l_Std_Format_getIndent(x_10);

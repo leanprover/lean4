@@ -537,7 +537,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeI
 _start:
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_27; lean_object* x_28; lean_object* x_29; uint8_t x_30; 
-x_8 = lean_ctor_get(x_5, 3);
+x_8 = lean_ctor_get(x_5, 5);
 lean_inc(x_8);
 x_9 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_postponeIsLevelDefEq___closed__6;
 x_27 = lean_st_ref_get(x_6, x_7);

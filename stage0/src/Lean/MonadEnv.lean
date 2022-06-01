@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Environment
 import Lean.Exception
 import Lean.Declaration
+import Lean.Log
 import Lean.Util.FindExpr
 import Lean.AuxRecursor
 
@@ -121,7 +122,9 @@ def getConstInfoRec [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m
         | _ => failK ()
       | _ => failK ()
 
-def addDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : Declaration) : m Unit := do
+def addDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadLog m] [AddMessageContext m] (decl : Declaration) : m Unit := do
+  if decl.hasNonSyntheticSorry then
+    logWarning "declaration uses 'sorry'"
   match (← getEnv).addDecl decl with
   | Except.ok    env => setEnv env
   | Except.error ex  => throwKernelException ex
@@ -152,7 +155,7 @@ def compileDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : D
   | Except.error ex =>
     throwKernelException ex
 
-def addAndCompile [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : Declaration) : m Unit := do
+def addAndCompile [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadLog m] [AddMessageContext m] (decl : Declaration) : m Unit := do
   addDecl decl;
   compileDecl decl
 

@@ -4951,7 +4951,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Widget_goalToInteractive___
 _start:
 {
 lean_object* x_7; lean_object* x_8; uint8_t x_9; 
-x_7 = lean_ctor_get(x_4, 3);
+x_7 = lean_ctor_get(x_4, 5);
 x_8 = l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(x_1, x_2, x_3, x_4, x_5, x_6);
 x_9 = !lean_is_exclusive(x_8);
 if (x_9 == 0)
@@ -10112,7 +10112,7 @@ lean_dec(x_1);
 x_20 = lean_ctor_get(x_13, 0);
 lean_inc(x_20);
 lean_dec(x_13);
-x_21 = lean_ctor_get(x_4, 0);
+x_21 = lean_ctor_get(x_4, 2);
 lean_inc(x_21);
 x_22 = l_Lean_Widget_goalToInteractive___closed__4;
 x_23 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_21, x_22);

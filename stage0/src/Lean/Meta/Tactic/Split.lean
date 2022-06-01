@@ -137,7 +137,7 @@ private partial def generalizeMatchDiscrs (mvarId : MVarId) (matcherDeclName : N
                   mkLambdaFVars (ys++altEqsNew) body
             altsNew := altsNew.push altNew
           return .done { matcherApp with alts := altsNew }.toExpr
-        transform e pre
+        transform (← instantiateMVars e) pre
       let targetNew ← mkNewTarget (← getMVarType mvarId)
       unless (← foundRef.get) do
         throwError "'applyMatchSplitter' failed, did not find discriminants"

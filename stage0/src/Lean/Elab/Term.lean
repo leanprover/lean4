@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.ResolveName
+import Lean.Log
 import Lean.Util.Sorry
 import Lean.Util.ReplaceExpr
 import Lean.Structure
@@ -13,7 +14,6 @@ import Lean.Meta.Coe
 import Lean.Hygiene
 import Lean.Util.RecDepth
 
-import Lean.Elab.Log
 import Lean.Elab.Config
 import Lean.Elab.Level
 import Lean.Elab.Attributes
@@ -98,7 +98,6 @@ structure State where
   levelNames        : List Name       := []
   syntheticMVars    : List SyntheticMVarDecl := []
   mvarErrorInfos    : MVarIdMap MVarErrorInfo := {}
-  messages          : MessageLog := {}
   letRecsToLift     : List LetRecToLift := []
   infoState         : InfoState := {}
   deriving Inhabited
@@ -134,8 +133,6 @@ end Tactic
 namespace Term
 
 structure Context where
-  fileName        : String
-  fileMap         : FileMap
   declName?       : Option Name     := none
   macroStack      : MacroStack      := []
   /--
@@ -225,15 +222,6 @@ abbrev TermElabResult (α : Type) := EStateM.Result Exception SavedState α
 instance [Inhabited α] : Inhabited (TermElabResult α) where
   default := EStateM.Result.ok default default
 
-def setMessageLog (messages : MessageLog) : TermElabM Unit :=
-  modify fun s => { s with messages := messages }
-
-def resetMessageLog : TermElabM Unit :=
-  setMessageLog {}
-
-def getMessageLog : TermElabM MessageLog :=
-  return (← get).messages
-
 /--
   Execute `x`, save resulting expression and new state.
   We remove any `Info` created by `x`.
@@ -291,15 +279,6 @@ instance : AddErrorMessageContext TermElabM where
     let msg ← addMacroStack msg ctx.macroStack
     pure (ref, msg)
 
-instance : MonadLog TermElabM where
-  getRef      := getRef
-  getFileMap  := return (← read).fileMap
-  getFileName := return (← read).fileName
-  logMessage msg := do
-    let ctx ← readThe Core.Context
-    let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
-    modify fun s => { s with messages := s.messages.add msg }
-
 instance : MonadInfoTree TermElabM where
   getInfoState      := return (← get).infoState
   modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
@@ -328,8 +307,7 @@ private def withoutModifyingStateWithInfoAndMessagesImpl (x : TermElabM α) : Te
   try
     withSaveInfoContext x
   finally
-    let s ← get
-    let saved := { saved with elab.infoState := s.infoState, elab.messages := s.messages }
+    let saved := { saved with elab.infoState := (← get).infoState, meta.core.messages := (← getThe Core.State).messages }
     restoreState saved
 
 /--
@@ -396,7 +374,7 @@ def withoutErrToSorry (x : TermElabM α) : TermElabM α :=
 
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do
-  if (← get).messages.hasErrors then
+  if (← Core.hasErrors) then
     throwError "Error(s)"
 
 def traceAtCmdPos (cls : Name) (msg : Unit → MessageData) : TermElabM Unit :=
@@ -459,7 +437,7 @@ def registerCustomErrorIfMVar (e : Expr) (ref : Syntax) (msgData : MessageData) 
   cannot continue if there are metavariables in patterns.
   We only want to log it if we haven't logged any error so far. -/
 def throwMVarError (m : MessageData) : TermElabM α := do
-  if (← get).messages.hasErrors then
+  if (← Core.hasErrors) then
     throwAbortTerm
   else
     throwError m
@@ -501,12 +479,11 @@ def logUnassignedUsingErrorInfos (pendingMVarIds : Array MVarId) (extraMsg? : Op
   if pendingMVarIds.isEmpty then
     return false
   else
-    let s ← get
-    let hasOtherErrors := s.messages.hasErrors
+    let hasOtherErrors ← Core.hasErrors
     let mut hasNewErrors := false
     let mut alreadyVisited : MVarIdSet := {}
     let mut errors : Array MVarErrorInfo := #[]
-    for (_, mvarErrorInfo) in s.mvarErrorInfos do
+    for (_, mvarErrorInfo) in (← get).mvarErrorInfos do
       let mvarId := mvarErrorInfo.mvarId
       unless alreadyVisited.contains mvarId do
         alreadyVisited := alreadyVisited.insert mvarId
@@ -1299,14 +1276,14 @@ def withoutPending (x : TermElabM α) : TermElabM α := do
 /-- Execute `x` and return `some` if no new errors were recorded or exceptions was thrown. Otherwise, return `none` -/
 def commitIfNoErrors? (x : TermElabM α) : TermElabM (Option α) := do
   let saved ← saveState
-  modify fun s => { s with messages := {} }
+  Core.resetMessageLog
   try
     let a ← x
-    if (← get).messages.hasErrors then
+    if (← Core.hasErrors) then
       restoreState saved
       return none
     else
-      modify fun s => { s with messages := saved.elab.messages ++ s.messages }
+      Core.setMessageLog (saved.meta.core.messages ++ (← Core.getMessageLog))
       return a
   catch _ =>
     restoreState saved
@@ -1585,15 +1562,11 @@ def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (
     | _   => throwError "ambiguous {kind}, use fully qualified name, possible interpretations {fs}"
   | _ => throwError "identifier expected"
 
-private def mkSomeContext : Context := {
-  fileName      := "<TermElabM>"
-  fileMap       := default
-}
 
-def TermElabM.run (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM (α × State) :=
+def TermElabM.run (x : TermElabM α) (ctx : Context := {}) (s : State := {}) : MetaM (α × State) :=
   withConfig setElabConfig (x ctx |>.run s)
 
-@[inline] def TermElabM.run' (x : TermElabM α) (ctx : Context := mkSomeContext) (s : State := {}) : MetaM α :=
+@[inline] def TermElabM.run' (x : TermElabM α) (ctx : Context := {}) (s : State := {}) : MetaM α :=
   (·.1) <$> x.run ctx s
 
 def TermElabM.toIO (x : TermElabM α)
@@ -1607,9 +1580,8 @@ instance [MetaEval α] : MetaEval (TermElabM α) where
   eval env opts x _ := do
     let x : TermElabM α := do
       try x finally
-        let s ← get
-        s.messages.forM fun msg => do IO.println (← msg.toString)
-    MetaEval.eval env opts (hideUnit := true) <| x.run' mkSomeContext
+        (← Core.getMessageLog).forM fun msg => do IO.println (← msg.toString)
+    MetaEval.eval env opts (hideUnit := true) <| x.run' {}
 
 unsafe def evalExpr (α) (typeName : Name) (value : Expr) : TermElabM α :=
   withoutModifyingEnv do

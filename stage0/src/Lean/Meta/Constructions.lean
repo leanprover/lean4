@@ -45,9 +45,10 @@ where
 
   mkToCtorIdx : MetaM Unit := do
     let ConstantInfo.inductInfo info ← getConstInfo enumName | unreachable!
+    let us := info.levelParams.map mkLevelParam
     let numCtors := info.ctors.length
     let declName := Name.mkStr enumName "toCtorIdx"
-    let enumType := mkConst enumName
+    let enumType := mkConst enumName us
     let natType  := mkConst ``Nat
     let declType ← mkArrow enumType natType
     let mut minors := #[]
@@ -55,10 +56,10 @@ where
       minors := minors.push <| mkNatLit i
     withLocalDeclD `x enumType fun x => do
       let motive ← mkLambdaFVars #[x] natType
-      let declValue ← mkLambdaFVars #[x] <| mkAppN (mkApp2 (mkConst (mkCasesOnName enumName) [levelOne]) motive x) minors
+      let declValue ← mkLambdaFVars #[x] <| mkAppN (mkApp2 (mkConst (mkCasesOnName enumName) (levelOne::us)) motive x) minors
       addAndCompile <| Declaration.defnDecl {
         name        := declName
-        levelParams := []
+        levelParams := info.levelParams
         type        := declType
         value       := declValue
         safety      := DefinitionSafety.safe
@@ -67,18 +68,21 @@ where
       setReducibleAttribute declName
 
   mkNoConfusionType : MetaM Unit := do
-    let enumType := mkConst enumName
-    let sortU := mkSort (mkLevelParam `u)
-    let toCtorIdx := mkConst (Name.mkStr enumName "toCtorIdx")
-    withLocalDeclD `P sortU fun P =>
+    let ConstantInfo.inductInfo info ← getConstInfo enumName | unreachable!
+    let us := info.levelParams.map mkLevelParam
+    let v ← mkFreshUserName `v
+    let enumType := mkConst enumName us
+    let sortV := mkSort (mkLevelParam v)
+    let toCtorIdx := mkConst (Name.mkStr enumName "toCtorIdx") us
+    withLocalDeclD `P sortV fun P =>
     withLocalDeclD `x enumType fun x =>
     withLocalDeclD `y enumType fun y => do
-      let declType  ← mkForallFVars #[P, x, y] sortU
+      let declType  ← mkForallFVars #[P, x, y] sortV
       let declValue ← mkLambdaFVars #[P, x, y] (← mkAppM ``noConfusionTypeEnum #[toCtorIdx, P, x, y])
       let declName  := Name.mkStr enumName "noConfusionType"
       addAndCompile <| Declaration.defnDecl {
         name        := declName
-        levelParams := [`u]
+        levelParams := v :: info.levelParams
         type        := declType
         value       := declValue
         safety      := DefinitionSafety.safe
@@ -87,12 +91,14 @@ where
       setReducibleAttribute declName
 
   mkNoConfusion : MetaM Unit := do
-    let enumType := mkConst enumName
-    let u := mkLevelParam `u
-    let sortU := mkSort u
-    let toCtorIdx := mkConst (Name.mkStr enumName "toCtorIdx")
-    let noConfusionType := mkConst (Name.mkStr enumName "noConfusionType") [u]
-    withLocalDecl `P BinderInfo.implicit sortU fun P =>
+    let ConstantInfo.inductInfo info ← getConstInfo enumName | unreachable!
+    let us := info.levelParams.map mkLevelParam
+    let v ← mkFreshUserName `v
+    let enumType := mkConst enumName us
+    let sortV := mkSort (mkLevelParam v)
+    let toCtorIdx := mkConst (Name.mkStr enumName "toCtorIdx") us
+    let noConfusionType := mkConst (Name.mkStr enumName "noConfusionType") (mkLevelParam v :: us)
+    withLocalDecl `P BinderInfo.implicit sortV fun P =>
     withLocalDecl `x BinderInfo.implicit enumType fun x =>
     withLocalDecl `y BinderInfo.implicit enumType fun y => do
     withLocalDeclD `h (← mkEq x y) fun h => do
@@ -101,7 +107,7 @@ where
       let declName  := Name.mkStr enumName "noConfusion"
       addAndCompile <| Declaration.defnDecl {
         name        := declName
-        levelParams := [`u]
+        levelParams := v :: info.levelParams
         type        := declType
         value       := declValue
         safety      := DefinitionSafety.safe

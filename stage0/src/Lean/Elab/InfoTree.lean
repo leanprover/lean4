@@ -216,7 +216,7 @@ def ContextInfo.runMetaM (info : ContextInfo) (lctx : LocalContext) (x : MetaM Œ
     have been used in `lctx` and `info.mctx`.
   -/
   let ((a, _), _) ‚Üê
-    x.toIO { options := info.options, currNamespace := info.currNamespace, openDecls := info.openDecls }
+    x.toIO { options := info.options, currNamespace := info.currNamespace, openDecls := info.openDecls, fileName := "<InfoTree>", fileMap := default }
            { env := info.env, ngen := info.ngen }
   return a
 

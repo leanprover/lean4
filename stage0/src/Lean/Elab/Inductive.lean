@@ -78,7 +78,7 @@ private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc :
           let type := mkSort u
           Term.synthesizeSyntheticMVarsNoPostponing
           Term.addAutoBoundImplicits' params type fun params type => do
-            pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
+            return acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
         | some typeStx =>
           let (type, numImplicitIndices) ← Term.withAutoBoundImplicit do
             let type ← Term.elabType typeStx
@@ -89,17 +89,17 @@ private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc :
             return (← mkForallFVars indices type, indices.size)
           Term.addAutoBoundImplicits' params type fun params type => do
             trace[Elab.inductive] "header params: {params}, type: {type}"
-            pure <| acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
+            return acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
       elabHeaderAux views (i+1) acc
     else
-      pure acc
+      return acc
 
 private def checkNumParams (rs : Array ElabHeaderResult) : TermElabM Nat := do
   let numParams := rs[0].params.size
   for r in rs do
     unless r.params.size == numParams do
       throwErrorAt r.view.ref "invalid inductive type, number of parameters mismatch in mutually inductive datatypes"
-  pure numParams
+  return numParams
 
 private def checkUnsafe (rs : Array ElabHeaderResult) : TermElabM Unit := do
   let isUnsafe := rs[0].view.modifiers.isUnsafe
@@ -118,7 +118,7 @@ private def mkTypeFor (r : ElabHeaderResult) : TermElabM Expr := do
   withLCtx r.lctx r.localInsts do
     mkForallFVars r.params r.type
 
-private def throwUnexpectedInductiveType {α} : TermElabM α :=
+private def throwUnexpectedInductiveType : TermElabM α :=
   throwError "unexpected inductive resulting type"
 
 private def eqvFirstTypeResult (firstType type : Expr) : MetaM Bool :=
@@ -132,7 +132,7 @@ private partial def checkParamsAndResultType (type firstType : Expr) (numParams 
     forallTelescopeReducing firstType fun _ firstType => do
       let type ← whnfD type
       match type with
-      | Expr.sort .. =>
+      | .sort .. =>
         unless (← isDefEq firstType type) do
           throwError "resulting universe mismatch, given{indentExpr type}\nexpected type{indentExpr firstType}"
       | _ =>
@@ -145,7 +145,7 @@ private partial def checkParamsAndResultType (type firstType : Expr) (numParams 
 private def checkHeader (r : ElabHeaderResult) (numParams : Nat) (firstType? : Option Expr) : TermElabM Expr := do
   let type ← mkTypeFor r
   match firstType? with
-  | none           => pure type
+  | none           => return type
   | some firstType =>
     withRef r.view.ref <| checkParamsAndResultType type firstType numParams
     return firstType
@@ -169,7 +169,7 @@ private def elabHeader (views : Array InductiveView) : TermElabM (Array ElabHead
    We use the local context/instances and parameters of rs[0].
    Note that this method is executed after we executed `checkHeaders` and established all
    parameters are compatible. -/
-private partial def withInductiveLocalDecls {α} (rs : Array ElabHeaderResult) (x : Array Expr → Array Expr → TermElabM α) : TermElabM α := do
+private partial def withInductiveLocalDecls (rs : Array ElabHeaderResult) (x : Array Expr → Array Expr → TermElabM α) : TermElabM α := do
   let namesAndTypes ← rs.mapM fun r => do
     let type ← mkTypeFor r
     pure (r.view.shortDeclName, type)
@@ -377,7 +377,7 @@ private def getResultingUniverse : List InductiveType → TermElabM Level
   | indType :: _ => forallTelescopeReducing indType.type fun _ r => do
     let r ← whnfD r
     match r with
-    | Expr.sort u _ => pure u
+    | Expr.sort u _ => return u
     | _             => throwError "unexpected inductive type resulting type{indentExpr r}"
 
 /--
@@ -409,8 +409,8 @@ where
       let type  ← levelMVarToParam' indType.type
       let ctors ← indType.ctors.mapM fun ctor => do
         let ctorType ← levelMVarToParam' ctor.type
-        pure { ctor with type := ctorType }
-      pure { indType with ctors := ctors, type := type }
+        return { ctor with type := ctorType }
+      return { indType with ctors, type }
 
 def mkResultUniverse (us : Array Level) (rOffset : Nat) : Level :=
   if us.isEmpty && rOffset == 0 then
@@ -438,11 +438,11 @@ def accLevel (u : Level) (r : Level) (rOffset : Nat) : OptionT (StateT (Array Le
 where
   go (u : Level) (rOffset : Nat) : OptionT (StateT (Array Level) Id) Unit := do
     match u, rOffset with
-    | Level.max u v _,  rOffset   => go u rOffset; go v rOffset
-    | Level.imax u v _, rOffset   => go u rOffset; go v rOffset
-    | Level.zero _,     _         => return ()
-    | Level.succ u _,   rOffset+1 => go u rOffset
-    | u,                rOffset   =>
+    | .max u v _,  rOffset   => go u rOffset; go v rOffset
+    | .imax u v _, rOffset   => go u rOffset; go v rOffset
+    | .zero _,     _         => return ()
+    | .succ u _,   rOffset+1 => go u rOffset
+    | u,           rOffset   =>
       if rOffset == 0 && u == r then
         return ()
       else if r.occurs u  then
@@ -471,7 +471,7 @@ def accLevelAtCtor (ctor : Constructor) (ctorParam : Expr) (r : Level) (rOffset 
     let mut msg := m!"failed to compute resulting universe level of inductive datatype, constructor '{ctor.name}' has type{indentExpr ctor.type}\nparameter"
     let localDecl ← getFVarLocalDecl ctorParam
     unless localDecl.userName.hasMacroScopes do
-       msg := msg ++ m!" '{ctorParam}'"
+      msg := msg ++ m!" '{ctorParam}'"
     msg := msg ++ m!" has type{indentD m!"{type} : {typeType}"}\ninductive type resulting type{indentExpr (mkSort (r.addOffset rOffset))}"
     if r.isMVar then
       msg := msg ++ "\nrecall that Lean only infers the resulting universe level automatically when there is a unique solution for the universe level constraints, consider explicitly providing the inductive type resulting universe level"
@@ -512,7 +512,7 @@ private def updateResultingUniverse (views : Array InductiveView) (numParams : N
   indTypes.mapM fun indType => do
     let type ← instantiateMVars indType.type
     let ctors ← indType.ctors.mapM fun ctor => return { ctor with type := (← instantiateMVars ctor.type) }
-    return { indType with type := type, ctors := ctors }
+    return { indType with type, ctors }
 
 register_builtin_option bootstrap.inductiveCheckResultingUniverse : Bool := {
     defValue := true,
@@ -587,7 +587,7 @@ private def updateParams (vars : Array Expr) (indTypes : List InductiveType) : T
     let ctors ← indType.ctors.mapM fun ctor => do
       let ctorType ← withExplicitToImplicit vars (mkForallFVars vars ctor.type)
       return { ctor with type := ctorType }
-    return { indType with type := type, ctors := ctors }
+    return { indType with type, ctors }
 
 private def collectLevelParamsInInductive (indTypes : List InductiveType) : Array Name := Id.run do
   let mut usedParams : CollectLevelParams.State := {}
@@ -621,8 +621,8 @@ private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : 
             | none   => none
             | some c => mkAppN c (params.extract 0 numVars)
         mkForallFVars params type
-      return { ctor with type := type }
-    return { indType with ctors := ctors }
+      return { ctor with type }
+    return { indType with ctors }
 
 private def mkAuxConstructions (views : Array InductiveView) : TermElabM Unit := do
   let env ← getEnv
@@ -753,7 +753,7 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         let r       := rs[i]
         let type  ← mkForallFVars params r.type
         let ctors ← withExplicitToImplicit params (elabCtors indFVars indFVar params r)
-        indTypesArray := indTypesArray.push { name := r.view.declName, type := type, ctors := ctors : InductiveType }
+        indTypesArray := indTypesArray.push { name := r.view.declName, type, ctors }
       Term.synthesizeSyntheticMVarsNoPostponing
       let numExplicitParams ← fixedIndicesToParams params.size indTypesArray indFVars
       trace[Elab.inductive] "numExplicitParams: {numExplicitParams}"
@@ -772,8 +772,8 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
             levelMVarToParam indTypes none
         let usedLevelNames := collectLevelParamsInInductive indTypes
         match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
-        | Except.error msg      => throwError msg
-        | Except.ok levelParams => do
+        | .error msg      => throwError msg
+        | .ok levelParams => do
           let indTypes ← replaceIndFVarsWithConsts views indFVars levelParams numVars numParams indTypes
           let decl := Declaration.inductDecl levelParams numParams indTypes isUnsafe
           Term.ensureNoUnassignedMVars decl

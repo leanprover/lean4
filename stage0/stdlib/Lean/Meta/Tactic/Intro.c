@@ -1421,7 +1421,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_introNCore(lean_object* x_1, lean_object* x
 _start:
 {
 lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; uint8_t x_15; 
-x_11 = lean_ctor_get(x_8, 0);
+x_11 = lean_ctor_get(x_8, 2);
 lean_inc(x_11);
 x_12 = l_Lean_Meta_introNCore___closed__1;
 x_13 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_11, x_12);

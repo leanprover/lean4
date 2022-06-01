@@ -83,58 +83,66 @@ structure ElabMatchTypeAndDiscrsResult where
 
 private partial def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptMotive : Syntax) (matchAltViews : Array MatchAltView) (expectedType : Expr)
       : TermElabM ElabMatchTypeAndDiscrsResult := do
-    let numDiscrs := discrStxs.size
-    if matchOptMotive.isNone then
-      elabDiscrs 0 #[]
+  let numDiscrs := discrStxs.size
+  if matchOptMotive.isNone then
+    elabDiscrs 0 #[]
+  else
+    -- motive := leading_parser atomic ("(" >> nonReservedSymbol "motive" >> " := ") >> termParser >> ")"
+    let matchTypeStx := matchOptMotive[0][3]
+    let matchType ← elabType matchTypeStx
+    let (discrs, isDep) ← elabDiscrsWitMatchType matchType expectedType
+    return { discrs := discrs, matchType := matchType, isDep := isDep, alts := matchAltViews }
+where
+  /- Easy case: elaborate discriminant when the match-type has been explicitly provided by the user.  -/
+  elabDiscrsWitMatchType (matchType : Expr) (expectedType : Expr) : TermElabM (Array Discr × Bool) := do
+    let mut discrs := #[]
+    let mut i := 0
+    let mut matchType := matchType
+    let mut isDep := false
+    for discrStx in discrStxs do
+      i := i + 1
+      matchType ← whnf matchType
+      match matchType with
+      | Expr.forallE _ d b _ =>
+        let discr ← fullApproxDefEq <| elabTermEnsuringType discrStx[1] d
+        trace[Elab.match] "discr #{i} {discr} : {d}"
+        if b.hasLooseBVars then
+          isDep := true
+        matchType := b.instantiate1 discr
+        discrs := discrs.push { expr := discr }
+      | _ =>
+        throwError "invalid motive provided to match-expression, function type with arity #{discrStxs.size} expected"
+    return (discrs, isDep)
+
+  markIsDep (r : ElabMatchTypeAndDiscrsResult) :=
+    { r with isDep := true }
+
+  /- Elaborate discriminants inferring the match-type -/
+  elabDiscrs (i : Nat) (discrs : Array Discr) : TermElabM ElabMatchTypeAndDiscrsResult := do
+    if h : i < discrStxs.size then
+      let discrStx := discrStxs.get ⟨i, h⟩
+      let discr     ← elabAtomicDiscr discrStx
+      let discr     ← instantiateMVars discr
+      let userName ← mkUserNameFor discr
+      let h? := if discrStx[0].isNone then none else some discrStx[0][0]
+      let discrs := discrs.push { expr := discr, h? }
+      let mut result ← elabDiscrs (i + 1) discrs
+      let matchTypeBody ← kabstract result.matchType discr
+      if matchTypeBody.hasLooseBVars then
+        result := markIsDep result
+      /-
+        We use `transform (usedLetOnly := true)` to eliminate unnecessary let-expressions.
+        This transformation was added to address issue #1155, and avoid an unnecessary dependency.
+        In issue #1155, `discrType` was of the form `let _discr := OfNat.ofNat ... 0 ?m; ...`, and not removing
+        the unnecessary `let-expr` was introducing an artificial dependency to `?m`.
+        TODO: make sure that even when this kind of artificial dependecy occurs we catch it before sending
+        the term to the kernel.
+      -/
+      let discrType ← transform (usedLetOnly := true) (← instantiateMVars (← inferType discr))
+      let matchType := Lean.mkForall userName BinderInfo.default discrType matchTypeBody
+      return { result with matchType }
     else
-      -- motive := leading_parser atomic ("(" >> nonReservedSymbol "motive" >> " := ") >> termParser >> ")"
-      let matchTypeStx := matchOptMotive[0][3]
-      let matchType ← elabType matchTypeStx
-      let (discrs, isDep) ← elabDiscrsWitMatchType matchType expectedType
-      return { discrs := discrs, matchType := matchType, isDep := isDep, alts := matchAltViews }
-  where
-    /- Easy case: elaborate discriminant when the match-type has been explicitly provided by the user.  -/
-    elabDiscrsWitMatchType (matchType : Expr) (expectedType : Expr) : TermElabM (Array Discr × Bool) := do
-      let mut discrs := #[]
-      let mut i := 0
-      let mut matchType := matchType
-      let mut isDep := false
-      for discrStx in discrStxs do
-        i := i + 1
-        matchType ← whnf matchType
-        match matchType with
-        | Expr.forallE _ d b _ =>
-          let discr ← fullApproxDefEq <| elabTermEnsuringType discrStx[1] d
-          trace[Elab.match] "discr #{i} {discr} : {d}"
-          if b.hasLooseBVars then
-            isDep := true
-          matchType := b.instantiate1 discr
-          discrs := discrs.push { expr := discr }
-        | _ =>
-          throwError "invalid motive provided to match-expression, function type with arity #{discrStxs.size} expected"
-      return (discrs, isDep)
-
-    markIsDep (r : ElabMatchTypeAndDiscrsResult) :=
-      { r with isDep := true }
-
-    /- Elaborate discriminants inferring the match-type -/
-    elabDiscrs (i : Nat) (discrs : Array Discr) : TermElabM ElabMatchTypeAndDiscrsResult := do
-      if h : i < discrStxs.size then
-        let discrStx := discrStxs.get ⟨i, h⟩
-        let discr     ← elabAtomicDiscr discrStx
-        let discr     ← instantiateMVars discr
-        let discrType ← inferType discr
-        let discrType ← instantiateMVars discrType
-        let userName ← mkUserNameFor discr
-        let h? := if discrStx[0].isNone then none else some discrStx[0][0]
-        let discrs := discrs.push { expr := discr, h? }
-        let mut result ← elabDiscrs (i + 1) discrs
-        let matchTypeBody ← kabstract result.matchType discr
-        if matchTypeBody.hasLooseBVars then
-          result := markIsDep result
-        return { result with matchType := Lean.mkForall userName BinderInfo.default discrType matchTypeBody }
-      else
-        return { discrs, alts := matchAltViews, isDep := false, matchType := expectedType }
+      return { discrs, alts := matchAltViews, isDep := false, matchType := expectedType }
 
 def expandMacrosInPatterns (matchAlts : Array MatchAltView) : MacroM (Array MatchAltView) := do
   matchAlts.mapM fun matchAlt => do

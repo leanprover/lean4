@@ -13,172 +13,17 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_object* l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__6;
 lean_object* l_Lean_Elab_Tactic_pruneSolvedGoals(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_evalTacticAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_TermElabM_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_runTactic___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___elambda__1(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___elambda__1___boxed(lean_object*);
 lean_object* l_Lean_Elab_Tactic_run(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_runTactic(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__3;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__4;
-static lean_object* l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__8;
-static lean_object* l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__9;
-static lean_object* l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__7;
-static lean_object* l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__2;
 lean_object* l_Lean_MetavarContext_instantiateMVarDeclMVars(lean_object*, lean_object*);
-static lean_object* l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__1;
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext;
 lean_object* l___private_Lean_Elab_SyntheticMVars_0__Lean_Elab_Term_withSynthesizeImp___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___elambda__1(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; 
-x_2 = 0;
-return x_2;
-}
-}
-static lean_object* _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("", 0);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__2;
-x_2 = l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__1;
-x_3 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-lean_ctor_set(x_3, 2, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(32u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__4;
-x_2 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__6() {
-_start:
-{
-size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = 5;
-x_2 = l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__5;
-x_3 = l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__4;
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
-lean_ctor_set(x_5, 0, x_2);
-lean_ctor_set(x_5, 1, x_3);
-lean_ctor_set(x_5, 2, x_4);
-lean_ctor_set(x_5, 3, x_4);
-lean_ctor_set_usize(x_5, 4, x_1);
-return x_5;
-}
-}
-static lean_object* _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__7() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("<runTactic>", 11);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___elambda__1___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__9() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_1 = lean_box(0);
-x_2 = lean_box(0);
-x_3 = lean_box(0);
-x_4 = l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__7;
-x_5 = l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__3;
-x_6 = 1;
-x_7 = 0;
-x_8 = l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__6;
-x_9 = l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__8;
-x_10 = lean_alloc_ctor(0, 9, 8);
-lean_ctor_set(x_10, 0, x_4);
-lean_ctor_set(x_10, 1, x_5);
-lean_ctor_set(x_10, 2, x_1);
-lean_ctor_set(x_10, 3, x_2);
-lean_ctor_set(x_10, 4, x_8);
-lean_ctor_set(x_10, 5, x_9);
-lean_ctor_set(x_10, 6, x_3);
-lean_ctor_set(x_10, 7, x_3);
-lean_ctor_set(x_10, 8, x_1);
-lean_ctor_set_uint8(x_10, sizeof(void*)*9, x_6);
-lean_ctor_set_uint8(x_10, sizeof(void*)*9 + 1, x_6);
-lean_ctor_set_uint8(x_10, sizeof(void*)*9 + 2, x_7);
-lean_ctor_set_uint8(x_10, sizeof(void*)*9 + 3, x_6);
-lean_ctor_set_uint8(x_10, sizeof(void*)*9 + 4, x_7);
-lean_ctor_set_uint8(x_10, sizeof(void*)*9 + 5, x_7);
-lean_ctor_set_uint8(x_10, sizeof(void*)*9 + 6, x_7);
-lean_ctor_set_uint8(x_10, sizeof(void*)*9 + 7, x_6);
-return x_10;
-}
-}
-static lean_object* _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__9;
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___elambda__1___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___elambda__1(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_runTactic___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10) {
 _start:
 {
@@ -341,26 +186,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__1 = _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__1();
-lean_mark_persistent(l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__1);
-l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__2 = _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__2();
-lean_mark_persistent(l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__2);
-l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__3 = _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__3();
-lean_mark_persistent(l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__3);
-l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__4 = _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__4();
-lean_mark_persistent(l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__4);
-l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__5 = _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__5();
-lean_mark_persistent(l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__5);
-l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__6 = _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__6();
-lean_mark_persistent(l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__6);
-l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__7 = _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__7();
-lean_mark_persistent(l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__7);
-l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__8 = _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__8();
-lean_mark_persistent(l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__8);
-l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__9 = _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__9();
-lean_mark_persistent(l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext___closed__9);
-l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext = _init_l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext();
-lean_mark_persistent(l___private_Lean_Elab_Tactic_Meta_0__Lean_Elab_runTactic_defaultContext);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

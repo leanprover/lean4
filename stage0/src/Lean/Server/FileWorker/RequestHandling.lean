@@ -13,6 +13,7 @@ import Lean.Server.FileWorker.Utils
 import Lean.Server.Requests
 import Lean.Server.Completion
 import Lean.Server.References
+import Lean.Server.GoTo
 
 import Lean.Widget.InteractiveGoal
 
@@ -21,7 +22,7 @@ open Lsp
 open RequestM
 open Snapshots
 
-partial def handleCompletion (p : CompletionParams)
+def handleCompletion (p : CompletionParams)
     : RequestM (RequestTask CompletionList) := do
   let doc ← readDoc
   let text := doc.meta.text
@@ -38,7 +39,7 @@ partial def handleCompletion (p : CompletionParams)
       return { items := #[ ], isIncomplete := true }
 
 open Elab in
-partial def handleHover (p : HoverParams)
+def handleHover (p : HoverParams)
     : RequestM (RequestTask (Option Hover)) := do
   let doc ← readDoc
   let text := doc.meta.text
@@ -57,55 +58,25 @@ partial def handleHover (p : HoverParams)
 
       return none
 
-inductive GoToKind
-  | declaration | definition | type
-  deriving BEq
-
 open Elab GoToKind in
-partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
-    : RequestM (RequestTask (Array LocationLink)) := do
+def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info)
+    (infoTree? : Option InfoTree := none) : RequestM (Array LocationLink) := do
   let rc ← read
   let doc ← readDoc
   let text := doc.meta.text
-  let hoverPos := text.lspPosToUtf8Pos p.position
 
-  let documentUriFromModule (modName : Name) : MetaM (Option DocumentUri) := do
-    let some modFname ← rc.srcSearchPath.findModuleWithExt "lean" modName
-      | pure none
-    -- resolve symlinks (such as `src` in the build dir) so that files are opened
-    -- in the right folder
-    let modFname ← IO.FS.realPath modFname
-    pure <| some <| Lsp.DocumentUri.ofPath modFname
+  let locationLinksFromDecl (i : Elab.Info) (n : Name) :=
+    locationLinksFromDecl rc.srcSearchPath doc.meta.uri n <| (·.toLspRange text) <$> i.range?
 
-  let locationLinksFromDecl (i : Elab.Info) (n : Name) := do
-    let mod? ← findModuleOf? n
-    let modUri? ← match mod? with
-      | some modName => documentUriFromModule modName
-      | none         => pure <| some doc.meta.uri
-
-    let ranges? ← findDeclarationRanges? n
-    if let (some ranges, some modUri) := (ranges?, modUri?) then
-      let declRangeToLspRange (r : DeclarationRange) : Lsp.Range :=
-        { start := ⟨r.pos.line - 1, r.charUtf16⟩
-          «end» := ⟨r.endPos.line - 1, r.endCharUtf16⟩ }
-      let ll : LocationLink := {
-        originSelectionRange? := (·.toLspRange text) <$> i.range?
-        targetUri := modUri
-        targetRange := declRangeToLspRange ranges.range
-        targetSelectionRange := declRangeToLspRange ranges.selectionRange
-      }
-      return #[ll]
-    return #[]
-
-  let locationLinksFromBinder (t : InfoTree) (i : Elab.Info) (id : FVarId) := do
-    if let some i' := t.findInfo? fun
+  let locationLinksFromBinder (i : Elab.Info) (id : FVarId) := do
+    if let some i' := infoTree? >>= InfoTree.findInfo? fun
         | Info.ofTermInfo { isBinder := true, expr := Expr.fvar id' .., .. } => id' == id
         | _ => false then
       if let some r := i'.range? then
         let r := r.toLspRange text
         let ll : LocationLink := {
           originSelectionRange? := (·.toLspRange text) <$> i.range?
-          targetUri := p.textDocument.uri
+          targetUri := doc.meta.uri
           targetRange := r
           targetSelectionRange := r
         }
@@ -114,10 +85,10 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
 
   let locationLinksFromImport (i : Elab.Info) := do
     let name := i.stx[2].getId
-    if let some modUri ← documentUriFromModule name then
+    if let some modUri ← documentUriFromModule rc.srcSearchPath name then
       let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
       let ll : LocationLink := {
-        originSelectionRange? := none
+        originSelectionRange? := (·.toLspRange text) <$> i.stx[2].getRange? (originalOnly := true)
         targetUri := modUri
         targetRange := range
         targetSelectionRange := range
@@ -125,36 +96,47 @@ partial def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
       return #[ll]
     return #[]
 
+  if let Info.ofTermInfo ti := i then
+    let mut expr := ti.expr
+    if kind == type then
+      expr ← ci.runMetaM i.lctx do
+        return Expr.getAppFn (← Meta.instantiateMVars (← Meta.inferType expr))
+    match expr with
+    | Expr.const n .. => return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
+    | Expr.fvar id .. => return ← ci.runMetaM i.lctx <| locationLinksFromBinder i id
+    | _ => pure ()
+  if let Info.ofFieldInfo fi := i then
+    if kind == type then
+      let expr ← ci.runMetaM i.lctx do
+        Meta.instantiateMVars (← Meta.inferType fi.val)
+      if let some n := expr.getAppFn.constName? then
+        return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
+    else
+      return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
+  if let Info.ofCommandInfo ⟨`import, _⟩ := i then
+    if kind == definition || kind == declaration then
+      return ← ci.runMetaM i.lctx <| locationLinksFromImport i
+  -- If other go-tos fail, we try to show the elaborator or parser
+  if let some ei := i.toElabInfo? then
+    if kind == declaration && ci.env.contains ei.stx.getKind then
+      return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.stx.getKind
+    if kind == definition && ci.env.contains ei.elaborator then
+      return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
+  return #[]
+
+open Elab GoToKind in
+def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
+    : RequestM (RequestTask (Array LocationLink)) := do
+  let rc ← read
+  let doc ← readDoc
+  let text := doc.meta.text
+  let hoverPos := text.lspPosToUtf8Pos p.position
+
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure #[]) fun snap => do
-      if let some (ci, i) := snap.infoTree.hoverableInfoAt? hoverPos then
-        if let Info.ofTermInfo ti := i then
-          let mut expr := ti.expr
-          if kind == type then
-            expr ← ci.runMetaM i.lctx do
-              return Expr.getAppFn (← Meta.instantiateMVars (← Meta.inferType expr))
-          match expr with
-          | Expr.const n .. => return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
-          | Expr.fvar id .. => return ← ci.runMetaM i.lctx <| locationLinksFromBinder snap.infoTree i id
-          | _ => pure ()
-        if let Info.ofFieldInfo fi := i then
-          if kind == type then
-            let expr ← ci.runMetaM i.lctx do
-              Meta.instantiateMVars (← Meta.inferType fi.val)
-            if let some n := expr.getAppFn.constName? then
-              return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
-          else
-            return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
-        if let Info.ofCommandInfo ⟨`import, _⟩ := i then
-          if kind == definition || kind == declaration then
-            return ← ci.runMetaM i.lctx <| locationLinksFromImport i
-        -- If other go-tos fail, we try to show the elaborator or parser
-        if let some ei := i.toElabInfo? then
-          if kind == declaration && ci.env.contains ei.stx.getKind then
-            return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.stx.getKind
-          if kind == definition && ci.env.contains ei.elaborator then
-            return ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
-      return #[]
+      if let some (ci, i) := snap.infoTree.hoverableInfoAt? (includeStop := true /- #767 -/) hoverPos then
+        locationLinksOfInfo kind ci i snap.infoTree
+      else return #[]
 
 open RequestM in
 def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Option Widget.InteractiveGoals)) := do
@@ -174,7 +156,7 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
         return none
 
 open Elab in
-partial def handlePlainGoal (p : PlainGoalParams)
+def handlePlainGoal (p : PlainGoalParams)
     : RequestM (RequestTask (Option PlainGoal)) := do
   let t ← getInteractiveGoals p
   return t.map <| Except.map <| Option.map <| fun ⟨goals⟩ =>
@@ -188,7 +170,7 @@ partial def handlePlainGoal (p : PlainGoalParams)
       let md := String.intercalate "\n---\n" goalBlocks.toList
       { goals := goalStrs, rendered := md }
 
-partial def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
+def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
     : RequestM (RequestTask (Option Widget.InteractiveTermGoal)) := do
   let doc ← readDoc
   let text := doc.meta.text

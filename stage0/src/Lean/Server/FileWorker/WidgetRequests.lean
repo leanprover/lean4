@@ -102,4 +102,25 @@ builtin_initialize
     (Array InteractiveDiagnostic)
     getInteractiveDiagnostics
 
+structure GetGoToLocationParams where
+  kind : GoToKind
+  info : WithRpcRef InfoWithCtx
+  deriving RpcEncoding
+
+builtin_initialize
+  registerBuiltinRpcProcedure
+    `Lean.Widget.getGoToLocation
+    GetGoToLocationParams
+    (Array Lsp.LocationLink)
+    fun ⟨kind, ⟨i⟩⟩ => RequestM.asTask do
+      let rc ← read
+      let ls ← FileWorker.locationLinksOfInfo kind i.ctx i.info
+      if !ls.isEmpty then return ls
+      -- TODO(WN): unify handling of delab'd (infoview) and elab'd (editor) applications
+      let .ofTermInfo ti := i.info | return #[]
+      let .app _ _ _ := ti.expr | return #[]
+      let some nm := ti.expr.getAppFn.constName? | return #[]
+      i.ctx.runMetaM ti.lctx <|
+        locationLinksFromDecl rc.srcSearchPath rc.doc.meta.uri nm none
+
 end Lean.Widget

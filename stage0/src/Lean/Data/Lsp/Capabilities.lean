@@ -18,19 +18,28 @@ namespace Lsp
 open Json
 
 structure CompletionItemCapabilities where
-  insertReplaceSupport? : Option Bool
+  insertReplaceSupport? : Option Bool := none
   deriving ToJson, FromJson
 
 structure CompletionClientCapabilities where
-  completionItem? : Option CompletionItemCapabilities
+  completionItem? : Option CompletionItemCapabilities := none
   deriving ToJson, FromJson
 
 structure TextDocumentClientCapabilities where
-  completion? : Option CompletionClientCapabilities
+  completion? : Option CompletionClientCapabilities := none
+  deriving ToJson, FromJson
+
+structure ShowDocumentClientCapabilities where
+  support : Bool
+  deriving ToJson, FromJson
+
+structure WindowClientCapabilities where
+  showDocument? : Option ShowDocumentClientCapabilities := none
   deriving ToJson, FromJson
 
 structure ClientCapabilities where
-  textDocument? : Option TextDocumentClientCapabilities
+  textDocument? : Option TextDocumentClientCapabilities := none
+  window? : Option WindowClientCapabilities := none
   deriving ToJson, FromJson
 
 -- TODO largely unimplemented

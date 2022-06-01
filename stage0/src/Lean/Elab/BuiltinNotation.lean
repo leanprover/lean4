@@ -166,7 +166,6 @@ interpolated string literal) to stderr. It should only be used for debugging. -/
 
 /-- A temporary placeholder for a missing proof or value. -/
 @[builtinTermElab «sorry»] def elabSorry : TermElab := fun stx expectedType? => do
-  logWarning "declaration uses 'sorry'"
   let stxNew ← `(sorryAx _ false)
   withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
 

@@ -85,7 +85,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Structural_instInhabit
 _start:
 {
 lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_8 = lean_ctor_get(x_5, 3);
+x_8 = lean_ctor_get(x_5, 5);
 x_9 = l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(x_1, x_3, x_4, x_5, x_6, x_7);
 x_10 = !lean_is_exclusive(x_9);
 if (x_10 == 0)

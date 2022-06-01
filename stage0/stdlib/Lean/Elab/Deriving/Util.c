@@ -548,7 +548,7 @@ LEAN_EXPORT lean_object* l_Lean_MonadRef_mkInfoFromRefPos___at_Lean_Elab_Derivin
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_ctor_get(x_1, 3);
+x_4 = lean_ctor_get(x_1, 5);
 lean_inc(x_4);
 lean_dec(x_1);
 x_5 = l_Lean_SourceInfo_fromRef(x_4);
@@ -1316,8 +1316,8 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Deriving_mkContext___s
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_9 = lean_ctor_get(x_6, 3);
-x_10 = lean_ctor_get(x_2, 3);
+x_9 = lean_ctor_get(x_6, 5);
+x_10 = lean_ctor_get(x_2, 1);
 lean_inc(x_10);
 lean_inc(x_10);
 x_11 = l_Lean_Elab_getBetterRef(x_9, x_10);

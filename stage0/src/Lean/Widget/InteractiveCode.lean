@@ -21,14 +21,19 @@ structure InfoWithCtx where
   info : Elab.Info
   deriving Inhabited, RpcEncoding with { withRef := true }
 
-structure CodeToken where
+/-- Information about a subexpression within delaborated code. -/
+structure SubexprInfo where
+  /-- The `Elab.Info` node with the semantics of this part of the output. -/
   info : WithRpcRef InfoWithCtx
+  /-- The position of this subexpression within the top-level expression.
+  See `Lean.PrettyPrinter.Delaborator.SubExpr`. -/
+  subexprPos : Nat
   -- TODO(WN): add fields for semantic highlighting
   -- kind : Lsp.SymbolKind
   deriving Inhabited, RpcEncoding
 
 /-- Pretty-printed syntax (usually but not necessarily an `Expr`) with embedded `Info`s. -/
-abbrev CodeWithInfos := TaggedText CodeToken
+abbrev CodeWithInfos := TaggedText SubexprInfo
 
 def CodeWithInfos.pretty (tt : CodeWithInfos) :=
   tt.stripTags
@@ -42,11 +47,14 @@ where
     tt.rewrite fun (n, _) subTt =>
       match infos.find? n with
       | none   => go subTt
-      | some i => TaggedText.tag ⟨WithRpcRef.mk { ctx, info := i }⟩ (go subTt)
+      | some i => TaggedText.tag ⟨WithRpcRef.mk { ctx, info := i }, n⟩ (go subTt)
 
 def exprToInteractive (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
   let optsPerPos := if explicit then
-    Std.RBMap.ofList [(1, KVMap.empty.setBool `pp.all true)]
+    Std.RBMap.ofList [
+      (1, KVMap.empty.setBool `pp.all true),
+      (1, KVMap.empty.setBool `pp.tagAppFns true)
+    ]
   else
     {}
   let (fmt, infos) ← PrettyPrinter.ppExprWithInfos e optsPerPos

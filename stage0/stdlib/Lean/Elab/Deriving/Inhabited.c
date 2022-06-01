@@ -7420,8 +7420,8 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_Deriving_Inh
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_9 = lean_ctor_get(x_6, 3);
-x_10 = lean_ctor_get(x_2, 3);
+x_9 = lean_ctor_get(x_6, 5);
+x_10 = lean_ctor_get(x_2, 1);
 lean_inc(x_10);
 lean_inc(x_10);
 x_11 = l_Lean_Elab_getBetterRef(x_9, x_10);
@@ -7595,8 +7595,8 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_Deriving_Inh
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_9 = lean_ctor_get(x_6, 3);
-x_10 = lean_ctor_get(x_2, 3);
+x_9 = lean_ctor_get(x_6, 5);
+x_10 = lean_ctor_get(x_2, 1);
 lean_inc(x_10);
 lean_inc(x_10);
 x_11 = l_Lean_Elab_getBetterRef(x_9, x_10);
@@ -8140,7 +8140,7 @@ lean_inc(x_61);
 x_62 = lean_ctor_get(x_60, 1);
 lean_inc(x_62);
 lean_dec(x_60);
-x_63 = lean_ctor_get(x_12, 8);
+x_63 = lean_ctor_get(x_12, 10);
 lean_inc(x_63);
 x_64 = lean_st_ref_get(x_13, x_62);
 x_65 = lean_ctor_get(x_64, 0);
@@ -8383,7 +8383,7 @@ lean_inc(x_23);
 x_24 = lean_ctor_get(x_22, 1);
 lean_inc(x_24);
 lean_dec(x_22);
-x_25 = lean_ctor_get(x_14, 8);
+x_25 = lean_ctor_get(x_14, 10);
 lean_inc(x_25);
 x_26 = lean_st_ref_get(x_15, x_24);
 x_27 = lean_ctor_get(x_26, 0);
@@ -8954,7 +8954,7 @@ lean_inc(x_30);
 x_31 = lean_ctor_get(x_29, 1);
 lean_inc(x_31);
 lean_dec(x_29);
-x_32 = lean_ctor_get(x_8, 8);
+x_32 = lean_ctor_get(x_8, 10);
 lean_inc(x_32);
 x_33 = lean_st_ref_get(x_9, x_31);
 x_34 = lean_ctor_get(x_33, 0);

@@ -911,7 +911,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_ParserCompiler_CombinatorAt
 _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_ctor_get(x_2, 3);
+x_5 = lean_ctor_get(x_2, 5);
 x_6 = l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(x_1, x_2, x_3, x_4);
 x_7 = !lean_is_exclusive(x_6);
 if (x_7 == 0)
@@ -957,7 +957,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_ParserCompiler_CombinatorAt
 _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_ctor_get(x_2, 3);
+x_5 = lean_ctor_get(x_2, 5);
 x_6 = l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(x_1, x_2, x_3, x_4);
 x_7 = !lean_is_exclusive(x_6);
 if (x_7 == 0)
@@ -1049,7 +1049,7 @@ lean_dec(x_5);
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
 lean_dec(x_6);
-x_9 = lean_ctor_get(x_2, 0);
+x_9 = lean_ctor_get(x_2, 2);
 x_10 = lean_eval_const(x_8, x_9, x_1);
 lean_dec(x_1);
 lean_dec(x_8);

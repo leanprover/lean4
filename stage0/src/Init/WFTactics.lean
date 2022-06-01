@@ -27,4 +27,4 @@ macro "decreasing_with " ts:tacticSeq : tactic =>
     | $ts:tacticSeq
     | fail "failed to prove termination, possible solutions:\n  - Use `have`-expressions to prove the remaining goals\n  - Use `termination_by` to specify a different well-founded relation\n  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal"))
 
-macro "decreasing_tactic" : tactic => `(decreasing_with decreasing_trivial)
+macro "decreasing_tactic" : tactic => `(decreasing_with first | decreasing_trivial | subst_vars; decreasing_trivial)

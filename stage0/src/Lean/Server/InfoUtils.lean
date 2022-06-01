@@ -14,8 +14,8 @@ protected structure String.Range where
   stop  : String.Pos
   deriving Inhabited, Repr
 
-def String.Range.contains (r : String.Range) (pos : String.Pos) : Bool :=
-  r.start <= pos && pos < r.stop
+def String.Range.contains (r : String.Range) (pos : String.Pos) (includeStop := false) : Bool :=
+  r.start <= pos && (if includeStop then pos <= r.stop else pos < r.stop)
 
 def Lean.Syntax.getRange? (stx : Syntax) (originalOnly := false) : Option String.Range :=
   match stx.getPos? originalOnly, stx.getTailPos? originalOnly with
@@ -24,19 +24,25 @@ def Lean.Syntax.getRange? (stx : Syntax) (originalOnly := false) : Option String
 
 namespace Lean.Elab
 
+/-- Visit nodes, passing in a surrounding context (the innermost one) and accumulating results on the way back up. -/
+partial def InfoTree.visitM [Monad m] [Inhabited α]
+    (preNode  : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
+    (postNode : ContextInfo → Info → (children : Std.PersistentArray InfoTree) → List (Option α) → m α)
+    : InfoTree → m (Option α) :=
+  go none
+where go
+  | _, context ctx t => go ctx t
+  | some ctx, n@(node i cs) => do
+    preNode ctx i cs
+    let as ← cs.toList.mapM (go <| i.updateContext? ctx)
+    postNode ctx i cs as
+  | none, node .. => panic! "unexpected context-free info tree node"
+  | _, hole .. => pure none
+
 /--
   Visit nodes bottom-up, passing in a surrounding context (the innermost one) and the union of nested results (empty at leaves). -/
-partial def InfoTree.collectNodesBottomUp (p : ContextInfo → Info → Std.PersistentArray InfoTree → List α → List α) : InfoTree → List α :=
-  go none
-where go ctx?
-  | context ctx t => go ctx t
-  | n@(node i cs) =>
-    let ccs := cs.toList.map (go <| i.updateContext? ctx?)
-    let cs' := ccs.join
-    match ctx? with
-      | some ctx => p ctx i cs cs'
-      | _        => []
-  | _ => []
+def InfoTree.collectNodesBottomUp (p : ContextInfo → Info → Std.PersistentArray InfoTree → List α → List α) (i : InfoTree) : List α :=
+  i.visitM (m := Id) (postNode := fun ci i cs as => p ci i cs (as.filterMap id).join) |>.getD []
 
 /--
   For every branch of the `InfoTree`, find the deepest node in that branch for which `p` returns
@@ -99,8 +105,8 @@ def Info.tailPos? (i : Info) : Option String.Pos :=
 def Info.range? (i : Info) : Option String.Range :=
   i.stx.getRange? (originalOnly := true)
 
-def Info.contains (i : Info) (pos : String.Pos) : Bool :=
-  i.range?.any (·.contains pos)
+def Info.contains (i : Info) (pos : String.Pos) (includeStop := false) : Bool :=
+  i.range?.any (·.contains pos includeStop)
 
 def Info.size? (i : Info) : Option String.Pos := do
   let pos ← i.pos?
@@ -135,11 +141,15 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
 
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
-partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) := Id.run do
-  let res := t.smallestInfo? fun i => Id.run do
-    if i matches Info.ofFieldInfo _ || i.toElabInfo?.isSome then
-      return i.contains hoverPos
-    return false
+partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) : Option (ContextInfo × Info) := Id.run do
+  let (_, res) := StateT.run (m := Id) (s := none) <| t.visitM (postNode := fun ctx i _ _ => do
+    if (i matches Info.ofFieldInfo _ || i.toElabInfo?.isSome) && i.contains hoverPos includeStop then
+      -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
+      if let some (_, i') := (← get) then
+        if i'.range?.get!.stop == hoverPos && i.range?.get!.start == hoverPos then
+          set <| some (ctx, i)
+      else
+        set <| some (ctx, i))
   if let some (_, Info.ofTermInfo ti) := res then
     if ti.expr.isSyntheticSorry then
       return none
@@ -221,6 +231,8 @@ structure GoalsAtResult where
   useAfter   : Bool
   /-- Whether the tactic info is further indented than the hover position. -/
   indented   : Bool
+  -- for overlapping goals, only keep those of the highest reported priority
+  priority   : Nat
 
 /-
   Try to retrieve `TacticInfo` for `hoverPos`.
@@ -238,22 +250,30 @@ structure GoalsAtResult where
   - the hover position is after the info's start position *and*
   - there is no nested tactic info after the hover position (tactic combinators should decide for themselves
     where to show intermediate states by calling `withTacticInfoContext`) -/
-partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult := Id.run do
-  t.collectNodesBottomUp fun ctx i cs gs => Id.run do
+partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List GoalsAtResult :=
+  let gs := t.collectNodesBottomUp fun ctx i cs gs => Id.run do
     if let Info.ofTacticInfo ti := i then
       if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
         let trailSize := i.stx.getTrailingSize
         -- show info at EOF even if strictly outside token + trail
         let atEOF := tailPos.byteIdx + trailSize == text.source.endPos.byteIdx
-        if pos ≤ hoverPos ∧ (hoverPos.byteIdx < tailPos.byteIdx + trailSize || atEOF) then
+        -- include at least one trailing character (see also `priority` below)
+        if pos ≤ hoverPos ∧ (hoverPos.byteIdx < tailPos.byteIdx + max 1 trailSize || atEOF) then
           -- overwrite bottom-up results according to "innermost" heuristics documented above
           if gs.isEmpty || hoverPos ≥ tailPos && gs.all (·.indented) then
             return [{
               ctxInfo := ctx
               tacticInfo := ti
               useAfter := hoverPos > pos && !cs.any (hasNestedTactic pos tailPos)
-              indented := (text.toPosition pos).column > (text.toPosition hoverPos).column }]
+              indented := (text.toPosition pos).column > (text.toPosition hoverPos).column
+              -- use goals just before cursor as fall-back only
+              -- thus for `(by foo)`, placing the cursor after `foo` shows its state as long
+              -- as there is no state on `)`
+              priority := if hoverPos.byteIdx == tailPos.byteIdx + trailSize then 0 else 1
+            }]
     return gs
+  let maxPrio? := gs.map (·.priority) |>.maximum?
+  gs.filter (some ·.priority == maxPrio?)
 where
   hasNestedTactic (pos tailPos) : InfoTree → Bool
     | InfoTree.node i@(Info.ofTacticInfo _) cs => Id.run do

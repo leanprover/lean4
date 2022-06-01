@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DeclarationRange
-// Imports: Init Lean.DeclarationRange Lean.Elab.Log Lean.Data.Lsp.Utf16
+// Imports: Init Lean.Log Lean.Parser.Command Lean.DeclarationRange Lean.Data.Lsp.Utf16
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -479,8 +479,9 @@ return x_2;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Log(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Parser_Command(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_DeclarationRange(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_Log(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Utf16(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_DeclarationRange(uint8_t builtin, lean_object* w) {
@@ -490,10 +491,13 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_DeclarationRange(builtin, lean_io_mk_world());
+res = initialize_Lean_Log(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Log(builtin, lean_io_mk_world());
+res = initialize_Lean_Parser_Command(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_DeclarationRange(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Lsp_Utf16(builtin, lean_io_mk_world());

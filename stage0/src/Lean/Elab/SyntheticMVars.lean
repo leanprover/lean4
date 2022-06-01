@@ -233,7 +233,7 @@ def reportStuckSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (ignoreStuc
       unless ignoreStuckTC do
         withMVarContext mvarSyntheticDecl.mvarId do
           let mvarDecl ← getMVarDecl mvarSyntheticDecl.mvarId
-          unless (← get).messages.hasErrors do
+          unless (← Core.hasErrors) do
             throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}"
     | SyntheticMVarKind.coe header eNew expectedType eType e f? =>
       let mvarId := eNew.appArg!.mvarId!

@@ -254,17 +254,17 @@ x_12 = !lean_is_exclusive(x_9);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_13 = lean_ctor_get(x_9, 3);
+x_13 = lean_ctor_get(x_9, 5);
 x_14 = l_Lean_replaceRef(x_1, x_13);
 lean_dec(x_13);
-lean_ctor_set(x_9, 3, x_14);
+lean_ctor_set(x_9, 5, x_14);
 x_15 = l_Lean_throwError___at_Lean_Elab_Tactic_refineCore___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_9);
 return x_15;
 }
 else
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_16 = lean_ctor_get(x_9, 0);
 x_17 = lean_ctor_get(x_9, 1);
 x_18 = lean_ctor_get(x_9, 2);
@@ -274,6 +274,10 @@ x_21 = lean_ctor_get(x_9, 5);
 x_22 = lean_ctor_get(x_9, 6);
 x_23 = lean_ctor_get(x_9, 7);
 x_24 = lean_ctor_get(x_9, 8);
+x_25 = lean_ctor_get(x_9, 9);
+x_26 = lean_ctor_get(x_9, 10);
+lean_inc(x_26);
+lean_inc(x_25);
 lean_inc(x_24);
 lean_inc(x_23);
 lean_inc(x_22);
@@ -284,21 +288,23 @@ lean_inc(x_18);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_dec(x_9);
-x_25 = l_Lean_replaceRef(x_1, x_19);
-lean_dec(x_19);
-x_26 = lean_alloc_ctor(0, 9, 0);
-lean_ctor_set(x_26, 0, x_16);
-lean_ctor_set(x_26, 1, x_17);
-lean_ctor_set(x_26, 2, x_18);
-lean_ctor_set(x_26, 3, x_25);
-lean_ctor_set(x_26, 4, x_20);
-lean_ctor_set(x_26, 5, x_21);
-lean_ctor_set(x_26, 6, x_22);
-lean_ctor_set(x_26, 7, x_23);
-lean_ctor_set(x_26, 8, x_24);
-x_27 = l_Lean_throwError___at_Lean_Elab_Tactic_refineCore___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_26, x_10, x_11);
-lean_dec(x_26);
-return x_27;
+x_27 = l_Lean_replaceRef(x_1, x_21);
+lean_dec(x_21);
+x_28 = lean_alloc_ctor(0, 11, 0);
+lean_ctor_set(x_28, 0, x_16);
+lean_ctor_set(x_28, 1, x_17);
+lean_ctor_set(x_28, 2, x_18);
+lean_ctor_set(x_28, 3, x_19);
+lean_ctor_set(x_28, 4, x_20);
+lean_ctor_set(x_28, 5, x_27);
+lean_ctor_set(x_28, 6, x_22);
+lean_ctor_set(x_28, 7, x_23);
+lean_ctor_set(x_28, 8, x_24);
+lean_ctor_set(x_28, 9, x_25);
+lean_ctor_set(x_28, 10, x_26);
+x_29 = l_Lean_throwError___at_Lean_Elab_Tactic_refineCore___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_28, x_10, x_11);
+lean_dec(x_28);
+return x_29;
 }
 }
 }

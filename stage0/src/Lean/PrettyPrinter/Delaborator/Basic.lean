@@ -157,6 +157,15 @@ def whenNotPPOption (opt : Options → Bool) (d : Delab) : Delab := do
   let b ← getPPOption opt
   if b then failure else d
 
+/-- Set the given option at the current position and execute `x` in this context. -/
+def withOptionAtCurrPos (k : Name) (v : DataValue) (x : DelabM α) : DelabM α := do
+  let pos ← getPos
+  withReader
+    (fun ctx =>
+      let opts' := ctx.optionsPerPos.find? pos |>.getD {} |>.insert k v
+      { ctx with optionsPerPos := ctx.optionsPerPos.insert pos opts' })
+    x
+
 def annotatePos (pos : Pos) (stx : Syntax) : Syntax :=
   stx.setInfo (SourceInfo.synthetic ⟨pos⟩ ⟨pos⟩)
 

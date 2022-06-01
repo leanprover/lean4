@@ -3,10 +3,10 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Log
 import Lean.Parser.Command
 import Lean.ResolveName
 import Lean.Meta.Reduce
-import Lean.Elab.Log
 import Lean.Elab.Term
 import Lean.Elab.Tactic.Cache
 import Lean.Elab.Binders
@@ -117,7 +117,9 @@ def mkMessageAux (ctx : Context) (ref : Syntax) (msgData : MessageData) (severit
 
 private def mkCoreContext (ctx : Context) (s : State) (heartbeats : Nat) : Core.Context :=
   let scope        := s.scopes.head!
-  { options        := scope.opts
+  { fileName       := ctx.fileName
+    fileMap        := ctx.fileMap
+    options        := scope.opts
     currRecDepth   := ctx.currRecDepth
     maxRecDepth    := s.maxRecDepth
     ref            := ctx.ref
@@ -126,15 +128,34 @@ private def mkCoreContext (ctx : Context) (s : State) (heartbeats : Nat) : Core.
     initHeartbeats := heartbeats
     currMacroScope := ctx.currMacroScope }
 
-def liftCoreM {α} (x : CoreM α) : CommandElabM α := do
+private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog :=
+  traceState.traces.foldl (init := log) fun (log : MessageLog) traceElem =>
+    let ref := replaceRef traceElem.ref ctx.ref
+    let pos := ref.getPos?.getD 0
+    let endPos := ref.getTailPos?.getD pos
+    log.add (mkMessageCore ctx.fileName ctx.fileMap traceElem.msg MessageSeverity.information pos endPos)
+
+private def addTraceAsMessages : CommandElabM Unit := do
+  let ctx ← read
+  modify fun s => { s with
+    messages          := addTraceAsMessagesCore ctx s.messages s.traceState
+    traceState.traces := {}
+  }
+
+def liftCoreM (x : CoreM α) : CommandElabM α := do
   let s ← get
   let ctx ← read
   let heartbeats ← IO.getNumHeartbeats
   let Eα := Except Exception α
   let x : CoreM Eα := try let a ← x; pure <| Except.ok a catch ex => pure <| Except.error ex
-  let x : EIO Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s heartbeats)).run { env := s.env, ngen := s.ngen, traceState := s.traceState }
+  let x : EIO Exception (Eα × Core.State) := (ReaderT.run x (mkCoreContext ctx s heartbeats)).run { env := s.env, ngen := s.ngen, traceState := s.traceState, messages := {} }
   let (ea, coreS) ← liftM x
-  modify fun s => { s with env := coreS.env, ngen := coreS.ngen, traceState := coreS.traceState }
+  modify fun s => { s with
+    env := coreS.env
+    ngen := coreS.ngen
+    messages   := addTraceAsMessagesCore ctx (s.messages ++ coreS.messages) coreS.traceState
+    traceState := coreS.traceState
+  }
   match ea with
   | Except.ok a    => pure a
   | Except.error e => throw e
@@ -199,20 +220,6 @@ unsafe def mkCommandElabAttributeUnsafe : IO (KeyedDeclsAttribute CommandElab) :
 constant mkCommandElabAttribute : IO (KeyedDeclsAttribute CommandElab)
 
 builtin_initialize commandElabAttribute : KeyedDeclsAttribute CommandElab ← mkCommandElabAttribute
-
-private def addTraceAsMessagesCore (ctx : Context) (log : MessageLog) (traceState : TraceState) : MessageLog :=
-  traceState.traces.foldl (init := log) fun (log : MessageLog) traceElem =>
-    let ref := replaceRef traceElem.ref ctx.ref
-    let pos := ref.getPos?.getD 0
-    let endPos := ref.getTailPos?.getD pos
-    log.add (mkMessageCore ctx.fileName ctx.fileMap traceElem.msg MessageSeverity.information pos endPos)
-
-private def addTraceAsMessages : CommandElabM Unit := do
-  let ctx ← read
-  modify fun s => { s with
-    messages          := addTraceAsMessagesCore ctx s.messages s.traceState
-    traceState.traces := {}
-  }
 
 private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : Std.PersistentArray InfoTree) : CommandElabM InfoTree := do
   let ctx ← read
@@ -347,15 +354,12 @@ private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) 
   for id in scope.varDecls.concatMap getBracketedBinderIds, uid in scope.varUIds do
     sectionVars := sectionVars.insert id uid
   { macroStack             := ctx.macroStack
-    fileName               := ctx.fileName
-    fileMap                := ctx.fileMap
     declName?              := declName?
     sectionVars            := sectionVars
     isNoncomputableSection := scope.isNoncomputable
     tacticCache?           := ctx.tacticCache? }
 
 private def mkTermState (scope : Scope) (s : State) : Term.State := {
-  messages          := {}
   levelNames        := scope.levelNames
   infoState.enabled := s.infoState.enabled
 }
@@ -375,10 +379,10 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
   let (((ea, termS), metaS), coreS) ← liftEIO x
   modify fun s => { s with
     env             := coreS.env
-    messages        := addTraceAsMessagesCore ctx (s.messages ++ termS.messages) coreS.traceState
     nextMacroScope  := coreS.nextMacroScope
     ngen            := coreS.ngen
     infoState.trees := s.infoState.trees.append termS.infoState.trees
+    messages        := addTraceAsMessagesCore ctx (s.messages ++ coreS.messages) coreS.traceState
   }
   match ea with
   | Except.ok a     => pure a
@@ -397,8 +401,8 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
           sectionFVars := sectionFVars.insert uid x
         withReader ({ · with sectionFVars := sectionFVars }) do
           -- We don't want to store messages produced when elaborating `(getVarDecls s)` because they have already been saved when we elaborated the `variable`(s) command.
-          -- So, we use `Term.resetMessageLog`.
-          Term.resetMessageLog
+          -- So, we use `Core.resetMessageLog`.
+          Core.resetMessageLog
           let someType := mkSort levelZero
           Term.addAutoBoundImplicits' xs someType fun xs _ =>
             Term.withoutAutoBoundImplicit <| elabFn xs

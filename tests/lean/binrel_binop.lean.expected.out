@@ -1,6 +1,6 @@
-binrel_binop.lean:1:51-1:56: warning: declaration uses 'sorry'
+binrel_binop.lean:1:8-1:11: warning: declaration uses 'sorry'
 ex1 : ∀ (a : Int) (b c : Nat), a = Int.ofNat b - Int.ofNat c
-binrel_binop.lean:5:49-5:54: warning: declaration uses 'sorry'
+binrel_binop.lean:5:8-5:11: warning: declaration uses 'sorry'
 ex2 : ∀ (a : Int) (b c : Nat), a = Int.ofNat b - Int.ofNat c
-binrel_binop.lean:9:52-9:57: warning: declaration uses 'sorry'
+binrel_binop.lean:9:8-9:11: warning: declaration uses 'sorry'
 ex3 : ∀ (a : Int) (b c : Nat), a = Int.ofNat (b - c)

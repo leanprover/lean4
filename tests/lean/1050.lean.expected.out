@@ -2,5 +2,5 @@
   Foo as bs → bs : Type (u + 1)
 and for `Foo.bar_aux` is
   bs : Type u
-1050.lean:34:16-34:21: warning: declaration uses 'sorry'
-1050.lean:34:16-34:21: warning: declaration uses 'sorry'
+1050.lean:24:8-24:12: warning: declaration uses 'sorry'
+1050.lean:24:8-24:12: warning: declaration uses 'sorry'

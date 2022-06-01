@@ -1,4 +1,4 @@
-unfoldDefEq.lean:12:2-12:7: warning: declaration uses 'sorry'
+unfoldDefEq.lean:7:0-7:7: warning: declaration uses 'sorry'
 n : Nat
 x : (Fin n, Fin n).fst
 h : some_property x
@@ -7,7 +7,7 @@ n : Nat
 x : Fin n
 h : some_property x
 ⊢ True
-unfoldDefEq.lean:17:2-17:7: warning: declaration uses 'sorry'
+unfoldDefEq.lean:14:0-14:7: warning: declaration uses 'sorry'
 n : Nat
 x : Fin n
 h : some_property x

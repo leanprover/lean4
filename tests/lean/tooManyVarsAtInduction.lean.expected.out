@@ -1,4 +1,4 @@
 tooManyVarsAtInduction.lean:3:2-3:31: error: too many variable names provided at alternative 'succ', #4 provided, but #2 expected
-tooManyVarsAtInduction.lean:3:26-3:31: warning: declaration uses 'sorry'
+tooManyVarsAtInduction.lean:1:8-1:11: warning: declaration uses 'sorry'
 tooManyVarsAtInduction.lean:8:2-8:22: error: too many variable names provided at alternative 'succ', #2 provided, but #1 expected
-tooManyVarsAtInduction.lean:8:17-8:22: warning: declaration uses 'sorry'
+tooManyVarsAtInduction.lean:6:8-6:11: warning: declaration uses 'sorry'

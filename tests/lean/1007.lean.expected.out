@@ -1,11 +1,11 @@
-1007.lean:8:77-8:82: warning: declaration uses 'sorry'
-1007.lean:9:72-9:77: warning: declaration uses 'sorry'
-1007.lean:11:49-11:54: warning: declaration uses 'sorry'
-1007.lean:17:30-17:35: warning: declaration uses 'sorry'
-1007.lean:34:91-34:96: warning: declaration uses 'sorry'
-1007.lean:35:30-35:35: warning: declaration uses 'sorry'
-1007.lean:39:79-39:84: warning: declaration uses 'sorry'
-1007.lean:40:35-40:40: warning: declaration uses 'sorry'
+1007.lean:8:9-8:17: warning: declaration uses 'sorry'
+1007.lean:9:9-9:20: warning: declaration uses 'sorry'
+1007.lean:11:29-11:37: warning: declaration uses 'sorry'
+1007.lean:15:9-15:20: warning: declaration uses 'sorry'
+1007.lean:34:0-34:8: warning: declaration uses 'sorry'
+1007.lean:35:0-35:8: warning: declaration uses 'sorry'
+1007.lean:39:4-39:8: warning: declaration uses 'sorry'
+1007.lean:40:4-40:7: warning: declaration uses 'sorry'
 1007.lean:57:64-57:78: error: failed to synthesize
   IsLin fun x => sum fun i => norm x
 (deterministic) timeout at 'typeclass', maximum number of heartbeats (20000) has been reached (use 'set_option synthInstance.maxHeartbeats <num>' to set the limit)

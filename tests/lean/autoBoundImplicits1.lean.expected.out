@@ -1,15 +1,15 @@
 myid 10 : Nat
 myid true : Bool
-autoBoundImplicits1.lean:17:18-17:23: warning: declaration uses 'sorry'
+autoBoundImplicits1.lean:16:4-16:11: warning: declaration uses 'sorry'
 autoBoundImplicits1.lean:20:25-20:29: error: unknown identifier 'size'
-autoBoundImplicits1.lean:21:18-21:23: warning: declaration uses 'sorry'
+autoBoundImplicits1.lean:20:4-20:12: warning: declaration uses 'sorry'
 autoBoundImplicits1.lean:24:23-24:24: error: unknown identifier 'α'
 autoBoundImplicits1.lean:24:25-24:26: error: unknown identifier 'n'
 autoBoundImplicits1.lean:24:33-24:34: error: unknown identifier 'α'
 autoBoundImplicits1.lean:24:37-24:38: error: unknown identifier 'β'
 autoBoundImplicits1.lean:24:46-24:47: error: unknown identifier 'β'
 autoBoundImplicits1.lean:24:48-24:49: error: unknown identifier 'n'
-autoBoundImplicits1.lean:25:18-25:23: warning: declaration uses 'sorry'
+autoBoundImplicits1.lean:24:4-24:12: warning: declaration uses 'sorry'
 @f : {α : Type} → {n : Nat} → Vec α n → Vec α n
 f mkVec : Vec ?m 0
 f mkVec : Vec Nat 0

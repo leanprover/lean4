@@ -9,14 +9,8 @@ import Lean.Elab.Tactic.Basic
 namespace Lean.Elab
 open Term
 
-private def runTactic.defaultContext : Context :=
-  {
-    fileName      := "<runTactic>"
-    fileMap       := default
-  }
-
 /-- Apply the give tactic code to `mvarId` in `MetaM`. -/
-def runTactic (mvarId : MVarId) (tacticCode : Syntax) (ctx : Context := runTactic.defaultContext) (s : State := {}) : MetaM (List MVarId × State) := do
+def runTactic (mvarId : MVarId) (tacticCode : Syntax) (ctx : Context := {}) (s : State := {}) : MetaM (List MVarId × State) := do
   modifyThe Meta.State fun s => { s with mctx := s.mctx.instantiateMVarDeclMVars mvarId }
   let go : TermElabM (List MVarId) :=
     withSynthesize (mayPostpone := false) do Tactic.run mvarId (Tactic.evalTactic tacticCode *> Tactic.pruneSolvedGoals)

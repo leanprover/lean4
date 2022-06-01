@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Util.RecDepth
 import Lean.Util.Trace
+import Lean.Log
 import Lean.Data.Options
 import Lean.Environment
 import Lean.Exception
@@ -38,10 +39,13 @@ structure State where
   ngen            : NameGenerator := {}
   traceState      : TraceState    := {}
   cache           : Cache         := {}
+  messages        : MessageLog := {}
   deriving Inhabited
 
 /-- Context for the CoreM monad. -/
 structure Context where
+  fileName       : String
+  fileMap        : FileMap
   options        : Options := {}
   currRecDepth   : Nat := 0
   maxRecDepth    : Nat := 1000
@@ -109,7 +113,7 @@ instance : MonadQuotation CoreM where
   withFreshMacroScope := Core.withFreshMacroScope
 
 @[inline] def modifyCache (f : Cache → Cache) : CoreM Unit :=
-  modify fun ⟨env, next, ngen, trace, cache⟩ => ⟨env, next, ngen, trace, f cache⟩
+  modify fun ⟨env, next, ngen, trace, cache, messages⟩ => ⟨env, next, ngen, trace, f cache, messages⟩
 
 @[inline] def modifyInstLevelTypeCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
   modifyCache fun ⟨c₁, c₂⟩ => ⟨f c₁, c₂⟩
@@ -146,7 +150,7 @@ instance : MonadTrace CoreM where
 
 /-- Restore backtrackable parts of the state. -/
 def restore (b : State) : CoreM Unit :=
-  modify fun s => { s with env := b.env }
+  modify fun s => { s with env := b.env, messages := b.messages }
 
 private def mkFreshNameImp (n : Name) : CoreM Name := do
   let fresh ← modifyGet fun s => (s.nextMacroScope, { s with nextMacroScope := s.nextMacroScope + 1 })
@@ -170,7 +174,7 @@ def mkFreshUserName (n : Name) : CoreM Name :=
 instance [MetaEval α] : MetaEval (CoreM α) where
   eval env opts x _ := do
     let x : CoreM α := do try x finally printTraces
-    let (a, s) ← x.toIO { maxRecDepth := maxRecDepth.get opts, options := opts } { env := env }
+    let (a, s) ← x.toIO { maxRecDepth := maxRecDepth.get opts, options := opts, fileName := "<CoreM>", fileMap := default } { env := env }
     MetaEval.eval s.env opts a (hideUnit := true)
 
 -- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`
@@ -196,6 +200,27 @@ private def withCurrHeartbeatsImp (x : CoreM α) : CoreM α := do
 
 def withCurrHeartbeats [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
   controlAt CoreM fun runInBase => withCurrHeartbeatsImp (runInBase x)
+
+def setMessageLog (messages : MessageLog) : CoreM Unit :=
+  modify fun s => { s with messages := messages }
+
+def resetMessageLog : CoreM Unit :=
+  setMessageLog {}
+
+def getMessageLog : CoreM MessageLog :=
+  return (← get).messages
+
+instance : MonadLog CoreM where
+  getRef      := getRef
+  getFileMap  := return (← read).fileMap
+  getFileName := return (← read).fileName
+  logMessage msg := do
+    let ctx ← read
+    let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
+    modify fun s => { s with messages := s.messages.add msg }
+
+def hasErrors : CoreM Bool :=
+  return (← get).messages.hasErrors
 
 end Core
 

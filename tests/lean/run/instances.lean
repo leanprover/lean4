@@ -11,6 +11,6 @@ withImportModules [{module := `Lean}] {} 0 fun env => do
    let aux : MetaM Unit := do
      let insts ← getGlobalInstancesIndex
      IO.println (format insts)
-   discard <| aux.run |>.toIO {} { env := env }
+   discard <| aux.run |>.toIO { fileName := "", fileMap := default } { env := env }
 
 #eval tst1

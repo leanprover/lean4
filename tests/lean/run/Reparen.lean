@@ -32,7 +32,7 @@ IO.print s;
 let cmds := (stx.getArg 1).getArgs;
 cmds.forM $ fun cmd => do
   let cmd := unparen cmd;
-  let (cmd, _) ← (tryFinally (PrettyPrinter.parenthesizeCommand cmd) printTraces).toIO { options := Options.empty.setBool `trace.PrettyPrinter.parenthesize debug } { env := env };
+  let (cmd, _) ← (tryFinally (PrettyPrinter.parenthesizeCommand cmd) printTraces).toIO { options := Options.empty.setBool `trace.PrettyPrinter.parenthesize debug, fileName := "", fileMap := default } { env := env };
   let some s ← pure cmd.reprint | throw $ IO.userError "cmd reprint failed";
   IO.print s
 

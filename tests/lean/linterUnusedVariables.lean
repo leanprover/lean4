@@ -40,6 +40,9 @@ where
 def unusedFunctionArgument : Nat :=
   (fun x => 3) (x := 2)
 
+def unusedTypedFunctionArgument : Nat :=
+  (fun (x : Nat) => 3) 2
+
 def pattern (x y : Option Nat) : Nat :=
   match x with
   | some z =>
@@ -47,6 +50,18 @@ def pattern (x y : Option Nat) : Nat :=
     | some z => 1
     | none => 0
   | none => 0
+
+def patternLet (x : Option Nat) : Nat :=
+  if let some y := x then
+    0
+  else
+    1
+
+def patternMatches (x : Option Nat) : Nat :=
+  if x matches some y then
+    0
+  else
+    1
 
 def implicitVariables {α : Type} [inst : ToString α] : Nat := 4
 
@@ -92,6 +107,22 @@ set_option linter.unusedVariables true in
 def lintUnusedVariables (x : Nat) : Nat :=
   let y := 5
   3
+
+
+set_option linter.unusedVariables.funArgs false in
+def nolintFunArgs (w : Nat) : Nat :=
+  let a := 5
+  let f (x : Nat) := 3
+  let g := fun (y : Nat) => 3
+  f <| g <| h <| 2
+where
+  h (z : Nat) := 3
+
+set_option linter.unusedVariables.patternVars false in
+def nolintPatternVars (x : Option (Option Nat)) : Nat :=
+  match x with
+  | some (some y) => (fun z => 1) 2
+  | _ => 0
 
 
 inductive Foo (α : Type)
@@ -147,3 +178,21 @@ constant foo' (x : Nat) : Nat :=
 variable (bar)
 variable (bar' : (x : Nat) → Nat)
 variable {α β} [inst : ToString α]
+
+@[specialize]
+def specializeDef (x : Nat) : Nat := 3
+
+@[implementedBy specializeDef]
+def implementedByDef (x : Nat) : Nat :=
+  let y := 3
+  5
+
+@[extern "test"]
+def externDef (x : Nat) : Nat :=
+  let y := 3
+  5
+
+@[extern "test"]
+constant externConst (x : Nat) : Nat :=
+  let y := 3
+  5

@@ -4,21 +4,28 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Build
-import Lake.Config.Util
+import Lake.CLI.Error
 
 open Lean (Name)
 
 namespace Lake
 
-def parsePkgSpec (ws : Workspace) (spec : String) : IO Package :=
+def Package.defaultTarget (self : Package) : OpaqueTarget :=
+  match self.defaultFacet with
+  | .bin => self.binTarget.withoutInfo
+  | .staticLib => self.staticLibTarget.withoutInfo
+  | .sharedLib => self.sharedLibTarget.withoutInfo
+  | .oleans =>  self.oleanTarget.withoutInfo
+
+def parsePkgSpec (ws : Workspace) (spec : String) : Except CliError Package :=
   if spec.isEmpty then
     return ws.root
   else
     match ws.packageByName? spec.toName with
     | some pkg => return pkg
-    | none => error s!"unknown package `{spec}`"
+    | none => throw <| CliError.unknownPackage spec
 
-def parseTargetBaseSpec (ws : Workspace) (spec : String) : IO (Package × Option Name) := do
+def parseTargetBaseSpec (ws : Workspace) (spec : String) : Except CliError (Package × Option Name) := do
   match spec.splitOn "/" with
   | [pkgStr] =>
     return (← parsePkgSpec ws pkgStr, none)
@@ -28,47 +35,49 @@ def parseTargetBaseSpec (ws : Workspace) (spec : String) : IO (Package × Option
     if pkg.hasModule mod then
       return (pkg, mod)
     else
-      error s!"package '{pkgStr}' has no module '{modStr}'"
+      throw <| CliError.missingModule pkgStr modStr
   | _ =>
-    error s!"invalid target spec '{spec}' (too many '/')"
+    throw <| CliError.invalidTargetSpec spec '/'
 
-def parseTargetSpec (ws : Workspace) (spec : String) : IO (BuildTarget Package) := do
+def parseTargetSpec (ws : Workspace) (spec : String) : Except CliError (BuildTarget PUnit) := do
   match spec.splitOn ":" with
   | [rootSpec] =>
     let (pkg, mod?) ← parseTargetBaseSpec ws rootSpec
     if let some mod := mod? then
-      return pkg.moduleOleanTarget mod |>.withInfo pkg
+      return pkg.moduleOleanTarget mod |>.withoutInfo
     else
-      return pkg.defaultTarget |>.withInfo pkg
+      return pkg.defaultTarget |>.withoutInfo
   | [rootSpec, facet] =>
     let (pkg, mod?) ← parseTargetBaseSpec ws rootSpec
     if let some mod := mod? then
       if facet == "olean" then
-        return pkg.moduleOleanTarget mod |>.withInfo pkg
+        return pkg.moduleOleanTarget mod |>.withoutInfo
       else if facet == "c" then
-        return pkg.moduleOleanAndCTarget mod |>.withInfo pkg
+        return pkg.moduleOleanAndCTarget mod |>.withoutInfo
       else if facet == "o" then
-        return pkg.moduleOTarget mod |>.withInfo pkg
+        return pkg.moduleOTarget mod |>.withoutInfo
       else
-        error s!"unknown module facet '{facet}'"
+        throw <| CliError.unknownModuleFacet facet
     else
       if facet == "bin" then
-        return pkg.binTarget.withInfo pkg
+        return pkg.binTarget.withoutInfo
       else if facet == "staticLib" then
-        return pkg.staticLibTarget.withInfo pkg
+        return pkg.staticLibTarget.withoutInfo
       else if facet == "sharedLib" then
-        return pkg.sharedLibTarget.withInfo pkg
+        return pkg.sharedLibTarget.withoutInfo
       else if facet == "oleans" then
-        return pkg.oleanTarget.withInfo pkg
+        return pkg.oleanTarget.withoutInfo
       else
-        error s!"unknown package facet '{facet}'"
+        throw <| CliError.unknownPackageFacet  facet
   | _ =>
-    error s!"invalid target spec '{spec}' (too many ':')"
+    throw <| CliError.invalidTargetSpec spec ':'
 
-def build (targetSpecs : List String) : BuildM PUnit := do
+def parseTargetSpecs (ws : Workspace) (specs : List String) : Except CliError (List (BuildTarget PUnit)) :=
+  specs.mapM <| parseTargetSpec ws
+
+def build (targets : List (BuildTarget PUnit)) : BuildM PUnit := do
   let ws ← getWorkspace
-  let targets ← liftM <| targetSpecs.mapM <| parseTargetSpec ws
   if targets.isEmpty then
     ws.root.defaultTarget.build
   else
-    targets.forM fun t => discard <| t.build
+    targets.forM (·.build)

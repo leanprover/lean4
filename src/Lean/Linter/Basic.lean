@@ -12,8 +12,18 @@ register_builtin_option linter.unusedVariables : Bool := {
   defValue := true,
   descr := "enable the 'unused variables' linter"
 }
+register_builtin_option linter.unusedVariables.funArgs : Bool := {
+  defValue := true,
+  descr := "enable the 'unused variables' linter to mark unused function arguments"
+}
+register_builtin_option linter.unusedVariables.patternVars : Bool := {
+  defValue := true,
+  descr := "enable the 'unused variables' linter to mark unused pattern variables"
+}
 
 def getLinterUnusedVariables (o : Options) : Bool := o.get linter.unusedVariables.name (getLinterAll o)
+def getLinterUnusedVariablesFunArgs (o : Options) : Bool := o.get linter.unusedVariables.funArgs.name (getLinterUnusedVariables o)
+def getLinterUnusedVariablesPatternVars (o : Options) : Bool := o.get linter.unusedVariables.patternVars.name (getLinterUnusedVariables o)
 
 def unusedVariables : Linter := fun stx => do
   let some stxRange := stx.getRange?
@@ -71,21 +81,33 @@ def unusedVariables : Linter := fun stx => do
     if !stxRange.contains range.start then
       continue
 
-    if !getLinterUnusedVariables decl.ci.options then
+    let opts := decl.ci.options
+    if !getLinterUnusedVariables opts then
       continue
 
-    let some stack := findSyntaxStack? stx declStx
-      | continue
-    let ignoredPatternFns := [
+    let mut ignoredPatternFns := #[
       isTopLevelDecl constDecls,
       matchesUnusedPattern,
       isVariable,
-      isInStructure,
-      isInLetDeclaration,
-      isInDeclarationSignature,
-      isInFun,
+      isInCtorOrStructBinder,
+      isInConstantOrAxiom,
+      isInDefWithForeignDefinition,
       isInDepArrow
     ]
+    if !getLinterUnusedVariablesFunArgs opts then
+      ignoredPatternFns := ignoredPatternFns.append #[
+        isInLetDeclaration,
+        isInDeclarationSignature,
+        isInStructure,
+        isInFun
+      ]
+    if !getLinterUnusedVariablesPatternVars opts then
+      ignoredPatternFns := ignoredPatternFns.append #[
+        isPatternVar
+      ]
+
+    let some stack := findSyntaxStack? stx declStx
+      | continue
     if ignoredPatternFns.any (· declStx stack) then
       continue
 
@@ -109,8 +131,40 @@ where
     stx.getId.toString.startsWith "_"
   isVariable (_ : Syntax) (stack : SyntaxStack) :=
     stackMatches stack [`null, none, `null, `Lean.Parser.Command.variable]
-  isInStructure (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, none, `null, `Lean.Parser.Command.structure]
+  isInCtorOrStructBinder (_ : Syntax) (stack : SyntaxStack) :=
+    stackMatches stack [`null, none, `null, `Lean.Parser.Command.optDeclSig, none] &&
+    (stack.get? 4 |>.any fun (stx, _) =>
+      [`Lean.Parser.Command.ctor, `Lean.Parser.Command.structSimpleBinder].any (stx.isOfKind ·))
+  isInConstantOrAxiom (_ : Syntax) (stack : SyntaxStack) :=
+    stackMatches stack [`null, none, `null, `Lean.Parser.Command.declSig, none] &&
+    (stack.get? 4 |>.any fun (stx, _) =>
+      [`Lean.Parser.Command.constant, `Lean.Parser.Command.axiom].any (stx.isOfKind ·))
+  isInDefWithForeignDefinition (_ : Syntax) (stack : SyntaxStack) :=
+    stackMatches stack [`null, none, `null, none, none, `Lean.Parser.Command.declaration] &&
+    (stack.get? 3 |>.any fun (stx, _) =>
+      stx.isOfKind `Lean.Parser.Command.optDeclSig ||
+      stx.isOfKind `Lean.Parser.Command.declSig) &&
+    (stack.get? 5 |>.any fun (stx, _) => Id.run <| do
+      let declModifiers := stx[0]
+      if !declModifiers.isOfKind `Lean.Parser.Command.declModifiers then
+        return false
+      let termAttributes := declModifiers[1][0]
+      if !termAttributes.isOfKind `Lean.Parser.Term.attributes then
+        return false
+      let termAttrInstance := termAttributes[1][0]
+      if !termAttrInstance.isOfKind `Lean.Parser.Term.attrInstance then
+        return false
+
+      let attr := termAttrInstance[1]
+      if attr.isOfKind `Lean.Parser.Attr.extern then
+        return true
+      else if attr.isOfKind `Lean.Parser.Attr.simple then
+        return attr[0].getId == `implementedBy
+      else
+        return false)
+  isInDepArrow (_ : Syntax) (stack : SyntaxStack) :=
+    stackMatches stack [`null, `Lean.Parser.Term.explicitBinder, `Lean.Parser.Term.depArrow]
+
   isInLetDeclaration (_ : Syntax) (stack : SyntaxStack) :=
     stackMatches stack [`null, none, `null, `Lean.Parser.Term.letIdDecl, none] &&
     (stack.get? 3 |>.any fun (_, pos) => pos == 1) &&
@@ -120,10 +174,14 @@ where
     (stack.get? 3 |>.any fun (stx, pos) =>
       pos == 0 &&
       [`Lean.Parser.Command.optDeclSig, `Lean.Parser.Command.declSig].any (stx.isOfKind ·))
+  isInStructure (_ : Syntax) (stack : SyntaxStack) :=
+    stackMatches stack [`null, none, `null, `Lean.Parser.Command.structure]
   isInFun (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, `Lean.Parser.Term.basicFun]
-  isInDepArrow (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, `Lean.Parser.Term.explicitBinder, `Lean.Parser.Term.depArrow]
+    stackMatches stack [`null, `Lean.Parser.Term.basicFun] ||
+    stackMatches stack [`null, `Lean.Parser.Term.paren, `null, `Lean.Parser.Term.basicFun]
+
+  isPatternVar (_ : Syntax) (stack : SyntaxStack) :=
+    stack.any fun (stx, pos) => stx.isOfKind `Lean.Parser.Term.matchAlt && pos == 1
 
 builtin_initialize addLinter unusedVariables
 

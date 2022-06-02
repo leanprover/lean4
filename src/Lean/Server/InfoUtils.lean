@@ -145,21 +145,25 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
   let results := t.visitM (m := Id) (postNode := fun ctx i _ results => do
     let results := results.bind (·.getD [])
     if results.isEmpty && (i matches Info.ofFieldInfo _ || i.toElabInfo?.isSome) && i.contains hoverPos includeStop then
-      if let .ofTermInfo ti := i then
-        if ti.expr.isSyntheticSorry then
-          return []
+      let r := i.range?.get!
       let priority :=
-
-        if i.range?.get!.stop == hoverPos then
+        if r.stop == hoverPos then
           0  -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
         else if i matches .ofTermInfo { expr := .fvar .., .. } then
           0  -- prefer results for constants over variables (which overlap at declaration names)
         else 1
+      -- must prioritize smaller nodes because pattern infos are not properly nested
+      let priority := (-(r.stop - r.start |>.byteIdx : Int), priority)
       [(priority, ctx, i)]
     else
       results) |>.getD []
   let maxPrio? := results.map (·.1) |>.maximum?
-  return results.find? (·.1 == maxPrio?) |>.map (·.2)
+  let res? := results.find? (·.1 == maxPrio?) |>.map (·.2)
+  if let some (_, i) := res? then
+    if let .ofTermInfo ti := i then
+      if ti.expr.isSyntheticSorry then
+        return none
+  return res?
 
 def Info.type? (i : Info) : MetaM (Option Expr) :=
   match i with

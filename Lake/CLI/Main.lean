@@ -90,7 +90,7 @@ protected def error (msg : String) (rc : UInt32 := 1) : MainM α := do
 
 instance : MonadError MainM := ⟨Cli.error⟩
 instance : MonadLift IO MainM := ⟨MonadError.runIO⟩
-instance : MonadLift (LogT IO) MainM := ⟨fun x => liftM <| x.run LogMethods.eio⟩
+instance : MonadLift (LogT IO) MainM := ⟨fun x => liftM <| x.run MonadLog.eio⟩
 
 -- ## Option Management
 
@@ -222,7 +222,7 @@ def printPaths (config : LakeConfig) (imports : List String := []) : MainM PUnit
       exit 1
     let ws ← loadWorkspace config
     let ctx ← mkBuildContext ws config.leanInstall config.lakeInstall
-    ws.root.buildImportsAndDeps imports |>.run LogMethods.eio ctx
+    ws.root.buildImportsAndDeps imports |>.run MonadLog.eio ctx
     IO.println <| Json.compress <| toJson ws.leanPaths
   else
     exit noConfigFileCode
@@ -307,7 +307,7 @@ def command : (cmd : String) → CliM PUnit
   let ws ← loadWorkspace config
   let targets ← parseTargetSpecs ws (← takeArgs)
   let ctx ← mkBuildContext ws config.leanInstall config.lakeInstall
-  build targets |>.run LogMethods.io ctx
+  build targets |>.run MonadLog.io ctx
 | "update" => do
   processOptions lakeOption
   let opts ← getThe LakeOptions

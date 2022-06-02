@@ -21,10 +21,10 @@ structure BuildContext extends Context where
 abbrev BuildT := ReaderT BuildContext
 
 /-- The monad for the Lake build manager. -/
-abbrev SchedulerM := BuildT <| LogMethodsT BaseIO BaseIO
+abbrev SchedulerM := BuildT <| LogT BaseIO
 
 /-- The monad for Lake builds. -/
-abbrev BuildM := BuildT <| LogMethodsT BaseIO OptionIO
+abbrev BuildM := BuildT <| MonadLogT BaseIO OptionIO
 
 /-- The `Task` monad for Lake builds. -/
 abbrev BuildTask := OptionIOTask
@@ -38,7 +38,7 @@ instance [Pure m] : MonadLift LakeM (BuildT m) where
 instance : MonadLift (LogT IO) BuildM where
   monadLift x := fun ctx meths => liftM (n := BuildM) (x.run meths.lift) ctx meths
 
-def BuildM.run (logMethods : LogMethods BaseIO) (ctx : BuildContext) (self : BuildM α) : IO α :=
+def BuildM.run (logMethods : MonadLog BaseIO) (ctx : BuildContext) (self : BuildM α) : IO α :=
   self ctx logMethods |>.toIO fun _ => IO.userError "build failed"
 
 def BuildM.catchFailure (f : Unit → BaseIO α) (self : BuildM α) : SchedulerM α :=

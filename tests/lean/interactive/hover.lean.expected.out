@@ -102,7 +102,7 @@ null
 {"range":
  {"start": {"line": 112, "character": 9},
   "end": {"line": 112, "character": 12}},
- "contents": {"value": "```lean\nfoo : Nat\n```", "kind": "markdown"}}
+ "contents": {"value": "```lean\nBar.foo : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 115, "character": 9}}
 {"range":
@@ -113,7 +113,7 @@ null
  "position": {"line": 118, "character": 4}}
 {"range":
  {"start": {"line": 118, "character": 4}, "end": {"line": 118, "character": 7}},
- "contents": {"value": "```lean\nbar : Nat\n```", "kind": "markdown"}}
+ "contents": {"value": "```lean\nBar.bar : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 121, "character": 10}}
 {"range":
@@ -138,7 +138,7 @@ null
 {"range":
  {"start": {"line": 127, "character": 10},
   "end": {"line": 127, "character": 13}},
- "contents": {"value": "```lean\nBar : Type\n```", "kind": "markdown"}}
+ "contents": {"value": "```lean\nBar.Bar : Type\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 129, "character": 4}}
 {"range":
@@ -156,7 +156,8 @@ null
 {"range":
  {"start": {"line": 134, "character": 9},
   "end": {"line": 134, "character": 10}},
- "contents": {"value": "```lean\nf : ToString Nat\n```", "kind": "markdown"}}
+ "contents":
+ {"value": "```lean\nBar.f : ToString Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 137, "character": 10}}
 {"range":
@@ -170,13 +171,13 @@ null
 {"range":
  {"start": {"line": 140, "character": 4},
   "end": {"line": 140, "character": 11}},
- "contents": {"value": "```lean\nbar : Nat\n```", "kind": "markdown"}}
+ "contents": {"value": "```lean\nBar.foo.bar : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 140, "character": 8}}
 {"range":
  {"start": {"line": 140, "character": 4},
   "end": {"line": 140, "character": 11}},
- "contents": {"value": "```lean\nbar : Nat\n```", "kind": "markdown"}}
+ "contents": {"value": "```lean\nBar.foo.bar : Nat\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 145, "character": 6}}
 {"range":

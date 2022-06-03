@@ -37,7 +37,7 @@ The delaborator is extensible via the `[delab]` attribute.
 
 namespace Lean.PrettyPrinter.Delaborator
 
-open Lean.Meta SubExpr
+open Lean.Meta Lean.SubExpr SubExpr
 open Lean.Elab (Info TermInfo Info.ofTermInfo)
 
 structure Context where
@@ -271,7 +271,8 @@ to true or `pp.notation` is set to false, it will not be called at all.",
 
 end Delaborator
 
-open Delaborator (OptionsPerPos topDownAnalyze Pos)
+open SubExpr (Pos)
+open Delaborator (OptionsPerPos topDownAnalyze)
 
 def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delaborator.delab) : MetaM (Syntax × Std.RBMap Pos Elab.Info compare) := do
   /- Using `erasePatternAnnotations` here is a bit hackish, but we do it
@@ -294,7 +295,7 @@ def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delabor
         optionsPerPos := optionsPerPos
         currNamespace := (← getCurrNamespace)
         openDecls := (← getOpenDecls)
-        subExpr := Delaborator.SubExpr.mkRoot e
+        subExpr := SubExpr.mkRoot e
         inPattern := opts.getInPattern }
       |>.run { : Delaborator.State })
     (fun _ => unreachable!)

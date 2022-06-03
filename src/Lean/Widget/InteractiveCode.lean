@@ -46,8 +46,8 @@ where
 def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
   let optsPerPos := if explicit then
     Std.RBMap.ofList [
-      (1, KVMap.empty.setBool `pp.all true),
-      (1, KVMap.empty.setBool `pp.tagAppFns true)
+      (SubExpr.Pos.root, KVMap.empty.setBool `pp.all true),
+      (SubExpr.Pos.root, KVMap.empty.setBool `pp.tagAppFns true)
     ]
   else
     {}

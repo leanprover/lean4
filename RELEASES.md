@@ -1,6 +1,26 @@
 Unreleased
 ---------
 
+* Lean now generates an error if the body of a declaration body contains a universe parameter that does not occur in the declaration type, nor is an explicit parameter.
+  Examples:
+  ```lean
+  /-
+  The following declaration now produces an error because `PUnit` is universe polymorphic,
+  but the universe parameter does not occur in the function type `Nat → Nat`
+  -/
+  def f (n : Nat) : Nat :=
+    let aux (_ : PUnit) : Nat := n + 1
+    aux ⟨⟩
+
+  /-
+  The following declaration is accepted because the universe parameter was explicitly provided in the
+  function signature.
+  -/
+  def g.{u} (n : Nat) : Nat :=
+    let aux (_ : PUnit.{u}) : Nat := n + 1
+    aux ⟨⟩
+  ```
+
 * Add `subst_vars` tactic.
 
 * [Fix `autoParam` in structure fields lost in multiple inheritance.](https://github.com/leanprover/lean4/issues/1158).

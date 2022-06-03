@@ -20,10 +20,18 @@ instance : MonadError (EIO String) where
   error msg := throw msg
 
 /--
-Perform an IO action.
-If it throws an error, invoke `error` with the its message.
+Perform an EIO action.
+If it throws an error, invoke `error` with its string representation.
 -/
-protected def MonadError.runIO [Monad m] [MonadError m] [MonadLiftT BaseIO m] (x : IO α) : m α := do
+protected def MonadError.runEIO [Monad m]
+[MonadError m] [MonadLiftT BaseIO m] [ToString ε] (x : EIO ε α) : m α := do
   match (← x.toBaseIO) with
   | Except.ok a => pure a
   | Except.error e => error (toString e)
+
+/--
+Perform an IO action.
+If it throws an error, invoke `error` with its string representation.
+-/
+protected def MonadError.runIO [Monad m] [MonadError m] [MonadLiftT BaseIO m] (x : IO α) : m α :=
+  MonadError.runEIO x

@@ -3,22 +3,25 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Util.Log
+import Lake.Util.Exit
+import Lake.Util.Error
+
 namespace Lake
 
-/-- A process exit / return code. -/
-abbrev ExitCode := UInt32
+/--
+The monad in Lake for `main`-like functions.
+Supports IO, logging, and `exit`.
+-/
+def MainM := EIO ExitCode
 
-class MonadExit (m : Type u → Type v) where
-  exit {α : Type u} : ExitCode → m α
-
-export MonadExit (exit)
-
-instance [MonadLift m n] [MonadExit m] : MonadExit n where
-  exit rc := liftM (m := m) <| exit rc
-
-abbrev MainM := EIO ExitCode
+instance : Monad MainM := inferInstanceAs (Monad (EIO ExitCode))
+instance : MonadFinally MainM := inferInstanceAs (MonadFinally (EIO ExitCode))
+instance : MonadLift BaseIO MainM := inferInstanceAs (MonadLift BaseIO (EIO ExitCode))
 
 namespace MainM
+
+-- # Basics
 
 @[inline] protected def mk (x : EIO ExitCode α) : MainM α :=
   x
@@ -32,6 +35,8 @@ namespace MainM
 protected def run (self : MainM PUnit) : BaseIO ExitCode :=
   self.toBaseIO.map fun | Except.ok _ => 0 | Except.error rc => rc
 
+-- # Exits
+
 /-- Exit with given return code. -/
 protected def exit (rc : ExitCode) : MainM α :=
   MainM.mk <| throw rc
@@ -39,21 +44,35 @@ protected def exit (rc : ExitCode) : MainM α :=
 instance : MonadExit MainM := ⟨MainM.exit⟩
 
 /-- Try this and catch exits. -/
-protected def catchExit (f : ExitCode → MainM α) (self : MainM α) : MainM α :=
+protected def tryCatchExit (f : ExitCode → MainM α) (self : MainM α) : MainM α :=
   self.toEIO.tryCatch f
+
+/-- Try this and catch error codes (i.e., non-zero exits). -/
+protected def tryCatchError (f : ExitCode → MainM α) (self : MainM α) : MainM α :=
+  self.tryCatchExit fun rc => if rc = 0 then exit 0 else f rc
 
 /-- Exit with a generic error code (i.e., 1). -/
 protected def failure : MainM α :=
   exit 1
 
-/-- If this exits with a error code, perform other. -/
+/-- If this exits with an error code (i.e., not 0), perform other. -/
 protected def orElse (self : MainM α) (other : Unit → MainM α) : MainM α :=
-  self.catchExit fun rc => if rc = 0 then exit 0 else other ()
+  self.tryCatchExit fun rc => if rc = 0 then exit 0 else other ()
 
 instance : Alternative MainM where
   failure := MainM.failure
   orElse := MainM.orElse
 
-/-- Perform an IO action and silently exit with the given code (default: 1) if it errors. -/
-protected def runIO (x : IO α) (rc : ExitCode := 1) : MainM α :=
-  x.toEIO fun e => rc
+-- # Logging and IO
+
+instance : MonadLog MainM := MonadLog.eio
+
+/-- Print out a error line with the given message and then exit with an error code. -/
+protected def error (msg : String) (rc : ExitCode := 1) : MainM α := do
+  logError msg
+  exit rc
+
+instance : MonadError MainM := ⟨MainM.error⟩
+instance [ToString ε] : MonadLift (EIO ε) MainM := ⟨MonadError.runEIO⟩
+instance : MonadLift IO MainM := inferInstance -- necessary, but don't know why
+instance : MonadLift (LogT IO) MainM := ⟨fun x => liftM <| x.run MonadLog.eio⟩

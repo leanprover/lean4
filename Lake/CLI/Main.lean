@@ -81,17 +81,6 @@ abbrev CliM := ArgsT CliStateM
 
 namespace Cli
 
--- ## Basic Actions
-
-/-- Print out a error line with the given message and then exit with an error code. -/
-protected def error (msg : String) (rc : UInt32 := 1) : MainM α := do
-  IO.eprintln s!"error: {msg}" |>.catchExceptions fun _ => pure ()
-  exit rc
-
-instance : MonadError MainM := ⟨Cli.error⟩
-instance : MonadLift IO MainM := ⟨MonadError.runIO⟩
-instance : MonadLift (LogT IO) MainM := ⟨fun x => liftM <| x.run MonadLog.eio⟩
-
 -- ## Option Management
 
 def getWantsHelp : CliStateM Bool :=
@@ -334,7 +323,7 @@ def command : (cmd : String) → CliM PUnit
 | "serve" => do
   processOptions lakeOption
   let args := (← getThe LakeOptions).subArgs.toArray
-  noArgsRem do exit <| ←  runLakeT <| serve args
+  noArgsRem do exit <| ← runLakeT <| serve args
 | "env" => do
   let cmd ← takeArg "command"; let args ← takeArgs
   exit <| ← runLakeT <| env cmd args.toArray

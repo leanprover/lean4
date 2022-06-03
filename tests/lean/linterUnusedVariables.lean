@@ -196,3 +196,8 @@ def externDef (x : Nat) : Nat :=
 constant externConst (x : Nat) : Nat :=
   let y := 3
   5
+
+theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := by -- *not* unused
+  cases a
+  exact absurd h (Nat.not_lt_zero _)
+  apply Nat.noConfusion

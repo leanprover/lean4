@@ -212,7 +212,7 @@ macro_rules
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
 syntax ("·" <|> ".") ppHardSpace many1Indent(group(tactic ";"? ppLine)) : tactic
 macro_rules
-  | `(tactic| ·%$dot $[$tacs:tactic $[;]?]*) => `(tactic| {%$dot $[$tacs:tactic]*})
+  | `(tactic| ·%$dot $[$tacs:tactic $[;%$sc]?]*) => `(tactic| {%$dot $[$tacs:tactic $[;%$sc]?]*})
 
 /--
   Similar to `first`, but succeeds only if one the given tactics solves the current goal.

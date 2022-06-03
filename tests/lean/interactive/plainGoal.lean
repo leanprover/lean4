@@ -88,6 +88,11 @@ example : True := (by exact True.intro)
 example : True := (by exact True.intro )
                                      --^ $/lean/plainGoal
 
+set_option trace.Elab.info true
+example : True ∧ False := by
+  · constructor; constructor
+              --^ $/lean/plainGoal
+
 example : False := by
 -- EOF test
 --^ $/lean/plainGoal

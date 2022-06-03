@@ -4,5 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.DSL.Attributes
+import Lake.DSL.Extensions
 import Lake.DSL.Commands
 import Lake.DSL.Require
+import Lake.DSL.Config

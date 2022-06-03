@@ -12,3 +12,9 @@ namespace Lake
 
 initialize depsExt : EnvExtension (Array Dependency) ←
   registerEnvExtension (pure #[])
+
+initialize dirExt : EnvExtension (Option System.FilePath) ←
+  registerEnvExtension (pure none)
+
+initialize argsExt : EnvExtension (Option (List String)) ←
+  registerEnvExtension (pure none)

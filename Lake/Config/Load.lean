@@ -12,7 +12,7 @@ namespace Lake
 open Lean System
 
 /-- Main module `Name` of a Lake configuration file. -/
-def configModName : Name := `lakefile
+def configModuleName : Name := `lakefile
 
 /-- The default name of the Lake configuration file (i.e., `lakefile.lean`). -/
 def defaultConfigFile : FilePath := "lakefile.lean"
@@ -62,16 +62,24 @@ def processHeader (header : Syntax) (opts : Options) (trustLevel : UInt32)
     modify (·.add { fileName := inputCtx.fileName, data := toString e, pos })
     mkEmptyEnvironment
 
-/-- Like `Lean.Elab.runFrontend`, but using `importEnvCache`. -/
-def runFrontend (input : String) (opts : Options)
-(fileName : String) (mainModuleName : Name) (trustLevel : UInt32 := 1024)
-: LogT IO (Environment × Bool) := do
-  let inputCtx := Parser.mkInputContext input fileName
-  let (header, parserState, messages) ← Parser.parseHeader inputCtx
-  let (env, messages) ← processHeader header opts trustLevel inputCtx messages
-  let env := env.setMainModule mainModuleName
+/-- Unsafe implementation of `load`. -/
+unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
+(configFile := dir / defaultConfigFile) (leanOpts := Options.empty)
+: LogT IO Package := do
 
-  let mut commandState := Elab.Command.mkState env messages opts
+  -- Read File & Initialize Environment
+  let input ← IO.FS.readFile configFile
+  let inputCtx := Parser.mkInputContext input configFile.toString
+  let (header, parserState, messages) ← Parser.parseHeader inputCtx
+  let (env, messages) ← processHeader header leanOpts 1024 inputCtx messages
+  let env := env.setMainModule configModuleName
+
+  -- Configure Extensions
+  let env := dirExt.setState env dir
+  let env := argsExt.setState env args
+
+  -- Elaborate File
+  let commandState := Elab.Command.mkState env messages leanOpts
   let s ← Elab.IO.processCommands inputCtx parserState commandState
   for msg in s.commandState.messages.toList do
     match msg.severity with
@@ -79,15 +87,9 @@ def runFrontend (input : String) (opts : Options)
     | MessageSeverity.warning     => logWarning (← msg.toString)
     | MessageSeverity.error       => logError (← msg.toString)
 
-  return (s.commandState.env, !s.commandState.messages.hasErrors)
-
-/-- Unsafe implementation of `load`. -/
-unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
-(configFile := dir / defaultConfigFile) (leanOpts := Options.empty)
-: LogT IO Package := do
-  let input ← IO.FS.readFile configFile
-  let (env, ok) ← runFrontend input leanOpts configFile.toString configModName
-  if ok then
+  -- Extract Configuration
+  let env := s.commandState.env
+  if !s.commandState.messages.hasErrors then
     match packageAttr.ext.getState env |>.toList with
     | [] => error s!"configuration file is missing a `package` declaration"
     | [pkgDeclName] =>

@@ -15,10 +15,10 @@ def cLibTarget (pkgDir : FilePath) : FileTarget :=
   let libFile := pkgDir / buildDir / cDir / "libffi.a"
   staticLibTarget libFile #[ffiOTarget pkgDir]
 
-package ffi (pkgDir) (args) {
+package ffi {
   -- customize layout
   srcDir := "lean"
   libRoots := #[`Ffi]
   -- specify the lib as an additional target
-  moreLibTargets := #[cLibTarget pkgDir]
+  moreLibTargets := #[cLibTarget __dir__]
 }

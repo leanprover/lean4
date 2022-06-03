@@ -66,7 +66,7 @@ def unusedVariables : Linter := fun stx => do
         match expr with
         | .fvar id _ => modify (·.insert id)
         | _          => pure ()
-        return false)
+        return true)
       return s
 
   -- determine unused variables

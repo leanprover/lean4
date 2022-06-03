@@ -18,8 +18,8 @@ namespace Name
 
 def getPrefix : Name → Name
   | anonymous => anonymous
-  | str p s _ => p
-  | num p s _ => p
+  | str p _ _ => p
+  | num p _ _ => p
 
 def getString! : Name → String
   | str _ s _ => s
@@ -31,9 +31,9 @@ def getNumParts : Name → Nat
   | num p _ _ => getNumParts p + 1
 
 def updatePrefix : Name → Name → Name
-  | anonymous, newP => anonymous
-  | str p s _, newP => Name.mkStr newP s
-  | num p s _, newP => Name.mkNum newP s
+  | anonymous, _    => anonymous
+  | str _ s _, newP => Name.mkStr newP s
+  | num _ s _, newP => Name.mkNum newP s
 
 def components' : Name → List Name
   | anonymous => []

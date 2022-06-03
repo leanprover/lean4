@@ -134,7 +134,7 @@ def mkHeader (ctx : Context) (className : Name) (arity : Nat) (indVal : Inductiv
   let binders       ← mkImplicitBinders argNames
   let targetType    ← mkInductiveApp indVal argNames
   let mut targetNames := #[]
-  for i in [:arity] do
+  for _ in [:arity] do
     targetNames := targetNames.push (← mkFreshUserName `x)
   let binders      := binders ++ (← mkInstImplicitBinders className indVal argNames)
   let binders      := binders ++ (← targetNames.mapM fun targetName => `(explicitBinderF| ($(mkIdent targetName) : $targetType)))

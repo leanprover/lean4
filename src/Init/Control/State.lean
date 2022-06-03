@@ -53,7 +53,7 @@ instance : Monad (StateT σ m) where
   fun s => x₁ s <|> x₂ () s
 
 @[inline] protected def failure [Alternative m] {α : Type u} : StateT σ m α :=
-  fun s => failure
+  fun _ => failure
 
 instance [Alternative m] : Alternative (StateT σ m) where
   failure := StateT.failure
@@ -63,7 +63,7 @@ instance [Alternative m] : Alternative (StateT σ m) where
   fun s => pure (s, s)
 
 @[inline] protected def set : σ → StateT σ m PUnit :=
-  fun s' s => pure (⟨⟩, s')
+  fun s' _ => pure (⟨⟩, s')
 
 @[inline] protected def modifyGet (f : σ → α × σ) : StateT σ m α :=
   fun s => pure (f s)

@@ -466,7 +466,7 @@ mutual
 
   /- Elaborate function application arguments. -/
   partial def main : M Expr := do
-    let s ← get
+    let _ ← get
     let fType ← normalizeFunType
     if fType.isForall then
       let binderName := fType.bindingName!
@@ -614,7 +614,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
       throwUnknownConstant (e.constName! ++ suffix)
     else
       throwInvalidFieldNotation e eType
-  | _, LVal.getOp _ idx => throwInvalidFieldNotation e eType
+  | _, LVal.getOp _ _   => throwInvalidFieldNotation e eType
   | _, _ => throwInvalidFieldNotation e eType
 
 /- whnfCore + implicit consumption.
@@ -622,7 +622,7 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
 private partial def consumeImplicits (stx : Syntax) (e eType : Expr) (hasArgs : Bool) : TermElabM (Expr × Expr) := do
   let eType ← whnfCore eType
   match eType with
-  | Expr.forallE n d b c =>
+  | Expr.forallE _ d b c =>
     if c.binderInfo.isImplicit || (hasArgs && c.binderInfo.isStrictImplicit) then
       let mvar ← mkFreshExprMVar d
       registerMVarErrorHoleInfo mvar.mvarId! stx
@@ -883,7 +883,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `($(e).$field:ident) => elabFieldName e field
     | `($e |>.$field:ident) => elabFieldName e field
     | `($e[%$bracket $idx]) => elabAppFn e (LVal.getOp bracket idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
-    | `($id:ident@$t:term) =>
+    | `($id:ident@$_:term) =>
       throwError "unexpected occurrence of named pattern"
     | `($id:ident) => do
       elabAppFnId id [] lvals namedArgs args expectedType? explicit ellipsis overloaded acc
@@ -894,7 +894,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
       elabAppFn id lvals namedArgs args expectedType? (explicit := true) ellipsis overloaded acc
     | `(@$id:ident.{$us,*}) =>
       elabAppFn (f.getArg 1) lvals namedArgs args expectedType? (explicit := true) ellipsis overloaded acc
-    | `(@$t)     => throwUnsupportedSyntax -- invalid occurrence of `@`
+    | `(@$_)     => throwUnsupportedSyntax -- invalid occurrence of `@`
     | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
     | `(.$id:ident) =>
         let fConst ← mkConst (← resolveDotName id expectedType?)

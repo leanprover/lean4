@@ -63,7 +63,7 @@ partial def FnBody.simpCase (b : FnBody) : FnBody :=
   | FnBody.case tid x xType alts =>
     let alts := alts.map fun alt => alt.modifyBody simpCase;
     reshape bs (mkSimpCase tid x xType alts)
-  | other => reshape bs term
+  | _     => reshape bs term
 
 /-- Simplify `case`
   - Remove unreachable branches.

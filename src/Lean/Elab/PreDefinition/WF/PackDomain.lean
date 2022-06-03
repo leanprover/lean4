@@ -16,7 +16,7 @@ open Meta
 private def mkTupleElems (t : Expr) (arity : Nat) : Array Expr := Id.run do
   let mut result := #[]
   let mut t := t
-  for i in [:arity - 1] do
+  for _ in [:arity - 1] do
     result := result.push (mkProj ``PSigma 0 t)
     t := mkProj ``PSigma 1 t
   result.push t
@@ -137,7 +137,7 @@ where
           | Expr.forallE n d b c =>
             withLocalDecl n c.binderInfo (← visit d) fun x => do
               mkForallFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
-          | Expr.letE n t v b c  =>
+          | Expr.letE n t v b _  =>
             withLetDecl n (← visit t) (← visit v) fun x => do
               mkLambdaFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
           | Expr.proj n i s .. => return mkProj n i (← visit s)

@@ -22,7 +22,7 @@ where
   mkElseAlt : TermElabM Syntax := do
     let mut patterns := #[]
     -- add `_` pattern for indices
-    for i in [:indVal.numIndices] do
+    for _ in [:indVal.numIndices] do
       patterns := patterns.push (← `(_))
     patterns := patterns.push (← `(_))
     patterns := patterns.push (← `(_))
@@ -37,13 +37,13 @@ where
         let type ← Core.betaReduce type -- we 'beta-reduce' to eliminate "artificial" dependencies
         let mut patterns := #[]
         -- add `_` pattern for indices
-        for i in [:indVal.numIndices] do
+        for _ in [:indVal.numIndices] do
           patterns := patterns.push (← `(_))
         let mut ctorArgs1 := #[]
         let mut ctorArgs2 := #[]
         let mut rhs ← `(true)
         -- add `_` for inductive parameters, they are inaccessible
-        for i in [:indVal.numParams] do
+        for _ in [:indVal.numParams] do
           ctorArgs1 := ctorArgs1.push (← `(_))
           ctorArgs2 := ctorArgs2.push (← `(_))
         for i in [:ctorInfo.numFields] do

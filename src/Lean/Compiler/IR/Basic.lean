@@ -326,7 +326,7 @@ def FnBody.setBody : FnBody → FnBody → FnBody
   | FnBody.dec x n c p _,    b => FnBody.dec x n c p b
   | FnBody.del x _,          b => FnBody.del x b
   | FnBody.mdata d _,        b => FnBody.mdata d b
-  | other,                   b => other
+  | other,                   _ => other
 
 @[inline] def FnBody.resetBody (b : FnBody) : FnBody :=
   b.setBody FnBody.nil
@@ -427,7 +427,7 @@ def getInfo : Decl → DeclInfo
 
 def updateBody! (d : Decl) (bNew : FnBody) : Decl :=
   match d with
-  | Decl.fdecl f xs t b info => Decl.fdecl f xs t bNew info
+  | Decl.fdecl f xs t _ info => Decl.fdecl f xs t bNew info
   | _ => panic! "expected definition"
 
 end Decl
@@ -473,27 +473,27 @@ def LocalContext.addParams (ctx : LocalContext) (ps : Array Param) : LocalContex
 def LocalContext.isJP (ctx : LocalContext) (idx : Index) : Bool :=
   match ctx.find? idx with
   | some (LocalContextEntry.joinPoint _ _) => true
-  | other => false
+  | _     => false
 
 def LocalContext.getJPBody (ctx : LocalContext) (j : JoinPointId) : Option FnBody :=
   match ctx.find? j.idx with
   | some (LocalContextEntry.joinPoint _ b) => some b
-  | other => none
+  | _     => none
 
 def LocalContext.getJPParams (ctx : LocalContext) (j : JoinPointId) : Option (Array Param) :=
   match ctx.find? j.idx with
   | some (LocalContextEntry.joinPoint ys _) => some ys
-  | other => none
+  | _     => none
 
 def LocalContext.isParam (ctx : LocalContext) (idx : Index) : Bool :=
   match ctx.find? idx with
   | some (LocalContextEntry.param _) => true
-  | other => false
+  | _     => false
 
 def LocalContext.isLocalVar (ctx : LocalContext) (idx : Index) : Bool :=
   match ctx.find? idx with
   | some (LocalContextEntry.localVar _ _) => true
-  | other => false
+  | _     => false
 
 def LocalContext.contains (ctx : LocalContext) (idx : Index) : Bool :=
   Std.RBMap.contains ctx idx
@@ -505,12 +505,12 @@ def LocalContext.getType (ctx : LocalContext) (x : VarId) : Option IRType :=
   match ctx.find? x.idx with
   | some (LocalContextEntry.param t) => some t
   | some (LocalContextEntry.localVar t _) => some t
-  | other => none
+  | _     => none
 
 def LocalContext.getValue (ctx : LocalContext) (x : VarId) : Option Expr :=
   match ctx.find? x.idx with
   | some (LocalContextEntry.localVar _ v) => some v
-  | other => none
+  | _     => none
 
 abbrev IndexRenaming := RBMap Index Index compare
 

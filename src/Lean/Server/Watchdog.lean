@@ -639,7 +639,7 @@ section MainLoop
       | Message.notification method (some params) =>
         handleNotification method (toJson params)
         mainLoop (←runClientTask)
-      | Message.response "register_ilean_watcher" result =>
+      | Message.response "register_ilean_watcher" _      =>
         mainLoop (←runClientTask)
       | _ => throwServerError "Got invalid JSON-RPC message"
     | ServerEvent.clientError e => throw e
@@ -650,7 +650,7 @@ section MainLoop
         mainLoop clientTask
       | WorkerEvent.ioError e =>
         throwServerError s!"IO error while processing events for {fw.doc.meta.uri}: {e}"
-      | WorkerEvent.crashed e =>
+      | WorkerEvent.crashed _ =>
         handleCrash fw.doc.meta.uri #[]
         mainLoop clientTask
       | WorkerEvent.terminated =>

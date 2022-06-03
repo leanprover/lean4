@@ -87,7 +87,7 @@ private def parseOptNum : Nat → String.Iterator → Nat → String.Iterator ×
       else (it, r)
 
 def expandExternPatternAux (args : List String) : Nat → String.Iterator → String → String
-  | 0,   it, r => r
+  | 0,   _,  r => r
   | i+1, it, r =>
     if ¬ it.hasNext then r
     else let c := it.curr
@@ -156,7 +156,7 @@ def getExternConstArityExport (env : Environment) (declName : Name) : IO (Option
     let (arity, _) ← (getExternConstArity declName).toIO { fileName := "<compiler>", fileMap := default } { env := env }
     return some arity
   catch
-   | IO.Error.userError msg => return none
+   | IO.Error.userError _   => return none
    | _  => return none
 
 end Lean

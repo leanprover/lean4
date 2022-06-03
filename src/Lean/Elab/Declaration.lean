@@ -20,7 +20,7 @@ private def ensureValidNamespace (name : Name) : MacroM Unit := do
     if s == "_root_" then
       Macro.throwError s!"invalid namespace '{name}', '_root_' is a reserved namespace"
     ensureValidNamespace p
-  | Name.num p .. => Macro.throwError s!"invalid namespace '{name}', it must not contain numeric parts"
+  | Name.num _ .. => Macro.throwError s!"invalid namespace '{name}', it must not contain numeric parts"
   | Name.anonymous => pure ()
 
 /- Auxiliary function for `expandDeclNamespace?` -/
@@ -28,7 +28,7 @@ private def expandDeclIdNamespace? (declId : Syntax) : MacroM (Option (Name × S
   let (id, optUnivDeclStx) := expandDeclIdCore declId
   let scpView := extractMacroScopes id
   match scpView.name with
-  | Name.str Name.anonymous s _ => return none
+  | Name.str Name.anonymous _ _ => return none
   | Name.str pre s _            =>
     ensureValidNamespace pre
     let nameNew := { scpView with name := Name.mkSimple s }.review

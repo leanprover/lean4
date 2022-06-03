@@ -29,7 +29,7 @@ def appendText (s₀ : String) : TaggedText α → TaggedText α
   | text s    => text (s ++ s₀)
   | append as => match as.back with
     | text s => append <| as.set! (as.size - 1) <| text (s ++ s₀)
-    | a      => append <| as.push (text s₀)
+    | _      => append <| as.push (text s₀)
   | a         => append #[a, text s₀]
 
 def appendTag (acc : TaggedText α) (t₀ : α) (a₀ : TaggedText α) : TaggedText α :=

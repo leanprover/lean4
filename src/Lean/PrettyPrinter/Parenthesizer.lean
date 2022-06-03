@@ -288,7 +288,7 @@ def withAntiquot.parenthesizer (antiP p : Parenthesizer) : Parenthesizer := do
     p
 
 @[combinatorParenthesizer Lean.Parser.withAntiquotSuffixSplice]
-def withAntiquotSuffixSplice.parenthesizer (k : SyntaxNodeKind) (p suffix : Parenthesizer) : Parenthesizer := do
+def withAntiquotSuffixSplice.parenthesizer (_ : SyntaxNodeKind) (p suffix : Parenthesizer) : Parenthesizer := do
   if (← getCur).isAntiquotSuffixSplice then
     visitArgs <| suffix *> p
   else
@@ -366,11 +366,11 @@ def atomic.parenthesizer (p : Parenthesizer) : Parenthesizer :=
   p
 
 @[combinatorParenthesizer Lean.Parser.lookahead]
-def lookahead.parenthesizer (p : Parenthesizer) : Parenthesizer :=
+def lookahead.parenthesizer (_ : Parenthesizer) : Parenthesizer :=
   pure ()
 
 @[combinatorParenthesizer Lean.Parser.notFollowedBy]
-def notFollowedBy.parenthesizer (p : Parenthesizer) : Parenthesizer :=
+def notFollowedBy.parenthesizer (_ : Parenthesizer) : Parenthesizer :=
   pure ()
 
 @[combinatorParenthesizer Lean.Parser.andthen]
@@ -505,7 +505,7 @@ def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := do
 
 @[combinatorParenthesizer Lean.Parser.dbgTraceState] def dbgTraceState.parenthesizer (label : String) (p : Parenthesizer) : Parenthesizer := p
 
-@[combinatorParenthesizer ite, macroInline] def ite {α : Type} (c : Prop) [h : Decidable c] (t e : Parenthesizer) : Parenthesizer :=
+@[combinatorParenthesizer ite, macroInline] def ite {_ : Type} (c : Prop) [_ : Decidable c] (t e : Parenthesizer) : Parenthesizer :=
   if c then t else e
 
 open Parser

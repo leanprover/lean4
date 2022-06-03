@@ -30,8 +30,8 @@ def Var.denote (ctx : Context) (v : Var) : Nat :=
   bif v == fixedVar then 1 else go ctx v
 where
   go : List Nat → Nat → Nat
-   | [],    i   => 0
-   | a::as, 0   => a
+   | [],    _   => 0
+   | a::_,  0   => a
    | _::as, i+1 => go as i
 
 inductive Expr where

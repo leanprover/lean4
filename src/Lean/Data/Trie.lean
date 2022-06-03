@@ -83,7 +83,7 @@ where
 
 private def updtAcc (v : Option α) (i : String.Pos) (acc : String.Pos × Option α) : String.Pos × Option α :=
   match v, acc with
-  | some v, (j, w) => (i, some v)  -- we pattern match on `acc` to enable memory reuse
+  | some v, (_, _) => (i, some v)  -- we pattern match on `acc` to enable memory reuse
   | none,   acc    => acc
 
 partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : String.Pos × Option α :=

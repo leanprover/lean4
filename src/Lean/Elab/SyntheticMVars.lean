@@ -365,7 +365,7 @@ mutual
     pending TC problems become implicit parameters for the simp theorem.
   -/
   partial def synthesizeSyntheticMVars (mayPostpone := true) (ignoreStuckTC := false) : TermElabM Unit := do
-    let rec loop (u : Unit) : TermElabM Unit := do
+    let rec loop (_ : Unit) : TermElabM Unit := do
       withRef (← getSomeSynthethicMVarsRef) <| withIncRecDepth do
         unless (← get).syntheticMVars.isEmpty do
           if ← synthesizeSyntheticMVarsStep (postponeOnError := false) (runTactics := false) then

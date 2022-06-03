@@ -21,19 +21,19 @@ namespace StateCpsT
   runK x s (fun a s => pure (a, s))
 
 @[inline] def run' {α σ : Type u} {m : Type u → Type v}  [Monad m] (x : StateCpsT σ m α) (s : σ) : m α :=
-  runK x s (fun a s => pure a)
+  runK x s (fun a _ => pure a)
 
 instance : Monad (StateCpsT σ m) where
   map  f x := fun δ s k => x δ s fun a s => k (f a) s
-  pure a   := fun δ s k => k a s
+  pure a   := fun _ s k => k a s
   bind x f := fun δ s k => x δ s fun a s => f a δ s k
 
 instance : LawfulMonad (StateCpsT σ m) := by
   refine' { .. } <;> intros <;> rfl
 
 instance : MonadStateOf σ (StateCpsT σ m) where
-  get   := fun δ s k => k s s
-  set s := fun δ _ k => k ⟨⟩ s
+  get   := fun _ s k => k s s
+  set s := fun _ _ k => k ⟨⟩ s
   modifyGet f := fun _ s k => let (a, s) := f s; k a s
 
 @[inline] protected def lift [Monad m] (x : m α) : StateCpsT σ m α :=
@@ -68,6 +68,6 @@ instance [Monad m] : MonadLift m (StateCpsT σ m) where
 
 @[simp] theorem run_eq [Monad m] (x : StateCpsT σ m α) (s : σ) : x.run s = x.runK s (fun a s => pure (a, s)) := rfl
 
-@[simp] theorem run'_eq [Monad m] (x : StateCpsT σ m α) (s : σ) : x.run' s = x.runK s (fun a s => pure a) := rfl
+@[simp] theorem run'_eq [Monad m] (x : StateCpsT σ m α) (s : σ) : x.run' s = x.runK s (fun a _ => pure a) := rfl
 
 end StateCpsT

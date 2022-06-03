@@ -120,7 +120,7 @@ def checkExpr (ty : IRType) : Expr → M Unit
     if !ty.isStruct && !ty.isUnion && c.isRef then
       (checkObjType ty) *> checkArgs ys
   | Expr.reset _ x          => checkObjVar x *> checkObjType ty
-  | Expr.reuse x i u ys     => checkObjVar x *> checkArgs ys *> checkObjType ty
+  | Expr.reuse x _ _ ys     => checkObjVar x *> checkArgs ys *> checkObjType ty
   | Expr.box xty x          => checkObjType ty *> checkScalarVar x *> checkVarType x (fun t => t == xty)
   | Expr.unbox x            => checkScalarType ty *> checkObjVar x
   | Expr.proj i x           => do
@@ -130,7 +130,7 @@ def checkExpr (ty : IRType) : Expr → M Unit
     | IRType.tobject      => checkObjType ty
     | IRType.struct _ tys => if h : i < tys.size then checkEqTypes (tys.get ⟨i,h⟩) ty else throw "invalid proj index"
     | IRType.union _ tys  => if h : i < tys.size then checkEqTypes (tys.get ⟨i,h⟩) ty else throw "invalid proj index"
-    | other               => throw s!"unexpected IR type '{xType}'"
+    | _                   => throw s!"unexpected IR type '{xType}'"
   | Expr.uproj _ x          => checkObjVar x *> checkType ty (fun t => t == IRType.usize)
   | Expr.sproj _ _ x        => checkObjVar x *> checkScalarType ty
   | Expr.isShared x         => checkObjVar x *> checkType ty (fun t => t == IRType.uint8)

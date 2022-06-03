@@ -76,7 +76,7 @@ private partial def finalize
         let tag ← getMVarTag mvarId
         if minorIdx ≥ numMinors then throwTacticEx `induction mvarId "ill-formed recursor"
         match recursorType with
-        | Expr.forallE n d b c =>
+        | Expr.forallE n d _ c =>
           let d := d.headBeta
           -- Remark is givenNames is not empty, then user provided explicit alternatives for each minor premise
           if c.binderInfo.isInstImplicit && givenNames.isEmpty then
@@ -181,7 +181,7 @@ def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (gi
         let some majorType ← whnfUntil majorLocalDecl.type recursorInfo.typeName | throwUnexpectedMajorType mvarId majorLocalDecl.type
         majorType.withApp fun majorTypeFn majorTypeArgs => do
           match majorTypeFn with
-          | Expr.const majorTypeFnName majorTypeFnLevels _ => do
+          | Expr.const _               majorTypeFnLevels _ => do
             let majorTypeFnLevels := majorTypeFnLevels.toArray
             let (recursorLevels, foundTargetLevel) ← recursorInfo.univLevelPos.foldlM (init := (#[], false))
                 fun (recursorLevels, foundTargetLevel) (univPos : RecursorUnivLevelPos) => do

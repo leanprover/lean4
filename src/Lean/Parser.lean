@@ -108,9 +108,9 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
   | ParserDescr.sepBy1 p sep psep trail             => return sepBy1.formatter (← interpretParserDescr p) sep (← interpretParserDescr psep) trail
   | ParserDescr.trailingNode k prec lhsPrec d       => return trailingNode.formatter k prec lhsPrec (← interpretParserDescr d)
   | ParserDescr.symbol tk                           => return symbol.formatter tk
-  | ParserDescr.nonReservedSymbol tk includeIdent   => return nonReservedSymbol.formatter tk
+  | ParserDescr.nonReservedSymbol tk _              => return nonReservedSymbol.formatter tk
   | ParserDescr.parser constName                    => combinatorFormatterAttribute.runDeclFor constName
-  | ParserDescr.cat catName prec                    => return categoryParser.formatter catName
+  | ParserDescr.cat catName _                       => return categoryParser.formatter catName
 
 end Formatter
 end PrettyPrinter

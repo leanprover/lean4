@@ -295,7 +295,7 @@ partial def expandFunBinders (binders : Array Syntax) (body : Syntax) : MacroM (
         let ident ← mkFreshIdent binder
         let type := binder
         loop body (i+1) (newBinders.push <| mkExplicitBinder ident type)
-      | Syntax.node _ ``Lean.Parser.Term.paren args =>
+      | Syntax.node _ ``Lean.Parser.Term.paren _    =>
         -- `(` (termParser >> parenSpecial)? `)`
         -- parenSpecial := (tupleTail <|> typeAscription)?
         let binderBody := binder[1]

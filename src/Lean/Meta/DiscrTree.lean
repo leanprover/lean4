@@ -244,7 +244,7 @@ private def isBadKey (fn : Expr) : Bool :=
   | Expr.const .. => false
   | Expr.fvar ..  => false
   | Expr.proj ..  => false
-  | Expr.forallE _ d b _ => b.hasLooseBVars
+  | Expr.forallE _ _ b _ => b.hasLooseBVars
   | _ => true
 
 /--
@@ -550,7 +550,7 @@ partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
 where
   process (skip : Nat) (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
     match skip, c with
-    | skip+1, Trie.node vs cs =>
+    | skip+1, Trie.node _  cs =>
       if cs.isEmpty then
         return result
       else

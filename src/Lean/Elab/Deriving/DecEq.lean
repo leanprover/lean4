@@ -45,7 +45,7 @@ where
       for ctorName₂ in indVal.ctors do
         let mut patterns := #[]
         -- add `_` pattern for indices
-        for i in [:indVal.numIndices] do
+        for _ in [:indVal.numIndices] do
           patterns := patterns.push (← `(_))
         if ctorName₁ == ctorName₂ then
           let alt ← forallTelescopeReducing ctorInfo.type fun xs type => do
@@ -54,7 +54,7 @@ where
             let mut ctorArgs1 := #[]
             let mut ctorArgs2 := #[]
             -- add `_` for inductive parameters, they are inaccessible
-            for i in [:indVal.numParams] do
+            for _ in [:indVal.numParams] do
               ctorArgs1 := ctorArgs1.push (← `(_))
               ctorArgs2 := ctorArgs2.push (← `(_))
             let mut todo := #[]

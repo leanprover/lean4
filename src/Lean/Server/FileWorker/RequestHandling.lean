@@ -235,7 +235,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
       return #[]
 
 open Parser.Command in
-partial def handleDocumentSymbol (p : DocumentSymbolParams)
+partial def handleDocumentSymbol (_ : DocumentSymbolParams)
     : RequestM (RequestTask DocumentSymbolResult) := do
   let doc ← readDoc
   asTask do
@@ -388,7 +388,7 @@ where
           lastLspPos := lspPos'
         }
 
-def handleSemanticTokensFull (p : SemanticTokensParams)
+def handleSemanticTokensFull (_ : SemanticTokensParams)
     : RequestM (RequestTask SemanticTokens) := do
   handleSemanticTokens 0 ⟨1 <<< 16⟩
 
@@ -400,7 +400,7 @@ def handleSemanticTokensRange (p : SemanticTokensRangeParams)
   let endPos := text.lspPosToUtf8Pos p.range.end
   handleSemanticTokens beginPos endPos
 
-partial def handleFoldingRange (p : FoldingRangeParams)
+partial def handleFoldingRange (_ : FoldingRangeParams)
   : RequestM (RequestTask (Array FoldingRange)) := do
   let doc ← readDoc
   let t ← doc.allSnaps.waitAll

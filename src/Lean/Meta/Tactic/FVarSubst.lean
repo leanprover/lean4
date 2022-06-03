@@ -58,7 +58,7 @@ def apply (s : FVarSubst) (e : Expr) : Expr :=
     | _ => none
 
 def domain (s : FVarSubst) : List FVarId :=
-  s.map.foldl (init := []) fun r k v => k :: r
+  s.map.foldl (init := []) fun r k _ => k :: r
 
 def any (p : FVarId → Expr → Bool) (s : FVarSubst) : Bool :=
   s.map.any p

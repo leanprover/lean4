@@ -28,7 +28,7 @@ abbrev Key := Name
 `KeyedDeclsAttribute` definition.
 
  Important: `mkConst valueTypeName` and `γ` must be definitionally equal. -/
-structure Def (γ : Type) where
+structure Def (_ : Type) where
   builtinName   : Name := Name.anonymous  -- Builtin attribute name, if any (e.g., `builtinTermElab)
   name          : Name    -- Attribute name (e.g., `termElab)
   descr         : String  -- Attribute description
@@ -103,7 +103,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
   let ext : Extension γ ← registerScopedEnvExtension {
     name         := df.name
     mkInitial    := return mkStateOfTable (← tableRef.get)
-    ofOLeanEntry := fun s entry => do
+    ofOLeanEntry := fun _ entry => do
       let ctx ← read
       match ctx.env.evalConstCheck γ ctx.opts df.valueTypeName entry.declName with
       | Except.ok f     => return { toOLeanEntry := entry, value := f }

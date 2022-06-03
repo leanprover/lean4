@@ -89,9 +89,9 @@ where
     for alt in c.alts, numParams in c.altNumParams do
       auxType ← whnfD auxType
       match auxType with
-      | .forallE n d b _ =>
+      | .forallE _ d b _ =>
         let (altNew, refinedAt) ← forallBoundedTelescope d (some numParams) fun xs d => do
-          forallBoundedTelescope d (some 1) fun x d => do
+          forallBoundedTelescope d (some 1) fun x _ => do
             let alt := alt.beta xs
             let alt ← mkLambdaFVars x alt -- x is the new argument we are adding to the alternative
             if checkIfRefined then

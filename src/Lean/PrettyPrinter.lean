@@ -57,7 +57,7 @@ def ppModule (stx : Syntax) : CoreM Format := do
   parenthesize Lean.Parser.Module.module.parenthesizer stx >>= format Lean.Parser.Module.module.formatter
 
 private partial def noContext : MessageData → MessageData
-  | MessageData.withContext ctx msg => noContext msg
+  | MessageData.withContext _   msg => noContext msg
   | MessageData.withNamingContext ctx msg => MessageData.withNamingContext ctx (noContext msg)
   | MessageData.nest n msg => MessageData.nest n (noContext msg)
   | MessageData.group msg  => MessageData.group (noContext msg)

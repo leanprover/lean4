@@ -360,7 +360,7 @@ end NotificationHandling
 /-! Requests here are handled synchronously rather than in the asynchronous `RequestM`. -/
 section RequestHandling
 
-def handleRpcConnect (p : RpcConnectParams) : WorkerM RpcConnected := do
+def handleRpcConnect (_ : RpcConnectParams) : WorkerM RpcConnected := do
   let (newId, newSesh) ← RpcSession.new
   let newSeshRef ← IO.mkRef newSesh
   modify fun st => { st with rpcSessions := st.rpcSessions.insert newId newSeshRef }

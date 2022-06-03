@@ -89,7 +89,7 @@ class ForIn (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v))
 
 export ForIn (forIn)
 
-class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) (d : outParam $ Membership α ρ) where
+class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) (_ : outParam $ Membership α ρ) where
   forIn' {β} [Monad m] (x : ρ) (b : β) (f : (a : α) → a ∈ x → β → m (ForInStep β)) : m β
 
 export ForIn' (forIn')
@@ -273,10 +273,10 @@ end Ne
 
 theorem Bool.of_not_eq_true : {b : Bool} → ¬ (b = true) → b = false
   | true,  h => absurd rfl h
-  | false, h => rfl
+  | false, _ => rfl
 
 theorem Bool.of_not_eq_false : {b : Bool} → ¬ (b = false) → b = true
-  | true,  h => rfl
+  | true,  _ => rfl
   | false, h => absurd rfl h
 
 theorem ne_of_beq_false [BEq α] [LawfulBEq α] {a b : α} (h : (a == b) = false) : a ≠ b := by
@@ -366,12 +366,12 @@ theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
 
 theorem decide_true_eq_true (h : Decidable True) : @decide True h = true :=
   match h with
-  | isTrue h  => rfl
+  | isTrue _  => rfl
   | isFalse h => False.elim <| h ⟨⟩
 
 theorem decide_false_eq_false (h : Decidable False) : @decide False h = false :=
   match h with
-  | isFalse h => rfl
+  | isFalse _ => rfl
   | isTrue h  => False.elim h
 
 /-- Similar to `decide`, but uses an explicit instance -/
@@ -436,7 +436,7 @@ end
 
 @[macroInline] instance {p q} [Decidable p] [Decidable q] : Decidable (p → q) :=
   if hp : p then
-    if hq : q then isTrue (fun h => hq)
+    if hq : q then isTrue (fun _ => hq)
     else isFalse (fun h => absurd (h hp) hq)
   else isTrue (fun h => absurd h hp)
 
@@ -456,34 +456,34 @@ instance {p q} [Decidable p] [Decidable q] : Decidable (p ↔ q) :=
 
 theorem if_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t e : α} : (ite c t e) = t :=
   match h with
-  | isTrue  hc  => rfl
+  | isTrue  _   => rfl
   | isFalse hnc => absurd hc hnc
 
 theorem if_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
   match h with
   | isTrue hc   => absurd hc hnc
-  | isFalse hnc => rfl
+  | isFalse _   => rfl
 
 theorem dif_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = t hc :=
   match h with
-  | isTrue  hc  => rfl
+  | isTrue  _   => rfl
   | isFalse hnc => absurd hc hnc
 
 theorem dif_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = e hnc :=
   match h with
   | isTrue hc   => absurd hc hnc
-  | isFalse hnc => rfl
+  | isFalse _   => rfl
 
 -- Remark: dite and ite are "defally equal" when we ignore the proofs.
-theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) : dite c (fun h => t) (fun h => e) = ite c t e :=
+theorem dif_eq_if (c : Prop) {h : Decidable c} {α : Sort u} (t : α) (e : α) : dite c (fun _ => t) (fun _ => e) = ite c t e :=
   match h with
-  | isTrue hc   => rfl
-  | isFalse hnc => rfl
+  | isTrue _    => rfl
+  | isFalse _   => rfl
 
 instance {c t e : Prop} [dC : Decidable c] [dT : Decidable t] [dE : Decidable e] : Decidable (if c then t else e)  :=
   match dC with
-  | isTrue hc  => dT
-  | isFalse hc => dE
+  | isTrue _   => dT
+  | isFalse _  => dE
 
 instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT : ∀ h, Decidable (t h)] [dE : ∀ h, Decidable (e h)] : Decidable (if h : c then t h else e h)  :=
   match dC with
@@ -511,7 +511,7 @@ instance : Inhabited Prop where
 deriving instance Inhabited for NonScalar, PNonScalar, True, ForInStep
 
 theorem nonempty_of_exists {α : Sort u} {p : α → Prop} : Exists (fun x => p x) → Nonempty α
-  | ⟨w, h⟩ => ⟨w⟩
+  | ⟨w, _⟩ => ⟨w⟩
 
 /- Subsingleton -/
 
@@ -532,11 +532,11 @@ instance (p : Prop) : Subsingleton p :=
 instance (p : Prop) : Subsingleton (Decidable p) :=
   Subsingleton.intro fun
     | isTrue t₁ => fun
-      | isTrue t₂  => rfl
+      | isTrue _   => rfl
       | isFalse f₂ => absurd t₁ f₂
     | isFalse f₁ => fun
       | isTrue t₂  => absurd t₂ f₁
-      | isFalse f₂ => rfl
+      | isFalse _  => rfl
 
 theorem recSubsingleton
      {p : Prop} [h : Decidable p]
@@ -576,7 +576,7 @@ def existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (f
 variable {α : Type u} {p : α → Prop}
 
 protected theorem eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
-  | ⟨x, h1⟩, ⟨_, _⟩, rfl => rfl
+  | ⟨_, _ ⟩, ⟨_, _⟩, rfl => rfl
 
 theorem eta (a : {x // p x}) (h : p (val a)) : mk (val a) h = a := by
   cases a
@@ -597,10 +597,10 @@ end Subtype
 section
 variable {α : Type u} {β : Type v}
 
-instance Sum.inhabitedLeft [h : Inhabited α] : Inhabited (Sum α β) where
+instance Sum.inhabitedLeft [_ : Inhabited α] : Inhabited (Sum α β) where
   default := Sum.inl default
 
-instance Sum.inhabitedRight [h : Inhabited β] : Inhabited (Sum α β) where
+instance Sum.inhabitedRight [_ : Inhabited β] : Inhabited (Sum α β) where
   default := Sum.inr default
 
 instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) := fun a b =>
@@ -611,8 +611,8 @@ instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : Decidab
   | Sum.inr a, Sum.inr b =>
     if h : a = b then isTrue (h ▸ rfl)
     else isFalse fun h' => Sum.noConfusion h' fun h' => absurd h' h
-  | Sum.inr a, Sum.inl b => isFalse fun h => Sum.noConfusion h
-  | Sum.inl a, Sum.inr b => isFalse fun h => Sum.noConfusion h
+  | Sum.inr _, Sum.inl _ => isFalse fun h => Sum.noConfusion h
+  | Sum.inl _, Sum.inr _ => isFalse fun h => Sum.noConfusion h
 
 end
 
@@ -627,8 +627,8 @@ instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
     | isTrue e₁ =>
       match decEq b b' with
       | isTrue e₂  => isTrue (e₁ ▸ e₂ ▸ rfl)
-      | isFalse n₂ => isFalse fun h => Prod.noConfusion h fun e₁' e₂' => absurd e₂' n₂
-    | isFalse n₁ => isFalse fun h => Prod.noConfusion h fun e₁' e₂' => absurd e₁' n₁
+      | isFalse n₂ => isFalse fun h => Prod.noConfusion h fun _   e₂' => absurd e₂' n₂
+    | isFalse n₁ => isFalse fun h => Prod.noConfusion h fun e₁' _   => absurd e₁' n₁
 
 instance [BEq α] [BEq β] : BEq (α × β) where
   beq := fun (a₁, b₁) (a₂, b₂) => a₁ == a₂ && b₁ == b₂
@@ -640,7 +640,7 @@ instance prodHasDecidableLt
     [LT α] [LT β] [DecidableEq α] [DecidableEq β]
     [(a b : α) → Decidable (a < b)] [(a b : β) → Decidable (a < b)]
     : (s t : α × β) → Decidable (s < t) :=
-  fun t s => inferInstanceAs (Decidable (_ ∨ _))
+  fun _ _ => inferInstanceAs (Decidable (_ ∨ _))
 
 theorem Prod.lt_def [LT α] [LT β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
   rfl
@@ -825,7 +825,7 @@ protected abbrev hrecOn
 end
 end Quot
 
-def Quotient {α : Sort u} (s : Setoid α) :=
+def Quotient {α : Sort u} (_ : Setoid α) :=
   @Quot α Setoid.r
 
 namespace Quotient
@@ -1017,7 +1017,7 @@ variable {α : Sort u} {β : α → Sort v}
 protected def Equiv (f₁ f₂ : ∀ (x : α), β x) : Prop := ∀ x, f₁ x = f₂ x
 
 protected theorem Equiv.refl (f : ∀ (x : α), β x) : Function.Equiv f f :=
-  fun x => rfl
+  fun _ => rfl
 
 protected theorem Equiv.symm {f₁ f₂ : ∀ (x : α), β x} : Function.Equiv f₁ f₂ → Function.Equiv f₂ f₁ :=
   fun h x => Eq.symm (h x)
@@ -1060,7 +1060,7 @@ instance {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] : Subsi
 
 /- Squash -/
 
-def Squash (α : Type u) := Quot (fun (a b : α) => True)
+def Squash (α : Type u) := Quot (fun (_ _ : α) => True)
 
 def Squash.mk {α : Type u} (x : α) : Squash α := Quot.mk _ x
 
@@ -1068,7 +1068,7 @@ theorem Squash.ind {α : Type u} {motive : Squash α → Prop} (h : ∀ (a : α)
   Quot.ind h
 
 @[inline] def Squash.lift {α β} [Subsingleton β] (s : Squash α) (f : α → β) : β :=
-  Quot.lift f (fun a b _ => Subsingleton.elim _ _) s
+  Quot.lift f (fun _ _ _ => Subsingleton.elim _ _) s
 
 instance : Subsingleton (Squash α) where
   allEq a b := by

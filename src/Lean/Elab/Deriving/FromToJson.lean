@@ -79,11 +79,11 @@ where
     forallTelescopeReducing ctorInfo.type fun xs type => do
       let mut patterns := #[]
       -- add `_` pattern for indices
-      for i in [:indVal.numIndices] do
+      for _ in [:indVal.numIndices] do
         patterns := patterns.push (← `(_))
       let mut ctorArgs := #[]
       -- add `_` for inductive parameters, they are inaccessible
-      for i in [:indVal.numParams] do
+      for _ in [:indVal.numParams] do
         ctorArgs := ctorArgs.push (← `(_))
       -- bound constructor arguments and their types
       let mut binders := #[]

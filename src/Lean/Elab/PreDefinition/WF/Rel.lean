@@ -133,7 +133,7 @@ where
     let hole ← `(_)
     for preDef in preDefs, numArg in numArgs, argIdx in argCombination, i in [:preDefs.size] do
       let mut vars := #[var]
-      for i in [:numArg - argIdx - 1] do
+      for _ in [:numArg - argIdx - 1] do
         vars := vars.push hole
       -- TODO: improve this.
       -- The following trick allows a function `f` in a mutual block to invoke `g` appearing before it with the input argument.

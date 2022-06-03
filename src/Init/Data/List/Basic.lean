@@ -89,14 +89,14 @@ theorem append_cons (as : List α) (b : α) (bs : List α) : as ++ b :: bs = as 
 instance : EmptyCollection (List α) := ⟨List.nil⟩
 
 protected def erase {α} [BEq α] : List α → α → List α
-  | [],    b => []
+  | [],    _ => []
   | a::as, b => match a == b with
     | true  => as
     | false => a :: List.erase as b
 
 def eraseIdx : List α → Nat → List α
   | [],    _   => []
-  | a::as, 0   => as
+  | _::as, 0   => as
   | a::as, n+1 => a :: eraseIdx as n
 
 def isEmpty : List α → Bool
@@ -236,7 +236,7 @@ theorem mem_of_elem_eq_true [DecidableEq α] {a : α} {as : List α} : elem a as
 theorem elem_eq_true_of_mem [DecidableEq α] {a : α} {as : List α} (h : a ∈ as) : elem a as = true := by
   induction h with
   | head _ => simp [elem]
-  | tail _ h ih => simp [elem]; split; rfl; assumption
+  | tail _ _ ih => simp [elem]; split; rfl; assumption
 
 instance [DecidableEq α] (a : α) (as : List α) : Decidable (a ∈ as) :=
   decidable_of_decidable_of_iff (Iff.intro mem_of_elem_eq_true elem_eq_true_of_mem)
@@ -303,12 +303,12 @@ def removeAll [BEq α] (xs ys : List α) : List α :=
 
 def drop : Nat → List α → List α
   | 0,   a     => a
-  | n+1, []    => []
-  | n+1, a::as => drop n as
+  | _+1, []    => []
+  | n+1, _::as => drop n as
 
 def take : Nat → List α → List α
-  | 0,   a     => []
-  | n+1, []    => []
+  | 0,   _     => []
+  | _+1, []    => []
   | n+1, a::as => a :: take n as
 
 def takeWhile (p : α → Bool) : List α → List α
@@ -368,14 +368,14 @@ theorem iota_eq_iotaTR : @iota = @iotaTR :=
   funext fun n => by simp [iotaTR, aux]
 
 def enumFrom : Nat → List α → List (Nat × α)
-  | n, [] => nil
+  | _, [] => nil
   | n, x :: xs   => (n, x) :: enumFrom (n + 1) xs
 
 def enum : List α → List (Nat × α) := enumFrom 0
 
 def init : List α → List α
   | []   => []
-  | [a]  => []
+  | [_]  => []
   | a::l => a::init l
 
 def intersperse (sep : α) : List α → List α
@@ -399,8 +399,8 @@ instance [LT α] : LT (List α) := ⟨List.lt⟩
 
 instance hasDecidableLt [LT α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
   | [],    []    => isFalse (fun h => nomatch h)
-  | [],    b::bs => isTrue (List.lt.nil _ _)
-  | a::as, []    => isFalse (fun h => nomatch h)
+  | [],    _::bs => isTrue (List.lt.nil _ _)
+  | _::as, []    => isFalse (fun h => nomatch h)
   | a::as, b::bs =>
     match h a b with
     | isTrue h₁  => isTrue (List.lt.head _ _ h₁)
@@ -420,8 +420,8 @@ instance hasDecidableLt [LT α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l₂
 
 instance [LT α] : LE (List α) := ⟨List.le⟩
 
-instance [LT α] [h : DecidableRel ((· < ·) : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
-  fun a b => inferInstanceAs (Decidable (Not _))
+instance [LT α] [_ : DecidableRel ((· < ·) : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
+  fun _ _ => inferInstanceAs (Decidable (Not _))
 
 /--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`. -/
 def isPrefixOf [BEq α] : List α → List α → Bool
@@ -436,7 +436,7 @@ def isSuffixOf [BEq α] (l₁ l₂ : List α) : Bool :=
 @[specialize] def isEqv : List α → List α → (α → α → Bool) → Bool
   | [],    [],    _   => true
   | a::as, b::bs, eqv => eqv a b && isEqv as bs eqv
-  | _,     _,     eqv => false
+  | _,     _,     _   => false
 
 protected def beq [BEq α] : List α → List α → Bool
   | [],    []    => true
@@ -446,7 +446,7 @@ protected def beq [BEq α] : List α → List α → Bool
 instance [BEq α] : BEq (List α) := ⟨List.beq⟩
 
 @[simp] def replicate : (n : Nat) → (a : α) → List α
-  | 0,   a => []
+  | 0,   _ => []
   | n+1, a => a :: replicate n a
 
 def replicateTR {α : Type u} (n : Nat) (a : α) : List α :=
@@ -466,7 +466,7 @@ theorem replicateTR_loop_replicate_eq (a : α) (m n : Nat) :
 
 def dropLast {α} : List α → List α
   | []    => []
-  | [a]   => []
+  | [_]   => []
   | a::as => a :: dropLast as
 
 @[simp] theorem length_replicate (n : Nat) (a : α) : (replicate n a).length = n := by
@@ -475,7 +475,7 @@ def dropLast {α} : List α → List α
 @[simp] theorem length_concat (as : List α) (a : α) : (concat as a).length = as.length + 1 := by
   induction as with
   | nil => rfl
-  | cons x xs ih => simp [concat, ih]
+  | cons _ xs ih => simp [concat, ih]
 
 @[simp] theorem length_set (as : List α) (i : Nat) (a : α) : (as.set i a).length = as.length := by
   induction as generalizing i with
@@ -495,12 +495,12 @@ def dropLast {α} : List α → List α
 @[simp] theorem length_append (as bs : List α) : (as ++ bs).length = as.length + bs.length := by
   induction as with
   | nil => simp
-  | cons a as ih => simp [ih, Nat.succ_add]
+  | cons _ as ih => simp [ih, Nat.succ_add]
 
 @[simp] theorem length_map (as : List α) (f : α → β) : (as.map f).length = as.length := by
   induction as with
   | nil => simp [List.map]
-  | cons a as ih => simp [List.map, ih]
+  | cons _ as ih => simp [List.map, ih]
 
 @[simp] theorem length_reverse (as : List α) : (as.reverse).length = as.length := by
   induction as with

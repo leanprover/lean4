@@ -21,7 +21,7 @@ def mkRecAppWithSyntax (e : Expr) (stx : Syntax) : Expr :=
 -/
 def getRecAppSyntax? (e : Expr) : Option Syntax :=
   match e with
-  | Expr.mdata d b _ =>
+  | Expr.mdata d _ _ =>
     match d.find recAppKey with
     | some (DataValue.ofSyntax stx) => some stx
     | _ => none

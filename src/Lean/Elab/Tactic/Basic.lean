@@ -60,7 +60,7 @@ def getGoals : TacticM (List MVarId) :=
   return (← get).goals
 
 def setGoals (mvarIds : List MVarId) : TacticM Unit :=
-  modify fun s => { s with goals := mvarIds }
+  modify fun _ => { s with goals := mvarIds }
 
 def pruneSolvedGoals : TacticM Unit := do
   let gs ← getGoals
@@ -177,7 +177,7 @@ mutual
 
   partial def evalTacticAux (stx : Syntax) : TacticM Unit :=
     withRef stx <| withIncRecDepth <| withFreshMacroScope <| match stx with
-      | Syntax.node _ k args =>
+      | Syntax.node _ k _    =>
         if k == nullKind then
           -- Macro writers create a sequence of tactics `t₁ ... tₙ` using `mkNullNode #[t₁, ..., tₙ]`
           stx.getArgs.forM evalTactic
@@ -256,7 +256,7 @@ instance {α} : OrElse (TacticM α) where
   orElse := Tactic.orElse
 
 instance : Alternative TacticM where
-  failure := fun {α} => throwError "failed"
+  failure := fun {_} => throwError "failed"
   orElse  := Tactic.orElse
 
 /-
@@ -284,7 +284,7 @@ def appendGoals (mvarIds : List MVarId) : TacticM Unit :=
 
 def replaceMainGoal (mvarIds : List MVarId) : TacticM Unit := do
   let (mvarId :: mvarIds') ← getGoals | throwNoGoalsToBeSolved
-  modify fun s => { s with goals := mvarIds ++ mvarIds' }
+  modify fun _ => { s with goals := mvarIds ++ mvarIds' }
 
 /-- Return the first goal. -/
 def getMainGoal : TacticM MVarId := do

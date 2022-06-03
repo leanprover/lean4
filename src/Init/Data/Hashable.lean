@@ -57,4 +57,4 @@ instance : Hashable Int where
     | Int.negSucc n => UInt64.ofNat (2 * n + 1)
 
 instance (P : Prop) : Hashable P where
-  hash p := 0
+  hash _ := 0

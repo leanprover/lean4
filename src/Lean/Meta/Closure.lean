@@ -195,7 +195,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
   | Expr.app f a _       => return e.updateApp! (← collect f) (← collect a)
   | Expr.mdata _ b _     => return e.updateMData! (← collect b)
   | Expr.sort u _        => return e.updateSort! (← collectLevel u)
-  | Expr.const c us _    => return e.updateConst! (← us.mapM collectLevel)
+  | Expr.const _ us _    => return e.updateConst! (← us.mapM collectLevel)
   | Expr.mvar mvarId _   =>
     let mvarDecl ← getMVarDecl mvarId
     let type ← preprocess mvarDecl.type

@@ -539,7 +539,7 @@ where
   processInaccessible (e : Expr) : M Expr := do
     let e' ← erasePatternRefAnnotations e
     match e' with
-    | Expr.fvar fvarId _ =>
+    | Expr.fvar _      _ =>
       if (← isExplicitPatternVar e') then
         processVar e
       else
@@ -873,7 +873,7 @@ private def generalize (discrs : Array Discr) (matchType : Expr) (altViews : Arr
       let ys := ysFVarIds.map mkFVar
       let matchType' ← forallBoundedTelescope matchType discrs.size fun ds type => do
         let type ← mkForallFVars ys type
-        let (discrs', ds') := Array.unzip <| Array.zip discrExprs ds |>.filter fun (di, d) => di.isFVar
+        let (discrs', ds') := Array.unzip <| Array.zip discrExprs ds |>.filter fun (di, _) => di.isFVar
         let type := type.replaceFVars discrs' ds'
         mkForallFVars ds type
       if (← isTypeCorrect matchType') then

@@ -32,7 +32,7 @@ def injectionCore (mvarId : MVarId) (fvarId : FVarId) : MetaM InjectionResultCor
     let go (type prf : Expr) : MetaM InjectionResultCore := do
       match type.eq? with
       | none           => throwTacticEx `injection mvarId "equality expected"
-      | some (α, a, b) =>
+      | some (_, a, b) =>
         let a ← whnf a
         let b ← whnf b
         let target ← getMVarType mvarId

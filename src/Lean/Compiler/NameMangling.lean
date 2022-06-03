@@ -8,7 +8,7 @@ import Lean.Data.Name
 namespace String
 
 private def mangleAux : Nat → String.Iterator → String → String
-  | 0,   it, r => r
+  | 0,   _,  r => r
   | i+1, it, r =>
     let c := it.curr
     if c.isAlpha || c.isDigit then

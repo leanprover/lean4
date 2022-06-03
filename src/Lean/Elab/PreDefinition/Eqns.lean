@@ -19,7 +19,7 @@ structure EqnInfoCore where
   deriving Inhabited
 
 partial def expand : Expr → Expr
-  | Expr.letE _ t v b _ => expand (b.instantiate1 v)
+  | Expr.letE _ _ v b _ => expand (b.instantiate1 v)
   | Expr.mdata _ b _    => expand b
   | e => e
 

@@ -747,7 +747,7 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
   let structName := view.declName
   let sourceFieldNames := getStructureFieldsFlattened env structName
   let structType := mkAppN (Lean.mkConst structName (levelParams.map mkLevelParam)) params
-  let Expr.const parentStructName us _ ← pure parentType.getAppFn | unreachable!
+  let Expr.const parentStructName _  _ ← pure parentType.getAppFn | unreachable!
   let binfo := if view.isClass && isClass env parentStructName then BinderInfo.instImplicit else BinderInfo.default
   withLocalDecl `self binfo structType fun source => do
     let declType ← instantiateMVars (← mkForallFVars params (← mkForallFVars #[source] parentType))

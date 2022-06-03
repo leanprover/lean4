@@ -30,7 +30,7 @@ private partial def withEqs (lhs rhs : Array Expr) (discrInfos : Array DiscrInfo
   go 0 #[]
 where
   go (i : Nat) (hs : Array Expr) : MetaM α := do
-    if h : i < lhs.size then
+    if _ : i < lhs.size then
       if let some hName := discrInfos[i].hName? then
         withLocalDeclD hName (← mkEqHEq lhs[i] rhs[i]) fun h =>
           go (i+1) (hs.push h)
@@ -160,7 +160,7 @@ private def isNatValueTransition (p : Problem) : Bool :=
 private def processSkipInaccessible (p : Problem) : Problem :=
   match p.vars with
   | []      => unreachable!
-  | x :: xs =>
+  | _ :: xs =>
     let alts := p.alts.map fun alt => match alt.patterns with
       | Pattern.inaccessible _ :: ps => { alt with patterns := ps }
       | _       => unreachable!
@@ -182,7 +182,7 @@ private def processLeaf (p : Problem) : StateRefT State MetaM Unit := do
 private def processAsPattern (p : Problem) : MetaM Problem :=
   match p.vars with
   | []      => unreachable!
-  | x :: xs => withGoalOf p do
+  | x :: _  => withGoalOf p do
     let alts ← p.alts.mapM fun alt => do
       match alt.patterns with
       | Pattern.as fvarId p h :: ps =>
@@ -546,7 +546,7 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
     let sizes := collectArraySizes p
     let subgoals ← caseArraySizes p.mvarId x.fvarId! sizes
     subgoals.mapIdxM fun i subgoal => do
-      if h : i.val < sizes.size then
+      if _ : i.val < sizes.size then
         let size     := sizes.get! i
         let subst    := subgoal.subst
         let elems    := subgoal.elems.toList
@@ -628,7 +628,7 @@ private def moveToFront (p : Problem) (i : Nat) : Problem :=
   if i == 0 then
     p
   else if h : i < p.vars.length then
-    let x := p.vars.get ⟨i, h⟩
+    let _ := p.vars.get ⟨i, h⟩
     { p with
       vars := List.moveToFront p.vars i
       alts := p.alts.map fun alt => { alt with patterns := List.moveToFront alt.patterns i }
@@ -891,7 +891,7 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
       if let some idx := matcherInfo.uElimPos?
       then mkLevelParam matcherConst.levelParams.toArray[idx]
       else levelZero
-    forallBoundedTelescope matcherType (some matcherInfo.numDiscrs) fun discrs t => do
+    forallBoundedTelescope matcherType (some matcherInfo.numDiscrs) fun discrs _ => do
     mkForallFVars discrs (mkConst ``PUnit [u])
 
   let matcherType ← instantiateForall matcherType matcherApp.discrs
@@ -900,7 +900,7 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
     let ty ← inferType alt
     forallTelescope ty fun xs body => do
     let xs ← xs.filterM fun x => dependsOn body x.fvarId!
-    body.withApp fun f args => do
+    body.withApp fun _ args => do
     let ctx ← getLCtx
     let localDecls := xs.map ctx.getFVar!
     let patterns ← args.mapM Match.toPattern
@@ -915,7 +915,7 @@ def getMkMatcherInputInContext (matcherApp : MatcherApp) : MetaM MkMatcherInput 
 def withMkMatcherInput (matcherName : Name) (k : MkMatcherInput → MetaM α) : MetaM α := do
   let some matcherInfo ← getMatcherInfo? matcherName | throwError "not a matcher: {matcherName}"
   let matcherConst ← getConstInfo matcherName
-  forallBoundedTelescope matcherConst.type (some matcherInfo.arity) fun xs t => do
+  forallBoundedTelescope matcherConst.type (some matcherInfo.arity) fun xs _ => do
   let matcherApp ← mkConstWithLevelParams matcherConst.name
   let matcherApp := mkAppN matcherApp xs
   let some matcherApp ← matchMatcherApp? matcherApp | throwError "not a matcher app: {matcherApp}"
@@ -931,10 +931,10 @@ private partial def updateAlts (typeNew : Expr) (altNumParams : Array Nat) (alts
     let numParams := altNumParams[i]
     let typeNew ← whnfD typeNew
     match typeNew with
-    | Expr.forallE n d b _ =>
+    | Expr.forallE _ d b _ =>
       let alt ← forallBoundedTelescope d (some numParams) fun xs d => do
         let alt ← try instantiateLambda alt xs catch _ => throwError "unexpected matcher application, insufficient number of parameters in alternative"
-        forallBoundedTelescope d (some 1) fun x d => do
+        forallBoundedTelescope d (some 1) fun x _ => do
           let alt ← mkLambdaFVars x alt -- x is the new argument we are adding to the alternative
           mkLambdaFVars xs alt
       updateAlts (b.instantiate1 alt) (altNumParams.set! i (numParams+1)) (alts.set ⟨i, h⟩ alt) (i+1)

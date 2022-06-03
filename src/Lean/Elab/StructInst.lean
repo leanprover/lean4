@@ -291,7 +291,7 @@ def formatField (formatStruct : Struct → Format) (field : Field Struct) : Form
     | FieldVal.default  => "<default>"
 
 partial def formatStruct : Struct → Format
-  | ⟨_, structName, _, fields, source⟩ =>
+  | ⟨_, _,          _, fields, source⟩ =>
     let fieldsFmt := Format.joinSep (fields.map (formatField formatStruct)) ", "
     match source with
     | Source.none             => "{" ++ fieldsFmt ++ "}"
@@ -419,7 +419,7 @@ private def expandNumLitFields (s : Struct) : TermElabM Struct :=
 private def expandParentFields (s : Struct) : TermElabM Struct := do
   let env ← getEnv
   s.modifyFieldsM fun fields => fields.mapM fun field => match field with
-    | { lhs := FieldLHS.fieldName ref fieldName :: rest, .. } =>
+    | { lhs := FieldLHS.fieldName ref fieldName :: _,    .. } =>
       match findField? env s.structName fieldName with
       | none => throwErrorAt ref "'{fieldName}' is not a field of structure '{s.structName}'"
       | some baseStructName =>
@@ -438,7 +438,7 @@ private abbrev FieldMap := HashMap Name Fields
 private def mkFieldMap (fields : Fields) : TermElabM FieldMap :=
   fields.foldlM (init := {}) fun fieldMap field =>
     match field.lhs with
-    | FieldLHS.fieldName _ fieldName :: rest =>
+    | FieldLHS.fieldName _ fieldName :: _    =>
       match fieldMap.find? fieldName with
       | some (prevField::restFields) =>
         if field.isSimple || prevField.isSimple then
@@ -574,7 +574,7 @@ private def mkCtorHeaderAux : Nat → Expr → Expr → Array MVarId → Array (
 
 private partial def getForallBody : Nat → Expr → Option Expr
   | i+1, Expr.forallE _ _ b _ => getForallBody i b
-  | i+1, _                    => none
+  | _+1, _                    => none
   | 0,   type                 => type
 
 private def propagateExpectedType (type : Expr) (numFields : Nat) (expectedType? : Option Expr) : TermElabM Unit :=
@@ -838,7 +838,7 @@ partial def step (struct : Struct) : M Unit :=
               unless (← isExprMVarAssigned mvarId) do
                 let ctx ← read
                 if (← withRef field.ref <| tryToSynthesizeDefault ctx.structs ctx.allStructNames ctx.maxDistance (getFieldName field) mvarId) then
-                  modify fun s => { s with progress := true }
+                  modify fun _ => { s with progress := true }
             | _ => pure ()
 
 partial def propagateLoop (hierarchyDepth : Nat) (d : Nat) (struct : Struct) : M Unit := do
@@ -849,7 +849,7 @@ partial def propagateLoop (hierarchyDepth : Nat) (d : Nat) (struct : Struct) : M
     if d > hierarchyDepth then
       throwErrorAt field.ref "field '{getFieldName field}' is missing"
     else withReader (fun ctx => { ctx with maxDistance := d }) do
-      modify fun s => { s with progress := false }
+      modify fun _ => { s with progress := false }
       step struct
       if (← get).progress then do
         propagateLoop hierarchyDepth 0 struct

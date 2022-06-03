@@ -23,10 +23,10 @@ theorem eq_false (h : ¬ p) : p = False :=
 theorem eq_false' (h : p → False) : p = False :=
   propext <| Iff.intro (fun h' => absurd h' h) (fun h' => False.elim h')
 
-theorem eq_true_of_decide {p : Prop} {s : Decidable p} (h : decide p = true) : p = True :=
-  propext <| Iff.intro (fun h => trivial) (fun _ => of_decide_eq_true h)
+theorem eq_true_of_decide {p : Prop} {_ : Decidable p} (h : decide p = true) : p = True :=
+  propext <| Iff.intro (fun _ => trivial) (fun _ => of_decide_eq_true h)
 
-theorem eq_false_of_decide {p : Prop} {s : Decidable p} (h : decide p = false) : p = False :=
+theorem eq_false_of_decide {p : Prop} {_ : Decidable p} (h : decide p = false) : p = False :=
   propext <| Iff.intro (fun h' => absurd h' (of_decide_eq_false h)) (fun h => False.elim h)
 
 theorem implies_congr {p₁ p₂ : Sort u} {q₁ q₂ : Sort v} (h₁ : p₁ = p₂) (h₂ : q₁ = q₂) : (p₁ → q₁) = (p₂ → q₂) :=
@@ -105,11 +105,11 @@ theorem dite_congr {s : Decidable b} [Decidable c]
 @[simp] theorem and_false (p : Prop) : (p ∧ False) = False := propext <| Iff.intro (fun h => h.2) (fun h => False.elim h)
 @[simp] theorem false_and (p : Prop) : (False ∧ p) = False := propext <| Iff.intro (fun h => h.1) (fun h => False.elim h)
 @[simp] theorem or_self (p : Prop) : (p ∨ p) = p := propext <| Iff.intro (fun | Or.inl h => h | Or.inr h => h) (fun h => Or.inl h)
-@[simp] theorem or_true (p : Prop) : (p ∨ True) = True := propext <| Iff.intro (fun h => trivial) (fun h => Or.inr trivial)
-@[simp] theorem true_or (p : Prop) : (True ∨ p) = True := propext <| Iff.intro (fun h => trivial) (fun h => Or.inl trivial)
+@[simp] theorem or_true (p : Prop) : (p ∨ True) = True := propext <| Iff.intro (fun _ => trivial) (fun _ => Or.inr trivial)
+@[simp] theorem true_or (p : Prop) : (True ∨ p) = True := propext <| Iff.intro (fun _ => trivial) (fun _ => Or.inl trivial)
 @[simp] theorem or_false (p : Prop) : (p ∨ False) = p := propext <| Iff.intro (fun | Or.inl h => h | Or.inr h => False.elim h) (fun h => Or.inl h)
 @[simp] theorem false_or (p : Prop) : (False ∨ p) = p := propext <| Iff.intro (fun | Or.inr h => h | Or.inl h => False.elim h) (fun h => Or.inr h)
-@[simp] theorem iff_self (p : Prop) : (p ↔ p) = True := propext <| Iff.intro (fun h => trivial) (fun _ => Iff.intro id id)
+@[simp] theorem iff_self (p : Prop) : (p ↔ p) = True := propext <| Iff.intro (fun _ => trivial) (fun _ => Iff.intro id id)
 @[simp] theorem iff_true (p : Prop) : (p ↔ True) = p := propext <| Iff.intro (fun h => h.mpr trivial) (fun h => Iff.intro (fun _ => trivial) (fun _ => h))
 @[simp] theorem true_iff (p : Prop) : (True ↔ p) = p := propext <| Iff.intro (fun h => h.mp trivial) (fun h => Iff.intro (fun _ => h) (fun _ => trivial))
 @[simp] theorem iff_false (p : Prop) : (p ↔ False) = ¬p := propext <| Iff.intro (fun h hp => h.mp hp) (fun h => Iff.intro h False.elim)

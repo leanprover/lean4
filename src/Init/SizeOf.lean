@@ -20,7 +20,7 @@ From now on, the inductive Compiler will automatically generate sizeOf instances
 
 /- Every Type `α` has a default SizeOf instance that just returns 0 for every element of `α` -/
 protected def default.sizeOf (α : Sort u) : α → Nat
-  | a => 0
+  | _ => 0
 
 instance (priority := low) (α : Sort u) : SizeOf α where
   sizeOf := default.sizeOf α

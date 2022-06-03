@@ -109,7 +109,7 @@ partial def updateFinishedPrefix : AsyncList ε α → BaseIO (AsyncList ε α �
 private partial def finishedPrefixAux : List α → AsyncList ε α → List α
   | acc, cons hd tl   => finishedPrefixAux (hd :: acc) tl
   | acc, nil          => acc
-  | acc, asyncTail tl => acc
+  | acc, asyncTail _  => acc
 
 /-- The longest already-computed prefix of the list. -/
 def finishedPrefix : AsyncList ε α → List α :=

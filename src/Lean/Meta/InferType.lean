@@ -40,7 +40,7 @@ where
       | Expr.letE _ t v b _    => return e.updateLet! (← visit t offset) (← visit v offset) (← visit b (offset+1))
       | Expr.mdata _ b _       => return e.updateMData! (← visit b offset)
       | Expr.proj _ _ b _      => return e.updateProj! (← visit b offset)
-      | Expr.app f a _         =>
+      | Expr.app _ _ _         =>
         e.withAppRev fun f revArgs => do
         let fNew    ← visit f offset
         let revArgs ← revArgs.mapM (visit · offset)
@@ -305,7 +305,7 @@ partial def isProofQuick : Expr → MetaM LBool
   | Expr.lam _ _ b _      => isProofQuick b
   | Expr.letE _ _ _ b _   => isProofQuick b
   | Expr.proj _ _ _ _     => return LBool.undef
-  | Expr.forallE _ _ b _  => return LBool.false
+  | Expr.forallE _ _ _ _  => return LBool.false
   | Expr.mdata _ e _      => isProofQuick e
   | Expr.const c lvls _   => do let constType ← inferConstType c lvls; isArrowProposition constType 0
   | Expr.fvar fvarId _    => do let fvarType  ← inferFVarType fvarId;  isArrowProposition fvarType 0
@@ -328,7 +328,7 @@ def isProof (e : Expr) : MetaM Bool := do
    if `type` is of the form `A_1 -> ... -> A_n -> Sort _`.
    Remark: `type` can be a dependent arrow. -/
 private partial def isArrowType : Expr → Nat → MetaM LBool
-  | Expr.sort u _,        0   => return LBool.true
+  | Expr.sort _ _,        0   => return LBool.true
   | Expr.forallE _ _ _ _, 0   => return LBool.false
   | Expr.forallE _ _ b _, n+1 => isArrowType b n
   | Expr.letE _ _ _ b _,  n   => isArrowType b n
@@ -359,7 +359,7 @@ partial def isTypeQuick : Expr → MetaM LBool
   | Expr.lam _ _ _ _      => return LBool.false
   | Expr.letE _ _ _ b _   => isTypeQuick b
   | Expr.proj _ _ _ _     => return LBool.undef
-  | Expr.forallE _ _ b _  => return LBool.true
+  | Expr.forallE _ _ _ _  => return LBool.true
   | Expr.mdata _ e _      => isTypeQuick e
   | Expr.const c lvls _   => do let constType ← inferConstType c lvls; isArrowType constType 0
   | Expr.fvar fvarId _    => do let fvarType  ← inferFVarType fvarId;  isArrowType fvarType 0

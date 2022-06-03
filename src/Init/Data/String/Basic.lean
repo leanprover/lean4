@@ -45,7 +45,7 @@ def toList (s : String) : List Char :=
   s.data
 
 private def utf8GetAux : List Char → Pos → Pos → Char
-  | [],    i, p => default
+  | [],    _, _ => default
   | c::cs, i, p => if i = p then c else utf8GetAux cs (i + c) p
 
 @[extern "lean_string_utf8_get"]
@@ -56,7 +56,7 @@ def getOp (self : String) (idx : Pos) : Char :=
   self.get idx
 
 private def utf8SetAux (c' : Char) : List Char → Pos → Pos → List Char
-  | [],    i, p => []
+  | [],    _, _ => []
   | c::cs, i, p =>
     if i = p then (c'::cs) else c::(utf8SetAux c' cs (i + c) p)
 
@@ -73,7 +73,7 @@ def next (s : @& String) (p : @& Pos) : Pos :=
   p + c
 
 private def utf8PrevAux : List Char → Pos → Pos → Pos
-  | [],    i, p => 0
+  | [],    _, _ => 0
   | c::cs, i, p =>
     let i' := i + c
     if i' = p then i else utf8PrevAux cs i' p
@@ -232,7 +232,7 @@ def remainingBytes : Iterator → Nat
   | ⟨s, i⟩ => s.endPos.byteIdx - i.byteIdx
 
 def pos : Iterator → Pos
-  | ⟨s, i⟩ => i
+  | ⟨_, i⟩ => i
 
 def curr : Iterator → Char
   | ⟨s, i⟩ => get s i
@@ -250,7 +250,7 @@ def hasNext : Iterator → Bool
   | ⟨s, i⟩ => i.byteIdx < s.endPos.byteIdx
 
 def hasPrev : Iterator → Bool
-  | ⟨s, i⟩ => i.byteIdx > 0
+  | ⟨_, i⟩ => i.byteIdx > 0
 
 def setCurr : Iterator → Char → Iterator
   | ⟨s, i⟩, c => ⟨s.set i c, i⟩
@@ -403,11 +403,11 @@ return the offset there of the previous codepoint. -/
     if absP = b then p else { byteIdx := (s.prev absP).byteIdx - b.byteIdx }
 
 def nextn : Substring → Nat → String.Pos → String.Pos
-  | ss, 0,   p => p
+  | _,  0,   p => p
   | ss, i+1, p => ss.nextn i (ss.next p)
 
 def prevn : Substring → Nat → String.Pos → String.Pos
-  | ss, 0,   p => p
+  | _,  0,   p => p
   | ss, i+1, p => ss.prevn i (ss.prev p)
 
 @[inline] def front (s : Substring) : Char :=
@@ -423,16 +423,16 @@ or `s.bsize` if `c` doesn't occur. -/
   | ss@⟨s, b, e⟩, n => ⟨s, b + ss.nextn n 0, e⟩
 
 @[inline] def dropRight : Substring → Nat → Substring
-  | ss@⟨s, b, e⟩, n => ⟨s, b, b + ss.prevn n ⟨ss.bsize⟩⟩
+  | ss@⟨s, b, _⟩, n => ⟨s, b, b + ss.prevn n ⟨ss.bsize⟩⟩
 
 @[inline] def take : Substring → Nat → Substring
-  | ss@⟨s, b, e⟩, n => ⟨s, b, b + ss.nextn n 0⟩
+  | ss@⟨s, b, _⟩, n => ⟨s, b, b + ss.nextn n 0⟩
 
 @[inline] def takeRight : Substring → Nat → Substring
   | ss@⟨s, b, e⟩, n => ⟨s, b + ss.prevn n ⟨ss.bsize⟩, e⟩
 
 @[inline] def atEnd : Substring → String.Pos → Bool
-  | ⟨s, b, e⟩, p => b + p == e
+  | ⟨_, b, e⟩, p => b + p == e
 
 @[inline] def extract : Substring → String.Pos → String.Pos → Substring
   | ⟨s, b, e⟩, b', e' => if b' ≥ e' then ⟨"", 0, 0⟩ else ⟨s, e.min (b+b'), e.min (b+e')⟩

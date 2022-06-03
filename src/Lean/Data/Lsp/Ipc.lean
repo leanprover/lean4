@@ -61,7 +61,7 @@ partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target :
     | Message.response id _ =>
       if id == waitForDiagnosticsId then return []
       else loop
-    | Message.responseError id code msg _ =>
+    | Message.responseError id _    msg _ =>
       if id == waitForDiagnosticsId then
         throw $ userError s!"Waiting for diagnostics failed: {msg}"
       else loop

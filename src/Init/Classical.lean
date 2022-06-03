@@ -56,7 +56,7 @@ theorem em (p : Prop) : p ∨ ¬p :=
   | Or.inl hne => Or.inr (mt p_implies_uv hne)
   | Or.inr h   => Or.inl h
 
-theorem exists_true_of_nonempty {α : Sort u} : Nonempty α → ∃ x : α, True
+theorem exists_true_of_nonempty {α : Sort u} : Nonempty α → ∃ _ : α, True
   | ⟨x⟩ => ⟨x, trivial⟩
 
 noncomputable def inhabited_of_nonempty {α : Sort u} (h : Nonempty α) : Inhabited α :=
@@ -75,7 +75,7 @@ noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) where
   default := inferInstance
 
 noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
-  fun x y => inferInstance
+  fun _ _ => inferInstance
 
 noncomputable def typeDecidable (α : Sort u) : PSum α (α → False) :=
   match (propDecidable (Nonempty α)) with

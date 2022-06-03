@@ -61,7 +61,7 @@ def Step.updateResult : Step → Result → Step
 structure Methods where
   pre        : Expr → SimpM Step          := fun e => return Step.visit { expr := e }
   post       : Expr → SimpM Step          := fun e => return Step.done { expr := e }
-  discharge? : Expr → SimpM (Option Expr) := fun e => return none
+  discharge? : Expr → SimpM (Option Expr) := fun _ => return none
   deriving Inhabited
 
 /- Internal monad -/

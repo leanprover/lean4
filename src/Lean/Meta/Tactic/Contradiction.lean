@@ -133,7 +133,7 @@ private def processGenDiseq (mvarId : MVarId) (localDecl : LocalDecl) : MetaM Bo
         if let some (_, lhs, _) ← matchEq? (← inferType arg) then
           unless (← isDefEq arg (← mkEqRefl lhs)) do
             return none
-        if let some (α, lhs, _,  _) ← matchHEq? (← inferType arg) then
+        if let some (_, lhs, _,  _) ← matchHEq? (← inferType arg) then
           unless (← isDefEq arg (← mkHEqRefl lhs)) do
             return none
     let falseProof ← instantiateMVars (mkAppN localDecl.toExpr args)

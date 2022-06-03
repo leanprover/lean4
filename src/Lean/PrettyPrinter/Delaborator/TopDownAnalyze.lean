@@ -139,7 +139,7 @@ def returnsPi (motive : Expr) : MetaM Bool := do
 
 def isNonConstFun (motive : Expr) : MetaM Bool := do
   match motive with
-  | Expr.lam name d b _ => isNonConstFun b
+  | Expr.lam _    _ b _ => isNonConstFun b
   | _ => return motive.hasLooseBVars
 
 def isSimpleHOFun (motive : Expr) : MetaM Bool :=
@@ -229,7 +229,7 @@ def isHigherOrder (type : Expr) : MetaM Bool := do
   forallTelescopeReducing type fun xs b => return xs.size > 0 && b.isSort
 
 def isFunLike (e : Expr) : MetaM Bool := do
-  forallTelescopeReducing (← inferType e) fun xs b => return xs.size > 0
+  forallTelescopeReducing (← inferType e) fun xs _ => return xs.size > 0
 
 def isSubstLike (e : Expr) : Bool :=
   e.isAppOfArity ``Eq.ndrec 6 || e.isAppOfArity ``Eq.rec 6
@@ -293,7 +293,7 @@ where
     let mType ← whnf mType
     if not (i < args.size) then return ()
     match fType, mType with
-    | Expr.forallE _ fd fb _, Expr.forallE _ md mb _ => do
+    | Expr.forallE _ fd fb _, Expr.forallE _ _  mb _ => do
       -- TODO: do I need to check (← okBottomUp? args[i] mvars[i] fuel).isSafe here?
       -- if so, I'll need to take a callback
       if fd.isOutParam then
@@ -441,7 +441,7 @@ mutual
           annotateBool `pp.analysis.blockImplicit
 
     analyzeConst : AnalyzeM Unit := do
-      let Expr.const n ls .. ← getExpr | unreachable!
+      let Expr.const _ ls .. ← getExpr | unreachable!
       if !(← read).knowsLevel && !ls.isEmpty then
         -- TODO: this is a very crude heuristic, motivated by https://github.com/leanprover/lean4/issues/590
         unless getPPAnalyzeOmitMax (← getOptions) && ls.any containsBadMax do
@@ -458,7 +458,7 @@ mutual
       withBindingBody Name.anonymous analyze
 
     analyzeLet : AnalyzeM Unit := do
-      let Expr.letE n t v body .. ← getExpr | unreachable!
+      let Expr.letE _ _ v _    .. ← getExpr | unreachable!
       if !(← canBottomUp v) then
         annotateBool `pp.analysis.letVarType
         withLetVarType $ withKnowing true false analyze
@@ -530,11 +530,11 @@ mutual
             modify fun s => { s with bottomUps := s.bottomUps.set! i true }
 
     applyFunBinderHeuristic := do
-      let { f, args, mvars, bInfos, .. } ← read
+      let { _, args, mvars, bInfos, .. } ← read
 
       let rec core (argIdx : Nat) (mvarType : Expr) : AnalyzeAppM Bool := do
         match ← getExpr, mvarType with
-        | Expr.lam .., Expr.forallE n t b .. =>
+        | Expr.lam .., Expr.forallE _ t b .. =>
           let mut annotated := false
           for i in [:argIdx] do
             if ← pure (bInfos[i] == BinderInfo.implicit) <&&> valUnknown mvars[i] <&&> withNewMCtxDepth (checkpointDefEq t mvars[i]) then

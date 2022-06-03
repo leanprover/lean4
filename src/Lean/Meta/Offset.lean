@@ -84,7 +84,7 @@ private def getOffset (e : Expr) : OptionT MetaM (Expr × Nat) :=
   getOffsetAux e true
 
 private partial def isOffset : Expr → OptionT MetaM (Expr × Nat)
-  | e@(Expr.app _ a _) =>
+  | e@(Expr.app _ _ _) =>
     let f := e.getAppFn
     match f with
     | Expr.mvar .. => withInstantiatedMVars e isOffset

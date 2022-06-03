@@ -298,10 +298,10 @@ def Info.toElabInfo? : Info → Option ElabInfo
   | ofTacticInfo i         => some i.toElabInfo
   | ofTermInfo i           => some i.toElabInfo
   | ofCommandInfo i        => some i.toElabInfo
-  | ofMacroExpansionInfo i => none
-  | ofFieldInfo i          => none
-  | ofCompletionInfo i     => none
-  | ofCustomInfo i         => none
+  | ofMacroExpansionInfo _ => none
+  | ofFieldInfo _          => none
+  | ofCompletionInfo _     => none
+  | ofCustomInfo _         => none
 
 /--
   Helper function for propagating the tactic metavariable context to its children nodes.

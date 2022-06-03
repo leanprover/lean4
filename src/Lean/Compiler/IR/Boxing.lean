@@ -290,7 +290,7 @@ def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody 
   | Expr.ap f ys =>
     boxArgsIfNeeded ys fun ys =>
     unboxResultIfNeeded x ty (Expr.ap f ys) b
-  | other =>
+  | _     =>
     return FnBody.vdecl x ty e b
 
 partial def visitFnBody : FnBody → M FnBody

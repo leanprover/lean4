@@ -70,9 +70,9 @@ inductive MVarErrorKind where
 
 instance : ToString MVarErrorKind where
   toString
-    | MVarErrorKind.implicitArg ctx => "implicitArg"
+    | MVarErrorKind.implicitArg _   => "implicitArg"
     | MVarErrorKind.hole            => "hole"
-    | MVarErrorKind.custom msg      => "custom"
+    | MVarErrorKind.custom _        => "custom"
 
 structure MVarErrorInfo where
   mvarId    : MVarId
@@ -1040,7 +1040,7 @@ private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? :
         (try
           elabFn.value stx expectedType?
         catch ex => match ex with
-          | Exception.error ref msg =>
+          | Exception.error _   _   =>
             if (← read).errToSorry then
               exceptionToSorry ex expectedType?
             else
@@ -1092,7 +1092,7 @@ instance : MonadMacroAdapter TermElabM where
 
 private def isExplicit (stx : Syntax) : Bool :=
   match stx with
-  | `(@$f) => true
+  | `(@$_) => true
   | _      => false
 
 private def isExplicitApp (stx : Syntax) : Bool :=
@@ -1115,22 +1115,22 @@ private def isHole (stx : Syntax) : Bool :=
   match stx with
   | `(_)          => true
   | `(? _)        => true
-  | `(? $x:ident) => true
+  | `(? $_:ident) => true
   | _             => false
 
 private def isTacticBlock (stx : Syntax) : Bool :=
   match stx with
-  | `(by $x:tacticSeq) => true
+  | `(by $_:tacticSeq) => true
   | _ => false
 
 private def isNoImplicitLambda (stx : Syntax) : Bool :=
   match stx with
-  | `(no_implicit_lambda% $x:term) => true
+  | `(no_implicit_lambda% $_:term) => true
   | _ => false
 
 private def isTypeAscription (stx : Syntax) : Bool :=
   match stx with
-  | `(($e : $type)) => true
+  | `(($_ : $type)) => true
   | _               => false
 
 def hasNoImplicitLambdaAnnotation (type : Expr) : Bool :=
@@ -1541,7 +1541,7 @@ where process (candidates : List (Name × List String)) : TermElabM (List (Expr 
   `(v.head, id, [f₁, f₂])` where `id` is an identifier for `v.head`, and `f₁` and `f₂` are identifiers for fields `"bla"` and `"boo"`. -/
 def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × Syntax × List Syntax)) := do
   match ident with
-  | Syntax.ident info rawStr n preresolved =>
+  | Syntax.ident _    _      n preresolved =>
     let r ← resolveName ident n preresolved explicitLevels expectedType?
     r.mapM fun (c, fields) => do
       let ids := ident.identComponents (nFields? := fields.length)
@@ -1552,7 +1552,7 @@ def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (
   match stx with
   | Syntax.ident _ _ val preresolved => do
     let rs ← try resolveName stx val preresolved [] catch _ => pure []
-    let rs := rs.filter fun ⟨f, projs⟩ => projs.isEmpty
+    let rs := rs.filter fun ⟨_, projs⟩ => projs.isEmpty
     let fs := rs.map fun (f, _) => f
     match fs with
     | []  => return none

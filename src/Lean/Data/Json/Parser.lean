@@ -168,7 +168,7 @@ partial def objectCore (anyCore : Unit → Parsec Json) : Parsec (RBNode String 
 
 -- takes a unit parameter so that
 -- we can use the equation compiler and recursion
-partial def anyCore (u : Unit) : Parsec Json := do
+partial def anyCore (_ : Unit) : Parsec Json := do
   let c ← peek!
   if c = '[' then
     skip; ws

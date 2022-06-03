@@ -27,11 +27,11 @@ class CoeTail (α : Sort u) (β : Sort v) where
 class CoeHTCT (α : Sort u) (β : Sort v) where
   coe : α → β
 
-class CoeDep (α : Sort u) (a : α) (β : Sort v) where
+class CoeDep (α : Sort u) (_ : α) (β : Sort v) where
   coe : β
 
 /- Combines CoeHead, CoeTC, CoeTail, CoeDep -/
-class CoeT (α : Sort u) (a : α) (β : Sort v) where
+class CoeT (α : Sort u) (_ : α) (β : Sort v) where
   coe : β
 
 class CoeFun (α : Sort u) (γ : outParam (α → Sort v)) where

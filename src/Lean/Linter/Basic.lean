@@ -111,7 +111,8 @@ def unusedVariables : Linter := fun stx => do
     if ignoredPatternFns.any (· declStx stack) then
       continue
 
-    if uses.isEmpty && !tacticFVarUses.contains id then
+    if uses.isEmpty && !tacticFVarUses.contains id &&
+        decl.aliases.all (match · with | .fvar id => !tacticFVarUses.contains id | _ => false) then
       publishMessage s!"unused variable `{localDecl.userName}`" range
 
   return ()

@@ -20,6 +20,8 @@ open Lsp Lean.Elab Std
 
 structure Reference where
   ident : RefIdent
+  /-- FVarIds that are logically identical to this reference -/
+  aliases : Array RefIdent := #[]
   range : Lsp.Range
   stx : Syntax
   ci : ContextInfo
@@ -177,10 +179,12 @@ partial def combineFvars (refs : Array Reference) : Array Reference := Id.run do
   for ref in refs do
     match ref with
     | { ident := ident@(RefIdent.fvar id), isBinder, .. } =>
-      -- downgrade chained definitions to usages
-      -- (we shouldn't completely remove them in case they do not have usages)
-      let isBinder := isBinder && !idMap.contains id
-      refs' := refs'.push { ref with ident := applyIdMap idMap ident, isBinder }
+      if isBinder && idMap.contains id then
+        -- downgrade chained definitions to usages
+        -- (we shouldn't completely remove them in case they do not have usages)
+        refs' := refs'.push { ref with ident := applyIdMap idMap ident, isBinder := false, aliases := #[ident] }
+      else
+        refs' := refs'.push { ref with ident := applyIdMap idMap ident }
     | _ =>
       refs' := refs'.push ref
   refs'
@@ -197,8 +201,10 @@ where
 def dedupReferences (refs : Array Reference) : Array Reference := Id.run do
   let mut refsByIdAndRange : HashMap (RefIdent × Lsp.Range) Reference := HashMap.empty
   for ref in refs do
-    if ref.isBinder || !(refsByIdAndRange.contains (ref.ident, ref.range)) then
-      refsByIdAndRange := refsByIdAndRange.insert (ref.ident, ref.range) ref
+    let key := (ref.ident, ref.range)
+    refsByIdAndRange := match refsByIdAndRange[key] with
+      | some ref' => refsByIdAndRange.insert key { ref' with isBinder := ref'.isBinder || ref.isBinder, aliases := ref'.aliases ++ ref.aliases }
+      | none => refsByIdAndRange.insert key ref
 
   let dedupedRefs := refsByIdAndRange.fold (init := #[]) fun refs _ ref => refs.push ref
   return dedupedRefs.qsort (·.range < ·.range)

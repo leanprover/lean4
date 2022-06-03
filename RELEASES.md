@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* [Add unused variables linter](https://github.com/leanprover/lean4/pull/1159). Feedback welcome!
+
 * Lean now generates an error if the body of a declaration body contains a universe parameter that does not occur in the declaration type, nor is an explicit parameter.
   Examples:
   ```lean

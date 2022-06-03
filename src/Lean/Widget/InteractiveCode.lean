@@ -26,8 +26,8 @@ structure SubexprInfo where
   /-- The `Elab.Info` node with the semantics of this part of the output. -/
   info : WithRpcRef InfoWithCtx
   /-- The position of this subexpression within the top-level expression.
-  See `Lean.PrettyPrinter.Delaborator.SubExpr`. -/
-  subexprPos : Nat
+  See `Lean.SubExpr`. -/
+  subexprPos : Lean.SubExpr.Pos
   -- TODO(WN): add fields for semantic highlighting
   -- kind : Lsp.SymbolKind
   deriving Inhabited, RpcEncoding

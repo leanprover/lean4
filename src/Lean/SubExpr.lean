@@ -15,8 +15,8 @@ abbrev SubExpr.Pos := Nat
 
 /-- An expression and the position of a subexpression within this expression.
 
-Subexpressions are encoded as the parent root expression `e` and a
-position `p : Pos` denoting a particular subexpression in `e`.
+Subexpressions are encoded as the current subexpression `e` and a
+position `p : Pos` denoting `e`'s position with respect to the root expression.
 
 We use a simple encoding scheme for expression positions `Pos`:
 every `Expr` constructor has at most 3 direct expression children. Considering an expression's type

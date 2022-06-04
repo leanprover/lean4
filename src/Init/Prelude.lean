@@ -170,8 +170,9 @@ structure Subtype {α : Sort u} (p : α → Prop) where
 /-- Auxiliary Declaration used to implement the notation (a : α) -/
 @[reducible] def typedExpr (α : Sort u) (a : α) : α := a
 
+set_option linter.unusedVariables.funArgs false in
 /-- Auxiliary Declaration used to implement the named patterns `x@h:p` -/
-@[reducible] def namedPattern {α : Sort u} (x a : α) (_ : Eq x a) : α := a
+@[reducible] def namedPattern {α : Sort u} (x a : α) (h : Eq x a) : α := a
 
 /- Auxiliary axiom used to implement `sorry`. -/
 @[extern "lean_sorry", neverExtract]
@@ -384,7 +385,7 @@ instance : Inhabited Nat where
   default := Nat.zero
 
 /- For numeric literals notation -/
-class OfNat (α : Type u) (_ : Nat) where
+class OfNat (α : Type u) (n : Nat) where
   ofNat : α
 
 @[defaultInstance 100] /- low prio -/

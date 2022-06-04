@@ -89,7 +89,7 @@ class ForIn (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v))
 
 export ForIn (forIn)
 
-class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) (_ : outParam $ Membership α ρ) where
+class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) (d : outParam $ Membership α ρ) where
   forIn' {β} [Monad m] (x : ρ) (b : β) (f : (a : α) → a ∈ x → β → m (ForInStep β)) : m β
 
 export ForIn' (forIn')
@@ -825,7 +825,8 @@ protected abbrev hrecOn
 end
 end Quot
 
-def Quotient {α : Sort u} (_ : Setoid α) :=
+set_option linter.unusedVariables.funArgs false in
+def Quotient {α : Sort u} (s : Setoid α) :=
   @Quot α Setoid.r
 
 namespace Quotient

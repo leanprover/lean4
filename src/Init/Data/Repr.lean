@@ -29,7 +29,7 @@ abbrev reprArg [Repr α] (a : α) : Format :=
 
 /- Auxiliary class for marking types that should be considered atomic by `Repr` methods.
    We use it at `Repr (List α)` to decide whether `bracketFill` should be used or not. -/
-class ReprAtom (_ : Type u)
+class ReprAtom (α : Type u)
 
 -- This instance is needed because `id` is not reducible
 instance [Repr α] : Repr (id α) :=

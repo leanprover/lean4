@@ -27,9 +27,6 @@ def synthesizeArgs (thmName : Name) (xs : Array Expr) (bis : Array BinderInfo) (
         return false
     else if (← instantiateMVars x).isMVar then
       if (← isProp type) then
-        if (← hasAssignableMVar (← instantiateMVars type)) then
-          trace[Meta.Tactic.simp.discharge] "{thmName}, hypothesis contains metavariables{indentExpr type}"
-          return false
         match (← discharge? type) with
         | some proof =>
           unless (← isDefEq x proof) do

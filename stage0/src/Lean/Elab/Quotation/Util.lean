@@ -19,6 +19,7 @@ def getAntiquotationIds (stx : Syntax) : TermElabM (Array Syntax) := do
     if (isAntiquot stx || isTokenAntiquot stx) && !isEscapedAntiquot stx then
       let anti := getAntiquotTerm stx
       if anti.isIdent then ids := ids.push anti
+      else if anti.isOfKind ``Parser.Term.hole then pure ()
       else throwErrorAt stx "complex antiquotation not allowed here"
   return ids
 

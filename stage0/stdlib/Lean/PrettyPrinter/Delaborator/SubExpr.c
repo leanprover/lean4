@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.PrettyPrinter.Delaborator.SubExpr
-// Imports: Init Lean.Meta.Basic Std.Data.RBMap
+// Imports: Init Lean.Meta.Basic Lean.SubExpr Std.Data.RBMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,7 +23,6 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_wit
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetValue___spec__11___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetValue___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint64_t lean_uint64_of_nat(lean_object*);
 lean_object* l_Lean_Expr_bindingDomain_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_getPos___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -40,7 +39,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_PrettyPrinter_Delab
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_descend___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isApp(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-static uint64_t l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr___closed__1;
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetValue___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_instInhabitedHoleIterator;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withNaryArg___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -50,7 +48,6 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_wit
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_HoleIterator_toPos(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetVarType___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
-static lean_object* l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr___closed__2;
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withNaryArg___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_pow(lean_object*, lean_object*);
@@ -101,7 +98,6 @@ static lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_instInhabitedHoleIt
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_getExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withNaryArg___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_nextExtraPos___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr___closed__3;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetVarType___spec__9___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -120,7 +116,6 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_wit
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_PrettyPrinter_Delaborator_SubExpr_withBindingBody___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetValue___spec__6(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_maxChildren;
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___spec__11___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withAppFnArgs(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___spec__6(lean_object*);
@@ -133,7 +128,6 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_wit
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___rarg___lambda__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedExpr;
-LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_mkRoot(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetVarType___spec__5(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetValue___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withBindingBody___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -195,7 +189,6 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_nextExtraPos__
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withAppFn___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___rarg___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_withAppArg___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetVarType___spec__6(lean_object*);
@@ -262,66 +255,6 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_wit
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_HoleIterator_curr___default;
 LEAN_EXPORT lean_object* l_panic___at_Lean_PrettyPrinter_Delaborator_SubExpr_withLetVarType___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-static uint64_t _init_l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr___closed__1() {
-_start:
-{
-lean_object* x_1; uint64_t x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_uint64_of_nat(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr___closed__2() {
-_start:
-{
-lean_object* x_1; uint64_t x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr___closed__1;
-x_3 = lean_alloc_ctor(0, 1, 8);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint64(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr___closed__2;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr___closed__3;
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_maxChildren() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_unsigned_to_nat(4u);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_mkRoot(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = lean_unsigned_to_nat(1u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_getExpr___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1055,7 +988,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__2;
-x_3 = lean_unsigned_to_nat(70u);
+x_3 = lean_unsigned_to_nat(59u);
 x_4 = lean_unsigned_to_nat(36u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1443,7 +1376,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withMDataExpr___rarg___lambda__2___closed__1;
-x_3 = lean_unsigned_to_nat(74u);
+x_3 = lean_unsigned_to_nat(63u);
 x_4 = lean_unsigned_to_nat(35u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1806,7 +1739,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetVarType___rarg___lambda__1___closed__1;
-x_3 = lean_unsigned_to_nat(78u);
+x_3 = lean_unsigned_to_nat(67u);
 x_4 = lean_unsigned_to_nat(38u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2168,7 +2101,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetValue___rarg___lambda__1___closed__1;
-x_3 = lean_unsigned_to_nat(82u);
+x_3 = lean_unsigned_to_nat(71u);
 x_4 = lean_unsigned_to_nat(38u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2582,7 +2515,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___rarg___lambda__2___closed__1;
-x_3 = lean_unsigned_to_nat(86u);
+x_3 = lean_unsigned_to_nat(75u);
 x_4 = lean_unsigned_to_nat(38u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3191,6 +3124,7 @@ return x_4;
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_SubExpr(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_RBMap(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_PrettyPrinter_Delaborator_SubExpr(uint8_t builtin, lean_object* w) {
@@ -3203,18 +3137,12 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lean_SubExpr(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Std_Data_RBMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr___closed__1 = _init_l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr___closed__1();
-l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr___closed__2 = _init_l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr___closed__2();
-lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr___closed__2);
-l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr___closed__3 = _init_l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr___closed__3();
-lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr___closed__3);
-l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr = _init_l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr();
-lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_instInhabitedSubExpr);
-l_Lean_PrettyPrinter_Delaborator_SubExpr_maxChildren = _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_maxChildren();
-lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_SubExpr_maxChildren);
 l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___rarg___lambda__1___closed__1 = _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___rarg___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___rarg___lambda__1___closed__1);
 l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__1 = _init_l_Lean_PrettyPrinter_Delaborator_SubExpr_withProj___rarg___lambda__1___closed__1();

@@ -183,6 +183,7 @@ instance : MonadLog CommandElabM where
   getRef      := getRef
   getFileMap  := return (← read).fileMap
   getFileName := return (← read).fileName
+  hasErrors   := return (← get).messages.hasErrors
   logMessage msg := do
     let currNamespace ← getCurrNamespace
     let openDecls ← getOpenDecls
@@ -303,12 +304,12 @@ macro expansion etc.
 def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do
   let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
   let initInfoTrees ← getResetInfoTrees
-  withLogging do
-    runLinters stx
   -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
   -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
   -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
   elabCommand stx
+  withLogging do
+    runLinters stx
 
   -- note the order: first process current messages & info trees, then add back old messages & trees,
   -- then convert new traces to messages

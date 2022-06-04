@@ -1670,9 +1670,9 @@ def setExpected (expected : List String) (p : Parser) : Parser :=
 def pushNone : Parser :=
   { fn := fun c s => s.pushSyntax mkNullNode }
 
--- We support two kinds of antiquotations: `$id` and `$(t)`, where `id` is a term identifier and `t` is a term.
+-- We support three kinds of antiquotations: `$id`, `$_`, and `$(t)`, where `id` is a term identifier and `t` is a term.
 def antiquotNestedExpr : Parser := node `antiquotNestedExpr (symbolNoAntiquot "(" >> decQuotDepth termParser >> symbolNoAntiquot ")")
-def antiquotExpr : Parser       := identNoAntiquot <|> antiquotNestedExpr
+def antiquotExpr : Parser       := identNoAntiquot <|> symbolNoAntiquot "_" <|> antiquotNestedExpr
 
 def tokenAntiquotFn : ParserFn := fun c s => Id.run do
   if s.hasError then

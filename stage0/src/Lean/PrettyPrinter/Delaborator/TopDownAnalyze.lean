@@ -25,6 +25,7 @@ that are not strictly necessary.
 namespace Lean
 
 open Lean.Meta
+open Lean.SubExpr
 open Std (RBMap)
 
 register_builtin_option pp.analyze : Bool := {
@@ -261,7 +262,7 @@ structure Context where
   deriving Inhabited
 
 structure State where
-  annotations : RBMap Pos Options compare := {}
+  annotations : OptionsPerPos := {}
   postponed   : Array (Expr × Expr) := #[] -- not currently used
 
 abbrev AnalyzeM := ReaderT Context (StateRefT State MetaM)

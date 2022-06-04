@@ -542,6 +542,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
                 try {
                     check_optarg("D");
                     opts = set_config_option(opts, optarg);
+                    forwarded_args.push_back(string_ref("-D" + std::string(optarg)));
                 } catch (lean::exception & ex) {
                     std::cerr << ex.what() << std::endl;
                     return 1;

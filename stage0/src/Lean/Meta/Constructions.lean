@@ -114,6 +114,7 @@ where
         hints       := ReducibilityHints.abbrev
       }
       setReducibleAttribute declName
+      modifyEnv fun env => markNoConfusion env declName
 
 def mkNoConfusion (declName : Name) : MetaM Unit := do
   if (← isEnumType declName) then

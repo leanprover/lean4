@@ -113,7 +113,7 @@ static lean_object* l_Lean_setEnv___at___private_Lean_Meta_SizeOf_0__Lean_Meta_S
 LEAN_EXPORT lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkLocalInstances_loop___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_head_x21___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_addDecl___at_Lean_Meta_mkSizeOfFn___spec__3___closed__3;
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_99_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_101_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* l_Lean_Meta_whnfI(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -147,7 +147,6 @@ LEAN_EXPORT lean_object* l_Lean_logAt___at_Lean_Meta_mkSizeOfFn___spec__6(lean_o
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwKernelException___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isInductivePredicate(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Declaration_foldExprM___at_Lean_Declaration_hasNonSyntheticSorry___spec__1(lean_object*, uint8_t);
 static lean_object* l_Lean_addTrace___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof___spec__1___closed__5;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_6107____closed__1;
 LEAN_EXPORT lean_object* l_Lean_getConstInfoInduct___at_Lean_Meta_mkSizeOfFns___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -432,8 +431,10 @@ static lean_object* l_Lean_addTrace___at___private_Lean_Meta_SizeOf_0__Lean_Meta
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMinors___rarg___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_isInductiveHypothesis_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof___lambda__1___closed__5;
+uint8_t l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(lean_object*);
 static lean_object* l_Lean_Meta_mkSizeOfSpecLemmaInstance___closed__3;
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProof___lambda__1___closed__7;
+uint8_t l_Lean_Declaration_foldExprM___at_Lean_Declaration_hasSorry___spec__1(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemmaProof_mkSizeOf___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorems___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4682,7 +4683,7 @@ _start:
 {
 lean_object* x_9; uint8_t x_252; uint8_t x_253; 
 x_252 = 2;
-x_253 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_99_(x_3, x_252);
+x_253 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_101_(x_3, x_252);
 if (x_253 == 0)
 {
 lean_object* x_254; 
@@ -5593,34 +5594,55 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_addDecl___at_Lean_Meta_mkSizeOfFn___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-uint8_t x_7; uint8_t x_8; 
-x_7 = 0;
-lean_inc(x_1);
-x_8 = l_Lean_Declaration_foldExprM___at_Lean_Declaration_hasNonSyntheticSorry___spec__1(x_1, x_7);
-if (x_8 == 0)
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+x_7 = lean_st_ref_get(x_5, x_6);
+x_8 = lean_ctor_get(x_7, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_7, 1);
+lean_inc(x_9);
+lean_dec(x_7);
+x_10 = lean_ctor_get(x_8, 5);
+lean_inc(x_10);
+lean_dec(x_8);
+x_11 = l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(x_10);
+if (x_11 == 0)
 {
-lean_object* x_9; lean_object* x_10; 
-x_9 = lean_box(0);
-x_10 = l_Lean_addDecl___at_Lean_Meta_mkSizeOfFn___spec__3___lambda__1(x_1, x_9, x_2, x_3, x_4, x_5, x_6);
-return x_10;
+uint8_t x_12; uint8_t x_13; 
+x_12 = 0;
+lean_inc(x_1);
+x_13 = l_Lean_Declaration_foldExprM___at_Lean_Declaration_hasSorry___spec__1(x_1, x_12);
+if (x_13 == 0)
+{
+lean_object* x_14; lean_object* x_15; 
+x_14 = lean_box(0);
+x_15 = l_Lean_addDecl___at_Lean_Meta_mkSizeOfFn___spec__3___lambda__1(x_1, x_14, x_2, x_3, x_4, x_5, x_9);
+return x_15;
 }
 else
 {
-lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_11 = l_Lean_addDecl___at_Lean_Meta_mkSizeOfFn___spec__3___closed__3;
-x_12 = 1;
+lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+x_16 = l_Lean_addDecl___at_Lean_Meta_mkSizeOfFn___spec__3___closed__3;
+x_17 = 1;
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_13 = l_Lean_log___at_Lean_Meta_mkSizeOfFn___spec__5(x_11, x_12, x_2, x_3, x_4, x_5, x_6);
-x_14 = lean_ctor_get(x_13, 0);
-lean_inc(x_14);
-x_15 = lean_ctor_get(x_13, 1);
-lean_inc(x_15);
-lean_dec(x_13);
-x_16 = l_Lean_addDecl___at_Lean_Meta_mkSizeOfFn___spec__3___lambda__1(x_1, x_14, x_2, x_3, x_4, x_5, x_15);
-return x_16;
+x_18 = l_Lean_log___at_Lean_Meta_mkSizeOfFn___spec__5(x_16, x_17, x_2, x_3, x_4, x_5, x_9);
+x_19 = lean_ctor_get(x_18, 0);
+lean_inc(x_19);
+x_20 = lean_ctor_get(x_18, 1);
+lean_inc(x_20);
+lean_dec(x_18);
+x_21 = l_Lean_addDecl___at_Lean_Meta_mkSizeOfFn___spec__3___lambda__1(x_1, x_19, x_2, x_3, x_4, x_5, x_20);
+return x_21;
+}
+}
+else
+{
+lean_object* x_22; lean_object* x_23; 
+x_22 = lean_box(0);
+x_23 = l_Lean_addDecl___at_Lean_Meta_mkSizeOfFn___spec__3___lambda__1(x_1, x_22, x_2, x_3, x_4, x_5, x_9);
+return x_23;
 }
 }
 }
@@ -10330,7 +10352,7 @@ _start:
 {
 lean_object* x_10; uint8_t x_253; uint8_t x_254; 
 x_253 = 2;
-x_254 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_99_(x_3, x_253);
+x_254 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_101_(x_3, x_253);
 if (x_254 == 0)
 {
 lean_object* x_255; 
@@ -11216,35 +11238,56 @@ return x_17;
 LEAN_EXPORT lean_object* l_Lean_addDecl___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-uint8_t x_8; uint8_t x_9; 
-x_8 = 0;
-lean_inc(x_1);
-x_9 = l_Lean_Declaration_foldExprM___at_Lean_Declaration_hasNonSyntheticSorry___spec__1(x_1, x_8);
-if (x_9 == 0)
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+x_8 = lean_st_ref_get(x_6, x_7);
+x_9 = lean_ctor_get(x_8, 0);
+lean_inc(x_9);
+x_10 = lean_ctor_get(x_8, 1);
+lean_inc(x_10);
+lean_dec(x_8);
+x_11 = lean_ctor_get(x_9, 5);
+lean_inc(x_11);
+lean_dec(x_9);
+x_12 = l_Std_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(x_11);
+if (x_12 == 0)
 {
-lean_object* x_10; lean_object* x_11; 
-x_10 = lean_box(0);
-x_11 = l_Lean_addDecl___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__2___lambda__1(x_1, x_10, x_2, x_3, x_4, x_5, x_6, x_7);
-return x_11;
+uint8_t x_13; uint8_t x_14; 
+x_13 = 0;
+lean_inc(x_1);
+x_14 = l_Lean_Declaration_foldExprM___at_Lean_Declaration_hasSorry___spec__1(x_1, x_13);
+if (x_14 == 0)
+{
+lean_object* x_15; lean_object* x_16; 
+x_15 = lean_box(0);
+x_16 = l_Lean_addDecl___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__2___lambda__1(x_1, x_15, x_2, x_3, x_4, x_5, x_6, x_10);
+return x_16;
 }
 else
 {
-lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_12 = l_Lean_addDecl___at_Lean_Meta_mkSizeOfFn___spec__3___closed__3;
-x_13 = 1;
+lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_17 = l_Lean_addDecl___at_Lean_Meta_mkSizeOfFn___spec__3___closed__3;
+x_18 = 1;
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
-x_14 = l_Lean_log___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__6(x_12, x_13, x_2, x_3, x_4, x_5, x_6, x_7);
-x_15 = lean_ctor_get(x_14, 0);
-lean_inc(x_15);
-x_16 = lean_ctor_get(x_14, 1);
-lean_inc(x_16);
-lean_dec(x_14);
-x_17 = l_Lean_addDecl___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__2___lambda__1(x_1, x_15, x_2, x_3, x_4, x_5, x_6, x_16);
-return x_17;
+x_19 = l_Lean_log___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__6(x_17, x_18, x_2, x_3, x_4, x_5, x_6, x_10);
+x_20 = lean_ctor_get(x_19, 0);
+lean_inc(x_20);
+x_21 = lean_ctor_get(x_19, 1);
+lean_inc(x_21);
+lean_dec(x_19);
+x_22 = l_Lean_addDecl___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__2___lambda__1(x_1, x_20, x_2, x_3, x_4, x_5, x_6, x_21);
+return x_22;
+}
+}
+else
+{
+lean_object* x_23; lean_object* x_24; 
+x_23 = lean_box(0);
+x_24 = l_Lean_addDecl___at___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkSizeOfAuxLemma___spec__2___lambda__1(x_1, x_23, x_2, x_3, x_4, x_5, x_6, x_10);
+return x_24;
 }
 }
 }

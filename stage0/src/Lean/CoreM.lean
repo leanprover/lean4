@@ -214,13 +214,11 @@ instance : MonadLog CoreM where
   getRef      := getRef
   getFileMap  := return (← read).fileMap
   getFileName := return (← read).fileName
+  hasErrors   := return (← get).messages.hasErrors
   logMessage msg := do
     let ctx ← read
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := ctx.currNamespace, openDecls := ctx.openDecls } msg.data };
     modify fun s => { s with messages := s.messages.add msg }
-
-def hasErrors : CoreM Bool :=
-  return (← get).messages.hasErrors
 
 end Core
 

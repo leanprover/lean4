@@ -10,6 +10,7 @@ namespace Lean
 class MonadLog (m : Type → Type) extends MonadFileMap m where
   getRef       : m Syntax
   getFileName  : m String
+  hasErrors    : m Bool
   logMessage   : Message → m Unit
 
 export MonadLog (getFileName logMessage)
@@ -18,6 +19,7 @@ instance (m n) [MonadLift m n] [MonadLog m] : MonadLog n where
   getRef      := liftM (MonadLog.getRef : m _)
   getFileMap  := liftM (getFileMap : m _)
   getFileName := liftM (getFileName : m _)
+  hasErrors   := liftM (MonadLog.hasErrors : m _)
   logMessage  := fun msg => liftM (logMessage msg : m _ )
 
 variable [Monad m] [MonadLog m] [AddMessageContext m]

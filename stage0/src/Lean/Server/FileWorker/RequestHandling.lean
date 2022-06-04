@@ -183,7 +183,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
         -- for binders, hide the last hypothesis (the binder itself)
         let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
         let goal ← ci.runMetaM lctx' do
-          Meta.withPPInaccessibleNames <| Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
+          Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
         let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
         return some { goal with range }
       else
@@ -214,7 +214,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
 
   let highlightRefs? (snaps : Array Snapshot) (pos : Lsp.Position) : Option (Array DocumentHighlight) := Id.run do
     let trees := snaps.map (·.infoTree)
-    let refs := findModuleRefs text trees
+    let refs : Lsp.ModuleRefs := findModuleRefs text trees
     let mut ranges := #[]
     for ident in ← refs.findAt p.position do
       if let some info ← refs.find? ident then

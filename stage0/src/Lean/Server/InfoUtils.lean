@@ -12,7 +12,7 @@ import Lean.Util.Sorry
 protected structure String.Range where
   start : String.Pos
   stop  : String.Pos
-  deriving Inhabited, Repr
+  deriving Inhabited, Repr, BEq, Hashable
 
 def String.Range.contains (r : String.Range) (pos : String.Pos) (includeStop := false) : Bool :=
   r.start <= pos && (if includeStop then pos <= r.stop else pos < r.stop)
@@ -142,18 +142,28 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
 
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
 partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) : Option (ContextInfo × Info) := Id.run do
-  let (_, res) := StateT.run (m := Id) (s := none) <| t.visitM (postNode := fun ctx i _ _ => do
-    if (i matches Info.ofFieldInfo _ || i.toElabInfo?.isSome) && i.contains hoverPos includeStop then
-      -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
-      if let some (_, i') := (← get) then
-        if i'.range?.get!.stop == hoverPos && i.range?.get!.start == hoverPos then
-          set <| some (ctx, i)
-      else
-        set <| some (ctx, i))
-  if let some (_, Info.ofTermInfo ti) := res then
-    if ti.expr.isSyntheticSorry then
-      return none
-  res
+  let results := t.visitM (m := Id) (postNode := fun ctx i _ results => do
+    let results := results.bind (·.getD [])
+    if results.isEmpty && (i matches Info.ofFieldInfo _ || i.toElabInfo?.isSome) && i.contains hoverPos includeStop then
+      let r := i.range?.get!
+      let priority :=
+        if r.stop == hoverPos then
+          0  -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
+        else if i matches .ofTermInfo { expr := .fvar .., .. } then
+          0  -- prefer results for constants over variables (which overlap at declaration names)
+        else 1
+      -- must prioritize smaller nodes because pattern infos are not properly nested
+      let priority := (-(r.stop - r.start |>.byteIdx : Int), priority)
+      [(priority, ctx, i)]
+    else
+      results) |>.getD []
+  let maxPrio? := results.map (·.1) |>.maximum?
+  let res? := results.find? (·.1 == maxPrio?) |>.map (·.2)
+  if let some (_, i) := res? then
+    if let .ofTermInfo ti := i then
+      if ti.expr.isSyntheticSorry then
+        return none
+  return res?
 
 def Info.type? (i : Info) : MetaM (Option Expr) :=
   match i with

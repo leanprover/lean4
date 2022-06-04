@@ -106,7 +106,7 @@ LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_mapM___at_Lean_Widget_TaggedTe
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_appendTag(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_TaggedText_rewriteM___spec__1___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t l___private_Init_Data_Format_Basic_0__Std_Format_beqFlattenBehavior____x40_Init_Data_Format_Basic___hyg_16_(uint8_t, uint8_t);
+uint8_t l___private_Init_Data_Format_Basic_0__Std_Format_beqFlattenBehavior____x40_Init_Data_Format_Basic___hyg_18_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_rewrite___rarg(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_reprTaggedText____x40_Lean_Widget_TaggedText___hyg_223____rarg___closed__21;
@@ -3922,7 +3922,7 @@ lean_object* x_6; uint8_t x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10;
 x_6 = lean_ctor_get(x_5, 2);
 lean_inc(x_6);
 x_7 = 0;
-x_8 = l___private_Init_Data_Format_Basic_0__Std_Format_beqFlattenBehavior____x40_Init_Data_Format_Basic___hyg_16_(x_1, x_7);
+x_8 = l___private_Init_Data_Format_Basic_0__Std_Format_beqFlattenBehavior____x40_Init_Data_Format_Basic___hyg_18_(x_1, x_7);
 lean_inc(x_2);
 x_9 = lean_alloc_ctor(0, 1, 2);
 lean_ctor_set(x_9, 0, x_2);

@@ -123,7 +123,7 @@ def getConstInfoRec [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m
       | _ => failK ()
 
 def addDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadLog m] [AddMessageContext m] (decl : Declaration) : m Unit := do
-  if decl.hasNonSyntheticSorry then
+  if !(← MonadLog.hasErrors) && decl.hasSorry then
     logWarning "declaration uses 'sorry'"
   match (← getEnv).addDecl decl with
   | Except.ok    env => setEnv env

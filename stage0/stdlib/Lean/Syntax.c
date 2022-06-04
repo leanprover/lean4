@@ -89,6 +89,7 @@ static lean_object* l_Lean_Syntax_MonadTraverser_goRight___rarg___closed__1;
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_setAtomVal(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Syntax_getAntiquotTerm___closed__1;
 lean_object* l_List_zipWith___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getAntiquotTerm(lean_object*);
@@ -102,6 +103,7 @@ static lean_object* l_Lean_Syntax_mkAntiquotNode___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Syntax_rewriteBottomUpM(lean_object*);
 static lean_object* l_Lean_Syntax_getAtomVal_x21___closed__4;
 static lean_object* l_Lean_Syntax_MonadTraverser_getCur___rarg___closed__1;
+static lean_object* l_Lean_Syntax_mkAntiquotNode___closed__20;
 LEAN_EXPORT lean_object* l_Lean_Syntax_getAntiquotTerm___boxed(lean_object*);
 static lean_object* l_Lean_Syntax_mkAntiquotSpliceNode___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___rarg___lambda__6(lean_object*, lean_object*);
@@ -219,6 +221,7 @@ static lean_object* l_Lean_Syntax_mkAntiquotNode___closed__17;
 static lean_object* l_Lean_Syntax_mkAntiquotSpliceNode___closed__5;
 LEAN_EXPORT lean_object* l_Lean_SyntaxNode_getNumArgs___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Syntax_hasMissing___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Syntax_isAtom(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_replaceM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_Traverser_fromSyntax(lean_object*);
@@ -308,6 +311,7 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_getAtomVal_x21(lean_object*);
 lean_object* l_Nat_min(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_isQuot___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Syntax_ifNodeKind___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Syntax_mkAntiquotNode___closed__21;
 static lean_object* l_Lean_Syntax_identComponents___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Syntax_Traverser_left(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getAntiquotSpliceSuffix___boxed(lean_object*);
@@ -5671,7 +5675,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("antiquotNestedExpr", 18);
+x_1 = lean_mk_string_from_bytes("antiquotName", 12);
 return x_1;
 }
 }
@@ -5689,7 +5693,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__8() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(", 1);
+x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
@@ -5708,39 +5712,37 @@ return x_3;
 static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__10() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
-return x_1;
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(2u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(2);
-x_2 = l_Lean_Syntax_mkAntiquotNode___closed__10;
-x_3 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
+x_1 = l_Lean_Syntax_mkAntiquotNode___closed__10;
+x_2 = l_Lean_Syntax_mkAntiquotNode___closed__9;
+x_3 = lean_array_push(x_1, x_2);
 return x_3;
 }
 }
 static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__12() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(3u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("hole", 4);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Syntax_mkAntiquotNode___closed__12;
-x_2 = l_Lean_Syntax_mkAntiquotNode___closed__9;
-x_3 = lean_array_push(x_1, x_2);
+x_1 = l_Lean_Syntax_getQuotContent___closed__3;
+x_2 = l_Lean_Syntax_mkAntiquotNode___closed__12;
+x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
 }
@@ -5748,7 +5750,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__14() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("antiquotName", 12);
+x_1 = lean_mk_string_from_bytes("antiquotNestedExpr", 18);
 return x_1;
 }
 }
@@ -5766,7 +5768,7 @@ static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__16() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
@@ -5785,17 +5787,37 @@ return x_3;
 static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__18() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(2u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes(")", 1);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Syntax_mkAntiquotNode___closed__18;
+x_1 = lean_box(2);
+x_2 = l_Lean_Syntax_mkAntiquotNode___closed__18;
+x_3 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__20() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(3u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Syntax_mkAntiquotNode___closed__21() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Syntax_mkAntiquotNode___closed__20;
 x_2 = l_Lean_Syntax_mkAntiquotNode___closed__17;
 x_3 = lean_array_push(x_1, x_2);
 return x_3;
@@ -5804,7 +5826,7 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_Syntax_mkAntiquotNode(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_5 = l_Lean_Syntax_mkAntiquotNode___closed__2;
 x_6 = lean_mk_array(x_2, x_5);
 x_7 = lean_box(2);
@@ -5820,87 +5842,76 @@ x_13 = l_Lean_Syntax_mkAntiquotNode___closed__5;
 x_14 = lean_array_push(x_13, x_9);
 if (x_10 == 0)
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_15 = l_Lean_Syntax_mkAntiquotNode___closed__13;
-x_16 = lean_array_push(x_15, x_1);
-x_17 = l_Lean_Syntax_mkAntiquotNode___closed__11;
-x_18 = lean_array_push(x_16, x_17);
-x_19 = l_Lean_Syntax_mkAntiquotNode___closed__7;
-x_20 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_20, 0, x_7);
-lean_ctor_set(x_20, 1, x_19);
-lean_ctor_set(x_20, 2, x_18);
-x_21 = lean_array_push(x_14, x_20);
-if (lean_obj_tag(x_3) == 0)
+lean_object* x_29; uint8_t x_30; 
+x_29 = l_Lean_Syntax_mkAntiquotNode___closed__13;
+lean_inc(x_1);
+x_30 = l_Lean_Syntax_isOfKind(x_1, x_29);
+if (x_30 == 0)
 {
-lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_22 = l_Lean_Syntax_asNode___closed__2;
-x_23 = lean_array_push(x_21, x_22);
-x_24 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_24, 0, x_7);
-lean_ctor_set(x_24, 1, x_12);
-lean_ctor_set(x_24, 2, x_23);
-return x_24;
-}
-else
-{
-lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
-x_25 = lean_ctor_get(x_3, 0);
-lean_inc(x_25);
-x_26 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_26, 0, x_7);
-lean_ctor_set(x_26, 1, x_25);
-x_27 = l_Lean_Syntax_mkAntiquotNode___closed__19;
-x_28 = lean_array_push(x_27, x_26);
-x_29 = l_Lean_Syntax_mkAntiquotNode___closed__15;
-x_30 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_30, 0, x_7);
-lean_ctor_set(x_30, 1, x_29);
-lean_ctor_set(x_30, 2, x_28);
-x_31 = lean_array_push(x_21, x_30);
-x_32 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_32, 0, x_7);
-lean_ctor_set(x_32, 1, x_12);
-lean_ctor_set(x_32, 2, x_31);
-return x_32;
-}
-}
-else
-{
-lean_object* x_33; 
-x_33 = lean_array_push(x_14, x_1);
-if (lean_obj_tag(x_3) == 0)
-{
-lean_object* x_34; lean_object* x_35; lean_object* x_36; 
-x_34 = l_Lean_Syntax_asNode___closed__2;
-x_35 = lean_array_push(x_33, x_34);
+lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
+x_31 = l_Lean_Syntax_mkAntiquotNode___closed__21;
+x_32 = lean_array_push(x_31, x_1);
+x_33 = l_Lean_Syntax_mkAntiquotNode___closed__19;
+x_34 = lean_array_push(x_32, x_33);
+x_35 = l_Lean_Syntax_mkAntiquotNode___closed__15;
 x_36 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_36, 0, x_7);
-lean_ctor_set(x_36, 1, x_12);
-lean_ctor_set(x_36, 2, x_35);
-return x_36;
+lean_ctor_set(x_36, 1, x_35);
+lean_ctor_set(x_36, 2, x_34);
+x_15 = x_36;
+goto block_28;
 }
 else
 {
-lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
-x_37 = lean_ctor_get(x_3, 0);
-lean_inc(x_37);
-x_38 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_38, 0, x_7);
-lean_ctor_set(x_38, 1, x_37);
-x_39 = l_Lean_Syntax_mkAntiquotNode___closed__19;
-x_40 = lean_array_push(x_39, x_38);
-x_41 = l_Lean_Syntax_mkAntiquotNode___closed__15;
-x_42 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_42, 0, x_7);
-lean_ctor_set(x_42, 1, x_41);
-lean_ctor_set(x_42, 2, x_40);
-x_43 = lean_array_push(x_33, x_42);
-x_44 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_44, 0, x_7);
-lean_ctor_set(x_44, 1, x_12);
-lean_ctor_set(x_44, 2, x_43);
-return x_44;
+lean_object* x_37; lean_object* x_38; 
+x_37 = lean_unsigned_to_nat(0u);
+x_38 = l_Lean_Syntax_getArg(x_1, x_37);
+lean_dec(x_1);
+x_15 = x_38;
+goto block_28;
+}
+}
+else
+{
+x_15 = x_1;
+goto block_28;
+}
+block_28:
+{
+lean_object* x_16; 
+x_16 = lean_array_push(x_14, x_15);
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+x_17 = l_Lean_Syntax_asNode___closed__2;
+x_18 = lean_array_push(x_16, x_17);
+x_19 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_19, 0, x_7);
+lean_ctor_set(x_19, 1, x_12);
+lean_ctor_set(x_19, 2, x_18);
+return x_19;
+}
+else
+{
+lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+x_20 = lean_ctor_get(x_3, 0);
+lean_inc(x_20);
+x_21 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_21, 0, x_7);
+lean_ctor_set(x_21, 1, x_20);
+x_22 = l_Lean_Syntax_mkAntiquotNode___closed__11;
+x_23 = lean_array_push(x_22, x_21);
+x_24 = l_Lean_Syntax_mkAntiquotNode___closed__7;
+x_25 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_25, 0, x_7);
+lean_ctor_set(x_25, 1, x_24);
+lean_ctor_set(x_25, 2, x_23);
+x_26 = lean_array_push(x_16, x_25);
+x_27 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_27, 0, x_7);
+lean_ctor_set(x_27, 1, x_12);
+lean_ctor_set(x_27, 2, x_26);
+return x_27;
 }
 }
 }
@@ -5977,6 +5988,15 @@ return x_10;
 }
 }
 }
+static lean_object* _init_l_Lean_Syntax_getAntiquotTerm___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(1u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Syntax_getAntiquotTerm(lean_object* x_1) {
 _start:
 {
@@ -5990,11 +6010,29 @@ x_4 = l_Lean_Syntax_getArg(x_1, x_3);
 x_5 = l_Lean_Syntax_isIdent(x_4);
 if (x_5 == 0)
 {
-lean_object* x_6; lean_object* x_7; 
-x_6 = lean_unsigned_to_nat(1u);
-x_7 = l_Lean_Syntax_getArg(x_4, x_6);
+uint8_t x_6; 
+x_6 = l_Lean_Syntax_isAtom(x_4);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; 
+x_7 = lean_unsigned_to_nat(1u);
+x_8 = l_Lean_Syntax_getArg(x_4, x_7);
 lean_dec(x_4);
-return x_7;
+return x_8;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_9 = l_Lean_Syntax_getAntiquotTerm___closed__1;
+x_10 = lean_array_push(x_9, x_4);
+x_11 = lean_box(2);
+x_12 = l_Lean_Syntax_mkAntiquotNode___closed__13;
+x_13 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_13, 0, x_11);
+lean_ctor_set(x_13, 1, x_12);
+lean_ctor_set(x_13, 2, x_10);
+return x_13;
+}
 }
 else
 {
@@ -6003,21 +6041,39 @@ return x_4;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; uint8_t x_10; 
-x_8 = lean_unsigned_to_nat(2u);
-x_9 = l_Lean_Syntax_getArg(x_1, x_8);
-x_10 = l_Lean_Syntax_isIdent(x_9);
-if (x_10 == 0)
+lean_object* x_14; lean_object* x_15; uint8_t x_16; 
+x_14 = lean_unsigned_to_nat(2u);
+x_15 = l_Lean_Syntax_getArg(x_1, x_14);
+x_16 = l_Lean_Syntax_isIdent(x_15);
+if (x_16 == 0)
 {
-lean_object* x_11; lean_object* x_12; 
-x_11 = lean_unsigned_to_nat(1u);
-x_12 = l_Lean_Syntax_getArg(x_9, x_11);
-lean_dec(x_9);
-return x_12;
+uint8_t x_17; 
+x_17 = l_Lean_Syntax_isAtom(x_15);
+if (x_17 == 0)
+{
+lean_object* x_18; lean_object* x_19; 
+x_18 = lean_unsigned_to_nat(1u);
+x_19 = l_Lean_Syntax_getArg(x_15, x_18);
+lean_dec(x_15);
+return x_19;
 }
 else
 {
-return x_9;
+lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_20 = l_Lean_Syntax_getAntiquotTerm___closed__1;
+x_21 = lean_array_push(x_20, x_15);
+x_22 = lean_box(2);
+x_23 = l_Lean_Syntax_mkAntiquotNode___closed__13;
+x_24 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_24, 0, x_22);
+lean_ctor_set(x_24, 1, x_23);
+lean_ctor_set(x_24, 2, x_21);
+return x_24;
+}
+}
+else
+{
+return x_15;
 }
 }
 }
@@ -6068,7 +6124,7 @@ lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8
 x_9 = l_Lean_instInhabitedSyntax;
 x_10 = lean_unsigned_to_nat(3u);
 x_11 = lean_array_get(x_9, x_3, x_10);
-x_12 = l_Lean_Syntax_mkAntiquotNode___closed__15;
+x_12 = l_Lean_Syntax_mkAntiquotNode___closed__7;
 x_13 = l_Lean_Syntax_isOfKind(x_11, x_12);
 if (x_13 == 0)
 {
@@ -6502,7 +6558,7 @@ x_6 = lean_box(2);
 x_7 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_3);
-x_8 = l_Lean_Syntax_mkAntiquotNode___closed__18;
+x_8 = l_Lean_Syntax_mkAntiquotNode___closed__10;
 x_9 = lean_array_push(x_8, x_2);
 x_10 = lean_array_push(x_9, x_7);
 x_11 = lean_alloc_ctor(1, 3, 0);
@@ -6747,6 +6803,12 @@ l_Lean_Syntax_mkAntiquotNode___closed__18 = _init_l_Lean_Syntax_mkAntiquotNode__
 lean_mark_persistent(l_Lean_Syntax_mkAntiquotNode___closed__18);
 l_Lean_Syntax_mkAntiquotNode___closed__19 = _init_l_Lean_Syntax_mkAntiquotNode___closed__19();
 lean_mark_persistent(l_Lean_Syntax_mkAntiquotNode___closed__19);
+l_Lean_Syntax_mkAntiquotNode___closed__20 = _init_l_Lean_Syntax_mkAntiquotNode___closed__20();
+lean_mark_persistent(l_Lean_Syntax_mkAntiquotNode___closed__20);
+l_Lean_Syntax_mkAntiquotNode___closed__21 = _init_l_Lean_Syntax_mkAntiquotNode___closed__21();
+lean_mark_persistent(l_Lean_Syntax_mkAntiquotNode___closed__21);
+l_Lean_Syntax_getAntiquotTerm___closed__1 = _init_l_Lean_Syntax_getAntiquotTerm___closed__1();
+lean_mark_persistent(l_Lean_Syntax_getAntiquotTerm___closed__1);
 l_Lean_Syntax_antiquotKind_x3f___closed__1 = _init_l_Lean_Syntax_antiquotKind_x3f___closed__1();
 lean_mark_persistent(l_Lean_Syntax_antiquotKind_x3f___closed__1);
 l_Lean_Syntax_antiquotSpliceKind_x3f___closed__1 = _init_l_Lean_Syntax_antiquotSpliceKind_x3f___closed__1();

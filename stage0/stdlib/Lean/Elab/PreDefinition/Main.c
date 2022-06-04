@@ -367,7 +367,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_addPreDefinitions
 lean_object* l_Lean_Elab_withSaveInfoContext___at___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_addNonRecAux___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_TerminationHints_decreasingBy_x3f___default;
 lean_object* l_instMonadControlT__1___rarg(lean_object*);
-uint8_t l___private_Lean_Elab_DefView_0__Lean_Elab_beqDefKind____x40_Lean_Elab_DefView___hyg_13_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Elab_DefView_0__Lean_Elab_beqDefKind____x40_Lean_Elab_DefView___hyg_15_(uint8_t, uint8_t);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_List_forM___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__20(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_addPreDefinitions___spec__17(lean_object*, size_t, size_t);
@@ -6025,7 +6025,7 @@ x_5 = lean_array_uget(x_1, x_2);
 x_6 = lean_ctor_get_uint8(x_5, sizeof(void*)*6);
 lean_dec(x_5);
 x_7 = 4;
-x_8 = l___private_Lean_Elab_DefView_0__Lean_Elab_beqDefKind____x40_Lean_Elab_DefView___hyg_13_(x_6, x_7);
+x_8 = l___private_Lean_Elab_DefView_0__Lean_Elab_beqDefKind____x40_Lean_Elab_DefView___hyg_15_(x_6, x_7);
 if (x_8 == 0)
 {
 uint8_t x_9; 
@@ -6061,7 +6061,7 @@ x_9 = lean_array_uget(x_5, x_6);
 x_10 = lean_ctor_get_uint8(x_9, sizeof(void*)*6);
 lean_dec(x_9);
 x_11 = 0;
-x_12 = l___private_Lean_Elab_DefView_0__Lean_Elab_beqDefKind____x40_Lean_Elab_DefView___hyg_13_(x_10, x_11);
+x_12 = l___private_Lean_Elab_DefView_0__Lean_Elab_beqDefKind____x40_Lean_Elab_DefView___hyg_15_(x_10, x_11);
 if (x_12 == 0)
 {
 lean_object* x_13; uint8_t x_14; 
@@ -6137,7 +6137,7 @@ x_5 = lean_array_uget(x_1, x_2);
 x_6 = lean_ctor_get_uint8(x_5, sizeof(void*)*6);
 lean_dec(x_5);
 x_7 = 1;
-x_8 = l___private_Lean_Elab_DefView_0__Lean_Elab_beqDefKind____x40_Lean_Elab_DefView___hyg_13_(x_6, x_7);
+x_8 = l___private_Lean_Elab_DefView_0__Lean_Elab_beqDefKind____x40_Lean_Elab_DefView___hyg_15_(x_6, x_7);
 if (x_8 == 0)
 {
 uint8_t x_9; 

@@ -16,7 +16,7 @@ partial def pushProjs (bs : Array FnBody) (alts : Array Alt) (altsF : Array Inde
     let bs   := bs.pop
     let done (_ : Unit) := (bs.push b ++ ctx.reverse, alts)
     let skip (_ : Unit) := pushProjs bs alts altsF (ctx.push b) (b.collectFreeIndices ctxF)
-    let push (x : VarId) (_ : IRType) (_ : Expr) :=
+    let push (x : VarId) :=
         if !ctxF.contains x.idx then
           let alts := alts.mapIdx fun i alt => alt.modifyBody fun b' =>
              if (altsF.get! i).contains x.idx then b.setBody b'
@@ -26,11 +26,11 @@ partial def pushProjs (bs : Array FnBody) (alts : Array Alt) (altsF : Array Inde
         else
           skip ()
     match b with
-    | FnBody.vdecl x t v _ =>
+    | FnBody.vdecl x _ v _ =>
       match v with
-      | Expr.proj _ _      => push x t v
-      | Expr.uproj _ _     => push x t v
-      | Expr.sproj _ _ _   => push x t v
+      | Expr.proj _ _      => push x
+      | Expr.uproj _ _     => push x
+      | Expr.sproj _ _ _   => push x
       | Expr.isShared _    => skip ()
       | Expr.isTaggedPtr _ => skip ()
       | _                  => done ()

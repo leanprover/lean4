@@ -124,6 +124,14 @@ def nolintPatternVars (x : Option (Option Nat)) : Nat :=
   | some (some y) => (fun z => 1) 2
   | _ => 0
 
+set_option linter.unusedVariables.patternVars false in
+theorem nolintPatternVarsInduction (n : Nat) : True := by
+  induction n with
+  | zero => exact True.intro
+  | succ m =>
+    have h : True := by simp
+    exact True.intro
+
 
 inductive Foo (α : Type)
   | foo (x : Nat) (y : Nat)

@@ -186,7 +186,9 @@ where
     stackMatches stack [`null, `Lean.Parser.Term.paren, `null, `Lean.Parser.Term.basicFun]
 
   isPatternVar (_ : Syntax) (stack : SyntaxStack) :=
-    stack.any fun (stx, pos) => stx.isOfKind `Lean.Parser.Term.matchAlt && pos == 1
+    stack.any fun (stx, pos) =>
+      (stx.isOfKind `Lean.Parser.Term.matchAlt && pos == 1) ||
+      (stx.isOfKind `Lean.Parser.Tactic.inductionAlt && pos == 2)
 
 builtin_initialize addLinter unusedVariables
 

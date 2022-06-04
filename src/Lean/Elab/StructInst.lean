@@ -838,7 +838,7 @@ partial def step (struct : Struct) : M Unit :=
               unless (← isExprMVarAssigned mvarId) do
                 let ctx ← read
                 if (← withRef field.ref <| tryToSynthesizeDefault ctx.structs ctx.allStructNames ctx.maxDistance (getFieldName field) mvarId) then
-                  modify fun _ => { s with progress := true }
+                  modify fun _ => { progress := true }
             | _ => pure ()
 
 partial def propagateLoop (hierarchyDepth : Nat) (d : Nat) (struct : Struct) : M Unit := do
@@ -849,7 +849,7 @@ partial def propagateLoop (hierarchyDepth : Nat) (d : Nat) (struct : Struct) : M
     if d > hierarchyDepth then
       throwErrorAt field.ref "field '{getFieldName field}' is missing"
     else withReader (fun ctx => { ctx with maxDistance := d }) do
-      modify fun _ => { s with progress := false }
+      modify fun _ => { progress := false }
       step struct
       if (← get).progress then do
         propagateLoop hierarchyDepth 0 struct

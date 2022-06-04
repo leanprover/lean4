@@ -597,10 +597,10 @@ end Subtype
 section
 variable {α : Type u} {β : Type v}
 
-instance Sum.inhabitedLeft [_ : Inhabited α] : Inhabited (Sum α β) where
+instance Sum.inhabitedLeft [Inhabited α] : Inhabited (Sum α β) where
   default := Sum.inl default
 
-instance Sum.inhabitedRight [_ : Inhabited β] : Inhabited (Sum α β) where
+instance Sum.inhabitedRight [Inhabited β] : Inhabited (Sum α β) where
   default := Sum.inr default
 
 instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) := fun a b =>

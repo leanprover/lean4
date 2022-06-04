@@ -282,11 +282,11 @@ abbrev DecidableEq (α : Sort u) :=
 def decEq {α : Sort u} [s : DecidableEq α] (a b : α) : Decidable (Eq a b) :=
   s a b
 
-theorem decide_eq_true : [_ : Decidable p] → p → Eq (decide p) true
+theorem decide_eq_true : [s : Decidable p] → p → Eq (decide p) true
   | isTrue  _, _   => rfl
   | isFalse h₁, h₂ => absurd h₂ h₁
 
-theorem decide_eq_false : [_ : Decidable p] → Not p → Eq (decide p) false
+theorem decide_eq_false : [s : Decidable p] → Not p → Eq (decide p) false
   | isTrue  h₁, h₂ => absurd h₁ h₂
   | isFalse _, _   => rfl
 
@@ -755,7 +755,7 @@ protected theorem Nat.lt_of_le_of_ne {n m : Nat} (h₁ : LE.le n m) (h₂ : Not 
   | Or.inl h₃ => h₃
   | Or.inr h₃ => absurd (Nat.le_antisymm h₁ h₃) h₂
 
-theorem Nat.le_of_ble_eq_true (_ : Eq (Nat.ble n m) true) : LE.le n m :=
+theorem Nat.le_of_ble_eq_true (h : Eq (Nat.ble n m) true) : LE.le n m :=
   match n, m with
   | 0,      _      => Nat.zero_le _
   | succ _, succ _ => Nat.succ_le_succ (le_of_ble_eq_true h)

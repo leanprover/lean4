@@ -1046,7 +1046,7 @@ partial def consumeMDataAndTypeAnnotations (e : Expr) : Expr :=
     | Expr.letE _ t v b _    => visit t || visit v || visit b
     | Expr.app f a _         => visit f || visit a
     | Expr.proj _ _ e _      => visit e
-    | _@(Expr.fvar fvarId _) => p fvarId
+    | Expr.fvar fvarId _     => p fvarId
     | _                      => false
   visit e
 

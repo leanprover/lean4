@@ -89,6 +89,8 @@ def unusedVariables : Linter := fun stx => do
       isTopLevelDecl constDecls,
       matchesUnusedPattern,
       isVariable,
+      isInStructure,
+      isInInductive,
       isInCtorOrStructBinder,
       isInConstantOrAxiom,
       isInDefWithForeignDefinition,
@@ -98,7 +100,6 @@ def unusedVariables : Linter := fun stx => do
       ignoredPatternFns := ignoredPatternFns.append #[
         isInLetDeclaration,
         isInDeclarationSignature,
-        isInStructure,
         isInFun
       ]
     if !getLinterUnusedVariablesPatternVars opts then
@@ -132,6 +133,13 @@ where
     stx.getId.toString.startsWith "_"
   isVariable (_ : Syntax) (stack : SyntaxStack) :=
     stackMatches stack [`null, none, `null, `Lean.Parser.Command.variable]
+  isInStructure (_ : Syntax) (stack : SyntaxStack) :=
+    stackMatches stack [`null, none, `null, `Lean.Parser.Command.structure]
+  isInInductive (_ : Syntax) (stack : SyntaxStack) :=
+    stackMatches stack [`null, none, `null, none, `Lean.Parser.Command.inductive] &&
+    (stack.get? 3 |>.any fun (stx, pos) =>
+      pos == 0 &&
+      [`Lean.Parser.Command.optDeclSig, `Lean.Parser.Command.declSig].any (stx.isOfKind ·))
   isInCtorOrStructBinder (_ : Syntax) (stack : SyntaxStack) :=
     stackMatches stack [`null, none, `null, `Lean.Parser.Command.optDeclSig, none] &&
     (stack.get? 4 |>.any fun (stx, _) =>
@@ -175,8 +183,6 @@ where
     (stack.get? 3 |>.any fun (stx, pos) =>
       pos == 0 &&
       [`Lean.Parser.Command.optDeclSig, `Lean.Parser.Command.declSig].any (stx.isOfKind ·))
-  isInStructure (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, none, `null, `Lean.Parser.Command.structure]
   isInFun (_ : Syntax) (stack : SyntaxStack) :=
     stackMatches stack [`null, `Lean.Parser.Term.basicFun] ||
     stackMatches stack [`null, `Lean.Parser.Term.paren, `null, `Lean.Parser.Term.basicFun]

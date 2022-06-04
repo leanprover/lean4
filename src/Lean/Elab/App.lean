@@ -466,7 +466,6 @@ mutual
 
   /- Elaborate function application arguments. -/
   partial def main : M Expr := do
-    let _ ← get
     let fType ← normalizeFunType
     if fType.isForall then
       let binderName := fType.bindingName!

@@ -628,7 +628,6 @@ private def moveToFront (p : Problem) (i : Nat) : Problem :=
   if i == 0 then
     p
   else if h : i < p.vars.length then
-    let _ := p.vars.get ⟨i, h⟩
     { p with
       vars := List.moveToFront p.vars i
       alts := p.alts.map fun alt => { alt with patterns := List.moveToFront alt.patterns i }

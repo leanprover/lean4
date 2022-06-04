@@ -381,8 +381,8 @@ def value? : ConstantInfo → Option Expr
   | _                         => none
 
 def hasValue : ConstantInfo → Bool
-  | defnInfo {value := _, ..} => true
-  | thmInfo  {value := _, ..} => true
+  | defnInfo _ => true
+  | thmInfo  _ => true
   | _                         => false
 
 def value! : ConstantInfo → Expr

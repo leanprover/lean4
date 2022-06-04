@@ -167,13 +167,13 @@ class Value (α : Type) where
   toDataValue  : α → DataValue
   ofDataValue? : DataValue → Option α
 
-@[inline] def get? {α : Type} [_ : Value α] (m : KVMap) (k : Name) : Option α :=
+@[inline] def get? {α : Type} [Value α] (m : KVMap) (k : Name) : Option α :=
   m.find k |>.bind Value.ofDataValue?
 
-@[inline] def get {α : Type} [_ : Value α] (m : KVMap) (k : Name) (defVal : α) : α :=
+@[inline] def get {α : Type} [Value α] (m : KVMap) (k : Name) (defVal : α) : α :=
   m.get? k |>.getD defVal
 
-@[inline] def set {α : Type} [_ : Value α] (m : KVMap) (k : Name) (v : α) : KVMap :=
+@[inline] def set {α : Type} [Value α] (m : KVMap) (k : Name) (v : α) : KVMap :=
   m.insert k (Value.toDataValue v)
 
 instance : Value DataValue where

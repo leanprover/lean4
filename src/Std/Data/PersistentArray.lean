@@ -140,7 +140,7 @@ private def emptyArray {α : Type u} : Array (PersistentArrayNode α) :=
   Array.mkEmpty PersistentArray.branching.toNat
 
 partial def popLeaf : PersistentArrayNode α → Option (Array α) × Array (PersistentArrayNode α)
-  | _@(node cs) =>
+  | node cs =>
     if h : cs.size ≠ 0 then
       let idx : Fin cs.size := ⟨cs.size - 1, by exact Nat.pred_lt h⟩
       let last := cs.get idx

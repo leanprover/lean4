@@ -420,7 +420,7 @@ instance hasDecidableLt [LT α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l₂
 
 instance [LT α] : LE (List α) := ⟨List.le⟩
 
-instance [LT α] [_ : DecidableRel ((· < ·) : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
+instance [LT α] [DecidableRel ((· < ·) : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
   fun _ _ => inferInstanceAs (Decidable (Not _))
 
 /--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`. -/

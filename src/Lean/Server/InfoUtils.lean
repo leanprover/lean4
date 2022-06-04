@@ -32,7 +32,7 @@ partial def InfoTree.visitM [Monad m] [Inhabited α]
   go none
 where go
   | _, context ctx t => go ctx t
-  | some ctx, _@(node i cs) => do
+  | some ctx, node i cs => do
     preNode ctx i cs
     let as ← cs.toList.mapM (go <| i.updateContext? ctx)
     postNode ctx i cs as
@@ -312,7 +312,7 @@ these head function symbols such as `f`,
 and later ignore identifiers at these positions.
 -/
 partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) :=
-  let headFns : Std.HashSet String.Pos := t.foldInfo (init := {}) fun ctx i headFns =>
+  let headFns : Std.HashSet String.Pos := t.foldInfo (init := {}) fun _ i headFns =>
     if let some pos := getHeadFnPos? i.stx then
       headFns.insert pos
     else

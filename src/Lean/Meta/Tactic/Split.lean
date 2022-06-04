@@ -62,7 +62,7 @@ private partial def withEqs (lhs rhs : Array Expr) (k : Array Expr → Array Exp
   go 0 #[] #[]
 where
   go (i : Nat) (hs : Array Expr) (rfls : Array Expr) : MetaM α := do
-    if _ : i < lhs.size then
+    if i < lhs.size then
       withLocalDeclD (← mkFreshUserName `heq) (← mkEqHEq lhs[i] rhs[i]) fun h => do
         let rfl ← if (← inferType h).isEq then mkEqRefl lhs[i] else mkHEqRefl lhs[i]
         go (i+1) (hs.push h) (rfls.push rfl)

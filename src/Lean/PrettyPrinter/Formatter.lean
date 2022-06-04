@@ -497,7 +497,7 @@ def interpolatedStr.formatter (p : Formatter) : Formatter := do
 
 @[combinatorFormatter Lean.Parser.dbgTraceState] def dbgTraceState.formatter (label : String) (p : Formatter) : Formatter := p
 
-@[combinatorFormatter ite, macroInline] def ite {_ : Type} (c : Prop) [_ : Decidable c] (t e : Formatter) : Formatter :=
+@[combinatorFormatter ite, macroInline] def ite {_ : Type} (c : Prop) [Decidable c] (t e : Formatter) : Formatter :=
   if c then t else e
 
 abbrev FormatterAliasValue := AliasValue Formatter

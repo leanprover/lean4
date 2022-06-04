@@ -30,7 +30,7 @@ private partial def withEqs (lhs rhs : Array Expr) (discrInfos : Array DiscrInfo
   go 0 #[]
 where
   go (i : Nat) (hs : Array Expr) : MetaM α := do
-    if _ : i < lhs.size then
+    if i < lhs.size then
       if let some hName := discrInfos[i].hName? then
         withLocalDeclD hName (← mkEqHEq lhs[i] rhs[i]) fun h =>
           go (i+1) (hs.push h)
@@ -546,7 +546,7 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
     let sizes := collectArraySizes p
     let subgoals ← caseArraySizes p.mvarId x.fvarId! sizes
     subgoals.mapIdxM fun i subgoal => do
-      if _ : i.val < sizes.size then
+      if i.val < sizes.size then
         let size     := sizes.get! i
         let subst    := subgoal.subst
         let elems    := subgoal.elems.toList

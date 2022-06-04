@@ -530,7 +530,7 @@ mutual
             modify fun s => { s with bottomUps := s.bottomUps.set! i true }
 
     applyFunBinderHeuristic := do
-      let { _, args, mvars, bInfos, .. } ← read
+      let { args, mvars, bInfos, .. } ← read
 
       let rec core (argIdx : Nat) (mvarType : Expr) : AnalyzeAppM Bool := do
         match ← getExpr, mvarType with

@@ -60,7 +60,7 @@ def getGoals : TacticM (List MVarId) :=
   return (← get).goals
 
 def setGoals (mvarIds : List MVarId) : TacticM Unit :=
-  modify fun _ => { s with goals := mvarIds }
+  modify fun _ => { goals := mvarIds }
 
 def pruneSolvedGoals : TacticM Unit := do
   let gs ← getGoals
@@ -284,7 +284,7 @@ def appendGoals (mvarIds : List MVarId) : TacticM Unit :=
 
 def replaceMainGoal (mvarIds : List MVarId) : TacticM Unit := do
   let (mvarId :: mvarIds') ← getGoals | throwNoGoalsToBeSolved
-  modify fun _ => { s with goals := mvarIds ++ mvarIds' }
+  modify fun _ => { goals := mvarIds ++ mvarIds' }
 
 /-- Return the first goal. -/
 def getMainGoal : TacticM MVarId := do

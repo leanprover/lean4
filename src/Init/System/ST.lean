@@ -17,7 +17,7 @@ instance {ε σ : Type} {α : Type} [Inhabited ε] : Inhabited (EST ε σ α) :=
 instance (σ : Type) : Monad (ST σ) := inferInstanceAs (Monad (EST _ _))
 
 -- Auxiliary class for inferring the "state" of `EST` and `ST` monads
-class STWorld (_ : outParam Type) (_ : Type → Type)
+class STWorld (σ : outParam Type) (m : Type → Type)
 
 instance {σ m n} [MonadLift m n] [STWorld σ m] : STWorld σ n := ⟨⟩
 instance {ε σ} : STWorld σ (EST ε σ) := ⟨⟩
@@ -44,7 +44,7 @@ namespace ST
 /- References -/
 constant RefPointed : NonemptyType.{0}
 
-structure Ref (_ : Type) (α : Type) : Type where
+structure Ref (σ : Type) (α : Type) : Type where
   ref : RefPointed.type
   h   : Nonempty α
 

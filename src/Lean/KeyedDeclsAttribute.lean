@@ -28,7 +28,7 @@ abbrev Key := Name
 `KeyedDeclsAttribute` definition.
 
  Important: `mkConst valueTypeName` and `γ` must be definitionally equal. -/
-structure Def (_ : Type) where
+structure Def (γ : Type) where
   builtinName   : Name := Name.anonymous  -- Builtin attribute name, if any (e.g., `builtinTermElab)
   name          : Name    -- Attribute name (e.g., `termElab)
   descr         : String  -- Attribute description

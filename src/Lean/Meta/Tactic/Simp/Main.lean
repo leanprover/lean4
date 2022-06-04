@@ -202,7 +202,7 @@ inductive SimpLetCase where
   | nondepDepVar -- `let x := v; b` is equivalent to `(fun x => b) v`, but result type depends on `x`
   | nondep -- `let x := v; b` is equivalent to `(fun x => b) v`, and result type does not depend on `x`
 
-def getSimpLetCase (n : Name) (t : Expr) (_ : Expr) (b : Expr) : MetaM SimpLetCase := do
+def getSimpLetCase (n : Name) (t : Expr) (b : Expr) : MetaM SimpLetCase := do
   withLocalDeclD n t fun x => do
     let bx := b.instantiate1 x
     /- The following step is potentially very expensive when we have many nested let-decls.
@@ -649,7 +649,7 @@ where
     if (← getConfig).zeta then
       return { expr := b.instantiate1 v }
     else
-      match (← getSimpLetCase n t v b) with
+      match (← getSimpLetCase n t b) with
       | SimpLetCase.dep => return { expr := (← dsimp e) }
       | SimpLetCase.nondep =>
         let rv ← simp v

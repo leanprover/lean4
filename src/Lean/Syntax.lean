@@ -384,9 +384,10 @@ def isAntiquot : Syntax → Bool
 
 def mkAntiquotNode (term : Syntax) (nesting := 0) (name : Option String := none) (kind := Name.anonymous) : Syntax :=
   let nesting := mkNullNode (mkArray nesting (mkAtom "$"))
-  let term := match term.isIdent with
-    | true  => term
-    | false => mkNode `antiquotNestedExpr #[mkAtom "(", term, mkAtom ")"]
+  let term :=
+    if term.isIdent then term
+    else if term.isOfKind `Lean.Parser.Term.hole then term[0]
+    else mkNode `antiquotNestedExpr #[mkAtom "(", term, mkAtom ")"]
   let name := match name with
     | some name => mkNode `antiquotName #[mkAtom ":", mkAtom name]
     | none      => mkNullNode
@@ -407,6 +408,7 @@ def unescapeAntiquot (stx : Syntax) : Syntax :=
 def getAntiquotTerm (stx : Syntax) : Syntax :=
   let e := if stx.isAntiquot then stx[2] else stx[3]
   if e.isIdent then e
+  else if e.isAtom then mkNode `Lean.Parser.Term.hole #[e]
   else
     -- `e` is from `"(" >> termParser >> ")"`
     e[1]

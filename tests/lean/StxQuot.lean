@@ -30,7 +30,7 @@ end Lean.Syntax
 #eval run $ do let a ← `(def foo := 1); match a with | `($f:command) => pure f | _ => pure Syntax.missing
 #eval run $ do let a ← `(def foo := 1 def bar := 2); match a with | `($f:command $g:command) => `($g:command $f:command) | _ => pure Syntax.missing
 
-#eval run $ do let a ← `(aa); match a with | `($id:ident) => pure 0 | `($e) => pure 1 | _ => pure 2
+#eval run $ do let a ← `(aa); match a with | `($_:ident) => pure 0 | `($_) => pure 1 | _ => pure 2
 #eval match mkIdent `aa with | `(aa) => 0 | _ => 1
 #eval match mkIdent `aa with | `(ab) => 0 | _ => 1
 #eval run $ do let a ← `(1 + 2); match a with | `($id:ident) => pure 0 | `($e) => pure 1 | _ => pure 2

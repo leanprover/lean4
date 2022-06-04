@@ -186,7 +186,6 @@ def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndIn
       if r.isConstOf ``true then
         return some { expr := mkConst ``True, proof? := mkAppN (mkConst ``eq_true_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] }
       else if r.isConstOf ``false then
-        let _ ← mkEqRefl d
         return some { expr := mkConst ``False, proof? := mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] }
       else
         return none

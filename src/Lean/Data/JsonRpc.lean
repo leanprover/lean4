@@ -27,7 +27,7 @@ instance : OfNat RequestID n := ⟨RequestID.num n⟩
 
 instance : ToString RequestID where
   toString
-  | RequestID.str _ => s!"\"s\""
+  | RequestID.str s => s
   | RequestID.num n => toString n
   | RequestID.null => "null"
 

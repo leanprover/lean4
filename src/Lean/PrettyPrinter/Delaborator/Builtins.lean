@@ -211,7 +211,6 @@ def unexpandRegularApp (stx : Syntax) : Delab := do
 -- abbrev coeFun {α : Sort u} {γ : α → Sort v} (a : α) [CoeFun α γ] : γ a
 def unexpandCoe (stx : Syntax) : Delab := whenPPOption getPPCoercions do
   if not (isCoe (← getExpr)) then failure
-  let _ ← getExpr
   match stx with
   | `($fn $arg)   => return arg
   | `($fn $args*) => `($(args.get! 0) $(args.eraseIdx 0)*)

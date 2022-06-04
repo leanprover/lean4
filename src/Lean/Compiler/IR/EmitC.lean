@@ -138,7 +138,7 @@ def emitFnDecls : M Unit := do
 def emitMainFn : M Unit := do
   let d ← getDecl `main
   match d with
-  | Decl.fdecl (f := _) (xs := xs) (type := _) (body := _) .. => do
+  | Decl.fdecl (xs := xs) .. => do
     unless xs.size == 2 || xs.size == 1 do throw "invalid main function, incorrect arity when generating code"
     let env ← getEnv
     let usesLeanAPI := usesModuleFrom env `Lean

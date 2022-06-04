@@ -132,7 +132,7 @@ structure Bar (α : Type) where
   bar (x : Nat) : Nat
   bar' (x : Nat) : Nat := 3
 
-class Baz (_ : Type) where
+class Baz (α : Type) where
   baz (x : Nat) : Nat
   baz' (x : Nat) : Nat :=
     let y := 5

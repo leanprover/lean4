@@ -2,9 +2,9 @@
 a : α
 as bs : List α
 h : bs = a :: as
-⊢ List.length (?a :: as) = List.length bs
+⊢ List.length (?head :: as) = List.length bs
 
-case a
+case head
 α : Type ?u
 a : α
 as bs : List α

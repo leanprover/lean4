@@ -194,13 +194,8 @@ jobs:
       - name: Test
         run: |
           cd build/stage1
-          ctest -j4 --output-on-failure ${{ matrix.CTEST_OPTIONS }} --output-junit tests.xml < /dev/null
+          ctest -j4 --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
         if: ${{ !matrix.cross }}
-      - uses: actions/upload-artifact@v2
-        if: always() && ${{ !matrix.cross }}
-        with:
-          name: test-${{ matrix.name }}
-          path: build/stage1/tests.xml
       - name: Check Test Binary
         run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
         if: ${{ !matrix.cross }}
@@ -229,21 +224,6 @@ jobs:
       - name: CCache stats
         run: ccache -s
 
-  publish-test-results:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      checks: write
-    if: always()
-    steps:
-      - uses: actions/download-artifact@v2
-        with:
-          path: artifacts
-      - uses: EnricoMi/publish-unit-test-result-action@v1
-        with:
-          files: "artifacts/test-*/*.xml"
-          comment_mode: off
-
   release:
     # When GitHub says "If a job fails, all jobs that need it are skipped unless
     # the jobs use a conditional expression that causes the job to continue.", don't believe
@@ -259,7 +239,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1       
         with:
-          files: artifacts/build-*/*
+          files: artifacts/*/*
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

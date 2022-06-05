@@ -597,6 +597,12 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
   let nargs := e.getAppNumArgs
   withAppAux k e (mkArray nargs dummy) (nargs-1)
 
+/-- Given `e = fn a₁ ... aₙ`, runs `f` on `fn` and each of the arguments `aᵢ` and
+makes a new function application with the results. -/
+def traverseApp {M} [Monad M]
+  (f : Expr → M Expr) (e : Expr) : M Expr :=
+  e.withApp fun fn args => mkAppN <$> f fn <*> args.mapM f
+
 @[specialize] private def withAppRevAux (k : Expr → Array Expr → α) : Expr → Array Expr → α
   | app f a _, as => withAppRevAux k f (as.push a)
   | f,         as => k f as

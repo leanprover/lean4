@@ -11,14 +11,26 @@ inductive TransformStep where
   | done  (e : Expr)
   | visit (e : Expr)
 
-
-/-- Given `e = fn a₁ ... aₙ`, runs `f` on `fn` and each of the arguments `aᵢ` and
-makes a new function application with the results. -/
-def Expr.traverseApp {M} [Monad M]
-  (f : Expr → M Expr) (e : Expr) : M Expr :=
-  e.withApp fun fn args => (pure mkAppN) <*> (f fn) <*> (args.mapM f)
-
 namespace Core
+
+/-- Maps `visit` on each child of the given expression.
+
+Loose bound variables are not instantiated.
+Use `Lean.Meta.traverseChildren` to avoid loose bound variables.
+
+Applications, foralls, lambdas and let binders are bundled (as they are bundled in `Expr.traverseApp`, `traverseForall`, ...).
+So `traverseChildren f e` where ``e = `(fn a₁ ... aₙ)`` will return
+``(← f `(fn)) (← f `(a₁)) ... (← f `(aₙ))`` rather than ``(← f `(fn a₁ ... aₙ₋₁)) (← f `(aₙ))``
+ -/
+def traverseChildren {M} [Monad M] (visit : Expr → M Expr) (e: Expr) : M Expr :=
+  match e with
+  | Expr.forallE _ d b _ => e.updateForallE! <$> visit d <*> visit b
+  | Expr.lam _ d b _     => e.updateLambdaE! <$> visit d <*> visit b
+  | Expr.letE _ t v b _  => e.updateLet! <$> visit t <*> visit v <*> visit b
+  | Expr.app ..          => e.traverseApp visit
+  | Expr.mdata _ b _     => e.updateMData! <$> visit b
+  | Expr.proj _ _ b _    => e.updateProj! <$> visit b
+  | _                    => pure e
 
 /--
   Tranform the expression `input` using `pre` and `post`.
@@ -42,20 +54,13 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
   let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := CoreM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
     checkCache { val := e : ExprStructEq } fun _ => Core.withIncRecDepth do
-      let rec visitPost (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
-        match (← post e) with
-        | TransformStep.done e  => pure e
-        | TransformStep.visit e => visit e
       match (← pre e) with
       | TransformStep.done e  => pure e
-      | TransformStep.visit e => match e with
-        | Expr.forallE _ d b _ => visitPost (e.updateForallE! (← visit d) (← visit b))
-        | Expr.lam _ d b _     => visitPost (e.updateLambdaE! (← visit d) (← visit b))
-        | Expr.letE _ t v b _  => visitPost (e.updateLet! (← visit t) (← visit v) (← visit b))
-        | Expr.app ..          => e.withApp fun f args => do visitPost (mkAppN (← visit f) (← args.mapM visit))
-        | Expr.mdata _ b _     => visitPost (e.updateMData! (← visit b))
-        | Expr.proj _ _ b _    => visitPost (e.updateProj! (← visit b))
-        | _                    => visitPost e
+      | TransformStep.visit e => do
+        let e ← traverseChildren visit e
+        match (← post e) with
+          | TransformStep.done e  => pure e
+          | TransformStep.visit e => visit e
   visit input |>.run
 
 def betaReduce (e : Expr) : CoreM Expr :=
@@ -67,7 +72,7 @@ namespace Meta
 
 variable {M} [Monad M] [MonadLiftT MetaM M] [MonadControlT MetaM M] [MonadOptions M]
 
-def usedLetOnly : M Bool := getBoolOption `visit.usedLetOnly false
+private def usedLetOnly : M Bool := getBoolOption `visit.usedLetOnly false
 
 /-- Given an expression `fun (x₁ : α₁) ... (xₙ : αₙ) => b`, will run
 `f` on each of the variable types `αᵢ` and `b` with the correct MetaM context,
@@ -103,6 +108,8 @@ def traverseLet
 Applications, foralls, lambdas and let binders are bundled (as they are bundled in `Expr.traverseApp`, `traverseForall`, ...).
 So `traverseChildren f e` where ``e = `(fn a₁ ... aₙ)`` will return
 ``(← f `(fn)) (← f `(a₁)) ... (← f `(aₙ))`` rather than ``(← f `(fn a₁ ... aₙ₋₁)) (← f `(aₙ))``
+
+See also `Lean.Core.traverseChildren`.
  -/
 def traverseChildren (f : Expr → M Expr) (e: Expr) : M Expr := do
   match e with

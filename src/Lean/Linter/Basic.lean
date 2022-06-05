@@ -62,11 +62,9 @@ def unusedVariables : Linter := fun stx => do
 
   let tacticFVarUses : HashSet FVarId ←
     tacticMVarAssignments.foldM (init := .empty) fun uses _ expr => do
-      let (_, s) ← StateT.run (s := uses) <| expr.forEach' (fun expr => do
-        match expr with
+      let (_, s) ← StateT.run (s := uses) <| expr.forEach fun
         | .fvar id _ => modify (·.insert id)
         | _          => pure ()
-        return true)
       return s
 
   -- determine unused variables

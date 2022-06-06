@@ -1147,7 +1147,7 @@ private def unfoldBothDefEq (fn : Name) (t s : Expr) : MetaM LBool := do
 
 private def sameHeadSymbol (t s : Expr) : Bool :=
   match t.getAppFn, s.getAppFn with
-  | Expr.const c₁ _ _, Expr.const c₂ _ _ => true
+  | Expr.const c₁ _ _, Expr.const c₂ _ _ => c₁ == c₂
   | _,                 _                 => false
 
 /--

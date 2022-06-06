@@ -236,7 +236,7 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
       let numParams := matchEqns.splitterAltNumParams[i]
       let (_, mvarId) ← introN mvarId numParams
       trace[Meta.Tactic.split] "before unifyEqs\n{mvarId}"
-      match (← Cases.unifyEqs (numEqs + info.getNumDiscrEqs) mvarId {}) with
+      match (← Cases.unifyEqs? (numEqs + info.getNumDiscrEqs) mvarId {}) with
       | none   => return (i+1, mvarIds) -- case was solved
       | some (mvarId, fvarSubst) =>
         trace[Meta.Tactic.split] "after unifyEqs\n{mvarId}"

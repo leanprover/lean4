@@ -388,7 +388,7 @@ where
         go? (b.instantiate1 arg)
     | e =>
       let r := if e.isAppOfArity ``id 2 then e.appArg! else e
-      return some (← reduceProjs (← instantiateMVars e.appArg!) expandedStructNames)
+      return some (← reduceProjs (← instantiateMVars r) expandedStructNames)
 
 private partial def copyNewFieldsFrom (structDeclName : Name) (infos : Array StructFieldInfo) (parentType : Expr) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
   copyFields infos {} parentType fun infos _ _ => k infos

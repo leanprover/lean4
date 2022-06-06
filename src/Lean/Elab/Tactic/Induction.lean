@@ -199,7 +199,7 @@ private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Ar
     for fvarId in fvarIds do
       if !useNamesForExplicitOnly || (← getLocalDecl fvarId).binderInfo.isExplicit then
         if i < altVars.size then
-          Term.addLocalVarInfo altVars[i] (mkFVar fvarId)
+          Term.addTermInfo' (isBinder := altVars[i].isIdent) altVars[i] (mkFVar fvarId)
           i := i + 1
 
 /--

@@ -16,7 +16,7 @@ namespace Core
 /--
   Tranform the expression `input` using `pre` and `post`.
   - `pre s` is invoked before visiting the children of subterm 's'. If the result is `TransformStep.visit sNew`, then
-     `sNew` is traversed by transform. If the result is `TransformStep.visit sNew`, then `s` is just replaced with `sNew`.
+     `sNew` is traversed by transform. If the result is `TransformStep.done sNew`, then `s` is just replaced with `sNew`.
      In both cases, `sNew` must be definitionally equal to `s`
   - `post s` is invoked after visiting the children of subterm `s`.
 

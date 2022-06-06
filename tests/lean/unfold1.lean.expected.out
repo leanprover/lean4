@@ -8,7 +8,4 @@ ih : isEven (2 * x) = true
 case succ
 x : Nat
 ih : isEven (2 * x) = true
-⊢ (match 2 * x + 1 with
-    | 0 => false
-    | Nat.succ n => isEven n) =
-    true
+⊢ isEven (Nat.add (2 * x) 0) = true

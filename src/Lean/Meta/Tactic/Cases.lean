@@ -18,7 +18,6 @@ private def throwInductiveTypeExpected (type : Expr) : MetaM α := do
 def getInductiveUniverseAndParams (type : Expr) : MetaM (List Level × Array Expr) := do
   let type ← whnfD type
   matchConstInduct type.getAppFn (fun _ => throwInductiveTypeExpected type) fun val us =>
-    let I      := type.getAppFn
     let Iargs  := type.getAppArgs
     let params := Iargs.extract 0 val.numParams
     pure (us, params)
@@ -34,7 +33,7 @@ private def mkEqAndProof (lhs rhs : Expr) : MetaM (Expr × Expr) := do
 
 private partial def withNewEqs (targets targetsNew : Array Expr) (k : Array Expr → Array Expr → MetaM α) : MetaM α :=
   let rec loop (i : Nat) (newEqs : Array Expr) (newRefls : Array Expr) := do
-    if h : i < targets.size then
+    if i < targets.size then
       let (newEqType, newRefl) ← mkEqAndProof targets[i] targetsNew[i]
       withLocalDeclD `h newEqType fun newEq => do
         loop (i+1) (newEqs.push newEq) (newRefls.push newRefl)
@@ -221,7 +220,7 @@ partial def unifyEqs (numEqs : Nat) (mvarId : MVarId) (subst : FVarSubst) (caseN
         unifyEqs numEqs mvarId subst caseName?
       else match eqDecl.type.eq? with
         | none => throwError "equality expected{indentExpr eqDecl.type}"
-        | some (α, a, b) =>
+        | some (_, a, b) =>
           /-
             Remark: we do not check `isDefeq` here because we would fail to substitute equalities
             such as `x = t` and `t = x` when `x` and `t` are proofs (proof irrelanvance).

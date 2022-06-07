@@ -114,10 +114,16 @@
  "position": {"line": 87, "character": 39}}
 null
 {"textDocument": {"uri": "file://plainGoal.lean"},
- "position": {"line": 92, "character": 16}}
+ "position": {"line": 91, "character": 16}}
 {"rendered":
  "```lean\ncase left\n⊢ True\n```\n---\n```lean\ncase right\n⊢ False\n```",
  "goals": ["case left\n⊢ True", "case right\n⊢ False"]}
 {"textDocument": {"uri": "file://plainGoal.lean"},
- "position": {"line": 96, "character": 2}}
+ "position": {"line": 95, "character": 8}}
+{"rendered": "```lean\n| True = True\n```", "goals": ["| True = True"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 97, "character": 4}}
+{"rendered": "```lean\n| True = True\n```", "goals": ["| True = True"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 101, "character": 2}}
 {"rendered": "```lean\n⊢ False\n```", "goals": ["⊢ False"]}

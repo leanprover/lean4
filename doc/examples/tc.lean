@@ -1,4 +1,4 @@
-/-|
+/-!
 # A Certified Type Checker
 
 In this example, we build a certified type checker for a simple expression
@@ -12,7 +12,7 @@ inductive Expr where
   | bool : Bool → Expr
   | and  : Expr → Expr → Expr
 
-/-|
+/-!
 We define a simple language of types using the inductive datatype `Ty`, and
 its typing rules using the inductive predicate `HasType`.
 -/
@@ -27,7 +27,7 @@ inductive HasType : Expr → Ty → Prop
   | bool : HasType (.bool v) .bool
   | and  : HasType a .bool → HasType b .bool → HasType (.and a b) .bool
 
-/-|
+/-!
 We can easily show that if `e` has type `t₁` and type `t₂`, then `t₁` and `t₂` must be equal
 by using the the `cases` tactic. This tactic creates a new subgoal for every constructor,
 and automatically discharges unreachable cases. The tactic combinator `tac₁ <;> tac₂` applies
@@ -37,7 +37,7 @@ goals using reflexivity.
 theorem HasType.det (h₁ : HasType e t₁) (h₂ : HasType e t₂) : t₁ = t₂ := by
   cases h₁ <;> cases h₂ <;> rfl
 
-/-|
+/-!
 The inductive type `Maybe p` has two contructors: `found a h` and `unknown`.
 The former contains an element `a : α` and a proof that `a` satisfies the predicate `p`.
 The constructor `unknown` is used to encode "failure".
@@ -47,12 +47,12 @@ inductive Maybe (p : α → Prop) where
   | found : (a : α) → p a → Maybe p
   | unknown
 
-/-|
+/-!
 We define a notation for `Maybe` that is similar to the builtin notation for the Lean builtin type `Subtype`.
 -/
 notation "{{ " x " | " p " }}" => Maybe (fun x => p)
 
-/-|
+/-!
 The function `Expr.typeCheck e` returns a type `ty` and a proof that `e` has type `ty`,
 or `unknown`.
 Recall that, `def Expr.typeCheck ...` in Lean is notation for `namespace Expr def typeCheck ... end Expr`.
@@ -79,7 +79,7 @@ theorem Expr.typeCheck_correct (h₁ : HasType e ty) (h₂ : e.typeCheck ≠ .un
   | found ty' h' => intro; have := HasType.det h₁ h'; subst this; rfl
   | unknown => intros; contradiction
 
-/-|
+/-!
 Now, we prove that if `Expr.typeCheck e` returns `Maybe.unknown`, then forall `ty`, `HasType e ty` does not hold.
 The notation `e.typeCheck` is sugar for `Expr.typeCheck e`. Lean can infer this because we explicitly said that `e` has type `Expr`.
 The proof is by induction on `e` and case analysis. The tactic `rename_i` is used to to rename "inaccessible" variables.
@@ -106,7 +106,7 @@ theorem Expr.typeCheck_complete {e : Expr} : e.typeCheck = .unknown → ¬ HasTy
       cases ht with
       | and h₁ h₂ =>  exact hnp h₁ h₂ (typeCheck_correct h₁ (iha · h₁)) (typeCheck_correct h₂ (ihb · h₂))
 
-/-|
+/-!
 Finally, we show that type checking for `e` can be decided using `Expr.typeCheck`.
 -/
 instance (e : Expr) (t : Ty) : Decidable (HasType e t) :=

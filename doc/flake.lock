@@ -3,11 +3,11 @@
     "alectryon-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1654264305,
-        "narHash": "sha256-g3XyrKj1y2WMZjVjGxBsMZRcO5DMRfYZjzaoC03itWE=",
+        "lastModified": 1654613606,
+        "narHash": "sha256-IGCn1PzTyw8rrwmyWUiw3Jo/dyZVGkMslnHYW7YB8yk=",
         "owner": "Kha",
         "repo": "alectryon",
-        "rev": "fbd16c38cbf261875f1db80d4c43cf0715ec56ea",
+        "rev": "c3b16f650665745e1da4ddfcc048d3bd639f71d5",
         "type": "github"
       },
       "original": {

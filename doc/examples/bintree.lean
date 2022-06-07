@@ -1,4 +1,4 @@
-/-|
+/-!
 # Binary Search Trees
 
 If the type of keys can be totally ordered -- that is, it supports a well-behaved `≤` comparison --
@@ -9,7 +9,7 @@ This example is based on a similar example found in the ["Sofware Foundations"](
 book (volume 3).
 -/
 
-/-|
+/-!
 We use `Nat` as the key type in our implementation of BSTs,
 since it has a convenient total order with lots of theorems and automation available.
 We leave as an exercise to the reader the generalization to arbitrary types.
@@ -20,7 +20,7 @@ inductive Tree (β : Type v) where
   | node (left : Tree β) (key : Nat) (value : β) (right : Tree β)
   deriving Repr
 
-/-|
+/-!
 The function `contains` returns `true` iff the given tree contains the key `k`.
 -/
 def Tree.contains (t : Tree β) (k : Nat) : Bool :=
@@ -34,7 +34,7 @@ def Tree.contains (t : Tree β) (k : Nat) : Bool :=
     else
       true
 
-/-|
+/-!
 `t.find? k` returns `some v` if `v` is the value bound to key `k` in the tree `t`. It returns `none` otherwise.
 -/
 def Tree.find? (t : Tree β) (k : Nat) : Option β :=
@@ -48,7 +48,7 @@ def Tree.find? (t : Tree β) (k : Nat) : Option β :=
     else
       some value
 
-/-|
+/-!
 `t.insert k v` is the map containing all the bindings of `t` along with a binding of `k` to `v`.
 -/
 def Tree.insert (t : Tree β) (k : Nat) (v : β) : Tree β :=
@@ -61,7 +61,7 @@ def Tree.insert (t : Tree β) (k : Nat) (v : β) : Tree β :=
       node left key value (right.insert k v)
     else
       node left k v right
-/-|
+/-!
 Let's add a new operation to our tree: converting it to an association list that contains the key--value bindings from the tree stored as pairs.
 If that list is sorted by the keys, then any two trees that represent the same map would be converted to the same list.
 Here's a function that does so with an in-order traversal of the tree.
@@ -80,7 +80,7 @@ def Tree.toList (t : Tree β) : List (Nat × β) :=
       |>.insert 1 "one"
       |>.toList
 
-/-|
+/-!
 The implemention of `Tree.toList` is inefficient because of how it uses the `++` operator.
 On a balanced tree its running time is linearithmic, because it does a linear number of
 concatentations at each level of the tree. On an unbalanced tree it's quadratic time.
@@ -94,7 +94,7 @@ where
     | leaf => acc
     | node l k v r => l.go ((k, v) :: r.go acc)
 
-/-|
+/-!
 We now prove that `t.toList` and `t.toListTR` return the same list.
 The proof is on induction, and as we used the auxiliary function `go`
 to define `Tree.toListTR`, we use the auxiliary theorem `go` to prove the theorem.
@@ -128,7 +128,7 @@ where
     induction t generalizing acc <;>
       simp [toListTR.go, toList, *, List.append_assoc]
 
-/-|
+/-!
 The `[csimp]` annotation instructs the Lean code generator to replace
 any `Tree.toList` with `Tree.toListTR` when generating code.
 -/
@@ -137,7 +137,7 @@ any `Tree.toList` with `Tree.toListTR` when generating code.
   funext β t
   apply toList_eq_toListTR
 
-/-|
+/-!
 The implementations of `Tree.find?` and `Tree.insert` assume that values of type tree obey the BST invariant:
 for any non-empty node with key `k`, all the values of the `left` subtree are less than `k` and all the values
 of the right subtree are greater than `k`. But that invariant is not part of the definition of tree.
@@ -153,7 +153,7 @@ inductive ForallTree (p : Nat → β → Prop) : Tree β → Prop
      ForallTree p right →
      ForallTree p (.node left key value right)
 
-/-|
+/-!
 Second, we define the BST invariant:
 An empty tree is a BST.
 A non-empty tree is a BST if all its left nodes have a lesser key, its right nodes have a greater key, and the left and right subtrees are themselves BSTs.
@@ -166,7 +166,7 @@ inductive BST : Tree β → Prop
      BST left → BST right →
      BST (.node left key value right)
 
-/-|
+/-!
 We can use the `macro` command to create helper tactics for organizing our proofs.
 The macro `have_eq x y` tries to prove `x = y` using linear arithmetic, and then
 immediately uses the new equality to substitute `x` with `y` everywhere in the goal.
@@ -181,7 +181,7 @@ local macro "have_eq " lhs:term:max rhs:term:max : tactic =>
        by simp_arith at *; apply Nat.le_antisymm <;> assumption
      try subst $lhs:term))
 
-/-|
+/-!
 The `by_cases' e` is just the regular `by_cases` followed by `simp` using all
 hypotheses in the current goal as rewriting rules.
 Recall that the `by_cases` tactic creates two goals. One where we have `h : e` and
@@ -194,13 +194,13 @@ local macro "by_cases' " e:term :  tactic =>
   `(by_cases $e:term <;> simp [*])
 
 
-/-|
+/-!
 We can use the attribute `[simp]` to instruct the simplifier to reduce given definitions or
 apply rewrite theorems. The `local` modifier limits the scope of this modification to this file.
 -/
 attribute [local simp] Tree.insert
 
-/-|
+/-!
 We now prove that `Tree.insert` preserves the BST invariant using induction and case analysis.
 Recall that the tactic `. tac` focuses on the main goal and tries to solve it using `tac`, or else fails.
 It is used to structure proofs in Lean.
@@ -237,7 +237,7 @@ theorem Tree.bst_insert_of_bst
       . have_eq key k
         exact .node h₁ h₂ b₁ b₂
 
-/-|
+/-!
 Now, we define the type `BinTree` using a `Subtype` that states that only trees satisfying the BST invariant are `BinTree`s.
 -/
 def BinTree (β : Type u) := { t : Tree β // BST t }
@@ -254,7 +254,7 @@ def BinTree.find? (b : BinTree β) (k : Nat) : Option β :=
 def BinTree.insert (b : BinTree β) (k : Nat) (v : β) : BinTree β :=
   ⟨b.val.insert k v, b.val.bst_insert_of_bst b.property k v⟩
 
-/-|
+/-!
 Finally, we prove that `BinTree.find?` and `BinTree.insert` satisfy the map properties.
 -/
 

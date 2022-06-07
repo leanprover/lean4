@@ -1,4 +1,4 @@
-/-|
+/-!
 # Parametric Higher-Order Abstract Syntax
 
 In contrast to first-order encodings, higher-order encodings avoid explicit modeling of variable identity.
@@ -10,7 +10,7 @@ and we can start by attempting to apply it directly in Lean.
 Remark: this example is based on an example in the book [Certified Programming with Dependent Types](http://adam.chlipala.net/cpdt/) by Adam Chlipala.
 -/
 
-/-|
+/-!
 Here is the definition of the simple type system for our programming language, a simply typed
 lambda calculus with natural numbers as the base type.
 -/
@@ -18,7 +18,7 @@ inductive Ty where
   | nat
   | fn : Ty → Ty → Ty
 
-/-|
+/-!
 We can write a function to translate `Ty` values to a Lean type
 — remember that types are first class, so can be calculated just like any other value.
 We mark `Ty.denote` as `[reducible]` to make sure the typeclass resolution procedure can
@@ -34,7 +34,7 @@ We call it the "dot notation".
   | nat    => Nat
   | fn a b => a.denote → b.denote
 
-/-|
+/-!
 With HOAS, each object language binding construct is represented with a function of
 the meta language. Here is what we get if we apply that idea within an inductive definition
 of term syntax. However a naive encondig in Lean fails to meet the strict positivity restrictions
@@ -50,7 +50,7 @@ inductive Term' (rep : Ty → Type) : Ty → Type
   | app   : Term' rep (.fn dom ran) → Term' rep dom → Term' rep ran
   | «let» : Term' rep ty₁ → (rep ty₁ → Term' rep ty₂) → Term' rep ty₂
 
-/-|
+/-!
 Lean accepts this definition because our embedded functions now merely take variables as
 arguments, instead of arbitrary terms. One might wonder whether there is an easy loophole
 to exploit here, instantiating the parameter `rep` as term itself. However, to do that, we
@@ -68,7 +68,7 @@ namespace FirstTry
 
 def Term (ty : Ty) := (rep : Ty → Type) → Term' rep ty
 
-/-|
+/-!
 In the next two example, note how each is written as a function over a `rep` choice,
 such that the specific choice has no impact on the structure of the term.
 -/
@@ -80,7 +80,7 @@ def three_the_hard_way : Term nat := fun rep =>
 
 end FirstTry
 
-/-|
+/-!
 The argument `rep` does not even appear in the function body for `add`. How can that be?
 By giving our terms expressive types, we allow Lean to infer many arguments for us. In fact,
 we do not even need to name the `rep` argument! By using Lean implicit arguments and lambdas,
@@ -95,7 +95,7 @@ def add : Term (fn nat (fn nat nat)) :=
 def three_the_hard_way : Term nat :=
   app (app add (const 1)) (const 2)
 
-/-|
+/-!
 It may not be at all obvious that the PHOAS representation admits the crucial computable
 operations. The key to effective deconstruction of PHOAS terms is one principle: treat
 the `rep` parameter as an unconstrained choice of which data should be annotated on each
@@ -114,12 +114,12 @@ def countVars : Term' (fun _ => Unit) ty → Nat
   | lam b     => countVars (b ())
   | «let» a b => countVars a + countVars (b ())
 
-/-| We can now easily prove that `add` has two variables by using reflexivity -/
+/-! We can now easily prove that `add` has two variables by using reflexivity -/
 
 example : countVars add = 2 :=
   rfl
 
-/-|
+/-!
 Here is another example, translating PHOAS terms into strings giving a first-order rendering.
 To implement this translation, the key insight is to tag variables with strings, giving their names.
 The function takes as an additional input `i` which is used to create variable names for binders.
@@ -141,7 +141,7 @@ def pretty (e : Term' (fun _ => String) ty) (i : Nat := 1) : String :=
 
 #eval pretty three_the_hard_way
 
-/-|
+/-!
 It is not necessary to convert to a different representation to support many common
 operations on terms. For instance, we can implement substitution of terms for variables.
 The key insight here is to tag variables with terms, so that, on encountering a variable, we
@@ -158,13 +158,13 @@ def squash : Term' (Term' rep) ty → Term' rep ty
  | app f a   => app (squash f) (squash a)
  | «let» a b => «let» (squash a) fun x => squash (b (.var x))
 
-/-|
+/-!
 To define the final substitution function over terms with single free variables, we define
 `Term1`, an analogue to Term that we defined before for closed terms.
 -/
 def Term1 (ty1 ty2 : Ty) := {rep : Ty → Type} → rep ty1 → Term' rep ty2
 
-/-|
+/-!
 Substitution is defined by (1) instantiating a `Term1` to tag variables with terms and (2)
 applying the result to a specific term to be substituted. Note how the parameter `rep` of
 `squash` is instantiated: the body of `subst` is itself a polymorphic quantification over `rep`,
@@ -175,7 +175,7 @@ tag choice for the input term.
 def subst (e : Term1 ty1 ty2) (e' : Term ty1) : Term ty2 :=
   squash (e e')
 
-/-|
+/-!
 We can view `Term1` as a term with hole. In the following example,
 `(fun x => plus (var x) (const 5))` can be viewed as the term `plus _ (const 5)` where
 the hole `_` is instantiated by `subst` with `three_the_hard_way`
@@ -183,7 +183,7 @@ the hole `_` is instantiated by `subst` with `three_the_hard_way`
 
 #eval pretty <| subst (fun x => plus (var x) (const 5)) three_the_hard_way
 
-/-|
+/-!
 One further development, which may seem surprising at first,
 is that we can also implement a usual term denotation function,
 when we tag variables with their denotations.
@@ -202,13 +202,13 @@ the `simp` tactic. We also say this is a hint for the Lean term simplifier.
 example : denote three_the_hard_way = 3 :=
   rfl
 
-/-|
+/-!
 To summarize, the PHOAS representation has all the expressive power of more
 standard encodings (e.g., using de Bruijn indices), and a variety of translations are actually much more pleasant to
 implement than usual, thanks to the novel ability to tag variables with data.
 -/
 
-/-|
+/-!
 We now define the constant folding optimization that traverses a term if replaces subterms such as
 `plus (const m) (const n)` with `const (n+m)`.
 -/
@@ -223,7 +223,7 @@ We now define the constant folding optimization that traverses a term if replace
     | const n, const m => const (n+m)
     | a',      b'      => plus a' b'
 
-/-|
+/-!
 The correctness of the `constFold` is proved using induction, case-analysis, and the term simplifier.
 We prove all cases but the one for `plus` using `simp [*]`. This tactic instructs the term simplifier to
 use hypotheses such as `a = b` as rewriting/simplications rules.

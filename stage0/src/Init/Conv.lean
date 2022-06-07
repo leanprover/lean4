@@ -14,7 +14,9 @@ declare_syntax_cat conv (behavior := both)
 
 syntax convSeq1Indented := withPosition((group(colGe conv ";"?))+)
 syntax convSeqBracketed := "{" (group(conv ";"?))+ "}"
-syntax convSeq := convSeq1Indented <|> convSeqBracketed
+-- Order is important: a missing `conv` proof should not be parsed as `{ <missing> }`,
+-- automatically closing goals
+syntax convSeq := convSeqBracketed <|> convSeq1Indented
 
 syntax (name := conv) "conv " (" at " ident)? (" in " term)? " => " convSeq : tactic
 

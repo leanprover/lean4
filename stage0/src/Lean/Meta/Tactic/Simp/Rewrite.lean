@@ -86,7 +86,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
      This simple approach was good enough for Mathlib 3 -/
   let mut extraArgs := #[]
   let mut e := e
-  for i in [:numExtraArgs] do
+  for _ in [:numExtraArgs] do
     extraArgs := extraArgs.push e.appArg!
     e := e.appFn!
   extraArgs := extraArgs.reverse
@@ -148,7 +148,7 @@ where
 
 @[inline] def andThen (s : Step) (f? : Expr → SimpM (Option Step)) : SimpM Step := do
   match s with
-  | Step.done r  => return s
+  | Step.done _  => return s
   | Step.visit r =>
     if let some s' ← f? r.expr then
       return s'.updateResult (← mkEqTrans r s'.result)
@@ -186,7 +186,6 @@ def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndIn
       if r.isConstOf ``true then
         return some { expr := mkConst ``True, proof? := mkAppN (mkConst ``eq_true_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] }
       else if r.isConstOf ``false then
-        let h ← mkEqRefl d
         return some { expr := mkConst ``False, proof? := mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] }
       else
         return none

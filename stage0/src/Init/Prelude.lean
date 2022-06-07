@@ -13,7 +13,7 @@ universe u v w
   fun x => f (g x)
 
 @[inline] def Function.const {α : Sort u} (β : Sort v) (a : α) : β → α :=
-  fun x => a
+  fun _ => a
 
 set_option checkBinderAnnotations false in
 @[reducible] def inferInstance {α : Sort u} [i : α] : α := i
@@ -109,9 +109,9 @@ inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
 
 theorem eq_of_heq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
   have : (α β : Sort u) → (a : α) → (b : β) → HEq a b → (h : Eq α β) → Eq (cast h a) b :=
-    fun α β a b h₁ =>
-      HEq.rec (motive := fun {β} (b : β) (h : HEq a b) => (h₂ : Eq α β) → Eq (cast h₂ a) b)
-        (fun (h₂ : Eq α α) => rfl)
+    fun α _ a _ h₁ =>
+      HEq.rec (motive := fun {β} (b : β) (_ : HEq a b) => (h₂ : Eq α β) → Eq (cast h₂ a) b)
+        (fun (_ : Eq α α) => rfl)
         h₁
   this α α a a' h rfl
 
@@ -161,6 +161,7 @@ structure Subtype {α : Sort u} (p : α → Prop) where
   val : α
   property : p val
 
+set_option linter.unusedVariables.funArgs false in
 /-- Gadget for optional parameter support. -/
 @[reducible] def optParam (α : Sort u) (default : α) : Sort u := α
 
@@ -170,6 +171,7 @@ structure Subtype {α : Sort u} (p : α → Prop) where
 /-- Auxiliary Declaration used to implement the notation (a : α) -/
 @[reducible] def typedExpr (α : Sort u) (a : α) : α := a
 
+set_option linter.unusedVariables.funArgs false in
 /-- Auxiliary Declaration used to implement the named patterns `x@h:p` -/
 @[reducible] def namedPattern {α : Sort u} (x a : α) (h : Eq x a) : α := a
 
@@ -179,10 +181,10 @@ axiom sorryAx (α : Sort u) (synthetic := false) : α
 
 theorem eq_false_of_ne_true : {b : Bool} → Not (Eq b true) → Eq b false
   | true, h => False.elim (h rfl)
-  | false, h => rfl
+  | false, _ => rfl
 
 theorem eq_true_of_ne_false : {b : Bool} → Not (Eq b false) → Eq b true
-  | true, h => rfl
+  | true, _ => rfl
   | false, h => False.elim (h rfl)
 
 theorem ne_false_of_eq_true : {b : Bool} → Eq b true → Not (Eq b false)
@@ -236,7 +238,7 @@ structure PLift (α : Sort u) : Type u where
 
 /- Bijection between α and PLift α -/
 theorem PLift.up_down {α : Sort u} : ∀ (b : PLift α), Eq (up (down b)) b
-  | up a => rfl
+  | up _ => rfl
 
 theorem PLift.down_up {α : Sort u} (a : α) : Eq (down (up a)) a :=
   rfl
@@ -256,7 +258,7 @@ structure ULift.{r, s} (α : Type s) : Type (max s r) where
 
 /- Bijection between α and ULift.{v} α -/
 theorem ULift.up_down {α : Type u} : ∀ (b : ULift.{v} α), Eq (up (down b)) b
-  | up a => rfl
+  | up _ => rfl
 
 theorem ULift.down_up {α : Type u} (a : α) : Eq (down (up.{v} a)) a :=
   rfl
@@ -288,7 +290,7 @@ theorem decide_eq_true : [s : Decidable p] → p → Eq (decide p) true
 
 theorem decide_eq_false : [s : Decidable p] → Not p → Eq (decide p) false
   | isTrue  h₁, h₂ => absurd h₁ h₂
-  | isFalse h, _   => rfl
+  | isFalse _, _   => rfl
 
 theorem of_decide_eq_true [s : Decidable p] : Eq (decide p) true → p := fun h =>
   match (generalizing := false) s with
@@ -302,7 +304,7 @@ theorem of_decide_eq_false [s : Decidable p] : Eq (decide p) false → Not p := 
 
 theorem of_decide_eq_self_eq_true [s : DecidableEq α] (a : α) : Eq (decide (Eq a a)) true :=
   match (generalizing := false) s a a with
-  | isTrue  h₁ => rfl
+  | isTrue  _  => rfl
   | isFalse h₁ => absurd rfl h₁
 
 @[inline] instance : DecidableEq Bool :=
@@ -384,7 +386,7 @@ instance : Inhabited Nat where
   default := Nat.zero
 
 /- For numeric literals notation -/
-class OfNat (α : Type u) (n : Nat) where
+class OfNat (α : Type u) (_ : Nat) where
   ofNat : α
 
 @[defaultInstance 100] /- low prio -/
@@ -585,7 +587,7 @@ attribute [matchPattern] Nat.add Add.add HAdd.hAdd Neg.neg
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_nat_mul"]
 protected def Nat.mul : (@& Nat) → (@& Nat) → Nat
-  | a, 0          => 0
+  | _, 0          => 0
   | a, Nat.succ b => Nat.add (Nat.mul a b) a
 
 instance : Mul Nat where
@@ -604,26 +606,26 @@ set_option bootstrap.genMatcherCode false in
 @[extern "lean_nat_dec_eq"]
 def Nat.beq : (@& Nat) → (@& Nat) → Bool
   | zero,   zero   => true
-  | zero,   succ m => false
-  | succ n, zero   => false
+  | zero,   succ _ => false
+  | succ _, zero   => false
   | succ n, succ m => beq n m
 
 instance : BEq Nat where
   beq := Nat.beq
 
 theorem Nat.eq_of_beq_eq_true : {n m : Nat} → Eq (beq n m) true → Eq n m
-  | zero,   zero,   h => rfl
-  | zero,   succ m, h => Bool.noConfusion h
-  | succ n, zero,   h => Bool.noConfusion h
+  | zero,   zero,   _ => rfl
+  | zero,   succ _, h => Bool.noConfusion h
+  | succ _, zero,   h => Bool.noConfusion h
   | succ n, succ m, h =>
     have : Eq (beq n m) true := h
     have : Eq n m := eq_of_beq_eq_true this
     this ▸ rfl
 
 theorem Nat.ne_of_beq_eq_false : {n m : Nat} → Eq (beq n m) false → Not (Eq n m)
-  | zero,   zero,   h₁, h₂ => Bool.noConfusion h₁
-  | zero,   succ m, h₁, h₂ => Nat.noConfusion h₂
-  | succ n, zero,   h₁, h₂ => Nat.noConfusion h₂
+  | zero,   zero,   h₁, _  => Bool.noConfusion h₁
+  | zero,   succ _, _,  h₂ => Nat.noConfusion h₂
+  | succ _, zero,   _,  h₂ => Nat.noConfusion h₂
   | succ n, succ m, h₁, h₂ =>
     have : Eq (beq n m) false := h₁
     Nat.noConfusion h₂ (fun h₂ => absurd h₂ (ne_of_beq_eq_false this))
@@ -640,8 +642,8 @@ set_option bootstrap.genMatcherCode false in
 @[extern "lean_nat_dec_le"]
 def Nat.ble : @& Nat → @& Nat → Bool
   | zero,   zero   => true
-  | zero,   succ m => true
-  | succ n, zero   => false
+  | zero,   succ _ => true
+  | succ _, zero   => false
   | succ n, succ m => ble n m
 
 protected inductive Nat.le (n : Nat) : Nat → Prop
@@ -659,7 +661,7 @@ instance : LT Nat where
 
 theorem Nat.not_succ_le_zero : ∀ (n : Nat), LE.le (succ n) 0 → False
   | 0,      h => nomatch h
-  | succ n, h => nomatch h
+  | succ _, h => nomatch h
 
 theorem Nat.not_lt_zero (n : Nat) : Not (LT.lt n 0) :=
   not_succ_le_zero n
@@ -705,8 +707,8 @@ def Nat.pred : (@& Nat) → Nat
 
 theorem Nat.pred_le_pred : {n m : Nat} → LE.le n m → LE.le (pred n) (pred m)
   | _,           _, Nat.le.refl   => Nat.le.refl
-  | 0,      succ m, Nat.le.step h => h
-  | succ n, succ m, Nat.le.step h => Nat.le_trans (le_succ _) h
+  | 0,      succ _, Nat.le.step h => h
+  | succ _, succ _, Nat.le.step h => Nat.le_trans (le_succ _) h
 
 theorem Nat.le_of_succ_le_succ {n m : Nat} : LE.le (succ n) (succ m) → LE.le n m :=
   pred_le_pred
@@ -715,9 +717,9 @@ theorem Nat.le_of_lt_succ {m n : Nat} : LT.lt m (succ n) → LE.le m n :=
   le_of_succ_le_succ
 
 protected theorem Nat.eq_or_lt_of_le : {n m: Nat} → LE.le n m → Or (Eq n m) (LT.lt n m)
-  | zero,   zero,   h => Or.inl rfl
-  | zero,   succ n, h => Or.inr (Nat.succ_le_succ (Nat.zero_le _))
-  | succ n, zero,   h => absurd h (not_succ_le_zero _)
+  | zero,   zero,   _ => Or.inl rfl
+  | zero,   succ _, _ => Or.inr (Nat.succ_le_succ (Nat.zero_le _))
+  | succ _, zero,   h => absurd h (not_succ_le_zero _)
   | succ n, succ m, h =>
     have : LE.le n m := Nat.le_of_succ_le_succ h
     match Nat.eq_or_lt_of_le this with
@@ -766,7 +768,7 @@ theorem Nat.ble_self_eq_true : (n : Nat) → Eq (Nat.ble n n) true
 
 theorem Nat.ble_succ_eq_true : {n m : Nat} → Eq (Nat.ble n m) true → Eq (Nat.ble n (succ m)) true
   | 0,      _,      _ => rfl
-  | succ n, succ m, h => ble_succ_eq_true (n := n) h
+  | succ n, succ _, h => ble_succ_eq_true (n := n) h
 
 theorem Nat.ble_eq_true_of_le (h : LE.le n m) : Eq (Nat.ble n m) true :=
   match h with
@@ -807,7 +809,7 @@ structure Fin (n : Nat) where
   isLt : LT.lt val n
 
 theorem Fin.eq_of_val_eq {n} : ∀ {i j : Fin n}, Eq i.val j.val → Eq i j
-  | ⟨v, h⟩, ⟨_, _⟩, rfl => rfl
+  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
 theorem Fin.val_eq_of_eq {n} {i j : Fin n} (h : Eq i j) : Eq i.val j.val :=
   h ▸ rfl
@@ -1021,7 +1023,7 @@ def Char.ofNat (n : Nat) : Char :=
     (fun _ => { val := ⟨{ val := 0, isLt := by decide }⟩, valid := Or.inl (by decide) })
 
 theorem Char.eq_of_val_eq : ∀ {c d : Char}, Eq c.val d.val → Eq c d
-  | ⟨v, h⟩, ⟨_, _⟩, rfl => rfl
+  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
 theorem Char.val_eq_of_eq : ∀ {c d : Char}, Eq c d → Eq c.val d.val
   | _, _, rfl => rfl
@@ -1072,8 +1074,8 @@ instance {α} : Inhabited (List α) where
 
 protected def List.hasDecEq {α: Type u} [DecidableEq α] : (a b : List α) → Decidable (Eq a b)
   | nil,       nil       => isTrue rfl
-  | cons a as, nil       => isFalse (fun h => List.noConfusion h)
-  | nil,       cons b bs => isFalse (fun h => List.noConfusion h)
+  | cons _ _, nil        => isFalse (fun h => List.noConfusion h)
+  | nil,       cons _ _  => isFalse (fun h => List.noConfusion h)
   | cons a as, cons b bs =>
     match decEq a b with
     | isTrue hab  =>
@@ -1090,17 +1092,17 @@ def List.foldl {α β} (f : α → β → α) : (init : α) → List β → α
   | a, cons b l => foldl f (f a b) l
 
 def List.set : List α → Nat → α → List α
-  | cons a as, 0,          b => cons b as
+  | cons _ as, 0,          b => cons b as
   | cons a as, Nat.succ n, b => cons a (set as n b)
   | nil,       _,          _ => nil
 
 def List.length : List α → Nat
   | nil       => 0
-  | cons a as => HAdd.hAdd (length as) 1
+  | cons _ as => HAdd.hAdd (length as) 1
 
 def List.lengthTRAux : List α → Nat → Nat
   | nil,       n => n
-  | cons a as, n => lengthTRAux as (Nat.succ n)
+  | cons _ as, n => lengthTRAux as (Nat.succ n)
 
 def List.lengthTR (as : List α) : Nat :=
   lengthTRAux as 0
@@ -1113,8 +1115,8 @@ def List.concat {α : Type u} : List α → α → List α
   | cons a as, b => cons a (concat as b)
 
 def List.get {α : Type u} : (as : List α) → Fin as.length → α
-  | cons a as, ⟨0, _⟩ => a
-  | cons a as, ⟨Nat.succ i, h⟩ => get as ⟨i, Nat.le_of_succ_le_succ h⟩
+  | cons a _,  ⟨0, _⟩ => a
+  | cons _ as, ⟨Nat.succ i, h⟩ => get as ⟨i, Nat.le_of_succ_le_succ h⟩
 
 structure String where
   data : List Char
@@ -1469,7 +1471,7 @@ variable {ρ : Type u} {m : Type u → Type v} [Monad m] {α β : Type u}
   pure
 
 @[inline] protected def pure (a : α) : ReaderT ρ m α :=
-  fun r => pure a
+  fun _ => pure a
 
 @[inline] protected def bind (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) : ReaderT ρ m β :=
   fun r => bind (x r) fun a => f a r
@@ -1739,8 +1741,8 @@ instance : Inhabited Name where
 
 protected def Name.hash : Name → UInt64
   | Name.anonymous => UInt64.ofNatCore 1723 (by decide)
-  | Name.str p s h => h
-  | Name.num p v h => h
+  | Name.str _ _ h => h
+  | Name.num _ _ h => h
 
 instance : Hashable Name where
   hash := Name.hash
@@ -1860,7 +1862,7 @@ namespace Syntax
 
 def getKind (stx : Syntax) : SyntaxNodeKind :=
   match stx with
-  | Syntax.node _ k args => k
+  | Syntax.node _ k _    => k
   -- We use these "pseudo kinds" for antiquotation kinds.
   -- For example, an antiquotation `$id:ident` (using Lean.Parser.Term.ident)
   -- is compiled to ``if stx.isOfKind `ident ...``
@@ -2139,14 +2141,14 @@ private def assembleParts : List Name → Name → Name
   | List.nil,                      acc => acc
   | List.cons (Name.str _ s _) ps, acc => assembleParts ps (Name.mkStr acc s)
   | List.cons (Name.num _ n _) ps, acc => assembleParts ps (Name.mkNum acc n)
-  | _,                             acc => panic "Error: unreachable @ assembleParts"
+  | _,                             _   => panic "Error: unreachable @ assembleParts"
 
 private def extractImported (scps : List MacroScope) (mainModule : Name) : Name → List Name → MacroScopesView
   | n@(Name.str p str _), parts =>
     match beq str "_@" with
     | true  => { name := p, mainModule := mainModule, imported := assembleParts parts Name.anonymous, scopes := scps }
     | false => extractImported scps mainModule p (List.cons n parts)
-  | n@(Name.num p str _), parts => extractImported scps mainModule p (List.cons n parts)
+  | n@(Name.num p _ _), parts => extractImported scps mainModule p (List.cons n parts)
   | _,                    _     => panic "Error: unreachable @ extractImported"
 
 private def extractMainModule (scps : List MacroScope) : Name → List Name → MacroScopesView
@@ -2154,12 +2156,12 @@ private def extractMainModule (scps : List MacroScope) : Name → List Name → 
     match beq str "_@" with
     | true  => { name := p, mainModule := assembleParts parts Name.anonymous, imported := Name.anonymous, scopes := scps }
     | false => extractMainModule scps p (List.cons n parts)
-  | n@(Name.num p num _), acc => extractImported scps (assembleParts acc Name.anonymous) n List.nil
+  | n@(Name.num _ _ _), acc => extractImported scps (assembleParts acc Name.anonymous) n List.nil
   | _,                    _   => panic "Error: unreachable @ extractMainModule"
 
 private def extractMacroScopesAux : Name → List MacroScope → MacroScopesView
   | Name.num p scp _, acc => extractMacroScopesAux p (List.cons scp acc)
-  | Name.str p str _, acc => extractMainModule acc p List.nil -- str must be "_hyg"
+  | Name.str p _   _, acc => extractMainModule acc p List.nil -- str must be "_hyg"
   | _,                _   => panic "Error: unreachable @ extractMacroScopesAux"
 
 /--

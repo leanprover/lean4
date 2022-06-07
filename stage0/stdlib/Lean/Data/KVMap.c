@@ -135,7 +135,7 @@ LEAN_EXPORT lean_object* l_Lean_KVMap_instValueBool___lambda__1___boxed(lean_obj
 static lean_object* l___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_Lean_Data_KVMap___hyg_855____closed__3;
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueNat___lambda__2___boxed(lean_object*);
 static lean_object* l___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_Lean_Data_KVMap___hyg_855____closed__8;
-lean_object* l___private_Init_Meta_0__Lean_Name_reprSyntax____x40_Init_Meta___hyg_1077_(lean_object*, lean_object*);
+lean_object* l___private_Init_Meta_0__Lean_Name_reprSyntax____x40_Init_Meta___hyg_1079_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkBoolDataValueEx___boxed(lean_object*);
 static lean_object* l_Lean_KVMap_instValueDataValue___closed__1;
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueString___lambda__2___boxed(lean_object*);
@@ -1063,7 +1063,7 @@ lean_inc(x_81);
 lean_dec(x_1);
 x_82 = lean_unsigned_to_nat(1024u);
 x_83 = lean_nat_dec_le(x_82, x_2);
-x_84 = l___private_Init_Meta_0__Lean_Name_reprSyntax____x40_Init_Meta___hyg_1077_(x_81, x_82);
+x_84 = l___private_Init_Meta_0__Lean_Name_reprSyntax____x40_Init_Meta___hyg_1079_(x_81, x_82);
 x_85 = l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x40_Lean_Data_KVMap___hyg_257____closed__34;
 x_86 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_86, 0, x_85);

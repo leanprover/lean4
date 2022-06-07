@@ -30,7 +30,7 @@ variable {α : Sort u} {r : α → α → Prop}
 
 def inv {x y : α} (h₁ : Acc r x) (h₂ : r y x) : Acc r y :=
 Acc.recOn (motive := fun (x : α) _ => r y x → Acc r y)
-  h₁ (fun x₁ ac₁ ih h₂ => ac₁ y h₂) h₂
+  h₁ (fun _ ac₁ _ h₂ => ac₁ y h₂) h₂
 
 end Acc
 
@@ -43,7 +43,7 @@ class WellFoundedRelation (α : Sort u) where
 
 namespace WellFounded
 def apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
-  WellFounded.recOn (motive := fun x => (y : α) → Acc r y)
+  WellFounded.recOn (motive := fun _ => (y : α) → Acc r y)
     wf (fun p => p) a
 
 section
@@ -51,7 +51,7 @@ variable {α : Sort u} {r : α → α → Prop} (hwf : WellFounded r)
 
 theorem recursion {C : α → Sort v} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a := by
   induction (apply hwf a) with
-  | intro x₁ ac₁ ih => exact h x₁ ih
+  | intro x₁ _ ih => exact h x₁ ih
 
 theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a :=
   recursion hwf a h
@@ -62,11 +62,11 @@ variable (F : ∀ x, (∀ y, r y x → C y) → C x)
 set_option codegen false in
 def fixF (x : α) (a : Acc r x) : C x := by
   induction a with
-  | intro x₁ ac₁ ih => exact F x₁ ih
+  | intro x₁ _ ih => exact F x₁ ih
 
 def fixFEq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p : r y x) => fixF F y (Acc.inv acx p)) := by
   induction acx with
-  | intro x r ih => exact rfl
+  | intro x r _ => exact rfl
 
 end
 
@@ -79,7 +79,7 @@ def fix (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : �
 
 -- Well-founded fixpoint satisfies fixpoint equation
 theorem fix_eq (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) :
-    fix hwf F x = F x (fun y h => fix hwf F y) :=
+    fix hwf F x = F x (fun y _ => fix hwf F y) :=
   fixFEq F x (apply hwf x)
 end WellFounded
 
@@ -101,7 +101,7 @@ variable {α : Sort u} {r q : α → α → Prop}
 
 def accessible {a : α} (h₁ : Subrelation q r) (ac : Acc r a) : Acc q a := by
   induction ac with
-  | intro x ax ih =>
+  | intro x _ ih =>
     apply Acc.intro
     intro y h
     exact ih y (h₁ h)
@@ -145,7 +145,7 @@ def accessible {z : α} (ac : Acc r z) : Acc (TC r) z := by
     intro y rel
     induction rel with
     | base a b rab => exact ih a rab
-    | trans a b c rab rbc ih₁ ih₂ => apply Acc.inv (ih₂ acx ih) rab
+    | trans a b c rab _ _ ih₂ => apply Acc.inv (ih₂ acx ih) rab
 
 def wf (h : WellFounded r) : WellFounded (TC r) :=
   ⟨fun a => accessible (apply h a)⟩
@@ -216,9 +216,9 @@ variable {ra  : α → α → Prop} {rb  : β → β → Prop}
 
 def lexAccessible (aca : (a : α) → Acc ra a) (acb : (b : β) → Acc rb b) (a : α) (b : β) : Acc (Lex ra rb) (a, b) := by
   induction (aca a) generalizing b with
-  | intro xa aca iha =>
+  | intro xa _ iha =>
     induction (acb b) with
-    | intro xb acb ihb =>
+    | intro xb _ ihb =>
       apply Acc.intro (xa, xb)
       intro p lt
       cases lt with
@@ -268,9 +268,9 @@ variable {r  : α → α → Prop} {s : ∀ (a : α), β a → β a → Prop}
 
 def lexAccessible {a} (aca : Acc r a) (acb : (a : α) → WellFounded (s a)) (b : β a) : Acc (Lex r s) ⟨a, b⟩ := by
   induction aca with
-  | intro xa aca iha =>
+  | intro xa _ iha =>
     induction (WellFounded.apply (acb xa) b) with
-    | intro xb acb ihb =>
+    | intro xb _ ihb =>
       apply Acc.intro
       intro p lt
       cases lt with
@@ -291,17 +291,17 @@ section
 variable {α : Sort u} {β : Sort v}
 
 def lexNdep (r : α → α → Prop) (s : β → β → Prop) :=
-  Lex r (fun a => s)
+  Lex r (fun _ => s)
 
 def lexNdepWf {r  : α → α → Prop} {s : β → β → Prop} (ha : WellFounded r) (hb : WellFounded s) : WellFounded (lexNdep r s) :=
-  WellFounded.intro fun ⟨a, b⟩ => lexAccessible (WellFounded.apply ha a) (fun x => hb) b
+  WellFounded.intro fun ⟨a, b⟩ => lexAccessible (WellFounded.apply ha a) (fun _ => hb) b
 end
 
 section
 variable {α : Sort u} {β : Sort v}
 
 -- Reverse lexicographical order based on r and s
-inductive RevLex (r  : α → α → Prop) (s  : β → β → Prop) : @PSigma α (fun a => β) → @PSigma α (fun a => β) → Prop where
+inductive RevLex (r  : α → α → Prop) (s  : β → β → Prop) : @PSigma α (fun _ => β) → @PSigma α (fun _ => β) → Prop where
   | left  : {a₁ a₂ : α} → (b : β) → r a₁ a₂ → RevLex r s ⟨a₁, b⟩ ⟨a₂, b⟩
   | right : (a₁ : α) → {b₁ : β} → (a₂ : α) → {b₂ : β} → s b₁ b₂ → RevLex r s ⟨a₁, b₁⟩ ⟨a₂, b₂⟩
 end
@@ -313,10 +313,10 @@ variable {r  : α → α → Prop} {s : β → β → Prop}
 
 def revLexAccessible {b} (acb : Acc s b) (aca : (a : α) → Acc r a): (a : α) → Acc (RevLex r s) ⟨a, b⟩ := by
   induction acb with
-  | intro xb acb ihb =>
+  | intro xb _ ihb =>
     intro a
     induction (aca a) with
-    | intro xa aca iha =>
+    | intro xa _ iha =>
       apply Acc.intro
       intro p lt
       cases lt with
@@ -328,10 +328,10 @@ def revLex (ha : WellFounded r) (hb : WellFounded s) : WellFounded (RevLex r s) 
 end
 
 section
-def SkipLeft (α : Type u) {β : Type v} (s : β → β → Prop) : @PSigma α (fun a => β) → @PSigma α (fun a => β) → Prop :=
+def SkipLeft (α : Type u) {β : Type v} (s : β → β → Prop) : @PSigma α (fun _ => β) → @PSigma α (fun _ => β) → Prop :=
   RevLex emptyRelation s
 
-def skipLeft (α : Type u) {β : Type v} (hb : WellFoundedRelation β) : WellFoundedRelation (PSigma fun a : α => β) where
+def skipLeft (α : Type u) {β : Type v} (hb : WellFoundedRelation β) : WellFoundedRelation (PSigma fun _ : α => β) where
   rel := SkipLeft α hb.rel
   wf  := revLex emptyWf.wf hb.wf
 

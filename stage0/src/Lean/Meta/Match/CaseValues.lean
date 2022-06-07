@@ -81,7 +81,7 @@ structure CaseValuesSubgoal where
 -/
 def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNamePrefix := `h) (substNewEqs := false) : MetaM (Array CaseValuesSubgoal) :=
   let rec loop : Nat → MVarId → List Expr → Array FVarId → Array CaseValuesSubgoal → MetaM (Array CaseValuesSubgoal)
-    | i, mvarId, [],    hs, subgoals => throwTacticEx `caseValues mvarId "list of values must not be empty"
+    | _, mvarId, [],    _,  _        => throwTacticEx `caseValues mvarId "list of values must not be empty"
     | i, mvarId, v::vs, hs, subgoals => do
       let (thenSubgoal, elseSubgoal) ← caseValueAux mvarId fvarId v (hNamePrefix.appendIndexAfter i) {}
       appendTagSuffix thenSubgoal.mvarId ((`case).appendIndexAfter i)

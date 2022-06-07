@@ -50,7 +50,7 @@ variable {ε : Type u}
 def orElseLazy (x : Except ε α) (y : Unit → Except ε α) : Except ε α :=
   match x with
   | Except.ok a    => Except.ok a
-  | Except.error e => y ()
+  | Except.error _ => y ()
 
 instance : Monad (Except ε) where
   pure := Except.pure

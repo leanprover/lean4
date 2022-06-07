@@ -82,7 +82,7 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
 
 @[builtinQuotPrecheck ident] def precheckIdent : Precheck := fun stx =>
   match stx with
-  | Syntax.ident info rawVal val preresolved => do
+  | Syntax.ident _    _      val preresolved => do
     if !preresolved.isEmpty then
       return
     /- The precheck currently ignores field notation.
@@ -99,7 +99,7 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
     let rs ← try resolveName stx val [] [] catch _ => pure []
     for (e, _) in rs do
       match e with
-      | Expr.fvar fvarId .. =>
+      | Expr.fvar _      .. =>
         if quotPrecheck.allowSectionVars.get (← getOptions) && (← isSectionVariable e) then
           return
       | _ => pure ()
@@ -111,7 +111,7 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
     precheck f
     for arg in args do
       match arg with
-      | `(argument| ($n := $e)) => precheck e
+      | `(argument| ($_ := $e)) => precheck e
       | `(argument| $e:term)    => precheck e
       | `(argument| ..)         => pure ()
       | _ => throwUnsupportedSyntax

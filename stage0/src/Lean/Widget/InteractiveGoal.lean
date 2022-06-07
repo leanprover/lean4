@@ -50,7 +50,7 @@ def pretty (g : InteractiveGoal) : Format := Id.run do
       | none =>
         ret := ret ++ Format.group f!"{names} :{Format.nest indent (Format.line ++ hyp.type.stripTags)}"
   ret := addLine ret
-  ret ++ f!"⊢ {Format.nest indent g.type.stripTags}"
+  ret ++ f!"{g.goalPrefix}{Format.nest indent g.type.stripTags}"
 
 end InteractiveGoal
 

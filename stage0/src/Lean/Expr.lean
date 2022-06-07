@@ -558,12 +558,12 @@ def getForallBody : Expr → Expr
 function applications `f a₁ .. aₙ`, return `f`.
 Otherwise return the input expression. -/
 def getAppFn : Expr → Expr
-  | app f a _ => getAppFn f
+  | app f _ _ => getAppFn f
   | e         => e
 
 def getAppNumArgsAux : Expr → Nat → Nat
-  | app f a _, n => getAppNumArgsAux f (n+1)
-  | e,         n => n
+  | app f _ _, n => getAppNumArgsAux f (n+1)
+  | _,         n => n
 
 /-- Counts the number `n` of arguments for an expression `f a₁ .. aₙ`. -/
 def getAppNumArgs (e : Expr) : Nat :=
@@ -589,7 +589,7 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
 
 @[specialize] def withAppAux (k : Expr → Array Expr → α) : Expr → Array Expr → Nat → α
   | app f a _, as, i => withAppAux k f (as.set! i a) (i-1)
-  | f,         as, i => k f as
+  | f,         as, _ => k f as
 
 /-- Given `e = f a₁ a₂ ... aₙ`, returns `k f #[a₁, ..., aₙ]`. -/
 @[inline] def withApp (e : Expr) (k : Expr → Array Expr → α) : α :=
@@ -606,12 +606,12 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
   withAppRevAux k e (Array.mkEmpty e.getAppNumArgs)
 
 def getRevArgD : Expr → Nat → Expr → Expr
-  | app f a _, 0,   _ => a
+  | app _ a _, 0,   _ => a
   | app f _ _, i+1, v => getRevArgD f i v
   | _,         _,   v => v
 
 def getRevArg! : Expr → Nat → Expr
-  | app f a _, 0   => a
+  | app _ a _, 0   => a
   | app f _ _, i+1 => getRevArg! f i
   | _,         _   => panic! "invalid index"
 
@@ -979,7 +979,7 @@ def isHeadBetaTarget (e : Expr) (useZeta := false) : Bool :=
 
 private def etaExpandedBody : Expr → Nat → Nat → Option Expr
   | app f (bvar j _) _, n+1, i => if j == i then etaExpandedBody f n (i+1) else none
-  | _,                  n+1, _ => none
+  | _,                  _+1, _ => none
   | f,                  0,   _ => if f.hasLooseBVars then none else some f
 
 private def etaExpandedAux : Expr → Nat → Option Expr
@@ -1046,8 +1046,8 @@ partial def consumeMDataAndTypeAnnotations (e : Expr) : Expr :=
     | Expr.letE _ t v b _    => visit t || visit v || visit b
     | Expr.app f a _         => visit f || visit a
     | Expr.proj _ _ e _      => visit e
-    | e@(Expr.fvar fvarId _) => p fvarId
-    | e                      => false
+    | Expr.fvar fvarId _     => p fvarId
+    | _                      => false
   visit e
 
 def containsFVar (e : Expr) (fvarId : FVarId) : Bool :=
@@ -1171,9 +1171,9 @@ partial def eta (e : Expr) : Expr :=
   let rec @[specialize] visit (e : Expr) : Expr :=
     if !e.hasLevelParam then e
     else match e with
-    | lam n d b _     => e.updateLambdaE! (visit d) (visit b)
-    | forallE n d b _ => e.updateForallE! (visit d) (visit b)
-    | letE n t v b _  => e.updateLet! (visit t) (visit v) (visit b)
+    | lam _ d b _     => e.updateLambdaE! (visit d) (visit b)
+    | forallE _ d b _ => e.updateForallE! (visit d) (visit b)
+    | letE _ t v b _  => e.updateLet! (visit t) (visit v) (visit b)
     | app f a _       => e.updateApp! (visit f) (visit a)
     | proj _ _ s _    => e.updateProj! (visit s)
     | mdata _ b _     => e.updateMData! (visit b)
@@ -1272,7 +1272,7 @@ private def patternRefAnnotationKey := `_patWithRef
 -/
 def patternWithRef? (p : Expr) : Option (Syntax × Expr) :=
   match p with
-  | Expr.mdata d b _ =>
+  | Expr.mdata d _ _ =>
     match d.find patternRefAnnotationKey with
     | some (DataValue.ofSyntax stx) => some (stx, p.mdataExpr!)
     | _ => none

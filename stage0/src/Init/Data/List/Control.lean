@@ -90,14 +90,14 @@ def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m 
 
 @[specialize]
 protected def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s → α → m s) → (init : s) → List α → m s
-  | f, s, []      => pure s
+  | _, s, []      => pure s
   | f, s, a :: as => do
     let s' ← f s a
     List.foldlM f s' as
 
 @[specialize]
 def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : α → s → m s) → (init : s) → List α → m s
-  | f, s, []      => pure s
+  | _, s, []      => pure s
   | f, s, a :: as => do
     let s' ← foldrM f s as
     f a s'
@@ -178,7 +178,7 @@ instance : ForIn' m (List α) α inferInstance where
 
 @[simp] theorem forIn'_eq_forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : α → β → m (ForInStep β)) : forIn' as init (fun a _ b => f a b) = forIn as init f := by
   simp [forIn', forIn, List.forIn, List.forIn']
-  have : ∀ cs h, List.forIn'.loop cs (fun a x b => f a b) as init h = List.forIn.loop f as init := by
+  have : ∀ cs h, List.forIn'.loop cs (fun a _ b => f a b) as init h = List.forIn.loop f as init := by
     intro cs h
     induction as generalizing cs init with
     | nil => intros; rfl

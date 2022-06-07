@@ -131,7 +131,7 @@ def remarkAsConvGoal : TacticM Unit := do
 
 private def convTarget (conv : Syntax) : TacticM Unit := withMainContext do
    let target ← getMainTarget
-   let (targetNew, proof) ← convert target (evalTactic conv)
+   let (targetNew, proof) ← convert target (withTacticInfoContext (← getRef) (evalTactic conv))
    liftMetaTactic1 fun mvarId => replaceTargetEq mvarId targetNew proof
    evalTactic (← `(tactic| try rfl))
 

@@ -222,7 +222,7 @@ partial def CodeBlocl.toMessageData (codeBlock : CodeBlock) : MessageData :=
     | Code.«break» _              => m!"break {us}"
     | Code.«continue» _           => m!"continue {us}"
     | Code.«return» _ v           => m!"return {v} {us}"
-    | Code.«match» _ _ ds t alts  =>
+    | Code.«match» _ _ ds _ alts  =>
       m!"match {ds} with"
       ++ alts.foldl (init := m!"") fun acc alt => acc ++ m!"\n| {alt.patterns} => {loop alt.rhs}"
   loop codeBlock.code
@@ -241,7 +241,7 @@ partial def hasExitPointPred (c : Code) (p : Code → Bool) : Bool :=
   loop c
 
 def hasExitPoint (c : Code) : Bool :=
-  hasExitPointPred c fun c => true
+  hasExitPointPred c fun _ => true
 
 def hasReturn (c : Code) : Bool :=
   hasExitPointPred c fun
@@ -669,7 +669,7 @@ def mkSingletonDoSeq (doElem : Syntax) : Syntax :=
 /-
   If the given syntax is a `doIf`, return an equivalente `doIf` that has an `else` but no `else if`s or `if let`s.  -/
 private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx with
-  | `(doElem|if $p:doIfProp then $t else $e) => pure none
+  | `(doElem|if $_:doIfProp then $_ else $_) => pure none
   | `(doElem|if%$i $cond:doIfCond then $t $[else if%$is $conds:doIfCond then $ts]* $[else $e?]?) => withRef stx do
     let mut e      := e?.getD (← `(doSeq|pure PUnit.unit))
     let mut eIsSeq := true
@@ -1162,7 +1162,7 @@ structure ToForInTermResult where
   uvars      : Array Var
   term       : Syntax
 
-def mkForInBody  (x : Syntax) (forInBody : CodeBlock) : M ToForInTermResult := do
+def mkForInBody  (_ : Syntax) (forInBody : CodeBlock) : M ToForInTermResult := do
   let ctx ← read
   let uvars := forInBody.uvars
   let uvars := varSetToArray uvars
@@ -1274,7 +1274,7 @@ mutual
       let doElem := decl[3]
       let k ← withNewMutableVars #[y] (isMutableLet doLetArrow) (doSeqToCode doElems)
       match isDoExpr? doElem with
-      | some action => return mkVarDeclCore #[y] doLetArrow k
+      | some _      => return mkVarDeclCore #[y] doLetArrow k
       | none =>
         checkLetArrowRHS doElem
         let c ← doSeqToCode [doElem]

@@ -60,7 +60,6 @@ private partial def introArrayLit (mvarId : MVarId) (a : Expr) (n : Nat) (xNameP
 def caseArraySizes (mvarId : MVarId) (fvarId : FVarId) (sizes : Array Nat) (xNamePrefix := `x) (hNamePrefix := `h) : MetaM (Array CaseArraySizesSubgoal) :=
   withMVarContext mvarId do
     let a := mkFVar fvarId
-    let α ← getArrayArgType a
     let aSize ← mkAppM `Array.size #[a]
     let mvarId ← assertExt mvarId `aSize (mkConst `Nat) aSize
     let (aSizeFVarId, mvarId) ← intro1 mvarId

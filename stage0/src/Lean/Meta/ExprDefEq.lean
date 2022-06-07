@@ -804,7 +804,7 @@ partial def check
     | Expr.fvar fvarId ..  =>
       if mvarDecl.lctx.contains fvarId then true
       else match lctx.find? fvarId with
-        | some (LocalDecl.ldecl (value := v) ..) => false -- need expensive CheckAssignment.check
+        | some (LocalDecl.ldecl ..) => false -- need expensive CheckAssignment.check
         | _ =>
           if fvars.any fun x => x.fvarId! == fvarId then true
           else false -- We could throw an exception here, but we would have to use ExceptM. So, we let CheckAssignment.check do it
@@ -1147,7 +1147,7 @@ private def unfoldBothDefEq (fn : Name) (t s : Expr) : MetaM LBool := do
 
 private def sameHeadSymbol (t s : Expr) : Bool :=
   match t.getAppFn, s.getAppFn with
-  | Expr.const c₁ _ _, Expr.const c₂ _ _ => true
+  | Expr.const c₁ _ _, Expr.const c₂ _ _ => c₁ == c₂
   | _,                 _                 => false
 
 /--

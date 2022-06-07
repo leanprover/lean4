@@ -25,12 +25,12 @@ def depth (f : Nat → Nat → Nat) : RBNode α β → Nat
 protected def min : RBNode α β → Option (Sigma (fun k => β k))
   | leaf              => none
   | node _ leaf k v _ => some ⟨k, v⟩
-  | node _ l k v _    => RBNode.min l
+  | node _ l _ _ _    => RBNode.min l
 
 protected def max : RBNode α β → Option (Sigma (fun k => β k))
   | leaf              => none
   | node _ _ k v leaf => some ⟨k, v⟩
-  | node _ _ k v r    => RBNode.max r
+  | node _ _ _ _ r    => RBNode.max r
 
 @[specialize] def fold (f : σ → (k : α) → β k → σ) : (init : σ) → RBNode α β → σ
   | b, leaf           => b
@@ -195,7 +195,7 @@ section Membership
 variable (cmp : α → α → Ordering)
 
 @[specialize] def findCore : RBNode α β → (k : α) → Option (Sigma (fun k => β k))
-  | leaf,             x => none
+  | leaf,             _ => none
   | node _ a ky vy b, x =>
     match cmp x ky with
     | Ordering.lt => findCore a x
@@ -203,7 +203,7 @@ variable (cmp : α → α → Ordering)
     | Ordering.eq => some ⟨ky, vy⟩
 
 @[specialize] def find {β : Type v} : RBNode α (fun _ => β) → α → Option β
-  | leaf,             x => none
+  | leaf,             _ => none
   | node _ a ky vy b, x =>
     match cmp x ky with
     | Ordering.lt => find a x
@@ -211,7 +211,7 @@ variable (cmp : α → α → Ordering)
     | Ordering.eq => some vy
 
 @[specialize] def lowerBound : RBNode α β → α → Option (Sigma β) → Option (Sigma β)
-  | leaf,             x, lb => lb
+  | leaf,             _, lb => lb
   | node _ a ky vy b, x, lb =>
     match cmp x ky with
     | Ordering.lt => lowerBound a x lb
@@ -299,7 +299,7 @@ instance [Repr α] [Repr β] : Repr (RBMap α β cmp) where
   | []        => mkRBMap ..
   | ⟨k,v⟩::xs => (ofList xs).insert k v
 
-@[inline] def findCore? : RBMap α β cmp → α → Option (Sigma (fun (k : α) => β))
+@[inline] def findCore? : RBMap α β cmp → α → Option (Sigma (fun (_ : α) => β))
   | ⟨t, _⟩, x => t.findCore cmp x
 
 @[inline] def find? : RBMap α β cmp → α → Option β
@@ -310,7 +310,7 @@ instance [Repr α] [Repr β] : Repr (RBMap α β cmp) where
 
 /-- (lowerBound k) retrieves the kv pair of the largest key smaller than or equal to `k`,
     if it exists. -/
-@[inline] def lowerBound : RBMap α β cmp → α → Option (Sigma (fun (k : α) => β))
+@[inline] def lowerBound : RBMap α β cmp → α → Option (Sigma (fun (_ : α) => β))
   | ⟨t, _⟩, x => t.lowerBound cmp x none
 
 @[inline] def contains (t : RBMap α β cmp) (a : α) : Bool :=

@@ -31,7 +31,7 @@ def toMonad [Monad m] [Alternative m] : Option α → m α
   | none,   _ => false
 
 @[inline] protected def bind : Option α → (α → Option β) → Option β
-  | none,   b => none
+  | none,   _ => none
   | some a, b => b a
 
 @[inline] protected def map (f : α → β) (o : Option α) : Option β :=
@@ -44,7 +44,7 @@ def toMonad [Monad m] [Alternative m] : Option α → m α
     return none
 
 theorem map_id : (Option.map id : Option α → Option α) = id :=
-  funext (fun o => match o with | none => rfl | some x => rfl)
+  funext (fun o => match o with | none => rfl | some _ => rfl)
 
 instance : Functor Option where
   map := Option.map
@@ -69,14 +69,14 @@ instance : OrElse (Option α) where
   orElse := Option.orElse
 
 @[inline] protected def lt (r : α → α → Prop) : Option α → Option α → Prop
-  | none, some x     => True
+  | none, some _     => True
   | some x,   some y => r x y
   | _, _             => False
 
 instance (r : α → α → Prop) [s : DecidableRel r] : DecidableRel (Option.lt r)
-  | none,   some y => isTrue  trivial
+  | none,   some _ => isTrue  trivial
   | some x, some y => s x y
-  | some x, none   => isFalse not_false
+  | some _, none   => isFalse not_false
   | none,   none   => isFalse not_false
 
 end Option

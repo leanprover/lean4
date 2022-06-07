@@ -39,7 +39,7 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
           catch
             ex => tryPostpone; throwError "failed to construct 'ForIn' instance for collection{indentExpr colType}\nand monad{indentExpr m}"
         match (← trySynthInstance forInInstance) with
-        | LOption.some val =>
+        | LOption.some _   =>
           let ref ← getRef
           let forInFn ← mkConst ``forIn
           elabAppArgs forInFn #[] #[Arg.stx col, Arg.stx init, Arg.stx body] expectedType? (explicit := false) (ellipsis := false)
@@ -64,7 +64,7 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
           catch
             ex => tryPostpone; throwError "failed to construct `ForIn'` instance for collection{indentExpr colType}\nand monad{indentExpr m}"
         match (← trySynthInstance forInInstance) with
-        | LOption.some val =>
+        | LOption.some _   =>
           let ref ← getRef
           let forInFn ← mkConst ``forIn'
           elabAppArgs forInFn #[] #[Arg.expr colFVar, Arg.stx init, Arg.stx body] expectedType? (explicit := false) (ellipsis := false)

@@ -196,7 +196,7 @@ def isNeverZero : Level → Bool
   | mvar ..      => false
   | succ ..      => true
   | max l₁ l₂ _  => isNeverZero l₁ || isNeverZero l₂
-  | imax l₁ l₂ _ => isNeverZero l₂
+  | imax _  l₂ _ => isNeverZero l₂
 
 def ofNat : Nat → Level
   | 0   => levelZero
@@ -559,11 +559,11 @@ where
   go (u v : Level) : Bool :=
     u == v ||
     match u, v with
-    | u,            zero _       => true
+    | _,            zero _       => true
     | u,            max v₁ v₂ _  => go u v₁ && go u v₂
     | max u₁ u₂ _,  v            => go u₁ v || go u₂ v
     | u,            imax v₁ v₂ _ => go u v₁ && go u v₂
-    | imax u₁ u₂ _, v            => go u₂ v
+    | imax _  u₂ _, v            => go u₂ v
     | succ u _,     succ v _     => go u v
     | _, _ =>
       let v' := v.getLevelOffset

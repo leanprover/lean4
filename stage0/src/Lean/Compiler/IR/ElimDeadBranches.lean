@@ -186,7 +186,7 @@ partial def projValue : Value → Nat → Value
 def interpExpr : Expr → M Value
   | Expr.ctor i ys => return ctor i (← ys.mapM fun y => findArgValue y)
   | Expr.proj i x  => return projValue (← findVarValue x) i
-  | Expr.fap fid ys => do
+  | Expr.fap fid _  => do
     let ctx ← read
     match getFunctionSummary? ctx.env fid with
     | some v => pure v
@@ -225,7 +225,7 @@ def updateJPParamsAssignment (ys : Array Param) (xs : Array Arg) : M Bool := do
       pure true
 
 private partial def resetNestedJPParams : FnBody → M Unit
-  | FnBody.jdecl _ ys b k => do
+  | FnBody.jdecl _ ys _ k => do
     let ctx ← read
     let currFnIdx := ctx.currFnIdx
     ys.forM resetParamAssignment

@@ -79,7 +79,7 @@ end ArrayStxBuilder
 
 -- Elaborate the content of a syntax quotation term
 private partial def quoteSyntax : Syntax → TermElabM Syntax
-  | Syntax.ident info rawVal val preresolved => do
+  | Syntax.ident _    rawVal val preresolved => do
     if !hygiene.get (← getOptions) then
       return ← `(Syntax.ident info $(quote rawVal) $(quote val) $(quote preresolved))
     -- Add global scopes at compilation time (now), add macro scope at runtime (in the quotation).
@@ -249,7 +249,7 @@ structure HeadInfo where
 
 /-- Adapt alternatives that do not introduce new discriminants in `doMatch`, but are covered by those that do so. -/
 private def noOpMatchAdaptPats : HeadCheck → Alt → Alt
-  | shape k (some sz), (pats, rhs) => (List.replicate sz (Unhygienic.run `(_)) ++ pats, rhs)
+  | shape _ (some sz), (pats, rhs) => (List.replicate sz (Unhygienic.run `(_)) ++ pats, rhs)
   | slice p s,         (pats, rhs) => (List.replicate (p + 1 + s) (Unhygienic.run `(_)) ++ pats, rhs)
   | _,                 alt         => alt
 
@@ -438,7 +438,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
 private def deduplicate (floatedLetDecls : Array Syntax) : Alt → TermElabM (Array Syntax × Alt)
   -- NOTE: new macro scope so that introduced bindings do not collide
   | (pats, rhs) => do
-    if let `($f:ident $[ $args:ident]*) := rhs then
+    if let `($_:ident $[ $args:ident]*) := rhs then
       -- looks simple enough/created by this function, skip
       return (floatedLetDecls, (pats, rhs))
     withFreshMacroScope do

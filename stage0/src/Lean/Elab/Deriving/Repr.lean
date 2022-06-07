@@ -56,13 +56,13 @@ where
       let alt ← forallTelescopeReducing ctorInfo.type fun xs type => do
         let mut patterns := #[]
         -- add `_` pattern for indices
-        for i in [:indVal.numIndices] do
+        for _ in [:indVal.numIndices] do
           patterns := patterns.push (← `(_))
         let mut ctorArgs := #[]
         let mut rhs := Syntax.mkStrLit (toString ctorInfo.name)
         rhs ← `(Format.text $rhs)
         -- add `_` for inductive parameters, they are inaccessible
-        for i in [:indVal.numParams] do
+        for _ in [:indVal.numParams] do
           ctorArgs := ctorArgs.push (← `(_))
         for i in [:ctorInfo.numFields] do
           let x := xs[indVal.numParams + i]

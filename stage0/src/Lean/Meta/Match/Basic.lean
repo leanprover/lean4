@@ -37,7 +37,7 @@ partial def toMessageData : Pattern → MessageData
   | ctor ctorName _ _ pats => m!"({ctorName}{pats.foldl (fun (msg : MessageData) pat => msg ++ " " ++ toMessageData pat) Format.nil})"
   | val e                  => e
   | arrayLit _ pats        => m!"#[{MessageData.joinSep (pats.map toMessageData) ", "}]"
-  | as varId p h           => m!"{mkFVar varId}@{toMessageData p}"
+  | as varId p _           => m!"{mkFVar varId}@{toMessageData p}"
 
 partial def toExpr (p : Pattern) (annotate := false) : MetaM Expr :=
   visit p
@@ -220,7 +220,7 @@ partial def applyFVarSubst (s : FVarSubst) : Example → Example
   | ex           => ex
 
 partial def varsToUnderscore : Example → Example
-  | var x        => underscore
+  | var _        => underscore
   | ctor n exs   => ctor n $ exs.map varsToUnderscore
   | arrayLit exs => arrayLit $ exs.map varsToUnderscore
   | ex           => ex

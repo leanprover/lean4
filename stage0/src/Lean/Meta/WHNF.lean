@@ -11,6 +11,7 @@ import Lean.Util.Recognizers
 import Lean.Meta.Basic
 import Lean.Meta.GetConst
 import Lean.Meta.Match.MatcherInfo
+import Lean.Meta.Match.MatchPatternAttr
 
 namespace Lean.Meta
 
@@ -359,12 +360,14 @@ inductive ReduceMatcherResult where
   This solution is also not perfect because the match-expression above will not reduce during type checking when we are not using
   `TransparencyMode.default` or `TransparencyMode.all`.
 -/
-private def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
+def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
   match cfg.transparency with
   | TransparencyMode.all     => return true
   | TransparencyMode.default => return true
-  | m =>
+  | _ =>
     if (← isReducible info.name) || isGlobalInstance (← getEnv) info.name then
+      return true
+    else if hasMatchPatternAttribute (← getEnv) info.name then
       return true
     else
       return info.name == ``ite
@@ -656,7 +659,7 @@ mutual
                 let numArgs := e.getAppNumArgs
                 if recArgPos >= numArgs then return none
                 let recArg := e.getArg! recArgPos numArgs
-                if !(← whnf recArg).isConstructorApp (← getEnv) then return none
+                if !(← whnfMatcher recArg).isConstructorApp (← getEnv) then return none
                 return some r
             | _ =>
               if (← getMatcherInfo? fInfo.name).isSome then

@@ -93,7 +93,7 @@ partial def reuseToCtor (x : VarId) : FnBody → FnBody
     else FnBody.dec y n c p (reuseToCtor x b)
   | FnBody.vdecl z t v b   =>
     match v with
-    | Expr.reuse y c u xs =>
+    | Expr.reuse y c _ xs =>
       if x == y then FnBody.vdecl z t (Expr.ctor c xs) b
       else FnBody.vdecl z t v (reuseToCtor x b)
     | _ =>
@@ -248,7 +248,7 @@ partial def expand (mainFn : FnBody → Array FnBody → M FnBody)
   return reshape bs b
 
 partial def searchAndExpand : FnBody → Array FnBody → M FnBody
-  | d@(FnBody.vdecl x t (Expr.reset n y) b), bs =>
+  | d@(FnBody.vdecl x _ (Expr.reset n y) b), bs =>
     if consumed x b then do
       expand searchAndExpand bs x n y b
     else

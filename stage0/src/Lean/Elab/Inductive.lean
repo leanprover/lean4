@@ -80,7 +80,7 @@ private partial def elabHeaderAux (views : Array InductiveView) (i : Nat) (acc :
           Term.addAutoBoundImplicits' params type fun params type => do
             return acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), params, type, view }
         | some typeStx =>
-          let (type, numImplicitIndices) ← Term.withAutoBoundImplicit do
+          let (type, _) ← Term.withAutoBoundImplicit do
             let type ← Term.elabType typeStx
             unless (← isTypeFormerType type) do
               throwErrorAt typeStx "invalid inductive type, resultant type is not a sort"
@@ -531,7 +531,7 @@ private def checkResultingUniverses (views : Array InductiveView) (numParams : N
   checkResultingUniverse u
   unless u.isZero do
     indTypes.forM fun indType => indType.ctors.forM fun ctor =>
-      forallTelescopeReducing ctor.type fun ctorArgs type => do
+      forallTelescopeReducing ctor.type fun ctorArgs _ => do
         for ctorArg in ctorArgs[numParams:] do
           let type ← inferType ctorArg
           let v := (← instantiateLevelMVars (← getLevel type)).normalize
@@ -620,7 +620,7 @@ private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : 
           else match indFVar2Const.find? e with
             | none   => none
             | some c => mkAppN c (params.extract 0 numVars)
-        mkForallFVars params type
+        instantiateMVars (← mkForallFVars params type)
       return { ctor with type }
     return { indType with ctors }
 
@@ -667,7 +667,6 @@ private def computeFixedIndexBitMask (numParams : Nat) (indType : InductiveType)
       | [] => maskRef.get
       | ctor :: ctors =>
         forallTelescopeReducing ctor.type fun xs type => do
-          let I := type.getAppFn.constName!
           let typeArgs := type.getAppArgs
           for i in [numParams:arity] do
             unless i < xs.size && xs[i] == typeArgs[i] do -- Remark: if we want to allow arguments to be rearranged, this test should be xs.contains typeArgs[i]
@@ -810,7 +809,7 @@ def elabInductiveViews (views : Array InductiveView) : CommandElabM Unit := do
     for view in views do
       mkInjectiveTheorems view.declName
   applyDerivingHandlers views
-  runTermElabM view0.declName fun vars => withRef ref do
+  runTermElabM view0.declName fun _ => withRef ref do
     for view in views do
       Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
 

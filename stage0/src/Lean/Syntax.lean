@@ -236,7 +236,7 @@ partial instance : ForIn m TopDown Syntax where
       match (← f stx b) with
       | ForInStep.yield b' =>
         let mut b := b'
-        if let Syntax.node i k args := stx then
+        if let Syntax.node _ k args := stx then
           if firstChoiceOnly && k == choiceKind then
             return ← loop args[0] b
           else
@@ -256,7 +256,7 @@ partial def reprint (stx : Syntax) : Option String := do
     match stx with
     | atom info val           => s := s ++ reprintLeaf info val
     | ident info rawVal _ _   => s := s ++ reprintLeaf info rawVal.toString
-    | node info kind args     =>
+    | node _    kind args     =>
       if kind == choiceKind then
         -- this visit the first arg twice, but that should hardly be a problem
         -- given that choice nodes are quite rare and small

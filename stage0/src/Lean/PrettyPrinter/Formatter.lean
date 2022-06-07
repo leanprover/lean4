@@ -212,7 +212,7 @@ def withAntiquot.formatter (antiP p : Formatter) : Formatter :=
   orelse.formatter antiP p
 
 @[combinatorFormatter Lean.Parser.withAntiquotSuffixSplice]
-def withAntiquotSuffixSplice.formatter (k : SyntaxNodeKind) (p suffix : Formatter) : Formatter := do
+def withAntiquotSuffixSplice.formatter (_ : SyntaxNodeKind) (p suffix : Formatter) : Formatter := do
   if (← getCur).isAntiquotSuffixSplice then
     visitArgs <| suffix *> p
   else
@@ -272,10 +272,10 @@ def errorAtSavedPos.formatter (msg : String) (delta : Bool) : Formatter := pure 
 @[combinatorFormatter Lean.Parser.atomic]
 def atomic.formatter (p : Formatter) : Formatter := p
 @[combinatorFormatter Lean.Parser.lookahead]
-def lookahead.formatter (p : Formatter) : Formatter := pure ()
+def lookahead.formatter (_ : Formatter) : Formatter := pure ()
 
 @[combinatorFormatter Lean.Parser.notFollowedBy]
-def notFollowedBy.formatter (p : Formatter) : Formatter := pure ()
+def notFollowedBy.formatter (_ : Formatter) : Formatter := pure ()
 
 @[combinatorFormatter Lean.Parser.andthen]
 def andthen.formatter (p1 p2 : Formatter) : Formatter := p2 *> p1
@@ -497,7 +497,7 @@ def interpolatedStr.formatter (p : Formatter) : Formatter := do
 
 @[combinatorFormatter Lean.Parser.dbgTraceState] def dbgTraceState.formatter (label : String) (p : Formatter) : Formatter := p
 
-@[combinatorFormatter ite, macroInline] def ite {α : Type} (c : Prop) [h : Decidable c] (t e : Formatter) : Formatter :=
+@[combinatorFormatter ite, macroInline] def ite {_ : Type} (c : Prop) [Decidable c] (t e : Formatter) : Formatter :=
   if c then t else e
 
 abbrev FormatterAliasValue := AliasValue Formatter

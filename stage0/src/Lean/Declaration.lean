@@ -356,9 +356,9 @@ def toConstantVal : ConstantInfo → ConstantVal
 def isUnsafe : ConstantInfo → Bool
   | defnInfo   v => v.safety == DefinitionSafety.unsafe
   | axiomInfo  v => v.isUnsafe
-  | thmInfo    v => false
+  | thmInfo    _ => false
   | opaqueInfo v => v.isUnsafe
-  | quotInfo   v => false
+  | quotInfo   _ => false
   | inductInfo v => v.isUnsafe
   | ctorInfo   v => v.isUnsafe
   | recInfo    v => v.isUnsafe
@@ -381,8 +381,8 @@ def value? : ConstantInfo → Option Expr
   | _                         => none
 
 def hasValue : ConstantInfo → Bool
-  | defnInfo {value := r, ..} => true
-  | thmInfo  {value := r, ..} => true
+  | defnInfo _ => true
+  | thmInfo  _ => true
   | _                         => false
 
 def value! : ConstantInfo → Expr

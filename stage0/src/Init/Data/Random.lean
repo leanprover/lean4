@@ -84,7 +84,7 @@ The parameter `r` is the "remaining" magnitude.
 -/
 private partial def randNatAux {gen : Type u} [RandomGen gen] (genLo genMag : Nat) : Nat → (Nat × gen) → Nat × gen
   | 0,        (v, g) => (v, g)
-  | r'@(r+1), (v, g) =>
+  | r'@(_+1), (v, g) =>
     let (x, g') := RandomGen.next g
     let v'      := v*genMag + (x - genLo)
     randNatAux genLo genMag (r' / genMag - 1) (v', g')

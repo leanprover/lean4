@@ -681,7 +681,7 @@ private def shouldVisit (e : Expr) : M Bool := do
             let lctx := (mctx.getDecl mvarId).lctx
             return lctx.any fun decl => pf decl.fvarId
       | Expr.fvar fvarId _   => return pf fvarId
-      | e                    => pure false
+      | _                    => pure false
   visit e
 
 @[inline] partial def main (mctx : MetavarContext) (pf : FVarId → Bool) (pm : MVarId → Bool) (e : Expr) : M Bool :=
@@ -898,7 +898,7 @@ mutual
     | Expr.letE _ t v b _  => return e.updateLet! (← visit xs t) (← visit xs v) (← visit xs b)
     | Expr.mdata _ b _     => return e.updateMData! (← visit xs b)
     | Expr.app ..          => e.withApp fun f args => elimApp xs f args
-    | Expr.mvar mvarId _   => elimApp xs e #[]
+    | Expr.mvar _      _   => elimApp xs e #[]
     | e                    => return e
 
   private partial def mkAuxMVarType (lctx : LocalContext)  (xs : Array Expr) (kind : MetavarKind) (e : Expr) : M Expr := do

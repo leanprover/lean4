@@ -74,7 +74,7 @@ private partial def checkOutParam : Nat → Array FVarId → Expr → Except Str
       Except.error s!"invalid class, parameter #{i} depends on `outParam`, but it is not an `outParam`"
     else
       checkOutParam (i+1) outParams b
-  | i, outParams, e => pure (outParams.size > 0)
+  | _, outParams, _ => pure (outParams.size > 0)
 
 def addClass (env : Environment) (clsName : Name) : Except String Environment := do
   if isClass env clsName then

@@ -103,7 +103,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name) : IO (KeyedDe
   let ext : Extension γ ← registerScopedEnvExtension {
     name         := df.name
     mkInitial    := return mkStateOfTable (← tableRef.get)
-    ofOLeanEntry := fun s entry => do
+    ofOLeanEntry := fun _ entry => do
       let ctx ← read
       match ctx.env.evalConstCheck γ ctx.opts df.valueTypeName entry.declName with
       | Except.ok f     => return { toOLeanEntry := entry, value := f }

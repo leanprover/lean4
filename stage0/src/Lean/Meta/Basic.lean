@@ -919,7 +919,7 @@ where
       finalize ()
     else
       match type with
-      | Expr.lam n d b c =>
+      | Expr.lam _ d b c =>
         let d     := d.instantiateRevRange j mvars.size mvars
         let mvar ← mkFreshExprMVar d
         let mvars := mvars.push mvar
@@ -1161,7 +1161,7 @@ def ppExpr (e : Expr) : MetaM Format := do
 instance : OrElse (MetaM α) := ⟨Meta.orElse⟩
 
 instance : Alternative MetaM where
-  failure := fun {α} => throwError "failed"
+  failure := fun {_} => throwError "failed"
   orElse  := Meta.orElse
 
 @[inline] private def orelseMergeErrorsImp (x y : MetaM α)

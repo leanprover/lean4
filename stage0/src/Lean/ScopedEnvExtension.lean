@@ -128,7 +128,7 @@ def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Envi
 def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
   let s := ext.ext.getState env
   match s.stateStack with
-  | state₁ :: state₂ :: stack => ext.ext.setState env { s with stateStack := state₂ :: stack }
+  | _      :: state₂ :: stack => ext.ext.setState env { s with stateStack := state₂ :: stack }
   | _ => env
 
 def ScopedEnvExtension.addEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
@@ -208,7 +208,7 @@ def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α 
     mkInitial      := return descr.initial
     addEntry       := descr.addEntry
     toOLeanEntry   := id
-    ofOLeanEntry   := fun s a => return a
+    ofOLeanEntry   := fun _ a => return a
     finalizeImport := descr.finalizeImport
   }
 

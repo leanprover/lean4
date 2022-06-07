@@ -105,7 +105,7 @@ def mkInitParamMap (env : Environment) (decls : Array Decl) : ParamMap :=
 namespace ApplyParamMap
 
 partial def visitFnBody (fn : FunId) (paramMap : ParamMap) : FnBody → FnBody
-  | FnBody.jdecl j xs v b =>
+  | FnBody.jdecl j _  v b =>
     let v := visitFnBody fn paramMap v
     let b := visitFnBody fn paramMap b
     match paramMap.find? (ParamMap.Key.jp fn j) with
@@ -122,7 +122,7 @@ partial def visitFnBody (fn : FunId) (paramMap : ParamMap) : FnBody → FnBody
 
 def visitDecls (decls : Array Decl) (paramMap : ParamMap) : Array Decl :=
   decls.map fun decl => match decl with
-    | Decl.fdecl f xs ty b info =>
+    | Decl.fdecl f _  ty b info =>
       let b := visitFnBody f paramMap b
       match paramMap.find? (ParamMap.Key.decl f) with
       | some xs => Decl.fdecl f xs ty b info

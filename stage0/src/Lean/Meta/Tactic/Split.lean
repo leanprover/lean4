@@ -62,7 +62,7 @@ private partial def withEqs (lhs rhs : Array Expr) (k : Array Expr → Array Exp
   go 0 #[] #[]
 where
   go (i : Nat) (hs : Array Expr) (rfls : Array Expr) : MetaM α := do
-    if h : i < lhs.size then
+    if i < lhs.size then
       withLocalDeclD (← mkFreshUserName `heq) (← mkEqHEq lhs[i] rhs[i]) fun h => do
         let rfl ← if (← inferType h).isEq then mkEqRefl lhs[i] else mkHEqRefl lhs[i]
         go (i+1) (hs.push h) (rfls.push rfl)
@@ -236,7 +236,7 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
       let numParams := matchEqns.splitterAltNumParams[i]
       let (_, mvarId) ← introN mvarId numParams
       trace[Meta.Tactic.split] "before unifyEqs\n{mvarId}"
-      match (← Cases.unifyEqs (numEqs + info.getNumDiscrEqs) mvarId {}) with
+      match (← Cases.unifyEqs? (numEqs + info.getNumDiscrEqs) mvarId {}) with
       | none   => return (i+1, mvarIds) -- case was solved
       | some (mvarId, fvarSubst) =>
         trace[Meta.Tactic.split] "after unifyEqs\n{mvarId}"

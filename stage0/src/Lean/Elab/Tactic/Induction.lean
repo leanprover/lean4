@@ -199,7 +199,7 @@ private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Ar
     for fvarId in fvarIds do
       if !useNamesForExplicitOnly || (← getLocalDecl fvarId).binderInfo.isExplicit then
         if i < altVars.size then
-          Term.addLocalVarInfo altVars[i] (mkFVar fvarId)
+          Term.addTermInfo' (isBinder := altVars[i].isIdent) altVars[i] (mkFVar fvarId)
           i := i + 1
 
 /--
@@ -269,7 +269,7 @@ where
       match altStx? with
       | none =>
         let mut (_, altMVarId) ← introN altMVarId numFields
-        match (← Cases.unifyEqs numEqs altMVarId {}) with
+        match (← Cases.unifyEqs? numEqs altMVarId {}) with
         | none   => pure () -- alternative is not reachable
         | some (altMVarId', _) =>
           (_, altMVarId) ← introNP altMVarId' numGeneralized
@@ -297,7 +297,7 @@ where
             logError m!"too many variable names provided at alternative '{altName}', #{altVarNames.size} provided, but #{numFieldsToName} expected"
           let mut (fvarIds, altMVarId) ← introN altMVarId numFields altVarNames.toList (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
           saveAltVarsInfo altMVarId altStx fvarIds
-          match (← Cases.unifyEqs numEqs altMVarId {}) with
+          match (← Cases.unifyEqs? numEqs altMVarId {}) with
           | none => unusedAlt
           | some (altMVarId', _) =>
             (_, altMVarId) ← introNP altMVarId' numGeneralized

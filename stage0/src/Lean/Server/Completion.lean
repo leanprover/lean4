@@ -215,7 +215,7 @@ def completeNamespaces (ctx : ContextInfo) (id : Name) (danglingDot : Bool) : M 
     unless ns.isInternal || env.contains ns do -- Ignore internal and namespaces that are also declaration names
       for openDecl in ctx.openDecls do
         match openDecl with
-        | OpenDecl.simple ns' except =>
+        | OpenDecl.simple ns' _      =>
           if let some score := matchNamespace ns (ns' ++ id) danglingDot then
             add ns ns' score
             return ()
@@ -288,7 +288,7 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (hoverInfo : HoverI
       unless (← isBlackListed resolvedId) do
         if let some score := matchAtomic id openedId then
           addCompletionItemForDecl openedId resolvedId expectedType? score
-    | OpenDecl.simple ns except =>
+    | OpenDecl.simple ns _      =>
       getAliasState env |>.forM fun alias declNames => do
         if let some score := matchAlias ns alias then
           addAlias alias declNames score
@@ -417,7 +417,7 @@ partial def find? (fileMap : FileMap) (hoverPos : String.Pos) (infoTree : InfoTr
   | some (hoverInfo, ctx, Info.ofCompletionInfo info) =>
     match info with
     | CompletionInfo.dot info (expectedType? := expectedType?) .. => dotCompletion ctx info hoverInfo expectedType?
-    | CompletionInfo.id stx id danglingDot lctx expectedType? => idCompletion ctx lctx id hoverInfo danglingDot expectedType?
+    | CompletionInfo.id _   id danglingDot lctx expectedType? => idCompletion ctx lctx id hoverInfo danglingDot expectedType?
     | CompletionInfo.option stx => optionCompletion ctx stx caps
     | CompletionInfo.tactic .. => tacticCompletion ctx
     | _ => return none

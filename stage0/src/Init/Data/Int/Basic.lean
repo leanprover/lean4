@@ -107,8 +107,8 @@ protected def decEq (a b : @& Int) : Decidable (a = b) :=
   | negSucc a, negSucc b => match decEq a b with
     | isTrue h  => isTrue  <| h ▸ rfl
     | isFalse h => isFalse <| fun h' => Int.noConfusion h' (fun h' => absurd h' h)
-  | ofNat a, negSucc b => isFalse <| fun h => Int.noConfusion h
-  | negSucc a, ofNat b => isFalse <| fun h => Int.noConfusion h
+  | ofNat _, negSucc _ => isFalse <| fun h => Int.noConfusion h
+  | negSucc _, ofNat _ => isFalse <| fun h => Int.noConfusion h
 
 instance : DecidableEq Int := Int.decEq
 
@@ -117,7 +117,7 @@ set_option bootstrap.genMatcherCode false in
 private def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
   match m with
   | ofNat m   => isTrue <| NonNeg.mk m
-  | negSucc m => isFalse <| fun h => nomatch h
+  | negSucc _ => isFalse <| fun h => nomatch h
 
 @[extern "lean_int_dec_le"]
 instance decLe (a b : @& Int) : Decidable (a ≤ b) :=
@@ -159,7 +159,7 @@ instance : Mod Int where
 
 def toNat : Int → Nat
   | ofNat n   => n
-  | negSucc n => 0
+  | negSucc _ => 0
 
 def natMod (m n : Int) : Nat := (m % n).toNat
 

@@ -15,13 +15,13 @@ namespace List
    and `Init.Util` depends on `Init.Data.List.Basic`. -/
 
 def get! [Inhabited α] : List α → Nat → α
-  | a::as, 0   => a
-  | a::as, n+1 => get! as n
+  | a::_,  0   => a
+  | _::as, n+1 => get! as n
   | _,     _   => panic! "invalid index"
 
 def get? : List α → Nat → Option α
-  | a::as, 0   => some a
-  | a::as, n+1 => get? as n
+  | a::_,  0   => some a
+  | _::as, n+1 => get? as n
   | _,     _   => none
 
 def getD (as : List α) (idx : Nat) (a₀ : α) : α :=
@@ -44,20 +44,20 @@ def head : (as : List α) → as ≠ [] → α
 
 def tail! : List α → List α
   | []    => panic! "empty list"
-  | a::as => as
+  | _::as => as
 
 def tail? : List α → Option (List α)
   | []    => none
-  | a::as => some as
+  | _::as => some as
 
 def tailD : List α → List α → List α
   | [],   as₀ => as₀
-  | a::as, _  => as
+  | _::as, _  => as
 
 def getLast : ∀ (as : List α), as ≠ [] → α
   | [],       h => absurd rfl h
-  | [a],      h => a
-  | a::b::as, h => getLast (b::as) (fun h => List.noConfusion h)
+  | [a],      _ => a
+  | _::b::as, _ => getLast (b::as) (fun h => List.noConfusion h)
 
 def getLast! [Inhabited α] : List α → α
   | []    => panic! "empty list"
@@ -178,7 +178,7 @@ theorem le_antisymm [LT α] [s : Antisymm (¬ · < · : α → α → Prop)] {as
         have : a = b := s.antisymm hab hba
         simp [this, ih]
 
-instance [LT α] [s : Antisymm (¬ · < · : α → α → Prop)] : Antisymm (· ≤ · : List α → List α → Prop) where
+instance [LT α] [Antisymm (¬ · < · : α → α → Prop)] : Antisymm (· ≤ · : List α → List α → Prop) where
   antisymm h₁ h₂ := le_antisymm h₁ h₂
 
 end List

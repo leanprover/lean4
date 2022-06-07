@@ -29,7 +29,6 @@ static lean_object* l_Lean_Meta_unfoldTarget___lambda__2___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_unfoldTarget___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_unfold___closed__1;
 static lean_object* l_Lean_Meta_unfoldLocalDecl___lambda__1___closed__3;
-static lean_object* l_panic___at_Lean_Meta_unfoldLocalDecl___spec__1___closed__1;
 lean_object* l_Lean_Meta_isRflTheorem(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Simp_neutralConfig;
 lean_object* l_Lean_Meta_getMVarType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -40,6 +39,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfo
 LEAN_EXPORT lean_object* l_Lean_Meta_unfold___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_unfoldTarget(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_unfoldTarget___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panic___at_Lean_Meta_subst_substEq___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_unfoldLocalDecl___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getUnfoldEqnFor_x3f(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -60,10 +60,10 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSim
 lean_object* l_Lean_Meta_Simp_tryTheorem_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_unfoldTarget___lambda__2___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_unfold___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_deltaExpand(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_unfoldLocalDecl___lambda__1___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Meta_unfoldLocalDecl___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_unfoldLocalDecl___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_unfold_pre___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_unfoldLocalDecl___lambda__1___closed__4;
@@ -71,8 +71,6 @@ static lean_object* l_Lean_Meta_unfoldTarget___lambda__2___closed__5;
 lean_object* l_Lean_indentExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_unfold_pre(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_unfoldLocalDecl___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_instInhabitedMetaM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getSimpCongrTheorems___rarg(lean_object*, lean_object*);
 static lean_object* _init_l___private_Lean_Meta_Tactic_Unfold_0__Lean_Meta_getSimpUnfoldContext___rarg___closed__1() {
 _start:
@@ -1187,25 +1185,6 @@ lean_dec(x_2);
 return x_10;
 }
 }
-static lean_object* _init_l_panic___at_Lean_Meta_unfoldLocalDecl___spec__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_instInhabitedMetaM___boxed), 5, 1);
-lean_closure_set(x_1, 0, lean_box(0));
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_unfoldLocalDecl___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
-_start:
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = l_panic___at_Lean_Meta_unfoldLocalDecl___spec__1___closed__1;
-x_8 = lean_panic_fn(x_7, x_1);
-x_9 = lean_apply_5(x_8, x_2, x_3, x_4, x_5, x_6);
-return x_9;
-}
-}
 static lean_object* _init_l_Lean_Meta_unfoldLocalDecl___lambda__1___closed__1() {
 _start:
 {
@@ -1247,7 +1226,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_unfoldLocalDecl___lambda__1(lean_object* x_
 _start:
 {
 uint8_t x_10; lean_object* x_11; 
-lean_dec(x_4);
 x_10 = 0;
 lean_inc(x_8);
 lean_inc(x_7);
@@ -1266,7 +1244,7 @@ x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec(x_11);
 x_14 = l_Lean_Meta_unfoldLocalDecl___lambda__1___closed__4;
-x_15 = l_panic___at_Lean_Meta_unfoldLocalDecl___spec__1(x_14, x_5, x_6, x_7, x_8, x_13);
+x_15 = l_panic___at_Lean_Meta_subst_substEq___spec__1(x_14, x_5, x_6, x_7, x_8, x_13);
 return x_15;
 }
 else
@@ -1511,6 +1489,15 @@ x_10 = l_Lean_Meta_withMVarContext___at___private_Lean_Meta_SynthInstance_0__Lea
 return x_10;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Meta_unfoldLocalDecl___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+_start:
+{
+lean_object* x_10; 
+x_10 = l_Lean_Meta_unfoldLocalDecl___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+lean_dec(x_4);
+return x_10;
+}
+}
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Eqns(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Delta(uint8_t builtin, lean_object*);
@@ -1550,8 +1537,6 @@ l_Lean_Meta_unfoldTarget___lambda__2___closed__5 = _init_l_Lean_Meta_unfoldTarge
 lean_mark_persistent(l_Lean_Meta_unfoldTarget___lambda__2___closed__5);
 l_Lean_Meta_unfoldTarget___lambda__2___closed__6 = _init_l_Lean_Meta_unfoldTarget___lambda__2___closed__6();
 lean_mark_persistent(l_Lean_Meta_unfoldTarget___lambda__2___closed__6);
-l_panic___at_Lean_Meta_unfoldLocalDecl___spec__1___closed__1 = _init_l_panic___at_Lean_Meta_unfoldLocalDecl___spec__1___closed__1();
-lean_mark_persistent(l_panic___at_Lean_Meta_unfoldLocalDecl___spec__1___closed__1);
 l_Lean_Meta_unfoldLocalDecl___lambda__1___closed__1 = _init_l_Lean_Meta_unfoldLocalDecl___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Meta_unfoldLocalDecl___lambda__1___closed__1);
 l_Lean_Meta_unfoldLocalDecl___lambda__1___closed__2 = _init_l_Lean_Meta_unfoldLocalDecl___lambda__1___closed__2();

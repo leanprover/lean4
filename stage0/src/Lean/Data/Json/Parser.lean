@@ -137,8 +137,8 @@ def num : Parsec JsonNumber := do
   else
     return res
 
-partial def arrayCore (anyCore : Unit → Parsec Json) (acc : Array Json) : Parsec (Array Json) := do
-  let hd ← anyCore ()
+partial def arrayCore (anyCore : Parsec Json) (acc : Array Json) : Parsec (Array Json) := do
+  let hd ← anyCore
   let acc' := acc.push hd
   let c ← anyChar
   if c = ']' then
@@ -150,11 +150,11 @@ partial def arrayCore (anyCore : Unit → Parsec Json) (acc : Array Json) : Pars
   else
     fail "unexpected character in array"
 
-partial def objectCore (anyCore : Unit → Parsec Json) : Parsec (RBNode String (fun _ => Json)) := do
+partial def objectCore (anyCore : Parsec Json) : Parsec (RBNode String (fun _ => Json)) := do
   lookahead (fun c => c = '"') "\""; skip; -- "
   let k ← strCore ""; ws
   lookahead (fun c => c = ':') ":"; skip; ws
-  let v ← anyCore ()
+  let v ← anyCore
   let c ← anyChar
   if c = '}' then
     ws
@@ -166,9 +166,7 @@ partial def objectCore (anyCore : Unit → Parsec Json) : Parsec (RBNode String 
   else
     fail "unexpected character in object"
 
--- takes a unit parameter so that
--- we can use the equation compiler and recursion
-partial def anyCore (u : Unit) : Parsec Json := do
+partial def anyCore : Parsec Json := do
   let c ← peek!
   if c = '[' then
     skip; ws
@@ -212,7 +210,7 @@ partial def anyCore (u : Unit) : Parsec Json := do
 
 def any : Parsec Json := do
   ws
-  let res ← anyCore ()
+  let res ← anyCore
   eof
   return res
 

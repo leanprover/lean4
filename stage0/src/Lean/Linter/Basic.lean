@@ -62,11 +62,9 @@ def unusedVariables : Linter := fun stx => do
 
   let tacticFVarUses : HashSet FVarId ←
     tacticMVarAssignments.foldM (init := .empty) fun uses _ expr => do
-      let (_, s) ← StateT.run (s := uses) <| expr.forEach' (fun expr => do
-        match expr with
+      let (_, s) ← StateT.run (s := uses) <| expr.forEach fun
         | .fvar id _ => modify (·.insert id)
         | _          => pure ()
-        return true)
       return s
 
   -- determine unused variables
@@ -89,6 +87,8 @@ def unusedVariables : Linter := fun stx => do
       isTopLevelDecl constDecls,
       matchesUnusedPattern,
       isVariable,
+      isInStructure,
+      isInInductive,
       isInCtorOrStructBinder,
       isInConstantOrAxiom,
       isInDefWithForeignDefinition,
@@ -98,7 +98,6 @@ def unusedVariables : Linter := fun stx => do
       ignoredPatternFns := ignoredPatternFns.append #[
         isInLetDeclaration,
         isInDeclarationSignature,
-        isInStructure,
         isInFun
       ]
     if !getLinterUnusedVariablesPatternVars opts then
@@ -132,6 +131,13 @@ where
     stx.getId.toString.startsWith "_"
   isVariable (_ : Syntax) (stack : SyntaxStack) :=
     stackMatches stack [`null, none, `null, `Lean.Parser.Command.variable]
+  isInStructure (_ : Syntax) (stack : SyntaxStack) :=
+    stackMatches stack [`null, none, `null, `Lean.Parser.Command.structure]
+  isInInductive (_ : Syntax) (stack : SyntaxStack) :=
+    stackMatches stack [`null, none, `null, none, `Lean.Parser.Command.inductive] &&
+    (stack.get? 3 |>.any fun (stx, pos) =>
+      pos == 0 &&
+      [`Lean.Parser.Command.optDeclSig, `Lean.Parser.Command.declSig].any (stx.isOfKind ·))
   isInCtorOrStructBinder (_ : Syntax) (stack : SyntaxStack) :=
     stackMatches stack [`null, none, `null, `Lean.Parser.Command.optDeclSig, none] &&
     (stack.get? 4 |>.any fun (stx, _) =>
@@ -175,14 +181,14 @@ where
     (stack.get? 3 |>.any fun (stx, pos) =>
       pos == 0 &&
       [`Lean.Parser.Command.optDeclSig, `Lean.Parser.Command.declSig].any (stx.isOfKind ·))
-  isInStructure (_ : Syntax) (stack : SyntaxStack) :=
-    stackMatches stack [`null, none, `null, `Lean.Parser.Command.structure]
   isInFun (_ : Syntax) (stack : SyntaxStack) :=
     stackMatches stack [`null, `Lean.Parser.Term.basicFun] ||
     stackMatches stack [`null, `Lean.Parser.Term.paren, `null, `Lean.Parser.Term.basicFun]
 
   isPatternVar (_ : Syntax) (stack : SyntaxStack) :=
-    stack.any fun (stx, pos) => stx.isOfKind `Lean.Parser.Term.matchAlt && pos == 1
+    stack.any fun (stx, pos) =>
+      (stx.isOfKind `Lean.Parser.Term.matchAlt && pos == 1) ||
+      (stx.isOfKind `Lean.Parser.Tactic.inductionAlt && pos == 2)
 
 builtin_initialize addLinter unusedVariables
 

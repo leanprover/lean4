@@ -82,7 +82,7 @@ instance : LawfulBEq Nat where
   | n+1 => congrArg succ (Nat.zero_add n)
 
 theorem succ_add : ∀ (n m : Nat), (succ n) + m = succ (n + m)
-  | n, 0   => rfl
+  | _, 0   => rfl
   | n, m+1 => congrArg succ (succ_add n m)
 
 theorem add_succ (n m : Nat) : n + succ m = succ (n + m) :=
@@ -102,7 +102,7 @@ protected theorem add_comm : ∀ (n m : Nat), n + m = m + n
     apply this
 
 protected theorem add_assoc : ∀ (n m k : Nat), (n + m) + k = n + (m + k)
-  | n, m, 0      => rfl
+  | _, _, 0      => rfl
   | n, m, succ k => congrArg succ (Nat.add_assoc n m k)
 
 protected theorem add_left_comm (n m k : Nat) : n + (m + k) = m + (n + k) := by
@@ -188,11 +188,11 @@ theorem succ_sub_succ_eq_sub (n m : Nat) : succ n - succ m = n - m := by
 
 theorem pred_le : ∀ (n : Nat), pred n ≤ n
   | zero   => Nat.le.refl
-  | succ n => le_succ _
+  | succ _ => le_succ _
 
 theorem pred_lt : ∀ {n : Nat}, n ≠ 0 → pred n < n
   | zero,   h => absurd rfl h
-  | succ n, h => lt_succ_of_le (Nat.le_refl _)
+  | succ _, _ => lt_succ_of_le (Nat.le_refl _)
 
 theorem sub_le (n m : Nat) : n - m ≤ n := by
   induction m with
@@ -200,9 +200,9 @@ theorem sub_le (n m : Nat) : n - m ≤ n := by
   | succ m ih => apply Nat.le_trans (pred_le (n - m)) ih
 
 theorem sub_lt : ∀ {n m : Nat}, 0 < n → 0 < m → n - m < n
-  | 0,   m,   h1, h2 => absurd h1 (Nat.lt_irrefl 0)
-  | n+1, 0,   h1, h2 => absurd h2 (Nat.lt_irrefl 0)
-  | n+1, m+1, h1, h2 =>
+  | 0,   _,   h1, _  => absurd h1 (Nat.lt_irrefl 0)
+  | _+1, 0,   _, h2  => absurd h2 (Nat.lt_irrefl 0)
+  | n+1, m+1, _,  _  =>
     Eq.symm (succ_sub_succ_eq_sub n m) ▸
       show n - m < succ n from
       lt_succ_of_le (sub_le n m)
@@ -248,7 +248,7 @@ def lt.step {n m : Nat} : n < m → n < succ m := le_step
 
 theorem eq_zero_or_pos : ∀ (n : Nat), n = 0 ∨ n > 0
   | 0   => Or.inl rfl
-  | n+1 => Or.inr (succ_pos _)
+  | _+1 => Or.inr (succ_pos _)
 
 def lt.base (n : Nat) : n < succ n := Nat.le_refl (succ n)
 
@@ -311,9 +311,9 @@ theorem le_add_left (n m : Nat): n ≤ m + n :=
   Nat.add_comm n m ▸ le_add_right n m
 
 theorem le.dest : ∀ {n m : Nat}, n ≤ m → Exists (fun k => n + k = m)
-  | zero,   zero,   h => ⟨0, rfl⟩
-  | zero,   succ n, h => ⟨succ n, Nat.add_comm 0 (succ n) ▸ rfl⟩
-  | succ n, zero,   h => absurd h (not_succ_le_zero _)
+  | zero,   zero,   _ => ⟨0, rfl⟩
+  | zero,   succ n, _ => ⟨succ n, Nat.add_comm 0 (succ n) ▸ rfl⟩
+  | succ _, zero,   h => absurd h (not_succ_le_zero _)
   | succ n, succ m, h =>
     have : n ≤ m := Nat.le_of_succ_le_succ h
     have : Exists (fun k => n + k = m) := dest this
@@ -519,7 +519,7 @@ theorem succ_pred {a : Nat} (h : a ≠ 0) : a.pred.succ = a := by
 
 theorem sub_ne_zero_of_lt : {a b : Nat} → a < b → b - a ≠ 0
   | 0, 0, h      => absurd h (Nat.lt_irrefl 0)
-  | 0, succ b, h => by simp
+  | 0, succ b, _ => by simp
   | succ a, 0, h => absurd h (Nat.not_lt_zero a.succ)
   | succ a, succ b, h => by rw [Nat.succ_sub_succ]; exact sub_ne_zero_of_lt (Nat.lt_of_succ_lt_succ h)
 

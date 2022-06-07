@@ -620,7 +620,7 @@ private def replaceIndFVarsWithConsts (views : Array InductiveView) (indFVars : 
           else match indFVar2Const.find? e with
             | none   => none
             | some c => mkAppN c (params.extract 0 numVars)
-        mkForallFVars params type
+        instantiateMVars (← mkForallFVars params type)
       return { ctor with type }
     return { indType with ctors }
 

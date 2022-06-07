@@ -31,15 +31,18 @@ def Package.moduleOTarget (mod : Name) (self : Package) : FileTarget :=
 
 -- # Build Package Static Lib
 
-protected def Package.staticLibTarget (self : Package) : FileTarget :=
- BuildTarget.mk' self.staticLibFile do
-    let moduleTargetMap ← self.buildModuleMap $
-      recBuildModuleOleanAndCTargetWithLocalImports
+def Package.mkStaticLibTarget (self : Package) (lib : LeanLibConfig) : FileTarget :=
+  let libFile := self.libDir / lib.staticLibFileName
+  BuildTarget.mk' libFile do
+    let depTarget ← self.buildExtraDepsTarget
+    let infos := (← lib.getModuleArray self.srcDir).map (Module.mk self)
+    let moduleTargetMap ← buildModuleMap infos $
+      recBuildModuleOleanAndCTargetWithLocalImports depTarget
     let oFileTargets := self.oFileTargetsOf moduleTargetMap
-    staticLibTarget self.staticLibFile oFileTargets |>.materializeAsync
+    staticLibTarget libFile oFileTargets |>.materializeAsync
 
-def Package.buildStaticLib (self : Package) : BuildM FilePath :=
-  self.staticLibTarget.build
+protected def Package.staticLibTarget (self : Package) : FileTarget :=
+  self.mkStaticLibTarget self.builtinLibConfig
 
 def Package.staticLibTargets (self : Package) : Array FileTarget :=
   #[self.staticLibTarget] ++ self.moreLibTargets
@@ -60,34 +63,38 @@ def Package.linkTargetsOf
     return self.oFileTargetsOf targetMap ++ self.moreLibTargets ++ ts
   | Except.error _ => panic! "dependency cycle emerged after resolution"
 
-protected def Package.sharedLibTarget (self : Package) : FileTarget :=
-  BuildTarget.mk' self.sharedLibFile do
-    let moduleTargetMap ← self.buildModuleMap $
-      recBuildModuleOleanAndCTargetWithLocalImports
+def Package.mkSharedLibTarget (self : Package) (lib : LeanLibConfig) : FileTarget :=
+  let libFile := self.libDir / lib.sharedLibFileName
+  BuildTarget.mk' libFile do
+    let depTarget ← self.buildExtraDepsTarget
+    let infos := (← lib.getModuleArray self.srcDir).map (Module.mk self)
+    let moduleTargetMap ← buildModuleMap infos $
+      recBuildModuleOleanAndCTargetWithLocalImports depTarget
     let linkTargets ← self.linkTargetsOf moduleTargetMap
-    let target := leanSharedLibTarget self.sharedLibFile linkTargets self.moreLinkArgs
+    let target := leanSharedLibTarget libFile linkTargets lib.linkArgs
     target.materializeAsync
 
-def Package.buildSharedLib (self : Package) : BuildM FilePath :=
-  self.sharedLibTarget.build
+protected def Package.sharedLibTarget (self : Package) : FileTarget :=
+  self.mkSharedLibTarget self.builtinLibConfig
 
 -- # Build Package Bin
 
-protected def Package.binTarget (self : Package) : FileTarget :=
-  BuildTarget.mk' self.binFile do
+def Package.mkExeTarget (self : Package) (exe : LeanExeConfig) : FileTarget :=
+  let exeFile := self.binDir / exe.fileName
+  BuildTarget.mk' exeFile do
     let depTarget ← self.buildExtraDepsTarget
-    let moduleTargetMap ← buildModuleMap #[⟨self, self.binRoot⟩] $
+    let moduleTargetMap ← buildModuleMap #[⟨self, exe.root⟩] $
       recBuildModuleOleanAndCTargetWithLocalImports depTarget
     let pkgLinkTargets ← self.linkTargetsOf moduleTargetMap
     let linkTargets :=
-      if self.isLocalModule self.binRoot then
+      if self.isLocalModule exe.root then
         pkgLinkTargets
       else
-        let rootTarget := moduleTargetMap.find? self.binRoot |>.get!
-        let rootLinkTarget := self.oFileTargetOf self.binRoot rootTarget
+        let rootTarget := moduleTargetMap.find? exe.root |>.get!
+        let rootLinkTarget := self.oFileTargetOf exe.root rootTarget
         #[rootLinkTarget] ++ pkgLinkTargets
-    let target := leanBinTarget self.binFile linkTargets self.moreLinkArgs
+    let target := leanBinTarget exeFile linkTargets exe.moreLinkArgs
     target.materializeAsync
 
-def Package.buildBin (self : Package) : BuildM FilePath :=
-  self.binTarget.build
+protected def Package.exeTarget (self : Package) : FileTarget :=
+  self.mkExeTarget self.builtinExeConfig

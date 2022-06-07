@@ -40,51 +40,21 @@ def buildExtraDepsTarget : SchedulerM ActiveOpaqueTarget := do
 
 /--
 Build the `extraDepTarget` of a package and its (transitive) dependencies
-and then build their modules recursively using the given `build` function,
-constructing a `NameMap` of the results.
--/
-protected def Package.buildModuleMap [Inhabited o]
-(build : ActiveOpaqueTarget → RecModuleBuild o) (self : Package)
-: BuildM (NameMap o) := do
-  let depTarget ← self.buildExtraDepsTarget
-  let infos := (← self.getModuleArray).map fun mod => Module.mk self mod
-  buildModuleMap infos (build depTarget)
-
-/--
-Build the `extraDepTarget` of a package and its (transitive) dependencies
-and then build their modules recursively using the given `build` function,
+and then build the library's modules recursively using the `build` function,
 constructing a single opaque target for the whole build.
 -/
-def Package.buildTarget [Inhabited i]
-(build : ActiveOpaqueTarget → RecModuleTargetBuild i) (self : Package)
-: SchedulerM ActiveOpaqueTarget := do
+def Package.buildLibModules (self : Package) (lib : LeanLibConfig)
+[Inhabited i] (build : ActiveOpaqueTarget → RecModuleTargetBuild i) : SchedulerM (BuildTask BuildTrace) := do
   let depTarget ← self.buildExtraDepsTarget
   let buildMods : BuildM _ := do
-    let mods ← self.getModuleArray
-    failOnBuildCycle <| ← RBTopT.run' do
-      let targets ← mods.mapM fun mod => (·.withoutInfo) <$>
-        buildRBTop (build depTarget) Module.name (Module.mk self mod)
-      ActiveTarget.collectOpaqueArray targets
-  buildMods.catchFailure fun _ => pure <| ActiveTarget.opaque failure
-
-/-- Build the `.olean` files of package and its dependencies' modules. -/
-def Package.buildOleanTarget (self : Package) : SchedulerM ActiveOpaqueTarget := do
-  self.buildTarget <| recBuildModuleOleanTargetWithLocalImports
-
-/-- Build the `.olean` and `.c` files of package and its dependencies' modules. -/
-def Package.buildOleanAndCTarget (self : Package) : SchedulerM ActiveOpaqueTarget := do
-  self.buildTarget <| recBuildModuleOleanAndCTargetWithLocalImports
-
-def Package.buildDepOleans (self : Package) : BuildM PUnit := do
-  let targets ← self.dependencies.mapM fun dep => do
-    (← getPackageByName? dep.name).get!.buildOleanTarget
-  targets.forM fun target => discard <| target.materialize
+    let infos := (← lib.getModuleArray self.srcDir).map (Module.mk self)
+    let modTargets ← buildModuleArray infos (build depTarget)
+    (·.task) <$> ActiveTarget.collectOpaqueArray modTargets
+  buildMods.catchFailure fun _ => pure <| failure
 
 def Package.oleanTarget (self : Package) : OpaqueTarget :=
-  Target.opaque do pure (← self.buildOleanTarget).task
-
-def Package.build (self : Package) : BuildM PUnit := do
-  discard (← self.buildOleanTarget).materialize
+  Target.opaque <| self.buildLibModules self.builtinLibConfig
+    recBuildModuleOleanTargetWithLocalImports
 
 -- # Build Specific Modules of the Package
 

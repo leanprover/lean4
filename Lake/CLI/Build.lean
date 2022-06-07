@@ -12,7 +12,8 @@ namespace Lake
 
 def Package.defaultTarget (self : Package) : OpaqueTarget :=
   match self.defaultFacet with
-  | .bin => self.binTarget.withoutInfo
+  | .exe => self.exeTarget.withoutInfo
+  | .bin => self.exeTarget.withoutInfo
   | .staticLib => self.staticLibTarget.withoutInfo
   | .sharedLib => self.sharedLibTarget.withoutInfo
   | .oleans =>  self.oleanTarget.withoutInfo
@@ -59,8 +60,8 @@ def parseTargetSpec (ws : Workspace) (spec : String) : Except CliError (BuildTar
       else
         throw <| CliError.unknownModuleFacet facet
     else
-      if facet == "bin" then
-        return pkg.binTarget.withoutInfo
+      if facet == "exe" || facet == "bin" then
+        return pkg.exeTarget.withoutInfo
       else if facet == "staticLib" then
         return pkg.staticLibTarget.withoutInfo
       else if facet == "sharedLib" then

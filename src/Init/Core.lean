@@ -149,14 +149,17 @@ def Priority.max : Priority := 8
   non-dedicated workers than the number of cores to reduce context switches. -/
 def Priority.dedicated : Priority := 9
 
+set_option linter.unusedVariables.funArgs false in
 @[noinline, extern "lean_task_spawn"]
 protected def spawn {α : Type u} (fn : Unit → α) (prio := Priority.default) : Task α :=
   ⟨fn ()⟩
 
+set_option linter.unusedVariables.funArgs false in
 @[noinline, extern "lean_task_map"]
 protected def map {α : Type u} {β : Type v} (f : α → β) (x : Task α) (prio := Priority.default) : Task β :=
   ⟨f x.get⟩
 
+set_option linter.unusedVariables.funArgs false in
 @[noinline, extern "lean_task_bind"]
 protected def bind {α : Type u} {β : Type v} (x : Task α) (f : α → Task β) (prio := Priority.default) : Task β :=
   ⟨(f x.get).get⟩
@@ -424,7 +427,7 @@ end Decidable
 
 section
 variable {p q : Prop}
-@[inline] def  decidable_of_decidable_of_iff [hp : Decidable p] (h : p ↔ q) : Decidable q :=
+@[inline] def  decidable_of_decidable_of_iff [Decidable p] (h : p ↔ q) : Decidable q :=
   if hp : p then
     isTrue (Iff.mp h hp)
   else
@@ -501,7 +504,7 @@ abbrev noConfusionEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : 
     (motive := fun (inst : Decidable (f x = f y)) => Decidable.casesOn (motive := fun _ => Sort w) inst (fun _ => P) (fun _ => P → P))
     (inst (f x) (f y))
     (fun h' => False.elim (h' (congrArg f h)))
-    (fun h' => fun x => x)
+    (fun _ => fun x => x)
 
 /- Inhabited -/
 
@@ -554,7 +557,7 @@ structure Equivalence {α : Sort u} (r : α → α → Prop) : Prop where
   symm  : ∀ {x y}, r x y → r y x
   trans : ∀ {x y z}, r x y → r y z → r x z
 
-def emptyRelation {α : Sort u} (a₁ a₂ : α) : Prop :=
+def emptyRelation {α : Sort u} (_ _ : α) : Prop :=
   False
 
 def Subrelation {α : Sort u} (q r : α → α → Prop) :=
@@ -576,7 +579,7 @@ def existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (f
 variable {α : Type u} {p : α → Prop}
 
 protected theorem eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
-  | ⟨_, _ ⟩, ⟨_, _⟩, rfl => rfl
+  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
 theorem eta (a : {x // p x}) (h : p (val a)) : mk (val a) h = a := by
   cases a
@@ -959,7 +962,7 @@ variable   {α : Sort u}
 private def rel {s : Setoid α} (q₁ q₂ : Quotient s) : Prop :=
   Quotient.liftOn₂ q₁ q₂
     (fun a₁ a₂ => a₁ ≈ a₂)
-    (fun a₁ a₂ b₁ b₂ a₁b₁ a₂b₂ =>
+    (fun _ _ _ _ a₁b₁ a₂b₂ =>
       propext (Iff.intro
         (fun a₁a₂ => Setoid.trans (Setoid.symm a₁b₁) (Setoid.trans a₁a₂ a₂b₂))
         (fun b₁b₂ => Setoid.trans a₁b₁ (Setoid.trans b₁b₂ (Setoid.symm a₂b₂)))))
@@ -1045,7 +1048,7 @@ private def funSetoid (α : Sort u) (β : α → Sort v) : Setoid (∀ (x : α),
 private def extfunApp (f : Quotient <| funSetoid α β) (x : α) : β x :=
   Quot.liftOn f
     (fun (f : ∀ (x : α), β x) => f x)
-    (fun f₁ f₂ h => h x)
+    (fun _ _ h => h x)
 
 theorem funext {f₁ f₂ : ∀ (x : α), β x} (h : ∀ x, f₁ x = f₂ x) : f₁ = f₂ := by
   show extfunApp (Quotient.mk' f₁) = extfunApp (Quotient.mk' f₂)

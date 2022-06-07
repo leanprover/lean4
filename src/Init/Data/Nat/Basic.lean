@@ -200,8 +200,8 @@ theorem sub_le (n m : Nat) : n - m ≤ n := by
   | succ m ih => apply Nat.le_trans (pred_le (n - m)) ih
 
 theorem sub_lt : ∀ {n m : Nat}, 0 < n → 0 < m → n - m < n
-  | 0,   _,   h1, h2 => absurd h1 (Nat.lt_irrefl 0)
-  | _+1, 0,   h1, h2 => absurd h2 (Nat.lt_irrefl 0)
+  | 0,   _,   h1, _  => absurd h1 (Nat.lt_irrefl 0)
+  | _+1, 0,   _, h2  => absurd h2 (Nat.lt_irrefl 0)
   | n+1, m+1, _,  _  =>
     Eq.symm (succ_sub_succ_eq_sub n m) ▸
       show n - m < succ n from

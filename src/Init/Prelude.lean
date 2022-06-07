@@ -111,7 +111,7 @@ theorem eq_of_heq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
   have : (α β : Sort u) → (a : α) → (b : β) → HEq a b → (h : Eq α β) → Eq (cast h a) b :=
     fun α _ a _ h₁ =>
       HEq.rec (motive := fun {β} (b : β) (_ : HEq a b) => (h₂ : Eq α β) → Eq (cast h₂ a) b)
-        (fun (h₂ : Eq α α) => rfl)
+        (fun (_ : Eq α α) => rfl)
         h₁
   this α α a a' h rfl
 
@@ -161,6 +161,7 @@ structure Subtype {α : Sort u} (p : α → Prop) where
   val : α
   property : p val
 
+set_option linter.unusedVariables.funArgs false in
 /-- Gadget for optional parameter support. -/
 @[reducible] def optParam (α : Sort u) (default : α) : Sort u := α
 
@@ -385,7 +386,7 @@ instance : Inhabited Nat where
   default := Nat.zero
 
 /- For numeric literals notation -/
-class OfNat (α : Type u) (n : Nat) where
+class OfNat (α : Type u) (_ : Nat) where
   ofNat : α
 
 @[defaultInstance 100] /- low prio -/
@@ -1073,8 +1074,8 @@ instance {α} : Inhabited (List α) where
 
 protected def List.hasDecEq {α: Type u} [DecidableEq α] : (a b : List α) → Decidable (Eq a b)
   | nil,       nil       => isTrue rfl
-  | cons _ as, nil       => isFalse (fun h => List.noConfusion h)
-  | nil,       cons _ bs => isFalse (fun h => List.noConfusion h)
+  | cons _ _, nil        => isFalse (fun h => List.noConfusion h)
+  | nil,       cons _ _  => isFalse (fun h => List.noConfusion h)
   | cons a as, cons b bs =>
     match decEq a b with
     | isTrue hab  =>
@@ -2147,7 +2148,7 @@ private def extractImported (scps : List MacroScope) (mainModule : Name) : Name 
     match beq str "_@" with
     | true  => { name := p, mainModule := mainModule, imported := assembleParts parts Name.anonymous, scopes := scps }
     | false => extractImported scps mainModule p (List.cons n parts)
-  | n@(Name.num p str _), parts => extractImported scps mainModule p (List.cons n parts)
+  | n@(Name.num p _ _), parts => extractImported scps mainModule p (List.cons n parts)
   | _,                    _     => panic "Error: unreachable @ extractImported"
 
 private def extractMainModule (scps : List MacroScope) : Name → List Name → MacroScopesView
@@ -2155,7 +2156,7 @@ private def extractMainModule (scps : List MacroScope) : Name → List Name → 
     match beq str "_@" with
     | true  => { name := p, mainModule := assembleParts parts Name.anonymous, imported := Name.anonymous, scopes := scps }
     | false => extractMainModule scps p (List.cons n parts)
-  | n@(Name.num _ num _), acc => extractImported scps (assembleParts acc Name.anonymous) n List.nil
+  | n@(Name.num _ _ _), acc => extractImported scps (assembleParts acc Name.anonymous) n List.nil
   | _,                    _   => panic "Error: unreachable @ extractMainModule"
 
 private def extractMacroScopesAux : Name → List MacroScope → MacroScopesView

@@ -3,6 +3,8 @@
 These instructions will walk you through setting up Lean using the "basic" setup and VS Code as the editor.
 See [Setup](./setup.md) for other ways, supported platforms, and more details on setting up Lean.
 
+See quick [walkthrough demo video](https://www.youtube.com/watch?v=yZo6k48L0VY).
+
 1. Install [VS Code](https://code.visualstudio.com/).
 
 1. Launch VS Code and install the `lean4` extension.

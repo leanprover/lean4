@@ -287,17 +287,17 @@ where
   | none => replaceMainGoal []
   | some mvarId => replaceMainGoal [mvarId]
 
-def dsimpLocation (ctx : Simp.Context) (fvarIdToSimp : FVarIdToLemmaId := {}) (loc : Location) : TacticM Unit := do
+def dsimpLocation (ctx : Simp.Context) (loc : Location) : TacticM Unit := do
   match loc with
   | Location.targets hyps simplifyTarget =>
     withMainContext do
       let fvarIds ← getFVarIds hyps
-      go fvarIds simplifyTarget fvarIdToSimp
+      go fvarIds simplifyTarget
   | Location.wildcard =>
     withMainContext do
-      go (← getNondepPropHyps (← getMainGoal)) (simplifyTarget := true) fvarIdToSimp
+      go (← getNondepPropHyps (← getMainGoal)) (simplifyTarget := true)
 where
-  go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) (fvarIdToSimp : Lean.Meta.FVarIdToLemmaId) : TacticM Unit := do
+  go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM Unit := do
     let mvarId ← getMainGoal
     let result? ← dsimpGoal mvarId ctx (simplifyTarget := simplifyTarget) (fvarIdsToSimp := fvarIdsToSimp)
     match result? with
@@ -305,7 +305,7 @@ where
     | some mvarId => replaceMainGoal [mvarId]
 
 @[builtinTactic Lean.Parser.Tactic.dsimp] def evalDSimp : Tactic := fun stx => do
-  let { ctx, fvarIdToLemmaId, .. } ← withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)
-  dsimpLocation ctx fvarIdToLemmaId (expandOptLocation stx[5])
+  let { ctx, .. } ← withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)
+  dsimpLocation ctx (expandOptLocation stx[5])
 
 end Lean.Elab.Tactic

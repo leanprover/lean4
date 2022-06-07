@@ -8,6 +8,7 @@ import Lean.Meta.CongrTheorems
 import Lean.Meta.Tactic.Replace
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Clear
+import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Simp.Rewrite
 
@@ -724,7 +725,7 @@ where
 
 abbrev Discharge := Expr → SimpM (Option Expr)
 
-def dischargeUsingAssumption (e : Expr) : SimpM (Option Expr) := do
+def dischargeUsingAssumption? (e : Expr) : SimpM (Option Expr) := do
   (← getLCtx).findDeclRevM? fun localDecl => do
     if localDecl.isAuxDecl then
       return none
@@ -733,13 +734,42 @@ def dischargeUsingAssumption (e : Expr) : SimpM (Option Expr) := do
     else
       return none
 
+/--
+  Tries to solve `e` using `unifyEq?`.
+  It assumes that `isEqnThmHypothesis e` is `true`.
+-/
+partial def dischargeEqnThmHypothesis? (e : Expr) : MetaM (Option Expr) := do
+  assert! isEqnThmHypothesis e
+  let mvar ← mkFreshExprSyntheticOpaqueMVar e
+  withReader (fun ctx => { ctx with canUnfold? := canUnfoldAtMatcher }) do
+    if let .none ← go? mvar.mvarId! then
+      instantiateMVars mvar
+    else
+      return none
+where
+  go? (mvarId : MVarId) : MetaM (Option MVarId) :=
+    try
+      let (fvarId, mvarId) ← intro1 mvarId
+      withMVarContext mvarId do
+        let localDecl ← getLocalDecl fvarId
+        if localDecl.type.isEq || localDecl.type.isHEq then
+          if let some { mvarId, .. } ← unifyEq? mvarId fvarId {} then
+            go? mvarId
+          else
+            return none
+        else
+          go? mvarId
+    catch _  =>
+      return some mvarId
+
 namespace DefaultMethods
 mutual
   partial def discharge? (e : Expr) : SimpM (Option Expr) := do
     if isEqnThmHypothesis e then
-      let r ← dischargeUsingAssumption e
-      if r.isSome then
-        return r
+      if let some r ← dischargeUsingAssumption? e then
+        return some r
+      if let some r ← dischargeEqnThmHypothesis? e then
+        return some r
     let ctx ← read
     trace[Meta.Tactic.simp.discharge] ">> discharge?: {e}"
     if ctx.dischargeDepth >= ctx.config.maxDischargeDepth then

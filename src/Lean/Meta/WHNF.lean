@@ -659,7 +659,7 @@ mutual
                 let numArgs := e.getAppNumArgs
                 if recArgPos >= numArgs then return none
                 let recArg := e.getArg! recArgPos numArgs
-                if !(← whnf recArg).isConstructorApp (← getEnv) then return none
+                if !(← whnfMatcher recArg).isConstructorApp (← getEnv) then return none
                 return some r
             | _ =>
               if (← getMatcherInfo? fInfo.name).isSome then

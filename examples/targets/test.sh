@@ -27,5 +27,5 @@ $LAKE build b c
 $LAKE build foo:static
 $LAKE build bar:shared
 
-test -f ./build/lib/libfoo.a
+test -f ./build/lib/libFoo.a
 test -f ./build/lib/bar.$SHARED_LIB_EXT

@@ -10,19 +10,19 @@ open Lean.Syntax
 open Lean.Parser.Term hiding macroArg
 open Lean.Parser.Command
 
-@[builtinMacro Lean.Parser.Command.macro] def expandMacro : Macro
+@[builtinCommandElab Lean.Parser.Command.macro] def elabMacro : CommandElab
   | `($[$doc?:docComment]? $attrKind:attrKind
       macro%$tk$[:$prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $args:macroArg* :
         $cat => $rhs) => do
-    let prio  ← evalOptPrio prio?
+    let prio  ← liftMacroM <| evalOptPrio prio?
     let (stxParts, patArgs) := (← args.mapM expandMacroArg).unzip
     -- name
     let name ← match name? with
       | some name => pure name.getId
-      | none => mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
+      | none => liftMacroM <| mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
     /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
       So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
-    let pat := mkNode ((← Macro.getCurrNamespace) ++ name) patArgs
+    let pat := mkNode ((← getCurrNamespace) ++ name) patArgs
     let stxCmd ← `($[$doc?:docComment]? $attrKind:attrKind
       syntax%$tk$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio)) $[$stxParts]* : $cat)
     let macroRulesCmd ← if rhs.getArgs.size == 1 then
@@ -33,7 +33,7 @@ open Lean.Parser.Command
       -- `rhs` is of the form `` `( $body ) ``
       let rhsBody := rhs[1]
       `($[$doc?:docComment]? macro_rules%$tk | `($pat) => `($rhsBody))
-    return mkNullNode #[stxCmd, macroRulesCmd]
-  | _ => Macro.throwUnsupported
+    elabCommand <| mkNullNode #[stxCmd, macroRulesCmd]
+  | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Command

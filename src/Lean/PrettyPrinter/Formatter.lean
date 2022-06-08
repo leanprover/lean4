@@ -240,7 +240,7 @@ def categoryFormatterCore (cat : Name) : Formatter := do
       -- TODO: We could use elaborator data here to format the chosen child when available
       formatterForKind (← getCur).getKind
   else if cat == `rawStx then
-    withAntiquot.formatter (mkAntiquot.formatter' cat.toString none) (push stx.formatStx *> goLeft)
+    withAntiquot.formatter (mkAntiquot.formatter' cat.toString cat (isPseudoKind := true)) (push stx.formatStx *> goLeft)
   else
     withAntiquot.formatter (mkAntiquot.formatter' cat.toString cat (isPseudoKind := true)) (formatterForKind stx.getKind)
   modify fun st => { st with mustBeGrouped := true, isUngrouped := !st.mustBeGrouped }

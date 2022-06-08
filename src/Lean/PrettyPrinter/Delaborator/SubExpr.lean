@@ -79,14 +79,13 @@ def withLetBody (x : m α) : m α := do
 
 def withNaryFn (x : m α) : m α := do
   let e ← getExpr
-  let n := e.getAppNumArgs
-  let newPos := (← getPos).asNat * (Pos.maxChildren ^ n)
+  let newPos := (← getPos).pushNaryFn e.getAppNumArgs
   withTheReader SubExpr (fun cfg => { cfg with expr := e.getAppFn, pos := newPos }) x
 
 def withNaryArg (argIdx : Nat) (x : m α) : m α := do
   let e ← getExpr
   let args := e.getAppArgs
-  let newPos := (← getPos).asNat * (Pos.maxChildren ^ (args.size - argIdx)) + 1
+  let newPos := (← getPos).pushNaryArg args.size argIdx
   withTheReader SubExpr (fun cfg => { cfg with expr := args[argIdx], pos := newPos }) x
 
 end Descend

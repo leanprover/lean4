@@ -85,6 +85,20 @@ def ofArray (ps : Array Nat) : Pos :=
 def toArray (p : Pos) : Array Nat :=
   foldl Array.push #[] p
 
+def pushBindingDomain (p : Pos) := p.push 0
+def pushBindingBody   (p : Pos) := p.push 1
+def pushLetVarType    (p : Pos) := p.push 0
+def pushLetValue      (p : Pos) := p.push 1
+def pushLetBody       (p : Pos) := p.push 2
+def pushAppFn         (p : Pos) := p.push 0
+def pushAppArg        (p : Pos) := p.push 1
+def pushProj          (p : Pos) := p.push 0
+
+def pushNaryFn (numArgs : Nat) (p : Pos) : Pos :=
+  p.asNat * (maxChildren ^ numArgs)
+def pushNaryArg (numArgs argIdx : Nat) (p : Pos) : Pos :=
+  show Nat from p.asNat * (maxChildren ^ (numArgs - argIdx)) + 1
+
 end SubExpr.Pos
 
 /-- An expression and the position of a subexpression within this expression.
@@ -113,5 +127,16 @@ def mapPos (f : Pos → Pos) : SubExpr → SubExpr
   | ⟨e,p⟩ => ⟨e, f p⟩
 
 end SubExpr
+
+open SubExpr in
+/-- Same as `Expr.traverseApp` but also includes a
+`SubExpr.Pos` argument for tracking subexpression position. -/
+def Expr.traverseAppWithPos {M} [Monad M] (visit : Pos → Expr → M Expr) (p : Pos) (e : Expr) : M Expr :=
+  match e with
+  | Expr.app f a _ =>
+    e.updateApp!
+      <$> traverseAppWithPos visit p.pushAppFn f
+      <*> visit p.pushAppArg a
+  | e => visit p e
 
 end Lean

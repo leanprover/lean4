@@ -146,7 +146,6 @@ goal from being littered with irrelevant names.
 
 -/
 def collect (goalTarget : Expr) : MetaM (FVarIdSet × FVarIdSet) := do
-  let lctx ← getLCtx
   if pp.inaccessibleNames.get (← getOptions) then
     -- If `pp.inaccessibleNames == true`, we still must compute `hiddenInaccessibleProp`.
     let hiddenInaccessible ← getInitialHiddenInaccessible (propOnly := true)

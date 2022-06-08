@@ -195,7 +195,7 @@ private def elabModifyOp (stx modifyOp : Syntax) (sources : Array ExplicitSource
 
   If the expected type is available and it is a structure, then we use it.
   Otherwise, we use the type of the first source. -/
-private def getStructName (stx : Syntax) (expectedType? : Option Expr) (sourceView : Source) : TermElabM Name := do
+private def getStructName (expectedType? : Option Expr) (sourceView : Source) : TermElabM Name := do
   tryPostponeIfNoneOrMVar expectedType?
   let useSource : Unit → TermElabM Name := fun _ => do
     match sourceView, expectedType? with
@@ -378,7 +378,7 @@ def Struct.setParams (s : Struct) (ps : Array (Name × Expr)) : Struct :=
 
 private def expandCompositeFields (s : Struct) : Struct :=
   s.modifyFields fun fields => fields.map fun field => match field with
-    | { lhs := FieldLHS.fieldName ref (Name.str Name.anonymous _ _) :: rest, .. } => field
+    | { lhs := FieldLHS.fieldName _ (Name.str Name.anonymous _ _) :: _, .. } => field
     | { lhs := FieldLHS.fieldName ref n@(Name.str _ _ _) :: rest, .. } =>
       let newEntries := n.components.map <| FieldLHS.fieldName ref
       { field with lhs := newEntries ++ rest }
@@ -472,7 +472,6 @@ mutual
 
   private partial def groupFields (s : Struct) : TermElabM Struct := do
     let env ← getEnv
-    let fieldNames := getStructureFields env s.structName
     withRef s.ref do
     s.modifyFieldsM fun fields => do
       let fieldMap ← mkFieldMap fields
@@ -742,7 +741,7 @@ partial def mkDefaultValueAux? (struct : Struct) : Expr → TermElabM (Option Ex
         else
           return none
     else
-      if let some (_, param) := struct.params.find? fun (paramName, param) => paramName == n then
+      if let some (_, param) := struct.params.find? fun (paramName, _) => paramName == n then
         -- Recall that we did not use to have support for parameter propagation here.
         if (← isDefEq (← inferType param) d) then
           mkDefaultValueAux? struct (b.instantiate1 param)
@@ -864,7 +863,7 @@ def propagate (struct : Struct) : TermElabM Unit :=
 end DefaultFields
 
 private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (source : Source) : TermElabM Expr := do
-  let structName ← getStructName stx expectedType? source
+  let structName ← getStructName expectedType? source
   let struct ← liftMacroM <| mkStructView stx structName source
   let struct ← expandStruct struct
   trace[Elab.struct] "{struct}"

@@ -343,10 +343,10 @@ private def mkMetaContext : Meta.Context := {
 }
 
 def getBracketedBinderIds : Syntax → Array Name
-  | `(bracketedBinder|($ids* $[: $ty?]? $(annot?)?)) => ids.map Syntax.getId
+  | `(bracketedBinder|($ids* $[: $ty?]? $(_annot?)?)) => ids.map Syntax.getId
   | `(bracketedBinder|{$ids* $[: $ty?]?})            => ids.map Syntax.getId
-  | `(bracketedBinder|[$id : $ty])                   => #[id.getId]
-  | `(bracketedBinder|[$ty])                         => #[Name.anonymous]
+  | `(bracketedBinder|[$id : $_])                    => #[id.getId]
+  | `(bracketedBinder|[$_])                          => #[Name.anonymous]
   | _                                                => #[]
 
 private def mkTermContext (ctx : Context) (s : State) (declName? : Option Name) : Term.Context := Id.run do
@@ -377,7 +377,7 @@ def liftTermElabM {α} (declName? : Option Name) (x : TermElabM α) : CommandEla
   let x : MetaM _      := (observing x).run (mkTermContext ctx s declName?) (mkTermState scope s)
   let x : CoreM _      := x.run mkMetaContext {}
   let x : EIO _ _      := x.run (mkCoreContext ctx s heartbeats) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope }
-  let (((ea, termS), metaS), coreS) ← liftEIO x
+  let (((ea, termS), _), coreS) ← liftEIO x
   modify fun s => { s with
     env             := coreS.env
     nextMacroScope  := coreS.nextMacroScope

@@ -25,7 +25,7 @@ builtin_initialize specializeAttrs : EnumAttributes SpecializeAttributeKind ←
        In the new equation compiler we should pass all attributes and allow it to apply them to auxiliary definitions.
        In the current implementation, we workaround this issue by using functions such as `hasSpecializeAttrAux`.
      -/
-    (fun declName _ => pure ())
+    (fun _ _ => pure ())
     AttributeApplicationTime.beforeElaboration
 
 private partial def hasSpecializeAttrAux (env : Environment) (kind : SpecializeAttributeKind) (n : Name) : Bool :=

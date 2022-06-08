@@ -229,7 +229,7 @@ inductive Loop where
   | mk
 
 @[inline]
-partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (loop : Loop) (init : β) (f : Unit → β → m (ForInStep β)) : m β :=
+partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (_ : Loop) (init : β) (f : Unit → β → m (ForInStep β)) : m β :=
   let rec @[specialize] loop (b : β) : m β := do
     match ← f () b with
       | ForInStep.done b  => pure b

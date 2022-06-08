@@ -408,7 +408,7 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInf
   return symbols
     |>.qsort (fun ((_, s1), _) ((_, s2), _) => s1 > s2)
     |>.extract 0 100 -- max amount
-    |>.map fun ((name, score), location) =>
+    |>.map fun ((name, _), location) =>
       { name, kind := SymbolKind.constant, location }
 
 end RequestHandling

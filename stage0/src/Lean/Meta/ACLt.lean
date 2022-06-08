@@ -110,14 +110,6 @@ where
     -- See main function
     | Expr.mdata ..         => unreachable!
 
-  lex (a b : Expr) : MetaM Bool :=
-    if a.ctorWeight < b.ctorWeight then
-      return true
-    else if a.ctorWeight > b.ctorWeight then
-      return false
-    else
-      lexSameCtor a b
-
   allChildrenLt (a b : Expr) : MetaM Bool :=
     match a with
     | Expr.proj _ _ e ..    => lt e b

@@ -41839,7 +41839,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_simpTarget___lambda__1(lean_object* x_1, le
 _start:
 {
 lean_object* x_11; 
-lean_inc(x_7);
+lean_inc(x_8);
+lean_inc(x_6);
 lean_inc(x_1);
 x_11 = l_Lean_Meta_checkNotAssigned(x_1, x_2, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_11) == 0)
@@ -44003,7 +44004,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_simpLocalDecl___lambda__1(lean_object* x_1,
 _start:
 {
 lean_object* x_12; 
-lean_inc(x_8);
+lean_inc(x_9);
+lean_inc(x_7);
 lean_inc(x_1);
 x_12 = l_Lean_Meta_checkNotAssigned(x_1, x_2, x_7, x_8, x_9, x_10, x_11);
 if (lean_obj_tag(x_12) == 0)
@@ -45605,7 +45607,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_simpGoal___lambda__3(lean_object* x_1, lean
 _start:
 {
 lean_object* x_13; 
-lean_inc(x_9);
+lean_inc(x_10);
+lean_inc(x_8);
 lean_inc(x_1);
 x_13 = l_Lean_Meta_checkNotAssigned(x_1, x_2, x_8, x_9, x_10, x_11, x_12);
 if (lean_obj_tag(x_13) == 0)
@@ -47723,7 +47726,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_dsimpGoal___lambda__5(lean_object* x_1, lea
 _start:
 {
 lean_object* x_11; 
-lean_inc(x_7);
+lean_inc(x_8);
+lean_inc(x_6);
 lean_inc(x_1);
 x_11 = l_Lean_Meta_checkNotAssigned(x_1, x_2, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_11) == 0)

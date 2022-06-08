@@ -21,7 +21,6 @@ namespace Lean.Meta
           let tag     ← getMVarTag mvarId
           let type := type.headBeta
           let newMVar ← mkFreshExprSyntheticOpaqueMVar type tag
-          let lctx    ← getLCtx
           let newVal  ← mkLambdaFVars fvars newMVar
           assignExprMVar mvarId newVal
           return (fvars, newMVar.mvarId!)

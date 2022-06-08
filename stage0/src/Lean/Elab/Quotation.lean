@@ -25,7 +25,7 @@ private partial def floatOutAntiquotTerms : Syntax → StateT (Syntax → TermEl
       if !e.isIdent || !e.getId.isAtomic then
         return ← withFreshMacroScope do
           let a ← `(a)
-          modify (fun cont stx => (`(let $a:ident := $e; $stx) : TermElabM _))
+          modify (fun _ stx => (`(let $a:ident := $e; $stx) : TermElabM _))
           pure <| stx.setArg 2 a
     return Syntax.node i k (← args.mapM floatOutAntiquotTerms)
   | stx => pure stx
@@ -260,7 +260,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
   let pat := alt.fst.head!
   let unconditionally (rhsFn) := pure {
     check := unconditional,
-    doMatch := fun yes no => yes [],
+    doMatch := fun yes _ => yes [],
     onMatch := fun taken => covered (adaptRhs rhsFn ∘ noOpMatchAdaptPats taken) (match taken with | unconditional => true | _ => false)
   }
   -- quotation pattern
@@ -438,7 +438,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
 private def deduplicate (floatedLetDecls : Array Syntax) : Alt → TermElabM (Array Syntax × Alt)
   -- NOTE: new macro scope so that introduced bindings do not collide
   | (pats, rhs) => do
-    if let `($_:ident $[ $args:ident]*) := rhs then
+    if let `($_:ident $[ $_:ident]*) := rhs then
       -- looks simple enough/created by this function, skip
       return (floatedLetDecls, (pats, rhs))
     withFreshMacroScope do
@@ -460,7 +460,6 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
    pure Syntax.missing
   | discr::discrs, alt::alts    => do
     let info ← getHeadInfo alt
-    let pat  := alt.1.head!
     let alts ← (alt::alts).mapM fun alt => return ((← getHeadInfo alt).onMatch info.check, alt)
     let mut yesAlts           := #[]
     let mut undecidedAlts     := #[]
@@ -507,7 +506,7 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
   match stx with
   | `(match $[$discrs:term],* with $[| $[$patss],* => $rhss]*) => do
     if !patss.any (·.any (fun
-      | `($id@$pat) => pat.isQuot
+      | `($_@$pat) => pat.isQuot
       | pat         => pat.isQuot)) then
       -- no quotations => fall back to regular `match`
       throwUnsupportedSyntax

@@ -225,7 +225,7 @@ private def reduceQuotRec (recVal  : QuotVal) (recLvls : List Level) (recArgs : 
    =========================== -/
 
 mutual
-  private partial def isRecStuck? (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) : MetaM (Option MVarId) :=
+  private partial def isRecStuck? (recVal : RecursorVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
     if recVal.k then
       -- TODO: improve this case
       return none
@@ -238,7 +238,7 @@ mutual
       else
         return none
 
-  private partial def isQuotRecStuck? (recVal : QuotVal) (recLvls : List Level) (recArgs : Array Expr) : MetaM (Option MVarId) :=
+  private partial def isQuotRecStuck? (recVal : QuotVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
     let process? (majorPos : Nat) : MetaM (Option MVarId) :=
       if h : majorPos < recArgs.size then do
         let major := recArgs.get ⟨majorPos, h⟩
@@ -264,12 +264,12 @@ mutual
     | Expr.app f .. =>
       let f := f.getAppFn
       match f with
-      | Expr.mvar mvarId _       => return some mvarId
-      | Expr.const fName fLvls _ =>
+      | Expr.mvar mvarId _   => return some mvarId
+      | Expr.const fName _ _ =>
         let cinfo? ← getConstNoEx? fName
         match cinfo? with
-        | some $ ConstantInfo.recInfo recVal  => isRecStuck? recVal fLvls e.getAppArgs
-        | some $ ConstantInfo.quotInfo recVal => isQuotRecStuck? recVal fLvls e.getAppArgs
+        | some $ ConstantInfo.recInfo recVal  => isRecStuck? recVal e.getAppArgs
+        | some $ ConstantInfo.quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
         | _                                => return none
       | Expr.proj _ _ e _ => getStuckMVar? (← whnf e)
       | _ => return none

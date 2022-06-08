@@ -135,7 +135,7 @@ def getPPAnalysisBlockImplicit   (o : Options) : Bool := o.get `pp.analysis.bloc
 namespace PrettyPrinter.Delaborator
 
 def returnsPi (motive : Expr) : MetaM Bool := do
-  lambdaTelescope motive fun xs b => return b.isForall
+  lambdaTelescope motive fun _ b => return b.isForall
 
 def isNonConstFun (motive : Expr) : MetaM Bool := do
   match motive with
@@ -278,7 +278,7 @@ def tryUnify (e₁ e₂ : Expr) : AnalyzeM Unit := do
     let r ← isDefEqAssigning e₁ e₂
     if !r then modify fun s => { s with postponed := s.postponed.push (e₁, e₂) }
     pure ()
-  catch ex =>
+  catch _ =>
     modify fun s => { s with postponed := s.postponed.push (e₁, e₂) }
 
 partial def inspectOutParams (arg mvar : Expr) : AnalyzeM Unit := do
@@ -372,7 +372,7 @@ mutual
     trace[pp.analyze] "{(← read).knowsType}.{(← read).knowsLevel}"
     let e ← getExpr
     let opts ← getOptions
-    if ← (pure !e.isAtomic) <&&> pure !(getPPProofs opts) <&&> (try Meta.isProof e catch ex => pure false) then
+    if ← (pure !e.isAtomic) <&&> pure !(getPPProofs opts) <&&> (try Meta.isProof e catch _ => pure false) then
       if getPPProofsWithType opts then
         withType $ withKnowing true true $ analyze
       return ()
@@ -515,7 +515,7 @@ mutual
         modify fun s => { s with higherOrders := s.higherOrders.set! i true }
 
     hBinOpHeuristic := do
-      let { args, mvars, bInfos, ..} ← read
+      let { mvars, ..} ← read
       if ← (pure (isHBinOp (← getExpr)) <&&> (valUnknown mvars[0] <||> valUnknown mvars[1])) then
         tryUnify mvars[0] mvars[1]
 
@@ -610,7 +610,7 @@ mutual
           tryUnify mvars[i] args[i]
 
     maybeSetExplicit := do
-      let { f, args, mvars, bInfos, forceRegularApp, ..} ← read
+      let { f, args, bInfos, ..} ← read
       if (← get).namedArgs.any nameNotRoundtrippable then
         annotateBool `pp.explicit
         for i in [:args.size] do
@@ -634,7 +634,7 @@ def topDownAnalyze (e : Expr) : MetaM OptionsPerPos := do
         let knowsType := getPPAnalyzeKnowsType (← getOptions)
         ϕ { knowsType := knowsType, knowsLevel := knowsType, subExpr := mkRoot e }
           |>.run' { : TopDownAnalyze.State }
-      catch ex =>
+      catch _ =>
         trace[pp.analyze.error] "failed"
         pure {}
       finally set s₀

@@ -925,7 +925,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
         | some thmId => pure { ctx with simpTheorems := ctx.simpTheorems.eraseTheorem thmId }
       let r ← simp type ctx discharge?
       match r.proof? with
-      | some proof => match (← applySimpResultToProp mvarId (mkFVar fvarId) type r) with
+      | some _ => match (← applySimpResultToProp mvarId (mkFVar fvarId) type r) with
         | none => return none
         | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }
       | none =>

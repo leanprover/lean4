@@ -30,6 +30,7 @@ def addNamedArg (namedArgs : Array NamedArg) (namedArg : NamedArg) : MetaM (Arra
     throwError "argument '{namedArg.name}' was already set"
   return namedArgs.push namedArg
 
+set_option linter.unusedVariables.funArgs false in
 partial def expandArgs (args : Array Syntax) (pattern := false) : MetaM (Array NamedArg × Array Arg × Bool) := do
   let (args, ellipsis) :=
     if args.isEmpty then
@@ -51,6 +52,7 @@ partial def expandArgs (args : Array Syntax) (pattern := false) : MetaM (Array N
       return (namedArgs, args.push $ Arg.stx stx)
   return (namedArgs, args, ellipsis)
 
+set_option linter.unusedVariables.funArgs false in
 def expandApp (stx : Syntax) (pattern := false) : MetaM (Syntax × Array NamedArg × Array Arg × Bool) := do
   let (namedArgs, args, ellipsis) ← expandArgs stx[1].getArgs
   return (stx[0], namedArgs, args, ellipsis)

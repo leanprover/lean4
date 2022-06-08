@@ -57,7 +57,7 @@ private def elabOpenHiding (n : Syntax) : M (m:=m) Unit := do
   let ns ← resolveNamespace n[0].getId
   let mut ids : List Name := []
   for idStx in n[2].getArgs do
-    let declName ← resolveId ns idStx
+    let _ ← resolveId ns idStx
     let id := idStx.getId
     ids := id::ids
   addOpenDecl (OpenDecl.simple ns ids)

@@ -36,11 +36,10 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
         let forInInstance ←
           try
             mkAppM ``ForIn #[m, colType, elemType]
-          catch
-            ex => tryPostpone; throwError "failed to construct 'ForIn' instance for collection{indentExpr colType}\nand monad{indentExpr m}"
+          catch _ =>
+            tryPostpone; throwError "failed to construct 'ForIn' instance for collection{indentExpr colType}\nand monad{indentExpr m}"
         match (← trySynthInstance forInInstance) with
         | LOption.some _   =>
-          let ref ← getRef
           let forInFn ← mkConst ``forIn
           elabAppArgs forInFn #[] #[Arg.stx col, Arg.stx init, Arg.stx body] expectedType? (explicit := false) (ellipsis := false)
         | LOption.undef    => tryPostpone; throwForInFailure forInInstance
@@ -61,11 +60,10 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
           try
             let memType ← mkFreshExprMVar (← mkAppM ``Membership #[elemType, colType])
             mkAppM ``ForIn' #[m, colType, elemType, memType]
-          catch
-            ex => tryPostpone; throwError "failed to construct `ForIn'` instance for collection{indentExpr colType}\nand monad{indentExpr m}"
+          catch _ =>
+            tryPostpone; throwError "failed to construct `ForIn'` instance for collection{indentExpr colType}\nand monad{indentExpr m}"
         match (← trySynthInstance forInInstance) with
         | LOption.some _   =>
-          let ref ← getRef
           let forInFn ← mkConst ``forIn'
           elabAppArgs forInFn #[] #[Arg.expr colFVar, Arg.stx init, Arg.stx body] expectedType? (explicit := false) (ellipsis := false)
         | LOption.undef    => tryPostpone; throwForInFailure forInInstance
@@ -327,7 +325,6 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
       let lhs ← toBoolIfNecessary lhs
       let rhs ← toBoolIfNecessary rhs
       let lhsType ← inferType lhs
-      let rhsType ← inferType rhs
       let rhs ← ensureHasType lhsType rhs
       elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] expectedType? (explicit := false) (ellipsis := false)
     else

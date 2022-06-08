@@ -102,7 +102,7 @@ def throwUnknownParserCategory {α} (catName : Name) : ExceptT String Id α :=
 abbrev getCategory (categories : ParserCategories) (catName : Name) : Option ParserCategory :=
   categories.find? catName
 
-def addLeadingParser (categories : ParserCategories) (catName : Name) (parserName : Name) (p : Parser) (prio : Nat) : Except String ParserCategories :=
+def addLeadingParser (categories : ParserCategories) (catName : Name) (p : Parser) (prio : Nat) : Except String ParserCategories :=
   match getCategory categories catName with
   | none     =>
     throwUnknownParserCategory catName
@@ -132,9 +132,9 @@ def addTrailingParser (categories : ParserCategories) (catName : Name) (p : Trai
   | none     => throwUnknownParserCategory catName
   | some cat => pure $ categories.insert catName { cat with tables := addTrailingParserAux cat.tables p prio }
 
-def addParser (categories : ParserCategories) (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : Except String ParserCategories :=
+def addParser (categories : ParserCategories) (catName : Name) (_declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : Except String ParserCategories :=
   match leading, p with
-  | true, p  => addLeadingParser categories catName declName p prio
+  | true, p  => addLeadingParser categories catName p prio
   | false, p => addTrailingParser categories catName p prio
 
 def addParserTokens (tokenTable : TokenTable) (info : ParserInfo) : Except String TokenTable :=
@@ -293,7 +293,7 @@ builtin_initialize
   registerBuiltinAttribute {
     name  := `runBuiltinParserAttributeHooks,
     descr := "explicitly run hooks normally activated by builtin parser attributes",
-    add   := fun decl stx persistent => do
+    add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
       runParserAttributeHooks Name.anonymous decl (builtin := true)
   }
@@ -302,7 +302,7 @@ builtin_initialize
   registerBuiltinAttribute {
     name  := `runParserAttributeHooks,
     descr := "explicitly run hooks normally activated by parser attributes",
-    add   := fun decl stx persistent => do
+    add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
       runParserAttributeHooks Name.anonymous decl (builtin := false)
   }
@@ -341,8 +341,8 @@ def leadingIdentBehavior (env : Environment) (catName : Name) : LeadingIdentBeha
 unsafe def evalParserConstUnsafe (declName : Name) : ParserFn := fun ctx s => unsafeBaseIO do
   let categories := (parserExtension.getState ctx.env).categories
   match (← (mkParserOfConstant categories declName { env := ctx.env, opts := ctx.options }).toBaseIO) with
-  | Except.ok (bool, p) => return p.fn ctx s
-  | Except.error e => return s.mkUnexpectedError e.toString
+  | .ok (_, p) => return p.fn ctx s
+  | .error e   => return s.mkUnexpectedError e.toString
 
 @[implementedBy evalParserConstUnsafe]
 constant evalParserConst (declName : Name) : ParserFn
@@ -467,7 +467,6 @@ private def BuiltinParserAttribute.add (attrName : Name) (catName : Name)
   let prio ← Attribute.Builtin.getPrio stx
   unless kind == AttributeKind.global do throwError "invalid attribute '{attrName}', must be global"
   let decl ← getConstInfo declName
-  let env ← getEnv
   match decl.type with
   | Expr.const `Lean.Parser.TrailingParser _ _ =>
     declareTrailingBuiltinParser catName declName prio
@@ -492,10 +491,9 @@ def registerBuiltinParserAttribute (attrName : Name) (catName : Name) (behavior 
    applicationTime := AttributeApplicationTime.afterCompilation
   }
 
-private def ParserAttribute.add (attrName : Name) (catName : Name) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
+private def ParserAttribute.add (_attrName : Name) (catName : Name) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
   let prio ← Attribute.Builtin.getPrio stx
   let env ← getEnv
-  let opts ← getOptions
   let categories := (parserExtension.getState env).categories
   let p ← mkParserOfConstant categories declName
   let leading    := p.1

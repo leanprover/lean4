@@ -300,8 +300,8 @@ def setTailInfo (stx : Syntax) (info : SourceInfo) : Syntax :=
 
 def unsetTrailing (stx : Syntax) : Syntax :=
   match stx.getTailInfo with
-  | SourceInfo.original lead pos trail endPos => stx.setTailInfo (SourceInfo.original lead pos "".toSubstring endPos)
-  | _                                         => stx
+  | SourceInfo.original lead pos _ endPos => stx.setTailInfo (SourceInfo.original lead pos "".toSubstring endPos)
+  | _                                     => stx
 
 @[specialize] private partial def updateFirst {α} [Inhabited α] (a : Array α) (f : α → Option α) (i : Nat) : Option (Array α) :=
   if h : i < a.size then
@@ -337,8 +337,8 @@ partial def getHead? : Syntax → Option Syntax
   | stx@(atom info ..)  => info.getPos?.map fun _ => stx
   | stx@(ident info ..) => info.getPos?.map fun _ => stx
   | node SourceInfo.none _ args => args.findSome? getHead?
-  | stx@(node info _ _) => stx
-  | _                => none
+  | stx@(node ..) => stx
+  | _ => none
 
 def copyHeadTailInfoFrom (target source : Syntax) : Syntax :=
   target.setHeadInfo source.getHeadInfo |>.setTailInfo source.getTailInfo
@@ -921,6 +921,7 @@ instance (sep) : CoeTail (SepArray sep) (Array Syntax) where
 
 end Lean.Syntax.SepArray
 
+set_option linter.unusedVariables.funArgs false in
 /--
   Gadget for automatic parameter support. This is similar to the `optParam` gadget, but it uses
   the given tactic.
@@ -975,7 +976,6 @@ def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → S
   return result
 
 def expandInterpolatedStr (interpStr : Syntax) (type : Syntax) (toTypeFn : Syntax) : MacroM Syntax := do
-  let ref := interpStr
   let r ← expandInterpolatedStrChunks interpStr.getArgs (fun a b => `($a ++ $b)) (fun a => `($toTypeFn $a))
   `(($r : $type))
 

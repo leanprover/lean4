@@ -13,14 +13,13 @@ open Lean.Parser.Term
 open Meta
 open Std
 
-def mkReprHeader (ctx : Context) (indVal : InductiveVal) : TermElabM Header := do
-  let prec ← `(prec)
-  let header ← mkHeader ctx `Repr 1 indVal
+def mkReprHeader (indVal : InductiveVal) : TermElabM Header := do
+  let header ← mkHeader `Repr 1 indVal
   return { header with
     binders := header.binders.push (← `(explicitBinderF| (prec : Nat)))
   }
 
-def mkBodyForStruct (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Syntax := do
+def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Syntax := do
   let ctorVal ← getConstInfoCtor indVal.ctors.head!
   let fieldNames := getStructureFields (← getEnv) indVal.name
   let numParams  := indVal.numParams
@@ -44,7 +43,7 @@ def mkBodyForStruct (ctx : Context) (header : Header) (indVal : InductiveVal) : 
         fields ← `($fields ++ $fieldNameLit ++ " := " ++ repr ($target.$(mkIdent fieldName):ident))
     `(Format.bracket "{ " $fields:term " }")
 
-def mkBodyForInduct (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Syntax := do
+def mkBodyForInduct (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Syntax := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
@@ -53,7 +52,7 @@ where
     let mut alts := #[]
     for ctorName in indVal.ctors do
       let ctorInfo ← getConstInfoCtor ctorName
-      let alt ← forallTelescopeReducing ctorInfo.type fun xs type => do
+      let alt ← forallTelescopeReducing ctorInfo.type fun xs _ => do
         let mut patterns := #[]
         -- add `_` pattern for indices
         for _ in [:indVal.numIndices] do
@@ -79,17 +78,17 @@ where
       alts := alts.push alt
     return alts
 
-def mkBody (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Syntax := do
+def mkBody (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Syntax := do
   if isStructure (← getEnv) indVal.name then
-    mkBodyForStruct ctx header indVal
+    mkBodyForStruct header indVal
   else
-    mkBodyForInduct ctx header indVal auxFunName
+    mkBodyForInduct header indVal auxFunName
 
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
   let auxFunName := ctx.auxFunNames[i]
   let indVal     := ctx.typeInfos[i]
-  let header     ← mkReprHeader ctx indVal
-  let mut body   ← mkBody ctx header indVal auxFunName
+  let header     ← mkReprHeader indVal
+  let mut body   ← mkBody header indVal auxFunName
   if ctx.usePartial then
     let letDecls ← mkLocalInstanceLetDecls ctx `Repr header.argNames
     body ← mkLet letDecls body

@@ -87,7 +87,6 @@ where
 -- NOTE: not a registered delaborator, as `const` is never called (see [delab] description)
 def delabConst : Delab := do
   let Expr.const c₀ ls _ ← getExpr | unreachable!
-  let ctx ← read
   let c₀ := if (← getPPOption getPPPrivateNames) then c₀ else (privateToUserName? c₀).getD c₀
 
   let mut c ← unresolveNameGlobal c₀
@@ -212,9 +211,9 @@ def unexpandRegularApp (stx : Syntax) : Delab := do
 def unexpandCoe (stx : Syntax) : Delab := whenPPOption getPPCoercions do
   if not (isCoe (← getExpr)) then failure
   match stx with
-  | `($fn $arg)   => return arg
-  | `($fn $args*) => `($(args.get! 0) $(args.eraseIdx 0)*)
-  | _             => failure
+  | `($_ $arg)   => return arg
+  | `($_ $args*) => `($(args.get! 0) $(args.eraseIdx 0)*)
+  | _            => failure
 
 def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStructureInstances do
   let env ← getEnv
@@ -520,7 +519,6 @@ def delabLam : Delab :=
     let e ← getExpr
     let stxT ← withBindingDomain delab
     let ppTypes ← getPPOption getPPFunBinderTypes
-    let expl ← getPPOption getPPExplicit
     let usedDownstream := curNames.any (fun n => hasIdent n.getId stxBody)
 
     -- leave lambda implicit if possible

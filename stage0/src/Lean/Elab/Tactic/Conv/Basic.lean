@@ -71,11 +71,11 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
   liftMetaTactic1 fun mvarId => do
     replaceTargetDefEq mvarId (mkLHSGoal (← mkEq lhs' rhs))
 
-@[builtinTactic Lean.Parser.Tactic.Conv.whnf] def evalWhnf : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.Conv.whnf] def evalWhnf : Tactic := fun _ =>
    withMainContext do
      changeLhs (← whnf (← getLhs))
 
-@[builtinTactic Lean.Parser.Tactic.Conv.reduce] def evalReduce : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.Conv.reduce] def evalReduce : Tactic := fun _ =>
    withMainContext do
      changeLhs (← reduce (← getLhs))
 
@@ -108,7 +108,7 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
 def remarkAsConvGoal : TacticM Unit := do
   let newGoals ← (← getUnsolvedGoals).mapM fun mvarId => withMVarContext mvarId do
     let target ← getMVarType mvarId
-    if let some (_, lhs, rhs) ← matchEq? target then
+    if let some (_, _, rhs) ← matchEq? target then
       if rhs.getAppFn.isMVar then
         replaceTargetDefEq mvarId (mkLHSGoal target)
       else

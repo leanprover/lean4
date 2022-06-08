@@ -293,8 +293,8 @@ private def getFieldType (infos : Array StructFieldInfo) (parentType : Expr) (fi
     (where `toGrandparent` is not a field of the current structure). -/
     let visit (e : Expr) : MetaM TransformStep := do
       if let Expr.const subProjName .. := e.getAppFn then
-        if let some { ctorName, numParams, .. } ← getProjectionFnInfo? subProjName then
-          let Name.str subStructName subFieldName .. := subProjName
+        if let some { numParams, .. } ← getProjectionFnInfo? subProjName then
+          let Name.str _ subFieldName .. := subProjName
             | throwError "invalid projection name {subProjName}"
           let args := e.getAppArgs
           if let some major := args.get? numParams then
@@ -374,7 +374,6 @@ where
     match e with
     | Expr.lam n d b c =>
       if c.binderInfo.isExplicit then
-        let fieldName := n
         match fieldMap.find? n with
         | none => failed
         | some val =>
@@ -543,7 +542,7 @@ where
                                       kind := StructFieldKind.newField }
             go (i+1) defaultValsOverridden infos
       | some info =>
-        let updateDefaultValue (fromParent : Bool) : TermElabM α := do
+        let updateDefaultValue : TermElabM α := do
           match view.value? with
           | none       => throwError "field '{view.name}' has been declared in parent structure"
           | some valStx =>
@@ -563,8 +562,8 @@ where
         match info.kind with
         | StructFieldKind.newField    => throwError "field '{view.name}' has already been declared"
         | StructFieldKind.subobject   => throwError "unexpected subobject field reference" -- improve error message
-        | StructFieldKind.copiedField => updateDefaultValue false
-        | StructFieldKind.fromParent  => updateDefaultValue true
+        | StructFieldKind.copiedField => updateDefaultValue
+        | StructFieldKind.fromParent  => updateDefaultValue
     else
       k infos
 
@@ -789,7 +788,6 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
     if field.declName == view.ctor.declName then
       throwErrorAt field.ref "invalid field name '{field.name}', it is equal to structure constructor name"
     addAuxDeclarationRanges field.declName field.ref field.ref
-  let numExplicitParams := view.params.size
   let type ← Term.elabType view.type
   unless validStructType type do throwErrorAt view.type "expected Type"
   withRef view.ref do
@@ -799,7 +797,6 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
     let u ← getResultUniverse type
     let univToInfer? ← shouldInferResultUniverse u
     withUsed view.scopeVars view.params fieldInfos fun scopeVars => do
-      let numParams := scopeVars.size + numExplicitParams
       let fieldInfos ← levelMVarToParam scopeVars view.params fieldInfos univToInfer?
       let type ← withRef view.ref do
         if univToInfer?.isSome then

@@ -174,7 +174,7 @@ structure ParametricAttribute (α : Type) where
 
 structure ParametricAttributeImpl (α : Type) extends AttributeImplCore where
   getParam : Name → Syntax → AttrM α
-  afterSet : Name → α → AttrM Unit := fun env _ _ => pure ()
+  afterSet : Name → α → AttrM Unit := fun _ _ _ => pure ()
   afterImport : Array (Array (Name × α)) → ImportM Unit := fun _ => pure ()
 
 def registerParametricAttribute {α : Type} [Inhabited α] (impl : ParametricAttributeImpl α) : IO (ParametricAttribute α) := do

@@ -12,10 +12,10 @@ namespace Lean.Elab.Deriving.DecEq
 open Lean.Parser.Term
 open Meta
 
-def mkDecEqHeader (ctx : Context) (indVal : InductiveVal) : TermElabM Header := do
-  mkHeader ctx `DecidableEq 2 indVal
+def mkDecEqHeader (indVal : InductiveVal) : TermElabM Header := do
+  mkHeader `DecidableEq 2 indVal
 
-def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunName : Name) (argNames : Array Name) : TermElabM Syntax := do
+def mkMatch (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Syntax := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
@@ -86,8 +86,8 @@ where
 def mkAuxFunction (ctx : Context) : TermElabM Syntax := do
   let auxFunName := ctx.auxFunNames[0]
   let indVal     :=ctx.typeInfos[0]
-  let header     ← mkDecEqHeader ctx indVal
-  let mut body   ← mkMatch ctx header indVal auxFunName header.argNames
+  let header     ← mkDecEqHeader indVal
+  let mut body   ← mkMatch header indVal auxFunName
   let binders    := header.binders
   let type       ← `(Decidable ($(mkIdent header.targetNames[0]) = $(mkIdent header.targetNames[1])))
   `(private def $(mkIdent auxFunName):ident $binders:explicitBinder* : $type:term := $body:term)
@@ -163,7 +163,6 @@ def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
   liftTermElabM none <| mkEnumOfNatThm declName
   let ofNatIdent  := mkIdent (Name.mkStr declName "ofNat")
   let auxThmIdent := mkIdent (Name.mkStr declName "ofNat_toCtorIdx")
-  let indVal ← getConstInfoInduct declName
   let cmd ← `(
     instance : DecidableEq $(mkIdent declName) :=
       fun x y =>

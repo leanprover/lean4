@@ -32,7 +32,6 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
         let mctx ← getMCtx
         if mctx.exprDependsOn b aFVarId then
           throwTacticEx `subst mvarId m!"'{a}' occurs at{indentExpr b}"
-        let aLocalDecl ← getLocalDecl aFVarId
         let (vars, mvarId) ← revert mvarId #[aFVarId, hFVarId] true
         trace[Meta.Tactic.subst] "after revert {MessageData.ofGoal mvarId}"
         let (twoVars, mvarId) ← introNP mvarId 2
@@ -145,9 +144,9 @@ partial def subst (mvarId : MVarId) (h : FVarId) : MetaM MVarId :=
   withMVarContext mvarId do
     let localDecl ← getLocalDecl h
     match (← matchEq? localDecl.type) with
-    | some (_, lhs, rhs) => substEq mvarId h
+    | some _ => substEq mvarId h
     | none => match (← matchHEq? localDecl.type) with
-      | some (_, lhs, _, rhs) =>
+      | some _ =>
         let (h', mvarId') ← heqToEq mvarId h
         if mvarId == mvarId' then
           findEq mvarId h

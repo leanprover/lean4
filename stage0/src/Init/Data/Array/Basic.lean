@@ -606,7 +606,7 @@ theorem extLit {n : Nat}
     (a b : Array α)
     (hsz₁ : a.size = n) (hsz₂ : b.size = n)
     (h : (i : Nat) → (hi : i < n) → a.getLit i hsz₁ hi = b.getLit i hsz₂ hi) : a = b :=
-  Array.ext a b (hsz₁.trans hsz₂.symm) fun i hi₁ hi₂ => h i (hsz₁ ▸ hi₁)
+  Array.ext a b (hsz₁.trans hsz₂.symm) fun i hi₁ _ => h i (hsz₁ ▸ hi₁)
 
 end Array
 

@@ -41,7 +41,7 @@ are turned into a new anonymous constructor application. For example,
       let expectedType ← whnf expectedType
       matchConstInduct expectedType.getAppFn
         (fun _ => throwError "invalid constructor ⟨...⟩, expected type must be an inductive type {indentExpr expectedType}")
-        (fun ival us => do
+        (fun ival _ => do
           match ival.ctors with
           | [ctor] =>
             let cinfo ← getConstInfoCtor ctor
@@ -141,7 +141,7 @@ then aborted. -/
   withMacroExpansion stx stxNew $ elabTerm stxNew expectedType?
 
 /-- A shorthand for `panic! "unreachable code has been reached"`. -/
-@[builtinMacro Lean.Parser.Term.unreachable]  def expandUnreachable : Macro := fun stx =>
+@[builtinMacro Lean.Parser.Term.unreachable]  def expandUnreachable : Macro := fun _ =>
   `(panic! "unreachable code has been reached")
 
 /-- `assert! cond` panics if `cond` evaluates to `false`. -/
@@ -269,7 +269,7 @@ where
     else
       throw <| Macro.Exception.error stx "unexpected parentheses notation"
 
-@[builtinTermElab paren] def elabParen : TermElab := fun stx expectedType? => do
+@[builtinTermElab paren] def elabParen : TermElab := fun stx _ => do
   match stx with
   | `(($e : $type)) =>
     let type ← withSynthesize (mayPostpone := true) <| elabType type
@@ -362,7 +362,6 @@ See the Chapter "Quantifiers and Equality" in the manual "Theorem Proving in Lea
          let h ← elabTerm hStx none
          let hType ← inferType h
          let hTypeAbst ← kabstract hType lhs
-         let hTypeNew := hTypeAbst.instantiate1 rhs
          let motive ← mkMotive lhs hTypeAbst
          unless (← isTypeCorrect motive) do
            throwError "invalid `▸` notation, failed to compute motive for the substitution"

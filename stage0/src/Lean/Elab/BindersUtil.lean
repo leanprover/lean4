@@ -32,7 +32,6 @@ def getMatchAltsNumPatterns (matchAlts : Syntax) : Nat :=
 -/
 def expandMatchAlt (matchAlt : Syntax) : Array Syntax :=
   let patss := matchAlt[1]
-  let rhs   := matchAlt[3]
   if patss.getArgs.size ≤ 1 then
     #[matchAlt]
   else

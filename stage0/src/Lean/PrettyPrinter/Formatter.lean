@@ -260,15 +260,15 @@ def categoryParserOfStack.formatter (offset : Nat) : Formatter := do
   categoryParser.formatter stx.getId
 
 @[combinatorFormatter Lean.Parser.parserOfStack]
-def parserOfStack.formatter (offset : Nat) (prec : Nat := 0) : Formatter := do
+def parserOfStack.formatter (offset : Nat) (_prec : Nat := 0) : Formatter := do
   let st ← get
   let stx := st.stxTrav.parents.back.getArg (st.stxTrav.idxs.back - offset)
   formatterForKind stx.getKind
 
 @[combinatorFormatter Lean.Parser.error]
-def error.formatter (msg : String) : Formatter := pure ()
+def error.formatter (_msg : String) : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.errorAtSavedPos]
-def errorAtSavedPos.formatter (msg : String) (delta : Bool) : Formatter := pure ()
+def errorAtSavedPos.formatter (_msg : String) (_delta : Bool) : Formatter := pure ()
 @[combinatorFormatter Lean.Parser.atomic]
 def atomic.formatter (p : Formatter) : Formatter := p
 @[combinatorFormatter Lean.Parser.lookahead]
@@ -405,7 +405,7 @@ def identNoAntiquot.formatter : Formatter := do
   pushToken info id.toString
   goLeft
 
-@[combinatorFormatter Lean.Parser.identEq] def identEq.formatter (id : Name) := rawIdentNoAntiquot.formatter
+@[combinatorFormatter Lean.Parser.identEq] def identEq.formatter (_id : Name) := rawIdentNoAntiquot.formatter
 
 def visitAtom (k : SyntaxNodeKind) : Formatter := do
   let stx ← getCur
@@ -450,16 +450,16 @@ def sepByNoAntiquot.formatter (p pSep : Formatter) : Formatter := do
 
 @[combinatorFormatter Lean.Parser.withPosition] def withPosition.formatter (p : Formatter) : Formatter := p
 @[combinatorFormatter Lean.Parser.withoutPosition] def withoutPosition.formatter (p : Formatter) : Formatter := p
-@[combinatorFormatter Lean.Parser.withForbidden] def withForbidden.formatter (tk : Token) (p : Formatter) : Formatter := p
+@[combinatorFormatter Lean.Parser.withForbidden] def withForbidden.formatter (_tk : Token) (p : Formatter) : Formatter := p
 @[combinatorFormatter Lean.Parser.withoutForbidden] def withoutForbidden.formatter (p : Formatter) : Formatter := p
 @[combinatorFormatter Lean.Parser.withoutInfo] def withoutInfo.formatter (p : Formatter) : Formatter := p
 @[combinatorFormatter Lean.Parser.setExpected]
-def setExpected.formatter (expected : List String) (p : Formatter) : Formatter := p
+def setExpected.formatter (_expected : List String) (p : Formatter) : Formatter := p
 
 @[combinatorFormatter Lean.Parser.incQuotDepth] def incQuotDepth.formatter (p : Formatter) : Formatter := p
 @[combinatorFormatter Lean.Parser.decQuotDepth] def decQuotDepth.formatter (p : Formatter) : Formatter := p
 @[combinatorFormatter Lean.Parser.suppressInsideQuot] def suppressInsideQuot.formatter (p : Formatter) : Formatter := p
-@[combinatorFormatter Lean.Parser.evalInsideQuot] def evalInsideQuot.formatter (declName : Name) (p : Formatter) : Formatter := p
+@[combinatorFormatter Lean.Parser.evalInsideQuot] def evalInsideQuot.formatter (_declName : Name) (p : Formatter) : Formatter := p
 
 @[combinatorFormatter Lean.Parser.checkWsBefore] def checkWsBefore.formatter : Formatter := do
   let st ← get
@@ -495,7 +495,7 @@ def interpolatedStr.formatter (p : Formatter) : Formatter := do
     | some str => push str *> goLeft
     | none     => p
 
-@[combinatorFormatter Lean.Parser.dbgTraceState] def dbgTraceState.formatter (label : String) (p : Formatter) : Formatter := p
+@[combinatorFormatter Lean.Parser.dbgTraceState] def dbgTraceState.formatter (_label : String) (p : Formatter) : Formatter := p
 
 @[combinatorFormatter ite, macroInline] def ite {_ : Type} (c : Prop) [Decidable c] (t e : Formatter) : Formatter :=
   if c then t else e

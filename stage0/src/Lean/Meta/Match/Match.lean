@@ -261,7 +261,6 @@ def assign (fvarId : FVarId) (v : Expr) : M Bool := do
     trace[Meta.Match.unify] "assign occurs check failed, {mkFVar fvarId} := {v}"
     return false
   else
-    let ctx ← read
     if (← isAltVar fvarId) then
       trace[Meta.Match.unify] "{mkFVar fvarId} := {v}"
       modify fun s => { s with fvarSubst := s.fvarSubst.insert fvarId v }
@@ -300,8 +299,6 @@ private def unify? (altFVarDecls : List LocalDecl) (a b : Expr) : MetaM (Option 
 
 private def expandVarIntoCtor? (alt : Alt) (fvarId : FVarId) (ctorName : Name) : MetaM (Option Alt) :=
   withExistingLocalDecls alt.fvarDecls do
-    let env ← getEnv
-    let ldecl ← getLocalDecl fvarId
     let expectedType ← inferType (mkFVar fvarId)
     let expectedType ← whnfD expectedType
     let (ctorLevels, ctorParams) ← getInductiveUniverseAndParams expectedType
@@ -383,7 +380,6 @@ private def throwCasesException (p : Problem) (ex : Exception) : MetaM α := do
 
 private def processConstructor (p : Problem) : MetaM (Array Problem) := do
   trace[Meta.Match.match] "constructor step"
-  let env ← getEnv
   match p.vars with
   | []      => unreachable!
   | x :: xs => do
@@ -627,7 +623,7 @@ private def List.moveToFront [Inhabited α] (as : List α) (i : Nat) : List α :
 private def moveToFront (p : Problem) (i : Nat) : Problem :=
   if i == 0 then
     p
-  else if h : i < p.vars.length then
+  else if i < p.vars.length then
     { p with
       vars := List.moveToFront p.vars i
       alts := p.alts.map fun alt => { alt with patterns := List.moveToFront alt.patterns i }
@@ -841,7 +837,7 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := do
   trace[Meta.Match.debug] "motiveType: {motiveType}"
   withLocalDeclD `motive motiveType fun motive => do
   if discrInfos.any fun info => info.hName?.isSome then
-    forallBoundedTelescope matchType numDiscrs fun discrs' matchTypeBody => do
+    forallBoundedTelescope matchType numDiscrs fun discrs' _ => do
     let (mvarType, isEqMask) ← withEqs discrs discrs' discrInfos fun eqs => do
       let mvarType ← mkForallFVars eqs (mkAppN motive discrs')
       let isEqMask ← eqs.mapM fun eq => return (← inferType eq).isEq

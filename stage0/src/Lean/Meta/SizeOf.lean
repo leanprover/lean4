@@ -118,7 +118,7 @@ where
 partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
   trace[Meta.sizeOf] "recName: {recName}"
   let recInfo : RecursorVal ← getConstInfoRec recName
-  forallTelescopeReducing recInfo.type fun xs type =>
+  forallTelescopeReducing recInfo.type fun xs _ =>
     let levelParams := recInfo.levelParams.tail! -- universe parameters for declaration being defined
     let params := xs[:recInfo.numParams]
     let motiveFVars := xs[recInfo.numParams : recInfo.numParams + recInfo.numMotives]
@@ -180,7 +180,7 @@ def mkSizeOfSpecLemmaName (ctorName : Name) : Name :=
   ctorName ++ `sizeOf_spec
 
 def mkSizeOfSpecLemmaInstance (ctorApp : Expr) : MetaM Expr :=
-  matchConstCtor ctorApp.getAppFn (fun _ => throwError "failed to apply 'sizeOf' spec, constructor expected{indentExpr ctorApp}") fun ctorInfo ctorLevels => do
+  matchConstCtor ctorApp.getAppFn (fun _ => throwError "failed to apply 'sizeOf' spec, constructor expected{indentExpr ctorApp}") fun ctorInfo _ => do
     let ctorArgs     := ctorApp.getAppArgs
     let ctorFields   := ctorArgs[ctorArgs.size - ctorInfo.numFields:]
     let lemmaName  := mkSizeOfSpecLemmaName ctorInfo.name
@@ -254,7 +254,7 @@ mutual
       mkSizeOfAuxLemma lhs rhs
 
   /-- Construct proof of auxiliary lemma. See `mkSizeOfAuxLemma` -/
-  private partial def mkSizeOfAuxLemmaProof (info : InductiveVal) (lhs rhs : Expr) : M Expr := do
+  private partial def mkSizeOfAuxLemmaProof (info : InductiveVal) (lhs : Expr) : M Expr := do
     let lhsArgs := lhs.getAppArgs
     let sizeOfBaseArgs := lhsArgs[:lhsArgs.size - info.numIndices - 1]
     let indicesMajor := lhsArgs[lhsArgs.size - info.numIndices - 1:]
@@ -309,7 +309,7 @@ mutual
                   let specEq ← whnf (← inferType specLemma)
                   match specEq.eq? with
                   | none => throwFailed
-                  | some (_, rhs, rhsExpanded) =>
+                  | some (_, _, rhsExpanded) =>
                     let lhs_eq_rhsExpanded ← mkMinorProof ys lhs rhsExpanded
                     let rhsExpanded_eq_rhs ← mkEqSymm specLemma
                     mkLambdaFVars ys (← mkEqTrans lhs_eq_rhsExpanded rhsExpanded_eq_rhs)
@@ -363,7 +363,7 @@ mutual
               let eq ← mkEq lhsNew rhsNew
               let thmParams := lhsArgsNew
               let thmType ← mkForallFVars thmParams eq
-              let thmValue ← mkSizeOfAuxLemmaProof info lhsNew rhsNew
+              let thmValue ← mkSizeOfAuxLemmaProof info lhsNew
               let thmValue ← mkLambdaFVars thmParams thmValue
               trace[Meta.sizeOf] "thmValue: {thmValue}"
               addDecl <| Declaration.thmDecl {

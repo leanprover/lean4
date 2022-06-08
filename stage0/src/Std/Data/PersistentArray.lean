@@ -212,6 +212,7 @@ variable {β : Type v}
 @[specialize] def foldrM [Monad m] (t : PersistentArray α) (f : α → β → m β) (init : β) : m β := do
   foldrMAux f t.root (← t.tail.foldrM f init)
 
+set_option linter.unusedVariables.funArgs false in
 @[specialize]
 partial def forInAux {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] [inh : Inhabited β]
     (f : α → β → m (ForInStep β)) (n : PersistentArrayNode α) (b : β) : m (ForInStep β) := do

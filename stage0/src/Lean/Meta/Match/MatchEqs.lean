@@ -18,7 +18,7 @@ namespace Lean.Meta
   apply `cases xMajor`. -/
 partial def casesOnStuckLHS (mvarId : MVarId) : MetaM (Array MVarId) := do
   let target ← getMVarType mvarId
-  if let some (_, lhs, rhs) ← matchEq? target then
+  if let some (_, lhs, _) ← matchEq? target then
     if let some fvarId ← findFVar? lhs then
       return (← cases mvarId fvarId).map fun s => s.mvarId
   throwError "'casesOnStuckLHS' failed"

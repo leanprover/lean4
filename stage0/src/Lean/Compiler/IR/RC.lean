@@ -262,7 +262,7 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
     let bLiveVars := collectLiveVars b ctx.jpLiveVarMap
     (b, bLiveVars)
   | FnBody.unreachable, _ => (FnBody.unreachable, {})
-  | other, ctx => (other, {}) -- unreachable if well-formed
+  | other, _ => (other, {}) -- unreachable if well-formed
 
 partial def visitDecl (env : Environment) (decls : Array Decl) (d : Decl) : Decl :=
   match d with

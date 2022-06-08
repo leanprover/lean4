@@ -55,7 +55,7 @@ private def isTypeApplicable (type : Expr) (expectedType? : Option Expr) : MetaM
       unless hasMVarHead do
         let targetTypeNumArgs ← getExpectedNumArgs expectedType
         numArgs := numArgs - targetTypeNumArgs
-      let (newMVars, _, type) ← forallMetaTelescopeReducing type (some numArgs)
+      let (_, _, type) ← forallMetaTelescopeReducing type (some numArgs)
       -- TODO take coercions into account
       -- We use `withReducible` to make sure we don't spend too much time unfolding definitions
       -- Alternative: use default and small number of heartbeats
@@ -406,7 +406,7 @@ private def tacticCompletion (ctx : ContextInfo) : IO (Option CompletionList) :=
   -- Just return the list of tactics for now.
   ctx.runMetaM {} do
     let table := Parser.getCategory (Parser.parserExtension.getState (← getEnv)).categories `tactic |>.get!.tables.leadingTable
-    let items : Array (CompletionItem × Float) := table.fold (init := #[]) fun items tk parser =>
+    let items : Array (CompletionItem × Float) := table.fold (init := #[]) fun items tk _ =>
       -- TODO pretty print tactic syntax
       items.push ({ label := tk.toString, detail? := none, documentation? := none, kind? := CompletionItemKind.keyword }, 1)
     return some { items := sortCompletionItems items, isIncomplete := true }

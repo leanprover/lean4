@@ -59,7 +59,7 @@ def congr (mvarId : MVarId) : MetaM (List MVarId) :=
     else
       throwError "invalid 'congr' conv tactic, application or implication expected{indentExpr lhs}"
 
-@[builtinTactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun stx => do
+@[builtinTactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun _ => do
    replaceMainGoal (← congr (← getMainGoal))
 
 private def selectIdx (tacticName : String) (mvarIds : List MVarId) (i : Int) : TacticM Unit := do
@@ -73,11 +73,11 @@ private def selectIdx (tacticName : String) (mvarIds : List MVarId) (i : Int) : 
       return ()
   throwError "invalid '{tacticName}' conv tactic, application has only {mvarIds.length} (nondependent) argument(s)"
 
-@[builtinTactic Lean.Parser.Tactic.Conv.lhs] def evalLhs : Tactic := fun stx => do
+@[builtinTactic Lean.Parser.Tactic.Conv.lhs] def evalLhs : Tactic := fun _ => do
    let mvarIds ← congr (← getMainGoal)
    selectIdx "lhs" mvarIds ((mvarIds.length : Int) - 2)
 
-@[builtinTactic Lean.Parser.Tactic.Conv.rhs] def evalRhs : Tactic := fun stx => do
+@[builtinTactic Lean.Parser.Tactic.Conv.rhs] def evalRhs : Tactic := fun _ => do
    let mvarIds ← congr (← getMainGoal)
    selectIdx "rhs" mvarIds ((mvarIds.length : Int) - 1)
 
@@ -95,7 +95,7 @@ private def selectIdx (tacticName : String) (mvarIds : List MVarId) (i : Int) : 
 private def extCore (mvarId : MVarId) (userName? : Option Name) : MetaM MVarId :=
    withMVarContext mvarId do
      let userNames := if let some userName := userName? then [userName] else []
-     let (lhs, rhs) ← getLhsRhsCore mvarId
+     let (lhs, _) ← getLhsRhsCore mvarId
      let lhs ← instantiateMVars lhs
      if lhs.isForall then
        let [mvarId, _] ← apply mvarId (← mkConstWithFreshMVarLevels ``forall_congr) | throwError "'apply forall_congr' unexpected result"

@@ -164,7 +164,7 @@ private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (
 private def expandWhereStructInst : Macro
   | `(Parser.Command.whereStructInst|where $[$decls:letDecl$[;]?]*) => do
     let letIdDecls ← decls.mapM fun stx => match stx with
-      | `(letDecl|$decl:letPatDecl)  => Macro.throwErrorAt stx "patterns are not allowed here"
+      | `(letDecl|$_decl:letPatDecl)  => Macro.throwErrorAt stx "patterns are not allowed here"
       | `(letDecl|$decl:letEqnsDecl) => expandLetEqnsDecl decl
       | `(letDecl|$decl:letIdDecl)   => pure decl
       | _                               => Macro.throwUnsupported
@@ -708,7 +708,7 @@ def processDefDeriving (className : Name) (declName : Name) : TermElabM Bool := 
     }
     addInstance instName AttributeKind.global (eval_prio default)
     return true
-  catch ex =>
+  catch _ =>
     return false
 
 /-- Remove auxiliary match discriminant let-declarations. -/

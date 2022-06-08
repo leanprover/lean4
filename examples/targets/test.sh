@@ -1,16 +1,16 @@
 set -e
 
+LAKE=${LAKE:-../../build/bin/lake}
+
+set -x
+
 if [ "$OS" = Windows_NT ]; then
 SHARED_LIB_EXT=dll
-elif [ `shell uname -s` = Darwin ]; then
+elif [ "`uname`" = Darwin ]; then
 SHARED_LIB_EXT=dylib
 else
 SHARED_LIB_EXT=so
 fi
-
-LAKE=${LAKE:-../../build/bin/lake}
-
-set -x
 
 ./clean.sh
 

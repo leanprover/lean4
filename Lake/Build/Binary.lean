@@ -93,7 +93,7 @@ def Package.mkExeTarget (self : Package) (exe : LeanExeConfig) : FileTarget :=
         let rootTarget := moduleTargetMap.find? exe.root |>.get!
         let rootLinkTarget := self.oFileTargetOf exe.root rootTarget
         #[rootLinkTarget] ++ pkgLinkTargets
-    let target := leanBinTarget exeFile linkTargets exe.moreLinkArgs
+    let target := leanBinTarget exeFile linkTargets exe.linkArgs
     target.materializeAsync
 
 protected def Package.exeTarget (self : Package) : FileTarget :=

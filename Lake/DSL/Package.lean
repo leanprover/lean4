@@ -15,11 +15,8 @@ syntax packageDeclWithBinders :=
   (ppSpace "(" Term.simpleBinder ")")? -- args
   (declValSimple <|> declValStruct <|> declValDo)
 
-syntax packageDeclTyped :=
-  Term.typeSpec declValSimple
-
 syntax packageDeclSpec :=
-  ident (Command.whereStructInst <|> packageDeclTyped <|> packageDeclWithBinders)?
+  ident (Command.whereStructInst <|> declValTyped <|> packageDeclWithBinders)?
 
 scoped syntax (name := packageDecl)
 (docComment)? "package " packageDeclSpec : command

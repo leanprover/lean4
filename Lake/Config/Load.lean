@@ -40,8 +40,6 @@ unsafe def evalScriptDecl
     env.evalConstCheck ScriptFn leanOpts ``ScriptFn declName
   return {fn, doc? := (← findDocString? env declName)}
 
-namespace Package
-
 deriving instance BEq, Hashable for Import
 
 /- Cache for the imported header environment of Lake configuration files. -/
@@ -61,6 +59,8 @@ def processHeader (header : Syntax) (opts : Options) (trustLevel : UInt32)
     let pos := inputCtx.fileMap.toPosition <| header.getPos?.getD 0
     modify (·.add { fileName := inputCtx.fileName, data := toString e, pos })
     mkEmptyEnvironment
+
+namespace Package
 
 /-- Unsafe implementation of `load`. -/
 unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
@@ -97,7 +97,13 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
       let config := {config with dependencies := depsExt.getState env ++ config.dependencies}
       let scripts ← scriptAttr.ext.getState env |>.foldM (init := {})
         fun m d => return m.insert d <| ← evalScriptDecl env d leanOpts
-      return {dir, config, scripts}
+      let libs ← leanLibAttr.ext.getState env |>.foldM (init := {}) fun m d =>
+        let eval := env.evalConstCheck LeanLibConfig leanOpts ``LeanLibConfig d
+        return m.insert d <| ← IO.ofExcept eval.run.run
+      let exes ← leanExeAttr.ext.getState env |>.foldM (init := {}) fun m d =>
+        let eval := env.evalConstCheck LeanExeConfig leanOpts ``LeanExeConfig d
+        return m.insert d <| ← IO.ofExcept eval.run.run
+      return {dir, config, scripts, libs, exes}
     | _ => error s!"configuration file has multiple `package` declarations"
   else
     error s!"package configuration `{configFile}` has errors"

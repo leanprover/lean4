@@ -13,3 +13,9 @@ initialize packageAttr : TagAttribute ←
 
 initialize scriptAttr : TagAttribute ←
   registerTagAttribute `script "Lake script attribute"
+
+initialize leanLibAttr : TagAttribute ←
+  registerTagAttribute `leanLib "Lake Lean library target attribute"
+
+initialize leanExeAttr : TagAttribute ←
+  registerTagAttribute `leanExe "Lake Lean executable target attribute"

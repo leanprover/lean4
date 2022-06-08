@@ -16,3 +16,17 @@ syntax declValDo :=
 
 syntax declValStruct :=
   ppSpace structVal (Term.whereDecls)?
+
+syntax declValTyped :=
+  Term.typeSpec declValSimple
+
+syntax declValOptTyped :=
+  (Term.typeSpec)? declValSimple
+
+def expandAttrs (attrs? : Option Syntax) : Array Syntax :=
+  if let some attrs := attrs? then
+    match attrs with
+    | `(Term.attributes| @[$attrs,*]) => attrs
+    | _ => #[]
+  else
+    #[]

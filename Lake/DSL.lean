@@ -6,7 +6,8 @@ Authors: Mac Malone
 import Lake.DSL.DeclUtil
 import Lake.DSL.Attributes
 import Lake.DSL.Extensions
+import Lake.DSL.Config
 import Lake.DSL.Package
 import Lake.DSL.Script
 import Lake.DSL.Require
-import Lake.DSL.Config
+import Lake.DSL.Targets

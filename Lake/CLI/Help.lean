@@ -56,27 +56,36 @@ def helpBuild :=
 USAGE:
   lake build [<targets>...] [-- <args>...]
 
-A target is specified with a string of the form '<package>/<module>:<facet>'.
-The package must be the root package or one of its direct dependencies
-(i.e., those listed in the root configuration file).
+A target is specified with a string of the form:
+
+  [[@]<package>/][<target>|[+]<module>][:<facet>]
+
+The optional `@` and `+` markers can be used to disambiguate packages
+and modules from other kinds of targets (i.e., executables and libraries).
 
 PACKAGE FACETS:
-  bin                   build the package's binary
+  exe                   build the package's binary executable
+  leanLib               build the package's lean library (*.olean, *.ilean)
   staticLib             build the package's static library
   sharedLib             build the package's shared library
-  oleans                build the package's *.olean files
+
+LIBRARY FACETS:
+  lean                  build the library's lean binaries (*.olean, *.ilean)
+  static                build the library's static binary
+  shared                build the library's shared binary
 
 MODULE FACETS:
-  olean                 build the module's *.olean file
+  [default]             build the module's *.olean and *.ilean files
   c                     build the module's *.c file
   o                     build the module's *.o file
 
 TARGET EXAMPLES:
-  a                     build the default facet of package `a`
-  a/A                   build the .olean file of module `A` of package `a`
-  a/A:c                 build the .c file of module `A` of package `a`
-  a:oleans              build the olean files of package `a`
-  :bin                  build the root package's binary
+  a                     build the default facet of target `a`
+  +A                    build the .olean and .ilean files of module `A`
+  a/b                   build the default facet of target `b` of package `a`
+  a/+A:c                build the .c file of module `A` of package `a`
+  @a:leanLib            build the lean library of package `a`
+  :exe                  build the root package's executable
 
 A bare `build` command will build the default facet of the root package.
 Arguments to the `Packager` itself can be specified with `args`.

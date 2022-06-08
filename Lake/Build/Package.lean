@@ -52,9 +52,11 @@ def Package.buildLibModules (self : Package) (lib : LeanLibConfig)
     (·.task) <$> ActiveTarget.collectOpaqueArray modTargets
   buildMods.catchFailure fun _ => pure <| failure
 
-def Package.oleanTarget (self : Package) : OpaqueTarget :=
-  Target.opaque <| self.buildLibModules self.builtinLibConfig
-    recBuildModuleOleanTargetWithLocalImports
+def Package.mkLibTarget (self : Package) (lib : LeanLibConfig) : OpaqueTarget :=
+  Target.opaque <| self.buildLibModules lib recBuildModuleOleanTargetWithLocalImports
+
+def Package.libTarget (self : Package) : OpaqueTarget :=
+  self.mkLibTarget self.builtinLibConfig
 
 -- # Build Specific Modules of the Package
 

@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 
 namespace Lake
+open Lean (Name)
 
 inductive CliError
 /- CLI Errors -/
@@ -16,10 +17,12 @@ inductive CliError
 | unknownLongOption (opt : String)
 | unexpectedArguments (args : List String)
 /- Build CLI Errors -/
+| unknownModule (mod : Name)
 | unknownPackage (spec : String)
-| unknownPackageFacet (spec : String)
-| unknownModuleFacet (spec : String)
-| missingModule (pkg mod : String)
+| unknownFacet (type facet : String)
+| unknownTarget (spec : String)
+| missingModule (pkg : Name) (mod : Name)
+| missingTarget (pkg : Name) (spec : String)
 | invalidTargetSpec (spec : String) (tooMany : Char)
 /- Script CLI Error -/
 | unknownScript (script : String)
@@ -41,10 +44,12 @@ def toString : CliError → String
 | unknownShortOption opt  => s!"unknown short option '-{opt}'"
 | unknownLongOption opt   => s!"unknown long option '{opt}'"
 | unexpectedArguments as  => s!"unexpected arguments: {" ".intercalate as}"
+| unknownModule mod       => s!"unknown module `{mod.toString false}`"
 | unknownPackage spec     => s!"unknown package `{spec}`"
-| unknownPackageFacet f   => s!"unknown package facet `{f}`"
-| unknownModuleFacet f    => s!"unknown module facet `{f}`"
-| missingModule pkg mod   => s!"package '{pkg}' has no module '{mod}'"
+| unknownFacet ty f       => s!"unknown {ty} facet `{f}`"
+| unknownTarget spec      => s!"unknown target `{spec}`"
+| missingModule pkg mod   => s!"package '{pkg.toString false}' has no module '{mod.toString false}'"
+| missingTarget pkg spec  => s!"package '{pkg.toString false}' has no target '{spec}'"
 | invalidTargetSpec s c   => s!"invalid script spec '{s}' (too many '{c}')"
 | unknownScript s         => s!"unknown script {s}"
 | missingScriptDoc s      => s!"no documentation provided for `{s}`"

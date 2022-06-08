@@ -95,6 +95,14 @@ def isLocalModule (mod : Name) (self : Workspace) : Bool :=
 def packageForModule? (mod : Name) (self : Workspace) : Option Package :=
   self.findPackage? (·.isLocalModule mod)
 
+/-- Get the workspace's library configuration with the given name. -/
+def findLib? (name : Name) (self : Workspace) : Option (Package × LeanLibConfig) :=
+  self.packageArray.findSome? fun pkg => pkg.findLib? name <&> (pkg, ·)
+
+/-- Get the workspace's executable configuration with the given name. -/
+def findExe? (name : Name) (self : Workspace) : Option (Package × LeanExeConfig) :=
+  self.packageArray.findSome? fun pkg => pkg.findExe? name <&> (pkg, ·)
+
 /-- The `LEAN_PATH` of the workspace. -/
 def oleanPath (self : Workspace) : SearchPath :=
   self.packageList.map (·.oleanDir)

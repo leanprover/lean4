@@ -50,7 +50,8 @@ inductive PackageFacet
 | /-- The package's binary executable. **DEPRECATED:** Use `exe` instead. -/ bin
 | /-- The package's static library. -/ staticLib
 | /-- The package's shared library. -/ sharedLib
-| /-- The package's `.olean` files. -/ oleans
+| /-- The package's lean library (e.g. `olean` / `ilean` files). -/ leanLib
+| /-- The package's `.olean` files. **DEPRECATED:** Use `leanLib` instead. -/ oleans
 deriving BEq, DecidableEq, Repr
 instance : Inhabited PackageFacet := ⟨PackageFacet.bin⟩
 
@@ -216,6 +217,12 @@ structure PackageConfig extends WorkspaceConfig where
   -/
   moreLinkArgs : Array String := #[]
 
+  /-- Additional library targets for the package. -/
+  libConfigs : NameMap LeanLibConfig := {}
+
+  /-- Additional binary executable targets for the package. -/
+  exeConfigs : NameMap LeanExeConfig := {}
+
 deriving Inhabited
 
 namespace PackageConfig
@@ -305,9 +312,25 @@ def extraDepTarget (self : Package) : OpaqueTarget :=
 def defaultFacet (self : Package) : PackageFacet :=
    self.config.defaultFacet
 
+/-- The package's `libConfigs` configuration. -/
+def libConfigs (self : Package) : NameMap LeanLibConfig :=
+  self.config.libConfigs
+
+/-- Get the package's library configuration with the given name. -/
+def findLib? (self : Package) (name : Name) : Option LeanLibConfig :=
+  self.libConfigs.find? name
+
+/-- The package's `exeConfigs` configuration. -/
+def exeConfigs (self : Package) : NameMap LeanExeConfig :=
+  self.config.exeConfigs
+
+/-- Get the package's executable configuration with the given name. -/
+def findExe? (self : Package) (name : Name) : Option LeanExeConfig :=
+  self.exeConfigs.find? name
+
 /-- The package's `moreServerArgs` configuration. -/
 def moreServerArgs (self : Package) : Array String :=
-   self.config.moreServerArgs
+  self.config.moreServerArgs
 
 /-- The package's `dir` joined with its `srcDir` configuration. -/
 def srcDir (self : Package) : FilePath :=
@@ -395,8 +418,12 @@ def getModuleArray (self : Package) : IO (Array Name) :=
 
 /-- Whether the given module is considered local to the package. -/
 def isLocalModule (mod : Name) (self : Package) : Bool :=
+  self.libConfigs.any (fun _ lib => lib.isLocalModule mod) ||
   self.builtinLibConfig.isLocalModule mod
 
-/-- Whether the given module is in the package. -/
+/-- Whether the given module is in the package (i.e., can build it). -/
 def hasModule (mod : Name) (self : Package) : Bool :=
-  self.config.binRoot == mod || self.config.libGlobs.any fun glob => glob.matches mod
+  self.libConfigs.any (fun _ lib => lib.hasModule mod) ||
+  self.exeConfigs.any (fun _ exe => exe.root == mod) ||
+  self.builtinLibConfig.hasModule mod ||
+  self.config.binRoot == mod

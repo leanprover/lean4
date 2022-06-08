@@ -241,7 +241,7 @@ partial def delab : Delab := do
   let e ← getExpr
 
   -- no need to hide atomic proofs
-  if ← pure !e.isAtomic <&&> pure !(← getPPOption getPPProofs) <&&> (try Meta.isProof e catch ex => pure false) then
+  if ← pure !e.isAtomic <&&> pure !(← getPPOption getPPProofs) <&&> (try Meta.isProof e catch _ => pure false) then
     if ← getPPOption getPPProofsWithType then
       let stx ← withType delab
       return ← ``((_ : $stx))

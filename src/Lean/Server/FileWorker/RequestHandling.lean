@@ -127,7 +127,6 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
 open Elab GoToKind in
 def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
     : RequestM (RequestTask (Array LocationLink)) := do
-  let rc ← read
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
@@ -204,7 +203,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
   let pos := text.lspPosToUtf8Pos p.position
 
   let rec highlightReturn? (doRange? : Option Range) : Syntax → Option DocumentHighlight
-    | stx@`(doElem|return%$i $e) => Id.run do
+    | `(doElem|return%$i $e) => Id.run do
       if let some range := i.getRange? then
         if range.contains pos then
           return some { range := doRange?.getD (range.toLspRange text), kind? := DocumentHighlightKind.text }
@@ -212,7 +211,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
     | `(do%$i $elems) => highlightReturn? (i.getRange?.get!.toLspRange text) elems
     | stx => stx.getArgs.findSome? (highlightReturn? doRange?)
 
-  let highlightRefs? (snaps : Array Snapshot) (pos : Lsp.Position) : Option (Array DocumentHighlight) := Id.run do
+  let highlightRefs? (snaps : Array Snapshot) : Option (Array DocumentHighlight) := Id.run do
     let trees := snaps.map (·.infoTree)
     let refs : Lsp.ModuleRefs := findModuleRefs text trees
     let mut ranges := #[]
@@ -228,7 +227,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
   withWaitFindSnap doc (fun s => s.endPos > pos)
     (notFoundX := pure #[]) fun snap => do
       let (snaps, _) ← doc.allSnaps.updateFinishedPrefix
-      if let some his := highlightRefs? snaps.finishedPrefix.toArray p.position then
+      if let some his := highlightRefs? snaps.finishedPrefix.toArray then
         return his
       if let some hi := highlightReturn? none snap.stx then
         return #[hi]
@@ -258,14 +257,14 @@ partial def handleDocumentSymbol (_ : DocumentSymbolParams)
     | stx::stxs => match stx with
       | `(namespace $id)  => sectionLikeToDocumentSymbols text stx stxs (id.getId.toString) SymbolKind.namespace id
       | `(section $(id)?) => sectionLikeToDocumentSymbols text stx stxs ((·.getId.toString) <$> id |>.getD "<section>") SymbolKind.namespace (id.getD stx)
-      | `(end $(id)?) => ([], stx::stxs)
+      | `(end $(_id)?) => ([], stx::stxs)
       | _ => Id.run do
         let (syms, stxs') := toDocumentSymbols text stxs
         unless stx.isOfKind ``Lean.Parser.Command.declaration do
           return (syms, stxs')
         if let some stxRange := stx.getRange? then
           let (name, selection) := match stx with
-            | `($dm:declModifiers $ak:attrKind instance $[$np:namedPrio]? $[$id:ident$[.{$ls,*}]?]? $sig:declSig $val) =>
+            | `($_:declModifiers $_:attrKind instance $[$np:namedPrio]? $[$id:ident$[.{$ls,*}]?]? $sig:declSig $_) =>
               ((·.getId.toString) <$> id |>.getD s!"instance {sig.reprint.getD ""}", id.getD sig)
             | _ => match stx[1][1] with
               | `(declId|$id:ident$[.{$ls,*}]?) => (id.getId.toString, id)
@@ -367,7 +366,7 @@ where
           addToken ti.stx SemanticTokenType.property
           lastPos := ti.stx.getPos?.get!
   highlightKeyword stx := do
-    if let Syntax.atom info val := stx then
+    if let Syntax.atom _ val := stx then
       if (val.length > 0 && val[0].isAlpha) ||
          -- Support for keywords of the form `#<alpha>...`
          (val.length > 1 && val[0] == '#' && val[⟨1⟩].isAlpha) then
@@ -414,9 +413,9 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
     addRanges (text : FileMap) sections
     | [] => return
     | stx::stxs => match stx with
-      | `(namespace $id)  => addRanges text (stx.getPos?::sections) stxs
-      | `(section $(id)?) => addRanges text (stx.getPos?::sections) stxs
-      | `(end $(id)?) => do
+      | `(namespace $_id)  => addRanges text (stx.getPos?::sections) stxs
+      | `(section $(_id)?) => addRanges text (stx.getPos?::sections) stxs
+      | `(end $(_id)?) => do
         if let start::rest := sections then
           addRange text FoldingRangeKind.region start stx.getTailPos?
           addRanges text rest stxs

@@ -31,8 +31,8 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
     (pre   : Expr → m TransformStep := fun e => return TransformStep.visit e)
     (post  : Expr → m TransformStep := fun e => return TransformStep.done e)
     : m Expr :=
-  let inst : STWorld IO.RealWorld m := ⟨⟩
-  let inst : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := CoreM) (liftM (m := ST IO.RealWorld) x) }
+  let _ : STWorld IO.RealWorld m := ⟨⟩
+  let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := CoreM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
     checkCache { val := e : ExprStructEq } fun _ => Core.withIncRecDepth do
       let rec visitPost (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
@@ -67,8 +67,8 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
     (post  : Expr → m TransformStep := fun e => return TransformStep.done e)
     (usedLetOnly := false)
     : m Expr := do
-  let inst : STWorld IO.RealWorld m := ⟨⟩
-  let inst : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := MetaM) (liftM (m := ST IO.RealWorld) x) }
+  let _ : STWorld IO.RealWorld m := ⟨⟩
+  let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := MetaM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
     checkCache { val := e : ExprStructEq } fun _ => Meta.withIncRecDepth do
       let rec visitPost (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do

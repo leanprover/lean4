@@ -74,7 +74,7 @@ def isAtEnd (s : Snapshot) : Bool :=
 end Snapshot
 
 /-- Reparses the header syntax but does not re-elaborate it. Used to ignore whitespace-only changes. -/
-def reparseHeader (inputCtx : Parser.InputContext) (header : Snapshot) (opts : Options := {}) : IO Snapshot := do
+def reparseHeader (inputCtx : Parser.InputContext) (header : Snapshot) : IO Snapshot := do
   let (newStx, newMpState, _) ← Parser.parseHeader inputCtx
   pure { header with stx := newStx, mpState := newMpState }
 
@@ -149,7 +149,7 @@ def compileNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidget
         (getResetInfoTrees *> Elab.Command.elabCommandTopLevel cmdStx)
         cmdCtx cmdStateRef
     let postNew := (← tacticCacheNew.get).post
-    snap.tacticCache.modify fun { pre, post } => { pre := postNew, post := {} }
+    snap.tacticCache.modify fun _ => { pre := postNew, post := {} }
     let mut postCmdState ← cmdStateRef.get
     if !output.isEmpty then
       postCmdState := {

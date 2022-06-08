@@ -52,7 +52,7 @@ theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext)
   cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h
   have := String.lt_next s pos
   apply Nat.sub.elim (motive := fun k => k < _) (utf8ByteSize s) (String.next s pos).1
-  . intro hle k he
+  . intro _ k he
     simp [he]; rw [Nat.add_comm, Nat.add_sub_assoc (Nat.le_of_lt this)]
     have := Nat.zero_lt_sub_of_lt this
     simp_all_arith

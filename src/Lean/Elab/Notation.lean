@@ -46,7 +46,7 @@ def expandNotationItemIntoPattern (stx : Syntax) : MacroM Syntax :=
 /-- Try to derive a `SimpleDelab` from a notation.
     The notation must be of the form `notation ... => c var_1 ... var_n`
     where `c` is a declaration in the current scope and the `var_i` are a permutation of the LHS vars. -/
-def mkSimpleDelab (attrKind : Syntax) (vars : Array Syntax) (pat qrhs : Syntax) : OptionT MacroM Syntax := do
+def mkSimpleDelab (attrKind : Syntax) (pat qrhs : Syntax) : OptionT MacroM Syntax := do
   match qrhs with
   | `($c:ident $args*) =>
     let [(c, [])] ← Macro.resolveGlobalName c.getId | failure
@@ -95,7 +95,7 @@ private def expandNotationAux (ref : Syntax)
   if isLocalAttrKind attrKind then
     -- Make sure the quotation pre-checker takes section variables into account for local notation.
     macroDecl ← `(section set_option quotPrecheck.allowSectionVars true $macroDecl end)
-  match (← mkSimpleDelab attrKind vars pat qrhs |>.run) with
+  match (← mkSimpleDelab attrKind pat qrhs |>.run) with
   | some delabDecl => return mkNullNode #[stxDecl, macroDecl, delabDecl]
   | none           => return mkNullNode #[stxDecl, macroDecl]
 

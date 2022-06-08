@@ -198,7 +198,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
       trace[Elab.Deriving.RpcEncoding] m!"RpcEncoding type binders : {ts}"
 
       let packetNm ← mkFreshUserName `RpcEncodingPacket
-      let st ← foldWithConstructors indVal params (init := st) fun acc ctor argVars tp => do
+      let st ← foldWithConstructors indVal params (init := st) fun acc ctor argVars _ => do
         -- create the constructor
         let mut pktCtorTp := Lean.mkConst packetNm
         for arg in argVars.reverse do

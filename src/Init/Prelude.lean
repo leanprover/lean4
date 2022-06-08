@@ -288,7 +288,7 @@ theorem decide_eq_true : [s : Decidable p] → p → Eq (decide p) true
   | isTrue  _, _   => rfl
   | isFalse h₁, h₂ => absurd h₂ h₁
 
-theorem decide_eq_false : [s : Decidable p] → Not p → Eq (decide p) false
+theorem decide_eq_false : [Decidable p] → Not p → Eq (decide p) false
   | isTrue  h₁, h₂ => absurd h₁ h₂
   | isFalse _, _   => rfl
 

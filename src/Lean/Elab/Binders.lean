@@ -57,8 +57,8 @@ partial def quoteAutoTactic : Syntax → TermElabM Syntax
           let quotedArg ← quoteAutoTactic arg
           quotedArgs ← `(Array.push $quotedArgs $quotedArg)
       `(Syntax.node SourceInfo.none $(quote k) $quotedArgs)
-  | Syntax.atom info val => `(mkAtom $(quote val))
-  | Syntax.missing       => throwError "invalid auto tactic, tactic is missing"
+  | Syntax.atom _ val => `(mkAtom $(quote val))
+  | Syntax.missing    => throwError "invalid auto tactic, tactic is missing"
 
 def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=
   withFreshMacroScope do
@@ -552,7 +552,7 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
 open Lean.Elab.Term.Quotation in
 @[builtinQuotPrecheck Lean.Parser.Term.fun] def precheckFun : Precheck
   | `(fun $binders* => $body) => do
-    let (binders, body, expandedPattern) ← liftMacroM <| expandFunBinders binders body
+    let (binders, body, _) ← liftMacroM <| expandFunBinders binders body
     let mut ids := #[]
     for b in binders do
       for v in ← matchBinder b do
@@ -567,7 +567,7 @@ open Lean.Elab.Term.Quotation in
     -- We can assume all `match` binders have been iteratively expanded by the above macro here, though
     -- we still need to call `expandFunBinders` once to obtain `binders` in a normal form
     -- expected by `elabFunBinder`.
-    let (binders, body, expandedPattern) ← liftMacroM <| expandFunBinders binders body
+    let (binders, body, _) ← liftMacroM <| expandFunBinders binders body
     elabFunBinders binders expectedType? fun xs expectedType? => do
       /- We ensure the expectedType here since it will force coercions to be applied if needed.
           If we just use `elabTerm`, then we will need to a coercion `Coe (α → β) (α → δ)` whenever there is a coercion `Coe β δ`,
@@ -653,7 +653,6 @@ def expandLetEqnsDecl (letDecl : Syntax) : MacroM Syntax := do
   return mkNode `Lean.Parser.Term.letIdDecl #[letDecl[0], letDecl[1], letDecl[2], mkAtomFrom ref " := ", val]
 
 def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : Bool) (elabBodyFirst : Bool) (usedLetOnly : Bool) : TermElabM Expr := do
-  let ref     := stx
   let letDecl := stx[1][0]
   let body    := stx[3]
   if letDecl.getKind == ``Lean.Parser.Term.letIdDecl then

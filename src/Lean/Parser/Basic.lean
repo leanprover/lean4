@@ -276,7 +276,7 @@ end ParserState
 def ParserFn := ParserContext → ParserState → ParserState
 
 instance : Inhabited ParserFn where
-  default := fun ctx s => s
+  default := fun _ s => s
 
 inductive FirstTokens where
   | epsilon   : FirstTokens
@@ -748,7 +748,6 @@ partial def whitespace : ParserFn := fun c s =>
       if curr == '-' then andthenFn (takeUntilFn (fun c => c = '\n')) whitespace c (s.next input i)
       else s
     else if curr == '/' then
-      let startPos := i
       let i        := input.next i
       let curr     := input.get i
       if curr == '-' then
@@ -1487,25 +1486,23 @@ def anyOfFn : List Parser → ParserFn
   { fn := checkLineEqFn errorMsg }
 
 @[inline] def withPosition (p : Parser) : Parser := {
-  info := p.info,
+  info := p.info
   fn   := fun c s =>
     p.fn { c with savedPos? := s.pos } s
 }
 
 @[inline] def withoutPosition (p : Parser) : Parser := {
-  info := p.info,
-  fn   := fun c s =>
-    let pos := c.fileMap.toPosition s.pos
-    p.fn { c with savedPos? := none } s
+  info := p.info
+  fn   := fun c s => p.fn { c with savedPos? := none } s
 }
 
 @[inline] def withForbidden (tk : Token) (p : Parser) : Parser := {
-  info := p.info,
+  info := p.info
   fn   := fun c s => p.fn { c with forbiddenTk? := tk } s
 }
 
 @[inline] def withoutForbidden (p : Parser) : Parser := {
-  info := p.info,
+  info := p.info
   fn   := fun c s => p.fn { c with forbiddenTk? := none } s
 }
 
@@ -1863,8 +1860,6 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) (s : 
   It should not be added to the regular leading parsers because it would heavily
   overlap with antiquotation parsers nested inside them. -/
 @[inline] def prattParser (kind : Name) (tables : PrattParsingTables) (behavior : LeadingIdentBehavior) (antiquotParser : ParserFn) : ParserFn := fun c s =>
-  let iniSz  := s.stackSize
-  let iniPos := s.pos
   let s := leadingParser kind tables behavior antiquotParser c s
   if s.hasError then
     s

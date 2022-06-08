@@ -161,7 +161,6 @@ mutual
     let rec loop
       | []    => throwErrorAt stx "tactic '{stx.getKind}' has not been implemented"
       | m::ms => do
-        let scp ← getCurrMacroScope
         try
           withReader ({ · with elaborator := m.declName }) do
             withTacticInfoContext stx do
@@ -283,7 +282,7 @@ def appendGoals (mvarIds : List MVarId) : TacticM Unit :=
   modify fun s => { s with goals := s.goals ++ mvarIds }
 
 def replaceMainGoal (mvarIds : List MVarId) : TacticM Unit := do
-  let (mvarId :: mvarIds') ← getGoals | throwNoGoalsToBeSolved
+  let (_ :: mvarIds') ← getGoals | throwNoGoalsToBeSolved
   modify fun _ => { goals := mvarIds ++ mvarIds' }
 
 /-- Return the first goal. -/

@@ -169,12 +169,12 @@ where
         let eqType ← inferType eq
         let altEqType := altEqDecl.type
         match eqType.eq?, altEqType.eq? with
-        | some (_, discr, discrVar), some (_, _ /- discr -/, pattern) =>
+        | some (_, _, discrVar), some (_, _ /- discr -/, pattern) =>
           withLocalDeclD altEqDecl.userName (← mkEq discrVar pattern) fun altEqNew => do
             go (i+1) (altEqsNew.push altEqNew) (subst.push (← mkEqTrans eq altEqNew))
         | _, _ =>
         match eqType.heq?, altEqType.heq? with
-        | some (_, discr, _, discrVar), some (_, _ /- discr -/, _, pattern) =>
+        | some (_, _, _, discrVar), some (_, _ /- discr -/, _, pattern) =>
           withLocalDeclD altEqDecl.userName (← mkHEq discrVar pattern) fun altEqNew => do
             go (i+1) (altEqsNew.push altEqNew) (subst.push (← mkHEqTrans eq altEqNew))
         | _, _ =>

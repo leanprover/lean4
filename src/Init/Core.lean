@@ -407,6 +407,7 @@ variable {p q : Prop}
 theorem em (p : Prop) [Decidable p] : p ∨ ¬p :=
   byCases Or.inl Or.inr
 
+set_option linter.unusedVariables.funArgs false in
 theorem byContradiction [dec : Decidable p] (h : ¬p → False) : p :=
   byCases id (fun np => False.elim (h np))
 

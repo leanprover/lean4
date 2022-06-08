@@ -38,7 +38,7 @@ partial def parserNodeKind? (e : Expr) : MetaM (Option Name) := do
     try pure <| some (← reduceEval e) catch _ => pure none
   let e ← whnfCore e
   if e matches Expr.lam .. then
-    lambdaLetTelescope e fun xs e => parserNodeKind? e
+    lambdaLetTelescope e fun _ e => parserNodeKind? e
   else if e.isAppOfArity ``nodeWithAntiquot 4 then
     reduceEval? (e.getArg! 1)
   else if e.isAppOfArity ``withAntiquot 2 then
@@ -63,7 +63,6 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
   | _ => do
     let fn := e.getAppFn
     let .const c .. := fn | throwError "call of unknown parser at '{e}'"
-    let args := e.getAppArgs
     -- call the translated `p` with (a prefix of) the arguments of `e`, recursing for arguments
     -- of type `ty` (i.e. formerly `Parser`)
     let mkCall (p : Name) := do

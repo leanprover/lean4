@@ -362,7 +362,7 @@ partial def pullExitPointsAux : VarSet → Code → StateRefT (Array JPDecl) Ter
   | rs, Code.seq e k                 => return Code.seq e (← pullExitPointsAux rs k)
   | rs, Code.ite ref x? o c t e      => return Code.ite ref x? o c (← pullExitPointsAux (eraseOptVar rs x?) t) (← pullExitPointsAux (eraseOptVar rs x?) e)
   | rs, Code.«match» ref g ds t alts => return Code.«match» ref g ds t (← alts.mapM fun alt => do pure { alt with rhs := (← pullExitPointsAux (eraseVars rs alt.vars) alt.rhs) })
-  | rs, c@(Code.jmp _ _ _)           => return  c
+  | _,  c@(Code.jmp _ _ _)           => return  c
   | rs, Code.«break» ref             => mkSimpleJmp ref rs (Code.«break» ref)
   | rs, Code.«continue» ref          => mkSimpleJmp ref rs (Code.«continue» ref)
   | rs, Code.«return» ref val        => mkJmp ref rs val (fun y => return Code.«return» ref y)
@@ -940,7 +940,6 @@ def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFr
     return mkNode ``Lean.Parser.Term.letrec #[letRecToken, letRecDecls, mkNullNode, k]
   else if kind == ``Lean.Parser.Term.doLetArrow then
     let arg := decl[2]
-    let ref := arg
     if arg.getKind == ``Lean.Parser.Term.doIdDecl then
       let id     := arg[0]
       let type   := expandOptType id arg[1]
@@ -1266,7 +1265,6 @@ mutual
      ```
   -/
   partial def doLetArrowToCode (doLetArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
-    let ref     := doLetArrow
     let decl    := doLetArrow[2]
     if decl.getKind == ``Lean.Parser.Term.doIdDecl then
       let y := decl[0]
@@ -1318,7 +1316,6 @@ mutual
      ```
   -/
   partial def doReassignArrowToCode (doReassignArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
-    let ref  := doReassignArrow
     let decl := doReassignArrow[0]
     if decl.getKind == ``Lean.Parser.Term.doIdDecl then
       let doElem := decl[3]
@@ -1357,7 +1354,6 @@ mutual
      "unless " >> termParser >> "do " >> doSeq
      ```  -/
   partial def doUnlessToCode (doUnless : Syntax) (doElems : List Syntax) : M CodeBlock := withRef doUnless do
-    let ref   := doUnless
     let cond  := doUnless[1]
     let doSeq := doUnless[3]
     let body ← doSeqToCode (getDoSeqElems doSeq)
@@ -1481,7 +1477,6 @@ mutual
     ```
   -/
   partial def doTryToCode (doTry : Syntax) (doElems: List Syntax) : M CodeBlock := do
-    let ref := doTry
     let tryCode ← doSeqToCode (getDoSeqElems doTry[1])
     let optFinally := doTry[3]
     let catches ← doTry[2].getArgs.mapM fun catchStx => do
@@ -1547,7 +1542,6 @@ mutual
           doSeqToCode (liftedDoElems ++ [doElem] ++ doElems)
         else
           let ref := doElem
-          let concatWithRest (c : CodeBlock) : M CodeBlock := concatWith c doElems
           let k := doElem.getKind
           if k == ``Lean.Parser.Term.doLet then
             let vars ← getDoLetVars doElem

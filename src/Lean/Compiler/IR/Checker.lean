@@ -61,7 +61,7 @@ def checkJP (j : JoinPointId) : M Unit := do
 def checkArg (a : Arg) : M Unit :=
   match a with
   | Arg.var x => checkVar x
-  | other     => pure ()
+  | _ => pure ()
 
 def checkArgs (as : Array Arg) : M Unit :=
   as.forM checkArg
@@ -147,14 +147,12 @@ def checkExpr (ty : IRType) : Expr → M Unit
 
 partial def checkFnBody : FnBody → M Unit
   | FnBody.vdecl x t v b    => do
-    checkExpr t v;
-    markVar x;
-    let ctx ← read
+    checkExpr t v
+    markVar x
     withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addLocal x t v }) (checkFnBody b)
   | FnBody.jdecl j ys v b => do
-    markJP j;
-    withParams ys (checkFnBody v);
-    let ctx ← read
+    markJP j
+    withParams ys (checkFnBody v)
     withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addJP j ys v }) (checkFnBody b)
   | FnBody.set x _ y b      => checkVar x *> checkArg y *> checkFnBody b
   | FnBody.uset x _ y b     => checkVar x *> checkVar y *> checkFnBody b
@@ -178,8 +176,8 @@ end Checker
 def checkDecl (decls : Array Decl) (decl : Decl) : CompilerM Unit := do
   let env ← getEnv
   match (Checker.checkDecl decl { env := env, decls := decls }).run' {} with
-  | Except.error msg => throw s!"IR check failed at '{decl.name}', error: {msg}"
-  | other            => pure ()
+  | .error msg => throw s!"IR check failed at '{decl.name}', error: {msg}"
+  | _ => pure ()
 
 def checkDecls (decls : Array Decl) : CompilerM Unit :=
   decls.forM (checkDecl decls)

@@ -665,6 +665,7 @@ universe u
 
 namespace Lean
 
+set_option linter.unusedVariables.funArgs false in
 /-- Typeclass used for presenting the output of an `#eval` command. -/
 class Eval (α : Type u) where
   -- We default `hideUnit` to `true`, but set it to `false` in the direct call from `#eval`

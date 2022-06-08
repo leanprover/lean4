@@ -399,8 +399,8 @@ instance [LT α] : LT (List α) := ⟨List.lt⟩
 
 instance hasDecidableLt [LT α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
   | [],    []    => isFalse (fun h => nomatch h)
-  | [],    _::bs => isTrue (List.lt.nil _ _)
-  | _::as, []    => isFalse (fun h => nomatch h)
+  | [],    _::_  => isTrue (List.lt.nil _ _)
+  | _::_, []     => isFalse (fun h => nomatch h)
   | a::as, b::bs =>
     match h a b with
     | isTrue h₁  => isTrue (List.lt.head _ _ h₁)

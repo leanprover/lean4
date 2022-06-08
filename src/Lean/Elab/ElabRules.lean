@@ -82,7 +82,6 @@ def expandElab : Macro
     elab$[:$prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $args:macroArg* :
       $cat $[<= $expectedType?]? => $rhs) => do
     let prio    ← evalOptPrio prio?
-    let catName := cat.getId
     let (stxParts, patArgs) := (← args.mapM expandMacroArg).unzip
     -- name
     let name ← match name? with

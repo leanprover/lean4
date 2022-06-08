@@ -108,7 +108,6 @@ private def expandTerminationByNonCore (hint : Syntax) (cliques : Array (Array N
   let mut elseElemStx? := none
   for elementStx in elementStxs do
     let declStx := elementStx[0]
-    let vars := elementStx[1].getArgs
     if declStx.isIdent then
       let declSuffix := declStx.getId
       if alreadyFound.contains declSuffix then

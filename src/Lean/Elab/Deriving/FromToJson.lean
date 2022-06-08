@@ -24,7 +24,7 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
     if isStructure (← getEnv) declNames[0] then
       let cmds ← liftTermElabM none <| do
         let ctx ← mkContext "toJson" declNames[0]
-        let header ← mkHeader ctx ``ToJson 1 ctx.typeInfos[0]
+        let header ← mkHeader ``ToJson 1 ctx.typeInfos[0]
         let fields := getStructureFieldsFlattened (← getEnv) declNames[0] (includeSubobjectFields := false)
         let fields : Array Syntax ← fields.mapM fun field => do
           let (isOptField, nm) := mkJsonField field
@@ -45,7 +45,7 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         let mkToJson (id : Syntax) (type : Expr) : TermElabM Syntax := do
           if type.isAppOf indVal.name then `($toJsonFuncId:ident $id:ident)
           else ``(toJson $id:ident)
-        let header ← mkHeader ctx ``ToJson 1 ctx.typeInfos[0]
+        let header ← mkHeader ``ToJson 1 ctx.typeInfos[0]
         let discrs ← mkDiscrs header indVal
         let alts ← mkAlts indVal fun ctor args userNames => do
           match args, userNames with
@@ -76,7 +76,7 @@ where
     (rhs : ConstructorVal → Array (Syntax × Expr) → (Option $ Array Name) → TermElabM Syntax) : TermElabM (Array Syntax) := do
   indVal.ctors.toArray.mapM fun ctor => do
     let ctorInfo ← getConstInfoCtor ctor
-    forallTelescopeReducing ctorInfo.type fun xs type => do
+    forallTelescopeReducing ctorInfo.type fun xs _ => do
       let mut patterns := #[]
       -- add `_` pattern for indices
       for _ in [:indVal.numIndices] do
@@ -105,7 +105,7 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
     if isStructure (← getEnv) declNames[0] then
       let cmds ← liftTermElabM none <| do
         let ctx ← mkContext "fromJson" declNames[0]
-        let header ← mkHeader ctx ``FromJson 0 ctx.typeInfos[0]
+        let header ← mkHeader ``FromJson 0 ctx.typeInfos[0]
         let fields := getStructureFieldsFlattened (← getEnv) declNames[0] (includeSubobjectFields := false)
         let jsonFields := fields.map (Prod.snd ∘ mkJsonField)
         let fields := fields.map mkIdent
@@ -120,9 +120,8 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
       let indVal ← getConstInfoInduct declNames[0]
       let cmds ← liftTermElabM none <| do
         let ctx ← mkContext "fromJson" declNames[0]
-        let header ← mkHeader ctx ``FromJson 0 ctx.typeInfos[0]
+        let header ← mkHeader ``FromJson 0 ctx.typeInfos[0]
         let fromJsonFuncId := mkIdent ctx.auxFunNames[0]
-        let discrs ← mkDiscrs header indVal
         let alts ← mkAlts indVal fromJsonFuncId
         let mut auxCmd ← alts.foldrM (fun xs x => `(Except.orElseLazy $xs (fun _ => $x))) (← `(Except.error "no inductive constructor matched"))
         if ctx.usePartial then
@@ -150,7 +149,7 @@ where
   let alts ←
     indVal.ctors.toArray.mapM fun ctor => do
       let ctorInfo ← getConstInfoCtor ctor
-      forallTelescopeReducing ctorInfo.type fun xs type => do
+      forallTelescopeReducing ctorInfo.type fun xs _ => do
         let mut binders := #[]
         let mut userNames := #[]
         for i in [:ctorInfo.numFields] do

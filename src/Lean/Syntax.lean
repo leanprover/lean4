@@ -127,12 +127,12 @@ trail.startPos + trail.posOf '\n'
    or the beginning of the String. -/
 @[inline]
 private def updateLeadingAux : Syntax → StateM String.Pos (Option Syntax)
-  | atom info@(SourceInfo.original lead _ trail _) val => do
+  | atom info@(SourceInfo.original _ _ trail _) val => do
     let trailStop := chooseNiceTrailStop trail
     let newInfo := updateInfo info (← get) trailStop
     set trailStop
     return some (atom newInfo val)
-  | ident info@(SourceInfo.original lead _ trail _) rawVal val pre => do
+  | ident info@(SourceInfo.original _ _ trail _) rawVal val pre => do
     let trailStop := chooseNiceTrailStop trail
     let newInfo := updateInfo info (← get) trailStop
     set trailStop
@@ -173,8 +173,8 @@ partial def getTailWithPos : Syntax → Option Syntax
   | stx@(atom info _)   => info.getPos?.map fun _ => stx
   | stx@(ident info ..) => info.getPos?.map fun _ => stx
   | node SourceInfo.none _ args => args.findSomeRev? getTailWithPos
-  | stx@(node info _ _) => stx
-  | _                   => none
+  | stx@(node ..) => stx
+  | _ => none
 
 open SourceInfo in
 /-- Split an `ident` into its dot-separated components while preserving source info.
@@ -423,8 +423,8 @@ def antiquotKind? : Syntax → Option SyntaxNodeKind
 
 -- An "antiquotation splice" is something like `$[...]?` or `$[...]*`.
 def antiquotSpliceKind? : Syntax → Option SyntaxNodeKind
-  | Syntax.node _ (Name.str k "antiquot_scope" _) args => some k
-  | _                                                  => none
+  | Syntax.node _ (Name.str k "antiquot_scope" _) _ => some k
+  | _ => none
 
 def isAntiquotSplice (stx : Syntax) : Bool :=
   antiquotSpliceKind? stx |>.isSome
@@ -445,8 +445,8 @@ def mkAntiquotSpliceNode (kind : SyntaxNodeKind) (contents : Array Syntax) (suff
 
 -- `$x,*` etc.
 def antiquotSuffixSplice? : Syntax → Option SyntaxNodeKind
-  | Syntax.node _ (Name.str k "antiquot_suffix_splice" _) args => some k
-  | _                                                          => none
+  | Syntax.node _ (Name.str k "antiquot_suffix_splice" _) _ => some k
+  | _ => none
 
 def isAntiquotSuffixSplice (stx : Syntax) : Bool :=
   antiquotSuffixSplice? stx |>.isSome

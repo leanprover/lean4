@@ -49,7 +49,7 @@ class Stream (stream : Type u) (value : outParam (Type v)) : Type (max u v) wher
   next? : stream → Option (value × stream)
 
 protected partial def Stream.forIn [Stream ρ α] [Monad m] (s : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β := do
-  let inst : Inhabited (m β) := ⟨pure b⟩
+  let _ : Inhabited (m β) := ⟨pure b⟩
   let rec visit (s : ρ) (b : β) : m β := do
     match Stream.next? s with
     | some (a, s) => match (← f a b) with

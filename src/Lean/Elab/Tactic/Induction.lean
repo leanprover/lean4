@@ -443,7 +443,6 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
         ElimApp.mkElimApp elimInfo targets tag
       trace[Elab.induction] "elimApp: {result.elimApp}"
       let elimArgs := result.elimApp.getAppArgs
-      let motiveType ← inferType elimArgs[elimInfo.motivePos]
       ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetFVarIds
       let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
       assignExprMVar mvarId result.elimApp

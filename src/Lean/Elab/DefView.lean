@@ -100,7 +100,7 @@ def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name 
       ref.get
     set savedState
     liftMacroM <| mkUnusedBaseName <| Name.mkSimple ("inst" ++ result)
-  catch ex =>
+  catch _ =>
     set savedState
     mkFreshInstanceName
 

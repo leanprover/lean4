@@ -129,7 +129,7 @@ unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
   } `Lean.PrettyPrinter.parenthesizerAttribute
 @[builtinInit mkParenthesizerAttribute] constant parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer
 
-abbrev CategoryParenthesizer := forall (prec : Nat), Parenthesizer
+abbrev CategoryParenthesizer := (prec : Nat) → Parenthesizer
 
 unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryParenthesizer) :=
   KeyedDeclsAttribute.init {
@@ -249,7 +249,6 @@ def visitToken : Parenthesizer := do
   goLeft
 
 @[combinatorParenthesizer Lean.Parser.orelse] def orelse.parenthesizer (p1 p2 : Parenthesizer) : Parenthesizer := do
-  let st ← get
   -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
   -- them in turn. Uses the syntax traverser non-linearly!
   p1 <|> p2
@@ -301,7 +300,7 @@ def tokenWithAntiquot.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   else
     p
 
-def parenthesizeCategoryCore (cat : Name) (prec : Nat) : Parenthesizer :=
+def parenthesizeCategoryCore (cat : Name) (_prec : Nat) : Parenthesizer :=
   withReader (fun ctx => { ctx with cat := cat }) do
     let stx ← getCur
     if stx.getKind == `choice then
@@ -328,14 +327,13 @@ def categoryParserOfStack.parenthesizer (offset : Nat) (prec : Nat) : Parenthesi
   categoryParser.parenthesizer stx.getId prec
 
 @[combinatorParenthesizer Lean.Parser.parserOfStack]
-def parserOfStack.parenthesizer (offset : Nat) (prec : Nat := 0) : Parenthesizer := do
+def parserOfStack.parenthesizer (offset : Nat) (_prec : Nat := 0) : Parenthesizer := do
   let st ← get
   let stx := st.stxTrav.parents.back.getArg (st.stxTrav.idxs.back - offset)
   parenthesizerForKind stx.getKind
 
 @[builtinCategoryParenthesizer term]
 def term.parenthesizer : CategoryParenthesizer | prec => do
-  let stx ← getCur
   maybeParenthesize `term true (fun stx => Unhygienic.run `(($stx))) prec $
     parenthesizeCategoryCore `term prec
 
@@ -354,11 +352,11 @@ def rawStx.parenthesizer : CategoryParenthesizer | _ => do
   goLeft
 
 @[combinatorParenthesizer Lean.Parser.error]
-def error.parenthesizer (msg : String) : Parenthesizer :=
+def error.parenthesizer (_msg : String) : Parenthesizer :=
   pure ()
 
 @[combinatorParenthesizer Lean.Parser.errorAtSavedPos]
-def errorAtSavedPos.parenthesizer (msg : String) (delta : Bool) : Parenthesizer :=
+def errorAtSavedPos.parenthesizer (_msg : String) (_delta : Bool) : Parenthesizer :=
   pure ()
 
 @[combinatorParenthesizer Lean.Parser.atomic]
@@ -417,15 +415,15 @@ def trailingNode.parenthesizer (k : SyntaxNodeKind) (prec lhsPrec : Nat) (p : Pa
     -- parser is calling us.
     categoryParser.parenthesizer ctx.cat lhsPrec
 
-@[combinatorParenthesizer Lean.Parser.rawCh] def rawCh.parenthesizer (ch : Char) := visitToken
+@[combinatorParenthesizer Lean.Parser.rawCh] def rawCh.parenthesizer (_ch : Char) := visitToken
 
-@[combinatorParenthesizer Lean.Parser.symbolNoAntiquot] def symbolNoAntiquot.parenthesizer (sym : String) := visitToken
-@[combinatorParenthesizer Lean.Parser.unicodeSymbolNoAntiquot] def unicodeSymbolNoAntiquot.parenthesizer (sym asciiSym : String) := visitToken
+@[combinatorParenthesizer Lean.Parser.symbolNoAntiquot] def symbolNoAntiquot.parenthesizer (_sym : String) := visitToken
+@[combinatorParenthesizer Lean.Parser.unicodeSymbolNoAntiquot] def unicodeSymbolNoAntiquot.parenthesizer (_sym _asciiSym : String) := visitToken
 
 @[combinatorParenthesizer Lean.Parser.identNoAntiquot] def identNoAntiquot.parenthesizer := visitToken
 @[combinatorParenthesizer Lean.Parser.rawIdentNoAntiquot] def rawIdentNoAntiquot.parenthesizer := visitToken
-@[combinatorParenthesizer Lean.Parser.identEq] def identEq.parenthesizer (id : Name) := visitToken
-@[combinatorParenthesizer Lean.Parser.nonReservedSymbolNoAntiquot] def nonReservedSymbolNoAntiquot.parenthesizer (sym : String) (includeIdent : Bool) := visitToken
+@[combinatorParenthesizer Lean.Parser.identEq] def identEq.parenthesizer (_id : Name) := visitToken
+@[combinatorParenthesizer Lean.Parser.nonReservedSymbolNoAntiquot] def nonReservedSymbolNoAntiquot.parenthesizer (_sym : String) (_includeIdent : Bool) := visitToken
 
 @[combinatorParenthesizer Lean.Parser.charLitNoAntiquot] def charLitNoAntiquot.parenthesizer := visitToken
 @[combinatorParenthesizer Lean.Parser.strLitNoAntiquot] def strLitNoAntiquot.parenthesizer := visitToken
@@ -467,16 +465,16 @@ def sepByNoAntiquot.parenthesizer (p pSep : Parenthesizer) : Parenthesizer := do
   modify fun st => { st with contPrec := none }
   p
 @[combinatorParenthesizer Lean.Parser.withoutPosition] def withoutPosition.parenthesizer (p : Parenthesizer) : Parenthesizer := p
-@[combinatorParenthesizer Lean.Parser.withForbidden] def withForbidden.parenthesizer (tk : Parser.Token) (p : Parenthesizer) : Parenthesizer := p
+@[combinatorParenthesizer Lean.Parser.withForbidden] def withForbidden.parenthesizer (_tk : Parser.Token) (p : Parenthesizer) : Parenthesizer := p
 @[combinatorParenthesizer Lean.Parser.withoutForbidden] def withoutForbidden.parenthesizer (p : Parenthesizer) : Parenthesizer := p
 @[combinatorParenthesizer Lean.Parser.withoutInfo] def withoutInfo.parenthesizer (p : Parenthesizer) : Parenthesizer := p
 @[combinatorParenthesizer Lean.Parser.setExpected]
-def setExpected.parenthesizer (expected : List String) (p : Parenthesizer) : Parenthesizer := p
+def setExpected.parenthesizer (_expected : List String) (p : Parenthesizer) : Parenthesizer := p
 
 @[combinatorParenthesizer Lean.Parser.incQuotDepth] def incQuotDepth.parenthesizer (p : Parenthesizer) : Parenthesizer := p
 @[combinatorParenthesizer Lean.Parser.decQuotDepth] def decQuotDepth.parenthesizer (p : Parenthesizer) : Parenthesizer := p
 @[combinatorParenthesizer Lean.Parser.suppressInsideQuot] def suppressInsideQuot.parenthesizer (p : Parenthesizer) : Parenthesizer := p
-@[combinatorParenthesizer Lean.Parser.evalInsideQuot] def evalInsideQuot.parenthesizer (declName : Name) (p : Parenthesizer) : Parenthesizer := p
+@[combinatorParenthesizer Lean.Parser.evalInsideQuot] def evalInsideQuot.parenthesizer (_declName : Name) (p : Parenthesizer) : Parenthesizer := p
 
 @[combinatorParenthesizer Lean.Parser.checkStackTop] def checkStackTop.parenthesizer : Parenthesizer := pure ()
 @[combinatorParenthesizer Lean.Parser.checkWsBefore] def checkWsBefore.parenthesizer : Parenthesizer := pure ()
@@ -503,7 +501,7 @@ def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := do
     else
       p
 
-@[combinatorParenthesizer Lean.Parser.dbgTraceState] def dbgTraceState.parenthesizer (label : String) (p : Parenthesizer) : Parenthesizer := p
+@[combinatorParenthesizer Lean.Parser.dbgTraceState] def dbgTraceState.parenthesizer (_label : String) (p : Parenthesizer) : Parenthesizer := p
 
 @[combinatorParenthesizer ite, macroInline] def ite {_ : Type} (c : Prop) [Decidable c] (t e : Parenthesizer) : Parenthesizer :=
   if c then t else e

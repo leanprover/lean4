@@ -11,10 +11,10 @@ namespace Lean.Elab.Deriving.Ord
 open Lean.Parser.Term
 open Meta
 
-def mkOrdHeader (ctx : Context) (indVal : InductiveVal) : TermElabM Header := do
-  mkHeader ctx `Ord 2 indVal
+def mkOrdHeader (indVal : InductiveVal) : TermElabM Header := do
+  mkHeader `Ord 2 indVal
 
-def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Syntax := do
+def mkMatch (header : Header) (indVal : InductiveVal) : TermElabM Syntax := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
@@ -67,8 +67,8 @@ where
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
   let auxFunName := ctx.auxFunNames[i]
   let indVal     := ctx.typeInfos[i]
-  let header     ← mkOrdHeader ctx indVal
-  let mut body   ← mkMatch ctx header indVal auxFunName
+  let header     ← mkOrdHeader indVal
+  let mut body   ← mkMatch header indVal
   if ctx.usePartial || indVal.isRec then
     let letDecls ← mkLocalInstanceLetDecls ctx `Ord header.argNames
     body ← mkLet letDecls body

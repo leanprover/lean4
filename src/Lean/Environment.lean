@@ -453,7 +453,7 @@ def TagDeclarationExtension := SimplePersistentEnvExtension Name NameSet
 def mkTagDeclarationExtension (name : Name) : IO TagDeclarationExtension :=
   registerSimplePersistentEnvExtension {
     name          := name,
-    addImportedFn := fun as => {},
+    addImportedFn := fun _ => {},
     addEntryFn    := fun s n => s.insert n,
     toArrayFn     := fun es => es.toArray.qsort Name.quickLt
   }
@@ -482,7 +482,7 @@ def MapDeclarationExtension (α : Type) := SimplePersistentEnvExtension (Name ×
 def mkMapDeclarationExtension [Inhabited α] (name : Name) : IO (MapDeclarationExtension α) :=
   registerSimplePersistentEnvExtension {
     name          := name,
-    addImportedFn := fun as => {},
+    addImportedFn := fun _ => {},
     addEntryFn    := fun s n => s.insert n.1 n.2 ,
     toArrayFn     := fun es => es.toArray.qsort (fun a b => Name.quickLt a.1 b.1)
   }

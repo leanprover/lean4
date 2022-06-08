@@ -19,12 +19,12 @@ def expandMacroArg (stx : Syntax) : MacroM (Syntax × Syntax) := do
   let pat ← match stx with
     | `(stx| $s:str)      => pure <| mkNode `token_antiquot #[← strLitToPattern s, mkAtom "%", mkAtom "$", id]
     | `(stx| &$s:str)     => pure <| mkNode `token_antiquot #[← strLitToPattern s, mkAtom "%", mkAtom "$", id]
-    | `(stx| optional($stx)) => pure <| mkSplicePat `optional id "?"
-    | `(stx| many($stx))     => pure <| mkSplicePat `many id "*"
-    | `(stx| many1($stx))    => pure <| mkSplicePat `many id "*"
-    | `(stx| sepBy($stx, $sep:str $[, $stxsep]? $[, allowTrailingSep]?)) =>
+    | `(stx| optional($_)) => pure <| mkSplicePat `optional id "?"
+    | `(stx| many($_))     => pure <| mkSplicePat `many id "*"
+    | `(stx| many1($_))    => pure <| mkSplicePat `many id "*"
+    | `(stx| sepBy($_, $sep:str $[, $stxsep]? $[, allowTrailingSep]?)) =>
       pure <| mkSplicePat `sepBy id ((isStrLit? sep).get! ++ "*")
-    | `(stx| sepBy1($stx, $sep:str $[, $stxsep]? $[, allowTrailingSep]?)) =>
+    | `(stx| sepBy1($_, $sep:str $[, $stxsep]? $[, allowTrailingSep]?)) =>
       pure <| mkSplicePat `sepBy id ((isStrLit? sep).get! ++ "*")
     | _ => match id? with
       -- if there is a binding, we assume the user knows what they are doing

@@ -448,7 +448,7 @@ def withMacroExpansionInfo [MonadFinally m] [Monad m] [MonadInfoTree m] [MonadLC
 @[inline] def withInfoHole [MonadFinally m] [Monad m] [MonadInfoTree m] (mvarId : MVarId) (x : m α) : m α := do
   if (← getInfoState).enabled then
     let treesSaved ← getResetInfoTrees
-    Prod.fst <$> MonadFinally.tryFinally' x fun a? => modifyInfoState fun s =>
+    Prod.fst <$> MonadFinally.tryFinally' x fun _ => modifyInfoState fun s =>
       if s.trees.size > 0 then
         { s with trees := treesSaved, assignment := s.assignment.insert mvarId s.trees[s.trees.size - 1] }
       else

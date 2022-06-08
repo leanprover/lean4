@@ -91,7 +91,7 @@ namespace FreeIndices
 abbrev Collector := IndexSet → IndexSet → IndexSet
 
 @[inline] private def skip : Collector :=
-  fun bv fv => fv
+  fun _ fv => fv
 
 @[inline] private def collectIndex (x : Index) : Collector :=
   fun bv fv => if bv.contains x then fv else fv.insert x

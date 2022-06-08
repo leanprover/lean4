@@ -161,7 +161,7 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 @[builtinTactic choice] def evalChoice : Tactic := fun stx =>
   evalChoiceAux stx.getArgs 0
 
-@[builtinTactic skip] def evalSkip : Tactic := fun stx => pure ()
+@[builtinTactic skip] def evalSkip : Tactic := fun _ => pure ()
 
 @[builtinTactic unknown] def evalUnknown : Tactic := fun stx => do
   addCompletionInfo <| CompletionInfo.tactic stx (← getGoals)
@@ -171,24 +171,22 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   if (← try evalTactic tactic; pure true catch _ => pure false) then
     throwError "tactic succeeded"
 
-@[builtinTactic traceState] def evalTraceState : Tactic := fun stx => do
+@[builtinTactic traceState] def evalTraceState : Tactic := fun _ => do
   let gs ← getUnsolvedGoals
   addRawTrace (goalsToMessageData gs)
 
 @[builtinTactic traceMessage] def evalTraceMessage : Tactic := fun stx => do
   match stx[1].isStrLit? with
   | none     => throwIllFormedSyntax
-  | some msg =>
-    let gs ← getUnsolvedGoals
-    withRef stx[0] <| addRawTrace msg
+  | some msg => withRef stx[0] <| addRawTrace msg
 
-@[builtinTactic Lean.Parser.Tactic.assumption] def evalAssumption : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.assumption] def evalAssumption : Tactic := fun _ =>
   liftMetaTactic fun mvarId => do Meta.assumption mvarId; pure []
 
-@[builtinTactic Lean.Parser.Tactic.contradiction] def evalContradiction : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.contradiction] def evalContradiction : Tactic := fun _ =>
   liftMetaTactic fun mvarId => do Meta.contradiction mvarId; pure []
 
-@[builtinTactic Lean.Parser.Tactic.refl] def evalRefl : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.refl] def evalRefl : Tactic := fun _ =>
   liftMetaTactic fun mvarId => do Meta.refl mvarId; pure []
 
 @[builtinTactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx => do
@@ -257,7 +255,7 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
   | `(tactic| subst $hs*) => forEachVar hs Meta.subst
   | _                     => throwUnsupportedSyntax
 
-@[builtinTactic Lean.Parser.Tactic.substVars] def evalSubstVars : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.substVars] def evalSubstVars : Tactic := fun _ =>
   liftMetaTactic fun mvarId => return [← substVars mvarId]
 
 /--
@@ -329,7 +327,7 @@ private def getCaseGoals (tag : Syntax) : TacticM (MVarId × List MVarId) := do
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic «case'»] def evalCase' : Tactic
-  | stx@`(tactic| case' $tag $hs* =>%$arr $tac:tacticSeq) => do
+  | `(tactic| case' $tag $hs* =>%$arr $tac:tacticSeq) => do
     let (g, gs) ← getCaseGoals tag
     let g ← renameInaccessibles g hs
     let mvarTag ← getMVarTag g
@@ -342,7 +340,7 @@ private def getCaseGoals (tag : Syntax) : TacticM (MVarId × List MVarId) := do
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic «renameI»] def evalRenameInaccessibles : Tactic
-  | stx@`(tactic| rename_i $hs*) => do replaceMainGoal [← renameInaccessibles (← getMainGoal) hs]
+  | `(tactic| rename_i $hs*) => do replaceMainGoal [← renameInaccessibles (← getMainGoal) hs]
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic «first»] partial def evalFirst : Tactic := fun stx => do

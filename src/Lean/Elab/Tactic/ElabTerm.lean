@@ -203,7 +203,7 @@ def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
   | `(tactic| apply $e) => evalApplyLikeTactic Meta.apply e
   | _ => throwUnsupportedSyntax
 
-@[builtinTactic Lean.Parser.Tactic.constructor] def evalConstructor : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.constructor] def evalConstructor : Tactic := fun _ =>
   withMainContext do
     let mvarIds'  ← Meta.constructor (← getMainGoal)
     Term.synthesizeSyntheticMVarsNoPostponing
@@ -272,7 +272,7 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
     throwError "expected type must not contain free or meta variables{indentExpr expectedType}"
   return expectedType
 
-@[builtinTactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun _ =>
   closeMainGoalUsing fun expectedType => do
     let expectedType ← preprocessPropToDecide expectedType
     let d ← mkDecide expectedType
@@ -295,7 +295,7 @@ private def mkNativeAuxDecl (baseName : Name) (type val : Expr) : TermElabM Name
   compileDecl decl
   pure auxName
 
-@[builtinTactic Lean.Parser.Tactic.nativeDecide] def evalNativeDecide : Tactic := fun stx =>
+@[builtinTactic Lean.Parser.Tactic.nativeDecide] def evalNativeDecide : Tactic := fun _ =>
   closeMainGoalUsing fun expectedType => do
     let expectedType ← preprocessPropToDecide expectedType
     let d ← mkDecide expectedType

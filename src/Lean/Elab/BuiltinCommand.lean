@@ -103,7 +103,7 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
     let cmd := cmds.get ⟨i, h⟩;
     catchInternalId unsupportedSyntaxExceptionId
       (elabCommand cmd)
-      (fun ex => elabChoiceAux cmds (i+1))
+      (fun _ => elabChoiceAux cmds (i+1))
   else
     throwUnsupportedSyntax
 
@@ -113,7 +113,7 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 @[builtinCommandElab «universe»] def elabUniverse : CommandElab := fun n => do
   n[1].forArgsM addUnivLevel
 
-@[builtinCommandElab «init_quot»] def elabInitQuot : CommandElab := fun stx => do
+@[builtinCommandElab «init_quot»] def elabInitQuot : CommandElab := fun _ => do
   match (← getEnv).addDecl Declaration.quotDecl with
   | Except.ok env   => setEnv env
   | Except.error ex => throwError (ex.toMessageData (← getOptions))
@@ -124,7 +124,6 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   let ns ← resolveNamespace id
   let currNamespace ← getCurrNamespace
   if ns == currNamespace then throwError "invalid 'export', self export"
-  let env ← getEnv
   let ids := stx[3].getArgs
   let aliases ← ids.foldlM (init := []) fun (aliases : List (Name × Name)) (idStx : Syntax) => do
     let id := idStx.getId
@@ -307,7 +306,6 @@ private def mkRunEval (e : Expr) : MetaM Expr := do
 unsafe def elabEvalUnsafe : CommandElab
   | `(#eval%$tk $term) => do
     let n := `_eval
-    let ctx ← read
     let addAndCompile (value : Expr) : TermElabM Unit := do
       let (value, _) ← Term.levelMVarToParam (← instantiateMVars value)
       let type ← inferType value

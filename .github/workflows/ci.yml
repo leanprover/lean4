@@ -187,6 +187,10 @@ jobs:
         with:
           name: build-${{ matrix.name }}
           path: pack/*
+      - name: Trigger TPIL build
+        run: |
+          curl -u '${{ github.repository_owner }}:${{ secrets.PUSH_NIGHTLY_TOKEN }}' 'https://api.github.com/repos/leanprover/theorem_proving_in_lean4/dispatches' -X POST -d '{ "event_type": "build_event" }'
+        if: matrix.os == 'ubuntu-latest' && matrix.release
       - name: Lean stats
         run: |
           build/stage1/bin/lean --stats src/Lean.lean
@@ -237,13 +241,13 @@ jobs:
         with:
           path: artifacts
       - name: Release
-        uses: softprops/action-gh-release@v1       
+        uses: softprops/action-gh-release@v1
         with:
           files: artifacts/*/*
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
   release-nightly:
     needs: [set-nightly, build]
     if: needs.set-nightly.outputs.nightly

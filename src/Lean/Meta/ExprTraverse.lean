@@ -13,9 +13,6 @@ open Lean.SubExpr.Pos
 
 variable {M} [Monad M] [MonadLiftT MetaM M] [MonadControlT MetaM M] [MonadOptions M]
 
-
-variable {M} [Monad M] [MonadLiftT MetaM M] [MonadControlT MetaM M] [MonadOptions M]
-
 private def usedLetOnly : M Bool := getBoolOption `visit.usedLetOnly false
 
 private def forgetPos (t : (Pos → Expr → M Expr) → (Pos → Expr → M Expr)) (visit : Expr → M Expr) (e : Expr) : M Expr :=
@@ -78,7 +75,7 @@ def traverseChildrenWithPos (visit : Pos → Expr → M Expr) (p : Pos) (e: Expr
   | Expr.lam ..        => traverseLambdaWithPos   visit p e
   | Expr.letE ..       => traverseLetWithPos      visit p e
   | Expr.app ..        => Expr.traverseAppWithPos visit p e
-  | Expr.mdata _ b _   => e.updateMData! <$> traverseChildrenWithPos visit p b
+  | Expr.mdata _ b _   => e.updateMData! <$> visit p b
   | Expr.proj _ _ b _  => e.updateProj! <$> visit p.pushProj b
   | _                  => pure e
 

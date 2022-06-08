@@ -1,10 +1,9 @@
 /-
 Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura, E.W.Ayers
+Authors: Leonardo de Moura
 -/
 import Lean.Meta.Basic
-import Lean.Meta.ExprTraverse
 
 namespace Lean
 
@@ -13,25 +12,6 @@ inductive TransformStep where
   | visit (e : Expr)
 
 namespace Core
-
-/-- Maps `visit` on each child of the given expression.
-
-Loose bound variables are not instantiated.
-Use `Lean.Meta.traverseChildren` to avoid loose bound variables.
-
-Applications, foralls, lambdas and let binders are bundled (as they are bundled in `Expr.traverseApp`, `traverseForall`, ...).
-So `traverseChildren f e` where ``e = `(fn a₁ ... aₙ)`` will return
-``(← f `(fn)) (← f `(a₁)) ... (← f `(aₙ))`` rather than ``(← f `(fn a₁ ... aₙ₋₁)) (← f `(aₙ))``
- -/
-def traverseChildren {M} [Monad M] (visit : Expr → M Expr) (e: Expr) : M Expr :=
-  match e with
-  | Expr.forallE _ d b _ => e.updateForallE! <$> visit d <*> visit b
-  | Expr.lam _ d b _     => e.updateLambdaE! <$> visit d <*> visit b
-  | Expr.letE _ t v b _  => e.updateLet! <$> visit t <*> visit v <*> visit b
-  | Expr.app ..          => e.traverseApp visit
-  | Expr.mdata _ b _     => e.updateMData! <$> visit b
-  | Expr.proj _ _ b _    => e.updateProj! <$> visit b
-  | _                    => pure e
 
 /--
   Tranform the expression `input` using `pre` and `post`.
@@ -55,13 +35,20 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
   let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := CoreM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
     checkCache { val := e : ExprStructEq } fun _ => Core.withIncRecDepth do
+      let rec visitPost (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
+        match (← post e) with
+        | TransformStep.done e  => pure e
+        | TransformStep.visit e => visit e
       match (← pre e) with
       | TransformStep.done e  => pure e
-      | TransformStep.visit e => do
-        let e ← traverseChildren visit e
-        match (← post e) with
-          | TransformStep.done e  => pure e
-          | TransformStep.visit e => visit e
+      | TransformStep.visit e => match e with
+        | Expr.forallE _ d b _ => visitPost (e.updateForallE! (← visit d) (← visit b))
+        | Expr.lam _ d b _     => visitPost (e.updateLambdaE! (← visit d) (← visit b))
+        | Expr.letE _ t v b _  => visitPost (e.updateLet! (← visit t) (← visit v) (← visit b))
+        | Expr.app ..          => e.withApp fun f args => do visitPost (mkAppN (← visit f) (← args.mapM visit))
+        | Expr.mdata _ b _     => visitPost (e.updateMData! (← visit b))
+        | Expr.proj _ _ b _    => visitPost (e.updateProj! (← visit b))
+        | _                    => visitPost e
   visit input |>.run
 
 def betaReduce (e : Expr) : CoreM Expr :=
@@ -74,7 +61,7 @@ namespace Meta
 /--
   Similar to `Core.transform`, but terms provided to `pre` and `post` do not contain loose bound variables.
   So, it is safe to use any `MetaM` method at `pre` and `post`. -/
-partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m] [MonadTrace m] [MonadRef m] [MonadOptions m] [MonadWithOptions m] [AddMessageContext m]
+partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m] [MonadTrace m] [MonadRef m] [MonadOptions m] [AddMessageContext m]
     (input : Expr)
     (pre   : Expr → m TransformStep := fun e => return TransformStep.visit e)
     (post  : Expr → m TransformStep := fun e => return TransformStep.done e)
@@ -84,15 +71,42 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
   let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := MetaM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
     checkCache { val := e : ExprStructEq } fun _ => Meta.withIncRecDepth do
+      let rec visitPost (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
+        match (← post e) with
+        | TransformStep.done e  => pure e
+        | TransformStep.visit e => visit e
+      let rec visitLambda (fvars : Array Expr) (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
+        match e with
+        | Expr.lam n d b c =>
+          withLocalDecl n c.binderInfo (← visit (d.instantiateRev fvars)) fun x =>
+            visitLambda (fvars.push x) b
+        | e => visitPost (← mkLambdaFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
+      let rec visitForall (fvars : Array Expr) (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
+        match e with
+        | Expr.forallE n d b c =>
+          withLocalDecl n c.binderInfo (← visit (d.instantiateRev fvars)) fun x =>
+            visitForall (fvars.push x) b
+        | e => visitPost (← mkForallFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
+      let rec visitLet (fvars : Array Expr) (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
+        match e with
+        | Expr.letE n t v b _ =>
+          withLetDecl n (← visit (t.instantiateRev fvars)) (← visit (v.instantiateRev fvars)) fun x =>
+            visitLet (fvars.push x) b
+        | e => visitPost (← mkLetFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
+      let visitApp (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
+        e.withApp fun f args => do
+          visitPost (mkAppN (← visit f) (← args.mapM visit))
       match (← pre e) with
       | TransformStep.done e  => pure e
-      | TransformStep.visit e =>
-        let e ← traverseChildren visit e
-        match (← post e) with
-        | TransformStep.done e => pure e
-        | TransformStep.visit e => visit e
-  withOptions (fun o => o.setBool `visit.usedLetOnly usedLetOnly)
-    (visit input |>.run)
+      | TransformStep.visit e => match e with
+        | Expr.forallE ..    => visitForall #[] e
+        | Expr.lam ..        => visitLambda #[] e
+        | Expr.letE ..       => visitLet #[] e
+        | Expr.app ..        => visitApp e
+        | Expr.mdata _ b _   => visitPost (e.updateMData! (← visit b))
+        | Expr.proj _ _ b _  => visitPost (e.updateProj! (← visit b))
+        | _                  => visitPost e
+  visit input |>.run
 
 def zetaReduce (e : Expr) : MetaM Expr := do
   let pre (e : Expr) : MetaM TransformStep := do

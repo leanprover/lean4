@@ -108,9 +108,9 @@ structure LeanExeConfig where
   The root is built by recursively building its
   local imports (i.e., fellow modules of the workspace).
 
-  Defaults to the upper camel case name of the target.
+  Defaults to the name of the target.
   -/
-  root : Name := toUpperCamelCase name
+  root : Name := name
 
   /--
   The name of the binary executable.

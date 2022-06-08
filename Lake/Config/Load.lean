@@ -20,12 +20,14 @@ def defaultConfigFile : FilePath := "lakefile.lean"
 /-- Evaluate a `package` declaration to its respective `PackageConfig`. -/
 unsafe def evalPackageDecl (env : Environment) (declName : Name)
 (dir : FilePath) (args : List String := []) (leanOpts := Options.empty)
-: IO PackageConfig := do
+: LogT IO PackageConfig := do
   let m := env.evalConstCheck IOPackager leanOpts ``IOPackager declName
   if let Except.ok ioPackager := m.run.run then
+    logWarning "Support for IO in package declarations may be dropped. Raise an issue if you disagree."
     return ← ioPackager dir args
   let m := env.evalConstCheck Packager leanOpts ``Packager declName
   if let Except.ok packager := m.run.run then
+    logWarning "Package parameters have been deprecated. Use __dir__ or __args__ instead."
     return packager dir args
   let m := env.evalConstCheck PackageConfig leanOpts ``PackageConfig declName
   if let Except.ok config := m.run.run then
@@ -94,6 +96,12 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
     | [] => error s!"configuration file is missing a `package` declaration"
     | [pkgDeclName] =>
       let config ← evalPackageDecl env pkgDeclName dir args leanOpts
+      unless config.dependencies.isEmpty do
+        logWarning "Syntax for package dependencies has changed. Use the new require syntax."
+      if config.defaultFacet = PackageFacet.bin then
+        logWarning "The `bin` package facet has been deprecated in favor of `exe`."
+      if config.defaultFacet = PackageFacet.oleans then
+        logWarning "The `oleans` package facet has been deprecated in favor of `leanLib`."
       let config := {config with dependencies := depsExt.getState env ++ config.dependencies}
       let scripts ← scriptAttr.ext.getState env |>.foldM (init := {})
         fun m d => return m.insert d <| ← evalScriptDecl env d leanOpts

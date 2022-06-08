@@ -32,7 +32,7 @@ namespace MainM
 @[inline] protected def toBaseIO (self : MainM α) : BaseIO (Except ExitCode α) :=
   self.toEIO.toBaseIO
 
-protected def run (self : MainM PUnit) : BaseIO ExitCode :=
+protected def run (self : MainM α) : BaseIO ExitCode :=
   self.toBaseIO.map fun | Except.ok _ => 0 | Except.error rc => rc
 
 -- # Exits

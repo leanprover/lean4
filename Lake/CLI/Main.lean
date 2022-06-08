@@ -356,16 +356,11 @@ def processArgs : CliM PUnit := do
 end Cli
 
 open Cli in
-def CliM.run (self : CliM α) (args : List String) : IO UInt32 := do
+def CliM.run (self : CliM α) (args : List String) : BaseIO UInt32 := do
   let (leanInstall?, lakeInstall?) ← findInstall?
-  match (← self args |>.run' {leanInstall?, lakeInstall?} |>.toIO') with
-  | Except.ok res =>
-    match res with
-    | Except.ok _ => return 0
-    | Except.error err =>
-      error err.toString
-      return 1
-  | Except.error rc => return rc
+  let main := self args |>.run' {leanInstall?, lakeInstall?}
+  let main := main.run >>= fun | .ok a => pure a | .error e => error e.toString
+  main.run
 
-def cli (args : List String) : IO UInt32 :=
+def cli (args : List String) : BaseIO UInt32 :=
   Cli.processArgs.run args

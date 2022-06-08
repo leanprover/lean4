@@ -190,7 +190,7 @@ jobs:
       - name: Trigger TPIL build
         run: |
           curl -u '${{ github.repository_owner }}:${{ secrets.PUSH_NIGHTLY_TOKEN }}' 'https://api.github.com/repos/leanprover/theorem_proving_in_lean4/dispatches' -X POST -d '{ "event_type": "build_event" }'
-        if: matrix.os == 'ubuntu-latest' && matrix.release
+        if: matrix.name == 'Linux release' && github.event_name == 'push' && github.repository == 'leanprover/lean4'
       - name: Lean stats
         run: |
           build/stage1/bin/lean --stats src/Lean.lean

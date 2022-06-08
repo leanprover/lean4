@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, E.W.Ayers
 -/
 import Lean.Meta.Basic
+import Lean.Meta.ExprTraverse
 
 namespace Lean
 
@@ -69,57 +70,6 @@ def betaReduce (e : Expr) : CoreM Expr :=
 end Core
 
 namespace Meta
-
-variable {M} [Monad M] [MonadLiftT MetaM M] [MonadControlT MetaM M] [MonadOptions M]
-
-private def usedLetOnly : M Bool := getBoolOption `visit.usedLetOnly false
-
-/-- Given an expression `fun (x₁ : α₁) ... (xₙ : αₙ) => b`, will run
-`f` on each of the variable types `αᵢ` and `b` with the correct MetaM context,
-replacing each expression with the output of `f` and creating a new lambda.
-(that is, correctly instantiating bound variables and repackaging them after)  -/
-def traverseLambda
-  (f : Expr → M Expr) (e : Expr) : M Expr := visit #[] e
-  where visit (fvars : Array Expr) : Expr  → M Expr
-    | (Expr.lam n d b c) => do withLocalDecl n c.binderInfo (← f (d.instantiateRev fvars)) fun x => visit (fvars.push x) b
-    | e => do mkLambdaFVars (usedLetOnly := ← usedLetOnly) fvars (← f (e.instantiateRev fvars))
-
-/-- Given an expression ` (x₁ : α₁) → ... → (xₙ : αₙ) → b`, will run
-`f` on each of the variable types `αᵢ` and `b` with the correct MetaM context,
-replacing the expression with the output of `f` and creating a new forall expression.
-(that is, correctly instantiating bound variables and repackaging them after)  -/
-def traverseForall
-  (f : Expr → M Expr) (e : Expr) : M Expr := visit #[] e
-  where visit fvars : Expr → M Expr
-    | (Expr.forallE n d b c) => do withLocalDecl n c.binderInfo (← f (d.instantiateRev fvars)) fun x => visit (fvars.push x) b
-    | e   => do mkForallFVars (usedLetOnly := ←usedLetOnly) fvars (← f (e.instantiateRev fvars))
-
-/-- Similar to traverseLambda and traverseForall but with let binders.  -/
-def traverseLet
-  (f : Expr → M Expr) (e : Expr) : M Expr := visit #[] e
-  where visit fvars
-    | Expr.letE n t v b _ => do
-      withLetDecl n (← f (t.instantiateRev fvars)) (← f (v.instantiateRev fvars)) fun x =>
-        visit (fvars.push x) b
-    | e => do mkLetFVars (usedLetOnly := ←usedLetOnly) fvars (← f (e.instantiateRev fvars))
-
-/-- Maps `f` on each child of the given expression.
-
-Applications, foralls, lambdas and let binders are bundled (as they are bundled in `Expr.traverseApp`, `traverseForall`, ...).
-So `traverseChildren f e` where ``e = `(fn a₁ ... aₙ)`` will return
-``(← f `(fn)) (← f `(a₁)) ... (← f `(aₙ))`` rather than ``(← f `(fn a₁ ... aₙ₋₁)) (← f `(aₙ))``
-
-See also `Lean.Core.traverseChildren`.
- -/
-def traverseChildren (f : Expr → M Expr) (e: Expr) : M Expr := do
-  match e with
-  | Expr.forallE ..    => traverseForall f e
-  | Expr.lam ..        => traverseLambda f e
-  | Expr.letE ..       => traverseLet f e
-  | Expr.app ..        => Expr.traverseApp f e
-  | Expr.mdata _ b _   => return e.updateMData! (← f b)
-  | Expr.proj _ _ b _  => return e.updateProj! (← f b)
-  | _                  => return e
 
 /--
   Similar to `Core.transform`, but terms provided to `pre` and `post` do not contain loose bound variables.

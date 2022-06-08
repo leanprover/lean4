@@ -106,7 +106,9 @@ end ExprLens
 
 end Lean.Meta
 
-namespace Lean.SubExpr
+namespace Lean.Core
+
+open Lean.SubExpr
 
 section ViewRaw
 
@@ -131,10 +133,10 @@ open Except in
 /-- Given a valid SubExpr, will return the raw current expression without performing any instantiation.
 If the SubExpr has a type subexpression coordinate then will error.
 
-This is a cheaper version of `SubExpr.view` and can be used to quickly view the
+This is a cheaper version of `Lean.Meta.viewSubexpr` and can be used to quickly view the
 subexpression at a position. Note that because the resulting expression will contain
 loose bound variables it can't be used in any `MetaM` methods. -/
-def viewRaw (p : Pos) (e : Expr) : Except String Expr :=
+def viewSubexpr (p : Pos) (e : Expr) : Except String Expr :=
   aux e p.toArray.toList
   where
     aux (e : Expr)
@@ -146,6 +148,6 @@ def viewRaw (p : Pos) (e : Expr) : Except String Expr :=
 
 end ViewRaw
 
-end Lean.SubExpr
+end Lean.Core
 
 

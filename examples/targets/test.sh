@@ -14,7 +14,7 @@ fi
 
 ./clean.sh
 
-$LAKE build +Baz
+$LAKE build +Foo.Test
 $LAKE build Bar:o
 
 $LAKE build a

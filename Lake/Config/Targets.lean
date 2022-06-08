@@ -64,7 +64,8 @@ def isLocalModule (mod : Name) (self : LeanLibConfig) : Bool :=
 
 /-- Whether the given module is in the library (i.e., is built as part of it). -/
 def hasModule (mod : Name) (self : LeanLibConfig) : Bool :=
-  self.globs.any fun glob => glob.matches mod
+  self.globs.any (fun glob => glob.matches mod) ||
+  self.roots.any (fun root => root.isPrefixOf mod && self.globs.any (·.matches root))
 
 /-- Get an `Array` of the library's modules. -/
 def getModuleArray (self : LeanLibConfig) (srcDir : FilePath) : IO (Array Name) := do

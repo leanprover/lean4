@@ -382,8 +382,7 @@ def isAntiquot : Syntax → Bool
   | Syntax.node _ (Name.str _ "antiquot" _) _ => true
   | _                                         => false
 
--- TODO: `kind` should not be optional for best `TSyntax` usage
-def mkAntiquotNode (term : Syntax) (nesting := 0) (name : Option String := none) (kind := `pseudo) (isPseudoKind := false) : Syntax :=
+def mkAntiquotNode (kind : Name) (term : Syntax) (nesting := 0) (name : Option String := none) (isPseudoKind := false) : Syntax :=
   let nesting := mkNullNode (mkArray nesting (mkAtom "$"))
   let term :=
     if term.isIdent then term

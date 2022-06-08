@@ -22,12 +22,12 @@ builtin_initialize
   register_parser_alias "ws" checkWsBefore
   register_parser_alias "noWs" checkNoWsBefore
   register_parser_alias "linebreak" checkLinebreakBefore
-  register_parser_alias "num" numLit
-  register_parser_alias "str" strLit
-  register_parser_alias "char" charLit
-  register_parser_alias "name" nameLit
-  register_parser_alias "scientific" scientificLit
-  register_parser_alias ident
+  register_parser_alias (kind := numLitKind) "num" numLit
+  register_parser_alias (kind := strLitKind) "str" strLit
+  register_parser_alias (kind := charLitKind) "char" charLit
+  register_parser_alias (kind := nameLitKind) "name" nameLit
+  register_parser_alias (kind := scientificLitKind) "scientific" scientificLit
+  register_parser_alias (kind := identKind) "ident" ident
   register_parser_alias "colGt" checkColGt
   register_parser_alias "colGe" checkColGe
   register_parser_alias lookahead
@@ -38,7 +38,7 @@ builtin_initialize
   register_parser_alias many1Indent
   register_parser_alias optional
   register_parser_alias withPosition
-  register_parser_alias interpolatedStr
+  register_parser_alias (kind := interpolatedStrKind) interpolatedStr
   register_parser_alias orelse
   register_parser_alias andthen
 

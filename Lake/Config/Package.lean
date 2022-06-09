@@ -197,8 +197,8 @@ structure PackageConfig extends WorkspaceConfig where
 
   /--
   Additional library `FileTarget`s (beyond the package's and its dependencies'
-  libraries) to build and link to the package's binary executable (and/or to
-  dependent package's executables).
+  Lean libraries) to build and link to the package's binaries (and to dependent
+  packages' binaries).
   -/
   moreLibTargets : Array FileTarget := #[]
 

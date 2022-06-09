@@ -3,6 +3,23 @@
 Lake (Lean Make) is a new build system and package manager for Lean 4.
 With Lake, package configuration is written in Lean inside a dedicated `lakefile.lean` stored in the root of the package directory. Each `lakefile.lean` includes a `package` declaration (akin to `main`) which defines the package's configuration.
 
+## Table of Contents
+
+* [Getting Lake](#getting-lake)
+* [Creating and Building a Package](#creating-and-building-a-package)
+* [Package Configuration Options](#package-configuration-options)
+  + [Workspace Options](#workspace-options)
+  + [Per Package Options](#per-package-options)
+* [Defining Build Targets](#defining-build-targets)
+  + [Lean Libraries](#lean-libraries)
+  + [Binary Executables](#binary-executables)
+* [Adding Dependencies](#adding-dependencies)
+  + [Syntax of `Require`](#syntax-of-require)
+* [Writing and Running Lake Scripts](#writing-and-running-lake-scripts)
+* [Building and Running Lake from the Source](#building-and-running-lake-from-the-source)
+  + [Building with Nix Flakes](#building-with-nix-flakes)
+  + [Augmenting Lake's Search Path](#augmenting-lakes-search-path)
+
 ## Getting Lake
 
 Lake is part of the [lean4](https://github.com/leanprover/lean4) repository and is distributed along with its official releases (e.g., as part of the [elan](https://github.com/leanprover/elan) toolchain). So if you have installed a semi-recent Lean 4 nightly, you should already have it!
@@ -37,22 +54,33 @@ def hello := "world"
 
 **Main.lean**
 ```lean
+import Hello
+
 def main : IO Unit :=
   IO.println s!"Hello, {hello}!"
 ```
 
-Lake also creates a basic `lakefile.lean` for the package:
+Lake also creates a basic `lakefile.lean` for the package along with a `lean-toolchain` file that contains the version string of the currently active Lean, which tells [`elan`](https://github.com/leanprover/elan) to use that Lean toolchain for the package.
 
+
+**lakefile.lean**
 ```lean
 import Lake
 open Lake DSL
 
 package hello {
-  -- add configuration options here
+  -- add package configuration options here
+}
+
+lean_lib Hello {
+  -- add library configuration options here
+}
+
+@[defaultTarget]
+lean_exe hello {
+  root := `Main
 }
 ```
-
-along with a `lean-toolchain` file that contains the version string of the currently active Lean, which tells [`elan`](https://github.com/leanprover/elan) to use that Lean toolchain for the package.
 
 The command `lake build` can then be used to build the package (and its dependencies, if it has them) into a native executable. The result will be placed in `build/bin`.
 
@@ -63,60 +91,103 @@ $ ./build/bin/hello
 Hello, world!
 ```
 
-## Adding Dependencies
-
-Lake packages can also have dependencies. Dependencies are other Lake packages the current package needs in order to function. To define a dependency, add an entry to the `dependencies` field of the package configuration. Each entry includes the name of the package and where to find it. Dependencies can be sourced directly from a local folder (e.g., a subdirectory of the package) or come from remote Git repositories. When sourcing from a Git repository, specify the revision of the package to clone, which can be a commit hash, branch, or tag.
-
-For example, one can depend on the Lean 4 port of [mathlib](https://github.com/leanprover-community/mathlib4) like so:
-
-```lean
-require mathlib from git
-  "https://github.com/leanprover-community/mathlib4.git"@"master"
-
-package hello
-```
-
-The next run of `lake build` (or refreshing dependencies in an editor like VSCode) will clone the mathlib repository and build it. Information on the specific revision cloned will then be saved to `manifest.json` in `lean_packages` to enable reproducibility. To update `mathlib` after this, you will need to run `lake update` -- other commands do not update resolved dependencies.
-
-Further examples of different package configurations can be found in the [`examples`](examples) folder of this repository.
+Examples of different package configurations can be found in the [`examples`](examples) folder of this repository.
 
 ## Package Configuration Options
 
 Lake provides a large assortment of configuration options for packages.
 
-### Workspace
+### Workspace Options
 
 Workspace options are shared across a package and its dependencies.
 
 * `packagesDir`: The directory to which Lake should download remote dependencies. Defaults to `lean_packages`.
 
-### General
+### Per Package Options
 
-* `dependencies`: An `Array` of the package's dependencies.
-* `extraDepTarget`: An extra `OpaqueTarget` that should be built before the package. `Target.collectOpaqueList/collectOpaqueArray` can be used combine multiple extra targets into a single `extraDepTarget`.
-* `defaultFacet`: The `PackageFacet` to build on a bare `lake build` of the package. Can be one of `bin`, `staticLib`, `sharedLib`, or `oleans`. Defaults to `bin`. See `lake help build` for more info on build facets.
-* `moreServerArgs`:  Additional arguments to pass to the Lean language server (i.e., `lean --server`) launched by `lake server`.
 * `srcDir`: The directory containing the package's Lean source files. Defaults to the package's directory. (This will be passed to `lean` as the `-R` option.)
 * `buildDir`: The directory to which Lake should output the package's build results. Defaults to `build`.
 * `oleanDir`: The build subdirectory to which Lake should output the package's `.olean` files. Defaults to `lib`.
-* `libRoots`: The root module(s) of the package. Imports relative to this root (e.g., `Pkg.Foo`) are considered part of the package. Defaults to a single root of the package's uppercase `name`.
-* `libGlobs`: An `Array` of module `Glob`s to build for the package's library. Defaults to a `Glob.one` of each of the module's `libRoots`. Submodule globs build every source file within their directory. Local imports of glob'ed files (i.e., fellow modules of the package) are also recursively built.
-* `moreLeanArgs`: An `Array` of additional arguments to pass to `lean` while compiling Lean source files.
-
-### Library / Binary Compilation
-
-* `moreLeancArgs`: An `Array` of additional arguments to pass to `leanc` while compiling the C source files generated by `lean`. Lake already passes `-O3` and `-DNDEBUG` automatically, but you can change this by, for example, adding `-O0` and `-UNDEBUG`.
 * `irDir`: The build subdirectory to which Lake should output the package's intermediary results (e.g., `.c` and `.o` files). Defaults to `ir`.
-* `libName`: The name of the package's static library. Defaults to the package's upper camel case `name`.
-* `libDir`: The build subdirectory to which Lake should output the package's static library. Defaults to `lib`.
-* `binName`: The name of the package's binary executable. Defaults to the package's `name` with any `.` replaced with a `-`.
-* `binDir`: The build subdirectory to which Lake should output the package's binary executable. Defaults to `bin`.
-* `binRoot`: The root module of the package's binary executable. Defaults to `Main`. The root is built by recursively building its local imports (i.e., fellow modules of the package). This setting is most useful for packages that are distributing both a library and a binary (like Lake itself). In such cases, it is common for there to be code (e.g., `main`) that is needed for the binary but should not be included in the library proper.
-* `moreLibTargets`: An `Array` of additional library `FileTarget`s (beyond the package's and its dependencies' libraries) to build and link to the package's binary executable (and/or to dependent package's executables).
-* `supportInterpreter`: Whether to expose symbols within the executable to the Lean interpreter. This allows the executable to interpret Lean files (e.g., via `Lean.Elab.runFrontend`). Implementation-wise, this passes `-rdynamic` to the linker when building on a non-Windows systems. Defaults to `false`.
-* `moreLinkArgs`: An `Array` of additional arguments to pass to `leanc` while compiling the package's binary executable. These will come *after* the paths of libraries built with `moreLibTargets`.
+* `libDir`: The build subdirectory to which Lake should output the package's libraries. Defaults to `lib`.
+* `binDir`: The build subdirectory to which Lake should output the package's binary executables. Defaults to `bin`.
+* `extraDepTarget`: An extra `OpaqueTarget` that should be built before the package. `Target.collectOpaqueList/collectOpaqueArray` can be used combine multiple extra targets into a single `extraDepTarget`.
+* `moreServerArgs`:  Additional arguments to pass to the Lean language server (i.e., `lean --server`) launched by `lake serve`.
+* `moreLeanArgs`: An `Array` of additional arguments to pass to `lean` while compiling Lean source files.
+* `moreLeancArgs`: An `Array` of additional arguments to pass to `leanc` while compiling the C source files generated by `lean`. Lake already passes `-O3` and `-DNDEBUG` automatically, but you can change this by, for example, adding `-O0` and `-UNDEBUG`.
+* `moreLibTargets`: An `Array` of additional library `FileTarget`s (beyond the package's and its dependencies' Lean libraries) to build and link to the package's binaries (and to dependent packages' binaries).
+* `defaultFacet`: The `PackageFacet` to build on a bare `lake build` of the package. Can be one of `bin`, `staticLib`, `sharedLib`, or `oleans`. Defaults to `exe`. See `lake help build` for more info on build facets. **DEPRECATED:** Package facets will be removed in a future version of Lake. Use a separate `lean_lib` or `lean_exe` default target instead.
 
-## Scripts
+## Defining Build Targets
+
+A Lake package can include multiple configurations for building different Lean libraries and binary executables. Libraries are defined using the `lean_lib` command and executables are defined using `lean_exe`. Any number of these declarations can be marked with the `@[defaultTarget]` attribute to tell Lake to build them on a bare `lake build` of the package.
+
+### Lean Libraries
+
+A Lean library target defines a set of Lean modules available to `import` and how to build them.
+
+**Syntax**
+
+```lean
+lean_lib «target-name» {
+  -- configuration options go here
+}
+```
+
+**Configuration Options**
+
+* `roots`: The root module(s) of the library. Submodules of these roots (e.g., `Lib.Foo` of `Lib`) are considered part of the library. Defaults to a single root of the library's upper camel case name.
+* `globs`: An `Array` of module `Glob`s to build for the library. Defaults to a `Glob.one` of each of the library's  `roots`. Submodule globs build every source file within their directory. Local imports of glob'ed files (i.e., fellow modules of the workspace) are also recursively built.
+* `libName`: The name of the library. Used as a base for the file names of its static and dynamic binaries. Defaults to the upper camel case name of the target.
+* `moreLinkArgs`: An `Array` of additional arguments to pass to `leanc` while linking the shared library. These will come *after* the paths of libraries built with the package's
+`moreLibTargets`.
+
+### Binary Executables
+
+A Lean executable target builds a binary executable from a Lean module with a `main` function.
+
+**Syntax**
+
+```lean
+lean_exe «target-name» {
+  -- configuration options go here
+}
+```
+
+**Configuration Options**
+
+* `root`: The root module of the binary executable. Should include a `main` definition that will serve as the entry point of the program. The root is built by recursively building its local imports (i.e., fellow modules of the workspace). Defaults to the name of the target.
+* `exeName`: The name of the binary executable. Defaults to the target name with any `.` replaced with a `-`.
+* `supportInterpreter`: Whether to expose symbols within the executable to the Lean interpreter. This allows the executable to interpret Lean files (e.g., via `Lean.Elab.runFrontend`). Implementation-wise, this passes `-rdynamic` to the linker when building on a non-Windows systems. Defaults to `false`.
+* `moreLinkArgs`: An `Array` of additional arguments to pass to `leanc` when linking the binary executable. These will come *after* the paths of libraries built with the package's `moreLibTargets`.
+
+## Adding Dependencies
+
+Lake packages can have dependencies. Dependencies are other Lake packages the current package needs in order to function. They can be sourced directly from a local folder (e.g., a subdirectory of the package) or come from remote Git repositories. For example, one can depend on the Lean 4 port of [mathlib](https://github.com/leanprover-community/mathlib4) like so:
+
+```lean
+package hello
+
+require mathlib from git
+  "https://github.com/leanprover-community/mathlib4.git"@"master"
+```
+
+The next run of `lake build` (or refreshing dependencies in an editor like VSCode) will clone the mathlib repository and build it. Information on the specific revision cloned will then be saved to `manifest.json` in the workspace's `packageDir` (by default, `lean_packages`) to enable reproducibility. To update `mathlib` after this, you will need to run `lake update` -- other commands do not update resolved dependencies.
+
+### Syntax of `Require`
+
+The `require` command has two forms:
+
+```lean
+require foo from "path"/"to"/"local"/"package" with ["optional","args"]
+require bar from git "url.git"@"rev"/"optional"/"path-to"/"dir-with-pkg"
+```
+
+The first form adds a local dependency and the second form adds a Git dependency. For a Git dependency, the revision can be a commit hash, branch, or tag. Also, the `/` and the following term of the `require` is optional.
+
+Both forms also support an optional `with` clause to specify arguments to pass to the dependency's package configuration (i.e., same as `args` in a `lake build -- <args...>` invocation). The elements of both the `from` and `with` clauses are proper terms so normal computation is supported within them (though parentheses made be required to disambiguate the syntax).
+
+## Writing and Running Lake Scripts
 
 A configuration file can also contain a number of `scripts` declaration. A script is an arbitrary `(args : List String) → ScriptM UInt32` definition that can be run by `lake script run`. For example, given the following `lakefile.lean`:
 

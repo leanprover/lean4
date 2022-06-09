@@ -20,31 +20,31 @@ structure LeanLibConfig where
   name : Name
 
   /--
-  The name of the library.
-  Used as a base for the file names of its static and dynamic binaries.
-  Defaults to the upper camel case name of the target.
-  -/
-  libName := toUpperCamelCase name |>.toString (escape := false)
-
-  /--
   The root module(s) of the library.
 
-  Submodules of these roots (e.g., `Pkg.Foo` of `Pkg`) are considered
+  Submodules of these roots (e.g., `Lib.Foo` of `Lib`) are considered
   part of the package.
 
-  Defaults to a single root of the package's upper camel case `name`.
+  Defaults to a single root of the library's upper camel case name.
   -/
   roots : Array Name := #[toUpperCamelCase name]
 
   /--
   An `Array` of module `Glob`s to build for the library.
-  Defaults to a `Glob.one` of each of the module's `libRoots`.
+  Defaults to a `Glob.one` of each of the library's  `roots`.
 
   Submodule globs build every source file within their directory.
-  Local imports of glob'ed files (i.e., fellow modules of the package) are
+  Local imports of glob'ed files (i.e., fellow modules of the workspace) are
   also recursively built.
   -/
   globs : Array Glob := roots.map Glob.one
+
+  /--
+  The name of the library.
+  Used as a base for the file names of its static and dynamic binaries.
+  Defaults to the upper camel case name of the target.
+  -/
+  libName := toUpperCamelCase name |>.toString (escape := false)
 
    /--
   Additional arguments to pass to `leanc` while linking the shared library.

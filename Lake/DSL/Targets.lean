@@ -36,8 +36,9 @@ Can optionally be provided with a configuration of type `LeanLibConfig`.
 scoped macro (name := leanLibDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 "lean_lib " spec:targetDeclSpec : command => do
+  let attr ← `(Term.attrInstance| leanLib)
   let ty := mkCIdentFrom (← getRef) ``LeanLibConfig
-  let attrs := expandAttrs attrs? |>.push <| ← `(Term.attrInstance| leanLib)
+  let attrs := #[attr] ++ expandAttrs attrs?
   mkTargetDecl doc? attrs ty spec
 
 /--
@@ -47,6 +48,7 @@ Can optionally be provided with a configuration of type `LeanExeConfig`.
 scoped macro (name := leanExeDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 "lean_exe " spec:targetDeclSpec : command => do
+  let attr ← `(Term.attrInstance| leanExe)
   let ty := mkCIdentFrom (← getRef) ``LeanExeConfig
-  let attrs := expandAttrs attrs? |>.push <| ← `(Term.attrInstance| leanExe)
+  let attrs := #[attr] ++ expandAttrs attrs?
   mkTargetDecl doc? attrs ty spec

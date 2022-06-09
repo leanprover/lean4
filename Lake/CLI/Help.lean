@@ -81,6 +81,7 @@ MODULE FACETS:
 
 TARGET EXAMPLES:
   a                     build the default facet of target `a`
+  @a                    build the default target(s) of package `a`
   +A                    build the .olean and .ilean files of module `A`
   a/b                   build the default facet of target `b` of package `a`
   a/+A:c                build the .c file of module `A` of package `a`

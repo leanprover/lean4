@@ -9,13 +9,21 @@ open Lean
 namespace Lake
 
 initialize packageAttr : TagAttribute ←
-  registerTagAttribute `package "Lake package attribute"
+  registerTagAttribute `package "mark a definition as a Lake package declaration"
 
 initialize scriptAttr : TagAttribute ←
-  registerTagAttribute `script "Lake script attribute"
+  registerTagAttribute `script "mark a definition as a Lake script"
 
 initialize leanLibAttr : TagAttribute ←
-  registerTagAttribute `leanLib "Lake Lean library target attribute"
+  registerTagAttribute `leanLib "mark a definition as a Lake Lean library target declaration"
 
 initialize leanExeAttr : TagAttribute ←
-  registerTagAttribute `leanExe "Lake Lean executable target attribute"
+  registerTagAttribute `leanExe "mark a definition as a Lake Lean executable target declaration"
+
+initialize defaultTargetAttr : TagAttribute ←
+  registerTagAttribute `defaultTarget "mark a Lake target as the package's default"
+    fun name => do
+      let valid ← getEnv <&> fun env =>
+        leanLibAttr.hasTag env name || leanExeAttr.hasTag env name
+      unless valid do
+        throwError "attribute `defaultTarget` can only be used on a target (e.g., `lean_lib`, `lean_exe`)"

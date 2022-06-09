@@ -111,7 +111,8 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
       let exes ← leanExeAttr.ext.getState env |>.foldM (init := {}) fun m d =>
         let eval := env.evalConstCheck LeanExeConfig leanOpts ``LeanExeConfig d
         return m.insert d <| ← IO.ofExcept eval.run.run
-      return {dir, config, scripts, libs, exes}
+      let defaultTargets := defaultTargetAttr.ext.getState env |>.toArray
+      return {dir, config, scripts, libs, exes, defaultTargets}
     | _ => error s!"configuration file has multiple `package` declarations"
   else
     error s!"package configuration `{configFile}` has errors"

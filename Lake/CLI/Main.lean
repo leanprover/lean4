@@ -234,7 +234,7 @@ def serve (args : Array String) : LakeT IO UInt32 := do
 def parseScriptSpec (ws : Workspace) (spec : String) : Except CliError (Package × String) :=
   match spec.splitOn "/" with
   | [script] => return (ws.root, script)
-  | [pkg, script] => return (← parsePkgSpec ws pkg, script)
+  | [pkg, script] => return (← parsePackageSpec ws pkg, script)
   | _ => throw <| CliError.invalidScriptSpec spec
 
 def script : (cmd : String) → CliM PUnit
@@ -294,9 +294,15 @@ def command : (cmd : String) → CliM PUnit
   let opts ← getThe LakeOptions
   let config ← mkLakeConfig opts opts.subArgs
   let ws ← loadWorkspace config
-  let targets ← parseTargetSpecs ws (← takeArgs)
+  let targetSpecs ← takeArgs
+  let target ← show Except _ _ from do
+    let targets ← targetSpecs.mapM <| parseTargetSpec ws
+    if targets.isEmpty then
+      resolveDefaultPackageTarget ws.root
+    else
+      return Target.collectOpaqueList targets
   let ctx ← mkBuildContext ws config.leanInstall config.lakeInstall
-  build targets |>.run MonadLog.io ctx
+  BuildM.run MonadLog.io ctx target.build
 | "update" => do
   processOptions lakeOption
   let opts ← getThe LakeOptions

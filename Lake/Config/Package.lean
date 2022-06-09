@@ -252,6 +252,11 @@ structure Package where
   libs : NameMap LeanLibConfig := {}
   /-- Additional Lean binary executable targets for the package. -/
   exes : NameMap LeanExeConfig := {}
+  /--
+  The names of the package's targets to build by default
+  (i.e., on a bare `lake build` of the package).
+  -/
+  defaultTargets : Array Name := #[]
   deriving Inhabited
 
 namespace OpaquePackage

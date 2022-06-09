@@ -19,7 +19,7 @@ def Package.defaultTarget (self : Package) : OpaqueTarget :=
   | .leanLib => self.libTarget.withoutInfo
   | .oleans => self.libTarget.withoutInfo
 
-def parsePkgSpec (ws : Workspace) (spec : String) : Except CliError Package :=
+def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package :=
   if spec.isEmpty then
     return ws.root
   else
@@ -56,9 +56,26 @@ def resolveExeTarget (pkg : Package) (exe : LeanExeConfig) (facet : String) : Ex
   else
     throw <| CliError.unknownFacet "executable" facet
 
+def resolveTargetInPackage (pkg : Package) (target : Name) (facet : String) : Except CliError OpaqueTarget :=
+  if let some exe := pkg.findExe? target then
+    resolveExeTarget pkg exe facet
+  else if let some lib := pkg.findLib? target then
+    resolveLibTarget pkg lib facet
+  else if pkg.hasModule target then
+    resolveModuleTarget pkg target facet
+  else
+    throw <| CliError.missingTarget pkg.name (target.toString false)
+
+def resolveDefaultPackageTarget (pkg : Package) : Except CliError OpaqueTarget :=
+  if pkg.defaultTargets.isEmpty then
+    return pkg.defaultTarget
+  else
+    return Target.collectOpaqueArray <| ←
+      pkg.defaultTargets.mapM (resolveTargetInPackage pkg · "")
+
 def resolvePackageTarget (pkg : Package) (facet : String) : Except CliError OpaqueTarget :=
   if facet.isEmpty then
-    return pkg.defaultTarget
+    resolveDefaultPackageTarget pkg
   else if facet == "exe" || facet == "bin" then
     return pkg.exeTarget.withoutInfo
   else if facet == "staticLib" then
@@ -73,8 +90,10 @@ def resolvePackageTarget (pkg : Package) (facet : String) : Except CliError Opaq
 def resolveTargetBaseSpec (ws : Workspace) (spec : String) (facet := "") : Except CliError OpaqueTarget := do
   match spec.splitOn "/" with
   | [spec] =>
-    if spec.isEmpty || spec.startsWith "@" then
-      let pkg ← parsePkgSpec ws <| spec.drop 1
+    if spec.isEmpty then
+      resolvePackageTarget ws.root facet
+    else if spec.startsWith "@" then
+      let pkg ← parsePackageSpec ws <| spec.drop 1
       resolvePackageTarget pkg facet
     else if spec.startsWith "+" then
       let mod := spec.drop 1 |>.toName
@@ -95,19 +114,12 @@ def resolveTargetBaseSpec (ws : Workspace) (spec : String) (facet := "") : Excep
         throw <| CliError.unknownTarget spec
   | [pkgSpec, targetSpec] =>
     let pkgSpec := if pkgSpec.startsWith "@" then pkgSpec.drop 1 else pkgSpec
-    let pkg ← parsePkgSpec ws pkgSpec
+    let pkg ← parsePackageSpec ws pkgSpec
     if targetSpec.startsWith "+" then
       let mod := targetSpec.drop 1 |>.toName
       resolveModuleTarget pkg mod facet
     else
-      if let some exe := pkg.findExe? spec then
-        resolveExeTarget pkg exe facet
-      else if let some lib := pkg.findLib? spec then
-        resolveLibTarget pkg lib facet
-      else if pkg.hasModule spec then
-        resolveModuleTarget pkg spec facet
-      else
-        throw <| CliError.missingTarget pkg.name targetSpec
+      resolveTargetInPackage pkg spec facet
   | _ =>
     throw <| CliError.invalidTargetSpec spec '/'
 
@@ -122,10 +134,3 @@ def parseTargetSpec (ws : Workspace) (spec : String) : Except CliError OpaqueTar
 
 def parseTargetSpecs (ws : Workspace) (specs : List String) : Except CliError (List OpaqueTarget) :=
   specs.mapM <| parseTargetSpec ws
-
-def build (targets : List OpaqueTarget) : BuildM PUnit := do
-  let ws ← getWorkspace
-  if targets.isEmpty then
-    ws.root.defaultTarget.build
-  else
-    targets.forM (·.build)

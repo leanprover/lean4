@@ -17,12 +17,15 @@ fi
 $LAKE build +Foo.Test
 $LAKE build Bar:o
 
-$LAKE build a
-$LAKE build b c
+$LAKE build
+
+./build/bin/c
+test -f ./build/lib/Foo.olean
+
+$LAKE build a b
 
 ./build/bin/a
 ./build/bin/b
-./build/bin/c
 
 $LAKE build foo:static
 $LAKE build bar:shared

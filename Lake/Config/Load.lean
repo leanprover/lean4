@@ -111,7 +111,7 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
       let exes ← leanExeAttr.ext.getState env |>.foldM (init := {}) fun m d =>
         let eval := env.evalConstCheck LeanExeConfig leanOpts ``LeanExeConfig d
         return m.insert d <| ← IO.ofExcept eval.run.run
-      if libs.isEmpty && exes.isEmpty then
+      if libs.isEmpty && exes.isEmpty && !config.defaultFacet = .none then
         logWarning <| "Package targets are deprecated. " ++
           "Add a `lean_exe` and/or `lean_lib` default target to the package instead."
       let defaultTargets := defaultTargetAttr.ext.getState env |>.toArray

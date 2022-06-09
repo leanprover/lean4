@@ -16,6 +16,7 @@ def Package.defaultTarget (self : Package) : OpaqueTarget :=
   | .staticLib => self.staticLibTarget.withoutInfo
   | .sharedLib => self.sharedLibTarget.withoutInfo
   | .leanLib | .oleans => self.libTarget.withoutInfo
+  | .none => Target.nil
 
 def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package :=
   if spec.isEmpty then

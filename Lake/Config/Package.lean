@@ -52,6 +52,7 @@ inductive PackageFacet
 | /-- The package's shared library. -/ sharedLib
 | /-- The package's lean library (e.g. `olean` / `ilean` files). -/ leanLib
 | /-- The package's `.olean` files. **DEPRECATED:** Use `leanLib` instead. -/ oleans
+| /-- The package has no buildable component. -/ none
 deriving BEq, DecidableEq, Repr
 instance : Inhabited PackageFacet := ⟨PackageFacet.exe⟩
 
@@ -220,6 +221,14 @@ structure PackageConfig extends WorkspaceConfig where
   with `moreLibTargets`.
   -/
   moreLinkArgs : Array String := #[]
+
+  /--
+  Marks the package as only containing scripts.
+
+  Used to turn off deprecation warnings about package facets in packages
+  not intended to have any targets.
+  -/
+  scriptsOnly : Bool := false
 
 deriving Inhabited
 

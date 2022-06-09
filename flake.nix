@@ -41,7 +41,9 @@
         };
         tsandebug = tsan.override { debug = true; };
         stage0-from-input = lean-packages.override {
-          stage0 = lean-stage0.packages.${system}.lean;
+          stage0 = pkgs.writeShellScriptBin "lean" ''
+            exec ${lean-stage0.packages.${system}.lean}/bin/lean -Dinterpreter.prefer_native=false "$@"
+          '';
         };
         inherit self;
       };

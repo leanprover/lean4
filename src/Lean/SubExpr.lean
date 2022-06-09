@@ -49,10 +49,6 @@ def push (p : Pos) (c : Nat) : Pos :=
   if c >= maxChildren then panic! s!"invalid coordinate {c}"
   else p.asNat * maxChildren + c
 
-/-- `pushNZeros p count` runs `.push 0` `count` times. -/
-def pushNZeros (p : Pos) (count : Nat) : Pos :=
-  p.asNat * (maxChildren ^ count)
-
 variable {α : Type} [Inhabited α]
 
 /-- Fold over the position starting at the root and heading to the leaf-/
@@ -96,6 +92,7 @@ def pushProj          (p : Pos) := p.push 0
 
 def pushNaryFn (numArgs : Nat) (p : Pos) : Pos :=
   p.asNat * (maxChildren ^ numArgs)
+
 def pushNaryArg (numArgs argIdx : Nat) (p : Pos) : Pos :=
   show Nat from p.asNat * (maxChildren ^ (numArgs - argIdx)) + 1
 

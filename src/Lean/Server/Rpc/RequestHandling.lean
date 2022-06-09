@@ -42,7 +42,7 @@ private unsafe def handleRpcCallUnsafe (p : Lsp.RpcCallParams) : RequestM (Reque
         match proc with
         | Except.ok x => x.wrapper p.sessionId p.params
         | Except.error e => throwThe RequestError {
-          code := JsonRpc.ErrorCode.internalError
+          code := JsonRpc.ErrorCode.workerCrashed
           message := s!"Failed to evaluate RPC constant '{procName}': {e}" }
       else
         throwThe RequestError {

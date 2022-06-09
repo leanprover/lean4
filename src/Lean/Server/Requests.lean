@@ -38,7 +38,7 @@ def methodNotFound (method : String) : RequestError :=
     message := s!"No request handler found for '{method}'" }
 
 instance : Coe IO.Error RequestError where
-  coe e := { code := ErrorCode.internalError
+  coe e := { code := ErrorCode.workerCrashed
              message := toString e }
 
 def toLspResponseError (id : RequestID) (e : RequestError) : ResponseError Unit :=

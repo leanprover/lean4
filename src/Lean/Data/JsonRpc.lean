@@ -37,7 +37,8 @@ inductive ErrorCode where
   | invalidRequest
   | methodNotFound
   | invalidParams
-  | internalError
+  | workerCrashed
+  | stackOverflow
   | serverNotInitialized
   | unknownErrorCode
   -- LSP-specific codes below.
@@ -52,7 +53,8 @@ instance : FromJson ErrorCode := ⟨fun
   | num (-32600 : Int) => return ErrorCode.invalidRequest
   | num (-32601 : Int) => return ErrorCode.methodNotFound
   | num (-32602 : Int) => return ErrorCode.invalidParams
-  | num (-32603 : Int) => return ErrorCode.internalError
+  | num (-32603 : Int) => return ErrorCode.workerCrashed
+  | num (-32604 : Int) => return ErrorCode.stackOverflow
   | num (-32002 : Int) => return ErrorCode.serverNotInitialized
   | num (-32001 : Int) => return ErrorCode.unknownErrorCode
   | num (-32801 : Int) => return ErrorCode.contentModified
@@ -65,7 +67,8 @@ instance : ToJson ErrorCode := ⟨fun
   | ErrorCode.invalidRequest       => (-32600 : Int)
   | ErrorCode.methodNotFound       => (-32601 : Int)
   | ErrorCode.invalidParams        => (-32602 : Int)
-  | ErrorCode.internalError        => (-32603 : Int)
+  | ErrorCode.workerCrashed       => (-32603 : Int)
+  | ErrorCode.stackOverflow        => (-32604 : Int)
   | ErrorCode.serverNotInitialized => (-32002 : Int)
   | ErrorCode.unknownErrorCode     => (-32001 : Int)
   | ErrorCode.contentModified      => (-32801 : Int)

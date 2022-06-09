@@ -5,6 +5,7 @@
 - [Setting Up Lean](./quickstart.md)
   - [Extended Setup Notes](./setup.md)
 - [Theorem Proving in Lean](./tpil.md)
+- [Functional Programming in Lean](fplean.md)
 - [Examples](./examples.md)
   - [Palindromes](examples/palindromes.lean.md)
   - [Binary Search Trees](examples/bintree.lean.md)

@@ -27,3 +27,23 @@ linterUnusedVariables.lean:191:19-191:20: warning: unused variable `x`
 linterUnusedVariables.lean:195:6-195:7: warning: unused variable `y`
 linterUnusedVariables.lean:200:6-200:7: warning: unused variable `y`
 linterUnusedVariables.lean:205:6-205:7: warning: unused variable `y`
+linterUnusedVariables.lean:214:27-214:28: error: don't know how to synthesize placeholder
+context:
+bar : ?m
+bar' : Nat → Nat
+α : Type ?u
+β : ?m
+inst : ToString α
+a : Nat
+⊢ Nat
+linterUnusedVariables.lean:215:0-215:7: warning: declaration uses 'sorry'
+linterUnusedVariables.lean:216:0-216:7: warning: declaration uses 'sorry'
+linterUnusedVariables.lean:218:0: error: unexpected end of input; expected '{'
+linterUnusedVariables.lean:217:27-217:29: error: unsolved goals
+bar : ?m
+bar' : Nat → Nat
+α : Type ?u
+β : ?m
+inst : ToString α
+a : Nat
+⊢ Nat

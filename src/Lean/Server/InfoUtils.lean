@@ -330,4 +330,18 @@ partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option
       | `($f $as*) => getHeadFnPos? f (foundArgs := foundArgs || !as.isEmpty)
       | stx => if foundArgs && stx.isIdent then stx.getPos? else none
 
+partial def InfoTree.hasSorry : InfoTree → IO Bool :=
+  go none
+where go ci?
+  | .context ci t => go ci t
+  | .node i cs =>
+    if let (some ci, .ofTermInfo ti) := (ci?, i) then do
+      let expr ← ti.runMetaM ci (Meta.instantiateMVars ti.expr)
+      return expr.hasSorry
+      -- we assume that `cs` are subterms of `ti.expr` and
+      -- thus do not have to be checked as well
+    else
+      cs.anyM (go ci?)
+  | _ => return false
+
 end Lean.Elab

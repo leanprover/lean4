@@ -26,11 +26,18 @@ def getLinterUnusedVariablesFunArgs (o : Options) : Bool := o.get linter.unusedV
 def getLinterUnusedVariablesPatternVars (o : Options) : Bool := o.get linter.unusedVariables.patternVars.name (getLinterUnusedVariables o)
 
 def unusedVariables : Linter := fun stx => do
+  -- NOTE: `messages` is local to the current command
+  if (← get).messages.hasErrors then
+    return
+
   let some stxRange := stx.getRange?
     | pure ()
 
   let infoTrees := (← get).infoState.trees.toArray
   let fileMap := (← read).fileMap
+
+  if (← infoTrees.anyM (·.hasSorry)) then
+    return
 
   -- collect references
   let refs := findModuleRefs fileMap infoTrees

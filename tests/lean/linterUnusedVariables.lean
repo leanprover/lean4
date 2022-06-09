@@ -209,3 +209,9 @@ theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := by -- *not* unused
   cases a
   exact absurd h (Nat.not_lt_zero _)
   apply Nat.noConfusion
+
+-- should not be reported either
+example (a : Nat) : Nat := _
+example (a : Nat) : Nat := sorry
+example (a : sorry) : Nat := 0
+example (a : Nat) : Nat := by

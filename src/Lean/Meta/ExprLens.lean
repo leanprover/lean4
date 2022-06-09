@@ -146,6 +146,26 @@ def viewSubexpr (p : Pos) (e : Expr) : Except String Expr :=
         | error m => error m
       | [] => ok e
 
+private def viewBindersCoord : Nat → Expr → Option (Name × Expr)
+  | 1, (Expr.lam n y _ _)     => some (n, y)
+  | 1, (Expr.forallE n y _ _) => some (n, y)
+  | 2, (Expr.letE n y _ _ _)  => some (n, y)
+  | _, _                      => none
+
+def viewBinders (p : Pos) (e : Expr) : Except String (Array (Name × Expr)) := do
+  let (acc, _) ← Pos.foldrM (fun c (acc, e) => do
+    let e₂ ← viewCoordRaw c e
+    let acc : Array (Name × Expr) :=
+      match viewBindersCoord c e with
+      | none => acc
+      | some b => acc.push b
+    return (acc, e₂)
+  ) p (#[], e)
+  return acc
+
+def numBinders (p : Pos) (e : Expr) : Except String Nat :=
+  Array.size <$> viewBinders p e
+
 end ViewRaw
 
 end Lean.Core

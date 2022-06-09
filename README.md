@@ -6,6 +6,7 @@ This is the repository for **Lean 4**, which is currently being released as mile
 - [Quickstart](https://github.com/leanprover/lean4/blob/master/doc/quickstart.md)
 - [Homepage](https://leanprover.github.io)
 - [Theorem Proving Tutorial](https://leanprover.github.io/theorem_proving_in_lean4/)
+- [Functional Programming in Lean](https://leanprover.github.io/functional_programming_in_lean/) **first chapter is available!**
 - [Manual](https://leanprover.github.io/lean4/doc/)
 - [Release notes](RELEASES.md) starting at v4.0.0-m3
 - [Examples](https://leanprover.github.io/lean4/doc/examples.html)

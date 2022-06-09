@@ -258,7 +258,7 @@ section ServerM
           return WorkerEvent.terminated
         else
           -- Worker crashed
-          fw.errorPendingRequests o ErrorCode.internalError
+          fw.errorPendingRequests o (if exitCode = 1 then ErrorCode.workerCrashed else ErrorCode.stackOverflow)
             s!"Server process for {fw.doc.meta.uri} crashed, {if exitCode = 1 then "see stderr for exception" else "likely due to a stack overflow in user code"}."
           return WorkerEvent.crashed err
       loop
@@ -522,7 +522,7 @@ section MessageHandling
         -- TODO Do fancier error handling, like in file worker?
         | e => hOut.writeLspResponseError {
           id := id
-          code := ErrorCode.internalError
+          code := ErrorCode.workerCrashed
           message := s!"Failed to process request {id}: {e}"
         }
     -- If a definition is in a different, modified file, the ilean data should

@@ -28,3 +28,11 @@ has type
   Nat → ExceptT String (StateT Nat Id) Nat : Type
 but is expected to have type
   ExceptT String (StateT Nat Id) ?m : Type
+doErrorMsg.lean:28:13-28:18: error: application type mismatch
+  Prod.mk false
+argument
+  false
+has type
+  Bool : Type
+but is expected to have type
+  Nat : Type

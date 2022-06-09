@@ -1,6 +1,12 @@
 import Lake
 open System Lake DSL
 
+package bar
+
 require foo from ".."/"foo"
 
-package bar
+lean_lib Bar
+
+@[defaultTarget]
+lean_exe bar where
+  root := `Main

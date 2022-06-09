@@ -18,7 +18,12 @@ def cLibTarget (pkgDir : FilePath) : FileTarget :=
 package ffi {
   -- customize layout
   srcDir := "lean"
-  libRoots := #[`Ffi]
   -- specify the lib as an additional target
   moreLibTargets := #[cLibTarget __dir__]
+}
+
+lean_lib FFI
+
+@[defaultTarget] lean_exe test {
+  root := `Main
 }

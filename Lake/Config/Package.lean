@@ -53,7 +53,7 @@ inductive PackageFacet
 | /-- The package's lean library (e.g. `olean` / `ilean` files). -/ leanLib
 | /-- The package's `.olean` files. **DEPRECATED:** Use `leanLib` instead. -/ oleans
 deriving BEq, DecidableEq, Repr
-instance : Inhabited PackageFacet := ⟨PackageFacet.bin⟩
+instance : Inhabited PackageFacet := ⟨PackageFacet.exe⟩
 
 --------------------------------------------------------------------------------
 -- # PackageConfig
@@ -80,11 +80,15 @@ structure PackageConfig extends WorkspaceConfig where
   extraDepTarget : OpaqueTarget := Target.nil
 
   /--
-  The `PackageFacet` to build on a bare `lake build` of the package.
-  Can be one of `exe` (or `bin`), `staticLib`, `sharedLib`, or `oleans`.
+  The optional `PackageFacet` to build on a bare `lake build` of the package.
+  Can be one of `exe`, `leanLib`, `staticLib`, `sharedLib`.
   Defaults to `exe`. See `lake help build` for more info on build facets.
+
+  **DEPRECATED:**
+  Package facets will be removed in a future version of Lake.
+  Use a separate `lean_lib` or `lean_exe` default target instead.
   -/
-  defaultFacet : PackageFacet := PackageFacet.exe
+  defaultFacet : PackageFacet := .exe
 
   /--
   Additional arguments to pass to the Lean language server

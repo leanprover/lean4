@@ -1,5 +1,11 @@
 import Lake
 open System Lake DSL
 
-require ffi from ".."/"lib"
 package app
+
+require ffi from ".."/"lib"
+
+@[defaultTarget]
+lean_exe app {
+  root := `Main
+}

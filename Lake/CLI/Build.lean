@@ -12,12 +12,10 @@ namespace Lake
 
 def Package.defaultTarget (self : Package) : OpaqueTarget :=
   match self.defaultFacet with
-  | .exe => self.exeTarget.withoutInfo
-  | .bin => self.exeTarget.withoutInfo
+  | .exe | .bin => self.exeTarget.withoutInfo
   | .staticLib => self.staticLibTarget.withoutInfo
   | .sharedLib => self.sharedLibTarget.withoutInfo
-  | .leanLib => self.libTarget.withoutInfo
-  | .oleans => self.libTarget.withoutInfo
+  | .leanLib | .oleans => self.libTarget.withoutInfo
 
 def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package :=
   if spec.isEmpty then

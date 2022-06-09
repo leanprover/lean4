@@ -35,27 +35,37 @@ def main : IO Unit :=
   IO.println s!\"Hello, \{hello}!\"
 "
 
-def pkgConfigFileContents (pkgName : String) :=
+def pkgConfigFileContents (pkgName : Name) (libRoot : Name) :=
 s!"import Lake
 open Lake DSL
 
-package {pkgName.toName} \{
-  -- add configuration options here
+package {pkgName} \{
+  -- add package configuration options here
+}
+
+lean_lib {libRoot} \{
+  -- add library configuration options here
+}
+
+@[defaultTarget]
+lean_exe {pkgName} \{
+  root := `Main
 }
 "
 
 /-- Initialize a new Lake package in the given directory with the given name. -/
 def initPkg (dir : FilePath) (name : String) : IO PUnit := do
+  let pkgName := name.decapitalize.toName
+  let libRoot := toUpperCamelCase name.toName
 
   -- write default configuration file
   let configFile := dir / defaultConfigFile
   if (← configFile.pathExists) then
     -- error if package already has a `lakefile.lean`
     throw <| IO.userError "package already initialized"
-  IO.FS.writeFile configFile (pkgConfigFileContents name)
+  IO.FS.writeFile configFile (pkgConfigFileContents pkgName libRoot)
 
   -- write example code if the files do not already exist
-  let libRoot := toUpperCamelCase name.toName
   let libFile := Lean.modToFilePath dir libRoot "lean"
   unless (← libFile.pathExists) do
     IO.FS.createDirAll libFile.parent.get!

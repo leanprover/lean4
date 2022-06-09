@@ -1,6 +1,6 @@
 import Lake
 open System Lake DSL
 
-require root from ".."/"root"
-
 package a
+require root from ".."/"root"
+@[defaultTarget] lean_lib A

@@ -1,5 +1,9 @@
 import Lake
 open Lake DSL
 
-package hello {
+package hello
+
+@[defaultTarget]
+lean_exe hello {
+  root := `Main
 }

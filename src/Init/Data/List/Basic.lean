@@ -423,13 +423,15 @@ instance [LT α] : LE (List α) := ⟨List.le⟩
 instance [LT α] [DecidableRel ((· < ·) : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
   fun _ _ => inferInstanceAs (Decidable (Not _))
 
-/--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`. -/
+/--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`.
+That is, there exists a `t` such that `l₂ == l₁ ++ t`. -/
 def isPrefixOf [BEq α] : List α → List α → Bool
   | [],    _     => true
   | _,     []    => false
   | a::as, b::bs => a == b && isPrefixOf as bs
 
-/--  `isSuffixOf l₁ l₂` returns `true` Iff `l₁` is a suffix of `l₂`. -/
+/--  `isSuffixOf l₁ l₂` returns `true` Iff `l₁` is a suffix of `l₂`.
+That is, there exists a `t` such that `l₂ == t ++ l₁`. -/
 def isSuffixOf [BEq α] (l₁ l₂ : List α) : Bool :=
   isPrefixOf l₁.reverse l₂.reverse
 

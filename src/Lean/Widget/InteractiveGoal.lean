@@ -16,7 +16,7 @@ structure InteractiveHypothesisBundle where
   /-- The user-friendly name for each hypothesis.
   If anonymous then the name is inaccessible and hidden. -/
   names : Array Name
-  fvarIds? : Option (Array FVarId)
+  fvarIds : Array FVarId
   type : CodeWithInfos
   val? : Option CodeWithInfos := none
   isInstance : Bool
@@ -90,7 +90,7 @@ def addInteractiveHypothesisBundle (hyps : Array InteractiveHypothesisBundle) (i
   let names := ids.map Prod.fst
   return hyps.push {
     names      := names
-    fvarIds?   := fvarIds
+    fvarIds    := fvarIds
     type       := (← ppExprTagged type)
     val?       := (← value?.mapM ppExprTagged)
     isInstance := (← isClass? type).isSome
@@ -132,7 +132,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
           prevType? := none
         else
           match localDecl with
-          | LocalDecl.cdecl index fvarId varName type _   =>
+          | LocalDecl.cdecl _index fvarId varName type _   =>
             let varName := varName.simpMacroScopes
             let type ← instantiateMVars type
             if prevType? == none || prevType? == some type then
@@ -141,7 +141,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
               hyps ← pushPending varNames prevType? hyps
               varNames := #[(varName, fvarId)]
             prevType? := some type
-          | LocalDecl.ldecl index fvarId varName type val _ => do
+          | LocalDecl.ldecl _index fvarId varName type val _ => do
             let varName := varName.simpMacroScopes
             hyps ← pushPending varNames prevType? hyps
             let type ← instantiateMVars type

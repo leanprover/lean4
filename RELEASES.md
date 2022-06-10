@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* Simplify parser `interpolatedStr(term)` to `interpolatedStr`.
+
 * Add unnamed antiquotation `$_` for use in syntax quotation patterns.
 
 * [Add unused variables linter](https://github.com/leanprover/lean4/pull/1159). Feedback welcome!

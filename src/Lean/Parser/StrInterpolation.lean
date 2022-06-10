@@ -9,7 +9,7 @@ namespace Lean.Parser
 def isQuotableCharForStrInterpolant (c : Char) : Bool :=
   c == '{' || isQuotableCharDefault c
 
-partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
+partial def interpolatedStrFn : ParserFn := fun c s =>
   let input     := c.input
   let stackSize := s.stackSize
   let rec parse (startPos : String.Pos) (c : ParserContext) (s : ParserState) : ParserState :=
@@ -28,7 +28,7 @@ partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
         andthenFn (quotedCharCoreFn isQuotableCharForStrInterpolant) (parse startPos) c s
       else if curr == '{' then
         let s := mkNodeToken interpolatedStrLitKind startPos c s
-        let s := p c s
+        let s := termParser.fn c s
         if s.hasError then s
         else
           let i := s.pos
@@ -53,12 +53,12 @@ partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
       let s := s.next input startPos
       parse startPos c s
 
-@[inline] def interpolatedStrNoAntiquot (p : Parser) : Parser := {
-  fn   := interpolatedStrFn p.fn,
+@[inline] def interpolatedStrNoAntiquot : Parser := {
+  fn   := interpolatedStrFn,
   info := mkAtomicInfo "interpolatedStr"
 }
 
-def interpolatedStr (p : Parser) : Parser :=
-  withAntiquot (mkAntiquot "interpolatedStr" interpolatedStrKind) $ interpolatedStrNoAntiquot p
+def interpolatedStr : Parser :=
+  withAntiquot (mkAntiquot "interpolatedStr" interpolatedStrKind) $ interpolatedStrNoAntiquot
 
 end Lean.Parser

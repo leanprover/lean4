@@ -489,11 +489,11 @@ def setExpected.formatter (_expected : List String) (p : Formatter) : Formatter 
 @[combinatorFormatter Lean.Parser.withOpen] def withOpen.formatter (p : Formatter) : Formatter := p
 
 @[combinatorFormatter Lean.Parser.interpolatedStr]
-def interpolatedStr.formatter (p : Formatter) : Formatter := do
+def interpolatedStr.formatter : Formatter := do
   visitArgs $ (← getCur).getArgs.reverse.forM fun chunk =>
     match chunk.isLit? interpolatedStrLitKind with
     | some str => push str *> goLeft
-    | none     => p
+    | none     => categoryFormatter `term
 
 @[combinatorFormatter Lean.Parser.dbgTraceState] def dbgTraceState.formatter (_label : String) (p : Formatter) : Formatter := p
 

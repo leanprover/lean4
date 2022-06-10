@@ -494,12 +494,12 @@ def setExpected.parenthesizer (_expected : List String) (p : Parenthesizer) : Pa
 @[combinatorParenthesizer Lean.Parser.withOpen] def withOpen.parenthesizer (p : Parenthesizer) : Parenthesizer := p
 
 @[combinatorParenthesizer Lean.Parser.interpolatedStr]
-def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := do
+def interpolatedStr.parenthesizer : Parenthesizer := do
   visitArgs $ (← getCur).getArgs.reverse.forM fun chunk =>
     if chunk.isOfKind interpolatedStrLitKind then
       goLeft
     else
-      p
+      term.parenthesizer 0
 
 @[combinatorParenthesizer Lean.Parser.dbgTraceState] def dbgTraceState.parenthesizer (_label : String) (p : Parenthesizer) : Parenthesizer := p
 

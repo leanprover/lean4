@@ -286,7 +286,7 @@ def bracketedBinderF := bracketedBinder  -- no default arg
 
 @[builtinTermParser] def panic       := leading_parser:leadPrec "panic! " >> termParser
 @[builtinTermParser] def unreachable := leading_parser:leadPrec "unreachable!"
-@[builtinTermParser] def dbgTrace    := leading_parser:leadPrec withPosition ("dbg_trace" >> ((interpolatedStr termParser) <|> termParser)) >> optSemicolon termParser
+@[builtinTermParser] def dbgTrace    := leading_parser:leadPrec withPosition ("dbg_trace" >> (interpolatedStr <|> termParser)) >> optSemicolon termParser
 @[builtinTermParser] def assert      := leading_parser:leadPrec withPosition ("assert! " >> termParser) >> optSemicolon termParser
 
 

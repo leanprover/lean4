@@ -692,7 +692,7 @@ instance [Eval α] : Eval (IO α) where
 
 end Lean
 
-syntax "println! " (interpolatedStr(term) <|> term) : term
+syntax "println! " (interpolatedStr <|> term) : term
 
 macro_rules
   | `(println! $msg) =>

@@ -7,7 +7,7 @@ prelude
 import Init.Meta
 import Init.Data.ToString.Basic
 
-syntax:max "s!" interpolatedStr(term) : term
+syntax:max "s!" interpolatedStr : term
 
 macro_rules
   | `(s! $interpStr) => do interpStr.expandInterpolatedStr (← `(String)) (← `(toString))

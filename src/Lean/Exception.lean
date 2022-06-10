@@ -102,8 +102,8 @@ def Exception.isMaxRecDepth (ex : Exception) : Bool :=
   else
     MonadRecDepth.withRecDepth (curr+1) x
 
-syntax "throwError " (interpolatedStr(term) <|> term) : term
-syntax "throwErrorAt " term:max (interpolatedStr(term) <|> term) : term
+syntax "throwError " (interpolatedStr <|> term) : term
+syntax "throwErrorAt " term:max (interpolatedStr <|> term) : term
 
 macro_rules
   | `(throwError $msg) =>

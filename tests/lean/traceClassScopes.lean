@@ -1,6 +1,6 @@
 import Lean
 
-macro "t" t:interpolatedStr(term) : doElem =>
+macro "t" t:interpolatedStr : doElem =>
   `(Macro.trace[Meta.debug] $t)
 
 macro "tstcmd" : command => do
@@ -12,7 +12,7 @@ tstcmd
 
 open Lean Meta
 
-macro "r" r:interpolatedStr(term) : doElem =>
+macro "r" r:interpolatedStr : doElem =>
   `(trace[Meta.debug] $r)
 
 set_option trace.Meta.debug true in

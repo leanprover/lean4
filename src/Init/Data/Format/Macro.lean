@@ -9,7 +9,7 @@ import Init.Data.ToString.Macro
 
 namespace Std
 
-syntax:max "f!" interpolatedStr(term) : term
+syntax:max "f!" interpolatedStr : term
 
 macro_rules
   | `(f! $interpStr) => do interpStr.expandInterpolatedStr (← `(Format)) (← `(Std.format))

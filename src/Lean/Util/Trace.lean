@@ -146,7 +146,7 @@ end
 def registerTraceClass (traceClassName : Name) : IO Unit :=
   registerOption (`trace ++ traceClassName) { group := "trace", defValue := false, descr := "enable/disable tracing for the given module and submodules" }
 
-macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
+macro "trace[" id:ident "]" s:(interpolatedStr <|> term) : doElem => do
   let msg ← if s.getKind == interpolatedStrKind then `(m! $s) else `(($s : MessageData))
   `(doElem| do
     let cls := $(quote id.getId.eraseMacroScopes)

@@ -303,7 +303,7 @@ instance {α} [ToMessageData α] : ToMessageData (Subarray α) := ⟨fun as => t
 instance {α} [ToMessageData α] : ToMessageData (Option α) := ⟨fun | none => "none" | some e => "some (" ++ toMessageData e ++ ")"⟩
 instance : ToMessageData (Option Expr) := ⟨fun | none => "<not-available>" | some e => toMessageData e⟩
 
-syntax:max "m!" interpolatedStr(term) : term
+syntax:max "m!" interpolatedStr : term
 
 macro_rules
   | `(m! $interpStr) => do interpStr.expandInterpolatedStr (← `(MessageData)) (← `(toMessageData))

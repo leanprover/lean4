@@ -243,11 +243,11 @@ def script : (cmd : String) → CliM PUnit
   let config ← mkLakeConfig (← getThe LakeOptions)
   noArgsRem do
     let ws ← loadWorkspace config
-    ws.packageMap.forM fun name pkg => do
-    let pkgName := pkg.name.toString (escape := false)
-    pkg.scripts.forM fun name script =>
-      let scriptName := name.toString (escape := false)
-      IO.println s!"{pkgName}/{scriptName}"
+    ws.packageMap.forM fun _ pkg => do
+      let pkgName := pkg.name.toString (escape := false)
+      pkg.scripts.forM fun name _ =>
+        let scriptName := name.toString (escape := false)
+        IO.println s!"{pkgName}/{scriptName}"
 | "run" => do
   processOptions lakeOption
   let spec ← takeArg "script spec"; let args ← takeArgs

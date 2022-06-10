@@ -28,5 +28,5 @@ def toMap (self : Manifest) : NameMap PackageEntry :=
   self.packages.foldl (fun map entry => map.insert entry.name entry) {}
 
 def fromMap (map : NameMap PackageEntry) : Manifest := {
-  packages := map.fold (fun a k v => a.push v) #[]
+  packages := map.fold (fun a _ v => a.push v) #[]
 }

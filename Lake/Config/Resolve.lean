@@ -19,7 +19,7 @@ open Git
 
 /-- Update the Git package in `dir` if necessary. -/
 def updateGitPkg (name : String)
-(dir : FilePath) (url rev : String) : (LogT IO) PUnit := do
+(dir : FilePath) (rev : String) : (LogT IO) PUnit := do
   if (← headRevision dir) == rev then return
   logInfo s!"{name}: updating {dir} to revision {rev}"
   unless ← revisionExists rev dir do fetch dir
@@ -49,10 +49,10 @@ def materializeGitPkg (name : String)
       if url = entry.url then
         if shouldUpdate then
           let rev ← parseOriginRevision rev dir
-          updateGitPkg name dir url rev
+          updateGitPkg name dir rev
           modify (·.insert name {entry with rev})
         else
-          updateGitPkg name dir url entry.rev
+          updateGitPkg name dir entry.rev
       else if shouldUpdate then
         logInfo s!"{name}: URL changed, deleting {dir} and cloning again"
         IO.FS.removeDirAll dir
@@ -71,7 +71,7 @@ def materializeGitPkg (name : String)
       let rev ← parseOriginRevision rev dir
       modify (·.insert name {name, url, rev})
       if (← headRevision dir) == rev then return
-      updateGitPkg name dir url rev
+      updateGitPkg name dir rev
     else
       cloneGitPkg name dir url rev
       let rev ← parseOriginRevision rev dir

@@ -162,7 +162,7 @@ private partial def withFunLocalDecls {α} (headers : Array DefViewElabHeader) (
   loop 0 #[]
 
 private def expandWhereStructInst : Macro
-  | `(Parser.Command.whereStructInst|where $[$decls:letDecl$[;]?]*) => do
+  | `(Parser.Command.whereStructInst|where $[$decls:letDecl$[;]?]* $[$whereDecls?:whereDecls]?) => do
     let letIdDecls ← decls.mapM fun stx => match stx with
       | `(letDecl|$_decl:letPatDecl)  => Macro.throwErrorAt stx "patterns are not allowed here"
       | `(letDecl|$decl:letEqnsDecl) => expandLetEqnsDecl decl
@@ -176,7 +176,10 @@ private def expandWhereStructInst : Macro
         val ← if binders.size > 0 then `(fun $[$binders]* => $val:term) else pure val
         `(structInstField|$id:ident := $val)
       | _ => Macro.throwUnsupported
-    `({ $[$structInstFields,]* })
+    let body ← `({ $[$structInstFields,]* })
+    match whereDecls? with
+    | some whereDecls => expandWhereDecls whereDecls body
+    | none => return body
   | _ => Macro.throwUnsupported
 
 /-

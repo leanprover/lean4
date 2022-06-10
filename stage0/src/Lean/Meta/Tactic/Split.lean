@@ -215,7 +215,7 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
   trace[Meta.Tactic.split] "after introN\n{mvarId}"
   let discrsNew := discrFVarIdsNew.map mkFVar
   let mvarType ← getMVarType mvarId
-  let elimUniv ← getLevel mvarType
+  let elimUniv ← withMVarContext mvarId <| getLevel mvarType
   let us ←
     if let some uElimPos := info.uElimPos? then
       pure <| us.set! uElimPos elimUniv

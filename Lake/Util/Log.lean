@@ -7,36 +7,48 @@ import Lake.Util.Error
 
 namespace Lake
 
+inductive LogLevel
+| info
+| warning
+| error
+
 -- # Class
 
 class MonadLog (m : Type u → Type v) where
-  logInfo : String → m PUnit
-  logWarning : String → m PUnit
-  logError : String → m PUnit
+  log (message : String) (level : LogLevel) : m PUnit
 
-export MonadLog (logInfo logWarning logError)
+export MonadLog (log)
+
+abbrev logInfo [MonadLog m] (message : String) : m PUnit :=
+  log message .info
+
+abbrev logWarning [MonadLog m] (message : String) : m PUnit :=
+  log message .warning
+
+abbrev logError  [MonadLog m] (message : String) : m PUnit :=
+  log message .error
 
 namespace MonadLog
 
 def nop [Pure m] : MonadLog m :=
-  ⟨fun _ => pure (), fun _ => pure (), fun _ => pure ()⟩
+  ⟨fun _ _ => pure ()⟩
 
 instance [Pure m] : Inhabited (MonadLog m) := ⟨MonadLog.nop⟩
 
 def io [MonadLiftT BaseIO m] : MonadLog m where
-  logInfo msg := IO.println msg |>.catchExceptions fun _ => pure ()
-  logWarning msg := IO.eprintln s!"warning: {msg}" |>.catchExceptions fun _ => pure ()
-  logError msg := IO.eprintln s!"error: {msg}" |>.catchExceptions fun _ => pure ()
+  log msg
+    | .info => IO.println msg.trim |>.catchExceptions fun _ => pure ()
+    | .warning => IO.eprintln s!"warning: {msg.trim}" |>.catchExceptions fun _ => pure ()
+    | .error => IO.eprintln s!"error: {msg.trim}" |>.catchExceptions fun _ => pure ()
 
 def eio [MonadLiftT BaseIO m] : MonadLog m where
-  logInfo msg := IO.eprintln s!"info: {msg}" |>.catchExceptions fun _ => pure ()
-  logWarning msg := IO.eprintln s!"warning: {msg}" |>.catchExceptions fun _ => pure ()
-  logError msg := IO.eprintln s!"error: {msg}" |>.catchExceptions fun _ => pure ()
+  log msg
+    | .info => IO.eprintln s!"info: {msg.trim}"  |>.catchExceptions fun _ => pure ()
+    | .warning => IO.eprintln s!"warning: {msg.trim}" |>.catchExceptions fun _ => pure ()
+    | .error => IO.eprintln s!"error: {msg.trim}" |>.catchExceptions fun _ => pure ()
 
 def lift [MonadLiftT m n] (self : MonadLog m) : MonadLog n where
-  logInfo msg := liftM <| self.logInfo msg
-  logWarning msg := liftM <| self.logWarning msg
-  logError msg := liftM <| self.logError msg
+  log msg lv := liftM <| self.log msg lv
 
 instance [MonadLift m n] [methods : MonadLog m] : MonadLog n  := lift methods
 
@@ -55,9 +67,7 @@ instance [Pure n] [Inhabited α] : Inhabited (MonadLogT m n α) :=
   ⟨fun _ => pure Inhabited.default⟩
 
 instance [Monad n] [MonadLiftT m n] : MonadLog (MonadLogT m n) where
-  logInfo msg := do (← read).logInfo msg
-  logWarning msg := do (← read).logWarning msg
-  logError msg := do (← read).logError msg
+  log msg lv := do (← read).log msg lv
 
 namespace MonadLogT
 

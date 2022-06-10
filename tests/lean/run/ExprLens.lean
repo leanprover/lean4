@@ -46,7 +46,7 @@ def testTraversal
       dbg_trace s!"{p}, {ppt}\n"
     throwError "expected size: {expectedLen}\nactual size: {subexprs.size}"
   for (p, s) in subexprs do
-    let e3 ← viewSubexpr (fun fvars t => do
+    let _ ← viewSubexpr (fun fvars t => do
       let t := Expr.abstract t fvars
       let de ← liftM $ isDefEq t s
       if not de then

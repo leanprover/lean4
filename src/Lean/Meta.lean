@@ -41,3 +41,4 @@ import Lean.Meta.CongrTheorems
 import Lean.Meta.Eqns
 import Lean.Meta.CasesOn
 import Lean.Meta.ExprLens
+import Lean.Meta.ExprTraverse

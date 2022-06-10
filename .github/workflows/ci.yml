@@ -198,7 +198,8 @@ jobs:
       - name: Test
         run: |
           cd build/stage1
-          ctest -j4 --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
+          # exclude nonreproducible test
+          ctest -j4 --output-on-failure -E leanlaketest_git ${{ matrix.CTEST_OPTIONS }} < /dev/null
         if: ${{ !matrix.cross }}
       - name: Check Test Binary
         run: ${{ matrix.binary-check }} tests/compiler/534.lean.out

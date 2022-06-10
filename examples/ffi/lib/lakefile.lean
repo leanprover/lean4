@@ -13,7 +13,7 @@ lean_lib FFI
 
 def pkgDir := __dir__
 def cSrcDir := pkgDir / "c"
-def cBuildDir := pkgDir / defaultBuildDir / "c"
+def cBuildDir := pkgDir / _package.buildDir / "c"
 
 def ffiOTarget : FileTarget :=
   let oFile := cBuildDir / "ffi.o"

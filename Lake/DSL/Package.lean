@@ -18,9 +18,6 @@ syntax packageDeclWithBinders :=
 syntax packageDeclSpec :=
   ident (Command.whereStructInst <|> declValTyped <|> packageDeclWithBinders)?
 
-scoped syntax (name := packageDecl)
-(docComment)? "package " packageDeclSpec : command
-
 def expandPackageBinders
 : (dir? : Option Syntax) → (args? : Option Syntax) → MacroM (Bool × Syntax × Syntax)
 | none,     none      => do let hole ← `(_); return (false, hole, hole)
@@ -28,31 +25,55 @@ def expandPackageBinders
 | none,     some args => return (true, ← `(_), args)
 | some dir, some args => return (true, dir, args)
 
-def mkPackageDef (defn : Syntax) (doc? : Option Syntax)
+def mkSimplePackageDecl
+(doc? : Option Syntax) (attrs : Array Syntax) (id : Syntax) (defn : Syntax)
 (dir? : Option Syntax) (args? : Option Syntax) (wds? : Option Syntax) : MacroM Syntax := do
   let (hasBinders, dir, args) ← expandPackageBinders dir? args?
   if hasBinders then
-    `($[$doc?:docComment]? @[«package»] def «package» : Packager :=
+    `($[$doc?:docComment]? @[$attrs,*] def $id : Packager :=
         (fun $dir $args => $defn) $[$wds?]?)
   else
-    `($[$doc?:docComment]? @[«package»] def «package» : PackageConfig := $defn $[$wds?]?)
+    `($[$doc?:docComment]? @[$attrs,*] def $id : PackageConfig := $defn $[$wds?]?)
 
-@[macro packageDecl]
-def expandPackageDecl : Macro
-| `($[$doc?:docComment]? package $id:ident) =>
-  `($[$doc?:docComment]? @[«package»] def «package» : PackageConfig :=
+/-- The name given to the definition created by the `package` syntax. -/
+def packageDeclName := `_package
+
+def mkPackageDecl (doc? : Option Syntax) (attrs : Array Syntax) : Macro
+| `(packageDeclSpec| $id:ident) =>
+  `($[$doc?:docComment]? @[$attrs,*] def $(mkIdentFrom id packageDeclName) : PackageConfig :=
     {name := $(quote id.getId)})
-| `($[$doc?:docComment]? package $id:ident where $[$ds]*) =>
-  `($[$doc?:docComment]? @[«package»] def «package» : PackageConfig where
-      name := $(quote id.getId) $[$ds]*)
-| `($[$doc?:docComment]? package $id:ident : $ty := $defn $[$wds?]?) =>
-  `($[$doc?:docComment]? @[«package»] def «package» : $ty := $defn $[$wds?]?)
-| `($[$doc?:docComment]? package $id:ident $[($dir?)]? $[($args?)]? := $defn $[$wds?]?) =>
-  mkPackageDef defn doc? dir? args? wds?
-| `($[$doc?:docComment]? package $id:ident $[($dir?)]? $[($args?)]? { $[$fs $[,]?]* } $[$wds?]?) => do
-  mkPackageDef (← `({ name := $(quote id.getId), $[$fs]* })) doc? dir? args? wds?
-| `($[$doc?:docComment]? package $id:ident $[($dir?)]? $[($args?)]? do $seq $[$wds?]?) => do
+| `(packageDeclSpec| $id:ident where $[$ds]* $[$wds?]?) =>
+  `($[$doc?:docComment]? @[$attrs,*] def $(mkIdentFrom id packageDeclName) : PackageConfig where
+      name := $(quote id.getId) $[$ds]* $[$wds?]?)
+| `(packageDeclSpec| $id:ident : $ty := $defn $[$wds?]?) =>
+  `($[$doc?:docComment]? @[$attrs,*] def $(mkIdentFrom id packageDeclName) : $ty := $defn $[$wds?]?)
+| `(packageDeclSpec| $id:ident $[($dir?)]? $[($args?)]? := $defn $[$wds?]?) =>
+  mkSimplePackageDecl doc? attrs (mkIdentFrom id packageDeclName) defn dir? args? wds?
+| `(packageDeclSpec| $id:ident $[($dir?)]? $[($args?)]? { $[$fs $[,]?]* } $[$wds?]?) => do
+  let defn ← `({ name := $(quote id.getId), $[$fs]* })
+  mkSimplePackageDecl doc? attrs (mkIdentFrom id packageDeclName) defn dir? args? wds?
+| `(packageDeclSpec| $id:ident $[($dir?)]? $[($args?)]? do $seq $[$wds?]?) => do
   let (_, dir, args) ← expandPackageBinders dir? args?
-  `($[$doc?:docComment]? @[«package»] def «package» : IOPackager :=
+  `($[$doc?:docComment]? @[$attrs,*] def $(mkIdentFrom id packageDeclName) : IOPackager :=
       (fun $dir $args => do $seq) $[$wds?]?)
 | stx => Macro.throwErrorAt stx "ill-formed package declaration"
+
+/--
+Command that declares the configuration of a Lake package.  Has many forms:
+
+```lean
+package «pkg-name»
+package «pkg-name» { /- config opts -/ }
+package «pkg-name» where /- config opts -/
+package «pkg-name» : PackageConfig := /- config -/
+```
+
+There can only be one package configuration per lakefile.
+The defined package configuration will be available for reference as `_package`.
+-/
+scoped macro (name := packageDecl)
+doc?:optional(docComment) attrs?:optional(Term.attributes)
+"package " spec:packageDeclSpec : command => do
+  let attr ← `(Term.attrInstance| «package»)
+  let attrs := #[attr] ++ expandAttrs attrs?
+  mkPackageDecl doc? attrs spec

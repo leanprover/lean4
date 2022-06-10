@@ -10,6 +10,10 @@ import Lake.Config.Targets
 namespace Lake.DSL
 open Lean Parser Command
 
+--------------------------------------------------------------------------------
+-- # Lean Library & Executable Targets
+--------------------------------------------------------------------------------
+
 syntax targetDeclSpec :=
   ident (Command.whereStructInst <|> declValOptTyped <|> declValStruct)?
 
@@ -19,9 +23,9 @@ def mkTargetDecl
 | `(targetDeclSpec| $id:ident) =>
   `($[$doc?:docComment]? @[$attrs,*] def $id : $ty :=
     {name := $(quote id.getId)})
-| `(targetDeclSpec| $id:ident where $[$ds]*) =>
+| `(targetDeclSpec| $id:ident where $[$ds]* $[$wds?]?) =>
   `($[$doc?:docComment]? @[$attrs,*] def $id : $ty where
-      name := $(quote id.getId) $[$ds]*)
+      name := $(quote id.getId) $[$ds]* $[$wds?]?)
 | `(targetDeclSpec| $id:ident $[: $ty?]? := $defn $[$wds?]?) =>
   `($[$doc?:docComment]? @[$attrs,*] def $id : $(ty?.getD ty) := $defn $[$wds?]?)
 | `(targetDeclSpec| $id:ident { $[$fs $[,]?]* } $[$wds?]?) => do
@@ -32,6 +36,14 @@ def mkTargetDecl
 /--
 Define a new Lean library target for the package.
 Can optionally be provided with a configuration of type `LeanLibConfig`.
+Has many forms:
+
+```lean
+lean_lib «target-name»
+lean_lib «target-name» { /- config opts -/ }
+lean_lib «target-name» where /- config opts -/
+lean_lib «target-name» := /- config -/
+```
 -/
 scoped macro (name := leanLibDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
@@ -44,6 +56,14 @@ doc?:optional(docComment) attrs?:optional(Term.attributes)
 /--
 Define a new Lean binary executable target for the package.
 Can optionally be provided with a configuration of type `LeanExeConfig`.
+Has many forms:
+
+```lean
+lean_exe «target-name»
+lean_exe «target-name» { /- config opts -/ }
+lean_exe «target-name» where /- config opts -/
+lean_exe «target-name» := /- config -/
+```
 -/
 scoped macro (name := leanExeDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
@@ -53,10 +73,20 @@ doc?:optional(docComment) attrs?:optional(Term.attributes)
   let attrs := #[attr] ++ expandAttrs attrs?
   mkTargetDecl doc? attrs ty spec
 
+--------------------------------------------------------------------------------
+-- # External Library Target
+--------------------------------------------------------------------------------
+
 syntax externLibDeclSpec :=
   ident optional(Term.typeSpec) declValSimple
 
-/-- Define a new external library target for the package. -/
+/--
+Define a new external library target for the package. Has one form:
+
+```lean
+extern_lib «target-name» := /- term of type `FileTarget` -/
+```
+-/
 scoped macro (name := externLibDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 "extern_lib " spec:externLibDeclSpec : command => do

@@ -14,7 +14,7 @@ open Server
 
 structure InteractiveHypothesis where
   /-- The user-friendly name for each hypothesis.
-  If anonymous then the name is inaccessible. -/
+  If anonymous then the name is inaccessible and hidden. -/
   names : Array Name
   fvarIds? : Option (Array FVarId)
   type : CodeWithInfos

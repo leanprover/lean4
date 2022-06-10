@@ -102,7 +102,7 @@ def Package.buildImportsAndDeps (imports : List String) (self : Package) : Build
   else
     -- build local imports from list
     let infos := (← getWorkspace).processImportList imports
-    if self.exes.isEmpty && self.defaultFacet matches .none | .leanLib | .oleans then
+    if self.leanExes.isEmpty && self.defaultFacet matches .none | .leanLib | .oleans then
       let build := recBuildModuleOleanTargetWithLocalImports depTarget
       let targets ← buildModuleArray infos build
       targets.forM (·.buildOpaque)

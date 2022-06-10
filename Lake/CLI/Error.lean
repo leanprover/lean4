@@ -24,6 +24,7 @@ inductive CliError
 | missingModule (pkg : Name) (mod : Name)
 | missingTarget (pkg : Name) (spec : String)
 | invalidTargetSpec (spec : String) (tooMany : Char)
+| invalidFacet (target : Name) (facet : String)
 /- Script CLI Error -/
 | unknownScript (script : String)
 | missingScriptDoc (script : String)
@@ -51,6 +52,7 @@ def toString : CliError → String
 | missingModule pkg mod   => s!"package '{pkg.toString false}' has no module '{mod.toString false}'"
 | missingTarget pkg spec  => s!"package '{pkg.toString false}' has no target '{spec}'"
 | invalidTargetSpec s c   => s!"invalid script spec '{s}' (too many '{c}')"
+| invalidFacet t f        => s!"invalid facet `{f}`; target {t.toString false} has no facets"
 | unknownScript s         => s!"unknown script {s}"
 | missingScriptDoc s      => s!"no documentation provided for `{s}`"
 | invalidScriptSpec s     => s!"invalid script spec '{s}' (too many '/')"

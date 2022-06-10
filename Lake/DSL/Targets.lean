@@ -52,3 +52,19 @@ doc?:optional(docComment) attrs?:optional(Term.attributes)
   let ty := mkCIdentFrom (← getRef) ``LeanExeConfig
   let attrs := #[attr] ++ expandAttrs attrs?
   mkTargetDecl doc? attrs ty spec
+
+syntax externLibDeclSpec :=
+  ident optional(Term.typeSpec) declValSimple
+
+/-- Define a new external library target for the package. -/
+scoped macro (name := externLibDecl)
+doc?:optional(docComment) attrs?:optional(Term.attributes)
+"extern_lib " spec:externLibDeclSpec : command => do
+  match spec with
+  | `(externLibDeclSpec| $id:ident $[: $ty?]? := $defn $[$wds?]?) =>
+    let attr ← `(Term.attrInstance| externLib)
+    let ty := ty?.getD <| mkCIdentFrom (← getRef) ``ExternLibConfig
+    let attrs := #[attr] ++ expandAttrs attrs?
+    `($[$doc?:docComment]? @[$attrs,*] def $id : $ty :=
+      {name := $(quote id.getId), target := $defn} $[$wds?]?)
+  | stx => Macro.throwErrorAt stx "ill-formed external library declaration"

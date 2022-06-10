@@ -46,10 +46,9 @@ structure LeanLibConfig where
   -/
   libName := toUpperCamelCase name |>.toString (escape := false)
 
-   /--
+  /--
   Additional arguments to pass to `leanc` while linking the shared library.
-  These will come *after* the paths of libraries built with the package's
-  `moreLibTargets`.
+  These will come *after* the paths of package's external libraries.
   -/
   moreLinkArgs : Array String := #[]
 
@@ -132,8 +131,7 @@ structure LeanExeConfig where
 
   /--
   Additional arguments to pass to `leanc` when linking the binary executable.
-  These will come *after* the paths of libraries built with the package's
-  `moreLibTargets`.
+  These will come *after* the paths of the package's external libraries.
   -/
   moreLinkArgs : Array String := #[]
 
@@ -159,3 +157,17 @@ def linkArgs (self : LeanExeConfig) : Array String :=
     self.moreLinkArgs
 
 end LeanExeConfig
+
+--------------------------------------------------------------------------------
+-- # External Library Build Configuration
+--------------------------------------------------------------------------------
+
+/-- A external library's declarative configuration. -/
+structure ExternLibConfig where
+  /-- The name of the target. -/
+  name : Name
+
+  /-- The library's build target. -/
+  target : FileTarget
+
+deriving Inhabited

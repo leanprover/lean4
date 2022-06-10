@@ -97,7 +97,9 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
     | [pkgDeclName] =>
       let config ← evalPackageDecl env pkgDeclName dir args leanOpts
       unless config.dependencies.isEmpty do
-        logWarning "Syntax for package dependencies has changed. Use the new require syntax."
+        logWarning "Syntax for package dependencies has changed. Use the new `require` syntax."
+      unless config.moreLibTargets.isEmpty do
+        logWarning "Syntax for `moreLibTargets` has changed. Use the new `extern_lib` syntax."
       if config.defaultFacet = PackageFacet.bin then
         logWarning "The `bin` package facet has been deprecated in favor of `exe`."
       if config.defaultFacet = PackageFacet.oleans then
@@ -105,17 +107,22 @@ unsafe def loadUnsafe (dir : FilePath) (args : List String := [])
       let config := {config with dependencies := depsExt.getState env ++ config.dependencies}
       let scripts ← scriptAttr.ext.getState env |>.foldM (init := {})
         fun m d => return m.insert d <| ← evalScriptDecl env d leanOpts
-      let libs ← leanLibAttr.ext.getState env |>.foldM (init := {}) fun m d =>
+      let leanLibs ← leanLibAttr.ext.getState env |>.foldM (init := {}) fun m d =>
         let eval := env.evalConstCheck LeanLibConfig leanOpts ``LeanLibConfig d
         return m.insert d <| ← IO.ofExcept eval.run.run
-      let exes ← leanExeAttr.ext.getState env |>.foldM (init := {}) fun m d =>
+      let leanExes ← leanExeAttr.ext.getState env |>.foldM (init := {}) fun m d =>
         let eval := env.evalConstCheck LeanExeConfig leanOpts ``LeanExeConfig d
         return m.insert d <| ← IO.ofExcept eval.run.run
-      if libs.isEmpty && exes.isEmpty && !config.defaultFacet = .none then
+      let externLibs ← externLibAttr.ext.getState env |>.foldM (init := {}) fun m d =>
+        let eval := env.evalConstCheck ExternLibConfig leanOpts ``ExternLibConfig d
+        return m.insert d <| ← IO.ofExcept eval.run.run
+
+
+      if leanLibs.isEmpty && leanExes.isEmpty && config.defaultFacet ≠ .none then
         logWarning <| "Package targets are deprecated. " ++
           "Add a `lean_exe` and/or `lean_lib` default target to the package instead."
       let defaultTargets := defaultTargetAttr.ext.getState env |>.toArray
-      return {dir, config, scripts, libs, exes, defaultTargets}
+      return {dir, config, scripts, leanLibs, leanExes, externLibs, defaultTargets}
     | _ => error s!"configuration file has multiple `package` declarations"
   else
     error s!"package configuration `{configFile}` has errors"

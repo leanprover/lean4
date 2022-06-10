@@ -261,10 +261,12 @@ structure Package where
   config : PackageConfig
   /-- Scripts for the package. -/
   scripts : NameMap Script := {}
-  /-- Additional Lean library targets for the package. -/
-  libs : NameMap LeanLibConfig := {}
-  /-- Additional Lean binary executable targets for the package. -/
-  exes : NameMap LeanExeConfig := {}
+  /-- Lean library targets for the package. -/
+  leanLibs : NameMap LeanLibConfig := {}
+  /-- Lean binary executable targets for the package. -/
+  leanExes : NameMap LeanExeConfig := {}
+   /-- External library targets for the package. -/
+  externLibs : NameMap ExternLibConfig := {}
   /--
   The names of the package's targets to build by default
   (i.e., on a bare `lake build` of the package).
@@ -323,13 +325,25 @@ def extraDepTarget (self : Package) : OpaqueTarget :=
 def defaultFacet (self : Package) : PackageFacet :=
    self.config.defaultFacet
 
+/-- The package's `moreLibTargets` configuration. -/
+def moreLibTargets (self : Package) : Array FileTarget :=
+  self.config.moreLibTargets
+
 /-- Get the package's library configuration with the given name. -/
-def findLib? (self : Package) (name : Name) : Option LeanLibConfig :=
-  self.libs.find? name
+def findLeanLib? (name : Name) (self : Package) : Option LeanLibConfig :=
+  self.leanLibs.find? name
 
 /-- Get the package's executable configuration with the given name. -/
-def findExe? (self : Package) (name : Name) : Option LeanExeConfig :=
-  self.exes.find? name
+def findLeanExe? (name : Name) (self : Package) : Option LeanExeConfig :=
+  self.leanExes.find? name
+
+/-- Get the package's external library target with the given name. -/
+def findExternLib? (name : Name) (self : Package) : Option ExternLibConfig :=
+  self.externLibs.find? name
+
+/-- Get an `Array` of the package's external library targets. -/
+def externLibTargets (self : Package) : Array FileTarget :=
+  self.externLibs.fold (fun xs _ x => xs.push x.target) #[] ++ self.moreLibTargets
 
 /-- The package's `moreServerArgs` configuration. -/
 def moreServerArgs (self : Package) : Array String :=
@@ -403,10 +417,6 @@ def libDir (self : Package) : FilePath :=
 def binDir (self : Package) : FilePath :=
   self.buildDir / self.config.binDir
 
-/-- The package's `moreLibTargets` configuration. -/
-def moreLibTargets (self : Package) : Array FileTarget :=
-  self.config.moreLibTargets
-
 /-- The library configuration built into the package configuration. -/
 def builtinLibConfig (self : Package) : LeanLibConfig :=
   self.config.toLeanLibConfig
@@ -421,12 +431,12 @@ def getModuleArray (self : Package) : IO (Array Name) :=
 
 /-- Whether the given module is considered local to the package. -/
 def isLocalModule (mod : Name) (self : Package) : Bool :=
-  self.libs.any (fun _ lib => lib.isLocalModule mod) ||
+  self.leanLibs.any (fun _ lib => lib.isLocalModule mod) ||
   self.builtinLibConfig.isLocalModule mod
 
 /-- Whether the given module is in the package (i.e., can build it). -/
 def hasModule (mod : Name) (self : Package) : Bool :=
-  self.libs.any (fun _ lib => lib.hasModule mod) ||
-  self.exes.any (fun _ exe => exe.root == mod) ||
+  self.leanLibs.any (fun _ lib => lib.hasModule mod) ||
+  self.leanExes.any (fun _ exe => exe.root == mod) ||
   self.builtinLibConfig.hasModule mod ||
   self.config.binRoot == mod

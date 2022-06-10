@@ -44,9 +44,6 @@ def Package.mkStaticLibTarget (self : Package) (lib : LeanLibConfig) : FileTarge
 protected def Package.staticLibTarget (self : Package) : FileTarget :=
   self.mkStaticLibTarget self.builtinLibConfig
 
-def Package.staticLibTargets (self : Package) : Array FileTarget :=
-  #[self.staticLibTarget] ++ self.moreLibTargets
-
 -- # Build Package Shared Lib
 
 def Package.linkTargetsOf
@@ -54,13 +51,13 @@ def Package.linkTargetsOf
   let collect dep recurse := do
       let pkg := (← getPackageByName? dep.name).get!
       pkg.dependencies.forM fun dep => discard <| recurse dep
-      return pkg.oFileTargetsOf targetMap ++ pkg.moreLibTargets
+      return pkg.oFileTargetsOf targetMap ++ pkg.externLibTargets
   let ⟨x, map⟩ ← RBTopT.run <| self.dependencies.forM fun dep =>
     discard <| buildRBTop (cmp := Name.quickCmp) collect Dependency.name dep
   match x with
   | Except.ok _ =>
     let ts := map.fold (fun acc _ vs => acc ++ vs) #[]
-    return self.oFileTargetsOf targetMap ++ self.moreLibTargets ++ ts
+    return self.oFileTargetsOf targetMap ++ self.externLibTargets ++ ts
   | Except.error _ => panic! "dependency cycle emerged after resolution"
 
 def Package.mkSharedLibTarget (self : Package) (lib : LeanLibConfig) : FileTarget :=

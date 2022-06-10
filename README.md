@@ -14,7 +14,7 @@ With Lake, package configuration is written in Lean inside a dedicated `lakefile
   + [Lean Libraries](#lean-libraries)
   + [Binary Executables](#binary-executables)
 * [Adding Dependencies](#adding-dependencies)
-  + [Syntax of `Require`](#syntax-of-require)
+  + [Syntax of `require`](#syntax-of-require)
 * [Writing and Running Lake Scripts](#writing-and-running-lake-scripts)
 * [Building and Running Lake from the Source](#building-and-running-lake-from-the-source)
   + [Building with Nix Flakes](#building-with-nix-flakes)
@@ -174,7 +174,7 @@ require mathlib from git
 
 The next run of `lake build` (or refreshing dependencies in an editor like VSCode) will clone the mathlib repository and build it. Information on the specific revision cloned will then be saved to `manifest.json` in the workspace's `packageDir` (by default, `lean_packages`) to enable reproducibility. To update `mathlib` after this, you will need to run `lake update` -- other commands do not update resolved dependencies.
 
-### Syntax of `Require`
+### Syntax of `require`
 
 The `require` command has two forms:
 

@@ -12,7 +12,7 @@ import Lean.Widget.InteractiveCode
 namespace Lean.Widget
 open Server
 
-structure InteractiveHypothesis where
+structure InteractiveHypothesisBundle where
   /-- The user-friendly name for each hypothesis.
   If anonymous then the name is inaccessible and hidden. -/
   names : Array Name
@@ -24,7 +24,7 @@ structure InteractiveHypothesis where
   deriving Inhabited, RpcEncoding
 
 structure InteractiveGoal where
-  hyps      : Array InteractiveHypothesis
+  hyps      : Array InteractiveHypothesisBundle
   type      : CodeWithInfos
   userName? : Option String
   goalPrefix : String
@@ -66,7 +66,7 @@ def pretty (g : InteractiveGoal) : Format := Id.run do
 end InteractiveGoal
 
 structure InteractiveTermGoal where
-  hyps      : Array InteractiveHypothesis
+  hyps      : Array InteractiveHypothesisBundle
   type      : CodeWithInfos
   range     : Lsp.Range
   deriving Inhabited, RpcEncoding
@@ -83,9 +83,9 @@ structure InteractiveGoals where
   deriving RpcEncoding
 
 open Meta in
-def addInteractiveHypothesis (hyps : Array InteractiveHypothesis) (ids : Array (Name × FVarId)) (type : Expr) (value? : Option Expr := none) : MetaM (Array InteractiveHypothesis) := do
+def addInteractiveHypothesisBundle (hyps : Array InteractiveHypothesisBundle) (ids : Array (Name × FVarId)) (type : Expr) (value? : Option Expr := none) : MetaM (Array InteractiveHypothesisBundle) := do
   if ids.size == 0 then
-    throwError "Can only add a nonzero number of ids as an InteractiveHypothesis."
+    throwError "Can only add a nonzero number of ids as an InteractiveHypothesisBundle."
   let fvarIds := ids.map Prod.snd
   let names := ids.map Prod.fst
   return hyps.push {
@@ -107,17 +107,17 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
   let lctx : LocalContext := lctx.sanitizeNames.run' { options := (← getOptions) }
   withLCtx lctx mvarDecl.localInstances do
     let (hidden, hiddenProp) ← ToHide.collect mvarDecl.type
-    let pushPending (ids : Array (Name × FVarId)) (type? : Option Expr) (hyps : Array InteractiveHypothesis)
-        : MetaM (Array InteractiveHypothesis) :=
+    let pushPending (ids : Array (Name × FVarId)) (type? : Option Expr) (hyps : Array InteractiveHypothesisBundle)
+        : MetaM (Array InteractiveHypothesisBundle) :=
       if ids.isEmpty then
         pure hyps
       else
         match type? with
         | none      => pure hyps
-        | some type => addInteractiveHypothesis hyps ids type
+        | some type => addInteractiveHypothesisBundle hyps ids type
     let mut varNames : Array (Name × FVarId) := #[]
     let mut prevType? : Option Expr := none
-    let mut hyps : Array InteractiveHypothesis := #[]
+    let mut hyps : Array InteractiveHypothesisBundle := #[]
     for localDecl in lctx do
       if !ppAuxDecls && localDecl.isAuxDecl || hidden.contains localDecl.fvarId then
         continue
@@ -127,7 +127,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
           -- is a proposition containing "visible" names.
           let type ← instantiateMVars localDecl.type
           hyps ← pushPending varNames prevType? hyps
-          hyps ← addInteractiveHypothesis hyps #[(Name.anonymous, localDecl.fvarId)] type
+          hyps ← addInteractiveHypothesisBundle hyps #[(Name.anonymous, localDecl.fvarId)] type
           varNames := #[]
           prevType? := none
         else
@@ -146,7 +146,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
             hyps ← pushPending varNames prevType? hyps
             let type ← instantiateMVars type
             let val ← instantiateMVars val
-            hyps ← addInteractiveHypothesis hyps #[(varName, fvarId)] type val
+            hyps ← addInteractiveHypothesisBundle hyps #[(varName, fvarId)] type val
             varNames := #[]
             prevType? := none
     hyps ← pushPending varNames prevType? hyps

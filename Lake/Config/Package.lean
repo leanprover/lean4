@@ -86,7 +86,7 @@ structure PackageConfig extends WorkspaceConfig where
 
   /--
   The optional `PackageFacet` to build on a bare `lake build` of the package.
-  Can be one of `exe`, `leanLib`, `staticLib`, `sharedLib`.
+  Can be one of `exe`, `leanLib`, `staticLib`, `sharedLib`, or `none`.
   Defaults to `exe`. See `lake help build` for more info on build facets.
 
   **DEPRECATED:**

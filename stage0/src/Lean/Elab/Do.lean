@@ -961,23 +961,10 @@ def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFr
     Macro.throwErrorAt decl "unexpected kind of 'do' declaration"
 
 def reassignToTerm (reassign : Syntax) (k : Syntax) : MacroM Syntax := withRef reassign <| withFreshMacroScope do
-  let kind := reassign.getKind
-  if kind == ``Lean.Parser.Term.doReassign then
-    -- doReassign := leading_parser (letIdDecl <|> letPatDecl)
-    let arg := reassign[0]
-    if arg.getKind == ``Lean.Parser.Term.letIdDecl then
-      -- letIdDecl := leading_parser ident >> many (ppSpace >> bracketedBinder) >> optType >>  " := " >> termParser
-      let x   := arg[0]
-      let val := arg[4]
-      let newVal ← `(ensure_type_of% $x $(quote "invalid reassignment, value") $val)
-      let arg := arg.setArg 4 newVal
-      let letDecl := mkNode `Lean.Parser.Term.letDecl #[arg]
-      `(let $letDecl:letDecl; $k)
-    else
-      -- TODO: ensure the types did not change
-      let letDecl := mkNode `Lean.Parser.Term.letDecl #[arg]
-      `(let $letDecl:letDecl; $k)
-  else
+  match reassign with
+  | `(doElem| $x:ident := $rhs) => `(let $x:ident := ensure_type_of% $x $(quote "invalid reassignment, value") $rhs; $k)
+  | `(doElem| $e:term  := $rhs) => `(let $e:term  := ensure_type_of% $e $(quote "invalid reassignment, value") $rhs; $k)
+  | _ =>
     -- Note that `doReassignArrow` is expanded by `doReassignArrowToCode
     Macro.throwErrorAt reassign "unexpected kind of 'do' reassignment"
 

@@ -5,7 +5,7 @@ open System Lake DSL
 package git_hello
 
 require hello from
-  git "../.."@"master"/"examples"/"hello"
+  git "../.."/"examples"/"hello"
 
 @[defaultTarget]
 lean_exe git_hello {

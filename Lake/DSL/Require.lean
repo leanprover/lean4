@@ -14,7 +14,7 @@ syntax fromPath :=
   term
 
 syntax fromGit :=
-  &" git " term:max "@" term:max ("/" term)?
+  &" git " term:max ("@" term:max)? ("/" term)?
 
 syntax fromClause :=
   fromGit <|> fromPath
@@ -23,10 +23,16 @@ syntax depSpec :=
   ident " from " fromClause (" with " term)?
 
 def evalDepSpec : Syntax → TermElabM Dependency
-| `(depSpec| $name:ident from git $url @ $rev / $path $[with $args?:term]?) => do
+| `(depSpec| $name:ident from git $url $[@ $rev?]? $[/ $path?]? $[with $args?:term]?) => do
   let url ← evalTerm String url
-  let rev ← evalTerm String rev
-  let path ← evalTerm System.FilePath path
+  let rev ←
+    match rev? with
+    | some rev => some <$> evalTerm String rev
+    | none => pure none
+  let path ←
+    match path? with
+    | some path => evalTerm System.FilePath path
+    | none => pure "."
   let args ← match args? with
     | some args => evalTerm (List String) args
     | none => pure []
@@ -48,7 +54,8 @@ require bar from git "url.git"@"rev"/"optional"/"path-to"/"dir-with-pkg"
 ```
 
 Either form supports the optional `with` clause.
-The `/` and the following term in the git form of `require` is optional.
+The `@"rev"` and `/"path"/"dir"` parts of the git form of `require`
+are optional.
 
 The elements of both the `from` and `with` clauses are proper terms so
 normal computation is supported within them (though parentheses made be

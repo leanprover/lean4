@@ -195,7 +195,7 @@ require foo from "path"/"to"/"local"/"package" with ["optional","args"]
 require bar from git "url.git"@"rev"/"optional"/"path-to"/"dir-with-pkg"
 ```
 
-The first form adds a local dependency and the second form adds a Git dependency. For a Git dependency, the revision can be a commit hash, branch, or tag. Also, the `/` and the following term of the `require` is optional.
+The first form adds a local dependency and the second form adds a Git dependency. For a Git dependency, the revision can be a commit hash, branch, or tag. Also, the `@"rev"` and `/"path-to"/"term"` parts of the `require` are optional.
 
 Both forms also support an optional `with` clause to specify arguments to pass to the dependency's package configuration (i.e., same as `args` in a `lake build -- <args...>` invocation). The elements of both the `from` and `with` clauses are proper terms so normal computation is supported within them (though parentheses made be required to disambiguate the syntax).
 

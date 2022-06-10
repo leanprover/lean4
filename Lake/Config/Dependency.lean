@@ -17,7 +17,7 @@ In Lake, dependency sources currently come into flavors:
 -/
 inductive Source where
 | path (dir : FilePath)
-| git (url rev : String)
+| git (url : String) (rev : Option String)
 deriving Inhabited, Repr
 
 /-- A `Dependency` of a package. -/

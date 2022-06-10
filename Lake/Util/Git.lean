@@ -41,6 +41,9 @@ def quietInit (repo : Option FilePath := none) :=
 def fetch (repo : Option FilePath := none) :=
   execGit #["fetch"] repo
 
+def pull (repo : Option FilePath := none) :=
+  execGit #["pull"] repo
+
 def checkoutBranch (branch : String) (repo : Option FilePath := none) :=
   execGit #["checkout", "-B", branch] repo
 

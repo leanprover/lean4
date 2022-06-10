@@ -17,21 +17,26 @@ namespace Lake
 section
 open Git
 
-/-- Update the Git package in `dir` if necessary. -/
+/-- Update the Git package in `dir` to `rev` if not already at it. -/
 def updateGitPkg (name : String)
-(dir : FilePath) (rev : String) : (LogT IO) PUnit := do
-  if (← headRevision dir) == rev then return
-  logInfo s!"{name}: updating {dir} to revision {rev}"
-  unless ← revisionExists rev dir do fetch dir
-  checkoutDetach rev dir
+(dir : FilePath) (rev? : Option String) : LogT IO PUnit := do
+  if let some rev := rev? then
+    if (← headRevision dir) == rev then return
+    logInfo s!"{name}: updating {dir} to revision {rev}"
+    unless ← revisionExists rev dir do fetch dir
+    checkoutDetach rev dir
+  else
+    logInfo s!"{name}: updating {dir}"
+    pull dir
 
 /-- Clone the Git package as `dir`. -/
-def cloneGitPkg (name : String)
-(dir : FilePath) (url rev : String) : (LogT IO) PUnit := do
+def cloneGitPkg (name : String) (dir : FilePath)
+(url : String) (rev? : Option String) : LogT IO PUnit := do
   logInfo s!"{name}: cloning {url} to {dir}"
   clone url dir
-  let hash ← parseOriginRevision rev dir
-  checkoutDetach hash dir
+  if let some rev := rev? then
+    let hash ← parseOriginRevision rev dir
+    checkoutDetach hash dir
 
 abbrev ResolveM := StateT (NameMap PackageEntry) <| LogT IO
 
@@ -42,39 +47,37 @@ Attempts to reproduce the `PackageEntry` in the manifest (if one exists) unless
 `shouldUpdate` is true. Otherwise, produces the package based on `url` and `rev`
 and saves the result to the manifest.
 -/
-def materializeGitPkg (name : String)
-(dir : FilePath) (url rev : String) (shouldUpdate := true) : ResolveM PUnit := do
+def materializeGitPkg (name : String) (dir : FilePath)
+(url : String) (rev? : Option String) (shouldUpdate := true) : ResolveM PUnit := do
   if let some entry := (← get).find? name then
     if (← dir.isDir) then
       if url = entry.url then
         if shouldUpdate then
-          let rev ← parseOriginRevision rev dir
-          updateGitPkg name dir rev
+          updateGitPkg name dir rev?
+          let rev ← headRevision dir
           modify (·.insert name {entry with rev})
         else
           updateGitPkg name dir entry.rev
       else if shouldUpdate then
         logInfo s!"{name}: URL changed, deleting {dir} and cloning again"
         IO.FS.removeDirAll dir
-        cloneGitPkg name dir url rev
-        let rev ← parseOriginRevision rev dir
+        cloneGitPkg name dir url rev?
+        let rev ← headRevision dir
         modify (·.insert name {entry with url, rev})
     else
       if shouldUpdate then
-        cloneGitPkg name dir url rev
-        let rev ← parseOriginRevision rev dir
+        cloneGitPkg name dir url rev?
+        let rev ← headRevision dir
         modify (·.insert name {entry with url, rev})
       else
         cloneGitPkg name dir entry.url entry.rev
   else
     if (← dir.isDir) then
-      let rev ← parseOriginRevision rev dir
+      let rev ← headRevision dir
       modify (·.insert name {name, url, rev})
-      if (← headRevision dir) == rev then return
-      updateGitPkg name dir rev
     else
-      cloneGitPkg name dir url rev
-      let rev ← parseOriginRevision rev dir
+      cloneGitPkg name dir url rev?
+      let rev ← headRevision dir
       modify (·.insert name {name, url, rev})
 
 end
@@ -87,10 +90,10 @@ def materializeDep (ws : Workspace)
 (pkg : Package) (dep : Dependency) (shouldUpdate := true) : ResolveM FilePath :=
   match dep.src with
   | Source.path dir => return pkg.dir / dir
-  | Source.git url rev => do
+  | Source.git url rev? => do
     let name := dep.name.toString (escape := false)
     let depDir := ws.packagesDir / name
-    materializeGitPkg name depDir url rev shouldUpdate
+    materializeGitPkg name depDir url rev? shouldUpdate
     return depDir
 
 /--

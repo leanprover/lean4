@@ -11,7 +11,7 @@ open Meta
 
 /-- Returns a list of new congruence subgoals, which contains `none` for each argument with
 forward dependencies. -/
-private def congrApp (mvarId : MVarId) (lhs rhs : Expr) : MetaM (List $ Option MVarId) :=
+private def congrApp (mvarId : MVarId) (lhs rhs : Expr) : MetaM (List (Option MVarId)) :=
   -- TODO: add support for `[congr]` lemmas
   lhs.withApp fun f args => do
     let infos := (← getFunInfoNArgs f args.size).paramInfo
@@ -55,21 +55,21 @@ def isImplies (e : Expr) : MetaM Bool :=
   else
     return false
 
-def congr (mvarId : MVarId) : MetaM (List $ Option MVarId) :=
+def congr (mvarId : MVarId) : MetaM (List (Option MVarId)) :=
   withMVarContext mvarId do
     let (lhs, rhs) ← getLhsRhsCore mvarId
     let lhs := (← instantiateMVars lhs).consumeMData
     if (← isImplies lhs) then
-      pure $ (← congrImplies mvarId).map Option.some
+      return (← congrImplies mvarId).map Option.some
     else if lhs.isApp then
       congrApp mvarId lhs rhs
     else
       throwError "invalid 'congr' conv tactic, application or implication expected{indentExpr lhs}"
 
 @[builtinTactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun _ => do
-   replaceMainGoal $ List.filterMap id (← congr (← getMainGoal))
+   replaceMainGoal <| List.filterMap id (← congr (← getMainGoal))
 
-private def selectIdx (tacticName : String) (mvarIds : List $ Option MVarId) (i : Int) :
+private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i : Int) :
   TacticM Unit := do
   if i >= 0 then
     let i := i.toNat

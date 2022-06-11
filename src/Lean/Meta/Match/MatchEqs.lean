@@ -96,7 +96,8 @@ where
             if lhs.isFVar && ys.contains lhs && args.contains lhs && isNamedPatternProof typeNew y then
                let some i  := ys.getIdx? lhs | unreachable!
                let ys      := ys.eraseIdx i
-               let mask    := mask.set! i false
+               let some j  := args.getIdx? lhs | unreachable!
+               let mask    := mask.set! j false
                let args    := args.map fun arg => if arg == lhs then rhs else arg
                let args    := args.push (← mkEqRefl rhs)
                let typeNew := typeNew.replaceFVar lhs rhs

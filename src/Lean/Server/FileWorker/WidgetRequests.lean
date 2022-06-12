@@ -17,7 +17,7 @@ import Lean.Server.FileWorker.RequestHandling
 namespace Lean.Widget
 open Server
 
-structure PPExprTaggedRequest where
+structure PPExprTaggedParams where
   expr : WithRpcRef ExprWithCtx
   explicit : Bool
   deriving Inhabited, RpcEncoding
@@ -25,7 +25,7 @@ structure PPExprTaggedRequest where
 builtin_initialize
   registerBuiltinRpcProcedure
     `Lean.Widget.ppExprTagged
-    PPExprTaggedRequest
+    PPExprTaggedParams
     CodeWithInfos
     fun ⟨⟨ctx, lctx, expr⟩, explicit⟩ => RequestM.asTask do
       ctx.runMetaM lctx do

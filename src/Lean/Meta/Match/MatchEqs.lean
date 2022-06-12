@@ -387,14 +387,25 @@ where
       m := m.insert alt.fvarId! (altNew, numParams, argMask)
     return m
 
+  trimFalseTrail (argMask : Array Bool) : Array Bool :=
+    if argMask.isEmpty then
+      argMask
+    else if !argMask.back then
+      trimFalseTrail argMask.pop
+    else
+      argMask
+
   convertTemplate (m : FVarIdMap (Expr × Nat × Array Bool)) : StateRefT (Array MVarId) MetaM Expr :=
     transform template fun e => do
       match e.getAppFn with
       | Expr.fvar fvarId .. =>
         match m.find? fvarId with
         | some (altNew, numParams, argMask) =>
-          trace[Meta.Match.matchEqs] ">> {e}, {altNew}"
+          trace[Meta.Match.matchEqs] ">> argMask: {argMask}, e: {e}, {altNew}"
           let mut newArgs := #[]
+          let argMask := trimFalseTrail argMask
+          unless e.getAppNumArgs ≥ argMask.size do
+            throwError "unexpected occurrence of `match`-expression alternative (aka minor premise) while creating splitter/eliminator theorem for `{matchDeclName}`, minor premise is partially applied{indentExpr e}\npossible solution if you are matching on inductive families: add its indices as additional discriminants"
           for arg in e.getAppArgs, includeArg in argMask do
             if includeArg then
               newArgs := newArgs.push arg

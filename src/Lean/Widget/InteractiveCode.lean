@@ -17,8 +17,8 @@ open Server
 
 /-- Information about a subexpression within delaborated code. -/
 structure SubexprInfo where
-  /-- The Expression and context node with the semantics of this part of the output. -/
-  info : WithRpcRef ExprWithCtx
+  /-- The `Elab.Info` node with the semantics of this part of the output. -/
+  info : WithRpcRef InfoWithCtx
   /-- The position of this subexpression within the top-level expression.
   See `Lean.SubExpr`. -/
   subexprPos : Lean.SubExpr.Pos
@@ -40,9 +40,8 @@ where
   go (tt : TaggedText (Nat × Nat)) :=
     tt.rewrite fun (n, _) subTt =>
       match infos.find? n with
-      | some (.ofTermInfo ti) => TaggedText.tag ⟨WithRpcRef.mk { ctx, lctx := ti.lctx, expr := ti.expr }, n⟩ (go subTt)
-      | some (.ofFieldInfo _fi) => go subTt -- [todo] what to do in this case?
-      | _ => go subTt
+      | none   => go subTt
+      | some i => TaggedText.tag ⟨WithRpcRef.mk { ctx, info := i }, n⟩ (go subTt)
 
 def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
   let optsPerPos := if explicit then

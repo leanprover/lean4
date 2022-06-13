@@ -1,22 +1,95 @@
--*- mode: compilation; default-directory: "~/projects/lean4/build/release/" -*-
-Compilation started at Mon Jun 13 13:56:14
+namespace Foo
 
-/home/leodemoura/.elan/bin/lean  /home/leodemoura/projects/lean4/build/release/root.lean
-Bla.f : Nat → Nat
-/home/leodemoura/projects/lean4/build/release/root.lean:21:14: error: protected declarations must be in a namespace
-/home/leodemoura/projects/lean4/build/release/root.lean:29:4: error: invalid declaration name `_root_`, `_root_` is a prefix used to refer to the 'root' namespace
-/home/leodemoura/projects/lean4/build/release/root.lean:31:0: error: invalid namespace '_root_', '_root_' is a reserved namespace
-/home/leodemoura/projects/lean4/build/release/root.lean:33:0: error: invalid namespace 'f._root_', '_root_' is a reserved namespace
-/home/leodemoura/projects/lean4/build/release/root.lean:35:14: error: protected declarations must be in a namespace
-/home/leodemoura/projects/lean4/build/release/root.lean:41:7: error: unknown identifier 'h'
-/home/leodemoura/projects/lean4/build/release/root.lean:43:7: error: unknown identifier 'f'
-f : Nat → Nat
-_private.root.0.prv : Nat -> Nat
-/home/leodemoura/projects/lean4/build/release/root.lean:90:48: error: unsolved goals
-x : Nat
-⊢ isEven (x + 1 + 1) = isEven x
-/home/leodemoura/projects/lean4/build/release/root.lean:95:48: error: unsolved goals
-x : Nat
-⊢ isEven (x + 1 + 1) = isEven x
+def y := 10
 
-Compilation exited abnormally with code 1 at Mon Jun 13 13:56:14
+def _root_.Bla.f (x : Nat) := x + y
+
+#check Bla.f
+
+example : Bla.f 5 = 15 := rfl
+
+def _root_.g (x : Nat) :=
+  match x with
+  | 0 => 1
+  | x+1 => 2*g x
+
+def _root_.Boo.g (x : Nat) :=
+  match x with
+  | 0 => 1
+  | x+1 => 3*g x
+
+protected def _root_.h (x : Nat) := x -- Error
+
+example : g 3 = 8 := rfl
+
+example : Boo.g 2 = 9 := rfl
+
+end Foo
+
+def _root_ (y : Nat) := y + 1 -- Error
+
+def _root_._root_ (y : Nat) := y -- Error
+
+def _root_.f._root_ (y : Nat) := y -- Error
+
+protected def _root_.h (x : Nat) := x -- Error
+
+protected def _root_.Boo.h (x : Nat) := x -- Error
+
+example : Boo.h x = x := rfl
+
+#check h -- Error
+
+#check f -- Error
+
+open Bla
+
+#check f -- Ok
+
+namespace Test
+
+mutual
+
+  def _root_.isEven (x : Nat) :=
+    match x with
+    | 0 => true
+    | x+1 => isOdd x
+
+  def _root_.isOdd (x : Nat) :=
+    match x with
+    | 0 => false
+    | x+1 => isEven x
+
+end
+
+private def _root_.prv (x : Nat) := x + x + x
+
+example : prv 5 = 15 := rfl
+
+end Test
+
+example : isEven 0  = true := by simp! [isOdd, isEven]
+example : isOdd 1   = true := by simp! [isOdd, isEven]
+example : isEven 2  = true := by simp! [isOdd, isEven]
+
+example : prv 5 = 15 := rfl
+
+set_option pp.raw true in
+#check prv
+
+namespace Ex
+
+@[scoped simp] theorem _root_.isEven_of_isOdd (x : Nat) : isEven (x+1) = isOdd x := by simp [isEven]
+
+@[scoped simp] theorem _root_.isOdd_of_isEven (x : Nat) : isOdd (x+1) = isEven x := by simp [isOdd]
+
+example : isEven (x+1+1) = isEven x := by simp -- Ok
+
+end Ex
+
+example : isEven (x+1+1) = isEven x := by simp; done -- Error
+
+open Ex in
+example : isEven (x+1+1) = isEven x := by simp -- Ok
+
+example : isEven (x+1+1) = isEven x := by simp; done -- Error

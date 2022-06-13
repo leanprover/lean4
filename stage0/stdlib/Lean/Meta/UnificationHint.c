@@ -30,7 +30,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_tryUnificationHints___lambda__1(lean_object
 lean_object* lean_nat_div(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Meta_tryUnificationHints_tryCandidate___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_UnificationHint_0__Lean_Meta_decodeUnificationHint_decode___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_2033_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_2047_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_81_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_720_(lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_720____lambda__1___closed__8;
@@ -9072,7 +9072,7 @@ lean_dec(x_3);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_2033_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_2047_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
@@ -9352,7 +9352,7 @@ l_Lean_Meta_tryUnificationHints___lambda__2___closed__1 = _init_l_Lean_Meta_tryU
 lean_mark_persistent(l_Lean_Meta_tryUnificationHints___lambda__2___closed__1);
 l_Lean_Meta_tryUnificationHints___lambda__2___closed__2 = _init_l_Lean_Meta_tryUnificationHints___lambda__2___closed__2();
 lean_mark_persistent(l_Lean_Meta_tryUnificationHints___lambda__2___closed__2);
-res = l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_2033_(lean_io_mk_world());
+res = l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_2047_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

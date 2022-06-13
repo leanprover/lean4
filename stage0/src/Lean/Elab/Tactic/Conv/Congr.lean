@@ -9,23 +9,30 @@ import Lean.Elab.Tactic.Conv.Basic
 namespace Lean.Elab.Tactic.Conv
 open Meta
 
-private def congrApp (mvarId : MVarId) (lhs rhs : Expr) : MetaM (List MVarId) :=
+/-- Returns a list of new congruence subgoals, which contains `none` for each argument with
+forward dependencies. -/
+private def congrApp (mvarId : MVarId) (lhs rhs : Expr) : MetaM (List (Option MVarId)) :=
   -- TODO: add support for `[congr]` lemmas
   lhs.withApp fun f args => do
     let infos := (← getFunInfoNArgs f args.size).paramInfo
     let mut r := { expr := f : Simp.Result }
-    let mut newGoals := #[]
+    let mut newGoals : Array (Option MVarId) := #[]
     let mut i := 0
     for arg in args do
       let addGoal ←
-        if i < infos.size && !infos[i].hasFwdDeps then
+        if i < infos.size then
           pure infos[i].binderInfo.isExplicit
         else
           pure (← whnfD (← inferType r.expr)).isArrow
+      let hasFwdDep := i < infos.size && infos[i].hasFwdDeps
       if addGoal then
-        let (rhs, newGoal) ← mkConvGoalFor arg
-        newGoals := newGoals.push newGoal.mvarId!
-        r ← Simp.mkCongr r { expr := rhs, proof? := newGoal }
+        if hasFwdDep then
+          newGoals := newGoals.push none
+          r ← Simp.mkCongrFun r arg
+        else
+          let (rhs, newGoal) ← mkConvGoalFor arg
+          newGoals := newGoals.push newGoal.mvarId!
+          r ← Simp.mkCongr r { expr := rhs, proof? := newGoal }
       else
         r ← Simp.mkCongrFun r arg
       i := i + 1
@@ -48,28 +55,34 @@ def isImplies (e : Expr) : MetaM Bool :=
   else
     return false
 
-def congr (mvarId : MVarId) : MetaM (List MVarId) :=
+def congr (mvarId : MVarId) : MetaM (List (Option MVarId)) :=
   withMVarContext mvarId do
     let (lhs, rhs) ← getLhsRhsCore mvarId
     let lhs := (← instantiateMVars lhs).consumeMData
     if (← isImplies lhs) then
-      congrImplies mvarId
+      return (← congrImplies mvarId).map Option.some
     else if lhs.isApp then
       congrApp mvarId lhs rhs
     else
       throwError "invalid 'congr' conv tactic, application or implication expected{indentExpr lhs}"
 
 @[builtinTactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun _ => do
-   replaceMainGoal (← congr (← getMainGoal))
+   replaceMainGoal <| List.filterMap id (← congr (← getMainGoal))
 
-private def selectIdx (tacticName : String) (mvarIds : List MVarId) (i : Int) : TacticM Unit := do
+private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i : Int) :
+  TacticM Unit := do
   if i >= 0 then
     let i := i.toNat
     if h : i < mvarIds.length then
-      for mvarId in mvarIds, j in [:mvarIds.length] do
-        if i != j then
-          applyRefl mvarId
-      replaceMainGoal [mvarIds.get ⟨i, h⟩]
+      for mvarId? in mvarIds, j in [:mvarIds.length] do
+        match mvarId? with
+        | none => pure ()
+        | some mvarId =>
+          if i != j then
+            applyRefl mvarId
+      match mvarIds.get ⟨i, h⟩ with
+      | none => throwError "cannot select argument with forward dependencies"
+      | some mvarId => replaceMainGoal [mvarId]
       return ()
   throwError "invalid '{tacticName}' conv tactic, application has only {mvarIds.length} (nondependent) argument(s)"
 

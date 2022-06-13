@@ -259,11 +259,6 @@ protected theorem le_total (m n : Nat) : m ≤ n ∨ n ≤ m :=
   | Or.inl h => Or.inl (Nat.le_of_lt h)
   | Or.inr h => Or.inr h
 
-protected theorem lt_of_le_and_ne {m n : Nat} (h₁ : m ≤ n) (h₂ : m ≠ n) : m < n :=
-  match Nat.eq_or_lt_of_le h₁ with
-  | Or.inl h => absurd h h₂
-  | Or.inr h => h
-
 theorem eq_zero_of_le_zero {n : Nat} (h : n ≤ 0) : n = 0 :=
   Nat.le_antisymm h (zero_le _)
 
@@ -299,7 +294,7 @@ theorem le_or_eq_or_le_succ {m n : Nat} (h : m ≤ succ n) : m ≤ n ∨ m = suc
   Decidable.byCases
     (fun (h' : m = succ n) => Or.inr h')
     (fun (h' : m ≠ succ n) =>
-       have : m < succ n := Nat.lt_of_le_and_ne h h'
+       have : m < succ n := Nat.lt_of_le_of_ne h h'
        have : succ m ≤ succ n := succ_le_of_lt this
        Or.inl (le_of_succ_le_succ this))
 

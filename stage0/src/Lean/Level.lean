@@ -262,8 +262,14 @@ partial def normLtAux : Level → Nat → Level → Nat → Bool
     if l₁ == l₂ then k₁ < k₂
     else if l₁₁ != l₂₁ then normLtAux l₁₁ 0 l₂₁ 0
     else normLtAux l₁₂ 0 l₂₂ 0
-  | param n₁ _, k₁, param n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.lt n₁ n₂     -- use Name.lt because it is lexicographical
-  | mvar n₁ _, k₁, mvar n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.quickLt n₁.name n₂.name  -- metavariables are temporary, the actual order doesn't matter
+  | param n₁ _, k₁, param n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.lt n₁ n₂ -- use `Name.lt` because it is lexicographical
+  /-
+    We also use `Name.lt` in the following case to make sure universe parameters in a declaration
+    are not affected by shifted indices. We used to use `Name.quickLt` which is not stable over shifted indices (the hashcodes change),
+    and changes to the elaborator could affect the universe parameters and break code that relies on an explicit order.
+    Example: test `tests/lean/343.lean`.
+   -/
+  | mvar n₁ _, k₁, mvar n₂ _, k₂ => if n₁ == n₂ then k₁ < k₂ else Name.lt n₁.name n₂.name
   | l₁, k₁, l₂, k₂ => if l₁ == l₂ then k₁ < k₂ else ctorToNat l₁ < ctorToNat l₂
 
 /--

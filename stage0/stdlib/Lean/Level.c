@@ -45,7 +45,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Level_0__Lean_Level_getMaxArgsAux___at
 LEAN_EXPORT lean_object* l_Lean_Level_updateIMax___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Level_mkData___closed__3;
 extern lean_object* l_Std_Format_defWidth;
-uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
 lean_object* l_Std_RBMap_instForInRBMapProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instReprLevel___closed__1;
 uint64_t lean_uint64_add(uint64_t, uint64_t);
@@ -4029,7 +4028,7 @@ if (x_78 == 0)
 uint8_t x_79; 
 lean_dec(x_4);
 lean_dec(x_2);
-x_79 = l_Lean_Name_quickLt(x_76, x_77);
+x_79 = l_Lean_Name_lt(x_76, x_77);
 return x_79;
 }
 else
@@ -4678,7 +4677,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l_Lean_Level_normalize___closed__1;
-x_3 = lean_unsigned_to_nat(373u);
+x_3 = lean_unsigned_to_nat(379u);
 x_4 = lean_unsigned_to_nat(11u);
 x_5 = l_Lean_Level_normalize___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -6570,7 +6569,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l_Lean_Level_updateSucc_x21___closed__1;
-x_3 = lean_unsigned_to_nat(519u);
+x_3 = lean_unsigned_to_nat(525u);
 x_4 = lean_unsigned_to_nat(18u);
 x_5 = l_Lean_Level_updateSucc_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -6645,7 +6644,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l_Lean_Level_updateMax_x21___closed__1;
-x_3 = lean_unsigned_to_nat(528u);
+x_3 = lean_unsigned_to_nat(534u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Lean_Level_updateMax_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -6724,7 +6723,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Level_mkData___closed__2;
 x_2 = l_Lean_Level_updateIMax_x21___closed__1;
-x_3 = lean_unsigned_to_nat(537u);
+x_3 = lean_unsigned_to_nat(543u);
 x_4 = lean_unsigned_to_nat(22u);
 x_5 = l_Lean_Level_updateIMax_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

@@ -151,8 +151,10 @@ def wf (h : WellFounded r) : WellFounded (TC r) :=
   ⟨fun a => accessible (apply h a)⟩
 end TC
 
+namespace Nat
+
 -- less-than is well-founded
-def Nat.lt_wfRel : WellFoundedRelation Nat where
+def lt_wfRel : WellFoundedRelation Nat where
   rel := Nat.lt
   wf  := by
   apply WellFounded.intro
@@ -169,6 +171,24 @@ def Nat.lt_wfRel : WellFoundedRelation Nat where
     match this with
     | Or.inl e => subst e; assumption
     | Or.inr e => exact Acc.inv ih e
+
+protected theorem strongInductionOn
+    {motive : Nat → Sort u}
+    (n : Nat)
+    (ind : ∀ n, (∀ m, m < n → motive m) → motive n) : motive n :=
+  Nat.lt_wfRel.wf.fix ind n
+
+protected theorem caseStrongInductionOn
+    {motive : Nat → Sort u}
+    (a : Nat)
+    (zero : motive 0)
+    (ind : ∀ n, (∀ m, m ≤ n → motive m) → motive (succ n)) : motive a :=
+  Nat.strongInductionOn a fun n =>
+    match n with
+    | 0   => fun _  => zero
+    | n+1 => fun h₁ => ind n (λ _ h₂ => h₁ _ (lt_succ_of_le h₂))
+
+end Nat
 
 def Measure {α : Sort u} : (α → Nat) → α → α → Prop :=
   InvImage (fun a b => a < b)

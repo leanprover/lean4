@@ -465,10 +465,10 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
     let mut undecidedAlts     := #[]
     let mut nonExhaustiveAlts := #[]
     let mut floatedLetDecls   := #[]
-    for alt in alts do
-      let mut alt := alt
-      match alt with
-      | (covered f exh, alt') =>
+    for (x, alt') in alts do
+      let mut alt' := alt'
+      match x with
+      | covered f exh =>
         -- we can only factor out a common check if there are no undecided patterns in between;
         -- otherwise we would change the order of alternatives
         if undecidedAlts.isEmpty then
@@ -476,14 +476,14 @@ private partial def compileStxMatch (discrs : List Syntax) (alts : List Alt) : T
           if !exh then
             nonExhaustiveAlts := nonExhaustiveAlts.push alt'
         else
-          (floatedLetDecls, alt) ← deduplicate floatedLetDecls alt'
-          undecidedAlts := undecidedAlts.push alt
-          nonExhaustiveAlts := nonExhaustiveAlts.push alt
-      | (undecided, alt') =>
-        (floatedLetDecls, alt) ← deduplicate floatedLetDecls alt'
-        undecidedAlts := undecidedAlts.push alt
-        nonExhaustiveAlts := nonExhaustiveAlts.push alt
-      | (uncovered, alt') =>
+          (floatedLetDecls, alt') ← deduplicate floatedLetDecls alt'
+          undecidedAlts := undecidedAlts.push alt'
+          nonExhaustiveAlts := nonExhaustiveAlts.push alt'
+      | undecided =>
+        (floatedLetDecls, alt') ← deduplicate floatedLetDecls alt'
+        undecidedAlts := undecidedAlts.push alt'
+        nonExhaustiveAlts := nonExhaustiveAlts.push alt'
+      | uncovered =>
         nonExhaustiveAlts := nonExhaustiveAlts.push alt'
     let mut stx ← info.doMatch
       (yes := fun newDiscrs => do

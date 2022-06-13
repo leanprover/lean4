@@ -449,6 +449,7 @@ def sepByNoAntiquot.formatter (p pSep : Formatter) : Formatter := do
 @[combinatorFormatter Lean.Parser.sepBy1NoAntiquot] def sepBy1NoAntiquot.formatter := sepByNoAntiquot.formatter
 
 @[combinatorFormatter Lean.Parser.withPosition] def withPosition.formatter (p : Formatter) : Formatter := p
+@[combinatorFormatter Lean.Parser.withPositionAfterLinebreak] def withPositionAfterLinebreak.formatter (p : Formatter) : Formatter := p
 @[combinatorFormatter Lean.Parser.withoutPosition] def withoutPosition.formatter (p : Formatter) : Formatter := p
 @[combinatorFormatter Lean.Parser.withForbidden] def withForbidden.formatter (_tk : Token) (p : Formatter) : Formatter := p
 @[combinatorFormatter Lean.Parser.withoutForbidden] def withoutForbidden.formatter (p : Formatter) : Formatter := p

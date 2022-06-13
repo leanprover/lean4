@@ -17,21 +17,6 @@ import Lean.Server.FileWorker.RequestHandling
 namespace Lean.Widget
 open Server
 
-/-- Parameters for the `Lean.Widget.ppExprTagged` RPC.-/
-structure PPExprTaggedParams where
-  expr : WithRpcRef ExprWithCtx
-  explicit : Bool
-  deriving Inhabited, RpcEncoding
-
-builtin_initialize
-  registerBuiltinRpcProcedure
-    `Lean.Widget.ppExprTagged
-    PPExprTaggedParams
-    CodeWithInfos
-    fun ⟨⟨ctx, lctx, expr⟩, explicit⟩ => RequestM.asTask do
-      ctx.runMetaM lctx do
-        ppExprTagged expr explicit
-
 structure MsgToInteractive where
   msg : WithRpcRef MessageData
   indent : Nat

@@ -73,8 +73,6 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
           else
             let a' ← whnf a
             let b' ← whnf b
-            trace[Meta.debug] "a: {a} ==> {a'}"
-            trace[Meta.debug] "b: {b} ==> {b'}"
             if a' != a || b' != b then
               /- Reduced lhs/rhs of current equality -/
               let prf := mkFVar eqFVarId

@@ -1491,6 +1491,14 @@ def anyOfFn : List Parser → ParserFn
     p.fn { c with savedPos? := s.pos } s
 }
 
+@[inline] def withPositionAfterLinebreak (p : Parser) : Parser := {
+  info := p.info
+  fn   := fun c s =>
+    let prev := s.stxStack.back
+    let c := if checkTailLinebreak prev then { c with savedPos? := s.pos } else c
+    p.fn c s
+}
+
 @[inline] def withoutPosition (p : Parser) : Parser := {
   info := p.info
   fn   := fun c s => p.fn { c with savedPos? := none } s

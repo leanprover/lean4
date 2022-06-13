@@ -87,7 +87,7 @@ def doIfLetBind := leading_parser " ← " >> termParser
 def doIfLet     := leading_parser (withAnonymousAntiquot := false) "let " >> termParser >> (doIfLetPure <|> doIfLetBind)
 def doIfProp    := leading_parser (withAnonymousAntiquot := false) optIdent >> termParser
 def doIfCond    := withAntiquot (mkAntiquot "doIfCond" none (anonymous := false)) <| doIfLet <|> doIfProp
-@[builtinDoElemParser] def doIf := leading_parser withPosition $
+@[builtinDoElemParser] def doIf := leading_parser withPositionAfterLinebreak $
   "if " >> doIfCond >> " then " >> doSeq
   >> many (checkColGe "'else if' in 'do' must be indented" >> group (elseIf >> doIfCond >> " then " >> doSeq))
   >> optional (checkColGe "'else' in 'do' must be indented" >> " else " >> doSeq)

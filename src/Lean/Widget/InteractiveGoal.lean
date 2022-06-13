@@ -30,7 +30,7 @@ structure InteractiveGoal where
   goalPrefix : String
   /-- Identifies the goal (ie with the unique
   name of the MVar that it is a goal for.)
-  [todo] what should the key be for a term goal?-/
+  This is none when we are showing a term goal. -/
   mvarId? : Option MVarId := none
   deriving Inhabited, RpcEncoding
 

@@ -21,7 +21,7 @@ private def ensureValidNamespace (name : Name) : MacroM Unit := do
       Macro.throwError s!"invalid namespace '{name}', '_root_' is a reserved namespace"
     ensureValidNamespace p
   | Name.num _ .. => Macro.throwError s!"invalid namespace '{name}', it must not contain numeric parts"
-  | Name.anonymous => pure ()
+  | Name.anonymous => return ()
 
 /- Auxiliary function for `expandDeclNamespace?` -/
 private def expandDeclIdNamespace? (declId : Syntax) : MacroM (Option (Name × Syntax)) := do
@@ -75,7 +75,7 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   let scopeLevelNames ← getLevelNames
   let ⟨_, declName, allUserLevelNames⟩ ← expandDeclId declId modifiers
   addDeclarationRanges declName stx
-  runTermElabM declName fun vars => Term.withLevelNames allUserLevelNames $ Term.elabBinders binders.getArgs fun xs => do
+  runTermElabM declName fun vars => Term.withLevelNames allUserLevelNames <| Term.elabBinders binders.getArgs fun xs => do
     Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.beforeElaboration
     let type ← Term.elabType typeStx
     Term.synthesizeSyntheticMVarsNoPostponing
@@ -122,7 +122,7 @@ private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) : Comm
     checkValidCtorModifier ctorModifiers
     let ctorName := ctor.getIdAt 2
     let ctorName := declName ++ ctorName
-    let ctorName ← withRef ctor[2] $ applyVisibility ctorModifiers.visibility ctorName
+    let ctorName ← withRef ctor[2] <| applyVisibility ctorModifiers.visibility ctorName
     let (binders, type?) := expandOptDeclSig ctor[3]
     addDocString' ctorName ctorModifiers.docString?
     addAuxDeclarationRanges ctorName ctor ctor[2]
@@ -163,7 +163,7 @@ def elabDeclaration : CommandElab := fun stx => do
   | some (ns, newStx) => do
     let ns := mkIdentFrom stx ns
     let newStx ← `(namespace $ns:ident $newStx end $ns:ident)
-    withMacroExpansion stx newStx $ elabCommand newStx
+    withMacroExpansion stx newStx <| elabCommand newStx
   | none => do
     let modifiers ← elabModifiers stx[0]
     let decl     := stx[1]
@@ -251,7 +251,7 @@ def expandMutualElement : Macro := fun stx => do
     | some elemNew => elemsNew := elemsNew.push elemNew; modified := true
     | none         => elemsNew := elemsNew.push elem
   if modified then
-    pure $ stx.setArg 1 (mkNullNode elemsNew)
+    return stx.setArg 1 (mkNullNode elemsNew)
   else
     Macro.throwUnsupported
 
@@ -263,7 +263,7 @@ def expandMutualPreamble : Macro := fun stx =>
     let secCmd    ← `(section)
     let newMutual := stx.setArg 1 (mkNullNode rest)
     let endCmd    ← `(end)
-    pure $ mkNullNode (#[secCmd] ++ preamble ++ #[newMutual] ++ #[endCmd])
+    return mkNullNode (#[secCmd] ++ preamble ++ #[newMutual] ++ #[endCmd])
 
 @[builtinCommandElab «mutual»]
 def elabMutual : CommandElab := fun stx => do
@@ -309,7 +309,7 @@ def expandInitCmd (builtin : Bool) : Macro := fun stx => do
   let optVisibility := stx[0]
   let optHeader     := stx[2]
   let doSeq         := stx[3]
-  let attrId        := mkIdentFrom stx $ if builtin then `builtinInit else `init
+  let attrId        := mkIdentFrom stx <| if builtin then `builtinInit else `init
   if optHeader.isNone then
     unless optVisibility.isNone do
       Macro.throwError "invalid initialization command, 'visibility' modifer is not allowed"

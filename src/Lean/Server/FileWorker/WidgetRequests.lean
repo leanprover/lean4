@@ -57,34 +57,33 @@ structure InfoPopup where
 
 /-- Given elaborator info for a particular subexpression. Produce the `InfoPopup`.
 
-The intended usage of this is for the infoview to pass the `InfoWithCtx` which
+The intended usage of this is for the infoview to pass the `ExprWithCtx` which
 was stored for a particular `SubexprInfo` tag in a `TaggedText` generated with `ppExprTagged`.
  -/
-def makePopup : WithRpcRef InfoWithCtx → RequestM (RequestTask InfoPopup)
+def makePopup : WithRpcRef ExprWithCtx → RequestM (RequestTask InfoPopup)
     | ⟨i⟩ => RequestM.asTask do
-      i.ctx.runMetaM i.info.lctx do
-        let type? ← match (← i.info.type?) with
-          | some type => some <$> ppExprTagged type
-          | none => pure none
-        let exprExplicit? ← match i.info with
-          | Elab.Info.ofTermInfo ti =>
-            let ti ← ppExprTagged ti.expr (explicit := true)
-            -- remove top-level expression highlight
-            pure <| some <| match ti with
-              | .tag _ tt => tt
-              | tt => tt
-          | Elab.Info.ofFieldInfo fi => pure <| some <| TaggedText.text fi.fieldName.toString
-          | _ => pure none
+      i.ctx.runMetaM i.lctx do
+        let type? ←
+          (do return some <|← ppExprTagged <|← Meta.inferType i.expr)
+          <|> pure none
+        let ti ← ppExprTagged i.expr (explicit := true)
+        -- remove top-level expression highlight
+        let tt := match ti with
+          | .tag _ tt => tt
+          | tt => tt
+        let doc? ←
+          if let some n := i.expr.constName?
+          then findDocString? (← getEnv) n else pure none
         return {
           type := type?
-          exprExplicit := exprExplicit?
-          doc := ← i.info.docString? : InfoPopup
+          exprExplicit := some tt
+          doc := doc? : InfoPopup
         }
 
 builtin_initialize
   registerBuiltinRpcProcedure
     `Lean.Widget.InteractiveDiagnostics.infoToInteractive
-    (WithRpcRef InfoWithCtx)
+    (WithRpcRef ExprWithCtx)
     InfoPopup
     makePopup
 
@@ -132,23 +131,25 @@ builtin_initialize
 
 structure GetGoToLocationParams where
   kind : GoToKind
-  info : WithRpcRef InfoWithCtx
+  info : WithRpcRef ExprWithCtx
   deriving RpcEncoding
+
+def getGoToLocation : GetGoToLocationParams → RequestM (RequestTask (Array Lsp.LocationLink))
+  | ⟨kind, ⟨i⟩⟩ => RequestM.asTask do
+    let rc ← read
+    let ls ← FileWorker.locationLinksOfInfo kind i.ctx (ExprWithCtx.toTermInfo i)
+    if !ls.isEmpty then return ls
+    -- TODO(WN): unify handling of delab'd (infoview) and elab'd (editor) applications
+    let .app _ _ _ := i.expr | return #[]
+    let some nm := i.expr.getAppFn.constName? | return #[]
+    i.ctx.runMetaM i.lctx <|
+      locationLinksFromDecl rc.srcSearchPath rc.doc.meta.uri nm none
 
 builtin_initialize
   registerBuiltinRpcProcedure
     `Lean.Widget.getGoToLocation
     GetGoToLocationParams
     (Array Lsp.LocationLink)
-    fun ⟨kind, ⟨i⟩⟩ => RequestM.asTask do
-      let rc ← read
-      let ls ← FileWorker.locationLinksOfInfo kind i.ctx i.info
-      if !ls.isEmpty then return ls
-      -- TODO(WN): unify handling of delab'd (infoview) and elab'd (editor) applications
-      let .ofTermInfo ti := i.info | return #[]
-      let .app _ _ _ := ti.expr | return #[]
-      let some nm := ti.expr.getAppFn.constName? | return #[]
-      i.ctx.runMetaM ti.lctx <|
-        locationLinksFromDecl rc.srcSearchPath rc.doc.meta.uri nm none
+    getGoToLocation
 
 end Lean.Widget

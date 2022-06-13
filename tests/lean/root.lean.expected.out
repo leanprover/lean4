@@ -1,0 +1,11 @@
+root.lean:1:0: error: expected command
+root.lean:6:80: error: expected 'abbrev', 'axiom', 'builtin_initialize', 'class', 'constant', 'def', 'example', 'inductive', 'initialize', 'instance', 'structure' or 'theorem'
+root.lean:7:0: error: expected identifier
+root.lean:7:125: error: expected ':'
+root.lean:8:0: error: expected identifier
+root.lean:8:90: error: missing end of character literal
+root.lean:9:0: error: expected identifier
+root.lean:9:90: error: missing end of character literal
+root.lean:10:0: error: expected identifier
+root.lean:10:80: error: expected 'abbrev', 'axiom', 'builtin_initialize', 'class', 'constant', 'def', 'example', 'inductive', 'initialize', 'instance', 'structure' or 'theorem'
+root.lean:11:0: error: expected identifier

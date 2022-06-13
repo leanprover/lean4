@@ -23,9 +23,12 @@ private def ensureValidNamespace (name : Name) : MacroM Unit := do
   | Name.num _ .. => Macro.throwError s!"invalid namespace '{name}', it must not contain numeric parts"
   | Name.anonymous => return ()
 
-/- Auxiliary function for `expandDeclNamespace?` -/
+/-- Auxiliary function for `expandDeclNamespace?` -/
 private def expandDeclIdNamespace? (declId : Syntax) : MacroM (Option (Name × Syntax)) := do
   let (id, _) := expandDeclIdCore declId
+  if (`_root_).isPrefixOf id then
+    ensureValidNamespace (id.replacePrefix `_root_ Name.anonymous)
+    return none
   let scpView := extractMacroScopes id
   match scpView.name with
   | Name.str Name.anonymous _ _ => return none
@@ -41,7 +44,10 @@ private def expandDeclIdNamespace? (declId : Syntax) : MacroM (Option (Name × S
       return some (pre, declId.setArg 0 id)
   | _ => return none
 
-/- given declarations such as `@[...] def Foo.Bla.f ...` return `some (Foo.Bla, @[...] def f ...)` -/
+/--
+  Given declarations such as `@[...] def Foo.Bla.f ...` return `some (Foo.Bla, @[...] def f ...)`
+  Remark: if the id starts with `_root_`, we return `none`.
+-/
 private def expandDeclNamespace? (stx : Syntax) : MacroM (Option (Name × Syntax)) := do
   if !stx.isOfKind `Lean.Parser.Command.declaration then
     return none

@@ -150,6 +150,18 @@ example (p : (n : Nat) → Fin n → Prop) (i : Fin 5) (hp : p 5 i) (hi : j = i)
     rw [hi]
   exact hp
 
+example (p : {_ : Nat} → Nat → Prop) (x y : Nat) (h1 : y = 0) (h2 : @p x x) : @p (y + x) (y + x) := by
+  conv =>
+    enter [@1, 1]
+    trace_state
+    rw [h1]
+  conv =>
+    enter [@2, 1]
+    trace_state
+    rw [h1]
+  rw [Nat.zero_add]
+  exact h2
+
 example (p : Nat → Prop) (x y : Nat) (h : y = 0) : p (y + x) := by
   conv => lhs
 

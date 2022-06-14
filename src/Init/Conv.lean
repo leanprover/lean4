@@ -26,7 +26,7 @@ syntax (name := whnf) "whnf" : conv
 /-- Put term in normal form, this tactic is ment for debugging purposes only -/
 syntax (name := reduce) "reduce" : conv
 syntax (name := congr) "congr" : conv
-syntax (name := arg) "arg " num : conv
+syntax (name := arg) "arg " "@"? num : conv
 syntax (name := ext) "ext " (colGt ident)* : conv
 syntax (name := change) "change " term : conv
 syntax (name := delta) "delta " ident : conv
@@ -54,10 +54,11 @@ macro "left" : conv => `(lhs)
 macro "right" : conv => `(rhs)
 macro "intro " xs:(colGt ident)* : conv => `(ext $xs*)
 
-syntax enterArg := ident <|> num
+syntax enterArg := ident <|> group("@"? num)
 syntax "enter " "[" (colGt enterArg),+ "]": conv
 macro_rules
   | `(conv| enter [$i:num]) => `(conv| arg $i)
+  | `(conv| enter [@$i:num]) => `(conv| arg @$i)
   | `(conv| enter [$id:ident]) => `(conv| ext $id)
   | `(conv| enter [$arg:enterArg, $args,*]) => `(conv| (enter [$arg]; enter [$args,*]))
 

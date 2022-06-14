@@ -31,7 +31,7 @@ Remark: the ReducibilityHints are not related to the attributes: reducible/irrel
 These attributes are used by the Elaborator. The ReducibilityHints are used by the kernel (and Elaborator).
 Moreover, the ReducibilityHints cannot be changed after a declaration is added to the kernel. -/
 inductive ReducibilityHints where
-  | opaque   : ReducibilityHints
+  | «opaque» : ReducibilityHints
   | «abbrev» : ReducibilityHints
   | regular  : UInt32 → ReducibilityHints
   deriving Inhabited
@@ -52,7 +52,7 @@ def lt : ReducibilityHints → ReducibilityHints → Bool
   | «abbrev»,   «abbrev»   => false
   | «abbrev»,   _          => true
   | regular d₁, regular d₂ => d₁ < d₂
-  | regular _,  opaque     => true
+  | regular _, «opaque»    => true
   | _,          _          => false
 
 def isAbbrev : ReducibilityHints → Bool

@@ -196,11 +196,10 @@ def induction (mvarId : MVarId) (majorFVarId : FVarId) (recursorName : Name) (gi
             let recursor ← addRecParams mvarId majorTypeArgs recursorInfo.paramsPos recursor
             -- Compute motive
             let motive := target
-            let motive ←
-              if recursorInfo.depElim then
-                pure <| mkLambda `x BinderInfo.default (← inferType major) (← abstract motive #[major])
-              else
-                pure motive
+            let motive ← if recursorInfo.depElim then
+              pure <| mkLambda `x BinderInfo.default (← inferType major) (← abstract motive #[major])
+            else
+              pure motive
             let motive ← mkLambdaFVars indices motive
             let recursor := mkApp recursor motive
             finalize mvarId givenNames recursorInfo reverted major indices baseSubst recursor

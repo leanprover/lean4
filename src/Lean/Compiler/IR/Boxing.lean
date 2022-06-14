@@ -59,13 +59,12 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
       pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) default), xs.push (Arg.var x))
   let r ← N.mkFresh
   let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) default)
-  let body ←
-    if !decl.resultType.isScalar then
-      pure <| reshape newVDecls (FnBody.ret (Arg.var r))
-    else
-      let newR ← N.mkFresh
-      let newVDecls := newVDecls.push (FnBody.vdecl newR IRType.object (Expr.box decl.resultType r) default)
-      pure <| reshape newVDecls (FnBody.ret (Arg.var newR))
+  let body ← if !decl.resultType.isScalar then
+    pure <| reshape newVDecls (FnBody.ret (Arg.var r))
+  else
+    let newR ← N.mkFresh
+    let newVDecls := newVDecls.push (FnBody.vdecl newR IRType.object (Expr.box decl.resultType r) default)
+    pure <| reshape newVDecls (FnBody.ret (Arg.var newR))
   return Decl.fdecl (mkBoxedName decl.name) qs IRType.object body decl.getInfo
 
 def mkBoxedVersion (decl : Decl) : Decl :=

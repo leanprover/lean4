@@ -206,19 +206,18 @@ structure ExpandDeclIdResult where
 def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : Syntax) (modifiers : Modifiers) : m ExpandDeclIdResult := do
   -- ident >> optional (".{" >> sepBy1 ident ", " >> "}")
   let (shortName, optUnivDeclStx) := expandDeclIdCore declId
-  let levelNames ←
-    if optUnivDeclStx.isNone then
-      pure currLevelNames
-    else
-      let extraLevels := optUnivDeclStx[1].getArgs.getEvenElems
-      extraLevels.foldlM
-        (fun levelNames idStx =>
-          let id := idStx.getId
-          if levelNames.elem id then
-            withRef idStx <| throwAlreadyDeclaredUniverseLevel id
-          else
-            pure (id :: levelNames))
-        currLevelNames
+  let levelNames ← if optUnivDeclStx.isNone then
+    pure currLevelNames
+  else
+    let extraLevels := optUnivDeclStx[1].getArgs.getEvenElems
+    extraLevels.foldlM
+      (fun levelNames idStx =>
+        let id := idStx.getId
+        if levelNames.elem id then
+          withRef idStx <| throwAlreadyDeclaredUniverseLevel id
+        else
+          pure (id :: levelNames))
+      currLevelNames
   let (declName, shortName) ← withRef declId <| mkDeclName currNamespace modifiers shortName
   addDocString' declName modifiers.docString?
   return { shortName := shortName, declName := declName, levelNames := levelNames }

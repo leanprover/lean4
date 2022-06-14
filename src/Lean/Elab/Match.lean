@@ -174,11 +174,9 @@ open Lean.Elab.Term.Quotation in
   | `(match $[$discrs:term],* with $[| $[$patss],* => $rhss]*) => do
     discrs.forM precheck
     for (pats, rhs) in patss.zip rhss do
-      let vars ←
-        try
-          getPatternsVars pats
-        catch
-          | _ => return  -- can happen in case of pattern antiquotations
+      let vars ← try
+        getPatternsVars pats
+      catch | _ => return  -- can happen in case of pattern antiquotations
       Quotation.withNewLocals (getPatternVarNames vars) <| precheck rhs
   | _ => throwUnsupportedSyntax
 
@@ -920,11 +918,9 @@ where
       let first ← updateFirst first? ex
       s.restore (restoreInfo := true)
       let indices ← collectDeps #[index] (discrs.map (·.expr))
-      let matchType ←
-        try
-          updateMatchType indices matchType
-        catch _ =>
-          throwEx first
+      let matchType ← try
+        updateMatchType indices matchType
+      catch _ => throwEx first
       let ref ← getRef
       trace[Elab.match] "new indices to add as discriminants: {indices}"
       let wildcards ← indices.mapM fun index => do

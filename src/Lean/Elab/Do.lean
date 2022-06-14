@@ -303,12 +303,11 @@ def attachJPs (jpDecls : Array JPDecl) (k : Code) : Code :=
   jpDecls.foldr attachJP k
 
 def mkFreshJP (ps : Array (Var × Bool)) (body : Code) : TermElabM JPDecl := do
-  let ps ←
-    if ps.isEmpty then
-      let y ← `(y)
-      pure #[(y, false)]
-    else
-      pure ps
+  let ps ← if ps.isEmpty then
+    let y ← `(y)
+    pure #[(y, false)]
+  else
+    pure ps
   -- Remark: the compiler frontend implemented in C++ currently detects jointpoints created by
   -- the "do" notation by testing the name. See hack at method `visit_let` at `lcnf.cpp`
   -- We will remove this hack when we re-implement the compiler frontend in Lean.
@@ -1271,11 +1270,10 @@ mutual
       let doElem  := decl[2]
       let optElse := decl[3]
       if optElse.isNone then withFreshMacroScope do
-        let auxDo ←
-          if isMutableLet doLetArrow then
-            `(do let discr ← $doElem; let mut $pattern:term := discr)
-          else
-            `(do let discr ← $doElem; let $pattern:term := discr)
+        let auxDo ← if isMutableLet doLetArrow then
+          `(do let discr ← $doElem; let mut $pattern:term := discr)
+        else
+          `(do let discr ← $doElem; let $pattern:term := discr)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
       else
         if isMutableLet doLetArrow then
@@ -1409,11 +1407,10 @@ mutual
       let uvarsTuple ← liftMacroM do mkTuple uvars
       if hasReturn forInBodyCodeBlock.code then
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
-        let forInTerm ←
-          if let some h := h? then
-            `(for_in'% $(xs) (MProd.mk none $uvarsTuple) fun $x $h r => let r := r.2; $forInBody)
-          else
-            `(for_in% $(xs) (MProd.mk none $uvarsTuple) fun $x r => let r := r.2; $forInBody)
+        let forInTerm ← if let some h := h? then
+          `(for_in'% $(xs) (MProd.mk none $uvarsTuple) fun $x $h r => let r := r.2; $forInBody)
+        else
+          `(for_in% $(xs) (MProd.mk none $uvarsTuple) fun $x r => let r := r.2; $forInBody)
         let auxDo ← `(do let r ← $forInTerm:term;
                          $uvarsTuple:term := r.2;
                          match r.1 with
@@ -1422,11 +1419,10 @@ mutual
         doSeqToCode (getDoSeqElems (getDoSeq auxDo) ++ doElems)
       else
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
-        let forInTerm ←
-          if let some h := h? then
-            `(for_in'% $(xs) $uvarsTuple fun $x $h r => $forInBody)
-          else
-            `(for_in% $(xs) $uvarsTuple fun $x r => $forInBody)
+        let forInTerm ← if let some h := h? then
+          `(for_in'% $(xs) $uvarsTuple fun $x $h r => $forInBody)
+        else
+          `(for_in% $(xs) $uvarsTuple fun $x r => $forInBody)
         if doElems.isEmpty then
           let auxDo ← `(do let r ← $forInTerm:term;
                            $uvarsTuple:term := r;

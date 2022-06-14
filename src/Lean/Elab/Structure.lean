@@ -184,19 +184,18 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
       else
         let (binders, type) := expandDeclSig fieldBinder[3]
         pure (binders, some type)
-    let value? ←
-      if binfo != BinderInfo.default then
+    let value? ← if binfo != BinderInfo.default then
+      pure none
+    else
+      let optBinderTacticDefault := fieldBinder[4]
+      -- trace[Elab.struct] ">>> {optBinderTacticDefault}"
+      if optBinderTacticDefault.isNone then
+        pure none
+      else if optBinderTacticDefault[0].getKind == ``Parser.Term.binderTactic then
         pure none
       else
-        let optBinderTacticDefault := fieldBinder[4]
-        -- trace[Elab.struct] ">>> {optBinderTacticDefault}"
-        if optBinderTacticDefault.isNone then
-          pure none
-        else if optBinderTacticDefault[0].getKind == ``Parser.Term.binderTactic then
-          pure none
-        else
-          -- binderDefault := leading_parser " := " >> termParser
-          pure (some optBinderTacticDefault[0][1])
+        -- binderDefault := leading_parser " := " >> termParser
+        pure (some optBinderTacticDefault[0][1])
     let idents := fieldBinder[2].getArgs
     idents.foldlM (init := views) fun (views : Array StructFieldView) ident => withRef ident do
       let rawName := ident.getId

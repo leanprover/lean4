@@ -90,18 +90,17 @@ def delabConst : Delab := do
   let c₀ := if (← getPPOption getPPPrivateNames) then c₀ else (privateToUserName? c₀).getD c₀
 
   let mut c ← unresolveNameGlobal c₀
-  let stx ←
-    if ls.isEmpty || !(← getPPOption getPPUniverses) then
-      if (← getLCtx).usesUserName c then
-        -- `c` is also a local declaration
-        if c == c₀ && !(← read).inPattern then
-          -- `c` is the fully qualified named. So, we append the `_root_` prefix
-          c := `_root_ ++ c
-        else
-          c := c₀
-      pure <| mkIdent c
-    else
-      `($(mkIdent c).{$[$(ls.toArray.map quote)],*})
+  let stx ← if ls.isEmpty || !(← getPPOption getPPUniverses) then
+    if (← getLCtx).usesUserName c then
+      -- `c` is also a local declaration
+      if c == c₀ && !(← read).inPattern then
+        -- `c` is the fully qualified named. So, we append the `_root_` prefix
+        c := `_root_ ++ c
+      else
+        c := c₀
+    pure <| mkIdent c
+  else
+    `($(mkIdent c).{$[$(ls.toArray.map quote)],*})
 
   let mut stx ← maybeAddBlockImplicit stx
   if (← getPPOption getPPTagAppFns) then

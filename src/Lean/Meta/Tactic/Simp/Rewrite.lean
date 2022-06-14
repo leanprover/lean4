@@ -57,15 +57,14 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
     if (← isDefEq lhs e) then
       unless (← synthesizeArgs thm.getName xs bis discharge?) do
         return none
-      let proof? ←
-        if thm.rfl then
-          pure none
-        else
-          let proof ← instantiateMVars (mkAppN val xs)
-          if (← hasAssignableMVar proof) then
-            trace[Meta.Tactic.simp.rewrite] "{thm}, has unassigned metavariables after unification"
-            return none
-          pure <| some proof
+      let proof? ← if thm.rfl then
+        pure none
+      else
+        let proof ← instantiateMVars (mkAppN val xs)
+        if (← hasAssignableMVar proof) then
+          trace[Meta.Tactic.simp.rewrite] "{thm}, has unassigned metavariables after unification"
+          return none
+        pure <| some proof
       let rhs := (← instantiateMVars type).appArg!
       if e == rhs then
         return none

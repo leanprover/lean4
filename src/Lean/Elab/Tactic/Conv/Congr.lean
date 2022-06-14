@@ -19,11 +19,10 @@ private def congrApp (mvarId : MVarId) (lhs rhs : Expr) : MetaM (List (Option MV
     let mut newGoals : Array (Option MVarId) := #[]
     let mut i := 0
     for arg in args do
-      let addGoal ←
-        if i < infos.size then
-          pure infos[i].binderInfo.isExplicit
-        else
-          pure (← whnfD (← inferType r.expr)).isArrow
+      let addGoal ← if i < infos.size then
+        pure infos[i].binderInfo.isExplicit
+      else
+        pure (← whnfD (← inferType r.expr)).isArrow
       let hasFwdDep := i < infos.size && infos[i].hasFwdDeps
       if addGoal then
         if hasFwdDep then

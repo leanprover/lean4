@@ -51,11 +51,10 @@ partial def generalize
               let xType ← inferType xs[i]
               let e ← instantiateMVars arg.expr
               let eType ← instantiateMVars (← inferType e)
-              let (hType, r) ←
-                if (← isDefEq xType eType) then
-                  pure (← mkEq e xs[i], ← mkEqRefl e)
-                else
-                  pure (← mkHEq e xs[i], ← mkHEqRefl e)
+              let (hType, r) ← if (← isDefEq xType eType) then
+                pure (← mkEq e xs[i], ← mkEqRefl e)
+              else
+                pure (← mkHEq e xs[i], ← mkHEqRefl e)
               let (rs, type) ← go' (i+1)
               return (r :: rs, mkForall hName BinderInfo.default hType type)
             else

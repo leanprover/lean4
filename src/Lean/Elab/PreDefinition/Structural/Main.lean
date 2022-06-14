@@ -66,9 +66,10 @@ private def elimRecursion (preDef : PreDefinition) : M (Nat × PreDefinition) :=
     trace[Elab.definition.structural] "numFixed: {numFixed}"
     findRecArg numFixed xs fun recArgInfo => do
       -- when (recArgInfo.indName == `Nat) throwStructuralFailed -- HACK to skip Nat argument
-      let valueNew ←
-        if recArgInfo.indPred then mkIndPredBRecOn preDef.declName recArgInfo value
-        else mkBRecOn preDef.declName recArgInfo value
+      let valueNew ← if recArgInfo.indPred then
+        mkIndPredBRecOn preDef.declName recArgInfo value
+      else
+        mkBRecOn preDef.declName recArgInfo value
       let valueNew ← mkLambdaFVars xs valueNew
       trace[Elab.definition.structural] "result: {valueNew}"
       -- Recursive applications may still occur in expressions that were not visited by replaceRecApps (e.g., in types)

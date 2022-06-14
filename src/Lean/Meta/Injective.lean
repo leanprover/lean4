@@ -44,11 +44,10 @@ private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useE
         if !(← isProp arg1Type) && arg1 != arg2 then
           eqs := eqs.push (← mkEqHEq arg1 arg2)
       if let some andEqs := mkAnd? eqs then
-        let result ←
-          if useEq then
-            mkEq eq andEqs
-          else
-            mkArrow eq andEqs
+        let result ← if useEq then
+          mkEq eq andEqs
+        else
+          mkArrow eq andEqs
         mkForallFVars params (← mkForallFVars args1 (← mkForallFVars args2New result))
       else
         return none

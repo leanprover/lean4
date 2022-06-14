@@ -307,13 +307,12 @@ def renameInaccessibles (mvarId : MVarId) (hs : Array Syntax) : TacticM MVarId :
 
 private def getCaseGoals (tag : Syntax) : TacticM (MVarId × List MVarId) := do
   let gs ← getUnsolvedGoals
-  let g ←
-    if tag.isIdent then
-      let tag := tag.getId
-      let some g ← findTag? gs tag | throwError "tag not found"
-      pure g
-    else
-      getMainGoal
+  let g ← if tag.isIdent then
+    let tag := tag.getId
+    let some g ← findTag? gs tag | throwError "tag not found"
+    pure g
+  else
+    getMainGoal
   return (g, gs.erase g)
 
 @[builtinTactic «case»] def evalCase : Tactic

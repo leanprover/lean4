@@ -435,15 +435,14 @@ where
       | CongrArgKind.cast  => pure ()
       | CongrArgKind.subsingletonInst =>
         let clsNew := type.bindingDomain!.instantiateRev subst
-        let instNew ←
-          if (← isDefEq (← inferType arg) clsNew) then
-            pure arg
-          else
-            match (← trySynthInstance clsNew) with
-            | LOption.some val => pure val
-            | _ =>
-              trace[Meta.Tactic.simp.congr] "failed to synthesize instance{indentExpr clsNew}"
-              return none
+        let instNew ← if (← isDefEq (← inferType arg) clsNew) then
+          pure arg
+        else
+          match (← trySynthInstance clsNew) with
+          | LOption.some val => pure val
+          | _ =>
+            trace[Meta.Tactic.simp.congr] "failed to synthesize instance{indentExpr clsNew}"
+            return none
         proof := mkApp proof instNew
         subst := subst.push instNew
         type := type.bindingBody!

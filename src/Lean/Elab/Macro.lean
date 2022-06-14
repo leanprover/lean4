@@ -25,15 +25,14 @@ open Lean.Parser.Command
     let pat := mkNode ((← Macro.getCurrNamespace) ++ name) patArgs
     let stxCmd ← `($[$doc?:docComment]? $attrKind:attrKind
       syntax%$tk$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio)) $[$stxParts]* : $cat)
-    let macroRulesCmd ←
-      if rhs.getArgs.size == 1 then
-        -- `rhs` is a `term`
-        let rhs := rhs[0]
-        `($[$doc?:docComment]? macro_rules%$tk | `($pat) => $rhs)
-      else
-        -- `rhs` is of the form `` `( $body ) ``
-        let rhsBody := rhs[1]
-        `($[$doc?:docComment]? macro_rules%$tk | `($pat) => `($rhsBody))
+    let macroRulesCmd ← if rhs.getArgs.size == 1 then
+      -- `rhs` is a `term`
+      let rhs := rhs[0]
+      `($[$doc?:docComment]? macro_rules%$tk | `($pat) => $rhs)
+    else
+      -- `rhs` is of the form `` `( $body ) ``
+      let rhsBody := rhs[1]
+      `($[$doc?:docComment]? macro_rules%$tk | `($pat) => `($rhsBody))
     return mkNullNode #[stxCmd, macroRulesCmd]
   | _ => Macro.throwUnsupported
 

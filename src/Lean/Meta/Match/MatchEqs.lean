@@ -104,13 +104,12 @@ where
                return (← go ys eqs args (mask.push false) (i+1) typeNew)
           go (ys.push y) eqs (args.push y) (mask.push true) (i+1) typeNew
       else
-        let arg ←
-           if let some (_, _, rhs) ← matchEq? d then
-             mkEqRefl rhs
-           else if let some (_, _, _, rhs) ← matchHEq? d then
-             mkHEqRefl rhs
-           else
-             throwError "unexpected match alternative type{indentExpr altType}"
+        let arg ← if let some (_, _, rhs) ← matchEq? d then
+          mkEqRefl rhs
+        else if let some (_, _, _, rhs) ← matchHEq? d then
+          mkHEqRefl rhs
+        else
+          throwError "unexpected match alternative type{indentExpr altType}"
         withLocalDeclD n d fun eq => do
           let typeNew := b.instantiate1 eq
           go ys (eqs.push eq) (args.push arg) (mask.push false) (i+1) typeNew

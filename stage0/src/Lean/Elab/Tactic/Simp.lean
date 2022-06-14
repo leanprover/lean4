@@ -212,11 +212,10 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp) (ig
       throwError "'dsimp' tactic does not support 'discharger' option"
   let dischargeWrapper ← mkDischargeWrapper stx[2]
   let simpOnly := !stx[3].isNone
-  let simpTheorems ←
-    if simpOnly then
-      ({} : SimpTheorems).addConst ``eq_self
-    else
-      getSimpTheorems
+  let simpTheorems ← if simpOnly then
+    ({} : SimpTheorems).addConst ``eq_self
+  else
+    getSimpTheorems
   let congrTheorems ← getSimpCongrTheorems
   let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) {
     config      := (← elabSimpConfig stx[1] (kind := kind))

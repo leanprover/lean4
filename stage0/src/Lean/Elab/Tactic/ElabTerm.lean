@@ -70,15 +70,14 @@ def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : 
   let newMVarIds ← getMVarsNoDelayed val
   /- ignore let-rec auxiliary variables, they are synthesized automatically later -/
   let newMVarIds ← newMVarIds.filterM fun mvarId => return !(← Term.isLetRecAuxMVar mvarId)
-  let newMVarIds ←
-    if allowNaturalHoles then
-      pure newMVarIds.toList
-    else
-      let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← getMVarDecl mvarId).kind.isNatural
-      let syntheticMVarIds ← newMVarIds.filterM fun mvarId => return !(← getMVarDecl mvarId).kind.isNatural
-      let naturalMVarIds ← filterOldMVars naturalMVarIds mvarCounterSaved
-      logUnassignedAndAbort naturalMVarIds
-      pure syntheticMVarIds.toList
+  let newMVarIds ← if allowNaturalHoles then
+    pure newMVarIds.toList
+  else
+    let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← getMVarDecl mvarId).kind.isNatural
+    let syntheticMVarIds ← newMVarIds.filterM fun mvarId => return !(← getMVarDecl mvarId).kind.isNatural
+    let naturalMVarIds ← filterOldMVars naturalMVarIds mvarCounterSaved
+    logUnassignedAndAbort naturalMVarIds
+    pure syntheticMVarIds.toList
   tagUntaggedGoals (← getMainTag) tagSuffix newMVarIds
   pure (val, newMVarIds)
 

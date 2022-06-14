@@ -1963,7 +1963,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_substCore___lambda__14___closed__4;
 x_2 = l_Lean_Meta_substCore___lambda__14___closed__5;
-x_3 = lean_unsigned_to_nat(65u);
+x_3 = lean_unsigned_to_nat(64u);
 x_4 = lean_unsigned_to_nat(22u);
 x_5 = l_Lean_Meta_substCore___lambda__14___closed__6;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -5690,7 +5690,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_substCore___lambda__14___closed__4;
 x_2 = l_Lean_Meta_subst_substEq___lambda__1___closed__1;
-x_3 = lean_unsigned_to_nat(160u);
+x_3 = lean_unsigned_to_nat(158u);
 x_4 = lean_unsigned_to_nat(55u);
 x_5 = l_Lean_Meta_substCore___lambda__14___closed__6;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

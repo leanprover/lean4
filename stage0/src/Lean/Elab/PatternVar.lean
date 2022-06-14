@@ -189,11 +189,10 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
      -/
     let id := stx[0]
     discard <| processVar id
-    let h ←
-      if stx[2].isNone then
-        `(h)
-      else
-        pure stx[2][0]
+    let h ← if stx[2].isNone then
+      `(h)
+    else
+      pure stx[2][0]
     let pat := stx[3]
     let pat ← collect pat
     discard <| processVar h

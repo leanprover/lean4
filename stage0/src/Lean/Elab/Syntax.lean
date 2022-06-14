@@ -321,12 +321,11 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser")
   let (val, lhsPrec?) ← runTermElabM none fun _ => Term.toParserDescr syntaxParser cat
   let declName := mkIdentFrom stx name
-  let d ←
-    if let some lhsPrec := lhsPrec? then
-      `($[$doc?:docComment]? @[$attrKind:attrKind $catParserId:ident $(quote prio):num] def $declName:ident : Lean.TrailingParserDescr :=
+  let d ← if let some lhsPrec := lhsPrec? then
+    `($[$doc?:docComment]? @[$attrKind:attrKind $catParserId:ident $(quote prio):num] def $declName:ident : Lean.TrailingParserDescr :=
         ParserDescr.trailingNode $(quote stxNodeKind) $(quote prec) $(quote lhsPrec) $val)
-    else
-      `($[$doc?:docComment]? @[$attrKind:attrKind $catParserId:ident $(quote prio):num] def $declName:ident : Lean.ParserDescr :=
+  else
+    `($[$doc?:docComment]? @[$attrKind:attrKind $catParserId:ident $(quote prio):num] def $declName:ident : Lean.ParserDescr :=
         ParserDescr.node $(quote stxNodeKind) $(quote prec) $val)
   trace `Elab fun _ => d
   withMacroExpansion stx d <| elabCommand d

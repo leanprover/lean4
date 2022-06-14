@@ -3503,7 +3503,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__1;
 x_2 = l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_SimpH_substRHS___closed__4;
-x_3 = lean_unsigned_to_nat(167u);
+x_3 = lean_unsigned_to_nat(166u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_SimpH_substRHS___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -19277,7 +19277,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__1;
 x_2 = l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertCastEqRec_go___closed__3;
-x_3 = lean_unsigned_to_nat(488u);
+x_3 = lean_unsigned_to_nat(487u);
 x_4 = lean_unsigned_to_nat(12u);
 x_5 = l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertCastEqRec_go___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -20540,7 +20540,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__1;
 x_2 = l_Std_Range_forIn_loop___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertCastEqRec___spec__6___closed__1;
-x_3 = lean_unsigned_to_nat(526u);
+x_3 = lean_unsigned_to_nat(525u);
 x_4 = lean_unsigned_to_nat(70u);
 x_5 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -22038,7 +22038,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__1;
 x_2 = l_Std_Range_forIn_loop___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertCastEqRec___spec__6___closed__1;
-x_3 = lean_unsigned_to_nat(515u);
+x_3 = lean_unsigned_to_nat(514u);
 x_4 = lean_unsigned_to_nat(75u);
 x_5 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -22442,7 +22442,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__1;
 x_2 = l_Std_Range_forIn_loop___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertCastEqRec___spec__6___closed__1;
-x_3 = lean_unsigned_to_nat(476u);
+x_3 = lean_unsigned_to_nat(475u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Lean_Expr_withAppAux___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertCastEqRec___spec__8___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -25066,7 +25066,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__1;
 x_2 = l_Std_Range_forIn_loop___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertCastEqRec___spec__6___closed__1;
-x_3 = lean_unsigned_to_nat(458u);
+x_3 = lean_unsigned_to_nat(457u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertCastEqRec___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

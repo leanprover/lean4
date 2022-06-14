@@ -90,12 +90,11 @@ def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNameP
           | Expr.fvar fvarId _ => tryClear thenMVarId fvarId
           | _                  => pure thenMVarId)
         thenSubgoal.mvarId
-      let subgoals ←
-         if substNewEqs then
-           let (subst, mvarId) ← substCore thenMVarId thenSubgoal.newH false thenSubgoal.subst true
-           pure <| subgoals.push { mvarId := mvarId, newHs := #[], subst := subst }
-         else
-           pure <| subgoals.push { mvarId := thenMVarId, newHs := #[thenSubgoal.newH], subst := thenSubgoal.subst }
+      let subgoals ← if substNewEqs then
+         let (subst, mvarId) ← substCore thenMVarId thenSubgoal.newH false thenSubgoal.subst true
+         pure <| subgoals.push { mvarId := mvarId, newHs := #[], subst := subst }
+      else
+         pure <| subgoals.push { mvarId := thenMVarId, newHs := #[thenSubgoal.newH], subst := thenSubgoal.subst }
       match vs with
       | [] => do
         appendTagSuffix elseSubgoal.mvarId ((`case).appendIndexAfter (i+1))

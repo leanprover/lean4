@@ -48,11 +48,10 @@ def findDeclarationRangesCore? [Monad m] [MonadEnv m] (declName : Name) : m (Opt
 
 def findDeclarationRanges? [Monad m] [MonadEnv m] [MonadLiftT IO m] (declName : Name) : m (Option DeclarationRanges) := do
   let env ← getEnv
-  let ranges ←
-    if isAuxRecursor env declName || isNoConfusion env declName || (← isRec declName)  then
-      findDeclarationRangesCore? declName.getPrefix
-    else
-      findDeclarationRangesCore? declName
+  let ranges ← if isAuxRecursor env declName || isNoConfusion env declName || (← isRec declName)  then
+    findDeclarationRangesCore? declName.getPrefix
+  else
+    findDeclarationRangesCore? declName
   match ranges with
   | none => return (← builtinDeclRanges.get (m := IO)).find? declName
   | some _ => return ranges

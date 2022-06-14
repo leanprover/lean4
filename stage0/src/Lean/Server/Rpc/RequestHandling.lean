@@ -108,9 +108,10 @@ def registerRpcProcedure (method : Name) : CoreM Unit := do
     throwError s!"{errMsg}: already registered"
   let wrappedName := method ++ `_rpc_wrapped
   let procT := mkConst ``RpcProcedure
-  let proc ← MetaM.run' <| TermElabM.run' <| do
-     let c ← Lean.Elab.Term.elabTerm (← `(wrapRpcProcedure $(quote method) _ _ $(mkIdent method))) procT
-     return ← instantiateMVars c
+  let proc ← MetaM.run' <| TermElabM.run' <| withoutErrToSorry do
+    let stx ← ``(wrapRpcProcedure $(quote method) _ _ $(mkIdent method))
+    let c ← Lean.Elab.Term.elabTerm stx procT
+    instantiateMVars c
   addAndCompile <| Declaration.defnDecl {
         name        := wrappedName
         type        := procT

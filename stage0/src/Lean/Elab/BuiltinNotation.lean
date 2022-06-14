@@ -54,16 +54,15 @@ are turned into a new anonymous constructor application. For example,
             let args := args.getElems
             if args.size < numExplicitFields then
               throwError "invalid constructor ⟨...⟩, insufficient number of arguments, constructs '{ctor}' has #{numExplicitFields} explicit fields, but only #{args.size} provided"
-            let newStx ←
-              if args.size == numExplicitFields then
-                `($(mkCIdentFrom stx ctor) $(args)*)
-              else if numExplicitFields == 0 then
-                throwError "invalid constructor ⟨...⟩, insufficient number of arguments, constructs '{ctor}' does not have explicit fields, but #{args.size} provided"
-              else
-                let extra := args[numExplicitFields-1:args.size]
-                let newLast ← `(⟨$[$extra],*⟩)
-                let newArgs := args[0:numExplicitFields-1].toArray.push newLast
-                `($(mkCIdentFrom stx ctor) $(newArgs)*)
+            let newStx ← if args.size == numExplicitFields then
+              `($(mkCIdentFrom stx ctor) $(args)*)
+            else if numExplicitFields == 0 then
+              throwError "invalid constructor ⟨...⟩, insufficient number of arguments, constructs '{ctor}' does not have explicit fields, but #{args.size} provided"
+            else
+              let extra := args[numExplicitFields-1:args.size]
+              let newLast ← `(⟨$[$extra],*⟩)
+              let newArgs := args[0:numExplicitFields-1].toArray.push newLast
+              `($(mkCIdentFrom stx ctor) $(newArgs)*)
             withMacroExpansion stx newStx $ elabTerm newStx expectedType?
           | _ => throwError "invalid constructor ⟨...⟩, expected type must be an inductive type with only one constructor {indentExpr expectedType}")
     | none => throwError "invalid constructor ⟨...⟩, expected type must be known"

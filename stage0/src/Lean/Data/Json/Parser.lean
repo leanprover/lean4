@@ -97,30 +97,27 @@ def natMaybeZero : Parsec Nat := do
 
 def num : Parsec JsonNumber := do
   let c ← peek!
-  let sign : Int ←
-    if c = '-' then
-      skip
-      pure (-1 : Int)
-    else
-      pure 1
+  let sign ← if c = '-' then
+    skip
+    pure (-1 : Int)
+  else
+    pure 1
   let c ← peek!
-  let res ←
-    if c = '0' then
-      skip
-      pure 0
-    else
-      natNonZero
+  let res ← if c = '0' then
+    skip
+    pure 0
+  else
+    natNonZero
   let c? ← peek?
-  let res : JsonNumber ←
-    if c? = some '.' then
-      skip
-      let (n, d) ← natNumDigits
-      if d > USize.size then fail "too many decimals"
-      let mantissa' := sign * (res * (10^d : Nat) + n)
-      let exponent' := d
-      pure <| JsonNumber.mk mantissa' exponent'
-    else
-      pure <| JsonNumber.fromInt (sign * res)
+  let res : JsonNumber ← if c? = some '.' then
+    skip
+    let (n, d) ← natNumDigits
+    if d > USize.size then fail "too many decimals"
+    let mantissa' := sign * (res * (10^d : Nat) + n)
+    let exponent' := d
+    pure <| JsonNumber.mk mantissa' exponent'
+  else
+    pure <| JsonNumber.fromInt (sign * res)
   let c? ← peek?
   if c? = some 'e' ∨ c? = some 'E' then
     skip

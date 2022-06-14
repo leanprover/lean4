@@ -27448,7 +27448,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabLetDecl_declRange___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(690u);
+x_1 = lean_unsigned_to_nat(688u);
 x_2 = lean_unsigned_to_nat(25u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -27460,7 +27460,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabLetDecl_declRange___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(691u);
+x_1 = lean_unsigned_to_nat(689u);
 x_2 = lean_unsigned_to_nat(129u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -27488,7 +27488,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabLetDecl_declRange___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(690u);
+x_1 = lean_unsigned_to_nat(688u);
 x_2 = lean_unsigned_to_nat(29u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -27500,7 +27500,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabLetDecl_declRange___
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(690u);
+x_1 = lean_unsigned_to_nat(688u);
 x_2 = lean_unsigned_to_nat(40u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -27615,7 +27615,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabLetFunDecl_declRange
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(693u);
+x_1 = lean_unsigned_to_nat(691u);
 x_2 = lean_unsigned_to_nat(29u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -27627,7 +27627,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabLetFunDecl_declRange
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(694u);
+x_1 = lean_unsigned_to_nat(692u);
 x_2 = lean_unsigned_to_nat(130u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -27655,7 +27655,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabLetFunDecl_declRange
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(693u);
+x_1 = lean_unsigned_to_nat(691u);
 x_2 = lean_unsigned_to_nat(33u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -27667,7 +27667,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabLetFunDecl_declRange
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(693u);
+x_1 = lean_unsigned_to_nat(691u);
 x_2 = lean_unsigned_to_nat(47u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -27783,7 +27783,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabLetDelayedDecl_declR
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(696u);
+x_1 = lean_unsigned_to_nat(694u);
 x_2 = lean_unsigned_to_nat(33u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -27795,7 +27795,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabLetDelayedDecl_declR
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(697u);
+x_1 = lean_unsigned_to_nat(695u);
 x_2 = lean_unsigned_to_nat(128u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -27823,7 +27823,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabLetDelayedDecl_declR
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(696u);
+x_1 = lean_unsigned_to_nat(694u);
 x_2 = lean_unsigned_to_nat(37u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -27835,7 +27835,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabLetDelayedDecl_declR
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(696u);
+x_1 = lean_unsigned_to_nat(694u);
 x_2 = lean_unsigned_to_nat(55u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -27951,7 +27951,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabLetTmpDecl_declRange
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(699u);
+x_1 = lean_unsigned_to_nat(697u);
 x_2 = lean_unsigned_to_nat(29u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -27963,7 +27963,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabLetTmpDecl_declRange
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(700u);
+x_1 = lean_unsigned_to_nat(698u);
 x_2 = lean_unsigned_to_nat(128u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -27991,7 +27991,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabLetTmpDecl_declRange
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(699u);
+x_1 = lean_unsigned_to_nat(697u);
 x_2 = lean_unsigned_to_nat(33u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -28003,7 +28003,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Term_elabLetTmpDecl_declRange
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(699u);
+x_1 = lean_unsigned_to_nat(697u);
 x_2 = lean_unsigned_to_nat(47u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

@@ -7,19 +7,13 @@ Authors: Wojciech Nawrocki
 import Lean.PrettyPrinter
 import Lean.Server.Rpc.Basic
 import Lean.Widget.TaggedText
+import Lean.Widget.Basic
 
 /-! RPC infrastructure for storing and formatting code fragments, in particular `Expr`s,
 with environment and subexpression information. -/
 
 namespace Lean.Widget
 open Server
-
--- TODO: Some of the `WithBlah` types exist mostly because we cannot derive multi-argument RPC wrappers.
--- They will be gone eventually.
-structure InfoWithCtx where
-  ctx : Elab.ContextInfo
-  info : Elab.Info
-  deriving Inhabited, RpcEncoding with { withRef := true }
 
 /-- Information about a subexpression within delaborated code. -/
 structure SubexprInfo where
@@ -49,7 +43,7 @@ where
       | none   => go subTt
       | some i => TaggedText.tag ⟨WithRpcRef.mk { ctx, info := i }, n⟩ (go subTt)
 
-def exprToInteractive (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
+def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
   let optsPerPos := if explicit then
     Std.RBMap.ofList [
       (1, KVMap.empty.setBool `pp.all true),

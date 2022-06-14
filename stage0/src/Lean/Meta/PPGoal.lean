@@ -131,7 +131,8 @@ private def getInitialHiddenInaccessible (propOnly : Bool) : MetaM FVarIdSet := 
 /-
 If pp.inaccessibleNames == false, then collect two sets of `FVarId`s : `hiddenInaccessible` and `hiddenInaccessibleProp`
 1- `hiddenInaccessible` contains `FVarId`s of free variables with inaccessible names that
-    a) are not propositions or are propositions containing "visible" names.
+    a) are not propositions or
+    b) are propositions containing "visible" names.
 2- `hiddenInaccessibleProp` contains `FVarId`s of free variables with inaccessible names that are propositions
    containing "visible" names.
 Both sets do not contain `FVarId`s that contain visible backward or forward dependencies.

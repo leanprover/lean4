@@ -46,13 +46,11 @@ def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMa
   let attrKind ← liftMacroM <| toAttributeKind attrInstance[0]
   let attr := attrInstance[1]
   let attr ← liftMacroM <| expandMacros attr
-  let attrName ←
-    if attr.getKind == ``Parser.Attr.simple then
-      pure attr[0].getId.eraseMacroScopes
-    else
-      match attr.getKind with
-      | Name.str _ s _ => pure <| Name.mkSimple s
-      | _ => throwErrorAt attr  "unknown attribute"
+  let attrName ← if attr.getKind == ``Parser.Attr.simple then
+    pure attr[0].getId.eraseMacroScopes
+  else match attr.getKind with
+    | Name.str _ s _ => pure <| Name.mkSimple s
+    | _ => throwErrorAt attr  "unknown attribute"
   unless isAttribute (← getEnv) attrName do
     throwError "unknown attribute [{attrName}]"
   /- The `AttrM` does not have sufficient information for expanding macros in `args`.

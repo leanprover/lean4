@@ -427,13 +427,12 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
       let thmName   := mkSizeOfSpecLemmaName ctorName
       let thmParams := params ++ localInsts ++ fields
       let thmType ← mkForallFVars thmParams target
-      let thmValue ←
-        if indInfo.isNested then
-          SizeOfSpecNested.main lhs rhs |>.run {
-            indInfo := indInfo, sizeOfFns := sizeOfFns, ctorName := ctorName, params := params, localInsts := localInsts, recMap := recMap
-          }
-        else
-          mkEqRefl rhs
+      let thmValue ← if indInfo.isNested then
+        SizeOfSpecNested.main lhs rhs |>.run {
+          indInfo := indInfo, sizeOfFns := sizeOfFns, ctorName := ctorName, params := params, localInsts := localInsts, recMap := recMap
+        }
+      else
+        mkEqRefl rhs
       let thmValue ← mkLambdaFVars thmParams thmValue
       trace[Meta.sizeOf] "sizeOf spec theorem: {thmName}"
       addDecl <| Declaration.thmDecl {

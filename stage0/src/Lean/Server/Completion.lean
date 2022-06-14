@@ -346,11 +346,10 @@ where
 
 private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (hoverInfo : HoverInfo) (expectedType? : Option Expr) : IO (Option CompletionList) :=
   runM ctx info.lctx do
-    let nameSet ←
-      try
-        getDotCompletionTypeNames (← instantiateMVars (← inferType info.expr))
-      catch _ =>
-        pure {}
+    let nameSet ← try
+      getDotCompletionTypeNames (← instantiateMVars (← inferType info.expr))
+    catch _ =>
+      pure {}
     if nameSet.isEmpty then
       if info.stx.isIdent then
         idCompletionCore ctx info.stx.getId hoverInfo (danglingDot := false) expectedType?

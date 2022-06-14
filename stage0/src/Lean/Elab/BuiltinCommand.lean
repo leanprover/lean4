@@ -252,15 +252,14 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
   let restoreMessages (prevMessages : MessageLog) : CommandElabM Unit := do
     modify fun s => { s with messages := prevMessages ++ s.messages.errorsToWarnings }
   let prevMessages ← resetMessages
-  let succeeded ←
-    try
-      x
-      hasNoErrorMessages
-    catch
-      | ex@(Exception.error _ _) => do logException ex; pure false
-      | Exception.internal id _  => do logError (← id.getName); pure false
-    finally
-      restoreMessages prevMessages
+  let succeeded ← try
+    x
+    hasNoErrorMessages
+  catch
+    | ex@(Exception.error _ _) => do logException ex; pure false
+    | Exception.internal id _  => do logError (← id.getName); pure false
+  finally
+    restoreMessages prevMessages
   if succeeded then
     throwError "unexpected success"
 

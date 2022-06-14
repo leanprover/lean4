@@ -137,19 +137,21 @@ private def convTarget (conv : Syntax) : TacticM Unit := withMainContext do
 
 private def convLocalDecl (conv : Syntax) (hUserName : Name) : TacticM Unit := withMainContext do
    let localDecl ← getLocalDeclFromUserName hUserName
-   let (typeNew, proof) ← convert localDecl.type (evalTactic conv)
+   let (typeNew, proof) ← convert localDecl.type (withTacticInfoContext (← getRef) (evalTactic conv))
    liftMetaTactic1 fun mvarId =>
      return some (← replaceLocalDecl mvarId localDecl.fvarId typeNew proof).mvarId
 
 @[builtinTactic Lean.Parser.Tactic.Conv.conv] def evalConv : Tactic := fun stx => do
   match stx with
-  | `(tactic| conv $[at $loc?]? in $p => $code) =>
-    evalTactic (← `(tactic| conv $[at $loc?]? => pattern $p; ($code:convSeq)))
-  | `(tactic| conv $[at $loc?]? => $code) =>
-    if let some loc := loc? then
-      convLocalDecl code loc.getId
-    else
-      convTarget code
+  | `(tactic| conv%$tk $[at $loc?]? in $p =>%$arr $code) =>
+    evalTactic (← `(tactic| conv%$tk $[at $loc?]? =>%$arr pattern $p; ($code:convSeq)))
+  | `(tactic| conv%$tk $[at $loc?]? =>%$arr $code) =>
+    -- show initial conv goal state between `conv` and `=>`
+    withRef (mkNullNode #[tk, arr]) do
+      if let some loc := loc? then
+        convLocalDecl code loc.getId
+      else
+        convTarget code
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.Conv.first] partial def evalFirst : Tactic :=

@@ -21,22 +21,53 @@ open Meta
 /-
   Given an `inductionAlt` of the form
   ```
-  nodeWithAntiquot "inductionAlt" `Lean.Parser.Tactic.inductionAlt $ ident' >> many ident' >> darrow >> termParser
+  syntax inductionAlt  := ppDedent(ppLine) "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
+  ```
+  going to change to
+  ```
+  syntax inductionAlt  := ppDedent(ppLine) ("| " (group("@"? ident) <|> "_") (ident <|> "_")*)+ " => " (hole <|> syntheticHole <|> tacticSeq)
   ```
 -/
+private def isNewAlt (alt : Syntax) : Bool :=
+  alt.getNumArgs == 3
+
+private def isMultiAlt (alt : Syntax) : Bool :=
+  isNewAlt alt && alt[0].getNumArgs > 1
+
+private def expandMultiAlt? (alt : Syntax) : Option (Array Syntax) := Id.run do
+  if isMultiAlt alt then
+    some <| alt[0].getArgs.map fun lhs => alt.setArg 0 (mkNullNode #[lhs])
+  else
+    none
+
+private def getFirstAltLhs (alt : Syntax) : Syntax :=
+  if isNewAlt alt then -- TODO: delete
+    alt[0][0]
+  else -- TODO: delete
+    alt -- TODO: delete
+
+/-- Return `inductionAlt` name. It assumes `alt` is not a multi alternative. -/
 private def getAltName (alt : Syntax) : Name :=
-  -- alt[1] is of the form (("@"? ident) <|> "_")
-  if alt[1].hasArgs then alt[1][1].getId.eraseMacroScopes else `_
+  let lhs := getFirstAltLhs alt
+  if lhs[1].hasArgs then lhs[1][1].getId.eraseMacroScopes else `_
 private def altHasExplicitModifier (alt : Syntax) : Bool :=
-  alt[1].hasArgs && !alt[1][0].isNone
+  let lhs := getFirstAltLhs alt
+  lhs[1].hasArgs && !lhs[1][0].isNone
 private def getAltVars (alt : Syntax) : Array Syntax :=
-  alt[2].getArgs
+  let lhs := getFirstAltLhs alt
+  lhs[2].getArgs
 private def getAltVarNames (alt : Syntax) : Array Name :=
   getAltVars  alt |>.map getNameOfIdent'
 private def getAltRHS (alt : Syntax) : Syntax :=
-  alt[4]
+  if isNewAlt alt then -- TODO: delete
+    alt[2]
+  else -- TODO: delete
+    alt[4] -- TODO: delete
 private def getAltDArrow (alt : Syntax) : Syntax :=
-  alt[3]
+  if isNewAlt alt then -- TODO: delete
+    alt[1]
+  else -- TODO: delete
+    alt[3] -- TODO: delete
 
 -- Return true if `stx` is a term occurring in the RHS of the induction/cases tactic
 def isHoleRHS (rhs : Syntax) : Bool :=

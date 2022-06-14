@@ -11491,7 +11491,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_mkCompositeField___closed__1;
 x_2 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_mkCompositeField___closed__2;
-x_3 = lean_unsigned_to_nat(449u);
+x_3 = lean_unsigned_to_nat(448u);
 x_4 = lean_unsigned_to_nat(70u);
 x_5 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_mkCompositeField___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -11966,7 +11966,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_mkCompositeField___closed__1;
 x_2 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_copyFields_copy___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(410u);
+x_3 = lean_unsigned_to_nat(409u);
 x_4 = lean_unsigned_to_nat(86u);
 x_5 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_mkCompositeField___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -20718,7 +20718,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_mkCompositeField___closed__1;
 x_2 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_registerStructure___spec__2___closed__1;
-x_3 = lean_unsigned_to_nat(717u);
+x_3 = lean_unsigned_to_nat(716u);
 x_4 = lean_unsigned_to_nat(21u);
 x_5 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_registerStructure___spec__2___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -20739,7 +20739,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_mkCompositeField___closed__1;
 x_2 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_registerStructure___spec__2___closed__1;
-x_3 = lean_unsigned_to_nat(716u);
+x_3 = lean_unsigned_to_nat(715u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Array_foldlMUnsafe_fold___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_registerStructure___spec__2___closed__4;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -22894,7 +22894,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_mkCompositeField___closed__1;
 x_2 = l_Array_forInUnsafe_loop___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_mkCoercionToCopiedParent_copyFields___spec__1___closed__1;
-x_3 = lean_unsigned_to_nat(764u);
+x_3 = lean_unsigned_to_nat(763u);
 x_4 = lean_unsigned_to_nat(79u);
 x_5 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_mkCompositeField___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -23203,7 +23203,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_mkCompositeField___closed__1;
 x_2 = l_Array_forInUnsafe_loop___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_mkCoercionToCopiedParent_copyFields___spec__1___closed__1;
-x_3 = lean_unsigned_to_nat(755u);
+x_3 = lean_unsigned_to_nat(754u);
 x_4 = lean_unsigned_to_nat(72u);
 x_5 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_mkCompositeField___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -23819,7 +23819,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_mkCompositeField___closed__1;
 x_2 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_mkCoercionToCopiedParent___closed__1;
-x_3 = lean_unsigned_to_nat(749u);
+x_3 = lean_unsigned_to_nat(748u);
 x_4 = lean_unsigned_to_nat(68u);
 x_5 = l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_mkCompositeField___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

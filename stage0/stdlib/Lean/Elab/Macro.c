@@ -2041,7 +2041,7 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_expandMacro_declRange
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(38u);
+x_1 = lean_unsigned_to_nat(37u);
 x_2 = lean_unsigned_to_nat(31u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

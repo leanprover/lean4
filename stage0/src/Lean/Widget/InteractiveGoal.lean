@@ -12,8 +12,11 @@ import Lean.Widget.InteractiveCode
 namespace Lean.Widget
 open Server
 
-structure InteractiveHypothesis where
-  names : Array String
+structure InteractiveHypothesisBundle where
+  /-- The user-friendly name for each hypothesis.
+  If anonymous then the name is inaccessible and hidden. -/
+  names : Array Name
+  fvarIds : Array FVarId
   type : CodeWithInfos
   val? : Option CodeWithInfos := none
   isInstance : Bool
@@ -21,10 +24,14 @@ structure InteractiveHypothesis where
   deriving Inhabited, RpcEncoding
 
 structure InteractiveGoal where
-  hyps      : Array InteractiveHypothesis
+  hyps      : Array InteractiveHypothesisBundle
   type      : CodeWithInfos
   userName? : Option String
   goalPrefix : String
+  /-- Identifies the goal (ie with the unique
+  name of the MVar that it is a goal for.)
+  This is none when we are showing a term goal. -/
+  mvarId? : Option MVarId := none
   deriving Inhabited, RpcEncoding
 
 namespace InteractiveGoal
@@ -39,11 +46,15 @@ def pretty (g : InteractiveGoal) : Format := Id.run do
     | none          => Format.nil
   for hyp in g.hyps do
     ret := addLine ret
-    match hyp.names.toList with
-    | [] =>
+    let names := hyp.names
+        |>.toList
+        |>.filter (not ∘ Name.isAnonymous)
+        |>.map toString
+        |> " ".intercalate
+    match names with
+    | "" =>
       ret := ret ++ Format.group f!":{Format.nest indent (Format.line ++ hyp.type.stripTags)}"
     | _ =>
-      let names := " ".intercalate hyp.names.toList
       match hyp.val? with
       | some val =>
         ret := ret ++ Format.group f!"{names} : {hyp.type.stripTags} :={Format.nest indent (Format.line ++ val.stripTags)}"
@@ -55,7 +66,7 @@ def pretty (g : InteractiveGoal) : Format := Id.run do
 end InteractiveGoal
 
 structure InteractiveTermGoal where
-  hyps      : Array InteractiveHypothesis
+  hyps      : Array InteractiveHypothesisBundle
   type      : CodeWithInfos
   range     : Lsp.Range
   deriving Inhabited, RpcEncoding
@@ -72,11 +83,16 @@ structure InteractiveGoals where
   deriving RpcEncoding
 
 open Meta in
-def addInteractiveHypothesis (hyps : Array InteractiveHypothesis) (ids : Array Name) (type : Expr) (value? : Option Expr := none) : MetaM (Array InteractiveHypothesis) := do
+def addInteractiveHypothesisBundle (hyps : Array InteractiveHypothesisBundle) (ids : Array (Name × FVarId)) (type : Expr) (value? : Option Expr := none) : MetaM (Array InteractiveHypothesisBundle) := do
+  if ids.size == 0 then
+    throwError "Can only add a nonzero number of ids as an InteractiveHypothesisBundle."
+  let fvarIds := ids.map Prod.snd
+  let names := ids.map Prod.fst
   return hyps.push {
-    names      := ids.map toString
-    type       := (← exprToInteractive type)
-    val?       := (← value?.mapM exprToInteractive)
+    names      := names
+    fvarIds    := fvarIds
+    type       := (← ppExprTagged type)
+    val?       := (← value?.mapM ppExprTagged)
     isInstance := (← isClass? type).isSome
     isType     := (← instantiateMVars type).isSort
   }
@@ -88,55 +104,63 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
     | throwError "unknown goal {mvarId.name}"
   let ppAuxDecls := pp.auxDecls.get (← getOptions)
   let lctx := mvarDecl.lctx
-  let lctx := lctx.sanitizeNames.run' { options := (← getOptions) }
+  let lctx : LocalContext := lctx.sanitizeNames.run' { options := (← getOptions) }
   withLCtx lctx mvarDecl.localInstances do
     let (hidden, hiddenProp) ← ToHide.collect mvarDecl.type
-    -- The following two `let rec`s are being used to control the generated code size.
-    -- They should be removed after we rewrite the compiler in Lean
-    let rec pushPending (ids : Array Name) (type? : Option Expr) (hyps : Array InteractiveHypothesis)
-        : MetaM (Array InteractiveHypothesis) :=
+    let pushPending (ids : Array (Name × FVarId)) (type? : Option Expr) (hyps : Array InteractiveHypothesisBundle)
+        : MetaM (Array InteractiveHypothesisBundle) :=
       if ids.isEmpty then
         pure hyps
       else
         match type? with
         | none      => pure hyps
-        | some type => addInteractiveHypothesis hyps ids type
-    let rec ppVars (varNames : Array Name) (prevType? : Option Expr) (hyps : Array InteractiveHypothesis) (localDecl : LocalDecl)
-       : MetaM (Array Name × Option Expr × Array InteractiveHypothesis) := do
-      if hiddenProp.contains localDecl.fvarId then
-        let hyps ← pushPending varNames prevType? hyps
-        let type ← instantiateMVars localDecl.type
-        let hyps ← addInteractiveHypothesis hyps #[] type
-        pure (#[], none, hyps)
+        | some type => addInteractiveHypothesisBundle hyps ids type
+    let mut varNames : Array (Name × FVarId) := #[]
+    let mut prevType? : Option Expr := none
+    let mut hyps : Array InteractiveHypothesisBundle := #[]
+    for localDecl in lctx do
+      if !ppAuxDecls && localDecl.isAuxDecl || hidden.contains localDecl.fvarId then
+        continue
       else
-        match localDecl with
-        | LocalDecl.cdecl _ _ varName type _   =>
-          let varName := varName.simpMacroScopes
-          let type ← instantiateMVars type
-          if prevType? == none || prevType? == some type then
-            pure (varNames.push varName, some type, hyps)
-          else do
-            let hyps ← pushPending varNames prevType? hyps
-            pure (#[varName], some type, hyps)
-        | LocalDecl.ldecl _ _ varName type val _ => do
-          let varName := varName.simpMacroScopes
-          let hyps ← pushPending varNames prevType? hyps
-          let type ← instantiateMVars type
-          let val ← instantiateMVars val
-          let hyps ← addInteractiveHypothesis hyps #[varName] type val
-          pure (#[], none, hyps)
-    let (varNames, type?, hyps) ← lctx.foldlM (init := (#[], none, #[]))
-      fun (varNames, prevType?, hyps) (localDecl : LocalDecl) =>
-        if !ppAuxDecls && localDecl.isAuxDecl || hidden.contains localDecl.fvarId then
-          pure (varNames, prevType?, hyps)
+        if hiddenProp.contains localDecl.fvarId then
+          -- localDecl has an inaccessible name and
+          -- is a proposition containing "visible" names.
+          let type ← instantiateMVars localDecl.type
+          hyps ← pushPending varNames prevType? hyps
+          hyps ← addInteractiveHypothesisBundle hyps #[(Name.anonymous, localDecl.fvarId)] type
+          varNames := #[]
+          prevType? := none
         else
-          ppVars varNames prevType? hyps localDecl
-    let hyps ← pushPending varNames type? hyps
+          match localDecl with
+          | LocalDecl.cdecl _index fvarId varName type _   =>
+            let varName := varName.simpMacroScopes
+            let type ← instantiateMVars type
+            if prevType? == none || prevType? == some type then
+              varNames := varNames.push (varName, fvarId)
+            else
+              hyps ← pushPending varNames prevType? hyps
+              varNames := #[(varName, fvarId)]
+            prevType? := some type
+          | LocalDecl.ldecl _index fvarId varName type val _ => do
+            let varName := varName.simpMacroScopes
+            hyps ← pushPending varNames prevType? hyps
+            let type ← instantiateMVars type
+            let val ← instantiateMVars val
+            hyps ← addInteractiveHypothesisBundle hyps #[(varName, fvarId)] type val
+            varNames := #[]
+            prevType? := none
+    hyps ← pushPending varNames prevType? hyps
     let goalTp ← instantiateMVars mvarDecl.type
-    let goalFmt ← exprToInteractive goalTp
+    let goalFmt ← ppExprTagged goalTp
     let userName? := match mvarDecl.userName with
       | Name.anonymous => none
       | name           => some <| toString name.eraseMacroScopes
-    return { hyps, type := goalFmt, userName?, goalPrefix := getGoalPrefix mvarDecl }
+    return {
+      hyps,
+      type := goalFmt,
+      userName?,
+      goalPrefix := getGoalPrefix mvarDecl,
+      mvarId? := some mvarId
+    }
 
 end Lean.Widget

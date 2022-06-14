@@ -763,12 +763,11 @@ private def mkInductiveDecl (vars : Array Expr) (views : Array InductiveView) : 
         let numVars   := vars.size
         let numParams := numVars + numExplicitParams
         let indTypes ← updateParams vars indTypes
-        let indTypes ←
-          if let some univToInfer := univToInfer? then
-            updateResultingUniverse views numParams (← levelMVarToParam indTypes univToInfer)
-          else
-            checkResultingUniverses views numParams indTypes
-            levelMVarToParam indTypes none
+        let indTypes ← if let some univToInfer := univToInfer? then
+          updateResultingUniverse views numParams (← levelMVarToParam indTypes univToInfer)
+        else
+          checkResultingUniverses views numParams indTypes
+          levelMVarToParam indTypes none
         let usedLevelNames := collectLevelParamsInInductive indTypes
         match sortDeclLevelParams scopeLevelNames allUserLevelNames usedLevelNames with
         | .error msg      => throwError msg

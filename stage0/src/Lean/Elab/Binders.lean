@@ -606,20 +606,19 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
       let val  ← mkLambdaFVars fvars val (usedLetOnly := false)
       pure (type, val, binders)
   trace[Elab.let.decl] "{id.getId} : {type} := {val}"
-  let result ←
-    if useLetExpr then
-      withLetDecl id.getId type val fun x => do
-        addLocalVarInfo id x
-        let body ← elabTermEnsuringType body expectedType?
-        let body ← instantiateMVars body
-        mkLetFVars #[x] body (usedLetOnly := usedLetOnly)
-    else
-      let f ← withLocalDecl id.getId BinderInfo.default type fun x => do
-        addLocalVarInfo id x
-        let body ← elabTermEnsuringType body expectedType?
-        let body ← instantiateMVars body
-        mkLambdaFVars #[x] body (usedLetOnly := false)
-      pure <| mkLetFunAnnotation (mkApp f val)
+  let result ← if useLetExpr then
+    withLetDecl id.getId type val fun x => do
+      addLocalVarInfo id x
+      let body ← elabTermEnsuringType body expectedType?
+      let body ← instantiateMVars body
+      mkLetFVars #[x] body (usedLetOnly := usedLetOnly)
+  else
+    let f ← withLocalDecl id.getId BinderInfo.default type fun x => do
+      addLocalVarInfo id x
+      let body ← elabTermEnsuringType body expectedType?
+      let body ← instantiateMVars body
+      mkLambdaFVars #[x] body (usedLetOnly := false)
+    pure <| mkLetFunAnnotation (mkApp f val)
   if elabBodyFirst then
     forallBoundedTelescope type binders.size fun xs type => do
       -- the original `fvars` from above are gone, so add back info manually
@@ -672,12 +671,11 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
       elabLetDeclAux id #[] type val body expectedType? useLetExpr elabBodyFirst usedLetOnly
     else
       -- We are currently treating `let_fun` and `let` the same way when patterns are used.
-      let stxNew ←
-        if optType.isNone then
-          `(match $val:term with | $pat => $body)
-        else
-          let type := optType[0][1]
-          `(match ($val:term : $type) with | $pat => $body)
+      let stxNew ← if optType.isNone then
+        `(match $val:term with | $pat => $body)
+      else
+        let type := optType[0][1]
+        `(match ($val:term : $type) with | $pat => $body)
       withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   else if letDecl.getKind == ``Lean.Parser.Term.letEqnsDecl then
     let letDeclIdNew ← liftMacroM <| expandLetEqnsDecl letDecl

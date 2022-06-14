@@ -16,11 +16,10 @@ def refl (mvarId : MVarId) : MetaM Unit := do
       throwTacticEx `rfl mvarId m!"equality expected{indentExpr targetType}"
     let lhs ← instantiateMVars targetType.appFn!.appArg!
     let rhs ← instantiateMVars targetType.appArg!
-    let success ←
-      if (← useKernel lhs rhs) then
-        pure (Kernel.isDefEq (← getEnv) {} lhs rhs)
-      else
-        isDefEq lhs rhs
+    let success ← if (← useKernel lhs rhs) then
+      pure (Kernel.isDefEq (← getEnv) {} lhs rhs)
+    else
+      isDefEq lhs rhs
     unless success do
       throwTacticEx `rfl mvarId m!"equality lhs{indentExpr lhs}\nis not definitionally equal to rhs{indentExpr rhs}"
     let us := targetType.getAppFn.constLevels!

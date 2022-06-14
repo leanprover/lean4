@@ -167,11 +167,10 @@ where
           else `(Lean.Parser.Term.doExpr| fromJson? jsons[$(quote idx)])
         let identNames := binders.map Prod.fst
         let fromJsons ← binders.mapIdxM fun idx (_, type) => mkFromJson idx type
-
-        let userNamesOpt ←
-          if binders.size == userNames.size then
-            ``(some #[$[$(userNames.map quote):ident],*])
-          else ``(none)
+        let userNamesOpt ← if binders.size == userNames.size then
+          ``(some #[$[$(userNames.map quote):ident],*])
+        else
+          ``(none)
         let stx ←
           `((Json.parseTagged json $(quote ctor.getString!) $(quote ctorInfo.numFields) $(quote userNamesOpt)).bind
             (fun jsons => do

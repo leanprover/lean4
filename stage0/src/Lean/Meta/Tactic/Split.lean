@@ -216,13 +216,12 @@ def applyMatchSplitter (mvarId : MVarId) (matcherDeclName : Name) (us : Array Le
   let discrsNew := discrFVarIdsNew.map mkFVar
   let mvarType ← getMVarType mvarId
   let elimUniv ← withMVarContext mvarId <| getLevel mvarType
-  let us ←
-    if let some uElimPos := info.uElimPos? then
-      pure <| us.set! uElimPos elimUniv
-    else
-      unless elimUniv.isZero do
-        throwError "match-splitter can only eliminate into `Prop`"
-      pure us
+  let us ← if let some uElimPos := info.uElimPos? then
+    pure <| us.set! uElimPos elimUniv
+  else
+    unless elimUniv.isZero do
+      throwError "match-splitter can only eliminate into `Prop`"
+    pure us
   let splitter := mkAppN (mkConst matchEqns.splitterName us.toList) params
   withMVarContext mvarId do
     let motive ← mkLambdaFVars discrsNew mvarType

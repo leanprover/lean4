@@ -280,15 +280,25 @@ def script : (cmd : String) → CliM PUnit
 | cmd =>
   throw <| CliError.unknownCommand cmd
 
+def parseTemplateSpec (spec : String) : Except CliError InitTemplate :=
+  if spec.isEmpty then
+    pure default
+  else if let some tmp := InitTemplate.parse? spec then
+    pure tmp
+  else
+    throw <| CliError.unknownTemplate spec
+
 def command : (cmd : String) → CliM PUnit
 | "new" => do
   processOptions lakeOption
   let pkgName ← takeArg "package name"
-  noArgsRem <| new pkgName
+  let template ← parseTemplateSpec <| (← takeArg?).getD ""
+  noArgsRem <| new pkgName template
 | "init" => do
   processOptions lakeOption
   let pkgName ← takeArg "package name"
-  noArgsRem <| init pkgName
+  let template ← parseTemplateSpec <| (← takeArg?).getD ""
+  noArgsRem <| init pkgName template
 | "build" => do
   processOptions lakeOption
   let opts ← getThe LakeOptions

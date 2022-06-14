@@ -21,8 +21,8 @@ OPTIONS:
   --lean=cmd            specify the `lean` command used by Lake
 
 COMMANDS:
-  new <name>            create a Lean package in a new directory
-  init <name>           create a Lean package in the current directory
+  new <name> [<temp>]   create a Lean package in a new directory
+  init <name> [<temp>]  create a Lean package in the current directory
   build [<targets>...]  build targets
   update                update dependencies
   clean                 remove build outputs
@@ -32,23 +32,29 @@ COMMANDS:
 
 See `lake help <command>` for more information on a specific command."
 
+def templateHelp :=
+s!"The initial configuration and starter files are based on the template:
+
+  std                   library and executable; default
+  exe                   executable only
+  lib                   library only
+  math                  library only with a mathlib dependency"
+
 def helpNew :=
-"Create a Lean package in a new directory
+s!"Create a Lean package in a new directory
 
 USAGE:
-  lake new <name>
+  lake new <name> [<template>]
 
-This command creates a new Lean package with the given name in
-a new directory with the same name."
+{templateHelp}"
 
 def helpInit :=
-"Create a Lean package in the current directory
+s!"Create a Lean package in the current directory
 
 USAGE:
-  lake init <name>
+  lake init <name> [<template>]
 
-This command creates a new Lean package with the given name in
-the current directory."
+{templateHelp}"
 
 def helpBuild :=
 "Build targets
@@ -99,7 +105,7 @@ USAGE:
   lake update [-- <args>...]
 
 This command sets up the directory with the package's dependencies
-(i.e., `packagesDir` which is, by default, `lean_packages`).
+(i.e., `packagesDir`, which is, by default, `lean_packages`).
 Passes `args` to the `Packager` if specified.
 
 For each (transitive) git dependency, the specified commit is checked out

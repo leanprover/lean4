@@ -2,24 +2,28 @@ set -ex
 
 ./clean.sh
 
+LAKE=${LAKE:-../../build/bin/lake}
+
+# Test `new` and `init` with bad template (should error)
+
+$LAKE new foo bar && exit 1 || true
+$LAKE init foo bar && exit 1 || true
+
 # Test `new`
 
-${LAKE:-../../build/bin/lake} new hello.world
-
-cd hello-world
-${LAKE:-../../../build/bin/lake} build
-./build/bin/hello-world
-cd ..
+$LAKE new hello.world
+$LAKE -d hello-world build
+hello-world/build/bin/hello-world
 
 # Test `init`
 
 mkdir hello_world
 
 cd hello_world
-${LAKE:-../../../build/bin/lake} init hello_world
-${LAKE:-../../../build/bin/lake} build
+../$LAKE init hello_world exe
+../$LAKE build
 ./build/bin/hello_world
 
 # Test `init` on existing package (should error)
 
-${LAKE:-../../../build/bin/lake} init hello_world && exit 1 || true
+../$LAKE init hello_world && exit 1 || true

@@ -16,6 +16,8 @@ inductive CliError
 | unknownShortOption (opt : Char)
 | unknownLongOption (opt : String)
 | unexpectedArguments (args : List String)
+/- Init CLI Errors -/
+| unknownTemplate (spec : String)
 /- Build CLI Errors -/
 | unknownModule (mod : Name)
 | unknownPackage (spec : String)
@@ -45,6 +47,7 @@ def toString : CliError → String
 | unknownShortOption opt  => s!"unknown short option '-{opt}'"
 | unknownLongOption opt   => s!"unknown long option '{opt}'"
 | unexpectedArguments as  => s!"unexpected arguments: {" ".intercalate as}"
+| unknownTemplate spec    => s!"unknown package template `{spec}`"
 | unknownModule mod       => s!"unknown module `{mod.toString false}`"
 | unknownPackage spec     => s!"unknown package `{spec}`"
 | unknownFacet ty f       => s!"unknown {ty} facet `{f}`"

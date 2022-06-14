@@ -392,10 +392,10 @@ def unicodeSymbolNoAntiquot.formatter (sym asciiSym : String) : Formatter := do
 @[combinatorFormatter Lean.Parser.identNoAntiquot]
 def identNoAntiquot.formatter : Formatter := do
   checkKind identKind
-  let Syntax.ident info _ id _ ← getCur
+  let stx@(Syntax.ident info _ id _) ← getCur
     | throwError m!"not an ident: {← getCur}"
   let id := id.simpMacroScopes
-  pushToken info id.toString
+  withMaybeTag (getExprPos? stx) (pushToken info id.toString)
   goLeft
 
 @[combinatorFormatter Lean.Parser.rawIdentNoAntiquot] def rawIdentNoAntiquot.formatter : Formatter := do

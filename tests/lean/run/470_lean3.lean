@@ -2,6 +2,6 @@ section foo
 
 axiom foo : Type
 
-constant bla : Nat
+opaque bla : Nat
 
 end foo

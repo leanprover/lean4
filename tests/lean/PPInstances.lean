@@ -19,8 +19,8 @@ instance NormedField.toRing [instNF : NormedField α] : Ring α := { add := inst
 
 instance SemiNormedSpace.toModule [NormedField α] [SemiNormedGroup β] [SemiNormedSpace α β] : Module α β := {}
 
-constant R : Type := Unit
-constant foo (a b : R) : R := a
+opaque R : Type := Unit
+opaque foo (a b : R) : R := a
 
 instance R.NormedField : NormedField R := { add := foo, add_comm := sorry }
 instance R.Ring : Ring R := { add := foo }

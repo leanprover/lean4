@@ -179,8 +179,8 @@ register_option opt : Nat := {
 }
 
 
-constant foo (x : Nat) : Nat
-constant foo' (x : Nat) : Nat :=
+opaque foo (x : Nat) : Nat
+opaque foo' (x : Nat) : Nat :=
   let y := 5
   3
 variable (bar)
@@ -201,7 +201,7 @@ def externDef (x : Nat) : Nat :=
   5
 
 @[extern "test"]
-constant externConst (x : Nat) : Nat :=
+opaque externConst (x : Nat) : Nat :=
   let y := 3
   5
 

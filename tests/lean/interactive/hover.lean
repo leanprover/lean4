@@ -103,15 +103,15 @@ example : Id Nat := do
   n
 
 
-constant foo : Nat
+opaque foo : Nat
 
 #check _root_.foo
        --^ textDocument/hover
 
 namespace Bar
 
-constant foo : Nat
-       --^ textDocument/hover
+opaque foo : Nat
+     --^ textDocument/hover
 
 #check _root_.foo
        --^ textDocument/hover

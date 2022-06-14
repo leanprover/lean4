@@ -246,7 +246,7 @@ where
       | _ => return ()
 
 @[implementedBy Expr.dagSizeUnsafe]
-constant Expr.dagSize (e : Expr) : IO Nat
+opaque Expr.dagSize (e : Expr) : IO Nat
 
 def getDeclTypeValueDagSize (declName : Name) : CoreM Nat := do
   let info ← getConstInfo declName

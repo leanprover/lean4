@@ -1,5 +1,5 @@
 def S := List Nat
-constant TSpec : NonemptyType
+opaque TSpec : NonemptyType
 def T (s : S) : Type :=  TSpec.type
 instance (s : S) : Nonempty (T s) :=
   TSpec.property

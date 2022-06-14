@@ -95,8 +95,10 @@ example : True ∧ False := by
 example : True = True := by
   conv =>
       --^ $/lean/plainGoal
-    --
+    whnf
   --^ $/lean/plainGoal
+  --
+--^ $/lean/plainGoal
 
 example : False := by
 -- EOF test

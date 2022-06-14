@@ -31,7 +31,7 @@ def withoutInfo (self : ActiveTarget i k t) : ActiveTarget PUnit k t :=
 def withTask (task : k' t') (self : ActiveTarget i k t) : ActiveTarget i k' t' :=
   {self with task}
 
-def opaque (task : k t) : ActiveTarget PUnit k t :=
+def «opaque» (task : k t) : ActiveTarget PUnit k t :=
   ⟨(), task⟩
 
 protected def pure [Pure k] (info : i) (trace : t) : ActiveTarget i k t :=
@@ -84,10 +84,10 @@ def collectArray (targets : Array (ActiveTarget i k t)) : m (ActiveTarget (Array
   pure <| mk (targets.map (·.info)) <| ← liftM <| foldRightArrayAsync mixTrace nilTrace <| targets.map (·.task)
 
 def collectOpaqueList (targets : List (ActiveTarget i k t)) : m (ActiveTarget PUnit k t) := do
-  pure <| opaque <| ← liftM <| foldRightListAsync mixTrace nilTrace <| targets.map (·.task)
+  pure <| «opaque» <| ← liftM <| foldRightListAsync mixTrace nilTrace <| targets.map (·.task)
 
 def collectOpaqueArray (targets : Array (ActiveTarget i k t)) : m (ActiveTarget PUnit k t) := do
-  pure <| opaque <| ← liftM <| foldRightArrayAsync mixTrace nilTrace <| targets.map (·.task)
+  pure <| «opaque» <| ← liftM <| foldRightArrayAsync mixTrace nilTrace <| targets.map (·.task)
 
 end
 end ActiveTarget
@@ -114,7 +114,7 @@ def withoutInfo (self : Target i n k t) : Target PUnit n k t :=
 def withTask (task : n' (k' t')) (self : Target i n k t) : Target i n' k' t' :=
   {self with task}
 
-def opaque (task : n (k t)) : Target PUnit n k t :=
+def «opaque» (task : n (k t)) : Target PUnit n k t :=
   mk () task
 
 def opaqueSync [Sync m n k] (act : m t) : Target PUnit n k t :=
@@ -211,10 +211,10 @@ def collectArray (targets : Array (Target i n k t)) : Target (Array i) n k t :=
   mk (targets.map (·.info)) <| materializeArrayAsync targets
 
 def collectOpaqueList (targets : List (Target i n k t)) : Target PUnit n k t :=
-  opaque <| materializeListAsync targets
+  «opaque» <| materializeListAsync targets
 
 def collectOpaqueArray (targets : Array (Target i n k t)) : Target PUnit n k t :=
-  opaque <| materializeArrayAsync targets
+  «opaque» <| materializeArrayAsync targets
 
 end
 end Target

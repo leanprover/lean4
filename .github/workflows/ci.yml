@@ -57,12 +57,12 @@ jobs:
         name: ${{ matrix.os }}
         path: build
     - name: Check Lake
-      run: make -C examples check-lake
-    - name: Test Examples
-      run: make -C examples test -j4
+      run: make check-lake
+    - name: Test Lake
+      run: make test-ci -j4
     - name: Time Bootstrap
-      run: make -C examples time-bootstrap
+      run: make time-bootstrap
     - name: Check Bootstrap
-      run: make -C examples check-bootstrap
-    - name: Test Bootstrapped Examples
-      run: make -C examples test-bootstrapped -j4
+      run: make check-bootstrap
+    - name: Test Bootstrapped Lake
+      run: make test-bootstrapped -j4

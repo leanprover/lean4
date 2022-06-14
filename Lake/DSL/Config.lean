@@ -13,13 +13,13 @@ open Lean Elab Term
 A dummy default constant for `__dir__` to make it type check
 outside Lakefile elaboration (e.g., when editing).
 -/
-constant dummyDir : System.FilePath
+opaque dummyDir : System.FilePath
 
 /--
 A dummy default constant for `__args__` to make it type check
 outside Lakefile elaboration (e.g., when editing).
 -/
-constant dummyArgs : List String
+opaque dummyArgs : List String
 
 /--
 A macro that expands to the path of package's directory

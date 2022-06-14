@@ -285,7 +285,7 @@ namespace OpaquePackage
 unsafe def unsafeMk (pkg : Package) : OpaquePackage :=
   unsafeCast pkg
 
-@[implementedBy unsafeMk] constant mk (pkg : Package) : OpaquePackage
+@[implementedBy unsafeMk] opaque mk (pkg : Package) : OpaquePackage
 
 instance : Coe Package OpaquePackage := ⟨mk⟩
 instance : Inhabited OpaquePackage := ⟨mk Inhabited.default⟩
@@ -293,7 +293,7 @@ instance : Inhabited OpaquePackage := ⟨mk Inhabited.default⟩
 unsafe def unsafeGet (self : OpaquePackage) : Package :=
   unsafeCast self
 
-@[implementedBy unsafeGet] constant get (self : OpaquePackage) : Package
+@[implementedBy unsafeGet] opaque get (self : OpaquePackage) : Package
 
 instance : Coe OpaquePackage Package := ⟨get⟩
 

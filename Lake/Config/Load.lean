@@ -132,5 +132,5 @@ Load the package located in
 the given directory with the given configuration file.
 -/
 @[implementedBy loadUnsafe]
-constant load (dir : FilePath) (args : List String := [])
+opaque load (dir : FilePath) (args : List String := [])
 (configFile := dir / defaultConfigFile) (leanOpts := Options.empty) : LogT IO Package

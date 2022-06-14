@@ -38,7 +38,7 @@ unsafe def unsafeEvalTerm (α) [ToExpr α] (term : Syntax) : TermElabM α := do
     setEnv env
 
 @[implementedBy unsafeEvalTerm]
-constant evalTerm (α) [ToExpr α] (term : Syntax) : TermElabM α
+opaque evalTerm (α) [ToExpr α] (term : Syntax) : TermElabM α
 
 -- ## ToExpr Instances
 

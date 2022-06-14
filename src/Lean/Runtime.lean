@@ -7,10 +7,10 @@ Authors: Leonardo de Moura
 namespace Lean
 
 @[extern "lean_closure_max_args"]
-constant closureMaxArgsFn : Unit → Nat
+opaque closureMaxArgsFn : Unit → Nat
 
 @[extern "lean_max_small_nat"]
-constant maxSmallNatFn : Unit → Nat
+opaque maxSmallNatFn : Unit → Nat
 
 def closureMaxArgs : Nat :=
   closureMaxArgsFn ()

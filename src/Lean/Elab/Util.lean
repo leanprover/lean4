@@ -95,7 +95,7 @@ private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options)
   env.evalConstCheck Syntax opts `Lean.Syntax constName
 
 @[implementedBy evalSyntaxConstantUnsafe]
-constant evalSyntaxConstant (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax := throw ""
+opaque evalSyntaxConstant (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax := throw ""
 
 unsafe def mkElabAttribute (γ) (attrDeclName attrBuiltinName attrName : Name) (parserNamespace : Name) (typeName : Name) (kind : String)
     : IO (KeyedDeclsAttribute γ) :=
@@ -117,7 +117,7 @@ unsafe def mkMacroAttributeUnsafe : IO (KeyedDeclsAttribute Macro) :=
   mkElabAttribute Macro `Lean.Elab.macroAttribute `builtinMacro `macro Name.anonymous `Lean.Macro "macro"
 
 @[implementedBy mkMacroAttributeUnsafe]
-constant mkMacroAttribute : IO (KeyedDeclsAttribute Macro)
+opaque mkMacroAttribute : IO (KeyedDeclsAttribute Macro)
 
 builtin_initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribute
 

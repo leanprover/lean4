@@ -109,17 +109,17 @@ namespace BaseIO
   to the task is dropped. The `act` should manually check for cancellation via `IO.checkCanceled` if it wants to react
   to that. -/
 @[extern "lean_io_as_task"]
-constant asTask (act : BaseIO α) (prio := Task.Priority.default) : BaseIO (Task α) :=
+opaque asTask (act : BaseIO α) (prio := Task.Priority.default) : BaseIO (Task α) :=
   Task.pure <$> act
 
 /-- See `BaseIO.asTask`. -/
 @[extern "lean_io_map_task"]
-constant mapTask (f : α → BaseIO β) (t : Task α) (prio := Task.Priority.default) : BaseIO (Task β) :=
+opaque mapTask (f : α → BaseIO β) (t : Task α) (prio := Task.Priority.default) : BaseIO (Task β) :=
   Task.pure <$> f t.get
 
 /-- See `BaseIO.asTask`. -/
 @[extern "lean_io_bind_task"]
-constant bindTask (t : Task α) (f : α → BaseIO (Task β)) (prio := Task.Priority.default) : BaseIO (Task β) :=
+opaque bindTask (t : Task α) (f : α → BaseIO (Task β)) (prio := Task.Priority.default) : BaseIO (Task β) :=
   f t.get
 
 def mapTasks (f : List α → BaseIO β) (tasks : List (Task α)) (prio := Task.Priority.default) : BaseIO (Task β) :=
@@ -163,14 +163,14 @@ def lazyPure (fn : Unit → α) : IO α :=
   pure (fn ())
 
 /-- Monotonically increasing time since an unspecified past point in milliseconds. No relation to wall clock time. -/
-@[extern "lean_io_mono_ms_now"] constant monoMsNow : BaseIO Nat
+@[extern "lean_io_mono_ms_now"] opaque monoMsNow : BaseIO Nat
 
 /-- Monotonically increasing time since an unspecified past point in nanoseconds. No relation to wall clock time. -/
-@[extern "lean_io_mono_nanos_now"] constant monoNanosNow : BaseIO Nat
+@[extern "lean_io_mono_nanos_now"] opaque monoNanosNow : BaseIO Nat
 
 /-- Read bytes from a system entropy source. Not guaranteed to be cryptographically secure.
 If `nBytes = 0`, return immediately with an empty buffer. -/
-@[extern "lean_io_get_random_bytes"] constant getRandomBytes (nBytes : USize) : IO ByteArray
+@[extern "lean_io_get_random_bytes"] opaque getRandomBytes (nBytes : USize) : IO ByteArray
 
 def sleep (ms : UInt32) : IO Unit :=
   -- TODO: add a proper primitive for IO.sleep
@@ -193,28 +193,28 @@ def sleep (ms : UInt32) : IO Unit :=
   EIO.mapTasks f tasks prio
 
 /-- Check if the task's cancellation flag has been set by calling `IO.cancel` or dropping the last reference to the task. -/
-@[extern "lean_io_check_canceled"] constant checkCanceled : BaseIO Bool
+@[extern "lean_io_check_canceled"] opaque checkCanceled : BaseIO Bool
 
 /-- Request cooperative cancellation of the task. The task must explicitly call `IO.checkCanceled` to react to the cancellation. -/
-@[extern "lean_io_cancel"] constant cancel : @& Task α → BaseIO Unit
+@[extern "lean_io_cancel"] opaque cancel : @& Task α → BaseIO Unit
 
 /-- Check if the task has finished execution, at which point calling `Task.get` will return immediately. -/
-@[extern "lean_io_has_finished"] constant hasFinished : @& Task α → BaseIO Bool
+@[extern "lean_io_has_finished"] opaque hasFinished : @& Task α → BaseIO Bool
 
 /-- Wait for the task to finish, then return its result. -/
-@[extern "lean_io_wait"] constant wait (t : Task α) : BaseIO α :=
+@[extern "lean_io_wait"] opaque wait (t : Task α) : BaseIO α :=
   return t.get
 
 /-- Wait until any of the tasks in the given list has finished, then return its result. -/
-@[extern "lean_io_wait_any"] constant waitAny : @& List (Task α) → IO α
+@[extern "lean_io_wait_any"] opaque waitAny : @& List (Task α) → IO α
 
 /-- Helper method for implementing "deterministic" timeouts. It is the number of "small" memory allocations performed by the current execution thread. -/
-@[extern "lean_io_get_num_heartbeats"] constant getNumHeartbeats : BaseIO Nat
+@[extern "lean_io_get_num_heartbeats"] opaque getNumHeartbeats : BaseIO Nat
 
 inductive FS.Mode where
   | read | write | readWrite | append
 
-constant FS.Handle : Type := Unit
+opaque FS.Handle : Type := Unit
 
 /--
   A pure-Lean abstraction of POSIX streams. We use `Stream`s for the standard streams stdin/stdout/stderr so we can
@@ -230,16 +230,16 @@ structure FS.Stream where
 
 open FS
 
-@[extern "lean_get_stdin"] constant getStdin  : BaseIO FS.Stream
-@[extern "lean_get_stdout"] constant getStdout : BaseIO FS.Stream
-@[extern "lean_get_stderr"] constant getStderr : BaseIO FS.Stream
+@[extern "lean_get_stdin"] opaque getStdin  : BaseIO FS.Stream
+@[extern "lean_get_stdout"] opaque getStdout : BaseIO FS.Stream
+@[extern "lean_get_stderr"] opaque getStderr : BaseIO FS.Stream
 
 /-- Replaces the stdin stream of the current thread and returns its previous value. -/
-@[extern "lean_get_set_stdin"] constant setStdin  : FS.Stream → BaseIO FS.Stream
+@[extern "lean_get_set_stdin"] opaque setStdin  : FS.Stream → BaseIO FS.Stream
 /-- Replaces the stdout stream of the current thread and returns its previous value. -/
-@[extern "lean_get_set_stdout"] constant setStdout : FS.Stream → BaseIO FS.Stream
+@[extern "lean_get_set_stdout"] opaque setStdout : FS.Stream → BaseIO FS.Stream
 /-- Replaces the stderr stream of the current thread and returns its previous value. -/
-@[extern "lean_get_set_stderr"] constant setStderr : FS.Stream → BaseIO FS.Stream
+@[extern "lean_get_set_stderr"] opaque setStderr : FS.Stream → BaseIO FS.Stream
 
 @[specialize] partial def iterate (a : α) (f : α → IO (Sum α β)) : IO β := do
   let v ← f a
@@ -261,7 +261,7 @@ private def fopenFlags (m : FS.Mode) (b : Bool) : String :=
   let bin := if b then "b" else "t"
   mode ++ bin
 
-@[extern "lean_io_prim_handle_mk"] constant mkPrim (fn : @& FilePath) (mode : @& String) : IO Handle
+@[extern "lean_io_prim_handle_mk"] opaque mkPrim (fn : @& FilePath) (mode : @& String) : IO Handle
 
 def mk (fn : FilePath) (Mode : Mode) (bin : Bool := true) : IO Handle :=
   mkPrim fn (fopenFlags Mode bin)
@@ -271,27 +271,27 @@ Returns whether the end of the file has been reached while reading a file.
 `h.isEof` returns true /after/ the first attempt at reading past the end of `h`.
 Once `h.isEof` is true, reading `h` will always return an empty array.
 -/
-@[extern "lean_io_prim_handle_is_eof"] constant isEof (h : @& Handle) : BaseIO Bool
-@[extern "lean_io_prim_handle_flush"] constant flush (h : @& Handle) : IO Unit
-@[extern "lean_io_prim_handle_read"] constant read  (h : @& Handle) (bytes : USize) : IO ByteArray
-@[extern "lean_io_prim_handle_write"] constant write (h : @& Handle) (buffer : @& ByteArray) : IO Unit
+@[extern "lean_io_prim_handle_is_eof"] opaque isEof (h : @& Handle) : BaseIO Bool
+@[extern "lean_io_prim_handle_flush"] opaque flush (h : @& Handle) : IO Unit
+@[extern "lean_io_prim_handle_read"] opaque read  (h : @& Handle) (bytes : USize) : IO ByteArray
+@[extern "lean_io_prim_handle_write"] opaque write (h : @& Handle) (buffer : @& ByteArray) : IO Unit
 
-@[extern "lean_io_prim_handle_get_line"] constant getLine (h : @& Handle) : IO String
-@[extern "lean_io_prim_handle_put_str"] constant putStr (h : @& Handle) (s : @& String) : IO Unit
+@[extern "lean_io_prim_handle_get_line"] opaque getLine (h : @& Handle) : IO String
+@[extern "lean_io_prim_handle_put_str"] opaque putStr (h : @& Handle) (s : @& String) : IO Unit
 
 end Handle
 
-@[extern "lean_io_realpath"] constant realPath (fname : FilePath) : IO FilePath
-@[extern "lean_io_remove_file"] constant removeFile (fname : @& FilePath) : IO Unit
+@[extern "lean_io_realpath"] opaque realPath (fname : FilePath) : IO FilePath
+@[extern "lean_io_remove_file"] opaque removeFile (fname : @& FilePath) : IO Unit
 /-- Remove given directory. Fails if not empty; see also `IO.FS.removeDirAll`. -/
-@[extern "lean_io_remove_dir"] constant removeDir : @& FilePath → IO Unit
-@[extern "lean_io_create_dir"] constant createDir : @& FilePath → IO Unit
+@[extern "lean_io_remove_dir"] opaque removeDir : @& FilePath → IO Unit
+@[extern "lean_io_create_dir"] opaque createDir : @& FilePath → IO Unit
 
 end FS
 
-@[extern "lean_io_getenv"] constant getEnv (var : @& String) : BaseIO (Option String)
-@[extern "lean_io_app_path"] constant appPath : IO FilePath
-@[extern "lean_io_current_dir"] constant currentDir : IO FilePath
+@[extern "lean_io_getenv"] opaque getEnv (var : @& String) : BaseIO (Option String)
+@[extern "lean_io_app_path"] opaque appPath : IO FilePath
+@[extern "lean_io_current_dir"] opaque currentDir : IO FilePath
 
 namespace FS
 
@@ -391,10 +391,10 @@ namespace System.FilePath
 open IO
 
 @[extern "lean_io_read_dir"]
-constant readDir : @& FilePath → IO (Array IO.FS.DirEntry)
+opaque readDir : @& FilePath → IO (Array IO.FS.DirEntry)
 
 @[extern "lean_io_metadata"]
-constant metadata : @& FilePath → IO IO.FS.Metadata
+opaque metadata : @& FilePath → IO IO.FS.Metadata
 
 def isDir (p : FilePath) : BaseIO Bool := do
   match (← p.metadata.toBaseIO) with
@@ -534,9 +534,9 @@ structure Child (cfg : StdioConfig) where
   stdout : cfg.stdout.toHandleType
   stderr : cfg.stderr.toHandleType
 
-@[extern "lean_io_process_spawn"] constant spawn (args : SpawnArgs) : IO (Child args.toStdioConfig)
+@[extern "lean_io_process_spawn"] opaque spawn (args : SpawnArgs) : IO (Child args.toStdioConfig)
 
-@[extern "lean_io_process_child_wait"] constant Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
+@[extern "lean_io_process_child_wait"] opaque Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
 
 /--
 Extract the `stdin` field from a `Child` object, allowing them to be freed independently.
@@ -544,7 +544,7 @@ This operation is necessary for closing the child process' stdin while still hol
 e.g. for `Child.wait`. A file handle is closed when all references to it are dropped, which without this
 operation includes the `Child` object.
 -/
-@[extern "lean_io_process_child_take_stdin"] constant Child.takeStdin {cfg : @& StdioConfig} : Child cfg →
+@[extern "lean_io_process_child_take_stdin"] opaque Child.takeStdin {cfg : @& StdioConfig} : Child cfg →
     IO (cfg.stdin.toHandleType × Child { cfg with stdin := Stdio.null })
 
 structure Output where
@@ -568,7 +568,7 @@ def run (args : SpawnArgs) : IO String := do
     throw <| IO.userError <| "process '" ++ args.cmd ++ "' exited with code " ++ toString out.exitCode
   pure out.stdout
 
-@[extern "lean_io_exit"] constant exit : UInt8 → IO α
+@[extern "lean_io_exit"] opaque exit : UInt8 → IO α
 
 end Process
 
@@ -594,7 +594,7 @@ def FileRight.flags (acc : FileRight) : UInt32 :=
   let o : UInt32 := acc.other.flags
   u.lor <| g.lor o
 
-@[extern "lean_chmod"] constant Prim.setAccessRights (filename : @& FilePath) (mode : UInt32) : IO Unit
+@[extern "lean_chmod"] opaque Prim.setAccessRights (filename : @& FilePath) (mode : UInt32) : IO Unit
 
 def setAccessRights (filename : FilePath) (mode : FileRight) : IO Unit :=
   Prim.setAccessRights filename mode.flags

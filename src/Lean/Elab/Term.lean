@@ -320,7 +320,7 @@ unsafe def mkTermElabAttributeUnsafe : IO (KeyedDeclsAttribute TermElab) :=
   mkElabAttribute TermElab `Lean.Elab.Term.termElabAttribute `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term"
 
 @[implementedBy mkTermElabAttributeUnsafe]
-constant mkTermElabAttribute : IO (KeyedDeclsAttribute TermElab)
+opaque mkTermElabAttribute : IO (KeyedDeclsAttribute TermElab)
 
 builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermElabAttribute
 

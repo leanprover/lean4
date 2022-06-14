@@ -23,10 +23,10 @@ def toNat! (s : String) : Nat :=
   Convert a UTF-8 encoded `ByteArray` string to `String`.
   The result is unspecified if `a` is not properly UTF-8 encoded. -/
 @[extern "lean_string_from_utf8_unchecked"]
-constant fromUTF8Unchecked (a : @& ByteArray) : String
+opaque fromUTF8Unchecked (a : @& ByteArray) : String
 
 @[extern "lean_string_to_utf8"]
-constant toUTF8 (a : @& String) : ByteArray
+opaque toUTF8 (a : @& String) : ByteArray
 
 theorem one_le_csize (c : Char) : 1 ≤ csize c := by
   simp [csize, Char.utf8Size]

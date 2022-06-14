@@ -461,18 +461,18 @@ def mkAppRev (fn : Expr) (revArgs : Array Expr) : Expr :=
 namespace Expr
 -- TODO: implement it in Lean
 @[extern "lean_expr_dbg_to_string"]
-constant dbgToString (e : @& Expr) : String
+opaque dbgToString (e : @& Expr) : String
 
 @[extern "lean_expr_quick_lt"]
-constant quickLt (a : @& Expr) (b : @& Expr) : Bool
+opaque quickLt (a : @& Expr) (b : @& Expr) : Bool
 
 @[extern "lean_expr_lt"]
-constant lt (a : @& Expr) (b : @& Expr) : Bool
+opaque lt (a : @& Expr) (b : @& Expr) : Bool
 
 /-- Return true iff `a` and `b` are alpha equivalent.
    Binder annotations are ignored. -/
 @[extern "lean_expr_eqv"]
-constant eqv (a : @& Expr) (b : @& Expr) : Bool
+opaque eqv (a : @& Expr) (b : @& Expr) : Bool
 
 instance : BEq Expr where
   beq := Expr.eqv
@@ -483,7 +483,7 @@ protected unsafe def ptrEq (a b : Expr) : Bool :=
 /- Return true iff `a` and `b` are equal.
    Binder names and annotations are taking into account. -/
 @[extern "lean_expr_equal"]
-constant equal (a : @& Expr) (b : @& Expr) : Bool
+opaque equal (a : @& Expr) (b : @& Expr) : Bool
 
 def isSort : Expr → Bool
   | sort .. => true
@@ -770,7 +770,7 @@ def isArrow (e : Expr) : Bool :=
   | _ => false
 
 @[extern "lean_expr_has_loose_bvar"]
-constant hasLooseBVar (e : @& Expr) (bvarIdx : @& Nat) : Bool
+opaque hasLooseBVar (e : @& Expr) (bvarIdx : @& Nat) : Bool
 
 /-- Return true if `e` contains the loose bound variable `bvarIdx` in an explicit parameter, or in the range if `tryRange == true`. -/
 def hasLooseBVarInExplicitDomain : Expr → Nat → Bool → Bool
@@ -784,12 +784,12 @@ def hasLooseBVarInExplicitDomain : Expr → Nat → Bool → Bool
 
   Remark: if `s < d`, then result is `e` -/
 @[extern "lean_expr_lower_loose_bvars"]
-constant lowerLooseBVars (e : @& Expr) (s d : @& Nat) : Expr
+opaque lowerLooseBVars (e : @& Expr) (s d : @& Nat) : Expr
 
 /--
   Lift loose bound variables `>= s` in `e` by `d`. -/
 @[extern "lean_expr_lift_loose_bvars"]
-constant liftLooseBVars (e : @& Expr) (s d : @& Nat) : Expr
+opaque liftLooseBVars (e : @& Expr) (s d : @& Nat) : Expr
 
 /--
   `inferImplicit e numParams considerRange` updates the first `numParams` parameter binder annotations of the `e` forall type.
@@ -810,32 +810,32 @@ def inferImplicit : Expr → Nat → Bool → Expr
 /-- Instantiate the loose bound variables in `e` using `subst`.
     That is, a loose `Expr.bvar i` is replaced with `subst[i]`. -/
 @[extern "lean_expr_instantiate"]
-constant instantiate (e : @& Expr) (subst : @& Array Expr) : Expr
+opaque instantiate (e : @& Expr) (subst : @& Array Expr) : Expr
 
 @[extern "lean_expr_instantiate1"]
-constant instantiate1 (e : @& Expr) (subst : @& Expr) : Expr
+opaque instantiate1 (e : @& Expr) (subst : @& Expr) : Expr
 
 /-- Similar to instantiate, but `Expr.bvar i` is replaced with `subst[subst.size - i - 1]` -/
 @[extern "lean_expr_instantiate_rev"]
-constant instantiateRev (e : @& Expr) (subst : @& Array Expr) : Expr
+opaque instantiateRev (e : @& Expr) (subst : @& Array Expr) : Expr
 
 /-- Similar to `instantiate`, but consider only the variables `xs` in the range `[beginIdx, endIdx)`.
     Function panics if `beginIdx <= endIdx <= xs.size` does not hold. -/
 @[extern "lean_expr_instantiate_range"]
-constant instantiateRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : @& Array Expr) : Expr
+opaque instantiateRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : @& Array Expr) : Expr
 
 /-- Similar to `instantiateRev`, but consider only the variables `xs` in the range `[beginIdx, endIdx)`.
     Function panics if `beginIdx <= endIdx <= xs.size` does not hold. -/
 @[extern "lean_expr_instantiate_rev_range"]
-constant instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : @& Array Expr) : Expr
+opaque instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (xs : @& Array Expr) : Expr
 
 /-- Replace free (or meta) variables `xs` with loose bound variables. -/
 @[extern "lean_expr_abstract"]
-constant abstract (e : @& Expr) (xs : @& Array Expr) : Expr
+opaque abstract (e : @& Expr) (xs : @& Array Expr) : Expr
 
 /-- Similar to `abstract`, but consider only the first `min n xs.size` entries in `xs`. -/
 @[extern "lean_expr_abstract_range"]
-constant abstractRange (e : @& Expr) (n : @& Nat) (xs : @& Array Expr) : Expr
+opaque abstractRange (e : @& Expr) (n : @& Nat) (xs : @& Array Expr) : Expr
 
 /-- Replace occurrences of the free variable `fvar` in `e` with `v` -/
 def replaceFVar (e : Expr) (fvar : Expr) (v : Expr) : Expr :=

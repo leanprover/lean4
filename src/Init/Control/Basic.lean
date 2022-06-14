@@ -75,8 +75,8 @@ Suppose we have `foo : ∀ α, IO α → IO α` and `bar : StateT σ IO β` (ie,
 We might want to 'map' `bar` by `foo`. Concretely we would write this as:
 
 ```lean
-constant foo : ∀ {α}, IO α → IO α
-constant bar : StateT σ IO β
+opaque foo : ∀ {α}, IO α → IO α
+opaque bar : StateT σ IO β
 
 def mapped_foo : StateT σ IO β := do
   let s ← get

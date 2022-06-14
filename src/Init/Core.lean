@@ -1109,7 +1109,7 @@ namespace Lean
   If an extern function is executed, then the trusted code base will also include the implementation of the associated
   foreign function.
 -/
-constant reduceBool (b : Bool) : Bool := b
+opaque reduceBool (b : Bool) : Bool := b
 
 /--
   Similar to `Lean.reduceBool` for closed `Nat` terms.
@@ -1117,7 +1117,7 @@ constant reduceBool (b : Bool) : Bool := b
   Remark: we do not have plans for supporting a generic `reduceValue {α} (a : α) : α := a`.
   The main issue is that it is non-trivial to convert an arbitrary runtime object back into a Lean expression.
   We believe `Lean.reduceBool` enables most interesting applications (e.g., proof by reflection). -/
-constant reduceNat (n : Nat) : Nat := n
+opaque reduceNat (n : Nat) : Nat := n
 
 axiom ofReduceBool (a b : Bool) (h : reduceBool a = b) : a = b
 axiom ofReduceNat (a b : Nat) (h : reduceNat a = b)    : a = b

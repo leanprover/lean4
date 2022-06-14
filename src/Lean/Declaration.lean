@@ -403,10 +403,10 @@ def isInductive : ConstantInfo → Bool
   | _            => false
 
 @[extern "lean_instantiate_type_lparams"]
-constant instantiateTypeLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr
+opaque instantiateTypeLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr
 
 @[extern "lean_instantiate_value_lparams"]
-constant instantiateValueLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr
+opaque instantiateValueLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr
 
 end ConstantInfo
 

@@ -14,7 +14,7 @@ import Lean.Util.Profile
 
 namespace Lean
 /- Opaque environment extension state. -/
-constant EnvExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
+opaque EnvExtensionStateSpec : (α : Type) × Inhabited α := ⟨Unit, ⟨()⟩⟩
 def EnvExtensionState : Type := EnvExtensionStateSpec.fst
 instance : Inhabited EnvExtensionState := EnvExtensionStateSpec.snd
 
@@ -37,14 +37,14 @@ instance : ToString Import := ⟨fun imp => toString imp.module ++ if imp.runtim
 def CompactedRegion := USize
 
 @[extern "lean_compacted_region_is_memory_mapped"]
-constant CompactedRegion.isMemoryMapped : CompactedRegion → Bool
+opaque CompactedRegion.isMemoryMapped : CompactedRegion → Bool
 
 /-- Free a compacted region and its contents. No live references to the contents may exist at the time of invocation. -/
 @[extern "lean_compacted_region_free"]
-unsafe constant CompactedRegion.free : CompactedRegion → IO Unit
+unsafe opaque CompactedRegion.free : CompactedRegion → IO Unit
 
 /- Opaque persistent environment extension entry. -/
-constant EnvExtensionEntrySpec : NonemptyType.{0}
+opaque EnvExtensionEntrySpec : NonemptyType.{0}
 def EnvExtensionEntry : Type := EnvExtensionEntrySpec.type
 instance : Nonempty EnvExtensionEntry := EnvExtensionEntrySpec.property
 
@@ -146,11 +146,11 @@ namespace Environment
 
 /- Type check given declaration and add it to the environment -/
 @[extern "lean_add_decl"]
-constant addDecl (env : Environment) (decl : @& Declaration) : Except KernelException Environment
+opaque addDecl (env : Environment) (decl : @& Declaration) : Except KernelException Environment
 
 /- Compile the given declaration, it assumes the declaration has already been added to the environment using `addDecl`. -/
 @[extern "lean_compile_decl"]
-constant compileDecl (env : Environment) (opt : @& Options) (decl : @& Declaration) : Except KernelException Environment
+opaque compileDecl (env : Environment) (opt : @& Options) (decl : @& Declaration) : Except KernelException Environment
 
 def addAndCompile (env : Environment) (opt : Options) (decl : Declaration) : Except KernelException Environment := do
   let env ← addDecl env decl
@@ -265,7 +265,7 @@ unsafe def imp : EnvExtensionInterface := {
 end EnvExtensionInterfaceUnsafe
 
 @[implementedBy EnvExtensionInterfaceUnsafe.imp]
-constant EnvExtensionInterfaceImp : EnvExtensionInterface
+opaque EnvExtensionInterfaceImp : EnvExtensionInterface
 
 def EnvExtension (σ : Type) : Type := EnvExtensionInterfaceImp.ext σ
 
@@ -401,7 +401,7 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
   return pExt
 
 @[implementedBy registerPersistentEnvExtensionUnsafe]
-constant registerPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ)
+opaque registerPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ)
 
 /- Simple PersistentEnvExtension that implements exportEntriesFn using a list of entries. -/
 
@@ -512,9 +512,9 @@ def contains [Inhabited α] (ext : MapDeclarationExtension α) (env : Environmen
 end MapDeclarationExtension
 
 @[extern "lean_save_module_data"]
-constant saveModuleData (fname : @& System.FilePath) (mod : @& Name) (data : @& ModuleData) : IO Unit
+opaque saveModuleData (fname : @& System.FilePath) (mod : @& Name) (data : @& ModuleData) : IO Unit
 @[extern "lean_read_module_data"]
-constant readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion)
+opaque readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion)
 
 /--
   Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in
@@ -582,9 +582,9 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
   When we a new user-defined attribute declaration is imported, `attributeMapRef` is updated.
   Later, we set this method with code that adds the user-defined attributes that were imported after we initialized `attributeExtension`.
 -/
-@[extern 2 "lean_update_env_attributes"] constant updateEnvAttributes : Environment → IO Environment
+@[extern 2 "lean_update_env_attributes"] opaque updateEnvAttributes : Environment → IO Environment
 /-- "Forward declaration" for retrieving the number of builtin attributes. -/
-@[extern 1 "lean_get_num_attributes"] constant getNumBuiltiAttributes : IO Nat
+@[extern 1 "lean_get_num_attributes"] opaque getNumBuiltiAttributes : IO Nat
 
 private partial def finalizePersistentExtensions (env : Environment) (mods : Array ModuleData) (opts : Options) : IO Environment := do
   loop 0 env
@@ -736,7 +736,7 @@ def displayStats (env : Environment) : IO Unit := do
   This function is only safe to use if the type matches the declaration's type in the environment
   and if `enableInitializersExecution` has been used before importing any modules. -/
 @[extern "lean_eval_const"]
-unsafe constant evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) : Except String α
+unsafe opaque evalConst (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) : Except String α
 
 private def throwUnexpectedType {α} (typeName : Name) (constName : Name) : ExceptT String Id α :=
   throw ("unexpected type at '" ++ toString constName ++ "', `" ++ toString typeName ++ "` expected")
@@ -772,14 +772,14 @@ namespace Kernel
   Recall that the Kernel type checker does not support metavariables.
   When implementing automation, consider using the `MetaM` methods. -/
 @[extern "lean_kernel_is_def_eq"]
-constant isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool
+opaque isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool
 
 /--
   Kernel WHNF function. We use it mainly for debugging purposes.
   Recall that the Kernel type checker does not support metavariables.
   When implementing automation, consider using the `MetaM` methods. -/
 @[extern "lean_kernel_whnf"]
-constant whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Expr
+opaque whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Expr
 
 end Kernel
 

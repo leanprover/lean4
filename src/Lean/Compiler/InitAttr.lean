@@ -70,7 +70,7 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) : IO
   }
 
 @[implementedBy registerInitAttrUnsafe]
-constant registerInitAttr (attrName : Name) (runAfterImport : Bool) : IO (ParametricAttribute Name)
+opaque registerInitAttr (attrName : Name) (runAfterImport : Bool) : IO (ParametricAttribute Name)
 
 builtin_initialize regularInitAttr : ParametricAttribute Name ← registerInitAttr `init true
 builtin_initialize builtinInitAttr : ParametricAttribute Name ← registerInitAttr `builtinInit false

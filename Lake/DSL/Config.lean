@@ -25,7 +25,10 @@ constant dummyArgs : List String
 A macro that expands to the path of package's directory
 during the Lakefile's elaboration.
 -/
-scoped elab stx:"__dir__" : term <= expectedType? => do
+scoped syntax (name := dirConst) "__dir__" : term
+
+@[termElab dirConst]
+def elabDirConst : TermElab := fun stx expectedType? => do
   let exp :=
     if let some dir := dirExt.getState (← getEnv) then
       let str := Syntax.mkStrLit dir.toString (SourceInfo.fromRef stx)
@@ -39,7 +42,10 @@ scoped elab stx:"__dir__" : term <= expectedType? => do
 A macro that expands to the configuration arguments passed
 via the Lake command line during the Lakefile's elaboration.
 -/
-scoped elab stx:"__args__" : term <= expectedType? => do
+scoped syntax (name := argsConst) "__args__" :term
+
+@[termElab argsConst]
+def elabArgsConst : TermElab := fun stx expectedType? => do
   let exp :=
     if let some args := argsExt.getState (← getEnv) then
       quote args

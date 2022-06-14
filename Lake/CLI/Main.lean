@@ -119,15 +119,17 @@ def mkLakeConfig (opts : LakeOptions) (args : List String := []) : Except CliErr
     leanInstall, lakeInstall, args
   }
 
+/-- Make a Lake `Context` from a `Workspace` and `LakeConfig`. -/
+def mkLakeContext (ws : Workspace) (config : LakeConfig) : Context where
+  lean := config.leanInstall
+  lake := config.lakeInstall
+  opaqueWs := ws
+
 /-- Load configuration using CLI state and run the `LakeT` action. -/
 def runLakeT [MonadLiftT m CliStateM] (x : LakeT m α) : CliStateM α := do
   let config ← mkLakeConfig (← get)
   let ws ← loadWorkspace config
-  liftM <| x.run {
-    lean := config.leanInstall,
-    lake := config.lakeInstall,
-    opaqueWs := ws
-  }
+  liftM <| x.run <| mkLakeContext ws config
 
 -- ## Argument Parsing
 
@@ -219,14 +221,17 @@ def printPaths (config : LakeConfig) (imports : List String := []) : MainM PUnit
 def env (cmd : String) (args : Array String := #[]) : LakeT IO UInt32 := do
   IO.Process.spawn {cmd, args, env := ← getLeanEnv} >>= (·.wait)
 
-def serve (args : Array String) : LakeT IO UInt32 := do
+def serve (config : LakeConfig) (args : Array String) : LogT IO UInt32 := do
   let (extraEnv, moreServerArgs) ←
     try
-      pure (← getLeanEnv, (← getWorkspace).root.moreServerArgs)
+      let ws ← loadWorkspace config
+      let ctx := mkLakeContext ws config
+      pure (← LakeT.run ctx getLeanEnv, ws.root.moreServerArgs)
     catch _ =>
+      logWarning "package configuration has errors, falling back to plain `lean --server`"
       pure (#[(invalidConfigEnvVar, "1")], #[])
   (← IO.Process.spawn {
-    cmd := (← getLean).toString
+    cmd := config.leanInstall.lean.toString
     args := #["--server"] ++ moreServerArgs ++ args
     env := extraEnv
   }).wait
@@ -338,8 +343,10 @@ def command : (cmd : String) → CliM PUnit
     throw <| CliError.missingCommand
 | "serve" => do
   processOptions lakeOption
-  let args := (← getThe LakeOptions).subArgs.toArray
-  noArgsRem do exit <| ← runLakeT <| serve args
+  let opts ← getThe LakeOptions
+  let args := opts.subArgs.toArray
+  let config ← mkLakeConfig opts
+  noArgsRem do exit <| ← serve config args
 | "env" => do
   let cmd ← takeArg "command"; let args ← takeArgs
   exit <| ← runLakeT <| env cmd args.toArray

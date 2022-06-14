@@ -18,6 +18,9 @@ structure Context where
 /-- A transformer to equip a monad with a `Lake.Context`. -/
 abbrev LakeT := ReaderT Context
 
+@[inline] def LakeT.run (ctx : Context) (self : LakeT m α) : m α :=
+  ReaderT.run self ctx
+
 /-- A monad equipped with a `Lake.Context`. -/
 abbrev LakeM := LakeT Id
 

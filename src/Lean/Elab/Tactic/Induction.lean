@@ -25,18 +25,8 @@ open Meta
   syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> syntheticHole <|> tacticSeq)
   ```
 -/
-private def isMultiAlt (alt : Syntax) : Bool :=
-  alt[0].getNumArgs > 1
-
-private def expandMultiAlt? (alt : Syntax) : Option (Array Syntax) := Id.run do
-  if isMultiAlt alt then
-    some <| alt[0].getArgs.map fun lhs => alt.setArg 0 (mkNullNode #[lhs])
-  else
-    none
-
 private def getFirstAltLhs (alt : Syntax) : Syntax :=
   alt[0][0]
-
 /-- Return `inductionAlt` name. It assumes `alt` does not have multiple `inductionAltLHS` -/
 private def getAltName (alt : Syntax) : Name :=
   let lhs := getFirstAltLhs alt
@@ -376,7 +366,13 @@ private def generalizeVars (mvarId : MVarId) (stx : Syntax) (targets : Array Exp
     let (fvarIds, mvarId') ← Meta.revert mvarId fvarIds
     return (fvarIds.size, mvarId')
 
--- syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
+/--
+Given `inductionAlts` of the fom
+```
+syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
+```
+Return an array containing its alternatives.
+-/
 private def getAltsOfInductionAlts (inductionAlts : Syntax) : Array Syntax :=
   inductionAlts[2].getArgs
 
@@ -385,6 +381,65 @@ private def getAltsOfOptInductionAlts (optInductionAlts : Syntax) : Array Syntax
 
 private def getOptPreTacOfOptInductionAlts (optInductionAlts : Syntax) : Syntax :=
   if optInductionAlts.isNone then mkNullNode else optInductionAlts[0][1]
+
+private def isMultiAlt (alt : Syntax) : Bool :=
+  alt[0].getNumArgs > 1
+
+/-- Return `some #[alt_1, ..., alt_n]` if `alt` has multiple LHSs. -/
+private def expandMultiAlt? (alt : Syntax) : Option (Array Syntax) := Id.run do
+  if isMultiAlt alt then
+    some <| alt[0].getArgs.map fun lhs => alt.setArg 0 (mkNullNode #[lhs])
+  else
+    none
+
+/--
+Given `inductionAlts` of the form
+```
+syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
+```
+Return `some inductionAlts'` if one of the alternatives have multiple LHSs, in the new `inductionAlts'`
+all alternatives have a single LHS.
+
+Remark: the `RHS` of alternatives with multi LHSs is copied.
+-/
+private def expandInductionAlts? (inductionAlts : Syntax) : Option Syntax := Id.run do
+  let alts := getAltsOfInductionAlts inductionAlts
+  if alts.any isMultiAlt then
+    let mut altsNew := #[]
+    for alt in alts do
+      if let some alt' := expandMultiAlt? alt then
+        altsNew := altsNew ++ alt'
+      else
+        altsNew := altsNew.push alt
+    some <| inductionAlts.setArg 2 (mkNullNode altsNew)
+  else
+    none
+
+/--
+Expand
+```
+syntax "induction " term,+ (" using " ident)?  ("generalizing " (colGt term:max)+)? (inductionAlts)? : tactic
+```
+if `inductionAlts` has an alternative with multiple LHSs.
+-/
+private def expandInduction? (induction : Syntax) : Option Syntax := do
+  let optInductionAlts := induction[4]
+  guard <| !optInductionAlts.isNone
+  let inductionAlts' ← expandInductionAlts? optInductionAlts[0]
+  return induction.setArg 4 (mkNullNode #[inductionAlts'])
+
+/--
+Expand
+```
+syntax "cases " casesTarget,+ (" using " ident)? (inductionAlts)? : tactic
+```
+if `inductionAlts` has an alternative with multiple LHSs.
+-/
+private def expandCases? (induction : Syntax) : Option Syntax := do
+  let optInductionAlts := induction[3]
+  guard <| !optInductionAlts.isNone
+  let inductionAlts' ← expandInductionAlts? optInductionAlts[0]
+  return induction.setArg 3 (mkNullNode #[inductionAlts'])
 
 /-
   We may have at most one `| _ => ...` (wildcard alternative), and it must not set variable names.
@@ -442,31 +497,34 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
   else
     return exprs
 
-@[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx => focus do
-  let optInductionAlts := stx[4]
-  let alts := getAltsOfOptInductionAlts optInductionAlts
-  let targets ← withMainContext <| stx[1].getSepArgs.mapM (elabTerm · none)
-  let targets ← generalizeTargets targets
-  let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)
-  let mvarId ← getMainGoal
-  -- save initial info before main goal is reassigned
-  let initInfo ← mkTacticInfo (← getMCtx) (← getUnsolvedGoals) (← getRef)
-  let tag ← getMVarTag mvarId
-  withMVarContext mvarId do
-    let targets ← addImplicitTargets elimInfo targets
-    checkTargets targets
-    let targetFVarIds := targets.map (·.fvarId!)
-    let (n, mvarId) ← generalizeVars mvarId stx targets
+@[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx =>
+  match expandInduction? stx with
+  | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
+  | _ => focus do
+    let optInductionAlts := stx[4]
+    let alts := getAltsOfOptInductionAlts optInductionAlts
+    let targets ← withMainContext <| stx[1].getSepArgs.mapM (elabTerm · none)
+    let targets ← generalizeTargets targets
+    let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)
+    let mvarId ← getMainGoal
+    -- save initial info before main goal is reassigned
+    let initInfo ← mkTacticInfo (← getMCtx) (← getUnsolvedGoals) (← getRef)
+    let tag ← getMVarTag mvarId
     withMVarContext mvarId do
-      let result ← withRef stx[1] do -- use target position as reference
-        ElimApp.mkElimApp elimInfo targets tag
-      trace[Elab.induction] "elimApp: {result.elimApp}"
-      let elimArgs := result.elimApp.getAppArgs
-      ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetFVarIds
-      let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
-      assignExprMVar mvarId result.elimApp
-      ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo (numGeneralized := n) (toClear := targetFVarIds)
-      appendGoals result.others.toList
+      let targets ← addImplicitTargets elimInfo targets
+      checkTargets targets
+      let targetFVarIds := targets.map (·.fvarId!)
+      let (n, mvarId) ← generalizeVars mvarId stx targets
+      withMVarContext mvarId do
+        let result ← withRef stx[1] do -- use target position as reference
+          ElimApp.mkElimApp elimInfo targets tag
+        trace[Elab.induction] "elimApp: {result.elimApp}"
+        let elimArgs := result.elimApp.getAppArgs
+        ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetFVarIds
+        let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
+        assignExprMVar mvarId result.elimApp
+        ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo (numGeneralized := n) (toClear := targetFVarIds)
+        appendGoals result.others.toList
 where
   checkTargets (targets : Array Expr) : MetaM Unit := do
     let mut foundFVars : FVarIdSet := {}
@@ -498,30 +556,33 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr) :=
     else
       return args.map (·.expr)
 
-@[builtinTactic Lean.Parser.Tactic.cases] def evalCases : Tactic := fun stx => focus do
-  -- leading_parser nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> optInductionAlts
-  let targets ← elabCasesTargets stx[1].getSepArgs
-  let optInductionAlts := stx[3]
-  let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
-  let alts :=  getAltsOfOptInductionAlts optInductionAlts
-  let targetRef := stx[1]
-  let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := false)
-  let mvarId ← getMainGoal
-  -- save initial info before main goal is reassigned
-  let initInfo ← mkTacticInfo (← getMCtx) (← getUnsolvedGoals) (← getRef)
-  let tag ← getMVarTag mvarId
-  withMVarContext mvarId do
-    let targets ← addImplicitTargets elimInfo targets
-    let result ← withRef targetRef <| ElimApp.mkElimApp elimInfo targets tag
-    let elimArgs := result.elimApp.getAppArgs
-    let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]
-    let motiveType ← inferType elimArgs[elimInfo.motivePos]
-    let mvarId ← generalizeTargetsEq mvarId motiveType targets
-    let (targetsNew, mvarId) ← introN mvarId targets.size
+@[builtinTactic Lean.Parser.Tactic.cases] def evalCases : Tactic := fun stx =>
+  match expandCases? stx with
+  | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
+  | _ => focus do
+    -- leading_parser nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> optInductionAlts
+    let targets ← elabCasesTargets stx[1].getSepArgs
+    let optInductionAlts := stx[3]
+    let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
+    let alts :=  getAltsOfOptInductionAlts optInductionAlts
+    let targetRef := stx[1]
+    let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := false)
+    let mvarId ← getMainGoal
+    -- save initial info before main goal is reassigned
+    let initInfo ← mkTacticInfo (← getMCtx) (← getUnsolvedGoals) (← getRef)
+    let tag ← getMVarTag mvarId
     withMVarContext mvarId do
-      ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetsNew
-      assignExprMVar mvarId result.elimApp
-      ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo (numEqs := targets.size) (toClear := targetsNew)
+      let targets ← addImplicitTargets elimInfo targets
+      let result ← withRef targetRef <| ElimApp.mkElimApp elimInfo targets tag
+      let elimArgs := result.elimApp.getAppArgs
+      let targets ← elimInfo.targetsPos.mapM fun i => instantiateMVars elimArgs[i]
+      let motiveType ← inferType elimArgs[elimInfo.motivePos]
+      let mvarId ← generalizeTargetsEq mvarId motiveType targets
+      let (targetsNew, mvarId) ← introN mvarId targets.size
+      withMVarContext mvarId do
+        ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos].mvarId! targetsNew
+        assignExprMVar mvarId result.elimApp
+        ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo (numEqs := targets.size) (toClear := targetsNew)
 
 builtin_initialize
   registerTraceClass `Elab.cases

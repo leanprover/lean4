@@ -68,8 +68,18 @@ i : Fin 5
 hp : p 5 i
 hi : j = i
 | j
-conv1.lean:154:10-154:13: error: invalid 'lhs' conv tactic, application has only 1 (nondependent) argument(s)
-conv1.lean:157:10-157:15: error: invalid 'arg' conv tactic, application has only 1 (nondependent) argument(s)
-conv1.lean:160:10-160:13: error: invalid 'congr' conv tactic, application or implication expected
+p : {x : Nat} → Nat → Prop
+x y : Nat
+h1 : y = 0
+h2 : p x
+| y
+p : {x : Nat} → Nat → Prop
+x y : Nat
+h1 : y = 0
+h2 : p x
+| y
+conv1.lean:166:10-166:13: error: invalid 'lhs' conv tactic, application has only 1 (nondependent) argument(s)
+conv1.lean:169:10-169:15: error: invalid 'arg' conv tactic, application has only 1 (nondependent) argument(s)
+conv1.lean:172:10-172:13: error: invalid 'congr' conv tactic, application or implication expected
   p
-conv1.lean:163:10-163:15: error: cannot select argument with forward dependencies
+conv1.lean:175:10-175:15: error: cannot select argument with forward dependencies

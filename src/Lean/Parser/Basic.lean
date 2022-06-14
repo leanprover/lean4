@@ -485,20 +485,30 @@ def mergeOrElseErrors (s : ParserState) (error1 : Error) (iniPos : String.Pos) (
     else s
   | other => other
 
-def orelseFnCore (p q : ParserFn) (mergeErrors : Bool) : ParserFn := fun c s =>
+def orelseFnCore (p q : ParserFn) (mergeAntiquots : Bool) : ParserFn := fun c s => Id.run do
+  let s0     := s
   let iniSz  := s.stackSize
   let iniPos := s.pos
-  let s      := p c s
+  let mut s  := p c s
   match s.errorMsg with
   | some errorMsg =>
     if s.pos == iniPos then
-      mergeOrElseErrors (q c (s.restore iniSz iniPos)) errorMsg iniPos mergeErrors
+      mergeOrElseErrors (q c (s.restore iniSz iniPos)) errorMsg iniPos true
     else
       s
-  | none => s
+  | none =>
+    let back := s.stxStack.back
+    if mergeAntiquots && back.isAntiquots then
+      let s' := q c s0
+      if !s'.hasError && s'.stxStack.back.isAntiquot then
+        if back.isOfKind choiceKind then
+          s := { s with stxStack := s.stxStack.pop ++ back.getArgs }
+        s := s.pushSyntax s'.stxStack.back
+        s := s.mkNode choiceKind iniSz
+    s
 
 @[inline] def orelseFn (p q : ParserFn) : ParserFn :=
-  orelseFnCore p q true
+  orelseFnCore (mergeAntiquots := true) p q
 
 @[noinline] def orelseInfo (p q : ParserInfo) : ParserInfo := {
   collectTokens := p.collectTokens ∘ q.collectTokens,
@@ -1735,7 +1745,7 @@ def mkAntiquot (name : String) (kind : SyntaxNodeKind) (anonymous := true) (isPs
 @[inline] def withAntiquotFn (antiquotP p : ParserFn) : ParserFn := fun c s =>
   -- fast check that is false in most cases
   if c.input.get s.pos == '$' then
-    orelseFn antiquotP p c s
+    orelseFnCore (mergeAntiquots := false) antiquotP p c s
   else
     p c s
 
@@ -1771,7 +1781,7 @@ private def withAntiquotSuffixSpliceFn (kind : SyntaxNodeKind) (suffix : ParserF
   fn c s :=
     let s := p.fn c s
     -- fast check that is false in most cases
-    if !s.hasError && s.stxStack.back.isAntiquot then
+    if !s.hasError && s.stxStack.back.isAntiquots then
       withAntiquotSuffixSpliceFn kind suffix.fn c s
     else
       s

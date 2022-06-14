@@ -57,7 +57,8 @@ private def expandDeclNamespace? (stx : Syntax) : MacroM (Option (Name × Syntax
     if k == ``Lean.Parser.Command.abbrev ||
        k == ``Lean.Parser.Command.def ||
        k == ``Lean.Parser.Command.theorem ||
-       k == ``Lean.Parser.Command.constant ||
+       k == ``Lean.Parser.Command.constant || -- TODO: delete
+       k == ``Lean.Parser.Command.opaque ||
        k == ``Lean.Parser.Command.axiom ||
        k == ``Lean.Parser.Command.inductive ||
        k == ``Lean.Parser.Command.classInductive ||

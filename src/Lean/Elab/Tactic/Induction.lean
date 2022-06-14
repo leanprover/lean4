@@ -21,18 +21,12 @@ open Meta
 /-
   Given an `inductionAlt` of the form
   ```
-  syntax inductionAlt  := ppDedent(ppLine) "| " (group("@"? ident) <|> "_") (ident <|> "_")* " => " (hole <|> syntheticHole <|> tacticSeq)
-  ```
-  going to change to
-  ```
-  syntax inductionAlt  := ppDedent(ppLine) ("| " (group("@"? ident) <|> "_") (ident <|> "_")*)+ " => " (hole <|> syntheticHole <|> tacticSeq)
+  syntax inductionAltLHS := "| " (group("@"? ident) <|> "_") (ident <|> "_")*
+  syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> syntheticHole <|> tacticSeq)
   ```
 -/
-private def isNewAlt (alt : Syntax) : Bool :=
-  alt.getNumArgs == 3
-
 private def isMultiAlt (alt : Syntax) : Bool :=
-  isNewAlt alt && alt[0].getNumArgs > 1
+  alt[0].getNumArgs > 1
 
 private def expandMultiAlt? (alt : Syntax) : Option (Array Syntax) := Id.run do
   if isMultiAlt alt then
@@ -41,33 +35,27 @@ private def expandMultiAlt? (alt : Syntax) : Option (Array Syntax) := Id.run do
     none
 
 private def getFirstAltLhs (alt : Syntax) : Syntax :=
-  if isNewAlt alt then -- TODO: delete
-    alt[0][0]
-  else -- TODO: delete
-    alt -- TODO: delete
+  alt[0][0]
 
-/-- Return `inductionAlt` name. It assumes `alt` is not a multi alternative. -/
+/-- Return `inductionAlt` name. It assumes `alt` does not have multiple `inductionAltLHS` -/
 private def getAltName (alt : Syntax) : Name :=
   let lhs := getFirstAltLhs alt
   if lhs[1].hasArgs then lhs[1][1].getId.eraseMacroScopes else `_
+/-- Return `true` if the first LHS of the given alternative contains `@`. -/
 private def altHasExplicitModifier (alt : Syntax) : Bool :=
   let lhs := getFirstAltLhs alt
   lhs[1].hasArgs && !lhs[1][0].isNone
+/-- Return the variables in the first LHS of the given alternative. -/
 private def getAltVars (alt : Syntax) : Array Syntax :=
   let lhs := getFirstAltLhs alt
   lhs[2].getArgs
+/-- Return the variable names in the first LHS of the given alternative. -/
 private def getAltVarNames (alt : Syntax) : Array Name :=
   getAltVars  alt |>.map getNameOfIdent'
 private def getAltRHS (alt : Syntax) : Syntax :=
-  if isNewAlt alt then -- TODO: delete
-    alt[2]
-  else -- TODO: delete
-    alt[4] -- TODO: delete
+  alt[2]
 private def getAltDArrow (alt : Syntax) : Syntax :=
-  if isNewAlt alt then -- TODO: delete
-    alt[1]
-  else -- TODO: delete
-    alt[3] -- TODO: delete
+  alt[1]
 
 -- Return true if `stx` is a term occurring in the RHS of the induction/cases tactic
 def isHoleRHS (rhs : Syntax) : Bool :=

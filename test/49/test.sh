@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 set -euo pipefail
 
 INIT_REQ=$'Content-Length: 46\r\n\r\n{"jsonrpc":"2.0","method":"initialize","id":1}'

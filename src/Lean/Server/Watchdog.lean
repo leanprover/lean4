@@ -259,7 +259,7 @@ section ServerM
         else
           -- Worker crashed
           fw.errorPendingRequests o (if exitCode = 1 then ErrorCode.workerCrashed else ErrorCode.stackOverflow)
-            s!"Server process for {fw.doc.meta.uri} crashed, {if exitCode = 1 then "see stderr for exception" else "likely due to a stack overflow or a bug in "user's" code"}."
+            s!"Server process for {fw.doc.meta.uri} crashed, {if exitCode = 1 then "see stderr for exception" else "likely due to a stack overflow or a bug in user code"}."
           return WorkerEvent.crashed err
       loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated

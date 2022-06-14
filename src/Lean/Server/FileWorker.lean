@@ -401,7 +401,7 @@ section MessageHandling
       catch e =>
         ctx.hOut.writeLspResponseError
           { id
-            code := ErrorCode.workerCrashed
+            code := ErrorCode.internalError
             message := toString e }
       return
 

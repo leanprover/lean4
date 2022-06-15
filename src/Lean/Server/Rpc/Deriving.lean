@@ -237,7 +237,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
           $[$(st.ctors):ctor]*
           deriving $(mkIdent ``FromJson), $(mkIdent ``ToJson)
 
-        instance : $(mkIdent ``RpcEncoding) $typeId:ident $packetAppliedId:ident where
+        instance : $(mkIdent ``RpcEncoding) $typeId $packetAppliedId where
           rpcEncode := fun x => match x with
             $[$(st.encodes):matchAlt]*
           rpcDecode := fun x => match x with

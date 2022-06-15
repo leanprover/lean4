@@ -156,24 +156,24 @@ syntax (name := termDepIfThenElse)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 
 macro_rules
-  | `(if $h:ident : $c then $t:term else $e:term) => `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; dite ?m (fun $h:ident => $t) (fun $h:ident => $e))
+  | `(if $h : $c then $t else $e) => `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; dite ?m (fun $h:ident => $t) (fun $h:ident => $e))
 
 syntax (name := termIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace term)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 
 macro_rules
-  | `(if $c then $t:term else $e:term) => `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; ite ?m $t $e)
+  | `(if $c then $t else $e) => `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; ite ?m $t $e)
 
 macro "if " "let " pat:term " := " d:term " then " t:term " else " e:term : term =>
-  `(match $d:term with | $pat:term => $t | _ => $e)
+  `(match $d:term with | $pat => $t | _ => $e)
 
 syntax (name := boolIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("bif " term " then") ppSpace term)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 
 macro_rules
-  | `(bif $c then $t:term else $e:term) => `(cond $c $t $e)
+  | `(bif $c then $t else $e) => `(cond $c $t $e)
 
 syntax:min term " <| " term:min : term
 

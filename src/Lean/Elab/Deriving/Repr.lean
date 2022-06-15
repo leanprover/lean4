@@ -19,7 +19,7 @@ def mkReprHeader (indVal : InductiveVal) : TermElabM Header := do
     binders := header.binders.push (← `(explicitBinderF| (prec : Nat)))
   }
 
-def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Syntax := do
+def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM (TSyntax `term) := do
   let ctorVal ← getConstInfoCtor indVal.ctors.head!
   let fieldNames := getStructureFields (← getEnv) indVal.name
   let numParams  := indVal.numParams
@@ -43,12 +43,12 @@ def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Syntax
         fields ← `($fields ++ $fieldNameLit ++ " := " ++ repr ($target.$(mkIdent fieldName):ident))
     `(Format.bracket "{ " $fields:term " }")
 
-def mkBodyForInduct (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Syntax := do
+def mkBodyForInduct (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM (TSyntax `term) := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
 where
-  mkAlts : TermElabM (Array Syntax) := do
+  mkAlts : TermElabM (Array (TSyntax ``matchAlt)) := do
     let mut alts := #[]
     for ctorName in indVal.ctors do
       let ctorInfo ← getConstInfoCtor ctorName
@@ -78,13 +78,13 @@ where
       alts := alts.push alt
     return alts
 
-def mkBody (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Syntax := do
+def mkBody (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM (TSyntax `term) := do
   if isStructure (← getEnv) indVal.name then
     mkBodyForStruct header indVal
   else
     mkBodyForInduct header indVal auxFunName
 
-def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
+def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM (TSyntax `command) := do
   let auxFunName := ctx.auxFunNames[i]
   let indVal     := ctx.typeInfos[i]
   let header     ← mkReprHeader indVal

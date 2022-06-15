@@ -15,13 +15,13 @@ open Meta
 def mkHashableHeader (indVal : InductiveVal) : TermElabM Header := do
   mkHeader `Hashable 1 indVal
 
-def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Syntax := do
+def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM (TSyntax `term) := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
 where
 
-  mkAlts : TermElabM (Array Syntax) := do
+  mkAlts : TermElabM (Array (TSyntax ``matchAlt)) := do
     let mut alts := #[]
     let mut ctorIdx := 0
     let allIndVals := indVal.all.toArray
@@ -54,7 +54,7 @@ where
       ctorIdx := ctorIdx + 1
     return alts
 
-def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
+def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM (TSyntax `command) := do
   let auxFunName := ctx.auxFunNames[i]
   let indVal     := ctx.typeInfos[i]
   let header     ← mkHashableHeader indVal

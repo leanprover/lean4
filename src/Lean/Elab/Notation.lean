@@ -75,7 +75,7 @@ partial def hasDuplicateAntiquot (stxs : Array Syntax) : Bool := Id.run do
     The notation must be of the form `notation ... => c body`
     where `c` is a declaration in the current scope and `body` any syntax
     that contains each variable from the LHS at most once. -/
-def mkSimpleDelab (attrKind : Syntax) (pat qrhs : Syntax) : OptionT MacroM Syntax := do
+def mkSimpleDelab (attrKind : TSyntax ``attrKind) (pat qrhs : TSyntax `term) : OptionT MacroM Syntax := do
   match qrhs with
   | `($c:ident $args*) =>
     let [(c, [])] ← Macro.resolveGlobalName c.getId | failure
@@ -113,7 +113,7 @@ private def isLocalAttrKind (attrKind : Syntax) : Bool :=
   | _ => false
 
 private def expandNotationAux (ref : Syntax)
-    (currNamespace : Name) (attrKind : Syntax) (prec? : Option Syntax) (name? : Option Syntax) (prio? : Option Syntax) (items : Array Syntax) (rhs : Syntax) : MacroM Syntax := do
+    (currNamespace : Name) (attrKind : TSyntax ``attrKind) (prec? : Option (TSyntax `prec)) (name? : Option (TSyntax identKind)) (prio? : Option (TSyntax `prio)) (items : Array (TSyntax ``notationItem)) (rhs : TSyntax `term) : MacroM Syntax := do
   let prio ← evalOptPrio prio?
   -- build parser
   let syntaxParts ← items.mapM expandNotationItemIntoSyntaxItem

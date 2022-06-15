@@ -17,7 +17,7 @@ def expandOptPrecedence (stx : Syntax) : MacroM (Option Nat) :=
   else
     return some (← evalPrec stx[0][1])
 
-private def mkParserSeq (ds : Array Syntax) : TermElabM Syntax := do
+private def mkParserSeq (ds : Array (TSyntax `term)) : TermElabM Syntax := do
   if ds.size == 0 then
     throwUnsupportedSyntax
   else if ds.size == 1 then
@@ -82,12 +82,12 @@ def resolveParserName [Monad m] [MonadInfoTree m] [MonadResolveName m] [MonadEnv
   Given a `stx` of category `syntax`, return a pair `(newStx, lhsPrec?)`,
   where `newStx` is of category `term`. After elaboration, `newStx` should have type
   `TrailingParserDescr` if `lhsPrec?.isSome`, and `ParserDescr` otherwise. -/
-partial def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (Syntax × Option Nat) := do
+partial def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (TSyntax `term × Option Nat) := do
   let env ← getEnv
   let behavior := Parser.leadingIdentBehavior env catName
   (process stx { catName := catName, first := true, leftRec := true, behavior := behavior }).run none
 where
-  process (stx : Syntax) : ToParserDescrM Syntax := withRef stx do
+  process (stx : Syntax) : ToParserDescrM (TSyntax `term) := withRef stx do
     let kind := stx.getKind
     if kind == nullKind then
       processSeq stx
@@ -340,7 +340,7 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
 def checkRuleKind (given expected : SyntaxNodeKind) : Bool :=
   given == expected || given == expected ++ `antiquot
 
-def inferMacroRulesAltKind : Syntax → CommandElabM SyntaxNodeKind
+def inferMacroRulesAltKind : TSyntax ``matchAlt → CommandElabM SyntaxNodeKind
   | `(matchAltExpr| | $pat:term => $_) => do
     if !pat.isQuot then
       throwUnsupportedSyntax
@@ -351,7 +351,7 @@ def inferMacroRulesAltKind : Syntax → CommandElabM SyntaxNodeKind
 /--
 Infer syntax kind `k` from first pattern, put alternatives of same kind into new `macro/elab_rules (kind := k)` via `mkCmd (some k)`,
 leave remaining alternatives (via `mkCmd none`) to be recursively expanded. -/
-def expandNoKindMacroRulesAux (alts : Array Syntax) (cmdName : String) (mkCmd : Option Name → Array Syntax → CommandElabM Syntax) : CommandElabM Syntax := do
+def expandNoKindMacroRulesAux (alts : Array (TSyntax ``matchAlt)) (cmdName : String) (mkCmd : Option Name → Array (TSyntax ``matchAlt) → CommandElabM (TSyntax `command)) : CommandElabM (TSyntax `command) := do
   let mut k ← inferMacroRulesAltKind alts[0]
   if k.isStr && k.getString! == "antiquot" then
     k := k.getPrefix

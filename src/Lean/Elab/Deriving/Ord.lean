@@ -14,12 +14,12 @@ open Meta
 def mkOrdHeader (indVal : InductiveVal) : TermElabM Header := do
   mkHeader `Ord 2 indVal
 
-def mkMatch (header : Header) (indVal : InductiveVal) : TermElabM Syntax := do
+def mkMatch (header : Header) (indVal : InductiveVal) : TermElabM (TSyntax `term) := do
   let discrs ← mkDiscrs header indVal
   let alts ← mkAlts
   `(match $[$discrs],* with $alts:matchAlt*)
 where
-  mkAlts : TermElabM (Array Syntax) := do
+  mkAlts : TermElabM (Array (TSyntax ``matchAlt)) := do
     let mut alts := #[]
     for ctorName in indVal.ctors do
       let ctorInfo ← getConstInfoCtor ctorName
@@ -32,7 +32,7 @@ where
         let mut ctorArgs1 := #[]
         let mut ctorArgs2 := #[]
         -- construct RHS top-down as continuation over the remaining comparison
-        let mut rhsCont : Syntax → TermElabM Syntax := fun rhs => pure rhs
+        let mut rhsCont : TSyntax `term → TermElabM (TSyntax `term) := fun rhs => pure rhs
         -- add `_` for inductive parameters, they are inaccessible
         for _ in [:indVal.numParams] do
           ctorArgs1 := ctorArgs1.push (← `(_))
@@ -64,7 +64,7 @@ where
       alts := alts ++ alt
     return alts.pop.pop
 
-def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Syntax := do
+def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM (TSyntax `command) := do
   let auxFunName := ctx.auxFunNames[i]
   let indVal     := ctx.typeInfos[i]
   let header     ← mkOrdHeader indVal

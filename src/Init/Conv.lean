@@ -54,7 +54,9 @@ macro "erw " s:rwRuleSeq : conv => `(rw (config := { transparency := Meta.Transp
 macro "args" : conv => `(congr)
 macro "left" : conv => `(lhs)
 macro "right" : conv => `(rhs)
-macro "intro " xs:(colGt ident)* : conv => `(ext $xs*)
+syntax "intro " (colGt ident)* : conv
+macro_rules
+  | `(conv| intro $[$xs:ident]*) => `(conv| ext $xs*)
 
 syntax enterArg := ident <|> group("@"? num)
 syntax "enter " "[" (colGt enterArg),+ "]": conv

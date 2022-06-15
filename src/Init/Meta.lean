@@ -1072,9 +1072,9 @@ syntax dsimpKind   := atomic("(" &"dsimp") " := " &"true" ")"
 
 macro "declare_simp_like_tactic" opt:((simpAllKind <|> dsimpKind)?) tacName:ident tacToken:str updateCfg:term : command => do
   let (kind, tkn, stx) ←
-    if opt.isNone then
+    if opt.raw.isNone then
       pure (← `(``simp), ← `("simp "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic))
-    else if opt[0].getKind == ``simpAllKind then
+    else if opt.raw[0].getKind == ``simpAllKind then
       pure (← `(``simpAll), ← `("simp_all "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : tactic))
     else
       pure (← `(``dsimp), ← `("dsimp "), ← `(syntax (name := $tacName:ident) $tacToken:str (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? (location)? : tactic))

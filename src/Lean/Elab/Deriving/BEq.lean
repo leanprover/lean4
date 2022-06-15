@@ -78,9 +78,9 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM (TSyntax `command) := do
     body ← mkLet letDecls body
   let binders    := header.binders
   if ctx.usePartial then
-    `(private partial def $(mkIdent auxFunName):ident $binders:explicitBinder* : Bool := $body:term)
+    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:explicitBinder* : Bool := $body:term)
+    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Bool := $body:term)
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]

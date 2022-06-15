@@ -62,9 +62,9 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM (TSyntax `command) := do
   let binders    := header.binders
   if ctx.usePartial then
     -- TODO(Dany): Get rid of this code branch altogether once we have well-founded recursion
-    `(private partial def $(mkIdent auxFunName):ident $binders:explicitBinder* : UInt64 := $body:term)
+    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
   else
-    `(private def $(mkIdent auxFunName):ident $binders:explicitBinder* : UInt64 := $body:term)
+    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : UInt64 := $body:term)
 
 def mkHashFuncs (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]

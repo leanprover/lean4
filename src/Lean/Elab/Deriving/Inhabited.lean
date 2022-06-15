@@ -77,8 +77,8 @@ where
       ctorArgs := ctorArgs.push (← `(_))
     for _ in [:ctorVal.numFields] do
       ctorArgs := ctorArgs.push (← ``(Inhabited.default))
-    let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs:ident*⟩)
-    `(instance $binders:explicitBinder* : $type := $val)
+    let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs*⟩)
+    `(instance $binders:bracketedBinder* : $type := $val)
 
   mkInstanceCmd? : TermElabM (Option Syntax) := do
     let ctorVal ← getConstInfoCtor ctorName

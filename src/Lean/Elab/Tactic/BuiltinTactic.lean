@@ -192,8 +192,8 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 @[builtinTactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx => do
   match stx with
   | `(tactic| intro)                   => introStep none `_
-  | `(tactic| intro _)                 => introStep none `_
   | `(tactic| intro $h:ident)          => introStep h h.getId
+  | `(tactic| intro _%$tk)             => introStep tk `_
   | `(tactic| intro $pat:term)         => evalTactic (← `(tactic| intro h; match h with | $pat:term => ?_; try clear h))
   | `(tactic| intro $h:term $hs:term*) => evalTactic (← `(tactic| intro $h:term; intro $hs:term*))
   | _ => throwUnsupportedSyntax
@@ -222,8 +222,7 @@ where
       return (fvars, [mvarId])
     withMainContext do
       for stx in ids, fvar in fvars do
-        if stx.isIdent then
-          Term.addLocalVarInfo stx (mkFVar fvar)
+        Term.addLocalVarInfo stx (mkFVar fvar)
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic Lean.Parser.Tactic.revert] def evalRevert : Tactic := fun stx =>

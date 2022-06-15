@@ -11,17 +11,13 @@ namespace Lean.Meta
 open Lean.SubExpr (Pos)
 open Lean.SubExpr.Pos
 
-variable {M} [Monad M] [MonadLiftT MetaM M] [MonadControlT MetaM M] [MonadOptions M]
+variable {M} [Monad M] [MonadLiftT MetaM M] [MonadControlT MetaM M]
 
-private def usedLetOnly : M Bool := getBoolOption `visit.usedLetOnly false
-
+/-- Convert a traversal function to a form without the `Pos` argument. -/
 private def forgetPos (t : (Pos → Expr → M Expr) → (Pos → Expr → M Expr)) (visit : Expr → M Expr) (e : Expr) : M Expr :=
   t (fun _ => visit) Pos.root e
 
-/-- Given an expression `fun (x₁ : α₁) ... (xₙ : αₙ) => b`, will run
-`f` on each of the variable types `αᵢ` and `b` with the correct MetaM context,
-replacing each expression with the output of `f` and creating a new lambda.
-(that is, correctly instantiating bound variables and repackaging them after)  -/
+/-- Similar to `traverseLambda` but with an additional pos argument to track position. -/
 def traverseLambdaWithPos
   (f : Pos → Expr → M Expr) (p : Pos) (e : Expr) : M Expr := visit #[] p e
   where visit (fvars : Array Expr) (p : Pos) :  Expr → M Expr
@@ -31,12 +27,9 @@ def traverseLambdaWithPos
         visit (fvars.push x) p.pushBindingBody b
     | e => do
       let body ← f p <| e.instantiateRev fvars
-      mkLambdaFVars (usedLetOnly := ← usedLetOnly) fvars body
+      mkLambdaFVars fvars body
 
-/-- Given an expression ` (x₁ : α₁) → ... → (xₙ : αₙ) → b`, will run
-`f` on each of the variable types `αᵢ` and `b` with the correct MetaM context,
-replacing the expression with the output of `f` and creating a new forall expression.
-(that is, correctly instantiating bound variables and repackaging them after)  -/
+/-- Similar to `traverseForall` but with an additional pos argument to track position. -/
 def traverseForallWithPos
   (f : Pos → Expr → M Expr) (p : Pos) (e : Expr) : M Expr := visit #[] p e
   where visit fvars (p : Pos): Expr → M Expr
@@ -46,9 +39,9 @@ def traverseForallWithPos
         visit (fvars.push x) p.pushBindingBody b
     | e   => do
       let body ← f p <| e.instantiateRev fvars
-      mkForallFVars (usedLetOnly := ←usedLetOnly) fvars body
+      mkForallFVars fvars body
 
-/-- Similar to traverseLambda and traverseForall but with let binders.  -/
+/-- Similar to `traverseLet` but with an additional pos argument to track position. -/
 def traverseLetWithPos
   (f : Pos → Expr → M Expr) (p : Pos) (e : Expr) : M Expr := visit #[] p e
   where visit fvars (p : Pos)
@@ -59,16 +52,12 @@ def traverseLetWithPos
         visit (fvars.push x) p.pushLetBody b
     | e => do
       let body ← f p <| e.instantiateRev fvars
-      mkLetFVars (usedLetOnly := ←usedLetOnly) fvars body
+      -- if usedLetOnly = true then let binders will be eliminated
+      -- if their var doesn't appear in the body.
+      mkLetFVars (usedLetOnly := false) fvars body
 
-/-- Maps `f` on each child of the given expression.
-
-Applications, foralls, lambdas and let binders are bundled (as they are bundled in `Expr.traverseApp`, `traverseForall`, ...).
-So `traverseChildren f e` where ``e = `(fn a₁ ... aₙ)`` will return
-``(← f `(fn)) (← f `(a₁)) ... (← f `(aₙ))`` rather than ``(← f `(fn a₁ ... aₙ₋₁)) (← f `(aₙ))``
-
-See also `Lean.Core.traverseChildren`.
- -/
+/-- Similar to `Lean.Meta.traverseChildren` except that `visit` also includes a `Pos` argument so you can
+track the subexpression position. -/
 def traverseChildrenWithPos (visit : Pos → Expr → M Expr) (p : Pos) (e: Expr) : M Expr :=
   match e with
   | Expr.forallE ..    => traverseForallWithPos   visit p e
@@ -79,9 +68,29 @@ def traverseChildrenWithPos (visit : Pos → Expr → M Expr) (p : Pos) (e: Expr
   | Expr.proj _ _ b _  => e.updateProj! <$> visit p.pushProj b
   | _                  => pure e
 
+/-- Given an expression `fun (x₁ : α₁) ... (xₙ : αₙ) => b`, will run
+`f` on each of the variable types `αᵢ` and `b` with the correct MetaM context,
+replacing each expression with the output of `f` and creating a new lambda.
+(that is, correctly instantiating bound variables and repackaging them after)  -/
 def traverseLambda (visit : Expr → M Expr) := forgetPos traverseLambdaWithPos visit
+
+/-- Given an expression ` (x₁ : α₁) → ... → (xₙ : αₙ) → b`, will run
+`f` on each of the variable types `αᵢ` and `b` with the correct MetaM context,
+replacing the expression with the output of `f` and creating a new forall expression.
+(that is, correctly instantiating bound variables and repackaging them after)  -/
 def traverseForall (visit : Expr → M Expr) := forgetPos traverseForallWithPos visit
+
+/-- Similar to `traverseLambda` and `traverseForall` but with let binders.  -/
 def traverseLet (visit : Expr → M Expr) := forgetPos traverseLetWithPos visit
+
+/-- Maps `visit` on each child of the given expression.
+
+Applications, foralls, lambdas and let binders are bundled (as they are bundled in `Expr.traverseApp`, `traverseForall`, ...).
+So `traverseChildren f e` where ``e = `(fn a₁ ... aₙ)`` will return
+``(← f `(fn)) (← f `(a₁)) ... (← f `(aₙ))`` rather than ``(← f `(fn a₁ ... aₙ₋₁)) (← f `(aₙ))``
+
+See also `Lean.Core.traverseChildren`.
+ -/
 def traverseChildren (visit : Expr → M Expr) := forgetPos traverseChildrenWithPos visit
 
 end Lean.Meta

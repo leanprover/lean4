@@ -55,10 +55,15 @@ variable {α : Type} [Inhabited α]
 def foldl  (f : α → Nat → α) : α → Pos → α :=
   fix2 (fun r a p => if p.isRoot then a else f (r a p.tail) p.head)
 
-/-- Fold over the position starting at the root and heading to the leaf-/
+/-- Fold over the position starting at the leaf and heading to the root-/
 def foldr  (f : Nat → α → α) : Pos → α → α :=
   fix2 (fun r p a => if p.isRoot then a else r p.tail (f p.head a))
 
+/-- monad-fold over the position starting at the root and heading to the leaf-/
+def foldlM  [Monad M] (f : α → Nat → M α) : α → Pos → M α :=
+  fix2 (fun r a p => if p.isRoot then pure a else do f (← r a p.tail) p.head)
+
+/-- monad-fold over the position starting at the leaf and finishing at the root. -/
 def foldrM [Monad M] (f : Nat → α → M α) : Pos → α → M α :=
   fix2 (fun r p a => if p.isRoot then pure a else f p.head a >>= r p.tail)
 

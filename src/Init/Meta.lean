@@ -7,6 +7,7 @@ Additional goodies for writing macros
 -/
 prelude
 import Init.Data.Array.Basic
+import Init.Data.Option.BasicAux
 
 namespace Lean
 
@@ -243,6 +244,47 @@ instance monadNameGeneratorLift (m n : Type → Type) [MonadLift m n] [MonadName
   setNGen := fun ngen => liftM (setNGen ngen : m _)
 }
 
+namespace TSyntax
+
+instance : Coe (TSyntax [k]) (TSyntax (k :: ks)) where
+  coe stx := ⟨stx⟩
+
+instance [Coe (TSyntax [k]) (TSyntax ks)] : Coe (TSyntax [k]) (TSyntax (k' :: ks)) where
+  coe stx := ⟨stx⟩
+
+instance : Coe (TSyntax identKind) (TSyntax `term) where
+  coe s := ⟨s.raw⟩
+
+instance : CoeDep (TSyntax `term) ⟨Syntax.ident info ss n res⟩ (TSyntax `ident) where
+  coe := ⟨Syntax.ident info ss n res⟩
+
+instance : Coe (TSyntax strLitKind) (TSyntax `term) where
+  coe s := ⟨s.raw⟩
+
+instance : Coe (TSyntax nameLitKind) (TSyntax `term) where
+  coe s := ⟨s.raw⟩
+
+instance : Coe (TSyntax numLitKind) (TSyntax `term) where
+  coe s := ⟨s.raw⟩
+
+instance : Coe (TSyntax charLitKind) (TSyntax `term) where
+  coe s := ⟨s.raw⟩
+
+instance : Coe (TSyntax numLitKind) (TSyntax `prec) where
+  coe s := ⟨s.raw⟩
+
+namespace Compat
+
+scoped instance : CoeTail Syntax (TSyntax k) where
+  coe s := ⟨s⟩
+
+scoped instance : CoeTail (Array Syntax) (TSyntaxArray k) where
+  coe := .mk
+
+end Compat
+
+end TSyntax
+
 namespace Syntax
 
 partial def structEq : Syntax → Syntax → Bool
@@ -253,6 +295,7 @@ partial def structEq : Syntax → Syntax → Bool
   | _, _ => false
 
 instance : BEq Lean.Syntax := ⟨structEq⟩
+instance : BEq (Lean.TSyntax k) := ⟨(·.raw == ·.raw)⟩
 
 partial def getTailInfo? : Syntax → Option SourceInfo
   | atom info _   => info
@@ -449,8 +492,11 @@ def SepArray.ofElemsUsingRef [Monad m] [MonadRef m] {sep} (elems : Array Syntax)
   let ref ← getRef;
   return ⟨mkSepArray elems (if sep.isEmpty then mkNullNode else mkAtomFrom ref sep)⟩
 
-instance (sep) : Coe (Array Syntax) (SepArray sep) where
+instance : Coe (Array Syntax) (SepArray sep) where
   coe := SepArray.ofElems
+
+instance : Coe (TSyntaxArray k) (TSepArray k sep) where
+  coe a := ⟨mkSepArray a.raw (mkAtom sep)⟩
 
 /-- Create syntax representing a Lean term application, but avoid degenerate empty applications. -/
 def mkApp (fn : Syntax) : (args : Array Syntax) → Syntax
@@ -759,11 +805,6 @@ def isNone (stx : Syntax) : Bool :=
   | Syntax.missing     => true
   | _                  => false
 
-def getOptional? (stx : Syntax) : Option Syntax :=
-  match stx with
-  | Syntax.node _ k args => if k == nullKind && args.size == 1 then some (args.get! 0) else none
-  | _                    => none
-
 def getOptionalIdent? (stx : Syntax) : Option Name :=
   match stx.getOptional? with
   | some stx => some stx.getId
@@ -777,6 +818,26 @@ def find? (stx : Syntax) (p : Syntax → Bool) : Option Syntax :=
   findAux p stx
 
 end Syntax
+
+namespace TSyntax
+
+def getNat (s : TSyntax numLitKind) : Nat :=
+  s.raw.isNatLit?.get!
+
+def getId (s : TSyntax identKind) : Name :=
+  s.raw.getId
+
+def getString (s : TSyntax strLitKind) : String :=
+  s.raw.isStrLit?.get!
+
+namespace Compat
+
+scoped instance : CoeTail (Array Syntax) (Syntax.TSepArray k sep) where
+  coe a := (a : TSyntaxArray k)
+
+end Compat
+
+end TSyntax
 
 /-- Reflect a runtime datum back to surface syntax (best-effort). -/
 class Quote (α : Type) where
@@ -915,20 +976,38 @@ def mapSepElems (a : Array Syntax) (f : Syntax → Syntax) : Array Syntax :=
 
 end Array
 
-namespace Lean.Syntax.SepArray
+namespace Lean.Syntax
 
-def getElems {sep} (sa : SepArray sep) : Array Syntax :=
+def SepArray.getElems (sa : SepArray sep) : Array Syntax :=
   sa.elemsAndSeps.getSepElems
+
+def TSepArray.getElems (sa : TSepArray k sep) : TSyntaxArray k :=
+  .mk sa.elemsAndSeps.getSepElems
 
 /-
 We use `CoeTail` here instead of `Coe` to avoid a "loop" when computing `CoeTC`.
 The "loop" is interrupted using the maximum instance size threshold, but it is a performance bottleneck.
 The loop occurs because the predicate `isNewAnswer` is too imprecise.
 -/
-instance (sep) : CoeTail (SepArray sep) (Array Syntax) where
-  coe := getElems
+instance : CoeTail (SepArray sep) (Array Syntax) where
+  coe := SepArray.getElems
 
-end Lean.Syntax.SepArray
+instance : Coe (TSepArray k sep) (TSyntaxArray k) where
+  coe := TSepArray.getElems
+
+instance [Coe (TSyntax k) (TSyntax k')] : Coe (TSyntaxArray k) (TSyntaxArray k') where
+  coe a := .mk a.raw
+
+instance : Coe (TSyntaxArray k) (Array Syntax) where
+  coe a := a.raw
+
+instance : Coe (TSyntax identKind) (TSyntax `Lean.Parser.Command.declId) where
+  coe id := mkNode _ #[id, mkNullNode #[]]
+
+instance : Coe (Lean.TSyntax `term) (Lean.TSyntax `Lean.Parser.Term.funBinder) where
+  coe stx := ⟨stx⟩
+
+end Lean.Syntax
 
 set_option linter.unusedVariables.funArgs false in
 /--

@@ -143,6 +143,9 @@ def matchAlt (rhsParser : Parser := termParser) : Parser :=
   work with other `rhsParser`s (of arity 1). -/
 def matchAltExpr := matchAlt
 
+instance : Coe (TSyntax ``matchAltExpr) (TSyntax ``matchAlt) where
+  coe stx := ⟨stx.raw⟩
+
 def matchAlts (rhsParser : Parser := termParser) : Parser :=
   leading_parser withPosition $ many1Indent (ppLine >> matchAlt rhsParser)
 
@@ -205,6 +208,9 @@ def letDecl     := leading_parser (withAnonymousAntiquot := false) notFollowedBy
 @[builtinTermParser] def «let_delayed» := leading_parser:leadPrec withPosition ("let_delayed " >> letDecl) >> optSemicolon termParser
 -- `let`-declaration that is only included in the elaborated term if variable is still there
 @[builtinTermParser] def «let_tmp» := leading_parser:leadPrec withPosition ("let_tmp " >> letDecl) >> optSemicolon termParser
+
+instance : Coe (TSyntax ``letIdBinder) (TSyntax ``funBinder) where
+  coe stx := ⟨stx⟩  -- `simpleBinderWithoutType` prevents using a proper quotation for this
 
 -- like `let_fun` but with optional name
 def haveIdLhs    := optional (ident >> many (ppSpace >> letIdBinder)) >> optType

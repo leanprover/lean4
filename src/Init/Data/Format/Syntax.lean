@@ -44,4 +44,7 @@ def formatStx (stx : Syntax) (maxDepth : Option Nat := none) (showInfo := false)
 instance : ToFormat (Syntax) := ⟨formatStx⟩
 instance : ToString (Syntax) := ⟨@toString Format _ ∘ format⟩
 
+instance : ToFormat (TSyntax k) := ⟨(format ·.raw)⟩
+instance : ToString (TSyntax k) := ⟨(toString ·.raw)⟩
+
 end Lean.Syntax

@@ -31,7 +31,7 @@ def elabMacroRulesAux (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax
          | some quoted =>
            let pat := pat.setArg 1 quoted
            let pats := pats.elemsAndSeps.set! 0 pat
-           `(matchAltExpr| | $pats,* => $rhs)
+           `(matchAltExpr| | $(⟨pats⟩),* => $rhs)
       else
         throwErrorAt alt "invalid macro_rules alternative, unexpected syntax node kind '{k'}'"
     | _ => throwUnsupportedSyntax

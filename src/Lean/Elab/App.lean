@@ -401,7 +401,7 @@ mutual
         | Except.error err       => throwError err
         | Except.ok tacticSyntax =>
           -- TODO(Leo): does this work correctly for tactic sequences?
-          let tacticBlock ← `(by $tacticSyntax)
+          let tacticBlock ← `(by $(⟨tacticSyntax⟩))
           let argNew := Arg.stx tacticBlock
           propagateExpectedType argNew
           elabAndAddNewArg argName argNew

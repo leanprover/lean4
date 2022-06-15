@@ -195,8 +195,8 @@ private partial def hasCDot : Syntax → Bool
   - `f · · b` => `fun _a_1 _a_2 => f _a_1 _a_2 b` -/
 partial def expandCDot? (stx : TSyntax `term) : MacroM (Option (TSyntax `term)) := do
   if hasCDot stx then
-    let (newStx, binders) ← (go stx).run #[];
-    `(fun $binders* => $newStx)
+    let (newStx, binders) ← (go stx).run #[]
+    `(fun $binders* => $(⟨newStx⟩))
   else
     pure none
 where
@@ -264,7 +264,7 @@ where
   | stx =>
     if !stx[1][0].isMissing && stx[1][1].isMissing then
       -- parsed `(` and `term`, assume it's a basic parenthesis to get any elaboration output at all
-      `(($(stx[1][0])))
+      `(($(⟨stx[1][0]⟩)))
     else
       throw <| Macro.Exception.error stx "unexpected parentheses notation"
 

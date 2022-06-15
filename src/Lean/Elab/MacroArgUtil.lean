@@ -20,8 +20,8 @@ partial def expandMacroArg (stx : TSyntax ``macroArg) : CommandElabM (TSyntax `s
 where
   mkSyntaxAndPat id? id stx := do
     let pat ← match stx with
-    | `(stx| $s:str)         => pure <| mkNode `token_antiquot #[← liftMacroM <| strLitToPattern s, mkAtom "%", mkAtom "$", id]
-    | `(stx| &$s:str)        => pure <| mkNode `token_antiquot #[← liftMacroM <| strLitToPattern s, mkAtom "%", mkAtom "$", id]
+    | `(stx| $s:str)         => pure ⟨mkNode `token_antiquot #[← liftMacroM <| strLitToPattern s, mkAtom "%", mkAtom "$", id]⟩
+    | `(stx| &$s:str)        => pure ⟨mkNode `token_antiquot #[← liftMacroM <| strLitToPattern s, mkAtom "%", mkAtom "$", id]⟩
     | `(stx| optional($stx)) => mkSplicePat `optional stx id "?"
     | `(stx| many($stx))     => mkSplicePat `many stx id "*"
     | `(stx| many1($stx))    => mkSplicePat `many stx id "*"
@@ -30,7 +30,7 @@ where
     | `(stx| sepBy1($stx, $sep:str $[, $stxsep]? $[, allowTrailingSep]?)) =>
       mkSplicePat `sepBy stx id ((isStrLit? sep).get! ++ "*")
     -- NOTE: all `interpolatedStr(·)` reuse the same node kind
-    | `(stx| interpolatedStr(term)) => pure <| Syntax.mkAntiquotNode interpolatedStrKind id
+    | `(stx| interpolatedStr(term)) => pure ⟨Syntax.mkAntiquotNode interpolatedStrKind id⟩
     -- bind through withPosition
     | `(stx| withPosition($stx)) =>
       return (← mkSyntaxAndPat id? id stx)
@@ -40,9 +40,9 @@ where
       -- otherwise `group` the syntax to enforce arity 1, e.g. for `noWs`
       | none    => return (← `(stx| group($stx)), (← mkAntiquotNode stx id))
     pure (stx, pat)
-  mkSplicePat kind stx id suffix :=
-    return mkNullNode #[mkAntiquotSuffixSpliceNode kind (← mkAntiquotNode stx id) suffix]
-  mkAntiquotNode
+  mkSplicePat kind stx id suffix : CommandElabM (TSyntax `term) :=
+    return ⟨mkNullNode #[mkAntiquotSuffixSpliceNode kind (← mkAntiquotNode stx id) suffix]⟩
+  mkAntiquotNode : TSyntax `stx → TSyntax `term → CommandElabM (TSyntax `term)
     | `(stx| ($stx)), term => mkAntiquotNode stx term
     | `(stx| $id:ident$[:$p:prec]?), term => do
       let kind ← match (← Elab.Term.resolveParserName id) with
@@ -55,13 +55,13 @@ where
         | [] =>
           let id := id.getId.eraseMacroScopes
           if Parser.isParserCategory (← getEnv) id then
-            return Syntax.mkAntiquotNode id term (isPseudoKind := true)
+            return ⟨Syntax.mkAntiquotNode id term (isPseudoKind := true)⟩
           else if (← Parser.isParserAlias id) then
             pure <| (← Parser.getSyntaxKindOfParserAlias? id).getD Name.anonymous
           else
             throwError "unknown parser declaration/category/alias '{id}'"
-      pure <| Syntax.mkAntiquotNode kind term
+      pure ⟨Syntax.mkAntiquotNode kind term⟩
     | stx, term =>
-      pure <| Syntax.mkAntiquotNode Name.anonymous term (isPseudoKind := true)
+      pure ⟨Syntax.mkAntiquotNode Name.anonymous term (isPseudoKind := true)⟩
 
 end Lean.Elab.Command

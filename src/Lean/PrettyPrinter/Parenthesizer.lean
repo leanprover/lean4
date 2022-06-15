@@ -334,17 +334,17 @@ def parserOfStack.parenthesizer (offset : Nat) (_prec : Nat := 0) : Parenthesize
 
 @[builtinCategoryParenthesizer term]
 def term.parenthesizer : CategoryParenthesizer | prec => do
-  maybeParenthesize `term true (fun stx => Unhygienic.run `(($stx))) prec $
+  maybeParenthesize `term true (fun stx => Unhygienic.run `(($(⟨stx⟩)))) prec $
     parenthesizeCategoryCore `term prec
 
 @[builtinCategoryParenthesizer tactic]
 def tactic.parenthesizer : CategoryParenthesizer | prec => do
-  maybeParenthesize `tactic false (fun stx => Unhygienic.run `(tactic|($stx))) prec $
+  maybeParenthesize `tactic false (fun stx => Unhygienic.run `(tactic|($(⟨stx⟩)))) prec $
     parenthesizeCategoryCore `tactic prec
 
 @[builtinCategoryParenthesizer level]
 def level.parenthesizer : CategoryParenthesizer | prec => do
-  maybeParenthesize `level false (fun stx => Unhygienic.run `(level|($stx))) prec $
+  maybeParenthesize `level false (fun stx => Unhygienic.run `(level|($(⟨stx⟩)))) prec $
     parenthesizeCategoryCore `level prec
 
 @[builtinCategoryParenthesizer rawStx]

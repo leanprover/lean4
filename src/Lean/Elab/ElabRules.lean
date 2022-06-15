@@ -32,7 +32,7 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax 
          | none        => throwErrorAt alt "invalid elab_rules alternative, expected syntax node kind '{k}'"
          | some quoted =>
            let pat := pat.setArg 1 quoted
-           let pats := pats.elemsAndSeps.set! 0 pat
+           let pats := ⟨pats.elemsAndSeps.set! 0 pat⟩
            `(matchAltExpr| | $pats,* => $rhs)
       else
         throwErrorAt alt "invalid elab_rules alternative, unexpected syntax node kind '{k'}'"

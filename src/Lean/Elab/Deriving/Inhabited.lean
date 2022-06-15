@@ -66,10 +66,10 @@ where
     for i in [:indVal.numParams + indVal.numIndices] do
       let arg := mkIdent (← mkFreshUserName `a)
       indArgs := indArgs.push arg
-      let binder ← `(implicitBinderF| { $arg:ident })
+      let binder ← `(bracketedBinder| { $arg:ident })
       binders := binders.push binder
       if assumingParamIdxs.contains i then
-        let binder ← `(instBinderF| [ Inhabited $arg:ident ])
+        let binder ← `(bracketedBinder| [Inhabited $arg:ident ])
         binders := binders.push binder
     let type ← `(Inhabited (@$(mkIdent inductiveTypeName):ident $indArgs:ident*))
     let mut ctorArgs := #[]

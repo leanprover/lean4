@@ -110,7 +110,7 @@ protected def getMainModule     : TacticM Name       := do pure (← getEnv).mai
 unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
   mkElabAttribute Tactic `Lean.Elab.Tactic.tacticElabAttribute `builtinTactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic"
 
-@[builtinInit mkTacticAttribute] constant tacticElabAttribute : KeyedDeclsAttribute Tactic
+@[builtinInit mkTacticAttribute] opaque tacticElabAttribute : KeyedDeclsAttribute Tactic
 
 def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx : Syntax) : TacticM Info :=
   return Info.ofTacticInfo {

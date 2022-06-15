@@ -70,7 +70,7 @@ unsafe def mkFormatterAttribute : IO (KeyedDeclsAttribute Formatter) :=
       if (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id then pure id
       else throwError "invalid [formatter] argument, unknown syntax kind '{id}'"
   } `Lean.PrettyPrinter.formatterAttribute
-@[builtinInit mkFormatterAttribute] constant formatterAttribute : KeyedDeclsAttribute Formatter
+@[builtinInit mkFormatterAttribute] opaque formatterAttribute : KeyedDeclsAttribute Formatter
 
 unsafe def mkCombinatorFormatterAttribute : IO ParserCompiler.CombinatorAttribute :=
   ParserCompiler.registerCombinatorAttribute
@@ -81,7 +81,7 @@ unsafe def mkCombinatorFormatterAttribute : IO ParserCompiler.CombinatorAttribut
   Note that, unlike with [formatter], this is not a node kind since combinators usually do not introduce their own node kinds.
   The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced
   with `Formatter` in the parameter types."
-@[builtinInit mkCombinatorFormatterAttribute] constant combinatorFormatterAttribute : ParserCompiler.CombinatorAttribute
+@[builtinInit mkCombinatorFormatterAttribute] opaque combinatorFormatterAttribute : ParserCompiler.CombinatorAttribute
 
 namespace Formatter
 

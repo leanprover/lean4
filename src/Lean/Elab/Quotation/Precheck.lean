@@ -48,7 +48,7 @@ and calling `precheck` recursively on nested terms, potentially with an extended
 Macros without registered precheck hook are unfolded, and identifier-less syntax is ultimately assumed to be well-formed.",
     valueTypeName := ``Precheck
   } `Lean.Elab.Term.Quotation.precheckAttribute
-@[builtinInit mkPrecheckAttribute] constant precheckAttribute : KeyedDeclsAttribute Precheck
+@[builtinInit mkPrecheckAttribute] opaque precheckAttribute : KeyedDeclsAttribute Precheck
 
 partial def precheck : Precheck := fun stx => do
   if let p::_ := precheckAttribute.getValues (← getEnv) stx.getKind then

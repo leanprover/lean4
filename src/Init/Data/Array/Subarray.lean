@@ -58,7 +58,7 @@ def popFront (s : Subarray α) : Subarray α :=
 
 -- TODO: provide reference implementation
 @[implementedBy Subarray.forInUnsafe]
-protected constant forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
+protected opaque forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   pure b
 
 instance : ForIn m (Subarray α) α where

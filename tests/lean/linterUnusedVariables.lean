@@ -215,3 +215,6 @@ example (a : Nat) : Nat := _
 example (a : Nat) : Nat := sorry
 example (a : sorry) : Nat := 0
 example (a : Nat) : Nat := by
+
+theorem Fin.eqq_of_val_eq {n : Nat} : ∀ {x y : Fin n}, x.val = y.val → x = y
+  | ⟨_, _⟩, _, rfl => rfl

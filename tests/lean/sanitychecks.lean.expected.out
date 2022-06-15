@@ -6,7 +6,7 @@ structural recursion cannot be used
 well-founded recursion cannot be used, 'unsound' does not take any (non-fixed) arguments
 sanitychecks.lean:4:8-5:10: error: 'partial' theorems are not allowed, 'partial' is a code generation directive
 sanitychecks.lean:7:7-8:10: error: 'unsafe' theorems are not allowed
-sanitychecks.lean:10:0-10:25: error: failed to synthesize
+sanitychecks.lean:10:0-10:23: error: failed to synthesize
   Inhabited False
 sanitychecks.lean:18:12-18:20: error: invalid use of 'partial', 'Foo.unsound3' is not a function
   False

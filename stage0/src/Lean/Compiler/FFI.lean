@@ -9,14 +9,14 @@ open System
 namespace Lean.Compiler.FFI
 
 @[extern "lean_get_leanc_extra_flags"]
-private constant getLeancExtraFlags : Unit → String
+private opaque getLeancExtraFlags : Unit → String
 
 /-- Return C compiler flags for including Lean's headers. -/
 def getCFlags (leanSysroot : FilePath) : Array String :=
   #["-I", (leanSysroot / "include").toString] ++ (getLeancExtraFlags ()).trim.splitOn
 
 @[extern "lean_get_linker_flags"]
-private constant getBuiltinLinkerFlags (linkStatic : Bool) : String
+private opaque getBuiltinLinkerFlags (linkStatic : Bool) : String
 
 /-- Return linker flags for linking against Lean's libraries. -/
 def getLinkerFlags (leanSysroot : FilePath) (linkStatic := true) : Array String :=

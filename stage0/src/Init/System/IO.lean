@@ -88,15 +88,15 @@ set_option compiler.extract_closed false in
 @[inline] unsafe def unsafeIO (fn : IO α) : Except IO.Error α :=
   unsafeEIO fn
 
-@[extern "lean_io_timeit"] constant timeit (msg : @& String) (fn : IO α) : IO α
-@[extern "lean_io_allocprof"] constant allocprof (msg : @& String) (fn : IO α) : IO α
+@[extern "lean_io_timeit"] opaque timeit (msg : @& String) (fn : IO α) : IO α
+@[extern "lean_io_allocprof"] opaque allocprof (msg : @& String) (fn : IO α) : IO α
 
 /- Programs can execute IO actions during initialization that occurs before
    the `main` function is executed. The attribute `[init <action>]` specifies
    which IO action is executed to set the value of an opaque constant.
 
    The action `initializing` returns `true` iff it is invoked during initialization. -/
-@[extern "lean_io_initializing"] constant IO.initializing : BaseIO Bool
+@[extern "lean_io_initializing"] opaque IO.initializing : BaseIO Bool
 
 namespace BaseIO
 

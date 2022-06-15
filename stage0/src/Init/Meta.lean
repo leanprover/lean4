@@ -11,15 +11,15 @@ import Init.Data.Array.Basic
 namespace Lean
 
 @[extern c inline "lean_box(LEAN_VERSION_MAJOR)"]
-private constant version.getMajor (u : Unit) : Nat
+private opaque version.getMajor (u : Unit) : Nat
 def version.major : Nat := version.getMajor ()
 
 @[extern c inline "lean_box(LEAN_VERSION_MINOR)"]
-private constant version.getMinor (u : Unit) : Nat
+private opaque version.getMinor (u : Unit) : Nat
 def version.minor : Nat := version.getMinor ()
 
 @[extern c inline "lean_box(LEAN_VERSION_PATCH)"]
-private constant version.getPatch (u : Unit) : Nat
+private opaque version.getPatch (u : Unit) : Nat
 def version.patch : Nat := version.getPatch ()
 
 @[extern "lean_get_githash"]

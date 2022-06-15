@@ -127,7 +127,7 @@ unsafe def mkParenthesizerAttribute : IO (KeyedDeclsAttribute Parenthesizer) :=
       if (builtin && (env.find? id).isSome) || Parser.isValidSyntaxNodeKind env id then pure id
       else throwError "invalid [parenthesizer] argument, unknown syntax kind '{id}'"
   } `Lean.PrettyPrinter.parenthesizerAttribute
-@[builtinInit mkParenthesizerAttribute] constant parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer
+@[builtinInit mkParenthesizerAttribute] opaque parenthesizerAttribute : KeyedDeclsAttribute Parenthesizer
 
 abbrev CategoryParenthesizer := (prec : Nat) → Parenthesizer
 
@@ -148,7 +148,7 @@ unsafe def mkCategoryParenthesizerAttribute : IO (KeyedDeclsAttribute CategoryPa
       if Parser.isParserCategory env id then pure id
       else throwError "invalid [categoryParenthesizer] argument, unknown parser category '{toString id}'"
   } `Lean.PrettyPrinter.categoryParenthesizerAttribute
-@[builtinInit mkCategoryParenthesizerAttribute] constant categoryParenthesizerAttribute : KeyedDeclsAttribute CategoryParenthesizer
+@[builtinInit mkCategoryParenthesizerAttribute] opaque categoryParenthesizerAttribute : KeyedDeclsAttribute CategoryParenthesizer
 
 unsafe def mkCombinatorParenthesizerAttribute : IO ParserCompiler.CombinatorAttribute :=
   ParserCompiler.registerCombinatorAttribute
@@ -159,7 +159,7 @@ unsafe def mkCombinatorParenthesizerAttribute : IO ParserCompiler.CombinatorAttr
   Note that, unlike with [parenthesizer], this is not a node kind since combinators usually do not introduce their own node kinds.
   The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced
   with `Parenthesizer` in the parameter types."
-@[builtinInit mkCombinatorParenthesizerAttribute] constant combinatorParenthesizerAttribute : ParserCompiler.CombinatorAttribute
+@[builtinInit mkCombinatorParenthesizerAttribute] opaque combinatorParenthesizerAttribute : ParserCompiler.CombinatorAttribute
 
 namespace Parenthesizer
 

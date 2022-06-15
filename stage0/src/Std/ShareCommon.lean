@@ -27,10 +27,10 @@ unsafe abbrev Object.ptrHash (a : Object) : UInt64 :=
   ptrAddrUnsafe a |>.toUInt64
 
 @[extern "lean_sharecommon_eq"]
-unsafe constant Object.eq (a b : @& Object) : Bool
+unsafe opaque Object.eq (a b : @& Object) : Bool
 
 @[extern "lean_sharecommon_hash"]
-unsafe constant Object.hash (a : @& Object) : UInt64
+unsafe opaque Object.hash (a : @& Object) : UInt64
 
 unsafe def ObjectMap : Type := @HashMap Object Object ⟨Object.ptrEq⟩ ⟨Object.ptrHash⟩
 unsafe def ObjectSet : Type := @HashSet Object ⟨Object.eq⟩ ⟨Object.hash⟩

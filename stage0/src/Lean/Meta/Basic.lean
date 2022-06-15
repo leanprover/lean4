@@ -307,12 +307,12 @@ def useEtaStruct (inductName : Name) : MetaM Bool := do
 /-- Reduces an expression to its Weak Head Normal Form.
 This is when the topmost expression has been fully reduced,
 but may contain subexpressions which have not been reduced. -/
-@[extern 6 "lean_whnf"] constant whnf : Expr → MetaM Expr
+@[extern 6 "lean_whnf"] opaque whnf : Expr → MetaM Expr
 /-- Returns the inferred type of the given expression, or fails if it is not type-correct. -/
-@[extern 6 "lean_infer_type"] constant inferType : Expr → MetaM Expr
-@[extern 7 "lean_is_expr_def_eq"] constant isExprDefEqAux : Expr → Expr → MetaM Bool
-@[extern 7 "lean_is_level_def_eq"] constant isLevelDefEqAux : Level → Level → MetaM Bool
-@[extern 6 "lean_synth_pending"] protected constant synthPending : MVarId → MetaM Bool
+@[extern 6 "lean_infer_type"] opaque inferType : Expr → MetaM Expr
+@[extern 7 "lean_is_expr_def_eq"] opaque isExprDefEqAux : Expr → Expr → MetaM Bool
+@[extern 7 "lean_is_level_def_eq"] opaque isLevelDefEqAux : Level → Level → MetaM Bool
+@[extern 6 "lean_synth_pending"] protected opaque synthPending : MVarId → MetaM Bool
 
 def whnfForall (e : Expr) : MetaM Expr := do
   let e' ← whnf e

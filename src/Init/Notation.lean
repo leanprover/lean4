@@ -22,8 +22,13 @@ syntax:65 (name := subPrio) prio " - " prio:66 : prio
 end Lean.Parser.Syntax
 
 namespace Lean
-instance : Coe (TSyntax k) Syntax where
+
+instance : Coe (TSyntax ks) Syntax where
   coe stx := stx.raw
+
+instance : Coe SyntaxNodeKind SyntaxNodeKinds where
+  coe k := List.cons k List.nil
+
 end Lean
 
 macro "max"  : prec => `(1024) -- maximum precedence used in term parsers, in particular for terms in function position (`ident`, `paren`, ...)
@@ -228,3 +233,6 @@ macro tk:"this" : term => return Syntax.ident tk.getHeadInfo "this".toSubstring 
   Category for carrying raw syntax trees between macros; any content is printed as is by the pretty printer.
   The only accepted parser for this category is an antiquotation. -/
 declare_syntax_cat rawStx
+
+instance : Coe Syntax (TSyntax `rawStx) where
+  coe stx := ⟨stx⟩

@@ -34,9 +34,6 @@ def toMonad [Monad m] [Alternative m] : Option α → m α
   | none,   _ => none
   | some a, b => b a
 
-@[inline] protected def map (f : α → β) (o : Option α) : Option β :=
-  Option.bind o (some ∘ f)
-
 @[inline] protected def mapM [Monad m] (f : α → m β) (o : Option α) : m (Option β) := do
   if let some a := o then
     return some (← f a)

@@ -1065,6 +1065,10 @@ instance {α} : Inhabited (Option α) where
   | some x, _ => x
   | none,   e => e
 
+@[inline] protected def Option.map (f : α → β) : Option α → Option β
+  | some x => some (f x)
+  | none   => none
+
 inductive List (α : Type u) where
   | nil : List α
   | cons (head : α) (tail : List α) : List α
@@ -1353,7 +1357,7 @@ def Array.sequenceMap {α : Type u} {β : Type v} {m : Type v → Type w} [Monad
         | 0           => pure bs
         | Nat.succ i' => Bind.bind (f (as.get ⟨j, hlt⟩)) fun b => loop i' (hAdd j 1) (bs.push b))
       (fun _ => pure bs)
-  loop as.size 0 Array.empty
+  loop as.size 0 (Array.mkEmpty as.size)
 
 /-- A Function for lifting a computation from an inner Monad to an outer Monad.
     Like [MonadTrans](https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Class.html),
@@ -1849,19 +1853,22 @@ structure TSyntax (ks : SyntaxNodeKinds) where
 instance : Inhabited Syntax where
   default := Syntax.missing
 
+instance : Inhabited (TSyntax ks) where
+  default := ⟨default⟩
+
 /- Builtin kinds -/
-def choiceKind : SyntaxNodeKind := `choice
-def nullKind : SyntaxNodeKind := `null
-def groupKind : SyntaxNodeKind := `group
-def identKind : SyntaxNodeKind := `ident
-def strLitKind : SyntaxNodeKind := `str
-def charLitKind : SyntaxNodeKind := `char
-def numLitKind : SyntaxNodeKind := `num
-def scientificLitKind : SyntaxNodeKind := `scientific
-def nameLitKind : SyntaxNodeKind := `name
-def fieldIdxKind : SyntaxNodeKind := `fieldIdx
-def interpolatedStrLitKind : SyntaxNodeKind := `interpolatedStrLitKind
-def interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
+abbrev choiceKind : SyntaxNodeKind := `choice
+abbrev nullKind : SyntaxNodeKind := `null
+abbrev groupKind : SyntaxNodeKind := `group
+abbrev identKind : SyntaxNodeKind := `ident
+abbrev strLitKind : SyntaxNodeKind := `str
+abbrev charLitKind : SyntaxNodeKind := `char
+abbrev numLitKind : SyntaxNodeKind := `num
+abbrev scientificLitKind : SyntaxNodeKind := `scientific
+abbrev nameLitKind : SyntaxNodeKind := `name
+abbrev fieldIdxKind : SyntaxNodeKind := `fieldIdx
+abbrev interpolatedStrLitKind : SyntaxNodeKind := `interpolatedStrLitKind
+abbrev interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
 
 namespace Syntax
 
@@ -1901,6 +1908,13 @@ def getNumArgs (stx : Syntax) : Nat :=
   match stx with
   | Syntax.node _ _ args => args.size
   | _                    => 0
+
+def getOptional? (stx : Syntax) : Option Syntax :=
+  match stx with
+  | Syntax.node _ k args => match and (beq k nullKind) (beq args.size 1) with
+    | true  => some (args.get! 0)
+    | false => none
+  | _                    => none
 
 def isMissing : Syntax → Bool
   | Syntax.missing => true

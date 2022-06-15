@@ -31,12 +31,12 @@ private def lensCoord (g : Expr → M Expr) : Nat → Expr → M Expr
   | 0, e@(Expr.app f a _)       => return e.updateApp! (← g f) a
   | 1, e@(Expr.app f a _)       => return e.updateApp! f (← g a)
   | 0, e@(Expr.lam _ y b _)     => return e.updateLambdaE! (← g y) b
-  | 1, e@(Expr.lam n y b c)     => return e.updateLambdaE! y <|← withLocalDecl n c.binderInfo y fun x => do mkLambdaFVars #[x] <|← g <| b.instantiateRev #[x]
+  | 1, e@(Expr.lam n y b c)     => withLocalDecl n c.binderInfo y fun x => do mkLambdaFVars #[x] <|← g <| b.instantiateRev #[x]
   | 0, e@(Expr.forallE _ y b _) => return e.updateForallE! (← g y) b
-  | 1, e@(Expr.forallE n y b c) => return e.updateForallE! y <|← withLocalDecl n c.binderInfo y fun x => do mkForallFVars #[x] <|← g <| b.instantiateRev #[x]
+  | 1, e@(Expr.forallE n y b c) => withLocalDecl n c.binderInfo y fun x => do mkForallFVars #[x] <|← g <| b.instantiateRev #[x]
   | 0, e@(Expr.letE _ y a b _)  => return e.updateLet! (← g y) a b
   | 1, e@(Expr.letE _ y a b _)  => return e.updateLet! y (← g a) b
-  | 2, e@(Expr.letE n y a b _)  => return e.updateLet! y a <|← withLetDecl n y a fun x => do mkLetFVars #[x] <|← g <| b.instantiateRev #[x]
+  | 2, e@(Expr.letE n y a b _)  => withLetDecl n y a fun x => do mkLetFVars #[x] <|← g <| b.instantiateRev #[x]
   | 0, e@(Expr.proj _ _ b _)    => e.updateProj! <$> g b
   | n, e@(Expr.mdata _ a _)     => e.updateMData! <$> lensCoord g n a
   | 3, _                        => throwError "Lensing on types is not supported"

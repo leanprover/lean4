@@ -22,6 +22,7 @@ partial def traverseAll : ExprTraversal := fun
 def testTraversal
   (traversalWithPos : ExprTraversal)
   (expectedLen : Nat): TermElabM Unit := do
+  -- make a sample expression `e` that has all of the right stuff.
   let s ← `(
     ∀ x y : Nat,
     ∃ (z : {z: Nat // z = x + y}),
@@ -30,6 +31,10 @@ def testTraversal
     )
   let e ← elabTerm s none
   let Γ ← getLCtx
+
+  -- traverse `e` using the `traversalWithPos` function
+  -- leave `e` unmodified but at each point accumulate
+  -- the abstracted subexpression
   let (e', subexprs) ← StateT.run (
     traversalWithPos (fun p e => do
       let a ← get
@@ -38,21 +43,34 @@ def testTraversal
       set <| a.push (p, s)
       return e
     ) Pos.root e) #[]
+  -- the traversal output should be equal to the original
+  -- that is: `traversal pure e ≡ e`
   if not (← liftM $ isDefEq e e') then
     throwError "{e} and {e'} are different!"
+
+  -- check that the number of subexpressions is what we expect
+  -- and if it isn't then print them out for debugging.
   if subexprs.size != expectedLen then
     for (p, s) in subexprs do
       let ppt ← PrettyPrinter.delab s >>= (liftM ∘ PrettyPrinter.ppTerm)
       dbg_trace s!"{p}, {ppt}\n"
     throwError "expected size: {expectedLen}\nactual size: {subexprs.size}"
+
+  -- for each subexpression `p`, make sure that viewSubexpr produces the same
+  -- subexpression as that found in the traversal.
   for (p, s) in subexprs do
-    let _ ← viewSubexpr (fun fvars t => do
+    viewSubexpr (fun fvars t => do
       let t := Expr.abstract t fvars
       let de ← liftM $ isDefEq t s
       if not de then
         throwError "{t} and {s} are different!"
+      return ()
     ) p e
 
+    -- check that replaceSubexpr pure is the identity
+    let e' ← replaceSubexpr pure p e
+    if not (← liftM $ isDefEq e e') then
+      throwError "{e} and {e'} are different!"
 
 #eval ((do
   testTraversal traverseLambdaWithPos 1

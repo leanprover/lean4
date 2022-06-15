@@ -95,7 +95,7 @@ are turned into a new anonymous constructor application. For example,
   | _                                                           => Macro.throwUnsupported
 
 open Lean.Parser in
-private def elabParserMacroAux (prec : Syntax) (e : Syntax) (withAnonymousAntiquot : Bool) : TermElabM Syntax := do
+private def elabParserMacroAux (prec e : TSyntax `term) (withAnonymousAntiquot : Bool) : TermElabM Syntax := do
   let (some declName) ← getDeclName?
     | throwError "invalid `leading_parser` macro, it must be used in definitions"
   match extractMacroScopes declName with
@@ -111,7 +111,7 @@ private def elabParserMacroAux (prec : Syntax) (e : Syntax) (withAnonymousAntiqu
     elabParserMacroAux (prec?.getD (quote Parser.maxPrec)) e (anon?.all (·.isOfKind ``Parser.Term.trueVal))
   | _ => throwUnsupportedSyntax
 
-private def elabTParserMacroAux (prec lhsPrec : Syntax) (e : Syntax) : TermElabM Syntax := do
+private def elabTParserMacroAux (prec lhsPrec e : TSyntax `term) : TermElabM Syntax := do
   let declName? ← getDeclName?
   match declName? with
   | some declName => let kind := quote declName; ``(Lean.Parser.trailingNode $kind $prec $lhsPrec $e)
@@ -169,8 +169,8 @@ interpolated string literal) to stderr. It should only be used for debugging. -/
   withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
 
 /-- Return syntax `Prod.mk elems[0] (Prod.mk elems[1] ... (Prod.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
-partial def mkPairs (elems : Array Syntax) : MacroM Syntax :=
-  let rec loop (i : Nat) (acc : Syntax) := do
+partial def mkPairs (elems : Array (TSyntax `term)) : MacroM (TSyntax `term) :=
+  let rec loop (i : Nat) (acc : TSyntax `term) := do
     if i > 0 then
       let i    := i - 1
       let elem := elems[i]
@@ -193,7 +193,7 @@ private partial def hasCDot : Syntax → Bool
   Examples:
   - `· + 1` => `fun _a_1 => _a_1 + 1`
   - `f · · b` => `fun _a_1 _a_2 => f _a_1 _a_2 b` -/
-partial def expandCDot? (stx : Syntax) : MacroM (Option Syntax) := do
+partial def expandCDot? (stx : TSyntax `term) : MacroM (Option (TSyntax `term)) := do
   if hasCDot stx then
     let (newStx, binders) ← (go stx).run #[];
     `(fun $binders* => $newStx)
@@ -221,7 +221,7 @@ where
   Helper method for elaborating terms such as `(.+.)` where a constant name is expected.
   This method is usually used to implement tactics that function names as arguments (e.g., `simp`).
 -/
-def elabCDotFunctionAlias? (stx : Syntax) : TermElabM (Option Expr) := do
+def elabCDotFunctionAlias? (stx : TSyntax `term) : TermElabM (Option Expr) := do
   let some stx ← liftMacroM <| expandCDotArg? stx | pure none
   let stx ← liftMacroM <| expandMacros stx
   match stx with
@@ -237,7 +237,7 @@ def elabCDotFunctionAlias? (stx : Syntax) : TermElabM (Option Expr) := do
       return none
   | _ => return none
 where
-  expandCDotArg? (stx : Syntax) : MacroM (Option Syntax) :=
+  expandCDotArg? (stx : TSyntax `term) : MacroM (Option (TSyntax `term)) :=
     match stx with
     | `(($e)) => Term.expandCDot? e
     | _ => Term.expandCDot? stx
@@ -287,7 +287,7 @@ private def isSubstCandidate (lhs rhs : Expr) : MetaM Bool :=
   Given an expression `e` that is the elaboration of `stx`, if `e` is a free variable, then return `k stx`.
   Otherwise, return `(fun x => k x) e`
 -/
-private def withLocalIdentFor (stx : Syntax) (e : Expr) (k : Syntax → TermElabM Expr) : TermElabM Expr := do
+private def withLocalIdentFor (stx : TSyntax `term) (e : Expr) (k : TSyntax `term → TermElabM Expr) : TermElabM Expr := do
   if e.isFVar then
     k stx
   else

@@ -244,7 +244,7 @@ in the literature. -/
   Auxiliary functions for converting `id_1 ... id_n` application into `#[id_1, ..., id_m]`
   It is used at `expandFunBinders`. -/
 private partial def getFunBinderIds? (stx : Syntax) : OptionT MacroM (Array Syntax) :=
-  let convertElem (stx : Syntax) : OptionT MacroM Syntax :=
+  let convertElem (stx : TSyntax `term) : OptionT MacroM Syntax :=
     match stx with
     | `(_) => do let ident ← mkFreshIdent stx; pure ident
     | `($id:ident) => return id

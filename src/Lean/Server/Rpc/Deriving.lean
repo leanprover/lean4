@@ -88,7 +88,7 @@ end
 def isOptField (n : Name) : Bool :=
   n.toString.endsWith "?"
 
-private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr) : TermElabM Syntax :=
+private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr) : TermElabM (TSyntax `command) :=
   withFields indVal params fun fields => do
     trace[Elab.Deriving.RpcEncoding] "for structure {indVal.name} with params {params}"
     -- Postulate that every field have a rpc encoding, storing the encoding type ident
@@ -96,9 +96,9 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
     -- as otherwise typeclass synthesis fails.
     let mut binders := #[]
     let mut fieldIds := #[]
-    let mut fieldEncIds : Array Syntax := #[]
-    let mut uniqFieldEncIds : Array Syntax := #[]
-    let mut fieldEncIds' : DiscrTree Syntax := {}
+    let mut fieldEncIds : Array (TSyntax `term) := #[]
+    let mut uniqFieldEncIds : Array (TSyntax identKind) := #[]
+    let mut fieldEncIds' : DiscrTree (TSyntax identKind) := {}
     for (fieldName, fieldTp) in fields do
       let mut fieldTp := fieldTp
       if isOptField fieldName then
@@ -108,7 +108,7 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
 
       -- postulate that the field has an encoding and remember the encoding's binder name
       fieldIds := fieldIds.push <| mkIdent fieldName
-      let mut fieldEncId := Syntax.missing
+      let mut fieldEncId : TSyntax identKind := ⟨Syntax.missing⟩
       match (← fieldEncIds'.getMatch fieldTp).back? with
       | none =>
         fieldEncId ← mkIdent <$> mkFreshUserName fieldName
@@ -157,17 +157,17 @@ private structure CtorState where
   encArgTypes : DiscrTree Name := {}
   uniqEncArgTypes : Array Name := #[]
   -- binders for `encArgTypes` as well as the relevant `RpcEncoding`s
-  binders : Array Syntax := #[]
+  binders : Array (TSyntax ``Parser.Term.bracketedBinder) := #[]
   -- the syntax of each constructor in the packet
-  ctors : Array Syntax := #[]
+  ctors : Array (TSyntax ``Parser.Command.ctor) := #[]
   -- syntax of each arm of the `rpcEncode` pattern-match
-  encodes : Array Syntax := #[]
+  encodes : Array (TSyntax ``Parser.Term.matchAlt) := #[]
   -- syntax of each arm of the `rpcDecode` pattern-match
-  decodes : Array Syntax := #[]
+  decodes : Array (TSyntax ``Parser.Term.matchAlt) := #[]
   deriving Inhabited
 
 private def matchF := Lean.Parser.Term.matchAlt (rhsParser := Lean.Parser.termParser)
-private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr) : TermElabM Syntax := do
+private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr) : TermElabM (TSyntax `command) := do
   trace[Elab.Deriving.RpcEncoding] "for inductive {indVal.name} with params {params}"
 
   -- produce all encoding types and binders for them
@@ -214,7 +214,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
         -- create encoder and decoder match arms
         let nms ← argVars.mapM fun _ => mkIdent <$> mkFreshBinderName
         let mkPattern (src : Name) := Syntax.mkApp (mkIdent <| Name.mkStr src ctor.getString!) nms
-        let mkBody (tgt : Name) (func : Name) : TermElabM Syntax := do
+        let mkBody (tgt : Name) (func : Name) : TermElabM (TSyntax `term) := do
           let items ← nms.mapM fun nm => `(← $(mkIdent func) $nm)
           let tm := Syntax.mkApp (mkIdent <| Name.mkStr tgt ctor.getString!) items
           `(return $tm:term)
@@ -284,7 +284,7 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
      elabCommand cmd
   return true
 
-private unsafe def dispatchDeriveInstanceUnsafe (declNames : Array Name) (args? : Option Syntax) : CommandElabM Bool := do
+private unsafe def dispatchDeriveInstanceUnsafe (declNames : Array Name) (args? : Option (TSyntax ``Parser.Term.structInst)) : CommandElabM Bool := do
   if declNames.size ≠ 1 then
     return false
   let args ←
@@ -301,7 +301,7 @@ private unsafe def dispatchDeriveInstanceUnsafe (declNames : Array Name) (args? 
     deriveInstance declNames[0]
 
 @[implementedBy dispatchDeriveInstanceUnsafe]
-private opaque dispatchDeriveInstance (declNames : Array Name) (args? : Option Syntax) : CommandElabM Bool
+private opaque dispatchDeriveInstance (declNames : Array Name) (args? : Option (TSyntax ``Parser.Term.structInst)) : CommandElabM Bool
 
 builtin_initialize
   Elab.registerBuiltinDerivingHandlerWithArgs ``RpcEncoding dispatchDeriveInstance

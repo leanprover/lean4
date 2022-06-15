@@ -60,7 +60,7 @@ An application in a pattern can be
 -/
 
 structure Context where
-  funId         : Syntax
+  funId         : TSyntax identKind
   ctorVal?      : Option ConstructorVal -- It is `some`, if constructor application
   explicit      : Bool
   ellipsis      : Bool
@@ -68,7 +68,7 @@ structure Context where
   paramDeclIdx  : Nat := 0
   namedArgs     : Array NamedArg
   args          : List Arg
-  newArgs       : Array Syntax := #[]
+  newArgs       : Array (TSyntax `term) := #[]
   deriving Inhabited
 
 private def isDone (ctx : Context) : Bool :=
@@ -109,7 +109,7 @@ private def processVar (idStx : Syntax) : M Syntax := do
   modify fun s => { s with vars := s.vars.push idStx, found := s.found.insert id }
   return idStx
 
-private def nameToPattern : Name → TermElabM Syntax
+private def nameToPattern : Name → TermElabM (TSyntax `term)
   | Name.anonymous => `(Name.anonymous)
   | Name.str p s _ => do let p ← nameToPattern p; `(Name.str $p $(quote s) _)
   | Name.num p n _ => do let p ← nameToPattern p; `(Name.num $p $(quote n) _)

@@ -11,9 +11,9 @@ open Lean.Parser.Term hiding macroArg
 open Lean.Parser.Command
 
 /- Convert `macro` arg into a `syntax` command item and a pattern element -/
-partial def expandMacroArg (stx : Syntax) : CommandElabM (Syntax × Syntax) := do
+partial def expandMacroArg (stx : TSyntax ``macroArg) : CommandElabM (TSyntax `stx × TSyntax `term) := do
   let (id?, id, stx) ← match (← liftMacroM <| expandMacros stx) with
-    | `(macroArg| $id:ident:$stx) => pure (some id, id, stx)
+    | `(macroArg| $id:ident:$stx) => pure (some id, (id : TSyntax `term), stx)
     | `(macroArg| $stx:stx)       => pure (none, (← `(x)), stx)
     | _                           => throwUnsupportedSyntax
   mkSyntaxAndPat id? id stx

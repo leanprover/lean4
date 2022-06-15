@@ -9,6 +9,7 @@ import Lean.Elab.AuxDef
 namespace Lean.Elab.Command
 open Lean.Syntax
 open Lean.Parser.Term hiding macroArg
+open Lean.Parser.Command
 
 def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr) : TermElabM Expr := do
   Term.tryPostponeIfNoneOrMVar expectedType?
@@ -16,8 +17,8 @@ def withExpectedType (expectedType? : Option Expr) (x : Expr → TermElabM Expr)
     | throwError "expected type must be known"
   x expectedType
 
-def elabElabRulesAux (doc? : Option Syntax) (attrKind : Syntax) (k : SyntaxNodeKind) (cat? expty? : Option Syntax) (alts : Array Syntax) : CommandElabM Syntax := do
-  let alts ← alts.mapM fun alt => match alt with
+def elabElabRulesAux (doc? : Option (TSyntax ``docComment)) (attrKind : TSyntax ``attrKind) (k : SyntaxNodeKind) (cat? expty? : Option (TSyntax `ident)) (alts : Array (TSyntax ``matchAlt)) : CommandElabM Syntax := do
+  let alts ← alts.mapM fun (alt : TSyntax ``matchAlt) => match alt with
     | `(matchAltExpr| | $pats,* => $rhs) => do
       let pat := pats.elemsAndSeps[0]
       if !pat.isQuot then

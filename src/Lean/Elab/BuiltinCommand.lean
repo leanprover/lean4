@@ -172,7 +172,7 @@ private def matchBinderNames (ids : Array Syntax) (binderNames : Array Name) : C
   variable {α} -- trying to update part of the binder block defined above.
   ```
 -/
-private def replaceBinderAnnotation (binder : Syntax) : CommandElabM Bool := do
+private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBinder) : CommandElabM Bool := do
   if let some (binderNames, explicit) := typelessBinder? binder then
     let varDecls := (← getScope).varDecls
     let mut varDeclsNew := #[]

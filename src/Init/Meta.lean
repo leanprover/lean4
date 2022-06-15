@@ -398,8 +398,8 @@ end Syntax
   | none => x
   | some ref => withRef ref x
 
-@[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : Syntax :=
-  Syntax.node SourceInfo.none k args
+@[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : TSyntax k :=
+  ⟨Syntax.node SourceInfo.none k args⟩
 
 /- Syntax objects for a Lean module. -/
 structure Module where
@@ -421,30 +421,30 @@ partial def expandMacros : Syntax → MacroM Syntax
 /--
   Create an identifier copying the position from `src`.
   To refer to a specific constant, use `mkCIdentFrom` instead. -/
-def mkIdentFrom (src : Syntax) (val : Name) : Syntax :=
-  Syntax.ident (SourceInfo.fromRef src) (toString val).toSubstring val []
+def mkIdentFrom (src : Syntax) (val : Name) : TSyntax identKind :=
+  ⟨Syntax.ident (SourceInfo.fromRef src) (toString val).toSubstring val []⟩
 
-def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) : m Syntax := do
+def mkIdentFromRef [Monad m] [MonadRef m] (val : Name) : m (TSyntax identKind) := do
   return mkIdentFrom (← getRef) val
 
 /--
   Create an identifier referring to a constant `c` copying the position from `src`.
   This variant of `mkIdentFrom` makes sure that the identifier cannot accidentally
   be captured. -/
-def mkCIdentFrom (src : Syntax) (c : Name) : Syntax :=
+def mkCIdentFrom (src : Syntax) (c : Name) : TSyntax identKind :=
   -- Remark: We use the reserved macro scope to make sure there are no accidental collision with our frontend
   let id   := addMacroScope `_internal c reservedMacroScope
-  Syntax.ident (SourceInfo.fromRef src) (toString id).toSubstring id [(c, [])]
+  ⟨Syntax.ident (SourceInfo.fromRef src) (toString id).toSubstring id [(c, [])]⟩
 
 def mkCIdentFromRef [Monad m] [MonadRef m] (c : Name) : m Syntax := do
   return mkCIdentFrom (← getRef) c
 
-def mkCIdent (c : Name) : Syntax :=
+def mkCIdent (c : Name) : TSyntax identKind :=
   mkCIdentFrom Syntax.missing c
 
 @[export lean_mk_syntax_ident]
-def mkIdent (val : Name) : Syntax :=
-  Syntax.ident SourceInfo.none (toString val).toSubstring val []
+def mkIdent (val : Name) : TSyntax identKind :=
+  ⟨Syntax.ident SourceInfo.none (toString val).toSubstring val []⟩
 
 @[inline] def mkNullNode (args : Array Syntax := #[]) : Syntax :=
   mkNode nullKind args
@@ -490,27 +490,27 @@ instance : Coe (TSyntaxArray k) (TSepArray k sep) where
   coe a := ⟨mkSepArray a.raw (mkAtom sep)⟩
 
 /-- Create syntax representing a Lean term application, but avoid degenerate empty applications. -/
-def mkApp (fn : Syntax) : (args : Array Syntax) → Syntax
+def mkApp (fn : TSyntax `term) : (args : TSyntaxArray `term) → TSyntax `term
   | #[]  => fn
-  | args => mkNode `Lean.Parser.Term.app #[fn, mkNullNode args]
+  | args => ⟨mkNode `Lean.Parser.Term.app #[fn, mkNullNode args.raw]⟩
 
-def mkCApp (fn : Name) (args : Array Syntax) : Syntax :=
+def mkCApp (fn : Name) (args : TSyntaxArray `term) : TSyntax `term :=
   mkApp (mkCIdent fn) args
 
-def mkLit (kind : SyntaxNodeKind) (val : String) (info := SourceInfo.none) : Syntax :=
+def mkLit (kind : SyntaxNodeKind) (val : String) (info := SourceInfo.none) : TSyntax kind :=
   let atom : Syntax := Syntax.atom info val
   mkNode kind #[atom]
 
-def mkStrLit (val : String) (info := SourceInfo.none) : Syntax :=
+def mkStrLit (val : String) (info := SourceInfo.none) : TSyntax strLitKind :=
   mkLit strLitKind (String.quote val) info
 
-def mkNumLit (val : String) (info := SourceInfo.none) : Syntax :=
+def mkNumLit (val : String) (info := SourceInfo.none) : TSyntax numLitKind :=
   mkLit numLitKind val info
 
-def mkScientificLit (val : String) (info := SourceInfo.none) : Syntax :=
+def mkScientificLit (val : String) (info := SourceInfo.none) : TSyntax scientificLitKind :=
   mkLit scientificLitKind val info
 
-def mkNameLit (val : String) (info := SourceInfo.none) : Syntax :=
+def mkNameLit (val : String) (info := SourceInfo.none) : TSyntax nameLitKind :=
   mkLit nameLitKind val info
 
 /- Recall that we don't have special Syntax constructors for storing numeric and string atoms.
@@ -831,15 +831,17 @@ end Compat
 end TSyntax
 
 /-- Reflect a runtime datum back to surface syntax (best-effort). -/
-class Quote (α : Type) where
-  quote : α → Syntax
+class Quote (α : Type) (k : SyntaxNodeKind := `term) where
+  quote : α → TSyntax k
 
 export Quote (quote)
 
-instance : Quote Syntax := ⟨id⟩
+instance [Quote α k] [CoeHTCT (TSyntax k) (TSyntax [k'])]: Quote α k' := ⟨fun a => quote (k := k) a⟩
+
+instance : Quote (TSyntax `term) := ⟨id⟩
 instance : Quote Bool := ⟨fun | true => mkCIdent `Bool.true | false => mkCIdent `Bool.false⟩
-instance : Quote String := ⟨Syntax.mkStrLit⟩
-instance : Quote Nat := ⟨fun n => Syntax.mkNumLit <| toString n⟩
+instance : Quote String strLitKind := ⟨Syntax.mkStrLit⟩
+instance : Quote Nat numLitKind := ⟨fun n => Syntax.mkNumLit <| toString n⟩
 instance : Quote Substring := ⟨fun s => Syntax.mkCApp `String.toSubstring #[quote s.toString]⟩
 
 -- in contrast to `Name.toString`, we can, and want to be, precise here
@@ -850,43 +852,42 @@ private def getEscapedNameParts? (acc : List String) : Name → Option (List Str
     getEscapedNameParts? (s::acc) n
   | Name.num _ _ _ => none
 
-private def quoteNameMk : Name → Syntax
+def quoteNameMk : Name → TSyntax `term
   | Name.anonymous => mkCIdent ``Name.anonymous
   | Name.str n s _ => Syntax.mkCApp ``Name.mkStr #[quoteNameMk n, quote s]
   | Name.num n i _ => Syntax.mkCApp ``Name.mkNum #[quoteNameMk n, quote i]
 
-instance : Quote Name where
+instance : Quote Name `term where
   quote n := match getEscapedNameParts? [] n with
-    | some ss => mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ ".".intercalate ss)]
-    | none    => quoteNameMk n
+    | some ss => ⟨mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit ("`" ++ ".".intercalate ss)]⟩
+    | none    => ⟨quoteNameMk n⟩
 
-instance {α β : Type} [Quote α] [Quote β] : Quote (α × β) where
+instance [Quote α `term] [Quote β `term] : Quote (α × β) `term where
   quote
     | ⟨a, b⟩ => Syntax.mkCApp ``Prod.mk #[quote a, quote b]
 
-private def quoteList {α : Type} [Quote α] : List α → Syntax
+private def quoteList [Quote α `term] : List α → TSyntax `term
   | []      => mkCIdent ``List.nil
   | (x::xs) => Syntax.mkCApp ``List.cons #[quote x, quoteList xs]
 
-instance {α : Type} [Quote α] : Quote (List α) where
+instance [Quote α `term] : Quote (List α) `term where
   quote := quoteList
 
-instance {α : Type} [Quote α] : Quote (Array α) where
+instance [Quote α `term] : Quote (Array α) `term where
   quote xs := Syntax.mkCApp ``List.toArray #[quote xs.toList]
 
-private def quoteOption {α : Type} [Quote α] : Option α → Syntax
-  | none     => mkIdent ``none
-  | (some x) => Syntax.mkCApp ``some #[quote x]
+instance Option.hasQuote {α : Type} [Quote α `term] : Quote (Option α) `term where
+  quote
+    | none     => mkIdent ``none
+    | (some x) => Syntax.mkCApp ``some #[quote x]
 
-instance Option.hasQuote {α : Type} [Quote α] : Quote (Option α) where
-  quote := quoteOption
 
 /- Evaluator for `prec` DSL -/
 def evalPrec (stx : Syntax) : MacroM Nat :=
   Macro.withIncRecDepth stx do
     let stx ← expandMacros stx
     match stx with
-    | `(prec| $num:num) => return num.isNatLit?.getD 0
+    | `(prec| $num:num) => return num.getNat
     | _ => Macro.throwErrorAt stx "unexpected precedence"
 
 macro_rules
@@ -895,14 +896,14 @@ macro_rules
 macro_rules
   | `(prec| $a - $b) => do `(prec| $(quote <| (← evalPrec a) - (← evalPrec b)):num)
 
-macro "eval_prec " p:prec:max : term => return quote (← evalPrec p)
+macro "eval_prec " p:prec:max : term => return quote (k := `term) (← evalPrec p)
 
 /- Evaluator for `prio` DSL -/
 def evalPrio (stx : Syntax) : MacroM Nat :=
   Macro.withIncRecDepth stx do
     let stx ← expandMacros stx
     match stx with
-    | `(prio| $num:num) => return num.isNatLit?.getD 0
+    | `(prio| $num:num) => return num.getNat
     | _ => Macro.throwErrorAt stx "unexpected priority"
 
 macro_rules
@@ -911,9 +912,9 @@ macro_rules
 macro_rules
   | `(prio| $a - $b) => do `(prio| $(quote <| (← evalPrio a) - (← evalPrio b)):num)
 
-macro "eval_prio " p:prio:max : term => return quote (← evalPrio p)
+macro "eval_prio " p:prio:max : term => return quote (k := `term) (← evalPrio p)
 
-def evalOptPrio : Option Syntax → MacroM Nat
+def evalOptPrio : Option (TSyntax `prio) → MacroM Nat
   | some prio => evalPrio prio
   | none      => return 1000 -- TODO: FIX back eval_prio default
 
@@ -1040,6 +1041,13 @@ partial def isInterpolatedStrLit? (stx : Syntax) : Option String :=
   | none     => none
   | some val => decodeInterpStrLit val
 
+def getSepArgs (stx : Syntax) : Array Syntax :=
+  stx.getArgs.getSepElems
+
+end Syntax
+
+namespace TSyntax
+
 def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → Syntax → MacroM Syntax) (mkElem : Syntax → MacroM Syntax) : MacroM Syntax := do
   let mut i := 0
   let mut result := Syntax.missing
@@ -1054,14 +1062,12 @@ def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → S
     i := i+1
   return result
 
-def expandInterpolatedStr (interpStr : Syntax) (type : Syntax) (toTypeFn : Syntax) : MacroM Syntax := do
-  let r ← expandInterpolatedStrChunks interpStr.getArgs (fun a b => `($a ++ $b)) (fun a => `($toTypeFn $a))
+open TSyntax.Compat in
+def expandInterpolatedStr (interpStr : TSyntax interpolatedStrKind) (type : TSyntax `term) (toTypeFn : TSyntax `term) : MacroM (TSyntax `term) := do
+  let r ← expandInterpolatedStrChunks interpStr.raw.getArgs (fun a b => `($a ++ $b)) (fun a => `($toTypeFn $a))
   `(($r : $type))
 
-def getSepArgs (stx : Syntax) : Array Syntax :=
-  stx.getArgs.getSepElems
-
-end Syntax
+end TSyntax
 
 namespace Meta
 

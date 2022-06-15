@@ -123,22 +123,25 @@ private def expandNotationAux (ref : Syntax)
     | some name => pure name.getId
     | none => mkNameFromParserSyntax `term (mkNullNode syntaxParts)
   -- build macro rules
-  let vars := items.filter fun item => item.getKind == `Lean.Parser.Command.identPrec
-  let vars := vars.map fun var => var[0]
-  let qrhs := antiquote vars rhs
+  let vars := items.filter fun item => item.raw.getKind == `Lean.Parser.Command.identPrec
+  let vars := vars.map fun var => var.raw[0]
+  let qrhs := ⟨antiquote vars rhs⟩
   let patArgs ← items.mapM expandNotationItemIntoPattern
   /- The command `syntax [<kind>] ...` adds the current namespace to the syntax node kind.
      So, we must include current namespace when we create a pattern for the following `macro_rules` commands. -/
   let fullName := currNamespace ++ name
-  let pat := mkNode fullName patArgs
+  let pat : TSyntax `term := ⟨mkNode fullName patArgs⟩
   let stxDecl ← `($attrKind:attrKind syntax $[: $prec?]? (name := $(mkIdent name)) (priority := $(quote prio):num) $[$syntaxParts]* : $cat)
-  let mut macroDecl ← `(macro_rules | `($pat) => ``($qrhs))
-  if isLocalAttrKind attrKind then
-    -- Make sure the quotation pre-checker takes section variables into account for local notation.
-    macroDecl ← `(section set_option quotPrecheck.allowSectionVars true $macroDecl end)
+  let macroDecl ← `(macro_rules | `($pat) => ``($qrhs))
+  let macroDecls ←
+    if isLocalAttrKind attrKind then
+      -- Make sure the quotation pre-checker takes section variables into account for local notation.
+      `(section set_option quotPrecheck.allowSectionVars true $macroDecl end)
+    else
+      pure ⟨mkNullNode #[macroDecl]⟩
   match (← mkSimpleDelab attrKind pat qrhs |>.run) with
-  | some delabDecl => return mkNullNode #[stxDecl, macroDecl, delabDecl]
-  | none           => return mkNullNode #[stxDecl, macroDecl]
+  | some delabDecl => return mkNullNode #[stxDecl, macroDecls, delabDecl]
+  | none           => return mkNullNode #[stxDecl, macroDecls]
 
 @[builtinMacro Lean.Parser.Command.notation] def expandNotation : Macro
   | stx@`($attrKind:attrKind notation $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $items* => $rhs) => do

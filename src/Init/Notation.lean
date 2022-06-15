@@ -214,11 +214,12 @@ namespace Lean
 
 macro_rules
   | `([ $elems,* ]) => do
-    let rec expandListLit (i : Nat) (skip : Bool) (result : Syntax) : MacroM Syntax := do
+    -- NOTE: we do not have `TSepArray.getElems` yet at this point
+    let rec expandListLit (i : Nat) (skip : Bool) (result : TSyntax `term) : MacroM Syntax := do
       match i, skip with
       | 0,   _     => pure result
       | i+1, true  => expandListLit i false result
-      | i+1, false => expandListLit i true  (← ``(List.cons $(elems.elemsAndSeps[i]) $result))
+      | i+1, false => expandListLit i true  (← ``(List.cons $(⟨elems.elemsAndSeps[i]⟩) $result))
     if elems.elemsAndSeps.size < 64 then
       expandListLit elems.elemsAndSeps.size false (← ``(List.nil))
     else

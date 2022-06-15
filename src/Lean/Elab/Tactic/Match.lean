@@ -35,7 +35,7 @@ private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM
         alt := alt.setArg 3 newHole
       else
         let newHole ← withFreshMacroScope `(?rhs)
-        let newHoleId := newHole[1]
+        let newHoleId := newHole.raw[1]
         let newCase ← `(tactic|
           case $newHoleId =>%$(alt[2])
             -- annotate `| ... =>` with state after `case`

@@ -256,7 +256,7 @@ partial def handleDocumentSymbol (_ : DocumentSymbolParams)
     | [] => ([], [])
     | stx::stxs => match stx with
       | `(namespace $id)  => sectionLikeToDocumentSymbols text stx stxs (id.getId.toString) SymbolKind.namespace id
-      | `(section $(id)?) => sectionLikeToDocumentSymbols text stx stxs ((·.getId.toString) <$> id |>.getD "<section>") SymbolKind.namespace (id.getD stx)
+      | `(section $(id)?) => sectionLikeToDocumentSymbols text stx stxs ((·.getId.toString) <$> id |>.getD "<section>") SymbolKind.namespace (id.map (·.raw) |>.getD stx)
       | `(end $(_id)?) => ([], stx::stxs)
       | _ => Id.run do
         let (syms, stxs') := toDocumentSymbols text stxs
@@ -265,7 +265,7 @@ partial def handleDocumentSymbol (_ : DocumentSymbolParams)
         if let some stxRange := stx.getRange? then
           let (name, selection) := match stx with
             | `($_:declModifiers $_:attrKind instance $[$np:namedPrio]? $[$id:ident$[.{$ls,*}]?]? $sig:declSig $_) =>
-              ((·.getId.toString) <$> id |>.getD s!"instance {sig.reprint.getD ""}", id.getD sig)
+              ((·.getId.toString) <$> id |>.getD s!"instance {sig.raw.reprint.getD ""}", id.map (·.raw) |>.getD sig)
             | _ => match stx[1][1] with
               | `(declId|$id:ident$[.{$ls,*}]?) => (id.getId.toString, id)
               | _                               => (stx[1][0].isIdOrAtom?.getD "<unknown>", stx[1][0])
@@ -423,7 +423,7 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
           addRanges text sections stxs
       | `(mutual $body* end) => do
         addRangeFromSyntax text FoldingRangeKind.region stx
-        addRanges text [] body.toList
+        addRanges text [] body.raw.toList
         addRanges text sections stxs
       | _ => do
         if isImport stx then
@@ -444,7 +444,7 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
         -- separately to the main definition.
         -- We never fold other modifiers, such as annotations.
         if let `($dm:declModifiers $decl) := stx then
-          if let some comment := dm[0].getOptional? then
+          if let some comment := dm.raw[0].getOptional? then
             addRangeFromSyntax text FoldingRangeKind.comment comment
 
           addRangeFromSyntax text FoldingRangeKind.region decl

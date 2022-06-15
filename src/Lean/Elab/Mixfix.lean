@@ -30,6 +30,6 @@ where
     let attrKind := stx[0]
     let stx  := stx.setArg 0 mkAttrKindGlobal
     let stx ← f stx
-    return stx.setArg 0 attrKind
+    return stx.raw.setArg 0 attrKind
 
 end Lean.Elab.Command

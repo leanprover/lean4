@@ -134,7 +134,7 @@ def testParseModule (env : Environment) (fname contents : String) : IO Syntax :=
   let (header, state, messages) ← parseHeader inputCtx
   let cmds ← testParseModuleAux env inputCtx state messages #[]
   let stx := mkNode `Lean.Parser.Module.module #[header, mkListNode cmds]
-  pure stx.updateLeading
+  pure stx.raw.updateLeading
 
 def testParseFile (env : Environment) (fname : System.FilePath) : IO Syntax := do
   let contents ← IO.FS.readFile fname

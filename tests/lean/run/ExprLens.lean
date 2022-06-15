@@ -22,9 +22,10 @@ partial def traverseAll : ExprTraversal := fun
 def testTraversal
   (traversalWithPos : ExprTraversal)
   (expectedLen : Nat): TermElabM Unit := do
-  -- make a sample expression `e` that has all of the right stuff.
+  -- make a sample expression `e` that has all of the different kinds of expressions.
   let s ← `(
     ∀ x y : Nat,
+    ∀ {zz : Fin x},
     ∃ (z : {z: Nat // z = x + y}),
     let p := z.1
     p + x + y = 3
@@ -36,23 +37,29 @@ def testTraversal
   -- leave `e` unmodified but at each point accumulate
   -- the abstracted subexpression
   let (e', subexprs) ← StateT.run (
-    traversalWithPos (fun p e => do
+    traversalWithPos (fun p s => do
       let a ← get
       let Δ ← getLCtx
-      let s := Expr.abstract e <| Lean.LocalContext.subtract Γ Δ
-      set <| a.push (p, s)
-      return e
+      let E := Lean.LocalContext.subtract Γ Δ
+
+      -- check that numBinders works
+      let nBinders ← Lean.Core.numBinders p e
+      if E.size != nBinders then
+        throwError "bad number of binders"
+
+      set <| a.push (p, Expr.abstract s E)
+      return s
     ) Pos.root e) #[]
   -- the traversal output should be equal to the original
   -- that is: `traversal pure e ≡ e`
   if not (← liftM $ isDefEq e e') then
-    throwError "{e} and {e'} are different!"
+    throwError "\n{e} \nand \n{e'} are different!"
 
   -- check that the number of subexpressions is what we expect
   -- and if it isn't then print them out for debugging.
   if subexprs.size != expectedLen then
     for (p, s) in subexprs do
-      let ppt ← PrettyPrinter.delab s >>= (liftM ∘ PrettyPrinter.ppTerm)
+      let ppt ← PrettyPrinter.ppExpr s
       dbg_trace s!"{p}, {ppt}\n"
     throwError "expected size: {expectedLen}\nactual size: {subexprs.size}"
 
@@ -63,19 +70,19 @@ def testTraversal
       let t := Expr.abstract t fvars
       let de ← liftM $ isDefEq t s
       if not de then
-        throwError "{t} and {s} are different!"
+        throwError "\n{t} \nand \n{s} are different!"
       return ()
     ) p e
 
     -- check that replaceSubexpr pure is the identity
     let e' ← replaceSubexpr pure p e
     if not (← liftM $ isDefEq e e') then
-      throwError "{e} and {e'} are different!"
+      throwError "\n{e} \nand \n{e'} are different!"
 
 #eval ((do
   testTraversal traverseLambdaWithPos 1
-  testTraversal traverseChildrenWithPos 3
-  testTraversal traverseAll 100
+  testTraversal traverseChildrenWithPos 4
+  testTraversal traverseAll 103
   return ())
   : TermElabM Unit
 )

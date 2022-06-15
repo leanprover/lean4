@@ -26,17 +26,17 @@ variable {M} [Monad M] [MonadLiftT MetaM M] [MonadControlT MetaM M] [MonadError 
 If the subexpression is under a binder it will instantiate and abstract the binder body correctly.
 Mdata is ignored. An index of 3 is interpreted as the type of the expression. An index of 3 will throw since we can't replace types.
 
-See also `Lean.Meta.transform`. -/
+See also `Lean.Meta.transform`, `Lean.Meta.traverseChildren`. -/
 private def lensCoord (g : Expr → M Expr) : Nat → Expr → M Expr
   | 0, e@(Expr.app f a _)       => return e.updateApp! (← g f) a
   | 1, e@(Expr.app f a _)       => return e.updateApp! f (← g a)
   | 0, e@(Expr.lam _ y b _)     => return e.updateLambdaE! (← g y) b
-  | 1, e@(Expr.lam n y b c)     => withLocalDecl n c.binderInfo y fun x => do mkLambdaFVars #[x] <|← g <| b.instantiateRev #[x]
+  | 1,   (Expr.lam n y b c)     => withLocalDecl n c.binderInfo y fun x => do mkLambdaFVars #[x] <|← g <| b.instantiateRev #[x]
   | 0, e@(Expr.forallE _ y b _) => return e.updateForallE! (← g y) b
-  | 1, e@(Expr.forallE n y b c) => withLocalDecl n c.binderInfo y fun x => do mkForallFVars #[x] <|← g <| b.instantiateRev #[x]
+  | 1,   (Expr.forallE n y b c) => withLocalDecl n c.binderInfo y fun x => do mkForallFVars #[x] <|← g <| b.instantiateRev #[x]
   | 0, e@(Expr.letE _ y a b _)  => return e.updateLet! (← g y) a b
   | 1, e@(Expr.letE _ y a b _)  => return e.updateLet! y (← g a) b
-  | 2, e@(Expr.letE n y a b _)  => withLetDecl n y a fun x => do mkLetFVars #[x] <|← g <| b.instantiateRev #[x]
+  | 2,   (Expr.letE n y a b _)  => withLetDecl n y a fun x => do mkLetFVars #[x] <|← g <| b.instantiateRev #[x]
   | 0, e@(Expr.proj _ _ b _)    => e.updateProj! <$> g b
   | n, e@(Expr.mdata _ a _)     => e.updateMData! <$> lensCoord g n a
   | 3, _                        => throwError "Lensing on types is not supported"
@@ -118,39 +118,33 @@ open Lean.SubExpr
 
 section ViewRaw
 
-open Except in
-/-- Get the raw subexpression without performing any instantiation. -/
-private def viewCoordRaw: Nat → Expr → Except String Expr
-  | 3, e                      => error s!"Can't viewRaw the type of {e}"
-  | 0, (Expr.app f _ _)       => ok f
-  | 1, (Expr.app _ a _)       => ok a
-  | 0, (Expr.lam _ y _ _)     => ok y
-  | 1, (Expr.lam _ _ b _)     => ok b
-  | 0, (Expr.forallE _ y _ _) => ok y
-  | 1, (Expr.forallE _ _ b _) => ok b
-  | 0, (Expr.letE _ y _ _ _)  => ok y
-  | 1, (Expr.letE _ _ a _ _)  => ok a
-  | 2, (Expr.letE _ _ _ b _)  => ok b
-  | 0, (Expr.proj _ _ b _)    => ok b
-  | n, (Expr.mdata _ a _)     => viewCoordRaw n a
-  | c, e                      => error s!"Bad coordinate {c} for {e}"
+variable {M} [Monad M] [MonadError M]
 
-open Except in
+/-- Get the raw subexpression without performing any instantiation. -/
+private def viewCoordRaw: Expr → Nat → M Expr
+  | e                     , 3 => throwError "Can't viewRaw the type of {e}"
+  | (Expr.app f _ _)      , 0 => pure f
+  | (Expr.app _ a _)      , 1 => pure a
+  | (Expr.lam _ y _ _)    , 0 => pure y
+  | (Expr.lam _ _ b _)    , 1 => pure b
+  | (Expr.forallE _ y _ _), 0 => pure y
+  | (Expr.forallE _ _ b _), 1 => pure b
+  | (Expr.letE _ y _ _ _) , 0 => pure y
+  | (Expr.letE _ _ a _ _) , 1 => pure a
+  | (Expr.letE _ _ _ b _) , 2 => pure b
+  | (Expr.proj _ _ b _)   , 0 => pure b
+  | (Expr.mdata _ a _)    , n => viewCoordRaw a n
+  | e                     , c => throwError "Bad coordinate {c} for {e}"
+
+
 /-- Given a valid SubExpr, will return the raw current expression without performing any instantiation.
 If the SubExpr has a type subexpression coordinate then will error.
 
 This is a cheaper version of `Lean.Meta.viewSubexpr` and can be used to quickly view the
 subexpression at a position. Note that because the resulting expression will contain
 loose bound variables it can't be used in any `MetaM` methods. -/
-def viewSubexpr (p : Pos) (root : Expr) : Except String Expr :=
-  aux root p.toArray.toList
-  where
-    aux (e : Expr)
-      | head :: tail =>
-        match viewCoordRaw head e with
-        | ok e => aux e tail
-        | error m => error m
-      | [] => ok e
+def viewSubexpr (p : Pos) (root : Expr) : M Expr :=
+  p.foldlM viewCoordRaw root
 
 private def viewBindersCoord : Nat → Expr → Option (Name × Expr)
   | 1, (Expr.lam n y _ _)     => some (n, y)
@@ -159,18 +153,19 @@ private def viewBindersCoord : Nat → Expr → Option (Name × Expr)
   | _, _                      => none
 
 /-- `viewBinders p e` returns a list of all of the binders (name, type) above the given position `p` in the root expression `e` -/
-def viewBinders (p : Pos) (root : Expr) : Except String (Array (Name × Expr)) := do
-  let (acc, _) ← Pos.foldrM (fun c (acc, e) => do
-    let e₂ ← viewCoordRaw c e
-    let acc : Array (Name × Expr) :=
+def viewBinders (p : Pos) (root : Expr) : M (Array (Name × Expr)) := do
+  let (acc, _) ← p.foldlM (fun (acc, e) c => do
+    let e₂ ← viewCoordRaw e c
+    let acc :=
       match viewBindersCoord c e with
       | none => acc
       | some b => acc.push b
     return (acc, e₂)
-  ) p (#[], root)
+  ) (#[], root)
   return acc
 
-def numBinders (p : Pos) (e : Expr) : Except String Nat :=
+/-- Returns the number of binders above a given subexpr position. -/
+def numBinders (p : Pos) (e : Expr) : M Nat :=
   Array.size <$> viewBinders p e
 
 end ViewRaw

@@ -31,10 +31,11 @@ def mkInductiveApp (indVal : InductiveVal) (argNames : Array Name) : TermElabM (
   let args := argNames.map mkIdent
   `(@$f $args*)
 
+open TSyntax.Compat in
 /-- Return implicit binder syntaxes for the given `argNames`. The output matches `implicitBinder*`.
 
 For example, ``#[`foo,`bar]`` gives `` `({foo} {bar})``. -/
-def mkImplicitBinders (argNames : Array Name) : TermElabM (Array Syntax) :=
+def mkImplicitBinders (argNames : Array Name) : TermElabM (Array (TSyntax ``Parser.Term.implicitBinder)) :=
   argNames.mapM fun argName =>
     `(implicitBinderF| { $(mkIdent argName) })
 
@@ -104,7 +105,8 @@ def mkLet (letDecls : Array (TSyntax ``Parser.Term.letDecl)) (body : TSyntax `te
   letDecls.foldrM (init := body) fun letDecl body =>
     `(let $letDecl:letDecl; $body)
 
-def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (useAnonCtor := true) : TermElabM (Array Syntax) := do
+open TSyntax.Compat in
+def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (useAnonCtor := true) : TermElabM (Array (TSyntax `command)) := do
   let mut instances := #[]
   for i in [:ctx.typeInfos.size] do
     let indVal       := ctx.typeInfos[i]
@@ -129,6 +131,7 @@ structure Header where
   targetNames : Array Name
   targetType  : TSyntax `term
 
+open TSyntax.Compat in
 def mkHeader (className : Name) (arity : Nat) (indVal : InductiveVal) : TermElabM Header := do
   let argNames      ← mkInductArgNames indVal
   let binders       ← mkImplicitBinders argNames

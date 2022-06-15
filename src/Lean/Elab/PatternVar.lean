@@ -128,6 +128,7 @@ private def samePatternsVariables (startingAt : Nat) (s₁ s₂ : State) : Bool 
   else
     false
 
+open TSyntax.Compat in
 partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroScope do
   let k := stx.getKind
   if k == identKind then

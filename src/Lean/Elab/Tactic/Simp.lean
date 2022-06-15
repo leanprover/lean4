@@ -13,6 +13,7 @@ import Lean.Elab.Tactic.Config
 
 namespace Lean.Elab.Tactic
 open Meta
+open TSyntax.Compat
 
 declare_config_elab elabSimpConfigCore    Meta.Simp.Config
 declare_config_elab elabSimpConfigCtxCore Meta.Simp.ConfigCtx

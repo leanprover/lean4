@@ -13,6 +13,7 @@ namespace Lean.PrettyPrinter.Delaborator
 open Lean.Meta
 open Lean.Parser.Term
 open SubExpr
+open TSyntax.Compat
 
 def maybeAddBlockImplicit (ident : Syntax) : DelabM Syntax := do
   if ← getPPOption getPPAnalysisBlockImplicit then `(@$ident:ident) else pure ident

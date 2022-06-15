@@ -13,6 +13,7 @@ import Lean.Elab.DeclarationRange
 namespace Lean.Elab.Command
 
 open Meta
+open TSyntax.Compat
 
 private def ensureValidNamespace (name : Name) : MacroM Unit := do
   match name with
@@ -37,7 +38,7 @@ private def expandDeclIdNamespace? (declId : Syntax) : MacroM (Option (Name × S
     let nameNew := { scpView with name := Name.mkSimple s }.review
     -- preserve "original" info, if any, so that hover etc. on the namespaced
     -- name access the info tree node of the declaration name
-    let id := mkIdent nameNew |>.setInfo declId.getHeadInfo
+    let id := mkIdent nameNew |>.raw.setInfo declId.getHeadInfo
     if declId.isIdent then
       return some (pre, id)
     else

@@ -171,7 +171,7 @@ instance : HPow Int Nat Int where
   hPow := Int.pow
 
 instance : LawfulBEq Int where
-  eq_of_beq a b h := by simp [BEq.beq] at h; assumption
-  rfl a := by simp [BEq.beq]
+  eq_of_beq h := by simp [BEq.beq] at h; assumption
+  rfl := by simp [BEq.beq]
 
 end Int

@@ -174,14 +174,14 @@ structure PolyCnstr  where
 
 -- TODO: implement LawfulBEq generator companion for BEq
 instance : LawfulBEq PolyCnstr where
-  eq_of_beq a b h := by
+  eq_of_beq {a b} h := by
     cases a; rename_i eq₁ lhs₁ rhs₁
     cases b; rename_i eq₂ lhs₂ rhs₂
     have h : eq₁ == eq₂ && lhs₁ == lhs₂ && rhs₁ == rhs₂ := h
     simp at h
     have ⟨⟨h₁, h₂⟩, h₃⟩ := h
     rw [h₁, eq_of_beq h₂, eq_of_beq h₃]
-  rfl a := by
+  rfl {a} := by
     cases a; rename_i eq lhs rhs
     show (eq == eq && lhs == lhs && rhs == rhs) = true
     simp [LawfulBEq.rfl]

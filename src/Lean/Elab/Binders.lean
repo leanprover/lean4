@@ -12,6 +12,7 @@ import Lean.Elab.AuxDiscr
 namespace Lean.Elab.Term
 open Meta
 open Lean.Parser.Term
+open TSyntax.Compat
 
 /--
   Given syntax of the forms

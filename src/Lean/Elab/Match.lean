@@ -1121,6 +1121,7 @@ private def getDiscrs (matchStx : Syntax) : Array Syntax :=
 private def getMatchOptMotive (matchStx : Syntax) : Syntax :=
   matchStx[2]
 
+open TSyntax.Compat in
 private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Syntax) :=
   let matchOptMotive := getMatchOptMotive matchStx
   if matchOptMotive.isNone then do

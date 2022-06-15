@@ -11,6 +11,7 @@ import Lean.Elab.Tactic.Induction
 namespace Lean.Elab.Tactic
 open Meta
 
+open TSyntax.Compat in
 open Parser.Tactic in
 private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM (TSyntax `term × Array Syntax) := do
   let matchAlts := matchTac[5]
@@ -37,7 +38,7 @@ private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM
         let newHole ← withFreshMacroScope `(?rhs)
         let newHoleId := newHole.raw[1]
         let newCase ← `(tactic|
-          case $newHoleId =>%$(alt[2])
+          case $newHoleId:ident =>%$(alt[2])
             -- annotate `| ... =>` with state after `case`
             with_annotate_state $(mkNullNode #[alt[0], alt[2]]) skip
             $holeOrTacticSeq)

@@ -21,6 +21,7 @@ syntax unbracketedExplicitBinders := binderIdent+ (" : " term)?
 syntax bracketedExplicitBinders   := "(" binderIdent+ " : " term ")"
 syntax explicitBinders            := bracketedExplicitBinders+ <|> unbracketedExplicitBinders
 
+open TSyntax.Compat in
 def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type? : Option Syntax) (body : Syntax) : MacroM Syntax :=
   let rec loop (i : Nat) (acc : Syntax) := do
     match i with

@@ -16,6 +16,7 @@ namespace Lean.Elab.Term.Quotation
 open Lean.Parser.Term
 open Lean.Syntax
 open Meta
+open TSyntax.Compat
 
 /-- `C[$(e)]` ~> `let a := e; C[$a]`. Used in the implementation of antiquot splices. -/
 private partial def floatOutAntiquotTerms (stx : Syntax) : StateT (Syntax → TermElabM Syntax) TermElabM Syntax :=

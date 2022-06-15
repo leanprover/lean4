@@ -19,6 +19,7 @@ import Lean.Elab.Binders
 namespace Lean.Elab.Command
 
 open Meta
+open TSyntax.Compat
 
 /- Recall that the `structure command syntax is
 ```
@@ -180,7 +181,7 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
             -- It is safe to reset the binders to a "null" node since there is no value to be elaborated
             let type ← `(forall $(binders.getArgs):bracketedBinder*, $type)
             let type ← `(autoParam $type $(mkIdentFrom tac name))
-            pure (mkNullNode, some type)
+            pure (mkNullNode, some type.raw)
       else
         let (binders, type) := expandDeclSig fieldBinder[3]
         pure (binders, some type)

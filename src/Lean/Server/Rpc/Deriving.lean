@@ -281,7 +281,7 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
       ]
 
   for cmd in cmds do
-     elabCommand cmd
+     elabCommand cmd.raw
   return true
 
 private unsafe def dispatchDeriveInstanceUnsafe (declNames : Array Name) (args? : Option (TSyntax ``Parser.Term.structInst)) : CommandElabM Bool := do

@@ -78,6 +78,7 @@ def resolveParserName [Monad m] [MonadInfoTree m] [MonadResolveName m] [MonadEnv
         | _                                           => none
   catch _ => return []
 
+open TSyntax.Compat in
 /--
   Given a `stx` of category `syntax`, return a pair `(newStx, lhsPrec?)`,
   where `newStx` is of category `term`. After elaboration, `newStx` should have type

@@ -13,6 +13,7 @@ namespace Lean.Elab.Term.StructInst
 
 open Std (HashMap)
 open Meta
+open TSyntax.Compat
 
 /--
   Structure instances are of the form:

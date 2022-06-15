@@ -26,14 +26,14 @@ private def deriveWithRefInstance (typeNm : Name) : CommandElabM Bool := do
       WithRpcRef.encodeUnsafe $(quote typeNm) r
 
     @[implementedBy encodeUnsafe]
-    constant encode [Monad m] [MonadRpcSession m] (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef :=
+    opaque encode [Monad m] [MonadRpcSession m] (r : WithRpcRef $typeId:ident) : m Lsp.RpcRef :=
       pure ⟨0⟩
 
     unsafe def decodeUnsafe [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
       WithRpcRef.decodeUnsafeAs $typeId:ident $(quote typeNm) r
 
     @[implementedBy decodeUnsafe]
-    constant decode [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
+    opaque decode [Monad m] [MonadRpcSession m] (r : Lsp.RpcRef) : ExceptT String m (WithRpcRef $typeId:ident) :=
       throw "unreachable"
 
     instance : RpcEncoding (WithRpcRef $typeId:ident) Lsp.RpcRef :=
@@ -301,7 +301,7 @@ private unsafe def dispatchDeriveInstanceUnsafe (declNames : Array Name) (args? 
     deriveInstance declNames[0]
 
 @[implementedBy dispatchDeriveInstanceUnsafe]
-private constant dispatchDeriveInstance (declNames : Array Name) (args? : Option Syntax) : CommandElabM Bool
+private opaque dispatchDeriveInstance (declNames : Array Name) (args? : Option Syntax) : CommandElabM Bool
 
 builtin_initialize
   Elab.registerBuiltinDerivingHandlerWithArgs ``RpcEncoding dispatchDeriveInstance

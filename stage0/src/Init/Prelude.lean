@@ -89,14 +89,14 @@ theorem congrFun {α : Sort u} {β : α → Sort v} {f g : (x : α) →  β x} (
 /-
 Initialize the Quotient Module, which effectively adds the following definitions:
 
-constant Quot {α : Sort u} (r : α → α → Prop) : Sort u
+opaque Quot {α : Sort u} (r : α → α → Prop) : Sort u
 
-constant Quot.mk {α : Sort u} (r : α → α → Prop) (a : α) : Quot r
+opaque Quot.mk {α : Sort u} (r : α → α → Prop) (a : α) : Quot r
 
-constant Quot.lift {α : Sort u} {r : α → α → Prop} {β : Sort v} (f : α → β) :
+opaque Quot.lift {α : Sort u} {r : α → α → Prop} {β : Sort v} (f : α → β) :
   (∀ a b : α, r a b → Eq (f a) (f b)) → Quot r → β
 
-constant Quot.ind {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} :
+opaque Quot.ind {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} :
   (∀ a : α, β (Quot.mk r a)) → ∀ q : Quot r, β q
 -/
 init_quot
@@ -795,7 +795,7 @@ protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
 instance : Sub Nat where
   sub := Nat.sub
 
-@[extern "lean_system_platform_nbits"] constant System.Platform.getNumBits : Unit → Subtype fun (n : Nat) => Or (Eq n 32) (Eq n 64) :=
+@[extern "lean_system_platform_nbits"] opaque System.Platform.getNumBits : Unit → Subtype fun (n : Nat) => Or (Eq n 32) (Eq n 64) :=
   fun _ => ⟨64, Or.inr rfl⟩ -- inhabitant
 
 def System.Platform.numBits : Nat :=
@@ -1207,7 +1207,7 @@ unsafe def unsafeCast {α : Type u} {β : Type v} (a : α) : β :=
   ULift.down.{max u v} (cast lcProof (ULift.up.{max u v} a))
 
 @[neverExtract, extern "lean_panic_fn"]
-constant panicCore {α : Type u} [Inhabited α] (msg : String) : α
+opaque panicCore {α : Type u} [Inhabited α] (msg : String) : α
 
 /-
   This is workaround for `panic` occurring in monadic code. See issue #695.
@@ -1714,16 +1714,16 @@ class Hashable (α : Sort u) where
 export Hashable (hash)
 
 @[extern "lean_uint64_to_usize"]
-constant UInt64.toUSize (u : UInt64) : USize
+opaque UInt64.toUSize (u : UInt64) : USize
 
 @[extern "lean_usize_to_uint64"]
-constant USize.toUInt64 (u : USize) : UInt64
+opaque USize.toUInt64 (u : USize) : UInt64
 
 @[extern "lean_uint64_mix_hash"]
-constant mixHash (u₁ u₂ : UInt64) : UInt64
+opaque mixHash (u₁ u₂ : UInt64) : UInt64
 
 @[extern "lean_string_hash"]
-protected constant String.hash (s : @& String) : UInt64
+protected opaque String.hash (s : @& String) : UInt64
 
 instance : Hashable String where
   hash := String.hash
@@ -2226,7 +2226,7 @@ end Syntax
 namespace Macro
 
 /- References -/
-private constant MethodsRefPointed : NonemptyType.{0}
+private opaque MethodsRefPointed : NonemptyType.{0}
 
 private def MethodsRef : Type := MethodsRefPointed.type
 
@@ -2302,7 +2302,7 @@ unsafe def mkMethodsImp (methods : Methods) : MethodsRef :=
   unsafeCast methods
 
 @[implementedBy mkMethodsImp]
-constant mkMethods (methods : Methods) : MethodsRef
+opaque mkMethods (methods : Methods) : MethodsRef
 
 instance : Inhabited MethodsRef where
   default := mkMethods default
@@ -2310,7 +2310,7 @@ instance : Inhabited MethodsRef where
 unsafe def getMethodsImp : MacroM Methods :=
   bind read fun ctx => pure (unsafeCast (ctx.methods))
 
-@[implementedBy getMethodsImp] constant getMethods : MacroM Methods
+@[implementedBy getMethodsImp] opaque getMethods : MacroM Methods
 
 /-- `expandMacro? stx` return `some stxNew` if `stx` is a macro, and `stxNew` is its expansion. -/
 def expandMacro? (stx : Syntax) : MacroM (Option Syntax) := do

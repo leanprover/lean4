@@ -57,7 +57,6 @@ private def expandDeclNamespace? (stx : Syntax) : MacroM (Option (Name × Syntax
     if k == ``Lean.Parser.Command.abbrev ||
        k == ``Lean.Parser.Command.def ||
        k == ``Lean.Parser.Command.theorem ||
-       k == ``Lean.Parser.Command.constant || -- TODO: delete
        k == ``Lean.Parser.Command.opaque ||
        k == ``Lean.Parser.Command.axiom ||
        k == ``Lean.Parser.Command.inductive ||
@@ -326,13 +325,13 @@ def expandInitCmd (builtin : Bool) : Macro := fun stx => do
     let type := optHeader[1][1]
     if optVisibility.isNone then
       `(def initFn : IO $type := do $doSeq
-        @[$attrId:ident initFn] constant $id : $type)
+        @[$attrId:ident initFn] opaque $id : $type)
     else if optVisibility[0].getKind == ``Parser.Command.private then
       `(def initFn : IO $type := do $doSeq
-        @[$attrId:ident initFn] private constant $id : $type)
+        @[$attrId:ident initFn] private opaque $id : $type)
     else if optVisibility[0].getKind == ``Parser.Command.protected then
       `(def initFn : IO $type := do $doSeq
-        @[$attrId:ident initFn] protected constant $id : $type)
+        @[$attrId:ident initFn] protected opaque $id : $type)
     else
       Macro.throwError "unexpected visibility annotation"
 

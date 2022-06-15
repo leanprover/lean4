@@ -23,16 +23,16 @@ private constant version.getPatch (u : Unit) : Nat
 def version.patch : Nat := version.getPatch ()
 
 @[extern "lean_get_githash"]
-constant getGithash (u : Unit) : String
+opaque getGithash (u : Unit) : String
 def githash : String := getGithash ()
 
 @[extern c inline "LEAN_VERSION_IS_RELEASE"]
-constant version.getIsRelease (u : Unit) : Bool
+opaque version.getIsRelease (u : Unit) : Bool
 def version.isRelease : Bool := version.getIsRelease ()
 
 /-- Additional version description like "nightly-2018-03-11" -/
 @[extern c inline "lean_mk_string(LEAN_SPECIAL_VERSION_DESC)"]
-constant version.getSpecialDesc (u : Unit) : String
+opaque version.getSpecialDesc (u : Unit) : String
 def version.specialDesc : String := version.getSpecialDesc ()
 
 def versionStringCore :=
@@ -61,7 +61,7 @@ def toolchain :=
     ""
 
 @[extern c inline "LEAN_IS_STAGE0"]
-constant Internal.isStage0 (u : Unit) : Bool
+opaque Internal.isStage0 (u : Unit) : Bool
 
 /- Valid identifier names -/
 def isGreek (c : Char) : Bool :=

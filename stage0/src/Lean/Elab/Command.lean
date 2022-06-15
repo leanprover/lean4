@@ -218,7 +218,7 @@ unsafe def mkCommandElabAttributeUnsafe : IO (KeyedDeclsAttribute CommandElab) :
   mkElabAttribute CommandElab `Lean.Elab.Command.commandElabAttribute `builtinCommandElab `commandElab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command"
 
 @[implementedBy mkCommandElabAttributeUnsafe]
-constant mkCommandElabAttribute : IO (KeyedDeclsAttribute CommandElab)
+opaque mkCommandElabAttribute : IO (KeyedDeclsAttribute CommandElab)
 
 builtin_initialize commandElabAttribute : KeyedDeclsAttribute CommandElab ← mkCommandElabAttribute
 

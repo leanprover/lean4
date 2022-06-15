@@ -79,7 +79,7 @@ private def registerFailedToInferDefTypeInfo (type : Expr) (ref : Syntax) : Term
 /--
   Return `some [b, c]` if the given `views` are representing a declaration of the form
   ```
-  constant a b c : Nat
+  opaque a b c : Nat
   ```  -/
 private def isMultiConstant? (views : Array DefView) : Option (List Name) :=
   if views.size == 1 &&

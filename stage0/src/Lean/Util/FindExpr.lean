@@ -114,7 +114,7 @@ end FindExtImpl
   Similar to `find?`, but `p` can return `FindStep.done` to interrupt the search on subterms.
   Remark: Differently from `find?`, we do not invoke `p` for partial applications of an application. -/
 @[implementedBy FindExtImpl.findUnsafe?]
-constant findExt? (p : Expr → FindStep) (e : Expr) : Option Expr
+opaque findExt? (p : Expr → FindStep) (e : Expr) : Option Expr
 
 end Expr
 end Lean

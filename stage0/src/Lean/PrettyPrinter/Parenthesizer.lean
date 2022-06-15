@@ -258,14 +258,14 @@ def visitToken : Parenthesizer := do
 -- `categoryParser -> mkAntiquot -> termParser -> categoryParser`, so we need to introduce an indirection somewhere
 -- anyway.
 @[extern 8 "lean_mk_antiquot_parenthesizer"]
-constant mkAntiquot.parenthesizer' (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parenthesizer
+opaque mkAntiquot.parenthesizer' (name : String) (kind : Option SyntaxNodeKind) (anonymous := true) : Parenthesizer
 
 @[inline] def liftCoreM {α} (x : CoreM α) : ParenthesizerM α :=
   liftM x
 
 -- break up big mutual recursion
 @[extern "lean_pretty_printer_parenthesizer_interpret_parser_descr"]
-constant interpretParserDescr' : ParserDescr → CoreM Parenthesizer
+opaque interpretParserDescr' : ParserDescr → CoreM Parenthesizer
 
 unsafe def parenthesizerForKindUnsafe (k : SyntaxNodeKind) : Parenthesizer := do
   if k == `missing then
@@ -275,7 +275,7 @@ unsafe def parenthesizerForKindUnsafe (k : SyntaxNodeKind) : Parenthesizer := do
     p
 
 @[implementedBy parenthesizerForKindUnsafe]
-constant parenthesizerForKind (k : SyntaxNodeKind) : Parenthesizer
+opaque parenthesizerForKind (k : SyntaxNodeKind) : Parenthesizer
 
 @[combinatorParenthesizer Lean.Parser.withAntiquot]
 def withAntiquot.parenthesizer (antiP p : Parenthesizer) : Parenthesizer := do

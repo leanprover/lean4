@@ -152,7 +152,7 @@ where
   isInConstantOrAxiom (_ : Syntax) (stack : SyntaxStack) :=
     stackMatches stack [`null, none, `null, ``Lean.Parser.Command.declSig, none] &&
     (stack.get? 4 |>.any fun (stx, _) =>
-      [``Lean.Parser.Command.constant, ``Lean.Parser.Command.axiom].any (stx.isOfKind ·))
+      [``Lean.Parser.Command.opaque, ``Lean.Parser.Command.axiom].any (stx.isOfKind ·))
   isInDefWithForeignDefinition (_ : Syntax) (stack : SyntaxStack) :=
     stackMatches stack [`null, none, `null, none, none, ``Lean.Parser.Command.declaration] &&
     (stack.get? 3 |>.any fun (stx, _) =>

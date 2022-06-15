@@ -155,6 +155,6 @@ end
 end ACLt
 
 @[implementedBy ACLt.lt]
-constant Expr.acLt : Expr → Expr → MetaM Bool
+opaque Expr.acLt : Expr → Expr → MetaM Bool
 
 end Lean.Meta

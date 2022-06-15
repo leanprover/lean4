@@ -250,7 +250,7 @@ unsafe def mkParserOfConstantUnsafe (constName : Name) (compileParserDescr : Par
     | _ => throw ↑s!"unexpected parser type at '{constName}' (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected)"
 
 @[implementedBy mkParserOfConstantUnsafe]
-constant mkParserOfConstantAux (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser)
+opaque mkParserOfConstantAux (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser)
 
 partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr) : ImportM Parser :=
   let rec visit : ParserDescr → ImportM Parser
@@ -345,7 +345,7 @@ unsafe def evalParserConstUnsafe (declName : Name) : ParserFn := fun ctx s => un
   | .error e   => return s.mkUnexpectedError e.toString
 
 @[implementedBy evalParserConstUnsafe]
-constant evalParserConst (declName : Name) : ParserFn
+opaque evalParserConst (declName : Name) : ParserFn
 
 register_builtin_option internal.parseQuotWithCurrentStage : Bool := {
   defValue := false

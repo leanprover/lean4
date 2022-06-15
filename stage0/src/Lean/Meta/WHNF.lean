@@ -25,7 +25,7 @@ It is possible to avoid this hack if we move `Structural.EqnInfo` and `Structura
 to this module.
 -/
 @[extern "lean_get_structural_rec_arg_pos"]
-constant getStructuralRecArgPos? (declName : Name) : CoreM (Option Nat)
+opaque getStructuralRecArgPos? (declName : Name) : CoreM (Option Nat)
 
 def smartUnfoldingSuffix := "_sunfold"
 
@@ -720,8 +720,8 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
 
 unsafe def reduceBoolNativeUnsafe (constName : Name) : MetaM Bool := evalConstCheck Bool `Bool constName
 unsafe def reduceNatNativeUnsafe (constName : Name) : MetaM Nat := evalConstCheck Nat `Nat constName
-@[implementedBy reduceBoolNativeUnsafe] constant reduceBoolNative (constName : Name) : MetaM Bool
-@[implementedBy reduceNatNativeUnsafe] constant reduceNatNative (constName : Name) : MetaM Nat
+@[implementedBy reduceBoolNativeUnsafe] opaque reduceBoolNative (constName : Name) : MetaM Bool
+@[implementedBy reduceNatNativeUnsafe] opaque reduceNatNative (constName : Name) : MetaM Nat
 
 def reduceNative? (e : Expr) : MetaM (Option Expr) :=
   match e with

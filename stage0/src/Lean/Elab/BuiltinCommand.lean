@@ -355,7 +355,7 @@ unsafe def elabEvalUnsafe : CommandElab
   | _ => throwUnsupportedSyntax
 
 @[builtinCommandElab «eval», implementedBy elabEvalUnsafe]
-constant elabEval : CommandElab
+opaque elabEval : CommandElab
 
 @[builtinCommandElab «synth»] def elabSynth : CommandElab := fun stx => do
   let term := stx[1]

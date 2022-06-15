@@ -688,7 +688,7 @@ private def mkCtor (view : StructView) (levelParams : List Name) (params : Array
   pure { name := view.ctor.declName, type }
 
 @[extern "lean_mk_projections"]
-private constant mkProjections (env : Environment) (structName : Name) (projs : List Name) (isClass : Bool) : Except KernelException Environment
+private opaque mkProjections (env : Environment) (structName : Name) (projs : List Name) (isClass : Bool) : Except KernelException Environment
 
 private def addProjections (structName : Name) (projs : List Name) (isClass : Bool) : TermElabM Unit := do
   let env ← getEnv

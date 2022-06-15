@@ -125,9 +125,6 @@ def mkRoot (e : Expr) : SubExpr := ⟨e, Pos.root⟩
 /-- Returns true if the selected subexpression is the topmost one.-/
 def isRoot (s : SubExpr) : Bool := s.pos.isRoot
 
-def mapPos (f : Pos → Pos) : SubExpr → SubExpr
-  | ⟨e,p⟩ => ⟨e, f p⟩
-
 end SubExpr
 
 open SubExpr in

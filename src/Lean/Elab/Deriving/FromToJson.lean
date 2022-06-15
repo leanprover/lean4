@@ -30,7 +30,7 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
           let (isOptField, nm) := mkJsonField field
           if isOptField then ``(opt $nm $(mkIdent <| header.targetNames[0] ++ field))
           else ``([($nm, toJson $(mkIdent <| header.targetNames[0] ++ field))])
-        let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:explicitBinder* :=
+        let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:bracketedBinder* :=
           mkObj <| List.join [$fields,*])
         return #[cmd] ++ (← mkInstanceCmds ctx ``ToJson declNames)
       cmds.forM elabCommand
@@ -58,13 +58,14 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
             let xs ← xs.mapIdxM fun idx (x, t) => do
               `(($(quote userNames[idx].getString!), $(← mkToJson x t)))
             ``(mkObj [($(quote ctor.name.getString!), mkObj [$[$xs:term],*])])
-        let mut auxCmd ← `(match $[$discrs],* with $alts:matchAlt*)
-        if ctx.usePartial then
-          let letDecls ← mkLocalInstanceLetDecls ctx ``ToJson header.argNames
-          auxCmd ← mkLet letDecls auxCmd
-          auxCmd ← `(private partial def $toJsonFuncId:ident $header.binders:explicitBinder* := $auxCmd)
-        else
-          auxCmd ← `(private def $toJsonFuncId:ident $header.binders:explicitBinder* := $auxCmd)
+        let auxTerm ← `(match $[$discrs],* with $alts:matchAlt*)
+        let auxCmd ←
+          if ctx.usePartial then
+            let letDecls ← mkLocalInstanceLetDecls ctx ``ToJson header.argNames
+            let auxTerm ← mkLet letDecls auxTerm
+            `(private partial def $toJsonFuncId:ident $header.binders:bracketedBinder* := $auxTerm)
+          else
+            `(private def $toJsonFuncId:ident $header.binders:bracketedBinder* := $auxTerm)
         return #[auxCmd] ++ (← mkInstanceCmds ctx ``ToJson declNames)
       cmds.forM elabCommand
       return true
@@ -109,7 +110,7 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         let fields := getStructureFieldsFlattened (← getEnv) declNames[0] (includeSubobjectFields := false)
         let jsonFields := fields.map (Prod.snd ∘ mkJsonField)
         let fields := fields.map mkIdent
-        let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:explicitBinder* (j : Json)
+        let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:bracketedBinder* (j : Json)
           : Except String $(← mkInductiveApp ctx.typeInfos[0] header.argNames) := do
           $[let $fields:ident ← getObjValAs? j _ $jsonFields]*
           return { $[$fields:ident := $(id fields)],* })
@@ -123,22 +124,21 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         let header ← mkHeader ``FromJson 0 ctx.typeInfos[0]
         let fromJsonFuncId := mkIdent ctx.auxFunNames[0]
         let alts ← mkAlts indVal fromJsonFuncId
-        let mut auxCmd ← alts.foldrM (fun xs x => `(Except.orElseLazy $xs (fun _ => $x))) (← `(Except.error "no inductive constructor matched"))
+        let mut auxTerm ← alts.foldrM (fun xs x => `(Except.orElseLazy $xs (fun _ => $x))) (← `(Except.error "no inductive constructor matched"))
         if ctx.usePartial then
           let letDecls ← mkLocalInstanceLetDecls ctx ``FromJson header.argNames
-          auxCmd ← mkLet letDecls auxCmd
+          auxTerm ← mkLet letDecls auxTerm
         -- FromJson is not structurally recursive even non-nested recursive inductives,
         -- so we also use `partial` then.
-        if ctx.usePartial || indVal.isRec then
-          auxCmd ← `(
-            private partial def $fromJsonFuncId:ident $header.binders:explicitBinder* (json : Json)
-                : Except String $(← mkInductiveApp ctx.typeInfos[0] header.argNames) :=
-              $auxCmd)
-        else
-          auxCmd ← `(
-            private def $fromJsonFuncId:ident $header.binders:explicitBinder* (json : Json)
-                : Except String $(← mkInductiveApp ctx.typeInfos[0] header.argNames) :=
-              $auxCmd)
+        let auxCmd ←
+          if ctx.usePartial || indVal.isRec then
+            `(private partial def $fromJsonFuncId:ident $header.binders:bracketedBinder* (json : Json)
+                  : Except String $(← mkInductiveApp ctx.typeInfos[0] header.argNames) :=
+                $auxTerm)
+          else
+            `(private def $fromJsonFuncId:ident $header.binders:bracketedBinder* (json : Json)
+                  : Except String $(← mkInductiveApp ctx.typeInfos[0] header.argNames) :=
+                $auxTerm)
         return #[auxCmd] ++ (← mkInstanceCmds ctx ``FromJson declNames)
       cmds.forM elabCommand
       return true

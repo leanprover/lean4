@@ -143,7 +143,7 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
         $[($fieldIds : $fieldEncIds)]*
         deriving $(mkIdent ``FromJson), $(mkIdent ``ToJson)
 
-      instance : $(mkIdent ``RpcEncoding) $typeId $packetAppliedId:ident where
+      instance : $(mkIdent ``RpcEncoding) $typeId $packetAppliedId where
         rpcEncode a := return {
           $[$encInits],*
         }

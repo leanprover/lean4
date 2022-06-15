@@ -88,7 +88,7 @@ def mkAuxFunction (ctx : Context) : TermElabM Syntax := do
   let mut body   ← mkMatch header indVal auxFunName
   let binders    := header.binders
   let type       ← `(Decidable ($(mkIdent header.targetNames[0]) = $(mkIdent header.targetNames[1])))
-  `(private def $(mkIdent auxFunName):ident $binders:explicitBinder* : $type:term := $body:term)
+  `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term)
 
 def mkDecEqCmds (indVal : InductiveVal) : TermElabM (Array Syntax) := do
   let ctx ← mkContext "decEq" indVal.name

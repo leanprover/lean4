@@ -203,9 +203,8 @@ syntax declModifiers "class " "abbrev " declId bracketedBinder* (":" term)?
   ":=" withPosition(group(colGe term ","?)*) : command
 
 macro_rules
-  | `($mods:declModifiers class abbrev $id $params* $[: $ty:term]? := $[ $parents:term $[,]? ]*) =>
-    let name := id[0]
-    let ctor := mkIdentFrom name <| name.getId.modifyBase (. ++ `mk)
+  | `($mods:declModifiers class abbrev $id $params* $[: $ty]? := $[ $parents $[,]? ]*) =>
+    let ctor := mkIdentFrom id <| id.raw[0].getId.modifyBase (. ++ `mk)
     `($mods:declModifiers class $id $params* extends $[$parents:term],* $[: $ty]?
       attribute [instance] $ctor)
 

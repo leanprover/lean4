@@ -168,7 +168,7 @@ where
         let identNames := binders.map Prod.fst
         let fromJsons ← binders.mapIdxM fun idx (_, type) => mkFromJson idx type
         let userNamesOpt ← if binders.size == userNames.size then
-          ``(some #[$[$(userNames.map quote):ident],*])
+          ``(some #[$[$(userNames.map quote)],*])
         else
           ``(none)
         let stx ←

@@ -48,7 +48,7 @@ where
             let b := mkIdent (← mkFreshUserName `b)
             ctorArgs1 := ctorArgs1.push a
             ctorArgs2 := ctorArgs2.push b
-            rhsCont := fun rhs => `(match compare $a:ident $b:ident with
+            rhsCont := fun rhs => `(match compare $a $b with
               | Ordering.lt => Ordering.lt
               | Ordering.gt => Ordering.gt
               | Ordering.eq => $rhs) >>= rhsCont

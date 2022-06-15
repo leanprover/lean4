@@ -112,10 +112,10 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
       match (← fieldEncIds'.getMatch fieldTp).back? with
       | none =>
         fieldEncId ← mkIdent <$> mkFreshUserName fieldName
-        binders := binders.push <| ← `(Deriving.explicitBinderF| ( $fieldEncId:ident ))
+        binders := binders.push (← `(bracketedBinder| ( $fieldEncId:ident )))
         let stx ← PrettyPrinter.delab fieldTp
-        binders := binders.push <|
-          ← `(Deriving.instBinderF| [ $(mkIdent ``Lean.Server.RpcEncoding) $stx $fieldEncId:ident ])
+        binders := binders.push
+          (← `(bracketedBinder| [ $(mkIdent ``Lean.Server.RpcEncoding) $stx $fieldEncId:ident ]))
         fieldEncIds' ← fieldEncIds'.insert fieldTp fieldEncId
         uniqFieldEncIds := uniqFieldEncIds.push fieldEncId
       | some fid => fieldEncId := fid
@@ -186,8 +186,8 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
         acc := { acc with encArgTypes := ← acc.encArgTypes.insert argTp tid
                           uniqEncArgTypes := acc.uniqEncArgTypes.push tid
                           binders := acc.binders.append #[
-                            ← `(Deriving.explicitBinderF| ( $(mkIdent tid):ident )),
-                            ← `(Deriving.instBinderF| [ $(mkIdent ``Lean.Server.RpcEncoding) $argTpStx $(mkIdent tid):ident ])
+                            (← `(bracketedBinder| ( $(mkIdent tid):ident ))),
+                            (← `(bracketedBinder| [ $(mkIdent ``Lean.Server.RpcEncoding) $argTpStx $(mkIdent tid):ident ]))
                           ] }
     return acc
 
@@ -223,8 +223,8 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
         let decArm ← `(matchF| | $(mkPattern packetNm):term => $(← mkBody indVal.name ``rpcDecode))
 
         return { acc with ctors := acc.ctors.push pktCtor
-                          encodes := acc.encodes.push encArm
-                          decodes := acc.decodes.push decArm }
+                          encodes := acc.encodes.push ⟨encArm⟩
+                          decodes := acc.decodes.push ⟨decArm⟩ }
 
       -- helpers for type name syntax
       let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
@@ -264,11 +264,11 @@ private def deriveInstance (typeName : Name) : CommandElabM Bool := do
       let mut binders := #[]
       for param in params do
         let paramNm := (←getFVarLocalDecl param).userName
-        binders := binders.push <| ← `(Deriving.explicitBinderF| ( $(mkIdent paramNm) ))
+        binders := binders.push (← `(bracketedBinder| ( $(mkIdent paramNm) )))
         -- only look for encodings for `Type` parameters
         if !(← inferType param).isType then continue
-        binders := binders.push <|
-          ← `(Deriving.instBinderF| [ $(mkIdent ``Lean.Server.RpcEncoding) $(mkIdent paramNm) _ ])
+        binders := binders.push
+          (← `(bracketedBinder| [ $(mkIdent ``Lean.Server.RpcEncoding) $(mkIdent paramNm) _ ]))
 
       return #[
         ← `(section),

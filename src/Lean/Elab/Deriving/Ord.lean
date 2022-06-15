@@ -61,7 +61,7 @@ where
         pure #[←`(matchAltExpr| | $[$(patterns):term],* => $rhs:term),
                ←`(matchAltExpr| | $[$(ltPatterns):term],* => Ordering.lt),
                ←`(matchAltExpr| | $[$(gtPatterns):term],* => Ordering.gt)]
-      alts := alts ++ alt
+      alts := alts ++ (alt : Array (TSyntax ``matchAlt))
     return alts.pop.pop
 
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM (TSyntax `command) := do

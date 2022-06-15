@@ -174,7 +174,7 @@ where
         let stx ←
           `((Json.parseTagged json $(quote ctor.getString!) $(quote ctorInfo.numFields) $(quote userNamesOpt)).bind
             (fun jsons => do
-              $[let $identNames:ident ← $fromJsons]*
+              $[let $identNames:ident ← $fromJsons:doExpr]*
               return $(mkIdent ctor):ident $identNames*))
         pure (stx, ctorInfo.numFields)
   -- the smaller cases, especially the ones without fields are likely faster

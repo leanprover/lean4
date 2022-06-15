@@ -54,7 +54,7 @@ def mkInstImplicitBinders (className : Name) (indVal : InductiveVal) (argNames :
         let c ← mkAppM className #[x]
         if (← isTypeCorrect c) then
           let argName := argNames[i]
-          let binder ← `(instBinderF| [ $(mkIdent className):ident $(mkIdent argName):ident ])
+          let binder : Syntax ← `(instBinderF| [ $(mkIdent className):ident $(mkIdent argName):ident ])
           binders := binders.push binder
       catch _ =>
         pure ()

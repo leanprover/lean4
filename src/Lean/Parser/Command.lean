@@ -70,7 +70,6 @@ def «abbrev»         := leading_parser "abbrev " >> declId >> ppIndent optDecl
 def optDefDeriving   := optional (atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
 def «def»            := leading_parser "def " >> declId >> ppIndent optDeclSig >> declVal >> optDefDeriving >> terminationSuffix
 def «theorem»        := leading_parser "theorem " >> declId >> ppIndent declSig >> declVal >> terminationSuffix
-def «constant»       := leading_parser "constant " >> declId >> ppIndent declSig >> optional declValSimple
 def «opaque»         := leading_parser "opaque " >> declId >> ppIndent declSig >> optional declValSimple
 /- As `declSig` starts with a space, "instance" does not need a trailing space if we put `ppSpace` in the optional fragments. -/
 def «instance»       := leading_parser Term.attrKind >> "instance" >> optNamedPrio >> optional (ppSpace >> declId) >> ppIndent declSig >> declVal >> terminationSuffix
@@ -96,7 +95,7 @@ def «structure»          := leading_parser
     >> optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields)
     >> optDeriving
 @[builtinCommandParser] def declaration := leading_parser
-declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «constant» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
+declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
 @[builtinCommandParser] def «deriving»     := leading_parser "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 ident ", "
 @[builtinCommandParser] def noncomputableSection := leading_parser "noncomputable " >> "section " >> optional ident
 @[builtinCommandParser] def «section»      := leading_parser "section " >> optional ident

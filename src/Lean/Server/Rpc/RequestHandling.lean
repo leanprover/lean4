@@ -50,7 +50,7 @@ private unsafe def handleRpcCallUnsafe (p : Lsp.RpcCallParams) : RequestM (Reque
           message := s!"No RPC method '{p.method}' bound" }
 
 @[implementedBy handleRpcCallUnsafe]
-private constant handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json)
+private opaque handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json)
 
 builtin_initialize
   registerLspRequestHandler "$/lean/rpc/call" Lsp.RpcCallParams Json handleRpcCall

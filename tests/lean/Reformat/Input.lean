@@ -186,13 +186,9 @@ class Inhabited (α : Sort u) :=
 opaque arbitrary (α : Sort u) [s : Inhabited α] : α :=
   @Inhabited.default α s
 
-instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) := {
-  default := fun _ => arbitrary β
-}
+instance (α : Sort u) {β : Sort v} [Inhabited β] : Inhabited (α → β) := {default := fun _ => arbitrary β}
 
-instance (α : Sort u) {β : α → Sort v} [(a : α) → Inhabited (β a)] : Inhabited ((a : α) → β a) := {
-  default := fun a => arbitrary (β a)
-}
+instance (α : Sort u) {β : α → Sort v} [(a : α) → Inhabited (β a)] : Inhabited ((a : α) → β a) := {default := fun a => arbitrary (β a)}
 
 /-- Universe lifting operation from Sort to Type -/
 structure PLift (α : Sort u) : Type u :=
@@ -210,9 +206,7 @@ structure PointedType :=
   (type : Type u)
   (val : type)
 
-instance : Inhabited PointedType.{u} := {
-  default := { type := PUnit.{u+1}, val := ⟨⟩ }
-}
+instance : Inhabited PointedType.{u} := {default := { type := PUnit.{u+1}, val := ⟨⟩ }}
 
 /-- Universe lifting operation -/
 structure ULift.{r, s} (α : Type s) : Type (max s r) :=

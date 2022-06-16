@@ -1211,6 +1211,19 @@ def checkLinebreakBefore (errorMsg : String := "line break") : Parser := {
   fn   := checkLinebreakBeforeFn errorMsg
 }
 
+def optionalOrLinebreakFn (p : ParserFn) : ParserFn := fun c s =>
+  let prevLinebreak := !s.stxStack.isEmpty && checkTailLinebreak s.stxStack.back
+  let iniSz  := s.stackSize
+  let iniPos := s.pos
+  let s := p c s
+  let s := if s.hasError && s.pos == iniPos && prevLinebreak then s.restore iniSz iniPos else s
+  s.mkNode nullKind iniSz
+
+@[inline] def optionalOrLinebreakNoAntiquot (p : Parser) : Parser := {
+  info := optionaInfo p.info
+  fn   := optionalOrLinebreakFn p.fn
+}
+
 private def pickNonNone (stack : Array Syntax) : Syntax :=
   match stack.findRev? fun stx => !stx.isNone with
   | none => Syntax.missing
@@ -1221,7 +1234,7 @@ def checkNoWsBeforeFn (errorMsg : String) : ParserFn := fun _ s =>
   if checkTailNoWs prev then s else s.mkError errorMsg
 
 def checkNoWsBefore (errorMsg : String := "no space before") : Parser := {
-  info := epsilonInfo,
+  info := epsilonInfo
   fn   := checkNoWsBeforeFn errorMsg
 }
 

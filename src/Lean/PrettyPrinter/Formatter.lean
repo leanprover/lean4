@@ -433,6 +433,9 @@ def manyNoAntiquot.formatter (p : Formatter) : Formatter := do
 @[combinatorFormatter Lean.Parser.optionalNoAntiquot]
 def optionalNoAntiquot.formatter (p : Formatter) : Formatter := visitArgs p
 
+@[combinatorFormatter Lean.Parser.optionalOrLinebreakNoAntiquot]
+def optionalOrLinebreakNoAntiquot.formatter (p : Formatter) : Formatter := visitArgs p
+
 @[combinatorFormatter Lean.Parser.many1Unbox]
 def many1Unbox.formatter (p : Formatter) : Formatter := do
   let stx ← getCur

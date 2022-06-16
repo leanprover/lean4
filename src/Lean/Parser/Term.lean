@@ -60,7 +60,7 @@ namespace Term
   incorrect syntax when the full expression is `show $T by exact $e`. -/
 def byTactic' := leading_parser "by " >> Tactic.tacticSeq
 
-def optSemicolon (p : Parser) : Parser := ppDedent $ optional ";" >> ppLine >> p
+def optSemicolon (p : Parser) : Parser := ppDedent $ optionalOrLinebreak ";" >> ppLine >> p
 
 -- `checkPrec` necessary for the pretty printer
 @[builtinTermParser] def ident := checkPrec maxPrec >> Parser.ident
@@ -222,7 +222,7 @@ def letRecDecls      := leading_parser sepBy1 letRecDecl ", "
 def «letrec» := leading_parser:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >> optSemicolon termParser
 
 @[runBuiltinParserAttributeHooks]
-def whereDecls := leading_parser " where" >> many1Indent (ppLine >> ppGroup (group (letRecDecl >> optional ";")))
+def whereDecls := leading_parser " where" >> many1Indent (ppLine >> ppGroup (group (letRecDecl >> optionalOrLinebreak ";")))
 @[runBuiltinParserAttributeHooks]
 def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 

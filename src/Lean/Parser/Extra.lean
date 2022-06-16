@@ -20,6 +20,9 @@ attribute [runBuiltinParserAttributeHooks]
 @[runBuiltinParserAttributeHooks] def optional (p : Parser) : Parser :=
   optionalNoAntiquot (withAntiquotSpliceAndSuffix `optional p (symbol "?"))
 
+@[runBuiltinParserAttributeHooks] def optionalOrLinebreak (p : Parser) : Parser :=
+  optionalOrLinebreakNoAntiquot p
+
 @[runBuiltinParserAttributeHooks] def many (p : Parser) : Parser :=
   manyNoAntiquot (withAntiquotSpliceAndSuffix `many p (symbol "*"))
 

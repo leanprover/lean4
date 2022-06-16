@@ -453,6 +453,10 @@ def many1Unbox.parenthesizer (p : Parenthesizer) : Parenthesizer := do
 def optionalNoAntiquot.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   visitArgs p
 
+@[combinatorParenthesizer Lean.Parser.optionalOrLinebreakNoAntiquot]
+def optionalOrLinebreakNoAntiquot.parenthesizer (p : Parenthesizer) : Parenthesizer := do
+  visitArgs p
+
 @[combinatorParenthesizer Lean.Parser.sepByNoAntiquot]
 def sepByNoAntiquot.parenthesizer (p pSep : Parenthesizer) : Parenthesizer := do
   let stx ← getCur

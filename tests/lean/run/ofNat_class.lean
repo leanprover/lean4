@@ -10,6 +10,7 @@ local macro "ofNat_class" Class:ident n:num : command =>
     ofNat := ‹$Class α›.1
 
   instance {α} [OfNat α (nat_lit $n)] : $Class α where
-    $field:ident := $n)
+    $field:ident := $n
+  )
 
 ofNat_class Zero 0

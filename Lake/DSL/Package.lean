@@ -42,15 +42,15 @@ def mkPackageDecl (doc? : Option Syntax) (attrs : Array Syntax) : Macro
 | `(packageDeclSpec| $id:ident) =>
   `($[$doc?:docComment]? @[$attrs,*] def $(mkIdentFrom id packageDeclName) : PackageConfig :=
     {name := $(quote id.getId)})
-| `(packageDeclSpec| $id:ident where $[$ds]* $[$wds?]?) =>
+| `(packageDeclSpec| $id:ident where $ds;* $[$wds?]?) =>
   `($[$doc?:docComment]? @[$attrs,*] def $(mkIdentFrom id packageDeclName) : PackageConfig where
-      name := $(quote id.getId) $[$ds]* $[$wds?]?)
+      name := $(quote id.getId); $ds;* $[$wds?]?)
 | `(packageDeclSpec| $id:ident : $ty := $defn $[$wds?]?) =>
   `($[$doc?:docComment]? @[$attrs,*] def $(mkIdentFrom id packageDeclName) : $ty := $defn $[$wds?]?)
 | `(packageDeclSpec| $id:ident $[($dir?)]? $[($args?)]? := $defn $[$wds?]?) =>
   mkSimplePackageDecl doc? attrs (mkIdentFrom id packageDeclName) defn dir? args? wds?
 | `(packageDeclSpec| $id:ident $[($dir?)]? $[($args?)]? { $[$fs $[,]?]* } $[$wds?]?) => do
-  let defn ← `({ name := $(quote id.getId), $[$fs]* })
+  let defn ← `({ name := $(quote id.getId), $fs,* })
   mkSimplePackageDecl doc? attrs (mkIdentFrom id packageDeclName) defn dir? args? wds?
 | `(packageDeclSpec| $id:ident $[($dir?)]? $[($args?)]? do $seq $[$wds?]?) => do
   let (_, dir, args) ← expandPackageBinders dir? args?

@@ -23,13 +23,13 @@ def mkTargetDecl
 | `(targetDeclSpec| $id:ident) =>
   `($[$doc?:docComment]? @[$attrs,*] def $id : $ty :=
     {name := $(quote id.getId)})
-| `(targetDeclSpec| $id:ident where $[$ds]* $[$wds?]?) =>
+| `(targetDeclSpec| $id:ident where $ds;* $[$wds?]?) =>
   `($[$doc?:docComment]? @[$attrs,*] def $id : $ty where
-      name := $(quote id.getId) $[$ds]* $[$wds?]?)
+      name := $(quote id.getId); $ds;* $[$wds?]?)
 | `(targetDeclSpec| $id:ident $[: $ty?]? := $defn $[$wds?]?) =>
   `($[$doc?:docComment]? @[$attrs,*] def $id : $(ty?.getD ty) := $defn $[$wds?]?)
 | `(targetDeclSpec| $id:ident { $[$fs $[,]?]* } $[$wds?]?) => do
-  let defn ← `({ name := $(quote id.getId), $[$fs]* })
+  let defn ← `({ name := $(quote id.getId), $fs,* })
   `($[$doc?:docComment]? @[$attrs,*] def $id : $ty := $defn $[$wds?]?)
 | stx => Macro.throwErrorAt stx "ill-formed target declaration"
 

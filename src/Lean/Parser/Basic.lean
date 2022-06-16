@@ -336,7 +336,8 @@ def dbgTraceStateFn (label : String) (p : ParserFn) : ParserFn :=
     dbg_trace "{label}
   pos: {s'.pos}
   err: {s'.errorMsg}
-  out: {s'.stxStack.extract sz s'.stxStack.size}" s'
+  out: {s'.stxStack.extract sz s'.stxStack.size}"
+    s'
 
 def dbgTraceState (label : String) (p : Parser) : Parser where
   fn   := dbgTraceStateFn label p.fn

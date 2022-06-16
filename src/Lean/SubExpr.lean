@@ -24,15 +24,10 @@ def typeCoord : Nat := maxChildren - 1
 
 def asNat : Pos → Nat := id
 
-instance : Inhabited Pos := show Inhabited Nat by infer_instance
-instance : Ord Pos := show Ord Nat by infer_instance
-instance : FromJson Pos := show FromJson Nat by infer_instance
-instance : ToJson Pos := show ToJson Nat by infer_instance
-instance : Repr Pos := show Repr Nat by infer_instance
-instance : ToString Pos := show ToString Nat by infer_instance
-
 /-- The Pos representing the root subexpression. -/
 def root : Pos := (1 : Nat)
+
+instance : Inhabited Pos := ⟨root⟩
 
 def isRoot (p : Pos) : Bool := p.asNat == 1
 
@@ -82,7 +77,8 @@ The first coordinate in the array corresponds to the root of the expression tree
 def ofArray (ps : Array Nat) : Pos :=
   ps.foldl push root
 
-/-- Decodes a subexpression `Pos` as a sequence of coordinates. See `Pos.fromArray` for details.-/
+/-- Decodes a subexpression `Pos` as a sequence of coordinates `cs : Array Nat`. See `Pos.fromArray` for details.
+`cs[0]` is the coordinate for the root expression. -/
 def toArray (p : Pos) : Array Nat :=
   foldl Array.push #[] p
 
@@ -100,6 +96,34 @@ def pushNaryFn (numArgs : Nat) (p : Pos) : Pos :=
 
 def pushNaryArg (numArgs argIdx : Nat) (p : Pos) : Pos :=
   show Nat from p.asNat * (maxChildren ^ (numArgs - argIdx)) + 1
+
+protected def toString (p : Pos) : String :=
+  p.toArray.toList
+  |>.map toString
+  |> String.intercalate "/"
+  |> ("/" ++ ·)
+
+open Except in
+private def ofStringCoord : String → Except String Nat
+  | "0" => ok 0 | "1" => ok 1 | "2" => ok 2 | "3" => ok 3
+  | c => error s!"Invalid coordinate {c}"
+
+open Except in
+protected def fromString? : String → Except String Pos
+  | "/" => Except.ok Pos.root
+  | s =>
+    match String.splitOn s "/" with
+    | "" :: tail => Pos.ofArray <$> tail.toArray.mapM ofStringCoord
+    | ss => error s!"malformed {ss}"
+
+instance : Ord Pos := show Ord Nat by infer_instance
+instance : DecidableEq Pos := show DecidableEq Nat by infer_instance
+instance : ToString Pos := ⟨Pos.toString⟩
+
+-- Note: we can't send the bare Nat over the wire because Json will convert to float
+-- if the nat is too big and least significant bits will be lost.
+instance : ToJson Pos := ⟨toJson ∘ Pos.toString⟩
+instance : FromJson Pos := ⟨fun j => fromJson? j >>= Pos.fromString?⟩
 
 end SubExpr.Pos
 

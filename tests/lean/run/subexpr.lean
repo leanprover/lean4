@@ -11,3 +11,9 @@ theorem Pos.append_roundtrip :
     (ps.bind fun p => ps.map fun q => (p,q))
     (fun (x,y) => (x ++ y) == (Pos.toArray <| (Pos.append (Pos.ofArray x) (Pos.ofArray y))))
   ) := by native_decide
+
+theorem Pos.stringRoundtrip :
+  true = ps.all (fun p =>
+    let x := Pos.ofArray p
+    some x == (Except.toOption $ Pos.fromString? $ Pos.toString $ x)
+  ) := by native_decide

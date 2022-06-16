@@ -406,7 +406,7 @@ def elabFunBinders {α} (binders : Array Syntax) (expectedType? : Option Expr) (
 
 def expandWhereDecls (whereDecls : Syntax) (body : Syntax) : MacroM Syntax :=
   match whereDecls with
-  | `(whereDecls|where $[$decls:letRecDecl $[;]?]*) => `(let rec $decls:letRecDecl,*; $body)
+  | `(whereDecls|where $[$decls:letRecDecl];*) => `(let rec $decls:letRecDecl,*; $body)
   | _ => Macro.throwUnsupported
 
 def expandWhereDeclsOpt (whereDeclsOpt : Syntax) (body : Syntax) : MacroM Syntax :=

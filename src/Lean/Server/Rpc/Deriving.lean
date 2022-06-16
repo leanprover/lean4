@@ -145,10 +145,10 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
 
       instance : $(mkIdent ``RpcEncoding) $typeId $packetAppliedId:ident where
         rpcEncode a := return {
-          $[$encInits]*
+          $[$encInits],*
         }
         rpcDecode a := return {
-          $[$decInits]*
+          $[$decInits],*
         }
     )
 

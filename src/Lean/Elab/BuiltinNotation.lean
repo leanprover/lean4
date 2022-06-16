@@ -82,16 +82,16 @@ are turned into a new anonymous constructor application. For example,
 @[builtinMacro Lean.Parser.Term.have] def expandHave : Macro := fun stx =>
   let thisId := mkIdentFrom stx `this
   match stx with
-  | `(have $x $bs* $[: $type]? := $val $[;]? $body)            => `(let_fun $x $bs* $[: $type]? := $val; $body)
-  | `(have $[: $type]? := $val $[;]? $body)                    => `(have $thisId:ident $[: $type]? := $val; $body)
-  | `(have $x $bs* $[: $type]? $alts:matchAlts $[;]? $body)    => `(let_fun $x $bs* $[: $type]? $alts:matchAlts; $body)
-  | `(have $[: $type]? $alts:matchAlts $[;]? $body)            => `(have $thisId:ident $[: $type]? $alts:matchAlts; $body)
-  | `(have $pattern:term $[: $type]? := $val:term $[;]? $body) => `(let_fun $pattern:term $[: $type]? := $val:term ; $body)
+  | `(have $x $bs* $[: $type]? := $val; $body)            => `(let_fun $x $bs* $[: $type]? := $val; $body)
+  | `(have $[: $type]? := $val; $body)                    => `(have $thisId:ident $[: $type]? := $val; $body)
+  | `(have $x $bs* $[: $type]? $alts:matchAlts; $body)    => `(let_fun $x $bs* $[: $type]? $alts:matchAlts; $body)
+  | `(have $[: $type]? $alts:matchAlts; $body)            => `(have $thisId:ident $[: $type]? $alts:matchAlts; $body)
+  | `(have $pattern:term $[: $type]? := $val:term; $body) => `(let_fun $pattern:term $[: $type]? := $val:term ; $body)
   | _                                                          => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.suffices] def expandSuffices : Macro
-  | `(suffices $[$x :]? $type from $val $[;]? $body)            => `(have $[$x]? : $type := $body; $val)
-  | `(suffices $[$x :]? $type by%$b $tac:tacticSeq $[;]? $body) => `(have $[$x]? : $type := $body; by%$b $tac:tacticSeq)
+  | `(suffices $[$x :]? $type from $val; $body)            => `(have $[$x]? : $type := $body; $val)
+  | `(suffices $[$x :]? $type by%$b $tac:tacticSeq; $body) => `(have $[$x]? : $type := $body; by%$b $tac:tacticSeq)
   | _                                                           => Macro.throwUnsupported
 
 open Lean.Parser in

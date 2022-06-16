@@ -6,13 +6,13 @@ LAKE ?= ./build/bin/lake
 
 default: build
 
-all: build test-all
+all: build test
 
 test: check-lake test-ci test-bootstrap test-bootstrapped
 
 test-ci: test-tests test-examples
 
-test-tests: test-49 test-50 test-62
+test-tests: test-49 test-50 test-62 test-75
 
 test-examples: test-init test-hello test-io test-deps\
 	test-git test-ffi test-targets test-scripts
@@ -26,7 +26,7 @@ clean-tests: clean-62
 clean-examples: clean-init clean-hello clean-io clean-deps\
 	clean-git clean-ffi clean-targets clean-bootstrap
 
-.PHONY: all test test-all test-tests test-examples\
+.PHONY: all test test-ci test-tests test-examples\
 	clean clean-build clean-tests clean-examples build time-build check-lake\
 	test-bootstrap time-bootstrap check-bootstrap test-bootstrapped
 
@@ -128,3 +128,6 @@ test-62:
 
 clean-62:
 	cd test/62 && ./clean.sh
+
+test-75:
+	cd test/75 && ./test.sh

@@ -1,0 +1,6 @@
+/build
+/lean_packages/*
+!/lean_packages/manifest.json
+
+/Foo.lean
+/Foo/Test.lean

@@ -21,10 +21,10 @@ abbrev ActiveBuildTarget i := ActiveTarget i BuildTask BuildTrace
 
 namespace BuildTarget
 
-abbrev mk (info : i) (task : SchedulerM (BuildTask BuildTrace)) : BuildTarget i :=
+abbrev mk (info : i) (task : SchedulerM Job) : BuildTarget i :=
   Target.mk info task
 
-abbrev mk' (info : i) (task : BuildM (BuildTask BuildTrace)) : BuildTarget i :=
+abbrev mk' (info : i) (task : BuildM Job) : BuildTarget i :=
   Target.mk info <| task.catchFailure fun _ => pure failure
 
 abbrev activate (self : BuildTarget i) : SchedulerM (ActiveBuildTarget i) :=
@@ -70,10 +70,10 @@ abbrev ActiveOpaqueTarget := ActiveBuildTarget PUnit
 
 namespace OpaqueTarget
 
-abbrev mk (task : SchedulerM (BuildTask BuildTrace)) : OpaqueTarget :=
+abbrev mk (task : SchedulerM Job) : OpaqueTarget :=
   Target.opaque task
 
-abbrev mk' (task : BuildM (BuildTask BuildTrace)) : OpaqueTarget :=
+abbrev mk' (task : BuildM Job) : OpaqueTarget :=
   Target.opaque <| task.catchFailure fun _ => pure failure
 
 abbrev async (act : BuildM BuildTrace) : OpaqueTarget :=

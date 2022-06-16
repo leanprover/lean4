@@ -61,8 +61,8 @@ def isLocalModule (mod : Name) (self : LeanLibConfig) : Bool :=
   self.roots.any (fun root => root.isPrefixOf mod) ||
   self.globs.any (fun glob => glob.matches mod)
 
-/-- Whether the given module is in the library (i.e., is built as part of it). -/
-def hasModule (mod : Name) (self : LeanLibConfig) : Bool :=
+/-- Whether the given module is a buildable part of the library. -/
+def isBuildableModule (mod : Name) (self : LeanLibConfig) : Bool :=
   self.globs.any (fun glob => glob.matches mod) ||
   self.roots.any (fun root => root.isPrefixOf mod && self.globs.any (·.matches root))
 

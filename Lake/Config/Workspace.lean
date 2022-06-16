@@ -7,6 +7,7 @@ import Lean.Util.Paths
 import Lake.Config.Opaque
 import Lake.Config.WorkspaceConfig
 import Lake.Config.Package
+import Lake.Config.Module
 
 open System
 open Lean (Name NameMap LeanPaths)
@@ -80,20 +81,16 @@ def addPackage (pkg : Package) (self : Workspace) : Workspace :=
   {self with packageMap := self.packageMap.insert pkg.name pkg}
 
 /-- Get a package within the workspace by name. -/
-def packageByName? (pkg : Name) (self : Workspace) : Option Package :=
+def findPackage? (pkg : Name) (self : Workspace) : Option Package :=
   self.packageMap.find? pkg
-
-/-- Find a package in the workspace satisfying the given predicate (if one exists). -/
-def findPackage? (f : Package → Bool) (self : Workspace) : Option Package :=
-  self.packageArray.find? f
 
 /-- Check if the module is local to any package in the workspace. -/
 def isLocalModule (mod : Name) (self : Workspace) : Bool :=
   self.packageMap.any fun _ pkg => pkg.isLocalModule mod
 
-/-- Get the package for the module in the workspace (if it is local to one). -/
-def packageForModule? (mod : Name) (self : Workspace) : Option Package :=
-  self.findPackage? (·.isLocalModule mod)
+/-- Locate the named module in the workspace (if it is local to it). -/
+def findModule? (mod : Name) (self : Workspace) : Option Module :=
+  self.packageArray.findSome? (·.findModule? mod)
 
 /-- Get the workspace's library configuration with the given name. -/
 def findLeanLib? (name : Name) (self : Workspace) : Option (Package × LeanLibConfig) :=

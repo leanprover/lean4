@@ -120,8 +120,8 @@ def resolveDeps (ws : Workspace) (pkg : Package)
     let pkg ← resolveDep ws pkg dep shouldUpdate
     pkg.dependencies.forM fun dep => discard <| resolve dep
     return pkg
-  let (res, map) ← RBTopT.run <| pkg.dependencies.forM fun dep =>
-    discard <| buildRBTop (cmp := Name.quickCmp) resolve Dependency.name dep
+  let (res, map) ← RBTopT.run (cmp := Name.quickCmp) <| pkg.dependencies.forM fun dep =>
+    discard <| buildTop resolve Dependency.name dep
   match res with
   | Except.ok _ => return map
   | Except.error cycle => do

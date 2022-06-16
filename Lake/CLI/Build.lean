@@ -22,22 +22,19 @@ def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package 
   if spec.isEmpty then
     return ws.root
   else
-    match ws.packageByName? spec.toName with
+    match ws.findPackage? spec.toName with
     | some pkg => return pkg
     | none => throw <| CliError.unknownPackage spec
 
-def resolveModuleTarget (pkg : Package) (mod : Name) (facet : String) : Except CliError OpaqueTarget :=
-  if pkg.hasModule mod then
-    if facet.isEmpty || facet == "olean" then
-      return pkg.moduleOleanTarget mod |>.withoutInfo
-    else if facet == "c" then
-      return pkg.moduleOleanAndCTarget mod |>.withoutInfo
-    else if facet == "o" then
-      return pkg.moduleOTarget mod |>.withoutInfo
-    else
-      throw <| CliError.unknownFacet "module" facet
+def resolveModuleTarget (mod : Module) (facet : String) : Except CliError OpaqueTarget :=
+  if facet.isEmpty || facet == "bin"  || facet == "ilean" || facet == "olean" then
+    return mod.leanBinTarget (c := false)
+  else if facet == "c" then
+    return mod.leanBinTarget (c := true)
+  else if facet == "o" then
+    return mod.oTarget.withoutInfo
   else
-    throw <| CliError.missingModule pkg.name mod
+    throw <| CliError.unknownFacet "module" facet
 
 def resolveLibTarget (pkg : Package) (lib : LeanLibConfig) (facet : String) : Except CliError OpaqueTarget :=
   if facet.isEmpty || facet == "lean" || facet == "oleans" then
@@ -65,8 +62,8 @@ def resolveTargetInPackage (pkg : Package) (target : Name) (facet : String) : Ex
       throw <| CliError.invalidFacet target facet
   else if let some lib := pkg.findLeanLib? target then
     resolveLibTarget pkg lib facet
-  else if pkg.hasModule target then
-    resolveModuleTarget pkg target facet
+  else if let some mod := pkg.findModule? target then
+    resolveModuleTarget mod facet
   else
     throw <| CliError.missingTarget pkg.name (target.toString false)
 
@@ -92,19 +89,19 @@ def resolvePackageTarget (pkg : Package) (facet : String) : Except CliError Opaq
     throw <| CliError.unknownFacet "package" facet
 
 def resolveTargetInWorkspace (ws : Workspace) (spec : String) (facet : String) : Except CliError OpaqueTarget :=
-  if let some (pkg, exe) := ws.findLeanExe? spec then
+  if let some (pkg, exe) := ws.findLeanExe? spec.toName then
     resolveExeTarget pkg exe facet
-  else if let some (_, lib) := ws.findExternLib? spec then
+  else if let some (_, lib) := ws.findExternLib? spec.toName then
     if facet.isEmpty then
       return lib.target.withoutInfo
     else
       throw <| CliError.invalidFacet spec facet
-  else if let some (pkg, lib) := ws.findLeanLib? spec then
+  else if let some (pkg, lib) := ws.findLeanLib? spec.toName then
     resolveLibTarget pkg lib facet
-  else if let some pkg := ws.packageByName? spec then
+  else if let some pkg := ws.findPackage? spec.toName then
     resolvePackageTarget pkg facet
-  else if let some pkg := ws.packageForModule? spec then
-    resolveModuleTarget pkg spec facet
+  else if let some mod := ws.findModule? spec.toName then
+    resolveModuleTarget mod facet
   else
     throw <| CliError.unknownTarget spec
 
@@ -118,8 +115,8 @@ def resolveTargetBaseSpec (ws : Workspace) (spec : String) (facet := "") : Excep
       resolvePackageTarget pkg facet
     else if spec.startsWith "+" then
       let mod := spec.drop 1 |>.toName
-      if let some pkg := ws.packageForModule? mod then
-        resolveModuleTarget pkg mod facet
+      if let some mod := ws.findModule? mod then
+        resolveModuleTarget mod facet
       else
         throw <| CliError.unknownModule mod
     else
@@ -129,7 +126,10 @@ def resolveTargetBaseSpec (ws : Workspace) (spec : String) (facet := "") : Excep
     let pkg ← parsePackageSpec ws pkgSpec
     if targetSpec.startsWith "+" then
       let mod := targetSpec.drop 1 |>.toName
-      resolveModuleTarget pkg mod facet
+      if let some mod := pkg.findModule? mod then
+        resolveModuleTarget mod facet
+      else
+        throw <| CliError.unknownModule mod
     else
       resolveTargetInPackage pkg spec facet
   | _ =>

@@ -331,10 +331,6 @@ def extraDepTarget (self : Package) : OpaqueTarget :=
 def defaultFacet (self : Package) : PackageFacet :=
    self.config.defaultFacet
 
-/-- The package's `moreLibTargets` configuration. -/
-def moreLibTargets (self : Package) : Array FileTarget :=
-  self.config.moreLibTargets
-
 /-- Get the package's library configuration with the given name. -/
 def findLeanLib? (name : Name) (self : Package) : Option LeanLibConfig :=
   self.leanLibs.find? name
@@ -349,7 +345,8 @@ def findExternLib? (name : Name) (self : Package) : Option ExternLibConfig :=
 
 /-- Get an `Array` of the package's external library targets. -/
 def externLibTargets (self : Package) : Array FileTarget :=
-  self.externLibs.fold (fun xs _ x => xs.push x.target) #[] ++ self.moreLibTargets
+  self.externLibs.fold (fun xs _ x => xs.push x.target) #[] ++
+  self.config.moreLibTargets
 
 /-- The package's `moreServerArgs` configuration. -/
 def moreServerArgs (self : Package) : Array String :=
@@ -359,13 +356,9 @@ def moreServerArgs (self : Package) : Array String :=
 def srcDir (self : Package) : FilePath :=
   self.dir / self.config.srcDir
 
-/-- The package's root directory for Lean (i.e., `srcDir`). -/
+/-- The package's root directory for `lean` (i.e., `srcDir`). -/
 def rootDir (self : Package) : FilePath :=
   self.srcDir
-
-/-- The path to a module's `.lean` source file within the package. -/
-def modToSrc (mod : Name) (self : Package) : FilePath :=
-  Lean.modToFilePath self.srcDir mod "lean"
 
 /-- The package's `dir` joined with its `buildDir` configuration. -/
 def buildDir (self : Package) : FilePath :=
@@ -379,18 +372,6 @@ def oleanDir (self : Package) : FilePath :=
 def moreLeanArgs (self : Package) : Array String :=
   self.config.moreLeanArgs
 
-/-- The path to a module's `.olean` file within the package. -/
-def modToOlean (mod : Name) (self : Package) : FilePath :=
-  Lean.modToFilePath self.oleanDir mod "olean"
-
-/-- The path to a module's `.ilean` file within the package. -/
-def modToIlean (mod : Name) (self : Package) : FilePath :=
-  Lean.modToFilePath self.oleanDir mod "ilean"
-
-/-- The path to module's `.trace` file within the package. -/
-def modToTraceFile (mod : Name) (self : Package) : FilePath :=
-  Lean.modToFilePath self.oleanDir mod "trace"
-
 /- `-O3`, `-DNDEBUG`, and `moreLeancArgs` -/
 def moreLeancArgs (self : Package) : Array String :=
   #["-O3", "-DNDEBUG"] ++ self.config.moreLeancArgs
@@ -398,22 +379,6 @@ def moreLeancArgs (self : Package) : Array String :=
 /-- The package's `buildDir` joined with its `irDir` configuration. -/
 def irDir (self : Package) : FilePath :=
   self.buildDir / self.config.irDir
-
-/-- To which Lake should output the package's `.c` files (.e., `irDir`). -/
-def cDir (self : Package) : FilePath :=
-  self.irDir
-
-/-- The path to a module's `.c` file within the package. -/
-def modToC (mod : Name) (self : Package) : FilePath :=
-  Lean.modToFilePath self.cDir mod "c"
-
-/-- To which Lake should output the package's `.o` files (.e., `irDir`). -/
-def oDir (self : Package) : FilePath :=
-  self.irDir
-
-/-- The path to a module's `.o` file within the package. -/
-def modToO (mod : Name) (self : Package) : FilePath :=
-  Lean.modToFilePath self.oDir mod "o"
 
 /-- The package's `buildDir` joined with its `libDir` configuration. -/
 def libDir (self : Package) : FilePath :=
@@ -441,8 +406,8 @@ def isLocalModule (mod : Name) (self : Package) : Bool :=
   self.builtinLibConfig.isLocalModule mod
 
 /-- Whether the given module is in the package (i.e., can build it). -/
-def hasModule (mod : Name) (self : Package) : Bool :=
-  self.leanLibs.any (fun _ lib => lib.hasModule mod) ||
+def isBuildableModule (mod : Name) (self : Package) : Bool :=
+  self.leanLibs.any (fun _ lib => lib.isBuildableModule mod) ||
   self.leanExes.any (fun _ exe => exe.root == mod) ||
-  self.builtinLibConfig.hasModule mod ||
+  self.builtinLibConfig.isBuildableModule mod ||
   self.config.binRoot == mod

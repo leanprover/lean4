@@ -29,6 +29,9 @@ abbrev BuildM := BuildT <| MonadLogT BaseIO OptionIO
 /-- The `Task` monad for Lake builds. -/
 abbrev BuildTask := OptionIOTask
 
+/-- A Lake build job. -/
+abbrev Job := BuildTask BuildTrace
+
 instance : MonadError BuildM := ⟨MonadLog.error⟩
 instance : MonadLift IO BuildM := ⟨MonadError.runIO⟩
 

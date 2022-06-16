@@ -102,8 +102,3 @@ def run' [Monad m] (self : RBTopT k o cmp m α) :=
   Functor.map (·.1) self.run
 
 end RBTopT
-
-/-- The `RBMap` version of `buildTop`. -/
-def buildRBTop {k o} {cmp} {m} [BEq k] [Inhabited o] [Monad m]
-(build : RecBuild i o (RBTopT k o cmp m)) (keyOf : i → k) (info : i) : RBTopT k o cmp m o :=
-  buildTop build keyOf info

@@ -49,11 +49,11 @@ def getLeanEnv [Monad m] : m (Array (String × Option String)) := do
 
 variable [Functor m]
 
-@[inline] def getPackageByName? (name : Name) : m (Option Package) :=
-  (·.packageByName? name) <$> getWorkspace
+@[inline] def findPackage? (name : Name) : m (Option Package) :=
+  (·.findPackage? name) <$> getWorkspace
 
-@[inline] def getPackageForModule? (mod : Name) : m (Option Package) :=
-  (·.packageForModule? mod) <$> getWorkspace
+@[inline] def findModule? (mod : Name) : m (Option Module) :=
+  (·.findModule? mod) <$> getWorkspace
 
 @[inline] def getOleanPath : m SearchPath :=
   (·.oleanPath) <$> getWorkspace

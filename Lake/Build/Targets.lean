@@ -64,12 +64,12 @@ def leanSharedLibTarget (binFile : FilePath)
   fileTargetWithDepArray binFile linkTargets fun links => do
     compileSharedLib binFile links linkArgs (← getLeanc)
 
-def binTarget (binFile : FilePath) (linkTargets : Array FileTarget)
+def cExeTarget (binFile : FilePath) (linkTargets : Array FileTarget)
 (linkArgs : Array String := #[]) (linker : FilePath := "cc") : FileTarget :=
    fileTargetWithDepArray binFile linkTargets (extraDepTrace := computeHash linkArgs) fun links => do
     compileBin binFile links linkArgs linker
 
-def leanBinTarget (binFile : FilePath)
+def leanExeTarget (binFile : FilePath)
 (linkTargets : Array FileTarget) (linkArgs : Array String := #[]) : FileTarget :=
   fileTargetWithDepArray binFile linkTargets
   (extraDepTrace := getLeanTrace <&> (·.mix <| pureHash linkArgs)) fun links => do

@@ -15,7 +15,13 @@ fi
 ./clean.sh
 
 $LAKE build +Foo.Test
+
+test -f ./build/lib/Foo/Test.olean
+test ! -f ./build/lib/Foo/Test.c
+
 $LAKE build Bar:o
+
+test -f ./build/ir/Bar.o
 
 $LAKE build
 

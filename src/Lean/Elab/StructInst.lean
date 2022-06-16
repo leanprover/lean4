@@ -184,7 +184,7 @@ private def elabModifyOp (stx modifyOp : Syntax) (sources : Array ExplicitSource
     let valField  := modifyOp.setArg 0 <| mkNode ``Parser.Term.structInstLVal #[valFirst, valRest]
     let valSource := mkSourcesWithSyntax #[s]
     let val       := stx.setArg 1 valSource
-    let val       := val.setArg 2 <| mkNullNode #[mkNullNode #[valField, mkNullNode]]
+    let val       := val.setArg 2 <| mkNullNode #[valField]
     trace[Elab.struct.modifyOp] "{stx}\nval: {val}"
     cont val
 

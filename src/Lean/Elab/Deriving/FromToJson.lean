@@ -112,7 +112,7 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]):ident $header.binders:explicitBinder* (j : Json)
           : Except String $(← mkInductiveApp ctx.typeInfos[0] header.argNames) := do
           $[let $fields:ident ← getObjValAs? j _ $jsonFields]*
-          return { $[$fields:ident := $(id fields)]* })
+          return { $[$fields:ident := $(id fields)],* })
         return #[cmd] ++ (← mkInstanceCmds ctx ``FromJson declNames)
       cmds.forM elabCommand
       return true

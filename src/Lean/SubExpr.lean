@@ -47,20 +47,21 @@ def push (p : Pos) (c : Nat) : Pos :=
 variable {α : Type} [Inhabited α]
 
 /-- Fold over the position starting at the root and heading to the leaf-/
-def foldl  (f : α → Nat → α) : α → Pos → α :=
-  fix2 (fun r a p => if p.isRoot then a else f (r a p.tail) p.head)
+partial def foldl  (f : α → Nat → α) (a : α) (p : Pos) : α :=
+  if p.isRoot then a else f (foldl f a p.tail) p.head
 
 /-- Fold over the position starting at the leaf and heading to the root-/
-def foldr  (f : Nat → α → α) : Pos → α → α :=
-  fix2 (fun r p a => if p.isRoot then a else r p.tail (f p.head a))
+partial def foldr  (f : Nat → α → α) (p : Pos) (a : α) : α :=
+  if p.isRoot then a else foldr f p.tail (f p.head a)
 
-/-- monad-fold over the position starting at the root and heading to the leaf-/
-def foldlM  [Monad M] (f : α → Nat → M α) : α → Pos → M α :=
-  fix2 (fun r a p => if p.isRoot then pure a else do f (← r a p.tail) p.head)
+/-- monad-fold over the position starting at the root and heading to the leaf -/
+partial def foldlM  [Monad M] (f : α → Nat → M α) (a : α) (p : Pos) : M α :=
+  have : Inhabited (M α) := inferInstance
+  if p.isRoot then pure a else do foldlM f a p.tail >>= (f · p.head)
 
 /-- monad-fold over the position starting at the leaf and finishing at the root. -/
-def foldrM [Monad M] (f : Nat → α → M α) : Pos → α → M α :=
-  fix2 (fun r p a => if p.isRoot then pure a else f p.head a >>= r p.tail)
+partial def foldrM [Monad M] (f : Nat → α → M α) (p : Pos) (a : α) : M α :=
+  if p.isRoot then pure a else f p.head a >>= foldrM f p.tail
 
 def depth (p : Pos) :=
   p.foldr (fun _ => Nat.succ) 0

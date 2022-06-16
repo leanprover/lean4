@@ -139,27 +139,6 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     return stx.setArg 1 <| mkNullNode elems
   else if k == ``Lean.Parser.Term.dotIdent then
     return stx
-  else if k == ``Lean.Parser.Term.structInst then
-    /-
-    ```
-    leading_parser "{" >> optional (atomic (termParser >> " with "))
-                >> manyIndent (group (structInstField >> optional ", "))
-                >> optional ".."
-                >> optional (" : " >> termParser)
-                >> " }"
-    ```
-    -/
-    let withMod := stx[1]
-    unless withMod.isNone do
-      throwErrorAt withMod "invalid struct instance pattern, 'with' is not allowed in patterns"
-    let fields ← stx[2].getArgs.mapM fun p => do
-        -- p is of the form (group (structInstField >> optional ", "))
-        let field := p[0]
-        -- leading_parser structInstLVal >> " := " >> termParser
-        let newVal ← collect field[2]
-        let field := field.setArg 2 newVal
-        pure <| field.setArg 0 field
-    return stx.setArg 2 <| mkNullNode fields
   else if k == ``Lean.Parser.Term.hole then
     `(.( $stx ))
   else if k == ``Lean.Parser.Term.syntheticHole then
@@ -241,8 +220,17 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
         throwError "invalid pattern, overloaded notation is only allowed when all alternative have the same set of pattern variables"
     set stateNew
     return mkNode choiceKind argsNew
-  else
-    throwInvalidPattern
+  else match stx with
+  | `({ $[$srcs?,* with]? $fields,* $[..%$ell?]? $[: $ty?]? }) =>
+    if let some srcs := srcs? then
+      throwErrorAt (mkNullNode srcs) "invalid struct instance pattern, 'with' is not allowed in patterns"
+    let fields ← fields.getElems.mapM fun
+      | `(Parser.Term.structInstField| $lval:structInstLVal := $val) => do
+        let newVal ← collect val
+        `(Parser.Term.structInstField| $lval:structInstLVal := $newVal)
+      | field => throwInvalidPattern  -- `structInstFieldAbbrev` should be expanded at this point
+    `({ $[$srcs?,* with]? $fields,* $[..%$ell?]? $[: $ty?]? })
+  | _ => throwInvalidPattern
 
 where
 

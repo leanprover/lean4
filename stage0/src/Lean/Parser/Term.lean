@@ -45,6 +45,7 @@ def seq1 :=
 end Tactic
 
 def darrow : Parser := " => "
+def semicolonOrLinebreak := ";" <|> checkLinebreakBefore >> pushNone
 
 namespace Term
 
@@ -60,7 +61,8 @@ namespace Term
   incorrect syntax when the full expression is `show $T by exact $e`. -/
 def byTactic' := leading_parser "by " >> Tactic.tacticSeq
 
-def optSemicolon (p : Parser) : Parser := ppDedent $ optional ";" >> ppLine >> p
+-- TODO: rename to e.g. `afterSemicolonOrLinebreak`
+def optSemicolon (p : Parser) : Parser := ppDedent $ semicolonOrLinebreak >> ppLine >> p
 
 -- `checkPrec` necessary for the pretty printer
 @[builtinTermParser] def ident := checkPrec maxPrec >> Parser.ident
@@ -92,7 +94,7 @@ def structInstField  := ppGroup $ leading_parser structInstLVal >> " := " >> ter
 def structInstFieldAbbrev := leading_parser atomic (ident >> notFollowedBy ("." <|> ":=" <|> symbol "[") "invalid field abbreviation") -- `x` is an abbreviation for `x := x`
 def optEllipsis      := leading_parser optional ".."
 @[builtinTermParser] def structInst := leading_parser "{" >> ppHardSpace >> optional (atomic (sepBy1 termParser ", " >> " with "))
-  >> manyIndent (group ((structInstFieldAbbrev <|> structInstField) >> optional ", "))
+  >> sepByIndent (structInstFieldAbbrev <|> structInstField) "," (", " <|> checkLinebreakBefore >> pushNone) (allowTrailingSep := true)
   >> optEllipsis
   >> optional (" : " >> termParser) >> " }"
 def typeSpec := leading_parser " : " >> termParser
@@ -222,7 +224,8 @@ def letRecDecls      := leading_parser sepBy1 letRecDecl ", "
 def «letrec» := leading_parser:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >> optSemicolon termParser
 
 @[runBuiltinParserAttributeHooks]
-def whereDecls := leading_parser " where" >> many1Indent (ppLine >> ppGroup (group (letRecDecl >> optional ";")))
+def whereDecls := leading_parser " where" >> sepBy1Indent (ppLine >> ppGroup letRecDecl) ";" semicolonOrLinebreak (allowTrailingSep := true)
+
 @[runBuiltinParserAttributeHooks]
 def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 

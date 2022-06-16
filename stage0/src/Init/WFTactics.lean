@@ -16,8 +16,6 @@ macro_rules | `(tactic| decreasing_trivial) => `(tactic| assumption)
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply Nat.sub_succ_lt_self; assumption) -- a - (i+1) < a - i if i < a
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply Nat.pred_lt'; assumption) -- i-1 < i if j < i
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply Nat.pred_lt; assumption)  -- i-1 < i if i ≠ 0
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| decide) -- e.g., 0 < 1
-macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply Nat.lt_succ_self) -- i < i+1
 
 macro "decreasing_with " ts:tacticSeq : tactic =>
  `((simp_wf

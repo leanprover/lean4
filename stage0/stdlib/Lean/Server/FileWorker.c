@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__40;
+static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__67;
 lean_object* l_IO_setRandSeed(lean_object*, lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__8;
@@ -59,6 +60,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_io_error_to_string(lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__36;
+static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__70;
 static lean_object* l_Lean_Server_FileWorker_compileHeader___lambda__1___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_updateDocument___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonRpcConnectParams____x40_Lean_Data_Lsp_Extra___hyg_1088_(lean_object*);
@@ -67,6 +69,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_parseParams___at_Lean_Server_F
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_publishIleanInfoFinal(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_lakeSetupSearchPath___closed__3;
+static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__69;
 lean_object* lean_environment_set_main_module(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_compileHeader___lambda__1___closed__4;
 lean_object* l_String_firstDiffPos(lean_object*, lean_object*);
@@ -87,6 +90,7 @@ lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_CancelToken_check___at___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_nextCmdSnap___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_del___at_Lean_Server_FileWorker_mainLoop___spec__3___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_updateDocument___lambda__1___boxed(lean_object*, lean_object*);
+static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__68;
 LEAN_EXPORT lean_object* l_Std_PersistentArray_mapM___at_Lean_Server_FileWorker_compileHeader___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleRpcRelease(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleRpcConnect(lean_object*, lean_object*);
@@ -105,6 +109,7 @@ static lean_object* l_Lean_Server_FileWorker_compileHeader___lambda__1___closed_
 lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__60;
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__47;
+static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__74;
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__64;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_compileHeader___spec__11(uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleRpcConnect___rarg___boxed(lean_object*, lean_object*);
@@ -331,6 +336,7 @@ static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_ini
 lean_object* lean_io_process_child_wait(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_System_FilePath_fileName(lean_object*);
+static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__72;
 uint8_t l_Std_RBNode_isRed___rarg(lean_object*);
 lean_object* l_Std_PersistentArray_toArray___rarg(lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
@@ -347,6 +353,7 @@ lean_object* l_List_get_x21___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_FileWorker_compileHeader___spec__10(uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__49;
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspResponse___at_Lean_Server_FileWorker_handleRequest___spec__1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__71;
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__7;
 lean_object* l_Std_RBNode_find___at_Lean_Server_wrapRpcProcedure___elambda__1___spec__1(lean_object*, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_parseParams___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -357,6 +364,7 @@ static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_ini
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__10;
 static lean_object* l_Std_RBNode_foldM___at_Lean_Server_FileWorker_mainLoop___spec__1___closed__4;
 static lean_object* l_Lean_Server_FileWorker_lakeSetupSearchPath_processStderr___closed__1;
+static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__73;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_lakeSetupSearchPath_processStderr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__46;
 static lean_object* l_IO_FS_Stream_readNotificationAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__4___closed__1;
@@ -16089,6 +16097,86 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__67() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(32901u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__68() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__67;
+x_2 = lean_int_neg(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__69() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__68;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__70() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__69;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__71() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(32902u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__72() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__71;
+x_2 = lean_int_neg(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__73() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__72;
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__74() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__73;
+x_2 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -17693,35 +17781,35 @@ lean_dec(x_366);
 switch (lean_obj_tag(x_363)) {
 case 0:
 {
-lean_object* x_409; lean_object* x_410; 
-x_409 = lean_ctor_get(x_363, 0);
-lean_inc(x_409);
-lean_dec(x_363);
-x_410 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_410, 0, x_409);
-x_374 = x_410;
-goto block_408;
-}
-case 1:
-{
 lean_object* x_411; lean_object* x_412; 
 x_411 = lean_ctor_get(x_363, 0);
 lean_inc(x_411);
 lean_dec(x_363);
-x_412 = lean_alloc_ctor(2, 1, 0);
+x_412 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_412, 0, x_411);
 x_374 = x_412;
-goto block_408;
+goto block_410;
+}
+case 1:
+{
+lean_object* x_413; lean_object* x_414; 
+x_413 = lean_ctor_get(x_363, 0);
+lean_inc(x_413);
+lean_dec(x_363);
+x_414 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_414, 0, x_413);
+x_374 = x_414;
+goto block_410;
 }
 default: 
 {
-lean_object* x_413; 
-x_413 = lean_box(0);
-x_374 = x_413;
-goto block_408;
+lean_object* x_415; 
+x_415 = lean_box(0);
+x_374 = x_415;
+goto block_410;
 }
 }
-block_408:
+block_410:
 {
 lean_object* x_375; lean_object* x_376; lean_object* x_377; 
 x_375 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__21;
@@ -17792,11 +17880,25 @@ x_406 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorke
 x_377 = x_406;
 goto block_397;
 }
-default: 
+case 9:
 {
 lean_object* x_407; 
 x_407 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__66;
 x_377 = x_407;
+goto block_397;
+}
+case 10:
+{
+lean_object* x_408; 
+x_408 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__70;
+x_377 = x_408;
+goto block_397;
+}
+default: 
+{
+lean_object* x_409; 
+x_409 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__74;
+x_377 = x_409;
 goto block_397;
 }
 }
@@ -17851,25 +17953,25 @@ return x_396;
 }
 else
 {
-uint8_t x_414; 
+uint8_t x_416; 
 lean_dec(x_3);
-x_414 = !lean_is_exclusive(x_5);
-if (x_414 == 0)
+x_416 = !lean_is_exclusive(x_5);
+if (x_416 == 0)
 {
 return x_5;
 }
 else
 {
-lean_object* x_415; lean_object* x_416; lean_object* x_417; 
-x_415 = lean_ctor_get(x_5, 0);
-x_416 = lean_ctor_get(x_5, 1);
-lean_inc(x_416);
-lean_inc(x_415);
+lean_object* x_417; lean_object* x_418; lean_object* x_419; 
+x_417 = lean_ctor_get(x_5, 0);
+x_418 = lean_ctor_get(x_5, 1);
+lean_inc(x_418);
+lean_inc(x_417);
 lean_dec(x_5);
-x_417 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_417, 0, x_415);
-lean_ctor_set(x_417, 1, x_416);
-return x_417;
+x_419 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_419, 0, x_417);
+lean_ctor_set(x_419, 1, x_418);
+return x_419;
 }
 }
 }
@@ -18663,35 +18765,35 @@ lean_dec(x_258);
 switch (lean_obj_tag(x_255)) {
 case 0:
 {
-lean_object* x_301; lean_object* x_302; 
-x_301 = lean_ctor_get(x_255, 0);
-lean_inc(x_301);
-lean_dec(x_255);
-x_302 = lean_alloc_ctor(3, 1, 0);
-lean_ctor_set(x_302, 0, x_301);
-x_266 = x_302;
-goto block_300;
-}
-case 1:
-{
 lean_object* x_303; lean_object* x_304; 
 x_303 = lean_ctor_get(x_255, 0);
 lean_inc(x_303);
 lean_dec(x_255);
-x_304 = lean_alloc_ctor(2, 1, 0);
+x_304 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_304, 0, x_303);
 x_266 = x_304;
-goto block_300;
+goto block_302;
+}
+case 1:
+{
+lean_object* x_305; lean_object* x_306; 
+x_305 = lean_ctor_get(x_255, 0);
+lean_inc(x_305);
+lean_dec(x_255);
+x_306 = lean_alloc_ctor(2, 1, 0);
+lean_ctor_set(x_306, 0, x_305);
+x_266 = x_306;
+goto block_302;
 }
 default: 
 {
-lean_object* x_305; 
-x_305 = lean_box(0);
-x_266 = x_305;
-goto block_300;
+lean_object* x_307; 
+x_307 = lean_box(0);
+x_266 = x_307;
+goto block_302;
 }
 }
-block_300:
+block_302:
 {
 lean_object* x_267; lean_object* x_268; lean_object* x_269; 
 x_267 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__21;
@@ -18762,11 +18864,25 @@ x_298 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorke
 x_269 = x_298;
 goto block_289;
 }
-default: 
+case 9:
 {
 lean_object* x_299; 
 x_299 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__66;
 x_269 = x_299;
+goto block_289;
+}
+case 10:
+{
+lean_object* x_300; 
+x_300 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__70;
+x_269 = x_300;
+goto block_289;
+}
+default: 
+{
+lean_object* x_301; 
+x_301 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__74;
+x_269 = x_301;
 goto block_289;
 }
 }
@@ -18821,25 +18937,25 @@ return x_288;
 }
 else
 {
-uint8_t x_306; 
+uint8_t x_308; 
 lean_dec(x_3);
-x_306 = !lean_is_exclusive(x_5);
-if (x_306 == 0)
+x_308 = !lean_is_exclusive(x_5);
+if (x_308 == 0)
 {
 return x_5;
 }
 else
 {
-lean_object* x_307; lean_object* x_308; lean_object* x_309; 
-x_307 = lean_ctor_get(x_5, 0);
-x_308 = lean_ctor_get(x_5, 1);
-lean_inc(x_308);
-lean_inc(x_307);
+lean_object* x_309; lean_object* x_310; lean_object* x_311; 
+x_309 = lean_ctor_get(x_5, 0);
+x_310 = lean_ctor_get(x_5, 1);
+lean_inc(x_310);
+lean_inc(x_309);
 lean_dec(x_5);
-x_309 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_309, 0, x_307);
-lean_ctor_set(x_309, 1, x_308);
-return x_309;
+x_311 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_311, 0, x_309);
+lean_ctor_set(x_311, 1, x_310);
+return x_311;
 }
 }
 }
@@ -20001,6 +20117,22 @@ l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec
 lean_mark_persistent(l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__65);
 l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__66 = _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__66();
 lean_mark_persistent(l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__66);
+l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__67 = _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__67();
+lean_mark_persistent(l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__67);
+l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__68 = _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__68();
+lean_mark_persistent(l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__68);
+l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__69 = _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__69();
+lean_mark_persistent(l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__69);
+l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__70 = _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__70();
+lean_mark_persistent(l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__70);
+l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__71 = _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__71();
+lean_mark_persistent(l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__71);
+l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__72 = _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__72();
+lean_mark_persistent(l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__72);
+l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__73 = _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__73();
+lean_mark_persistent(l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__73);
+l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__74 = _init_l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__74();
+lean_mark_persistent(l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__74);
 l_IO_FS_Stream_readLspRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__1___closed__1 = _init_l_IO_FS_Stream_readLspRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__1___closed__1();
 lean_mark_persistent(l_IO_FS_Stream_readLspRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__1___closed__1);
 l_IO_FS_Stream_readNotificationAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__4___closed__1 = _init_l_IO_FS_Stream_readNotificationAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__4___closed__1();

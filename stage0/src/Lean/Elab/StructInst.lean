@@ -34,19 +34,19 @@ open Meta
     `(($stxNew : $expected))
 
 /-- Expand field abbreviations. Example: `{ x, y := 0 }` expands to `{ x := x, y := 0 }` -/
-@[builtinMacro Lean.Parser.Term.structInst] def expandStructInstFieldAbbrev : Macro := fun stx => do
-  if stx[2].getArgs.any fun arg => arg[0].getKind == ``Lean.Parser.Term.structInstFieldAbbrev then
-    let fieldsNew ← stx[2].getArgs.mapM fun stx => do
-      let field := stx[0]
-      if field.getKind == ``Lean.Parser.Term.structInstFieldAbbrev then
-        let id := field[0]
-        let fieldNew ← `(Lean.Parser.Term.structInstField| $id:ident := $id:ident)
-        return stx.setArg 0 fieldNew
-      else
-        return stx
-    return stx.setArg 2 (mkNullNode fieldsNew)
-  else
-    Macro.throwUnsupported
+@[builtinMacro Lean.Parser.Term.structInst] def expandStructInstFieldAbbrev : Macro
+  | `({ $[$srcs,* with]? $fields,* $[..%$ell]? $[: $ty]? }) =>
+    if fields.getElems.any (·.getKind == ``Lean.Parser.Term.structInstFieldAbbrev) then do
+      let fieldsNew ← fields.getElems.mapM fun field => do
+        if field.getKind == ``Lean.Parser.Term.structInstFieldAbbrev then
+          let id := field[0]
+          `(Lean.Parser.Term.structInstField| $id:ident := $id:ident)
+        else
+          return field
+      `({ $[$srcs,* with]? $fieldsNew,* $[..%$ell]? $[: $ty]? })
+    else
+      Macro.throwUnsupported
+  | _ => Macro.throwUnsupported
 
 /--
   If `stx` is of the form `{ s₁, ..., sₙ with ... }` and `sᵢ` is not a local variable, expand into `let src := sᵢ; { ..., src, ... with ... }`.
@@ -129,9 +129,8 @@ private def getStructSource (structStx : Syntax) : TermElabM Source :=
   ```
 -/
 private def isModifyOp? (stx : Syntax) : TermElabM (Option Syntax) := do
-  let s? ← stx[2].getArgs.foldlM (init := none) fun s? p =>
-    /- p is of the form `(group ((structInstFieldAbbrev <|> structInstField) >> optional ", "))` -/
-    let arg := p[0]
+  let s? ← stx[2].getSepArgs.foldlM (init := none) fun s? arg =>
+    /- arg is of the form `structInstFieldAbbrev <|> structInstField` -/
     if arg.getKind == ``Lean.Parser.Term.structInstField then
       /- Remark: the syntax for `structInstField` is
          ```
@@ -346,7 +345,7 @@ private def mkStructView (stx : Syntax) (structName : Name) (source : Source) : 
   /- Recall that `stx` is of the form
      ```
      leading_parser "{" >> optional (atomic (sepBy1 termParser ", " >> " with "))
-                 >> manyIndent (group ((structInstFieldAbbrev <|> structInstField) >> optional ", "))
+                 >> sepByIndent (structInstFieldAbbrev <|> structInstField) ...
                  >> optional ".."
                  >> optional (" : " >> termParser)
                  >> " }"
@@ -354,8 +353,7 @@ private def mkStructView (stx : Syntax) (structName : Name) (source : Source) : 
 
      This method assumes that `structInstFieldAbbrev` had already been expanded.
   -/
-  let fields ← stx[2].getArgs.toList.mapM fun stx => do
-    let fieldStx := stx[0]
+  let fields ← stx[2].getSepArgs.toList.mapM fun fieldStx => do
     let val      := fieldStx[2]
     let first    ← toFieldLHS fieldStx[0][0]
     let rest     ← fieldStx[0][1].getArgs.toList.mapM toFieldLHS
@@ -499,8 +497,8 @@ mutual
                   return (structStx.setArg 1 (mkSourcesWithSyntax sourcesNew)).setArg 3 mkNullNode
             let valStx := s.ref -- construct substructure syntax using s.ref as template
             let valStx := valStx.setArg 4 mkNullNode -- erase optional expected type
-            let args   := substructFields.toArray.map fun field => mkNullNode #[field.toSyntax, mkNullNode]
-            let valStx := valStx.setArg 2 (mkNullNode args)
+            let args   := substructFields.toArray.map (·.toSyntax)
+            let valStx := valStx.setArg 2 (mkNullNode <| mkSepArray args (mkAtom ","))
             let valStx ← updateSource valStx
             pure { field with lhs := [field.lhs.head!], val := FieldVal.term valStx }
 

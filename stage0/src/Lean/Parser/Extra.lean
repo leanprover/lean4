@@ -57,6 +57,12 @@ attribute [runBuiltinParserAttributeHooks]
 @[runBuiltinParserAttributeHooks, inline] def manyIndent (p : Parser) : Parser :=
   withPosition $ many (checkColGe "irrelevant" >> p)
 
+@[runBuiltinParserAttributeHooks, inline] def sepByIndent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
+  withPosition $ sepBy (checkColGe "irrelevant" >> p) sep psep allowTrailingSep
+
+@[runBuiltinParserAttributeHooks, inline] def sepBy1Indent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
+  withPosition $ sepBy1 (checkColGe "irrelevant" >> p) sep psep allowTrailingSep
+
 @[runBuiltinParserAttributeHooks] abbrev notSymbol (s : String) : Parser :=
   notFollowedBy (symbol s) s
 

@@ -11,8 +11,6 @@ import Lean.Elab.Tactic.Induction
 namespace Lean.Elab.Tactic
 open Meta
 
-structure AuxMatchTermState where
-
 open Parser.Tactic in
 private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM (Syntax × Array Syntax) := do
   let matchAlts := matchTac[5]
@@ -48,7 +46,7 @@ private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM
       newAlts := newAlts.push alt
   let result  := matchTac.setKind ``Parser.Term.«match»
   let result  := result.setArg 5 (mkNode ``Parser.Term.matchAlts #[mkNullNode newAlts])
-  pure (result, newCases)
+  return (result, newCases)
 
 @[builtinTactic Lean.Parser.Tactic.match]
 def evalMatch : Tactic := fun stx => do

@@ -94,7 +94,7 @@ def structInstField  := ppGroup $ leading_parser structInstLVal >> " := " >> ter
 def structInstFieldAbbrev := leading_parser atomic (ident >> notFollowedBy ("." <|> ":=" <|> symbol "[") "invalid field abbreviation") -- `x` is an abbreviation for `x := x`
 def optEllipsis      := leading_parser optional ".."
 @[builtinTermParser] def structInst := leading_parser "{" >> ppHardSpace >> optional (atomic (sepBy1 termParser ", " >> " with "))
-  >> sepByIndent (structInstFieldAbbrev <|> structInstField) "," (", " <|> checkLinebreakBefore >> pushNone) (allowTrailingSep := true)
+  >> sepByIndent (structInstFieldAbbrev <|> structInstField) ", " (allowTrailingSep := true)
   >> optEllipsis
   >> optional (" : " >> termParser) >> " }"
 def typeSpec := leading_parser " : " >> termParser
@@ -224,7 +224,7 @@ def letRecDecls      := leading_parser sepBy1 letRecDecl ", "
 def «letrec» := leading_parser:leadPrec withPosition (group ("let " >> nonReservedSymbol "rec ") >> letRecDecls) >> optSemicolon termParser
 
 @[runBuiltinParserAttributeHooks]
-def whereDecls := leading_parser " where" >> sepBy1Indent (ppLine >> ppGroup letRecDecl) ";" semicolonOrLinebreak (allowTrailingSep := true)
+def whereDecls := leading_parser " where" >> sepBy1Indent (ppLine >> ppGroup letRecDecl) "; " (allowTrailingSep := true)
 
 @[runBuiltinParserAttributeHooks]
 def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls

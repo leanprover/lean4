@@ -158,7 +158,7 @@ def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEn
       | none           => return none
     hasDecl          := fun declName => return env.contains declName
     getCurrNamespace := return currNamespace
-    resolveNamespace? := fun n => return ResolveName.resolveNamespace? env currNamespace openDecls n
+    resolveNamespace := fun n => return ResolveName.resolveNamespace env currNamespace openDecls n
     resolveGlobalName := fun n => return ResolveName.resolveGlobalName env currNamespace openDecls n
   }
   match x { methods        := methods

@@ -2294,7 +2294,7 @@ structure Methods where
   expandMacro?      : Syntax → MacroM (Option Syntax)
   getCurrNamespace  : MacroM Name
   hasDecl           : Name → MacroM Bool
-  resolveNamespace? : Name → MacroM (Option Name)
+  resolveNamespace  : Name → MacroM (List Name)
   resolveGlobalName : Name → MacroM (List (Prod Name (List String)))
   deriving Inhabited
 
@@ -2323,8 +2323,8 @@ def hasDecl (declName : Name) : MacroM Bool := do
 def getCurrNamespace : MacroM Name := do
   (← getMethods).getCurrNamespace
 
-def resolveNamespace? (n : Name) : MacroM (Option Name) := do
-  (← getMethods).resolveNamespace? n
+def resolveNamespace (n : Name) : MacroM (List Name) := do
+  (← getMethods).resolveNamespace n
 
 def resolveGlobalName (n : Name) : MacroM (List (Prod Name (List String))) := do
   (← getMethods).resolveGlobalName n

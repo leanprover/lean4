@@ -549,12 +549,12 @@ builtin_initialize registerBuiltinDynamicParserAttribute `commandParser `command
 
 private def withNamespaces (ids : Array Name) (p : ParserFn) (addOpenSimple : Bool) : ParserFn := fun c s =>
   let c := ids.foldl (init := c) fun c id =>
-    match ResolveName.resolveNamespace? c.env c.currNamespace c.openDecls id with
-    | none => c -- Ignore namespace resolution errors, the elaborator will report them.
-    | some ns =>
-      let openDecls := if addOpenSimple then OpenDecl.simple ns [] :: c.openDecls else c.openDecls
-      let env := parserExtension.activateScoped c.env ns
-      { c with env, openDecls }
+    let nss := ResolveName.resolveNamespace c.env c.currNamespace c.openDecls id
+    let (env, openDecls) := nss.foldl (init := (c.env, c.openDecls)) fun (env, openDecls) ns =>
+      let openDecls := if addOpenSimple then OpenDecl.simple ns [] :: openDecls else openDecls
+      let env := parserExtension.activateScoped env ns
+      (env, openDecls)
+    { c with env, openDecls }
   let tokens := parserExtension.getState c.env |>.tokens
   p { c with tokens } s
 

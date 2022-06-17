@@ -36,25 +36,26 @@ private def addOpenDecl (decl : OpenDecl) : M (m:=m) Unit :=
 private def elabOpenSimple (n : Syntax) : M (m:=m) Unit :=
   -- `open` id+
   for ns in n[0].getArgs do
-    let ns ← resolveNamespace ns.getId
-    addOpenDecl (OpenDecl.simple ns [])
-    activateScoped ns
+    for ns in (← resolveNamespace ns.getId) do
+      addOpenDecl (OpenDecl.simple ns [])
+      activateScoped ns
 
 private def elabOpenScoped (n : Syntax) : M (m:=m) Unit :=
   -- `open` `scoped` id+
   for ns in n[1].getArgs do
-    activateScoped (← resolveNamespace ns.getId)
+    for ns in (← resolveNamespace ns.getId) do
+    activateScoped ns
 
 -- `open` id `(` id+ `)`
 private def elabOpenOnly (n : Syntax) : M (m:=m) Unit := do
-  let ns ← resolveNamespace n[0].getId
+  let ns ← resolveUniqueNamespace n[0].getId
   for idStx in n[2].getArgs do
     let declName ← resolveId ns idStx
     addOpenDecl (OpenDecl.explicit idStx.getId declName)
 
 -- `open` id `hiding` id+
 private def elabOpenHiding (n : Syntax) : M (m:=m) Unit := do
-  let ns ← resolveNamespace n[0].getId
+  let ns ← resolveUniqueNamespace n[0].getId
   let mut ids : List Name := []
   for idStx in n[2].getArgs do
     let _ ← resolveId ns idStx
@@ -64,7 +65,7 @@ private def elabOpenHiding (n : Syntax) : M (m:=m) Unit := do
 
 -- `open` id `renaming` sepBy (id `->` id) `,`
 private def elabOpenRenaming (n : Syntax) : M (m:=m) Unit := do
-  let ns ← resolveNamespace n[0].getId
+  let ns ← resolveUniqueNamespace n[0].getId
   for stx in n[2].getSepArgs do
     let fromStx  := stx[0]
     let toId     := stx[2].getId

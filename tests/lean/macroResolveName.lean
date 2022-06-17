@@ -1,6 +1,6 @@
 open Lean in
 macro "resolveN" x:ident : term =>
-  return quote (← Macro.resolveNamespace? x.getId)
+  return quote (← Macro.resolveNamespace x.getId)
 
 open Lean in #check resolveN Macro
 

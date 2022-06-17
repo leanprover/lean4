@@ -121,7 +121,7 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 @[builtinCommandElab «export»] def elabExport : CommandElab := fun stx => do
   -- `stx` is of the form (Command.export "export" <namespace> "(" (null <ids>*) ")")
   let id  := stx[1].getId
-  let ns ← resolveNamespace id
+  let ns ← resolveUniqueNamespace id
   let currNamespace ← getCurrNamespace
   if ns == currNamespace then throwError "invalid 'export', self export"
   let ids := stx[3].getArgs

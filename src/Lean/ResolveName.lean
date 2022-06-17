@@ -150,13 +150,13 @@ Given a name `id` try to find namespace it refers to. The resolution procedure w
 3- Finally, for each command `open N`, return `N ++ n` if it is the name of an existing namespace.
    We search "backwards" again. That is, we try the most recent `open` command first.
    We only consider simple `open` commands. -/
-def resolveNamespace? (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : Option Name :=
+def resolveNamespace (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : List Name :=
   match resolveNamespaceUsingScope env id ns with
-  | some n => some n
+  | some n => [n]
   | none   =>
     match resolveNamespaceUsingOpenDecls env id openDecls with
-    | some n => some n
-    | none   => none
+    | some n => [n]
+    | none   => []
 
 end ResolveName
 
@@ -196,11 +196,15 @@ instance (m n) [MonadLift m n] [MonadResolveName m] : MonadResolveName n where
 def resolveGlobalName [Monad m] [MonadResolveName m] [MonadEnv m] (id : Name) : m (List (Name × List String)) := do
   return ResolveName.resolveGlobalName (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
 
+def resolveNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Name) : m (List Name) := do
+  match ResolveName.resolveNamespace (← getEnv) (← getCurrNamespace) (← getOpenDecls) id with
+  | []  => throwError s!"unknown namespace '{id}'"
+  | nss => return nss
 
-def resolveNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Name) : m Name := do
-  match ResolveName.resolveNamespace? (← getEnv) (← getCurrNamespace) (← getOpenDecls) id with
-  | some ns => return ns
-  | none    => throwError s!"unknown namespace '{id}'"
+def resolveUniqueNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Name) : m Name := do
+  match (← resolveNamespace id) with
+  | [ns] => return ns
+  | nss => throwError s!"ambiguous namespace '{id}', possible interpretations: '{nss}'"
 
 /-- Given a name `n`, return a list of possible interpretations for global constants.
 

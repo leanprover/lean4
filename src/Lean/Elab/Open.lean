@@ -48,10 +48,17 @@ private def elabOpenScoped (n : Syntax) : M (m:=m) Unit :=
 
 -- `open` id `(` id+ `)`
 private def elabOpenOnly (n : Syntax) : M (m:=m) Unit := do
-  let ns ← resolveUniqueNamespace n[0].getId
+  let nss ← resolveNamespace n[0].getId
   for idStx in n[2].getArgs do
-    let declName ← resolveId ns idStx
-    addOpenDecl (OpenDecl.explicit idStx.getId declName)
+    let mut exs := #[]
+    for ns in nss do
+      try
+        let declName ← resolveId ns idStx
+        addOpenDecl (OpenDecl.explicit idStx.getId declName)
+      catch ex =>
+        exs := exs.push ex
+    if exs.size == nss.length then
+      withRef idStx do if exs.size == 1 then throw exs[0] else throwErrorWithNestedErrors "failed to open" exs
 
 -- `open` id `hiding` id+
 private def elabOpenHiding (n : Syntax) : M (m:=m) Unit := do

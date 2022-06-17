@@ -131,9 +131,9 @@ def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl
 
 /- Namespace resolution -/
 
-def resolveNamespaceUsingScope (env : Environment) (n : Name) : Name → List Name
-  | Name.anonymous      => if env.isNamespace n then [n] else []
-  | ns@(Name.str p _ _) => if env.isNamespace (ns ++ n) then (ns ++ n) :: resolveNamespaceUsingScope env n p else resolveNamespaceUsingScope env n p
+def resolveNamespaceUsingScope? (env : Environment) (n : Name) : Name → Option Name
+  | Name.anonymous      => if env.isNamespace n then some n else none
+  | ns@(Name.str p _ _) => if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScope? env n p
   | _                   => unreachable!
 
 def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDecl → List Name
@@ -145,14 +145,17 @@ def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDec
 Given a name `id` try to find namespaces it may refer to. The resolution procedure works as follows
 
 1- If `id` is in the scope of `namespace` commands the namespace `s_1. ... . s_n`,
-   then include `s_1 . ... . s_i ++ n` if it is the name of an existing namespace.
+   then we include `s_1 . ... . s_i ++ n` in the result if it is the name of an existing namespace.
+   We search "backwards", and include at most one of the in the list of resulting namespaces.
 
 2- If `id` is the extact name of an existing namespace, then include `id`
 
 3- Finally, for each command `open N`, include in the result `N ++ n` if it is the name of an existing namespace.
    We only consider simple `open` commands. -/
 def resolveNamespace (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : List Name :=
-  resolveNamespaceUsingScope env id ns ++ resolveNamespaceUsingOpenDecls env id openDecls
+  match resolveNamespaceUsingScope? env id ns with
+  | some ns => ns :: resolveNamespaceUsingOpenDecls env id openDecls
+  | none => resolveNamespaceUsingOpenDecls env id openDecls
 
 end ResolveName
 

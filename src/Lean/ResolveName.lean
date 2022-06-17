@@ -131,32 +131,28 @@ def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl
 
 /- Namespace resolution -/
 
-def resolveNamespaceUsingScope (env : Environment) (n : Name) : Name → Option Name
-  | Name.anonymous      => if env.isNamespace n then some n else none
-  | ns@(Name.str p _ _) => if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScope env n p
+def resolveNamespaceUsingScope (env : Environment) (n : Name) : Name → List Name
+  | Name.anonymous      => if env.isNamespace n then [n] else []
+  | ns@(Name.str p _ _) => if env.isNamespace (ns ++ n) then (ns ++ n) :: resolveNamespaceUsingScope env n p else resolveNamespaceUsingScope env n p
   | _                   => unreachable!
 
-def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDecl → Option Name
-  | []                          => none
-  | OpenDecl.simple ns [] :: ds =>  if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingOpenDecls env n ds
+def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDecl → List Name
+  | []                          => []
+  | OpenDecl.simple ns [] :: ds =>  if env.isNamespace (ns ++ n) then (ns ++ n) :: resolveNamespaceUsingOpenDecls env n ds else resolveNamespaceUsingOpenDecls env n ds
   | _ :: ds                     => resolveNamespaceUsingOpenDecls env n ds
 
 /--
-Given a name `id` try to find namespace it refers to. The resolution procedure works as follows
-1- If `id` is in the scope of `namespace` commands the namespace `s_1. ... . s_n`,
-   then return `s_1 . ... . s_i ++ n` if it is the name of an existing namespace. We search "backwards".
-2- If `id` is the extact name of an existing namespace, then return `id`
+Given a name `id` try to find namespaces it may refer to. The resolution procedure works as follows
 
-3- Finally, for each command `open N`, return `N ++ n` if it is the name of an existing namespace.
-   We search "backwards" again. That is, we try the most recent `open` command first.
+1- If `id` is in the scope of `namespace` commands the namespace `s_1. ... . s_n`,
+   then include `s_1 . ... . s_i ++ n` if it is the name of an existing namespace.
+
+2- If `id` is the extact name of an existing namespace, then include `id`
+
+3- Finally, for each command `open N`, include in the result `N ++ n` if it is the name of an existing namespace.
    We only consider simple `open` commands. -/
 def resolveNamespace (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : List Name :=
-  match resolveNamespaceUsingScope env id ns with
-  | some n => [n]
-  | none   =>
-    match resolveNamespaceUsingOpenDecls env id openDecls with
-    | some n => [n]
-    | none   => []
+  resolveNamespaceUsingScope env id ns ++ resolveNamespaceUsingOpenDecls env id openDecls
 
 end ResolveName
 

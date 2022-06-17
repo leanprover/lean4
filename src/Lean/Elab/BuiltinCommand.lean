@@ -128,14 +128,8 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   let mut aliases := #[]
   for idStx in ids do
     let id := idStx.getId
-    let mut exs := #[]
-    for ns in nss do
-      try
-        let declName ← resolveOpenDeclId ns idStx
-        aliases := aliases.push (currNamespace ++ id, declName)
-      catch ex => exs := exs.push ex
-    if exs.size == nss.length then
-      withRef idStx do if exs.size == 1 then throw exs[0] else throwErrorWithNestedErrors "failed to export" exs
+    let declName ← resolveNameUsingNamespaces nss idStx
+    aliases := aliases.push (currNamespace ++ id, declName)
   modify fun s => { s with env := aliases.foldl (init := s.env) fun env p => addAlias env p.1 p.2 }
 
 @[builtinCommandElab «open»] def elabOpen : CommandElab := fun n => do

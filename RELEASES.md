@@ -1,6 +1,13 @@
 Unreleased
 ---------
 
+* Improve namespace resolution. See issue [#1224](https://github.com/leanprover/lean4/issues/1224). Example:
+  ```lean
+  import Lean
+  open Lean Parser Elab
+  open Tactic -- now opens both `Lean.Parser.Tactic` and `Lean.Elab.Tactic`
+  ```
+
 * Rename `constant` command to `opaque`. See discussion at [Zulip](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/What.20is.20.60opaque.60.3F/near/284926171).
 
 * Extend `induction` and `cases` syntax: multiple left-hand-sides in a single alternative. This extension is very similar to the one implemented for `match` expressions. Examples:

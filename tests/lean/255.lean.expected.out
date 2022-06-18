@@ -1,4 +1,4 @@
-id x : α
+A : α
 id x✝ : α
 255.lean:16:7-16:8: error: unknown constant 'x✝'
 id (sorryAx ?m true) : ?m

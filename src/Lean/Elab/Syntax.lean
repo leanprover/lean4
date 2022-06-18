@@ -89,13 +89,14 @@ def resolveParserName [Monad m] [MonadInfoTree m] [MonadResolveName m] [MonadEnv
 
 open TSyntax.Compat in
 /--
-  Given a `stx` of category `syntax`, return a pair `(newStx, lhsPrec?)`,
+  Given a `stx` of category `syntax`, return a `(newStx, lhsPrec?)`,
   where `newStx` is of category `term`. After elaboration, `newStx` should have type
   `TrailingParserDescr` if `lhsPrec?.isSome`, and `ParserDescr` otherwise. -/
-partial def toParserDescr (stx : Syntax) (catName : Name) : TermElabM ((Term × Nat) × Option Nat) := do
+partial def toParserDescr (stx : Syntax) (catName : Name) : TermElabM (Term × Option Nat) := do
   let env ← getEnv
   let behavior := Parser.leadingIdentBehavior env catName
-  (process stx { catName := catName, first := true, leftRec := true, behavior := behavior }).run none
+  let ((newStx, _), lhsPrec?) ← (process stx { catName := catName, first := true, leftRec := true, behavior := behavior }).run none
+  return (newStx, lhsPrec?)
 where
   process (stx : Syntax) : ToParserDescr := withRef stx do
     let kind := stx.getKind
@@ -341,7 +342,7 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   let prio ← liftMacroM <| evalOptPrio prio?
   let stxNodeKind := (← getCurrNamespace) ++ name
   let catParserId := mkIdentFrom stx (cat.appendAfter "Parser")
-  let ((val, _), lhsPrec?) ← runTermElabM none fun _ => Term.toParserDescr syntaxParser cat
+  let (val, lhsPrec?) ← runTermElabM none fun _ => Term.toParserDescr syntaxParser cat
   let declName := mkIdentFrom stx name
   let d ← if let some lhsPrec := lhsPrec? then
     `($[$doc?:docComment]? @[$attrKind:attrKind $catParserId:ident $(quote prio):num] def $declName:ident : Lean.TrailingParserDescr :=
@@ -355,7 +356,7 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
 @[builtinCommandElab «syntaxAbbrev»] def elabSyntaxAbbrev : CommandElab := fun stx => do
   let `($[$doc?:docComment]? syntax $declName:ident := $[$ps:stx]*) ← pure stx | throwUnsupportedSyntax
   -- TODO: nonatomic names
-  let ((val, _), _) ← runTermElabM none fun _ => Term.toParserDescr (mkNullNode ps) Name.anonymous
+  let (val, _) ← runTermElabM none fun _ => Term.toParserDescr (mkNullNode ps) Name.anonymous
   let stxNodeKind := (← getCurrNamespace) ++ declName.getId
   let stx' ← `($[$doc?:docComment]? def $declName:ident : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
   withMacroExpansion stx stx' <| elabCommand stx'

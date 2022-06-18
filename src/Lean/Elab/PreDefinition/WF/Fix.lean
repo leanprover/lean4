@@ -83,8 +83,7 @@ where
       | some matcherApp =>
         if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
           processApp F e
-        else
-          let matcherApp ← mapError (matcherApp.addArg F) (fun msg => "failed to add functional argument to 'matcher' application" ++ indentD msg)
+        else if let some matcherApp ← matcherApp.addArg? F then
           if !(← Structural.refinedArgType matcherApp F) then
             processApp F e
           else
@@ -95,6 +94,8 @@ where
                 let FAlt := xs[numParams - 1]
                 mkLambdaFVars xs (← loop FAlt altBody)
             return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
+        else
+          processApp F e
       | none =>
       match (← toCasesOnApp? e) with
       | some casesOnApp =>

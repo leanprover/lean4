@@ -982,6 +982,13 @@ def MatcherApp.addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
       remaining     := #[e] ++ matcherApp.remaining
     }
 
+/-- Similar `MatcherApp.addArg?`, but returns `none` on failure. -/
+def MatcherApp.addArg? (matcherApp : MatcherApp) (e : Expr) : MetaM (Option MatcherApp) :=
+  try
+    return some (← matcherApp.addArg e)
+  catch _ =>
+    return none
+
 builtin_initialize
   registerTraceClass `Meta.Match.match
   registerTraceClass `Meta.Match.debug

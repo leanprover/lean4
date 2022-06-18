@@ -1,6 +1,6 @@
 {
   "nodes": {
-    "alectryon-src": {
+    "alectryon": {
       "flake": false,
       "locked": {
         "lastModified": 1654613606,
@@ -82,7 +82,7 @@
         "type": "github"
       }
     },
-    "leanInk-src": {
+    "leanInk": {
       "flake": false,
       "locked": {
         "lastModified": 1649941279,
@@ -198,13 +198,13 @@
     },
     "root": {
       "inputs": {
-        "alectryon-src": "alectryon-src",
+        "alectryon": "alectryon",
         "flake-utils": [
           "lean",
           "flake-utils"
         ],
         "lean": "lean",
-        "leanInk-src": "leanInk-src",
+        "leanInk": "leanInk",
         "mdBook": "mdBook"
       }
     }

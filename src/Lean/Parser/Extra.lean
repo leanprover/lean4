@@ -169,29 +169,29 @@ attribute [runBuiltinParserAttributeHooks]
   ppHardSpace ppSpace ppLine ppGroup ppRealGroup ppRealFill ppIndent ppDedent
   ppAllowUngrouped ppDedentIfGrouped ppHardLineUnlessUngrouped
 
-syntax "register_parser_alias" group("(" &"kind" " := " term ")")? (strLit)? ident : term
+syntax "register_parser_alias" group("(" &"kind" " := " term ")")? (strLit)? ident (colGt term)? : term
 macro_rules
-  | `(register_parser_alias $[(kind := $kind?)]? $(aliasName?)? $declName) => do
+  | `(register_parser_alias $[(kind := $kind?)]? $(aliasName?)? $declName $(info?)?) => do
     let [(fullDeclName, [])] ← Macro.resolveGlobalName declName.getId |
       Macro.throwError "expected non-overloaded constant name"
     let aliasName := aliasName?.getD (Syntax.mkStrLit declName.getId.toString)
-    `(do Parser.registerAlias $aliasName $declName (kind? := some $(kind?.getD (quote fullDeclName)))
+    `(do Parser.registerAlias $aliasName $declName $(info?.getD (Unhygienic.run `({}))) (kind? := some $(kind?.getD (quote fullDeclName)))
          PrettyPrinter.Formatter.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `formatter))
          PrettyPrinter.Parenthesizer.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `parenthesizer)))
 
 builtin_initialize
-  register_parser_alias group
-  register_parser_alias ppHardSpace
-  register_parser_alias ppSpace
-  register_parser_alias ppLine
-  register_parser_alias ppGroup
-  register_parser_alias ppRealGroup
-  register_parser_alias ppRealFill
-  register_parser_alias ppIndent
-  register_parser_alias ppDedent
-  register_parser_alias ppAllowUngrouped
-  register_parser_alias ppDedentIfGrouped
-  register_parser_alias ppHardLineUnlessUngrouped
+  register_parser_alias group { autoGroupArgs := false }
+  register_parser_alias ppHardSpace { stackSz? := none }
+  register_parser_alias ppSpace { stackSz? := none }
+  register_parser_alias ppLine { stackSz? := none }
+  register_parser_alias ppGroup { stackSz? := none }
+  register_parser_alias ppRealGroup { stackSz? := none }
+  register_parser_alias ppRealFill { stackSz? := none }
+  register_parser_alias ppIndent { stackSz? := none }
+  register_parser_alias ppDedent { stackSz? := none }
+  register_parser_alias ppAllowUngrouped { stackSz? := none }
+  register_parser_alias ppDedentIfGrouped { stackSz? := none }
+  register_parser_alias ppHardLineUnlessUngrouped { stackSz? := none }
 
 end Parser
 

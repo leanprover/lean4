@@ -19,28 +19,28 @@ open Lean.PrettyPrinter.Parenthesizer
 open Lean.PrettyPrinter.Formatter
 
 builtin_initialize
-  register_parser_alias "ws" checkWsBefore
-  register_parser_alias "noWs" checkNoWsBefore
-  register_parser_alias "linebreak" checkLinebreakBefore
+  register_parser_alias "ws" checkWsBefore { stackSz? := none }
+  register_parser_alias "noWs" checkNoWsBefore { stackSz? := none }
+  register_parser_alias "linebreak" checkLinebreakBefore { stackSz? := none }
   register_parser_alias (kind := numLitKind) "num" numLit
   register_parser_alias (kind := strLitKind) "str" strLit
   register_parser_alias (kind := charLitKind) "char" charLit
   register_parser_alias (kind := nameLitKind) "name" nameLit
   register_parser_alias (kind := scientificLitKind) "scientific" scientificLit
   register_parser_alias (kind := identKind) "ident" ident
-  register_parser_alias "colGt" checkColGt
-  register_parser_alias "colGe" checkColGe
-  register_parser_alias lookahead
-  register_parser_alias atomic
+  register_parser_alias "colGt" checkColGt { stackSz? := none }
+  register_parser_alias "colGe" checkColGe { stackSz? := none }
+  register_parser_alias lookahead { stackSz? := some 0 }
+  register_parser_alias atomic { stackSz? := none }
   register_parser_alias many
   register_parser_alias many1
   register_parser_alias manyIndent
   register_parser_alias many1Indent
-  register_parser_alias optional
-  register_parser_alias withPosition
+  register_parser_alias optional { autoGroupArgs := false }
+  register_parser_alias withPosition { stackSz? := none }
   register_parser_alias (kind := interpolatedStrKind) interpolatedStr
   register_parser_alias orelse
-  register_parser_alias andthen
+  register_parser_alias andthen { stackSz? := none }
 
   registerAlias "notFollowedBy" (notFollowedBy · "element")
   Parenthesizer.registerAlias "notFollowedBy" notFollowedBy.parenthesizer

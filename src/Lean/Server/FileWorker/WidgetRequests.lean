@@ -134,6 +134,6 @@ builtin_initialize
       let .app _ _ _ := ti.expr | return #[]
       let some nm := ti.expr.getAppFn.constName? | return #[]
       i.ctx.runMetaM ti.lctx <|
-        locationLinksFromDecl rc.srcSearchPath rc.doc.meta.uri nm none
+        locationLinksFromDecl rc.srcSearchPath.get rc.doc.meta.uri nm none
 
 end Lean.Widget

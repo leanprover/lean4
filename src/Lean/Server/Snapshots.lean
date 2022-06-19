@@ -73,11 +73,6 @@ def isAtEnd (s : Snapshot) : Bool :=
 
 end Snapshot
 
-/-- Reparses the header syntax but does not re-elaborate it. Used to ignore whitespace-only changes. -/
-def reparseHeader (inputCtx : Parser.InputContext) (header : Snapshot) : IO Snapshot := do
-  let (newStx, newMpState, _) ← Parser.parseHeader inputCtx
-  pure { header with stx := newStx, mpState := newMpState }
-
 /-- Parses the next command occurring after the given snapshot
 without elaborating it. -/
 def parseNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) : IO Syntax := do

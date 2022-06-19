@@ -66,7 +66,7 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
   let text := doc.meta.text
 
   let locationLinksFromDecl (i : Elab.Info) (n : Name) :=
-    locationLinksFromDecl rc.srcSearchPath doc.meta.uri n <| (·.toLspRange text) <$> i.range?
+    locationLinksFromDecl rc.srcSearchPath.get doc.meta.uri n <| (·.toLspRange text) <$> i.range?
 
   let locationLinksFromBinder (i : Elab.Info) (id : FVarId) := do
     if let some i' := infoTree? >>= InfoTree.findInfo? fun
@@ -85,7 +85,7 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
 
   let locationLinksFromImport (i : Elab.Info) := do
     let name := i.stx[2].getId
-    if let some modUri ← documentUriFromModule rc.srcSearchPath name then
+    if let some modUri ← documentUriFromModule rc.srcSearchPath.get name then
       let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
       let ll : LocationLink := {
         originSelectionRange? := (·.toLspRange text) <$> i.stx[2].getRange? (originalOnly := true)
@@ -226,7 +226,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
 
   withWaitFindSnap doc (fun s => s.endPos > pos)
     (notFoundX := pure #[]) fun snap => do
-      let (snaps, _) ← doc.allSnaps.updateFinishedPrefix
+      let (snaps, _) ← doc.cmdSnaps.updateFinishedPrefix
       if let some his := highlightRefs? snaps.finishedPrefix.toArray then
         return his
       if let some hi := highlightReturn? none snap.stx then
@@ -247,7 +247,7 @@ partial def handleDocumentSymbol (_ : DocumentSymbolParams)
       throw (e : RequestError)
     | _ => pure ()
 
-    let lastSnap := cmdSnaps.finishedPrefix.getLastD doc.headerSnap
+    let lastSnap := cmdSnaps.finishedPrefix.getLast!
     stxs := stxs ++ (← parseAhead doc.meta.mkInputContext lastSnap).toList
     let (syms, _) := toDocumentSymbols doc.meta.text stxs
     return { syms := syms.toArray }
@@ -402,7 +402,7 @@ def handleSemanticTokensRange (p : SemanticTokensRangeParams)
 partial def handleFoldingRange (_ : FoldingRangeParams)
   : RequestM (RequestTask (Array FoldingRange)) := do
   let doc ← readDoc
-  let t ← doc.allSnaps.waitAll
+  let t ← doc.cmdSnaps.waitAll
   mapTask t fun (snaps, _) => do
     let stxs := snaps.map (·.stx)
     let (_, ranges) ← StateT.run (addRanges doc.meta.text [] stxs) #[]

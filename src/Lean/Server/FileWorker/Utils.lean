@@ -50,16 +50,11 @@ and parser state after each command so that edits can be applied
 without recompiling code appearing earlier in the file. -/
 structure EditableDocument where
   meta       : DocumentMeta
-  /- The first snapshot is that after the header. -/
-  headerSnap : Snapshot
-  /- Subsequent snapshots occur after each command. -/
+  /- State snapshots after header and each command. -/
   cmdSnaps   : AsyncList ElabTaskError Snapshot
   cancelTk   : CancelToken
 
 namespace EditableDocument
-
-def allSnaps (doc : EditableDocument) : AsyncList ElabTaskError Snapshot :=
-  AsyncList.cons doc.headerSnap doc.cmdSnaps
 
 end EditableDocument
 

@@ -260,6 +260,7 @@ section ServerM
           -- Worker crashed
           fw.errorPendingRequests o (if exitCode = 1 then ErrorCode.workerExited else ErrorCode.workerCrashed)
             s!"Server process for {fw.doc.meta.uri} crashed, {if exitCode = 1 then "see stderr for exception" else "likely due to a stack overflow or a bug"}."
+          publishProgressAtPos fw.doc.meta 0 o (kind := LeanFileProgressKind.fatalError)
           return WorkerEvent.crashed err
       loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated

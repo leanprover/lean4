@@ -17,3 +17,5 @@ theorem Pos.stringRoundtrip :
     let x := Pos.ofArray p
     some x == (Except.toOption $ Pos.fromString? $ Pos.toString $ x)
   ) := by native_decide
+
+#eval Pos.toString Nat.zero

@@ -29,7 +29,7 @@ def root : Pos := (1 : Nat)
 
 instance : Inhabited Pos := ⟨root⟩
 
-def isRoot (p : Pos) : Bool := p.asNat == 1
+def isRoot (p : Pos) : Bool := p.asNat < maxChildren
 
 /-- The coordinate deepest in the Pos. -/
 def head (p : Pos) : Nat :=

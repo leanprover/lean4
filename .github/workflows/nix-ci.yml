@@ -53,6 +53,7 @@ jobs:
         run: |
           mkdir -p ~/.config/nix
           echo '
+            experimental-features = nix-command flakes
             max-jobs = auto
             extra-sandbox-paths = /nix/var/cache/ccache
             extra-substituters = file://${{ github.workspace }}/nix-store-cache?priority=10&trusted=true

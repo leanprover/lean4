@@ -91,8 +91,8 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
   extraArgs := extraArgs.reverse
   match (← go e) with
   | none => return none
-  | some { expr := eNew, proof? := none } => return some { expr := mkAppN eNew extraArgs }
-  | some { expr := eNew, proof? := some proof } =>
+  | some { expr := eNew, proof? := none, .. } => return some { expr := mkAppN eNew extraArgs }
+  | some { expr := eNew, proof? := some proof, .. } =>
     let mut proof := proof
     for extraArg in extraArgs do
       proof ← mkCongrFun proof extraArg

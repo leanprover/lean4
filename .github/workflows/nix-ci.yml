@@ -14,7 +14,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     defaults:
       run:
-        # Can't use `nix-shell` without configured nixpkgs path on macOS
         shell: nix -v --experimental-features "nix-command flakes" run .#ciShell -- bash -euxo pipefail {0}
     strategy:
       matrix:

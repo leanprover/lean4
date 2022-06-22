@@ -27,7 +27,7 @@ structure WidgetSource where
   widgetSourceId : Name
   /-- Sourcetext of the code to run.-/
   sourcetext : String
-  hash : String := toString $ hash sourcetext
+  hash : String := toString <| hash sourcetext
   deriving Inhabited, ToJson, FromJson
 
 namespace WidgetSource
@@ -54,11 +54,11 @@ protected def find? (env : Environment) (id : Name) : Option WidgetSource :=
 protected def contains (env : Environment) (id : Name) : Bool :=
   widgetSourceRegistry.contains env id
 
+open Lean.Server in
 /-- Gets the hash of the static javascript string for the given widget id, or throws if
 there is no static javascript registered. -/
-def getHash [MonadEnv m] [Monad m] [MonadError m] (id : Name) : m String := do
-  let env ← getEnv
-  let some j := WidgetSource.find? env id | throwError "No code found for {id}."
+def getHash [Monad m] [MonadExcept RequestError m] (env : Environment) (id : Name) : m String := do
+  let some j := WidgetSource.find? env id | throw $ RequestError.internalError s!"getHash: No code found for {id}."
   return j.hash
 
 builtin_initialize registerBuiltinAttribute attributeImpl
@@ -87,7 +87,7 @@ open Lean Elab
 /--
   Try to retrieve the `UserWidgetInfo` at a particular position.
 -/
-partial def widgetInfoAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List UserWidgetInfo :=
+def widgetInfoAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List UserWidgetInfo :=
   t.deepestNodes fun
     | _ctx, i@(Info.ofUserWidgetInfo wi), _cs => do
       if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
@@ -107,33 +107,34 @@ structure UserWidget where
   range? : Option Lsp.Range
   deriving ToJson, FromJson
 
-structure GetWidgetInfosResponse where
-  infos : Array UserWidget
+structure GetWidgetsResponse where
+  widgets : Array UserWidget
   deriving ToJson, FromJson
 
 open RequestM in
-/-- Get the UserWidgetInfos present at a particular position. -/
+/-- Get the `UserWidget`s present at a particular position. -/
 @[serverRpcMethod]
-def getWidgetInfos (args : Lean.Lsp.TextDocumentPositionParams) : RequestM (RequestTask (GetWidgetInfosResponse)) := do
+def getWidgets (args : Lean.Lsp.TextDocumentPositionParams) : RequestM (RequestTask (GetWidgetsResponse)) := do
   let doc ← readDoc
   let filemap := doc.meta.text
   let pos := filemap.lspPosToUtf8Pos args.position
   withWaitFindSnapAtPos args fun snap => do
+      let env := snap.env
       let ws := widgetInfoAt? filemap snap.infoTree pos
-      let ws := ws.toArray.map (fun w => {
-        widgetSourceId := w.widgetSourceId,
-        hash := w.hash,
-        props := w.props,
-        range? := String.Range.toLspRange filemap <$> Syntax.getRange? w.stx,
+      let ws ← ws.toArray.mapM (fun w => do
+        let hash ← WidgetSource.getHash env w.widgetSourceId
+        return {
+          widgetSourceId := w.widgetSourceId,
+          hash := hash,
+          props := w.props,
+          range? := String.Range.toLspRange filemap <$> Syntax.getRange? w.stx,
         })
-      return {infos := ws}
+      return {widgets := ws}
 
 /-- Save a user-widget instance to the infotree. -/
 def saveWidgetInfo [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m] (widgetSourceId : Name) (props : Json) (stx : Syntax):  m Unit := do
-  let hash ← WidgetSource.getHash widgetSourceId
   let info := Info.ofUserWidgetInfo {
     widgetSourceId := widgetSourceId,
-    hash := hash,
     props := props,
     stx := stx,
   }

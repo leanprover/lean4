@@ -122,13 +122,8 @@ structure UserWidgetInfo where
   stx : Syntax
   /-- Id of `WidgetSource` object to use. -/
   widgetSourceId : Name
-  /-- Json representing the props to be loaded in to the component.
-
-  [todo] how to support Rpc encoding of expressions etc?
-  -/
+  /-- Json representing the props to be loaded in to the component. -/
   props : Json
-  /-- Hash of the `WidgetSource` code to use. -/
-  hash : String
   deriving Inhabited
 
 def CustomInfo.format : CustomInfo → Format

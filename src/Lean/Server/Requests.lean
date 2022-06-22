@@ -37,6 +37,9 @@ def methodNotFound (method : String) : RequestError :=
   { code := ErrorCode.methodNotFound
     message := s!"No request handler found for '{method}'" }
 
+def internalError (message : String) : RequestError :=
+  { code := ErrorCode.internalError, message := message }
+
 instance : Coe IO.Error RequestError where
   coe e := { code := ErrorCode.internalError
              message := toString e }

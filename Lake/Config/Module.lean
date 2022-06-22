@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lake.Build.Trace
 import Lake.Config.Package
+import Lake.Util.Name
 
 namespace Lake
 open System Lean
@@ -12,11 +13,12 @@ open System Lean
 /-- A buildable Lean module of a `Package`. -/
 structure Module where
   pkg : Package
-  name : Name
+  name : WfName
   deriving Inhabited
 
 /-- Locate the named module in the package (if it is local to it). -/
 def Package.findModule? (mod : Name) (self : Package) : Option Module :=
+  let mod := WfName.ofName mod
   if self.isBuildableModule mod then some ⟨self, mod⟩ else none
 
 namespace Module
@@ -42,11 +44,21 @@ def cTraceFile (self : Module) : FilePath :=
 def oFile (self : Module) : FilePath :=
   Lean.modToFilePath self.pkg.irDir self.name "o"
 
+def dynlib (self : Module) : FilePath :=
+  Lean.modToFilePath self.pkg.oleanDir self.name sharedLibExt
+
 @[inline] def leanArgs (self : Module) : Array String :=
   self.pkg.moreLeanArgs
 
 @[inline] def leancArgs (self : Module) : Array String :=
   self.pkg.moreLeancArgs
+
+@[inline] def linkArgs (self : Module) : Array String :=
+  -- TODO: derive link arguments from library, not package
+  self.pkg.config.moreLinkArgs
+
+@[inline] def shouldPrecompile (self : Module) : Bool :=
+  self.pkg.precompileModules
 
 -- ## Trace Helpers
 

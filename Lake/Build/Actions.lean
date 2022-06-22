@@ -34,7 +34,8 @@ def proc (args : IO.Process.SpawnArgs) : BuildM PUnit := do
 def compileLeanModule (leanFile : FilePath)
 (oleanFile? ileanFile? cFile? : Option FilePath)
 (oleanPath : SearchPath := []) (rootDir : FilePath := ".")
-(leanArgs : Array String := #[]) (lean : FilePath := "lean")
+(dynlibs : Array FilePath := #[]) (leanArgs : Array String := #[])
+(lean : FilePath := "lean")
 : BuildM PUnit := do
   let mut args := leanArgs ++
     #[leanFile.toString, "-R", rootDir.toString]
@@ -47,8 +48,10 @@ def compileLeanModule (leanFile : FilePath)
   if let some cFile := cFile? then
     createParentDirs cFile
     args := args ++ #["-c", cFile.toString]
+  for dynlib in dynlibs do
+    args := args.push s!"--load-dynlib={dynlib}"
   proc {
-    args,
+    args
     cmd := lean.toString
     env := #[("LEAN_PATH", oleanPath.toString)]
   }

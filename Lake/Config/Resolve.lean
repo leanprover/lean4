@@ -4,12 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Util.Git
+import Lake.Util.EStateT
 import Lake.Config.Load
 import Lake.Config.Manifest
 import Lake.Config.Workspace
 import Lake.Build.Recursive
 
-open System
+open Std System
 open Lean (Name NameMap)
 
 namespace Lake
@@ -120,8 +121,8 @@ def resolveDeps (ws : Workspace) (pkg : Package)
     let pkg ← resolveDep ws pkg dep shouldUpdate
     pkg.dependencies.forM fun dep => discard <| resolve dep
     return pkg
-  let (res, map) ← RBTopT.run (cmp := Name.quickCmp) <| pkg.dependencies.forM fun dep =>
-    discard <| buildTop resolve Dependency.name dep
+  let (res, map) ← EStateT.run (mkRBMap _ _ Name.quickCmp) <|
+    pkg.dependencies.forM fun dep => discard <| buildTop Dependency.name resolve dep
   match res with
   | Except.ok _ => return map
   | Except.error cycle => do

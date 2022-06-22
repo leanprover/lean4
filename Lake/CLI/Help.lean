@@ -69,30 +69,31 @@ A target is specified with a string of the form:
 The optional `@` and `+` markers can be used to disambiguate packages
 and modules from other kinds of targets (i.e., executables and libraries).
 
-PACKAGE FACETS:
-  exe                   build the package's binary executable
-  leanLib               build the package's lean library (*.olean, *.ilean)
-  staticLib             build the package's static library
-  sharedLib             build the package's shared library
+PACKAGE FACETS:         build the package's ...
+  exe                   binary executable
+  leanLib               Lean library (*.olean and *.ilean files)
+  staticLib             static library
+  sharedLib             shared library
 
-LIBRARY FACETS:
-  lean                  build the library's lean binaries (*.olean, *.ilean)
-  static                build the library's static binary
-  shared                build the library's shared binary
+LIBRARY FACETS:         build the library's ...
+  lean                  Lean binaries (*.olean and *.ilean files)
+  static                static binary
+  shared                shared binary
 
-MODULE FACETS:
-  [default]             build the module's *.olean and *.ilean files
-  c                     build the module's *.c file
-  o                     build the module's *.o file
+MODULE FACETS:          build the module's ...
+  [default]             Lean binaries (*.olean and *.ilean files)
+  c                     *.c file
+  o                     *.o file (of the *.c file)
+  dynlib                shared library (e.g., for `--load-dynlib`)
 
-TARGET EXAMPLES:
-  a                     build the default facet of target `a`
-  @a                    build the default target(s) of package `a`
-  +A                    build the .olean and .ilean files of module `A`
-  a/b                   build the default facet of target `b` of package `a`
-  a/+A:c                build the .c file of module `A` of package `a`
-  @a:leanLib            build the lean library of package `a`
-  :exe                  build the root package's executable
+TARGET EXAMPLES:        build the ...
+  a                     default facet of target `a`
+  @a                    default target(s) of package `a`
+  +A                    olean and .ilean files of module `A`
+  a/b                   default facet of target `b` of package `a`
+  a/+A:c                c file of module `A` of package `a`
+  @a:leanLib            lean library of package `a`
+  :exe                  root package's executable
 
 A bare `build` command will build the default facet of the root package.
 Arguments to the `Packager` itself can be specified with `args`.

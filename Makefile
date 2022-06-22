@@ -15,7 +15,7 @@ test-ci: test-tests test-examples
 test-tests: test-49 test-50 test-62 test-75
 
 test-examples: test-init test-hello test-io test-deps\
-	test-git test-ffi test-targets test-scripts
+	test-git test-ffi test-targets test-precompile test-scripts
 
 test-bootstrapped: test-boostrapped-hello
 
@@ -91,6 +91,12 @@ test-targets:
 
 clean-targets:
 	cd examples/targets && ./clean.sh
+
+test-precompile:
+	cd examples/precompile && ./test.sh
+
+clean-targets:
+	cd examples/precompile && ./clean.sh
 
 test-scripts:
 	cd examples/scripts && ./test.sh

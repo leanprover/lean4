@@ -27,12 +27,18 @@ def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package 
     | none => throw <| CliError.unknownPackage spec
 
 def resolveModuleTarget (mod : Module) (facet : String) : Except CliError OpaqueTarget :=
-  if facet.isEmpty || facet == "bin"  || facet == "ilean" || facet == "olean" then
-    return mod.leanBinTarget (c := false)
+  if facet.isEmpty || facet == "bin"  then
+    return mod.facetTarget &`lean
+  else if facet == "ilean" then
+    return mod.facetTarget &`ilean
+  else if facet == "olean" then
+    return mod.facetTarget &`olean
   else if facet == "c" then
-    return mod.leanBinTarget (c := true)
+    return mod.facetTarget &`lean.c
   else if facet == "o" then
-    return mod.oTarget.withoutInfo
+    return mod.facetTarget &`lean.o
+  else if facet == "dynlib" then
+    return mod.facetTarget &`lean.dynlib
   else
     throw <| CliError.unknownFacet "module" facet
 

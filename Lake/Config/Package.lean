@@ -96,6 +96,15 @@ structure PackageConfig extends WorkspaceConfig where
   defaultFacet : PackageFacet := .exe
 
   /--
+  Whether to compile each module into a native shared library that is loaded
+  whenever the module is imported. This speeds up evaluation of metaprograms
+  and enables the interpreter to run functions marked `@[extern]`.
+
+  Defaults to `false`.
+  -/
+  precompileModules : Bool := false
+
+  /--
   Additional arguments to pass to the Lean language server
   (i.e., `lean --server`) launched by `lake server`.
   -/
@@ -347,6 +356,10 @@ def findExternLib? (name : Name) (self : Package) : Option ExternLibConfig :=
 def externLibTargets (self : Package) : Array FileTarget :=
   self.externLibs.fold (fun xs _ x => xs.push x.target) #[] ++
   self.config.moreLibTargets
+
+/-- The package's `precompileModules` configuration. -/
+def precompileModules (self : Package) : Bool :=
+  self.config.precompileModules
 
 /-- The package's `moreServerArgs` configuration. -/
 def moreServerArgs (self : Package) : Array String :=

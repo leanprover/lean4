@@ -1,4 +1,4 @@
-import Lake
+import Lake.DSL
 open System Lake DSL
 
 package lake

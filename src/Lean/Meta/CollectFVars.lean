@@ -6,17 +6,25 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 import Lean.Util.CollectFVars
 import Lean.Meta.Basic
 
-namespace Lean.Meta
+namespace Lean
+
 open Meta
 
-def collectUsedFVars (e : Expr) : StateRefT CollectFVars.State MetaM Unit := do
+def Expr.collectFVars (e : Expr) : StateRefT CollectFVars.State MetaM Unit := do
   let e ← instantiateMVars e
-  modify fun used => collectFVars used e
+  modify fun used => Lean.collectFVars used e
+
+def LocalDecl.collectFVars (localDecl : LocalDecl) : StateRefT CollectFVars.State MetaM Unit := do
+  match localDecl with
+  | LocalDecl.cdecl (type := type) .. => type.collectFVars
+  | LocalDecl.ldecl (type := type) (value := value) .. => type.collectFVars; value.collectFVars
+
+namespace Meta
 
 def collectUsedFVarsAtFVars (fvars : Array Expr) : StateRefT CollectFVars.State MetaM Unit :=
   fvars.forM fun fvar => do
     let fvarType ← inferType fvar
-    collectUsedFVars fvarType
+    fvarType.collectFVars
 
 def removeUnused (vars : Array Expr) (used : CollectFVars.State) : MetaM (LocalContext × LocalInstances × Array Expr) := do
   let localInsts ← getLocalInstances
@@ -25,11 +33,12 @@ def removeUnused (vars : Array Expr) (used : CollectFVars.State) : MetaM (LocalC
     (fun var (lctx, localInsts, newVars, used) => do
       if used.fvarSet.contains var.fvarId! then
         let varType ← inferType var
-        let (_, used) ← (collectUsedFVars varType).run used
+        let (_, used) ← varType.collectFVars.run used
         pure (lctx, localInsts, newVars.push var, used)
       else
         pure (lctx.erase var.fvarId!, localInsts.erase var.fvarId!, newVars, used))
     (lctx, localInsts, #[], used)
   pure (lctx, localInsts, newVars.reverse)
 
-end Lean.Meta
+end Meta
+end Lean

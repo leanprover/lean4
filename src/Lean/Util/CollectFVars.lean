@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Expr
+import Lean.LocalContext
 
 namespace Lean.CollectFVars
 
@@ -11,6 +12,9 @@ structure State where
   visitedExpr  : ExprSet  := {}
   fvarSet      : FVarIdSet  := {}
   deriving Inhabited
+
+def State.add (s : State) (fvarId : FVarId) : State :=
+  { s with fvarSet := s.fvarSet.insert fvarId }
 
 abbrev Visitor := State → State
 
@@ -26,7 +30,7 @@ mutual
     | Expr.letE _ t v b _  => visit b ∘ visit v ∘ visit t
     | Expr.app f a _       => visit a ∘ visit f
     | Expr.mdata _ b _     => visit b
-    | Expr.fvar fvarId _   => fun s => { s with fvarSet := s.fvarSet.insert fvarId }
+    | Expr.fvar fvarId _   => fun s => s.add fvarId
     | _                    => id
 end
 

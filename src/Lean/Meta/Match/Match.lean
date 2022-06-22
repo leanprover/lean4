@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.CollectLevelParams
+import Lean.Util.CollectFVars
 import Lean.Util.Recognizers
 import Lean.Compiler.ExternAttr
 import Lean.Meta.Check
@@ -767,10 +768,19 @@ structure MkMatcherInput where
   matcherName : Name
   matchType   : Expr
   discrInfos  : Array DiscrInfo
-  lhss        : List Match.AltLHS
+  lhss        : List AltLHS
 
 def MkMatcherInput.numDiscrs (m : MkMatcherInput) :=
   m.discrInfos.size
+
+def MkMatcherInput.collectFVars (m : MkMatcherInput) : StateRefT CollectFVars.State MetaM Unit := do
+  m.matchType.collectFVars
+  m.lhss.forM fun alt => alt.collectFVars
+
+/-
+def withCleanLCtxFor (input : MkMatcherInput) (k : MetaM α) : MetaM α := do
+  TODO: issue 1237
+-/
 
 /--
 Create a dependent matcher for `matchType` where `matchType` is of the form

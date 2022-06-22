@@ -569,9 +569,9 @@ private def checkResultingUniverses (views : Array InductiveView) (numParams : N
 
 private def collectUsed (indTypes : List InductiveType) : StateRefT CollectFVars.State MetaM Unit := do
   indTypes.forM fun indType => do
-    Meta.collectUsedFVars indType.type
+    indType.type.collectFVars
     indType.ctors.forM fun ctor =>
-      Meta.collectUsedFVars ctor.type
+      ctor.type.collectFVars
 
 private def removeUnused (vars : Array Expr) (indTypes : List InductiveType) : TermElabM (LocalContext × LocalInstances × Array Expr) := do
   let (_, used) ← (collectUsed indTypes).run {}

@@ -114,6 +114,23 @@ structure CustomInfo where
   json : Json
   deriving Inhabited
 
+/-- An info that represents a user-widget.
+User-widgets are custom pieces of code that run on the editor client.
+You can learn about user widgets at `src/Lean/Widget/UserWidget`
+-/
+structure UserWidgetInfo where
+  stx : Syntax
+  /-- Id of `WidgetSource` object to use. -/
+  widgetSourceId : Name
+  /-- Json representing the props to be loaded in to the component.
+
+  [todo] how to support Rpc encoding of expressions etc?
+  -/
+  props : Json
+  /-- Hash of the `WidgetSource` code to use. -/
+  hash : String
+  deriving Inhabited
+
 def CustomInfo.format : CustomInfo → Format
   | i => Std.ToFormat.format i.json
 
@@ -127,6 +144,7 @@ inductive Info where
   | ofMacroExpansionInfo (i : MacroExpansionInfo)
   | ofFieldInfo (i : FieldInfo)
   | ofCompletionInfo (i : CompletionInfo)
+  | ofUserWidgetInfo (i : UserWidgetInfo)
   | ofCustomInfo (i : CustomInfo)
   deriving Inhabited
 
@@ -285,6 +303,9 @@ def MacroExpansionInfo.format (ctx : ContextInfo) (info : MacroExpansionInfo) : 
   let output ← ctx.ppSyntax info.lctx info.output
   return f!"Macro expansion\n{stx}\n===>\n{output}"
 
+def UserWidgetInfo.format (info : UserWidgetInfo) : Format :=
+  f!"UserWidget {info.widgetSourceId}\n{Std.ToFormat.format info.props}"
+
 def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofTacticInfo i         => i.format ctx
   | ofTermInfo i           => i.format ctx
@@ -292,6 +313,7 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofMacroExpansionInfo i => i.format ctx
   | ofFieldInfo i          => i.format ctx
   | ofCompletionInfo i     => i.format ctx
+  | ofUserWidgetInfo i     => pure <| UserWidgetInfo.format i
   | ofCustomInfo i         => pure <| Std.ToFormat.format i
 
 def Info.toElabInfo? : Info → Option ElabInfo
@@ -301,6 +323,7 @@ def Info.toElabInfo? : Info → Option ElabInfo
   | ofMacroExpansionInfo _ => none
   | ofFieldInfo _          => none
   | ofCompletionInfo _     => none
+  | ofUserWidgetInfo _     => none
   | ofCustomInfo _         => none
 
 /--

@@ -90,6 +90,7 @@ def Info.stx : Info → Syntax
   | ofFieldInfo i          => i.stx
   | ofCompletionInfo i     => i.stx
   | ofCustomInfo i         => i.stx
+  | ofUserWidgetInfo i     => i.stx
 
 def Info.lctx : Info → LocalContext
   | Info.ofTermInfo i  => i.lctx

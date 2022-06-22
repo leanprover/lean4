@@ -119,6 +119,18 @@ def bindWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
   let findTask ← doc.cmdSnaps.waitFind? p
   bindTask findTask <| waitFindSnapAux notFoundX x
 
+/-- Helper for running an Rpc request at a particular snapshot. -/
+def withWaitFindSnapAtPos
+  (lspPos : Lean.Lsp.TextDocumentPositionParams)
+  (f : Snapshots.Snapshot → RequestM α): RequestM (RequestTask α) := do
+  let doc ← readDoc
+  let pos := doc.meta.text.lspPosToUtf8Pos lspPos.position
+  withWaitFindSnap
+    doc
+    (fun s => s.endPos >= pos)
+    (notFoundX := throw $ RequestError.mk JsonRpc.ErrorCode.invalidRequest s!"no snapshot found at {lspPos}")
+    f
+
 end RequestM
 
 /-! # The global request handlers table -/

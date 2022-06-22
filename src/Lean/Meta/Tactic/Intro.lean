@@ -47,11 +47,22 @@ namespace Lean.Meta
       let type := type.instantiateRevRange j fvars.size fvars
       withReader (fun ctx => { ctx with lctx := lctx }) do
         withNewLocalInstances fvars j do
-          let newType ← whnf type
-          if newType.isForall then
+          /- We used to use just `whnf`, but it produces counterintuitive behavior if
+             - `type` is a metavariable `?m` such that `?m := let x := v; b`, or
+             - `type` has `MData` or annotations such as `optParam` around a `let`-expression.
+
+             `whnf` instantiates metavariables, and consumes `MData`, but it also expands the `let`.
+          -/
+          let newType := (← instantiateMVars type).consumeMDataAndTypeAnnotations
+          if newType.isForall || newType.isLet then
             loop (i+1) lctx fvars fvars.size s newType
           else
-            throwTacticEx `introN mvarId "insufficient number of binders"
+            let newType ← whnf newType
+            trace[Meta.debug] "newType whnf: {newType}"
+            if newType.isForall then
+              loop (i+1) lctx fvars fvars.size s newType
+            else
+              throwTacticEx `introN mvarId "insufficient number of binders"
   let (fvars, mvarId) ← loop n lctx #[] 0 s mvarType
   return (fvars.map Expr.fvarId!, mvarId)
 

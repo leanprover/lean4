@@ -100,18 +100,15 @@ partial def widgetInfoAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos
         failure
     | _, _, _ => none
 
-structure UserWidgetInfoNoStx where
+structure UserWidget where
   widgetSourceId : Name
   hash : String
   props : Json
-  -- [todo] you can't toJson syntax yet.
-  -- once we can this class can be deleted and replaced with UserWidgetInfo
-  -- stx : Syntax
   range? : Option Lsp.Range
   deriving ToJson, FromJson
 
 structure GetWidgetInfosResponse where
-  infos : Array UserWidgetInfoNoStx
+  infos : Array UserWidget
   deriving ToJson, FromJson
 
 open RequestM in

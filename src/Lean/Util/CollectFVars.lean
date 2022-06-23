@@ -11,10 +11,11 @@ namespace Lean.CollectFVars
 structure State where
   visitedExpr  : ExprSet  := {}
   fvarSet      : FVarIdSet  := {}
+  fvarIds      : Array FVarId := #[]
   deriving Inhabited
 
 def State.add (s : State) (fvarId : FVarId) : State :=
-  { s with fvarSet := s.fvarSet.insert fvarId }
+  { s with fvarSet := s.fvarSet.insert fvarId, fvarIds := s.fvarIds.push fvarId }
 
 abbrev Visitor := State → State
 

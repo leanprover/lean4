@@ -10,7 +10,7 @@ build-dir = "out"
 
 [output.html]
 git-repository-url = "https://github.com/leanprover/lean4"
-additional-css = ["alectryon.css", "pygments.css", "alectryon-content-fix.css"]
+additional-css = ["alectryon.css", "pygments.css"]
 additional-js = ["alectryon.js"]
 
 [output.html.fold]

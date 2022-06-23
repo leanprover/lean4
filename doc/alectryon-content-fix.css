@@ -1,8 +1,0 @@
-.content {
-    /*
-    Use `initial` instead of `contents` to avoid a browser bug which removes
-    the element from the accessibility tree.
-    https://developer.mozilla.org/en-US/docs/Web/CSS/display#display_contents
-     */
-    display: initial;
-}

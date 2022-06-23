@@ -619,6 +619,9 @@ structure ImportState where
 
 @[export lean_import_modules]
 partial def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts do
+  for imp in imports do
+    if imp.module matches .anonymous then
+      throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     let (_, s) ← importMods imports |>.run {}
     let mut numConsts := 0

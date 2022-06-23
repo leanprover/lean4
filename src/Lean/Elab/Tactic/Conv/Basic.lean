@@ -79,6 +79,10 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
    withMainContext do
      changeLhs (← reduce (← getLhs))
 
+@[builtinTactic Lean.Parser.Tactic.Conv.zeta] def evalZeta : Tactic := fun _ =>
+   withMainContext do
+     changeLhs (← zetaReduce (← getLhs))
+
 @[builtinTactic Lean.Parser.Tactic.Conv.convSeq1Indented] def evalConvSeq1Indented : Tactic := fun stx => do
   evalTacticSeq1Indented stx
 

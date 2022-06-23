@@ -29,7 +29,7 @@ partial def cleanup (mvarId : MVarId) : MetaM MVarId := do
     return mvarNew.mvarId!
 where
   addUsedFVars (e : Expr) : StateRefT (Bool × FVarIdSet) MetaM Unit := do
-    let (_, s) ← collectUsedFVars (← instantiateMVars e) |>.run {}
+    let (_, s) ← (← instantiateMVars e).collectFVars |>.run {}
     for fvarId in s.fvarSet do
       addUsedFVar fvarId
 

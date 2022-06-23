@@ -765,7 +765,8 @@ def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : N
     true
 termination_by _ => as.size - i
 
-/- Return true iff `as` is a prefix of `bs` -/
+/-- Return true iff `as` is a prefix of `bs`.
+That is, `bs = as ++ t` for some `t : List α`.-/
 def isPrefixOf [BEq α] (as bs : Array α) : Bool :=
   if h : as.size ≤ bs.size then
     isPrefixOfAux as bs h 0

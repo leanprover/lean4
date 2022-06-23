@@ -246,7 +246,12 @@ partial def simp (e : Expr) : M Result := withIncRecDepth do
     return { expr := e }
   if cfg.memoize then
     if let some result := (← get).cache.find? e then
-      return result
+      /-
+         If the result was cached at a dischargeDepth > the current one, it may not be valid.
+         See issue #1234
+      -/
+      if result.dischargeDepth ≤ (← readThe Simp.Context).dischargeDepth then
+        return result
   simpLoop { expr := e }
 
 where
@@ -677,7 +682,8 @@ where
 
   cacheResult (cfg : Config) (r : Result) : M Result := do
     if cfg.memoize then
-      modify fun s => { s with cache := s.cache.insert e r }
+      let dischargeDepth := (← readThe Simp.Context).dischargeDepth
+      modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }
     return r
 
 def main (e : Expr) (ctx : Context) (methods : Methods := {}) : MetaM Result := do

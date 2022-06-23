@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.CollectLevelParams
+import Lean.Util.CollectFVars
 import Lean.Util.Recognizers
 import Lean.Compiler.ExternAttr
 import Lean.Meta.Check
@@ -767,10 +768,35 @@ structure MkMatcherInput where
   matcherName : Name
   matchType   : Expr
   discrInfos  : Array DiscrInfo
-  lhss        : List Match.AltLHS
+  lhss        : List AltLHS
 
 def MkMatcherInput.numDiscrs (m : MkMatcherInput) :=
   m.discrInfos.size
+
+def MkMatcherInput.collectFVars (m : MkMatcherInput) : StateRefT CollectFVars.State MetaM Unit := do
+  m.matchType.collectFVars
+  m.lhss.forM fun alt => alt.collectFVars
+
+def MkMatcherInput.collectDependencies (m : MkMatcherInput) : MetaM FVarIdSet := do
+  let (_, s) ← m.collectFVars |>.run {}
+  let s ← s.addDependencies
+  return s.fvarSet
+
+/--
+Auxiliary method used at `mkMatcher`. It executes `k` in a local context that contains only
+the local declarations `m` depends on. This is important because otherwise dependent elimination
+may "refine" the types of unnecessary declarations and accidentally introduce unnecessary dependencies
+in the auto-generated auxiliary declaration. Note that this is not just an optimization because the
+unnecessary dependencies may prevent the termination checker from succeeding. For an example,
+see issue #1237.
+-/
+def withCleanLCtxFor (m : MkMatcherInput) (k : MetaM α) : MetaM α := do
+  let s ← m.collectDependencies
+  let lctx ← getLCtx
+  let lctx := lctx.foldr (init := lctx) fun localDecl lctx =>
+    if s.contains localDecl.fvarId then lctx else lctx.erase localDecl.fvarId
+  let localInstances := (← getLocalInstances).filter fun localInst => s.contains localInst.fvar.fvarId!
+  withLCtx lctx localInstances k
 
 /--
 Create a dependent matcher for `matchType` where `matchType` is of the form
@@ -781,7 +807,7 @@ The number of patterns must be the same in each `AltLHS`.
 The generated matcher has the structure described at `MatcherInfo`. The motive argument is of the form
 `(motive : (a_1 : A_1) -> (a_2 : A_2[a_1]) -> ... -> (a_n : A_n[a_1, a_2, ... a_{n-1}]) -> Sort v)`
 where `v` is a universe parameter or 0 if `B[a_1, ..., a_n]` is a proposition. -/
-def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := do
+def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor input do
   let ⟨matcherName, matchType, discrInfos, lhss⟩ := input
   let numDiscrs := discrInfos.size
   let numEqs := getNumEqsFromDiscrInfos discrInfos
@@ -981,6 +1007,13 @@ def MatcherApp.addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
       altNumParams  := altNumParams,
       remaining     := #[e] ++ matcherApp.remaining
     }
+
+/-- Similar `MatcherApp.addArg?`, but returns `none` on failure. -/
+def MatcherApp.addArg? (matcherApp : MatcherApp) (e : Expr) : MetaM (Option MatcherApp) :=
+  try
+    return some (← matcherApp.addArg e)
+  catch _ =>
+    return none
 
 builtin_initialize
   registerTraceClass `Meta.Match.match

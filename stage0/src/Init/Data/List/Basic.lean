@@ -423,13 +423,15 @@ instance [LT α] : LE (List α) := ⟨List.le⟩
 instance [LT α] [DecidableRel ((· < ·) : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
   fun _ _ => inferInstanceAs (Decidable (Not _))
 
-/--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`. -/
+/--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`.
+That is, there exists a `t` such that `l₂ == l₁ ++ t`. -/
 def isPrefixOf [BEq α] : List α → List α → Bool
   | [],    _     => true
   | _,     []    => false
   | a::as, b::bs => a == b && isPrefixOf as bs
 
-/--  `isSuffixOf l₁ l₂` returns `true` Iff `l₁` is a suffix of `l₂`. -/
+/--  `isSuffixOf l₁ l₂` returns `true` Iff `l₁` is a suffix of `l₂`.
+That is, there exists a `t` such that `l₂ == t ++ l₁`. -/
 def isSuffixOf [BEq α] (l₁ l₂ : List α) : Bool :=
   isPrefixOf l₁.reverse l₂.reverse
 
@@ -516,7 +518,7 @@ def minimum? [LE α] [DecidableRel (@LE.le α _)] : List α → Option α
   | a::as => some <| as.foldl min a
 
 instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
-  eq_of_beq as bs := by
+  eq_of_beq {as bs} := by
     induction as generalizing bs with
     | nil => intro h; cases bs <;> first | rfl | contradiction
     | cons a as ih =>
@@ -525,8 +527,8 @@ instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
       | cons b bs =>
         simp [BEq.beq, List.beq]
         intro ⟨h₁, h₂⟩
-        exact ⟨eq_of_beq h₁, ih _ h₂⟩
-  rfl as := by
+        exact ⟨eq_of_beq h₁, ih h₂⟩
+  rfl {as} := by
     induction as with
     | nil => rfl
     | cons a as ih => simp [BEq.beq, List.beq, LawfulBEq.rfl]; exact ih

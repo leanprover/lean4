@@ -308,6 +308,8 @@ syntax:max "m!" interpolatedStr(term) : term
 macro_rules
   | `(m! $interpStr) => do interpStr.expandInterpolatedStr (← `(MessageData)) (← `(toMessageData))
 
+def toMessageList (msgs : Array MessageData) : MessageData :=
+  indentD (MessageData.joinSep msgs.toList m!"\n\n")
 
 namespace KernelException
 

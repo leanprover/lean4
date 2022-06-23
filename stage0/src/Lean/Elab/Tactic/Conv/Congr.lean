@@ -106,15 +106,46 @@ private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i 
       selectIdx "arg" mvarIds i
    | _ => throwUnsupportedSyntax
 
+def extLetBodyCongr? (mvarId : MVarId) (lhs rhs : Expr) : MetaM (Option MVarId) := do
+  match lhs with
+  | .letE n t v b _ =>
+    let u₁ ← getLevel t
+    let f := mkLambda n .default t b
+    unless (← isTypeCorrect f) do
+      throwError "failed to abstract let-expression, result is not type correct"
+    let (β, u₂, f') ← withLocalDeclD n t fun a => do
+      let type ← inferType (mkApp f a)
+      let β ← mkLambdaFVars #[a] type
+      let u₂ ← getLevel type
+      let rhsBody ← mkFreshExprMVar type
+      let f' ← mkLambdaFVars #[a] rhsBody
+      let rhs' := mkLet n t v f'.bindingBody!
+      trace[Meta.debug] "rhs: {rhs'}"
+      unless (← isDefEq rhs rhs') do
+        throwError "failed to go inside let-declaration, type error"
+      return (β, u₂, f')
+    let (arg, mvarId') ← withLocalDeclD n t fun x => do
+      let eqLhs := f.beta #[x]
+      let eqRhs := f'.beta #[x]
+      let mvarNew ← mkFreshExprSyntheticOpaqueMVar (← mkEq eqLhs eqRhs)
+      let arg ← mkLambdaFVars #[x] mvarNew
+      return (arg, mvarNew.mvarId!)
+    let val := mkApp6 (mkConst ``let_body_congr [u₁, u₂]) t β f f' v arg
+    assignExprMVar mvarId val
+    return some (← markAsConvGoal mvarId')
+  | _ => return none
+
 private def extCore (mvarId : MVarId) (userName? : Option Name) : MetaM MVarId :=
    withMVarContext mvarId do
      let userNames := if let some userName := userName? then [userName] else []
-     let (lhs, _) ← getLhsRhsCore mvarId
+     let (lhs, rhs) ← getLhsRhsCore mvarId
      let lhs ← instantiateMVars lhs
      if lhs.isForall then
        let [mvarId, _] ← apply mvarId (← mkConstWithFreshMVarLevels ``forall_congr) | throwError "'apply forall_congr' unexpected result"
        let (_, mvarId) ← introN mvarId 1 userNames
        markAsConvGoal mvarId
+     else if let some mvarId ← extLetBodyCongr? mvarId lhs rhs then
+       return mvarId
      else
        let lhsType ← whnfD (← inferType lhs)
        unless lhsType.isForall do

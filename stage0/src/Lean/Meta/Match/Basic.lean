@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Check
+import Lean.Meta.CollectFVars
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.CaseArraySizes
 
@@ -89,6 +90,18 @@ partial def hasExprMVar : Pattern → Bool
   | arrayLit t xs  => t.hasExprMVar || xs.any hasExprMVar
   | _              => false
 
+
+partial def collectFVars (p : Pattern) : StateRefT CollectFVars.State MetaM Unit := do
+  match p with
+  | inaccessible e => e.collectFVars
+  | ctor _ _ ps fs =>
+    ps.forM fun p => p.collectFVars
+    fs.forM collectFVars
+  | val e => e.collectFVars
+  | arrayLit t xs => t.collectFVars; xs.forM collectFVars
+  | as fvarId₁ p fvarId₂ => modify (·.add fvarId₁ |>.add fvarId₂); p.collectFVars
+  | var fvarId => modify (·.add fvarId)
+
 end Pattern
 
 partial def instantiatePatternMVars : Pattern → MetaM Pattern
@@ -103,6 +116,10 @@ structure AltLHS where
   ref        : Syntax
   fvarDecls  : List LocalDecl -- Free variables used in the patterns.
   patterns   : List Pattern   -- We use `List Pattern` since we have nary match-expressions.
+
+def AltLHS.collectFVars (altLHS: AltLHS) : StateRefT CollectFVars.State MetaM Unit := do
+  altLHS.fvarDecls.forM fun fvarDecl => fvarDecl.collectFVars
+  altLHS.patterns.forM fun p => p.collectFVars
 
 def instantiateAltLHSMVars (altLHS : AltLHS) : MetaM AltLHS :=
   return { altLHS with

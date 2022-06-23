@@ -20,7 +20,6 @@ LEAN_EXPORT lean_object* l_String_endPos___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instHShiftRight___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_run___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_csize(uint32_t);
-LEAN_EXPORT lean_object* l_Lean_Macro_resolveNamespace_x3f(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Macro_instMonadRefMacroM___closed__2;
 LEAN_EXPORT lean_object* l_Char_ofNatAux___boxed(lean_object*, lean_object*);
@@ -201,6 +200,7 @@ LEAN_EXPORT lean_object* l_UInt8_ofNatCore___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_False_elim(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_List_concat___rarg(lean_object*, lean_object*);
 static lean_object* l_instInhabitedSubstring___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Macro_resolveNamespace(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_dummySave___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableLtUInt32InstLTUInt32___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_nameLitKind;
@@ -10345,7 +10345,7 @@ x_5 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
 lean_ctor_set(x_5, 2, x_3);
-lean_ctor_set(x_5, 3, x_1);
+lean_ctor_set(x_5, 3, x_4);
 lean_ctor_set(x_5, 4, x_4);
 return x_5;
 }
@@ -10493,7 +10493,7 @@ x_7 = lean_apply_2(x_6, x_1, x_5);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Macro_resolveNamespace_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Macro_resolveNamespace(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 

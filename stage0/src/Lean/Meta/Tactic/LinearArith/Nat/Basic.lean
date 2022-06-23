@@ -24,7 +24,7 @@ def LinearExpr.toExpr (e : LinearExpr) : Expr :=
   | var i    => mkApp (mkConst ``var) (mkNatLit i)
   | add a b  => mkApp2 (mkConst ``add) (toExpr a) (toExpr b)
   | mulL k a => mkApp2 (mkConst ``mulL) (mkNatLit k) (toExpr a)
-  | mulR a k => mkApp2 (mkConst ``mulL) (toExpr a) (mkNatLit k)
+  | mulR a k => mkApp2 (mkConst ``mulR) (toExpr a) (mkNatLit k)
 
 instance : ToExpr LinearExpr where
   toExpr a := a.toExpr

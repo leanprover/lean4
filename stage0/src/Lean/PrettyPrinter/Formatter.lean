@@ -159,11 +159,16 @@ def group (x : Formatter) : Formatter := do
     isUngrouped := false
   }
 
-/-- If `pos?` has a position, run `x` and tag its results with that position. Otherwise just run `x`. -/
+/-- If `pos?` has a position, run `x` and tag its results with that position,
+if they are not already tagged. Otherwise just run `x`. -/
 def withMaybeTag (pos? : Option String.Pos) (x : FormatterM Unit) : Formatter := do
   if let some p := pos? then
     concat x
-    modify fun st => { st with stack := st.stack.modify (st.stack.size - 1) (Format.tag p.byteIdx) }
+    modify fun st => {
+      st with stack := st.stack.modify (st.stack.size - 1) fun fmt =>
+        if fmt matches Format.tag .. then fmt
+        else Format.tag p.byteIdx fmt
+    }
   else
     x
 
@@ -392,10 +397,10 @@ def unicodeSymbolNoAntiquot.formatter (sym asciiSym : String) : Formatter := do
 @[combinatorFormatter Lean.Parser.identNoAntiquot]
 def identNoAntiquot.formatter : Formatter := do
   checkKind identKind
-  let Syntax.ident info _ id _ ← getCur
+  let stx@(Syntax.ident info _ id _) ← getCur
     | throwError m!"not an ident: {← getCur}"
   let id := id.simpMacroScopes
-  pushToken info id.toString
+  withMaybeTag (getExprPos? stx) (pushToken info id.toString)
   goLeft
 
 @[combinatorFormatter Lean.Parser.rawIdentNoAntiquot] def rawIdentNoAntiquot.formatter : Formatter := do

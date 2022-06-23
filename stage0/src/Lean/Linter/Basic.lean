@@ -83,7 +83,7 @@ def unusedVariables : Linter := fun stx => do
       | continue
     let some localDecl := decl.info.lctx.find? id
       | continue
-    if !stxRange.contains range.start then
+    if !stxRange.contains range.start || localDecl.userName.hasMacroScopes then
       continue
 
     let opts := decl.ci.options

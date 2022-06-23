@@ -215,11 +215,11 @@ private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array
 
 private def collectUsed (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
     : StateRefT CollectFVars.State MetaM Unit := do
-  headers.forM fun header => collectUsedFVars header.type
-  values.forM collectUsedFVars
+  headers.forM fun header => header.type.collectFVars
+  values.forM fun val => val.collectFVars
   toLift.forM fun letRecToLift => do
-    collectUsedFVars letRecToLift.type
-    collectUsedFVars letRecToLift.val
+    letRecToLift.type.collectFVars
+    letRecToLift.val.collectFVars
 
 private def removeUnusedVars (vars : Array Expr) (headers : Array DefViewElabHeader) (values : Array Expr) (toLift : List LetRecToLift)
     : TermElabM (LocalContext × LocalInstances × Array Expr) := do

@@ -121,14 +121,15 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 @[builtinCommandElab «export»] def elabExport : CommandElab := fun stx => do
   -- `stx` is of the form (Command.export "export" <namespace> "(" (null <ids>*) ")")
   let id  := stx[1].getId
-  let ns ← resolveNamespace id
+  let nss ← resolveNamespace id
   let currNamespace ← getCurrNamespace
-  if ns == currNamespace then throwError "invalid 'export', self export"
+  if nss == [currNamespace] then throwError "invalid 'export', self export"
   let ids := stx[3].getArgs
-  let aliases ← ids.foldlM (init := []) fun (aliases : List (Name × Name)) (idStx : Syntax) => do
+  let mut aliases := #[]
+  for idStx in ids do
     let id := idStx.getId
-    let declName ← resolveOpenDeclId ns idStx
-    pure <| (currNamespace ++ id, declName) :: aliases
+    let declName ← resolveNameUsingNamespaces nss idStx
+    aliases := aliases.push (currNamespace ++ id, declName)
   modify fun s => { s with env := aliases.foldl (init := s.env) fun env p => addAlias env p.1 p.2 }
 
 @[builtinCommandElab «open»] def elabOpen : CommandElab := fun n => do

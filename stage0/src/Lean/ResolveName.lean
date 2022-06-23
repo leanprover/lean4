@@ -131,32 +131,31 @@ def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl
 
 /- Namespace resolution -/
 
-def resolveNamespaceUsingScope (env : Environment) (n : Name) : Name → Option Name
+def resolveNamespaceUsingScope? (env : Environment) (n : Name) : Name → Option Name
   | Name.anonymous      => if env.isNamespace n then some n else none
-  | ns@(Name.str p _ _) => if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScope env n p
+  | ns@(Name.str p _ _) => if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingScope? env n p
   | _                   => unreachable!
 
-def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDecl → Option Name
-  | []                          => none
-  | OpenDecl.simple ns [] :: ds =>  if env.isNamespace (ns ++ n) then some (ns ++ n) else resolveNamespaceUsingOpenDecls env n ds
+def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDecl → List Name
+  | []                          => []
+  | OpenDecl.simple ns [] :: ds =>  if env.isNamespace (ns ++ n) then (ns ++ n) :: resolveNamespaceUsingOpenDecls env n ds else resolveNamespaceUsingOpenDecls env n ds
   | _ :: ds                     => resolveNamespaceUsingOpenDecls env n ds
 
 /--
-Given a name `id` try to find namespace it refers to. The resolution procedure works as follows
-1- If `id` is in the scope of `namespace` commands the namespace `s_1. ... . s_n`,
-   then return `s_1 . ... . s_i ++ n` if it is the name of an existing namespace. We search "backwards".
-2- If `id` is the extact name of an existing namespace, then return `id`
+Given a name `id` try to find namespaces it may refer to. The resolution procedure works as follows
 
-3- Finally, for each command `open N`, return `N ++ n` if it is the name of an existing namespace.
-   We search "backwards" again. That is, we try the most recent `open` command first.
+1- If `id` is in the scope of `namespace` commands the namespace `s_1. ... . s_n`,
+   then we include `s_1 . ... . s_i ++ n` in the result if it is the name of an existing namespace.
+   We search "backwards", and include at most one of the in the list of resulting namespaces.
+
+2- If `id` is the extact name of an existing namespace, then include `id`
+
+3- Finally, for each command `open N`, include in the result `N ++ n` if it is the name of an existing namespace.
    We only consider simple `open` commands. -/
-def resolveNamespace? (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : Option Name :=
-  match resolveNamespaceUsingScope env id ns with
-  | some n => some n
-  | none   =>
-    match resolveNamespaceUsingOpenDecls env id openDecls with
-    | some n => some n
-    | none   => none
+def resolveNamespace (env : Environment) (ns : Name) (openDecls : List OpenDecl) (id : Name) : List Name :=
+  match resolveNamespaceUsingScope? env id ns with
+  | some ns => ns :: resolveNamespaceUsingOpenDecls env id openDecls
+  | none => resolveNamespaceUsingOpenDecls env id openDecls
 
 end ResolveName
 
@@ -196,11 +195,15 @@ instance (m n) [MonadLift m n] [MonadResolveName m] : MonadResolveName n where
 def resolveGlobalName [Monad m] [MonadResolveName m] [MonadEnv m] (id : Name) : m (List (Name × List String)) := do
   return ResolveName.resolveGlobalName (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
 
+def resolveNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Name) : m (List Name) := do
+  match ResolveName.resolveNamespace (← getEnv) (← getCurrNamespace) (← getOpenDecls) id with
+  | []  => throwError s!"unknown namespace '{id}'"
+  | nss => return nss
 
-def resolveNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Name) : m Name := do
-  match ResolveName.resolveNamespace? (← getEnv) (← getCurrNamespace) (← getOpenDecls) id with
-  | some ns => return ns
-  | none    => throwError s!"unknown namespace '{id}'"
+def resolveUniqueNamespace [Monad m] [MonadResolveName m] [MonadEnv m] [MonadError m] (id : Name) : m Name := do
+  match (← resolveNamespace id) with
+  | [ns] => return ns
+  | nss => throwError s!"ambiguous namespace '{id}', possible interpretations: '{nss}'"
 
 /-- Given a name `n`, return a list of possible interpretations for global constants.
 

@@ -23,6 +23,8 @@ syntax (name := conv) "conv " (" at " ident)? (" in " term)? " => " convSeq : ta
 syntax (name := lhs) "lhs" : conv
 syntax (name := rhs) "rhs" : conv
 syntax (name := whnf) "whnf" : conv
+/-- Expand let-declarations and let-variables. -/
+syntax (name := zeta) "zeta" : conv
 /-- Put term in normal form, this tactic is ment for debugging purposes only -/
 syntax (name := reduce) "reduce" : conv
 syntax (name := congr) "congr" : conv

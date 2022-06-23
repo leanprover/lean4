@@ -36,25 +36,46 @@ private def addOpenDecl (decl : OpenDecl) : M (m:=m) Unit :=
 private def elabOpenSimple (n : Syntax) : M (m:=m) Unit :=
   -- `open` id+
   for ns in n[0].getArgs do
-    let ns ← resolveNamespace ns.getId
-    addOpenDecl (OpenDecl.simple ns [])
-    activateScoped ns
+    for ns in (← resolveNamespace ns.getId) do
+      addOpenDecl (OpenDecl.simple ns [])
+      activateScoped ns
 
 private def elabOpenScoped (n : Syntax) : M (m:=m) Unit :=
   -- `open` `scoped` id+
   for ns in n[1].getArgs do
-    activateScoped (← resolveNamespace ns.getId)
+    for ns in (← resolveNamespace ns.getId) do
+    activateScoped ns
+
+private def resolveNameUsingNamespacesCore (nss : List Name) (idStx : Syntax) : M (m:=m) Name := do
+  let mut exs := #[]
+  let mut result := #[]
+  for ns in nss do
+    try
+      let declName ← resolveId ns idStx
+      result := result.push declName
+    catch ex =>
+      exs := exs.push ex
+  if exs.size == nss.length then
+    withRef idStx do
+      if exs.size == 1 then
+        throw exs[0]
+      else
+        throwErrorWithNestedErrors "failed to open" exs
+  if result.size == 1 then
+    return result[0]
+  else
+    withRef idStx do throwError "ambiguous identifier '{idStx.getId}', possible interpretations: {result.map mkConst}"
 
 -- `open` id `(` id+ `)`
 private def elabOpenOnly (n : Syntax) : M (m:=m) Unit := do
-  let ns ← resolveNamespace n[0].getId
+  let nss ← resolveNamespace n[0].getId
   for idStx in n[2].getArgs do
-    let declName ← resolveId ns idStx
+    let declName ← resolveNameUsingNamespacesCore nss idStx
     addOpenDecl (OpenDecl.explicit idStx.getId declName)
 
 -- `open` id `hiding` id+
 private def elabOpenHiding (n : Syntax) : M (m:=m) Unit := do
-  let ns ← resolveNamespace n[0].getId
+  let ns ← resolveUniqueNamespace n[0].getId
   let mut ids : List Name := []
   for idStx in n[2].getArgs do
     let _ ← resolveId ns idStx
@@ -64,7 +85,7 @@ private def elabOpenHiding (n : Syntax) : M (m:=m) Unit := do
 
 -- `open` id `renaming` sepBy (id `->` id) `,`
 private def elabOpenRenaming (n : Syntax) : M (m:=m) Unit := do
-  let ns ← resolveNamespace n[0].getId
+  let ns ← resolveUniqueNamespace n[0].getId
   for stx in n[2].getSepArgs do
     let fromStx  := stx[0]
     let toId     := stx[2].getId
@@ -89,8 +110,12 @@ def resolveOpenDeclId [MonadResolveName m] (ns : Name) (idStx : Syntax) : m Name
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
     OpenDecl.resolveId ns idStx
 
+def resolveNameUsingNamespaces [MonadResolveName m] (nss : List Name) (idStx : Syntax) : m Name := do
+  StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
+    resolveNameUsingNamespacesCore nss idStx
+
 end OpenDecl
 
-export OpenDecl (elabOpenDecl resolveOpenDeclId)
+export OpenDecl (elabOpenDecl resolveOpenDeclId resolveNameUsingNamespaces)
 
 end Lean.Elab

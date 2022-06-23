@@ -33,13 +33,11 @@ LEAN_EXPORT lean_object* l_Lean_Meta_cleanup_addDeps(lean_object*, lean_object*,
 LEAN_EXPORT lean_object* l_Std_PersistentArray_forIn___at_Lean_Meta_cleanup___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_cleanup_collectPropsStep___spec__4___closed__3;
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_collectUsedFVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Std_mkHashSetImp___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_forInAux___at_Lean_Meta_cleanup_collectPropsStep___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_cleanup___closed__1;
 uint8_t lean_usize_dec_lt(size_t, size_t);
-static lean_object* l_Lean_Meta_cleanup___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_cleanup_collectUsed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_cleanup(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_RBNode_forIn_visit___at_Lean_Meta_cleanup_addUsedFVars___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -56,6 +54,7 @@ static lean_object* l_Lean_Meta_cleanup_addUsedFVars___closed__1;
 LEAN_EXPORT lean_object* l_Std_PersistentArray_forIn___at_Lean_Meta_cleanup___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_cleanup_addDeps___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
+lean_object* l_Lean_Expr_collectFVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_forIn___at_Lean_Meta_cleanup_collectPropsStep___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_cleanup___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
@@ -97,6 +96,7 @@ LEAN_EXPORT lean_object* l_Std_PersistentArray_forInAux___at_Lean_Meta_cleanup__
 lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instantiateMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_cleanup_addUsedFVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_cleanup_addUsedFVars___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_cleanup_collectProps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isProp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_cleanup___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -255,13 +255,24 @@ return x_2;
 static lean_object* _init_l_Lean_Meta_cleanup_addUsedFVars___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_mk_empty_array_with_capacity(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_cleanup_addUsedFVars___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_cleanup_addUsedFVars___closed__1;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
+x_3 = l_Lean_Meta_cleanup_addUsedFVars___closed__2;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_2);
+lean_ctor_set(x_4, 1, x_1);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_cleanup_addUsedFVars(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -279,7 +290,7 @@ x_11 = lean_st_ref_get(x_6, x_10);
 x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);
 lean_dec(x_11);
-x_13 = l_Lean_Meta_cleanup_addUsedFVars___closed__2;
+x_13 = l_Lean_Meta_cleanup_addUsedFVars___closed__3;
 x_14 = lean_st_mk_ref(x_13, x_12);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
@@ -287,7 +298,7 @@ x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec(x_14);
 lean_inc(x_4);
-x_17 = l_Lean_Meta_collectUsedFVars(x_9, x_15, x_3, x_4, x_5, x_6, x_16);
+x_17 = l_Lean_Expr_collectFVars(x_9, x_15, x_3, x_4, x_5, x_6, x_16);
 x_18 = lean_ctor_get(x_17, 1);
 lean_inc(x_18);
 lean_dec(x_17);
@@ -3221,15 +3232,6 @@ lean_ctor_set(x_4, 1, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Meta_cleanup___lambda__1___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_mk_empty_array_with_capacity(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Meta_cleanup___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -3316,7 +3318,7 @@ lean_inc(x_62);
 x_63 = lean_ctor_get(x_61, 1);
 lean_inc(x_63);
 lean_dec(x_61);
-x_64 = l_Lean_Meta_cleanup___lambda__1___closed__2;
+x_64 = l_Lean_Meta_cleanup_addUsedFVars___closed__2;
 x_29 = x_64;
 x_30 = x_62;
 x_31 = x_63;
@@ -3368,7 +3370,7 @@ lean_inc(x_70);
 x_71 = lean_ctor_get(x_61, 1);
 lean_inc(x_71);
 lean_dec(x_61);
-x_72 = l_Lean_Meta_cleanup___lambda__1___closed__2;
+x_72 = l_Lean_Meta_cleanup_addUsedFVars___closed__2;
 x_29 = x_72;
 x_30 = x_70;
 x_31 = x_71;
@@ -3416,7 +3418,7 @@ lean_dec(x_61);
 x_79 = 0;
 x_80 = lean_usize_of_nat(x_58);
 lean_dec(x_58);
-x_81 = l_Lean_Meta_cleanup___lambda__1___closed__2;
+x_81 = l_Lean_Meta_cleanup_addUsedFVars___closed__2;
 x_82 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_cleanup___spec__6___at_Lean_Meta_cleanup___spec__7(x_17, x_56, x_79, x_80, x_81);
 lean_dec(x_56);
 lean_dec(x_17);
@@ -3792,6 +3794,8 @@ l_Lean_Meta_cleanup_addUsedFVars___closed__1 = _init_l_Lean_Meta_cleanup_addUsed
 lean_mark_persistent(l_Lean_Meta_cleanup_addUsedFVars___closed__1);
 l_Lean_Meta_cleanup_addUsedFVars___closed__2 = _init_l_Lean_Meta_cleanup_addUsedFVars___closed__2();
 lean_mark_persistent(l_Lean_Meta_cleanup_addUsedFVars___closed__2);
+l_Lean_Meta_cleanup_addUsedFVars___closed__3 = _init_l_Lean_Meta_cleanup_addUsedFVars___closed__3();
+lean_mark_persistent(l_Lean_Meta_cleanup_addUsedFVars___closed__3);
 l_Array_forInUnsafe_loop___at_Lean_Meta_cleanup_collectPropsStep___spec__4___closed__1 = _init_l_Array_forInUnsafe_loop___at_Lean_Meta_cleanup_collectPropsStep___spec__4___closed__1();
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Meta_cleanup_collectPropsStep___spec__4___closed__1);
 l_Array_forInUnsafe_loop___at_Lean_Meta_cleanup_collectPropsStep___spec__4___closed__2 = _init_l_Array_forInUnsafe_loop___at_Lean_Meta_cleanup_collectPropsStep___spec__4___closed__2();
@@ -3800,8 +3804,6 @@ l_Array_forInUnsafe_loop___at_Lean_Meta_cleanup_collectPropsStep___spec__4___clo
 lean_mark_persistent(l_Array_forInUnsafe_loop___at_Lean_Meta_cleanup_collectPropsStep___spec__4___closed__3);
 l_Lean_Meta_cleanup___lambda__1___closed__1 = _init_l_Lean_Meta_cleanup___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Meta_cleanup___lambda__1___closed__1);
-l_Lean_Meta_cleanup___lambda__1___closed__2 = _init_l_Lean_Meta_cleanup___lambda__1___closed__2();
-lean_mark_persistent(l_Lean_Meta_cleanup___lambda__1___closed__2);
 l_Lean_Meta_cleanup___closed__1 = _init_l_Lean_Meta_cleanup___closed__1();
 lean_mark_persistent(l_Lean_Meta_cleanup___closed__1);
 l_Lean_Meta_cleanup___closed__2 = _init_l_Lean_Meta_cleanup___closed__2();

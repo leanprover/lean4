@@ -158,7 +158,7 @@ def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEn
       | none           => return none
     hasDecl          := fun declName => return env.contains declName
     getCurrNamespace := return currNamespace
-    resolveNamespace? := fun n => return ResolveName.resolveNamespace? env currNamespace openDecls n
+    resolveNamespace := fun n => return ResolveName.resolveNamespace env currNamespace openDecls n
     resolveGlobalName := fun n => return ResolveName.resolveGlobalName env currNamespace openDecls n
   }
   match x { methods        := methods
@@ -210,6 +210,20 @@ def logException [Monad m] [MonadLog m] [AddMessageContext m] [MonadLiftT IO m] 
 
 def logDbgTrace [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] (msg : MessageData) : m Unit := do
   trace `Elab.debug fun _ => msg
+
+def nestedExceptionToMessageData [Monad m] [MonadLog m] (ex : Exception) : m MessageData := do
+  let pos ← getRefPos
+  match ex.getRef.getPos? with
+  | none       => return ex.toMessageData
+  | some exPos =>
+    if pos == exPos then
+      return ex.toMessageData
+    else
+      let exPosition := (← getFileMap).toPosition exPos
+      return m!"{exPosition.line}:{exPosition.column} {ex.toMessageData}"
+
+def throwErrorWithNestedErrors [MonadError m] [Monad m] [MonadLog m] (msg : MessageData) (exs : Array Exception) : m α := do
+  throwError "{msg}, errors {toMessageList (← exs.mapM fun | ex => nestedExceptionToMessageData ex)}"
 
 builtin_initialize
   registerTraceClass `Elab

@@ -87,7 +87,6 @@ LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodingInteractiveGoalRpcEncoding
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveGoal___hyg_199____rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_addInteractiveHypothesisBundle___closed__1;
-lean_object* l_Std_RBNode_findCore___at_Lean_Meta_Closure_process___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodingInteractiveTermGoalRpcEncodingPacket___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveGoal___hyg_2578____rarg___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveGoal___hyg_199____rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -133,6 +132,7 @@ static lean_object* l_Lean_Widget_goalToInteractive___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodingInteractiveGoalRpcEncodingPacket___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instToJsonRpcEncodingPacket__3___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveTermGoal_toInteractiveGoal(lean_object*);
+lean_object* l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_PersistentArray_forIn___at_Lean_Widget_goalToInteractive___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodingInteractiveHypothesisBundleRpcEncodingPacket___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodingInteractiveHypothesisBundleRpcEncodingPacket___rarg___lambda__15(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5535,7 +5535,7 @@ if (x_206 == 0)
 {
 lean_object* x_207; lean_object* x_208; 
 x_207 = l_Lean_LocalDecl_fvarId(x_42);
-x_208 = l_Std_RBNode_findCore___at_Lean_Meta_Closure_process___spec__1(x_2, x_207);
+x_208 = l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_2, x_207);
 lean_dec(x_207);
 if (lean_obj_tag(x_208) == 0)
 {
@@ -5591,7 +5591,7 @@ else
 {
 lean_object* x_218; lean_object* x_219; 
 x_218 = l_Lean_LocalDecl_fvarId(x_42);
-x_219 = l_Std_RBNode_findCore___at_Lean_Meta_Closure_process___spec__1(x_2, x_218);
+x_219 = l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_2, x_218);
 lean_dec(x_218);
 if (lean_obj_tag(x_219) == 0)
 {
@@ -5627,7 +5627,7 @@ block_205:
 lean_object* x_49; lean_object* x_50; 
 lean_dec(x_48);
 x_49 = l_Lean_LocalDecl_fvarId(x_42);
-x_50 = l_Std_RBNode_findCore___at_Lean_Meta_Closure_process___spec__1(x_3, x_49);
+x_50 = l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_3, x_49);
 if (lean_obj_tag(x_50) == 0)
 {
 lean_dec(x_49);
@@ -6745,7 +6745,7 @@ if (x_207 == 0)
 {
 lean_object* x_208; lean_object* x_209; 
 x_208 = l_Lean_LocalDecl_fvarId(x_43);
-x_209 = l_Std_RBNode_findCore___at_Lean_Meta_Closure_process___spec__1(x_2, x_208);
+x_209 = l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_2, x_208);
 lean_dec(x_208);
 if (lean_obj_tag(x_209) == 0)
 {
@@ -6801,7 +6801,7 @@ else
 {
 lean_object* x_219; lean_object* x_220; 
 x_219 = l_Lean_LocalDecl_fvarId(x_43);
-x_220 = l_Std_RBNode_findCore___at_Lean_Meta_Closure_process___spec__1(x_2, x_219);
+x_220 = l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_2, x_219);
 lean_dec(x_219);
 if (lean_obj_tag(x_220) == 0)
 {
@@ -6837,7 +6837,7 @@ block_206:
 lean_object* x_50; lean_object* x_51; 
 lean_dec(x_49);
 x_50 = l_Lean_LocalDecl_fvarId(x_43);
-x_51 = l_Std_RBNode_findCore___at_Lean_Meta_Closure_process___spec__1(x_3, x_50);
+x_51 = l_Std_RBNode_findCore___at_Lean_Meta_removeUnused___spec__1(x_3, x_50);
 if (lean_obj_tag(x_51) == 0)
 {
 lean_dec(x_50);

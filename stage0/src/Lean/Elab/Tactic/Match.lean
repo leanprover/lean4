@@ -11,43 +11,42 @@ import Lean.Elab.Tactic.Induction
 namespace Lean.Elab.Tactic
 open Meta
 
-structure AuxMatchTermState where
-  nextIdx : Nat := 1
-  «cases» : Array Syntax := #[]
-
 open Parser.Tactic in
-private def mkAuxiliaryMatchTermAux (parentTag : Name) (matchTac : Syntax) : StateT AuxMatchTermState MacroM Syntax := do
+private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM (Syntax × Array Syntax) := do
   let matchAlts := matchTac[5]
   let alts      := matchAlts[0].getArgs
-  let newAlts ← alts.mapM fun alt => do
-    let alt    := alt.setKind ``Parser.Term.matchAlt
+  let mut newAlts := #[]
+  let mut nextIdx := 1
+  let mut newCases := #[]
+  for alt in alts do
+    let alt := alt.setKind ``Parser.Term.matchAlt
     let holeOrTacticSeq := alt[3]
-    if holeOrTacticSeq.isOfKind ``Parser.Term.syntheticHole then
-      pure alt
-    else if holeOrTacticSeq.isOfKind ``Parser.Term.hole then
-      let s ← get
-      let tag := if alts.size > 1 then parentTag ++ (`match).appendIndexAfter s.nextIdx else parentTag
-      let holeName := mkIdentFrom holeOrTacticSeq tag
-      let newHole ← `(?$holeName:ident)
-      modify fun s => { s with nextIdx := s.nextIdx + 1}
-      pure <| alt.setArg 3 newHole
-    else withFreshMacroScope do
-      let newHole ← `(?rhs)
-      let newHoleId := newHole[1]
-      let newCase ← `(tactic|
-        case $newHoleId =>%$(alt[2])
-          -- annotate `| ... =>` with state after `case`
-          with_annotate_state $(mkNullNode #[alt[0], alt[2]]) skip
-          $holeOrTacticSeq)
-      modify fun s => { s with cases := s.cases.push newCase }
-      pure <| alt.setArg 3 newHole
+    -- must generate a separate mvar for each `| $patGroup | ... => ...` as they can have different local contexts
+    for patGroup in alt[1].getSepArgs do
+      let mut alt := alt.setArg 1 (mkNullNode #[patGroup])
+      if holeOrTacticSeq.isOfKind ``Parser.Term.syntheticHole then
+        pure ()
+      else if holeOrTacticSeq.isOfKind ``Parser.Term.hole then
+        let s ← get
+        let tag := if alts.size > 1 then parentTag ++ (`match).appendIndexAfter nextIdx else parentTag
+        let holeName := mkIdentFrom holeOrTacticSeq tag
+        let newHole ← `(?$holeName:ident)
+        nextIdx := nextIdx + 1
+        alt := alt.setArg 3 newHole
+      else
+        let newHole ← withFreshMacroScope `(?rhs)
+        let newHoleId := newHole[1]
+        let newCase ← `(tactic|
+          case $newHoleId =>%$(alt[2])
+            -- annotate `| ... =>` with state after `case`
+            with_annotate_state $(mkNullNode #[alt[0], alt[2]]) skip
+            $holeOrTacticSeq)
+        newCases := newCases.push newCase
+        alt := alt.setArg 3 newHole
+      newAlts := newAlts.push alt
   let result  := matchTac.setKind ``Parser.Term.«match»
   let result  := result.setArg 5 (mkNode ``Parser.Term.matchAlts #[mkNullNode newAlts])
-  pure result
-
-private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM (Syntax × Array Syntax) := do
-  let (matchTerm, s) ← mkAuxiliaryMatchTermAux parentTag matchTac |>.run {}
-  pure (matchTerm, s.cases)
+  return (result, newCases)
 
 @[builtinTactic Lean.Parser.Tactic.match]
 def evalMatch : Tactic := fun stx => do

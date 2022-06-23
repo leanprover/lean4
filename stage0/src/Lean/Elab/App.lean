@@ -945,26 +945,9 @@ private def getSuccesses (candidates : Array (TermElabResult Expr)) : TermElabM 
     | _ => return false
   if r₂.size == 0 then return r₁ else return r₂
 
-private def toMessageData (ex : Exception) : TermElabM MessageData := do
-  let pos ← getRefPos
-  match ex.getRef.getPos? with
-  | none       => return ex.toMessageData
-  | some exPos =>
-    if pos == exPos then
-      return ex.toMessageData
-    else
-      let exPosition := (← getFileMap).toPosition exPos
-      return m!"{exPosition.line}:{exPosition.column} {ex.toMessageData}"
-
-private def toMessageList (msgs : Array MessageData) : MessageData :=
-  indentD (MessageData.joinSep msgs.toList m!"\n\n")
-
 private def mergeFailures (failures : Array (TermElabResult Expr)) : TermElabM α := do
-  let msgs ← failures.mapM fun failure =>
-    match failure with
-    | .error ex _ => toMessageData ex
-    | .ok .. => unreachable!
-  throwError "overloaded, errors {toMessageList msgs}"
+  let exs := failures.map fun | .error ex _ => ex | _ => unreachable!
+  throwErrorWithNestedErrors "overloaded" exs
 
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (ellipsis : Bool) (expectedType? : Option Expr) : TermElabM Expr := do
   let candidates ← elabAppFn f [] namedArgs args expectedType? (explicit := false) (ellipsis := ellipsis) (overloaded := false) #[]

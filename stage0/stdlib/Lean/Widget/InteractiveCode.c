@@ -32,6 +32,7 @@ LEAN_EXPORT lean_object* l_Lean_Widget_instToJsonRpcEncodingPacket(lean_object*,
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonRpcEncodingPacket____x40_Lean_Widget_InteractiveCode___hyg_93_(lean_object*, lean_object*);
 lean_object* l_List_join___rarg(lean_object*);
 static lean_object* l_Lean_Widget_instInhabitedSubexprInfo___closed__11;
+extern lean_object* l_Lean_SubExpr_Pos_root;
 lean_object* l_Lean_Widget_TaggedText_stripTags___rarg(lean_object*);
 static lean_object* l_Lean_Widget_ppExprTagged___closed__7;
 static lean_object* l_Lean_Widget_instInhabitedSubexprInfo___closed__13;
@@ -346,7 +347,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Widget_instInhabitedSubexprInfo___closed__19;
-x_2 = lean_unsigned_to_nat(0u);
+x_2 = l_Lean_SubExpr_Pos_root;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -3515,7 +3516,7 @@ static lean_object* _init_l_Lean_Widget_ppExprTagged___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(1u);
+x_1 = l_Lean_SubExpr_Pos_root;
 x_2 = l_Lean_Widget_ppExprTagged___closed__5;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -3556,7 +3557,7 @@ static lean_object* _init_l_Lean_Widget_ppExprTagged___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(1u);
+x_1 = l_Lean_SubExpr_Pos_root;
 x_2 = l_Lean_Widget_ppExprTagged___closed__9;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

@@ -170,9 +170,9 @@ macro "rfl'" : tactic => `(set_option smartUnfolding false in with_unfolding_all
 syntax (name := ac_refl) "ac_refl " : tactic
 
 /-- `admit` is a shorthand for `exact sorry`. -/
-macro "admit" : tactic => `(exact sorry)
+macro "admit" : tactic => `(exact @sorryAx _ false)
 /-- The `sorry` tactic is a shorthand for `exact sorry`. -/
-macro "sorry" : tactic => `(exact sorry)
+macro "sorry" : tactic => `(exact @sorryAx _ false)
 /-- `infer_instance` is an abbreviation for `exact inferInstance` -/
 macro "infer_instance" : tactic => `(exact inferInstance)
 

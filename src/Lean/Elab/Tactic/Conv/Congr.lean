@@ -139,20 +139,20 @@ private def extCore (mvarId : MVarId) (userName? : Option Name) : MetaM MVarId :
    withMVarContext mvarId do
      let userNames := if let some userName := userName? then [userName] else []
      let (lhs, rhs) ← getLhsRhsCore mvarId
-     let lhs := (← instantiateMVars lhs).consumeMDataAndTypeAnnotations
-     let goForall (mvarId : MVarId) := do
+     let lhs ← instantiateMVars lhs
+     if lhs.isForall then
        let [mvarId, _] ← apply mvarId (← mkConstWithFreshMVarLevels ``forall_congr) | throwError "'apply forall_congr' unexpected result"
        let (_, mvarId) ← introN mvarId 1 userNames
        markAsConvGoal mvarId
-     if lhs.isForall then
-       goForall mvarId
      else if let some mvarId ← extLetBodyCongr? mvarId lhs rhs then
        return mvarId
      else
        let lhsType ← whnfD (← inferType lhs)
        unless lhsType.isForall do
          throwError "invalid 'ext' conv tactic, function or arrow expected{indentD m!"{lhs} : {lhsType}"}"
-       goForall mvarId
+       let [mvarId] ← apply mvarId (← mkConstWithFreshMVarLevels ``funext) | throwError "'apply funext' unexpected result"
+       let (_, mvarId) ← introN mvarId 1 userNames
+       markAsConvGoal mvarId
 
 private def ext (userName? : Option Name) : TacticM Unit := do
   replaceMainGoal [← extCore (← getMainGoal) userName?]

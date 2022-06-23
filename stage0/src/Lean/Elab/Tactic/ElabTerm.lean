@@ -283,12 +283,12 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
     let rflPrf ← mkEqRefl (toExpr true)
     return mkApp3 (Lean.mkConst ``of_decide_eq_true) expectedType s rflPrf
 
-private def mkNativeAuxDecl (baseName : Name) (type val : Expr) : TermElabM Name := do
+private def mkNativeAuxDecl (baseName : Name) (type value : Expr) : TermElabM Name := do
   let auxName ← Term.mkAuxName baseName
   let decl := Declaration.defnDecl {
-    name := auxName, levelParams := [], type := type, value := val,
-    hints := ReducibilityHints.abbrev,
-    safety := DefinitionSafety.safe
+    name := auxName, levelParams := [], type, value
+    hints := .abbrev
+    safety := .safe
   }
   addDecl decl
   compileDecl decl

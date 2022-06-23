@@ -98,11 +98,14 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (applyAttrAft
     let decl ←
       match preDef.kind with
       | DefKind.«theorem» =>
-        pure <| Declaration.thmDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value }
+        pure <| Declaration.thmDecl {
+          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
+        }
       | DefKind.«opaque»  =>
         pure <| Declaration.opaqueDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
-          isUnsafe := preDef.modifiers.isUnsafe }
+          isUnsafe := preDef.modifiers.isUnsafe
+        }
       | DefKind.«abbrev»  =>
         pure <| Declaration.defnDecl {
           name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value

@@ -1,6 +1,32 @@
 Unreleased
 ---------
 
+* `ext` and `enter` conv tactics can now go inside let-declarations. Example:
+  ```lean
+  example (g : Nat → Nat) (y : Nat) (h : let x := y + 1; g (0+x) = x) : g (y + 1) = y + 1 := by
+    conv at h => enter [x, 1, 1]; rw [Nat.zero_add]
+    /-
+      g : Nat → Nat
+      y : Nat
+      h : let x := y + 1;
+          g x = x
+      ⊢ g (y + 1) = y + 1
+    -/
+    exact h
+  ```
+
+* Add `zeta` conv tactic to expand let-declarations. Example:
+  ```lean
+  example (h : let x := y + 1; 0 + x = y) : False := by
+    conv at h => zeta; rw [Nat.zero_add]
+    /-
+      y : Nat
+      h : y + 1 = y
+      ⊢ False
+    -/
+    simp_arith at h
+  ```
+
 * Improve namespace resolution. See issue [#1224](https://github.com/leanprover/lean4/issues/1224). Example:
   ```lean
   import Lean

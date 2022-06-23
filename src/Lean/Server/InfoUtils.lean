@@ -141,9 +141,11 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
 
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
-partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) : Option (ContextInfo × Info) := Id.run do
+partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) (omitAppFns := false) : Option (ContextInfo × Info) := Id.run do
   let results := t.visitM (m := Id) (postNode := fun ctx i _ results => do
-    let results := results.bind (·.getD [])
+    let mut results := results.bind (·.getD [])
+    if omitAppFns && i.stx.isOfKind ``Parser.Term.app && i.stx[0].isIdent then
+      results := results.filter (·.2.2.stx != i.stx[0])
     if results.isEmpty && (i matches Info.ofFieldInfo _ || i.toElabInfo?.isSome) && i.contains hoverPos includeStop then
       let r := i.range?.get!
       let priority :=
@@ -299,36 +301,9 @@ where
       cs.any (hasNestedTactic pos tailPos)
     | _ => false
 
-/--
-Find info nodes that should be used for the term goal feature.
-
-The main complication concerns applications
-like `f a b` where `f` is an identifier.
-In this case, the term goal at `f`
-should be the goal for the full application `f a b`.
-
-Therefore we first gather the position of
-these head function symbols such as `f`,
-and later ignore identifiers at these positions.
--/
 partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) :=
-  let headFns : Std.HashSet String.Pos := t.foldInfo (init := {}) fun _ i headFns =>
-    if let some pos := getHeadFnPos? i.stx then
-      headFns.insert pos
-    else
-      headFns
-  t.smallestInfo? fun i => Id.run do
-    if i.contains hoverPos then
-      if let Info.ofTermInfo ti := i then
-        return !ti.stx.isIdent || !headFns.contains i.pos?.get!
-    false
-  where
-    /- Returns the position of the head function symbol, if it is an identifier. -/
-    getHeadFnPos? (s : Syntax) (foundArgs := false) : Option String.Pos :=
-      match s with
-      | `(($s)) => getHeadFnPos? s foundArgs
-      | `($f $as*) => getHeadFnPos? f (foundArgs := foundArgs || !as.isEmpty)
-      | stx => if foundArgs && stx.isIdent then stx.getPos? else none
+  -- In the case `f a b`, where `f` is an identifier, the term goal at `f` should be the goal for the full application `f a b`.
+  hoverableInfoAt? t hoverPos (includeStop := true) (omitAppFns := true)
 
 partial def InfoTree.hasSorry : InfoTree → IO Bool :=
   go none

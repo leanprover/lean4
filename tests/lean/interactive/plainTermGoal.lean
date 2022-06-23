@@ -16,6 +16,7 @@ example : Option Unit := do
 example (m n : Nat) : m < n :=
   Nat.lt_trans _ _
                --^ $/lean/plainTermGoal
+                --^ $/lean/plainTermGoal
 
 example : True := sorry
                 --^ $/lean/plainTermGoal

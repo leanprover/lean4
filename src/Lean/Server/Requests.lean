@@ -131,7 +131,7 @@ def withWaitFindSnapAtPos
   withWaitFindSnap
     doc
     (fun s => s.endPos >= pos)
-    (notFoundX := throw $ RequestError.mk JsonRpc.ErrorCode.invalidRequest s!"no snapshot found at {lspPos}")
+    (notFoundX := throw <| RequestError.mk .invalidParams s!"no snapshot found at {lspPos}")
     f
 
 end RequestM

@@ -58,7 +58,8 @@ open Lean.Server in
 /-- Gets the hash of the static javascript string for the given widget id, or throws if
 there is no static javascript registered. -/
 def getHash [Monad m] [MonadExcept RequestError m] (env : Environment) (id : Name) : m String := do
-  let some j := WidgetSource.find? env id | throw $ RequestError.internalError s!"getHash: No code found for {id}."
+  let some j := WidgetSource.find? env id
+    | throw <| RequestError.mk .invalidParams s!"getHash: No source found for {id}."
   return j.hash
 
 builtin_initialize registerBuiltinAttribute attributeImpl
@@ -80,7 +81,7 @@ def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask Widge
     if let some w := WidgetSource.find? env args.widgetSourceId then
       return w
     else
-      throw  (RequestError.mk JsonRpc.ErrorCode.invalidParams s!"No registered user-widget with name {args.widgetSourceId}")
+      throw <| RequestError.mk .invalidParams s!"No registered user-widget with id {args.widgetSourceId}"
 
 open Lean Elab
 
@@ -140,11 +141,7 @@ def saveWidgetInfo [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m] (widg
   }
   pushInfoLeaf info
 
-/-!
-# Widget command
-
-Use this to place a widget. Useful for debugging widgets.
--/
+/-!  # Widget command -/
 
 syntax (name := widgetCmd) "#widget " ident term : command
 
@@ -157,12 +154,12 @@ private unsafe def  evalJsonUnsafe (stx : Syntax) : TermElabM Json := do
 private opaque evalJson (stx : Syntax) : TermElabM Json
 
 open Elab Command in
+/-- Use this to place a widget. Useful for debugging widgets. -/
 @[commandElab widgetCmd] def elabWidgetCmd : CommandElab := fun
   | stx@`(#widget $id:ident $props) => do
     let props : Json ← runTermElabM none (fun _ => evalJson props)
     saveWidgetInfo id.getId props stx
     return ()
   | _ => throwUnsupportedSyntax
-
 
 end Lean.Widget

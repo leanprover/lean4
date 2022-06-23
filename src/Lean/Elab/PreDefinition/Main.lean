@@ -19,15 +19,16 @@ structure TerminationHints where
 private def addAndCompilePartial (preDefs : Array PreDefinition) (useSorry := false) : TermElabM Unit := do
   for preDef in preDefs do
     trace[Elab.definition] "processing {preDef.declName}"
+    let all := preDefs.toList.map (·.declName)
     forallTelescope preDef.type fun xs type => do
-      let val ← if useSorry then
+      let value ← if useSorry then
         mkLambdaFVars xs (← mkSorry type (synthetic := true))
       else
         liftM <| mkInhabitantFor preDef.declName xs type
       addNonRec { preDef with
         kind  := DefKind.«opaque»
-        value := val
-      }
+        value
+      } (all := all)
   addAndCompilePartialRec preDefs
 
 private def isNonRecursive (preDef : PreDefinition) : Bool :=

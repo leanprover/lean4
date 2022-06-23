@@ -26,6 +26,7 @@ private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonR
   if (← isOnlyOneUnaryDef preDefs fixedPrefixSize) then
     return ()
   let us := preDefNonRec.levelParams.map mkLevelParam
+  let all := preDefs.toList.map (·.declName)
   for fidx in [:preDefs.size] do
     let preDef := preDefs[fidx]
     let value ← lambdaTelescope preDef.value fun xs _ => do
@@ -47,7 +48,7 @@ private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonR
       let arg ← mkSum 0 domain
       mkLambdaFVars xs (mkApp (mkAppN (mkConst preDefNonRec.declName us) xs[:fixedPrefixSize]) arg)
     trace[Elab.definition.wf] "{preDef.declName} := {value}"
-    addNonRec { preDef with value } (applyAttrAfterCompilation := false)
+    addNonRec { preDef with value } (applyAttrAfterCompilation := false) (all := all)
 
 partial def withCommonTelescope (preDefs : Array PreDefinition) (k : Array Expr → Array Expr → TermElabM α) : TermElabM α :=
   go #[] (preDefs.map (·.value))

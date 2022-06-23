@@ -409,6 +409,16 @@ def isInductive : ConstantInfo → Bool
   | inductInfo _ => true
   | _            => false
 
+/--
+  List of all (including this one) declarations in the same mutual block.
+-/
+def all : ConstantInfo → List Name
+  | inductInfo val => val.all
+  | defnInfo val   => val.all
+  | thmInfo val    => val.all
+  | opaqueInfo val => val.all
+  | _              => []
+
 @[extern "lean_instantiate_type_lparams"]
 opaque instantiateTypeLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr
 

@@ -61,7 +61,7 @@ structure WorkerContext where
   hIn              : FS.Stream
   hOut             : FS.Stream
   hLog             : FS.Stream
-  srcSearchPath    : Task SearchPath
+  headerTask       : Task (Except Error (Snapshot × SearchPath))
   initParams       : InitializeParams
   clientHasWidgets : Bool
 
@@ -250,8 +250,7 @@ section Initialization
       { hIn  := i
         hOut := o
         hLog := e
-        -- OK to swallow exception here as we usually wait on the first component as well
-        srcSearchPath := headerTask.map (match · with | Except.ok (_, p) => p | _ => ∅)
+        headerTask
         initParams
         clientHasWidgets
       }
@@ -400,23 +399,26 @@ section MessageHandling
             message := toString e }
       return
 
-    let rc : RequestContext :=
-      { rpcSessions := st.rpcSessions
-        srcSearchPath := ctx.srcSearchPath
-        doc := st.doc
-        hLog := ctx.hLog
-        initParams := ctx.initParams }
-    let t? ← EIO.toIO' <| handleLspRequest method params rc
-    let t₁ ← match t? with
-      | Except.error e =>
-        IO.asTask do
-          ctx.hOut.writeLspResponseError <| e.toLspResponseError id
-      | Except.ok t => (IO.mapTask · t) fun
-        | Except.ok resp =>
-          ctx.hOut.writeLspResponse ⟨id, resp⟩
-        | Except.error e =>
-          ctx.hOut.writeLspResponseError <| e.toLspResponseError id
-    queueRequest id t₁
+    -- we assume that every request requires at least the header snapshot or the search path
+    let t ← IO.bindTask ctx.headerTask fun x => do
+     let (_, srcSearchPath) ← IO.ofExcept x
+     let rc : RequestContext :=
+       { rpcSessions := st.rpcSessions
+         srcSearchPath
+         doc := st.doc
+         hLog := ctx.hLog
+         initParams := ctx.initParams }
+     let t? ← EIO.toIO' <| handleLspRequest method params rc
+     let t₁ ← match t? with
+       | Except.error e =>
+         IO.asTask do
+           ctx.hOut.writeLspResponseError <| e.toLspResponseError id
+       | Except.ok t => (IO.mapTask · t) fun
+         | Except.ok resp =>
+           ctx.hOut.writeLspResponse ⟨id, resp⟩
+         | Except.error e =>
+           ctx.hOut.writeLspResponseError <| e.toLspResponseError id
+    queueRequest id t
 end MessageHandling
 
 section MainLoop

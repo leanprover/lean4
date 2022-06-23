@@ -56,8 +56,7 @@ def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
 
 structure RequestContext where
   rpcSessions   : Std.RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
-  -- Will be ready when we have at least the header snapshot, so in requests we can usually block on it using `Task.get`.
-  srcSearchPath : Task SearchPath
+  srcSearchPath : SearchPath
   doc           : FileWorker.EditableDocument
   hLog          : IO.FS.Stream
   initParams    : Lsp.InitializeParams

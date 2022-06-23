@@ -60,8 +60,12 @@
         dontInstall = true;
       };
       leanInk = (buildLeanPackage {
-        name = "LeanInk";
+        name = "Main";
         src = inputs.leanInk;
+        deps = [ (buildLeanPackage {
+          name = "LeanInk";
+          src = inputs.leanInk;
+        }) ];
         executableName = "leanInk";
         linkFlags = ["-rdynamic"];
       }).executable;

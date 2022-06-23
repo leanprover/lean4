@@ -66,7 +66,7 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
   let text := doc.meta.text
 
   let locationLinksFromDecl (i : Elab.Info) (n : Name) :=
-    locationLinksFromDecl rc.srcSearchPath.get doc.meta.uri n <| (·.toLspRange text) <$> i.range?
+    locationLinksFromDecl rc.srcSearchPath doc.meta.uri n <| (·.toLspRange text) <$> i.range?
 
   let locationLinksFromBinder (i : Elab.Info) (id : FVarId) := do
     if let some i' := infoTree? >>= InfoTree.findInfo? fun
@@ -85,7 +85,7 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
 
   let locationLinksFromImport (i : Elab.Info) := do
     let name := i.stx[2].getId
-    if let some modUri ← documentUriFromModule rc.srcSearchPath.get name then
+    if let some modUri ← documentUriFromModule rc.srcSearchPath name then
       let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
       let ll : LocationLink := {
         originSelectionRange? := (·.toLspRange text) <$> i.stx[2].getRange? (originalOnly := true)

@@ -350,11 +350,11 @@ def mkAuxDefinition (name : Name) (type : Expr) (value : Expr) (zeta : Bool := f
   let result ← Closure.mkValueTypeClosure type value zeta
   let env ← getEnv
   let decl := Declaration.defnDecl {
-    name        := name,
-    levelParams := result.levelParams.toList,
-    type        := result.type,
-    value       := result.value,
-    hints       := ReducibilityHints.regular (getMaxHeight env result.value + 1),
+    name        := name
+    levelParams := result.levelParams.toList
+    type        := result.type
+    value       := result.value
+    hints       := ReducibilityHints.regular (getMaxHeight env result.value + 1)
     safety      := if env.hasUnsafe result.type || env.hasUnsafe result.value then DefinitionSafety.unsafe else DefinitionSafety.safe
   }
   addDecl decl

@@ -65,10 +65,10 @@ def declareTacticSyntax (tactic : Syntax) : TermElabM Name :=
     let name ← MonadQuotation.addMacroScope `_auto
     let type := Lean.mkConst `Lean.Syntax
     let tactic ← quoteAutoTactic tactic
-    let val ← elabTerm tactic type
-    let val ← instantiateMVars val
-    trace[Elab.autoParam] val
-    let decl := Declaration.defnDecl { name := name, levelParams := [], type := type, value := val, hints := ReducibilityHints.opaque,
+    let value ← elabTerm tactic type
+    let value ← instantiateMVars value
+    trace[Elab.autoParam] value
+    let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := .opaque,
                                        safety := DefinitionSafety.safe }
     addDecl decl
     compileDecl decl

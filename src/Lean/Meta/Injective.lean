@@ -101,8 +101,9 @@ private def mkInjectiveTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
   let some type ← mkInjectiveTheoremType? ctorVal
     | return ()
   let value ← mkInjectiveTheoremValue ctorVal.name type
+  let name := mkInjectiveTheoremNameFor ctorVal.name
   addDecl <| Declaration.thmDecl {
-    name        := mkInjectiveTheoremNameFor ctorVal.name
+    name
     levelParams := ctorVal.levelParams
     type        := (← instantiateMVars type)
     value       := (← instantiateMVars value)

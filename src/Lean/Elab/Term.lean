@@ -1590,9 +1590,9 @@ unsafe def evalExpr (α) (typeName : Name) (value : Expr) : TermElabM α :=
     unless type.isConstOf typeName do
       throwError "unexpected type at evalExpr{indentExpr type}"
     let decl := Declaration.defnDecl {
-       name := name, levelParams := [], type := type,
-       value := value, hints := ReducibilityHints.opaque,
-       safety := DefinitionSafety.unsafe
+       name, levelParams := [], type
+       value, hints := ReducibilityHints.opaque,
+       safety := .unsafe
     }
     ensureNoUnassignedMVars decl
     addAndCompile decl

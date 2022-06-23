@@ -30,11 +30,16 @@ private partial def floatOutAntiquotTerms : Syntax → StateT (Syntax → TermEl
     return Syntax.node i k (← args.mapM floatOutAntiquotTerms)
   | stx => pure stx
 
-private def getSepFromSplice (splice : Syntax) : Syntax :=
+private def getSepFromSplice (splice : Syntax) : String :=
   if let Syntax.atom _ sep := getAntiquotSpliceSuffix splice then
-    Syntax.mkStrLit (sep.dropRight 1)
+    sep.dropRight 1 -- drop trailing *
   else
     unreachable!
+
+private def getSepStxFromSplice (splice : Syntax) : Syntax := Unhygienic.run do
+  match getSepFromSplice splice with
+  | "" => `(mkNullNode) -- sepByIdent uses the null node for separator-less enumerations
+  | sep => `(mkAtom $(.mkStrLit sep))
 
 partial def mkTuple : Array Syntax → TermElabM Syntax
   | #[]  => `(Unit.unit)
@@ -119,7 +124,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
               | some x => Array.empty.push x
               | none   => Array.empty)
             | `many     => return getAntiquotTerm antiquot
-            | `sepBy    => `(@SepArray.elemsAndSeps $(getSepFromSplice arg) $(getAntiquotTerm antiquot))
+            | `sepBy    => `(@SepArray.elemsAndSeps $(quote <| getSepFromSplice arg) $(getAntiquotTerm antiquot))
             | k         => throwErrorAt arg "invalid antiquotation suffix splice kind '{k}'"
         else if k == nullKind && isAntiquotSplice arg then
           let k := antiquotSpliceKind? arg
@@ -136,7 +141,7 @@ private partial def quoteSyntax : Syntax → TermElabM Syntax
               let arr ← ids[:ids.size-1].foldrM (fun id arr => `(Array.zip $id $arr)) ids.back
               `(Array.map (fun $(← mkTuple ids) => $(inner[0])) $arr)
           let arr ← if k == `sepBy then
-            `(mkSepArray $arr (mkAtom $(getSepFromSplice arg)))
+            `(mkSepArray $arr $(getSepStxFromSplice arg))
           else
             pure arr
           let arr ← bindLets arr
@@ -306,7 +311,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       unconditionally fun rhs => match antiquotSuffixSplice? quoted[0] with
         | `optional => `(let $anti := Syntax.getOptional? discr; $rhs)
         | `many     => `(let $anti := Syntax.getArgs discr; $rhs)
-        | `sepBy    => `(let $anti := @SepArray.mk $(getSepFromSplice quoted[0]) (Syntax.getArgs discr); $rhs)
+        | `sepBy    => `(let $anti := @SepArray.mk $(quote <| getSepFromSplice quoted[0]) (Syntax.getArgs discr); $rhs)
         | k         => throwErrorAt quoted "invalid antiquotation suffix splice kind '{k}'"
     else if quoted.getArgs.size == 1 && isAntiquotSplice quoted[0] then pure {
       check   := other pat,

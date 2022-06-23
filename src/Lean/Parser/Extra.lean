@@ -58,9 +58,11 @@ attribute [runBuiltinParserAttributeHooks]
   withPosition $ many (checkColGe "irrelevant" >> p)
 
 @[runBuiltinParserAttributeHooks, inline] def sepByIndent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
+  let p := withAntiquotSpliceAndSuffix `sepBy p (symbol "*")
   withPosition $ sepBy (checkColGe "irrelevant" >> p) sep (psep <|> checkLinebreakBefore >> pushNone) allowTrailingSep
 
 @[runBuiltinParserAttributeHooks, inline] def sepBy1Indent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
+  let p := withAntiquotSpliceAndSuffix `sepBy p (symbol "*")
   withPosition $ sepBy1 (checkColGe "irrelevant" >> p) sep (psep <|> checkLinebreakBefore >> pushNone) allowTrailingSep
 
 @[runBuiltinParserAttributeHooks] abbrev notSymbol (s : String) : Parser :=

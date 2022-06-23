@@ -56,6 +56,7 @@ static lean_object* l_Lean_instInhabitedAxiomVal___closed__1;
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_value_x3f___boxed(lean_object*);
 static lean_object* l___private_Lean_Declaration_0__Lean_reprDefinitionSafety____x40_Lean_Declaration___hyg_279____closed__20;
 LEAN_EXPORT lean_object* l_Lean_instInhabitedOpaqueVal;
+LEAN_EXPORT lean_object* l_Lean_ConstantInfo_all___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RecursorVal_getMajorIdx___boxed(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RecursorVal_getFirstMinorIdx(lean_object*);
@@ -163,6 +164,7 @@ LEAN_EXPORT lean_object* l_Lean_instReprDefinitionSafety;
 LEAN_EXPORT lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedQuotVal___closed__1;
+LEAN_EXPORT lean_object* l_Lean_ConstantInfo_all(lean_object*);
 LEAN_EXPORT uint8_t lean_is_unsafe_inductive_decl(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedConstantVal;
 LEAN_EXPORT lean_object* l_Lean_Declaration_foldExprM___rarg___lambda__4(lean_object*, lean_object*, lean_object*);
@@ -2794,6 +2796,60 @@ x_2 = l_Lean_ConstantInfo_isInductive(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_ConstantInfo_all(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 1:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_ctor_get(x_1, 0);
+x_3 = lean_ctor_get(x_2, 3);
+lean_inc(x_3);
+return x_3;
+}
+case 2:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_1, 0);
+x_5 = lean_ctor_get(x_4, 2);
+lean_inc(x_5);
+return x_5;
+}
+case 3:
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_ctor_get(x_1, 0);
+x_7 = lean_ctor_get(x_6, 2);
+lean_inc(x_7);
+return x_7;
+}
+case 5:
+{
+lean_object* x_8; lean_object* x_9; 
+x_8 = lean_ctor_get(x_1, 0);
+x_9 = lean_ctor_get(x_8, 3);
+lean_inc(x_9);
+return x_9;
+}
+default: 
+{
+lean_object* x_10; 
+x_10 = lean_box(0);
+return x_10;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_ConstantInfo_all___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_ConstantInfo_all(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_ConstantInfo_instantiateTypeLevelParams___boxed(lean_object* x_1, lean_object* x_2) {

@@ -21,11 +21,6 @@ def LocalDecl.collectFVars (localDecl : LocalDecl) : StateRefT CollectFVars.Stat
 
 namespace Meta
 
-def collectUsedFVarsAtFVars (fvars : Array Expr) : StateRefT CollectFVars.State MetaM Unit :=
-  fvars.forM fun fvar => do
-    let fvarType ← inferType fvar
-    fvarType.collectFVars
-
 def removeUnused (vars : Array Expr) (used : CollectFVars.State) : MetaM (LocalContext × LocalInstances × Array Expr) := do
   let localInsts ← getLocalInstances
   let lctx ← getLCtx

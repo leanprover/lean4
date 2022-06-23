@@ -3,7 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
-import Std.Data.HashMap
+import Lake.Util.Name
 import Lake.Util.String
 import Lake.Build.TargetTypes
 import Lake.Config.Glob
@@ -274,6 +274,8 @@ structure Package where
   dir : FilePath
   /-- The package's configuration. -/
   config : PackageConfig
+  /-- The package's well-formed name. -/
+  name : WfName := WfName.ofName config.name
   /-- Scripts for the package. -/
   scripts : NameMap Script := {}
   /-- Lean library targets for the package. -/
@@ -323,10 +325,6 @@ that permits more dynamic configurations, including performing `IO`.
 def IOPackager := (pkgDir : FilePath) → (args : List String) → IO PackageConfig
 
 namespace Package
-
-/-- The package's `name` configuration. -/
-def name (self : Package) : Name :=
-  self.config.name
 
 /-- The package's `dependencies` configuration. -/
 def dependencies (self : Package) : Array Dependency :=

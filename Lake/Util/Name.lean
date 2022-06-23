@@ -127,6 +127,10 @@ def anonymous : WfName :=
 
 instance : Inhabited WfName := ⟨anonymous⟩
 
+def isAnonymous : WfName → Bool
+| ⟨.anonymous, _⟩ => true
+| _ => false
+
 @[inline] def mkStr : WfName → String → WfName
 | ⟨p, h⟩, s => ⟨Name.mkStr p s, Name.WellFormed.strWff h rfl⟩
 
@@ -138,12 +142,20 @@ def ofName : Name → WfName
 | .str p s _ => mkStr (ofName p) s
 | .num p v _ => mkNum (ofName p) v
 
-protected def hash : WfName → UInt64
+@[inline] protected def toString (escape := true) : WfName → String
+| ⟨n, _⟩ => n.toString escape
+
+@[inline] protected def toStringWithSep (sep : String) (escape := true) : WfName → String
+| ⟨n, _⟩ => n.toStringWithSep sep escape
+
+instance : ToString WfName := ⟨(·.toString)⟩
+
+@[inline] protected def hash : WfName → UInt64
 | ⟨n, _⟩ => n.hash
 
 instance : Hashable WfName := ⟨WfName.hash⟩
 
-protected def beq : WfName → WfName → Bool
+@[inline] protected def beq : WfName → WfName → Bool
 | ⟨n, _⟩, ⟨n', _⟩ => n.beq n'
 
 instance : BEq WfName := ⟨WfName.beq⟩
@@ -195,7 +207,7 @@ instance : DecidableEq WfName :=
   | true  => isTrue (eq_of_beq_true h)
   | false => isFalse (ne_of_beq_false h)
 
-def quickCmp : WfName → WfName → Ordering
+@[inline] def quickCmp : WfName → WfName → Ordering
 | ⟨n, _⟩, ⟨n', _⟩ => n.quickCmp n'
 
 theorem eq_of_quickCmp :

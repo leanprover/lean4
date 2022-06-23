@@ -19,10 +19,9 @@ def Package.localTargetsOf (map : NameMap (ActiveBuildTarget α)) (self : Packag
 def Package.mkStaticLibTarget (lib : LeanLibConfig) (self : Package) : FileTarget :=
   let libFile := self.libDir / lib.staticLibFileName
   BuildTarget.mk' libFile do
-    withExtraDepTarget (← self.buildExtraDepsTarget) do
-      let mods ← self.getLibModuleArray lib
-      let oFileTargets := self.localTargetsOf <| ← buildModuleMap mods &`lean.o
-      staticLibTarget libFile oFileTargets |>.materializeAsync
+    let mods ← self.getLibModuleArray lib
+    let oFileTargets := self.localTargetsOf <| ← buildModuleFacetMap mods &`lean.o
+    staticLibTarget libFile oFileTargets |>.materializeAsync
 
 protected def Package.staticLibTarget (self : Package) : FileTarget :=
   self.mkStaticLibTarget self.builtinLibConfig
@@ -46,11 +45,10 @@ def Package.linkTargetsOf
 def Package.mkSharedLibTarget (self : Package) (lib : LeanLibConfig) : FileTarget :=
   let libFile := self.libDir / lib.sharedLibFileName
   BuildTarget.mk' libFile do
-    withExtraDepTarget (← self.buildExtraDepsTarget) do
-      let mods ← self.getLibModuleArray lib
-      let linkTargets ← self.linkTargetsOf <| ← buildModuleMap mods &`lean.o
-      let target := leanSharedLibTarget libFile linkTargets lib.linkArgs
-      target.materializeAsync
+    let mods ← self.getLibModuleArray lib
+    let linkTargets ← self.linkTargetsOf <| ← buildModuleFacetMap mods &`lean.o
+    let target := leanSharedLibTarget libFile linkTargets lib.linkArgs
+    target.materializeAsync
 
 protected def Package.sharedLibTarget (self : Package) : FileTarget :=
   self.mkSharedLibTarget self.builtinLibConfig
@@ -61,18 +59,17 @@ def Package.mkExeTarget (self : Package) (exe : LeanExeConfig) : FileTarget :=
   let exeFile := self.binDir / exe.fileName
   BuildTarget.mk' exeFile do
     let root : Module := ⟨self, WfName.ofName exe.root⟩
-    withExtraDepTarget (← self.buildExtraDepsTarget) do
-      let cTargetMap ← buildModuleMap #[root] &`lean.c
-      let pkgLinkTargets ← self.linkTargetsOf cTargetMap
-      let linkTargets :=
-        if self.isLocalModule exe.root then
-          pkgLinkTargets
-        else
-          let rootTarget := cTargetMap.find? root.name |>.get!
-          let rootLinkTarget := root.mkOTarget <| Target.active rootTarget
-          #[rootLinkTarget] ++ pkgLinkTargets
-      let target := leanExeTarget exeFile linkTargets exe.linkArgs
-      target.materializeAsync
+    let cTargetMap ← buildModuleFacetMap #[root] &`lean.c
+    let pkgLinkTargets ← self.linkTargetsOf cTargetMap
+    let linkTargets :=
+      if self.isLocalModule exe.root then
+        pkgLinkTargets
+      else
+        let rootTarget := cTargetMap.find? root.name |>.get!
+        let rootLinkTarget := root.mkOTarget <| Target.active rootTarget
+        #[rootLinkTarget] ++ pkgLinkTargets
+    let target := leanExeTarget exeFile linkTargets exe.linkArgs
+    target.materializeAsync
 
 protected def Package.exeTarget (self : Package) : FileTarget :=
   self.mkExeTarget self.builtinExeConfig

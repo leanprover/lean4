@@ -22,7 +22,6 @@ abbrev Job := BuildTask BuildTrace
 /-- A Lake context with some additional caching for builds. -/
 structure BuildContext extends Context where
   leanTrace : BuildTrace
-  extraDepJob : Job := pure nilTrace
 
 /-- A transformer to equip a monad with a `BuildContext`. -/
 abbrev BuildT := ReaderT BuildContext

@@ -24,7 +24,7 @@ clean: clean-build clean-tests clean-examples
 clean-tests: clean-62
 
 clean-examples: clean-init clean-hello clean-io clean-deps\
-	clean-git clean-ffi clean-targets clean-bootstrap
+	clean-git clean-ffi clean-targets clean-precompile clean-bootstrap
 
 .PHONY: all test test-ci test-tests test-examples\
 	clean clean-build clean-tests clean-examples build time-build check-lake\
@@ -95,7 +95,7 @@ clean-targets:
 test-precompile:
 	cd examples/precompile && ./test.sh
 
-clean-targets:
+clean-precompile:
 	cd examples/precompile && ./clean.sh
 
 test-scripts:

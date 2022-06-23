@@ -27,6 +27,12 @@ export EqOfCmpWrt (eq_of_cmp_wrt)
 instance [EqOfCmp α cmp] : EqOfCmpWrt α f cmp where
   eq_of_cmp_wrt h := by rw [eq_of_cmp h]
 
+instance [EqOfCmpWrt α id cmp] : EqOfCmp α cmp where
+  eq_of_cmp h := eq_of_cmp_wrt (f := id) h
+
+instance [EqOfCmpWrt α (fun a => a) cmp] : EqOfCmp α cmp where
+  eq_of_cmp h := eq_of_cmp_wrt (f := fun a => a) h
+
 instance : EqOfCmpWrt α (fun _ => α) cmp := ⟨fun _ => rfl⟩
 
 theorem eq_of_compareOfLessAndEq
@@ -50,3 +56,19 @@ theorem String.eq_of_compare
 
 instance : EqOfCmp String compare where
   eq_of_cmp h := String.eq_of_compare h
+
+@[inline]
+def Option.compareWith (cmp : α → α → Ordering) : Option α → Option α → Ordering
+| none,   none    => Ordering.eq
+| none,   some _  => Ordering.lt
+| some _, none    => Ordering.gt
+| some x, some y  => cmp x y
+
+theorem Option.eq_of_compareWith [EqOfCmp α cmp]
+{o o' : Option α} : compareWith cmp o o' = Ordering.eq → o = o' := by
+  unfold compareWith
+  cases o <;> cases o' <;> simp
+  exact eq_of_cmp
+
+instance [EqOfCmp α cmp] : EqOfCmp (Option α) (Option.compareWith cmp) where
+  eq_of_cmp h := Option.eq_of_compareWith h

@@ -12,31 +12,9 @@ namespace Lake
 
 -- # Build Packages
 
-/-- Build the `extraDepTarget` of all dependent packages into a single target. -/
-protected def Package.buildExtraDepsTarget (self : Package) : SchedulerM ActiveOpaqueTarget := do
-  let collect pkg depTargets := do
-    let extraDepTarget ← pkg.extraDepTarget.activate
-    let depTarget ← ActiveTarget.collectOpaqueArray depTargets
-    extraDepTarget.mixOpaqueAsync depTarget
-  let build dep recurse := do
-    let pkg := (← findPackage? dep.name).get!
-    let depTargets ← pkg.dependencies.mapM recurse
-    liftM <| collect pkg depTargets
-  let targetsE ← EStateT.run' (mkRBMap _ _ Name.quickCmp) <|
-    self.dependencies.mapM fun dep => buildTop Dependency.name build dep
-  match targetsE with
-  | Except.ok targets => collect self targets
-  | Except.error _ => panic! "dependency cycle emerged after resolution"
-
-/-- Build the `extraDepTarget` of all workspace packages into a single target. -/
-def buildExtraDepsTarget : SchedulerM ActiveOpaqueTarget := do
-  ActiveTarget.collectOpaqueArray <| ← do
-    (← getWorkspace).packageArray.mapM (·.extraDepTarget.activate)
-
 -- # Build Package Modules
 
-def withExtraDepTarget (depTarget : ActiveOpaqueTarget) (act : BuildT m α) : BuildT m α :=
-  fun ctx => act {ctx with extraDepJob := depTarget.task}
+
 
 def Package.getLibModuleArray (lib : LeanLibConfig) (self : Package) : IO (Array Module) := do
   return (← lib.getModuleArray self.srcDir).map (⟨self, WfName.ofName ·⟩)
@@ -48,13 +26,12 @@ a single opaque target for the whole build.
 -/
 def Package.buildLibModules
 (self : Package) (lib : LeanLibConfig) (facet : WfName)
-[DynamicType FacetData facet (ActiveBuildTarget α)] : SchedulerM Job := do
-  withExtraDepTarget (← self.buildExtraDepsTarget) do
-    let buildMods : BuildM _ := do
-      let mods ← self.getLibModuleArray lib
-      let modTargets ← buildModuleArray mods facet
-      (·.task) <$> ActiveTarget.collectOpaqueArray modTargets
-    buildMods.catchFailure fun _ => pure <| failure
+[DynamicType ModuleData facet (ActiveBuildTarget α)] : SchedulerM Job := do
+  let buildMods : BuildM _ := do
+    let mods ← self.getLibModuleArray lib
+    let modTargets ← buildModuleFacetArray mods facet
+    (·.task) <$> ActiveTarget.collectOpaqueArray modTargets
+  buildMods.catchFailure fun _ => pure <| failure
 
 def Package.mkLibTarget (self : Package) (lib : LeanLibConfig) : OpaqueTarget :=
   Target.opaque <| self.buildLibModules lib &`lean
@@ -65,10 +42,8 @@ def Package.libTarget (self : Package) : OpaqueTarget :=
 -- # Build Specific Modules of the Package
 
 def Module.facetTarget (facet : WfName) (self : Module)
-[DynamicType FacetData facet (ActiveBuildTarget α)] : OpaqueTarget :=
-  BuildTarget.mk' () do
-    withExtraDepTarget (← self.pkg.buildExtraDepsTarget) do
-      return (← buildModule self facet).task
+[DynamicType ModuleData facet (ActiveBuildTarget α)] : OpaqueTarget :=
+  BuildTarget.mk' () do return (← buildModuleFacet self facet).task
 
 @[inline] def Module.oleanTarget (self : Module) : FileTarget :=
   self.facetTarget &`lean |>.withInfo self.oleanFile
@@ -104,16 +79,15 @@ the default package build does not include any binary targets
 Otherwise, also build `.c` files.
 -/
 def Package.buildImportsAndDeps (imports : List String) (self : Package) : BuildM PUnit := do
-  let depTarget ← self.buildExtraDepsTarget
   if imports.isEmpty then
-    -- wait for deps to finish building
-    depTarget.buildOpaque
+    -- build the package's (and its dependencies') `extraDepTarget`
+    buildPackageFacet self &`extraDep >>= (·.buildOpaque)
   else
     -- build local imports from list
     let mods := (← getWorkspace).processImportList imports
     if self.leanExes.isEmpty && self.defaultFacet matches .none | .leanLib | .oleans then
-      let targets ← buildModuleArray mods &`lean
+      let targets ← buildModuleFacetArray mods &`lean
       targets.forM (·.buildOpaque)
     else
-      let targets ← buildModuleArray mods &`lean.c
+      let targets ← buildModuleFacetArray mods &`lean.c
       targets.forM (·.buildOpaque)

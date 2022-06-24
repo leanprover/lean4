@@ -274,7 +274,7 @@ def delabAppImplicit : Delab := do
               let v := param.defVal.get!
               if !v.hasLooseBVars && v == arg then pure none else delab
             else if !param.isRegularExplicit && param.defVal.isNone then
-              if ← getPPOption getPPAnalysisNamedArg <||> (pure (param.name == `motive) <&&> shouldShowMotive arg opts) then mkNamedArg param.name (← delab) else pure none
+              if ← getPPOption getPPAnalysisNamedArg <||> (pure (param.name == `motive) <&&> shouldShowMotive arg opts) then some <$> mkNamedArg param.name (← delab) else pure none
             else delab
       let argStxs := match argStx? with
         | none => argStxs

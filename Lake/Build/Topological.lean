@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Util.Store
+import Lake.Util.EquipT
 
 /-!
 # Topological / Suspending Recursive Builder
@@ -26,7 +27,7 @@ abbrev DBuildFn.{u,v,w} (ι : Type u) (β : ι → Type v) (m : Type v → Type 
 
 /-- A dependently typed recursive object builder. -/
 abbrev DRecBuildFn.{u,v,w} (ι : Type u) (β : ι → Type v) (m : Type v → Type w) :=
-  (i : ι) → DBuildFn ι β m → m (β i)
+  (i : ι) → EquipT (DBuildFn ι β m)  m (β i)
 
 /-- A recursive object builder. -/
 abbrev RecBuildFn ι α m := DRecBuildFn ι (fun _ => α) m

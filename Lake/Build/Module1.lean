@@ -59,11 +59,11 @@ section
 variable [Monad m] [MonadLiftT BuildM m] [MonadBuildStore m]
 
 /-- Build the dynlibs of the imports that want precompilation. -/
-def recBuildPrecompileDynlibs (imports : Array Module)
-(recurse : IndexBuildFn m) : m (Array ActiveFileTarget) := do
+@[specialize] def recBuildPrecompileDynlibs (imports : Array Module)
+: IndexT m (Array ActiveFileTarget) := do
   imports.filterMapM fun imp => do
     if imp.shouldPrecompile then
-      return some <| ← imp.recBuildFacet &`lean.dynlib recurse
+      return some <| ← imp.recBuildFacet &`lean.dynlib
     else
       return none
 
@@ -72,19 +72,19 @@ Recursively build a module and its (transitive, local) imports,
 optionally outputting a `.c` file as well if `c` is set to `true`.
 -/
 @[specialize] def Module.recBuildLean (mod : Module) (c : Bool)
-(recurse : IndexBuildFn m) : m ActiveOpaqueTarget := do
+: IndexT m ActiveOpaqueTarget := do
   have : MonadLift BuildM m := ⟨liftM⟩
-  let extraDepTarget ← mod.pkg.recBuildFacet &`extraDep recurse
-  let (imports, transImports) ← mod.recBuildFacet &`lean.imports recurse
+  let extraDepTarget ← mod.pkg.recBuildFacet &`extraDep
+  let (imports, transImports) ← mod.recBuildFacet &`lean.imports
   let dynlibsTarget ← ActiveTarget.collectArray
-    <| ← recBuildPrecompileDynlibs transImports recurse
+    <| ← recBuildPrecompileDynlibs transImports
   let importTarget ←
     if c then
       ActiveTarget.collectOpaqueArray
-        <| ← imports.mapM (·.recBuildFacet &`lean.c recurse)
+        <| ← imports.mapM (·.recBuildFacet &`lean.c)
     else
       ActiveTarget.collectOpaqueArray
-        <| ← imports.mapM (·.recBuildFacet &`lean recurse)
+        <| ← imports.mapM (·.recBuildFacet &`lean)
   let depTarget := Target.active <| ← extraDepTarget.mixOpaqueAsync
     <| ← dynlibsTarget.mixOpaqueAsync importTarget
   let modTarget ← mod.soloTarget dynlibsTarget.info depTarget c |>.activate
@@ -103,7 +103,7 @@ Recursively parse the Lean files of a module and its imports
 building an `Array` product of its direct and transitive local imports.
 -/
 @[specialize] def Module.recParseImports (mod : Module)
-(recurse : IndexBuildFn m) : m (Array Module × Array Module) := do
+: IndexT m (Array Module × Array Module) := do
   have : MonadLift BuildM m := ⟨liftM⟩
   let contents ← IO.FS.readFile mod.leanFile
   let (imports, _, _) ← Elab.parseImports contents mod.leanFile.toString
@@ -112,7 +112,7 @@ building an `Array` product of its direct and transitive local imports.
   let mut imports := #[]
   let mut transImports := ModuleSet.empty
   for imp in importSet do
-    let (_, impTransImports) ← imp.recBuildFacet &`lean.imports recurse
+    let (_, impTransImports) ← imp.recBuildFacet &`lean.imports
     for imp in impTransImports do
       transImports := transImports.insert imp
     transImports := transImports.insert imp
@@ -123,11 +123,11 @@ building an `Array` product of its direct and transitive local imports.
 Recursively build the shared library of a module (e.g., for `--load-dynlib`).
 -/
 @[specialize] def Module.recBuildDynLib (mod : Module)
-(recurse : IndexBuildFn m) : m ActiveFileTarget := do
+: IndexT m ActiveFileTarget := do
   have : MonadLift BuildM m := ⟨liftM⟩
-  let oTarget ← mod.recBuildFacet &`lean.o recurse
-  let (_, transImports) ← mod.recBuildFacet &`lean.imports recurse
-  let dynlibTargets ← recBuildPrecompileDynlibs transImports recurse
+  let oTarget ← mod.recBuildFacet &`lean.o
+  let (_, transImports) ← mod.recBuildFacet &`lean.imports
+  let dynlibTargets ← recBuildPrecompileDynlibs transImports
   -- TODO: Link in external libraries
   -- let externLibTargets ← mod.pkg.externLibTargets.mapM (·.activate)
   -- let linkTargets := #[oTarget] ++ sharedLibTargets ++ externLibTargets |>.map Target.active

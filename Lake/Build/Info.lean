@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lake.Build.Data
 import Lake.Config.Module
+import Lake.Util.EquipT
 
 namespace Lake
 
@@ -29,20 +30,21 @@ def BuildInfo.key : (self : BuildInfo) → BuildKey
 | package p f => ⟨p.name, none, f⟩
 | target p t f => ⟨p.name, t, f⟩
 
-/-- A build function for a single element of the Lake build index. -/
+/-- A build function for any element of the Lake build index. -/
 abbrev IndexBuildFn (m : Type → Type v) :=
   -- `DBuildFn BuildInfo (BuildData ·.key) m` with less imports
   (info : BuildInfo) → m (BuildData info.key)
 
-@[inline] def Module.recBuildFacet {m : Type → Type v}
-(mod : Module) (facet : WfName) [DynamicType ModuleData facet α]
-(build : (info : BuildInfo) → m (BuildData info.key)) : m α :=
+/-- A transformer to equip a monad with a build function for the Lake index. -/
+abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
+
+@[inline] def Module.recBuildFacet (mod : Module) (facet : WfName)
+[DynamicType ModuleData facet α] : IndexT m α := fun build =>
   let to_data := by unfold BuildData, BuildInfo.key; simp [eq_dynamic_type]
   cast to_data <| build <| BuildInfo.module mod facet
 
-@[inline] def Package.recBuildFacet {m : Type → Type v}
-(pkg : Package) (facet : WfName) [DynamicType PackageData facet α]
-(build : (info : BuildInfo) → m (BuildData info.key)) : m α :=
+@[inline] def Package.recBuildFacet (pkg : Package) (facet : WfName)
+[DynamicType PackageData facet α] : IndexT m α := fun build =>
   let to_data := by unfold BuildData, BuildInfo.key; simp [eq_dynamic_type]
   cast to_data <| build <| BuildInfo.package pkg facet
 

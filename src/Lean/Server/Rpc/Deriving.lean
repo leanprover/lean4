@@ -229,7 +229,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
       -- helpers for type name syntax
       let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
       let typeId := Syntax.mkApp (← `(@$(mkIdent indVal.name))) paramIds
-      let packetAppliedId := Syntax.mkApp (mkIdent packetNm) (st.uniqEncArgTypes.map mkIdent)
+      let packetAppliedId := Syntax.mkApp (mkIdent packetNm) (st.uniqEncArgTypes.map (mkIdent ·))
 
       `(variable $st.binders*
 

@@ -170,7 +170,7 @@ macro_rules
 macro_rules
   | `(%[ $[$x],* | $k ]) =>
     if x.size < 8 then
-      x.foldrM (init := k) fun x k =>
+      x.foldrM (β := TSyntax `term) (init := k) fun x k =>
         `(List.cons $x $k)
     else
       let m := x.size / 2

@@ -47,7 +47,7 @@ private def getSepFromSplice (splice : Syntax) : String :=
 private def getSepStxFromSplice (splice : Syntax) : Syntax := Unhygienic.run do
   match getSepFromSplice splice with
   | "" => `(mkNullNode) -- sepByIdent uses the null node for separator-less enumerations
-  | sep => `(mkAtom $(.mkStrLit sep))
+  | sep => `(mkAtom $(Syntax.mkStrLit sep))
 
 partial def mkTuple : Array Syntax → TermElabM Syntax
   | #[]  => `(Unit.unit)
@@ -151,7 +151,7 @@ private partial def quoteSyntax : Syntax → TermElabM (TSyntax `term)
                 | $[some $ids:ident],* => $(quote inner)
                 | $[_%$ids],*          => Array.empty)
             | _ =>
-              let arr ← ids[:ids.size-1].foldrM (fun id arr => `(Array.zip $id $arr)) ids.back
+              let arr ← ids[:ids.size-1].foldrM (fun id arr => `(Array.zip $id:ident $arr)) ids.back
               `(Array.map (fun $(← mkTuple ids) => $(inner[0])) $arr)
           let arr ← if k == `sepBy then
             `(mkSepArray $arr $(getSepStxFromSplice arg))

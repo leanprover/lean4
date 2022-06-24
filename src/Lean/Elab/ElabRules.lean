@@ -88,9 +88,9 @@ def elabElab : CommandElab
     let name ← match name? with
       | some name => pure name.getId
       | none => liftMacroM <| mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
-    let pat := mkNode ((← getCurrNamespace) ++ name) patArgs
-    `($[$doc?:docComment]? $attrKind:attrKind syntax$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio)) $[$stxParts]* : $cat
-      $[$doc?:docComment]? elab_rules : $cat $[<= $expectedType?]? | `($pat) => $rhs) >>= elabCommand
+    let pat := ⟨mkNode ((← getCurrNamespace) ++ name) patArgs⟩
+    `($[$doc?:docComment]? $attrKind:attrKind syntax$[:$prec?]? (name := $(← mkIdentFromRef name)) (priority := $(quote prio):num) $[$stxParts]* : $cat
+      $[$doc?:docComment]? elab_rules : $cat $[<= $expectedType?]? | `($pat) => $rhs) >>= (elabCommand ·)
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Command

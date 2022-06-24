@@ -58,7 +58,7 @@ where
         for _ in [:indVal.numIndices] do
           patterns := patterns.push (← `(_))
         let mut ctorArgs := #[]
-        let mut rhs := Syntax.mkStrLit (toString ctorInfo.name)
+        let mut rhs : TSyntax `term := Syntax.mkStrLit (toString ctorInfo.name)
         rhs ← `(Format.text $rhs)
         -- add `_` for inductive parameters, they are inaccessible
         for _ in [:indVal.numParams] do

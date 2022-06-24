@@ -373,9 +373,8 @@ opaque elabEval : CommandElab
   modify fun s => { s with maxRecDepth := maxRecDepth.get options }
   modifyScope fun scope => { scope with opts := options }
 
-@[builtinMacro Lean.Parser.Command.«in»] def expandInCmd : Macro := fun stx => do
-  let cmd₁ := stx[0]
-  let cmd₂ := stx[2]
-  `(section $cmd₁:command $cmd₂:command end)
+@[builtinMacro Lean.Parser.Command.«in»] def expandInCmd : Macro
+  | `($cmd₁ in $cmd₂) => `(section $cmd₁:command $cmd₂ end)
+  | _                 => Macro.throwUnsupported
 
 end Lean.Elab.Command

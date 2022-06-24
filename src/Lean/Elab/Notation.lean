@@ -25,14 +25,10 @@ private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
     | stx => stx
 
 /- Convert `notation` command lhs item into a `syntax` command item -/
-def expandNotationItemIntoSyntaxItem (stx : Syntax) : MacroM Syntax :=
-  let k := stx.getKind
-  if k == `Lean.Parser.Command.identPrec then
-    pure $ mkNode `Lean.Parser.Syntax.cat #[mkIdentFrom stx `term,  stx[1]]
-  else if k == strLitKind then
-    pure $ mkNode `Lean.Parser.Syntax.atom #[stx]
-  else
-    Macro.throwUnsupported
+def expandNotationItemIntoSyntaxItem : TSyntax ``notationItem → MacroM (TSyntax `stx)
+  | `(notationItem| $id:ident$[:$prec?]?) => `(stx| term $[:$prec?]?)
+  | `(notationItem| $s:str)               => `(stx| $s:str)
+  | _                                     => Macro.throwUnsupported
 
 /- Convert `notation` command lhs item into a pattern element -/
 def expandNotationItemIntoPattern (stx : Syntax) : MacroM Syntax :=

@@ -181,18 +181,20 @@ where
         return .ext ext
       else
         return .none
-    if simpArgTerm.isIdent then
+    match simpArgTerm with
+    | `($id:ident) =>
       try
         if let some e ← Term.resolveId? simpArgTerm (withInfo := true) then
           return .expr e
         else
-          resolveExt simpArgTerm.getId.eraseMacroScopes
+          resolveExt id.getId.eraseMacroScopes
       catch _ =>
-        resolveExt simpArgTerm.getId.eraseMacroScopes
-    else if let some e ← Term.elabCDotFunctionAlias? simpArgTerm then
-      return .expr e
-    else
-      return .none
+        resolveExt id.getId.eraseMacroScopes
+    | _ =>
+      if let some e ← Term.elabCDotFunctionAlias? simpArgTerm then
+        return .expr e
+      else
+        return .none
 
 structure MkSimpContextResult where
   ctx              : Simp.Context

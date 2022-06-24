@@ -34,13 +34,8 @@ where
     else
       return none
 
-  alreadyVisited (fvarId : FVarId) : StateRefT Nat (StateRefT CollectFVars.State MetaM) Bool := do
-    let s ← getThe CollectFVars.State
-    return s.visitedExpr.contains (mkFVar fvarId)
-
   go : StateRefT Nat (StateRefT CollectFVars.State MetaM) Unit := do
     let some fvarId ← getNext? | return ()
-    if (← alreadyVisited fvarId) then return ()
     /- We don't use `getLocalDecl` because `CollectFVars.State` may contains local variables that are not in the
        current local context. Recall that we use this method to process match-expressions, and each AltLHS has
        each own its extra local declarations. -/

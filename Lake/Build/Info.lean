@@ -54,10 +54,10 @@ abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
 module_data lean : ActiveOpaqueTarget
 
 /-- The `olean` file produced by `lean`  -/
-module_data olean : ActiveOpaqueTarget
+module_data olean : ActiveFileTarget
 
 /-- The `ilean` file produced by `lean` -/
-module_data ilean : ActiveOpaqueTarget
+module_data ilean : ActiveFileTarget
 
 /-- The C file built from the Lean file via `lean` -/
 module_data lean.c : ActiveFileTarget

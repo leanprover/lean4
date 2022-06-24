@@ -82,8 +82,8 @@ optionally outputting a `.c` file as well if `c` is set to `true`.
     <| ← dynlibsTarget.mixOpaqueAsync importTarget
   let modTarget ← mod.soloTarget dynlibsTarget.info depTarget c |>.activate
   store (mod.mkBuildKey &`lean) modTarget
-  store (mod.mkBuildKey &`olean) modTarget
-  store (mod.mkBuildKey &`ilean) modTarget
+  store (mod.mkBuildKey &`olean) <| modTarget.withInfo mod.oleanFile
+  store (mod.mkBuildKey &`ilean) <| modTarget.withInfo mod.ileanFile
   if c then
     let cTarget ← mod.mkCTarget (Target.active modTarget) |>.activate
     store (mod.mkBuildKey &`lean.c) cTarget

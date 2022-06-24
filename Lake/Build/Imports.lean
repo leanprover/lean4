@@ -26,21 +26,12 @@ def Workspace.processImportList
   return localImports
 
 /--
-Whether the package is "lean-only".
-That is, whether it has no need to build native files (e.g. `.c`).
-A package is considered lean-only if the package does not include any executable
-targets and is not precompiled.
--/
-def Package.isLeanOnly (self : Package): Bool :=
-  self.leanExes.isEmpty && self.defaultFacet matches .none | .leanLib | .oleans
-
-/--
 Builds the workspace-local modules of list of imports.
 Used by `lake print-paths` to build modules for the Lean server.
 Returns the set of module dynlibs built (so they can be loaded by the server).
 
-Builds only module `.olean` and `.ilean` files if the package is "lean-only"
-(see `isLeanOnly`). Otherwise, also build `.c` files.
+Builds only module `.olean` and `.ilean` files if the package is configured
+as "Lean-only". Otherwise, also build `.c` and `.o` files.
 -/
 def Package.buildImportsAndDeps (imports : List String) (self : Package) : BuildM (Array FilePath) := do
   if imports.isEmpty then
@@ -53,10 +44,10 @@ def Package.buildImportsAndDeps (imports : List String) (self : Package) : Build
     let (res, bStore) ← EStateT.run BuildStore.empty <| mods.mapM fun mod =>
       if mod.shouldPrecompile then
         buildModuleTop mod &`lean.dynlib <&> (·.withoutInfo)
-      else if self.isLeanOnly then
-        buildModuleTop mod &`lean.c <&> (·.withoutInfo)
-      else
+      else if mod.isLeanOnly then
         buildModuleTop mod &`lean
+      else
+        buildModuleTop mod &`lean.o <&> (·.withoutInfo)
     let importTargets ← failOnBuildCycle res
     let dynlibTargets := bStore.collectModuleFacetArray &`lean.dynlib
     importTargets.forM (·.buildOpaque)

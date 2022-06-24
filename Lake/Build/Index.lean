@@ -75,9 +75,15 @@ the initial set of Lake module facets (e.g., `lean.{imports, c, o, dynlib]`).
   -- Compute unique imports (direct × transitive)
   |>.insert &`lean.imports (mkModuleFacetBuild (·.recParseImports))
   -- Build module (`.olean` and `.ilean`)
-  |>.insert &`lean (mkModuleFacetBuild (·.recBuildLean false))
-  |>.insert &`olean (mkModuleFacetBuild (·.recBuildFacet &`lean))
-  |>.insert &`ilean (mkModuleFacetBuild (·.recBuildFacet &`lean))
+  |>.insert &`lean (mkModuleFacetBuild (fun mod => do
+    mod.recBuildLean !mod.isLeanOnly
+  ))
+  |>.insert &`olean (mkModuleFacetBuild (fun mod => do
+    mod.recBuildLean (!mod.isLeanOnly) <&> (·.withInfo mod.oleanFile)
+  ))
+  |>.insert &`ilean (mkModuleFacetBuild (fun mod => do
+    mod.recBuildLean (!mod.isLeanOnly) <&> (·.withInfo mod.ileanFile)
+  ))
   -- Build module `.c` (and `.olean` and `.ilean`)
   |>.insert &`lean.c (mkModuleFacetBuild <| fun mod => do
     mod.recBuildLean true <&> (·.withInfo mod.cFile)

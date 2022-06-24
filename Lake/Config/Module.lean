@@ -66,6 +66,9 @@ def dynlib (self : Module) : FilePath :=
 @[inline] def shouldPrecompile (self : Module) : Bool :=
   self.pkg.precompileModules
 
+@[inline] def isLeanOnly (self : Module) : Bool :=
+  self.pkg.isLeanOnly && !self.shouldPrecompile
+
 -- ## Trace Helpers
 
 protected def getMTime (self : Module) : IO MTime := do

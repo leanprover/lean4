@@ -104,6 +104,16 @@ structure PackageConfig extends WorkspaceConfig where
   precompileModules : Bool := false
 
   /--
+  Whether the package is "Lean-only". A Lean-only package does not produce
+  native files for modules (e.g. `.c`, `.o`).
+
+  Defaults to `false`. Setting `precompileModules` to `true` will override this
+  setting and produce native files anyway (as they are needed to build module
+  dynlibs).
+  -/
+  isLeanOnly : Bool := false
+
+  /--
   Additional arguments to pass to the Lean language server
   (i.e., `lean --server`) launched by `lake server`.
   -/
@@ -326,27 +336,27 @@ def IOPackager := (pkgDir : FilePath) → (args : List String) → IO PackageCon
 namespace Package
 
 /-- The package's `dependencies` configuration. -/
-def dependencies (self : Package) : Array Dependency :=
+@[inline] def dependencies (self : Package) : Array Dependency :=
   self.config.dependencies
 
 /-- The package's `extraDepTarget` configuration. -/
-def extraDepTarget (self : Package) : OpaqueTarget :=
+@[inline] def extraDepTarget (self : Package) : OpaqueTarget :=
   self.config.extraDepTarget
 
 /-- The package's `defaultFacet` configuration. -/
-def defaultFacet (self : Package) : PackageFacet :=
+@[inline] def defaultFacet (self : Package) : PackageFacet :=
    self.config.defaultFacet
 
 /-- Get the package's library configuration with the given name. -/
-def findLeanLib? (name : Name) (self : Package) : Option LeanLibConfig :=
+@[inline] def findLeanLib? (name : Name) (self : Package) : Option LeanLibConfig :=
   self.leanLibs.find? name
 
 /-- Get the package's executable configuration with the given name. -/
-def findLeanExe? (name : Name) (self : Package) : Option LeanExeConfig :=
+@[inline] def findLeanExe? (name : Name) (self : Package) : Option LeanExeConfig :=
   self.leanExes.find? name
 
 /-- Get the package's external library target with the given name. -/
-def findExternLib? (name : Name) (self : Package) : Option ExternLibConfig :=
+@[inline] def findExternLib? (name : Name) (self : Package) : Option ExternLibConfig :=
   self.externLibs.find? name
 
 /-- Get an `Array` of the package's external library targets. -/
@@ -355,59 +365,63 @@ def externLibTargets (self : Package) : Array FileTarget :=
   self.config.moreLibTargets
 
 /-- The package's `precompileModules` configuration. -/
-def precompileModules (self : Package) : Bool :=
+@[inline] def precompileModules (self : Package) : Bool :=
   self.config.precompileModules
 
+/-- The package's `isLeanOnly` configuration. -/
+@[inline] def isLeanOnly (self : Package) : Bool :=
+  self.config.isLeanOnly
+
 /-- The package's `moreServerArgs` configuration. -/
-def moreServerArgs (self : Package) : Array String :=
+@[inline] def moreServerArgs (self : Package) : Array String :=
   self.config.moreServerArgs
 
 /-- The package's `dir` joined with its `srcDir` configuration. -/
-def srcDir (self : Package) : FilePath :=
+@[inline] def srcDir (self : Package) : FilePath :=
   self.dir / self.config.srcDir
 
 /-- The package's root directory for `lean` (i.e., `srcDir`). -/
-def rootDir (self : Package) : FilePath :=
+@[inline] def rootDir (self : Package) : FilePath :=
   self.srcDir
 
 /-- The package's `dir` joined with its `buildDir` configuration. -/
-def buildDir (self : Package) : FilePath :=
+@[inline] def buildDir (self : Package) : FilePath :=
   self.dir / self.config.buildDir
 
 /-- The package's `buildDir` joined with its `oleanDir` configuration. -/
-def oleanDir (self : Package) : FilePath :=
+@[inline] def oleanDir (self : Package) : FilePath :=
   self.buildDir / self.config.oleanDir
 
 /-- The package's `moreLeanArgs` configuration. -/
-def moreLeanArgs (self : Package) : Array String :=
+@[inline] def moreLeanArgs (self : Package) : Array String :=
   self.config.moreLeanArgs
 
 /- `-O3`, `-DNDEBUG`, and `moreLeancArgs` -/
-def moreLeancArgs (self : Package) : Array String :=
+@[inline] def moreLeancArgs (self : Package) : Array String :=
   #["-O3", "-DNDEBUG"] ++ self.config.moreLeancArgs
 
 /-- The package's `buildDir` joined with its `irDir` configuration. -/
-def irDir (self : Package) : FilePath :=
+@[inline] def irDir (self : Package) : FilePath :=
   self.buildDir / self.config.irDir
 
 /-- The package's `buildDir` joined with its `libDir` configuration. -/
-def libDir (self : Package) : FilePath :=
+@[inline] def libDir (self : Package) : FilePath :=
   self.buildDir / self.config.libDir
 
 /-- The package's `buildDir` joined with its `binDir` configuration. -/
-def binDir (self : Package) : FilePath :=
+@[inline] def binDir (self : Package) : FilePath :=
   self.buildDir / self.config.binDir
 
 /-- The library configuration built into the package configuration. -/
-def builtinLibConfig (self : Package) : LeanLibConfig :=
+@[inline] def builtinLibConfig (self : Package) : LeanLibConfig :=
   self.config.toLeanLibConfig
 
 /-- The binary executable configuration built into the package configuration. -/
-def builtinExeConfig (self : Package) : LeanExeConfig :=
+@[inline] def builtinExeConfig (self : Package) : LeanExeConfig :=
   self.config.toLeanExeConfig
 
 /-- Get an `Array` of the package's modules. -/
-def getModuleArray (self : Package) : IO (Array Name) :=
+@[inline] def getModuleArray (self : Package) : IO (Array Name) :=
   self.builtinLibConfig.getModuleArray self.srcDir
 
 /-- Whether the given module is considered local to the package. -/

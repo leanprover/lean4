@@ -365,11 +365,8 @@ where
   let goals ← getGoals
   let goalsMsg := MessageData.joinSep (goals.map MessageData.ofGoal) m!"\n\n"
   match stx with
-  | `(tactic| fail)      => throwError "tactic 'fail' failed\n{goalsMsg}"
-  | `(tactic| fail $msg) =>
-    match msg.isStrLit? with
-    | none     => throwIllFormedSyntax
-    | some msg => throwError "{msg}\n{goalsMsg}"
+  | `(tactic| fail)          => throwError "tactic 'fail' failed\n{goalsMsg}"
+  | `(tactic| fail $msg:str) => throwError "{msg.getString}\n{goalsMsg}"
   | _ => throwUnsupportedSyntax
 
 @[builtinTactic dbgTrace] def evalDbgTrace : Tactic := fun stx => do

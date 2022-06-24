@@ -178,13 +178,13 @@ macro_rules
 syntax:min term " <| " term:min : term
 
 macro_rules
-  | `($f $args* <| $a) => let args := args.push a; `($f $args*)
+  | `($f $args* <| $a) => `($f $args* $a)
   | `($f <| $a) => `($f $a)
 
 syntax:min term " |> " term:min1 : term
 
 macro_rules
-  | `($a |> $f $args*) => let args := args.push a; `($f $args*)
+  | `($a |> $f $args*) => `($f $args* $a)
   | `($a |> $f)        => `($f $a)
 
 -- Haskell-like pipe <|
@@ -192,7 +192,7 @@ macro_rules
 syntax:min term atomic(" $" ws) term:min : term
 
 macro_rules
-  | `($f $args* $ $a) => let args := args.push a; `($f $args*)
+  | `($f $args* $ $a) => `($f $args* $a)
   | `($f $ $a) => `($f $a)
 
 syntax "{ " ident (" : " term)? " // " term " }" : term

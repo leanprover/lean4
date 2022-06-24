@@ -365,7 +365,7 @@ def expandNoKindMacroRulesAux (alts : Array (TSyntax ``matchAlt)) (cmdName : Str
     if altsNotK.isEmpty then
       mkCmd k altsK
     else
-      return mkNullNode #[← mkCmd k altsK, ← mkCmd none altsNotK]
+      `($(← mkCmd k altsK):command $(← mkCmd none altsNotK))
 
 def strLitToPattern (stx: Syntax) : MacroM Syntax :=
   match stx.isStrLit? with

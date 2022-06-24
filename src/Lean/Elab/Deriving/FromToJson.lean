@@ -26,7 +26,7 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         let ctx ← mkContext "toJson" declNames[0]
         let header ← mkHeader ``ToJson 1 ctx.typeInfos[0]
         let fields := getStructureFieldsFlattened (← getEnv) declNames[0] (includeSubobjectFields := false)
-        let fields : Array Syntax ← fields.mapM fun field => do
+        let fields ← fields.mapM fun field => do
           let (isOptField, nm) := mkJsonField field
           if isOptField then ``(opt $nm $(mkIdent <| header.targetNames[0] ++ field))
           else ``([($nm, toJson $(mkIdent <| header.targetNames[0] ++ field))])

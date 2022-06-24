@@ -658,12 +658,9 @@ where
       if inaccessible? p |>.isSome then
         return mkMData k (← withReader (fun _ => false) (go b))
       else if let some (stx, p) := patternWithRef? p then
-        let p ← go p
-        if p.isFVar && !(← read) then
+        Elab.withInfoContext' (go p) fun p => do
           /- If `p` is a free variable and we are not inside of an "inaccessible" pattern, this `p` is a binder. -/
-          addTermInfo stx p (isBinder := true)
-        else
-          addTermInfo stx p
+          mkTermInfo Name.anonymous stx p (isBinder := p.isFVar && !(← read))
       else
         return mkMData k (← go b)
     | _ => return p
